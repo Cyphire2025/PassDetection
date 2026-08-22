@@ -18,6 +18,7 @@ module.exports = {
     '!src/**/*.d.ts',
     '!src/app/**/_layout.tsx',
   ],
+  coverageReporters: ['text-summary', 'json-summary'],
   // This is a regression ratchet over the measured enterprise-hardening
   // baseline, not a claim that aggregate coverage alone proves correctness.
   // Critical security/sync/storage paths also carry focused contract, race,

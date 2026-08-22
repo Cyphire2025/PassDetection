@@ -2,7 +2,10 @@
  * Browser session state
  * =====================
  * Coordinates cleanup for data that must never survive an account change or
- * logout. Authentication cookies remain backend-owned and httpOnly.
+ * logout. The owner-scoped attendance queue is deliberately excluded: auth
+ * loss preserves it for same-account recovery, while queue APIs fence access
+ * to the currently authenticated owner. Authentication cookies remain
+ * backend-owned and httpOnly.
  */
 
 export const SENSITIVE_STATE_RESET_EVENT = "passdetection:sensitive-state-reset";
@@ -12,7 +15,6 @@ const SESSION_RESET_CHANNEL = "passdetection-session-reset";
 const SESSION_RESET_STORAGE_KEY = "pd:session-reset";
 const APP_STORAGE_PREFIX = "passdetection";
 const APP_CACHE_PREFIX = "passdetection-";
-const TOUR_OPERATIONS_DB = "passdetection-tour-ops";
 
 export type SensitiveStateResetReason = "account_changed" | "logout" | "session_expired";
 
@@ -183,38 +185,9 @@ async function clearPersistentAppData() {
     );
   }
 
-  if ("indexedDB" in window) {
-    tasks.push(deleteIndexedDb(TOUR_OPERATIONS_DB));
-  }
-
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.controller?.postMessage({ type: "CLEAR_SENSITIVE_CACHES" });
   }
 
   await Promise.allSettled(tasks);
-}
-
-function deleteIndexedDb(name: string) {
-  return new Promise<void>((resolve) => {
-    let request: IDBOpenDBRequest;
-    try {
-      request = window.indexedDB.deleteDatabase(name);
-    } catch {
-      resolve();
-      return;
-    }
-    let settled = false;
-
-    const finish = () => {
-      if (settled) return;
-      settled = true;
-      window.clearTimeout(timeout);
-      resolve();
-    };
-
-    const timeout = window.setTimeout(finish, 1_500);
-    request.onsuccess = finish;
-    request.onerror = finish;
-    request.onblocked = finish;
-  });
 }

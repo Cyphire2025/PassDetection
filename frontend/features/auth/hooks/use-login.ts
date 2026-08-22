@@ -20,6 +20,7 @@ export function useLogin() {
     mutationFn: (data: LoginFormData) => authApi.login(data),
 
     onSuccess: (session) => {
+      if (session.status !== "authenticated") return;
       setSession(session.user);
 
       const params = new URLSearchParams(window.location.search);
@@ -33,7 +34,7 @@ export function useLogin() {
   });
 }
 
-function getSafeNextPath(from: string | null) {
+export function getSafeNextPath(from: string | null) {
   if (
     !from
     || !from.startsWith("/")

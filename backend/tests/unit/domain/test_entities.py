@@ -9,6 +9,7 @@ import uuid
 from app.domain.entities.entities import (
     ClientGroup,
     GroupStatus,
+    PassportExtractionStatus,
     PassportProcessingStatus,
     PassportSubmission,
     User,
@@ -122,3 +123,31 @@ class TestPassportSubmissionEntity:
         sub.mark_failed("Image too blurry")
         assert sub.status == PassportProcessingStatus.FAILED
         assert sub.error_message == "Image too blurry"
+
+    def test_configured_review_threshold_marks_low_confidence_for_review(self) -> None:
+        sub = self._make_submission()
+        revision = sub.mark_processing()
+
+        applied = sub.mark_review_required(
+            extracted_fields={
+                "passport_number": "P1234567",
+                "surname": "SMITH",
+                "given_names": "JANE",
+                "date_of_birth": "1990-01-01",
+                "date_of_expiry": "2030-01-01",
+            },
+            confidence=0.89,
+            confidence_score={"overall": 0.89},
+            expected_revision=revision,
+            review_threshold=0.90,
+        )
+
+        assert applied is True
+        assert sub.extraction_status == PassportExtractionStatus.READY_FOR_REVIEW
+        assert sub.confidence_score == {
+            "overall": 0.89,
+            "review_policy": {
+                "threshold": 0.90,
+                "manual_review_required": True,
+            },
+        }

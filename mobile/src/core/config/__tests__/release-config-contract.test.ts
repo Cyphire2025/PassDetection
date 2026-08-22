@@ -20,6 +20,8 @@ describe("mobile release configuration", () => {
       disableAntiBrickingMeasures: false,
     });
     expect(config.plugins).toContain("expo-image");
+    expect(config.plugins).toContain("expo-asset");
+    expect(config.plugins).toContain("./plugins/with-android-unlocked-device-store");
     expect(config.plugins).toContainEqual(["@sentry/react-native/expo", {}]);
     expect(config.plugins).toContainEqual([
       "expo-secure-store",
@@ -35,6 +37,15 @@ describe("mobile release configuration", () => {
           "Coordinators use the camera to scan passenger attendance QR codes.",
         microphonePermission: false,
         recordAudioAndroid: false,
+      },
+    ]);
+    expect(config.plugins).toContainEqual([
+      "expo-audio",
+      {
+        microphonePermission: false,
+        recordAudioAndroid: false,
+        enableBackgroundRecording: false,
+        enableBackgroundPlayback: false,
       },
     ]);
     expect(config.ios?.associatedDomains).toEqual([
@@ -65,12 +76,22 @@ describe("mobile release configuration", () => {
       environment: "preview",
       channel: "preview",
     });
+    expect(eas.build['e2e-test']).toMatchObject({
+      extends: 'base',
+      environment: 'preview',
+      withoutCredentials: true,
+      env: { EXPO_PUBLIC_MAESTRO_ATTENDANCE_FIXTURE: 'true' },
+    });
     expect(eas.build.production).toMatchObject({
       extends: "base",
       environment: "production",
       autoIncrement: true,
       channel: "production",
       android: { buildType: "app-bundle" },
+      env: {
+        EXPO_PUBLIC_REALTIME_ENABLED: 'true',
+        EXPO_PUBLIC_MAESTRO_ATTENDANCE_FIXTURE: 'false',
+      },
     });
     expect(eas.build["production-apk"]).toMatchObject({
       extends: "production",

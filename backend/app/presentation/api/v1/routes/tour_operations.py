@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import uuid
 from collections import defaultdict
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import cast, func, literal, or_, select, update
@@ -17,6 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
 from app.application.security.authorization_policy import AuthorizationPolicy
+from app.core.config.settings import get_settings
 from app.core.security.password import hash_password
 from app.domain.entities.entities import (
     OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES,
@@ -39,6 +40,11 @@ from app.infrastructure.database.models import (
     UserModel,
 )
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.repositories.attendance_closeout_repository import (
+    AttendanceCloseoutCounts,
+    AttendanceCloseoutRepository,
+    AttendanceCloseoutStatus,
+)
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
     get_qr_passenger as _get_qr_passenger,
@@ -66,6 +72,12 @@ from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
 )
 from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
     record_qr_audit as _record_qr_audit,
+)
+from app.presentation.api.v1.schemas.attendance_closeout_schemas import (
+    AttendanceCloseoutCheckpointRequest,
+    AttendanceCloseoutCheckpointResponse,
+    AttendanceCloseoutStatusResponse,
+    AttendanceCloseRequest,
 )
 from app.presentation.api.v1.schemas.tour_operations_schemas import (
     AssignedPassengerDetailResponse,
@@ -117,8 +129,14 @@ COORDINATOR_ACCOUNT_ROLES = [
     UserRole.AGENCY_ADMIN,
     UserRole.AGENCY_MANAGER,
 ]
+ATTENDANCE_CLOSURE_ROLES = [
+    UserRole.SUPER_ADMIN,
+    UserRole.AGENCY_ADMIN,
+    UserRole.AGENCY_MANAGER,
+]
 SUBMITTED_PASSENGER_STATUSES = OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
 SCANNABLE_ATTENDANCE_STATUSES = ("active", "completed")
+ATTENDANCE_SCAN_CLOCK_SKEW = timedelta(minutes=15)
 TOUR_OPERATION_GROUP_STATUSES = (
     GroupStatus.ACTIVE.value,
     GroupStatus.CLOSED.value,
@@ -408,7 +426,13 @@ async def assign_group_coordinators(
     session: AsyncSession = Depends(get_db_session),
 ) -> TourOperationsGroupResponse:
     agency_id = _require_agency(current_user)
-    group = await _get_manageable_group(session, agency_id, group_id, current_user)
+    group = await _get_manageable_group(
+        session,
+        agency_id,
+        group_id,
+        current_user,
+        lock_for_update=True,
+    )
     coordinator_ids = list(dict.fromkeys(body.coordinator_ids))
 
     if coordinator_ids:
@@ -912,7 +936,8 @@ async def get_my_group_passenger_detail(
     "/coordinator/groups/{group_id}/sessions",
     response_model=AttendanceSessionResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Start a coordinator attendance activity for a group",
+    summary="Reject coordinator attendance-activity creation attempts",
+    deprecated=True,
 )
 async def create_my_attendance_session(
     group_id: uuid.UUID,
@@ -922,63 +947,63 @@ async def create_my_attendance_session(
 ) -> AttendanceSessionResponse:
     agency_id = _require_agency(current_user)
     await _ensure_group_assigned_to_coordinator(session, agency_id, group_id, current_user.id)
-    display_name = " ".join(body.name.split())
-    normalized_name = normalize_attendance_activity_name(display_name)
-    now = datetime.now(tz=UTC)
-    attendance_session: AttendanceSessionModel | None = None
-    for _attempt in range(2):
-        candidate_id = uuid.uuid4()
-        insert_result = await session.execute(
-            pg_insert(AttendanceSessionModel)
-            .values(
-                id=candidate_id,
-                agency_id=agency_id,
-                group_id=group_id,
-                name=display_name,
-                normalized_name=normalized_name,
-                canonical_session_id=candidate_id,
-                status="active",
-                created_by_user_id=current_user.id,
-                created_at=now,
-                updated_at=now,
-                started_at=now,
-            )
-            .on_conflict_do_nothing()
-            .returning(AttendanceSessionModel.id)
-        )
-        inserted_id = insert_result.scalar_one_or_none()
-        lookup_result = await session.execute(
-            select(AttendanceSessionModel).where(
-                AttendanceSessionModel.id == inserted_id
-                if inserted_id is not None
-                else (
-                    (AttendanceSessionModel.agency_id == agency_id)
-                    & (AttendanceSessionModel.group_id == group_id)
-                    & (AttendanceSessionModel.normalized_name == normalized_name)
-                    & AttendanceSessionModel.status.in_(("draft", "active"))
-                    & (
-                        AttendanceSessionModel.id
-                        == AttendanceSessionModel.canonical_session_id
-                    )
-                )
-            )
-        )
-        attendance_session = lookup_result.scalar_one_or_none()
-        if attendance_session is not None:
-            if attendance_session.status == "draft":
-                attendance_session.status = "active"
-                attendance_session.started_at = (
-                    attendance_session.started_at or now
-                )
-                attendance_session.updated_at = now
-                await session.flush()
-            break
-    if attendance_session is None:
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail=(
+            "Attendance activities must be created by an authorized manager or "
+            "administrator. Select an activity already assigned to this group."
+        ),
+    )
+
+
+@router.post(
+    "/groups/{group_id}/attendance/sessions",
+    dependencies=[Depends(require_cookie_csrf)],
+    response_model=AttendanceSessionResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a canonical attendance activity as an authorized manager",
+)
+async def create_managed_attendance_session(
+    group_id: uuid.UUID,
+    body: CreateAttendanceSessionRequest,
+    request: Request,
+    current_user: User = Depends(require_role(ATTENDANCE_CLOSURE_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> AttendanceSessionResponse:
+    if current_user.role not in ATTENDANCE_CLOSURE_ROLES:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="The shared attendance activity changed while it was being created. Try again.",
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only an authorized manager or administrator can create an attendance activity",
         )
-    return await _attendance_session_response(session, attendance_session)
+    agency_id, _group = await _get_attendance_close_group_scope(
+        session,
+        group_id=group_id,
+        current_user=current_user,
+        lock_for_update=True,
+    )
+    attendance_session, outcome = await _create_canonical_attendance_activity(
+        session,
+        agency_id=agency_id,
+        group_id=group_id,
+        name=body.name,
+        created_by_user_id=current_user.id,
+    )
+    response = await _attendance_session_response(session, attendance_session)
+    await AuditLogRepository(session).record(
+        action="attendance.activity_prepared",
+        entity_type="attendance_session",
+        agency_id=agency_id,
+        user_id=current_user.id,
+        actor_email=current_user.email,
+        entity_id=str(attendance_session.id),
+        ip_address=trusted_client_ip(request),
+        metadata={
+            "group_id": str(group_id),
+            "outcome": outcome,
+            "canonical_session_id": str(attendance_session.id),
+        },
+    )
+    return response
 
 
 @router.get(
@@ -1041,9 +1066,34 @@ async def record_my_attendance_scan(
     session: AsyncSession = Depends(get_db_session),
 ) -> AttendanceScanResponse:
     agency_id = _require_agency(current_user)
-    attendance_session = await _get_coordinator_attendance_session(session, agency_id, session_id, current_user.id)
+    attendance_session = await _get_coordinator_attendance_session(
+        session,
+        agency_id,
+        session_id,
+        current_user.id,
+        lock_for_scan=True,
+    )
     if attendance_session.status not in SCANNABLE_ATTENDANCE_STATUSES:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Attendance activity cannot be scanned")
+    scanned_at = body.scanned_at or datetime.now(tz=UTC)
+    if attendance_session.status == "completed" and (
+        body.sync_source != "offline"
+        or body.scanned_at is None
+        or attendance_session.completed_at is None
+        or scanned_at > attendance_session.completed_at
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "This activity is closed. Only a saved offline scan captured "
+                "before closure can reconcile."
+            ),
+        )
+    if not _attendance_scan_is_within_activity_window(attendance_session, scanned_at):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="The scan timestamp is outside the attendance activity window",
+        )
 
     passenger, qr_token, rejection_reason = await _resolve_scannable_passenger(
         session=session,
@@ -1086,7 +1136,7 @@ async def record_my_attendance_scan(
         attendance_session=attendance_session,
         passenger_id=passenger.id,
         coordinator_user_id=current_user.id,
-        scanned_at=body.scanned_at or datetime.now(tz=UTC),
+        scanned_at=scanned_at,
         sync_source=body.sync_source,
         client_event_id=body.client_event_id,
         device_id=body.device_id,
@@ -1141,32 +1191,329 @@ async def record_my_attendance_scan(
     )
 
 
+def _attendance_closeout_counts(
+    body: AttendanceCloseoutCheckpointRequest,
+) -> AttendanceCloseoutCounts:
+    return AttendanceCloseoutCounts(
+        pending_count=body.pending_count,
+        sending_count=body.sending_count,
+        retryable_count=body.retryable_count,
+        needs_review_count=body.needs_review_count,
+        unreviewed_rejected_count=body.unreviewed_rejected_count,
+        oldest_pending_age_seconds=body.oldest_pending_age_seconds,
+    )
+
+
+def _attendance_activity_valid_after(
+    attendance_session: AttendanceSessionModel,
+) -> datetime:
+    return attendance_session.started_at or attendance_session.created_at
+
+
+def _attendance_closeout_status_response(
+    closeout: AttendanceCloseoutStatus,
+) -> AttendanceCloseoutStatusResponse:
+    return AttendanceCloseoutStatusResponse.model_validate(closeout)
+
+
+async def _load_attendance_closeout_status(
+    session: AsyncSession,
+    *,
+    agency_id: uuid.UUID,
+    group_id: uuid.UUID,
+    attendance_session: AttendanceSessionModel,
+) -> AttendanceCloseoutStatusResponse:
+    closeout = await AttendanceCloseoutRepository(session).status(
+        agency_id=agency_id,
+        group_id=group_id,
+        session_id=attendance_session.id,
+        activity_valid_after=_attendance_activity_valid_after(attendance_session),
+    )
+    return _attendance_closeout_status_response(closeout)
+
+
+def _require_attendance_closeout_clearance(
+    closeout: AttendanceCloseoutStatusResponse,
+    *,
+    exception_reason: str | None,
+) -> bool:
+    if closeout.ready:
+        return False
+    if exception_reason is not None:
+        return True
+    raise HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail={
+            "code": "ATTENDANCE_CLOSEOUT_BLOCKED",
+            "message": (
+                "Every assigned coordinator must publish a recent zero-queue "
+                "checkpoint before this activity can close."
+            ),
+            "closeout": closeout.model_dump(mode="json"),
+        },
+    )
+
+
+def _attendance_closeout_audit_metadata(
+    closeout: AttendanceCloseoutStatusResponse,
+    *,
+    exception_used: bool,
+    exception_reason: str | None,
+) -> dict[str, object]:
+    return {
+        "exception_used": exception_used,
+        "exception_reason": exception_reason if exception_used else None,
+        "checkpoint_ttl_seconds": closeout.checkpoint_ttl_seconds,
+        "active_assignment_count": closeout.active_assignment_count,
+        "ready_assignment_count": closeout.ready_assignment_count,
+        "missing_assignment_count": closeout.missing_assignment_count,
+        "stale_assignment_count": closeout.stale_assignment_count,
+        "nonzero_assignment_count": closeout.nonzero_assignment_count,
+        "blocked_assignment_count": closeout.blocked_assignment_count,
+        "unresolved_count": closeout.unresolved_count,
+        "oldest_pending_age_seconds": closeout.oldest_pending_age_seconds,
+        "coordinators": [
+            {
+                "coordinator_id": str(item.coordinator_id),
+                "state": item.state,
+                "reported_at": (
+                    item.reported_at.isoformat() if item.reported_at else None
+                ),
+                "pending_count": item.pending_count,
+                "sending_count": item.sending_count,
+                "retryable_count": item.retryable_count,
+                "needs_review_count": item.needs_review_count,
+                "unreviewed_rejected_count": item.unreviewed_rejected_count,
+                "oldest_pending_age_seconds": item.oldest_pending_age_seconds,
+            }
+            for item in closeout.coordinators
+        ],
+    }
+
+
+@router.put(
+    "/coordinator/groups/{group_id}/sessions/{session_id}/closeout-checkpoint",
+    dependencies=[Depends(require_cookie_csrf)],
+    response_model=AttendanceCloseoutCheckpointResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Publish count-only coordinator closeout evidence",
+)
+async def publish_my_attendance_closeout_checkpoint(
+    group_id: uuid.UUID,
+    session_id: uuid.UUID,
+    body: AttendanceCloseoutCheckpointRequest,
+    current_user: User = Depends(require_role([UserRole.AGENCY_COORDINATOR])),
+    session: AsyncSession = Depends(get_db_session),
+) -> AttendanceCloseoutCheckpointResponse:
+    agency_id = _require_agency(current_user)
+    await _ensure_group_assigned_to_coordinator(
+        session,
+        agency_id,
+        group_id,
+        current_user.id,
+    )
+    attendance_session = await _get_coordinator_attendance_session(
+        session,
+        agency_id,
+        session_id,
+        current_user.id,
+        lock_for_scan=True,
+    )
+    if attendance_session.group_id != group_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Attendance activity was not found",
+        )
+    if attendance_session.status != "active":
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Only an active attendance activity accepts closeout checkpoints",
+        )
+    checkpoint = await AttendanceCloseoutRepository(session).publish(
+        session_id=attendance_session.id,
+        coordinator_user_id=current_user.id,
+        counts=_attendance_closeout_counts(body),
+    )
+    return AttendanceCloseoutCheckpointResponse(
+        **body.model_dump(),
+        reported_at=checkpoint.reported_at,
+    )
+
+
 @router.put(
     "/coordinator/sessions/{session_id}/complete",
     response_model=AttendanceSessionResponse,
     status_code=status.HTTP_200_OK,
-    summary="Complete the current coordinator attendance activity",
+    summary="Reject coordinator global-close attempts for shared attendance",
+    deprecated=True,
 )
 async def complete_my_attendance_session(
     session_id: uuid.UUID,
     current_user: User = Depends(require_role([UserRole.AGENCY_COORDINATOR])),
-    session: AsyncSession = Depends(get_db_session),
 ) -> AttendanceSessionResponse:
-    agency_id = _require_agency(current_user)
-    attendance_session = await _get_coordinator_attendance_session(session, agency_id, session_id, current_user.id)
-    if attendance_session.status != "completed":
-        now = datetime.now(tz=UTC)
-        attendance_session.status = "completed"
-        attendance_session.completed_at = now
-        attendance_session.updated_at = now
-        await session.flush()
-    return await _attendance_session_response(session, attendance_session)
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Only an authorized manager or administrator can close a shared attendance activity",
+    )
+
+
+@router.put(
+    "/groups/{group_id}/attendance/sessions/{session_id}/complete",
+    dependencies=[Depends(require_cookie_csrf)],
+    response_model=AttendanceSessionResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Close a shared attendance activity as an authorized manager",
+)
+async def complete_managed_attendance_session(
+    group_id: uuid.UUID,
+    session_id: uuid.UUID,
+    request: Request,
+    current_user: User = Depends(require_role(ATTENDANCE_CLOSURE_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+    body: AttendanceCloseRequest = AttendanceCloseRequest(),
+) -> AttendanceSessionResponse:
+    if current_user.role not in ATTENDANCE_CLOSURE_ROLES:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only an authorized manager or administrator can close a shared attendance activity",
+        )
+    agency_id, _group = await _get_attendance_close_group_scope(
+        session,
+        group_id=group_id,
+        current_user=current_user,
+        lock_for_update=True,
+    )
+    attendance_session = await _get_managed_attendance_session(
+        session,
+        agency_id=agency_id,
+        group_id=group_id,
+        session_id=session_id,
+    )
+    closeout: AttendanceCloseoutStatusResponse | None = None
+    exception_used = False
+    if attendance_session.status == "active":
+        closeout = await _load_attendance_closeout_status(
+            session,
+            agency_id=agency_id,
+            group_id=group_id,
+            attendance_session=attendance_session,
+        )
+        exception_used = _require_attendance_closeout_clearance(
+            closeout,
+            exception_reason=body.exception_reason,
+        )
+    changed = await _close_shared_attendance_activity(session, attendance_session)
+    response = await _attendance_session_response(session, attendance_session)
+    if changed:
+        if closeout is None:
+            raise RuntimeError("Attendance closeout evidence was not evaluated")
+        await AuditLogRepository(session).record(
+            action="attendance.activity_closed",
+            entity_type="attendance_session",
+            agency_id=agency_id,
+            user_id=current_user.id,
+            actor_email=current_user.email,
+            entity_id=str(attendance_session.id),
+            ip_address=trusted_client_ip(request),
+            metadata={
+                "group_id": str(group_id),
+                "server_scanned_count": response.scanned_count,
+                "assigned_count": response.assigned_count,
+                "late_offline_reconciliation_allowed": True,
+                "closeout": _attendance_closeout_audit_metadata(
+                    closeout,
+                    exception_used=exception_used,
+                    exception_reason=body.exception_reason,
+                ),
+            },
+        )
+    return response
+
+
+@router.get(
+    "/groups/{group_id}/attendance/sessions/{session_id}/closeout",
+    response_model=AttendanceCloseoutStatusResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Get count-only coordinator-account closeout evidence for one activity",
+)
+async def get_managed_attendance_closeout_status(
+    group_id: uuid.UUID,
+    session_id: uuid.UUID,
+    current_user: User = Depends(require_role(ATTENDANCE_CLOSURE_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> AttendanceCloseoutStatusResponse:
+    if current_user.role not in ATTENDANCE_CLOSURE_ROLES:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only an authorized manager or administrator can view closeout evidence",
+        )
+    agency_id, _group = await _get_attendance_close_group_scope(
+        session,
+        group_id=group_id,
+        current_user=current_user,
+    )
+    attendance_session = await _get_managed_attendance_session(
+        session,
+        agency_id=agency_id,
+        group_id=group_id,
+        session_id=session_id,
+        lock_for_update=False,
+    )
+    return await _load_attendance_closeout_status(
+        session,
+        agency_id=agency_id,
+        group_id=group_id,
+        attendance_session=attendance_session,
+    )
 
 
 def _counted_attendance_message(session_status: str, passenger_name: str) -> str:
     if session_status == "completed":
         return f"{passenger_name} counted as a late scan after completion."
     return f"{passenger_name} counted."
+
+
+def _attendance_scan_is_within_activity_window(
+    attendance_session: AttendanceSessionModel,
+    scanned_at: datetime,
+) -> bool:
+    """Allow clock skew at activity start but never extend the close boundary."""
+
+    if (
+        attendance_session.started_at is not None
+        and scanned_at < attendance_session.started_at - ATTENDANCE_SCAN_CLOCK_SKEW
+    ):
+        return False
+    return not (
+        attendance_session.completed_at is not None
+        and scanned_at > attendance_session.completed_at
+    )
+
+
+async def _close_shared_attendance_activity(
+    session: AsyncSession,
+    attendance_session: AttendanceSessionModel,
+) -> bool:
+    """Apply the only supported global attendance close transition.
+
+    Callers must authorize and lock the canonical activity before entering this
+    shared mutation boundary. Completed activities remain scannable so queued
+    offline events can reconcile after an authorized close.
+    """
+
+    if attendance_session.status == "completed":
+        return False
+    if attendance_session.status != "active":
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Only an active attendance activity can be closed",
+        )
+    now = datetime.now(tz=UTC)
+    attendance_session.status = "completed"
+    attendance_session.completed_at = now
+    attendance_session.updated_at = now
+    await session.flush()
+    return True
 
 
 @router.get(
@@ -1195,19 +1542,42 @@ async def _get_group(session: AsyncSession, agency_id: uuid.UUID, group_id: uuid
     return group
 
 
+async def _lock_attendance_closeout_group(
+    session: AsyncSession,
+    *,
+    agency_id: uuid.UUID,
+    group_id: uuid.UUID,
+) -> None:
+    locked_group_id = await session.scalar(
+        select(ClientGroupModel.id)
+        .where(
+            ClientGroupModel.id == group_id,
+            ClientGroupModel.agency_id == agency_id,
+            ClientGroupModel.status != GroupStatus.DELETED.value,
+            ClientGroupModel.deleted_at.is_(None),
+        )
+        .with_for_update()
+    )
+    if locked_group_id is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Group was not found")
+
+
 async def _get_manageable_group(
     session: AsyncSession,
     agency_id: uuid.UUID,
     group_id: uuid.UUID,
     current_user: User,
+    *,
+    lock_for_update: bool = False,
 ) -> ClientGroupModel:
-    result = await session.execute(
-        select(ClientGroupModel).where(
+    statement = select(ClientGroupModel).where(
             ClientGroupModel.id == group_id,
             ClientGroupModel.agency_id == agency_id,
             ClientGroupModel.status != "deleted",
         )
-    )
+    if lock_for_update:
+        statement = statement.with_for_update()
+    result = await session.execute(statement)
     group = result.scalar_one_or_none()
     if not group:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Group was not found")
@@ -1216,6 +1586,211 @@ async def _get_manageable_group(
     except AuthorizationError as exc:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)
     return group
+
+
+async def _canonical_attendance_activity_admission(
+    session: AsyncSession,
+    *,
+    agency_id: uuid.UUID,
+    group_id: uuid.UUID,
+    normalized_name: str,
+) -> uuid.UUID | None:
+    """Serialize canonical activity creation on the tenant-owned group row.
+
+    Returning an existing open canonical UUID makes normalized retries
+    idempotent. The group lock and database partial unique index together stop
+    concurrent manager requests from admitting two open activities with the
+    same normalized name.
+    """
+
+    locked_group_id = await session.scalar(
+        select(ClientGroupModel.id)
+        .where(
+            ClientGroupModel.id == group_id,
+            ClientGroupModel.agency_id == agency_id,
+            ClientGroupModel.status != GroupStatus.DELETED.value,
+            ClientGroupModel.deleted_at.is_(None),
+        )
+        .with_for_update()
+    )
+    if locked_group_id is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Group was not found")
+
+    existing_id = await session.scalar(
+        select(AttendanceSessionModel.id)
+        .where(
+            AttendanceSessionModel.agency_id == agency_id,
+            AttendanceSessionModel.group_id == group_id,
+            AttendanceSessionModel.normalized_name == normalized_name,
+            AttendanceSessionModel.status.in_(("draft", "active")),
+            AttendanceSessionModel.id == AttendanceSessionModel.canonical_session_id,
+        )
+        .order_by(AttendanceSessionModel.created_at, AttendanceSessionModel.id)
+        .limit(1)
+    )
+    if existing_id is not None:
+        return existing_id
+
+    current = int(
+        await session.scalar(
+            select(func.count(AttendanceSessionModel.id)).where(
+                AttendanceSessionModel.agency_id == agency_id,
+                AttendanceSessionModel.group_id == group_id,
+                AttendanceSessionModel.id == AttendanceSessionModel.canonical_session_id,
+            )
+        )
+        or 0
+    )
+    maximum = get_settings().mobile.max_attendance_sessions_per_group
+    if current >= maximum:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "code": "ATTENDANCE_SESSION_CAPACITY_REACHED",
+                "message": (
+                    f"This trip supports at most {maximum:,} attendance activities. "
+                    "Archive or remove an existing activity before creating another."
+                ),
+            },
+        )
+    return None
+
+
+async def _create_canonical_attendance_activity(
+    session: AsyncSession,
+    *,
+    agency_id: uuid.UUID,
+    group_id: uuid.UUID,
+    name: str,
+    created_by_user_id: uuid.UUID,
+) -> tuple[AttendanceSessionModel, str]:
+    """Create or resolve one manager-owned stable UUID for an open activity."""
+
+    display_name = " ".join(name.split())
+    normalized_name = normalize_attendance_activity_name(display_name)
+    existing_id = await _canonical_attendance_activity_admission(
+        session,
+        agency_id=agency_id,
+        group_id=group_id,
+        normalized_name=normalized_name,
+    )
+    now = datetime.now(tz=UTC)
+    inserted_id: uuid.UUID | None = None
+    if existing_id is None:
+        candidate_id = uuid.uuid4()
+        inserted_id = (
+            await session.execute(
+                pg_insert(AttendanceSessionModel)
+                .values(
+                    id=candidate_id,
+                    agency_id=agency_id,
+                    group_id=group_id,
+                    name=display_name,
+                    normalized_name=normalized_name,
+                    canonical_session_id=candidate_id,
+                    status="active",
+                    created_by_user_id=created_by_user_id,
+                    created_at=now,
+                    updated_at=now,
+                    started_at=now,
+                )
+                .on_conflict_do_nothing()
+                .returning(AttendanceSessionModel.id)
+            )
+        ).scalar_one_or_none()
+
+    target_id = inserted_id or existing_id
+    lookup = select(AttendanceSessionModel).where(
+        AttendanceSessionModel.agency_id == agency_id,
+        AttendanceSessionModel.group_id == group_id,
+        AttendanceSessionModel.id == AttendanceSessionModel.canonical_session_id,
+    )
+    if target_id is not None:
+        lookup = lookup.where(AttendanceSessionModel.id == target_id)
+    else:
+        # A mixed-version deployment can still race an older writer that does
+        # not take the group lock. Resolve the unique-index winner fail-safely.
+        lookup = lookup.where(
+            AttendanceSessionModel.normalized_name == normalized_name,
+            AttendanceSessionModel.status.in_(("draft", "active")),
+        )
+    attendance_session = (await session.execute(lookup.limit(1))).scalar_one_or_none()
+    if attendance_session is None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="The shared attendance activity changed while it was being created. Try again.",
+        )
+
+    if attendance_session.status == "draft":
+        attendance_session.status = "active"
+        attendance_session.started_at = attendance_session.started_at or now
+        attendance_session.updated_at = now
+        await session.flush()
+        return attendance_session, "activated_existing"
+    return attendance_session, "created" if inserted_id is not None else "existing"
+
+
+async def _get_managed_attendance_session(
+    session: AsyncSession,
+    *,
+    agency_id: uuid.UUID,
+    group_id: uuid.UUID,
+    session_id: uuid.UUID,
+    lock_for_update: bool = True,
+) -> AttendanceSessionModel:
+    statement = select(AttendanceSessionModel).where(
+            AttendanceSessionModel.id == session_id,
+            AttendanceSessionModel.canonical_session_id == session_id,
+            AttendanceSessionModel.agency_id == agency_id,
+            AttendanceSessionModel.group_id == group_id,
+        )
+    if lock_for_update:
+        statement = statement.with_for_update()
+    result = await session.execute(statement)
+    attendance_session = result.scalar_one_or_none()
+    if attendance_session is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Attendance activity was not found",
+        )
+    return attendance_session
+
+
+async def _get_attendance_close_group_scope(
+    session: AsyncSession,
+    *,
+    group_id: uuid.UUID,
+    current_user: User,
+    lock_for_update: bool = False,
+) -> tuple[uuid.UUID, ClientGroupModel]:
+    """Resolve the target tenant before closing, including global super admins."""
+
+    if current_user.role != UserRole.SUPER_ADMIN or current_user.agency_id is not None:
+        agency_id = _require_agency(current_user)
+        group = await _get_manageable_group(
+            session,
+            agency_id,
+            group_id,
+            current_user,
+            lock_for_update=lock_for_update,
+        )
+        return agency_id, group
+
+    statement = select(ClientGroupModel).where(
+            ClientGroupModel.id == group_id,
+            ClientGroupModel.status != "deleted",
+        )
+    if lock_for_update:
+        statement = statement.with_for_update()
+    result = await session.execute(statement)
+    group = result.scalar_one_or_none()
+    if group is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Group was not found")
+    try:
+        await AuthorizationPolicy(session).require_assign_coordinator(current_user, group)
+    except AuthorizationError as exc:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)
+    return group.agency_id, group
 
 
 async def _ensure_group_assigned_to_coordinator(
@@ -1233,6 +1808,8 @@ async def _get_coordinator_attendance_session(
     agency_id: uuid.UUID,
     session_id: uuid.UUID,
     coordinator_id: uuid.UUID,
+    *,
+    lock_for_scan: bool = False,
 ) -> AttendanceSessionModel:
     requested_session = aliased(
         AttendanceSessionModel,
@@ -1242,7 +1819,7 @@ async def _get_coordinator_attendance_session(
         AttendanceSessionModel,
         name="canonical_attendance_session",
     )
-    result = await session.execute(
+    statement = (
         select(canonical_session)
         .join(
             requested_session,
@@ -1263,6 +1840,11 @@ async def _get_coordinator_attendance_session(
             CoordinatorGroupAssignmentModel.active.is_(True),
         )
     )
+    if lock_for_scan:
+        # Shared scan locks remain concurrent with one another but serialize
+        # against the manager's exclusive global-close lock.
+        statement = statement.with_for_update(read=True, of=canonical_session)
+    result = await session.execute(statement)
     attendance_session = result.scalar_one_or_none()
     if not attendance_session:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Attendance activity was not found")
@@ -1603,6 +2185,14 @@ async def _group_attendance_overview(
         return GroupAttendanceOverviewResponse(group_id=group.id, group_name=group.name, sessions=[])
 
     session_ids = [attendance_session.id for attendance_session in attendance_sessions]
+    closeout_statuses = await AttendanceCloseoutRepository(session).statuses(
+        agency_id=agency_id,
+        group_id=group.id,
+        activity_valid_after={
+            attendance_session.id: _attendance_activity_valid_after(attendance_session)
+            for attendance_session in attendance_sessions
+        },
+    )
     coordinators_result = await session.execute(
         select(
             CoordinatorGroupAssignmentModel.coordinator_user_id,
@@ -1721,6 +2311,9 @@ async def _group_attendance_overview(
                 scanned_count=len(scanned_passenger_ids[attendance_session.id]),
                 coordinators=coordinators,
                 missing_passengers=missing_passengers,
+                closeout=_attendance_closeout_status_response(
+                    closeout_statuses[attendance_session.id]
+                ),
             )
         )
 

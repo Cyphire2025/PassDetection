@@ -1,0 +1,22 @@
+appId: com.globalconnects.groupcompanion
+---
+- extendedWaitUntil:
+    visible: "Client manager or coordinator"
+    timeout: 30000
+- tapOn: "Client manager or coordinator"
+- extendedWaitUntil:
+    visible:
+      id: "staff-email-input"
+    timeout: 10000
+- tapOn:
+    id: "staff-email-input"
+- inputText: ${MAESTRO_COORDINATOR_EMAIL}
+- tapOn:
+    id: "staff-password-input"
+- inputText: ${MAESTRO_COORDINATOR_PASSWORD}
+- hideKeyboard
+- tapOn:
+    id: "staff-sign-in"
+- extendedWaitUntil:
+    visible: "Assigned trips"
+    timeout: 120000

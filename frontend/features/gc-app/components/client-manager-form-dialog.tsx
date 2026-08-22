@@ -5,7 +5,7 @@ import { KeyRound, Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-import { Badge, Button, Input, PasswordInput } from "@/components/ui";
+import { Badge, Button, Input } from "@/components/ui";
 import { useDebounce } from "@/hooks/use-debounce";
 import {
   useClientCompanies,
@@ -23,17 +23,6 @@ const managerSchema = z.object({
   email: z.string().trim().email("Enter a valid email address."),
   phone_number: z.string().trim().min(8, "Enter a valid mobile number.").max(32),
   company_id: z.string().min(1, "Select the assigned company/client."),
-  temporary_password: z.string().optional(),
-}).superRefine((data, context) => {
-  if (data.temporary_password === undefined) return;
-  const password = data.temporary_password;
-  if (password.length < 10 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)) {
-    context.addIssue({
-      code: "custom",
-      path: ["temporary_password"],
-      message: "Use at least 10 characters with uppercase, lowercase, and a number.",
-    });
-  }
 });
 
 type ManagerFormValues = z.infer<typeof managerSchema>;
@@ -83,7 +72,6 @@ export function ClientManagerFormDialog({
       email: manager?.email ?? "",
       phone_number: manager?.phone_number ?? "",
       company_id: manager?.company.id ?? "",
-      temporary_password: manager ? undefined : "",
     },
   });
   const selectedIds = useMemo(() => new Set(selectedGroups.map((group) => group.id)), [selectedGroups]);
@@ -118,7 +106,6 @@ export function ClientManagerFormDialog({
     try {
       await onSubmit({
         ...values,
-        temporary_password: manager ? undefined : values.temporary_password || undefined,
         group_ids: selectedGroups.map((group) => group.id),
       });
     } catch (error) {
@@ -271,18 +258,11 @@ export function ClientManagerFormDialog({
 
         {!manager && (
           <fieldset className="space-y-4 rounded-2xl border border-slate-200 p-4 sm:p-5">
-            <legend className="px-1 text-sm font-semibold text-slate-900">Initial password</legend>
+            <legend className="px-1 text-sm font-semibold text-slate-900">Secure activation</legend>
             <div className="flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50/60 p-4">
               <span className="rounded-lg bg-white p-2 text-blue-700 shadow-sm"><KeyRound className="h-4 w-4" aria-hidden="true" /></span>
-              <span><span className="block text-sm font-semibold text-slate-900">Set the sign-in password</span><span className="mt-1 block text-xs leading-5 text-slate-600">Share it through your approved channel. The manager can use it immediately.</span></span>
+              <span><span className="block text-sm font-semibold text-slate-900">The manager sets their own password</span><span className="mt-1 block text-xs leading-5 text-slate-600">A single-use, seven-day activation link is created after this account is saved. Copy it once and send it through an approved channel.</span></span>
             </div>
-            <PasswordInput
-              label="Initial password"
-              autoComplete="new-password"
-              required
-              error={errors.temporary_password?.message}
-              {...register("temporary_password")}
-            />
           </fieldset>
         )}
 

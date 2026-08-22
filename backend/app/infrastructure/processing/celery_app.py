@@ -30,6 +30,19 @@ EMAIL_AI_DISPATCH_TASK = "email.dispatch_ai_analyses"
 EMAIL_AI_DEADLINE_SCAN_TASK = "email.notify_ai_deadline_window"
 DOCUMENT_STORAGE_CLEANUP_TASK = "documents.cleanup_storage"
 DOCUMENT_STORAGE_ORPHAN_RECONCILIATION_TASK = "documents.reconcile_storage_orphans"
+PLATFORM_LIFECYCLE_TASK = "platform.apply_lifecycle_policies"
+WHATSAPP_BROADCAST_TASK = "whatsapp.process_broadcast"
+WHATSAPP_DOCUMENT_BROADCAST_TASK = "whatsapp.process_document_broadcast"
+WHATSAPP_QR_BROADCAST_TASK = "whatsapp.process_qr_broadcast"
+
+# A task-specific provider timeout remains the first line of defence. These
+# worker envelopes are the final process-level circuit breaker for bugs,
+# parser hangs, or SDK calls that ignore cancellation. Soft limits permit
+# cleanup/logging; hard limits guarantee worker capacity is eventually freed.
+DEFAULT_TASK_SOFT_TIME_LIMIT_SECONDS = 14 * 60
+DEFAULT_TASK_TIME_LIMIT_SECONDS = 15 * 60
+WORKER_MAX_TASKS_PER_CHILD = 100
+WORKER_MAX_MEMORY_PER_CHILD_KIB = 768 * 1024
 
 settings = get_settings()
 
@@ -45,6 +58,7 @@ celery_app = Celery(
         "app.infrastructure.email.tasks",
         "app.infrastructure.email.ai_tasks",
         "app.infrastructure.documents.cleanup_tasks",
+        "app.infrastructure.platform_lifecycle_tasks",
         "app.infrastructure.mobile_push.tasks",
     ],
 )
@@ -73,6 +87,10 @@ celery_app.conf.update(
         EMAIL_AI_DEADLINE_SCAN_TASK: {"queue": EMAIL_INTEGRATION_QUEUE},
         DOCUMENT_STORAGE_CLEANUP_TASK: {"queue": "passport_ocr"},
         DOCUMENT_STORAGE_ORPHAN_RECONCILIATION_TASK: {"queue": "passport_ocr"},
+        PLATFORM_LIFECYCLE_TASK: {"queue": "passport_ocr"},
+        WHATSAPP_BROADCAST_TASK: {"queue": "whatsapp"},
+        WHATSAPP_DOCUMENT_BROADCAST_TASK: {"queue": "whatsapp"},
+        WHATSAPP_QR_BROADCAST_TASK: {"queue": "whatsapp"},
         MOBILE_PUSH_COUNTDOWN_TASK: {"queue": "passport_ocr"},
         MOBILE_PUSH_DISPATCH_TASK: {"queue": "passport_ocr"},
         MOBILE_PUSH_RECEIPT_TASK: {"queue": "passport_ocr"},
@@ -80,6 +98,92 @@ celery_app.conf.update(
     task_acks_late=True,
     task_reject_on_worker_lost=True,
     worker_prefetch_multiplier=1,
+    task_soft_time_limit=DEFAULT_TASK_SOFT_TIME_LIMIT_SECONDS,
+    task_time_limit=DEFAULT_TASK_TIME_LIMIT_SECONDS,
+    task_track_started=True,
+    worker_max_tasks_per_child=WORKER_MAX_TASKS_PER_CHILD,
+    worker_max_memory_per_child=WORKER_MAX_MEMORY_PER_CHILD_KIB,
+    worker_cancel_long_running_tasks_on_connection_loss=True,
+    task_annotations={
+        # Interactive work should release capacity well before the global
+        # poison-job envelope. Durable job rows own retry/dead-letter state.
+        "passport.process_submission": {
+            "soft_time_limit": 9 * 60,
+            "time_limit": 10 * 60,
+        },
+        "passport.verify_submitted": {
+            "soft_time_limit": 9 * 60,
+            "time_limit": 10 * 60,
+        },
+        VISA_AI_IMAGE_TASK: {
+            "soft_time_limit": 9 * 60,
+            "time_limit": 10 * 60,
+        },
+        EMAIL_SYNC_TASK: {
+            "soft_time_limit": 9 * 60,
+            "time_limit": 10 * 60,
+        },
+        EMAIL_AI_ANALYZE_TASK: {
+            "soft_time_limit": 9 * 60,
+            "time_limit": 10 * 60,
+        },
+        EMAIL_AI_DISPATCH_TASK: {
+            "soft_time_limit": 4 * 60,
+            "time_limit": 5 * 60,
+        },
+        EMAIL_AI_DEADLINE_SCAN_TASK: {
+            "soft_time_limit": 4 * 60,
+            "time_limit": 5 * 60,
+        },
+        EMAIL_DISPATCH_TASK: {
+            "soft_time_limit": 4 * 60,
+            "time_limit": 5 * 60,
+        },
+        EMAIL_RETENTION_TASK: {
+            "soft_time_limit": 9 * 60,
+            "time_limit": 10 * 60,
+        },
+        EMAIL_SCHEDULER_HEARTBEAT_TASK: {
+            "soft_time_limit": 60,
+            "time_limit": 90,
+        },
+        WHATSAPP_BROADCAST_TASK: {
+            "soft_time_limit": 9 * 60,
+            "time_limit": 10 * 60,
+        },
+        WHATSAPP_DOCUMENT_BROADCAST_TASK: {
+            "soft_time_limit": 9 * 60,
+            "time_limit": 10 * 60,
+        },
+        WHATSAPP_QR_BROADCAST_TASK: {
+            "soft_time_limit": 9 * 60,
+            "time_limit": 10 * 60,
+        },
+        DOCUMENT_STORAGE_CLEANUP_TASK: {
+            "soft_time_limit": 4 * 60,
+            "time_limit": 5 * 60,
+        },
+        DOCUMENT_STORAGE_ORPHAN_RECONCILIATION_TASK: {
+            "soft_time_limit": 9 * 60,
+            "time_limit": 10 * 60,
+        },
+        PLATFORM_LIFECYCLE_TASK: {
+            "soft_time_limit": 9 * 60,
+            "time_limit": 10 * 60,
+        },
+        MOBILE_PUSH_COUNTDOWN_TASK: {
+            "soft_time_limit": 4 * 60,
+            "time_limit": 5 * 60,
+        },
+        MOBILE_PUSH_DISPATCH_TASK: {
+            "soft_time_limit": 4 * 60,
+            "time_limit": 5 * 60,
+        },
+        MOBILE_PUSH_RECEIPT_TASK: {
+            "soft_time_limit": 4 * 60,
+            "time_limit": 5 * 60,
+        },
+    },
     task_serializer="json",
     result_serializer="json",
     accept_content=["json"],
@@ -119,6 +223,11 @@ celery_app.conf.update(
         "reconcile-orphaned-document-storage": {
             "task": DOCUMENT_STORAGE_ORPHAN_RECONCILIATION_TASK,
             "schedule": 3_600.0,
+            "options": {"queue": "passport_ocr"},
+        },
+        "apply-platform-lifecycle-policies": {
+            "task": PLATFORM_LIFECYCLE_TASK,
+            "schedule": 86_400.0,
             "options": {"queue": "passport_ocr"},
         },
         "dispatch-mobile-push-notifications": {

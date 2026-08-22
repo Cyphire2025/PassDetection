@@ -5,6 +5,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Playwright and physical-device LAN development may address the local dev
+  // server by loopback IP. Keep that one exact origin explicit so Next's HMR
+  // and RSC development endpoints remain protected from arbitrary origins.
+  allowedDevOrigins: ["127.0.0.1"],
+
   // ── TypeScript ───────────────────────────────────────────
   typescript: {
     ignoreBuildErrors: false,

@@ -6,7 +6,10 @@ Concrete implementation of IPassportSubmissionRepository.
 
 from __future__ import annotations
 
+import hashlib
 import uuid
+from collections.abc import Sequence
+from typing import Any, Literal
 
 from sqlalchemy import and_, case, delete, func, or_, select
 from sqlalchemy.exc import IntegrityError
@@ -316,6 +319,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         confidence: float,
         confidence_score: dict | None,
         mrz_raw: str | None,
+        review_threshold: float = 0.85,
     ) -> PassportSubmission | None:
         result = await self._session.execute(
             select(PassportSubmissionModel)
@@ -335,6 +339,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             confidence_score=confidence_score,
             mrz_raw=mrz_raw,
             expected_revision=expected_revision,
+            review_threshold=review_threshold,
         ):
             return None
         self._apply_extraction_fields(model, submission)
@@ -700,18 +705,59 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         client_email: str | None,
         client_phone: str | None,
         exclude_submission_id: uuid.UUID | None = None,
+        scope: Literal["group", "platform"] = "group",
+        additional_emails: Sequence[str] = (),
+        additional_phones: Sequence[str] = (),
     ) -> bool:
-        contact_filters = []
-        if client_email:
-            contact_filters.append(PassportSubmissionModel.client_email == client_email)
-        if client_phone:
-            contact_filters.append(PassportSubmissionModel.client_phone == client_phone)
-        if not contact_filters:
-            return False
-        stmt = select(PassportSubmissionModel.id).where(
-            PassportSubmissionModel.group_id == group_id,
-            or_(*contact_filters),
+        emails = tuple(
+            dict.fromkeys(
+                value for value in (client_email, *additional_emails) if value
+            )
         )
+        phones = tuple(
+            dict.fromkeys(
+                value for value in (client_phone, *additional_phones) if value
+            )
+        )
+        if not emails and not phones:
+            return False
+        if scope not in {"group", "platform"}:
+            raise ValueError("Unsupported duplicate contact scope")
+
+        # Different submissions can otherwise pass the read-before-write check
+        # concurrently. Transaction-scoped PostgreSQL advisory locks serialize
+        # normalized contacts without requiring global lock rows.
+        bind = self._session.get_bind()
+        if bind.dialect.name == "postgresql":
+            lock_scope = str(group_id) if scope == "group" else "platform"
+            for contact in sorted((*emails, *phones)):
+                digest = hashlib.blake2b(
+                    f"passport-contact:{lock_scope}:{contact}".encode("utf-8"),
+                    digest_size=8,
+                ).digest()
+                lock_key = int.from_bytes(digest, "big", signed=True)
+                await self._session.execute(
+                    select(func.pg_advisory_xact_lock(lock_key))
+                )
+
+        contact_filters: list[Any] = []
+        if emails:
+            contact_filters.extend(
+                (
+                    PassportSubmissionModel.client_email.in_(emails),
+                    PassportSubmissionModel.family_head_email.in_(emails),
+                )
+            )
+        if phones:
+            contact_filters.extend(
+                (
+                    PassportSubmissionModel.client_phone.in_(phones),
+                    PassportSubmissionModel.family_head_phone.in_(phones),
+                )
+            )
+        stmt = select(PassportSubmissionModel.id).where(or_(*contact_filters))
+        if scope == "group":
+            stmt = stmt.where(PassportSubmissionModel.group_id == group_id)
         if exclude_submission_id:
             stmt = stmt.where(PassportSubmissionModel.id != exclude_submission_id)
         result = await self._session.execute(stmt.limit(1))

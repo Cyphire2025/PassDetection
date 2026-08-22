@@ -4,11 +4,16 @@ import { ApiError, apiRequest, registerRefreshHandler } from '@/core/api/client'
 import { PrincipalSchema, TokenResponseSchema, type TokenResponse } from '@/core/api/contracts';
 import { demoPrincipal, isDemoPrincipal, seedDemoAccount } from '@/core/demo/demo-data';
 import { assertDemoMode, isDemoMode } from '@/core/demo/demo-mode';
+import { recordExplicitAttendanceDiscard } from '@/core/observability/attendance-observability';
 import {
   deleteAccountDatabase,
   openAccountDatabase,
   withAccountTransaction,
 } from '@/core/storage/database';
+import {
+  assertDurableActionQueueSynchronized,
+  durableAttendanceRecordCount,
+} from '@/core/storage/pending-action-safety';
 import {
   clearLocalCleanupPending,
   clearOfflineAuthorizationRecord,
@@ -59,40 +64,17 @@ import {
   OfflineAuthorizationError,
   type OfflineAuthorizationExpectedIdentity,
 } from './offline-authorization';
+import {
+  armOfflineAuthorizationExpiryTimer,
+  clearOfflineAuthorizationExpiryTimer,
+  lockLocalSession,
+  retryPendingAuthenticationLockForNamespace,
+  retryPendingAuthenticationLocks,
+} from './session-lock';
 
-let offlineAuthorizationExpiryTimer: ReturnType<typeof setTimeout> | null = null;
-
-function clearOfflineAuthorizationExpiryTimer(): void {
-  if (offlineAuthorizationExpiryTimer !== null) {
-    clearTimeout(offlineAuthorizationExpiryTimer);
-    offlineAuthorizationExpiryTimer = null;
-  }
-}
-
-function armOfflineAuthorizationExpiryTimer(
-  session: MobileSession,
-  namespace: string,
-  remainingMs: number,
-): void {
-  clearOfflineAuthorizationExpiryTimer();
-  const boundedDelay = Math.max(0, Math.min(Math.floor(remainingMs), 2_147_483_647));
-  offlineAuthorizationExpiryTimer = setTimeout(() => {
-    offlineAuthorizationExpiryTimer = null;
-    const current = useSessionStore.getState().session;
-    if (
-      !current
-      || current.networkMode !== 'offline'
-      || current.sessionId !== session.sessionId
-      || namespaceForSession(current) !== namespace
-    ) return;
-
-    invalidateAuthenticationBoundary();
-    cancelRequiredPreparation(current.sessionId);
-    useSessionStore.getState().clear();
-    useSelectedTripStore.getState().clear();
-    void clearOfflineAuthorizationRecord(namespace).catch(() => undefined);
-  }, boundedDelay);
-}
+export { offlineAuthorizationReadiness } from './offline-authorization-readiness';
+export type { OfflineAuthorizationReadiness } from './offline-authorization-readiness';
+export { lockLocalSession } from './session-lock';
 
 function mapSession(tokens: TokenResponse): MobileSession {
   return {
@@ -282,10 +264,12 @@ async function activateBoundarySession(
   assertAuthenticationEpoch(authenticationEpoch);
   await retryPendingCleanupForNamespace(namespace);
   assertAuthenticationEpoch(authenticationEpoch);
+  await retryPendingAuthenticationLockForNamespace(namespace);
+  assertAuthenticationEpoch(authenticationEpoch);
   const previousNamespace = await getActiveNamespace();
   assertAuthenticationEpoch(authenticationEpoch);
   if (shouldPurgePreviousNamespace(previousNamespace, namespace)) {
-    await purgeLocalSession(previousNamespace);
+    await lockLocalSession(previousNamespace);
     assertAuthenticationEpoch(authenticationEpoch);
   }
 
@@ -309,7 +293,7 @@ async function activateBoundarySession(
     // half-created database. The next launch starts from a clean namespace and
     // the server-issued session expires/revokes independently.
     if (isAuthenticationEpochCurrent(authenticationEpoch)) {
-      await purgeLocalSession(namespace).catch(() => undefined);
+      await lockLocalSession(namespace).catch(() => undefined);
     }
     throw error;
   }
@@ -407,10 +391,12 @@ export async function activateDemoSession(role: MobileRole): Promise<MobileSessi
   assertAuthenticationEpoch(authenticationEpoch);
   await retryPendingCleanupForNamespace(namespace);
   assertAuthenticationEpoch(authenticationEpoch);
+  await retryPendingAuthenticationLockForNamespace(namespace);
+  assertAuthenticationEpoch(authenticationEpoch);
   const previousNamespace = await getActiveNamespace();
   assertAuthenticationEpoch(authenticationEpoch);
   if (shouldPurgePreviousNamespace(previousNamespace, namespace)) {
-    await purgeLocalSession(previousNamespace);
+    await lockLocalSession(previousNamespace);
     assertAuthenticationEpoch(authenticationEpoch);
   }
 
@@ -442,7 +428,7 @@ export async function activateDemoSession(role: MobileRole): Promise<MobileSessi
   } catch (error) {
     if (preparationStarted) cancelRequiredPreparation(session.sessionId);
     if (isAuthenticationEpochCurrent(authenticationEpoch)) {
-      await purgeLocalSession(namespace).catch(() => undefined);
+      await lockLocalSession(namespace).catch(() => undefined);
     }
     throw error;
   }
@@ -545,7 +531,7 @@ async function performStoredRefresh(
       if (!isAuthenticationSnapshotCurrent(snapshot)) return null;
       const invalidationEpoch = invalidateAuthenticationBoundary();
       if ((await getActiveNamespace()) === namespace && isAuthenticationEpochCurrent(invalidationEpoch)) {
-        await purgeLocalSession(namespace);
+        await lockLocalSession(namespace);
       }
       return null;
     }
@@ -594,6 +580,7 @@ export async function bootstrapSession(
   try {
     await initializeFreshInstallGuard();
     const pendingCleanups = await retryPendingLocalCleanups();
+    const pendingAuthenticationLocks = await retryPendingAuthenticationLocks();
     const activeNamespace = await getActiveNamespace();
     if (activeNamespace && pendingCleanups.has(activeNamespace)) {
       // A durable logout tombstone always outranks stored refresh/offline
@@ -605,6 +592,13 @@ export async function bootstrapSession(
       useSessionStore.getState().clear();
       throw new Error('Previous account cleanup is still pending.');
     }
+    if (activeNamespace && pendingAuthenticationLocks.has(activeNamespace)) {
+      await clearNamespaceAuthentication(activeNamespace).catch(() => undefined);
+      invalidateAuthenticationBoundary();
+      useSelectedTripStore.getState().clear();
+      useSessionStore.getState().clear();
+      throw new Error('Previous account authentication lock is still pending.');
+    }
     const bootstrapSnapshot = captureAuthenticationSnapshot();
     if (isDemoMode()) {
       registerRefreshHandler(async () => null);
@@ -615,7 +609,7 @@ export async function bootstrapSession(
       if (offline && isDemoPrincipal(offline.principal)) {
         useSessionStore.getState().setSession(offline);
       } else {
-        if (namespace) await purgeLocalSession(namespace).catch(() => undefined);
+        if (namespace) await lockLocalSession(namespace).catch(() => undefined);
         if (isAuthenticationSnapshotCurrent(bootstrapSnapshot)) {
           invalidateAuthenticationBoundary();
           useSessionStore.getState().clear();
@@ -736,17 +730,14 @@ async function loadOfflineSession(
   }
 }
 
-export async function logoutSession(): Promise<void> {
+export type LogoutSessionOptions = Readonly<{
+  /** The caller has shown and received explicit destructive confirmation. */
+  discardUnsynchronizedActions?: boolean;
+}>;
+
+export async function logoutSession(options: LogoutSessionOptions = {}): Promise<void> {
   const activeSession = useSessionStore.getState().session;
   const derivedNamespace = activeSession ? namespaceForSession(activeSession) : null;
-  invalidateAuthenticationBoundary();
-  clearOfflineAuthorizationExpiryTimer();
-  if (activeSession?.sessionId) cancelRequiredPreparation(activeSession.sessionId);
-  // Authentication must disappear synchronously before any SecureStore or
-  // network operation that can reject or stall.
-  useSessionStore.getState().clear();
-  useSelectedTripStore.getState().clear();
-
   let cleanupError: unknown;
   let storedNamespace: string | null = null;
   if (!derivedNamespace) {
@@ -759,15 +750,52 @@ export async function logoutSession(): Promise<void> {
   // The authenticated principal is the stable ownership boundary. A stale or
   // concurrently changed SecureStore marker must never redirect this cleanup.
   const namespace = derivedNamespace ?? storedNamespace;
+  if (activeSession && namespace && !options.discardUnsynchronizedActions) {
+    // This is the last defensive boundary. The UI also explains the queue and
+    // offers synchronization, but no alternate caller may silently bypass it.
+    await assertDurableActionQueueSynchronized(namespace);
+  }
+
   let refreshToken: string | null = null;
   if (namespace) {
     try {
       refreshToken = await getRefreshToken(namespace);
     } catch {
       // The access-token logout still revokes the server session. Failure to
-      // read a stale refresh token must not weaken or block local data purge.
+      // read a stale refresh token must not weaken or block the local lock.
     }
   }
+
+  if (namespace) {
+    try {
+      if (options.discardUnsynchronizedActions) {
+        const attendanceDiscardCount = await durableAttendanceRecordCount(namespace);
+        invalidateAuthenticationBoundary();
+        clearOfflineAuthorizationExpiryTimer();
+        if (activeSession?.sessionId) cancelRequiredPreparation(activeSession.sessionId);
+        await purgeLocalSession(namespace);
+        recordExplicitAttendanceDiscard(attendanceDiscardCount);
+      } else {
+        await lockLocalSession(namespace, { invalidateBoundary: true });
+      }
+    } catch (error) {
+      cleanupError ??= error;
+    }
+  } else {
+    invalidateAuthenticationBoundary();
+    clearOfflineAuthorizationExpiryTimer();
+    if (activeSession?.sessionId) cancelRequiredPreparation(activeSession.sessionId);
+    useSessionStore.getState().clear();
+    useSelectedTripStore.getState().clear();
+  }
+
+  // If a durable authentication-lock marker could not be written, the active
+  // session is intentionally retained. Do not revoke the server side and strand
+  // the operator in a half-signed-out state; the user can retry safely.
+  if (cleanupError && useSessionStore.getState().session === activeSession) {
+    throw cleanupError;
+  }
+
   try {
     if (activeSession?.accessToken && !isDemoMode()) {
       const authorization = { Authorization: `Bearer ${activeSession.accessToken}` };
@@ -798,15 +826,8 @@ export async function logoutSession(): Promise<void> {
       });
     }
   } catch {
-    // Local revocation is mandatory even when the network is unavailable. The server-side
-    // token will expire and can also be revoked from the dashboard.
-  }
-  if (namespace) {
-    try {
-      await purgeLocalSession(namespace);
-    } catch (error) {
-      cleanupError ??= error;
-    }
+    // Local revocation is authoritative when the network is unavailable. The
+    // server token expires independently and can be revoked from the dashboard.
   }
   if (cleanupError) throw cleanupError;
 }

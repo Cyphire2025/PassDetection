@@ -18,6 +18,7 @@ import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import date, datetime
+from typing import Literal, Sequence
 
 from app.domain.entities.entities import (
     Agency,
@@ -205,6 +206,7 @@ class IPassportSubmissionRepository(ABC):
         confidence: float,
         confidence_score: dict | None,
         mrz_raw: str | None,
+        review_threshold: float = 0.85,
     ) -> PassportSubmission | None: ...
 
     @abstractmethod
@@ -278,6 +280,9 @@ class IPassportSubmissionRepository(ABC):
         client_email: str | None,
         client_phone: str | None,
         exclude_submission_id: uuid.UUID | None = None,
+        scope: Literal["group", "platform"] = "group",
+        additional_emails: Sequence[str] = (),
+        additional_phones: Sequence[str] = (),
     ) -> bool: ...
 
     @abstractmethod

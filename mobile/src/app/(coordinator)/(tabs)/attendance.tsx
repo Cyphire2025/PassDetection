@@ -30,7 +30,7 @@ import type {
   AttendanceSession,
 } from '@/features/coordinator/api/coordinator-contracts';
 import {
-  completeAttendanceSession,
+  leaveAttendanceSession,
   selectAttendanceSession,
 } from '@/features/coordinator/data/attendance-sessions';
 import { visibleAttendanceSessions } from '@/features/coordinator/data/coordinator-view-policy';
@@ -43,6 +43,8 @@ import {
   AttendanceActivitySummary,
   type ExpandedAttendanceRoster,
 } from '@/features/coordinator/ui/attendance-activity-summary';
+import { AttendanceIssuesBanner } from '@/features/coordinator/ui/attendance-issues-banner';
+import { AttendanceReconciliationCard } from '@/features/coordinator/ui/attendance-reconciliation-card';
 
 type Row =
   | { kind: 'session'; value: AttendanceSession }
@@ -68,6 +70,7 @@ export default function CoordinatorAttendanceScreen() {
     ?? visibleSessions[0]?.id
     ?? null;
   const selectedActivity = visibleSessions.find((session) => session.id === effectiveSessionId) ?? null;
+  const selectedForScanning = selectedActivity?.id === sessions.data?.selectedSessionId;
   const [expanded, setExpanded] = useState<{
     sessionId: string;
     status: Exclude<ExpandedAttendanceRoster, null>;
@@ -116,26 +119,35 @@ export default function CoordinatorAttendanceScreen() {
     ));
   }, [effectiveSessionId]);
 
-  const completeSelected = useCallback(() => {
+  const finishMyScanning = useCallback(() => {
     const tripId = trips.selectedTripId;
-    if (!tripId || !selectedActivity || selectedActivity.status !== 'active') return;
+    if (!tripId || !selectedActivity || selectedActivity.status !== 'active' || !selectedForScanning) return;
     Alert.alert(
-      'Complete attendance activity?',
-      'New scans cannot be added after completion.',
+      'Finish scanning on this device?',
+      'This only leaves the activity on your device. It will stay open for other coordinators, and any scans already saved here will continue synchronizing.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Complete',
-          style: 'destructive',
+          text: 'Finish my scanning',
           onPress: () => {
             setBusy(true);
             setOperationError(null);
-            void completeAttendanceSession(tripId, selectedActivity.id)
-              .then(() => sessions.refetch())
-              .catch((caught: unknown) => {
+            void leaveAttendanceSession(tripId, selectedActivity.id)
+              .then(async () => {
+                try {
+                  const result = await sessions.refetch();
+                  if (!result.error) return;
+                } catch {
+                  // The query client can reject when explicitly configured to throw.
+                }
                 setOperationError({
                   tripId,
-                  message: userFacingErrorMessage(caught, 'The activity could not be completed.'),
+                  message: 'This device left the activity, but the latest activity list could not be loaded.',
+                });
+              }, (caught: unknown) => {
+                setOperationError({
+                  tripId,
+                  message: userFacingErrorMessage(caught, 'This device could not leave the activity.'),
                 });
               })
               .finally(() => setBusy(false));
@@ -143,7 +155,7 @@ export default function CoordinatorAttendanceScreen() {
         },
       ],
     );
-  }, [selectedActivity, sessions, trips.selectedTripId]);
+  }, [selectedActivity, selectedForScanning, sessions, trips.selectedTripId]);
 
   const sections = useMemo<AttendanceSection[]>(() => {
     const result: AttendanceSection[] = [{
@@ -253,6 +265,14 @@ export default function CoordinatorAttendanceScreen() {
               subtitle={trips.selectedTrip?.name || 'Selected group activities'}
               tone="coordinator"
             />
+            <AttendanceIssuesBanner tripId={trips.selectedTripId} />
+            {trips.selectedTripId && selectedActivity ? (
+              <AttendanceReconciliationCard
+                tripId={trips.selectedTripId}
+                session={selectedActivity}
+                onRefresh={refreshAttendance}
+              />
+            ) : null}
             {sessions.isPending ? <ContentLoading label="Loading attendance activities" /> : null}
             {sessions.isError ? (
               <ContentError message="Attendance activities are not available offline." onRetry={() => void sessions.refetch()} />
@@ -277,8 +297,8 @@ export default function CoordinatorAttendanceScreen() {
                   : 'Everyone assigned to this activity has been counted.'}
               />
             ) : null}
-            {selectedActivity?.status === 'active' ? (
-              <PrimaryButton label="Complete selected activity" tone="danger" loading={busy} onPress={completeSelected} />
+            {selectedActivity?.status === 'active' && selectedForScanning ? (
+              <PrimaryButton label="Finish my scanning" loading={busy} onPress={finishMyScanning} />
             ) : null}
           </View>
         )}

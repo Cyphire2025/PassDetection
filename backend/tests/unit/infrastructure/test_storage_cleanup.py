@@ -202,6 +202,9 @@ def test_bulk_cleanup_validates_every_key_before_staging_any_chunk() -> None:
 def test_passport_cleanup_accepts_only_owned_passport_namespaces() -> None:
     session = MagicMock()
     cipher = StorageCleanupCipher("cleanup-secret-123456789")
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    submission_id = uuid.uuid4()
     keys = [
         "front/legacy-front.jpg",
         "thumbnail/legacy-thumbnail.jpg",
@@ -214,6 +217,9 @@ def test_passport_cleanup_accepts_only_owned_passport_namespaces() -> None:
         "passport-bulk/agency/group/passenger/front.jpg",
         "passport-crops/agency/passenger/front/1.jpg",
         "passport-edits/agency/passenger/photo/1.jpg",
+        f"{agency_id}/{group_id}/{submission_id}.jpg",
+        f"{agency_id}/{group_id}/{submission_id}-photo.jpg",
+        f"{agency_id}/{group_id}/{submission_id}-back.jpg",
     ]
 
     jobs = stage_storage_cleanup_jobs(
@@ -234,6 +240,15 @@ def test_passport_cleanup_accepts_only_owned_passport_namespaces() -> None:
             source="passport_submission_delete",
             context_id="cross-scope",
             storage_keys=["document-rename/other-agency/file.pdf"],
+            cipher=cipher,
+        )
+    with pytest.raises(StorageCleanupPayloadError, match="scope is invalid"):
+        stage_storage_cleanup_jobs(
+            MagicMock(),
+            agency_id=agency_id,
+            source="passport_submission_delete",
+            context_id="malformed-canonical-key",
+            storage_keys=[f"{agency_id}/{group_id}/../../other-agency/secret.jpg"],
             cipher=cipher,
         )
 
@@ -331,6 +346,36 @@ async def test_cleanup_storage_failure_schedules_retry_without_logging_keys(
 
 
 @pytest.mark.asyncio
+async def test_cleanup_partial_storage_acknowledgement_remains_retryable() -> None:
+    cipher = StorageCleanupCipher("cleanup-secret-123456789")
+    claim = StorageCleanupClaim(
+        job_id=uuid.uuid4(),
+        context_fingerprint="e" * 64,
+        ciphertext=cipher.encrypt(["document-rename/batch/passenger-visa.pdf"]),
+        encryption_key_version=cipher.key_version,
+        source="document_rename_batch_delete",
+        object_count=1,
+        attempts=1,
+    )
+    job = SimpleNamespace(id=claim.job_id)
+    session = _session_with_result(job)
+    storage = MagicMock()
+    storage.delete_files = AsyncMock(return_value=0)
+
+    result = await storage_cleanup._execute_storage_cleanup_claim(
+        claim,
+        session_factory=_SessionFactory(session),
+        storage_factory=lambda: storage,
+        cipher=cipher,
+    )
+
+    assert result.completed is False
+    assert result.deleted_count == 0
+    assert job.status == "pending"
+    assert job.last_error_code == "StorageCleanupIncompleteError"
+
+
+@pytest.mark.asyncio
 async def test_cleanup_success_removes_tombstone_after_idempotent_delete(
     monkeypatch,
 ) -> None:
@@ -365,6 +410,42 @@ async def test_cleanup_success_removes_tombstone_after_idempotent_delete(
     assert result.deleted_count == 2
     storage.delete_files.assert_awaited_once_with(list(keys))
     complete.assert_awaited_once_with(claim, session_factory=session_factory)
+
+
+@pytest.mark.asyncio
+async def test_cleanup_completion_replaces_tombstone_with_redacted_audit_result() -> None:
+    agency_id = uuid.uuid4()
+    job = SimpleNamespace(id=uuid.uuid4())
+    session = _session_with_result(job)
+    session.add = MagicMock()
+    claim = StorageCleanupClaim(
+        job_id=job.id,
+        context_fingerprint="a" * 64,
+        ciphertext=b"never-audited",
+        encryption_key_version=1,
+        source="passport_submission_delete",
+        object_count=4,
+        attempts=2,
+        agency_id=agency_id,
+    )
+
+    await storage_cleanup._complete_storage_cleanup_job(
+        claim,
+        session_factory=_SessionFactory(session),
+    )
+
+    session.delete.assert_awaited_once_with(job)
+    audit = session.add.call_args.args[0]
+    assert audit.action == "document_storage_cleanup_completed"
+    assert audit.agency_id == agency_id
+    assert audit.entity_id == str(job.id)
+    assert audit.metadata_json == {
+        "source": "passport_submission_delete",
+        "context_fingerprint": "a" * 64,
+        "object_count": 4,
+        "attempts": 2,
+    }
+    assert "never-audited" not in repr(audit.metadata_json)
 
 
 def test_cleanup_task_is_registered_and_scheduled_on_general_worker() -> None:

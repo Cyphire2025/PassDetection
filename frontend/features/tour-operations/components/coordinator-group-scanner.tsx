@@ -18,10 +18,7 @@ import {
 } from "lucide-react";
 import { Badge, Button } from "@/components/ui";
 import { QUERY_KEYS } from "@/constants";
-import {
-  useCompleteMyAttendanceSession,
-  useMyAttendanceSessions,
-} from "@/features/operations/hooks/use-operations";
+import { useMyAttendanceSessions } from "@/features/operations/hooks/use-operations";
 import { useContinuousQrScanner } from "../hooks/use-continuous-qr-scanner";
 import {
   selectHasHydrated,
@@ -41,11 +38,11 @@ import {
   readOfflineSnapshot,
   writeOfflineSnapshot,
 } from "../services/offline-snapshot";
+import { publishBrowserAttendanceCloseoutCheckpoint } from "../services/attendance-closeout-checkpoint";
 import type { AttendanceScanSyncUpdate } from "../services/attendance-scan-queue";
 import type { AttendanceSession } from "@/features/operations/api/operations.api";
 import { CoordinatorHydrationState } from "./coordinator-mobile-shell";
 import {
-  getAttendanceCompletionBlocker,
   getAuthoritativeAttendanceCount,
   getLatestSessionSyncUpdate,
   reconcileLiveAttendanceCount,
@@ -103,7 +100,6 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
     syncError,
     syncNow,
   } = useAttendanceScanSync(groupId, sessionId);
-  const completeMutation = useCompleteMyAttendanceSession();
   const processedScanIdRef = useRef<string | null>(null);
   const autoStartedRef = useRef(false);
   const scannedCountRef = useRef<number | null>(null);
@@ -111,7 +107,7 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
   const mountedRef = useRef(true);
   const [lastResult, setLastResult] = useState<{ status: string; message: string } | null>(null);
   const [optimisticScannedCount, setOptimisticScannedCount] = useState<number | null>(null);
-  const [isCompleting, setIsCompleting] = useState(false);
+  const [isFinishing, setIsFinishing] = useState(false);
   const [isAcknowledgingRejected, setIsAcknowledgingRejected] = useState(false);
   const session = visibleSessions.find((item) => item.id === sessionId) ?? null;
   const isSessionCompleted = session?.status === "completed";
@@ -194,17 +190,17 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
     queueMicrotask(() => {
       if (cancelled) return;
       const update = applySyncUpdates(lastSyncResult.updates);
-      if (update && !isCompleting) {
+      if (update && !isFinishing) {
         setLastResult({ status: update.status, message: update.message });
       }
     });
     return () => {
       cancelled = true;
     };
-  }, [applySyncUpdates, isCompleting, lastSyncResult]);
+  }, [applySyncUpdates, isFinishing, lastSyncResult]);
 
   useEffect(() => {
-    if (isCompleting) return;
+    if (isFinishing || isSessionCompleted) return;
     if (!latestScan || !sessionId || processedScanIdRef.current === latestScan.id) return;
     processedScanIdRef.current = latestScan.id;
     const scan = {
@@ -219,7 +215,25 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
     scanPipelineRef.current = scanPipelineRef.current
       .catch(() => undefined)
       .then(async () => {
+        const authentication = useAuthStore.getState();
+        const capturedOwnerUserId = authentication.user?.id ?? null;
+        const capturedSessionVersion = authentication.sessionVersion;
         const result = await recordScan(scan);
+        if (result.mode === "queued") {
+          // IndexedDB has committed before recordScan resolves. Recompute the
+          // account checkpoint immediately, but never publish an old owner's
+          // row under a replacement session after an account-switch race.
+          const currentAuthentication = useAuthStore.getState();
+          if (
+            capturedOwnerUserId !== null
+            && result.pending.ownerUserId === capturedOwnerUserId
+            && currentAuthentication.user?.id === capturedOwnerUserId
+            && currentAuthentication.sessionVersion === capturedSessionVersion
+          ) {
+            void publishBrowserAttendanceCloseoutCheckpoint(groupId, sessionId)
+              .catch(() => undefined);
+          }
+        }
         if (!mountedRef.current) return;
         if (result.mode === "queued") {
           setLastResult({
@@ -242,7 +256,8 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
       });
   }, [
     groupId,
-    isCompleting,
+    isFinishing,
+    isSessionCompleted,
     latestScan,
     recordScan,
     session?.assigned_count,
@@ -254,12 +269,17 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
   const isScanning = status === "scanning";
 
   useEffect(() => {
+    if (isSessionCompleted) stopScanner();
+  }, [isSessionCompleted, stopScanner]);
+
+  useEffect(() => {
     if (
       !hasHydrated
       || !isCoordinator
       || !sessionId
       || !session
-      || isCompleting
+      || isFinishing
+      || isSessionCompleted
       || autoStartedRef.current
     ) return;
     const timer = window.setTimeout(() => {
@@ -267,60 +287,34 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
       void startScanner();
     }, 150);
     return () => window.clearTimeout(timer);
-  }, [hasHydrated, isCompleting, isCoordinator, session, sessionId, startScanner]);
+  }, [hasHydrated, isFinishing, isCoordinator, isSessionCompleted, session, sessionId, startScanner]);
 
-  const completeSession = async () => {
-    if (!sessionId || !session || isSessionCompleted || isCompleting) return;
-    if (!isOnline) {
-      setLastResult({
-        status: "offline",
-        message: "Reconnect before completing so every saved scan can sync first.",
-      });
-      return;
-    }
+  const finishMyScanning = async () => {
+    if (!sessionId || !session || isSessionCompleted || isFinishing) return;
+    const confirmed = window.confirm(
+      "Finish scanning on this device? This only exits your scanner. The shared activity stays open for other coordinators, and saved scans continue synchronizing.",
+    );
+    if (!confirmed) return;
 
-    setIsCompleting(true);
+    setIsFinishing(true);
     setLastResult(null);
     stopScanner();
-
-    try {
-      await scanPipelineRef.current;
-      const syncResult = await syncNow();
-      applySyncUpdates(syncResult.updates);
-      const blocker = getAttendanceCompletionBlocker({
-        isOnline: navigator.onLine,
-        pending: syncResult.pending,
-        failed: syncResult.failed,
-        rejected: syncResult.rejected,
-      });
-      if (blocker) {
-        const message = blocker === "rejected"
-          ? "A saved scan was rejected. Review the authoritative count, rescan if needed, then confirm the review below."
-          : "Some saved scans have not synchronized yet. Check the connection and try again.";
-        setLastResult({ status: "sync_required", message });
-        setIsCompleting(false);
-        void startScanner();
-        return;
-      }
-
-      await completeMutation.mutateAsync(sessionId);
-      updateSessionProgress(scannedCountRef.current ?? counts.scanned, counts.assigned, "completed", true);
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: [...QUERY_KEYS.operations.tourGroupPassengers(groupId), "sessions"] }),
-        queryClient.invalidateQueries({ queryKey: [...QUERY_KEYS.operations.tourGroupPassengers(groupId), "mine"] }),
-        queryClient.invalidateQueries({ queryKey: [...QUERY_KEYS.operations.tourGroups, "mine"] }),
-      ]);
-      router.replace(`/coordinator/groups/${groupId}` as never);
-    } catch {
-      if (!mountedRef.current) return;
-      setIsCompleting(false);
-      setLastResult({ status: "error", message: "Activity could not be completed. Please try again." });
-      void startScanner();
+    await scanPipelineRef.current.catch(() => undefined);
+    if (isOnline) {
+      await syncNow()
+        .then((syncResult) => applySyncUpdates(syncResult.updates))
+        .catch(() => undefined);
     }
+    await Promise.allSettled([
+      queryClient.invalidateQueries({ queryKey: [...QUERY_KEYS.operations.tourGroupPassengers(groupId), "sessions"] }),
+      queryClient.invalidateQueries({ queryKey: [...QUERY_KEYS.operations.tourGroupPassengers(groupId), "mine"] }),
+      queryClient.invalidateQueries({ queryKey: [...QUERY_KEYS.operations.tourGroups, "mine"] }),
+    ]);
+    router.replace(`/coordinator/groups/${groupId}` as never);
   };
 
   const switchCamera = () => {
-    if (devices.length < 2) return;
+    if (isSessionCompleted || devices.length < 2) return;
     const currentIndex = devices.findIndex((device) => device.deviceId === selectedDeviceId);
     const nextDevice = devices[(currentIndex + 1 + devices.length) % devices.length];
     stopScanner();
@@ -393,11 +387,25 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
             data-coordinator-scanner-camera
             className="relative min-h-0 flex-[1_1_auto] overflow-hidden bg-black"
           >
-            <video ref={videoRef} className="h-full w-full object-cover" muted playsInline autoPlay />
-            {session && (
+            {!isSessionCompleted && (
+              <video ref={videoRef} className="h-full w-full object-cover" muted playsInline autoPlay />
+            )}
+            {session && !isSessionCompleted && (
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-4 py-3">
                 <div className="relative size-[min(82vw,20rem,42dvh)] rounded-3xl border-4 border-white/85 shadow-[0_0_0_999px_rgba(2,6,23,0.42)]">
                   <ScanLine className="absolute left-1/2 top-1/2 h-11 w-11 -translate-x-1/2 -translate-y-1/2 text-white/85" aria-hidden="true" />
+                </div>
+              </div>
+            )}
+
+            {session && isSessionCompleted && (
+              <div className="absolute inset-0 grid place-items-center bg-slate-950 p-5 text-center">
+                <div>
+                  <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-400" aria-hidden="true" />
+                  <p className="mt-3 text-lg font-bold">Activity closed</p>
+                  <p className="mt-1 text-sm text-slate-300">
+                    New camera scans are stopped. Scans saved before closure continue synchronizing in the background.
+                  </p>
                 </div>
               </div>
             )}
@@ -443,7 +451,7 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
             {errorMessage && (
               <div className="rounded-lg border border-red-200 bg-red-50 p-2 text-xs text-red-700">
                 <p>{errorMessage}</p>
-                {session && (
+                {session && !isSessionCompleted && (
                   <button
                     type="button"
                     className="mt-2 min-h-11 rounded-lg border border-red-200 bg-white px-3 font-semibold text-red-700"
@@ -488,7 +496,7 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
                       await acknowledgeRejectedScans();
                       setLastResult({
                         status: "reviewed",
-                        message: "Rejected scans acknowledged. Complete when the authoritative count is correct.",
+                        message: "Rejected scans acknowledged. Finish when the authoritative count is correct.",
                       });
                     } catch {
                       setLastResult({
@@ -507,12 +515,12 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
 
             {isSessionCompleted && session && (
               <div className="rounded-lg border border-blue-200 bg-blue-50 p-2 text-xs text-blue-800">
-                Completed - late scans remain open. Every assigned coordinator
-                can keep scanning and the shared total will continue updating.
+                Completed - new capture is closed. Scans saved before closure
+                can still reconcile and update the shared total.
               </div>
             )}
 
-            {session && (supportsTorch || devices.length > 1) && (
+            {session && !isSessionCompleted && (supportsTorch || devices.length > 1) && (
               <div className="grid grid-cols-2 gap-2">
                 {supportsTorch && (
                   <Button
@@ -582,12 +590,12 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
             ) : (
               <Button
                 type="button"
-                disabled={!sessionId || !session || !isOnline || rejectedCount > 0 || isCompleting}
-                isLoading={isCompleting || completeMutation.isPending}
-                onClick={() => void completeSession()}
+                disabled={!sessionId || !session || isFinishing}
+                isLoading={isFinishing}
+                onClick={() => void finishMyScanning()}
                 className="h-12 w-full text-base"
               >
-                {isOnline ? "Complete" : "Reconnect to complete"}
+                Finish my scanning
               </Button>
             )}
           </section>

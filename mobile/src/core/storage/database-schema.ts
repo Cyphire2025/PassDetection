@@ -2,7 +2,13 @@ import type * as SQLite from 'expo-sqlite';
 
 import { DEFAULT_TRIP_TIME_ZONE } from '@/core/localization/time-zone';
 
-export const ACCOUNT_DATABASE_VERSION = 22;
+import {
+  ATTENDANCE_NEEDS_REVIEW_MIGRATION_SQL,
+  CURRENT_PENDING_ACTIONS_SCHEMA_SQL,
+  REJECTED_ATTENDANCE_MINIMIZATION_MIGRATION_SQL,
+} from './database-attendance-queue-migrations';
+
+export const ACCOUNT_DATABASE_VERSION = 24;
 
 export type AccountTransactionRunner = (
   task: (transaction: SQLite.SQLiteDatabase) => Promise<void>,
@@ -456,34 +462,7 @@ export async function migrateAccountDatabase(
             account_namespace, trip_id, generation_id, resource_type, item_index
           );
 
-        CREATE TABLE IF NOT EXISTS pending_actions (
-          idempotency_key TEXT PRIMARY KEY NOT NULL,
-          account_namespace TEXT NOT NULL,
-          trip_id TEXT NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
-          action_type TEXT NOT NULL,
-          dedupe_key TEXT,
-          payload_json TEXT NOT NULL,
-          base_version INTEGER,
-          state TEXT NOT NULL CHECK (state IN ('pending', 'sending', 'retryable', 'rejected')),
-          attempt_count INTEGER NOT NULL DEFAULT 0,
-          next_attempt_at TEXT,
-          last_error_code TEXT,
-          created_at TEXT NOT NULL,
-          updated_at TEXT NOT NULL
-        );
-        CREATE INDEX IF NOT EXISTS idx_pending_drain ON pending_actions(account_namespace, trip_id, state, next_attempt_at, created_at);
-        CREATE UNIQUE INDEX IF NOT EXISTS idx_pending_action_dedupe
-          ON pending_actions(account_namespace, trip_id, action_type, dedupe_key)
-          WHERE dedupe_key IS NOT NULL;
-        CREATE INDEX IF NOT EXISTS idx_pending_attendance_session
-          ON pending_actions(
-            account_namespace,
-            trip_id,
-            state,
-            (CASE WHEN json_valid(payload_json)
-              THEN json_extract(payload_json, '$.session_id') ELSE NULL END)
-          )
-          WHERE action_type = 'attendance.scan';
+        ${CURRENT_PENDING_ACTIONS_SCHEMA_SQL}
 
         CREATE TABLE IF NOT EXISTS attendance_scan_receipts (
           account_namespace TEXT NOT NULL,
@@ -1165,6 +1144,18 @@ export async function migrateAccountDatabase(
         );
         PRAGMA user_version = 22;
       `);
+    });
+  }
+
+  if (currentVersion < 23) {
+    await runTransaction(async (transaction) => {
+      await transaction.execAsync(ATTENDANCE_NEEDS_REVIEW_MIGRATION_SQL);
+    });
+  }
+
+  if (currentVersion < 24) {
+    await runTransaction(async (transaction) => {
+      await transaction.execAsync(REJECTED_ATTENDANCE_MINIMIZATION_MIGRATION_SQL);
     });
   }
 

@@ -38,6 +38,10 @@ class RefreshTokenRepository:
         user_id: uuid.UUID,
         expires_at: datetime,
         created_from_ip: str | None = None,
+        *,
+        session_version: int = 1,
+        authentication_methods: tuple[str, ...] = ("pwd",),
+        mfa_authenticated_at: datetime | None = None,
     ) -> RefreshTokenModel:
         """Persist a newly issued refresh token."""
         model = RefreshTokenModel(
@@ -46,6 +50,9 @@ class RefreshTokenRepository:
             expires_at=expires_at,
             is_revoked=False,
             created_from_ip=created_from_ip,
+            session_version=session_version,
+            authentication_methods=",".join(authentication_methods),
+            mfa_authenticated_at=mfa_authenticated_at,
         )
         self._session.add(model)
         await self._session.flush()

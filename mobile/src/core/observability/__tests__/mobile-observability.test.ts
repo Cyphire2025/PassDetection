@@ -172,7 +172,19 @@ test('allows only fixed low-cardinality SLO metrics and attributes', () => {
   expect(sanitizeMobileObservabilityMetric({
     name: 'gc.mobile.queue.depth',
     type: 'gauge',
-    value: 10_001,
+    value: 12_000,
+    attributes: { queue: 'attendance' },
+  })).toEqual({
+    name: 'gc.mobile.queue.depth',
+    type: 'gauge',
+    value: 12_000,
+    unit: 'item',
+    attributes: { queue: 'attendance' },
+  });
+  expect(sanitizeMobileObservabilityMetric({
+    name: 'gc.mobile.queue.depth',
+    type: 'gauge',
+    value: 24_001,
   })).toBeNull();
   expect(sanitizeMobileObservabilityMetric({
     name: 'gc.mobile.sync.run',
@@ -183,5 +195,96 @@ test('allows only fixed low-cardinality SLO metrics and attributes', () => {
     name: 'gc.mobile.sync.run',
     type: 'counter',
     value: 1,
+  });
+
+  expect(sanitizeMobileObservabilityMetric({
+    name: 'gc.mobile.attendance.discarded',
+    type: 'counter',
+    value: 7,
+    attributes: {
+      outcome: 'success',
+      trigger: 'manual',
+      queue: 'attendance',
+      signed_qr: secret,
+    },
+  })).toEqual({
+    name: 'gc.mobile.attendance.discarded',
+    type: 'counter',
+    value: 7,
+    attributes: {
+      outcome: 'success',
+      trigger: 'manual',
+      queue: 'attendance',
+    },
+  });
+
+  expect(sanitizeMobileObservabilityMetric({
+    name: 'gc.mobile.attendance.acknowledgement_latency',
+    type: 'distribution',
+    value: 1_900,
+    attributes: {
+      outcome: 'success',
+      queue: 'attendance',
+      client_event_id: secret,
+      signed_qr: secret,
+    },
+  })).toEqual({
+    name: 'gc.mobile.attendance.acknowledgement_latency',
+    type: 'distribution',
+    value: 1_900,
+    unit: 'millisecond',
+    attributes: { outcome: 'success', queue: 'attendance' },
+  });
+
+  expect(sanitizeMobileObservabilityMetric({
+    name: 'gc.mobile.storage.maintenance.changed_rows',
+    type: 'counter',
+    value: 100_001,
+  })).toBeNull();
+
+  expect(sanitizeMobileObservabilityMetric({
+    name: 'gc.mobile.attendance.scan.terminal_rejection',
+    type: 'counter',
+    value: 4,
+    attributes: {
+      terminal_reason: 'qr_evidence',
+      queue: 'attendance',
+      reason_code: secret,
+      signed_qr: secret,
+    },
+  })).toEqual({
+    name: 'gc.mobile.attendance.scan.terminal_rejection',
+    type: 'counter',
+    value: 4,
+    attributes: { queue: 'attendance', terminal_reason: 'qr_evidence' },
+  });
+
+  expect(sanitizeMobileObservabilityMetric({
+    name: 'gc.mobile.attendance.reconciliation',
+    type: 'counter',
+    value: 1,
+    attributes: { reconciliation: secret, activity_id: secret },
+  })).toEqual({
+    name: 'gc.mobile.attendance.reconciliation',
+    type: 'counter',
+    value: 1,
+  });
+
+  expect(sanitizeMobileObservabilityMetric({
+    name: 'gc.mobile.authentication.quarantine.depth',
+    type: 'gauge',
+    value: 101,
+  })).toBeNull();
+
+  expect(sanitizeMobileObservabilityMetric({
+    name: 'gc.mobile.attendance.delivery.failure',
+    type: 'counter',
+    value: 1,
+    attributes: { delivery_failure: 'rate_limited', status_url: secret },
+  })).toEqual({
+    name: 'gc.mobile.attendance.delivery.failure',
+    type: 'counter',
+    value: 1,
+    attributes: { delivery_failure: 'rate_limited' },
   });
 });

@@ -7,6 +7,20 @@ const REQUIRED_FIXTURE_KEYS = Object.freeze([
   'MAESTRO_PASSENGER_OTP',
   'MAESTRO_STAFF_EMAIL',
   'MAESTRO_STAFF_PASSWORD',
+  'MAESTRO_COORDINATOR_EMAIL',
+  'MAESTRO_COORDINATOR_PASSWORD',
+  'MAESTRO_ATTENDANCE_GROUP_NAME',
+  'MAESTRO_ATTENDANCE_ACTIVITY_NAME',
+  'MAESTRO_ATTENDANCE_QR',
+  'MAESTRO_MANAGER_GROUP_NAME',
+  'MAESTRO_MANAGER_ITINERARY_ITEM',
+  'MAESTRO_MANAGER_UPDATE_TITLE',
+  'MAESTRO_MANAGER_PASSENGER_SEARCH',
+  'MAESTRO_MANAGER_PASSENGER_NAME',
+  'MAESTRO_PASSENGER_PRIMARY_TRIP_NAME',
+  'MAESTRO_PASSENGER_SECONDARY_TRIP_NAME',
+  'MAESTRO_PASSENGER_ITINERARY_DOCUMENT',
+  'MAESTRO_PASSENGER_UPDATE_TITLE',
   'MAESTRO_EXPECTED_API_ORIGIN',
 ]);
 
@@ -30,6 +44,11 @@ function validateMaestroEnvironment(source) {
   if (source.EXPO_PUBLIC_APP_ENV !== 'preview') {
     errors.push('EXPO_PUBLIC_APP_ENV must equal preview for fixture journeys.');
   }
+  if (source.EXPO_PUBLIC_MAESTRO_ATTENDANCE_FIXTURE !== 'true') {
+    errors.push(
+      'EXPO_PUBLIC_MAESTRO_ATTENDANCE_FIXTURE must equal true for the isolated preview artifact.',
+    );
+  }
   if (source.MAESTRO_FIXTURE_SCOPE !== 'synthetic-staging-v1') {
     errors.push('MAESTRO_FIXTURE_SCOPE must explicitly equal synthetic-staging-v1.');
   }
@@ -45,6 +64,44 @@ function validateMaestroEnvironment(source) {
   const password = source.MAESTRO_STAFF_PASSWORD || '';
   if (password.length < 12 || password.length > 256) {
     errors.push('MAESTRO_STAFF_PASSWORD must contain 12-256 characters.');
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(source.MAESTRO_COORDINATOR_EMAIL || '')) {
+    errors.push('MAESTRO_COORDINATOR_EMAIL must be a synthetic staging email address.');
+  }
+  const coordinatorPassword = source.MAESTRO_COORDINATOR_PASSWORD || '';
+  if (coordinatorPassword.length < 12 || coordinatorPassword.length > 256) {
+    errors.push('MAESTRO_COORDINATOR_PASSWORD must contain 12-256 characters.');
+  }
+  for (const key of ['MAESTRO_ATTENDANCE_GROUP_NAME', 'MAESTRO_ATTENDANCE_ACTIVITY_NAME']) {
+    const value = source[key] || '';
+    if (!/^[A-Za-z0-9][A-Za-z0-9 ._()\/-]{2,119}$/.test(value)) {
+      errors.push(`${key} must contain 3-120 stable label characters.`);
+    }
+  }
+  for (const key of [
+    'MAESTRO_MANAGER_GROUP_NAME',
+    'MAESTRO_MANAGER_ITINERARY_ITEM',
+    'MAESTRO_MANAGER_UPDATE_TITLE',
+    'MAESTRO_MANAGER_PASSENGER_SEARCH',
+    'MAESTRO_MANAGER_PASSENGER_NAME',
+    'MAESTRO_PASSENGER_PRIMARY_TRIP_NAME',
+    'MAESTRO_PASSENGER_SECONDARY_TRIP_NAME',
+    'MAESTRO_PASSENGER_ITINERARY_DOCUMENT',
+    'MAESTRO_PASSENGER_UPDATE_TITLE',
+  ]) {
+    const value = source[key] || '';
+    if (!/^[A-Za-z0-9][A-Za-z0-9 ._()\/-]{2,119}$/.test(value)) {
+      errors.push(`${key} must contain 3-120 stable synthetic label characters.`);
+    }
+  }
+  if (
+    source.MAESTRO_PASSENGER_PRIMARY_TRIP_NAME
+    && source.MAESTRO_PASSENGER_PRIMARY_TRIP_NAME === source.MAESTRO_PASSENGER_SECONDARY_TRIP_NAME
+  ) {
+    errors.push('The passenger primary and secondary synthetic trip labels must be different.');
+  }
+  if (!/^pdatt:[A-Za-z0-9_-]{43}$/.test(source.MAESTRO_ATTENDANCE_QR || '')) {
+    errors.push('MAESTRO_ATTENDANCE_QR must be a canonical synthetic attendance token.');
   }
 
   try {

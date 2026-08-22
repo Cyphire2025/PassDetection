@@ -27,6 +27,9 @@
       "extends": "base",
       "environment": "preview",
       "withoutCredentials": true,
+      "env": {
+        "EXPO_PUBLIC_MAESTRO_ATTENDANCE_FIXTURE": "true"
+      },
       "android": {
         "buildType": "apk"
       },
@@ -37,6 +40,10 @@
     "production": {
       "extends": "base",
       "environment": "production",
+      "env": {
+        "EXPO_PUBLIC_REALTIME_ENABLED": "true",
+        "EXPO_PUBLIC_MAESTRO_ATTENDANCE_FIXTURE": "false"
+      },
       "autoIncrement": true,
       "channel": "production",
       "android": {

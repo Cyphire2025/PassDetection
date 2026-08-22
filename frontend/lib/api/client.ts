@@ -14,13 +14,20 @@ import {
   readRefreshEpoch,
   runCoordinatedRefresh,
 } from "@/features/auth/services/refresh-coordinator";
+import { requestAuthenticationStepUp } from "@/features/auth/services/step-up-coordinator";
 import { useAuthStore } from "@/stores/auth.store";
 import type { AuthSession } from "@/types";
+import {
+  parseRetryAfterMs,
+  retryAfterHeaderValue,
+} from "./retry-after";
 
 export interface ApiError {
   code: string;
   message: string;
   details?: unknown;
+  status?: number;
+  retryAfterMs?: number;
 }
 
 export interface ApiErrorResponse {
@@ -31,6 +38,7 @@ export interface ApiErrorResponse {
 interface RetriableRequestConfig extends InternalAxiosRequestConfig {
   _authRetry?: boolean;
   _authEpoch?: string;
+  _stepUpRetry?: boolean;
 }
 
 const SESSION_EXPIRED_ERROR: ApiError = {
@@ -61,6 +69,19 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<ApiErrorResponse>) => {
     const originalRequest = error.config as RetriableRequestConfig | undefined;
+    const responseData = await decodeApiErrorResponse(error.response?.data);
+    const shouldStepUp =
+      error.response?.status === 403 &&
+      responseData?.error?.code === "STEP_UP_REQUIRED" &&
+      originalRequest !== undefined &&
+      originalRequest._stepUpRetry !== true &&
+      isStepUpEligibleRequest(originalRequest.url);
+
+    if (shouldStepUp) {
+      originalRequest._stepUpRetry = true;
+      await requestAuthenticationStepUp();
+      return apiClient(originalRequest);
+    }
     const shouldRefresh =
       error.response?.status === 401 &&
       originalRequest !== undefined &&
@@ -83,12 +104,24 @@ apiClient.interceptors.response.use(
 async function buildApiError(error: AxiosError<ApiErrorResponse>): Promise<ApiError> {
   const responseData = await decodeApiErrorResponse(error.response?.data);
   const structuredError = responseData?.error;
-  if (structuredError) return structuredError;
+  const responseStatus = error.response?.status;
+  const retryAfterMs = responseStatus === 429 || responseStatus === 503
+    ? parseRetryAfterMs(retryAfterHeaderValue(error.response?.headers))
+    : undefined;
+  if (structuredError) {
+    return {
+      ...structuredError,
+      ...(responseStatus === undefined ? {} : { status: responseStatus }),
+      ...(retryAfterMs === undefined ? {} : { retryAfterMs }),
+    };
+  }
   const detail = responseData?.detail;
   if (detail) {
     return {
-      code: `HTTP_${error.response?.status ?? "ERROR"}`,
+      code: `HTTP_${responseStatus ?? "ERROR"}`,
       message: detail,
+      ...(responseStatus === undefined ? {} : { status: responseStatus }),
+      ...(retryAfterMs === undefined ? {} : { retryAfterMs }),
     };
   }
   if (error.code === "ECONNABORTED" || error.code === "ETIMEDOUT") {
@@ -104,8 +137,10 @@ async function buildApiError(error: AxiosError<ApiErrorResponse>): Promise<ApiEr
     };
   }
   return {
-    code: `HTTP_${error.response.status}`,
+    code: `HTTP_${responseStatus}`,
     message: "The request could not be completed. Please try again.",
+    ...(responseStatus === undefined ? {} : { status: responseStatus }),
+    ...(retryAfterMs === undefined ? {} : { retryAfterMs }),
   };
 }
 
@@ -201,6 +236,11 @@ function isRefreshEligibleRequest(url: string | undefined) {
   if (/\/api\/v1\/passports\/[^/]+\/client-submit(?:[/?]|$)/.test(url)) return false;
 
   return true;
+}
+
+function isStepUpEligibleRequest(url: string | undefined) {
+  if (!url) return false;
+  return !/\/api\/v1\/auth\/(?:login|refresh|mfa\/verify|mfa\/step-up)(?:[/?]|$)/.test(url);
 }
 
 export default apiClient;

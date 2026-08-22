@@ -52,14 +52,26 @@ The bundled Nginx uses `worker_connections 32768`, `worker_rlimit_nofile 65536`,
 
 ## Rollout and failure modes
 
-Keep both flags off until the proxy and Redis checks pass:
+Keep both flags off in development or an unverified staging environment until
+the proxy and Redis checks pass:
 
 ```text
 MOBILE_REALTIME_ENABLED=false
 EXPO_PUBLIC_REALTIME_ENABLED=false
 ```
 
-Enable the backend first in one environment, verify `/api/v1/health/ready`, then enable the mobile build flag. `MOBILE_REALTIME_REQUIRE_REDIS=true` makes an initial Redis failure fail API startup and makes a runtime outage fail readiness. Setting it to `false` is an explicit cursor-only degradation policy: readiness stays serviceable but reports `mobile_realtime=degraded_cursor_fallback`, the WebSocket refuses new connections, and foreground/push/periodic cursor sync continues. It must never report instant freshness while Redis is unavailable.
+The reviewed production Compose override now forces
+`MOBILE_REALTIME_ENABLED=true` and `MOBILE_REALTIME_REQUIRE_REDIS=true`, and the
+EAS production profiles embed the matching non-secret
+`EXPO_PUBLIC_REALTIME_ENABLED=true` client flag. Deploy the backend first and
+require `/api/v1/health/ready` to report a healthy realtime service before
+distributing the matching native build. Required Redis mode makes an initial
+Redis failure fail API startup and makes a runtime outage fail readiness.
+Setting it to `false` outside production is an explicit cursor-only degradation
+policy: readiness stays serviceable but reports
+`mobile_realtime=degraded_cursor_fallback`, the WebSocket refuses new
+connections, and foreground/push/periodic cursor sync continues. It must never
+report instant freshness while Redis is unavailable.
 
 Operational alerts should fire on required-unreachable status, sustained cursor-only degradation, dropped post-commit hints, invalid Redis frames, authentication/connection-cap rejection, slow-consumer disconnects, Redis subscriber/publisher failures, and reconnect storms. These non-sensitive process counters are registered under the existing protected metrics snapshot as `shared.mobile_realtime`. Hint drops do not imply data loss; they do imply freshness-SLO risk.
 

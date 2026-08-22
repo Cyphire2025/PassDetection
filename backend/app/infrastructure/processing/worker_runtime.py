@@ -55,12 +55,16 @@ async def _run_passport_processing_job_admitted(
     from app.infrastructure.repositories.passport_submission_repository import (
         PassportSubmissionRepository,
     )
+    from app.infrastructure.repositories.platform_policy_repository import (
+        PlatformPolicyRepository,
+    )
     from app.infrastructure.storage.minio_repository import (
         MinioStorageRepository,
     )
 
     async with AsyncSessionFactory() as session:
         try:
+            policies = await PlatformPolicyRepository(session).load()
             use_case = ProcessPassportSubmissionJobUseCase(
                 passport_repo=PassportSubmissionRepository(session),
                 storage_repo=MinioStorageRepository(),
@@ -71,6 +75,7 @@ async def _run_passport_processing_job_admitted(
                 job_repo=PassportProcessingJobRepository(session),
                 verification_service=GeminiPassportVerificationService(),
                 allow_retry=allow_retry,
+                review_threshold=policies.mrz_review_threshold,
             )
             await use_case.execute(
                 submission_id=uuid.UUID(submission_id),

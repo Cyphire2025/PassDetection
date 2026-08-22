@@ -8,6 +8,7 @@ const readBytes = (relativePath) => readFileSync(new URL(relativePath, import.me
 
 const mobileShell = read("./coordinator-mobile-shell.tsx");
 const activity = read("./coordinator-group-activity-page.tsx");
+const officeAttendance = read("../../operations/components/tour-group-attendance-page.tsx");
 const scanner = read("./coordinator-group-scanner.tsx");
 const hotel = read("./coordinator-hotel-checkin.tsx");
 const passenger = read("./coordinator-passenger-detail-page.tsx");
@@ -16,8 +17,12 @@ const coordinatorLayout = read("../../../app/coordinator/layout.tsx");
 const globalCss = read("../../../app/globals.css");
 const queue = read("../services/attendance-scan-queue.ts");
 const progress = read("../services/attendance-session-progress.ts");
+const closeoutCheckpoint = read("../services/attendance-closeout-checkpoint.ts");
+const closeoutReporting = read("../hooks/use-attendance-closeout-reporting.ts");
 const operationsHooks = read("../../operations/hooks/use-operations.ts");
+const operationsApi = read("../../operations/api/operations.api.ts");
 const scannerHook = read("../hooks/use-continuous-qr-scanner.ts");
+const apiEndpoints = read("../../../lib/api/endpoints.ts");
 const publicUrl = read("../../../lib/utils/public-url.ts");
 const offlinePage = read("../../../public/offline.html");
 const offlineScanner = read("../../../public/offline-scanner.js");
@@ -41,14 +46,123 @@ test("large passenger rosters render in bounded progressive chunks", () => {
   assert.match(activity, /\[content-visibility:auto\]/);
 });
 
-test("attendance completion drains the scan pipeline and sync queue before completion", () => {
+test("finishing coordinator scanning is local-only and preserves queued reconciliation", () => {
   const drainIndex = scanner.indexOf("await scanPipelineRef.current");
-  const syncIndex = scanner.indexOf("const syncResult = await syncNow()");
-  const completeIndex = scanner.indexOf("await completeMutation.mutateAsync(sessionId)");
+  const syncIndex = scanner.indexOf("await syncNow()");
+  const exitIndex = scanner.indexOf("router.replace(`/coordinator/groups/${groupId}`");
   assert.ok(drainIndex >= 0 && drainIndex < syncIndex);
-  assert.ok(syncIndex < completeIndex);
-  assert.match(scanner, /rejectedCount > 0/);
-  assert.match(scanner, /await acknowledgeRejectedScans\(\)/);
+  assert.ok(syncIndex < exitIndex);
+  assert.match(scanner, /This only exits your scanner\. The shared activity stays open for other coordinators/);
+  assert.match(scanner, /Promise\.allSettled/);
+  assert.match(scanner, /Finish my scanning/);
+  assert.doesNotMatch(scanner, /completeMutation|useCompleteMyAttendanceSession/);
+  assert.doesNotMatch(operationsHooks, /useCompleteMyAttendanceSession/);
+  assert.doesNotMatch(operationsApi, /completeMyAttendanceSession/);
+  assert.doesNotMatch(apiEndpoints, /mySessionComplete/);
+});
+
+test("office global close is manager-only and refreshes authoritative checkpoint evidence first", () => {
+  const refreshIndex = officeAttendance.indexOf("refreshed = await refetch()");
+  const closeIndex = officeAttendance.indexOf("await closeMutation.mutateAsync");
+  assert.ok(refreshIndex >= 0 && refreshIndex < closeIndex);
+  assert.match(officeAttendance, /role === "super_admin"/);
+  assert.match(officeAttendance, /role === "agency_admin"/);
+  assert.match(officeAttendance, /role === "agency_manager"/);
+  assert.match(officeAttendance, /Coordinator checkpoints clear/);
+  assert.match(officeAttendance, /managedAttendanceCloseoutStatus|session\.closeout/);
+  assert.match(officeAttendance, /do not include passenger names, QR values, passport details/);
+  assert.doesNotMatch(officeAttendance, /Fleet closeout|all devices clear|fleet proven/i);
+  assert.match(officeAttendance, /Close after clear checkpoints/);
+  assert.match(officeAttendance, /was closed, but the latest status could not be loaded/);
+  assert.match(operationsHooks, /useCompleteManagedAttendanceSession/);
+  assert.match(operationsApi, /completeManagedAttendanceSession/);
+  assert.match(apiEndpoints, /managedSessionComplete/);
+});
+
+test("browser closeout reports are count-only, account-fenced, coalesced, and cross-tab serialized", () => {
+  assert.match(closeoutCheckpoint, /sessionVersion/);
+  assert.match(closeoutCheckpoint, /userId/);
+  assert.match(closeoutCheckpoint, /assertBrowserAuthenticationSnapshotCurrent/);
+  assert.match(closeoutCheckpoint, /publisherLanes/);
+  assert.match(closeoutCheckpoint, /activeLane\.pending\.request = request/);
+  assert.match(closeoutCheckpoint, /navigator\.locks\.request/);
+  assert.match(closeoutCheckpoint, /collectCheckpointForAuthentication/);
+  assert.match(closeoutCheckpoint, /collectBrowserAttendanceQueueCloseout/);
+  assert.match(queue, /assertAuthenticationSnapshotCurrent\(authentication\)/);
+  assert.match(queue, /row\.ownerUserId !== authentication\.userId/);
+  assert.match(closeoutReporting, /CHECKPOINT_REFRESH_MS = 30_000/);
+  assert.match(closeoutReporting, /document\.visibilityState !== "visible"/);
+  for (const approved of [
+    "pending_count",
+    "sending_count",
+    "retryable_count",
+    "needs_review_count",
+    "unreviewed_rejected_count",
+    "oldest_pending_age_seconds",
+  ]) {
+    assert.match(closeoutCheckpoint, new RegExp(`\\b${approved}\\b`));
+  }
+  assert.doesNotMatch(
+    closeoutCheckpoint,
+    /checkpoint\s*=\s*\{[\s\S]*?(passenger|qr_payload|client_event|device_id)/i,
+  );
+  assert.match(closeoutCheckpoint, /pending_count: queue\.pending/);
+  assert.match(closeoutCheckpoint, /sending_count: queue\.sending/);
+  assert.match(closeoutCheckpoint, /retryable_count: queue\.retryable/);
+  assert.doesNotMatch(closeoutCheckpoint, /sending_count: 0|retryable_count: 0/);
+  assert.match(queue, /deliveryState: "sending"/);
+  assert.match(queue, /row\.deliveryState === "sending"/);
+  assert.match(queue, /publishBrowserAttendanceQueueCloseout<T>[\s\S]*?withOwnerQueueLock\(authentication\.userId[\s\S]*?await publish\(queue\)/);
+  assert.match(closeoutCheckpoint, /publishBrowserAttendanceQueueCloseout\([\s\S]*?publish: async \(queue\)[\s\S]*?operationsApi\.publishMyAttendanceCloseoutCheckpoint/);
+  const drainIndex = queue.indexOf("async function performPendingAttendanceScanSync");
+  const claimIndex = queue.indexOf("claimPendingAttendanceDelivery", drainIndex);
+  const networkIndex = queue.indexOf("operationsApi.scanMyAttendanceSession", claimIndex);
+  assert.ok(drainIndex >= 0 && drainIndex < claimIndex && claimIndex < networkIndex);
+});
+
+test("durable browser enqueues trigger an immediate best-effort closeout recomputation", () => {
+  const captureIndex = scanner.indexOf("const authentication = useAuthStore.getState()");
+  const recordIndex = scanner.indexOf("const result = await recordScan(scan)");
+  const publishIndex = scanner.indexOf(
+    "publishBrowserAttendanceCloseoutCheckpoint(groupId, sessionId)",
+    recordIndex,
+  );
+  const mountedIndex = scanner.indexOf("if (!mountedRef.current) return", recordIndex);
+  assert.ok(captureIndex >= 0 && captureIndex < recordIndex);
+  assert.ok(recordIndex < publishIndex);
+  assert.ok(publishIndex < mountedIndex);
+  assert.match(scanner, /if \(result\.mode === "queued"\)/);
+  assert.match(scanner, /result\.pending\.ownerUserId === capturedOwnerUserId/);
+  assert.match(scanner, /currentAuthentication\.sessionVersion === capturedSessionVersion/);
+  assert.match(scanner, /publishBrowserAttendanceCloseoutCheckpoint[\s\S]*?\.catch\(\(\) => undefined\)/);
+  const durablePutIndex = queue.indexOf("store.put(pendingScan)");
+  const scheduleIndex = queue.indexOf("announceScheduleChanged()", durablePutIndex);
+  assert.ok(durablePutIndex >= 0 && durablePutIndex < scheduleIndex);
+  assert.match(queue, /collectBrowserAttendanceQueueCloseout[\s\S]*?withOwnerQueueLock/);
+});
+
+test("managers create canonical activities while coordinators remain selection-only", () => {
+  assert.match(officeAttendance, /Prepare attendance activity/);
+  assert.match(officeAttendance, /useCreateManagedAttendanceSession/);
+  assert.match(officeAttendance, /Create the canonical name and UUID before coordinators scan/);
+  assert.match(operationsHooks, /useCreateManagedAttendanceSession/);
+  assert.match(operationsApi, /createManagedAttendanceSession/);
+  assert.match(apiEndpoints, /managedSessions/);
+  assert.match(activity, /Select a centrally prepared activity/);
+  assert.match(activity, /Ask a manager to create one/);
+  assert.doesNotMatch(activity, /ActivityStarter|coordinator-activity-name|Start Scanner/);
+  assert.doesNotMatch(operationsHooks, /useCreateMyAttendanceSession/);
+  assert.doesNotMatch(operationsApi, /createMyAttendanceSession/);
+});
+
+test("office attendance polling is live only while an activity is open", () => {
+  assert.match(
+    operationsHooks,
+    /query\.state\.data\?\.sessions\.some\([\s\S]*?session\.status === "draft" \|\| session\.status === "active"[\s\S]*?\? 1_500 : 10_000/,
+  );
+  assert.match(operationsHooks, /refetchIntervalInBackground: false/);
+  assert.match(officeAttendance, /Live refresh every 1\.5 seconds/);
+  assert.match(officeAttendance, /Idle refresh every 10 seconds/);
 });
 
 test("offline scans remain pending until authoritative server reconciliation", () => {
@@ -58,10 +172,12 @@ test("offline scans remain pending until authoritative server reconciliation", (
   assert.match(queue, /scannedCount: response\.scanned_count/);
   assert.match(progress, /Math\.max\(session\.scanned_count, local\.scanned_count\)/);
   assert.match(queue, /groupId: string/);
-  assert.match(queue, /\$\{ownerUserId\}:\$\{groupId\}:\$\{sessionId\}:\$\{qrPayload\}/);
+  assert.match(queue, /createAttendanceScanReference/);
+  assert.match(queue, /attendanceQueueRowId\(scanReference\)/);
+  assert.doesNotMatch(queue, /return `\$\{ownerUserId\}:\$\{groupId\}:\$\{sessionId\}:\$\{qrPayload\}`/);
   assert.match(progress, /:group:\$\{groupId\}/);
-  assert.match(queue, /const DB_VERSION = 3/);
-  assert.doesNotMatch(queue, /event\.oldVersion < 4/);
+  assert.match(queue, /const DB_VERSION = 4/);
+  assert.match(queue, /migrateLegacyQueueRecords/);
 });
 
 test("connected coordinator devices refresh shared activity counts within two seconds", () => {
@@ -72,35 +188,35 @@ test("connected coordinator devices refresh shared activity counts within two se
 
 test("the coordinator shell replays saved scans after leaving the scanner route", () => {
   assert.match(coordinatorLayout, /<CoordinatorOfflineScanDrain \/>/);
-  assert.match(globalDrain, /countPendingAttendanceScans\(\)/);
+  assert.match(globalDrain, /getNextPendingAttendanceAttemptAt\(\)/);
   assert.match(globalDrain, /syncPendingAttendanceScans\(\)/);
   assert.match(globalDrain, /addEventListener\("online", handleReconnect\)/);
   assert.match(globalDrain, /addEventListener\("pageshow", handleReconnect\)/);
-  assert.match(globalDrain, /RETRY_INTERVAL_MS = 15_000/);
-  assert.match(queue, /let activeSyncPromise/);
+  assert.match(globalDrain, /subscribeAttendanceQueueScheduleChanges/);
+  assert.doesNotMatch(globalDrain, /setInterval|RETRY_INTERVAL_MS/);
+  assert.match(queue, /let activeSync:/);
 });
 
 test("offline replay stops after the first recoverable failure", () => {
   assert.match(
     queue,
-    /else \{\s*failed \+= 1;[\s\S]*?Preserve the queue and stop this drain[\s\S]*?break;\s*\}/,
+    /else \{[\s\S]*?markPendingAttendanceRetry[\s\S]*?failed \+= 1;[\s\S]*?Persist the exact eligible time and stop[\s\S]*?break;/,
   );
 });
 
 test("offline replay quarantines every non-counting HTTP 200 response", () => {
   assert.match(
     queue,
-    /if \(!isSuccessfulAttendanceReplayStatus\(response\.status\)\) \{[\s\S]*?await quarantineRejectedAttendanceScan\([\s\S]*?discarded \+= 1;[\s\S]*?continue;/,
+    /if \(!isSuccessfulAttendanceReplayStatus\(response\.status\)\) \{[\s\S]*?await quarantineRejectedAttendanceScan\([\s\S]*?if \(isSuccessfulAttendanceReplayStatus\(response\.status\)\)[\s\S]*?else \{\s*discarded \+= 1;/,
   );
 });
 
-test("one coordinator completing a shared activity cannot block other scanners", () => {
-  assert.doesNotMatch(
-    scanner,
-    /useEffect\(\(\) => \{\s*if \(isCompleting \|\| isSessionCompleted\) return/,
-  );
-  assert.doesNotMatch(scanner, /if \(isSessionCompleted\) stopScanner\(\)/);
-  assert.match(scanner, /Completed - late scans remain open/);
+test("manager completion stops fresh capture while preserving queued reconciliation", () => {
+  assert.match(scanner, /if \(isFinishing \|\| isSessionCompleted\) return/);
+  assert.match(scanner, /if \(isSessionCompleted\) stopScanner\(\)/);
+  assert.match(scanner, /New camera scans are stopped/);
+  assert.match(scanner, /Scans saved before closure continue synchronizing/);
+  assert.match(queue, /syncSource: "offline"/);
   assert.match(activity, /router\.push\(`\/coordinator\/groups\/\$\{groupId\}\/scanner\?sessionId=\$\{session\.id\}`/);
 });
 
@@ -163,13 +279,12 @@ test("cold-offline coordinator shell queues only owner-scoped attendance scans",
     /`\$\{SESSIONS_SNAPSHOT_KEY\}:\$\{groupId\}:user:\$\{ownerId\}`/,
   );
   assert.match(offlineScanner, /const DB_NAME = "passdetection-tour-ops"/);
-  assert.match(offlineScanner, /const DB_VERSION = 3/);
+  assert.match(offlineScanner, /const DB_VERSION = 4/);
   assert.match(offlineScanner, /const PENDING_STORE_NAME = "pending-attendance-scans"/);
   assert.match(offlineScanner, /\/\^pdatt:\[A-Za-z0-9_-\]\{43\}\$\//);
-  assert.match(
-    offlineScanner,
-    /`\$\{selection\.ownerUserId\}:\$\{selection\.groupId\}:\$\{selection\.sessionId\}:\$\{selection\.qrPayload\}`/,
-  );
+  assert.match(offlineScanner, /createScanReference\(selection\)/);
+  assert.match(offlineScanner, /`attendance-scan:\$\{scanReference\}`/);
+  assert.doesNotMatch(offlineScanner, /`\$\{selection\.ownerUserId\}:\$\{selection\.groupId\}:\$\{selection\.sessionId\}:\$\{selection\.qrPayload\}`/);
   for (const field of [
     "groupId",
     "sessionId",
@@ -180,6 +295,9 @@ test("cold-offline coordinator shell queues only owner-scoped attendance scans",
     "id",
     "ownerUserId",
     "queuedAt",
+    "scanReference",
+    "attemptCount",
+    "nextAttemptAt",
   ]) {
     assert.match(offlineScanner, new RegExp(`\\b${field}\\b`));
   }
@@ -206,7 +324,7 @@ test("cold-offline coordinator shell queues only owner-scoped attendance scans",
 });
 
 test("service worker caches only the exact public offline runtime and safely re-warms it", () => {
-  assert.match(serviceWorker, /passdetection-public-static-v8/);
+  assert.match(serviceWorker, /passdetection-public-static-v9/);
   assert.match(
     serviceWorker,
     /const PUBLIC_STATIC_ASSETS = \[\s*"\/offline\.html",\s*"\/offline-scanner\.js",\s*"\/offline\/vendor\/zxing-browser\.min\.js",\s*\]/,

@@ -45,18 +45,6 @@ jest.mock('@/features/manager/data/manager-document-preview', () => ({
   loadManagerDocumentPreview: jest.fn(),
   removeManagerDocumentPreview: jest.fn(),
 }));
-jest.mock('@/core/security/sensitive-screen-protection', () => {
-  const React = require('react') as typeof import('react');
-  const { View: MockView } = require('react-native') as typeof import('react-native');
-  return {
-    SensitiveScreenProtection: ({ protectionKey }: { protectionKey: string }) => (
-      React.createElement(MockView, {
-        accessibilityLabel: protectionKey,
-        testID: 'sensitive-screen-protection',
-      })
-    ),
-  };
-});
 jest.mock('@/design/components/content-state', () => {
   const React = require('react') as typeof import('react');
   const { Text: MockText } = require('react-native') as typeof import('react-native');
@@ -105,8 +93,6 @@ test('never stores a manager image preview in the renderer cache', async () => {
 
   await waitFor(() => expect(screen.getByTestId('manager-image-preview')).toBeTruthy());
   expect(screen.getByTestId('manager-image-preview').props.cachePolicy).toBe('none');
-  expect(screen.getByTestId('sensitive-screen-protection').props.accessibilityLabel)
-    .toBe('manager-document-preview');
 });
 
 test('disables PDF renderer caching and removes plaintext across the background boundary', async () => {

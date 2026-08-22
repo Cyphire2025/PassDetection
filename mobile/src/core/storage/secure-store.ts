@@ -1,25 +1,31 @@
 import * as Crypto from 'expo-crypto';
 import { Directory, File, Paths } from 'expo-file-system';
-import * as SecureStore from 'expo-secure-store';
 
 import { excludeAppPrivateUriFromBackup } from './ios-backup';
+import { createReplicatedNamespaceMarker } from './replicated-namespace-marker';
 import {
   type AccountSecureValueKind,
   assertSecureValueAccessAvailable,
   isUnlockedOnlySecureValueAccessAvailable,
-  secureValuePolicy,
   type SecureValueKind,
 } from './secure-store-policy';
+import {
+  deleteSecureValueFromBackend,
+  readSecureValueFromBackend,
+  writeSecureValueToBackend,
+} from './secure-value-backend';
+import { compareAndSetSecureValue, withSecureValueOperation } from './secure-value-operation';
 
 const KEY_PREFIX = 'gc.v1';
 const NAMESPACE_INDEX_KEY = `${KEY_PREFIX}.namespaces`;
 const INSTALLATION_ID_KEY = `${KEY_PREFIX}.installation-id`;
 const ACTIVE_NAMESPACE_KEY = `${KEY_PREFIX}.active-namespace`;
 const PENDING_CLEANUP_KEY = `${KEY_PREFIX}.pending-cleanup`;
+const PENDING_AUTH_LOCK_KEY = `${KEY_PREFIX}.pending-auth-lock`;
 const INSTALL_MARKER = new File(Paths.document, '.gc-install-marker-v1');
 const PENDING_CLEANUP_FILE = new File(Paths.document, '.gc-pending-cleanup-v1.json');
+const PENDING_AUTH_LOCK_FILE = new File(Paths.document, '.gc-pending-auth-lock-v1.json');
 const secretCreationInFlight = new Map<string, Promise<string>>();
-const secureValueOperationTails = new Map<string, Promise<void>>();
 let namespaceIndexMutationTail: Promise<void> = Promise.resolve();
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -123,44 +129,11 @@ function keyFor(namespace: string, kind: SecretKind): string {
   return `${KEY_PREFIX}.${namespace}.${kind}`;
 }
 
-async function withSecureValueOperation<T>(key: string, operation: () => Promise<T>): Promise<T> {
-  const previous = secureValueOperationTails.get(key) ?? Promise.resolve();
-  let release!: () => void;
-  const tail = new Promise<void>((resolve) => {
-    release = resolve;
-  });
-  secureValueOperationTails.set(key, tail);
-  await previous;
-  try {
-    return await operation();
-  } finally {
-    release();
-    if (secureValueOperationTails.get(key) === tail) secureValueOperationTails.delete(key);
-  }
-}
-
 function readSecureValue(key: string, kind: SecureValueKind): Promise<string | null> {
-  return withSecureValueOperation(key, async () => {
-    assertSecureValueAccessAvailable(kind);
-    const { options } = secureValuePolicy(kind);
-    const current = await SecureStore.getItemAsync(key, options);
-    const legacy = await SecureStore.getItemAsync(key);
-
-    if (current !== null) {
-      // A crash between the copy and delete phases can leave a weaker legacy
-      // duplicate. Never return the hardened copy until that duplicate is gone.
-      if (legacy !== null) await SecureStore.deleteItemAsync(key);
-      return current;
-    }
-    if (legacy === null) return null;
-
-    // Copy first so process death cannot destroy the only usable value. A failed
-    // legacy delete rejects this read; the next attempt observes both copies and
-    // retries removal before exposing the value.
-    await SecureStore.setItemAsync(key, legacy, options);
-    await SecureStore.deleteItemAsync(key);
-    return legacy;
-  });
+  return withSecureValueOperation(
+    key,
+    () => readSecureValueFromBackend(key, kind),
+  );
 }
 
 function writeSecureValue(
@@ -168,32 +141,17 @@ function writeSecureValue(
   kind: SecureValueKind,
   value: string,
 ): Promise<void> {
-  return withSecureValueOperation(key, async () => {
-    assertSecureValueAccessAvailable(kind);
-    const { options } = secureValuePolicy(kind);
-    await SecureStore.setItemAsync(key, value, options);
-    // Always retire the pre-policy service after the new value is durable. This
-    // is idempotent and also closes an interrupted migration on the next write.
-    await SecureStore.deleteItemAsync(key);
-  });
+  return withSecureValueOperation(
+    key,
+    () => writeSecureValueToBackend(key, kind, value),
+  );
 }
 
 function deleteSecureValue(key: string, kind: SecureValueKind): Promise<void> {
-  return withSecureValueOperation(key, async () => {
-    let firstError: unknown;
-    const capture = async (operation: () => Promise<void>): Promise<void> => {
-      try {
-        await operation();
-      } catch (error) {
-        firstError ??= error;
-      }
-    };
-    // Cleanup is allowed while locked and must attempt both the policy service
-    // and the legacy service even when either native delete rejects.
-    await capture(() => SecureStore.deleteItemAsync(key, secureValuePolicy(kind).options));
-    await capture(() => SecureStore.deleteItemAsync(key));
-    if (firstError) throw firstError;
-  });
+  return withSecureValueOperation(
+    key,
+    () => deleteSecureValueFromBackend(key, kind),
+  );
 }
 
 async function readNamespaces(): Promise<string[]> {
@@ -354,7 +312,22 @@ export async function protectInstallationMarkersFromBackup(): Promise<void> {
   if (PENDING_CLEANUP_FILE.exists) {
     await excludeAppPrivateUriFromBackup(PENDING_CLEANUP_FILE.uri);
   }
+  if (PENDING_AUTH_LOCK_FILE.exists) {
+    await excludeAppPrivateUriFromBackup(PENDING_AUTH_LOCK_FILE.uri);
+  }
 }
+
+const authenticationLockMarker = createReplicatedNamespaceMarker({
+  assertNamespace,
+  errorMessage: 'Secure authentication-lock state could not be persisted.',
+  excludeFromBackup: excludeAppPrivateUriFromBackup,
+  file: PENDING_AUTH_LOCK_FILE,
+  mutate: mutateNamespaceIndex,
+  readSecureReplica: () => readSecureValue(PENDING_AUTH_LOCK_KEY, 'pending-cleanup'),
+  writeSecureReplica: (encoded) => (
+    writeSecureValue(PENDING_AUTH_LOCK_KEY, 'pending-cleanup', encoded)
+  ),
+});
 
 export async function clearSecureStateForInstallationReset(): Promise<void> {
   // Do not remove the namespace index until it has been read successfully; it
@@ -385,9 +358,13 @@ export async function clearSecureStateForInstallationReset(): Promise<void> {
     [INSTALLATION_ID_KEY, 'installation-id'],
     [ACTIVE_NAMESPACE_KEY, 'active-namespace'],
     [PENDING_CLEANUP_KEY, 'pending-cleanup'],
+    [PENDING_AUTH_LOCK_KEY, 'pending-cleanup'],
   ] as const).map(([key, kind]) => capture(() => deleteSecureValue(key, kind))));
   await capture(() => {
     if (PENDING_CLEANUP_FILE.exists) PENDING_CLEANUP_FILE.delete();
+  });
+  await capture(() => {
+    if (PENDING_AUTH_LOCK_FILE.exists) PENDING_AUTH_LOCK_FILE.delete();
   });
   await capture(() => {
     if (INSTALL_MARKER.exists) INSTALL_MARKER.delete();
@@ -463,6 +440,18 @@ export async function clearLocalCleanupPending(namespace: string): Promise<void>
   });
 }
 
+export async function getPendingAuthenticationLocks(): Promise<string[]> {
+  return authenticationLockMarker.get();
+}
+
+export async function markAuthenticationLockPending(namespace: string): Promise<void> {
+  await authenticationLockMarker.mark(namespace);
+}
+
+export async function clearAuthenticationLockPending(namespace: string): Promise<void> {
+  await authenticationLockMarker.clear(namespace);
+}
+
 export async function getRefreshToken(namespace: string): Promise<string | null> {
   return readSecureValue(keyFor(namespace, 'refresh'), 'refresh');
 }
@@ -481,6 +470,31 @@ export async function setOfflineAuthorizationRecord(
     'offline-authorization',
     JSON.stringify(record),
   );
+}
+export async function compareAndSetOfflineAuthorizationRecord(
+  namespace: string,
+  expected: OfflineAuthorizationRecord,
+  replacement: OfflineAuthorizationRecord,
+): Promise<boolean> {
+  if (!isOfflineAuthorizationRecord(expected) || !isOfflineAuthorizationRecord(replacement)) {
+    throw new Error('Invalid offline authorization record.');
+  }
+  assertSecureValueAccessAvailable('offline-authorization');
+  await trackNamespace(namespace);
+  const storageKey = keyFor(namespace, 'offline-authorization');
+  return compareAndSetSecureValue(storageKey, 'offline-authorization', (encoded) => {
+    if (encoded.length > 8_192) return false;
+    try {
+      const parsed: unknown = JSON.parse(encoded);
+      return isOfflineAuthorizationRecord(parsed)
+        && parsed.formatVersion === expected.formatVersion
+        && parsed.compactLease === expected.compactLease
+        && parsed.highWaterServerTimeMs === expected.highWaterServerTimeMs
+        && parsed.anchoredWallClockMs === expected.anchoredWallClockMs;
+    } catch {
+      return false;
+    }
+  }, JSON.stringify(replacement));
 }
 
 export async function getOfflineAuthorizationRecord(

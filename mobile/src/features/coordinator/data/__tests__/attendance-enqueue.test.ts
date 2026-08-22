@@ -1,9 +1,19 @@
-import { useSessionStore } from '@/core/auth/session-store';
+import { invalidateAuthenticationBoundary, useSessionStore } from '@/core/auth/session-store';
 import type { MobileSession } from '@/core/auth/types';
+import {
+  recordAttendanceLocalScanResult,
+  recordAttendanceTerminalRejection,
+} from '@/core/observability/attendance-observability';
 import { openAccountDatabase, withAccountTransaction } from '@/core/storage/database';
 
-import { attendanceSessionQueueStatus, enqueueQrScan } from '../attendance-queue';
+import {
+  attendanceSessionQueueStatus,
+  attendanceTripQueueStatus,
+  enqueueQrScan,
+} from '../attendance-queue';
+import { publishAttendanceCloseoutCheckpoint } from '../attendance-closeout-checkpoint';
 import { ATTENDANCE_QUEUE_POLICY } from '../attendance-policy';
+import { trustedAttendanceScanTime } from '../trusted-scan-time';
 
 jest.mock('expo-crypto', () => ({
   CryptoDigestAlgorithm: { SHA256: 'SHA256' },
@@ -16,9 +26,28 @@ jest.mock('@/core/storage/database', () => ({
   openAccountDatabase: jest.fn(),
   withAccountTransaction: jest.fn(),
 }));
+jest.mock('@/core/observability/attendance-observability', () => ({
+  recordAttendanceLocalScanResult: jest.fn(),
+  recordAttendanceTerminalRejection: jest.fn(),
+}));
+jest.mock('../attendance-closeout-checkpoint', () => ({
+  publishAttendanceCloseoutCheckpoint: jest.fn(),
+}));
+jest.mock('../trusted-scan-time', () => ({
+  trustedAttendanceScanTime: jest.fn(async () => ({
+    timestampMs: Date.now(),
+    deviceClockDifferenceMs: 0,
+  })),
+}));
 
 const mockedOpenDatabase = jest.mocked(openAccountDatabase);
+const mockedRecordAttendanceLocalScanResult = jest.mocked(recordAttendanceLocalScanResult);
+const mockedRecordAttendanceTerminalRejection = jest.mocked(recordAttendanceTerminalRejection);
+const mockedPublishAttendanceCloseoutCheckpoint = jest.mocked(
+  publishAttendanceCloseoutCheckpoint,
+);
 const mockedTransaction = jest.mocked(withAccountTransaction);
+const mockedTrustedScanTime = jest.mocked(trustedAttendanceScanTime);
 
 const TRIP_ID = '11111111-1111-4111-8111-111111111111';
 const SESSION_ID = '22222222-2222-4222-8222-222222222222';
@@ -45,7 +74,7 @@ const COORDINATOR_SESSION: MobileSession = {
 
 type StoredAction = {
   idempotency_key: string;
-  state: 'pending' | 'sending' | 'retryable' | 'rejected';
+  state: 'pending' | 'sending' | 'retryable' | 'needs_review' | 'rejected';
 };
 
 function compactSql(sql: string): string {
@@ -65,10 +94,15 @@ function activePayload(sessionId = SESSION_ID): { payload_json: string } {
 
 class EnqueueDatabase {
   readonly statements: string[] = [];
+  insertedPayload: string | null = null;
+  invalidateAuthenticationOnInsert = false;
   receipt: { client_event_id: string } | null = null;
   stored: StoredAction | null = null;
   activeRows: { payload_json: string }[] = [];
-  statusRows: { state: 'pending' | 'sending' | 'retryable'; count: number }[] = [];
+  statusRows: {
+    state: 'pending' | 'sending' | 'retryable' | 'needs_review';
+    count: number;
+  }[] = [];
   accountCount = 0;
   rosterFence = {
     advertised_roster_version: 7,
@@ -91,6 +125,8 @@ class EnqueueDatabase {
     const normalized = compactSql(sql);
     this.statements.push(normalized);
     if (normalized.startsWith('INSERT OR IGNORE INTO pending_actions')) {
+      if (this.invalidateAuthenticationOnInsert) invalidateAuthenticationBoundary();
+      this.insertedPayload = parameters[4] as string;
       this.stored = {
         idempotency_key: parameters[0] as string,
         state: 'pending',
@@ -131,6 +167,11 @@ class EnqueueDatabase {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockedPublishAttendanceCloseoutCheckpoint.mockResolvedValue({} as never);
+  mockedTrustedScanTime.mockResolvedValue({
+    timestampMs: Date.now(),
+    deviceClockDifferenceMs: 0,
+  });
   useSessionStore.getState().setSession(COORDINATOR_SESSION);
   mockedTransaction.mockImplementation(async (database, task) => {
     await task(database);
@@ -144,6 +185,11 @@ afterEach(() => {
 test('atomically stores a valid scan and runs bounded attendance maintenance', async () => {
   const database = new EnqueueDatabase();
   mockedOpenDatabase.mockResolvedValue(database as never);
+  const trustedNow = Date.now();
+  mockedTrustedScanTime.mockResolvedValueOnce({
+    timestampMs: trustedNow,
+    deviceClockDifferenceMs: 45_000,
+  });
 
   await expect(enqueueQrScan(TRIP_ID, SESSION_ID, SIGNED_QR, { assignedCount: 100 }))
     .resolves.toEqual({ status: 'queued', idempotencyKey: EVENT_ID, duplicate: false });
@@ -157,6 +203,77 @@ test('atomically stores a valid scan and runs bounded attendance maintenance', a
   expect(database.statements.some(
     (sql) => sql.includes(`LIMIT -1 OFFSET ${ATTENDANCE_QUEUE_POLICY.maxReceiptsPerTrip}`),
   )).toBe(true);
+  expect(JSON.parse(database.insertedPayload ?? '{}')).toMatchObject({
+    scanned_at: new Date(trustedNow).toISOString(),
+    signed_qr: SIGNED_QR,
+  });
+  expect(mockedRecordAttendanceLocalScanResult).toHaveBeenCalledWith('queued');
+  expect(mockedRecordAttendanceTerminalRejection).toHaveBeenCalledWith(
+    'LOCAL_QUEUE_EXPIRED',
+    0,
+  );
+  expect(mockedPublishAttendanceCloseoutCheckpoint).toHaveBeenCalledWith(
+    TRIP_ID,
+    SESSION_ID,
+  );
+});
+
+test('republishes only after the durable commit and isolates reporting failure', async () => {
+  const database = new EnqueueDatabase();
+  mockedOpenDatabase.mockResolvedValue(database as never);
+  let committed = false;
+  mockedTransaction.mockImplementationOnce(async (transactionDatabase, task) => {
+    await task(transactionDatabase);
+    committed = true;
+  });
+  mockedPublishAttendanceCloseoutCheckpoint.mockImplementationOnce(async () => {
+    expect(committed).toBe(true);
+    throw new Error('offline');
+  });
+
+  await expect(enqueueQrScan(TRIP_ID, SESSION_ID, SIGNED_QR)).resolves.toEqual({
+    status: 'queued',
+    idempotencyKey: EVENT_ID,
+    duplicate: false,
+  });
+  expect(mockedPublishAttendanceCloseoutCheckpoint).toHaveBeenCalledWith(
+    TRIP_ID,
+    SESSION_ID,
+  );
+});
+
+test('fails closed before storage when the signed trusted clock is unavailable', async () => {
+  mockedTrustedScanTime.mockRejectedValueOnce(Object.assign(new Error('clock rollback'), {
+    code: 'clock_rollback',
+  }));
+
+  await expect(enqueueQrScan(TRIP_ID, SESSION_ID, SIGNED_QR)).rejects.toMatchObject({
+    code: 'clock_rollback',
+  });
+  expect(mockedTransaction).not.toHaveBeenCalled();
+});
+
+test('fails closed if the authenticated account boundary changes during clock verification', async () => {
+  mockedTrustedScanTime.mockImplementationOnce(async () => {
+    invalidateAuthenticationBoundary();
+    return { timestampMs: Date.now(), deviceClockDifferenceMs: 0 };
+  });
+
+  await expect(enqueueQrScan(TRIP_ID, SESSION_ID, SIGNED_QR)).rejects.toMatchObject({
+    code: 'AUTH_CONTEXT_CHANGED',
+  });
+  expect(mockedTransaction).not.toHaveBeenCalled();
+});
+
+test('rejects the transaction if authentication changes during the native insert', async () => {
+  const database = new EnqueueDatabase();
+  database.invalidateAuthenticationOnInsert = true;
+  mockedOpenDatabase.mockResolvedValue(database as never);
+
+  await expect(enqueueQrScan(TRIP_ID, SESSION_ID, SIGNED_QR)).rejects.toMatchObject({
+    code: 'AUTH_CONTEXT_CHANGED',
+  });
+  expect(mockedTransaction).toHaveBeenCalledTimes(1);
 });
 
 test('suppresses immediate replay while the same token is already queued', async () => {
@@ -170,6 +287,7 @@ test('suppresses immediate replay while the same token is already queued', async
     duplicate: true,
   });
   expect(database.statements.some((sql) => sql.startsWith('INSERT OR IGNORE'))).toBe(false);
+  expect(mockedRecordAttendanceLocalScanResult).toHaveBeenCalledWith('already_queued');
 });
 
 test('distinguishes server-confirmed replay from a locally rejected audit item', async () => {
@@ -190,6 +308,16 @@ test('distinguishes server-confirmed replay from a locally rejected audit item',
   await expect(enqueueQrScan(TRIP_ID, SESSION_ID, SIGNED_QR)).resolves.toEqual({
     status: 'previously_rejected',
     idempotencyKey: 'rejected-event',
+    duplicate: true,
+  });
+
+  const reviewDatabase = new EnqueueDatabase();
+  reviewDatabase.stored = { idempotency_key: 'review-event', state: 'needs_review' };
+  mockedOpenDatabase.mockResolvedValueOnce(reviewDatabase as never);
+
+  await expect(enqueueQrScan(TRIP_ID, SESSION_ID, SIGNED_QR)).resolves.toEqual({
+    status: 'needs_review',
+    idempotencyKey: 'review-event',
     duplicate: true,
   });
 });
@@ -221,6 +349,7 @@ test('fails closed before inserting a forged token absent from the active trip r
     code: 'QR_NOT_IN_ACTIVE_ROSTER',
   });
   expect(database.statements.some((sql) => sql.startsWith('INSERT OR IGNORE'))).toBe(false);
+  expect(mockedRecordAttendanceLocalScanResult).not.toHaveBeenCalled();
 });
 
 test('fails closed when the complete roster fence is stale', async () => {
@@ -234,12 +363,13 @@ test('fails closed when the complete roster fence is stale', async () => {
   expect(database.statements.some((sql) => sql.startsWith('INSERT OR IGNORE'))).toBe(false);
 });
 
-test('restores durable pending, sending and retryable counts for the selected activity', async () => {
+test('restores durable active and needs-review counts for the selected activity', async () => {
   const database = new EnqueueDatabase();
   database.statusRows = [
     { state: 'pending', count: 2 },
     { state: 'sending', count: 1 },
     { state: 'retryable', count: 3 },
+    { state: 'needs_review', count: 4 },
   ];
   mockedOpenDatabase.mockResolvedValue(database as never);
 
@@ -247,6 +377,15 @@ test('restores durable pending, sending and retryable counts for the selected ac
     pending: 2,
     sending: 1,
     retryable: 3,
+    needsReview: 4,
+    awaitingConfirmation: 6,
+  });
+
+  await expect(attendanceTripQueueStatus(TRIP_ID)).resolves.toEqual({
+    pending: 2,
+    sending: 1,
+    retryable: 3,
+    needsReview: 4,
     awaitingConfirmation: 6,
   });
 });

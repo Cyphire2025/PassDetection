@@ -13,6 +13,9 @@ const EnvSchema = z.object({
 const realtimeEnabled = z.enum(['true', 'false'])
   .parse(process.env.EXPO_PUBLIC_REALTIME_ENABLED ?? 'false') === 'true';
 
+const maestroAttendanceFixtureRequested = z.enum(['true', 'false'])
+  .parse(process.env.EXPO_PUBLIC_MAESTRO_ATTENDANCE_FIXTURE ?? 'false') === 'true';
+
 const parsed = EnvSchema.parse({
   apiUrl: process.env.EXPO_PUBLIC_API_URL ?? 'http://127.0.0.1:8000/api/v1',
   appEnv: process.env.EXPO_PUBLIC_APP_ENV ?? 'development',
@@ -28,6 +31,10 @@ const demoModeRequested = process.env.EXPO_PUBLIC_DEMO_MODE === 'true';
 
 if (demoModeRequested && parsed.appEnv !== 'development') {
   throw new Error('The local demo mode can only be bundled with the development app environment.');
+}
+
+if (maestroAttendanceFixtureRequested && parsed.appEnv !== 'preview') {
+  throw new Error('The synthetic attendance fixture can only be bundled with the preview app environment.');
 }
 
 const apiUrl = new URL(parsed.apiUrl);
@@ -59,6 +66,14 @@ if (parsed.appEnv === 'production' && !parsed.sentryDsn) {
   throw new Error('Production builds require privacy-safe crash and ANR reporting.');
 }
 
+if (parsed.appEnv === 'production' && !parsed.realtimeEnabled) {
+  throw new Error('Production builds require realtime synchronization hints.');
+}
+
+if (parsed.appEnv === 'production' && parsed.appIntegrityMode !== 'enforce') {
+  throw new Error('Production builds require enforced platform app integrity.');
+}
+
 if (parsed.appIntegrityMode !== 'disabled' && !parsed.playIntegrityCloudProjectNumber) {
   throw new Error(
     'Enabled app integrity requires the public Google Cloud project number for Android.',
@@ -75,4 +90,6 @@ export const env = Object.freeze({
   playIntegrityCloudProjectNumber: parsed.playIntegrityCloudProjectNumber,
   sentryDsn: parsed.sentryDsn,
   demoModeRequested,
+  maestroAttendanceFixtureEnabled:
+    parsed.appEnv === 'preview' && maestroAttendanceFixtureRequested,
 });

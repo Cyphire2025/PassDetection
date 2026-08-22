@@ -97,6 +97,8 @@ class ClientGroupOutputDTO:
     deleted_at: datetime | None = None
     deleted_passport_count: int = 0
     deletion_retained_records: bool = False
+    passport_purge_at: datetime | None = None
+    passport_legal_hold: bool = False
 
 
 def client_group_output_from_entity(link) -> ClientGroupOutputDTO:  # type: ignore[no-untyped-def]
@@ -133,4 +135,6 @@ def client_group_output_from_entity(link) -> ClientGroupOutputDTO:  # type: igno
         deleted_at=link.deleted_at,
         deleted_passport_count=link.deleted_passport_count,
         deletion_retained_records=link.deletion_retained_records,
+        passport_purge_at=link.passport_purge_at,
+        passport_legal_hold=link.passport_legal_hold,
     )

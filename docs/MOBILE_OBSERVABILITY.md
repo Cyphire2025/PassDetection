@@ -77,7 +77,33 @@ Current measurements are:
   `gc.mobile.background.expiration`;
 - `gc.mobile.realtime.reconnect` and
   `gc.mobile.realtime.reconnect_delay`;
-- `gc.mobile.queue.depth` (available to the bounded queue maintainers).
+- `gc.mobile.realtime.connection` and
+  `gc.mobile.realtime.connection.duration`;
+- `gc.mobile.queue.depth` for synchronization, attendance, and document work;
+- `gc.mobile.attendance.needs_review.depth`;
+- `gc.mobile.attendance.acknowledgement_latency`,
+  `gc.mobile.attendance.retry`, and
+  `gc.mobile.attendance.refresh_recovery`;
+- `gc.mobile.attendance.discarded` (count only, explicit destructive action);
+- `gc.mobile.attendance.scan.local_result` for the completed local durable-
+  queue decision;
+- `gc.mobile.attendance.scan.confirmed` for server `accepted` versus
+  idempotent `already_applied` rows;
+- `gc.mobile.attendance.queue.oldest_pending_age` and
+  `gc.mobile.attendance.delivery.batch_size`;
+- `gc.mobile.attendance.delivery.failure`, with request failures reduced to a
+  fixed operational class;
+- `gc.mobile.attendance.scan.terminal_rejection`, whose reason is projected
+  onto a fixed safe category rather than retaining a server or local error;
+- `gc.mobile.attendance.camera_to_local_queue` and
+  `gc.mobile.attendance.queue_to_confirmation`;
+- `gc.mobile.attendance.reconciliation`, which records only a fixed
+  count-assessment outcome;
+- `gc.mobile.authentication.lock` and
+  `gc.mobile.authentication.quarantine.depth`;
+- `gc.mobile.storage.maintenance.duration`,
+  `gc.mobile.storage.maintenance.run`, and
+  `gc.mobile.storage.maintenance.changed_rows`.
 
 Only these attributes are accepted:
 
@@ -85,7 +111,23 @@ Only these attributes are accepted:
   `offline`;
 - `trigger`: `startup`, `foreground`, `background`, `realtime`, `push`,
   `manual`, or `mutation`;
-- `queue`: `sync`, `attendance`, or `documents`.
+- `queue`: `sync`, `attendance`, or `documents`;
+- `attendance_result`: `queued`, `already_queued`, `already_confirmed`,
+  `needs_review`, `previously_rejected`, `capacity_reached`, `accepted`, or
+  `already_applied`;
+- `terminal_reason`: `authorization`, `assignment`, `activity_state`,
+  `timestamp`, `idempotency`, `qr_evidence`, `local_payload`,
+  `local_expired`, `client_request`, or `other`;
+- `reconciliation`: `ready`, `count_mismatch`, `pending_queue`,
+  `needs_review`, or `unverifiable`;
+- `delivery_failure`: `rate_limited`, `server_error`, `timeout`, `network`, or
+  `other`.
+
+Attendance and authentication helpers accept counts, durations, and these
+fixed enums only. They do not accept or forward passenger, coordinator,
+account, trip, activity, queue-row, client-event, QR, device, URL, or raw-error
+values. Terminal server codes are classified locally and the original code is
+discarded before the metric envelope is built.
 
 The bootstrap metric begins when the observability module loads and ends after
 the existing application-session bootstrap resolves. It is therefore a stable
@@ -124,8 +166,14 @@ project containing no real passenger data:
    rollback timestamps.
 
 The current metrics establish startup/sync/background/reconnect distributions,
-but do not yet prove dashboard-commit-to-visible freshness, document-open, or
-attendance-confirmation latency. Those require explicit start/end correlation
-at their authoritative boundaries, queue-depth wiring, production dashboards,
-and outage-correlation evidence. Generic tracing remains disabled until that
-work has an equally strict privacy contract.
+local and server attendance outcomes, camera-to-durable-queue and
+queue-to-confirmation latency, retry/recovery counts, queue age/depth, safe
+terminal-reason classes, authentication fencing, and count-only reconciliation
+assessments. A `reconciliation=ready` envelope is an observation from one app
+assessment, not authoritative proof that an entire event or physical-device
+fleet is clear. The metrics also do not by themselves prove dashboard-visible
+freshness, document-open latency, production capacity, paging delivery, or
+on-call response. Those require the external staging/device/load/alert gates in
+`MOBILE_ATTENDANCE_EVENT_RUNBOOK.md` and `load-tests/k6/MOBILE_LOAD_TESTING.md`.
+Generic tracing remains disabled until it has an equally strict privacy
+contract.

@@ -11,6 +11,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from fastapi import HTTPException
 from pydantic import ValidationError
+from sqlalchemy.dialects import postgresql
 
 from app.core.security.mobile_jwt import MobileAccessClaims
 from app.domain.exceptions.exceptions import AuthorizationError, EntityNotFoundError
@@ -36,16 +37,29 @@ from app.presentation.api.v1.routes.mobile_ops import (
     _scannable_passenger_snapshot,
     _validate_manager_document_signature,
     apply_mobile_attendance_actions,
+    complete_mobile_attendance_session,
+    complete_mobile_manager_attendance_session,
+    create_mobile_attendance_session,
     create_mobile_incident,
+    create_mobile_manager_attendance_session,
     get_mobile_coordinator_passenger,
+    get_mobile_manager_attendance_closeout_status,
     get_mobile_manager_passenger,
     list_mobile_coordinator_passengers,
     list_mobile_manager_passengers,
+    publish_mobile_attendance_closeout_checkpoint,
     router,
+)
+from app.presentation.api.v1.schemas.attendance_closeout_schemas import (
+    AttendanceCloseoutCheckpointRequest,
+    AttendanceCloseoutCoordinatorStatusResponse,
+    AttendanceCloseoutStatusResponse,
+    AttendanceCloseRequest,
 )
 from app.presentation.api.v1.schemas.mobile_schemas import (
     MobileAttendanceActionInput,
     MobileAttendanceBatchRequest,
+    MobileAttendanceSessionCreateRequest,
     MobileIncidentCreateRequest,
     MobilePushRegistrationRequest,
 )
@@ -89,6 +103,7 @@ def test_mobile_ops_routes_match_native_client_contract() -> None:
         "/coordinator/groups/{group_id}/passengers/{passenger_id}",
         "/coordinator/groups/{group_id}/attendance/sessions",
         "/coordinator/groups/{group_id}/attendance/sessions/{session_id}",
+        "/coordinator/groups/{group_id}/attendance/sessions/{session_id}/closeout-checkpoint",
         "/coordinator/groups/{group_id}/attendance/sessions/{session_id}/complete",
         "/coordinator/groups/{group_id}/attendance/sessions/{session_id}/roster",
         "/coordinator/groups/{group_id}/attendance/actions",
@@ -98,18 +113,537 @@ def test_mobile_ops_routes_match_native_client_contract() -> None:
         "/manager/groups/{group_id}/passengers/{passenger_id}",
         "/manager/groups/{group_id}/passengers/{passenger_id}/documents/{document_type}/preview",
         "/manager/groups/{group_id}/attendance/sessions",
+        "/manager/groups/{group_id}/attendance/sessions/{session_id}/closeout",
+        "/manager/groups/{group_id}/attendance/sessions/{session_id}/complete",
         "/manager/groups/{group_id}/attendance/sessions/{session_id}/roster",
         "/push/register",
         "/push/unregister",
         "/notifications",
         "/notifications/{notification_id}/read",
     }
+    coordinator_create = next(
+        route
+        for route in router.routes
+        if route.path == "/coordinator/groups/{group_id}/attendance/sessions"
+        and "POST" in route.methods
+    )
+    manager_create = next(
+        route
+        for route in router.routes
+        if route.path == "/manager/groups/{group_id}/attendance/sessions"
+        and "POST" in route.methods
+    )
+    assert coordinator_create.deprecated is True
+    assert manager_create.deprecated is not True
+
+
+def _closeout_response(
+    state: str = "ready",
+    *,
+    pending_count: int = 0,
+) -> AttendanceCloseoutStatusResponse:
+    coordinator = AttendanceCloseoutCoordinatorStatusResponse(
+        coordinator_id=uuid.uuid4(),
+        coordinator_name="Coordinator",
+        state=state,  # type: ignore[arg-type]
+        reported_at=(datetime.now(tz=UTC) if state != "missing" else None),
+        report_age_seconds=(0 if state != "missing" else None),
+        pending_count=pending_count,
+        sending_count=0,
+        retryable_count=0,
+        needs_review_count=0,
+        unreviewed_rejected_count=0,
+        oldest_pending_age_seconds=(1 if pending_count else None),
+    )
+    ready = state == "ready"
+    return AttendanceCloseoutStatusResponse(
+        ready=ready,
+        checkpoint_ttl_seconds=120,
+        active_assignment_count=1,
+        ready_assignment_count=1 if ready else 0,
+        missing_assignment_count=1 if state == "missing" else 0,
+        stale_assignment_count=1 if state == "stale" else 0,
+        nonzero_assignment_count=1 if pending_count else 0,
+        blocked_assignment_count=0 if ready else 1,
+        unresolved_count=pending_count,
+        oldest_pending_age_seconds=1 if pending_count else None,
+        coordinators=[coordinator],
+    )
 
 
 @pytest.mark.asyncio
 async def test_client_manager_trip_scope_fails_closed_for_other_mobile_roles() -> None:
     with pytest.raises(AuthorizationError, match="Client manager"):
         await _require_client_manager_trip(MagicMock(), _claims("coordinator"), uuid.uuid4())
+
+
+@pytest.mark.asyncio
+async def test_legacy_coordinator_global_close_is_explicitly_denied_before_session_lookup() -> None:
+    claims = _claims("coordinator")
+    group_id = uuid.uuid4()
+    database = MagicMock()
+    authorize = AsyncMock(return_value=SimpleNamespace())
+    lookup = AsyncMock()
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._require_coordinator_trip",
+            new=authorize,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._mobile_attendance_session",
+            new=lookup,
+        ),
+        pytest.raises(AuthorizationError, match="Only an authorized Client Manager"),
+    ):
+        await complete_mobile_attendance_session(
+            group_id=group_id,
+            session_id=uuid.uuid4(),
+            claims=claims,
+            session=database,
+        )
+
+    authorize.assert_awaited_once_with(database, claims, group_id)
+    lookup.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_legacy_coordinator_activity_create_is_denied_before_any_write() -> None:
+    claims = _claims("coordinator")
+    group_id = uuid.uuid4()
+    database = MagicMock()
+    authorize = AsyncMock(return_value=SimpleNamespace())
+    create = AsyncMock()
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._require_coordinator_trip",
+            new=authorize,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._create_canonical_attendance_activity",
+            new=create,
+        ),
+        pytest.raises(AuthorizationError, match="authorized Client Manager"),
+    ):
+        await create_mobile_attendance_session(
+            group_id=group_id,
+            body=MobileAttendanceSessionCreateRequest(name="Unauthorized count"),
+            claims=claims,
+            session=database,
+        )
+
+    authorize.assert_awaited_once_with(database, claims, group_id)
+    create.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_manager_global_close_rejects_coordinator_before_any_object_query() -> None:
+    database = MagicMock()
+    database.execute = AsyncMock()
+
+    with pytest.raises(AuthorizationError, match="Client manager"):
+        await complete_mobile_manager_attendance_session(
+            group_id=uuid.uuid4(),
+            session_id=uuid.uuid4(),
+            request=MagicMock(),
+            claims=_claims("coordinator"),
+            session=database,
+        )
+
+    database.execute.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_client_manager_creation_uses_canonical_boundary_and_notifies_coordinators() -> None:
+    claims = _claims("client_manager")
+    group_id = uuid.uuid4()
+    activity = SimpleNamespace(id=uuid.uuid4(), status="active")
+    access = SimpleNamespace(manifest_version=17)
+    trip = SimpleNamespace(access=access)
+    expected = SimpleNamespace(id=activity.id, scanned_count=0, assigned_count=800)
+    database = MagicMock()
+    authorize = AsyncMock(return_value=trip)
+    create = AsyncMock(return_value=(activity, "created"))
+    responses = AsyncMock(return_value=[expected])
+    append_change = AsyncMock()
+    audit = MagicMock(record=AsyncMock())
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._require_client_manager_trip",
+            new=authorize,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._create_canonical_attendance_activity",
+            new=create,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._mobile_attendance_session_responses",
+            new=responses,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops.append_mobile_sync_change",
+            new=append_change,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops.AuditLogRepository",
+            return_value=audit,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops.trusted_client_ip",
+            return_value="203.0.113.10",
+        ),
+    ):
+        result = await create_mobile_manager_attendance_session(
+            group_id=group_id,
+            body=MobileAttendanceSessionCreateRequest(name="Airport reporting"),
+            request=MagicMock(),
+            claims=claims,
+            session=database,
+        )
+
+    assert result is expected
+    authorize.assert_awaited_once_with(database, claims, group_id)
+    create.assert_awaited_once_with(
+        database,
+        agency_id=claims.agency_id,
+        group_id=group_id,
+        name="Airport reporting",
+        created_by_user_id=claims.principal_id,
+    )
+    append_change.assert_awaited_once()
+    assert append_change.await_args.kwargs["audience"] == "coordinator"
+    assert append_change.await_args.kwargs["entity_id"] == activity.id
+    audit.record.assert_awaited_once()
+    assert audit.record.await_args.kwargs["metadata"] == {
+        "group_id": str(group_id),
+        "outcome": "created",
+        "canonical_session_id": str(activity.id),
+    }
+
+
+@pytest.mark.asyncio
+async def test_client_manager_global_close_uses_locked_shared_boundary_and_audits() -> None:
+    claims = _claims("client_manager")
+    group_id = uuid.uuid4()
+    activity = SimpleNamespace(id=uuid.uuid4(), status="active")
+    access = SimpleNamespace(manifest_version=17)
+    trip = SimpleNamespace(access=access)
+    expected = SimpleNamespace(scanned_count=794, assigned_count=800)
+    database = MagicMock()
+    authorize = AsyncMock(return_value=trip)
+    lookup = AsyncMock(return_value=activity)
+    lock_group = AsyncMock()
+    closeout = _closeout_response()
+    load_closeout = AsyncMock(return_value=closeout)
+    close = AsyncMock(return_value=True)
+    responses = AsyncMock(return_value=[expected])
+    append_change = AsyncMock()
+    audit = MagicMock(record=AsyncMock())
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._require_client_manager_trip",
+            new=authorize,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._mobile_attendance_session",
+            new=lookup,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._lock_attendance_closeout_group",
+            new=lock_group,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._load_attendance_closeout_status",
+            new=load_closeout,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._close_shared_attendance_activity",
+            new=close,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._mobile_attendance_session_responses",
+            new=responses,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops.append_mobile_sync_change",
+            new=append_change,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops.AuditLogRepository",
+            return_value=audit,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops.trusted_client_ip",
+            return_value="203.0.113.10",
+        ),
+    ):
+        result = await complete_mobile_manager_attendance_session(
+            group_id=group_id,
+            session_id=activity.id,
+            request=MagicMock(),
+            claims=claims,
+            session=database,
+        )
+
+    assert result is expected
+    authorize.assert_awaited_once_with(database, claims, group_id)
+    lock_group.assert_awaited_once_with(
+        database,
+        agency_id=claims.agency_id,
+        group_id=group_id,
+    )
+    lookup.assert_awaited_once_with(
+        database,
+        claims=claims,
+        group_id=group_id,
+        session_id=activity.id,
+        lock=True,
+    )
+    close.assert_awaited_once_with(database, activity)
+    append_change.assert_awaited_once()
+    assert append_change.await_args.kwargs["audience"] == "coordinator"
+    assert append_change.await_args.kwargs["entity_type"] == "attendance_session"
+    audit.record.assert_awaited_once()
+    assert audit.record.await_args.kwargs["metadata"] == {
+        "group_id": str(group_id),
+        "server_scanned_count": 794,
+        "assigned_count": 800,
+        "late_offline_reconciliation_allowed": True,
+        "closeout": {
+            "exception_used": False,
+            "exception_reason": None,
+            "checkpoint_ttl_seconds": 120,
+            "active_assignment_count": 1,
+            "ready_assignment_count": 1,
+            "missing_assignment_count": 0,
+            "stale_assignment_count": 0,
+            "nonzero_assignment_count": 0,
+            "blocked_assignment_count": 0,
+            "unresolved_count": 0,
+            "oldest_pending_age_seconds": None,
+            "coordinators": [
+                {
+                    "coordinator_id": str(closeout.coordinators[0].coordinator_id),
+                    "state": "ready",
+                    "reported_at": closeout.coordinators[0].reported_at.isoformat(),
+                    "pending_count": 0,
+                    "sending_count": 0,
+                    "retryable_count": 0,
+                    "needs_review_count": 0,
+                    "unreviewed_rejected_count": 0,
+                    "oldest_pending_age_seconds": None,
+                }
+            ],
+        },
+    }
+
+
+@pytest.mark.asyncio
+async def test_mobile_coordinator_checkpoint_uses_shared_activity_lock_and_count_only_identity() -> None:
+    claims = _claims("coordinator")
+    group_id = uuid.uuid4()
+    activity = SimpleNamespace(id=uuid.uuid4(), status="active")
+    checkpoint = SimpleNamespace(reported_at=datetime.now(tz=UTC))
+    repository = MagicMock(publish=AsyncMock(return_value=checkpoint))
+    authorize = AsyncMock(return_value=SimpleNamespace())
+    lookup = AsyncMock(return_value=activity)
+    body = AttendanceCloseoutCheckpointRequest(
+        pending_count=2,
+        sending_count=0,
+        retryable_count=0,
+        needs_review_count=1,
+        unreviewed_rejected_count=0,
+        oldest_pending_age_seconds=15,
+    )
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._require_coordinator_trip",
+            new=authorize,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._mobile_attendance_session",
+            new=lookup,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops.AttendanceCloseoutRepository",
+            return_value=repository,
+        ),
+    ):
+        response = await publish_mobile_attendance_closeout_checkpoint(
+            group_id=group_id,
+            session_id=activity.id,
+            body=body,
+            claims=claims,
+            session=MagicMock(),
+        )
+
+    lookup.assert_awaited_once()
+    assert lookup.await_args.kwargs["lock"] == "read"
+    publish_kwargs = repository.publish.await_args.kwargs
+    assert publish_kwargs["coordinator_user_id"] == claims.principal_id
+    assert set(publish_kwargs["counts"].__dataclass_fields__) == {
+        "pending_count",
+        "sending_count",
+        "retryable_count",
+        "needs_review_count",
+        "unreviewed_rejected_count",
+        "oldest_pending_age_seconds",
+    }
+    assert response.pending_count == 2
+    assert response.needs_review_count == 1
+
+
+@pytest.mark.asyncio
+async def test_mobile_manager_close_fails_closed_before_state_change_when_checkpoint_missing() -> None:
+    claims = _claims("client_manager")
+    group_id = uuid.uuid4()
+    activity = SimpleNamespace(id=uuid.uuid4(), status="active")
+    close = AsyncMock()
+    responses = AsyncMock()
+    with (
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._require_client_manager_trip",
+            new=AsyncMock(return_value=SimpleNamespace()),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._lock_attendance_closeout_group",
+            new=AsyncMock(),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._mobile_attendance_session",
+            new=AsyncMock(return_value=activity),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._load_attendance_closeout_status",
+            new=AsyncMock(return_value=_closeout_response("missing")),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._close_shared_attendance_activity",
+            new=close,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._mobile_attendance_session_responses",
+            new=responses,
+        ),
+        pytest.raises(HTTPException) as caught,
+    ):
+        await complete_mobile_manager_attendance_session(
+            group_id=group_id,
+            session_id=activity.id,
+            request=MagicMock(),
+            claims=claims,
+            session=MagicMock(),
+        )
+
+    assert caught.value.status_code == 409
+    assert caught.value.detail["code"] == "ATTENDANCE_CLOSEOUT_BLOCKED"
+    close.assert_not_awaited()
+    responses.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_mobile_manager_exception_matches_web_guard_and_audit_contract() -> None:
+    claims = _claims("client_manager")
+    group_id = uuid.uuid4()
+    activity = SimpleNamespace(id=uuid.uuid4(), status="active")
+    closeout = _closeout_response("blocked", pending_count=3)
+    response = SimpleNamespace(scanned_count=797, assigned_count=800)
+    audit = MagicMock(record=AsyncMock())
+    with (
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._require_client_manager_trip",
+            new=AsyncMock(return_value=SimpleNamespace(access=SimpleNamespace(manifest_version=9))),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._lock_attendance_closeout_group",
+            new=AsyncMock(),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._mobile_attendance_session",
+            new=AsyncMock(return_value=activity),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._load_attendance_closeout_status",
+            new=AsyncMock(return_value=closeout),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._close_shared_attendance_activity",
+            new=AsyncMock(return_value=True),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._mobile_attendance_session_responses",
+            new=AsyncMock(return_value=[response]),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops.append_mobile_sync_change",
+            new=AsyncMock(),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops.AuditLogRepository",
+            return_value=audit,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops.trusted_client_ip",
+            return_value="203.0.113.13",
+        ),
+    ):
+        result = await complete_mobile_manager_attendance_session(
+            group_id=group_id,
+            session_id=activity.id,
+            request=MagicMock(),
+            claims=claims,
+            session=MagicMock(),
+            body=AttendanceCloseRequest(
+                exception_reason="approved transport emergency override",
+            ),
+        )
+
+    assert result is response
+    audited = audit.record.await_args.kwargs["metadata"]["closeout"]
+    assert audited["exception_used"] is True
+    assert audited["exception_reason"] == "approved transport emergency override"
+    assert audited["unresolved_count"] == 3
+
+
+@pytest.mark.asyncio
+async def test_mobile_manager_status_returns_only_safe_closeout_aggregates() -> None:
+    claims = _claims("client_manager")
+    group_id = uuid.uuid4()
+    activity = SimpleNamespace(id=uuid.uuid4(), status="active")
+    closeout = _closeout_response("blocked", pending_count=1)
+    load = AsyncMock(return_value=closeout)
+    with (
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._require_client_manager_trip",
+            new=AsyncMock(return_value=SimpleNamespace()),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._mobile_attendance_session",
+            new=AsyncMock(return_value=activity),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._load_attendance_closeout_status",
+            new=load,
+        ),
+    ):
+        result = await get_mobile_manager_attendance_closeout_status(
+            group_id=group_id,
+            session_id=activity.id,
+            claims=claims,
+            session=MagicMock(),
+        )
+
+    assert result is closeout
+    serialized = result.model_dump(mode="json")
+    assert "coordinators" in serialized
+    assert not any(
+        forbidden in str(serialized).lower()
+        for forbidden in ("qr_payload", "passenger_id", "device_id", "client_event_id")
+    )
 
 
 @pytest.mark.asyncio
@@ -403,6 +937,48 @@ async def test_attendance_batch_returns_per_item_idempotent_results() -> None:
 
 
 @pytest.mark.asyncio
+async def test_mobile_batch_rejects_a_fresh_scan_after_manager_close() -> None:
+    claims = _claims()
+    group_id = uuid.uuid4()
+    completed_at = datetime.now(tz=UTC) - timedelta(seconds=1)
+    action = _action()
+    attendance_session = SimpleNamespace(
+        id=uuid.uuid4(),
+        status="completed",
+        started_at=completed_at - timedelta(hours=1),
+        completed_at=completed_at,
+    )
+    qr_lookup = AsyncMock()
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._require_coordinator_trip",
+            new=AsyncMock(return_value=SimpleNamespace(access=SimpleNamespace())),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._attendance_sessions_for_actions",
+            new=AsyncMock(return_value={None: attendance_session}),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._scannable_passenger_snapshot",
+            new=qr_lookup,
+        ),
+    ):
+        response = await apply_mobile_attendance_actions(
+            group_id=group_id,
+            body=MobileAttendanceBatchRequest(actions=[action]),
+            claims=claims,
+            session=MagicMock(),
+        )
+
+    assert len(response.results) == 1
+    assert response.results[0].status == "rejected"
+    assert response.results[0].reason_code == "SCANNED_OUTSIDE_SESSION_WINDOW"
+    qr_lookup.assert_awaited_once()
+    assert qr_lookup.await_args.kwargs["actions"] == []
+
+
+@pytest.mark.asyncio
 async def test_attendance_replay_rejects_event_id_bound_to_another_passenger() -> None:
     claims = _claims()
     requested_passenger = uuid.uuid4()
@@ -464,20 +1040,24 @@ async def test_attendance_session_batch_uses_two_bounded_scoped_reads() -> None:
     assert session.execute.await_count == 2
     requested_sql = str(
         session.execute.await_args_list[0].args[0].compile(
+            dialect=postgresql.dialect(),
             compile_kwargs={"literal_binds": True}
         )
     )
     default_sql = str(
         session.execute.await_args_list[1].args[0].compile(
+            dialect=postgresql.dialect(),
             compile_kwargs={"literal_binds": True}
         )
     )
     assert "attendance_sessions.agency_id" in requested_sql
     assert "attendance_sessions.group_id" in requested_sql
-    assert claims.agency_id.hex in requested_sql
-    assert group_id.hex in requested_sql
-    assert requested_id.hex in requested_sql
+    assert str(claims.agency_id) in requested_sql
+    assert str(group_id) in requested_sql
+    assert str(requested_id) in requested_sql
+    assert "FOR SHARE" in requested_sql
     assert "LIMIT 2" in default_sql
+    assert "FOR SHARE" in default_sql
 
 
 @pytest.mark.asyncio

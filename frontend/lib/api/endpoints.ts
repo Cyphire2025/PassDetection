@@ -36,6 +36,13 @@ export const API_ENDPOINTS = {
     logoutAll: "/api/v1/auth/logout-all",
     refresh: "/api/v1/auth/refresh",
     me: "/api/v1/auth/me",
+    activate: "/api/v1/auth/activate",
+    mfaVerify: "/api/v1/auth/mfa/verify",
+    mfaStepUp: "/api/v1/auth/mfa/step-up",
+    mfaRecoveryCodes: "/api/v1/auth/mfa/recovery-codes/regenerate",
+    passwordChange: "/api/v1/auth/password/change",
+    passwordRecoveryRequest: "/api/v1/auth/password/recovery/request",
+    passwordRecoveryComplete: "/api/v1/auth/password/recovery/complete",
   },
 
   agencies: {
@@ -292,7 +299,12 @@ export const API_ENDPOINTS = {
     myGroupSessions: (groupId: string) => `/api/v1/tour-operations/coordinator/groups/${groupId}/sessions`,
     mySessionDetails: (sessionId: string) => `/api/v1/tour-operations/coordinator/sessions/${sessionId}/details`,
     mySessionScan: (sessionId: string) => `/api/v1/tour-operations/coordinator/sessions/${sessionId}/scan`,
-    mySessionComplete: (sessionId: string) => `/api/v1/tour-operations/coordinator/sessions/${sessionId}/complete`,
+    mySessionCloseoutCheckpoint: (groupId: string, sessionId: string) =>
+      `/api/v1/tour-operations/coordinator/groups/${groupId}/sessions/${sessionId}/closeout-checkpoint`,
+    managedSessions: (groupId: string) => `/api/v1/tour-operations/groups/${groupId}/attendance/sessions`,
+    managedSessionComplete: (groupId: string, sessionId: string) => `/api/v1/tour-operations/groups/${groupId}/attendance/sessions/${sessionId}/complete`,
+    managedSessionCloseout: (groupId: string, sessionId: string) =>
+      `/api/v1/tour-operations/groups/${groupId}/attendance/sessions/${sessionId}/closeout`,
   },
 
   rooming: {
@@ -340,9 +352,12 @@ export const API_ENDPOINTS = {
     staff: "/api/v1/admin/accounts/staff",
     account: (accountId: string) => `/api/v1/admin/accounts/${accountId}`,
     accountPassword: (accountId: string) => `/api/v1/admin/accounts/${accountId}/reset-password`,
+    accountMfa: (accountId: string) => `/api/v1/admin/accounts/${accountId}/reset-mfa`,
     accountSessions: (accountId: string) => `/api/v1/admin/accounts/${accountId}/revoke-sessions`,
     accountStatus: (accountId: string) => `/api/v1/admin/accounts/${accountId}/status`,
     settings: "/api/v1/admin/settings",
+    passportRetention: (groupId: string) =>
+      `/api/v1/admin/groups/${encodeURIComponent(groupId)}/passport-retention`,
     passportData: "/api/v1/admin/passport-data",
     emailAiRollout: "/api/v1/admin/email-ai-rollout",
   },

@@ -33,6 +33,9 @@ jest.mock('expo-file-system', () => ({
   Paths: { cache: 'file:///cache/' },
 }));
 jest.mock('@/core/api/client', () => ({ apiDownloadToFile: jest.fn() }));
+jest.mock('@/core/security/device-risk', () => ({
+  assertSensitiveOfflineStorageAllowed: jest.fn(async () => undefined),
+}));
 jest.mock('@/core/storage/ios-backup', () => ({
   nativePathForAppPrivateFileUri: (uri: string) => uri.replace('file://', ''),
 }));
@@ -53,6 +56,17 @@ test('purges every crash-left manager preview from its dedicated cache directory
   expect(mockDeleteDirectory).toHaveBeenCalledTimes(1);
 });
 
+test('rejects untrusted route identities before creating or downloading a preview', async () => {
+  await expect(loadManagerDocumentPreview(
+    '../other-trip',
+    '22222222-2222-4222-8222-222222222222',
+    'visa',
+  )).rejects.toThrow('identity was invalid');
+
+  expect(mockFileConstructor).not.toHaveBeenCalled();
+  expect(mockedApiDownload).not.toHaveBeenCalled();
+});
+
 test('an account or app lifecycle purge invalidates a preview download already in flight', async () => {
   let resolveResponse!: (response: Awaited<ReturnType<typeof apiDownloadToFile>>) => void;
   mockedApiDownload.mockReturnValueOnce(new Promise((resolve) => {
@@ -64,6 +78,8 @@ test('an account or app lifecycle purge invalidates a preview download already i
     '22222222-2222-4222-8222-222222222222',
     'visa',
   );
+  await Promise.resolve();
+  expect(mockedApiDownload).toHaveBeenCalledTimes(1);
   await purgeManagerDocumentPreviews();
   temporaryFile.exists = true;
   temporaryFile.size = 5;

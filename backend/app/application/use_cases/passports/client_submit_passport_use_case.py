@@ -15,6 +15,7 @@ from app.application.dtos.passport_dtos import (
     PassportSubmissionOutputDTO,
     passport_submission_output_from_entity,
 )
+from app.application.platform_policies import PlatformPolicies, PlatformPolicyProvider
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import OFFICE_VISIBLE_PASSPORT_STATUS_VALUES
 from app.domain.exceptions.exceptions import EntityNotFoundError, ValidationError
@@ -52,10 +53,12 @@ class ClientSubmitPassportUseCase:
         passport_repo: IPassportSubmissionRepository,
         client_group_repo: IClientGroupRepository,
         storage_repo: IObjectStorageRepository,
+        platform_policy_provider: PlatformPolicyProvider | None = None,
     ) -> None:
         self._passport_repo = passport_repo
         self._client_group_repo = client_group_repo
         self._storage_repo = storage_repo
+        self._platform_policy_provider = platform_policy_provider
 
     async def execute(
         self,
@@ -88,6 +91,17 @@ class ClientSubmitPassportUseCase:
         group = await self._client_group_repo.get_by_token(group_token)
         if not group:
             raise EntityNotFoundError("ClientGroup", group_token)
+
+        policies = (
+            await self._platform_policy_provider.load()
+            if self._platform_policy_provider is not None
+            else PlatformPolicies(
+                # Preserve historical behaviour for direct/domain callers that
+                # do not inject runtime platform settings.
+                require_client_email=True,
+                require_client_phone=True,
+            )
+        )
 
         submission = await self._passport_repo.get_by_id_for_update(submission_id)
         if not submission:
@@ -129,9 +143,13 @@ class ClientSubmitPassportUseCase:
         normalized_head_phone = self._normalize_phone(family_head_phone) if family_head_phone and family_head_phone.strip() else None
 
         if normalized_mode == "single":
-            if not normalized_email:
+            if policies.require_client_email and not normalized_email:
                 raise ValidationError("Enter a valid email address.", field="client_email")
-            if not normalized_phone:
+            if client_email and not normalized_email:
+                raise ValidationError("Enter a valid email address.", field="client_email")
+            if policies.require_client_phone and not normalized_phone:
+                raise ValidationError("Enter a valid phone number.", field="client_phone")
+            if client_phone and not normalized_phone:
                 raise ValidationError("Enter a valid phone number.", field="client_phone")
             normalized_head_name = None
             normalized_head_email = None
@@ -146,10 +164,14 @@ class ClientSubmitPassportUseCase:
             normalized_head_name = " ".join((family_head_name or "").strip().split())
             if len(normalized_head_name) < 2:
                 raise ValidationError("Head of family name is required.", field="family_head_name")
-            if not normalized_head_email:
+            if policies.require_client_email and not normalized_head_email:
                 raise ValidationError("Head of family email is required.", field="family_head_email")
-            if not normalized_head_phone:
+            if family_head_email and not normalized_head_email:
+                raise ValidationError("Enter a valid head of family email.", field="family_head_email")
+            if policies.require_client_phone and not normalized_head_phone:
                 raise ValidationError("Head of family phone number is required.", field="family_head_phone")
+            if family_head_phone and not normalized_head_phone:
+                raise ValidationError("Enter a valid head of family phone number.", field="family_head_phone")
             if client_phone and not normalized_phone:
                 raise ValidationError("Enter a valid family member phone number.", field="client_phone")
             normalized_relation = " ".join((family_relation or "").strip().split())[:80] or None
@@ -217,16 +239,38 @@ class ClientSubmitPassportUseCase:
             custom_detail_answers,
         )
 
-        if normalized_mode == "single" and (normalized_email or normalized_phone) and await self._passport_repo.exists_contact_in_group(
-            group.id,
-            client_email=normalized_email,
-            client_phone=normalized_phone,
-            exclude_submission_id=submission.id,
-        ):
-            raise ValidationError(
-                "This email or phone number has already been used for this group.",
-                field="client_contact",
+        duplicate_policy = policies.duplicate_contact_policy
+        if duplicate_policy != "allow":
+            primary_email = (
+                normalized_email if normalized_mode == "single" else normalized_head_email
             )
+            primary_phone = (
+                normalized_phone if normalized_mode == "single" else normalized_head_phone
+            )
+            if await self._passport_repo.exists_contact_in_group(
+                group.id,
+                client_email=primary_email,
+                client_phone=primary_phone,
+                exclude_submission_id=submission.id,
+                scope="platform" if duplicate_policy == "block_all" else "group",
+                additional_emails=(
+                    (normalized_email,)
+                    if normalized_mode == "family" and normalized_email
+                    else ()
+                ),
+                additional_phones=(
+                    (normalized_phone,)
+                    if normalized_mode == "family" and normalized_phone
+                    else ()
+                ),
+            ):
+                detail_scope = (
+                    "the platform" if duplicate_policy == "block_all" else "this group"
+                )
+                raise ValidationError(
+                    f"This email or phone number has already been used in {detail_scope}.",
+                    field="client_contact",
+                )
 
         # Older upload clients placed group-option values inside
         # ``confirmed_fields`` as well as their dedicated request properties.

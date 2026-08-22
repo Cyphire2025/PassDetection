@@ -7,7 +7,7 @@ from fastapi import Response
 from app.core.config.settings import get_settings
 
 
-def set_auth_cookies(response: Response, *, access_token: str, refresh_token: str) -> None:
+def set_access_cookie(response: Response, *, access_token: str) -> None:
     root_settings = get_settings()
     settings = root_settings.jwt
     secure = settings.cookie_secure or root_settings.is_production
@@ -20,6 +20,13 @@ def set_auth_cookies(response: Response, *, access_token: str, refresh_token: st
         samesite=settings.cookie_samesite,
         path="/",
     )
+
+
+def set_auth_cookies(response: Response, *, access_token: str, refresh_token: str) -> None:
+    root_settings = get_settings()
+    settings = root_settings.jwt
+    secure = settings.cookie_secure or root_settings.is_production
+    set_access_cookie(response, access_token=access_token)
     response.set_cookie(
         settings.refresh_cookie_name,
         refresh_token,

@@ -28,6 +28,8 @@ services:
       PROCESSING_BACKEND: celery
       LOGIN_LOCKOUT_REQUIRE_REDIS: "true"
       PUBLIC_UPLOAD_RATE_LIMIT_REQUIRE_REDIS: "true"
+      MOBILE_REALTIME_ENABLED: "true"
+      MOBILE_REALTIME_REQUIRE_REDIS: "true"
     healthcheck:
       test:
         - CMD

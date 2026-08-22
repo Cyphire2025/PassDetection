@@ -50,14 +50,19 @@ export function QueryProvider({ children }: QueryProviderProps) {
   );
 }
 
-function shouldRetryQuery(failureCount: number, error: unknown) {
+export function shouldRetryQuery(failureCount: number, error: unknown) {
   const code =
     typeof error === "object" && error !== null && "code" in error
       ? String(error.code)
       : "";
+  const status =
+    typeof error === "object" && error !== null && "status" in error
+      ? Number(error.status)
+      : null;
 
   if (
-    code.startsWith("AUTH_")
+    (status !== null && Number.isInteger(status) && status >= 400 && status < 500)
+    || code.startsWith("AUTH_")
     || /^HTTP_4\d\d$/.test(code)
     || code.includes("RATE_LIMITED")
   ) return false;

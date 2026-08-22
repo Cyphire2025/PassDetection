@@ -41,6 +41,14 @@ class AuthorizationError(PassDetectionError):
         super().__init__(message, code="AUTHORIZATION_ERROR")
 
 
+class StepUpRequiredError(AuthorizationError):
+    """Raised when a sensitive operation needs fresh MFA evidence."""
+
+    def __init__(self) -> None:
+        super().__init__("Confirm your identity before completing this action")
+        self.code = "STEP_UP_REQUIRED"
+
+
 class TokenExpiredError(AuthenticationError):
     """Raised when a JWT or refresh token has expired."""
 

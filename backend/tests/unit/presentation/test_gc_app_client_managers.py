@@ -78,11 +78,18 @@ def _create_body(organization_id: uuid.UUID) -> ClientManagerCreateRequest:
         phone_number="+919999999999",
         organization_id=organization_id,
         group_ids=[],
-        temporary_password="SecurePass1!",
-        return_temporary_password_once=True,
-        invitation_flow=False,
-        force_password_change=True,
     )
+
+
+def test_client_manager_schema_rejects_administrator_chosen_passwords() -> None:
+    with pytest.raises(ValueError, match="temporary_password|Input should be None"):
+        ClientManagerCreateRequest(
+            full_name="Client Manager",
+            email="manager@example.com",
+            phone_number="+919999999999",
+            organization_id=uuid.uuid4(),
+            temporary_password="AdministratorKnowsThis9",
+        )
 
 
 @pytest.mark.asyncio
@@ -171,7 +178,7 @@ async def test_client_manager_duplicate_phone_is_a_safe_conflict_before_writes()
 
 
 @pytest.mark.asyncio
-async def test_client_manager_create_returns_once_without_waiting_for_a_refetch() -> None:
+async def test_client_manager_create_returns_single_use_activation_without_refetch() -> None:
     agency_id = uuid.uuid4()
     organization = _organization(agency_id)
     added: list[object] = []
@@ -205,8 +212,10 @@ async def test_client_manager_create_returns_once_without_waiting_for_a_refetch(
 
     assert created.email == "manager@example.com"
     assert created.phone_number == "+919999999999"
-    assert created.temporary_password == "SecurePass1!"
-    assert created.status == "active"
+    assert created.temporary_password is None
+    assert created.activation_token is not None
+    assert len(created.activation_token) >= 32
+    assert created.status == "invited"
     assert created.force_password_change is False
     assert http_response.headers["Cache-Control"] == "private, no-store, max-age=0"
     assert session.execute.await_count == 3
@@ -219,17 +228,10 @@ async def test_client_manager_create_returns_once_without_waiting_for_a_refetch(
 
 
 @pytest.mark.asyncio
-async def test_client_manager_token_invitation_stays_pending_without_forced_password() -> None:
+async def test_client_manager_invitation_stays_pending_without_forced_password() -> None:
     agency_id = uuid.uuid4()
     organization = _organization(agency_id)
-    body = _create_body(organization.id).model_copy(
-        update={
-            "temporary_password": None,
-            "return_temporary_password_once": False,
-            "invitation_flow": True,
-            "return_activation_token_once": True,
-        }
-    )
+    body = _create_body(organization.id)
     added: list[object] = []
     session = SimpleNamespace(
         execute=AsyncMock(

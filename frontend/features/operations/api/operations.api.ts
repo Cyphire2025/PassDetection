@@ -22,6 +22,8 @@ export interface ManagerAccount {
   last_login_at: string | null;
   created_groups: ManagerGroupAccess[];
   assigned_groups: ManagerGroupAccess[];
+  credential_state: "invited" | "active";
+  activation_token?: string | null;
 }
 
 export interface ManagerGroupAccess {
@@ -42,6 +44,8 @@ export interface ManagedAccount {
   is_active: boolean;
   created_at: string;
   last_login_at: string | null;
+  credential_state: "invited" | "active";
+  activation_token?: string | null;
 }
 
 export interface StaffAccount {
@@ -53,6 +57,7 @@ export interface StaffAccount {
   is_active: boolean;
   created_at: string;
   last_login_at: string | null;
+  credential_state?: "invited" | "active";
   created_groups: ManagerGroupAccess[];
   assigned_groups: ManagerGroupAccess[];
 }
@@ -66,10 +71,12 @@ export interface DeleteManagedAccountResponse {
 export interface CreateManagerRequest {
   full_name: string;
   email: string;
-  password: string;
 }
 
-export type CreateStaffRequest = CreateManagerRequest;
+export interface CreateStaffRequest {
+  full_name: string;
+  email: string;
+}
 
 export interface DeleteManagerResponse {
   deleted_manager_id: string;
@@ -369,6 +376,37 @@ export interface AttendanceMissingPassenger {
   coordinator_name: string | null;
 }
 
+export interface AttendanceCloseoutCheckpoint {
+  pending_count: number;
+  sending_count: number;
+  retryable_count: number;
+  needs_review_count: number;
+  unreviewed_rejected_count: number;
+  oldest_pending_age_seconds: number | null;
+}
+
+export interface AttendanceCloseoutCoordinatorStatus extends AttendanceCloseoutCheckpoint {
+  coordinator_id: string;
+  coordinator_name: string;
+  state: "ready" | "missing" | "stale" | "blocked";
+  reported_at: string | null;
+  report_age_seconds: number | null;
+}
+
+export interface AttendanceCloseoutStatus {
+  ready: boolean;
+  checkpoint_ttl_seconds: number;
+  active_assignment_count: number;
+  ready_assignment_count: number;
+  missing_assignment_count: number;
+  stale_assignment_count: number;
+  nonzero_assignment_count: number;
+  blocked_assignment_count: number;
+  unresolved_count: number;
+  oldest_pending_age_seconds: number | null;
+  coordinators: AttendanceCloseoutCoordinatorStatus[];
+}
+
 export interface AttendanceSessionSummary {
   id: string;
   name: string;
@@ -380,6 +418,7 @@ export interface AttendanceSessionSummary {
   scanned_count: number;
   coordinators: AttendanceCoordinatorSummary[];
   missing_passengers: AttendanceMissingPassenger[];
+  closeout: AttendanceCloseoutStatus;
 }
 
 export interface GroupAttendanceOverview {
@@ -529,9 +568,13 @@ export const operationsApi = {
     return data;
   },
 
-  resetManagedAccountPassword: async (accountId: string, password: string): Promise<ManagedAccount> => {
-    const { data } = await apiClient.post<ManagedAccount>(API_ENDPOINTS.admin.accountPassword(accountId), { password });
+  resetManagedAccountPassword: async (accountId: string): Promise<ManagedAccount> => {
+    const { data } = await apiClient.post<ManagedAccount>(API_ENDPOINTS.admin.accountPassword(accountId), { issue_activation_link: true });
     return data;
+  },
+
+  resetManagedAccountMfa: async (accountId: string): Promise<void> => {
+    await apiClient.post(API_ENDPOINTS.admin.accountMfa(accountId));
   },
 
   revokeManagedAccountSessions: async (accountId: string): Promise<void> => {
@@ -723,13 +766,6 @@ export const operationsApi = {
     return data;
   },
 
-  createMyAttendanceSession: async (groupId: string, name: string): Promise<AttendanceSession> => {
-    const { data } = await apiClient.post<AttendanceSession>(API_ENDPOINTS.tourOperations.myGroupSessions(groupId), {
-      name,
-    });
-    return data;
-  },
-
   myAttendanceSessions: async (groupId: string): Promise<AttendanceSession[]> => {
     const { data } = await apiClient.get<AttendanceSession[]>(API_ENDPOINTS.tourOperations.myGroupSessions(groupId));
     return data;
@@ -765,8 +801,59 @@ export const operationsApi = {
     return data;
   },
 
-  completeMyAttendanceSession: async (sessionId: string): Promise<AttendanceSession> => {
-    const { data } = await apiClient.put<AttendanceSession>(API_ENDPOINTS.tourOperations.mySessionComplete(sessionId));
+  completeManagedAttendanceSession: async ({
+    groupId,
+    sessionId,
+    exceptionReason,
+  }: {
+    groupId: string;
+    sessionId: string;
+    exceptionReason?: string;
+  }): Promise<AttendanceSession> => {
+    const { data } = await apiClient.put<AttendanceSession>(
+      API_ENDPOINTS.tourOperations.managedSessionComplete(groupId, sessionId),
+      exceptionReason ? { exception_reason: exceptionReason } : {},
+    );
+    return data;
+  },
+
+  publishMyAttendanceCloseoutCheckpoint: async ({
+    groupId,
+    sessionId,
+    checkpoint,
+  }: {
+    groupId: string;
+    sessionId: string;
+    checkpoint: AttendanceCloseoutCheckpoint;
+  }): Promise<AttendanceCloseoutCheckpoint & { reported_at: string }> => {
+    const { data } = await apiClient.put<AttendanceCloseoutCheckpoint & { reported_at: string }>(
+      API_ENDPOINTS.tourOperations.mySessionCloseoutCheckpoint(groupId, sessionId),
+      checkpoint,
+    );
+    return data;
+  },
+
+  managedAttendanceCloseoutStatus: async (
+    groupId: string,
+    sessionId: string,
+  ): Promise<AttendanceCloseoutStatus> => {
+    const { data } = await apiClient.get<AttendanceCloseoutStatus>(
+      API_ENDPOINTS.tourOperations.managedSessionCloseout(groupId, sessionId),
+    );
+    return data;
+  },
+
+  createManagedAttendanceSession: async ({
+    groupId,
+    name,
+  }: {
+    groupId: string;
+    name: string;
+  }): Promise<AttendanceSession> => {
+    const { data } = await apiClient.post<AttendanceSession>(
+      API_ENDPOINTS.tourOperations.managedSessions(groupId),
+      { name },
+    );
     return data;
   },
 

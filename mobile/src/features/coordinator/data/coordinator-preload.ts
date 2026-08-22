@@ -36,15 +36,15 @@ export async function preloadCoordinatorTrip(
 
   if (syncContext) assertSyncContextActive(syncContext);
   onProgress({ progress: 0.82, label: 'Saving attendance and passenger operations' });
-  await refreshAttendanceSessions(trip.id, syncContext).catch((error: unknown) => {
-    if (syncContext) assertSyncContextActive(syncContext);
-    return null;
-  });
+  // refreshAttendanceSessions already falls back to a verified local activity
+  // list. Reaching this catch would therefore mean neither server nor cached
+  // attendance prerequisites are available and must not be presented as ready.
+  await refreshAttendanceSessions(trip.id, syncContext);
 
   if (syncContext) assertSyncContextActive(syncContext);
   onProgress({
     progress: 1,
-    label: `${trip.name} is ready; documents are being secured offline in the background`,
+    label: `${trip.name} is prepared; select an attendance activity before scanning`,
   });
   return { failedDownloads: 0 };
 }

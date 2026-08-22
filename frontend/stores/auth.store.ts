@@ -13,6 +13,13 @@ import {
   prepareSensitiveBrowserStateForUser,
   type SensitiveStateResetReason,
 } from "@/features/auth/services/session-state";
+import {
+  requestQueueSafeSignOutReview,
+} from "@/features/auth/services/queue-safe-sign-out-events";
+import {
+  unavailableBrowserAttendanceQueueSnapshot,
+  type AttendanceQueueLogoutDisposition,
+} from "@/features/tour-operations/services/attendance-queue-safety-contract";
 
 interface AuthState {
   user: User | null;
@@ -27,7 +34,9 @@ interface AuthActions {
     reason?: SensitiveStateResetReason,
     options?: {
       notifyOtherTabs?: boolean;
+      queueDisposition?: AttendanceQueueLogoutDisposition;
       revokeServerSession?: boolean;
+      loginReason?: "password_changed";
     },
   ) => Promise<void>;
   markHydrated: () => void;
@@ -58,30 +67,75 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
     reason = "logout",
     {
       notifyOtherTabs = true,
+      queueDisposition = "block",
       revokeServerSession = true,
+      loginReason,
     } = {},
   ) => {
-    set((state) => ({
-      user: null,
-      isAuthenticated: false,
-      hasHydrated: true,
-      sessionVersion: state.sessionVersion + 1,
-    }));
-    const cleanup = Promise.all([
-      revokeServerSession ? clearServerSessionCookies() : Promise.resolve(),
-      clearSensitiveBrowserState(reason, notifyOtherTabs),
-    ]);
+    const authentication = get();
+    const expectedUserId = authentication.user?.id ?? null;
+    const expectedSessionVersion = authentication.sessionVersion;
 
-    if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
-      const params = new URLSearchParams();
-      if (reason === "session_expired") params.set("reason", "session_expired");
-      if (window.location.pathname.startsWith("/coordinator")) {
-        params.set("from", `${window.location.pathname}${window.location.search}`);
+    const finishSessionClear = async () => {
+      const current = get();
+      if (
+        current.sessionVersion !== expectedSessionVersion
+        || current.user?.id !== expectedUserId
+      ) {
+        return false;
       }
-      const destination = `/login${params.size > 0 ? `?${params.toString()}` : ""}`;
-      window.location.replace(destination);
+      set((state) => ({
+        user: null,
+        isAuthenticated: false,
+        hasHydrated: true,
+        sessionVersion: state.sessionVersion + 1,
+      }));
+      const cleanup = Promise.all([
+        revokeServerSession ? clearServerSessionCookies() : Promise.resolve(),
+        clearSensitiveBrowserState(reason, notifyOtherTabs),
+      ]);
+
+      if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+        const params = new URLSearchParams();
+        if (reason === "session_expired") params.set("reason", "session_expired");
+        if (loginReason) params.set("reason", loginReason);
+        if (window.location.pathname.startsWith("/coordinator")) {
+          params.set("from", `${window.location.pathname}${window.location.search}`);
+        }
+        const destination = `/login${params.size > 0 ? `?${params.toString()}` : ""}`;
+        window.location.replace(destination);
+      }
+      await cleanup;
+      return true;
+    };
+
+    if (reason !== "logout" || !expectedUserId || typeof window === "undefined") {
+      await finishSessionClear();
+      return;
     }
-    await cleanup;
+
+    try {
+      const { runAttendanceQueueLogoutBoundary } = await import(
+        "@/features/tour-operations/services/attendance-scan-queue"
+      );
+      if (
+        get().sessionVersion !== expectedSessionVersion
+        || get().user?.id !== expectedUserId
+      ) {
+        return;
+      }
+      const boundary = await runAttendanceQueueLogoutBoundary(
+        expectedUserId,
+        queueDisposition,
+        finishSessionClear,
+      );
+      if (!boundary.allowed) requestQueueSafeSignOutReview(boundary.snapshot);
+    } catch (error) {
+      if (queueDisposition === "discard") throw error;
+      requestQueueSafeSignOutReview(
+        unavailableBrowserAttendanceQueueSnapshot(expectedUserId),
+      );
+    }
   },
 
   markHydrated: () => set({ hasHydrated: true }),

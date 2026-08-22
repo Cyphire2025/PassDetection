@@ -1,34 +1,21 @@
-import {
-  CameraView,
-  useCameraPermissions,
-  type BarcodeScanningResult,
-  type CameraViewProps,
-} from 'expo-camera';
-import * as Haptics from 'expo-haptics';
+import { CameraView, useCameraPermissions, type BarcodeScanningResult, type CameraViewProps } from 'expo-camera';
 import CheckCircle2 from 'lucide-react-native/icons/circle-check-big';
 import Flashlight from 'lucide-react-native/icons/flashlight';
 import FlashlightOff from 'lucide-react-native/icons/flashlight-off';
 import ScanLine from 'lucide-react-native/icons/scan-line';
 import TriangleAlert from 'lucide-react-native/icons/triangle-alert';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  type ListRenderItem,
-} from 'react-native';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { FlatList, Pressable, StyleSheet, Text, View, type ListRenderItem } from 'react-native';
 
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
 import { MOBILE_LIST_WINDOWING } from '@/core/performance/mobile-performance-budgets';
 import { userFacingErrorMessage } from '@/core/errors/user-facing-error';
+import { recordAttendanceCameraToLocalQueue } from '@/core/observability/attendance-observability';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
 import { PageHeader } from '@/design/components/page-header';
 import { PrimaryButton } from '@/design/components/primary-button';
 import { Screen } from '@/design/components/screen';
-import { TextField } from '@/design/components/text-field';
 import { colors, radii, spacing } from '@/design/theme';
 import type { AttendanceSession } from '@/features/coordinator/api/coordinator-contracts';
 import {
@@ -36,7 +23,12 @@ import {
   enqueueQrScan,
   drainAttendanceQueue,
 } from '@/features/coordinator/data/attendance-queue';
-import { createAttendanceSession, selectAttendanceSession } from '@/features/coordinator/data/attendance-sessions';
+import { selectAttendanceSession } from '@/features/coordinator/data/attendance-sessions';
+import { attendanceScanErrorFeedback } from '@/features/coordinator/data/attendance-scan-error';
+import {
+  eventReadinessAllowsCapture,
+  type EventReadinessCaptureGate,
+} from '@/features/coordinator/data/event-readiness';
 import {
   EMPTY_OPTIMISTIC_ATTENDANCE_COUNT,
   attendanceScanTimestamp,
@@ -49,6 +41,14 @@ import {
 } from '@/features/coordinator/data/scan-policy';
 import { useAttendanceSessions } from '@/features/coordinator/hooks/use-coordinator';
 import { useCoordinatorTrips } from '@/features/coordinator/hooks/use-coordinator-trips';
+import { useAttendanceScanFeedback } from '@/features/coordinator/hooks/use-attendance-scan-feedback';
+import { useCoordinatorEventReadiness } from '@/features/coordinator/hooks/use-event-readiness';
+import { AttendanceE2eFixtureInput } from '@/features/coordinator/ui/attendance-e2e-fixture-input';
+import { AttendanceScannerLock } from '@/features/coordinator/ui/attendance-scanner-lock';
+import { EventReadinessCard } from '@/features/coordinator/ui/event-readiness-card';
+import { ScanConnectivityCard } from '@/features/coordinator/ui/scan-connectivity-card';
+import { ScanFeedbackAudioToggle } from '@/features/coordinator/ui/scan-feedback-audio-toggle';
+import { ScanTrustedTimeNotice } from '@/features/coordinator/ui/scan-trusted-time-notice';
 
 type ScanState = { tone: 'good' | 'warning' | 'danger'; message: string } | null;
 
@@ -76,13 +76,15 @@ export default function CoordinatorScanScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [torch, setTorch] = useState(false);
   const [scanState, setScanState] = useState<ScanState>(null);
-  const [activityName, setActivityName] = useState('');
   const [activityError, setActivityError] = useState<string | null>(null);
   const [activityBusy, setActivityBusy] = useState(false);
+  const [readinessRevision, setReadinessRevision] = useState(0);
+  const [clockNotice, setClockNotice] = useState<string | null>(null);
   const [managingActivity, setManagingActivity] = useState(false);
   const [optimisticScans, setOptimisticScans] = useState({
     ...EMPTY_OPTIMISTIC_ATTENDANCE_COUNT,
   });
+  const readinessCaptureGate = useRef<EventReadinessCaptureGate>('loading');
   const scanLock = useRef(false);
   const activityMutationLock = useRef(false);
   const lastScan = useRef<RecentAttendanceScan | null>(null);
@@ -96,6 +98,7 @@ export default function CoordinatorScanScreen() {
   const selectedTripIdRef = useRef(trips.selectedTripId);
   const selectedSessionRef = useRef<AttendanceSession | null>(selectedSession);
   const refetchSessionsRef = useRef(sessions.refetch);
+  const scanFeedback = useAttendanceScanFeedback();
 
   useEffect(() => {
     selectedTripIdRef.current = trips.selectedTripId;
@@ -247,13 +250,13 @@ export default function CoordinatorScanScreen() {
               tone: 'danger',
               message: `${confirmedPrefix}${rejectedCount} not accepted — review the activity`,
             });
-            void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+            scanFeedback.notify('failure');
           } else if (confirmedCount > 0) {
             showFeedback({
               tone: 'good',
               message: confirmedCount === 1 ? 'Checked in' : `${confirmedCount} check-ins confirmed`,
             });
-            void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            scanFeedback.notify('success');
           }
         }
       }
@@ -261,7 +264,7 @@ export default function CoordinatorScanScreen() {
       drainRunning.current = false;
       ensureDrainScheduled();
     }
-  }, [ensureDrainScheduled, showFeedback]);
+  }, [ensureDrainScheduled, scanFeedback, showFeedback]);
 
   useEffect(() => {
     flushDrainRef.current = () => {
@@ -277,49 +280,68 @@ export default function CoordinatorScanScreen() {
   const handleScan = useCallback(async ({ data }: BarcodeScanningResult) => {
     const tripId = selectedTripIdRef.current;
     const session = selectedSessionRef.current;
-    if (!tripId || !session || scanLock.current) return;
+    if (
+      !tripId
+      || !session
+      || scanLock.current
+      || !eventReadinessAllowsCapture(readinessCaptureGate.current)
+    ) return;
     const now = attendanceScanTimestamp();
     if (isRapidRepeatScan(lastScan.current, session.id, data, now)) return;
     lastScan.current = { sessionId: session.id, value: data, at: now };
     scanLock.current = true;
+    let queueStartedAtMs: number | null = null;
     try {
       if (!validAttendanceQr(data)) {
         showFeedback({ tone: 'danger', message: 'Invalid attendance QR' });
-        void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        scanFeedback.notify('failure');
         return;
       }
+      if (!eventReadinessAllowsCapture(readinessCaptureGate.current)) return;
+      queueStartedAtMs = performance.now();
       const queued = await enqueueQrScan(tripId, session.id, data, {
         assignedCount: session.assigned_count,
       });
+      recordAttendanceCameraToLocalQueue(performance.now() - queueStartedAtMs, queued.status);
+      queueStartedAtMs = null;
+      setClockNotice(null);
       if (queued.status === 'queued') {
         queueStatusLoad.current += 1;
         setOptimisticScans((current) => (
           recordOptimisticAttendanceScan(current, session.id, session.scanned_count)
         ));
         showFeedback({ tone: 'warning', message: 'Saved — confirmation pending' });
-        void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+        scanFeedback.notify('saved');
         scheduleDrain(tripId);
       } else if (queued.status === 'already_queued') {
         showFeedback({ tone: 'warning', message: 'Already saved — confirmation pending' });
-        void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+        scanFeedback.notify('duplicate');
         scheduleDrain(tripId);
       } else if (queued.status === 'already_confirmed') {
         showFeedback({ tone: 'warning', message: 'Already confirmed for this activity' });
-        void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+        scanFeedback.notify('duplicate');
+      } else if (queued.status === 'needs_review') {
+        showFeedback({ tone: 'danger', message: 'This saved scan needs review before it can be retried' });
+        scanFeedback.notify('failure');
       } else if (queued.status === 'previously_rejected') {
         showFeedback({ tone: 'danger', message: 'This QR was not accepted earlier — review the activity' });
-        void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        scanFeedback.notify('failure');
       } else {
         showFeedback({
           tone: 'danger',
           message: 'Unsent scan limit reached — connect and sync before scanning more',
         });
-        void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        scanFeedback.notify('failure');
         scheduleDrain(tripId);
       }
-    } catch {
-      showFeedback({ tone: 'danger', message: 'Scan was not saved — scan again' });
-      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    } catch (caught) {
+      if (queueStartedAtMs !== null) {
+        recordAttendanceCameraToLocalQueue(performance.now() - queueStartedAtMs, 'failure');
+      }
+      const failure = attendanceScanErrorFeedback(caught);
+      showFeedback({ tone: 'danger', message: failure.message });
+      setClockNotice(failure.clockNotice);
+      scanFeedback.notify('failure');
     } finally {
       if (scanUnlockTimer.current) clearTimeout(scanUnlockTimer.current);
       scanUnlockTimer.current = setTimeout(() => {
@@ -327,31 +349,7 @@ export default function CoordinatorScanScreen() {
         scanLock.current = false;
       }, 180);
     }
-  }, [scheduleDrain, showFeedback]);
-
-  const createActivity = useCallback(async () => {
-    const tripId = selectedTripIdRef.current;
-    const name = activityName.trim();
-    if (activityMutationLock.current) return;
-    if (!tripId || name.length < 2) {
-      setActivityError('Enter an activity name of at least 2 characters.');
-      return;
-    }
-    activityMutationLock.current = true;
-    setActivityBusy(true);
-    setActivityError(null);
-    try {
-      await createAttendanceSession(tripId, name);
-      setActivityName('');
-      await refetchSessionsRef.current();
-      if (selectedTripIdRef.current === tripId) setManagingActivity(false);
-    } catch (caught) {
-      setActivityError(userFacingErrorMessage(caught, 'The attendance activity could not be created.'));
-    } finally {
-      activityMutationLock.current = false;
-      setActivityBusy(false);
-    }
-  }, [activityName]);
+  }, [scanFeedback, scheduleDrain, showFeedback]);
 
   const chooseActivity = useCallback(async (session: AttendanceSession) => {
     const tripId = selectedTripIdRef.current;
@@ -377,12 +375,26 @@ export default function CoordinatorScanScreen() {
   const awaitingConfirmation = selectedSession && optimisticScans.sessionId === selectedSession.id
     ? optimisticScans.pendingCount
     : 0;
+  const eventReadiness = useCoordinatorEventReadiness({
+    activityId: selectedSessionId,
+    cameraGranted: permission?.granted === true,
+    refreshSignal: `${readinessRevision}:${awaitingConfirmation}:${selectedSessionScannedCount}`,
+    tripId: trips.selectedTripId,
+  });
+  useLayoutEffect(() => {
+    readinessCaptureGate.current = eventReadiness.captureGate;
+  }, [eventReadiness.captureGate]);
+  const captureAllowed = eventReadinessAllowsCapture(eventReadiness.captureGate);
   const activityManagementVisible = managingActivity || !selectedSession;
   const refreshActivities = useCallback(
     () => refetchSessionsRef.current(),
     [],
   );
-  const activityRefreshEnabled = activityManagementVisible && !activityName.trim() && !activityBusy;
+  const refreshAfterSynchronization = useCallback(async () => {
+    await refetchSessionsRef.current();
+    setReadinessRevision((current) => current + 1);
+  }, []);
+  const activityRefreshEnabled = activityManagementVisible && !activityBusy;
   const renderActivity = useCallback<ListRenderItem<AttendanceSession>>(({ item: session }) => (
     <Pressable
       accessibilityRole="button"
@@ -435,26 +447,28 @@ export default function CoordinatorScanScreen() {
             <View style={styles.activityHeader}>
               {pageHeader}
               {queryState}
-              <GlassCard style={styles.createCard}>
-                <Text style={styles.activityTitle}>Create an activity</Text>
-                <TextField
-                  label="Activity name"
-                  value={activityName}
-                  onChangeText={setActivityName}
-                  placeholder="Airport reporting"
-                  maxLength={160}
-                  error={activityError}
-                />
-                <PrimaryButton label="Create and start scanning" loading={activityBusy} onPress={() => void createActivity()} />
+              <GlassCard style={styles.selectionNotice}>
+                <Text style={styles.activityTitle}>Select a prepared activity</Text>
+                <Text style={styles.selectionMessage}>
+                  An authorized manager creates the shared activity and stable ID before scanning begins.
+                </Text>
               </GlassCard>
+              {activityError ? (
+                <Text accessibilityRole="alert" style={styles.activityError}>{activityError}</Text>
+              ) : null}
               {availableSessions.length > 0 ? (
-                <Text accessibilityRole="header" style={styles.activityTitle}>Continue an activity</Text>
+                <Text accessibilityRole="header" style={styles.activityTitle}>Available activities</Text>
               ) : null}
             </View>
           )}
           ListEmptyComponent={
             !sessions.isPending && !sessions.isError
-              ? <ContentEmpty title="No active activities" message="Create one to start scanning." />
+              ? (
+                  <ContentEmpty
+                    title="No prepared activities"
+                    message="Ask an authorized manager to prepare an attendance activity, then pull down to refresh."
+                  />
+                )
               : null
           }
         />
@@ -475,6 +489,12 @@ export default function CoordinatorScanScreen() {
           <Text style={styles.changeText}>Change</Text>
         </Pressable>
       </View>
+      <ScanFeedbackAudioToggle muted={scanFeedback.muted} busy={scanFeedback.preferenceBusy} error={scanFeedback.preferenceError} onToggle={scanFeedback.toggleMuted} />
+
+      <ScanTrustedTimeNotice blockingNotice={clockNotice} refreshSignal={`${readinessRevision}:${selectedSession.id}`} />
+      <EventReadinessCard readiness={eventReadiness} />
+      <AttendanceE2eFixtureInput captureAllowed={captureAllowed} onScan={handleScan} />
+      <ScanConnectivityCard tripId={trips.selectedTripId!} onSynchronized={refreshAfterSynchronization} />
 
       {!permission?.granted ? (
         <GlassCard style={styles.permission}>
@@ -483,6 +503,8 @@ export default function CoordinatorScanScreen() {
           <Text style={styles.permissionMessage}>The camera is used only while scanning attendance QR codes.</Text>
           <PrimaryButton label="Allow camera" onPress={() => void requestPermission()} />
         </GlassCard>
+      ) : !captureAllowed ? (
+        <AttendanceScannerLock gate={eventReadiness.captureGate} />
       ) : (
         <View style={styles.cameraFrame}>
           <CameraView
@@ -535,7 +557,9 @@ const styles = StyleSheet.create({
   listScreen: { paddingHorizontal: 0 },
   activityList: { paddingHorizontal: spacing.lg, paddingBottom: 104 },
   activityHeader: { gap: spacing.lg, paddingBottom: spacing.lg },
-  createCard: { gap: spacing.md, borderRadius: radii.md },
+  selectionNotice: { gap: spacing.sm, borderRadius: radii.md },
+  selectionMessage: { color: colors.inkMuted, fontSize: 13, lineHeight: 19 },
+  activityError: { color: colors.danger, fontSize: 13, fontWeight: '700' },
   activityTitle: { color: colors.ink, fontSize: 18, fontWeight: '900' },
   activityRow: { marginBottom: spacing.sm, flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md, borderRadius: radii.md },
   activityText: { flex: 1, gap: 3 },

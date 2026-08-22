@@ -1,0 +1,208 @@
+name: Global Connect Travels Android production release
+
+# Manual by design: run with `eas workflow:run .eas/workflows/production-release.yml`.
+# Protected production variables are used only by validation and signed
+# artifact gates. Synthetic preview fixtures never target production.
+defaults:
+  image: sdk-57
+  tools:
+    node: 20.19.4
+
+jobs:
+  validate_production:
+    name: Validate Android production release
+    environment: production
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - name: Audit runtime dependencies
+        run: npm run audit:runtime
+      - name: Validate public Expo configuration
+        run: npm run config:validate
+      - name: Typecheck application code
+        run: npm run typecheck
+      - name: Lint application code
+        run: npm run lint
+      - name: Run tests and enforce critical coverage
+        run: npm run test:coverage
+      - name: Enforce maintainability budgets
+        run: npm run maintainability:check
+      - name: Validate release workflow contracts
+        run: npm run e2e:contracts
+      - name: Validate protected Android production configuration
+        run: npm run release:preflight-android
+
+  build_android_smoke:
+    name: Build Android release-Hermes emulator artifact
+    needs: [validate_production]
+    type: build
+    params:
+      platform: android
+      profile: e2e-test
+
+  test_android_release_hermes:
+    name: Run Android release-Hermes journeys
+    needs: [build_android_smoke]
+    type: maestro
+    environment: preview
+    runs_on: linux-large-nested-virtualization
+    params:
+      build_id: ${{ needs.build_android_smoke.outputs.build_id }}
+      flow_path:
+        - .maestro/release-hermes-auth-smoke.yml
+        - .maestro/flows/verified-activation-link.yml
+        - .maestro/flows/passenger-document-cache.yml
+        - .maestro/flows/account-switch-isolation.yml
+        - .maestro/flows/manager-operational-journey.yml
+        - .maestro/flows/passenger-trip-journey.yml
+        - .maestro/flows/passenger-interrupted-auth.yml
+      device_identifier: pixel_6
+      retries: 1
+      retry_failed_only: true
+      record_screen: false
+      output_format: junit
+      maestro_version: 2.7.0
+    hooks:
+      before_maestro_tests:
+        - name: Validate isolated synthetic staging fixtures
+          run: node scripts/validate-maestro-environment.js
+
+  test_android_offline:
+    name: Prove Android encrypted-cache offline restart
+    needs: [build_android_smoke, test_android_release_hermes]
+    type: maestro
+    environment: preview
+    runs_on: linux-large-nested-virtualization
+    params:
+      build_id: ${{ needs.build_android_smoke.outputs.build_id }}
+      flow_path: .maestro/flows/passenger-document-offline-android.yml
+      device_identifier: pixel_6
+      retries: 1
+      retry_failed_only: true
+      record_screen: false
+      output_format: junit
+      maestro_version: 2.7.0
+    hooks:
+      before_maestro_tests:
+        - name: Validate isolated synthetic staging fixtures
+          run: node scripts/validate-maestro-environment.js
+
+  test_android_attendance:
+    name: Prove Android coordinator attendance offline recovery
+    needs: [build_android_smoke, test_android_release_hermes]
+    type: maestro
+    environment: preview
+    runs_on: linux-large-nested-virtualization
+    params:
+      build_id: ${{ needs.build_android_smoke.outputs.build_id }}
+      flow_path: .maestro/flows/coordinator-attendance-offline-android.yml
+      device_identifier: pixel_6
+      retries: 1
+      retry_failed_only: true
+      record_screen: false
+      output_format: junit
+      maestro_version: 2.7.0
+    hooks:
+      before_maestro_tests:
+        - name: Validate isolated synthetic staging fixtures
+          run: node scripts/validate-maestro-environment.js
+
+  build_android_signed_smoke:
+    name: Build signed Android production APK
+    needs: [validate_production, test_android_release_hermes, test_android_offline, test_android_attendance]
+    type: build
+    params:
+      platform: android
+      profile: production-apk
+
+  verify_android_signed_smoke:
+    name: Verify signed Android production APK
+    needs: [build_android_signed_smoke]
+    environment: production
+    steps:
+      - uses: eas/checkout
+      - uses: eas/download_build
+        id: download_signed_apk
+        with:
+          build_id: ${{ needs.build_android_signed_smoke.outputs.build_id }}
+          extensions: [apk]
+      - name: Verify package, signer, checksum, and provenance
+        run: >-
+          node scripts/verify-android-artifact.js
+          "${{ steps.download_signed_apk.outputs.artifact_path }}"
+          android-production-apk-verification.json
+          "${{ needs.build_android_signed_smoke.outputs.build_id }}"
+          "${{ needs.build_android_signed_smoke.outputs.git_commit_hash }}"
+      - uses: eas/upload_artifact
+        with:
+          type: other
+          name: android-production-apk-verification
+          path: android-production-apk-verification.json
+
+  test_android_signed_public:
+    name: Smoke-test exact signed production APK
+    needs: [build_android_signed_smoke, verify_android_signed_smoke]
+    type: maestro
+    environment: production
+    runs_on: linux-large-nested-virtualization
+    params:
+      build_id: ${{ needs.build_android_signed_smoke.outputs.build_id }}
+      flow_path: .maestro/release-hermes-auth-smoke.yml
+      device_identifier: pixel_6
+      retries: 1
+      retry_failed_only: true
+      record_screen: false
+      output_format: junit
+      maestro_version: 2.7.0
+
+  build_android:
+    name: Build signed Android production bundle
+    needs:
+      - validate_production
+      - test_android_release_hermes
+      - test_android_offline
+      - test_android_attendance
+      - verify_android_signed_smoke
+      - test_android_signed_public
+    type: build
+    params:
+      platform: android
+      profile: production
+
+  verify_android_bundle:
+    name: Verify signed Android production bundle
+    needs: [build_android]
+    environment: production
+    steps:
+      - uses: eas/checkout
+      - uses: eas/download_build
+        id: download_production_aab
+        with:
+          build_id: ${{ needs.build_android.outputs.build_id }}
+          extensions: [aab]
+      - name: Verify package, signer, checksum, and provenance
+        run: >-
+          node scripts/verify-android-bundle.js
+          "${{ steps.download_production_aab.outputs.artifact_path }}"
+          android-production-aab-verification.json
+          "${{ needs.build_android.outputs.build_id }}"
+          "${{ needs.build_android.outputs.git_commit_hash }}"
+          "${{ needs.build_android.outputs.app_identifier }}"
+      - uses: eas/upload_artifact
+        with:
+          type: other
+          name: android-production-aab-verification
+          path: android-production-aab-verification.json
+
+  approve_android_submission:
+    name: Approve Android store submission?
+    needs: [build_android, verify_android_bundle]
+    type: require-approval
+
+  submit_android:
+    name: Submit approved Android production build
+    needs: [build_android, verify_android_bundle, approve_android_submission]
+    type: submit
+    params:
+      build_id: ${{ needs.build_android.outputs.build_id }}
+      profile: production

@@ -79,6 +79,36 @@ async function createDatabase(): Promise<DatabaseSync> {
       downloaded_at TEXT NOT NULL,
       last_opened_at TEXT
     );
+    CREATE TABLE pending_actions (
+      idempotency_key TEXT PRIMARY KEY NOT NULL,
+      account_namespace TEXT NOT NULL,
+      trip_id TEXT NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
+      action_type TEXT NOT NULL,
+      dedupe_key TEXT,
+      payload_json TEXT NOT NULL,
+      base_version INTEGER,
+      state TEXT NOT NULL CHECK (state IN ('pending', 'sending', 'retryable', 'rejected')),
+      attempt_count INTEGER NOT NULL DEFAULT 0,
+      next_attempt_at TEXT,
+      last_error_code TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE INDEX idx_pending_drain
+      ON pending_actions(account_namespace, state, next_attempt_at, created_at);
+    CREATE UNIQUE INDEX idx_pending_action_dedupe
+      ON pending_actions(account_namespace, trip_id, action_type, dedupe_key)
+      WHERE dedupe_key IS NOT NULL;
+    CREATE INDEX idx_pending_attendance_session
+      ON pending_actions(
+        account_namespace,
+        trip_id,
+        action_type,
+        json_extract(payload_json, '$.session_id'),
+        state,
+        created_at
+      )
+      WHERE action_type = 'attendance.scan';
     INSERT INTO trips(id, account_namespace, role, roster_version, advertised_roster_version)
     VALUES
       ('${TRIP_ID}', '${ACCOUNT}', 'coordinator', 7, 7),

@@ -128,6 +128,7 @@ async def test_valid_staff_assignment_is_returned_immediately() -> None:
                 _Rows([]),
                 _Rows([group]),
                 _Rows([access]),
+                _Rows([]),
             ]
         ),
         add=Mock(),

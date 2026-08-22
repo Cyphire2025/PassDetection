@@ -273,8 +273,14 @@ async def test_assertion_rejects_noncanonical_base64_and_tampered_signature() ->
     private_key, key_identifier, material = _key_material()
     verifier = PyAttestAppleAppAttestVerifier(settings=_settings())
     proof = _assertion(private_key)
+    tampered_payload = cbor2.loads(base64.b64decode(proof, validate=True))
+    signature = tampered_payload["signature"]
+    tampered_payload["signature"] = bytes([signature[0] ^ 1]) + signature[1:]
+    tampered_proof = base64.b64encode(
+        cbor2.dumps(tampered_payload, canonical=True)
+    ).decode("ascii")
 
-    for invalid_proof in (proof + "\n", proof[:-4] + "AAAA"):
+    for invalid_proof in (proof + "\n", tampered_proof):
         with pytest.raises(MobileIntegrityRejected) as caught:
             await verifier.verify_assertion(
                 assertion_object=invalid_proof,

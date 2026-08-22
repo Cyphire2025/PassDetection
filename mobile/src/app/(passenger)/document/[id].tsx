@@ -12,6 +12,7 @@ import {
 import Pdf from 'react-native-pdf';
 
 import { ApiError } from '@/core/api/client';
+import { NativeFileDownloadError } from '@/core/api/native-file-download';
 import { useSessionStore } from '@/core/auth/session-store';
 import { principalAccountNamespace } from '@/core/auth/types';
 import { userFacingErrorMessage } from '@/core/errors/user-facing-error';
@@ -35,10 +36,77 @@ import { useCoordinatorTripStore } from '@/features/coordinator/state/coordinato
 import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store';
 
 type TemporaryView = Awaited<ReturnType<typeof decryptDocumentForViewing>>;
-type ViewerFailure = { message: string; retryable: boolean };
+type ViewerFailure = { message: string; retryable: boolean; supportCode: string };
 type OpenOperation = { key: string; promise: Promise<void>; controller: AbortController };
 
 class TerminalDocumentViewerError extends Error {}
+
+/**
+ * Projects native, provider, and policy failures into a deliberately small,
+ * non-sensitive support vocabulary. Raw messages can contain private paths or
+ * upstream diagnostics and must never cross the UI boundary.
+ */
+function viewerSupportCode(error: unknown): string {
+  if (error instanceof TerminalDocumentViewerError) return 'DOCUMENT_UNAVAILABLE';
+  if (isLocalOfflineCiphertextError(error)) return 'DOCUMENT_LOCAL_COPY_DAMAGED';
+  if (error instanceof ApiError) {
+    if (error.status === 401 || error.status === 403) return 'DOCUMENT_ACCESS_DENIED';
+    if (error.status === 404 || error.status === 410) return 'DOCUMENT_UNAVAILABLE';
+    if (error.status === 409) return 'DOCUMENT_VERSION_CHANGED';
+    if (error.status === 408 || error.status === 425) return 'DOCUMENT_REQUEST_TIMEOUT';
+    if (error.status === 413 || error.code === 'PAYLOAD_TOO_LARGE') return 'DOCUMENT_TOO_LARGE';
+    if (error.status === 429) return 'DOCUMENT_RATE_LIMITED';
+    if (error.status >= 500) return 'DOCUMENT_SERVICE_UNAVAILABLE';
+    return `DOCUMENT_HTTP_${Math.max(400, Math.min(499, Math.trunc(error.status)))}`;
+  }
+  if (error instanceof NativeFileDownloadError) {
+    switch (error.kind) {
+      case 'interrupted': return 'DOCUMENT_NATIVE_INTERRUPTED';
+      case 'local_storage': return 'DOCUMENT_LOCAL_STORAGE_FAILED';
+      case 'network': return 'DOCUMENT_NETWORK_FAILED';
+      case 'response_wrapper': return 'DOCUMENT_NATIVE_RESPONSE_FAILED';
+      case 'timeout': return 'DOCUMENT_REQUEST_TIMEOUT';
+      default: return 'DOCUMENT_NATIVE_FAILED';
+    }
+  }
+
+  const name = error instanceof Error ? error.name : '';
+  const message = error instanceof Error ? error.message : '';
+  if (name === 'DocumentTransferIntegrityError') {
+    if (/content type/i.test(message)) return 'DOCUMENT_CONTENT_TYPE_MISMATCH';
+    if (/content (?:length|range)|resume/i.test(message)) return 'DOCUMENT_RANGE_MISMATCH';
+    if (/ended before|length|size/i.test(message)) return 'DOCUMENT_LENGTH_MISMATCH';
+    if (/checksum/i.test(message)) return 'DOCUMENT_CHECKSUM_MISMATCH';
+    return 'DOCUMENT_INTEGRITY_FAILED';
+  }
+  if (name === 'NativeFileDownloadTooLargeError') return 'DOCUMENT_TOO_LARGE';
+  if (/download interrupted/i.test(message)) return 'DOCUMENT_NATIVE_INTERRUPTED';
+  if (/timed?\s*out/i.test(message) || name === 'TimeoutError') return 'DOCUMENT_REQUEST_TIMEOUT';
+  if (/network|connection|failed to fetch|request error/i.test(message) || error instanceof TypeError) {
+    return 'DOCUMENT_NETWORK_FAILED';
+  }
+  if (/not enough free|storage quota/i.test(message)) return 'DOCUMENT_DEVICE_STORAGE_FULL';
+  if (/secure storage|file|directory|enoent|eacces|permission/i.test(message)) {
+    return 'DOCUMENT_LOCAL_STORAGE_FAILED';
+  }
+  if (/authorized document metadata|metadata.*match/i.test(message)) {
+    return 'DOCUMENT_METADATA_MISMATCH';
+  }
+  if (/authorization.*(?:invalid|expired)/i.test(message)) {
+    return 'DOCUMENT_AUTHORIZATION_INVALID';
+  }
+  if (/checksum/i.test(message)) return 'DOCUMENT_CHECKSUM_MISMATCH';
+  if (/content type/i.test(message)) return 'DOCUMENT_CONTENT_TYPE_MISMATCH';
+  if (/ended before|content length|size did not match/i.test(message)) {
+    return 'DOCUMENT_LENGTH_MISMATCH';
+  }
+  if (/range|resume/i.test(message)) return 'DOCUMENT_RANGE_MISMATCH';
+  if (/still being prepared/i.test(message)) return 'DOCUMENT_PREPARING';
+  if (/authentication|required|active account|ownership boundary/i.test(message)) {
+    return 'DOCUMENT_ACCOUNT_BOUNDARY';
+  }
+  return 'DOCUMENT_INTERNAL_FAILURE';
+}
 
 function viewerFailure(error: unknown): ViewerFailure {
   const localCiphertextFailure = isLocalOfflineCiphertextError(error);
@@ -64,6 +132,7 @@ function viewerFailure(error: unknown): ViewerFailure {
         : userFacingErrorMessage(error, 'The document could not be opened.'),
     retryable: localCiphertextFailure
       || !(error instanceof TerminalDocumentViewerError || terminalApiFailure || terminalMessage),
+    supportCode: viewerSupportCode(error),
   };
 }
 
@@ -186,7 +255,10 @@ export default function SecureDocumentScreen() {
           await cacheDocument(document, undefined, signal, 'required');
           createdTemporary = await decryptDocumentForViewing(vaultInput, signal);
         }
-        await recordOfflineDocumentOpened({
+        // This timestamp is eviction/LRU bookkeeping, not part of the document
+        // authorization or integrity boundary. Do not hold the renderer behind
+        // a busy offline database connection after decryption has succeeded.
+        void recordOfflineDocumentOpened({
           namespace,
           tripId,
           documentId: document.id,
@@ -237,7 +309,7 @@ export default function SecureDocumentScreen() {
       return;
     }
     setOpening(false);
-    setError({ message, retryable: true });
+    setError({ message, retryable: true, supportCode: 'DOCUMENT_RENDER_FAILED' });
   }, [finishTemporaryView, openDocument]);
 
   const markRendererLoaded = useCallback(() => {
@@ -321,6 +393,9 @@ export default function SecureDocumentScreen() {
             Document unavailable
           </Text>
           <Text style={styles.errorText}>{error.message}</Text>
+          <Text testID="secure-document-support-code" style={styles.supportCode}>
+            Support code: {error.supportCode}
+          </Text>
           {error.retryable ? (
             <PrimaryButton
               label="Retry"
@@ -335,7 +410,13 @@ export default function SecureDocumentScreen() {
           <Text style={styles.loadingText}>Opening your document…</Text>
         </View>
       ) : contentType === 'application/pdf' ? (
-        <View testID="secure-document-rendered" style={styles.viewerContainer}>
+        <View
+          testID="secure-document-rendered"
+          accessible
+          accessibilityLabel="Document content"
+          accessibilityState={{ busy: !rendererLoaded }}
+          style={styles.viewerContainer}
+        >
           <Pdf
             key={uri}
             source={{ uri, cache: false }}
@@ -352,7 +433,13 @@ export default function SecureDocumentScreen() {
           ) : null}
         </View>
       ) : (
-        <View testID="secure-document-rendered" style={styles.viewerContainer}>
+        <View
+          testID="secure-document-rendered"
+          accessible
+          accessibilityLabel="Document content"
+          accessibilityState={{ busy: !rendererLoaded }}
+          style={styles.viewerContainer}
+        >
           <Image
             key={uri}
             source={{ uri }}
@@ -370,7 +457,7 @@ export default function SecureDocumentScreen() {
           ) : null}
         </View>
       )}
-      <SensitiveScreenProtection protectionKey="secure-document-viewer" />
+      <SensitiveScreenProtection protectionKey="passenger-document-viewer" />
     </Screen>
   );
 }
@@ -402,4 +489,5 @@ const styles = StyleSheet.create({
   messageCard: { margin: spacing.lg, gap: spacing.sm, borderRadius: radii.md },
   errorTitle: { color: colors.danger, fontSize: 18, fontWeight: '800' },
   errorText: { color: colors.inkMuted, lineHeight: 21 },
+  supportCode: { color: colors.inkMuted, fontSize: 12, fontWeight: '700' },
 });

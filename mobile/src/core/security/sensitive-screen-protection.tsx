@@ -11,8 +11,8 @@ function runBestEffort(operation: () => Promise<void>): void {
   try {
     void operation().catch(() => undefined);
   } catch {
-    // Unsupported native methods must not break document access. The
-    // lifecycle overlay remains the fallback privacy control.
+    // Unsupported native methods must not break document access. The opaque
+    // lifecycle overlay remains the fail-safe task-switcher privacy control.
   }
 }
 
@@ -66,8 +66,6 @@ export function SensitiveScreenProtection({ protectionKey }: { protectionKey: st
   const obscured = useSensitiveScreenProtection(protectionKey);
   if (!obscured) return null;
 
-  // Native capture blocking is the primary control. This opaque fallback also
-  // hides content from task-switcher snapshots if the native API is unavailable.
   return (
     <View
       accessibilityElementsHidden

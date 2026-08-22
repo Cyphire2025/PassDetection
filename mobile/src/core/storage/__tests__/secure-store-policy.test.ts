@@ -20,7 +20,7 @@ beforeEach(() => {
 });
 
 test('assigns every secure value to exactly one explicit accessibility tier', () => {
-  expect(everyKind).toHaveLength(13);
+  expect(everyKind).toHaveLength(14);
   expect(everyKind.filter(
     (kind) => SECURE_VALUE_ACCESSIBILITY[kind] === 'unlocked-only',
   )).toEqual(unlockedOnlyKinds);
@@ -31,6 +31,7 @@ test('assigns every secure value to exactly one explicit accessibility tier', ()
     'installation-id',
     'active-namespace',
     'pending-cleanup',
+    'scan-feedback-preference',
     'refresh',
     'database-key',
     'selected-trip',

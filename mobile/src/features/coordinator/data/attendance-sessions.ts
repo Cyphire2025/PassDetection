@@ -1,11 +1,8 @@
-import * as Crypto from 'expo-crypto';
 import type { SQLiteDatabase } from 'expo-sqlite';
-import { z } from 'zod';
 
 import { apiRequest } from '@/core/api/client';
 import { useSessionStore } from '@/core/auth/session-store';
 import { principalAccountNamespace } from '@/core/auth/types';
-import { isDemoMode } from '@/core/demo/demo-mode';
 import { openAccountDatabase, withAccountTransaction } from '@/core/storage/database';
 import {
   sqliteBindBatches,
@@ -22,7 +19,6 @@ import {
   AttendanceSessionDetailSchema,
   AttendanceSessionPageSchema,
   AttendanceRosterPageSchema,
-  AttendanceSessionSchema,
   type AttendanceRosterPassenger,
   type AttendanceSession,
   type MissingPassenger,
@@ -31,8 +27,6 @@ import {
   MOBILE_ATTENDANCE_ROSTER_CAPACITY,
   MOBILE_ATTENDANCE_SESSION_CAPACITY,
 } from './attendance-capacity';
-
-const CreateSessionSchema = z.object({ name: z.string().trim().min(2).max(160) }).strict();
 
 function namespace(syncContext?: ImmutableSyncContext): string {
   if (syncContext) {
@@ -286,40 +280,13 @@ export async function refreshAttendanceSessions(
   }
 }
 
-export async function createAttendanceSession(tripId: string, name: string): Promise<AttendanceSession> {
-  const input = CreateSessionSchema.parse({ name });
-  if (isDemoMode()) {
-    const account = namespace();
-    const database = await openAccountDatabase(account);
-    const roster = await database.getFirstAsync<{ count: number }>(
-      `SELECT COUNT(*) AS count FROM coordinator_passengers
-        WHERE account_namespace = ? AND trip_id = ?`,
-      account,
-      tripId,
-    );
-    const session: AttendanceSession = {
-      id: Crypto.randomUUID(),
-      name: input.name,
-      status: 'active',
-      scanned_count: 0,
-      assigned_count: roster?.count ?? 0,
-      started_at: new Date().toISOString(),
-      completed_at: null,
-    };
-    await upsertSession(tripId, session);
-    await selectAttendanceSession(tripId, session.id);
-    return session;
-  }
-  const session = await apiRequest(`/mobile/coordinator/groups/${tripId}/attendance/sessions`, {
-    method: 'POST',
-    body: input,
-    schema: AttendanceSessionSchema,
-  });
-  await upsertSession(tripId, session);
-  if (session.status === 'active' || session.status === 'draft') {
-    await selectAttendanceSession(tripId, session.id);
-  }
-  return session;
+export async function createAttendanceSession(
+  _tripId: string,
+  _name: string,
+): Promise<AttendanceSession> {
+  throw new Error(
+    'Only a Client Manager can create an attendance activity. Refresh and select a manager-prepared activity.',
+  );
 }
 
 async function saveMissing(
@@ -534,25 +501,7 @@ export async function loadCoordinatorAttendanceRoster(
   return { session: resolvedSession, items };
 }
 
-export async function completeAttendanceSession(tripId: string, sessionId: string): Promise<AttendanceSession> {
-  let session: AttendanceSession;
-  if (isDemoMode()) {
-    const current = (await localSessions(tripId)).find((item) => item.id === sessionId);
-    if (!current || current.status !== 'active') {
-      throw new Error('Only an active attendance activity can be completed.');
-    }
-    session = {
-      ...current,
-      status: 'completed',
-      completed_at: new Date().toISOString(),
-    };
-  } else {
-    session = await apiRequest(
-      `/mobile/coordinator/groups/${tripId}/attendance/sessions/${sessionId}/complete`,
-      { method: 'PUT', body: {}, schema: AttendanceSessionSchema },
-    );
-  }
-  await upsertSession(tripId, session);
+export async function leaveAttendanceSession(tripId: string, sessionId: string): Promise<void> {
   const account = namespace();
   const database = await openAccountDatabase(account);
   await database.runAsync(
@@ -561,5 +510,4 @@ export async function completeAttendanceSession(tripId: string, sessionId: strin
     tripId,
     sessionId,
   );
-  return session;
 }

@@ -13,6 +13,10 @@ from typing import Any
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
+from app.presentation.api.v1.schemas.attendance_closeout_schemas import (
+    AttendanceCloseoutStatusResponse,
+)
+
 
 class TourOperationsPhaseResponse(BaseModel):
     phase: int
@@ -247,6 +251,13 @@ class AttendanceScanRequest(BaseModel):
     device_id: str | None = Field(default=None, max_length=128, pattern=r"^[A-Za-z0-9:_-]+$")
     sync_source: str = Field(default="online", pattern="^(online|offline)$")
 
+    @field_validator("scanned_at")
+    @classmethod
+    def require_scan_timezone(cls, value: datetime | None) -> datetime | None:
+        if value is not None and (value.tzinfo is None or value.utcoffset() is None):
+            raise ValueError("scanned_at must include a timezone offset")
+        return value
+
 
 class AttendanceScanResponse(BaseModel):
     session_id: uuid.UUID
@@ -311,6 +322,7 @@ class AttendanceSessionSummary(BaseModel):
     scanned_count: int
     coordinators: list[AttendanceCoordinatorSummary] = Field(default_factory=list)
     missing_passengers: list[AttendanceMissingPassenger] = Field(default_factory=list)
+    closeout: AttendanceCloseoutStatusResponse
 
 
 class GroupAttendanceOverviewResponse(BaseModel):

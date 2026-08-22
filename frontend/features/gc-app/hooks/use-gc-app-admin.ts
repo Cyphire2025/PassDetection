@@ -142,7 +142,7 @@ export function useClientManagerMutations(agencyId: string | null) {
       mutationFn: ({ managerId, current, body }: {
         managerId: string;
         current: ClientManagerAccount;
-        body: Omit<ClientManagerInput, "temporary_password">;
+        body: ClientManagerInput;
       }) => gcAppAdminApi.updateClientManager(agencyId, managerId, current, body),
       // The backend intentionally uses separate revision-safe profile,
       // assignment, and password-policy mutations. Refresh even if a later
@@ -158,8 +158,8 @@ export function useClientManagerMutations(agencyId: string | null) {
       onSuccess: () => { void invalidateManagers(); },
     }),
     resetPassword: useMutation({
-      mutationFn: ({ managerId, temporaryPassword }: { managerId: string; temporaryPassword: string }) =>
-        gcAppAdminApi.resetClientManagerPassword(agencyId, managerId, temporaryPassword),
+      mutationFn: (managerId: string) =>
+        gcAppAdminApi.resetClientManagerPassword(agencyId, managerId),
       onSuccess: () => { void invalidateManagers(); },
     }),
     revokeSessions: useMutation({

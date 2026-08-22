@@ -13,8 +13,9 @@ from app.application.dtos.client_group_dtos import (
     CreateClientGroupInputDTO,
     client_group_output_from_entity,
 )
+from app.application.platform_policies import PlatformPolicyProvider
 from app.core.logging.logger import get_logger
-from app.domain.entities.entities import ClientGroup
+from app.domain.entities.entities import ClientGroup, GroupStatus
 from app.domain.repositories.interfaces import IClientGroupRepository
 
 logger = get_logger(__name__)
@@ -23,8 +24,13 @@ logger = get_logger(__name__)
 class CreateClientGroupUseCase:
     """Generates a secure, time-limited passport upload link for a client."""
 
-    def __init__(self, client_group_repository: IClientGroupRepository) -> None:
+    def __init__(
+        self,
+        client_group_repository: IClientGroupRepository,
+        platform_policy_provider: PlatformPolicyProvider | None = None,
+    ) -> None:
         self._client_group_repo = client_group_repository
+        self._platform_policy_provider = platform_policy_provider
 
     async def execute(
         self,
@@ -32,6 +38,13 @@ class CreateClientGroupUseCase:
         agency_id: uuid.UUID,
         created_by_user_id: uuid.UUID,
     ) -> ClientGroupOutputDTO:
+        # Existing direct callers keep the historical ACTIVE default. Runtime
+        # HTTP construction injects the persisted platform policy provider.
+        initial_status = GroupStatus.ACTIVE
+        if self._platform_policy_provider is not None:
+            policies = await self._platform_policy_provider.load()
+            initial_status = GroupStatus(policies.default_group_status)
+
         # Generate cryptographically secure unguessable token
         token = secrets.token_urlsafe(32)
 
@@ -65,6 +78,12 @@ class CreateClientGroupUseCase:
             custom_questions=dto.custom_questions,
             custom_details=dto.custom_details,
             notes=dto.notes,
+            initial_status=initial_status,
+            passport_retention_days=(
+                policies.passport_data_retention_days
+                if self._platform_policy_provider is not None
+                else None
+            ),
         )
 
         # Save to DB

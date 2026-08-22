@@ -12,62 +12,19 @@ import type {
 
 import { env } from '@/core/config/env';
 
+import {
+  METRIC_ATTRIBUTE_VALUES,
+  MOBILE_METRIC_SCHEMA,
+  type MobileMetricAttributes,
+  type MobileMetricName,
+} from './mobile-metric-schema';
+
+export type { MobileMetricAttributes, MobileMetricName } from './mobile-metric-schema';
+
 const SAFE_ERROR_VALUE = 'redacted application failure';
 const MAX_TEXT_LENGTH = 160;
 const ALLOWED_TAGS = new Set(['diagnostic_code', 'recovery_attempt']);
 const PROCESS_BOOTSTRAP_STARTED_AT_MS = performance.now();
-const MOBILE_METRIC_SCHEMA = Object.freeze({
-  bootstrap_duration: {
-    name: 'gc.mobile.bootstrap_to_interactive.duration',
-    type: 'distribution',
-    unit: 'millisecond',
-    maximum: 120_000,
-  },
-  sync_duration: {
-    name: 'gc.mobile.sync.duration',
-    type: 'distribution',
-    unit: 'millisecond',
-    maximum: 600_000,
-  },
-  background_sync_duration: {
-    name: 'gc.mobile.background_sync.duration',
-    type: 'distribution',
-    unit: 'millisecond',
-    maximum: 300_000,
-  },
-  realtime_reconnect_delay: {
-    name: 'gc.mobile.realtime.reconnect_delay',
-    type: 'distribution',
-    unit: 'millisecond',
-    maximum: 120_000,
-  },
-  queue_depth: {
-    name: 'gc.mobile.queue.depth',
-    type: 'gauge',
-    unit: 'item',
-    maximum: 10_000,
-  },
-  sync_run: {
-    name: 'gc.mobile.sync.run',
-    type: 'counter',
-    maximum: 1,
-  },
-  background_expiration: {
-    name: 'gc.mobile.background.expiration',
-    type: 'counter',
-    maximum: 1,
-  },
-  realtime_reconnect: {
-    name: 'gc.mobile.realtime.reconnect',
-    type: 'counter',
-    maximum: 1,
-  },
-} as const);
-const METRIC_ATTRIBUTE_VALUES = Object.freeze({
-  outcome: new Set(['success', 'partial', 'failure', 'cancelled', 'timeout', 'offline']),
-  trigger: new Set(['startup', 'foreground', 'background', 'realtime', 'push', 'manual', 'mutation']),
-  queue: new Set(['sync', 'attendance', 'documents']),
-} satisfies Record<string, ReadonlySet<string>>);
 const ALLOWED_CONTEXT_FIELDS = Object.freeze({
   app: new Set([
     'app_identifier',
@@ -113,13 +70,6 @@ const ALLOWED_CONTEXT_FIELDS = Object.freeze({
 } satisfies Record<string, ReadonlySet<string>>);
 
 let initialized = false;
-
-export type MobileMetricName = keyof typeof MOBILE_METRIC_SCHEMA;
-export type MobileMetricAttributes = Readonly<{
-  outcome?: 'success' | 'partial' | 'failure' | 'cancelled' | 'timeout' | 'offline';
-  trigger?: 'startup' | 'foreground' | 'background' | 'realtime' | 'push' | 'manual' | 'mutation';
-  queue?: 'sync' | 'attendance' | 'documents';
-}>;
 
 function boundedText(value: unknown, maximum = MAX_TEXT_LENGTH): string | undefined {
   if (typeof value !== 'string' || value.length === 0) return undefined;

@@ -670,9 +670,7 @@ dnspython==2.8.0 \
 ecdsa==0.19.2 \
     --hash=sha256:62635b0ac1ca2e027f82122b5b81cb706edc38cd91c63dda28e4f3455a2bf930 \
     --hash=sha256:840f5dc5e375c68f36c1a7a5b9caad28f95daa65185c9253c0c08dd952bb7399
-    # via
-    #   -r requirements.txt
-    #   python-jose
+    # via python-jose
 email-validator==2.1.1 \
     --hash=sha256:200a70680ba08904be6d1eef729205cc0d687634399a5924d842533efb824b84 \
     --hash=sha256:97d882d174e2a65732fb43bfce81a3a834cbc1bde8bf419e30ef5ea976370a05
@@ -1726,9 +1724,7 @@ python-dotenv==1.2.3 \
 python-jose==3.5.0 \
     --hash=sha256:abd1202f23d34dfad2c3d28cb8617b90acf34132c7afd60abd0b0b7d3cb55771 \
     --hash=sha256:fb4eaa44dbeb1c26dcc69e4bd7ec54a1cb8dd64d3b4d81ef08d90ff453f2b01b
-    # via
-    #   -r requirements.txt
-    #   pyattest
+    # via pyattest
 python-multipart==0.0.32 \
     --hash=sha256:be54b7f3fa167bb83e4fcd936b887b708f4e57fe75911c02aebf53efaf8d938e \
     --hash=sha256:ff6d3f776f16878c894e52e107296ffc890e913c611b1a4ec6c44e2821fe2e23

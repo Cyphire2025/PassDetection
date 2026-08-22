@@ -13,7 +13,7 @@ Production React Native companion for PassDetection passengers, client managers,
 - Expo Notifications provider abstraction, private Android notification visibility, durable read state, strict deep-link routing, and push-triggered refresh.
 - Expo Background Task for opportunistic synchronization; foreground and reconnect synchronization remain authoritative because operating systems do not guarantee background execution.
 
-SecureStore access is sensitivity-tiered and centralized. The document-vault key and signed offline-authorization lease are unlocked-only on iOS and blocked by the application outside an active foreground; exact background metadata requirements use device-only after-first-unlock storage. Android receives separate Keystore aliases per tier, but Expo does not expose native unlocked-device-required keys, so physical lock/reboot testing and the residual native-hardening decision remain release gates. Biometric `requireAuthentication` is not enabled because it would invalidate keys on enrollment changes and break required headless/non-biometric workflows. See `docs/MOBILE_KEY_ACCESSIBILITY.md`.
+Secure storage is sensitivity-tiered and centralized. The document-vault key and signed offline-authorization lease use unlocked-only iOS Keychain storage; on Android they are AES-GCM wrapped by the generated native `GCUnlockedDeviceStore`. Android 15/API 35+ uses a Keystore `UNLOCKED_DEVICE_REQUIRED` key, while API 26-34 uses a compatibility-safe Keystore key with native lock-state checks because Android documents defects in the stricter flag before API 35. Exact background metadata requirements retain device-only after-first-unlock storage. Biometric `requireAuthentication` is not enabled because it would invalidate keys on enrollment changes and break required headless/non-biometric workflows. Physical lock/reboot/OEM proof remains a release gate, especially for the API 26-34 native-guard residual. See `docs/MOBILE_KEY_ACCESSIBILITY.md`.
 
 The encrypted local namespace includes agency, principal, trip, and—where applicable—passenger ownership. Ordinary sign-out, account switching, access-generation changes, trip removal, access denial, expiry, and installation reset purge the affected database rows, encrypted vault files, account-scoped keys, and temporary viewer files. Sign-out clears in-memory authentication immediately, attempts server-session and push-registration revocation without making local sign-out depend on the network, and records a durable cleanup marker before destructive local work. An interrupted deletion stays fenced and is retried before that namespace can be reopened. The next login therefore performs a fresh synchronization; there is no retained-on-sign-out reactivation mode. See `docs/MOBILE_LOCAL_DATA_RETENTION.md`.
 
@@ -33,6 +33,7 @@ EXPO_PUBLIC_UPDATES_URL=https://u.expo.dev/<Expo project UUID>
 EXPO_UPDATES_CODE_SIGNING_CERTIFICATE=<path to protected build input certificate.pem>
 GOOGLE_SERVICES_JSON=<path to protected Firebase google-services.json>
 GC_ANDROID_APP_LINK_SHA256_CERT_FINGERPRINTS=<production SHA-256 fingerprint(s)>
+GC_ANDROID_DISTRIBUTION_SHA256_CERT_FINGERPRINTS=<approved EAS upload/distribution SHA-256 fingerprint(s)>
 GC_APPLE_TEAM_ID=<10-character Apple Team ID>
 ```
 
@@ -42,7 +43,9 @@ Every production build must provide the API URL, `EXPO_PUBLIC_APP_ENV=production
 
 Production release preparation also validates the external App Link/Universal Link files before regenerating native projects. `https://tech.gctravels.com/.well-known/assetlinks.json` and `https://tech.gctravels.com/.well-known/apple-app-site-association` must return HTTP 200 JSON directly, without redirects, and must match the protected Android signing fingerprint or Apple Team ID. The deployed backend derives those public documents from the same signing identities enforced by Play Integrity and App Attest. Native generation fails closed if the deployment configuration is missing or points elsewhere.
 
-The Expo project ID, owner, API URL, and update URL are public application configuration, not signing credentials. Keep Android keystores, Apple certificates, service-account keys, provider tokens, and update-signing private keys out of `.env` and `EXPO_PUBLIC_*`.
+The Expo project ID, owner, API URL, update URL, and certificate fingerprints are public identifiers, not signing credentials. Keep Android keystores, Apple certificates, service-account keys, provider tokens, and update-signing private keys out of `.env` and `EXPO_PUBLIC_*`. Store the reviewed fingerprint allowlists in the protected EAS production environment so an unreviewed workflow change cannot silently approve a different signer.
+
+Android uses two deliberately separate trust roots. `GC_ANDROID_APP_LINK_SHA256_CERT_FINGERPRINTS` must match the certificate that signs the installed Play-distributed app and is published in `assetlinks.json`; with Play App Signing this is normally the Play app-signing certificate. `GC_ANDROID_DISTRIBUTION_SHA256_CERT_FINGERPRINTS` is the fail-closed allowlist used to inspect the exact EAS-produced APK and AAB before approval; it normally contains the EAS upload/distribution certificate. Never substitute one value for the other without comparing the actual certificates in the protected release console.
 
 `EXPO_PUBLIC_DEMO_MODE` is a local emulator-preview switch, not an authentication setting. It only activates when the app uses the separate `com.globalconnects.groupcompanion.demo` package, the app environment is `development`, the API host is loopback, and Expo identifies the runtime as an emulator/simulator. The demo network layer is blocked before `fetch`; normal APK/AAB builds remain on real backend authentication.
 
@@ -64,13 +67,13 @@ This app uses SQLCipher, native PDF rendering, camera, notifications, and secure
 
 ### Release-Hermes emulator/simulator smoke
 
-The `e2e-test` EAS profile produces an Android APK and iOS simulator `.app` without distribution credentials. The manual workflow at `.eas/workflows/release-hermes-smoke.yml` builds both artifacts with the explicitly configured Hermes engine, runs `.maestro/release-hermes-auth-smoke.yml`, and records the emulator/simulator screens:
+The `e2e-test` EAS profile produces an Android APK and iOS simulator `.app` without distribution credentials. The manual workflow at `.eas/workflows/release-hermes-smoke.yml` builds both artifacts with the explicitly configured Hermes engine and runs privacy-safe Maestro journeys without uploading screen recordings:
 
 ```powershell
 npx eas workflow:run .eas/workflows/release-hermes-smoke.yml
 ```
 
-Run this from the linked, protected Expo project with its `preview` environment configured. The source workflow follows Expo's [EAS Maestro E2E pattern](https://docs.expo.dev/eas/workflows/examples/e2e-tests/) and [pre-packaged Maestro job contract](https://docs.expo.dev/eas/workflows/pre-packaged-jobs/). A successful cloud run is required evidence; merely parsing these YAML files locally is not a passing test. This smoke proves only release-engine startup and the anonymous passenger/staff authentication shells. It does not replace store-signed physical-device tests for secure documents, camera scanning, links, push, app attestation, storage cleanup, screenshots, background execution, performance, or accessibility.
+Run this from the linked, protected Expo project with its `preview` environment configured. The source workflow follows Expo's [EAS Maestro E2E pattern](https://docs.expo.dev/eas/workflows/examples/e2e-tests/) and [pre-packaged Maestro job contract](https://docs.expo.dev/eas/workflows/pre-packaged-jobs/). A successful cloud run is required evidence; merely parsing these YAML files locally is not a passing test. The guarded production workflow also runs a dedicated Android coordinator attendance journey against the unsigned `e2e-test` artifact: it exercises the real readiness-gated scan callback, durable offline queue across process death, reconnect/drain/server checkpoint, duplicate suppression, and Scan Issues route. The QR entry seam is compiled only into that preview artifact and production validation requires it to be explicitly disabled. Emulator evidence does not replace store-signed physical-device tests for camera optics, links, push, app attestation, storage cleanup, background execution, performance, or accessibility. See `.maestro/README.md` for the protected fixture contract and limitations.
 
 ## Native projects and Android builds
 
@@ -93,6 +96,7 @@ $env:EXPO_PUBLIC_UPDATES_URL="https://u.expo.dev/$env:EXPO_PUBLIC_EAS_PROJECT_ID
 $env:EXPO_UPDATES_CODE_SIGNING_CERTIFICATE='C:\protected\updates\certificate.pem'
 $env:GOOGLE_SERVICES_JSON='C:\protected\firebase\google-services.json'
 $env:GC_ANDROID_APP_LINK_SHA256_CERT_FINGERPRINTS='<production SHA-256 fingerprint>'
+$env:GC_ANDROID_DISTRIBUTION_SHA256_CERT_FINGERPRINTS='<approved EAS upload/distribution SHA-256 fingerprint>'
 npm run release:validate-env
 npm run android:apk
 npm run android:aab
@@ -105,7 +109,7 @@ Outputs are normally:
 - `android/app/build/outputs/apk/release/app-release.apk`
 - `android/app/build/outputs/bundle/release/app-release.aab`
 
-Configure a protected production upload keystore or EAS credentials before distribution. Do not ship a locally debug-signed artifact as production.
+Configure a protected production upload keystore or EAS credentials before distribution. Do not ship a locally debug-signed artifact as production. `npm run release:verify-android-apk -- <apk> <new-receipt.json> <EAS-build-UUID> <40-or-64-character-Git-hash>` and `npm run release:verify-android-aab -- <aab> <new-receipt.json> <EAS-build-UUID> <Git-hash> com.globalconnects.groupcompanion` independently fail closed on debug, unsigned, v1-only, multi-signer, wrong-package, unapproved-signer, or malformed-provenance artifacts. Receipts are created with exclusive-create semantics and contain only bounded package, signer, size, checksum, build, and source-revision evidence.
 
 For the isolated Android emulator demo, preserve any normal release artifact first, then build only the x86_64 preview:
 
@@ -130,7 +134,7 @@ npx eas build --platform android --profile production
 
 Run the matching `release:preflight-ios` gate before a production iOS EAS build. Protected CI/CD should make these preflight commands mandatory rather than invoking a production EAS profile directly.
 
-`production-apk` is the installable internal-testing variant and inherits the production environment, channel, version increment, and protected EAS Android credentials. `production` produces the Play Store AAB. A profile definition does not prove that credentials exist or that a build is distribution-signed; confirm the EAS project and credential assignment before distributing either artifact. The `fingerprint` OTA runtime policy prevents updates built against a different native dependency/configuration fingerprint from reaching an incompatible binary.
+`production-apk` is the installable internal-testing variant and inherits the production environment, channel, version increment, and protected EAS Android credentials. `production` produces the Play Store AAB. A profile definition does not prove that credentials exist or that a build is distribution-signed. The manual `.eas/workflows/production-release.yml` workflow pins the reviewed EAS SDK 57 image and Node 20.19.4, then binds its functional test, signer verification, checksum receipt, approval, and submission jobs to the exact upstream EAS build IDs; the final submission cannot run before the exact AAB receipt and human approval. A successful cloud run and preserved receipts are required release evidence. The `fingerprint` OTA runtime policy prevents updates built against a different native dependency/configuration fingerprint from reaching an incompatible binary.
 
 ## iOS build and signing
 
@@ -150,7 +154,7 @@ Select the production team/bundle identifier, validate push and associated-domai
 
 ## Security and offline behavior
 
-- Sensitive screens prevent capture where the OS supports it; notification bodies contain no document details.
+- Passport, visa, ticket, and other document-preview routes acquire a shared native screen-capture protection lease and render an opaque privacy cover whenever the app is inactive or backgrounded. Ordinary itinerary, profile, and operational screens remain capturable. Telemetry rejects screenshot attachments, app logs remain metadata-only, and notification bodies contain no document details.
 - A positive root/jailbreak signal disables offline document download and viewing while itinerary/emergency features remain usable. Detection is cached, experimental, and defense-in-depth—not proof a device is trustworthy. Detection errors produce an `unknown` result and do not crash the app.
 - Document bytes require a fresh authorization grant and `X-GC-Download-Token`; raw storage URLs are never stored.
 - Pending legacy document metadata is visible but cannot be downloaded until the server has verified its size and SHA-256.

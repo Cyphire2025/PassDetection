@@ -23,6 +23,7 @@ Usage in routes:
 from __future__ import annotations
 
 import uuid
+from datetime import UTC, datetime
 
 from fastapi import Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -31,9 +32,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config.settings import get_settings
 from app.core.security.jwt import decode_access_token
 from app.domain.entities.entities import User, UserRole
-from app.domain.exceptions.exceptions import AuthenticationError, AuthorizationError
+from app.domain.exceptions.exceptions import (
+    AuthenticationError,
+    AuthorizationError,
+    StepUpRequiredError,
+)
 from app.domain.repositories.interfaces import IUserRepository
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.repositories.identity_security_repository import role_requires_dashboard_mfa
 from app.infrastructure.repositories.user_repository import UserRepository
 from app.presentation.dependencies.csrf import require_cookie_csrf
 
@@ -99,6 +105,13 @@ async def get_current_user(
         raise AuthenticationError("User not found")
     if user.role == UserRole.CLIENT_MANAGER:
         raise AuthenticationError("This account cannot access the dashboard")
+    user_session_version = getattr(user, "session_version", None)
+    if user_session_version is not None and payload.get("sv") != user_session_version:
+        raise AuthenticationError("Session is no longer valid")
+    if getattr(user, "credential_state", "active") != "active":
+        raise AuthenticationError("Credential setup is required")
+    if hasattr(request, "state"):
+        request.state.auth_claims = payload
 
     return user
 
@@ -134,3 +147,26 @@ def require_role(allowed_roles: list[UserRole]):
         return user
 
     return _check_role
+
+
+async def require_recent_mfa(
+    request: Request,
+    user: User = Depends(get_current_active_user),
+) -> User:
+    """Require MFA performed in the last ten minutes for privileged users."""
+
+    if not role_requires_dashboard_mfa(user.role):
+        return user
+    payload = getattr(getattr(request, "state", None), "auth_claims", {})
+    methods = payload.get("amr") if isinstance(payload, dict) else None
+    raw_mfa_at = payload.get("mfa_at") if isinstance(payload, dict) else None
+    if (
+        not isinstance(methods, list)
+        or not any(method in {"totp", "recovery_code"} for method in methods)
+        or not isinstance(raw_mfa_at, (int, float))
+    ):
+        raise StepUpRequiredError()
+    age_seconds = datetime.now(tz=UTC).timestamp() - float(raw_mfa_at)
+    if age_seconds < -60 or age_seconds > 600:
+        raise StepUpRequiredError()
+    return user

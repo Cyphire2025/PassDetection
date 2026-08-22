@@ -1,6 +1,9 @@
 import { ACCOUNT_DATABASE_VERSION } from '../database-schema';
 
-const mockOpenDatabaseAsync = jest.fn<Promise<unknown>, [string, { useNewConnection?: boolean }?]>();
+const mockOpenDatabaseAsync = jest.fn<Promise<unknown>, [string, {
+  useNewConnection?: boolean;
+  finalizeUnusedStatementsBeforeClosing?: boolean;
+}?]>();
 const mockDeleteDatabaseAsync = jest.fn<Promise<void>, [string]>(async (_name) => undefined);
 const mockDigestStringAsync = jest.fn<Promise<string>, [string, string]>(
   async (_algorithm, value) => digest(value),
@@ -93,7 +96,10 @@ jest.mock('expo-file-system', () => {
 
 jest.mock('expo-sqlite', () => ({
   defaultDatabaseDirectory: '/sqlite',
-  openDatabaseAsync: (name: string, options?: { useNewConnection?: boolean }) => (
+  openDatabaseAsync: (name: string, options?: {
+    useNewConnection?: boolean;
+    finalizeUnusedStatementsBeforeClosing?: boolean;
+  }) => (
     mockOpenDatabaseAsync(name, options)
   ),
   deleteDatabaseAsync: (name: string) => mockDeleteDatabaseAsync(name),
@@ -273,9 +279,15 @@ test('coalesces concurrent startup calls onto one main and one keyed transaction
   const second = openAccountDatabase('agency.passenger');
   opening.resolve();
 
-  await expect(Promise.all([first, second])).resolves.toEqual([database, database]);
+  const [firstOpened, secondOpened] = await Promise.all([first, second]);
+  expect(firstOpened).toBe(secondOpened);
+  expect(firstOpened).not.toBe(database);
   expect(mockOpenDatabaseAsync).toHaveBeenCalledTimes(2);
+  expect(mockOpenDatabaseAsync).toHaveBeenNthCalledWith(1, expect.any(String), {
+    finalizeUnusedStatementsBeforeClosing: false,
+  });
   expect(mockOpenDatabaseAsync).toHaveBeenNthCalledWith(2, expect.any(String), {
+    finalizeUnusedStatementsBeforeClosing: false,
     useNewConnection: true,
   });
   expect(database.getFirstAsync.mock.calls.filter(([sql]) => sql === 'PRAGMA user_version')).toHaveLength(1);
@@ -635,7 +647,7 @@ test('rebuilds only the affected account database after verifying its action que
     .mockResolvedValueOnce(rebuiltDatabase)
     .mockResolvedValueOnce(rebuiltTransactionDatabase);
 
-  await expect(openAccountDatabase('agency.safe-rebuild')).resolves.toBe(rebuiltDatabase);
+  await expect(openAccountDatabase('agency.safe-rebuild')).resolves.not.toBe(rebuiltDatabase);
 
   expect(corruptDatabase.closeAsync).toHaveBeenCalledTimes(1);
   expect(mockDeleteDatabaseAsync).toHaveBeenCalledTimes(1);
@@ -854,6 +866,7 @@ test('preserves the task exception and transparently replaces a failed transacti
   expect(replacementTransactionDatabase.execAsync).toHaveBeenCalledWith('BEGIN IMMEDIATE');
   expect(replacementTransactionDatabase.execAsync).toHaveBeenCalledWith('COMMIT');
   expect(mockOpenDatabaseAsync).toHaveBeenLastCalledWith(expect.any(String), {
+    finalizeUnusedStatementsBeforeClosing: false,
     useNewConnection: true,
   });
 });
@@ -898,6 +911,36 @@ test('waits for an in-flight transaction before closing both native connections'
   expect(database.closeAsync).toHaveBeenCalledTimes(1);
 });
 
+test('waits for an in-flight main query to finalize before deleting the native database', async () => {
+  const database = fakeDatabase();
+  const transactionDatabase = fakeDatabase();
+  const queryStarted = deferred();
+  const finishQuery = deferred();
+  queueAccountConnections(database, transactionDatabase);
+  const opened = await openAccountDatabase('agency.passenger');
+  database.getAllAsync.mockImplementationOnce(async () => {
+    queryStarted.resolve();
+    await finishQuery.promise;
+    return [];
+  });
+
+  const query = opened.getAllAsync('SELECT * FROM passengers');
+  await queryStarted.promise;
+  const deleting = deleteAccountDatabase('agency.passenger');
+  await new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+  expect(transactionDatabase.closeAsync).not.toHaveBeenCalled();
+  expect(database.closeAsync).not.toHaveBeenCalled();
+  expect(mockDeleteDatabaseAsync).not.toHaveBeenCalled();
+  const operationAfterDeleteStarted = opened.getFirstAsync('SELECT 1');
+  finishQuery.resolve();
+  await expect(operationAfterDeleteStarted).rejects.toThrow('offline database is closing');
+  await Promise.all([query, deleting]);
+  expect(transactionDatabase.closeAsync).toHaveBeenCalledTimes(1);
+  expect(database.closeAsync).toHaveBeenCalledTimes(1);
+  expect(mockDeleteDatabaseAsync).toHaveBeenCalledTimes(1);
+});
+
 test('retains account ownership when main native close fails and allows a close retry', async () => {
   const firstDatabase = fakeDatabase();
   const firstTransactionDatabase = fakeDatabase();
@@ -923,7 +966,7 @@ test('retains account ownership when main native close fails and allows a close 
 
   await expect(closeAccountDatabase()).resolves.toBeUndefined();
   expect(mockHealthMarkers.get('agency.passenger-a')?.state).toBe('clean');
-  await expect(openAccountDatabase('agency.passenger-b')).resolves.toBe(secondDatabase);
+  await expect(openAccountDatabase('agency.passenger-b')).resolves.not.toBe(secondDatabase);
   expect(firstTransactionDatabase.closeAsync).toHaveBeenCalledTimes(1);
 });
 
@@ -942,5 +985,5 @@ test('fails closed instead of implicitly reusing connections across accounts', a
   expect(mockOpenDatabaseAsync).toHaveBeenCalledTimes(2);
 
   await closeAccountDatabase();
-  await expect(openAccountDatabase('agency.passenger-b')).resolves.toBe(secondDatabase);
+  await expect(openAccountDatabase('agency.passenger-b')).resolves.not.toBe(secondDatabase);
 });

@@ -6,6 +6,7 @@ from pydantic import ValidationError as PydanticValidationError
 from app.core.config.settings import JWTSettings, MobileSettings, Settings
 
 _STRONG_APP_SECRET = "9Wv!mR3#kP7@xN2$zQ8&bL5^tY4*cH6+"
+_CERTIFICATE_DIGEST = "A" * 43
 
 
 def test_jwt_algorithm_is_pinned_to_reviewed_hs256_profile() -> None:
@@ -71,6 +72,10 @@ def test_production_mobile_api_accepts_independent_high_entropy_signing_secret(
     monkeypatch.setenv(
         "MOBILE_JWT_SECRET_KEY",
         "9Wv!mR3#kP7@xN2$zQ8&bL5^tY4*cH6+",
+    )
+    monkeypatch.setenv(
+        "MOBILE_PLAY_INTEGRITY_ALLOWED_CERTIFICATE_DIGESTS_JSON",
+        f'["{_CERTIFICATE_DIGEST}"]',
     )
 
     settings = Settings(

@@ -11,6 +11,21 @@ const mobileRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
  */
 export const mobileModuleBudgets = Object.freeze([
   Object.freeze({
+    path: 'src/features/content/data/content-repository.ts',
+    baselineLines: 1_392,
+    maximumLines: 1_425,
+  }),
+  Object.freeze({
+    path: 'src/core/storage/database-schema.ts',
+    baselineLines: 1_172,
+    maximumLines: 1_200,
+  }),
+  Object.freeze({
+    path: 'src/core/sync/snapshot-rebase-store.ts',
+    baselineLines: 1_055,
+    maximumLines: 1_085,
+  }),
+  Object.freeze({
     path: 'src/core/storage/vault.ts',
     baselineLines: 981,
     maximumLines: 1_050,
@@ -19,6 +34,61 @@ export const mobileModuleBudgets = Object.freeze([
     path: 'src/core/api/client.ts',
     baselineLines: 618,
     maximumLines: 675,
+  }),
+  Object.freeze({
+    path: 'src/core/sync/sync-service.ts',
+    baselineLines: 968,
+    maximumLines: 1_000,
+  }),
+  Object.freeze({
+    path: 'src/core/auth/session-service.ts',
+    baselineLines: 891,
+    maximumLines: 925,
+  }),
+  Object.freeze({
+    path: 'src/features/coordinator/data/coordinator-repository.ts',
+    baselineLines: 785,
+    maximumLines: 825,
+  }),
+  Object.freeze({
+    path: 'src/core/storage/secure-store.ts',
+    baselineLines: 782,
+    maximumLines: 825,
+  }),
+  Object.freeze({
+    path: 'src/core/storage/database.ts',
+    baselineLines: 720,
+    maximumLines: 750,
+  }),
+  Object.freeze({
+    path: 'src/core/storage/database-operation-coordinator.ts',
+    baselineLines: 105,
+    maximumLines: 130,
+  }),
+  Object.freeze({
+    path: 'src/features/coordinator/data/attendance-queue.ts',
+    baselineLines: 698,
+    maximumLines: 725,
+  }),
+  Object.freeze({
+    path: 'src/core/sync/snapshot-rebase.ts',
+    baselineLines: 665,
+    maximumLines: 700,
+  }),
+  Object.freeze({
+    path: 'src/app/(coordinator)/(tabs)/scan.tsx',
+    baselineLines: 575,
+    maximumLines: 600,
+  }),
+  Object.freeze({
+    path: 'src/features/coordinator/data/attendance-sessions.ts',
+    baselineLines: 565,
+    maximumLines: 600,
+  }),
+  Object.freeze({
+    path: 'src/core/observability/mobile-observability.ts',
+    baselineLines: 501,
+    maximumLines: 550,
   }),
   Object.freeze({
     path: 'src/core/storage/vault-native-transfer.ts',

@@ -21,6 +21,7 @@ const updatesCodeSigningCertificate = normalizeBuildFilePath(
 const googleServicesFile = process.env.GOOGLE_SERVICES_JSON;
 const sentryOrganization = process.env.SENTRY_ORG;
 const sentryProject = process.env.SENTRY_PROJECT;
+const localNetworkDevelopment = process.env.EXPO_PUBLIC_APP_ENV === "development";
 
 const shouldValidateProductionEnvironment =
   process.env.EXPO_PUBLIC_APP_ENV === "production" ||
@@ -96,6 +97,10 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         UIFileSharingEnabled: false,
         LSSupportsOpeningDocumentsInPlace: false,
         ITSAppUsesNonExemptEncryption: false,
+        NSAppTransportSecurity: {
+          NSAllowsArbitraryLoads: false,
+          NSAllowsLocalNetworking: localNetworkDevelopment,
+        },
       },
       associatedDomains: [`applinks:${VERIFIED_LINK_HOST}`],
       ...(appIntegrityBuild.appAttestEnvironment
@@ -153,6 +158,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       favicon: "./assets/images/gc-app-icon.png",
     },
     plugins: [
+      "./plugins/with-android-unlocked-device-store",
       "./plugins/with-expo-headless-loader-proguard",
       [
         "@sentry/react-native/expo",
@@ -163,6 +169,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       ],
       "expo-router",
       "expo-image",
+      "expo-asset",
       [
         "expo-splash-screen",
         {
@@ -197,6 +204,15 @@ export default ({ config }: ConfigContext): ExpoConfig => {
             "Coordinators use the camera to scan passenger attendance QR codes.",
           microphonePermission: false,
           recordAudioAndroid: false,
+        },
+      ],
+      [
+        "expo-audio",
+        {
+          microphonePermission: false,
+          recordAudioAndroid: false,
+          enableBackgroundRecording: false,
+          enableBackgroundPlayback: false,
         },
       ],
       [

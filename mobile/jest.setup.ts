@@ -9,6 +9,12 @@ jest.mock('expo-secure-store', () => ({
 jest.mock('react-native-blob-util', () => ({
   __esModule: true,
   default: {
+    config: jest.fn(),
+    fs: {
+      dirs: { DocumentDir: '/private/files' },
+      mv: jest.fn(async () => undefined),
+      unlink: jest.fn(async () => undefined),
+    },
     ios: {
       excludeFromBackupKey: jest.fn(async () => undefined),
     },

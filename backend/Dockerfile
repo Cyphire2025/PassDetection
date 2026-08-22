@@ -8,7 +8,7 @@
 # ── Stage 1: Dependency Builder ───────────────────────────────────────────────
 FROM python:3.11-slim AS builder
 
-ARG PIP_VERSION=26.1.2
+ARG PIP_VERSION=26.2.1
 
 WORKDIR /build
 

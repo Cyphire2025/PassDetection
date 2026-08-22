@@ -32,13 +32,13 @@ Native responsibilities are split as follows:
 | --- | --- |
 | Navigation | Expo Router with role-specific route groups and native stacks |
 | Metadata | SQLite with SQLCipher, normalized tables, and one account namespace per database |
-| Secrets | Android Keystore and iOS Keychain through SecureStore |
+| Secrets | Central tiered storage: iOS Keychain/Expo SecureStore; Android Keystore-backed native unlocked-device store for vault/offline authorization plus Expo SecureStore for required background values |
 | Documents | AES-256-GCM encrypted files in application-private storage |
 | Networking | Fixed HTTPS API origin, short-lived bearer access tokens, rotating refresh tokens |
 | Synchronization | Cursor journal, entity versions, tombstones, and access generations |
 | Background work | Foreground/reconnect sync plus opportunistic OS background tasks and push-triggered refresh |
 | Notifications | Provider abstraction supporting Expo, FCM, and APNs registrations |
-| Sensitive screens | Screen-capture controls where supported and redacted app-switcher state; no repeated biometric/device-lock prompt in this product revision |
+| Sensitive screens | Selective native screenshot/capture protection and inactive/background privacy masking for passport, visa, ticket, and other document previews; ordinary screens remain capturable, telemetry screenshot attachments remain disabled, and temporary plaintext stays lifecycle-managed |
 
 The access token is held in memory. The refresh token and the key-wrapping
 material are stored in platform secure storage. This product revision does not

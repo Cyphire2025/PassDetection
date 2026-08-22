@@ -203,6 +203,9 @@ from app.infrastructure.repositories.passport_visa_ai_image_job_repository impor
 from app.infrastructure.repositories.passport_visa_ai_image_repository import (
     PassportVisaAiImageRepository,
 )
+from app.infrastructure.repositories.platform_policy_repository import (
+    PlatformPolicyRepository,
+)
 from app.infrastructure.repositories.qualifier_selection_repository import (
     QualifierSelectionRepository,
 )
@@ -1031,6 +1034,7 @@ def _get_client_submit_passport_use_case(
         passport_repo=PassportSubmissionRepository(session),
         client_group_repo=ClientGroupRepository(session),
         storage_repo=MinioStorageRepository(),
+        platform_policy_provider=PlatformPolicyRepository(session),
     )
 
 

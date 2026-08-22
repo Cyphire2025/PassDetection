@@ -18,6 +18,10 @@ from app.core.security.jwt import create_access_token, create_refresh_token
 from app.domain.entities.entities import UserRole
 from app.domain.exceptions.exceptions import AuthenticationError, TokenExpiredError
 from app.domain.repositories.interfaces import IUserRepository
+from app.infrastructure.repositories.identity_security_repository import (
+    IdentitySecurityRepository,
+    role_requires_dashboard_mfa,
+)
 from app.infrastructure.repositories.refresh_token_repository import RefreshTokenRepository
 
 logger = get_logger(__name__)
@@ -30,9 +34,11 @@ class RefreshTokenUseCase:
         self,
         user_repository: IUserRepository,
         refresh_token_repository: RefreshTokenRepository,
+        identity_security_repository: IdentitySecurityRepository | None = None,
     ) -> None:
         self._user_repo  = user_repository
         self._token_repo = refresh_token_repository
+        self._identity_security_repo = identity_security_repository
 
     async def execute(
         self,
@@ -55,6 +61,40 @@ class RefreshTokenUseCase:
             await self._token_repo.revoke(dto.refresh_token)
             raise AuthenticationError("This account cannot access the dashboard")
 
+        # Migration 0084 backfills existing refresh rows with generation 1 and
+        # password-only authentication metadata. Keep the use case compatible
+        # with those legacy rows during a rolling deployment as well as with
+        # lightweight repository adapters that omit the new attributes.
+        session_version = int(getattr(stored_token, "session_version", 1) or 1)
+        stored_methods = getattr(stored_token, "authentication_methods", "pwd") or "pwd"
+        authentication_methods = tuple(
+            method.strip() for method in str(stored_methods).split(",") if method.strip()
+        ) or ("pwd",)
+        mfa_authenticated_at = getattr(stored_token, "mfa_authenticated_at", None)
+
+        if role_requires_dashboard_mfa(user.role) and (
+            mfa_authenticated_at is None
+            or not any(
+                method in {"totp", "recovery_code"}
+                for method in authentication_methods
+            )
+        ):
+            # Pre-MFA refresh rows are deliberately not grandfathered. This
+            # closes the rolling-deployment path where a privileged principal
+            # could otherwise bypass the new login challenge until expiry.
+            await self._token_repo.revoke(dto.refresh_token)
+            raise AuthenticationError("MFA sign-in is required")
+
+        if self._identity_security_repo is not None:
+            security_state = await self._identity_security_repo.get_state(user.id)
+            if (
+                security_state is None
+                or security_state.credential_state != "active"
+                or security_state.session_version != session_version
+            ):
+                await self._token_repo.revoke(dto.refresh_token)
+                raise AuthenticationError("Session is no longer valid")
+
         # 3. Atomically claim the used refresh token. A concurrent request may
         # have consumed it after the initial lookup while the user was loaded.
         consumed_token = await self._token_repo.consume_valid_token(dto.refresh_token)
@@ -67,6 +107,9 @@ class RefreshTokenUseCase:
             user_id=user.id,
             role=user.role.value,
             agency_id=user.agency_id,
+            session_version=session_version,
+            authentication_methods=authentication_methods,
+            mfa_authenticated_at=mfa_authenticated_at,
         )
         new_refresh_token, refresh_expires = create_refresh_token()
 
@@ -76,6 +119,9 @@ class RefreshTokenUseCase:
             user_id=user.id,
             expires_at=refresh_expires,
             created_from_ip=client_ip,
+            session_version=session_version,
+            authentication_methods=authentication_methods,
+            mfa_authenticated_at=mfa_authenticated_at,
         )
 
         logger.info("token_refreshed", user_id=str(user.id))
@@ -91,6 +137,9 @@ class RefreshTokenUseCase:
                 last_login_at=user.last_login_at,
                 created_at=user.created_at,
                 updated_at=user.updated_at,
+                credential_state=user.credential_state,
+                mfa_required=user.mfa_required,
+                mfa_enabled=user.mfa_enabled,
             ),
             access_token=access_token,
             refresh_token=new_refresh_token,

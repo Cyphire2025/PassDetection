@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import secrets
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy import func, select, update
@@ -17,12 +17,16 @@ from app.infrastructure.database.models import (
     AgencyModel,
     AttendanceRecordModel,
     AttendanceSessionModel,
+    ClientGroupModel,
     CoordinatorAssignmentModel,
     CoordinatorGroupAssignmentModel,
     UserModel,
+    UserSecurityStateModel,
 )
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.infrastructure.repositories.identity_security_repository import IdentitySecurityRepository
+from app.infrastructure.repositories.mobile_session_security import revoke_user_mobile_sessions
 from app.infrastructure.repositories.refresh_token_repository import RefreshTokenRepository
 from app.presentation.api.v1.schemas.operations_schemas import (
     CreateStaffRequest,
@@ -31,7 +35,7 @@ from app.presentation.api.v1.schemas.operations_schemas import (
     ResetManagedAccountPasswordRequest,
     SetManagedAccountStatusRequest,
 )
-from app.presentation.dependencies.auth import require_role
+from app.presentation.dependencies.auth import require_recent_mfa, require_role
 from app.presentation.dependencies.csrf import require_cookie_csrf
 from app.presentation.security.client_ip import trusted_client_ip
 
@@ -76,12 +80,16 @@ async def list_managed_accounts(
             ]
         )
     result = await session.execute(
-        select(UserModel, AgencyModel.name.label("agency_name"))
+        select(UserModel, AgencyModel.name.label("agency_name"), UserSecurityStateModel)
         .outerjoin(AgencyModel, AgencyModel.id == UserModel.agency_id)
+        .outerjoin(UserSecurityStateModel, UserSecurityStateModel.user_id == UserModel.id)
         .where(*filters)
         .order_by(UserModel.role.asc(), UserModel.created_at.desc())
     )
-    return [_account_response(account, agency_name) for account, agency_name in result.all()]
+    return [
+        _account_response(account, agency_name, security_state)
+        for account, agency_name, security_state in result.all()
+    ]
 
 
 @router.get("/staff", response_model=list[ManagedAccountResponse], summary="List staff accounts")
@@ -96,12 +104,16 @@ async def list_staff_accounts(
     if current_user.role != UserRole.SUPER_ADMIN:
         filters.append(UserModel.agency_id == current_user.agency_id)
     result = await session.execute(
-        select(UserModel, AgencyModel.name.label("agency_name"))
+        select(UserModel, AgencyModel.name.label("agency_name"), UserSecurityStateModel)
         .outerjoin(AgencyModel, AgencyModel.id == UserModel.agency_id)
+        .outerjoin(UserSecurityStateModel, UserSecurityStateModel.user_id == UserModel.id)
         .where(*filters)
         .order_by(UserModel.created_at.desc())
     )
-    return [_account_response(account, agency_name) for account, agency_name in result.all()]
+    return [
+        _account_response(account, agency_name, security_state)
+        for account, agency_name, security_state in result.all()
+    ]
 
 
 @router.post(
@@ -109,11 +121,12 @@ async def list_staff_accounts(
     response_model=ManagedAccountResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Create a staff account",
-    dependencies=[Depends(require_cookie_csrf)],
+    dependencies=[Depends(require_cookie_csrf), Depends(require_recent_mfa)],
 )
 async def create_staff_account(
     body: CreateStaffRequest,
     request: Request,
+    response: Response,
     current_user: User = Depends(require_role(STAFF_ADMIN_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> ManagedAccountResponse:
@@ -132,7 +145,7 @@ async def create_staff_account(
 
     staff = UserModel(
         email=email,
-        hashed_password=hash_password(body.password),
+        hashed_password=hash_password(f"Inv1{secrets.token_urlsafe(32)}"),
         full_name=body.full_name.strip(),
         role=UserRole.AGENCY_STAFF.value,
         agency_id=current_user.agency_id,
@@ -140,36 +153,92 @@ async def create_staff_account(
     )
     session.add(staff)
     await session.flush()
-    await _audit_account_action(session, current_user, request, staff, "staff.created")
+    identity_repository = IdentitySecurityRepository(session)
+    security_state = UserSecurityStateModel(
+        user_id=staff.id,
+        credential_state="invited",
+        session_version=1,
+        mfa_required=True,
+    )
+    session.add(security_state)
+    _, activation_token = await identity_repository.issue_action_token(
+        user_id=staff.id,
+        purpose="activation",
+        expires_in=timedelta(days=7),
+        created_by_user_id=current_user.id,
+    )
+    await _audit_account_action(session, current_user, request, staff, "staff.invited")
 
     agency_name = None
     if staff.agency_id:
         agency_name = (
             await session.execute(select(AgencyModel.name).where(AgencyModel.id == staff.agency_id))
         ).scalar_one_or_none()
-    return _account_response(staff, agency_name)
+    response.headers["Cache-Control"] = "private, no-store, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    return _account_response(
+        staff,
+        agency_name,
+        security_state,
+        activation_token=activation_token,
+    )
 
 
 @router.post(
     "/{account_id}/reset-password",
     response_model=ManagedAccountResponse,
-    summary="Set a new password and revoke every existing session",
-    dependencies=[Depends(require_cookie_csrf)],
+    summary="Issue a one-time credential reset link and revoke every existing session",
+    dependencies=[Depends(require_cookie_csrf), Depends(require_recent_mfa)],
 )
 async def reset_managed_account_password(
     account_id: uuid.UUID,
     body: ResetManagedAccountPasswordRequest,
     request: Request,
+    response: Response,
     current_user: User = Depends(require_role(ACCOUNT_ADMIN_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> ManagedAccountResponse:
     account, agency_name = await _get_manageable_account(session, current_user, account_id)
-    account.hashed_password = hash_password(body.password)
-    account.updated_at = datetime.now(tz=UTC)
+    del body
+    now = datetime.now(tz=UTC)
+    account.hashed_password = hash_password(f"Rst1{secrets.token_urlsafe(32)}")
+    account.updated_at = now
+    repository = IdentitySecurityRepository(session)
+    security_state = await repository.get_state(account.id, lock=True)
+    if security_state is None:
+        security_state = await repository.ensure_state(account)
+    security_state.credential_state = "invited"
+    security_state.session_version += 1
+    security_state.updated_at = now
     await RefreshTokenRepository(session).revoke_all_for_user(account.id)
-    await _audit_account_action(session, current_user, request, account, "account.password_reset")
+    await _fence_coordinator_mobile_sessions(
+        session,
+        account,
+        reason="credential_reset",
+    )
+    _, activation_token = await repository.issue_action_token(
+        user_id=account.id,
+        purpose="activation",
+        expires_in=timedelta(days=7),
+        created_by_user_id=current_user.id,
+    )
+    await _audit_account_action(
+        session,
+        current_user,
+        request,
+        account,
+        "account.credential_reset_issued",
+        metadata={"sessions_revoked": True},
+    )
     await session.flush()
-    return _account_response(account, agency_name)
+    response.headers["Cache-Control"] = "private, no-store, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    return _account_response(
+        account,
+        agency_name,
+        security_state,
+        activation_token=activation_token,
+    )
 
 
 @router.post(
@@ -177,7 +246,7 @@ async def reset_managed_account_password(
     status_code=status.HTTP_204_NO_CONTENT,
     response_class=Response,
     summary="Force an account to sign out on every device",
-    dependencies=[Depends(require_cookie_csrf)],
+    dependencies=[Depends(require_cookie_csrf), Depends(require_recent_mfa)],
 )
 async def revoke_managed_account_sessions(
     account_id: uuid.UUID,
@@ -186,16 +255,55 @@ async def revoke_managed_account_sessions(
     session: AsyncSession = Depends(get_db_session),
 ) -> Response:
     account, _ = await _get_manageable_account(session, current_user, account_id)
-    await RefreshTokenRepository(session).revoke_all_for_user(account.id)
+    await _fence_dashboard_sessions(session, account)
     await _audit_account_action(session, current_user, request, account, "account.sessions_revoked")
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post(
+    "/{account_id}/reset-mfa",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
+    summary="Reset a managed account's MFA and revoke every existing session",
+    dependencies=[Depends(require_cookie_csrf), Depends(require_recent_mfa)],
+)
+async def reset_managed_account_mfa(
+    account_id: uuid.UUID,
+    request: Request,
+    current_user: User = Depends(require_role(ACCOUNT_ADMIN_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> Response:
+    account, _ = await _get_manageable_account(session, current_user, account_id)
+    repository = IdentitySecurityRepository(session)
+    security_state = await repository.get_state(account.id, lock=True)
+    if security_state is None:
+        security_state = await repository.ensure_state(account)
+    await repository.reset_mfa(state=security_state)
+    await RefreshTokenRepository(session).revoke_all_for_user(account.id)
+    await _fence_coordinator_mobile_sessions(
+        session,
+        account,
+        reason="mfa_reset",
+    )
+    await _audit_account_action(
+        session,
+        current_user,
+        request,
+        account,
+        "account.mfa_reset",
+        metadata={"sessions_revoked": True, "reenrollment_required": security_state.mfa_required},
+    )
+    return Response(
+        status_code=status.HTTP_204_NO_CONTENT,
+        headers={"Cache-Control": "private, no-store, max-age=0", "Pragma": "no-cache"},
+    )
 
 
 @router.patch(
     "/{account_id}/status",
     response_model=ManagedAccountResponse,
     summary="Activate or deactivate a managed account",
-    dependencies=[Depends(require_cookie_csrf)],
+    dependencies=[Depends(require_cookie_csrf), Depends(require_recent_mfa)],
 )
 async def set_managed_account_status(
     account_id: uuid.UUID,
@@ -207,8 +315,8 @@ async def set_managed_account_status(
     account, agency_name = await _get_manageable_account(session, current_user, account_id)
     account.is_active = body.is_active
     account.updated_at = datetime.now(tz=UTC)
+    await _fence_dashboard_sessions(session, account)
     if not body.is_active:
-        await RefreshTokenRepository(session).revoke_all_for_user(account.id)
         await _deactivate_coordinator_assignments(session, account)
     await _audit_account_action(
         session,
@@ -225,7 +333,7 @@ async def set_managed_account_status(
     "/{account_id}",
     response_model=DeleteManagedAccountResponse,
     summary="Remove a staff or coordinator account while preserving required history",
-    dependencies=[Depends(require_cookie_csrf)],
+    dependencies=[Depends(require_cookie_csrf), Depends(require_recent_mfa)],
 )
 async def delete_managed_account(
     account_id: uuid.UUID,
@@ -272,7 +380,7 @@ async def delete_managed_account(
         preserves_history = history_count > 0 or session_count > 0
         preserves_history = preserves_history or email_connection_count > 0
 
-    await RefreshTokenRepository(session).revoke_all_for_user(account.id)
+    await _fence_dashboard_sessions(session, account)
     await _deactivate_coordinator_assignments(session, account)
     if email_connection_count:
         now = datetime.now(tz=UTC)
@@ -378,6 +486,28 @@ async def _get_manageable_account(
 async def _deactivate_coordinator_assignments(session: AsyncSession, account: UserModel) -> None:
     if account.role != UserRole.AGENCY_COORDINATOR.value:
         return
+    active_group_ids = list(
+        (
+            await session.execute(
+                select(CoordinatorGroupAssignmentModel.group_id).where(
+                    CoordinatorGroupAssignmentModel.coordinator_user_id == account.id,
+                    CoordinatorGroupAssignmentModel.active.is_(True),
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    if active_group_ids:
+        # Manager close and assignment replacement use the group row as their
+        # participant-set mutex. Lock every affected group deterministically
+        # before changing active assignment membership.
+        await session.execute(
+            select(ClientGroupModel.id)
+            .where(ClientGroupModel.id.in_(sorted(set(active_group_ids), key=str)))
+            .order_by(ClientGroupModel.id.asc())
+            .with_for_update(of=ClientGroupModel)
+        )
     now = datetime.now(tz=UTC)
     await session.execute(
         update(CoordinatorAssignmentModel)
@@ -394,6 +524,43 @@ async def _deactivate_coordinator_assignments(session: AsyncSession, account: Us
             CoordinatorGroupAssignmentModel.active.is_(True),
         )
         .values(active=False, unassigned_at=now)
+    )
+
+
+async def _fence_dashboard_sessions(session: AsyncSession, account: UserModel) -> None:
+    """Invalidate both refresh tokens and already-issued access JWTs."""
+
+    repository = IdentitySecurityRepository(session)
+    security_state = await repository.get_state(account.id, lock=True)
+    if security_state is None:
+        security_state = await repository.ensure_state(account)
+    security_state.session_version += 1
+    security_state.updated_at = datetime.now(tz=UTC)
+    await RefreshTokenRepository(session).revoke_all_for_user(account.id)
+    await _fence_coordinator_mobile_sessions(
+        session,
+        account,
+        reason="account_session_fenced",
+    )
+
+
+async def _fence_coordinator_mobile_sessions(
+    session: AsyncSession,
+    account: UserModel,
+    *,
+    reason: str,
+) -> None:
+    if (
+        account.role != UserRole.AGENCY_COORDINATOR.value
+        or account.agency_id is None
+    ):
+        return
+    await revoke_user_mobile_sessions(
+        session,
+        agency_id=account.agency_id,
+        user_id=account.id,
+        subject_role="coordinator",
+        reason=reason,
     )
 
 
@@ -417,7 +584,13 @@ async def _audit_account_action(
     )
 
 
-def _account_response(account: UserModel, agency_name: str | None) -> ManagedAccountResponse:
+def _account_response(
+    account: UserModel,
+    agency_name: str | None,
+    security_state: UserSecurityStateModel | None = None,
+    *,
+    activation_token: str | None = None,
+) -> ManagedAccountResponse:
     return ManagedAccountResponse(
         id=account.id,
         full_name=account.full_name,
@@ -428,4 +601,6 @@ def _account_response(account: UserModel, agency_name: str | None) -> ManagedAcc
         is_active=account.is_active,
         created_at=account.created_at,
         last_login_at=account.last_login_at,
+        credential_state=security_state.credential_state if security_state else "active",
+        activation_token=activation_token,
     )

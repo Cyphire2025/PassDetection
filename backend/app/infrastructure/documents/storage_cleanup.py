@@ -5,11 +5,11 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+import re
 import uuid
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
-from typing import cast
 
 from cryptography.fernet import Fernet, InvalidToken
 from sqlalchemy import and_, or_, select
@@ -17,7 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
-from app.infrastructure.database.models import StorageCleanupJobModel
+from app.infrastructure.database.models import AuditLogModel, StorageCleanupJobModel
 from app.infrastructure.database.session import AsyncSessionFactory
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 
@@ -53,6 +53,12 @@ STORAGE_CLEANUP_SOURCES: dict[str, tuple[str, ...]] = {
         "passport-edits/",
     ),
 }
+_UUID_PATH_SEGMENT = r"[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+_CANONICAL_PASSPORT_OBJECT_KEY = re.compile(
+    rf"^{_UUID_PATH_SEGMENT}/{_UUID_PATH_SEGMENT}/{_UUID_PATH_SEGMENT}"
+    r"(?:-(?:photo|back))?\.(?:jpe?g|png|webp)$",
+    re.IGNORECASE,
+)
 
 
 class StorageCleanupPayloadError(ValueError):
@@ -72,6 +78,7 @@ class StorageCleanupClaim:
     source: str
     object_count: int
     attempts: int
+    agency_id: uuid.UUID | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -127,7 +134,7 @@ class StorageCleanupCipher:
 
     def encrypt(self, storage_keys: Sequence[str]) -> bytes:
         payload = json.dumps(list(storage_keys), ensure_ascii=False, separators=(",", ":"))
-        return cast(bytes, self._fernets[self._key_version].encrypt(payload.encode("utf-8")))
+        return self._fernets[self._key_version].encrypt(payload.encode("utf-8"))
 
     def decrypt(self, ciphertext: bytes, *, key_version: int) -> tuple[str, ...]:
         fernet = self._fernets.get(key_version)
@@ -181,11 +188,29 @@ def _validated_storage_keys(
         not key
         or len(key) > MAX_STORAGE_CLEANUP_KEY_LENGTH
         or "\x00" in key
-        or not key.startswith(allowed_prefixes)
+        or not _storage_key_matches_source(
+            source=source,
+            key=key,
+            allowed_prefixes=allowed_prefixes,
+        )
         for key in keys
     ):
         raise StorageCleanupPayloadError("Storage cleanup object scope is invalid")
     return keys
+
+
+def _storage_key_matches_source(
+    *,
+    source: str,
+    key: str,
+    allowed_prefixes: tuple[str, ...],
+) -> bool:
+    if key.startswith(allowed_prefixes):
+        return True
+    return bool(
+        source == "passport_submission_delete"
+        and _CANONICAL_PASSPORT_OBJECT_KEY.fullmatch(key)
+    )
 
 
 def _stage_validated_storage_cleanup_job(
@@ -371,6 +396,7 @@ async def _claim_storage_cleanup_job(
                 source=job.source,
                 object_count=job.object_count,
                 attempts=job.attempts,
+                agency_id=getattr(job, "agency_id", None),
             )
 
 
@@ -388,6 +414,25 @@ async def _complete_storage_cleanup_job(
             )
             job = result.scalar_one_or_none()
             if job is not None:
+                completed_at = datetime.now(tz=UTC)
+                session.add(
+                    AuditLogModel(
+                        id=uuid.uuid4(),
+                        agency_id=claim.agency_id,
+                        user_id=None,
+                        actor_email=None,
+                        action="document_storage_cleanup_completed",
+                        entity_type="storage_cleanup_job",
+                        entity_id=str(claim.job_id),
+                        metadata_json={
+                            "source": claim.source,
+                            "context_fingerprint": claim.context_fingerprint,
+                            "object_count": claim.object_count,
+                            "attempts": claim.attempts,
+                        },
+                        created_at=completed_at,
+                    )
+                )
                 await session.delete(job)
 
 

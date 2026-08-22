@@ -1,9 +1,10 @@
 "use client";
 
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
-import { KeyRound, LogOut, MoreHorizontal, Power, Trash2, X } from "lucide-react";
-import { Button, PasswordInput } from "@/components/ui";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { Check, Copy, KeyRound, LogOut, MoreHorizontal, Power, ShieldCheck, Trash2, X } from "lucide-react";
+import { Button } from "@/components/ui";
+import { useModalKeyboardBoundary } from "@/components/ui/modal";
 import { useManagedAccountActions } from "../hooks/use-operations";
 
 export function ManagedAccountControls({
@@ -13,6 +14,7 @@ export function ManagedAccountControls({
   allowDelete = false,
   deleteLabel,
   deleteDisabled = false,
+  allowMfaReset = false,
   onDelete,
 }: {
   accountId: string;
@@ -21,34 +23,62 @@ export function ManagedAccountControls({
   allowDelete?: boolean;
   deleteLabel?: string;
   deleteDisabled?: boolean;
+  allowMfaReset?: boolean;
   onDelete?: () => void;
 }) {
   const actions = useManagedAccountActions();
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [showMfaResetDialog, setShowMfaResetDialog] = useState(false);
   const [showActions, setShowActions] = useState(false);
   const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
-  const [password, setPassword] = useState("");
+  const [activationToken, setActivationToken] = useState<string | null>(null);
+  const [activationCopied, setActivationCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const passwordDialogRef = useRef<HTMLDivElement>(null);
+  const mfaDialogRef = useRef<HTMLDivElement>(null);
+  const passwordTitleId = useId();
+  const passwordDescriptionId = useId();
+  const mfaTitleId = useId();
+  const mfaDescriptionId = useId();
   const isPending = actions.resetPassword.isPending
+    || actions.resetMfa.isPending
     || actions.revokeSessions.isPending
     || actions.setStatus.isPending
     || actions.deleteAccount.isPending;
+  const closePasswordDialog = useCallback(() => {
+    if (actions.resetPassword.isPending) return;
+    setShowPasswordDialog(false);
+    setActivationToken(null);
+  }, [actions.resetPassword.isPending]);
+  const closeMfaDialog = useCallback(() => {
+    if (actions.resetMfa.isPending) return;
+    setShowMfaResetDialog(false);
+  }, [actions.resetMfa.isPending]);
+  const handlePasswordDialogKeyDown = useModalKeyboardBoundary({
+    dialogRef: passwordDialogRef,
+    isOpen: showPasswordDialog,
+    canClose: !actions.resetPassword.isPending,
+    onClose: closePasswordDialog,
+  });
+  const handleMfaDialogKeyDown = useModalKeyboardBoundary({
+    dialogRef: mfaDialogRef,
+    isOpen: showMfaResetDialog,
+    canClose: !actions.resetMfa.isPending,
+    onClose: closeMfaDialog,
+  });
 
   const resetPassword = async () => {
     setError(null);
-    if (password.length < 10 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)) {
-      setError("Use at least 10 characters with uppercase, lowercase, and a number.");
-      return;
-    }
     try {
-      await actions.resetPassword.mutateAsync({ accountId, password });
-      setPassword("");
-      setShowPasswordDialog(false);
+      const updated = await actions.resetPassword.mutateAsync(accountId);
+      if (!updated.activation_token) throw new Error("Activation link was not returned");
+      setActivationToken(updated.activation_token);
+      setActivationCopied(false);
     } catch {
-      setError("Password could not be changed.");
+      setError("The credential reset link could not be issued.");
     }
   };
 
@@ -59,7 +89,7 @@ export function ManagedAccountControls({
       const rect = buttonRef.current?.getBoundingClientRect();
       if (!rect) return;
       const menuWidth = 208;
-      const menuHeight = allowDelete || onDelete ? 180 : 136;
+      const menuHeight = (allowDelete || onDelete ? 180 : 136) + (allowMfaReset ? 44 : 0);
       const gap = 8;
       const hasRoomBelow = window.innerHeight - rect.bottom > menuHeight + gap;
       setMenuPosition({
@@ -75,7 +105,7 @@ export function ManagedAccountControls({
       window.removeEventListener("scroll", updatePosition, true);
       window.removeEventListener("resize", updatePosition);
     };
-  }, [allowDelete, onDelete, showActions]);
+  }, [allowDelete, allowMfaReset, onDelete, showActions]);
 
   useEffect(() => {
     if (!showActions) return;
@@ -115,12 +145,23 @@ export function ManagedAccountControls({
           >
             <ActionMenuButton
               icon={<KeyRound className="h-4 w-4" aria-hidden="true" />}
-              label="Change password"
+              label="Issue reset link"
               onClick={() => {
                 setShowActions(false);
+                setActivationToken(null);
                 setShowPasswordDialog(true);
               }}
             />
+            {allowMfaReset && (
+              <ActionMenuButton
+                icon={<ShieldCheck className="h-4 w-4" aria-hidden="true" />}
+                label="Reset MFA"
+                onClick={() => {
+                  setShowActions(false);
+                  setShowMfaResetDialog(true);
+                }}
+              />
+            )}
             <ActionMenuButton
               icon={<LogOut className="h-4 w-4" aria-hidden="true" />}
               label="Sign out everywhere"
@@ -181,38 +222,100 @@ export function ManagedAccountControls({
       )}
 
       {showPasswordDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
+        <div
+          ref={passwordDialogRef}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={passwordTitleId}
+          aria-describedby={passwordDescriptionId}
+          onKeyDown={handlePasswordDialogKeyDown}
+        >
           <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-2xl">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 className="font-semibold text-slate-900">Set a new password</h2>
-                <p className="mt-1 text-sm text-slate-500">This immediately signs {accountName} out on every device.</p>
+                <h2 id={passwordTitleId} className="font-semibold text-slate-900">Issue a credential reset link</h2>
+                <p id={passwordDescriptionId} className="mt-1 text-sm text-slate-500">This immediately signs {accountName} out everywhere. They choose the replacement password.</p>
               </div>
-              <button type="button" onClick={() => setShowPasswordDialog(false)} className="text-slate-400 hover:text-slate-700">
+              <button type="button" onClick={closePasswordDialog} className="text-slate-400 hover:text-slate-700" aria-label="Close credential reset dialog">
                 <X className="h-5 w-5" />
               </button>
             </div>
             <div className="mt-5 space-y-4">
-              <PasswordInput
-                label="New password"
-                autoComplete="new-password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-              />
-              <p className="text-xs text-slate-500">Minimum 10 characters, including uppercase, lowercase, and a number.</p>
+              <p className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-xs leading-5 text-blue-800">The single-use link expires in seven days and is returned only once. Send it through an approved channel.</p>
+              {activationToken && (
+                <div className="space-y-2">
+                  <div className="break-all rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono text-xs text-slate-800">{staffActivationLink(activationToken)}</div>
+                  <p className="text-xs text-slate-500">Copy this before closing. The dashboard does not store the raw link.</p>
+                </div>
+              )}
               {error && <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
               <div className="flex justify-end gap-2">
-                <Button type="button" variant="secondary" onClick={() => setShowPasswordDialog(false)}>Cancel</Button>
-                <Button type="button" isLoading={actions.resetPassword.isPending} onClick={() => void resetPassword()}>
-                  Change password
-                </Button>
+                <Button type="button" variant="secondary" onClick={closePasswordDialog} data-dialog-initial-focus>{activationToken ? "Done" : "Cancel"}</Button>
+                {activationToken ? (
+                  <Button
+                    type="button"
+                    leftIcon={activationCopied ? <Check className="h-4 w-4" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />}
+                    onClick={() => {
+                      void navigator.clipboard.writeText(staffActivationLink(activationToken)).then(() => setActivationCopied(true));
+                    }}
+                  >
+                    {activationCopied ? "Copied" : "Copy link"}
+                  </Button>
+                ) : (
+                  <Button type="button" isLoading={actions.resetPassword.isPending} onClick={() => void resetPassword()}>
+                    Issue reset link
+                  </Button>
+                )}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showMfaResetDialog && (
+        <div
+          ref={mfaDialogRef}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={mfaTitleId}
+          aria-describedby={mfaDescriptionId}
+          onKeyDown={handleMfaDialogKeyDown}
+        >
+          <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-2xl">
+            <h2 id={mfaTitleId} className="font-semibold text-slate-900">Reset MFA for {accountName}?</h2>
+            <p id={mfaDescriptionId} className="mt-2 text-sm leading-6 text-slate-600">
+              This removes the current authenticator and recovery codes, signs the account out everywhere, and requires fresh MFA enrollment after the next password sign-in.
+            </p>
+            <div className="mt-5 flex justify-end gap-2">
+              <Button type="button" variant="secondary" disabled={actions.resetMfa.isPending} onClick={closeMfaDialog} data-dialog-initial-focus>Cancel</Button>
+              <Button
+                type="button"
+                variant="danger"
+                isLoading={actions.resetMfa.isPending}
+                onClick={() => {
+                  setActionError(null);
+                  void actions.resetMfa.mutateAsync(accountId)
+                    .then(() => setShowMfaResetDialog(false))
+                    .catch((resetError: unknown) => setActionError(getAccountActionError(resetError)));
+                }}
+              >
+                Reset MFA and sign out
+              </Button>
             </div>
           </div>
         </div>
       )}
     </>
   );
+}
+
+function staffActivationLink(token: string): string {
+  if (typeof window === "undefined") return token;
+  const url = new URL("/activate", window.location.origin);
+  url.searchParams.set("token", token);
+  return url.toString();
 }
 
 function getAccountActionError(error: unknown): string {

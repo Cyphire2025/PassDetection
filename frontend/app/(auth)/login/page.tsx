@@ -12,6 +12,14 @@ export const metadata: Metadata = {
   title: "Sign In | Global Connects Dashboard",
 };
 
-export default function LoginPage() {
-  return <LoginForm />;
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ reason?: string }>;
+}) {
+  const { reason } = await searchParams;
+  const notice = reason === "password_changed"
+    ? "Password changed. Every previous session was revoked; sign in again with your new password."
+    : undefined;
+  return <LoginForm notice={notice} />;
 }

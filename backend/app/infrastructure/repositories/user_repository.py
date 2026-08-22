@@ -21,7 +21,7 @@ from app.core.logging.logger import get_logger
 from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import EntityNotFoundError
 from app.domain.repositories.interfaces import IUserRepository
-from app.infrastructure.database.models import UserModel
+from app.infrastructure.database.models import UserModel, UserSecurityStateModel
 
 logger = get_logger(__name__)
 
@@ -35,7 +35,10 @@ class UserRepository(IUserRepository):
     # ── Mapping ───────────────────────────────────────────────────────────────
 
     @staticmethod
-    def _to_entity(model: UserModel) -> User:
+    def _to_entity(
+        model: UserModel,
+        security_state: UserSecurityStateModel | None = None,
+    ) -> User:
         return User(
             id=model.id,
             email=model.email,
@@ -47,6 +50,10 @@ class UserRepository(IUserRepository):
             created_at=model.created_at,
             updated_at=model.updated_at,
             last_login_at=model.last_login_at,
+            credential_state=(security_state.credential_state if security_state else "active"),
+            session_version=(security_state.session_version if security_state else 1),
+            mfa_required=(security_state.mfa_required if security_state else False),
+            mfa_enabled=(security_state.mfa_enabled_at is not None if security_state else False),
         )
 
     @staticmethod
@@ -68,17 +75,21 @@ class UserRepository(IUserRepository):
 
     async def get_by_id(self, user_id: uuid.UUID) -> User | None:
         result = await self._session.execute(
-            select(UserModel).where(UserModel.id == user_id)
+            select(UserModel, UserSecurityStateModel)
+            .outerjoin(UserSecurityStateModel, UserSecurityStateModel.user_id == UserModel.id)
+            .where(UserModel.id == user_id)
         )
-        model = result.scalar_one_or_none()
-        return self._to_entity(model) if model else None
+        row = result.first()
+        return self._to_entity(row[0], row[1]) if row else None
 
     async def get_by_email(self, email: str) -> User | None:
         result = await self._session.execute(
-            select(UserModel).where(UserModel.email == email.lower().strip())
+            select(UserModel, UserSecurityStateModel)
+            .outerjoin(UserSecurityStateModel, UserSecurityStateModel.user_id == UserModel.id)
+            .where(UserModel.email == email.lower().strip())
         )
-        model = result.scalar_one_or_none()
-        return self._to_entity(model) if model else None
+        row = result.first()
+        return self._to_entity(row[0], row[1]) if row else None
 
     async def save(self, user: User) -> User:
         model = self._to_model(user)
@@ -120,9 +131,10 @@ class UserRepository(IUserRepository):
         self, agency_id: uuid.UUID, *, skip: int = 0, limit: int = 50
     ) -> list[User]:
         result = await self._session.execute(
-            select(UserModel)
+            select(UserModel, UserSecurityStateModel)
+            .outerjoin(UserSecurityStateModel, UserSecurityStateModel.user_id == UserModel.id)
             .where(UserModel.agency_id == agency_id)
             .offset(skip)
             .limit(limit)
         )
-        return [self._to_entity(m) for m in result.scalars().all()]
+        return [self._to_entity(user, security_state) for user, security_state in result.all()]

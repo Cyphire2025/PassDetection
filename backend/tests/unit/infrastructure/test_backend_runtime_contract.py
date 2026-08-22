@@ -43,9 +43,9 @@ def test_runtime_direct_dependencies_and_build_tooling_are_exactly_pinned() -> N
 
     dockerfile = (BACKEND / "Dockerfile").read_text(encoding="utf-8")
     workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
-    assert "ARG PIP_VERSION=26.1.2" in dockerfile
+    assert "ARG PIP_VERSION=26.2.1" in dockerfile
     assert "pip install --no-cache-dir --require-hashes -r requirements.lock" in dockerfile
-    assert "pip==26.1.2" in workflow
+    assert "pip==26.2.1" in workflow
     assert "ruff==0.16.0" in workflow
     assert "uv==0.12.0" in workflow
     assert "pip-audit==2.10.1" in workflow

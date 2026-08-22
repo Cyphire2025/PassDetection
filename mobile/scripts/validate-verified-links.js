@@ -6,11 +6,14 @@ const DEEP_LINK_PREFIX = '/gc';
 const MAX_ASSOCIATION_BYTES = 128 * 1024;
 const REQUEST_TIMEOUT_MS = 10_000;
 
-function normalizeAndroidFingerprint(value) {
+function normalizeAndroidFingerprint(
+  value,
+  source = 'GC_ANDROID_APP_LINK_SHA256_CERT_FINGERPRINTS',
+) {
   const normalized = value.trim().toUpperCase();
   if (!/^(?:[0-9A-F]{2}:){31}[0-9A-F]{2}$/.test(normalized)) {
     throw new Error(
-      'GC_ANDROID_APP_LINK_SHA256_CERT_FINGERPRINTS must contain colon-separated SHA-256 certificate fingerprints.',
+      `${source} must contain colon-separated SHA-256 certificate fingerprints.`,
     );
   }
   return normalized;
@@ -25,7 +28,7 @@ function parseAndroidFingerprints(value) {
 
   const fingerprints = value
     .split(',')
-    .map(normalizeAndroidFingerprint);
+    .map((fingerprint) => normalizeAndroidFingerprint(fingerprint));
   return new Set(fingerprints);
 }
 
@@ -34,7 +37,7 @@ function validateAndroidAssetLinks(document, expectedFingerprints) {
     throw new Error('Android assetlinks.json must contain a JSON array.');
   }
 
-  const statements = document.filter((candidate) => {
+  const delegations = document.filter((candidate) => {
     if (!candidate || typeof candidate !== 'object') {
       return false;
     }
@@ -46,10 +49,20 @@ function validateAndroidAssetLinks(document, expectedFingerprints) {
       relationship.includes('delegate_permission/common.handle_all_urls') &&
       target &&
       typeof target === 'object' &&
-      target.namespace === 'android_app' &&
-      target.package_name === ANDROID_PACKAGE
+      target.namespace === 'android_app'
     );
   });
+  const unexpectedPackages = delegations.filter(
+    (statement) => statement.target.package_name !== ANDROID_PACKAGE,
+  );
+  if (unexpectedPackages.length > 0) {
+    throw new Error(
+      `Android assetlinks.json delegates verified links to ${unexpectedPackages.length} unexpected package(s).`,
+    );
+  }
+  const statements = delegations.filter(
+    (statement) => statement.target.package_name === ANDROID_PACKAGE,
+  );
 
   if (statements.length === 0) {
     throw new Error(
@@ -57,22 +70,35 @@ function validateAndroidAssetLinks(document, expectedFingerprints) {
     );
   }
 
-  const publishedFingerprints = new Set(
-    statements.flatMap((statement) =>
-      (Array.isArray(statement.target.sha256_cert_fingerprints)
-        ? statement.target.sha256_cert_fingerprints
-        : []
-      ).map((value) =>
-        typeof value === 'string' ? value.trim().toUpperCase() : '',
-      ),
-    ),
-  );
+  const publishedFingerprints = new Set();
+  for (const statement of statements) {
+    const fingerprints = statement.target.sha256_cert_fingerprints;
+    if (!Array.isArray(fingerprints) || fingerprints.length === 0) {
+      throw new Error('Android assetlinks.json has an empty signing fingerprint list.');
+    }
+    for (const value of fingerprints) {
+      if (typeof value !== 'string') {
+        throw new Error('Android assetlinks.json contains a non-string signing fingerprint.');
+      }
+      publishedFingerprints.add(
+        normalizeAndroidFingerprint(value, 'Android assetlinks.json'),
+      );
+    }
+  }
   const missing = [...expectedFingerprints].filter(
     (fingerprint) => !publishedFingerprints.has(fingerprint),
   );
   if (missing.length > 0) {
     throw new Error(
       `Android assetlinks.json is missing ${missing.length} expected production signing fingerprint(s).`,
+    );
+  }
+  const unexpected = [...publishedFingerprints].filter(
+    (fingerprint) => !expectedFingerprints.has(fingerprint),
+  );
+  if (unexpected.length > 0) {
+    throw new Error(
+      `Android assetlinks.json contains ${unexpected.length} unexpected signing fingerprint(s).`,
     );
   }
 }

@@ -9,6 +9,8 @@ import type {
   MissingPassenger,
 } from '../../api/coordinator-contracts';
 import {
+  createAttendanceSession,
+  leaveAttendanceSession,
   loadAttendanceSessionDetail,
   refreshAttendanceSessions,
   replaceAttendanceSessionsInTransaction,
@@ -75,6 +77,15 @@ afterEach(() => {
   useSessionStore.setState({ session: null });
 });
 
+test('coordinator activity creation fails locally before any server or database write', async () => {
+  await expect(createAttendanceSession(TRIP_ID, 'Unauthorized count')).rejects.toThrow(
+    'Only a Client Manager can create an attendance activity',
+  );
+
+  expect(mockedApiRequest).not.toHaveBeenCalled();
+  expect(mockedOpenDatabase).not.toHaveBeenCalled();
+});
+
 test('writes 10k attendance sessions with bounded staging and O(batch) upserts', async () => {
   const transaction = {
     runAsync: jest.fn(async (_sql: string, ..._parameters: unknown[]) => ({
@@ -95,6 +106,27 @@ test('writes 10k attendance sessions with bounded staging and O(batch) upserts',
   );
   expect(transaction.runAsync.mock.calls.every((call) => call.slice(1).length <= 900)).toBe(true);
   expect(transaction.runAsync.mock.calls.at(-2)?.[0]).toContain('NOT EXISTS');
+});
+
+test('finishing coordinator scanning only clears the device-local selection', async () => {
+  const database = {
+    runAsync: jest.fn(async (_sql: string, ..._parameters: unknown[]) => ({
+      changes: 1,
+      lastInsertRowId: 0,
+    })),
+  };
+  mockedOpenDatabase.mockResolvedValue(database as never);
+
+  await leaveAttendanceSession(TRIP_ID, 'session-one');
+
+  expect(mockedApiRequest).not.toHaveBeenCalled();
+  expect(database.runAsync).toHaveBeenCalledTimes(1);
+  expect(database.runAsync.mock.calls[0]?.[0]).toContain('DELETE FROM attendance_session_selection');
+  expect(database.runAsync.mock.calls[0]?.slice(1)).toEqual([
+    ACCOUNT,
+    TRIP_ID,
+    'session-one',
+  ]);
 });
 
 test('writes 10k missing attendees with one scoped delete and bounded inserts', async () => {

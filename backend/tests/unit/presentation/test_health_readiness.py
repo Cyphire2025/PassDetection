@@ -16,6 +16,9 @@ from app.presentation.api.v1.routes.health import (
 )
 
 _STRONG_APP_SECRET = "9Wv!mR3#kP7@xN2$zQ8&bL5^tY4*cH6+"
+_PRIVATE_DATABASE_ERROR = (
+    "could not connect to postgresql://user:password@private-host/db"
+)
 
 
 class _HealthyDatabase:
@@ -25,9 +28,7 @@ class _HealthyDatabase:
 
 class _FailingDatabase:
     async def execute(self, _statement: object) -> None:
-        raise RuntimeError(
-            "could not connect to postgresql://user:password@private-host/db"
-        )
+        raise RuntimeError(_PRIVATE_DATABASE_ERROR)
 
 
 class HealthReadinessTests(unittest.IsolatedAsyncioTestCase):
@@ -192,7 +193,8 @@ class HealthReadinessTests(unittest.IsolatedAsyncioTestCase):
             "health_check_db_failed",
             error_type="RuntimeError",
         )
-        self.assertNotIn(b"password", response.body)
+        self.assertNotIn(_PRIVATE_DATABASE_ERROR.encode(), response.body)
+        self.assertNotIn(b"private-host", response.body)
 
     async def test_diagnostics_does_not_log_raw_database_exception(
         self,
@@ -214,7 +216,8 @@ class HealthReadinessTests(unittest.IsolatedAsyncioTestCase):
             "diagnostics_db_failed",
             error_type="RuntimeError",
         )
-        self.assertNotIn(b"password", response.body)
+        self.assertNotIn(_PRIVATE_DATABASE_ERROR.encode(), response.body)
+        self.assertNotIn(b"private-host", response.body)
 
 
 if __name__ == "__main__":

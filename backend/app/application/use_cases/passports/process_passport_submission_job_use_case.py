@@ -116,6 +116,7 @@ class ProcessPassportSubmissionJobUseCase:
         job_repo: PassportProcessingJobRepository,
         allow_retry: bool = True,
         verification_service: IPassportVerificationService | None = None,
+        review_threshold: float = 0.85,
     ) -> None:
         self._passport_repo = passport_repo
         self._storage_repo = storage_repo
@@ -126,6 +127,7 @@ class ProcessPassportSubmissionJobUseCase:
         self._job_repo = job_repo
         self._allow_retry = allow_retry
         self._verification_service = verification_service
+        self._review_threshold = review_threshold
 
     async def execute(self, *, submission_id: uuid.UUID, job_id: uuid.UUID) -> None:
         job, claimed = await self._job_repo.claim_running(job_id, stage="starting")
@@ -337,6 +339,7 @@ class ProcessPassportSubmissionJobUseCase:
                     confidence=extraction.overall_confidence,
                     confidence_score=extraction.confidence_score,
                     mrz_raw=extraction.mrz_raw,
+                    review_threshold=self._review_threshold,
                 )
                 if not applied:
                     await self._job_repo.mark_cancelled(

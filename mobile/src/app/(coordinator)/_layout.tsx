@@ -14,6 +14,7 @@ export default function CoordinatorLayout() {
           <Stack.Screen name="operations/common-documents" />
           <Stack.Screen name="operations/incidents" />
           <Stack.Screen name="operations/updates" />
+          <Stack.Screen name="operations/scan-issues" />
           <Stack.Screen name="operations/profile" />
           <Stack.Screen name="operations/passenger/[id]" />
           <Stack.Screen name="operations/document/[id]" />

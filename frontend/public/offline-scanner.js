@@ -17,7 +17,7 @@
   const SESSIONS_SNAPSHOT_KEY = "passdetection-tour-ops-my-sessions";
   const DEVICE_ID_KEY = "passdetection-coordinator-device-id";
   const DB_NAME = "passdetection-tour-ops";
-  const DB_VERSION = 3;
+  const DB_VERSION = 4;
   const PENDING_STORE_NAME = "pending-attendance-scans";
   const REJECTED_STORE_NAME = "rejected-attendance-scans";
   const OWNER_INDEX = "owner-user-id";
@@ -57,6 +57,7 @@
   let lastDecodedPayload = "";
   let lastDecodedAt = 0;
   let reconnectInProgress = false;
+  let privacyMigrationPromise = null;
 
   initialize();
 
@@ -414,10 +415,8 @@
     if (readCurrentOwner() !== selection.ownerUserId) {
       throw new Error("The signed-in coordinator changed.");
     }
-    const stableId =
-      `${selection.ownerUserId}:${selection.groupId}:${selection.sessionId}:${selection.qrPayload}`;
-    const legacyId =
-      `${selection.ownerUserId}:${selection.sessionId}:${selection.qrPayload}`;
+    const scanReference = await createScanReference(selection);
+    const stableId = `attendance-scan:${scanReference}`;
     const timestamp = new Date().toISOString();
     const pendingScan = {
       groupId: selection.groupId,
@@ -427,8 +426,11 @@
       scannedAt: timestamp,
       deviceId: getDeviceId(),
       id: stableId,
+      scanReference,
       ownerUserId: selection.ownerUserId,
       queuedAt: timestamp,
+      attemptCount: 0,
+      nextAttemptAt: timestamp,
     };
 
     const db = await openQueueDatabase();
@@ -440,11 +442,7 @@
       const completion = transactionToPromise(transaction);
       const store = transaction.objectStore(PENDING_STORE_NAME);
       try {
-        const existing = (
-          await requestToPromise(store.get(stableId))
-        ) ?? (
-          await requestToPromise(store.get(legacyId))
-        );
+        const existing = await requestToPromise(store.get(stableId));
         if (!existing) await requestToPromise(store.put(pendingScan));
         await completion;
         return { duplicate: Boolean(existing) };
@@ -508,7 +506,8 @@
         if (!upgrade) return;
 
         // Match the app's queue upgrade contract. Version 1 was unscoped and
-        // cannot be attributed safely; all owner-scoped v2/v3 records survive.
+        // cannot be attributed safely; owner-scoped records are migrated to
+        // hashed v4 keys after the schema upgrade commits.
         if (
           database.objectStoreNames.contains(PENDING_STORE_NAME)
           && event.oldVersion < 2
@@ -521,7 +520,15 @@
       request.onsuccess = () => {
         const database = request.result;
         database.onversionchange = () => database.close();
-        resolve(database);
+        const migration = privacyMigrationPromise ??=
+          migrateLegacyQueueRecords(database).catch((error) => {
+            privacyMigrationPromise = null;
+            throw error;
+          });
+        migration.then(() => resolve(database)).catch((error) => {
+          database.close();
+          reject(error);
+        });
       };
       request.onerror = () => reject(request.error);
       request.onblocked = () => reject(new Error("Offline scan database is busy."));
@@ -535,6 +542,174 @@
     if (!store.indexNames.contains(OWNER_INDEX)) {
       store.createIndex(OWNER_INDEX, "ownerUserId", { unique: false });
     }
+  }
+
+  async function createScanReference(selection) {
+    return hashReference([
+      "attendance-scan-v4",
+      selection.ownerUserId,
+      selection.groupId || "legacy-group",
+      selection.sessionId,
+      selection.qrPayload,
+    ]);
+  }
+
+  async function hashReference(parts) {
+    if (!window.crypto?.subtle) {
+      throw new Error("Secure SHA-256 support is required for offline attendance storage.");
+    }
+    const digest = await window.crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(JSON.stringify(parts)),
+    );
+    const hex = Array.from(new Uint8Array(digest), (byte) =>
+      byte.toString(16).padStart(2, "0")
+    ).join("");
+    return `sha256:${hex}`;
+  }
+
+  function isScanReference(value) {
+    return typeof value === "string" && /^sha256:[0-9a-f]{64}$/.test(value);
+  }
+
+  async function migrateLegacyQueueRecords(database) {
+    const [pendingRows, rejectedRows] = await Promise.all([
+      readAllQueueRows(database, PENDING_STORE_NAME),
+      readAllQueueRows(database, REJECTED_STORE_NAME),
+    ]);
+    const [pendingReplacements, rejectedReplacements] = await Promise.all([
+      Promise.all(pendingRows.map(normalizePendingQueueRow)),
+      Promise.all(rejectedRows.map(sanitizeRejectedQueueRow)),
+    ]);
+    const transaction = database.transaction(
+      [PENDING_STORE_NAME, REJECTED_STORE_NAME],
+      "readwrite",
+    );
+    const completion = transactionToPromise(transaction);
+    replaceQueueRows(
+      transaction.objectStore(PENDING_STORE_NAME),
+      pendingRows,
+      pendingReplacements,
+    );
+    replaceQueueRows(
+      transaction.objectStore(REJECTED_STORE_NAME),
+      rejectedRows,
+      rejectedReplacements,
+    );
+    await completion;
+  }
+
+  async function normalizePendingQueueRow(candidate) {
+    if (!isRecord(candidate)) return null;
+    const ownerId = requiredString(candidate.ownerUserId);
+    const sessionId = requiredString(candidate.sessionId);
+    const qrPayload = requiredString(candidate.qrPayload);
+    const clientEventId = requiredString(candidate.clientEventId);
+    const scannedAt = requiredString(candidate.scannedAt);
+    const deviceId = requiredString(candidate.deviceId);
+    const queuedAt = requiredString(candidate.queuedAt);
+    if (!ownerId || !sessionId || !qrPayload || !clientEventId || !scannedAt || !deviceId || !queuedAt) {
+      return null;
+    }
+    const groupId = requiredString(candidate.groupId);
+    const scanReference = isScanReference(candidate.scanReference)
+      ? candidate.scanReference
+      : await createScanReference({
+          ownerUserId: ownerId,
+          groupId,
+          sessionId,
+          qrPayload,
+        });
+    const nextAttemptAt = validIso(candidate.nextAttemptAt) || queuedAt;
+    const lastAttemptAt = validIso(candidate.lastAttemptAt);
+    return {
+      id: `attendance-scan:${scanReference}`,
+      scanReference,
+      ownerUserId: ownerId,
+      ...(groupId ? { groupId } : {}),
+      sessionId,
+      qrPayload,
+      clientEventId,
+      scannedAt,
+      deviceId,
+      queuedAt,
+      attemptCount: Number.isFinite(candidate.attemptCount)
+        ? Math.max(0, Math.trunc(candidate.attemptCount))
+        : 0,
+      nextAttemptAt,
+      ...(lastAttemptAt ? { lastAttemptAt } : {}),
+    };
+  }
+
+  async function sanitizeRejectedQueueRow(candidate) {
+    if (!isRecord(candidate)) return null;
+    const ownerId = requiredString(candidate.ownerUserId);
+    const sessionId = requiredString(candidate.sessionId);
+    const clientEventId = requiredString(candidate.clientEventId);
+    const scannedAt = requiredString(candidate.scannedAt);
+    const deviceId = requiredString(candidate.deviceId);
+    const queuedAt = requiredString(candidate.queuedAt);
+    const rejectedAt = requiredString(candidate.rejectedAt);
+    const errorCode = requiredString(candidate.errorCode);
+    if (!ownerId || !sessionId || !clientEventId || !scannedAt || !deviceId || !queuedAt || !rejectedAt || !errorCode) {
+      return null;
+    }
+    const groupId = requiredString(candidate.groupId);
+    const qrPayload = requiredString(candidate.qrPayload);
+    const scanReference = isScanReference(candidate.scanReference)
+      ? candidate.scanReference
+      : qrPayload
+        ? await createScanReference({
+            ownerUserId: ownerId,
+            groupId,
+            sessionId,
+            qrPayload,
+          })
+        : await hashReference([
+            "attendance-terminal-v4",
+            ownerId,
+            groupId || "legacy-group",
+            sessionId,
+            clientEventId,
+            requiredString(candidate.id) || "missing-id",
+          ]);
+    return {
+      id: `attendance-rejected:${scanReference}`,
+      scanReference,
+      ownerUserId: ownerId,
+      ...(groupId ? { groupId } : {}),
+      sessionId,
+      clientEventId,
+      scannedAt,
+      deviceId,
+      queuedAt,
+      rejectedAt,
+      errorCode,
+    };
+  }
+
+  function readAllQueueRows(database, storeName) {
+    const store = database.transaction(storeName, "readonly").objectStore(storeName);
+    return requestToPromise(store.getAll());
+  }
+
+  function replaceQueueRows(store, originals, replacements) {
+    originals.forEach((original, index) => {
+      const oldId = isRecord(original) ? requiredString(original.id) : null;
+      const replacement = replacements[index];
+      if (oldId && (!replacement || oldId !== replacement.id)) store.delete(oldId);
+      if (replacement) store.put(replacement);
+    });
+  }
+
+  function requiredString(value) {
+    return typeof value === "string" && value.length > 0 ? value : null;
+  }
+
+  function validIso(value) {
+    return typeof value === "string" && Number.isFinite(Date.parse(value))
+      ? value
+      : null;
   }
 
   function requestToPromise(request) {

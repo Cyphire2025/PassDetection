@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "untracked_module_line_threshold": 2000,
+  "modules": [
+    {
+      "path": "app/presentation/api/v1/routes/passports.py",
+      "baseline_lines": 6508,
+      "maximum_lines": 6640,
+      "baseline_max_function_complexity": 44,
+      "maximum_function_complexity": 44,
+      "minimum_coverage_percent": 15.60
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution.py",
+      "baseline_lines": 3823,
+      "maximum_lines": 3900,
+      "baseline_max_function_complexity": 64,
+      "maximum_function_complexity": 64,
+      "minimum_coverage_percent": 12.57
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp.py",
+      "baseline_lines": 3463,
+      "maximum_lines": 3535,
+      "baseline_max_function_complexity": 37,
+      "maximum_function_complexity": 37,
+      "minimum_coverage_percent": 18.82
+    },
+    {
+      "path": "app/presentation/api/v1/routes/mobile_resources.py",
+      "baseline_lines": 2726,
+      "maximum_lines": 2785,
+      "baseline_max_function_complexity": 16,
+      "maximum_function_complexity": 16,
+      "minimum_coverage_percent": 23.03
+    },
+    {
+      "path": "app/presentation/api/v1/routes/mobile_ops.py",
+      "baseline_lines": 2574,
+      "maximum_lines": 2630,
+      "baseline_max_function_complexity": 23,
+      "maximum_function_complexity": 23,
+      "minimum_coverage_percent": 22.57
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_integrations.py",
+      "baseline_lines": 2543,
+      "maximum_lines": 2600,
+      "baseline_max_function_complexity": 45,
+      "maximum_function_complexity": 45,
+      "minimum_coverage_percent": 12.84
+    },
+    {
+      "path": "app/presentation/api/v1/routes/tour_operations.py",
+      "baseline_lines": 2523,
+      "maximum_lines": 2580,
+      "baseline_max_function_complexity": 13,
+      "maximum_function_complexity": 13,
+      "minimum_coverage_percent": 21.77
+    },
+    {
+      "path": "app/infrastructure/database/gc_mobile_models.py",
+      "baseline_lines": 2484,
+      "maximum_lines": 2540,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 99.81
+    },
+    {
+      "path": "app/presentation/api/v1/routes/client_groups.py",
+      "baseline_lines": 2402,
+      "maximum_lines": 2455,
+      "baseline_max_function_complexity": 45,
+      "maximum_function_complexity": 45,
+      "minimum_coverage_percent": 18.47
+    },
+    {
+      "path": "app/infrastructure/email/sync_service.py",
+      "baseline_lines": 2385,
+      "maximum_lines": 2435,
+      "baseline_max_function_complexity": 39,
+      "maximum_function_complexity": 39,
+      "minimum_coverage_percent": 12.87
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_ai_inbox.py",
+      "baseline_lines": 2383,
+      "maximum_lines": 2435,
+      "baseline_max_function_complexity": 32,
+      "maximum_function_complexity": 32,
+      "minimum_coverage_percent": 11.63
+    },
+    {
+      "path": "app/presentation/api/v1/routes/gc_app.py",
+      "baseline_lines": 2209,
+      "maximum_lines": 2260,
+      "baseline_max_function_complexity": 37,
+      "maximum_function_complexity": 37,
+      "minimum_coverage_percent": 13.80
+    },
+    {
+      "path": "app/presentation/api/v1/routes/rooming.py",
+      "baseline_lines": 2061,
+      "maximum_lines": 2110,
+      "baseline_max_function_complexity": 31,
+      "maximum_function_complexity": 31,
+      "minimum_coverage_percent": 16.15
+    }
+  ]
+}

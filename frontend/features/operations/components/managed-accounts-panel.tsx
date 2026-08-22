@@ -1,8 +1,8 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { Plus, ShieldCheck, UserPlus, X } from "lucide-react";
-import { Badge, Button, Card, CardContent, Input, PasswordInput, Skeleton } from "@/components/ui";
+import { FormEvent, useId, useRef, useState } from "react";
+import { Check, Copy, Plus, ShieldCheck, UserPlus, X } from "lucide-react";
+import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
 import { formatDateTime } from "@/lib/utils/format";
 import { PageHeader } from "@/components/shared";
 import {
@@ -13,11 +13,11 @@ import {
 } from "../hooks/use-operations";
 import { ManagedAccountControls } from "./managed-account-controls";
 import type { ManagerGroupAccess, StaffAccount } from "../api/operations.api";
+import { useModalKeyboardBoundary } from "@/components/ui/modal";
 
 type StaffForm = {
   full_name: string;
   email: string;
-  password: string;
 };
 
 export function ManagedAccountsPanel() {
@@ -26,21 +26,35 @@ export function ManagedAccountsPanel() {
   const createStaff = useCreateStaff();
   const assignStaffGroups = useAssignStaffGroups();
   const [showCreateStaff, setShowCreateStaff] = useState(false);
-  const [staffForm, setStaffForm] = useState<StaffForm>({ full_name: "", email: "", password: "" });
+  const [staffForm, setStaffForm] = useState<StaffForm>({ full_name: "", email: "" });
   const [staffFormError, setStaffFormError] = useState<string | null>(null);
   const [staffAccessError, setStaffAccessError] = useState<{ staffId: string; message: string } | null>(null);
+  const [issuedInvitation, setIssuedInvitation] = useState<{ name: string; token: string } | null>(null);
+  const [invitationCopied, setInvitationCopied] = useState(false);
+  const createStaffButtonRef = useRef<HTMLButtonElement>(null);
+  const invitationDialogRef = useRef<HTMLDivElement>(null);
+  const invitationTitleId = useId();
+  const invitationDescriptionId = useId();
+  const closeInvitation = () => {
+    setIssuedInvitation(null);
+    window.requestAnimationFrame(() => createStaffButtonRef.current?.focus());
+  };
+  const handleInvitationKeyDown = useModalKeyboardBoundary({
+    dialogRef: invitationDialogRef,
+    isOpen: Boolean(issuedInvitation),
+    canClose: true,
+    onClose: closeInvitation,
+  });
 
   const handleCreateStaff = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setStaffFormError(null);
-    if (staffForm.password.length < 10 || !/[A-Z]/.test(staffForm.password) || !/[a-z]/.test(staffForm.password) || !/\d/.test(staffForm.password)) {
-      setStaffFormError("Use at least 10 characters with uppercase, lowercase, and a number.");
-      return;
-    }
-
     try {
-      await createStaff.mutateAsync(staffForm);
-      setStaffForm({ full_name: "", email: "", password: "" });
+      const created = await createStaff.mutateAsync(staffForm);
+      if (!created.activation_token) throw new Error("Activation link was not returned");
+      setIssuedInvitation({ name: created.full_name, token: created.activation_token });
+      setInvitationCopied(false);
+      setStaffForm({ full_name: "", email: "" });
       setShowCreateStaff(false);
     } catch {
       setStaffFormError("Could not create staff. Check whether the email already exists.");
@@ -65,7 +79,7 @@ export function ManagedAccountsPanel() {
         title="Staff"
         description="Create and manage normal company employee accounts."
         actions={(
-          <Button type="button" onClick={() => setShowCreateStaff(true)}>
+          <Button ref={createStaffButtonRef} type="button" onClick={() => setShowCreateStaff(true)}>
             <Plus className="h-4 w-4" aria-hidden="true" />
             Create Staff
           </Button>
@@ -131,6 +145,7 @@ export function ManagedAccountsPanel() {
                           accountId={account.id}
                           accountName={account.full_name}
                           isActive={account.is_active}
+                          allowMfaReset
                           allowDelete
                           deleteLabel="Delete staff"
                         />
@@ -156,6 +171,42 @@ export function ManagedAccountsPanel() {
           onFormChange={setStaffForm}
           onSubmit={handleCreateStaff}
         />
+      )}
+
+      {issuedInvitation && (
+        <div
+          ref={invitationDialogRef}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={invitationTitleId}
+          aria-describedby={invitationDescriptionId}
+          onKeyDown={handleInvitationKeyDown}
+        >
+          <Card className="w-full max-w-lg shadow-2xl">
+            <CardContent className="space-y-4 p-6">
+              <div>
+                <h2 id={invitationTitleId} className="font-semibold text-slate-950">Staff activation link created</h2>
+                <p id={invitationDescriptionId} className="mt-1 text-sm leading-6 text-slate-600">{issuedInvitation.name} must use this single-use link within seven days and choose their own password. The raw link is not stored in the dashboard.</p>
+              </div>
+              <div className="break-all rounded-xl border border-slate-200 bg-slate-50 p-3 font-mono text-xs text-slate-800">{staffActivationLink(issuedInvitation.token)}</div>
+              <div className="flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  data-dialog-initial-focus
+                  leftIcon={invitationCopied ? <Check className="h-4 w-4" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />}
+                  onClick={() => {
+                    void navigator.clipboard.writeText(staffActivationLink(issuedInvitation.token)).then(() => setInvitationCopied(true));
+                  }}
+                >
+                  {invitationCopied ? "Copied" : "Copy activation link"}
+                </Button>
+                <Button type="button" onClick={closeInvitation}>Done</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
     </div>
   );
@@ -259,8 +310,25 @@ function CreateStaffDialog({
   onFormChange: React.Dispatch<React.SetStateAction<StaffForm>>;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  const descriptionId = useId();
+  const handleDialogKeyDown = useModalKeyboardBoundary({
+    dialogRef,
+    isOpen: true,
+    canClose: !isLoading,
+    onClose,
+  });
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">
+    <div
+      ref={dialogRef}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+      aria-describedby={descriptionId}
+      onKeyDown={handleDialogKeyDown}
+    >
       <Card className="w-full max-w-lg overflow-hidden shadow-2xl">
         <CardContent className="space-y-5 p-6">
           <div className="flex items-start justify-between gap-4">
@@ -269,8 +337,8 @@ function CreateStaffDialog({
                 <UserPlus className="h-5 w-5" />
               </span>
               <div className="min-w-0">
-                <h2 className="text-base font-semibold text-slate-900">Create Staff</h2>
-                <p className="mt-0.5 text-sm leading-5 text-slate-500">Staff accounts are separated from managers. Feature access can be assigned later.</p>
+                <h2 id={titleId} className="text-base font-semibold text-slate-900">Create Staff</h2>
+                <p id={descriptionId} className="mt-0.5 text-sm leading-5 text-slate-500">Staff accounts are separated from managers. Feature access can be assigned later.</p>
               </div>
             </div>
             <button type="button" className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700" onClick={onClose}>
@@ -286,6 +354,7 @@ function CreateStaffDialog({
               value={form.full_name}
               onChange={(event) => onFormChange((current) => ({ ...current, full_name: event.target.value }))}
               required
+              data-dialog-initial-focus
             />
             <Input
               label="Email"
@@ -295,14 +364,7 @@ function CreateStaffDialog({
               onChange={(event) => onFormChange((current) => ({ ...current, email: event.target.value }))}
               required
             />
-            <PasswordInput
-              label="Temporary password"
-              placeholder="Minimum 10 characters"
-              value={form.password}
-              onChange={(event) => onFormChange((current) => ({ ...current, password: event.target.value }))}
-              required
-            />
-            <p className="text-xs leading-5 text-slate-500">Password must include uppercase, lowercase, and a number.</p>
+            <p className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-xs leading-5 text-blue-800">A single-use activation link will be shown once after creation. The staff member sets their own password and enrolls MFA before receiving a dashboard session.</p>
             {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
             <div className="flex justify-end gap-3 pt-1">
               <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>Cancel</Button>
@@ -315,4 +377,11 @@ function CreateStaffDialog({
       </Card>
     </div>
   );
+}
+
+function staffActivationLink(token: string): string {
+  if (typeof window === "undefined") return token;
+  const url = new URL("/activate", window.location.origin);
+  url.searchParams.set("token", token);
+  return url.toString();
 }

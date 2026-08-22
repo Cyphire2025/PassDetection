@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { ApiError, apiRequest, authorizedDownloadResponse } from '../client';
+import { ApiError, apiRequest, authorizedDownloadToFile } from '../client';
 
 jest.mock('@/core/demo/demo-mode', () => ({ isDemoMode: () => true }));
 
@@ -18,7 +18,12 @@ describe('demo network boundary', () => {
     const fetchSpy = jest.spyOn(globalThis, 'fetch');
 
     await expect(
-      authorizedDownloadResponse('/mobile/documents/demo/content', 'a'.repeat(32)),
+      authorizedDownloadToFile(
+        '/mobile/documents/demo/content',
+        'a'.repeat(32),
+        '/private/cache/download.tmp',
+        4096,
+      ),
     ).rejects.toMatchObject<Partial<ApiError>>({ code: 'DEMO_LOCAL_ONLY', status: 503 });
     expect(fetchSpy).not.toHaveBeenCalled();
   });

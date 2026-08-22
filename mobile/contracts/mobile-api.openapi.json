@@ -1,6 +1,325 @@
 {
   "components": {
     "schemas": {
+      "AttendanceCloseRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "exception_reason": {
+            "anyOf": [
+              {
+                "maxLength": 500,
+                "minLength": 10,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exception Reason"
+          }
+        },
+        "title": "AttendanceCloseRequest",
+        "type": "object"
+      },
+      "AttendanceCloseoutCheckpointRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "needs_review_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Needs Review Count",
+            "type": "integer"
+          },
+          "oldest_pending_age_seconds": {
+            "anyOf": [
+              {
+                "maximum": 31536000.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Oldest Pending Age Seconds"
+          },
+          "pending_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Pending Count",
+            "type": "integer"
+          },
+          "retryable_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Retryable Count",
+            "type": "integer"
+          },
+          "sending_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Sending Count",
+            "type": "integer"
+          },
+          "unreviewed_rejected_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Unreviewed Rejected Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "pending_count",
+          "sending_count",
+          "retryable_count",
+          "needs_review_count",
+          "unreviewed_rejected_count"
+        ],
+        "title": "AttendanceCloseoutCheckpointRequest",
+        "type": "object"
+      },
+      "AttendanceCloseoutCheckpointResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "needs_review_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Needs Review Count",
+            "type": "integer"
+          },
+          "oldest_pending_age_seconds": {
+            "anyOf": [
+              {
+                "maximum": 31536000.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Oldest Pending Age Seconds"
+          },
+          "pending_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Pending Count",
+            "type": "integer"
+          },
+          "reported_at": {
+            "format": "date-time",
+            "title": "Reported At",
+            "type": "string"
+          },
+          "retryable_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Retryable Count",
+            "type": "integer"
+          },
+          "sending_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Sending Count",
+            "type": "integer"
+          },
+          "unreviewed_rejected_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Unreviewed Rejected Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "pending_count",
+          "sending_count",
+          "retryable_count",
+          "needs_review_count",
+          "unreviewed_rejected_count",
+          "reported_at"
+        ],
+        "title": "AttendanceCloseoutCheckpointResponse",
+        "type": "object"
+      },
+      "AttendanceCloseoutCoordinatorStatusResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "coordinator_id": {
+            "format": "uuid",
+            "title": "Coordinator Id",
+            "type": "string"
+          },
+          "coordinator_name": {
+            "title": "Coordinator Name",
+            "type": "string"
+          },
+          "needs_review_count": {
+            "minimum": 0.0,
+            "title": "Needs Review Count",
+            "type": "integer"
+          },
+          "oldest_pending_age_seconds": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Oldest Pending Age Seconds"
+          },
+          "pending_count": {
+            "minimum": 0.0,
+            "title": "Pending Count",
+            "type": "integer"
+          },
+          "report_age_seconds": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Report Age Seconds"
+          },
+          "reported_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reported At"
+          },
+          "retryable_count": {
+            "minimum": 0.0,
+            "title": "Retryable Count",
+            "type": "integer"
+          },
+          "sending_count": {
+            "minimum": 0.0,
+            "title": "Sending Count",
+            "type": "integer"
+          },
+          "state": {
+            "enum": [
+              "ready",
+              "missing",
+              "stale",
+              "blocked"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "unreviewed_rejected_count": {
+            "minimum": 0.0,
+            "title": "Unreviewed Rejected Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "coordinator_id",
+          "coordinator_name",
+          "state",
+          "pending_count",
+          "sending_count",
+          "retryable_count",
+          "needs_review_count",
+          "unreviewed_rejected_count"
+        ],
+        "title": "AttendanceCloseoutCoordinatorStatusResponse",
+        "type": "object"
+      },
+      "AttendanceCloseoutStatusResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "active_assignment_count": {
+            "minimum": 0.0,
+            "title": "Active Assignment Count",
+            "type": "integer"
+          },
+          "blocked_assignment_count": {
+            "minimum": 0.0,
+            "title": "Blocked Assignment Count",
+            "type": "integer"
+          },
+          "checkpoint_ttl_seconds": {
+            "minimum": 1.0,
+            "title": "Checkpoint Ttl Seconds",
+            "type": "integer"
+          },
+          "coordinators": {
+            "items": {
+              "$ref": "#/components/schemas/AttendanceCloseoutCoordinatorStatusResponse"
+            },
+            "title": "Coordinators",
+            "type": "array"
+          },
+          "missing_assignment_count": {
+            "minimum": 0.0,
+            "title": "Missing Assignment Count",
+            "type": "integer"
+          },
+          "nonzero_assignment_count": {
+            "minimum": 0.0,
+            "title": "Nonzero Assignment Count",
+            "type": "integer"
+          },
+          "oldest_pending_age_seconds": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Oldest Pending Age Seconds"
+          },
+          "ready": {
+            "title": "Ready",
+            "type": "boolean"
+          },
+          "ready_assignment_count": {
+            "minimum": 0.0,
+            "title": "Ready Assignment Count",
+            "type": "integer"
+          },
+          "stale_assignment_count": {
+            "minimum": 0.0,
+            "title": "Stale Assignment Count",
+            "type": "integer"
+          },
+          "unresolved_count": {
+            "minimum": 0.0,
+            "title": "Unresolved Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "ready",
+          "checkpoint_ttl_seconds",
+          "active_assignment_count",
+          "ready_assignment_count",
+          "missing_assignment_count",
+          "stale_assignment_count",
+          "nonzero_assignment_count",
+          "blocked_assignment_count",
+          "unresolved_count",
+          "coordinators"
+        ],
+        "title": "AttendanceCloseoutStatusResponse",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -219,9 +538,6 @@
           "source": {
             "const": "qr",
             "default": "qr",
-            "enum": [
-              "qr"
-            ],
             "title": "Source",
             "type": "string"
           }
@@ -2615,6 +2931,7 @@
             "type": "string"
           },
           "payload": {
+            "additionalProperties": true,
             "title": "Payload",
             "type": "object"
           },
@@ -2924,9 +3241,6 @@
           "scope": {
             "const": "personal",
             "default": "personal",
-            "enum": [
-              "personal"
-            ],
             "title": "Scope",
             "type": "string"
           },
@@ -3420,6 +3734,7 @@
             "type": "string"
           },
           "payload": {
+            "additionalProperties": true,
             "title": "Payload",
             "type": "object"
           },
@@ -3696,9 +4011,6 @@
           "strategy": {
             "const": "full_rebase",
             "default": "full_rebase",
-            "enum": [
-              "full_rebase"
-            ],
             "title": "Strategy",
             "type": "string"
           },
@@ -3762,9 +4074,6 @@
           "token_type": {
             "const": "bearer",
             "default": "bearer",
-            "enum": [
-              "bearer"
-            ],
             "title": "Token Type",
             "type": "string"
           }
@@ -4592,6 +4901,7 @@
         ]
       },
       "post": {
+        "deprecated": true,
         "operationId": "create_mobile_attendance_session_api_v1_mobile_coordinator_groups__group_id__attendance_sessions_post",
         "parameters": [
           {
@@ -4735,8 +5045,77 @@
         ]
       }
     },
+    "/api/v1/mobile/coordinator/groups/{group_id}/attendance/sessions/{session_id}/closeout-checkpoint": {
+      "put": {
+        "operationId": "publish_mobile_attendance_closeout_checkpoint_api_v1_mobile_coordinator_groups__group_id__attendance_sessions__session_id__closeout_checkpoint_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AttendanceCloseoutCheckpointRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceCloseoutCheckpointResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Publish Mobile Attendance Closeout Checkpoint",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      }
+    },
     "/api/v1/mobile/coordinator/groups/{group_id}/attendance/sessions/{session_id}/complete": {
       "put": {
+        "deprecated": true,
         "operationId": "complete_mobile_attendance_session_api_v1_mobile_coordinator_groups__group_id__attendance_sessions__session_id__complete_put",
         "parameters": [
           {
@@ -5325,6 +5704,188 @@
           }
         ],
         "summary": "List Mobile Manager Attendance Sessions",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      },
+      "post": {
+        "operationId": "create_mobile_manager_attendance_session_api_v1_mobile_manager_groups__group_id__attendance_sessions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MobileAttendanceSessionCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileAttendanceSessionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create Mobile Manager Attendance Session",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      }
+    },
+    "/api/v1/mobile/manager/groups/{group_id}/attendance/sessions/{session_id}/closeout": {
+      "get": {
+        "operationId": "get_mobile_manager_attendance_closeout_status_api_v1_mobile_manager_groups__group_id__attendance_sessions__session_id__closeout_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceCloseoutStatusResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Mobile Manager Attendance Closeout Status",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      }
+    },
+    "/api/v1/mobile/manager/groups/{group_id}/attendance/sessions/{session_id}/complete": {
+      "put": {
+        "operationId": "complete_mobile_manager_attendance_session_api_v1_mobile_manager_groups__group_id__attendance_sessions__session_id__complete_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AttendanceCloseRequest",
+                "default": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileAttendanceSessionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Complete Mobile Manager Attendance Session",
         "tags": [
           "GC Mobile Operations"
         ]

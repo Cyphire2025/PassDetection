@@ -366,6 +366,7 @@ function validateOtaUpdateEnvironment(source) {
  *   readonly offlineLeaseIssuer: string;
  *   readonly offlineLeaseAudience: string;
  *   readonly offlineLeasePublicKeysJson: string;
+ *   readonly realtimeEnabled: true;
  *   readonly sentryDsn: string;
  * }}
  */
@@ -380,13 +381,24 @@ function validateProductionPublicEnvironment(source) {
     source.EXPO_UPDATES_CODE_SIGNING_CERTIFICATE;
   const offlineLease = validateOfflineLeasePublicConfiguration(source, errors);
   const sentryDsn = validateSentryDsn(source.EXPO_PUBLIC_SENTRY_DSN, errors);
-  validateAppIntegrityBuildEnvironment(source, true);
+  const appIntegrity = validateAppIntegrityBuildEnvironment(source, true);
 
   if (appEnv !== 'production') {
     errors.push('EXPO_PUBLIC_APP_ENV must equal production.');
   }
   if (demoMode !== 'false') {
     errors.push('EXPO_PUBLIC_DEMO_MODE must be explicitly set to false.');
+  }
+  if (source.EXPO_PUBLIC_MAESTRO_ATTENDANCE_FIXTURE !== 'false') {
+    errors.push(
+      'EXPO_PUBLIC_MAESTRO_ATTENDANCE_FIXTURE must be explicitly set to false in production.',
+    );
+  }
+  if (source.EXPO_PUBLIC_REALTIME_ENABLED !== 'true') {
+    errors.push('EXPO_PUBLIC_REALTIME_ENABLED must be explicitly set to true in production.');
+  }
+  if (appIntegrity.mode !== 'enforce') {
+    errors.push('EXPO_PUBLIC_APP_INTEGRITY_MODE must equal enforce in production.');
   }
   const hasUpdatesConfiguration = Boolean(source.EXPO_PUBLIC_UPDATES_URL);
   if (!easProjectId) {
@@ -474,6 +486,7 @@ function validateProductionPublicEnvironment(source) {
     offlineLeaseIssuer: offlineLease.issuer,
     offlineLeaseAudience: offlineLease.audience,
     offlineLeasePublicKeysJson: offlineLease.publicKeysJson,
+    realtimeEnabled: true,
     sentryDsn,
   });
 }

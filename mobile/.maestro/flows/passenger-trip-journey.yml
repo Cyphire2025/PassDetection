@@ -1,0 +1,89 @@
+appId: com.globalconnects.groupcompanion
+name: Passenger trip switch, itinerary, QR, updates, and session persistence
+tags:
+  - release-hermes
+  - staging-fixture
+  - passenger-journey
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- runFlow: ../subflows/passenger-login.yml
+- tapOn: "Trip"
+- extendedWaitUntil:
+    visible: "Switch trip"
+    timeout: 60000
+- tapOn: "Switch trip"
+- extendedWaitUntil:
+    visible: "Choose your trip"
+    timeout: 60000
+- tapOn: "Search assigned trips"
+- inputText: ${MAESTRO_PASSENGER_SECONDARY_TRIP_NAME}
+- hideKeyboard
+- extendedWaitUntil:
+    visible: "${MAESTRO_PASSENGER_SECONDARY_TRIP_NAME}"
+    timeout: 60000
+- tapOn: "${MAESTRO_PASSENGER_SECONDARY_TRIP_NAME}"
+- extendedWaitUntil:
+    visible: "${MAESTRO_PASSENGER_SECONDARY_TRIP_NAME}"
+    timeout: 180000
+- scrollUntilVisible:
+    element:
+      text: "Itinerary"
+    direction: DOWN
+    timeout: 60000
+- scrollUntilVisible:
+    element:
+      text: "Open ${MAESTRO_PASSENGER_ITINERARY_DOCUMENT}"
+    direction: DOWN
+    timeout: 120000
+- tapOn: "Open ${MAESTRO_PASSENGER_ITINERARY_DOCUMENT}"
+- extendedWaitUntil:
+    visible:
+      id: "secure-document-rendered"
+    timeout: 120000
+- tapOn:
+    id: "secure-document-close"
+- tapOn: "My QR"
+- extendedWaitUntil:
+    visible: "Ready for your checkpoint - available offline"
+    timeout: 60000
+- tapOn: "Updates"
+- extendedWaitUntil:
+    visible: "Updates"
+    timeout: 60000
+- runFlow:
+    when:
+      visible: "Unread update: ${MAESTRO_PASSENGER_UPDATE_TITLE}"
+    commands:
+      - tapOn: "Unread update: ${MAESTRO_PASSENGER_UPDATE_TITLE}"
+      - extendedWaitUntil:
+          visible: "Read update: ${MAESTRO_PASSENGER_UPDATE_TITLE}"
+          timeout: 30000
+- assertVisible: "Read update: ${MAESTRO_PASSENGER_UPDATE_TITLE}"
+- tapOn: "More"
+- extendedWaitUntil:
+    visible: "Change trip"
+    timeout: 60000
+- killApp
+- launchApp:
+    stopApp: true
+- extendedWaitUntil:
+    visible: "More"
+    timeout: 120000
+- tapOn: "More"
+- extendedWaitUntil:
+    visible:
+      id: "passenger-sign-out"
+    timeout: 60000
+- tapOn: "Change trip"
+- tapOn: "Search assigned trips"
+- inputText: ${MAESTRO_PASSENGER_PRIMARY_TRIP_NAME}
+- hideKeyboard
+- extendedWaitUntil:
+    visible: "${MAESTRO_PASSENGER_PRIMARY_TRIP_NAME}"
+    timeout: 60000
+- tapOn: "${MAESTRO_PASSENGER_PRIMARY_TRIP_NAME}"
+- extendedWaitUntil:
+    visible: "${MAESTRO_PASSENGER_PRIMARY_TRIP_NAME}"
+    timeout: 180000

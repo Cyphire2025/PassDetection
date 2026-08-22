@@ -15,11 +15,13 @@ Steps:
 
 from __future__ import annotations
 
+from datetime import datetime
+
 from app.application.dtos.auth_dtos import AuthResponseDTO, LoginInputDTO, UserOutputDTO
 from app.core.logging.logger import get_logger
 from app.core.security.jwt import create_access_token, create_refresh_token
 from app.core.security.password import verify_password
-from app.domain.entities.entities import UserRole
+from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import AuthenticationError
 from app.domain.repositories.interfaces import IUserRepository
 from app.infrastructure.repositories.refresh_token_repository import RefreshTokenRepository
@@ -63,6 +65,17 @@ class LoginUseCase:
         Raises:
             AuthenticationError: If credentials are invalid or account is inactive.
         """
+        user = await self.verify_credentials(dto, client_ip=client_ip)
+        return await self.issue_session(user, client_ip=client_ip)
+
+    async def verify_credentials(
+        self,
+        dto: LoginInputDTO,
+        *,
+        client_ip: str | None = None,
+    ) -> User:
+        """Verify the password boundary without minting a bearer session."""
+
         await self._limiter.check_allowed(email=dto.email, ip_address=client_ip)
 
         # 1. Fetch user
@@ -92,7 +105,25 @@ class LoginUseCase:
             await self._limiter.record_failure(email=dto.email, ip_address=client_ip)
             raise AuthenticationError("Invalid email or password")
 
+        if user.credential_state != "active":
+            logger.warning("dashboard_login_denied_pending_credential", user_id=str(user.id))
+            await self._limiter.record_failure(email=dto.email, ip_address=client_ip)
+            raise AuthenticationError("Invalid email or password")
+
         await self._limiter.record_success(email=dto.email, ip_address=client_ip)
+
+        return user
+
+    async def issue_session(
+        self,
+        user: User,
+        *,
+        client_ip: str | None = None,
+        session_version: int = 1,
+        authentication_methods: tuple[str, ...] = ("pwd",),
+        mfa_authenticated_at: datetime | None = None,
+    ) -> AuthResponseDTO:
+        """Mint a session only after every required authentication gate passes."""
 
         # 4. Record login
         user.record_login()
@@ -103,6 +134,9 @@ class LoginUseCase:
             user_id=user.id,
             role=user.role.value,
             agency_id=user.agency_id,
+            session_version=session_version,
+            authentication_methods=authentication_methods,
+            mfa_authenticated_at=mfa_authenticated_at,
         )
         refresh_token, refresh_expires = create_refresh_token()
 
@@ -112,6 +146,9 @@ class LoginUseCase:
             user_id=user.id,
             expires_at=refresh_expires,
             created_from_ip=client_ip,
+            session_version=session_version,
+            authentication_methods=authentication_methods,
+            mfa_authenticated_at=mfa_authenticated_at,
         )
 
         logger.info("login_success", user_id=str(user.id), role=user.role.value)
@@ -128,6 +165,9 @@ class LoginUseCase:
                 last_login_at=user.last_login_at,
                 created_at=user.created_at,
                 updated_at=user.updated_at,
+                credential_state=user.credential_state,
+                mfa_required=user.mfa_required,
+                mfa_enabled=user.mfa_enabled,
             ),
             access_token=access_token,
             refresh_token=refresh_token,

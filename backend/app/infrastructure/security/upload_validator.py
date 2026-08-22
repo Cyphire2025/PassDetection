@@ -9,7 +9,7 @@ import struct
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol
+from typing import Any, Protocol
 
 from PIL import Image, ImageOps, UnidentifiedImageError
 
@@ -66,6 +66,14 @@ class MalwareScanner(Protocol):
     def scan(self, content: bytes) -> None: ...
 
 
+class MalwareScannerUnavailableError(ImageValidationError):
+    """Raised when the configured scanning boundary cannot make a decision."""
+
+
+class MalwareScanRejectedError(ImageValidationError):
+    """Raised when bytes are malicious or the scanner response is untrusted."""
+
+
 class DisabledMalwareScanner:
     """Explicit local/demo scanner used only when AV is not configured."""
 
@@ -92,12 +100,29 @@ class ClamAVMalwareScanner:
                 sock.sendall(struct.pack("!I", 0))
                 response = sock.recv(4096).decode("utf-8", errors="replace")
         except OSError as exc:
-            raise ImageValidationError("Malware scanner is unavailable. Please try again later") from exc
+            raise MalwareScannerUnavailableError(
+                "Malware scanner is unavailable. Please try again later"
+            ) from exc
 
         if "FOUND" in response:
-            raise ImageValidationError("Uploaded file failed security scanning")
+            raise MalwareScanRejectedError("Uploaded file failed security scanning")
         if "OK" not in response:
-            raise ImageValidationError("Malware scanner returned an invalid response")
+            raise MalwareScanRejectedError("Malware scanner returned an invalid response")
+
+
+def malware_scanner_from_settings(settings: Any | None = None) -> MalwareScanner:
+    """Return the one configured scanner used by every untrusted upload path."""
+
+    active_settings = settings or get_settings()
+    if not bool(getattr(active_settings, "malware_scanner_enabled", False)):
+        return DisabledMalwareScanner()
+    return ClamAVMalwareScanner(
+        host=str(getattr(active_settings, "malware_scanner_host", "localhost")),
+        port=int(getattr(active_settings, "malware_scanner_port", 3310)),
+        timeout_seconds=float(
+            getattr(active_settings, "malware_scanner_timeout_seconds", 2.0)
+        ),
+    )
 
 
 class UploadValidator:
@@ -194,10 +219,4 @@ class UploadValidator:
         return f"{stem[:80]}{extension}"
 
     def _default_scanner(self) -> MalwareScanner:
-        if not self._settings.malware_scanner_enabled:
-            return DisabledMalwareScanner()
-        return ClamAVMalwareScanner(
-            host=self._settings.malware_scanner_host,
-            port=self._settings.malware_scanner_port,
-            timeout_seconds=self._settings.malware_scanner_timeout_seconds,
-        )
+        return malware_scanner_from_settings(self._settings)

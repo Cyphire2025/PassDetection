@@ -46,7 +46,8 @@ export function ProfileScreen({
           <View style={styles.rowText}>
             <Text style={styles.rowTitle}>Sign out</Text>
             <Text style={styles.rowDescription}>
-              Authentication is removed immediately. Encrypted offline documents remain available after you sign in to this account again.
+              Unsynchronized changes must be uploaded or explicitly discarded first. After sign-out,
+              offline files and scan issues stay encrypted and locked until this same account signs in again.
             </Text>
           </View>
         </View>

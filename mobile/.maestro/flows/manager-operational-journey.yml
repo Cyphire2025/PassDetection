@@ -1,0 +1,136 @@
+appId: com.globalconnects.groupcompanion
+name: Manager group operations, readiness, previews, and session lifecycle
+tags:
+  - release-hermes
+  - staging-fixture
+  - manager-operations
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- runFlow: ../subflows/staff-login.yml
+- tapOn: "Groups"
+- extendedWaitUntil:
+    visible: "Assigned groups"
+    timeout: 60000
+- tapOn: "Search assigned groups"
+- inputText: ${MAESTRO_MANAGER_GROUP_NAME}
+- hideKeyboard
+- extendedWaitUntil:
+    visible: "${MAESTRO_MANAGER_GROUP_NAME}"
+    timeout: 30000
+- tapOn: "${MAESTRO_MANAGER_GROUP_NAME}"
+- assertVisible: "Selected group"
+- tapOn: "Itinerary"
+- extendedWaitUntil:
+    visible: "${MAESTRO_MANAGER_ITINERARY_ITEM}"
+    timeout: 120000
+- assertVisible: "Common documents"
+- tapOn: "Updates"
+- extendedWaitUntil:
+    visible: "Updates"
+    timeout: 60000
+- runFlow:
+    when:
+      visible: "Unread update: ${MAESTRO_MANAGER_UPDATE_TITLE}"
+    commands:
+      - tapOn: "Unread update: ${MAESTRO_MANAGER_UPDATE_TITLE}"
+      - extendedWaitUntil:
+          visible: "Read update: ${MAESTRO_MANAGER_UPDATE_TITLE}"
+          timeout: 30000
+- assertVisible: "Read update: ${MAESTRO_MANAGER_UPDATE_TITLE}"
+- tapOn: "Readiness"
+- extendedWaitUntil:
+    visible: "Total passengers, .*"
+    timeout: 120000
+- tapOn: "Total passengers, .*"
+- extendedWaitUntil:
+    visible: "All passengers"
+    timeout: 60000
+- tapOn: "Search passengers"
+- inputText: ${MAESTRO_MANAGER_PASSENGER_SEARCH}
+- hideKeyboard
+- extendedWaitUntil:
+    visible: "${MAESTRO_MANAGER_PASSENGER_NAME}, available"
+    timeout: 60000
+- tapOn: "${MAESTRO_MANAGER_PASSENGER_NAME}, available"
+- extendedWaitUntil:
+    visible: "Passenger details"
+    timeout: 60000
+- assertVisible: "Work and contact"
+- scrollUntilVisible:
+    element:
+      text: "Passport details"
+    direction: DOWN
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      text: "Document availability"
+    direction: DOWN
+    timeout: 30000
+- tapOn: "Back"
+- tapOn: "Back"
+- extendedWaitUntil:
+    visible: "Visas, .*"
+    timeout: 60000
+- tapOn: "Visas, .*"
+- extendedWaitUntil:
+    visible: "Passenger visas"
+    timeout: 60000
+- tapOn: "Search passengers"
+- inputText: ${MAESTRO_MANAGER_PASSENGER_SEARCH}
+- hideKeyboard
+- extendedWaitUntil:
+    visible: "${MAESTRO_MANAGER_PASSENGER_NAME}, available"
+    timeout: 60000
+- tapOn: "${MAESTRO_MANAGER_PASSENGER_NAME}, available"
+- extendedWaitUntil:
+    visible:
+      id: "manager-document-preview-rendered"
+    timeout: 120000
+- assertNotVisible: "No visa is available for this passenger."
+- tapOn: "Back"
+- tapOn: "Back"
+- extendedWaitUntil:
+    visible: "Flight tickets, .*"
+    timeout: 60000
+- tapOn: "Flight tickets, .*"
+- extendedWaitUntil:
+    visible: "Flight tickets"
+    timeout: 60000
+- tapOn: "Search passengers"
+- inputText: ${MAESTRO_MANAGER_PASSENGER_SEARCH}
+- hideKeyboard
+- extendedWaitUntil:
+    visible: "${MAESTRO_MANAGER_PASSENGER_NAME}, available"
+    timeout: 60000
+- tapOn: "${MAESTRO_MANAGER_PASSENGER_NAME}, available"
+- extendedWaitUntil:
+    visible:
+      id: "manager-document-preview-rendered"
+    timeout: 120000
+- assertNotVisible: "No flight ticket is available for this passenger."
+- tapOn: "Back"
+- tapOn: "Back"
+- tapOn: "Profile"
+- extendedWaitUntil:
+    visible: "Privacy, sessions and offline storage on this device."
+    timeout: 60000
+- assertVisible:
+    id: "staff-sign-out"
+- killApp
+- launchApp:
+    stopApp: true
+- extendedWaitUntil:
+    visible: "Profile"
+    timeout: 120000
+- tapOn: "Profile"
+- extendedWaitUntil:
+    visible:
+      id: "staff-sign-out"
+    timeout: 60000
+- tapOn:
+    id: "staff-sign-out"
+- extendedWaitUntil:
+    visible: "Continue with phone number"
+    timeout: 120000

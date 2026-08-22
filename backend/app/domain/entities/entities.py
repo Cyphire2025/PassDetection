@@ -194,6 +194,10 @@ class User:
     created_at: datetime = field(default_factory=_utcnow)
     updated_at: datetime = field(default_factory=_utcnow)
     last_login_at: datetime | None = None
+    credential_state: str = "active"
+    session_version: int = 1
+    mfa_required: bool = False
+    mfa_enabled: bool = False
 
     @classmethod
     def create(
@@ -426,6 +430,12 @@ class ClientGroup:
     deleted_at: datetime | None = None
     deleted_passport_count: int = 0
     deletion_retained_records: bool = False
+    passport_purge_at: datetime | None = None
+    passport_retention_days_applied: int | None = None
+    passport_legal_hold: bool = False
+    passport_legal_hold_reason: str | None = None
+    passport_legal_hold_set_at: datetime | None = None
+    passport_legal_hold_set_by_user_id: uuid.UUID | None = None
 
     @classmethod
     def create(
@@ -454,6 +464,8 @@ class ClientGroup:
         custom_questions: list[dict] | None = None,
         custom_details: list[dict] | None = None,
         notes: str | None = None,
+        initial_status: GroupStatus = GroupStatus.ACTIVE,
+        passport_retention_days: int | None = None,
     ) -> ClientGroup:
         normalized_name = " ".join(name.strip().split())
         if not normalized_name:
@@ -477,13 +489,16 @@ class ClientGroup:
                 "Add at least one nearest international airport.",
                 field="departure_cities",
             )
-        return cls(
+        lifecycle_at = _utcnow()
+        group = cls(
             id=_new_uuid(),
             name=normalized_name,
             token=token,
             agency_id=agency_id,
-            status=GroupStatus.ACTIVE,
+            status=initial_status,
             created_by_user_id=created_by_user_id,
+            created_at=lifecycle_at,
+            closed_at=lifecycle_at if initial_status == GroupStatus.CLOSED else None,
             destination=destination.strip() if destination else None,
             travel_date=travel_date,
             return_date=return_date,
@@ -505,6 +520,9 @@ class ClientGroup:
             custom_details=normalize_custom_details(custom_details),
             notes=notes.strip() if notes else None,
         )
+        if initial_status == GroupStatus.CLOSED and passport_retention_days is not None:
+            group.schedule_passport_purge(passport_retention_days)
+        return group
 
     def update_configuration(
         self,
@@ -600,31 +618,64 @@ class ClientGroup:
         """True if the group is still accepting uploads."""
         return self.status == GroupStatus.ACTIVE
 
-    def close(self) -> None:
+    def schedule_passport_purge(self, retention_days: int) -> None:
+        """Persist the exact policy-derived date for later hold-aware deletion."""
+
+        if not 1 <= retention_days <= 3650:
+            raise ValidationError(
+                "Passport retention must be between 1 and 3650 days.",
+                field="passport_data_retention_days",
+            )
+        anchor = self.deleted_at or self.closed_at
+        self.passport_purge_at = (
+            anchor + timedelta(days=retention_days) if anchor is not None else None
+        )
+        self.passport_retention_days_applied = (
+            retention_days if anchor is not None else None
+        )
+
+    def close(self, *, passport_retention_days: int | None = None) -> None:
         """Close the group so no more uploads are accepted."""
         self.status = GroupStatus.CLOSED
         self.closed_at = _utcnow()
+        if passport_retention_days is not None:
+            self.schedule_passport_purge(passport_retention_days)
 
-    def archive(self) -> None:
+    def archive(self, *, passport_retention_days: int | None = None) -> None:
         """Archive the group so it is hidden from active workflows."""
         self.status = GroupStatus.ARCHIVED
         self.closed_at = self.closed_at or _utcnow()
+        if passport_retention_days is not None and self.passport_purge_at is None:
+            self.schedule_passport_purge(passport_retention_days)
 
     def restore(self) -> None:
         """Restore an archived or retained deleted group to active workflows."""
         self.status = GroupStatus.ACTIVE
         self.closed_at = None
         self.deleted_at = None
+        self.passport_purge_at = None
+        self.passport_retention_days_applied = None
         self.deleted_passport_count = 0
         self.deletion_retained_records = False
 
-    def mark_deleted(self, *, passport_count: int, retain_records: bool) -> None:
+    def mark_deleted(
+        self,
+        *,
+        passport_count: int,
+        retain_records: bool,
+        passport_retention_days: int | None = None,
+    ) -> None:
         """Hide a group from workflows while preserving deletion audit metadata."""
         self.status = GroupStatus.DELETED
         self.closed_at = self.closed_at or _utcnow()
         self.deleted_at = _utcnow()
         self.deleted_passport_count = passport_count
         self.deletion_retained_records = retain_records
+        if retain_records and passport_retention_days is not None:
+            self.schedule_passport_purge(passport_retention_days)
+        elif not retain_records:
+            self.passport_purge_at = None
+            self.passport_retention_days_applied = None
 
 
 @dataclass
@@ -865,6 +916,7 @@ class PassportSubmission:
         mrz_raw: str | None = None,
         *,
         expected_revision: int | None = None,
+        review_threshold: float = 0.85,
     ) -> bool:
         if expected_revision is not None and expected_revision != self.extraction_revision:
             return False
@@ -903,13 +955,19 @@ class PassportSubmission:
             )
             if field == "surname"
         }
+        required_fields_present = all(
+            extracted_fields.get(key) or key in absent_fields
+            for key in required_fields
+        )
+        manual_review_required = confidence < review_threshold
         self.extraction_status = (
-            PassportExtractionStatus.COMPLETE
-            if all(
-                extracted_fields.get(key) or key in absent_fields
-                for key in required_fields
+            PassportExtractionStatus.READY_FOR_REVIEW
+            if manual_review_required
+            else (
+                PassportExtractionStatus.COMPLETE
+                if required_fields_present
+                else PassportExtractionStatus.PARTIAL
             )
-            else PassportExtractionStatus.PARTIAL
         )
         self.extracted_fields = extracted_fields
         self.confirmed_fields, self.extraction_conflicts = (
@@ -919,7 +977,13 @@ class PassportSubmission:
             )
         )
         self.overall_confidence = confidence
-        self.confidence_score = confidence_score
+        self.confidence_score = {
+            **(confidence_score or {}),
+            "review_policy": {
+                "threshold": review_threshold,
+                "manual_review_required": manual_review_required,
+            },
+        }
         self.mrz_raw = mrz_raw
         self.error_message = None
         self.updated_at = _utcnow()

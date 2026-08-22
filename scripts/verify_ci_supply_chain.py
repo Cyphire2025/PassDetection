@@ -36,6 +36,10 @@ def policy_errors(workflow_sources: dict[str, str]) -> list[str]:
         "mobile JavaScript SBOM": "mobile-sbom.cdx.json",
         "frontend JavaScript SBOM": "frontend-sbom.cdx.json",
         "backend Python SBOM": "backend-sbom.cdx.json",
+        "backend size, complexity, and coverage ratchets": (
+            "verify_backend_quality_budgets.py"
+        ),
+        "backend real-service integration lane": "RUN_SERVICE_INTEGRATION",
         "mobile release-Hermes contracts": "npm run e2e:contracts",
         "mobile high-risk module budgets": "npm run maintainability:check",
         "mobile reviewed coverage floor": "npm run test:coverage",

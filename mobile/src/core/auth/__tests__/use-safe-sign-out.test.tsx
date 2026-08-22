@@ -1,21 +1,32 @@
 import { act, renderHook } from '@testing-library/react-native';
 
-import { logoutSession, purgeLocalSession } from '../session-service';
+import { UnsynchronizedActionsError } from '@/core/storage/pending-action-safety';
+
+import { lockLocalSession, logoutSession } from '../session-service';
 import { useSessionStore } from '../session-store';
 import { useSafeSignOut } from '../use-safe-sign-out';
 
 jest.mock('../session-service', () => ({
+  lockLocalSession: jest.fn(),
   logoutSession: jest.fn(),
-  purgeLocalSession: jest.fn(),
 }));
 
 const mockedLogout = jest.mocked(logoutSession);
-const mockedPurge = jest.mocked(purgeLocalSession);
+const mockedLock = jest.mocked(lockLocalSession);
+const mockRequestSync = jest.fn(async (..._args: unknown[]) => ({
+  results: [],
+  failures: [],
+  requestedTripCount: 0,
+  tripsChanged: false,
+  removedTripIds: [],
+}));
 const mockCancelDepartureReminders = jest.fn(async () => undefined);
-const namespace = '11111111-1111-4111-8111-111111111111.22222222-2222-4222-8222-222222222222';
-
 jest.mock('@/core/notifications/departure-reminders', () => ({
   cancelDepartureReminders: () => mockCancelDepartureReminders(),
+}));
+
+jest.mock('@/core/sync/sync-trigger', () => ({
+  requestSync: (...args: unknown[]) => mockRequestSync(...args),
 }));
 
 function deferred<T>() {
@@ -30,9 +41,10 @@ function deferred<T>() {
 
 beforeEach(() => {
   mockedLogout.mockReset();
-  mockedPurge.mockReset();
+  mockedLock.mockReset();
+  mockRequestSync.mockClear();
   mockCancelDepartureReminders.mockClear();
-  mockedPurge.mockResolvedValue(undefined);
+  mockedLock.mockResolvedValue(undefined);
   useSessionStore.getState().setSession({
     accessToken: 'a'.repeat(48),
     accessTokenExpiresAt: '2026-08-03T12:00:00.000Z',
@@ -65,14 +77,15 @@ test('a rejected logout is handled and exposes a non-sensitive cleanup retry', a
 
   expect(result.current.isSigningOut).toBe(false);
   expect(result.current.errorMessage).toBe(
-    'Signed out locally, but secure data cleanup is incomplete. Try again or contact support.',
+    'Sign-out could not finish securely locking local data. Try again or contact support.',
   );
   expect(result.current.errorMessage).not.toContain('/private/device/path');
 
   await act(async () => {
     await result.current.retryCleanup();
   });
-  expect(mockedPurge).toHaveBeenCalledWith(namespace);
+  expect(mockedLogout).toHaveBeenCalledTimes(2);
+  expect(mockedLock).not.toHaveBeenCalled();
   expect(result.current.errorMessage).toBeNull();
 });
 
@@ -104,4 +117,48 @@ test('duplicate sign-out taps share one request and invoke logout once', async (
   });
   expect(mockCancelDepartureReminders).toHaveBeenCalledTimes(1);
   expect(result.current.isSigningOut).toBe(false);
+});
+
+test('blocks ordinary sign-out, then synchronizes and retries without discarding the queue', async () => {
+  const summary = {
+    pending: 4,
+    sending: 1,
+    retryable: 2,
+    unresolvedReview: 0,
+    unsynchronized: 7,
+    unsynchronizedAttendanceScans: 6,
+    unsynchronizedOtherActions: 1,
+  } as const;
+  mockedLogout
+    .mockRejectedValueOnce(new UnsynchronizedActionsError(summary))
+    .mockResolvedValueOnce(undefined);
+  const { result } = await renderHook(() => useSafeSignOut());
+
+  await act(async () => {
+    await result.current.signOut();
+  });
+  expect(result.current.blockedActions).toEqual(summary);
+  expect(result.current.errorMessage).toBe(
+    '6 scans have not reached the server, with 1 other unsynchronized change.',
+  );
+  expect(mockCancelDepartureReminders).not.toHaveBeenCalled();
+
+  await act(async () => {
+    await result.current.synchronizeAndSignOut();
+  });
+  expect(mockRequestSync).toHaveBeenCalledWith({ scope: 'full', reason: 'sign-out-guard' });
+  expect(mockedLogout).toHaveBeenNthCalledWith(2, {});
+  expect(mockedLogout).not.toHaveBeenCalledWith({ discardUnsynchronizedActions: true });
+  expect(mockCancelDepartureReminders).toHaveBeenCalledTimes(1);
+});
+
+test('uses the destructive logout option only after the caller explicitly selects discard', async () => {
+  mockedLogout.mockResolvedValue(undefined);
+  const { result } = await renderHook(() => useSafeSignOut());
+
+  await act(async () => {
+    await result.current.discardAndSignOut();
+  });
+
+  expect(mockedLogout).toHaveBeenCalledWith({ discardUnsynchronizedActions: true });
 });

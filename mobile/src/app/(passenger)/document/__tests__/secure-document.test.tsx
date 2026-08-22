@@ -63,18 +63,6 @@ jest.mock('@/core/storage/vault', () => ({
   releaseTemporaryView: jest.fn(),
   removeTemporaryView: jest.fn(),
 }));
-jest.mock('@/core/security/sensitive-screen-protection', () => {
-  const React = require('react') as typeof import('react');
-  const { View: MockView } = require('react-native') as typeof import('react-native');
-  return {
-    SensitiveScreenProtection: ({ protectionKey }: { protectionKey: string }) => (
-      React.createElement(MockView, {
-        accessibilityLabel: protectionKey,
-        testID: 'sensitive-screen-protection',
-      })
-    ),
-  };
-});
 jest.mock('@/features/content/data/content-repository', () => ({
   cacheDocument: jest.fn(),
   getDocument: jest.fn(),
@@ -182,6 +170,7 @@ test('retries a transient download failure in place and coalesces repeated retry
   await waitFor(() => expect(screen.getByText('Retry')).toBeTruthy());
   const retry = screen.getByLabelText('Retry');
   expect(screen.getByText('Check your connection and try again.')).toBeTruthy();
+  expect(screen.getByText('Support code: DOCUMENT_NETWORK_FAILED')).toBeTruthy();
   expect(screen.queryByText('Network request failed')).toBeNull();
 
   await act(async () => {
@@ -278,8 +267,20 @@ test('never places a decrypted personal image in the renderer disk cache', async
 
   await waitFor(() => expect(screen.getByTestId('image-viewer')).toBeTruthy());
   expect(screen.getByTestId('image-viewer').props.cachePolicy).toBe('none');
-  expect(screen.getByTestId('sensitive-screen-protection').props.accessibilityLabel)
-    .toBe('secure-document-viewer');
+  expect(screen.getByTestId('secure-document-rendered').props.accessibilityLabel)
+    .toBe('Document content');
+  expect(screen.getByTestId('secure-document-rendered').props.accessibilityState)
+    .toEqual({ busy: true });
+});
+
+test('does not block the authenticated renderer on best-effort opened-at bookkeeping', async () => {
+  mockedGetDocument.mockResolvedValueOnce({ ...DOCUMENT, offline: true, offlineVersion: 1 });
+  mockedRecordDocumentOpened.mockReturnValueOnce(new Promise<void>(() => undefined));
+
+  const screen = await render(<SecureDocumentScreen />);
+
+  await waitFor(() => expect(screen.getByTestId('pdf-viewer')).toBeTruthy());
+  expect(mockedRecordDocumentOpened).toHaveBeenCalledTimes(1);
 });
 
 test('repairs a locally corrupted registered copy and retries decryption once', async () => {
@@ -309,8 +310,19 @@ test('keeps a provider checksum mismatch terminal instead of treating it as loca
   const screen = await render(<SecureDocumentScreen />);
 
   await waitFor(() => expect(screen.getByText('Document unavailable')).toBeTruthy());
+  expect(screen.getByText('Support code: DOCUMENT_CHECKSUM_MISMATCH')).toBeTruthy();
   expect(screen.queryByText('Retry')).toBeNull();
   expect(mockedDecryptDocument).not.toHaveBeenCalled();
+});
+
+test('projects native interruption details into a safe support code', async () => {
+  mockedCacheDocument.mockRejectedValueOnce(new Error('Download interrupted.'));
+
+  const screen = await render(<SecureDocumentScreen />);
+
+  await waitFor(() => expect(screen.getByText('Document unavailable')).toBeTruthy());
+  expect(screen.getByText('Support code: DOCUMENT_NATIVE_INTERRUPTED')).toBeTruthy();
+  expect(screen.queryByText('Download interrupted.')).toBeNull();
 });
 
 test('keeps a missing deployment route retryable without deleting advertised metadata', async () => {
@@ -362,10 +374,10 @@ test('retains the verified foreground preview and goes back to the exact previou
 });
 
 test('removes plaintext while inactive and transparently opens a fresh view on return', async () => {
-  let emitAppState: ((state: AppStateStatus) => void) | undefined;
+  const appStateListeners: ((state: AppStateStatus) => void)[] = [];
   const removeListener = jest.fn();
   jest.spyOn(AppState, 'addEventListener').mockImplementation((_type, listener) => {
-    emitAppState = listener;
+    appStateListeners.push(listener);
     return { remove: removeListener };
   });
   const firstTemporary = temporary('file:///secure/first.pdf');
@@ -379,14 +391,14 @@ test('removes plaintext while inactive and transparently opens a fresh view on r
   await waitFor(() => expect(screen.getByTestId('pdf-viewer')).toBeTruthy());
 
   await act(async () => {
-    emitAppState?.('background');
+    appStateListeners.forEach((listener) => listener('background'));
     await Promise.resolve();
   });
   expect(mockedRemoveTemporary).toHaveBeenCalledWith(firstTemporary);
   expect(screen.queryByTestId('pdf-viewer')).toBeNull();
 
   await act(async () => {
-    emitAppState?.('active');
+    appStateListeners.forEach((listener) => listener('active'));
     await Promise.resolve();
   });
   await waitFor(() => expect(mockedDecryptDocument).toHaveBeenCalledTimes(2));
@@ -396,5 +408,5 @@ test('removes plaintext while inactive and transparently opens a fresh view on r
   });
 
   await screen.unmount();
-  expect(removeListener).toHaveBeenCalledTimes(1);
+  expect(removeListener).toHaveBeenCalledTimes(2);
 });

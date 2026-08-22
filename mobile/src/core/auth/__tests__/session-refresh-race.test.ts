@@ -14,6 +14,7 @@ import {
   invalidateAuthenticationBoundary,
   useSessionStore,
 } from '../session-store';
+import { retryPendingAuthenticationLocks } from '../session-lock';
 import { accountNamespace } from '../types';
 
 type RegisteredRefreshHandler = (
@@ -23,6 +24,7 @@ type RegisteredRefreshHandler = (
 const mockSecureState: {
   activeNamespace: string | null;
   pendingCleanups: Set<string>;
+  pendingAuthenticationLocks: Set<string>;
   refreshTokens: Map<string, string>;
   offlineAuthorizationRecords: Map<string, {
     formatVersion: 1;
@@ -33,6 +35,7 @@ const mockSecureState: {
 } = {
   activeNamespace: null,
   pendingCleanups: new Set(),
+  pendingAuthenticationLocks: new Set(),
   refreshTokens: new Map(),
   offlineAuthorizationRecords: new Map(),
 };
@@ -86,8 +89,22 @@ const mockMarkLocalCleanupPending = jest.fn(async (namespace: string) => {
 const mockClearLocalCleanupPending = jest.fn(async (namespace: string) => {
   mockSecureState.pendingCleanups.delete(namespace);
 });
+const mockGetPendingAuthenticationLocks = jest.fn(
+  async () => [...mockSecureState.pendingAuthenticationLocks],
+);
+const mockMarkAuthenticationLockPending = jest.fn(async (namespace: string) => {
+  mockSecureState.pendingAuthenticationLocks.add(namespace);
+});
+const mockClearAuthenticationLockPending = jest.fn(async (namespace: string) => {
+  mockSecureState.pendingAuthenticationLocks.delete(namespace);
+});
 const mockDeleteAccountDatabase = jest.fn(async (_namespace: string) => undefined);
 const mockCloseAccountDatabase = jest.fn(async () => undefined);
+const mockAssertDurableActionQueueSynchronized = jest.fn(async (_namespace: string) => undefined);
+const mockDurableAttendanceRecordCount = jest.fn(async (_namespace: string) => 0);
+const mockRecordExplicitAttendanceDiscard = jest.fn();
+const mockRecordAuthenticationLockOutcome = jest.fn();
+const mockRecordAuthenticationQuarantineDepth = jest.fn();
 const mockBeginVaultNamespacePurge = jest.fn(async (_namespace: string) => undefined);
 const mockDeleteVaultNamespace = jest.fn(async (_namespace: string) => undefined);
 const mockPurgeTemporaryViews = jest.fn(async () => undefined);
@@ -148,6 +165,9 @@ jest.mock('@/core/storage/installation-guard', () => ({
 }));
 
 jest.mock('@/core/storage/secure-store', () => ({
+  clearAuthenticationLockPending: (...args: [string]) => (
+    mockClearAuthenticationLockPending(...args)
+  ),
   getActiveNamespace: () => mockGetActiveNamespace(),
   getInstallationId: () => mockGetInstallationId(),
   getRefreshToken: (namespace: string) => mockGetRefreshToken(namespace),
@@ -166,6 +186,10 @@ jest.mock('@/core/storage/secure-store', () => ({
   ),
   setActiveNamespace: (...args: [string]) => mockSetActiveNamespace(...args),
   getPendingLocalCleanups: () => mockGetPendingLocalCleanups(),
+  getPendingAuthenticationLocks: () => mockGetPendingAuthenticationLocks(),
+  markAuthenticationLockPending: (...args: [string]) => (
+    mockMarkAuthenticationLockPending(...args)
+  ),
   markLocalCleanupPending: (...args: [string]) => mockMarkLocalCleanupPending(...args),
   clearLocalCleanupPending: (...args: [string]) => mockClearLocalCleanupPending(...args),
   clearNamespaceAuthentication: (...args: [string]) => (
@@ -173,6 +197,28 @@ jest.mock('@/core/storage/secure-store', () => ({
   ),
   clearNamespaceSecrets: (...args: [string]) => mockClearNamespaceSecrets(...args),
   isUnlockedOnlySecureValueAccessAvailable: () => mockUnlockedOnlyAccessAvailable,
+}));
+
+jest.mock('@/core/storage/pending-action-safety', () => ({
+  assertDurableActionQueueSynchronized: (namespace: string) => (
+    mockAssertDurableActionQueueSynchronized(namespace)
+  ),
+  durableAttendanceRecordCount: (namespace: string) => (
+    mockDurableAttendanceRecordCount(namespace)
+  ),
+}));
+
+jest.mock('@/core/observability/attendance-observability', () => ({
+  recordExplicitAttendanceDiscard: (count: number) => mockRecordExplicitAttendanceDiscard(count),
+}));
+
+jest.mock('@/core/observability/authentication-observability', () => ({
+  recordAuthenticationLockOutcome: (outcome: 'success' | 'failure') => (
+    mockRecordAuthenticationLockOutcome(outcome)
+  ),
+  recordAuthenticationQuarantineDepth: (count: number) => (
+    mockRecordAuthenticationQuarantineDepth(count)
+  ),
 }));
 
 jest.mock('../offline-authorization', () => {
@@ -319,6 +365,7 @@ beforeEach(async () => {
   useSelectedTripStore.getState().clear();
   mockSecureState.activeNamespace = null;
   mockSecureState.pendingCleanups.clear();
+  mockSecureState.pendingAuthenticationLocks.clear();
   mockSecureState.refreshTokens.clear();
   mockSecureState.offlineAuthorizationRecords.clear();
   mockRefreshHandler = null;
@@ -352,8 +399,18 @@ beforeEach(async () => {
   mockGetPendingLocalCleanups.mockClear();
   mockMarkLocalCleanupPending.mockClear();
   mockClearLocalCleanupPending.mockClear();
+  mockGetPendingAuthenticationLocks.mockClear();
+  mockMarkAuthenticationLockPending.mockClear();
+  mockClearAuthenticationLockPending.mockClear();
   mockDeleteAccountDatabase.mockClear();
   mockCloseAccountDatabase.mockClear();
+  mockAssertDurableActionQueueSynchronized.mockReset();
+  mockAssertDurableActionQueueSynchronized.mockResolvedValue(undefined);
+  mockDurableAttendanceRecordCount.mockReset();
+  mockDurableAttendanceRecordCount.mockResolvedValue(0);
+  mockRecordExplicitAttendanceDiscard.mockReset();
+  mockRecordAuthenticationLockOutcome.mockReset();
+  mockRecordAuthenticationQuarantineDepth.mockReset();
   mockBeginVaultNamespacePurge.mockClear();
   mockBeginVaultNamespacePurge.mockResolvedValue(undefined);
   mockDeleteVaultNamespace.mockClear();
@@ -521,7 +578,9 @@ test('a delayed refresh cannot reactivate an account after switching accounts', 
   expect(mockSecureState.activeNamespace).toBe(namespaceB);
   expect(mockSecureState.refreshTokens.get(namespaceB)).toBe(initialB.refresh_token);
   expect(mockSetRefreshToken).not.toHaveBeenCalledWith(namespaceA, rotatedA.refresh_token);
-  expect(mockClearNamespaceSecrets).toHaveBeenCalledWith(namespaceA);
+  expect(mockClearNamespaceAuthentication).toHaveBeenCalledWith(namespaceA);
+  expect(mockCloseAccountDatabase).toHaveBeenCalled();
+  expect(mockClearNamespaceSecrets).not.toHaveBeenCalledWith(namespaceA);
   expect(mockClearNamespaceSecrets).not.toHaveBeenCalledWith(namespaceB);
   expect(mockDeleteAccountDatabase).not.toHaveBeenCalledWith(namespaceB);
   expect(mockDeleteVaultNamespace).not.toHaveBeenCalledWith(namespaceB);
@@ -652,16 +711,16 @@ test('bootstrap never restores an active namespace that remains pending cleanup'
   expect(useSelectedTripStore.getState().tripId).toBeNull();
 });
 
-test('logout clears authentication immediately and purges the authenticated namespace', async () => {
+test('logout locks and preserves the authenticated namespace after verifying the queue', async () => {
   await activateSession(initialA);
   useSelectedTripStore.getState().selectTrip('55555555-5555-4555-8555-555555555555');
   mockGetActiveNamespace.mockClear();
   mockGetActiveNamespace.mockRejectedValueOnce(new Error('keychain read failed'));
 
   const logout = logoutSession();
+  await expect(logout).resolves.toBeUndefined();
   expect(useSessionStore.getState()).toMatchObject({ status: 'anonymous', session: null });
   expect(useSelectedTripStore.getState().tripId).toBeNull();
-  await expect(logout).resolves.toBeUndefined();
 
   expect(mockGetActiveNamespace).not.toHaveBeenCalled();
   expect(mockApiRequest).toHaveBeenCalledWith(
@@ -674,21 +733,35 @@ test('logout clears authentication immediately and purges the authenticated name
     }),
   );
   expect(mockPurgeTemporaryViews).toHaveBeenCalledTimes(1);
-  expect(mockDeleteAccountDatabase).toHaveBeenCalledWith(namespaceA);
-  expect(mockDeleteVaultNamespace).toHaveBeenCalledWith(namespaceA);
-  expect(mockClearNamespaceSecrets).toHaveBeenCalledWith(namespaceA);
-  expect(mockFinishVaultNamespacePurge).toHaveBeenCalledWith(namespaceA, true);
+  expect(mockCloseAccountDatabase).toHaveBeenCalledTimes(1);
+  expect(mockClearNamespaceAuthentication).toHaveBeenCalledWith(namespaceA);
+  expect(mockDeleteAccountDatabase).not.toHaveBeenCalledWith(namespaceA);
+  expect(mockDeleteVaultNamespace).not.toHaveBeenCalledWith(namespaceA);
+  expect(mockClearNamespaceSecrets).not.toHaveBeenCalledWith(namespaceA);
+  expect(mockMarkAuthenticationLockPending).toHaveBeenCalledWith(namespaceA);
+  expect(mockClearAuthenticationLockPending).toHaveBeenCalledWith(namespaceA);
+  expect(mockRecordAuthenticationLockOutcome).toHaveBeenLastCalledWith('success');
 });
 
-test('logout remains anonymous and purges local data when refresh-token lookup fails', async () => {
+test('reports only aggregate authentication quarantine state after a failed lock retry', async () => {
+  mockSecureState.pendingAuthenticationLocks.add(namespaceA);
+  mockClearNamespaceAuthentication.mockRejectedValueOnce(new Error('keychain unavailable'));
+
+  await expect(retryPendingAuthenticationLocks()).resolves.toEqual(new Set([namespaceA]));
+
+  expect(mockRecordAuthenticationLockOutcome).toHaveBeenCalledWith('failure');
+  expect(mockRecordAuthenticationQuarantineDepth).toHaveBeenCalledWith(1);
+});
+
+test('logout remains anonymous and preserves encrypted data when refresh-token lookup fails', async () => {
   await activateSession(initialA);
   useSelectedTripStore.getState().selectTrip('55555555-5555-4555-8555-555555555555');
   mockGetRefreshToken.mockRejectedValueOnce(new Error('refresh token read failed'));
 
   const logout = logoutSession();
+  await expect(logout).resolves.toBeUndefined();
   expect(useSessionStore.getState()).toMatchObject({ status: 'anonymous', session: null });
   expect(useSelectedTripStore.getState().tripId).toBeNull();
-  await expect(logout).resolves.toBeUndefined();
 
   expect(mockApiRequest).toHaveBeenCalledWith(
     '/mobile/auth/logout',
@@ -699,9 +772,96 @@ test('logout remains anonymous and purges local data when refresh-token lookup f
     }),
   );
   expect(mockPurgeTemporaryViews).toHaveBeenCalledTimes(1);
+  expect(mockCloseAccountDatabase).toHaveBeenCalledTimes(1);
+  expect(mockClearNamespaceAuthentication).toHaveBeenCalledWith(namespaceA);
+  expect(mockDeleteAccountDatabase).not.toHaveBeenCalledWith(namespaceA);
+  expect(mockDeleteVaultNamespace).not.toHaveBeenCalledWith(namespaceA);
+  expect(mockClearNamespaceSecrets).not.toHaveBeenCalledWith(namespaceA);
+});
+
+test('logout fails closed before revocation when the durable queue is not synchronized', async () => {
+  await activateSession(initialA);
+  mockAssertDurableActionQueueSynchronized.mockRejectedValueOnce(
+    new Error('unsynchronized local actions'),
+  );
+
+  await expect(logoutSession()).rejects.toThrow('unsynchronized local actions');
+
+  expect(useSessionStore.getState()).toMatchObject({
+    status: 'authenticated',
+    session: { sessionId: sessionA },
+  });
+  expect(mockApiRequest).not.toHaveBeenCalledWith('/mobile/auth/logout', expect.anything());
+  expect(mockClearNamespaceAuthentication).not.toHaveBeenCalled();
+  expect(mockDeleteAccountDatabase).not.toHaveBeenCalled();
+});
+
+test('explicitly confirmed discard is the only logout path that deletes a non-empty queue', async () => {
+  await activateSession(initialA);
+  mockDurableAttendanceRecordCount.mockResolvedValueOnce(6);
+  mockAssertDurableActionQueueSynchronized.mockRejectedValueOnce(
+    new Error('queue must not be inspected after explicit confirmation'),
+  );
+
+  await expect(logoutSession({ discardUnsynchronizedActions: true })).resolves.toBeUndefined();
+
+  expect(mockAssertDurableActionQueueSynchronized).not.toHaveBeenCalled();
+  expect(mockDurableAttendanceRecordCount).toHaveBeenCalledWith(namespaceA);
   expect(mockDeleteAccountDatabase).toHaveBeenCalledWith(namespaceA);
   expect(mockDeleteVaultNamespace).toHaveBeenCalledWith(namespaceA);
   expect(mockClearNamespaceSecrets).toHaveBeenCalledWith(namespaceA);
+  expect(mockRecordExplicitAttendanceDiscard).toHaveBeenCalledWith(6);
+});
+
+test('explicit discard fails closed if its count-only audit boundary cannot be verified', async () => {
+  await activateSession(initialA);
+  mockDurableAttendanceRecordCount.mockRejectedValueOnce(new Error('queue count unavailable'));
+
+  await expect(logoutSession({ discardUnsynchronizedActions: true }))
+    .rejects.toThrow('queue count unavailable');
+
+  expect(useSessionStore.getState()).toMatchObject({
+    status: 'authenticated',
+    session: { sessionId: sessionA },
+  });
+  expect(mockDeleteAccountDatabase).not.toHaveBeenCalled();
+  expect(mockRecordExplicitAttendanceDiscard).not.toHaveBeenCalled();
+});
+
+test('the same account can reopen its preserved encrypted database after ordinary logout', async () => {
+  await activateSession(initialA);
+  await logoutSession();
+  mockOpenAccountDatabase.mockClear();
+  mockDeleteAccountDatabase.mockClear();
+  mockDeleteVaultNamespace.mockClear();
+
+  await expect(activateSession(rotatedA)).resolves.toMatchObject({
+    sessionId: sessionA,
+    principal: { accountId: passengerA },
+  });
+
+  expect(mockOpenAccountDatabase).toHaveBeenCalledWith(namespaceA);
+  expect(mockDeleteAccountDatabase).not.toHaveBeenCalled();
+  expect(mockDeleteVaultNamespace).not.toHaveBeenCalled();
+});
+
+test('a current hard refresh rejection locks encrypted data instead of deleting its queue', async () => {
+  await activateSession(initialA);
+  mockApiRequest.mockImplementation(async (path: string) => {
+    if (path === '/mobile/auth/refresh') {
+      throw new ApiError('Refresh rejected', 401, 'AUTHENTICATION_ERROR', null);
+    }
+    throw new Error(`Unexpected API request: ${path}`);
+  });
+
+  await expect(mockRefreshHandler!(captureAuthenticationSnapshot())).resolves.toBeNull();
+
+  expect(useSessionStore.getState()).toMatchObject({ status: 'anonymous', session: null });
+  expect(mockClearNamespaceAuthentication).toHaveBeenCalledWith(namespaceA);
+  expect(mockCloseAccountDatabase).toHaveBeenCalled();
+  expect(mockDeleteAccountDatabase).not.toHaveBeenCalledWith(namespaceA);
+  expect(mockDeleteVaultNamespace).not.toHaveBeenCalledWith(namespaceA);
+  expect(mockClearNamespaceSecrets).not.toHaveBeenCalledWith(namespaceA);
 });
 
 test('a stale rejected refresh cannot purge the newly selected account', async () => {

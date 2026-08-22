@@ -1024,6 +1024,25 @@ class Settings(BaseSettings):
         return self
 
     @model_validator(mode="after")
+    def validate_mobile_verified_link_configuration(self) -> Self:
+        """Keep the production Android association document available and exact."""
+
+        mobile = self.mobile
+        if not (self.is_production and mobile.enabled):
+            return self
+        if mobile.play_integrity_package_name != "com.globalconnects.groupcompanion":
+            raise ValueError(
+                "MOBILE_PLAY_INTEGRITY_PACKAGE_NAME must equal the production Android "
+                "package com.globalconnects.groupcompanion"
+            )
+        if mobile.play_integrity_allowed_certificate_digests_json is None:
+            raise ValueError(
+                "MOBILE_PLAY_INTEGRITY_ALLOWED_CERTIFICATE_DIGESTS_JSON is required "
+                "for production Android verified links"
+            )
+        return self
+
+    @model_validator(mode="after")
     def validate_mobile_app_integrity_configuration(self) -> Self:
         """Reject an enforcement rollout that lacks cross-worker/provider bindings."""
 

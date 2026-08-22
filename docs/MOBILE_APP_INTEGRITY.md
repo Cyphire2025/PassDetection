@@ -172,11 +172,17 @@ MOBILE_APP_ATTEST_ALLOWED_BUNDLE_VERSIONS_JSON=["1"]
 MOBILE_APP_ATTEST_IOS27_EXTENSION_ROLLOUT_CONFIRMED=false
 ```
 
-Production enforcement refuses configuration without Redis, Play certificate digests,
-the Apple team ID, the production App Attest environment, and non-empty Apple extension
-allowlists. Production validation categories are restricted to Apple's distribution
-categories `2`, `4`, and `5`. Category `3` is Apple's development-signing category;
-category `1` is an operating-system executable. Both are rejected in production.
+Any production deployment with the mobile API enabled refuses to start without the Play
+certificate digest allowlist or with a package name other than the shipped
+`com.globalconnects.groupcompanion` application ID. That same package/digest contract is
+the source of the public Android `assetlinks.json`, so verified links cannot silently
+degrade to HTTP 503 or associate another package while app-integrity enforcement is still
+disabled or in rollout. Production enforcement additionally refuses
+configuration without Redis, the Apple team ID, the production App Attest environment,
+and non-empty Apple extension allowlists. Production validation categories are restricted
+to Apple's distribution categories `2`, `4`, and `5`. Category `3` is Apple's
+development-signing category; category `1` is an operating-system executable. Both are
+rejected in production.
 Bundle-version entries are exact canonical `CFBundleVersion` values, not
 ranges, so an approved release overlap must be listed explicitly and removed after the
 rollout. The verifier requires these same allowlists in `monitor` as well as `enforce`;
@@ -195,7 +201,12 @@ Play verification is invoked. The Apple verifier and its security-sensitive dire
 dependency set are also pinned
 (`pyattest`, `cbor2`, `asn1crypto`, `pyhanko-certvalidator`, `oscrypto`, `uritools`,
 `python-jose[cryptography]`, `ecdsa`, and `cryptography`) so a release does not silently
-change verification behavior after dependency resolution.
+change verification behavior after dependency resolution. `pyattest` 1.0.5's package
+metadata declares `python-jose`/`ecdsa`, although its published verifier source imports
+neither. The one exact `PYSEC-2026-1325` exception is reviewed in CI because the
+upstream advisory affects ECDSA signing, key generation, and ECDH, while this service
+uses the Apple path only for public-key verification. The exception must be removed as
+soon as pyattest removes that unused metadata edge or the verifier is replaced.
 
 ### Mobile/build
 

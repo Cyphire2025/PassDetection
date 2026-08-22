@@ -4,6 +4,7 @@ import { AppState } from 'react-native';
 
 import { useSessionStore } from '@/core/auth/session-store';
 import { isDemoMode } from '@/core/demo/demo-mode';
+import { recordMobileMetric } from '@/core/observability/mobile-observability';
 import { setAccountDatabaseApplicationState } from '@/core/storage/database';
 import { recoverPendingVaultEvictions } from '@/features/content/data/content-repository';
 import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store';
@@ -64,7 +65,19 @@ export function SyncRuntime() {
       return;
     }
 
-    void registerBackgroundSync().catch(() => undefined);
+    void registerBackgroundSync()
+      .then((registered) => {
+        recordMobileMetric('background_registration', 1, {
+          outcome: registered ? 'success' : 'failure',
+          trigger: 'foreground',
+        });
+      })
+      .catch(() => {
+        recordMobileMetric('background_registration', 1, {
+          outcome: 'failure',
+          trigger: 'foreground',
+        });
+      });
     let disposed = false;
     let isActive = AppState.currentState === 'active';
     let isOnline = onlineManager.isOnline();

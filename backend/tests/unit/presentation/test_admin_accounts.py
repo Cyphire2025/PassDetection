@@ -6,11 +6,16 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 from fastapi import HTTPException
+from sqlalchemy.dialects import postgresql
 
 from app.domain.entities.entities import UserRole
 from app.presentation.api.v1.routes.admin_accounts import (
+    _deactivate_coordinator_assignments,
+    _fence_coordinator_mobile_sessions,
+    _fence_dashboard_sessions,
     _get_manageable_account,
     delete_managed_account,
+    reset_managed_account_mfa,
 )
 from app.presentation.api.v1.routes.admin_accounts import (
     router as admin_accounts_router,
@@ -22,6 +27,7 @@ def test_account_administration_mutations_require_cookie_csrf() -> None:
     expected = {
         ("/staff", "POST"),
         ("/{account_id}/reset-password", "POST"),
+        ("/{account_id}/reset-mfa", "POST"),
         ("/{account_id}/revoke-sessions", "POST"),
         ("/{account_id}/status", "PATCH"),
         ("/{account_id}", "DELETE"),
@@ -37,6 +43,7 @@ def test_account_administration_mutations_require_cookie_csrf() -> None:
             dependency.call.__name__ for dependency in route.dependant.dependencies
         }
         assert "require_cookie_csrf" in dependencies, (path, method)
+        assert "require_recent_mfa" in dependencies, (path, method)
 
 
 class _AccountResult:
@@ -61,6 +68,17 @@ class _EmptyScalarsResult:
 
     def all(self) -> list[object]:
         return []
+
+
+class _ScalarsResult:
+    def __init__(self, values: list[object]) -> None:
+        self._values = values
+
+    def scalars(self) -> _ScalarsResult:
+        return self
+
+    def all(self) -> list[object]:
+        return self._values
 
 
 def _account(*, agency_id: uuid.UUID, role: str = UserRole.AGENCY_STAFF.value) -> SimpleNamespace:
@@ -121,6 +139,146 @@ async def test_agency_manager_cannot_manage_staff_from_another_agency() -> None:
 
 
 @pytest.mark.asyncio
+async def test_session_fence_revokes_refresh_tokens_and_existing_access_tokens() -> None:
+    account = _account(agency_id=uuid.uuid4())
+    state = SimpleNamespace(session_version=4, updated_at=None)
+    session = SimpleNamespace()
+    identity_repository = SimpleNamespace(get_state=AsyncMock(return_value=state))
+    refresh_tokens = SimpleNamespace(revoke_all_for_user=AsyncMock())
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.admin_accounts.IdentitySecurityRepository",
+            return_value=identity_repository,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.admin_accounts.RefreshTokenRepository",
+            return_value=refresh_tokens,
+        ),
+    ):
+        await _fence_dashboard_sessions(session, account)  # type: ignore[arg-type]
+
+    identity_repository.get_state.assert_awaited_once_with(account.id, lock=True)
+    refresh_tokens.revoke_all_for_user.assert_awaited_once_with(account.id)
+    assert state.session_version == 5
+    assert state.updated_at is not None
+
+
+@pytest.mark.asyncio
+async def test_coordinator_session_fence_revokes_mobile_access_and_refresh_families() -> None:
+    agency_id = uuid.uuid4()
+    coordinator = _account(
+        agency_id=agency_id,
+        role=UserRole.AGENCY_COORDINATOR.value,
+    )
+    session = SimpleNamespace()
+    revoke_mobile = AsyncMock()
+
+    with patch(
+        "app.presentation.api.v1.routes.admin_accounts.revoke_user_mobile_sessions",
+        new=revoke_mobile,
+    ):
+        await _fence_coordinator_mobile_sessions(  # type: ignore[arg-type]
+            session,
+            coordinator,
+            reason="credential_reset",
+        )
+
+    revoke_mobile.assert_awaited_once_with(
+        session,
+        agency_id=agency_id,
+        user_id=coordinator.id,
+        subject_role="coordinator",
+        reason="credential_reset",
+    )
+
+
+@pytest.mark.asyncio
+async def test_supervised_mfa_reset_clears_factors_and_revokes_sessions() -> None:
+    agency_id = uuid.uuid4()
+    account = _account(agency_id=agency_id)
+    manager = _manager(agency_id=agency_id)
+    state = SimpleNamespace(mfa_required=True)
+    session = SimpleNamespace()
+    identity_repository = SimpleNamespace(
+        get_state=AsyncMock(return_value=state),
+        reset_mfa=AsyncMock(),
+    )
+    refresh_tokens = SimpleNamespace(revoke_all_for_user=AsyncMock())
+    audit = AsyncMock()
+    request = SimpleNamespace(client=SimpleNamespace(host="127.0.0.1"))
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.admin_accounts._get_manageable_account",
+            AsyncMock(return_value=(account, "Agency")),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.admin_accounts.IdentitySecurityRepository",
+            return_value=identity_repository,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.admin_accounts.RefreshTokenRepository",
+            return_value=refresh_tokens,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.admin_accounts._audit_account_action",
+            new=audit,
+        ),
+    ):
+        response = await reset_managed_account_mfa(
+            account_id=account.id,
+            request=request,  # type: ignore[arg-type]
+            current_user=manager,  # type: ignore[arg-type]
+            session=session,  # type: ignore[arg-type]
+        )
+
+    identity_repository.reset_mfa.assert_awaited_once_with(state=state)
+    refresh_tokens.revoke_all_for_user.assert_awaited_once_with(account.id)
+    audit.assert_awaited_once()
+    assert response.status_code == 204
+    assert response.headers["Cache-Control"] == "private, no-store, max-age=0"
+
+
+@pytest.mark.asyncio
+async def test_coordinator_deactivation_locks_every_active_group_deterministically() -> None:
+    agency_id = uuid.uuid4()
+    coordinator = _account(
+        agency_id=agency_id,
+        role=UserRole.AGENCY_COORDINATOR.value,
+    )
+    group_ids = [uuid.uuid4(), uuid.uuid4()]
+    session = SimpleNamespace(
+        execute=AsyncMock(
+            side_effect=[
+                _ScalarsResult(list(reversed(group_ids))),
+                SimpleNamespace(),
+                SimpleNamespace(),
+                SimpleNamespace(),
+            ]
+        )
+    )
+
+    await _deactivate_coordinator_assignments(  # type: ignore[arg-type]
+        session,
+        coordinator,
+    )
+
+    assert session.execute.await_count == 4
+    lock_statement = session.execute.await_args_list[1].args[0]
+    lock_sql = str(lock_statement.compile(dialect=postgresql.dialect()))
+    assert "FROM client_groups" in lock_sql
+    assert "ORDER BY client_groups.id ASC" in lock_sql
+    assert "FOR UPDATE OF client_groups" in lock_sql
+    locked_ids = next(
+        value
+        for value in lock_statement.compile().params.values()
+        if isinstance(value, list)
+    )
+    assert locked_ids == sorted(set(group_ids), key=str)
+
+
+@pytest.mark.asyncio
 async def test_deleting_staff_revokes_sessions_audits_and_removes_account() -> None:
     agency_id = uuid.uuid4()
     staff = _account(agency_id=agency_id)
@@ -131,6 +289,7 @@ async def test_deleting_staff_revokes_sessions_audits_and_removes_account() -> N
         flush=AsyncMock(),
     )
     refresh_tokens = SimpleNamespace(revoke_all_for_user=AsyncMock())
+    session_fence = AsyncMock()
     audit_logs = SimpleNamespace(record=AsyncMock())
     request = SimpleNamespace(client=SimpleNamespace(host="127.0.0.1"))
 
@@ -144,6 +303,10 @@ async def test_deleting_staff_revokes_sessions_audits_and_removes_account() -> N
             return_value=refresh_tokens,
         ),
         patch(
+            "app.presentation.api.v1.routes.admin_accounts._fence_dashboard_sessions",
+            new=session_fence,
+        ),
+        patch(
             "app.presentation.api.v1.routes.admin_accounts.AuditLogRepository",
             return_value=audit_logs,
         ),
@@ -155,7 +318,7 @@ async def test_deleting_staff_revokes_sessions_audits_and_removes_account() -> N
             session=session,  # type: ignore[arg-type]
         )
 
-    refresh_tokens.revoke_all_for_user.assert_awaited_once_with(staff.id)
+    session_fence.assert_awaited_once_with(session, staff)
     audit_logs.record.assert_awaited_once()
     session.delete.assert_awaited_once_with(staff)
     session.flush.assert_awaited_once()
@@ -184,6 +347,7 @@ async def test_deleting_coordinator_with_attendance_history_removes_login_but_pr
         flush=AsyncMock(),
     )
     refresh_tokens = SimpleNamespace(revoke_all_for_user=AsyncMock())
+    session_fence = AsyncMock()
     audit_logs = SimpleNamespace(record=AsyncMock())
     request = SimpleNamespace(client=SimpleNamespace(host="127.0.0.1"))
     deactivate_assignments = AsyncMock()
@@ -202,6 +366,10 @@ async def test_deleting_coordinator_with_attendance_history_removes_login_but_pr
             return_value=refresh_tokens,
         ),
         patch(
+            "app.presentation.api.v1.routes.admin_accounts._fence_dashboard_sessions",
+            new=session_fence,
+        ),
+        patch(
             "app.presentation.api.v1.routes.admin_accounts.AuditLogRepository",
             return_value=audit_logs,
         ),
@@ -217,7 +385,7 @@ async def test_deleting_coordinator_with_attendance_history_removes_login_but_pr
             session=session,  # type: ignore[arg-type]
         )
 
-    refresh_tokens.revoke_all_for_user.assert_awaited_once_with(coordinator.id)
+    session_fence.assert_awaited_once_with(session, coordinator)
     deactivate_assignments.assert_awaited_once_with(session, coordinator)
     audit_logs.record.assert_awaited_once()
     session.delete.assert_not_awaited()
@@ -242,6 +410,7 @@ async def test_deleting_staff_with_an_owned_mailbox_scrubs_credentials_and_prese
         flush=AsyncMock(),
     )
     refresh_tokens = SimpleNamespace(revoke_all_for_user=AsyncMock())
+    session_fence = AsyncMock()
     audit_logs = SimpleNamespace(record=AsyncMock())
     request = SimpleNamespace(client=SimpleNamespace(host="127.0.0.1"))
 
@@ -253,6 +422,10 @@ async def test_deleting_staff_with_an_owned_mailbox_scrubs_credentials_and_prese
         patch(
             "app.presentation.api.v1.routes.admin_accounts.RefreshTokenRepository",
             return_value=refresh_tokens,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.admin_accounts._fence_dashboard_sessions",
+            new=session_fence,
         ),
         patch(
             "app.presentation.api.v1.routes.admin_accounts.AuditLogRepository",
@@ -271,6 +444,7 @@ async def test_deleting_staff_with_an_owned_mailbox_scrubs_credentials_and_prese
         )
 
     session.delete.assert_not_awaited()
+    session_fence.assert_awaited_once_with(session, staff)
     assert result.preserved_history is True
     assert staff.is_active is False
     assert staff.deleted_at is not None

@@ -8,10 +8,10 @@ not choose Keychain accessibility, Android aliases, or biometric behavior.
 
 The policy has two tiers:
 
-| Tier | Values | iOS protection | Why it is available or unavailable in background |
-| --- | --- | --- | --- |
-| Unlocked only | AES document-vault key; signed offline-authorization lease and trusted-time anchor; App Attest key identifier/registration marker | `WHEN_UNLOCKED_THIS_DEVICE_ONLY` under the versioned `gc.v2.unlocked-only` service | Document decryption, offline shell authorization, and risk-tiered attestation issuance are foreground operations. Reads and writes also fail closed unless React Native reports the app active. Blob hydration waits for foreground; metadata synchronization remains independent. |
-| Background after first unlock | Refresh token; SQLCipher database key; installation identity; active account and namespace inventory; selected trip; notification-response dedupe; push-registration digest; database-health and cleanup markers | `AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY` under the versioned `gc.v2.background-after-first-unlock` service | Native background reconciliation needs the refresh token, account identity, selected-trip priority, SQLCipher metadata database, cleanup fence, and bounded delivery/dedupe markers. These values never migrate to another device. |
+| Tier | Values | iOS protection | Android protection | Why it is available or unavailable in background |
+| --- | --- | --- | --- | --- |
+| Unlocked only | AES document-vault key; signed offline-authorization lease and trusted-time anchor; App Attest key identifier/registration marker | `WHEN_UNLOCKED_THIS_DEVICE_ONLY` under the versioned `gc.v2.unlocked-only` service | AES-256-GCM ciphertext in the generated `GCUnlockedDeviceStore`; API 35+ wrapping keys use Android Keystore `setUnlockedDeviceRequired(true)`; API 26-34 use a Keystore wrapping key plus native pre/post `UserManager.isUserUnlocked` and `KeyguardManager.isDeviceLocked` checks | Document decryption, offline shell authorization, and risk-tiered attestation issuance are foreground operations. Reads and writes also fail closed unless React Native reports the app active. Blob hydration waits for foreground; metadata synchronization remains independent. |
+| Background after first unlock | Refresh token; SQLCipher database key; installation identity; active account and namespace inventory; selected trip; notification-response dedupe; push-registration digest; database-health and cleanup markers | `AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY` under the versioned `gc.v2.background-after-first-unlock` service | Expo SecureStore's device-bound Android Keystore storage | Native background reconciliation needs the refresh token, account identity, selected-trip priority, SQLCipher metadata database, cleanup fence, and bounded delivery/dedupe markers. These values never migrate to another device. |
 
 The database key is a deliberate exception, not a claim that database content
 is low sensitivity. The present architecture stores synchronized metadata and
@@ -28,15 +28,36 @@ after reboot until the user unlocks. The after-first-unlock tier is the Apple
 policy intended for required background access and remains unavailable before
 the first unlock after reboot.
 
-Expo SecureStore does not apply `keychainAccessible` on Android. Versioned
-`keychainService` values still isolate the two tiers under separate Android
-Keystore aliases, and the application-state guard prevents normal application
-code from using vault/offline-authorization material in a headless/background
-window. This is defense in depth, not hardware proof that the Android device is
-unlocked. Closing that residual gap requires a reviewed native Keystore module
-using an unlocked-device restriction on supported Android versions, together
-with the compatibility matrix below; it cannot be truthfully proven from
-TypeScript tests.
+Expo SecureStore does not apply `keychainAccessible` on Android. A tracked Expo
+config plugin therefore generates and registers `GCUnlockedDeviceStore` during
+every Android prebuild. Unlocked-only values are stored as authenticated
+AES-256-GCM ciphertext in a non-exported app-private preference file; the
+wrapping key remains non-exportable in Android Keystore. The storage key name
+and protection format are authenticated as additional data, values and key
+names are bounded, corrupt or missing-key state fails closed, and deletion
+remains available while locked for revocation and cleanup recovery. The
+TypeScript backend always performs the native read first, copies an existing
+Expo value into native storage before removing either old copy, and refuses to
+return a value until every weaker duplicate is gone.
+
+Android behavior is deliberately API-gated:
+
+| Android API | Enforcement | Compatibility and evidence boundary |
+| --- | --- | --- |
+| 35+ (Android 15+) | The AES wrapping key is generated with `setUnlockedDeviceRequired(true)`. Keystore cryptographically rejects key use while the device is locked; native user-unlocked/device-locked checks run before and after encryption or decryption as defense in depth. | An OS upgrade from API 26-34 rewraps compatibility ciphertext under a distinct API-35 key before returning plaintext. Source tests and release Kotlin compilation prove configuration; a physical locked-device and reboot test is still required for each release/OEM matrix. |
+| 28-34 (Android 9-14) | A non-exportable Keystore AES key plus native `UserManager.isUserUnlocked` and `KeyguardManager.isDeviceLocked` pre/post checks. | Android documents defects in `setUnlockedDeviceRequired` before Android 15 and recommends using the flag only on Android 15+. The compatibility path avoids those key-loss/no-secure-lock/work-profile defects, but its lock boundary is an application/native guard rather than a cryptographic key-use restriction. |
+| 26-27 (Android 8-8.1) | The same Keystore AES wrapping plus native pre/post lock-state checks. | The Keystore unlocked-device-required option does not exist. This is the strongest compatibility-safe design without forcing biometric enrollment or dropping supported offline devices. |
+
+The API decision follows Android's official
+[`KeyGenParameterSpec.Builder`](https://developer.android.com/reference/android/security/keystore/KeyGenParameterSpec.Builder#setUnlockedDeviceRequired(boolean))
+contract. Android also documents that API 31+ can cryptographically
+super-encrypt unlocked-device-required keys while locked in the
+[Keystore feature matrix](https://source.android.com/docs/security/features/keystore/features),
+but the builder's compatibility warning remains authoritative for choosing API
+35 as this application's strict cutoff. Credential-encrypted storage alone is
+not an ordinary relock control: Android's
+[Direct Boot guidance](https://developer.android.com/privacy-and-security/direct-boot)
+defines it as unavailable only until the first unlock following reboot.
 
 `requireAuthentication` is intentionally **not** enabled. In the installed Expo
 implementation it means biometric-bound keys: Android requires authentication
@@ -81,6 +102,15 @@ services and migrates every value as follows:
    independently attempt both services so one native failure cannot skip the
    other keys.
 
+On Android, steps 1-5 target the native store for unlocked-only material. A
+native lock check succeeds before either Expo copy is inspected, the native
+write completes before the old policy/default services are deleted, and a
+failed duplicate deletion rejects the operation so a later call retries. API
+35+ also recognizes the distinct API 26-34 ciphertext format and atomically
+rewraps it under the strict key. Missing Keystore aliases with surviving
+ciphertext and AES-GCM authentication failures never trigger silent key
+replacement.
+
 The ordering prevents process death from deleting the only usable key. App
 downgrades across this security migration are not supported because an older
 binary does not know the versioned services.
@@ -105,9 +135,11 @@ They do not prove native lock-state enforcement. Release evidence must include:
   profiles, and supported Android API levels/OEMs;
 - logout, account switch, explicit cleanup, and fresh-install reset while
   locked, including retry after a simulated native storage outage;
-- confirmation that Android's residual hardware lock-state gap is either
-  accepted in the threat model or closed by a separately reviewed native module
-  before F-19 is marked complete.
+- API 35+ proof that vault/offline-authorization reads fail after ordinary
+  relock and before first unlock after reboot, then recover after unlock;
+- API 26-34 proof that the native compatibility guard denies the same relock
+  and reboot cases on each supported OEM/work-profile matrix, with its
+  non-cryptographic time-of-check/time-of-use residual explicitly accepted.
 
 No automated result should be labeled as physical Android/iOS lock, reboot,
 biometric, MDM, backup/restore, or production-signing proof.

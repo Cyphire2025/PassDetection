@@ -4,7 +4,7 @@
 
 "use client";
 
-import { LogOut } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 import { useAuthStore, selectUser } from "@/stores/auth.store";
 import { useLogout } from "@/features/auth/hooks/use-logout";
 import { Button } from "@/components/ui";
@@ -14,9 +14,11 @@ import { NotificationBell } from "@/features/notifications/components/notificati
 
 interface HeaderProps {
   title?: string;
+  navigationOpen?: boolean;
+  onOpenNavigation?: () => void;
 }
 
-export function Header({ title }: HeaderProps) {
+export function Header({ title, navigationOpen = false, onOpenNavigation }: HeaderProps) {
   const user = useAuthStore(selectUser);
   const { mutate: logout } = useLogout();
 
@@ -28,10 +30,24 @@ export function Header({ title }: HeaderProps) {
   return (
     <header className="flex h-[60px] shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 sm:px-6">
       {/* Page Title — set per-page via Header prop or left empty */}
-      {title && (
-        <h1 className="text-sm font-semibold text-slate-900">{title}</h1>
-      )}
-      {!title && <div />}
+      <div className="flex min-w-0 items-center gap-2">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={onOpenNavigation}
+          aria-label="Open navigation"
+          aria-expanded={navigationOpen}
+          aria-controls="mobile-dashboard-navigation"
+          data-mobile-navigation-trigger
+          className="shrink-0 text-slate-600 lg:hidden"
+        >
+          <Menu className="h-5 w-5" aria-hidden="true" />
+        </Button>
+        {title && (
+          <h1 className="truncate text-sm font-semibold text-slate-900">{title}</h1>
+        )}
+      </div>
 
       <div className="mx-4 hidden min-w-0 flex-1 justify-center md:flex">
         <GlobalSearch />

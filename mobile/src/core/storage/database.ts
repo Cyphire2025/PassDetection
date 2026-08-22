@@ -2,6 +2,11 @@ import * as Crypto from 'expo-crypto';
 import { Directory, File } from 'expo-file-system';
 import * as SQLite from 'expo-sqlite';
 
+import {
+  coordinateDatabaseOperations,
+  guardAccountDatabase,
+  type DatabaseOperationCoordinator,
+} from './database-operation-coordinator';
 import { ACCOUNT_DATABASE_VERSION, migrateAccountDatabase } from './database-schema';
 import { applyAccountStorageRetention } from './database-retention';
 
@@ -27,12 +32,22 @@ const DATABASE_VERSION = ACCOUNT_DATABASE_VERSION;
 const DATABASE_HEALTH_MARKER_FORMAT_VERSION = 1;
 const DATABASE_INTEGRITY_RECHECK_INTERVAL_MS = 7 * 24 * 60 * 60 * 1_000;
 const DATABASE_HEALTH_CLOCK_TOLERANCE_MS = 5 * 60 * 1_000;
+// Expo SQLite's default close path proactively finalizes every statement still
+// known to the native connection. With FTS5 that path can double-finalize FTS
+// internals and abort the process. Application operations are explicitly drained
+// below, so native close should fail closed on a genuine leak instead of invoking
+// the unsafe best-effort finalizer.
+const MANAGED_DATABASE_OPEN_OPTIONS = {
+  finalizeUnusedStatementsBeforeClosing: false,
+} as const satisfies SQLite.SQLiteOpenOptions;
 
 type ActiveDatabase = {
   database: SQLite.SQLiteDatabase;
+  nativeDatabase: SQLite.SQLiteDatabase;
   name: string;
   namespace: string;
   state: 'open' | 'closing';
+  operations: DatabaseOperationCoordinator;
   transactions: TransactionCoordinator;
   lastIntegrityCheckAtMs: number;
   lastMaintenanceRunAtMs: number | null;
@@ -359,7 +374,10 @@ async function coordinateTransactions(
   // keyed connection instead. Only transaction callbacks receive this connection,
   // so main-connection writes cannot become part of or roll back its transaction.
   const openTransactionConnection = async (): Promise<SQLite.SQLiteDatabase> => {
-    const connection = await SQLite.openDatabaseAsync(name, { useNewConnection: true });
+    const connection = await SQLite.openDatabaseAsync(name, {
+      ...MANAGED_DATABASE_OPEN_OPTIONS,
+      useNewConnection: true,
+    });
     try {
       await configureDatabaseConnection(connection, key, false);
       return connection;
@@ -522,7 +540,7 @@ async function prepareAccountDatabase(
   allowAutomaticRebuild: boolean,
   performInitialIntegrityCheck: boolean,
 ): Promise<PreparedDatabase> {
-  const database = await SQLite.openDatabaseAsync(name);
+  const database = await SQLite.openDatabaseAsync(name, MANAGED_DATABASE_OPEN_OPTIONS);
   let transactions: TransactionCoordinator | null = null;
   let integrityCheckedAtMs: number | null = null;
 
@@ -642,11 +660,15 @@ export async function openAccountDatabase(namespace: string): Promise<SQLite.SQL
       throw error;
     }
 
+    const operations = coordinateDatabaseOperations();
+    const guardedDatabase = guardAccountDatabase(prepared.database, operations);
     activeDatabase = {
-      database: prepared.database,
+      database: guardedDatabase,
+      nativeDatabase: prepared.database,
       name,
       namespace,
       state: 'open',
+      operations,
       transactions: prepared.transactions,
       lastIntegrityCheckAtMs,
       lastMaintenanceRunAtMs,
@@ -655,7 +677,7 @@ export async function openAccountDatabase(namespace: string): Promise<SQLite.SQL
       maintenanceTimer: null,
     };
     scheduleMaintenance(activeDatabase);
-    return prepared.database;
+    return guardedDatabase;
   });
 }
 
@@ -684,10 +706,11 @@ export async function closeAccountDatabase(): Promise<void> {
     if (!active) return;
     active.state = 'closing';
     cancelMaintenanceTimer(active);
+    active.operations.stop();
     active.transactions.stop();
-    await active.transactions.wait();
+    await Promise.all([active.operations.wait(), active.transactions.wait()]);
     await active.transactions.close();
-    await active.database.closeAsync();
+    await active.nativeDatabase.closeAsync();
     // Retain ownership until the native connection confirms it is closed. If
     // closeAsync fails, later opens remain fail-closed and close can be retried.
     if (activeDatabase === active) activeDatabase = null;
@@ -708,10 +731,11 @@ export async function deleteAccountDatabase(namespace: string): Promise<void> {
       const active = activeDatabase;
       active.state = 'closing';
       cancelMaintenanceTimer(active);
+      active.operations.stop();
       active.transactions.stop();
-      await active.transactions.wait();
+      await Promise.all([active.operations.wait(), active.transactions.wait()]);
       await active.transactions.close();
-      await active.database.closeAsync();
+      await active.nativeDatabase.closeAsync();
       if (activeDatabase === active) activeDatabase = null;
     }
     await clearDatabaseHealthMarker(namespace);

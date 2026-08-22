@@ -4,17 +4,21 @@ import * as SecureStore from 'expo-secure-store';
 import { AppState } from 'react-native';
 
 import {
+  clearAuthenticationLockPending,
   clearLocalCleanupPending,
   clearNamespaceAuthentication,
+  compareAndSetOfflineAuthorizationRecord,
   isTrustedInstallationBinding,
   clearNamespaceSecrets,
   getPendingLocalCleanups,
+  getPendingAuthenticationLocks,
   getInstallationId,
   getOrCreateSecret,
   getOfflineAuthorizationRecord,
   getPushRegistrationMarker,
   getRefreshToken,
   markLocalCleanupPending,
+  markAuthenticationLockPending,
   readInstallationBinding,
   setRefreshToken,
   setOfflineAuthorizationRecord,
@@ -482,6 +486,102 @@ test('offline authorization records are strict, account-scoped, and cleared with
   );
 });
 
+test('offline authorization high-water advances only when the stored lease record still matches', async () => {
+  const storageKey = `gc.v1.${namespace}.offline-authorization`;
+  const record = {
+    formatVersion: 1 as const,
+    compactLease: `header.payload.${'s'.repeat(260)}`,
+    highWaterServerTimeMs: 1_900_000_000_000,
+    anchoredWallClockMs: 1_800_000_000_000,
+  };
+  const replacement = {
+    ...record,
+    highWaterServerTimeMs: record.highWaterServerTimeMs + 30_000,
+    anchoredWallClockMs: record.anchoredWallClockMs + 30_000,
+  };
+  let stored: string | null = JSON.stringify(record);
+  jest.mocked(SecureStore.getItemAsync).mockImplementation(async (key, options) => {
+    if (key === storageKey && options) return stored;
+    if (key === storageKey) return null;
+    if (key === 'gc.v1.active-namespace') return namespace;
+    if (key === 'gc.v1.namespaces') return JSON.stringify([namespace]);
+    return null;
+  });
+  jest.mocked(SecureStore.setItemAsync).mockImplementation(async (key, value, options) => {
+    if (key === storageKey && options) stored = value;
+  });
+
+  await expect(compareAndSetOfflineAuthorizationRecord(
+    namespace,
+    record,
+    replacement,
+  )).resolves.toBe(true);
+  expect(stored).toBe(JSON.stringify(replacement));
+
+  await expect(compareAndSetOfflineAuthorizationRecord(
+    namespace,
+    record,
+    { ...replacement, highWaterServerTimeMs: replacement.highWaterServerTimeMs + 1 },
+  )).resolves.toBe(false);
+  expect(stored).toBe(JSON.stringify(replacement));
+});
+
+test('logout deletion cannot be overtaken by an in-flight lease high-water advance', async () => {
+  const storageKey = `gc.v1.${namespace}.offline-authorization`;
+  const record = {
+    formatVersion: 1 as const,
+    compactLease: `header.payload.${'s'.repeat(260)}`,
+    highWaterServerTimeMs: 1_900_000_000_000,
+    anchoredWallClockMs: 1_800_000_000_000,
+  };
+  const replacement = {
+    ...record,
+    highWaterServerTimeMs: record.highWaterServerTimeMs + 30_000,
+    anchoredWallClockMs: record.anchoredWallClockMs + 30_000,
+  };
+  let hardened: string | null = JSON.stringify(record);
+  let legacy: string | null = null;
+  let releaseWrite!: () => void;
+  let markWriteStarted!: () => void;
+  const writeGate = new Promise<void>((resolve) => {
+    releaseWrite = resolve;
+  });
+  const writeStarted = new Promise<void>((resolve) => {
+    markWriteStarted = resolve;
+  });
+  jest.mocked(SecureStore.getItemAsync).mockImplementation(async (key, options) => {
+    if (key === storageKey) return options ? hardened : legacy;
+    if (key === 'gc.v1.active-namespace') return namespace;
+    if (key === 'gc.v1.namespaces') return JSON.stringify([namespace]);
+    return null;
+  });
+  jest.mocked(SecureStore.setItemAsync).mockImplementation(async (key, value, options) => {
+    if (key !== storageKey) return;
+    if (!options) {
+      legacy = value;
+      return;
+    }
+    markWriteStarted();
+    await writeGate;
+    hardened = value;
+  });
+  jest.mocked(SecureStore.deleteItemAsync).mockImplementation(async (key, options) => {
+    if (key !== storageKey) return;
+    if (options) hardened = null;
+    else legacy = null;
+  });
+
+  const advance = compareAndSetOfflineAuthorizationRecord(namespace, record, replacement);
+  await writeStarted;
+  const logoutDelete = clearNamespaceAuthentication(namespace);
+  releaseWrite();
+
+  await expect(advance).resolves.toBe(true);
+  await expect(logoutDelete).resolves.toBeUndefined();
+  expect(hardened).toBeNull();
+  expect(legacy).toBeNull();
+});
+
 test('a cleanup tombstone survives a correlated SecureStore outage via app-private storage', async () => {
   jest.mocked(SecureStore.setItemAsync).mockRejectedValue(new Error('keychain write unavailable'));
 
@@ -514,6 +614,33 @@ test('cleanup acknowledgement requires both durable replicas to clear', async ()
   fileSystemControls().__mockPrivateFileFailures.write = true;
 
   await expect(clearLocalCleanupPending(namespace)).rejects.toThrow(
+    'private file write unavailable',
+  );
+});
+
+test('an authentication lock survives a keychain outage without becoming a destructive purge', async () => {
+  jest.mocked(SecureStore.setItemAsync).mockRejectedValue(new Error('keychain write unavailable'));
+
+  await expect(markAuthenticationLockPending(namespace)).resolves.toBeUndefined();
+  expect(await new File(Paths.document, '.gc-pending-auth-lock-v1.json').text()).toBe(
+    JSON.stringify([namespace]),
+  );
+
+  jest.mocked(SecureStore.getItemAsync).mockRejectedValue(new Error('keychain read unavailable'));
+  await expect(getPendingAuthenticationLocks()).resolves.toEqual([namespace]);
+});
+
+test('authentication-lock acknowledgement requires both durable replicas to clear', async () => {
+  jest.mocked(SecureStore.getItemAsync).mockImplementation(async (key) => {
+    if (key === 'gc.v1.pending-auth-lock') return JSON.stringify([namespace]);
+    return null;
+  });
+  const marker = new File(Paths.document, '.gc-pending-auth-lock-v1.json');
+  marker.create({ overwrite: true, intermediates: true });
+  marker.write(JSON.stringify([namespace]));
+  fileSystemControls().__mockPrivateFileFailures.write = true;
+
+  await expect(clearAuthenticationLockPending(namespace)).rejects.toThrow(
     'private file write unavailable',
   );
 });

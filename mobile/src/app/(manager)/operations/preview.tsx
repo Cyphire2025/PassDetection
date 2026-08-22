@@ -122,23 +122,27 @@ export default function ManagerDocumentPreviewScreen() {
       <View style={styles.viewer}>
         {loading ? <ContentLoading label="Loading document preview" /> : null}
         {error ? <ContentError message={error} onRetry={() => void load()} /> : null}
-        {preview?.contentType === 'application/pdf' ? (
-          <Pdf
-            source={{ uri: preview.file.uri, cache: false }}
-            trustAllCerts={false}
-            onLoadComplete={() => setRendererLoaded(true)}
-            onError={() => setError('The PDF viewer could not display this document.')}
-            style={styles.document}
-          />
-        ) : preview ? (
-          <Image
-            source={{ uri: preview.file.uri }}
-            cachePolicy="none"
-            contentFit="contain"
-            onLoad={() => setRendererLoaded(true)}
-            onError={() => setError('The image viewer could not display this document.')}
-            style={styles.document}
-          />
+        {preview ? (
+          <View testID="manager-document-preview-rendered" style={styles.document}>
+            {preview.contentType === 'application/pdf' ? (
+              <Pdf
+                source={{ uri: preview.file.uri, cache: false }}
+                trustAllCerts={false}
+                onLoadComplete={() => setRendererLoaded(true)}
+                onError={() => setError('The PDF viewer could not display this document.')}
+                style={styles.document}
+              />
+            ) : (
+              <Image
+                source={{ uri: preview.file.uri }}
+                cachePolicy="none"
+                contentFit="contain"
+                onLoad={() => setRendererLoaded(true)}
+                onError={() => setError('The image viewer could not display this document.')}
+                style={styles.document}
+              />
+            )}
+          </View>
         ) : null}
         {preview && !rendererLoaded && !error ? (
           <View pointerEvents="none" style={styles.rendererLoading}>

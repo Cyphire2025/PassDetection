@@ -1,8 +1,14 @@
+import { recordMobileMetric } from '@/core/observability/mobile-observability';
+
 import {
   ForegroundRealtimeClient,
   realtimeWebSocketUrl,
   type RealtimeSocketLike,
 } from '../realtime-client';
+
+jest.mock('@/core/observability/mobile-observability', () => ({ recordMobileMetric: jest.fn() }));
+
+const mockedRecordMobileMetric = jest.mocked(recordMobileMetric);
 
 const tripId = '123e4567-e89b-42d3-a456-426614174000';
 const session = { sessionId: 'session-1', accessToken: 'private-access-token' };
@@ -41,7 +47,10 @@ class FakeSocket implements RealtimeSocketLike {
 }
 
 describe('ForegroundRealtimeClient', () => {
-  beforeEach(() => jest.useFakeTimers());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.useFakeTimers();
+  });
   afterEach(() => jest.useRealTimers());
 
   it('connects only in foreground and never places the bearer token in the URL', () => {
@@ -120,6 +129,46 @@ describe('ForegroundRealtimeClient', () => {
     client.stop();
   });
 
+  it('publishes a privacy-safe connection state for degraded-mode UI', () => {
+    const sockets: FakeSocket[] = [];
+    const states: string[] = [];
+    const client = new ForegroundRealtimeClient({
+      url: 'wss://api.example.com/api/v1/mobile/realtime',
+      socketFactory: () => {
+        const socket = new FakeSocket();
+        sockets.push(socket);
+        return socket;
+      },
+      onConnectionStateChange: (state) => states.push(state),
+    });
+
+    client.start({ foreground: true, online: true, session });
+    expect(states.at(-1)).toBe('connecting');
+    sockets[0]?.open();
+    expect(states.at(-1)).toBe('connected');
+    sockets[0]?.remoteClose(1013);
+    expect(states.at(-1)).toBe('reconnecting');
+    expect(mockedRecordMobileMetric).toHaveBeenCalledWith(
+      'realtime_connection',
+      1,
+      { outcome: 'success', trigger: 'realtime' },
+    );
+    expect(mockedRecordMobileMetric).toHaveBeenCalledWith(
+      'realtime_connection_duration',
+      expect.any(Number),
+      { outcome: 'success', trigger: 'realtime' },
+    );
+    expect(mockedRecordMobileMetric).toHaveBeenCalledWith(
+      'realtime_connection',
+      1,
+      { outcome: 'failure', trigger: 'realtime' },
+    );
+    client.stop();
+    expect(states.at(-1)).toBe('idle');
+    expect(JSON.stringify(states)).not.toContain(session.accessToken);
+    expect(JSON.stringify(mockedRecordMobileMetric.mock.calls)).not.toContain(session.accessToken);
+  });
+
   it('requests cursor recovery on authorization close and tears down on account change', () => {
     const sockets: FakeSocket[] = [];
     const full = jest.fn();
@@ -135,6 +184,8 @@ describe('ForegroundRealtimeClient', () => {
     client.start({ foreground: true, online: true, session });
     sockets[0]?.remoteClose(4401);
     expect(full).toHaveBeenCalledTimes(1);
+    jest.runOnlyPendingTimers();
+    expect(sockets).toHaveLength(1);
 
     client.updateLifecycle({
       foreground: true,

@@ -14,9 +14,14 @@ import {
   UsersRound,
   X,
 } from "lucide-react";
-import { Badge, Button, Skeleton } from "@/components/ui";
+import { Badge, Button, Input, Skeleton } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
-import { useGroupAttendanceOverview } from "../hooks/use-operations";
+import { selectUserRole, useAuthStore } from "@/stores/auth.store";
+import {
+  useCompleteManagedAttendanceSession,
+  useCreateManagedAttendanceSession,
+  useGroupAttendanceOverview,
+} from "../hooks/use-operations";
 import type { AttendanceSessionSummary } from "../api/operations.api";
 import {
   OperationsEmptyState,
@@ -28,8 +33,14 @@ import {
 } from "./operations-workspace-ui";
 
 export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
-  const { data, isLoading, error, isFetching } = useGroupAttendanceOverview(groupId);
+  const role = useAuthStore(selectUserRole);
+  const { data, isLoading, error, isFetching, refetch } = useGroupAttendanceOverview(groupId);
+  const closeMutation = useCompleteManagedAttendanceSession();
+  const createMutation = useCreateManagedAttendanceSession();
   const [missingSession, setMissingSession] = useState<AttendanceSessionSummary | null>(null);
+  const [attendanceNotice, setAttendanceNotice] = useState<{ kind: "error" | "success"; message: string } | null>(null);
+  const [activityName, setActivityName] = useState("");
+  const [closeoutExceptionReasons, setCloseoutExceptionReasons] = useState<Record<string, string>>({});
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
   const visibleSessions = useMemo(() => {
@@ -41,9 +52,139 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
       ...session.coordinators.map((coordinator) => coordinator.coordinator_name),
     ].some((value) => value.toLocaleLowerCase().includes(normalized)));
   }, [data?.sessions, deferredQuery]);
-  const activeSessions = (data?.sessions ?? []).filter((session) => session.status !== "completed").length;
+  const openSessions = (data?.sessions ?? []).filter(
+    (session) => session.status === "draft" || session.status === "active",
+  ).length;
   const totalScans = (data?.sessions ?? []).reduce((total, session) => total + session.scanned_count, 0);
   const totalMissing = (data?.sessions ?? []).reduce((total, session) => total + (session.missing_passengers?.length ?? 0), 0);
+  const canCloseActivity = role === "super_admin"
+    || role === "agency_admin"
+    || role === "agency_manager";
+
+  const prepareActivity = async () => {
+    const normalizedName = activityName.trim();
+    if (!canCloseActivity || normalizedName.length < 2 || createMutation.isPending) return;
+    setAttendanceNotice(null);
+    let prepared: Awaited<ReturnType<typeof createMutation.mutateAsync>>;
+    try {
+      prepared = await createMutation.mutateAsync({ groupId, name: normalizedName });
+    } catch {
+      setAttendanceNotice({
+        kind: "error",
+        message: "The attendance activity could not be created. Check the name and try again.",
+      });
+      return;
+    }
+    setActivityName("");
+    try {
+      const refreshed = await refetch();
+      setAttendanceNotice(refreshed.error
+        ? {
+            kind: "error",
+            message: `${prepared.name} is ready, but the latest activity list could not be loaded.`,
+          }
+        : {
+            kind: "success",
+            message: `${prepared.name} is ready. Coordinators can now select its stable activity ID.`,
+          });
+    } catch {
+      setAttendanceNotice({
+        kind: "error",
+        message: `${prepared.name} is ready, but the latest activity list could not be loaded.`,
+      });
+    }
+  };
+
+  const closeForEveryone = async (
+    candidate: AttendanceSessionSummary,
+    requestedExceptionReason?: string,
+  ) => {
+    if (!canCloseActivity || closeMutation.isPending) return;
+    setAttendanceNotice(null);
+
+    const refreshed = await refetch().catch(() => null);
+    if (!refreshed) {
+      setAttendanceNotice({
+        kind: "error",
+        message: "The authoritative server count could not be refreshed, so the activity was not closed.",
+      });
+      return;
+    }
+    const authoritative = refreshed.data?.sessions.find((session) => session.id === candidate.id);
+    if (refreshed.error || !authoritative) {
+      setAttendanceNotice({
+        kind: "error",
+        message: "The authoritative server count could not be refreshed, so the activity was not closed.",
+      });
+      return;
+    }
+    if (authoritative.status !== "active") {
+      setAttendanceNotice({
+        kind: "success",
+        message: "This activity is already closed. The latest server status is now displayed.",
+      });
+      return;
+    }
+
+    const exceptionReason = requestedExceptionReason?.trim().replace(/\s+/g, " ") ?? "";
+    const exceptionRequired = !authoritative.closeout.ready;
+    if (exceptionRequired && (exceptionReason.length < 10 || exceptionReason.length > 500)) {
+      setAttendanceNotice({
+        kind: "error",
+        message: "Enter a specific closeout exception reason between 10 and 500 characters.",
+      });
+      return;
+    }
+
+    const reviewed = window.confirm(
+      exceptionRequired
+        ? authoritative.closeout.active_assignment_count === 0
+          ? `OVERRIDE REQUIRED: no coordinator account is assigned, so no affirmative checkpoint evidence exists. Exception reason: "${exceptionReason}".`
+          : `OVERRIDE REQUIRED: ${authoritative.closeout.blocked_assignment_count} of ${authoritative.closeout.active_assignment_count} coordinator checkpoints are blocked, missing, or stale, with ${authoritative.closeout.unresolved_count} unresolved scans reported. Exception reason: "${exceptionReason}".`
+        : `The server confirms ${authoritative.scanned_count} of ${authoritative.assigned_count} passengers and all ${authoritative.closeout.active_assignment_count} assigned coordinator checkpoints are recent and clear. Queued scans captured before closure can still reconcile.`,
+    );
+    if (!reviewed) return;
+    const confirmed = window.confirm(
+      exceptionRequired
+        ? "Final warning: close for every coordinator despite coordinator checkpoint blockers and permanently audit this manager exception?"
+        : "Close this shared activity for every coordinator? New camera capture will stop. This does not discard scans already saved before closure.",
+    );
+    if (!confirmed) return;
+
+    try {
+      await closeMutation.mutateAsync({
+        groupId,
+        sessionId: authoritative.id,
+        exceptionReason: exceptionRequired ? exceptionReason : undefined,
+      });
+      if (exceptionRequired) {
+        setCloseoutExceptionReasons((current) => ({ ...current, [authoritative.id]: "" }));
+      }
+    } catch {
+      setAttendanceNotice({ kind: "error", message: "The shared activity could not be closed." });
+      return;
+    }
+
+    try {
+      const afterClose = await refetch();
+      setAttendanceNotice(afterClose.error
+        ? {
+            kind: "error",
+            message: "The shared activity was closed, but the latest status could not be loaded.",
+          }
+        : {
+            kind: "success",
+            message: exceptionRequired
+              ? "The shared activity is closed with an audited manager exception."
+              : "The shared activity is closed for every coordinator.",
+          });
+    } catch {
+      setAttendanceNotice({
+        kind: "error",
+        message: "The shared activity was closed, but the latest status could not be loaded.",
+      });
+    }
+  };
 
   return (
     <div className="flex flex-col gap-5">
@@ -55,7 +196,7 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
         context={(
           <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-xs font-medium text-slate-200">
             <RefreshCw className={`h-3.5 w-3.5 text-sky-300 ${isFetching ? "animate-spin" : ""}`} aria-hidden="true" />
-            Refreshes every 10 seconds
+            {openSessions > 0 ? "Live refresh every 1.5 seconds" : "Idle refresh every 10 seconds"}
           </span>
         )}
         actions={(
@@ -76,13 +217,67 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
         </OperationsErrorNotice>
       )}
 
+      {attendanceNotice && (
+        <div
+          role={attendanceNotice.kind === "error" ? "alert" : "status"}
+          className={`rounded-xl border px-4 py-3 text-sm ${
+            attendanceNotice.kind === "error"
+              ? "border-amber-200 bg-amber-50 text-amber-900"
+              : "border-emerald-200 bg-emerald-50 text-emerald-900"
+          }`}
+        >
+          {attendanceNotice.message}
+        </div>
+      )}
+
+      {canCloseActivity && (
+        <section className="rounded-xl border border-blue-200 bg-blue-50/60 p-4 shadow-sm" aria-labelledby="prepare-attendance-heading">
+          <div className="mb-3">
+            <h2 id="prepare-attendance-heading" className="font-semibold text-slate-950">Prepare attendance activity</h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Create the canonical name and UUID before coordinators scan. Repeating the same open name reuses its stable ID.
+            </p>
+          </div>
+          <form
+            className="flex flex-col gap-3 sm:flex-row sm:items-end"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void prepareActivity();
+            }}
+          >
+            <div className="min-w-0 flex-1">
+              <Input
+                id="managed-attendance-activity-name"
+                label="Activity name"
+                value={activityName}
+                onChange={(event) => setActivityName(event.target.value)}
+                placeholder="Airport reporting count"
+                autoComplete="off"
+                minLength={2}
+                maxLength={160}
+                required
+                disabled={createMutation.isPending}
+              />
+            </div>
+            <Button
+              type="submit"
+              className="h-11 sm:min-w-44"
+              disabled={activityName.trim().length < 2 || createMutation.isPending}
+              isLoading={createMutation.isPending}
+            >
+              Create activity
+            </Button>
+          </form>
+        </section>
+      )}
+
       <OperationsSummaryStrip label="Attendance activity summary">
         {isLoading ? (
           Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-[72px] rounded-none" />)
         ) : (
           <>
             <OperationsSummaryItem label="Activities" value={data?.sessions.length ?? 0} helper="attendance sessions" icon={Activity} />
-            <OperationsSummaryItem label="Live now" value={activeSessions} helper="not completed" icon={Clock3} tone={activeSessions > 0 ? "attention" : "default"} />
+            <OperationsSummaryItem label="Open now" value={openSessions} helper="draft or active" icon={Clock3} tone={openSessions > 0 ? "attention" : "default"} />
             <OperationsSummaryItem label="Scans recorded" value={totalScans.toLocaleString()} helper="across activities" icon={CheckCircle2} />
             <OperationsSummaryItem label="Missing" value={totalMissing.toLocaleString()} helper="across activities" icon={UsersRound} tone={totalMissing > 0 ? "attention" : "success"} />
           </>
@@ -108,8 +303,10 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
           </div>
         ) : !data || data.sessions.length === 0 ? (
           <OperationsEmptyState
-            title="No attendance activity has started"
-            description="When a coordinator starts an activity for this group, live progress and missing passengers will appear here automatically."
+            title="No attendance activity is prepared"
+            description={canCloseActivity
+              ? "Create the canonical activity above before coordinators begin scanning."
+              : "An authorized manager or administrator must create the canonical activity before scanning begins."}
           />
         ) : visibleSessions.length === 0 ? (
           <OperationsEmptyState
@@ -141,11 +338,114 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
                       <Button type="button" variant={missingCount > 0 ? "secondary" : "ghost"} size="sm" disabled={missingCount === 0} onClick={() => setMissingSession(session)}>
                         <Users className="h-4 w-4" aria-hidden="true" /> Missing ({missingCount})
                       </Button>
+                      {canCloseActivity && session.status === "active" && session.closeout.ready && (
+                        <Button
+                          type="button"
+                          variant="danger"
+                          size="sm"
+                          disabled={closeMutation.isPending}
+                          isLoading={closeMutation.isPending && closeMutation.variables?.sessionId === session.id}
+                          onClick={() => void closeForEveryone(session)}
+                        >
+                          Close after clear checkpoints
+                        </Button>
+                      )}
                     </div>
                   </div>
                   <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100" aria-label={`${progress}% complete`} role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
                     <div className={`h-full rounded-full transition-[width] ${progress === 100 ? "bg-emerald-500" : "bg-blue-600"}`} style={{ width: `${progress}%` }} />
                   </div>
+                  {session.status === "active" && (
+                    <div className={`mt-4 rounded-xl border p-3 ${
+                      session.closeout.ready
+                        ? "border-emerald-200 bg-emerald-50/70"
+                        : "border-amber-300 bg-amber-50"
+                    }`}>
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div>
+                          <p className={`text-sm font-semibold ${session.closeout.ready ? "text-emerald-900" : "text-amber-950"}`}>
+                            {session.closeout.ready
+                              ? "Coordinator checkpoints clear"
+                              : "Coordinator checkpoints blocked"}
+                          </p>
+                          <p className="mt-1 text-xs leading-5 text-slate-700">
+                            {session.closeout.ready
+                              ? `${session.closeout.ready_assignment_count} of ${session.closeout.active_assignment_count} assigned coordinators published a recent zero-queue checkpoint.`
+                              : session.closeout.active_assignment_count === 0
+                                ? "No coordinator account is assigned. Closing requires an audited manager exception."
+                                : `${session.closeout.blocked_assignment_count} of ${session.closeout.active_assignment_count} coordinators are missing, stale, or nonzero; ${session.closeout.unresolved_count} unresolved scans are reported.`}
+                          </p>
+                        </div>
+                        <span className="rounded-full border border-current/20 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                          Fresh for {session.closeout.checkpoint_ttl_seconds}s
+                        </span>
+                      </div>
+                      {session.closeout.coordinators.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {session.closeout.coordinators.map((coordinator) => (
+                            <span
+                              key={coordinator.coordinator_id}
+                              className={`rounded-lg border px-2.5 py-1.5 text-xs ${
+                                coordinator.state === "ready"
+                                  ? "border-emerald-200 bg-white text-emerald-800"
+                                  : "border-amber-300 bg-white text-amber-900"
+                              }`}
+                            >
+                              <span className="font-semibold">{coordinator.coordinator_name}</span>
+                              {` · ${coordinator.state}`}
+                              {coordinator.pending_count
+                                + coordinator.sending_count
+                                + coordinator.retryable_count
+                                + coordinator.needs_review_count
+                                + coordinator.unreviewed_rejected_count > 0
+                                ? ` · ${coordinator.pending_count + coordinator.sending_count + coordinator.retryable_count + coordinator.needs_review_count + coordinator.unreviewed_rejected_count} unresolved`
+                                : ""}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {canCloseActivity && !session.closeout.ready && (
+                        <div className="mt-4 rounded-lg border border-red-200 bg-white p-3">
+                          <p className="text-sm font-semibold text-red-900">Manager exception</p>
+                          <p className="mt-1 text-xs leading-5 text-red-800">
+                            Use only when an operational emergency requires closing despite missing, stale, or nonzero coordinator evidence. The reason and full count snapshot are permanently audited.
+                            Enter an operational reason only; do not include passenger names, QR values, passport details, or other personal information.
+                          </p>
+                          <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
+                            <Input
+                              id={`closeout-exception-${session.id}`}
+                              label="Exception reason"
+                              value={closeoutExceptionReasons[session.id] ?? ""}
+                              onChange={(event) => setCloseoutExceptionReasons((current) => ({
+                                ...current,
+                                [session.id]: event.target.value,
+                              }))}
+                              minLength={10}
+                              maxLength={500}
+                              autoComplete="off"
+                              placeholder="Document the specific emergency and approval"
+                              disabled={closeMutation.isPending}
+                            />
+                            <Button
+                              type="button"
+                              variant="danger"
+                              disabled={
+                                closeMutation.isPending
+                                || (closeoutExceptionReasons[session.id]?.trim().length ?? 0) < 10
+                              }
+                              isLoading={closeMutation.isPending && closeMutation.variables?.sessionId === session.id}
+                              onClick={() => void closeForEveryone(
+                                session,
+                                closeoutExceptionReasons[session.id],
+                              )}
+                            >
+                              Override and close
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                   {session.coordinators.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {session.coordinators.map((coordinator) => (

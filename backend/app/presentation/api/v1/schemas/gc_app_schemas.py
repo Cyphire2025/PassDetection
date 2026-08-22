@@ -43,22 +43,18 @@ class ClientManagerCreateRequest(BaseModel):
     phone_number: str = Field(min_length=8, max_length=64)
     organization_id: uuid.UUID
     group_ids: list[uuid.UUID] = Field(default_factory=list, max_length=100)
-    temporary_password: str | None = Field(default=None, min_length=10, max_length=256)
-    return_temporary_password_once: bool = False
-    invitation_flow: bool = False
-    return_activation_token_once: bool = False
-    # Retained for rolling-client compatibility. Direct-password accounts are
-    # immediately usable, so the server intentionally normalizes this to false.
-    force_password_change: bool = False
+    temporary_password: None = None
+    return_temporary_password_once: Literal[False] = False
+    invitation_flow: Literal[True] = True
+    return_activation_token_once: Literal[True] = True
+    force_password_change: Literal[False] = False
+
+    model_config = {"extra": "forbid"}
 
     @model_validator(mode="after")
     def require_explicit_secret_return(self) -> ClientManagerCreateRequest:
-        if self.invitation_flow and not self.return_activation_token_once:
-            raise ValueError(
-                "Invitation flow requires one-time activation-token return until a delivery provider is configured"
-            )
-        if self.invitation_flow and self.temporary_password is not None:
-            raise ValueError("Invitation flow and a temporary password are mutually exclusive")
+        if self.temporary_password is not None or self.return_temporary_password_once:
+            raise ValueError("Client Managers must set their own password through activation")
         return self
 
 
@@ -81,11 +77,9 @@ class ClientManagerForcePasswordChangeRequest(BaseModel):
 
 
 class ClientManagerPasswordResetRequest(BaseModel):
-    temporary_password: str | None = Field(default=None, min_length=10, max_length=256)
-    return_temporary_password_once: bool = False
-    # Retained for rolling-client compatibility; password resets no longer
-    # create a restricted first-login session.
-    force_password_change: bool = False
+    issue_activation_link: Literal[True] = True
+
+    model_config = {"extra": "forbid"}
 
 
 class ClientManagerAssignmentRequest(BaseModel):

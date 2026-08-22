@@ -1,9 +1,9 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { Plus, UserPlus, Users, X } from "lucide-react";
+import { FormEvent, useId, useRef, useState } from "react";
+import { Check, Copy, Plus, UserPlus, Users, X } from "lucide-react";
 import { PageHeader } from "@/components/shared";
-import { Badge, Button, Card, CardContent, Input, PasswordInput, Skeleton } from "@/components/ui";
+import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
 import { formatDateTime } from "@/lib/utils/format";
 import { selectUserRole, useAuthStore } from "@/stores/auth.store";
 import {
@@ -13,6 +13,7 @@ import {
 } from "@/features/operations/hooks/use-operations";
 import type { ManagerAccount } from "@/features/operations/api/operations.api";
 import { ManagedAccountControls } from "@/features/operations/components/managed-account-controls";
+import { useModalKeyboardBoundary } from "@/components/ui/modal";
 
 export default function AdminPage() {
   const { data: managers = [], isLoading, error } = useManagers();
@@ -20,23 +21,22 @@ export default function AdminPage() {
   const canDeleteManagers = role === "super_admin";
   const createManager = useCreateManager();
   const deleteManager = useDeleteManager();
-  const [form, setForm] = useState({ full_name: "", email: "", password: "" });
+  const [form, setForm] = useState({ full_name: "", email: "" });
   const [formError, setFormError] = useState<string | null>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [managerDeleteTarget, setManagerDeleteTarget] = useState<ManagerAccount | null>(null);
   const [deleteOwnedData, setDeleteOwnedData] = useState(false);
+  const [issuedInvitation, setIssuedInvitation] = useState<ManagerAccount | null>(null);
+  const createManagerButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFormError(null);
-    if (form.password.length < 10 || !/[A-Z]/.test(form.password) || !/[a-z]/.test(form.password) || !/\d/.test(form.password)) {
-      setFormError("Use at least 10 characters with uppercase, lowercase, and a number.");
-      return;
-    }
-
     try {
-      await createManager.mutateAsync(form);
-      setForm({ full_name: "", email: "", password: "" });
+      const manager = await createManager.mutateAsync(form);
+      if (!manager.activation_token) throw new Error("Activation token was not returned");
+      setIssuedInvitation(manager);
+      setForm({ full_name: "", email: "" });
       setShowCreateDialog(false);
     } catch {
       setFormError("Could not create manager. Check whether the email already exists.");
@@ -49,7 +49,7 @@ export default function AdminPage() {
         title="Admin"
         description="Create manager accounts for operational access across groups."
         actions={(
-          <Button type="button" onClick={() => setShowCreateDialog(true)}>
+          <Button ref={createManagerButtonRef} type="button" onClick={() => setShowCreateDialog(true)}>
             <Plus className="h-4 w-4" aria-hidden="true" />
             Create Manager
           </Button>
@@ -117,8 +117,8 @@ export default function AdminPage() {
                           {manager.last_login_at ? formatDateTime(manager.last_login_at) : "Never"}
                         </td>
                         <td className="px-5 py-4">
-                          <Badge variant={manager.is_active ? "success" : "outline"} dot>
-                            {manager.is_active ? "Active" : "Inactive"}
+                          <Badge variant={manager.credential_state === "invited" ? "warning" : manager.is_active ? "success" : "outline"} dot>
+                            {manager.credential_state === "invited" ? "Invited" : manager.is_active ? "Active" : "Inactive"}
                           </Badge>
                         </td>
                         <td className="px-6 py-4">
@@ -127,6 +127,7 @@ export default function AdminPage() {
                               accountId={manager.id}
                               accountName={manager.full_name}
                               isActive={manager.is_active}
+                              allowMfaReset
                               deleteLabel="Delete manager"
                               deleteDisabled={!canDeleteManagers || deleteManager.isPending}
                               onDelete={canDeleteManagers ? () => {
@@ -174,6 +175,16 @@ export default function AdminPage() {
           onSubmit={handleSubmit}
         />
       )}
+
+      {issuedInvitation?.activation_token && (
+        <ManagerInvitationDialog
+          manager={issuedInvitation}
+          onClose={() => {
+            setIssuedInvitation(null);
+            window.requestAnimationFrame(() => createManagerButtonRef.current?.focus());
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -186,15 +197,32 @@ function CreateManagerDialog({
   onFormChange,
   onSubmit,
 }: {
-  form: { full_name: string; email: string; password: string };
+  form: { full_name: string; email: string };
   formError: string | null;
   isLoading: boolean;
   onClose: () => void;
-  onFormChange: React.Dispatch<React.SetStateAction<{ full_name: string; email: string; password: string }>>;
+  onFormChange: React.Dispatch<React.SetStateAction<{ full_name: string; email: string }>>;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  const descriptionId = useId();
+  const handleDialogKeyDown = useModalKeyboardBoundary({
+    dialogRef,
+    isOpen: true,
+    canClose: !isLoading,
+    onClose,
+  });
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">
+    <div
+      ref={dialogRef}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+      aria-describedby={descriptionId}
+      onKeyDown={handleDialogKeyDown}
+    >
       <Card className="w-full max-w-lg overflow-hidden shadow-2xl">
         <CardContent className="space-y-5 p-6">
           <div className="flex items-start justify-between gap-4">
@@ -203,8 +231,8 @@ function CreateManagerDialog({
                 <UserPlus className="h-5 w-5" />
               </span>
               <div className="min-w-0">
-                <h2 className="text-base font-semibold text-slate-900">Create Manager</h2>
-                <p className="mt-0.5 text-sm leading-5 text-slate-500">Managers can create groups and work on assigned groups.</p>
+                <h2 id={titleId} className="text-base font-semibold text-slate-900">Create Manager</h2>
+                <p id={descriptionId} className="mt-0.5 text-sm leading-5 text-slate-500">Managers can create groups and work on assigned groups.</p>
               </div>
             </div>
             <button type="button" className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700" onClick={onClose}>
@@ -220,6 +248,7 @@ function CreateManagerDialog({
               value={form.full_name}
               onChange={(event) => onFormChange((current) => ({ ...current, full_name: event.target.value }))}
               required
+              data-dialog-initial-focus
             />
             <Input
               label="Email"
@@ -229,15 +258,8 @@ function CreateManagerDialog({
               onChange={(event) => onFormChange((current) => ({ ...current, email: event.target.value }))}
               required
             />
-            <PasswordInput
-              label="Temporary password"
-              placeholder="Minimum 10 characters"
-              value={form.password}
-              onChange={(event) => onFormChange((current) => ({ ...current, password: event.target.value }))}
-              required
-            />
-            <p className="text-xs leading-5 text-slate-500">
-              Password must include uppercase, lowercase, and a number. It can be reset later by an admin.
+            <p className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-xs leading-5 text-blue-800">
+              A single-use activation link will be shown once. The manager chooses their own password and enrolls MFA before a dashboard session is issued.
             </p>
             {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
             <div className="flex justify-end gap-3 pt-1">
@@ -251,6 +273,58 @@ function CreateManagerDialog({
       </Card>
     </div>
   );
+}
+
+function ManagerInvitationDialog({
+  manager,
+  onClose,
+}: {
+  manager: ManagerAccount;
+  onClose: () => void;
+}) {
+  const [copied, setCopied] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  const link = manager.activation_token ? managerActivationLink(manager.activation_token) : "";
+  const handleDialogKeyDown = useModalKeyboardBoundary({
+    dialogRef,
+    isOpen: true,
+    canClose: true,
+    onClose,
+  });
+
+  return (
+    <div ref={dialogRef} className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby={titleId} onKeyDown={handleDialogKeyDown}>
+      <Card className="w-full max-w-lg overflow-hidden shadow-2xl">
+        <CardContent className="space-y-5 p-6">
+          <div>
+            <h2 id={titleId} className="text-base font-semibold text-slate-900">Manager invitation created</h2>
+            <p className="mt-1 text-sm leading-6 text-slate-600">
+              {manager.full_name} must use this single-use link within seven days. The raw link is not stored in the dashboard.
+            </p>
+          </div>
+          <div className="break-all rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono text-xs text-slate-800">{link}</div>
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="secondary" onClick={onClose} data-dialog-initial-focus>Done</Button>
+            <Button
+              type="button"
+              leftIcon={copied ? <Check className="h-4 w-4" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />}
+              onClick={() => void navigator.clipboard.writeText(link).then(() => setCopied(true))}
+            >
+              {copied ? "Copied" : "Copy link"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function managerActivationLink(token: string): string {
+  if (typeof window === "undefined") return token;
+  const url = new URL("/activate", window.location.origin);
+  url.searchParams.set("token", token);
+  return url.toString();
 }
 
 function DeleteManagerDialog({

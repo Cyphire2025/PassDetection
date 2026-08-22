@@ -66,6 +66,19 @@ test('enters the cached workspace after a transient sync failure and schedules h
   expect(mockRefreshAttendanceSessions).toHaveBeenCalledTimes(1);
 });
 
+test('does not report ready when neither server nor cached attendance activities are available', async () => {
+  mockRequestSync.mockResolvedValue({ results: [], failures: [] });
+  const unavailable = new TypeError('Network request failed');
+  mockRefreshAttendanceSessions.mockRejectedValueOnce(unavailable);
+  const onProgress = jest.fn();
+
+  await expect(preloadCoordinatorTrip(TRIP, onProgress)).rejects.toBe(unavailable);
+
+  expect(onProgress).not.toHaveBeenCalledWith(expect.objectContaining({
+    progress: 1,
+  }));
+});
+
 test('fails closed when the server rejects the authenticated trip boundary', async () => {
   const denied = new ApiError('Trip access was revoked.', 403, 'AUTHORIZATION_ERROR', null);
   mockRequestSync.mockRejectedValue(denied);

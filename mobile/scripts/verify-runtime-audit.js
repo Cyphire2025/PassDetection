@@ -2,14 +2,6 @@
 
 const { spawnSync } = require('node:child_process');
 
-// These advisories currently enter through Metro's build-time image inspector.
-// They are not embedded in the native application runtime, and repository assets
-// are trusted inputs. The exception expires so it cannot become permanent policy.
-const ALLOWED_BUILD_TIME_ADVISORIES = new Set([
-  'https://github.com/advisories/GHSA-5p2g-fcmc-qvqq',
-  'https://github.com/advisories/GHSA-w3rx-r6r6-pgpr',
-]);
-const EXCEPTION_EXPIRES_AT = Date.parse('2026-12-01T00:00:00Z');
 const ENFORCED_SEVERITIES = new Set(['high', 'critical']);
 
 function collectAdvisoryUrls(vulnerabilityName, vulnerabilities, visited = new Set()) {
@@ -46,12 +38,7 @@ function findUnexpectedVulnerabilities(report) {
     }
 
     const advisoryUrls = [...collectAdvisoryUrls(name, vulnerabilities)];
-    if (
-      advisoryUrls.length === 0 ||
-      advisoryUrls.some((url) => !ALLOWED_BUILD_TIME_ADVISORIES.has(url))
-    ) {
-      unexpected.push({ name, advisoryUrls });
-    }
+    unexpected.push({ name, advisoryUrls });
   }
 
   return unexpected;
@@ -110,28 +97,7 @@ function main() {
     throw new Error(`Unexpected high/critical runtime audit findings:\n${details}`);
   }
 
-  const activeAllowedAdvisories = new Set();
-  for (const name of Object.keys(report.vulnerabilities ?? {})) {
-    for (const url of collectAdvisoryUrls(name, report.vulnerabilities)) {
-      if (ALLOWED_BUILD_TIME_ADVISORIES.has(url)) {
-        activeAllowedAdvisories.add(url);
-      }
-    }
-  }
-
-  if (activeAllowedAdvisories.size > 0 && Date.now() >= EXCEPTION_EXPIRES_AT) {
-    throw new Error(
-      'The temporary Metro image-size audit exception expired. Re-evaluate the Expo-supported dependency set before releasing.',
-    );
-  }
-
-  if (activeAllowedAdvisories.size > 0) {
-    console.warn(
-      `Runtime audit passed with ${activeAllowedAdvisories.size} time-bounded Metro build-time advisory exception(s).`,
-    );
-  } else {
-    console.log('Runtime audit passed with no high or critical findings.');
-  }
+  console.log('Runtime audit passed with no high or critical findings.');
 }
 
 if (require.main === module) {

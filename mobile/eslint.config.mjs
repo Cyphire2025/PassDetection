@@ -15,7 +15,7 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-console': ['error', { allow: ['warn', 'error'] }],
+      'no-console': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-floating-promises': 'error',
     },

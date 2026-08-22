@@ -17,7 +17,10 @@ export const EMPTY_OPTIMISTIC_ATTENDANCE_COUNT: OptimisticAttendanceCount = {
 };
 
 export function attendanceScanTimestamp(): number {
-  return Date.now();
+  const monotonicTime = globalThis.performance?.now();
+  // This value exists only for the in-memory rapid-repeat debounce. Queued
+  // attendance evidence obtains its timestamp from the signed trusted clock.
+  return Number.isFinite(monotonicTime) ? monotonicTime : 0;
 }
 
 export function isRapidRepeatScan(

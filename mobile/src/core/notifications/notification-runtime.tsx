@@ -5,6 +5,7 @@ import { AppState } from 'react-native';
 
 import { useSessionStore } from '@/core/auth/session-store';
 import { isDemoMode } from '@/core/demo/demo-mode';
+import { recordMobileMetric } from '@/core/observability/mobile-observability';
 import {
   getHandledNotificationResponse,
   setHandledNotificationResponse,
@@ -19,7 +20,6 @@ import {
   notificationContentData,
   notificationData,
   invalidateCurrentPushRegistration,
-  NotificationRegistrationError,
   registerPushDevice,
 } from './notification-service';
 import {
@@ -46,13 +46,18 @@ export function NotificationRuntime() {
     if (!sessionId || networkMode !== 'online' || demoMode || registrationInFlight.current) return;
     const operation = registerPushDevice()
       .then((registered) => {
-        if (!registered) console.warn('[notifications] permission not granted');
+        recordMobileMetric('push_registration', 1, {
+          outcome: registered ? 'success' : 'cancelled',
+          trigger: 'foreground',
+        });
       })
-      .catch((error: unknown) => {
-        const code = error instanceof NotificationRegistrationError
-          ? error.code
-          : 'PUSH_REGISTRATION_FAILED';
-        console.warn('[notifications] registration deferred', { code });
+      .catch(() => {
+        // Provider-specific errors deliberately stay local; the metric is
+        // low-cardinality and contains no token, account, or device identity.
+        recordMobileMetric('push_registration', 1, {
+          outcome: 'failure',
+          trigger: 'foreground',
+        });
       })
       .then(async () => {
         const trips = await localTrips();

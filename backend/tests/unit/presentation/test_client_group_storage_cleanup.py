@@ -7,6 +7,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from fastapi import HTTPException
 
+from app.application.platform_policies import PlatformPolicies
 from app.domain.entities.entities import ClientGroup
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.client_group_repository import (
@@ -76,9 +77,6 @@ async def test_data_removal_deletes_submissions_before_qualifier_rows() -> None:
         agency_id=group.agency_id,
         email="admin@example.com",
     )
-    storage = SimpleNamespace(
-        delete_files=AsyncMock(return_value=5),
-    )
     derived_key = "passport-crops/group/front/1.jpg"
     edit_source_key = "passport-edits/group/photo/1.jpg"
 
@@ -98,8 +96,12 @@ async def test_data_removal_deletes_submissions_before_qualifier_rows() -> None:
             AsyncMock(return_value=None),
         ),
         patch(
-            "app.presentation.api.v1.routes.client_groups.MinioStorageRepository",
-            return_value=storage,
+            "app.presentation.api.v1.routes.client_groups.stage_storage_cleanup_jobs",
+            return_value=(SimpleNamespace(object_count=6),),
+        ) as stage_cleanup,
+        patch(
+            "app.presentation.api.v1.routes.client_groups.PlatformPolicyRepository.load",
+            AsyncMock(return_value=PlatformPolicies(passport_data_retention_days=90)),
         ),
         patch.object(
             PassportImageCropRepository,
@@ -124,15 +126,19 @@ async def test_data_removal_deletes_submissions_before_qualifier_rows() -> None:
             session=session,  # type: ignore[arg-type]
         )
 
-    storage.delete_files.assert_awaited_once_with(
-        [
+    stage_cleanup.assert_called_once_with(
+        session,
+        agency_id=group.agency_id,
+        source="passport_submission_delete",
+        context_id=f"group:{group.id}",
+        storage_keys=[
             "front/original.jpg",
             "front/thumbnail.jpg",
             "back/original.jpg",
             "visa/original.jpg",
             derived_key,
             edit_source_key,
-        ]
+        ],
     )
     statements = [str(call.args[0]) for call in session.execute.await_args_list]
     passport_delete = next(
@@ -147,6 +153,8 @@ async def test_data_removal_deletes_submissions_before_qualifier_rows() -> None:
     )
     assert passport_delete < qualifier_delete
     assert result["deleted_qualifier_selections"] == 1
+    assert result["deleted_storage_objects"] == 0
+    assert result["storage_cleanup_deferred"] is True
 
 
 @pytest.mark.asyncio
@@ -179,7 +187,7 @@ async def test_permanent_group_delete_blocks_active_roster_decisions() -> None:
             AsyncMock(return_value=None),
         ),
         patch(
-            "app.presentation.api.v1.routes.client_groups.MinioStorageRepository"
+            "app.presentation.api.v1.routes.client_groups.stage_storage_cleanup_jobs"
         ) as storage_factory,
         pytest.raises(HTTPException) as caught,
     ):
@@ -194,3 +202,49 @@ async def test_permanent_group_delete_blocks_active_roster_decisions() -> None:
     assert "Restore all active replacement" in str(caught.value.detail)
     storage_factory.assert_not_called()
     assert session.execute.await_count == 1
+
+
+@pytest.mark.asyncio
+async def test_permanent_group_data_removal_cannot_bypass_legal_hold() -> None:
+    group = ClientGroup.create(
+        name="Held Delete Group",
+        token="held-delete-group-token",
+        agency_id=uuid.uuid4(),
+        created_by_user_id=uuid.uuid4(),
+    )
+    group.archive()
+    group.passport_legal_hold = True
+    group.passport_legal_hold_reason = "Regulatory investigation"
+    group.passport_legal_hold_set_at = group.closed_at
+    session = SimpleNamespace(execute=AsyncMock())
+    current_user = SimpleNamespace(
+        id=uuid.uuid4(),
+        agency_id=group.agency_id,
+        email="admin@example.com",
+    )
+
+    with (
+        patch.object(
+            ClientGroupRepository,
+            "get_by_id",
+            AsyncMock(return_value=group),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.client_groups.AuthorizationPolicy.require_delete_data",
+            AsyncMock(return_value=None),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.client_groups.stage_storage_cleanup_jobs"
+        ) as stage_cleanup,
+        pytest.raises(HTTPException) as caught,
+    ):
+        await permanently_delete_client_group(
+            link_id=group.id,
+            retain_records=False,
+            current_user=current_user,  # type: ignore[arg-type]
+            session=session,  # type: ignore[arg-type]
+        )
+
+    assert caught.value.status_code == 409
+    stage_cleanup.assert_not_called()
+    session.execute.assert_not_awaited()

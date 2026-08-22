@@ -73,3 +73,6 @@ asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 addopts = "--cov=app --cov-report=term-missing --cov-report=xml"
 filterwarnings = ["error", "ignore::DeprecationWarning"]
+markers = [
+    "service_integration: requires isolated PostgreSQL, Redis, MinIO, and Celery services",
+]

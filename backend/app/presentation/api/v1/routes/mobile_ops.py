@@ -52,7 +52,6 @@ from app.infrastructure.database.gc_mobile_models import (
 from app.infrastructure.database.models import (
     AttendanceRecordModel,
     AttendanceSessionModel,
-    ClientGroupModel,
     DistributedDocumentModel,
     PassengerQRTokenModel,
     PassportSubmissionModel,
@@ -62,6 +61,9 @@ from app.infrastructure.database.models import (
 )
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.qr.approved_passenger_qr_issuer import qr_hash
+from app.infrastructure.repositories.attendance_closeout_repository import (
+    AttendanceCloseoutRepository,
+)
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.routes.mobile_ops_notification_support import (
@@ -114,8 +116,22 @@ from app.presentation.api.v1.routes.mobile_ops_passenger_support import (
 )
 from app.presentation.api.v1.routes.tour_operations import (
     SCANNABLE_ATTENDANCE_STATUSES,
+    _attendance_closeout_audit_metadata,
+    _attendance_closeout_counts,
+    _attendance_scan_is_within_activity_window,
+    _canonical_attendance_activity_admission,
+    _close_shared_attendance_activity,
+    _create_canonical_attendance_activity,
     _insert_canonical_attendance_record,
-    normalize_attendance_activity_name,
+    _load_attendance_closeout_status,
+    _lock_attendance_closeout_group,
+    _require_attendance_closeout_clearance,
+)
+from app.presentation.api.v1.schemas.attendance_closeout_schemas import (
+    AttendanceCloseoutCheckpointRequest,
+    AttendanceCloseoutCheckpointResponse,
+    AttendanceCloseoutStatusResponse,
+    AttendanceCloseRequest,
 )
 from app.presentation.api.v1.schemas.mobile_schemas import (
     MobileAttendanceActionInput,
@@ -985,6 +1001,66 @@ async def list_mobile_manager_attendance_sessions(
     )
 
 
+@router.post(
+    "/manager/groups/{group_id}/attendance/sessions",
+    response_model=MobileAttendanceSessionResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_mobile_manager_attendance_session(
+    group_id: uuid.UUID,
+    body: MobileAttendanceSessionCreateRequest,
+    request: Request,
+    claims: MobileAccessClaims = Depends(require_unrestricted_mobile_claims),
+    session: AsyncSession = Depends(get_db_session),
+) -> MobileAttendanceSessionResponse:
+    trip = await _require_client_manager_trip(session, claims, group_id)
+    attendance_session, outcome = await _create_canonical_attendance_activity(
+        session,
+        agency_id=claims.agency_id,
+        group_id=group_id,
+        name=body.name,
+        created_by_user_id=claims.principal_id,
+    )
+    response = (
+        await _mobile_attendance_session_responses(
+            session,
+            claims=claims,
+            group_id=group_id,
+            attendance_sessions=[attendance_session],
+        )
+    )[0]
+    if outcome != "existing":
+        await append_mobile_sync_change(
+            session,
+            access=trip.access,
+            audience="coordinator",
+            entity_type="attendance_session",
+            entity_id=attendance_session.id,
+            operation="upsert",
+            version=trip.access.manifest_version,
+            changed_by_user_id=claims.principal_id,
+            payload={
+                "resource_path": (
+                    f"/api/v1/mobile/coordinator/groups/{group_id}/attendance/sessions"
+                )
+            },
+        )
+    await AuditLogRepository(session).record(
+        action="mobile.attendance_activity_prepared",
+        entity_type="attendance_session",
+        agency_id=claims.agency_id,
+        user_id=claims.principal_id,
+        entity_id=str(attendance_session.id),
+        ip_address=trusted_client_ip(request),
+        metadata={
+            "group_id": str(group_id),
+            "outcome": outcome,
+            "canonical_session_id": str(attendance_session.id),
+        },
+    )
+    return response
+
+
 async def _list_mobile_attendance_sessions(
     session: AsyncSession,
     *,
@@ -1025,6 +1101,7 @@ async def _list_mobile_attendance_sessions(
     "/coordinator/groups/{group_id}/attendance/sessions",
     response_model=MobileAttendanceSessionResponse,
     status_code=status.HTTP_201_CREATED,
+    deprecated=True,
 )
 async def create_mobile_attendance_session(
     group_id: uuid.UUID,
@@ -1033,69 +1110,45 @@ async def create_mobile_attendance_session(
     session: AsyncSession = Depends(get_db_session),
 ) -> MobileAttendanceSessionResponse:
     await _require_coordinator_trip(session, claims, group_id)
-    display_name = " ".join(body.name.split())
-    normalized_name = normalize_attendance_activity_name(display_name)
-    await _assert_attendance_session_creation_capacity(
+    raise AuthorizationError(
+        "Attendance activities must be created by an authorized Client Manager. "
+        "Select an activity already assigned to this group."
+    )
+
+
+@router.put(
+    "/coordinator/groups/{group_id}/attendance/sessions/{session_id}/closeout-checkpoint",
+    response_model=AttendanceCloseoutCheckpointResponse,
+)
+async def publish_mobile_attendance_closeout_checkpoint(
+    group_id: uuid.UUID,
+    session_id: uuid.UUID,
+    body: AttendanceCloseoutCheckpointRequest,
+    claims: MobileAccessClaims = Depends(require_unrestricted_mobile_claims),
+    session: AsyncSession = Depends(get_db_session),
+) -> AttendanceCloseoutCheckpointResponse:
+    await _require_coordinator_trip(session, claims, group_id)
+    attendance_session = await _mobile_attendance_session(
         session,
         claims=claims,
         group_id=group_id,
-        normalized_name=normalized_name,
+        session_id=session_id,
+        lock="read",
     )
-    now = datetime.now(tz=UTC)
-    candidate_id = uuid.uuid4()
-    inserted_id = (
-        await session.execute(
-            pg_insert(AttendanceSessionModel)
-            .values(
-                id=candidate_id,
-                agency_id=claims.agency_id,
-                group_id=group_id,
-                name=display_name,
-                normalized_name=normalized_name,
-                canonical_session_id=candidate_id,
-                status="active",
-                created_by_user_id=claims.principal_id,
-                created_at=now,
-                updated_at=now,
-                started_at=now,
-            )
-            .on_conflict_do_nothing()
-            .returning(AttendanceSessionModel.id)
-        )
-    ).scalar_one_or_none()
-    attendance_session = (
-        await session.execute(
-            select(AttendanceSessionModel).where(
-                AttendanceSessionModel.id == inserted_id
-                if inserted_id is not None
-                else (
-                    (AttendanceSessionModel.agency_id == claims.agency_id)
-                    & (AttendanceSessionModel.group_id == group_id)
-                    & (AttendanceSessionModel.normalized_name == normalized_name)
-                    & AttendanceSessionModel.status.in_(("draft", "active"))
-                    & (AttendanceSessionModel.id == AttendanceSessionModel.canonical_session_id)
-                )
-            )
-        )
-    ).scalar_one_or_none()
-    if attendance_session is None:
+    if attendance_session.status != "active":
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Attendance activity changed; synchronize and retry",
+            detail="Only an active attendance activity accepts closeout checkpoints",
         )
-    if attendance_session.status == "draft":
-        attendance_session.status = "active"
-        attendance_session.started_at = attendance_session.started_at or now
-        attendance_session.updated_at = now
-        await session.flush()
-    return (
-        await _mobile_attendance_session_responses(
-            session,
-            claims=claims,
-            group_id=group_id,
-            attendance_sessions=[attendance_session],
-        )
-    )[0]
+    checkpoint = await AttendanceCloseoutRepository(session).publish(
+        session_id=attendance_session.id,
+        coordinator_user_id=claims.principal_id,
+        counts=_attendance_closeout_counts(body),
+    )
+    return AttendanceCloseoutCheckpointResponse(
+        **body.model_dump(),
+        reported_at=checkpoint.reported_at,
+    )
 
 
 async def _assert_attendance_session_creation_capacity(
@@ -1105,62 +1158,12 @@ async def _assert_attendance_session_creation_capacity(
     group_id: uuid.UUID,
     normalized_name: str,
 ) -> None:
-    """Serialize new activity admission on the tenant-owned group row.
-
-    Retrying an already-active normalized activity remains idempotent even at
-    capacity. A genuinely new activity is rejected before insertion, and the
-    group lock prevents concurrent coordinators from both admitting the final
-    slot.
-    """
-
-    locked_group_id = await session.scalar(
-        select(ClientGroupModel.id)
-        .where(
-            ClientGroupModel.id == group_id,
-            ClientGroupModel.agency_id == claims.agency_id,
-            ClientGroupModel.deleted_at.is_(None),
-        )
-        .with_for_update()
+    await _canonical_attendance_activity_admission(
+        session,
+        agency_id=claims.agency_id,
+        group_id=group_id,
+        normalized_name=normalized_name,
     )
-    if locked_group_id is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Trip not found")
-
-    existing_id = await session.scalar(
-        select(AttendanceSessionModel.id)
-        .where(
-            AttendanceSessionModel.agency_id == claims.agency_id,
-            AttendanceSessionModel.group_id == group_id,
-            AttendanceSessionModel.normalized_name == normalized_name,
-            AttendanceSessionModel.status.in_(("draft", "active")),
-            AttendanceSessionModel.id == AttendanceSessionModel.canonical_session_id,
-        )
-        .limit(1)
-    )
-    if existing_id is not None:
-        return
-
-    current = int(
-        await session.scalar(
-            select(func.count(AttendanceSessionModel.id)).where(
-                AttendanceSessionModel.agency_id == claims.agency_id,
-                AttendanceSessionModel.group_id == group_id,
-                AttendanceSessionModel.id == AttendanceSessionModel.canonical_session_id,
-            )
-        )
-        or 0
-    )
-    maximum = get_settings().mobile.max_attendance_sessions_per_group
-    if current >= maximum:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail={
-                "code": "ATTENDANCE_SESSION_CAPACITY_REACHED",
-                "message": (
-                    f"This trip supports at most {maximum:,} attendance activities. "
-                    "Archive or remove an existing activity before creating another."
-                ),
-            },
-        )
 
 
 @router.get(
@@ -1350,6 +1353,7 @@ async def _list_mobile_attendance_roster(
 @router.put(
     "/coordinator/groups/{group_id}/attendance/sessions/{session_id}/complete",
     response_model=MobileAttendanceSessionResponse,
+    deprecated=True,
 )
 async def complete_mobile_attendance_session(
     group_id: uuid.UUID,
@@ -1358,6 +1362,55 @@ async def complete_mobile_attendance_session(
     session: AsyncSession = Depends(get_db_session),
 ) -> MobileAttendanceSessionResponse:
     await _require_coordinator_trip(session, claims, group_id)
+    raise AuthorizationError(
+        "Only an authorized Client Manager can close a shared attendance activity"
+    )
+
+
+@router.get(
+    "/manager/groups/{group_id}/attendance/sessions/{session_id}/closeout",
+    response_model=AttendanceCloseoutStatusResponse,
+)
+async def get_mobile_manager_attendance_closeout_status(
+    group_id: uuid.UUID,
+    session_id: uuid.UUID,
+    claims: MobileAccessClaims = Depends(require_unrestricted_mobile_claims),
+    session: AsyncSession = Depends(get_db_session),
+) -> AttendanceCloseoutStatusResponse:
+    await _require_client_manager_trip(session, claims, group_id)
+    attendance_session = await _mobile_attendance_session(
+        session,
+        claims=claims,
+        group_id=group_id,
+        session_id=session_id,
+        lock=False,
+    )
+    return await _load_attendance_closeout_status(
+        session,
+        agency_id=claims.agency_id,
+        group_id=group_id,
+        attendance_session=attendance_session,
+    )
+
+
+@router.put(
+    "/manager/groups/{group_id}/attendance/sessions/{session_id}/complete",
+    response_model=MobileAttendanceSessionResponse,
+)
+async def complete_mobile_manager_attendance_session(
+    group_id: uuid.UUID,
+    session_id: uuid.UUID,
+    request: Request,
+    claims: MobileAccessClaims = Depends(require_unrestricted_mobile_claims),
+    session: AsyncSession = Depends(get_db_session),
+    body: AttendanceCloseRequest = AttendanceCloseRequest(),
+) -> MobileAttendanceSessionResponse:
+    trip = await _require_client_manager_trip(session, claims, group_id)
+    await _lock_attendance_closeout_group(
+        session,
+        agency_id=claims.agency_id,
+        group_id=group_id,
+    )
     attendance_session = await _mobile_attendance_session(
         session,
         claims=claims,
@@ -1365,13 +1418,21 @@ async def complete_mobile_attendance_session(
         session_id=session_id,
         lock=True,
     )
-    if attendance_session.status != "completed":
-        now = datetime.now(tz=UTC)
-        attendance_session.status = "completed"
-        attendance_session.completed_at = now
-        attendance_session.updated_at = now
-        await session.flush()
-    return (
+    closeout: AttendanceCloseoutStatusResponse | None = None
+    exception_used = False
+    if attendance_session.status == "active":
+        closeout = await _load_attendance_closeout_status(
+            session,
+            agency_id=claims.agency_id,
+            group_id=group_id,
+            attendance_session=attendance_session,
+        )
+        exception_used = _require_attendance_closeout_clearance(
+            closeout,
+            exception_reason=body.exception_reason,
+        )
+    changed = await _close_shared_attendance_activity(session, attendance_session)
+    response = (
         await _mobile_attendance_session_responses(
             session,
             claims=claims,
@@ -1379,6 +1440,44 @@ async def complete_mobile_attendance_session(
             attendance_sessions=[attendance_session],
         )
     )[0]
+    if changed:
+        if closeout is None:
+            raise RuntimeError("Attendance closeout evidence was not evaluated")
+        await append_mobile_sync_change(
+            session,
+            access=trip.access,
+            audience="coordinator",
+            entity_type="attendance_session",
+            entity_id=attendance_session.id,
+            operation="upsert",
+            version=trip.access.manifest_version,
+            changed_by_user_id=claims.principal_id,
+            payload={
+                "resource_path": (
+                    f"/api/v1/mobile/coordinator/groups/{group_id}/attendance/sessions"
+                )
+            },
+        )
+        await AuditLogRepository(session).record(
+            action="mobile.attendance_activity_closed",
+            entity_type="attendance_session",
+            agency_id=claims.agency_id,
+            user_id=claims.principal_id,
+            entity_id=str(attendance_session.id),
+            ip_address=trusted_client_ip(request),
+            metadata={
+                "group_id": str(group_id),
+                "server_scanned_count": response.scanned_count,
+                "assigned_count": response.assigned_count,
+                "late_offline_reconciliation_allowed": True,
+                "closeout": _attendance_closeout_audit_metadata(
+                    closeout,
+                    exception_used=exception_used,
+                    exception_reason=body.exception_reason,
+                ),
+            },
+        )
+    return response
 
 
 @router.post(
@@ -1423,12 +1522,9 @@ async def apply_mobile_attendance_actions(
                 reason_code="ATTENDANCE_SESSION_SELECTION_REQUIRED",
             )
             continue
-        if (
-            attendance_session.started_at is not None
-            and action.scanned_at < attendance_session.started_at - _MAX_SCAN_CLOCK_SKEW
-        ) or (
-            attendance_session.completed_at is not None
-            and action.scanned_at > attendance_session.completed_at + _MAX_SCAN_CLOCK_SKEW
+        if not _attendance_scan_is_within_activity_window(
+            attendance_session,
+            action.scanned_at,
         ):
             resolved_results[index] = MobileAttendanceActionResult(
                 client_event_id=action.client_event_id,
@@ -1670,7 +1766,10 @@ async def _attendance_sessions_for_actions(
         rows = list(
             (
                 await session.execute(
-                    statement.where(AttendanceSessionModel.id.in_(requested_ids))
+                    statement
+                    .where(AttendanceSessionModel.id.in_(requested_ids))
+                    .order_by(AttendanceSessionModel.id)
+                    .with_for_update(read=True)
                 )
             ).scalars()
         )
@@ -1680,7 +1779,13 @@ async def _attendance_sessions_for_actions(
         candidates = list(
             (
                 await session.execute(
-                    statement.order_by(AttendanceSessionModel.updated_at.desc()).limit(2)
+                    statement
+                    .order_by(
+                        AttendanceSessionModel.updated_at.desc(),
+                        AttendanceSessionModel.id,
+                    )
+                    .limit(2)
+                    .with_for_update(read=True)
                 )
             ).scalars()
         )
@@ -2310,7 +2415,7 @@ async def _mobile_attendance_session(
     claims: MobileAccessClaims,
     group_id: uuid.UUID,
     session_id: uuid.UUID,
-    lock: bool,
+    lock: bool | Literal["read"],
 ) -> AttendanceSessionModel:
     statement = select(AttendanceSessionModel).where(
         AttendanceSessionModel.id == session_id,
@@ -2318,7 +2423,9 @@ async def _mobile_attendance_session(
         AttendanceSessionModel.agency_id == claims.agency_id,
         AttendanceSessionModel.group_id == group_id,
     )
-    if lock:
+    if lock == "read":
+        statement = statement.with_for_update(read=True)
+    elif lock:
         statement = statement.with_for_update()
     value = (await session.execute(statement)).scalar_one_or_none()
     if value is None:

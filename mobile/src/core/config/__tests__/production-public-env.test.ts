@@ -18,10 +18,15 @@ const validEnvironment = {
   EXPO_PUBLIC_API_URL: 'https://tech.gctravels.com/api/v1',
   EXPO_PUBLIC_APP_ENV: 'production',
   EXPO_PUBLIC_DEMO_MODE: 'false',
+  EXPO_PUBLIC_MAESTRO_ATTENDANCE_FIXTURE: 'false',
   EXPO_PUBLIC_EAS_PROJECT_ID: projectId,
   EXPO_PUBLIC_EXPO_OWNER: 'global-connect-travels',
   EXPO_PUBLIC_UPDATES_URL: `https://u.expo.dev/${projectId}`,
   EXPO_UPDATES_CODE_SIGNING_CERTIFICATE: './private-build-input/certificate.pem',
+  EXPO_PUBLIC_REALTIME_ENABLED: 'true',
+  EXPO_PUBLIC_APP_INTEGRITY_MODE: 'enforce',
+  EXPO_PUBLIC_PLAY_INTEGRITY_CLOUD_PROJECT_NUMBER: '123456789012',
+  GC_APP_ATTEST_ENVIRONMENT: 'production',
   EXPO_PUBLIC_SENTRY_DSN: sentryDsn,
   ...offlineLeaseEnvironment,
 } as const;
@@ -61,6 +66,7 @@ describe('validateProductionPublicEnvironment', () => {
       offlineLeaseAudience: 'gc-mobile-offline',
       offlineLeasePublicKeysJson:
         '{"unit-test-2026-01":"ebVWLo_mVPlAeLES6KmLp5AfhTrmlb7X4OORC60ElmQ"}',
+      realtimeEnabled: true,
       sentryDsn,
     });
   });
@@ -70,7 +76,12 @@ describe('validateProductionPublicEnvironment', () => {
       EXPO_PUBLIC_API_URL: 'https://tech.gctravels.com/api/v1',
       EXPO_PUBLIC_APP_ENV: 'production',
       EXPO_PUBLIC_DEMO_MODE: 'false',
+      EXPO_PUBLIC_MAESTRO_ATTENDANCE_FIXTURE: 'false',
       EXPO_PUBLIC_EAS_PROJECT_ID: projectId,
+      EXPO_PUBLIC_REALTIME_ENABLED: 'true',
+      EXPO_PUBLIC_APP_INTEGRITY_MODE: 'enforce',
+      EXPO_PUBLIC_PLAY_INTEGRITY_CLOUD_PROJECT_NUMBER: '123456789012',
+      GC_APP_ATTEST_ENVIRONMENT: 'production',
       EXPO_PUBLIC_SENTRY_DSN: sentryDsn,
       ...offlineLeaseEnvironment,
     })).toEqual({
@@ -85,6 +96,7 @@ describe('validateProductionPublicEnvironment', () => {
       offlineLeaseAudience: 'gc-mobile-offline',
       offlineLeasePublicKeysJson:
         '{"unit-test-2026-01":"ebVWLo_mVPlAeLES6KmLp5AfhTrmlb7X4OORC60ElmQ"}',
+      realtimeEnabled: true,
       sentryDsn,
     });
   });
@@ -94,7 +106,12 @@ describe('validateProductionPublicEnvironment', () => {
       EXPO_PUBLIC_API_URL: 'https://tech.gctravels.com/api/v1',
       EXPO_PUBLIC_APP_ENV: 'production',
       EXPO_PUBLIC_DEMO_MODE: 'false',
+      EXPO_PUBLIC_MAESTRO_ATTENDANCE_FIXTURE: 'false',
       EXPO_PUBLIC_EAS_PROJECT_ID: projectId,
+      EXPO_PUBLIC_REALTIME_ENABLED: 'true',
+      EXPO_PUBLIC_APP_INTEGRITY_MODE: 'enforce',
+      EXPO_PUBLIC_PLAY_INTEGRITY_CLOUD_PROJECT_NUMBER: '123456789012',
+      GC_APP_ATTEST_ENVIRONMENT: 'production',
       EXPO_PUBLIC_SENTRY_DSN: sentryDsn,
       ...offlineLeaseEnvironment,
     })).toEqual({
@@ -109,6 +126,7 @@ describe('validateProductionPublicEnvironment', () => {
       offlineLeaseAudience: 'gc-mobile-offline',
       offlineLeasePublicKeysJson:
         '{"unit-test-2026-01":"ebVWLo_mVPlAeLES6KmLp5AfhTrmlb7X4OORC60ElmQ"}',
+      realtimeEnabled: true,
       sentryDsn,
     });
   });
@@ -122,6 +140,13 @@ describe('validateProductionPublicEnvironment', () => {
     ['EXPO_PUBLIC_APP_ENV', 'preview', 'must equal production'],
     ['EXPO_PUBLIC_DEMO_MODE', undefined, 'must be explicitly set to false'],
     ['EXPO_PUBLIC_DEMO_MODE', 'true', 'must be explicitly set to false'],
+    [
+      'EXPO_PUBLIC_MAESTRO_ATTENDANCE_FIXTURE',
+      'true',
+      'must be explicitly set to false in production',
+    ],
+    ['EXPO_PUBLIC_REALTIME_ENABLED', 'false', 'must be explicitly set to true'],
+    ['EXPO_PUBLIC_APP_INTEGRITY_MODE', 'monitor', 'must equal enforce'],
     ['EXPO_PUBLIC_EAS_PROJECT_ID', 'not-a-uuid', 'must be a valid UUID'],
     ['EXPO_PUBLIC_EAS_PROJECT_ID', undefined, 'is required for production push notifications'],
     ['EXPO_PUBLIC_SENTRY_DSN', undefined, 'is required for production crash and ANR reporting'],
@@ -195,6 +220,9 @@ describe('validateProductionPublicEnvironment', () => {
       [
         'EXPO_PUBLIC_APP_ENV must equal production.',
         'EXPO_PUBLIC_DEMO_MODE must be explicitly set to false.',
+        'EXPO_PUBLIC_MAESTRO_ATTENDANCE_FIXTURE must be explicitly set to false in production.',
+        'EXPO_PUBLIC_REALTIME_ENABLED must be explicitly set to true in production.',
+        'EXPO_PUBLIC_APP_INTEGRITY_MODE must equal enforce in production.',
         'EXPO_PUBLIC_EAS_PROJECT_ID is required for production push notifications.',
         'EXPO_PUBLIC_API_URL is required.',
       ].join('\n- '),

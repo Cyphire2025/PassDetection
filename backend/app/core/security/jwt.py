@@ -39,6 +39,10 @@ def create_access_token(
     user_id: uuid.UUID,
     role: str,
     agency_id: uuid.UUID | None = None,
+    *,
+    session_version: int = 1,
+    authentication_methods: tuple[str, ...] = ("pwd",),
+    mfa_authenticated_at: datetime | None = None,
 ) -> tuple[str, datetime]:
     """
     Create a signed JWT access token.
@@ -57,7 +61,11 @@ def create_access_token(
         "exp":       expires_at,
         "iat":       datetime.now(tz=UTC),
         "jti":       str(uuid.uuid4()),   # unique token ID
+        "sv":        session_version,
+        "amr":       list(authentication_methods),
     }
+    if mfa_authenticated_at is not None:
+        payload["mfa_at"] = int(mfa_authenticated_at.timestamp())
     encoded = jwt.encode(
         payload,
         _settings.app_secret_key,

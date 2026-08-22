@@ -27,6 +27,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.domain.value_objects.trip_timezone import DEFAULT_TRIP_TIMEZONE
 from app.infrastructure.database import communications_models as _communications_models
 from app.infrastructure.database import document_models as _document_models
+from app.infrastructure.database import identity_security_models as _identity_security_models
 from app.infrastructure.database import operations_models as _operations_models
 from app.infrastructure.database.model_base import JSONB, Base, _utcnow
 
@@ -43,7 +44,12 @@ DocumentRenameBatchModel = _document_models.DocumentRenameBatchModel
 DocumentRenameItemModel = _document_models.DocumentRenameItemModel
 DocumentUploadChunkModel = _document_models.DocumentUploadChunkModel
 StorageCleanupJobModel = _document_models.StorageCleanupJobModel
+DashboardAuthChallengeModel = _identity_security_models.DashboardAuthChallengeModel
+IdentityActionTokenModel = _identity_security_models.IdentityActionTokenModel
+MFARecoveryCodeModel = _identity_security_models.MFARecoveryCodeModel
+UserSecurityStateModel = _identity_security_models.UserSecurityStateModel
 AttendanceRecordModel = _operations_models.AttendanceRecordModel
+AttendanceCloseoutCheckpointModel = _operations_models.AttendanceCloseoutCheckpointModel
 AttendanceSessionModel = _operations_models.AttendanceSessionModel
 PassengerQRTokenModel = _operations_models.PassengerQRTokenModel
 PassengerQrWhatsAppDeliveryModel = _operations_models.PassengerQrWhatsAppDeliveryModel
@@ -141,6 +147,15 @@ class RefreshTokenModel(Base):
     )
     # Track which IP created this token for audit purposes
     created_from_ip: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    session_version: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=1, server_default="1"
+    )
+    authentication_methods: Mapped[str] = mapped_column(
+        String(64), nullable=False, default="pwd", server_default="pwd"
+    )
+    mfa_authenticated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     user: Mapped[UserModel] = relationship("UserModel", back_populates="refresh_tokens")
 
@@ -149,8 +164,28 @@ class ClientGroupModel(Base):
     __tablename__ = "client_groups"
     __table_args__ = (
         CheckConstraint(
+            "passport_retention_days_applied IS NULL OR "
+            "passport_retention_days_applied BETWEEN 1 AND 3650",
+            name="ck_client_groups_passport_retention_days_applied",
+        ),
+        CheckConstraint(
             "length(timezone) BETWEEN 1 AND 64 AND timezone = trim(timezone)",
             name="ck_client_groups_timezone_shape",
+        ),
+        CheckConstraint(
+            "(passport_legal_hold = false AND passport_legal_hold_reason IS NULL "
+            "AND passport_legal_hold_set_at IS NULL "
+            "AND passport_legal_hold_set_by_user_id IS NULL) OR "
+            "(passport_legal_hold = true "
+            "AND length(trim(passport_legal_hold_reason)) BETWEEN 3 AND 500 "
+            "AND passport_legal_hold_set_at IS NOT NULL)",
+            name="ck_client_groups_passport_legal_hold_shape",
+        ),
+        Index(
+            "ix_client_groups_passport_retention_due",
+            "passport_legal_hold",
+            "passport_purge_at",
+            "id",
         ),
     )
 
@@ -234,6 +269,30 @@ class ClientGroupModel(Base):
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     deleted_passport_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     deletion_retained_records: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    passport_purge_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+    passport_retention_days_applied: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+    passport_legal_hold: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default="false",
+    )
+    passport_legal_hold_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    passport_legal_hold_set_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+    passport_legal_hold_set_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
 
     agency: Mapped[AgencyModel] = relationship("AgencyModel", back_populates="client_groups")
     submissions: Mapped[list[PassportSubmissionModel]] = relationship(

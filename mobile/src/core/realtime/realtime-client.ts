@@ -44,6 +44,13 @@ export type RealtimeLifecycleState = Readonly<{
   session: RealtimeSessionBoundary | null;
 }>;
 
+export type RealtimeConnectionState =
+  | 'idle'
+  | 'connecting'
+  | 'connected'
+  | 'reconnecting'
+  | 'authentication_rejected';
+
 type NativeWebSocketConstructor = new (
   url: string,
   protocols: string[] | null,
@@ -77,6 +84,7 @@ export type ForegroundRealtimeClientOptions = Readonly<{
   random?: () => number;
   onTripReconcile?: (tripId: string) => void;
   onFullReconcile?: () => void;
+  onConnectionStateChange?: (state: RealtimeConnectionState) => void;
   setTimeoutFn?: (callback: () => void, delayMs: number) => TimeoutHandle;
   clearTimeoutFn?: (handle: TimeoutHandle) => void;
 }>;
@@ -90,6 +98,7 @@ export class ForegroundRealtimeClient {
   private readonly socketFactory: RealtimeSocketFactory;
   private readonly random: () => number;
   private readonly onFullReconcile: () => void;
+  private readonly onConnectionStateChange: (state: RealtimeConnectionState) => void;
   private readonly setTimeoutFn: (callback: () => void, delayMs: number) => TimeoutHandle;
   private readonly clearTimeoutFn: (handle: TimeoutHandle) => void;
   private readonly coalescer: SyncHintCoalescer;
@@ -107,6 +116,7 @@ export class ForegroundRealtimeClient {
   private retryTimer: TimeoutHandle | null = null;
   private idleTimer: TimeoutHandle | null = null;
   private stableTimer: TimeoutHandle | null = null;
+  private rejectedAuthenticationBoundary: string | null = null;
 
   constructor(options: ForegroundRealtimeClientOptions = {}) {
     this.url = options.url ?? realtimeWebSocketUrl();
@@ -118,6 +128,7 @@ export class ForegroundRealtimeClient {
         reason: 'realtime-auth-or-overflow',
       }).catch(() => undefined);
     });
+    this.onConnectionStateChange = options.onConnectionStateChange ?? (() => undefined);
     this.setTimeoutFn = options.setTimeoutFn ?? setTimeout;
     this.clearTimeoutFn = options.clearTimeoutFn ?? clearTimeout;
     this.coalescer = new SyncHintCoalescer({
@@ -148,7 +159,10 @@ export class ForegroundRealtimeClient {
       || previousBoundary?.accessToken !== next.session?.accessToken
     );
     this.lifecycle = next;
-    if (boundaryChanged) this.disconnectForLifecycle();
+    if (boundaryChanged) {
+      this.rejectedAuthenticationBoundary = null;
+      this.disconnectForLifecycle();
+    }
     this.reconcileLifecycle();
   }
 
@@ -158,11 +172,14 @@ export class ForegroundRealtimeClient {
   }
 
   private eligible(): boolean {
+    const session = this.lifecycle.session;
+    const boundary = session ? `${session.sessionId}\0${session.accessToken}` : null;
     return Boolean(
       this.running
       && this.lifecycle.foreground
       && this.lifecycle.online
-      && this.lifecycle.session?.accessToken,
+      && session?.accessToken
+      && boundary !== this.rejectedAuthenticationBoundary,
     );
   }
 
@@ -177,6 +194,8 @@ export class ForegroundRealtimeClient {
   private connect(): void {
     const session = this.lifecycle.session;
     if (!session || !this.eligible()) return;
+    this.onConnectionStateChange('connecting');
+    const connectionStartedAtMs = performance.now();
     const generation = ++this.generation;
     let socket: RealtimeSocketLike;
     try {
@@ -191,6 +210,16 @@ export class ForegroundRealtimeClient {
 
     socket.onopen = () => {
       if (!this.isCurrent(socket, generation)) return;
+      this.onConnectionStateChange('connected');
+      recordMobileMetric('realtime_connection', 1, {
+        outcome: 'success',
+        trigger: 'realtime',
+      });
+      recordMobileMetric(
+        'realtime_connection_duration',
+        Math.max(0, performance.now() - connectionStartedAtMs),
+        { outcome: 'success', trigger: 'realtime' },
+      );
       this.armIdleTimer(socket, generation);
       this.clearStableTimer();
       this.stableTimer = this.setTimeoutFn(() => {
@@ -233,7 +262,20 @@ export class ForegroundRealtimeClient {
       this.socket = null;
       this.clearIdleTimer();
       this.clearStableTimer();
-      if (event.code === 4401 || event.code === 4403) this.onFullReconcile();
+      if (event.code === 4401 || event.code === 4403) {
+        this.rejectedAuthenticationBoundary = `${session.sessionId}\0${session.accessToken}`;
+        this.onConnectionStateChange('authentication_rejected');
+        recordMobileMetric('realtime_connection', 1, {
+          outcome: 'failure',
+          trigger: 'realtime',
+        });
+        recordMobileMetric('realtime_auth_rejection', 1, {
+          outcome: 'failure',
+          trigger: 'realtime',
+        });
+        this.onFullReconcile();
+        return;
+      }
       this.scheduleReconnect();
     };
   }
@@ -244,7 +286,12 @@ export class ForegroundRealtimeClient {
 
   private scheduleReconnect(): void {
     if (!this.eligible() || this.retryTimer !== null || this.socket !== null) return;
+    this.onConnectionStateChange('reconnecting');
     const delay = fullJitterReconnectDelayMs(this.retryAttempt, this.random);
+    recordMobileMetric('realtime_connection', 1, {
+      outcome: 'failure',
+      trigger: 'realtime',
+    });
     recordMobileMetric('realtime_reconnect', 1, { trigger: 'realtime' });
     recordMobileMetric('realtime_reconnect_delay', delay, { trigger: 'realtime' });
     this.retryAttempt += 1;
@@ -279,6 +326,7 @@ export class ForegroundRealtimeClient {
         socket.close(1000, 'inactive');
       }
     }
+    this.onConnectionStateChange('idle');
   }
 
   private clearIdleTimer(): void {

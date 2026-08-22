@@ -1,8 +1,8 @@
 "use client";
 
-import { KeyRound, LogOut, Pencil, Power, ShieldAlert, Trash2 } from "lucide-react";
+import { Check, Copy, KeyRound, LogOut, Pencil, Power, ShieldAlert, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Badge, Button, Card, CardContent, Input, PasswordInput, Skeleton } from "@/components/ui";
+import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
 import {
   useClientManagerAudit,
   useClientManagerMutations,
@@ -32,7 +32,8 @@ export function ClientManagerDetailsDialog({
   const [tab, setTab] = useState<DetailTab>("overview");
   const [confirmation, setConfirmation] = useState<Confirmation>(null);
   const [passwordOpen, setPasswordOpen] = useState(false);
-  const [temporaryPassword, setTemporaryPassword] = useState("");
+  const [activationToken, setActivationToken] = useState<string | null>(null);
+  const [activationCopied, setActivationCopied] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [error, setError] = useState<string | null>(null);
   const sessions = useClientManagerSessions(agencyId, manager?.id ?? null);
@@ -72,21 +73,13 @@ export function ClientManagerDetailsDialog({
 
   const resetPassword = async () => {
     setError(null);
-    if (
-      temporaryPassword.length < 10
-      || !/[A-Z]/.test(temporaryPassword)
-      || !/[a-z]/.test(temporaryPassword)
-      || !/\d/.test(temporaryPassword)
-    ) {
-      setError("Use at least 10 characters with uppercase, lowercase, and a number.");
-      return;
-    }
     try {
-      await actions.resetPassword.mutateAsync({ managerId: manager.id, temporaryPassword });
-      setTemporaryPassword("");
-      setPasswordOpen(false);
+      const updated = await actions.resetPassword.mutateAsync(manager.id);
+      if (!updated.activation_token) throw new Error("Activation link was not returned");
+      setActivationToken(updated.activation_token);
+      setActivationCopied(false);
     } catch (actionError) {
-      setError(gcAppErrorMessage(actionError, "The password could not be reset."));
+      setError(gcAppErrorMessage(actionError, "The credential reset link could not be issued."));
     }
   };
 
@@ -151,7 +144,7 @@ export function ClientManagerDetailsDialog({
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Button type="button" variant="secondary" size="sm" leftIcon={<KeyRound className="h-4 w-4" />} onClick={() => setPasswordOpen((value) => !value)}>
-                    Reset password
+                    Issue reset link
                   </Button>
                   <Button type="button" variant="secondary" size="sm" leftIcon={<LogOut className="h-4 w-4" />} onClick={() => setConfirmation("revoke")}>
                     Revoke all sessions
@@ -172,16 +165,29 @@ export function ClientManagerDetailsDialog({
 
                 {passwordOpen && (
                   <div className="space-y-3 rounded-xl border border-blue-200 bg-blue-50/50 p-4">
-                    <PasswordInput
-                      label="New password"
-                      autoComplete="new-password"
-                      value={temporaryPassword}
-                      onChange={(event) => setTemporaryPassword(event.target.value)}
-                    />
-                    <p className="text-xs text-slate-600">Resetting signs the Client Manager out. The new password can be used immediately.</p>
+                    <p className="text-xs leading-5 text-slate-700">This revokes every active session and replaces the current credential with a single-use, seven-day activation link. The Client Manager chooses the new password.</p>
+                    {activationToken && (
+                      <div className="space-y-2">
+                        <div className="break-all rounded-lg border border-blue-200 bg-white p-3 font-mono text-xs text-slate-800">{clientManagerActivationLink(activationToken)}</div>
+                        <p className="text-xs text-slate-600">Copy this now. The dashboard does not store the raw link.</p>
+                      </div>
+                    )}
                     <div className="flex justify-end gap-2">
-                      <Button type="button" variant="secondary" size="sm" onClick={() => setPasswordOpen(false)} disabled={isPending}>Cancel</Button>
-                      <Button type="button" size="sm" onClick={() => void resetPassword()} isLoading={actions.resetPassword.isPending}>Reset password</Button>
+                      <Button type="button" variant="secondary" size="sm" onClick={() => { setPasswordOpen(false); setActivationToken(null); }} disabled={isPending}>{activationToken ? "Done" : "Cancel"}</Button>
+                      {activationToken ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          leftIcon={activationCopied ? <Check className="h-4 w-4" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />}
+                          onClick={() => {
+                            void navigator.clipboard.writeText(clientManagerActivationLink(activationToken)).then(() => setActivationCopied(true));
+                          }}
+                        >
+                          {activationCopied ? "Copied" : "Copy link"}
+                        </Button>
+                      ) : (
+                        <Button type="button" size="sm" onClick={() => void resetPassword()} isLoading={actions.resetPassword.isPending}>Issue reset link</Button>
+                      )}
                     </div>
                   </div>
                 )}
@@ -254,6 +260,13 @@ export function ClientManagerDetailsDialog({
       </div>
     </GcDialog>
   );
+}
+
+function clientManagerActivationLink(token: string): string {
+  if (typeof window === "undefined") return token;
+  const url = new URL("/gc/activate", window.location.origin);
+  url.searchParams.set("token", token);
+  return url.toString();
 }
 
 function Detail({ label, children }: { label: string; children: React.ReactNode }) {

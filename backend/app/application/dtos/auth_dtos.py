@@ -43,6 +43,9 @@ class UserOutputDTO:
     last_login_at: datetime | None
     created_at: datetime
     updated_at: datetime
+    credential_state: str = "active"
+    mfa_required: bool = False
+    mfa_enabled: bool = False
 
 
 @dataclass(frozen=True)

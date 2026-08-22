@@ -15,7 +15,7 @@ import {
   X,
   XCircle,
 } from "lucide-react";
-import { useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useRef, useState } from "react";
 import {
   WorkspaceEmptyState,
   WorkspaceErrorNotice,
@@ -28,6 +28,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ConfirmDialog } from "@/components/ui";
+import { useModalKeyboardBoundary } from "@/components/ui/modal";
 import { copyTextToClipboard } from "@/lib/utils/clipboard";
 import { getPassportUploadTargets } from "@/lib/utils/public-url";
 import { selectUserRole, useAuthStore } from "@/stores/auth.store";
@@ -485,6 +486,13 @@ function EditGroupDialog({
   onConfirm: () => void;
   onClose: () => void;
 }) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const handleDialogKeyDown = useModalKeyboardBoundary({
+    dialogRef,
+    isOpen: Boolean(group),
+    canClose: !isLoading,
+    onClose,
+  });
   if (!group) return null;
   const customQuestionsValid = customQuestions.every((question) => {
     const options = question.options.map((option) => option.trim()).filter(Boolean);
@@ -503,10 +511,12 @@ function EditGroupDialog({
 
   return (
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby="edit-passport-group-title"
+      onKeyDown={handleDialogKeyDown}
     >
       <form
         className="max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-xl bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200"
@@ -540,7 +550,7 @@ function EditGroupDialog({
             value={name}
             maxLength={100}
             required
-            autoFocus
+            data-dialog-initial-focus
             disabled={isLoading}
             onChange={(event) => onNameChange(event.target.value)}
           />
@@ -831,14 +841,23 @@ function GroupDeleteRetentionDialog({
   onKeepData: () => void;
   onDeleteData: () => void;
 }) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const handleDialogKeyDown = useModalKeyboardBoundary({
+    dialogRef,
+    isOpen: Boolean(group),
+    canClose: !isLoading,
+    onClose,
+  });
   if (!group) return null;
 
   return (
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby="delete-archived-group-title"
+      onKeyDown={handleDialogKeyDown}
     >
       <div className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200">
         <div className="border-b border-slate-100 px-6 py-5">
@@ -887,7 +906,13 @@ function GroupDeleteRetentionDialog({
         </div>
 
         <div className="flex justify-end border-t border-slate-100 px-6 py-4">
-          <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onClose}
+            disabled={isLoading}
+            data-dialog-initial-focus
+          >
             Cancel
           </Button>
         </div>

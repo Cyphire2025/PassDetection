@@ -35,4 +35,7 @@ class GetMeUseCase:
             last_login_at=user.last_login_at,
             created_at=user.created_at,
             updated_at=user.updated_at,
+            credential_state=user.credential_state,
+            mfa_required=user.mfa_required,
+            mfa_enabled=user.mfa_enabled,
         )

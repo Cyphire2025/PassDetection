@@ -1,7 +1,7 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useRef, type PropsWithChildren } from 'react';
+import { useEffect, useLayoutEffect, useRef, type PropsWithChildren } from 'react';
 import { AppState, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -50,7 +50,10 @@ export function AppProviders({ children }: PropsWithChildren) {
   const previousAccount = useRef<string | null>(null);
   const hasActivatedAccount = useRef(false);
 
-  useEffect(() => {
+  // Clear account-scoped memory before the next native paint. API and SQLite
+  // publication guards remain authoritative for asynchronous work, while this
+  // layout boundary prevents a one-frame flash of the previous account.
+  useLayoutEffect(() => {
     if (previousAccount.current !== activeAccount) {
       queryClient.clear();
       useSelectedTripStore.getState().clear();

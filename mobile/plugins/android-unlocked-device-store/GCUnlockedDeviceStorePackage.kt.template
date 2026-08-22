@@ -1,0 +1,364 @@
+package __ANDROID_PACKAGE__
+
+import android.app.KeyguardManager
+import android.content.Context
+import android.os.Build
+import android.os.UserManager
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyPermanentlyInvalidatedException
+import android.security.keystore.KeyProperties
+import android.security.keystore.UserNotAuthenticatedException
+import android.util.Base64
+import com.facebook.react.ReactPackage
+import com.facebook.react.bridge.NativeModule
+import com.facebook.react.bridge.Promise
+import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReactContextBaseJavaModule
+import com.facebook.react.bridge.ReactMethod
+import com.facebook.react.bridge.WritableMap
+import com.facebook.react.bridge.WritableNativeMap
+import com.facebook.react.uimanager.ViewManager
+import java.nio.charset.StandardCharsets
+import java.security.GeneralSecurityException
+import java.security.KeyStore
+import javax.crypto.AEADBadTagException
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
+import javax.crypto.spec.GCMParameterSpec
+
+private const val MODULE_NAME = "GCUnlockedDeviceStore"
+private const val PREFERENCES_NAME = "gc.unlocked-device-store.v1"
+private const val COMPAT_KEY_ALIAS = "gc.unlocked-device-store.compat.v1"
+private const val STRICT_KEY_ALIAS = "gc.unlocked-device-store.api35.v1"
+private const val COMPAT_FORMAT = "v1c"
+private const val STRICT_FORMAT = "v1u"
+private const val MAX_KEY_LENGTH = 512
+private const val MAX_VALUE_BYTES = 16_384
+private const val MAX_ENCODED_VALUE_CHARS = 24_000
+private const val GCM_IV_BYTES = 12
+private const val GCM_TAG_BITS = 128
+
+private class DeviceLockedException : Exception()
+private class CorruptValueException : Exception()
+private class KeyUnavailableException : GeneralSecurityException()
+private class NativeStoreException : Exception()
+
+private enum class Protection(
+  val format: String,
+  val alias: String,
+) {
+  COMPAT(COMPAT_FORMAT, COMPAT_KEY_ALIAS),
+  UNLOCKED_DEVICE_REQUIRED(STRICT_FORMAT, STRICT_KEY_ALIAS),
+}
+
+/**
+ * Stores only AES-GCM ciphertext in app-private SharedPreferences. On Android
+ * 15+ the wrapping key is marked UNLOCKED_DEVICE_REQUIRED by Android Keystore.
+ * Android 8-14 retain a native pre/post lock-state check because Android's own
+ * API documentation warns of compatibility defects before API 35.
+ */
+private class GCUnlockedDeviceStoreModule(
+  reactContext: ReactApplicationContext,
+) : ReactContextBaseJavaModule(reactContext) {
+  private val preferences by lazy {
+    reactApplicationContext.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
+  }
+  private val keyStore by lazy {
+    KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+  }
+
+  override fun getName(): String = MODULE_NAME
+
+  @ReactMethod
+  fun getItem(key: String, promise: Promise) {
+    resolve(promise) {
+      synchronized(STORE_LOCK) {
+        assertKey(key)
+        assertDeviceUnlocked()
+        val encoded = preferences.getString(key, null)
+        if (encoded == null) {
+          assertDeviceUnlocked()
+          return@synchronized null
+        }
+        if (encoded.length > MAX_ENCODED_VALUE_CHARS) throw CorruptValueException()
+
+        val protection = protectionForEncodedValue(encoded)
+        val plaintext = decrypt(key, encoded, protection)
+        try {
+          assertDeviceUnlocked()
+          if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM &&
+            protection == Protection.COMPAT
+          ) {
+            // OS upgrades must not leave values wrapped by the API 26-34
+            // compatibility key. Copy first, then atomically replace ciphertext.
+            val migrated = encrypt(key, plaintext, Protection.UNLOCKED_DEVICE_REQUIRED)
+            if (!preferences.edit().putString(key, migrated).commit()) {
+              throw NativeStoreException()
+            }
+            assertDeviceUnlocked()
+          }
+          String(plaintext, StandardCharsets.UTF_8)
+        } finally {
+          plaintext.fill(0)
+        }
+      }
+    }
+  }
+
+  @ReactMethod
+  fun setItem(key: String, value: String, promise: Promise) {
+    resolve(promise) {
+      synchronized(STORE_LOCK) {
+        assertKey(key)
+        if (value.length > MAX_VALUE_BYTES) throw IllegalArgumentException()
+        val plaintext = value.toByteArray(StandardCharsets.UTF_8)
+        if (plaintext.size > MAX_VALUE_BYTES) {
+          plaintext.fill(0)
+          throw IllegalArgumentException()
+        }
+        try {
+          assertDeviceUnlocked()
+          val protection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            Protection.UNLOCKED_DEVICE_REQUIRED
+          } else {
+            Protection.COMPAT
+          }
+          val encoded = encrypt(key, plaintext, protection)
+          assertDeviceUnlocked()
+          if (!preferences.edit().putString(key, encoded).commit()) {
+            throw NativeStoreException()
+          }
+          assertDeviceUnlocked()
+          null
+        } finally {
+          plaintext.fill(0)
+        }
+      }
+    }
+  }
+
+  @ReactMethod
+  fun deleteItem(key: String, promise: Promise) {
+    resolve(promise) {
+      synchronized(STORE_LOCK) {
+        assertKey(key)
+        // Deletion intentionally remains available while locked so sign-out,
+        // remote revocation, and interrupted-cleanup recovery can fail closed.
+        if (!preferences.edit().remove(key).commit()) throw NativeStoreException()
+        null
+      }
+    }
+  }
+
+  @ReactMethod
+  fun getCapabilities(promise: Promise) {
+    resolve(promise) {
+      val capabilities: WritableMap = WritableNativeMap()
+      capabilities.putInt("apiLevel", Build.VERSION.SDK_INT)
+      capabilities.putBoolean(
+        "cryptographicUnlockedDeviceRequired",
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM,
+      )
+      capabilities.putString(
+        "protectionMode",
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+          "android-keystore-unlocked-device-required"
+        } else {
+          "android-keystore-native-lock-guard"
+        },
+      )
+      capabilities
+    }
+  }
+
+  private fun assertKey(key: String) {
+    if (
+      key.isEmpty() ||
+      key.length > MAX_KEY_LENGTH ||
+      !KEY_PATTERN.matches(key)
+    ) {
+      throw IllegalArgumentException()
+    }
+  }
+
+  private fun assertDeviceUnlocked() {
+    val userManager = reactApplicationContext.getSystemService(UserManager::class.java)
+      ?: throw NativeStoreException()
+    val keyguardManager = reactApplicationContext.getSystemService(KeyguardManager::class.java)
+      ?: throw NativeStoreException()
+    if (!userManager.isUserUnlocked || keyguardManager.isDeviceLocked) {
+      throw DeviceLockedException()
+    }
+  }
+
+  private fun protectionForEncodedValue(encoded: String): Protection {
+    val format = encoded.substringBefore(':', missingDelimiterValue = "")
+    return Protection.entries.firstOrNull { it.format == format }
+      ?: throw CorruptValueException()
+  }
+
+  private fun encrypt(key: String, plaintext: ByteArray, protection: Protection): String {
+    val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+    cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey(protection))
+    cipher.updateAAD(aad(key, protection))
+    val encrypted = cipher.doFinal(plaintext)
+    return listOf(
+      protection.format,
+      Base64.encodeToString(cipher.iv, Base64.NO_WRAP),
+      Base64.encodeToString(encrypted, Base64.NO_WRAP),
+    ).joinToString(":")
+  }
+
+  private fun decrypt(key: String, encoded: String, protection: Protection): ByteArray {
+    val parts = encoded.split(':', limit = 3)
+    if (parts.size != 3 || parts[0] != protection.format) throw CorruptValueException()
+    val iv = decodeBase64(parts[1])
+    val encrypted = decodeBase64(parts[2])
+    if (
+      iv.size != GCM_IV_BYTES ||
+      encrypted.size < GCM_TAG_BITS / 8 ||
+      encrypted.size > MAX_VALUE_BYTES + GCM_TAG_BITS / 8
+    ) {
+      throw CorruptValueException()
+    }
+    return try {
+      val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+      cipher.init(
+        Cipher.DECRYPT_MODE,
+        getOrCreateKey(protection),
+        GCMParameterSpec(GCM_TAG_BITS, iv),
+      )
+      cipher.updateAAD(aad(key, protection))
+      cipher.doFinal(encrypted)
+    } catch (_: AEADBadTagException) {
+      throw CorruptValueException()
+    } finally {
+      iv.fill(0)
+      encrypted.fill(0)
+    }
+  }
+
+  private fun decodeBase64(encoded: String): ByteArray = try {
+    Base64.decode(encoded, Base64.NO_WRAP)
+  } catch (_: IllegalArgumentException) {
+    throw CorruptValueException()
+  }
+
+  private fun aad(key: String, protection: Protection): ByteArray =
+    "${protection.format}|$key".toByteArray(StandardCharsets.UTF_8)
+
+  private fun getOrCreateKey(protection: Protection): SecretKey {
+    if (
+      protection == Protection.UNLOCKED_DEVICE_REQUIRED &&
+      Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM
+    ) {
+      return loadExistingKey(protection)
+    }
+
+    if (keyStore.containsAlias(protection.alias)) {
+      return try {
+        loadExistingKey(protection)
+      } catch (error: GeneralSecurityException) {
+        if (hasCiphertextFor(protection)) throw error
+        keyStore.deleteEntry(protection.alias)
+        generateKey(protection)
+      }
+    }
+    if (hasCiphertextFor(protection)) throw KeyUnavailableException()
+    return generateKey(protection)
+  }
+
+  private fun loadExistingKey(protection: Protection): SecretKey {
+    return keyStore.getKey(protection.alias, null) as? SecretKey
+      ?: throw KeyUnavailableException()
+  }
+
+  private fun hasCiphertextFor(protection: Protection): Boolean =
+    preferences.all.values.any { value ->
+      value is String && value.startsWith("${protection.format}:")
+    }
+
+  private fun generateKey(protection: Protection): SecretKey {
+    val generator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
+    val builder = KeyGenParameterSpec.Builder(
+      protection.alias,
+      KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT,
+    )
+      .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+      .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+      .setKeySize(256)
+      .setRandomizedEncryptionRequired(true)
+
+    if (
+      protection == Protection.UNLOCKED_DEVICE_REQUIRED &&
+      Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM
+    ) {
+      builder.setUnlockedDeviceRequired(true)
+    }
+    generator.init(builder.build())
+    return generator.generateKey()
+  }
+
+  private fun resolve(promise: Promise, operation: () -> Any?) {
+    try {
+      promise.resolve(operation())
+    } catch (_: DeviceLockedException) {
+      promise.reject(
+        "SECURE_VALUE_REQUIRES_UNLOCK",
+        "Protected local data is unavailable until the device is unlocked.",
+      )
+    } catch (_: CorruptValueException) {
+      promise.reject(
+        "SECURE_VALUE_CORRUPT",
+        "Protected local data failed authenticated decryption.",
+      )
+    } catch (_: KeyUnavailableException) {
+      promise.reject(
+        "SECURE_VALUE_KEY_UNAVAILABLE",
+        "The protected local data key is unavailable.",
+      )
+    } catch (_: KeyPermanentlyInvalidatedException) {
+      promise.reject(
+        "SECURE_VALUE_KEY_UNAVAILABLE",
+        "The protected local data key is unavailable.",
+      )
+    } catch (_: UserNotAuthenticatedException) {
+      promise.reject(
+        "SECURE_VALUE_REQUIRES_UNLOCK",
+        "Protected local data is unavailable until the device is unlocked.",
+      )
+    } catch (_: IllegalArgumentException) {
+      promise.reject(
+        "SECURE_VALUE_NATIVE_FAILURE",
+        "The protected local data request is invalid.",
+      )
+    } catch (_: GeneralSecurityException) {
+      promise.reject(
+        "SECURE_VALUE_KEY_UNAVAILABLE",
+        "The protected local data key is unavailable.",
+      )
+    } catch (_: Exception) {
+      promise.reject(
+        "SECURE_VALUE_NATIVE_FAILURE",
+        "Protected local data is temporarily unavailable.",
+      )
+    }
+  }
+
+  companion object {
+    private val STORE_LOCK = Any()
+    private val KEY_PATTERN = Regex("^[A-Za-z0-9._-]+$")
+  }
+}
+
+class GCUnlockedDeviceStorePackage : ReactPackage {
+  override fun createNativeModules(
+    reactContext: ReactApplicationContext,
+  ): List<NativeModule> = listOf(GCUnlockedDeviceStoreModule(reactContext))
+
+  override fun createViewManagers(
+    reactContext: ReactApplicationContext,
+  ): List<ViewManager<*, *>> = emptyList()
+}

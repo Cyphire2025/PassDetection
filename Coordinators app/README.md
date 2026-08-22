@@ -40,7 +40,10 @@ Set-Location 'C:\Users\nipun\Desktop\PassDetection\Coordinators app'
 
 The result is `artifacts\CoordinatorApp-production-debug.apk`. It is signed by
 the standard Android debug key and is suitable for testing, not long-term
-customer distribution.
+customer distribution. Local APKs and checksums are ignored by Git. The
+dedicated Coordinator WebView Shell CI workflow independently resolves the
+dependency graph, runs unit tests and lint, builds this variant, verifies its
+APK signature/content, and publishes it as a 14-day workflow artifact.
 
 The production origin is deliberately locked to
 `https://tech.gctravels.com/coordinator`. Passing a different `-PappUrl`

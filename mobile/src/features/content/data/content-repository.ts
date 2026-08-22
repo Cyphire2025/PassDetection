@@ -1146,11 +1146,13 @@ export async function recordOfflineDocumentOpened(options: Readonly<{
     throw new Error('The document access no longer belongs to the active account.');
   }
   const database = await openAccountDatabase(options.namespace);
-  await withAccountTransaction(database, async (transaction) => {
-    await markOfflineFileOpened(transaction, {
-      ...options,
-      openedAtIso: new Date().toISOString(),
-    });
+  // A single UPDATE is already atomic in SQLite. Routing this non-critical LRU
+  // timestamp through the dedicated SQLCipher transaction connection can queue
+  // behind sync writes and must never delay displaying an authenticated,
+  // integrity-checked document.
+  await markOfflineFileOpened(database, {
+    ...options,
+    openedAtIso: new Date().toISOString(),
   });
 }
 

@@ -2,12 +2,14 @@ import * as Crypto from 'expo-crypto';
 import { Directory, File, FileMode, Paths } from 'expo-file-system';
 
 import { apiDownloadToFile } from '@/core/api/client';
+import { assertSensitiveOfflineStorageAllowed } from '@/core/security/device-risk';
 import { nativePathForAppPrivateFileUri } from '@/core/storage/ios-backup';
 
 import type { ManagerDocumentMode } from './manager-operations';
 
 const PREVIEW_ROOT = 'gc-manager-previews';
 const MAX_PREVIEW_BYTES = 25 * 1024 * 1024;
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const ALLOWED_CONTENT_TYPES = new Set([
   'application/pdf',
   'image/jpeg',
@@ -62,11 +64,19 @@ export async function loadManagerDocumentPreview(
   documentType: Exclude<ManagerDocumentMode, 'all'>,
   signal?: AbortSignal,
 ): Promise<ManagerPreview> {
+  if (!UUID_PATTERN.test(tripId) || !UUID_PATTERN.test(passengerId)) {
+    throw new Error('The requested document preview identity was invalid.');
+  }
   const lifecycleGeneration = previewLifecycleGeneration;
+  await assertSensitiveOfflineStorageAllowed();
+  if (signal?.aborted || lifecycleGeneration !== previewLifecycleGeneration) {
+    throw signal?.reason ?? new Error('Document preview was cancelled.');
+  }
   const file = new File(
     previewRoot(),
     `${Crypto.randomUUID()}.download`,
   );
+  let destination: File | null = null;
   try {
     const response = await apiDownloadToFile(
       `/mobile/manager/groups/${tripId}/passengers/${passengerId}/documents/${documentType}/preview`,
@@ -99,14 +109,18 @@ export async function loadManagerDocumentPreview(
     }
     validateSignature(file, normalizedContentType);
 
-    const destination = new File(
+    destination = new File(
       previewRoot(),
       `${Crypto.randomUUID()}.${extension(normalizedContentType)}`,
     );
     await file.move(destination);
+    if (signal?.aborted || lifecycleGeneration !== previewLifecycleGeneration) {
+      throw signal?.reason ?? new Error('Document preview was cancelled.');
+    }
     return { file: destination, contentType: normalizedContentType };
   } catch (error) {
     if (file.exists) file.delete();
+    if (destination?.exists) destination.delete();
     throw error;
   }
 }

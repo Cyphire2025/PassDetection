@@ -16,7 +16,8 @@ export type GlobalSecureValueKind =
   | 'namespace-index'
   | 'installation-id'
   | 'active-namespace'
-  | 'pending-cleanup';
+  | 'pending-cleanup'
+  | 'scan-feedback-preference';
 
 export type SecureValueKind = AccountSecureValueKind | GlobalSecureValueKind;
 export type SecureValueAccessibilityTier = 'unlocked-only' | 'background-after-first-unlock';
@@ -53,6 +54,7 @@ export const SECURE_VALUE_ACCESSIBILITY = Object.freeze({
   'installation-id': 'background-after-first-unlock',
   'active-namespace': 'background-after-first-unlock',
   'pending-cleanup': 'background-after-first-unlock',
+  'scan-feedback-preference': 'background-after-first-unlock',
   refresh: 'background-after-first-unlock',
   'database-key': 'background-after-first-unlock',
   'vault-key': 'unlocked-only',
@@ -73,12 +75,11 @@ export function secureValuePolicy(kind: SecureValueKind): SecureValuePolicy {
 }
 
 /**
- * AppState is a routing guard, not a substitute for native key protection. It
- * prevents this application from deliberately using unlocked-only material in
- * a headless/background execution window on Android, where Expo SecureStore
- * does not expose an unlocked-device-required Keystore option. The iOS
- * Keychain remains authoritative and can still reject a lock race after this
- * check; callers must handle that rejection rather than preflighting it away.
+ * AppState is a fast routing guard, not the authoritative lock boundary. The
+ * iOS Keychain enforces accessibility and Android unlocked-only values are
+ * wrapped by GCUnlockedDeviceStore, which performs native lock checks and uses
+ * an UNLOCKED_DEVICE_REQUIRED Keystore key on API 35+. Callers must still
+ * handle a native rejection when the device locks after this preflight.
  */
 export function isUnlockedOnlySecureValueAccessAvailable(): boolean {
   return AppState.currentState === 'active';

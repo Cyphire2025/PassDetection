@@ -174,17 +174,22 @@ or production API p50/p95/p99 measurement.
   logout/account switching purges the account database, queued actions and
   offline vault namespace.
 - JWT validation uses maintained PyJWT with explicit HS256, issuer, audience,
-  token-type and required `exp`/`iat`/`sub` checks. The vulnerable transitive
-  `python-jose`/`ecdsa` dependency path was removed.
+  token-type and required `exp`/`iat`/`sub` checks. The application has no
+  python-jose JWT path; pyattest's unused metadata-only `python-jose`/`ecdsa`
+  edge remains an explicit CI exception for verification-only App Attest use.
 - Logout invalidates the authentication epoch, cancels required preparation,
   clears the in-memory session and selected trip synchronously before any
   fallible SecureStore, network, database or filesystem operation. Server
   revocation uses the snapshotted bearer without authentication refresh, while
   local credential/key deletion and the purge fence still run after a token
   lookup or network failure.
-- SQLCipher keys and document keys are device-bound SecureStore secrets using
-  this-device-only accessibility. Personal caches are namespaced by account,
-  tenant, trip and passenger as applicable.
+- SQLCipher keys remain device-bound background-capable SecureStore secrets.
+  Document-vault keys and signed offline-authorization records are
+  unlocked-only: iOS uses this-device-only Keychain accessibility and Android
+  uses native AES-GCM wrapping under Keystore (cryptographic
+  `UNLOCKED_DEVICE_REQUIRED` on API 35+, native lock guards on API 26-34).
+  Personal caches are namespaced by account, tenant, trip and passenger as
+  applicable.
 - Document authorization is short-lived and identity-bound. Download handling
   enforces an exact MIME allowlist, safe filename rules, strict single-range
   resume behavior, streamed byte ceilings, checksum verification and atomic
@@ -196,8 +201,11 @@ or production API p50/p95/p99 measurement.
 - Background sync persists only allowlisted, bounded failure reason codes; raw
   exception strings, filenames, phone numbers and document metadata are not
   written to the local diagnostic cursor.
-- Passenger QR and document screens request screen-capture protection. QR and
-  document contracts remain passenger/group scoped.
+- Passport, visa, ticket, and other sensitive preview routes acquire a shared
+  native screenshot/screen-recording protection lease and display an opaque
+  privacy cover while inactive or backgrounded. Ordinary screens remain
+  capturable; telemetry screenshot attachments stay disabled and temporary
+  plaintext remains lifecycle-managed.
 - Coordinator detail schemas fail closed on unexpected sensitive fields.
   Attendance duplicate receipts and server-side idempotency prevent repeated
   actions from becoming repeated attendance.
@@ -235,7 +243,7 @@ or production API p50/p95/p99 measurement.
 | Android emulator install/launch | Streamed in-place install and launcher start passed | Exact fresh APK installed on `emulator-5554`, package process `15063`, version 1.0.0/1 and last update `2026-08-03 11:39:19 +05:30`; the app was the top resumed activity and the bounded post-launch fatal/ANR/transaction-error scan returned zero matches. Earlier timing measurements are retained only as a historical absolute baseline and are not attributed to this final APK. |
 | iOS project generation | WSL2/Linux Expo prebuild passed; Expo Doctor 20/20 | The reproducible managed-workflow Xcode project was generated and its bundle ID, deployment target, privacy keys, push entitlement and associated domain were inspected. CocoaPods/Xcode compilation and Apple signing still require macOS. |
 | Verification bundle configuration | Embedded `https://tech.gctravels.com/api/v1`, `preview` release guard and demo disabled; production application ID | The APK exercises the real API and production package boundary without pretending that missing EAS identity/store credentials are configured. Production profiles independently fail closed unless their complete public EAS configuration is supplied. |
-| Dependency checks | Frontend npm audit: 0; mobile npm audit: 0; backend pip check and pip-audit: 0 known vulnerabilities | The mobile build-tool `uuid` path is pinned to the fixed release, and backend JWT handling migrated from `python-jose`/`ecdsa` to PyJWT. |
+| Dependency checks | Frontend npm audit: 0; mobile npm audit: 0; backend audit has one explicit upstream-unfixed pyattest metadata exception | Backend JWT handling uses PyJWT; the transitive python-ecdsa implementation is not imported and App Attest uses only public-key verification. |
 
 No migration upgrade against a production clone, iOS compile, physical-device
 journey, real-provider OTP/push journey, or production-load result is claimed

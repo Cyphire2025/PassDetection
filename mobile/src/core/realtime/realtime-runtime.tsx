@@ -7,6 +7,7 @@ import { env } from '@/core/config/env';
 import { isDemoMode } from '@/core/demo/demo-mode';
 
 import { ForegroundRealtimeClient, type RealtimeLifecycleState } from './realtime-client';
+import { setMobileRealtimeStatus } from './realtime-status';
 
 export function RealtimeRuntime() {
   const demoMode = isDemoMode();
@@ -14,9 +15,14 @@ export function RealtimeRuntime() {
   const accessToken = useSessionStore((state) => state.session?.accessToken ?? null);
 
   useEffect(() => {
-    if (demoMode || !env.realtimeEnabled) return;
+    if (demoMode || !env.realtimeEnabled) {
+      setMobileRealtimeStatus('disabled');
+      return;
+    }
 
-    const client = new ForegroundRealtimeClient();
+    const client = new ForegroundRealtimeClient({
+      onConnectionStateChange: setMobileRealtimeStatus,
+    });
     let foreground = AppState.currentState === 'active';
     let online = onlineManager.isOnline();
     const lifecycle = (): RealtimeLifecycleState => ({
@@ -39,6 +45,7 @@ export function RealtimeRuntime() {
       network();
       appState.remove();
       client.stop();
+      setMobileRealtimeStatus('idle');
     };
   }, [accessToken, demoMode, sessionId]);
 

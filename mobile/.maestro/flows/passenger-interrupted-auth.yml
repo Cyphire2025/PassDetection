@@ -1,0 +1,32 @@
+appId: com.globalconnects.groupcompanion
+name: Passenger interrupted OTP fails closed to a restartable login
+tags:
+  - release-hermes
+  - staging-fixture
+  - interrupted-auth
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- tapOn: "Continue with phone number"
+- extendedWaitUntil:
+    visible:
+      id: "passenger-phone-input"
+    timeout: 10000
+- tapOn:
+    id: "passenger-phone-input"
+- inputText: ${MAESTRO_PASSENGER_PHONE}
+- hideKeyboard
+- tapOn:
+    id: "passenger-send-otp"
+- extendedWaitUntil:
+    visible: "Check WhatsApp."
+    timeout: 30000
+- killApp
+- launchApp:
+    stopApp: true
+- extendedWaitUntil:
+    visible: "Continue with phone number"
+    timeout: 60000
+- assertNotVisible: "Documents"
+- assertNotVisible: "My QR"

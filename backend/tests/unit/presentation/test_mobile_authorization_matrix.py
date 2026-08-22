@@ -117,6 +117,7 @@ _UNRESTRICTED_SESSION_MOBILE_HTTP: frozenset[RouteKey] = frozenset(
         ("GET", "/mobile/coordinator/groups/{group_id}/attendance/sessions"),
         ("GET", "/mobile/manager/groups/{group_id}/attendance/sessions"),
         ("POST", "/mobile/coordinator/groups/{group_id}/attendance/sessions"),
+        ("POST", "/mobile/manager/groups/{group_id}/attendance/sessions"),
         (
             "GET",
             "/mobile/coordinator/groups/{group_id}/attendance/sessions/{session_id}",
@@ -126,12 +127,24 @@ _UNRESTRICTED_SESSION_MOBILE_HTTP: frozenset[RouteKey] = frozenset(
             "/mobile/coordinator/groups/{group_id}/attendance/sessions/{session_id}/roster",
         ),
         (
+            "PUT",
+            "/mobile/coordinator/groups/{group_id}/attendance/sessions/{session_id}/closeout-checkpoint",
+        ),
+        (
+            "GET",
+            "/mobile/manager/groups/{group_id}/attendance/sessions/{session_id}/closeout",
+        ),
+        (
             "GET",
             "/mobile/manager/groups/{group_id}/attendance/sessions/{session_id}/roster",
         ),
         (
             "PUT",
             "/mobile/coordinator/groups/{group_id}/attendance/sessions/{session_id}/complete",
+        ),
+        (
+            "PUT",
+            "/mobile/manager/groups/{group_id}/attendance/sessions/{session_id}/complete",
         ),
         ("POST", "/mobile/coordinator/groups/{group_id}/attendance/actions"),
         ("GET", "/mobile/coordinator/groups/{group_id}/attendance/summary"),

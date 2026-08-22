@@ -95,6 +95,10 @@ const TripDetailsDialog = dynamic(
   () => import("./passport-trip-details-dialog").then((module) => module.TripDetailsDialog),
   { loading: () => <PassportWorkflowLoadingOverlay label="Loading trip settings" /> },
 );
+const PassportRetentionControl = dynamic(
+  () => import("./passport-retention-control").then((module) => module.PassportRetentionControl),
+  { loading: () => <Skeleton className="h-48 w-full rounded-xl" /> },
+);
 
 function PassportWorkflowLoadingOverlay({ label }: { label: string }) {
   return (
@@ -852,7 +856,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
       </WorkspaceSummaryStrip>
 
       {groupDetails && (
-        <Card>
+        <>
+          <Card>
           <CardContent className="p-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex items-center gap-3">
@@ -945,10 +950,17 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
               </div>
             )}
           </CardContent>
-        </Card>
+          </Card>
+          <PassportRetentionControl
+            allowed={canPermanentlyDelete}
+            enabled={!error}
+            groupId={groupId}
+            groupName={groupDetails.group_name}
+          />
+        </>
       )}
 
-      {!includeDeleted && (
+      {!includeDeleted && groupDetails && !error && (
         <>
           {canAccessWhatsApp && (
             <GroupWhatsAppBroadcastPanel groupId={groupId} />
@@ -1425,6 +1437,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                               checked={selectedPassportIdSet.has(passport.id)}
                               onChange={() => togglePassport(passport.id)}
                               onClick={(event) => event.stopPropagation()}
+                              aria-label={`Select ${passport.client_name}`}
                               className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                             />
                             <div className="min-w-0">
@@ -1807,6 +1820,7 @@ function PassportMobileCard({
               checked={selected}
               onChange={onToggle}
               onClick={(event) => event.stopPropagation()}
+              aria-label={`Select ${passport.client_name}`}
               className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
             />
             <div className="min-w-0">

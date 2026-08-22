@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { useSessionStore } from '@/core/auth/session-store';
+import { recordMobileMetric } from '@/core/observability/mobile-observability';
 import { accountNamespace } from '@/core/auth/types';
 import { withAccountQueryContext } from '@/core/query/account-query-context';
 import { usePersistentQueryHydration } from '@/core/query/use-persistent-query-hydration';
@@ -172,11 +173,19 @@ export function useDocuments(tripId: string | null) {
           items,
           offline: current?.offline ?? false,
         }));
+        recordMobileMetric('document_prefetch', 1, {
+          outcome: 'success',
+          trigger: 'foreground',
+          queue: 'documents',
+        });
       })
-      .catch((error: unknown) => {
+      .catch(() => {
         if (!controller.signal.aborted) {
-          const code = error instanceof Error ? error.name : 'UNKNOWN';
-          console.warn('[documents] passenger prefetch deferred', { code });
+          recordMobileMetric('document_prefetch', 1, {
+            outcome: 'failure',
+            trigger: 'foreground',
+            queue: 'documents',
+          });
         }
       })
       .finally(() => lease.release());
@@ -260,13 +269,21 @@ export function useCommonDocuments(tripId: string | null) {
           items,
           offline: current?.offline ?? false,
         }));
+        recordMobileMetric('document_prefetch', 1, {
+          outcome: 'success',
+          trigger: 'foreground',
+          queue: 'documents',
+        });
       })
-      .catch((error: unknown) => {
+      .catch(() => {
         // The durable download queue and the next synchronization pass retain
         // retry ownership. Keep the last usable document list on screen.
         if (!controller.signal.aborted) {
-          const code = error instanceof Error ? error.name : 'UNKNOWN';
-          console.warn('[documents] common prefetch deferred', { code });
+          recordMobileMetric('document_prefetch', 1, {
+            outcome: 'failure',
+            trigger: 'foreground',
+            queue: 'documents',
+          });
         }
       })
       .finally(releaseLease);

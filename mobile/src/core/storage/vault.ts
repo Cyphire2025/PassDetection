@@ -18,10 +18,6 @@ import { createDocumentAuthorizationIntegrityProof } from '@/core/security/app-i
 import { excludeAppPrivateUriFromBackup } from './ios-backup';
 import { getOrCreateSecret } from './secure-store';
 import {
-  temporaryViewCacheEvictions,
-  type TemporaryViewCacheEntry,
-} from './temporary-view-cache-policy';
-import {
   VaultChunkContainerError,
   maximumChunkedVaultBytes,
   type VaultChunkRecovery,
@@ -126,11 +122,11 @@ type VaultWriteLease = {
 
 const activeVaultWrites = new Map<string, VaultWriteLease>();
 const activeStagingUris = new Set<string>();
-type CachedTemporaryView = TemporaryViewCacheEntry & { file: File };
-const cachedTemporaryViews = new Map<string, CachedTemporaryView>();
+type ActiveTemporaryView = { file: File; leases: number };
+const activeTemporaryViews = new Map<string, ActiveTemporaryView>();
 const temporaryViewDecryptions = new AbortableSharedTaskRegistry<string, File>();
 
-function temporaryViewCacheKey(input: VaultDocument): string {
+function temporaryViewOperationKey(input: VaultDocument): string {
   return [
     input.namespace,
     input.tripId,
@@ -140,38 +136,6 @@ function temporaryViewCacheKey(input: VaultDocument): string {
     input.expectedSizeBytes,
     input.contentType.toLowerCase(),
   ].join('|');
-}
-
-function discardCachedTemporaryView(key: string): void {
-  const entry = cachedTemporaryViews.get(key);
-  cachedTemporaryViews.delete(key);
-  if (entry?.file.exists) entry.file.delete();
-}
-
-function reusableTemporaryView(input: VaultDocument): File | null {
-  const key = temporaryViewCacheKey(input);
-  const entry = cachedTemporaryViews.get(key);
-  if (!entry) return null;
-  if (!entry.file.exists || entry.file.size !== input.expectedSizeBytes) {
-    discardCachedTemporaryView(key);
-    return null;
-  }
-  entry.lastAccessedAt = Date.now();
-  return entry.file;
-}
-
-function cacheTemporaryView(input: VaultDocument, file: File): void {
-  const key = temporaryViewCacheKey(input);
-  cachedTemporaryViews.set(key, {
-    key,
-    file,
-    sizeBytes: input.expectedSizeBytes,
-    lastAccessedAt: Date.now(),
-  });
-  const entries = [...cachedTemporaryViews.values()];
-  for (const evictionKey of temporaryViewCacheEvictions(entries, key)) {
-    discardCachedTemporaryView(evictionKey);
-  }
 }
 
 async function namespaceHash(namespace: string): Promise<string> {
@@ -740,8 +704,6 @@ async function decryptDocumentForViewingUncoalesced(
   try {
     releaseTemporaryWrite = temporaryViewWrites.beginWrite(TEMPORARY_VIEW_WRITE_KEY);
     await assertSensitiveOfflineStorageAllowed();
-    const reusable = reusableTemporaryView(input);
-    if (reusable) return reusable;
     assertVaultFreeSpace(Paths.availableDiskSpace, input.expectedSizeBytes);
     const root = await vaultDirectory(input.namespace, input.tripId);
     const current = offlineFile(root, input.documentId, input.version, input.checksumSha256);
@@ -816,7 +778,6 @@ async function decryptDocumentForViewingUncoalesced(
         assertDocumentOperationActive(signal);
         temporary.write(plaintext);
       }
-      cacheTemporaryView(input, temporary);
       return temporary;
     } catch (error) {
       if (temporary.exists) temporary.delete();
@@ -833,34 +794,37 @@ async function decryptDocumentForViewingUncoalesced(
  * transition can cancel its own wait without terminating a decrypt that a
  * second active viewer still needs.
  */
-export function decryptDocumentForViewing(
+export async function decryptDocumentForViewing(
   input: VaultDocument,
   signal?: AbortSignal,
 ): Promise<File> {
   validateVaultDocument(input);
-  return temporaryViewDecryptions.run(
-    temporaryViewCacheKey(input),
+  const file = await temporaryViewDecryptions.run(
+    temporaryViewOperationKey(input),
     (sharedSignal) => decryptDocumentForViewingUncoalesced(input, sharedSignal),
     signal,
   );
+  const active = activeTemporaryViews.get(file.uri);
+  if (active) active.leases += 1;
+  else activeTemporaryViews.set(file.uri, { file, leases: 1 });
+  return file;
 }
 
 export function removeTemporaryView(file: File): void {
   const viewRoot = new Directory(Paths.cache, TEMPORARY_VIEW_ROOT_NAME);
   assertManagedTemporaryViewUri(viewRoot.uri, file.uri);
-  for (const [key, entry] of cachedTemporaryViews) {
-    if (entry.file.uri === file.uri) cachedTemporaryViews.delete(key);
-  }
+  activeTemporaryViews.delete(file.uri);
   if (file.exists) file.delete();
 }
 
 export function releaseTemporaryView(file: File): void {
   const viewRoot = new Directory(Paths.cache, TEMPORARY_VIEW_ROOT_NAME);
   assertManagedTemporaryViewUri(viewRoot.uri, file.uri);
-  const cached = [...cachedTemporaryViews.values()].find((entry) => entry.file.uri === file.uri);
-  if (cached && file.exists) {
-    cached.lastAccessedAt = Date.now();
-    return;
+  const active = activeTemporaryViews.get(file.uri);
+  if (active) {
+    active.leases -= 1;
+    if (active.leases > 0) return;
+    activeTemporaryViews.delete(file.uri);
   }
   if (file.exists) file.delete();
 }
@@ -873,7 +837,7 @@ export async function purgeTemporaryViews(): Promise<void> {
   await temporaryViewWrites.beginPurge(TEMPORARY_VIEW_WRITE_KEY);
   let acknowledged = false;
   try {
-    cachedTemporaryViews.clear();
+    activeTemporaryViews.clear();
     const root = new Directory(Paths.cache, TEMPORARY_VIEW_ROOT_NAME);
     if (root.exists) root.delete();
     acknowledged = true;

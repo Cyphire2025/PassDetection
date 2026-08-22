@@ -9,6 +9,10 @@ import {
 } from '@/core/auth/session-store';
 import { env } from '@/core/config/env';
 import { isDemoMode } from '@/core/demo/demo-mode';
+import {
+  recordMobileMetric,
+  type MobileMetricAttributes,
+} from '@/core/observability/mobile-observability';
 
 import { ApiError } from './api-error';
 import { ApiErrorBodySchema } from './contracts';
@@ -21,6 +25,7 @@ import {
 const DEFAULT_TIMEOUT_MS = 15_000;
 const MAX_JSON_BYTES = 2 * 1024 * 1024;
 const MAX_ERROR_JSON_BYTES = 64 * 1024;
+type ApiMetricOutcome = NonNullable<MobileMetricAttributes['outcome']>;
 
 class ResponseBodyTooLargeError extends Error {
   constructor() {
@@ -52,13 +57,6 @@ export type ApiRequestOptions<T> = {
 
 export { ApiError } from './api-error';
 
-export type ApiResponseOptions = {
-  accept: string;
-  timeoutMs?: number;
-  signal?: AbortSignal;
-  retryAuthentication?: boolean;
-};
-
 export type ApiFileDownloadOptions = Readonly<{
   accept: string;
   destinationPath: string;
@@ -88,14 +86,43 @@ async function handleAccessDenied(path: string, status: number): Promise<void> {
   }
 }
 
-function endpointUrl(path: string): string {
-  if (!path.startsWith('/') || path.startsWith('//')) {
+function assertSafeApiPath(path: string): void {
+  if (
+    !path.startsWith('/')
+    || path.startsWith('//')
+    || path.includes('#')
+    || path.includes('\\')
+    || /[\u0000-\u001f\u007f]/.test(path)
+  ) {
     throw new Error('API paths must be root-relative.');
   }
+  const pathname = path.split('?', 1)[0] ?? '';
+  for (const segment of pathname.split('/').slice(1)) {
+    let decoded: string;
+    try {
+      decoded = decodeURIComponent(segment);
+    } catch {
+      throw new Error('API paths must use valid percent encoding.');
+    }
+    if (
+      decoded === '.'
+      || decoded === '..'
+      || decoded.includes('/')
+      || decoded.includes('\\')
+      || /[\u0000-\u001f\u007f]/.test(decoded)
+    ) {
+      throw new Error('API paths must not contain traversal or encoded separators.');
+    }
+  }
+}
+
+function endpointUrl(path: string): string {
+  assertSafeApiPath(path);
   return `${env.apiUrl}${path}`;
 }
 
 function authorizedDocumentUrl(path: string): string {
+  assertSafeApiPath(path);
   const apiBase = new URL(env.apiUrl);
   const parsedPath = new URL(path, apiBase.origin);
   const basePath = apiBase.pathname.replace(/\/$/, '');
@@ -167,6 +194,14 @@ function authenticationContextChanged(): ApiError {
     'AUTH_CONTEXT_CHANGED',
     null,
   );
+}
+
+function assertAuthenticationContextCurrent(
+  authentication: AuthenticationSnapshot | null,
+): void {
+  if (authentication && !isAuthenticationEpochCurrent(authentication.epoch)) {
+    throw authenticationContextChanged();
+  }
 }
 
 async function refreshAccessToken(snapshot: AuthenticationSnapshot): Promise<string | null> {
@@ -279,7 +314,7 @@ async function apiError(response: Response): Promise<ApiError> {
   );
 }
 
-export async function apiRequest<T>(
+async function apiRequestInternal<T>(
   path: string,
   options: ApiRequestOptions<T>,
 ): Promise<T> {
@@ -295,7 +330,7 @@ export async function apiRequest<T>(
   const authentication = authenticated ? captureAuthenticationSnapshot() : null;
   const timeout = AbortSignal.timeout(options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
   const signal = options.signal ? AbortSignal.any([options.signal, timeout]) : timeout;
-  const token = authenticated ? currentAccessToken() : null;
+  const token = authentication?.accessToken ?? null;
 
   const headers: Record<string, string> = {
     Accept: 'application/json',
@@ -315,29 +350,25 @@ export async function apiRequest<T>(
     signal,
   });
 
-  if (authentication && !isAuthenticationEpochCurrent(authentication.epoch)) {
-    throw authenticationContextChanged();
-  }
+  assertAuthenticationContextCurrent(authentication);
 
   if (response.status === 401 && authentication && (options.retryAuthentication ?? true)) {
     const latestToken = currentAccessToken();
-    if (
-      latestToken !== authentication.accessToken ||
-      (await refreshAccessToken(authentication))
-    ) {
-      if (!isAuthenticationEpochCurrent(authentication.epoch)) {
-        throw authenticationContextChanged();
-      }
-      return apiRequest(path, { ...options, retryAuthentication: false });
-    }
-    if (!isAuthenticationEpochCurrent(authentication.epoch)) {
-      throw authenticationContextChanged();
+    const refreshedToken = latestToken !== authentication.accessToken
+      ? latestToken
+      : await refreshAccessToken(authentication);
+    assertAuthenticationContextCurrent(authentication);
+    if (refreshedToken) {
+      return apiRequestInternal(path, { ...options, retryAuthentication: false });
     }
   }
 
   if (!response.ok) {
     await handleAccessDenied(path, response.status);
-    throw await apiError(response);
+    assertAuthenticationContextCurrent(authentication);
+    const error = await apiError(response);
+    assertAuthenticationContextCurrent(authentication);
+    throw error;
   }
 
   if (response.status === 204) {
@@ -345,6 +376,7 @@ export async function apiRequest<T>(
     if (!result.success) {
       throw new ApiError('The server returned an empty response for a non-empty contract.', 502, 'INVALID_RESPONSE', null);
     }
+    assertAuthenticationContextCurrent(authentication);
     return result.data;
   }
 
@@ -357,6 +389,7 @@ export async function apiRequest<T>(
   try {
     value = await readJsonBodyBounded(response, MAX_JSON_BYTES);
   } catch (error) {
+    assertAuthenticationContextCurrent(authentication);
     if (error instanceof ResponseBodyTooLargeError) {
       throw new ApiError('The server returned an unexpectedly large response.', 502, 'PAYLOAD_TOO_LARGE', null);
     }
@@ -366,60 +399,40 @@ export async function apiRequest<T>(
   if (!result.success) {
     throw new ApiError('The server response did not match the mobile contract.', 502, 'INVALID_RESPONSE', null);
   }
+  assertAuthenticationContextCurrent(authentication);
   return result.data;
 }
 
-/** Fetch an authenticated, same-origin non-JSON response with normal token refresh. */
-export async function apiResponse(
-  path: string,
-  options: ApiResponseOptions,
-): Promise<Response> {
-  if (isDemoMode()) {
-    throw new ApiError(
-      'This emulator demo uses local sample data and cannot contact the server.',
-      503,
-      'DEMO_LOCAL_ONLY',
-      null,
-    );
-  }
-  const authentication = captureAuthenticationSnapshot();
-  const token = currentAccessToken();
-  if (!token) throw new ApiError('Authentication is required.', 401, 'AUTH_REQUIRED', null);
-  const timeout = AbortSignal.timeout(options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
-  const signal = options.signal ? AbortSignal.any([options.signal, timeout]) : timeout;
-  const response = await fetch(endpointUrl(path), {
-    method: 'GET',
-    headers: {
-      Accept: options.accept,
-      Authorization: `Bearer ${token}`,
-      'Cache-Control': 'no-store',
-      'X-Request-ID': Crypto.randomUUID(),
-    },
-    credentials: 'omit',
-    redirect: 'error',
-    signal,
-  });
+function apiFailureOutcome(
+  error: unknown,
+  callerSignal?: AbortSignal,
+): ApiMetricOutcome {
+  if (callerSignal?.aborted) return 'cancelled';
+  if (
+    typeof error === 'object'
+    && error !== null
+    && 'name' in error
+    && error.name === 'TimeoutError'
+  ) return 'timeout';
+  return 'failure';
+}
 
-  if (!isAuthenticationEpochCurrent(authentication.epoch)) {
-    throw authenticationContextChanged();
+export async function apiRequest<T>(
+  path: string,
+  options: ApiRequestOptions<T>,
+): Promise<T> {
+  const startedAtMs = performance.now();
+  let outcome: ApiMetricOutcome = 'failure';
+  try {
+    const result = await apiRequestInternal(path, options);
+    outcome = 'success';
+    return result;
+  } catch (error) {
+    outcome = apiFailureOutcome(error, options.signal);
+    throw error;
+  } finally {
+    recordMobileMetric('api_request_duration', performance.now() - startedAtMs, { outcome });
   }
-  if (response.status === 401 && (options.retryAuthentication ?? true)) {
-    const latestToken = currentAccessToken();
-    if (
-      latestToken !== authentication.accessToken
-      || (await refreshAccessToken(authentication))
-    ) {
-      if (!isAuthenticationEpochCurrent(authentication.epoch)) {
-        throw authenticationContextChanged();
-      }
-      return apiResponse(path, { ...options, retryAuthentication: false });
-    }
-  }
-  if (!response.ok) {
-    await handleAccessDenied(path, response.status);
-    throw await apiError(response);
-  }
-  return response;
 }
 
 /**
@@ -440,7 +453,7 @@ export async function apiDownloadToFile(
     );
   }
   const authentication = captureAuthenticationSnapshot();
-  const token = currentAccessToken();
+  const token = authentication.accessToken;
   if (!token) throw new ApiError('Authentication is required.', 401, 'AUTH_REQUIRED', null);
   const response = await nativeFileRequest({
     authentication,
@@ -458,18 +471,17 @@ export async function apiDownloadToFile(
   });
   if (response.status === 401 && (options.retryAuthentication ?? true)) {
     const latestToken = currentAccessToken();
-    if (
-      latestToken !== authentication.accessToken
-      || (await refreshAccessToken(authentication))
-    ) {
-      if (!isAuthenticationEpochCurrent(authentication.epoch)) {
-        throw authenticationContextChanged();
-      }
+    const refreshedToken = latestToken !== authentication.accessToken
+      ? latestToken
+      : await refreshAccessToken(authentication);
+    assertAuthenticationContextCurrent(authentication);
+    if (refreshedToken) {
       return apiDownloadToFile(path, { ...options, retryAuthentication: false });
     }
   }
   if (response.status < 200 || response.status >= 300) {
     await handleAccessDenied(path, response.status);
+    assertAuthenticationContextCurrent(authentication);
     throw new ApiError(
       'The server could not complete this file request.',
       response.status,
@@ -477,6 +489,7 @@ export async function apiDownloadToFile(
       null,
     );
   }
+  assertAuthenticationContextCurrent(authentication);
   return response;
 }
 
@@ -496,9 +509,9 @@ export async function authorizedDownloadToFile(
       null,
     );
   }
-  const token = currentAccessToken();
-  if (!token) throw new ApiError('Authentication is required.', 401, 'AUTH_REQUIRED', null);
   const authentication = captureAuthenticationSnapshot();
+  const token = authentication.accessToken;
+  if (!token) throw new ApiError('Authentication is required.', 401, 'AUTH_REQUIRED', null);
   if (!/^[A-Za-z0-9._~-]{32,4096}$/.test(downloadToken)) {
     throw new ApiError('The download authorization was invalid.', 400, 'INVALID_DOWNLOAD_TOKEN', null);
   }
@@ -532,6 +545,7 @@ export async function authorizedDownloadToFile(
   }
   if (response.status < 200 || response.status >= 300) {
     await handleAccessDenied(path, response.status);
+    assertAuthenticationContextCurrent(authentication);
     throw new ApiError(
       'The server could not complete this document download.',
       response.status,
@@ -539,71 +553,6 @@ export async function authorizedDownloadToFile(
       null,
     );
   }
-  return response;
-}
-
-export async function authorizedDownloadResponse(
-  path: string,
-  downloadToken: string,
-  signal?: AbortSignal,
-  rangeStart = 0,
-): Promise<Response> {
-  if (isDemoMode()) {
-    throw new ApiError(
-      'Document downloads are disabled in the local emulator demo.',
-      503,
-      'DEMO_LOCAL_ONLY',
-      null,
-    );
-  }
-  const token = currentAccessToken();
-  if (!token) throw new ApiError('Authentication is required.', 401, 'AUTH_REQUIRED', null);
-  const authentication = captureAuthenticationSnapshot();
-  if (!/^[A-Za-z0-9._~-]{32,4096}$/.test(downloadToken)) {
-    throw new ApiError('The download authorization was invalid.', 400, 'INVALID_DOWNLOAD_TOKEN', null);
-  }
-  if (!Number.isSafeInteger(rangeStart) || rangeStart < 0) {
-    throw new ApiError('The download range was invalid.', 400, 'INVALID_DOWNLOAD_RANGE', null);
-  }
-
-  const downloadUrl = authorizedDocumentUrl(path);
-
-  const timeout = AbortSignal.timeout(60_000);
-  const combinedSignal = signal ? AbortSignal.any([signal, timeout]) : timeout;
-  const headers: Record<string, string> = {
-    Accept: 'application/pdf,image/jpeg,image/png,image/webp',
-    Authorization: `Bearer ${token}`,
-    'Cache-Control': 'no-store',
-    'X-GC-Download-Token': downloadToken,
-    'X-Request-ID': Crypto.randomUUID(),
-  };
-  if (rangeStart > 0) headers.Range = `bytes=${rangeStart}-`;
-  const response = await fetch(downloadUrl, {
-    method: 'GET',
-    headers,
-    credentials: 'omit',
-    redirect: 'error',
-    signal: combinedSignal,
-  });
-  if (!isAuthenticationEpochCurrent(authentication.epoch)) {
-    throw authenticationContextChanged();
-  }
-  if (!response.ok) {
-    if (response.status === 401) {
-      const expired = await apiError(response);
-      // A short-lived document grant can expire independently of the device
-      // session during a slow/resumed transfer. Let the document manager obtain
-      // a fresh grant; that endpoint still re-checks tenant, trip, passenger and
-      // access generation before another byte can be downloaded.
-      throw new ApiError(
-        'The document authorization expired and will be refreshed.',
-        401,
-        'DOWNLOAD_AUTH_EXPIRED',
-        expired.retryAfterSeconds,
-      );
-    }
-    await handleAccessDenied(path, response.status);
-    throw await apiError(response);
-  }
+  assertAuthenticationContextCurrent(authentication);
   return response;
 }

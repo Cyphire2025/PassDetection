@@ -1,4 +1,12 @@
+import { recordStorageMaintenance } from '@/core/observability/storage-observability';
+
 import { applyAccountStorageRetention } from '../database-retention';
+
+jest.mock('@/core/observability/storage-observability', () => ({
+  recordStorageMaintenance: jest.fn(),
+}));
+
+const mockedRecordStorageMaintenance = jest.mocked(recordStorageMaintenance);
 
 function databaseHarness(failAtRun = -1) {
   let runs = 0;
@@ -13,6 +21,8 @@ function databaseHarness(failAtRun = -1) {
 }
 
 describe('account storage retention execution', () => {
+  beforeEach(() => jest.clearAllMocks());
+
   test('compacts only account-scoped terminal/audit data in one crash-atomic transaction', async () => {
     const database = databaseHarness();
     await applyAccountStorageRetention(
@@ -38,6 +48,11 @@ describe('account storage retention execution', () => {
       if (call.some((value) => value === 'agency.account-a')) continue;
       expect(String(call[0])).toContain('local_roster_cursors');
     }
+    expect(mockedRecordStorageMaintenance).toHaveBeenCalledWith(
+      expect.any(Number),
+      9,
+      'success',
+    );
   });
 
   test('rolls back and preserves the original native failure', async () => {
@@ -52,5 +67,10 @@ describe('account storage retention execution', () => {
       'BEGIN IMMEDIATE',
       'ROLLBACK',
     ]);
+    expect(mockedRecordStorageMaintenance).toHaveBeenCalledWith(
+      expect.any(Number),
+      0,
+      'failure',
+    );
   });
 });

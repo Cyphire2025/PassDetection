@@ -5,8 +5,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from fastapi import HTTPException, UploadFile, status
+from starlette.concurrency import run_in_threadpool
 
 from app.core.config.settings import get_settings
+from app.domain.exceptions.exceptions import ImageValidationError
+from app.infrastructure.security.upload_validator import (
+    MalwareScannerUnavailableError,
+    malware_scanner_from_settings,
+)
 
 # Keep every physical multipart request comfortably below Starlette's parser
 # limit and the 120-second production worker envelope.  The browser presents
@@ -55,6 +61,7 @@ async def read_bounded_document_uploads(
             )
 
         uploads: list[BoundedDocumentUpload] = []
+        malware_scanner = malware_scanner_from_settings()
         actual_total = 0
         for file in files:
             try:
@@ -76,10 +83,28 @@ async def read_bounded_document_uploads(
                 )
             actual_total += len(content)
             if actual_total > MAX_DOCUMENT_BATCH_BYTES:
+                # Reject aggregate overage before spending scanner CPU/socket
+                # time on a batch that can never be accepted.
                 raise HTTPException(
                     status_code=413,
                     detail="The combined PDF upload is too large",
                 )
+            try:
+                # ClamAV uses blocking sockets. Keep it outside the event loop,
+                # and scan the exact original bytes before any parser or object
+                # storage boundary can observe them.
+                await run_in_threadpool(malware_scanner.scan, content)
+            except MalwareScannerUnavailableError as exc:
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail="Document security scanning is temporarily unavailable",
+                    headers={"Retry-After": "30"},
+                ) from exc
+            except ImageValidationError as exc:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                    detail="One of the uploaded PDFs failed security scanning",
+                ) from exc
             uploads.append(
                 BoundedDocumentUpload(
                     filename=bounded_upload_filename(file.filename),

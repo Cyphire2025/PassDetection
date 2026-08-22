@@ -3,7 +3,6 @@ import type { MobileSession } from '@/core/auth/types';
 
 import {
   ApiError,
-  authorizedDownloadResponse,
   authorizedDownloadToFile,
   registerAccessDeniedHandler,
 } from '../client';
@@ -46,38 +45,16 @@ describe('authorized document resume requests', () => {
     jest.restoreAllMocks();
   });
 
-  it('sends a single open-ended byte range with the signed grant', async () => {
-    const response = {
-      ok: true,
-      status: 206,
-      headers: new Headers(),
-    } as Response;
-    const fetchSpy = jest.spyOn(globalThis, 'fetch').mockResolvedValue(response);
-
-    await expect(authorizedDownloadResponse(
-      '/api/v1/mobile/trips/33333333-3333-4333-8333-333333333333/documents/44444444-4444-4444-8444-444444444444/content?version=1',
-      'a'.repeat(32),
-      undefined,
-      2048,
-    )).resolves.toBe(response);
-
-    const request = fetchSpy.mock.calls[0]?.[1];
-    expect(request?.headers).toMatchObject({
-      Range: 'bytes=2048-',
-      'X-GC-Download-Token': 'a'.repeat(32),
-    });
-  });
-
   it('rejects an invalid offset before making a network request', async () => {
-    const fetchSpy = jest.spyOn(globalThis, 'fetch');
-
-    await expect(authorizedDownloadResponse(
+    await expect(authorizedDownloadToFile(
       '/api/v1/mobile/trips/33333333-3333-4333-8333-333333333333/documents/44444444-4444-4444-8444-444444444444/content?version=1',
       'a'.repeat(32),
+      '/private/cache/download.tmp',
+      4096,
       undefined,
       -1,
     )).rejects.toMatchObject<Partial<ApiError>>({ code: 'INVALID_DOWNLOAD_RANGE', status: 400 });
-    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(mockedNativeDownload).not.toHaveBeenCalled();
   });
 
   it('streams a resume request to an exact native path without forwarding redirects', async () => {
@@ -126,26 +103,6 @@ describe('authorized document resume requests', () => {
         code: 'DOWNLOAD_AUTH_EXPIRED',
         status: 401,
       });
-      expect(accessDenied).not.toHaveBeenCalled();
-    } finally {
-      unregister();
-    }
-  });
-
-  it('refreshes an expired download grant without purging valid trip access', async () => {
-    const accessDenied = jest.fn(async () => undefined);
-    const unregister = registerAccessDeniedHandler(accessDenied);
-    jest.spyOn(globalThis, 'fetch').mockResolvedValue({
-      ok: false,
-      status: 401,
-      headers: new Headers(),
-    } as Response);
-
-    try {
-      await expect(authorizedDownloadResponse(
-        '/api/v1/mobile/trips/33333333-3333-4333-8333-333333333333/documents/44444444-4444-4444-8444-444444444444/content?version=1',
-        'a'.repeat(32),
-      )).rejects.toMatchObject<Partial<ApiError>>({ code: 'DOWNLOAD_AUTH_EXPIRED', status: 401 });
       expect(accessDenied).not.toHaveBeenCalled();
     } finally {
       unregister();

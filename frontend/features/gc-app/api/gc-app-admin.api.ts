@@ -419,12 +419,9 @@ export const gcAppAdminApi = {
       phone_number: body.phone_number,
       organization_id: body.company_id,
       group_ids: body.group_ids,
-      temporary_password: body.temporary_password,
       return_temporary_password_once: false,
-      invitation_flow: false,
-      return_activation_token_once: false,
-      // Keep rolling deployments safe even if an older backend still defaults
-      // this retired field to true.
+      invitation_flow: true,
+      return_activation_token_once: true,
       force_password_change: false,
     }, { params: { agency_id: agencyId ?? undefined } });
     return normalizeClientManager(data);
@@ -434,7 +431,7 @@ export const gcAppAdminApi = {
     agencyId: string | null,
     managerId: string,
     current: ClientManagerAccount,
-    body: Omit<ClientManagerInput, "temporary_password">,
+    body: ClientManagerInput,
   ): Promise<ClientManagerAccount> => {
     const { data: updatedProfile } = await apiClient.patch<RawClientManager>(
       `${ROOT}/client-managers/${managerId}`,
@@ -472,11 +469,10 @@ export const gcAppAdminApi = {
   resetClientManagerPassword: async (
     agencyId: string | null,
     managerId: string,
-    temporaryPassword: string,
   ): Promise<ClientManagerAccount> => {
     const { data } = await apiClient.post<RawClientManager>(
       `${ROOT}/client-managers/${managerId}/reset-password`,
-      { temporary_password: temporaryPassword, force_password_change: false },
+      { issue_activation_link: true },
       { params: agencyParams(agencyId) },
     );
     return normalizeClientManager(data);

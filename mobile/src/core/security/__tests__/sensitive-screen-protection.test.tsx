@@ -77,12 +77,11 @@ test('uses an opaque fallback while the app is outside the active foreground', a
   expect(removeListener).toHaveBeenCalledTimes(1);
 });
 
-test('keeps the privacy overlay available when native protection rejects', async () => {
+test('keeps lifecycle privacy available when native capture protection rejects', async () => {
   mockPreventScreenCapture.mockRejectedValueOnce(new Error('native module unavailable'));
   mockEnableAppSwitcherProtection.mockRejectedValueOnce(new Error('native method unavailable'));
 
   const screen = await render(<SensitiveScreenProtection protectionKey="fallback-preview" />);
-
   await waitFor(() => expect(mockPreventScreenCapture).toHaveBeenCalledTimes(1));
   expect(screen.queryByTestId('sensitive-screen-privacy-overlay')).toBeNull();
   await expect(screen.unmount()).resolves.toBeUndefined();

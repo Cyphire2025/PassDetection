@@ -13,6 +13,9 @@ const fingerprint = Array.from({ length: 32 }, (_, index) =>
 describe('release gates', () => {
   it('requires the production Android signing identity in assetlinks.json', () => {
     const fingerprints = parseAndroidFingerprints(fingerprint.toLowerCase());
+    expect(() => parseAndroidFingerprints('not-a-sha256-fingerprint')).toThrow(
+      'GC_ANDROID_APP_LINK_SHA256_CERT_FINGERPRINTS must contain',
+    );
     expect(() => validateAndroidAssetLinks([
       {
         relation: ['delegate_permission/common.handle_all_urls'],
@@ -27,6 +30,39 @@ describe('release gates', () => {
     expect(() => validateAndroidAssetLinks([], fingerprints)).toThrow(
       'has no handle_all_urls statement',
     );
+
+    const unexpectedFingerprint = Array.from({ length: 32 }, (_, index) =>
+      (255 - index).toString(16).padStart(2, '0'),
+    ).join(':').toUpperCase();
+    expect(() => validateAndroidAssetLinks([
+      {
+        relation: ['delegate_permission/common.handle_all_urls'],
+        target: {
+          namespace: 'android_app',
+          package_name: 'com.globalconnects.groupcompanion',
+          sha256_cert_fingerprints: [fingerprint, unexpectedFingerprint],
+        },
+      },
+    ], fingerprints)).toThrow('contains 1 unexpected signing fingerprint');
+
+    expect(() => validateAndroidAssetLinks([
+      {
+        relation: ['delegate_permission/common.handle_all_urls'],
+        target: {
+          namespace: 'android_app',
+          package_name: 'com.globalconnects.groupcompanion',
+          sha256_cert_fingerprints: [fingerprint],
+        },
+      },
+      {
+        relation: ['delegate_permission/common.handle_all_urls'],
+        target: {
+          namespace: 'android_app',
+          package_name: 'com.attacker.clone',
+          sha256_cert_fingerprints: [unexpectedFingerprint],
+        },
+      },
+    ], fingerprints)).toThrow('delegates verified links to 1 unexpected package');
   });
 
   it('requires the production iOS app and /gc paths in the AASA document', () => {
@@ -84,8 +120,8 @@ describe('release gates', () => {
     })).toThrow('has no Android client');
   });
 
-  it('allows only the explicit Metro build-time audit root causes', () => {
-    const allowedReport = {
+  it('rejects every high or critical dependency finding without exceptions', () => {
+    const metroReport = {
       vulnerabilities: {
         metro: {
           severity: 'high',
@@ -101,7 +137,16 @@ describe('release gates', () => {
         },
       },
     };
-    expect(findUnexpectedVulnerabilities(allowedReport)).toEqual([]);
+    expect(findUnexpectedVulnerabilities(metroReport)).toEqual([
+      {
+        name: 'metro',
+        advisoryUrls: ['https://github.com/advisories/GHSA-w3rx-r6r6-pgpr'],
+      },
+      {
+        name: 'image-size',
+        advisoryUrls: ['https://github.com/advisories/GHSA-w3rx-r6r6-pgpr'],
+      },
+    ]);
 
     expect(findUnexpectedVulnerabilities({
       vulnerabilities: {

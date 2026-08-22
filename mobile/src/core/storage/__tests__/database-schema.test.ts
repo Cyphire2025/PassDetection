@@ -49,6 +49,12 @@ describe('account database schema boundary', () => {
     expect(sql).toContain('CREATE TABLE IF NOT EXISTS vault_eviction_tombstones');
     expect(sql).toContain('CREATE TABLE IF NOT EXISTS storage_maintenance_state');
     expect(sql).toContain('CREATE TABLE IF NOT EXISTS sync_runtime_state');
+    expect(sql).toContain("'pending', 'sending', 'retryable', 'needs_review', 'rejected'");
+    expect(sql).toContain('refresh_attempt_count INTEGER NOT NULL DEFAULT 0');
+    expect(sql).toContain('CREATE TRIGGER IF NOT EXISTS minimize_rejected_attendance_insert');
+    expect(sql).toContain('CREATE TRIGGER IF NOT EXISTS minimize_rejected_attendance_update');
+    expect(sql).toContain("AND NEW.state = 'rejected'");
+    expect(sql).toContain("SET payload_json = '{}'");
     expect(sql).toContain('idx_coordinator_roster_order');
     expect(sql).toContain('roster_projection_complete INTEGER NOT NULL DEFAULT 0');
     expect(sql).toContain('attendance_token_hash TEXT');
@@ -59,7 +65,7 @@ describe('account database schema boundary', () => {
     expect(sql).toContain(`PRAGMA user_version = ${ACCOUNT_DATABASE_VERSION}`);
   });
 
-  it('applies versions 13 through 22 as separate ordered transactions', async () => {
+  it('applies versions 13 through 24 as separate ordered transactions', async () => {
     const harness = migrationHarness(12);
 
     await expect(migrateAccountDatabase(
@@ -67,7 +73,7 @@ describe('account database schema boundary', () => {
       harness.runTransaction as never,
     )).resolves.toBe(true);
 
-    expect(harness.committedSql).toHaveLength(10);
+    expect(harness.committedSql).toHaveLength(12);
     expect(harness.committedSql.map((statements) => statements.join('\n'))).toEqual([
       expect.stringContaining('PRAGMA user_version = 13'),
       expect.stringContaining('PRAGMA user_version = 14'),
@@ -79,6 +85,8 @@ describe('account database schema boundary', () => {
       expect.stringContaining('PRAGMA user_version = 20'),
       expect.stringContaining('PRAGMA user_version = 21'),
       expect.stringContaining('PRAGMA user_version = 22'),
+      expect.stringContaining('PRAGMA user_version = 23'),
+      expect.stringContaining('PRAGMA user_version = 24'),
     ]);
     expect(harness.committedSql[0]?.join('\n')).toContain('DELETE FROM sync_cursors');
     expect(harness.committedSql[1]?.join('\n')).toContain('block_trip_insert_pending_purge');
@@ -94,6 +102,12 @@ describe('account database schema boundary', () => {
     expect(harness.committedSql[8]?.join('\n')).toContain('attendance_token_hash');
     expect(harness.committedSql[8]?.join('\n')).toContain('roster_projection_complete = 0');
     expect(harness.committedSql[9]?.join('\n')).toContain('sync_runtime_state');
+    expect(harness.committedSql[10]?.join('\n')).toContain('refresh_attempt_count');
+    expect(harness.committedSql[10]?.join('\n')).toContain("'needs_review'");
+    expect(harness.committedSql[11]?.join('\n')).toContain(
+      'minimize_rejected_attendance_update',
+    );
+    expect(harness.committedSql[11]?.join('\n')).toContain("SET payload_json = '{}'");
   });
 
   it('invalidates legacy coordinator roster trust when adding token evidence', async () => {
@@ -104,13 +118,32 @@ describe('account database schema boundary', () => {
       harness.runTransaction as never,
     )).resolves.toBe(true);
 
-    expect(harness.committedSql).toHaveLength(2);
+    expect(harness.committedSql).toHaveLength(4);
     const sql = harness.committedSql[0]?.join('\n') ?? '';
     expect(sql).toContain('attendance_token_state');
     expect(sql).toContain('DELETE FROM coordinator_roster_staging');
     expect(sql).toContain('SET roster_version = -1, roster_projection_complete = 0');
     expect(sql).toContain('PRAGMA user_version = 21');
     expect(harness.committedSql[1]?.join('\n')).toContain('PRAGMA user_version = 22');
+    expect(harness.committedSql[2]?.join('\n')).toContain('PRAGMA user_version = 23');
+    expect(harness.committedSql[3]?.join('\n')).toContain('PRAGMA user_version = 24');
+  });
+
+  it('adds terminal attendance minimization without changing reviewable states', async () => {
+    const harness = migrationHarness(23);
+
+    await expect(migrateAccountDatabase(
+      harness.database as never,
+      harness.runTransaction as never,
+    )).resolves.toBe(true);
+
+    expect(harness.committedSql).toHaveLength(1);
+    const sql = harness.committedSql[0]?.join('\n') ?? '';
+    expect(sql).toContain("WHERE action_type = 'attendance.scan'");
+    expect(sql).toContain("AND state = 'rejected'");
+    expect(sql).toContain("AND NEW.state = 'rejected'");
+    expect(sql).not.toContain("NEW.state = 'needs_review'");
+    expect(sql).toContain('PRAGMA user_version = 24');
   });
 
   it('does not write an already-current schema', async () => {

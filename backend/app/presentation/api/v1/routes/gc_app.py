@@ -67,7 +67,7 @@ from app.presentation.api.v1.schemas.gc_app_schemas import (
     GCGroupSearchPageResponse,
     PassengerIdentityReconciliationResponse,
 )
-from app.presentation.dependencies.auth import require_role
+from app.presentation.dependencies.auth import require_recent_mfa, require_role
 from app.presentation.dependencies.csrf import require_cookie_csrf
 from app.presentation.security.client_ip import trusted_client_ip
 
@@ -1076,7 +1076,7 @@ async def list_client_managers(
     "/client-managers",
     response_model=ClientManagerResponse,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(require_cookie_csrf)],
+    dependencies=[Depends(require_cookie_csrf), Depends(require_recent_mfa)],
 )
 async def create_client_manager(
     body: ClientManagerCreateRequest,
@@ -1118,11 +1118,9 @@ async def create_client_manager(
     access_by_group = await _validate_manager_groups(
         session, tenant_id, organization.id, body.group_ids
     )
-    temporary_password = body.temporary_password or f"Gc1{secrets.token_urlsafe(18)}"
-    activation_token = secrets.token_urlsafe(32) if body.invitation_flow else None
-    # A password-created account is ready as soon as its explicit assignments
-    # are saved. Only the separate token-invitation flow remains pending.
-    initial_status = "invited" if activation_token is not None else "active"
+    temporary_password = f"Gc1{secrets.token_urlsafe(32)}"
+    activation_token = secrets.token_urlsafe(32)
+    initial_status = "invited"
     try:
         password_hash = hash_password(temporary_password)
     except ValueError as exc:
@@ -1153,7 +1151,7 @@ async def create_client_manager(
             else None
         ),
         invitation_expires_at=now + timedelta(days=7) if activation_token else None,
-        activated_at=now if initial_status == "active" else None,
+        activated_at=None,
         access_generation=1,
         revision=1,
         created_by_user_id=current_user.id,
@@ -1234,10 +1232,7 @@ async def create_client_manager(
     response = _client_manager_response(
         profile, user, organization, assigned_groups
     )
-    if body.return_temporary_password_once and not body.invitation_flow:
-        response.temporary_password = temporary_password
-    if body.return_activation_token_once and activation_token:
-        response.activation_token = activation_token
+    response.activation_token = activation_token
     http_response.headers["Cache-Control"] = "private, no-store, max-age=0"
     http_response.headers["Pragma"] = "no-cache"
     return response
@@ -1246,7 +1241,7 @@ async def create_client_manager(
 @router.patch(
     "/client-managers/{profile_id}",
     response_model=ClientManagerResponse,
-    dependencies=[Depends(require_cookie_csrf)],
+    dependencies=[Depends(require_cookie_csrf), Depends(require_recent_mfa)],
 )
 async def update_client_manager(
     profile_id: uuid.UUID,
@@ -1328,7 +1323,7 @@ async def update_client_manager(
 @router.patch(
     "/client-managers/{profile_id}/status",
     response_model=ClientManagerResponse,
-    dependencies=[Depends(require_cookie_csrf)],
+    dependencies=[Depends(require_cookie_csrf), Depends(require_recent_mfa)],
 )
 async def set_client_manager_status(
     profile_id: uuid.UUID,
@@ -1378,7 +1373,7 @@ async def set_client_manager_status(
 @router.post(
     "/client-managers/{profile_id}/reset-password",
     response_model=ClientManagerResponse,
-    dependencies=[Depends(require_cookie_csrf)],
+    dependencies=[Depends(require_cookie_csrf), Depends(require_recent_mfa)],
 )
 async def reset_client_manager_password(
     profile_id: uuid.UUID,
@@ -1389,25 +1384,27 @@ async def reset_client_manager_password(
     current_user: User = Depends(require_role(GC_ADMIN_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> ClientManagerResponse:
+    del body
     tenant_id = _tenant_id(current_user, agency_id)
     profile, user, organization = await _get_client_manager(
         session, tenant_id, profile_id, lock=True
     )
-    temporary_password = body.temporary_password or f"Gc1{secrets.token_urlsafe(18)}"
+    temporary_password = f"Gc1{secrets.token_urlsafe(32)}"
+    activation_token = secrets.token_urlsafe(32)
     try:
         user.hashed_password = hash_password(temporary_password)
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)) from exc
     now = datetime.now(tz=UTC)
     profile.force_password_change = False
-    if (
-        profile.status == "invited"
-        and profile.invitation_token_hash is None
-        and profile.invitation_expires_at is None
-    ):
-        profile.status = "active"
-        profile.activated_at = profile.activated_at or now
-        profile.suspended_at = None
+    profile.status = "invited"
+    profile.activated_at = None
+    profile.suspended_at = None
+    profile.invitation_token_hash = hash_mobile_lookup(
+        activation_token,
+        purpose="manager-invitation",
+    )
+    profile.invitation_expires_at = now + timedelta(days=7)
     profile.access_generation += 1
     profile.revision += 1
     profile.updated_by_user_id = current_user.id
@@ -1419,7 +1416,7 @@ async def reset_client_manager_password(
         current_user,
         request,
         agency_id=tenant_id,
-        action="gc_app.client_manager_password_reset",
+        action="gc_app.client_manager_reinvited",
         entity_type="client_manager_profile",
         entity_id=profile.id,
         metadata={"sessions_revoked": True},
@@ -1430,8 +1427,7 @@ async def reset_client_manager_password(
     response = _client_manager_response(
         profile, user, organization, assigned_groups
     )
-    if body.return_temporary_password_once:
-        response.temporary_password = temporary_password
+    response.activation_token = activation_token
     http_response.headers["Cache-Control"] = "private, no-store, max-age=0"
     http_response.headers["Pragma"] = "no-cache"
     return response
@@ -1440,7 +1436,7 @@ async def reset_client_manager_password(
 @router.patch(
     "/client-managers/{profile_id}/force-password-change",
     response_model=ClientManagerResponse,
-    dependencies=[Depends(require_cookie_csrf)],
+    dependencies=[Depends(require_cookie_csrf), Depends(require_recent_mfa)],
 )
 async def force_client_manager_password_change(
     profile_id: uuid.UUID,
@@ -1482,7 +1478,7 @@ async def force_client_manager_password_change(
 @router.put(
     "/client-managers/{profile_id}/groups",
     response_model=ClientManagerResponse,
-    dependencies=[Depends(require_cookie_csrf)],
+    dependencies=[Depends(require_cookie_csrf), Depends(require_recent_mfa)],
 )
 async def replace_client_manager_groups(
     profile_id: uuid.UUID,
@@ -1570,7 +1566,7 @@ async def replace_client_manager_groups(
     "/client-managers/{profile_id}/revoke-sessions",
     status_code=status.HTTP_204_NO_CONTENT,
     response_class=Response,
-    dependencies=[Depends(require_cookie_csrf)],
+    dependencies=[Depends(require_cookie_csrf), Depends(require_recent_mfa)],
 )
 async def revoke_client_manager_sessions(
     profile_id: uuid.UUID,
@@ -1687,7 +1683,7 @@ async def list_client_manager_audit(
     "/client-managers/{profile_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     response_class=Response,
-    dependencies=[Depends(require_cookie_csrf)],
+    dependencies=[Depends(require_cookie_csrf), Depends(require_recent_mfa)],
 )
 async def delete_client_manager(
     profile_id: uuid.UUID,

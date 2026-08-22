@@ -30,6 +30,9 @@ jobs:
         - .maestro/flows/verified-activation-link.yml
         - .maestro/flows/passenger-document-cache.yml
         - .maestro/flows/account-switch-isolation.yml
+        - .maestro/flows/manager-operational-journey.yml
+        - .maestro/flows/passenger-trip-journey.yml
+        - .maestro/flows/passenger-interrupted-auth.yml
       device_identifier: pixel_6
       retries: 1
       retry_failed_only: true
@@ -53,6 +56,9 @@ jobs:
         - .maestro/flows/verified-activation-link.yml
         - .maestro/flows/passenger-document-cache.yml
         - .maestro/flows/account-switch-isolation.yml
+        - .maestro/flows/manager-operational-journey.yml
+        - .maestro/flows/passenger-trip-journey.yml
+        - .maestro/flows/passenger-interrupted-auth.yml
       retries: 1
       retry_failed_only: true
       record_screen: false

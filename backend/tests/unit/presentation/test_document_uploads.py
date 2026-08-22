@@ -7,6 +7,10 @@ from unittest.mock import AsyncMock
 import pytest
 from fastapi import HTTPException, UploadFile
 
+from app.infrastructure.security.upload_validator import (
+    MalwareScannerUnavailableError,
+    MalwareScanRejectedError,
+)
 from app.presentation.api.v1 import document_uploads
 
 
@@ -61,17 +65,24 @@ async def test_document_upload_rejects_declared_bytes_over_limit_before_read(
 
 
 async def test_document_upload_rejects_batch_over_actual_total(monkeypatch) -> None:
+    scanned: list[bytes] = []
     monkeypatch.setattr(
         document_uploads,
         "get_settings",
         lambda: SimpleNamespace(upload_max_file_size_bytes=4),
     )
     monkeypatch.setattr(document_uploads, "MAX_DOCUMENT_BATCH_BYTES", 6)
+    monkeypatch.setattr(
+        document_uploads,
+        "malware_scanner_from_settings",
+        lambda: SimpleNamespace(scan=lambda content: scanned.append(content)),
+    )
 
     with pytest.raises(HTTPException) as exc_info:
         await document_uploads.read_bounded_document_uploads([_upload(b"1234"), _upload(b"5678")])
 
     assert exc_info.value.status_code == 413
+    assert scanned == [b"1234"]
 
 
 async def test_document_upload_rejects_excess_file_count_before_read(monkeypatch) -> None:
@@ -128,3 +139,59 @@ async def test_document_upload_closes_unread_handles_after_mid_batch_failure(
     assert first.file.closed
     assert broken.file.closed
     assert remaining.file.closed
+
+
+async def test_document_upload_scans_original_bytes_before_acceptance(monkeypatch) -> None:
+    scanner = SimpleNamespace(scan=lambda content: scanned.append(content))
+    scanned: list[bytes] = []
+    monkeypatch.setattr(
+        document_uploads,
+        "get_settings",
+        lambda: SimpleNamespace(upload_max_file_size_bytes=32),
+    )
+    monkeypatch.setattr(
+        document_uploads,
+        "malware_scanner_from_settings",
+        lambda: scanner,
+    )
+
+    result = await document_uploads.read_bounded_document_uploads(
+        [_upload(b"%PDF-enterprise-fixture")]
+    )
+
+    assert scanned == [b"%PDF-enterprise-fixture"]
+    assert result[0].content == scanned[0]
+
+
+@pytest.mark.parametrize(
+    ("scanner_error", "expected_status"),
+    [
+        (MalwareScanRejectedError("malware"), 422),
+        (MalwareScannerUnavailableError("offline"), 503),
+    ],
+)
+async def test_document_upload_fails_closed_when_scanning_cannot_accept(
+    monkeypatch,
+    scanner_error: Exception,
+    expected_status: int,
+) -> None:
+    def reject(_: bytes) -> None:
+        raise scanner_error
+
+    monkeypatch.setattr(
+        document_uploads,
+        "get_settings",
+        lambda: SimpleNamespace(upload_max_file_size_bytes=32),
+    )
+    monkeypatch.setattr(
+        document_uploads,
+        "malware_scanner_from_settings",
+        lambda: SimpleNamespace(scan=reject),
+    )
+    upload = _upload(b"%PDF-untrusted")
+
+    with pytest.raises(HTTPException) as exc_info:
+        await document_uploads.read_bounded_document_uploads([upload])
+
+    assert exc_info.value.status_code == expected_status
+    assert upload.file.closed

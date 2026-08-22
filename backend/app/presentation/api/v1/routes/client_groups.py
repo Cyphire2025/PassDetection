@@ -99,6 +99,7 @@ from app.infrastructure.database.models import (
     WhatsAppRecipientMessageStateModel,
 )
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.documents.storage_cleanup import stage_storage_cleanup_jobs
 from app.infrastructure.observability.operational_events import (
     is_allowed_operational_reason,
     parse_public_operational_event,
@@ -116,13 +117,15 @@ from app.infrastructure.repositories.passport_roster_resolution_repository impor
 from app.infrastructure.repositories.passport_whatsapp_matching_repository import (
     load_unresolved_passport_whatsapp_match_context,
 )
+from app.infrastructure.repositories.platform_policy_repository import (
+    PlatformPolicyRepository,
+)
 from app.infrastructure.repositories.qualifier_selection_repository import (
     QualifierSelectionRepository,
 )
 from app.infrastructure.repositories.whatsapp_recipient_capacity_repository import (
     require_locked_broadcast_recipient_capacity,
 )
-from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.infrastructure.storage.passport_object_keys import passport_storage_keys
 from app.infrastructure.whatsapp.private_delivery_policy import (
     PrivateDeliveryMutationBlocked,
@@ -175,7 +178,10 @@ _PLATFORM_SETTINGS_KEY = "global"
 def _get_create_use_case(
     session: AsyncSession = Depends(get_db_session),
 ) -> CreateClientGroupUseCase:
-    return CreateClientGroupUseCase(ClientGroupRepository(session))
+    return CreateClientGroupUseCase(
+        ClientGroupRepository(session),
+        PlatformPolicyRepository(session),
+    )
 
 
 def _get_get_by_token_use_case(
@@ -209,13 +215,19 @@ def _get_list_use_case(session: AsyncSession = Depends(get_db_session)) -> ListC
 def _get_revoke_use_case(
     session: AsyncSession = Depends(get_db_session),
 ) -> RevokeClientGroupUseCase:
-    return RevokeClientGroupUseCase(ClientGroupRepository(session))
+    return RevokeClientGroupUseCase(
+        ClientGroupRepository(session),
+        PlatformPolicyRepository(session),
+    )
 
 
 def _get_delete_use_case(
     session: AsyncSession = Depends(get_db_session),
 ) -> DeleteClientGroupUseCase:
-    return DeleteClientGroupUseCase(ClientGroupRepository(session))
+    return DeleteClientGroupUseCase(
+        ClientGroupRepository(session),
+        PlatformPolicyRepository(session),
+    )
 
 
 def _get_restore_use_case(
@@ -2242,6 +2254,14 @@ async def permanently_delete_client_group(
             status_code=status.HTTP_409_CONFLICT,
             detail="Archive the group before permanent deletion",
         )
+    if not retain_records and group.passport_legal_hold:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "Passport data under legal hold cannot be deleted. "
+                "Release the hold through the audited retention control first."
+            ),
+        )
 
     active_resolution_result = await session.execute(
         select(PassportRosterResolutionModel.id)
@@ -2289,8 +2309,15 @@ async def permanently_delete_client_group(
     deleted_processing_jobs = 0
     deleted_passport_submissions = 0
     deleted_qualifier_selections = 0
+    cleanup_jobs = ()
     if not retain_records:
-        deleted_storage_objects = await MinioStorageRepository().delete_files(storage_keys)
+        cleanup_jobs = stage_storage_cleanup_jobs(
+            session,
+            agency_id=group.agency_id,
+            source="passport_submission_delete",
+            context_id=f"group:{link_id}",
+            storage_keys=storage_keys,
+        )
         deleted_processing_jobs = await _delete_by_ids(
             session,
             PassportProcessingJobModel,
@@ -2313,7 +2340,12 @@ async def permanently_delete_client_group(
             NotificationModel.entity_id == str(link_id),
         )
     )
-    group.mark_deleted(passport_count=len(submissions), retain_records=retain_records)
+    policies = await PlatformPolicyRepository(session).load()
+    group.mark_deleted(
+        passport_count=len(submissions),
+        retain_records=retain_records,
+        passport_retention_days=policies.passport_data_retention_days,
+    )
     await repo.update(group)
     await AuditLogRepository(session).record(
         action="client_group_deleted_with_retention"
@@ -2332,6 +2364,15 @@ async def permanently_delete_client_group(
             "deleted_processing_jobs": deleted_processing_jobs,
             "deleted_qualifier_selections": deleted_qualifier_selections,
             "deleted_storage_objects": deleted_storage_objects,
+            "storage_objects_scheduled_for_cleanup": len(storage_keys)
+            if not retain_records
+            else 0,
+            "storage_cleanup_job_count": len(cleanup_jobs),
+            "passport_purge_at": (
+                group.passport_purge_at.isoformat()
+                if group.passport_purge_at is not None
+                else None
+            ),
         },
     )
     return {
@@ -2342,6 +2383,7 @@ async def permanently_delete_client_group(
         "deleted_processing_jobs": deleted_processing_jobs,
         "deleted_qualifier_selections": deleted_qualifier_selections,
         "deleted_storage_objects": deleted_storage_objects,
+        "storage_cleanup_deferred": bool(cleanup_jobs),
     }
 
 

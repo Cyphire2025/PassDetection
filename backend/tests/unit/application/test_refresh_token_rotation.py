@@ -10,7 +10,7 @@ import pytest
 from app.application.dtos.auth_dtos import RefreshTokenInputDTO
 from app.application.use_cases.auth.refresh_token_use_case import RefreshTokenUseCase
 from app.domain.entities.entities import User, UserRole
-from app.domain.exceptions.exceptions import TokenExpiredError
+from app.domain.exceptions.exceptions import AuthenticationError, TokenExpiredError
 
 
 def _user() -> User:
@@ -31,7 +31,13 @@ def _user() -> User:
 @pytest.mark.asyncio
 async def test_refresh_atomically_consumes_token_before_issuing_successor() -> None:
     user = _user()
-    stored_token = SimpleNamespace(user_id=user.id)
+    mfa_at = datetime.now(tz=UTC)
+    stored_token = SimpleNamespace(
+        user_id=user.id,
+        session_version=1,
+        authentication_methods="pwd,totp",
+        mfa_authenticated_at=mfa_at,
+    )
     user_repository = AsyncMock()
     user_repository.get_by_id.return_value = user
     token_repository = AsyncMock()
@@ -63,6 +69,9 @@ async def test_refresh_atomically_consumes_token_before_issuing_successor() -> N
         user_id=user.id,
         expires_at=refresh_expires_at,
         created_from_ip="192.0.2.1",
+        session_version=1,
+        authentication_methods=("pwd", "totp"),
+        mfa_authenticated_at=mfa_at,
     )
     assert result.access_token == "new-access-token"
     assert result.refresh_token == "new-refresh-token"
@@ -71,10 +80,16 @@ async def test_refresh_atomically_consumes_token_before_issuing_successor() -> N
 @pytest.mark.asyncio
 async def test_refresh_losing_atomic_claim_cannot_issue_successor() -> None:
     user = _user()
+    mfa_at = datetime.now(tz=UTC)
     user_repository = AsyncMock()
     user_repository.get_by_id.return_value = user
     token_repository = AsyncMock()
-    token_repository.get_valid_token.return_value = SimpleNamespace(user_id=user.id)
+    token_repository.get_valid_token.return_value = SimpleNamespace(
+        user_id=user.id,
+        session_version=1,
+        authentication_methods="pwd,totp",
+        mfa_authenticated_at=mfa_at,
+    )
     token_repository.consume_valid_token.return_value = None
     use_case = RefreshTokenUseCase(user_repository, token_repository)
 
@@ -91,4 +106,26 @@ async def test_refresh_losing_atomic_claim_cannot_issue_successor() -> None:
 
     create_access_token.assert_not_called()
     create_refresh_token.assert_not_called()
+    token_repository.save.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_privileged_pre_mfa_refresh_token_is_revoked_during_rollout() -> None:
+    user = _user()
+    user_repository = AsyncMock()
+    user_repository.get_by_id.return_value = user
+    token_repository = AsyncMock()
+    token_repository.get_valid_token.return_value = SimpleNamespace(
+        user_id=user.id,
+        session_version=1,
+        authentication_methods="pwd",
+        mfa_authenticated_at=None,
+    )
+    use_case = RefreshTokenUseCase(user_repository, token_repository)
+
+    with pytest.raises(AuthenticationError, match="MFA sign-in is required"):
+        await use_case.execute(RefreshTokenInputDTO(refresh_token="pre-mfa-token"))
+
+    token_repository.revoke.assert_awaited_once_with("pre-mfa-token")
+    token_repository.consume_valid_token.assert_not_awaited()
     token_repository.save.assert_not_awaited()

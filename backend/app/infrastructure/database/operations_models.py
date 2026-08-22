@@ -7,6 +7,7 @@ from datetime import date, datetime
 
 from sqlalchemy import (
     Boolean,
+    CheckConstraint,
     Date,
     DateTime,
     Enum,
@@ -495,6 +496,73 @@ class AttendanceSessionModel(Base):
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     cancelled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class AttendanceCloseoutCheckpointModel(Base):
+    """Latest count-only closeout evidence for one coordinator and activity."""
+
+    __tablename__ = "attendance_closeout_checkpoints"
+    __table_args__ = (
+        UniqueConstraint(
+            "session_id",
+            "coordinator_user_id",
+            name="uq_attendance_closeout_checkpoint_coordinator",
+        ),
+        CheckConstraint(
+            "pending_count >= 0 AND sending_count >= 0 AND retryable_count >= 0 "
+            "AND needs_review_count >= 0 AND unreviewed_rejected_count >= 0",
+            name="ck_attendance_closeout_checkpoint_nonnegative_counts",
+        ),
+        CheckConstraint(
+            "((pending_count + sending_count + retryable_count = 0 "
+            "AND oldest_pending_age_seconds IS NULL) OR "
+            "(pending_count + sending_count + retryable_count > 0 "
+            "AND oldest_pending_age_seconds >= 0))",
+            name="ck_attendance_closeout_checkpoint_oldest_pending",
+        ),
+        Index(
+            "ix_attendance_closeout_checkpoints_session_reported",
+            "session_id",
+            "reported_at",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+    )
+    session_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("attendance_sessions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    coordinator_user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    pending_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    sending_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    retryable_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    needs_review_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    unreviewed_rejected_count: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+    )
+    oldest_pending_age_seconds: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+    reported_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=_utcnow,
+        onupdate=_utcnow,
+        nullable=False,
+    )
 
 
 class AttendanceRecordModel(Base):

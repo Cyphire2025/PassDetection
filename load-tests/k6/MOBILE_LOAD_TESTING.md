@@ -1,7 +1,8 @@
 # Mobile API and realtime capacity gate
 
-These k6 harnesses exercise the authenticated cursor API and foreground WebSocket channel with
-unique, pre-provisioned staging sessions. They are release-gate tools, not proof by their mere
+These k6 harnesses exercise the authenticated cursor API, foreground WebSocket channel, and a
+fresh synthetic attendance event with unique, pre-provisioned staging sessions. They are
+release-gate tools, not proof by their mere
 presence. A capacity claim requires a recorded run through the actual staging CDN, reverse proxy,
 API replicas, Redis, PostgreSQL, and object-storage topology that mirrors production.
 
@@ -49,6 +50,30 @@ The cursor should be a valid starting watermark for that synthetic session. The 
 profiles require at least that many unique entries. Keep the file outside Git, encrypt it at rest,
 restrict its permissions, delete it after the run, and revoke every generated session. Never place
 tokens, trip identifiers, passenger identifiers, or document identifiers in k6 tags or logs.
+
+The attendance gate uses a separate `MOBILE_ATTENDANCE_LOAD_DATA` fixture. Its canonical event has
+25 unique coordinator access sessions and 32 unique fresh actions per coordinator (800 total),
+plus four deliberate duplicate submissions per coordinator (100 total). Each entry has
+`access_token`, `trip_id`, `session_id`, and `actions`; every action has a fresh UUID
+`client_event_id`, a valid synthetic `signed_qr`, and `duplicate_client_event_id`. The first four
+actions must have a second globally unique UUID; the remaining 28 use `null`. After each of those
+four fresh actions is accepted, the harness immediately resubmits its QR with the second event ID
+and requires `already_applied`, proving passenger-level deduplication rather than only replaying an
+idempotency key. These are staging bearer values: apply the
+same encryption, permission, no-log, deletion, and revocation controls. Generate a new fixture for
+every run. `already_applied` is a failure for all 800 fresh actions and the only passing result for
+the 100 explicitly marked duplicate submissions.
+
+The dedicated attendance script intentionally accepts only `25`, `32`, and `4` for the three count
+settings. This makes a partial run fail before traffic rather than being mistaken for release-gate
+evidence. Use a separately reviewed script/configuration for a different workload; do not weaken
+the canonical gate.
+
+Before authenticated write traffic, the harness also queries the exact canonical attendance
+activity and requires an active 800-person roster with server count zero. After all virtual users
+finish, teardown queries the same activity again and requires the authoritative server count to be
+exactly 800. This makes stale fixtures, a partial roster, lost writes, and recounting fail the run;
+the bounded reconciliation response is never logged and no roster row becomes a tag or metric.
 
 ## Profiles and traffic model
 
@@ -102,6 +127,12 @@ $env:MOBILE_LOAD_PROFILE = "smoke"
 
 k6 run --summary-export ".\evidence\$($env:LOAD_TEST_ID)-realtime.json" .\load-tests\k6\mobile-realtime.js
 k6 run --summary-export ".\evidence\$($env:LOAD_TEST_ID)-api.json" .\load-tests\k6\mobile-api.js
+$env:MOBILE_ATTENDANCE_LOAD_DATA = "C:\secure\mobile-attendance-load-data.json"
+$env:MOBILE_ATTENDANCE_COORDINATORS = "25"
+$env:MOBILE_ATTENDANCE_SCANS_PER_COORDINATOR = "32"
+$env:MOBILE_ATTENDANCE_DUPLICATES_PER_COORDINATOR = "4"
+$env:MOBILE_ATTENDANCE_SCAN_INTERVAL_MS = "3750"
+k6 run --summary-export ".\evidence\$($env:LOAD_TEST_ID)-attendance.json" .\load-tests\k6\mobile-attendance.js
 ```
 
 Do not run the API and realtime peak profiles concurrently until each has passed independently and
@@ -115,6 +146,15 @@ failures, malformed/oversized responses, cross-trip data, cursor regression, an 
 cannot converge within 20 pages, invalid WebSocket frames, connection success at or below 99%,
 unexpected disconnects at or above 1%, HTTP failures at or above 1%, API/ready p95 at or above two
 seconds, or p99 at or above five seconds.
+
+The canonical attendance run is stricter: it starts from authoritative count zero, all 800 fresh actions must be accepted exactly once and
+all 100 deliberate same-passenger/different-event-ID duplicates must return `already_applied`
+without changing the count. Any missing/extra duplicate attempt fails the threshold. Fresh and
+duplicate acknowledgement p95 must remain below two seconds and p99 below five seconds, with no
+contract/authentication/rate/proxy failure and HTTP failure rate below 0.5%. The harness must then
+observe authoritative server count exactly 800. Passing still requires zero active/needs-review
+device queues as defined
+in `docs/MOBILE_ATTENDANCE_EVENT_RUNBOOK.md`.
 
 Retain the immutable k6 summary, generator telemetry, exact fixture-generation audit (without
 secrets), Git revision, deployment/image revision, configuration snapshot, and matching time-window

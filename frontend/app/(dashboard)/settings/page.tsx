@@ -10,6 +10,7 @@ import { Badge, Button, Card, CardContent, ConfirmDialog, Input, Skeleton } from
 import apiClient from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { selectUser, useAuthStore } from "@/stores/auth.store";
+import { AccountSecurityPanel } from "@/features/auth/components/account-security-panel";
 import { formatDateTime } from "@/lib/utils/format";
 
 const ROLE_LABELS: Record<string, string> = {
@@ -180,8 +181,9 @@ export default function SettingsPage() {
       />
 
       <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
-        <Card>
-          <CardContent className="space-y-5 p-5">
+        <div className="space-y-6">
+          <Card>
+            <CardContent className="space-y-5 p-5">
             <div className="flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
                 <UserCog className="h-5 w-5" />
@@ -198,8 +200,10 @@ export default function SettingsPage() {
               <SettingRow label="Role" value={user ? ROLE_LABELS[user.role] ?? user.role : "Unavailable"} />
               <SettingRow label="Last login" value={user?.last_login_at ? formatDateTime(user.last_login_at) : "Not recorded"} />
             </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+          <AccountSecurityPanel />
+        </div>
 
         <Card>
           <CardContent className="space-y-6 p-5">

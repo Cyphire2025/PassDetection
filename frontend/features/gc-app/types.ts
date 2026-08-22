@@ -68,7 +68,6 @@ export interface ClientManagerInput {
   phone_number: string;
   company_id: string;
   group_ids: string[];
-  temporary_password?: string;
 }
 
 export interface ClientManagerSession {

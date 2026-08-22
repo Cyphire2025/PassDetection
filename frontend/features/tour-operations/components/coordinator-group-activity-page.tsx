@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import {
   AlertTriangle,
   ArrowLeft,
-  Camera,
   CheckCircle2,
   ClipboardList,
   CloudOff,
@@ -13,7 +12,7 @@ import {
   LogIn,
   RefreshCw,
 } from "lucide-react";
-import { Badge, Button, Input, Skeleton } from "@/components/ui";
+import { Badge, Button, Skeleton } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
 import {
   selectHasHydrated,
@@ -22,7 +21,6 @@ import {
   useAuthStore,
 } from "@/stores/auth.store";
 import {
-  useCreateMyAttendanceSession,
   useMyAttendanceSessionDetails,
   useMyAttendanceSessions,
   useMyTourGroupPassengers,
@@ -43,6 +41,7 @@ import {
 } from "../services/attendance-session-progress";
 import { selectVisibleAttendanceSessions } from "../services/attendance-sync-policy";
 import { useNetworkStatus } from "../hooks/use-network-status";
+import { useAttendanceCloseoutReporting } from "../hooks/use-attendance-closeout-reporting";
 
 const PASSENGER_PAGE_SIZE = 50;
 const EMPTY_GROUPS: TourGroup[] = [];
@@ -88,11 +87,20 @@ export function CoordinatorGroupActivityPage({ groupId }: { groupId: string }) {
     ),
     [cachedSessions, groupId, sessions, sessionsQuery.isSuccess],
   );
+  const selectableSessions = visibleSessions.filter(
+    (session) => session.status === "draft" || session.status === "active",
+  );
+  const completedSessions = visibleSessions.filter((session) => session.status === "completed");
   const [detailsSessionId, setDetailsSessionId] = useState<string | null>(null);
   const detailsQuery = useMyAttendanceSessionDetails(
     detailsSessionId,
     hasHydrated && isCoordinator && Boolean(detailsSessionId),
   );
+  const closeoutReporting = useAttendanceCloseoutReporting({
+    enabled: hasHydrated && isCoordinator && isOnline,
+    groupId,
+    sessions: visibleSessions,
+  });
 
   useEffect(() => {
     if (!passengersQuery.isSuccess) return;
@@ -163,7 +171,7 @@ export function CoordinatorGroupActivityPage({ groupId }: { groupId: string }) {
         {!isOnline && (
           <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
             <CloudOff className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-            <p>Offline mode: saved groups and passengers remain visible. Reconnect before starting or completing an activity.</p>
+            <p>Offline mode: saved groups, passengers, and manager-prepared activities remain visible. Reconnect to refresh assignments.</p>
           </div>
         )}
         {(groupsQuery.error || passengersQuery.error || sessionsQuery.error) && (
@@ -207,19 +215,58 @@ export function CoordinatorGroupActivityPage({ groupId }: { groupId: string }) {
 
         <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-100 p-4">
-            <h2 className="text-base font-semibold text-slate-950">Current Activity</h2>
-            <p className="mt-1 text-sm text-slate-500">Start or join a shared group count.</p>
+            <h2 className="text-base font-semibold text-slate-950">Assigned Activities</h2>
+            <p className="mt-1 text-sm text-slate-500">Select a centrally prepared activity. Only managers and administrators can create activity names and IDs.</p>
+            {selectableSessions.some((session) => session.status === "active") ? (
+              <p
+                aria-live="polite"
+                className={`mt-2 text-xs font-medium ${
+                  !isOnline || closeoutReporting.reportingError
+                    ? "text-amber-700"
+                    : "text-emerald-700"
+                }`}
+              >
+                {!isOnline
+                  ? "Reconnect to publish this coordinator-account closeout checkpoint."
+                  : closeoutReporting.reportingError
+                    ? "Closeout checkpoint could not be published. Refresh after synchronizing."
+                    : closeoutReporting.lastReportedAt
+                      ? "Count-only closeout checkpoint published; it refreshes every 30 seconds on this page."
+                      : "Publishing count-only closeout checkpoint..."}
+              </p>
+            ) : null}
           </div>
-          <ActivityStarter groupId={groupId} isOnline={isOnline} />
+          {selectableSessions.length === 0 ? (
+            <p className="p-4 text-sm leading-6 text-slate-500">
+              No open activity is assigned yet. Ask a manager to create one, then refresh this group.
+            </p>
+          ) : (
+            <div className="space-y-2 p-3">
+              {selectableSessions.map((session) => (
+                <button
+                  key={session.id}
+                  type="button"
+                  onClick={() => router.push(`/coordinator/groups/${groupId}/scanner?sessionId=${session.id}` as never)}
+                  className="flex min-h-14 w-full items-center justify-between gap-3 rounded-lg border border-slate-200 px-3 py-3 text-left hover:border-blue-300 hover:text-blue-700"
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate font-medium text-slate-900">{session.name}</span>
+                    <span className="block text-xs text-slate-500">{session.scanned_count}/{session.assigned_count} counted</span>
+                  </span>
+                  <Badge variant="outline">{session.status}</Badge>
+                </button>
+              ))}
+            </div>
+          )}
         </section>
 
-        {visibleSessions.length > 0 && (
+        {completedSessions.length > 0 && (
           <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
             <div className="border-b border-slate-100 p-4">
-              <h2 className="text-base font-semibold text-slate-950">Recent Activities</h2>
+              <h2 className="text-base font-semibold text-slate-950">Completed Activities</h2>
             </div>
             <div className="space-y-2 p-3">
-              {visibleSessions.slice(0, 5).map((session) => (
+              {completedSessions.slice(0, 5).map((session) => (
                 <div
                   key={session.id}
                   className="rounded-lg border border-slate-200 px-3 py-3 text-sm"
@@ -281,62 +328,6 @@ export function CoordinatorGroupActivityPage({ groupId }: { groupId: string }) {
         </section>
       </main>
     </CoordinatorFrame>
-  );
-}
-
-function ActivityStarter({ groupId, isOnline }: { groupId: string; isOnline: boolean }) {
-  const router = useRouter();
-  const createSession = useCreateMyAttendanceSession();
-  const [activityName, setActivityName] = useState("");
-  const normalizedName = activityName.trim();
-
-  return (
-    <form
-      className="space-y-3 p-4"
-      onSubmit={(event) => {
-        event.preventDefault();
-        if (!isOnline || normalizedName.length < 2 || createSession.isPending) return;
-        createSession.mutate(
-          { groupId, name: normalizedName },
-          {
-            onSuccess: (session) => {
-              setActivityName("");
-              router.push(`/coordinator/groups/${groupId}/scanner?sessionId=${session.id}` as never);
-            },
-          },
-        );
-      }}
-    >
-      <Input
-        id="coordinator-activity-name"
-        label="Activity name"
-        value={activityName}
-        onChange={(event) => setActivityName(event.target.value)}
-        placeholder="After lunch count"
-        disabled={createSession.isPending || !isOnline}
-        required
-        minLength={2}
-        maxLength={120}
-        autoComplete="off"
-        className="h-12 text-base"
-      />
-      {!isOnline && <p className="text-xs text-amber-700">Reconnect to create a new activity.</p>}
-      {createSession.isError && (
-        <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          The activity could not be created. Check the connection and try again.
-        </p>
-      )}
-      <Button
-        type="submit"
-        size="lg"
-        className="h-14 w-full text-base"
-        isLoading={createSession.isPending}
-        disabled={!isOnline || normalizedName.length < 2}
-        leftIcon={<Camera className="h-5 w-5" aria-hidden="true" />}
-      >
-        Start Scanner
-      </Button>
-    </form>
   );
 }
 

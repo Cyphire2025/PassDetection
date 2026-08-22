@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, Search, ShieldCheck, UserPlus, Users } from "lucide-react";
+import { Check, ChevronRight, Copy, Search, ShieldCheck, UserPlus, Users } from "lucide-react";
 import { useState } from "react";
 import { Badge, Button, Card, CardContent, Input } from "@/components/ui";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -15,6 +15,7 @@ import { ClientManagerFormDialog } from "./client-manager-form-dialog";
 import { useGcAppAgencyScope } from "./gc-app-agency-scope";
 import { GcAlert, GcLoadingRows, GcPagination } from "./gc-app-feedback";
 import { GcSelect } from "./gc-select";
+import { GcDialog } from "./gc-dialog";
 
 const STATUS_OPTIONS = [
   { value: "all", label: "All account statuses" },
@@ -32,6 +33,8 @@ export function ClientManagerAccountsPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<ClientManagerAccount | null>(null);
   const [selected, setSelected] = useState<ClientManagerAccount | null>(null);
+  const [issuedInvitation, setIssuedInvitation] = useState<{ name: string; token: string } | null>(null);
+  const [invitationCopied, setInvitationCopied] = useState(false);
   const debouncedSearch = useDebounce(search, 300);
   const filters = { page, page_size: GC_APP_DEFAULT_PAGE_SIZE, search: debouncedSearch, status } as const;
   const managers = useClientManagers(agencyId, filters);
@@ -47,7 +50,11 @@ export function ClientManagerAccountsPage() {
       };
       await mutations.update.mutateAsync({ managerId: editing.id, current: editing, body: update });
     } else {
-      await mutations.create.mutateAsync(body);
+      const created = await mutations.create.mutateAsync(body);
+      if (created.activation_token) {
+        setIssuedInvitation({ name: created.name, token: created.activation_token });
+        setInvitationCopied(false);
+      }
     }
     setFormOpen(false);
     setEditing(null);
@@ -214,6 +221,43 @@ export function ClientManagerAccountsPage() {
           setFormOpen(true);
         }}
       />
+
+      <GcDialog
+        open={Boolean(issuedInvitation)}
+        title="Activation link created"
+        description={issuedInvitation ? `${issuedInvitation.name} must use this link within seven days and set their own password.` : undefined}
+        onClose={() => setIssuedInvitation(null)}
+        size="md"
+        footer={(
+          <Button type="button" onClick={() => setIssuedInvitation(null)}>Done</Button>
+        )}
+      >
+        {issuedInvitation && (
+          <div className="space-y-3">
+            <p className="text-sm leading-6 text-slate-600">This secret is returned once and is not stored in the dashboard. Send it only to the intended manager through an approved channel.</p>
+            <div className="break-all rounded-xl border border-slate-200 bg-slate-50 p-3 font-mono text-xs text-slate-800">
+              {clientManagerActivationLink(issuedInvitation.token)}
+            </div>
+            <Button
+              type="button"
+              variant="secondary"
+              leftIcon={invitationCopied ? <Check className="h-4 w-4" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />}
+              onClick={() => {
+                void navigator.clipboard.writeText(clientManagerActivationLink(issuedInvitation.token)).then(() => setInvitationCopied(true));
+              }}
+            >
+              {invitationCopied ? "Copied" : "Copy activation link"}
+            </Button>
+          </div>
+        )}
+      </GcDialog>
     </div>
   );
+}
+
+function clientManagerActivationLink(token: string): string {
+  if (typeof window === "undefined") return token;
+  const url = new URL("/gc/activate", window.location.origin);
+  url.searchParams.set("token", token);
+  return url.toString();
 }

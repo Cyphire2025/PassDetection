@@ -1,8 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { connection } from "next/server";
 import "./globals.css";
 import { PwaRegistrar } from "@/components/pwa/pwa-registrar";
 import { QueryProvider } from "@/providers/query-provider";
+import { QueueSafeSignOutGuard } from "@/features/auth/components/queue-safe-sign-out-guard";
+import { StepUpDialog } from "@/features/auth/components/step-up-dialog";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -45,12 +48,21 @@ export const viewport: Viewport = {
   colorScheme: "light",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // A request-specific CSP nonce is generated in proxy.ts. Waiting for the
+  // incoming request prevents a statically generated shell from containing
+  // scripts that cannot receive that nonce.
+  await connection();
+
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning data-scroll-behavior="smooth">
       <body className="min-h-screen bg-slate-50 font-sans antialiased" suppressHydrationWarning>
         <PwaRegistrar />
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+        <QueueSafeSignOutGuard />
+        <StepUpDialog />
+          {children}
+        </QueryProvider>
       </body>
     </html>
   );

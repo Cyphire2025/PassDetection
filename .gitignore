@@ -33,6 +33,7 @@ pip-delete-this-directory.txt
 .pytest_cache/
 htmlcov/
 .coverage
+.coverage.*
 coverage.xml
 coverage/
 *.cover
@@ -97,6 +98,7 @@ tmp/
 
 # Short-lived authenticated mobile load fixtures; generate outside Git and revoke after use.
 load-tests/k6/mobile-load-data*.json
+load-tests/k6/mobile-attendance-load-data*.json
 
 # Standalone local desktop utility; maintained outside this production repository.
 Smart COPY-PASTE/

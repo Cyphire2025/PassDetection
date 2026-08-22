@@ -4,6 +4,7 @@ import unittest
 import uuid
 from unittest.mock import AsyncMock
 
+from app.application.platform_policies import PlatformPolicies
 from app.application.use_cases.passports.client_submit_passport_use_case import (
     ClientSubmitPassportUseCase,
 )
@@ -13,14 +14,32 @@ from app.domain.exceptions.exceptions import ValidationError
 
 
 class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
-    def _build_use_case(self, group: ClientGroup, submission: PassportSubmission):
+    def _build_use_case(
+        self,
+        group: ClientGroup,
+        submission: PassportSubmission,
+        *,
+        policies: PlatformPolicies | None = None,
+    ):
         passport_repo = AsyncMock()
         passport_repo.get_by_id_for_update.return_value = submission
         passport_repo.exists_contact_in_group.return_value = False
         group_repo = AsyncMock()
         group_repo.get_by_token.return_value = group
         storage_repo = AsyncMock()
-        return ClientSubmitPassportUseCase(passport_repo, group_repo, storage_repo), passport_repo
+        policy_provider = None
+        if policies is not None:
+            policy_provider = AsyncMock()
+            policy_provider.load.return_value = policies
+        return (
+            ClientSubmitPassportUseCase(
+                passport_repo,
+                group_repo,
+                storage_repo,
+                policy_provider,
+            ),
+            passport_repo,
+        )
 
     @staticmethod
     def _group(**options: object) -> ClientGroup:
@@ -356,6 +375,90 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
         changed = {**request, "confirmed_fields": {"passport_number": "DIFFERENT"}}
         with self.assertRaises(ValidationError):
             await use_case.execute(submission.id, **changed)
+
+    async def test_contact_requirements_follow_persisted_platform_policy(self) -> None:
+        group = self._group()
+        optional_submission = self._submission(group)
+        optional_use_case, optional_repo = self._build_use_case(
+            group,
+            optional_submission,
+            policies=PlatformPolicies(
+                require_client_email=False,
+                require_client_phone=False,
+                duplicate_contact_policy="allow",
+            ),
+        )
+
+        await optional_use_case.execute(
+            optional_submission.id,
+            group_token=group.token,
+            confirmed_fields={"passport_number": "P1234567"},
+            client_email=None,
+            client_phone=None,
+        )
+
+        optional_repo.exists_contact_in_group.assert_not_awaited()
+        self.assertIsNone(optional_submission.client_email)
+        self.assertIsNone(optional_submission.client_phone)
+
+        required_submission = self._submission(group)
+        required_use_case, required_repo = self._build_use_case(
+            group,
+            required_submission,
+            policies=PlatformPolicies(
+                require_client_email=True,
+                require_client_phone=False,
+            ),
+        )
+        with self.assertRaises(ValidationError) as context:
+            await required_use_case.execute(
+                required_submission.id,
+                group_token=group.token,
+                confirmed_fields={"passport_number": "P1234567"},
+                client_email=None,
+                client_phone=None,
+            )
+
+        self.assertEqual(context.exception.field, "client_email")
+        required_repo.update.assert_not_awaited()
+
+    async def test_platform_duplicate_policy_locks_and_checks_family_contacts(self) -> None:
+        group = self._group()
+        submission = self._submission(group)
+        use_case, passport_repo = self._build_use_case(
+            group,
+            submission,
+            policies=PlatformPolicies(
+                duplicate_contact_policy="block_all",
+                require_client_email=False,
+                require_client_phone=False,
+            ),
+        )
+        passport_repo.exists_contact_in_group.return_value = True
+
+        with self.assertRaises(ValidationError) as context:
+            await use_case.execute(
+                submission.id,
+                group_token=group.token,
+                confirmed_fields={"passport_number": "P1234567"},
+                client_email="member@example.com",
+                client_phone="9000011111",
+                submission_mode="family",
+                family_group_id=uuid.uuid4(),
+                family_member_index=0,
+                family_head_name="Family Head",
+                family_head_email="head@example.com",
+                family_head_phone="9000022222",
+            )
+
+        self.assertEqual(context.exception.field, "client_contact")
+        call = passport_repo.exists_contact_in_group.await_args
+        self.assertEqual(call.kwargs["scope"], "platform")
+        self.assertEqual(call.kwargs["client_email"], "head@example.com")
+        self.assertEqual(call.kwargs["client_phone"], "9000022222")
+        self.assertEqual(call.kwargs["additional_emails"], ("member@example.com",))
+        self.assertEqual(call.kwargs["additional_phones"], ("9000011111",))
+        passport_repo.update.assert_not_awaited()
 
     async def test_qualifier_submission_cannot_be_changed_to_family_mode(self) -> None:
         group = self._group()

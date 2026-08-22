@@ -46,6 +46,11 @@ interface NavItem {
   requiresGcAppManagement?: boolean;
 }
 
+interface SidebarProps {
+  mobile?: boolean;
+  onNavigate?: () => void;
+}
+
 const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard",    href: ROUTES.dashboard.root,       icon: LayoutDashboard, roles: ["super_admin", "agency_admin", "agency_manager"] },
   { label: "My Tour",      href: ROUTES.coordinator,          icon: CalendarCheck, roles: ["agency_coordinator"] },
@@ -79,9 +84,10 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Settings",     href: ROUTES.dashboard.settings,   icon: Settings, roles: ["super_admin", "agency_admin"] },
 ];
 
-export function Sidebar() {
+export function Sidebar({ mobile = false, onNavigate }: SidebarProps) {
   const pathname        = usePathname();
-  const isCollapsed     = useUIStore(selectSidebarCollapsed);
+  const storedCollapsed = useUIStore(selectSidebarCollapsed);
+  const isCollapsed     = mobile ? false : storedCollapsed;
   const toggleSidebar   = useUIStore((s) => s.toggleSidebar);
   const role            = useAuthStore(selectUserRole);
   const user            = useAuthStore(selectUser);
@@ -95,7 +101,7 @@ export function Sidebar() {
       className={cn(
         "relative flex h-full flex-col border-r border-slate-200 bg-white",
         "transition-all duration-300 ease-in-out",
-        isCollapsed ? "w-16" : "w-60"
+        mobile ? "w-full" : isCollapsed ? "w-16" : "w-60"
       )}
       aria-label="Main navigation"
     >
@@ -116,6 +122,7 @@ export function Sidebar() {
               <li key={item.href}>
                 <Link
                   href={item.href as never}
+                  onClick={onNavigate}
                   className={cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2",
                     "text-sm font-medium transition-colors duration-100",
@@ -142,7 +149,7 @@ export function Sidebar() {
       </nav>
 
       {/* Collapse Toggle */}
-      <div className="border-t border-slate-200 p-2">
+      {!mobile && <div className="border-t border-slate-200 p-2">
         <Button
           variant="ghost"
           size="icon"
@@ -154,7 +161,7 @@ export function Sidebar() {
             ? <ChevronRight className="h-4 w-4" aria-hidden="true" />
             : <ChevronLeft  className="h-4 w-4" aria-hidden="true" />}
         </Button>
-      </div>
+      </div>}
     </aside>
   );
 }

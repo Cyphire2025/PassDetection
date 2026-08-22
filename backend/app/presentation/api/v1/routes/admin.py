@@ -8,12 +8,14 @@ from __future__ import annotations
 import secrets
 import uuid
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy import delete, func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.platform_policies import PLATFORM_SETTINGS_KEY, PlatformPolicies
+from app.core.logging.logger import get_logger
 from app.core.security.password import hash_password
 from app.domain.entities.entities import (
     OFFICE_VISIBLE_PASSPORT_STATUS_VALUES,
@@ -34,6 +36,7 @@ from app.infrastructure.database.models import (
     PassportSubmissionModel,
     PlatformSettingModel,
     UserModel,
+    UserSecurityStateModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
     WhatsAppBroadcastRejectedContactModel,
@@ -42,7 +45,12 @@ from app.infrastructure.database.models import (
     WhatsAppRecipientMessageStateModel,
 )
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.documents.storage_cleanup import (
+    process_storage_cleanup_job,
+    stage_storage_cleanup_jobs,
+)
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.infrastructure.repositories.identity_security_repository import IdentitySecurityRepository
 from app.infrastructure.repositories.passport_image_crop_repository import (
     PassportImageCropRepository,
 )
@@ -56,16 +64,21 @@ from app.presentation.api.v1.schemas.operations_schemas import (
     DeleteManagerResponse,
     ManagerGroupAccessResponse,
     ManagerResponse,
+    PassportRetentionControlRequest,
+    PassportRetentionControlResponse,
     PlatformSettingsResponse,
     PurgePassportDataResponse,
     UpdatePlatformSettingsRequest,
 )
-from app.presentation.dependencies.auth import require_role
+from app.presentation.dependencies.auth import require_recent_mfa, require_role
+from app.presentation.dependencies.csrf import require_cookie_csrf
+from app.presentation.security.client_ip import trusted_client_ip
 
 router = APIRouter()
-PLATFORM_SETTINGS_KEY = "global"
-DEFAULT_PLATFORM_SETTINGS = PlatformSettingsResponse().model_dump(exclude={"updated_at"})
+logger = get_logger(__name__)
+DEFAULT_PLATFORM_SETTINGS = PlatformPolicies().as_dict()
 REMOVED_GROUP_STATUSES = (GroupStatus.ARCHIVED.value, GroupStatus.DELETED.value)
+PASSPORT_PURGE_INLINE_CLEANUP_MAX_OBJECTS = 500
 
 
 @dataclass(frozen=True, slots=True)
@@ -218,6 +231,14 @@ async def list_managers(
         select(ManagerGroupAccessModel).where(ManagerGroupAccessModel.manager_id.in_(manager_ids))
     )
     access_rows = list(access_result.scalars().all())
+    security_result = await session.execute(
+        select(UserSecurityStateModel).where(
+            UserSecurityStateModel.user_id.in_(manager_ids)
+        )
+    )
+    security_by_user_id = {
+        state.user_id: state for state in security_result.scalars().all()
+    }
 
     return [
         ManagerResponse(
@@ -240,6 +261,11 @@ async def list_managers(
                 for group in groups
                 if access.manager_id == user.id and access.group_id == group.id
             ],
+            credential_state=(
+                security_by_user_id[user.id].credential_state
+                if user.id in security_by_user_id
+                else "active"
+            ),
         )
         for user in managers
     ]
@@ -250,9 +276,12 @@ async def list_managers(
     response_model=ManagerResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Create a limited manager account",
+    dependencies=[Depends(require_cookie_csrf), Depends(require_recent_mfa)],
 )
 async def create_manager(
     body: CreateManagerRequest,
+    request: Request,
+    response: Response,
     current_user: User = Depends(require_role([UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN])),
     session: AsyncSession = Depends(get_db_session),
 ) -> ManagerResponse:
@@ -265,7 +294,7 @@ async def create_manager(
 
     manager = UserModel(
         email=str(body.email).lower().strip(),
-        hashed_password=hash_password(body.password),
+        hashed_password=hash_password(f"Inv1{secrets.token_urlsafe(32)}"),
         full_name=body.full_name.strip(),
         role=UserRole.AGENCY_MANAGER.value,
         agency_id=current_user.agency_id,
@@ -273,6 +302,32 @@ async def create_manager(
     )
     session.add(manager)
     await session.flush()
+    identity_repository = IdentitySecurityRepository(session)
+    security_state = UserSecurityStateModel(
+        user_id=manager.id,
+        credential_state="invited",
+        session_version=1,
+        mfa_required=True,
+    )
+    session.add(security_state)
+    _, activation_token = await identity_repository.issue_action_token(
+        user_id=manager.id,
+        purpose="activation",
+        expires_in=timedelta(days=7),
+        created_by_user_id=current_user.id,
+    )
+    await AuditLogRepository(session).record(
+        action="manager.invited",
+        entity_type="user_account",
+        entity_id=str(manager.id),
+        agency_id=manager.agency_id,
+        user_id=current_user.id,
+        actor_email=current_user.email,
+        ip_address=trusted_client_ip(request),
+        metadata={"target_role": manager.role, "target_email": manager.email},
+    )
+    response.headers["Cache-Control"] = "private, no-store, max-age=0"
+    response.headers["Pragma"] = "no-cache"
 
     return ManagerResponse(
         id=manager.id,
@@ -283,6 +338,8 @@ async def create_manager(
         is_active=manager.is_active,
         created_at=manager.created_at,
         last_login_at=manager.last_login_at,
+        credential_state=security_state.credential_state,
+        activation_token=activation_token,
     )
 
 
@@ -305,6 +362,7 @@ async def get_platform_settings(
     response_model=PlatformSettingsResponse,
     status_code=status.HTTP_200_OK,
     summary="Update editable platform settings",
+    dependencies=[Depends(require_cookie_csrf), Depends(require_recent_mfa)],
 )
 async def update_platform_settings(
     body: UpdatePlatformSettingsRequest,
@@ -334,6 +392,104 @@ async def update_platform_settings(
         metadata=value,
     )
     return PlatformSettingsResponse(**row.value, updated_at=row.updated_at)
+
+
+@router.get(
+    "/groups/{group_id}/passport-retention",
+    response_model=PassportRetentionControlResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Inspect an explicit group passport-retention schedule",
+)
+async def get_group_passport_retention(
+    group_id: uuid.UUID,
+    current_user: User = Depends(
+        require_role([UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN])
+    ),
+    session: AsyncSession = Depends(get_db_session),
+) -> PassportRetentionControlResponse:
+    group = await _load_retention_control_group(
+        session,
+        group_id=group_id,
+        current_user=current_user,
+        lock=False,
+    )
+    return _passport_retention_response(group)
+
+
+@router.put(
+    "/groups/{group_id}/passport-retention",
+    response_model=PassportRetentionControlResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Place or release a legal hold on group passport data",
+    dependencies=[Depends(require_cookie_csrf), Depends(require_recent_mfa)],
+)
+async def update_group_passport_retention(
+    group_id: uuid.UUID,
+    body: PassportRetentionControlRequest,
+    current_user: User = Depends(
+        require_role([UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN])
+    ),
+    session: AsyncSession = Depends(get_db_session),
+) -> PassportRetentionControlResponse:
+    group = await _load_retention_control_group(
+        session,
+        group_id=group_id,
+        current_user=current_user,
+        lock=True,
+    )
+    now = datetime.now(tz=UTC)
+    previous_hold = group.passport_legal_hold
+    if body.legal_hold:
+        group.passport_legal_hold = True
+        group.passport_legal_hold_reason = body.reason
+        group.passport_legal_hold_set_at = now
+        group.passport_legal_hold_set_by_user_id = current_user.id
+    else:
+        group.passport_legal_hold = False
+        group.passport_legal_hold_reason = None
+        group.passport_legal_hold_set_at = None
+        group.passport_legal_hold_set_by_user_id = None
+
+    policies = PlatformPolicies.from_mapping(
+        (await _load_platform_settings(session)).model_dump(exclude={"updated_at"})
+    )
+    anchor = group.deleted_at or group.closed_at
+    if anchor is not None and (
+        group.passport_purge_at is None
+        or group.passport_retention_days_applied
+        != policies.passport_data_retention_days
+    ):
+        group.passport_retention_days_applied = policies.passport_data_retention_days
+        group.passport_purge_at = anchor + timedelta(
+            days=policies.passport_data_retention_days
+        )
+
+    await AuditLogRepository(session).record(
+        action=(
+            "passport_legal_hold_placed"
+            if body.legal_hold
+            else "passport_legal_hold_released"
+        ),
+        entity_type="client_group",
+        entity_id=str(group.id),
+        agency_id=group.agency_id,
+        user_id=current_user.id,
+        actor_email=current_user.email,
+        metadata={
+            "reason": body.reason,
+            "previous_legal_hold": previous_hold,
+            "passport_purge_at": (
+                group.passport_purge_at.isoformat()
+                if group.passport_purge_at is not None
+                else None
+            ),
+            "passport_retention_days_applied": (
+                group.passport_retention_days_applied
+            ),
+        },
+    )
+    await session.flush()
+    return _passport_retention_response(group)
 
 
 @router.get(
@@ -378,6 +534,7 @@ async def list_staff_for_access(
     response_model=ManagerResponse,
     status_code=status.HTTP_200_OK,
     summary="Replace a staff member's assigned group access",
+    dependencies=[Depends(require_cookie_csrf), Depends(require_recent_mfa)],
 )
 async def assign_staff_groups(
     staff_id: uuid.UUID,
@@ -425,6 +582,7 @@ async def assign_staff_groups(
     response_model=ManagerResponse,
     status_code=status.HTTP_200_OK,
     summary="Replace a manager's extra assigned group access",
+    dependencies=[Depends(require_cookie_csrf), Depends(require_recent_mfa)],
 )
 async def assign_manager_groups(
     manager_id: uuid.UUID,
@@ -472,6 +630,7 @@ async def assign_manager_groups(
     response_model=DeleteManagerResponse,
     status_code=status.HTTP_200_OK,
     summary="Delete a manager account",
+    dependencies=[Depends(require_cookie_csrf), Depends(require_recent_mfa)],
 )
 async def delete_manager(
     manager_id: uuid.UUID,
@@ -607,6 +766,7 @@ async def delete_manager(
     response_model=PurgePassportDataResponse,
     status_code=status.HTTP_200_OK,
     summary="Permanently delete passport and WhatsApp broadcast data",
+    dependencies=[Depends(require_cookie_csrf), Depends(require_recent_mfa)],
 )
 async def purge_passport_data(
     current_user: User = Depends(require_role([UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN])),
@@ -646,6 +806,23 @@ async def purge_passport_data(
 
     group_filter = [] if current_user.role == UserRole.SUPER_ADMIN else [ClientGroupModel.agency_id == current_user.agency_id]
 
+    legal_hold_result = await session.execute(
+        select(func.count())
+        .select_from(ClientGroupModel)
+        .where(
+            *group_filter,
+            ClientGroupModel.passport_legal_hold.is_(True),
+        )
+    )
+    if int(legal_hold_result.scalar_one()) > 0:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "Passport data under legal hold cannot be purged. "
+                "Release each hold through the audited retention control first."
+            ),
+        )
+
     group_rows = await session.execute(select(ClientGroupModel.id).where(*group_filter))
     group_ids = list(group_rows.scalars().all())
     passport_filter = (
@@ -670,7 +847,25 @@ async def purge_passport_data(
     storage_keys.extend(await crop_repository.derived_storage_keys(submission_ids))
     storage_keys.extend(await crop_repository.edit_storage_keys(submission_ids))
 
-    deleted_storage_objects = await MinioStorageRepository().delete_files(storage_keys)
+    # The encrypted cleanup rows are committed atomically with the authoritative
+    # database deletion. Object storage is deliberately untouched until after
+    # that commit, so neither a storage failure nor a database rollback can
+    # leave retained rows pointing at files that have already disappeared.
+    cleanup_jobs = stage_storage_cleanup_jobs(
+        session,
+        agency_id=(
+            None
+            if current_user.role == UserRole.SUPER_ADMIN
+            else current_user.agency_id
+        ),
+        source="passport_submission_delete",
+        context_id=(
+            "platform"
+            if current_user.role == UserRole.SUPER_ADMIN
+            else f"agency:{current_user.agency_id}"
+        ),
+        storage_keys=storage_keys,
+    )
 
     group_entity_ids = [str(group_id) for group_id in group_ids]
     submission_entity_ids = [str(submission_id) for submission_id in submission_ids]
@@ -714,13 +909,14 @@ async def purge_passport_data(
         deleted_processing_jobs=deleted_processing_jobs,
         deleted_notifications=deleted_notifications,
         deleted_audit_logs=deleted_audit_logs,
-        deleted_storage_objects=deleted_storage_objects,
+        deleted_storage_objects=0,
         deleted_whatsapp_broadcast_groups=whatsapp_counts.broadcast_groups,
         deleted_whatsapp_recipients=whatsapp_counts.recipients,
         deleted_whatsapp_rejected_contacts=whatsapp_counts.rejected_contacts,
         deleted_whatsapp_support_contacts=whatsapp_counts.support_contacts,
         deleted_whatsapp_message_logs=whatsapp_counts.message_logs,
         deleted_whatsapp_delivery_states=whatsapp_counts.delivery_states,
+        storage_cleanup_deferred=bool(cleanup_jobs),
     )
 
     await AuditLogRepository(session).record(
@@ -730,8 +926,45 @@ async def purge_passport_data(
         user_id=current_user.id,
         actor_email=current_user.email,
         entity_id=None if current_user.role == UserRole.SUPER_ADMIN else str(current_user.agency_id),
-        metadata=response.model_dump(),
+        metadata={
+            **response.model_dump(),
+            "storage_objects_scheduled_for_cleanup": len(storage_keys),
+            "storage_cleanup_job_count": len(cleanup_jobs),
+        },
     )
+
+    # This explicit boundary is required because the FastAPI session dependency
+    # otherwise commits only after the route returns. Cleanup may begin only
+    # after the tombstones, row deletion, and audit event are durable together.
+    await session.commit()
+
+    cleanup_object_count = sum(job.object_count for job in cleanup_jobs)
+    cleanup_deferred = (
+        cleanup_object_count > PASSPORT_PURGE_INLINE_CLEANUP_MAX_OBJECTS
+    )
+    deleted_storage_objects = 0
+    if not cleanup_deferred:
+        for cleanup_job in cleanup_jobs:
+            try:
+                cleanup_result = await process_storage_cleanup_job(cleanup_job.id)
+                if cleanup_result is None or not cleanup_result.completed:
+                    cleanup_deferred = True
+                    continue
+                deleted_storage_objects += cleanup_result.deleted_count
+            except Exception as exc:
+                # The periodic lease-safe worker retries the already-committed
+                # job; do not turn a completed database purge into an unsafe
+                # compensating rollback.
+                cleanup_deferred = True
+                logger.warning(
+                    "admin_passport_purge_storage_cleanup_deferred",
+                    cleanup_job_id=str(cleanup_job.id),
+                    object_count=cleanup_job.object_count,
+                    error_type=type(exc).__name__,
+                )
+
+    response.deleted_storage_objects = deleted_storage_objects
+    response.storage_cleanup_deferred = cleanup_deferred
     return response
 
 
@@ -746,6 +979,45 @@ async def _load_platform_settings(session: AsyncSession) -> PlatformSettingsResp
     if not row:
         return PlatformSettingsResponse(**DEFAULT_PLATFORM_SETTINGS)
     return PlatformSettingsResponse(**{**DEFAULT_PLATFORM_SETTINGS, **row.value}, updated_at=row.updated_at)
+
+
+async def _load_retention_control_group(
+    session: AsyncSession,
+    *,
+    group_id: uuid.UUID,
+    current_user: User,
+    lock: bool,
+) -> ClientGroupModel:
+    statement = select(ClientGroupModel).where(ClientGroupModel.id == group_id)
+    if current_user.role != UserRole.SUPER_ADMIN:
+        statement = statement.where(
+            ClientGroupModel.agency_id == current_user.agency_id
+        )
+    if lock:
+        statement = statement.with_for_update()
+    result = await session.execute(statement)
+    group = result.scalar_one_or_none()
+    if group is None:
+        # Keep cross-tenant existence confidential.
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Client group was not found",
+        )
+    return group
+
+
+def _passport_retention_response(
+    group: ClientGroupModel,
+) -> PassportRetentionControlResponse:
+    return PassportRetentionControlResponse(
+        group_id=group.id,
+        passport_purge_at=group.passport_purge_at,
+        passport_retention_days_applied=group.passport_retention_days_applied,
+        legal_hold=group.passport_legal_hold,
+        legal_hold_reason=group.passport_legal_hold_reason,
+        legal_hold_set_at=group.passport_legal_hold_set_at,
+        legal_hold_set_by_user_id=group.passport_legal_hold_set_by_user_id,
+    )
 
 
 def _group_response(group: ClientGroupModel) -> ManagerGroupAccessResponse:
@@ -776,6 +1048,13 @@ async def _manager_response(session: AsyncSession, manager: UserModel) -> Manage
         select(ManagerGroupAccessModel).where(ManagerGroupAccessModel.manager_id == manager.id)
     )
     access_group_ids = {row.group_id for row in access_result.scalars().all()}
+    security_state = (
+        await session.execute(
+            select(UserSecurityStateModel).where(
+                UserSecurityStateModel.user_id == manager.id
+            )
+        )
+    ).scalar_one_or_none()
     return ManagerResponse(
         id=manager.id,
         full_name=manager.full_name,
@@ -787,6 +1066,7 @@ async def _manager_response(session: AsyncSession, manager: UserModel) -> Manage
         last_login_at=manager.last_login_at,
         created_groups=[_group_response(group) for group in groups if group.created_by_user_id == manager.id],
         assigned_groups=[_group_response(group) for group in groups if group.id in access_group_ids],
+        credential_state=security_state.credential_state if security_state else "active",
     )
 
 

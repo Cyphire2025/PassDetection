@@ -5,8 +5,6 @@ local.properties
 *.iml
 captures/
 
-# Keep the deliberately packaged APKs under artifacts/.
+# APKs and checksums are reproducible local/CI outputs, not source files.
 artifacts/*
 !artifacts/.gitkeep
-!artifacts/*.apk
-!artifacts/*.sha256

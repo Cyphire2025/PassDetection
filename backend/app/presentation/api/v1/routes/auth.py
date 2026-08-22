@@ -27,9 +27,17 @@ from app.core.config.settings import get_settings
 from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import AuthenticationError
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.repositories.identity_security_repository import IdentitySecurityRepository
 from app.infrastructure.repositories.refresh_token_repository import RefreshTokenRepository
 from app.infrastructure.repositories.user_repository import UserRepository
+from app.presentation.api.v1.routes.auth_identity import (
+    begin_dashboard_mfa_challenge,
+)
+from app.presentation.api.v1.routes.auth_identity import (
+    router as identity_router,
+)
 from app.presentation.api.v1.schemas.auth_schemas import (
+    AuthChallengeResponse,
     AuthResponse,
     LogoutRequest,
     RefreshTokenRequest,
@@ -44,6 +52,7 @@ from app.presentation.security.auth_cookies import clear_auth_cookies, set_auth_
 from app.presentation.security.client_ip import trusted_client_ip
 
 router = APIRouter()
+router.include_router(identity_router)
 
 
 
@@ -64,6 +73,7 @@ def _get_refresh_use_case(
     return RefreshTokenUseCase(
         user_repository=UserRepository(session),
         refresh_token_repository=RefreshTokenRepository(session),
+        identity_security_repository=IdentitySecurityRepository(session),
     )
 
 
@@ -95,7 +105,7 @@ def _get_me_use_case(
 
 @router.post(
     "/login",
-    response_model=AuthResponse,
+    response_model=AuthResponse | AuthChallengeResponse,
     status_code=status.HTTP_200_OK,
     summary="Authenticate with email and password",
     description=(
@@ -109,7 +119,8 @@ async def login(
     _trusted_origin: None = Depends(require_trusted_request_origin),
     form_data: OAuth2PasswordRequestForm = Depends(),
     use_case: LoginUseCase = Depends(_get_login_use_case),
-) -> AuthResponse | Response:
+    session: AsyncSession = Depends(get_db_session),
+) -> AuthResponse | AuthChallengeResponse | Response:
     """
     OAuth2 Password Flow login.
 
@@ -117,9 +128,26 @@ async def login(
     The frontend sends `application/x-www-form-urlencoded`.
     """
     client_ip = trusted_client_ip(request)
-    result = await use_case.execute(
+    user = await use_case.verify_credentials(
         dto=LoginInputDTO(email=form_data.username, password=form_data.password),
         client_ip=client_ip,
+    )
+    challenge = await begin_dashboard_mfa_challenge(
+        user=user,
+        request=request,
+        session=session,
+    )
+    if challenge is not None:
+        clear_auth_cookies(response)
+        response.headers["Cache-Control"] = "private, no-store, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        return challenge
+    security_state = await IdentitySecurityRepository(session).get_state(user.id)
+    result = await use_case.issue_session(
+        user,
+        client_ip=client_ip,
+        session_version=security_state.session_version if security_state else 1,
+        authentication_methods=("pwd",),
     )
     set_auth_cookies(response, access_token=result.access_token, refresh_token=result.refresh_token)
     return AuthResponse(

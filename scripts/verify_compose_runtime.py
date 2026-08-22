@@ -280,6 +280,26 @@ def main() -> int:
         == "true",
         "Production public-upload rate limits must fail closed through Redis.",
     )
+    _require(
+        str(
+            production_backend.get("environment", {}).get(
+                "MOBILE_REALTIME_ENABLED",
+                "",
+            )
+        ).lower()
+        == "true",
+        "Production must enable the mobile realtime invalidation service.",
+    )
+    _require(
+        str(
+            production_backend.get("environment", {}).get(
+                "MOBILE_REALTIME_REQUIRE_REDIS",
+                "",
+            )
+        ).lower()
+        == "true",
+        "Production mobile realtime must fail readiness closed through Redis.",
+    )
     production_frontend_environment = production_services["frontend"].get(
         "environment",
         {},

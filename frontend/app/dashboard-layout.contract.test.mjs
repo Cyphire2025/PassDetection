@@ -6,16 +6,21 @@ const layout = readFileSync(
   new URL("./(dashboard)/layout.tsx", import.meta.url),
   "utf8",
 );
+const shell = readFileSync(
+  new URL("../components/layout/dashboard-shell.tsx", import.meta.url),
+  "utf8",
+);
 const globals = readFileSync(new URL("./globals.css", import.meta.url), "utf8");
 
 test("dashboard shell remains anchored while only main content scrolls", () => {
-  assert.match(layout, /className="fixed inset-0 flex min-h-0/);
-  assert.match(layout, /data-dashboard-shell/);
+  assert.match(layout, /<DashboardShell>\{children\}<\/DashboardShell>/);
+  assert.match(shell, /className="fixed inset-0 flex min-h-0/);
+  assert.match(shell, /data-dashboard-shell/);
   assert.match(
-    layout,
+    shell,
     /className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain"/,
   );
-  assert.doesNotMatch(layout, /h-\[100svh\]/);
+  assert.doesNotMatch(shell, /h-\[100svh\]/);
 });
 
 test("dashboard routes lock the root document scroller", () => {

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
@@ -76,6 +76,7 @@ class PurgePassportDataResponse(BaseModel):
     deleted_whatsapp_support_contacts: int = 0
     deleted_whatsapp_message_logs: int = 0
     deleted_whatsapp_delivery_states: int = 0
+    storage_cleanup_deferred: bool = False
 
 
 class PlatformSettingsResponse(BaseModel):
@@ -105,22 +106,43 @@ class UpdatePlatformSettingsRequest(BaseModel):
     audit_log_retention_days: int = Field(..., ge=1, le=3650)
 
 
+class PassportRetentionControlRequest(BaseModel):
+    legal_hold: bool
+    reason: str = Field(..., min_length=3, max_length=500)
+
+    model_config = {"extra": "forbid"}
+
+    @field_validator("reason")
+    @classmethod
+    def normalize_reason(cls, value: str) -> str:
+        normalized = " ".join(value.split())
+        if len(normalized) < 3:
+            raise ValueError("A meaningful retention-control reason is required")
+        return normalized
+
+
+class PassportRetentionControlResponse(BaseModel):
+    group_id: uuid.UUID
+    passport_purge_at: datetime | None = None
+    passport_retention_days_applied: int | None = None
+    legal_hold: bool
+    legal_hold_reason: str | None = None
+    legal_hold_set_at: datetime | None = None
+    legal_hold_set_by_user_id: uuid.UUID | None = None
+
+
 class CreateManagerRequest(BaseModel):
     full_name: str = Field(..., min_length=2, max_length=255)
     email: EmailStr
-    password: str = Field(..., min_length=10, max_length=128)
 
-    @field_validator("password")
-    @classmethod
-    def validate_password(cls, value: str) -> str:
-        from app.core.security.password import validate_password_strength
-
-        validate_password_strength(value)
-        return value
+    model_config = {"extra": "forbid"}
 
 
-class CreateStaffRequest(CreateManagerRequest):
-    pass
+class CreateStaffRequest(BaseModel):
+    full_name: str = Field(..., min_length=2, max_length=255)
+    email: EmailStr
+
+    model_config = {"extra": "forbid"}
 
 
 class DeleteManagerRequest(BaseModel):
@@ -157,6 +179,8 @@ class ManagerResponse(BaseModel):
     last_login_at: datetime | None = None
     created_groups: list[ManagerGroupAccessResponse] = Field(default_factory=list)
     assigned_groups: list[ManagerGroupAccessResponse] = Field(default_factory=list)
+    credential_state: Literal["invited", "active"] = "active"
+    activation_token: str | None = None
 
 
 class AssignManagerGroupsRequest(BaseModel):
@@ -173,18 +197,14 @@ class ManagedAccountResponse(BaseModel):
     is_active: bool
     created_at: datetime
     last_login_at: datetime | None = None
+    credential_state: Literal["invited", "active"] = "active"
+    activation_token: str | None = None
 
 
 class ResetManagedAccountPasswordRequest(BaseModel):
-    password: str = Field(..., min_length=10, max_length=128)
+    issue_activation_link: Literal[True] = True
 
-    @field_validator("password")
-    @classmethod
-    def validate_password(cls, value: str) -> str:
-        from app.core.security.password import validate_password_strength
-
-        validate_password_strength(value)
-        return value
+    model_config = {"extra": "forbid"}
 
 
 class SetManagedAccountStatusRequest(BaseModel):

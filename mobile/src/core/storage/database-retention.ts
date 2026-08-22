@@ -1,5 +1,7 @@
 import type * as SQLite from 'expo-sqlite';
 
+import { recordStorageMaintenance } from '@/core/observability/storage-observability';
+
 import {
   DURABLE_QUEUE_RETENTION_POLICY,
   durableQueueRetentionCutoffs,
@@ -23,12 +25,14 @@ export async function applyAccountStorageRetention(
   assertNamespace(namespace);
   const nowIso = new Date(nowMs).toISOString();
   const cutoffs = durableQueueRetentionCutoffs(nowMs);
+  const startedAtMs = performance.now();
+  let changedRows = 0;
   let began = false;
   try {
     await database.execAsync('BEGIN IMMEDIATE');
     began = true;
 
-    await database.runAsync(
+    changedRows += (await database.runAsync(
       `UPDATE pending_actions
           SET state = 'retryable', next_attempt_at = NULL,
               last_error_code = 'INTERRUPTED_RETRY', updated_at = ?
@@ -37,8 +41,8 @@ export async function applyAccountStorageRetention(
       nowIso,
       namespace,
       cutoffs.interruptedSending,
-    );
-    await database.runAsync(
+    )).changes;
+    changedRows += (await database.runAsync(
       `UPDATE pending_actions
           SET state = 'rejected', next_attempt_at = NULL,
               last_error_code = 'LOCAL_QUEUE_EXPIRED', updated_at = ?
@@ -47,15 +51,15 @@ export async function applyAccountStorageRetention(
       nowIso,
       namespace,
       cutoffs.attendanceActive,
-    );
-    await database.runAsync(
+    )).changes;
+    changedRows += (await database.runAsync(
       `DELETE FROM pending_actions
         WHERE account_namespace = ? AND action_type = 'attendance.scan'
-          AND state = 'rejected' AND updated_at < ?`,
+          AND state IN ('needs_review', 'rejected') AND updated_at < ?`,
       namespace,
       cutoffs.attendanceRejected,
-    );
-    await database.runAsync(
+    )).changes;
+    changedRows += (await database.runAsync(
       `DELETE FROM pending_actions
         WHERE rowid IN (
           SELECT rowid
@@ -67,20 +71,20 @@ export async function applyAccountStorageRetention(
                      ) AS retention_rank
                 FROM pending_actions
                WHERE account_namespace = ? AND action_type = 'attendance.scan'
-                 AND state = 'rejected'
+                 AND state IN ('needs_review', 'rejected')
             ) ranked
            WHERE retention_rank > ${DURABLE_QUEUE_RETENTION_POLICY.maximumRejectedAttendanceActionsPerTrip}
         )`,
       namespace,
-    );
+    )).changes;
 
-    await database.runAsync(
+    changedRows += (await database.runAsync(
       `DELETE FROM attendance_scan_receipts
         WHERE account_namespace = ? AND accepted_at < ?`,
       namespace,
       cutoffs.attendanceReceipt,
-    );
-    await database.runAsync(
+    )).changes;
+    changedRows += (await database.runAsync(
       `DELETE FROM attendance_scan_receipts
         WHERE rowid IN (
           SELECT rowid
@@ -96,15 +100,15 @@ export async function applyAccountStorageRetention(
            WHERE retention_rank > ${DURABLE_QUEUE_RETENTION_POLICY.maximumAttendanceReceiptsPerTrip}
         )`,
       namespace,
-    );
+    )).changes;
 
-    await database.runAsync(
+    changedRows += (await database.runAsync(
       `DELETE FROM offline_document_jobs
         WHERE account_namespace = ? AND state = 'blocked' AND updated_at < ?`,
       namespace,
       cutoffs.blockedDocumentJob,
-    );
-    await database.runAsync(
+    )).changes;
+    changedRows += (await database.runAsync(
       `DELETE FROM offline_document_jobs
         WHERE document_id IN (
           SELECT document_id
@@ -116,18 +120,20 @@ export async function applyAccountStorageRetention(
           AND account_namespace = ? AND state = 'blocked'`,
       namespace,
       namespace,
-    );
-    await database.runAsync(
+    )).changes;
+    changedRows += (await database.runAsync(
       `DELETE FROM local_roster_cursors
         WHERE account_namespace = ? AND expires_at_epoch_ms <= ?`,
       namespace,
       nowMs,
-    );
+    )).changes;
 
     await database.execAsync('COMMIT');
     began = false;
+    recordStorageMaintenance(performance.now() - startedAtMs, changedRows, 'success');
   } catch (error) {
     if (began) await database.execAsync('ROLLBACK').catch(() => undefined);
+    recordStorageMaintenance(performance.now() - startedAtMs, 0, 'failure');
     throw error;
   }
 }

@@ -5,6 +5,7 @@ import {
   acknowledgeRejectedAttendanceScans,
   countPendingAttendanceScans,
   countRejectedAttendanceScans,
+  subscribeAttendanceQueueScheduleChanges,
   syncPendingAttendanceScans,
   tryRecordAttendanceScan,
   type AttendanceScanSyncResult,
@@ -115,14 +116,14 @@ export function useAttendanceScanSync(
     };
 
     window.addEventListener("online", handleOnline);
-    const timer = window.setInterval(() => {
-      if (navigator.onLine && pendingCountRef.current > 0) void syncNow();
-    }, 15_000);
+    const unsubscribeSchedule = subscribeAttendanceQueueScheduleChanges(() => {
+      void refreshQueueCounts();
+    });
 
     return () => {
       window.clearTimeout(initialRefresh);
       window.removeEventListener("online", handleOnline);
-      window.clearInterval(timer);
+      unsubscribeSchedule();
     };
   }, [refreshQueueCounts, syncNow]);
 

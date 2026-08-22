@@ -32,8 +32,10 @@ asn1crypto==1.5.1
 pyhanko-certvalidator==0.31.4
 oscrypto==1.3.0
 uritools==6.1.3
-python-jose[cryptography]==3.5.0
-ecdsa==0.19.2
+# Application JWTs use the PyJWT + cryptography stack pinned above. pyattest's
+# metadata still pulls python-jose/ecdsa transitively even though its verifier
+# source does not import them; the exact non-signing exception is documented
+# and enforced in CI instead of pretending the dependency is absent.
 # The application imports bcrypt directly; avoid carrying the unused and
 # unmaintained Passlib compatibility layer into the production dependency set.
 bcrypt==5.0.0

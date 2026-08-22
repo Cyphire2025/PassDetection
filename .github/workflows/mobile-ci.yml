@@ -42,8 +42,7 @@ jobs:
           cache-dependency-path: mobile/package-lock.json
       - run: npm ci
       - name: Audit runtime dependencies
-        # The verifier permits only two time-bounded Metro image parser findings
-        # and fails on any other high/critical advisory or after the expiry date.
+        # The verifier is fail-closed: every high/critical advisory blocks CI.
         run: npm run audit:runtime
       - name: Verify Expo-supported dependency set
         run: npm run dependencies:check
@@ -52,7 +51,7 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - name: Run tests and enforce the reviewed coverage floor
-        run: npm run test:coverage -- --runInBand --coverageReporters=text-summary
+        run: npm run test:coverage
       - name: Enforce high-risk module budgets
         run: npm run maintainability:check
       - name: Validate release-Hermes workflow contracts

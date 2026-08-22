@@ -148,3 +148,32 @@ test('concurrent 401 responses in one session share one refresh operation', asyn
   expect(fetchMock).toHaveBeenCalledTimes(4);
   unregister();
 });
+
+test('an account switch while the response body is still being read cannot publish stale data', async () => {
+  const bodyReadStarted = deferred<void>();
+  const body = deferred<unknown>();
+  globalThis.fetch = jest.fn(async () => ({
+    status: 200,
+    ok: true,
+    headers: {
+      get: (name: string) => name.toLowerCase() === 'content-type'
+        ? 'application/json'
+        : null,
+    },
+    json: jest.fn(() => {
+      bodyReadStarted.resolve();
+      return body.promise;
+    }),
+  } as unknown as Response)) as typeof globalThis.fetch;
+
+  const request = apiRequest('/mobile/trips', { schema: ResultSchema });
+  await bodyReadStarted.promise;
+  invalidateAuthenticationBoundary();
+  useSessionStore.getState().setSession(sessionB);
+  body.resolve({ value: 'stale-account-a' });
+
+  await expect(request).rejects.toMatchObject<Partial<ApiError>>({
+    status: 409,
+    code: 'AUTH_CONTEXT_CHANGED',
+  });
+});

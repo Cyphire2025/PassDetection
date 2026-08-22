@@ -132,8 +132,12 @@ export function useManagedAccountActions() {
 
   return {
     resetPassword: useMutation({
-      mutationFn: ({ accountId, password }: { accountId: string; password: string }) =>
-        operationsApi.resetManagedAccountPassword(accountId, password),
+      mutationFn: (accountId: string) =>
+        operationsApi.resetManagedAccountPassword(accountId),
+      onSuccess: refresh,
+    }),
+    resetMfa: useMutation({
+      mutationFn: (accountId: string) => operationsApi.resetManagedAccountMfa(accountId),
       onSuccess: refresh,
     }),
     revokeSessions: useMutation({
@@ -374,18 +378,6 @@ export function useMyTourGroupPassenger(groupId: string | null, passengerId: str
   });
 }
 
-export function useCreateMyAttendanceSession() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ groupId, name }: { groupId: string; name: string }) =>
-      operationsApi.createMyAttendanceSession(groupId, name),
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: [...QUERY_KEYS.operations.tourGroupPassengers(variables.groupId), "sessions"] });
-    },
-  });
-}
-
 export function useMyAttendanceSessions(groupId: string | null, enabled = true) {
   return useQuery({
     queryKey: [...QUERY_KEYS.operations.tourGroupPassengers(groupId ?? "none"), "sessions"],
@@ -418,9 +410,25 @@ export function useScanMyAttendanceSession() {
   });
 }
 
-export function useCompleteMyAttendanceSession() {
+export function useCompleteManagedAttendanceSession() {
   return useMutation({
-    mutationFn: operationsApi.completeMyAttendanceSession,
+    mutationFn: operationsApi.completeManagedAttendanceSession,
+  });
+}
+
+export function useCreateManagedAttendanceSession() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: operationsApi.createManagedAttendanceSession,
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["operations", "tour-operations", "groups", variables.groupId, "attendance"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...QUERY_KEYS.operations.tourGroupPassengers(variables.groupId), "sessions"],
+      });
+    },
   });
 }
 
@@ -428,10 +436,9 @@ export function useGroupAttendanceOverview(groupId: string) {
   return useQuery({
     queryKey: ["operations", "tour-operations", "groups", groupId, "attendance"],
     queryFn: () => operationsApi.groupAttendanceOverview(groupId),
-    // This response includes the missing-passenger roster for each activity.
-    // Keep its existing low-frequency office refresh; coordinator devices use
-    // the lightweight 1.5-second shared-session summary above.
-    refetchInterval: 10_000,
+    refetchInterval: (query) => query.state.data?.sessions.some(
+      (session) => session.status === "draft" || session.status === "active",
+    ) ? 1_500 : 10_000,
     refetchIntervalInBackground: false,
     retry: false,
   });

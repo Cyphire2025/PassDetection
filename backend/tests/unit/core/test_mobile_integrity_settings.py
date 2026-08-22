@@ -63,6 +63,46 @@ def _base_enforcement_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("MOBILE_APP_ATTEST_ENVIRONMENT", "development")
 
 
+def test_production_mobile_requires_android_verified_link_signing_identity(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _base_enforcement_environment(monkeypatch)
+    monkeypatch.setenv("MOBILE_APP_INTEGRITY_MODE", "disabled")
+
+    with pytest.raises(ValidationError, match="production Android verified links"):
+        Settings(
+            app_env="production",
+            app_secret_key=_STRONG_APP_SECRET,
+            _env_file=None,
+        )
+
+    monkeypatch.setenv(
+        "MOBILE_PLAY_INTEGRITY_ALLOWED_CERTIFICATE_DIGESTS_JSON",
+        json.dumps([_CERTIFICATE_DIGEST]),
+    )
+    monkeypatch.setenv("MOBILE_PLAY_INTEGRITY_PACKAGE_NAME", "com.attacker.clone")
+    with pytest.raises(ValidationError, match="production Android package"):
+        Settings(
+            app_env="production",
+            app_secret_key=_STRONG_APP_SECRET,
+            _env_file=None,
+        )
+
+    monkeypatch.setenv(
+        "MOBILE_PLAY_INTEGRITY_PACKAGE_NAME",
+        "com.globalconnects.groupcompanion",
+    )
+    settings = Settings(
+        app_env="production",
+        app_secret_key=_STRONG_APP_SECRET,
+        _env_file=None,
+    )
+
+    assert settings.mobile.play_integrity_package_name == (
+        "com.globalconnects.groupcompanion"
+    )
+
+
 def test_production_enforcement_rejects_incomplete_provider_identity(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

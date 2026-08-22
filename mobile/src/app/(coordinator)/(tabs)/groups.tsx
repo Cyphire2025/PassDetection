@@ -103,7 +103,7 @@ export default function CoordinatorGroupsScreen() {
               <View style={styles.summaryDivider} />
               <View style={styles.summaryMetric}>
                 <Text numberOfLines={1} style={styles.summaryContext}>
-                  {trips.selectedTripId ? 'Ready' : 'Choose one'}
+                  {trips.selectedTripId ? 'Trip selected' : 'Choose one'}
                 </Text>
                 <Text style={styles.summaryLabel}>operational context</Text>
               </View>

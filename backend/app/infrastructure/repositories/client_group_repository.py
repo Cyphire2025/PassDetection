@@ -61,6 +61,26 @@ class ClientGroupRepository(IClientGroupRepository):
             deleted_at=model.deleted_at,
             deleted_passport_count=model.deleted_passport_count,
             deletion_retained_records=model.deletion_retained_records,
+            passport_purge_at=getattr(model, "passport_purge_at", None),
+            passport_retention_days_applied=getattr(
+                model,
+                "passport_retention_days_applied",
+                None,
+            ),
+            passport_legal_hold=getattr(model, "passport_legal_hold", False),
+            passport_legal_hold_reason=getattr(
+                model,
+                "passport_legal_hold_reason",
+                None,
+            ),
+            passport_legal_hold_set_at=getattr(
+                model,
+                "passport_legal_hold_set_at",
+                None,
+            ),
+            passport_legal_hold_set_by_user_id=(
+                getattr(model, "passport_legal_hold_set_by_user_id", None)
+            ),
         )
 
     @staticmethod
@@ -97,6 +117,14 @@ class ClientGroupRepository(IClientGroupRepository):
             deleted_at=entity.deleted_at,
             deleted_passport_count=entity.deleted_passport_count,
             deletion_retained_records=entity.deletion_retained_records,
+            passport_purge_at=entity.passport_purge_at,
+            passport_retention_days_applied=entity.passport_retention_days_applied,
+            passport_legal_hold=entity.passport_legal_hold,
+            passport_legal_hold_reason=entity.passport_legal_hold_reason,
+            passport_legal_hold_set_at=entity.passport_legal_hold_set_at,
+            passport_legal_hold_set_by_user_id=(
+                entity.passport_legal_hold_set_by_user_id
+            ),
         )
 
     async def get_by_id(self, link_id: uuid.UUID) -> ClientGroup | None:
@@ -175,6 +203,14 @@ class ClientGroupRepository(IClientGroupRepository):
         model.deleted_at = link.deleted_at
         model.deleted_passport_count = link.deleted_passport_count
         model.deletion_retained_records = link.deletion_retained_records
+        model.passport_purge_at = link.passport_purge_at
+        model.passport_retention_days_applied = link.passport_retention_days_applied
+        model.passport_legal_hold = link.passport_legal_hold
+        model.passport_legal_hold_reason = link.passport_legal_hold_reason
+        model.passport_legal_hold_set_at = link.passport_legal_hold_set_at
+        model.passport_legal_hold_set_by_user_id = (
+            link.passport_legal_hold_set_by_user_id
+        )
 
         await self._session.flush()
         return link
