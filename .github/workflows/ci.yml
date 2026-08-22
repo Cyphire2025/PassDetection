@@ -103,7 +103,9 @@ jobs:
   backend-test:
     name: Backend — Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # The complete suite includes coverage over 2,000+ tests and can exceed
+    # 30 minutes on a cold GitHub-hosted runner.
+    timeout-minutes: 60
     needs: backend-static-checks
     permissions:
       contents: read

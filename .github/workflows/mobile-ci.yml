@@ -78,7 +78,9 @@ jobs:
     name: Mobile - Android release compile verification
     needs: quality
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    # Expo prebuild plus both Android release variants can exceed 35 minutes
+    # when the hosted runner has a cold Gradle cache.
+    timeout-minutes: 60
     env:
       # Compilation verification has no publishing credentials by design.
       # Source maps are uploaded only by credentialed distribution builds.
