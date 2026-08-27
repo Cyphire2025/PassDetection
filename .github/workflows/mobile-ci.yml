@@ -82,8 +82,9 @@ jobs:
     # when the hosted runner has a cold Gradle cache.
     timeout-minutes: 60
     env:
-      # Compilation verification has no publishing credentials by design.
+      # The runner-local verification key created below cannot publish an app.
       # Source maps are uploaded only by credentialed distribution builds.
+      NODE_ENV: production
       SENTRY_DISABLE_AUTO_UPLOAD: "true"
     defaults:
       run:
@@ -100,11 +101,91 @@ jobs:
           distribution: temurin
           java-version: "17"
           cache: gradle
-      - run: npm ci
+      - name: Create ephemeral Android verification signing
+        shell: bash
+        run: |
+          set -euo pipefail
+          signing_dir="${RUNNER_TEMP}/gc-android-verification-signing"
+          keystore_file="${signing_dir}/verification-signing.p12"
+          certificate_file="${signing_dir}/verification-signing.der"
+          key_alias="ci-verification"
+          signing_password="$(node -e "process.stdout.write(require('node:crypto').randomBytes(32).toString('hex'))")"
+          mkdir -p "${signing_dir}"
+          echo "::add-mask::${signing_password}"
+          keytool -genkeypair \
+            -keystore "${keystore_file}" \
+            -storetype PKCS12 \
+            -storepass "${signing_password}" \
+            -keypass "${signing_password}" \
+            -alias "${key_alias}" \
+            -keyalg RSA \
+            -keysize 3072 \
+            -validity 2 \
+            -dname "CN=CI Verification, OU=Mobile CI, O=Global Connect Travels, C=IN" \
+            -noprompt
+          keytool -exportcert \
+            -keystore "${keystore_file}" \
+            -storepass "${signing_password}" \
+            -alias "${key_alias}" \
+            -file "${certificate_file}"
+          signing_fingerprint="$(node -e "const fs=require('node:fs');const crypto=require('node:crypto');const digest=crypto.createHash('sha256').update(fs.readFileSync(process.argv[1])).digest('hex').toUpperCase();process.stdout.write(digest.match(/../g).join(':'));" "${certificate_file}")"
+          {
+            printf 'GC_ANDROID_KEYSTORE_FILE=%s\n' "${keystore_file}"
+            printf 'GC_ANDROID_KEYSTORE_PASSWORD=%s\n' "${signing_password}"
+            printf 'GC_ANDROID_KEY_ALIAS=%s\n' "${key_alias}"
+            printf 'GC_ANDROID_KEY_PASSWORD=%s\n' "${signing_password}"
+            printf 'GC_ANDROID_DISTRIBUTION_SHA256_CERT_FINGERPRINTS=%s\n' "${signing_fingerprint}"
+          } >> "${GITHUB_ENV}"
+      # NODE_ENV is production for the full native evidence chain, but the
+      # compile-verification job still needs the repository's pinned tooling.
+      - run: npm ci --include=dev
+      - name: Create non-production Firebase compile fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          google_services_file="${RUNNER_TEMP}/gc-google-services-ci.json"
+          node - "${google_services_file}" <<'NODE'
+          const { writeFileSync } = require('node:fs');
+          const outputFile = process.argv[2];
+          const fixture = {
+            project_info: {
+              project_number: '000000000000',
+              project_id: 'gc-ci-compile-fixture',
+              storage_bucket: 'gc-ci-compile-fixture.invalid',
+            },
+            client: [{
+              client_info: {
+                mobilesdk_app_id: '1:000000000000:android:0000000000000000000000',
+                android_client_info: {
+                  package_name: 'com.globalconnects.groupcompanion',
+                },
+              },
+              api_key: [{ current_key: 'CI_COMPILE_FIXTURE_NOT_A_CREDENTIAL' }],
+            }],
+            configuration_version: '1',
+          };
+          writeFileSync(outputFile, `${JSON.stringify(fixture)}\n`, { mode: 0o600 });
+          NODE
+          printf 'GOOGLE_SERVICES_JSON=%s\n' "${google_services_file}" >> "${GITHUB_ENV}"
       - name: Generate a clean Android project
         run: npx expo prebuild --clean --platform android --no-install
       - name: Build release variants (verification signing only)
-        run: ./android/gradlew -p android --no-parallel assembleRelease bundleRelease
+        run: |
+          ./android/gradlew -p android --no-parallel \
+            "-Dorg.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m" \
+            "-PreactNativeArchitectures=arm64-v8a" \
+            assembleRelease
+          node scripts/stage-android-apk.js stage \
+            android/app/build/outputs/apk/release/app-release.apk \
+            outputs/android-staging/app-release-arm64-v8a.apk \
+            arm64-v8a
+          ./android/gradlew -p android --no-parallel \
+            "-Dorg.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m" \
+            "-PreactNativeArchitectures=armeabi-v7a,arm64-v8a,x86,x86_64" \
+            bundleRelease
+          node scripts/stage-android-apk.js verify \
+            outputs/android-staging/app-release-arm64-v8a.apk \
+            arm64-v8a
       - name: Enforce reviewed APK and AAB size budgets
         run: npm run release:verify-android-size
       - name: Reject accidental production-artifact publication

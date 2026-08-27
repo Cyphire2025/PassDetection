@@ -42,6 +42,9 @@ jobs:
           uv pip compile requirements.txt --universal --python-version 3.11 --generate-hashes --output-file requirements.lock
           git diff --exit-code -- requirements.lock
 
+      - name: Install hash-locked backend runtime
+        run: pip install --require-hashes -r requirements.lock
+
       - name: Ruff lint
         run: ruff check --no-fix app tests
 
