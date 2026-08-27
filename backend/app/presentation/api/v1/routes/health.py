@@ -33,6 +33,7 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.email.readiness import email_runtime_readiness
 from app.infrastructure.mobile_realtime import get_mobile_realtime_hub
 from app.infrastructure.observability.metrics import metrics
+from app.infrastructure.runtime_readiness import runtime_capability_readiness
 from app.presentation.dependencies.auth import require_role
 
 router = APIRouter()
@@ -45,7 +46,9 @@ logger = get_logger(__name__)
     description="Returns 200 if the process is alive. Does not check dependencies.",
     status_code=status.HTTP_200_OK,
 )
-async def liveness(settings: Settings = Depends(get_settings)) -> dict:
+async def liveness(
+    settings: Settings = Depends(get_settings),
+) -> dict[str, str]:
     """Liveness probe — always returns 200 if the process is running."""
     return {
         "status": "alive",
@@ -73,6 +76,7 @@ async def readiness(
     Returns 503 if any dependency is unreachable.
     """
     checks: dict[str, str] = {}
+    capabilities: dict[str, dict[str, object]] = {}
     overall_healthy = True
 
     # ── Database check ──────────────────────────────────────────
@@ -125,6 +129,61 @@ async def readiness(
     checks.update(email_checks)
     overall_healthy = overall_healthy and email_ready
 
+    try:
+        runtime_snapshot = await runtime_capability_readiness(
+            db=db,
+            settings=settings,
+        )
+        checks.update(runtime_snapshot.checks)
+        capabilities.update(runtime_snapshot.capabilities)
+        overall_healthy = overall_healthy and runtime_snapshot.core_ready
+    except Exception as exc:
+        logger.error(
+            "health_check_runtime_capabilities_failed",
+            error_type=type(exc).__name__,
+        )
+        checks["runtime_capabilities"] = "probe_failed"
+        capabilities["runtime"] = {
+            "required": True,
+            "available": False,
+            "traffic_gate": True,
+            "status": "probe_failed",
+        }
+        overall_healthy = False
+
+    capabilities.update(
+        {
+            "mobile_realtime": {
+                "required": settings.mobile.enabled,
+                "available": realtime_ready,
+                "traffic_gate": settings.mobile.enabled,
+                "status": realtime_status,
+            },
+            "gemini_processing": {
+                "required": True,
+                "available": gemini_ready and workers_ready,
+                "traffic_gate": True,
+                "status": (
+                    "available" if gemini_ready and workers_ready else "degraded"
+                ),
+            },
+            "email_integrations": {
+                "required": settings.email_integrations_enabled,
+                "available": email_ready,
+                "traffic_gate": settings.email_integrations_enabled,
+                "status": (
+                    "available"
+                    if email_ready and settings.email_integrations_enabled
+                    else (
+                        "not_required_feature_disabled"
+                        if not settings.email_integrations_enabled
+                        else "degraded"
+                    )
+                ),
+            },
+        }
+    )
+
     http_status = status.HTTP_200_OK if overall_healthy else status.HTTP_503_SERVICE_UNAVAILABLE
 
     return JSONResponse(
@@ -132,6 +191,7 @@ async def readiness(
         content={
             "status": "ready" if overall_healthy else "degraded",
             "checks": checks,
+            "capabilities": capabilities,
             "version": settings.app_version,
             "revision": settings.app_revision,
         },
@@ -190,5 +250,5 @@ async def diagnostics(
     status_code=status.HTTP_200_OK,
     dependencies=[Depends(require_role([UserRole.SUPER_ADMIN]))],
 )
-async def metrics_snapshot() -> dict:
+async def metrics_snapshot() -> dict[str, object]:
     return await asyncio.to_thread(metrics.snapshot)

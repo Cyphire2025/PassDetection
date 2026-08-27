@@ -24,6 +24,10 @@ from app.domain.exceptions.exceptions import (
     ValidationError,
 )
 from app.domain.value_objects.custom_questions import (
+    CustomAnswerSnapshot,
+    CustomDetailAnswerSnapshot,
+    CustomDetailDefinition,
+    CustomQuestionDefinition,
     normalize_custom_details,
     normalize_custom_questions,
 )
@@ -424,8 +428,8 @@ class ClientGroup:
     relation_with_qualifier_enabled: bool = False
     designation_enabled: bool = False
     agency_dealership_name_enabled: bool = False
-    custom_questions: list[dict] = field(default_factory=list)
-    custom_details: list[dict] = field(default_factory=list)
+    custom_questions: list[CustomQuestionDefinition] = field(default_factory=list)
+    custom_details: list[CustomDetailDefinition] = field(default_factory=list)
     notes: str | None = None
     deleted_at: datetime | None = None
     deleted_passport_count: int = 0
@@ -461,8 +465,8 @@ class ClientGroup:
         relation_with_qualifier_enabled: bool = False,
         designation_enabled: bool = False,
         agency_dealership_name_enabled: bool = False,
-        custom_questions: list[dict] | None = None,
-        custom_details: list[dict] | None = None,
+        custom_questions: list[dict[str, object]] | None = None,
+        custom_details: list[dict[str, object]] | None = None,
         notes: str | None = None,
         initial_status: GroupStatus = GroupStatus.ACTIVE,
         passport_retention_days: int | None = None,
@@ -545,8 +549,8 @@ class ClientGroup:
         relation_with_qualifier_enabled: bool,
         designation_enabled: bool,
         agency_dealership_name_enabled: bool,
-        custom_questions: list[dict] | None,
-        custom_details: list[dict] | None,
+        custom_questions: list[dict[str, object]] | None,
+        custom_details: list[dict[str, object]] | None,
         notes: str | None,
     ) -> None:
         """Apply editable group settings through one domain boundary."""
@@ -760,16 +764,16 @@ class PassportSubmission:
     thumbnail_s3_key: str | None
     passport_photo_s3_key: str | None
     passport_back_s3_key: str | None
-    staff_metadata: dict | None
+    staff_metadata: dict[str, str] | None
     status: PassportProcessingStatus
-    extracted_fields: dict | None              # Raw extraction result
-    confirmed_fields: dict | None              # Client-reviewed final data
+    extracted_fields: dict[str, object] | None  # Raw extraction result
+    confirmed_fields: dict[str, str] | None     # Client-reviewed final data
     overall_confidence: float | None
-    confidence_score: dict | None              # Layered confidence breakdown
+    confidence_score: dict[str, object] | None  # Layered confidence breakdown
     mrz_raw: str | None                        # Raw MRZ string
     error_message: str | None
-    custom_answers: list[dict] = field(default_factory=list)
-    custom_detail_answers: list[dict] = field(default_factory=list)
+    custom_answers: list[CustomAnswerSnapshot] = field(default_factory=list)
+    custom_detail_answers: list[CustomDetailAnswerSnapshot] = field(default_factory=list)
     qualifier_enabled_snapshot: bool = False
     qualifier_selection_id: uuid.UUID | None = None
     qualifier_is_self: bool | None = None
@@ -782,7 +786,7 @@ class PassportSubmission:
     extraction_status: PassportExtractionStatus = PassportExtractionStatus.NOT_STARTED
     extraction_revision: int = 0
     extraction_conflicts: list[dict[str, str | None]] = field(default_factory=list)
-    post_submission_verification: dict | None = None
+    post_submission_verification: dict[str, object] | None = None
     post_submission_verification_revision: int = 0
     post_submission_verified_at: datetime | None = None
     verification_reviewed_by_user_id: uuid.UUID | None = None
@@ -910,9 +914,9 @@ class PassportSubmission:
 
     def mark_review_required(
         self,
-        extracted_fields: dict,
+        extracted_fields: dict[str, object],
         confidence: float,
-        confidence_score: dict | None = None,
+        confidence_score: dict[str, object] | None = None,
         mrz_raw: str | None = None,
         *,
         expected_revision: int | None = None,
@@ -989,7 +993,7 @@ class PassportSubmission:
         self.updated_at = _utcnow()
         return True
 
-    def confirm(self, confirmed_fields: dict) -> None:
+    def confirm(self, confirmed_fields: dict[str, str]) -> None:
         # Invalidate any extraction job that started before this correction.
         self.extraction_revision += 1
         if self.extraction_status == PassportExtractionStatus.PROCESSING:
@@ -1002,7 +1006,7 @@ class PassportSubmission:
 
     def submit_client_review(
         self,
-        confirmed_fields: dict,
+        confirmed_fields: dict[str, str],
         *,
         client_email: str | None,
         client_phone: str | None,
@@ -1017,8 +1021,8 @@ class PassportSubmission:
         family_head_phone: str | None = None,
         family_broadcast_to_member: bool = False,
         nearest_domestic_airport: str | None = None,
-        custom_answers: list[dict] | None = None,
-        custom_detail_answers: list[dict] | None = None,
+        custom_answers: list[CustomAnswerSnapshot] | None = None,
+        custom_detail_answers: list[CustomDetailAnswerSnapshot] | None = None,
     ) -> None:
         if self.status.value in OFFICE_VISIBLE_PASSPORT_STATUS_VALUES:
             raise ValidationError(
@@ -1077,7 +1081,7 @@ class PassportSubmission:
         *,
         expected_revision: int,
         decision: str,
-        verification: dict,
+        verification: dict[str, object],
     ) -> bool:
         """Apply one revision-matched AI decision without changing client fields."""
 
@@ -1145,7 +1149,7 @@ class PassportSubmission:
         reviewer_id: uuid.UUID,
         reviewer_name: str,
         expected_extraction_revision: int,
-        confirmed_fields: dict | None = None,
+        confirmed_fields: dict[str, str] | None = None,
     ) -> StaffApprovalOutcome:
         """Atomically save optional corrections and transition Needs Review."""
 
@@ -1234,7 +1238,7 @@ class PassportSubmission:
         self.updated_at = now
         return StaffApprovalOutcome.APPROVED
 
-    def update_reviewed_fields(self, confirmed_fields: dict) -> None:
+    def update_reviewed_fields(self, confirmed_fields: dict[str, str]) -> None:
         """Save staff edits without bypassing the canonical approval transition."""
 
         self.extraction_revision += 1

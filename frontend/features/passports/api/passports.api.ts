@@ -1,5 +1,6 @@
 import apiClient from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
+import { downloadStreamedResponse } from "@/lib/api/streamed-download";
 import type {
   PassportGroupSummary,
   PassportSubmission,
@@ -187,6 +188,7 @@ export interface PassportGroupExportHistoryDetail {
 
 export interface PassportGroupExportRequest {
   groupId: string;
+  groupName?: string;
   mode: PassportGroupExportMode;
   baselineExportId?: string;
   requestId?: string;
@@ -249,6 +251,7 @@ export interface PassportSelectedGroupsExportRequest {
 
 export interface PassportSelectedImagesExportRequest {
   groupId: string;
+  groupName?: string;
   submissionIds: string[];
 }
 
@@ -718,8 +721,8 @@ export const passportsApi = {
     groupByField,
     agencyMatchField,
   }: PassportGroupExportRequest): Promise<void> => {
-    const response = await apiClient.get<Blob>(API_ENDPOINTS.passports.groupExport(groupId), {
-      responseType: "blob",
+    const response = await downloadStreamedResponse({
+      url: API_ENDPOINTS.passports.groupExport(groupId),
       params: {
         mode,
         baseline_export_id: baselineExportId,
@@ -730,11 +733,14 @@ export const passportsApi = {
         group_by_field: groupByField,
         agency_match_field: agencyMatchField,
       },
+      suggestedFilename: `passport-export-${groupId}.xlsx`,
+      validateHeaders: (headers) => {
+        requireExportHistoryId(headers["x-passport-export-history-id"]);
+      },
     });
     const historyId = requireExportHistoryId(
       response.headers["x-passport-export-history-id"],
     );
-    downloadBlob(response.data, `passport-export-${groupId}.xlsx`);
     await confirmStartedGroupExport(groupId, historyId);
   },
 
@@ -743,20 +749,14 @@ export const passportsApi = {
     status,
     broadcastId,
   }: PassportWhatsAppTrackingExportRequest): Promise<void> => {
-    const response = await apiClient.get<Blob>(
-      API_ENDPOINTS.passports.groupWhatsAppTrackingExport(groupId),
-      {
-        responseType: "blob",
-        params: {
-          status,
-          broadcast_id: broadcastId,
-        },
+    await downloadStreamedResponse({
+      url: API_ENDPOINTS.passports.groupWhatsAppTrackingExport(groupId),
+      params: {
+        status,
+        broadcast_id: broadcastId,
       },
-    );
-    downloadBlob(
-      response.data,
-      `whatsapp-tracking-${groupId}-${status}.xlsx`,
-    );
+      suggestedFilename: `whatsapp-tracking-${groupId}-${status}.xlsx`,
+    });
   },
 
   getGroupExportFields: async (
@@ -770,27 +770,26 @@ export const passportsApi = {
 
   exportGroupImages: async ({
     groupId,
+    groupName,
     mode,
     baselineExportId,
     requestId,
   }: PassportGroupExportRequest): Promise<void> => {
-    const response = await apiClient.get<Blob>(API_ENDPOINTS.passports.groupImageExport(groupId), {
-      responseType: "blob",
-      // The backend builds a deterministic archive from private object storage
-      // before sending it. Keep this one bulk download outside the ordinary
-      // 30-second JSON request timeout; proxy and storage timeouts remain
-      // bounded server-side.
-      timeout: 0,
+    const response = await downloadStreamedResponse({
+      url: API_ENDPOINTS.passports.groupImageExport(groupId),
       params: {
         mode,
         baseline_export_id: baselineExportId,
         request_id: requestId,
       },
+      suggestedFilename: passportImageDownloadFilename(groupName ?? groupId),
+      validateHeaders: (headers) => {
+        requireExportHistoryId(headers["x-passport-export-history-id"]);
+      },
     });
     const historyId = requireExportHistoryId(
       response.headers["x-passport-export-history-id"],
     );
-    downloadBlob(response.data, getAttachmentFilename(response.headers["content-disposition"], `passport-images-${groupId}.zip`));
     await confirmStartedGroupExport(groupId, historyId);
   },
 
@@ -873,33 +872,25 @@ export const passportsApi = {
   },
 
   exportSelectedPassports: async (submissionIds: string[]): Promise<void> => {
-    const response = await apiClient.post<Blob>(
-      API_ENDPOINTS.passports.selectedExport,
-      { submission_ids: submissionIds },
-      { responseType: "blob" },
-    );
-    downloadBlob(response.data, "selected-passports.xlsx");
+    await downloadStreamedResponse({
+      url: API_ENDPOINTS.passports.selectedExport,
+      method: "POST",
+      data: { submission_ids: submissionIds },
+      suggestedFilename: "selected-passports.xlsx",
+    });
   },
 
   exportSelectedGroupImages: async ({
     groupId,
+    groupName,
     submissionIds,
   }: PassportSelectedImagesExportRequest): Promise<void> => {
-    const response = await apiClient.post<Blob>(
-      API_ENDPOINTS.passports.groupSelectedImageExport(groupId),
-      { submission_ids: submissionIds },
-      {
-        responseType: "blob",
-        timeout: 0,
-      },
-    );
-    downloadBlob(
-      response.data,
-      getAttachmentFilename(
-        response.headers["content-disposition"],
-        `selected-passport-images-${groupId}.zip`,
-      ),
-    );
+    await downloadStreamedResponse({
+      url: API_ENDPOINTS.passports.groupSelectedImageExport(groupId),
+      method: "POST",
+      data: { submission_ids: submissionIds },
+      suggestedFilename: passportImageDownloadFilename(groupName ?? groupId),
+    });
   },
 
   bulkDelete: async (
@@ -939,16 +930,16 @@ export const passportsApi = {
     supplementalFields,
     groupByField,
   }: PassportSelectedGroupsExportRequest): Promise<void> => {
-    const response = await apiClient.post<Blob>(
-      API_ENDPOINTS.passports.groupsExport,
-      {
+    await downloadStreamedResponse({
+      url: API_ENDPOINTS.passports.groupsExport,
+      method: "POST",
+      data: {
         group_ids: groupIds,
         supplemental_fields: supplementalFields,
         group_by_field: groupByField,
       },
-      { responseType: "blob" },
-    );
-    downloadBlob(response.data, "selected-groups-passports.xlsx");
+      suggestedFilename: "selected-groups-passports.xlsx",
+    });
   },
 };
 
@@ -996,17 +987,6 @@ function chunkFilesForUpload(files: File[], maxBytes: number, maxFiles: number) 
   return chunks;
 }
 
-function downloadBlob(blob: Blob, filename: string) {
-  const url = window.URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = filename;
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-  window.URL.revokeObjectURL(url);
-}
-
 async function completePreparedGroupExport(
   groupId: string,
   historyId: string,
@@ -1040,16 +1020,21 @@ function requireExportHistoryId(value: unknown): string {
   return value.trim();
 }
 
-function getAttachmentFilename(contentDisposition: unknown, fallback: string) {
-  if (typeof contentDisposition !== "string") return fallback;
-  const utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
-  const quotedMatch = contentDisposition.match(/filename="([^"]+)"/i);
-  const plainMatch = contentDisposition.match(/filename=([^;]+)/i);
-  const raw = utf8Match?.[1] ?? quotedMatch?.[1] ?? plainMatch?.[1];
-  if (!raw) return fallback;
-  try {
-    return decodeURIComponent(raw.trim()).replace(/[\\/:*?"<>|]/g, "_");
-  } catch {
-    return fallback;
-  }
+function passportImageDownloadFilename(groupName: string) {
+  const normalized = groupName
+    .normalize("NFKC")
+    .replace(/[\\/:*?"<>|\u0000-\u001f\u007f]+/g, "_")
+    .replace(/\s+/g, " ")
+    .replace(/^[ ._]+|[ ._]+$/g, "")
+    .slice(0, 100)
+    .replace(/[ .]+$/g, "");
+  const reserved = /^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i.test(normalized)
+    ? `_${normalized}`
+    : normalized;
+  const ascii = (reserved || "GROUP")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^A-Za-z0-9._ -]+/g, "_")
+    .replace(/^[ ._]+|[ ._]+$/g, "") || "GROUP";
+  return `${ascii.slice(0, 100)}_PASSPORT_IMAGES.zip`;
 }

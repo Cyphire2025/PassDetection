@@ -173,6 +173,20 @@ function removeAppOwnedKeys(storage: Storage) {
 async function clearPersistentAppData() {
   const tasks: Promise<unknown>[] = [];
 
+  // Snapshot cleanup is deliberately store-specific. The owner-scoped
+  // attendance queue and unsynchronized discard evidence live in separate
+  // stores and must survive authentication loss/account recovery.
+  tasks.push(
+    import("@/features/tour-operations/services/offline-snapshot")
+      .then(({ purgeAllCoordinatorOfflineSnapshots }) => (
+        purgeAllCoordinatorOfflineSnapshots()
+      )),
+    import("@/features/tour-operations/services/browser-offline-authorization")
+      .then(({ purgeAllBrowserOfflineAuthorizations }) => (
+        purgeAllBrowserOfflineAuthorizations()
+      )),
+  );
+
   if ("caches" in window) {
     tasks.push(
       window.caches.keys().then((keys) =>

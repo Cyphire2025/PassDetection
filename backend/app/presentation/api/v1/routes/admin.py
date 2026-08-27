@@ -9,12 +9,20 @@ import secrets
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from typing import Literal, cast
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy import delete, func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import InstrumentedAttribute
+from sqlalchemy.sql.elements import ColumnElement
 
 from app.application.platform_policies import PLATFORM_SETTINGS_KEY, PlatformPolicies
+from app.application.security.destructive_mutation_policy import (
+    DestructiveMutationPolicy,
+    DestructiveOwnedGroupsMutation,
+    record_destructive_failure,
+)
 from app.core.logging.logger import get_logger
 from app.core.security.password import hash_password
 from app.domain.entities.entities import (
@@ -25,6 +33,7 @@ from app.domain.entities.entities import (
     User,
     UserRole,
 )
+from app.domain.exceptions.exceptions import EntityNotFoundError
 from app.infrastructure.database.email_models import EmailConnectionModel
 from app.infrastructure.database.models import (
     AgencyModel,
@@ -35,6 +44,8 @@ from app.infrastructure.database.models import (
     PassportProcessingJobModel,
     PassportSubmissionModel,
     PlatformSettingModel,
+    PlatformSettingsValue,
+    StorageCleanupJobModel,
     UserModel,
     UserSecurityStateModel,
     WhatsAppBroadcastGroupModel,
@@ -54,7 +65,6 @@ from app.infrastructure.repositories.identity_security_repository import Identit
 from app.infrastructure.repositories.passport_image_crop_repository import (
     PassportImageCropRepository,
 )
-from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.infrastructure.storage.passport_object_keys import passport_storage_keys
 from app.presentation.api.v1.schemas.operations_schemas import (
     AdminOverviewResponse,
@@ -79,6 +89,15 @@ logger = get_logger(__name__)
 DEFAULT_PLATFORM_SETTINGS = PlatformPolicies().as_dict()
 REMOVED_GROUP_STATUSES = (GroupStatus.ARCHIVED.value, GroupStatus.DELETED.value)
 PASSPORT_PURGE_INLINE_CLEANUP_MAX_OBJECTS = 500
+PLATFORM_SETTINGS_REVISION_CONFLICT = "PLATFORM_SETTINGS_REVISION_CONFLICT"
+
+_CredentialState = Literal["invited", "active"]
+
+
+def _validated_credential_state(value: str) -> _CredentialState:
+    if value not in {"invited", "active"}:
+        raise RuntimeError("Invalid persisted workforce credential state.")
+    return cast(_CredentialState, value)
 
 
 @dataclass(frozen=True, slots=True)
@@ -91,7 +110,13 @@ class _WhatsAppPurgeCounts:
     delivery_states: int
 
 
-def _manager_scope(current_user: User) -> list:
+@dataclass(frozen=True, slots=True)
+class _PreviousManagerDelete:
+    response: DeleteManagerResponse
+    agency_id: uuid.UUID | None
+
+
+def _manager_scope(current_user: User) -> list[ColumnElement[bool]]:
     if current_user.role == UserRole.SUPER_ADMIN:
         return [
             UserModel.role == UserRole.AGENCY_MANAGER.value,
@@ -104,7 +129,7 @@ def _manager_scope(current_user: User) -> list:
     ]
 
 
-def _staff_scope(current_user: User) -> list:
+def _staff_scope(current_user: User) -> list[ColumnElement[bool]]:
     if current_user.role == UserRole.SUPER_ADMIN:
         return [
             UserModel.role == UserRole.AGENCY_STAFF.value,
@@ -262,7 +287,9 @@ async def list_managers(
                 if access.manager_id == user.id and access.group_id == group.id
             ],
             credential_state=(
-                security_by_user_id[user.id].credential_state
+                _validated_credential_state(
+                    security_by_user_id[user.id].credential_state
+                )
                 if user.id in security_by_user_id
                 else "active"
             ),
@@ -338,7 +365,7 @@ async def create_manager(
         is_active=manager.is_active,
         created_at=manager.created_at,
         last_login_at=manager.last_login_at,
-        credential_state=security_state.credential_state,
+        credential_state=_validated_credential_state(security_state.credential_state),
         activation_token=activation_token,
     )
 
@@ -370,10 +397,32 @@ async def update_platform_settings(
     session: AsyncSession = Depends(get_db_session),
 ) -> PlatformSettingsResponse:
     result = await session.execute(
-        select(PlatformSettingModel).where(PlatformSettingModel.key == PLATFORM_SETTINGS_KEY)
+        select(PlatformSettingModel)
+        .where(PlatformSettingModel.key == PLATFORM_SETTINGS_KEY)
+        .with_for_update()
     )
     row = result.scalar_one_or_none()
-    value = body.model_dump()
+    if row is None:
+        if body.expected_updated_at is not None:
+            raise _platform_settings_revision_conflict(current_updated_at=None)
+    elif body.expected_updated_at is None or not _same_platform_settings_revision(
+        row.updated_at,
+        body.expected_updated_at,
+    ):
+        raise _platform_settings_revision_conflict(current_updated_at=row.updated_at)
+
+    value = PlatformSettingsValue(
+        platform_name=body.platform_name,
+        require_client_email=body.require_client_email,
+        require_client_phone=body.require_client_phone,
+        duplicate_contact_policy=body.duplicate_contact_policy,
+        default_group_status=body.default_group_status,
+        auto_archive_closed_groups_days=body.auto_archive_closed_groups_days,
+        passport_data_retention_days=body.passport_data_retention_days,
+        mrz_review_threshold=body.mrz_review_threshold,
+        allow_manager_group_creation=body.allow_manager_group_creation,
+        audit_log_retention_days=body.audit_log_retention_days,
+    )
     if row:
         row.value = value
     else:
@@ -389,9 +438,34 @@ async def update_platform_settings(
         user_id=current_user.id,
         actor_email=current_user.email,
         entity_id=PLATFORM_SETTINGS_KEY,
-        metadata=value,
+        metadata=dict(value),
     )
     return PlatformSettingsResponse(**row.value, updated_at=row.updated_at)
+
+
+def _same_platform_settings_revision(current: datetime, expected: datetime) -> bool:
+    """Compare exact instants without tolerances or string-format ambiguity."""
+
+    normalized_current = (
+        current.replace(tzinfo=UTC) if current.utcoffset() is None else current.astimezone(UTC)
+    )
+    return normalized_current == expected.astimezone(UTC)
+
+
+def _platform_settings_revision_conflict(
+    *,
+    current_updated_at: datetime | None,
+) -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail={
+            "code": PLATFORM_SETTINGS_REVISION_CONFLICT,
+            "message": "Platform settings changed. Reload the latest values before saving.",
+            "current_updated_at": (
+                current_updated_at.isoformat() if current_updated_at is not None else None
+            ),
+        },
+    )
 
 
 @router.get(
@@ -502,7 +576,9 @@ async def list_admin_groups(
     current_user: User = Depends(require_role([UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER])),
     session: AsyncSession = Depends(get_db_session),
 ) -> list[ManagerGroupAccessResponse]:
-    filters = [ClientGroupModel.status.notin_(REMOVED_GROUP_STATUSES)]
+    filters: list[ColumnElement[bool]] = [
+        ClientGroupModel.status.notin_(REMOVED_GROUP_STATUSES)
+    ]
     if current_user.role != UserRole.SUPER_ADMIN:
         filters.append(ClientGroupModel.agency_id == current_user.agency_id)
     result = await session.execute(
@@ -638,10 +714,35 @@ async def delete_manager(
     current_user: User = Depends(require_role([UserRole.SUPER_ADMIN])),
     session: AsyncSession = Depends(get_db_session),
 ) -> DeleteManagerResponse:
-    manager_result = await session.execute(select(UserModel).where(UserModel.id == manager_id, *_manager_scope(current_user)))
+    delete_owned_data = bool(body and body.delete_owned_data)
+    manager_result = await session.execute(
+        select(UserModel)
+        .where(UserModel.id == manager_id, *_manager_scope(current_user))
+        .with_for_update()
+    )
     manager = manager_result.scalar_one_or_none()
     if not manager:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Manager was not found")
+        previous = await _previous_manager_delete_result(
+            session,
+            manager_id=manager_id,
+            delete_owned_data=delete_owned_data,
+        )
+        if previous is not None:
+            await AuditLogRepository(session).record(
+                action="manager_delete_idempotent_replay",
+                entity_type="user",
+                entity_id=str(manager_id),
+                agency_id=previous.agency_id,
+                user_id=current_user.id,
+                actor_email=current_user.email,
+                metadata={
+                    "delete_owned_data": delete_owned_data,
+                    "result": "idempotent_replay",
+                },
+            )
+            await session.commit()
+            return previous.response
+        raise EntityNotFoundError("Manager", manager_id)
 
     email_connection_count = int(
         (
@@ -652,15 +753,23 @@ async def delete_manager(
             )
         ).scalar_one()
     )
-    delete_owned_data = bool(body and body.delete_owned_data)
+    cleanup_jobs: tuple[StorageCleanupJobModel, ...] = ()
+    owned_data_mutation: DestructiveOwnedGroupsMutation | None = None
     response = DeleteManagerResponse(
         deleted_manager_id=manager.id,
         deleted_owned_data=delete_owned_data,
     )
 
     if delete_owned_data:
-        group_rows = await session.execute(select(ClientGroupModel.id).where(ClientGroupModel.created_by_user_id == manager.id))
-        group_ids = list(group_rows.scalars().all())
+        owned_data_mutation = (
+            await DestructiveMutationPolicy(session).require_manager_owned_groups(
+                user=current_user,
+                manager_id=manager.id,
+                manager_agency_id=manager.agency_id,
+                action="manager_owned_passport_data_delete",
+            )
+        )
+        group_ids = [group.id for group in owned_data_mutation.groups]
 
         submission_rows = await session.execute(
             select(
@@ -669,7 +778,12 @@ async def delete_manager(
                 PassportSubmissionModel.thumbnail_s3_key,
                 PassportSubmissionModel.passport_back_s3_key,
                 PassportSubmissionModel.passport_photo_s3_key,
-            ).where(PassportSubmissionModel.group_id.in_(group_ids))
+            )
+            .where(
+                PassportSubmissionModel.group_id.in_(group_ids),
+                PassportSubmissionModel.agency_id == manager.agency_id,
+            )
+            .with_for_update()
         ) if group_ids else None
         submissions = list(submission_rows.all()) if submission_rows else []
         submission_ids = [row.id for row in submissions]
@@ -678,19 +792,20 @@ async def delete_manager(
         storage_keys.extend(await crop_repository.derived_storage_keys(submission_ids))
         storage_keys.extend(await crop_repository.edit_storage_keys(submission_ids))
 
-        response.deleted_storage_objects = await MinioStorageRepository().delete_files(storage_keys)
+        cleanup_jobs = stage_storage_cleanup_jobs(
+            session,
+            agency_id=manager.agency_id,
+            source="passport_submission_delete",
+            context_id=(
+                f"manager:{manager.id}:{owned_data_mutation.request_fingerprint}"
+            ),
+            storage_keys=storage_keys,
+        )
         group_entity_ids = [str(group_id) for group_id in group_ids]
         submission_entity_ids = [str(submission_id) for submission_id in submission_ids]
         response.deleted_notifications = await _delete_entity_rows(
             session,
             NotificationModel,
-            agency_id=manager.agency_id,
-            group_entity_ids=group_entity_ids,
-            submission_entity_ids=submission_entity_ids,
-        )
-        response.deleted_audit_logs = await _delete_entity_rows(
-            session,
-            AuditLogModel,
             agency_id=manager.agency_id,
             group_entity_ids=group_entity_ids,
             submission_entity_ids=submission_entity_ids,
@@ -717,9 +832,8 @@ async def delete_manager(
         user_id=current_user.id,
         actor_email=current_user.email,
         metadata={
-            "manager_email": manager.email,
-            "manager_name": manager.full_name,
             "delete_owned_data": delete_owned_data,
+            "storage_cleanup_job_count": len(cleanup_jobs),
             **response.model_dump(mode="json"),
         },
     )
@@ -758,6 +872,41 @@ async def delete_manager(
     else:
         await session.delete(manager)
     await session.flush()
+    # The manager, owned passport rows, and encrypted object-cleanup tombstones
+    # become durable together. Object storage is never touched before this
+    # commit succeeds.
+    try:
+        await session.commit()
+    except Exception as exc:
+        if owned_data_mutation is not None:
+            await record_destructive_failure(
+                owned_data_mutation,
+                user=current_user,
+                error=exc,
+            )
+        raise
+
+    for cleanup_job in cleanup_jobs:
+        try:
+            cleanup_result = await process_storage_cleanup_job(cleanup_job.id)
+            if cleanup_result is None or not cleanup_result.completed:
+                logger.warning(
+                    "manager_passport_storage_cleanup_deferred",
+                    manager_id=str(manager_id),
+                    cleanup_job_id=str(cleanup_job.id),
+                    object_count=cleanup_job.object_count,
+                    error_type=None,
+                )
+                continue
+            response.deleted_storage_objects += cleanup_result.deleted_count
+        except Exception as exc:
+            logger.warning(
+                "manager_passport_storage_cleanup_deferred",
+                manager_id=str(manager_id),
+                cleanup_job_id=str(cleanup_job.id),
+                object_count=cleanup_job.object_count,
+                error_type=type(exc).__name__,
+            )
     return response
 
 
@@ -804,32 +953,18 @@ async def purge_passport_data(
             ),
         )
 
-    group_filter = [] if current_user.role == UserRole.SUPER_ADMIN else [ClientGroupModel.agency_id == current_user.agency_id]
-
-    legal_hold_result = await session.execute(
-        select(func.count())
-        .select_from(ClientGroupModel)
-        .where(
-            *group_filter,
-            ClientGroupModel.passport_legal_hold.is_(True),
-        )
+    # Legal-hold changes and every other destructive group mutation lock these
+    # same rows. The ordered scope lock makes the hold check and the ensuing
+    # purge one serialized decision rather than a count-then-delete race.
+    mutation = await DestructiveMutationPolicy(session).require_scoped_groups(
+        user=current_user,
+        action="passport_data_purge",
     )
-    if int(legal_hold_result.scalar_one()) > 0:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=(
-                "Passport data under legal hold cannot be purged. "
-                "Release each hold through the audited retention control first."
-            ),
-        )
-
-    group_rows = await session.execute(select(ClientGroupModel.id).where(*group_filter))
-    group_ids = list(group_rows.scalars().all())
-    passport_filter = (
-        []
-        if current_user.role == UserRole.SUPER_ADMIN
-        else [PassportSubmissionModel.group_id.in_(group_ids)]
-    )
+    group_ids = [group.id for group in mutation.groups]
+    # Even a platform purge is bounded to the rows in the locked group set.
+    # A group inserted concurrently after the scope lock is therefore left
+    # wholly intact instead of losing submissions while its group row survives.
+    passport_filter = [PassportSubmissionModel.group_id.in_(group_ids)]
 
     submission_rows = await session.execute(
         select(
@@ -838,7 +973,10 @@ async def purge_passport_data(
             PassportSubmissionModel.thumbnail_s3_key,
             PassportSubmissionModel.passport_back_s3_key,
             PassportSubmissionModel.passport_photo_s3_key,
-        ).where(*passport_filter)
+        )
+        .where(*passport_filter)
+        .order_by(PassportSubmissionModel.id)
+        .with_for_update()
     )
     submissions = list(submission_rows.all())
     submission_ids = [row.id for row in submissions]
@@ -877,13 +1015,9 @@ async def purge_passport_data(
         group_entity_ids=group_entity_ids,
         submission_entity_ids=submission_entity_ids,
     )
-    deleted_audit_logs = await _delete_entity_rows(
-        session,
-        AuditLogModel,
-        agency_id=None if current_user.role == UserRole.SUPER_ADMIN else current_user.agency_id,
-        group_entity_ids=group_entity_ids,
-        submission_entity_ids=submission_entity_ids,
-    )
+    # Security audit history is append-only application evidence and has its
+    # own bounded retention/export lifecycle; a data purge must not erase it.
+    deleted_audit_logs = 0
 
     deleted_processing_jobs = await _delete_by_ids(
         session,
@@ -930,13 +1064,23 @@ async def purge_passport_data(
             **response.model_dump(),
             "storage_objects_scheduled_for_cleanup": len(storage_keys),
             "storage_cleanup_job_count": len(cleanup_jobs),
+            "request_fingerprint": mutation.request_fingerprint,
         },
+        result="success",
     )
 
     # This explicit boundary is required because the FastAPI session dependency
     # otherwise commits only after the route returns. Cleanup may begin only
     # after the tombstones, row deletion, and audit event are durable together.
-    await session.commit()
+    try:
+        await session.commit()
+    except Exception as exc:
+        await record_destructive_failure(
+            mutation,
+            user=current_user,
+            error=exc,
+        )
+        raise
 
     cleanup_object_count = sum(job.object_count for job in cleanup_jobs)
     cleanup_deferred = (
@@ -971,6 +1115,42 @@ async def purge_passport_data(
 async def _count(session: AsyncSession, stmt) -> int:  # type: ignore[no-untyped-def]
     result = await session.execute(stmt)
     return int(result.scalar_one())
+
+
+async def _previous_manager_delete_result(
+    session: AsyncSession,
+    *,
+    manager_id: uuid.UUID,
+    delete_owned_data: bool,
+) -> _PreviousManagerDelete | None:
+    """Return an exact committed manager-deletion replay, if one exists."""
+
+    result = await session.execute(
+        select(AuditLogModel)
+        .where(
+            AuditLogModel.action == "manager_deleted",
+            AuditLogModel.entity_type == "user",
+            AuditLogModel.entity_id == str(manager_id),
+            AuditLogModel.metadata_json["delete_owned_data"].as_boolean()
+            == delete_owned_data,
+        )
+        .order_by(AuditLogModel.created_at.desc(), AuditLogModel.id.desc())
+        .limit(1)
+    )
+    audit = result.scalar_one_or_none()
+    if audit is None:
+        return None
+    metadata = audit.metadata_json or {}
+    try:
+        response = DeleteManagerResponse.model_validate(metadata)
+    except ValueError:
+        return None
+    if response.deleted_manager_id != manager_id:
+        return None
+    # Immediate cleanup counts are not authoritative on a later replay. The
+    # committed tombstones remain the durable source of truth for object work.
+    response.deleted_storage_objects = 0
+    return _PreviousManagerDelete(response=response, agency_id=audit.agency_id)
 
 
 async def _load_platform_settings(session: AsyncSession) -> PlatformSettingsResponse:
@@ -1066,11 +1246,24 @@ async def _manager_response(session: AsyncSession, manager: UserModel) -> Manage
         last_login_at=manager.last_login_at,
         created_groups=[_group_response(group) for group in groups if group.created_by_user_id == manager.id],
         assigned_groups=[_group_response(group) for group in groups if group.id in access_group_ids],
-        credential_state=security_state.credential_state if security_state else "active",
+        credential_state=(
+            _validated_credential_state(security_state.credential_state)
+            if security_state
+            else "active"
+        ),
     )
 
 
-async def _delete_by_ids(session: AsyncSession, model, column, ids: list) -> int:  # type: ignore[no-untyped-def]
+async def _delete_by_ids(
+    session: AsyncSession,
+    model: (
+        type[PassportProcessingJobModel]
+        | type[PassportSubmissionModel]
+        | type[ClientGroupModel]
+    ),
+    column: InstrumentedAttribute[uuid.UUID],
+    ids: list[uuid.UUID],
+) -> int:
     if not ids:
         return 0
     result = await session.execute(delete(model).where(column.in_(ids)))
@@ -1084,7 +1277,16 @@ async def _delete_whatsapp_broadcast_data(
 ) -> _WhatsAppPurgeCounts:
     """Delete WhatsApp data in FK-safe order within the caller's transaction."""
 
-    async def delete_model(model) -> int:  # type: ignore[no-untyped-def]
+    async def delete_model(
+        model: (
+            type[WhatsAppMessageLogModel]
+            | type[WhatsAppRecipientMessageStateModel]
+            | type[WhatsAppBroadcastSupportContactModel]
+            | type[WhatsAppBroadcastRejectedContactModel]
+            | type[WhatsAppBroadcastRecipientModel]
+            | type[WhatsAppBroadcastGroupModel]
+        ),
+    ) -> int:
         stmt = delete(model)
         if agency_id is not None:
             stmt = stmt.where(model.agency_id == agency_id)
@@ -1113,13 +1315,13 @@ async def _delete_whatsapp_broadcast_data(
 
 async def _delete_entity_rows(
     session: AsyncSession,
-    model,
+    model: type[NotificationModel],
     *,
-    agency_id,
+    agency_id: uuid.UUID | None,
     group_entity_ids: list[str],
     submission_entity_ids: list[str],
-) -> int:  # type: ignore[no-untyped-def]
-    conditions = []
+) -> int:
+    conditions: list[ColumnElement[bool]] = []
     if group_entity_ids:
         conditions.append(
             (model.entity_type == "client_group") & (model.entity_id.in_(group_entity_ids))

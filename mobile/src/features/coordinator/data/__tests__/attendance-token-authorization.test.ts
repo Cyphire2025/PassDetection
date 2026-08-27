@@ -5,11 +5,14 @@ import {
 
 const ACCOUNT = 'agency.coordinator';
 const TRIP = '11111111-1111-4111-8111-111111111111';
+const SESSION = '22222222-2222-4222-8222-222222222222';
 const HASH = 'a'.repeat(64);
 const NOW = Date.parse('2030-01-02T12:00:00.000Z');
 
 function activeEvidence(overrides: Record<string, unknown> = {}) {
   return {
+    id: '33333333-3333-4333-8333-333333333333',
+    display_name: 'Passenger One',
     attendance_evidence_observed_at: '2030-01-02T11:59:00.000Z',
     attendance_evidence_valid_until: '2030-01-02T13:00:00.000Z',
     attendance_token_expires_at: '2030-01-03T12:00:00.000Z',
@@ -30,10 +33,23 @@ class AuthorizationDatabase {
     roster_version: 9,
   };
   evidence: Record<string, unknown>[] = [activeEvidence()];
+  session: Record<string, unknown> | null = {
+    name: 'Airport departure',
+    status: 'active',
+    scheduled_starts_at: '2030-01-02T11:00:00.000Z',
+    scheduled_ends_at: '2030-01-02T13:00:00.000Z',
+    schedule_timezone: 'Asia/Kolkata',
+    schedule_version: 1,
+  };
   fenceParameters: unknown[] = [];
+  sessionParameters: unknown[] = [];
   evidenceParameters: unknown[] = [];
 
-  async getFirstAsync<T>(_sql: string, ...parameters: unknown[]): Promise<T | null> {
+  async getFirstAsync<T>(sql: string, ...parameters: unknown[]): Promise<T | null> {
+    if (sql.includes('FROM attendance_sessions')) {
+      this.sessionParameters = parameters;
+      return this.session as T | null;
+    }
     this.fenceParameters = parameters;
     return this.fence as T | null;
   }
@@ -51,11 +67,17 @@ test('authorizes one active hash only inside the exact account and trip fence', 
     database as never,
     ACCOUNT,
     TRIP,
+    SESSION,
     HASH,
     NOW,
-  )).resolves.toBeUndefined();
+  )).resolves.toEqual({
+    passengerId: '33333333-3333-4333-8333-333333333333',
+    passengerLabel: 'Passenger One',
+    sessionLabel: 'Airport departure',
+  });
 
   expect(database.fenceParameters).toEqual([ACCOUNT, TRIP]);
+  expect(database.sessionParameters).toEqual([ACCOUNT, TRIP, SESSION]);
   expect(database.evidenceParameters).toEqual([ACCOUNT, TRIP, HASH]);
 });
 
@@ -72,6 +94,7 @@ test.each([
     database as never,
     ACCOUNT,
     TRIP,
+    SESSION,
     HASH,
     NOW,
   )).rejects.toMatchObject({ code: 'ROSTER_EVIDENCE_UNAVAILABLE' });
@@ -90,6 +113,7 @@ test.each([
     database as never,
     ACCOUNT,
     TRIP,
+    SESSION,
     HASH,
     NOW,
   )).rejects.toMatchObject({ code: 'QR_NOT_IN_ACTIVE_ROSTER' });
@@ -106,6 +130,7 @@ test('rejects expired evidence and a device clock rolled behind server time', as
     expired as never,
     ACCOUNT,
     TRIP,
+    SESSION,
     HASH,
     NOW,
   )).rejects.toMatchObject({ code: 'QR_EVIDENCE_EXPIRED' });
@@ -115,6 +140,7 @@ test('rejects expired evidence and a device clock rolled behind server time', as
     rolledBack as never,
     ACCOUNT,
     TRIP,
+    SESSION,
     HASH,
     NOW - 6 * 60_000,
   )).rejects.toBeInstanceOf(AttendanceTokenAuthorizationError);
@@ -130,6 +156,7 @@ test('rejects malformed or overlong evidence windows', async () => {
     database as never,
     ACCOUNT,
     TRIP,
+    SESSION,
     HASH,
     NOW,
   )).rejects.toMatchObject({ code: 'QR_EVIDENCE_INVALID' });

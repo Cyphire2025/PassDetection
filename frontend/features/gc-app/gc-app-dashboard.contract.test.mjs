@@ -8,6 +8,7 @@ const sidebar = read("../../components/layout/sidebar.tsx");
 const routes = read("../../constants/routes.ts");
 const proxy = read("../../proxy.ts");
 const roleAccess = read("../../lib/utils/role-access.ts");
+const routeCapabilities = read("../auth/config/route-capabilities.ts");
 const shell = read("./components/gc-app-shell.tsx");
 const agencyScope = read("./components/gc-app-agency-scope.tsx");
 const api = read("./api/gc-app-admin.api.ts");
@@ -53,7 +54,9 @@ test("all GC App routes are centrally registered and protected", () => {
 test("dashboard visibility uses the GC App management capability", () => {
   assert.match(roleAccess, /GC_APP_MANAGE_CAPABILITY = "gc_app\.manage"/);
   assert.match(roleAccess, /user\.capabilities\.includes\(GC_APP_MANAGE_CAPABILITY\)/);
-  assert.match(sidebar, /requiresGcAppManagement: true/);
+  assert.match(sidebar, /canAccessApplicationPath\(user, item\.href\)/);
+  assert.match(routeCapabilities, /capability === "gc_app\.manage"/);
+  assert.match(routeCapabilities, /return canManageGcApp\(user\)/);
   assert.match(shell, /canManageGcApp\(user\)/);
 });
 
@@ -73,6 +76,26 @@ test("Client Manager operations use isolated safe account APIs", () => {
   assert.match(managerDetails, /Groups, passengers, and operational history will remain intact/);
 });
 
+test("Client Manager session and audit histories use bounded server pagination", () => {
+  assert.match(
+    api,
+    /listClientManagerSessions:[\s\S]{0,600}PageEnvelope<RawClientManagerSession>[\s\S]{0,300}toOffsetParams\(params\)/,
+  );
+  assert.match(
+    api,
+    /listClientManagerAudit:[\s\S]{0,600}PageEnvelope<RawAuditEvent>[\s\S]{0,300}toOffsetParams\(params\)/,
+  );
+  assert.match(hooks, /useClientManagerSessions\([\s\S]{0,300}page = 1[\s\S]{0,500}placeholderData: keepPreviousData/);
+  assert.match(hooks, /useClientManagerAudit\([\s\S]{0,300}page = 1[\s\S]{0,500}placeholderData: keepPreviousData/);
+  assert.match(managerDetails, /tab === "sessions" \? managerId : null/);
+  assert.match(managerDetails, /tab === "audit" \? managerId : null/);
+  assert.equal((managerDetails.match(/<GcPagination/g) ?? []).length, 2);
+  assert.match(managerDetails, /disabled=\{sessions\.isFetching\}/);
+  assert.match(managerDetails, /onPageChange=\{setSessionsPage\}/);
+  assert.match(managerDetails, /disabled=\{audit\.isFetching\}/);
+  assert.match(managerDetails, /onPageChange=\{setAuditPage\}/);
+});
+
 test("group discovery is bounded and GC access mutations are revision safe", () => {
   assert.match(controls, /page_size: 20/);
   assert.match(controls, /page: pickerPage, page_size: 20/);
@@ -90,6 +113,26 @@ test("group discovery is bounded and GC access mutations are revision safe", () 
   assert.doesNotMatch(api, /\/upload-links|passports\/upload|API_ENDPOINTS\.uploadLinks/);
   assert.doesNotMatch(hooks, /onMutate/);
   assert.match(access, /does not close, archive, delete, or revoke the passport collection group/);
+});
+
+test("My Photos visibility uses a dedicated revision-safe group feature control", () => {
+  const fullControlBody = api.slice(
+    api.indexOf("function fullControlBody"),
+    api.indexOf("function normalizeItinerary"),
+  );
+  assert.match(types, /my_photos_enabled: boolean/);
+  assert.match(api, /my_photos_enabled\?: boolean/);
+  assert.match(api, /my_photos_enabled: access\.my_photos_enabled \?\? false/);
+  assert.match(api, /setMyPhotosEnabled:[\s\S]{0,500}features\/my-photos/);
+  assert.match(api, /setMyPhotosEnabled:[\s\S]{0,500}enabled, expected_revision: control\.revision/);
+  assert.doesNotMatch(fullControlBody, /my_photos_enabled/);
+  assert.match(hooks, /setMyPhotosEnabled: useMutation/);
+  assert.match(hooks, /cancelQueries\(\{ queryKey: controlKey \}\)/);
+  assert.match(hooks, /setQueryData<GcAppGroupControl>\(controlKey, updatedControl\)/);
+  assert.match(workspace, /actions\.setMyPhotosEnabled\.mutateAsync/);
+  assert.match(access, /<AccessSwitch[\s\S]{0,120}label="My Photos"/);
+  assert.match(access, /checked=\{control\.my_photos_enabled\}/);
+  assert.doesNotMatch(hooks, /onMutate/);
 });
 
 test("new groups enable every mobile role while list cards keep role switches in Manage and publish", () => {

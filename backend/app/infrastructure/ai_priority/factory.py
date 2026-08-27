@@ -18,7 +18,7 @@ from app.infrastructure.ai_priority.redis_store import RedisPriorityStore
 def get_ai_priority_coordinator() -> AiPriorityCoordinator:
     settings = get_settings()
     return AiPriorityCoordinator(
-        store=RedisPriorityStore.from_url(settings.redis.url),
+        store=RedisPriorityStore.from_url(settings.redis.broker_url),
         config=AiPriorityConfig(
             extraction_max_concurrency=(
                 settings.gemini_extraction_max_concurrency

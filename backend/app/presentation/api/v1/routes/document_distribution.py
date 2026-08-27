@@ -9,7 +9,7 @@ from contextvars import ContextVar
 from datetime import UTC, datetime
 from functools import wraps
 from time import perf_counter
-from typing import Annotated, Literal, ParamSpec, TypeVar
+from typing import Annotated, Literal, ParamSpec, TypeVar, cast
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
 from fastapi.responses import StreamingResponse
@@ -113,6 +113,7 @@ from app.infrastructure.repositories.audit_log_repository import AuditLogReposit
 from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
+from app.infrastructure.security.upload_security import UploadSecurityContext
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.document_chunk_uploads import (
     acquire_document_upload_advisory_lock,
@@ -246,25 +247,24 @@ async def _released_document_passenger_ids(
 
     if not document_ids:
         return ()
+    result = await session.execute(
+        select(DocumentWhatsAppDeliveryModel.passenger_id).where(
+            DocumentWhatsAppDeliveryModel.distributed_document_id.in_(document_ids),
+            DocumentWhatsAppDeliveryModel.agency_id == agency_id,
+            DocumentWhatsAppDeliveryModel.group_id == group_id,
+            DocumentWhatsAppDeliveryModel.passenger_id.is_not(None),
+            DocumentWhatsAppDeliveryModel.status.in_(
+                DOCUMENT_DELIVERY_ACCEPTED_STATUSES
+            ),
+        )
+    )
     return tuple(
         sorted(
-            set(
-                (
-                    await session.execute(
-                        select(DocumentWhatsAppDeliveryModel.passenger_id).where(
-                            DocumentWhatsAppDeliveryModel.distributed_document_id.in_(
-                                document_ids
-                            ),
-                            DocumentWhatsAppDeliveryModel.agency_id == agency_id,
-                            DocumentWhatsAppDeliveryModel.group_id == group_id,
-                            DocumentWhatsAppDeliveryModel.passenger_id.is_not(None),
-                            DocumentWhatsAppDeliveryModel.status.in_(
-                                DOCUMENT_DELIVERY_ACCEPTED_STATUSES
-                            ),
-                        )
-                    )
-                ).scalars()
-            ),
+            {
+                passenger_id
+                for passenger_id in result.scalars()
+                if passenger_id is not None
+            },
             key=str,
         )
     )
@@ -1031,7 +1031,7 @@ async def _get_authorized_group(
         await AuthorizationPolicy(session).require_export_data(current_user, group)
     except AuthorizationError as exc:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)
-    return group
+    return cast(ClientGroupModel, group)
 
 
 async def _get_visible_document_batch(
@@ -1058,7 +1058,7 @@ async def _get_visible_document_batch(
     )
     statement = AuthorizationPolicy.apply_group_visibility_scope(statement, current_user)
     result = await session.execute(statement)
-    return result.scalar_one_or_none()
+    return cast(DocumentDistributionBatchModel | None, result.scalar_one_or_none())
 
 
 async def _lock_active_document_scope(
@@ -1086,7 +1086,7 @@ async def _lock_active_document_scope(
             ClientGroupModel.id == group_id,
             ClientGroupModel.agency_id == agency_id,
         )
-        .with_for_update(of=(UserModel, AgencyModel, ClientGroupModel))
+        .with_for_update()
         .execution_options(populate_existing=True)
     )
     row = result.one_or_none()
@@ -1802,7 +1802,14 @@ async def verify_documents(
     agency_id = group.agency_id
     await session.rollback()
     phase_started_at = perf_counter()
-    uploads = await read_bounded_document_uploads(files)
+    uploads = await read_bounded_document_uploads(
+        files,
+        security_context=UploadSecurityContext(
+            ingestion_flow="document_distribution_verify",
+            agency_id=agency_id,
+            user_id=current_user.id,
+        ),
+    )
     upload_read_ms = (perf_counter() - phase_started_at) * 1000
     phase_started_at = perf_counter()
     match_index = await asyncio.to_thread(
@@ -2180,7 +2187,14 @@ async def upload_documents(
         ]
         staged_storage_keys = [receipt.storage_key for receipt in staged_receipt_models]
     else:
-        uploads = await read_bounded_document_uploads(uploaded_files)
+        uploads = await read_bounded_document_uploads(
+            uploaded_files,
+            security_context=UploadSecurityContext(
+                ingestion_flow="document_distribution_upload",
+                agency_id=agency_id,
+                user_id=current_user.id,
+            ),
+        )
         chunk_byte_count = sum(len(upload.content) for upload in uploads)
         fingerprint = document_chunk_fingerprint(uploads) if chunk_metadata else None
         file_payloads = [
@@ -2815,7 +2829,11 @@ async def reupload_passenger_document(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported document type"
         )
-    await _get_authorized_group(group_id, current_user=current_user, session=session)
+    authorized_group = await _get_authorized_group(
+        group_id,
+        current_user=current_user,
+        session=session,
+    )
     initial_passengers = await _group_passengers(
         group_id,
         current_user=current_user,
@@ -2826,7 +2844,16 @@ async def reupload_passenger_document(
             status_code=status.HTTP_404_NOT_FOUND, detail="Passenger was not found in this group"
         )
     await session.rollback()
-    upload = (await read_bounded_document_uploads([file]))[0]
+    upload = (
+        await read_bounded_document_uploads(
+            [file],
+            security_context=UploadSecurityContext(
+                ingestion_flow="document_distribution_reupload",
+                agency_id=authorized_group.agency_id,
+                user_id=current_user.id,
+            ),
+        )
+    )[0]
     content = upload.content
     filename = upload.filename
     matcher = DocumentMatcher()

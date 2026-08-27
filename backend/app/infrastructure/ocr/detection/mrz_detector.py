@@ -131,7 +131,7 @@ class MRZRegionDetector:
             return ImageOps.autocontrast(ImageOps.grayscale(image))
 
     @staticmethod
-    def _mrz_text_mask(array, cv2):  # type: ignore[no-untyped-def]
+    def _mrz_text_mask(array: Any, cv2: Any) -> Any:
         blurred = cv2.GaussianBlur(array, (3, 3), 0)
         threshold = cv2.adaptiveThreshold(
             blurred,
@@ -145,13 +145,16 @@ class MRZRegionDetector:
         return cv2.morphologyEx(threshold, cv2.MORPH_OPEN, horizontal_kernel, iterations=1)
 
     @staticmethod
-    def _row_activity(mask, np):  # type: ignore[no-untyped-def]
+    def _row_activity(mask: Any, np: Any) -> Any:
         density = (mask > 0).mean(axis=1)
         kernel = np.ones(7, dtype=np.float32) / 7
         return np.convolve(density, kernel, mode="same")
 
     @staticmethod
-    def _find_line_bands(rows, image_height: int) -> list[tuple[int, int]]:  # type: ignore[no-untyped-def]
+    def _find_line_bands(
+        rows: Any,
+        image_height: int,
+    ) -> list[tuple[int, int]]:
         threshold = max(float(rows.mean() + rows.std() * 0.45), 0.018)
         min_height = max(5, int(image_height * 0.006))
         max_height = max(18, int(image_height * 0.055))
@@ -182,11 +185,11 @@ class MRZRegionDetector:
     def _build_candidates(
         self,
         line_bands: list[tuple[int, int]],
-        mask,
+        mask: Any,
         width: int,
         height: int,
-        cv2,  # type: ignore[no-untyped-def]
-        np,  # type: ignore[no-untyped-def]
+        cv2: Any,
+        np: Any,
     ) -> list[_Candidate]:
         candidates: list[_Candidate] = []
         for first_index, first in enumerate(line_bands):
@@ -199,11 +202,11 @@ class MRZRegionDetector:
     def _build_morphology_candidates(
         self,
         boxes: list[tuple[int, int, int, int]],
-        mask,
+        mask: Any,
         width: int,
         height: int,
-        cv2,  # type: ignore[no-untyped-def]
-        np,  # type: ignore[no-untyped-def]
+        cv2: Any,
+        np: Any,
     ) -> list[_Candidate]:
         candidates: list[_Candidate] = []
         ordered = sorted(boxes, key=lambda box: box[1])
@@ -218,11 +221,11 @@ class MRZRegionDetector:
         self,
         first: tuple[int, int],
         second: tuple[int, int],
-        mask,
+        mask: Any,
         width: int,
         height: int,
-        cv2,  # type: ignore[no-untyped-def]
-        np,  # type: ignore[no-untyped-def]
+        cv2: Any,
+        np: Any,
     ) -> _Candidate | None:
         top1, bottom1 = first
         top2, bottom2 = second
@@ -303,11 +306,11 @@ class MRZRegionDetector:
         self,
         first: tuple[int, int, int, int],
         second: tuple[int, int, int, int],
-        mask,
+        mask: Any,
         width: int,
         height: int,
-        cv2,  # type: ignore[no-untyped-def]
-        np,  # type: ignore[no-untyped-def]
+        cv2: Any,
+        np: Any,
     ) -> _Candidate | None:
         x1, y1, w1, h1 = first
         x2, y2, w2, h2 = second
@@ -433,7 +436,13 @@ class MRZRegionDetector:
         return deduped
 
     @staticmethod
-    def _find_morphology_text_boxes(array, width: int, height: int, cv2, np) -> list[tuple[int, int, int, int]]:  # type: ignore[no-untyped-def]
+    def _find_morphology_text_boxes(
+        array: Any,
+        width: int,
+        height: int,
+        cv2: Any,
+        np: Any,
+    ) -> list[tuple[int, int, int, int]]:
         rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (25, 7))
         square_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (21, 21))
         blackhat = cv2.morphologyEx(array, cv2.MORPH_BLACKHAT, rect_kernel)
@@ -464,7 +473,12 @@ class MRZRegionDetector:
                 boxes.append((x, y, box_width, box_height))
         return boxes
 
-    def _td3_structure_metrics(self, mask, cv2, np) -> dict[str, Any]:  # type: ignore[no-untyped-def]
+    def _td3_structure_metrics(
+        self,
+        mask: Any,
+        cv2: Any,
+        np: Any,
+    ) -> dict[str, Any]:
         row_density = (mask > 0).mean(axis=1)
         active_threshold = max(float(row_density.mean() + row_density.std() * 0.20), 0.012)
         raw_bands = self._active_bands(row_density, active_threshold, min_size=max(3, mask.shape[0] // 35))
@@ -492,7 +506,12 @@ class MRZRegionDetector:
         }
 
     @staticmethod
-    def _active_bands(values, threshold: float, *, min_size: int) -> list[tuple[int, int]]:  # type: ignore[no-untyped-def]
+    def _active_bands(
+        values: Any,
+        threshold: float,
+        *,
+        min_size: int,
+    ) -> list[tuple[int, int]]:
         bands: list[tuple[int, int]] = []
         start: int | None = None
         for index, value in enumerate(values):
@@ -518,7 +537,7 @@ class MRZRegionDetector:
         return merged
 
     @staticmethod
-    def _line_spacing_score(line_mask, cv2, np) -> float:  # type: ignore[no-untyped-def]
+    def _line_spacing_score(line_mask: Any, cv2: Any, np: Any) -> float:
         contours, _ = cv2.findContours(line_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         centers: list[float] = []
         for contour in contours:
@@ -541,7 +560,7 @@ class MRZRegionDetector:
         return max(0.0, min(1.0, 1.0 - variation / 0.85))
 
     @staticmethod
-    def _component_metrics(mask, cv2) -> dict[str, Any]:  # type: ignore[no-untyped-def]
+    def _component_metrics(mask: Any, cv2: Any) -> dict[str, Any]:
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         count = 0
         for contour in contours:

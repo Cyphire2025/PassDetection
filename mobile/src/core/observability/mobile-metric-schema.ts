@@ -79,10 +79,44 @@ export const MOBILE_METRIC_SCHEMA = Object.freeze({
   storage_maintenance_duration: { name: 'gc.mobile.storage.maintenance.duration', type: 'distribution', unit: 'millisecond', maximum: 120_000 },
   storage_maintenance_run: { name: 'gc.mobile.storage.maintenance.run', type: 'counter', maximum: 1 },
   storage_maintenance_changes: { name: 'gc.mobile.storage.maintenance.changed_rows', type: 'counter', maximum: 100_000 },
+  my_photos_open: { name: 'gc.mobile.my_photos.open', type: 'counter', maximum: 1 },
+  my_photos_enrollment_started: { name: 'gc.mobile.my_photos.enrollment.started', type: 'counter', maximum: 1 },
+  my_photos_enrollment_completed: { name: 'gc.mobile.my_photos.enrollment.completed', type: 'counter', maximum: 1 },
+  my_photos_enrollment_cancelled: { name: 'gc.mobile.my_photos.enrollment.cancelled', type: 'counter', maximum: 1 },
+  my_photos_permission_denied: { name: 'gc.mobile.my_photos.permission_denied', type: 'counter', maximum: 1 },
+  my_photos_provider_unavailable: { name: 'gc.mobile.my_photos.provider_unavailable', type: 'counter', maximum: 1 },
+  my_photos_search_duration: { name: 'gc.mobile.my_photos.search.duration', type: 'distribution', unit: 'millisecond', maximum: 3_600_000 },
+  my_photos_gallery_first_content: { name: 'gc.mobile.my_photos.gallery.first_content', type: 'distribution', unit: 'millisecond', maximum: 120_000 },
+  my_photos_page_failure: { name: 'gc.mobile.my_photos.gallery.page_failure', type: 'counter', maximum: 1 },
+  my_photos_thumbnail_failure: { name: 'gc.mobile.my_photos.gallery.thumbnail_failure', type: 'counter', maximum: 1 },
+  my_photos_local_view_failure: { name: 'gc.mobile.my_photos.gallery.local_view_failure', type: 'counter', maximum: 1 },
+  my_photos_grid_blank_incident: { name: 'gc.mobile.my_photos.gallery.blank_incident', type: 'counter', maximum: 1 },
+  my_photos_download_event: { name: 'gc.mobile.my_photos.download.event', type: 'counter', maximum: 10_000 },
+  my_photos_download_bytes: { name: 'gc.mobile.my_photos.download.bytes', type: 'distribution', unit: 'byte', maximum: 20 * 1024 * 1024 * 1024 },
+  my_photos_resume_success: { name: 'gc.mobile.my_photos.download.resume_success', type: 'counter', maximum: 10_000 },
+  my_photos_checksum_failure: { name: 'gc.mobile.my_photos.download.checksum_failure', type: 'counter', maximum: 10_000 },
+  my_photos_low_storage_cancellation: { name: 'gc.mobile.my_photos.download.low_storage_cancellation', type: 'counter', maximum: 10_000 },
+  my_photos_queue_recovery: { name: 'gc.mobile.my_photos.download.queue_recovery', type: 'counter', maximum: 10_000 },
 } as const);
 
 export const METRIC_ATTRIBUTE_VALUES = Object.freeze({
   outcome: new Set(['success', 'partial', 'failure', 'cancelled', 'timeout', 'offline']),
+  api_operation: new Set([
+    'authentication',
+    'integrity',
+    'push',
+    'notifications',
+    'trip_catalog',
+    'attendance',
+    'my_photos',
+    'documents',
+    'itinerary',
+    'manager',
+    'coordinator',
+    'health',
+    'other',
+  ]),
+  api_method: new Set(['get', 'post', 'put', 'patch', 'delete']),
   trigger: new Set(['startup', 'foreground', 'background', 'realtime', 'push', 'manual', 'mutation']),
   queue: new Set(['sync', 'attendance', 'documents']),
   attendance_result: new Set([
@@ -121,12 +155,30 @@ export const METRIC_ATTRIBUTE_VALUES = Object.freeze({
     'network',
     'other',
   ]),
+  my_photos_download_event: new Set([
+    'started', 'completed', 'paused', 'resumed', 'failed', 'cancelled', 'recovered',
+  ]),
 } satisfies Record<string, ReadonlySet<string>>);
 
 export type MobileMetricName = keyof typeof MOBILE_METRIC_SCHEMA;
 
 export type MobileMetricAttributes = Readonly<{
   outcome?: 'success' | 'partial' | 'failure' | 'cancelled' | 'timeout' | 'offline';
+  api_operation?:
+    | 'authentication'
+    | 'integrity'
+    | 'push'
+    | 'notifications'
+    | 'trip_catalog'
+    | 'attendance'
+    | 'my_photos'
+    | 'documents'
+    | 'itinerary'
+    | 'manager'
+    | 'coordinator'
+    | 'health'
+    | 'other';
+  api_method?: 'get' | 'post' | 'put' | 'patch' | 'delete';
   trigger?: 'startup' | 'foreground' | 'background' | 'realtime' | 'push' | 'manual' | 'mutation';
   queue?: 'sync' | 'attendance' | 'documents';
   attendance_result?:
@@ -156,4 +208,12 @@ export type MobileMetricAttributes = Readonly<{
     | 'needs_review'
     | 'unverifiable';
   delivery_failure?: 'rate_limited' | 'server_error' | 'timeout' | 'network' | 'other';
+  my_photos_download_event?:
+    | 'started'
+    | 'completed'
+    | 'paused'
+    | 'resumed'
+    | 'failed'
+    | 'cancelled'
+    | 'recovered';
 }>;

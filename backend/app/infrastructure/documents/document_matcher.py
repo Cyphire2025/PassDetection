@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib
 import re
 import unicodedata
 import uuid
@@ -33,7 +34,7 @@ from app.infrastructure.documents.document_pdf_support import (
 )
 
 try:
-    from pypdf import PdfReader
+    PdfReader: object | None = getattr(importlib.import_module("pypdf"), "PdfReader")
 except ImportError:  # pragma: no cover - keeps local tooling usable until deps are installed
     PdfReader = None
 
@@ -71,12 +72,9 @@ from app.infrastructure.documents.document_matcher_rules import (
     MAX_PDF_TEXT_LAYER_PAGES,
     MAX_PDF_TOTAL_PAGES,
     MAX_SUPPLEMENTAL_IDENTIFIER_INPUTS,
-    MAX_SUPPLEMENTAL_IDENTIFIERS_PER_PASSENGER,
-    MAX_SUPPLEMENTAL_IDENTIFIERS_PER_REQUEST,
     PASSPORT_TERMS,
     PAYMENT_TERMS,
     PDF_OCR_RENDER_SCALE,
-    PDF_OCR_RETRY_REASON,
     TICKET_BOOKING_TERMS,
     TICKET_CORE_TERMS,
     TICKET_FLIGHT_TERMS,
@@ -86,6 +84,15 @@ from app.infrastructure.documents.document_matcher_rules import (
     VISA_AUTHORITY_TERMS,
     VISA_CORE_TERMS,
     VISA_VALIDITY_TERMS,
+)
+from app.infrastructure.documents.document_matcher_rules import (
+    MAX_SUPPLEMENTAL_IDENTIFIERS_PER_PASSENGER as MAX_SUPPLEMENTAL_IDENTIFIERS_PER_PASSENGER,
+)
+from app.infrastructure.documents.document_matcher_rules import (
+    MAX_SUPPLEMENTAL_IDENTIFIERS_PER_REQUEST as MAX_SUPPLEMENTAL_IDENTIFIERS_PER_REQUEST,
+)
+from app.infrastructure.documents.document_matcher_rules import (
+    PDF_OCR_RETRY_REASON as PDF_OCR_RETRY_REASON,
 )
 from app.infrastructure.documents.document_matcher_rules import (
     VISA_IDENTITY_TERMS as VISA_IDENTITY_TERMS,
@@ -273,7 +280,7 @@ def classify_documents_bounded(
         raise DocumentParserUnavailableError(
             "PDF verification is temporarily busy; retry the upload"
         )
-    classifications: list[ClassifiedDocument] = []
+    sandbox_classifications: list[ClassifiedDocument] = []
     for (filename, _content, _expected_type), payload in zip(jobs, payloads, strict=True):
         detected_type = payload.get("detected_type")
         accepted = payload.get("accepted")
@@ -299,7 +306,7 @@ def classify_documents_bounded(
             and (extracted_reference is None or isinstance(extracted_reference, str))
         )
         if not payload_is_valid:
-            classifications.append(
+            sandbox_classifications.append(
                 ClassifiedDocument(
                     original_filename=filename,
                     detected_type="unknown",
@@ -312,7 +319,7 @@ def classify_documents_bounded(
                 )
             )
             continue
-        classifications.append(
+        sandbox_classifications.append(
             ClassifiedDocument(
                 original_filename=filename,
                 detected_type=cast(str, detected_type),
@@ -325,8 +332,8 @@ def classify_documents_bounded(
             )
         )
     if reject_common_unsupported_format:
-        _raise_for_common_unsupported_format(matcher, jobs, classifications)
-    return classifications
+        _raise_for_common_unsupported_format(matcher, jobs, sandbox_classifications)
+    return sandbox_classifications
 
 
 class DocumentMatcher:
@@ -408,8 +415,8 @@ class DocumentMatcher:
                 name_owners[name].add(passenger_id)
                 for alias in self._compact_name_aliases(name):
                     compact_name_owners[alias].add(passenger_id)
-                for alias in self._partial_name_pair_aliases(name):
-                    partial_name_pair_owners[alias].add(passenger_id)
+                for partial_alias in self._partial_name_pair_aliases(name):
+                    partial_name_pair_owners[partial_alias].add(passenger_id)
                 for token in set(name):
                     if token not in _NAME_NOISE_TOKENS and len(token) > 1:
                         name_token_owners[token].add(passenger_id)
@@ -463,16 +470,16 @@ class DocumentMatcher:
                 or supplemental_total >= MAX_SUPPLEMENTAL_IDENTIFIERS_PER_REQUEST
             ):
                 break
-            passenger = scoped_passengers.get(supplemental.passenger_id)
+            supplemental_passenger = scoped_passengers.get(supplemental.passenger_id)
             if (
-                passenger is None
+                supplemental_passenger is None
                 or supplemental_counts[supplemental.passenger_id]
                 >= MAX_SUPPLEMENTAL_IDENTIFIERS_PER_PASSENGER
                 or direct_identifier_counts.get(supplemental.passenger_id, 0)
                 + supplemental_counts[supplemental.passenger_id]
                 >= MAX_PASSENGER_IDENTIFIERS
-                or supplemental.agency_id != passenger.agency_id
-                or supplemental.group_id != passenger.group_id
+                or supplemental.agency_id != supplemental_passenger.agency_id
+                or supplemental.group_id != supplemental_passenger.group_id
                 or (agency_id is not None and supplemental.agency_id != agency_id)
                 or (group_id is not None and supplemental.group_id != group_id)
             ):
@@ -1339,11 +1346,15 @@ class DocumentMatcher:
                 if normalized := self._normalize_identifier(match.group(0)):
                     return normalized
 
-        match = re.search(
+        fallback_match = re.search(
             r"\b([A-Z]{1,2}[\s-]?[0-9]{6,8})\b",
             text.upper(),
         )
-        return self._normalize_identifier(match.group(1)) if match else None
+        return (
+            self._normalize_identifier(fallback_match.group(1))
+            if fallback_match
+            else None
+        )
 
     def _extract_reference(self, text: str) -> str | None:
         match = re.search(

@@ -109,6 +109,39 @@ export interface AuditLog {
   created_at: string;
 }
 
+export interface AuditLogListItem {
+  id: string;
+  agency_id: string | null;
+  user_id: string | null;
+  actor_email: string | null;
+  event_type: string;
+  entity_type: string;
+  entity_id: string | null;
+  result: AuditLogResult | null;
+  created_at: string;
+}
+
+export type AuditLogResult = "success" | "blocked" | "denied" | "failed";
+
+export interface AuditLogPage {
+  items: AuditLogListItem[];
+  has_more: boolean;
+  next_cursor: string | null;
+  incomplete: boolean;
+  page_size: number;
+}
+
+export interface AuditLogFilters {
+  start_at?: string;
+  end_at?: string;
+  actor?: string;
+  event_type?: string;
+  entity_type?: string;
+  entity_id?: string;
+  result?: AuditLogResult;
+  agency_id?: string;
+}
+
 export interface TourOperationsPhase {
   phase: number;
   name: string;
@@ -283,6 +316,42 @@ export interface RoomingWorkspace {
   passengers: RoomingPassenger[];
 }
 
+export interface RoomingRoomAllocationDelta {
+  id: string;
+  room_number: string;
+  room_type: RoomType;
+  capacity: number;
+  allocation_tag: Exclude<RoomingTag, "unspecified">;
+  roommate_notes: string | null;
+  is_saved: boolean;
+  sort_order: number;
+  occupant_ids: string[];
+}
+
+export interface RoomingHotelAllocationDelta {
+  hotel_id: string;
+  rooms: RoomingRoomAllocationDelta[];
+  allocation_priority_fields: RoomingPriorityField[];
+  allocation_revision: number;
+  allocation_is_current: boolean;
+  allocated_passenger_count: number;
+  capacity_total: number;
+}
+
+export interface RoomingPassengerAllocationDelta {
+  passenger_id: string;
+  selected_hotel_id: string | null;
+  is_vip: boolean;
+}
+
+export interface RoomingAllocationMutationResponse {
+  group_id: string;
+  changed: boolean;
+  current_revisions: Record<string, number>;
+  hotels: RoomingHotelAllocationDelta[];
+  passengers: RoomingPassengerAllocationDelta[];
+}
+
 export interface HotelCheckinPassenger {
   checkin_id: string;
   passenger_id: string;
@@ -376,6 +445,19 @@ export interface AttendanceMissingPassenger {
   coordinator_name: string | null;
 }
 
+export interface AttendanceScanBatchItemResponse {
+  client_event_id: string;
+  outcome: "counted" | "duplicate" | "rejected";
+  retryable: boolean;
+  scan: AttendanceScanResponse | null;
+  error_code: string | null;
+}
+
+export interface AttendanceScanBatchResponse {
+  batch_id: string;
+  items: AttendanceScanBatchItemResponse[];
+}
+
 export interface AttendanceCloseoutCheckpoint {
   pending_count: number;
   sending_count: number;
@@ -425,6 +507,71 @@ export interface GroupAttendanceOverview {
   group_id: string;
   group_name: string;
   sessions: AttendanceSessionSummary[];
+}
+
+export interface AttendanceSummaryCloseout {
+  ready: boolean;
+  active_participant_count: number;
+  ready_participant_count: number;
+  blocked_participant_count: number;
+  missing_participant_count: number;
+  stale_participant_count: number;
+  unresolved_count: number;
+}
+
+export interface AttendanceCoordinatorActivitySummary {
+  coordinator_id: string;
+  coordinator_name: string;
+  assigned_count: number;
+  scanned_count: number;
+  checkpoint_state: "ready" | "missing" | "stale" | "blocked";
+  checkpoint_reported_at: string | null;
+  pending_count: number;
+  sending_count: number;
+  retryable_count: number;
+  needs_review_count: number;
+  unreviewed_rejected_count: number;
+  oldest_pending_age_seconds: number | null;
+  runtime_count: number;
+  active_runtime_count: number;
+}
+
+export interface AttendanceActivitySummary {
+  id: string;
+  name: string;
+  status: string;
+  revision: string;
+  present_count: number;
+  missing_count: number;
+  exception_count: number;
+  closeout: AttendanceSummaryCloseout;
+  coordinator_count: number;
+  coordinators_truncated: boolean;
+  coordinators: AttendanceCoordinatorActivitySummary[];
+  last_canonical_update_at: string;
+  started_at: string | null;
+  completed_at: string | null;
+}
+
+export interface GroupAttendanceSummary {
+  group_id: string;
+  group_name: string;
+  revision: string;
+  sessions: AttendanceActivitySummary[];
+}
+
+export interface AttendanceMissingPassengerItem {
+  passenger_id: string;
+  display_name: string;
+}
+
+export interface AttendanceMissingPassengersPage {
+  session_id: string;
+  revision: string;
+  items: AttendanceMissingPassengerItem[];
+  has_more: boolean;
+  next_cursor: string | null;
+  page_size: number;
 }
 
 export interface GroupPassengerQrCode {
@@ -605,6 +752,46 @@ export const operationsApi = {
     return data;
   },
 
+  auditLogPage: async ({
+    filters,
+    cursor,
+    pageSize = 50,
+    signal,
+  }: {
+    filters: AuditLogFilters;
+    cursor?: string | null;
+    pageSize?: number;
+    signal?: AbortSignal;
+  }): Promise<AuditLogPage> => {
+    const { data } = await apiClient.get<AuditLogPage>(API_ENDPOINTS.auditLogs.page, {
+      params: {
+        ...filters,
+        cursor: cursor || undefined,
+        page_size: pageSize,
+      },
+      signal,
+    });
+    return data;
+  },
+
+  exportAuditLogs: async ({
+    filters,
+    signal,
+  }: {
+    filters: AuditLogFilters & { start_at: string; end_at: string };
+    signal?: AbortSignal;
+  }): Promise<{ content: Blob; truncated: boolean }> => {
+    const response = await apiClient.get<Blob>(API_ENDPOINTS.auditLogs.export, {
+      params: filters,
+      responseType: "blob",
+      signal,
+    });
+    return {
+      content: response.data,
+      truncated: String(response.headers["x-audit-export-truncated"]).toLowerCase() === "true",
+    };
+  },
+
   tourOperationsArchitecture: async (): Promise<TourOperationsArchitecture> => {
     const { data } = await apiClient.get<TourOperationsArchitecture>(API_ENDPOINTS.tourOperations.architecture);
     return data;
@@ -673,9 +860,10 @@ export const operationsApi = {
     body: {
       passenger_ids: string[];
       mode: "replace" | "add" | "remove";
+      expected_allocation_revisions: Record<string, number>;
     },
-  ): Promise<RoomingWorkspace> => {
-    const { data } = await apiClient.put<RoomingWorkspace>(
+  ): Promise<RoomingAllocationMutationResponse> => {
+    const { data } = await apiClient.put<RoomingAllocationMutationResponse>(
       API_ENDPOINTS.rooming.passengerSelection(hotelId),
       body,
     );
@@ -687,9 +875,10 @@ export const operationsApi = {
     body: {
       passenger_ids: string[];
       is_vip: boolean;
+      expected_allocation_revisions: Record<string, number>;
     },
-  ): Promise<RoomingWorkspace> => {
-    const { data } = await apiClient.put<RoomingWorkspace>(
+  ): Promise<RoomingAllocationMutationResponse> => {
+    const { data } = await apiClient.put<RoomingAllocationMutationResponse>(
       API_ENDPOINTS.rooming.vip(hotelId),
       body,
     );
@@ -698,9 +887,12 @@ export const operationsApi = {
 
   autoAllocateRoomingHotel: async (
     hotelId: string,
-    body: { priority_fields: string[] },
-  ): Promise<RoomingWorkspace> => {
-    const { data } = await apiClient.post<RoomingWorkspace>(
+    body: {
+      priority_fields: string[];
+      expected_allocation_revisions: Record<string, number>;
+    },
+  ): Promise<RoomingAllocationMutationResponse> => {
+    const { data } = await apiClient.post<RoomingAllocationMutationResponse>(
       API_ENDPOINTS.rooming.autoAllocate(hotelId),
       body,
     );
@@ -782,6 +974,7 @@ export const operationsApi = {
     clientEventId,
     scannedAt,
     deviceId,
+    runtimeId,
     syncSource,
   }: {
     sessionId: string;
@@ -789,6 +982,7 @@ export const operationsApi = {
     clientEventId: string;
     scannedAt?: string;
     deviceId?: string;
+    runtimeId?: string;
     syncSource?: "online" | "offline";
   }): Promise<AttendanceScanResponse> => {
     const { data } = await apiClient.post<AttendanceScanResponse>(API_ENDPOINTS.tourOperations.mySessionScan(sessionId), {
@@ -796,8 +990,36 @@ export const operationsApi = {
       client_event_id: clientEventId,
       scanned_at: scannedAt,
       device_id: deviceId,
+      runtime_id: runtimeId,
       sync_source: syncSource ?? "online",
     });
+    return data;
+  },
+
+  scanMyAttendanceSessionBatch: async ({
+    sessionId,
+    batchId,
+    scans,
+  }: {
+    sessionId: string;
+    batchId: string;
+    scans: Array<Readonly<{
+      clientEventId: string;
+      qrPayload: string;
+      scannedAt: string;
+    }>>;
+  }): Promise<AttendanceScanBatchResponse> => {
+    const { data } = await apiClient.post<AttendanceScanBatchResponse>(
+      API_ENDPOINTS.tourOperations.mySessionScanBatch(sessionId),
+      {
+        batch_id: batchId,
+        scans: scans.map((scan) => ({
+          client_event_id: scan.clientEventId,
+          qr_payload: scan.qrPayload,
+          scanned_at: scan.scannedAt,
+        })),
+      },
+    );
     return data;
   },
 
@@ -859,6 +1081,66 @@ export const operationsApi = {
 
   groupAttendanceOverview: async (groupId: string): Promise<GroupAttendanceOverview> => {
     const { data } = await apiClient.get<GroupAttendanceOverview>(API_ENDPOINTS.tourOperations.groupAttendance(groupId));
+    return data;
+  },
+
+  groupAttendanceSummary: async ({
+    groupId,
+    previous,
+    signal,
+  }: {
+    groupId: string;
+    previous?: GroupAttendanceSummary;
+    signal?: AbortSignal;
+  }): Promise<GroupAttendanceSummary> => {
+    const response = await apiClient.get<GroupAttendanceSummary>(
+      API_ENDPOINTS.tourOperations.groupAttendanceSummary(groupId),
+      {
+        headers: previous
+          ? { "If-None-Match": `"${previous.revision}"` }
+          : undefined,
+        signal,
+        validateStatus: (status) => status === 200 || status === 304,
+      },
+    );
+    if (response.status === 304) {
+      if (!previous) {
+        throw new Error("Attendance summary returned no data without a local revision");
+      }
+      return previous;
+    }
+    return response.data;
+  },
+
+  groupAttendanceMissingPassengers: async ({
+    groupId,
+    sessionId,
+    revision,
+    cursor,
+    search,
+    limit = 50,
+    signal,
+  }: {
+    groupId: string;
+    sessionId: string;
+    revision: string;
+    cursor?: string | null;
+    search?: string;
+    limit?: number;
+    signal?: AbortSignal;
+  }): Promise<AttendanceMissingPassengersPage> => {
+    const { data } = await apiClient.get<AttendanceMissingPassengersPage>(
+      API_ENDPOINTS.tourOperations.groupAttendanceMissing(groupId, sessionId),
+      {
+        params: {
+          revision,
+          cursor: cursor || undefined,
+          search: search || undefined,
+          limit,
+        },
+        signal,
+      },
+    );
     return data;
   },
 

@@ -11,10 +11,14 @@ from fastapi import APIRouter
 from app.presentation.api.v1.routes.admin import router as admin_router
 from app.presentation.api.v1.routes.admin_accounts import router as admin_accounts_router
 from app.presentation.api.v1.routes.analytics import router as analytics_router
+from app.presentation.api.v1.routes.attendance_runtime import router as attendance_runtime_router
 from app.presentation.api.v1.routes.audit_logs import router as audit_logs_router
 from app.presentation.api.v1.routes.auth import router as auth_router
 from app.presentation.api.v1.routes.client_groups import router as links_router
 from app.presentation.api.v1.routes.dashboard import router as dashboard_router
+from app.presentation.api.v1.routes.dashboard_realtime import (
+    router as dashboard_realtime_router,
+)
 from app.presentation.api.v1.routes.document_distribution import (
     router as document_distribution_router,
 )
@@ -37,6 +41,7 @@ from app.presentation.api.v1.routes.mobile_associations import (
 )
 from app.presentation.api.v1.routes.mobile_auth import router as mobile_auth_router
 from app.presentation.api.v1.routes.mobile_integrity import router as mobile_integrity_router
+from app.presentation.api.v1.routes.mobile_my_photos import router as mobile_my_photos_router
 from app.presentation.api.v1.routes.mobile_ops import router as mobile_ops_router
 from app.presentation.api.v1.routes.mobile_realtime import router as mobile_realtime_router
 from app.presentation.api.v1.routes.mobile_resources import router as mobile_resources_router
@@ -81,6 +86,11 @@ api_v1_router.include_router(
     tags=["GC Mobile Integrity"],
 )
 api_v1_router.include_router(
+    mobile_my_photos_router,
+    prefix="/mobile",
+    tags=["GC Mobile My Photos"],
+)
+api_v1_router.include_router(
     mobile_realtime_router,
     prefix="/mobile",
     tags=["GC Mobile Realtime"],
@@ -91,6 +101,11 @@ api_v1_router.include_router(
     tags=["GC Mobile Operations"],
 )
 api_v1_router.include_router(dashboard_router, prefix="/dashboard", tags=["Dashboard"])
+api_v1_router.include_router(
+    dashboard_realtime_router,
+    prefix="/dashboard",
+    tags=["Dashboard Realtime"],
+)
 api_v1_router.include_router(links_router, prefix="/upload-links", tags=["Upload Links"])
 api_v1_router.include_router(passport_router, prefix="/passports", tags=["Passports"])
 api_v1_router.include_router(
@@ -100,6 +115,11 @@ api_v1_router.include_router(
 )
 api_v1_router.include_router(search_router, prefix="/search", tags=["Search"])
 api_v1_router.include_router(tour_operations_router, prefix="/tour-operations", tags=["Tour Operations"])
+api_v1_router.include_router(
+    attendance_runtime_router,
+    prefix="/tour-operations",
+    tags=["Tour Operations"],
+)
 api_v1_router.include_router(
     tour_operations_qr_delivery_router,
     prefix="/tour-operations",

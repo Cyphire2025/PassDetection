@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import uuid
+from collections.abc import Sequence
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import and_, func, literal, or_, select
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.elements import ColumnElement
 
 from app.application.use_cases.email_integrations.rollout_policy import (
     lock_email_ai_policy_namespace,
@@ -36,12 +39,23 @@ router = APIRouter()
 _super_admin = require_role([UserRole.SUPER_ADMIN])
 _TARGET_LIMIT = 200
 RolloutScope = Literal["agency", "user", "connection"]
+PolicyKey = tuple[str, uuid.UUID, uuid.UUID | None, uuid.UUID | None]
 _OFFICE_ROLES = {
     UserRole.SUPER_ADMIN.value,
     UserRole.AGENCY_ADMIN.value,
     UserRole.AGENCY_MANAGER.value,
     UserRole.AGENCY_STAFF.value,
 }
+
+
+@dataclass(frozen=True, slots=True)
+class _RolloutTargetRow:
+    agency_id: uuid.UUID
+    target_id: uuid.UUID
+    owner_user_id: uuid.UUID | None
+    connection_id: uuid.UUID | None
+    label: str
+    detail: str
 
 
 @router.get(
@@ -211,76 +225,97 @@ async def _target_rows(
     agency_id: uuid.UUID | None = None,
     target_id: uuid.UUID | None = None,
     requesting_user_id: uuid.UUID | None = None,
-) -> list[object]:
+) -> list[_RolloutTargetRow]:
     if scope_type == "agency":
-        statement = select(
-            AgencyModel.id.label("agency_id"),
-            AgencyModel.id.label("target_id"),
-            literal(None).label("owner_user_id"),
-            literal(None).label("connection_id"),
-            AgencyModel.name.label("label"),
-            AgencyModel.email.label("detail"),
+        agency_statement = select(
+            AgencyModel.id,
+            AgencyModel.name,
+            AgencyModel.email,
         ).where(AgencyModel.is_active.is_(True))
         if agency_id is not None:
-            statement = statement.where(AgencyModel.id == agency_id)
+            agency_statement = agency_statement.where(AgencyModel.id == agency_id)
         if target_id is not None:
-            statement = statement.where(AgencyModel.id == target_id)
+            agency_statement = agency_statement.where(AgencyModel.id == target_id)
         if search:
-            statement = statement.where(
+            agency_statement = agency_statement.where(
                 or_(
                     func.lower(AgencyModel.name).contains(search),
                     func.lower(AgencyModel.email).contains(search),
                 )
             )
-        result = await session.execute(
-            statement.order_by(AgencyModel.name.asc()).limit(limit)
-        )
-        return list(result.all())
+        agency_rows = (
+            await session.execute(
+                agency_statement.order_by(AgencyModel.name.asc()).limit(limit)
+            )
+        ).tuples()
+        return [
+            _RolloutTargetRow(
+                agency_id=row_agency_id,
+                target_id=row_agency_id,
+                owner_user_id=None,
+                connection_id=None,
+                label=name,
+                detail=email,
+            )
+            for row_agency_id, name, email in agency_rows
+        ]
 
     if scope_type == "user":
-        statement = select(
-            UserModel.agency_id.label("agency_id"),
-            UserModel.id.label("target_id"),
-            UserModel.id.label("owner_user_id"),
-            literal(None).label("connection_id"),
-            UserModel.full_name.label("label"),
-            UserModel.email.label("detail"),
+        user_statement = select(
+            UserModel.agency_id,
+            UserModel.id,
+            UserModel.full_name,
+            UserModel.email,
         ).where(
             UserModel.is_active.is_(True),
             UserModel.agency_id.is_not(None),
             UserModel.role.in_(_OFFICE_ROLES),
         )
         if agency_id is not None:
-            statement = statement.where(UserModel.agency_id == agency_id)
+            user_statement = user_statement.where(UserModel.agency_id == agency_id)
         if target_id is not None:
-            statement = statement.where(UserModel.id == target_id)
+            user_statement = user_statement.where(UserModel.id == target_id)
         if search:
-            statement = statement.where(
+            user_statement = user_statement.where(
                 or_(
                     func.lower(UserModel.full_name).contains(search),
                     func.lower(UserModel.email).contains(search),
                 )
             )
-        result = await session.execute(
-            statement.order_by(
-                UserModel.full_name.asc(),
-                UserModel.id.asc(),
-            ).limit(limit)
-        )
-        return list(result.all())
+        user_rows = (
+            await session.execute(
+                user_statement.order_by(
+                    UserModel.full_name.asc(),
+                    UserModel.id.asc(),
+                ).limit(limit)
+            )
+        ).tuples()
+        targets: list[_RolloutTargetRow] = []
+        for row_agency_id, user_id, full_name, email in user_rows:
+            # The SQL predicate is authoritative; this explicit check also
+            # preserves a fail-closed boundary during compatible rolling states.
+            if row_agency_id is None:
+                continue
+            targets.append(
+                _RolloutTargetRow(
+                    agency_id=row_agency_id,
+                    target_id=user_id,
+                    owner_user_id=user_id,
+                    connection_id=None,
+                    label=full_name,
+                    detail=email,
+                )
+            )
+        return targets
 
-    statement = (
+    connection_statement = (
         select(
-            EmailConnectionModel.agency_id.label("agency_id"),
-            EmailConnectionModel.id.label("target_id"),
-            EmailConnectionModel.owner_user_id.label("owner_user_id"),
-            EmailConnectionModel.id.label("connection_id"),
-            EmailConnectionModel.email_address.label("label"),
-            (
-                UserModel.full_name
-                + " · "
-                + EmailConnectionModel.provider
-            ).label("detail"),
+            EmailConnectionModel.agency_id,
+            EmailConnectionModel.id,
+            EmailConnectionModel.owner_user_id,
+            EmailConnectionModel.email_address,
+            UserModel.full_name,
+            EmailConnectionModel.provider,
         )
         .join(UserModel, UserModel.id == EmailConnectionModel.owner_user_id)
         .where(
@@ -291,15 +326,15 @@ async def _target_rows(
         )
     )
     if agency_id is not None:
-        statement = statement.where(
+        connection_statement = connection_statement.where(
             EmailConnectionModel.agency_id == agency_id
         )
     if target_id is not None:
-        statement = statement.where(
+        connection_statement = connection_statement.where(
             EmailConnectionModel.id == target_id
         )
     if search:
-        statement = statement.where(
+        connection_statement = connection_statement.where(
             or_(
                 func.lower(EmailConnectionModel.email_address).contains(
                     search
@@ -307,19 +342,38 @@ async def _target_rows(
                 func.lower(UserModel.full_name).contains(search),
             )
         )
-    result = await session.execute(
-        statement.order_by(
-            EmailConnectionModel.email_address.asc(),
-            EmailConnectionModel.id.asc(),
-        ).limit(limit)
-    )
-    return list(result.all())
+    connection_rows = (
+        await session.execute(
+            connection_statement.order_by(
+                EmailConnectionModel.email_address.asc(),
+                EmailConnectionModel.id.asc(),
+            ).limit(limit)
+        )
+    ).tuples()
+    return [
+        _RolloutTargetRow(
+            agency_id=row_agency_id,
+            target_id=connection_id,
+            owner_user_id=owner_user_id,
+            connection_id=connection_id,
+            label=email_address,
+            detail=f"{owner_name} · {provider}",
+        )
+        for (
+            row_agency_id,
+            connection_id,
+            owner_user_id,
+            email_address,
+            owner_name,
+            provider,
+        ) in connection_rows
+    ]
 
 
 async def _load_policy_map(
     session: AsyncSession,
-    rows: list[object],
-) -> dict[tuple[object, ...], EmailAiRolloutPolicyModel]:
+    rows: Sequence[_RolloutTargetRow],
+) -> dict[PolicyKey, EmailAiRolloutPolicyModel]:
     if not rows:
         return {}
     agency_ids = {row.agency_id for row in rows}
@@ -381,12 +435,12 @@ async def _load_policy_map(
 
 
 def _target_response(
-    row,
+    row: _RolloutTargetRow,
     *,
     scope_type: RolloutScope,
-    policy_map: dict[tuple[object, ...], EmailAiRolloutPolicyModel],
+    policy_map: dict[PolicyKey, EmailAiRolloutPolicyModel],
     global_enabled: bool,
-) -> EmailAiRolloutTargetResponse:  # type: ignore[no-untyped-def]
+) -> EmailAiRolloutTargetResponse:
     key = _target_key(row, scope_type)
     direct_policy = policy_map.get(key)
     chain = [
@@ -447,9 +501,9 @@ def _target_response(
 
 
 def _target_key(
-    row,
+    row: _RolloutTargetRow,
     scope_type: RolloutScope,
-) -> tuple[object, ...]:  # type: ignore[no-untyped-def]
+) -> PolicyKey:
     return _policy_key(
         scope_type,
         agency_id=row.agency_id,
@@ -468,7 +522,7 @@ def _policy_key(
     agency_id: uuid.UUID,
     owner_user_id: uuid.UUID | None,
     connection_id: uuid.UUID | None,
-) -> tuple[object, ...]:
+) -> PolicyKey:
     return (
         scope_type,
         agency_id,
@@ -483,7 +537,7 @@ def _policy_predicates(
     agency_id: uuid.UUID,
     owner_user_id: uuid.UUID | None,
     connection_id: uuid.UUID | None,
-) -> tuple[object, ...]:
+) -> tuple[ColumnElement[bool], ...]:
     return (
         EmailAiRolloutPolicyModel.scope_type == scope_type,
         EmailAiRolloutPolicyModel.agency_id == agency_id,

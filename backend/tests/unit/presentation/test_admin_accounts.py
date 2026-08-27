@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import uuid
 from types import SimpleNamespace
+from typing import cast
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from fastapi import HTTPException
+from fastapi import HTTPException, Request, Response
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.domain.entities.entities import UserRole
+from app.domain.entities.entities import User, UserRole
 from app.presentation.api.v1.routes.admin_accounts import (
     _deactivate_coordinator_assignments,
     _fence_coordinator_mobile_sessions,
@@ -16,11 +18,13 @@ from app.presentation.api.v1.routes.admin_accounts import (
     _get_manageable_account,
     delete_managed_account,
     reset_managed_account_mfa,
+    reset_managed_account_password,
 )
 from app.presentation.api.v1.routes.admin_accounts import (
     router as admin_accounts_router,
 )
 from app.presentation.api.v1.routes.tour_operations import list_coordinators
+from app.presentation.api.v1.schemas.operations_schemas import ResetManagedAccountPasswordRequest
 
 
 def test_account_administration_mutations_require_cookie_csrf() -> None:
@@ -237,6 +241,81 @@ async def test_supervised_mfa_reset_clears_factors_and_revokes_sessions() -> Non
     refresh_tokens.revoke_all_for_user.assert_awaited_once_with(account.id)
     audit.assert_awaited_once()
     assert response.status_code == 204
+    assert response.headers["Cache-Control"] == "private, no-store, max-age=0"
+
+
+@pytest.mark.asyncio
+async def test_supervised_password_recovery_revokes_sessions_and_issues_only_one_time_link(
+) -> None:
+    agency_id = uuid.uuid4()
+    account = _account(agency_id=agency_id)
+    manager = _manager(agency_id=agency_id)
+    state = SimpleNamespace(
+        credential_state="active",
+        session_version=4,
+        updated_at=None,
+    )
+    session = SimpleNamespace(flush=AsyncMock())
+    identity_repository = SimpleNamespace(
+        get_state=AsyncMock(return_value=state),
+        issue_action_token=AsyncMock(return_value=(SimpleNamespace(), "one-time-link-token")),
+    )
+    refresh_tokens = SimpleNamespace(revoke_all_for_user=AsyncMock())
+    mobile_fence = AsyncMock()
+    audit = AsyncMock()
+    account_response = object()
+    response = Response()
+    request = SimpleNamespace(client=SimpleNamespace(host="127.0.0.1"))
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.admin_accounts._get_manageable_account",
+            AsyncMock(return_value=(account, "Agency")),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.admin_accounts.IdentitySecurityRepository",
+            return_value=identity_repository,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.admin_accounts.RefreshTokenRepository",
+            return_value=refresh_tokens,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.admin_accounts._fence_coordinator_mobile_sessions",
+            new=mobile_fence,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.admin_accounts._audit_account_action",
+            new=audit,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.admin_accounts._account_response",
+            return_value=account_response,
+        ) as build_response,
+        patch(
+            "app.presentation.api.v1.routes.admin_accounts.hash_password",
+            return_value="unusable-random-reset-hash",
+        ),
+    ):
+        result = await reset_managed_account_password(
+            account_id=account.id,
+            body=ResetManagedAccountPasswordRequest(issue_activation_link=True),
+            request=cast(Request, request),
+            response=response,
+            current_user=cast(User, manager),
+            session=cast(AsyncSession, session),
+        )
+
+    assert result is account_response
+    assert account.hashed_password == "unusable-random-reset-hash"
+    assert state.credential_state == "invited"
+    assert state.session_version == 5
+    refresh_tokens.revoke_all_for_user.assert_awaited_once_with(account.id)
+    mobile_fence.assert_awaited_once_with(session, account, reason="credential_reset")
+    identity_repository.issue_action_token.assert_awaited_once()
+    assert identity_repository.issue_action_token.await_args.kwargs["created_by_user_id"] == manager.id
+    audit.assert_awaited_once()
+    assert build_response.call_args.kwargs["activation_token"] == "one-time-link-token"
     assert response.headers["Cache-Control"] == "private, no-store, max-age=0"
 
 

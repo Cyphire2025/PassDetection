@@ -22,6 +22,8 @@ const endpointsSource = readFileSync(
   new URL("../../../lib/api/endpoints.ts", import.meta.url),
   "utf8",
 );
+const apiSource = readFileSync(new URL("../api/menu.api.ts", import.meta.url), "utf8");
+const hooksSource = readFileSync(new URL("../hooks/use-menu.ts", import.meta.url), "utf8");
 
 test("Menu is a first-class office sidebar destination", () => {
   assert.match(sidebarSource, /label: "Menu"/);
@@ -53,4 +55,13 @@ test("menu UI uses the shared versioned API registry", () => {
   assert.match(endpointsSource, /planEntry:/);
   assert.match(endpointsSource, /planExport:/);
   assert.match(plannerSource, /Excel/);
+});
+
+test("menu mutations fence stale browser state with authoritative revisions", () => {
+  assert.match(apiSource, /expected_updated_at/);
+  assert.match(apiSource, /expected_category_updated_at/);
+  assert.match(apiSource, /expected_category_revisions/);
+  assert.match(hooksSource, /requireCategory\(currentWorkspace\(queryClient\)/);
+  assert.match(hooksSource, /expectedUpdatedAt: plan\.updated_at/);
+  assert.match(hooksSource, /onSettled: refresh/);
 });

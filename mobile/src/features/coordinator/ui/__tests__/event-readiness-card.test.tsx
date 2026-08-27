@@ -50,7 +50,19 @@ const mockedDeviceReadiness = jest.mocked(loadDeviceEventReadiness);
 async function renderReadinessCard() {
   function ReadinessHarness() {
     const readiness = useCoordinatorEventReadiness({
-      activityId: '22222222-2222-4222-8222-222222222222',
+      activity: {
+        id: '22222222-2222-4222-8222-222222222222',
+        name: 'Airport departure',
+        status: 'active',
+        scanned_count: 0,
+        assigned_count: 800,
+        started_at: new Date(NOW - 60 * 60_000).toISOString(),
+        completed_at: null,
+        scheduled_starts_at: new Date(NOW - 60 * 60_000).toISOString(),
+        scheduled_ends_at: new Date(NOW + 6 * 60 * 60_000).toISOString(),
+        schedule_timezone: 'Asia/Kolkata',
+        schedule_version: 2,
+      },
       cameraGranted: true,
       refreshSignal: '0:0:0',
       tripId: '11111111-1111-4111-8111-111111111111',
@@ -110,7 +122,7 @@ test('claims readiness only after all authoritative checks resolve green', async
 
   await waitFor(() => expect(screen.getByText('Event readiness verified')).toBeTruthy());
   expect(screen.getByTestId('capture-gate').props.children).toBe('ready');
-  expect(screen.getAllByText('PASS')).toHaveLength(14);
+  expect(screen.getAllByText('PASS')).toHaveLength(15);
   expect(mockedQueueStatus).toHaveBeenCalledWith('11111111-1111-4111-8111-111111111111');
 });
 

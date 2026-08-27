@@ -376,7 +376,7 @@ export default function CoordinatorScanScreen() {
     ? optimisticScans.pendingCount
     : 0;
   const eventReadiness = useCoordinatorEventReadiness({
-    activityId: selectedSessionId,
+    activity: selectedSession,
     cameraGranted: permission?.granted === true,
     refreshSignal: `${readinessRevision}:${awaitingConfirmation}:${selectedSessionScannedCount}`,
     tripId: trips.selectedTripId,

@@ -57,7 +57,12 @@ test('lists only safe terminal metadata inside the authenticated account and tri
     attemptCount: 2,
     createdAt: '2030-01-02T11:00:00.000Z',
     idempotencyKey: EVENT,
+    lastAttemptAt: '2030-01-02T11:01:00.000Z',
+    passengerLabel: 'Passenger resolution unavailable',
     reasonCode: 'QR_INVALID',
+    retryState: 'terminal',
+    safeReference: '444444444444',
+    sessionLabel: 'Activity unavailable',
     updatedAt: '2030-01-02T11:01:00.000Z',
   }]);
 

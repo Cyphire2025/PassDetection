@@ -13,14 +13,17 @@
   "use strict";
 
   const SESSION_OWNER_KEY = "passdetection:session-owner";
-  const GROUPS_SNAPSHOT_KEY = "passdetection-tour-ops-my-groups";
-  const SESSIONS_SNAPSHOT_KEY = "passdetection-tour-ops-my-sessions";
-  const DEVICE_ID_KEY = "passdetection-coordinator-device-id";
   const DB_NAME = "passdetection-tour-ops";
-  const DB_VERSION = 4;
+  const DB_VERSION = 5;
   const PENDING_STORE_NAME = "pending-attendance-scans";
   const REJECTED_STORE_NAME = "rejected-attendance-scans";
   const OWNER_INDEX = "owner-user-id";
+  const AUTHORIZATION_STORE_NAME = "coordinator-offline-authorizations";
+  const SNAPSHOT_STORE_NAME = "coordinator-offline-snapshots";
+  const DISCARD_STORE_NAME = "attendance-discard-tombstones";
+  const CRYPTO_KEY_STORE_NAME = "offline-crypto-keys";
+  const STORAGE_KEY_ID = "coordinator-offline-aes-gcm-v1";
+  const MAX_PENDING_SCANS_PER_OWNER = 5000;
   const QR_PAYLOAD_PATTERN = /^pdatt:[A-Za-z0-9_-]{43}$/;
   const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   const COORDINATOR_PATH_PATTERN = /^\/coordinator(?:\/|$)/;
@@ -58,10 +61,11 @@
   let lastDecodedAt = 0;
   let reconnectInProgress = false;
   let privacyMigrationPromise = null;
+  let authorizationByGroup = new Map();
 
-  initialize();
+  void initialize();
 
-  function initialize() {
+  async function initialize() {
     if (!COORDINATOR_PATH_PATTERN.test(window.location.pathname)) return;
 
     ownerUserId = readCurrentOwner();
@@ -74,7 +78,16 @@
     }
 
     const requested = readRequestedSelection();
-    const snapshot = readCoordinatorSnapshots(ownerUserId, requested.groupId);
+    let snapshot;
+    try {
+      snapshot = await readAuthorizedCoordinatorSelections(ownerUserId, requested.groupId);
+    } catch {
+      showUnavailable(
+        "Signed offline readiness unavailable",
+        "Reconnect and open this activity online to verify its signed roster and schedule.",
+      );
+      return;
+    }
     cachedGroups = snapshot.groups;
     sessionsByGroup = snapshot.sessionsByGroup;
 
@@ -139,88 +152,289 @@
     };
   }
 
-  function readCoordinatorSnapshots(ownerId, requestedGroupId) {
-    const rawGroups = readJsonArray(`${GROUPS_SNAPSHOT_KEY}:user:${ownerId}`);
-    const groups = [];
-    const seenGroupIds = new Set();
-
-    for (const candidate of rawGroups) {
-      const group = validateGroup(candidate);
-      if (!group || seenGroupIds.has(group.id)) continue;
-      seenGroupIds.add(group.id);
-      groups.push(group);
-    }
-
-    const groupIdsToRead = groups.map((group) => group.id);
-    if (
-      requestedGroupId
-      && UUID_PATTERN.test(requestedGroupId)
-      && !seenGroupIds.has(requestedGroupId)
-    ) {
-      groupIdsToRead.push(requestedGroupId);
-    }
-
-    const sessionMap = new Map();
-    for (const groupId of groupIdsToRead) {
-      const rawSessions = readJsonArray(
-        `${SESSIONS_SNAPSHOT_KEY}:${groupId}:user:${ownerId}`,
-      );
-      const sessions = [];
-      const seenSessionIds = new Set();
-      for (const candidate of rawSessions) {
-        const session = validateSession(candidate, groupId);
-        if (!session || seenSessionIds.has(session.id)) continue;
-        seenSessionIds.add(session.id);
-        sessions.push(session);
-      }
-      sessionMap.set(groupId, sessions);
-
-      if (
-        sessions.length > 0
-        && requestedGroupId === groupId
-        && !seenGroupIds.has(groupId)
-      ) {
-        seenGroupIds.add(groupId);
-        groups.unshift({ id: groupId, name: "Cached coordinator group" });
-      }
-    }
-
-    return { groups, sessionsByGroup: sessionMap };
-  }
-
-  function readJsonArray(key) {
+  async function readAuthorizedCoordinatorSelections(ownerId, requestedGroupId) {
+    const database = await openQueueDatabase();
     try {
-      const value = window.localStorage.getItem(key);
-      if (!value) return [];
-      const parsed = JSON.parse(value);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
+      const authorizationRows = await requestToPromise(
+        database.transaction(AUTHORIZATION_STORE_NAME, "readonly")
+          .objectStore(AUTHORIZATION_STORE_NAME)
+          .getAll(),
+      );
+      const storageKey = await readStoredCryptoKey(database, STORAGE_KEY_ID);
+      const verified = [];
+      for (const record of authorizationRows) {
+        if (!isRecord(record) || record.ownerUserId !== ownerId) continue;
+        try {
+          const id = requiredString(record.id);
+          if (!id || !isRecord(record.protectedValue)) continue;
+          const storedValue = await decryptProtectedJson(
+            storageKey,
+            record.protectedValue,
+            `coordinator-offline-authorization|${id}`,
+          );
+          const authorization = await verifyStoredAuthorization(database, record, storedValue);
+          resolveAuthorizationTrustedTime(authorization);
+          verified.push(authorization);
+        } catch {
+          // One corrupt or expired manifest must not make another independently
+          // signed group unavailable.
+        }
+      }
+      authorizationByGroup = new Map(
+        verified.map((item) => [item.payload.group_id, item]),
+      );
+      const groups = verified.map((item) => ({
+        id: item.payload.group_id,
+        name: item.payload.group_label,
+      }));
+      const sessionsByGroup = new Map(
+        verified.map((item) => [
+          item.payload.group_id,
+          item.payload.sessions.map((session) => ({
+            id: session.id,
+            groupId: item.payload.group_id,
+            name: session.label,
+            status: session.status,
+          })),
+        ]),
+      );
+      if (requestedGroupId && !authorizationByGroup.has(requestedGroupId)) {
+        return { groups: [], sessionsByGroup: new Map() };
+      }
+      return { groups, sessionsByGroup };
+    } finally {
+      database.close();
     }
   }
 
-  function validateGroup(candidate) {
-    if (!isRecord(candidate) || !isUuid(candidate.id)) return null;
-    return {
-      id: candidate.id,
-      name: safeLabel(candidate.name, "Cached coordinator group"),
-    };
-  }
-
-  function validateSession(candidate, expectedGroupId) {
+  async function verifyStoredAuthorization(database, record, storedValue) {
+    if (!isRecord(storedValue) || !isRecord(storedValue.bundle) || !isRecord(storedValue.payload)) {
+      throw new Error("Signed authorization storage is invalid.");
+    }
+    const bundle = storedValue.bundle;
+    const payloadBytes = decodeBase64url(requiredString(bundle.payload), 2 * 1024 * 1024);
+    const signature = decodeBase64url(requiredString(bundle.signature), 64);
+    const publicKey = decodeBase64url(requiredString(bundle.public_key), 32);
+    const keyId = requiredString(bundle.key_id);
+    const runtimeId = requiredString(record.runtimeId);
     if (
-      !isRecord(candidate)
-      || !isUuid(candidate.id)
-      || candidate.group_id !== expectedGroupId
+      !keyId
+      || signature.length !== 64
+      || publicKey.length !== 32
+      || !isUuid(runtimeId)
+      || !["pwa", "webview"].includes(record.runtimeKind)
+      || parseRequiredInstant(record.runtimeExpiresAt) <= Date.now()
     ) {
-      return null;
+      throw new Error("Signed authorization shape is invalid.");
     }
+    const pinned = await readStoredCryptoKey(
+      database,
+      `offline-verification-key:${keyId}`,
+    );
+    const pinnedRecord = await requestToPromise(
+      database.transaction(CRYPTO_KEY_STORE_NAME, "readonly")
+        .objectStore(CRYPTO_KEY_STORE_NAME)
+        .get(`offline-verification-key:${keyId}`),
+    );
+    if (!isRecord(pinnedRecord) || pinnedRecord.digest !== await sha256HexBytes(publicKey)) {
+      throw new Error("Signed authorization key changed.");
+    }
+    const signatureValid = await window.crypto.subtle.verify(
+      { name: "Ed25519" },
+      pinned,
+      signature,
+      payloadBytes,
+    );
+    if (!signatureValid) throw new Error("Signed authorization signature is invalid.");
+    const payload = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(payloadBytes));
+    validateAuthorizationPayload(payload, record, keyId);
     return {
-      id: candidate.id,
-      groupId: expectedGroupId,
-      name: safeLabel(candidate.name, "Cached attendance activity"),
-      status: safeLabel(candidate.status, ""),
+      bundle,
+      payload,
+      record,
+      runtimeId,
+      runtime: createAuthorizationRuntimeAnchor(record, payload),
     };
+  }
+
+  function validateAuthorizationPayload(payload, record, keyId) {
+    if (
+      !isRecord(payload)
+      || payload.schema_version !== 1
+      || payload.key_id !== keyId
+      || payload.coordinator_user_id !== record.ownerUserId
+      || payload.tenant_id !== record.agencyId
+      || payload.group_id !== record.groupId
+      || !isUuid(payload.group_id)
+      || !requiredString(payload.group_label)
+      || !Array.isArray(payload.sessions)
+      || !Array.isArray(payload.passengers)
+      || payload.sessions.length < 1
+      || payload.sessions.length > 200
+      || payload.passengers.length > 2000
+    ) {
+      throw new Error("Signed authorization binding is invalid.");
+    }
+    const serverTime = parseRequiredInstant(payload.server_time);
+    const issuedAt = parseRequiredInstant(payload.issued_at);
+    const notBefore = parseRequiredInstant(payload.not_before);
+    const expiresAt = parseRequiredInstant(payload.expires_at);
+    const maxSuspensionSeconds = Number(payload.max_suspension_seconds);
+    if (
+      issuedAt > serverTime
+      || notBefore > serverTime + 2 * 60_000
+      || expiresAt <= serverTime
+      || !Number.isSafeInteger(maxSuspensionSeconds)
+      || maxSuspensionSeconds < 60
+      || maxSuspensionSeconds > 7 * 24 * 60 * 60
+      || expiresAt - serverTime > maxSuspensionSeconds * 1000
+    ) {
+      throw new Error("Signed authorization time bounds are invalid.");
+    }
+    const sessionIds = new Set();
+    for (const session of payload.sessions) {
+      if (
+        !isRecord(session)
+        || !isUuid(session.id)
+        || session.status !== "active"
+        || !requiredString(session.label)
+        || sessionIds.has(session.id)
+        || parseRequiredInstant(session.scheduled_ends_at)
+          <= parseRequiredInstant(session.scheduled_starts_at)
+      ) {
+        throw new Error("Signed attendance activity is invalid.");
+      }
+      sessionIds.add(session.id);
+    }
+    const passengerIds = new Set();
+    const tokenHashes = new Set();
+    for (const passenger of payload.passengers) {
+      if (
+        !isRecord(passenger)
+        || !isUuid(passenger.id)
+        || !requiredString(passenger.label)
+        || typeof passenger.token_hash !== "string"
+        || !/^[0-9a-f]{64}$/.test(passenger.token_hash)
+        || passengerIds.has(passenger.id)
+        || tokenHashes.has(passenger.token_hash)
+      ) {
+        throw new Error("Signed passenger evidence is invalid.");
+      }
+      parseRequiredInstant(passenger.token_valid_until);
+      passengerIds.add(passenger.id);
+      tokenHashes.add(passenger.token_hash);
+    }
+  }
+
+  function createAuthorizationRuntimeAnchor(record, payload) {
+    const wallNow = Date.now();
+    const performanceNow = performance.now();
+    const wallElapsed = wallNow - Number(record.observedWallClockMs);
+    if (!Number.isFinite(wallElapsed) || wallElapsed < -2 * 60_000) {
+      throw new Error("Trusted time rollback detected.");
+    }
+    if (wallElapsed > Number(payload.max_suspension_seconds) * 1000) {
+      throw new Error("Offline suspension exceeded its signed bound.");
+    }
+    const trustedAtLaunch = Math.max(
+      Number(record.trustedHighWaterMs),
+      parseRequiredInstant(payload.server_time) + Math.max(0, wallElapsed),
+    );
+    return {
+      observedPerformanceMs: performanceNow,
+      observedWallClockMs: wallNow,
+      trustedAtLaunchMs: trustedAtLaunch,
+      trustedHighWaterMs: trustedAtLaunch,
+    };
+  }
+
+  function resolveAuthorizationTrustedTime(authorization) {
+    const { payload, runtime } = authorization;
+    const monotonicElapsed = performance.now() - runtime.observedPerformanceMs;
+    const wallElapsed = Date.now() - runtime.observedWallClockMs;
+    if (
+      !Number.isFinite(monotonicElapsed)
+      || !Number.isFinite(wallElapsed)
+      || monotonicElapsed < 0
+      || wallElapsed < -2 * 60_000
+      || Math.abs(wallElapsed - monotonicElapsed) > 2 * 60_000
+    ) {
+      throw new Error("Device clock changed after signed readiness was verified.");
+    }
+    const trusted = Math.max(
+      runtime.trustedHighWaterMs,
+      runtime.trustedAtLaunchMs + monotonicElapsed,
+    );
+    if (
+      trusted - parseRequiredInstant(payload.server_time)
+        > Number(payload.max_suspension_seconds) * 1000
+    ) {
+      throw new Error("Offline suspension exceeded its signed bound.");
+    }
+    if (trusted < parseRequiredInstant(payload.not_before) || trusted > parseRequiredInstant(payload.expires_at)) {
+      throw new Error("Signed offline authorization expired.");
+    }
+    runtime.trustedHighWaterMs = Math.max(runtime.trustedHighWaterMs, Math.trunc(trusted));
+    return runtime.trustedHighWaterMs;
+  }
+
+  async function authorizeDecodedScan(groupId, sessionId, qrPayload) {
+    const authorization = authorizationByGroup.get(groupId);
+    if (!authorization) throw new Error("No signed roster is available for this group.");
+    const trustedNow = resolveAuthorizationTrustedTime(authorization);
+    const session = authorization.payload.sessions.find((item) => item.id === sessionId);
+    if (!session) throw new Error("This activity is not in the signed offline authorization.");
+    if (
+      trustedNow < parseRequiredInstant(session.scheduled_starts_at) - 5 * 60_000
+      || trustedNow > parseRequiredInstant(session.scheduled_ends_at)
+    ) {
+      throw new Error("This activity is outside its signed attendance window.");
+    }
+    const tokenHash = await sha256HexBytes(new TextEncoder().encode(qrPayload));
+    const matches = authorization.payload.passengers.filter((item) => item.token_hash === tokenHash);
+    if (matches.length !== 1) throw new Error("This QR is not in the signed roster for this group.");
+    const passenger = matches[0];
+    if (trustedNow > parseRequiredInstant(passenger.token_valid_until)) {
+      throw new Error("This passenger's signed QR evidence expired.");
+    }
+    await persistAuthorizationTrustedHighWater(authorization, trustedNow);
+    return {
+      passengerId: passenger.id,
+      passengerLabel: passenger.label,
+      scannedAt: new Date(trustedNow).toISOString(),
+      sessionLabel: session.label,
+    };
+  }
+
+  async function persistAuthorizationTrustedHighWater(authorization, trustedNow) {
+    if (readCurrentOwner() !== authorization.record.ownerUserId) {
+      throw new Error("The signed-in coordinator changed.");
+    }
+    const database = await openQueueDatabase();
+    try {
+      const transaction = database.transaction(AUTHORIZATION_STORE_NAME, "readwrite");
+      const completion = transactionToPromise(transaction);
+      const store = transaction.objectStore(AUTHORIZATION_STORE_NAME);
+      const current = await requestToPromise(store.get(authorization.record.id));
+      if (
+        !isRecord(current)
+        || current.ownerUserId !== authorization.record.ownerUserId
+        || current.groupId !== authorization.record.groupId
+      ) {
+        transaction.abort();
+        await completion.catch(() => undefined);
+        throw new Error("Signed authorization ownership changed.");
+      }
+      const currentHighWater = Number(current.trustedHighWaterMs);
+      if (!Number.isFinite(currentHighWater) || trustedNow > currentHighWater) {
+        const updated = { ...current, trustedHighWaterMs: Math.trunc(trustedNow) };
+        store.put(updated);
+        authorization.record = updated;
+      }
+      await completion;
+    } finally {
+      database.close();
+    }
   }
 
   function isRecord(value) {
@@ -229,12 +443,6 @@
 
   function isUuid(value) {
     return typeof value === "string" && UUID_PATTERN.test(value);
-  }
-
-  function safeLabel(value, fallback) {
-    if (typeof value !== "string") return fallback;
-    const normalized = value.trim().replace(/\s+/g, " ");
-    return normalized ? normalized.slice(0, 120) : fallback;
   }
 
   function populateGroupOptions(preferredGroupId) {
@@ -369,7 +577,7 @@
       return;
     }
 
-    const now = Date.now();
+    const now = performance.now();
     if (qrPayload === lastDecodedPayload && now - lastDecodedAt < 2_500) {
       setFeedback("Already read this QR. It will be stored only once.", "duplicate");
       return;
@@ -403,9 +611,9 @@
         }
         return refreshPendingCount();
       })
-      .catch(() => {
+      .catch((error) => {
         setFeedback(
-          "Could not save this scan on the device. Keep the QR and try again.",
+          offlineAuthorizationErrorMessage(error),
           "error",
         );
       });
@@ -415,22 +623,33 @@
     if (readCurrentOwner() !== selection.ownerUserId) {
       throw new Error("The signed-in coordinator changed.");
     }
+    const authorization = await authorizeDecodedScan(
+      selection.groupId,
+      selection.sessionId,
+      selection.qrPayload,
+    );
     const scanReference = await createScanReference(selection);
     const stableId = `attendance-scan:${scanReference}`;
-    const timestamp = new Date().toISOString();
-    const pendingScan = {
+    const timestamp = authorization.scannedAt;
+    const recovery = {
+      passengerId: authorization.passengerId,
+      passengerLabel: authorization.passengerLabel,
+      sessionLabel: authorization.sessionLabel,
+    };
+    const pendingMetadata = {
       groupId: selection.groupId,
       sessionId: selection.sessionId,
-      qrPayload: selection.qrPayload,
       clientEventId: createClientEventId(),
       scannedAt: timestamp,
-      deviceId: getDeviceId(),
+      deviceId: authorization.runtimeId,
+      runtimeId: authorization.runtimeId,
       id: stableId,
       scanReference,
       ownerUserId: selection.ownerUserId,
       queuedAt: timestamp,
       attemptCount: 0,
       nextAttemptAt: timestamp,
+      deliveryState: "pending",
     };
 
     const db = await openQueueDatabase();
@@ -438,12 +657,30 @@
       if (readCurrentOwner() !== selection.ownerUserId) {
         throw new Error("The signed-in coordinator changed.");
       }
+      const storageKey = await readStoredCryptoKey(db, STORAGE_KEY_ID);
+      const protectedQrPayload = await encryptProtectedJson(
+        storageKey,
+        { qrPayload: selection.qrPayload, recovery },
+        pendingScanAssociatedData(pendingMetadata),
+      );
       const transaction = db.transaction(PENDING_STORE_NAME, "readwrite");
       const completion = transactionToPromise(transaction);
       const store = transaction.objectStore(PENDING_STORE_NAME);
       try {
         const existing = await requestToPromise(store.get(stableId));
-        if (!existing) await requestToPromise(store.put(pendingScan));
+        if (!existing) {
+          const ownerRowCount = await requestToPromise(
+            store.index(OWNER_INDEX).count(selection.ownerUserId),
+          );
+          if (ownerRowCount >= MAX_PENDING_SCANS_PER_OWNER) {
+            throw new Error("Offline attendance storage reached its safe device limit.");
+          }
+          await requestToPromise(store.put({
+            ...pendingMetadata,
+            protectedQrPayload,
+            storageVersion: 5,
+          }));
+        }
         await completion;
         return { duplicate: Boolean(existing) };
       } catch (error) {
@@ -500,22 +737,35 @@
   function openQueueDatabase() {
     return new Promise((resolve, reject) => {
       const request = window.indexedDB.open(DB_NAME, DB_VERSION);
-      request.onupgradeneeded = (event) => {
+      request.onupgradeneeded = () => {
         const database = request.result;
         const upgrade = request.transaction;
         if (!upgrade) return;
-
-        // Match the app's queue upgrade contract. Version 1 was unscoped and
-        // cannot be attributed safely; owner-scoped records are migrated to
-        // hashed v4 keys after the schema upgrade commits.
-        if (
-          database.objectStoreNames.contains(PENDING_STORE_NAME)
-          && event.oldVersion < 2
-        ) {
-          database.deleteObjectStore(PENDING_STORE_NAME);
-        }
+        // Never delete an unscoped legacy queue. Unattributable rows remain
+        // quarantined until the online application can reconcile them.
         ensureOwnerScopedStore(database, upgrade, PENDING_STORE_NAME);
         ensureOwnerScopedStore(database, upgrade, REJECTED_STORE_NAME);
+        ensureOwnerScopedStore(database, upgrade, DISCARD_STORE_NAME);
+        ensureOwnerScopedStore(database, upgrade, SNAPSHOT_STORE_NAME);
+        const authorizationStore = ensureOwnerScopedStore(
+          database,
+          upgrade,
+          AUTHORIZATION_STORE_NAME,
+        );
+        if (!authorizationStore.indexNames.contains("expires-at")) {
+          authorizationStore.createIndex("expires-at", "expiresAt", { unique: false });
+        }
+        const snapshotStore = upgrade.objectStore(SNAPSHOT_STORE_NAME);
+        if (!snapshotStore.indexNames.contains("expires-at")) {
+          snapshotStore.createIndex("expires-at", "expiresAt", { unique: false });
+        }
+        const discardStore = upgrade.objectStore(DISCARD_STORE_NAME);
+        if (!discardStore.indexNames.contains("sync-state")) {
+          discardStore.createIndex("sync-state", "syncState", { unique: false });
+        }
+        if (!database.objectStoreNames.contains(CRYPTO_KEY_STORE_NAME)) {
+          database.createObjectStore(CRYPTO_KEY_STORE_NAME, { keyPath: "id" });
+        }
       };
       request.onsuccess = () => {
         const database = request.result;
@@ -542,6 +792,7 @@
     if (!store.indexNames.contains(OWNER_INDEX)) {
       store.createIndex(OWNER_INDEX, "ownerUserId", { unique: false });
     }
+    return store;
   }
 
   async function createScanReference(selection) {
@@ -568,6 +819,108 @@
     return `sha256:${hex}`;
   }
 
+  async function sha256HexBytes(bytes) {
+    const digest = await window.crypto.subtle.digest("SHA-256", bytes);
+    return Array.from(new Uint8Array(digest), (byte) =>
+      byte.toString(16).padStart(2, "0")
+    ).join("");
+  }
+
+  function pendingScanAssociatedData(scan) {
+    return JSON.stringify([
+      "attendance-pending-v5",
+      scan.id,
+      scan.ownerUserId,
+      scan.groupId || "legacy-group",
+      scan.sessionId,
+    ]);
+  }
+
+  async function readStoredCryptoKey(database, id) {
+    const record = await requestToPromise(
+      database.transaction(CRYPTO_KEY_STORE_NAME, "readonly")
+        .objectStore(CRYPTO_KEY_STORE_NAME)
+        .get(id),
+    );
+    if (!isRecord(record) || !record.key || record.key.extractable !== false) {
+      throw new Error("The protected offline key is unavailable.");
+    }
+    return record.key;
+  }
+
+  async function encryptProtectedJson(key, value, associatedData) {
+    const plaintext = new TextEncoder().encode(JSON.stringify(value));
+    const iv = window.crypto.getRandomValues(new Uint8Array(12));
+    try {
+      const ciphertext = await window.crypto.subtle.encrypt(
+        {
+          name: "AES-GCM",
+          iv,
+          additionalData: new TextEncoder().encode(associatedData),
+          tagLength: 128,
+        },
+        key,
+        plaintext,
+      );
+      return {
+        algorithm: "AES-GCM",
+        ciphertext,
+        iv,
+        keyId: STORAGE_KEY_ID,
+        version: 1,
+      };
+    } finally {
+      plaintext.fill(0);
+    }
+  }
+
+  async function decryptProtectedJson(key, envelope, associatedData) {
+    if (
+      !isRecord(envelope)
+      || envelope.version !== 1
+      || envelope.algorithm !== "AES-GCM"
+      || envelope.keyId !== STORAGE_KEY_ID
+      || !(envelope.ciphertext instanceof ArrayBuffer)
+      || !(envelope.iv instanceof Uint8Array)
+      || envelope.iv.length !== 12
+    ) {
+      throw new Error("Protected offline data is invalid.");
+    }
+    const plaintext = new Uint8Array(await window.crypto.subtle.decrypt(
+      {
+        name: "AES-GCM",
+        iv: envelope.iv,
+        additionalData: new TextEncoder().encode(associatedData),
+        tagLength: 128,
+      },
+      key,
+      envelope.ciphertext,
+    ));
+    try {
+      return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(plaintext));
+    } finally {
+      plaintext.fill(0);
+    }
+  }
+
+  function decodeBase64url(value, maxBytes) {
+    if (typeof value !== "string" || !/^[A-Za-z0-9_-]+$/.test(value)) {
+      throw new Error("Signed data is not canonical base64url.");
+    }
+    const padding = "=".repeat((4 - value.length % 4) % 4);
+    const decoded = window.atob(value.replace(/-/g, "+").replace(/_/g, "/") + padding);
+    if (decoded.length === 0 || decoded.length > maxBytes) {
+      throw new Error("Signed data exceeds its bounded size.");
+    }
+    return Uint8Array.from(decoded, (character) => character.charCodeAt(0));
+  }
+
+  function parseRequiredInstant(value) {
+    const parsed = typeof value === "string" ? Date.parse(value) : Number.NaN;
+    if (!Number.isFinite(parsed)) throw new Error("Signed time is invalid.");
+    return parsed;
+  }
+
   function isScanReference(value) {
     return typeof value === "string" && /^sha256:[0-9a-f]{64}$/.test(value);
   }
@@ -578,8 +931,8 @@
       readAllQueueRows(database, REJECTED_STORE_NAME),
     ]);
     const [pendingReplacements, rejectedReplacements] = await Promise.all([
-      Promise.all(pendingRows.map(normalizePendingQueueRow)),
-      Promise.all(rejectedRows.map(sanitizeRejectedQueueRow)),
+      Promise.all(pendingRows.map((row) => normalizePendingQueueRow(row, database).catch(() => null))),
+      Promise.all(rejectedRows.map((row) => sanitizeRejectedQueueRow(row).catch(() => null))),
     ]);
     const transaction = database.transaction(
       [PENDING_STORE_NAME, REJECTED_STORE_NAME],
@@ -599,8 +952,27 @@
     await completion;
   }
 
-  async function normalizePendingQueueRow(candidate) {
+  async function normalizePendingQueueRow(candidate, database) {
     if (!isRecord(candidate)) return null;
+    if (candidate.storageVersion === 5 && isRecord(candidate.protectedQrPayload)) {
+      const storageKey = await readStoredCryptoKey(database, STORAGE_KEY_ID);
+      const decrypted = await decryptProtectedJson(
+        storageKey,
+        candidate.protectedQrPayload,
+        pendingScanAssociatedData(candidate),
+      );
+      if (!isRecord(decrypted) || !QR_PAYLOAD_PATTERN.test(decrypted.qrPayload)) {
+        throw new Error("Protected attendance queue row is corrupt.");
+      }
+      const expected = await createScanReference({
+        ownerUserId: candidate.ownerUserId,
+        groupId: candidate.groupId,
+        sessionId: candidate.sessionId,
+        qrPayload: decrypted.qrPayload,
+      });
+      if (expected !== candidate.scanReference) throw new Error("Protected queue identity failed.");
+      return candidate;
+    }
     const ownerId = requiredString(candidate.ownerUserId);
     const sessionId = requiredString(candidate.sessionId);
     const qrPayload = requiredString(candidate.qrPayload);
@@ -622,13 +994,12 @@
         });
     const nextAttemptAt = validIso(candidate.nextAttemptAt) || queuedAt;
     const lastAttemptAt = validIso(candidate.lastAttemptAt);
-    return {
+    const metadata = {
       id: `attendance-scan:${scanReference}`,
       scanReference,
       ownerUserId: ownerId,
       ...(groupId ? { groupId } : {}),
       sessionId,
-      qrPayload,
       clientEventId,
       scannedAt,
       deviceId,
@@ -637,8 +1008,24 @@
         ? Math.max(0, Math.trunc(candidate.attemptCount))
         : 0,
       nextAttemptAt,
+      deliveryState: candidate.deliveryState === "sending" ? "sending" : "pending",
       ...(lastAttemptAt ? { lastAttemptAt } : {}),
     };
+    const storageKey = await readStoredCryptoKey(database, STORAGE_KEY_ID);
+    const protectedQrPayload = await encryptProtectedJson(
+      storageKey,
+      { qrPayload },
+      pendingScanAssociatedData(metadata),
+    );
+    const verified = await decryptProtectedJson(
+      storageKey,
+      protectedQrPayload,
+      pendingScanAssociatedData(metadata),
+    );
+    if (!isRecord(verified) || verified.qrPayload !== qrPayload) {
+      throw new Error("Legacy queue encryption verification failed.");
+    }
+    return { ...metadata, protectedQrPayload, storageVersion: 5 };
   }
 
   async function sanitizeRejectedQueueRow(candidate) {
@@ -697,8 +1084,10 @@
     originals.forEach((original, index) => {
       const oldId = isRecord(original) ? requiredString(original.id) : null;
       const replacement = replacements[index];
-      if (oldId && (!replacement || oldId !== replacement.id)) store.delete(oldId);
-      if (replacement) store.put(replacement);
+      if (replacement) {
+        store.put(replacement);
+        if (oldId && oldId !== replacement.id) store.delete(oldId);
+      }
     });
   }
 
@@ -730,24 +1119,19 @@
   }
 
   function createClientEventId() {
-    const randomPart = typeof window.crypto?.randomUUID === "function"
-      ? window.crypto.randomUUID()
-      : Math.random().toString(36).slice(2);
-    return `${Date.now()}-${randomPart}`;
+    return secureRandomUuid();
   }
 
-  function getDeviceId() {
-    try {
-      const existing = window.localStorage.getItem(DEVICE_ID_KEY);
-      if (existing) return existing;
-      const next = typeof window.crypto?.randomUUID === "function"
-        ? window.crypto.randomUUID()
-        : `device-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      window.localStorage.setItem(DEVICE_ID_KEY, next);
-      return next;
-    } catch {
-      return `device-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  function secureRandomUuid() {
+    if (typeof window.crypto?.randomUUID === "function") {
+      return window.crypto.randomUUID();
     }
+    const bytes = new Uint8Array(16);
+    window.crypto.getRandomValues(bytes);
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0"));
+    return `${hex.slice(0, 4).join("")}-${hex.slice(4, 6).join("")}-${hex.slice(6, 8).join("")}-${hex.slice(8, 10).join("")}-${hex.slice(10).join("")}`;
   }
 
   function stopCamera(message) {
@@ -848,6 +1232,23 @@
       return "The camera is already in use by another app.";
     }
     return "The camera could not start. Close other camera apps and try again.";
+  }
+
+  function offlineAuthorizationErrorMessage(error) {
+    const message = error instanceof Error ? error.message : "";
+    if (/safe device limit/i.test(message)) {
+      return "Offline scan storage is full. Reconnect and synchronize saved scans before continuing.";
+    }
+    if (/not in the signed roster/i.test(message)) {
+      return "Wrong group or unauthorized passenger. This QR was not saved.";
+    }
+    if (/activity|window/i.test(message)) {
+      return "This signed activity is unavailable, not yet valid, or closed. This QR was not saved.";
+    }
+    if (/time|expired|suspension|rollback/i.test(message)) {
+      return "Trusted offline time is unavailable or expired. Reconnect before scanning.";
+    }
+    return "Could not protect this scan on the device. Keep the QR available and reconnect.";
   }
 
   function setFeedback(message, tone) {

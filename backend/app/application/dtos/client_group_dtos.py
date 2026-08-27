@@ -9,6 +9,11 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import date, datetime
 
+from app.domain.entities.entities import ClientGroup
+from app.domain.value_objects.custom_questions import (
+    CustomDetailDefinition,
+    CustomQuestionDefinition,
+)
 from app.domain.value_objects.qualifier_relations import qualifier_relation_options
 from app.domain.value_objects.trip_timezone import DEFAULT_TRIP_TIMEZONE
 
@@ -33,8 +38,8 @@ class CreateClientGroupInputDTO:
     relation_with_qualifier_enabled: bool = False
     designation_enabled: bool = False
     agency_dealership_name_enabled: bool = False
-    custom_questions: list[dict] | None = None
-    custom_details: list[dict] | None = None
+    custom_questions: list[dict[str, object]] | None = None
+    custom_details: list[dict[str, object]] | None = None
     notes: str | None = None
 
 
@@ -58,8 +63,8 @@ class UpdateClientGroupInputDTO:
     relation_with_qualifier_enabled: bool = False
     designation_enabled: bool = False
     agency_dealership_name_enabled: bool = False
-    custom_questions: list[dict] | None = None
-    custom_details: list[dict] | None = None
+    custom_questions: list[dict[str, object]] | None = None
+    custom_details: list[dict[str, object]] | None = None
     notes: str | None = None
 
 
@@ -90,8 +95,8 @@ class ClientGroupOutputDTO:
     relation_with_qualifier_enabled: bool = False
     designation_enabled: bool = False
     agency_dealership_name_enabled: bool = False
-    custom_questions: list[dict] = field(default_factory=list)
-    custom_details: list[dict] = field(default_factory=list)
+    custom_questions: list[CustomQuestionDefinition] = field(default_factory=list)
+    custom_details: list[CustomDetailDefinition] = field(default_factory=list)
     qualifier_relation_options: list[dict[str, str]] = field(default_factory=list)
     notes: str | None = None
     deleted_at: datetime | None = None
@@ -101,7 +106,7 @@ class ClientGroupOutputDTO:
     passport_legal_hold: bool = False
 
 
-def client_group_output_from_entity(link) -> ClientGroupOutputDTO:  # type: ignore[no-untyped-def]
+def client_group_output_from_entity(link: ClientGroup) -> ClientGroupOutputDTO:
     return ClientGroupOutputDTO(
         id=link.id,
         name=link.name,

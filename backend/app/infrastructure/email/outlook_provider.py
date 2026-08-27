@@ -288,6 +288,11 @@ class OutlookEmailProvider:
             page_token if page_token is not None else start_history_id,
             required=True,
         )
+        if request_url is None:
+            raise EmailProviderResponseError(
+                "Microsoft Graph returned an invalid continuation link",
+                code="EMAIL_PROVIDER_PAGINATION_INVALID",
+            )
         payload = await self._authorized_json(
             "GET",
             request_url,

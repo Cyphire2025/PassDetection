@@ -89,8 +89,8 @@ async def group_passenger_qr_codes(
 
     passengers: list[GroupPassengerQrCodeResponse] = []
     for (passenger,) in passenger_rows:
-        token = token_by_passenger.get(passenger.id)
-        status_value = qr_status(token)
+        passenger_token = token_by_passenger.get(passenger.id)
+        status_value = qr_status(passenger_token)
         passengers.append(
             GroupPassengerQrCodeResponse(
                 passenger_id=passenger.id,
@@ -101,9 +101,15 @@ async def group_passenger_qr_codes(
                 coordinator_id=None,
                 coordinator_name=None,
                 qr_status=status_value,
-                qr_token_version=token.token_version if token else None,
-                qr_created_at=token.created_at if token else None,
-                qr_expires_at=token.expires_at if token else None,
+                qr_token_version=(
+                    passenger_token.token_version if passenger_token else None
+                ),
+                qr_created_at=(
+                    passenger_token.created_at if passenger_token else None
+                ),
+                qr_expires_at=(
+                    passenger_token.expires_at if passenger_token else None
+                ),
                 qr_revoked_at=token.revoked_at if token else None,
                 qr_payload=token.qr_payload if token and status_value in {"active", "inactive"} else None,
             )

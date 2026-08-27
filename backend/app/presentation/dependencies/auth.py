@@ -23,6 +23,7 @@ Usage in routes:
 from __future__ import annotations
 
 import uuid
+from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
 
 from fastapi import Depends, Request
@@ -132,7 +133,9 @@ async def get_current_active_user(
 
 # ── Role-Based Access Control ────────────────────────────────────────────────
 
-def require_role(allowed_roles: list[UserRole]):
+def require_role(
+    allowed_roles: list[UserRole],
+) -> Callable[[User], Awaitable[User]]:
     """
     Dependency factory for role-gated endpoints.
 

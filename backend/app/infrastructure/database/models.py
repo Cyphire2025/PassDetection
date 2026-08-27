@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import uuid
 from datetime import date, datetime
+from typing import TypedDict
 
 from sqlalchemy import (
+    BigInteger,
     Boolean,
     CheckConstraint,
     Date,
@@ -24,6 +26,12 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.domain.value_objects.custom_questions import (
+    CustomAnswerSnapshot,
+    CustomDetailAnswerSnapshot,
+    CustomDetailDefinition,
+    CustomQuestionDefinition,
+)
 from app.domain.value_objects.trip_timezone import DEFAULT_TRIP_TIMEZONE
 from app.infrastructure.database import communications_models as _communications_models
 from app.infrastructure.database import document_models as _document_models
@@ -44,12 +52,21 @@ DocumentRenameBatchModel = _document_models.DocumentRenameBatchModel
 DocumentRenameItemModel = _document_models.DocumentRenameItemModel
 DocumentUploadChunkModel = _document_models.DocumentUploadChunkModel
 StorageCleanupJobModel = _document_models.StorageCleanupJobModel
+UntrustedUploadScanModel = _document_models.UntrustedUploadScanModel
 DashboardAuthChallengeModel = _identity_security_models.DashboardAuthChallengeModel
 IdentityActionTokenModel = _identity_security_models.IdentityActionTokenModel
+IdentityNotificationOutboxModel = _identity_security_models.IdentityNotificationOutboxModel
 MFARecoveryCodeModel = _identity_security_models.MFARecoveryCodeModel
 UserSecurityStateModel = _identity_security_models.UserSecurityStateModel
 AttendanceRecordModel = _operations_models.AttendanceRecordModel
 AttendanceCloseoutCheckpointModel = _operations_models.AttendanceCloseoutCheckpointModel
+AttendanceDiscardTombstoneModel = _operations_models.AttendanceDiscardTombstoneModel
+AttendanceRuntimeRegistrationModel = _operations_models.AttendanceRuntimeRegistrationModel
+AttendanceScanBatchModel = _operations_models.AttendanceScanBatchModel
+AttendanceScanBatchResultModel = _operations_models.AttendanceScanBatchResultModel
+AttendanceSessionRuntimeParticipantModel = (
+    _operations_models.AttendanceSessionRuntimeParticipantModel
+)
 AttendanceSessionModel = _operations_models.AttendanceSessionModel
 PassengerQRTokenModel = _operations_models.PassengerQRTokenModel
 PassengerQrWhatsAppDeliveryModel = _operations_models.PassengerQrWhatsAppDeliveryModel
@@ -84,6 +101,13 @@ class AgencyModel(Base):
 
 class UserModel(Base):
     __tablename__ = "users"
+    __table_args__ = (
+        UniqueConstraint(
+            "id",
+            "agency_id",
+            name="uq_users_id_agency",
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True, index=True)
@@ -163,6 +187,11 @@ class RefreshTokenModel(Base):
 class ClientGroupModel(Base):
     __tablename__ = "client_groups"
     __table_args__ = (
+        UniqueConstraint(
+            "id",
+            "agency_id",
+            name="uq_client_groups_id_agency",
+        ),
         CheckConstraint(
             "passport_retention_days_applied IS NULL OR "
             "passport_retention_days_applied BETWEEN 1 AND 3650",
@@ -259,10 +288,10 @@ class ClientGroupModel(Base):
     agency_dealership_name_enabled: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False, server_default="false"
     )
-    custom_questions: Mapped[list[dict]] = mapped_column(
+    custom_questions: Mapped[list[CustomQuestionDefinition]] = mapped_column(
         JSONB, nullable=False, default=list, server_default="[]"
     )
-    custom_details: Mapped[list[dict]] = mapped_column(
+    custom_details: Mapped[list[CustomDetailDefinition]] = mapped_column(
         JSONB, nullable=False, default=list, server_default="[]"
     )
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -330,8 +359,6 @@ class ManagerGroupAccessModel(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, nullable=False
     )
-
-
 
 
 class CoordinatorAssignmentModel(Base):
@@ -540,11 +567,11 @@ class PassportSubmissionModel(Base):
     thumbnail_s3_key: Mapped[str | None] = mapped_column(String(512), nullable=True)
     # Excel-derived organisational attributes (staff code, zone, designation,
     # etc.) are kept separately from passport OCR fields.
-    staff_metadata: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
-    custom_answers: Mapped[list[dict]] = mapped_column(
+    staff_metadata: Mapped[dict[str, str] | None] = mapped_column(JSONB, nullable=True)
+    custom_answers: Mapped[list[CustomAnswerSnapshot]] = mapped_column(
         JSONB, nullable=False, default=list, server_default="[]"
     )
-    custom_detail_answers: Mapped[list[dict]] = mapped_column(
+    custom_detail_answers: Mapped[list[CustomDetailAnswerSnapshot]] = mapped_column(
         JSONB, nullable=False, default=list, server_default="[]"
     )
     passport_photo_s3_key: Mapped[str | None] = mapped_column(String(512), nullable=True)
@@ -600,16 +627,16 @@ class PassportSubmissionModel(Base):
         default="uploaded",
         index=True,
     )
-    extracted_fields: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
-    confirmed_fields: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
-    extraction_conflicts: Mapped[list[dict[str, object]]] = mapped_column(
+    extracted_fields: Mapped[dict[str, object] | None] = mapped_column(JSONB, nullable=True)
+    confirmed_fields: Mapped[dict[str, str] | None] = mapped_column(JSONB, nullable=True)
+    extraction_conflicts: Mapped[list[dict[str, str | None]]] = mapped_column(
         JSONB,
         nullable=False,
         default=list,
         server_default="[]",
     )
     overall_confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
-    confidence_score: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    confidence_score: Mapped[dict[str, object] | None] = mapped_column(JSONB, nullable=True)
     mrz_raw: Mapped[str | None] = mapped_column(Text, nullable=True)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
@@ -622,7 +649,10 @@ class PassportSubmissionModel(Base):
         DateTime(timezone=True), nullable=True
     )
     confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    post_submission_verification: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    post_submission_verification: Mapped[dict[str, object] | None] = mapped_column(
+        JSONB,
+        nullable=True,
+    )
     post_submission_verification_revision: Mapped[int] = mapped_column(
         Integer,
         nullable=False,
@@ -1196,10 +1226,6 @@ class QualifierSelectionModel(Base):
     )
 
 
-
-
-
-
 class PassportProcessingJobModel(Base):
     __tablename__ = "passport_processing_jobs"
     __table_args__ = (
@@ -1366,25 +1392,129 @@ class PassportPostSubmissionVerificationJobModel(Base):
     )
 
 
+class AuditChainHeadModel(Base):
+    """Serialized per-scope head for the application audit hash chain."""
+
+    __tablename__ = "audit_chain_heads"
+    __table_args__ = (
+        CheckConstraint(
+            "integrity_version = 1",
+            name="ck_audit_chain_head_version",
+        ),
+        CheckConstraint(
+            "last_sequence >= 0",
+            name="ck_audit_chain_head_sequence",
+        ),
+        CheckConstraint(
+            "length(last_hash) = 64",
+            name="ck_audit_chain_head_hash",
+        ),
+    )
+
+    scope_key: Mapped[str] = mapped_column(String(80), primary_key=True)
+    agency_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
+    integrity_version: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=1,
+        server_default="1",
+    )
+    last_sequence: Mapped[int] = mapped_column(
+        BigInteger,
+        nullable=False,
+        default=0,
+        server_default="0",
+    )
+    last_hash: Mapped[str] = mapped_column(
+        String(64),
+        nullable=False,
+        default="0" * 64,
+        server_default="0" * 64,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=_utcnow,
+        nullable=False,
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=_utcnow,
+        onupdate=_utcnow,
+        nullable=False,
+    )
+
+
 class AuditLogModel(Base):
     __tablename__ = "audit_logs"
+    __table_args__ = (
+        CheckConstraint(
+            "result IN ('success', 'blocked', 'denied', 'failed')",
+            name="ck_audit_logs_result",
+        ),
+        CheckConstraint(
+            "(integrity_version = 0 AND integrity_scope IS NULL "
+            "AND integrity_sequence IS NULL AND previous_hash IS NULL AND entry_hash IS NULL) "
+            "OR (integrity_version = 1 AND integrity_scope IS NOT NULL "
+            "AND integrity_sequence > 0 AND length(previous_hash) = 64 "
+            "AND length(entry_hash) = 64)",
+            name="ck_audit_logs_integrity_shape",
+        ),
+        Index(
+            "uq_audit_logs_integrity_sequence",
+            "integrity_scope",
+            "integrity_sequence",
+            unique=True,
+            postgresql_where=text("integrity_version = 1"),
+            sqlite_where=text("integrity_version = 1"),
+        ),
+        Index(
+            "ix_audit_logs_scope_created_id",
+            "agency_id",
+            "created_at",
+            "id",
+        ),
+        Index(
+            "ix_audit_logs_filter_entity_result",
+            "agency_id",
+            "entity_type",
+            "result",
+            "created_at",
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     agency_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey("agencies.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
     )
-    user_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
-    )
+    user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True, index=True)
     actor_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
     action: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
     entity_type: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
     entity_id: Mapped[str | None] = mapped_column(String(128), nullable=True, index=True)
     ip_address: Mapped[str | None] = mapped_column(String(64), nullable=True)
-    metadata_json: Mapped[dict | None] = mapped_column("metadata", JSONB, nullable=True)
+    metadata_json: Mapped[dict[str, object] | None] = mapped_column(
+        "metadata",
+        JSONB,
+        nullable=True,
+    )
+    result: Mapped[str] = mapped_column(
+        String(16),
+        nullable=False,
+        default="success",
+        server_default="success",
+    )
+    integrity_version: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+        server_default="0",
+    )
+    integrity_scope: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    integrity_sequence: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    previous_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    entry_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, nullable=False, index=True
     )
@@ -1436,7 +1566,7 @@ class NotificationModel(Base):
         index=True,
     )
     dedupe_key: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    metadata_json: Mapped[dict] = mapped_column(
+    metadata_json: Mapped[dict[str, object]] = mapped_column(
         "metadata",
         JSONB,
         default=dict,
@@ -1450,11 +1580,24 @@ class NotificationModel(Base):
     read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
+class PlatformSettingsValue(TypedDict, total=False):
+    platform_name: str
+    require_client_email: bool
+    require_client_phone: bool
+    duplicate_contact_policy: str
+    default_group_status: str
+    auto_archive_closed_groups_days: int
+    passport_data_retention_days: int
+    mrz_review_threshold: float
+    allow_manager_group_creation: bool
+    audit_log_retention_days: int
+
+
 class PlatformSettingModel(Base):
     __tablename__ = "platform_settings"
 
     key: Mapped[str] = mapped_column(String(120), primary_key=True)
-    value: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    value: Mapped[PlatformSettingsValue] = mapped_column(JSONB, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
     )

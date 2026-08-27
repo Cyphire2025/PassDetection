@@ -5,6 +5,7 @@ import {
   chunkedVaultMagic,
   consumePlaintextStreamBounded,
   encodeVaultChunkFrame,
+  maximumChunkedVaultBytes,
   recoverChunkedVault,
   type VaultChunkCipher,
 } from '../vault-chunk-container';
@@ -157,4 +158,39 @@ test('bounds vault-controlled plaintext allocations to one encrypted chunk', asy
     17,
   ]);
   expect(Math.max(...committed)).toBe(VAULT_PLAINTEXT_CHUNK_BYTES);
+});
+
+test('coalesces many tiny network chunks into the frame count used by ciphertext quota', async () => {
+  const total = VAULT_PLAINTEXT_CHUNK_BYTES * 2 + 17;
+  const source = new Uint8Array(total);
+  source.fill(9);
+  let offset = 0;
+  const reader = {
+    read: jest.fn(async () => {
+      if (offset >= source.byteLength) return { done: true };
+      const next = source.subarray(offset, Math.min(source.byteLength, offset + 1_024));
+      offset += next.byteLength;
+      return { done: false, value: next };
+    }),
+  };
+  const store = new MemoryStore(chunkedVaultMagic());
+  let chunkIndex = 0;
+  let plaintextOffset = 0;
+
+  await expect(consumePlaintextStreamBounded(reader, total, async (plaintext) => {
+    store.append(await encodeVaultChunkFrame(
+      plaintext,
+      testCipher(),
+      AAD,
+      chunkIndex,
+      plaintextOffset,
+    ));
+    chunkIndex += 1;
+    plaintextOffset += plaintext.byteLength;
+  })).resolves.toBe(total);
+
+  expect(chunkIndex).toBe(3);
+  expect(store.bytes.byteLength).toBe(maximumChunkedVaultBytes(total));
+  await expect(recoverChunkedVault(store.reader(), testCipher(), AAD, total))
+    .resolves.toMatchObject({ plaintextBytes: total, chunkCount: 3 });
 });

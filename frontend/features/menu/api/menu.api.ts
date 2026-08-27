@@ -66,6 +66,7 @@ export interface GenerateMealPlanInput {
   trip_days: number;
   start_date?: string | null;
   category_ids?: string[];
+  expected_category_revisions?: Record<string, string>;
 }
 
 export const menuApi = {
@@ -87,33 +88,49 @@ export const menuApi = {
   updateCategory: async ({
     categoryId,
     name,
+    expectedUpdatedAt,
   }: {
     categoryId: string;
     name: string;
+    expectedUpdatedAt: string;
   }): Promise<MenuCategory> => {
     const { data } = await apiClient.patch<MenuCategory>(
       API_ENDPOINTS.menu.category(categoryId),
-      { name },
+      { name, expected_updated_at: expectedUpdatedAt },
     );
     return data;
   },
 
-  deleteCategory: async (categoryId: string): Promise<void> => {
-    await apiClient.delete(API_ENDPOINTS.menu.category(categoryId));
+  deleteCategory: async ({
+    categoryId,
+    expectedUpdatedAt,
+  }: {
+    categoryId: string;
+    expectedUpdatedAt: string;
+  }): Promise<void> => {
+    await apiClient.delete(API_ENDPOINTS.menu.category(categoryId), {
+      data: { expected_updated_at: expectedUpdatedAt },
+    });
   },
 
   createDish: async ({
     categoryId,
     name,
     notes,
+    expectedCategoryUpdatedAt,
   }: {
     categoryId: string;
     name: string;
     notes?: string | null;
+    expectedCategoryUpdatedAt: string;
   }): Promise<MenuDish> => {
     const { data } = await apiClient.post<MenuDish>(
       API_ENDPOINTS.menu.categoryDishes(categoryId),
-      { name, notes: notes || null },
+      {
+        name,
+        notes: notes || null,
+        expected_category_updated_at: expectedCategoryUpdatedAt,
+      },
     );
     return data;
   },
@@ -123,11 +140,15 @@ export const menuApi = {
     name,
     notes,
     isActive,
+    expectedUpdatedAt,
+    expectedCategoryUpdatedAt,
   }: {
     dishId: string;
     name: string;
     notes?: string | null;
     isActive: boolean;
+    expectedUpdatedAt: string;
+    expectedCategoryUpdatedAt: string;
   }): Promise<MenuDish> => {
     const { data } = await apiClient.patch<MenuDish>(
       API_ENDPOINTS.menu.dish(dishId),
@@ -135,13 +156,28 @@ export const menuApi = {
         name,
         notes: notes || null,
         is_active: isActive,
+        expected_updated_at: expectedUpdatedAt,
+        expected_category_updated_at: expectedCategoryUpdatedAt,
       },
     );
     return data;
   },
 
-  deleteDish: async (dishId: string): Promise<void> => {
-    await apiClient.delete(API_ENDPOINTS.menu.dish(dishId));
+  deleteDish: async ({
+    dishId,
+    expectedUpdatedAt,
+    expectedCategoryUpdatedAt,
+  }: {
+    dishId: string;
+    expectedUpdatedAt: string;
+    expectedCategoryUpdatedAt: string;
+  }): Promise<void> => {
+    await apiClient.delete(API_ENDPOINTS.menu.dish(dishId), {
+      data: {
+        expected_updated_at: expectedUpdatedAt,
+        expected_category_updated_at: expectedCategoryUpdatedAt,
+      },
+    });
   },
 
   generatePlan: async (
@@ -157,13 +193,21 @@ export const menuApi = {
   regeneratePlan: async ({
     planId,
     categoryIds,
+    expectedUpdatedAt,
+    expectedCategoryRevisions,
   }: {
     planId: string;
     categoryIds?: string[];
+    expectedUpdatedAt: string;
+    expectedCategoryRevisions: Record<string, string>;
   }): Promise<MealPlan> => {
     const { data } = await apiClient.post<MealPlan>(
       API_ENDPOINTS.menu.regeneratePlan(planId),
-      { category_ids: categoryIds },
+      {
+        category_ids: categoryIds,
+        expected_updated_at: expectedUpdatedAt,
+        expected_category_revisions: expectedCategoryRevisions,
+      },
     );
     return data;
   },
@@ -172,14 +216,20 @@ export const menuApi = {
     planId,
     name,
     startDate,
+    expectedUpdatedAt,
   }: {
     planId: string;
     name: string;
     startDate?: string | null;
+    expectedUpdatedAt: string;
   }): Promise<MealPlan> => {
     const { data } = await apiClient.patch<MealPlan>(
       API_ENDPOINTS.menu.plan(planId),
-      { name, start_date: startDate || null },
+      {
+        name,
+        start_date: startDate || null,
+        expected_updated_at: expectedUpdatedAt,
+      },
     );
     return data;
   },
@@ -188,20 +238,39 @@ export const menuApi = {
     planId,
     entryId,
     dishId,
+    expectedUpdatedAt,
+    expectedDishUpdatedAt,
+    expectedCategoryUpdatedAt,
   }: {
     planId: string;
     entryId: string;
     dishId: string;
+    expectedUpdatedAt: string;
+    expectedDishUpdatedAt: string;
+    expectedCategoryUpdatedAt: string;
   }): Promise<MealPlan> => {
     const { data } = await apiClient.patch<MealPlan>(
       API_ENDPOINTS.menu.planEntry(planId, entryId),
-      { dish_id: dishId },
+      {
+        dish_id: dishId,
+        expected_updated_at: expectedUpdatedAt,
+        expected_dish_updated_at: expectedDishUpdatedAt,
+        expected_category_updated_at: expectedCategoryUpdatedAt,
+      },
     );
     return data;
   },
 
-  deletePlan: async (planId: string): Promise<void> => {
-    await apiClient.delete(API_ENDPOINTS.menu.plan(planId));
+  deletePlan: async ({
+    planId,
+    expectedUpdatedAt,
+  }: {
+    planId: string;
+    expectedUpdatedAt: string;
+  }): Promise<void> => {
+    await apiClient.delete(API_ENDPOINTS.menu.plan(planId), {
+      data: { expected_updated_at: expectedUpdatedAt },
+    });
   },
 
   exportPlan: async ({

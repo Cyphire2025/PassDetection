@@ -6,6 +6,7 @@ import io
 import re
 import socket
 import struct
+import time
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
@@ -74,11 +75,26 @@ class MalwareScanRejectedError(ImageValidationError):
     """Raised when bytes are malicious or the scanner response is untrusted."""
 
 
+class MalwareScannerConfigurationError(RuntimeError):
+    """Raised before ingestion when a non-development scanner boundary is unsafe."""
+
+
+class DocumentIngestionDisabledError(ImageValidationError):
+    """Raised when this deployment deliberately does not accept documents."""
+
+
 class DisabledMalwareScanner:
-    """Explicit local/demo scanner used only when AV is not configured."""
+    """Explicit development-only scanner used by deterministic local tests."""
 
     def scan(self, content: bytes) -> None:
         return None
+
+
+class DisabledDocumentIngestionScanner:
+    """Fail-closed boundary for deliberately document-free deployments."""
+
+    def scan(self, content: bytes) -> None:
+        raise DocumentIngestionDisabledError("Document ingestion is disabled")
 
 
 class ClamAVMalwareScanner:
@@ -90,16 +106,22 @@ class ClamAVMalwareScanner:
         self._timeout_seconds = timeout_seconds
 
     def scan(self, content: bytes) -> None:
+        deadline = time.monotonic() + self._timeout_seconds
         try:
-            with socket.create_connection((self._host, self._port), timeout=self._timeout_seconds) as sock:
-                sock.settimeout(self._timeout_seconds)
+            with socket.create_connection(
+                (self._host, self._port), timeout=self._timeout_seconds
+            ) as sock:
+                self._set_remaining_timeout(sock, deadline)
                 sock.sendall(b"zINSTREAM\0")
                 for offset in range(0, len(content), 8192):
-                    chunk = content[offset:offset + 8192]
+                    chunk = content[offset : offset + 8192]
+                    self._set_remaining_timeout(sock, deadline)
                     sock.sendall(struct.pack("!I", len(chunk)) + chunk)
+                self._set_remaining_timeout(sock, deadline)
                 sock.sendall(struct.pack("!I", 0))
+                self._set_remaining_timeout(sock, deadline)
                 response = sock.recv(4096).decode("utf-8", errors="replace")
-        except OSError as exc:
+        except (OSError, TimeoutError) as exc:
             raise MalwareScannerUnavailableError(
                 "Malware scanner is unavailable. Please try again later"
             ) from exc
@@ -109,20 +131,66 @@ class ClamAVMalwareScanner:
         if "OK" not in response:
             raise MalwareScanRejectedError("Malware scanner returned an invalid response")
 
+    def healthcheck(self) -> None:
+        """Require a valid ClamAV PONG before a production process becomes ready."""
+
+        try:
+            with socket.create_connection(
+                (self._host, self._port), timeout=self._timeout_seconds
+            ) as sock:
+                sock.settimeout(self._timeout_seconds)
+                sock.sendall(b"zPING\0")
+                response = sock.recv(64).decode("ascii", errors="replace").strip("\x00\r\n ")
+        except OSError as exc:
+            raise MalwareScannerConfigurationError(
+                "Configured malware scanner is unavailable"
+            ) from exc
+        if response != "PONG":
+            raise MalwareScannerConfigurationError(
+                "Configured malware scanner failed its health check"
+            )
+
+    @staticmethod
+    def _set_remaining_timeout(sock: socket.socket, deadline: float) -> None:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise TimeoutError("Malware scan exceeded its total timeout")
+        sock.settimeout(remaining)
+
 
 def malware_scanner_from_settings(settings: Any | None = None) -> MalwareScanner:
     """Return the one configured scanner used by every untrusted upload path."""
 
     active_settings = settings or get_settings()
+    if not bool(getattr(active_settings, "untrusted_document_ingestion_enabled", True)):
+        return DisabledDocumentIngestionScanner()
     if not bool(getattr(active_settings, "malware_scanner_enabled", False)):
+        if not bool(getattr(active_settings, "is_development", False)):
+            raise MalwareScannerConfigurationError(
+                "Untrusted document ingestion requires a malware scanner outside development"
+            )
         return DisabledMalwareScanner()
     return ClamAVMalwareScanner(
         host=str(getattr(active_settings, "malware_scanner_host", "localhost")),
         port=int(getattr(active_settings, "malware_scanner_port", 3310)),
-        timeout_seconds=float(
-            getattr(active_settings, "malware_scanner_timeout_seconds", 2.0)
-        ),
+        timeout_seconds=float(getattr(active_settings, "malware_scanner_timeout_seconds", 2.0)),
     )
+
+
+def assert_malware_scanner_ready(settings: Any | None = None) -> None:
+    """Fail startup when an enabled non-development ingestion lane is unscanned."""
+
+    active_settings = settings or get_settings()
+    if not bool(getattr(active_settings, "untrusted_document_ingestion_enabled", True)):
+        return
+    scanner = malware_scanner_from_settings(active_settings)
+    if bool(getattr(active_settings, "is_development", False)):
+        return
+    if not isinstance(scanner, ClamAVMalwareScanner):
+        raise MalwareScannerConfigurationError(
+            "Untrusted document ingestion requires a functioning malware scanner"
+        )
+    scanner.healthcheck()
 
 
 class UploadValidator:
@@ -130,13 +198,17 @@ class UploadValidator:
         self._settings = get_settings()
         self._scanner = scanner or self._default_scanner()
 
-    def validate(self, *, content: bytes, filename: str | None, declared_content_type: str | None) -> ValidatedUpload:
+    def validate(
+        self, *, content: bytes, filename: str | None, declared_content_type: str | None
+    ) -> ValidatedUpload:
         if not content:
             raise ImageValidationError("Uploaded file is empty")
 
         max_size = self._settings.upload_max_file_size_bytes
         if len(content) > max_size:
-            raise ImageValidationError(f"Image is too large. Maximum allowed size is {max_size // (1024 * 1024)} MB")
+            raise ImageValidationError(
+                f"Image is too large. Maximum allowed size is {max_size // (1024 * 1024)} MB"
+            )
 
         # Scan the original bytes, but never persist them. The decoded pixels
         # are re-encoded below so metadata, polyglot trailers, misleading
@@ -189,9 +261,7 @@ class UploadValidator:
 
     @staticmethod
     def _to_rgb(image: Image.Image) -> Image.Image:
-        if image.mode in {"RGBA", "LA"} or (
-            image.mode == "P" and "transparency" in image.info
-        ):
+        if image.mode in {"RGBA", "LA"} or (image.mode == "P" and "transparency" in image.info):
             rgba = image.convert("RGBA")
             background = Image.new("RGBA", rgba.size, "white")
             composited = Image.alpha_composite(background, rgba).convert("RGB")

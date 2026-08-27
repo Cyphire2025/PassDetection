@@ -178,7 +178,7 @@ def test_scheduler_heartbeat_is_written_with_a_short_ttl(monkeypatch) -> None:  
         email_tasks,
         "get_settings",
         lambda: SimpleNamespace(
-            redis=SimpleNamespace(url="redis://example.test/0"),
+            redis=SimpleNamespace(broker_url="redis://broker.example.test/0"),
             processing_worker_ping_timeout_seconds=1.0,
         ),
     )

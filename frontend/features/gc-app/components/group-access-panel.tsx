@@ -12,11 +12,13 @@ export function GroupAccessPanel({
   control,
   isUpdating,
   onUpdate,
+  onSetMyPhotosEnabled,
   onRevoke,
 }: {
   control: GcAppGroupControl;
   isUpdating: boolean;
   onUpdate: (patch: GcAppControlPatch) => Promise<void>;
+  onSetMyPhotosEnabled: (enabled: boolean) => Promise<void>;
   onRevoke: () => Promise<void>;
 }) {
   const [startsAt, setStartsAt] = useState(() => toLocalDateTime(control.access_starts_at));
@@ -61,6 +63,34 @@ export function GroupAccessPanel({
             <AccessSwitch label="Client Manager access" checked={control.client_manager_access_enabled} disabled={blocked || isUpdating} onChange={(enabled) => void update({ client_manager_access_enabled: enabled })} />
             <AccessSwitch label="Coordinator access" checked={control.coordinator_access_enabled} disabled={blocked || isUpdating} onChange={(enabled) => void update({ coordinator_access_enabled: enabled })} />
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="space-y-4 p-5">
+          <div>
+            <h3 className="font-semibold text-slate-900">Passenger features</h3>
+            <p className="mt-1 text-sm text-slate-500">
+              Optional trip features appear only for passengers who already have GC App access.
+            </p>
+          </div>
+          <AccessSwitch
+            label="My Photos"
+            checked={control.my_photos_enabled}
+            disabled={blocked || isUpdating}
+            onChange={(enabled) => {
+              setError(null);
+              void onSetMyPhotosEnabled(enabled).catch((updateError: unknown) => {
+                setError(gcAppErrorMessage(
+                  updateError,
+                  "My Photos visibility was not changed. Refresh and try again.",
+                ));
+              });
+            }}
+          />
+          <p className="text-xs text-slate-500">
+            Show My Photos in the passenger app for this group. Gallery and provider setup are still required before photos can be used.
+          </p>
         </CardContent>
       </Card>
 

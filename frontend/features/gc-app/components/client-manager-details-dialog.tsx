@@ -10,7 +10,7 @@ import {
 } from "../hooks/use-gc-app-admin";
 import type { ClientManagerAccount } from "../types";
 import { formatGcDateTime, gcAppErrorMessage } from "../utils";
-import { GcAlert } from "./gc-app-feedback";
+import { GcAlert, GcPagination } from "./gc-app-feedback";
 import { GcDialog } from "./gc-dialog";
 
 type DetailTab = "overview" | "sessions" | "audit";
@@ -36,13 +36,41 @@ export function ClientManagerDetailsDialog({
   const [activationCopied, setActivationCopied] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const sessions = useClientManagerSessions(agencyId, manager?.id ?? null);
-  const audit = useClientManagerAudit(agencyId, manager?.id ?? null);
+  const [sessionsPage, setSessionsPage] = useState(1);
+  const [auditPage, setAuditPage] = useState(1);
+  const managerId = manager?.id ?? null;
+  const sessions = useClientManagerSessions(
+    agencyId,
+    tab === "sessions" ? managerId : null,
+    sessionsPage,
+  );
+  const audit = useClientManagerAudit(
+    agencyId,
+    tab === "audit" ? managerId : null,
+    auditPage,
+  );
   const actions = useClientManagerMutations(agencyId);
   const isPending = actions.setStatus.isPending
     || actions.resetPassword.isPending
     || actions.revokeSessions.isPending
     || actions.softDelete.isPending;
+
+  const resetViewState = () => {
+    setTab("overview");
+    setConfirmation(null);
+    setPasswordOpen(false);
+    setActivationToken(null);
+    setActivationCopied(false);
+    setDeleteConfirmation("");
+    setError(null);
+    setSessionsPage(1);
+    setAuditPage(1);
+  };
+
+  const closeDetails = () => {
+    resetViewState();
+    onClose();
+  };
 
   if (!manager) return null;
 
@@ -56,13 +84,14 @@ export function ClientManagerDetailsDialog({
         await actions.setStatus.mutateAsync({ managerId: manager.id, status: "active", revision: manager.revision });
       } else if (confirmation === "revoke") {
         await actions.revokeSessions.mutateAsync(manager.id);
+        setSessionsPage(1);
       } else if (confirmation === "delete") {
         if (deleteConfirmation !== "DELETE") {
           setError("Type DELETE to confirm safe account removal.");
           return;
         }
         await actions.softDelete.mutateAsync(manager.id);
-        onClose();
+        closeDetails();
       }
       setConfirmation(null);
       setDeleteConfirmation("");
@@ -88,7 +117,7 @@ export function ClientManagerDetailsDialog({
       open={open}
       title={manager.name}
       description={`${manager.company.name} · ${manager.email}`}
-      onClose={onClose}
+      onClose={closeDetails}
       closeDisabled={isPending}
       size="xl"
     >
@@ -110,7 +139,16 @@ export function ClientManagerDetailsDialog({
               </button>
             ))}
           </div>
-          <Button type="button" variant="secondary" size="sm" leftIcon={<Pencil className="h-4 w-4" />} onClick={onEdit}>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            leftIcon={<Pencil className="h-4 w-4" />}
+            onClick={() => {
+              resetViewState();
+              onEdit();
+            }}
+          >
             Edit account
           </Button>
         </div>
@@ -238,6 +276,16 @@ export function ClientManagerDetailsDialog({
                 </CardContent>
               </Card>
             ))}
+            {!sessions.isError && sessions.data && sessions.data.total > 0 && (
+              <GcPagination
+                page={sessions.data.page}
+                total={sessions.data.total}
+                pageSize={sessions.data.page_size}
+                hasNext={sessions.data.has_next}
+                disabled={sessions.isFetching}
+                onPageChange={setSessionsPage}
+              />
+            )}
           </div>
         )}
 
@@ -253,6 +301,16 @@ export function ClientManagerDetailsDialog({
                 <p className="mt-1 text-xs text-slate-500">{event.actor_name ?? "System"} · {formatGcDateTime(event.created_at)}</p>
               </div>
             ))}
+            {!audit.isError && audit.data && audit.data.total > 0 && (
+              <GcPagination
+                page={audit.data.page}
+                total={audit.data.total}
+                pageSize={audit.data.page_size}
+                hasNext={audit.data.has_next}
+                disabled={audit.isFetching}
+                onPageChange={setAuditPage}
+              />
+            )}
           </div>
         )}
 

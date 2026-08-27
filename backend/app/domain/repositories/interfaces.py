@@ -202,9 +202,9 @@ class IPassportSubmissionRepository(ABC):
         *,
         submission_id: uuid.UUID,
         expected_revision: int,
-        extracted_fields: dict,
+        extracted_fields: dict[str, object],
         confidence: float,
-        confidence_score: dict | None,
+        confidence_score: dict[str, object] | None,
         mrz_raw: str | None,
         review_threshold: float = 0.85,
     ) -> PassportSubmission | None: ...
@@ -226,7 +226,7 @@ class IPassportSubmissionRepository(ABC):
         submission_id: uuid.UUID,
         expected_revision: int,
         decision: str,
-        verification: dict,
+        verification: dict[str, object],
     ) -> PassportSubmission | None: ...
 
     @abstractmethod

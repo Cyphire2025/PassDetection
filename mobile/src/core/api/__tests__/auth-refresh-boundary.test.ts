@@ -57,17 +57,10 @@ function deferred<T>() {
 }
 
 function jsonResponse(status: number, value: unknown): Response {
-  return {
+  return new Response(JSON.stringify(value), {
     status,
-    ok: status >= 200 && status < 300,
-    headers: {
-      get: (name: string) => {
-        if (name.toLowerCase() === 'content-type') return 'application/json';
-        return null;
-      },
-    },
-    json: jest.fn(async () => value),
-  } as unknown as Response;
+    headers: { 'content-type': 'application/json' },
+  });
 }
 
 const ResultSchema = z.object({ value: z.string() }).strict();
@@ -151,7 +144,7 @@ test('concurrent 401 responses in one session share one refresh operation', asyn
 
 test('an account switch while the response body is still being read cannot publish stale data', async () => {
   const bodyReadStarted = deferred<void>();
-  const body = deferred<unknown>();
+  const body = deferred<ArrayBuffer>();
   globalThis.fetch = jest.fn(async () => ({
     status: 200,
     ok: true,
@@ -160,7 +153,7 @@ test('an account switch while the response body is still being read cannot publi
         ? 'application/json'
         : null,
     },
-    json: jest.fn(() => {
+    arrayBuffer: jest.fn(() => {
       bodyReadStarted.resolve();
       return body.promise;
     }),
@@ -170,7 +163,7 @@ test('an account switch while the response body is still being read cannot publi
   await bodyReadStarted.promise;
   invalidateAuthenticationBoundary();
   useSessionStore.getState().setSession(sessionB);
-  body.resolve({ value: 'stale-account-a' });
+  body.resolve(new TextEncoder().encode(JSON.stringify({ value: 'stale-account-a' })).buffer as ArrayBuffer);
 
   await expect(request).rejects.toMatchObject<Partial<ApiError>>({
     status: 409,

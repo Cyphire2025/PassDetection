@@ -39,7 +39,12 @@ function readyInput(overrides: Partial<EventReadinessInput> = {}): EventReadines
     },
     queue: { awaitingConfirmation: 0, needsReview: 0 },
     realtimeStatus: 'connected',
-    requiredHorizonMs: HORIZON,
+    schedule: {
+      startsAt: new Date(NOW - 60 * 60_000).toISOString(),
+      endsAt: new Date(NOW + 6 * 60 * 60_000).toISOString(),
+      timeZone: 'Asia/Kolkata',
+      version: 3,
+    },
     tripSelected: true,
     ...overrides,
   };
@@ -49,7 +54,7 @@ test('reports ready only when every event-critical prerequisite is green', () =>
   const assessment = assessCoordinatorEventReadiness(readyInput());
 
   expect(assessment.status).toBe('ready');
-  expect(assessment.checks).toHaveLength(14);
+  expect(assessment.checks).toHaveLength(15);
   expect(assessment.checks.every((check) => check.outcome === 'ready')).toBe(true);
 });
 
@@ -77,6 +82,7 @@ test.each([
     },
   }],
   ['activity is missing', { activitySelected: false }],
+  ['the activity schedule is missing', { schedule: null }],
   ['scan issues are unresolved', {
     queue: { awaitingConfirmation: 0, needsReview: 1 },
   }],
@@ -144,4 +150,55 @@ test('capture policy fails closed for loading and red while explicitly accepting
   expect(eventReadinessAllowsCapture('blocked')).toBe(false);
   expect(eventReadinessAllowsCapture('attention')).toBe(true);
   expect(eventReadinessAllowsCapture('ready')).toBe(true);
+});
+
+test.each([
+  ['overnight', '2030-01-02T22:00:00+05:30', '2030-01-03T04:00:00+05:30', 'Asia/Kolkata'],
+  ['DST spring transition', '2030-03-10T00:30:00-05:00', '2030-03-10T04:30:00-04:00', 'America/New_York'],
+  ['DST fall transition', '2030-11-03T00:30:00-04:00', '2030-11-03T03:30:00-05:00', 'America/New_York'],
+  ['multi-day', '2030-01-01T12:00:00Z', '2030-01-05T12:00:00Z', 'UTC'],
+])('calculates %s schedules from absolute instants without a fixed eight-hour horizon', (
+  _label,
+  startsAt,
+  endsAt,
+  timeZone,
+) => {
+  const startsAtMs = Date.parse(startsAt);
+  const assessment = assessCoordinatorEventReadiness(readyInput({
+    offlineAuthorization: {
+      remainingMs: Date.parse(endsAt) + 2 * 60 * 60_000 - startsAtMs + 60_000,
+      trustedServerTimeMs: startsAtMs,
+    },
+    evidence: {
+      ...readyEvidence,
+      evidenceValidUntil: new Date(Date.parse(endsAt) + 2 * 60 * 60_000 + 60_000).toISOString(),
+      lastServerTime: new Date(startsAtMs - 60_000).toISOString(),
+    },
+    schedule: { startsAt, endsAt, timeZone, version: 1 },
+  }));
+  expect(assessment.checks.find((check) => check.id === 'schedule')?.outcome).toBe('ready');
+});
+
+test('reports clear not-yet-valid and expired schedule states', () => {
+  const future = assessCoordinatorEventReadiness(readyInput({
+    schedule: {
+      startsAt: new Date(NOW + 60 * 60_000).toISOString(),
+      endsAt: new Date(NOW + 3 * 60 * 60_000).toISOString(),
+      timeZone: 'UTC',
+      version: 1,
+    },
+  }));
+  expect(future.checks.find((check) => check.id === 'schedule')?.message)
+    .toContain('not yet open');
+
+  const expired = assessCoordinatorEventReadiness(readyInput({
+    schedule: {
+      startsAt: new Date(NOW - 5 * 60 * 60_000).toISOString(),
+      endsAt: new Date(NOW - 3 * 60 * 60_000).toISOString(),
+      timeZone: 'UTC',
+      version: 1,
+    },
+  }));
+  expect(expired.checks.find((check) => check.id === 'schedule')?.message)
+    .toContain('expired');
 });

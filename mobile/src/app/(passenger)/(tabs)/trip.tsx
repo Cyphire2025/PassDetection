@@ -28,6 +28,7 @@ import { commonDocumentHeading, isItineraryDocument } from '@/features/content/d
 import { useAnnouncements, useCommonDocuments } from '@/features/content/hooks/use-content';
 import { useTrips } from '@/features/trips/hooks/use-trips';
 import { DepartureCountdownCard } from '@/features/trips/ui/departure-countdown-card';
+import { MyPhotosTripCard } from '@/features/my-photos/ui/my-photos-trip-card';
 
 type CommonDocumentSection = {
   key: string;
@@ -180,6 +181,7 @@ export default function PassengerTripScreen() {
               returnDate={trip.returnDate}
               timeZone={trip.timeZone}
             />
+            <MyPhotosTripCard tripId={trip.id} />
             {importantAnnouncement ? (
               <GlassCard style={styles.alertCard}>
                 <Text style={styles.alertEyebrow}>{importantAnnouncement.priority === 'emergency' ? 'Emergency update' : 'Important update'}</Text>

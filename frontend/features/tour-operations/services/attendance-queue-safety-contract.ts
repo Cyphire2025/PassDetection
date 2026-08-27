@@ -6,6 +6,7 @@ export interface BrowserAttendanceQueueSafetySnapshot {
   sending: number;
   retryable: number;
   review: number;
+  discardAuditPending: number;
   oldestQueuedAt: string | null;
   nextAttemptAt: string | null;
   storageUnavailable?: boolean;
@@ -18,7 +19,8 @@ export function hasUnsafeBrowserAttendanceQueue(
     || snapshot.pending > 0
     || snapshot.sending > 0
     || snapshot.retryable > 0
-    || snapshot.review > 0;
+    || snapshot.review > 0
+    || snapshot.discardAuditPending > 0;
 }
 
 export function unavailableBrowserAttendanceQueueSnapshot(
@@ -30,6 +32,7 @@ export function unavailableBrowserAttendanceQueueSnapshot(
     sending: 0,
     retryable: 0,
     review: 0,
+    discardAuditPending: 0,
     oldestQueuedAt: null,
     nextAttemptAt: null,
     storageUnavailable: true,

@@ -22,6 +22,7 @@ from app.infrastructure.database.gc_mobile_models import (
     MobileRefreshTokenModel,
 )
 from app.infrastructure.database.models import (
+    AttendanceRuntimeRegistrationModel,
     ClientGroupModel,
     PassportSubmissionModel,
     UserModel,
@@ -283,6 +284,21 @@ async def _revoke_session_family(
         )
         .values(revoked_at=now, revoke_reason=reason)
     )
+    await session.execute(
+        update(AttendanceRuntimeRegistrationModel)
+        .where(
+            AttendanceRuntimeRegistrationModel.native_mobile_session_id
+            == device_session.id,
+            AttendanceRuntimeRegistrationModel.agency_id == device_session.agency_id,
+            AttendanceRuntimeRegistrationModel.status == "active",
+        )
+        .values(
+            status=("replaced" if reason == "session_replaced" else "revoked"),
+            revoked_at=now,
+            revoke_reason=reason[:80],
+            updated_at=now,
+        )
+    )
 
 
 async def _refresh_principal(
@@ -434,8 +450,9 @@ async def _principal_profile(
     session: AsyncSession,
     claims: MobileAccessClaims,
 ) -> tuple[str, str | None, str | None, uuid.UUID | None]:
+    principal: tuple[str, str | None, str | None, uuid.UUID | None] | None
     if claims.principal_type == "passenger":
-        row = (
+        passenger = (
             await session.execute(
                 select(
                     PassportSubmissionModel.client_name,
@@ -454,6 +471,16 @@ async def _principal_profile(
                 )
             )
         ).first()
+        principal = (
+            (
+                str(passenger[0]),
+                str(passenger[1]) if passenger[1] else None,
+                str(passenger[2]) if passenger[2] else None,
+                passenger[3],
+            )
+            if passenger is not None and passenger[0]
+            else None
+        )
     else:
         user = (
             await session.execute(
@@ -464,7 +491,7 @@ async def _principal_profile(
             )
         ).first()
         if user is None:
-            row = None
+            principal = None
         else:
             phone_number = None
             if claims.principal_type == "client_manager":
@@ -477,14 +504,18 @@ async def _principal_profile(
                         )
                     )
                 ).scalar_one_or_none()
-            row = (user[0], user[1], phone_number, None)
-    if row is None or not row[0]:
+            principal = (
+                (
+                    str(user[0]),
+                    str(user[1]) if user[1] else None,
+                    str(phone_number) if phone_number else None,
+                    None,
+                )
+                if user[0]
+                else None
+            )
+    if principal is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Mobile principal is inactive"
         )
-    return (
-        str(row[0]),
-        str(row[1]) if row[1] else None,
-        str(row[2]) if row[2] else None,
-        row[3],
-    )
+    return principal

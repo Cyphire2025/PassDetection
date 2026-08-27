@@ -5,6 +5,7 @@ from __future__ import annotations
 import random
 import uuid
 from dataclasses import dataclass
+from datetime import datetime
 
 MEAL_TYPES = ("lunch", "dinner")
 
@@ -23,6 +24,7 @@ class PlannerCategory:
     id: uuid.UUID
     name: str
     dishes: tuple[PlannerDish, ...]
+    updated_at: datetime | None = None
 
 
 @dataclass(frozen=True, slots=True)

@@ -1,14 +1,17 @@
 import type * as SQLite from 'expo-sqlite';
 
 import { DEFAULT_TRIP_TIME_ZONE } from '@/core/localization/time-zone';
+import { MY_PHOTOS_STORAGE_SCHEMA_SQL } from '@/features/my-photos/data/my-photos-storage-schema';
 
 import {
   ATTENDANCE_NEEDS_REVIEW_MIGRATION_SQL,
   CURRENT_PENDING_ACTIONS_SCHEMA_SQL,
   REJECTED_ATTENDANCE_MINIMIZATION_MIGRATION_SQL,
 } from './database-attendance-queue-migrations';
+import { CURRENT_ATTENDANCE_RECOVERY_SCHEMA_SQL } from './database-attendance-recovery-schema';
+import { reconcileVersion26Schemas } from './database-schema-v26';
 
-export const ACCOUNT_DATABASE_VERSION = 24;
+export const ACCOUNT_DATABASE_VERSION = 26;
 
 export type AccountTransactionRunner = (
   task: (transaction: SQLite.SQLiteDatabase) => Promise<void>,
@@ -477,6 +480,8 @@ export async function migrateAccountDatabase(
         CREATE INDEX IF NOT EXISTS idx_attendance_scan_receipts_session
           ON attendance_scan_receipts(account_namespace, trip_id, session_id, accepted_at);
 
+        ${CURRENT_ATTENDANCE_RECOVERY_SCHEMA_SQL}
+
         CREATE TABLE IF NOT EXISTS manager_readiness (
           account_namespace TEXT NOT NULL,
           trip_id TEXT NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
@@ -515,10 +520,18 @@ export async function migrateAccountDatabase(
           assigned_count INTEGER NOT NULL,
           started_at TEXT,
           completed_at TEXT,
+          scheduled_starts_at TEXT,
+          scheduled_ends_at TEXT,
+          schedule_timezone TEXT,
+          schedule_version INTEGER NOT NULL DEFAULT 1 CHECK (schedule_version >= 1),
           updated_at TEXT NOT NULL
         );
         CREATE INDEX IF NOT EXISTS idx_attendance_sessions_trip
           ON attendance_sessions(account_namespace, trip_id, status, started_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_attendance_sessions_schedule
+          ON attendance_sessions(
+            account_namespace, trip_id, scheduled_starts_at, scheduled_ends_at
+          );
 
         CREATE TABLE IF NOT EXISTS attendance_session_selection (
           account_namespace TEXT NOT NULL,
@@ -565,6 +578,8 @@ export async function migrateAccountDatabase(
         );
         CREATE INDEX IF NOT EXISTS idx_mobile_notifications_feed
           ON mobile_notifications(account_namespace, trip_id, available_at DESC);
+
+        ${MY_PHOTOS_STORAGE_SCHEMA_SQL}
       `);
       await transaction.execAsync(`PRAGMA user_version = ${ACCOUNT_DATABASE_VERSION}`);
     });
@@ -1157,6 +1172,19 @@ export async function migrateAccountDatabase(
     await runTransaction(async (transaction) => {
       await transaction.execAsync(REJECTED_ATTENDANCE_MINIMIZATION_MIGRATION_SQL);
     });
+  }
+
+  if (currentVersion < 25) {
+    await runTransaction(async (transaction) => {
+      await transaction.execAsync(`
+        ${MY_PHOTOS_STORAGE_SCHEMA_SQL}
+        PRAGMA user_version = 25;
+      `);
+    });
+  }
+
+  if (currentVersion < 26) {
+    await runTransaction(reconcileVersion26Schemas);
   }
 
   return currentVersion < ACCOUNT_DATABASE_VERSION;

@@ -205,6 +205,7 @@ class ChecksumRepairEngine:
         candidates = [window.ljust(44, "<")[:44] for window in windows]
         if len(sanitized) == 43:
             charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<"
+            likely_missing_positions: tuple[int, ...]
             if self._normalizer.country_code(sanitized[9:12]) in COUNTRY_CODES:
                 likely_missing_positions = (0,)
             else:

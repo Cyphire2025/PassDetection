@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.domain.entities.entities import (
     OFFICE_VISIBLE_PASSPORT_STATUS_VALUES,
     OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES,
+    ClientGroup,
 )
 from app.infrastructure.database.models import (
     ClientGroupModel,
@@ -47,7 +48,7 @@ def qr_status(
 
 
 def qr_expires_at_for_group(
-    group: ClientGroupModel,
+    group: ClientGroup | ClientGroupModel,
     now: datetime | None = None,
 ) -> datetime:
     if group.return_date:

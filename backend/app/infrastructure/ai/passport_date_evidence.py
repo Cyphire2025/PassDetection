@@ -255,7 +255,13 @@ def _year_last_numeric_parts(value: str) -> tuple[int, int, int] | None:
         r"([0-9]{1,2})\s+([0-9]{1,2})\s+([0-9]{4})",
         value,
     )
-    return tuple(map(int, spaced.groups())) if spaced else None
+    if spaced is None:
+        return None
+    return (
+        int(spaced.group(1)),
+        int(spaced.group(2)),
+        int(spaced.group(3)),
+    )
 
 
 def _append_named_candidate(

@@ -3,15 +3,20 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   acknowledgeRejectedAttendanceScans,
+  countPendingAttendanceDiscardAudits,
   countPendingAttendanceScans,
   countRejectedAttendanceScans,
+  listRejectedAttendanceScans,
   subscribeAttendanceQueueScheduleChanges,
+  syncAttendanceDiscardTombstones,
   syncPendingAttendanceScans,
   tryRecordAttendanceScan,
   type AttendanceScanSyncResult,
   type AttendanceScanInput,
+  type RejectedAttendanceScan,
 } from "../services/attendance-scan-queue";
 import { useNetworkStatus } from "./use-network-status";
+import { publishAttendanceInvalidationHint } from "@/features/operations/services/attendance-invalidation";
 
 type ScanInput = AttendanceScanInput;
 
@@ -21,30 +26,39 @@ export function useAttendanceScanSync(
 ) {
   const [pendingCount, setPendingCount] = useState(0);
   const [rejectedCount, setRejectedCount] = useState(0);
+  const [rejectedIssues, setRejectedIssues] = useState<RejectedAttendanceScan[]>([]);
+  const [discardAuditPending, setDiscardAuditPending] = useState(0);
   const isOnline = useNetworkStatus();
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
   const [lastSyncResult, setLastSyncResult] = useState<(AttendanceScanSyncResult & { pending: number; rejected: number }) | null>(null);
   const pendingCountRef = useRef(0);
   const rejectedCountRef = useRef(0);
+  const discardAuditPendingRef = useRef(0);
   const syncPromiseRef = useRef<Promise<AttendanceScanSyncResult & { pending: number; rejected: number }> | null>(null);
 
   const refreshQueueCounts = useCallback(async () => {
     try {
-      const [pending, rejected] = await Promise.all([
+      const [pending, rejected, issues, discardPending] = await Promise.all([
         countPendingAttendanceScans(groupId),
         countRejectedAttendanceScans(groupId, sessionId),
+        listRejectedAttendanceScans(groupId, sessionId),
+        countPendingAttendanceDiscardAudits(groupId, sessionId ?? undefined),
       ]);
       pendingCountRef.current = pending;
       rejectedCountRef.current = rejected;
+      discardAuditPendingRef.current = discardPending;
       setPendingCount(pending);
       setRejectedCount(rejected);
-      return { pending, rejected };
+      setRejectedIssues(issues);
+      setDiscardAuditPending(discardPending);
+      return { pending, rejected, discardPending };
     } catch {
       setSyncError("Offline scan storage is unavailable on this device.");
       return {
         pending: pendingCountRef.current,
         rejected: rejectedCountRef.current,
+        discardPending: discardAuditPendingRef.current,
       };
     }
   }, [groupId, sessionId]);
@@ -66,12 +80,30 @@ export function useAttendanceScanSync(
     setSyncError(null);
     const request = syncPendingAttendanceScans()
       .then(async (result) => {
+        let discardSyncFailed = false;
+        try {
+          await syncAttendanceDiscardTombstones();
+        } catch {
+          discardSyncFailed = true;
+        }
         const queueCounts = await refreshQueueCounts();
         const completedResult = {
           ...result,
           ...queueCounts,
         };
+        if (
+          result.updates.some((update) => sessionId === null || update.sessionId === sessionId)
+        ) {
+          publishAttendanceInvalidationHint({
+            groupId,
+            ...(sessionId === null ? {} : { sessionId }),
+            source: "queue-sync",
+          });
+        }
         setLastSyncResult(completedResult);
+        if (discardSyncFailed) {
+          setSyncError("Scan discard audit evidence is saved and will retry automatically.");
+        }
         return completedResult;
       })
       .catch((error) => {
@@ -84,11 +116,18 @@ export function useAttendanceScanSync(
       });
     syncPromiseRef.current = request;
     return request;
-  }, [refreshQueueCounts]);
+  }, [groupId, refreshQueueCounts, sessionId]);
 
   const recordScan = useCallback(
     async (scan: ScanInput) => {
       const result = await tryRecordAttendanceScan(scan);
+      if (result.mode === "online") {
+        publishAttendanceInvalidationHint({
+          groupId: scan.groupId,
+          sessionId: scan.sessionId,
+          source: "local-mutation",
+        });
+      }
       await refreshQueueCounts();
       return result;
     },
@@ -106,8 +145,8 @@ export function useAttendanceScanSync(
 
   useEffect(() => {
     const initialRefresh = window.setTimeout(() => {
-      void refreshQueueCounts().then(({ pending }) => {
-        if (navigator.onLine && pending > 0) void syncNow();
+      void refreshQueueCounts().then(({ pending, discardPending }) => {
+        if (navigator.onLine && (pending > 0 || discardPending > 0)) void syncNow();
       });
     }, 0);
 
@@ -134,6 +173,8 @@ export function useAttendanceScanSync(
     lastSyncResult,
     pendingCount,
     rejectedCount,
+    rejectedIssues,
+    discardAuditPending,
     acknowledgeRejectedScans,
     recordScan,
     syncNow,

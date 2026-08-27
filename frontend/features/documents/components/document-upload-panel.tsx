@@ -71,7 +71,7 @@ export function DocumentUploadPanel({
               </div>
               <p className="mt-1 text-sm leading-5 text-amber-800">
                 {canResumeCurrentUpload
-                  ? "Continue with the same selected PDFs, or discard the incomplete upload before choosing new files."
+                  ? "Continue the verified staged upload, or discard it before choosing new files."
                   : "Discard the incomplete upload data before choosing and uploading a new set of PDFs."}
               </p>
             </div>

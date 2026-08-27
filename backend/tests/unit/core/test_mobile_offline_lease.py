@@ -16,6 +16,7 @@ from app.core.config.settings import MobileSettings
 from app.core.security.mobile_offline_lease import (
     MobileOfflineLeaseConfigurationError,
     create_mobile_offline_authorization_lease,
+    sign_offline_manifest,
     validate_mobile_offline_lease_signing_configuration,
 )
 
@@ -94,6 +95,40 @@ def test_ed25519_lease_is_strictly_bound_and_excludes_profile_pii_and_tokens() -
     assert {"display_name", "email", "phone_number", "access_token", "refresh_token"}.isdisjoint(
         payload
     )
+
+
+def test_browser_manifest_uses_canonical_payload_bytes_and_raw_ed25519_signature() -> None:
+    manifest = {
+        "group_label": "MICE – Zürich",
+        "key_id": "lease-2026-01",
+        "passengers": [{"id": str(uuid.uuid4()), "token_hash": "a" * 64}],
+        "schema_version": 1,
+    }
+
+    signed = sign_offline_manifest(manifest, settings=_settings())
+    payload_bytes = _decode(signed.payload)
+    Ed25519PublicKey.from_public_bytes(_decode(signed.public_key)).verify(
+        _decode(signed.signature),
+        payload_bytes,
+    )
+
+    assert signed.key_id == "lease-2026-01"
+    assert signed.public_key == _PUBLIC_KEY_B64
+    assert json.loads(payload_bytes) == manifest
+    assert payload_bytes == json.dumps(
+        manifest,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+
+
+def test_browser_manifest_rejects_mismatched_key_id() -> None:
+    with pytest.raises(ValueError, match="key id"):
+        sign_offline_manifest(
+            {"key_id": "retired-key", "schema_version": 1},
+            settings=_settings(),
+        )
 
 
 def test_signing_configuration_accepts_bounded_rotation_set_and_rejects_mismatch() -> None:

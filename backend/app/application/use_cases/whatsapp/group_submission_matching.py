@@ -12,9 +12,10 @@ import re
 import unicodedata
 import uuid
 from collections import defaultdict
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Iterable
+from typing import TypeVar
 
 from app.application.use_cases.whatsapp.contact_normalization import (
     clean_whatsapp_name,
@@ -65,6 +66,8 @@ _STRONG_EVIDENCE_WEIGHTS = {
     "phone": 100,
 }
 _NAME_EVIDENCE_WEIGHT = 20
+_MappingValue = TypeVar("_MappingValue")
+_NormalizedInput = TypeVar("_NormalizedInput")
 
 
 @dataclass(frozen=True)
@@ -225,10 +228,10 @@ def _normalized_identifier(value: object) -> str | None:
 
 
 def _mapping_values(
-    mapping: dict[str, object],
+    mapping: Mapping[str, _MappingValue],
     keys: frozenset[str],
-) -> list[object]:
-    values: list[object] = []
+) -> list[_MappingValue]:
+    values: list[_MappingValue] = []
     for raw_key, value in mapping.items():
         normalized = _normalized_key(raw_key)
         base_key = re.sub(r"_\d+$", "", normalized)
@@ -238,12 +241,12 @@ def _mapping_values(
 
 
 def _normalized_values(
-    values: Iterable[object],
-    normalizer: object,
+    values: Iterable[_NormalizedInput],
+    normalizer: Callable[[_NormalizedInput], str | None],
 ) -> frozenset[str]:
     normalized: set[str] = set()
     for value in values:
-        item = normalizer(value)  # type: ignore[operator]
+        item = normalizer(value)
         if item:
             normalized.add(item)
     return frozenset(normalized)
@@ -255,7 +258,7 @@ def _passport_fields(submission: SubmissionForComparison) -> dict[str, object]:
     return fields
 
 
-def _composed_names(mapping: dict[str, object]) -> list[str]:
+def _composed_names(mapping: Mapping[str, object]) -> list[str]:
     given_values = _mapping_values(mapping, _GIVEN_NAME_KEYS)
     surname_values = _mapping_values(mapping, _SURNAME_KEYS)
     names: list[str] = []
@@ -884,7 +887,10 @@ def filter_and_sort_match_rows(
     def broadcast_key(row: SubmissionMatchRow) -> str | None:
         return row.broadcast_names[0].casefold() if row.broadcast_names else None
 
-    key_functions = {
+    key_functions: dict[
+        str,
+        Callable[[SubmissionMatchRow], str | datetime | None],
+    ] = {
         "name": name_key,
         "phone": phone_key,
         "status": status_key,

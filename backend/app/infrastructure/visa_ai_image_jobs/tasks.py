@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Protocol
+
 from celery.utils.log import get_task_logger
 
 from app.core.config.settings import get_settings
@@ -19,14 +21,29 @@ from app.infrastructure.visa_ai_image_jobs.runtime import (
 logger = get_task_logger(__name__)
 
 
-@celery_app.task(
+class _BoundTaskRequest(Protocol):
+    retries: int
+
+
+class _BoundTask(Protocol):
+    request: _BoundTaskRequest
+
+    def retry(self, *, exc: BaseException, countdown: int) -> BaseException: ...
+
+
+@celery_app.task(  # type: ignore[untyped-decorator]  # Celery exposes an untyped task decorator.
     bind=True,
     name=VISA_AI_IMAGE_TASK,
     queue=VISA_AI_IMAGE_QUEUE,
     max_retries=max(0, get_settings().gemini_image_edit_job_max_attempts - 1),
     default_retry_delay=15,
 )
-def generate_visa_ai_image(self, *, job_id: str, submission_id: str) -> None:  # type: ignore[no-untyped-def]
+def generate_visa_ai_image(
+    self: _BoundTask,
+    *,
+    job_id: str,
+    submission_id: str,
+) -> None:
     try:
         celery_async_runtime.run(
             run_visa_ai_image_job(

@@ -13,6 +13,9 @@ type RejectedAttendanceIssueRow = Readonly<{
   created_at: string;
   idempotency_key: string;
   last_error_code: string | null;
+  passenger_label: string | null;
+  scan_reference: string | null;
+  session_label: string | null;
   updated_at: string;
 }>;
 
@@ -21,6 +24,11 @@ export type RejectedAttendanceIssue = Readonly<{
   createdAt: string;
   idempotencyKey: string;
   reasonCode: string;
+  passengerLabel: string;
+  safeReference: string;
+  sessionLabel: string;
+  retryState: 'terminal';
+  lastAttemptAt: string;
   updatedAt: string;
 }>;
 
@@ -44,11 +52,17 @@ export async function listRejectedAttendanceIssues(
   const scopedTripId = TripIdSchema.parse(tripId);
   const database = await openAccountDatabase(account);
   const rows = await database.getAllAsync<RejectedAttendanceIssueRow>(
-    `SELECT idempotency_key, attempt_count, last_error_code, created_at, updated_at
-       FROM pending_actions
-      WHERE account_namespace = ? AND trip_id = ? AND action_type = 'attendance.scan'
-        AND state = 'rejected'
-      ORDER BY updated_at DESC, idempotency_key DESC
+    `SELECT action.idempotency_key, action.attempt_count, action.last_error_code,
+            action.created_at, action.updated_at, context.passenger_label,
+            context.session_label, context.scan_reference
+       FROM pending_actions action
+       LEFT JOIN attendance_scan_issue_context context
+         ON context.idempotency_key = action.idempotency_key
+        AND context.account_namespace = action.account_namespace
+        AND context.trip_id = action.trip_id
+      WHERE action.account_namespace = ? AND action.trip_id = ?
+        AND action.action_type = 'attendance.scan' AND action.state = 'rejected'
+      ORDER BY action.updated_at DESC, action.idempotency_key DESC
       LIMIT ${ATTENDANCE_QUEUE_POLICY.maxRejectedPerTrip}`,
     account,
     scopedTripId,
@@ -57,7 +71,13 @@ export async function listRejectedAttendanceIssues(
     attemptCount: row.attempt_count,
     createdAt: row.created_at,
     idempotencyKey: row.idempotency_key,
+    lastAttemptAt: row.updated_at,
+    passengerLabel: row.passenger_label ?? 'Passenger resolution unavailable',
     reasonCode: row.last_error_code ?? 'NOT_ACCEPTED',
+    retryState: 'terminal',
+    safeReference: row.scan_reference?.slice(0, 12).toUpperCase()
+      ?? row.idempotency_key.slice(-12).toUpperCase(),
+    sessionLabel: row.session_label ?? 'Activity unavailable',
     updatedAt: row.updated_at,
   }));
 }

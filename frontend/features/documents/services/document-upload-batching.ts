@@ -16,9 +16,27 @@ export interface DocumentUploadSession {
   uploadId: string;
   chunks: File[][];
   chunkIds: string[];
+  chunkFileSizes: number[][];
   totalFiles: number;
   totalBytes: number;
   completedChunks: number;
+}
+
+export interface DocumentStagingChunk {
+  chunkId: string;
+  receipts: string[];
+  fileCount: number;
+  totalBytes: number;
+}
+
+export interface DocumentStagingManifest {
+  version: 1;
+  uploadId: string;
+  chunks: DocumentStagingChunk[];
+  totalFiles: number;
+  totalBytes: number;
+  completedChunks: number;
+  createdAt: string;
 }
 
 export interface DocumentUploadProgress {
@@ -60,6 +78,19 @@ interface RunChunkedUploadOptions<T> {
 interface RunConcurrentUploadOptions<T> extends RunChunkedUploadOptions<T> {
   concurrency: number;
   uploadWeight?: number;
+  signal?: AbortSignal;
+}
+
+interface RunStagedUploadOptions<T> {
+  manifest: DocumentStagingManifest;
+  uploadChunk: (
+    chunk: DocumentStagingChunk,
+    chunkIndex: number,
+    onUploadProgress: (loaded: number, total: number | undefined) => void,
+  ) => Promise<T>;
+  onProgress?: (progress: DocumentUploadProgress) => void;
+  onManifestChange?: (manifest: DocumentStagingManifest) => void;
+  signal?: AbortSignal;
 }
 
 export function createDocumentUploadSession(
@@ -129,6 +160,7 @@ function createDocumentUploadSessionWithLimits(
     uploadId: createId(),
     chunks,
     chunkIds: chunks.map(() => createId()),
+    chunkFileSizes: chunks.map((chunk) => chunk.map((file) => file.size)),
     totalFiles: files.length,
     totalBytes,
     completedChunks: 0,
@@ -154,6 +186,7 @@ export async function runConcurrentDocumentVerification<T>({
   onProgress,
   concurrency,
   uploadWeight = 0.2,
+  signal,
 }: RunConcurrentUploadOptions<T>): Promise<T[]> {
   if (!Number.isInteger(concurrency) || concurrency < 1) {
     throw new Error("Document verification concurrency must be positive");
@@ -168,6 +201,7 @@ export async function runConcurrentDocumentVerification<T>({
   const chunkBytes = session.chunks.map((chunk) =>
     chunk.reduce((total, file) => total + Math.max(file.size, 1), 0),
   );
+  const chunkFileCounts = session.chunks.map((chunk) => chunk.length);
   const progressDenominator = Math.max(
     chunkBytes.reduce((total, value) => total + value, 0),
     session.totalFiles,
@@ -187,8 +221,8 @@ export async function runConcurrentDocumentVerification<T>({
         total + (completed[index] ? 0 : value * uploadedFractions[index] * uploadWeight),
       0,
     );
-    const completedFiles = session.chunks.reduce(
-      (total, chunk, index) => total + (completed[index] ? chunk.length : 0),
+    const completedFiles = chunkFileCounts.reduce(
+      (total, fileCount, index) => total + (completed[index] ? fileCount : 0),
       0,
     );
     const allActiveUploadsComplete = uploadedFractions.every(
@@ -230,8 +264,8 @@ export async function runConcurrentDocumentVerification<T>({
       if (chunkIndex >= session.chunks.length) return;
       const chunk = session.chunks[chunkIndex];
       try {
-        results[chunkIndex] = await retryTransientDocumentChunk(() =>
-          uploadChunk(chunk, chunkIndex, (loaded, total) => {
+        results[chunkIndex] = await retryTransientDocumentChunk(
+          () => uploadChunk(chunk, chunkIndex, (loaded, total) => {
             const uploadTotal = Math.max(total ?? chunkBytes[chunkIndex], 1);
             uploadedFractions[chunkIndex] = Math.min(
               Math.max(loaded / uploadTotal, 0),
@@ -239,9 +273,14 @@ export async function runConcurrentDocumentVerification<T>({
             );
             emitProgress(chunkIndex);
           }),
+          signal,
         );
         uploadedFractions[chunkIndex] = 1;
         completed[chunkIndex] = true;
+        // The server acknowledgement owns a durable staged copy. Release the
+        // browser File handles immediately instead of retaining every verified
+        // PDF until the user starts finalization.
+        session.chunks[chunkIndex] = [];
         emitProgress(chunkIndex);
       } catch (error) {
         if (!failed) firstError = error;
@@ -262,40 +301,68 @@ export async function runConcurrentDocumentVerification<T>({
   });
 }
 
-export function createAcceptedDocumentUploadSession(
+export function createDocumentStagingManifest(
   sourceSession: DocumentUploadSession,
   acceptedByChunk: readonly (readonly boolean[])[],
-): DocumentUploadSession {
+  receiptsByChunk: readonly (readonly (string | null | undefined)[])[],
+): DocumentStagingManifest {
   if (
     acceptedByChunk.length !== sourceSession.chunks.length ||
+    receiptsByChunk.length !== sourceSession.chunks.length ||
+    sourceSession.chunkFileSizes.length !== sourceSession.chunks.length ||
     sourceSession.chunkIds.length !== sourceSession.chunks.length
   ) {
     throw new Error("The document verification response did not match the upload session");
   }
 
-  const chunks: File[][] = [];
-  const chunkIds: string[] = [];
-  for (const [chunkIndex, sourceChunk] of sourceSession.chunks.entries()) {
+  const chunks: DocumentStagingChunk[] = [];
+  for (const [chunkIndex, sourceChunkSizes] of sourceSession.chunkFileSizes.entries()) {
     const acceptedFiles = acceptedByChunk[chunkIndex];
-    if (acceptedFiles.length !== sourceChunk.length) {
+    const sourceReceipts = receiptsByChunk[chunkIndex];
+    if (
+      acceptedFiles.length !== sourceChunkSizes.length ||
+      sourceReceipts.length !== sourceChunkSizes.length
+    ) {
       throw new Error("The document verification response did not match the upload session");
     }
 
-    const retainedChunk = sourceChunk.filter((_file, fileIndex) => acceptedFiles[fileIndex]);
-    if (retainedChunk.length === 0) continue;
-    chunks.push(retainedChunk);
-    chunkIds.push(sourceSession.chunkIds[chunkIndex]);
+    const receipts: string[] = [];
+    let totalBytes = 0;
+    for (const [fileIndex, accepted] of acceptedFiles.entries()) {
+      if (!accepted) continue;
+      const receipt = sourceReceipts[fileIndex];
+      if (!receipt) {
+        throw new Error(
+          "A verified PDF did not receive a durable staging receipt. "
+          + "Check the selection again before uploading.",
+        );
+      }
+      receipts.push(receipt);
+      totalBytes += sourceChunkSizes[fileIndex];
+    }
+    if (receipts.length === 0) continue;
+    if (!canFinalizeDocumentReceiptChunk(receipts, receipts.length)) {
+      throw new Error(
+        "The verified staging manifest exceeds its bounded upload envelope. "
+        + "Check a smaller PDF selection.",
+      );
+    }
+    chunks.push({
+      chunkId: sourceSession.chunkIds[chunkIndex],
+      receipts,
+      fileCount: receipts.length,
+      totalBytes,
+    });
   }
 
   return {
+    version: 1,
     uploadId: sourceSession.uploadId,
     chunks,
-    chunkIds,
-    totalFiles: chunks.reduce((total, chunk) => total + chunk.length, 0),
-    totalBytes: chunks
-      .flat()
-      .reduce((total, file) => total + file.size, 0),
+    totalFiles: chunks.reduce((total, chunk) => total + chunk.fileCount, 0),
+    totalBytes: chunks.reduce((total, chunk) => total + chunk.totalBytes, 0),
     completedChunks: 0,
+    createdAt: new Date().toISOString(),
   };
 }
 
@@ -396,17 +463,156 @@ export async function runChunkedDocumentUpload<T>({
   return latestResult;
 }
 
-async function retryTransientDocumentChunk<T>(operation: () => Promise<T>): Promise<T> {
+/** Finalize receipt-only chunks and release each acknowledged token set. */
+export async function runStagedDocumentUpload<T>({
+  manifest,
+  uploadChunk,
+  onProgress,
+  onManifestChange,
+  signal,
+}: RunStagedUploadOptions<T>): Promise<T> {
+  if (manifest.totalFiles <= 0 || manifest.chunks.length === 0) {
+    throw new Error("Upload at least one verified PDF");
+  }
+  if (
+    manifest.completedChunks < 0 ||
+    manifest.completedChunks >= manifest.chunks.length
+  ) {
+    throw new Error("The verified upload manifest is already complete or invalid");
+  }
+
+  let completedBytes = manifest.chunks
+    .slice(0, manifest.completedChunks)
+    .reduce((total, chunk) => total + Math.max(chunk.totalBytes, chunk.fileCount), 0);
+  let completedFiles = manifest.chunks
+    .slice(0, manifest.completedChunks)
+    .reduce((total, chunk) => total + chunk.fileCount, 0);
+  const progressDenominator = Math.max(manifest.totalBytes, manifest.totalFiles);
+  let latestResult: T | undefined;
+  let lastProgress: DocumentUploadProgress | null = null;
+
+  const emitProgress = (next: DocumentUploadProgress) => {
+    const monotonic = {
+      ...next,
+      percent: Math.max(lastProgress?.percent ?? 0, next.percent),
+    };
+    if (
+      lastProgress?.percent === monotonic.percent &&
+      lastProgress.phase === monotonic.phase &&
+      lastProgress.completedFiles === monotonic.completedFiles &&
+      lastProgress.chunkNumber === monotonic.chunkNumber
+    ) {
+      return;
+    }
+    lastProgress = monotonic;
+    onProgress?.(monotonic);
+  };
+
+  for (
+    let chunkIndex = manifest.completedChunks;
+    chunkIndex < manifest.chunks.length;
+    chunkIndex += 1
+  ) {
+    const chunk = manifest.chunks[chunkIndex];
+    if (!canFinalizeDocumentReceiptChunk(chunk.receipts, chunk.fileCount)) {
+      throw new Error(
+        "The verified PDF staging receipt is missing or expired. Check the PDFs again.",
+      );
+    }
+    const chunkBytes = Math.max(chunk.totalBytes, chunk.fileCount);
+    const report = (loaded: number, total: number | undefined) => {
+      const uploadTotal = Math.max(total ?? 1, 1);
+      const uploadedFraction = Math.min(Math.max(loaded / uploadTotal, 0), 1);
+      const weightedBytes = completedBytes + chunkBytes * uploadedFraction * 0.8;
+      emitProgress({
+        percent: Math.min(99, Math.floor((weightedBytes / progressDenominator) * 100)),
+        phase: uploadedFraction >= 1 ? "processing" : "uploading",
+        completedFiles,
+        totalFiles: manifest.totalFiles,
+        chunkNumber: chunkIndex + 1,
+        chunkCount: manifest.chunks.length,
+      });
+    };
+
+    latestResult = await retryTransientDocumentChunk(
+      () => uploadChunk(chunk, chunkIndex, report),
+      signal,
+    );
+    completedBytes += chunkBytes;
+    completedFiles += chunk.fileCount;
+    manifest.completedChunks = chunkIndex + 1;
+    // A committed server chunk is idempotently addressable by upload/chunk ID;
+    // keeping its opaque receipts in React or session storage adds no recovery
+    // value and extends sensitive browser ownership unnecessarily.
+    chunk.receipts = [];
+    onManifestChange?.(cloneDocumentStagingManifest(manifest));
+    emitProgress({
+      percent: Math.min(100, Math.floor((completedBytes / progressDenominator) * 100)),
+      phase: completedFiles === manifest.totalFiles ? "completed" : "uploading",
+      completedFiles,
+      totalFiles: manifest.totalFiles,
+      chunkNumber: chunkIndex + 1,
+      chunkCount: manifest.chunks.length,
+    });
+  }
+
+  if (latestResult === undefined) throw new Error("Upload at least one verified PDF");
+  return latestResult;
+}
+
+export function cloneDocumentStagingManifest(
+  manifest: DocumentStagingManifest,
+): DocumentStagingManifest {
+  return {
+    ...manifest,
+    chunks: manifest.chunks.map((chunk) => ({
+      ...chunk,
+      receipts: [...chunk.receipts],
+    })),
+  };
+}
+
+async function retryTransientDocumentChunk<T>(
+  operation: () => Promise<T>,
+  signal?: AbortSignal,
+): Promise<T> {
   let attempt = 0;
   while (true) {
+    if (signal?.aborted) throw documentUploadAbortError(signal.reason);
     try {
       return await operation();
     } catch (error) {
+      if (signal?.aborted) throw documentUploadAbortError(signal.reason);
       if (attempt >= 2 || !isTransientDocumentUploadError(error)) throw error;
       attempt += 1;
-      await new Promise((resolve) => globalThis.setTimeout(resolve, 400 * attempt));
+      await abortableDocumentRetryDelay(400 * attempt, signal);
     }
   }
+}
+
+function abortableDocumentRetryDelay(delayMs: number, signal?: AbortSignal) {
+  if (!signal) {
+    return new Promise<void>((resolve) => globalThis.setTimeout(resolve, delayMs));
+  }
+  if (signal.aborted) return Promise.reject(documentUploadAbortError(signal.reason));
+  return new Promise<void>((resolve, reject) => {
+    const timeout = globalThis.setTimeout(() => {
+      signal.removeEventListener("abort", abort);
+      resolve();
+    }, delayMs);
+    const abort = () => {
+      globalThis.clearTimeout(timeout);
+      reject(documentUploadAbortError(signal.reason));
+    };
+    signal.addEventListener("abort", abort, { once: true });
+  });
+}
+
+function documentUploadAbortError(reason: unknown) {
+  if (reason instanceof Error) return reason;
+  const error = new Error("The document operation was cancelled.");
+  error.name = "AbortError";
+  return error;
 }
 
 function isTransientDocumentUploadError(error: unknown): boolean {

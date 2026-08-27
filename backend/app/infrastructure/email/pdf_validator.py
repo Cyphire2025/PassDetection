@@ -15,9 +15,8 @@ from pypdf.errors import PdfReadError
 from app.core.config.settings import Settings, get_settings
 from app.domain.exceptions.exceptions import ImageValidationError
 from app.infrastructure.security.upload_validator import (
-    ClamAVMalwareScanner,
-    DisabledMalwareScanner,
     MalwareScanner,
+    malware_scanner_from_settings,
 )
 
 _SAFE_FILENAME = re.compile(r"[^A-Za-z0-9._-]+")
@@ -119,14 +118,7 @@ class EmailPdfValidator:
         )
 
     def _default_scanner(self) -> MalwareScanner:
-        scanner_enabled = bool(getattr(self._settings, "malware_scanner_enabled", False))
-        if not scanner_enabled:
-            return DisabledMalwareScanner()
-        return ClamAVMalwareScanner(
-            host=str(getattr(self._settings, "malware_scanner_host", "localhost")),
-            port=int(getattr(self._settings, "malware_scanner_port", 3310)),
-            timeout_seconds=float(getattr(self._settings, "malware_scanner_timeout_seconds", 2.0)),
-        )
+        return malware_scanner_from_settings(self._settings)
 
     @staticmethod
     def _safe_filename(filename: str | None) -> str:

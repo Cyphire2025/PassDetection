@@ -4,11 +4,16 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
+from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.dtos.auth_dtos import AuthResponseDTO
+from app.application.interfaces.identity_notification_provider import (
+    IdentityNotificationDeliveryDisabled,
+)
 from app.application.use_cases.auth.login_use_case import LoginUseCase
 from app.core.config.settings import get_settings
 from app.core.security.identity_security import (
@@ -19,6 +24,7 @@ from app.core.security.identity_security import (
     generate_mfa_secret,
     generate_recovery_codes,
     hash_identity_value,
+    reencrypt_mfa_secret_if_needed,
     verify_totp,
 )
 from app.core.security.jwt import create_access_token
@@ -26,6 +32,7 @@ from app.core.security.password import hash_password, verify_password
 from app.domain.entities.entities import User, UserRole
 from app.infrastructure.database.models import UserModel, UserSecurityStateModel
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.observability.metrics import metrics
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.identity_security_repository import (
     IdentitySecurityRepository,
@@ -34,6 +41,20 @@ from app.infrastructure.repositories.identity_security_repository import (
 from app.infrastructure.repositories.mobile_session_security import revoke_user_mobile_sessions
 from app.infrastructure.repositories.refresh_token_repository import RefreshTokenRepository
 from app.infrastructure.repositories.user_repository import UserRepository
+from app.infrastructure.security.identity_notifications import (
+    identity_notification_provider,
+    stage_password_recovery_notification,
+)
+from app.infrastructure.security.identity_recovery_rate_limiter import (
+    IdentityRecoveryRateLimited,
+    IdentityRecoveryRateLimiter,
+    IdentityRecoveryRateLimiterUnavailable,
+)
+from app.infrastructure.security.mfa_step_up_rate_limiter import (
+    MFAStepUpLimiterUnavailable,
+    MFAStepUpLocked,
+    MFAStepUpRateLimiter,
+)
 from app.presentation.api.v1.schemas.auth_schemas import (
     AuthChallengeResponse,
     AuthResponse,
@@ -97,7 +118,7 @@ def _user_response(user: object) -> UserResponse:
     return UserResponse.model_validate(values)
 
 
-def _auth_response(result: object) -> AuthResponse:
+def _auth_response(result: AuthResponseDTO) -> AuthResponse:
     return AuthResponse(
         user=_user_response(result.user),
         token_type=result.token_type,
@@ -131,7 +152,7 @@ async def begin_dashboard_mfa_challenge(
     otpauth_uri: str | None = None
     pending_secret_ciphertext: str | None = None
     purpose = "mfa_login"
-    response_status = "mfa_required"
+    response_status: Literal["mfa_required", "mfa_enrollment_required"] = "mfa_required"
     if state.mfa_secret_ciphertext is None or state.mfa_enabled_at is None:
         setup_secret = generate_mfa_secret()
         pending_secret_ciphertext = encrypt_mfa_secret(setup_secret)
@@ -203,7 +224,7 @@ async def _issue_authenticated_session(
 async def _validate_mfa_code(
     *,
     repository: IdentitySecurityRepository,
-    state: object,
+    state: UserSecurityStateModel,
     code: str,
     secret_ciphertext: str,
     now: datetime,
@@ -249,10 +270,9 @@ async def verify_dashboard_mfa(
     )
     if challenge is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=_MFA_CHALLENGE_FAILURE)
-    if (
-        challenge.request_ip_hash != _request_hash(request, "ip")
-        or challenge.user_agent_hash != _request_hash(request, "user-agent")
-    ):
+    if challenge.request_ip_hash != _request_hash(
+        request, "ip"
+    ) or challenge.user_agent_hash != _request_hash(request, "user-agent"):
         challenge.status = "cancelled"
         challenge.updated_at = now
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=_MFA_CHALLENGE_FAILURE)
@@ -299,6 +319,10 @@ async def verify_dashboard_mfa(
         state.session_version += 1
         recovery_codes = generate_recovery_codes()
         await repository.replace_recovery_codes(user_id=user.id, raw_codes=recovery_codes, now=now)
+    elif state.mfa_secret_ciphertext is not None:
+        # Successful verification is the safest lazy-rotation point: the state
+        # row is locked and the old key has just authenticated one real factor.
+        state.mfa_secret_ciphertext = reencrypt_mfa_secret_if_needed(state.mfa_secret_ciphertext)
     state.mfa_last_counter = counter if counter is not None else state.mfa_last_counter
     state.updated_at = now
     challenge.status = "consumed"
@@ -340,11 +364,45 @@ async def step_up_dashboard_session(
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> AuthResponse:
+    client_ip = trusted_client_ip(request)
+    limiter = MFAStepUpRateLimiter()
+    try:
+        await limiter.ensure_available(user_id=current_user.id, ip_address=client_ip)
+    except MFAStepUpLocked:
+        await limiter.close()
+        await AuditLogRepository(session).record(
+            action="auth.step_up_blocked",
+            entity_type="user_account",
+            agency_id=current_user.agency_id,
+            user_id=current_user.id,
+            actor_email=current_user.email,
+            entity_id=str(current_user.id),
+            ip_address=client_ip,
+            result="blocked",
+            metadata={"reason": "temporary_backoff"},
+        )
+        await session.commit()
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Verification is temporarily unavailable after repeated attempts",
+            headers={"Retry-After": str(get_settings().mfa_step_up_lock_seconds)},
+        ) from None
+    except MFAStepUpLimiterUnavailable:
+        await limiter.close()
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Verification is temporarily unavailable",
+            headers={"Retry-After": "30"},
+        ) from None
+
     repository = IdentitySecurityRepository(session)
     state = await repository.get_state(current_user.id, lock=True)
     now = datetime.now(tz=UTC)
     if state is None or state.mfa_secret_ciphertext is None or state.mfa_enabled_at is None:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="MFA enrollment is required")
+        await limiter.close()
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="MFA enrollment is required"
+        )
     valid, method, counter = await _validate_mfa_code(
         repository=repository,
         state=state,
@@ -354,7 +412,40 @@ async def step_up_dashboard_session(
         allow_recovery=True,
     )
     if not valid:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Verification code is invalid")
+        temporarily_locked = False
+        try:
+            await limiter.record_failure(user_id=current_user.id, ip_address=client_ip)
+        except MFAStepUpLocked:
+            temporarily_locked = True
+        except MFAStepUpLimiterUnavailable:
+            # The factor still failed. Preserve that safe decision and report a
+            # generic outage rather than allowing unbounded guesses.
+            temporarily_locked = True
+        await limiter.close()
+        await AuditLogRepository(session).record(
+            action="auth.step_up_failed",
+            entity_type="user_account",
+            agency_id=current_user.agency_id,
+            user_id=current_user.id,
+            actor_email=current_user.email,
+            entity_id=str(current_user.id),
+            ip_address=client_ip,
+            result="failed",
+            metadata={"temporary_backoff": temporarily_locked},
+        )
+        await session.commit()
+        if temporarily_locked:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Verification is temporarily unavailable after repeated attempts",
+                headers={"Retry-After": str(get_settings().mfa_step_up_lock_seconds)},
+            ) from None
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Verification code is invalid",
+        )
+    await limiter.clear(user_id=current_user.id, ip_address=client_ip)
+    state.mfa_secret_ciphertext = reencrypt_mfa_secret_if_needed(state.mfa_secret_ciphertext)
     state.mfa_last_counter = counter if counter is not None else state.mfa_last_counter
     state.updated_at = now
     access_token, access_expires = create_access_token(
@@ -374,7 +465,7 @@ async def step_up_dashboard_session(
         user_id=current_user.id,
         actor_email=current_user.email,
         entity_id=str(current_user.id),
-        ip_address=trusted_client_ip(request),
+        ip_address=client_ip,
         metadata={"method": method},
     )
     values = dict(vars(current_user))
@@ -418,6 +509,29 @@ async def request_password_recovery(
     response: Response,
     session: AsyncSession = Depends(get_db_session),
 ) -> PasswordRecoveryRequestResponse:
+    settings = get_settings()
+    response.headers["Cache-Control"] = "private, no-store, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    neutral_response = PasswordRecoveryRequestResponse(development_recovery_token=None)
+    limiter = IdentityRecoveryRateLimiter()
+    try:
+        await limiter.consume_network(
+            ip_address=trusted_client_ip(request),
+            risk_context=_request_hash(request, "user-agent"),
+        )
+        # Provider construction performs configuration validation without
+        # delivering anything. A disabled/misconfigured production integration
+        # must never mint a raw token that nobody can receive.
+        identity_notification_provider(settings)
+    except (
+        IdentityNotificationDeliveryDisabled,
+        IdentityRecoveryRateLimited,
+        IdentityRecoveryRateLimiterUnavailable,
+    ):
+        metrics.increment("identity.password_recovery.request_suppressed")
+        await limiter.close()
+        return neutral_response
+
     email = str(body.email).lower().strip()
     user = (
         await session.execute(
@@ -431,16 +545,42 @@ async def request_password_recovery(
     ).scalar_one_or_none()
     development_token: str | None = None
     if user is not None:
+        account_limiter = IdentityRecoveryRateLimiter()
+        try:
+            await account_limiter.consume_account(user_id=user.id, agency_id=user.agency_id)
+        except (IdentityRecoveryRateLimited, IdentityRecoveryRateLimiterUnavailable):
+            # Preserve any previously issued link. This suppression is audited
+            # internally but remains indistinguishable to the requester.
+            await AuditLogRepository(session).record(
+                action="auth.password_recovery_suppressed",
+                entity_type="user_account",
+                agency_id=user.agency_id,
+                user_id=user.id,
+                entity_id=str(user.id),
+                ip_address=trusted_client_ip(request),
+                result="blocked",
+                metadata={"reason": "bounded_rate_limit"},
+            )
+            metrics.increment("identity.password_recovery.account_suppressed")
+            await limiter.close()
+            return neutral_response
         repository = IdentitySecurityRepository(session)
         state = await repository.ensure_state(user)
         if state.credential_state == "active":
-            _, raw_token = await repository.issue_action_token(
+            action_token, raw_token = await repository.issue_action_token(
                 user_id=user.id,
                 purpose="password_recovery",
-                expires_in=timedelta(minutes=30),
+                expires_in=timedelta(minutes=settings.password_recovery_token_ttl_minutes),
                 request_ip_hash=_request_hash(request, "ip"),
             )
-            if not get_settings().is_production:
+            stage_password_recovery_notification(
+                session,
+                user=user,
+                action_token=action_token,
+                raw_token=raw_token,
+                settings=settings,
+            )
+            if settings.is_development and settings.password_recovery_development_expose_token:
                 development_token = raw_token
             await AuditLogRepository(session).record(
                 action="auth.password_recovery_requested",
@@ -450,9 +590,12 @@ async def request_password_recovery(
                 actor_email=user.email,
                 entity_id=str(user.id),
                 ip_address=trusted_client_ip(request),
+                metadata={
+                    "delivery_staged": True,
+                    "expires_in_minutes": settings.password_recovery_token_ttl_minutes,
+                },
             )
-    response.headers["Cache-Control"] = "private, no-store, max-age=0"
-    response.headers["Pragma"] = "no-cache"
+    await limiter.close()
     return PasswordRecoveryRequestResponse(development_recovery_token=development_token)
 
 
@@ -488,7 +631,10 @@ async def _complete_identity_action(
     now = datetime.now(tz=UTC)
     token = await repository.get_valid_action_token(raw_token=body.token, purpose=purpose, now=now)
     if token is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=_IDENTITY_ACTION_FAILURE)
+        metrics.increment("identity.action.redemption_rejected")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=_IDENTITY_ACTION_FAILURE
+        )
     user = (
         await session.execute(
             select(UserModel)
@@ -504,14 +650,65 @@ async def _complete_identity_action(
     state = await repository.get_state(token.user_id, lock=True)
     if user is None or state is None:
         token.invalidated_at = now
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=_IDENTITY_ACTION_FAILURE)
+        await AuditLogRepository(session).record(
+            action="auth.identity_action_blocked",
+            entity_type="identity_action",
+            agency_id=user.agency_id if user is not None else None,
+            user_id=token.user_id,
+            entity_id=str(token.id),
+            ip_address=trusted_client_ip(request),
+            result="blocked",
+            metadata={"purpose": purpose, "reason": "account_not_eligible"},
+        )
+        # The request must fail, but the authoritative invalidation and its
+        # privacy-safe evidence must not be rolled back with the HTTP error.
+        await session.commit()
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=_IDENTITY_ACTION_FAILURE
+        )
     if purpose == "activation" and state.credential_state != "invited":
         token.invalidated_at = now
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=_IDENTITY_ACTION_FAILURE)
+        await AuditLogRepository(session).record(
+            action="auth.identity_action_blocked",
+            entity_type="identity_action",
+            agency_id=user.agency_id,
+            user_id=user.id,
+            actor_email=user.email,
+            entity_id=str(token.id),
+            ip_address=trusted_client_ip(request),
+            result="blocked",
+            metadata={"purpose": purpose, "reason": "credential_state_mismatch"},
+        )
+        await session.commit()
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=_IDENTITY_ACTION_FAILURE
+        )
     if verify_password(body.new_password, user.hashed_password):
+        await AuditLogRepository(session).record(
+            action="auth.identity_action_failed",
+            entity_type="identity_action",
+            agency_id=user.agency_id,
+            user_id=user.id,
+            actor_email=user.email,
+            entity_id=str(token.id),
+            ip_address=trusted_client_ip(request),
+            result="failed",
+            metadata={"purpose": purpose, "reason": "password_reuse"},
+        )
+        await session.commit()
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Choose a password you have not just used",
+        )
+    if not await repository.consume_action_token(
+        token_id=token.id,
+        purpose=purpose,
+        now=now,
+    ):
+        metrics.increment("identity.action.concurrent_redemption_rejected")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=_IDENTITY_ACTION_FAILURE,
         )
     user.hashed_password = hash_password(body.new_password)
     user.updated_at = now
@@ -533,7 +730,9 @@ async def _complete_identity_action(
     await session.flush()
     domain_user = await UserRepository(session).get_by_id(user.id)
     if domain_user is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=_IDENTITY_ACTION_FAILURE)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=_IDENTITY_ACTION_FAILURE
+        )
     await AuditLogRepository(session).record(
         action="auth.account_activated" if purpose == "activation" else "auth.password_recovered",
         entity_type="user_account",
@@ -593,7 +792,9 @@ async def change_dashboard_password(
         )
     ).scalar_one()
     if not verify_password(body.current_password, user.hashed_password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Current password is incorrect")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Current password is incorrect"
+        )
     if verify_password(body.new_password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
@@ -602,7 +803,9 @@ async def change_dashboard_password(
     repository = IdentitySecurityRepository(session)
     state = await repository.get_state(user.id, lock=True)
     if state is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Session is no longer valid")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Session is no longer valid"
+        )
     now = datetime.now(tz=UTC)
     user.hashed_password = hash_password(body.new_password)
     user.updated_at = now
@@ -663,13 +866,10 @@ async def regenerate_mfa_recovery_codes(
     state.updated_at = now
     await RefreshTokenRepository(session).revoke_all_for_user(current_user.id)
     auth_claims = getattr(request.state, "auth_claims", {})
-    authentication_methods = (
-        auth_claims.get("amr") if isinstance(auth_claims, dict) else None
-    )
+    authentication_methods = auth_claims.get("amr") if isinstance(auth_claims, dict) else None
     factor_method = (
         "recovery_code"
-        if isinstance(authentication_methods, list)
-        and "recovery_code" in authentication_methods
+        if isinstance(authentication_methods, list) and "recovery_code" in authentication_methods
         else "totp"
     )
     await _issue_authenticated_session(

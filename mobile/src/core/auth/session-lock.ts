@@ -22,6 +22,33 @@ import { principalAccountNamespace, type MobileSession } from './types';
 
 let offlineAuthorizationExpiryTimer: ReturnType<typeof setTimeout> | null = null;
 
+type SessionLockSettlementHook = (namespace: string) => Promise<void>;
+
+// Feature-owned native operations register here so the authentication boundary
+// can stop and await them before closing SQLite or purging shared plaintext.
+// Keys make registration idempotent across Fast Refresh and test module reloads.
+const sessionLockSettlementHooks = new Map<string, SessionLockSettlementHook>();
+
+export function registerSessionLockSettlementHook(
+  key: string,
+  hook: SessionLockSettlementHook,
+): () => void {
+  if (!key || key.length > 128) throw new Error('Session lock hook key is invalid.');
+  sessionLockSettlementHooks.set(key, hook);
+  return () => {
+    if (sessionLockSettlementHooks.get(key) === hook) {
+      sessionLockSettlementHooks.delete(key);
+    }
+  };
+}
+
+async function settleNamespaceOperationsBeforeLock(namespace: string): Promise<void> {
+  // Hooks are bounded by their feature implementation. A rejection prevents
+  // database close/purge in this attempt and leaves the durable pending-lock
+  // marker in place for fail-closed bootstrap recovery.
+  for (const hook of sessionLockSettlementHooks.values()) await hook(namespace);
+}
+
 export function clearOfflineAuthorizationExpiryTimer(): void {
   if (offlineAuthorizationExpiryTimer !== null) {
     clearTimeout(offlineAuthorizationExpiryTimer);
@@ -75,6 +102,14 @@ export async function lockLocalSession(
     await markAuthenticationLockPending(namespace);
     if (options.invalidateBoundary) invalidateAuthenticationBoundary();
 
+    let namespaceOperationsSettled = true;
+    try {
+      await settleNamespaceOperationsBeforeLock(namespace);
+    } catch (error) {
+      lockError = error;
+      namespaceOperationsSettled = false;
+    }
+
     try {
       await clearNamespaceAuthentication(namespace);
     } catch (error) {
@@ -87,15 +122,17 @@ export async function lockLocalSession(
       useSessionStore.getState().clear();
       useSelectedTripStore.getState().clear();
 
-      try {
-        await closeAccountDatabase();
-      } catch (error) {
-        lockError ??= error;
-      }
-      try {
-        await purgeTemporaryViews();
-      } catch (error) {
-        lockError ??= error;
+      if (namespaceOperationsSettled) {
+        try {
+          await closeAccountDatabase();
+        } catch (error) {
+          lockError ??= error;
+        }
+        try {
+          await purgeTemporaryViews();
+        } catch (error) {
+          lockError ??= error;
+        }
       }
     }
 

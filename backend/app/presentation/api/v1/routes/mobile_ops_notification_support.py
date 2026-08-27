@@ -4,8 +4,11 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
+from typing import Literal
 
 from sqlalchemy import String, cast, func, or_, select
+from sqlalchemy.sql.elements import ColumnElement
+from sqlalchemy.sql.selectable import ScalarSelect
 
 from app.core.security.mobile_jwt import MobileAccessClaims
 from app.infrastructure.database.gc_mobile_models import (
@@ -25,7 +28,7 @@ from app.presentation.api.v1.schemas.mobile_schemas import MobileNotificationRes
 _ANNOUNCEMENT_NOTIFICATION_TYPE = "group_announcement"
 
 
-def _notification_recipient_filter(claims: MobileAccessClaims):
+def _notification_recipient_filter(claims: MobileAccessClaims) -> ColumnElement[bool]:
     if claims.principal_type == "passenger":
         return (
             (MobileNotificationModel.recipient_type == "passenger")
@@ -39,7 +42,9 @@ def _notification_recipient_filter(claims: MobileAccessClaims):
     )
 
 
-def _published_announcement_notification_filter(agency_id: uuid.UUID):
+def _published_announcement_notification_filter(
+    agency_id: uuid.UUID,
+) -> ColumnElement[bool]:
     """Hide legacy notification rows whose source announcement is no longer published."""
 
     normalized_notification_source_id = func.replace(
@@ -77,7 +82,10 @@ def _published_announcement_notification_filter(agency_id: uuid.UUID):
     )
 
 
-def _accessible_group_ids(claims: MobileAccessClaims, now: datetime):
+def _accessible_group_ids(
+    claims: MobileAccessClaims,
+    now: datetime,
+) -> ScalarSelect[uuid.UUID]:
     statement = (
         select(GCGroupAccessModel.group_id)
         .join(ClientGroupModel, ClientGroupModel.id == GCGroupAccessModel.group_id)
@@ -168,7 +176,9 @@ def _safe_public_payload(value: object) -> dict[str, object]:
     return safe
 
 
-def _mobile_priority(value: str) -> str:
+def _mobile_priority(
+    value: str,
+) -> Literal["normal", "important", "emergency"]:
     if value == "emergency":
         return "emergency"
     if value == "high":

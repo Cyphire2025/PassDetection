@@ -22,16 +22,16 @@ from pathlib import Path
 from typing import Literal, TypeAlias, cast
 
 import cbor2
-from asn1crypto import cms, core  # type: ignore[import-untyped]
-from asn1crypto import x509 as asn1_x509  # type: ignore[import-untyped]
+from asn1crypto import cms, core
+from asn1crypto import x509 as asn1_x509
 from cryptography import x509
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ec
-from pyattest.assertion import Assertion  # type: ignore[import-untyped]
-from pyattest.attestation import Attestation  # type: ignore[import-untyped]
-from pyattest.configs.apple import AppleConfig  # type: ignore[import-untyped]
-from pyattest.exceptions import PyAttestException  # type: ignore[import-untyped]
+from pyattest.assertion import Assertion
+from pyattest.attestation import Attestation
+from pyattest.configs.apple import AppleConfig
+from pyattest.exceptions import PyAttestException
 from pyhanko_certvalidator import CertificateValidator, ValidationContext
 from pyhanko_certvalidator.errors import (
     PathBuildingError,

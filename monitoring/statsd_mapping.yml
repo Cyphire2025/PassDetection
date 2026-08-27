@@ -1,0 +1,37 @@
+defaults:
+  observer_type: histogram
+  histogram_options:
+    buckets: [1, 2.5, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 15000]
+
+mappings:
+  - match: "passdetection.http.requests.total.*.*.*"
+    match_metric_type: counter
+    name: "passdetection_http_requests_total"
+    labels:
+      method: "$1"
+      status_code: "$2"
+      route: "$3"
+    ttl: 30m
+
+  - match: "passdetection.http.requests.duration_ms.*.*"
+    match_metric_type: observer
+    name: "passdetection_http_request_duration_ms"
+    labels:
+      method: "$1"
+      route: "$2"
+    ttl: 30m
+
+  - match: "passdetection.travel_flow.events.total.*"
+    match_metric_type: counter
+    name: "passdetection_travel_flow_events_total"
+    labels:
+      operation: "$1"
+    ttl: 24h
+
+  - match: "passdetection.travel_flow.events.reason.*.*"
+    match_metric_type: counter
+    name: "passdetection_travel_flow_event_reasons_total"
+    labels:
+      operation: "$1"
+      outcome: "$2"
+    ttl: 24h

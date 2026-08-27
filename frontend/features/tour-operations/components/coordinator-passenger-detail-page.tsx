@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { ArrowLeft, CloudOff, LogIn, Mail, MapPin, Phone, RefreshCw, UserRound } from "lucide-react";
 import { Button, Skeleton } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
@@ -16,11 +16,13 @@ import {
 import { CoordinatorFrame, CoordinatorHydrationState } from "./coordinator-mobile-shell";
 import {
   offlineSnapshotKeys,
-  readOfflineSnapshot,
+  useOfflineSnapshot,
   writeOfflineSnapshot,
 } from "../services/offline-snapshot";
 import type { TourPassenger } from "@/features/operations/api/operations.api";
 import { useNetworkStatus } from "../hooks/use-network-status";
+
+const EMPTY_PASSENGERS: TourPassenger[] = [];
 
 export function CoordinatorPassengerDetailPage({ groupId, passengerId }: { groupId: string; passengerId: string }) {
   const router = useRouter();
@@ -30,15 +32,14 @@ export function CoordinatorPassengerDetailPage({ groupId, passengerId }: { group
   const clearSession = useAuthStore((state) => state.clearSession);
   const isOnline = useNetworkStatus();
   const isCoordinator = isAuthenticated && user?.role === "agency_coordinator";
-  const userId = user?.id;
   const passengerQuery = useMyTourGroupPassenger(
     groupId,
     passengerId,
     hasHydrated && isCoordinator,
   );
-  const cachedPassengers = useMemo<TourPassenger[]>(
-    () => userId ? readOfflineSnapshot(offlineSnapshotKeys.myPassengers(groupId), []) : [],
-    [groupId, userId],
+  const cachedPassengers = useOfflineSnapshot<TourPassenger[]>(
+    offlineSnapshotKeys.myPassengers(groupId),
+    EMPTY_PASSENGERS,
   );
   const cachedPassenger = cachedPassengers.find((item) => item.id === passengerId) ?? null;
   const passenger = passengerQuery.data ?? cachedPassenger;
@@ -49,7 +50,7 @@ export function CoordinatorPassengerDetailPage({ groupId, passengerId }: { group
     const nextPassengers = cachedPassengers.some((item) => item.id === passengerQuery.data?.id)
       ? cachedPassengers.map((item) => item.id === passengerQuery.data?.id ? passengerQuery.data : item)
       : [...cachedPassengers, passengerQuery.data];
-    writeOfflineSnapshot(offlineSnapshotKeys.myPassengers(groupId), nextPassengers);
+    void writeOfflineSnapshot(offlineSnapshotKeys.myPassengers(groupId), nextPassengers);
   }, [cachedPassengers, groupId, passengerQuery.data, passengerQuery.isSuccess]);
 
   if (!hasHydrated) {

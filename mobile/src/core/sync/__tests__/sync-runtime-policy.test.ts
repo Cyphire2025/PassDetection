@@ -77,7 +77,11 @@ test('publication matches only synchronized local projections', () => {
   expect(queryKeyMatchesChangedProjection(
     ['manager-attendance-sessions', 'account-a', 'trip-a'],
     ['trip-a'],
-  )).toBe(false);
+  )).toBe(true);
+  expect(queryKeyMatchesChangedProjection(
+    ['coordinator-attendance-roster', 'account-a', 'trip-a', 'session-a', 'missing'],
+    ['trip-a'],
+  )).toBe(true);
 });
 
 test('full synchronization wins when event triggers are coalesced', () => {

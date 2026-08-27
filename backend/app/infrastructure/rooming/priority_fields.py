@@ -548,7 +548,9 @@ async def build_rooming_priority_context(
     if lock_inputs:
         linked_statement = linked_statement.with_for_update(read=True)
     linked_result = await session.execute(linked_statement)
-    linked_broadcasts = dict(linked_result.all())
+    linked_broadcasts: dict[uuid.UUID, str] = {
+        row[0]: row[1] for row in linked_result.all()
+    }
     if not linked_broadcasts:
         value_fields_by_key = {
             field["key"]: field

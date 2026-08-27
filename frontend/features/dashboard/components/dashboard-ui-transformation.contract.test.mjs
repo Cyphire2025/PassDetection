@@ -215,10 +215,10 @@ test("the visual transformation retains each top-level data and mutation contrac
   assert.match(whatsappWorkspace, /useWhatsAppGroups\(\)/);
   assert.match(documentGroups, /useDocumentGroups\(\)/);
   assert.match(menu, /useMenuWorkspace\(\)/);
-  assert.match(settings, /apiClient\s*\.get<PlatformSettings>\(API_ENDPOINTS\.admin\.settings\)/);
+  assert.match(settings, /apiClient\s*\.get<PlatformSettings>\(API_ENDPOINTS\.admin\.settings, \{ signal: controller\.signal \}\)/);
   assert.match(settings, /apiClient\s*\.put<PlatformSettings>\(API_ENDPOINTS\.admin\.settings, payload\)/);
   assert.match(settings, /apiClient\s*\.delete<PurgePassportDataResponse>\(API_ENDPOINTS\.admin\.passportData\)/);
-  assert.match(auditLogs, /useAuditLogs\(\)/);
+  assert.match(auditLogs, /useAuditLogPages\(apiFilters\)/);
   assert.match(analytics, /useAnalyticsSummary\(30\)/);
 });
 

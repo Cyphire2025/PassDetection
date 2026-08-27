@@ -9,9 +9,8 @@ import json
 import uuid
 from collections.abc import Sequence
 from contextlib import aclosing
-from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
-from typing import Literal
+from typing import AsyncGenerator, AsyncIterator, Literal, cast
 from urllib.parse import quote
 
 from cryptography.fernet import Fernet
@@ -21,6 +20,7 @@ from sqlalchemy import case, func, or_, select, true, tuple_
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
+from sqlalchemy.sql.selectable import LateralFromClause
 
 from app.application.mobile.attendance_qr_evidence import (
     build_attendance_qr_evidence,
@@ -28,8 +28,14 @@ from app.application.mobile.attendance_qr_evidence import (
 from app.application.mobile.coordinator_roster_revision import (
     coordinator_roster_revision,
 )
-from app.application.mobile.sync_journal import append_mobile_sync_change
-from app.application.security.mobile_access_policy import MobileAccessPolicy
+from app.application.mobile.sync_journal import (
+    append_attendance_realtime_invalidation,
+    append_mobile_sync_change,
+)
+from app.application.security.mobile_access_policy import (
+    AuthorizedMobileTrip,
+    MobileAccessPolicy,
+)
 from app.core.config.settings import get_settings
 from app.core.security.mobile_jwt import (
     MobileAccessClaims,
@@ -47,10 +53,10 @@ from app.infrastructure.database.gc_mobile_models import (
     MobileIncidentModel,
     MobileNotificationModel,
     MobilePushRegistrationModel,
-    MobileSyncChangeModel,
 )
 from app.infrastructure.database.models import (
     AttendanceRecordModel,
+    AttendanceRuntimeRegistrationModel,
     AttendanceSessionModel,
     DistributedDocumentModel,
     PassengerQRTokenModel,
@@ -64,8 +70,28 @@ from app.infrastructure.qr.approved_passenger_qr_issuer import qr_hash
 from app.infrastructure.repositories.attendance_closeout_repository import (
     AttendanceCloseoutRepository,
 )
+from app.infrastructure.repositories.attendance_discard_repository import (
+    AttendanceDiscardInput,
+    AttendanceDiscardRepository,
+)
+from app.infrastructure.repositories.attendance_runtime_repository import (
+    AttendanceRuntimeRepository,
+)
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
+from app.presentation.api.v1.routes.mobile_attendance_action_support import (
+    AttendanceReplaySnapshot as _AttendanceReplaySnapshot,
+)
+from app.presentation.api.v1.routes.mobile_attendance_action_support import (
+    MobileAttendanceActionDependencies,
+    apply_mobile_attendance_action_batch,
+)
+from app.presentation.api.v1.routes.mobile_attendance_action_support import (
+    PreparedAttendanceAction as _PreparedAttendanceAction,
+)
+from app.presentation.api.v1.routes.mobile_attendance_action_support import (
+    attendance_rejection_code as _attendance_rejection_code,  # noqa: F401 - compatibility re-export
+)
 from app.presentation.api.v1.routes.mobile_ops_notification_support import (
     _ANNOUNCEMENT_NOTIFICATION_TYPE as _ANNOUNCEMENT_NOTIFICATION_TYPE,
 )
@@ -115,17 +141,28 @@ from app.presentation.api.v1.routes.mobile_ops_passenger_support import (
     _coordinator_metadata_label as _coordinator_metadata_label,
 )
 from app.presentation.api.v1.routes.tour_operations import (
-    SCANNABLE_ATTENDANCE_STATUSES,
-    _attendance_closeout_audit_metadata,
-    _attendance_closeout_counts,
-    _attendance_scan_is_within_activity_window,
     _canonical_attendance_activity_admission,
-    _close_shared_attendance_activity,
     _create_canonical_attendance_activity,
-    _insert_canonical_attendance_record,
     _load_attendance_closeout_status,
     _lock_attendance_closeout_group,
-    _require_attendance_closeout_clearance,
+)
+from app.presentation.api.v1.routes.tour_operations_attendance_projection_support import (
+    attendance_closeout_audit_metadata as _attendance_closeout_audit_metadata,
+)
+from app.presentation.api.v1.routes.tour_operations_attendance_projection_support import (
+    attendance_closeout_counts as _attendance_closeout_counts,
+)
+from app.presentation.api.v1.routes.tour_operations_attendance_projection_support import (
+    close_shared_attendance_activity as _close_shared_attendance_activity,
+)
+from app.presentation.api.v1.routes.tour_operations_attendance_projection_support import (
+    require_attendance_closeout_clearance as _require_attendance_closeout_clearance,
+)
+from app.presentation.api.v1.routes.tour_operations_attendance_scan_support import (
+    SCANNABLE_ATTENDANCE_STATUSES,
+)
+from app.presentation.api.v1.routes.tour_operations_attendance_scan_support import (
+    insert_canonical_attendance_record as _insert_canonical_attendance_record,
 )
 from app.presentation.api.v1.schemas.attendance_closeout_schemas import (
     AttendanceCloseoutCheckpointRequest,
@@ -133,9 +170,13 @@ from app.presentation.api.v1.schemas.attendance_closeout_schemas import (
     AttendanceCloseoutStatusResponse,
     AttendanceCloseRequest,
 )
+from app.presentation.api.v1.schemas.attendance_runtime_schemas import (
+    AttendanceDiscardBatchResponse,
+    AttendanceDiscardItemResponse,
+    MobileAttendanceDiscardBatchRequest,
+)
 from app.presentation.api.v1.schemas.mobile_schemas import (
     MobileAttendanceActionInput,
-    MobileAttendanceActionResult,
     MobileAttendanceBatchRequest,
     MobileAttendanceBatchResponse,
     MobileAttendanceMissingPassengerResponse,
@@ -184,20 +225,7 @@ _MANAGER_PREVIEW_CONTENT_TYPES = frozenset(
 _MANAGER_PREVIEW_STREAM_SLOTS = asyncio.Semaphore(16)
 
 
-@dataclass(frozen=True, slots=True)
-class _PreparedAttendanceAction:
-    action: MobileAttendanceActionInput
-    attendance_session: AttendanceSessionModel
-    passenger: PassportSubmissionModel
-
-
-@dataclass(slots=True)
-class _AttendanceReplaySnapshot:
-    passengers: set[tuple[uuid.UUID, uuid.UUID]]
-    event_passengers: dict[tuple[uuid.UUID, str], set[uuid.UUID]]
-
-
-def _latest_attendance_qr_lateral(agency_id: uuid.UUID):
+def _latest_attendance_qr_lateral(agency_id: uuid.UUID) -> LateralFromClause:
     """Return one tenant-scoped latest token row per outer passenger."""
 
     return (
@@ -937,11 +965,13 @@ async def preview_mobile_manager_passenger_document(
     await session.commit()
     await session.close()
 
-    async def chunks():  # type: ignore[no-untyped-def]
+    async def chunks() -> AsyncIterator[bytes]:
         async with _MANAGER_PREVIEW_STREAM_SLOTS:
-            async with aclosing(
-                storage.stream_file(storage_key, start=0, expected_bytes=size_bytes)
-            ) as object_stream:
+            object_stream = cast(
+                AsyncGenerator[bytes, None],
+                storage.stream_file(storage_key, start=0, expected_bytes=size_bytes),
+            )
+            async with aclosing(object_stream) as object_stream:
                 async for chunk in object_stream:
                     yield chunk
 
@@ -1140,14 +1170,94 @@ async def publish_mobile_attendance_closeout_checkpoint(
             status_code=status.HTTP_409_CONFLICT,
             detail="Only an active attendance activity accepts closeout checkpoints",
         )
+    runtime = await _current_native_attendance_runtime(session, claims)
     checkpoint = await AttendanceCloseoutRepository(session).publish(
         session_id=attendance_session.id,
         coordinator_user_id=claims.principal_id,
         counts=_attendance_closeout_counts(body),
+        agency_id=claims.agency_id,
+        runtime_registration_id=runtime.id,
+    )
+    await append_attendance_realtime_invalidation(
+        session,
+        agency_id=claims.agency_id,
+        group_id=group_id,
+        entity_type="attendance_checkpoint",
+        entity_id=attendance_session.id,
+        changed_by_user_id=claims.principal_id,
+        occurred_at=checkpoint.reported_at,
     )
     return AttendanceCloseoutCheckpointResponse(
-        **body.model_dump(),
+        **body.model_dump(exclude={"runtime_id"}),
+        runtime_id=runtime.id,
         reported_at=checkpoint.reported_at,
+    )
+
+
+@router.post(
+    "/coordinator/groups/{group_id}/attendance/sessions/{session_id}/discards",
+    response_model=AttendanceDiscardBatchResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def synchronize_mobile_attendance_discards(
+    group_id: uuid.UUID,
+    session_id: uuid.UUID,
+    body: MobileAttendanceDiscardBatchRequest,
+    request: Request,
+    claims: MobileAccessClaims = Depends(require_unrestricted_mobile_claims),
+    session: AsyncSession = Depends(get_db_session),
+) -> AttendanceDiscardBatchResponse:
+    await _require_coordinator_trip(session, claims, group_id)
+    attendance_session = await _mobile_attendance_session(
+        session,
+        claims=claims,
+        group_id=group_id,
+        session_id=session_id,
+        lock="read",
+    )
+    runtime = await _current_native_attendance_runtime(session, claims)
+    results = await AttendanceDiscardRepository(session).record_batch(
+        agency_id=claims.agency_id,
+        group_id=group_id,
+        session_id=attendance_session.id,
+        coordinator_user_id=claims.principal_id,
+        runtime_registration_id=runtime.id,
+        items=tuple(
+            AttendanceDiscardInput(
+                discard_event_id=item.discard_event_id,
+                scan_reference=item.scan_reference,
+                reason_category=item.reason_category,
+                captured_at=item.captured_at,
+                discarded_at=item.discarded_at,
+            )
+            for item in body.items
+        ),
+        retention_days=get_settings().attendance_discard_retention_days,
+    )
+    await AuditLogRepository(session).record(
+        action="mobile.attendance_discard_evidence_synchronized",
+        entity_type="attendance_runtime",
+        agency_id=claims.agency_id,
+        user_id=claims.principal_id,
+        entity_id=str(runtime.id),
+        ip_address=trusted_client_ip(request),
+        metadata={
+            "group_id": str(group_id),
+            "session_id": str(attendance_session.id),
+            "accepted_count": sum(item.status == "accepted" for item in results),
+            "already_applied_count": sum(item.status == "already_applied" for item in results),
+            "reason_categories": sorted({item.reason_category for item in body.items}),
+        },
+    )
+    return AttendanceDiscardBatchResponse(
+        items=[
+            AttendanceDiscardItemResponse(
+                discard_event_id=item.discard_event_id,
+                status=item.status,
+                received_at=item.received_at,
+            )
+            for item in results
+        ]
     )
 
 
@@ -1406,6 +1516,31 @@ async def complete_mobile_manager_attendance_session(
     body: AttendanceCloseRequest = AttendanceCloseRequest(),
 ) -> MobileAttendanceSessionResponse:
     trip = await _require_client_manager_trip(session, claims, group_id)
+    if body.exception_reason is not None:
+        await AuditLogRepository(session).record(
+            action="mobile.attendance_closeout_override_blocked",
+            entity_type="attendance_session",
+            agency_id=claims.agency_id,
+            user_id=claims.principal_id,
+            entity_id=str(session_id),
+            ip_address=trusted_client_ip(request),
+            result="blocked",
+            metadata={
+                "group_id": str(group_id),
+                "reason": "recent_mfa_dashboard_step_up_required",
+            },
+        )
+        await session.commit()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "code": "RECENT_MFA_REQUIRED",
+                "message": (
+                    "Use the authenticated dashboard MFA step-up workflow "
+                    "to override unavailable-device closeout evidence."
+                ),
+            },
+        )
     await _lock_attendance_closeout_group(
         session,
         agency_id=claims.agency_id,
@@ -1491,210 +1626,26 @@ async def apply_mobile_attendance_actions(
     session: AsyncSession = Depends(get_db_session),
 ) -> MobileAttendanceBatchResponse:
     trip = await _require_coordinator_trip(session, claims, group_id)
-    now = datetime.now(tz=UTC)
-    resolved_results: dict[int, MobileAttendanceActionResult] = {}
-    session_candidates: list[tuple[int, MobileAttendanceActionInput]] = []
-    for index, action in enumerate(body.actions):
-        if action.scanned_at > now + _MAX_SCAN_CLOCK_SKEW:
-            resolved_results[index] = MobileAttendanceActionResult(
-                client_event_id=action.client_event_id,
-                status="rejected",
-                reason_code="SCANNED_AT_IN_FUTURE",
-            )
-        else:
-            session_candidates.append((index, action))
-
-    attendance_sessions = await _attendance_sessions_for_actions(
-        session,
-        claims,
-        group_id,
-        actions=[action for _, action in session_candidates],
-    )
-    qr_candidates: list[
-        tuple[int, MobileAttendanceActionInput, AttendanceSessionModel]
-    ] = []
-    for index, action in session_candidates:
-        attendance_session = attendance_sessions.get(action.session_id)
-        if attendance_session is None:
-            resolved_results[index] = MobileAttendanceActionResult(
-                client_event_id=action.client_event_id,
-                status="refresh_required",
-                reason_code="ATTENDANCE_SESSION_SELECTION_REQUIRED",
-            )
-            continue
-        if not _attendance_scan_is_within_activity_window(
-            attendance_session,
-            action.scanned_at,
-        ):
-            resolved_results[index] = MobileAttendanceActionResult(
-                client_event_id=action.client_event_id,
-                status="rejected",
-                reason_code="SCANNED_OUTSIDE_SESSION_WINDOW",
-            )
-            continue
-        qr_candidates.append((index, action, attendance_session))
-
-    qr_snapshot = await _scannable_passenger_snapshot(
-        session,
+    return await apply_mobile_attendance_action_batch(
+        group_id=group_id,
+        body=body,
         claims=claims,
-        actions=[action for _, action, _ in qr_candidates],
+        session=session,
+        trip=trip,
+        dependencies=MobileAttendanceActionDependencies(
+            attendance_sessions_for_actions=_attendance_sessions_for_actions,
+            scannable_passenger_snapshot=_scannable_passenger_snapshot,
+            resolve_scannable_passenger=_resolve_scannable_passenger_from_snapshot,
+            attendance_replay_snapshot=_attendance_replay_snapshot,
+            replay_state_from_snapshot=_attendance_replay_state_from_snapshot,
+            attendance_replay_state=_attendance_replay_state,
+            insert_canonical_attendance_record=_insert_canonical_attendance_record,
+            current_attendance_runtime=_current_native_attendance_runtime,
+            runtime_repository_factory=AttendanceRuntimeRepository,
+            append_sync_change=append_mobile_sync_change,
+            coordinator_roster_revision=coordinator_roster_revision,
+        ),
     )
-    prepared_by_index: dict[int, _PreparedAttendanceAction] = {}
-    for index, action, attendance_session in qr_candidates:
-        passenger, rejection_reason = _resolve_scannable_passenger_from_snapshot(
-            qr_snapshot,
-            group_id=group_id,
-            qr_payload=action.signed_qr,
-        )
-        if passenger is None:
-            resolved_results[index] = MobileAttendanceActionResult(
-                client_event_id=action.client_event_id,
-                status="rejected",
-                reason_code=_attendance_rejection_code(rejection_reason),
-            )
-            continue
-        prepared_by_index[index] = _PreparedAttendanceAction(
-            action=action,
-            attendance_session=attendance_session,
-            passenger=passenger,
-        )
-
-    replay_snapshot = await _attendance_replay_snapshot(
-        session,
-        claims=claims,
-        prepared=list(prepared_by_index.values()),
-    )
-    results: list[MobileAttendanceActionResult] = []
-    accepted_roster_changes: list[
-        tuple[PassportSubmissionModel, datetime]
-    ] = []
-    for index, action in enumerate(body.actions):
-        resolved_result = resolved_results.get(index)
-        if resolved_result is not None:
-            results.append(resolved_result)
-            continue
-        prepared = prepared_by_index[index]
-        replay_state = _attendance_replay_state_from_snapshot(
-            replay_snapshot,
-            attendance_session=prepared.attendance_session,
-            passenger_id=prepared.passenger.id,
-            client_event_id=str(action.client_event_id),
-        )
-        if replay_state == "event_reused":
-            results.append(
-                MobileAttendanceActionResult(
-                    client_event_id=action.client_event_id,
-                    status="rejected",
-                    reason_code="IDEMPOTENCY_KEY_REUSED",
-                )
-            )
-            continue
-        if replay_state == "already_applied":
-            results.append(
-                MobileAttendanceActionResult(
-                    client_event_id=action.client_event_id,
-                    status="already_applied",
-                    server_version=None,
-                    reason_code=None,
-                )
-            )
-            continue
-        inserted_id = await _insert_canonical_attendance_record(
-            session=session,
-            agency_id=claims.agency_id,
-            attendance_session=prepared.attendance_session,
-            passenger_id=prepared.passenger.id,
-            coordinator_user_id=claims.principal_id,
-            scanned_at=action.scanned_at.astimezone(UTC),
-            sync_source="offline",
-            client_event_id=str(action.client_event_id),
-            device_id=str(claims.session_id),
-        )
-        if inserted_id is None:
-            replay_state = await _attendance_replay_state(
-                session,
-                claims=claims,
-                attendance_session=prepared.attendance_session,
-                passenger_id=prepared.passenger.id,
-                client_event_id=str(action.client_event_id),
-            )
-            if replay_state == "event_reused":
-                results.append(
-                    MobileAttendanceActionResult(
-                        client_event_id=action.client_event_id,
-                        status="rejected",
-                        reason_code="IDEMPOTENCY_KEY_REUSED",
-                    )
-                )
-                continue
-            if replay_state == "unknown":
-                results.append(
-                    MobileAttendanceActionResult(
-                        client_event_id=action.client_event_id,
-                        status="refresh_required",
-                        reason_code="ATTENDANCE_CONFLICT",
-                    )
-                )
-                continue
-            _record_attendance_replay(
-                replay_snapshot,
-                attendance_session=prepared.attendance_session,
-                passenger_id=prepared.passenger.id,
-                client_event_id=str(action.client_event_id),
-            )
-        else:
-            changed_at = datetime.now(tz=UTC)
-            prepared.attendance_session.updated_at = changed_at
-            accepted_roster_changes.append((prepared.passenger, changed_at))
-            _record_attendance_replay(
-                replay_snapshot,
-                attendance_session=prepared.attendance_session,
-                passenger_id=prepared.passenger.id,
-                client_event_id=str(action.client_event_id),
-            )
-        results.append(
-            MobileAttendanceActionResult(
-                client_event_id=action.client_event_id,
-                status="accepted" if inserted_id is not None else "already_applied",
-                server_version=None,
-                reason_code=None,
-            )
-        )
-
-    targeted_roster_changes: list[MobileSyncChangeModel] = []
-    for passenger, changed_at in accepted_roster_changes:
-        targeted_roster_changes.append(
-            await append_mobile_sync_change(
-                session,
-                access=trip.access,
-                audience="coordinator",
-                entity_type="coordinator_passenger",
-                entity_id=passenger.id,
-                operation="upsert",
-                version=max(0, int(changed_at.timestamp() * 1000)),
-                changed_by_user_id=claims.principal_id,
-                payload={
-                    "resource_path": (
-                        f"/api/v1/mobile/coordinator/groups/{group_id}/"
-                        f"passengers/{passenger.id}"
-                    )
-                },
-                flush=False,
-            )
-        )
-    if targeted_roster_changes:
-        # Flush the bounded journal batch once before deriving its proof. The
-        # conflict-safe attendance inserts above remain ordered one by one.
-        await session.flush()
-        roster_revision = await coordinator_roster_revision(
-            session,
-            agency_id=claims.agency_id,
-            group_id=group_id,
-        )
-        for change in targeted_roster_changes:
-            change.payload = {**change.payload, "roster_revision": roster_revision}
-        await session.flush()
-    return MobileAttendanceBatchResponse(results=results)
 
 
 async def _attendance_replay_state(
@@ -1766,8 +1717,7 @@ async def _attendance_sessions_for_actions(
         rows = list(
             (
                 await session.execute(
-                    statement
-                    .where(AttendanceSessionModel.id.in_(requested_ids))
+                    statement.where(AttendanceSessionModel.id.in_(requested_ids))
                     .order_by(AttendanceSessionModel.id)
                     .with_for_update(read=True)
                 )
@@ -1779,8 +1729,7 @@ async def _attendance_sessions_for_actions(
         candidates = list(
             (
                 await session.execute(
-                    statement
-                    .order_by(
+                    statement.order_by(
                         AttendanceSessionModel.updated_at.desc(),
                         AttendanceSessionModel.id,
                     )
@@ -1861,17 +1810,11 @@ async def _attendance_replay_snapshot(
     if not prepared:
         return snapshot
     passenger_pairs = sorted(
-        {
-            (item.attendance_session.id, item.passenger.id)
-            for item in prepared
-        },
+        {(item.attendance_session.id, item.passenger.id) for item in prepared},
         key=lambda pair: (str(pair[0]), str(pair[1])),
     )
     event_pairs = sorted(
-        {
-            (item.attendance_session.id, str(item.action.client_event_id))
-            for item in prepared
-        },
+        {(item.attendance_session.id, str(item.action.client_event_id)) for item in prepared},
         key=lambda pair: (str(pair[0]), pair[1]),
     )
     family_session = aliased(
@@ -1936,18 +1879,6 @@ def _attendance_replay_state_from_snapshot(
     ) in snapshot.passengers or passenger_id in event_passengers:
         return "already_applied"
     return "unknown"
-
-
-def _record_attendance_replay(
-    snapshot: _AttendanceReplaySnapshot,
-    *,
-    attendance_session: AttendanceSessionModel,
-    passenger_id: uuid.UUID,
-    client_event_id: str,
-) -> None:
-    key = (attendance_session.id, client_event_id)
-    snapshot.passengers.add((attendance_session.id, passenger_id))
-    snapshot.event_passengers.setdefault(key, set()).add(passenger_id)
 
 
 @router.get(
@@ -2147,7 +2078,7 @@ async def create_mobile_incident(
             },
         )
 
-    response_payload = {
+    response_payload: dict[str, object] = {
         "client_event_id": idempotency_key,
         "status": "accepted" if created else "already_applied",
         "incident_id": str(incident.id),
@@ -2311,9 +2242,7 @@ async def list_mobile_notifications(
         MobileNotificationModel.agency_id == claims.agency_id,
         recipient_filter,
         _published_announcement_notification_filter(claims.agency_id),
-        MobileNotificationModel.notification_type.not_in(
-            _PUSH_ONLY_NOTIFICATION_TYPES
-        ),
+        MobileNotificationModel.notification_type.not_in(_PUSH_ONLY_NOTIFICATION_TYPES),
         # A provider delivery failure must not remove the durable in-app update.
         MobileNotificationModel.status.in_(("queued", "sent", "failed")),
         MobileNotificationModel.available_at <= now,
@@ -2393,7 +2322,7 @@ async def _require_coordinator_trip(
     session: AsyncSession,
     claims: MobileAccessClaims,
     group_id: uuid.UUID,
-):
+) -> AuthorizedMobileTrip:
     if claims.principal_type != "coordinator":
         raise AuthorizationError("Coordinator group access is required")
     return await MobileAccessPolicy(session).require_trip_access(claims, group_id)
@@ -2403,7 +2332,7 @@ async def _require_client_manager_trip(
     session: AsyncSession,
     claims: MobileAccessClaims,
     group_id: uuid.UUID,
-):
+) -> AuthorizedMobileTrip:
     if claims.principal_type != "client_manager":
         raise AuthorizationError("Client manager group access is required")
     return await MobileAccessPolicy(session).require_trip_access(claims, group_id)
@@ -2457,26 +2386,27 @@ async def _mobile_attendance_session_responses(
         or 0
     )
     ids = [item.id for item in attendance_sessions]
-    scan_counts = dict(
-        (
-            await session.execute(
-                select(
-                    AttendanceRecordModel.session_id,
-                    func.count(func.distinct(AttendanceRecordModel.passenger_id)),
-                )
-                .where(
-                    AttendanceRecordModel.agency_id == claims.agency_id,
-                    AttendanceRecordModel.session_id.in_(ids),
-                )
-                .group_by(AttendanceRecordModel.session_id)
+    scan_count_rows = (
+        await session.execute(
+            select(
+                AttendanceRecordModel.session_id,
+                func.count(func.distinct(AttendanceRecordModel.passenger_id)),
             )
-        ).all()
-    )
+            .where(
+                AttendanceRecordModel.agency_id == claims.agency_id,
+                AttendanceRecordModel.session_id.in_(ids),
+            )
+            .group_by(AttendanceRecordModel.session_id)
+        )
+    ).all()
+    scan_counts: dict[uuid.UUID, int] = {
+        session_id: int(count or 0) for session_id, count in scan_count_rows
+    }
     return [
         MobileAttendanceSessionResponse(
             id=item.id,
             name=item.name,
-            status=item.status,
+            status=_attendance_session_status(item.status),
             scanned_count=int(scan_counts.get(item.id, 0)),
             assigned_count=assigned_count,
             started_at=item.started_at,
@@ -2484,6 +2414,20 @@ async def _mobile_attendance_session_responses(
         )
         for item in attendance_sessions
     ]
+
+
+def _attendance_session_status(
+    value: str,
+) -> Literal["draft", "active", "completed", "cancelled"]:
+    if value == "draft":
+        return "draft"
+    if value == "active":
+        return "active"
+    if value == "completed":
+        return "completed"
+    if value == "cancelled":
+        return "cancelled"
+    raise ValueError("Unsupported attendance session status")
 
 
 async def _latest_attendance_session(
@@ -2557,18 +2501,20 @@ async def _current_device_session(
     return value
 
 
+async def _current_native_attendance_runtime(
+    session: AsyncSession,
+    claims: MobileAccessClaims,
+) -> AttendanceRuntimeRegistrationModel:
+    device_session = await _current_device_session(session, claims)
+    return await AttendanceRuntimeRepository(session).ensure_native_runtime(
+        agency_id=claims.agency_id,
+        coordinator_user_id=claims.principal_id,
+        mobile_session_id=device_session.id,
+        expires_at=device_session.expires_at,
+    )
+
+
 def _push_fernet() -> Fernet:
     """Compatibility shim for focused registration tests."""
 
     return mobile_push_fernet()
-
-
-def _attendance_rejection_code(value: str | None) -> str:
-    mapping = {
-        "unknown_token": "QR_UNKNOWN",
-        "revoked": "QR_REVOKED",
-        "expired": "QR_EXPIRED",
-        "inactive": "QR_INACTIVE",
-        "wrong_group": "QR_WRONG_GROUP",
-    }
-    return mapping.get(value or "", "QR_INVALID")

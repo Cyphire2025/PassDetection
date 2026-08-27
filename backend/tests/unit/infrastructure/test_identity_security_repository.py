@@ -1,14 +1,22 @@
 from __future__ import annotations
 
-from datetime import timedelta
+import asyncio
+import uuid
+from datetime import UTC, datetime, timedelta
+from pathlib import Path
 
 import pytest
+from pydantic import SecretStr
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+from app.core.config.settings import Settings
+from app.core.security import identity_security
 from app.infrastructure.database.models import (
+    Base,
     DashboardAuthChallengeModel,
     IdentityActionTokenModel,
+    IdentityNotificationOutboxModel,
     MFARecoveryCodeModel,
     UserModel,
 )
@@ -124,3 +132,199 @@ async def test_recovery_code_consumption_is_atomic_and_mfa_reset_clears_all_arti
             )
         )
     ).scalar_one().status == "cancelled"
+
+
+@pytest.mark.asyncio
+async def test_action_token_final_consume_gate_is_single_use_even_for_stale_claim(
+    db_session: AsyncSession,
+) -> None:
+    user = UserModel(
+        email="atomic-recovery@example.com",
+        hashed_password="unusable-test-placeholder",
+        full_name="Atomic Recovery User",
+        role="agency_staff",
+        is_active=True,
+    )
+    db_session.add(user)
+    await db_session.flush()
+    repository = IdentitySecurityRepository(db_session)
+    await repository.ensure_state(user)
+    token, _ = await repository.issue_action_token(
+        user_id=user.id,
+        purpose="password_recovery",
+        expires_in=timedelta(minutes=20),
+    )
+    now = datetime.now(tz=UTC)
+
+    first = await repository.consume_action_token(
+        token_id=token.id,
+        purpose="password_recovery",
+        now=now,
+    )
+    second = await repository.consume_action_token(
+        token_id=token.id,
+        purpose="password_recovery",
+        now=now,
+    )
+
+    assert first is True
+    assert second is False
+
+
+@pytest.mark.asyncio
+async def test_concurrent_action_token_redemption_has_exactly_one_winner(
+    tmp_path: Path,
+) -> None:
+    database_path = (tmp_path / "concurrent-identity.sqlite3").as_posix()
+    engine = create_async_engine(
+        f"sqlite+aiosqlite:///{database_path}",
+        connect_args={"timeout": 10},
+    )
+    async with engine.begin() as connection:
+        await connection.run_sync(Base.metadata.create_all)
+    factory = async_sessionmaker(engine, expire_on_commit=False)
+    async with factory() as seed_session:
+        user = UserModel(
+            email="concurrent-recovery@example.com",
+            hashed_password="unusable-test-placeholder",
+            full_name="Concurrent Recovery User",
+            role="agency_staff",
+            is_active=True,
+        )
+        seed_session.add(user)
+        await seed_session.flush()
+        repository = IdentitySecurityRepository(seed_session)
+        await repository.ensure_state(user)
+        _, raw = await repository.issue_action_token(
+            user_id=user.id,
+            purpose="password_recovery",
+            expires_in=timedelta(minutes=20),
+        )
+        await seed_session.commit()
+
+    ready = 0
+    ready_event = asyncio.Event()
+    release_event = asyncio.Event()
+
+    async def redeem() -> bool:
+        nonlocal ready
+        async with factory() as session:
+            repository = IdentitySecurityRepository(session)
+            token = await repository.get_valid_action_token(
+                raw_token=raw,
+                purpose="password_recovery",
+            )
+            assert token is not None
+            ready += 1
+            if ready == 2:
+                ready_event.set()
+            await release_event.wait()
+            consumed = await repository.consume_action_token(
+                token_id=token.id,
+                purpose="password_recovery",
+            )
+            await session.commit()
+            return consumed
+
+    contenders = [asyncio.create_task(redeem()) for _ in range(2)]
+    await ready_event.wait()
+    release_event.set()
+    results = await asyncio.gather(*contenders)
+
+    assert sorted(results) == [False, True]
+    await engine.dispose()
+
+
+@pytest.mark.asyncio
+async def test_replacement_terminalizes_pending_or_claimed_old_delivery(
+    db_session: AsyncSession,
+) -> None:
+    user = UserModel(
+        email="superseded-recovery@example.com",
+        hashed_password="unusable-test-placeholder",
+        full_name="Superseded Recovery User",
+        role="agency_staff",
+        is_active=True,
+    )
+    db_session.add(user)
+    await db_session.flush()
+    repository = IdentitySecurityRepository(db_session)
+    await repository.ensure_state(user)
+    first, _ = await repository.issue_action_token(
+        user_id=user.id,
+        purpose="password_recovery",
+        expires_in=timedelta(minutes=20),
+    )
+    outbox = IdentityNotificationOutboxModel(
+        id=uuid.uuid4(),
+        user_id=user.id,
+        action_token_id=first.id,
+        purpose="password_recovery",
+        channel="email",
+        recipient_ciphertext=b"encrypted-recipient",
+        payload_ciphertext=b"encrypted-payload",
+        encryption_key_id="legacy-v1",
+        dedupe_key="d" * 64,
+        status="running",
+        attempt_count=1,
+        max_attempts=5,
+        next_attempt_at=datetime.now(tz=UTC),
+        lease_expires_at=datetime.now(tz=UTC) + timedelta(minutes=1),
+    )
+    db_session.add(outbox)
+    await db_session.flush()
+
+    second, _ = await repository.issue_action_token(
+        user_id=user.id,
+        purpose="password_recovery",
+        expires_in=timedelta(minutes=20),
+    )
+
+    await db_session.refresh(outbox)
+    assert first.invalidated_at is not None
+    assert second.invalidated_at is None
+    assert outbox.status == "dead_letter"
+    assert outbox.last_error_code == "superseded"
+    assert outbox.lease_expires_at is None
+
+
+@pytest.mark.asyncio
+async def test_action_token_issued_before_hmac_rotation_remains_redeemable(
+    db_session: AsyncSession,
+    test_settings: Settings,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    user = UserModel(
+        email="rotated-action-token@example.com",
+        hashed_password="unusable-test-placeholder",
+        full_name="Rotated Action Token User",
+        role="agency_staff",
+        is_active=True,
+    )
+    db_session.add(user)
+    await db_session.flush()
+    repository = IdentitySecurityRepository(db_session)
+    await repository.ensure_state(user)
+    issued, raw = await repository.issue_action_token(
+        user_id=user.id,
+        purpose="password_recovery",
+        expires_in=timedelta(minutes=20),
+    )
+    assert issued.token_key_id == "legacy-v1"
+    rotated = test_settings.model_copy(
+        update={
+            "identity_action_hmac_key_id": "actions-2026-08",
+            "identity_action_hmac_key": SecretStr("new-action-key-material-2026-08"),
+            "identity_action_hmac_previous_keys": {
+                "legacy-v1": SecretStr(test_settings.app_secret_key)
+            },
+        }
+    )
+    monkeypatch.setattr(identity_security, "get_settings", lambda: rotated)
+
+    resolved = await repository.get_valid_action_token(
+        raw_token=raw,
+        purpose="password_recovery",
+    )
+
+    assert resolved is issued

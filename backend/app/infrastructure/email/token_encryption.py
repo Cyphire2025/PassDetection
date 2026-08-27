@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import Any, cast
 
 from cryptography.fernet import Fernet, InvalidToken
 
@@ -103,16 +102,13 @@ class EmailTokenCipher:
         if fernet is None:
             raise TokenDecryptionError("Email token encryption key version is unavailable")
         try:
-            plaintext = cast(
-                bytes,
-                fernet.decrypt(encrypted.ciphertext.encode("ascii")),
-            )
+            plaintext = fernet.decrypt(encrypted.ciphertext.encode("ascii"))
             return plaintext.decode("utf-8")
         except (InvalidToken, UnicodeDecodeError, UnicodeEncodeError):
             raise TokenDecryptionError("Email provider token could not be decrypted") from None
 
 
-def _secret_value(value: Any) -> str | None:
+def _secret_value(value: object) -> str | None:
     if value is None:
         return None
     getter = getattr(value, "get_secret_value", None)

@@ -5,10 +5,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from fastapi import HTTPException, UploadFile, status
-from starlette.concurrency import run_in_threadpool
 
 from app.core.config.settings import get_settings
 from app.domain.exceptions.exceptions import ImageValidationError
+from app.infrastructure.security.upload_security import (
+    UploadSecurityContext,
+    UploadSecurityEvidenceError,
+    UploadSecurityService,
+)
 from app.infrastructure.security.upload_validator import (
     MalwareScannerUnavailableError,
     malware_scanner_from_settings,
@@ -31,6 +35,9 @@ class BoundedDocumentUpload:
 
 async def read_bounded_document_uploads(
     files: list[UploadFile],
+    *,
+    security_context: UploadSecurityContext | None = None,
+    security_service: UploadSecurityService | None = None,
 ) -> list[BoundedDocumentUpload]:
     """Read a bounded batch without trusting multipart metadata alone."""
     try:
@@ -61,7 +68,12 @@ async def read_bounded_document_uploads(
             )
 
         uploads: list[BoundedDocumentUpload] = []
-        malware_scanner = malware_scanner_from_settings()
+        upload_security = security_service or UploadSecurityService(
+            scanner=malware_scanner_from_settings()
+        )
+        active_context = security_context or UploadSecurityContext(
+            ingestion_flow="authenticated_document_upload",
+        )
         actual_total = 0
         for file in files:
             try:
@@ -90,11 +102,15 @@ async def read_bounded_document_uploads(
                     detail="The combined PDF upload is too large",
                 )
             try:
-                # ClamAV uses blocking sockets. Keep it outside the event loop,
-                # and scan the exact original bytes before any parser or object
-                # storage boundary can observe them.
-                await run_in_threadpool(malware_scanner.scan, content)
-            except MalwareScannerUnavailableError as exc:
+                # The service scans the exact original bytes before parsing,
+                # records a durable privacy-safe decision, and quarantines an
+                # infected original without exposing its storage locator.
+                await upload_security.validate_document(
+                    content=content,
+                    declared_content_type=file.content_type,
+                    context=active_context,
+                )
+            except (MalwareScannerUnavailableError, UploadSecurityEvidenceError) as exc:
                 raise HTTPException(
                     status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                     detail="Document security scanning is temporarily unavailable",

@@ -18,6 +18,8 @@ from app.core.config.settings import Settings, get_settings
 TOTP_DIGITS = 6
 TOTP_PERIOD_SECONDS = 30
 TOTP_ALLOWED_DRIFT_STEPS = 1
+_MFA_CIPHERTEXT_PREFIX = "idsec:mfa:v2:"
+_LEGACY_KEY_ID = "legacy-v1"
 
 
 class IdentitySecurityError(RuntimeError):
@@ -42,29 +44,177 @@ def hash_identity_value(
     ).hexdigest()
 
 
-def identity_mfa_fernet(settings: Settings | None = None) -> Fernet:
-    """Derive a domain-separated encryption key for TOTP secrets."""
+def _secret_text(value: object) -> str:
+    getter = getattr(value, "get_secret_value", None)
+    if callable(getter):
+        return str(getter())
+    return str(value)
+
+
+def _action_hmac_keys(settings: Settings) -> tuple[str, dict[str, str]]:
+    active_key_id = settings.identity_action_hmac_key_id
+    configured = settings.identity_action_hmac_key
+    keys = {
+        active_key_id: (
+            _secret_text(configured) if configured is not None else settings.app_secret_key
+        )
+    }
+    keys.update(
+        {
+            key_id: _secret_text(secret)
+            for key_id, secret in settings.identity_action_hmac_previous_keys.items()
+        }
+    )
+    return active_key_id, keys
+
+
+def active_identity_action_key_id(settings: Settings | None = None) -> str:
+    resolved = settings or get_settings()
+    return resolved.identity_action_hmac_key_id
+
+
+def hash_identity_action_token(
+    value: str,
+    *,
+    purpose: str,
+    key_id: str | None = None,
+    settings: Settings | None = None,
+) -> str:
+    """Hash one action token with its persisted, independently rotatable key."""
+
+    if not value or not purpose:
+        raise IdentitySecurityError("Identity action token is invalid")
+    resolved = settings or get_settings()
+    active_key_id, keys = _action_hmac_keys(resolved)
+    selected_key_id = key_id or active_key_id
+    secret = keys.get(selected_key_id)
+    if secret is None:
+        raise IdentitySecurityError("Identity action token key is unavailable")
+    if selected_key_id == _LEGACY_KEY_ID:
+        # Exact pre-keyring digest so active links survive the first rollout and
+        # an old APP_SECRET_KEY can be retained explicitly during later rotation.
+        message = f"identity:action-{purpose}:v1:{value}"
+    else:
+        message = f"identity:action-token:{purpose}:v2:{value}"
+    return hmac.new(secret.encode("utf-8"), message.encode("utf-8"), hashlib.sha256).hexdigest()
+
+
+def identity_action_token_hash_candidates(
+    value: str,
+    *,
+    purpose: str,
+    settings: Settings | None = None,
+) -> tuple[tuple[str, str], ...]:
+    """Return the bounded active/previous digest candidates for indexed lookup."""
 
     resolved = settings or get_settings()
+    _, keys = _action_hmac_keys(resolved)
+    return tuple(
+        (
+            key_id,
+            hash_identity_action_token(
+                value,
+                purpose=purpose,
+                key_id=key_id,
+                settings=resolved,
+            ),
+        )
+        for key_id in keys
+    )
+
+
+def _identity_mfa_fernet(secret: str, *, legacy: bool) -> Fernet:
+    purpose = (
+        b"identity:mfa-secret-encryption:v1"
+        if legacy
+        else b"identity:mfa-secret-encryption:keyring:v2"
+    )
     derived = hmac.new(
-        resolved.app_secret_key.encode("utf-8"),
-        b"identity:mfa-secret-encryption:v1",
+        secret.encode("utf-8"),
+        purpose,
         hashlib.sha256,
     ).digest()
     return Fernet(base64.urlsafe_b64encode(derived))
 
 
+def _identity_mfa_keyring(settings: Settings) -> tuple[str, dict[str, Fernet]]:
+    active_key_id = settings.identity_mfa_encryption_key_id
+    configured = settings.identity_mfa_encryption_key
+    active_secret = _secret_text(configured) if configured is not None else settings.app_secret_key
+    keys = {
+        active_key_id: _identity_mfa_fernet(
+            active_secret,
+            legacy=active_key_id == _LEGACY_KEY_ID,
+        )
+    }
+    for key_id, secret in settings.identity_mfa_decryption_keys.items():
+        keys[key_id] = _identity_mfa_fernet(
+            _secret_text(secret),
+            legacy=key_id == _LEGACY_KEY_ID,
+        )
+    return active_key_id, keys
+
+
+def identity_mfa_fernet(settings: Settings | None = None) -> Fernet:
+    """Return the active domain-separated TOTP encryption key."""
+
+    resolved = settings or get_settings()
+    active_key_id, keys = _identity_mfa_keyring(resolved)
+    return keys[active_key_id]
+
+
 def encrypt_mfa_secret(secret: str, settings: Settings | None = None) -> str:
     if not secret:
         raise IdentitySecurityError("MFA secret is invalid")
-    return identity_mfa_fernet(settings).encrypt(secret.encode("ascii")).decode("ascii")
+    resolved = settings or get_settings()
+    active_key_id, keys = _identity_mfa_keyring(resolved)
+    token = keys[active_key_id].encrypt(secret.encode("ascii")).decode("ascii")
+    return f"{_MFA_CIPHERTEXT_PREFIX}{active_key_id}:{token}"
 
 
 def decrypt_mfa_secret(ciphertext: str, settings: Settings | None = None) -> str:
+    resolved = settings or get_settings()
+    _, keys = _identity_mfa_keyring(resolved)
+    key_id = _LEGACY_KEY_ID
+    token = ciphertext
+    if ciphertext.startswith(_MFA_CIPHERTEXT_PREFIX):
+        encoded = ciphertext[len(_MFA_CIPHERTEXT_PREFIX) :]
+        key_id, separator, token = encoded.partition(":")
+        if not separator or not key_id or not token:
+            raise IdentitySecurityError("MFA secret could not be decrypted")
+    fernet = keys.get(key_id)
+    if fernet is None:
+        raise IdentitySecurityError("MFA secret encryption key is unavailable")
     try:
-        return identity_mfa_fernet(settings).decrypt(ciphertext.encode("ascii")).decode("ascii")
+        return fernet.decrypt(token.encode("ascii")).decode("ascii")
     except (InvalidToken, UnicodeDecodeError, UnicodeEncodeError):
         raise IdentitySecurityError("MFA secret could not be decrypted") from None
+
+
+def mfa_ciphertext_key_id(ciphertext: str) -> str:
+    """Return a non-secret key identifier for rotation planning."""
+
+    if not ciphertext.startswith(_MFA_CIPHERTEXT_PREFIX):
+        return _LEGACY_KEY_ID
+    encoded = ciphertext[len(_MFA_CIPHERTEXT_PREFIX) :]
+    key_id, separator, _ = encoded.partition(":")
+    if not separator or not key_id:
+        raise IdentitySecurityError("MFA secret ciphertext header is invalid")
+    return key_id
+
+
+def reencrypt_mfa_secret_if_needed(
+    ciphertext: str,
+    settings: Settings | None = None,
+) -> str:
+    """Decrypt-old/encrypt-new helper used inside an already locked mutation."""
+
+    resolved = settings or get_settings()
+    if mfa_ciphertext_key_id(
+        ciphertext
+    ) == resolved.identity_mfa_encryption_key_id and ciphertext.startswith(_MFA_CIPHERTEXT_PREFIX):
+        return ciphertext
+    return encrypt_mfa_secret(decrypt_mfa_secret(ciphertext, resolved), resolved)
 
 
 def generate_mfa_secret() -> str:
@@ -168,9 +318,14 @@ __all__ = [
     "encrypt_mfa_secret",
     "generate_mfa_secret",
     "generate_recovery_codes",
+    "active_identity_action_key_id",
+    "hash_identity_action_token",
+    "identity_action_token_hash_candidates",
     "hash_identity_value",
     "hash_recovery_code",
     "normalize_recovery_code",
+    "mfa_ciphertext_key_id",
+    "reencrypt_mfa_secret_if_needed",
     "totp_code",
     "verify_totp",
 ]

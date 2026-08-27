@@ -186,7 +186,10 @@ test("a Client Manager is created through the same passwordless invitation bound
   });
 
   await page.goto("/gc-app/client-manager-accounts");
-  await expect(page.getByRole("heading", { name: "Client Manager Accounts" })).toBeVisible();
+  await expect(page.getByRole("heading", {
+    name: "Client Manager Accounts",
+    exact: true,
+  })).toBeVisible();
   await page.getByRole("button", { name: "Create account" }).click();
   await expect(page.getByRole("dialog", { name: "Create Client Manager" })).toBeVisible();
   await expect(page.locator('input[type="password"]')).toHaveCount(0);

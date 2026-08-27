@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import unicodedata
 import uuid
+from collections.abc import Mapping
 from dataclasses import dataclass
 from difflib import SequenceMatcher
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,10 +22,12 @@ from app.application.use_cases.whatsapp.group_submission_matching import (
     SubmissionMatchRow,
     compare_group_submissions,
 )
+from app.core.logging.logger import get_logger
 from app.domain.entities.entities import ClientGroup, PassportSubmission
 from app.infrastructure.database.models import (
     ClientGroupModel,
     ClientGroupWhatsAppBroadcastLinkModel,
+    PassportExportHistoryModel,
     PassportRosterResolutionModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
@@ -33,6 +36,100 @@ from app.infrastructure.export.passport_excel_exporter import (
     PassportExcelExporter,
     passport_age_group,
 )
+from app.infrastructure.repositories.passport_export_history_repository import (
+    PassportExportKind,
+    PassportExportMode,
+    PassportExportPersonSnapshot,
+    validated_export_people_snapshot,
+)
+
+logger = get_logger(__name__)
+
+
+def _validated_export_history_ids(
+    history: PassportExportHistoryModel,
+    *,
+    field_name: Literal[
+        "snapshot_submission_ids",
+        "exported_submission_ids",
+    ],
+) -> set[uuid.UUID]:
+    """Validate a persisted export snapshot before using it for a retry."""
+
+    raw_ids = list(getattr(history, field_name) or [])
+    parsed_ids: list[uuid.UUID] = []
+    for value in raw_ids:
+        try:
+            parsed_ids.append(uuid.UUID(str(value)))
+        except (TypeError, ValueError, AttributeError):
+            logger.warning(
+                "passport_export_history_invalid_submission_id",
+                history_id=str(history.id),
+                field_name=field_name,
+                value=str(value),
+            )
+            raise ValueError("The export history entry contains an invalid ID.")
+    expected_count = (
+        history.total_available_count
+        if field_name == "snapshot_submission_ids"
+        else history.exported_count
+    )
+    if len(parsed_ids) != expected_count or len(set(parsed_ids)) != expected_count:
+        raise ValueError("The export history entry failed its integrity check.")
+    return set(parsed_ids)
+
+
+def _validated_export_kind(value: str) -> PassportExportKind:
+    """Narrow a persisted export kind after validating database integrity."""
+
+    if value not in {"passport_images", "passport_excel"}:
+        raise ValueError("The export history entry contains an invalid export kind.")
+    return cast(PassportExportKind, value)
+
+
+def _validated_export_mode(value: str) -> PassportExportMode:
+    """Narrow a persisted export mode after validating database integrity."""
+
+    if value not in {"all", "incremental"}:
+        raise ValueError("The export history entry contains an invalid export mode.")
+    return cast(PassportExportMode, value)
+
+
+def _export_people_snapshot(
+    submissions: list[PassportSubmission],
+) -> list[PassportExportPersonSnapshot]:
+    people: list[PassportExportPersonSnapshot] = []
+    for submission in submissions:
+        fields = submission.confirmed_fields or submission.extracted_fields or {}
+        passport_number = fields.get("passport_number")
+        people.append(
+            {
+                "submission_id": str(submission.id),
+                "client_name": submission.client_name,
+                "client_phone": submission.client_phone,
+                "client_email": submission.client_email,
+                "passport_number": (
+                    str(passport_number).strip() if passport_number else None
+                ),
+            }
+        )
+    return people
+
+
+def _validated_export_history_people(
+    history: PassportExportHistoryModel,
+) -> list[PassportExportPersonSnapshot]:
+    _validated_export_history_ids(
+        history,
+        field_name="exported_submission_ids",
+    )
+    ordered_ids = [
+        uuid.UUID(str(value)) for value in (history.exported_submission_ids or [])
+    ]
+    return validated_export_people_snapshot(
+        history.exported_people_snapshot,
+        exported_submission_ids=ordered_ids,
+    )
 
 
 def _international_airport_is_enabled(
@@ -88,7 +185,7 @@ def _normalized_imported_field_key(value: str) -> str:
     )
 
 
-def _imported_zone_name(fields: dict[str, str]) -> str | None:
+def _imported_zone_name(fields: Mapping[str, object]) -> str | None:
     for key, value in fields.items():
         if _normalized_imported_field_key(str(key)) not in {
             "zone_name",
@@ -345,7 +442,12 @@ async def _whatsapp_tracking_export_rows(
                     for recipient in suppressed
                 )
             )
-            selected_recipient = recipients_by_id.get(resolution.broadcast_recipient_id)
+            selected_recipient_id = resolution.broadcast_recipient_id
+            selected_recipient = (
+                recipients_by_id.get(selected_recipient_id)
+                if selected_recipient_id is not None
+                else None
+            )
             rows.append(
                 SubmissionMatchRow(
                     status="replacement",
@@ -451,9 +553,11 @@ def _export_zone_names_from_match_rows(
                 if len(zones_by_key) == 1:
                     resolved[submission_id] = next(iter(zones_by_key.values()))
                     continue
-                submission = submissions_by_id.get(submission_id)
+                matched_submission = submissions_by_id.get(submission_id)
                 stored_zone = _imported_zone_name(
-                    dict(submission.staff_metadata or {}) if submission else {}
+                    matched_submission.staff_metadata or {}
+                    if matched_submission is not None
+                    else {}
                 )
                 if stored_zone and stored_zone.casefold() in zones_by_key:
                     resolved[submission_id] = zones_by_key[stored_zone.casefold()]

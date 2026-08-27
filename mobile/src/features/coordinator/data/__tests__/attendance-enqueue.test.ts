@@ -111,7 +111,17 @@ class EnqueueDatabase {
     roster_projection_complete: 1,
     roster_version: 7,
   };
+  attendanceSession = {
+    name: 'Airport departure',
+    status: 'active',
+    scheduled_starts_at: new Date(Date.now() - 60 * 60_000).toISOString(),
+    scheduled_ends_at: new Date(Date.now() + 6 * 60 * 60_000).toISOString(),
+    schedule_timezone: 'UTC',
+    schedule_version: 1,
+  };
   attendanceEvidence = [{
+    id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    display_name: 'Passenger One',
     attendance_evidence_observed_at: new Date(Date.now() - 2_000).toISOString(),
     attendance_evidence_valid_until: new Date(Date.now() + 60 * 60_000).toISOString(),
     attendance_token_expires_at: new Date(Date.now() + 24 * 60 * 60_000).toISOString(),
@@ -139,6 +149,7 @@ class EnqueueDatabase {
   async getFirstAsync<T>(sql: string): Promise<T | null> {
     const normalized = compactSql(sql);
     if (normalized.includes('FROM trips trip')) return this.rosterFence as T;
+    if (normalized.includes('FROM attendance_sessions')) return this.attendanceSession as T;
     if (normalized.includes('FROM attendance_scan_receipts')) return this.receipt as T | null;
     if (normalized.includes('COUNT(*) AS count')) {
       const count = normalized.includes('trip_id = ?')

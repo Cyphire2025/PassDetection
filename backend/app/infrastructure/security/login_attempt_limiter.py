@@ -28,7 +28,7 @@ class LoginAttemptLimiter:
         self._redis: Redis | None = None
         try:
             self._redis = Redis.from_url(
-                self._settings.redis.url, encoding="utf-8", decode_responses=True
+                self._settings.redis.security_url, encoding="utf-8", decode_responses=True
             )
         except Exception as exc:
             self._handle_redis_failure("configure", exc)

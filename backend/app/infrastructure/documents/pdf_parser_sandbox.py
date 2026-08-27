@@ -108,7 +108,7 @@ class _PdfBatchLease:
 def _pdf_batch_redis_client() -> Redis:
     settings = get_settings()
     return Redis.from_url(
-        settings.redis.url,
+        settings.redis.security_url,
         socket_connect_timeout=0.5,
         socket_timeout=0.5,
         retry_on_timeout=False,

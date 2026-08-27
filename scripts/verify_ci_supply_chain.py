@@ -40,6 +40,12 @@ def policy_errors(workflow_sources: dict[str, str]) -> list[str]:
             "verify_backend_quality_budgets.py"
         ),
         "backend real-service integration lane": "RUN_SERVICE_INTEGRATION",
+        "populated PostgreSQL restore-upgrade rehearsal": (
+            "rehearse_postgresql_upgrade.py"
+        ),
+        "staging-only dashboard load and soak contracts": (
+            "dashboard-load-contract.test.mjs"
+        ),
         "mobile release-Hermes contracts": "npm run e2e:contracts",
         "mobile high-risk module budgets": "npm run maintainability:check",
         "mobile reviewed coverage floor": "npm run test:coverage",

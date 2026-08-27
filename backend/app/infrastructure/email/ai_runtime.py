@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import and_, case, exists, func, or_, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.use_cases.email_integrations.analysis_contract import (
     EMAIL_AI_SCHEMA_VERSION,
@@ -691,7 +692,16 @@ async def release_email_ai_claim_after_publish_failure(
         await session.commit()
 
 
-async def _load_valid_claim(session, claim: EmailAiClaim, *, for_update: bool):  # type: ignore[no-untyped-def]
+async def _load_valid_claim(
+    session: AsyncSession,
+    claim: EmailAiClaim,
+    *,
+    for_update: bool,
+) -> tuple[
+    EmailAiAnalysisModel,
+    EmailMessageModel,
+    EmailConnectionModel,
+] | None:
     statement = (
         select(EmailAiAnalysisModel, EmailMessageModel, EmailConnectionModel)
         .join(
@@ -744,7 +754,7 @@ async def _load_valid_claim(session, claim: EmailAiClaim, *, for_update: bool): 
     if for_update:
         statement = statement.with_for_update()
     result = await session.execute(statement)
-    return result.one_or_none()
+    return result.tuples().one_or_none()
 
 
 async def _persist_analysis_result(
@@ -1240,11 +1250,11 @@ def _pause_loaded_analysis(
 
 
 async def _record_analysis_activity(
-    session,
+    session: AsyncSession,
     *,
     analysis: EmailAiAnalysisModel,
     result: EmailAnalysisResult,
-) -> None:  # type: ignore[no-untyped-def]
+) -> None:
     retry_generation = _manual_retry_generation(analysis)
     session.add(
         EmailActivityEventModel(
@@ -1283,7 +1293,7 @@ async def _record_analysis_activity(
 
 
 async def _create_attention_notification(
-    session,
+    session: AsyncSession,
     *,
     analysis: EmailAiAnalysisModel,
     message: EmailMessageModel,
@@ -1294,7 +1304,7 @@ async def _create_attention_notification(
     proposal_count: int,
     notification_window_days: int,
     linked_group_name: str | None = None,
-) -> None:  # type: ignore[no-untyped-def]
+) -> None:
     high_risk = any(
         decision.risk_level.value in {"high", "critical"}
         for decision in result.action_decisions

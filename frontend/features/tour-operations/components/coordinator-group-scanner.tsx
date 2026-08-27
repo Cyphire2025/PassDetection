@@ -28,6 +28,7 @@ import {
 } from "@/stores/auth.store";
 import { ROUTES } from "@/constants/routes";
 import { useAttendanceScanSync } from "../hooks/use-attendance-scan-sync";
+import { useBrowserOfflineReadiness } from "../hooks/use-browser-offline-readiness";
 import {
   mergeAttendanceSessionProgress,
   reconcileAttendanceSessionProgress,
@@ -35,11 +36,18 @@ import {
 } from "../services/attendance-session-progress";
 import {
   offlineSnapshotKeys,
-  readOfflineSnapshot,
+  useOfflineSnapshot,
   writeOfflineSnapshot,
 } from "../services/offline-snapshot";
 import { publishBrowserAttendanceCloseoutCheckpoint } from "../services/attendance-closeout-checkpoint";
-import type { AttendanceScanSyncUpdate } from "../services/attendance-scan-queue";
+import {
+  BrowserOfflineAuthorizationError,
+} from "../services/browser-offline-authorization";
+import { browserOfflineReadinessAllowsCapture } from "../services/browser-offline-readiness";
+import {
+  AttendanceQueueCapacityError,
+  type AttendanceScanSyncUpdate,
+} from "../services/attendance-scan-queue";
 import type { AttendanceSession } from "@/features/operations/api/operations.api";
 import { CoordinatorHydrationState } from "./coordinator-mobile-shell";
 import {
@@ -59,6 +67,8 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
   const hasHydrated = useAuthStore(selectHasHydrated);
   const clearSession = useAuthStore((state) => state.clearSession);
   const isCoordinator = isAuthenticated && user?.role === "agency_coordinator";
+  const captureAllowedRef = useRef(false);
+  const canAutoResumeScanner = useCallback(() => captureAllowedRef.current, []);
   const {
     devices,
     isTorchOn,
@@ -72,13 +82,12 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
     setSelectedDeviceId,
     supportsTorch,
     toggleTorch,
-  } = useContinuousQrScanner();
-  const userId = user?.id;
+  } = useContinuousQrScanner({ canAutoResume: canAutoResumeScanner });
   const sessionsQuery = useMyAttendanceSessions(groupId, hasHydrated && isCoordinator);
   const sessions = sessionsQuery.data ?? EMPTY_SESSIONS;
-  const cachedSessions = useMemo<AttendanceSession[]>(
-    () => userId ? readOfflineSnapshot(offlineSnapshotKeys.mySessions(groupId), []) : [],
-    [groupId, userId],
+  const cachedSessions = useOfflineSnapshot<AttendanceSession[]>(
+    offlineSnapshotKeys.mySessions(groupId),
+    EMPTY_SESSIONS,
   );
   const visibleSessions = useMemo(
     () => selectVisibleAttendanceSessions(
@@ -96,6 +105,8 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
     lastSyncResult,
     pendingCount,
     rejectedCount,
+    rejectedIssues,
+    discardAuditPending,
     recordScan,
     syncError,
     syncNow,
@@ -109,6 +120,15 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
   const [optimisticScannedCount, setOptimisticScannedCount] = useState<number | null>(null);
   const [isFinishing, setIsFinishing] = useState(false);
   const [isAcknowledgingRejected, setIsAcknowledgingRejected] = useState(false);
+  const offlineReadiness = useBrowserOfflineReadiness({
+    enabled: hasHydrated && isCoordinator,
+    groupId,
+    isOnline,
+    refreshWhenOnline: sessionsQuery.isSuccess,
+    sessionId,
+  });
+  const offlineAuthorizationStatus = offlineReadiness.status;
+  const canCapture = browserOfflineReadinessAllowsCapture(isOnline, offlineReadiness);
   const session = visibleSessions.find((item) => item.id === sessionId) ?? null;
   const isSessionCompleted = session?.status === "completed";
   const liveScannedCount = (
@@ -135,8 +155,16 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
   useEffect(() => {
     if (!sessionsQuery.isSuccess) return;
     reconcileAttendanceSessionProgress(groupId, sessions);
-    writeOfflineSnapshot(offlineSnapshotKeys.mySessions(groupId), sessions);
+    void writeOfflineSnapshot(offlineSnapshotKeys.mySessions(groupId), sessions);
   }, [groupId, sessions, sessionsQuery.isSuccess]);
+
+  useEffect(() => {
+    captureAllowedRef.current = canCapture;
+    if (!canCapture) {
+      autoStartedRef.current = false;
+      stopScanner();
+    }
+  }, [canCapture, stopScanner]);
 
   useEffect(() => {
     scannedCountRef.current = counts.scanned;
@@ -249,9 +277,16 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
         updateSessionProgress(result.response.scanned_count, result.response.assigned_count, undefined, true);
         setLastResult({ status: result.response.status, message: result.response.message });
       })
-      .catch(() => {
+      .catch((error: unknown) => {
         if (mountedRef.current) {
-          setLastResult({ status: "invalid", message: "Scan could not be recorded." });
+          setLastResult({
+            status: "invalid",
+            message: error instanceof BrowserOfflineAuthorizationError
+              ? offlineAuthorizationMessage(error.code)
+              : error instanceof AttendanceQueueCapacityError
+                ? error.message
+              : "Scan could not be recorded.",
+          });
         }
       });
   }, [
@@ -278,6 +313,7 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
       || !isCoordinator
       || !sessionId
       || !session
+      || !canCapture
       || isFinishing
       || isSessionCompleted
       || autoStartedRef.current
@@ -287,7 +323,7 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
       void startScanner();
     }, 150);
     return () => window.clearTimeout(timer);
-  }, [hasHydrated, isFinishing, isCoordinator, isSessionCompleted, session, sessionId, startScanner]);
+  }, [canCapture, hasHydrated, isFinishing, isCoordinator, isSessionCompleted, session, sessionId, startScanner]);
 
   const finishMyScanning = async () => {
     if (!sessionId || !session || isSessionCompleted || isFinishing) return;
@@ -314,7 +350,7 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
   };
 
   const switchCamera = () => {
-    if (isSessionCompleted || devices.length < 2) return;
+    if (!canCapture || isSessionCompleted || devices.length < 2) return;
     const currentIndex = devices.findIndex((device) => device.deviceId === selectedDeviceId);
     const nextDevice = devices[(currentIndex + 1 + devices.length) % devices.length];
     stopScanner();
@@ -455,6 +491,7 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
                   <button
                     type="button"
                     className="mt-2 min-h-11 rounded-lg border border-red-200 bg-white px-3 font-semibold text-red-700"
+                    disabled={!canCapture}
                     onClick={() => void startScanner()}
                   >
                     Retry camera
@@ -479,12 +516,39 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
                 {syncError}
               </div>
             )}
+            {offlineAuthorizationStatus !== "ready" && (
+              <div
+                role="status"
+                className="rounded-lg border border-amber-200 bg-amber-50 p-2 text-xs text-amber-800"
+              >
+                {offlineAuthorizationStatus === "checking"
+                  ? "Verifying signed offline roster and activity timing…"
+                  : "Signed offline readiness is unavailable. Online scans still work; reconnect before relying on offline capture."}
+              </div>
+            )}
             {rejectedCount > 0 && (
               <div className="rounded-lg border border-amber-200 bg-amber-50 p-2 text-xs text-amber-800">
                 <p>
                   {rejectedCount} saved scan{rejectedCount === 1 ? " was" : "s were"} rejected by the server.
-                  Review the authoritative count above and rescan any missing passenger.
+                  Review each issue and rescan only when the passenger is still missing.
                 </p>
+                <ul className="mt-2 space-y-2" aria-label="Rejected attendance scans">
+                  {rejectedIssues.map((issue) => (
+                    <li key={issue.id} className="rounded-md border border-amber-200 bg-white p-2">
+                      <p className="font-semibold text-slate-900">
+                        {issue.recovery?.passengerLabel ?? "Passenger not resolved"}
+                      </p>
+                      <p>{issue.recovery?.sessionLabel ?? "Selected attendance activity"}</p>
+                      <p>
+                        Reason: {safeScanIssueReason(issue.errorCode)} · attempts {issue.attemptCount ?? 1}
+                      </p>
+                      <p>
+                        Last attempt {formatIssueTime(issue.lastAttemptAt ?? issue.rejectedAt)} · reference {issue.scanReference.slice(-10)}
+                      </p>
+                      <p className="mt-1 font-medium">Next: confirm the authoritative roster, then rescan if still missing.</p>
+                    </li>
+                  ))}
+                </ul>
                 <Button
                   type="button"
                   variant="secondary"
@@ -496,7 +560,7 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
                       await acknowledgeRejectedScans();
                       setLastResult({
                         status: "reviewed",
-                        message: "Rejected scans acknowledged. Finish when the authoritative count is correct.",
+                        message: "Discard evidence saved. Finish only after its server audit is synchronized.",
                       });
                     } catch {
                       setLastResult({
@@ -510,6 +574,11 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
                 >
                   I reviewed the count
                 </Button>
+              </div>
+            )}
+            {discardAuditPending > 0 && (
+              <div role="status" className="rounded-lg border border-blue-200 bg-blue-50 p-2 text-xs text-blue-800">
+                {discardAuditPending} privacy-safe discard audit record{discardAuditPending === 1 ? " is" : "s are"} saved on this device and awaiting server confirmation.
               </div>
             )}
 
@@ -567,7 +636,7 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
               <button
                 type="button"
                 className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2 font-medium text-blue-700 disabled:text-slate-400"
-                disabled={!isOnline || isSyncing || pendingCount === 0}
+                disabled={!isOnline || isSyncing || (pendingCount === 0 && discardAuditPending === 0)}
                 onClick={() => void syncNow()}
               >
                 <RotateCw className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} aria-hidden="true" />
@@ -627,4 +696,36 @@ function getDeviceId() {
   } catch {
     return `device-${Date.now()}-${Math.random().toString(36).slice(2)}`;
   }
+}
+
+function offlineAuthorizationMessage(code: BrowserOfflineAuthorizationError["code"]) {
+  switch (code) {
+    case "QR_NOT_IN_ACTIVE_ROSTER":
+      return "This passenger is not in the signed roster for the selected group. Reconnect before retrying.";
+    case "ACTIVITY_NOT_AUTHORIZED":
+    case "ACTIVITY_OUTSIDE_WINDOW":
+      return "The signed offline activity is unavailable, not yet valid, or already closed.";
+    case "CLOCK_ROLLBACK":
+    case "CLOCK_SKEW":
+      return "Trusted device time could not be established. Reconnect before scanning.";
+    case "TOKEN_EVIDENCE_EXPIRED":
+    case "AUTHORIZATION_EXPIRED":
+      return "Offline authorization expired. Reconnect to refresh the signed roster.";
+    default:
+      return "Signed offline authorization is unavailable. Reconnect before storing this scan.";
+  }
+}
+
+function safeScanIssueReason(code: string) {
+  const normalized = code.toUpperCase();
+  if (normalized.includes("SESSION") || normalized.includes("ACTIVITY")) return "activity changed or closed";
+  if (normalized.includes("AUTH") || normalized.includes("ACCESS")) return "authorization changed";
+  if (normalized.includes("QR") || normalized.includes("PASSENGER")) return "passenger QR not authorized";
+  if (normalized.includes("DUPLICATE") || normalized.includes("IDEMPOTENCY")) return "duplicate or reused scan";
+  return "server could not confirm the saved scan";
+}
+
+function formatIssueTime(value: string) {
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) ? new Date(parsed).toLocaleString() : "time unavailable";
 }

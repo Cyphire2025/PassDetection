@@ -1,7 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useDeferredValue, useEffect, useId, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Activity,
   ArrowLeft,
@@ -20,9 +28,13 @@ import { selectUserRole, useAuthStore } from "@/stores/auth.store";
 import {
   useCompleteManagedAttendanceSession,
   useCreateManagedAttendanceSession,
-  useGroupAttendanceOverview,
+  useGroupAttendanceMissingPassengers,
+  useGroupAttendanceSummary,
 } from "../hooks/use-operations";
-import type { AttendanceSessionSummary } from "../api/operations.api";
+import {
+  operationsApi,
+  type AttendanceActivitySummary,
+} from "../api/operations.api";
 import {
   OperationsEmptyState,
   OperationsErrorNotice,
@@ -34,10 +46,10 @@ import {
 
 export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
   const role = useAuthStore(selectUserRole);
-  const { data, isLoading, error, isFetching, refetch } = useGroupAttendanceOverview(groupId);
+  const { data, isLoading, error, isFetching, refetch } = useGroupAttendanceSummary(groupId);
   const closeMutation = useCompleteManagedAttendanceSession();
   const createMutation = useCreateManagedAttendanceSession();
-  const [missingSession, setMissingSession] = useState<AttendanceSessionSummary | null>(null);
+  const [missingSessionId, setMissingSessionId] = useState<string | null>(null);
   const [attendanceNotice, setAttendanceNotice] = useState<{ kind: "error" | "success"; message: string } | null>(null);
   const [activityName, setActivityName] = useState("");
   const [closeoutExceptionReasons, setCloseoutExceptionReasons] = useState<Record<string, string>>({});
@@ -50,16 +62,22 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
       session.name,
       session.status,
       ...session.coordinators.map((coordinator) => coordinator.coordinator_name),
-    ].some((value) => value.toLocaleLowerCase().includes(normalized)));
+    ]
+      .some((value) => value.toLocaleLowerCase().includes(normalized)));
   }, [data?.sessions, deferredQuery]);
   const openSessions = (data?.sessions ?? []).filter(
     (session) => session.status === "draft" || session.status === "active",
   ).length;
-  const totalScans = (data?.sessions ?? []).reduce((total, session) => total + session.scanned_count, 0);
-  const totalMissing = (data?.sessions ?? []).reduce((total, session) => total + (session.missing_passengers?.length ?? 0), 0);
+  const totalScans = (data?.sessions ?? []).reduce((total, session) => total + session.present_count, 0);
+  const totalMissing = (data?.sessions ?? []).reduce((total, session) => total + session.missing_count, 0);
+  const missingSession = data?.sessions.find((session) => session.id === missingSessionId) ?? null;
   const canCloseActivity = role === "super_admin"
     || role === "agency_admin"
     || role === "agency_manager";
+  const closeMissingPeople = useCallback(() => setMissingSessionId(null), []);
+  const refreshAttendance = useCallback(() => {
+    void refetch();
+  }, [refetch]);
 
   const prepareActivity = async () => {
     const normalizedName = activityName.trim();
@@ -96,7 +114,7 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
   };
 
   const closeForEveryone = async (
-    candidate: AttendanceSessionSummary,
+    candidate: AttendanceActivitySummary,
     requestedExceptionReason?: string,
   ) => {
     if (!canCloseActivity || closeMutation.isPending) return;
@@ -126,8 +144,19 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
       return;
     }
 
+    let closeout: Awaited<ReturnType<typeof operationsApi.managedAttendanceCloseoutStatus>>;
+    try {
+      closeout = await operationsApi.managedAttendanceCloseoutStatus(groupId, authoritative.id);
+    } catch {
+      setAttendanceNotice({
+        kind: "error",
+        message: "Coordinator checkpoint evidence could not be refreshed, so the activity was not closed.",
+      });
+      return;
+    }
+
     const exceptionReason = requestedExceptionReason?.trim().replace(/\s+/g, " ") ?? "";
-    const exceptionRequired = !authoritative.closeout.ready;
+    const exceptionRequired = !closeout.ready;
     if (exceptionRequired && (exceptionReason.length < 10 || exceptionReason.length > 500)) {
       setAttendanceNotice({
         kind: "error",
@@ -138,10 +167,10 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
 
     const reviewed = window.confirm(
       exceptionRequired
-        ? authoritative.closeout.active_assignment_count === 0
+        ? closeout.active_assignment_count === 0
           ? `OVERRIDE REQUIRED: no coordinator account is assigned, so no affirmative checkpoint evidence exists. Exception reason: "${exceptionReason}".`
-          : `OVERRIDE REQUIRED: ${authoritative.closeout.blocked_assignment_count} of ${authoritative.closeout.active_assignment_count} coordinator checkpoints are blocked, missing, or stale, with ${authoritative.closeout.unresolved_count} unresolved scans reported. Exception reason: "${exceptionReason}".`
-        : `The server confirms ${authoritative.scanned_count} of ${authoritative.assigned_count} passengers and all ${authoritative.closeout.active_assignment_count} assigned coordinator checkpoints are recent and clear. Queued scans captured before closure can still reconcile.`,
+          : `OVERRIDE REQUIRED: ${closeout.blocked_assignment_count} of ${closeout.active_assignment_count} coordinator checkpoints are blocked, missing, or stale, with ${closeout.unresolved_count} unresolved scans reported. Exception reason: "${exceptionReason}".`
+        : `The server confirms ${authoritative.present_count} of ${authoritative.present_count + authoritative.missing_count} passengers and all ${closeout.active_assignment_count} participating coordinator checkpoints are recent and clear. Queued scans captured before closure can still reconcile.`,
     );
     if (!reviewed) return;
     const confirmed = window.confirm(
@@ -196,7 +225,9 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
         context={(
           <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-xs font-medium text-slate-200">
             <RefreshCw className={`h-3.5 w-3.5 text-sky-300 ${isFetching ? "animate-spin" : ""}`} aria-hidden="true" />
-            {openSessions > 0 ? "Live refresh every 1.5 seconds" : "Idle refresh every 10 seconds"}
+            {openSessions > 0
+              ? "Targeted updates with 5–7 second repair"
+              : "Targeted updates with 30–40 second repair"}
           </span>
         )}
         actions={(
@@ -213,7 +244,7 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
 
       {error && (
         <OperationsErrorNotice>
-          Attendance could not be refreshed. Previously loaded activity remains visible where available.
+          Attendance could not be refreshed. Any visible counts are the last confirmed snapshot and are not current authority.
         </OperationsErrorNotice>
       )}
 
@@ -287,7 +318,7 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
       <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm" aria-labelledby="attendance-activities-heading">
         <div className="border-b border-slate-200 px-4 py-4 sm:px-5">
           <h2 id="attendance-activities-heading" className="font-semibold text-slate-950">Attendance activities</h2>
-          <p className="mt-0.5 text-sm text-slate-500">Each activity shows the shared roster count and contribution from every coordinator.</p>
+          <p className="mt-0.5 text-sm text-slate-500">Each activity shows the shared roster count and bounded coordinator contribution without loading the passenger roster.</p>
         </div>
         <OperationsToolbar
           query={query}
@@ -318,8 +349,11 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
         ) : (
           <div className="divide-y divide-slate-100">
             {visibleSessions.map((session) => {
-              const progress = session.assigned_count === 0 ? 0 : Math.min(100, Math.round((session.scanned_count / session.assigned_count) * 100));
-              const missingCount = session.missing_passengers?.length ?? 0;
+              const passengerCount = session.present_count + session.missing_count;
+              const progress = passengerCount === 0
+                ? 0
+                : Math.min(100, Math.round((session.present_count / passengerCount) * 100));
+              const missingCount = session.missing_count;
               return (
                 <article key={session.id} className="px-4 py-5 sm:px-5">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -329,13 +363,14 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
                         <Badge variant={session.status === "completed" ? "success" : "secondary"} dot>{session.status}</Badge>
                       </div>
                       <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
-                        <span className="inline-flex items-center gap-1.5"><UsersRound className="h-3.5 w-3.5" aria-hidden="true" />{session.scanned_count.toLocaleString()} of {session.assigned_count.toLocaleString()} counted</span>
-                        <span className="inline-flex items-center gap-1.5"><UserRoundCheck className="h-3.5 w-3.5" aria-hidden="true" />{session.coordinators.length} coordinator{session.coordinators.length === 1 ? "" : "s"}</span>
+                        <span className="inline-flex items-center gap-1.5"><UsersRound className="h-3.5 w-3.5" aria-hidden="true" />{session.present_count.toLocaleString()} of {passengerCount.toLocaleString()} counted</span>
+                        <span className="inline-flex items-center gap-1.5"><UserRoundCheck className="h-3.5 w-3.5" aria-hidden="true" />{session.coordinator_count} coordinator{session.coordinator_count === 1 ? "" : "s"}</span>
+                        <span>Canonical update {new Date(session.last_canonical_update_at).toLocaleTimeString()}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-lg font-semibold tabular-nums text-slate-950">{progress}%</span>
-                      <Button type="button" variant={missingCount > 0 ? "secondary" : "ghost"} size="sm" disabled={missingCount === 0} onClick={() => setMissingSession(session)}>
+                      <Button type="button" variant={missingCount > 0 ? "secondary" : "ghost"} size="sm" disabled={missingCount === 0} onClick={() => setMissingSessionId(session.id)}>
                         <Users className="h-4 w-4" aria-hidden="true" /> Missing ({missingCount})
                       </Button>
                       {canCloseActivity && session.status === "active" && session.closeout.ready && (
@@ -370,39 +405,48 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
                           </p>
                           <p className="mt-1 text-xs leading-5 text-slate-700">
                             {session.closeout.ready
-                              ? `${session.closeout.ready_assignment_count} of ${session.closeout.active_assignment_count} assigned coordinators published a recent zero-queue checkpoint.`
-                              : session.closeout.active_assignment_count === 0
+                              ? `${session.closeout.ready_participant_count} of ${session.closeout.active_participant_count} participating coordinators published a recent zero-queue checkpoint.`
+                              : session.closeout.active_participant_count === 0
                                 ? "No coordinator account is assigned. Closing requires an audited manager exception."
-                                : `${session.closeout.blocked_assignment_count} of ${session.closeout.active_assignment_count} coordinators are missing, stale, or nonzero; ${session.closeout.unresolved_count} unresolved scans are reported.`}
+                                : `${session.closeout.blocked_participant_count} of ${session.closeout.active_participant_count} participant checkpoints are missing, stale, or nonzero; ${session.closeout.unresolved_count} unresolved scans are reported.`}
                           </p>
                         </div>
                         <span className="rounded-full border border-current/20 px-2.5 py-1 text-xs font-semibold text-slate-700">
-                          Fresh for {session.closeout.checkpoint_ttl_seconds}s
+                          {session.exception_count.toLocaleString()} rejected or review issue{session.exception_count === 1 ? "" : "s"}
                         </span>
                       </div>
-                      {session.closeout.coordinators.length > 0 && (
+                      {session.coordinators.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-2">
-                          {session.closeout.coordinators.map((coordinator) => (
-                            <span
-                              key={coordinator.coordinator_id}
-                              className={`rounded-lg border px-2.5 py-1.5 text-xs ${
-                                coordinator.state === "ready"
-                                  ? "border-emerald-200 bg-white text-emerald-800"
-                                  : "border-amber-300 bg-white text-amber-900"
-                              }`}
-                            >
-                              <span className="font-semibold">{coordinator.coordinator_name}</span>
-                              {` · ${coordinator.state}`}
-                              {coordinator.pending_count
-                                + coordinator.sending_count
-                                + coordinator.retryable_count
-                                + coordinator.needs_review_count
-                                + coordinator.unreviewed_rejected_count > 0
-                                ? ` · ${coordinator.pending_count + coordinator.sending_count + coordinator.retryable_count + coordinator.needs_review_count + coordinator.unreviewed_rejected_count} unresolved`
-                                : ""}
-                            </span>
-                          ))}
+                          {session.coordinators.map((coordinator) => {
+                            const unresolved = coordinator.pending_count
+                              + coordinator.sending_count
+                              + coordinator.retryable_count
+                              + coordinator.needs_review_count
+                              + coordinator.unreviewed_rejected_count;
+                            return (
+                              <span
+                                key={coordinator.coordinator_id}
+                                className={`rounded-lg border px-2.5 py-1.5 text-xs ${
+                                  coordinator.checkpoint_state === "ready"
+                                    ? "border-emerald-200 bg-white text-emerald-800"
+                                    : "border-amber-300 bg-white text-amber-900"
+                                }`}
+                              >
+                                <span className="font-semibold">{coordinator.coordinator_name}</span>
+                                {` · ${coordinator.checkpoint_state}`}
+                                {unresolved > 0 ? ` · ${unresolved} unresolved` : ""}
+                                {coordinator.runtime_count > 1
+                                  ? ` · ${coordinator.active_runtime_count}/${coordinator.runtime_count} active runtimes`
+                                  : ""}
+                              </span>
+                            );
+                          })}
                         </div>
+                      )}
+                      {session.coordinators_truncated && (
+                        <p className="mt-2 text-xs font-medium text-amber-900" role="status">
+                          Showing {session.coordinators.length} of {session.coordinator_count} coordinators in this bounded live summary.
+                        </p>
                       )}
                       {canCloseActivity && !session.closeout.ready && (
                         <div className="mt-4 rounded-lg border border-red-200 bg-white p-3">
@@ -463,15 +507,49 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
         )}
       </section>
 
-      {missingSession && <MissingPeopleDialog session={missingSession} onClose={() => setMissingSession(null)} />}
+      {missingSession && (
+        <MissingPeopleDialog
+          groupId={groupId}
+          session={missingSession}
+          onClose={closeMissingPeople}
+          onRefresh={refreshAttendance}
+        />
+      )}
     </div>
   );
 }
 
-function MissingPeopleDialog({ session, onClose }: { session: AttendanceSessionSummary; onClose: () => void }) {
+function MissingPeopleDialog({
+  groupId,
+  session,
+  onClose,
+  onRefresh,
+}: {
+  groupId: string;
+  session: AttendanceActivitySummary;
+  onClose: () => void;
+  onRefresh: () => void;
+}) {
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const closeRef = useRef<HTMLButtonElement | null>(null);
+  const [search, setSearch] = useState("");
+  const deferredSearch = useDeferredValue(search.trim());
+  const missingQuery = useGroupAttendanceMissingPassengers({
+    groupId,
+    sessionId: session.id,
+    revision: session.revision,
+    search: deferredSearch,
+    enabled: true,
+  });
+  const passengers = useMemo(() => {
+    const seen = new Set<string>();
+    return (missingQuery.data?.pages ?? []).flatMap((page) => page.items).filter((item) => {
+      if (seen.has(item.passenger_id)) return false;
+      seen.add(item.passenger_id);
+      return true;
+    });
+  }, [missingQuery.data?.pages]);
 
   useEffect(() => {
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -483,7 +561,7 @@ function MissingPeopleDialog({ session, onClose }: { session: AttendanceSessionS
         return;
       }
       if (event.key !== "Tab") return;
-      const controls = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), [tabindex]:not([tabindex="-1"])') ?? []);
+      const controls = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])') ?? []);
       if (controls.length === 0) return;
       const first = controls[0];
       const last = controls[controls.length - 1];
@@ -504,24 +582,71 @@ function MissingPeopleDialog({ session, onClose }: { session: AttendanceSessionS
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-wide text-amber-700">Attendance exception list</p>
             <h2 id={titleId} className="mt-1 font-semibold text-slate-950">Missing people · {session.name}</h2>
-            <p className="mt-1 text-sm text-slate-500">{session.scanned_count} of {session.assigned_count} counted</p>
+            <p className="mt-1 text-sm text-slate-500">{session.present_count} of {session.present_count + session.missing_count} counted · revision-fenced roster</p>
           </div>
           <button ref={closeRef} type="button" onClick={onClose} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700" aria-label="Close missing people list">
             <X className="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
-        <div className="max-h-[65vh] overflow-y-auto p-4">
-          <ul className="divide-y divide-slate-100 rounded-xl border border-slate-200">
-            {session.missing_passengers.map((passenger) => (
-              <li key={passenger.passenger_id} className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-slate-950">{passenger.client_name}</p>
-                  <p className="mt-0.5 truncate text-xs text-slate-500">{[passenger.client_phone, passenger.client_email].filter(Boolean).join(" · ") || "No contact details"}</p>
-                </div>
-                <Badge variant="outline">{passenger.coordinator_name ?? "Shared group roster"}</Badge>
-              </li>
-            ))}
-          </ul>
+        <div className="border-b border-slate-100 p-4">
+          <Input
+            id={`missing-passenger-search-${session.id}`}
+            label="Search missing passengers"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search by passenger name"
+            maxLength={120}
+            autoComplete="off"
+          />
+          <p className="mt-2 text-xs text-slate-500">
+            {passengers.length.toLocaleString()} loaded{deferredSearch ? " for this filter" : ` of ${session.missing_count.toLocaleString()} missing`}. Contact and family details are not stored in this view.
+          </p>
+        </div>
+        <div className="max-h-[55vh] overflow-y-auto p-4">
+          {missingQuery.error ? (
+            <div role="alert" className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
+              <p className="font-semibold">The missing-passenger snapshot changed or could not be loaded.</p>
+              <p className="mt-1">Refresh authoritative counts and reopen this list. No attendance record was changed.</p>
+              <Button type="button" variant="secondary" size="sm" className="mt-3" onClick={onRefresh}>
+                Refresh counts
+              </Button>
+            </div>
+          ) : missingQuery.isLoading ? (
+            <div className="grid gap-2" aria-label="Loading missing passengers">
+              {Array.from({ length: 6 }).map((_, index) => <Skeleton key={index} className="h-14 rounded-lg" />)}
+            </div>
+          ) : passengers.length === 0 ? (
+            <div className="rounded-xl border border-slate-200 p-6 text-center text-sm text-slate-600">
+              {deferredSearch ? "No missing passenger matches this search." : "No passengers are missing in this revision."}
+            </div>
+          ) : (
+            <>
+              <ul className="divide-y divide-slate-100 rounded-xl border border-slate-200">
+                {passengers.map((passenger) => (
+                  <li
+                    key={passenger.passenger_id}
+                    className="flex items-center justify-between gap-3 px-4 py-3"
+                    style={{ contentVisibility: "auto", containIntrinsicSize: "0 52px" }}
+                  >
+                    <p className="min-w-0 truncate text-sm font-semibold text-slate-950">{passenger.display_name}</p>
+                    <Badge variant="outline">Shared group roster</Badge>
+                  </li>
+                ))}
+              </ul>
+              {missingQuery.hasNextPage && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="mt-3 w-full"
+                  disabled={missingQuery.isFetchingNextPage}
+                  isLoading={missingQuery.isFetchingNextPage}
+                  onClick={() => { void missingQuery.fetchNextPage(); }}
+                >
+                  Load next page
+                </Button>
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>

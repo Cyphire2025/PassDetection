@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import cast
-
 from celery.utils.log import get_task_logger
 
 from app.infrastructure.celery_async_runtime import celery_async_runtime
@@ -29,7 +27,7 @@ def cleanup_document_storage() -> int:
     """Retry a bounded lease-safe page of committed cleanup tombstones."""
 
     try:
-        return cast(int, celery_async_runtime.run(process_due_storage_cleanup_jobs()))
+        return celery_async_runtime.run(process_due_storage_cleanup_jobs())
     except Exception as exc:
         logger.error(
             "document_storage_cleanup_task_failed error_type=%s",
@@ -46,9 +44,8 @@ def reconcile_document_storage_orphans() -> dict[str, int]:
     """Reconcile one bounded page per fixed travel-document namespace."""
 
     try:
-        result = cast(
-            DocumentOrphanReconciliationResult,
-            celery_async_runtime.run(_reconcile_document_storage_orphans()),
+        result: DocumentOrphanReconciliationResult = celery_async_runtime.run(
+            _reconcile_document_storage_orphans()
         )
         logger.info(
             "document_storage_orphan_reconciliation_completed "

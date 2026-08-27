@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import uuid
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
@@ -106,6 +107,14 @@ _DeadlineRow = tuple[
     EmailAiAnalysisModel,
     EmailMessageModel,
     EmailConnectionModel,
+]
+_ExistingStageRow = tuple[
+    uuid.UUID,
+    uuid.UUID | None,
+    uuid.UUID,
+    str,
+    dict[str, object],
+    datetime,
 ]
 
 
@@ -229,7 +238,7 @@ async def scan_email_ai_deadline_notifications(
         )
         notified = await create_deadline_window_notifications(
             session,
-            rows=result.all(),
+            rows=list(result.tuples().all()),
             now=current_time,
             window_days=settings.email_ai_deadline_notification_window_days,
         )
@@ -240,7 +249,7 @@ async def scan_email_ai_deadline_notifications(
 async def create_deadline_window_notifications(
     session: AsyncSession,
     *,
-    rows: list[_DeadlineRow],
+    rows: Sequence[_DeadlineRow],
     now: datetime,
     window_days: int,
 ) -> int:
@@ -264,7 +273,7 @@ async def create_deadline_window_notifications(
             staged_rows.append((row, stage))
     if not staged_rows:
         return 0
-    deadline_ids = [row[0][0].id for row in staged_rows]
+    staged_deadline_ids = [row[0][0].id for row in staged_rows]
     existing_result = await session.execute(
         select(
             EmailActivityEventModel.agency_id,
@@ -276,17 +285,19 @@ async def create_deadline_window_notifications(
         ).where(
             EmailActivityEventModel.changed_entity_type == "email_detected_deadline",
             EmailActivityEventModel.agency_id.in_([row[0][0].agency_id for row in staged_rows]),
-            EmailActivityEventModel.changed_entity_id.in_(deadline_ids),
+            EmailActivityEventModel.changed_entity_id.in_(staged_deadline_ids),
             EmailActivityEventModel.event_type.in_(_STAGE_EVENT_TYPES),
         )
     )
-    existing_rows = existing_result.all()
+    existing_rows = list(existing_result.tuples().all())
 
-    pending_by_analysis_stage: dict[tuple[object, str], list[_DeadlineRow]] = {}
-    pending_markers: set[tuple[object, object, object, str, int]] = set()
+    pending_by_analysis_stage: dict[tuple[uuid.UUID, str], list[_DeadlineRow]] = {}
+    pending_markers: set[tuple[uuid.UUID, uuid.UUID, uuid.UUID, str, int]] = set()
     for row, stage in staged_rows:
         deadline, analysis, _, _ = row
-        schedule_epoch, _schedule_fingerprint = _deadline_schedule_identity(deadline.due_at)
+        schedule_epoch, _schedule_fingerprint = _deadline_schedule_identity(
+            _required_due_at(deadline)
+        )
         marker = (
             deadline.agency_id,
             deadline.id,
@@ -318,19 +329,22 @@ async def create_deadline_window_notifications(
     ), rows_for_analysis in pending_by_analysis_stage.items():
         stage = _STAGE_BY_NAME[stage_name]
         deadline, analysis, message, connection = rows_for_analysis[0]
-        due_times = [_aware_utc(item[0].due_at) for item in rows_for_analysis]
+        due_times = [_aware_utc(_required_due_at(item[0])) for item in rows_for_analysis]
         needs_date_review = any(item[0].status == "review_required" for item in rows_for_analysis)
         if needs_date_review and stage is _WINDOW_STAGE:
             title = "Travel deadline needs date review"
         else:
             title = stage.title
-        deadline_ids = sorted(str(item[0].id) for item in rows_for_analysis)
+        notification_deadline_ids = sorted(
+            str(item[0].id) for item in rows_for_analysis
+        )
         schedule_identities = {
-            str(item[0].id): _deadline_schedule_identity(item[0].due_at)
+            str(item[0].id): _deadline_schedule_identity(_required_due_at(item[0]))
             for item in rows_for_analysis
         }
         batch_items = sorted(
-            f"{deadline_id}:{schedule_identities[deadline_id][1]}" for deadline_id in deadline_ids
+            f"{deadline_id}:{schedule_identities[deadline_id][1]}"
+            for deadline_id in notification_deadline_ids
         )
         batch_key = hashlib.sha256("|".join(batch_items).encode("ascii")).hexdigest()[:16]
         if analysis.id not in group_names:
@@ -358,13 +372,14 @@ async def create_deadline_window_notifications(
                 "provider": connection.provider,
                 "account_email": connection.email_address,
                 "analysis_id": str(analysis.id),
-                "deadline_ids": deadline_ids,
+                "deadline_ids": notification_deadline_ids,
                 "deadline_count": len(rows_for_analysis),
                 "next_due_at": min(due_times).isoformat(),
                 "window_days": window_days,
                 "notification_stage": stage.name,
                 "deadline_schedule_fingerprints": {
-                    deadline_id: schedule_identities[deadline_id][1] for deadline_id in deadline_ids
+                    deadline_id: schedule_identities[deadline_id][1]
+                    for deadline_id in notification_deadline_ids
                 },
                 **(
                     {"group_name": group_name}
@@ -374,7 +389,7 @@ async def create_deadline_window_notifications(
             },
         )
         for item, _, _, _ in rows_for_analysis:
-            due_at = _aware_utc(item.due_at)
+            due_at = _aware_utc(_required_due_at(item))
             schedule_epoch, schedule_fingerprint = schedule_identities[str(item.id)]
             session.add(
                 EmailActivityEventModel(
@@ -421,22 +436,36 @@ def _deadline_schedule_identity(due_at: datetime) -> tuple[int, str]:
     return schedule_epoch, schedule_fingerprint
 
 
+def _required_due_at(deadline: EmailDetectedDeadlineModel) -> datetime:
+    """Narrow the nullable persistence field after an eligibility check."""
+
+    if deadline.due_at is None:
+        raise ValueError("Eligible email deadline is missing its due time")
+    return deadline.due_at
+
+
 def _stage_schedule_is_covered(
-    existing_rows: list[object],
+    existing_rows: Sequence[_ExistingStageRow],
     *,
     deadline: EmailDetectedDeadlineModel,
     stage: _DeadlineNotificationStage,
     schedule_epoch: int,
 ) -> bool:
-    for event in existing_rows:
+    for (
+        agency_id,
+        changed_entity_id,
+        owner_user_id,
+        event_type,
+        details,
+        occurred_at,
+    ) in existing_rows:
         if (
-            event.agency_id != deadline.agency_id
-            or event.changed_entity_id != deadline.id
-            or event.owner_user_id != deadline.owner_user_id
-            or event.event_type != stage.event_type
+            agency_id != deadline.agency_id
+            or changed_entity_id != deadline.id
+            or owner_user_id != deadline.owner_user_id
+            or event_type != stage.event_type
         ):
             continue
-        details = event.details if isinstance(event.details, dict) else {}
         recorded_epoch = details.get("schedule_epoch")
         if (
             isinstance(recorded_epoch, int)
@@ -444,7 +473,7 @@ def _stage_schedule_is_covered(
             and recorded_epoch == schedule_epoch
         ):
             return True
-        if recorded_epoch is None and _aware_utc(event.occurred_at) >= _aware_utc(
+        if recorded_epoch is None and _aware_utc(occurred_at) >= _aware_utc(
             deadline.updated_at
         ):
             # Legacy markers did not persist a schedule identity. Treat them as
@@ -490,7 +519,7 @@ def _notification_stage_message(
 async def mark_initial_deadline_window_coverage(
     session: AsyncSession,
     *,
-    rows: list[_DeadlineRow],
+    rows: Sequence[_DeadlineRow],
     now: datetime,
     window_days: int,
 ) -> int:
@@ -524,11 +553,11 @@ async def mark_initial_deadline_window_coverage(
             EmailActivityEventModel.event_type.in_(_STAGE_EVENT_TYPES),
         )
     )
-    existing_rows = existing_result.all()
-    pending_markers: set[tuple[object, object, object, str, int]] = set()
+    existing_rows = list(existing_result.tuples().all())
+    pending_markers: set[tuple[uuid.UUID, uuid.UUID, uuid.UUID, str, int]] = set()
     created = 0
     for deadline, analysis, _, _ in eligible:
-        due_at = _aware_utc(deadline.due_at)
+        due_at = _aware_utc(_required_due_at(deadline))
         schedule_epoch, schedule_fingerprint = _deadline_schedule_identity(due_at)
         current_stage = _deadline_notification_stage(
             due_at=due_at,

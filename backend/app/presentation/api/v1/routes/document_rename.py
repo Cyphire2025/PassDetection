@@ -51,6 +51,7 @@ from app.infrastructure.documents.storage_transfers import (
     run_bounded_storage_operations,
 )
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.infrastructure.security.upload_security import UploadSecurityContext
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.document_chunk_uploads import (
     acquire_document_upload_advisory_lock,
@@ -490,7 +491,14 @@ async def analyze_and_rename_documents(
     # transaction. Release it before bounded upload reads, PDF parsing, and
     # object storage; authorization is repeated under lock before DB staging.
     await session.rollback()
-    uploads = await read_bounded_document_uploads(files)
+    uploads = await read_bounded_document_uploads(
+        files,
+        security_context=UploadSecurityContext(
+            ingestion_flow="document_rename",
+            agency_id=agency_id,
+            user_id=actor_id,
+        ),
+    )
     chunk_byte_count = sum(len(upload.content) for upload in uploads)
     fingerprint = document_chunk_fingerprint(uploads) if chunk_metadata else None
 

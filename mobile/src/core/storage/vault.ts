@@ -18,6 +18,14 @@ import { createDocumentAuthorizationIntegrityProof } from '@/core/security/app-i
 import { excludeAppPrivateUriFromBackup } from './ios-backup';
 import { getOrCreateSecret } from './secure-store';
 import {
+  deleteAllMyPhotosRoots,
+  deleteMyPhotosNamespaceRoot,
+  deleteMyPhotosTripRoot,
+  myPhotosStorageWrites,
+  protectManagedMyPhotosStorageFromBackup,
+  purgeMyPhotosTemporaryRoots,
+} from './my-photos-storage-lifecycle';
+import {
   VaultChunkContainerError,
   maximumChunkedVaultBytes,
   type VaultChunkRecovery,
@@ -834,6 +842,7 @@ export async function purgeTemporaryViews(): Promise<void> {
   // app-private cache root. Purge it before ordinary viewer residue on every
   // startup, background, logout, and account transition.
   await purgeNativeTransferStaging();
+  await purgeMyPhotosTemporaryRoots();
   await temporaryViewWrites.beginPurge(TEMPORARY_VIEW_WRITE_KEY);
   let acknowledged = false;
   try {
@@ -850,14 +859,22 @@ export async function purgeTemporaryViews(): Promise<void> {
 export async function deleteVaultNamespace(namespace: string): Promise<void> {
   const root = new Directory(Paths.document, VAULT_ROOT_NAME, await namespaceHash(namespace));
   if (root.exists) root.delete();
+  await deleteMyPhotosNamespaceRoot(namespace);
   await purgeTemporaryViews();
 }
 
-export function beginVaultNamespacePurge(namespace: string): Promise<void> {
-  return vaultWrites.beginNamespacePurge(namespace);
+export async function beginVaultNamespacePurge(namespace: string): Promise<void> {
+  await vaultWrites.beginNamespacePurge(namespace);
+  try {
+    await myPhotosStorageWrites.beginNamespacePurge(namespace);
+  } catch (error) {
+    vaultWrites.finishNamespacePurge(namespace, false);
+    throw error;
+  }
 }
 
 export function finishVaultNamespacePurge(namespace: string, acknowledged: boolean): void {
+  myPhotosStorageWrites.finishNamespacePurge(namespace, acknowledged);
   vaultWrites.finishNamespacePurge(namespace, acknowledged);
 }
 
@@ -865,20 +882,26 @@ export async function protectManagedVaultStorageFromBackup(): Promise<void> {
   await managedVaultRoot(false);
   await managedTemporaryViewRoot(false);
   await protectNativeTransferStagingFromBackup();
+  await protectManagedMyPhotosStorageFromBackup();
 }
 
 export async function deleteAllManagedVaultStorage(): Promise<void> {
   await vaultWrites.beginGlobalPurge();
+  let photoFenceStarted = false;
   let acknowledged = false;
   try {
+    await myPhotosStorageWrites.beginGlobalPurge();
+    photoFenceStarted = true;
     if (activeVaultWrites.size || activeStagingUris.size) {
       throw new Error('Managed vault reset cannot race an uncommitted document write.');
     }
     await purgeTemporaryViews();
     const root = new Directory(Paths.document, VAULT_ROOT_NAME);
     if (root.exists) root.delete();
+    await deleteAllMyPhotosRoots();
     acknowledged = true;
   } finally {
+    if (photoFenceStarted) myPhotosStorageWrites.finishGlobalPurge(acknowledged);
     vaultWrites.finishGlobalPurge(acknowledged);
   }
 }
@@ -886,10 +909,14 @@ export async function deleteAllManagedVaultStorage(): Promise<void> {
 export async function deleteTripVault(namespace: string, tripId: string): Promise<void> {
   assertTripIdentity(tripId);
   const finishAttempt = await vaultWrites.beginTripPurge(namespace, tripId);
+  let finishPhotoAttempt: (() => void) | null = null;
   try {
+    finishPhotoAttempt = await myPhotosStorageWrites.beginTripPurge(namespace, tripId);
     const root = new Directory(Paths.document, VAULT_ROOT_NAME, await namespaceHash(namespace), tripId);
     if (root.exists) root.delete();
+    await deleteMyPhotosTripRoot(namespace, tripId);
   } finally {
+    finishPhotoAttempt?.();
     finishAttempt();
   }
 }
@@ -897,6 +924,7 @@ export async function deleteTripVault(namespace: string, tripId: string): Promis
 /** Release the process-local write fence only after SQLite removes the matching tombstone. */
 export function completeTripVaultPurge(namespace: string, tripId: string): void {
   assertTripIdentity(tripId);
+  myPhotosStorageWrites.completeTripPurge(namespace, tripId);
   vaultWrites.completeTripPurge(namespace, tripId);
 }
 

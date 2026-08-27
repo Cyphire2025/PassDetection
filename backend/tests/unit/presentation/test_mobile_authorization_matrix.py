@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 import uuid
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
@@ -99,6 +100,29 @@ _UNRESTRICTED_SESSION_MOBILE_HTTP: frozenset[RouteKey] = frozenset(
         ("GET", "/mobile/trips/{group_id}/room"),
         ("GET", "/mobile/trips/{group_id}/meals"),
         ("GET", "/mobile/trips/{group_id}/qr"),
+        ("GET", "/mobile/trips/{group_id}/my-photos"),
+        ("POST", "/mobile/trips/{group_id}/my-photos/consent"),
+        ("POST", "/mobile/trips/{group_id}/my-photos/liveness-sessions"),
+        (
+            "POST",
+            "/mobile/trips/{group_id}/my-photos/liveness-sessions/{session_id}/complete",
+        ),
+        ("GET", "/mobile/trips/{group_id}/my-photos/search"),
+        ("GET", "/mobile/trips/{group_id}/my-photos/photos"),
+        ("PUT", "/mobile/trips/{group_id}/my-photos/photos/{asset_id}/feedback"),
+        ("DELETE", "/mobile/trips/{group_id}/my-photos/enrollment"),
+        ("POST", "/mobile/trips/{group_id}/my-photos/photos/{asset_id}/prepare"),
+        ("POST", "/mobile/trips/{group_id}/my-photos/download-authorizations"),
+        ("GET", "/mobile/trips/{group_id}/my-photos/download-plan"),
+        (
+            "GET",
+            "/mobile/trips/{group_id}/my-photos/photos/{asset_id}/content/{variant}",
+        ),
+        (
+            "GET",
+            "/mobile/trips/{group_id}/my-photos/download-authorizations/"
+            "{authorization_id}/content",
+        ),
         ("GET", "/mobile/manager/groups/{group_id}/readiness"),
         ("POST", "/mobile/integrity/challenges"),
         ("POST", "/mobile/integrity/app-attest/keys/register"),
@@ -129,6 +153,10 @@ _UNRESTRICTED_SESSION_MOBILE_HTTP: frozenset[RouteKey] = frozenset(
         (
             "PUT",
             "/mobile/coordinator/groups/{group_id}/attendance/sessions/{session_id}/closeout-checkpoint",
+        ),
+        (
+            "POST",
+            "/mobile/coordinator/groups/{group_id}/attendance/sessions/{session_id}/discards",
         ),
         (
             "GET",
@@ -230,10 +258,22 @@ def test_realtime_is_the_only_mobile_websocket_and_uses_custom_preaccept_auth() 
     }
 
     assert set(websocket_routes) == {"/mobile/realtime"}
-    code_names = set(websocket_routes["/mobile/realtime"].endpoint.__code__.co_names)
+    endpoint = websocket_routes["/mobile/realtime"].endpoint
+    code_names = set(endpoint.__code__.co_names)
     assert "_bearer_token" in code_names
     assert "authorize_mobile_realtime" in code_names
-    assert "accept" in code_names
+    assert "serve_registered_realtime_connection" in code_names
+
+    endpoint_source = inspect.getsource(endpoint)
+    authorize_at = endpoint_source.index("authorization = await authorize_mobile_realtime(")
+    register_at = endpoint_source.index("connection = await hub.register(authorization)")
+    serve_at = endpoint_source.index("await serve_registered_realtime_connection(")
+    assert authorize_at < register_at < serve_at
+    assert "websocket.accept(" not in endpoint_source
+
+    shared_server = realtime_route.serve_registered_realtime_connection
+    assert "accept" in set(shared_server.__code__.co_names)
+    assert "await websocket.accept()" in inspect.getsource(shared_server)
 
 
 def test_every_role_specific_ops_route_calls_its_shared_fail_closed_guard() -> None:

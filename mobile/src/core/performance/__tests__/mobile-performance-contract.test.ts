@@ -2,7 +2,13 @@ import {
   MOBILE_LIST_WINDOWING,
   MOBILE_REQUEST_BUDGET,
   MOBILE_STATIC_ASSET_BUDGET,
+  MY_PHOTOS_CLIENT_BUDGET,
 } from '../mobile-performance-budgets';
+import {
+  MY_PHOTOS_MAX_RESIDENT_ITEMS,
+  MY_PHOTOS_MAX_RESIDENT_PAGES,
+  MY_PHOTOS_PAGE_SIZE,
+} from '@/features/my-photos/data/gallery-window';
 import {
   ACTIVE_ATTENDANCE_MIN_REFRESH_MS,
 } from '@/core/query/attendance-refresh-policy';
@@ -82,6 +88,13 @@ describe('mobile virtualized-list budgets', () => {
       expect(budget.windowSize % 2).toBe(1);
       expect(Object.isFrozen(budget)).toBe(true);
     }
+  });
+
+  it('keeps My Photos declared budgets aligned with its bounded cursor window', () => {
+    expect(MY_PHOTOS_CLIENT_BUDGET.pageSize).toBe(MY_PHOTOS_PAGE_SIZE);
+    expect(MY_PHOTOS_CLIENT_BUDGET.maximumResidentPages).toBe(MY_PHOTOS_MAX_RESIDENT_PAGES);
+    expect(MY_PHOTOS_CLIENT_BUDGET.maximumResidentMetadataItems).toBe(MY_PHOTOS_MAX_RESIDENT_ITEMS);
+    expect(MY_PHOTOS_CLIENT_BUDGET.maximumResidentMetadataItems).toBeLessThanOrEqual(240);
   });
 
   it('requires every production FlatList and SectionList to use a shared profile', () => {

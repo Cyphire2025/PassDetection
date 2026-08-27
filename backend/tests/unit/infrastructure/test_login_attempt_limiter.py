@@ -12,7 +12,7 @@ def _settings(*, require_redis: bool, max_attempts: int = 2) -> SimpleNamespace:
     return SimpleNamespace(
         app_secret_key="test-app-secret-key",
         login_lockout_require_redis=require_redis,
-        redis=SimpleNamespace(url="redis://redis.invalid:6379/0"),
+        redis=SimpleNamespace(security_url="redis://security.invalid:6379/0"),
         jwt=SimpleNamespace(
             login_lockout_max_attempts=max_attempts,
             login_lockout_window_seconds=900,
@@ -37,7 +37,7 @@ class _AtomicCounterRedis:
         self.counts: dict[str, int] = {}
         self.ttls: dict[str, int] = {}
         self.locks: dict[str, tuple[int, str]] = {}
-        self.eval_calls: list[tuple[str, int]] = []
+        self.eval_calls: list[tuple[str, str]] = []
         self.fail_eval = fail_eval
         self.closed = False
 
@@ -46,7 +46,7 @@ class _AtomicCounterRedis:
         script: str,
         numkeys: int,
         key: str,
-        ttl_seconds: int,
+        ttl_seconds: str,
     ) -> int:
         if self.fail_eval:
             raise ConnectionError("redis unavailable")
@@ -55,9 +55,10 @@ class _AtomicCounterRedis:
         assert "redis.call('TTL', key)" in script
         assert "redis.call('EXPIRE', key, ttl_seconds)" in script
         self.eval_calls.append((key, ttl_seconds))
+        ttl = int(ttl_seconds)
         self.counts[key] = self.counts.get(key, 0) + 1
         if key not in self.ttls:
-            self.ttls[key] = ttl_seconds
+            self.ttls[key] = ttl
         return self.counts[key]
 
     async def setex(self, key: str, ttl_seconds: int, value: str) -> None:
@@ -79,7 +80,7 @@ async def test_redis_first_increment_sets_ttl_in_same_eval(
     await limiter.record_failure(email="person@example.com", ip_address="203.0.113.7")
 
     count_key = f"{limiter._key('person@example.com', '203.0.113.7')}:count"
-    assert redis.eval_calls == [(count_key, 900)]
+    assert redis.eval_calls == [(count_key, "900")]
     assert redis.ttls == {count_key: 900}
 
 

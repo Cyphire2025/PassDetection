@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import unicodedata
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
+from typing import Any, TypeVar
 
 from app.domain.value_objects.passport_fields import (
     normalize_passport_number_identity,
@@ -20,9 +21,15 @@ def _excel_identity_key(name: str | None, email: str | None, phone: str | None) 
     return "|".join(part.strip().casefold() for part in parts)
 
 
-def _merge_excel_fields(existing: dict | None, imported: dict) -> dict | None:
+_FieldValue = TypeVar("_FieldValue")
+
+
+def _merge_excel_fields(
+    existing: Mapping[str, _FieldValue] | None,
+    imported: Mapping[str, _FieldValue],
+) -> dict[str, _FieldValue] | None:
     if not existing:
-        return imported or None
+        return dict(imported) or None
     merged = dict(existing)
     for key, value in imported.items():
         if value not in (None, "") or key == "surname":
@@ -71,7 +78,7 @@ def _preferred_submission_value(
     *,
     field: str,
     include_metadata: bool,
-    normalizer: Any,
+    normalizer: Callable[[object], str | None],
 ) -> str | None:
     """Resolve identity using the domain's reviewed-over-extracted precedence."""
 

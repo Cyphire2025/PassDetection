@@ -5,11 +5,21 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const mobileRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 /**
- * Baselines were measured after the F31 vault decomposition. Ceilings deliberately allow a small,
- * reviewable increment above that evidence while preventing the original 1,457-line vault and
- * other stateful infrastructure modules from silently regrowing.
+ * Baselines were measured after the F31 vault decomposition and the My Photos
+ * plan/record extraction. Ceilings deliberately allow a small, reviewable
+ * increment while preventing large stateful modules from silently regrowing.
  */
 export const mobileModuleBudgets = Object.freeze([
+  Object.freeze({
+    path: 'src/features/my-photos/downloads/download-repository.ts',
+    baselineLines: 1_102,
+    maximumLines: 1_125,
+  }),
+  Object.freeze({
+    path: 'src/features/my-photos/downloads/download-manager.ts',
+    baselineLines: 1_065,
+    maximumLines: 1_090,
+  }),
   Object.freeze({
     path: 'src/features/content/data/content-repository.ts',
     baselineLines: 1_392,
@@ -104,6 +114,16 @@ export const mobileModuleBudgets = Object.freeze([
     path: 'src/core/storage/vault-storage-quota.ts',
     baselineLines: 173,
     maximumLines: 200,
+  }),
+  Object.freeze({
+    path: 'src/features/my-photos/downloads/photo-download-plan.ts',
+    baselineLines: 169,
+    maximumLines: 200,
+  }),
+  Object.freeze({
+    path: 'src/features/my-photos/downloads/photo-download-record.ts',
+    baselineLines: 116,
+    maximumLines: 140,
   }),
 ]);
 

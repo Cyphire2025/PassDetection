@@ -37,15 +37,17 @@ function methodSource(startMarker, endMarker) {
 
 function assertTwoPhaseBrowserHandshake(source) {
   const header = source.indexOf("x-passport-export-history-id");
-  const startDownload = source.indexOf("downloadBlob(");
+  const validateHeaders = source.indexOf("validateHeaders:");
   const complete = source.indexOf("await confirmStartedGroupExport(");
 
   assert.ok(header >= 0, "history ID must come from the prepared response");
-  assert.ok(startDownload > header, "the Blob must start after the response ID is validated");
+  assert.ok(validateHeaders >= 0, "the response ID must be validated before streaming starts");
+  assert.ok(header > validateHeaders, "the prepared response header must be checked by the stream gate");
   assert.ok(
-    complete > startDownload,
-    "completion must be posted only after the browser download is initiated",
+    complete > header,
+    "completion must be posted only after the validated browser download finishes",
   );
+  assert.doesNotMatch(source, /downloadBlob\(/);
 }
 
 test("Excel and image exports use the prepared-download completion handshake", () => {

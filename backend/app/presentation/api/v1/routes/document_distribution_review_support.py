@@ -6,6 +6,7 @@ import json
 import re
 import uuid
 from dataclasses import dataclass
+from datetime import date, datetime
 from typing import Literal
 
 from app.domain.entities.entities import (
@@ -224,11 +225,16 @@ def _document_match_roster_snapshot(
 
     snapshots: list[tuple[str, ...]] = []
     for passenger in passengers:
-        updated_at = getattr(passenger, "updated_at", None)
+        updated_at: object = getattr(passenger, "updated_at", None)
+        updated_at_snapshot = (
+            updated_at.isoformat()
+            if isinstance(updated_at, (date, datetime))
+            else str(updated_at)
+        )
         snapshots.append(
             (
                 str(passenger.id),
-                updated_at.isoformat() if hasattr(updated_at, "isoformat") else str(updated_at),
+                updated_at_snapshot,
                 str(getattr(passenger, "client_name", "") or ""),
                 str(getattr(passenger, "client_phone", "") or ""),
                 str(getattr(passenger, "family_head_phone", "") or ""),

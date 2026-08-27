@@ -4,17 +4,16 @@ from __future__ import annotations
 
 import asyncio
 import io
-import re
 import time
 import uuid
 from collections import defaultdict
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime
 from types import SimpleNamespace
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from fastapi.responses import StreamingResponse
-from sqlalchemy import delete, func, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
@@ -53,6 +52,36 @@ from app.infrastructure.rooming.priority_fields import (
     build_rooming_priority_context,
     is_rooming_roster_field,
 )
+from app.presentation.api.v1.routes.rooming_allocation_support import (
+    advance_allocation_revisions as _advance_allocation_revisions,
+)
+from app.presentation.api.v1.routes.rooming_allocation_support import (
+    allocation_mutation_response as _allocation_mutation_response,
+)
+from app.presentation.api.v1.routes.rooming_allocation_support import (
+    clear_room_plans as _clear_room_plans,
+)
+from app.presentation.api.v1.routes.rooming_allocation_support import (
+    current_allocation_revisions as _current_allocation_revisions,
+)
+from app.presentation.api.v1.routes.rooming_allocation_support import (
+    lock_affected_rooming_hotels as _lock_affected_rooming_hotels,
+)
+from app.presentation.api.v1.routes.rooming_allocation_support import (
+    lock_rooming_scope as _lock_rooming_scope,
+)
+from app.presentation.api.v1.routes.rooming_allocation_support import (
+    priority_field_response as _priority_field_response,
+)
+from app.presentation.api.v1.routes.rooming_allocation_support import (
+    require_expected_allocation_revisions as _require_expected_allocation_revisions,
+)
+from app.presentation.api.v1.routes.rooming_allocation_support import (
+    room_number_sort_key as _room_number_sort_key,
+)
+from app.presentation.api.v1.routes.rooming_allocation_support import (
+    unchanged_allocation_mutation_response as _unchanged_allocation_mutation_response,
+)
 from app.presentation.api.v1.routes.tour_operations_qr_helpers import qr_hash
 from app.presentation.api.v1.schemas.rooming_schemas import (
     AutoAllocateRoomsRequest,
@@ -62,10 +91,10 @@ from app.presentation.api.v1.schemas.rooming_schemas import (
     HotelCheckinPassengerResponse,
     HotelCheckinScanRequest,
     HotelCheckinScanResponse,
+    RoomingAllocationMutationResponse,
     RoomingHotelResponse,
     RoomingPassengerResponse,
     RoomingPriorityFieldOptionsResponse,
-    RoomingPriorityFieldResponse,
     RoomingRoomResponse,
     RoomingRosterFieldValuesResponse,
     RoomingWorkspaceResponse,
@@ -214,7 +243,7 @@ async def create_rooming_hotel(
 
 @router.put(
     "/hotels/{hotel_id}/passenger-selection",
-    response_model=RoomingWorkspaceResponse,
+    response_model=RoomingAllocationMutationResponse,
     summary="Select, move, or remove hotel passengers in one transaction",
     dependencies=[Depends(require_cookie_csrf)],
 )
@@ -224,7 +253,7 @@ async def update_hotel_passenger_selection(
     request: Request,
     current_user: User = Depends(require_role(ROOMING_ROLES)),
     session: AsyncSession = Depends(get_db_session),
-) -> RoomingWorkspaceResponse:
+) -> RoomingAllocationMutationResponse:
     hotel, group = await _get_rooming_hotel(session, hotel_id, current_user)
     hotel, group = await _lock_rooming_scope(session, hotel, group)
     requested_ids = set(body.passenger_ids)
@@ -278,15 +307,25 @@ async def update_hotel_passenger_selection(
         )
     }
     changed_ids = added_ids | removed_ids
-    affected_hotel_ids = {hotel.id} if changed_ids else set()
+    affected_hotel_ids = {hotel.id}
     affected_hotel_ids.update(
         membership_by_passenger[passenger_id].hotel_id
         for passenger_id in moved_ids
     )
-    if affected_hotel_ids:
+    affected_hotels = await _lock_affected_rooming_hotels(
+        session,
+        group=group,
+        hotel_ids=affected_hotel_ids,
+    )
+    _require_expected_allocation_revisions(
+        hotels=affected_hotels,
+        expected=body.expected_allocation_revisions,
+    )
+    hotel = next(item for item in affected_hotels if item.id == hotel.id)
+    if changed_ids:
         await _clear_room_plans(
             session,
-            hotel_ids=affected_hotel_ids,
+            hotels=affected_hotels,
             block_if_checkins=True,
         )
 
@@ -294,8 +333,8 @@ async def update_hotel_passenger_selection(
         membership = membership_by_passenger[passenger_id]
         await session.delete(membership)
     for passenger_id in added_ids:
-        membership = membership_by_passenger.get(passenger_id)
-        if membership is None:
+        existing_membership = membership_by_passenger.get(passenger_id)
+        if existing_membership is None:
             session.add(
                 RoomingHotelPassengerModel(
                     agency_id=group.agency_id,
@@ -305,9 +344,11 @@ async def update_hotel_passenger_selection(
                 )
             )
         else:
-            membership.agency_id = group.agency_id
-            membership.group_id = group.id
-            membership.hotel_id = hotel.id
+            existing_membership.agency_id = group.agency_id
+            existing_membership.group_id = group.id
+            existing_membership.hotel_id = hotel.id
+    if changed_ids:
+        _advance_allocation_revisions(affected_hotels)
     await session.flush()
     if changed_ids:
         await _audit(
@@ -323,14 +364,26 @@ async def update_hotel_passenger_selection(
                 "moved_count": len(moved_ids),
                 "selected_count": len(target_ids),
                 "requested_passenger_count": len(body.passenger_ids),
+                "allocation_revisions": _current_allocation_revisions(
+                    affected_hotels
+                ),
             },
         )
-    return await _workspace_response(session, group)
+        return await _allocation_mutation_response(
+            session,
+            group=group,
+            changed_hotels=affected_hotels,
+            changed_passenger_ids=changed_ids,
+        )
+    return _unchanged_allocation_mutation_response(
+        group=group,
+        hotels=affected_hotels,
+    )
 
 
 @router.put(
     "/hotels/{hotel_id}/vip",
-    response_model=RoomingWorkspaceResponse,
+    response_model=RoomingAllocationMutationResponse,
     summary="Mark selected hotel passengers as VIP or non-VIP",
     dependencies=[Depends(require_cookie_csrf)],
 )
@@ -340,9 +393,19 @@ async def update_hotel_vip_status(
     request: Request,
     current_user: User = Depends(require_role(ROOMING_ROLES)),
     session: AsyncSession = Depends(get_db_session),
-) -> RoomingWorkspaceResponse:
+) -> RoomingAllocationMutationResponse:
     hotel, group = await _get_rooming_hotel(session, hotel_id, current_user)
     hotel, group = await _lock_rooming_scope(session, hotel, group)
+    affected_hotels = await _lock_affected_rooming_hotels(
+        session,
+        group=group,
+        hotel_ids={hotel.id},
+    )
+    _require_expected_allocation_revisions(
+        hotels=affected_hotels,
+        expected=body.expected_allocation_revisions,
+    )
+    hotel = affected_hotels[0]
     requested_ids = set(body.passenger_ids)
     memberships = list(
         (
@@ -371,11 +434,12 @@ async def update_hotel_vip_status(
     if changed:
         await _clear_room_plans(
             session,
-            hotel_ids={hotel.id},
+            hotels=affected_hotels,
             block_if_checkins=True,
         )
         for membership in changed:
             membership.is_vip = body.is_vip
+        _advance_allocation_revisions(affected_hotels)
         await session.flush()
         await _audit(
             session,
@@ -387,14 +451,26 @@ async def update_hotel_vip_status(
                 "is_vip": body.is_vip,
                 "changed_count": len(changed),
                 "requested_passenger_count": len(body.passenger_ids),
+                "allocation_revisions": _current_allocation_revisions(
+                    affected_hotels
+                ),
             },
         )
-    return await _workspace_response(session, group)
+        return await _allocation_mutation_response(
+            session,
+            group=group,
+            changed_hotels=affected_hotels,
+            changed_passenger_ids={membership.passenger_id for membership in changed},
+        )
+    return _unchanged_allocation_mutation_response(
+        group=group,
+        hotels=affected_hotels,
+    )
 
 
 @router.post(
     "/hotels/{hotel_id}/auto-allocate",
-    response_model=RoomingWorkspaceResponse,
+    response_model=RoomingAllocationMutationResponse,
     summary="Automatically create gender-safe single and twin rooms",
     dependencies=[Depends(require_cookie_csrf)],
 )
@@ -404,9 +480,19 @@ async def auto_allocate_hotel_rooms(
     request: Request,
     current_user: User = Depends(require_role(ROOMING_ROLES)),
     session: AsyncSession = Depends(get_db_session),
-) -> RoomingWorkspaceResponse:
+) -> RoomingAllocationMutationResponse:
     hotel, group = await _get_rooming_hotel(session, hotel_id, current_user)
     hotel, group = await _lock_rooming_scope(session, hotel, group)
+    affected_hotels = await _lock_affected_rooming_hotels(
+        session,
+        group=group,
+        hotel_ids={hotel.id},
+    )
+    _require_expected_allocation_revisions(
+        hotels=affected_hotels,
+        expected=body.expected_allocation_revisions,
+    )
+    hotel = affected_hotels[0]
     memberships = list(
         (
             await session.execute(
@@ -512,13 +598,33 @@ async def auto_allocate_hotel_rooms(
         and await _stored_room_plan_matches(session, hotel.id, plan)
     ):
         hotel.allocation_priority_fields = selected_fields
+        _advance_allocation_revisions(affected_hotels)
         hotel.allocation_updated_at = datetime.now(tz=UTC)
         await session.flush()
-        return await _workspace_response(session, group)
+        await _audit(
+            session,
+            current_user,
+            request,
+            "rooming.rooms_auto_allocated",
+            hotel,
+            {
+                "allocation_revision": hotel.allocation_revision,
+                "priority_fields": [field["key"] for field in selected_fields],
+                "selected_passenger_count": len(memberships),
+                "room_count": len(plan),
+                "reused_current_plan": True,
+            },
+        )
+        return await _allocation_mutation_response(
+            session,
+            group=group,
+            changed_hotels=affected_hotels,
+            changed_passenger_ids=set(),
+        )
 
     await _clear_room_plans(
         session,
-        hotel_ids={hotel.id},
+        hotels=affected_hotels,
         block_if_checkins=True,
     )
     rooms: list[RoomingRoomModel] = []
@@ -551,7 +657,7 @@ async def auto_allocate_hotel_rooms(
             ]
         )
     hotel.allocation_priority_fields = selected_fields
-    hotel.allocation_revision += 1
+    _advance_allocation_revisions(affected_hotels)
     hotel.allocation_fingerprint = fingerprint
     hotel.allocation_updated_at = datetime.now(tz=UTC)
     await session.flush()
@@ -571,9 +677,15 @@ async def auto_allocate_hotel_rooms(
                 room.room_type == "twin" and len(room.passenger_ids) == 1
                 for room in plan
             ),
+            "reused_current_plan": False,
         },
     )
-    return await _workspace_response(session, group)
+    return await _allocation_mutation_response(
+        session,
+        group=group,
+        changed_hotels=affected_hotels,
+        changed_passenger_ids=set(),
+    )
 
 
 @router.patch(
@@ -785,12 +897,12 @@ async def export_hotel_rooming_list(
     )
     priority_fields = list(hotel.allocation_priority_fields or [])
     if hotel.allocation_fingerprint != "0" * 64:
-        export_passenger_by_id = {
+        allocation_passenger_by_id = {
             passenger.id: passenger for passenger in all_passengers
         }
         candidates: list[RoomingAllocationCandidate] = []
         for membership in memberships:
-            passenger = export_passenger_by_id.get(membership.passenger_id)
+            passenger = allocation_passenger_by_id.get(membership.passenger_id)
             if passenger is None:
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,
@@ -1327,105 +1439,6 @@ async def _eligible_group_passengers(
     return list((await session.execute(statement)).scalars().all())
 
 
-async def _lock_rooming_scope(
-    session: AsyncSession,
-    hotel: RoomingHotelModel,
-    group: ClientGroupModel,
-) -> tuple[RoomingHotelModel, ClientGroupModel]:
-    """Serialize every membership mutation for a group before locking its hotel."""
-
-    locked_group = (
-        await session.execute(
-            select(ClientGroupModel)
-            .where(
-                ClientGroupModel.id == group.id,
-                ClientGroupModel.status != "deleted",
-            )
-            .with_for_update()
-            .execution_options(populate_existing=True)
-        )
-    ).scalar_one_or_none()
-    locked_hotel = (
-        await session.execute(
-            select(RoomingHotelModel)
-            .where(RoomingHotelModel.id == hotel.id)
-            .with_for_update()
-            .execution_options(populate_existing=True)
-        )
-    ).scalar_one_or_none()
-    if (
-        locked_group is None
-        or locked_hotel is None
-        or locked_hotel.group_id != locked_group.id
-        or locked_hotel.agency_id != locked_group.agency_id
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="The hotel or group changed while this operation was starting.",
-        )
-    return locked_hotel, locked_group
-
-
-async def _clear_room_plans(
-    session: AsyncSession,
-    *,
-    hotel_ids: set[uuid.UUID],
-    block_if_checkins: bool,
-) -> None:
-    """Invalidate generated rooms without ever erasing check-in history."""
-
-    if not hotel_ids:
-        return
-    hotels = list(
-        (
-            await session.execute(
-                select(RoomingHotelModel)
-                .where(RoomingHotelModel.id.in_(hotel_ids))
-                .order_by(RoomingHotelModel.id.asc())
-                .with_for_update()
-                .execution_options(populate_existing=True)
-            )
-        )
-        .scalars()
-        .all()
-    )
-    if {item.id for item in hotels} != hotel_ids:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="One or more affected hotels changed while the operation was starting.",
-        )
-    if block_if_checkins:
-        checkin_count = int(
-            (
-                await session.execute(
-                    select(func.count())
-                    .select_from(RoomingCheckinModel)
-                    .where(RoomingCheckinModel.hotel_id.in_(hotel_ids))
-                )
-            ).scalar_one()
-        )
-        if checkin_count:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=(
-                    "Room allocation cannot be changed after hotel check-in "
-                    "activity has started."
-                ),
-            )
-    await session.execute(
-        delete(RoomingAssignmentModel).where(
-            RoomingAssignmentModel.hotel_id.in_(hotel_ids)
-        )
-    )
-    await session.execute(
-        delete(RoomingRoomModel).where(RoomingRoomModel.hotel_id.in_(hotel_ids))
-    )
-    for item in hotels:
-        item.allocation_fingerprint = None
-        item.allocation_updated_at = None
-    await session.flush()
-
-
 async def _stored_room_plan_matches(
     session: AsyncSession,
     hotel_id: uuid.UUID,
@@ -1780,24 +1793,28 @@ async def _workspace_response(session: AsyncSession, group: ClientGroupModel) ->
     allocated_passenger_ids: set[uuid.UUID] = set()
     for assignment in assignments_result.scalars().all():
         assignment_count_by_hotel[assignment.hotel_id] += 1
-        passenger = passenger_by_id.get(assignment.passenger_id)
-        if passenger:
-            membership = membership_by_passenger.get(passenger.id)
+        assigned_passenger = passenger_by_id.get(assignment.passenger_id)
+        if assigned_passenger:
+            assigned_membership = membership_by_passenger.get(
+                assigned_passenger.id
+            )
             occupants_by_room[assignment.room_id].append(
                 _passenger_response(
-                    passenger,
-                    preference_by_pair.get((assignment.hotel_id, passenger.id)),
+                    assigned_passenger,
+                    preference_by_pair.get(
+                        (assignment.hotel_id, assigned_passenger.id)
+                    ),
                     family_sizes,
-                    membership=membership,
+                    membership=assigned_membership,
                     selected_hotel_name=(
-                        hotel_name_by_id.get(membership.hotel_id)
-                        if membership
+                        hotel_name_by_id.get(assigned_membership.hotel_id)
+                        if assigned_membership
                         else None
                     ),
                 )
             )
-            allocated_by_hotel[assignment.hotel_id].add(passenger.id)
-            allocated_passenger_ids.add(passenger.id)
+            allocated_by_hotel[assignment.hotel_id].add(assigned_passenger.id)
+            allocated_passenger_ids.add(assigned_passenger.id)
     rooms_by_hotel: dict[uuid.UUID, list[RoomingRoomModel]] = defaultdict(list)
     for room in rooms:
         rooms_by_hotel[room.hotel_id].append(room)
@@ -1806,17 +1823,21 @@ async def _workspace_response(session: AsyncSession, group: ClientGroupModel) ->
     for passenger in passengers:
         if passenger.id in allocated_passenger_ids:
             continue
-        membership = membership_by_passenger.get(passenger.id)
-        preference_hotel_id = membership.hotel_id if membership else default_hotel_id
+        unallocated_membership = membership_by_passenger.get(passenger.id)
+        preference_hotel_id = (
+            unallocated_membership.hotel_id
+            if unallocated_membership
+            else default_hotel_id
+        )
         unallocated_responses.append(
             _passenger_response(
                 passenger,
                 preference_by_pair.get((preference_hotel_id, passenger.id)),
                 family_sizes,
-                membership=membership,
+                membership=unallocated_membership,
                 selected_hotel_name=(
-                    hotel_name_by_id.get(membership.hotel_id)
-                    if membership
+                    hotel_name_by_id.get(unallocated_membership.hotel_id)
+                    if unallocated_membership
                     else None
                 ),
             )
@@ -1874,9 +1895,10 @@ async def _workspace_response(session: AsyncSession, group: ClientGroupModel) ->
                     membership.passenger_id in passenger_by_id
                     for membership in hotel_memberships
                 ),
-                allocation_priority_fields=list(
-                    hotel.allocation_priority_fields or []
-                ),
+                allocation_priority_fields=[
+                    _priority_field_response(field)
+                    for field in (hotel.allocation_priority_fields or [])
+                ],
                 allocation_revision=hotel.allocation_revision,
                 allocation_is_current=allocation_is_current,
             )
@@ -1920,7 +1942,9 @@ def _passenger_response(
         client_name=passenger.client_name,
         client_email=passenger.client_email,
         client_phone=passenger.client_phone,
-        passport_sex=fields.get("sex"),
+        passport_sex=(
+            str(fields["sex"]) if fields.get("sex") is not None else None
+        ),
         submission_mode=passenger.submission_mode,
         family_group_id=passenger.family_group_id,
         family_group_label=_family_group_label(passenger, family_size),
@@ -1935,17 +1959,6 @@ def _passenger_response(
         selected_hotel_id=membership.hotel_id if membership else None,
         selected_hotel_name=selected_hotel_name,
         is_vip=bool(membership and membership.is_vip),
-    )
-
-
-def _priority_field_response(
-    field: dict[str, str],
-) -> RoomingPriorityFieldResponse:
-    return RoomingPriorityFieldResponse(
-        key=field["key"],
-        label=field["label"],
-        source=field["source"],
-        groupable=is_rooming_roster_field(field),
     )
 
 
@@ -1966,7 +1979,12 @@ def _family_size(passenger: PassportSubmissionModel, family_sizes: dict[uuid.UUI
 def _default_rooming_tag(passenger: PassportSubmissionModel, family_size: int) -> str:
     if passenger.submission_mode == "family" and passenger.family_group_id:
         return "couple" if family_size == 2 else "family"
-    sex = ((passenger.confirmed_fields or passenger.extracted_fields or {}).get("sex") or "").strip().lower()
+    sex = str(
+        (passenger.confirmed_fields or passenger.extracted_fields or {}).get(
+            "sex"
+        )
+        or ""
+    ).strip().lower()
     if sex in {"m", "male"}:
         return "male"
     if sex in {"f", "female"}:
@@ -1996,7 +2014,14 @@ def _room_response(room: RoomingRoomModel, occupants: list[RoomingPassengerRespo
     )
 
 
-async def _audit(session: AsyncSession, current_user: User, request: Request, action: str, hotel: RoomingHotelModel, metadata: dict[str, object]) -> None:
+async def _audit(
+    session: AsyncSession,
+    current_user: User,
+    request: Request,
+    action: str,
+    hotel: RoomingHotelModel,
+    metadata: Mapping[str, object],
+) -> None:
     await AuditLogRepository(session).record(
         action=action,
         entity_type="rooming_hotel",
@@ -2005,7 +2030,7 @@ async def _audit(session: AsyncSession, current_user: User, request: Request, ac
         actor_email=current_user.email,
         entity_id=str(hotel.id),
         ip_address=trusted_client_ip(request),
-        metadata=metadata,
+        metadata=dict(metadata),
     )
 
 
@@ -2052,10 +2077,3 @@ def _allocation_state_is_current(
         )
         for passenger_id in selected_ids
     )
-
-
-def _room_number_sort_key(room_number: str) -> tuple[int, str]:
-    match = re.match(r"^(\d+)(.*)$", room_number.strip())
-    if not match:
-        return (10**9, room_number.casefold())
-    return (int(match.group(1)), match.group(2).casefold())

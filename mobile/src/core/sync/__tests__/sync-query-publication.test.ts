@@ -48,11 +48,21 @@ test('active publication rereads local projections without refetching unrelated 
     defaultOptions: { queries: { retry: false } },
   });
   let localProjectionReads = 0;
+  let attendanceReads = 0;
+  let myPhotosReads = 0;
   let unrelatedRemoteReads = 0;
   let otherAccountReads = 0;
   const projection = new QueryObserver(queryClient, {
     queryKey: ['trip-itinerary', 'trip-a', 'agency-a.account-a'],
     queryFn: async () => ({ revision: ++localProjectionReads }),
+  });
+  const attendance = new QueryObserver(queryClient, {
+    queryKey: ['manager-attendance-sessions', 'agency-a.account-a', 'trip-a'],
+    queryFn: async () => ({ revision: ++attendanceReads }),
+  });
+  const myPhotos = new QueryObserver(queryClient, {
+    queryKey: ['my-photos-summary', 'agency-a.account-a', 'passenger-a', 'trip-a'],
+    queryFn: async () => ({ revision: ++myPhotosReads }),
   });
   const unrelated = new QueryObserver(queryClient, {
     queryKey: ['mobile-notifications', 'trip-a', 'agency-a.account-a'],
@@ -63,14 +73,20 @@ test('active publication rereads local projections without refetching unrelated 
     queryFn: async () => ({ revision: ++otherAccountReads }),
   });
   const unsubscribeProjection = projection.subscribe(() => undefined);
+  const unsubscribeAttendance = attendance.subscribe(() => undefined);
+  const unsubscribeMyPhotos = myPhotos.subscribe(() => undefined);
   const unsubscribeUnrelated = unrelated.subscribe(() => undefined);
   const unsubscribeOther = otherAccount.subscribe(() => undefined);
   await Promise.all([
     projection.refetch(),
+    attendance.refetch(),
+    myPhotos.refetch(),
     unrelated.refetch(),
     otherAccount.refetch(),
   ]);
   expect(localProjectionReads).toBe(1);
+  expect(attendanceReads).toBe(1);
+  expect(myPhotosReads).toBe(1);
   expect(unrelatedRemoteReads).toBe(1);
   expect(otherAccountReads).toBe(1);
 
@@ -82,11 +98,15 @@ test('active publication rereads local projections without refetching unrelated 
   }
 
   expect(localProjectionReads).toBe(2);
+  expect(attendanceReads).toBe(2);
+  expect(myPhotosReads).toBe(2);
   expect(projection.getCurrentResult().data).toEqual({ revision: 2 });
   expect(unrelatedRemoteReads).toBe(1);
   expect(otherAccountReads).toBe(1);
 
   unsubscribeProjection();
+  unsubscribeAttendance();
+  unsubscribeMyPhotos();
   unsubscribeUnrelated();
   unsubscribeOther();
   queryClient.clear();

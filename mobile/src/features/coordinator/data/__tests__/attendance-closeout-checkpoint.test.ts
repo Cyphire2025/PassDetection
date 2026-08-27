@@ -66,7 +66,8 @@ test('maps every unresolved state and conservatively applies trip-level rejected
     { state: 'needs_review', count: 4, oldest_created_at: null },
     { state: 'rejected', count: 5, oldest_created_at: null },
   ]);
-  mockedOpenAccountDatabase.mockResolvedValue({ getAllAsync } as never);
+  const getFirstAsync = jest.fn().mockResolvedValue({ count: 0 });
+  mockedOpenAccountDatabase.mockResolvedValue({ getAllAsync, getFirstAsync } as never);
 
   const result = await collectAttendanceCloseoutCheckpoint(
     tripId,
@@ -96,6 +97,7 @@ test('invalid oldest timestamps fail closed with the conservative maximum age', 
     getAllAsync: jest.fn().mockResolvedValue([
       { state: 'pending', count: 1, oldest_created_at: 'not-a-time' },
     ]),
+    getFirstAsync: jest.fn().mockResolvedValue({ count: 0 }),
   } as never);
 
   await expect(collectAttendanceCloseoutCheckpoint(
@@ -115,6 +117,7 @@ test('account switch after queue read prevents any checkpoint request', async ()
       useSessionStore.setState({ status: 'authenticated', session: coordinatorSession('2') });
       return [];
     }),
+    getFirstAsync: jest.fn().mockResolvedValue({ count: 0 }),
   } as never);
 
   await expect(publishAttendanceCloseoutCheckpoint(
@@ -127,7 +130,8 @@ test('account switch after queue read prevents any checkpoint request', async ()
 test('manual and interval triggers serialize, coalesce, and recompute one final report', async () => {
   const sessionId = '22222222-2222-4222-8222-222222222225';
   const getAllAsync = jest.fn().mockResolvedValue([]);
-  mockedOpenAccountDatabase.mockResolvedValue({ getAllAsync } as never);
+  const getFirstAsync = jest.fn().mockResolvedValue({ count: 0 });
+  mockedOpenAccountDatabase.mockResolvedValue({ getAllAsync, getFirstAsync } as never);
   let resolveFirst!: (value: ReturnType<typeof serverResponse>) => void;
   const firstResponse = new Promise<ReturnType<typeof serverResponse>>((resolve) => {
     resolveFirst = resolve;

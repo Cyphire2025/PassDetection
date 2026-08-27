@@ -29,7 +29,10 @@ sqliteTest('fresh current databases enable incremental reclaim before allocating
       async (operation) => {
         database.exec('BEGIN IMMEDIATE');
         try {
-          await operation({ execAsync: async (sql: string) => database.exec(sql) } as never);
+          await operation({
+            execAsync: async (sql: string) => database.exec(sql),
+            getAllAsync: async (sql: string) => database.prepare(sql).all(),
+          } as never);
           database.exec('COMMIT');
         } catch (error) {
           database.exec('ROLLBACK');
@@ -69,6 +72,18 @@ function createVersion17Database(): DatabaseSync {
       role TEXT NOT NULL,
       roster_version INTEGER NOT NULL DEFAULT -1,
       advertised_roster_version INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE TABLE attendance_sessions (
+      id TEXT PRIMARY KEY NOT NULL,
+      account_namespace TEXT NOT NULL,
+      trip_id TEXT NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
+      name TEXT NOT NULL,
+      status TEXT NOT NULL,
+      scanned_count INTEGER NOT NULL,
+      assigned_count INTEGER NOT NULL,
+      started_at TEXT,
+      completed_at TEXT,
+      updated_at TEXT NOT NULL
     );
     CREATE TABLE coordinator_passengers (
       id TEXT NOT NULL,
@@ -146,7 +161,10 @@ async function migrateVersion17(database: DatabaseSync): Promise<void> {
     async (operation) => {
       database.exec('BEGIN IMMEDIATE');
       try {
-        await operation({ execAsync: async (sql: string) => database.exec(sql) } as never);
+        await operation({
+          execAsync: async (sql: string) => database.exec(sql),
+          getAllAsync: async (sql: string) => database.prepare(sql).all(),
+        } as never);
         database.exec('COMMIT');
       } catch (error) {
         database.exec('ROLLBACK');

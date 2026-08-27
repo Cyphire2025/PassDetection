@@ -11,7 +11,9 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy import and_, func, or_, select, true, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import undefer
+from sqlalchemy.orm import InstrumentedAttribute, undefer
+from sqlalchemy.sql import Select
+from sqlalchemy.sql.elements import ColumnElement
 
 from app.application.interfaces.email_provider import EmailProvider, EmailProviderError
 from app.application.security.authorization_policy import AuthorizationPolicy
@@ -148,10 +150,10 @@ def _agency_scope(user: User) -> uuid.UUID | None:
 
 
 def _email_owner_filters(
-    owner_column,
-    agency_column,
+    owner_column: InstrumentedAttribute[uuid.UUID],
+    agency_column: InstrumentedAttribute[uuid.UUID],
     user: User,
-):  # type: ignore[no-untyped-def]
+) -> tuple[ColumnElement[bool], ...]:
     """Return the immutable personal mailbox boundary for an authenticated user."""
 
     filters = [owner_column == user.id]
@@ -160,13 +162,13 @@ def _email_owner_filters(
     return tuple(filters)
 
 
-def _group_role_visibility_filter(user: User):  # type: ignore[no-untyped-def]
+def _group_role_visibility_filter(user: User) -> ColumnElement[bool]:
     if user.role == UserRole.AGENCY_STAFF:
         return AuthorizationPolicy.staff_group_visibility_filter(user)
     return true()
 
 
-def _passport_role_visibility_filter(user: User):  # type: ignore[no-untyped-def]
+def _passport_role_visibility_filter(user: User) -> ColumnElement[bool]:
     if user.role == UserRole.AGENCY_STAFF:
         return AuthorizationPolicy.staff_passport_visibility_filter(user)
     return true()
@@ -1526,7 +1528,7 @@ async def email_integration_summary(
 ) -> EmailIntegrationSummaryResponse:
     today = datetime.now(tz=UTC).replace(hour=0, minute=0, second=0, microsecond=0)
 
-    async def count(stmt) -> int:  # type: ignore[no-untyped-def]
+    async def count(stmt: Select[tuple[int]]) -> int:
         return int(await session.scalar(stmt) or 0)
 
     return EmailIntegrationSummaryResponse(

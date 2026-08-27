@@ -5,6 +5,7 @@ import { useAuthStore } from "@/stores/auth.store";
 import {
   getNextPendingAttendanceAttemptAt,
   subscribeAttendanceQueueScheduleChanges,
+  syncAttendanceDiscardTombstones,
   syncPendingAttendanceScans,
 } from "../services/attendance-scan-queue";
 
@@ -54,9 +55,13 @@ export function CoordinatorOfflineScanDrain() {
     }
     if (drainPromiseRef.current) return drainPromiseRef.current;
 
-    const request = syncPendingAttendanceScans()
-      .then((result) => scheduleWakeup(result.nextAttemptAt))
-      .catch(() => scheduleWakeup())
+    // Scan delivery and discard-evidence delivery are independent. A backend
+    // or schema error in one lane must not starve the other durable queue.
+    const request = Promise.allSettled([
+      syncPendingAttendanceScans(),
+      syncAttendanceDiscardTombstones(),
+    ])
+      .then(() => scheduleWakeup())
       .finally(() => {
         if (drainPromiseRef.current === request) drainPromiseRef.current = null;
       });

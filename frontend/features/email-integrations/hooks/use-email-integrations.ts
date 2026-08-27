@@ -20,6 +20,10 @@ import type {
   UpdateEmailReplyDraftRequest,
 } from "../types";
 import { isEmailProcessingActive } from "../utils/email-integrations";
+import {
+  EMAIL_REPAIR_PAGE_BUDGET,
+  emailRepairIntervalMs,
+} from "../services/email-refresh-policy";
 
 export const EMAIL_INTEGRATION_QUERY_KEYS = {
   root: ["email-integrations"] as const,
@@ -60,7 +64,6 @@ export const EMAIL_INTEGRATION_QUERY_KEYS = {
     ] as const,
 };
 
-const REFRESH_INTERVAL_MS = 5_000;
 const MISSING_INTELLIGENCE_POLL_WINDOW_MS = 2 * 60_000;
 const ACTIVE_INTELLIGENCE_STATUSES = new Set(["pending", "processing"]);
 
@@ -75,7 +78,8 @@ export function useEmailConnections() {
   return useQuery({
     queryKey: EMAIL_INTEGRATION_QUERY_KEYS.connections,
     queryFn: emailIntegrationsApi.connections,
-    refetchInterval: REFRESH_INTERVAL_MS,
+    refetchInterval: () => emailRepairIntervalMs(),
+    refetchIntervalInBackground: false,
   });
 }
 
@@ -83,7 +87,8 @@ export function useEmailIntegrationSummary() {
   return useQuery({
     queryKey: EMAIL_INTEGRATION_QUERY_KEYS.summary,
     queryFn: emailIntegrationsApi.summary,
-    refetchInterval: REFRESH_INTERVAL_MS,
+    refetchInterval: () => emailRepairIntervalMs(),
+    refetchIntervalInBackground: false,
   });
 }
 
@@ -91,7 +96,8 @@ export function useEmailReviews(status: string) {
   return useQuery({
     queryKey: EMAIL_INTEGRATION_QUERY_KEYS.reviews(status),
     queryFn: () => emailIntegrationsApi.reviews(status),
-    refetchInterval: REFRESH_INTERVAL_MS,
+    refetchInterval: () => emailRepairIntervalMs(),
+    refetchIntervalInBackground: false,
   });
 }
 
@@ -111,7 +117,8 @@ export function useEmailActivity() {
   return useQuery({
     queryKey: EMAIL_INTEGRATION_QUERY_KEYS.activity,
     queryFn: emailIntegrationsApi.activity,
-    refetchInterval: REFRESH_INTERVAL_MS,
+    refetchInterval: () => emailRepairIntervalMs(),
+    refetchIntervalInBackground: false,
   });
 }
 
@@ -123,7 +130,7 @@ export function useEmailMessage(messageId: string) {
     refetchInterval: (query) =>
       query.state.data
       && isEmailProcessingActive(query.state.data.processing_status)
-        ? 5_000
+        ? emailRepairIntervalMs({ active: true })
         : false,
   });
 }
@@ -169,12 +176,12 @@ export function useEmailMessageIntelligence(
           && pollStartedAt !== null
           && Date.now() - pollStartedAt
             < MISSING_INTELLIGENCE_POLL_WINDOW_MS
-          ? REFRESH_INTERVAL_MS
+          ? emailRepairIntervalMs({ active: true })
           : false;
       }
       return intelligence
         && ACTIVE_INTELLIGENCE_STATUSES.has(intelligence.status.toLowerCase())
-        ? REFRESH_INTERVAL_MS
+        ? emailRepairIntervalMs({ active: true })
         : false;
     },
     refetchIntervalInBackground: false,
@@ -215,8 +222,10 @@ export function useEmailOperationalInbox(
       }),
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.next_cursor,
+    getPreviousPageParam: () => undefined,
+    maxPages: EMAIL_REPAIR_PAGE_BUDGET,
     enabled: Boolean(userId),
-    refetchInterval: 15_000,
+    refetchInterval: () => emailRepairIntervalMs(),
     refetchIntervalInBackground: false,
   });
 }

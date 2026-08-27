@@ -5,15 +5,16 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from fastapi import HTTPException
 
-from app.application.security.authorization_policy import AuthorizationPolicy
+from app.application.security.destructive_mutation_policy import DestructiveMutationPolicy
 from app.domain.entities.entities import User, UserRole
-from app.domain.exceptions.exceptions import AuthorizationError, StorageError
-from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
-from app.infrastructure.repositories.client_group_repository import (
-    ClientGroupRepository,
+from app.domain.exceptions.exceptions import (
+    AuthorizationError,
+    ConflictError,
+    PassportLegalHoldError,
+    StorageError,
 )
+from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.passport_image_crop_repository import (
     PassportImageCropRepository,
 )
@@ -41,12 +42,17 @@ class _Result:
         *,
         rows: list[SimpleNamespace] | None = None,
         rowcount: int = 0,
+        scalar_value: object | None = None,
     ) -> None:
         self._rows = rows or []
         self.rowcount = rowcount
+        self._scalar_value = scalar_value
 
     def all(self) -> list[SimpleNamespace]:
         return self._rows
+
+    def scalar_one_or_none(self) -> object | None:
+        return self._scalar_value
 
 
 def _super_admin() -> User:
@@ -68,6 +74,30 @@ def _submission_row(submission_id: uuid.UUID) -> SimpleNamespace:
         passport_back_s3_key=f"back/{submission_id}.jpg",
         passport_photo_s3_key=f"photo/{submission_id}.jpg",
     )
+
+
+def _mutation(
+    group: SimpleNamespace,
+    *,
+    request_fingerprint: str = "bulk-delete-fingerprint",
+) -> SimpleNamespace:
+    return SimpleNamespace(
+        group=group,
+        action="passport_submissions_bulk_delete",
+        request_fingerprint=request_fingerprint,
+        target_count=1,
+    )
+
+
+def test_bulk_delete_requires_explicit_csrf_and_recent_mfa() -> None:
+    route = next(
+        route
+        for route in passport_routes.router.routes
+        if route.path == "/groups/{group_id}/bulk-delete" and "POST" in route.methods
+    )
+    dependencies = {dependency.call.__name__ for dependency in route.dependant.dependencies}
+    assert "require_cookie_csrf" in dependencies
+    assert "require_recent_mfa" in dependencies
 
 
 @pytest.mark.asyncio
@@ -95,8 +125,6 @@ async def test_bulk_delete_removes_all_selected_rows_and_stored_documents() -> N
         ),
         commit=AsyncMock(side_effect=commit),
     )
-    storage = SimpleNamespace(delete_files=AsyncMock())
-    authorize = AsyncMock(return_value=None)
     audit = AsyncMock(return_value=None)
     derived_keys = [
         f"passport-crops/{submission_ids[0]}/front/1.jpg",
@@ -107,14 +135,9 @@ async def test_bulk_delete_removes_all_selected_rows_and_stored_documents() -> N
 
     with (
         patch.object(
-            ClientGroupRepository,
-            "get_by_id",
-            AsyncMock(return_value=group),
-        ),
-        patch.object(
-            AuthorizationPolicy,
-            "require_delete_data",
-            authorize,
+            DestructiveMutationPolicy,
+            "require_group",
+            AsyncMock(return_value=_mutation(group)),
         ),
         patch(
             "app.presentation.api.v1.routes.passports._active_roster_resolution_references",
@@ -129,10 +152,6 @@ async def test_bulk_delete_removes_all_selected_rows_and_stored_documents() -> N
             PassportImageCropRepository,
             "edit_storage_keys",
             AsyncMock(return_value=edit_keys),
-        ),
-        patch(
-            "app.presentation.api.v1.routes.passports.MinioStorageRepository",
-            return_value=storage,
         ),
         patch(
             "app.presentation.api.v1.routes.passports.stage_storage_cleanup_jobs",
@@ -152,8 +171,6 @@ async def test_bulk_delete_removes_all_selected_rows_and_stored_documents() -> N
             session=session,  # type: ignore[arg-type]
         )
 
-    authorize.assert_awaited_once()
-    assert authorize.await_args.kwargs["permanent"] is True
     stage_cleanup.assert_called_once()
     assert stage_cleanup.call_args.kwargs["storage_keys"] == [
         f"front/{submission_ids[0]}.jpg",
@@ -167,7 +184,6 @@ async def test_bulk_delete_removes_all_selected_rows_and_stored_documents() -> N
         *derived_keys,
         *edit_keys,
     ]
-    storage.delete_files.assert_not_awaited()
     assert response.deleted_count == 2
     assert response.deleted_submission_ids == submission_ids
     assert response.deleted_storage_objects == 11
@@ -208,14 +224,9 @@ async def test_bulk_delete_defers_large_storage_cleanup_after_commit() -> None:
 
     with (
         patch.object(
-            ClientGroupRepository,
-            "get_by_id",
-            AsyncMock(return_value=group),
-        ),
-        patch.object(
-            AuthorizationPolicy,
-            "require_delete_data",
-            AsyncMock(return_value=None),
+            DestructiveMutationPolicy,
+            "require_group",
+            AsyncMock(return_value=_mutation(group)),
         ),
         patch(
             "app.presentation.api.v1.routes.passports._active_roster_resolution_references",
@@ -262,31 +273,27 @@ async def test_bulk_delete_is_all_or_nothing_when_a_selection_is_missing() -> No
     submission_ids = [uuid.uuid4(), uuid.uuid4()]
     group = SimpleNamespace(id=group_id, agency_id=uuid.uuid4())
     session = SimpleNamespace(
-        execute=AsyncMock(return_value=_Result(rows=[_submission_row(submission_ids[0])]))
+        execute=AsyncMock(
+            side_effect=[
+                _Result(rows=[_submission_row(submission_ids[0])]),
+                _Result(scalar_value=None),
+            ]
+        ),
+        commit=AsyncMock(),
     )
-    storage = SimpleNamespace(delete_files=AsyncMock())
 
     with (
         patch.object(
-            ClientGroupRepository,
-            "get_by_id",
-            AsyncMock(return_value=group),
-        ),
-        patch.object(
-            AuthorizationPolicy,
-            "require_delete_data",
-            AsyncMock(return_value=None),
+            DestructiveMutationPolicy,
+            "require_group",
+            AsyncMock(return_value=_mutation(group)),
         ),
         patch(
             "app.presentation.api.v1.routes.passports._active_roster_resolution_references",
             AsyncMock(return_value=set()),
         ),
-        patch(
-            "app.presentation.api.v1.routes.passports.MinioStorageRepository",
-            return_value=storage,
-        ),
         patch.object(AuditLogRepository, "record", AsyncMock()) as audit,
-        pytest.raises(HTTPException) as caught,
+        pytest.raises(ConflictError) as caught,
     ):
         await bulk_delete_passport_submissions(
             group_id=group_id,
@@ -296,10 +303,10 @@ async def test_bulk_delete_is_all_or_nothing_when_a_selection_is_missing() -> No
             session=session,  # type: ignore[arg-type]
         )
 
-    assert caught.value.status_code == 404
-    assert session.execute.await_count == 1
-    storage.delete_files.assert_not_awaited()
-    audit.assert_not_awaited()
+    assert caught.value.code == "PASSPORT_DELETE_SELECTION_STALE"
+    assert session.execute.await_count == 2
+    audit.assert_awaited_once()
+    session.commit.assert_awaited_once_with()
 
 
 @pytest.mark.asyncio
@@ -318,25 +325,23 @@ async def test_bulk_delete_blocks_uploads_referenced_by_active_roster_decisions(
         ordering.append("references_checked")
         return {submission_id}
 
-    session = SimpleNamespace(execute=AsyncMock(side_effect=execute_locked_submission))
+    session = SimpleNamespace(
+        execute=AsyncMock(side_effect=execute_locked_submission),
+        commit=AsyncMock(),
+    )
 
     with (
         patch.object(
-            ClientGroupRepository,
-            "get_by_id",
-            AsyncMock(return_value=group),
-        ),
-        patch.object(
-            AuthorizationPolicy,
-            "require_delete_data",
-            AsyncMock(return_value=None),
+            DestructiveMutationPolicy,
+            "require_group",
+            AsyncMock(return_value=_mutation(group)),
         ),
         patch(
             "app.presentation.api.v1.routes.passports._active_roster_resolution_references",
             AsyncMock(side_effect=protected_references),
         ),
         patch.object(AuditLogRepository, "record", AsyncMock()) as audit,
-        pytest.raises(HTTPException) as caught,
+        pytest.raises(ConflictError) as caught,
     ):
         await bulk_delete_passport_submissions(
             group_id=group_id,
@@ -346,33 +351,28 @@ async def test_bulk_delete_blocks_uploads_referenced_by_active_roster_decisions(
             session=session,  # type: ignore[arg-type]
         )
 
-    assert caught.value.status_code == 409
-    assert "Restore that roster decision" in str(caught.value.detail)
+    assert caught.value.code == "PASSPORT_ROSTER_DECISION_ACTIVE"
+    assert "Restore that roster decision" in caught.value.message
     session.execute.assert_awaited_once()
     locked_submission_query = session.execute.await_args.args[0]
     assert locked_submission_query._for_update_arg is not None
     assert ordering == ["submission_locked", "references_checked"]
-    audit.assert_not_awaited()
+    audit.assert_awaited_once()
+    session.commit.assert_awaited_once_with()
 
 
 @pytest.mark.asyncio
 async def test_bulk_delete_enforces_permanent_data_delete_permission() -> None:
     group_id = uuid.uuid4()
-    group = SimpleNamespace(id=group_id, agency_id=uuid.uuid4())
     session = SimpleNamespace(execute=AsyncMock())
 
     with (
         patch.object(
-            ClientGroupRepository,
-            "get_by_id",
-            AsyncMock(return_value=group),
-        ),
-        patch.object(
-            AuthorizationPolicy,
-            "require_delete_data",
+            DestructiveMutationPolicy,
+            "require_group",
             AsyncMock(side_effect=AuthorizationError("You cannot delete data for this group")),
         ),
-        pytest.raises(HTTPException) as caught,
+        pytest.raises(AuthorizationError) as caught,
     ):
         await bulk_delete_passport_submissions(
             group_id=group_id,
@@ -382,8 +382,41 @@ async def test_bulk_delete_enforces_permanent_data_delete_permission() -> None:
             session=session,  # type: ignore[arg-type]
         )
 
-    assert caught.value.status_code == 403
+    assert caught.value.code == "AUTHORIZATION_ERROR"
     session.execute.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_bulk_delete_legal_hold_wins_before_retry_or_row_mutation() -> None:
+    session = SimpleNamespace(execute=AsyncMock(), commit=AsyncMock())
+    stage_cleanup = AsyncMock()
+
+    with (
+        patch.object(
+            DestructiveMutationPolicy,
+            "require_group",
+            AsyncMock(side_effect=PassportLegalHoldError()),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports.stage_storage_cleanup_jobs",
+            stage_cleanup,
+        ),
+        pytest.raises(PassportLegalHoldError) as caught,
+    ):
+        await bulk_delete_passport_submissions(
+            group_id=uuid.uuid4(),
+            body=BulkDeletePassportSubmissionsRequest(
+                submission_ids=[uuid.uuid4()]
+            ),
+            _csrf=None,
+            current_user=_super_admin(),
+            session=session,
+        )
+
+    assert caught.value.code == "PASSPORT_LEGAL_HOLD_ACTIVE"
+    session.execute.assert_not_awaited()
+    session.commit.assert_not_awaited()
+    stage_cleanup.assert_not_awaited()
 
 
 @pytest.mark.asyncio
@@ -401,21 +434,13 @@ async def test_bulk_delete_reports_deferred_cleanup_after_storage_failure() -> N
         ),
         commit=AsyncMock(return_value=None),
     )
-    storage = SimpleNamespace(
-        delete_files=AsyncMock(side_effect=StorageError("storage unavailable"))
-    )
     cleanup_job = SimpleNamespace(id=uuid.uuid4(), object_count=5)
 
     with (
         patch.object(
-            ClientGroupRepository,
-            "get_by_id",
-            AsyncMock(return_value=group),
-        ),
-        patch.object(
-            AuthorizationPolicy,
-            "require_delete_data",
-            AsyncMock(return_value=None),
+            DestructiveMutationPolicy,
+            "require_group",
+            AsyncMock(return_value=_mutation(group)),
         ),
         patch(
             "app.presentation.api.v1.routes.passports._active_roster_resolution_references",
@@ -430,10 +455,6 @@ async def test_bulk_delete_reports_deferred_cleanup_after_storage_failure() -> N
             PassportImageCropRepository,
             "edit_storage_keys",
             AsyncMock(return_value=[]),
-        ),
-        patch(
-            "app.presentation.api.v1.routes.passports.MinioStorageRepository",
-            return_value=storage,
         ),
         patch(
             "app.presentation.api.v1.routes.passports.stage_storage_cleanup_jobs",
@@ -476,20 +497,16 @@ async def test_bulk_delete_does_not_touch_storage_when_database_commit_fails() -
         ),
         commit=AsyncMock(side_effect=RuntimeError("database unavailable")),
     )
-    storage = SimpleNamespace(delete_files=AsyncMock())
     cleanup_job = SimpleNamespace(id=uuid.uuid4(), object_count=5)
     process_cleanup = AsyncMock()
+    record_failure = AsyncMock(return_value=True)
+    mutation = _mutation(group)
 
     with (
         patch.object(
-            ClientGroupRepository,
-            "get_by_id",
-            AsyncMock(return_value=group),
-        ),
-        patch.object(
-            AuthorizationPolicy,
-            "require_delete_data",
-            AsyncMock(return_value=None),
+            DestructiveMutationPolicy,
+            "require_group",
+            AsyncMock(return_value=mutation),
         ),
         patch(
             "app.presentation.api.v1.routes.passports._active_roster_resolution_references",
@@ -506,10 +523,6 @@ async def test_bulk_delete_does_not_touch_storage_when_database_commit_fails() -
             AsyncMock(return_value=[]),
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.MinioStorageRepository",
-            return_value=storage,
-        ),
-        patch(
             "app.presentation.api.v1.routes.passports.stage_storage_cleanup_jobs",
             return_value=(cleanup_job,),
         ),
@@ -518,6 +531,10 @@ async def test_bulk_delete_does_not_touch_storage_when_database_commit_fails() -
             process_cleanup,
         ),
         patch.object(AuditLogRepository, "record", AsyncMock()) as audit,
+        patch(
+            "app.presentation.api.v1.routes.passports.record_destructive_failure",
+            record_failure,
+        ),
         pytest.raises(RuntimeError, match="database unavailable"),
     ):
         await bulk_delete_passport_submissions(
@@ -530,5 +547,73 @@ async def test_bulk_delete_does_not_touch_storage_when_database_commit_fails() -
 
     audit.assert_awaited_once()
     session.commit.assert_awaited_once_with()
-    storage.delete_files.assert_not_awaited()
+    record_failure.assert_awaited_once()
+    assert record_failure.await_args.args == (mutation,)
+    assert record_failure.await_args.kwargs["error"].args == (
+        "database unavailable",
+    )
     process_cleanup.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_bulk_delete_exact_retry_returns_committed_idempotent_result() -> None:
+    group_id = uuid.uuid4()
+    submission_ids = [uuid.uuid4(), uuid.uuid4()]
+    group = SimpleNamespace(id=group_id, agency_id=uuid.uuid4())
+    fingerprint = "f" * 64
+    prior_audit = SimpleNamespace(
+        metadata_json={
+            "request_fingerprint": fingerprint,
+            "deleted_count": 2,
+            "deleted_notifications": 3,
+        }
+    )
+    session = SimpleNamespace(
+        execute=AsyncMock(
+            side_effect=[
+                _Result(rows=[]),
+                _Result(scalar_value=prior_audit),
+            ]
+        ),
+        commit=AsyncMock(),
+    )
+    stage_cleanup = AsyncMock()
+    process_cleanup = AsyncMock()
+
+    with (
+        patch.object(
+            DestructiveMutationPolicy,
+            "require_group",
+            AsyncMock(
+                return_value=_mutation(group, request_fingerprint=fingerprint)
+            ),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports.stage_storage_cleanup_jobs",
+            stage_cleanup,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports.process_storage_cleanup_job",
+            process_cleanup,
+        ),
+        patch.object(AuditLogRepository, "record", AsyncMock()) as audit,
+    ):
+        response = await bulk_delete_passport_submissions(
+            group_id=group_id,
+            body=BulkDeletePassportSubmissionsRequest(
+                submission_ids=submission_ids
+            ),
+            _csrf=None,
+            current_user=_super_admin(),
+            session=session,
+        )
+
+    assert response.deleted_count == 2
+    assert response.deleted_submission_ids == submission_ids
+    assert response.deleted_notifications == 3
+    assert response.storage_cleanup_deferred is True
+    stage_cleanup.assert_not_awaited()
+    process_cleanup.assert_not_awaited()
+    audit.assert_awaited_once()
+    assert audit.await_args.kwargs["action"].endswith("idempotent_replay")
+    session.commit.assert_awaited_once_with()

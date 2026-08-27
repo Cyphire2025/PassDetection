@@ -8,11 +8,37 @@
 #
 # docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
+x-production-security-environment: &production-security-environment
+  APP_ENV: production
+  APP_DEBUG: "false"
+  UNTRUSTED_DOCUMENT_INGESTION_ENABLED: "true"
+  MALWARE_SCANNER_ENABLED: "true"
+  MALWARE_SCANNER_HOST: clamav
+  MALWARE_SCANNER_PORT: "3310"
+  MALWARE_SCANNER_TIMEOUT_SECONDS: "10.0"
+  METRICS_EXPORTER: statsd
+  METRICS_EXPORT_REQUIRED: "true"
+  METRICS_STATSD_HOST: metrics-exporter
+  METRICS_STATSD_PORT: "9125"
+  METRICS_NAMESPACE: passdetection
+
 services:
+  metrics-exporter:
+    ports: !reset []
+
   db:
     ports: !reset []
 
   redis:
+    ports: !reset []
+
+  redis-broker:
+    ports: !reset []
+
+  redis-realtime:
+    ports: !reset []
+
+  redis-cache:
     ports: !reset []
 
   minio:
@@ -23,8 +49,7 @@ services:
     volumes: !reset []
     ports: !reset []
     environment:
-      APP_ENV: production
-      APP_DEBUG: "false"
+      <<: *production-security-environment
       PROCESSING_BACKEND: celery
       LOGIN_LOCKOUT_REQUIRE_REDIS: "true"
       PUBLIC_UPLOAD_RATE_LIMIT_REQUIRE_REDIS: "true"
@@ -43,44 +68,42 @@ services:
   worker:
     volumes: !reset []
     environment:
-      APP_ENV: production
-      APP_DEBUG: "false"
+      <<: *production-security-environment
 
   email-worker:
     volumes: !reset []
     environment:
-      APP_ENV: production
-      APP_DEBUG: "false"
+      <<: *production-security-environment
+
+  my-photos-worker:
+    volumes: !reset []
+    environment:
+      <<: *production-security-environment
 
   email-ai-worker:
     volumes: !reset []
     environment:
-      APP_ENV: production
-      APP_DEBUG: "false"
+      <<: *production-security-environment
 
   email-beat:
     volumes: !reset []
     environment:
-      APP_ENV: production
-      APP_DEBUG: "false"
+      <<: *production-security-environment
 
   extraction-worker:
     volumes: !reset []
     environment:
-      APP_ENV: production
-      APP_DEBUG: "false"
+      <<: *production-security-environment
 
   verification-worker:
     volumes: !reset []
     environment:
-      APP_ENV: production
-      APP_DEBUG: "false"
+      <<: *production-security-environment
 
   visa-ai-worker:
     volumes: !reset []
     environment:
-      APP_ENV: production
-      APP_DEBUG: "false"
+      <<: *production-security-environment
 
   frontend:
     build:

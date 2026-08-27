@@ -142,7 +142,7 @@ class MobileRealtimeConfig:
         return cls(
             enabled=mobile.realtime_enabled,
             require_redis=mobile.realtime_require_redis,
-            redis_url=settings.redis.url,
+            redis_url=settings.redis.realtime_url,
             heartbeat_seconds=mobile.realtime_heartbeat_seconds,
             idle_timeout_seconds=mobile.realtime_idle_timeout_seconds,
             authorization_refresh_seconds=mobile.realtime_authorization_refresh_seconds,

@@ -307,6 +307,7 @@ async def test_account_removal_isolates_other_mailboxes_and_shared_documents(
     assert result.activity_count == 1
     assert result.document_count == 1
     assert result.notification_count == 1
+    assert result.audit_log_count == 0
     assert set(result.storage_keys) == {
         "email-integrations/removed/staged.pdf",
         "email-integrations-canonical/exclusive.pdf",
@@ -345,4 +346,7 @@ async def test_account_removal_isolates_other_mailboxes_and_shared_documents(
         )
     ).all()
     assert len(retained_audits) == 1
-    assert removed_audits == []
+    assert {(item.entity_type, item.entity_id) for item in removed_audits} == {
+        ("email_connection", str(removed_connection.id)),
+        ("email_review", str(review.id)),
+    }

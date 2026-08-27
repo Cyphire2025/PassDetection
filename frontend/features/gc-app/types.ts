@@ -100,6 +100,7 @@ export interface GcAppVersionMetrics {
 
 export interface GcAppGroupControl extends GcGroupReference {
   gc_app_enabled: boolean;
+  my_photos_enabled: boolean;
   passenger_access_enabled: boolean;
   client_manager_access_enabled: boolean;
   coordinator_access_enabled: boolean;

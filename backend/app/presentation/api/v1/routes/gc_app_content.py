@@ -9,6 +9,7 @@ import uuid
 from contextlib import aclosing
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from typing import AsyncGenerator, AsyncIterator, Literal, cast
 from urllib.parse import quote
 
 from fastapi import (
@@ -17,13 +18,14 @@ from fastapi import (
     File,
     Form,
     HTTPException,
+    Query,
     Request,
     Response,
     UploadFile,
     status,
 )
 from fastapi.responses import StreamingResponse
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mobile.notification_service import (
@@ -47,13 +49,14 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.email.pdf_validator import EmailPdfValidationError, EmailPdfValidator
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
+from app.presentation.api.v1.routes.gc_app_history_support import gc_app_audit_responses
 from app.presentation.api.v1.schemas.gc_app_schemas import (
     AnnouncementCreateRequest,
     AnnouncementResponse,
     CommonDocumentCategory,
     CommonDocumentReorderRequest,
     CommonDocumentResponse,
-    GCAppAuditResponse,
+    GCAppAuditPageResponse,
     ItineraryDayInput,
     ItineraryDraftRequest,
     ItineraryItemInput,
@@ -514,16 +517,19 @@ async def preview_common_document_content(
     await session.commit()
     await session.close()
 
-    async def chunks():  # type: ignore[no-untyped-def]
+    async def chunks() -> AsyncIterator[bytes]:
         async with _GC_PREVIEW_STREAM_SLOTS:
             # Explicit closure releases the S3 response body when the browser
             # closes the preview, cancels navigation, or the ASGI task stops.
-            async with aclosing(
+            object_stream = cast(
+                AsyncGenerator[bytes, None],
                 storage.stream_file(
                     stream_plan.storage_key,
+                    start=0,
                     expected_bytes=stream_plan.byte_size,
-                )
-            ) as object_stream:
+                ),
+            )
+            async with aclosing(object_stream) as object_stream:
                 async for chunk in object_stream:
                     yield chunk
 
@@ -1088,50 +1094,49 @@ async def delete_announcement(
 
 @router.get(
     "/groups/{group_id}/audit",
-    response_model=list[GCAppAuditResponse],
+    response_model=GCAppAuditPageResponse,
 )
 async def list_group_gc_audit(
     group_id: uuid.UUID,
-    limit: int = 200,
+    offset: int = Query(default=0, ge=0),
+    limit: int = Query(default=50, ge=1, le=100),
     agency_id: uuid.UUID | None = None,
     current_user: User = Depends(require_role(GC_CONTENT_ROLES)),
     session: AsyncSession = Depends(get_db_session),
-) -> list[GCAppAuditResponse]:
+) -> GCAppAuditPageResponse:
     access, _group = await _admin_access_context(
         session, current_user, group_id, agency_id=agency_id, lock=False
     )
-    bounded_limit = max(1, min(limit, 200))
-    candidates = list(
+    filters = (
+        AuditLogModel.agency_id == access.agency_id,
+        AuditLogModel.action.like("gc_app.%"),
+        or_(
+            AuditLogModel.entity_id == str(access.id),
+            AuditLogModel.metadata_json["group_id"].as_string()
+            == str(group_id),
+        ),
+    )
+    total = int(
+        await session.scalar(select(func.count(AuditLogModel.id)).where(*filters))
+        or 0
+    )
+    logs = list(
         (
             await session.execute(
                 select(AuditLogModel)
-                .where(
-                    AuditLogModel.agency_id == access.agency_id,
-                    AuditLogModel.action.like("gc_app.%"),
-                )
-                .order_by(AuditLogModel.created_at.desc())
-                .limit(500)
+                .where(*filters)
+                .order_by(AuditLogModel.created_at.desc(), AuditLogModel.id.desc())
+                .offset(offset)
+                .limit(limit)
             )
         ).scalars()
     )
-    matches = [
-        item
-        for item in candidates
-        if (item.metadata_json or {}).get("group_id") == str(group_id)
-        or item.entity_id == str(access.id)
-    ][:bounded_limit]
-    return [
-        GCAppAuditResponse(
-            id=item.id,
-            action=item.action,
-            entity_type=item.entity_type,
-            entity_id=item.entity_id,
-            actor_email=item.actor_email,
-            metadata=item.metadata_json or {},
-            created_at=item.created_at,
-        )
-        for item in matches
-    ]
+    return GCAppAuditPageResponse(
+        items=gc_app_audit_responses(logs),
+        total=total,
+        offset=offset,
+        limit=limit,
+    )
 
 
 async def _store_common_document_version(
@@ -1447,11 +1452,14 @@ async def _admin_access_context(
         )
     )
     if lock:
-        stmt = stmt.with_for_update(of=(GCGroupAccessModel, ClientGroupModel))
+        # Without an ``OF`` list PostgreSQL locks every selected base table,
+        # preserving the existing access-and-group mutation boundary.
+        stmt = stmt.with_for_update()
     row = (await session.execute(stmt)).first()
     if row is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="GC App group not found")
-    return row
+    access, group = row
+    return access, group
 
 
 async def _latest_itinerary(
@@ -1585,7 +1593,7 @@ async def _itinerary_response(
         id=itinerary.id,
         group_id=itinerary.group_id,
         version=itinerary.version,
-        status=itinerary.status,
+        status=_itinerary_status(itinerary.status),
         title=itinerary.title,
         published_at=itinerary.published_at,
         created_at=itinerary.created_at,
@@ -1593,7 +1601,7 @@ async def _itinerary_response(
         days=[
             ItineraryDayInput(
                 day_number=day.day_number,
-                trip_date=day.trip_date,
+                date=day.trip_date,
                 title=day.title,
                 items=by_day.get(day.id, []),
             )
@@ -1613,7 +1621,7 @@ def _common_document_response(item: GCCommonDocumentModel) -> CommonDocumentResp
         size_bytes=item.byte_size,
         checksum_sha256=item.checksum_sha256,
         version=item.version,
-        status=item.status,
+        status=_content_status(item.status),
         sort_order=item.sort_order,
         available_from=item.availability_starts_at,
         available_until=item.availability_expires_at,
@@ -1629,7 +1637,7 @@ def _announcement_response(item: GCAnnouncementModel) -> AnnouncementResponse:
         title=item.title,
         message=item.body,
         priority="important" if item.priority == "high" else item.priority,
-        status=item.status,
+        status=_content_status(item.status),
         version=item.version,
         available_from=item.availability_starts_at,
         available_until=item.availability_expires_at,
@@ -1647,6 +1655,30 @@ def _require_access_revision(access: GCGroupAccessModel, expected: int) -> None:
 def _require_publishable_group(group: ClientGroupModel) -> None:
     if group.status not in {GroupStatus.ACTIVE.value, GroupStatus.CLOSED.value}:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Archived or deleted groups cannot publish mobile content")
+
+
+def _itinerary_status(value: str) -> Literal["draft", "published", "retired"]:
+    if value == "draft":
+        return "draft"
+    if value == "published":
+        return "published"
+    if value == "retired":
+        return "retired"
+    raise ValueError("Unsupported itinerary status")
+
+
+def _content_status(
+    value: str,
+) -> Literal["draft", "published", "retired", "revoked"]:
+    if value == "draft":
+        return "draft"
+    if value == "published":
+        return "published"
+    if value == "retired":
+        return "retired"
+    if value == "revoked":
+        return "revoked"
+    raise ValueError("Unsupported GC content status")
 
 
 def _validate_window(starts_at: datetime | None, expires_at: datetime | None) -> None:

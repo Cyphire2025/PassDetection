@@ -1,6 +1,7 @@
 name: Global Connect Travels Android production release
 
-# Manual by design: run with `eas workflow:run .eas/workflows/production-release.yml`.
+# Manual by design: run only with
+# `eas workflow:run .eas/workflows/production-release.yml --ref <full-commit-sha>`.
 # Protected production variables are used only by validation and signed
 # artifact gates. Synthetic preview fixtures never target production.
 defaults:
@@ -108,17 +109,23 @@ jobs:
           run: node scripts/validate-maestro-environment.js
 
   build_android_signed_smoke:
-    name: Build signed Android production APK
+    name: Build signed Android production-config emulator APK
     needs: [validate_production, test_android_release_hermes, test_android_offline, test_android_attendance]
     type: build
     params:
       platform: android
-      profile: production-apk
+      profile: production-emulator-apk
 
   verify_android_signed_smoke:
     name: Verify signed Android production APK
     needs: [build_android_signed_smoke]
-    environment: production
+    environment: preview
+    env:
+      GC_VERIFY_BUILD_ID: ${{ needs.build_android_signed_smoke.outputs.build_id }}
+      GC_VERIFY_GIT_COMMIT_HASH: ${{ needs.build_android_signed_smoke.outputs.git_commit_hash }}
+      GC_VERIFY_SOURCE_FINGERPRINT_HASH: ${{ needs.build_android_signed_smoke.outputs.fingerprint_hash }}
+      GC_VERIFY_APP_VERSION: ${{ needs.build_android_signed_smoke.outputs.app_version }}
+      GC_VERIFY_APP_BUILD_VERSION: ${{ needs.build_android_signed_smoke.outputs.app_build_version }}
     steps:
       - uses: eas/checkout
       - uses: eas/download_build
@@ -127,12 +134,26 @@ jobs:
           build_id: ${{ needs.build_android_signed_smoke.outputs.build_id }}
           extensions: [apk]
       - name: Verify package, signer, checksum, and provenance
-        run: >-
-          node scripts/verify-android-artifact.js
-          "${{ steps.download_signed_apk.outputs.artifact_path }}"
-          android-production-apk-verification.json
-          "${{ needs.build_android_signed_smoke.outputs.build_id }}"
-          "${{ needs.build_android_signed_smoke.outputs.git_commit_hash }}"
+        run: |
+          set -eu
+          verifier_home="$(mktemp -d)"
+          env -i \
+          PATH="$PATH" \
+          HOME="$verifier_home" \
+          LANG="${LANG:-C.UTF-8}" \
+          ANDROID_HOME="${ANDROID_HOME:-}" \
+          ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-}" \
+          JAVA_HOME="${JAVA_HOME:-}" \
+          GC_ANDROID_DISTRIBUTION_SHA256_CERT_FINGERPRINTS="$GC_ANDROID_DISTRIBUTION_SHA256_CERT_FINGERPRINTS" \
+          node scripts/verify-android-artifact.js \
+          "${{ steps.download_signed_apk.outputs.artifact_path }}" \
+          android-production-apk-verification.json \
+          "$GC_VERIFY_BUILD_ID" \
+          "$GC_VERIFY_GIT_COMMIT_HASH" \
+          "$GC_VERIFY_SOURCE_FINGERPRINT_HASH" \
+          x86_64 \
+          "$GC_VERIFY_APP_VERSION" \
+          "$GC_VERIFY_APP_BUILD_VERSION"
       - uses: eas/upload_artifact
         with:
           type: other
@@ -172,7 +193,14 @@ jobs:
   verify_android_bundle:
     name: Verify signed Android production bundle
     needs: [build_android]
-    environment: production
+    environment: preview
+    env:
+      GC_VERIFY_BUILD_ID: ${{ needs.build_android.outputs.build_id }}
+      GC_VERIFY_GIT_COMMIT_HASH: ${{ needs.build_android.outputs.git_commit_hash }}
+      GC_VERIFY_SOURCE_FINGERPRINT_HASH: ${{ needs.build_android.outputs.fingerprint_hash }}
+      GC_VERIFY_APP_IDENTIFIER: ${{ needs.build_android.outputs.app_identifier }}
+      GC_VERIFY_APP_VERSION: ${{ needs.build_android.outputs.app_version }}
+      GC_VERIFY_APP_BUILD_VERSION: ${{ needs.build_android.outputs.app_build_version }}
     steps:
       - uses: eas/checkout
       - uses: eas/download_build
@@ -180,14 +208,37 @@ jobs:
         with:
           build_id: ${{ needs.build_android.outputs.build_id }}
           extensions: [aab]
+      - name: Fetch and pin official bundletool
+        run: |
+          set -eu
+          bundletool_directory="$(mktemp -d)"
+          bundletool_path="$bundletool_directory/bundletool-all-1.18.3.jar"
+          curl --fail --location --silent --show-error \
+            https://github.com/google/bundletool/releases/download/1.18.3/bundletool-all-1.18.3.jar \
+            --output "$bundletool_path"
+          bundletool_sha256="$(sha256sum "$bundletool_path" | awk '{print toupper($1)}')"
+          test "$bundletool_sha256" = "A099CFA1543F55593BC2ED16A70A7C67FE54B1747BB7301F37FDFD6D91028E29"
+          set-env GC_ANDROID_BUNDLETOOL_JAR_PATH "$bundletool_path"
       - name: Verify package, signer, checksum, and provenance
-        run: >-
-          node scripts/verify-android-bundle.js
-          "${{ steps.download_production_aab.outputs.artifact_path }}"
-          android-production-aab-verification.json
-          "${{ needs.build_android.outputs.build_id }}"
-          "${{ needs.build_android.outputs.git_commit_hash }}"
-          "${{ needs.build_android.outputs.app_identifier }}"
+        run: |
+          set -eu
+          verifier_home="$(mktemp -d)"
+          env -i \
+          PATH="$PATH" \
+          HOME="$verifier_home" \
+          LANG="${LANG:-C.UTF-8}" \
+          JAVA_HOME="${JAVA_HOME:-}" \
+          GC_ANDROID_BUNDLETOOL_JAR_PATH="$GC_ANDROID_BUNDLETOOL_JAR_PATH" \
+          GC_ANDROID_DISTRIBUTION_SHA256_CERT_FINGERPRINTS="$GC_ANDROID_DISTRIBUTION_SHA256_CERT_FINGERPRINTS" \
+          node scripts/verify-android-bundle.js \
+          "${{ steps.download_production_aab.outputs.artifact_path }}" \
+          android-production-aab-verification.json \
+          "$GC_VERIFY_BUILD_ID" \
+          "$GC_VERIFY_GIT_COMMIT_HASH" \
+          "$GC_VERIFY_SOURCE_FINGERPRINT_HASH" \
+          "$GC_VERIFY_APP_IDENTIFIER" \
+          "$GC_VERIFY_APP_VERSION" \
+          "$GC_VERIFY_APP_BUILD_VERSION"
       - uses: eas/upload_artifact
         with:
           type: other

@@ -21,6 +21,8 @@ import {
   parseRetryAfterMs,
   retryAfterHeaderValue,
 } from "./retry-after";
+import { resolveServerApiBaseUrl } from "@/config/api-routing";
+import { normalizeStructuredApiErrorDetail } from "./api-error-detail";
 
 export interface ApiError {
   code: string;
@@ -32,7 +34,11 @@ export interface ApiError {
 
 export interface ApiErrorResponse {
   error?: ApiError;
-  detail?: string;
+  detail?: string | {
+    code?: unknown;
+    message?: unknown;
+    [key: string]: unknown;
+  };
 }
 
 interface RetriableRequestConfig extends InternalAxiosRequestConfig {
@@ -50,7 +56,11 @@ let refreshPromise: Promise<AuthSession | null> | null = null;
 let expirationPromise: Promise<void> | null = null;
 
 const apiBaseUrl = typeof window === "undefined"
-  ? (process.env.NEXT_PUBLIC_API_BASE_URL ?? "")
+  ? resolveServerApiBaseUrl({
+      NODE_ENV: process.env.NODE_ENV,
+      API_BASE_URL: process.env.API_BASE_URL,
+      NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
+    })
   : "";
 
 const apiClient: AxiosInstance = axios.create({
@@ -116,7 +126,15 @@ async function buildApiError(error: AxiosError<ApiErrorResponse>): Promise<ApiEr
     };
   }
   const detail = responseData?.detail;
-  if (detail) {
+  const structuredDetail = normalizeStructuredApiErrorDetail(detail);
+  if (structuredDetail) {
+    return {
+      ...structuredDetail,
+      ...(responseStatus === undefined ? {} : { status: responseStatus }),
+      ...(retryAfterMs === undefined ? {} : { retryAfterMs }),
+    };
+  }
+  if (typeof detail === "string" && detail) {
     return {
       code: `HTTP_${responseStatus ?? "ERROR"}`,
       message: detail,

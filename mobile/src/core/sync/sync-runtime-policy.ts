@@ -6,9 +6,14 @@ export const FULL_TRIP_RECONCILIATION_INTERVAL_MS = 30 * 60_000;
 export type SyncScope = 'none' | 'selected' | 'full';
 
 const LOCAL_SYNC_PROJECTION_PREFIXES = new Set([
+  'coordinator-attendance-roster',
+  'coordinator-attendance-sessions',
   'coordinator-roster',
+  'manager-attendance-roster',
+  'manager-attendance-sessions',
   'manager-readiness',
   'mobile-trips',
+  'my-photos-summary',
   'trip-announcements',
   'trip-common-documents',
   'trip-documents',

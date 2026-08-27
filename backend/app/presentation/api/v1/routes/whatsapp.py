@@ -80,7 +80,12 @@ from app.infrastructure.repositories.passport_whatsapp_matching_repository impor
 from app.infrastructure.repositories.whatsapp_recipient_capacity_repository import (
     require_locked_broadcast_recipient_capacity,
 )
-from app.infrastructure.security.upload_validator import UploadValidator
+from app.infrastructure.security.upload_security import (
+    UploadSecurityContext,
+    UploadSecurityEvidenceError,
+    UploadSecurityService,
+)
+from app.infrastructure.security.upload_validator import MalwareScannerUnavailableError
 from app.infrastructure.whatsapp.cloud_api_provider import (
     WhatsAppCloudApiError,
     upload_whatsapp_image,
@@ -438,11 +443,11 @@ async def receive_whatsapp_webhook(
                         PassengerQrWhatsAppDeliveryModel.provider_message_id == provider_id
                     )
                 )
-                for delivery in qr_result.scalars().all():
-                    if not isinstance(delivery, PassengerQrWhatsAppDeliveryModel):
+                for qr_delivery in qr_result.scalars().all():
+                    if not isinstance(qr_delivery, PassengerQrWhatsAppDeliveryModel):
                         continue
                     apply_qr_provider_status(
-                        delivery,
+                        qr_delivery,
                         provider_status=provider_status,
                         error_message=error_message,
                         provider_status_at=provider_status_at,
@@ -573,7 +578,7 @@ async def _lock_active_whatsapp_actor(
                 UserModel.agency_id == expected_agency_id,
                 AgencyModel.is_active.is_(True),
             )
-            .with_for_update(of=(UserModel, AgencyModel))
+            .with_for_update()
         )
     else:
         statement = statement.with_for_update(of=UserModel)
@@ -1574,12 +1579,13 @@ async def upload_welcome_media(
     session: AsyncSession = Depends(get_db_session),
 ) -> WhatsAppWelcomeMediaResponse:
     result = await session.execute(
-        select(WhatsAppBroadcastGroupModel.id).where(
+        select(WhatsAppBroadcastGroupModel.agency_id).where(
             WhatsAppBroadcastGroupModel.id == group_id,
             *_agency_filter(current_user),
         )
     )
-    if not result.scalar_one_or_none():
+    group_agency_id = result.scalar_one_or_none()
+    if group_agency_id is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="WhatsApp broadcast group not found",
@@ -1591,20 +1597,50 @@ async def upload_welcome_media(
         )
 
     payload = bytearray()
-    while chunk := await image.read(WHATSAPP_UPLOAD_READ_CHUNK_BYTES):
-        payload.extend(chunk)
-        if len(payload) > MAX_WHATSAPP_WELCOME_IMAGE_BYTES:
-            raise HTTPException(
-                status_code=status.HTTP_413_CONTENT_TOO_LARGE,
-                detail="The Welcome image must be 5 MB or smaller",
-            )
     try:
-        validated = await asyncio.to_thread(
-            UploadValidator().validate,
+        while chunk := await image.read(WHATSAPP_UPLOAD_READ_CHUNK_BYTES):
+            payload.extend(chunk)
+            if len(payload) > MAX_WHATSAPP_WELCOME_IMAGE_BYTES:
+                try:
+                    await UploadSecurityService().validate_image(
+                        content=bytes(payload),
+                        filename=image.filename,
+                        declared_content_type=image.content_type,
+                        context=UploadSecurityContext(
+                            ingestion_flow="whatsapp_welcome_image",
+                            agency_id=group_agency_id,
+                            user_id=current_user.id,
+                        ),
+                        max_bytes=MAX_WHATSAPP_WELCOME_IMAGE_BYTES,
+                    )
+                except ImageValidationError:
+                    raise HTTPException(
+                        status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+                        detail="The Welcome image must be 5 MB or smaller",
+                    ) from None
+    finally:
+        try:
+            await image.close()
+        except Exception:
+            pass
+    try:
+        validated = await UploadSecurityService().validate_image(
             content=bytes(payload),
             filename=image.filename,
             declared_content_type=image.content_type,
+            context=UploadSecurityContext(
+                ingestion_flow="whatsapp_welcome_image",
+                agency_id=group_agency_id,
+                user_id=current_user.id,
+            ),
+            max_bytes=MAX_WHATSAPP_WELCOME_IMAGE_BYTES,
         )
+    except (MalwareScannerUnavailableError, UploadSecurityEvidenceError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Document security scanning is temporarily unavailable",
+            headers={"Retry-After": "30"},
+        ) from exc
     except ImageValidationError as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -1763,7 +1799,12 @@ async def preview_broadcast_message(
     if body.resend_recipient_id is not None:
         recipient_count = 1
         eligible_count = 1
-        already_sent_count = 1 if target_state.status in WHATSAPP_ACCEPTED_STATUSES else 0
+        already_sent_count = (
+            1
+            if target_state is not None
+            and target_state.status in WHATSAPP_ACCEPTED_STATUSES
+            else 0
+        )
         in_progress_count = 0
         uncertain_count = 0
     else:
@@ -2127,7 +2168,7 @@ async def add_broadcast_recipients(
         select(WhatsAppBroadcastGroupModel)
         .join(AgencyModel, AgencyModel.id == WhatsAppBroadcastGroupModel.agency_id)
         .where(*group_predicates, AgencyModel.is_active.is_(True))
-        .with_for_update(of=(AgencyModel, WhatsAppBroadcastGroupModel))
+        .with_for_update()
         .execution_options(populate_existing=True)
     )
     group = group_result.scalar_one_or_none()

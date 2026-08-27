@@ -502,6 +502,7 @@ class PassportExcelExporter:
         submission: PassportSubmission,
         zone_names: dict[uuid.UUID, str] | None,
     ) -> str:
+        value: object
         if zone_names is not None and submission.id in zone_names:
             value = zone_names[submission.id]
         else:

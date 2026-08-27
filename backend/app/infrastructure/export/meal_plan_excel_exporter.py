@@ -9,6 +9,7 @@ from datetime import date, timedelta
 
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
+from openpyxl.worksheet.worksheet import Worksheet
 
 MEAL_ORDER = {"lunch": 0, "dinner": 1}
 THIN_BORDER = Border(
@@ -37,6 +38,10 @@ def _safe_excel_text(value: str | None) -> str | None:
     if value.startswith(("=", "+", "-", "@")):
         return f"'{value}"
     return value
+
+
+def _entry_dish_name(entry: MealPlanExportEntry | None) -> str | None:
+    return _safe_excel_text(entry.dish_name) if entry is not None else None
 
 
 class MealPlanExcelExporter:
@@ -117,7 +122,7 @@ class MealPlanExcelExporter:
 
     @staticmethod
     def _build_matrix_sheet(
-        worksheet,  # type: ignore[no-untyped-def]
+        worksheet: Worksheet,
         *,
         plan_name: str,
         trip_days: int,
@@ -201,11 +206,11 @@ class MealPlanExcelExporter:
                         meal_date,
                         meal_type.title(),
                         *[
-                            _safe_excel_text(
-                                entry_lookup.get((day_number, meal_type, category_key)).dish_name
+                            _entry_dish_name(
+                                entry_lookup.get(
+                                    (day_number, meal_type, category_key)
+                                )
                             )
-                            if entry_lookup.get((day_number, meal_type, category_key))
-                            else None
                             for category_key, _ in categories
                         ],
                     ]
@@ -272,7 +277,7 @@ class MealPlanExcelExporter:
 
     @staticmethod
     def _build_detail_sheet(
-        worksheet,  # type: ignore[no-untyped-def]
+        worksheet: Worksheet,
         *,
         start_date: date | None,
         entries: list[MealPlanExportEntry],

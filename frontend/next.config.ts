@@ -3,6 +3,25 @@
  */
 
 import type { NextConfig } from "next";
+import { resolveApiRewriteBase } from "./config/api-routing";
+
+const PRIVATE_DYNAMIC_CACHE_CONTROL = "private, no-store, max-age=0, must-revalidate";
+const PUBLIC_REVALIDATED_CACHE_CONTROL = "public, max-age=0, must-revalidate";
+const PUBLIC_REVALIDATED_ASSETS = [
+  "/offline.html",
+  "/offline-scanner.js",
+  "/offline/vendor/:path*",
+  "/manifest.webmanifest",
+  "/email-automation.webmanifest",
+  "/pwa-icon.svg",
+  "/pwa-icon-192.png",
+  "/pwa-icon-512.png",
+  "/pwa-icon-maskable-512.png",
+  "/apple-touch-icon.png",
+  "/globalconnect-logo.png",
+  "/globalconnectteam.png",
+  "/mediapipe/:path*",
+] as const;
 
 const nextConfig: NextConfig = {
   // Playwright and physical-device LAN development may address the local dev
@@ -35,10 +54,14 @@ const nextConfig: NextConfig = {
   },
 
   // ── API Proxy (development rewrites) ─────────────────────
-  // Only active when NEXT_PUBLIC_API_BASE_URL is set.
-  // In production, Nginx routes /api/* to the backend directly.
+  // Production prefers Nginx same-origin routing. An optional server-only
+  // API_BASE_URL enables a Next-side rewrite without exposing the upstream.
   async rewrites() {
-    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
+    const apiBase = resolveApiRewriteBase({
+      NODE_ENV: process.env.NODE_ENV,
+      API_BASE_URL: process.env.API_BASE_URL,
+      NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
+    });
     if (!apiBase) return [];
     return [
       {
@@ -56,7 +79,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: "Cache-Control",
-            value: "no-store, no-cache, must-revalidate",
+            value: PRIVATE_DYNAMIC_CACHE_CONTROL,
           },
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "X-Content-Type-Options", value: "nosniff" },
@@ -65,6 +88,20 @@ const nextConfig: NextConfig = {
             key: "Permissions-Policy",
             value: "camera=self, microphone=(), geolocation=()",
           },
+        ],
+      },
+      ...PUBLIC_REVALIDATED_ASSETS.map((source) => ({
+        source,
+        headers: [{
+          key: "Cache-Control",
+          value: PUBLIC_REVALIDATED_CACHE_CONTROL,
+        }],
+      })),
+      {
+        source: "/sw.js",
+        headers: [
+          { key: "Cache-Control", value: PUBLIC_REVALIDATED_CACHE_CONTROL },
+          { key: "Service-Worker-Allowed", value: "/" },
         ],
       },
     ];

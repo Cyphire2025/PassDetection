@@ -102,7 +102,7 @@ test('writes 10k attendance sessions with bounded staging and O(batch) upserts',
   });
 
   expect(transaction.runAsync).toHaveBeenCalledTimes(
-    2 + Math.ceil(10_000 / 900) + Math.ceil(10_000 / 90) + 2,
+    2 + Math.ceil(10_000 / 900) + Math.ceil(10_000 / Math.floor(900 / 14)) + 2,
   );
   expect(transaction.runAsync.mock.calls.every((call) => call.slice(1).length <= 900)).toBe(true);
   expect(transaction.runAsync.mock.calls.at(-2)?.[0]).toContain('NOT EXISTS');

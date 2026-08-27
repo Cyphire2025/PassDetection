@@ -55,12 +55,18 @@ async function upsertSession(
   await database.runAsync(
     `INSERT INTO attendance_sessions
       (id, account_namespace, trip_id, name, status, scanned_count, assigned_count,
-       started_at, completed_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       started_at, completed_at, scheduled_starts_at, scheduled_ends_at,
+       schedule_timezone, schedule_version, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(id) DO UPDATE SET
        name = excluded.name, status = excluded.status, scanned_count = excluded.scanned_count,
        assigned_count = excluded.assigned_count, started_at = excluded.started_at,
-       completed_at = excluded.completed_at, updated_at = excluded.updated_at`,
+       completed_at = excluded.completed_at,
+       scheduled_starts_at = excluded.scheduled_starts_at,
+       scheduled_ends_at = excluded.scheduled_ends_at,
+       schedule_timezone = excluded.schedule_timezone,
+       schedule_version = excluded.schedule_version,
+       updated_at = excluded.updated_at`,
     session.id,
     account,
     tripId,
@@ -70,6 +76,10 @@ async function upsertSession(
     session.assigned_count,
     session.started_at,
     session.completed_at,
+    session.scheduled_starts_at ?? null,
+    session.scheduled_ends_at ?? null,
+    session.schedule_timezone ?? null,
+    session.schedule_version ?? 1,
     new Date().toISOString(),
   );
   if (syncContext) assertSyncContextActive(syncContext);
@@ -114,17 +124,23 @@ export async function replaceAttendanceSessionsInTransaction(
     sessions.map((session) => session.id),
     assertActive,
   );
-  for (const batch of sqliteBindBatches(sessions, 10)) {
+  for (const batch of sqliteBindBatches(sessions, 14)) {
     assertActive?.();
     await transaction.runAsync(
       `INSERT INTO attendance_sessions
         (id, account_namespace, trip_id, name, status, scanned_count, assigned_count,
-         started_at, completed_at, updated_at)
-       VALUES ${sqliteValuesClause(batch.length, 10)}
+         started_at, completed_at, scheduled_starts_at, scheduled_ends_at,
+         schedule_timezone, schedule_version, updated_at)
+       VALUES ${sqliteValuesClause(batch.length, 14)}
        ON CONFLICT(id) DO UPDATE SET
          name = excluded.name, status = excluded.status, scanned_count = excluded.scanned_count,
          assigned_count = excluded.assigned_count, started_at = excluded.started_at,
-         completed_at = excluded.completed_at, updated_at = excluded.updated_at`,
+         completed_at = excluded.completed_at,
+         scheduled_starts_at = excluded.scheduled_starts_at,
+         scheduled_ends_at = excluded.scheduled_ends_at,
+         schedule_timezone = excluded.schedule_timezone,
+         schedule_version = excluded.schedule_version,
+         updated_at = excluded.updated_at`,
       ...batch.flatMap((session) => [
         session.id,
         account,
@@ -135,6 +151,10 @@ export async function replaceAttendanceSessionsInTransaction(
         session.assigned_count,
         session.started_at,
         session.completed_at,
+        session.scheduled_starts_at ?? null,
+        session.scheduled_ends_at ?? null,
+        session.schedule_timezone ?? null,
+        session.schedule_version ?? 1,
         updatedAt,
       ]),
     );
@@ -173,7 +193,8 @@ async function localSessions(
   const database = await openAccountDatabase(account);
   if (syncContext) assertSyncContextActive(syncContext);
   const sessions = await database.getAllAsync<AttendanceSession>(
-    `SELECT id, name, status, scanned_count, assigned_count, started_at, completed_at
+    `SELECT id, name, status, scanned_count, assigned_count, started_at, completed_at,
+            scheduled_starts_at, scheduled_ends_at, schedule_timezone, schedule_version
        FROM attendance_sessions
       WHERE account_namespace = ? AND trip_id = ?
       ORDER BY CASE status WHEN 'active' THEN 0 WHEN 'draft' THEN 1 ELSE 2 END,
@@ -202,7 +223,9 @@ export async function selectedAttendanceSession(
   const database = await openAccountDatabase(account);
   if (syncContext) assertSyncContextActive(syncContext);
   const session = await database.getFirstAsync<AttendanceSession>(
-    `SELECT s.id, s.name, s.status, s.scanned_count, s.assigned_count, s.started_at, s.completed_at
+    `SELECT s.id, s.name, s.status, s.scanned_count, s.assigned_count,
+            s.started_at, s.completed_at, s.scheduled_starts_at,
+            s.scheduled_ends_at, s.schedule_timezone, s.schedule_version
        FROM attendance_session_selection p
        JOIN attendance_sessions s ON s.id = p.session_id
         AND s.account_namespace = p.account_namespace AND s.trip_id = p.trip_id

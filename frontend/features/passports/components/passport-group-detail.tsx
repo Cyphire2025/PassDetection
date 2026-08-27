@@ -609,6 +609,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     exportSelectedImages.mutate(
       {
         groupId,
+        groupName: groupDetails?.group_name,
         submissionIds: [...selectedPassports],
       },
       {
@@ -1601,6 +1602,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
             mutation.mutate(
               {
                 groupId,
+                groupName: groupDetails?.group_name,
                 mode,
                 baselineExportId,
                 supplementalFields,

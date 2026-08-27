@@ -10,9 +10,19 @@ import {
   EVENT_STORAGE_WARNING_BYTES,
   type DeviceEventReadiness,
 } from './device-event-readiness';
+import {
+  DEFAULT_ATTENDANCE_SCHEDULE_POLICY,
+  resolveAttendanceScheduleWindow,
+  type AttendanceSchedule,
+  type AttendanceSchedulePolicy,
+  type AttendanceScheduleWindow,
+} from './attendance-schedule-policy';
 
-export const DEFAULT_EVENT_READINESS_HORIZON_MS = 8 * 60 * 60_000;
 export const MAX_EVENT_READINESS_SYNC_AGE_MS = 15 * 60_000;
+
+export const DEFAULT_EVENT_READINESS_SCHEDULE_POLICY = DEFAULT_ATTENDANCE_SCHEDULE_POLICY;
+export type EventReadinessSchedulePolicy = AttendanceSchedulePolicy;
+export type EventReadinessScheduleWindow = AttendanceScheduleWindow;
 
 type ReadinessEvidenceRow = Readonly<{
   advertised_roster_version: number;
@@ -94,6 +104,7 @@ export type EventReadinessCheck = Readonly<{
     | 'qr_evidence'
     | 'offline_authorization'
     | 'activity'
+    | 'schedule'
     | 'queue'
     | 'scan_issues'
     | 'last_sync'
@@ -122,7 +133,8 @@ export type EventReadinessInput = Readonly<{
     needsReview: number;
   }> | null;
   realtimeStatus: MobileRealtimeStatus;
-  requiredHorizonMs?: number;
+  schedule: AttendanceSchedule | null;
+  schedulePolicy?: EventReadinessSchedulePolicy;
   tripSelected: boolean;
 }>;
 
@@ -139,6 +151,8 @@ export type EventReadinessAssessment = Readonly<{
 
 export type EventReadinessCaptureGate = EventReadinessAssessment['status'] | 'loading';
 
+export const resolveEventReadinessScheduleWindow = resolveAttendanceScheduleWindow;
+
 /**
  * Amber readiness is deliberately capture-safe: every event-critical control is
  * green, while only operational warnings such as an offline network path or
@@ -151,8 +165,13 @@ export function eventReadinessAllowsCapture(gate: EventReadinessCaptureGate): bo
 export function assessCoordinatorEventReadiness(
   input: EventReadinessInput,
 ): EventReadinessAssessment {
-  const horizonMs = input.requiredHorizonMs ?? DEFAULT_EVENT_READINESS_HORIZON_MS;
   const trustedNow = input.offlineAuthorization?.trustedServerTimeMs ?? null;
+  const scheduleWindow = resolveEventReadinessScheduleWindow(
+    input.schedule,
+    trustedNow,
+    input.schedulePolicy,
+  );
+  const requiredCoverageMs = scheduleWindow.requiredCoverageMs;
   const evidenceValidUntil = validTimestamp(input.evidence?.evidenceValidUntil ?? null);
   const lastServerTime = validTimestamp(input.evidence?.lastServerTime ?? null);
   const rosterReady = Boolean(
@@ -168,11 +187,13 @@ export function assessCoordinatorEventReadiness(
     && input.evidence.evidenceReadyCount === input.evidence.rosterCount
     && trustedNow !== null
     && evidenceValidUntil !== null
-    && evidenceValidUntil - trustedNow >= horizonMs,
+    && requiredCoverageMs !== null
+    && evidenceValidUntil - trustedNow >= requiredCoverageMs,
   );
   const offlineReady = Boolean(
     input.offlineAuthorization
-    && input.offlineAuthorization.remainingMs >= horizonMs,
+    && requiredCoverageMs !== null
+    && input.offlineAuthorization.remainingMs >= requiredCoverageMs,
   );
   const syncAgeMs = trustedNow !== null && lastServerTime !== null
     ? Math.max(0, trustedNow - lastServerTime)
@@ -227,6 +248,22 @@ export function assessCoordinatorEventReadiness(
       label: 'Attendance activity',
       outcome: input.activitySelected ? 'ready' : 'blocked',
       message: input.activitySelected ? 'Selected and scannable.' : 'Select an attendance activity.',
+    },
+    {
+      id: 'schedule',
+      label: 'Scheduled activity window',
+      outcome: scheduleWindow.state === 'active' ? 'ready' : 'blocked',
+      message: scheduleWindow.state === 'active'
+        ? `Authorized through the scheduled activity and reconciliation window (${input.schedule!.timeZone}).`
+        : scheduleWindow.state === 'not_yet_valid'
+          ? 'This activity is not yet open for attendance capture.'
+          : scheduleWindow.state === 'expired'
+            ? 'This activity and its reconciliation window have expired.'
+            : scheduleWindow.state === 'outside_policy'
+              ? 'This activity schedule exceeds the configured readiness policy; refresh closer to the event or contact a manager.'
+              : scheduleWindow.state === 'missing'
+                ? 'The server has not supplied an authoritative activity schedule.'
+                : 'The activity schedule, time zone, or version is invalid.',
     },
     {
       id: 'queue',

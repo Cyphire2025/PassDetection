@@ -280,7 +280,7 @@ def _status_matches(entry: SubmissionViewEntry, submission_filter: str) -> bool:
         "needs_review": "needs_review",
         "staff_approved": "staff_approved",
     }
-    return entry.submission.status == status_map.get(submission_filter)
+    return bool(entry.submission.status == status_map.get(submission_filter))
 
 
 def _sort_value(entry: SubmissionViewEntry, sort_by: str) -> Any:

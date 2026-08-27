@@ -321,7 +321,13 @@ export function runAccountDatabaseMaintenance(): Promise<AccountDatabaseMaintena
       };
     }
 
-    await applyAccountStorageRetention(active.database, active.namespace, nowMs);
+    await applyAccountStorageRetention(active.database, active.namespace, {
+      maintenanceNowMs: nowMs,
+      // This lifecycle lane owns a device-time housekeeping clock only.
+      // Trusted attendance retention runs through the attendance queue lane;
+      // never reinterpret wall time as authority to expire attendance evidence.
+      trustedAttendanceNowMs: null,
+    });
     for (const operation of plan.operations) {
       if (activeDatabase !== active || active.state !== 'open') {
         throw new Error('The account database changed during storage maintenance.');

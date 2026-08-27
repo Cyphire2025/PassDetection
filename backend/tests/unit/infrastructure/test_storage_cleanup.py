@@ -323,7 +323,7 @@ async def test_cleanup_storage_failure_schedules_retry_without_logging_keys(
         object_count=1,
         attempts=1,
     )
-    defer = AsyncMock()
+    defer = AsyncMock(return_value=False)
     monkeypatch.setattr(storage_cleanup, "_defer_storage_cleanup_job", defer)
     warning = MagicMock()
     monkeypatch.setattr(storage_cleanup.logger, "warning", warning)
@@ -343,6 +343,46 @@ async def test_cleanup_storage_failure_schedules_retry_without_logging_keys(
     logged = repr(warning.call_args)
     assert key not in logged
     assert "RuntimeError" in logged
+
+
+@pytest.mark.asyncio
+async def test_cleanup_terminal_failure_is_blocked_and_audited_after_bounded_attempts() -> None:
+    cipher = StorageCleanupCipher("cleanup-secret-123456789")
+    claim = StorageCleanupClaim(
+        job_id=uuid.uuid4(),
+        context_fingerprint="f" * 64,
+        ciphertext=cipher.encrypt(["document-rename/batch/passenger-visa.pdf"]),
+        encryption_key_version=cipher.key_version,
+        source="document_rename_batch_delete",
+        object_count=1,
+        attempts=storage_cleanup.MAX_STORAGE_CLEANUP_ATTEMPTS,
+        agency_id=uuid.uuid4(),
+    )
+    job = SimpleNamespace(id=claim.job_id)
+    session = _session_with_result(job)
+    storage = MagicMock()
+    storage.delete_files = AsyncMock(side_effect=RuntimeError("offline"))
+
+    result = await storage_cleanup._execute_storage_cleanup_claim(
+        claim,
+        session_factory=_SessionFactory(session),
+        storage_factory=lambda: storage,
+        cipher=cipher,
+    )
+
+    assert result.completed is False
+    assert job.status == "blocked"
+    assert job.last_error_code == "RuntimeError"
+    terminal_audits = [
+        item
+        for item in session.add.call_args_list
+        if item.args[0].action == "document_storage_cleanup_terminal_failure"
+    ]
+    assert len(terminal_audits) == 1
+    assert terminal_audits[0].args[0].result == "failed"
+    metadata = terminal_audits[0].args[0].metadata_json
+    assert metadata["attempts"] == storage_cleanup.MAX_STORAGE_CLEANUP_ATTEMPTS
+    assert "passenger-visa.pdf" not in repr(metadata)
 
 
 @pytest.mark.asyncio

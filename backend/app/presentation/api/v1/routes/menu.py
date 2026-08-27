@@ -5,12 +5,14 @@ from __future__ import annotations
 import re
 import secrets
 import uuid
+from collections.abc import Mapping
 from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from sqlalchemy.sql.elements import ColumnElement
 
 from app.application.use_cases.menu.meal_plan_generator import (
     InsufficientCategoryDishesError,
@@ -41,6 +43,8 @@ from app.presentation.api.v1.schemas.menu_schemas import (
     MealPlanResponse,
     MenuCategoryResponse,
     MenuDishResponse,
+    MenuDishRevisionRequest,
+    MenuRevisionRequest,
     MenuWorkspaceResponse,
     RegenerateMealPlanRequest,
     UpdateMealPlanEntryRequest,
@@ -174,7 +178,18 @@ async def update_menu_category(
     _csrf: None = Depends(require_cookie_csrf),
 ) -> MenuCategoryResponse:
     agency_id = _agency_scope(current_user)
-    category = await _get_category(session, category_id, agency_id, include_dishes=True)
+    category = await _get_category(
+        session,
+        category_id,
+        agency_id,
+        include_dishes=True,
+        lock=True,
+    )
+    _require_current_revision(
+        actual=category.updated_at,
+        expected=body.expected_updated_at,
+        resource="menu category",
+    )
     normalized_name = _normalized_name(body.name)
     await _ensure_category_name_available(
         session,
@@ -206,13 +221,25 @@ async def update_menu_category(
 )
 async def delete_menu_category(
     category_id: uuid.UUID,
+    body: MenuRevisionRequest,
     request: Request,
     current_user: User = Depends(require_role(MENU_ROLES)),
     session: AsyncSession = Depends(get_db_session),
     _csrf: None = Depends(require_cookie_csrf),
 ) -> Response:
     agency_id = _agency_scope(current_user)
-    category = await _get_category(session, category_id, agency_id, include_dishes=True)
+    category = await _get_category(
+        session,
+        category_id,
+        agency_id,
+        include_dishes=True,
+        lock=True,
+    )
+    _require_current_revision(
+        actual=category.updated_at,
+        expected=body.expected_updated_at,
+        resource="menu category",
+    )
     metadata = {"name": category.name, "dish_count": len(category.dishes)}
     await session.delete(category)
     await session.flush()
@@ -243,7 +270,12 @@ async def create_menu_dish(
     _csrf: None = Depends(require_cookie_csrf),
 ) -> MenuDishResponse:
     agency_id = _agency_scope(current_user)
-    category = await _get_category(session, category_id, agency_id)
+    category = await _get_category(session, category_id, agency_id, lock=True)
+    _require_current_revision(
+        actual=category.updated_at,
+        expected=body.expected_category_updated_at,
+        resource="menu category",
+    )
     normalized_name = _normalized_name(body.name)
     await _ensure_dish_name_available(
         session,
@@ -272,6 +304,7 @@ async def create_menu_dish(
         created_by_user_id=current_user.id,
     )
     session.add(dish)
+    category.updated_at = _utcnow()
     await session.flush()
     await _audit(
         session,
@@ -299,7 +332,17 @@ async def update_menu_dish(
     _csrf: None = Depends(require_cookie_csrf),
 ) -> MenuDishResponse:
     agency_id = _agency_scope(current_user)
-    dish, category = await _get_dish(session, dish_id, agency_id)
+    dish, category = await _get_dish(session, dish_id, agency_id, lock=True)
+    _require_current_revision(
+        actual=dish.updated_at,
+        expected=body.expected_updated_at,
+        resource="menu dish",
+    )
+    _require_current_revision(
+        actual=category.updated_at,
+        expected=body.expected_category_updated_at,
+        resource="menu category",
+    )
     normalized_name = _normalized_name(body.name)
     await _ensure_dish_name_available(
         session,
@@ -312,7 +355,9 @@ async def update_menu_dish(
     dish.normalized_name = normalized_name
     dish.notes = body.notes
     dish.is_active = body.is_active
-    dish.updated_at = _utcnow()
+    changed_at = _utcnow()
+    dish.updated_at = changed_at
+    category.updated_at = changed_at
     await session.flush()
     await _audit(
         session,
@@ -338,15 +383,27 @@ async def update_menu_dish(
 )
 async def delete_menu_dish(
     dish_id: uuid.UUID,
+    body: MenuDishRevisionRequest,
     request: Request,
     current_user: User = Depends(require_role(MENU_ROLES)),
     session: AsyncSession = Depends(get_db_session),
     _csrf: None = Depends(require_cookie_csrf),
 ) -> Response:
     agency_id = _agency_scope(current_user)
-    dish, category = await _get_dish(session, dish_id, agency_id)
+    dish, category = await _get_dish(session, dish_id, agency_id, lock=True)
+    _require_current_revision(
+        actual=dish.updated_at,
+        expected=body.expected_updated_at,
+        resource="menu dish",
+    )
+    _require_current_revision(
+        actual=category.updated_at,
+        expected=body.expected_category_updated_at,
+        resource="menu category",
+    )
     metadata = {"name": dish.name, "category": category.name}
     await session.delete(dish)
+    category.updated_at = _utcnow()
     await session.flush()
     await _audit(
         session,
@@ -378,6 +435,11 @@ async def generate_meal_plan(
         session,
         agency_id=agency_id,
         category_ids=body.category_ids,
+        lock=True,
+    )
+    _require_current_category_revisions(
+        planner_categories,
+        body.expected_category_revisions,
     )
     seed = secrets.randbelow(2**63 - 1)
     assignments = _generate_or_422(
@@ -430,7 +492,12 @@ async def regenerate_meal_plan(
     _csrf: None = Depends(require_cookie_csrf),
 ) -> MealPlanResponse:
     agency_id = _agency_scope(current_user)
-    plan = await _get_plan(session, plan_id, agency_id)
+    plan = await _get_plan(session, plan_id, agency_id, lock=True)
+    _require_current_revision(
+        actual=plan.updated_at,
+        expected=body.expected_updated_at,
+        resource="meal plan",
+    )
     category_ids = body.category_ids
     if category_ids is None and plan.selected_category_ids:
         category_ids = [uuid.UUID(str(category_id)) for category_id in plan.selected_category_ids]
@@ -439,6 +506,11 @@ async def regenerate_meal_plan(
         session,
         agency_id=agency_id,
         category_ids=category_ids,
+        lock=True,
+    )
+    _require_current_category_revisions(
+        planner_categories,
+        body.expected_category_revisions,
     )
     seed = secrets.randbelow(2**63 - 1)
     assignments = _generate_or_422(
@@ -479,7 +551,18 @@ async def update_meal_plan(
     _csrf: None = Depends(require_cookie_csrf),
 ) -> MealPlanResponse:
     agency_id = _agency_scope(current_user)
-    plan = await _get_plan(session, plan_id, agency_id, include_entries=True)
+    plan = await _get_plan(
+        session,
+        plan_id,
+        agency_id,
+        include_entries=True,
+        lock=True,
+    )
+    _require_current_revision(
+        actual=plan.updated_at,
+        expected=body.expected_updated_at,
+        resource="meal plan",
+    )
     previous_name = plan.name
     plan.name = body.name
     plan.start_date = body.start_date
@@ -512,14 +595,40 @@ async def update_meal_plan_entry(
     _csrf: None = Depends(require_cookie_csrf),
 ) -> MealPlanResponse:
     agency_id = _agency_scope(current_user)
-    plan = await _get_plan(session, plan_id, agency_id, include_entries=True)
+    plan = await _get_plan(
+        session,
+        plan_id,
+        agency_id,
+        include_entries=True,
+        lock=True,
+    )
+    _require_current_revision(
+        actual=plan.updated_at,
+        expected=body.expected_updated_at,
+        resource="meal plan",
+    )
     entry = next((item for item in plan.entries if item.id == entry_id), None)
     if entry is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Meal plan entry not found",
         )
-    dish, category = await _get_dish(session, body.dish_id, agency_id)
+    dish, category = await _get_dish(
+        session,
+        body.dish_id,
+        agency_id,
+        lock=True,
+    )
+    _require_current_revision(
+        actual=dish.updated_at,
+        expected=body.expected_dish_updated_at,
+        resource="menu dish",
+    )
+    _require_current_revision(
+        actual=category.updated_at,
+        expected=body.expected_category_updated_at,
+        resource="menu category",
+    )
     if not dish.is_active:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -622,13 +731,19 @@ async def export_meal_plan(
 )
 async def delete_meal_plan(
     plan_id: uuid.UUID,
+    body: MenuRevisionRequest,
     request: Request,
     current_user: User = Depends(require_role(MENU_ROLES)),
     session: AsyncSession = Depends(get_db_session),
     _csrf: None = Depends(require_cookie_csrf),
 ) -> Response:
     agency_id = _agency_scope(current_user)
-    plan = await _get_plan(session, plan_id, agency_id)
+    plan = await _get_plan(session, plan_id, agency_id, lock=True)
+    _require_current_revision(
+        actual=plan.updated_at,
+        expected=body.expected_updated_at,
+        resource="meal plan",
+    )
     metadata = {"name": plan.name, "trip_days": plan.trip_days}
     await session.delete(plan)
     await session.flush()
@@ -656,7 +771,7 @@ def _agency_scope(current_user: User) -> uuid.UUID | None:
 def _category_scope(
     model: type[MenuCategoryModel],
     agency_id: uuid.UUID | None,
-):
+) -> ColumnElement[bool]:
     if agency_id is None:
         return model.agency_id.is_(None)
     return model.agency_id == agency_id
@@ -665,7 +780,7 @@ def _category_scope(
 def _plan_scope(
     model: type[MealPlanModel],
     agency_id: uuid.UUID | None,
-):
+) -> ColumnElement[bool]:
     if agency_id is None:
         return model.agency_id.is_(None)
     return model.agency_id == agency_id
@@ -677,6 +792,7 @@ async def _get_category(
     agency_id: uuid.UUID | None,
     *,
     include_dishes: bool = False,
+    lock: bool = False,
 ) -> MenuCategoryModel:
     statement = select(MenuCategoryModel).where(
         MenuCategoryModel.id == category_id,
@@ -684,6 +800,10 @@ async def _get_category(
     )
     if include_dishes:
         statement = statement.options(selectinload(MenuCategoryModel.dishes))
+    if lock:
+        statement = statement.with_for_update().execution_options(
+            populate_existing=True
+        )
     result = await session.execute(statement)
     category = result.scalar_one_or_none()
     if category is None:
@@ -698,8 +818,10 @@ async def _get_dish(
     session: AsyncSession,
     dish_id: uuid.UUID,
     agency_id: uuid.UUID | None,
+    *,
+    lock: bool = False,
 ) -> tuple[MenuDishModel, MenuCategoryModel]:
-    result = await session.execute(
+    statement = (
         select(MenuDishModel, MenuCategoryModel)
         .join(MenuCategoryModel, MenuCategoryModel.id == MenuDishModel.category_id)
         .where(
@@ -707,6 +829,11 @@ async def _get_dish(
             _category_scope(MenuCategoryModel, agency_id),
         )
     )
+    if lock:
+        statement = statement.with_for_update().execution_options(
+            populate_existing=True
+        )
+    result = await session.execute(statement)
     row = result.one_or_none()
     if row is None:
         raise HTTPException(
@@ -722,6 +849,7 @@ async def _get_plan(
     agency_id: uuid.UUID | None,
     *,
     include_entries: bool = False,
+    lock: bool = False,
 ) -> MealPlanModel:
     statement = select(MealPlanModel).where(
         MealPlanModel.id == plan_id,
@@ -729,6 +857,10 @@ async def _get_plan(
     )
     if include_entries:
         statement = statement.options(selectinload(MealPlanModel.entries))
+    if lock:
+        statement = statement.with_for_update().execution_options(
+            populate_existing=True
+        )
     result = await session.execute(statement)
     plan = result.scalar_one_or_none()
     if plan is None:
@@ -784,6 +916,7 @@ async def _planner_categories(
     *,
     agency_id: uuid.UUID | None,
     category_ids: list[uuid.UUID] | None,
+    lock: bool = False,
 ) -> list[PlannerCategory]:
     if category_ids is not None and not category_ids:
         raise HTTPException(
@@ -799,6 +932,10 @@ async def _planner_categories(
     )
     if category_ids is not None:
         statement = statement.where(MenuCategoryModel.id.in_(category_ids))
+    if lock:
+        statement = statement.with_for_update().execution_options(
+            populate_existing=True
+        )
 
     category_result = await session.execute(statement)
     categories = list(category_result.scalars().unique().all())
@@ -827,6 +964,7 @@ async def _planner_categories(
             PlannerCategory(
                 id=category.id,
                 name=category.name,
+                updated_at=category.updated_at,
                 dishes=tuple(
                     PlannerDish(
                         id=dish.id,
@@ -995,6 +1133,68 @@ def _plan_response(
     )
 
 
+def _require_current_revision(
+    *,
+    actual: datetime,
+    expected: datetime,
+    resource: str,
+) -> None:
+    actual_utc = _normalized_revision(actual)
+    expected_utc = _normalized_revision(expected)
+    if actual_utc == expected_utc:
+        return
+    raise HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail={
+            "code": "MENU_REVISION_CONFLICT",
+            "message": (
+                f"This {resource} changed in another session. "
+                "Refresh the menu workspace and retry your change."
+            ),
+            "current_updated_at": actual_utc.isoformat(),
+        },
+    )
+
+
+def _require_current_category_revisions(
+    categories: list[PlannerCategory],
+    expected: Mapping[uuid.UUID, datetime],
+) -> None:
+    current_ids = {category.id for category in categories}
+    if set(expected) != current_ids:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "code": "MENU_REVISION_CONFLICT",
+                "message": (
+                    "The menu category selection changed in another session. "
+                    "Refresh the menu workspace and regenerate the plan."
+                ),
+                "current_category_ids": sorted(str(item) for item in current_ids),
+            },
+        )
+    for category in categories:
+        if category.updated_at is None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={
+                    "code": "MENU_REVISION_CONFLICT",
+                    "message": "The menu category revision is unavailable.",
+                },
+            )
+        _require_current_revision(
+            actual=category.updated_at,
+            expected=expected[category.id],
+            resource="menu category",
+        )
+
+
+def _normalized_revision(value: datetime) -> datetime:
+    if value.tzinfo is None:
+        return value.replace(tzinfo=UTC)
+    return value.astimezone(UTC)
+
+
 def _normalized_name(value: str) -> str:
     return " ".join(value.strip().split()).casefold()
 
@@ -1016,7 +1216,7 @@ async def _audit(
     action: str,
     entity_type: str,
     entity_id: uuid.UUID,
-    metadata: dict[str, object],
+    metadata: Mapping[str, object],
 ) -> None:
     await AuditLogRepository(session).record(
         action=action,
@@ -1026,5 +1226,5 @@ async def _audit(
         actor_email=current_user.email,
         entity_id=str(entity_id),
         ip_address=trusted_client_ip(request),
-        metadata=metadata,
+        metadata=dict(metadata),
     )

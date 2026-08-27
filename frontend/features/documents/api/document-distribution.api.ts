@@ -1,5 +1,6 @@
 import apiClient, { type ApiError } from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
+import { downloadStreamedResponse } from "@/lib/api/streamed-download";
 import type {
   AbortDocumentUploadResult,
   DistributionDocumentType,
@@ -11,21 +12,20 @@ import type {
   SendDocumentBroadcastResult,
 } from "@/types/document-distribution.types";
 import {
-  canFinalizeDocumentReceiptChunk,
-  createAcceptedDocumentUploadSession,
-  createDocumentUploadSession,
+  createDocumentStagingManifest,
   createDocumentVerificationSession,
   isPassengerMatchedVerificationFile,
   MAX_DOCUMENT_VERIFICATION_CONCURRENCY,
   runConcurrentDocumentVerification,
-  runChunkedDocumentUpload,
+  runStagedDocumentUpload,
+  type DocumentStagingManifest,
   type DocumentUploadProgress,
-  type DocumentUploadSession,
 } from "../services/document-upload-batching";
+import { verificationWithoutStagingReceipts } from "../services/document-upload-recovery";
 
 export interface DocumentVerificationUploadPlan {
   verification: DocumentVerificationResult;
-  uploadSession: DocumentUploadSession;
+  stagingManifest: DocumentStagingManifest;
 }
 
 export type DocumentAssignmentExportFilter =
@@ -34,17 +34,6 @@ export type DocumentAssignmentExportFilter =
   | "missing"
   | "sent"
   | "not_sent";
-
-function downloadBlob(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = filename;
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-  URL.revokeObjectURL(url);
-}
 
 export const documentDistributionApi = {
   listGroups: async (search?: string, signal?: AbortSignal): Promise<DocumentDistributionGroup[]> => {
@@ -65,19 +54,17 @@ export const documentDistributionApi = {
     documentType: DistributionDocumentType,
     filter: DocumentAssignmentExportFilter,
     search: string,
+    groupName?: string,
   ): Promise<void> => {
-    const response = await apiClient.get<Blob>(
-      API_ENDPOINTS.documents.reviewExport(groupId, documentType),
-      {
-        params: { filter, search: search.trim() || undefined },
-        responseType: "blob",
-        timeout: 0,
-      },
-    );
-    const disposition = String(response.headers["content-disposition"] ?? "");
-    const filenameMatch = disposition.match(/filename="?([^";]+)"?/i);
-    const filename = filenameMatch?.[1] ?? `document-assignments-${filter}.xlsx`;
-    downloadBlob(response.data, filename);
+    await downloadStreamedResponse({
+      url: API_ENDPOINTS.documents.reviewExport(groupId, documentType),
+      params: { filter, search: search.trim() || undefined },
+      suggestedFilename: documentAssignmentFilename(
+        groupName ?? groupId,
+        documentType,
+        filter,
+      ),
+    });
   },
 
   verifyDocuments: async (
@@ -85,12 +72,14 @@ export const documentDistributionApi = {
     documentType: DistributionDocumentType,
     files: File[],
     onProgress?: (progress: DocumentUploadProgress) => void,
+    signal?: AbortSignal,
   ): Promise<DocumentVerificationUploadPlan> => {
     const session = createDocumentVerificationSession(files);
     const completedResults = await runConcurrentDocumentVerification({
       session,
       concurrency: MAX_DOCUMENT_VERIFICATION_CONCURRENCY,
       onProgress,
+      signal,
       uploadChunk: async (chunk, chunkIndex, reportUpload) => {
         const formData = new FormData();
         formData.append("upload_id", session.uploadId);
@@ -102,6 +91,7 @@ export const documentDistributionApi = {
           {
             headers: { "Content-Type": "multipart/form-data" },
             timeout: 240_000,
+            signal,
             onUploadProgress: (event) => reportUpload(event.loaded, event.total),
           },
         );
@@ -127,94 +117,80 @@ export const documentDistributionApi = {
         files: verifiedFiles,
       };
     });
-    const uploadSession = createAcceptedDocumentUploadSession(
+    const stagingManifest = createDocumentStagingManifest(
       session,
       normalizedResults.map((result) => result.files.map((file) => file.accepted)),
+      normalizedResults.map((result) =>
+        result.files.map((file) => file.staging_receipt),
+      ),
     );
+    const verification = verificationWithoutStagingReceipts({
+      group_id: groupId,
+      document_type: documentType,
+      total_count: normalizedResults.reduce(
+        (total, result) => total + result.total_count,
+        0,
+      ),
+      accepted_count: normalizedResults.reduce(
+        (total, result) => total + result.accepted_count,
+        0,
+      ),
+      rejected_count: normalizedResults.reduce(
+        (total, result) => total + result.rejected_count,
+        0,
+      ),
+      files: normalizedResults.flatMap((result) => result.files),
+    });
     return {
-      uploadSession,
-      verification: {
-        group_id: groupId,
-        document_type: documentType,
-        total_count: normalizedResults.reduce(
-          (total, result) => total + result.total_count,
-          0,
-        ),
-        accepted_count: normalizedResults.reduce(
-          (total, result) => total + result.accepted_count,
-          0,
-        ),
-        rejected_count: normalizedResults.reduce(
-          (total, result) => total + result.rejected_count,
-          0,
-        ),
-        files: normalizedResults.flatMap((result) => result.files),
-      },
+      stagingManifest,
+      verification,
     };
   },
 
   uploadDocuments: async (
     groupId: string,
     documentType: DistributionDocumentType,
-    files: File[],
+    manifest: DocumentStagingManifest,
     onProgress?: (progress: DocumentUploadProgress) => void,
-    existingSession?: DocumentUploadSession,
-    stagingReceipts?: Array<string | null>,
+    onManifestChange?: (manifest: DocumentStagingManifest) => void,
+    signal?: AbortSignal,
   ): Promise<DocumentBatchReview> => {
-    const session = existingSession ?? createDocumentUploadSession(files);
-    let nextChunkOffset = 0;
-    const chunkOffsets = session.chunks.map((chunk) => {
-      const offset = nextChunkOffset;
-      nextChunkOffset += chunk.length;
-      return offset;
-    });
-    return runChunkedDocumentUpload({
-      session,
+    return runStagedDocumentUpload({
+      manifest,
       onProgress,
+      onManifestChange,
+      signal,
       uploadChunk: async (chunk, chunkIndex, reportUpload) => {
-        const receiptOffset = chunkOffsets[chunkIndex];
-        const chunkReceipts = stagingReceipts?.slice(
-          receiptOffset,
-          receiptOffset + chunk.length,
+        const formData = new FormData();
+        formData.append("upload_id", manifest.uploadId);
+        formData.append("chunk_id", chunk.chunkId);
+        formData.append("chunk_index", String(chunkIndex));
+        formData.append("expected_chunk_count", String(manifest.chunks.length));
+        formData.append("expected_file_count", String(manifest.totalFiles));
+        chunk.receipts.forEach((receipt) =>
+          formData.append("staging_receipts", receipt),
         );
-        const canFinalizeStaging = canFinalizeDocumentReceiptChunk(
-          chunkReceipts,
-          chunk.length,
-        );
-        const postChunk = async (receipts?: readonly string[]) => {
-          const formData = new FormData();
-          formData.append("upload_id", session.uploadId);
-          formData.append("chunk_id", session.chunkIds[chunkIndex]);
-          formData.append("chunk_index", String(chunkIndex));
-          formData.append("expected_chunk_count", String(session.chunks.length));
-          formData.append("expected_file_count", String(session.totalFiles));
-          if (receipts) {
-            receipts.forEach((receipt) =>
-              formData.append("staging_receipts", receipt),
-            );
-          } else {
-            chunk.forEach((file) => formData.append("files", file));
-          }
+        try {
           const { data } = await apiClient.post<DocumentBatchReview>(
             API_ENDPOINTS.documents.upload(groupId, documentType),
             formData,
             {
               headers: { "Content-Type": "multipart/form-data" },
               timeout: 240_000,
+              signal,
               onUploadProgress: (event) => reportUpload(event.loaded, event.total),
             },
           );
           return data;
-        };
-
-        if (canFinalizeStaging) {
-          try {
-            return await postChunk(chunkReceipts);
-          } catch (error) {
-            if ((error as Partial<ApiError> | null)?.code !== "HTTP_410") throw error;
+        } catch (error) {
+          if ((error as Partial<ApiError> | null)?.code === "HTTP_410") {
+            throw new Error(
+              "The secure PDF staging receipt expired. Select and check the PDFs again; "
+              + "the browser did not retain raw file copies for fallback upload.",
+            );
           }
+          throw error;
         }
-        return postChunk();
       },
     });
   },
@@ -318,3 +294,13 @@ export const documentDistributionApi = {
     return data;
   },
 };
+
+function documentAssignmentFilename(
+  groupName: string,
+  documentType: DistributionDocumentType,
+  filter: DocumentAssignmentExportFilter,
+) {
+  const raw = `${groupName}-${documentType}-${filter}-document-assignments`.trim();
+  const safe = raw.replace(/[^A-Za-z0-9_.-]+/g, "_").slice(0, 120);
+  return `${safe || "document"}.xlsx`;
+}

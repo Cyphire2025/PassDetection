@@ -48,6 +48,10 @@ _EMAIL_STORAGE_PREFIXES = (
 )
 _EMAIL_STORAGE_RECONCILE_PAGE_SIZE = 1_000
 
+# Celery's task decorator is dynamically typed in the installed Celery release.
+# The four narrow suppressions below cover only that third-party decorator boundary;
+# every task body and callable signature remains strictly type checked.
+
 
 @dataclass(frozen=True)
 class EmailSyncTaskEnvelope:
@@ -85,6 +89,8 @@ def sync_email_connection(
 ) -> None:
     del self
     try:
+        if agency_id is None or owner_user_id is None or sync_generation is None:
+            raise ValueError("Invalid email sync envelope")
         parsed_id = (
             connection_id if isinstance(connection_id, uuid.UUID) else uuid.UUID(connection_id)
         )
@@ -185,7 +191,7 @@ def record_email_scheduler_heartbeat(self: object) -> None:
     del self
     settings = get_settings()
     client = Redis.from_url(
-        settings.redis.url,
+        settings.redis.broker_url,
         socket_connect_timeout=settings.processing_worker_ping_timeout_seconds,
         socket_timeout=settings.processing_worker_ping_timeout_seconds,
         decode_responses=True,
@@ -202,7 +208,7 @@ def record_email_scheduler_heartbeat(self: object) -> None:
             extra={"error_type": type(exc).__name__},
         )
     finally:
-        client.close()  # type: ignore[no-untyped-call]
+        client.close()
 
 
 async def _claim_due_dispatches() -> list[EmailSyncTaskEnvelope]:

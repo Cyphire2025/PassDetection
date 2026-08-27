@@ -3,14 +3,10 @@
 from __future__ import annotations
 
 import hashlib
+import importlib
 import json
 import time
 from typing import Any
-
-try:
-    from redis.asyncio import Redis as AsyncRedis
-except Exception:  # pragma: no cover - depends on optional runtime package availability
-    AsyncRedis = None  # type: ignore[assignment]
 
 from app.application.interfaces.passport_extraction import PassportExtractionResult
 from app.core.config.settings import get_settings
@@ -22,19 +18,30 @@ from app.infrastructure.ocr.versioning import (
     PIPELINE_VERSION,
 )
 
+
+def _load_async_redis() -> Any:
+    try:
+        module = importlib.import_module("redis.asyncio")
+    except Exception:  # pragma: no cover - optional runtime dependency
+        return None
+    return getattr(module, "Redis", None)
+
+
+_AsyncRedis: Any = _load_async_redis()
+
 logger = get_logger(__name__)
 
 
 class ExtractionCache:
-    _local_cache: dict[str, tuple[float, dict]] = {}
+    _local_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 
     def __init__(self) -> None:
         self._settings = get_settings()
         self._redis: Any | None = None
-        if self._settings.ocr_cache_ttl_seconds > 0 and AsyncRedis is not None:
+        if self._settings.ocr_cache_ttl_seconds > 0 and _AsyncRedis is not None:
             try:
-                self._redis = AsyncRedis.from_url(
-                    self._settings.redis.url,
+                self._redis = _AsyncRedis.from_url(
+                    self._settings.redis.cache_url,
                     encoding="utf-8",
                     decode_responses=True,
                 )
@@ -102,7 +109,12 @@ class ExtractionCache:
                 )
                 self._redis = None
 
-    def _from_payload(self, payload: dict, *, cache_key: str) -> PassportExtractionResult:
+    def _from_payload(
+        self,
+        payload: dict[str, Any],
+        *,
+        cache_key: str,
+    ) -> PassportExtractionResult:
         score = dict(payload.get("confidence_score") or {})
         score["cache"] = {
             "hit": True,

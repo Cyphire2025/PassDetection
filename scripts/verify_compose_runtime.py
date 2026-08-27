@@ -23,6 +23,7 @@ FRONTEND_DOCKERIGNORE = ROOT / "frontend" / ".dockerignore"
 BACKEND_SERVICES = (
     "backend",
     "worker",
+    "my-photos-worker",
     "email-worker",
     "email-ai-worker",
     "email-beat",
@@ -30,11 +31,23 @@ BACKEND_SERVICES = (
     "verification-worker",
     "visa-ai-worker",
 )
-INTERNAL_SERVICES = ("db", "redis", "minio", "backend")
+REDIS_SERVICES = ("redis", "redis-broker", "redis-realtime", "redis-cache")
+INTERNAL_SERVICES = (
+    "db",
+    *REDIS_SERVICES,
+    "clamav",
+    "minio",
+    "metrics-exporter",
+    "backend",
+)
 DEVELOPMENT_PUBLISHED_TARGETS = {
     "db": {5432},
     "redis": {6379},
+    "redis-broker": {6379},
+    "redis-realtime": {6379},
+    "redis-cache": {6379},
     "minio": {9000, 9001},
+    "metrics-exporter": {9102},
     "backend": {8000},
 }
 NGINX_PUBLISHED_TARGETS = {80, 443}
@@ -43,6 +56,15 @@ PINNED_MINIO_IMAGE = (
     "minio/minio:RELEASE.2025-09-07T16-13-09Z"
     "@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e"
 )
+PINNED_CLAMAV_IMAGE = (
+    "clamav/clamav:1.5_base"
+    "@sha256:2a682381f314a3ac6ec13eea55b69bd2594887598e5358d938e711a30df850f2"
+)
+PINNED_STATSD_EXPORTER_IMAGE = (
+    "prom/statsd-exporter:v0.29.0"
+    "@sha256:632f705804922d50c1c95ba8ff9c8c0cc18d4bbb0cc265dc4f9ae708271c95b3"
+)
+EXPECTED_DATABASE_SCHEMA_REVISION = "0088_merge_my_photos_hardening"
 FRONTEND_ALLOWED_ENVIRONMENT_KEYS = {
     "NEXT_PUBLIC_API_BASE_URL",
     "NEXT_PUBLIC_APP_URL",
@@ -53,6 +75,10 @@ FRONTEND_FORBIDDEN_ENVIRONMENT_KEYS = {
     "GOOGLE_API_KEY",
     "POSTGRES_PASSWORD",
     "REDIS_PASSWORD",
+    "REDIS_BROKER_PASSWORD",
+    "REDIS_SECURITY_PASSWORD",
+    "REDIS_REALTIME_PASSWORD",
+    "REDIS_CACHE_PASSWORD",
     "S3_ACCESS_KEY_ID",
     "S3_SECRET_ACCESS_KEY",
     "WHATSAPP_ACCESS_TOKEN",
@@ -61,6 +87,13 @@ FRONTEND_FORBIDDEN_ENVIRONMENT_KEYS = {
 }
 WORKER_QUEUE_CONTRACTS = {
     "worker": ("general@", "passport_ocr", "whatsapp"),
+    "my-photos-worker": (
+        "my-photos@",
+        "my_photos_control",
+        "my_photos_index",
+        "my_photos_media",
+        "my_photos_search",
+    ),
     "extraction-worker": (
         "extraction@",
         "interactive-passport-extraction",
@@ -174,8 +207,7 @@ def main() -> int:
             f"Production {service_name} must not publish host ports.",
         )
     _require(
-        _published_port_targets(production_services["nginx"])
-        == NGINX_PUBLISHED_TARGETS,
+        _published_port_targets(production_services["nginx"]) == NGINX_PUBLISHED_TARGETS,
         "Production Nginx must remain the only public entry point on ports 80 and 443.",
     )
     _require(
@@ -185,6 +217,53 @@ def main() -> int:
     _require(
         production_services["minio"].get("image") == PINNED_MINIO_IMAGE,
         "Production MinIO must use the reviewed immutable release digest.",
+    )
+    clamav = production_services["clamav"]
+    _require(
+        clamav.get("image") == PINNED_CLAMAV_IMAGE,
+        "Production ClamAV must use the reviewed immutable feature-line digest.",
+    )
+    _require(
+        clamav.get("user") == "clamav"
+        and clamav.get("entrypoint") == ["/init-unprivileged"],
+        "ClamAV must run through its unprivileged initialization path.",
+    )
+    _require(
+        clamav.get("cap_drop") == ["ALL"]
+        and "no-new-privileges:true" in clamav.get("security_opt", []),
+        "ClamAV must drop Linux capabilities and forbid privilege escalation.",
+    )
+    _require(
+        "/var/lib/clamav" in _volume_targets(clamav),
+        "ClamAV signatures must persist across container replacement.",
+    )
+    clamav_healthcheck = _healthcheck_text(clamav)
+    _require(
+        "PING" in clamav_healthcheck and "127.0.0.1 3310" in clamav_healthcheck,
+        "ClamAV health must probe the IPv4 clamd socket, not only its process.",
+    )
+    _require(
+        int(clamav.get("mem_limit", 0)) >= 4 * 1024**3
+        and float(clamav.get("cpus", 0)) >= 2
+        and int(clamav.get("pids_limit", 0)) == 256,
+        "ClamAV must keep the reviewed memory, CPU, and process resource envelope.",
+    )
+    statsd_exporter = production_services["metrics-exporter"]
+    _require(
+        statsd_exporter.get("image") == PINNED_STATSD_EXPORTER_IMAGE,
+        "StatsD exporter must use the reviewed immutable release digest.",
+    )
+    _require(
+        statsd_exporter.get("read_only") is True
+        and statsd_exporter.get("cap_drop") == ["ALL"]
+        and "no-new-privileges:true" in statsd_exporter.get("security_opt", []),
+        "StatsD exporter must be read-only and unable to gain Linux privileges.",
+    )
+    _require(
+        int(statsd_exporter.get("mem_limit", 0)) <= 128 * 1024**2
+        and float(statsd_exporter.get("cpus", 0)) <= 0.25
+        and int(statsd_exporter.get("pids_limit", 0)) == 64,
+        "StatsD exporter must retain its bounded resource envelope.",
     )
     _require(
         "/api/v1/health/ready" in _healthcheck_text(production_backend),
@@ -200,6 +279,17 @@ def main() -> int:
             str(environment.get("APP_DEBUG", "")).lower() == "false",
             f"Production {service_name} must force APP_DEBUG=false.",
         )
+        _require(
+            str(environment.get("UNTRUSTED_DOCUMENT_INGESTION_ENABLED", "")).lower()
+            == "true"
+            and str(environment.get("MALWARE_SCANNER_ENABLED", "")).lower() == "true"
+            and environment.get("MALWARE_SCANNER_HOST") == "clamav"
+            and int(environment.get("MALWARE_SCANNER_PORT", 0)) == 3310,
+            (
+                f"Production {service_name} must fail closed through the shared "
+                "ClamAV document-ingestion boundary."
+            ),
+        )
         expected_pool_profile = "api" if service_name == "backend" else "worker"
         _require(
             environment.get("POSTGRES_POOL_PROFILE") == expected_pool_profile,
@@ -210,6 +300,7 @@ def main() -> int:
             "WORKER_CONCURRENCY",
             "EMAIL_WORKER_CONCURRENCY",
             "EMAIL_AI_WORKER_CONCURRENCY",
+            "MY_PHOTOS_WORKER_CONCURRENCY",
             "GEMINI_EXTRACTION_MAX_CONCURRENCY",
             "GEMINI_VERIFICATION_MAX_CONCURRENCY",
             "GEMINI_IMAGE_EDIT_MAX_CONCURRENCY",
@@ -219,15 +310,120 @@ def main() -> int:
             "POSTGRES_WORKER_MAX_OVERFLOW",
             "POSTGRES_POOL_TIMEOUT_SECONDS",
             "POSTGRES_POOL_RECYCLE_SECONDS",
+            "POSTGRES_API_STATEMENT_TIMEOUT_MS",
+            "POSTGRES_WORKER_STATEMENT_TIMEOUT_MS",
+            "POSTGRES_LOCK_TIMEOUT_MS",
+            "POSTGRES_IDLE_IN_TRANSACTION_SESSION_TIMEOUT_MS",
             "POSTGRES_SERVER_MAX_CONNECTIONS",
             "POSTGRES_RESERVED_CONNECTIONS",
             "POSTGRES_API_CONNECTION_BUDGET",
+            "EXPECTED_DATABASE_SCHEMA_REVISION",
+            "METRICS_EXPORTER",
+            "METRICS_EXPORT_REQUIRED",
+            "METRICS_STATSD_HOST",
+            "METRICS_STATSD_PORT",
+            "METRICS_NAMESPACE",
         ):
             _require(
                 environment.get(capacity_key)
                 == production_backend.get("environment", {}).get(capacity_key),
                 f"Production {service_name} must share {capacity_key} with the API.",
             )
+        for redis_key in (
+            "REDIS_DOMAIN_ISOLATION_REQUIRED",
+            "REDIS_BROKER_HOST",
+            "REDIS_BROKER_PORT",
+            "REDIS_BROKER_PASSWORD",
+            "REDIS_BROKER_DB",
+            "REDIS_SECURITY_HOST",
+            "REDIS_SECURITY_PORT",
+            "REDIS_SECURITY_PASSWORD",
+            "REDIS_SECURITY_DB",
+            "REDIS_REALTIME_HOST",
+            "REDIS_REALTIME_PORT",
+            "REDIS_REALTIME_PASSWORD",
+            "REDIS_REALTIME_DB",
+            "REDIS_CACHE_HOST",
+            "REDIS_CACHE_PORT",
+            "REDIS_CACHE_PASSWORD",
+            "REDIS_CACHE_DB",
+        ):
+            _require(
+                environment.get(redis_key)
+                == production_backend.get("environment", {}).get(redis_key),
+                f"Production {service_name} must share {redis_key} with the API.",
+            )
+    backend_environment = production_backend.get("environment", {})
+    _require(
+        backend_environment.get("EXPECTED_DATABASE_SCHEMA_REVISION")
+        == EXPECTED_DATABASE_SCHEMA_REVISION,
+        "Production readiness must gate on the reviewed Alembic merge head.",
+    )
+    _require(
+        backend_environment.get("METRICS_EXPORTER") == "statsd"
+        and str(backend_environment.get("METRICS_EXPORT_REQUIRED", "")).lower()
+        == "true"
+        and backend_environment.get("METRICS_STATSD_HOST") == "metrics-exporter"
+        and int(backend_environment.get("METRICS_STATSD_PORT", 0)) == 9125,
+        "Production API and workers must export metrics through the private StatsD service.",
+    )
+    _require(
+        str(backend_environment.get("REDIS_DOMAIN_ISOLATION_REQUIRED", "")).lower()
+        == "true",
+        "Production must require Redis domain isolation.",
+    )
+    redis_endpoints = {
+        (
+            str(backend_environment[f"REDIS_{domain}_HOST"]),
+            int(backend_environment[f"REDIS_{domain}_PORT"]),
+            int(backend_environment[f"REDIS_{domain}_DB"]),
+        )
+        for domain in ("BROKER", "SECURITY", "REALTIME", "CACHE")
+    }
+    _require(
+        len(redis_endpoints) == 4,
+        "Broker, security, realtime, and cache Redis domains must be distinct.",
+    )
+    for service_name in BACKEND_SERVICES:
+        dependencies = production_services[service_name].get("depends_on", {})
+        _require(
+            set(REDIS_SERVICES).issubset(dependencies),
+            f"Production {service_name} must wait for every isolated Redis domain.",
+        )
+        _require(
+            dependencies.get("clamav", {}).get("condition") == "service_healthy",
+            f"Production {service_name} must wait for a healthy malware scanner.",
+        )
+        _require(
+            dependencies.get("metrics-exporter", {}).get("condition")
+            == "service_started",
+            f"Production {service_name} must start after the metrics exporter.",
+        )
+    security_command = _command_text(production_services["redis"])
+    broker_command = _command_text(production_services["redis-broker"])
+    realtime_command = _command_text(production_services["redis-realtime"])
+    cache_command = _command_text(production_services["redis-cache"])
+    for service_name, command in (
+        ("redis", security_command),
+        ("redis-broker", broker_command),
+    ):
+        _require(
+            "--appendonly yes" in command
+            and "--appendfsync everysec" in command
+            and "--maxmemory-policy noeviction" in command,
+            f"{service_name} must be persistent and non-evicting.",
+        )
+    _require(
+        "--appendonly no" in realtime_command
+        and "--maxmemory-policy noeviction" in realtime_command,
+        "Realtime Redis must be reconstructable but non-evicting.",
+    )
+    _require(
+        "--appendonly no" in cache_command
+        and "--maxmemory-policy allkeys-lru" in cache_command
+        and "--maxmemory" in cache_command,
+        "Cache Redis must be explicitly memory-bounded and evictable.",
+    )
     declared_server_connections = production_backend.get("environment", {}).get(
         "POSTGRES_SERVER_MAX_CONNECTIONS"
     )
@@ -249,6 +445,7 @@ def main() -> int:
         int(capacity_environment["WORKER_CONCURRENCY"])
         + int(capacity_environment["EMAIL_WORKER_CONCURRENCY"])
         + int(capacity_environment["EMAIL_AI_WORKER_CONCURRENCY"])
+        + int(capacity_environment["MY_PHOTOS_WORKER_CONCURRENCY"])
         + int(capacity_environment["GEMINI_EXTRACTION_MAX_CONCURRENCY"])
         + int(capacity_environment["GEMINI_VERIFICATION_MAX_CONCURRENCY"])
         + int(capacity_environment["GEMINI_IMAGE_EDIT_MAX_CONCURRENCY"])
@@ -266,8 +463,7 @@ def main() -> int:
         "Rendered API and worker pools exceed the usable PostgreSQL connection budget.",
     )
     _require(
-        production_backend.get("environment", {}).get("PROCESSING_BACKEND")
-        == "celery",
+        production_backend.get("environment", {}).get("PROCESSING_BACKEND") == "celery",
         "Production backend must dispatch durable work through Celery.",
     )
     _require(
@@ -309,25 +505,18 @@ def main() -> int:
         "Production frontend must not load the server environment file.",
     )
     _require(
-        set(production_frontend_environment).issubset(
-            FRONTEND_ALLOWED_ENVIRONMENT_KEYS
-        ),
+        set(production_frontend_environment).issubset(FRONTEND_ALLOWED_ENVIRONMENT_KEYS),
         "Production frontend may receive only explicitly public runtime variables.",
     )
     _require(
-        not (
-            set(production_frontend_environment)
-            & FRONTEND_FORBIDDEN_ENVIRONMENT_KEYS
-        ),
+        not (set(production_frontend_environment) & FRONTEND_FORBIDDEN_ENVIRONMENT_KEYS),
         "Production frontend must not receive backend credentials or secrets.",
     )
     production_frontend_build_args = (
         production_services["frontend"].get("build", {}).get("args", {})
     )
     _require(
-        set(production_frontend_build_args).issubset(
-            FRONTEND_ALLOWED_ENVIRONMENT_KEYS
-        ),
+        set(production_frontend_build_args).issubset(FRONTEND_ALLOWED_ENVIRONMENT_KEYS),
         "Production frontend build may receive only explicitly public variables.",
     )
     _require(
@@ -370,8 +559,7 @@ def main() -> int:
         "email-beat must run the Celery Beat scheduler.",
     )
     _require(
-        "app.infrastructure.email.beat_healthcheck"
-        in _healthcheck_text(email_beat),
+        "app.infrastructure.email.beat_healthcheck" in _healthcheck_text(email_beat),
         "email-beat must verify its durable scheduler heartbeat.",
     )
 
@@ -384,10 +572,7 @@ def main() -> int:
     _require(
         'worker_class = "app.infrastructure.bounded_uvicorn_worker.BoundedUvicornWorker"'
         in gunicorn_config,
-        (
-            "Backend runtime image must use the bounded Uvicorn worker under "
-            "Gunicorn."
-        ),
+        ("Backend runtime image must use the bounded Uvicorn worker under Gunicorn."),
     )
     _require(
         "workers = _settings.web_concurrency" in gunicorn_config,
@@ -428,8 +613,7 @@ def main() -> int:
     )
     for service_name, expected_targets in DEVELOPMENT_PUBLISHED_TARGETS.items():
         _require(
-            _published_port_targets(development_services[service_name])
-            == expected_targets,
+            _published_port_targets(development_services[service_name]) == expected_targets,
             (
                 f"Development {service_name} must retain host publications for "
                 f"container ports {sorted(expected_targets)}."

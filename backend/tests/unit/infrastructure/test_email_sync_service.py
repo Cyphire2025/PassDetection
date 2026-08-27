@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import hashlib
+import io
 import uuid
 from datetime import UTC, datetime
 from types import SimpleNamespace
+from typing import cast
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
+from pypdf import PdfWriter
 from sqlalchemy import select
 
 from app.application.interfaces.email_provider import (
@@ -12,7 +17,10 @@ from app.application.interfaces.email_provider import (
     EmailHistoryPage,
     EmailMessageChange,
 )
+from app.core.config.settings import Settings
+from app.domain.exceptions.exceptions import ImageValidationError
 from app.infrastructure.database.email_models import EmailConnectionModel
+from app.infrastructure.email.pdf_validator import EmailPdfValidationError
 from app.infrastructure.email.sync_service import (
     _can_ignore_without_artifact_inspection,
     _connection_claim_filters,
@@ -23,6 +31,7 @@ from app.infrastructure.email.sync_service import (
     _reuse_live_duplicate_assignments,
     _safe_link_hosts,
     _stored_relevance_status,
+    _validate_untrusted_email_pdf,
 )
 
 
@@ -42,6 +51,72 @@ class _HistoryProvider:
         del access_token, start_history_id, max_results
         self.calls.append(page_token)
         return self.pages[len(self.calls) - 1]
+
+
+def _single_page_pdf() -> bytes:
+    writer = PdfWriter()
+    writer.add_blank_page(width=200, height=300)
+    output = io.BytesIO()
+    writer.write(output)
+    return output.getvalue()
+
+
+async def test_email_pdf_crosses_durable_security_boundary_before_parsing() -> None:
+    content = _single_page_pdf()
+    settings = SimpleNamespace(
+        email_attachment_max_bytes=1024 * 1024,
+        email_pdf_max_pages=10,
+    )
+    security_service = MagicMock()
+    security_service.validate_document = AsyncMock(
+        return_value=hashlib.sha256(content).hexdigest()
+    )
+    agency_id = uuid.uuid4()
+    user_id = uuid.uuid4()
+
+    result = await _validate_untrusted_email_pdf(
+        content=content,
+        filename="ticket.pdf",
+        declared_content_type="application/pdf",
+        settings=cast(Settings, settings),
+        agency_id=agency_id,
+        user_id=user_id,
+        security_service=security_service,
+    )
+
+    assert result.content == content
+    call = security_service.validate_document.await_args.kwargs
+    assert call["content"] == content
+    assert call["max_bytes"] == settings.email_attachment_max_bytes
+    assert call["context"].ingestion_flow == "email_attachment"
+    assert call["context"].agency_id == agency_id
+    assert call["context"].user_id == user_id
+
+
+async def test_email_pdf_security_failure_is_privacy_safe_and_prevents_parsing() -> None:
+    security_service = MagicMock()
+    security_service.validate_document = AsyncMock(
+        side_effect=ImageValidationError("scanner secret diagnostic")
+    )
+
+    with pytest.raises(EmailPdfValidationError) as exc_info:
+        await _validate_untrusted_email_pdf(
+            content=b"raw-sensitive-provider-bytes",
+            filename="ticket.pdf",
+            declared_content_type="application/pdf",
+            settings=cast(
+                Settings,
+                SimpleNamespace(
+                    email_attachment_max_bytes=1024 * 1024,
+                    email_pdf_max_pages=10,
+                ),
+            ),
+            agency_id=uuid.uuid4(),
+            user_id=uuid.uuid4(),
+            security_service=security_service,
+        )
+
+    assert str(exc_info.value) == "Email attachment failed malware security scanning"
 
 
 async def test_incremental_history_resumes_after_complete_bounded_page() -> None:

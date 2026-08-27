@@ -21,6 +21,7 @@ from app.domain.exceptions.exceptions import (
     AuthenticationError,
     AuthorizationError,
     ClientGroupUsedError,
+    ConflictError,
     DependencyUnavailableError,
     DuplicateEntityError,
     EntityNotFoundError,
@@ -68,6 +69,10 @@ def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(DuplicateEntityError)
     async def duplicate_handler(request: Request, exc: DuplicateEntityError) -> JSONResponse:
+        return _error_response(exc.code, exc.message, status.HTTP_409_CONFLICT)
+
+    @app.exception_handler(ConflictError)
+    async def conflict_handler(request: Request, exc: ConflictError) -> JSONResponse:
         return _error_response(exc.code, exc.message, status.HTTP_409_CONFLICT)
 
     @app.exception_handler(ValidationError)

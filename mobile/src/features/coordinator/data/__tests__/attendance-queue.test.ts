@@ -10,7 +10,6 @@ import {
   recordAttendanceRetryOutcome,
   recordAttendanceServerConfirmation,
   recordAttendanceTerminalRejection,
-  recordExplicitAttendanceDiscard,
 } from '@/core/observability/attendance-observability';
 import { recordTripDurableQueueDepths } from '@/core/observability/queue-depth-observability';
 import { openAccountDatabase, withAccountTransaction } from '@/core/storage/database';
@@ -18,6 +17,7 @@ import { openAccountDatabase, withAccountTransaction } from '@/core/storage/data
 import {
   acknowledgeAttendanceNeedsReview,
   acknowledgeRejectedAttendance,
+  attendanceSessionQueueStatus,
   drainAttendanceQueue,
   listAttendanceNeedsReview,
   resetAttendanceQueueRuntimeForTests,
@@ -25,6 +25,11 @@ import {
 } from '../attendance-queue';
 import { attendanceDeliveryFailureCategory } from '../attendance-queue-delivery';
 import { refreshAttendanceSessions } from '../attendance-sessions';
+import { trustedAttendanceScanTime } from '../trusted-scan-time';
+import {
+  discardAllRejectedAttendanceIssues,
+  discardAttendanceScanIssue,
+} from '../attendance-discard-store';
 
 jest.mock('@/core/api/client', () => {
   const actual = jest.requireActual('@/core/api/client');
@@ -52,11 +57,17 @@ jest.mock('@/core/observability/queue-depth-observability', () => ({
 jest.mock('../attendance-sessions', () => ({
   refreshAttendanceSessions: jest.fn(),
 }));
+jest.mock('../attendance-discard-store', () => ({
+  discardAllRejectedAttendanceIssues: jest.fn(),
+  discardAttendanceScanIssue: jest.fn(),
+}));
+jest.mock('../trusted-scan-time', () => ({
+  trustedAttendanceScanTime: jest.fn(),
+}));
 
 const mockedApiRequest = jest.mocked(apiRequest);
 const mockedOpenDatabase = jest.mocked(openAccountDatabase);
 const mockedTransaction = jest.mocked(withAccountTransaction);
-const mockedRecordExplicitAttendanceDiscard = jest.mocked(recordExplicitAttendanceDiscard);
 const mockedRecordAttendanceAcknowledgement = jest.mocked(recordAttendanceAcknowledgement);
 const mockedRecordAttendanceDeliveryBatchSize = jest.mocked(recordAttendanceDeliveryBatchSize);
 const mockedRecordAttendanceDeliveryFailure = jest.mocked(recordAttendanceDeliveryFailure);
@@ -69,6 +80,9 @@ const mockedRecordAttendanceServerConfirmation = jest.mocked(recordAttendanceSer
 const mockedRecordAttendanceTerminalRejection = jest.mocked(recordAttendanceTerminalRejection);
 const mockedRecordTripDurableQueueDepths = jest.mocked(recordTripDurableQueueDepths);
 const mockedRefreshAttendanceSessions = jest.mocked(refreshAttendanceSessions);
+const mockedDiscardAllRejected = jest.mocked(discardAllRejectedAttendanceIssues);
+const mockedDiscardIssue = jest.mocked(discardAttendanceScanIssue);
+const mockedTrustedAttendanceScanTime = jest.mocked(trustedAttendanceScanTime);
 
 const TRIP_ID = '11111111-1111-4111-8111-111111111111';
 const SESSION_ID = '22222222-2222-4222-8222-222222222222';
@@ -478,6 +492,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   resetAttendanceQueueRuntimeForTests();
   useSessionStore.getState().setSession(COORDINATOR_SESSION);
+  mockedTrustedAttendanceScanTime.mockRejectedValue(new Error('trusted clock unavailable'));
   mockedRefreshAttendanceSessions.mockResolvedValue({
     items: [{
       id: SESSION_ID,
@@ -494,6 +509,46 @@ beforeEach(() => {
   mockedTransaction.mockImplementation(async (database, task) => {
     await task(database);
   });
+});
+
+test('defers destructive retention when trusted time is unavailable but still publishes queue visibility', async () => {
+  const database = {
+    getAllAsync: jest.fn(async () => [{ state: 'pending', count: 2 }]),
+    runAsync: jest.fn(async () => ({ changes: 0 })),
+  };
+  mockedOpenDatabase.mockResolvedValue(database as never);
+
+  await expect(attendanceSessionQueueStatus(TRIP_ID, SESSION_ID)).resolves.toEqual({
+    pending: 2,
+    sending: 0,
+    retryable: 0,
+    needsReview: 0,
+    awaitingConfirmation: 2,
+  });
+
+  expect(mockedTransaction).not.toHaveBeenCalled();
+  expect(database.runAsync).not.toHaveBeenCalled();
+  expect(database.getAllAsync).toHaveBeenCalledTimes(1);
+});
+
+test('derives retention cutoffs from trusted server time rather than the device wall clock', async () => {
+  const trustedNow = Date.parse('2030-02-01T00:00:00.000Z');
+  const database = {
+    getAllAsync: jest.fn(async () => []),
+    runAsync: jest.fn(async () => ({ changes: 0 })),
+  };
+  mockedTrustedAttendanceScanTime.mockResolvedValue({
+    timestampMs: trustedNow,
+    deviceClockDifferenceMs: 999_999_999,
+  });
+  mockedOpenDatabase.mockResolvedValue(database as never);
+
+  await attendanceSessionQueueStatus(TRIP_ID, SESSION_ID);
+
+  expect(mockedTransaction).toHaveBeenCalledTimes(1);
+  expect(database.runAsync.mock.calls.flat()).toContain(
+    new Date(trustedNow - 30 * 24 * 60 * 60_000).toISOString(),
+  );
 });
 
 afterEach(() => {
@@ -946,8 +1001,18 @@ test('manual needs-review retry preserves the refresh cap and can be acknowledge
     refresh_attempt_count: 1,
   });
 
+  mockedDiscardIssue.mockImplementationOnce(async (_tripId, idempotencyKey) => {
+    const index = database.rows.findIndex((row) => row.idempotency_key === idempotencyKey);
+    if (index < 0) return false;
+    database.rows.splice(index, 1);
+    return true;
+  });
   await expect(acknowledgeAttendanceNeedsReview(TRIP_ID, eventId(1))).resolves.toBe(true);
-  expect(mockedRecordExplicitAttendanceDiscard).toHaveBeenCalledWith(1);
+  expect(mockedDiscardIssue).toHaveBeenCalledWith(
+    TRIP_ID,
+    eventId(1),
+    'operator_discard',
+  );
   await expect(listAttendanceNeedsReview(TRIP_ID)).resolves.toEqual([]);
 });
 
@@ -955,11 +1020,16 @@ test('records only a count when rejected attendance is explicitly discarded', as
   const database = new FakeAttendanceDatabase(2);
   for (const row of database.rows) row.state = 'rejected';
   mockedOpenDatabase.mockResolvedValue(database as never);
+  mockedDiscardAllRejected.mockImplementationOnce(async () => {
+    const count = database.rows.filter((row) => row.state === 'rejected').length;
+    database.rows.splice(0, database.rows.length);
+    return count;
+  });
 
   await expect(acknowledgeRejectedAttendance(TRIP_ID)).resolves.toBe(2);
 
   expect(database.rows).toEqual([]);
-  expect(mockedRecordExplicitAttendanceDiscard).toHaveBeenCalledWith(2);
+  expect(mockedDiscardAllRejected).toHaveBeenCalledWith(TRIP_ID);
 });
 
 test('honors Retry-After and wakes the queue at the exact earliest eligible instant', async () => {

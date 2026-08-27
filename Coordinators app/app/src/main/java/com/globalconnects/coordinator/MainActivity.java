@@ -21,6 +21,7 @@ import android.provider.OpenableColumns;
 import android.provider.Settings;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.webkit.ClientCertRequest;
 import android.webkit.CookieManager;
 import android.webkit.GeolocationPermissions;
@@ -114,6 +115,7 @@ public final class MainActivity extends ComponentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.Theme_Coordinator);
         super.onCreate(savedInstanceState);
+        enforceSensitiveWindowPrivacy();
         configureSystemBars();
         setContentView(R.layout.activity_main);
         configureWindowInsets();
@@ -164,6 +166,16 @@ public final class MainActivity extends ComponentActivity {
         } else {
             loadingIndicator.setVisibility(View.VISIBLE);
         }
+    }
+
+    /**
+     * Attendance and passenger screens are sensitive by default. Keeping this
+     * policy at the native window boundary also redacts Android's recents/task
+     * snapshot and prevents ordinary screenshots or screen recording even if
+     * web content is restored before its route-level UI has rendered.
+     */
+    private void enforceSensitiveWindowPrivacy() {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
     }
 
     private void configureSystemBars() {

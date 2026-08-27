@@ -9,7 +9,6 @@ slice.
 from __future__ import annotations
 
 import hashlib
-import re
 import uuid
 from collections.abc import Iterable
 from dataclasses import dataclass
@@ -18,6 +17,8 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import undefer
+from sqlalchemy.sql import Select
+from sqlalchemy.sql.elements import ColumnElement
 
 from app.application.interfaces.email_provider import (
     EmailAttachment,
@@ -43,6 +44,7 @@ from app.application.use_cases.email_integrations.relevance import (
 from app.core.config.settings import Settings, get_settings
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import PassportSubmission, UserRole
+from app.domain.exceptions.exceptions import ImageValidationError
 from app.infrastructure.database.email_models import (
     EmailActivityEventModel,
     EmailArtifactDocumentModel,
@@ -66,6 +68,7 @@ from app.infrastructure.documents.document_matcher import (
     DocumentMatcher,
 )
 from app.infrastructure.email.gmail_provider import GmailEmailProvider
+from app.infrastructure.email.link_safety import safe_link_hosts as _safe_link_hosts
 from app.infrastructure.email.outlook_provider import OutlookEmailProvider
 from app.infrastructure.email.pdf_validator import (
     EmailPdfValidationError,
@@ -84,11 +87,15 @@ from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
 from app.infrastructure.repositories.user_repository import UserRepository
+from app.infrastructure.security.upload_security import (
+    DigestBoundScanner,
+    UploadSecurityContext,
+    UploadSecurityService,
+)
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 
 logger = get_logger(__name__)
 
-_URL_PATTERN = re.compile(r"https?://([A-Za-z0-9.-]+)(?::\d+)?(?:[/?#][^\s<>]*)?", re.I)
 _SUPPORTED_PDF_TYPES = {"visa", "flight_ticket"}
 _ACTIVE_REVIEW_STATUSES = {"open", "deferred"}
 
@@ -129,7 +136,7 @@ class EmailRelevanceContext:
     passengers: tuple[PassportSubmission, ...]
 
 
-def _connection_claim_filters(claim: SyncClaim):  # type: ignore[no-untyped-def]
+def _connection_claim_filters(claim: SyncClaim) -> tuple[ColumnElement[bool], ...]:
     """Revalidate the complete immutable task envelope on every worker write."""
 
     return (
@@ -153,7 +160,7 @@ def _live_duplicate_documents_statement(
     owner_user_id: uuid.UUID,
     artifact_id: uuid.UUID,
     sha256_digest: str,
-):
+) -> Select[tuple[EmailArtifactModel, DistributedDocumentModel]]:
     """Select exact email duplicates whose passenger documents still exist."""
 
     return (
@@ -1113,10 +1120,13 @@ async def _process_attachment(
                 message_id=normalized_message.provider_message_id,
                 attachment_id=attachment.provider_attachment_id,
             )
-        validated = EmailPdfValidator(settings=settings).validate(
+        validated = await _validate_untrusted_email_pdf(
             content=content,
             filename=attachment.filename,
             declared_content_type=attachment.content_type,
+            settings=settings,
+            agency_id=claim.agency_id,
+            user_id=claim.owner_user_id,
         )
     except EmailProviderError as exc:
         if exc.transient or exc.reconnect_required:
@@ -1630,11 +1640,17 @@ async def ingest_reviewed_artifact(
 
     storage = MinioStorageRepository()
     content = await storage.get_file(artifact.storage_key)
-    validated = EmailPdfValidator().validate(
-        content=content,
-        filename=artifact.filename,
-        declared_content_type=artifact.verified_content_type,
-    )
+    try:
+        validated = await _validate_untrusted_email_pdf(
+            content=content,
+            filename=artifact.filename,
+            declared_content_type=artifact.verified_content_type,
+            settings=get_settings(),
+            agency_id=review.agency_id,
+            user_id=review.owner_user_id,
+        )
+    except EmailPdfValidationError:
+        raise ValueError("The reviewed email document failed security validation") from None
     artifact.sha256_digest = validated.sha256_hex
     artifact.verified_content_type = validated.content_type
     artifact.size_bytes = len(validated.content)
@@ -2342,6 +2358,42 @@ async def _record_connection_start_failure(
         await session.commit()
 
 
+async def _validate_untrusted_email_pdf(
+    *,
+    content: bytes,
+    filename: str | None,
+    declared_content_type: str | None,
+    settings: Settings,
+    agency_id: uuid.UUID,
+    user_id: uuid.UUID,
+    security_service: UploadSecurityService | None = None,
+) -> ValidatedEmailPdf:
+    """Scan and durably record provider bytes before any PDF parsing occurs."""
+
+    service = security_service or UploadSecurityService(settings=settings)
+    try:
+        digest = await service.validate_document(
+            content=content,
+            declared_content_type=declared_content_type,
+            context=UploadSecurityContext(
+                ingestion_flow="email_attachment",
+                agency_id=agency_id,
+                user_id=user_id,
+            ),
+            max_bytes=settings.email_attachment_max_bytes,
+        )
+    except ImageValidationError:
+        raise EmailPdfValidationError("Email attachment failed malware security scanning") from None
+    return EmailPdfValidator(
+        settings=settings,
+        scanner=DigestBoundScanner(digest),
+    ).validate(
+        content=content,
+        filename=filename,
+        declared_content_type=declared_content_type,
+    )
+
+
 def _provider_artifact_id(
     provider_message_id: str,
     index: int,
@@ -2372,14 +2424,3 @@ def _can_ignore_without_artifact_inspection(
     # Links are not relevance evidence. An unrelated link-only message should
     # never enter the human review queue.
     return relevance_status == "unrelated" and not has_attachments
-
-
-def _safe_link_hosts(body: str) -> list[str]:
-    hosts: list[str] = []
-    for match in _URL_PATTERN.finditer(body[:8_000]):
-        host = match.group(1).casefold().rstrip(".")[:253]
-        if host and host not in hosts:
-            hosts.append(host)
-        if len(hosts) >= 20:
-            break
-    return hosts

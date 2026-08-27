@@ -141,6 +141,13 @@ class ClientManagerSessionResponse(BaseModel):
     revoked_at: datetime | None
 
 
+class ClientManagerSessionPageResponse(BaseModel):
+    items: list[ClientManagerSessionResponse] = Field(max_length=100)
+    total: int = Field(ge=0)
+    offset: int = Field(ge=0)
+    limit: int = Field(ge=1, le=100)
+
+
 class GCAppAuditResponse(BaseModel):
     id: uuid.UUID
     action: str
@@ -149,6 +156,13 @@ class GCAppAuditResponse(BaseModel):
     actor_email: str | None
     metadata: dict[str, object]
     created_at: datetime
+
+
+class GCAppAuditPageResponse(BaseModel):
+    items: list[GCAppAuditResponse] = Field(max_length=100)
+    total: int = Field(ge=0)
+    offset: int = Field(ge=0)
+    limit: int = Field(ge=1, le=100)
 
 
 class GCAgencyResponse(BaseModel):
@@ -230,6 +244,11 @@ class GCGroupAccessUpdateRequest(BaseModel):
         return self
 
 
+class GCMyPhotosFeatureUpdateRequest(BaseModel):
+    enabled: bool
+    expected_revision: int = Field(ge=1)
+
+
 class GCGroupAccessResponse(BaseModel):
     group_id: uuid.UUID
     agency_id: uuid.UUID
@@ -244,6 +263,7 @@ class GCGroupAccessResponse(BaseModel):
     passenger_access_enabled: bool
     client_manager_access_enabled: bool
     coordinator_access_enabled: bool
+    my_photos_enabled: bool
     access_starts_at: datetime | None
     access_expires_at: datetime | None
     revoked_at: datetime | None

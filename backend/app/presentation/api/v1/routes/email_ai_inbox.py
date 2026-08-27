@@ -7,11 +7,13 @@ import hashlib
 import json
 import uuid
 from datetime import UTC, datetime, timedelta
-from typing import Literal
+from typing import Literal, TypeAlias, cast, overload
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import and_, case, exists, false, func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.elements import ColumnElement
+from sqlalchemy.sql.selectable import Subquery
 
 from app.application.security.authorization_policy import AuthorizationPolicy
 from app.application.use_cases.email_integrations.analysis_contract import (
@@ -80,10 +82,27 @@ InboxView = Literal[
     "completed_automatically",
     "all_activity",
 ]
+CandidateEntityType = Literal["group", "passenger"]
+ResolvedCandidateLink: TypeAlias = tuple[
+    CandidateEntityType,
+    uuid.UUID,
+    float,
+    str,
+]
+ProposalAction = Literal["approve", "reject", "dismiss"]
+_OwnerScopedModel: TypeAlias = (
+    type[EmailAiAnalysisModel]
+    | type[EmailActionProposalModel]
+    | type[EmailDetectedDeadlineModel]
+    | type[EmailReplyDraftModel]
+)
 
 
-def _owner_predicates(model, user: User) -> list[object]:  # type: ignore[no-untyped-def]
-    predicates: list[object] = [model.owner_user_id == user.id]
+def _owner_predicates(
+    model: _OwnerScopedModel,
+    user: User,
+) -> list[ColumnElement[bool]]:
+    predicates: list[ColumnElement[bool]] = [model.owner_user_id == user.id]
     if user.role != UserRole.SUPER_ADMIN:
         if user.agency_id is None:
             predicates.append(false())
@@ -96,39 +115,29 @@ def _section_predicates(
     now: datetime,
     *,
     deadline_window_days: int,
-) -> dict[str, object]:
+) -> dict[InboxView, ColumnElement[bool]]:
     approval_exists = exists(
         select(1).where(
             EmailActionProposalModel.analysis_id == EmailAiAnalysisModel.id,
-            EmailActionProposalModel.owner_user_id
-            == EmailAiAnalysisModel.owner_user_id,
-            EmailActionProposalModel.status.in_(
-                {"proposed", "approval_required", "blocked"}
-            ),
+            EmailActionProposalModel.owner_user_id == EmailAiAnalysisModel.owner_user_id,
+            EmailActionProposalModel.status.in_({"proposed", "approval_required", "blocked"}),
         )
     )
     active_deadline_exists = exists(
         select(1).where(
             EmailDetectedDeadlineModel.analysis_id == EmailAiAnalysisModel.id,
-            EmailDetectedDeadlineModel.owner_user_id
-            == EmailAiAnalysisModel.owner_user_id,
-            EmailDetectedDeadlineModel.status.in_(
-                {"detected", "review_required", "acknowledged"}
-            ),
+            EmailDetectedDeadlineModel.owner_user_id == EmailAiAnalysisModel.owner_user_id,
+            EmailDetectedDeadlineModel.status.in_({"detected", "review_required", "acknowledged"}),
             EmailDetectedDeadlineModel.due_at.is_not(None),
         )
     )
     deadline_window_exists = exists(
         select(1).where(
             EmailDetectedDeadlineModel.analysis_id == EmailAiAnalysisModel.id,
-            EmailDetectedDeadlineModel.owner_user_id
-            == EmailAiAnalysisModel.owner_user_id,
-            EmailDetectedDeadlineModel.status.in_(
-                {"detected", "review_required", "acknowledged"}
-            ),
+            EmailDetectedDeadlineModel.owner_user_id == EmailAiAnalysisModel.owner_user_id,
+            EmailDetectedDeadlineModel.status.in_({"detected", "review_required", "acknowledged"}),
             EmailDetectedDeadlineModel.due_at.is_not(None),
-            EmailDetectedDeadlineModel.due_at
-            <= now + timedelta(days=deadline_window_days),
+            EmailDetectedDeadlineModel.due_at <= now + timedelta(days=deadline_window_days),
         )
     )
     draft_exists = exists(
@@ -151,7 +160,7 @@ def _section_predicates(
         ~draft_exists,
         ~active_deadline_exists,
     )
-    return {
+    sections: dict[InboxView, ColumnElement[bool]] = {
         "needs_attention": needs_attention,
         "upcoming_deadlines": deadline_window_exists,
         "drafts_ready": draft_exists,
@@ -159,9 +168,10 @@ def _section_predicates(
         "completed_automatically": completed,
         "all_activity": EmailAiAnalysisModel.id.is_not(None),
     }
+    return sections
 
 
-def _latest_analyses(user: User):
+def _latest_analyses(user: User) -> Subquery:
     return (
         select(
             EmailAiAnalysisModel.message_id.label("message_id"),
@@ -182,9 +192,7 @@ async def email_operations_inbox(
     session: AsyncSession = Depends(get_db_session),
 ) -> EmailInboxResponse:
     now = datetime.now(tz=UTC)
-    deadline_window_days = (
-        get_settings().email_ai_deadline_notification_window_days
-    )
+    deadline_window_days = get_settings().email_ai_deadline_notification_window_days
     latest = _latest_analyses(current_user)
     sections = _section_predicates(
         now,
@@ -217,8 +225,7 @@ async def email_operations_inbox(
             and_(
                 EmailConnectionModel.id == EmailAiAnalysisModel.connection_id,
                 EmailConnectionModel.agency_id == EmailAiAnalysisModel.agency_id,
-                EmailConnectionModel.owner_user_id
-                == EmailAiAnalysisModel.owner_user_id,
+                EmailConnectionModel.owner_user_id == EmailAiAnalysisModel.owner_user_id,
             ),
         )
         .where(
@@ -273,15 +280,9 @@ async def email_operations_inbox(
             message=row[1],
             connection=row[2],
             visible_group_id=(
-                visible_groups[row[0].id].id
-                if row[0].id in visible_groups
-                else None
+                visible_groups[row[0].id].id if row[0].id in visible_groups else None
             ),
-            group_name=(
-                visible_groups[row[0].id].name
-                if row[0].id in visible_groups
-                else None
-            ),
+            group_name=(visible_groups[row[0].id].name if row[0].id in visible_groups else None),
             deadlines=deadlines.get(row[0].id, []),
             proposals=proposals.get(row[0].id, []),
             draft=drafts.get(row[0].id),
@@ -389,8 +390,7 @@ async def decide_email_proposal(
             and_(
                 EmailAiAnalysisModel.id == EmailActionProposalModel.analysis_id,
                 EmailAiAnalysisModel.agency_id == EmailActionProposalModel.agency_id,
-                EmailAiAnalysisModel.owner_user_id
-                == EmailActionProposalModel.owner_user_id,
+                EmailAiAnalysisModel.owner_user_id == EmailActionProposalModel.owner_user_id,
             ),
         )
         .where(
@@ -417,8 +417,7 @@ async def decide_email_proposal(
             detail="This proposal is no longer awaiting a decision.",
         )
     if payload.action == "approve" and (
-        proposal.status == "blocked"
-        or proposal.risk_level in {"high", "critical"}
+        proposal.status == "blocked" or proposal.risk_level in {"high", "critical"}
     ):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -442,9 +441,7 @@ async def decide_email_proposal(
             owner_user_id=proposal.owner_user_id,
             connection_id=proposal.connection_id,
             message_id=proposal.message_id,
-            event_key=(
-                f"email-ai-proposal:{proposal.id}:decision:{proposal.revision}"
-            ),
+            event_key=(f"email-ai-proposal:{proposal.id}:decision:{proposal.revision}"),
             event_type="ai_action_proposal_decided",
             stage="info",
             actor_type="user",
@@ -469,9 +466,7 @@ async def decide_email_proposal(
         proposal_id=proposal.id,
         status=proposal.status,
         revision=proposal.revision,
-        message=(
-            "Decision saved. No external message or high-risk change was performed."
-        ),
+        message=("Decision saved. No external message or high-risk change was performed."),
     )
 
 
@@ -492,10 +487,8 @@ async def decide_email_deadline(
             EmailAiAnalysisModel,
             and_(
                 EmailAiAnalysisModel.id == EmailDetectedDeadlineModel.analysis_id,
-                EmailAiAnalysisModel.agency_id
-                == EmailDetectedDeadlineModel.agency_id,
-                EmailAiAnalysisModel.owner_user_id
-                == EmailDetectedDeadlineModel.owner_user_id,
+                EmailAiAnalysisModel.agency_id == EmailDetectedDeadlineModel.agency_id,
+                EmailAiAnalysisModel.owner_user_id == EmailDetectedDeadlineModel.owner_user_id,
             ),
         )
         .where(
@@ -511,12 +504,9 @@ async def decide_email_deadline(
             detail="Email deadline was not found.",
         )
     deadline, analysis = row
-    if (
-        deadline.status != payload.expected_status
-        or not _same_instant(
-            deadline.updated_at,
-            payload.expected_updated_at,
-        )
+    if deadline.status != payload.expected_status or not _same_instant(
+        deadline.updated_at,
+        payload.expected_updated_at,
     ):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -577,8 +567,7 @@ async def decide_email_reply_draft(
             and_(
                 EmailAiAnalysisModel.id == EmailReplyDraftModel.analysis_id,
                 EmailAiAnalysisModel.agency_id == EmailReplyDraftModel.agency_id,
-                EmailAiAnalysisModel.owner_user_id
-                == EmailReplyDraftModel.owner_user_id,
+                EmailAiAnalysisModel.owner_user_id == EmailReplyDraftModel.owner_user_id,
             ),
         )
         .where(
@@ -655,8 +644,7 @@ async def update_email_reply_draft(
             and_(
                 EmailAiAnalysisModel.id == EmailReplyDraftModel.analysis_id,
                 EmailAiAnalysisModel.agency_id == EmailReplyDraftModel.agency_id,
-                EmailAiAnalysisModel.owner_user_id
-                == EmailReplyDraftModel.owner_user_id,
+                EmailAiAnalysisModel.owner_user_id == EmailReplyDraftModel.owner_user_id,
             ),
         )
         .where(
@@ -764,12 +752,9 @@ async def create_email_ai_feedback(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Email intelligence was not found.",
         )
-    if (
-        analysis.status != payload.expected_status
-        or not _same_instant(
-            analysis.updated_at,
-            payload.expected_updated_at,
-        )
+    if analysis.status != payload.expected_status or not _same_instant(
+        analysis.updated_at,
+        payload.expected_updated_at,
     ):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -780,10 +765,7 @@ async def create_email_ai_feedback(
             status_code=status.HTTP_409_CONFLICT,
             detail="Feedback is available after this AI brief finishes.",
         )
-    if (
-        analysis.status == "ignored"
-        and payload.feedback_type != "correction"
-    ):
+    if analysis.status == "ignored" and payload.feedback_type != "correction":
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="An ignored brief can be corrected but not confirmed or dismissed again.",
@@ -805,18 +787,14 @@ async def create_email_ai_feedback(
             current_user=current_user,
             now=now,
         )
-        generated_work_invalidated = (
-            await _invalidate_generated_work_after_correction(
-                session,
-                analysis=analysis,
-                field_name=payload.field_name,
-                current_user=current_user,
-                now=now,
-            )
+        generated_work_invalidated = await _invalidate_generated_work_after_correction(
+            session,
+            analysis=analysis,
+            field_name=payload.field_name,
+            current_user=current_user,
+            now=now,
         )
-        corrected_value["generated_work_invalidated"] = (
-            generated_work_invalidated
-        )
+        corrected_value["generated_work_invalidated"] = generated_work_invalidated
     else:
         original_value = _analysis_feedback_snapshot(analysis)
         corrected_value = {}
@@ -1011,6 +989,7 @@ async def _apply_typed_correction(
         )
     result_json = dict(analysis.result_json or {})
     field_name = payload.field_name
+    original: dict[str, object]
 
     if field_name == "summary":
         corrected_summary = (correction.text or "").strip()
@@ -1325,7 +1304,7 @@ async def _visible_correction_group(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="The selected group is not available.",
         )
-    return group
+    return cast(ClientGroupModel, group)
 
 
 def _analysis_feedback_snapshot(
@@ -1699,8 +1678,8 @@ async def retry_email_ai_analysis(
 async def _inbox_counts(
     session: AsyncSession,
     user: User,
-    latest,
-    sections: dict[str, object],
+    latest: Subquery,
+    sections: dict[InboxView, ColumnElement[bool]],
 ) -> EmailInboxCountsResponse:
     result = await session.execute(
         select(
@@ -1775,28 +1754,26 @@ async def _load_children(
         )
     )
     deadlines: dict[uuid.UUID, list[EmailDetectedDeadlineModel]] = {}
-    for item in deadline_result.scalars().all():
-        deadlines.setdefault(item.analysis_id, []).append(item)
+    for deadline in deadline_result.scalars().all():
+        deadlines.setdefault(deadline.analysis_id, []).append(deadline)
     proposals: dict[uuid.UUID, list[EmailActionProposalModel]] = {}
-    for item in proposal_result.scalars().all():
-        proposals.setdefault(item.analysis_id, []).append(item)
-    drafts = {item.analysis_id: item for item in draft_result.scalars().all()}
+    for proposal in proposal_result.scalars().all():
+        proposals.setdefault(proposal.analysis_id, []).append(proposal)
+    drafts = {draft.analysis_id: draft for draft in draft_result.scalars().all()}
     return deadlines, proposals, drafts
 
 
 async def _load_visible_linked_groups(
     session: AsyncSession,
     *,
-    analyses_and_messages: list[
-        tuple[EmailAiAnalysisModel, EmailMessageModel]
-    ],
+    analyses_and_messages: list[tuple[EmailAiAnalysisModel, EmailMessageModel]],
     current_user: User,
 ) -> dict[uuid.UUID, ClientGroupModel]:
     candidates: dict[
         uuid.UUID,
         tuple[uuid.UUID | None, uuid.UUID | None, uuid.UUID],
     ] = {}
-    pair_predicates: list[object] = []
+    pair_predicates: list[ColumnElement[bool]] = []
     for analysis, message in analyses_and_messages:
         ai_group_id = _result_group_id(analysis)
         message_group_id = message.group_id
@@ -1826,17 +1803,10 @@ async def _load_visible_linked_groups(
             current_user,
         )
     )
-    visible_by_pair = {
-        (group.agency_id, group.id): group
-        for group in result.scalars().all()
-    }
+    visible_by_pair = {(group.agency_id, group.id): group for group in result.scalars().all()}
     visible_by_analysis: dict[uuid.UUID, ClientGroupModel] = {}
     for analysis_id, (primary_id, fallback_id, agency_id) in candidates.items():
-        group = (
-            visible_by_pair.get((agency_id, primary_id))
-            if primary_id is not None
-            else None
-        )
+        group = visible_by_pair.get((agency_id, primary_id)) if primary_id is not None else None
         if group is None and fallback_id is not None:
             group = visible_by_pair.get((agency_id, fallback_id))
         if group is not None:
@@ -1886,10 +1856,7 @@ async def _load_visible_linked_passengers(
             current_user,
         )
     )
-    visible = {
-        row.id: row.client_name
-        for row in visible_result.all()
-    }
+    visible = {row.id: row.client_name for row in visible_result.all()}
     return [
         (passenger_id, visible[passenger_id])
         for passenger_id in linked_ids
@@ -1912,59 +1879,27 @@ async def _load_visible_candidate_links(
     if not isinstance(raw_links, list) or not isinstance(manifest_aliases, dict):
         return []
 
-    resolved: list[tuple[str, uuid.UUID, float, str]] = []
-    seen: set[tuple[str, uuid.UUID]] = set()
+    aliases = cast(dict[object, object], manifest_aliases)
+    resolved: list[ResolvedCandidateLink] = []
+    seen: set[tuple[CandidateEntityType, uuid.UUID]] = set()
     for raw_link in raw_links[:24]:
-        if not isinstance(raw_link, dict):
+        candidate = _parse_candidate_link(raw_link, aliases)
+        if candidate is None:
             continue
-        alias = raw_link.get("alias")
-        confidence = raw_link.get("confidence")
-        rationale = raw_link.get("rationale")
-        alias_record = (
-            manifest_aliases.get(alias)
-            if isinstance(alias, str)
-            else None
-        )
-        if (
-            not isinstance(alias_record, dict)
-            or alias_record.get("entity_type") not in {"group", "passenger"}
-            or not isinstance(confidence, (int, float))
-            or isinstance(confidence, bool)
-            or not 0 <= float(confidence) <= 1
-            or not isinstance(rationale, str)
-        ):
-            continue
-        try:
-            entity_id = uuid.UUID(str(alias_record.get("entity_id")))
-        except (TypeError, ValueError):
-            continue
-        entity_type = str(alias_record["entity_type"])
+        entity_type, entity_id, confidence, rationale = candidate
         key = (entity_type, entity_id)
         if key in seen:
             continue
         seen.add(key)
-        resolved.append(
-            (
-                entity_type,
-                entity_id,
-                float(confidence),
-                rationale.strip()[:320],
-            )
-        )
+        resolved.append(candidate)
     if not resolved:
         return []
 
-    group_ids = [
-        entity_id
-        for entity_type, entity_id, _, _ in resolved
-        if entity_type == "group"
-    ]
+    group_ids = [entity_id for entity_type, entity_id, _, _ in resolved if entity_type == "group"]
     passenger_ids = [
-        entity_id
-        for entity_type, entity_id, _, _ in resolved
-        if entity_type == "passenger"
+        entity_id for entity_type, entity_id, _, _ in resolved if entity_type == "passenger"
     ]
-    visible_names: dict[tuple[str, uuid.UUID], str] = {}
+    visible_names: dict[tuple[CandidateEntityType, uuid.UUID], str] = {}
     if group_ids:
         group_statement = select(
             ClientGroupModel.id,
@@ -2013,7 +1948,7 @@ async def _load_visible_candidate_links(
     canonical_group_id = _result_group_id(analysis)
     return [
         EmailCandidateLinkResponse(
-            entity_type=entity_type,  # type: ignore[arg-type]
+            entity_type=entity_type,
             entity_id=entity_id,
             name=visible_names[(entity_type, entity_id)],
             confidence=confidence,
@@ -2029,6 +1964,39 @@ async def _load_visible_candidate_links(
     ]
 
 
+def _parse_candidate_link(
+    raw_link: object,
+    aliases: dict[object, object],
+) -> ResolvedCandidateLink | None:
+    """Validate one provider candidate before any tenant-scoped lookup."""
+
+    if not isinstance(raw_link, dict):
+        return None
+    candidate = cast(dict[object, object], raw_link)
+    alias = candidate.get("alias")
+    confidence = candidate.get("confidence")
+    rationale = candidate.get("rationale")
+    alias_record = aliases.get(alias) if isinstance(alias, str) else None
+    if not isinstance(alias_record, dict):
+        return None
+    alias_values = cast(dict[object, object], alias_record)
+    entity_type_value = alias_values.get("entity_type")
+    if (
+        entity_type_value not in {"group", "passenger"}
+        or not isinstance(confidence, (int, float))
+        or isinstance(confidence, bool)
+        or not 0 <= float(confidence) <= 1
+        or not isinstance(rationale, str)
+    ):
+        return None
+    try:
+        entity_id = uuid.UUID(str(alias_values.get("entity_id")))
+    except (TypeError, ValueError):
+        return None
+    entity_type: CandidateEntityType = "group" if entity_type_value == "group" else "passenger"
+    return entity_type, entity_id, float(confidence), rationale.strip()[:320]
+
+
 async def _refresh_analysis_attention(
     session: AsyncSession,
     analysis: EmailAiAnalysisModel,
@@ -2039,9 +2007,7 @@ async def _refresh_analysis_attention(
                 EmailActionProposalModel.analysis_id == analysis.id,
                 EmailActionProposalModel.agency_id == analysis.agency_id,
                 EmailActionProposalModel.owner_user_id == analysis.owner_user_id,
-                EmailActionProposalModel.status.in_(
-                    {"proposed", "approval_required", "blocked"}
-                ),
+                EmailActionProposalModel.status.in_({"proposed", "approval_required", "blocked"}),
             )
         )
         or 0
@@ -2065,8 +2031,7 @@ async def _refresh_analysis_attention(
         and any(
             isinstance(link, dict)
             and isinstance(link.get("confidence"), (int, float))
-            and float(link["confidence"])
-            < settings.email_ai_auto_confidence_threshold
+            and float(link["confidence"]) < settings.email_ai_auto_confidence_threshold
             for link in candidate_links
         )
     )
@@ -2078,8 +2043,7 @@ async def _refresh_analysis_attention(
             or analysis.intent in {"cancellation", "payment"}
             or (
                 analysis.confidence is not None
-                and analysis.confidence
-                < settings.email_ai_auto_confidence_threshold
+                and analysis.confidence < settings.email_ai_auto_confidence_threshold
             )
             or low_confidence_link
             or result.get("candidate_ambiguity") is True
@@ -2087,9 +2051,7 @@ async def _refresh_analysis_attention(
             or _has_high_risk(result.get("risks"))
         )
     )
-    analysis.needs_attention = bool(
-        open_proposals or review_deadlines or intrinsic_review
-    )
+    analysis.needs_attention = bool(open_proposals or review_deadlines or intrinsic_review)
     if analysis.status == "review_required" and not analysis.needs_attention:
         analysis.status = "completed"
     analysis.updated_at = datetime.now(tz=UTC)
@@ -2100,9 +2062,7 @@ def _has_high_risk(value: object) -> bool:
     if not isinstance(value, list):
         return False
     return any(
-        isinstance(item, dict)
-        and item.get("level") in {"high", "critical"}
-        for item in value
+        isinstance(item, dict) and item.get("level") in {"high", "critical"} for item in value
     )
 
 
@@ -2166,6 +2126,7 @@ def _inbox_item(
             and deadline.status in {"detected", "review_required", "acknowledged"}
         ):
             deadline_window.append(deadline)
+    section: InboxView
     if analysis.needs_attention or analysis.status == "review_required" or open_proposals:
         section = "needs_attention"
     elif deadline_window:
@@ -2196,10 +2157,8 @@ def _inbox_item(
         group_id=visible_group_id,
         group_name=group_name,
         status=analysis.status,
-        section=section,  # type: ignore[arg-type]
-        next_deadline=(
-            _deadline_response(deadline_window[0]) if deadline_window else None
-        ),
+        section=section,
+        next_deadline=(_deadline_response(deadline_window[0]) if deadline_window else None),
         proposal_count=len(open_proposals),
         draft_status=draft.status if draft is not None else None,
     )
@@ -2230,8 +2189,7 @@ def _intelligence_response(
         linked_group_name=visible_group_name,
         linked_passenger_ids=[item[0] for item in visible_passengers],
         linked_passengers=[
-            EmailLinkedPassengerResponse(id=item[0], name=item[1])
-            for item in visible_passengers
+            EmailLinkedPassengerResponse(id=item[0], name=item[1]) for item in visible_passengers
         ],
         candidate_links=candidate_links,
         risks=_safe_risk_strings(result.get("risks"), 20),
@@ -2262,6 +2220,7 @@ def _deadline_response(item: EmailDetectedDeadlineModel) -> EmailInboxDeadlineRe
 
 
 def _proposal_response(item: EmailActionProposalModel) -> EmailInboxProposalResponse:
+    allowed_actions: list[ProposalAction]
     if item.status == "blocked":
         allowed_actions = ["reject", "dismiss"]
     elif item.status in {"proposed", "approval_required"}:
@@ -2280,7 +2239,7 @@ def _proposal_response(item: EmailActionProposalModel) -> EmailInboxProposalResp
         explanation=item.explanation,
         confidence=item.confidence,
         requires_approval=item.requires_approval,
-        allowed_actions=allowed_actions,  # type: ignore[arg-type]
+        allowed_actions=allowed_actions,
         revision=item.revision,
     )
 
@@ -2302,6 +2261,14 @@ def _safe_strings(value: object, limit: int) -> list[str]:
     if not isinstance(value, list):
         return []
     return [str(item)[:500] for item in value if isinstance(item, str)][:limit]
+
+
+@overload
+def _aware_utc(value: datetime) -> datetime: ...
+
+
+@overload
+def _aware_utc(value: None) -> None: ...
 
 
 def _aware_utc(value: datetime | None) -> datetime | None:
@@ -2335,7 +2302,7 @@ def _safe_risk_strings(value: object, limit: int) -> list[str]:
     return risks
 
 
-def _priority_order():
+def _priority_order() -> ColumnElement[int]:
     return case(
         (EmailAiAnalysisModel.priority == "urgent", 0),
         (EmailAiAnalysisModel.priority == "high", 1),

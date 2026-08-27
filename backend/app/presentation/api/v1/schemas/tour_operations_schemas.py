@@ -9,9 +9,10 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
 from app.presentation.api.v1.schemas.attendance_closeout_schemas import (
     AttendanceCloseoutStatusResponse,
@@ -222,6 +223,9 @@ class SetPassengerQrExpirationRequest(BaseModel):
 
 class CreateAttendanceSessionRequest(BaseModel):
     name: str = Field(..., min_length=2, max_length=160)
+    scheduled_starts_at: datetime | None = None
+    scheduled_ends_at: datetime | None = None
+    schedule_timezone: str | None = Field(default=None, min_length=1, max_length=64)
 
     @field_validator("name")
     @classmethod
@@ -230,6 +234,32 @@ class CreateAttendanceSessionRequest(BaseModel):
         if len(normalized) < 2:
             raise ValueError("Activity name must contain at least 2 characters.")
         return normalized
+
+    @model_validator(mode="after")
+    def validate_schedule(self) -> CreateAttendanceSessionRequest:
+        _validate_attendance_schedule(
+            starts_at=self.scheduled_starts_at,
+            ends_at=self.scheduled_ends_at,
+            timezone_name=self.schedule_timezone,
+            allow_omitted=True,
+        )
+        return self
+
+
+class UpdateAttendanceScheduleRequest(BaseModel):
+    scheduled_starts_at: datetime
+    scheduled_ends_at: datetime
+    schedule_timezone: str = Field(min_length=1, max_length=64)
+
+    @model_validator(mode="after")
+    def validate_schedule(self) -> UpdateAttendanceScheduleRequest:
+        _validate_attendance_schedule(
+            starts_at=self.scheduled_starts_at,
+            ends_at=self.scheduled_ends_at,
+            timezone_name=self.schedule_timezone,
+            allow_omitted=False,
+        )
+        return self
 
 
 class AttendanceSessionResponse(BaseModel):
@@ -240,8 +270,43 @@ class AttendanceSessionResponse(BaseModel):
     created_at: datetime
     started_at: datetime | None = None
     completed_at: datetime | None = None
+    scheduled_starts_at: datetime | None = None
+    scheduled_ends_at: datetime | None = None
+    schedule_timezone: str | None = None
+    schedule_version: int = Field(default=1, ge=1)
     scanned_count: int = 0
     assigned_count: int = 0
+
+
+def _validate_attendance_schedule(
+    *,
+    starts_at: datetime | None,
+    ends_at: datetime | None,
+    timezone_name: str | None,
+    allow_omitted: bool,
+) -> None:
+    values = (starts_at, ends_at, timezone_name)
+    if all(value is None for value in values):
+        if allow_omitted:
+            return
+        raise ValueError("Attendance schedule is required")
+    if any(value is None for value in values):
+        raise ValueError("Attendance start, end, and time zone must be provided together")
+    if starts_at is None or ends_at is None or timezone_name is None:
+        raise ValueError("Attendance schedule is incomplete")
+    if starts_at.tzinfo is None or starts_at.utcoffset() is None:
+        raise ValueError("Attendance start must include a timezone offset")
+    if ends_at.tzinfo is None or ends_at.utcoffset() is None:
+        raise ValueError("Attendance end must include a timezone offset")
+    if ends_at <= starts_at:
+        raise ValueError("Attendance end must be after the start")
+    normalized_timezone = timezone_name.strip()
+    if normalized_timezone != timezone_name:
+        raise ValueError("Attendance time zone must not contain surrounding whitespace")
+    try:
+        ZoneInfo(normalized_timezone)
+    except (ValueError, ZoneInfoNotFoundError) as exc:
+        raise ValueError("Attendance time zone must be a valid IANA time zone") from exc
 
 
 class AttendanceScanRequest(BaseModel):
@@ -249,6 +314,7 @@ class AttendanceScanRequest(BaseModel):
     client_event_id: str = Field(..., min_length=8, max_length=128, pattern=r"^[A-Za-z0-9:_-]+$")
     scanned_at: datetime | None = None
     device_id: str | None = Field(default=None, max_length=128, pattern=r"^[A-Za-z0-9:_-]+$")
+    runtime_id: uuid.UUID | None = None
     sync_source: str = Field(default="online", pattern="^(online|offline)$")
 
     @field_validator("scanned_at")
@@ -267,6 +333,80 @@ class AttendanceScanResponse(BaseModel):
     message: str
     scanned_count: int
     assigned_count: int
+
+
+ATTENDANCE_SCAN_BATCH_MAX_ITEMS = 50
+ATTENDANCE_SCAN_BATCH_MAX_AGGREGATE_BYTES = 16 * 1024
+
+
+class AttendanceScanBatchItemRequest(BaseModel):
+    client_event_id: str = Field(
+        ...,
+        min_length=8,
+        max_length=128,
+        pattern=r"^[A-Za-z0-9:_-]+$",
+    )
+    qr_payload: str = Field(
+        ...,
+        min_length=49,
+        max_length=49,
+        pattern=r"^pdatt:[A-Za-z0-9_-]{43}$",
+    )
+    scanned_at: datetime
+
+    model_config = {"extra": "forbid"}
+
+    @field_validator("scanned_at")
+    @classmethod
+    def require_scan_timezone(cls, value: datetime) -> datetime:
+        if value.tzinfo is None or value.utcoffset() is None:
+            raise ValueError("scanned_at must include a timezone offset")
+        return value
+
+
+class AttendanceScanBatchRequest(BaseModel):
+    batch_id: uuid.UUID
+    scans: list[AttendanceScanBatchItemRequest] = Field(
+        ...,
+        min_length=1,
+        max_length=ATTENDANCE_SCAN_BATCH_MAX_ITEMS,
+    )
+
+    model_config = {"extra": "forbid"}
+
+    @model_validator(mode="after")
+    def validate_unique_events_and_aggregate_size(self) -> AttendanceScanBatchRequest:
+        event_ids = [scan.client_event_id for scan in self.scans]
+        if len(event_ids) != len(set(event_ids)):
+            raise ValueError("client_event_id values must be unique within a batch")
+        aggregate_bytes = sum(
+            len(scan.client_event_id.encode("utf-8"))
+            + len(scan.qr_payload.encode("utf-8"))
+            + len(scan.scanned_at.isoformat().encode("utf-8"))
+            for scan in self.scans
+        )
+        if aggregate_bytes > ATTENDANCE_SCAN_BATCH_MAX_AGGREGATE_BYTES:
+            raise ValueError("attendance scan batch exceeds the aggregate byte limit")
+        return self
+
+
+class AttendanceScanBatchItemResponse(BaseModel):
+    client_event_id: str
+    outcome: str = Field(..., pattern=r"^(counted|duplicate|rejected)$")
+    retryable: bool
+    scan: AttendanceScanResponse | None = None
+    error_code: str | None = None
+
+    @model_validator(mode="after")
+    def validate_result_shape(self) -> AttendanceScanBatchItemResponse:
+        if (self.scan is None) == (self.error_code is None):
+            raise ValueError("Each batch item must contain exactly one of scan or error_code")
+        return self
+
+
+class AttendanceScanBatchResponse(BaseModel):
+    batch_id: uuid.UUID
+    items: list[AttendanceScanBatchItemResponse]
 
 
 class AttendancePassengerStatus(BaseModel):
@@ -329,3 +469,71 @@ class GroupAttendanceOverviewResponse(BaseModel):
     group_id: uuid.UUID
     group_name: str
     sessions: list[AttendanceSessionSummary] = Field(default_factory=list)
+
+
+class AttendanceSummaryCloseout(BaseModel):
+    ready: bool
+    active_participant_count: int = Field(ge=0)
+    ready_participant_count: int = Field(ge=0)
+    blocked_participant_count: int = Field(ge=0)
+    missing_participant_count: int = Field(ge=0)
+    stale_participant_count: int = Field(ge=0)
+    unresolved_count: int = Field(ge=0)
+
+
+class AttendanceCoordinatorActivitySummaryResponse(BaseModel):
+    coordinator_id: uuid.UUID
+    coordinator_name: str = Field(min_length=1, max_length=255)
+    assigned_count: int = Field(ge=0)
+    scanned_count: int = Field(ge=0)
+    checkpoint_state: Literal["ready", "missing", "stale", "blocked"]
+    checkpoint_reported_at: datetime | None = None
+    pending_count: int = Field(ge=0)
+    sending_count: int = Field(ge=0)
+    retryable_count: int = Field(ge=0)
+    needs_review_count: int = Field(ge=0)
+    unreviewed_rejected_count: int = Field(ge=0)
+    oldest_pending_age_seconds: int | None = Field(default=None, ge=0)
+    runtime_count: int = Field(ge=1)
+    active_runtime_count: int = Field(ge=0)
+
+
+class AttendanceActivitySummaryResponse(BaseModel):
+    id: uuid.UUID
+    name: str
+    status: str
+    revision: str = Field(min_length=32, max_length=32, pattern="^[0-9a-f]+$")
+    present_count: int = Field(ge=0)
+    missing_count: int = Field(ge=0)
+    exception_count: int = Field(ge=0)
+    closeout: AttendanceSummaryCloseout
+    coordinator_count: int = Field(default=0, ge=0)
+    coordinators_truncated: bool = False
+    coordinators: list[AttendanceCoordinatorActivitySummaryResponse] = Field(
+        default_factory=list,
+        max_length=25,
+    )
+    last_canonical_update_at: datetime
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+
+
+class GroupAttendanceSummaryResponse(BaseModel):
+    group_id: uuid.UUID
+    group_name: str
+    revision: str = Field(min_length=32, max_length=32, pattern="^[0-9a-f]+$")
+    sessions: list[AttendanceActivitySummaryResponse] = Field(default_factory=list)
+
+
+class AttendanceMissingPassengerItem(BaseModel):
+    passenger_id: uuid.UUID
+    display_name: str = Field(min_length=1, max_length=255)
+
+
+class AttendanceMissingPassengersPageResponse(BaseModel):
+    session_id: uuid.UUID
+    revision: str = Field(min_length=32, max_length=32, pattern="^[0-9a-f]+$")
+    items: list[AttendanceMissingPassengerItem] = Field(default_factory=list)
+    has_more: bool
+    next_cursor: uuid.UUID | None = None
+    page_size: int = Field(ge=1, le=100)

@@ -6,12 +6,21 @@ from unittest.mock import patch
 import pytest
 
 from app.core.config.settings import Settings
+from app.infrastructure.runtime_readiness import RuntimeCapabilitySnapshot
 from app.presentation.api.v1.routes.health import readiness
 
 
 class _HealthyDatabase:
     async def execute(self, _statement: object) -> None:
         return None
+
+
+def _healthy_runtime_snapshot() -> RuntimeCapabilitySnapshot:
+    return RuntimeCapabilitySnapshot(
+        checks={"database_schema": "compatible", "object_storage": "available"},
+        core_ready=True,
+        capabilities={},
+    )
 
 
 @pytest.mark.asyncio
@@ -39,6 +48,10 @@ async def test_required_realtime_outage_is_visible_and_fails_readiness() -> None
         patch(
             "app.presentation.api.v1.routes.health.get_mobile_realtime_hub",
             return_value=SimpleNamespace(readiness=lambda: ("unreachable_required", False)),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.health.runtime_capability_readiness",
+            return_value=_healthy_runtime_snapshot(),
         ),
     ):
         coordinator.return_value.snapshot.return_value = object()
@@ -76,6 +89,10 @@ async def test_explicit_cursor_fallback_is_visible_without_false_outage() -> Non
         patch(
             "app.presentation.api.v1.routes.health.get_mobile_realtime_hub",
             return_value=SimpleNamespace(readiness=lambda: ("degraded_cursor_fallback", True)),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.health.runtime_capability_readiness",
+            return_value=_healthy_runtime_snapshot(),
         ),
     ):
         coordinator.return_value.snapshot.return_value = object()

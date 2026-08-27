@@ -105,6 +105,8 @@ jobs:
         run: npx expo prebuild --clean --platform android --no-install
       - name: Build release variants (verification signing only)
         run: ./android/gradlew -p android --no-parallel assembleRelease bundleRelease
+      - name: Enforce reviewed APK and AAB size budgets
+        run: npm run release:verify-android-size
       - name: Reject accidental production-artifact publication
         run: |
           echo "These binaries use generated verification signing and are not distribution artifacts."

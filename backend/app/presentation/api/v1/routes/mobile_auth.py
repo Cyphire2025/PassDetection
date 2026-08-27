@@ -586,7 +586,9 @@ async def activate_client_manager(
                 UserModel.is_active.is_(True),
                 UserModel.deleted_at.is_(None),
             )
-            .with_for_update(of=(ClientManagerProfileModel, UserModel))
+            # Lock both invitation/profile and account rows until the
+            # one-time activation transition commits.
+            .with_for_update()
         )
     ).first()
     if row is None:
@@ -1109,7 +1111,9 @@ async def change_mobile_password(
                 UserModel.agency_id == claims.agency_id,
                 MobileDeviceSessionModel.id == claims.session_id,
             )
-            .with_for_update(of=(UserModel, MobileDeviceSessionModel))
+            # Lock both the account and its current device session so password
+            # replacement and session-family revocation remain atomic.
+            .with_for_update()
         )
     ).first()
     if row is None or not verify_password(body.current_password, row[0].hashed_password):

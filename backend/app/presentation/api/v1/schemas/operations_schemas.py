@@ -94,6 +94,7 @@ class PlatformSettingsResponse(BaseModel):
 
 
 class UpdatePlatformSettingsRequest(BaseModel):
+    expected_updated_at: datetime | None = None
     platform_name: str = Field(..., min_length=2, max_length=80)
     require_client_email: bool
     require_client_phone: bool
@@ -104,6 +105,15 @@ class UpdatePlatformSettingsRequest(BaseModel):
     mrz_review_threshold: float = Field(..., ge=0.0, le=1.0)
     allow_manager_group_creation: bool
     audit_log_retention_days: int = Field(..., ge=1, le=3650)
+
+    model_config = {"extra": "forbid"}
+
+    @field_validator("expected_updated_at")
+    @classmethod
+    def require_timezone_aware_revision(cls, value: datetime | None) -> datetime | None:
+        if value is not None and value.utcoffset() is None:
+            raise ValueError("expected_updated_at must include a timezone offset")
+        return value
 
 
 class PassportRetentionControlRequest(BaseModel):

@@ -31,6 +31,18 @@ jest.mock('@/features/coordinator/data/attendance-queue', () => ({
   listAttendanceNeedsReview: jest.fn(),
   retryAttendanceNeedsReview: jest.fn(),
 }));
+jest.mock('@/features/coordinator/data/attendance-discard-store', () => ({
+  attendanceDiscardAuditStatus: jest.fn().mockResolvedValue({
+    pending: 1,
+    rejected: 0,
+    synchronized: 2,
+  }),
+  drainAttendanceDiscardTombstones: jest.fn().mockResolvedValue({
+    pending: 0,
+    rejected: 0,
+    synchronized: 3,
+  }),
+}));
 jest.mock('@/features/coordinator/data/attendance-scan-issues', () => {
   const actual = jest.requireActual('@/features/coordinator/data/attendance-scan-issues') as object;
   return { ...actual, listRejectedAttendanceIssues: jest.fn() };
@@ -102,6 +114,11 @@ beforeEach(() => {
     createdAt: '2030-01-02T11:00:00.000Z',
     updatedAt: '2030-01-02T11:01:00.000Z',
     attemptCount: 2,
+    passengerLabel: 'Passenger One',
+    safeReference: 'ABCDEF123456',
+    sessionLabel: 'Airport departure',
+    retryState: 'ready_to_retry',
+    lastAttemptAt: '2030-01-02T11:01:00.000Z',
   }]);
   mockedListRejected.mockResolvedValue([{
     idempotencyKey: REJECTED_EVENT,
@@ -109,6 +126,11 @@ beforeEach(() => {
     createdAt: '2030-01-02T10:00:00.000Z',
     updatedAt: '2030-01-02T10:01:00.000Z',
     attemptCount: 1,
+    passengerLabel: 'Passenger Two',
+    safeReference: '987654FEDCBA',
+    sessionLabel: 'Hotel arrival',
+    retryState: 'terminal',
+    lastAttemptAt: '2030-01-02T10:01:00.000Z',
   }]);
 });
 

@@ -11,6 +11,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response,
 from sqlalchemy import and_, exists, func, or_, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.elements import ColumnElement
 
 from app.application.mobile.passenger_identity_reconciliation import (
     PassengerIdentityReconciliationResult,
@@ -43,6 +44,14 @@ from app.infrastructure.mobile_group_capacity import (
     SqlAlchemyGroupPassengerCapacityGuard,
 )
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.presentation.api.v1.routes import gc_app_account_support as _account_support
+from app.presentation.api.v1.routes import (
+    gc_app_group_access_support as _group_access_support,
+)
+from app.presentation.api.v1.routes.gc_app_history_support import (
+    client_manager_session_responses,
+    gc_app_audit_responses,
+)
 from app.presentation.api.v1.schemas.gc_app_schemas import (
     ClientManagerAssignedGroupResponse,
     ClientManagerAssignmentRequest,
@@ -51,7 +60,7 @@ from app.presentation.api.v1.schemas.gc_app_schemas import (
     ClientManagerPageResponse,
     ClientManagerPasswordResetRequest,
     ClientManagerResponse,
-    ClientManagerSessionResponse,
+    ClientManagerSessionPageResponse,
     ClientManagerStatusRequest,
     ClientManagerUpdateRequest,
     ClientOrganizationCreateRequest,
@@ -59,12 +68,13 @@ from app.presentation.api.v1.schemas.gc_app_schemas import (
     ClientOrganizationResponse,
     GCAgencyPageResponse,
     GCAgencyResponse,
-    GCAppAuditResponse,
+    GCAppAuditPageResponse,
     GCGroupAccessResponse,
     GCGroupAccessUpdateRequest,
     GCGroupSearchAccess,
     GCGroupSearchItem,
     GCGroupSearchPageResponse,
+    GCMyPhotosFeatureUpdateRequest,
     PassengerIdentityReconciliationResponse,
 )
 from app.presentation.dependencies.auth import require_recent_mfa, require_role
@@ -73,52 +83,14 @@ from app.presentation.security.client_ip import trusted_client_ip
 
 router = APIRouter()
 GC_ADMIN_ROLES = [UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER]
+MobileAudience = Literal["passenger", "client_manager", "coordinator"]
 
-_CLIENT_MANAGER_DUPLICATE_CONSTRAINT_MESSAGES = {
-    "users_email_key": "Email is already in use",
-    "uq_client_manager_phone_live": (
-        "Mobile number is already assigned to another Client Manager"
-    ),
-}
-
-
-def _integrity_constraint_name(exc: IntegrityError) -> str | None:
-    """Extract a database constraint name without relying on driver internals."""
-
-    pending: list[BaseException] = [exc]
-    seen: set[int] = set()
-    while pending:
-        current = pending.pop()
-        if id(current) in seen:
-            continue
-        seen.add(id(current))
-        constraint_name = getattr(current, "constraint_name", None)
-        if isinstance(constraint_name, str) and constraint_name:
-            return constraint_name
-        diagnostic = getattr(current, "diag", None)
-        diagnostic_name = getattr(diagnostic, "constraint_name", None)
-        if isinstance(diagnostic_name, str) and diagnostic_name:
-            return diagnostic_name
-        for linked in (
-            getattr(current, "orig", None),
-            current.__cause__,
-            current.__context__,
-        ):
-            if isinstance(linked, BaseException):
-                pending.append(linked)
-
-    message = str(exc)
-    for known_name in _CLIENT_MANAGER_DUPLICATE_CONSTRAINT_MESSAGES:
-        if known_name in message:
-            return known_name
-    return None
-
-
-def _client_manager_duplicate_message(exc: IntegrityError) -> str | None:
-    constraint_name = _integrity_constraint_name(exc)
-    if constraint_name is None:
-        return None
-    return _CLIENT_MANAGER_DUPLICATE_CONSTRAINT_MESSAGES.get(constraint_name)
+_integrity_constraint_name = _account_support.integrity_constraint_name
+_client_manager_duplicate_message = _account_support.client_manager_duplicate_message
+_organization_response = _account_support.organization_response
+_client_manager_response = _account_support.client_manager_response
+_organization_status = _account_support.organization_status
+_client_manager_status = _account_support.client_manager_status
 
 
 @router.get("/agencies", response_model=GCAgencyPageResponse)
@@ -131,7 +103,7 @@ async def list_gc_agencies(
 ) -> GCAgencyPageResponse:
     """Return a bounded tenant selector without granting cross-tenant access."""
 
-    filters = [AgencyModel.is_active.is_(True)]
+    filters: list[ColumnElement[bool]] = [AgencyModel.is_active.is_(True)]
     if current_user.role != UserRole.SUPER_ADMIN:
         if current_user.agency_id is None:
             raise HTTPException(
@@ -192,7 +164,7 @@ async def search_gc_groups(
     session: AsyncSession = Depends(get_db_session),
 ) -> GCGroupSearchPageResponse:
     tenant_id = _tenant_id(current_user, agency_id)
-    filters = [ClientGroupModel.agency_id == tenant_id]
+    filters: list[ColumnElement[bool]] = [ClientGroupModel.agency_id == tenant_id]
     if group_id is not None:
         filters.append(ClientGroupModel.id == group_id)
     if lifecycle_status is not None:
@@ -284,20 +256,24 @@ async def search_gc_groups(
             .subquery()
         )
 
-    result_columns = [
-        ClientGroupModel,
-        GCGroupAccessModel,
-        ClientOrganizationModel,
+    rows: list[
+        tuple[
+            ClientGroupModel,
+            GCGroupAccessModel | None,
+            ClientOrganizationModel | None,
+            int,
+            int,
+        ]
     ]
     if usage_metrics is not None:
-        result_columns.extend(
-            [
+        statement_with_metrics = (
+            select(
+                ClientGroupModel,
+                GCGroupAccessModel,
+                ClientOrganizationModel,
                 usage_metrics.c.active_mobile_users,
                 usage_metrics.c.synced_device_count,
-            ]
-        )
-    statement = (
-        select(*result_columns)
+            )
             .outerjoin(
                 GCGroupAccessModel,
                 access_join,
@@ -311,19 +287,54 @@ async def search_gc_groups(
             .order_by(ClientGroupModel.created_at.desc(), ClientGroupModel.id.desc())
             .offset(offset)
             .limit(limit)
-    )
-    if usage_metrics is not None:
-        statement = statement.outerjoin(
+        )
+        statement_with_metrics = statement_with_metrics.outerjoin(
             usage_metrics,
             usage_metrics.c.gc_group_access_id == GCGroupAccessModel.id,
         )
-    rows = (await session.execute(statement)).all()
+        metric_rows = (await session.execute(statement_with_metrics)).all()
+        rows = [
+            (
+                group,
+                access,
+                organization,
+                int(active_mobile_users or 0),
+                int(synced_device_count or 0),
+            )
+            for (
+                group,
+                access,
+                organization,
+                active_mobile_users,
+                synced_device_count,
+            ) in metric_rows
+        ]
+    else:
+        statement_without_metrics = (
+            select(ClientGroupModel, GCGroupAccessModel, ClientOrganizationModel)
+            .outerjoin(
+                GCGroupAccessModel,
+                access_join,
+            )
+            .outerjoin(
+                ClientOrganizationModel,
+                (ClientOrganizationModel.id == GCGroupAccessModel.client_organization_id)
+                & (ClientOrganizationModel.agency_id == ClientGroupModel.agency_id),
+            )
+            .where(*filters)
+            .order_by(ClientGroupModel.created_at.desc(), ClientGroupModel.id.desc())
+            .offset(offset)
+            .limit(limit)
+        )
+        rows = [
+            (group, access, organization, 0, 0)
+            for group, access, organization in (
+                await session.execute(statement_without_metrics)
+            ).all()
+        ]
 
     items: list[GCGroupSearchItem] = []
-    for row in rows:
-        group, access, organization = row[0], row[1], row[2]
-        active_mobile_users = int(row[3] or 0) if usage_metrics is not None else 0
-        synced_device_count = int(row[4] or 0) if usage_metrics is not None else 0
+    for group, access, organization, active_mobile_users, synced_device_count in rows:
         items.append(
             GCGroupSearchItem(
                 id=group.id,
@@ -363,7 +374,11 @@ async def search_gc_groups(
                         synced_device_count=synced_device_count,
                         updated_at=access.updated_at,
                     )
-                    if access is not None and organization is not None
+                    if (
+                        access is not None
+                        and access.client_organization_id is not None
+                        and organization is not None
+                    )
                     else None
                 ),
             )
@@ -442,7 +457,7 @@ async def configure_gc_group_access(
     await _get_organization(session, tenant_id, organization_id, lock=True)
 
     now = datetime.now(tz=UTC)
-    revoked_roles: set[str] = set()
+    revoked_roles: set[MobileAudience] = set()
     revoke_all_group_sessions = False
     access_window_changed = False
     if access is None:
@@ -556,7 +571,11 @@ async def configure_gc_group_access(
         access.common_document_version += 1
 
     if revoke_all_group_sessions:
-        revoked_roles = {"passenger", "client_manager", "coordinator"}
+        revoked_roles = {
+            "passenger",
+            "client_manager",
+            "coordinator",
+        }
     if revoked_roles:
         await _revoke_group_mobile_sessions(
             session,
@@ -636,6 +655,39 @@ async def configure_gc_group_access(
         },
     )
     return await _group_access_response(session, access)
+
+
+@router.put(
+    "/groups/{group_id}/features/my-photos",
+    response_model=GCGroupAccessResponse,
+    dependencies=[Depends(require_cookie_csrf)],
+)
+async def configure_gc_group_my_photos_feature(
+    group_id: uuid.UUID,
+    body: GCMyPhotosFeatureUpdateRequest,
+    request: Request,
+    agency_id: uuid.UUID | None = None,
+    current_user: User = Depends(require_role(GC_ADMIN_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> GCGroupAccessResponse:
+    """Toggle the passenger My Photos capability without re-fencing sessions."""
+
+    tenant_id = _tenant_id(current_user, agency_id)
+    group = await _get_group(session, tenant_id, group_id, lock=True)
+    access = await _get_group_access(session, tenant_id, group_id, lock=True)
+    return await _group_access_support.configure_my_photos_feature(
+        session=session,
+        group=group,
+        access=access,
+        body=body,
+        request=request,
+        current_user_id=current_user.id,
+        current_user=current_user,
+        tenant_id=tenant_id,
+        append_change=append_mobile_sync_change,
+        audit_change=_audit,
+        response_builder=_group_access_response,
+    )
 
 
 @router.post(
@@ -719,7 +771,11 @@ async def revoke_gc_group_access(
     access.revision += 1
     access.updated_by_user_id = current_user.id
     access.updated_at = now
-    revoked_roles = {"passenger", "client_manager", "coordinator"}
+    revoked_roles: set[MobileAudience] = {
+        "passenger",
+        "client_manager",
+        "coordinator",
+    }
     await _revoke_group_mobile_sessions(
         session,
         access,
@@ -1515,8 +1571,8 @@ async def replace_client_manager_groups(
             assignment.revoked_at = now
             assignment.updated_at = now
     for group_id, access in access_by_group.items():
-        assignment = by_group.get(group_id)
-        if assignment is None:
+        current_assignment = by_group.get(group_id)
+        if current_assignment is None:
             session.add(
                 ClientManagerGroupAssignmentModel(
                     id=uuid.uuid4(),
@@ -1534,13 +1590,13 @@ async def replace_client_manager_groups(
                 )
             )
         else:
-            assignment.gc_group_access_id = access.id
-            assignment.is_active = True
-            assignment.revoked_by_user_id = None
-            assignment.revoked_at = None
-            assignment.assigned_by_user_id = current_user.id
-            assignment.assigned_at = now
-            assignment.updated_at = now
+            current_assignment.gc_group_access_id = access.id
+            current_assignment.is_active = True
+            current_assignment.revoked_by_user_id = None
+            current_assignment.revoked_at = None
+            current_assignment.assigned_by_user_id = current_user.id
+            current_assignment.assigned_at = now
+            current_assignment.updated_at = now
     profile.access_generation += 1
     profile.revision += 1
     profile.updated_by_user_id = current_user.id
@@ -1599,84 +1655,96 @@ async def revoke_client_manager_sessions(
 
 @router.get(
     "/client-managers/{profile_id}/sessions",
-    response_model=list[ClientManagerSessionResponse],
+    response_model=ClientManagerSessionPageResponse,
 )
 async def list_client_manager_sessions(
     profile_id: uuid.UUID,
     agency_id: uuid.UUID | None = None,
+    offset: int = Query(default=0, ge=0),
+    limit: int = Query(default=50, ge=1, le=100),
     current_user: User = Depends(require_role(GC_ADMIN_ROLES)),
     session: AsyncSession = Depends(get_db_session),
-) -> list[ClientManagerSessionResponse]:
+) -> ClientManagerSessionPageResponse:
     tenant_id = _tenant_id(current_user, agency_id)
     _profile, user, _organization = await _get_client_manager(
         session, tenant_id, profile_id, lock=False
+    )
+    filters = (
+        MobileDeviceSessionModel.agency_id == tenant_id,
+        MobileDeviceSessionModel.user_id == user.id,
+    )
+    total = int(
+        await session.scalar(
+            select(func.count(MobileDeviceSessionModel.id)).where(*filters)
+        )
+        or 0
     )
     items = list(
         (
             await session.execute(
                 select(MobileDeviceSessionModel)
                 .where(
-                    MobileDeviceSessionModel.agency_id == tenant_id,
-                    MobileDeviceSessionModel.user_id == user.id,
+                    *filters,
                 )
-                .order_by(MobileDeviceSessionModel.created_at.desc())
-                .limit(100)
+                .order_by(
+                    MobileDeviceSessionModel.created_at.desc(),
+                    MobileDeviceSessionModel.id.desc(),
+                )
+                .offset(offset)
+                .limit(limit)
             )
         ).scalars()
     )
-    return [
-        ClientManagerSessionResponse(
-            id=item.id,
-            platform=item.platform,
-            app_version=item.app_version,
-            status=item.status,
-            last_seen_at=item.last_seen_at,
-            created_at=item.created_at,
-            expires_at=item.expires_at,
-            revoked_at=item.revoked_at,
-        )
-        for item in items
-    ]
+    return ClientManagerSessionPageResponse(
+        items=client_manager_session_responses(items),
+        total=total,
+        offset=offset,
+        limit=limit,
+    )
 
 
 @router.get(
     "/client-managers/{profile_id}/audit",
-    response_model=list[GCAppAuditResponse],
+    response_model=GCAppAuditPageResponse,
 )
 async def list_client_manager_audit(
     profile_id: uuid.UUID,
     agency_id: uuid.UUID | None = None,
+    offset: int = Query(default=0, ge=0),
+    limit: int = Query(default=50, ge=1, le=100),
     current_user: User = Depends(require_role(GC_ADMIN_ROLES)),
     session: AsyncSession = Depends(get_db_session),
-) -> list[GCAppAuditResponse]:
+) -> GCAppAuditPageResponse:
     tenant_id = _tenant_id(current_user, agency_id)
     await _get_client_manager(session, tenant_id, profile_id, lock=False)
+    filters = (
+        AuditLogModel.agency_id == tenant_id,
+        AuditLogModel.entity_type == "client_manager_profile",
+        AuditLogModel.entity_id == str(profile_id),
+    )
+    total = int(
+        await session.scalar(select(func.count(AuditLogModel.id)).where(*filters))
+        or 0
+    )
     logs = list(
         (
             await session.execute(
                 select(AuditLogModel)
                 .where(
-                    AuditLogModel.agency_id == tenant_id,
-                    AuditLogModel.entity_type == "client_manager_profile",
-                    AuditLogModel.entity_id == str(profile_id),
+                    *filters,
                 )
-                .order_by(AuditLogModel.created_at.desc())
-                .limit(200)
+                .order_by(AuditLogModel.created_at.desc(), AuditLogModel.id.desc())
+                .offset(offset)
+                .limit(limit)
             )
         ).scalars()
     )
-    return [
-        GCAppAuditResponse(
-            id=item.id,
-            action=item.action,
-            entity_type=item.entity_type,
-            entity_id=item.entity_id,
-            actor_email=item.actor_email,
-            metadata=item.metadata_json or {},
-            created_at=item.created_at,
-        )
-        for item in logs
-    ]
+    return GCAppAuditPageResponse(
+        items=gc_app_audit_responses(logs),
+        total=total,
+        offset=offset,
+        limit=limit,
+    )
 
 
 @router.delete(
@@ -1836,11 +1904,14 @@ async def _get_client_manager(
         )
     )
     if lock:
-        stmt = stmt.with_for_update(of=(ClientManagerProfileModel, UserModel))
+        # Lock every selected base row so the account/profile/organization
+        # authorization context cannot change during the mutation.
+        stmt = stmt.with_for_update()
     row = (await session.execute(stmt)).first()
     if row is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client Manager not found")
-    return row
+    profile, user, organization = row
+    return profile, user, organization
 
 
 async def _validate_manager_groups(
@@ -1973,7 +2044,7 @@ async def _revoke_group_mobile_sessions(
     session: AsyncSession,
     access: GCGroupAccessModel,
     *,
-    subject_roles: set[str],
+    subject_roles: set[MobileAudience],
     reason: str,
 ) -> None:
     """Fence sessions affected by a group-level role or time-window revocation."""
@@ -2068,114 +2139,7 @@ async def _revoke_group_mobile_sessions(
 async def _group_access_response(
     session: AsyncSession, access: GCGroupAccessModel
 ) -> GCGroupAccessResponse:
-    # Active counts are scoped to devices that selected this trip; no PII is
-    # exposed and accounts with several trips are not double-counted here.
-    now = datetime.now(tz=UTC)
-    usage = (
-        await session.execute(
-            select(
-                func.count(func.distinct(MobileDeviceSessionModel.account_id)),
-                func.count(
-                    func.distinct(MobileDeviceSessionModel.device_identifier_hash)
-                ).filter(
-                    MobileDeviceSessionModel.last_sync_acknowledged_at.is_not(None)
-                ),
-            ).where(
-                MobileDeviceSessionModel.agency_id == access.agency_id,
-                MobileDeviceSessionModel.selected_gc_group_access_id == access.id,
-                MobileDeviceSessionModel.status == "active",
-                MobileDeviceSessionModel.revoked_at.is_(None),
-                MobileDeviceSessionModel.expires_at > now,
-            )
-        )
-    ).one()
-    active_mobile_users = int(usage[0] or 0)
-    synced_device_count = int(usage[1] or 0)
-    context = (
-        await session.execute(
-            select(ClientGroupModel, ClientOrganizationModel)
-            .join(
-                ClientOrganizationModel,
-                (ClientOrganizationModel.id == access.client_organization_id)
-                & (ClientOrganizationModel.agency_id == access.agency_id),
-            )
-            .where(
-                ClientGroupModel.id == access.group_id,
-                ClientGroupModel.agency_id == access.agency_id,
-            )
-            .limit(1)
-        )
-    ).first()
-    if context is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="GC App group context not found",
-        )
-    group, organization = context
-    return GCGroupAccessResponse(
-        group_id=access.group_id,
-        agency_id=access.agency_id,
-        name=group.name,
-        destination=group.destination,
-        travel_date=group.travel_date,
-        return_date=group.return_date,
-        lifecycle_status=group.status,
-        client_organization_id=organization.id,
-        client_organization_name=organization.name,
-        enabled=access.is_enabled,
-        passenger_access_enabled=access.passenger_access_enabled,
-        client_manager_access_enabled=access.client_manager_access_enabled,
-        coordinator_access_enabled=access.coordinator_access_enabled,
-        access_starts_at=access.access_starts_at,
-        access_expires_at=access.access_expires_at,
-        revoked_at=access.revoked_at,
-        access_generation=access.access_generation,
-        itinerary_version=access.itinerary_version,
-        common_document_version=access.common_document_version,
-        announcement_version=access.announcement_version,
-        revision=access.revision,
-        last_successful_sync_at=access.last_successful_sync_at,
-        active_mobile_users=active_mobile_users,
-        synced_device_count=synced_device_count,
-        updated_at=access.updated_at,
-    )
-
-
-def _organization_response(item: ClientOrganizationModel) -> ClientOrganizationResponse:
-    return ClientOrganizationResponse(
-        id=item.id,
-        agency_id=item.agency_id,
-        name=item.name,
-        status=item.status,
-        created_at=item.created_at,
-        updated_at=item.updated_at,
-    )
-
-
-def _client_manager_response(
-    profile: ClientManagerProfileModel,
-    user: UserModel,
-    organization: ClientOrganizationModel,
-    assigned_groups: list[ClientManagerAssignedGroupResponse],
-) -> ClientManagerResponse:
-    return ClientManagerResponse(
-        id=profile.id,
-        user_id=user.id,
-        agency_id=profile.agency_id,
-        full_name=user.full_name,
-        email=user.email,
-        phone_number=profile.normalized_phone_number,
-        organization_id=organization.id,
-        organization_name=organization.name,
-        status=profile.status,
-        force_password_change=profile.force_password_change,
-        revision=profile.revision,
-        group_ids=[group.id for group in assigned_groups],
-        assigned_groups=assigned_groups,
-        last_login_at=user.last_login_at,
-        created_at=profile.created_at,
-        updated_at=profile.updated_at,
-    )
+    return await _group_access_support.group_access_response(session, access)
 
 
 def _require_revision(current: int, expected: int) -> None:

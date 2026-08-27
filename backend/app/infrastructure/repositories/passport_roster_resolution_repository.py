@@ -68,7 +68,11 @@ async def active_replacement_phone_numbers_for_broadcast(
         )
         .distinct()
     )
-    return set(result.scalars().all())
+    return {
+        normalized_phone
+        for normalized_phone in result.scalars().all()
+        if normalized_phone is not None
+    }
 
 
 async def active_replacement_resolution_id_for_recipient(
@@ -163,7 +167,7 @@ async def suppress_active_replacement_recipients(
             PassportRosterResolutionModel.id.asc(),
             candidate_recipient.id.asc(),
         )
-        .with_for_update(of=(candidate_recipient, PassportRosterResolutionModel))
+        .with_for_update()
         .execution_options(populate_existing=True)
     )
 

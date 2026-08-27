@@ -156,7 +156,7 @@ async def reconcile_document_storage_orphans(
     active_storage = storage or MinioStorageRepository()
     owned_cursor = cursor_client is None
     cursor = cursor_client or Redis.from_url(
-        get_settings().redis.url,
+        get_settings().redis.broker_url,
         encoding="utf-8",
         decode_responses=True,
         socket_connect_timeout=1.0,

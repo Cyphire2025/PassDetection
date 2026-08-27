@@ -4,8 +4,8 @@
   "modules": [
     {
       "path": "app/presentation/api/v1/routes/passports.py",
-      "baseline_lines": 6508,
-      "maximum_lines": 6640,
+      "baseline_lines": 6578,
+      "maximum_lines": 6600,
       "baseline_max_function_complexity": 44,
       "maximum_function_complexity": 44,
       "minimum_coverage_percent": 15.60
@@ -36,8 +36,8 @@
     },
     {
       "path": "app/presentation/api/v1/routes/mobile_ops.py",
-      "baseline_lines": 2574,
-      "maximum_lines": 2630,
+      "baseline_lines": 2500,
+      "maximum_lines": 2525,
       "baseline_max_function_complexity": 23,
       "maximum_function_complexity": 23,
       "minimum_coverage_percent": 22.57
@@ -53,9 +53,9 @@
     {
       "path": "app/presentation/api/v1/routes/tour_operations.py",
       "baseline_lines": 2523,
-      "maximum_lines": 2580,
-      "baseline_max_function_complexity": 13,
-      "maximum_function_complexity": 13,
+      "maximum_lines": 2578,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 12,
       "minimum_coverage_percent": 21.77
     },
     {
@@ -68,10 +68,10 @@
     },
     {
       "path": "app/presentation/api/v1/routes/client_groups.py",
-      "baseline_lines": 2402,
-      "maximum_lines": 2455,
-      "baseline_max_function_complexity": 45,
-      "maximum_function_complexity": 45,
+      "baseline_lines": 2301,
+      "maximum_lines": 2325,
+      "baseline_max_function_complexity": 24,
+      "maximum_function_complexity": 24,
       "minimum_coverage_percent": 18.47
     },
     {
@@ -92,8 +92,8 @@
     },
     {
       "path": "app/presentation/api/v1/routes/gc_app.py",
-      "baseline_lines": 2209,
-      "maximum_lines": 2260,
+      "baseline_lines": 2190,
+      "maximum_lines": 2210,
       "baseline_max_function_complexity": 37,
       "maximum_function_complexity": 37,
       "minimum_coverage_percent": 13.80

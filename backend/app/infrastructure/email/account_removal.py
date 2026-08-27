@@ -33,7 +33,6 @@ from app.infrastructure.database.email_models import (
     EmailReviewItemModel,
 )
 from app.infrastructure.database.models import (
-    AuditLogModel,
     DistributedDocumentModel,
     DocumentDistributionBatchModel,
     DocumentWhatsAppDeliveryModel,
@@ -187,21 +186,10 @@ async def purge_email_connection_records(
         )
         notification_count = notification_delete.rowcount or 0
 
-    audit_predicate = (AuditLogModel.entity_type == "email_connection") & (
-        AuditLogModel.entity_id == str(connection_id)
-    )
-    if review_ids:
-        audit_predicate = audit_predicate | (
-            (AuditLogModel.entity_type == "email_review")
-            & (AuditLogModel.entity_id.in_(tuple(str(item) for item in review_ids)))
-        )
-    audit_delete = await session.execute(
-        delete(AuditLogModel).where(
-            AuditLogModel.agency_id == agency_id,
-            audit_predicate,
-        )
-    )
-    audit_log_count = audit_delete.rowcount or 0
+    # Security audit entries are historical snapshots, not owned email content.
+    # Their PII-bounded identifiers remain after the connection is removed and
+    # schema 0087 prevents ordinary application DELETE/UPDATE operations.
+    audit_log_count = 0
 
     if analysis_ids:
         await session.execute(

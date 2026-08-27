@@ -42,7 +42,7 @@ test("terminal records and keys cannot retain the raw QR bearer", () => {
   assert.match(queue, /interface RejectedAttendanceScan \{/);
   const rejectedInterface = queue.slice(
     queue.indexOf("export interface RejectedAttendanceScan"),
-    queue.indexOf("export interface AttendanceScanSyncResult"),
+    queue.indexOf("interface StoredPendingAttendanceScan"),
   );
   assert.doesNotMatch(rejectedInterface, /qrPayload/);
   assert.match(privacy, /id: `attendance-rejected:\$\{scan\.scanReference\}`/);

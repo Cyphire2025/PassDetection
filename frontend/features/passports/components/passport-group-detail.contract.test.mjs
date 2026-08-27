@@ -28,6 +28,10 @@ const exportDialog = readFileSync(
   new URL("./passport-export-dialog.tsx", import.meta.url),
   "utf8",
 );
+const streamedDownload = readFileSync(
+  new URL("../../../lib/api/streamed-download.ts", import.meta.url),
+  "utf8",
+);
 
 test("group action menu escapes the clipped workspace header through a body portal", () => {
   assert.match(source, /import \{ createPortal \} from "react-dom"/);
@@ -48,11 +52,16 @@ test("group confidence displays the same server-computed value used for sorting"
   assert.doesNotMatch(source, /getGroupVerificationConfidence/);
 });
 
-test("passport image ZIP export is not cut off by the ordinary API timeout", () => {
+test("passport image ZIP export is back-pressured to disk with bounded timeouts", () => {
   assert.match(
     api,
-    /exportGroupImages:[\s\S]*?groupImageExport\(groupId\)[\s\S]*?responseType: "blob"[\s\S]*?timeout: 0/,
+    /exportGroupImages:[\s\S]*?downloadStreamedResponse[\s\S]*?groupImageExport\(groupId\)[\s\S]*?passportImageDownloadFilename/,
   );
+  assert.doesNotMatch(api, /timeout: 0/);
+  assert.match(streamedDownload, /createWritable/);
+  assert.match(streamedDownload, /copyStreamToWritable/);
+  assert.match(streamedDownload, /MAX_BOUNDED_DOWNLOAD_FALLBACK_BYTES/);
+  assert.match(streamedDownload, /controller\.abort\("download-hard-timeout"\)/);
   assert.match(
     source,
     /mutationErrorMessage\([\s\S]*?exportError,[\s\S]*?exportDialogKind === "passport_images"[\s\S]*?\? "Image download failed"[\s\S]*?: "Excel export failed"/,
@@ -184,8 +193,9 @@ test("selected passport downloads use the scoped ZIP endpoint without duplicate 
   );
   assert.match(
     api,
-    /exportSelectedGroupImages:[\s\S]*?groupSelectedImageExport\(groupId\)[\s\S]*?submission_ids: submissionIds[\s\S]*?responseType: "blob"[\s\S]*?timeout: 0[\s\S]*?content-disposition/,
+    /exportSelectedGroupImages:[\s\S]*?downloadStreamedResponse[\s\S]*?groupSelectedImageExport\(groupId\)[\s\S]*?method: "POST"[\s\S]*?submission_ids: submissionIds[\s\S]*?passportImageDownloadFilename/,
   );
+  assert.doesNotMatch(api, /exportSelectedGroupImages:[\s\S]*?responseType: "blob"/);
   assert.match(
     hooks,
     /useExportSelectedPassportImages[\s\S]*?exportSelectedGroupImages\(request\)/,

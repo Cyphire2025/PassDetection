@@ -13,6 +13,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.infrastructure.database.models import (
     AttendanceCloseoutCheckpointModel,
+    AttendanceRuntimeRegistrationModel,
+    AttendanceSessionModel,
+    AttendanceSessionRuntimeParticipantModel,
     CoordinatorGroupAssignmentModel,
     UserModel,
 )
@@ -35,11 +38,7 @@ class AttendanceCloseoutCounts:
 
     @property
     def unresolved_count(self) -> int:
-        return (
-            self.delivery_count
-            + self.needs_review_count
-            + self.unreviewed_rejected_count
-        )
+        return self.delivery_count + self.needs_review_count + self.unreviewed_rejected_count
 
 
 @dataclass(frozen=True, slots=True)
@@ -49,6 +48,9 @@ class AttendanceCloseoutAssignmentCheckpoint:
     assigned_at: datetime
     reported_at: datetime | None
     counts: AttendanceCloseoutCounts | None
+    runtime_id: uuid.UUID | None = None
+    runtime_kind: str = "legacy_account"
+    runtime_status: str = "active"
 
 
 @dataclass(frozen=True, slots=True)
@@ -64,6 +66,9 @@ class AttendanceCloseoutCoordinatorStatus:
     needs_review_count: int
     unreviewed_rejected_count: int
     oldest_pending_age_seconds: int | None
+    runtime_id: uuid.UUID | None
+    runtime_kind: str
+    runtime_status: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -104,28 +109,23 @@ def classify_attendance_closeout(
     unresolved_total = 0
     oldest_ages: list[int] = []
 
-    for assignment in sorted(assignments, key=lambda item: str(item.coordinator_id)):
+    for assignment in sorted(
+        assignments,
+        key=lambda item: (str(item.coordinator_id), str(item.runtime_id or "legacy")),
+    ):
         zero = AttendanceCloseoutCounts(0, 0, 0, 0, 0, None)
         counts = assignment.counts or zero
         unresolved_total += counts.unresolved_count
         reported_at = _utc(assignment.reported_at) if assignment.reported_at else None
         report_elapsed_seconds = (
-            (current - reported_at).total_seconds()
-            if reported_at is not None
-            else None
+            (current - reported_at).total_seconds() if reported_at is not None else None
         )
         report_age = (
-            max(0, int(report_elapsed_seconds))
-            if report_elapsed_seconds is not None
-            else None
+            max(0, int(report_elapsed_seconds)) if report_elapsed_seconds is not None else None
         )
         valid_after = max(activity_boundary, _utc(assignment.assigned_at))
-        stale = (
-            reported_at is not None
-            and (
-                reported_at < valid_after
-                or (report_elapsed_seconds or 0) > ttl_seconds
-            )
+        stale = reported_at is not None and (
+            reported_at < valid_after or (report_elapsed_seconds or 0) > ttl_seconds
         )
         if reported_at is None:
             state: Literal["ready", "missing", "stale", "blocked"] = "missing"
@@ -153,6 +153,9 @@ def classify_attendance_closeout(
                 needs_review_count=counts.needs_review_count,
                 unreviewed_rejected_count=counts.unreviewed_rejected_count,
                 oldest_pending_age_seconds=oldest_age,
+                runtime_id=assignment.runtime_id,
+                runtime_kind=assignment.runtime_kind,
+                runtime_status=assignment.runtime_status,
             )
         )
 
@@ -198,21 +201,32 @@ class AttendanceCloseoutRepository:
         session_id: uuid.UUID,
         coordinator_user_id: uuid.UUID,
         counts: AttendanceCloseoutCounts,
+        agency_id: uuid.UUID | None = None,
+        runtime_registration_id: uuid.UUID | None = None,
         reported_at: datetime | None = None,
     ) -> AttendanceCloseoutCheckpointModel:
-        if min(
-            counts.pending_count,
-            counts.sending_count,
-            counts.retryable_count,
-            counts.needs_review_count,
-            counts.unreviewed_rejected_count,
-        ) < 0:
-            raise ValueError("Attendance closeout counts cannot be negative")
-        if (counts.delivery_count == 0) != (
-            counts.oldest_pending_age_seconds is None
+        if (
+            min(
+                counts.pending_count,
+                counts.sending_count,
+                counts.retryable_count,
+                counts.needs_review_count,
+                counts.unreviewed_rejected_count,
+            )
+            < 0
         ):
+            raise ValueError("Attendance closeout counts cannot be negative")
+        if (counts.delivery_count == 0) != (counts.oldest_pending_age_seconds is None):
             raise ValueError("Oldest pending age must match the delivery queue state")
         observed = _utc(reported_at or datetime.now(tz=UTC))
+        if agency_id is None:
+            agency_id = (
+                await self._session.execute(
+                    select(AttendanceSessionModel.agency_id).where(
+                        AttendanceSessionModel.id == session_id
+                    )
+                )
+            ).scalar_one()
         values = {
             "pending_count": counts.pending_count,
             "sending_count": counts.sending_count,
@@ -222,21 +236,51 @@ class AttendanceCloseoutRepository:
             "oldest_pending_age_seconds": counts.oldest_pending_age_seconds,
             "reported_at": observed,
         }
-        statement = (
-            pg_insert(AttendanceCloseoutCheckpointModel)
-            .values(
-                id=uuid.uuid4(),
-                session_id=session_id,
-                coordinator_user_id=coordinator_user_id,
-                **values,
-            )
-            .on_conflict_do_update(
-                constraint="uq_attendance_closeout_checkpoint_coordinator",
-                set_=values,
-            )
-            .returning(AttendanceCloseoutCheckpointModel)
+        insert_statement = pg_insert(AttendanceCloseoutCheckpointModel).values(
+            id=uuid.uuid4(),
+            agency_id=agency_id,
+            session_id=session_id,
+            coordinator_user_id=coordinator_user_id,
+            runtime_registration_id=runtime_registration_id,
+            **values,
         )
+        if runtime_registration_id is None:
+            statement = insert_statement.on_conflict_do_update(
+                index_elements=(
+                    AttendanceCloseoutCheckpointModel.session_id,
+                    AttendanceCloseoutCheckpointModel.coordinator_user_id,
+                ),
+                index_where=(AttendanceCloseoutCheckpointModel.runtime_registration_id.is_(None)),
+                set_=values,
+            ).returning(AttendanceCloseoutCheckpointModel)
+        else:
+            statement = insert_statement.on_conflict_do_update(
+                constraint="uq_attendance_closeout_checkpoint_runtime",
+                set_=values,
+            ).returning(AttendanceCloseoutCheckpointModel)
         checkpoint = (await self._session.execute(statement)).scalar_one()
+        if runtime_registration_id is not None:
+            participant_values = {
+                "last_participated_at": observed,
+                "participation_source": "checkpoint",
+            }
+            await self._session.execute(
+                pg_insert(AttendanceSessionRuntimeParticipantModel)
+                .values(
+                    id=uuid.uuid4(),
+                    agency_id=agency_id,
+                    session_id=session_id,
+                    coordinator_user_id=coordinator_user_id,
+                    runtime_registration_id=runtime_registration_id,
+                    participation_source="checkpoint",
+                    first_participated_at=observed,
+                    last_participated_at=observed,
+                )
+                .on_conflict_do_update(
+                    constraint="uq_attendance_session_runtime_participant",
+                    set_=participant_values,
+                )
+            )
         await self._session.flush()
         return checkpoint
 
@@ -259,8 +303,7 @@ class AttendanceCloseoutRepository:
                 )
                 .join(
                     UserModel,
-                    UserModel.id
-                    == CoordinatorGroupAssignmentModel.coordinator_user_id,
+                    UserModel.id == CoordinatorGroupAssignmentModel.coordinator_user_id,
                 )
                 .where(
                     CoordinatorGroupAssignmentModel.agency_id == agency_id,
@@ -270,44 +313,93 @@ class AttendanceCloseoutRepository:
                 .order_by(CoordinatorGroupAssignmentModel.coordinator_user_id)
             )
         ).all()
-        coordinator_ids = [row.coordinator_user_id for row in assignment_rows]
-        checkpoint_by_pair: dict[
-            tuple[uuid.UUID, uuid.UUID],
-            AttendanceCloseoutCheckpointModel,
-        ] = {}
-        if coordinator_ids:
-            checkpoints = list(
+        assignment_by_coordinator = {row.coordinator_user_id: row for row in assignment_rows}
+        checkpoints = list(
+            (
+                await self._session.execute(
+                    select(AttendanceCloseoutCheckpointModel).where(
+                        AttendanceCloseoutCheckpointModel.agency_id == agency_id,
+                        AttendanceCloseoutCheckpointModel.session_id.in_(activity_valid_after),
+                    )
+                )
+            ).scalars()
+        )
+        checkpoint_by_runtime = {
+            (
+                checkpoint.session_id,
+                checkpoint.coordinator_user_id,
+                checkpoint.runtime_registration_id,
+            ): checkpoint
+            for checkpoint in checkpoints
+        }
+        runtime_ids = {
+            checkpoint.runtime_registration_id
+            for checkpoint in checkpoints
+            if checkpoint.runtime_registration_id is not None
+        }
+        runtimes = (
+            list(
                 (
                     await self._session.execute(
-                        select(AttendanceCloseoutCheckpointModel).where(
-                            AttendanceCloseoutCheckpointModel.session_id.in_(
-                                activity_valid_after
-                            ),
-                            AttendanceCloseoutCheckpointModel.coordinator_user_id.in_(
-                                coordinator_ids
-                            ),
+                        select(AttendanceRuntimeRegistrationModel).where(
+                            AttendanceRuntimeRegistrationModel.id.in_(runtime_ids),
+                            AttendanceRuntimeRegistrationModel.agency_id == agency_id,
                         )
                     )
                 ).scalars()
             )
-            checkpoint_by_pair = {
-                (checkpoint.session_id, checkpoint.coordinator_user_id): checkpoint
-                for checkpoint in checkpoints
-            }
+            if runtime_ids
+            else []
+        )
+        runtime_by_id = {runtime.id: runtime for runtime in runtimes}
+        participant_rows = (
+            await self._session.execute(
+                select(
+                    AttendanceSessionRuntimeParticipantModel.session_id,
+                    AttendanceSessionRuntimeParticipantModel.coordinator_user_id,
+                    AttendanceSessionRuntimeParticipantModel.first_participated_at,
+                    AttendanceSessionRuntimeParticipantModel.runtime_registration_id,
+                    AttendanceRuntimeRegistrationModel.runtime_kind,
+                    AttendanceRuntimeRegistrationModel.status.label("runtime_status"),
+                    UserModel.full_name,
+                )
+                .join(
+                    AttendanceRuntimeRegistrationModel,
+                    AttendanceRuntimeRegistrationModel.id
+                    == AttendanceSessionRuntimeParticipantModel.runtime_registration_id,
+                )
+                .join(
+                    UserModel,
+                    UserModel.id == AttendanceSessionRuntimeParticipantModel.coordinator_user_id,
+                )
+                .where(
+                    AttendanceSessionRuntimeParticipantModel.agency_id == agency_id,
+                    AttendanceSessionRuntimeParticipantModel.session_id.in_(activity_valid_after),
+                )
+            )
+        ).all()
 
         current = now or datetime.now(tz=UTC)
         result: dict[uuid.UUID, AttendanceCloseoutStatus] = {}
         for session_id, valid_after in activity_valid_after.items():
             assignments: list[AttendanceCloseoutAssignmentCheckpoint] = []
-            for row in assignment_rows:
-                checkpoint = checkpoint_by_pair.get(
-                    (session_id, row.coordinator_user_id)
-                )
+            covered_coordinators: set[uuid.UUID] = set()
+            covered_runtime_keys: set[tuple[uuid.UUID, uuid.UUID | None]] = set()
+            for participant in participant_rows:
+                if participant.session_id != session_id:
+                    continue
+                coordinator_id = participant.coordinator_user_id
+                runtime_id = participant.runtime_registration_id
+                checkpoint = checkpoint_by_runtime.get((session_id, coordinator_id, runtime_id))
+                group_assignment = assignment_by_coordinator.get(coordinator_id)
+                assigned_at = participant.first_participated_at
+                if group_assignment is not None:
+                    assigned_at = max(assigned_at, group_assignment.assigned_at)
                 assignments.append(
                     AttendanceCloseoutAssignmentCheckpoint(
-                        coordinator_id=row.coordinator_user_id,
-                        coordinator_name=row.full_name,
-                        assigned_at=row.assigned_at,
+                        coordinator_id=coordinator_id,
+                        coordinator_name=participant.full_name,
+                        assigned_at=assigned_at,
                         reported_at=(checkpoint.reported_at if checkpoint else None),
                         counts=(
                             AttendanceCloseoutCounts(
@@ -315,16 +407,77 @@ class AttendanceCloseoutRepository:
                                 sending_count=checkpoint.sending_count,
                                 retryable_count=checkpoint.retryable_count,
                                 needs_review_count=checkpoint.needs_review_count,
-                                unreviewed_rejected_count=(
-                                    checkpoint.unreviewed_rejected_count
-                                ),
-                                oldest_pending_age_seconds=(
-                                    checkpoint.oldest_pending_age_seconds
-                                ),
+                                unreviewed_rejected_count=(checkpoint.unreviewed_rejected_count),
+                                oldest_pending_age_seconds=(checkpoint.oldest_pending_age_seconds),
                             )
                             if checkpoint
                             else None
                         ),
+                        runtime_id=runtime_id,
+                        runtime_kind=participant.runtime_kind,
+                        runtime_status=participant.runtime_status,
+                    )
+                )
+                covered_coordinators.add(coordinator_id)
+                covered_runtime_keys.add((coordinator_id, runtime_id))
+
+            # Preserve rolling-upgrade evidence even if a new runtime client
+            # published before the participation upsert reached production.
+            for checkpoint in checkpoints:
+                if checkpoint.session_id != session_id:
+                    continue
+                runtime_key = (
+                    checkpoint.coordinator_user_id,
+                    checkpoint.runtime_registration_id,
+                )
+                if runtime_key in covered_runtime_keys:
+                    continue
+                group_assignment = assignment_by_coordinator.get(checkpoint.coordinator_user_id)
+                if group_assignment is None:
+                    continue
+                runtime_kind = "legacy_account"
+                runtime_status = "active"
+                if checkpoint.runtime_registration_id is not None:
+                    runtime = runtime_by_id.get(checkpoint.runtime_registration_id)
+                    if runtime is None:
+                        runtime_status = "revoked"
+                    else:
+                        runtime_kind = runtime.runtime_kind
+                        runtime_status = runtime.status
+                assignments.append(
+                    AttendanceCloseoutAssignmentCheckpoint(
+                        coordinator_id=checkpoint.coordinator_user_id,
+                        coordinator_name=group_assignment.full_name,
+                        assigned_at=group_assignment.assigned_at,
+                        reported_at=checkpoint.reported_at,
+                        counts=AttendanceCloseoutCounts(
+                            pending_count=checkpoint.pending_count,
+                            sending_count=checkpoint.sending_count,
+                            retryable_count=checkpoint.retryable_count,
+                            needs_review_count=checkpoint.needs_review_count,
+                            unreviewed_rejected_count=(checkpoint.unreviewed_rejected_count),
+                            oldest_pending_age_seconds=(checkpoint.oldest_pending_age_seconds),
+                        ),
+                        runtime_id=checkpoint.runtime_registration_id,
+                        runtime_kind=runtime_kind,
+                        runtime_status=runtime_status,
+                    )
+                )
+                covered_coordinators.add(checkpoint.coordinator_user_id)
+                covered_runtime_keys.add(runtime_key)
+
+            # Old clients have no runtime identity. They retain the legacy
+            # account-scoped behavior until at least one runtime participates.
+            for row in assignment_rows:
+                if row.coordinator_user_id in covered_coordinators:
+                    continue
+                assignments.append(
+                    AttendanceCloseoutAssignmentCheckpoint(
+                        coordinator_id=row.coordinator_user_id,
+                        coordinator_name=row.full_name,
+                        assigned_at=row.assigned_at,
+                        reported_at=None,
+                        counts=None,
                     )
                 )
             result[session_id] = classify_attendance_closeout(

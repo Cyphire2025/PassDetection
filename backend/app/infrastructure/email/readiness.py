@@ -7,7 +7,7 @@ from collections.abc import Callable
 
 from redis import Redis
 
-from app.application.interfaces.email_provider import EmailProviderError
+from app.application.interfaces.email_provider import EmailProvider, EmailProviderError
 from app.core.config.settings import Settings
 from app.infrastructure.ai_priority.worker_readiness import (
     CachedCeleryQueueProbe,
@@ -110,7 +110,7 @@ def _provider_configuration_ready(settings: Settings) -> bool:
     try:
         EmailTokenCipher.from_settings(settings)
         pkce = generate_pkce_pair()
-        configured_providers = []
+        configured_providers: list[EmailProvider] = []
         if (
             settings.gmail_oauth_client_id
             and settings.gmail_oauth_client_secret
@@ -141,7 +141,7 @@ def _provider_configuration_ready(settings: Settings) -> bool:
 def _scheduler_heartbeat_exists(settings: Settings) -> bool:
     timeout = settings.processing_worker_ping_timeout_seconds
     client = Redis.from_url(
-        settings.redis.url,
+        settings.redis.broker_url,
         socket_connect_timeout=timeout,
         socket_timeout=timeout,
         decode_responses=True,
@@ -151,7 +151,7 @@ def _scheduler_heartbeat_exists(settings: Settings) -> bool:
     except Exception:
         return False
     finally:
-        client.close()  # type: ignore[no-untyped-call]
+        client.close()
 
 
 def _clamav_ping(settings: Settings) -> bool:

@@ -1,4 +1,4 @@
-const CACHE_NAME = "passdetection-public-static-v9";
+const CACHE_NAME = "passdetection-public-static-v10";
 const PUBLIC_STATIC_ASSETS = [
   "/offline.html",
   "/offline-scanner.js",
@@ -50,23 +50,23 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
-  if (event.request.mode === "navigate") {
+  if (
+    event.request.mode === "navigate"
+    && COORDINATOR_PATH_PATTERN.test(url.pathname)
+  ) {
     const networkResponse = fetch(event.request);
 
     // Logout intentionally clears every application cache. A later successful
     // coordinator navigation re-warms only this public static allowlist so the
     // cold-offline scanner is restored without caching navigation, API, Next,
     // image, font, stylesheet, or user-data responses.
-    if (COORDINATOR_PATH_PATTERN.test(url.pathname)) {
-      rewarmAfterSuccessfulCoordinatorResponse(event, networkResponse);
-    }
+    rewarmAfterSuccessfulCoordinatorResponse(event, networkResponse);
 
     event.respondWith(
       networkResponse
         .then(async (response) => {
           if (
-            COORDINATOR_PATH_PATTERN.test(url.pathname)
-            && response.status >= 500
+            response.status >= 500
           ) {
             return (await caches.match("/offline.html")) ?? response;
           }

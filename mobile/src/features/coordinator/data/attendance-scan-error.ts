@@ -32,6 +32,15 @@ function offlineAuthorizationFeedback(
 }
 
 function rosterFeedback(code: AttendanceTokenAuthorizationError['code']): string {
+  if (code === 'ACTIVITY_NOT_YET_VALID') {
+    return 'This activity has not started yet. Check the activity schedule or reconnect to refresh it before scanning.';
+  }
+  if (code === 'ACTIVITY_EXPIRED') {
+    return 'This activity is outside its authorized scan window. Reconnect and open Scan Issues for reconciliation.';
+  }
+  if (code === 'ACTIVITY_SCHEDULE_UNAVAILABLE') {
+    return 'A verified activity schedule is not available on this device. Use Sync now before scanning.';
+  }
   if (code === 'QR_NOT_IN_ACTIVE_ROSTER') {
     return 'This QR is not in the current group roster. Synchronize the group, then ask a manager if it is still missing.';
   }

@@ -13,6 +13,14 @@ export const criticalCoverageThresholds = Object.freeze({
   'src/core/security/app-integrity.ts': Object.freeze({ statements: 81, branches: 68, functions: 84, lines: 93 }),
   'src/core/storage/vault-policy.ts': Object.freeze({ statements: 93, branches: 91, functions: 100, lines: 97 }),
   'src/core/sync/sync-context.ts': Object.freeze({ statements: 94, branches: 95, functions: 100, lines: 100 }),
+  // The durable My Photos media plane is gated separately from the global
+  // average. Planning and record mapping were extracted from the two large
+  // state machines so their higher floors cannot be hidden by file movement.
+  'src/features/my-photos/data/my-photos-repository.ts': Object.freeze({ statements: 28, branches: 16, functions: 46, lines: 27 }),
+  'src/features/my-photos/downloads/download-manager.ts': Object.freeze({ statements: 28, branches: 23, functions: 38, lines: 31 }),
+  'src/features/my-photos/downloads/download-repository.ts': Object.freeze({ statements: 30, branches: 27, functions: 31, lines: 33 }),
+  'src/features/my-photos/downloads/photo-download-plan.ts': Object.freeze({ statements: 73, branches: 65, functions: 54, lines: 85 }),
+  'src/features/my-photos/downloads/photo-download-record.ts': Object.freeze({ statements: 100, branches: 100, functions: 100, lines: 100 }),
 });
 
 function portablePath(value) {

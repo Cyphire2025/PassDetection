@@ -55,6 +55,18 @@
             "title": "Retryable Count",
             "type": "integer"
           },
+          "runtime_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Runtime Id"
+          },
           "sending_count": {
             "maximum": 1000000.0,
             "minimum": 0.0,
@@ -116,6 +128,18 @@
             "minimum": 0.0,
             "title": "Retryable Count",
             "type": "integer"
+          },
+          "runtime_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Runtime Id"
           },
           "sending_count": {
             "maximum": 1000000.0,
@@ -203,6 +227,41 @@
             "minimum": 0.0,
             "title": "Retryable Count",
             "type": "integer"
+          },
+          "runtime_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Runtime Id"
+          },
+          "runtime_kind": {
+            "default": "legacy_account",
+            "enum": [
+              "native_mobile",
+              "pwa",
+              "webview",
+              "legacy_account"
+            ],
+            "title": "Runtime Kind",
+            "type": "string"
+          },
+          "runtime_status": {
+            "default": "active",
+            "enum": [
+              "active",
+              "revoked",
+              "expired",
+              "lost",
+              "replaced"
+            ],
+            "title": "Runtime Status",
+            "type": "string"
           },
           "sending_count": {
             "minimum": 0.0,
@@ -318,6 +377,72 @@
           "coordinators"
         ],
         "title": "AttendanceCloseoutStatusResponse",
+        "type": "object"
+      },
+      "AttendanceDiscardBatchResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AttendanceDiscardItemResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "AttendanceDiscardBatchResponse",
+        "type": "object"
+      },
+      "AttendanceDiscardItemResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "discard_event_id": {
+            "format": "uuid",
+            "title": "Discard Event Id",
+            "type": "string"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code"
+          },
+          "received_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Received At"
+          },
+          "status": {
+            "enum": [
+              "accepted",
+              "already_applied",
+              "rejected"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "discard_event_id",
+          "status"
+        ],
+        "title": "AttendanceDiscardItemResponse",
         "type": "object"
       },
       "HTTPValidationError": {
@@ -636,6 +761,80 @@
           "results"
         ],
         "title": "MobileAttendanceBatchResponse",
+        "type": "object"
+      },
+      "MobileAttendanceDiscardBatchRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MobileAttendanceDiscardItemRequest"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "MobileAttendanceDiscardBatchRequest",
+        "type": "object"
+      },
+      "MobileAttendanceDiscardItemRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "captured_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Captured At"
+          },
+          "discard_event_id": {
+            "format": "uuid",
+            "title": "Discard Event Id",
+            "type": "string"
+          },
+          "discarded_at": {
+            "format": "date-time",
+            "title": "Discarded At",
+            "type": "string"
+          },
+          "reason_category": {
+            "enum": [
+              "operator_discard",
+              "wrong_group",
+              "expired_authorization",
+              "activity_closed",
+              "duplicate",
+              "server_rejected",
+              "corrupted_entry",
+              "other"
+            ],
+            "title": "Reason Category",
+            "type": "string"
+          },
+          "scan_reference": {
+            "maxLength": 71,
+            "minLength": 64,
+            "title": "Scan Reference",
+            "type": "string"
+          }
+        },
+        "required": [
+          "discard_event_id",
+          "scan_reference",
+          "reason_category",
+          "discarded_at"
+        ],
+        "title": "MobileAttendanceDiscardItemRequest",
         "type": "object"
       },
       "MobileAttendanceMissingPassengerResponse": {
@@ -4291,6 +4490,1741 @@
         "title": "MobileTripsResponse",
         "type": "object"
       },
+      "MyPhotosCapabilityResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "client_flow": {
+            "enum": [
+              "unavailable",
+              "development_simulator",
+              "native"
+            ],
+            "title": "Client Flow",
+            "type": "string"
+          },
+          "feature_enabled": {
+            "title": "Feature Enabled",
+            "type": "boolean"
+          },
+          "provider_ready": {
+            "title": "Provider Ready",
+            "type": "boolean"
+          },
+          "provider_state": {
+            "enum": [
+              "ready",
+              "not_configured",
+              "temporarily_unavailable"
+            ],
+            "title": "Provider State",
+            "type": "string"
+          },
+          "retryable": {
+            "title": "Retryable",
+            "type": "boolean"
+          },
+          "supported_challenge_modes": {
+            "items": {
+              "enum": [
+                "movement_and_light",
+                "movement_only"
+              ],
+              "type": "string"
+            },
+            "maxItems": 2,
+            "title": "Supported Challenge Modes",
+            "type": "array"
+          }
+        },
+        "required": [
+          "feature_enabled",
+          "provider_ready",
+          "provider_state",
+          "client_flow",
+          "supported_challenge_modes",
+          "retryable"
+        ],
+        "title": "MyPhotosCapabilityResponse",
+        "type": "object"
+      },
+      "MyPhotosConsentRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "accepted": {
+            "const": true,
+            "enum": [
+              true
+            ],
+            "title": "Accepted",
+            "type": "boolean"
+          },
+          "consent_version": {
+            "maxLength": 64,
+            "minLength": 3,
+            "title": "Consent Version",
+            "type": "string"
+          },
+          "idempotency_key": {
+            "maxLength": 128,
+            "minLength": 8,
+            "pattern": "^[A-Za-z0-9._:-]+$",
+            "title": "Idempotency Key",
+            "type": "string"
+          }
+        },
+        "required": [
+          "consent_version",
+          "accepted",
+          "idempotency_key"
+        ],
+        "title": "MyPhotosConsentRequest",
+        "type": "object"
+      },
+      "MyPhotosConsentResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "accepted_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accepted At"
+          },
+          "accepted_version": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "minLength": 3,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accepted Version"
+          },
+          "biometric_data_used": {
+            "maxLength": 500,
+            "minLength": 10,
+            "title": "Biometric Data Used",
+            "type": "string"
+          },
+          "deletion": {
+            "maxLength": 500,
+            "minLength": 10,
+            "title": "Deletion",
+            "type": "string"
+          },
+          "provider_processing": {
+            "maxLength": 500,
+            "minLength": 10,
+            "title": "Provider Processing",
+            "type": "string"
+          },
+          "purpose": {
+            "maxLength": 500,
+            "minLength": 10,
+            "title": "Purpose",
+            "type": "string"
+          },
+          "required": {
+            "title": "Required",
+            "type": "boolean"
+          },
+          "required_version": {
+            "maxLength": 64,
+            "minLength": 3,
+            "title": "Required Version",
+            "type": "string"
+          },
+          "retention": {
+            "maxLength": 500,
+            "minLength": 10,
+            "title": "Retention",
+            "type": "string"
+          }
+        },
+        "required": [
+          "required",
+          "required_version",
+          "accepted_at",
+          "purpose",
+          "biometric_data_used",
+          "retention",
+          "provider_processing",
+          "deletion"
+        ],
+        "title": "MyPhotosConsentResponse",
+        "type": "object"
+      },
+      "MyPhotosDeleteEnrollmentRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "idempotency_key": {
+            "maxLength": 128,
+            "minLength": 8,
+            "pattern": "^[A-Za-z0-9._:-]+$",
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "scope": {
+            "enum": [
+              "enrollment_only",
+              "enrollment_and_search_data"
+            ],
+            "title": "Scope",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scope",
+          "idempotency_key"
+        ],
+        "title": "MyPhotosDeleteEnrollmentRequest",
+        "type": "object"
+      },
+      "MyPhotosDeleteEnrollmentResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "deleted_at": {
+            "format": "date-time",
+            "title": "Deleted At",
+            "type": "string"
+          },
+          "enrollment_status": {
+            "const": "deleted",
+            "enum": [
+              "deleted"
+            ],
+            "title": "Enrollment Status",
+            "type": "string"
+          },
+          "local_downloads_affected": {
+            "const": false,
+            "enum": [
+              false
+            ],
+            "title": "Local Downloads Affected",
+            "type": "boolean"
+          },
+          "provider_deletion_retryable": {
+            "title": "Provider Deletion Retryable",
+            "type": "boolean"
+          },
+          "provider_deletion_status": {
+            "enum": [
+              "not_required",
+              "pending",
+              "complete",
+              "failed"
+            ],
+            "title": "Provider Deletion Status",
+            "type": "string"
+          },
+          "removed_search_data": {
+            "title": "Removed Search Data",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "enrollment_status",
+          "removed_search_data",
+          "local_downloads_affected",
+          "provider_deletion_status",
+          "provider_deletion_retryable",
+          "deleted_at"
+        ],
+        "title": "MyPhotosDeleteEnrollmentResponse",
+        "type": "object"
+      },
+      "MyPhotosDownloadAuthorizationItemResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "asset_id": {
+            "format": "uuid",
+            "title": "Asset Id",
+            "type": "string"
+          },
+          "authorization_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Authorization Id"
+          },
+          "checksum_sha256": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "minLength": 64,
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Checksum Sha256"
+          },
+          "content_type": {
+            "anyOf": [
+              {
+                "enum": [
+                  "image/jpeg",
+                  "image/png",
+                  "image/webp"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Type"
+          },
+          "delivery_version": {
+            "minimum": 1.0,
+            "title": "Delivery Version",
+            "type": "integer"
+          },
+          "expected_size_bytes": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 209715200.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Size Bytes"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "quality": {
+            "enum": [
+              "original",
+              "optimized"
+            ],
+            "title": "Quality",
+            "type": "string"
+          },
+          "resource_path": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "minLength": 20,
+                "pattern": "^/api/v1/mobile/trips/[0-9a-f-]+/my-photos/download-authorizations/[0-9a-f-]+/content$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resource Path"
+          },
+          "retry_after_seconds": {
+            "anyOf": [
+              {
+                "maximum": 86400.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retry After Seconds"
+          },
+          "state": {
+            "enum": [
+              "preparing",
+              "available",
+              "unavailable"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "supports_ranges": {
+            "title": "Supports Ranges",
+            "type": "boolean"
+          },
+          "transport": {
+            "enum": [
+              "unavailable",
+              "development_fixture",
+              "direct_object_storage"
+            ],
+            "title": "Transport",
+            "type": "string"
+          }
+        },
+        "required": [
+          "asset_id",
+          "authorization_id",
+          "quality",
+          "delivery_version",
+          "state",
+          "transport",
+          "supports_ranges",
+          "expires_at",
+          "content_type"
+        ],
+        "title": "MyPhotosDownloadAuthorizationItemResponse",
+        "type": "object"
+      },
+      "MyPhotosDownloadAuthorizationRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "idempotency_key": {
+            "maxLength": 128,
+            "minLength": 8,
+            "pattern": "^[A-Za-z0-9._:-]+$",
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MyPhotosDownloadItemRequest"
+            },
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items",
+          "idempotency_key"
+        ],
+        "title": "MyPhotosDownloadAuthorizationRequest",
+        "type": "object"
+      },
+      "MyPhotosDownloadAuthorizationResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "authorizations": {
+            "items": {
+              "$ref": "#/components/schemas/MyPhotosDownloadAuthorizationItemResponse"
+            },
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Authorizations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "authorizations"
+        ],
+        "title": "MyPhotosDownloadAuthorizationResponse",
+        "type": "object"
+      },
+      "MyPhotosDownloadEstimateQualityResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "estimate_complete": {
+            "title": "Estimate Complete",
+            "type": "boolean"
+          },
+          "exact_byte_total": {
+            "maximum": 1000000000000000.0,
+            "minimum": 0.0,
+            "title": "Exact Byte Total",
+            "type": "integer"
+          },
+          "maximum_item_bytes": {
+            "maximum": 209715200.0,
+            "minimum": 0.0,
+            "title": "Maximum Item Bytes",
+            "type": "integer"
+          },
+          "quality": {
+            "enum": [
+              "original",
+              "optimized"
+            ],
+            "title": "Quality",
+            "type": "string"
+          },
+          "supported_item_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Supported Item Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "quality",
+          "supported_item_count",
+          "exact_byte_total",
+          "maximum_item_bytes",
+          "estimate_complete"
+        ],
+        "title": "MyPhotosDownloadEstimateQualityResponse",
+        "type": "object"
+      },
+      "MyPhotosDownloadItemRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "asset_id": {
+            "format": "uuid",
+            "title": "Asset Id",
+            "type": "string"
+          },
+          "quality": {
+            "enum": [
+              "original",
+              "optimized"
+            ],
+            "title": "Quality",
+            "type": "string"
+          }
+        },
+        "required": [
+          "asset_id",
+          "quality"
+        ],
+        "title": "MyPhotosDownloadItemRequest",
+        "type": "object"
+      },
+      "MyPhotosDownloadPlanResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "downloadable_item_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Downloadable Item Count",
+            "type": "integer"
+          },
+          "matched_item_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Matched Item Count",
+            "type": "integer"
+          },
+          "preparing_item_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Preparing Item Count",
+            "type": "integer"
+          },
+          "qualities": {
+            "items": {
+              "$ref": "#/components/schemas/MyPhotosDownloadEstimateQualityResponse"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Qualities",
+            "type": "array"
+          },
+          "snapshot_revision": {
+            "minimum": 1.0,
+            "title": "Snapshot Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "snapshot_revision",
+          "matched_item_count",
+          "downloadable_item_count",
+          "preparing_item_count",
+          "qualities"
+        ],
+        "title": "MyPhotosDownloadPlanResponse",
+        "type": "object"
+      },
+      "MyPhotosEnrollmentResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "attempts_remaining": {
+            "maximum": 20.0,
+            "minimum": 0.0,
+            "title": "Attempts Remaining",
+            "type": "integer"
+          },
+          "cooldown_until": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cooldown Until"
+          },
+          "enrolled_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enrolled At"
+          },
+          "reference_version": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Version"
+          },
+          "status": {
+            "enum": [
+              "consent_required",
+              "ready",
+              "session_pending",
+              "processing",
+              "enrolled",
+              "rejected",
+              "cooldown",
+              "revoked",
+              "deleted"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "attempts_remaining",
+          "cooldown_until",
+          "enrolled_at",
+          "updated_at"
+        ],
+        "title": "MyPhotosEnrollmentResponse",
+        "type": "object"
+      },
+      "MyPhotosFeedbackRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "feedback": {
+            "enum": [
+              "this_is_me",
+              "not_me"
+            ],
+            "title": "Feedback",
+            "type": "string"
+          },
+          "idempotency_key": {
+            "maxLength": 128,
+            "minLength": 8,
+            "pattern": "^[A-Za-z0-9._:-]+$",
+            "title": "Idempotency Key",
+            "type": "string"
+          }
+        },
+        "required": [
+          "feedback",
+          "idempotency_key"
+        ],
+        "title": "MyPhotosFeedbackRequest",
+        "type": "object"
+      },
+      "MyPhotosFeedbackResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "asset_id": {
+            "format": "uuid",
+            "title": "Asset Id",
+            "type": "string"
+          },
+          "feedback": {
+            "enum": [
+              "this_is_me",
+              "not_me"
+            ],
+            "title": "Feedback",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "asset_id",
+          "feedback",
+          "updated_at"
+        ],
+        "title": "MyPhotosFeedbackResponse",
+        "type": "object"
+      },
+      "MyPhotosGalleryResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "all_group_photos_enabled": {
+            "title": "All Group Photos Enabled",
+            "type": "boolean"
+          },
+          "face_index_version": {
+            "minimum": 0.0,
+            "title": "Face Index Version",
+            "type": "integer"
+          },
+          "failed_asset_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Failed Asset Count",
+            "type": "integer"
+          },
+          "indexed_asset_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Indexed Asset Count",
+            "type": "integer"
+          },
+          "media_version": {
+            "minimum": 0.0,
+            "title": "Media Version",
+            "type": "integer"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "published_revision": {
+            "minimum": 0.0,
+            "title": "Published Revision",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "not_uploaded",
+              "awaiting_upload",
+              "processing",
+              "indexing",
+              "ready",
+              "failed",
+              "removed"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "total_asset_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Total Asset Count",
+            "type": "integer"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "published_revision",
+          "media_version",
+          "face_index_version",
+          "total_asset_count",
+          "indexed_asset_count",
+          "failed_asset_count",
+          "all_group_photos_enabled",
+          "published_at",
+          "updated_at"
+        ],
+        "title": "MyPhotosGalleryResponse",
+        "type": "object"
+      },
+      "MyPhotosLivenessCompleteRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "idempotency_key": {
+            "maxLength": 128,
+            "minLength": 8,
+            "pattern": "^[A-Za-z0-9._:-]+$",
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "completed",
+              "cancelled",
+              "expired",
+              "failed"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          }
+        },
+        "required": [
+          "outcome",
+          "idempotency_key"
+        ],
+        "title": "MyPhotosLivenessCompleteRequest",
+        "type": "object"
+      },
+      "MyPhotosLivenessCompleteResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "cooldown_until": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cooldown Until"
+          },
+          "enrollment_status": {
+            "enum": [
+              "consent_required",
+              "ready",
+              "session_pending",
+              "processing",
+              "enrolled",
+              "rejected",
+              "cooldown",
+              "revoked",
+              "deleted"
+            ],
+            "title": "Enrollment Status",
+            "type": "string"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "minLength": 3,
+                "pattern": "^[A-Z0-9_]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "retryable": {
+            "title": "Retryable",
+            "type": "boolean"
+          },
+          "search_run_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Search Run Id"
+          },
+          "search_status": {
+            "enum": [
+              "not_started",
+              "queued"
+            ],
+            "title": "Search Status",
+            "type": "string"
+          },
+          "session_id": {
+            "format": "uuid",
+            "title": "Session Id",
+            "type": "string"
+          },
+          "session_status": {
+            "enum": [
+              "completed",
+              "cancelled",
+              "expired",
+              "rejected",
+              "failed"
+            ],
+            "title": "Session Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "session_status",
+          "enrollment_status",
+          "search_run_id",
+          "search_status",
+          "retryable",
+          "cooldown_until"
+        ],
+        "title": "MyPhotosLivenessCompleteResponse",
+        "type": "object"
+      },
+      "MyPhotosLivenessSessionResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "attempts_remaining": {
+            "maximum": 20.0,
+            "minimum": 0.0,
+            "title": "Attempts Remaining",
+            "type": "integer"
+          },
+          "challenge_mode": {
+            "enum": [
+              "movement_and_light",
+              "movement_only"
+            ],
+            "title": "Challenge Mode",
+            "type": "string"
+          },
+          "client_flow": {
+            "enum": [
+              "development_simulator",
+              "native"
+            ],
+            "title": "Client Flow",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "native_launch_handle": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Native Launch Handle"
+          },
+          "photosensitivity_warning": {
+            "maxLength": 500,
+            "minLength": 10,
+            "title": "Photosensitivity Warning",
+            "type": "string"
+          },
+          "session_id": {
+            "format": "uuid",
+            "title": "Session Id",
+            "type": "string"
+          },
+          "status": {
+            "const": "created",
+            "enum": [
+              "created"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "status",
+          "challenge_mode",
+          "client_flow",
+          "expires_at",
+          "attempts_remaining",
+          "photosensitivity_warning"
+        ],
+        "title": "MyPhotosLivenessSessionResponse",
+        "type": "object"
+      },
+      "MyPhotosLivenessStartRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "challenge_mode": {
+            "enum": [
+              "movement_and_light",
+              "movement_only"
+            ],
+            "title": "Challenge Mode",
+            "type": "string"
+          },
+          "idempotency_key": {
+            "maxLength": 128,
+            "minLength": 8,
+            "pattern": "^[A-Za-z0-9._:-]+$",
+            "title": "Idempotency Key",
+            "type": "string"
+          }
+        },
+        "required": [
+          "challenge_mode",
+          "idempotency_key"
+        ],
+        "title": "MyPhotosLivenessStartRequest",
+        "type": "object"
+      },
+      "MyPhotosMediaDescriptor": {
+        "additionalProperties": false,
+        "properties": {
+          "authorization_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Authorization Id"
+          },
+          "cache_key": {
+            "maxLength": 192,
+            "minLength": 8,
+            "pattern": "^[A-Za-z0-9._:-]+$",
+            "title": "Cache Key",
+            "type": "string"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "max_height": {
+            "maximum": 4096.0,
+            "minimum": 1.0,
+            "title": "Max Height",
+            "type": "integer"
+          },
+          "max_width": {
+            "maximum": 4096.0,
+            "minimum": 1.0,
+            "title": "Max Width",
+            "type": "integer"
+          },
+          "resource_path": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "minLength": 20,
+                "pattern": "^/api/v1/mobile/trips/[0-9a-f-]+/my-photos/photos/[0-9a-f-]+/content/(thumbnail|preview)$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resource Path"
+          },
+          "state": {
+            "enum": [
+              "registered",
+              "awaiting_upload",
+              "processing",
+              "indexed",
+              "preview_available",
+              "original_available_online",
+              "archived_offline",
+              "rehydration_requested",
+              "preparing_delivery",
+              "delivery_available",
+              "expired",
+              "failed",
+              "removed"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "transport": {
+            "enum": [
+              "unavailable",
+              "development_fixture",
+              "authenticated_api",
+              "direct_object_storage"
+            ],
+            "title": "Transport",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "transport",
+          "cache_key",
+          "max_width",
+          "max_height",
+          "authorization_id",
+          "expires_at"
+        ],
+        "title": "MyPhotosMediaDescriptor",
+        "type": "object"
+      },
+      "MyPhotosPhotoPageResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "filter": {
+            "enum": [
+              "best",
+              "possible",
+              "all"
+            ],
+            "title": "Filter",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MyPhotosPhotoResponse"
+            },
+            "maxItems": 60,
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "maxLength": 768,
+                "minLength": 16,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "page_size": {
+            "maximum": 60.0,
+            "minimum": 1.0,
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "snapshot_revision": {
+            "minimum": 1.0,
+            "title": "Snapshot Revision",
+            "type": "integer"
+          },
+          "total_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Total Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "snapshot_revision",
+          "filter",
+          "items",
+          "page_size",
+          "total_count"
+        ],
+        "title": "MyPhotosPhotoPageResponse",
+        "type": "object"
+      },
+      "MyPhotosPhotoResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "aspect_ratio": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 100.0,
+            "title": "Aspect Ratio",
+            "type": "number"
+          },
+          "asset_id": {
+            "format": "uuid",
+            "title": "Asset Id",
+            "type": "string"
+          },
+          "availability_state": {
+            "enum": [
+              "registered",
+              "awaiting_upload",
+              "processing",
+              "indexed",
+              "preview_available",
+              "original_available_online",
+              "archived_offline",
+              "rehydration_requested",
+              "preparing_delivery",
+              "delivery_available",
+              "expired",
+              "failed",
+              "removed"
+            ],
+            "title": "Availability State",
+            "type": "string"
+          },
+          "captured_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Captured At"
+          },
+          "download_qualities": {
+            "items": {
+              "enum": [
+                "original",
+                "optimized"
+              ],
+              "type": "string"
+            },
+            "maxItems": 2,
+            "title": "Download Qualities",
+            "type": "array"
+          },
+          "feedback": {
+            "enum": [
+              "none",
+              "this_is_me",
+              "not_me"
+            ],
+            "title": "Feedback",
+            "type": "string"
+          },
+          "height": {
+            "maximum": 100000.0,
+            "minimum": 1.0,
+            "title": "Height",
+            "type": "integer"
+          },
+          "match_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Match Id"
+          },
+          "original_byte_size": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 209715200.0,
+            "title": "Original Byte Size",
+            "type": "integer"
+          },
+          "original_checksum_sha256": {
+            "maxLength": 64,
+            "minLength": 64,
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Original Checksum Sha256",
+            "type": "string"
+          },
+          "original_state": {
+            "enum": [
+              "registered",
+              "awaiting_upload",
+              "processing",
+              "indexed",
+              "preview_available",
+              "original_available_online",
+              "archived_offline",
+              "rehydration_requested",
+              "preparing_delivery",
+              "delivery_available",
+              "expired",
+              "failed",
+              "removed"
+            ],
+            "title": "Original State",
+            "type": "string"
+          },
+          "preparing": {
+            "title": "Preparing",
+            "type": "boolean"
+          },
+          "preview": {
+            "$ref": "#/components/schemas/MyPhotosMediaDescriptor"
+          },
+          "preview_state": {
+            "enum": [
+              "registered",
+              "awaiting_upload",
+              "processing",
+              "indexed",
+              "preview_available",
+              "original_available_online",
+              "archived_offline",
+              "rehydration_requested",
+              "preparing_delivery",
+              "delivery_available",
+              "expired",
+              "failed",
+              "removed"
+            ],
+            "title": "Preview State",
+            "type": "string"
+          },
+          "thumbnail": {
+            "$ref": "#/components/schemas/MyPhotosMediaDescriptor"
+          },
+          "thumbnail_state": {
+            "enum": [
+              "registered",
+              "awaiting_upload",
+              "processing",
+              "indexed",
+              "preview_available",
+              "original_available_online",
+              "archived_offline",
+              "rehydration_requested",
+              "preparing_delivery",
+              "delivery_available",
+              "expired",
+              "failed",
+              "removed"
+            ],
+            "title": "Thumbnail State",
+            "type": "string"
+          },
+          "tier": {
+            "anyOf": [
+              {
+                "enum": [
+                  "best",
+                  "possible"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tier"
+          },
+          "width": {
+            "maximum": 100000.0,
+            "minimum": 1.0,
+            "title": "Width",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "asset_id",
+          "match_id",
+          "tier",
+          "feedback",
+          "width",
+          "height",
+          "aspect_ratio",
+          "captured_at",
+          "thumbnail_state",
+          "preview_state",
+          "original_state",
+          "availability_state",
+          "thumbnail",
+          "preview",
+          "download_qualities",
+          "original_byte_size",
+          "original_checksum_sha256",
+          "preparing"
+        ],
+        "title": "MyPhotosPhotoResponse",
+        "type": "object"
+      },
+      "MyPhotosPrepareRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "idempotency_key": {
+            "maxLength": 128,
+            "minLength": 8,
+            "pattern": "^[A-Za-z0-9._:-]+$",
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "quality": {
+            "enum": [
+              "original",
+              "optimized"
+            ],
+            "title": "Quality",
+            "type": "string"
+          }
+        },
+        "required": [
+          "quality",
+          "idempotency_key"
+        ],
+        "title": "MyPhotosPrepareRequest",
+        "type": "object"
+      },
+      "MyPhotosPrepareResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "asset_id": {
+            "format": "uuid",
+            "title": "Asset Id",
+            "type": "string"
+          },
+          "preparation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preparation Id"
+          },
+          "retry_after_seconds": {
+            "anyOf": [
+              {
+                "maximum": 86400.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retry After Seconds"
+          },
+          "state": {
+            "enum": [
+              "rehydration_requested",
+              "preparing_delivery",
+              "delivery_available"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "asset_id",
+          "state",
+          "preparation_id"
+        ],
+        "title": "MyPhotosPrepareResponse",
+        "type": "object"
+      },
+      "MyPhotosResultsResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "downloadable_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Downloadable Count",
+            "type": "integer"
+          },
+          "last_updated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Updated At"
+          },
+          "match_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Match Count",
+            "type": "integer"
+          },
+          "new_photo_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "New Photo Count",
+            "type": "integer"
+          },
+          "preparing_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Preparing Count",
+            "type": "integer"
+          },
+          "snapshot_revision": {
+            "minimum": 0.0,
+            "title": "Snapshot Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "snapshot_revision",
+          "match_count",
+          "new_photo_count",
+          "downloadable_count",
+          "preparing_count",
+          "last_updated_at"
+        ],
+        "title": "MyPhotosResultsResponse",
+        "type": "object"
+      },
+      "MyPhotosSearchResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "search": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MyPhotosSearchRunResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "search"
+        ],
+        "title": "MyPhotosSearchResponse",
+        "type": "object"
+      },
+      "MyPhotosSearchRunResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "best_match_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Best Match Count",
+            "type": "integer"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "minLength": 3,
+                "pattern": "^[A-Z0-9_]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "matched_photo_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Matched Photo Count",
+            "type": "integer"
+          },
+          "possible_match_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Possible Match Count",
+            "type": "integer"
+          },
+          "processed_face_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Processed Face Count",
+            "type": "integer"
+          },
+          "progress_percent": {
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Progress Percent",
+            "type": "integer"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "status": {
+            "enum": [
+              "queued",
+              "searching",
+              "complete",
+              "failed",
+              "cancelled"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "total_face_count": {
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Total Face Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "processed_face_count",
+          "total_face_count",
+          "progress_percent",
+          "matched_photo_count",
+          "best_match_count",
+          "possible_match_count",
+          "started_at",
+          "completed_at"
+        ],
+        "title": "MyPhotosSearchRunResponse",
+        "type": "object"
+      },
+      "MyPhotosSummaryResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "capability": {
+            "$ref": "#/components/schemas/MyPhotosCapabilityResponse"
+          },
+          "consent": {
+            "$ref": "#/components/schemas/MyPhotosConsentResponse"
+          },
+          "enrollment": {
+            "$ref": "#/components/schemas/MyPhotosEnrollmentResponse"
+          },
+          "experience_state": {
+            "enum": [
+              "feature_unavailable",
+              "provider_not_configured",
+              "gallery_not_uploaded",
+              "gallery_processing",
+              "gallery_indexing",
+              "consent_required",
+              "camera_permission_required",
+              "ready_to_scan",
+              "scan_running",
+              "scan_cancelled",
+              "session_expired",
+              "liveness_rejected",
+              "cooldown",
+              "device_unsupported",
+              "provider_unavailable",
+              "search_queued",
+              "searching",
+              "no_matches",
+              "matches_preparing",
+              "matches_ready",
+              "offline_results",
+              "partial_offline_results",
+              "access_expired",
+              "access_revoked",
+              "recoverable_error",
+              "nonrecoverable_error",
+              "enrollment_deleted"
+            ],
+            "title": "Experience State",
+            "type": "string"
+          },
+          "gallery": {
+            "$ref": "#/components/schemas/MyPhotosGalleryResponse"
+          },
+          "group_id": {
+            "format": "uuid",
+            "title": "Group Id",
+            "type": "string"
+          },
+          "group_name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Group Name",
+            "type": "string"
+          },
+          "results": {
+            "$ref": "#/components/schemas/MyPhotosResultsResponse"
+          },
+          "search": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MyPhotosSearchRunResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "server_time": {
+            "format": "date-time",
+            "title": "Server Time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "group_id",
+          "group_name",
+          "experience_state",
+          "server_time",
+          "capability",
+          "gallery",
+          "consent",
+          "enrollment",
+          "search",
+          "results"
+        ],
+        "title": "MyPhotosSummaryResponse",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -5177,6 +7111,74 @@
           }
         ],
         "summary": "Complete Mobile Attendance Session",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      }
+    },
+    "/api/v1/mobile/coordinator/groups/{group_id}/attendance/sessions/{session_id}/discards": {
+      "post": {
+        "operationId": "synchronize_mobile_attendance_discards_api_v1_mobile_coordinator_groups__group_id__attendance_sessions__session_id__discards_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MobileAttendanceDiscardBatchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceDiscardBatchResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Synchronize Mobile Attendance Discards",
         "tags": [
           "GC Mobile Operations"
         ]
@@ -7306,6 +9308,810 @@
         "summary": "Get Mobile Meals",
         "tags": [
           "GC Mobile Resources"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/my-photos": {
+      "get": {
+        "operationId": "get_my_photos_summary_api_v1_mobile_trips__group_id__my_photos_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyPhotosSummaryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get My Photos Summary",
+        "tags": [
+          "GC Mobile My Photos"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/my-photos/consent": {
+      "post": {
+        "operationId": "accept_my_photos_consent_api_v1_mobile_trips__group_id__my_photos_consent_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MyPhotosConsentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyPhotosSummaryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Accept My Photos Consent",
+        "tags": [
+          "GC Mobile My Photos"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/my-photos/download-authorizations": {
+      "post": {
+        "operationId": "authorize_my_photos_downloads_api_v1_mobile_trips__group_id__my_photos_download_authorizations_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MyPhotosDownloadAuthorizationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyPhotosDownloadAuthorizationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Authorize My Photos Downloads",
+        "tags": [
+          "GC Mobile My Photos"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/my-photos/download-authorizations/{authorization_id}/content": {
+      "get": {
+        "operationId": "get_my_photos_download_api_v1_mobile_trips__group_id__my_photos_download_authorizations__authorization_id__content_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "authorization_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Authorization Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Range",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Range"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get My Photos Download",
+        "tags": [
+          "GC Mobile My Photos"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/my-photos/download-plan": {
+      "get": {
+        "operationId": "get_my_photos_download_plan_api_v1_mobile_trips__group_id__my_photos_download_plan_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyPhotosDownloadPlanResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get My Photos Download Plan",
+        "tags": [
+          "GC Mobile My Photos"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/my-photos/enrollment": {
+      "delete": {
+        "operationId": "delete_my_photos_enrollment_api_v1_mobile_trips__group_id__my_photos_enrollment_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MyPhotosDeleteEnrollmentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyPhotosDeleteEnrollmentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Delete My Photos Enrollment",
+        "tags": [
+          "GC Mobile My Photos"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/my-photos/liveness-sessions": {
+      "post": {
+        "operationId": "start_my_photos_liveness_api_v1_mobile_trips__group_id__my_photos_liveness_sessions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MyPhotosLivenessStartRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyPhotosLivenessSessionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Start My Photos Liveness",
+        "tags": [
+          "GC Mobile My Photos"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/my-photos/liveness-sessions/{session_id}/complete": {
+      "post": {
+        "operationId": "complete_my_photos_liveness_api_v1_mobile_trips__group_id__my_photos_liveness_sessions__session_id__complete_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MyPhotosLivenessCompleteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyPhotosLivenessCompleteResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Complete My Photos Liveness",
+        "tags": [
+          "GC Mobile My Photos"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/my-photos/photos": {
+      "get": {
+        "operationId": "get_my_photos_page_api_v1_mobile_trips__group_id__my_photos_photos_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "default": "best",
+              "enum": [
+                "best",
+                "possible",
+                "all"
+              ],
+              "title": "Filter",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 768,
+                  "minLength": 16,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 48,
+              "maximum": 60,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyPhotosPhotoPageResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get My Photos Page",
+        "tags": [
+          "GC Mobile My Photos"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/my-photos/photos/{asset_id}/content/{variant}": {
+      "get": {
+        "operationId": "get_my_photos_photo_content_api_v1_mobile_trips__group_id__my_photos_photos__asset_id__content__variant__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "asset_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Asset Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "variant",
+            "required": true,
+            "schema": {
+              "enum": [
+                "thumbnail",
+                "preview"
+              ],
+              "title": "Variant",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get My Photos Photo Content",
+        "tags": [
+          "GC Mobile My Photos"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/my-photos/photos/{asset_id}/feedback": {
+      "put": {
+        "operationId": "put_my_photos_feedback_api_v1_mobile_trips__group_id__my_photos_photos__asset_id__feedback_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "asset_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Asset Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MyPhotosFeedbackRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyPhotosFeedbackResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Put My Photos Feedback",
+        "tags": [
+          "GC Mobile My Photos"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/my-photos/photos/{asset_id}/prepare": {
+      "post": {
+        "operationId": "prepare_my_photos_media_api_v1_mobile_trips__group_id__my_photos_photos__asset_id__prepare_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "asset_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Asset Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MyPhotosPrepareRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyPhotosPrepareResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Prepare My Photos Media",
+        "tags": [
+          "GC Mobile My Photos"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/my-photos/search": {
+      "get": {
+        "operationId": "get_my_photos_search_api_v1_mobile_trips__group_id__my_photos_search_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyPhotosSearchResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get My Photos Search",
+        "tags": [
+          "GC Mobile My Photos"
         ]
       }
     },

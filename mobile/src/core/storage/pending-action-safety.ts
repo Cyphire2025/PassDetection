@@ -7,6 +7,7 @@ export type DurableActionQueueSummary = Readonly<{
   unresolvedReview: number;
   unsynchronized: number;
   unsynchronizedAttendanceScans: number;
+  unsynchronizedDiscardAudits: number;
   unsynchronizedOtherActions: number;
 }>;
 
@@ -16,6 +17,7 @@ type DurableActionQueueSummaryRow = Readonly<{
   retryable_count: number;
   unresolved_review_count: number;
   unsynchronized_attendance_count: number;
+  unsynchronized_discard_count: number;
 }>;
 
 function verifiedCount(value: unknown, field: string): number {
@@ -42,9 +44,13 @@ export async function durableActionQueueSummary(
        COALESCE(SUM(CASE WHEN state IN ('rejected', 'needs_review') THEN 1 ELSE 0 END), 0) AS unresolved_review_count,
        COALESCE(SUM(CASE
          WHEN state IN ('pending', 'sending', 'retryable') AND action_type = 'attendance.scan'
-         THEN 1 ELSE 0 END), 0) AS unsynchronized_attendance_count
+         THEN 1 ELSE 0 END), 0) AS unsynchronized_attendance_count,
+       (SELECT COUNT(*) FROM attendance_discard_tombstones discard
+         WHERE discard.account_namespace = ?
+           AND discard.state != 'synchronized') AS unsynchronized_discard_count
      FROM pending_actions
      WHERE account_namespace = ?`,
+    namespace,
     namespace,
   );
   if (!row) throw new Error('The durable action queue could not be verified.');
@@ -57,7 +63,11 @@ export async function durableActionQueueSummary(
     row.unsynchronized_attendance_count,
     'attendance',
   );
-  const unsynchronized = pending + sending + retryable;
+  const unsynchronizedDiscardAudits = verifiedCount(
+    row.unsynchronized_discard_count,
+    'attendance discard audit',
+  );
+  const unsynchronized = pending + sending + retryable + unsynchronizedDiscardAudits;
   if (unsynchronizedAttendanceScans > unsynchronized) {
     throw new Error('The durable action queue returned inconsistent counts.');
   }
@@ -69,7 +79,10 @@ export async function durableActionQueueSummary(
     unresolvedReview,
     unsynchronized,
     unsynchronizedAttendanceScans,
-    unsynchronizedOtherActions: unsynchronized - unsynchronizedAttendanceScans,
+    unsynchronizedDiscardAudits,
+    unsynchronizedOtherActions: unsynchronized
+      - unsynchronizedAttendanceScans
+      - unsynchronizedDiscardAudits,
   };
 }
 

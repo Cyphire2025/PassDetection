@@ -4,6 +4,7 @@ import { Image } from 'expo-image';
 import { AppState, Text, type AppStateStatus } from 'react-native';
 
 import { useSessionStore } from '@/core/auth/session-store';
+import { clearOfflineAuthorizationBootAnchor } from '@/core/auth/offline-authorization';
 import type { MobileSession } from '@/core/auth/types';
 import { purgeTemporaryViews } from '@/core/storage/vault';
 import { purgeManagerDocumentPreviews } from '@/features/manager/data/manager-document-preview';
@@ -43,6 +44,9 @@ jest.mock('react-native-safe-area-context', () => {
 jest.mock('@/core/auth/application-bootstrap', () => ({
   bootstrapApplicationSession: jest.fn(async () => ({ status: 'anonymous' })),
 }));
+jest.mock('@/core/auth/offline-authorization', () => ({
+  clearOfflineAuthorizationBootAnchor: jest.fn(),
+}));
 jest.mock('@/core/demo/demo-mode', () => ({ isDemoMode: () => false }));
 jest.mock('@/core/notifications/notification-runtime', () => ({ NotificationRuntime: () => null }));
 jest.mock('@/core/query/query-client', () => ({ mobileQueryClient: { clear: jest.fn() } }));
@@ -52,9 +56,13 @@ jest.mock('@/core/sync/sync-runtime', () => ({ SyncRuntime: () => null }));
 jest.mock('@/features/manager/data/manager-document-preview', () => ({
   purgeManagerDocumentPreviews: jest.fn(async () => undefined),
 }));
+jest.mock('@/features/my-photos/downloads/photo-download-runtime', () => ({
+  MyPhotosCapabilityRuntime: () => null,
+}));
 
 const mockedPurgeManagerPreviews = jest.mocked(purgeManagerDocumentPreviews);
 const mockedPurgeTemporaryViews = jest.mocked(purgeTemporaryViews);
+const mockedClearBootAnchor = jest.mocked(clearOfflineAuthorizationBootAnchor);
 const mockClearDiskCache = jest.mocked(Image.clearDiskCache);
 const mockClearMemoryCache = jest.mocked(Image.clearMemoryCache);
 
@@ -109,6 +117,7 @@ test('purges manager plaintext on startup, background, login, and logout boundar
     await Promise.resolve();
   });
   await waitFor(() => expect(mockedPurgeManagerPreviews).toHaveBeenCalledTimes(2));
+  expect(mockedClearBootAnchor).toHaveBeenCalledTimes(1);
 
   await act(async () => {
     useSessionStore.getState().setSession(SESSION);
@@ -124,4 +133,31 @@ test('purges manager plaintext on startup, background, login, and logout boundar
 
   await screen.unmount();
   expect(removeListener).toHaveBeenCalledTimes(1);
+});
+
+test('keeps a failed privacy cleanup as an obligation and retries it at the next lifecycle boundary', async () => {
+  let emitAppState: ((state: AppStateStatus) => void) | undefined;
+  jest.spyOn(AppState, 'addEventListener').mockImplementation((_type, listener) => {
+    emitAppState = listener;
+    return { remove: jest.fn() };
+  });
+  mockedPurgeTemporaryViews
+    .mockRejectedValueOnce(new Error('temporary filesystem unavailable'))
+    .mockResolvedValue(undefined);
+
+  const screen = await render(
+    <AppProviders>
+      <Text>Application</Text>
+    </AppProviders>,
+  );
+  await waitFor(() => expect(mockedPurgeTemporaryViews).toHaveBeenCalledTimes(1));
+
+  await act(async () => {
+    emitAppState?.('background');
+    await Promise.resolve();
+  });
+
+  await waitFor(() => expect(mockedPurgeTemporaryViews).toHaveBeenCalledTimes(2));
+  expect(mockClearDiskCache).toHaveBeenCalledTimes(2);
+  await screen.unmount();
 });

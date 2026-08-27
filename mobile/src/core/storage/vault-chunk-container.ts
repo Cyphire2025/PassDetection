@@ -298,7 +298,9 @@ type StreamReader = {
   cancel?: (reason?: string) => Promise<unknown>;
 };
 
-/** Consume an Expo fetch stream in fixed-size plaintext windows. */
+/** Consume an Expo fetch stream in exact fixed-size plaintext windows. A
+ * partial EOF tail is never committed unless the authorized byte count is
+ * complete, so a retry cannot create extra undersized vault frames. */
 export async function consumePlaintextStreamBounded(
   reader: StreamReader,
   maximumBytes: number,
@@ -311,39 +313,51 @@ export async function consumePlaintextStreamBounded(
   let committedBytes = 0;
   let pendingLength = 0;
   let pending = new Uint8Array(Math.min(VAULT_PLAINTEXT_CHUNK_BYTES, maximumBytes || 1));
-  while (true) {
-    if (signal?.aborted) {
-      await reader.cancel?.('Document download was cancelled.').catch(() => undefined);
-      throw signal.reason instanceof Error ? signal.reason : new Error('Document download was cancelled.');
-    }
-    const next = await reader.read();
-    if (next.done) break;
-    if (!next.value?.byteLength) continue;
-    let sourceOffset = 0;
-    while (sourceOffset < next.value.byteLength) {
-      const available = pending.byteLength - pendingLength;
-      const copied = Math.min(available, next.value.byteLength - sourceOffset);
-      if (committedBytes + pendingLength + copied > maximumBytes) {
-        await reader.cancel?.('Document exceeded its allowed size.').catch(() => undefined);
-        throw new VaultChunkContainerError('Downloaded document exceeded its allowed size.');
+  try {
+    while (true) {
+      if (signal?.aborted) {
+        throw signal.reason instanceof Error ? signal.reason : new Error('Document download was cancelled.');
       }
-      pending.set(next.value.subarray(sourceOffset, sourceOffset + copied), pendingLength);
-      pendingLength += copied;
-      sourceOffset += copied;
-      if (pendingLength === pending.byteLength) {
-        await commit(pending);
-        committedBytes += pendingLength;
-        pendingLength = 0;
-        const remaining = maximumBytes - committedBytes;
-        pending = new Uint8Array(Math.min(VAULT_PLAINTEXT_CHUNK_BYTES, Math.max(remaining, 1)));
+      const next = await reader.read();
+      if (next.done) break;
+      if (!next.value?.byteLength) continue;
+      let sourceOffset = 0;
+      while (sourceOffset < next.value.byteLength) {
+        if (committedBytes + pendingLength === maximumBytes) {
+          throw new VaultChunkContainerError('Downloaded document exceeded its allowed size.');
+        }
+        const available = pending.byteLength - pendingLength;
+        const copied = Math.min(available, next.value.byteLength - sourceOffset);
+        if (committedBytes + pendingLength + copied > maximumBytes) {
+          throw new VaultChunkContainerError('Downloaded document exceeded its allowed size.');
+        }
+        pending.set(next.value.subarray(sourceOffset, sourceOffset + copied), pendingLength);
+        pendingLength += copied;
+        sourceOffset += copied;
+        if (
+          pendingLength === pending.byteLength
+          && committedBytes + pendingLength < maximumBytes
+        ) {
+          await commit(pending);
+          committedBytes += pendingLength;
+          pendingLength = 0;
+          const remaining = maximumBytes - committedBytes;
+          pending = new Uint8Array(Math.min(VAULT_PLAINTEXT_CHUNK_BYTES, Math.max(remaining, 1)));
+        }
       }
     }
+    if (committedBytes + pendingLength !== maximumBytes) {
+      throw new VaultChunkContainerError('Downloaded document was shorter than its authorized size.');
+    }
+    if (pendingLength > 0) {
+      await commit(pending.subarray(0, pendingLength));
+      committedBytes += pendingLength;
+    }
+    return committedBytes;
+  } catch (error) {
+    await reader.cancel?.('Document stream did not complete exactly.').catch(() => undefined);
+    throw error;
   }
-  if (pendingLength > 0) {
-    await commit(pending.subarray(0, pendingLength));
-    committedBytes += pendingLength;
-  }
-  return committedBytes;
 }
 
 export function maximumChunkedVaultBytes(plaintextBytes: number): number {

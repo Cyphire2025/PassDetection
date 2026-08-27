@@ -6,6 +6,9 @@ from fastapi import Response
 
 from app.core.config.settings import get_settings
 
+ATTENDANCE_RUNTIME_COOKIE_NAME = "attendance_runtime"
+ATTENDANCE_RUNTIME_COOKIE_PATH = "/api/v1/tour-operations/coordinator"
+
 
 def set_access_cookie(response: Response, *, access_token: str) -> None:
     root_settings = get_settings()
@@ -45,11 +48,14 @@ def clear_auth_cookies(response: Response) -> None:
     for name, path in (
         (settings.access_cookie_name, "/"),
         (settings.refresh_cookie_name, "/api/v1/auth"),
+        (ATTENDANCE_RUNTIME_COOKIE_NAME, ATTENDANCE_RUNTIME_COOKIE_PATH),
     ):
         response.delete_cookie(
             name,
             path=path,
             secure=secure,
-            samesite=settings.cookie_samesite,
+            samesite=(
+                "strict" if name == ATTENDANCE_RUNTIME_COOKIE_NAME else settings.cookie_samesite
+            ),
             httponly=True,
         )

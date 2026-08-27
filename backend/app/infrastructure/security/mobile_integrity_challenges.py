@@ -81,7 +81,7 @@ class RedisMobileIntegrityChallengeStore:
         self._settings = settings or get_settings()
         self._require_redis = self._settings.mobile.app_integrity_require_redis
         self._redis = redis or Redis.from_url(
-            self._settings.redis.url,
+            self._settings.redis.security_url,
             encoding="utf-8",
             decode_responses=True,
         )

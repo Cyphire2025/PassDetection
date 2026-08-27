@@ -23,7 +23,7 @@ describe('activeAttendanceRefreshInterval', () => {
     })).toBe(false);
   });
 
-  it('applies full jitter only within the focused active-session window', () => {
+  it('keeps degraded repair fully jittered between thirty and sixty seconds', () => {
     expect(activeAttendanceRefreshInterval({
       hasActiveSession: true,
       routeFocused: true,
@@ -38,7 +38,7 @@ describe('activeAttendanceRefreshInterval', () => {
       hasActiveSession: true,
       routeFocused: true,
       randomValue: 0.5,
-    })).toBe(11_500);
+    })).toBe(45_000);
   });
 
   it('bounds an invalid random source instead of producing an unsafe interval', () => {

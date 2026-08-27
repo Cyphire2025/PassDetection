@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import uuid
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
+from typing import TypedDict, cast
 
 from app.domain.exceptions.exceptions import ValidationError
 
@@ -13,10 +14,37 @@ MAX_CUSTOM_DETAILS = 20
 MAX_CUSTOM_DETAIL_VALUE_LENGTH = 500
 
 
-def normalize_custom_questions(values: Iterable[dict] | None) -> list[dict]:
+class CustomQuestionDefinition(TypedDict):
+    id: str
+    label: str
+    options: list[str]
+    enabled: bool
+
+
+class CustomDetailDefinition(TypedDict):
+    id: str
+    label: str
+    enabled: bool
+
+
+class CustomAnswerSnapshot(TypedDict):
+    question_id: str
+    label: str
+    value: str
+
+
+class CustomDetailAnswerSnapshot(TypedDict):
+    detail_id: str
+    label: str
+    value: str
+
+
+def normalize_custom_questions(
+    values: Iterable[Mapping[str, object]] | None,
+) -> list[CustomQuestionDefinition]:
     """Return a stable, validated JSON representation for group configuration."""
 
-    normalized: list[dict] = []
+    normalized: list[CustomQuestionDefinition] = []
     seen_ids: set[str] = set()
     seen_labels: set[str] = set()
     for raw in values or []:
@@ -49,7 +77,9 @@ def normalize_custom_questions(values: Iterable[dict] | None) -> list[dict]:
 
         options: list[str] = []
         seen_options: set[str] = set()
-        for raw_option in raw.get("options") or []:
+        # HTTP schemas validate this as a list. The cast keeps the historical
+        # direct-domain behavior unchanged for callers that bypass that schema.
+        for raw_option in cast(Iterable[object], raw.get("options") or []):
             option = " ".join(str(raw_option).strip().split())
             if not option:
                 continue
@@ -80,9 +110,9 @@ def normalize_custom_questions(values: Iterable[dict] | None) -> list[dict]:
 
 
 def normalize_custom_answers(
-    questions: Iterable[dict] | None,
-    answers: Iterable[dict] | None,
-) -> list[dict]:
+    questions: Iterable[Mapping[str, object]] | None,
+    answers: Iterable[Mapping[str, object]] | None,
+) -> list[CustomAnswerSnapshot]:
     """Validate answers and snapshot labels so later group edits cannot rewrite history."""
 
     enabled = {
@@ -107,7 +137,7 @@ def normalize_custom_answers(
             field="custom_answers",
         )
 
-    snapshots: list[dict] = []
+    snapshots: list[CustomAnswerSnapshot] = []
     for question_id, question in enabled.items():
         option_by_key = {
             str(option).casefold(): str(option) for option in question["options"]
@@ -128,10 +158,12 @@ def normalize_custom_answers(
     return snapshots
 
 
-def normalize_custom_details(values: Iterable[dict] | None) -> list[dict]:
+def normalize_custom_details(
+    values: Iterable[Mapping[str, object]] | None,
+) -> list[CustomDetailDefinition]:
     """Return validated free-text detail definitions with stable identifiers."""
 
-    normalized: list[dict] = []
+    normalized: list[CustomDetailDefinition] = []
     seen_ids: set[str] = set()
     seen_labels: set[str] = set()
     for raw in values or []:
@@ -172,9 +204,9 @@ def normalize_custom_details(values: Iterable[dict] | None) -> list[dict]:
 
 
 def normalize_custom_detail_answers(
-    details: Iterable[dict] | None,
-    answers: Iterable[dict] | None,
-) -> list[dict]:
+    details: Iterable[Mapping[str, object]] | None,
+    answers: Iterable[Mapping[str, object]] | None,
+) -> list[CustomDetailAnswerSnapshot]:
     """Validate required free-text answers and snapshot their current labels."""
 
     enabled = {
@@ -207,7 +239,7 @@ def normalize_custom_detail_answers(
             field="custom_detail_answers",
         )
 
-    snapshots: list[dict] = []
+    snapshots: list[CustomDetailAnswerSnapshot] = []
     for detail_id, detail in enabled.items():
         value = submitted.get(detail_id, "")
         if not value:

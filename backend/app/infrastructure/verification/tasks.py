@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Protocol
+
 from celery.exceptions import Reject
 
 from app.core.config.settings import get_settings
@@ -17,7 +19,17 @@ from app.infrastructure.verification.runtime import (
 )
 
 
-@celery_app.task(
+class _BoundTaskRequest(Protocol):
+    retries: int
+
+
+class _BoundTask(Protocol):
+    request: _BoundTaskRequest
+
+    def retry(self, *, exc: BaseException, countdown: int) -> BaseException: ...
+
+
+@celery_app.task(  # type: ignore[untyped-decorator]  # Celery exposes an untyped task decorator.
     bind=True,
     name="passport.verify_submitted",
     queue=VERIFICATION_QUEUE,
@@ -25,7 +37,7 @@ from app.infrastructure.verification.runtime import (
     default_retry_delay=5,
 )
 def verify_submitted_passport(
-    self,  # type: ignore[no-untyped-def]
+    self: _BoundTask,
     *,
     job_id: str,
     submission_id: str,
@@ -52,10 +64,7 @@ def verify_submitted_passport(
             )
         except Exception as publish_exc:
             raise Reject(
-                (
-                    "AI admission redelivery publish failed: "
-                    f"{type(publish_exc).__name__}"
-                ),
+                (f"AI admission redelivery publish failed: {type(publish_exc).__name__}"),
                 requeue=True,
             ) from publish_exc
         return

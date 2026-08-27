@@ -29,28 +29,52 @@ from app.presentation.api.v1.schemas.rooming_schemas import (
 
 
 def test_priority_fields_are_ordered_unique_and_limited_to_six() -> None:
-    request = AutoAllocateRoomsRequest(priority_fields=[" field:a ", "field:b"])
+    expected_revisions = {uuid.uuid4(): 0}
+    request = AutoAllocateRoomsRequest(
+        priority_fields=[" field:a ", "field:b"],
+        expected_allocation_revisions=expected_revisions,
+    )
     assert request.priority_fields == ["field:a", "field:b"]
 
     with pytest.raises(ValidationError, match="only once"):
-        AutoAllocateRoomsRequest(priority_fields=["field:a", "field:a"])
+        AutoAllocateRoomsRequest(
+            priority_fields=["field:a", "field:a"],
+            expected_allocation_revisions=expected_revisions,
+        )
     with pytest.raises(ValidationError):
         AutoAllocateRoomsRequest(
-            priority_fields=[f"field:{index}" for index in range(7)]
+            priority_fields=[f"field:{index}" for index in range(7)],
+            expected_allocation_revisions=expected_revisions,
         )
 
 
 def test_selection_defaults_to_safe_add_and_requires_ids_for_add_remove() -> None:
     passenger_id = uuid.uuid4()
-    request = UpdateHotelPassengerSelectionRequest(passenger_ids=[passenger_id])
+    expected_revisions = {uuid.uuid4(): 0}
+    request = UpdateHotelPassengerSelectionRequest(
+        passenger_ids=[passenger_id],
+        expected_allocation_revisions=expected_revisions,
+    )
     assert request.mode == "add"
 
     with pytest.raises(ValidationError, match="require at least one"):
-        UpdateHotelPassengerSelectionRequest(passenger_ids=[], mode="add")
+        UpdateHotelPassengerSelectionRequest(
+            passenger_ids=[],
+            mode="add",
+            expected_allocation_revisions=expected_revisions,
+        )
     with pytest.raises(ValidationError, match="require at least one"):
-        UpdateHotelPassengerSelectionRequest(passenger_ids=[], mode="remove")
+        UpdateHotelPassengerSelectionRequest(
+            passenger_ids=[],
+            mode="remove",
+            expected_allocation_revisions=expected_revisions,
+        )
     assert (
-        UpdateHotelPassengerSelectionRequest(passenger_ids=[], mode="replace").mode
+        UpdateHotelPassengerSelectionRequest(
+            passenger_ids=[],
+            mode="replace",
+            expected_allocation_revisions=expected_revisions,
+        ).mode
         == "replace"
     )
 
@@ -61,6 +85,7 @@ def test_selection_rejects_duplicate_passenger_ids() -> None:
         UpdateHotelPassengerSelectionRequest(
             passenger_ids=[passenger_id, passenger_id],
             mode="add",
+            expected_allocation_revisions={uuid.uuid4(): 0},
         )
 
 

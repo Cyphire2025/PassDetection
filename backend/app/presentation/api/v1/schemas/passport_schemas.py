@@ -493,11 +493,11 @@ class PassportSubmissionResponse(BaseModel):
     status: str
     created_at: datetime
     updated_at: datetime
-    extracted_fields: dict | None = None
-    confirmed_fields: dict | None = None
+    extracted_fields: dict[str, object] | None = None
+    confirmed_fields: dict[str, str] | None = None
     extraction_conflicts: list[PassportExtractionConflictResponse] = Field(default_factory=list)
     overall_confidence: float | None = None
-    confidence_score: dict | None = None
+    confidence_score: dict[str, object] | None = None
     mrz_raw: str | None = None
     error_message: str | None = None
     image_url: str | None = None

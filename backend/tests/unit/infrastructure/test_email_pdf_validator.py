@@ -10,6 +10,7 @@ from app.infrastructure.email.pdf_validator import (
     EmailPdfValidationError,
     EmailPdfValidator,
 )
+from app.infrastructure.security.upload_validator import MalwareScannerConfigurationError
 
 
 class RecordingScanner:
@@ -25,6 +26,8 @@ class RecordingScanner:
 def _settings(**overrides: object) -> SimpleNamespace:
     values: dict[str, object] = {
         "app_env": "development",
+        "is_development": True,
+        "untrusted_document_ingestion_enabled": True,
         "email_attachment_max_bytes": 1024 * 1024,
         "email_pdf_max_pages": 10,
         "malware_scanner_enabled": False,
@@ -138,16 +141,12 @@ def test_pdf_validator_rejects_unreadable_pdf_after_scanning() -> None:
     assert scanner.calls == 1
 
 
-def test_pdf_validator_allows_production_processing_without_optional_scanner() -> None:
-    validator = EmailPdfValidator(  # type: ignore[arg-type]
-        settings=_settings(app_env="production", malware_scanner_enabled=False),
-    )
-
-    result = validator.validate(
-        content=_pdf(),
-        filename="document.pdf",
-        declared_content_type="application/pdf",
-    )
-
-    assert result.content_type == "application/pdf"
-    assert result.page_count == 1
+def test_pdf_validator_refuses_unscanned_production_processing() -> None:
+    with pytest.raises(MalwareScannerConfigurationError):
+        EmailPdfValidator(
+            settings=_settings(
+                app_env="production",
+                is_development=False,
+                malware_scanner_enabled=False,
+            ),
+        )

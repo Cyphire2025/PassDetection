@@ -35,7 +35,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.infrastructure.database.models import JSONB, Base
+from app.infrastructure.database.model_base import JSONB, Base
 
 
 def _utcnow() -> datetime:
@@ -1398,7 +1398,10 @@ class EmailActivityEventModel(Base):
 def _reject_email_owner_change(_mapper: object, _connection: object, target: object) -> None:
     """Keep ownership immutable after an email row has been persisted."""
 
-    owner_history = sa_inspect(target).attrs.owner_user_id.history
+    inspection = sa_inspect(target)
+    if inspection is None:
+        raise ValueError("Email record inspection is unavailable")
+    owner_history = inspection.attrs.owner_user_id.history
     if owner_history.has_changes() and owner_history.deleted:
         raise ValueError("Email record ownership cannot be changed")
 

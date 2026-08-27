@@ -34,7 +34,7 @@ import type {
   TourGroup,
   TourPassenger,
 } from "@/features/operations/api/operations.api";
-import { offlineSnapshotKeys, readOfflineSnapshot, writeOfflineSnapshot } from "../services/offline-snapshot";
+import { offlineSnapshotKeys, useOfflineSnapshot, writeOfflineSnapshot } from "../services/offline-snapshot";
 import {
   mergeAttendanceSessionProgress,
   reconcileAttendanceSessionProgress,
@@ -56,27 +56,23 @@ export function CoordinatorGroupActivityPage({ groupId }: { groupId: string }) {
   const clearSession = useAuthStore((state) => state.clearSession);
   const isOnline = useNetworkStatus();
   const isCoordinator = isAuthenticated && user?.role === "agency_coordinator";
-  const userId = user?.id;
   const groupsQuery = useMyTourGroups(hasHydrated && isCoordinator);
   const groups = groupsQuery.data ?? EMPTY_GROUPS;
-  const cachedGroups = useMemo<TourGroup[]>(
-    () => userId ? readOfflineSnapshot(offlineSnapshotKeys.myGroups, []) : [],
-    [userId],
-  );
+  const cachedGroups = useOfflineSnapshot<TourGroup[]>(offlineSnapshotKeys.myGroups, EMPTY_GROUPS);
   const visibleGroups = groupsQuery.isSuccess ? groups : cachedGroups;
   const group = visibleGroups.find((item) => item.id === groupId) ?? null;
   const passengersQuery = useMyTourGroupPassengers(groupId, hasHydrated && isCoordinator);
   const passengers = passengersQuery.data ?? EMPTY_PASSENGERS;
-  const cachedPassengers = useMemo<TourPassenger[]>(
-    () => userId ? readOfflineSnapshot(offlineSnapshotKeys.myPassengers(groupId), []) : [],
-    [groupId, userId],
+  const cachedPassengers = useOfflineSnapshot<TourPassenger[]>(
+    offlineSnapshotKeys.myPassengers(groupId),
+    EMPTY_PASSENGERS,
   );
   const visiblePassengers = passengersQuery.isSuccess ? passengers : cachedPassengers;
   const sessionsQuery = useMyAttendanceSessions(groupId, hasHydrated && isCoordinator);
   const sessions = sessionsQuery.data ?? EMPTY_SESSIONS;
-  const cachedSessions = useMemo<AttendanceSession[]>(
-    () => userId ? readOfflineSnapshot(offlineSnapshotKeys.mySessions(groupId), []) : [],
-    [groupId, userId],
+  const cachedSessions = useOfflineSnapshot<AttendanceSession[]>(
+    offlineSnapshotKeys.mySessions(groupId),
+    EMPTY_SESSIONS,
   );
   const visibleSessions = useMemo(
     () => selectVisibleAttendanceSessions(
@@ -104,13 +100,13 @@ export function CoordinatorGroupActivityPage({ groupId }: { groupId: string }) {
 
   useEffect(() => {
     if (!passengersQuery.isSuccess) return;
-    writeOfflineSnapshot(offlineSnapshotKeys.myPassengers(groupId), passengers);
+    void writeOfflineSnapshot(offlineSnapshotKeys.myPassengers(groupId), passengers);
   }, [groupId, passengers, passengersQuery.isSuccess]);
 
   useEffect(() => {
     if (!sessionsQuery.isSuccess) return;
     reconcileAttendanceSessionProgress(groupId, sessions);
-    writeOfflineSnapshot(offlineSnapshotKeys.mySessions(groupId), sessions);
+    void writeOfflineSnapshot(offlineSnapshotKeys.mySessions(groupId), sessions);
   }, [groupId, sessions, sessionsQuery.isSuccess]);
 
   if (!hasHydrated) {

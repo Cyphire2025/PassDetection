@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import uuid
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -61,8 +62,7 @@ def test_recent_zero_report_is_ready_and_exact_ttl_boundary_is_accepted() -> Non
         [
             _assignment(
                 assigned_at=now - timedelta(hours=1),
-                reported_at=now
-                - timedelta(seconds=ATTENDANCE_CLOSEOUT_CHECKPOINT_TTL_SECONDS),
+                reported_at=now - timedelta(seconds=ATTENDANCE_CLOSEOUT_CHECKPOINT_TTL_SECONDS),
                 counts=_counts(),
             )
         ],
@@ -181,6 +181,9 @@ def test_checkpoint_schema_is_count_only_and_rejects_extra_identity_data() -> No
         "needs_review_count",
         "unreviewed_rejected_count",
         "oldest_pending_age_seconds",
+        # A server-issued opaque runtime identifier is coordination evidence,
+        # not passenger or queued-scan identity data.
+        "runtime_id",
     }
     assert set(AttendanceCloseoutCheckpointRequest.model_fields) == approved_fields
 
@@ -219,12 +222,23 @@ def test_migration_and_model_store_only_privacy_bounded_checkpoint_fields() -> N
     assert 'down_revision = "0082_canonical_trip_timezone"' in migration
     assert "uq_attendance_closeout_checkpoint_coordinator" in migration
     assert "ck_attendance_closeout_checkpoint_oldest_pending" in migration
+    enterprise_migration = (
+        Path(__file__).resolve().parents[3]
+        / "alembic"
+        / "versions"
+        / "0087_enterprise_hardening.py"
+    ).read_text(encoding="utf-8")
+    assert "uq_attendance_closeout_checkpoint_runtime" in enterprise_migration
+    assert "uq_attendance_closeout_legacy_account" in enterprise_migration
+    assert "fk_attendance_closeout_runtime_tenant_coordinator" in enterprise_migration
 
     columns = set(AttendanceCloseoutCheckpointModel.__table__.columns.keys())
     assert columns == {
         "id",
         "session_id",
+        "agency_id",
         "coordinator_user_id",
+        "runtime_registration_id",
         "pending_count",
         "sending_count",
         "retryable_count",
@@ -236,3 +250,24 @@ def test_migration_and_model_store_only_privacy_bounded_checkpoint_fields() -> N
     lowered = migration.lower()
     for forbidden in ("passenger_id", "qr_payload", "client_event", "device_id", "ip_address"):
         assert forbidden not in lowered
+
+    enterprise_tree = ast.parse(enterprise_migration)
+    closeout_migration_calls = "\n".join(
+        segment
+        for node in ast.walk(enterprise_tree)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and isinstance(node.func.value, ast.Name)
+        and node.func.value.id == "op"
+        and any(
+            isinstance(value, ast.Constant)
+            and isinstance(value.value, str)
+            and "attendance_closeout_checkpoints" in value.value
+            for value in ast.walk(node)
+        )
+        if (segment := ast.get_source_segment(enterprise_migration, node)) is not None
+    )
+    assert closeout_migration_calls
+    lowered_enterprise = closeout_migration_calls.lower()
+    for forbidden in ("passenger_id", "qr_payload", "client_event", "ip_address"):
+        assert forbidden not in lowered_enterprise

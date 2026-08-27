@@ -26,12 +26,13 @@ class CreateMenuCategoryRequest(BaseModel):
 
 
 class UpdateMenuCategoryRequest(CreateMenuCategoryRequest):
-    pass
+    expected_updated_at: datetime
 
 
 class CreateMenuDishRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=120)
     notes: str | None = Field(default=None, max_length=500)
+    expected_category_updated_at: datetime
 
     @field_validator("name")
     @classmethod
@@ -52,6 +53,7 @@ class CreateMenuDishRequest(BaseModel):
 
 class UpdateMenuDishRequest(CreateMenuDishRequest):
     is_active: bool = True
+    expected_updated_at: datetime
 
 
 class GenerateMealPlanRequest(BaseModel):
@@ -59,6 +61,10 @@ class GenerateMealPlanRequest(BaseModel):
     trip_days: int = Field(..., ge=1, le=60)
     start_date: CalendarDate | None = None
     category_ids: list[uuid.UUID] | None = Field(default=None, max_length=100)
+    expected_category_revisions: dict[uuid.UUID, datetime] = Field(
+        default_factory=dict,
+        max_length=100,
+    )
 
     @field_validator("name")
     @classmethod
@@ -81,6 +87,11 @@ class GenerateMealPlanRequest(BaseModel):
 
 class RegenerateMealPlanRequest(BaseModel):
     category_ids: list[uuid.UUID] | None = Field(default=None, max_length=100)
+    expected_updated_at: datetime
+    expected_category_revisions: dict[uuid.UUID, datetime] = Field(
+        default_factory=dict,
+        max_length=100,
+    )
 
     @field_validator("category_ids")
     @classmethod
@@ -96,6 +107,7 @@ class RegenerateMealPlanRequest(BaseModel):
 class UpdateMealPlanRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=150)
     start_date: CalendarDate | None = None
+    expected_updated_at: datetime
 
     @field_validator("name")
     @classmethod
@@ -108,6 +120,17 @@ class UpdateMealPlanRequest(BaseModel):
 
 class UpdateMealPlanEntryRequest(BaseModel):
     dish_id: uuid.UUID
+    expected_updated_at: datetime
+    expected_dish_updated_at: datetime
+    expected_category_updated_at: datetime
+
+
+class MenuRevisionRequest(BaseModel):
+    expected_updated_at: datetime
+
+
+class MenuDishRevisionRequest(MenuRevisionRequest):
+    expected_category_updated_at: datetime
 
 
 class MenuDishResponse(BaseModel):

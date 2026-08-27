@@ -494,7 +494,7 @@ class PassportExcelImporter:
                             f"Worksheet {worksheet.title!r} contains too many columns; "
                             f"use at most {MAX_PASSPORT_EXCEL_COLUMNS}."
                         )
-                    formula_columns: frozenset[int] = frozenset()
+                    formula_columns = frozenset()
                     formula_source_characters = 0
                     if formula_rows is not None:
                         formula_row = next(formula_rows, None)

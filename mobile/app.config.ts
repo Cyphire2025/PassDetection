@@ -22,6 +22,12 @@ const googleServicesFile = process.env.GOOGLE_SERVICES_JSON;
 const sentryOrganization = process.env.SENTRY_ORG;
 const sentryProject = process.env.SENTRY_PROJECT;
 const localNetworkDevelopment = process.env.EXPO_PUBLIC_APP_ENV === "development";
+const androidFaceLivenessEnabled =
+  process.env.GC_ANDROID_FACE_LIVENESS_ENABLED === "true";
+const androidFaceLivenessRegion =
+  process.env.GC_ANDROID_FACE_LIVENESS_REGION;
+const androidFaceLivenessIdentityPoolId =
+  process.env.GC_ANDROID_FACE_LIVENESS_IDENTITY_POOL_ID;
 
 const shouldValidateProductionEnvironment =
   process.env.EXPO_PUBLIC_APP_ENV === "production" ||
@@ -59,7 +65,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ...(process.env.EXPO_PUBLIC_EXPO_OWNER
       ? { owner: process.env.EXPO_PUBLIC_EXPO_OWNER }
       : {}),
-    version: "1.0.0",
+    version: "1.0.2",
     jsEngine: "hermes",
     orientation: "portrait",
     icon: "./assets/images/gc-app-icon.png",
@@ -93,7 +99,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       icon: "./assets/images/gc-app-icon.png",
       infoPlist: {
         NSCameraUsageDescription:
-          "Coordinators use the camera to scan passenger attendance QR codes.",
+          "Use the camera for attendance QR scanning or, with your consent, to set up Face Scan for My Photos.",
         UIFileSharingEnabled: false,
         LSSupportsOpeningDocumentsInPlace: false,
         ITSAppUsesNonExemptEncryption: false,
@@ -114,7 +120,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     android: {
       package: APP_ID,
-      versionCode: 1,
+      versionCode: 3,
       ...(googleServicesFile ? { googleServicesFile } : {}),
       allowBackup: false,
       blockedPermissions: [
@@ -158,7 +164,17 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       favicon: "./assets/images/gc-app-icon.png",
     },
     plugins: [
+      "./plugins/with-android-release-signing",
+      "./plugins/with-android-gradle-wrapper-integrity",
       "./plugins/with-android-unlocked-device-store",
+      [
+        "./plugins/with-android-face-liveness",
+        {
+          enabled: androidFaceLivenessEnabled,
+          region: androidFaceLivenessRegion,
+          identityPoolId: androidFaceLivenessIdentityPoolId,
+        },
+      ],
       "./plugins/with-expo-headless-loader-proguard",
       [
         "@sentry/react-native/expo",
@@ -169,6 +185,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       ],
       "expo-router",
       "expo-image",
+      "expo-sharing",
       "expo-asset",
       [
         "expo-splash-screen",
@@ -201,7 +218,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         "expo-camera",
         {
           cameraPermission:
-            "Coordinators use the camera to scan passenger attendance QR codes.",
+            "Use the camera for attendance QR scanning or, with your consent, to set up Face Scan for My Photos.",
           microphonePermission: false,
           recordAudioAndroid: false,
         },
@@ -229,6 +246,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         {
           android: {
             minSdkVersion: 26,
+            ...(androidFaceLivenessEnabled ? { kotlinVersion: "2.2.0" } : {}),
             usesCleartextTraffic: false,
             enableMinifyInReleaseBuilds: true,
             enableShrinkResourcesInReleaseBuilds: true,

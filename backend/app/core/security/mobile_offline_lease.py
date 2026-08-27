@@ -15,7 +15,7 @@ import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from functools import lru_cache
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, Mapping
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
@@ -31,6 +31,7 @@ OFFLINE_LEASE_ALGORITHM = "EdDSA"
 OFFLINE_LEASE_TYPE = "GC-OFFLINE-AUTH"
 OFFLINE_LEASE_FORMAT_VERSION = 1
 MAX_OFFLINE_LEASE_VERIFICATION_KEYS = 5
+MAX_SIGNED_OFFLINE_MANIFEST_BYTES = 2 * 1024 * 1024
 
 _KID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
 _BASE64URL_PATTERN = re.compile(r"^[A-Za-z0-9_-]+$")
@@ -46,6 +47,16 @@ class _SigningMaterial:
     active_kid: str
     private_key: Ed25519PrivateKey
     verification_keys: dict[str, Ed25519PublicKey]
+
+
+@dataclass(frozen=True, slots=True)
+class SignedOfflineManifest:
+    """Canonical Ed25519 envelope for an authenticated offline manifest."""
+
+    key_id: str
+    payload: str
+    public_key: str
+    signature: str
 
 
 def _encode_base64url(value: bytes) -> str:
@@ -304,9 +315,52 @@ def create_mobile_offline_authorization_lease(
     return f"{encoded_header}.{encoded_payload}.{_encode_base64url(signature)}"
 
 
+def sign_offline_manifest(
+    payload: Mapping[str, object],
+    *,
+    settings: MobileSettings | None = None,
+) -> SignedOfflineManifest:
+    """Sign a bounded canonical JSON manifest with the offline lease key.
+
+    The returned envelope intentionally contains the active public key so a
+    browser can import it as non-exportable key material after authenticated
+    HTTPS provisioning. Clients must pin the key id and digest and reject a
+    different key for an already observed id.
+    """
+
+    if settings is None:
+        from app.core.config.settings import get_settings
+
+        settings = get_settings().mobile
+    material = _settings_signing_material(settings)
+    if payload.get("key_id") != material.active_kid:
+        raise ValueError("Offline manifest key id does not match the active signing key")
+    payload_bytes = json.dumps(
+        dict(payload),
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+    if not 1 <= len(payload_bytes) <= MAX_SIGNED_OFFLINE_MANIFEST_BYTES:
+        raise ValueError("Offline manifest exceeds the supported size")
+    public_key = material.verification_keys[material.active_kid].public_bytes(
+        encoding=serialization.Encoding.Raw,
+        format=serialization.PublicFormat.Raw,
+    )
+    return SignedOfflineManifest(
+        key_id=material.active_kid,
+        payload=_encode_base64url(payload_bytes),
+        public_key=_encode_base64url(public_key),
+        signature=_encode_base64url(material.private_key.sign(payload_bytes)),
+    )
+
+
 __all__ = [
     "MAX_OFFLINE_LEASE_VERIFICATION_KEYS",
+    "MAX_SIGNED_OFFLINE_MANIFEST_BYTES",
     "MobileOfflineLeaseConfigurationError",
+    "SignedOfflineManifest",
     "create_mobile_offline_authorization_lease",
+    "sign_offline_manifest",
     "validate_mobile_offline_lease_signing_configuration",
 ]

@@ -12,10 +12,12 @@ import hashlib
 import hmac
 import re
 import uuid
+from collections.abc import Mapping
 from contextlib import aclosing
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from pathlib import PurePosixPath
+from typing import AsyncGenerator, AsyncIterator, Literal, TypeGuard, cast
 from urllib.parse import quote
 
 from fastapi import (
@@ -159,6 +161,14 @@ _ALLOWED_DOCUMENT_TYPES = {
     "image/png",
     "image/webp",
 }
+MobileDocumentContentType = Literal[
+    "application/pdf",
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+]
+MobilePrincipalType = Literal["passenger", "client_manager", "coordinator"]
+MobileSyncOperation = Literal["upsert", "delete", "revoke"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -203,8 +213,9 @@ async def get_mobile_me(
 ) -> MobilePrincipalResponse:
     """Top-level alias retained independently of the authentication namespace."""
 
+    principal: tuple[str | None, str | None, str | None, uuid.UUID | None] | None
     if claims.principal_type == "passenger":
-        principal = (
+        passenger = (
             await session.execute(
                 select(
                     PassportSubmissionModel.client_name,
@@ -225,6 +236,11 @@ async def get_mobile_me(
                 .limit(1)
             )
         ).first()
+        principal = (
+            (passenger[0], passenger[1], passenger[2], passenger[3])
+            if passenger is not None
+            else None
+        )
     else:
         user = (
             await session.execute(
@@ -596,7 +612,7 @@ async def list_mobile_sync_changes(
             group_id=row.group_id,
             entity_type=row.entity_type,
             entity_id=row.entity_id,
-            operation="upsert" if row.operation == "publish" else row.operation,
+            operation=_mobile_sync_operation(row.operation),
             version=row.version,
             occurred_at=row.occurred_at,
             payload=_safe_sync_payload(row.payload),
@@ -799,7 +815,7 @@ async def get_mobile_itinerary(
             MobileItineraryDayResponse(
                 id=day.id,
                 day_number=day.day_number,
-                trip_date=day.trip_date,
+                date=day.trip_date,
                 title=day.title,
                 sort_order=day.sort_order,
                 items=by_day[day.id],
@@ -1050,7 +1066,7 @@ async def authorize_mobile_document_download(
         version=resolved_version,
         size_bytes=expected_size,
         checksum_sha256=expected_checksum,
-        content_type=source.content_type,
+        content_type=_mobile_document_content_type(source.content_type),
         content_path=(
             f"/api/v1/mobile/trips/{group_id}/documents/{document_id}/content"
             f"?version={resolved_version}"
@@ -1160,19 +1176,21 @@ async def download_mobile_document_content(
     await session.commit()
     await session.close()
 
-    async def chunks():  # type: ignore[no-untyped-def]
+    async def chunks() -> AsyncIterator[bytes]:
         async with _MOBILE_DOCUMENT_STREAM_SLOTS:
             # Explicitly close the S3 response body when the client cancels,
             # the ASGI task is cancelled, or validation fails mid-stream.
-            async with aclosing(
+            object_stream = cast(
+                AsyncGenerator[bytes, None],
                 storage.stream_file(
                     stream_plan.storage_key,
                     start=stream_plan.response_start,
                     expected_bytes=(
                         stream_plan.expected_size - stream_plan.response_start
                     ),
-                )
-            ) as object_stream:
+                ),
+            )
+            async with aclosing(object_stream) as object_stream:
                 async for chunk in object_stream:
                     yield chunk
 
@@ -1432,26 +1450,28 @@ async def get_mobile_manager_readiness(
             )
         )
     ).one()
-    document_counts = dict(
-        (
-            await session.execute(
-                select(
-                    DistributedDocumentModel.document_type,
-                    func.count(func.distinct(DistributedDocumentModel.passenger_id)),
-                )
-                .where(
-                    DistributedDocumentModel.agency_id == claims.agency_id,
-                    DistributedDocumentModel.group_id == group_id,
-                    DistributedDocumentModel.passenger_id.is_not(None),
-                    DistributedDocumentModel.match_status == "matched",
-                    DistributedDocumentModel.document_type.in_(
-                        tuple(MOBILE_PERSONAL_DOCUMENT_TYPES)
-                    ),
-                )
-                .group_by(DistributedDocumentModel.document_type)
+    document_count_rows = (
+        await session.execute(
+            select(
+                DistributedDocumentModel.document_type,
+                func.count(func.distinct(DistributedDocumentModel.passenger_id)),
             )
-        ).all()
-    )
+            .where(
+                DistributedDocumentModel.agency_id == claims.agency_id,
+                DistributedDocumentModel.group_id == group_id,
+                DistributedDocumentModel.passenger_id.is_not(None),
+                DistributedDocumentModel.match_status == "matched",
+                DistributedDocumentModel.document_type.in_(
+                    tuple(MOBILE_PERSONAL_DOCUMENT_TYPES)
+                ),
+            )
+            .group_by(DistributedDocumentModel.document_type)
+        )
+    ).all()
+    document_counts: dict[str, int] = {
+        document_type: int(count or 0)
+        for document_type, count in document_count_rows
+    }
     rooms_assigned = (
         await session.execute(
             select(func.count(func.distinct(RoomingAssignmentModel.passenger_id)))
@@ -1536,8 +1556,8 @@ async def _passenger_rooming_revision(
 
 
 def _mobile_meal_preference(
-    confirmed_fields: dict | None,
-    staff_metadata: dict | None,
+    confirmed_fields: Mapping[str, object] | None,
+    staff_metadata: Mapping[str, object] | None,
 ) -> str | None:
     for fields in (confirmed_fields, staff_metadata):
         value = (fields or {}).get("meal_preference")
@@ -2019,7 +2039,7 @@ def _source_key(source: _MobileDocumentSource) -> tuple[str, uuid.UUID]:
 def _cache_matches_source(
     cache: MobileDocumentMetadataCacheModel | None,
     source: _MobileDocumentSource,
-) -> bool:
+) -> TypeGuard[MobileDocumentMetadataCacheModel]:
     if cache is None:
         return False
     expected_key_hash = hash_mobile_lookup(
@@ -2287,7 +2307,7 @@ def _personal_document_response(
         passenger_id=source.passenger_submission_id,
         category=source.category,
         display_name=source.display_name,
-        content_type=source.content_type,
+        content_type=_mobile_document_content_type(source.content_type),
         size_bytes=cache.byte_size,
         version=cache.version,
         checksum_sha256=cache.checksum_sha256,
@@ -2311,7 +2331,7 @@ def _pending_personal_document_response(
         passenger_id=source.passenger_submission_id,
         category=source.category,
         display_name=source.display_name,
-        content_type=source.content_type,
+        content_type=_mobile_document_content_type(source.content_type),
         size_bytes=None,
         # A stale cache is materialized as exactly the next revision during
         # authorization. Advertising that revision up front prevents the first
@@ -2663,7 +2683,7 @@ def _trip_summary(
         travel_date=group.travel_date,
         return_date=group.return_date,
         timezone=group.timezone,
-        role=role,
+        role=_mobile_principal_type(role),
         access_generation=access.access_generation,
         itinerary_version=access.itinerary_version,
         common_document_version=access.common_document_version,
@@ -2698,12 +2718,46 @@ def _safe_sync_payload(payload: object) -> dict[str, object]:
     return safe
 
 
-def _mobile_announcement_priority(value: str) -> str:
+def _mobile_announcement_priority(
+    value: str,
+) -> Literal["normal", "important", "emergency"]:
     if value == "emergency":
         return "emergency"
     if value == "high":
         return "important"
     return "normal"
+
+
+def _mobile_sync_operation(value: str) -> MobileSyncOperation:
+    if value in {"upsert", "publish"}:
+        return "upsert"
+    if value == "delete":
+        return "delete"
+    if value == "revoke":
+        return "revoke"
+    raise ValueError("Unsupported mobile sync operation")
+
+
+def _mobile_document_content_type(value: str) -> MobileDocumentContentType:
+    if value == "application/pdf":
+        return "application/pdf"
+    if value == "image/jpeg":
+        return "image/jpeg"
+    if value == "image/png":
+        return "image/png"
+    if value == "image/webp":
+        return "image/webp"
+    raise ValueError("Unsupported mobile document content type")
+
+
+def _mobile_principal_type(value: str) -> MobilePrincipalType:
+    if value == "passenger":
+        return "passenger"
+    if value == "client_manager":
+        return "client_manager"
+    if value == "coordinator":
+        return "coordinator"
+    raise AuthorizationError("Mobile trip access is not available")
 
 
 def _required_published_at(

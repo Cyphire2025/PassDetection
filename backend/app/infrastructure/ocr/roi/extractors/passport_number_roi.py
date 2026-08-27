@@ -3,11 +3,17 @@
 from __future__ import annotations
 
 import re
+from typing import TypedDict
 
 from PIL import Image, ImageOps
 
 from app.infrastructure.ocr.roi.base import ROIExtractionResult
 from app.infrastructure.ocr.roi.common import ROIImageTools
+
+
+class _BandCandidate(TypedDict):
+    bbox: tuple[int, int, int, int]
+    score: float
 
 
 class PassportNumberROIExtractor:
@@ -19,7 +25,7 @@ class PassportNumberROIExtractor:
     _search_roi = (0.52, 0.00, 1.00, 0.24)
     _fallback_roi = (0.70, 0.02, 0.99, 0.16)
     _fallback_right_zone_start = 0.25
-    _pattern = re.compile(r"\b[A-Z][0-9]{7}\b")
+    _pattern: re.Pattern[str] = re.compile(r"\b[A-Z][0-9]{7}\b")
 
     def extract(self, image: Image.Image) -> ROIExtractionResult | None:
         search_crop = ROIImageTools.relative_crop(image, self._search_roi)
@@ -68,8 +74,12 @@ class PassportNumberROIExtractor:
             boxes.append((x, y, width, height))
 
         bands = self._group_line_bands(boxes)
-        candidates = [self._score_band(band, crop_width, crop_height) for band in bands]
-        candidates = [candidate for candidate in candidates if candidate is not None]
+        scored_candidates = [
+            self._score_band(band, crop_width, crop_height) for band in bands
+        ]
+        candidates = [
+            candidate for candidate in scored_candidates if candidate is not None
+        ]
         if not candidates:
             return self._fallback_crop(search_crop), {
                 "locator": "fallback_no_candidate",
@@ -160,7 +170,11 @@ class PassportNumberROIExtractor:
         return bands
 
     @staticmethod
-    def _score_band(band: list[tuple[int, int, int, int]], crop_width: int, crop_height: int) -> dict[str, object] | None:
+    def _score_band(
+        band: list[tuple[int, int, int, int]],
+        crop_width: int,
+        crop_height: int,
+    ) -> _BandCandidate | None:
         if len(band) < 5:
             return None
         left = min(x for x, _, _, _ in band)
@@ -185,4 +199,4 @@ class PassportNumberROIExtractor:
         if not matches:
             return None
         # Prefer the rightmost strict passport-shaped token in the top-right ROI.
-        return matches[-1]
+        return str(matches[-1])

@@ -12,6 +12,7 @@ from sqlalchemy import (
     DateTime,
     Enum,
     ForeignKey,
+    ForeignKeyConstraint,
     Index,
     Integer,
     String,
@@ -62,6 +63,128 @@ class RoomingHotelModel(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, nullable=False
     )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=_utcnow,
+        onupdate=_utcnow,
+        nullable=False,
+    )
+
+
+class AttendanceDiscardTombstoneModel(Base):
+    """Privacy-safe, idempotent evidence that a local scan was discarded."""
+
+    __tablename__ = "attendance_discard_tombstones"
+    __table_args__ = (
+        UniqueConstraint(
+            "agency_id",
+            "coordinator_user_id",
+            "discard_event_id",
+            name="uq_attendance_discard_event",
+        ),
+        ForeignKeyConstraint(
+            ["session_id", "agency_id", "group_id"],
+            [
+                "attendance_sessions.id",
+                "attendance_sessions.agency_id",
+                "attendance_sessions.group_id",
+            ],
+            name="fk_attendance_discard_session_tenant_group",
+            ondelete="RESTRICT",
+        ),
+        ForeignKeyConstraint(
+            ["runtime_registration_id", "agency_id", "coordinator_user_id"],
+            [
+                "attendance_runtime_registrations.id",
+                "attendance_runtime_registrations.agency_id",
+                "attendance_runtime_registrations.coordinator_user_id",
+            ],
+            name="fk_attendance_discard_runtime_tenant_coordinator",
+            ondelete="RESTRICT",
+        ),
+        CheckConstraint(
+            "length(scan_reference) = 64",
+            name="ck_attendance_discard_scan_reference",
+        ),
+        CheckConstraint(
+            "reason_category IN ('operator_discard', 'coordinator_confirmed_rescan', "
+            "'wrong_group', 'expired_authorization', 'activity_closed', 'duplicate', "
+            "'duplicate_local_evidence', 'passenger_not_attending', 'privacy_or_data_error', "
+            "'server_rejected', 'server_terminal_rejection', 'corrupted_entry', 'other')",
+            name="ck_attendance_discard_reason",
+        ),
+        CheckConstraint(
+            "status IN ('accepted', 'reconciled', 'overridden')",
+            name="ck_attendance_discard_status",
+        ),
+        CheckConstraint(
+            "received_at >= discarded_at AND retention_expires_at > received_at",
+            name="ck_attendance_discard_time_order",
+        ),
+        Index(
+            "ix_attendance_discard_session_received",
+            "session_id",
+            "received_at",
+        ),
+        Index(
+            "ix_attendance_discard_retention",
+            "retention_expires_at",
+            "id",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+    )
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    group_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("client_groups.id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    session_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("attendance_sessions.id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    coordinator_user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    runtime_registration_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("attendance_runtime_registrations.id", ondelete="RESTRICT"),
+        nullable=True,
+    )
+    discard_event_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    scan_reference: Mapped[str] = mapped_column(String(64), nullable=False)
+    reason_category: Mapped[str] = mapped_column(String(32), nullable=False)
+    captured_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    discarded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    received_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=_utcnow,
+    )
+    status: Mapped[str] = mapped_column(
+        String(16),
+        nullable=False,
+        default="accepted",
+        server_default="accepted",
+    )
+    retention_expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    reconciled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    reconciliation_note: Mapped[str | None] = mapped_column(String(500), nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
     )
@@ -438,8 +561,41 @@ class PassengerQrWhatsAppDeliveryModel(Base):
 class AttendanceSessionModel(Base):
     __tablename__ = "attendance_sessions"
     __table_args__ = (
+        UniqueConstraint(
+            "id",
+            "agency_id",
+            name="uq_attendance_sessions_id_agency",
+        ),
+        UniqueConstraint(
+            "id",
+            "agency_id",
+            "group_id",
+            name="uq_attendance_sessions_id_agency_group",
+        ),
+        CheckConstraint(
+            "(scheduled_starts_at IS NULL AND scheduled_ends_at IS NULL) OR "
+            "(scheduled_starts_at IS NOT NULL AND scheduled_ends_at IS NOT NULL "
+            "AND scheduled_ends_at > scheduled_starts_at)",
+            name="ck_attendance_sessions_scheduled_window",
+        ),
+        CheckConstraint(
+            "schedule_version >= 1",
+            name="ck_attendance_sessions_schedule_version",
+        ),
+        CheckConstraint(
+            "schedule_timezone IS NULL OR "
+            "(length(schedule_timezone) BETWEEN 1 AND 64 "
+            "AND schedule_timezone = trim(schedule_timezone))",
+            name="ck_attendance_sessions_schedule_timezone",
+        ),
         Index("ix_attendance_sessions_group_status", "group_id", "status"),
         Index("ix_attendance_sessions_agency_created", "agency_id", "created_at"),
+        Index(
+            "ix_attendance_sessions_group_schedule",
+            "group_id",
+            "scheduled_starts_at",
+            "scheduled_ends_at",
+        ),
         Index(
             "uq_attendance_sessions_active_group_name",
             "group_id",
@@ -496,6 +652,215 @@ class AttendanceSessionModel(Base):
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     cancelled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    scheduled_starts_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+    scheduled_ends_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+    schedule_timezone: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    schedule_version: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=1,
+        server_default="1",
+    )
+
+
+class AttendanceRuntimeRegistrationModel(Base):
+    """Privacy-safe coordinator installation/runtime registration."""
+
+    __tablename__ = "attendance_runtime_registrations"
+    __table_args__ = (
+        UniqueConstraint(
+            "id",
+            "agency_id",
+            "coordinator_user_id",
+            name="uq_attendance_runtime_id_tenant_coordinator",
+        ),
+        UniqueConstraint(
+            "agency_id",
+            "coordinator_user_id",
+            "runtime_identifier_hash",
+            name="uq_attendance_runtime_identifier",
+        ),
+        ForeignKeyConstraint(
+            ["coordinator_user_id", "agency_id"],
+            ["users.id", "users.agency_id"],
+            name="fk_attendance_runtime_coordinator_tenant",
+            ondelete="RESTRICT",
+        ),
+        CheckConstraint(
+            "runtime_kind IN ('native_mobile', 'pwa', 'webview', 'legacy_account')",
+            name="ck_attendance_runtime_kind",
+        ),
+        CheckConstraint(
+            "status IN ('active', 'revoked', 'expired', 'lost', 'replaced')",
+            name="ck_attendance_runtime_status",
+        ),
+        CheckConstraint(
+            "length(runtime_identifier_hash) = 64",
+            name="ck_attendance_runtime_identifier_hash",
+        ),
+        CheckConstraint(
+            "expires_at > registered_at",
+            name="ck_attendance_runtime_expiry",
+        ),
+        CheckConstraint(
+            "(status = 'active' AND revoked_at IS NULL) OR "
+            "(status <> 'active' AND revoked_at IS NOT NULL)",
+            name="ck_attendance_runtime_revocation_shape",
+        ),
+        Index(
+            "ix_attendance_runtime_coordinator_status",
+            "agency_id",
+            "coordinator_user_id",
+            "status",
+            "expires_at",
+        ),
+        Index(
+            "ix_attendance_runtime_native_session",
+            "native_mobile_session_id",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+    )
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    coordinator_user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        nullable=False,
+    )
+    runtime_kind: Mapped[str] = mapped_column(String(24), nullable=False)
+    runtime_identifier_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    native_mobile_session_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("mobile_device_sessions.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    status: Mapped[str] = mapped_column(
+        String(16),
+        nullable=False,
+        default="active",
+        server_default="active",
+    )
+    registered_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=_utcnow,
+    )
+    last_seen_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=_utcnow,
+    )
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    revoke_reason: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    replaced_by_runtime_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("attendance_runtime_registrations.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=_utcnow,
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=_utcnow,
+        onupdate=_utcnow,
+    )
+
+
+class AttendanceSessionRuntimeParticipantModel(Base):
+    """A runtime that produced evidence and must participate in closeout."""
+
+    __tablename__ = "attendance_session_runtime_participants"
+    __table_args__ = (
+        UniqueConstraint(
+            "session_id",
+            "runtime_registration_id",
+            name="uq_attendance_session_runtime_participant",
+        ),
+        ForeignKeyConstraint(
+            ["session_id", "agency_id"],
+            ["attendance_sessions.id", "attendance_sessions.agency_id"],
+            name="fk_attendance_participant_session_tenant",
+            ondelete="CASCADE",
+        ),
+        ForeignKeyConstraint(
+            ["runtime_registration_id", "agency_id", "coordinator_user_id"],
+            [
+                "attendance_runtime_registrations.id",
+                "attendance_runtime_registrations.agency_id",
+                "attendance_runtime_registrations.coordinator_user_id",
+            ],
+            name="fk_attendance_participant_runtime_tenant_coordinator",
+            ondelete="RESTRICT",
+        ),
+        CheckConstraint(
+            "participation_source IN ('scan', 'checkpoint', 'discard', 'legacy')",
+            name="ck_attendance_participant_source",
+        ),
+        CheckConstraint(
+            "last_participated_at >= first_participated_at",
+            name="ck_attendance_participant_time_order",
+        ),
+        Index(
+            "ix_attendance_participants_session_coordinator",
+            "session_id",
+            "coordinator_user_id",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+    )
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    session_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("attendance_sessions.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    coordinator_user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    runtime_registration_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("attendance_runtime_registrations.id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    participation_source: Mapped[str] = mapped_column(String(16), nullable=False)
+    first_participated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=_utcnow,
+    )
+    last_participated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=_utcnow,
+    )
 
 
 class AttendanceCloseoutCheckpointModel(Base):
@@ -506,7 +871,32 @@ class AttendanceCloseoutCheckpointModel(Base):
         UniqueConstraint(
             "session_id",
             "coordinator_user_id",
-            name="uq_attendance_closeout_checkpoint_coordinator",
+            "runtime_registration_id",
+            name="uq_attendance_closeout_checkpoint_runtime",
+        ),
+        ForeignKeyConstraint(
+            ["session_id", "agency_id"],
+            ["attendance_sessions.id", "attendance_sessions.agency_id"],
+            name="fk_attendance_closeout_session_tenant",
+            ondelete="CASCADE",
+        ),
+        ForeignKeyConstraint(
+            ["runtime_registration_id", "agency_id", "coordinator_user_id"],
+            [
+                "attendance_runtime_registrations.id",
+                "attendance_runtime_registrations.agency_id",
+                "attendance_runtime_registrations.coordinator_user_id",
+            ],
+            name="fk_attendance_closeout_runtime_tenant_coordinator",
+            ondelete="RESTRICT",
+        ),
+        Index(
+            "uq_attendance_closeout_legacy_account",
+            "session_id",
+            "coordinator_user_id",
+            unique=True,
+            postgresql_where=text("runtime_registration_id IS NULL"),
+            sqlite_where=text("runtime_registration_id IS NULL"),
         ),
         CheckConstraint(
             "pending_count >= 0 AND sending_count >= 0 AND retryable_count >= 0 "
@@ -538,11 +928,21 @@ class AttendanceCloseoutCheckpointModel(Base):
         nullable=False,
         index=True,
     )
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+    )
     coordinator_user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
+    )
+    runtime_registration_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("attendance_runtime_registrations.id", ondelete="RESTRICT"),
+        nullable=True,
     )
     pending_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     sending_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
@@ -573,6 +973,16 @@ class AttendanceRecordModel(Base):
         ),
         UniqueConstraint(
             "session_id", "client_event_id", name="uq_attendance_records_session_client_event"
+        ),
+        ForeignKeyConstraint(
+            ["runtime_registration_id", "agency_id", "coordinator_user_id"],
+            [
+                "attendance_runtime_registrations.id",
+                "attendance_runtime_registrations.agency_id",
+                "attendance_runtime_registrations.coordinator_user_id",
+            ],
+            name="fk_attendance_record_runtime_tenant_coordinator",
+            ondelete="RESTRICT",
         ),
         Index("ix_attendance_records_agency_session", "agency_id", "session_id"),
         Index("ix_attendance_records_coordinator_scanned", "coordinator_user_id", "scanned_at"),
@@ -616,6 +1026,160 @@ class AttendanceRecordModel(Base):
     )
     client_event_id: Mapped[str] = mapped_column(String(128), nullable=False)
     device_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    runtime_registration_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("attendance_runtime_registrations.id", ondelete="RESTRICT"),
+        nullable=True,
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+
+
+class AttendanceScanBatchModel(Base):
+    """Durable identity for one bounded browser attendance drain request."""
+
+    __tablename__ = "attendance_scan_batches"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["session_id", "agency_id", "group_id"],
+            [
+                "attendance_sessions.id",
+                "attendance_sessions.agency_id",
+                "attendance_sessions.group_id",
+            ],
+            name="fk_attendance_scan_batch_session_tenant_group",
+            ondelete="RESTRICT",
+        ),
+        ForeignKeyConstraint(
+            ["runtime_registration_id", "agency_id", "coordinator_user_id"],
+            [
+                "attendance_runtime_registrations.id",
+                "attendance_runtime_registrations.agency_id",
+                "attendance_runtime_registrations.coordinator_user_id",
+            ],
+            name="fk_attendance_scan_batch_runtime_tenant_coordinator",
+            ondelete="RESTRICT",
+        ),
+        CheckConstraint(
+            "length(request_fingerprint) = 64",
+            name="ck_attendance_scan_batch_fingerprint",
+        ),
+        CheckConstraint(
+            "item_count BETWEEN 1 AND 50",
+            name="ck_attendance_scan_batch_item_count",
+        ),
+        Index(
+            "ix_attendance_scan_batches_session_created",
+            "session_id",
+            "created_at",
+        ),
+    )
+
+    batch_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    group_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("client_groups.id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    session_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("attendance_sessions.id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    coordinator_user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    runtime_registration_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("attendance_runtime_registrations.id", ondelete="RESTRICT"),
+        nullable=True,
+    )
+    request_fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
+    item_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=_utcnow,
+        nullable=False,
+    )
+
+
+class AttendanceScanBatchResultModel(Base):
+    """Privacy-minimized authoritative result for one idempotent batch item."""
+
+    __tablename__ = "attendance_scan_batch_results"
+    __table_args__ = (
+        UniqueConstraint(
+            "agency_id",
+            "session_id",
+            "client_event_id",
+            name="uq_attendance_scan_batch_result_event",
+        ),
+        CheckConstraint(
+            "length(request_fingerprint) = 64",
+            name="ck_attendance_scan_batch_result_fingerprint",
+        ),
+        CheckConstraint(
+            "outcome IN ('counted', 'duplicate', 'rejected')",
+            name="ck_attendance_scan_batch_result_outcome",
+        ),
+        CheckConstraint(
+            "(outcome IN ('counted', 'duplicate') AND passenger_id IS NOT NULL "
+            "AND error_code IS NULL AND retryable = false) OR "
+            "(outcome = 'rejected' AND passenger_id IS NULL AND error_code IS NOT NULL)",
+            name="ck_attendance_scan_batch_result_shape",
+        ),
+        Index(
+            "ix_attendance_scan_batch_results_batch_order",
+            "batch_id",
+            "request_ordinal",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+    )
+    batch_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("attendance_scan_batches.batch_id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    session_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("attendance_sessions.id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    coordinator_user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    client_event_id: Mapped[str] = mapped_column(String(128), nullable=False)
+    request_ordinal: Mapped[int] = mapped_column(Integer, nullable=False)
+    request_fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
+    outcome: Mapped[str] = mapped_column(String(16), nullable=False)
+    retryable: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    passenger_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        nullable=True,
+    )
+    error_code: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=_utcnow,
+        nullable=False,
     )

@@ -49,6 +49,9 @@ export const AttendanceCloseoutCheckpointSchema = z.object(
 
 const AttendanceCloseoutCheckpointResponseSchema = z.object({
   ...AttendanceCloseoutCheckpointShape,
+  // New servers identify the installation/runtime derived from bearer claims.
+  // Older compatible servers may omit it during the rolling window.
+  runtime_id: z.string().uuid().nullable().optional(),
   reported_at: z.string().datetime({ offset: true }),
 }).strict().superRefine(validateOldestPendingAge);
 
@@ -134,6 +137,15 @@ async function collectCheckpointForAccount(
     tripId,
     sessionId,
   );
+  const discardAudit = await database.getFirstAsync<Readonly<{ count: number }>>(
+    `SELECT COUNT(*) AS count
+       FROM attendance_discard_tombstones
+      WHERE account_namespace = ? AND trip_id = ? AND session_id = ?
+        AND state != 'synchronized'`,
+    account,
+    tripId,
+    sessionId,
+  );
   const checkpoint: AttendanceCloseoutCheckpoint = {
     pending_count: 0,
     sending_count: 0,
@@ -157,6 +169,9 @@ async function collectCheckpointForAccount(
           : Math.min(oldestCreatedAt, createdAt);
       }
     }
+  }
+  if (Number.isSafeInteger(discardAudit?.count) && (discardAudit?.count ?? 0) > 0) {
+    checkpoint.needs_review_count += discardAudit!.count;
   }
   const deliveryCount = checkpoint.pending_count
     + checkpoint.sending_count

@@ -164,9 +164,11 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
         self,
     ) -> None:
         group_id = uuid.uuid4()
+        agency_id = uuid.uuid4()
         submission_id = uuid.uuid4()
+        group = SimpleNamespace(id=group_id, agency_id=agency_id)
         group_repository = SimpleNamespace(
-            get_by_token=AsyncMock(return_value=SimpleNamespace(id=group_id))
+            get_by_token=AsyncMock(return_value=group)
         )
         submission_repository = SimpleNamespace(
             get_by_id_for_update=AsyncMock(
@@ -182,6 +184,11 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
             delete=AsyncMock(),
         )
         session = AsyncMock()
+        session.scalar.return_value = SimpleNamespace(
+            id=group_id,
+            agency_id=agency_id,
+            passport_legal_hold=False,
+        )
 
         with (
             patch(
@@ -207,6 +214,199 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(raised.exception.status_code, 404)
         submission_repository.delete.assert_not_awaited()
         session.commit.assert_not_awaited()
+
+    async def test_public_draft_discard_commits_cleanup_tombstone_before_worker(self) -> None:
+        group_id = uuid.uuid4()
+        agency_id = uuid.uuid4()
+        submission_id = uuid.uuid4()
+        credential = "private-upload-credential-1234567890"
+        group = SimpleNamespace(id=group_id, agency_id=agency_id)
+        locked_group = SimpleNamespace(
+            id=group_id,
+            agency_id=agency_id,
+            passport_legal_hold=False,
+        )
+        submission = SimpleNamespace(
+            id=submission_id,
+            group_id=group_id,
+            status=SimpleNamespace(value="processing"),
+            upload_idempotency_key=credential,
+            image_s3_key="front/example.jpg",
+            thumbnail_s3_key=None,
+            passport_photo_s3_key=None,
+            passport_back_s3_key="back/example.jpg",
+        )
+        events: list[str] = []
+        submission_repository = SimpleNamespace(
+            get_by_id_for_update=AsyncMock(return_value=submission),
+            delete=AsyncMock(side_effect=lambda _identifier: events.append("row-delete")),
+        )
+        session = AsyncMock()
+        session.scalar.return_value = locked_group
+        session.commit.side_effect = lambda: events.append("commit")
+        audit = AsyncMock(side_effect=lambda **_kwargs: events.append("audit"))
+        cleanup_job = SimpleNamespace(
+            id=uuid.uuid4(),
+            object_count=2,
+        )
+
+        def stage(*_args, **_kwargs):
+            events.append("cleanup-tombstone")
+            return (cleanup_job,)
+
+        async def process(_job_id):
+            events.append("object-worker")
+
+        with (
+            patch(
+                "app.presentation.api.v1.routes.passports.ClientGroupRepository",
+                return_value=SimpleNamespace(get_by_token=AsyncMock(return_value=group)),
+            ),
+            patch(
+                "app.presentation.api.v1.routes.passports.PassportSubmissionRepository",
+                return_value=submission_repository,
+            ),
+            patch(
+                "app.presentation.api.v1.routes.passports.stage_storage_cleanup_jobs",
+                side_effect=stage,
+            ),
+            patch(
+                "app.presentation.api.v1.routes.passports.AuditLogRepository",
+                return_value=SimpleNamespace(record=audit),
+            ),
+            patch(
+                "app.presentation.api.v1.routes.passports.process_storage_cleanup_job",
+                new=process,
+            ),
+        ):
+            response = await discard_public_upload(
+                token="public-upload-token",
+                submission_id=submission_id,
+                upload_session_id=credential,
+                session=session,
+            )
+
+        self.assertEqual(response, {"discarded": True})
+        self.assertEqual(
+            events,
+            ["cleanup-tombstone", "row-delete", "audit", "commit", "object-worker"],
+        )
+
+    async def test_public_draft_discard_is_blocked_by_locked_legal_hold(self) -> None:
+        group_id = uuid.uuid4()
+        agency_id = uuid.uuid4()
+        submission_id = uuid.uuid4()
+        credential = "private-upload-credential-1234567890"
+        group = SimpleNamespace(id=group_id, agency_id=agency_id)
+        submission_repository = SimpleNamespace(
+            get_by_id_for_update=AsyncMock(
+                return_value=SimpleNamespace(
+                    id=submission_id,
+                    group_id=group_id,
+                    status=SimpleNamespace(value="processing"),
+                    upload_idempotency_key=credential,
+                )
+            ),
+            delete=AsyncMock(),
+        )
+        session = AsyncMock()
+        session.scalar.return_value = SimpleNamespace(
+            id=group_id,
+            agency_id=agency_id,
+            passport_legal_hold=True,
+        )
+        audit = AsyncMock()
+
+        with (
+            patch(
+                "app.presentation.api.v1.routes.passports.ClientGroupRepository",
+                return_value=SimpleNamespace(get_by_token=AsyncMock(return_value=group)),
+            ),
+            patch(
+                "app.presentation.api.v1.routes.passports.PassportSubmissionRepository",
+                return_value=submission_repository,
+            ),
+            patch(
+                "app.presentation.api.v1.routes.passports.AuditLogRepository",
+                return_value=SimpleNamespace(record=audit),
+            ),
+        ):
+            with self.assertRaises(HTTPException) as raised:
+                await discard_public_upload(
+                    token="public-upload-token",
+                    submission_id=submission_id,
+                    upload_session_id=credential,
+                    session=session,
+                )
+
+        self.assertEqual(raised.exception.status_code, 409)
+        self.assertEqual(
+            raised.exception.detail["code"],
+            "PASSPORT_LEGAL_HOLD_ACTIVE",
+        )
+        self.assertEqual(audit.await_args.kwargs["result"], "blocked")
+        submission_repository.delete.assert_not_awaited()
+        session.commit.assert_awaited_once()
+
+    async def test_public_draft_commit_failure_never_invokes_object_worker(self) -> None:
+        group_id = uuid.uuid4()
+        agency_id = uuid.uuid4()
+        submission_id = uuid.uuid4()
+        credential = "private-upload-credential-1234567890"
+        group = SimpleNamespace(id=group_id, agency_id=agency_id)
+        submission = SimpleNamespace(
+            id=submission_id,
+            group_id=group_id,
+            status=SimpleNamespace(value="processing"),
+            upload_idempotency_key=credential,
+            image_s3_key="front/example.jpg",
+            thumbnail_s3_key=None,
+            passport_photo_s3_key=None,
+            passport_back_s3_key=None,
+        )
+        session = AsyncMock()
+        session.scalar.return_value = SimpleNamespace(
+            id=group_id,
+            agency_id=agency_id,
+            passport_legal_hold=False,
+        )
+        session.commit.side_effect = RuntimeError("commit failed")
+        process = AsyncMock()
+
+        with (
+            patch(
+                "app.presentation.api.v1.routes.passports.ClientGroupRepository",
+                return_value=SimpleNamespace(get_by_token=AsyncMock(return_value=group)),
+            ),
+            patch(
+                "app.presentation.api.v1.routes.passports.PassportSubmissionRepository",
+                return_value=SimpleNamespace(
+                    get_by_id_for_update=AsyncMock(return_value=submission),
+                    delete=AsyncMock(),
+                ),
+            ),
+            patch(
+                "app.presentation.api.v1.routes.passports.stage_storage_cleanup_jobs",
+                return_value=(SimpleNamespace(id=uuid.uuid4(), object_count=1),),
+            ),
+            patch(
+                "app.presentation.api.v1.routes.passports.AuditLogRepository",
+                return_value=SimpleNamespace(record=AsyncMock()),
+            ),
+            patch(
+                "app.presentation.api.v1.routes.passports.process_storage_cleanup_job",
+                new=process,
+            ),
+        ):
+            with self.assertRaisesRegex(RuntimeError, "commit failed"):
+                await discard_public_upload(
+                    token="public-upload-token",
+                    submission_id=submission_id,
+                    upload_session_id=credential,
+                    session=session,
+                )
+
+        process.assert_not_awaited()
 
 
 if __name__ == "__main__":

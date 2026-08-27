@@ -5,6 +5,9 @@ from __future__ import annotations
 import asyncio
 import time
 from dataclasses import dataclass
+from typing import cast
+
+from PIL import Image
 
 from app.core.logging.logger import get_logger
 from app.infrastructure.ocr.preprocessing import OCRImagePreprocessor
@@ -54,7 +57,12 @@ class MRZStripExtractor:
                 texts.append(result)
         return texts
 
-    async def _run_job(self, image, config: str, variant: str) -> MRZStripText:  # type: ignore[no-untyped-def]
+    async def _run_job(
+        self,
+        image: Image.Image,
+        config: str,
+        variant: str,
+    ) -> MRZStripText:
         started = time.perf_counter()
         try:
             text = await asyncio.wait_for(
@@ -82,14 +90,17 @@ class MRZStripExtractor:
 
     @staticmethod
     def _image_to_string(
-        image,
+        image: Image.Image,
         config: str,
         timeout_seconds: float,
-    ) -> str:  # type: ignore[no-untyped-def]
+    ) -> str:
         import pytesseract
 
-        return pytesseract.image_to_string(
-            image,
-            config=config,
-            timeout=timeout_seconds,
+        return cast(
+            str,
+            pytesseract.image_to_string(
+                image,
+                config=config,
+                timeout=timeout_seconds,
+            ),
         )

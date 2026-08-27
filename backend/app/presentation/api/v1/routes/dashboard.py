@@ -17,7 +17,10 @@ from app.infrastructure.repositories.client_group_repository import ClientGroupR
 from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
-from app.presentation.api.v1.schemas.dashboard_schemas import DashboardStatsResponse
+from app.presentation.api.v1.schemas.dashboard_schemas import (
+    DashboardStatsResponse,
+    RecentSubmissionResponse,
+)
 from app.presentation.dependencies.auth import get_current_active_user
 
 router = APIRouter()
@@ -63,14 +66,14 @@ async def get_dashboard_stats(
         confirmed=result.confirmed,
         active_links=result.active_links,
         recent_submissions=[
-            {
-                "id": sub.id,
-                "client_name": sub.client_name,
-                "client_email": sub.client_email,
-                "status": sub.status,
-                "created_at": sub.created_at,
-                "overall_confidence": sub.overall_confidence,
-            }
+            RecentSubmissionResponse(
+                id=sub.id,
+                client_name=sub.client_name,
+                client_email=sub.client_email,
+                status=sub.status,
+                created_at=sub.created_at,
+                overall_confidence=sub.overall_confidence,
+            )
             for sub in result.recent_submissions
         ],
     )

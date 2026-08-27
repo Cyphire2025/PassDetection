@@ -2,19 +2,25 @@ from __future__ import annotations
 
 import inspect
 
+from app.infrastructure.imports.passport_document_importer import PassportDocumentImporter
 from app.presentation.api.v1.routes import admin, client_groups, passports
 
 
 def test_both_staff_import_paths_version_sources_and_tombstone_existing_crops() -> None:
-    zip_source = inspect.getsource(passports.save_passport_documents_by_group)
-    loose_source = inspect.getsource(passports._save_loose_passport_documents_by_group)
-    for source in (zip_source, loose_source):
-        assert ".with_for_update()" in source
-        assert "uuid.uuid4().hex" in source
-        assert "crop_repo.reset(" in source
-        assert "replaced_crop_keys" in source
-        assert "library_repo.ensure_original(" in source
-        assert "_delete_unreferenced_passport_image_keys_best_effort(" in source
+    preview_source = inspect.getsource(passports._passport_document_preview)
+    importer_source = inspect.getsource(PassportDocumentImporter.collect)
+    assert "PassportDocumentImporter().collect" in preview_source
+    assert "self._collect_zip(" in importer_source
+    assert "self._collect_direct(" in importer_source
+
+    unified_save_source = inspect.getsource(passports.save_passport_documents_by_group)
+    assert "_passport_document_preview(" in unified_save_source
+    assert ".with_for_update()" in unified_save_source
+    assert "uuid.uuid4().hex" in unified_save_source
+    assert "crop_repo.reset(" in unified_save_source
+    assert "replaced_crop_keys" in unified_save_source
+    assert "library_repo.ensure_original(" in unified_save_source
+    assert "_delete_unreferenced_passport_image_keys_best_effort(" in unified_save_source
 
     cleanup_source = inspect.getsource(
         passports._delete_unreferenced_passport_image_keys_best_effort

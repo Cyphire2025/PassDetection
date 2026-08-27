@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import {
   ArrowLeft,
@@ -15,6 +15,10 @@ import {
 } from "@/components/shared/workspace-ui";
 import { Card, CardContent, Skeleton } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
+import {
+  SENSITIVE_STATE_RESET_EVENT,
+  subscribeToSessionResets,
+} from "@/features/auth/services/session-state";
 import {
   WhatsAppActivityInline,
   useWhatsAppActivityTracker,
@@ -36,13 +40,17 @@ import {
 } from "../hooks/use-document-distribution";
 import {
   type DocumentUploadProgress,
-  type DocumentUploadSession,
+  type DocumentStagingManifest,
 } from "../services/document-upload-batching";
+import {
+  clearDocumentUploadRecovery,
+  persistDocumentUploadRecovery,
+  readDocumentUploadRecovery,
+} from "../services/document-upload-recovery";
 import {
   type DocumentDistributionLane,
 } from "../config/document-distribution-lanes";
 import {
-  acceptedStagingReceiptsFor,
   countPassengersForDocuments,
   createActiveDocumentSelection,
   createDocumentReviewModel,
@@ -123,7 +131,8 @@ export function DocumentWorkspace({
   const [pendingRemovalDocumentIds, setPendingRemovalDocumentIds] = useState<string[] | null>(null);
   const [progress, setProgress] = useState(0);
   const [progressDetail, setProgressDetail] = useState<DocumentUploadProgress | null>(null);
-  const [uploadSession, setUploadSession] = useState<DocumentUploadSession | null>(null);
+  const [stagingManifest, setStagingManifest] = useState<DocumentStagingManifest | null>(null);
+  const activeRequestRef = useRef<AbortController | null>(null);
   const [selectionError, setSelectionError] = useState<string | null>(null);
   const [isAbortUploadDialogOpen, setIsAbortUploadDialogOpen] = useState(false);
   const [phase, setPhase] = useState<DocumentUploadPhase>("idle");
@@ -136,7 +145,11 @@ export function DocumentWorkspace({
   const { data: groups = [] } = useDocumentGroups();
   const group = groups.find((item) => item.group_id === groupId);
   const review = useDocumentReview(groupId, documentType);
-  const exportAssignments = useExportDocumentAssignments(groupId, documentType);
+  const exportAssignments = useExportDocumentAssignments(
+    groupId,
+    documentType,
+    group?.group_name,
+  );
   const verify = useVerifyDistributionDocuments(groupId, documentType);
   const upload = useUploadDistributionDocuments(groupId, documentType);
   const abortUploads = useAbortDistributionUploads(groupId, documentType);
@@ -162,7 +175,7 @@ export function DocumentWorkspace({
     save.isPending ||
     sendDocuments.isPending;
   const hasUncommittedSelection =
-    selectedFiles.length > 0 || verification !== null || uploadSession !== null;
+    selectedFiles.length > 0 || verification !== null || stagingManifest !== null;
   const processingUploadIds = useMemo(() => {
     const surfacedIds = review.data?.processing_upload_ids ?? [];
     if (surfacedIds.length > 0) return surfacedIds;
@@ -171,7 +184,7 @@ export function DocumentWorkspace({
       : [];
   }, [review.data]);
   const canResumeCurrentUpload = Boolean(
-    uploadSession && processingUploadIds.includes(uploadSession.uploadId),
+    stagingManifest && processingUploadIds.includes(stagingManifest.uploadId),
   );
   const hasIncompleteUploads = processingUploadIds.length > 0;
   const reviewModel = useMemo(
@@ -241,14 +254,7 @@ export function DocumentWorkspace({
     review.data?.assigned_passenger_count ?? reviewCounts.assigned;
   const needsAssignmentCount =
     review.data?.needs_assignment_count ?? assignmentIssues.length;
-  const acceptedFiles = useMemo(
-    () => uploadSession?.chunks.flat() ?? [],
-    [uploadSession],
-  );
-  const acceptedStagingReceipts = useMemo(
-    () => acceptedStagingReceiptsFor(verification),
-    [verification],
-  );
+  const acceptedFileCount = stagingManifest?.totalFiles ?? 0;
   const showRowActions =
     documentType === "visa" || documentType.startsWith("flight_ticket");
   const defaultDeliveryDocumentIds = useMemo(
@@ -262,10 +268,55 @@ export function DocumentWorkspace({
   const activeDeliveryMessageContent2 =
     deliveryMessageContent2 ?? deliveryPreview.data?.message_content_2 ?? "";
 
+  useEffect(() => {
+    let mounted = true;
+    queueMicrotask(() => {
+      if (!mounted) return;
+      const recovered = readDocumentUploadRecovery(groupId, documentType);
+      setVerification(recovered?.verification ?? null);
+      setStagingManifest(recovered?.manifest ?? null);
+      setSelectedFiles([]);
+    });
+
+    const abortSensitiveWork = () => {
+      activeRequestRef.current?.abort("session-reset");
+      activeRequestRef.current = null;
+      setSelectedFiles([]);
+      setVerification(null);
+      setStagingManifest(null);
+      setProgressDetail(null);
+      setProgress(0);
+      setPhase("idle");
+    };
+    window.addEventListener(SENSITIVE_STATE_RESET_EVENT, abortSensitiveWork);
+    const unsubscribeSessionResets = subscribeToSessionResets(abortSensitiveWork);
+    return () => {
+      mounted = false;
+      activeRequestRef.current?.abort("document-workspace-unmounted");
+      activeRequestRef.current = null;
+      window.removeEventListener(SENSITIVE_STATE_RESET_EVENT, abortSensitiveWork);
+      unsubscribeSessionResets();
+    };
+  }, [documentType, groupId]);
+
+  const beginAbortableRequest = () => {
+    activeRequestRef.current?.abort("document-operation-replaced");
+    const controller = new AbortController();
+    activeRequestRef.current = controller;
+    return controller;
+  };
+
+  const releaseRequest = (controller: AbortController) => {
+    if (activeRequestRef.current === controller) activeRequestRef.current = null;
+  };
+
   const resetSelection = (files: File[]) => {
+    activeRequestRef.current?.abort("document-selection-replaced");
+    activeRequestRef.current = null;
+    clearDocumentUploadRecovery(groupId, documentType);
     setSelectedFiles(files);
     setVerification(null);
-    setUploadSession(null);
+    setStagingManifest(null);
     setSelectionError(null);
     setProgressDetail(null);
     setProgress(0);
@@ -274,50 +325,69 @@ export function DocumentWorkspace({
 
   const checkDocuments = () => {
     if (selectedFiles.length === 0) return;
-    setUploadSession(null);
+    const controller = beginAbortableRequest();
+    clearDocumentUploadRecovery(groupId, documentType);
+    setStagingManifest(null);
     setSelectionError(null);
     setPhase("checking");
     setProgress(0);
     verify.mutate({
       files: selectedFiles,
+      signal: controller.signal,
       onProgress: (value) => {
         setProgressDetail(value);
         setProgress(value.percent);
       },
     }, {
       onSuccess: (data) => {
+        persistDocumentUploadRecovery(groupId, documentType, {
+          verification: data.verification,
+          manifest: data.stagingManifest,
+        });
+        // Verification has transferred durable ownership to encrypted staging;
+        // do not keep the original browser File objects alive in React state.
+        setSelectedFiles([]);
         setVerification(data.verification);
-        setUploadSession(data.uploadSession);
+        setStagingManifest(data.stagingManifest);
         setProgress(100);
         setPhase("idle");
       },
       onError: () => {
         setPhase("idle");
       },
+      onSettled: () => releaseRequest(controller),
     });
   };
 
   const startUpload = () => {
-    if (acceptedFiles.length === 0) return;
+    if (acceptedFileCount === 0) return;
     if (hasIncompleteUploads && !canResumeCurrentUpload) {
       setSelectionError(
         "Discard the incomplete upload before starting another PDF upload.",
       );
       return;
     }
-    const activeSession = uploadSession;
-    if (!activeSession) {
+    const activeManifest = stagingManifest;
+    const activeVerification = verification;
+    if (!activeManifest || !activeVerification) {
       setSelectionError("Check the selected PDFs again before uploading them.");
       return;
     }
+    const controller = beginAbortableRequest();
     setSelectionError(null);
     setPhase("uploading");
     setProgress(0);
     upload.mutate(
       {
-        files: acceptedFiles,
-        stagingReceipts: acceptedStagingReceipts,
-        session: activeSession,
+        manifest: activeManifest,
+        signal: controller.signal,
+        onManifestChange: (manifest) => {
+          setStagingManifest(manifest);
+          persistDocumentUploadRecovery(groupId, documentType, {
+            verification: activeVerification,
+            manifest,
+          });
+        },
         onProgress: (value) => {
           setPhase("uploading");
           setProgressDetail(value);
@@ -326,9 +396,10 @@ export function DocumentWorkspace({
       },
       {
         onSuccess: () => {
+          clearDocumentUploadRecovery(groupId, documentType);
           setSelectedFiles([]);
           setVerification(null);
-          setUploadSession(null);
+          setStagingManifest(null);
           setProgressDetail(null);
           setProgress(100);
           setPhase("idle");
@@ -336,6 +407,7 @@ export function DocumentWorkspace({
         onError: () => {
           setPhase("idle");
         },
+        onSettled: () => releaseRequest(controller),
       },
     );
   };
@@ -387,8 +459,8 @@ export function DocumentWorkspace({
         lane={lane}
         passengerCount={review.data?.review_rows.length ?? 0}
         selectedFileCount={selectedFiles.length}
-        acceptedFileCount={acceptedFiles.length}
-        verificationReady={Boolean(verification)}
+        acceptedFileCount={acceptedFileCount}
+        verificationReady={Boolean(verification && stagingManifest)}
         hasIncompleteUploads={hasIncompleteUploads}
         canResumeCurrentUpload={canResumeCurrentUpload}
         processingUploadCount={processingUploadIds.length}
@@ -630,9 +702,10 @@ export function DocumentWorkspace({
           onConfirm={() => {
             abortUploads.mutate(processingUploadIds, {
               onSuccess: () => {
+                clearDocumentUploadRecovery(groupId, documentType);
                 setSelectedFiles([]);
                 setVerification(null);
-                setUploadSession(null);
+                setStagingManifest(null);
                 setSelectionError(null);
                 setProgressDetail(null);
                 setProgress(0);

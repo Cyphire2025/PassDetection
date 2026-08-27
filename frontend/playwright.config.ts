@@ -1,6 +1,12 @@
 import { defineConfig, devices } from "@playwright/test";
+import {
+  E2E_API_ORIGIN,
+  E2E_APP_PORT,
+  E2E_REALTIME_STUB_PORT,
+  isolatedE2eProcessEnvironment,
+} from "./config/e2e-isolation";
 
-const port = 3100;
+const isolatedProcessEnvironment = isolatedE2eProcessEnvironment(process.env);
 
 export default defineConfig({
   testDir: "./e2e",
@@ -17,7 +23,7 @@ export default defineConfig({
     timeout: 10_000,
   },
   use: {
-    baseURL: `http://127.0.0.1:${port}`,
+    baseURL: `http://127.0.0.1:${E2E_APP_PORT}`,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
@@ -28,10 +34,21 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
   ],
-  webServer: {
-    command: `npm run dev -- --port ${port}`,
-    url: `http://127.0.0.1:${port}/login`,
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-  },
+  webServer: [
+    {
+      command: `node e2e/support/dashboard-realtime-stub.mjs ${E2E_REALTIME_STUB_PORT}`,
+      url: `${E2E_API_ORIGIN}/health`,
+      reuseExistingServer: false,
+      timeout: 30_000,
+    },
+    {
+      command: `npm run dev -- --port ${E2E_APP_PORT}`,
+      url: `http://127.0.0.1:${E2E_APP_PORT}/login`,
+      // Reusing an arbitrary developer server would also reuse its environment
+      // and defeat the API-origin isolation above. Fail loudly on port reuse.
+      reuseExistingServer: false,
+      timeout: 120_000,
+      env: isolatedProcessEnvironment,
+    },
+  ],
 });

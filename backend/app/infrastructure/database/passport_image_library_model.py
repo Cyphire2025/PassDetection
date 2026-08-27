@@ -9,7 +9,7 @@ from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, String, Uni
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.infrastructure.database.models import Base, _utcnow
+from app.infrastructure.database.model_base import Base, _utcnow
 
 
 class PassportImageLibraryItemModel(Base):

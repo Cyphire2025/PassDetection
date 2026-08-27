@@ -24,6 +24,18 @@ test('accepts only the isolated unsigned preview fixture build profile', () => {
 
 test('rejects profile leakage, inline secrets, and production inheritance bypasses', () => {
   assert.ok(changed((configuration) => {
+    configuration.cli.appVersionSource = 'remote';
+  }).some((message) => message.includes('explicit checked-in local versions')));
+
+  assert.ok(changed((configuration) => {
+    configuration.build.production.autoIncrement = true;
+  }).some((message) => message.includes('auto-increment disabled')));
+
+  assert.ok(changed((configuration) => {
+    configuration.build['production-apk'].autoIncrement = true;
+  }).some((message) => message.includes('auto-increment disabled')));
+
+  assert.ok(changed((configuration) => {
     configuration.build.preview.env = {
       EXPO_PUBLIC_MAESTRO_ATTENDANCE_FIXTURE: 'true',
     };
@@ -40,6 +52,41 @@ test('rejects profile leakage, inline secrets, and production inheritance bypass
   assert.ok(changed((configuration) => {
     configuration.build['production-apk'].extends = 'base';
   }).some((message) => message.includes('inherit')));
+
+  assert.ok(changed((configuration) => {
+    configuration.build.production.android.gradleCommand = ':app:bundleRelease';
+  }).some((message) => message.includes('highest-precedence Gradle project property')));
+
+  assert.ok(changed((configuration) => {
+    configuration.build['production-apk'].android.gradleCommand = ':app:assembleRelease';
+  }).some((message) => message.includes('highest-precedence ARM64-only')));
+
+  assert.ok(changed((configuration) => {
+    configuration.build['production-emulator-apk'].android.gradleCommand =
+      ':app:assembleRelease -PreactNativeArchitectures=arm64-v8a';
+  }).some((message) => message.includes('credentialed internal x86_64 APK')));
+
+  assert.ok(changed((configuration) => {
+    configuration.build['production-apk'].env = {
+      ORG_GRADLE_PROJECT_reactNativeArchitectures: 'arm64-v8a',
+    };
+  }).some((message) => message.includes('lower-precedence')));
+
+  assert.ok(changed((configuration) => {
+    configuration.build['production-emulator-apk'].distribution = 'store';
+  }).some((message) => message.includes('credentialed internal x86_64 APK')));
+
+  assert.ok(changed((configuration) => {
+    configuration.build['production-emulator-apk'].android.buildType = 'app-bundle';
+  }).some((message) => message.includes('credentialed internal x86_64 APK')));
+
+  assert.ok(changed((configuration) => {
+    configuration.build['production-emulator-apk'].withoutCredentials = true;
+  }).some((message) => message.includes('credentialed internal x86_64 APK')));
+
+  assert.ok(changed((configuration) => {
+    configuration.build['production-emulator-apk'].env = { EXTRA_BUILD_FLAG: 'unexpected' };
+  }).some((message) => message.includes('credentialed internal x86_64 APK')));
 });
 
 test('production public configuration rejects an enabled fixture before build generation', () => {

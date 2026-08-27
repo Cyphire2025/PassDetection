@@ -34,6 +34,19 @@ export const MOBILE_LIST_WINDOWING = Object.freeze({
   moderateRoster: listBudget(12, 16, 50, 7),
   denseRoster: listBudget(16, 24, 35, 7),
   detail: listBudget(18, 24, 35, 7),
+  photoGrid: listBudget(18, 18, 40, 7),
+});
+
+/** Reviewable My Photos client budgets. Physical-device release profiling is
+ * still required before these become evidence of native rendering latency. */
+export const MY_PHOTOS_CLIENT_BUDGET = Object.freeze({
+  columns: 3,
+  pageSize: 48,
+  maximumServerPageSize: 60,
+  maximumResidentPages: 4,
+  maximumResidentMetadataItems: 240,
+  nextPagePrefetchThreshold: 0.6,
+  targetFirstContentMs: 1_500,
 });
 
 export const MOBILE_STATIC_ASSET_BUDGET = Object.freeze({

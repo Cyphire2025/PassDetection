@@ -31,6 +31,23 @@ from app.presentation.api.v1.schemas.document_rename_schemas import (
 )
 
 
+@pytest.fixture(autouse=True)
+def _deterministic_upload_security(monkeypatch):
+    """Keep legacy route characterizations focused past the scanner boundary."""
+
+    class _SecurityService:
+        def __init__(self, *, scanner) -> None:
+            self._scanner = scanner
+
+        async def validate_document(self, *, content: bytes, **_kwargs: object) -> None:
+            self._scanner.scan(content)
+
+    monkeypatch.setattr(
+        "app.presentation.api.v1.document_uploads.UploadSecurityService",
+        _SecurityService,
+    )
+
+
 def _user() -> SimpleNamespace:
     return SimpleNamespace(
         id=uuid.uuid4(),

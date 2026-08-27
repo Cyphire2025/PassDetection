@@ -7,7 +7,6 @@ import {
   isAuthenticationEpochCurrent,
   type AuthenticationSnapshot,
 } from '@/core/auth/session-store';
-import { env } from '@/core/config/env';
 import { isDemoMode } from '@/core/demo/demo-mode';
 import {
   recordMobileMetric,
@@ -15,6 +14,12 @@ import {
 } from '@/core/observability/mobile-observability';
 
 import { ApiError } from './api-error';
+import { handleAccessDenied } from './access-denied-handler';
+import { authorizedDocumentUrl, endpointUrl } from './api-url';
+import {
+  assertAuthenticationContextCurrent,
+  authenticationContextChanged,
+} from './authentication-context';
 import { ApiErrorBodySchema } from './contracts';
 import {
   downloadNativeFileBounded,
@@ -26,6 +31,7 @@ const DEFAULT_TIMEOUT_MS = 15_000;
 const MAX_JSON_BYTES = 2 * 1024 * 1024;
 const MAX_ERROR_JSON_BYTES = 64 * 1024;
 type ApiMetricOutcome = NonNullable<MobileMetricAttributes['outcome']>;
+type ApiMetricOperation = NonNullable<MobileMetricAttributes['api_operation']>;
 
 class ResponseBodyTooLargeError extends Error {
   constructor() {
@@ -34,14 +40,19 @@ class ResponseBodyTooLargeError extends Error {
   }
 }
 
+class BoundedResponseUnavailableError extends Error {
+  constructor() {
+    super('The native response cannot be read through a byte-counted API.');
+    this.name = 'BoundedResponseUnavailableError';
+  }
+}
+
 type RefreshHandler = (snapshot: AuthenticationSnapshot) => Promise<string | null>;
-type AccessDeniedHandler = (path: string, status: number) => Promise<void>;
 type RefreshOperation = {
   snapshot: AuthenticationSnapshot;
   promise: Promise<string | null>;
 };
 let refreshHandler: RefreshHandler | null = null;
-let accessDeniedHandler: AccessDeniedHandler | null = null;
 let refreshInFlight: RefreshOperation | null = null;
 
 export type ApiRequestOptions<T> = {
@@ -71,73 +82,6 @@ export function registerRefreshHandler(handler: RefreshHandler): () => void {
   return () => {
     if (refreshHandler === handler) refreshHandler = null;
   };
-}
-
-export function registerAccessDeniedHandler(handler: AccessDeniedHandler): () => void {
-  accessDeniedHandler = handler;
-  return () => {
-    if (accessDeniedHandler === handler) accessDeniedHandler = null;
-  };
-}
-
-async function handleAccessDenied(path: string, status: number): Promise<void> {
-  if ((status === 401 || status === 403) && accessDeniedHandler) {
-    await accessDeniedHandler(path, status).catch(() => undefined);
-  }
-}
-
-function assertSafeApiPath(path: string): void {
-  if (
-    !path.startsWith('/')
-    || path.startsWith('//')
-    || path.includes('#')
-    || path.includes('\\')
-    || /[\u0000-\u001f\u007f]/.test(path)
-  ) {
-    throw new Error('API paths must be root-relative.');
-  }
-  const pathname = path.split('?', 1)[0] ?? '';
-  for (const segment of pathname.split('/').slice(1)) {
-    let decoded: string;
-    try {
-      decoded = decodeURIComponent(segment);
-    } catch {
-      throw new Error('API paths must use valid percent encoding.');
-    }
-    if (
-      decoded === '.'
-      || decoded === '..'
-      || decoded.includes('/')
-      || decoded.includes('\\')
-      || /[\u0000-\u001f\u007f]/.test(decoded)
-    ) {
-      throw new Error('API paths must not contain traversal or encoded separators.');
-    }
-  }
-}
-
-function endpointUrl(path: string): string {
-  assertSafeApiPath(path);
-  return `${env.apiUrl}${path}`;
-}
-
-function authorizedDocumentUrl(path: string): string {
-  assertSafeApiPath(path);
-  const apiBase = new URL(env.apiUrl);
-  const parsedPath = new URL(path, apiBase.origin);
-  const basePath = apiBase.pathname.replace(/\/$/, '');
-  if (
-    !path.startsWith('/')
-    || path.startsWith('//')
-    || parsedPath.origin !== apiBase.origin
-    || (!parsedPath.pathname.startsWith(`${basePath}/mobile/`)
-      && !parsedPath.pathname.startsWith('/mobile/'))
-  ) {
-    throw new ApiError('The download path was invalid.', 400, 'INVALID_DOWNLOAD_PATH', null);
-  }
-  return parsedPath.pathname.startsWith(`${basePath}/mobile/`)
-    ? `${apiBase.origin}${parsedPath.pathname}${parsedPath.search}`
-    : `${env.apiUrl}${parsedPath.pathname}${parsedPath.search}`;
 }
 
 async function nativeFileRequest(options: Readonly<{
@@ -187,23 +131,6 @@ function sameRefreshBoundary(
   return first.epoch === second.epoch && first.accessToken === second.accessToken;
 }
 
-function authenticationContextChanged(): ApiError {
-  return new ApiError(
-    'The active account changed while this request was running.',
-    409,
-    'AUTH_CONTEXT_CHANGED',
-    null,
-  );
-}
-
-function assertAuthenticationContextCurrent(
-  authentication: AuthenticationSnapshot | null,
-): void {
-  if (authentication && !isAuthenticationEpochCurrent(authentication.epoch)) {
-    throw authenticationContextChanged();
-  }
-}
-
 async function refreshAccessToken(snapshot: AuthenticationSnapshot): Promise<string | null> {
   if (!refreshHandler) return null;
   if (!isAuthenticationEpochCurrent(snapshot.epoch)) return null;
@@ -246,9 +173,9 @@ async function readJsonBodyBounded(response: Response, maximumBytes: number): Pr
   const reader = response.body?.getReader();
   if (!reader) {
     if (typeof response.arrayBuffer !== 'function') {
-      // Some test/native response shims expose only the standard JSON reader.
-      // Real fetch Response objects take one of the byte-counted paths below.
-      return response.json() as Promise<unknown>;
+      // Never fall back to response.json()/text(): those APIs allocate an
+      // attacker-controlled body before its byte size can be enforced.
+      throw new BoundedResponseUnavailableError();
     }
     // Older native fetch implementations do not expose a ReadableStream. The
     // post-read byte check remains fail-closed, while modern Android/iOS builds
@@ -393,6 +320,14 @@ async function apiRequestInternal<T>(
     if (error instanceof ResponseBodyTooLargeError) {
       throw new ApiError('The server returned an unexpectedly large response.', 502, 'PAYLOAD_TOO_LARGE', null);
     }
+    if (error instanceof BoundedResponseUnavailableError) {
+      throw new ApiError(
+        'This device cannot safely read the server response.',
+        502,
+        'BOUNDED_RESPONSE_UNAVAILABLE',
+        null,
+      );
+    }
     throw new ApiError('The server returned malformed JSON.', 502, 'INVALID_RESPONSE', null);
   }
   const result = options.schema.safeParse(value);
@@ -417,6 +352,25 @@ function apiFailureOutcome(
   return 'failure';
 }
 
+/** Converts dynamic API paths into a fixed, privacy-safe operation dimension.
+ * IDs, query strings, search terms, and filenames never enter telemetry. */
+export function classifyApiMetricOperation(path: string): ApiMetricOperation {
+  const pathname = path.split('?', 1)[0]?.toLowerCase() ?? '';
+  if (pathname === '/mobile/me' || pathname.startsWith('/mobile/auth/')) return 'authentication';
+  if (pathname.startsWith('/mobile/integrity/')) return 'integrity';
+  if (pathname.startsWith('/mobile/push/')) return 'push';
+  if (pathname.startsWith('/mobile/notifications')) return 'notifications';
+  if (pathname.includes('/my-photos')) return 'my_photos';
+  if (pathname.includes('/attendance')) return 'attendance';
+  if (pathname.includes('/documents')) return 'documents';
+  if (pathname.includes('/itinerary')) return 'itinerary';
+  if (pathname === '/mobile/trips' || pathname.startsWith('/mobile/trips/')) return 'trip_catalog';
+  if (pathname.startsWith('/mobile/manager/')) return 'manager';
+  if (pathname.startsWith('/mobile/coordinator/')) return 'coordinator';
+  if (pathname.startsWith('/health/')) return 'health';
+  return 'other';
+}
+
 export async function apiRequest<T>(
   path: string,
   options: ApiRequestOptions<T>,
@@ -431,7 +385,11 @@ export async function apiRequest<T>(
     outcome = apiFailureOutcome(error, options.signal);
     throw error;
   } finally {
-    recordMobileMetric('api_request_duration', performance.now() - startedAtMs, { outcome });
+    recordMobileMetric('api_request_duration', performance.now() - startedAtMs, {
+      outcome,
+      api_operation: classifyApiMetricOperation(path),
+      api_method: (options.method ?? 'GET').toLowerCase() as NonNullable<MobileMetricAttributes['api_method']>,
+    });
   }
 }
 
@@ -500,6 +458,7 @@ export async function authorizedDownloadToFile(
   maximumBytes: number,
   signal?: AbortSignal,
   rangeStart = 0,
+  rangeEndInclusive?: number,
 ): Promise<NativeFileDownloadResult> {
   if (isDemoMode()) {
     throw new ApiError(
@@ -518,6 +477,16 @@ export async function authorizedDownloadToFile(
   if (!Number.isSafeInteger(rangeStart) || rangeStart < 0) {
     throw new ApiError('The download range was invalid.', 400, 'INVALID_DOWNLOAD_RANGE', null);
   }
+  if (
+    rangeEndInclusive !== undefined
+    && (
+      !Number.isSafeInteger(rangeEndInclusive)
+      || rangeEndInclusive < rangeStart
+      || rangeEndInclusive - rangeStart + 1 > maximumBytes
+    )
+  ) {
+    throw new ApiError('The download range was invalid.', 400, 'INVALID_DOWNLOAD_RANGE', null);
+  }
   const headers: Record<string, string> = {
     Accept: 'application/pdf,image/jpeg,image/png,image/webp',
     Authorization: `Bearer ${token}`,
@@ -525,7 +494,11 @@ export async function authorizedDownloadToFile(
     'X-GC-Download-Token': downloadToken,
     'X-Request-ID': Crypto.randomUUID(),
   };
-  if (rangeStart > 0) headers.Range = `bytes=${rangeStart}-`;
+  if (rangeEndInclusive !== undefined) {
+    headers.Range = `bytes=${rangeStart}-${rangeEndInclusive}`;
+  } else if (rangeStart > 0) {
+    headers.Range = `bytes=${rangeStart}-`;
+  }
   const response = await nativeFileRequest({
     authentication,
     destinationPath,
@@ -556,3 +529,10 @@ export async function authorizedDownloadToFile(
   assertAuthenticationContextCurrent(authentication);
   return response;
 }
+
+export { registerAccessDeniedHandler } from './access-denied-handler';
+export {
+  withAuthorizedDownloadStream,
+  type AuthorizedDownloadStreamOptions,
+  type AuthorizedDownloadStreamResponse,
+} from './authorized-download-stream';

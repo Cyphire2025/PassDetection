@@ -269,6 +269,22 @@ test("group archival and permanent passport deletion require a verified destruct
 
 test("staff can select, export, open, and manually approve a passport in a rendered browser workflow", async ({ page }) => {
   await installAdminCookie(page);
+  await page.addInitScript(() => {
+    // Headless Chromium cannot operate the native save dialog. Install the
+    // same writable-file boundary the production stream uses so this journey
+    // exercises request payload, response streaming, and completion without
+    // reverting to an unbounded Blob fixture.
+    Object.defineProperty(window, "showSaveFilePicker", {
+      configurable: true,
+      value: async () => ({
+        createWritable: async () => ({
+          write: async () => undefined,
+          close: async () => undefined,
+          abort: async () => undefined,
+        }),
+      }),
+    });
+  });
   let exportBody: unknown = null;
   let approvalBody: unknown = null;
 

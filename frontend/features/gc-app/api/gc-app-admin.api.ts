@@ -24,6 +24,8 @@ import type {
 
 const ROOT = "/api/v1/gc-app/admin";
 const PAGE_SIZE = 20;
+const AGENCY_DIRECTORY_PAGE_SIZE = 100;
+const MAX_AGENCY_DIRECTORY_ITEMS = 5_000;
 
 type PageEnvelope<T> = GcPage<T> | { items: T[]; total: number; offset: number; limit: number } | T[];
 
@@ -87,6 +89,7 @@ interface RawGroupAccess {
   client_organization_id?: string | null;
   client_organization_name?: string | null;
   enabled: boolean;
+  my_photos_enabled?: boolean;
   passenger_access_enabled: boolean;
   client_manager_access_enabled: boolean;
   coordinator_access_enabled: boolean;
@@ -254,6 +257,7 @@ function normalizeControl(access: RawGroupAccess, group?: RawGroup): GcAppGroupC
     company: organizationId && organizationName ? { id: organizationId, name: organizationName } : null,
     gc_enabled: access.enabled,
     gc_app_enabled: access.enabled,
+    my_photos_enabled: access.my_photos_enabled ?? false,
     passenger_access_enabled: access.passenger_access_enabled,
     client_manager_access_enabled: access.client_manager_access_enabled,
     coordinator_access_enabled: access.coordinator_access_enabled,
@@ -382,13 +386,35 @@ async function mapBounded<T, R>(items: T[], limit: number, mapper: (item: T) => 
 
 export const gcAppAdminApi = {
   listAgencies: async (signal?: AbortSignal): Promise<GcAgencyReference[]> => {
-    const { data } = await apiClient.get<{
+    type AgencyPage = {
       items: GcAgencyReference[];
       total: number;
       offset: number;
       limit: number;
-    }>(`${ROOT}/agencies`, { params: { offset: 0, limit: 100 }, signal });
-    return data.items.filter((agency) => agency.is_active);
+    };
+    const { data: first } = await apiClient.get<AgencyPage>(`${ROOT}/agencies`, {
+      params: { offset: 0, limit: AGENCY_DIRECTORY_PAGE_SIZE },
+      signal,
+    });
+    if (first.total > MAX_AGENCY_DIRECTORY_ITEMS) {
+      throw new Error(
+        "The agency directory is too large to load safely. Use an agency search before continuing.",
+      );
+    }
+    const offsets = Array.from(
+      { length: Math.max(0, Math.ceil(first.total / first.limit) - 1) },
+      (_value, index) => (index + 1) * first.limit,
+    );
+    const remaining = await mapBounded(offsets, 4, async (offset) => {
+      const { data } = await apiClient.get<AgencyPage>(`${ROOT}/agencies`, {
+        params: { offset, limit: first.limit },
+        signal,
+      });
+      return data.items;
+    });
+    return [...first.items, ...remaining.flat()]
+      .filter((agency) => agency.is_active)
+      .slice(0, first.total);
   },
 
   listClientManagers: async (
@@ -495,14 +521,15 @@ export const gcAppAdminApi = {
   listClientManagerSessions: async (
     agencyId: string | null,
     managerId: string,
+    params: GcPageParams,
     signal?: AbortSignal,
   ): Promise<GcPage<ClientManagerSession>> => {
-    const params = { page: 1, page_size: 50 };
-    const { data } = await apiClient.get<RawClientManagerSession[]>(
+    const { data } = await apiClient.get<PageEnvelope<RawClientManagerSession>>(
       `${ROOT}/client-managers/${managerId}/sessions`,
-      { params: agencyParams(agencyId), signal },
+      { params: agencyParams(agencyId, toOffsetParams(params)), signal },
     );
-    return asPage(data.map((session) => ({
+    const page = asPage(data, params);
+    return { ...page, items: page.items.map((session) => ({
       id: session.id,
       device_name: null,
       platform: session.platform,
@@ -514,26 +541,27 @@ export const gcAppAdminApi = {
       current: session.status === "active",
       status: session.status,
       expires_at: session.expires_at,
-    })), params);
+    })) };
   },
 
   listClientManagerAudit: async (
     agencyId: string | null,
     managerId: string,
+    params: GcPageParams,
     signal?: AbortSignal,
   ): Promise<GcPage<GcAuditEvent>> => {
-    const params = { page: 1, page_size: 50 };
-    const { data } = await apiClient.get<RawAuditEvent[]>(
+    const { data } = await apiClient.get<PageEnvelope<RawAuditEvent>>(
       `${ROOT}/client-managers/${managerId}/audit`,
-      { params: agencyParams(agencyId), signal },
+      { params: agencyParams(agencyId, toOffsetParams(params)), signal },
     );
-    return asPage(data.map((event) => ({
+    const page = asPage(data, params);
+    return { ...page, items: page.items.map((event) => ({
       id: event.id,
       action: event.action,
       summary: event.action.replaceAll("_", " ").replaceAll(".", " / "),
       actor_name: event.actor_email,
       created_at: event.created_at,
-    })), params);
+    })) };
   },
 
   searchCompanies: async (
@@ -683,6 +711,29 @@ export const gcAppAdminApi = {
     const { data } = await apiClient.put<RawGroupAccess>(
       `${ROOT}/groups/${control.id}`,
       fullControlBody(control, patch),
+      { params: agencyParams(agencyId) },
+    );
+    return normalizeControl(data, {
+      id: control.id,
+      name: control.name,
+      destination: control.destination,
+      travel_date: control.start_date,
+      return_date: control.end_date,
+      lifecycle_status: control.lifecycle,
+      gc_enabled: data.enabled,
+      client_organization_id: control.organization_id,
+      client_organization_name: control.company?.name ?? null,
+    });
+  },
+
+  setMyPhotosEnabled: async (
+    agencyId: string | null,
+    control: GcAppGroupControl,
+    enabled: boolean,
+  ): Promise<GcAppGroupControl> => {
+    const { data } = await apiClient.put<RawGroupAccess>(
+      `${ROOT}/groups/${control.id}/features/my-photos`,
+      { enabled, expected_revision: control.revision },
       { params: agencyParams(agencyId) },
     );
     return normalizeControl(data, {
@@ -961,20 +1012,21 @@ export const gcAppAdminApi = {
   listGroupAudit: async (
     agencyId: string | null,
     groupId: string,
+    params: GcPageParams,
     signal?: AbortSignal,
   ): Promise<GcPage<GcAuditEvent>> => {
-    const params = { page: 1, page_size: 100 };
-    const { data } = await apiClient.get<RawAuditEvent[]>(
+    const { data } = await apiClient.get<PageEnvelope<RawAuditEvent>>(
       `${ROOT}/groups/${groupId}/audit`,
-      { params: agencyParams(agencyId, { limit: params.page_size }), signal },
+      { params: agencyParams(agencyId, toOffsetParams(params)), signal },
     );
-    return asPage(data.map((event) => ({
+    const page = asPage(data, params);
+    return { ...page, items: page.items.map((event) => ({
       id: event.id,
       action: event.action,
       summary: event.action.replaceAll("_", " ").replaceAll(".", " / "),
       actor_name: event.actor_email,
       created_at: event.created_at,
-    })), params);
+    })) };
   },
 };
 

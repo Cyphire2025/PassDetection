@@ -109,4 +109,22 @@ describe('bounded JSON response handling', () => {
       status: 502,
     });
   });
+
+  it('fails closed when a native response shim offers only an unbounded JSON reader', async () => {
+    jest.spyOn(globalThis, 'fetch').mockResolvedValue({
+      body: null,
+      headers: new Headers({ 'content-type': 'application/json' }),
+      json: jest.fn(async () => ({ ok: true })),
+      ok: true,
+      status: 200,
+    } as unknown as Response);
+
+    await expect(apiRequest('/mobile/me', {
+      authenticated: false,
+      schema: contract,
+    })).rejects.toMatchObject<Partial<ApiError>>({
+      code: 'BOUNDED_RESPONSE_UNAVAILABLE',
+      status: 502,
+    });
+  });
 });

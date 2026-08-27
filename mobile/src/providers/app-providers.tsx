@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { bootstrapApplicationSession } from '@/core/auth/application-bootstrap';
+import { clearOfflineAuthorizationBootAnchor } from '@/core/auth/offline-authorization';
 import { useSessionStore } from '@/core/auth/session-store';
 import { accountNamespace } from '@/core/auth/types';
 import { isDemoMode } from '@/core/demo/demo-mode';
@@ -20,23 +21,53 @@ import { ReactNativeQueryRuntime } from '@/core/query/react-native-query-runtime
 import { RealtimeRuntime } from '@/core/realtime/realtime-runtime';
 import { SyncRuntime } from '@/core/sync/sync-runtime';
 import { purgeManagerDocumentPreviews } from '@/features/manager/data/manager-document-preview';
+import { MyPhotosCapabilityRuntime } from '@/features/my-photos/downloads/photo-download-runtime';
 import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store';
 
+let sensitiveCleanupRequested = false;
+let sensitiveDiskCleanupRequested = false;
+let sensitiveCleanupInFlight: Promise<void> | null = null;
+
+async function drainSensitiveRenderingCleanup(): Promise<void> {
+  while (sensitiveCleanupRequested) {
+    sensitiveCleanupRequested = false;
+    const includeDiskCache = sensitiveDiskCleanupRequested;
+    sensitiveDiskCleanupRequested = false;
+  // Decrypted local views use `cachePolicy="none"`. Authenticated remote
+  // thumbnails/previews use an account-partitioned cache, which is purged at
+  // startup and account boundaries together with any residue from older builds.
+    const cleanup: Promise<unknown>[] = [
+      purgeTemporaryViews(),
+      purgeManagerDocumentPreviews(),
+      Image.clearMemoryCache(),
+    ];
+    // Disk eviction is needed at startup and account boundaries to clean residue
+    // from older builds. Foreground/background transitions only clear ephemeral
+    // plaintext and memory so they do not cause avoidable storage I/O or discard
+    // benign image-cache entries.
+    if (includeDiskCache) cleanup.push(Image.clearDiskCache());
+    const results = await Promise.allSettled(cleanup);
+    if (results.some((result) => result.status === 'rejected')) {
+      // Never acknowledge a partially completed privacy cleanup. Preserve an
+      // in-memory obligation (including the stronger disk boundary) so the
+      // next startup/account/lifecycle trigger retries the full idempotent set.
+      // A process restart also retries unconditionally during bootstrap.
+      sensitiveCleanupRequested = true;
+      sensitiveDiskCleanupRequested ||= includeDiskCache;
+      return;
+    }
+  }
+}
+
 async function purgeSensitiveRenderingResidue(includeDiskCache: boolean): Promise<void> {
-  // Personal images are rendered with `cachePolicy="none"`, but clear the
-  // renderer caches as well so upgrades from an older build cannot retain a
-  // decrypted view outside the managed temporary-view directory.
-  const cleanup: Promise<unknown>[] = [
-    purgeTemporaryViews(),
-    purgeManagerDocumentPreviews(),
-    Image.clearMemoryCache(),
-  ];
-  // Disk eviction is needed at startup and account boundaries to clean residue
-  // from older builds. Foreground/background transitions only clear ephemeral
-  // plaintext and memory so they do not cause avoidable storage I/O or discard
-  // benign image-cache entries.
-  if (includeDiskCache) cleanup.push(Image.clearDiskCache());
-  await Promise.allSettled(cleanup);
+  sensitiveCleanupRequested = true;
+  sensitiveDiskCleanupRequested ||= includeDiskCache;
+  if (!sensitiveCleanupInFlight) {
+    sensitiveCleanupInFlight = drainSensitiveRenderingCleanup().finally(() => {
+      sensitiveCleanupInFlight = null;
+    });
+  }
+  await sensitiveCleanupInFlight;
 }
 
 export function AppProviders({ children }: PropsWithChildren) {
@@ -89,6 +120,10 @@ export function AppProviders({ children }: PropsWithChildren) {
     if (demoMode) return;
     const subscription = AppState.addEventListener('change', (nextState) => {
       if (nextState !== 'active') {
+        // Trusted-time boot anchors are decrypted, account-bound material.
+        // Remove them synchronously at the lifecycle boundary so a background
+        // snapshot or lock transition cannot retain usable plaintext.
+        clearOfflineAuthorizationBootAnchor();
         void purgeSensitiveRenderingResidue(false);
       }
     });
@@ -104,6 +139,7 @@ export function AppProviders({ children }: PropsWithChildren) {
             <SyncRuntime />
             <RealtimeRuntime />
             <NotificationRuntime />
+            <MyPhotosCapabilityRuntime />
             {children}
           </QueryClientProvider>
         </LocalizationProvider>

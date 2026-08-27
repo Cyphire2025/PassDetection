@@ -19,6 +19,10 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 # Deterministic Ed25519 fixture material used only by the isolated test process.
 # Production and staging must inject independent keys through their secret manager.
+os.environ.setdefault("APP_SECRET_KEY", "test-secret-key-not-for-production")
+os.environ.setdefault("POSTGRES_PASSWORD", "test-database-password")
+os.environ.setdefault("S3_ACCESS_KEY_ID", "test-storage-access-key")
+os.environ.setdefault("S3_SECRET_ACCESS_KEY", "test-storage-secret-key")
 os.environ.setdefault("MOBILE_OFFLINE_LEASE_ACTIVE_KID", "unit-test-2026-01")
 os.environ.setdefault(
     "MOBILE_OFFLINE_LEASE_PRIVATE_KEY_B64",

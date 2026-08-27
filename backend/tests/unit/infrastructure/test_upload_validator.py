@@ -3,13 +3,22 @@ from __future__ import annotations
 import io
 import os
 import unittest
+from types import SimpleNamespace
+from unittest.mock import patch
 
 from PIL import Image
 
 os.environ.setdefault("APP_SECRET_KEY", "unit-test-secret")
 
 from app.domain.exceptions.exceptions import ImageValidationError
-from app.infrastructure.security.upload_validator import UploadValidator
+from app.infrastructure.security.upload_validator import (
+    DisabledDocumentIngestionScanner,
+    DisabledMalwareScanner,
+    MalwareScannerConfigurationError,
+    UploadValidator,
+    assert_malware_scanner_ready,
+    malware_scanner_from_settings,
+)
 
 
 class RecordingScanner:
@@ -134,6 +143,54 @@ class UploadValidatorTests(unittest.TestCase):
                 filename="passport.png",
                 declared_content_type="image/png",
             )
+
+    def test_production_ingestion_cannot_start_without_scanner(self) -> None:
+        settings = SimpleNamespace(
+            is_development=False,
+            untrusted_document_ingestion_enabled=True,
+            malware_scanner_enabled=False,
+        )
+
+        with self.assertRaises(MalwareScannerConfigurationError):
+            assert_malware_scanner_ready(settings)
+
+    def test_production_startup_requires_live_scanner_pong(self) -> None:
+        settings = SimpleNamespace(
+            is_development=False,
+            untrusted_document_ingestion_enabled=True,
+            malware_scanner_enabled=True,
+            malware_scanner_host="scanner.internal",
+            malware_scanner_port=3310,
+            malware_scanner_timeout_seconds=1.0,
+        )
+
+        with patch(
+            "app.infrastructure.security.upload_validator.socket.create_connection",
+            side_effect=OSError("scanner offline"),
+        ):
+            with self.assertRaises(MalwareScannerConfigurationError):
+                assert_malware_scanner_ready(settings)
+
+    def test_disabled_scanner_is_explicitly_development_only(self) -> None:
+        development = SimpleNamespace(
+            is_development=True,
+            untrusted_document_ingestion_enabled=True,
+            malware_scanner_enabled=False,
+        )
+        document_free = SimpleNamespace(
+            is_development=False,
+            untrusted_document_ingestion_enabled=False,
+            malware_scanner_enabled=False,
+        )
+
+        self.assertIsInstance(
+            malware_scanner_from_settings(development),
+            DisabledMalwareScanner,
+        )
+        self.assertIsInstance(
+            malware_scanner_from_settings(document_free),
+            DisabledDocumentIngestionScanner,
+        )
 
 
 if __name__ == "__main__":

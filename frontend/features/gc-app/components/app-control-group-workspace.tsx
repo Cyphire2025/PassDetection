@@ -43,6 +43,9 @@ export function AppControlGroupWorkspace({ groupId }: { groupId: string }) {
   const updateControl = async (patch: GcAppControlPatch) => {
     await actions.updateControl.mutateAsync({ control: control.data, patch });
   };
+  const setMyPhotosEnabled = async (enabled: boolean) => {
+    await actions.setMyPhotosEnabled.mutateAsync({ control: control.data, enabled });
+  };
   const revoke = async () => {
     await actions.revoke.mutateAsync(groupId);
   };
@@ -99,8 +102,9 @@ export function AppControlGroupWorkspace({ groupId }: { groupId: string }) {
           <GroupAccessPanel
             key={control.data.revision}
             control={control.data}
-            isUpdating={actions.updateControl.isPending || actions.revoke.isPending}
+            isUpdating={actions.updateControl.isPending || actions.setMyPhotosEnabled.isPending || actions.revoke.isPending}
             onUpdate={updateControl}
+            onSetMyPhotosEnabled={setMyPhotosEnabled}
             onRevoke={revoke}
           />
         </div>

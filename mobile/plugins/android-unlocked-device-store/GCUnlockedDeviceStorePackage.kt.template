@@ -2,11 +2,14 @@ package __ANDROID_PACKAGE__
 
 import android.app.KeyguardManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.UserManager
 import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyInfo
 import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.security.keystore.KeyProperties
+import android.security.keystore.StrongBoxUnavailableException
 import android.security.keystore.UserNotAuthenticatedException
 import android.util.Base64
 import com.facebook.react.ReactPackage
@@ -25,6 +28,7 @@ import javax.crypto.AEADBadTagException
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
+import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.GCMParameterSpec
 
 private const val MODULE_NAME = "GCUnlockedDeviceStore"
@@ -155,21 +159,43 @@ private class GCUnlockedDeviceStoreModule(
   @ReactMethod
   fun getCapabilities(promise: Promise) {
     resolve(promise) {
-      val capabilities: WritableMap = WritableNativeMap()
-      capabilities.putInt("apiLevel", Build.VERSION.SDK_INT)
-      capabilities.putBoolean(
-        "cryptographicUnlockedDeviceRequired",
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM,
-      )
-      capabilities.putString(
-        "protectionMode",
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-          "android-keystore-unlocked-device-required"
+      synchronized(STORE_LOCK) {
+        assertDeviceUnlocked()
+        val protection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+          Protection.UNLOCKED_DEVICE_REQUIRED
         } else {
-          "android-keystore-native-lock-guard"
-        },
-      )
-      capabilities
+          Protection.COMPAT
+        }
+        val keyInfo = keyInfo(getOrCreateKey(protection))
+        val capabilities: WritableMap = WritableNativeMap()
+        capabilities.putInt("apiLevel", Build.VERSION.SDK_INT)
+        capabilities.putBoolean(
+          "cryptographicUnlockedDeviceRequired",
+          Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM,
+        )
+        capabilities.putBoolean("strongBoxAvailable", supportsStrongBox())
+        capabilities.putBoolean("hardwareBacked", keyInfo.isInsideSecureHardware)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+          capabilities.putBoolean(
+            "strongBoxBacked",
+            keyInfo.securityLevel == KeyProperties.SECURITY_LEVEL_STRONGBOX,
+          )
+        } else {
+          // API 26-30 exposes only the generic secure-hardware bit. Do not
+          // mislabel a TEE-backed key as StrongBox on those releases.
+          capabilities.putNull("strongBoxBacked")
+        }
+        capabilities.putString(
+          "protectionMode",
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            "android-keystore-unlocked-device-required"
+          } else {
+            "android-keystore-native-lock-guard"
+          },
+        )
+        assertDeviceUnlocked()
+        capabilities
+      }
     }
   }
 
@@ -281,6 +307,19 @@ private class GCUnlockedDeviceStoreModule(
     }
 
   private fun generateKey(protection: Protection): SecretKey {
+    if (supportsStrongBox()) {
+      try {
+        return generateKey(protection, strongBoxBacked = true)
+      } catch (_: StrongBoxUnavailableException) {
+        // Some devices advertise StrongBox but exhaust its bounded key slots.
+        // Preserve availability with a non-exportable Android Keystore key;
+        // callers can inspect the accurately reported backing capability.
+      }
+    }
+    return generateKey(protection, strongBoxBacked = false)
+  }
+
+  private fun generateKey(protection: Protection, strongBoxBacked: Boolean): SecretKey {
     val generator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
     val builder = KeyGenParameterSpec.Builder(
       protection.alias,
@@ -291,6 +330,10 @@ private class GCUnlockedDeviceStoreModule(
       .setKeySize(256)
       .setRandomizedEncryptionRequired(true)
 
+    if (strongBoxBacked && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      builder.setIsStrongBoxBacked(true)
+    }
+
     if (
       protection == Protection.UNLOCKED_DEVICE_REQUIRED &&
       Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM
@@ -299,6 +342,17 @@ private class GCUnlockedDeviceStoreModule(
     }
     generator.init(builder.build())
     return generator.generateKey()
+  }
+
+  private fun supportsStrongBox(): Boolean =
+    Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
+      reactApplicationContext.packageManager.hasSystemFeature(
+        PackageManager.FEATURE_STRONGBOX_KEYSTORE,
+      )
+
+  private fun keyInfo(key: SecretKey): KeyInfo {
+    val factory = SecretKeyFactory.getInstance(key.algorithm, "AndroidKeyStore")
+    return factory.getKeySpec(key, KeyInfo::class.java) as KeyInfo
   }
 
   private fun resolve(promise: Promise, operation: () -> Any?) {

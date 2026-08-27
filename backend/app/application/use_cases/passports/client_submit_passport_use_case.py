@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import re
 import uuid
+from collections.abc import Iterable, Mapping
 from dataclasses import replace
 from pathlib import PurePosixPath
 
@@ -17,7 +18,7 @@ from app.application.dtos.passport_dtos import (
 )
 from app.application.platform_policies import PlatformPolicies, PlatformPolicyProvider
 from app.core.logging.logger import get_logger
-from app.domain.entities.entities import OFFICE_VISIBLE_PASSPORT_STATUS_VALUES
+from app.domain.entities.entities import OFFICE_VISIBLE_PASSPORT_STATUS_VALUES, PassportSubmission
 from app.domain.exceptions.exceptions import EntityNotFoundError, ValidationError
 from app.domain.repositories.interfaces import (
     IClientGroupRepository,
@@ -25,6 +26,8 @@ from app.domain.repositories.interfaces import (
     IPassportSubmissionRepository,
 )
 from app.domain.value_objects.custom_questions import (
+    CustomAnswerSnapshot,
+    CustomDetailAnswerSnapshot,
     normalize_custom_answers,
     normalize_custom_detail_answers,
 )
@@ -85,8 +88,8 @@ class ClientSubmitPassportUseCase:
         family_head_name: str | None = None,
         family_head_email: str | None = None,
         family_head_phone: str | None = None,
-        custom_answers: list[dict] | None = None,
-        custom_detail_answers: list[dict] | None = None,
+        custom_answers: Iterable[Mapping[str, object]] | None = None,
+        custom_detail_answers: Iterable[Mapping[str, object]] | None = None,
     ) -> PassportSubmissionOutputDTO:
         group = await self._client_group_repo.get_by_token(group_token)
         if not group:
@@ -422,7 +425,7 @@ class ClientSubmitPassportUseCase:
 
     @staticmethod
     def _is_exact_replay(
-        submission,  # type: ignore[no-untyped-def]
+        submission: PassportSubmission,
         *,
         clean_fields: dict[str, str],
         client_email: str | None,
@@ -438,8 +441,8 @@ class ClientSubmitPassportUseCase:
         family_head_email: str | None,
         family_head_phone: str | None,
         family_broadcast_to_member: bool,
-        custom_answers: list[dict],
-        custom_detail_answers: list[dict],
+        custom_answers: list[CustomAnswerSnapshot],
+        custom_detail_answers: list[CustomDetailAnswerSnapshot],
     ) -> bool:
         return (
             dict(submission.confirmed_fields or {}) == clean_fields

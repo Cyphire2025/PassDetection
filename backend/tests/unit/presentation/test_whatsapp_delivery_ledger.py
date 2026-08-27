@@ -1885,9 +1885,23 @@ async def test_otp_webhook_records_provider_failure_without_phone_or_code(
     )
     otp_result = MagicMock()
     otp_result.scalar_one_or_none.return_value = challenge
+    chain_head = SimpleNamespace(
+        last_sequence=0,
+        last_hash="0" * 64,
+        updated_at=None,
+    )
+    chain_result = MagicMock()
+    chain_result.scalar_one.return_value = chain_head
     session = AsyncMock()
     session.add = MagicMock()
-    session.execute.side_effect = [empty_logs, empty_documents, empty_qr, otp_result]
+    session.execute.side_effect = [
+        empty_logs,
+        empty_documents,
+        empty_qr,
+        otp_result,
+        MagicMock(),
+        chain_result,
+    ]
     monkeypatch.setattr(
         "app.presentation.api.v1.routes.whatsapp.get_settings",
         lambda: SimpleNamespace(
@@ -1896,18 +1910,24 @@ async def test_otp_webhook_records_provider_failure_without_phone_or_code(
         ),
     )
     payload = {
-        "entry": [{
-            "changes": [{
-                "value": {
-                    "statuses": [{
-                        "id": "wamid.otp",
-                        "status": "failed",
-                        "timestamp": "1784419200",
-                        "errors": [{"code": 131026}],
-                    }]
-                }
-            }]
-        }]
+        "entry": [
+            {
+                "changes": [
+                    {
+                        "value": {
+                            "statuses": [
+                                {
+                                    "id": "wamid.otp",
+                                    "status": "failed",
+                                    "timestamp": "1784419200",
+                                    "errors": [{"code": 131026}],
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        ]
     }
     request = SimpleNamespace(body=AsyncMock(return_value=json.dumps(payload).encode("utf-8")))
 

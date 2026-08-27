@@ -12,6 +12,7 @@ Design:
 from __future__ import annotations
 
 from collections.abc import AsyncGenerator
+from typing import Protocol, cast
 
 from sqlalchemy import event
 from sqlalchemy.exc import TimeoutError as SQLAlchemyTimeoutError
@@ -21,7 +22,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from app.core.config.settings import get_settings
+from app.core.config.settings import DatabaseSettings, get_settings
 from app.core.logging.logger import get_logger
 from app.infrastructure.observability.metrics import metrics
 
@@ -29,6 +30,18 @@ logger = get_logger(__name__)
 
 _settings = get_settings()
 _database_settings = _settings.database
+
+
+def _postgres_server_settings(database: DatabaseSettings) -> dict[str, str]:
+    """Deadlines applied by asyncpg whenever a physical connection is opened."""
+
+    return {
+        "statement_timeout": str(database.statement_timeout_ms),
+        "lock_timeout": str(database.lock_timeout_ms),
+        "idle_in_transaction_session_timeout": str(
+            database.idle_in_transaction_session_timeout_ms
+        ),
+    }
 
 # ── Engine ────────────────────────────────────────────────────────────────────
 
@@ -40,11 +53,26 @@ engine = create_async_engine(
     pool_timeout=_database_settings.pool_timeout_seconds,
     pool_pre_ping=True,
     pool_recycle=_database_settings.pool_recycle_seconds,
+    connect_args={"server_settings": _postgres_server_settings(_database_settings)},
 )
 
 
+class _QueuePoolMetrics(Protocol):
+    """The queue-pool counters exposed by SQLAlchemy's concrete pool."""
+
+    def checkedout(self) -> int: ...
+
+    def checkedin(self) -> int: ...
+
+    def overflow(self) -> int: ...
+
+
+def _queue_pool_metrics() -> _QueuePoolMetrics:
+    return cast(_QueuePoolMetrics, engine.sync_engine.pool)
+
+
 def _record_pool_state() -> None:
-    pool = engine.sync_engine.pool
+    pool = _queue_pool_metrics()
     metrics.set_gauge("database.pool.checked_out", float(pool.checkedout()))
     metrics.set_gauge("database.pool.checked_in", float(pool.checkedin()))
     metrics.set_gauge("database.pool.overflow", float(pool.overflow()))
@@ -68,7 +96,7 @@ def _on_pool_invalidate(*_: object) -> None:
 
 
 def _database_pool_snapshot() -> dict[str, str | int | float]:
-    pool = engine.sync_engine.pool
+    pool = _queue_pool_metrics()
     return {
         "profile": _database_settings.pool_profile,
         "configured_pool_size": _database_settings.pool_size,

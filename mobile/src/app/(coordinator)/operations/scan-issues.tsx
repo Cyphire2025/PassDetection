@@ -17,6 +17,11 @@ import { PrimaryButton } from '@/design/components/primary-button';
 import { Screen } from '@/design/components/screen';
 import { colors, radii, spacing } from '@/design/theme';
 import {
+  attendanceDiscardAuditStatus,
+  drainAttendanceDiscardTombstones,
+  type AttendanceDiscardAuditStatus,
+} from '@/features/coordinator/data/attendance-discard-store';
+import {
   acknowledgeAttendanceNeedsReview,
   acknowledgeRejectedAttendance,
   listAttendanceNeedsReview,
@@ -44,6 +49,7 @@ function readScanIssues(tripId: string) {
   return Promise.all([
     listAttendanceNeedsReview(tripId),
     listRejectedAttendanceIssues(tripId),
+    attendanceDiscardAuditStatus(tripId),
   ]);
 }
 
@@ -58,6 +64,11 @@ export default function CoordinatorScanIssuesScreen() {
   const [loadFailed, setLoadFailed] = useState(false);
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [discardAudit, setDiscardAudit] = useState<AttendanceDiscardAuditStatus>({
+    pending: 0,
+    rejected: 0,
+    synchronized: 0,
+  });
 
   const load = useCallback(async () => {
     const tripId = selectedTripId;
@@ -65,10 +76,11 @@ export default function CoordinatorScanIssuesScreen() {
     loadVersion.current = version;
     if (!tripId) return;
     try {
-      const [reviewItems, rejectedItems] = await readScanIssues(tripId);
+      const [reviewItems, rejectedItems, discardStatus] = await readScanIssues(tripId);
       if (loadVersion.current !== version) return;
       setNeedsReview(reviewItems);
       setRejected(rejectedItems);
+      setDiscardAudit(discardStatus);
       setLoadFailed(false);
     } catch {
       if (loadVersion.current === version) setLoadFailed(true);
@@ -83,10 +95,11 @@ export default function CoordinatorScanIssuesScreen() {
     loadVersion.current = version;
     if (focused && tripId) {
       void readScanIssues(tripId)
-        .then(([reviewItems, rejectedItems]) => {
+        .then(([reviewItems, rejectedItems, discardStatus]) => {
           if (loadVersion.current !== version) return;
           setNeedsReview(reviewItems);
           setRejected(rejectedItems);
+          setDiscardAudit(discardStatus);
           setLoadFailed(false);
         })
         .catch(() => {
@@ -135,7 +148,7 @@ export default function CoordinatorScanIssuesScreen() {
     if (!tripId || busyKey) return;
     Alert.alert(
       'Discard this saved scan?',
-      'This removes the unresolved scan from this device. It cannot be recovered or uploaded later.',
+      'This stops scan delivery and first saves a privacy-safe audit receipt. The raw QR is never included.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -146,9 +159,10 @@ export default function CoordinatorScanIssuesScreen() {
             setMessage(null);
             void acknowledgeAttendanceNeedsReview(tripId, item.idempotencyKey)
               .then(() => {
-                setMessage('The unresolved scan was explicitly discarded.');
-                return load();
+                setMessage('Discard evidence was saved securely and will synchronize automatically.');
+                return drainAttendanceDiscardTombstones(tripId).catch(() => undefined);
               })
+              .then(load)
               .catch(() => setMessage('The scan could not be discarded. Try again.'))
               .finally(() => setBusyKey(null));
           },
@@ -162,7 +176,7 @@ export default function CoordinatorScanIssuesScreen() {
     if (!tripId || visibleRejectedCount === 0 || busyKey) return;
     Alert.alert(
       'Acknowledge terminal scan issues?',
-      'Their QR payloads are already securely erased. This removes the remaining reason and timing records from this device.',
+      'Their QR payloads are already erased. Privacy-safe discard receipts will be saved before local issue records are removed.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -173,9 +187,10 @@ export default function CoordinatorScanIssuesScreen() {
             setMessage(null);
             void acknowledgeRejectedAttendance(tripId)
               .then((count) => {
-                setMessage(`${count} terminal scan issue${count === 1 ? '' : 's'} acknowledged.`);
-                return load();
+                setMessage(`${count} terminal issue${count === 1 ? '' : 's'} recorded for discard synchronization.`);
+                return drainAttendanceDiscardTombstones(tripId).catch(() => undefined);
               })
+              .then(load)
               .catch(() => setMessage('Terminal issues could not be acknowledged. Try again.'))
               .finally(() => setBusyKey(null));
           },
@@ -198,10 +213,14 @@ export default function CoordinatorScanIssuesScreen() {
           </Text>
         </View>
         <Text style={styles.explanation}>{attendanceIssueExplanation(issue.reasonCode)}</Text>
+        <Text style={styles.passenger}>{issue.passengerLabel}</Text>
+        <Text style={styles.activity}>{issue.sessionLabel}</Text>
         <Text style={styles.metadata}>
-          Saved {readableTimestamp(issue.createdAt)} · Updated {readableTimestamp(issue.updatedAt)} · Attempts {issue.attemptCount}
+          Saved {readableTimestamp(issue.createdAt)} · Last attempt {readableTimestamp(issue.lastAttemptAt)} · Attempts {issue.attemptCount}
         </Text>
-        <Text style={styles.eventId}>Reference {issue.idempotencyKey.slice(-8).toUpperCase()}</Text>
+        <Text style={styles.eventId}>
+          Safe reference {issue.safeReference} · {issue.retryState === 'terminal' ? 'Rescan required' : 'Retry available'}
+        </Text>
         {retryAvailable ? (
           <View style={styles.actions}>
             <PrimaryButton
@@ -241,6 +260,10 @@ export default function CoordinatorScanIssuesScreen() {
               <Text style={styles.summaryCopy}>
                 Retried items keep the same idempotency key. Terminal QR payloads are erased automatically; only safe support metadata remains.
               </Text>
+              <Text accessibilityLiveRegion="polite" style={styles.auditState}>
+                Discard audit: {discardAudit.pending} pending · {discardAudit.synchronized} synchronized
+                {discardAudit.rejected > 0 ? ` · ${discardAudit.rejected} needs reconciliation` : ''}
+              </Text>
             </GlassCard>
             {loading ? <ContentLoading label="Loading scan issues" /> : null}
             {error ? <ContentError message="Scan issues could not be read from encrypted storage." onRetry={() => void load()} /> : null}
@@ -278,9 +301,12 @@ const styles = StyleSheet.create({
   reviewState: { color: colors.warning, fontSize: 10, fontWeight: '900' },
   rejectedState: { color: colors.danger, fontSize: 10, fontWeight: '900' },
   explanation: { color: colors.ink, fontSize: 13, lineHeight: 19 },
+  passenger: { color: colors.ink, fontSize: 14, fontWeight: '900' },
+  activity: { color: colors.inkMuted, fontSize: 12, fontWeight: '700' },
   metadata: { color: colors.inkMuted, fontSize: 11, lineHeight: 16 },
   eventId: { color: colors.inkMuted, fontSize: 10, fontWeight: '800' },
   actions: { gap: spacing.sm },
   message: { color: colors.ink, fontSize: 13, fontWeight: '700', lineHeight: 19 },
   footer: { paddingTop: spacing.sm },
+  auditState: { color: colors.inkMuted, fontSize: 11, fontWeight: '700', lineHeight: 16 },
 });

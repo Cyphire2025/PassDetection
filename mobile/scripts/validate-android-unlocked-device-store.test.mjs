@@ -56,6 +56,11 @@ test('generates the API-gated Android Keystore implementation in the app package
     assert.match(source, /^package com\.example\.enterprise/m);
     assert.match(source, /Build\.VERSION_CODES\.VANILLA_ICE_CREAM/);
     assert.match(source, /setUnlockedDeviceRequired\(true\)/);
+    assert.match(source, /FEATURE_STRONGBOX_KEYSTORE/);
+    assert.match(source, /setIsStrongBoxBacked\(true\)/);
+    assert.match(source, /catch \(_: StrongBoxUnavailableException\)/);
+    assert.match(source, /keyInfo\.isInsideSecureHardware/);
+    assert.match(source, /SECURITY_LEVEL_STRONGBOX/);
     assert.match(source, /AES\/GCM\/NoPadding/);
     assert.match(source, /MAX_ENCODED_VALUE_CHARS/);
     assert.match(source, /keyguardManager\.isDeviceLocked/);

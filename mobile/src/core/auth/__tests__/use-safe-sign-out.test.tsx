@@ -127,6 +127,7 @@ test('blocks ordinary sign-out, then synchronizes and retries without discarding
     unresolvedReview: 0,
     unsynchronized: 7,
     unsynchronizedAttendanceScans: 6,
+    unsynchronizedDiscardAudits: 0,
     unsynchronizedOtherActions: 1,
   } as const;
   mockedLogout

@@ -2,6 +2,8 @@ import type * as SQLite from 'expo-sqlite';
 
 import { isAccessLeaseExpired } from '@/core/sync/access-expiry-policy';
 
+import { resolveAttendanceScheduleWindow } from './attendance-schedule-policy';
+
 const SHA256_HEX = /^[0-9a-f]{64}$/;
 const MAX_EVIDENCE_WINDOW_MS = 24 * 60 * 60 * 1000;
 
@@ -9,7 +11,10 @@ export type AttendanceTokenAuthorizationCode =
   | 'QR_NOT_IN_ACTIVE_ROSTER'
   | 'ROSTER_EVIDENCE_UNAVAILABLE'
   | 'QR_EVIDENCE_EXPIRED'
-  | 'QR_EVIDENCE_INVALID';
+  | 'QR_EVIDENCE_INVALID'
+  | 'ACTIVITY_SCHEDULE_UNAVAILABLE'
+  | 'ACTIVITY_NOT_YET_VALID'
+  | 'ACTIVITY_EXPIRED';
 
 export class AttendanceTokenAuthorizationError extends Error {
   constructor(readonly code: AttendanceTokenAuthorizationCode) {
@@ -27,6 +32,8 @@ type RosterFenceRow = Readonly<{
 }>;
 
 type AttendanceEvidenceRow = Readonly<{
+  id: string;
+  display_name: string;
   attendance_evidence_observed_at: string | null;
   attendance_evidence_valid_until: string | null;
   attendance_token_expires_at: string | null;
@@ -34,6 +41,21 @@ type AttendanceEvidenceRow = Readonly<{
   attendance_token_state: string;
   attendance_token_updated_at: string | null;
   attendance_token_version: number | null;
+}>;
+
+type AttendanceSessionAuthorizationRow = Readonly<{
+  name: string;
+  schedule_timezone: string | null;
+  schedule_version: number;
+  scheduled_ends_at: string | null;
+  scheduled_starts_at: string | null;
+  status: string;
+}>;
+
+export type AuthorizedAttendanceToken = Readonly<{
+  passengerId: string;
+  passengerLabel: string;
+  sessionLabel: string;
 }>;
 
 function invalidDate(value: string | null): boolean {
@@ -49,9 +71,10 @@ export async function authorizeAttendanceTokenForOfflineQueue(
   database: SQLite.SQLiteDatabase,
   accountNamespace: string,
   tripId: string,
+  sessionId: string,
   tokenHash: string,
   observedNowMs: number,
-): Promise<void> {
+): Promise<AuthorizedAttendanceToken> {
   if (!SHA256_HEX.test(tokenHash) || !Number.isFinite(observedNowMs)) {
     throw new AttendanceTokenAuthorizationError('QR_EVIDENCE_INVALID');
   }
@@ -79,8 +102,41 @@ export async function authorizeAttendanceTokenForOfflineQueue(
     throw new AttendanceTokenAuthorizationError('ROSTER_EVIDENCE_UNAVAILABLE');
   }
 
+  const session = await database.getFirstAsync<AttendanceSessionAuthorizationRow>(
+    `SELECT name, status, scheduled_starts_at, scheduled_ends_at,
+            schedule_timezone, schedule_version
+       FROM attendance_sessions
+      WHERE account_namespace = ? AND trip_id = ? AND id = ?
+      LIMIT 1`,
+    accountNamespace,
+    tripId,
+    sessionId,
+  );
+  const scheduleWindow = resolveAttendanceScheduleWindow(
+    session ? {
+      startsAt: session.scheduled_starts_at,
+      endsAt: session.scheduled_ends_at,
+      timeZone: session.schedule_timezone,
+      version: session.schedule_version,
+    } : null,
+    observedNowMs,
+  );
+  if (!session || session.status !== 'active') {
+    throw new AttendanceTokenAuthorizationError('ACTIVITY_SCHEDULE_UNAVAILABLE');
+  }
+  if (scheduleWindow.state === 'not_yet_valid') {
+    throw new AttendanceTokenAuthorizationError('ACTIVITY_NOT_YET_VALID');
+  }
+  if (scheduleWindow.state === 'expired') {
+    throw new AttendanceTokenAuthorizationError('ACTIVITY_EXPIRED');
+  }
+  if (scheduleWindow.state !== 'active') {
+    throw new AttendanceTokenAuthorizationError('ACTIVITY_SCHEDULE_UNAVAILABLE');
+  }
+
   const candidates = await database.getAllAsync<AttendanceEvidenceRow>(
-    `SELECT attendance_token_hash, attendance_token_version, attendance_token_state,
+    `SELECT id, display_name, attendance_token_hash,
+            attendance_token_version, attendance_token_state,
             attendance_token_expires_at, attendance_token_updated_at,
             attendance_evidence_observed_at, attendance_evidence_valid_until
        FROM coordinator_passengers
@@ -142,4 +198,9 @@ export async function authorizeAttendanceTokenForOfflineQueue(
   ) {
     throw new AttendanceTokenAuthorizationError('QR_EVIDENCE_EXPIRED');
   }
+  return {
+    passengerId: evidence.id,
+    passengerLabel: evidence.display_name,
+    sessionLabel: session.name,
+  };
 }

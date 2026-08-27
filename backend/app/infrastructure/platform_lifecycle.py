@@ -12,7 +12,6 @@ from sqlalchemy import delete, func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.infrastructure.database.models import (
-    AuditLogModel,
     ClientGroupModel,
     NotificationModel,
     PassportSubmissionModel,
@@ -29,7 +28,6 @@ from app.infrastructure.storage.passport_object_keys import passport_storage_key
 
 LIFECYCLE_GROUP_BATCH_SIZE = 1_000
 LIFECYCLE_PASSPORT_BATCH_SIZE = 500
-LIFECYCLE_AUDIT_BATCH_SIZE = 5_000
 
 
 @dataclass(frozen=True, slots=True)
@@ -72,7 +70,6 @@ async def apply_platform_lifecycle_policies(
     archive_cutoff = timestamp - timedelta(
         days=policies.auto_archive_closed_groups_days
     )
-    audit_cutoff = timestamp - timedelta(days=policies.audit_log_retention_days)
 
     archive_group_ids = (
         select(ClientGroupModel.id)
@@ -200,85 +197,15 @@ async def apply_platform_lifecycle_policies(
         if deleted_passports_count != len(submission_ids):
             raise RuntimeError("Passport retention page changed while locked")
 
-    # A subquery keeps deletion bounded on PostgreSQL and SQLite. Repeated
-    # daily runs drain older rows without one unbounded table lock.
-    stale_audit_result = await session.execute(
-        select(
-            AuditLogModel.id,
-            AuditLogModel.entity_type,
-            AuditLogModel.entity_id,
-        )
-        .where(AuditLogModel.created_at < audit_cutoff)
-        .order_by(AuditLogModel.created_at, AuditLogModel.id)
-        .limit(LIFECYCLE_AUDIT_BATCH_SIZE)
-        .with_for_update(skip_locked=True)
-    )
-    stale_audits = list(stale_audit_result.all())
-
-    group_entity_ids: set[uuid.UUID] = set()
-    submission_entity_ids: set[uuid.UUID] = set()
-    for audit in stale_audits:
-        if audit.entity_type not in {"client_group", "passport_submission"}:
-            continue
-        try:
-            entity_id = uuid.UUID(audit.entity_id or "")
-        except ValueError:
-            continue
-        if audit.entity_type == "client_group":
-            group_entity_ids.add(entity_id)
-        else:
-            submission_entity_ids.add(entity_id)
-
-    held_audit_entity_keys: set[tuple[str, str]] = set()
-    if group_entity_ids:
-        held_group_ids = (
-            await session.execute(
-                select(ClientGroupModel.id).where(
-                    ClientGroupModel.id.in_(group_entity_ids),
-                    ClientGroupModel.passport_legal_hold.is_(True),
-                )
-            )
-        ).scalars()
-        held_audit_entity_keys.update(
-            ("client_group", str(group_id)) for group_id in held_group_ids
-        )
-    if submission_entity_ids:
-        held_submission_ids = (
-            await session.execute(
-                select(PassportSubmissionModel.id)
-                .join(
-                    ClientGroupModel,
-                    ClientGroupModel.id == PassportSubmissionModel.group_id,
-                )
-                .where(
-                    PassportSubmissionModel.id.in_(submission_entity_ids),
-                    ClientGroupModel.passport_legal_hold.is_(True),
-                )
-            )
-        ).scalars()
-        held_audit_entity_keys.update(
-            ("passport_submission", str(submission_id))
-            for submission_id in held_submission_ids
-        )
-
-    deletable_audit_ids = [
-        audit.id
-        for audit in stale_audits
-        if (audit.entity_type, audit.entity_id) not in held_audit_entity_keys
-    ]
-    deleted_audit_count = 0
-    if deletable_audit_ids:
-        deleted_audits = await session.execute(
-            delete(AuditLogModel).where(AuditLogModel.id.in_(deletable_audit_ids))
-        )
-        deleted_audit_count = int(getattr(deleted_audits, "rowcount", 0) or 0)
-
     result = PlatformLifecycleResult(
         archived_groups=archived_count,
         scheduled_passport_purge_dates=len(unscheduled_groups),
         deleted_passports=deleted_passports_count,
         deleted_notifications=deleted_notifications_count,
-        deleted_audit_logs=deleted_audit_count,
+        # Audit rows are application-append-only as of schema 0087. The policy
+        # value remains an external archival/WORM minimum, not permission for
+        # the ordinary application role to erase local security evidence.
+        deleted_audit_logs=0,
         storage_cleanup_jobs=cleanup_job_count,
         storage_objects_scheduled=storage_object_count,
     )

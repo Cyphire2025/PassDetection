@@ -20,6 +20,7 @@ describe("mobile release configuration", () => {
       disableAntiBrickingMeasures: false,
     });
     expect(config.plugins).toContain("expo-image");
+    expect(config.plugins).toContain("expo-sharing");
     expect(config.plugins).toContain("expo-asset");
     expect(config.plugins).toContain("./plugins/with-android-unlocked-device-store");
     expect(config.plugins).toContainEqual(["@sentry/react-native/expo", {}]);
@@ -34,7 +35,7 @@ describe("mobile release configuration", () => {
       "expo-camera",
       {
         cameraPermission:
-          "Coordinators use the camera to scan passenger attendance QR codes.",
+          "Use the camera for attendance QR scanning or, with your consent, to set up Face Scan for My Photos.",
         microphonePermission: false,
         recordAudioAndroid: false,
       },
@@ -63,7 +64,7 @@ describe("mobile release configuration", () => {
   it("keeps the store bundle and installable APK on the production EAS environment", () => {
     expect(eas.cli).toMatchObject({
       version: "22.0.0",
-      appVersionSource: "remote",
+      appVersionSource: "local",
     });
     expect(eas.build.base).toEqual({ node: "20.19.4" });
     expect(eas.build.development).toMatchObject({
@@ -85,7 +86,7 @@ describe("mobile release configuration", () => {
     expect(eas.build.production).toMatchObject({
       extends: "base",
       environment: "production",
-      autoIncrement: true,
+      autoIncrement: false,
       channel: "production",
       android: { buildType: "app-bundle" },
       env: {

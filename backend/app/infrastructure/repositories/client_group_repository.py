@@ -134,6 +134,65 @@ class ClientGroupRepository(IClientGroupRepository):
         model = result.scalar_one_or_none()
         return self._to_entity(model) if model else None
 
+    async def get_by_id_for_update(
+        self,
+        link_id: uuid.UUID,
+        *,
+        agency_id: uuid.UUID | None,
+        allow_global_scope: bool = False,
+    ) -> ClientGroup | None:
+        """Lock one tenant-scoped group for a destructive mutation.
+
+        Callers must either provide the authoritative tenant identifier or
+        explicitly opt into global scope.  Keeping global access explicit
+        prevents a future destructive route from accidentally dropping the
+        tenant predicate while retaining super-administrator workflows.
+        """
+
+        if agency_id is None and not allow_global_scope:
+            return None
+        statement = select(ClientGroupModel).where(ClientGroupModel.id == link_id)
+        if agency_id is not None:
+            statement = statement.where(ClientGroupModel.agency_id == agency_id)
+        result = await self._session.execute(statement.with_for_update())
+        model = result.scalar_one_or_none()
+        return self._to_entity(model) if model else None
+
+    async def list_owned_for_update(
+        self,
+        *,
+        owner_user_id: uuid.UUID,
+        agency_id: uuid.UUID,
+    ) -> list[ClientGroup]:
+        """Lock all groups owned by one manager in deterministic order."""
+
+        result = await self._session.execute(
+            select(ClientGroupModel)
+            .where(
+                ClientGroupModel.created_by_user_id == owner_user_id,
+                ClientGroupModel.agency_id == agency_id,
+            )
+            .order_by(ClientGroupModel.id)
+            .with_for_update()
+        )
+        return [self._to_entity(model) for model in result.scalars().all()]
+
+    async def list_scope_for_update(
+        self,
+        *,
+        agency_id: uuid.UUID | None,
+        allow_global_scope: bool = False,
+    ) -> list[ClientGroup]:
+        """Lock every group in an explicit platform or tenant purge scope."""
+
+        if agency_id is None and not allow_global_scope:
+            return []
+        statement = select(ClientGroupModel).order_by(ClientGroupModel.id)
+        if agency_id is not None:
+            statement = statement.where(ClientGroupModel.agency_id == agency_id)
+        result = await self._session.execute(statement.with_for_update())
+        return [self._to_entity(model) for model in result.scalars().all()]
+
     async def get_by_token(self, token: str) -> ClientGroup | None:
         result = await self._session.execute(
             select(ClientGroupModel).where(ClientGroupModel.token == token)
@@ -276,4 +335,4 @@ class ClientGroupRepository(IClientGroupRepository):
             stmt = AuthorizationPolicy.apply_group_visibility_scope(stmt, visible_to_user)
 
         result = await self._session.execute(stmt)
-        return result.scalar_one()
+        return int(result.scalar_one())

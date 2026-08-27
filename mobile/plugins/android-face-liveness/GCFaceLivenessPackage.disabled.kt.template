@@ -1,0 +1,50 @@
+package __ANDROID_PACKAGE__
+
+import com.facebook.react.ReactPackage
+import com.facebook.react.bridge.NativeModule
+import com.facebook.react.bridge.Promise
+import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReactContextBaseJavaModule
+import com.facebook.react.bridge.ReactMethod
+import com.facebook.react.uimanager.ViewManager
+
+private const val MODULE_NAME = "GCFaceLiveness"
+
+/**
+ * Default release boundary. No AWS, camera, Compose, identity-pool, or provider
+ * dependency is linked unless the private native build configuration opts in.
+ */
+private class GCFaceLivenessModule(
+  reactContext: ReactApplicationContext,
+) : ReactContextBaseJavaModule(reactContext) {
+  override fun getName(): String = MODULE_NAME
+
+  override fun getConstants(): MutableMap<String, Any> = hashMapOf(
+    "available" to false,
+    "provider" to "disabled",
+  )
+
+  @ReactMethod
+  fun present(
+    providerSessionId: String,
+    expiresAt: String,
+    promise: Promise,
+  ) {
+    promise.resolve("unavailable")
+  }
+
+  @ReactMethod
+  fun cancel(promise: Promise) {
+    promise.resolve(null)
+  }
+}
+
+class GCFaceLivenessPackage : ReactPackage {
+  override fun createNativeModules(
+    reactContext: ReactApplicationContext,
+  ): List<NativeModule> = listOf(GCFaceLivenessModule(reactContext))
+
+  override fun createViewManagers(
+    reactContext: ReactApplicationContext,
+  ): List<ViewManager<*, *>> = emptyList()
+}

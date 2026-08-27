@@ -8,6 +8,7 @@ import {
   collectBrowserAttendanceQueueCloseout,
   publishBrowserAttendanceQueueCloseout,
 } from "./attendance-scan-queue";
+import { getBrowserAttendanceRuntimeHint } from "./browser-offline-authorization";
 
 const MAX_OLDEST_PENDING_AGE_SECONDS = 31_536_000;
 
@@ -27,6 +28,7 @@ type BrowserQueueCloseout = Readonly<{
   pending: number;
   retryable: number;
   sending: number;
+  discardAuditPending: number;
   unreviewedRejected: number;
 }>;
 
@@ -94,7 +96,10 @@ function checkpointFromQueue(
     pending_count: queue.pending,
     sending_count: queue.sending,
     retryable_count: queue.retryable,
-    needs_review_count: 0,
+    // A discard is not closeout-clean until its privacy-safe server receipt is
+    // durable. Reuse the backward-compatible review count while the additive
+    // runtime/discard fields roll out on the backend.
+    needs_review_count: queue.discardAuditPending,
     unreviewed_rejected_count: queue.unreviewedRejected,
     oldest_pending_age_seconds: oldestPendingAge,
   };
@@ -134,10 +139,16 @@ async function executePublisherRequest(
       publish: async (queue) => {
         assertBrowserAuthenticationSnapshotCurrent(request.authentication);
         const checkpoint = checkpointFromQueue(queue, Date.now());
+        const runtimeId = await getBrowserAttendanceRuntimeHint();
+        assertBrowserAuthenticationSnapshotCurrent(request.authentication);
+        const runtimeAwareCheckpoint = {
+          ...checkpoint,
+          ...(runtimeId ? { runtime_id: runtimeId } : {}),
+        };
         const response = await operationsApi.publishMyAttendanceCloseoutCheckpoint({
           groupId: request.groupId,
           sessionId: request.sessionId,
-          checkpoint,
+          checkpoint: runtimeAwareCheckpoint,
         });
         assertBrowserAuthenticationSnapshotCurrent(request.authentication);
         return response;

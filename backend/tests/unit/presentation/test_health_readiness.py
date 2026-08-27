@@ -9,6 +9,7 @@ from pydantic import SecretStr
 from app.core.config.settings import Settings
 from app.domain.entities.entities import UserRole
 from app.domain.exceptions.exceptions import AuthorizationError
+from app.infrastructure.runtime_readiness import RuntimeCapabilitySnapshot
 from app.presentation.api.v1.routes.health import (
     diagnostics,
     readiness,
@@ -19,6 +20,21 @@ _STRONG_APP_SECRET = "9Wv!mR3#kP7@xN2$zQ8&bL5^tY4*cH6+"
 _PRIVATE_DATABASE_ERROR = (
     "could not connect to postgresql://user:password@private-host/db"
 )
+
+
+def _healthy_runtime_snapshot() -> RuntimeCapabilitySnapshot:
+    return RuntimeCapabilitySnapshot(
+        checks={"database_schema": "compatible", "object_storage": "available"},
+        core_ready=True,
+        capabilities={
+            "object_storage": {
+                "required": True,
+                "available": True,
+                "traffic_gate": True,
+                "status": "available",
+            }
+        },
+    )
 
 
 class _HealthyDatabase:
@@ -63,10 +79,17 @@ class HealthReadinessTests(unittest.IsolatedAsyncioTestCase):
             gemini_project_alias="gct-prod-tier1",
             gemini_priority_capacity_calibrated=True,
         )
-        with patch(
-            "app.presentation.api.v1.routes.health."
-            "get_ai_priority_coordinator"
-        ) as coordinator:
+        with (
+            patch(
+                "app.presentation.api.v1.routes.health."
+                "get_ai_priority_coordinator"
+            ) as coordinator,
+            patch(
+                "app.presentation.api.v1.routes.health."
+                "runtime_capability_readiness",
+                return_value=_healthy_runtime_snapshot(),
+            ),
+        ):
             coordinator.return_value.snapshot.return_value = object()
             response = await readiness(
                 db=_HealthyDatabase(),  # type: ignore[arg-type]
@@ -84,10 +107,17 @@ class HealthReadinessTests(unittest.IsolatedAsyncioTestCase):
             gemini_project_alias="gct-prod-tier1",
             gemini_priority_capacity_calibrated=True,
         )
-        with patch(
-            "app.presentation.api.v1.routes.health."
-            "get_ai_priority_coordinator"
-        ) as coordinator:
+        with (
+            patch(
+                "app.presentation.api.v1.routes.health."
+                "get_ai_priority_coordinator"
+            ) as coordinator,
+            patch(
+                "app.presentation.api.v1.routes.health."
+                "runtime_capability_readiness",
+                return_value=_healthy_runtime_snapshot(),
+            ),
+        ):
             coordinator.return_value.snapshot.return_value = object()
             response = await readiness(
                 db=_HealthyDatabase(),  # type: ignore[arg-type]

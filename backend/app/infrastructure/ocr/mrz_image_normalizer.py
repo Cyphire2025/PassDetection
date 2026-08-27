@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 from PIL import Image, ImageOps
 
@@ -44,7 +45,12 @@ class MRZImageNormalizer:
         combined = self._combine_lines(line_images, cv2, np)
         return self._with_dpi(Image.fromarray(combined))
 
-    def _detect_line_bands(self, array, cv2, np) -> list[tuple[int, int]]:  # type: ignore[no-untyped-def]
+    def _detect_line_bands(
+        self,
+        array: Any,
+        cv2: Any,
+        np: Any,
+    ) -> list[tuple[int, int]]:
         threshold = cv2.adaptiveThreshold(
             array,
             255,
@@ -98,7 +104,7 @@ class MRZImageNormalizer:
         midpoint = height // 2
         return [(0, midpoint), (midpoint, height)]
 
-    def _normalize_line(self, array, cv2, np):  # type: ignore[no-untyped-def]
+    def _normalize_line(self, array: Any, cv2: Any, np: Any) -> Any:
         line = self._deskew_line(array, cv2, np)
         line = self._trim_line_foreground(line, cv2, np)
         line = self._local_contrast(line, cv2)
@@ -106,10 +112,18 @@ class MRZImageNormalizer:
         line = self._resize_line_to_text_height(line, cv2)
         return line
 
-    def _deskew_line(self, array, cv2, np):  # type: ignore[no-untyped-def]
+    def _deskew_line(self, array: Any, cv2: Any, np: Any) -> Any:
         return self._deskew_block(array, cv2, np, min_angle=0.15, max_angle=3.0)
 
-    def _deskew_block(self, array, cv2, np, *, min_angle: float, max_angle: float):  # type: ignore[no-untyped-def]
+    def _deskew_block(
+        self,
+        array: Any,
+        cv2: Any,
+        np: Any,
+        *,
+        min_angle: float,
+        max_angle: float,
+    ) -> Any:
         threshold = cv2.threshold(array, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
         points = cv2.findNonZero(threshold)
         if points is None or len(points) < 25:
@@ -137,7 +151,7 @@ class MRZImageNormalizer:
             return 90 + angle
         return angle
 
-    def _trim_line_foreground(self, array, cv2, np):  # type: ignore[no-untyped-def]
+    def _trim_line_foreground(self, array: Any, cv2: Any, np: Any) -> Any:
         threshold = cv2.adaptiveThreshold(
             array,
             255,
@@ -160,15 +174,15 @@ class MRZImageNormalizer:
         ]
 
     @staticmethod
-    def _local_contrast(array, cv2):  # type: ignore[no-untyped-def]
+    def _local_contrast(array: Any, cv2: Any) -> Any:
         return cv2.normalize(array, None, 0, 255, cv2.NORM_MINMAX)
 
     @staticmethod
-    def _preserve_edges(array, cv2):  # type: ignore[no-untyped-def]
+    def _preserve_edges(array: Any, cv2: Any) -> Any:
         blur = cv2.GaussianBlur(array, (0, 0), sigmaX=0.55)
         return cv2.addWeighted(array, 1.12, blur, -0.12, 0)
 
-    def _resize_line_to_text_height(self, array, cv2):  # type: ignore[no-untyped-def]
+    def _resize_line_to_text_height(self, array: Any, cv2: Any) -> Any:
         foreground_height = self._foreground_height(array, cv2)
         scale = min(self._config.target_text_height / max(1, foreground_height), self._config.max_upscale)
         target_width = max(1, round(array.shape[1] * scale))
@@ -177,15 +191,15 @@ class MRZImageNormalizer:
         return cv2.resize(array, (target_width, target_height), interpolation=interpolation)
 
     @staticmethod
-    def _foreground_height(array, cv2) -> int:  # type: ignore[no-untyped-def]
+    def _foreground_height(array: Any, cv2: Any) -> int:
         threshold = cv2.threshold(array, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
         points = cv2.findNonZero(threshold)
         if points is None:
-            return array.shape[0]
+            return int(array.shape[0])
         _, _, _, height = cv2.boundingRect(points)
-        return max(1, height)
+        return max(1, int(height))
 
-    def _combine_lines(self, line_images, cv2, np):  # type: ignore[no-untyped-def]
+    def _combine_lines(self, line_images: list[Any], cv2: Any, np: Any) -> Any:
         target_width = max(line.shape[1] for line in line_images) + self._config.horizontal_margin * 2
         canvases = [self._line_canvas(line, target_width, np) for line in line_images]
         height = (
@@ -200,7 +214,7 @@ class MRZImageNormalizer:
             y += canvas.shape[0] + self._config.line_gap
         return combined
 
-    def _line_canvas(self, line, target_width: int, np):  # type: ignore[no-untyped-def]
+    def _line_canvas(self, line: Any, target_width: int, np: Any) -> Any:
         canvas = np.full((self._config.line_canvas_height, target_width), 255, dtype=np.uint8)
         x = self._config.horizontal_margin
         y = max(0, (self._config.line_canvas_height - line.shape[0]) // 2)
@@ -209,7 +223,7 @@ class MRZImageNormalizer:
         canvas[y : y + max_height, x : x + max_width] = line[:max_height, :max_width]
         return canvas
 
-    def _resize_whole_crop(self, array, cv2):  # type: ignore[no-untyped-def]
+    def _resize_whole_crop(self, array: Any, cv2: Any) -> Any:
         scale = (self._config.line_canvas_height * 2) / max(1, array.shape[0])
         resized = cv2.resize(
             array,
@@ -227,7 +241,7 @@ class MRZImageNormalizer:
         )
 
     @staticmethod
-    def _contrast_stretch(array, np):  # type: ignore[no-untyped-def]
+    def _contrast_stretch(array: Any, np: Any) -> Any:
         low, high = np.percentile(array, (1.0, 99.0))
         if high <= low:
             return array

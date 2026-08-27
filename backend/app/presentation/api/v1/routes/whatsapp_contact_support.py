@@ -10,7 +10,7 @@ import uuid
 from dataclasses import dataclass
 from datetime import datetime
 from io import BytesIO
-from typing import Any, Literal
+from typing import Any, Literal, cast
 from zipfile import ZipFile
 
 from fastapi import HTTPException, status
@@ -54,6 +54,17 @@ MAX_WHATSAPP_EXCEL_COMPRESSION_RATIO = 250
 MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS = 25
 MAX_WHATSAPP_REJECTED_CONTACTS_PER_GROUP = 500
 MAX_WHATSAPP_IMPORTED_FIELDS = 256
+
+
+def _validated_rejection_code(value: str) -> WhatsAppContactRejectionCode:
+    if value not in {
+        "missing_phone",
+        "invalid_phone",
+        "missing_name",
+        "duplicate_phone",
+    }:
+        raise RuntimeError("Invalid persisted WhatsApp contact rejection code.")
+    return cast(WhatsAppContactRejectionCode, value)
 MAX_WHATSAPP_IMPORTED_FIELD_KEY_LENGTH = 64
 MAX_WHATSAPP_IMPORTED_FIELD_VALUE_LENGTH = 256
 MAX_WHATSAPP_IMPORTED_FIELDS_BYTES = 8 * 1024
@@ -736,16 +747,16 @@ def _new_roster_display_orders(
                 )
             )
         stable_index += 1
-    for contact in rejected_contacts:
-        fingerprint = _rejected_contact_fingerprint(contact)
+    for rejected_contact in rejected_contacts:
+        fingerprint = _rejected_contact_fingerprint(rejected_contact)
         if fingerprint not in existing_by_fingerprint:
             candidates.append(
                 (
                     _roster_source_sort_key(
-                        contact.imported_fields,
-                        fallback_source_file=contact.source_file_name,
-                        fallback_source_sheet=contact.sheet_name,
-                        fallback_source_row=contact.row_number,
+                        rejected_contact.imported_fields,
+                        fallback_source_file=rejected_contact.source_file_name,
+                        fallback_source_sheet=rejected_contact.sheet_name,
+                        fallback_source_row=rejected_contact.row_number,
                         stable_index=stable_index,
                     ),
                     "rejected",
@@ -1015,7 +1026,7 @@ def _rejected_contact_response(
         raw_name=model.raw_name,
         raw_phone_number=model.raw_phone_number,
         imported_fields=_safe_imported_fields(model.imported_fields),
-        reason_code=model.reason_code,
+        reason_code=_validated_rejection_code(model.reason_code),
         reason=model.reason,
         created_at=model.created_at,
     )

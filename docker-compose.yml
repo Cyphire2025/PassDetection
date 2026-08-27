@@ -23,6 +23,8 @@ networks:
 volumes:
   postgres_data:
   redis_data:
+  redis_broker_data:
+  clamav_signatures:
   minio_data:
 
 # Keep every process aware of the same deployment-wide connection budget.
@@ -33,20 +35,98 @@ x-database-capacity-environment: &database-capacity-environment
   WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-2}
   EMAIL_WORKER_CONCURRENCY: ${EMAIL_WORKER_CONCURRENCY:-2}
   EMAIL_AI_WORKER_CONCURRENCY: ${EMAIL_AI_WORKER_CONCURRENCY:-2}
+  MY_PHOTOS_WORKER_CONCURRENCY: ${MY_PHOTOS_WORKER_CONCURRENCY:-2}
   GEMINI_EXTRACTION_MAX_CONCURRENCY: ${GEMINI_EXTRACTION_MAX_CONCURRENCY:-32}
   GEMINI_VERIFICATION_MAX_CONCURRENCY: ${GEMINI_VERIFICATION_MAX_CONCURRENCY:-1}
   GEMINI_IMAGE_EDIT_MAX_CONCURRENCY: ${GEMINI_IMAGE_EDIT_MAX_CONCURRENCY:-1}
+  METRICS_EXPORTER: ${METRICS_EXPORTER:-disabled}
+  METRICS_EXPORT_REQUIRED: ${METRICS_EXPORT_REQUIRED:-false}
+  METRICS_STATSD_HOST: ${METRICS_STATSD_HOST:-metrics-exporter}
+  METRICS_STATSD_PORT: ${METRICS_STATSD_PORT:-9125}
+  METRICS_NAMESPACE: ${METRICS_NAMESPACE:-passdetection}
   POSTGRES_API_POOL_SIZE: ${POSTGRES_API_POOL_SIZE:-8}
   POSTGRES_API_MAX_OVERFLOW: ${POSTGRES_API_MAX_OVERFLOW:-2}
   POSTGRES_WORKER_POOL_SIZE: ${POSTGRES_WORKER_POOL_SIZE:-1}
   POSTGRES_WORKER_MAX_OVERFLOW: ${POSTGRES_WORKER_MAX_OVERFLOW:-0}
   POSTGRES_POOL_TIMEOUT_SECONDS: ${POSTGRES_POOL_TIMEOUT_SECONDS:-5}
   POSTGRES_POOL_RECYCLE_SECONDS: ${POSTGRES_POOL_RECYCLE_SECONDS:-1800}
+  POSTGRES_API_STATEMENT_TIMEOUT_MS: ${POSTGRES_API_STATEMENT_TIMEOUT_MS:-15000}
+  POSTGRES_WORKER_STATEMENT_TIMEOUT_MS: ${POSTGRES_WORKER_STATEMENT_TIMEOUT_MS:-300000}
+  POSTGRES_LOCK_TIMEOUT_MS: ${POSTGRES_LOCK_TIMEOUT_MS:-5000}
+  POSTGRES_IDLE_IN_TRANSACTION_SESSION_TIMEOUT_MS: ${POSTGRES_IDLE_IN_TRANSACTION_SESSION_TIMEOUT_MS:-30000}
   POSTGRES_SERVER_MAX_CONNECTIONS: ${POSTGRES_SERVER_MAX_CONNECTIONS:-100}
   POSTGRES_RESERVED_CONNECTIONS: ${POSTGRES_RESERVED_CONNECTIONS:-10}
   POSTGRES_API_CONNECTION_BUDGET: ${POSTGRES_API_CONNECTION_BUDGET:-80}
+  EXPECTED_DATABASE_SCHEMA_REVISION: ${EXPECTED_DATABASE_SCHEMA_REVISION:-0088_merge_my_photos_hardening}
+  REDIS_DOMAIN_ISOLATION_REQUIRED: ${REDIS_DOMAIN_ISOLATION_REQUIRED:-true}
+  REDIS_BROKER_HOST: redis-broker
+  REDIS_BROKER_PORT: 6379
+  REDIS_BROKER_PASSWORD: ${REDIS_BROKER_PASSWORD:-${REDIS_PASSWORD}}
+  REDIS_BROKER_DB: 0
+  REDIS_SECURITY_HOST: redis
+  REDIS_SECURITY_PORT: 6379
+  REDIS_SECURITY_PASSWORD: ${REDIS_SECURITY_PASSWORD:-${REDIS_PASSWORD}}
+  REDIS_SECURITY_DB: 0
+  REDIS_REALTIME_HOST: redis-realtime
+  REDIS_REALTIME_PORT: 6379
+  REDIS_REALTIME_PASSWORD: ${REDIS_REALTIME_PASSWORD:-${REDIS_PASSWORD}}
+  REDIS_REALTIME_DB: 0
+  REDIS_CACHE_HOST: redis-cache
+  REDIS_CACHE_PORT: 6379
+  REDIS_CACHE_PASSWORD: ${REDIS_CACHE_PASSWORD:-${REDIS_PASSWORD}}
+  REDIS_CACHE_DB: 0
+  MALWARE_SCANNER_HOST: clamav
+  MALWARE_SCANNER_PORT: 3310
+  MALWARE_SCANNER_TIMEOUT_SECONDS: ${MALWARE_SCANNER_TIMEOUT_SECONDS:-10.0}
+
+x-backend-service-dependencies: &backend-service-dependencies
+  db:
+    condition: service_healthy
+  redis:
+    condition: service_healthy
+  redis-broker:
+    condition: service_healthy
+  redis-realtime:
+    condition: service_healthy
+  redis-cache:
+    condition: service_healthy
+  clamav:
+    condition: service_healthy
+  minio:
+    condition: service_healthy
+  metrics-exporter:
+    condition: service_started
 
 services:
+
+  # Process-local API and worker metrics converge here over bounded UDP
+  # datagrams. Prometheus scrapes the private web endpoint; application
+  # traffic never waits for this diagnostic path.
+  metrics-exporter:
+    image: prom/statsd-exporter:v0.29.0@sha256:632f705804922d50c1c95ba8ff9c8c0cc18d4bbb0cc265dc4f9ae708271c95b3
+    container_name: passdetection-metrics-exporter
+    restart: unless-stopped
+    user: "65534:65534"
+    command:
+      - --statsd.listen-udp=:9125
+      - --web.listen-address=:9102
+      - --statsd.mapping-config=/etc/statsd-exporter/statsd_mapping.yml
+    volumes:
+      - ./monitoring/statsd_mapping.yml:/etc/statsd-exporter/statsd_mapping.yml:ro
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=16m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: ${METRICS_EXPORTER_MEMORY_LIMIT:-128m}
+    cpus: ${METRICS_EXPORTER_CPUS:-0.25}
+    pids_limit: 64
+    ports:
+      - "9102:9102"
+    networks:
+      - passdetection-net
 
   # ── PostgreSQL ──────────────────────────────────────────────────────────────
   db:
@@ -77,9 +157,14 @@ services:
   # ── Redis ───────────────────────────────────────────────────────────────────
   redis:
     image: redis:7-alpine
-    container_name: passdetection-redis
+    container_name: passdetection-redis-security
     restart: unless-stopped
-    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
+    command: >-
+      redis-server
+      --requirepass ${REDIS_SECURITY_PASSWORD:-${REDIS_PASSWORD}}
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory-policy noeviction
     volumes:
       - redis_data:/data
     ports:
@@ -87,12 +172,119 @@ services:
     networks:
       - passdetection-net
     healthcheck:
-      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_SECURITY_PASSWORD:-${REDIS_PASSWORD}}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Durable Celery broker/result and coordination state. No eviction is
+  # permitted; durable database rows remain authoritative for job recovery.
+  redis-broker:
+    image: redis:7-alpine
+    container_name: passdetection-redis-broker
+    restart: unless-stopped
+    command: >-
+      redis-server
+      --requirepass ${REDIS_BROKER_PASSWORD:-${REDIS_PASSWORD}}
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory-policy noeviction
+    volumes:
+      - redis_broker_data:/data
+    ports:
+      - "6380:6379"
+    networks:
+      - passdetection-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_BROKER_PASSWORD:-${REDIS_PASSWORD}}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Realtime messages are hints and leases are reconstructable. Keep the
+  # domain non-persistent but non-evicting so broker backlog cannot disturb it.
+  redis-realtime:
+    image: redis:7-alpine
+    container_name: passdetection-redis-realtime
+    restart: unless-stopped
+    command: >-
+      redis-server
+      --requirepass ${REDIS_REALTIME_PASSWORD:-${REDIS_PASSWORD}}
+      --save ""
+      --appendonly no
+      --maxmemory-policy noeviction
+    ports:
+      - "6381:6379"
+    networks:
+      - passdetection-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_REALTIME_PASSWORD:-${REDIS_PASSWORD}}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Evictable OCR/cache data has an explicit memory ceiling and may never share
+  # an instance with authentication counters or durable task delivery.
+  redis-cache:
+    image: redis:7-alpine
+    container_name: passdetection-redis-cache
+    restart: unless-stopped
+    command: >-
+      redis-server
+      --requirepass ${REDIS_CACHE_PASSWORD:-${REDIS_PASSWORD}}
+      --save ""
+      --appendonly no
+      --maxmemory ${REDIS_CACHE_MAXMEMORY:-256mb}
+      --maxmemory-policy allkeys-lru
+    ports:
+      - "6382:6379"
+    networks:
+      - passdetection-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_CACHE_PASSWORD:-${REDIS_PASSWORD}}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   # ── MinIO (S3-compatible local storage) ─────────────────────────────────────
+  # Production-grade malware boundary for every untrusted document upload.
+  # The immutable feature-line image is paired with a persistent signature
+  # volume so restarts do not redownload the full database. The application
+  # refuses startup/readiness when scanning is required but ClamAV is absent.
+  clamav:
+    image: clamav/clamav:1.5_base@sha256:2a682381f314a3ac6ec13eea55b69bd2594887598e5358d938e711a30df850f2
+    container_name: passdetection-clamav
+    restart: unless-stopped
+    user: clamav
+    entrypoint: ["/init-unprivileged"]
+    environment:
+      CLAMAV_NO_CLAMD: "false"
+      CLAMAV_NO_FRESHCLAMD: "false"
+      CLAMAV_NO_MILTERD: "true"
+      CLAMD_STARTUP_TIMEOUT: "600"
+      FRESHCLAM_CHECKS: "24"
+    volumes:
+      - clamav_signatures:/var/lib/clamav
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=256m
+      - /run:rw,nosuid,nodev,size=32m
+      - /var/log/clamav:rw,nosuid,nodev,size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: ${CLAMAV_MEMORY_LIMIT:-4g}
+    cpus: ${CLAMAV_CPUS:-2.0}
+    pids_limit: 256
+    networks:
+      - passdetection-net
+    healthcheck:
+      test: ["CMD-SHELL", "echo PING | nc 127.0.0.1 3310 | grep -qx PONG"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10m
+
   minio:
     image: minio/minio:RELEASE.2025-09-07T16-13-09Z@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
     container_name: passdetection-minio
@@ -138,13 +330,7 @@ services:
       S3_ENDPOINT_URL: http://minio:9000
       S3_PUBLIC_ENDPOINT_URL: ${S3_PUBLIC_ENDPOINT_URL}
       PROCESSING_BACKEND: ${PROCESSING_BACKEND:-celery}
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
+    depends_on: *backend-service-dependencies
     volumes:
       # Mount source for hot reload in development
       - ./backend:/app
@@ -189,13 +375,7 @@ services:
       S3_PUBLIC_ENDPOINT_URL: ${S3_PUBLIC_ENDPOINT_URL}
       PROCESSING_BACKEND: celery
       C_FORCE_ROOT: "1"
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
+    depends_on: *backend-service-dependencies
     volumes:
       - ./backend:/app
     command: >
@@ -221,6 +401,53 @@ services:
       retries: 3
       start_period: 30s
 
+  my-photos-worker:
+    image: passdetection-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: passdetection-my-photos-worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      <<: *database-capacity-environment
+      POSTGRES_POOL_PROFILE: worker
+      POSTGRES_HOST: db
+      REDIS_HOST: redis
+      S3_ENDPOINT_URL: http://minio:9000
+      S3_PUBLIC_ENDPOINT_URL: ${S3_PUBLIC_ENDPOINT_URL}
+      PROCESSING_BACKEND: celery
+      C_FORCE_ROOT: "1"
+    depends_on: *backend-service-dependencies
+    volumes:
+      - ./backend:/app
+    command: >
+      sh -c "celery -A app.infrastructure.processing.celery_app:celery_app
+      worker
+      --hostname=my-photos@%h
+      --loglevel=INFO
+      --concurrency=${MY_PHOTOS_WORKER_CONCURRENCY:-2}
+      -Q my_photos_control,my_photos_index,my_photos_media,my_photos_search"
+    networks:
+      - passdetection-net
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          python -m app.infrastructure.ai_priority.worker_healthcheck
+          --destination "my-photos@$$(hostname)"
+          --queue my_photos_control
+          --queue my_photos_index
+          --queue my_photos_media
+          --queue my_photos_search
+          --timeout "$${PROCESSING_WORKER_PING_TIMEOUT_SECONDS:-1}"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
   email-worker:
     image: passdetection-backend
     build:
@@ -239,13 +466,7 @@ services:
       S3_PUBLIC_ENDPOINT_URL: ${S3_PUBLIC_ENDPOINT_URL}
       PROCESSING_BACKEND: celery
       C_FORCE_ROOT: "1"
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
+    depends_on: *backend-service-dependencies
     volumes:
       - ./backend:/app
     command: >
@@ -286,11 +507,7 @@ services:
       REDIS_HOST: redis
       PROCESSING_BACKEND: celery
       C_FORCE_ROOT: "1"
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+    depends_on: *backend-service-dependencies
     volumes:
       - ./backend:/app
     command: >
@@ -332,11 +549,7 @@ services:
       REDIS_HOST: redis
       PROCESSING_BACKEND: celery
       C_FORCE_ROOT: "1"
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+    depends_on: *backend-service-dependencies
     volumes:
       - ./backend:/app
     command: >
@@ -376,13 +589,7 @@ services:
       S3_PUBLIC_ENDPOINT_URL: ${S3_PUBLIC_ENDPOINT_URL}
       PROCESSING_BACKEND: celery
       C_FORCE_ROOT: "1"
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
+    depends_on: *backend-service-dependencies
     volumes:
       - ./backend:/app
     command: >
@@ -426,13 +633,7 @@ services:
       S3_PUBLIC_ENDPOINT_URL: ${S3_PUBLIC_ENDPOINT_URL}
       PROCESSING_BACKEND: celery
       C_FORCE_ROOT: "1"
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
+    depends_on: *backend-service-dependencies
     volumes:
       - ./backend:/app
     command: >
@@ -477,13 +678,7 @@ services:
       S3_PUBLIC_ENDPOINT_URL: ${S3_PUBLIC_ENDPOINT_URL}
       PROCESSING_BACKEND: celery
       C_FORCE_ROOT: "1"
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
+    depends_on: *backend-service-dependencies
     volumes:
       - ./backend:/app
     command: >

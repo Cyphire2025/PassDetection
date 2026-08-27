@@ -32,18 +32,15 @@ import { cn } from "@/lib/utils/cn";
 import { useUIStore, selectSidebarCollapsed } from "@/stores/ui.store";
 import { ROUTES } from "@/constants/routes";
 import { Button } from "@/components/ui";
-import { selectUser, selectUserRole, useAuthStore } from "@/stores/auth.store";
-import type { UserRole } from "@/types";
+import { selectUser, useAuthStore } from "@/stores/auth.store";
 import { BrandLogo } from "@/components/brand/brand-logo";
-import { canManageGcApp } from "@/lib/utils/role-access";
+import { canAccessApplicationPath } from "@/features/auth/config/route-capabilities";
 
 interface NavItem {
   label: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
-  roles?: UserRole[];
   activePrefixes?: string[];
-  requiresGcAppManagement?: boolean;
 }
 
 interface SidebarProps {
@@ -52,21 +49,20 @@ interface SidebarProps {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard",    href: ROUTES.dashboard.root,       icon: LayoutDashboard, roles: ["super_admin", "agency_admin", "agency_manager"] },
-  { label: "My Tour",      href: ROUTES.coordinator,          icon: CalendarCheck, roles: ["agency_coordinator"] },
-  { label: "All Groups",   href: ROUTES.dashboard.passports,  icon: FileText, roles: ["super_admin", "agency_admin", "agency_manager", "agency_staff"] },
-  { label: "Group Links",  href: ROUTES.dashboard.uploadLinks, icon: Link2, roles: ["super_admin", "agency_admin", "agency_manager", "agency_staff"] },
-  { label: "WhatsApp",     href: ROUTES.dashboard.whatsapp,    icon: MessageCircle, roles: ["super_admin", "agency_admin", "agency_manager"] },
-  { label: "Operations Inbox", href: ROUTES.dashboard.emailIntegrationsInbox, icon: Mail, roles: ["super_admin", "agency_admin", "agency_manager", "agency_staff"] },
-  { label: "Documents",    href: ROUTES.dashboard.documents,   icon: SendToBack, roles: ["super_admin", "agency_admin", "agency_manager", "agency_staff"] },
-  { label: "Coordinators", href: ROUTES.dashboard.tourOperationsCoordinators, icon: UserCheck, roles: ["super_admin", "agency_admin", "agency_manager"] },
-  { label: "Rooming Lists", href: ROUTES.dashboard.rooming, icon: BedDouble, roles: ["super_admin", "agency_admin", "agency_manager", "agency_staff"] },
-  { label: "Menu",          href: ROUTES.dashboard.menu, icon: UtensilsCrossed, roles: ["super_admin", "agency_admin", "agency_manager", "agency_staff"] },
+  { label: "Dashboard",    href: ROUTES.dashboard.root,       icon: LayoutDashboard },
+  { label: "My Tour",      href: ROUTES.coordinator,          icon: CalendarCheck },
+  { label: "All Groups",   href: ROUTES.dashboard.passports,  icon: FileText },
+  { label: "Group Links",  href: ROUTES.dashboard.uploadLinks, icon: Link2 },
+  { label: "WhatsApp",     href: ROUTES.dashboard.whatsapp,    icon: MessageCircle },
+  { label: "Operations Inbox", href: ROUTES.dashboard.emailIntegrationsInbox, icon: Mail },
+  { label: "Documents",    href: ROUTES.dashboard.documents,   icon: SendToBack },
+  { label: "Coordinators", href: ROUTES.dashboard.tourOperationsCoordinators, icon: UserCheck },
+  { label: "Rooming Lists", href: ROUTES.dashboard.rooming, icon: BedDouble },
+  { label: "Menu",          href: ROUTES.dashboard.menu, icon: UtensilsCrossed },
   {
     label: "Tour Ops",
     href: ROUTES.dashboard.tourOperationsGroupAssignments,
     icon: CalendarCheck,
-    roles: ["super_admin", "agency_admin", "agency_manager", "agency_staff"],
     activePrefixes: [ROUTES.dashboard.tourOperationsGroupAssignments, "/tour-operations/groups"],
   },
   {
@@ -74,14 +70,13 @@ const NAV_ITEMS: NavItem[] = [
     href: ROUTES.dashboard.gcAppClientManagerAccounts,
     icon: Smartphone,
     activePrefixes: [ROUTES.dashboard.gcAppRoot],
-    requiresGcAppManagement: true,
   },
-  { label: "Manager",      href: ROUTES.dashboard.admin,       icon: Shield, roles: ["super_admin", "agency_admin"] },
-  { label: "Staff",        href: ROUTES.dashboard.staff,       icon: UserCog, roles: ["super_admin", "agency_admin", "agency_manager"] },
-  { label: "Analytics",    href: ROUTES.dashboard.analytics,   icon: BarChart3, roles: ["super_admin", "agency_admin"] },
-  { label: "Audit Logs",   href: ROUTES.dashboard.auditLogs,   icon: ClipboardList, roles: ["super_admin", "agency_admin"] },
-  { label: "Old Data",     href: ROUTES.dashboard.oldData,     icon: Database, roles: ["super_admin"] },
-  { label: "Settings",     href: ROUTES.dashboard.settings,   icon: Settings, roles: ["super_admin", "agency_admin"] },
+  { label: "Manager",      href: ROUTES.dashboard.admin,       icon: Shield },
+  { label: "Staff",        href: ROUTES.dashboard.staff,       icon: UserCog },
+  { label: "Analytics",    href: ROUTES.dashboard.analytics,   icon: BarChart3 },
+  { label: "Audit Logs",   href: ROUTES.dashboard.auditLogs,   icon: ClipboardList },
+  { label: "Old Data",     href: ROUTES.dashboard.oldData,     icon: Database },
+  { label: "Settings",     href: ROUTES.dashboard.settings,   icon: Settings },
 ];
 
 export function Sidebar({ mobile = false, onNavigate }: SidebarProps) {
@@ -89,12 +84,8 @@ export function Sidebar({ mobile = false, onNavigate }: SidebarProps) {
   const storedCollapsed = useUIStore(selectSidebarCollapsed);
   const isCollapsed     = mobile ? false : storedCollapsed;
   const toggleSidebar   = useUIStore((s) => s.toggleSidebar);
-  const role            = useAuthStore(selectUserRole);
   const user            = useAuthStore(selectUser);
-  const visibleItems    = NAV_ITEMS.filter((item) =>
-    (!item.roles || (role && item.roles.includes(role)))
-    && (!item.requiresGcAppManagement || canManageGcApp(user)),
-  );
+  const visibleItems    = NAV_ITEMS.filter((item) => canAccessApplicationPath(user, item.href));
 
   return (
     <aside

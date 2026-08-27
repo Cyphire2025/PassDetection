@@ -17,6 +17,10 @@ const distributionHooks = readFileSync(
   new URL("../hooks/use-document-distribution.ts", import.meta.url),
   "utf8",
 );
+const uploadRecovery = readFileSync(
+  new URL("../services/document-upload-recovery.ts", import.meta.url),
+  "utf8",
+);
 const endpoints = readFileSync(new URL("../../../lib/api/endpoints.ts", import.meta.url), "utf8");
 const distributionTypes = readFileSync(
   new URL("../../../types/document-distribution.types.ts", import.meta.url),
@@ -62,11 +66,12 @@ const {
   MAX_DOCUMENT_VERIFICATION_CONCURRENCY,
   MAX_DOCUMENT_RECEIPT_CHUNK_BYTES,
   canFinalizeDocumentReceiptChunk,
-  createAcceptedDocumentUploadSession,
+  createDocumentStagingManifest,
   createDocumentUploadSession,
   createDocumentVerificationSession,
   isPassengerMatchedVerificationFile,
   runConcurrentDocumentVerification,
+  runStagedDocumentUpload,
 } = batchingModule;
 
 function pdfFiles(count, size = 1) {
@@ -162,6 +167,7 @@ test("verification can process chunks sequentially, preserves order, and reports
   assert.equal(maxActive, 1);
   assert.deepEqual(results, ["chunk-0", "chunk-1"]);
   assert.equal(session.completedChunks, 2);
+  assert.deepEqual(session.chunks, [[], []]);
   assert.equal(progress.at(-1).completedFiles, 18);
   assert.equal(progress.at(-1).percent, 100);
   assert.ok(progress.some((value) => value.completedFiles > 0 && value.completedFiles < 18));
@@ -196,7 +202,32 @@ test("verification drains already-started requests before returning an error", a
   assert.equal(secondRequestDrained, true);
 });
 
-test("accepted files retain their verification upload and chunk identities", () => {
+test("an aborted verification never retries or starts another chunk", async () => {
+  let nextId = 0;
+  const session = createDocumentVerificationSession(
+    pdfFiles(18, 1),
+    () => `abort-${nextId++}`,
+  );
+  const controller = new AbortController();
+  controller.abort("unmounted");
+  let requests = 0;
+
+  await assert.rejects(
+    runConcurrentDocumentVerification({
+      session,
+      concurrency: 1,
+      signal: controller.signal,
+      uploadChunk: async () => {
+        requests += 1;
+        return "unexpected";
+      },
+    }),
+    { name: "AbortError" },
+  );
+  assert.equal(requests, 0);
+});
+
+test("accepted files become a receipt-only manifest with the same upload and chunk identities", () => {
   const sourceSession = createSession(pdfFiles(101));
   const acceptedByChunk = sourceSession.chunks.map((chunk, chunkIndex) =>
     chunk.map((_file, fileIndex) =>
@@ -204,24 +235,60 @@ test("accepted files retain their verification upload and chunk identities", () 
     ),
   );
 
-  const acceptedSession = createAcceptedDocumentUploadSession(
+  const receiptsByChunk = acceptedByChunk.map((chunk, chunkIndex) =>
+    chunk.map((accepted, fileIndex) =>
+      accepted ? `receipt-${chunkIndex}-${fileIndex}` : null,
+    ),
+  );
+  const manifest = createDocumentStagingManifest(
     sourceSession,
     acceptedByChunk,
+    receiptsByChunk,
   );
 
-  assert.equal(acceptedSession.uploadId, sourceSession.uploadId);
-  assert.deepEqual(acceptedSession.chunkIds, [
+  assert.equal(manifest.uploadId, sourceSession.uploadId);
+  assert.deepEqual(manifest.chunks.map((chunk) => chunk.chunkId), [
     sourceSession.chunkIds[0],
     sourceSession.chunkIds[2],
   ]);
-  assert.deepEqual(acceptedSession.chunks.map((chunk) => chunk.length), [2, 1]);
   assert.deepEqual(
-    acceptedSession.chunks.flat().map((file) => file.name),
-    ["visa-1.pdf", "visa-50.pdf", "visa-101.pdf"],
+    manifest.chunks.map((chunk) => chunk.receipts),
+    [["receipt-0-0", "receipt-0-49"], ["receipt-2-0"]],
   );
-  assert.equal(acceptedSession.totalFiles, 3);
-  assert.equal(acceptedSession.totalBytes, 3);
-  assert.equal(acceptedSession.completedChunks, 0);
+  assert.equal(manifest.totalFiles, 3);
+  assert.equal(manifest.totalBytes, 3);
+  assert.equal(manifest.completedChunks, 0);
+  assert.equal(JSON.stringify(manifest).includes("visa-1.pdf"), false);
+});
+
+test("receipt finalization releases acknowledged token chunks and remains resumable", async () => {
+  const manifest = {
+    version: 1,
+    uploadId: "upload-1",
+    chunks: [
+      { chunkId: "chunk-1", receipts: ["receipt-1"], fileCount: 1, totalBytes: 10 },
+      { chunkId: "chunk-2", receipts: ["receipt-2"], fileCount: 1, totalBytes: 10 },
+    ],
+    totalFiles: 2,
+    totalBytes: 20,
+    completedChunks: 0,
+    createdAt: new Date(0).toISOString(),
+  };
+  const snapshots = [];
+  const result = await runStagedDocumentUpload({
+    manifest,
+    uploadChunk: async (chunk, chunkIndex, report) => {
+      report(1, 1);
+      return `${chunk.chunkId}:${chunkIndex}`;
+    },
+    onManifestChange: (snapshot) => snapshots.push(snapshot),
+  });
+
+  assert.equal(result, "chunk-2:1");
+  assert.equal(manifest.completedChunks, 2);
+  assert.deepEqual(manifest.chunks.map((chunk) => chunk.receipts), [[], []]);
+  assert.deepEqual(snapshots.map((snapshot) => snapshot.completedChunks), [1, 2]);
+  assert.deepEqual(snapshots[0].chunks.map((chunk) => chunk.receipts), [[], ["receipt-2"]]);
 });
 
 test("only verified files with a confirmed passenger match are uploadable", () => {
@@ -256,14 +323,15 @@ test("receipt finalization is bounded by aggregate UTF-8 bytes", () => {
   assert.equal(canFinalizeDocumentReceiptChunk([`${exactLimit}a`], 1), false);
 });
 
-test("rename and distribution send one immutable upload manifest", () => {
-  for (const source of [renameApi, distributionApi]) {
-    assert.match(source, /formData\.append\("upload_id", session\.uploadId\)/);
-    assert.match(source, /formData\.append\("chunk_id", session\.chunkIds\[chunkIndex\]\)/);
-    assert.match(source, /formData\.append\("expected_chunk_count"/);
-    assert.match(source, /formData\.append\("expected_file_count"/);
-    assert.match(source, /runChunkedDocumentUpload/);
-  }
+test("rename retains raw chunking while distribution finalizes one receipt manifest", () => {
+  assert.match(renameApi, /formData\.append\("upload_id", session\.uploadId\)/);
+  assert.match(renameApi, /formData\.append\("chunk_id", session\.chunkIds\[chunkIndex\]\)/);
+  assert.match(renameApi, /runChunkedDocumentUpload/);
+  assert.match(distributionApi, /formData\.append\("upload_id", manifest\.uploadId\)/);
+  assert.match(distributionApi, /formData\.append\("chunk_id", chunk\.chunkId\)/);
+  assert.match(distributionApi, /formData\.append\("expected_chunk_count"/);
+  assert.match(distributionApi, /formData\.append\("expected_file_count"/);
+  assert.match(distributionApi, /runStagedDocumentUpload/);
 });
 
 test("distribution verification binds receipts to the exact upload and chunk session", () => {
@@ -276,14 +344,15 @@ test("distribution verification binds receipts to the exact upload and chunk ses
     verifySource,
     /formData\.append\("chunk_id", session\.chunkIds\[chunkIndex\]\)/,
   );
-  assert.match(verifySource, /createAcceptedDocumentUploadSession/);
+  assert.match(verifySource, /createDocumentStagingManifest/);
   assert.match(verifySource, /createDocumentVerificationSession/);
   assert.match(verifySource, /runConcurrentDocumentVerification/);
   assert.match(verifySource, /MAX_DOCUMENT_VERIFICATION_CONCURRENCY/);
   assert.match(verifySource, /isPassengerMatchedVerificationFile/);
   assert.match(verifySource, /staging_receipt: null/);
   assert.match(workspace, /setVerification\(data\.verification\)/);
-  assert.match(workspace, /setUploadSession\(data\.uploadSession\)/);
+  assert.match(workspace, /setStagingManifest\(data\.stagingManifest\)/);
+  assert.match(workspace, /setSelectedFiles\(\[\]\)/);
   assert.doesNotMatch(workspace, /createDocumentUploadSession\(acceptedFiles\)/);
 });
 
@@ -373,19 +442,25 @@ test("document delivery polling follows active work and stops after webhook grac
 });
 
 test("distribution finalizes opaque verification receipts without retransmitting PDF bytes", () => {
+  const finalizeSource = distributionApi.slice(
+    distributionApi.indexOf("uploadDocuments"),
+    distributionApi.indexOf("abortUpload"),
+  );
   assert.match(distributionTypes, /staging_receipt: string \| null/);
-  assert.match(distributionApi, /formData\.append\("staging_receipts", receipt\)/);
-  assert.match(distributionApi, /if \(canFinalizeStaging\)/);
-  assert.match(distributionApi, /chunk\.forEach\(\(file\) => formData\.append\("files", file\)\)/);
-  assert.match(workspace, /acceptedStagingReceipts/);
-  assert.match(workspace, /stagingReceipts: acceptedStagingReceipts/);
+  assert.match(finalizeSource, /formData\.append\("staging_receipts", receipt\)/);
+  assert.doesNotMatch(finalizeSource, /formData\.append\("files", file\)/);
+  assert.match(workspace, /manifest: activeManifest/);
+  assert.match(workspace, /persistDocumentUploadRecovery/);
+  assert.match(uploadRecovery, /window\.sessionStorage\.setItem/);
+  assert.match(uploadRecovery, /verificationWithoutStagingReceipts/);
   assert.doesNotMatch(workspace, /\u00e2\u20ac\u201d/);
 });
 
-test("expired or oversized receipt chunks fall back safely to raw PDF bytes", () => {
-  assert.match(distributionApi, /canFinalizeDocumentReceiptChunk/);
-  assert.match(distributionApi, /return await postChunk\(chunkReceipts\)/);
-  assert.match(distributionApi, /code !== "HTTP_410"/);
-  assert.match(distributionApi, /return postChunk\(\)/);
-  assert.doesNotMatch(distributionApi, /code !== "HTTP_409"/);
+test("expired receipts fail explicitly without retaining a raw PDF fallback", () => {
+  assert.match(distributionApi, /code === "HTTP_410"/);
+  assert.match(distributionApi, /browser did not retain raw file copies/);
+  assert.doesNotMatch(distributionApi, /return postChunk\(\)/);
+  assert.match(workspace, /new AbortController\(\)/);
+  assert.match(workspace, /document-workspace-unmounted/);
+  assert.match(workspace, /SENSITIVE_STATE_RESET_EVENT/);
 });

@@ -17,6 +17,7 @@ export const API_ENDPOINTS = {
 
   dashboard: {
     stats: "/api/v1/dashboard/stats",
+    realtime: "/api/v1/dashboard/realtime",
   },
 
   search: {
@@ -277,6 +278,10 @@ export const API_ENDPOINTS = {
     groupPassengers: (groupId: string) => `/api/v1/tour-operations/groups/${groupId}/passengers`,
     assignGroupPassengers: (groupId: string) => `/api/v1/tour-operations/groups/${groupId}/passengers/assign`,
     groupAttendance: (groupId: string) => `/api/v1/tour-operations/groups/${groupId}/attendance`,
+    groupAttendanceSummary: (groupId: string) =>
+      `/api/v1/tour-operations/groups/${groupId}/attendance/summary`,
+    groupAttendanceMissing: (groupId: string, sessionId: string) =>
+      `/api/v1/tour-operations/groups/${groupId}/attendance/sessions/${sessionId}/missing`,
     groupQrCodes: (groupId: string) => `/api/v1/tour-operations/groups/${groupId}/qr-codes`,
     groupQrWhatsAppPreview: (groupId: string) =>
       `/api/v1/tour-operations/groups/${groupId}/qr-codes/whatsapp-preview`,
@@ -299,6 +304,7 @@ export const API_ENDPOINTS = {
     myGroupSessions: (groupId: string) => `/api/v1/tour-operations/coordinator/groups/${groupId}/sessions`,
     mySessionDetails: (sessionId: string) => `/api/v1/tour-operations/coordinator/sessions/${sessionId}/details`,
     mySessionScan: (sessionId: string) => `/api/v1/tour-operations/coordinator/sessions/${sessionId}/scan`,
+    mySessionScanBatch: (sessionId: string) => `/api/v1/tour-operations/coordinator/sessions/${sessionId}/scan/batch`,
     mySessionCloseoutCheckpoint: (groupId: string, sessionId: string) =>
       `/api/v1/tour-operations/coordinator/groups/${groupId}/sessions/${sessionId}/closeout-checkpoint`,
     managedSessions: (groupId: string) => `/api/v1/tour-operations/groups/${groupId}/attendance/sessions`,
@@ -368,6 +374,8 @@ export const API_ENDPOINTS = {
 
   auditLogs: {
     root: "/api/v1/audit-logs",
+    page: "/api/v1/audit-logs/page",
+    export: "/api/v1/audit-logs/export.csv",
   },
 
 } as const;

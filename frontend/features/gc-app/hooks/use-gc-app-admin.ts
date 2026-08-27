@@ -23,10 +23,20 @@ export const gcAppQueryKeys = {
   root: ["gc-app"] as const,
   clientManagers: (agencyId: string | null, filters: ClientManagerFilters) =>
     [...gcAppQueryKeys.root, agencyId, "client-managers", filters] as const,
-  clientManagerSessions: (agencyId: string | null, managerId: string) =>
-    [...gcAppQueryKeys.root, agencyId, "client-managers", managerId, "sessions"] as const,
-  clientManagerAudit: (agencyId: string | null, managerId: string) =>
-    [...gcAppQueryKeys.root, agencyId, "client-managers", managerId, "audit"] as const,
+  clientManagerSessions: (
+    agencyId: string | null,
+    managerId: string,
+    params?: GcPageParams,
+  ) => params
+    ? [...gcAppQueryKeys.root, agencyId, "client-managers", managerId, "sessions", params] as const
+    : [...gcAppQueryKeys.root, agencyId, "client-managers", managerId, "sessions"] as const,
+  clientManagerAudit: (
+    agencyId: string | null,
+    managerId: string,
+    params?: GcPageParams,
+  ) => params
+    ? [...gcAppQueryKeys.root, agencyId, "client-managers", managerId, "audit", params] as const
+    : [...gcAppQueryKeys.root, agencyId, "client-managers", managerId, "audit"] as const,
   companies: (agencyId: string | null, params: GcPageParams) =>
     [...gcAppQueryKeys.root, agencyId, "client-companies", params] as const,
   groupSearch: (agencyId: string | null, params: GcPageParams, eligibleOnly: boolean) =>
@@ -37,8 +47,9 @@ export const gcAppQueryKeys = {
     [...gcAppQueryKeys.root, agencyId, "groups", groupId, "control"] as const,
   groupContent: (agencyId: string | null, groupId: string) =>
     [...gcAppQueryKeys.root, agencyId, "groups", groupId, "content"] as const,
-  groupAudit: (agencyId: string | null, groupId: string) =>
-    [...gcAppQueryKeys.root, agencyId, "groups", groupId, "audit"] as const,
+  groupAudit: (agencyId: string | null, groupId: string, params?: GcPageParams) => params
+    ? [...gcAppQueryKeys.root, agencyId, "groups", groupId, "audit", params] as const
+    : [...gcAppQueryKeys.root, agencyId, "groups", groupId, "audit"] as const,
 };
 
 const SECURITY_QUERY_OPTIONS = {
@@ -60,20 +71,36 @@ export function useClientManagers(agencyId: string | null, filters: ClientManage
   });
 }
 
-export function useClientManagerSessions(agencyId: string | null, managerId: string | null) {
+export function useClientManagerSessions(
+  agencyId: string | null,
+  managerId: string | null,
+  page = 1,
+  pageSize = 25,
+) {
+  const params = { page, page_size: pageSize };
   return useQuery({
-    queryKey: gcAppQueryKeys.clientManagerSessions(agencyId, managerId ?? "none"),
-    queryFn: ({ signal }) => gcAppAdminApi.listClientManagerSessions(agencyId, managerId!, signal),
+    queryKey: gcAppQueryKeys.clientManagerSessions(agencyId, managerId ?? "none", params),
+    queryFn: ({ signal }) =>
+      gcAppAdminApi.listClientManagerSessions(agencyId, managerId!, params, signal),
     enabled: Boolean(managerId && agencyId),
+    placeholderData: keepPreviousData,
     ...SECURITY_QUERY_OPTIONS,
   });
 }
 
-export function useClientManagerAudit(agencyId: string | null, managerId: string | null) {
+export function useClientManagerAudit(
+  agencyId: string | null,
+  managerId: string | null,
+  page = 1,
+  pageSize = 25,
+) {
+  const params = { page, page_size: pageSize };
   return useQuery({
-    queryKey: gcAppQueryKeys.clientManagerAudit(agencyId, managerId ?? "none"),
-    queryFn: ({ signal }) => gcAppAdminApi.listClientManagerAudit(agencyId, managerId!, signal),
+    queryKey: gcAppQueryKeys.clientManagerAudit(agencyId, managerId ?? "none", params),
+    queryFn: ({ signal }) =>
+      gcAppAdminApi.listClientManagerAudit(agencyId, managerId!, params, signal),
     enabled: Boolean(managerId && agencyId),
+    placeholderData: keepPreviousData,
     ...SECURITY_QUERY_OPTIONS,
   });
 }
@@ -203,11 +230,19 @@ export function useGcAppGroupContent(agencyId: string | null, groupId: string, e
   });
 }
 
-export function useGcAppGroupAudit(agencyId: string | null, groupId: string) {
+export function useGcAppGroupAudit(
+  agencyId: string | null,
+  groupId: string,
+  page = 1,
+  pageSize = 50,
+) {
+  const params = { page, page_size: pageSize };
   return useQuery({
-    queryKey: gcAppQueryKeys.groupAudit(agencyId, groupId),
-    queryFn: ({ signal }) => gcAppAdminApi.listGroupAudit(agencyId, groupId, signal),
+    queryKey: gcAppQueryKeys.groupAudit(agencyId, groupId, params),
+    queryFn: ({ signal }) =>
+      gcAppAdminApi.listGroupAudit(agencyId, groupId, params, signal),
     enabled: Boolean(groupId && agencyId),
+    placeholderData: keepPreviousData,
     ...SECURITY_QUERY_OPTIONS,
   });
 }
@@ -248,6 +283,25 @@ export function useGcAppGroupMutations(agencyId: string | null, groupId?: string
       mutationFn: ({ control, patch }: { control: GcAppGroupControl; patch: GcAppControlPatch }) =>
         gcAppAdminApi.updateGroupControl(agencyId, control, patch),
       onSuccess: (_data, variables) => { void invalidateControl(variables.control.id); },
+    }),
+    setMyPhotosEnabled: useMutation({
+      mutationFn: ({ control, enabled }: { control: GcAppGroupControl; enabled: boolean }) =>
+        gcAppAdminApi.setMyPhotosEnabled(agencyId, control, enabled),
+      onSuccess: async (updatedControl, variables) => {
+        const controlKey = gcAppQueryKeys.groupControl(agencyId, variables.control.id);
+        // This is a server-confirmed state change, not an optimistic toggle.
+        // Cancel an older background GET before publishing the canonical
+        // response so it cannot overwrite the newly accepted revision.
+        await queryClient.cancelQueries({ queryKey: controlKey });
+        queryClient.setQueryData<GcAppGroupControl>(controlKey, updatedControl);
+        void invalidateControl(variables.control.id).catch(() => undefined);
+      },
+      onError: (_error, variables) => {
+        // A revision conflict must show the latest authoritative state. Never
+        // retry a stale full intent automatically because another operator may
+        // have changed access settings in the meantime.
+        void invalidateControl(variables.control.id).catch(() => undefined);
+      },
     }),
     revoke: useMutation({
       mutationFn: (id: string) => gcAppAdminApi.revokeGroupAccess(agencyId, id),

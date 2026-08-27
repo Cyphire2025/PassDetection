@@ -30,7 +30,7 @@ class MobileOTPRateLimiter:
         self._key_secret = self._settings.app_secret_key.encode("utf-8")
         try:
             self._redis: Redis | None = Redis.from_url(
-                self._settings.redis.url,
+                self._settings.redis.security_url,
                 encoding="utf-8",
                 decode_responses=True,
             )

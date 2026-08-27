@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Awaitable
+from typing import cast
+
 from redis.asyncio import Redis
 
 _INCREMENT_WITH_TTL_SCRIPT = """
@@ -33,4 +36,17 @@ async def increment_with_ttl_atomic(
 
     if ttl_seconds <= 0:
         raise ValueError("ttl_seconds must be positive")
-    return int(await redis.eval(_INCREMENT_WITH_TTL_SCRIPT, 1, key, ttl_seconds))
+    result: object = await cast(
+        Awaitable[object],
+        redis.eval(_INCREMENT_WITH_TTL_SCRIPT, 1, key, str(ttl_seconds)),
+    )
+    if isinstance(result, bool):
+        raise TypeError("Redis counter returned an invalid boolean result")
+    if isinstance(result, int):
+        return result
+    if isinstance(result, (bytes, str)):
+        try:
+            return int(result)
+        except ValueError:
+            pass
+    raise TypeError("Redis counter returned an invalid result type")

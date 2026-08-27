@@ -9,8 +9,9 @@ import re
 import time
 import uuid
 from collections import defaultdict
+from collections.abc import Awaitable
 from dataclasses import dataclass
-from typing import Any
+from typing import Protocol, cast
 
 from fastapi import status
 from fastapi.responses import JSONResponse
@@ -18,8 +19,9 @@ from redis.asyncio import Redis
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
 from starlette.responses import Response
+from starlette.types import ASGIApp
 
-from app.core.config.settings import get_settings
+from app.core.config.settings import Settings, get_settings
 from app.core.logging.logger import get_logger
 from app.core.security.jwt import decode_access_token
 from app.core.security.upload_session import is_valid_upload_session_id
@@ -107,30 +109,46 @@ class _RateLimitBackendUnavailable(RuntimeError):
     """Raised when a distributed public-upload counter cannot be enforced."""
 
 
+class _AsyncRateLimitRedis(Protocol):
+    def incr(self, key: str) -> Awaitable[int]: ...
+
+    def expire(self, key: str, seconds: int) -> Awaitable[object]: ...
+
+    def eval(
+        self,
+        script: str,
+        numkeys: int,
+        *keys_and_args: str,
+    ) -> Awaitable[object]: ...
+
+
 class RateLimitMiddleware(BaseHTTPMiddleware):
     _local_counts: dict[str, tuple[int, float]] = defaultdict(lambda: (0, 0.0))
     _local_token_buckets: dict[str, tuple[float, float]] = {}
 
     def __init__(
         self,
-        app: Any,
+        app: ASGIApp,
         *,
         window_seconds: int = 60,
-        settings: Any | None = None,
-        redis_client: Any | None = None,
+        settings: Settings | None = None,
+        redis_client: _AsyncRateLimitRedis | None = None,
         initialize_redis: bool = True,
     ) -> None:
         super().__init__(app)
         self._settings = settings or get_settings()
         self._window_seconds = window_seconds
         self._key_secret = self._settings.app_secret_key.encode("utf-8")
-        self._redis: Redis | Any | None = redis_client
+        self._redis: _AsyncRateLimitRedis | None = redis_client
         if initialize_redis and self._redis is None and self._has_enabled_policy():
             try:
-                self._redis = Redis.from_url(
-                    self._settings.redis.url,
-                    encoding="utf-8",
-                    decode_responses=True,
+                self._redis = cast(
+                    _AsyncRateLimitRedis,
+                    Redis.from_url(
+                        self._settings.redis.security_url,
+                        encoding="utf-8",
+                        decode_responses=True,
+                    ),
                 )
             except Exception as exc:
                 logger.warning(
@@ -579,9 +597,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                     _TOKEN_BUCKET_SCRIPT,
                     1,
                     key,
-                    refill_per_second,
-                    capacity,
-                    ttl_ms,
+                    str(refill_per_second),
+                    str(capacity),
+                    str(ttl_ms),
                 )
                 if not isinstance(result, (list, tuple)) or len(result) != 3:
                     raise ValueError("unexpected token bucket response")

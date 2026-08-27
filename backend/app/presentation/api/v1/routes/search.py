@@ -5,9 +5,13 @@ Global Search Routes
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+from typing import TypeVar, cast
+
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql import Select
 
 from app.application.security.authorization_policy import AuthorizationPolicy
 from app.domain.entities.entities import (
@@ -21,6 +25,7 @@ from app.presentation.api.v1.schemas.search_schemas import GlobalSearchResult
 from app.presentation.dependencies.auth import get_current_active_user
 
 router = APIRouter()
+_SearchRow = TypeVar("_SearchRow", bound=tuple[object, ...])
 
 
 @router.get(
@@ -152,18 +157,28 @@ async def _search_groups(
     ]
 
 
-def _apply_visibility_scope(stmt, current_user: User):  # type: ignore[no-untyped-def]
-    return AuthorizationPolicy.apply_passport_visibility_scope(stmt, current_user)
+def _apply_visibility_scope(
+    stmt: Select[_SearchRow], current_user: User
+) -> Select[_SearchRow]:
+    return cast(
+        Select[_SearchRow],
+        AuthorizationPolicy.apply_passport_visibility_scope(stmt, current_user),
+    )
 
 
-def _apply_group_visibility_scope(stmt, current_user: User):  # type: ignore[no-untyped-def]
-    return AuthorizationPolicy.apply_group_visibility_scope(stmt, current_user)
+def _apply_group_visibility_scope(
+    stmt: Select[_SearchRow], current_user: User
+) -> Select[_SearchRow]:
+    return cast(
+        Select[_SearchRow],
+        AuthorizationPolicy.apply_group_visibility_scope(stmt, current_user),
+    )
 
 
 def _submitted_statuses() -> tuple[str, ...]:
     return OFFICE_VISIBLE_PASSPORT_STATUS_VALUES
 
 
-def _string_field(fields: dict, key: str) -> str | None:
+def _string_field(fields: Mapping[str, object], key: str) -> str | None:
     value = fields.get(key)
     return str(value).strip() if value else None

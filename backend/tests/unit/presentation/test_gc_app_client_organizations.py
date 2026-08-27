@@ -302,7 +302,7 @@ async def test_group_metrics_distinguish_accounts_from_acknowledged_devices() ->
     organization = SimpleNamespace(id=access.client_organization_id, name="Bluechip")
     session = SimpleNamespace(
         execute=AsyncMock(
-            side_effect=[_Result((2, 3)), _Result((group, organization))]
+            side_effect=[_Result((2, 3)), _Result((group, organization, False))]
         )
     )
 
@@ -310,6 +310,7 @@ async def test_group_metrics_distinguish_accounts_from_acknowledged_devices() ->
 
     assert response.active_mobile_users == 2
     assert response.synced_device_count == 3
+    assert response.my_photos_enabled is False
     metrics_statement = session.execute.await_args_list[0].args[0]
     metrics_sql = str(
         metrics_statement.compile(

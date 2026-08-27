@@ -13,14 +13,12 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import importlib
+from typing import Protocol, cast
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-try:
-    import sentry_sdk
-except ModuleNotFoundError:  # pragma: no cover - dev safety fallback
-    sentry_sdk = None
+from starlette.concurrency import run_in_threadpool
 
 from app.core.config.settings import Settings, get_settings
 from app.core.logging.logger import configure_logging, get_logger
@@ -29,7 +27,10 @@ from app.infrastructure.mobile_realtime import (
     start_mobile_realtime,
     stop_mobile_realtime,
 )
+from app.infrastructure.observability.metrics import metrics
 from app.infrastructure.observability.sentry import sentry_init_options
+from app.infrastructure.observability.statsd import configure_metrics_export
+from app.infrastructure.security.upload_validator import assert_malware_scanner_ready
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.infrastructure.verification.dispatcher import (
     post_submission_verification_recovery_loop,
@@ -41,6 +42,19 @@ from app.presentation.middleware.rate_limit import RateLimitMiddleware
 from app.presentation.middleware.request_id import RequestIDMiddleware
 from app.presentation.middleware.safe_gzip import SafeGZipMiddleware
 from app.presentation.middleware.security_headers import SecurityHeadersMiddleware
+
+
+class _SentrySdk(Protocol):
+    def init(self, **options: object) -> None: ...
+
+
+try:
+    sentry_sdk: _SentrySdk | None = cast(
+        _SentrySdk,
+        importlib.import_module("sentry_sdk"),
+    )
+except ModuleNotFoundError:  # pragma: no cover - dev safety fallback
+    sentry_sdk = None
 
 logger = get_logger(__name__)
 
@@ -88,6 +102,7 @@ def create_application(
         settings = get_settings()
 
     configure_logging()
+    configure_metrics_export(settings)
 
     if settings.sentry_dsn and settings.is_production:
         if sentry_sdk is None:
@@ -144,6 +159,10 @@ def create_application(
 
     @app.on_event("startup")
     async def on_startup() -> None:
+        # ClamAV uses a bounded blocking socket. Production/staging processes
+        # must prove this boundary before advertising readiness or accepting a
+        # single untrusted byte.
+        await run_in_threadpool(assert_malware_scanner_ready, settings)
         await start_mobile_realtime(settings)
         try:
             await MinioStorageRepository().ensure_bucket_exists()
@@ -182,6 +201,7 @@ def create_application(
             with contextlib.suppress(asyncio.CancelledError):
                 await recovery_task
         await stop_mobile_realtime()
+        metrics.close_export_sink()
         logger.info("application_shutdown")
 
     return app

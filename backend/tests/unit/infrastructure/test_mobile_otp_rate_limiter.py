@@ -15,7 +15,7 @@ class _AtomicCounterRedis:
     def __init__(self, *, fail: bool = False) -> None:
         self.counts: dict[str, int] = {}
         self.ttls: dict[str, int] = {}
-        self.eval_calls: list[tuple[str, int]] = []
+        self.eval_calls: list[tuple[str, str]] = []
         self.fail = fail
 
     async def eval(
@@ -23,7 +23,7 @@ class _AtomicCounterRedis:
         script: str,
         numkeys: int,
         key: str,
-        ttl_seconds: int,
+        ttl_seconds: str,
     ) -> int:
         if self.fail:
             raise ConnectionError("redis unavailable")
@@ -32,9 +32,10 @@ class _AtomicCounterRedis:
         assert "redis.call('TTL', key)" in script
         assert "redis.call('EXPIRE', key, ttl_seconds)" in script
         self.eval_calls.append((key, ttl_seconds))
+        ttl = int(ttl_seconds)
         self.counts[key] = self.counts.get(key, 0) + 1
         if key not in self.ttls:
-            self.ttls[key] = ttl_seconds
+            self.ttls[key] = ttl
         return self.counts[key]
 
 
@@ -62,7 +63,7 @@ async def test_redis_first_increment_sets_ttl_in_same_eval() -> None:
 
     phone_key = limiter._key("phone", "+919999999999")
     ip_key = limiter._key("ip", "192.0.2.1")
-    assert redis.eval_calls == [(phone_key, 3600), (ip_key, 3600)]
+    assert redis.eval_calls == [(phone_key, "3600"), (ip_key, "3600")]
     assert redis.ttls == {phone_key: 3600, ip_key: 3600}
 
 

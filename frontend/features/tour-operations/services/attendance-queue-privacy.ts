@@ -9,6 +9,13 @@ export interface AttendanceTerminalScanSource {
   scannedAt: string;
   deviceId: string;
   queuedAt: string;
+  attemptCount?: number;
+  lastAttemptAt?: string;
+  recovery?: Readonly<{
+    passengerId: string;
+    passengerLabel: string;
+    sessionLabel: string;
+  }>;
 }
 
 export interface SanitizedRejectedAttendanceScan extends AttendanceTerminalScanSource {
@@ -56,6 +63,9 @@ export function createRejectedAttendanceScan(
     scannedAt: scan.scannedAt,
     deviceId: scan.deviceId,
     queuedAt: scan.queuedAt,
+    ...(scan.attemptCount === undefined ? {} : { attemptCount: scan.attemptCount }),
+    ...(scan.lastAttemptAt ? { lastAttemptAt: scan.lastAttemptAt } : {}),
+    ...(scan.recovery ? { recovery: scan.recovery } : {}),
     rejectedAt,
     errorCode,
   };

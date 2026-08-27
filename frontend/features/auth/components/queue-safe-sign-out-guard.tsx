@@ -56,6 +56,7 @@ export function QueueSafeSignOutGuard() {
         setSnapshot(refreshed);
         setError(
           refreshed.review > 0
+          || refreshed.discardAuditPending > 0
             ? "Some scans still require operator review. Return to the scanner to review them, or explicitly discard them."
             : "Saved scans are waiting for their permitted retry time or could not synchronize yet.",
         );
@@ -82,7 +83,7 @@ export function QueueSafeSignOutGuard() {
     }
   };
 
-  const total = snapshot.pending + snapshot.retryable + snapshot.review;
+  const total = snapshot.pending + snapshot.retryable + snapshot.review + snapshot.discardAuditPending;
   const heading = stage === "blocked"
     ? "Saved scans prevent sign-out"
     : stage === "discard-warning"
@@ -133,6 +134,7 @@ export function QueueSafeSignOutGuard() {
               <QueueCount label="Sending" value={snapshot.sending} />
               <QueueCount label="Retryable" value={snapshot.retryable} />
               <QueueCount label="Review" value={snapshot.review} />
+              <QueueCount label="Discard audit" value={snapshot.discardAuditPending} />
             </div>
           )}
           {error ? (

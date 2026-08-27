@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Protocol
+
 from celery.utils.log import get_task_logger
 
 from app.application.use_cases.whatsapp.message_templates import WhatsAppMessageType
@@ -23,7 +25,18 @@ from app.infrastructure.whatsapp.worker_runtime import (
 logger = get_task_logger(__name__)
 
 
-@celery_app.task(
+class _BoundTaskRequest(Protocol):
+    retries: int
+
+
+class _BoundTask(Protocol):
+    request: _BoundTaskRequest
+    max_retries: int
+
+    def retry(self, *, exc: BaseException) -> BaseException: ...
+
+
+@celery_app.task(  # type: ignore[untyped-decorator]  # Celery's task decorator is untyped.
     bind=True,
     name="whatsapp.process_broadcast",
     queue="whatsapp",
@@ -31,7 +44,7 @@ logger = get_task_logger(__name__)
     default_retry_delay=10,
 )
 def process_whatsapp_broadcast(
-    self,  # type: ignore[no-untyped-def]
+    self: _BoundTask,
     *,
     batch_id: str,
     message_type: WhatsAppMessageType,
@@ -71,7 +84,7 @@ def process_whatsapp_broadcast(
         raise self.retry(exc=exc) from exc
 
 
-@celery_app.task(
+@celery_app.task(  # type: ignore[untyped-decorator]  # Celery's task decorator is untyped.
     bind=True,
     name="whatsapp.process_document_broadcast",
     queue="whatsapp",
@@ -79,7 +92,7 @@ def process_whatsapp_broadcast(
     default_retry_delay=10,
 )
 def process_document_whatsapp_broadcast(
-    self,  # type: ignore[no-untyped-def]
+    self: _BoundTask,
     *,
     send_batch_id: str,
 ) -> None:
@@ -107,7 +120,7 @@ def process_document_whatsapp_broadcast(
         raise self.retry(exc=exc) from exc
 
 
-@celery_app.task(
+@celery_app.task(  # type: ignore[untyped-decorator]  # Celery's task decorator is untyped.
     bind=True,
     name="whatsapp.process_qr_broadcast",
     queue="whatsapp",
@@ -115,7 +128,7 @@ def process_document_whatsapp_broadcast(
     default_retry_delay=10,
 )
 def process_qr_whatsapp_broadcast(
-    self,  # type: ignore[no-untyped-def]
+    self: _BoundTask,
     *,
     send_batch_id: str,
 ) -> None:

@@ -30,6 +30,7 @@ test('blocks sign-out for every upload-capable state and reports attendance sepa
     retryable_count: 3,
     unresolved_review_count: 4,
     unsynchronized_attendance_count: 5,
+    unsynchronized_discard_count: 2,
   });
 
   await expect(assertDurableActionQueueSynchronized(namespace)).rejects.toMatchObject({
@@ -40,13 +41,15 @@ test('blocks sign-out for every upload-capable state and reports attendance sepa
       sending: 1,
       retryable: 3,
       unresolvedReview: 4,
-      unsynchronized: 6,
+      unsynchronized: 8,
       unsynchronizedAttendanceScans: 5,
+      unsynchronizedDiscardAudits: 2,
       unsynchronizedOtherActions: 1,
     },
   } satisfies Partial<UnsynchronizedActionsError>);
   expect(getFirstAsync).toHaveBeenCalledWith(
     expect.stringContaining("state IN ('pending', 'sending', 'retryable')"),
+    namespace,
     namespace,
   );
 });
@@ -58,6 +61,7 @@ test('allows sign-out when only encrypted rejected or needs-review evidence rema
     retryable_count: 0,
     unresolved_review_count: 7,
     unsynchronized_attendance_count: 0,
+    unsynchronized_discard_count: 0,
   });
 
   await expect(assertDurableActionQueueSynchronized(namespace)).resolves.toBeUndefined();
@@ -70,6 +74,7 @@ test.each([
     retryable_count: 0,
     unresolved_review_count: 0,
     unsynchronized_attendance_count: 0,
+    unsynchronized_discard_count: 0,
   }],
   ['attendance count larger than total', {
     pending_count: 1,
@@ -77,6 +82,7 @@ test.each([
     retryable_count: 0,
     unresolved_review_count: 0,
     unsynchronized_attendance_count: 2,
+    unsynchronized_discard_count: 0,
   }],
   ['missing aggregate row', null],
 ])('fails closed for %s', async (_label, row) => {

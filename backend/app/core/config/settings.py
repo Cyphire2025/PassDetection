@@ -14,8 +14,8 @@ import ipaddress
 import json
 import re
 from functools import lru_cache
-from typing import Literal, Self
-from urllib.parse import urlsplit
+from typing import Callable, Literal, Self, TypeVar, cast
+from urllib.parse import quote, urlsplit
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from pydantic import Field, SecretStr, computed_field, field_validator, model_validator
@@ -29,6 +29,47 @@ _GEMINI_MODEL_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 _WHATSAPP_API_VERSION_PATTERN = re.compile(r"^v[1-9][0-9]*\.0$")
 _WHATSAPP_TEMPLATE_NAME_PATTERN = re.compile(r"^[a-z0-9_]{1,512}$")
 _WHATSAPP_LANGUAGE_PATTERN = re.compile(r"^[a-z]{2,3}(?:_[A-Z]{2})?$")
+_S3_BUCKET_PATTERN = re.compile(r"^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$")
+_KMS_KEY_ARN_PATTERN = re.compile(
+    r"^arn:(aws|aws-us-gov|aws-cn):kms:([a-z0-9-]+):([0-9]{12}):"
+    r"key/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$"
+)
+
+_SettingsValue = TypeVar("_SettingsValue", bound=BaseSettings)
+
+
+def _validate_s3_bucket_name(value: str) -> None:
+    if (
+        _S3_BUCKET_PATTERN.fullmatch(value) is None
+        or ".." in value
+        or ".-" in value
+        or "-." in value
+    ):
+        raise ValueError("My Photos AWS bucket names must use normalized S3 DNS syntax")
+    try:
+        ipaddress.ip_address(value)
+    except ValueError:
+        return
+    raise ValueError("My Photos AWS bucket names cannot be formatted as IP addresses")
+
+
+def _validate_kms_key_arn(value: str, *, region: str) -> str:
+    match = _KMS_KEY_ARN_PATTERN.fullmatch(value)
+    expected_partition = (
+        "aws-cn" if region.startswith("cn-") else "aws-us-gov" if "-gov-" in region else "aws"
+    )
+    if match is None or match.group(1) != expected_partition or match.group(2) != region:
+        raise ValueError(
+            "My Photos KMS keys must be canonical key ARNs in the configured AWS region"
+        )
+    return match.group(3)
+
+
+def _load_environment_settings(settings_type: type[_SettingsValue]) -> _SettingsValue:
+    """Keep pydantic-settings environment construction visible to strict typing."""
+
+    factory = cast(Callable[[], _SettingsValue], settings_type)
+    return factory()
 
 
 class DatabaseSettings(BaseSettings):
@@ -51,6 +92,14 @@ class DatabaseSettings(BaseSettings):
     worker_max_overflow: int = Field(default=0, ge=0, le=8)
     pool_timeout_seconds: float = Field(default=5.0, ge=0.5, le=60.0)
     pool_recycle_seconds: int = Field(default=1_800, ge=60, le=86_400)
+    api_statement_timeout_ms: int = Field(default=15_000, ge=1_000, le=60_000)
+    worker_statement_timeout_ms: int = Field(default=300_000, ge=1_000, le=900_000)
+    lock_timeout_ms: int = Field(default=5_000, ge=100, le=30_000)
+    idle_in_transaction_session_timeout_ms: int = Field(
+        default=30_000,
+        ge=1_000,
+        le=120_000,
+    )
     server_max_connections: int = Field(default=100, ge=20, le=10_000)
     reserved_connections: int = Field(default=10, ge=5, le=1_000)
     api_connection_budget: int = Field(default=80, ge=5, le=10_000)
@@ -59,14 +108,24 @@ class DatabaseSettings(BaseSettings):
     def validate_connection_reserve(self) -> Self:
         if self.reserved_connections >= self.server_max_connections:
             raise ValueError(
-                "POSTGRES_RESERVED_CONNECTIONS must be lower than "
-                "POSTGRES_SERVER_MAX_CONNECTIONS"
+                "POSTGRES_RESERVED_CONNECTIONS must be lower than POSTGRES_SERVER_MAX_CONNECTIONS"
             )
         usable = self.server_max_connections - self.reserved_connections
         if self.api_connection_budget > usable:
             raise ValueError(
                 "POSTGRES_API_CONNECTION_BUDGET cannot exceed the server capacity "
                 "remaining after POSTGRES_RESERVED_CONNECTIONS"
+            )
+        if self.pool_profile == "api" and self.lock_timeout_ms > self.api_statement_timeout_ms:
+            raise ValueError(
+                "POSTGRES_LOCK_TIMEOUT_MS cannot exceed POSTGRES_API_STATEMENT_TIMEOUT_MS"
+            )
+        if (
+            self.pool_profile == "worker"
+            and self.lock_timeout_ms > self.worker_statement_timeout_ms
+        ):
+            raise ValueError(
+                "POSTGRES_LOCK_TIMEOUT_MS cannot exceed POSTGRES_WORKER_STATEMENT_TIMEOUT_MS"
             )
         return self
 
@@ -76,23 +135,27 @@ class DatabaseSettings(BaseSettings):
 
     @property
     def max_overflow(self) -> int:
-        return (
-            self.api_max_overflow
-            if self.pool_profile == "api"
-            else self.worker_max_overflow
-        )
+        return self.api_max_overflow if self.pool_profile == "api" else self.worker_max_overflow
 
     @property
     def maximum_process_connections(self) -> int:
         return self.pool_size + self.max_overflow
 
-    @computed_field  # type: ignore[misc]
+    @property
+    def statement_timeout_ms(self) -> int:
+        return (
+            self.api_statement_timeout_ms
+            if self.pool_profile == "api"
+            else self.worker_statement_timeout_ms
+        )
+
+    @computed_field  # type: ignore[prop-decorator]  # Pydantic computed property
     @property
     def async_url(self) -> str:
         """Async DSN used by SQLAlchemy + asyncpg at runtime."""
         return f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.db}"
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]  # Pydantic computed property
     @property
     def sync_url(self) -> str:
         """Sync DSN used by Alembic migrations."""
@@ -102,21 +165,182 @@ class DatabaseSettings(BaseSettings):
 
 
 class RedisSettings(BaseSettings):
-    """Redis connection settings."""
+    """Redis connections partitioned by durability and eviction semantics.
+
+    The legacy endpoint remains the development fallback. Production Compose
+    enables ``domain_isolation_required`` and supplies four independent
+    endpoints so broker pressure cannot weaken login throttles, realtime fanout,
+    or evictable OCR caches.
+    """
 
     model_config = SettingsConfigDict(env_prefix="REDIS_", env_file=".env", extra="ignore")
 
     host: str = "localhost"
     port: int = 6379
-    password: str = ""
-    db: int = 0
+    username: str | None = None
+    password: SecretStr = Field(default=SecretStr(""), repr=False)
+    db: int = Field(default=0, ge=0, le=15)
+    domain_isolation_required: bool = False
 
-    @computed_field  # type: ignore[misc]
+    broker_host: str | None = None
+    broker_port: int | None = Field(default=None, ge=1, le=65_535)
+    broker_username: str | None = None
+    broker_password: SecretStr | None = Field(default=None, repr=False)
+    broker_db: int | None = Field(default=None, ge=0, le=15)
+
+    security_host: str | None = None
+    security_port: int | None = Field(default=None, ge=1, le=65_535)
+    security_username: str | None = None
+    security_password: SecretStr | None = Field(default=None, repr=False)
+    security_db: int | None = Field(default=None, ge=0, le=15)
+
+    realtime_host: str | None = None
+    realtime_port: int | None = Field(default=None, ge=1, le=65_535)
+    realtime_username: str | None = None
+    realtime_password: SecretStr | None = Field(default=None, repr=False)
+    realtime_db: int | None = Field(default=None, ge=0, le=15)
+
+    cache_host: str | None = None
+    cache_port: int | None = Field(default=None, ge=1, le=65_535)
+    cache_username: str | None = None
+    cache_password: SecretStr | None = Field(default=None, repr=False)
+    cache_db: int | None = Field(default=None, ge=0, le=15)
+
+    @staticmethod
+    def _normalized_host(value: str, *, field_name: str) -> str:
+        normalized = value.strip()
+        if not normalized or any(character.isspace() for character in normalized):
+            raise ValueError(f"{field_name} must be a non-empty host without whitespace")
+        return normalized
+
+    @field_validator(
+        "host",
+        "broker_host",
+        "security_host",
+        "realtime_host",
+        "cache_host",
+        mode="before",
+    )
+    @classmethod
+    def validate_redis_host(cls, value: object, info: object) -> object:
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            raise ValueError("Redis hosts must be strings")
+        field_name = getattr(info, "field_name", "Redis host")
+        return cls._normalized_host(value, field_name=str(field_name).upper())
+
+    @staticmethod
+    def _secret_value(value: SecretStr | None, fallback: SecretStr) -> str:
+        selected = value if value is not None else fallback
+        return selected.get_secret_value()
+
+    @staticmethod
+    def _connection_url(
+        *,
+        host: str,
+        port: int,
+        username: str | None,
+        password: str,
+        db: int,
+    ) -> str:
+        encoded_password = quote(password, safe="")
+        if username:
+            encoded_username = quote(username.strip(), safe="")
+            credentials = encoded_username
+            if password:
+                credentials += f":{encoded_password}"
+            authority = f"{credentials}@"
+        elif password:
+            authority = f":{encoded_password}@"
+        else:
+            authority = ""
+        return f"redis://{authority}{host}:{port}/{db}"
+
+    def _domain_endpoint(
+        self,
+        domain: Literal["broker", "security", "realtime", "cache"],
+    ) -> tuple[str, int, str | None, str, int]:
+        host = getattr(self, f"{domain}_host") or self.host
+        port = getattr(self, f"{domain}_port") or self.port
+        username = getattr(self, f"{domain}_username")
+        if username is None:
+            username = self.username
+        password = self._secret_value(getattr(self, f"{domain}_password"), self.password)
+        database = getattr(self, f"{domain}_db")
+        if database is None:
+            database = self.db
+        return host, port, username, password, database
+
+    def _domain_url(self, domain: Literal["broker", "security", "realtime", "cache"]) -> str:
+        host, port, username, password, database = self._domain_endpoint(domain)
+        return self._connection_url(
+            host=host,
+            port=port,
+            username=username,
+            password=password,
+            db=database,
+        )
+
+    @model_validator(mode="after")
+    def validate_domain_isolation(self) -> Self:
+        if not self.domain_isolation_required:
+            return self
+        domains: tuple[Literal["broker", "security", "realtime", "cache"], ...] = (
+            "broker",
+            "security",
+            "realtime",
+            "cache",
+        )
+        missing_hosts = [domain for domain in domains if getattr(self, f"{domain}_host") is None]
+        if missing_hosts:
+            raise ValueError(
+                "REDIS_DOMAIN_ISOLATION_REQUIRED needs explicit hosts for: "
+                + ", ".join(missing_hosts)
+            )
+        endpoints: dict[tuple[str, int, int], str] = {}
+        for domain in domains:
+            host, port, _username, password, database = self._domain_endpoint(domain)
+            if not password:
+                raise ValueError(
+                    f"REDIS_{domain.upper()}_PASSWORD is required when domain isolation is enabled"
+                )
+            endpoint = (host.casefold(), port, database)
+            previous = endpoints.setdefault(endpoint, domain)
+            if previous != domain:
+                raise ValueError(
+                    "Redis domain endpoints must be distinct; "
+                    f"{previous} and {domain} resolve to the same host, port, and database"
+                )
+        return self
+
     @property
     def url(self) -> str:
-        if self.password:
-            return f"redis://:{self.password}@{self.host}:{self.port}/{self.db}"
-        return f"redis://{self.host}:{self.port}/{self.db}"
+        """Legacy compatibility endpoint; never serialized with model data."""
+
+        return self._connection_url(
+            host=self.host,
+            port=self.port,
+            username=self.username,
+            password=self.password.get_secret_value(),
+            db=self.db,
+        )
+
+    @property
+    def broker_url(self) -> str:
+        return self._domain_url("broker")
+
+    @property
+    def security_url(self) -> str:
+        return self._domain_url("security")
+
+    @property
+    def realtime_url(self) -> str:
+        return self._domain_url("realtime")
+
+    @property
+    def cache_url(self) -> str:
+        return self._domain_url("cache")
 
 
 class JWTSettings(BaseSettings):
@@ -356,8 +580,7 @@ class MobileSettings(BaseSettings):
             ) from exc
         if not isinstance(parsed, list) or not 1 <= len(parsed) <= 6:
             raise ValueError(
-                "MOBILE_APP_ATTEST_ALLOWED_VALIDATION_CATEGORIES_JSON must contain "
-                "1-6 categories"
+                "MOBILE_APP_ATTEST_ALLOWED_VALIDATION_CATEGORIES_JSON must contain 1-6 categories"
             )
         categories: set[int] = set()
         for category in parsed:
@@ -380,13 +603,10 @@ class MobileSettings(BaseSettings):
         try:
             parsed = json.loads(value)
         except json.JSONDecodeError as exc:
-            raise ValueError(
-                "MOBILE_APP_ATTEST_ALLOWED_BUNDLE_VERSIONS_JSON must be JSON"
-            ) from exc
+            raise ValueError("MOBILE_APP_ATTEST_ALLOWED_BUNDLE_VERSIONS_JSON must be JSON") from exc
         if not isinstance(parsed, list) or not 1 <= len(parsed) <= 64:
             raise ValueError(
-                "MOBILE_APP_ATTEST_ALLOWED_BUNDLE_VERSIONS_JSON must contain "
-                "1-64 versions"
+                "MOBILE_APP_ATTEST_ALLOWED_BUNDLE_VERSIONS_JSON must contain 1-64 versions"
             )
         versions: set[str] = set()
         for version in parsed:
@@ -417,7 +637,9 @@ class MobileSettings(BaseSettings):
             )
         for digest in parsed:
             if not isinstance(digest, str) or not re.fullmatch(r"[A-Za-z0-9_-]{43}=?", digest):
-                raise ValueError("Play signing-certificate digests must be SHA-256 base64url values")
+                raise ValueError(
+                    "Play signing-certificate digests must be SHA-256 base64url values"
+                )
         return json.dumps(sorted(set(parsed)), separators=(",", ":"))
 
     @model_validator(mode="after")
@@ -464,6 +686,371 @@ class MobileSettings(BaseSettings):
                 "MOBILE_PUSH_COUNTDOWN_TIMEZONE must be a valid IANA timezone"
             ) from exc
         return normalized
+
+
+class MyPhotosSettings(BaseSettings):
+    """Fail-closed provider, matching, pagination, and job policy for My Photos."""
+
+    model_config = SettingsConfigDict(env_prefix="MY_PHOTOS_", env_file=".env", extra="ignore")
+
+    liveness_provider: Literal["disabled", "development", "aws_rekognition"] = "disabled"
+    face_search_provider: Literal["disabled", "development", "aws_rekognition"] = "disabled"
+    media_provider: Literal["disabled", "development", "s3"] = "disabled"
+    development_fixtures_enabled: bool = False
+    development_scenario: Literal[
+        "success",
+        "rejected",
+        "expired",
+        "cancelled",
+        "throttled",
+        "unavailable",
+        "no_face",
+        "multiple_faces",
+        "no_matches",
+        "partial_matches",
+    ] = "success"
+    consent_version: str = Field(default="my-photos-biometric-v1", min_length=3, max_length=64)
+    liveness_session_ttl_seconds: int = Field(default=180, ge=30, le=300)
+    liveness_provider_claim_seconds: int = Field(default=30, ge=10, le=120)
+    liveness_provider_timeout_seconds: int = Field(default=20, ge=1, le=60)
+    provider_audit_image_retention_enabled: bool = False
+    # A production reference may be needed by later gallery revisions. The
+    # value remains disabled by default and must align with the reviewed trip/
+    # enrollment window plus the output bucket lifecycle.
+    reference_frame_retention_seconds: int = Field(default=0, ge=0, le=31_536_000)
+    liveness_confidence_threshold: float = Field(default=90.0, ge=0.0, le=100.0)
+    maximum_liveness_attempts: int = Field(default=5, ge=1, le=20)
+    liveness_cooldown_seconds: int = Field(default=900, ge=30, le=86_400)
+    page_size: int = Field(default=48, ge=12, le=60)
+    maximum_page_size: int = Field(default=60, ge=12, le=100)
+    best_match_threshold: float = Field(default=92.0, ge=0.0, le=100.0)
+    possible_match_threshold: float = Field(default=80.0, ge=0.0, le=100.0)
+    match_config_version: str = Field(default="uncalibrated-v1", min_length=3, max_length=64)
+    # The provider adapter may internally paginate, but the domain result must
+    # not silently truncate a passenger's matches below a full V1 gallery.
+    maximum_search_results: int = Field(default=5_000, ge=1, le=5_000)
+    job_batch_size: int = Field(default=100, ge=10, le=500)
+    index_max_failure_ratio: float = Field(default=0.05, ge=0.0, le=1.0)
+    job_max_attempts: int = Field(default=5, ge=1, le=20)
+    # Celery's My Photos hard envelope is 75 seconds; the durable lease must
+    # outlive it so a killed task cannot race its redelivery finalizer.
+    job_lease_seconds: int = Field(default=120, ge=90, le=900)
+    face_search_provider_timeout_seconds: int = Field(default=20, ge=1, le=60)
+    job_retry_base_seconds: int = Field(default=5, ge=1, le=60)
+    job_retry_max_seconds: int = Field(default=300, ge=30, le=3_600)
+    provider_retry_after_seconds: int = Field(default=30, ge=1, le=3_600)
+    provider_deletion_batch_size: int = Field(default=25, ge=1, le=100)
+    provider_deletion_concurrency: int = Field(default=4, ge=1, le=8)
+    provider_deletion_max_attempts: int = Field(default=10, ge=1, le=20)
+    provider_deletion_claim_seconds: int = Field(default=180, ge=30, le=300)
+    recovery_batch_size: int = Field(default=100, ge=10, le=500)
+    delivery_authorization_ttl_seconds: int = Field(default=300, ge=60, le=900)
+    delivery_claim_seconds: int = Field(default=60, ge=15, le=300)
+    delivery_authorization_concurrency: int = Field(default=4, ge=1, le=8)
+    media_provider_timeout_seconds: int = Field(default=20, ge=1, le=60)
+    maximum_delivery_batch: int = Field(default=50, ge=1, le=100)
+    development_fixture_asset_count: int = Field(default=5_000, ge=5_000, le=5_000)
+    development_fixture_match_count: int = Field(default=57, ge=57, le=57)
+
+    # Production AWS values are deliberately unset. Selecting an AWS adapter
+    # without every required scope/retention/credential-broker value fails
+    # validation before any provider client is constructed.
+    aws_region: str | None = Field(
+        default=None,
+        min_length=3,
+        max_length=32,
+        pattern=r"^[a-z]{2}(?:-gov)?-[a-z]+-\d$",
+    )
+    aws_liveness_output_bucket: str | None = Field(default=None, min_length=3, max_length=63)
+    aws_liveness_output_prefix: str = Field(
+        default="my-photos/liveness",
+        min_length=1,
+        max_length=128,
+        pattern=r"^[A-Za-z0-9][A-Za-z0-9!_.*'()/-]*$",
+    )
+    aws_liveness_kms_key_id: str | None = Field(default=None, min_length=1, max_length=2_048)
+    aws_liveness_audit_images_limit: int = Field(default=0, ge=0, le=4)
+    native_temporary_credentials_mode: Literal["disabled", "cognito_identity_pool"] = "disabled"
+    aws_cognito_identity_pool_id: str | None = Field(
+        default=None,
+        min_length=8,
+        max_length=128,
+        pattern=r"^[a-z]{2}(?:-gov)?-[a-z]+-\d:[0-9a-f-]{36}$",
+    )
+    aws_media_bucket: str | None = Field(default=None, min_length=3, max_length=63)
+    aws_media_kms_key_id: str | None = Field(default=None, min_length=1, max_length=2_048)
+    aws_media_key_prefix: str = Field(
+        default="my-photos/media",
+        min_length=1,
+        max_length=128,
+        pattern=r"^[A-Za-z0-9][A-Za-z0-9!_.*'()/-]*$",
+    )
+    aws_s3_endpoint_url: str | None = Field(default=None, min_length=8, max_length=512)
+    aws_s3_addressing_style: Literal["auto", "virtual", "path"] = "auto"
+    aws_expected_bucket_owner: str | None = Field(
+        default=None,
+        min_length=12,
+        max_length=12,
+        pattern=r"^[0-9]{12}$",
+    )
+    aws_collection_prefix: str = Field(
+        default="pd-my-photos",
+        min_length=1,
+        max_length=48,
+        pattern=r"^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+    )
+    # Scope derivation is deliberately separate from opaque-reference signing:
+    # changing it requires an explicit collection/object migration. Reference
+    # signing can rotate normally through the bounded previous-key ring.
+    aws_scope_hmac_secret: SecretStr | None = Field(default=None, repr=False)
+    aws_provider_hmac_key_id: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=64,
+        pattern=r"^[A-Za-z0-9][A-Za-z0-9._-]*$",
+    )
+    aws_provider_hmac_secret: SecretStr | None = Field(default=None, repr=False)
+    aws_provider_hmac_previous_keys: dict[str, SecretStr] = Field(
+        default_factory=dict,
+        repr=False,
+    )
+    aws_index_quality_filter: Literal["NONE", "LOW", "MEDIUM", "HIGH", "AUTO"] = "AUTO"
+    aws_index_max_faces_per_asset: int = Field(default=100, ge=1, le=100)
+    aws_index_concurrency: int = Field(default=4, ge=1, le=8)
+    aws_search_quality_filter: Literal["NONE", "LOW", "MEDIUM", "HIGH", "AUTO"] = "AUTO"
+    aws_connect_timeout_seconds: float = Field(default=3.0, ge=0.5, le=10.0)
+    aws_read_timeout_seconds: float = Field(default=10.0, ge=1.0, le=30.0)
+    aws_max_attempts: int = Field(default=3, ge=1, le=5)
+    aws_max_pool_connections: int = Field(default=16, ge=4, le=64)
+
+    @model_validator(mode="after")
+    def validate_thresholds_and_pages(self) -> Self:
+        if self.possible_match_threshold >= self.best_match_threshold:
+            raise ValueError(
+                "MY_PHOTOS_POSSIBLE_MATCH_THRESHOLD must be lower than "
+                "MY_PHOTOS_BEST_MATCH_THRESHOLD"
+            )
+        if self.page_size > self.maximum_page_size:
+            raise ValueError("MY_PHOTOS_PAGE_SIZE cannot exceed MY_PHOTOS_MAXIMUM_PAGE_SIZE")
+        if self.job_retry_base_seconds > self.job_retry_max_seconds:
+            raise ValueError(
+                "MY_PHOTOS_JOB_RETRY_BASE_SECONDS cannot exceed MY_PHOTOS_JOB_RETRY_MAX_SECONDS"
+            )
+        if self.liveness_provider_timeout_seconds >= self.liveness_provider_claim_seconds:
+            raise ValueError(
+                "MY_PHOTOS_LIVENESS_PROVIDER_TIMEOUT_SECONDS must be shorter than "
+                "MY_PHOTOS_LIVENESS_PROVIDER_CLAIM_SECONDS"
+            )
+        if self.face_search_provider_timeout_seconds >= self.job_lease_seconds:
+            raise ValueError(
+                "MY_PHOTOS_FACE_SEARCH_PROVIDER_TIMEOUT_SECONDS must be shorter than "
+                "MY_PHOTOS_JOB_LEASE_SECONDS"
+            )
+        if self.media_provider_timeout_seconds >= self.delivery_claim_seconds:
+            raise ValueError(
+                "MY_PHOTOS_MEDIA_PROVIDER_TIMEOUT_SECONDS must be shorter than "
+                "MY_PHOTOS_DELIVERY_CLAIM_SECONDS"
+            )
+        if self.face_search_provider_timeout_seconds > 60:
+            raise ValueError("My Photos face-search timeout exceeds the worker envelope")
+        if self.media_provider_timeout_seconds > 60:
+            raise ValueError("My Photos media timeout exceeds the worker envelope")
+        if self.liveness_provider_timeout_seconds >= self.provider_deletion_claim_seconds:
+            raise ValueError(
+                "MY_PHOTOS_LIVENESS_PROVIDER_TIMEOUT_SECONDS must be shorter than "
+                "MY_PHOTOS_PROVIDER_DELETION_CLAIM_SECONDS"
+            )
+        return self
+
+    @model_validator(mode="after")
+    def validate_development_fixture_provider_shape(self) -> Self:
+        if not self.development_fixtures_enabled:
+            return self
+        if {
+            self.liveness_provider,
+            self.face_search_provider,
+            self.media_provider,
+        } != {"development"}:
+            raise ValueError(
+                "MY_PHOTOS_DEVELOPMENT_FIXTURES_ENABLED requires every My Photos "
+                "provider to be development"
+            )
+        return self
+
+    @model_validator(mode="after")
+    def validate_production_provider_shape(self) -> Self:
+        aws_rekognition_selected = "aws_rekognition" in {
+            self.liveness_provider,
+            self.face_search_provider,
+        }
+        s3_selected = self.media_provider == "s3"
+        if not (aws_rekognition_selected or s3_selected):
+            return self
+
+        if (
+            self.liveness_provider,
+            self.face_search_provider,
+            self.media_provider,
+        ) != ("aws_rekognition", "aws_rekognition", "s3"):
+            raise ValueError(
+                "Production My Photos activation requires the complete AWS Rekognition/S3 "
+                "provider set"
+            )
+
+        if self.aws_region is None:
+            raise ValueError("MY_PHOTOS_AWS_REGION is required for production providers")
+        scope_secret = (
+            self.aws_scope_hmac_secret.get_secret_value()
+            if self.aws_scope_hmac_secret is not None
+            else ""
+        )
+        if len(scope_secret) < 32:
+            raise ValueError("MY_PHOTOS_AWS_SCOPE_HMAC_SECRET must contain at least 32 characters")
+        if self.aws_provider_hmac_key_id is None:
+            raise ValueError("MY_PHOTOS_AWS_PROVIDER_HMAC_KEY_ID is required")
+        secret = (
+            self.aws_provider_hmac_secret.get_secret_value()
+            if self.aws_provider_hmac_secret is not None
+            else ""
+        )
+        if len(secret) < 32:
+            raise ValueError(
+                "MY_PHOTOS_AWS_PROVIDER_HMAC_SECRET must contain at least 32 characters"
+            )
+        if len(self.aws_provider_hmac_previous_keys) > 3:
+            raise ValueError("My Photos AWS reference verification key ring exceeds 3 keys")
+        if self.aws_provider_hmac_key_id in self.aws_provider_hmac_previous_keys:
+            raise ValueError(
+                "Active My Photos AWS reference key cannot appear in the previous ring"
+            )
+        key_pattern = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
+        previous_values: list[str] = []
+        for key_id, previous_secret in self.aws_provider_hmac_previous_keys.items():
+            value = previous_secret.get_secret_value()
+            if key_pattern.fullmatch(key_id) is None or len(value) < 32:
+                raise ValueError("My Photos AWS previous reference key ring is invalid")
+            previous_values.append(value)
+        if len({secret, *previous_values}) != 1 + len(previous_values):
+            raise ValueError("My Photos AWS reference signing secrets must be distinct")
+        for name, prefix in (
+            ("MY_PHOTOS_AWS_LIVENESS_OUTPUT_PREFIX", self.aws_liveness_output_prefix),
+            ("MY_PHOTOS_AWS_MEDIA_KEY_PREFIX", self.aws_media_key_prefix),
+        ):
+            if (
+                prefix.endswith("/")
+                or "//" in prefix
+                or any(part in {".", ".."} for part in prefix.split("/"))
+            ):
+                raise ValueError(f"{name} must be a normalized object-key prefix")
+        if self.aws_s3_endpoint_url is not None:
+            endpoint = urlsplit(self.aws_s3_endpoint_url)
+            try:
+                endpoint.port
+            except ValueError as exc:
+                raise ValueError(
+                    "MY_PHOTOS_AWS_S3_ENDPOINT_URL must be a reviewed HTTPS origin"
+                ) from exc
+            if (
+                endpoint.scheme != "https"
+                or endpoint.hostname is None
+                or endpoint.username is not None
+                or endpoint.password is not None
+                or endpoint.query
+                or endpoint.fragment
+                or "//" in endpoint.path
+                or any(part in {".", ".."} for part in endpoint.path.split("/"))
+            ):
+                raise ValueError("MY_PHOTOS_AWS_S3_ENDPOINT_URL must be a reviewed HTTPS origin")
+        elif self.aws_expected_bucket_owner is None:
+            raise ValueError(
+                "MY_PHOTOS_AWS_EXPECTED_BUCKET_OWNER is required for the AWS S3 endpoint"
+            )
+
+        if self.aws_liveness_output_bucket is None:
+            raise ValueError("MY_PHOTOS_AWS_LIVENESS_OUTPUT_BUCKET is required for Face Liveness")
+        _validate_s3_bucket_name(self.aws_liveness_output_bucket)
+        if self.aws_liveness_kms_key_id is None:
+            raise ValueError("MY_PHOTOS_AWS_LIVENESS_KMS_KEY_ID is required")
+        liveness_kms_account = _validate_kms_key_arn(
+            self.aws_liveness_kms_key_id,
+            region=self.aws_region,
+        )
+        if self.liveness_session_ttl_seconds > 180:
+            raise ValueError(
+                "MY_PHOTOS_LIVENESS_SESSION_TTL_SECONDS cannot exceed AWS's 180-second session"
+            )
+        if self.reference_frame_retention_seconds <= 0:
+            raise ValueError(
+                "MY_PHOTOS_REFERENCE_FRAME_RETENTION_SECONDS must be explicitly reviewed "
+                "for AWS Face Liveness"
+            )
+        if self.provider_audit_image_retention_enabled != (
+            self.aws_liveness_audit_images_limit > 0
+        ):
+            raise ValueError("AWS liveness audit-image retention flag and limit must agree")
+        if self.native_temporary_credentials_mode != "cognito_identity_pool":
+            raise ValueError(
+                "MY_PHOTOS_NATIVE_TEMPORARY_CREDENTIALS_MODE must equal "
+                "cognito_identity_pool for AWS Face Liveness"
+            )
+        if self.aws_cognito_identity_pool_id is None:
+            raise ValueError("MY_PHOTOS_AWS_COGNITO_IDENTITY_POOL_ID is required for Cognito mode")
+
+        if self.aws_media_bucket is None:
+            raise ValueError("MY_PHOTOS_AWS_MEDIA_BUCKET is required for Rekognition and S3 media")
+        _validate_s3_bucket_name(self.aws_media_bucket)
+        if self.aws_media_kms_key_id is None:
+            raise ValueError("MY_PHOTOS_AWS_MEDIA_KMS_KEY_ID is required")
+        media_kms_account = _validate_kms_key_arn(
+            self.aws_media_kms_key_id,
+            region=self.aws_region,
+        )
+        if media_kms_account != liveness_kms_account or (
+            self.aws_expected_bucket_owner is not None
+            and media_kms_account != self.aws_expected_bucket_owner
+        ):
+            raise ValueError(
+                "My Photos KMS key ARNs must use the reviewed AWS bucket-owner account"
+            )
+        if self.maximum_search_results > 4_096:
+            raise ValueError(
+                "MY_PHOTOS_MAXIMUM_SEARCH_RESULTS cannot exceed SearchFacesByImage's 4096 limit"
+            )
+        if self.match_config_version.startswith("uncalibrated"):
+            raise ValueError(
+                "A calibrated MY_PHOTOS_MATCH_CONFIG_VERSION is required for AWS matching"
+            )
+        return self
+
+    def validate_runtime_environment(
+        self,
+        app_env: Literal["development", "staging", "production"],
+    ) -> None:
+        """Reject provider options that exist only for explicit local adapter tests."""
+
+        development_selected = "development" in {
+            self.liveness_provider,
+            self.face_search_provider,
+            self.media_provider,
+        }
+        if app_env != "development" and (development_selected or self.development_fixtures_enabled):
+            raise ValueError(
+                "Development My Photos providers and fixtures are forbidden outside "
+                "development (APP_ENV=development only)"
+            )
+        aws_selected = (
+            "aws_rekognition"
+            in {
+                self.liveness_provider,
+                self.face_search_provider,
+            }
+            or self.media_provider == "s3"
+        )
+        if app_env != "development" and aws_selected and self.aws_s3_endpoint_url is not None:
+            raise ValueError(
+                "MY_PHOTOS_AWS_S3_ENDPOINT_URL is allowed only in APP_ENV=development; "
+                "production AWS media must use the distinct AWS S3 object origin"
+            )
 
 
 class S3Settings(BaseSettings):
@@ -515,6 +1102,12 @@ class Settings(BaseSettings):
         max_length=64,
         pattern=r"^(?:unknown|[0-9a-f]{7,64})$",
     )
+    expected_database_schema_revision: str = Field(
+        default="0088_merge_my_photos_hardening",
+        min_length=1,
+        max_length=32,
+        pattern=r"^[A-Za-z0-9_]+$",
+    )
     app_name: str = "Global Connects Dashboard"
 
     api_v1_prefix: str = "/api/v1"
@@ -526,6 +1119,7 @@ class Settings(BaseSettings):
     worker_concurrency: int = Field(default=2, ge=1, le=128)
     email_worker_concurrency: int = Field(default=2, ge=1, le=128)
     email_ai_worker_concurrency: int = Field(default=2, ge=1, le=128)
+    my_photos_worker_concurrency: int = Field(default=2, ge=1, le=8)
 
     allowed_origins: list[str] = ["http://localhost:3000"]
     # Only these direct peers may supply X-Real-IP. The production backend is
@@ -596,9 +1190,9 @@ class Settings(BaseSettings):
             raise ValueError("EMAIL_AI_DEFAULT_TIMEZONE must be a valid IANA timezone") from exc
         return normalized
 
-    @field_validator("email_oauth_frontend_return_url")
+    @field_validator("email_oauth_frontend_return_url", "password_recovery_frontend_url")
     @classmethod
-    def validate_email_oauth_frontend_return_url(cls, value: str) -> str:
+    def validate_frontend_return_url(cls, value: str) -> str:
         normalized = value.strip()
         parsed = urlsplit(normalized)
         if (
@@ -609,7 +1203,7 @@ class Settings(BaseSettings):
             or parsed.fragment
         ):
             raise ValueError(
-                "EMAIL_OAUTH_FRONTEND_RETURN_URL must be an absolute HTTP(S) URL "
+                "Frontend return URLs must be absolute HTTP(S) URLs "
                 "without embedded credentials or a fragment"
             )
         return normalized
@@ -709,6 +1303,19 @@ class Settings(BaseSettings):
     )
     public_upload_rate_limit_require_redis: bool = True
     sentry_dsn: str | None = None
+    # General HTTP/business metrics leave each API or Celery process through a
+    # non-blocking StatsD boundary. Production Compose requires this exporter;
+    # an external Prometheus-compatible collector owns aggregation and SLOs.
+    metrics_exporter: Literal["disabled", "statsd"] = "disabled"
+    metrics_export_required: bool = False
+    metrics_statsd_host: str = Field(default="localhost", min_length=1, max_length=253)
+    metrics_statsd_port: int = Field(default=9125, ge=1, le=65_535)
+    metrics_namespace: str = Field(
+        default="passdetection",
+        min_length=1,
+        max_length=64,
+        pattern=r"^[A-Za-z][A-Za-z0-9_.-]*$",
+    )
     processing_backend: Literal["background", "celery"] = "background"
     processing_job_max_attempts: int = Field(default=3, ge=1, le=10)
     processing_job_timeout_seconds: int = Field(default=45, ge=15, le=300)
@@ -724,10 +1331,23 @@ class Settings(BaseSettings):
     roi_max_concurrency: int = Field(default=4, ge=1, le=8)
     upload_max_file_size_bytes: int = Field(default=10 * 1024 * 1024, ge=1024 * 1024)
     upload_max_pixels: int = Field(default=24_000_000, ge=1_000_000)
+    # All passport images, distribution PDFs, and public-upload documents are
+    # untrusted until the original bytes have crossed the malware boundary.
+    # This switch exists for deliberately document-free deployments; routes
+    # fail closed when disabled rather than silently bypassing scanning.
+    untrusted_document_ingestion_enabled: bool = True
     malware_scanner_enabled: bool = False
     malware_scanner_host: str = "localhost"
     malware_scanner_port: int = Field(default=3310, ge=1, le=65535)
     malware_scanner_timeout_seconds: float = Field(default=2.0, ge=0.2, le=10.0)
+    malware_quarantine_enabled: bool = True
+    malware_quarantine_prefix: str = Field(
+        default="security-quarantine",
+        min_length=3,
+        max_length=80,
+        pattern=r"^[A-Za-z0-9][A-Za-z0-9._/-]*$",
+    )
+    malware_quarantine_retention_days: int = Field(default=14, ge=1, le=90)
     ocr_cache_ttl_seconds: int = Field(default=3600, ge=0)
     google_api_key: SecretStr | None = Field(default=None, repr=False)
     gemini_verification_enabled: bool = True
@@ -857,6 +1477,84 @@ class Settings(BaseSettings):
         repr=False,
     )
 
+    # Workforce identity keys are deliberately independent from one another.
+    # Unset active keys retain the pre-rotation APP_SECRET_KEY derivation for a
+    # backward-compatible first rollout; operators can then introduce an
+    # explicit current key and a bounded previous-key ring.
+    identity_action_hmac_key_id: str = Field(
+        default="legacy-v1",
+        min_length=1,
+        max_length=64,
+        pattern=r"^[A-Za-z0-9][A-Za-z0-9._-]*$",
+    )
+    identity_action_hmac_key: SecretStr | None = Field(default=None, repr=False)
+    identity_action_hmac_previous_keys: dict[str, SecretStr] = Field(
+        default_factory=dict,
+        repr=False,
+    )
+    identity_mfa_encryption_key_id: str = Field(
+        default="legacy-v1",
+        min_length=1,
+        max_length=64,
+        pattern=r"^[A-Za-z0-9][A-Za-z0-9._-]*$",
+    )
+    identity_mfa_encryption_key: SecretStr | None = Field(default=None, repr=False)
+    identity_mfa_decryption_keys: dict[str, SecretStr] = Field(
+        default_factory=dict,
+        repr=False,
+    )
+    identity_notification_encryption_key_id: str = Field(
+        default="legacy-v1",
+        min_length=1,
+        max_length=64,
+        pattern=r"^[A-Za-z0-9][A-Za-z0-9._-]*$",
+    )
+    identity_notification_encryption_key: SecretStr | None = Field(default=None, repr=False)
+    identity_notification_decryption_keys: dict[str, SecretStr] = Field(
+        default_factory=dict,
+        repr=False,
+    )
+    identity_previous_key_limit: int = Field(default=3, ge=0, le=8)
+
+    password_recovery_token_ttl_minutes: int = Field(default=20, ge=5, le=60)
+    password_recovery_delivery_provider: Literal["disabled", "development", "smtp"] = "development"
+    password_recovery_development_expose_token: bool = False
+    password_recovery_frontend_url: str = "http://localhost:3000/auth/recover"
+    password_recovery_smtp_host: str | None = None
+    password_recovery_smtp_port: int = Field(default=587, ge=1, le=65_535)
+    password_recovery_smtp_username: str | None = None
+    password_recovery_smtp_password: SecretStr | None = Field(default=None, repr=False)
+    password_recovery_smtp_sender: str | None = None
+    password_recovery_smtp_starttls: bool = True
+    password_recovery_delivery_timeout_seconds: float = Field(default=10.0, ge=1.0, le=30.0)
+    password_recovery_delivery_max_attempts: int = Field(default=5, ge=1, le=20)
+    password_recovery_delivery_batch_size: int = Field(default=50, ge=1, le=200)
+    password_recovery_account_limit_per_hour: int = Field(default=5, ge=1, le=20)
+    password_recovery_tenant_limit_per_hour: int = Field(default=100, ge=10, le=2_000)
+    password_recovery_ip_limit_per_hour: int = Field(default=20, ge=5, le=200)
+    password_recovery_rate_limit_require_redis: bool = True
+    identity_token_retention_days: int = Field(default=30, ge=1, le=365)
+    identity_consumed_token_retention_days: int = Field(default=7, ge=1, le=90)
+    identity_challenge_retention_days: int = Field(default=7, ge=1, le=90)
+    identity_retention_batch_size: int = Field(default=500, ge=10, le=5_000)
+    mfa_step_up_max_attempts: int = Field(default=5, ge=2, le=20)
+    mfa_step_up_window_seconds: int = Field(default=300, ge=60, le=3_600)
+    mfa_step_up_lock_seconds: int = Field(default=300, ge=30, le=3_600)
+    attendance_runtime_retention_days: int = Field(default=90, ge=7, le=730)
+    attendance_runtime_registration_days: int = Field(default=45, ge=1, le=180)
+    attendance_discard_retention_days: int = Field(default=365, ge=30, le=3_650)
+    attendance_discard_batch_size: int = Field(default=100, ge=1, le=200)
+    browser_offline_authorization_ttl_minutes: int = Field(
+        default=720,
+        ge=15,
+        le=10_080,
+    )
+    browser_offline_max_suspension_seconds: int = Field(
+        default=43_200,
+        ge=60,
+        le=604_800,
+    )
+
     whatsapp_access_token: str | None = None
     whatsapp_phone_number_id: str | None = None
     whatsapp_api_version: str = "v25.0"
@@ -933,6 +1631,49 @@ class Settings(BaseSettings):
         return self
 
     @model_validator(mode="after")
+    def validate_identity_security_configuration(self) -> Self:
+        """Reject ambiguous key rings and unsafe recovery-development controls."""
+
+        rings = (
+            (
+                "IDENTITY_ACTION_HMAC",
+                self.identity_action_hmac_key_id,
+                self.identity_action_hmac_previous_keys,
+            ),
+            (
+                "IDENTITY_MFA_ENCRYPTION",
+                self.identity_mfa_encryption_key_id,
+                self.identity_mfa_decryption_keys,
+            ),
+            (
+                "IDENTITY_NOTIFICATION_ENCRYPTION",
+                self.identity_notification_encryption_key_id,
+                self.identity_notification_decryption_keys,
+            ),
+        )
+        for label, active_key_id, previous_keys in rings:
+            if active_key_id in previous_keys:
+                raise ValueError(f"{label} active key ID must not also be a previous key")
+            if len(previous_keys) > self.identity_previous_key_limit:
+                raise ValueError(f"{label} previous key ring exceeds IDENTITY_PREVIOUS_KEY_LIMIT")
+
+        if self.password_recovery_development_expose_token and not self.is_development:
+            raise ValueError(
+                "PASSWORD_RECOVERY_DEVELOPMENT_EXPOSE_TOKEN is allowed only in development"
+            )
+        if self.password_recovery_delivery_provider == "smtp":
+            missing = []
+            if not (self.password_recovery_smtp_host or "").strip():
+                missing.append("PASSWORD_RECOVERY_SMTP_HOST")
+            if not (self.password_recovery_smtp_sender or "").strip():
+                missing.append("PASSWORD_RECOVERY_SMTP_SENDER")
+            if missing:
+                raise ValueError(
+                    "PASSWORD_RECOVERY_DELIVERY_PROVIDER=smtp requires " + ", ".join(missing)
+                )
+        return self
+
+    @model_validator(mode="after")
     def validate_database_connection_budget(self) -> Self:
         """Fail staging/production before process pools can exceed PostgreSQL."""
 
@@ -950,6 +1691,7 @@ class Settings(BaseSettings):
             self.worker_concurrency
             + self.email_worker_concurrency
             + self.email_ai_worker_concurrency
+            + self.my_photos_worker_concurrency
             + self.gemini_extraction_max_concurrency
             + self.gemini_verification_max_concurrency
             + self.gemini_image_edit_max_concurrency
@@ -963,6 +1705,19 @@ class Settings(BaseSettings):
                 "Configured API and background process pools can claim "
                 f"{total_claim} PostgreSQL connections, exceeding the usable "
                 f"deployment budget of {usable}"
+            )
+        return self
+
+    @model_validator(mode="after")
+    def validate_metrics_export_configuration(self) -> Self:
+        host = self.metrics_statsd_host.strip()
+        if host != self.metrics_statsd_host or any(character.isspace() for character in host):
+            raise ValueError(
+                "METRICS_STATSD_HOST must not contain surrounding or embedded whitespace"
+            )
+        if self.metrics_export_required and self.metrics_exporter != "statsd":
+            raise ValueError(
+                "METRICS_EXPORTER=statsd is required when METRICS_EXPORT_REQUIRED=true"
             )
         return self
 
@@ -1024,6 +1779,13 @@ class Settings(BaseSettings):
         return self
 
     @model_validator(mode="after")
+    def validate_my_photos_provider_configuration(self) -> Self:
+        """Never permit deterministic biometric/media simulation outside local development."""
+
+        self.my_photos.validate_runtime_environment(self.app_env)
+        return self
+
+    @model_validator(mode="after")
     def validate_mobile_verified_link_configuration(self) -> Self:
         """Keep the production Android association document available and exact."""
 
@@ -1061,9 +1823,7 @@ class Settings(BaseSettings):
                 "for production enforcement"
             )
         if mobile.app_attest_team_id is None:
-            raise ValueError(
-                "MOBILE_APP_ATTEST_TEAM_ID is required for production enforcement"
-            )
+            raise ValueError("MOBILE_APP_ATTEST_TEAM_ID is required for production enforcement")
         if mobile.app_attest_environment != "production":
             raise ValueError(
                 "MOBILE_APP_ATTEST_ENVIRONMENT must be production for production enforcement"
@@ -1125,35 +1885,40 @@ class Settings(BaseSettings):
     def email_ai_notifications_ready(self) -> bool:
         return bool(self.email_ai_runtime_ready and self.email_ai_notifications_enabled)
 
-    @computed_field(repr=False)  # type: ignore[misc]
+    @computed_field(repr=False)  # type: ignore[prop-decorator]  # Pydantic property
     @property
     def database(self) -> DatabaseSettings:
-        return DatabaseSettings()
+        return _load_environment_settings(DatabaseSettings)
 
-    @computed_field(repr=False)  # type: ignore[misc]
+    @computed_field(repr=False)  # type: ignore[prop-decorator]  # Pydantic property
     @property
     def redis(self) -> RedisSettings:
-        return RedisSettings()
+        return _load_environment_settings(RedisSettings)
 
-    @computed_field(repr=False)  # type: ignore[misc]
+    @computed_field(repr=False)  # type: ignore[prop-decorator]  # Pydantic property
     @property
     def jwt(self) -> JWTSettings:
-        return JWTSettings()
+        return _load_environment_settings(JWTSettings)
 
-    @computed_field(repr=False)  # type: ignore[misc]
+    @computed_field(repr=False)  # type: ignore[prop-decorator]  # Pydantic property
     @property
     def mobile(self) -> MobileSettings:
-        return MobileSettings()
+        return _load_environment_settings(MobileSettings)
 
-    @computed_field(repr=False)  # type: ignore[misc]
+    @computed_field(repr=False)  # type: ignore[prop-decorator]  # Pydantic property
+    @property
+    def my_photos(self) -> MyPhotosSettings:
+        return _load_environment_settings(MyPhotosSettings)
+
+    @computed_field(repr=False)  # type: ignore[prop-decorator]  # Pydantic property
     @property
     def s3(self) -> S3Settings:
-        return S3Settings()
+        return _load_environment_settings(S3Settings)
 
-    @computed_field(repr=False)  # type: ignore[misc]
+    @computed_field(repr=False)  # type: ignore[prop-decorator]  # Pydantic property
     @property
     def mrz(self) -> MRZSettings:
-        return MRZSettings()
+        return _load_environment_settings(MRZSettings)
 
     @property
     def is_production(self) -> bool:
@@ -1167,4 +1932,4 @@ class Settings(BaseSettings):
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     """Return the singleton Settings instance."""
-    return Settings()
+    return _load_environment_settings(Settings)

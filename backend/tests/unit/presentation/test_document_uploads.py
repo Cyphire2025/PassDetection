@@ -14,6 +14,18 @@ from app.infrastructure.security.upload_validator import (
 from app.presentation.api.v1 import document_uploads
 
 
+@pytest.fixture(autouse=True)
+def _deterministic_upload_security(monkeypatch):
+    class _SecurityService:
+        def __init__(self, *, scanner) -> None:
+            self._scanner = scanner
+
+        async def validate_document(self, *, content: bytes, **_kwargs: object) -> None:
+            self._scanner.scan(content)
+
+    monkeypatch.setattr(document_uploads, "UploadSecurityService", _SecurityService)
+
+
 def _upload(content: bytes, *, filename: str = "document.pdf", size: int | None = None):
     return UploadFile(file=BytesIO(content), filename=filename, size=size)
 

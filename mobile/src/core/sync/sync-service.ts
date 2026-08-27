@@ -34,6 +34,7 @@ import {
   syncFullRoster,
 } from '@/features/coordinator/data/coordinator-repository';
 import { drainAttendanceQueue } from '@/features/coordinator/data/attendance-queue';
+import { drainAttendanceDiscardTombstones } from '@/features/coordinator/data/attendance-discard-store';
 import { drainIncidentQueue } from '@/features/coordinator/data/operations-repository';
 import { drainNotificationReads } from '@/features/notifications/data/notification-repository';
 import {
@@ -113,7 +114,11 @@ async function drainDurableSyncQueues(
 ): Promise<void> {
   const durableQueues: Promise<unknown>[] = [drainNotificationReads(tripId, syncContext)];
   if (role === 'coordinator') {
-    durableQueues.push(drainAttendanceQueue(tripId), drainIncidentQueue(tripId));
+    durableQueues.push(
+      drainAttendanceQueue(tripId),
+      drainAttendanceDiscardTombstones(tripId),
+      drainIncidentQueue(tripId),
+    );
   }
   await Promise.all(durableQueues.map((request) => request.catch(() => undefined)));
   assertSyncContextActive(syncContext);

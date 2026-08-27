@@ -76,6 +76,23 @@ class MinioStorageRepository(IObjectStorageRepository):
         self.settings = get_settings().s3
         self._client, self._presign_client = _shared_s3_clients()
 
+    def check_bucket_access(self) -> None:
+        """Verify that the configured private bucket is reachable and authorized.
+
+        Readiness must never create infrastructure or upload a sentinel object.
+        ``head_bucket`` is therefore kept separate from the startup provisioning
+        path and inherits the reviewed boto connect/read/retry bounds.
+        """
+
+        try:
+            self._client.head_bucket(Bucket=self.settings.bucket_name)
+        except Exception as exc:
+            logger.error(
+                "s3_bucket_readiness_failed",
+                error_type=type(exc).__name__,
+            )
+            raise StorageError("Passport image storage is not available.") from exc
+
     async def ensure_bucket_exists(self) -> None:
         """Provision the bucket during startup, never in a request constructor."""
 

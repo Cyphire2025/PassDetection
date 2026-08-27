@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { offlineAuthorizationReadiness } from '@/core/auth/session-service';
 import { useRealtimeStatusStore } from '@/core/realtime/realtime-status';
+import type { AttendanceSession } from '@/features/coordinator/api/coordinator-contracts';
 import { attendanceTripQueueStatus } from '@/features/coordinator/data/attendance-queue';
 import { loadDeviceEventReadiness } from '@/features/coordinator/data/device-event-readiness';
 import {
@@ -12,7 +13,7 @@ import {
 } from '@/features/coordinator/data/event-readiness';
 
 type EventReadinessInputs = Readonly<{
-  activityId: string | null;
+  activity: AttendanceSession | null;
   cameraGranted: boolean;
   refreshSignal: string;
   tripId: string | null;
@@ -32,7 +33,7 @@ const INITIAL_ASSESSMENT: EventReadinessAssessment = {
 };
 
 export function useCoordinatorEventReadiness({
-  activityId,
+  activity,
   cameraGranted,
   refreshSignal,
   tripId,
@@ -43,9 +44,18 @@ export function useCoordinatorEventReadiness({
   const [verificationIncomplete, setVerificationIncomplete] = useState(false);
   const [verifiedSignature, setVerifiedSignature] = useState<string | null>(null);
   const [manualLoading, setManualLoading] = useState(false);
+  const activitySelected = activity !== null;
+  const scheduleStartsAt = activity?.scheduled_starts_at ?? null;
+  const scheduleEndsAt = activity?.scheduled_ends_at ?? null;
+  const scheduleTimeZone = activity?.schedule_timezone ?? null;
+  const scheduleVersion = activity?.schedule_version ?? 1;
   const inputSignature = [
     tripId ?? 'no-trip',
-    activityId ?? 'no-activity',
+    activity?.id ?? 'no-activity',
+    activity?.scheduled_starts_at ?? 'no-schedule-start',
+    activity?.scheduled_ends_at ?? 'no-schedule-end',
+    activity?.schedule_timezone ?? 'no-schedule-zone',
+    activity?.schedule_version ?? 'no-schedule-version',
     cameraGranted ? 'camera' : 'no-camera',
     realtimeStatus,
     refreshSignal,
@@ -54,7 +64,6 @@ export function useCoordinatorEventReadiness({
   const load = useCallback(async (signature: string) => {
     const version = loadVersion.current + 1;
     loadVersion.current = version;
-    const activitySelected = activityId !== null;
     if (!tripId || !activitySelected) {
       await Promise.resolve();
       if (loadVersion.current !== version) return;
@@ -67,6 +76,7 @@ export function useCoordinatorEventReadiness({
         offlineAuthorization: null,
         queue: null,
         realtimeStatus,
+        schedule: null,
         tripSelected: tripId !== null,
       }));
       setVerifiedSignature(signature);
@@ -95,10 +105,25 @@ export function useCoordinatorEventReadiness({
         : null,
       queue: queueResult.status === 'fulfilled' ? queueResult.value : null,
       realtimeStatus,
+      schedule: {
+        endsAt: scheduleEndsAt,
+        startsAt: scheduleStartsAt,
+        timeZone: scheduleTimeZone,
+        version: scheduleVersion,
+      },
       tripSelected: true,
     }));
     setVerifiedSignature(signature);
-  }, [activityId, cameraGranted, realtimeStatus, tripId]);
+  }, [
+    activitySelected,
+    cameraGranted,
+    realtimeStatus,
+    scheduleEndsAt,
+    scheduleStartsAt,
+    scheduleTimeZone,
+    scheduleVersion,
+    tripId,
+  ]);
 
   useEffect(() => {
     void load(inputSignature);

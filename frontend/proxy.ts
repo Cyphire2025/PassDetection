@@ -1,8 +1,10 @@
 /**
- * Next.js Middleware — Route Protection
- * ================================
- * Runs on the Edge before any page renders.
- * Redirects unauthenticated users away from protected routes.
+ * Next.js Proxy — Optimistic Route Protection
+ * ===========================================
+ * Runs at the request boundary before a page renders. Cookie presence avoids
+ * mounting obviously unauthenticated pages; API authorization remains the
+ * authoritative security boundary and the client capability map fails closed
+ * while the signed-in user record is loading.
  *
  * Protected routes: dashboard and office feature routes, including email integrations
  * Public routes:    /login, /upload/[token]
@@ -78,7 +80,8 @@ export function proxy(request: NextRequest): NextResponse {
     process.env.NODE_ENV === "development",
   );
 
-  // Check for auth token cookie (set by the frontend after login)
+  // The backend sets this HttpOnly cookie. Presence is only an optimistic
+  // navigation hint; proxy code cannot validate the full account authority.
   const accessToken = request.cookies.get("access_token")?.value;
   const isAuthenticated = Boolean(accessToken);
 

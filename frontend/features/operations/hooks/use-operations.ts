@@ -1,6 +1,27 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants";
-import { operationsApi, type StaffAccount } from "../api/operations.api";
+import { useAuthStore } from "@/stores/auth.store";
+import {
+  operationsApi,
+  type AuditLogFilters,
+  type GroupAttendanceSummary,
+  type RoomingAllocationMutationResponse,
+  type RoomingWorkspace,
+  type StaffAccount,
+} from "../api/operations.api";
+import {
+  attendanceRepairIntervalMs,
+  publishAttendanceInvalidationHint,
+  subscribeAttendanceInvalidationHints,
+} from "../services/attendance-invalidation";
+import {
+  expectedRoomingRevisionsForHotel,
+  expectedRoomingRevisionsForSelection,
+  isRoomingRevisionConflict,
+  mergeRoomingAllocationMutation,
+  type RoomingMutationMergeStatus,
+} from "../services/rooming-allocation-mutations";
 
 export function useAdminOverview() {
   return useQuery({
@@ -171,6 +192,34 @@ export function useAuditLogs() {
   });
 }
 
+export function useAuditLogPages(filters: AuditLogFilters) {
+  const accessScope = useAuthenticatedQueryScope();
+  return useInfiniteQuery({
+    queryKey: [...QUERY_KEYS.operations.auditLogs(filters), accessScope],
+    initialPageParam: null as string | null,
+    queryFn: ({ pageParam, signal }) => operationsApi.auditLogPage({
+      filters,
+      cursor: pageParam,
+      signal,
+    }),
+    getNextPageParam: (lastPage) => lastPage.next_cursor ?? undefined,
+    refetchOnWindowFocus: true,
+    retry: false,
+  });
+}
+
+export function useAuditLogExport() {
+  return useMutation({
+    mutationFn: ({
+      filters,
+      signal,
+    }: {
+      filters: AuditLogFilters & { start_at: string; end_at: string };
+      signal: AbortSignal;
+    }) => operationsApi.exportAuditLogs({ filters, signal }),
+  });
+}
+
 export function useTourOperationsArchitecture() {
   return useQuery({
     queryKey: QUERY_KEYS.operations.tourOperationsArchitecture,
@@ -247,15 +296,36 @@ export function useRoomingRosterFieldValues(
 
 export function useRoomingActions(groupId: string) {
   const queryClient = useQueryClient();
-  const refresh = () => queryClient.invalidateQueries({ queryKey: roomingWorkspaceKey(groupId) });
-  const applyWorkspace = (workspace: Awaited<ReturnType<typeof operationsApi.roomingWorkspace>>) => {
-    queryClient.setQueryData(roomingWorkspaceKey(groupId), workspace);
+  const workspaceKey = roomingWorkspaceKey(groupId);
+  const refresh = () => queryClient.invalidateQueries({ queryKey: workspaceKey });
+  const currentWorkspace = () => {
+    const workspace = queryClient.getQueryData<RoomingWorkspace>(workspaceKey);
+    if (!workspace) {
+      throw new Error("Rooming data is no longer available. Refresh and try again.");
+    }
+    return workspace;
   };
-  const applyWorkspaceAndRefreshCheckins = (
-    workspace: Awaited<ReturnType<typeof operationsApi.roomingWorkspace>>,
+  const applyAllocationMutation = (
+    mutation: RoomingAllocationMutationResponse,
   ) => {
-    applyWorkspace(workspace);
-    queryClient.invalidateQueries({ queryKey: ["rooming", "checkins"] });
+    let mergeStatus: RoomingMutationMergeStatus = "incompatible";
+    queryClient.setQueryData<RoomingWorkspace>(workspaceKey, (workspace) => {
+      if (!workspace) return workspace;
+      const result = mergeRoomingAllocationMutation(workspace, mutation);
+      mergeStatus = result.status;
+      return result.workspace;
+    });
+    if (mergeStatus === "incompatible") {
+      void queryClient.invalidateQueries({ queryKey: workspaceKey });
+    }
+    if (mutation.changed) {
+      void queryClient.invalidateQueries({ queryKey: ["rooming", "checkins"] });
+    }
+  };
+  const handleAllocationError = (error: unknown) => {
+    if (!isRoomingRevisionConflict(error)) return;
+    void queryClient.invalidateQueries({ queryKey: workspaceKey });
+    void queryClient.invalidateQueries({ queryKey: ["rooming", "checkins"] });
   };
 
   return {
@@ -279,31 +349,55 @@ export function useRoomingActions(groupId: string) {
         hotelId: string;
         passengerIds: string[];
         mode?: "replace" | "add" | "remove";
-      }) => operationsApi.updateRoomingPassengerSelection(hotelId, {
-        passenger_ids: passengerIds,
-        mode,
-      }),
-      onSuccess: applyWorkspaceAndRefreshCheckins,
+      }) => {
+        const workspace = currentWorkspace();
+        return operationsApi.updateRoomingPassengerSelection(hotelId, {
+          passenger_ids: passengerIds,
+          mode,
+          expected_allocation_revisions: expectedRoomingRevisionsForSelection(
+            workspace,
+            { hotelId, passengerIds, mode },
+          ),
+        });
+      },
+      onSuccess: applyAllocationMutation,
+      onError: handleAllocationError,
     }),
     setPassengerVip: useMutation({
       mutationFn: ({ hotelId, passengerIds, isVip }: {
         hotelId: string;
         passengerIds: string[];
         isVip: boolean;
-      }) => operationsApi.updateRoomingVip(hotelId, {
-        passenger_ids: passengerIds,
-        is_vip: isVip,
-      }),
-      onSuccess: applyWorkspaceAndRefreshCheckins,
+      }) => {
+        const workspace = currentWorkspace();
+        return operationsApi.updateRoomingVip(hotelId, {
+          passenger_ids: passengerIds,
+          is_vip: isVip,
+          expected_allocation_revisions: expectedRoomingRevisionsForHotel(
+            workspace,
+            hotelId,
+          ),
+        });
+      },
+      onSuccess: applyAllocationMutation,
+      onError: handleAllocationError,
     }),
     autoAllocate: useMutation({
       mutationFn: ({ hotelId, priorityFields }: {
         hotelId: string;
         priorityFields: string[];
-      }) => operationsApi.autoAllocateRoomingHotel(hotelId, {
-        priority_fields: priorityFields,
-      }),
-      onSuccess: applyWorkspaceAndRefreshCheckins,
+      }) => {
+        const workspace = currentWorkspace();
+        return operationsApi.autoAllocateRoomingHotel(hotelId, {
+          priority_fields: priorityFields,
+          expected_allocation_revisions: expectedRoomingRevisionsForHotel(
+            workspace,
+            hotelId,
+          ),
+        });
+      },
+      onSuccess: applyAllocationMutation,
+      onError: handleAllocationError,
     }),
   };
 }
@@ -379,14 +473,33 @@ export function useMyTourGroupPassenger(groupId: string | null, passengerId: str
 }
 
 export function useMyAttendanceSessions(groupId: string | null, enabled = true) {
+  const queryClient = useQueryClient();
+  const accessScope = useAuthenticatedQueryScope();
+  const resolvedGroupId = groupId ?? "none";
+  const queryKey = [...QUERY_KEYS.operations.tourGroupPassengers(resolvedGroupId), "sessions"] as const;
+  useEffect(() => subscribeAttendanceInvalidationHints((hint) => {
+    if (hint.groupId !== groupId) return;
+    void queryClient.invalidateQueries({
+      queryKey: [...QUERY_KEYS.operations.tourGroupPassengers(resolvedGroupId), "sessions"],
+    });
+  }), [groupId, queryClient, resolvedGroupId]);
+
   return useQuery({
-    queryKey: [...QUERY_KEYS.operations.tourGroupPassengers(groupId ?? "none"), "sessions"],
+    queryKey,
     queryFn: () => operationsApi.myAttendanceSessions(groupId as string),
     enabled: enabled && Boolean(groupId),
     retry: false,
-    refetchInterval: 1_500,
+    refetchInterval: (query) => attendanceRepairIntervalMs({
+      groupId: resolvedGroupId,
+      accessScope,
+      hasActiveSession: query.state.data?.some(
+        (session) => session.status === "draft" || session.status === "active",
+      ) ?? false,
+    }),
     refetchIntervalInBackground: false,
-    staleTime: 500,
+    refetchOnReconnect: "always",
+    refetchOnWindowFocus: "always",
+    staleTime: 2_000,
   });
 }
 
@@ -411,8 +524,22 @@ export function useScanMyAttendanceSession() {
 }
 
 export function useCompleteManagedAttendanceSession() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: operationsApi.completeManagedAttendanceSession,
+    onSuccess: (_data, variables) => {
+      publishAttendanceInvalidationHint({
+        groupId: variables.groupId,
+        sessionId: variables.sessionId,
+        source: "local-mutation",
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["operations", "tour-operations", "groups", variables.groupId, "attendance"],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [...QUERY_KEYS.operations.tourGroupPassengers(variables.groupId), "sessions"],
+      });
+    },
   });
 }
 
@@ -421,7 +548,12 @@ export function useCreateManagedAttendanceSession() {
 
   return useMutation({
     mutationFn: operationsApi.createManagedAttendanceSession,
-    onSuccess: (_data, variables) => {
+    onSuccess: (data, variables) => {
+      publishAttendanceInvalidationHint({
+        groupId: variables.groupId,
+        sessionId: data.id,
+        source: "local-mutation",
+      });
       queryClient.invalidateQueries({
         queryKey: ["operations", "tour-operations", "groups", variables.groupId, "attendance"],
       });
@@ -433,15 +565,125 @@ export function useCreateManagedAttendanceSession() {
 }
 
 export function useGroupAttendanceOverview(groupId: string) {
+  const accessScope = useAuthenticatedQueryScope();
   return useQuery({
     queryKey: ["operations", "tour-operations", "groups", groupId, "attendance"],
     queryFn: () => operationsApi.groupAttendanceOverview(groupId),
-    refetchInterval: (query) => query.state.data?.sessions.some(
-      (session) => session.status === "draft" || session.status === "active",
-    ) ? 1_500 : 10_000,
+    refetchInterval: (query) => attendanceRepairIntervalMs({
+      groupId,
+      accessScope,
+      hasActiveSession: query.state.data?.sessions.some(
+        (session) => session.status === "draft" || session.status === "active",
+      ) ?? false,
+    }),
     refetchIntervalInBackground: false,
+    refetchOnReconnect: "always",
+    refetchOnWindowFocus: "always",
     retry: false,
   });
+}
+
+export function useGroupAttendanceSummary(groupId: string) {
+  const queryClient = useQueryClient();
+  const accessScope = useAuthenticatedQueryScope();
+  const queryKey = [
+    "operations",
+    "tour-operations",
+    "groups",
+    groupId,
+    "attendance",
+    "summary",
+    accessScope,
+  ] as const;
+  useEffect(() => subscribeAttendanceInvalidationHints((hint) => {
+    if (hint.groupId !== groupId) return;
+    void queryClient.invalidateQueries({
+      queryKey: [
+        "operations",
+        "tour-operations",
+        "groups",
+        groupId,
+        "attendance",
+        "summary",
+        accessScope,
+      ],
+    });
+  }), [accessScope, groupId, queryClient]);
+  return useQuery({
+    queryKey,
+    queryFn: ({ signal }) => operationsApi.groupAttendanceSummary({
+      groupId,
+      previous: queryClient.getQueryData<GroupAttendanceSummary>(queryKey),
+      signal,
+    }),
+    refetchInterval: (query) => attendanceRepairIntervalMs({
+      groupId,
+      accessScope,
+      hasActiveSession: query.state.data?.sessions.some(
+        (session) => session.status === "draft" || session.status === "active",
+      ) ?? false,
+    }),
+    refetchIntervalInBackground: false,
+    refetchOnReconnect: "always",
+    refetchOnWindowFocus: "always",
+    retry: false,
+  });
+}
+
+export function useGroupAttendanceMissingPassengers({
+  groupId,
+  sessionId,
+  revision,
+  search,
+  enabled,
+}: {
+  groupId: string;
+  sessionId: string | null;
+  revision: string | null;
+  search: string;
+  enabled: boolean;
+}) {
+  const accessScope = useAuthenticatedQueryScope();
+  return useInfiniteQuery({
+    queryKey: [
+      "operations",
+      "tour-operations",
+      "groups",
+      groupId,
+      "attendance",
+      "missing",
+      sessionId ?? "none",
+      revision ?? "none",
+      search,
+      accessScope,
+    ],
+    initialPageParam: null as string | null,
+    queryFn: ({ pageParam, signal }) => {
+      if (!sessionId || !revision) {
+        throw new Error("Missing-passenger queries require an activity revision");
+      }
+      return operationsApi.groupAttendanceMissingPassengers({
+        groupId,
+        sessionId,
+        revision,
+        cursor: pageParam,
+        search,
+        signal,
+      });
+    },
+    enabled: enabled && Boolean(sessionId) && Boolean(revision),
+    getNextPageParam: (lastPage) => lastPage.next_cursor ?? undefined,
+    retry: false,
+  });
+}
+
+function useAuthenticatedQueryScope(): string {
+  return useAuthStore((state) => [
+    state.sessionVersion,
+    state.user?.id ?? "anonymous",
+    state.user?.agency_id ?? "global",
+    state.user?.role ?? "none",
+  ].join(":"));
 }
 
 export function useGroupQrCodes(groupId: string) {

@@ -170,6 +170,40 @@ test('allows only fixed low-cardinality SLO metrics and attributes', () => {
     attributes: { outcome: 'success' },
   })).toBeNull();
   expect(sanitizeMobileObservabilityMetric({
+    name: 'gc.mobile.my_photos.gallery.blank_incident',
+    type: 'counter',
+    value: 1,
+    attributes: { outcome: 'partial', asset_id: secret },
+  })).toEqual({
+    name: 'gc.mobile.my_photos.gallery.blank_incident',
+    type: 'counter',
+    value: 1,
+    attributes: { outcome: 'partial' },
+  });
+
+  expect(sanitizeMobileObservabilityMetric({
+    name: 'gc.mobile.api.request.duration',
+    type: 'distribution',
+    value: 240,
+    attributes: {
+      outcome: 'success',
+      api_operation: 'my_photos',
+      api_method: 'get',
+      raw_path: `/mobile/passengers/${secret}/my-photos`,
+    },
+  })).toEqual({
+    name: 'gc.mobile.api.request.duration',
+    type: 'distribution',
+    value: 240,
+    unit: 'millisecond',
+    attributes: {
+      outcome: 'success',
+      api_operation: 'my_photos',
+      api_method: 'get',
+    },
+  });
+
+  expect(sanitizeMobileObservabilityMetric({
     name: 'gc.mobile.queue.depth',
     type: 'gauge',
     value: 12_000,

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import date, datetime
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -12,6 +12,17 @@ ROOM_TYPES = {"single": 1, "twin": 2, "triple": 3}
 ALLOCATION_TAGS = {"mixed", "male", "female", "family", "couple", "vip"}
 PASSENGER_TAGS = {"unspecified", "male", "female", "family", "couple"}
 SPECIAL_REQUESTS = {"smoking", "wheelchair", "vip", "late_arrival"}
+AllocationRevision = Annotated[int, Field(ge=0)]
+
+
+class AllocationRevisionFenceRequest(BaseModel):
+    """Optimistic concurrency fence shared by allocation-changing commands."""
+
+    expected_allocation_revisions: dict[uuid.UUID, AllocationRevision] = Field(
+        ...,
+        min_length=1,
+        max_length=5000,
+    )
 
 
 class CreateRoomingHotelRequest(BaseModel):
@@ -66,7 +77,7 @@ class UpdatePassengerAllocationRequest(BaseModel):
         return normalized
 
 
-class UpdateHotelPassengerSelectionRequest(BaseModel):
+class UpdateHotelPassengerSelectionRequest(AllocationRevisionFenceRequest):
     passenger_ids: list[uuid.UUID] = Field(default_factory=list, max_length=5000)
     mode: Literal["replace", "add", "remove"] = "add"
 
@@ -84,7 +95,7 @@ class UpdateHotelPassengerSelectionRequest(BaseModel):
         return self
 
 
-class UpdateHotelVipRequest(BaseModel):
+class UpdateHotelVipRequest(AllocationRevisionFenceRequest):
     passenger_ids: list[uuid.UUID] = Field(..., min_length=1, max_length=5000)
     is_vip: bool
 
@@ -96,7 +107,7 @@ class UpdateHotelVipRequest(BaseModel):
         return value
 
 
-class AutoAllocateRoomsRequest(BaseModel):
+class AutoAllocateRoomsRequest(AllocationRevisionFenceRequest):
     priority_fields: list[str] = Field(default_factory=list, max_length=6)
 
     @field_validator("priority_fields")
@@ -192,6 +203,55 @@ class RoomingWorkspaceResponse(BaseModel):
     total_passengers: int
     hotels: list[RoomingHotelResponse] = Field(default_factory=list)
     passengers: list[RoomingPassengerResponse] = Field(default_factory=list)
+
+
+class RoomingRoomAllocationDeltaResponse(BaseModel):
+    id: uuid.UUID
+    room_number: str
+    room_type: str
+    capacity: int
+    allocation_tag: str
+    roommate_notes: str | None = None
+    is_saved: bool = False
+    sort_order: int = 0
+    occupant_ids: list[uuid.UUID] = Field(default_factory=list, max_length=3)
+
+
+class RoomingHotelAllocationDeltaResponse(BaseModel):
+    hotel_id: uuid.UUID
+    rooms: list[RoomingRoomAllocationDeltaResponse] = Field(default_factory=list)
+    allocation_priority_fields: list[RoomingPriorityFieldResponse] = Field(
+        default_factory=list
+    )
+    allocation_revision: int = Field(ge=0)
+    allocation_is_current: bool = False
+    allocated_passenger_count: int = Field(default=0, ge=0)
+    capacity_total: int = Field(default=0, ge=0)
+
+
+class RoomingPassengerAllocationDeltaResponse(BaseModel):
+    passenger_id: uuid.UUID
+    selected_hotel_id: uuid.UUID | None = None
+    is_vip: bool = False
+
+
+class RoomingAllocationMutationResponse(BaseModel):
+    """Bounded allocation delta; deliberately excludes the full group roster."""
+
+    group_id: uuid.UUID
+    changed: bool
+    current_revisions: dict[uuid.UUID, AllocationRevision] = Field(
+        default_factory=dict,
+        max_length=5000,
+    )
+    hotels: list[RoomingHotelAllocationDeltaResponse] = Field(
+        default_factory=list,
+        max_length=5000,
+    )
+    passengers: list[RoomingPassengerAllocationDeltaResponse] = Field(
+        default_factory=list,
+        max_length=5000,
+    )
 
 
 class RoomingExportResponse(BaseModel):

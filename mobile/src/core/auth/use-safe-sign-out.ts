@@ -83,11 +83,19 @@ const SAFE_SYNC_ERROR =
 function unsynchronizedMessage(summary: DurableActionQueueSummary): string {
   const scanCount = summary.unsynchronizedAttendanceScans;
   const otherCount = summary.unsynchronizedOtherActions;
+  const discardCount = summary.unsynchronizedDiscardAudits;
   const scanLabel = `${scanCount} ${scanCount === 1 ? 'scan has' : 'scans have'}`;
-  if (otherCount === 0) return `${scanLabel} not reached the server.`;
+  if (otherCount === 0 && discardCount === 0) return `${scanLabel} not reached the server.`;
+  if (otherCount === 0) {
+    return `${scanLabel} not reached the server, with ${discardCount} discard audit ${
+      discardCount === 1 ? 'receipt' : 'receipts'
+    } still pending.`;
+  }
   return `${scanLabel} not reached the server, with ${otherCount} other unsynchronized ${
     otherCount === 1 ? 'change' : 'changes'
-  }.`;
+  }${discardCount > 0 ? ` and ${discardCount} pending discard audit ${
+    discardCount === 1 ? 'receipt' : 'receipts'
+  }` : ''}.`;
 }
 
 export function useSafeSignOut() {

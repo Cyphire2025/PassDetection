@@ -73,20 +73,40 @@ async def test_menu_library_generates_a_saved_plan_without_repeated_dishes(
         (paneer_id, "Kadai Paneer"),
         (paneer_id, "Matar Paneer"),
     ):
+        workspace_before_dish = (
+            await client.get("/api/v1/menu", headers=headers)
+        ).json()
+        category_revision = next(
+            category["updated_at"]
+            for category in workspace_before_dish["categories"]
+            if category["id"] == category_id
+        )
         dish_response = await client.post(
             f"/api/v1/menu/categories/{category_id}/dishes",
-            json={"name": dish_name},
+            json={
+                "name": dish_name,
+                "expected_category_updated_at": category_revision,
+            },
             headers=headers,
         )
         assert dish_response.status_code == 201
         created_dishes[category_id].append(dish_response.json()["id"])
 
+    workspace_before_plan = (
+        await client.get("/api/v1/menu", headers=headers)
+    ).json()
+    category_revisions = {
+        category["id"]: category["updated_at"]
+        for category in workspace_before_plan["categories"]
+        if category["id"] in {chicken_id, paneer_id}
+    }
     plan_response = await client.post(
         "/api/v1/menu/plans/generate",
         json={
             "name": "Two Day Test Trip",
             "trip_days": 2,
             "category_ids": [chicken_id, paneer_id],
+            "expected_category_revisions": category_revisions,
         },
         headers=headers,
     )
@@ -123,14 +143,66 @@ async def test_menu_library_generates_a_saved_plan_without_repeated_dishes(
     )
     update_response = await client.patch(
         f"/api/v1/menu/plans/{plan['id']}/entries/{chicken_entry['id']}",
-        json={"dish_id": unused_chicken_id},
+        json={
+            "dish_id": unused_chicken_id,
+            "expected_updated_at": plan["updated_at"],
+            "expected_dish_updated_at": next(
+                dish["updated_at"]
+                for category in workspace["categories"]
+                for dish in category["dishes"]
+                if dish["id"] == unused_chicken_id
+            ),
+            "expected_category_updated_at": next(
+                category["updated_at"]
+                for category in workspace["categories"]
+                if category["id"] == chicken_id
+            ),
+        },
         headers=headers,
     )
     assert update_response.status_code == 200
 
+    stale_update_response = await client.patch(
+        f"/api/v1/menu/plans/{plan['id']}/entries/{chicken_entry['id']}",
+        json={
+            "dish_id": unused_chicken_id,
+            "expected_updated_at": plan["updated_at"],
+            "expected_dish_updated_at": next(
+                dish["updated_at"]
+                for category in workspace["categories"]
+                for dish in category["dishes"]
+                if dish["id"] == unused_chicken_id
+            ),
+            "expected_category_updated_at": next(
+                category["updated_at"]
+                for category in workspace["categories"]
+                if category["id"] == chicken_id
+            ),
+        },
+        headers=headers,
+    )
+    assert stale_update_response.status_code == 409
+    assert stale_update_response.json()["detail"]["code"] == "MENU_REVISION_CONFLICT"
+
+    updated_plan = update_response.json()
+
     cross_category_response = await client.patch(
         f"/api/v1/menu/plans/{plan['id']}/entries/{chicken_entry['id']}",
-        json={"dish_id": created_dishes[paneer_id][0]},
+        json={
+            "dish_id": created_dishes[paneer_id][0],
+            "expected_updated_at": updated_plan["updated_at"],
+            "expected_dish_updated_at": next(
+                dish["updated_at"]
+                for category in workspace["categories"]
+                for dish in category["dishes"]
+                if dish["id"] == created_dishes[paneer_id][0]
+            ),
+            "expected_category_updated_at": next(
+                category["updated_at"]
+                for category in workspace["categories"]
+                if category["id"] == paneer_id
+            ),
+        },
         headers=headers,
     )
     assert cross_category_response.status_code == 409
@@ -229,18 +301,35 @@ async def test_menu_generation_refuses_to_repeat_when_dishes_are_insufficient(
     )
     category_id = category_response.json()["id"]
     for dish_name in ("Dal Tadka", "Jeera Rice", "Mixed Veg"):
+        workspace_before_dish = (
+            await client.get("/api/v1/menu", headers=headers)
+        ).json()
+        category_revision = next(
+            category["updated_at"]
+            for category in workspace_before_dish["categories"]
+            if category["id"] == category_id
+        )
         await client.post(
             f"/api/v1/menu/categories/{category_id}/dishes",
-            json={"name": dish_name},
+            json={
+                "name": dish_name,
+                "expected_category_updated_at": category_revision,
+            },
             headers=headers,
         )
 
+    workspace_before_plan = (
+        await client.get("/api/v1/menu", headers=headers)
+    ).json()
     response = await client.post(
         "/api/v1/menu/plans/generate",
         json={
             "name": "Impossible Plan",
             "trip_days": 2,
             "category_ids": [category_id],
+            "expected_category_revisions": {
+                category_id: workspace_before_plan["categories"][0]["updated_at"]
+            },
         },
         headers=headers,
     )

@@ -6,6 +6,7 @@ import uuid
 
 from sqlalchemy import and_, exists, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.selectable import Exists
 
 from app.infrastructure.database.email_ai_models import EmailAiRolloutPolicyModel
 from app.infrastructure.database.models import AgencyModel
@@ -16,7 +17,7 @@ def email_ai_disabled_policy_exists(
     agency_id: object,
     owner_user_id: object,
     connection_id: object,
-):
+) -> Exists:
     """Build the agency/user/connection deny expression used by every surface."""
 
     return exists(

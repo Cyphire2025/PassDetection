@@ -31,6 +31,18 @@ function createVersion22Database(): DatabaseSync {
     PRAGMA foreign_keys = ON;
     CREATE TABLE trips (id TEXT PRIMARY KEY NOT NULL);
     INSERT INTO trips(id) VALUES ('${TRIP_ID}');
+    CREATE TABLE attendance_sessions (
+      id TEXT PRIMARY KEY NOT NULL,
+      account_namespace TEXT NOT NULL,
+      trip_id TEXT NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
+      name TEXT NOT NULL,
+      status TEXT NOT NULL,
+      scanned_count INTEGER NOT NULL,
+      assigned_count INTEGER NOT NULL,
+      started_at TEXT,
+      completed_at TEXT,
+      updated_at TEXT NOT NULL
+    );
     CREATE TABLE pending_actions (
       idempotency_key TEXT PRIMARY KEY NOT NULL,
       account_namespace TEXT NOT NULL,
@@ -103,7 +115,10 @@ async function migrate(database: DatabaseSync): Promise<void> {
     async (operation) => {
       database.exec('BEGIN IMMEDIATE');
       try {
-        await operation({ execAsync: async (sql: string) => database.exec(sql) } as never);
+        await operation({
+          execAsync: async (sql: string) => database.exec(sql),
+          getAllAsync: async (sql: string) => database.prepare(sql).all(),
+        } as never);
         database.exec('COMMIT');
       } catch (error) {
         database.exec('ROLLBACK');

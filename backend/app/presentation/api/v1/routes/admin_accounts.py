@@ -5,10 +5,12 @@ from __future__ import annotations
 import secrets
 import uuid
 from datetime import UTC, datetime, timedelta
+from typing import Literal, cast
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.elements import ColumnElement
 
 from app.core.security.password import hash_password
 from app.domain.entities.entities import User, UserRole
@@ -49,6 +51,14 @@ MANAGED_ROLES = (
 )
 LISTED_ACCOUNT_ROLES = (UserRole.AGENCY_STAFF.value, UserRole.AGENCY_COORDINATOR.value)
 
+_CredentialState = Literal["invited", "active"]
+
+
+def _validated_credential_state(value: str) -> _CredentialState:
+    if value not in {"invited", "active"}:
+        raise RuntimeError("Invalid persisted workforce credential state.")
+    return cast(_CredentialState, value)
+
 
 @router.get(
     "",
@@ -59,7 +69,7 @@ async def list_managed_accounts(
     current_user: User = Depends(require_role(ACCOUNT_ADMIN_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> list[ManagedAccountResponse]:
-    filters = [
+    filters: list[ColumnElement[bool]] = [
         UserModel.role.in_(LISTED_ACCOUNT_ROLES),
         UserModel.deleted_at.is_(None),
     ]
@@ -601,6 +611,10 @@ def _account_response(
         is_active=account.is_active,
         created_at=account.created_at,
         last_login_at=account.last_login_at,
-        credential_state=security_state.credential_state if security_state else "active",
+        credential_state=(
+            _validated_credential_state(security_state.credential_state)
+            if security_state
+            else "active"
+        ),
         activation_token=activation_token,
     )

@@ -20,7 +20,7 @@ from app.infrastructure.platform_lifecycle import apply_platform_lifecycle_polic
 
 
 @pytest.mark.asyncio
-async def test_lifecycle_archives_and_purges_only_closed_expired_data(
+async def test_lifecycle_archives_and_purges_closed_data_but_retains_audit(
     db_session: AsyncSession,
 ) -> None:
     now = datetime.now(tz=UTC)
@@ -68,18 +68,14 @@ async def test_lifecycle_archives_and_purges_only_closed_expired_data(
                 group_id=expired_group_id,
                 agency_id=agency_id,
                 client_name="Expired Passenger",
-                image_s3_key=(
-                    f"{agency_id}/{expired_group_id}/{expired_submission_id}.jpg"
-                ),
+                image_s3_key=(f"{agency_id}/{expired_group_id}/{expired_submission_id}.jpg"),
             ),
             PassportSubmissionModel(
                 id=active_submission_id,
                 group_id=active_group_id,
                 agency_id=agency_id,
                 client_name="Active Passenger",
-                image_s3_key=(
-                    f"{agency_id}/{active_group_id}/{active_submission_id}.jpg"
-                ),
+                image_s3_key=(f"{agency_id}/{active_group_id}/{active_submission_id}.jpg"),
             ),
             AuditLogModel(
                 id=uuid.uuid4(),
@@ -102,33 +98,25 @@ async def test_lifecycle_archives_and_purges_only_closed_expired_data(
     assert result.archived_groups == 1
     assert result.scheduled_passport_purge_dates == 1
     assert result.deleted_passports == 1
-    assert result.deleted_audit_logs == 1
+    assert result.deleted_audit_logs == 0
     assert result.storage_cleanup_jobs == 1
     assert result.storage_objects_scheduled == 1
     assert await db_session.get(PassportSubmissionModel, expired_submission_id) is None
     assert await db_session.get(PassportSubmissionModel, active_submission_id) is not None
     expired_group = await db_session.get(ClientGroupModel, expired_group_id)
     assert expired_group is not None and expired_group.status == "archived"
-    audit_actions = set(
-        (
-            await db_session.execute(select(AuditLogModel.action))
-        ).scalars().all()
-    )
-    assert "expired_event" not in audit_actions
+    audit_actions = set((await db_session.execute(select(AuditLogModel.action))).scalars().all())
+    assert "expired_event" in audit_actions
     assert "recent_event" in audit_actions
     assert "platform_lifecycle_policies_applied" in audit_actions
-    assert (
-        await db_session.scalar(select(func.count()).select_from(StorageCleanupJobModel))
-    ) == 1
+    assert (await db_session.scalar(select(func.count()).select_from(StorageCleanupJobModel))) == 1
 
 
 @pytest.mark.asyncio
 async def test_lifecycle_is_idempotent_after_the_first_retention_page(
     db_session: AsyncSession,
 ) -> None:
-    db_session.add(
-        PlatformSettingModel(key="global", value=PlatformPolicies().as_dict())
-    )
+    db_session.add(PlatformSettingModel(key="global", value=PlatformPolicies().as_dict()))
     await db_session.flush()
 
     first = await apply_platform_lifecycle_policies(db_session)
@@ -221,6 +209,6 @@ async def test_lifecycle_reschedules_policy_dates_and_never_crosses_legal_hold(
 
     assert released_result.deleted_passports == 1
     assert await db_session.get(PassportSubmissionModel, submission_id) is None
-    assert "held_group_history" not in set(
+    assert "held_group_history" in set(
         (await db_session.execute(select(AuditLogModel.action))).scalars()
     )

@@ -82,9 +82,9 @@ class TD3MRZParser(IMRZParser):
 
         for index, token in enumerate(tokens):
             for prefix, line2 in self._recover_td3_line2_windows(token):
-                line1 = self._recover_td3_line1([*tokens[:index], prefix], line2)
-                if line1:
-                    candidates.append((line1, line2))
+                recovered_line1 = self._recover_td3_line1([*tokens[:index], prefix], line2)
+                if recovered_line1:
+                    candidates.append((recovered_line1, line2))
 
         return candidates
 

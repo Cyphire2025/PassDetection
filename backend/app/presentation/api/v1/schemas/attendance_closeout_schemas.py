@@ -12,6 +12,10 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 class AttendanceCloseoutCheckpointRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    # Optional during the rolling compatibility window. New browser clients
+    # send the server-issued runtime registration; native mobile routes derive
+    # it from bearer claims. Older clients remain legacy account-scoped.
+    runtime_id: uuid.UUID | None = None
     pending_count: int = Field(ge=0, le=1_000_000)
     sending_count: int = Field(ge=0, le=1_000_000)
     retryable_count: int = Field(ge=0, le=1_000_000)
@@ -25,9 +29,7 @@ class AttendanceCloseoutCheckpointRequest(BaseModel):
 
     @model_validator(mode="after")
     def require_oldest_pending_age(self) -> AttendanceCloseoutCheckpointRequest:
-        delivery_count = (
-            self.pending_count + self.sending_count + self.retryable_count
-        )
+        delivery_count = self.pending_count + self.sending_count + self.retryable_count
         if delivery_count == 0 and self.oldest_pending_age_seconds is not None:
             raise ValueError("Oldest pending age must be omitted for an empty delivery queue")
         if delivery_count > 0 and self.oldest_pending_age_seconds is None:
@@ -44,6 +46,9 @@ class AttendanceCloseoutCoordinatorStatusResponse(BaseModel):
 
     coordinator_id: uuid.UUID
     coordinator_name: str
+    runtime_id: uuid.UUID | None = None
+    runtime_kind: Literal["native_mobile", "pwa", "webview", "legacy_account"] = "legacy_account"
+    runtime_status: Literal["active", "revoked", "expired", "lost", "replaced"] = "active"
     state: Literal["ready", "missing", "stale", "blocked"]
     reported_at: datetime | None = None
     report_age_seconds: int | None = Field(default=None, ge=0)

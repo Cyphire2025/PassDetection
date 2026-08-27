@@ -1,0 +1,277 @@
+package __ANDROID_PACKAGE__
+
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Handler
+import android.os.Looper
+import android.view.ViewGroup
+import android.view.WindowManager
+import androidx.activity.ComponentActivity
+import androidx.activity.ComponentDialog
+import androidx.compose.ui.platform.ComposeView
+import androidx.core.content.ContextCompat
+import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin
+import com.amplifyframework.core.Amplify
+import com.amplifyframework.core.AmplifyConfiguration
+import com.amplifyframework.ui.liveness.model.FaceLivenessDetectionException
+import com.amplifyframework.ui.liveness.ui.FaceLivenessDetector
+import com.facebook.react.ReactPackage
+import com.facebook.react.bridge.LifecycleEventListener
+import com.facebook.react.bridge.NativeModule
+import com.facebook.react.bridge.Promise
+import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReactContextBaseJavaModule
+import com.facebook.react.bridge.ReactMethod
+import com.facebook.react.bridge.UiThreadUtil
+import com.facebook.react.uimanager.ViewManager
+import java.time.Duration
+import java.time.Instant
+
+private const val MODULE_NAME = "GCFaceLiveness"
+private const val AWS_REGION = "__AWS_REGION__"
+private const val MAX_PROVIDER_SESSION_LENGTH = 512
+// Rekognition Face Liveness sessions have a hard three-minute lifetime.
+private const val MAX_SESSION_LIFETIME_SECONDS = 3 * 60L
+private val PROVIDER_SESSION_PATTERN = Regex("^[A-Za-z0-9._:-]+$")
+private val ALLOWED_OUTCOMES = setOf(
+  "completed",
+  "cancelled",
+  "expired",
+  "failed",
+  "unavailable",
+)
+
+/** Configures only an Identity Pool credential boundary. Amplify Auth vends
+ * short-lived AWS credentials. JavaScript receives neither credentials nor
+ * camera/provider payloads; it receives only a bounded terminal outcome. */
+private object GCFaceLivenessAuthBoundary {
+  private val lock = Any()
+  @Volatile private var configured = false
+
+  fun ensureConfigured(context: ReactApplicationContext) {
+    if (configured) return
+    synchronized(lock) {
+      if (configured) return
+      Amplify.addPlugin(AWSCognitoAuthPlugin())
+      val configuration = AmplifyConfiguration.fromConfigFile(
+        context,
+        R.raw.gc_face_liveness_amplifyconfiguration,
+      )
+      Amplify.configure(configuration, context)
+      configured = true
+    }
+  }
+}
+
+private class GCFaceLivenessModule(
+  reactContext: ReactApplicationContext,
+) : ReactContextBaseJavaModule(reactContext), LifecycleEventListener {
+  private val stateLock = Any()
+  private val mainHandler = Handler(Looper.getMainLooper())
+  private var pendingPromise: Promise? = null
+  private var dialog: ComponentDialog? = null
+  private var detectorView: ComposeView? = null
+  private var expiryRunnable: Runnable? = null
+
+  init {
+    reactContext.addLifecycleEventListener(this)
+  }
+
+  override fun getName(): String = MODULE_NAME
+
+  override fun getConstants(): MutableMap<String, Any> = hashMapOf(
+    "available" to deviceCapabilityAvailable(),
+    "provider" to "cognito_identity_pool",
+    "region" to AWS_REGION,
+  )
+
+  @ReactMethod
+  fun present(
+    providerSessionId: String,
+    expiresAt: String,
+    promise: Promise,
+  ) {
+    val expiry = parseBoundedExpiry(expiresAt)
+    if (!validProviderSession(providerSessionId)) {
+      promise.resolve("failed")
+      return
+    }
+    if (expiry == null) {
+      promise.resolve("expired")
+      return
+    }
+    val activity = reactApplicationContext.currentActivity as? ComponentActivity
+    if (!deviceCapabilityAvailable() || activity == null) {
+      promise.resolve("unavailable")
+      return
+    }
+    if (ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+      promise.resolve("unavailable")
+      return
+    }
+    try {
+      GCFaceLivenessAuthBoundary.ensureConfigured(reactApplicationContext)
+    } catch (_: Exception) {
+      promise.resolve("unavailable")
+      return
+    }
+    synchronized(stateLock) {
+      if (pendingPromise != null) {
+        promise.reject("FACE_LIVENESS_IN_PROGRESS", "A Face Liveness session is already active.")
+        return
+      }
+      pendingPromise = promise
+    }
+    UiThreadUtil.runOnUiThread {
+      if (synchronized(stateLock) { pendingPromise !== promise }) return@runOnUiThread
+      showDetector(activity, providerSessionId, expiry)
+    }
+  }
+
+  @ReactMethod
+  fun cancel(promise: Promise) {
+    settle("cancelled")
+    promise.resolve(null)
+  }
+
+  override fun onHostResume() = Unit
+
+  override fun onHostPause() {
+    settle("cancelled")
+  }
+
+  override fun onHostDestroy() {
+    settle("cancelled")
+    reactApplicationContext.removeLifecycleEventListener(this)
+  }
+
+  private fun showDetector(
+    activity: ComponentActivity,
+    providerSessionId: String,
+    expiresAt: Instant,
+  ) {
+    try {
+      val remainingMillis = Duration.between(Instant.now(), expiresAt).toMillis()
+      if (remainingMillis <= 0L) {
+        settle("expired")
+        return
+      }
+      val nextDialog = ComponentDialog(
+        activity,
+        android.R.style.Theme_DeviceDefault_NoActionBar_Fullscreen,
+      )
+      val nextWindow = checkNotNull(nextDialog.window)
+      // Secure the dialog's own window before attaching content or showing it;
+      // the host activity window remains unchanged, including QR capture flows.
+      nextWindow.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+      nextWindow.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+      nextDialog.setTitle("Face liveness verification")
+      nextDialog.setCanceledOnTouchOutside(false)
+      nextDialog.setOnCancelListener { settle("cancelled") }
+      nextDialog.setOnDismissListener { settle("cancelled") }
+      val composeView = ComposeView(activity).apply {
+        contentDescription = "Face liveness verification"
+        importantForAccessibility = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_YES
+        setContent {
+          FaceLivenessDetector(
+            sessionId = providerSessionId,
+            region = AWS_REGION,
+            // The official component obtains AWSTemporaryCredentials from
+            // the configured Amplify Auth Identity Pool provider.
+            credentialsProvider = null,
+            disableStartView = false,
+            onComplete = { settle("completed") },
+            onError = { error -> settle(mapError(error)) },
+          )
+        }
+      }
+      synchronized(stateLock) {
+        if (pendingPromise == null) {
+          composeView.disposeComposition()
+          return
+        }
+        val deadline = Runnable { settle("expired") }
+        dialog = nextDialog
+        detectorView = composeView
+        expiryRunnable = deadline
+        // This native deadline is independent of the provider UI timeout and
+        // is never scheduled beyond the validated session expiry (maximum 3m).
+        mainHandler.postDelayed(deadline, remainingMillis)
+      }
+      nextDialog.setContentView(composeView)
+      nextDialog.show()
+      nextWindow.setLayout(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams.MATCH_PARENT,
+      )
+    } catch (_: Exception) {
+      settle("unavailable")
+    }
+  }
+
+  private fun settle(rawOutcome: String) {
+    val outcome = if (ALLOWED_OUTCOMES.contains(rawOutcome)) rawOutcome else "failed"
+    UiThreadUtil.runOnUiThread {
+      var deadline: Runnable? = null
+      val result: Triple<Promise?, ComponentDialog?, ComposeView?> = synchronized(stateLock) {
+        val promise = pendingPromise
+        val activeDialog = dialog
+        val activeDetectorView = detectorView
+        pendingPromise = null
+        dialog = null
+        detectorView = null
+        deadline = expiryRunnable
+        expiryRunnable = null
+        Triple(promise, activeDialog, activeDetectorView)
+      }
+      deadline?.let { mainHandler.removeCallbacks(it) }
+      result.third?.disposeComposition()
+      result.second?.apply {
+        setOnCancelListener(null)
+        setOnDismissListener(null)
+        if (isShowing) dismiss()
+      }
+      result.first?.resolve(outcome)
+    }
+  }
+
+  private fun deviceCapabilityAvailable(): Boolean =
+    // API 26/27 are rejected locally because this camera/lifecycle integration
+    // is not release-qualified there. This does not alter other app cameras.
+    android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P &&
+      reactApplicationContext.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)
+
+  private fun validProviderSession(value: String): Boolean =
+    value.isNotBlank() &&
+      value.length <= MAX_PROVIDER_SESSION_LENGTH &&
+      PROVIDER_SESSION_PATTERN.matches(value)
+
+  private fun parseBoundedExpiry(value: String): Instant? = try {
+    val now = Instant.now()
+    val expiry = Instant.parse(value)
+    val latest = now.plusSeconds(MAX_SESSION_LIFETIME_SECONDS)
+    expiry.takeIf { it.isAfter(now) && !it.isAfter(latest) }
+  } catch (_: Exception) {
+    null
+  }
+
+  private fun mapError(error: FaceLivenessDetectionException): String = when (error) {
+    is FaceLivenessDetectionException.UserCancelledException -> "cancelled"
+    is FaceLivenessDetectionException.SessionTimedOutException,
+    is FaceLivenessDetectionException.SessionNotFoundException -> "expired"
+    is FaceLivenessDetectionException.CameraPermissionDeniedException,
+    is FaceLivenessDetectionException.AccessDeniedException,
+    is FaceLivenessDetectionException.UnsupportedChallengeTypeException -> "unavailable"
+    else -> "failed"
+  }
+}
+
+class GCFaceLivenessPackage : ReactPackage {
+  override fun createNativeModules(
+    reactContext: ReactApplicationContext,
+  ): List<NativeModule> = listOf(GCFaceLivenessModule(reactContext))
+
+  override fun createViewManagers(
+    reactContext: ReactApplicationContext,
+  ): List<ViewManager<*, *>> = emptyList()
+}

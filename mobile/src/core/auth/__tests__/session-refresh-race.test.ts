@@ -14,7 +14,10 @@ import {
   invalidateAuthenticationBoundary,
   useSessionStore,
 } from '../session-store';
-import { retryPendingAuthenticationLocks } from '../session-lock';
+import {
+  registerSessionLockSettlementHook,
+  retryPendingAuthenticationLocks,
+} from '../session-lock';
 import { accountNamespace } from '../types';
 
 type RegisteredRefreshHandler = (
@@ -743,6 +746,35 @@ test('logout locks and preserves the authenticated namespace after verifying the
   expect(mockRecordAuthenticationLockOutcome).toHaveBeenLastCalledWith('success');
 });
 
+test('logout awaits native feature settlement before closing the account database', async () => {
+  await activateSession(initialA);
+  const settlement = deferred<void>();
+  const hookStarted = deferred<void>();
+  const hook = jest.fn(async (namespace: string) => {
+    expect(namespace).toBe(namespaceA);
+    hookStarted.resolve();
+    await settlement.promise;
+  });
+  const unregister = registerSessionLockSettlementHook('test-native-transfer', hook);
+  mockCloseAccountDatabase.mockClear();
+  mockPurgeTemporaryViews.mockClear();
+
+  try {
+    const logout = logoutSession();
+    await hookStarted.promise;
+    expect(hook).toHaveBeenCalledTimes(1);
+    expect(mockCloseAccountDatabase).not.toHaveBeenCalled();
+    expect(mockPurgeTemporaryViews).not.toHaveBeenCalled();
+
+    settlement.resolve();
+    await expect(logout).resolves.toBeUndefined();
+    expect(mockCloseAccountDatabase).toHaveBeenCalledTimes(1);
+    expect(mockPurgeTemporaryViews).toHaveBeenCalledTimes(1);
+  } finally {
+    unregister();
+  }
+});
+
 test('reports only aggregate authentication quarantine state after a failed lock retry', async () => {
   mockSecureState.pendingAuthenticationLocks.add(namespaceA);
   mockClearNamespaceAuthentication.mockRejectedValueOnce(new Error('keychain unavailable'));
@@ -796,9 +828,8 @@ test('logout fails closed before revocation when the durable queue is not synchr
   expect(mockDeleteAccountDatabase).not.toHaveBeenCalled();
 });
 
-test('explicitly confirmed discard is the only logout path that deletes a non-empty queue', async () => {
+test('explicitly confirmed discard locks the encrypted namespace without deleting queue evidence', async () => {
   await activateSession(initialA);
-  mockDurableAttendanceRecordCount.mockResolvedValueOnce(6);
   mockAssertDurableActionQueueSynchronized.mockRejectedValueOnce(
     new Error('queue must not be inspected after explicit confirmation'),
   );
@@ -806,26 +837,26 @@ test('explicitly confirmed discard is the only logout path that deletes a non-em
   await expect(logoutSession({ discardUnsynchronizedActions: true })).resolves.toBeUndefined();
 
   expect(mockAssertDurableActionQueueSynchronized).not.toHaveBeenCalled();
-  expect(mockDurableAttendanceRecordCount).toHaveBeenCalledWith(namespaceA);
-  expect(mockDeleteAccountDatabase).toHaveBeenCalledWith(namespaceA);
-  expect(mockDeleteVaultNamespace).toHaveBeenCalledWith(namespaceA);
-  expect(mockClearNamespaceSecrets).toHaveBeenCalledWith(namespaceA);
-  expect(mockRecordExplicitAttendanceDiscard).toHaveBeenCalledWith(6);
+  expect(mockDurableAttendanceRecordCount).not.toHaveBeenCalled();
+  expect(mockDeleteAccountDatabase).not.toHaveBeenCalledWith(namespaceA);
+  expect(mockDeleteVaultNamespace).not.toHaveBeenCalledWith(namespaceA);
+  expect(mockClearNamespaceSecrets).not.toHaveBeenCalledWith(namespaceA);
+  expect(mockClearNamespaceAuthentication).toHaveBeenCalledWith(namespaceA);
+  expect(mockRecordExplicitAttendanceDiscard).toHaveBeenCalledWith(0);
 });
 
-test('explicit discard fails closed if its count-only audit boundary cannot be verified', async () => {
+test('explicit discard no longer depends on destructive count-only queue deletion', async () => {
   await activateSession(initialA);
-  mockDurableAttendanceRecordCount.mockRejectedValueOnce(new Error('queue count unavailable'));
 
-  await expect(logoutSession({ discardUnsynchronizedActions: true }))
-    .rejects.toThrow('queue count unavailable');
+  await expect(logoutSession({ discardUnsynchronizedActions: true })).resolves.toBeUndefined();
 
   expect(useSessionStore.getState()).toMatchObject({
-    status: 'authenticated',
-    session: { sessionId: sessionA },
+    status: 'anonymous',
+    session: null,
   });
   expect(mockDeleteAccountDatabase).not.toHaveBeenCalled();
-  expect(mockRecordExplicitAttendanceDiscard).not.toHaveBeenCalled();
+  expect(mockDurableAttendanceRecordCount).not.toHaveBeenCalled();
+  expect(mockRecordExplicitAttendanceDiscard).toHaveBeenCalledWith(0);
 });
 
 test('the same account can reopen its preserved encrypted database after ordinary logout', async () => {

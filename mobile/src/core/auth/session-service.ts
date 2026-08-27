@@ -12,7 +12,6 @@ import {
 } from '@/core/storage/database';
 import {
   assertDurableActionQueueSynchronized,
-  durableAttendanceRecordCount,
 } from '@/core/storage/pending-action-safety';
 import {
   clearLocalCleanupPending,
@@ -42,6 +41,7 @@ import {
   cancelRequiredPreparation,
 } from '@/core/sync/required-preparation-lease';
 import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store';
+import { preserveAttendanceDiscardsForSignOut } from '@/features/coordinator/data/attendance-discard-store';
 
 import {
   principalAccountNamespace,
@@ -769,11 +769,17 @@ export async function logoutSession(options: LogoutSessionOptions = {}): Promise
   if (namespace) {
     try {
       if (options.discardUnsynchronizedActions) {
-        const attendanceDiscardCount = await durableAttendanceRecordCount(namespace);
-        invalidateAuthenticationBoundary();
-        clearOfflineAuthorizationExpiryTimer();
-        if (activeSession?.sessionId) cancelRequiredPreparation(activeSession.sessionId);
-        await purgeLocalSession(namespace);
+        const attendanceDiscardCount = activeSession?.principal.principalType === 'coordinator'
+          ? await preserveAttendanceDiscardsForSignOut(
+              namespace,
+              activeSession.principal.id,
+              await getInstallationId(),
+            )
+          : 0;
+        // Sign out by locking the encrypted namespace. Pending discard receipts
+        // and unattributable legacy rows survive offline logout and can be
+        // reconciled after this same account authenticates again.
+        await lockLocalSession(namespace, { invalidateBoundary: true });
         recordExplicitAttendanceDiscard(attendanceDiscardCount);
       } else {
         await lockLocalSession(namespace, { invalidateBoundary: true });

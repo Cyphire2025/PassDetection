@@ -32,7 +32,7 @@ export function EventReadinessCard({ readiness }: Props) {
   const summary = loading
     ? 'Verifying roster, authorization, queue, camera, storage, battery, network, and live channel.'
     : assessment.status === 'ready'
-      ? 'All required checks are green for the configured 8-hour event window.'
+      ? 'All required checks are green for the selected activity schedule and reconciliation window.'
       : assessment.status === 'attention'
         ? 'Required controls are green. CHECK items are advisory, so offline-safe scanning remains available.'
         : 'Resolve every BLOCK item and refresh readiness before scanning.';

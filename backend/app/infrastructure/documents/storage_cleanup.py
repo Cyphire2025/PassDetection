@@ -19,6 +19,7 @@ from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
 from app.infrastructure.database.models import AuditLogModel, StorageCleanupJobModel
 from app.infrastructure.database.session import AsyncSessionFactory
+from app.infrastructure.observability.metrics import metrics
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 
 logger = get_logger(__name__)
@@ -27,6 +28,7 @@ STORAGE_CLEANUP_KEY_VERSION = 1
 STORAGE_CLEANUP_LEASE_SECONDS = 300
 MAX_STORAGE_CLEANUP_KEYS = 2_000
 MAX_STORAGE_CLEANUP_KEY_LENGTH = 512
+MAX_STORAGE_CLEANUP_ATTEMPTS = 12
 STORAGE_CLEANUP_SOURCES: dict[str, tuple[str, ...]] = {
     "document_distribution_delete": ("document-distribution/",),
     "document_distribution_abort": ("document-distribution/",),
@@ -34,6 +36,7 @@ STORAGE_CLEANUP_SOURCES: dict[str, tuple[str, ...]] = {
     "document_rename_batch_delete": ("document-rename/",),
     "document_rename_compensation": ("document-rename/",),
     "document_verification_staging": ("document-verification-staging/",),
+    "untrusted_upload_quarantine": (),
     "passport_submission_delete": (
         # Legacy deployments stored the four canonical submission images in
         # short top-level namespaces.  They remain ownership-bound because
@@ -134,7 +137,7 @@ class StorageCleanupCipher:
 
     def encrypt(self, storage_keys: Sequence[str]) -> bytes:
         payload = json.dumps(list(storage_keys), ensure_ascii=False, separators=(",", ":"))
-        return self._fernets[self._key_version].encrypt(payload.encode("utf-8"))
+        return bytes(self._fernets[self._key_version].encrypt(payload.encode("utf-8")))
 
     def decrypt(self, ciphertext: bytes, *, key_version: int) -> tuple[str, ...]:
         fernet = self._fernets.get(key_version)
@@ -205,6 +208,9 @@ def _storage_key_matches_source(
     key: str,
     allowed_prefixes: tuple[str, ...],
 ) -> bool:
+    if source == "untrusted_upload_quarantine":
+        configured_prefix = get_settings().malware_quarantine_prefix.rstrip("/") + "/"
+        return key.startswith(configured_prefix)
     if key.startswith(allowed_prefixes):
         return True
     return bool(
@@ -443,7 +449,8 @@ async def _defer_storage_cleanup_job(
     blocked: bool,
     session_factory: async_sessionmaker[AsyncSession],
     now: datetime,
-) -> None:
+) -> bool:
+    terminal = blocked or claim.attempts >= MAX_STORAGE_CLEANUP_ATTEMPTS
     async with session_factory() as session:
         async with session.begin():
             result = await session.execute(
@@ -453,13 +460,41 @@ async def _defer_storage_cleanup_job(
             )
             job = result.scalar_one_or_none()
             if job is None:
-                return
-            job.status = "blocked" if blocked else "pending"
+                return terminal
+            job.status = "blocked" if terminal else "pending"
             backoff_seconds = min(21_600, 15 * (2 ** min(claim.attempts, 10)))
             job.next_attempt_at = now + timedelta(seconds=backoff_seconds)
             job.lease_expires_at = None
             job.last_error_code = error_code[:120]
             job.updated_at = now
+            if terminal:
+                session.add(
+                    AuditLogModel(
+                        id=uuid.uuid4(),
+                        agency_id=claim.agency_id,
+                        user_id=None,
+                        actor_email=None,
+                        action="document_storage_cleanup_terminal_failure",
+                        entity_type="storage_cleanup_job",
+                        entity_id=str(claim.job_id),
+                        result="failed",
+                        metadata_json={
+                            "source": claim.source,
+                            "context_fingerprint": claim.context_fingerprint,
+                            "object_count": claim.object_count,
+                            "attempts": claim.attempts,
+                            "error_code": error_code[:120],
+                        },
+                        created_at=now,
+                    )
+                )
+    metric_name = (
+        "document_storage_cleanup.terminal_failures"
+        if terminal
+        else "document_storage_cleanup.retries_scheduled"
+    )
+    metrics.increment(metric_name)
+    return terminal
 
 
 async def _execute_storage_cleanup_claim(
@@ -496,24 +531,29 @@ async def _execute_storage_cleanup_claim(
         if deleted_count != len(keys):
             raise StorageCleanupIncompleteError
     except Exception as exc:
-        await _defer_storage_cleanup_job(
+        terminal = await _defer_storage_cleanup_job(
             claim,
             error_code=type(exc).__name__,
             blocked=False,
             session_factory=session_factory,
             now=datetime.now(tz=UTC),
         )
-        logger.warning(
-            "document_storage_cleanup_retry_scheduled",
+        log = logger.error if terminal else logger.warning
+        log(
+            "document_storage_cleanup_terminal_failure"
+            if terminal
+            else "document_storage_cleanup_retry_scheduled",
             job_id=str(claim.job_id),
             context_fingerprint=claim.context_fingerprint,
             object_count=claim.object_count,
             attempt=claim.attempts,
+            max_attempts=MAX_STORAGE_CLEANUP_ATTEMPTS,
             error_type=type(exc).__name__,
         )
         return StorageCleanupResult(claim.job_id, claim.object_count, 0, False)
 
     await _complete_storage_cleanup_job(claim, session_factory=session_factory)
+    metrics.increment("document_storage_cleanup.completed")
     return StorageCleanupResult(
         claim.job_id,
         claim.object_count,

@@ -6,8 +6,8 @@ import type {
 import { documentDistributionApi } from "../api/document-distribution.api";
 import type { DocumentAssignmentExportFilter } from "../api/document-distribution.api";
 import type {
+  DocumentStagingManifest,
   DocumentUploadProgress,
-  DocumentUploadSession,
 } from "../services/document-upload-batching";
 
 const documentKeys = {
@@ -51,12 +51,19 @@ export function useDocumentReview(groupId: string, documentType: DistributionDoc
 export function useExportDocumentAssignments(
   groupId: string,
   documentType: DistributionDocumentType,
+  groupName?: string,
 ) {
   return useMutation({
     mutationFn: ({ filter, search }: {
       filter: DocumentAssignmentExportFilter;
       search: string;
-    }) => documentDistributionApi.exportReview(groupId, documentType, filter, search),
+    }) => documentDistributionApi.exportReview(
+      groupId,
+      documentType,
+      filter,
+      search,
+      groupName,
+    ),
   });
 }
 
@@ -64,18 +71,18 @@ export function useUploadDistributionDocuments(groupId: string, documentType: Di
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ files, onProgress, session, stagingReceipts }: {
-      files: File[];
+    mutationFn: ({ manifest, onProgress, onManifestChange, signal }: {
+      manifest: DocumentStagingManifest;
       onProgress?: (progress: DocumentUploadProgress) => void;
-      session?: DocumentUploadSession;
-      stagingReceipts?: Array<string | null>;
+      onManifestChange?: (manifest: DocumentStagingManifest) => void;
+      signal?: AbortSignal;
     }) => documentDistributionApi.uploadDocuments(
       groupId,
       documentType,
-      files,
+      manifest,
       onProgress,
-      session,
-      stagingReceipts,
+      onManifestChange,
+      signal,
     ),
     onSuccess: (data) => {
       queryClient.setQueryData(documentKeys.review(groupId, documentType), data);
@@ -117,14 +124,16 @@ export function useAbortDistributionUploads(
 
 export function useVerifyDistributionDocuments(groupId: string, documentType: DistributionDocumentType) {
   return useMutation({
-    mutationFn: ({ files, onProgress }: {
+    mutationFn: ({ files, onProgress, signal }: {
       files: File[];
       onProgress?: (progress: DocumentUploadProgress) => void;
+      signal?: AbortSignal;
     }) => documentDistributionApi.verifyDocuments(
       groupId,
       documentType,
       files,
       onProgress,
+      signal,
     ),
   });
 }

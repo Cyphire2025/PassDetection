@@ -14,6 +14,18 @@ from app.infrastructure.mobile_push import (
     MOBILE_PUSH_DISPATCH_TASK,
     MOBILE_PUSH_RECEIPT_TASK,
 )
+from app.infrastructure.my_photos import (
+    MY_PHOTOS_CONTROL_QUEUE,
+    MY_PHOTOS_INDEX_QUEUE,
+    MY_PHOTOS_INDEX_TASK,
+    MY_PHOTOS_MEDIA_QUEUE,
+    MY_PHOTOS_MEDIA_TASK,
+    MY_PHOTOS_RECOVERY_TASK,
+    MY_PHOTOS_SEARCH_QUEUE,
+    MY_PHOTOS_SEARCH_TASK,
+)
+from app.infrastructure.observability.metrics import metrics
+from app.infrastructure.observability.statsd import configure_metrics_export
 from app.infrastructure.visa_ai_image_jobs import (
     VISA_AI_IMAGE_QUEUE,
     VISA_AI_IMAGE_TASK,
@@ -31,6 +43,9 @@ EMAIL_AI_DEADLINE_SCAN_TASK = "email.notify_ai_deadline_window"
 DOCUMENT_STORAGE_CLEANUP_TASK = "documents.cleanup_storage"
 DOCUMENT_STORAGE_ORPHAN_RECONCILIATION_TASK = "documents.reconcile_storage_orphans"
 PLATFORM_LIFECYCLE_TASK = "platform.apply_lifecycle_policies"
+PLATFORM_SCHEDULER_HEARTBEAT_TASK = "platform.scheduler_heartbeat"
+IDENTITY_RECOVERY_DELIVERY_TASK = "identity.deliver_recovery_notifications"
+IDENTITY_RETENTION_TASK = "identity.apply_retention"
 WHATSAPP_BROADCAST_TASK = "whatsapp.process_broadcast"
 WHATSAPP_DOCUMENT_BROADCAST_TASK = "whatsapp.process_document_broadcast"
 WHATSAPP_QR_BROADCAST_TASK = "whatsapp.process_qr_broadcast"
@@ -48,8 +63,8 @@ settings = get_settings()
 
 celery_app = Celery(
     "passdetection",
-    broker=settings.redis.url,
-    backend=settings.redis.url,
+    broker=settings.redis.broker_url,
+    backend=settings.redis.broker_url,
     include=[
         "app.infrastructure.processing.tasks",
         "app.infrastructure.verification.tasks",
@@ -59,7 +74,9 @@ celery_app = Celery(
         "app.infrastructure.email.ai_tasks",
         "app.infrastructure.documents.cleanup_tasks",
         "app.infrastructure.platform_lifecycle_tasks",
+        "app.infrastructure.security.identity_tasks",
         "app.infrastructure.mobile_push.tasks",
+        "app.infrastructure.my_photos.tasks",
     ],
 )
 
@@ -73,6 +90,10 @@ celery_app.conf.update(
         Queue(VISA_AI_IMAGE_QUEUE, durable=True),
         Queue(EMAIL_INTEGRATION_QUEUE, durable=True),
         Queue(EMAIL_AI_QUEUE, durable=True),
+        Queue(MY_PHOTOS_INDEX_QUEUE, durable=True),
+        Queue(MY_PHOTOS_CONTROL_QUEUE, durable=True),
+        Queue(MY_PHOTOS_MEDIA_QUEUE, durable=True),
+        Queue(MY_PHOTOS_SEARCH_QUEUE, durable=True),
     ),
     task_routes={
         "passport.process_submission": {"queue": EXTRACTION_QUEUE},
@@ -88,12 +109,18 @@ celery_app.conf.update(
         DOCUMENT_STORAGE_CLEANUP_TASK: {"queue": "passport_ocr"},
         DOCUMENT_STORAGE_ORPHAN_RECONCILIATION_TASK: {"queue": "passport_ocr"},
         PLATFORM_LIFECYCLE_TASK: {"queue": "passport_ocr"},
+        IDENTITY_RECOVERY_DELIVERY_TASK: {"queue": "passport_ocr"},
+        IDENTITY_RETENTION_TASK: {"queue": "passport_ocr"},
         WHATSAPP_BROADCAST_TASK: {"queue": "whatsapp"},
         WHATSAPP_DOCUMENT_BROADCAST_TASK: {"queue": "whatsapp"},
         WHATSAPP_QR_BROADCAST_TASK: {"queue": "whatsapp"},
         MOBILE_PUSH_COUNTDOWN_TASK: {"queue": "passport_ocr"},
         MOBILE_PUSH_DISPATCH_TASK: {"queue": "passport_ocr"},
         MOBILE_PUSH_RECEIPT_TASK: {"queue": "passport_ocr"},
+        MY_PHOTOS_SEARCH_TASK: {"queue": MY_PHOTOS_SEARCH_QUEUE},
+        MY_PHOTOS_INDEX_TASK: {"queue": MY_PHOTOS_INDEX_QUEUE},
+        MY_PHOTOS_MEDIA_TASK: {"queue": MY_PHOTOS_MEDIA_QUEUE},
+        MY_PHOTOS_RECOVERY_TASK: {"queue": MY_PHOTOS_CONTROL_QUEUE},
     },
     task_acks_late=True,
     task_reject_on_worker_lost=True,
@@ -183,6 +210,24 @@ celery_app.conf.update(
             "soft_time_limit": 4 * 60,
             "time_limit": 5 * 60,
         },
+        MY_PHOTOS_SEARCH_TASK: {
+            # Must remain below MY_PHOTOS_JOB_LEASE_SECONDS' minimum (90s),
+            # otherwise a killed worker can outlive its lease contract.
+            "soft_time_limit": 65,
+            "time_limit": 75,
+        },
+        MY_PHOTOS_INDEX_TASK: {
+            "soft_time_limit": 65,
+            "time_limit": 75,
+        },
+        MY_PHOTOS_MEDIA_TASK: {
+            "soft_time_limit": 65,
+            "time_limit": 75,
+        },
+        MY_PHOTOS_RECOVERY_TASK: {
+            "soft_time_limit": 210,
+            "time_limit": 240,
+        },
     },
     task_serializer="json",
     result_serializer="json",
@@ -230,6 +275,21 @@ celery_app.conf.update(
             "schedule": 86_400.0,
             "options": {"queue": "passport_ocr"},
         },
+        "record-platform-scheduler-heartbeat": {
+            "task": PLATFORM_SCHEDULER_HEARTBEAT_TASK,
+            "schedule": 15.0,
+            "options": {"queue": "passport_ocr"},
+        },
+        "deliver-password-recovery-notifications": {
+            "task": IDENTITY_RECOVERY_DELIVERY_TASK,
+            "schedule": 10.0,
+            "options": {"queue": "passport_ocr"},
+        },
+        "apply-identity-record-retention": {
+            "task": IDENTITY_RETENTION_TASK,
+            "schedule": 86_400.0,
+            "options": {"queue": "passport_ocr"},
+        },
         "dispatch-mobile-push-notifications": {
             "task": MOBILE_PUSH_DISPATCH_TASK,
             "schedule": settings.mobile.push_dispatch_interval_seconds,
@@ -245,6 +305,11 @@ celery_app.conf.update(
             "schedule": settings.mobile.push_receipt_poll_interval_seconds,
             "options": {"queue": "passport_ocr"},
         },
+        "recover-my-photos-durable-jobs": {
+            "task": MY_PHOTOS_RECOVERY_TASK,
+            "schedule": 30.0,
+            "options": {"queue": MY_PHOTOS_CONTROL_QUEUE},
+        },
     },
 )
 
@@ -253,6 +318,7 @@ celery_app.conf.update(
 def initialize_worker_async_runtime(**_: object) -> None:
     """Create loop-bound resources only after the prefork child starts."""
 
+    configure_metrics_export(settings)
     celery_async_runtime.initialize()
 
 
@@ -261,3 +327,4 @@ def shutdown_worker_async_runtime(**_: object) -> None:
     """Close the process-local loop and its pooled database connections."""
 
     celery_async_runtime.shutdown()
+    metrics.close_export_sink()

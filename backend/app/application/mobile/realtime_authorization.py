@@ -5,11 +5,12 @@ from __future__ import annotations
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from typing import Literal, TypeAlias
 
 from sqlalchemy import and_, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security.mobile_jwt import MobileAccessClaims, MobilePrincipalType
+from app.core.security.mobile_jwt import MobileAccessClaims
 from app.domain.entities.entities import GroupStatus
 from app.domain.exceptions.exceptions import AuthorizationError
 from app.infrastructure.database.gc_mobile_models import (
@@ -24,13 +25,20 @@ from app.infrastructure.database.models import (
     CoordinatorGroupAssignmentModel,
 )
 
+RealtimePrincipalType: TypeAlias = Literal[
+    "passenger",
+    "client_manager",
+    "coordinator",
+    "dashboard",
+]
+
 
 @dataclass(frozen=True, slots=True)
 class MobileRealtimeAuthorization:
     agency_id: uuid.UUID
     account_id: uuid.UUID
     principal_id: uuid.UUID
-    principal_type: MobilePrincipalType
+    principal_type: RealtimePrincipalType
     session_id: uuid.UUID
     session_generation: int
     trip_ids: frozenset[uuid.UUID]
@@ -178,4 +186,8 @@ async def load_mobile_realtime_authorization(
     )
 
 
-__all__ = ["MobileRealtimeAuthorization", "load_mobile_realtime_authorization"]
+__all__ = [
+    "MobileRealtimeAuthorization",
+    "RealtimePrincipalType",
+    "load_mobile_realtime_authorization",
+]

@@ -11,6 +11,7 @@ const endpoints = read("../../lib/api/endpoints.ts");
 const proxy = read("../../proxy.ts");
 const roles = read("../../lib/utils/role-access.ts");
 const sidebar = read("../../components/layout/sidebar.tsx");
+const routeCapabilities = read("../auth/config/route-capabilities.ts");
 const shell = read("./components/email-integrations-shell.tsx");
 const connections = read("./components/connections-page.tsx");
 const review = read("./components/review-queue-page.tsx");
@@ -74,10 +75,9 @@ test("sidebar and section navigation expose accessible normal links", () => {
   assert.ok(emailNav);
   assert.match(emailNav, /emailIntegrationsInbox/);
   assert.match(emailNav, /icon: Mail/);
-  assert.match(
-    emailNav,
-    /"super_admin", "agency_admin", "agency_manager", "agency_staff"/,
-  );
+  assert.match(sidebar, /canAccessApplicationPath\(user, item\.href\)/);
+  assert.match(routeCapabilities, /agency_staff:[\s\S]*?"email\.integrations\.view"/);
+  assert.match(routeCapabilities, /agency_coordinator: \["coordinator_app\.use"\]/);
   assert.match(shell, /<Link/);
   assert.match(shell, /aria-current=\{isActive \? "page" : undefined\}/);
   assert.doesNotMatch(shell, /role="tab"/);
@@ -287,11 +287,11 @@ test("connection response type contains only the public contract fields", () => 
 });
 
 test("email connection, review, and activity views refresh near real time", () => {
-  assert.match(hooks, /const REFRESH_INTERVAL_MS = 5_000/);
-  assert.match(hooks, /refetchInterval: REFRESH_INTERVAL_MS/);
+  assert.match(hooks, /emailRepairIntervalMs/);
+  assert.match(hooks, /refetchInterval: \(\) => emailRepairIntervalMs\(\)/);
   assert.match(hooks, /inbox: \(userId: string, view:/);
   assert.match(hooks, /queryKey: EMAIL_INTEGRATION_QUERY_KEYS\.inbox/);
-  assert.match(hooks, /refetchInterval: 15_000/);
+  assert.match(hooks, /maxPages: EMAIL_REPAIR_PAGE_BUDGET/);
   assert.match(hooks, /refetchIntervalInBackground: false/);
   assert.match(hooks, /useEmailMessageIntelligence/);
   assert.match(hooks, /pollWhileMissing/);

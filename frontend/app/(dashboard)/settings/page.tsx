@@ -11,6 +11,13 @@ import apiClient from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { selectUser, useAuthStore } from "@/stores/auth.store";
 import { AccountSecurityPanel } from "@/features/auth/components/account-security-panel";
+import {
+  buildPlatformSettingsUpdate,
+  conflictCurrentUpdatedAt,
+  DEFAULT_PLATFORM_SETTINGS,
+  isPlatformSettingsRevisionConflict,
+  type PlatformSettings,
+} from "@/features/settings/platform-settings-policy";
 import { formatDateTime } from "@/lib/utils/format";
 
 const ROLE_LABELS: Record<string, string> = {
@@ -35,39 +42,16 @@ type PurgePassportDataResponse = {
   deleted_whatsapp_delivery_states: number;
 };
 
-type PlatformSettings = {
-  platform_name: string;
-  require_client_email: boolean;
-  require_client_phone: boolean;
-  duplicate_contact_policy: "block_same_group" | "allow" | "block_all";
-  default_group_status: "active" | "closed";
-  auto_archive_closed_groups_days: number;
-  passport_data_retention_days: number;
-  mrz_review_threshold: number;
-  allow_manager_group_creation: boolean;
-  audit_log_retention_days: number;
-  updated_at: string | null;
-};
-
 const DELETE_CONFIRMATION = "DELETE ALL DATA";
-const DEFAULT_SETTINGS: PlatformSettings = {
-  platform_name: "Global Connects Dashboard",
-  require_client_email: false,
-  require_client_phone: false,
-  duplicate_contact_policy: "block_same_group",
-  default_group_status: "active",
-  auto_archive_closed_groups_days: 90,
-  passport_data_retention_days: 365,
-  mrz_review_threshold: 0.85,
-  allow_manager_group_creation: true,
-  audit_log_retention_days: 365,
-  updated_at: null,
-};
+type SettingsLoadState = "loading" | "ready" | "error" | "conflict";
 
 export default function SettingsPage() {
   const user = useAuthStore(selectUser);
-  const [settings, setSettings] = useState<PlatformSettings>(DEFAULT_SETTINGS);
-  const [isLoading, setIsLoading] = useState(true);
+  const [settings, setSettings] = useState<PlatformSettings>(DEFAULT_PLATFORM_SETTINGS);
+  const [authoritativeUpdatedAt, setAuthoritativeUpdatedAt] = useState<string | null>(null);
+  const [loadState, setLoadState] = useState<SettingsLoadState>("loading");
+  const [loadRequest, setLoadRequest] = useState(0);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
@@ -77,60 +61,90 @@ export default function SettingsPage() {
   const [purgeResult, setPurgeResult] = useState<PurgePassportDataResponse | null>(null);
   const [isPurgeDialogOpen, setIsPurgeDialogOpen] = useState(false);
 
-  const canPurge = user?.role === "super_admin" || user?.role === "agency_admin";
+  const isLoading = loadState === "loading";
+  const isAuthorityReady = loadState === "ready" && user !== null;
+  const canPurge = isAuthorityReady && (user.role === "super_admin" || user.role === "agency_admin");
   const isConfirmed = confirmation === DELETE_CONFIRMATION;
 
   useEffect(() => {
     let active = true;
+    const controller = new AbortController();
     apiClient
-      .get<PlatformSettings>(API_ENDPOINTS.admin.settings)
+      .get<PlatformSettings>(API_ENDPOINTS.admin.settings, { signal: controller.signal })
       .then(({ data }) => {
-        if (active) setSettings(data);
+        if (!active) return;
+        setSettings(data);
+        setAuthoritativeUpdatedAt(data.updated_at);
+        setLoadState("ready");
       })
       .catch(() => {
-        if (active) setSaveError("Could not load platform settings.");
-      })
-      .finally(() => {
-        if (active) setIsLoading(false);
+        if (!active) return;
+        setLoadError("Could not load authoritative platform settings. Editing and destructive actions remain unavailable until the server state is loaded.");
+        setLoadState("error");
       });
     return () => {
       active = false;
+      controller.abort();
     };
-  }, []);
+  }, [loadRequest]);
 
   const updateSetting = <K extends keyof PlatformSettings>(key: K, value: PlatformSettings[K]) => {
     setSettings((current) => ({ ...current, [key]: value }));
   };
 
   const handleSave = async () => {
+    if (loadState !== "ready" || isSaving) return;
     setIsSaving(true);
     setSaveError(null);
     setSaveMessage(null);
     try {
-      const payload = {
-        platform_name: settings.platform_name,
-        require_client_email: settings.require_client_email,
-        require_client_phone: settings.require_client_phone,
-        duplicate_contact_policy: settings.duplicate_contact_policy,
-        default_group_status: settings.default_group_status,
-        auto_archive_closed_groups_days: settings.auto_archive_closed_groups_days,
-        passport_data_retention_days: settings.passport_data_retention_days,
-        mrz_review_threshold: settings.mrz_review_threshold,
-        allow_manager_group_creation: settings.allow_manager_group_creation,
-        audit_log_retention_days: settings.audit_log_retention_days,
-      };
+      const payload = buildPlatformSettingsUpdate(settings, authoritativeUpdatedAt);
       const { data } = await apiClient.put<PlatformSettings>(API_ENDPOINTS.admin.settings, payload);
       setSettings(data);
+      setAuthoritativeUpdatedAt(data.updated_at);
       setSaveMessage("Settings saved.");
-    } catch {
-      setSaveError("Could not save settings.");
+    } catch (error) {
+      if (isPlatformSettingsRevisionConflict(error)) {
+        const currentUpdatedAt = conflictCurrentUpdatedAt(error);
+        const revisionMessage = currentUpdatedAt
+          ? ` The server reports a newer revision saved ${formatDateTime(currentUpdatedAt)}.`
+          : " The server state no longer matches the version that was loaded.";
+        setLoadState("conflict");
+        setSaveError(`Platform settings changed before this save completed.${revisionMessage} Your edits are preserved here; reload the authoritative settings before editing or saving again.`);
+      } else {
+        setSaveError("Could not save settings. Your edits are still present and were not reported as saved.");
+      }
     } finally {
       setIsSaving(false);
     }
   };
 
+  const reloadAuthoritativeSettings = () => {
+    if (
+      loadState === "conflict" &&
+      !window.confirm("Reload the authoritative platform settings? This replaces the unsaved edits currently shown on this page.")
+    ) {
+      return;
+    }
+    setLoadState("loading");
+    setLoadError(null);
+    setSaveError(null);
+    setSaveMessage(null);
+    setLoadRequest((current) => current + 1);
+  };
+
+  const settingsStatusLabel = loadState === "loading"
+    ? "Loading saved policy"
+    : loadState === "error"
+      ? "Settings unavailable"
+      : loadState === "conflict"
+        ? "Reload required"
+        : settings.updated_at
+          ? `Saved ${formatDateTime(settings.updated_at)}`
+          : "No saved policy yet";
+
   const handlePurgePassportData = async () => {
-    if (!canPurge || !isConfirmed || isPurging) return;
+    if (!isAuthorityReady || !canPurge || !isConfirmed || isPurging) return;
 
     setIsPurging(true);
     setPurgeError(null);
@@ -162,7 +176,7 @@ export default function SettingsPage() {
               {user ? ROLE_LABELS[user.role] ?? user.role : "Loading access scope"}
             </WorkspaceHeaderContext>
             <WorkspaceHeaderContext icon={Clock3}>
-              {settings.updated_at ? `Saved ${formatDateTime(settings.updated_at)}` : "Default policy loaded"}
+              {settingsStatusLabel}
             </WorkspaceHeaderContext>
           </>
         )}
@@ -171,7 +185,7 @@ export default function SettingsPage() {
             type="button"
             onClick={handleSave}
             isLoading={isSaving}
-            disabled={isLoading}
+            disabled={loadState !== "ready"}
             leftIcon={<Save className="h-4 w-4" aria-hidden="true" />}
             className="bg-white text-[#123f73] shadow-sm hover:bg-violet-50 active:bg-violet-100"
           >
@@ -215,7 +229,7 @@ export default function SettingsPage() {
                 <div>
                   <h2 className="text-base font-semibold text-slate-900">Platform Controls</h2>
                   <p className="text-sm text-slate-500">
-                    {settings.updated_at ? `Last saved ${formatDateTime(settings.updated_at)}` : "Default settings loaded"}
+                    {settingsStatusLabel}
                   </p>
                 </div>
               </div>
@@ -228,8 +242,24 @@ export default function SettingsPage() {
                 <Skeleton className="h-24 w-full rounded-lg" />
                 <Skeleton className="h-24 w-full rounded-lg" />
               </div>
+            ) : loadState === "error" ? (
+              <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                <p>{loadError}</p>
+                <Button type="button" variant="secondary" className="mt-3" onClick={reloadAuthoritativeSettings}>
+                  Retry loading settings
+                </Button>
+              </div>
             ) : (
               <div className="space-y-6">
+                {loadState === "conflict" && (
+                  <div role="alert" className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950">
+                    <p>{saveError}</p>
+                    <Button type="button" variant="secondary" className="mt-3" onClick={reloadAuthoritativeSettings}>
+                      Reload authoritative settings
+                    </Button>
+                  </div>
+                )}
+                <fieldset disabled={loadState !== "ready" || isSaving} className="space-y-6 disabled:opacity-75">
                 <SettingsSection
                   title="Identity and intake defaults"
                   description="Define how new groups begin and how duplicate client contact details are handled."
@@ -325,10 +355,11 @@ export default function SettingsPage() {
                     />
                   </div>
                 </fieldset>
+                </fieldset>
               </div>
             )}
 
-            {saveError && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{saveError}</div>}
+            {saveError && loadState !== "conflict" && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{saveError}</div>}
             {saveMessage && (
               <div role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">{saveMessage}</div>
             )}
@@ -350,13 +381,18 @@ export default function SettingsPage() {
                 </div>
                 <p className="max-w-3xl text-sm text-slate-600">
                   Deletes all groups, archived groups, passport uploads, extracted details, related processing jobs,
-                  notifications, audit entries, stored passport images, and all WhatsApp broadcast data.
+                  notifications, stored passport images, and all WhatsApp broadcast data. Append-only audit evidence
+                  is retained so the administrative action remains accountable.
                 </p>
               </div>
             </div>
           </div>
 
-          {!canPurge ? (
+          {!isAuthorityReady ? (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+              This action remains unavailable until the signed-in authority and authoritative platform settings have loaded.
+            </div>
+          ) : !canPurge ? (
             <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
               Only super admins and agency admins can delete passport data.
             </div>
@@ -367,13 +403,13 @@ export default function SettingsPage() {
                 value={confirmation}
                 onChange={(event) => setConfirmation(event.target.value)}
                 placeholder={DELETE_CONFIRMATION}
-                disabled={isPurging}
+                disabled={!isAuthorityReady || isPurging}
               />
               <Button
                 type="button"
                 variant="danger"
                 className="w-full lg:w-auto"
-                disabled={!isConfirmed}
+                disabled={!isAuthorityReady || !isConfirmed}
                 isLoading={isPurging}
                 leftIcon={<AlertTriangle className="h-4 w-4" />}
                 onClick={() => setIsPurgeDialogOpen(true)}
@@ -390,21 +426,20 @@ export default function SettingsPage() {
             <div role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
               Deleted {purgeResult.deleted_client_groups} groups, {purgeResult.deleted_passport_submissions} passports,
               {purgeResult.deleted_processing_jobs} jobs, {purgeResult.deleted_notifications} notifications,
-              {purgeResult.deleted_audit_logs} audit entries, {purgeResult.deleted_storage_objects} storage files,
-              and {purgeResult.deleted_whatsapp_broadcast_groups} WhatsApp broadcasts with{" "}
+              {purgeResult.deleted_storage_objects} storage files, and {purgeResult.deleted_whatsapp_broadcast_groups} WhatsApp broadcasts with{" "}
               {purgeResult.deleted_whatsapp_recipients} recipients,{" "}
               {purgeResult.deleted_whatsapp_support_contacts} support contacts, and{" "}
               {purgeResult.deleted_whatsapp_message_logs} message records with{" "}
-              {purgeResult.deleted_whatsapp_delivery_states} delivery checklists.
+              {purgeResult.deleted_whatsapp_delivery_states} delivery checklists. Append-only audit evidence was retained.
             </div>
           )}
         </CardContent>
       </Card>
 
       <ConfirmDialog
-        isOpen={isPurgeDialogOpen}
+        isOpen={isPurgeDialogOpen && isAuthorityReady}
         title="Permanently Delete All Data"
-        description="This will permanently delete all groups, archived groups, uploaded passport images, extracted passport details, related processing jobs, notifications, audit entries, and every WhatsApp broadcast, recipient, support contact, and message record. This action cannot be undone."
+        description="This will permanently delete all groups, archived groups, uploaded passport images, extracted passport details, related processing jobs, notifications, and every WhatsApp broadcast, recipient, support contact, and message record. Append-only audit evidence is retained. The operational-data deletion cannot be undone."
         confirmLabel="Delete All Data"
         variant="danger"
         isLoading={isPurging}

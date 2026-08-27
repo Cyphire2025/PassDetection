@@ -350,6 +350,10 @@ test('runs bounded retention, optimize, and passive WAL checkpoint after an idle
     expect(database.runAsync.mock.calls.some(([sql]) => (
       sql.includes('ROW_NUMBER() OVER')
     ))).toBe(true);
+    expect(database.runAsync.mock.calls.some(([sql]) => (
+      sql.includes("action_type = 'attendance.scan'")
+      || sql.includes('attendance_scan_receipts')
+    ))).toBe(false);
   } finally {
     setAccountDatabaseApplicationState(false);
     clock.mockRestore();

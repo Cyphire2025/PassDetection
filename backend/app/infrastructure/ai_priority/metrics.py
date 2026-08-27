@@ -674,7 +674,7 @@ def get_shared_ai_priority_metrics_store() -> ResilientAiMetricsStore:
     """Build one process-local adapter to the shared Redis aggregates."""
 
     try:
-        redis_url = get_settings().redis.url
+        redis_url = get_settings().redis.broker_url
         remote: SharedAiMetricsStore | None = RedisAiMetricsStore.from_url(
             redis_url
         )

@@ -14,7 +14,7 @@ import {
 } from "@/stores/auth.store";
 import { useMyTourGroups } from "@/features/operations/hooks/use-operations";
 import type { TourGroup } from "@/features/operations/api/operations.api";
-import { offlineSnapshotKeys, readOfflineSnapshot, writeOfflineSnapshot } from "../services/offline-snapshot";
+import { offlineSnapshotKeys, useOfflineSnapshot, writeOfflineSnapshot } from "../services/offline-snapshot";
 import { useNetworkStatus } from "../hooks/use-network-status";
 
 const EMPTY_GROUPS: TourGroup[] = [];
@@ -27,13 +27,9 @@ export function CoordinatorMobileShell() {
   const clearSession = useAuthStore((state) => state.clearSession);
   const isOnline = useNetworkStatus();
   const isCoordinator = isAuthenticated && user?.role === "agency_coordinator";
-  const userId = user?.id;
   const groupsQuery = useMyTourGroups(hasHydrated && isCoordinator);
   const groups = groupsQuery.data ?? EMPTY_GROUPS;
-  const cachedGroups = useMemo<TourGroup[]>(
-    () => userId ? readOfflineSnapshot(offlineSnapshotKeys.myGroups, []) : [],
-    [userId],
-  );
+  const cachedGroups = useOfflineSnapshot<TourGroup[]>(offlineSnapshotKeys.myGroups, EMPTY_GROUPS);
   const visibleGroups = groupsQuery.isSuccess ? groups : cachedGroups;
   const isShowingSavedGroups = !groupsQuery.isSuccess && cachedGroups.length > 0;
   const totalPeople = useMemo(
@@ -43,7 +39,7 @@ export function CoordinatorMobileShell() {
 
   useEffect(() => {
     if (!groupsQuery.isSuccess) return;
-    writeOfflineSnapshot(offlineSnapshotKeys.myGroups, groups);
+    void writeOfflineSnapshot(offlineSnapshotKeys.myGroups, groups);
   }, [groups, groupsQuery.isSuccess]);
 
   if (!hasHydrated) {

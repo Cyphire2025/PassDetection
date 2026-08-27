@@ -11,7 +11,10 @@ from pydantic import ValidationError
 from sqlalchemy.dialects import postgresql
 
 from app.domain.entities.entities import User, UserRole
-from app.presentation.api.v1.routes import tour_operations
+from app.presentation.api.v1.routes import (
+    tour_operations,
+    tour_operations_attendance_scan_support,
+)
 from app.presentation.api.v1.schemas.attendance_closeout_schemas import (
     AttendanceCloseoutCheckpointRequest,
     AttendanceCloseoutCoordinatorStatusResponse,
@@ -160,10 +163,13 @@ def test_web_attendance_scan_timestamp_requires_timezone() -> None:
 
 def test_completed_shared_activity_remains_scannable_for_other_coordinators() -> None:
     assert "completed" in tour_operations.SCANNABLE_ATTENDANCE_STATUSES
-    assert tour_operations._counted_attendance_message(  # noqa: SLF001
-        "completed",
-        "Asha",
-    ) == "Asha counted as a late scan after completion."
+    assert (
+        tour_operations._counted_attendance_message(  # noqa: SLF001
+            "completed",
+            "Asha",
+        )
+        == "Asha counted as a late scan after completion."
+    )
 
 
 def test_close_window_accepts_pre_close_queue_time_but_rejects_fresh_capture() -> None:
@@ -197,14 +203,12 @@ def test_coordinator_create_route_is_deprecated_and_manager_route_is_canonical()
     coordinator_create = next(
         route
         for route in tour_operations.router.routes
-        if route.path == "/coordinator/groups/{group_id}/sessions"
-        and "POST" in route.methods
+        if route.path == "/coordinator/groups/{group_id}/sessions" and "POST" in route.methods
     )
     manager_create = next(
         route
         for route in tour_operations.router.routes
-        if route.path == "/groups/{group_id}/attendance/sessions"
-        and "POST" in route.methods
+        if route.path == "/groups/{group_id}/attendance/sessions" and "POST" in route.methods
     )
 
     assert coordinator_create.deprecated is True
@@ -268,6 +272,110 @@ async def test_ordinary_staff_cannot_create_a_canonical_activity() -> None:
     assert caught.value.status_code == 403
     session.execute.assert_not_awaited()
     session.scalar.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_web_manager_create_stages_one_durable_realtime_hint(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    manager = _manager(agency_id)
+    activity = SimpleNamespace(
+        id=uuid.uuid4(),
+        updated_at=datetime.now(tz=UTC),
+    )
+    response = SimpleNamespace(id=activity.id)
+    database = SimpleNamespace()
+    notify = AsyncMock()
+    audit = SimpleNamespace(record=AsyncMock())
+    monkeypatch.setattr(
+        tour_operations,
+        "_get_attendance_close_group_scope",
+        AsyncMock(return_value=(agency_id, SimpleNamespace(id=group_id))),
+    )
+    monkeypatch.setattr(
+        tour_operations,
+        "_create_canonical_attendance_activity",
+        AsyncMock(return_value=(activity, "created")),
+    )
+    monkeypatch.setattr(
+        tour_operations,
+        "_attendance_session_response",
+        AsyncMock(return_value=response),
+    )
+    monkeypatch.setattr(
+        tour_operations,
+        "append_attendance_realtime_invalidation",
+        notify,
+    )
+    monkeypatch.setattr(tour_operations, "AuditLogRepository", lambda _session: audit)
+    monkeypatch.setattr(tour_operations, "trusted_client_ip", lambda _request: "203.0.113.9")
+
+    result = await tour_operations.create_managed_attendance_session(
+        group_id=group_id,
+        body=CreateAttendanceSessionRequest(name="Airport departure"),
+        request=SimpleNamespace(),  # type: ignore[arg-type]
+        current_user=manager,
+        session=database,  # type: ignore[arg-type]
+    )
+
+    assert result is response
+    notify.assert_awaited_once_with(
+        database,
+        agency_id=agency_id,
+        group_id=group_id,
+        entity_type="attendance_session",
+        entity_id=activity.id,
+        changed_by_user_id=manager.id,
+        occurred_at=activity.updated_at,
+    )
+
+
+@pytest.mark.asyncio
+async def test_web_manager_idempotent_create_does_not_stage_a_false_hint(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    manager = _manager(agency_id)
+    activity = SimpleNamespace(id=uuid.uuid4(), updated_at=datetime.now(tz=UTC))
+    response = SimpleNamespace(id=activity.id)
+    audit = SimpleNamespace(record=AsyncMock())
+    notify = AsyncMock()
+    monkeypatch.setattr(
+        tour_operations,
+        "_get_attendance_close_group_scope",
+        AsyncMock(return_value=(agency_id, SimpleNamespace(id=group_id))),
+    )
+    monkeypatch.setattr(
+        tour_operations,
+        "_create_canonical_attendance_activity",
+        AsyncMock(return_value=(activity, "existing")),
+    )
+    monkeypatch.setattr(
+        tour_operations,
+        "_attendance_session_response",
+        AsyncMock(return_value=response),
+    )
+    monkeypatch.setattr(
+        tour_operations,
+        "append_attendance_realtime_invalidation",
+        notify,
+    )
+    monkeypatch.setattr(tour_operations, "AuditLogRepository", lambda _session: audit)
+    monkeypatch.setattr(tour_operations, "trusted_client_ip", lambda _request: "203.0.113.9")
+
+    result = await tour_operations.create_managed_attendance_session(
+        group_id=group_id,
+        body=CreateAttendanceSessionRequest(name="Airport departure"),
+        request=SimpleNamespace(),  # type: ignore[arg-type]
+        current_user=manager,
+        session=SimpleNamespace(),  # type: ignore[arg-type]
+    )
+
+    assert result is response
+    notify.assert_not_awaited()
 
 
 @pytest.mark.asyncio
@@ -412,7 +520,11 @@ async def test_agency_manager_close_uses_scoped_locked_activity_and_audits(
 ) -> None:
     agency_id = uuid.uuid4()
     group_id = uuid.uuid4()
-    activity = SimpleNamespace(id=uuid.uuid4(), status="active")
+    activity = SimpleNamespace(
+        id=uuid.uuid4(),
+        status="active",
+        updated_at=datetime.now(tz=UTC),
+    )
     manager = User(
         id=uuid.uuid4(),
         email="manager@example.test",
@@ -430,6 +542,7 @@ async def test_agency_manager_close_uses_scoped_locked_activity_and_audits(
     load_closeout = AsyncMock(return_value=closeout)
     build_response = AsyncMock(return_value=expected)
     audit = SimpleNamespace(record=AsyncMock())
+    notify = AsyncMock()
     monkeypatch.setattr(tour_operations, "_get_attendance_close_group_scope", close_scope)
     monkeypatch.setattr(tour_operations, "_get_managed_attendance_session", lookup)
     monkeypatch.setattr(tour_operations, "_close_shared_attendance_activity", close)
@@ -437,6 +550,11 @@ async def test_agency_manager_close_uses_scoped_locked_activity_and_audits(
     monkeypatch.setattr(tour_operations, "_attendance_session_response", build_response)
     monkeypatch.setattr(tour_operations, "AuditLogRepository", lambda _session: audit)
     monkeypatch.setattr(tour_operations, "trusted_client_ip", lambda _request: "203.0.113.11")
+    monkeypatch.setattr(
+        tour_operations,
+        "append_attendance_realtime_invalidation",
+        notify,
+    )
 
     response = await tour_operations.complete_managed_attendance_session(
         group_id=group_id,
@@ -460,6 +578,15 @@ async def test_agency_manager_close_uses_scoped_locked_activity_and_audits(
         session_id=activity.id,
     )
     close.assert_awaited_once_with(database, activity)
+    notify.assert_awaited_once_with(
+        database,
+        agency_id=agency_id,
+        group_id=group_id,
+        entity_type="attendance_session",
+        entity_id=activity.id,
+        changed_by_user_id=manager.id,
+        occurred_at=activity.updated_at,
+    )
     audit.record.assert_awaited_once()
     metadata = audit.record.await_args.kwargs["metadata"]
     assert metadata == {
@@ -476,12 +603,68 @@ async def test_agency_manager_close_uses_scoped_locked_activity_and_audits(
 
 
 @pytest.mark.asyncio
+async def test_idempotent_manager_close_does_not_stage_a_false_hint(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    manager = _manager(agency_id)
+    activity = SimpleNamespace(id=uuid.uuid4(), status="completed")
+    response = SimpleNamespace(scanned_count=800, assigned_count=800)
+    database = SimpleNamespace()
+    notify = AsyncMock()
+    audit = SimpleNamespace(record=AsyncMock())
+    monkeypatch.setattr(
+        tour_operations,
+        "_get_attendance_close_group_scope",
+        AsyncMock(return_value=(agency_id, SimpleNamespace(id=group_id))),
+    )
+    monkeypatch.setattr(
+        tour_operations,
+        "_get_managed_attendance_session",
+        AsyncMock(return_value=activity),
+    )
+    monkeypatch.setattr(
+        tour_operations,
+        "_close_shared_attendance_activity",
+        AsyncMock(return_value=False),
+    )
+    monkeypatch.setattr(
+        tour_operations,
+        "_attendance_session_response",
+        AsyncMock(return_value=response),
+    )
+    monkeypatch.setattr(
+        tour_operations,
+        "append_attendance_realtime_invalidation",
+        notify,
+    )
+    monkeypatch.setattr(tour_operations, "AuditLogRepository", lambda _session: audit)
+
+    result = await tour_operations.complete_managed_attendance_session(
+        group_id=group_id,
+        session_id=activity.id,
+        request=SimpleNamespace(),  # type: ignore[arg-type]
+        current_user=manager,
+        session=database,  # type: ignore[arg-type]
+    )
+
+    assert result is response
+    notify.assert_not_awaited()
+    audit.record.assert_not_awaited()
+
+
+@pytest.mark.asyncio
 async def test_web_manager_close_fails_closed_for_missing_checkpoint(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     agency_id = uuid.uuid4()
     group_id = uuid.uuid4()
-    activity = SimpleNamespace(id=uuid.uuid4(), status="active")
+    activity = SimpleNamespace(
+        id=uuid.uuid4(),
+        status="active",
+        updated_at=datetime.now(tz=UTC),
+    )
     close = AsyncMock()
     build_response = AsyncMock()
     monkeypatch.setattr(
@@ -524,10 +707,24 @@ async def test_web_manager_exception_is_bounded_and_durably_audited(
 ) -> None:
     agency_id = uuid.uuid4()
     group_id = uuid.uuid4()
-    activity = SimpleNamespace(id=uuid.uuid4(), status="active")
+    activity = SimpleNamespace(
+        id=uuid.uuid4(),
+        status="active",
+        updated_at=datetime.now(tz=UTC),
+    )
     closeout = _closeout_response("blocked", pending_count=2)
     response = SimpleNamespace(scanned_count=798, assigned_count=800)
     audit = SimpleNamespace(record=AsyncMock())
+    notify = AsyncMock()
+    database = SimpleNamespace(commit=AsyncMock())
+    request = SimpleNamespace(
+        state=SimpleNamespace(
+            auth_claims={
+                "amr": ["totp"],
+                "mfa_at": datetime.now(tz=UTC).timestamp(),
+            }
+        )
+    )
     monkeypatch.setattr(
         tour_operations,
         "_get_attendance_close_group_scope",
@@ -555,25 +752,35 @@ async def test_web_manager_exception_is_bounded_and_durably_audited(
     )
     monkeypatch.setattr(tour_operations, "AuditLogRepository", lambda _session: audit)
     monkeypatch.setattr(tour_operations, "trusted_client_ip", lambda _request: "203.0.113.12")
+    monkeypatch.setattr(
+        tour_operations,
+        "append_attendance_realtime_invalidation",
+        notify,
+    )
 
     result = await tour_operations.complete_managed_attendance_session(
         group_id=group_id,
         session_id=activity.id,
-        request=SimpleNamespace(),  # type: ignore[arg-type]
+        request=request,
         current_user=_manager(agency_id),
-        session=SimpleNamespace(),  # type: ignore[arg-type]
+        session=database,
         body=AttendanceCloseRequest(
             exception_reason="approved transport emergency override",
         ),
     )
 
     assert result is response
+    notify.assert_awaited_once()
+    database.commit.assert_not_awaited()
     closeout_audit = audit.record.await_args.kwargs["metadata"]["closeout"]
     assert closeout_audit["exception_used"] is True
     assert closeout_audit["exception_reason"] == "approved transport emergency override"
     assert closeout_audit["unresolved_count"] == 2
     assert set(closeout_audit["coordinators"][0]) == {
         "coordinator_id",
+        "runtime_id",
+        "runtime_kind",
+        "runtime_status",
         "state",
         "reported_at",
         "pending_count",
@@ -598,6 +805,7 @@ async def test_web_coordinator_checkpoint_uses_authenticated_identity_and_shared
     checkpoint = SimpleNamespace(reported_at=datetime.now(tz=UTC))
     repository = SimpleNamespace(publish=AsyncMock(return_value=checkpoint))
     database = SimpleNamespace()
+    notify = AsyncMock()
     monkeypatch.setattr(
         tour_operations,
         "_ensure_group_assigned_to_coordinator",
@@ -613,6 +821,11 @@ async def test_web_coordinator_checkpoint_uses_authenticated_identity_and_shared
         "AttendanceCloseoutRepository",
         lambda _session: repository,
     )
+    monkeypatch.setattr(
+        tour_operations,
+        "append_attendance_realtime_invalidation",
+        notify,
+    )
     body = AttendanceCloseoutCheckpointRequest(
         pending_count=0,
         sending_count=0,
@@ -626,6 +839,7 @@ async def test_web_coordinator_checkpoint_uses_authenticated_identity_and_shared
         group_id=group_id,
         session_id=activity.id,
         body=body,
+        request=SimpleNamespace(cookies={}),
         current_user=coordinator,
         session=database,  # type: ignore[arg-type]
     )
@@ -639,6 +853,15 @@ async def test_web_coordinator_checkpoint_uses_authenticated_identity_and_shared
         lock_for_scan=True,
     )
     assert repository.publish.await_args.kwargs["coordinator_user_id"] == coordinator.id
+    notify.assert_awaited_once_with(
+        database,
+        agency_id=agency_id,
+        group_id=group_id,
+        entity_type="attendance_checkpoint",
+        entity_id=activity.id,
+        changed_by_user_id=coordinator.id,
+        occurred_at=checkpoint.reported_at,
+    )
     assert response.unreviewed_rejected_count == 1
 
 
@@ -669,9 +892,7 @@ async def test_agencyless_super_admin_resolves_target_tenant_before_close(
 
 @pytest.mark.asyncio
 async def test_attendance_counts_use_full_group_and_shared_session() -> None:
-    session = SimpleNamespace(
-        execute=AsyncMock(return_value=_OneResult((700, 123)))
-    )
+    session = SimpleNamespace(execute=AsyncMock(return_value=_OneResult((700, 123))))
     session_id = uuid.uuid4()
     group_id = uuid.uuid4()
 
@@ -717,7 +938,9 @@ async def test_alias_session_id_resolves_to_canonical_activity() -> None:
     assert resolved is canonical
     statement = session.execute.await_args.args[0]
     sql = str(statement.compile(dialect=postgresql.dialect()))
-    assert "requested_attendance_session.canonical_session_id = canonical_attendance_session.id" in sql
+    assert (
+        "requested_attendance_session.canonical_session_id = canonical_attendance_session.id" in sql
+    )
     assert "requested_attendance_session.id" in sql
     assert "canonical_attendance_session.agency_id" in sql
     assert "FOR SHARE OF canonical_attendance_session" in sql
@@ -758,6 +981,50 @@ async def test_family_insert_is_atomic_and_targets_canonical_session() -> None:
     assert "AS attendance_scan_source_enum)" in sql
     assert "AS VARCHAR(128))" in sql
     assert canonical_id in compiled.params.values()
+
+
+@pytest.mark.asyncio
+async def test_counted_scan_stages_attendance_hint_in_the_same_transaction(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    canonical_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    passenger_id = uuid.uuid4()
+    agency_id = uuid.uuid4()
+    coordinator_id = uuid.uuid4()
+    record_id = uuid.uuid4()
+    observed = datetime.now(tz=UTC)
+    session = SimpleNamespace(
+        execute=AsyncMock(return_value=_ScalarResult(record_id)),
+    )
+    append_change = AsyncMock()
+    monkeypatch.setattr(
+        tour_operations_attendance_scan_support,
+        "append_attendance_realtime_change",
+        append_change,
+    )
+
+    inserted = await tour_operations._insert_canonical_attendance_record(  # noqa: SLF001
+        session=session,  # type: ignore[arg-type]
+        agency_id=agency_id,
+        attendance_session=SimpleNamespace(id=canonical_id, group_id=group_id),
+        passenger_id=passenger_id,
+        coordinator_user_id=coordinator_id,
+        scanned_at=observed,
+        sync_source="online",
+        client_event_id="browser-event",
+        device_id=None,
+    )
+
+    assert inserted == record_id
+    append_change.assert_awaited_once_with(
+        session,
+        agency_id=agency_id,
+        group_id=group_id,
+        attendance_record_id=record_id,
+        coordinator_user_id=coordinator_id,
+        occurred_at=observed,
+    )
 
 
 @pytest.mark.asyncio
@@ -820,7 +1087,9 @@ async def test_details_dedupe_family_scans_by_passenger() -> None:
 
     assert response.scanned_count == 123
     details_sql = str(
-        session.execute.await_args_list[1].args[0].compile(
+        session.execute.await_args_list[1]
+        .args[0]
+        .compile(
             dialect=postgresql.dialect(),
         )
     )
@@ -885,16 +1154,18 @@ async def test_admin_overview_dedupes_alias_passengers_and_attribution(
         execute=AsyncMock(
             side_effect=[
                 _RowsResult([activity]),
-                _RowsResult([
-                    SimpleNamespace(
-                        coordinator_user_id=coordinator_one,
-                        full_name="One",
-                    ),
-                    SimpleNamespace(
-                        coordinator_user_id=coordinator_two,
-                        full_name="Two",
-                    ),
-                ]),
+                _RowsResult(
+                    [
+                        SimpleNamespace(
+                            coordinator_user_id=coordinator_one,
+                            full_name="One",
+                        ),
+                        SimpleNamespace(
+                            coordinator_user_id=coordinator_two,
+                            full_name="Two",
+                        ),
+                    ]
+                ),
                 _ScalarResult(2),
                 _RowsResult(scanned_rows),
                 _RowsResult(passenger_rows),
@@ -902,9 +1173,7 @@ async def test_admin_overview_dedupes_alias_passengers_and_attribution(
         )
     )
     closeout = _closeout_response()
-    closeout_repository = SimpleNamespace(
-        statuses=AsyncMock(return_value={canonical_id: closeout})
-    )
+    closeout_repository = SimpleNamespace(statuses=AsyncMock(return_value={canonical_id: closeout}))
     monkeypatch.setattr(
         tour_operations,
         "AttendanceCloseoutRepository",
@@ -923,20 +1192,21 @@ async def test_admin_overview_dedupes_alias_passengers_and_attribution(
     assert summary.scanned_count == 2
     assert summary.closeout.ready is True
     assert summary.missing_passengers == []
-    assert {
-        item.coordinator_id: item.scanned_count
-        for item in summary.coordinators
-    } == {
+    assert {item.coordinator_id: item.scanned_count for item in summary.coordinators} == {
         coordinator_one: 1,
         coordinator_two: 1,
     }
     sessions_sql = str(
-        session.execute.await_args_list[0].args[0].compile(
+        session.execute.await_args_list[0]
+        .args[0]
+        .compile(
             dialect=postgresql.dialect(),
         )
     )
     records_sql = str(
-        session.execute.await_args_list[3].args[0].compile(
+        session.execute.await_args_list[3]
+        .args[0]
+        .compile(
             dialect=postgresql.dialect(),
         )
     )
@@ -954,17 +1224,13 @@ async def test_any_group_passenger_qr_resolves_without_individual_assignment() -
         expires_at=datetime.now(tz=UTC) + timedelta(hours=1),
         is_active=True,
     )
-    session = SimpleNamespace(
-        execute=AsyncMock(return_value=_FirstResult((passenger, token)))
-    )
+    session = SimpleNamespace(execute=AsyncMock(return_value=_FirstResult((passenger, token))))
 
-    resolved, resolved_token, rejection = (
-        await tour_operations._resolve_scannable_passenger(  # noqa: SLF001
-            session=session,  # type: ignore[arg-type]
-            agency_id=agency_id,
-            group_id=group_id,
-            qr_payload="pdatt:" + ("a" * 43),
-        )
+    resolved, resolved_token, rejection = await tour_operations._resolve_scannable_passenger(  # noqa: SLF001
+        session=session,
+        agency_id=agency_id,
+        group_id=group_id,
+        qr_payload="pdatt:" + ("a" * 43),
     )
 
     assert resolved is passenger
@@ -987,9 +1253,7 @@ async def test_manager_creation_generates_one_tenant_scoped_canonical_uuid() -> 
     )
     session = SimpleNamespace(
         scalar=AsyncMock(side_effect=[group_id, None, 0]),
-        execute=AsyncMock(
-            side_effect=[_ScalarResult(inserted_id), _ScalarResult(canonical)]
-        ),
+        execute=AsyncMock(side_effect=[_ScalarResult(inserted_id), _ScalarResult(canonical)]),
         flush=AsyncMock(),
     )
 
@@ -1004,11 +1268,17 @@ async def test_manager_creation_generates_one_tenant_scoped_canonical_uuid() -> 
     insert_statement = session.execute.await_args_list[0].args[0]
     insert_compiled = insert_statement.compile(dialect=postgresql.dialect())
     insert_sql = str(insert_compiled)
-    lookup_compiled = session.execute.await_args_list[1].args[0].compile(
-        dialect=postgresql.dialect(),
+    lookup_compiled = (
+        session.execute.await_args_list[1]
+        .args[0]
+        .compile(
+            dialect=postgresql.dialect(),
+        )
     )
     lock_sql = str(
-        session.scalar.await_args_list[0].args[0].compile(
+        session.scalar.await_args_list[0]
+        .args[0]
+        .compile(
             dialect=postgresql.dialect(),
         )
     )
@@ -1016,7 +1286,9 @@ async def test_manager_creation_generates_one_tenant_scoped_canonical_uuid() -> 
     assert insert_compiled.params["name"] == "After Lunch Count"
     assert insert_compiled.params["normalized_name"] == "after lunch count"
     assert insert_compiled.params["canonical_session_id"] == insert_compiled.params["id"]
-    assert "attendance_sessions.id = attendance_sessions.canonical_session_id" in str(lookup_compiled)
+    assert "attendance_sessions.id = attendance_sessions.canonical_session_id" in str(
+        lookup_compiled
+    )
     assert "client_groups.agency_id" in lock_sql
     assert "client_groups.deleted_at IS NULL" in lock_sql
     assert "FOR UPDATE" in lock_sql

@@ -19,6 +19,7 @@ import {
   attendanceQueueCutoffs,
   attendanceSessionQueueLimit,
 } from './attendance-policy';
+import { trustedQueueRetentionTime } from './attendance-retention-clock';
 import { publishAttendanceCloseoutCheckpoint } from './attendance-closeout-checkpoint';
 import {
   deliverAttendanceBatch,
@@ -348,10 +349,11 @@ export async function enqueueQrScan(
       return;
     }
 
-    await authorizeAttendanceTokenForOfflineQueue(
+    const authorization = await authorizeAttendanceTokenForOfflineQueue(
       transaction,
       account,
       tripId,
+      sessionId,
       tokenHash,
       nowMs,
     );
@@ -440,6 +442,23 @@ export async function enqueueQrScan(
       };
       return;
     }
+    await transaction.runAsync(
+      `INSERT INTO attendance_scan_issue_context
+        (idempotency_key, account_namespace, trip_id, session_id, session_label,
+         passenger_id, passenger_label, scan_reference, captured_at, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       ON CONFLICT(idempotency_key) DO NOTHING`,
+      idempotencyKey,
+      account,
+      tripId,
+      sessionId,
+      authorization.sessionLabel,
+      authorization.passengerId,
+      authorization.passengerLabel,
+      dedupeKey,
+      now,
+      now,
+    );
     enqueueResult = { status: 'queued', idempotencyKey, duplicate: false };
     } finally {
       // A logout, refresh rotation, or account switch during native I/O rolls
@@ -533,9 +552,12 @@ async function drainTrip(account: string, tripId: string): Promise<AttendanceDra
   const database = await openAccountDatabase(account);
   const drainResult = emptyDrainResult();
   let expiredRowCount = 0;
-  await withAccountTransaction(database, async (transaction) => {
-    expiredRowCount = await maintainAttendanceQueue(transaction, account, tripId, Date.now());
-  });
+  const retentionNowMs = await trustedQueueRetentionTime();
+  if (retentionNowMs !== null) {
+    await withAccountTransaction(database, async (transaction) => {
+      expiredRowCount = await maintainAttendanceQueue(transaction, account, tripId, retentionNowMs);
+    });
+  }
   recordAttendanceTerminalRejection('LOCAL_QUEUE_EXPIRED', expiredRowCount);
   const staleSendingBefore = new Date(Date.now() - 2 * 60_000).toISOString();
   await database.runAsync(
@@ -620,9 +642,12 @@ export async function attendanceSessionQueueStatus(
   const account = namespace();
   const database = await openAccountDatabase(account);
   let expiredRowCount = 0;
-  await withAccountTransaction(database, async (transaction) => {
-    expiredRowCount = await maintainAttendanceQueue(transaction, account, tripId, Date.now());
-  });
+  const retentionNowMs = await trustedQueueRetentionTime();
+  if (retentionNowMs !== null) {
+    await withAccountTransaction(database, async (transaction) => {
+      expiredRowCount = await maintainAttendanceQueue(transaction, account, tripId, retentionNowMs);
+    });
+  }
   recordAttendanceTerminalRejection('LOCAL_QUEUE_EXPIRED', expiredRowCount);
   const rows = await database.getAllAsync<AttendanceQueueStatusRow>(
     `SELECT state, COUNT(*) AS count FROM pending_actions
@@ -646,9 +671,12 @@ export async function attendanceTripQueueStatus(
   const account = namespace();
   const database = await openAccountDatabase(account);
   let expiredRowCount = 0;
-  await withAccountTransaction(database, async (transaction) => {
-    expiredRowCount = await maintainAttendanceQueue(transaction, account, tripId, Date.now());
-  });
+  const retentionNowMs = await trustedQueueRetentionTime();
+  if (retentionNowMs !== null) {
+    await withAccountTransaction(database, async (transaction) => {
+      expiredRowCount = await maintainAttendanceQueue(transaction, account, tripId, retentionNowMs);
+    });
+  }
   recordAttendanceTerminalRejection('LOCAL_QUEUE_EXPIRED', expiredRowCount);
   const rows = await database.getAllAsync<AttendanceQueueStatusRow>(
     `SELECT state, COUNT(*) AS count FROM pending_actions

@@ -186,6 +186,13 @@ export const AttendanceSessionSchema = z
     assigned_count: z.number().int().nonnegative(),
     started_at: IsoDateTime.nullable(),
     completed_at: IsoDateTime.nullable(),
+    // Additive rolling-upgrade fields. Their absence is accepted at the
+    // transport boundary for older servers, but readiness fails closed until
+    // an authoritative schedule is available.
+    scheduled_starts_at: IsoDateTime.nullable().optional(),
+    scheduled_ends_at: IsoDateTime.nullable().optional(),
+    schedule_timezone: z.string().trim().min(1).max(64).nullable().optional(),
+    schedule_version: z.number().int().min(1).optional(),
   })
   .strict();
 

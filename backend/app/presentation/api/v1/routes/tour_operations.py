@@ -8,24 +8,29 @@ from __future__ import annotations
 
 import uuid
 from collections import defaultdict
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
-from sqlalchemy import cast, func, literal, or_, select, update
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
+from fastapi.responses import JSONResponse
+from sqlalchemy import func, select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
+from sqlalchemy.sql.elements import ColumnElement
 
+from app.application.mobile.sync_journal import (
+    append_attendance_realtime_invalidation,
+)
 from app.application.security.authorization_policy import AuthorizationPolicy
+from app.application.use_cases.attendance_dashboard import (
+    AttendanceActivityNotFoundError,
+    AttendanceDashboardService,
+    AttendanceSnapshotChangedError,
+)
 from app.core.config.settings import get_settings
 from app.core.security.password import hash_password
-from app.domain.entities.entities import (
-    OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES,
-    GroupStatus,
-    User,
-    UserRole,
-)
-from app.domain.exceptions.exceptions import AuthorizationError
+from app.domain.entities.entities import GroupStatus, User, UserRole
+from app.domain.exceptions.exceptions import AuthorizationError, StepUpRequiredError
 from app.domain.value_objects.attendance_activity import (
     normalize_attendance_activity_name,
 )
@@ -41,11 +46,63 @@ from app.infrastructure.database.models import (
 )
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.attendance_closeout_repository import (
-    AttendanceCloseoutCounts,
     AttendanceCloseoutRepository,
-    AttendanceCloseoutStatus,
+)
+from app.infrastructure.repositories.attendance_dashboard_repository import (
+    AttendanceDashboardRepository,
 )
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.presentation.api.v1.routes.tour_operations_attendance_batch_support import (
+    AttendanceBatchDependencies,
+    process_coordinator_attendance_scan_batch,
+)
+from app.presentation.api.v1.routes.tour_operations_attendance_projection_support import (
+    attendance_activity_valid_after as _attendance_activity_valid_after,
+)
+from app.presentation.api.v1.routes.tour_operations_attendance_projection_support import (
+    attendance_closeout_audit_metadata as _attendance_closeout_audit_metadata,
+)
+from app.presentation.api.v1.routes.tour_operations_attendance_projection_support import (
+    attendance_closeout_counts as _attendance_closeout_counts,
+)
+from app.presentation.api.v1.routes.tour_operations_attendance_projection_support import (
+    attendance_closeout_status_response as _attendance_closeout_status_response,
+)
+from app.presentation.api.v1.routes.tour_operations_attendance_projection_support import (
+    attendance_missing_passengers_response,
+    attendance_snapshot_changed_response,
+    attendance_summary_cache_headers,
+    attendance_summary_response,
+)
+from app.presentation.api.v1.routes.tour_operations_attendance_projection_support import (
+    close_shared_attendance_activity as _close_shared_attendance_activity,
+)
+from app.presentation.api.v1.routes.tour_operations_attendance_projection_support import (
+    etag_matches as _etag_matches,
+)
+from app.presentation.api.v1.routes.tour_operations_attendance_projection_support import (
+    require_attendance_closeout_clearance as _require_attendance_closeout_clearance,
+)
+from app.presentation.api.v1.routes.tour_operations_attendance_scan_support import (
+    SCANNABLE_ATTENDANCE_STATUSES as SCANNABLE_ATTENDANCE_STATUSES,  # noqa: F401 - compatibility re-export
+)
+from app.presentation.api.v1.routes.tour_operations_attendance_scan_support import (
+    SUBMITTED_PASSENGER_STATUSES,
+    TourAttendanceScanDependencies,
+    record_coordinator_attendance_scan,
+)
+from app.presentation.api.v1.routes.tour_operations_attendance_scan_support import (
+    attendance_scan_is_within_activity_window as _attendance_scan_is_within_activity_window,  # noqa: F401 - compatibility re-export
+)
+from app.presentation.api.v1.routes.tour_operations_attendance_scan_support import (
+    counted_attendance_message as _counted_attendance_message,  # noqa: F401 - compatibility re-export
+)
+from app.presentation.api.v1.routes.tour_operations_attendance_scan_support import (
+    insert_canonical_attendance_record as _insert_canonical_attendance_record,
+)
+from app.presentation.api.v1.routes.tour_operations_attendance_scan_support import (
+    resolve_scannable_passenger as _resolve_scannable_passenger,
+)
 from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
     get_qr_passenger as _get_qr_passenger,
 )
@@ -59,7 +116,7 @@ from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
     latest_passenger_qr as _latest_passenger_qr,
 )
 from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
-    qr_hash as _qr_hash,
+    qr_hash,
 )
 from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
     qr_payload as _qr_payload,  # noqa: F401 - compatibility re-export
@@ -72,6 +129,12 @@ from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
 )
 from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
     record_qr_audit as _record_qr_audit,
+)
+from app.presentation.api.v1.routes.tour_operations_response_support import (
+    coordinator_responses as _coordinator_responses,
+)
+from app.presentation.api.v1.routes.tour_operations_response_support import (
+    group_responses as _group_responses,
 )
 from app.presentation.api.v1.schemas.attendance_closeout_schemas import (
     AttendanceCloseoutCheckpointRequest,
@@ -86,7 +149,10 @@ from app.presentation.api.v1.schemas.tour_operations_schemas import (
     AssignGroupPassengersRequest,
     AttendanceCoordinatorSummary,
     AttendanceMissingPassenger,
+    AttendanceMissingPassengersPageResponse,
     AttendancePassengerStatus,
+    AttendanceScanBatchRequest,
+    AttendanceScanBatchResponse,
     AttendanceScanRequest,
     AttendanceScanResponse,
     AttendanceSessionDetailsResponse,
@@ -96,7 +162,7 @@ from app.presentation.api.v1.schemas.tour_operations_schemas import (
     CreateAttendanceSessionRequest,
     CreateCoordinatorRequest,
     GroupAttendanceOverviewResponse,
-    GroupCoordinatorAssignmentResponse,
+    GroupAttendanceSummaryResponse,
     GroupPassengerQrCodesResponse,
     PassengerQrTokenResponse,
     SetPassengerQrActiveRequest,
@@ -104,10 +170,16 @@ from app.presentation.api.v1.schemas.tour_operations_schemas import (
     TourOperationsArchitectureResponse,
     TourOperationsGroupResponse,
     TourOperationsPhaseResponse,
+    UpdateAttendanceScheduleRequest,
 )
-from app.presentation.dependencies.auth import require_role
+from app.presentation.dependencies.auth import require_recent_mfa, require_role
 from app.presentation.dependencies.csrf import require_cookie_csrf
+from app.presentation.security.attendance_runtime import (
+    resolve_browser_attendance_runtime,
+)
 from app.presentation.security.client_ip import trusted_client_ip
+
+_qr_hash = qr_hash
 
 router = APIRouter()
 
@@ -134,9 +206,6 @@ ATTENDANCE_CLOSURE_ROLES = [
     UserRole.AGENCY_ADMIN,
     UserRole.AGENCY_MANAGER,
 ]
-SUBMITTED_PASSENGER_STATUSES = OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
-SCANNABLE_ATTENDANCE_STATUSES = ("active", "completed")
-ATTENDANCE_SCAN_CLOCK_SKEW = timedelta(minutes=15)
 TOUR_OPERATION_GROUP_STATUSES = (
     GroupStatus.ACTIVE.value,
     GroupStatus.CLOSED.value,
@@ -145,7 +214,9 @@ TOUR_OPERATION_GROUP_STATUSES = (
 
 def _require_agency(current_user: User) -> uuid.UUID:
     if not current_user.agency_id:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User is not assigned to an agency")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="User is not assigned to an agency"
+        )
     return current_user.agency_id
 
 
@@ -335,16 +406,14 @@ async def list_coordinators(
     session: AsyncSession = Depends(get_db_session),
 ) -> list[CoordinatorResponse]:
     agency_id = _agency_scope(current_user)
-    filters = [
+    filters: list[ColumnElement[bool]] = [
         UserModel.role == UserRole.AGENCY_COORDINATOR.value,
         UserModel.deleted_at.is_(None),
     ]
     if agency_id is not None:
         filters.append(UserModel.agency_id == agency_id)
     result = await session.execute(
-        select(UserModel)
-        .where(*filters)
-        .order_by(UserModel.created_at.desc())
+        select(UserModel).where(*filters).order_by(UserModel.created_at.desc())
     )
     coordinators = list(result.scalars().all())
     return await _coordinator_responses(session, coordinators)
@@ -366,7 +435,9 @@ async def create_coordinator(
     email = str(body.email).lower().strip()
     existing = await session.execute(select(UserModel).where(UserModel.email == email))
     if existing.scalar_one_or_none():
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="A user with this email already exists")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="A user with this email already exists"
+        )
 
     coordinator = UserModel(
         email=email,
@@ -402,13 +473,15 @@ async def list_tour_operation_groups(
     session: AsyncSession = Depends(get_db_session),
 ) -> list[TourOperationsGroupResponse]:
     agency_id = _agency_scope(current_user)
-    filters = [
+    filters: list[ColumnElement[bool]] = [
         ClientGroupModel.status.in_(TOUR_OPERATION_GROUP_STATUSES),
     ]
     if agency_id is not None:
         filters.append(ClientGroupModel.agency_id == agency_id)
 
-    stmt = AuthorizationPolicy.apply_group_visibility_scope(select(ClientGroupModel).where(*filters), current_user)
+    stmt = AuthorizationPolicy.apply_group_visibility_scope(
+        select(ClientGroupModel).where(*filters), current_user
+    )
     groups_result = await session.execute(stmt.order_by(ClientGroupModel.created_at.desc()))
     return await _group_responses(session, list(groups_result.scalars().all()))
 
@@ -437,8 +510,7 @@ async def assign_group_coordinators(
 
     if coordinator_ids:
         coordinator_result = await session.execute(
-            select(UserModel.id)
-            .where(
+            select(UserModel.id).where(
                 UserModel.id.in_(coordinator_ids),
                 UserModel.agency_id == agency_id,
                 UserModel.role == UserRole.AGENCY_COORDINATOR.value,
@@ -447,7 +519,10 @@ async def assign_group_coordinators(
         )
         valid_ids = set(coordinator_result.scalars().all())
         if valid_ids != set(coordinator_ids):
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="One or more coordinators are not assignable")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="One or more coordinators are not assignable",
+            )
 
     now = datetime.now(tz=UTC)
     await session.execute(
@@ -611,7 +686,9 @@ async def revoke_passenger_qr(
     await _get_qr_passenger(session, agency_id, group_id, passenger_id)
     token = await _latest_passenger_qr(session, passenger_id, lock=True)
     if not token:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Passenger has no QR token")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Passenger has no QR token"
+        )
     if token.revoked_at is None:
         now = datetime.now(tz=UTC)
         token.is_active = False
@@ -648,7 +725,9 @@ async def set_passenger_qr_active(
     await _get_qr_passenger(session, agency_id, group_id, passenger_id)
     token = await _latest_passenger_qr(session, passenger_id, lock=True)
     if not token:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Passenger has no QR token")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Passenger has no QR token"
+        )
     now = datetime.now(tz=UTC)
     if body.is_active and (token.revoked_at is not None or token.expires_at <= now):
         raise HTTPException(
@@ -698,9 +777,13 @@ async def set_passenger_qr_expiration(
     await _get_qr_passenger(session, agency_id, group_id, passenger_id)
     token = await _latest_passenger_qr(session, passenger_id, lock=True)
     if not token:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Passenger has no QR token")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Passenger has no QR token"
+        )
     if token.revoked_at is not None:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Revoked QR tokens cannot be changed")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Revoked QR tokens cannot be changed"
+        )
     expires_at = body.expires_at
     if expires_at.tzinfo is None:
         expires_at = expires_at.replace(tzinfo=UTC)
@@ -744,8 +827,7 @@ async def assign_group_passengers(
     passenger_ids = list(dict.fromkeys(body.passenger_ids))
 
     passenger_result = await session.execute(
-        select(PassportSubmissionModel.id)
-        .where(
+        select(PassportSubmissionModel.id).where(
             PassportSubmissionModel.id.in_(passenger_ids),
             PassportSubmissionModel.agency_id == agency_id,
             PassportSubmissionModel.group_id == group_id,
@@ -754,12 +836,14 @@ async def assign_group_passengers(
     )
     valid_passenger_ids = set(passenger_result.scalars().all())
     if valid_passenger_ids != set(passenger_ids):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="One or more passengers are not assignable")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="One or more passengers are not assignable",
+        )
 
     if body.coordinator_id is not None:
         coordinator_result = await session.execute(
-            select(CoordinatorGroupAssignmentModel.id)
-            .where(
+            select(CoordinatorGroupAssignmentModel.id).where(
                 CoordinatorGroupAssignmentModel.agency_id == agency_id,
                 CoordinatorGroupAssignmentModel.group_id == group_id,
                 CoordinatorGroupAssignmentModel.coordinator_user_id == body.coordinator_id,
@@ -767,7 +851,10 @@ async def assign_group_passengers(
             )
         )
         if not coordinator_result.scalar_one_or_none():
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Coordinator is not assigned to this group")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Coordinator is not assigned to this group",
+            )
 
     now = datetime.now(tz=UTC)
     await session.execute(
@@ -893,8 +980,7 @@ async def get_my_group_passenger_detail(
     agency_id = _require_agency(current_user)
     await _ensure_group_assigned_to_coordinator(session, agency_id, group_id, current_user.id)
     result = await session.execute(
-        select(PassportSubmissionModel)
-        .where(
+        select(PassportSubmissionModel).where(
             PassportSubmissionModel.id == passenger_id,
             PassportSubmissionModel.agency_id == agency_id,
             PassportSubmissionModel.group_id == group_id,
@@ -903,7 +989,9 @@ async def get_my_group_passenger_detail(
     )
     passenger = result.scalar_one_or_none()
     if not passenger:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Passenger was not found in this group")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Passenger was not found in this group"
+        )
     family_sizes = {passenger.family_group_id: 1} if passenger.family_group_id else {}
     return AssignedPassengerDetailResponse(
         id=passenger.id,
@@ -987,8 +1075,21 @@ async def create_managed_attendance_session(
         group_id=group_id,
         name=body.name,
         created_by_user_id=current_user.id,
+        scheduled_starts_at=body.scheduled_starts_at,
+        scheduled_ends_at=body.scheduled_ends_at,
+        schedule_timezone=body.schedule_timezone,
     )
     response = await _attendance_session_response(session, attendance_session)
+    if outcome != "existing":
+        await append_attendance_realtime_invalidation(
+            session,
+            agency_id=agency_id,
+            group_id=group_id,
+            entity_type="attendance_session",
+            entity_id=attendance_session.id,
+            changed_by_user_id=current_user.id,
+            occurred_at=attendance_session.updated_at,
+        )
     await AuditLogRepository(session).record(
         action="attendance.activity_prepared",
         entity_type="attendance_session",
@@ -1004,6 +1105,73 @@ async def create_managed_attendance_session(
         },
     )
     return response
+
+
+@router.put(
+    "/groups/{group_id}/attendance/sessions/{session_id}/schedule",
+    dependencies=[Depends(require_cookie_csrf)],
+    response_model=AttendanceSessionResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Set the authoritative schedule for an attendance activity",
+)
+async def update_managed_attendance_schedule(
+    group_id: uuid.UUID,
+    session_id: uuid.UUID,
+    body: UpdateAttendanceScheduleRequest,
+    request: Request,
+    current_user: User = Depends(require_role(ATTENDANCE_CLOSURE_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> AttendanceSessionResponse:
+    agency_id, _group = await _get_attendance_close_group_scope(
+        session,
+        group_id=group_id,
+        current_user=current_user,
+        lock_for_update=True,
+    )
+    attendance_session = await _get_managed_attendance_session(
+        session,
+        agency_id=agency_id,
+        group_id=group_id,
+        session_id=session_id,
+    )
+    if attendance_session.status not in {"draft", "active"}:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "code": "ATTENDANCE_SCHEDULE_LOCKED",
+                "message": "Only a draft or active attendance activity can be rescheduled.",
+            },
+        )
+    changed = (
+        attendance_session.scheduled_starts_at != body.scheduled_starts_at
+        or attendance_session.scheduled_ends_at != body.scheduled_ends_at
+        or attendance_session.schedule_timezone != body.schedule_timezone
+    )
+    if changed:
+        attendance_session.scheduled_starts_at = body.scheduled_starts_at
+        attendance_session.scheduled_ends_at = body.scheduled_ends_at
+        attendance_session.schedule_timezone = body.schedule_timezone
+        attendance_session.schedule_version += 1
+        attendance_session.updated_at = datetime.now(tz=UTC)
+        await session.flush()
+    await AuditLogRepository(session).record(
+        action="attendance.activity_schedule_updated",
+        entity_type="attendance_session",
+        agency_id=agency_id,
+        user_id=current_user.id,
+        actor_email=current_user.email,
+        entity_id=str(attendance_session.id),
+        ip_address=trusted_client_ip(request),
+        metadata={
+            "group_id": str(group_id),
+            "schedule_version": attendance_session.schedule_version,
+            "scheduled_starts_at": body.scheduled_starts_at.isoformat(),
+            "scheduled_ends_at": body.scheduled_ends_at.isoformat(),
+            "schedule_timezone": body.schedule_timezone,
+            "outcome": "updated" if changed else "already_current",
+        },
+    )
+    return await _attendance_session_response(session, attendance_session)
 
 
 @router.get(
@@ -1024,8 +1192,7 @@ async def list_my_attendance_sessions(
         .where(
             AttendanceSessionModel.agency_id == agency_id,
             AttendanceSessionModel.group_id == group_id,
-            AttendanceSessionModel.id
-            == AttendanceSessionModel.canonical_session_id,
+            AttendanceSessionModel.id == AttendanceSessionModel.canonical_session_id,
         )
         .order_by(AttendanceSessionModel.created_at.desc())
     )
@@ -1048,7 +1215,9 @@ async def get_my_attendance_session_details(
     session: AsyncSession = Depends(get_db_session),
 ) -> AttendanceSessionDetailsResponse:
     agency_id = _require_agency(current_user)
-    attendance_session = await _get_coordinator_attendance_session(session, agency_id, session_id, current_user.id)
+    attendance_session = await _get_coordinator_attendance_session(
+        session, agency_id, session_id, current_user.id
+    )
     return await _attendance_session_details_response(session, attendance_session)
 
 
@@ -1066,6 +1235,21 @@ async def record_my_attendance_scan(
     session: AsyncSession = Depends(get_db_session),
 ) -> AttendanceScanResponse:
     agency_id = _require_agency(current_user)
+    runtime = await resolve_browser_attendance_runtime(
+        request,
+        session=session,
+        agency_id=agency_id,
+        coordinator_user_id=current_user.id,
+        required=body.runtime_id is not None,
+    )
+    if body.runtime_id is not None and (runtime is None or runtime.id != body.runtime_id):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "code": "ATTENDANCE_RUNTIME_MISMATCH",
+                "message": "Refresh offline readiness before synchronizing scans.",
+            },
+        )
     attendance_session = await _get_coordinator_attendance_session(
         session,
         agency_id,
@@ -1073,147 +1257,72 @@ async def record_my_attendance_scan(
         current_user.id,
         lock_for_scan=True,
     )
-    if attendance_session.status not in SCANNABLE_ATTENDANCE_STATUSES:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Attendance activity cannot be scanned")
-    scanned_at = body.scanned_at or datetime.now(tz=UTC)
-    if attendance_session.status == "completed" and (
-        body.sync_source != "offline"
-        or body.scanned_at is None
-        or attendance_session.completed_at is None
-        or scanned_at > attendance_session.completed_at
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=(
-                "This activity is closed. Only a saved offline scan captured "
-                "before closure can reconcile."
-            ),
-        )
-    if not _attendance_scan_is_within_activity_window(attendance_session, scanned_at):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="The scan timestamp is outside the attendance activity window",
-        )
-
-    passenger, qr_token, rejection_reason = await _resolve_scannable_passenger(
-        session=session,
-        agency_id=agency_id,
-        group_id=attendance_session.group_id,
-        qr_payload=body.qr_payload,
-    )
-    # _get_coordinator_attendance_session already verifies the active group
-    # assignment, and _resolve_scannable_passenger constrains the QR to that
-    # same tenant/group. Avoid a redundant authorization query on every scan.
-    if not passenger:
-        if qr_token is not None:
-            await _record_qr_audit(
-                session,
-                current_user,
-                request,
-                action="qr.scanned",
-                passenger_id=qr_token.passenger_id,
-                metadata={
-                    "attendance_session_id": str(attendance_session.id),
-                    "requested_attendance_session_id": str(session_id),
-                    "group_id": str(attendance_session.group_id),
-                    "result": "rejected",
-                    "reason": rejection_reason or "not_authorized",
-                },
-            )
-        response = await _attendance_scan_response(
-            session=session,
-            attendance_session=attendance_session,
-            passenger_id=None,
-            passenger_name=None,
-            scan_status="invalid",
-            message="QR code is not valid for this group.",
-        )
-        return response
-
-    inserted_id = await _insert_canonical_attendance_record(
+    return await record_coordinator_attendance_scan(
+        requested_session_id=session_id,
+        body=body,
+        request=request,
+        current_user=current_user,
         session=session,
         agency_id=agency_id,
         attendance_session=attendance_session,
-        passenger_id=passenger.id,
-        coordinator_user_id=current_user.id,
-        scanned_at=scanned_at,
-        sync_source=body.sync_source,
-        client_event_id=body.client_event_id,
-        device_id=body.device_id,
-    )
-    if inserted_id is None:
-        await _record_qr_audit(
-            session,
-            current_user,
-            request,
-            action="qr.scanned",
-            passenger_id=passenger.id,
-            metadata={
-                "attendance_session_id": str(attendance_session.id),
-                "requested_attendance_session_id": str(session_id),
-                "group_id": str(attendance_session.group_id),
-                "result": "duplicate",
-            },
-        )
-        return await _attendance_scan_response(
-            session=session,
-            attendance_session=attendance_session,
-            passenger_id=passenger.id,
-            passenger_name=passenger.client_name,
-            scan_status="duplicate",
-            message="This scan or passenger is already counted for this activity.",
-        )
-
-    await _record_qr_audit(
-        session,
-        current_user,
-        request,
-        action="qr.scanned",
-        passenger_id=passenger.id,
-        metadata={
-            "attendance_session_id": str(attendance_session.id),
-            "requested_attendance_session_id": str(session_id),
-            "group_id": str(attendance_session.group_id),
-            "attendance_record_id": str(inserted_id),
-            "result": "counted",
-        },
-    )
-    return await _attendance_scan_response(
-        session=session,
-        attendance_session=attendance_session,
-        passenger_id=passenger.id,
-        passenger_name=passenger.client_name,
-        scan_status="counted",
-        message=_counted_attendance_message(
-            attendance_session.status,
-            passenger.client_name,
+        runtime=runtime,
+        dependencies=TourAttendanceScanDependencies(
+            resolve_scannable_passenger=_resolve_scannable_passenger,
+            insert_canonical_attendance_record=_insert_canonical_attendance_record,
+            record_qr_audit=_record_qr_audit,
+            attendance_scan_response=_attendance_scan_response,
         ),
     )
 
 
-def _attendance_closeout_counts(
-    body: AttendanceCloseoutCheckpointRequest,
-) -> AttendanceCloseoutCounts:
-    return AttendanceCloseoutCounts(
-        pending_count=body.pending_count,
-        sending_count=body.sending_count,
-        retryable_count=body.retryable_count,
-        needs_review_count=body.needs_review_count,
-        unreviewed_rejected_count=body.unreviewed_rejected_count,
-        oldest_pending_age_seconds=body.oldest_pending_age_seconds,
+@router.post(
+    "/coordinator/sessions/{session_id}/scan/batch",
+    response_model=AttendanceScanBatchResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Reconcile one bounded idempotent batch of offline attendance scans",
+    dependencies=[Depends(require_cookie_csrf)],
+)
+async def record_coordinator_attendance_scan_batch(
+    session_id: uuid.UUID,
+    body: AttendanceScanBatchRequest,
+    request: Request,
+    current_user: User = Depends(require_role([UserRole.AGENCY_COORDINATOR])),
+    session: AsyncSession = Depends(get_db_session),
+) -> AttendanceScanBatchResponse:
+    agency_id = _require_agency(current_user)
+    runtime = await resolve_browser_attendance_runtime(
+        request,
+        session=session,
+        agency_id=agency_id,
+        coordinator_user_id=current_user.id,
+        required=False,
     )
-
-
-def _attendance_activity_valid_after(
-    attendance_session: AttendanceSessionModel,
-) -> datetime:
-    return attendance_session.started_at or attendance_session.created_at
-
-
-def _attendance_closeout_status_response(
-    closeout: AttendanceCloseoutStatus,
-) -> AttendanceCloseoutStatusResponse:
-    return AttendanceCloseoutStatusResponse.model_validate(closeout)
+    attendance_session = await _get_coordinator_attendance_session(
+        session,
+        agency_id,
+        session_id,
+        current_user.id,
+        lock_for_scan=True,
+    )
+    scan_dependencies = TourAttendanceScanDependencies(
+        resolve_scannable_passenger=_resolve_scannable_passenger,
+        insert_canonical_attendance_record=_insert_canonical_attendance_record,
+        record_qr_audit=_record_qr_audit,
+        attendance_scan_response=_attendance_scan_response,
+    )
+    return await process_coordinator_attendance_scan_batch(
+        body=body,
+        request=request,
+        current_user=current_user,
+        session=session,
+        agency_id=agency_id,
+        attendance_session=attendance_session,
+        runtime=runtime,
+        dependencies=AttendanceBatchDependencies(
+            scan=scan_dependencies,
+            attendance_scan_response=_attendance_scan_response,
+        ),
+    )
 
 
 async def _load_attendance_closeout_status(
@@ -1232,65 +1341,6 @@ async def _load_attendance_closeout_status(
     return _attendance_closeout_status_response(closeout)
 
 
-def _require_attendance_closeout_clearance(
-    closeout: AttendanceCloseoutStatusResponse,
-    *,
-    exception_reason: str | None,
-) -> bool:
-    if closeout.ready:
-        return False
-    if exception_reason is not None:
-        return True
-    raise HTTPException(
-        status_code=status.HTTP_409_CONFLICT,
-        detail={
-            "code": "ATTENDANCE_CLOSEOUT_BLOCKED",
-            "message": (
-                "Every assigned coordinator must publish a recent zero-queue "
-                "checkpoint before this activity can close."
-            ),
-            "closeout": closeout.model_dump(mode="json"),
-        },
-    )
-
-
-def _attendance_closeout_audit_metadata(
-    closeout: AttendanceCloseoutStatusResponse,
-    *,
-    exception_used: bool,
-    exception_reason: str | None,
-) -> dict[str, object]:
-    return {
-        "exception_used": exception_used,
-        "exception_reason": exception_reason if exception_used else None,
-        "checkpoint_ttl_seconds": closeout.checkpoint_ttl_seconds,
-        "active_assignment_count": closeout.active_assignment_count,
-        "ready_assignment_count": closeout.ready_assignment_count,
-        "missing_assignment_count": closeout.missing_assignment_count,
-        "stale_assignment_count": closeout.stale_assignment_count,
-        "nonzero_assignment_count": closeout.nonzero_assignment_count,
-        "blocked_assignment_count": closeout.blocked_assignment_count,
-        "unresolved_count": closeout.unresolved_count,
-        "oldest_pending_age_seconds": closeout.oldest_pending_age_seconds,
-        "coordinators": [
-            {
-                "coordinator_id": str(item.coordinator_id),
-                "state": item.state,
-                "reported_at": (
-                    item.reported_at.isoformat() if item.reported_at else None
-                ),
-                "pending_count": item.pending_count,
-                "sending_count": item.sending_count,
-                "retryable_count": item.retryable_count,
-                "needs_review_count": item.needs_review_count,
-                "unreviewed_rejected_count": item.unreviewed_rejected_count,
-                "oldest_pending_age_seconds": item.oldest_pending_age_seconds,
-            }
-            for item in closeout.coordinators
-        ],
-    }
-
-
 @router.put(
     "/coordinator/groups/{group_id}/sessions/{session_id}/closeout-checkpoint",
     dependencies=[Depends(require_cookie_csrf)],
@@ -1302,10 +1352,26 @@ async def publish_my_attendance_closeout_checkpoint(
     group_id: uuid.UUID,
     session_id: uuid.UUID,
     body: AttendanceCloseoutCheckpointRequest,
+    request: Request,
     current_user: User = Depends(require_role([UserRole.AGENCY_COORDINATOR])),
     session: AsyncSession = Depends(get_db_session),
 ) -> AttendanceCloseoutCheckpointResponse:
     agency_id = _require_agency(current_user)
+    runtime = await resolve_browser_attendance_runtime(
+        request,
+        session=session,
+        agency_id=agency_id,
+        coordinator_user_id=current_user.id,
+        required=body.runtime_id is not None,
+    )
+    if body.runtime_id is not None and (runtime is None or runtime.id != body.runtime_id):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "code": "ATTENDANCE_RUNTIME_MISMATCH",
+                "message": "Refresh offline readiness before publishing closeout evidence.",
+            },
+        )
     await _ensure_group_assigned_to_coordinator(
         session,
         agency_id,
@@ -1333,9 +1399,21 @@ async def publish_my_attendance_closeout_checkpoint(
         session_id=attendance_session.id,
         coordinator_user_id=current_user.id,
         counts=_attendance_closeout_counts(body),
+        agency_id=agency_id,
+        runtime_registration_id=runtime.id if runtime is not None else None,
+    )
+    await append_attendance_realtime_invalidation(
+        session,
+        agency_id=agency_id,
+        group_id=group_id,
+        entity_type="attendance_checkpoint",
+        entity_id=attendance_session.id,
+        changed_by_user_id=current_user.id,
+        occurred_at=checkpoint.reported_at,
     )
     return AttendanceCloseoutCheckpointResponse(
-        **body.model_dump(),
+        **body.model_dump(exclude={"runtime_id"}),
+        runtime_id=runtime.id if runtime is not None else None,
         reported_at=checkpoint.reported_at,
     )
 
@@ -1389,6 +1467,26 @@ async def complete_managed_attendance_session(
         group_id=group_id,
         session_id=session_id,
     )
+    if body.exception_reason is not None:
+        try:
+            await require_recent_mfa(request, current_user)
+        except StepUpRequiredError:
+            await AuditLogRepository(session).record(
+                action="attendance.closeout_override_blocked",
+                entity_type="attendance_session",
+                agency_id=agency_id,
+                user_id=current_user.id,
+                actor_email=current_user.email,
+                entity_id=str(attendance_session.id),
+                ip_address=trusted_client_ip(request),
+                result="blocked",
+                metadata={
+                    "group_id": str(group_id),
+                    "reason": "recent_mfa_required",
+                },
+            )
+            await session.commit()
+            raise
     closeout: AttendanceCloseoutStatusResponse | None = None
     exception_used = False
     if attendance_session.status == "active":
@@ -1407,6 +1505,15 @@ async def complete_managed_attendance_session(
     if changed:
         if closeout is None:
             raise RuntimeError("Attendance closeout evidence was not evaluated")
+        await append_attendance_realtime_invalidation(
+            session,
+            agency_id=agency_id,
+            group_id=group_id,
+            entity_type="attendance_session",
+            entity_id=attendance_session.id,
+            changed_by_user_id=current_user.id,
+            occurred_at=attendance_session.updated_at,
+        )
         await AuditLogRepository(session).record(
             action="attendance.activity_closed",
             entity_type="attendance_session",
@@ -1467,55 +1574,6 @@ async def get_managed_attendance_closeout_status(
     )
 
 
-def _counted_attendance_message(session_status: str, passenger_name: str) -> str:
-    if session_status == "completed":
-        return f"{passenger_name} counted as a late scan after completion."
-    return f"{passenger_name} counted."
-
-
-def _attendance_scan_is_within_activity_window(
-    attendance_session: AttendanceSessionModel,
-    scanned_at: datetime,
-) -> bool:
-    """Allow clock skew at activity start but never extend the close boundary."""
-
-    if (
-        attendance_session.started_at is not None
-        and scanned_at < attendance_session.started_at - ATTENDANCE_SCAN_CLOCK_SKEW
-    ):
-        return False
-    return not (
-        attendance_session.completed_at is not None
-        and scanned_at > attendance_session.completed_at
-    )
-
-
-async def _close_shared_attendance_activity(
-    session: AsyncSession,
-    attendance_session: AttendanceSessionModel,
-) -> bool:
-    """Apply the only supported global attendance close transition.
-
-    Callers must authorize and lock the canonical activity before entering this
-    shared mutation boundary. Completed activities remain scannable so queued
-    offline events can reconcile after an authorized close.
-    """
-
-    if attendance_session.status == "completed":
-        return False
-    if attendance_session.status != "active":
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Only an active attendance activity can be closed",
-        )
-    now = datetime.now(tz=UTC)
-    attendance_session.status = "completed"
-    attendance_session.completed_at = now
-    attendance_session.updated_at = now
-    await session.flush()
-    return True
-
-
 @router.get(
     "/groups/{group_id}/attendance",
     response_model=GroupAttendanceOverviewResponse,
@@ -1532,9 +1590,101 @@ async def get_group_attendance_overview(
     return await _group_attendance_overview(session, agency_id, group)
 
 
-async def _get_group(session: AsyncSession, agency_id: uuid.UUID, group_id: uuid.UUID) -> ClientGroupModel:
+@router.get(
+    "/groups/{group_id}/attendance/summary",
+    response_model=GroupAttendanceSummaryResponse,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_304_NOT_MODIFIED: {
+            "description": "The canonical attendance aggregate has not changed",
+        },
+    },
+    summary="Get the lightweight canonical attendance aggregate for a group",
+)
+async def get_group_attendance_summary(
+    group_id: uuid.UUID,
+    request: Request,
+    response: Response,
+    current_user: User = Depends(require_role(COORDINATOR_MANAGEMENT_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> GroupAttendanceSummaryResponse | Response:
+    agency_id = _require_agency(current_user)
+    group = await _get_manageable_group(session, agency_id, group_id, current_user)
+    projection = await AttendanceDashboardService(
+        AttendanceDashboardRepository(session),
+        AttendanceCloseoutRepository(session),
+    ).summary(
+        agency_id=agency_id,
+        group_id=group.id,
+        group_name=group.name,
+    )
+    etag, cache_headers = attendance_summary_cache_headers(projection.revision)
+    if _etag_matches(request.headers.get("if-none-match"), etag):
+        return Response(status_code=status.HTTP_304_NOT_MODIFIED, headers=cache_headers)
+    for name, value in cache_headers.items():
+        response.headers[name] = value
+    return attendance_summary_response(projection)
+
+
+@router.get(
+    "/groups/{group_id}/attendance/sessions/{session_id}/missing",
+    response_model=AttendanceMissingPassengersPageResponse,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_409_CONFLICT: {
+            "description": "The canonical attendance snapshot changed",
+        },
+    },
+    summary="List a coherent page of missing passengers for one activity",
+)
+async def get_group_attendance_missing_passengers(
+    group_id: uuid.UUID,
+    session_id: uuid.UUID,
+    revision: str = Query(
+        ...,
+        min_length=32,
+        max_length=32,
+        pattern="^[0-9a-f]+$",
+    ),
+    cursor: uuid.UUID | None = Query(default=None),
+    limit: int = Query(default=50, ge=1, le=100),
+    search: str | None = Query(default=None, max_length=120),
+    current_user: User = Depends(require_role(COORDINATOR_MANAGEMENT_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> AttendanceMissingPassengersPageResponse | JSONResponse:
+    agency_id = _require_agency(current_user)
+    group = await _get_manageable_group(session, agency_id, group_id, current_user)
+    normalized_search = " ".join(search.split()) if search else None
+    try:
+        projection = await AttendanceDashboardService(
+            AttendanceDashboardRepository(session),
+            AttendanceCloseoutRepository(session),
+        ).missing_passengers(
+            agency_id=agency_id,
+            group_id=group.id,
+            canonical_session_id=session_id,
+            expected_revision=revision,
+            cursor=cursor,
+            limit=limit,
+            search=normalized_search or None,
+        )
+    except AttendanceActivityNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Attendance activity was not found",
+        ) from None
+    except AttendanceSnapshotChangedError:
+        return attendance_snapshot_changed_response()
+    return attendance_missing_passengers_response(projection, page_size=limit)
+
+
+async def _get_group(
+    session: AsyncSession, agency_id: uuid.UUID, group_id: uuid.UUID
+) -> ClientGroupModel:
     result = await session.execute(
-        select(ClientGroupModel).where(ClientGroupModel.id == group_id, ClientGroupModel.agency_id == agency_id)
+        select(ClientGroupModel).where(
+            ClientGroupModel.id == group_id, ClientGroupModel.agency_id == agency_id
+        )
     )
     group = result.scalar_one_or_none()
     if not group:
@@ -1571,10 +1721,10 @@ async def _get_manageable_group(
     lock_for_update: bool = False,
 ) -> ClientGroupModel:
     statement = select(ClientGroupModel).where(
-            ClientGroupModel.id == group_id,
-            ClientGroupModel.agency_id == agency_id,
-            ClientGroupModel.status != "deleted",
-        )
+        ClientGroupModel.id == group_id,
+        ClientGroupModel.agency_id == agency_id,
+        ClientGroupModel.status != "deleted",
+    )
     if lock_for_update:
         statement = statement.with_for_update()
     result = await session.execute(statement)
@@ -1663,6 +1813,9 @@ async def _create_canonical_attendance_activity(
     group_id: uuid.UUID,
     name: str,
     created_by_user_id: uuid.UUID,
+    scheduled_starts_at: datetime | None = None,
+    scheduled_ends_at: datetime | None = None,
+    schedule_timezone: str | None = None,
 ) -> tuple[AttendanceSessionModel, str]:
     """Create or resolve one manager-owned stable UUID for an open activity."""
 
@@ -1693,6 +1846,9 @@ async def _create_canonical_attendance_activity(
                     created_at=now,
                     updated_at=now,
                     started_at=now,
+                    scheduled_starts_at=scheduled_starts_at,
+                    scheduled_ends_at=scheduled_ends_at,
+                    schedule_timezone=schedule_timezone,
                 )
                 .on_conflict_do_nothing()
                 .returning(AttendanceSessionModel.id)
@@ -1725,9 +1881,55 @@ async def _create_canonical_attendance_activity(
         attendance_session.status = "active"
         attendance_session.started_at = attendance_session.started_at or now
         attendance_session.updated_at = now
+        _apply_initial_attendance_schedule(
+            attendance_session,
+            scheduled_starts_at=scheduled_starts_at,
+            scheduled_ends_at=scheduled_ends_at,
+            schedule_timezone=schedule_timezone,
+        )
         await session.flush()
         return attendance_session, "activated_existing"
+    schedule_changed = _apply_initial_attendance_schedule(
+        attendance_session,
+        scheduled_starts_at=scheduled_starts_at,
+        scheduled_ends_at=scheduled_ends_at,
+        schedule_timezone=schedule_timezone,
+    )
+    if schedule_changed:
+        attendance_session.updated_at = now
+        await session.flush()
     return attendance_session, "created" if inserted_id is not None else "existing"
+
+
+def _apply_initial_attendance_schedule(
+    attendance_session: AttendanceSessionModel,
+    *,
+    scheduled_starts_at: datetime | None,
+    scheduled_ends_at: datetime | None,
+    schedule_timezone: str | None,
+) -> bool:
+    if scheduled_starts_at is None:
+        return False
+    existing = (
+        attendance_session.scheduled_starts_at,
+        attendance_session.scheduled_ends_at,
+        attendance_session.schedule_timezone,
+    )
+    requested = (scheduled_starts_at, scheduled_ends_at, schedule_timezone)
+    if all(value is None for value in existing):
+        attendance_session.scheduled_starts_at = scheduled_starts_at
+        attendance_session.scheduled_ends_at = scheduled_ends_at
+        attendance_session.schedule_timezone = schedule_timezone
+        return True
+    if existing != requested:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "code": "ATTENDANCE_SCHEDULE_CONFLICT",
+                "message": "The existing attendance activity has a different schedule.",
+            },
+        )
+    return False
 
 
 async def _get_managed_attendance_session(
@@ -1739,11 +1941,11 @@ async def _get_managed_attendance_session(
     lock_for_update: bool = True,
 ) -> AttendanceSessionModel:
     statement = select(AttendanceSessionModel).where(
-            AttendanceSessionModel.id == session_id,
-            AttendanceSessionModel.canonical_session_id == session_id,
-            AttendanceSessionModel.agency_id == agency_id,
-            AttendanceSessionModel.group_id == group_id,
-        )
+        AttendanceSessionModel.id == session_id,
+        AttendanceSessionModel.canonical_session_id == session_id,
+        AttendanceSessionModel.agency_id == agency_id,
+        AttendanceSessionModel.group_id == group_id,
+    )
     if lock_for_update:
         statement = statement.with_for_update()
     result = await session.execute(statement)
@@ -1777,20 +1979,20 @@ async def _get_attendance_close_group_scope(
         return agency_id, group
 
     statement = select(ClientGroupModel).where(
-            ClientGroupModel.id == group_id,
-            ClientGroupModel.status != "deleted",
-        )
+        ClientGroupModel.id == group_id,
+        ClientGroupModel.status != "deleted",
+    )
     if lock_for_update:
         statement = statement.with_for_update()
     result = await session.execute(statement)
-    group = result.scalar_one_or_none()
-    if group is None:
+    global_group = result.scalar_one_or_none()
+    if global_group is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Group was not found")
     try:
-        await AuthorizationPolicy(session).require_assign_coordinator(current_user, group)
+        await AuthorizationPolicy(session).require_assign_coordinator(current_user, global_group)
     except AuthorizationError as exc:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)
-    return group.agency_id, group
+    return global_group.agency_id, global_group
 
 
 async def _ensure_group_assigned_to_coordinator(
@@ -1800,7 +2002,10 @@ async def _ensure_group_assigned_to_coordinator(
     coordinator_id: uuid.UUID,
 ) -> None:
     if not await AuthorizationPolicy(session).coordinator_has_group(coordinator_id, group_id):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Group was not assigned to this coordinator")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Group was not assigned to this coordinator",
+        )
 
 
 async def _get_coordinator_attendance_session(
@@ -1827,16 +2032,14 @@ async def _get_coordinator_attendance_session(
         )
         .join(
             CoordinatorGroupAssignmentModel,
-            CoordinatorGroupAssignmentModel.group_id
-            == canonical_session.group_id,
+            CoordinatorGroupAssignmentModel.group_id == canonical_session.group_id,
         )
         .where(
             requested_session.id == session_id,
             requested_session.agency_id == agency_id,
             canonical_session.agency_id == agency_id,
             CoordinatorGroupAssignmentModel.agency_id == agency_id,
-            CoordinatorGroupAssignmentModel.coordinator_user_id
-            == coordinator_id,
+            CoordinatorGroupAssignmentModel.coordinator_user_id == coordinator_id,
             CoordinatorGroupAssignmentModel.active.is_(True),
         )
     )
@@ -1847,7 +2050,9 @@ async def _get_coordinator_attendance_session(
     result = await session.execute(statement)
     attendance_session = result.scalar_one_or_none()
     if not attendance_session:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Attendance activity was not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Attendance activity was not found"
+        )
     return attendance_session
 
 
@@ -1868,6 +2073,10 @@ async def _attendance_session_response(
         created_at=attendance_session.created_at,
         started_at=attendance_session.started_at,
         completed_at=attendance_session.completed_at,
+        scheduled_starts_at=attendance_session.scheduled_starts_at,
+        scheduled_ends_at=attendance_session.scheduled_ends_at,
+        schedule_timezone=attendance_session.schedule_timezone,
+        schedule_version=attendance_session.schedule_version,
         scanned_count=counts["scanned"],
         assigned_count=counts["assigned"],
     )
@@ -1906,8 +2115,7 @@ async def _attendance_session_responses(
         .group_by(family_session.canonical_session_id)
     )
     scanned_counts = {
-        session_id: int(scanned_count)
-        for session_id, scanned_count in scanned_result.all()
+        session_id: int(scanned_count) for session_id, scanned_count in scanned_result.all()
     }
     return [
         AttendanceSessionResponse(
@@ -1918,6 +2126,10 @@ async def _attendance_session_responses(
             created_at=attendance_session.created_at,
             started_at=attendance_session.started_at,
             completed_at=attendance_session.completed_at,
+            scheduled_starts_at=attendance_session.scheduled_starts_at,
+            scheduled_ends_at=attendance_session.scheduled_ends_at,
+            schedule_timezone=attendance_session.schedule_timezone,
+            schedule_version=attendance_session.schedule_version,
             scanned_count=scanned_counts.get(attendance_session.id, 0),
             assigned_count=assigned_count,
         )
@@ -2058,113 +2270,6 @@ async def _attendance_counts(
     }
 
 
-async def _insert_canonical_attendance_record(
-    *,
-    session: AsyncSession,
-    agency_id: uuid.UUID,
-    attendance_session: AttendanceSessionModel,
-    passenger_id: uuid.UUID,
-    coordinator_user_id: uuid.UUID,
-    scanned_at: datetime,
-    sync_source: str,
-    client_event_id: str,
-    device_id: str | None,
-) -> uuid.UUID | None:
-    """Insert once across a canonical activity and all of its legacy aliases."""
-
-    family_session = aliased(
-        AttendanceSessionModel,
-        name="attendance_session_family",
-    )
-    existing_family_record = (
-        select(literal(1))
-        .select_from(AttendanceRecordModel)
-        .join(
-            family_session,
-            family_session.id == AttendanceRecordModel.session_id,
-        )
-        .where(
-            family_session.canonical_session_id == attendance_session.id,
-            or_(
-                AttendanceRecordModel.passenger_id == passenger_id,
-                AttendanceRecordModel.client_event_id == client_event_id,
-            ),
-        )
-        .exists()
-    )
-    record_id = uuid.uuid4()
-    record_columns = AttendanceRecordModel.__table__.c
-    candidate = select(
-        literal(record_id, type_=record_columns.id.type),
-        literal(agency_id, type_=record_columns.agency_id.type),
-        literal(attendance_session.id, type_=record_columns.session_id.type),
-        literal(passenger_id, type_=record_columns.passenger_id.type),
-        literal(coordinator_user_id, type_=record_columns.coordinator_user_id.type),
-        literal(scanned_at, type_=record_columns.scanned_at.type),
-        cast(
-            literal(sync_source, type_=record_columns.sync_source.type),
-            record_columns.sync_source.type,
-        ),
-        literal(client_event_id, type_=record_columns.client_event_id.type),
-        cast(
-            literal(device_id, type_=record_columns.device_id.type),
-            record_columns.device_id.type,
-        ),
-    ).where(~existing_family_record)
-    insert_result = await session.execute(
-        pg_insert(AttendanceRecordModel)
-        .from_select(
-            [
-                "id",
-                "agency_id",
-                "session_id",
-                "passenger_id",
-                "coordinator_user_id",
-                "scanned_at",
-                "sync_source",
-                "client_event_id",
-                "device_id",
-            ],
-            candidate,
-        )
-        .on_conflict_do_nothing()
-        .returning(AttendanceRecordModel.id)
-    )
-    return insert_result.scalar_one_or_none()
-
-
-async def _resolve_scannable_passenger(
-    session: AsyncSession,
-    agency_id: uuid.UUID,
-    group_id: uuid.UUID,
-    qr_payload: str,
-) -> tuple[PassportSubmissionModel | None, PassengerQRTokenModel | None, str | None]:
-    now = datetime.now(tz=UTC)
-    token_hash = _qr_hash(qr_payload.strip())
-    result = await session.execute(
-        select(PassportSubmissionModel, PassengerQRTokenModel)
-        .join(PassengerQRTokenModel, PassengerQRTokenModel.passenger_id == PassportSubmissionModel.id)
-        .where(
-            PassengerQRTokenModel.agency_id == agency_id,
-            PassengerQRTokenModel.token_hash == token_hash,
-            PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
-        )
-    )
-    resolved = result.first()
-    if not resolved:
-        return None, None, "unknown_token"
-    passenger, token = resolved
-    if token.revoked_at is not None:
-        return None, token, "revoked"
-    if token.expires_at <= now:
-        return None, token, "expired"
-    if not token.is_active:
-        return None, token, "inactive"
-    if passenger.group_id != group_id:
-        return None, token, "wrong_group"
-    return passenger, token, None
-
-
 async def _group_attendance_overview(
     session: AsyncSession,
     agency_id: uuid.UUID,
@@ -2175,14 +2280,15 @@ async def _group_attendance_overview(
         .where(
             AttendanceSessionModel.agency_id == agency_id,
             AttendanceSessionModel.group_id == group.id,
-            AttendanceSessionModel.id
-            == AttendanceSessionModel.canonical_session_id,
+            AttendanceSessionModel.id == AttendanceSessionModel.canonical_session_id,
         )
         .order_by(AttendanceSessionModel.created_at.desc())
     )
     attendance_sessions = list(sessions_result.scalars().all())
     if not attendance_sessions:
-        return GroupAttendanceOverviewResponse(group_id=group.id, group_name=group.name, sessions=[])
+        return GroupAttendanceOverviewResponse(
+            group_id=group.id, group_name=group.name, sessions=[]
+        )
 
     session_ids = [attendance_session.id for attendance_session in attendance_sessions]
     closeout_statuses = await AttendanceCloseoutRepository(session).statuses(
@@ -2207,8 +2313,7 @@ async def _group_attendance_overview(
         .order_by(UserModel.full_name.asc())
     )
     group_coordinators = {
-        row.coordinator_user_id: row.full_name
-        for row in coordinators_result.all()
+        row.coordinator_user_id: row.full_name for row in coordinators_result.all()
     }
 
     passenger_count_result = await session.execute(
@@ -2254,9 +2359,7 @@ async def _group_attendance_overview(
             continue
         seen_logical_passengers.add(logical_passenger)
         scanned_passenger_ids[row.canonical_session_id].add(row.passenger_id)
-        scanned_counts[
-            (row.canonical_session_id, row.coordinator_user_id)
-        ] += 1
+        scanned_counts[(row.canonical_session_id, row.coordinator_user_id)] += 1
 
     group_passengers_result = await session.execute(
         select(
@@ -2317,131 +2420,9 @@ async def _group_attendance_overview(
             )
         )
 
-    return GroupAttendanceOverviewResponse(group_id=group.id, group_name=group.name, sessions=summaries)
-
-
-async def _coordinator_responses(session: AsyncSession, coordinators: list[UserModel]) -> list[CoordinatorResponse]:
-    if not coordinators:
-        return []
-    coordinator_ids = [coordinator.id for coordinator in coordinators]
-    group_counts_result = await session.execute(
-        select(
-            CoordinatorGroupAssignmentModel.coordinator_user_id,
-            func.count(func.distinct(CoordinatorGroupAssignmentModel.group_id)).label("group_count"),
-        )
-        .where(
-            CoordinatorGroupAssignmentModel.coordinator_user_id.in_(coordinator_ids),
-            CoordinatorGroupAssignmentModel.active.is_(True),
-        )
-        .group_by(CoordinatorGroupAssignmentModel.coordinator_user_id)
+    return GroupAttendanceOverviewResponse(
+        group_id=group.id, group_name=group.name, sessions=summaries
     )
-    group_counts = {row.coordinator_user_id: int(row.group_count) for row in group_counts_result.all()}
-
-    passenger_counts_result = await session.execute(
-        select(
-            CoordinatorGroupAssignmentModel.coordinator_user_id,
-            func.count(PassportSubmissionModel.id).label("passenger_count"),
-        )
-        .join(
-            PassportSubmissionModel,
-            PassportSubmissionModel.group_id == CoordinatorGroupAssignmentModel.group_id,
-        )
-        .where(
-            CoordinatorGroupAssignmentModel.coordinator_user_id.in_(coordinator_ids),
-            CoordinatorGroupAssignmentModel.active.is_(True),
-            PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
-        )
-        .group_by(CoordinatorGroupAssignmentModel.coordinator_user_id)
-    )
-    passenger_counts = {row.coordinator_user_id: int(row.passenger_count) for row in passenger_counts_result.all()}
-    return [
-        CoordinatorResponse(
-            id=coordinator.id,
-            full_name=coordinator.full_name,
-            email=coordinator.email,
-            agency_id=coordinator.agency_id,
-            is_active=coordinator.is_active,
-            created_at=coordinator.created_at,
-            last_login_at=coordinator.last_login_at,
-            assigned_groups_count=group_counts.get(coordinator.id, 0),
-            assigned_passengers_count=passenger_counts.get(coordinator.id, 0),
-        )
-        for coordinator in coordinators
-        if coordinator.agency_id is not None
-    ]
-
-
-async def _group_responses(session: AsyncSession, groups: list[ClientGroupModel]) -> list[TourOperationsGroupResponse]:
-    if not groups:
-        return []
-    group_ids = [group.id for group in groups]
-
-    passenger_counts_result = await session.execute(
-        select(PassportSubmissionModel.group_id, func.count(PassportSubmissionModel.id))
-        .where(
-            PassportSubmissionModel.group_id.in_(group_ids),
-            PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
-        )
-        .group_by(PassportSubmissionModel.group_id)
-    )
-    passenger_counts = {group_id: int(count) for group_id, count in passenger_counts_result.all()}
-
-    group_coordinators_result = await session.execute(
-        select(
-            CoordinatorGroupAssignmentModel.group_id,
-            UserModel.id,
-            UserModel.full_name,
-            UserModel.email,
-        )
-        .join(UserModel, UserModel.id == CoordinatorGroupAssignmentModel.coordinator_user_id)
-        .where(
-            CoordinatorGroupAssignmentModel.group_id.in_(group_ids),
-            CoordinatorGroupAssignmentModel.active.is_(True),
-        )
-        .order_by(UserModel.full_name.asc())
-    )
-
-    assignments: dict[uuid.UUID, list[GroupCoordinatorAssignmentResponse]] = defaultdict(list)
-    for row in group_coordinators_result.all():
-        count = passenger_counts.get(row.group_id, 0)
-        assignments[row.group_id].append(
-            GroupCoordinatorAssignmentResponse(
-                coordinator_id=row.id,
-                full_name=row.full_name,
-                email=row.email,
-                assigned_passengers_count=count,
-            )
-        )
-
-    return [
-        TourOperationsGroupResponse(
-            id=group.id,
-            name=group.name,
-            status=group.status,
-            destination=group.destination,
-            travel_date=group.travel_date.isoformat() if group.travel_date else None,
-            departure_cities=list(group.departure_cities or []),
-            base_city_enabled=group.base_city_enabled,
-            nearest_international_airport_enabled=group.nearest_international_airport_enabled,
-            staff_code_enabled=group.staff_code_enabled,
-            agent_employee_code_enabled=group.agent_employee_code_enabled,
-            meal_preference_enabled=group.meal_preference_enabled,
-            require_selfie=group.require_selfie,
-            passenger_count=passenger_counts.get(group.id, 0),
-            assigned_passengers_count=(
-                passenger_counts.get(group.id, 0)
-                if assignments[group.id]
-                else 0
-            ),
-            unassigned_passengers_count=(
-                0
-                if assignments[group.id]
-                else passenger_counts.get(group.id, 0)
-            ),
-            coordinators=assignments[group.id],
-        )
-        for group in groups
-    ]
 
 
 async def _group_passenger_responses(
@@ -2467,7 +2448,9 @@ async def _group_passenger_responses(
             UserModel.id.label("coordinator_id"),
             UserModel.full_name.label("coordinator_name"),
         )
-        .outerjoin(assignment_subquery, assignment_subquery.c.passenger_id == PassportSubmissionModel.id)
+        .outerjoin(
+            assignment_subquery, assignment_subquery.c.passenger_id == PassportSubmissionModel.id
+        )
         .outerjoin(UserModel, UserModel.id == assignment_subquery.c.coordinator_id)
         .where(
             PassportSubmissionModel.agency_id == agency_id,
@@ -2515,7 +2498,9 @@ def _family_size(passenger: PassportSubmissionModel, family_sizes: dict[uuid.UUI
     return max(1, family_sizes.get(passenger.family_group_id, 1))
 
 
-def _family_group_label(passenger: PassportSubmissionModel, family_sizes: dict[uuid.UUID, int]) -> str | None:
+def _family_group_label(
+    passenger: PassportSubmissionModel, family_sizes: dict[uuid.UUID, int]
+) -> str | None:
     if passenger.submission_mode != "family" or not passenger.family_group_id:
         return None
     family_size = _family_size(passenger, family_sizes)
