@@ -87,10 +87,13 @@ async def write_realtime_hints(
             next_heartbeat_at = loop.time() + heartbeat_seconds
         else:
             try:
-                hint = await asyncio.wait_for(
-                    connection.next_hint(),
-                    timeout=heartbeat_remaining,
-                )
+                # On CPython 3.11, ``wait_for`` can swallow an external task
+                # cancellation when it races with completion of the inner
+                # coroutine.  That can leave WebSocket cleanup waiting on a
+                # busy writer forever.  The timeout context preserves the
+                # distinction between its own deadline and server shutdown.
+                async with asyncio.timeout(heartbeat_remaining):
+                    hint = await connection.next_hint()
                 payload = hint.client_payload()
             except TimeoutError:
                 payload = {"type": "heartbeat"}
