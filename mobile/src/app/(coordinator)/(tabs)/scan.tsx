@@ -2,13 +2,11 @@ import { CameraView, useCameraPermissions, type BarcodeScanningResult, type Came
 import CheckCircle2 from 'lucide-react-native/icons/circle-check-big';
 import Flashlight from 'lucide-react-native/icons/flashlight';
 import FlashlightOff from 'lucide-react-native/icons/flashlight-off';
-import ScanLine from 'lucide-react-native/icons/scan-line';
 import TriangleAlert from 'lucide-react-native/icons/triangle-alert';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   AppState,
   FlatList,
-  Linking,
   Pressable,
   StyleSheet,
   Text,
@@ -23,7 +21,6 @@ import { recordAttendanceCameraToLocalQueue } from '@/core/observability/attenda
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
 import { PageHeader } from '@/design/components/page-header';
-import { PrimaryButton } from '@/design/components/primary-button';
 import { Screen } from '@/design/components/screen';
 import { colors, radii, spacing } from '@/design/theme';
 import type { AttendanceSession } from '@/features/coordinator/api/coordinator-contracts';
@@ -48,6 +45,7 @@ import { useAttendanceSessions } from '@/features/coordinator/hooks/use-coordina
 import { useCoordinatorTrips } from '@/features/coordinator/hooks/use-coordinator-trips';
 import { useAttendanceScanFeedback } from '@/features/coordinator/hooks/use-attendance-scan-feedback';
 import { AttendanceE2eFixtureInput } from '@/features/coordinator/ui/attendance-e2e-fixture-input';
+import { CameraPermissionCard } from '@/features/coordinator/ui/camera-permission-card';
 import { ScanConnectivityCard } from '@/features/coordinator/ui/scan-connectivity-card';
 import { ScanFeedbackAudioToggle } from '@/features/coordinator/ui/scan-feedback-audio-toggle';
 import { ScanTrustedTimeNotice } from '@/features/coordinator/ui/scan-trusted-time-notice';
@@ -500,21 +498,10 @@ export default function CoordinatorScanScreen() {
       <ScanConnectivityCard tripId={trips.selectedTripId!} onSynchronized={refreshAfterSynchronization} />
 
       {!cameraGranted ? (
-        <GlassCard style={styles.permission}>
-          <ScanLine color={colors.greenDeep} size={30} />
-          <Text style={styles.permissionTitle}>Camera access is needed</Text>
-          <Text style={styles.permissionMessage}>
-            {cameraPermissionCanAskAgain
-              ? 'The camera is used only while scanning attendance QR codes.'
-              : 'Enable Camera in your phone settings to scan attendance QR codes.'}
-          </Text>
-          <PrimaryButton
-            label={cameraPermissionCanAskAgain ? 'Allow camera' : 'Open app settings'}
-            onPress={() => void (cameraPermissionCanAskAgain
-              ? requestPermission()
-              : Linking.openSettings())}
-          />
-        </GlassCard>
+        <CameraPermissionCard
+          canAskAgain={cameraPermissionCanAskAgain}
+          onRequestPermission={requestPermission}
+        />
       ) : (
         <View style={styles.cameraFrame}>
           <CameraView
@@ -580,9 +567,6 @@ const styles = StyleSheet.create({
   activeLabel: { color: colors.inkMuted, fontSize: 11, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.8 },
   changeButton: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing.md },
   changeText: { color: colors.greenDeep, fontSize: 14, fontWeight: '900' },
-  permission: { gap: spacing.md, alignItems: 'center' },
-  permissionTitle: { color: colors.ink, fontSize: 18, fontWeight: '800' },
-  permissionMessage: { color: colors.inkMuted, fontSize: 13, lineHeight: 19, textAlign: 'center' },
   cameraFrame: { height: 390, overflow: 'hidden', borderRadius: radii.lg, backgroundColor: colors.ink },
   guide: { position: 'absolute', width: 230, height: 230, alignSelf: 'center', top: 80, borderWidth: 3, borderColor: colors.white, borderRadius: 28 },
   torch: { position: 'absolute', right: spacing.lg, top: spacing.lg, width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(0,0,0,0.55)', alignItems: 'center', justifyContent: 'center' },
