@@ -80,10 +80,14 @@ RoomingRoomModel = _operations_models.RoomingRoomModel
 
 class AgencyModel(Base):
     __tablename__ = "agencies"
+    __table_args__ = (
+        UniqueConstraint("email", name="agencies_email_key"),
+        Index("ix_agencies_email", "email"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True, index=True)
+    email: Mapped[str] = mapped_column(String(255), nullable=False)
     phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
@@ -102,15 +106,17 @@ class AgencyModel(Base):
 class UserModel(Base):
     __tablename__ = "users"
     __table_args__ = (
+        UniqueConstraint("email", name="users_email_key"),
         UniqueConstraint(
             "id",
             "agency_id",
             name="uq_users_id_agency",
         ),
+        Index("ix_users_email", "email"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True, index=True)
+    email: Mapped[str] = mapped_column(String(255), nullable=False)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     full_name: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[str] = mapped_column(
@@ -157,9 +163,13 @@ class RefreshTokenModel(Base):
     """
 
     __tablename__ = "refresh_tokens"
+    __table_args__ = (
+        UniqueConstraint("token", name="refresh_tokens_token_key"),
+        Index("ix_refresh_tokens_token", "token"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    token: Mapped[str] = mapped_column(String(128), nullable=False, unique=True, index=True)
+    token: Mapped[str] = mapped_column(String(128), nullable=False)
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
@@ -215,6 +225,12 @@ class ClientGroupModel(Base):
             "passport_legal_hold",
             "passport_purge_at",
             "id",
+        ),
+        Index(
+            "ix_client_groups_agency_status_created_at",
+            "agency_id",
+            "status",
+            "created_at",
         ),
     )
 
@@ -458,6 +474,28 @@ class PassportSubmissionModel(Base):
             "group_id",
             "status",
             "id",
+        ),
+        Index(
+            "ix_passport_submissions_agency_status_created_at",
+            "agency_id",
+            "status",
+            "created_at",
+        ),
+        Index(
+            "ix_passport_submissions_group_status_created_at",
+            "group_id",
+            "status",
+            "created_at",
+        ),
+        Index(
+            "ix_passport_submissions_group_email",
+            "group_id",
+            "client_email",
+        ),
+        Index(
+            "ix_passport_submissions_group_phone",
+            "group_id",
+            "client_phone",
         ),
         UniqueConstraint(
             "group_id",
@@ -1239,6 +1277,11 @@ class PassportProcessingJobModel(Base):
             "extraction_revision",
             unique=True,
             postgresql_where=text("status IN ('queued', 'running')"),
+        ),
+        Index(
+            "ix_passport_processing_jobs_status_created_at",
+            "status",
+            "created_at",
         ),
     )
 

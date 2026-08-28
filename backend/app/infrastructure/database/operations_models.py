@@ -281,6 +281,8 @@ class RoomingPassengerPreferenceModel(Base):
     __tablename__ = "rooming_passenger_preferences"
     __table_args__ = (
         UniqueConstraint("hotel_id", "passenger_id", name="uq_rooming_preferences_hotel_passenger"),
+        Index("ix_rooming_preferences_hotel_id", "hotel_id"),
+        Index("ix_rooming_preferences_passenger_id", "passenger_id"),
         Index("ix_rooming_preferences_hotel_passenger", "hotel_id", "passenger_id"),
     )
 
@@ -289,13 +291,11 @@ class RoomingPassengerPreferenceModel(Base):
         UUID(as_uuid=True),
         ForeignKey("rooming_hotels.id", ondelete="CASCADE"),
         nullable=False,
-        index=True,
     )
     passenger_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("passport_submissions.id", ondelete="CASCADE"),
         nullable=False,
-        index=True,
     )
     allocation_tag: Mapped[str] = mapped_column(String(16), nullable=False, default="unspecified")
     special_requests: Mapped[list[str]] = mapped_column(JSONB, nullable=False, default=list)
@@ -837,17 +837,14 @@ class AttendanceSessionRuntimeParticipantModel(Base):
     )
     session_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey("attendance_sessions.id", ondelete="CASCADE"),
         nullable=False,
     )
     coordinator_user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey("users.id", ondelete="RESTRICT"),
         nullable=False,
     )
     runtime_registration_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey("attendance_runtime_registrations.id", ondelete="RESTRICT"),
         nullable=False,
     )
     participation_source: Mapped[str] = mapped_column(String(16), nullable=False)
