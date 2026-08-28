@@ -51,7 +51,7 @@ export function AttendanceE2eFixtureInput({ captureAllowed, onScan }: Props) {
     <GlassCard style={styles.card} testID="attendance-e2e-fixture">
       <Text style={styles.title}>Preview acceptance fixture</Text>
       <Text style={styles.message}>
-        Protected synthetic input follows the same readiness, queue, and confirmation path as the camera.
+        Protected synthetic input follows the same secure queue and confirmation path as the camera.
       </Text>
       <Text style={styles.label}>Synthetic attendance QR</Text>
       <TextInput
@@ -85,7 +85,7 @@ export function AttendanceE2eFixtureInput({ captureAllowed, onScan }: Props) {
       />
       {!captureAllowed ? (
         <Text accessibilityLiveRegion="polite" style={styles.blocked}>
-          Complete event readiness before synthetic input is enabled.
+          Allow camera access before synthetic input is enabled.
         </Text>
       ) : null}
     </GlassCard>

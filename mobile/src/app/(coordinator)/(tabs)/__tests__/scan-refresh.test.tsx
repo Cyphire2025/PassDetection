@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-require-imports -- Jest factories load mocked host components after hoisting. */
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
+import { Linking } from 'react-native';
 
 import { recordAttendanceCameraToLocalQueue } from '@/core/observability/attendance-observability';
-import type { EventReadinessCaptureGate } from '@/features/coordinator/data/event-readiness';
 import {
   attendanceSessionQueueStatus,
   drainAttendanceQueue,
@@ -15,9 +15,10 @@ import { useCoordinatorTrips } from '@/features/coordinator/hooks/use-coordinato
 import CoordinatorScanScreen from '../scan';
 
 const mockCameraRender = jest.fn();
+const mockRefreshCameraPermission = jest.fn(async () => ({ granted: true }));
+const mockRequestCameraPermission = jest.fn(async () => ({ granted: true }));
 const mockRequestSync = jest.fn(async (..._args: unknown[]) => ({ results: [], failures: [] }));
-const mockReadinessRefresh = jest.fn(async () => undefined);
-let mockReadinessCaptureGate: EventReadinessCaptureGate = 'ready';
+let mockCameraPermission = { canAskAgain: true, granted: true };
 
 jest.mock('@/core/observability/attendance-observability', () => ({
   recordAttendanceCameraToLocalQueue: jest.fn(),
@@ -37,7 +38,11 @@ jest.mock('expo-camera', () => {
       mockCameraRender();
       return React.createElement(EventView, { onBarcodeScanned, testID: 'attendance-camera' });
     },
-    useCameraPermissions: () => [{ granted: true }, jest.fn()],
+    useCameraPermissions: () => [
+      mockCameraPermission,
+      mockRequestCameraPermission,
+      mockRefreshCameraPermission,
+    ],
   };
 });
 jest.mock('expo-haptics', () => ({
@@ -51,18 +56,6 @@ jest.mock('@/features/coordinator/hooks/use-attendance-scan-feedback', () => ({
     preferenceError: null,
     notify: jest.fn(),
     toggleMuted: jest.fn(),
-  }),
-}));
-jest.mock('@/features/coordinator/hooks/use-event-readiness', () => ({
-  useCoordinatorEventReadiness: () => ({
-    assessment: {
-      checks: [],
-      status: mockReadinessCaptureGate === 'loading' ? 'blocked' : mockReadinessCaptureGate,
-    },
-    captureGate: mockReadinessCaptureGate,
-    loading: mockReadinessCaptureGate === 'loading',
-    refresh: mockReadinessRefresh,
-    verificationIncomplete: false,
   }),
 }));
 jest.mock('@/features/coordinator/ui/scan-trusted-time-notice', () => ({
@@ -129,13 +122,6 @@ jest.mock('@/features/coordinator/hooks/use-coordinator', () => ({
 jest.mock('@/features/coordinator/hooks/use-coordinator-trips', () => ({
   useCoordinatorTrips: jest.fn(),
 }));
-jest.mock('@/features/coordinator/ui/event-readiness-card', () => {
-  const React = require('react') as typeof import('react');
-  const { View: MockView } = require('react-native') as typeof import('react-native');
-  return {
-    EventReadinessCard: () => React.createElement(MockView, { testID: 'event-readiness-card' }),
-  };
-});
 jest.mock('@/design/components/content-state', () => {
   const React = require('react') as typeof import('react');
   const { Text: MockText } = require('react-native') as typeof import('react-native');
@@ -194,7 +180,7 @@ const VALID_ATTENDANCE_QR = `pdatt:${'A'.repeat(43)}`;
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockReadinessCaptureGate = 'ready';
+  mockCameraPermission = { canAskAgain: true, granted: true };
   mockedQueueStatus.mockResolvedValue({
     pending: 0,
     sending: 0,
@@ -220,10 +206,55 @@ beforeEach(() => {
   mockRequestSync.mockResolvedValue({ results: [], failures: [] });
 });
 
-test.each([
-  ['loading', 'Scanner checks in progress'],
-  ['blocked', 'Scanner locked by Event Ready'],
-] as const)('blocks even a stale camera callback while readiness is %s', async (gate, heading) => {
+afterEach(() => {
+  jest.restoreAllMocks();
+});
+
+test('requests camera permission and opens the scanner immediately after access is granted', async () => {
+  const refetch = jest.fn(async () => ({ data: { items: [ACTIVE_SESSION] } }));
+  mockedUseAttendanceSessions.mockReturnValue({
+    data: { items: [ACTIVE_SESSION], selectedSessionId: ACTIVE_SESSION.id },
+    isPending: false,
+    isError: false,
+    refetch,
+  } as unknown as ReturnType<typeof useAttendanceSessions>);
+  mockCameraPermission = { canAskAgain: true, granted: false };
+
+  const screen = await render(<CoordinatorScanScreen />);
+  expect(screen.getByText('Camera access is needed')).toBeTruthy();
+  expect(screen.queryByTestId('attendance-camera')).toBeNull();
+  expect(screen.queryByText('Not ready for event')).toBeNull();
+  expect(screen.queryByText('Scanner locked by Event Ready')).toBeNull();
+  await fireEvent.press(screen.getByText('Allow camera'));
+  expect(mockRequestCameraPermission).toHaveBeenCalledTimes(1);
+
+  mockCameraPermission = { canAskAgain: true, granted: true };
+  await screen.rerender(<CoordinatorScanScreen />);
+  expect(screen.getByTestId('attendance-camera')).toBeTruthy();
+  expect(screen.queryByText('Camera access is needed')).toBeNull();
+  expect(screen.queryByText('Not ready for event')).toBeNull();
+});
+
+test('opens app settings instead of retrying a permanently denied camera permission', async () => {
+  mockedUseAttendanceSessions.mockReturnValue({
+    data: { items: [ACTIVE_SESSION], selectedSessionId: ACTIVE_SESSION.id },
+    isPending: false,
+    isError: false,
+    refetch: jest.fn(async () => ({ data: { items: [ACTIVE_SESSION] } })),
+  } as unknown as ReturnType<typeof useAttendanceSessions>);
+  mockCameraPermission = { canAskAgain: false, granted: false };
+  const openSettings = jest.spyOn(Linking, 'openSettings').mockResolvedValue();
+
+  const screen = await render(<CoordinatorScanScreen />);
+  expect(screen.getByText('Enable Camera in your phone settings to scan attendance QR codes.')).toBeTruthy();
+  expect(screen.queryByText('Allow camera')).toBeNull();
+  await fireEvent.press(screen.getByText('Open app settings'));
+
+  expect(openSettings).toHaveBeenCalledTimes(1);
+  expect(mockRequestCameraPermission).not.toHaveBeenCalled();
+});
+
+test('rejects a stale camera callback after camera permission is revoked', async () => {
   const refetch = jest.fn(async () => ({ data: { items: [ACTIVE_SESSION] } }));
   mockedUseAttendanceSessions.mockReturnValue({
     data: { items: [ACTIVE_SESSION], selectedSessionId: ACTIVE_SESSION.id },
@@ -236,12 +267,9 @@ test.each([
     result: { data: string }
   ) => Promise<void>;
 
-  mockReadinessCaptureGate = gate;
+  mockCameraPermission = { canAskAgain: true, granted: false };
   await screen.rerender(<CoordinatorScanScreen />);
-
   expect(screen.queryByTestId('attendance-camera')).toBeNull();
-  expect(screen.getByTestId('attendance-camera-locked')).toBeTruthy();
-  expect(screen.getByText(heading)).toBeTruthy();
   await act(async () => {
     await staleCallback({ data: VALID_ATTENDANCE_QR });
   });
@@ -249,15 +277,13 @@ test.each([
   expect(mockedCameraToLocalQueue).not.toHaveBeenCalled();
 });
 
-test('allows camera capture for amber because required offline controls remain green', async () => {
+test('routes a permitted camera scan through the secure attendance queue', async () => {
   mockedUseAttendanceSessions.mockReturnValue({
     data: { items: [ACTIVE_SESSION], selectedSessionId: ACTIVE_SESSION.id },
     isPending: false,
     isError: false,
     refetch: jest.fn(async () => ({ data: { items: [ACTIVE_SESSION] } })),
   } as unknown as ReturnType<typeof useAttendanceSessions>);
-  mockReadinessCaptureGate = 'attention';
-
   const screen = await render(<CoordinatorScanScreen />);
   await fireEvent(
     screen.getByTestId('attendance-camera'),
@@ -273,7 +299,7 @@ test('allows camera capture for amber because required offline controls remain g
   ));
 });
 
-test('routes protected preview fixture input through the real readiness-gated scan handler', async () => {
+test('routes protected preview fixture input through the real secure scan handler', async () => {
   mockedUseAttendanceSessions.mockReturnValue({
     data: { items: [ACTIVE_SESSION], selectedSessionId: ACTIVE_SESSION.id },
     isPending: false,

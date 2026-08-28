@@ -44,7 +44,7 @@ import {
   type ExpandedAttendanceRoster,
 } from '@/features/coordinator/ui/attendance-activity-summary';
 import { AttendanceIssuesBanner } from '@/features/coordinator/ui/attendance-issues-banner';
-import { AttendanceReconciliationCard } from '@/features/coordinator/ui/attendance-reconciliation-card';
+import { AttendanceCheckpointReporter } from '@/features/coordinator/ui/attendance-checkpoint-reporter';
 
 type Row =
   | { kind: 'session'; value: AttendanceSession }
@@ -267,10 +267,9 @@ export default function CoordinatorAttendanceScreen() {
             />
             <AttendanceIssuesBanner tripId={trips.selectedTripId} />
             {trips.selectedTripId && selectedActivity ? (
-              <AttendanceReconciliationCard
+              <AttendanceCheckpointReporter
                 tripId={trips.selectedTripId}
                 session={selectedActivity}
-                onRefresh={refreshAttendance}
               />
             ) : null}
             {sessions.isPending ? <ContentLoading label="Loading attendance activities" /> : null}

@@ -95,6 +95,9 @@ jest.mock('@/features/coordinator/ui/attendance-activity-summary', () => {
     ),
   };
 });
+jest.mock('@/features/coordinator/ui/attendance-checkpoint-reporter', () => ({
+  AttendanceCheckpointReporter: () => null,
+}));
 
 const mockedLeave = jest.mocked(leaveAttendanceSession);
 const mockedSessions = jest.mocked(useAttendanceSessions);
@@ -137,6 +140,8 @@ test('coordinator can only finish locally and never sees a global close control'
   const screen = await render(<CoordinatorAttendanceScreen />);
 
   expect(screen.queryByText(/complete selected activity/i)).toBeNull();
+  expect(screen.queryByText('Final reconciliation')).toBeNull();
+  expect(screen.queryByText('Sync and recheck')).toBeNull();
   await fireEvent.press(screen.getByText('Finish my scanning'));
 
   expect(alert).toHaveBeenCalledTimes(1);

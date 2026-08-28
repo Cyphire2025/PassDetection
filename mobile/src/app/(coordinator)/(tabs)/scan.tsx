@@ -5,7 +5,16 @@ import FlashlightOff from 'lucide-react-native/icons/flashlight-off';
 import ScanLine from 'lucide-react-native/icons/scan-line';
 import TriangleAlert from 'lucide-react-native/icons/triangle-alert';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View, type ListRenderItem } from 'react-native';
+import {
+  AppState,
+  FlatList,
+  Linking,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  type ListRenderItem,
+} from 'react-native';
 
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
 import { MOBILE_LIST_WINDOWING } from '@/core/performance/mobile-performance-budgets';
@@ -26,10 +35,6 @@ import {
 import { selectAttendanceSession } from '@/features/coordinator/data/attendance-sessions';
 import { attendanceScanErrorFeedback } from '@/features/coordinator/data/attendance-scan-error';
 import {
-  eventReadinessAllowsCapture,
-  type EventReadinessCaptureGate,
-} from '@/features/coordinator/data/event-readiness';
-import {
   EMPTY_OPTIMISTIC_ATTENDANCE_COUNT,
   attendanceScanTimestamp,
   confirmedAttendanceCount,
@@ -42,10 +47,7 @@ import {
 import { useAttendanceSessions } from '@/features/coordinator/hooks/use-coordinator';
 import { useCoordinatorTrips } from '@/features/coordinator/hooks/use-coordinator-trips';
 import { useAttendanceScanFeedback } from '@/features/coordinator/hooks/use-attendance-scan-feedback';
-import { useCoordinatorEventReadiness } from '@/features/coordinator/hooks/use-event-readiness';
 import { AttendanceE2eFixtureInput } from '@/features/coordinator/ui/attendance-e2e-fixture-input';
-import { AttendanceScannerLock } from '@/features/coordinator/ui/attendance-scanner-lock';
-import { EventReadinessCard } from '@/features/coordinator/ui/event-readiness-card';
 import { ScanConnectivityCard } from '@/features/coordinator/ui/scan-connectivity-card';
 import { ScanFeedbackAudioToggle } from '@/features/coordinator/ui/scan-feedback-audio-toggle';
 import { ScanTrustedTimeNotice } from '@/features/coordinator/ui/scan-trusted-time-notice';
@@ -73,18 +75,20 @@ export default function CoordinatorScanScreen() {
   ) ?? null;
   const selectedSessionId = selectedSession?.id ?? null;
   const selectedSessionScannedCount = selectedSession?.scanned_count ?? 0;
-  const [permission, requestPermission] = useCameraPermissions();
+  const [permission, requestPermission, refreshPermission] = useCameraPermissions();
+  const cameraGranted = permission?.granted === true;
+  const cameraPermissionCanAskAgain = permission?.canAskAgain !== false;
   const [torch, setTorch] = useState(false);
   const [scanState, setScanState] = useState<ScanState>(null);
   const [activityError, setActivityError] = useState<string | null>(null);
   const [activityBusy, setActivityBusy] = useState(false);
-  const [readinessRevision, setReadinessRevision] = useState(0);
+  const [synchronizationRevision, setSynchronizationRevision] = useState(0);
   const [clockNotice, setClockNotice] = useState<string | null>(null);
   const [managingActivity, setManagingActivity] = useState(false);
   const [optimisticScans, setOptimisticScans] = useState({
     ...EMPTY_OPTIMISTIC_ATTENDANCE_COUNT,
   });
-  const readinessCaptureGate = useRef<EventReadinessCaptureGate>('loading');
+  const cameraGrantedRef = useRef(cameraGranted);
   const scanLock = useRef(false);
   const activityMutationLock = useRef(false);
   const lastScan = useRef<RecentAttendanceScan | null>(null);
@@ -105,6 +109,17 @@ export default function CoordinatorScanScreen() {
     selectedSessionRef.current = selectedSession;
     refetchSessionsRef.current = sessions.refetch;
   }, [selectedSession, sessions.refetch, trips.selectedTripId]);
+
+  useLayoutEffect(() => {
+    cameraGrantedRef.current = cameraGranted;
+  }, [cameraGranted]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') void refreshPermission();
+    });
+    return () => subscription.remove();
+  }, [refreshPermission]);
 
   useEffect(() => () => {
     if (drainTimer.current) clearTimeout(drainTimer.current);
@@ -284,7 +299,7 @@ export default function CoordinatorScanScreen() {
       !tripId
       || !session
       || scanLock.current
-      || !eventReadinessAllowsCapture(readinessCaptureGate.current)
+      || !cameraGrantedRef.current
     ) return;
     const now = attendanceScanTimestamp();
     if (isRapidRepeatScan(lastScan.current, session.id, data, now)) return;
@@ -297,7 +312,6 @@ export default function CoordinatorScanScreen() {
         scanFeedback.notify('failure');
         return;
       }
-      if (!eventReadinessAllowsCapture(readinessCaptureGate.current)) return;
       queueStartedAtMs = performance.now();
       const queued = await enqueueQrScan(tripId, session.id, data, {
         assignedCount: session.assigned_count,
@@ -375,16 +389,6 @@ export default function CoordinatorScanScreen() {
   const awaitingConfirmation = selectedSession && optimisticScans.sessionId === selectedSession.id
     ? optimisticScans.pendingCount
     : 0;
-  const eventReadiness = useCoordinatorEventReadiness({
-    activity: selectedSession,
-    cameraGranted: permission?.granted === true,
-    refreshSignal: `${readinessRevision}:${awaitingConfirmation}:${selectedSessionScannedCount}`,
-    tripId: trips.selectedTripId,
-  });
-  useLayoutEffect(() => {
-    readinessCaptureGate.current = eventReadiness.captureGate;
-  }, [eventReadiness.captureGate]);
-  const captureAllowed = eventReadinessAllowsCapture(eventReadiness.captureGate);
   const activityManagementVisible = managingActivity || !selectedSession;
   const refreshActivities = useCallback(
     () => refetchSessionsRef.current(),
@@ -392,7 +396,7 @@ export default function CoordinatorScanScreen() {
   );
   const refreshAfterSynchronization = useCallback(async () => {
     await refetchSessionsRef.current();
-    setReadinessRevision((current) => current + 1);
+    setSynchronizationRevision((current) => current + 1);
   }, []);
   const activityRefreshEnabled = activityManagementVisible && !activityBusy;
   const renderActivity = useCallback<ListRenderItem<AttendanceSession>>(({ item: session }) => (
@@ -491,20 +495,26 @@ export default function CoordinatorScanScreen() {
       </View>
       <ScanFeedbackAudioToggle muted={scanFeedback.muted} busy={scanFeedback.preferenceBusy} error={scanFeedback.preferenceError} onToggle={scanFeedback.toggleMuted} />
 
-      <ScanTrustedTimeNotice blockingNotice={clockNotice} refreshSignal={`${readinessRevision}:${selectedSession.id}`} />
-      <EventReadinessCard readiness={eventReadiness} />
-      <AttendanceE2eFixtureInput captureAllowed={captureAllowed} onScan={handleScan} />
+      <ScanTrustedTimeNotice blockingNotice={clockNotice} refreshSignal={`${synchronizationRevision}:${selectedSession.id}`} />
+      <AttendanceE2eFixtureInput captureAllowed={cameraGranted} onScan={handleScan} />
       <ScanConnectivityCard tripId={trips.selectedTripId!} onSynchronized={refreshAfterSynchronization} />
 
-      {!permission?.granted ? (
+      {!cameraGranted ? (
         <GlassCard style={styles.permission}>
           <ScanLine color={colors.greenDeep} size={30} />
           <Text style={styles.permissionTitle}>Camera access is needed</Text>
-          <Text style={styles.permissionMessage}>The camera is used only while scanning attendance QR codes.</Text>
-          <PrimaryButton label="Allow camera" onPress={() => void requestPermission()} />
+          <Text style={styles.permissionMessage}>
+            {cameraPermissionCanAskAgain
+              ? 'The camera is used only while scanning attendance QR codes.'
+              : 'Enable Camera in your phone settings to scan attendance QR codes.'}
+          </Text>
+          <PrimaryButton
+            label={cameraPermissionCanAskAgain ? 'Allow camera' : 'Open app settings'}
+            onPress={() => void (cameraPermissionCanAskAgain
+              ? requestPermission()
+              : Linking.openSettings())}
+          />
         </GlassCard>
-      ) : !captureAllowed ? (
-        <AttendanceScannerLock gate={eventReadiness.captureGate} />
       ) : (
         <View style={styles.cameraFrame}>
           <CameraView
