@@ -50,7 +50,7 @@ def record_platform_scheduler_heartbeat() -> None:
             type(exc).__name__,
         )
     finally:
-        client.close()
+        client.close()  # type: ignore[no-untyped-call]  # redis 5.0.7 omits this annotation
 
 
 @celery_app.task(  # type: ignore[untyped-decorator]

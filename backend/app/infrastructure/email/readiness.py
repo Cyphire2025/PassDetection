@@ -151,7 +151,7 @@ def _scheduler_heartbeat_exists(settings: Settings) -> bool:
     except Exception:
         return False
     finally:
-        client.close()
+        client.close()  # type: ignore[no-untyped-call]  # redis 5.0.7 omits this annotation
 
 
 def _clamav_ping(settings: Settings) -> bool:

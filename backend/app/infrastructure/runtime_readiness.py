@@ -381,7 +381,7 @@ def _platform_scheduler_heartbeat_exists(settings: Settings) -> bool:
     try:
         return bool(client.get(PLATFORM_SCHEDULER_HEARTBEAT_KEY))
     finally:
-        client.close()
+        client.close()  # type: ignore[no-untyped-call]  # redis 5.0.7 omits this annotation
 
 
 def _my_photos_selected(settings: Settings) -> bool:

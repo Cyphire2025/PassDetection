@@ -58,6 +58,12 @@ test("authenticated staff can navigate the dashboard at tablet width", async ({ 
   await expect(dialog.getByRole("button", { name: "Close navigation" })).toBeFocused();
   await expect(dialog.getByRole("link", { name: "All Groups" })).toBeVisible();
   await page.setViewportSize({ width: 1280, height: 900 });
+  // `lg:hidden` takes effect before the matchMedia listener commits the closed
+  // drawer state. Wait for that state before returning to tablet width.
+  await expect(page.locator("[data-mobile-navigation-trigger]")).toHaveAttribute(
+    "aria-expanded",
+    "false",
+  );
   await expect(dialog).toBeHidden();
   await page.setViewportSize({ width: 820, height: 900 });
   await expect(dialog).toBeHidden();

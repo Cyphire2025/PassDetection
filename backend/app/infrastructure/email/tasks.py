@@ -208,7 +208,7 @@ def record_email_scheduler_heartbeat(self: object) -> None:
             extra={"error_type": type(exc).__name__},
         )
     finally:
-        client.close()
+        client.close()  # type: ignore[no-untyped-call]  # redis 5.0.7 omits this annotation
 
 
 async def _claim_due_dispatches() -> list[EmailSyncTaskEnvelope]:

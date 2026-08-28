@@ -965,13 +965,31 @@ async def test_real_25_coordinator_800_passenger_attendance_burst_and_convergenc
         finally:
             event.remove(engine.sync_engine, "before_cursor_execute", count_statement)
 
-        assert len(statements) == 6
+        # Three aggregate queries, three closeout/runtime projections, and one
+        # bounded coordinator scan aggregation. Query count must stay constant
+        # as coordinators and passengers grow.
+        normalized_statements = [statement.lower() for statement in statements]
+        assert (
+            sum(
+                "attendance_session_runtime_participants" in statement
+                for statement in normalized_statements
+            )
+            == 1
+        )
+        assert (
+            sum(
+                "attendance_coordinator_scan_family" in statement
+                for statement in normalized_statements
+            )
+            == 1
+        )
+        assert len(statements) == 7
         assert blocked_summary.activities[0].present_count == 800
         assert blocked_summary.activities[0].missing_count == 0
         assert blocked_summary.activities[0].closeout.ready is False
         assert blocked_summary.activities[0].closeout.active_participant_count == 25
         assert blocked_summary.activities[0].closeout.blocked_participant_count == 1
-        normalized_sql = "\n".join(statements).lower()
+        normalized_sql = "\n".join(normalized_statements)
         assert "passport_submissions.client_name" not in normalized_sql
         assert "passport_submissions.client_email" not in normalized_sql
         assert "passport_submissions.client_phone" not in normalized_sql
