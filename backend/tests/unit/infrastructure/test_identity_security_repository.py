@@ -305,6 +305,7 @@ async def test_action_token_issued_before_hmac_rotation_remains_redeemable(
     await db_session.flush()
     repository = IdentitySecurityRepository(db_session)
     await repository.ensure_state(user)
+    monkeypatch.setattr(identity_security, "get_settings", lambda: test_settings)
     issued, raw = await repository.issue_action_token(
         user_id=user.id,
         purpose="password_recovery",
