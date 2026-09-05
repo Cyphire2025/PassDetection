@@ -96,6 +96,7 @@ def _get_logout_all_use_case(
 ) -> LogoutAllUseCase:
     return LogoutAllUseCase(
         refresh_token_repository=RefreshTokenRepository(session),
+        identity_security_repository=IdentitySecurityRepository(session),
     )
 
 

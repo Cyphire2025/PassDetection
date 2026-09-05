@@ -7,15 +7,19 @@ import type {
 } from "../types";
 
 export const notificationsApi = {
-  feed: async ({
-    unreadOnly = false,
-    priority,
-    limit = 12,
-    cursor,
-  }: NotificationFeedParams = {}): Promise<NotificationFeedResponse> => {
+  feed: async (
+    {
+      unreadOnly = false,
+      priority,
+      limit = 12,
+      cursor,
+    }: NotificationFeedParams = {},
+    signal?: AbortSignal,
+  ): Promise<NotificationFeedResponse> => {
     const { data } = await apiClient.get<NotificationFeedResponse>(
       API_ENDPOINTS.notifications.feed,
       {
+        signal,
         params: {
           unread_only: unreadOnly || undefined,
           priority,
@@ -27,7 +31,9 @@ export const notificationsApi = {
     return data;
   },
 
-  markRead: async (notificationId: string): Promise<OperationalNotification> => {
+  markRead: async (
+    notificationId: string,
+  ): Promise<OperationalNotification> => {
     const { data } = await apiClient.post<OperationalNotification>(
       API_ENDPOINTS.notifications.read(notificationId),
     );

@@ -34,19 +34,17 @@ import {
 
 const GROUP_LIST_COPY = {
   visa: {
-    eyebrow: "Visa distribution",
     title: "Choose a Visa Group",
     description:
-      "Search by group, destination, or passenger, then open the group visa workspace.",
-    heading: "Open a visa workspace",
+      "Search by group, destination, or passenger, then open its visa documents.",
+    heading: "Visa groups",
     action: "Open Visa Documents",
   },
   flight_tickets: {
-    eyebrow: "Flight-ticket distribution",
     title: "Choose a Flight-Ticket Group",
     description:
       "Search by group, destination, or passenger, then choose International or Domestic Onward and Return tickets.",
-    heading: "Open a flight-ticket workspace",
+    heading: "Flight-ticket groups",
     action: "Open Flight Tickets",
   },
 } as const;
@@ -88,7 +86,6 @@ export function DocumentGroupList({
   return (
     <div className="flex flex-col gap-5">
       <WorkspacePageHeader
-        eyebrow={copy.eyebrow}
         title={copy.title}
         description={copy.description}
         icon={FileStack}
@@ -96,10 +93,10 @@ export function DocumentGroupList({
         context={(
           <>
             <WorkspaceHeaderContext icon={FolderKanban}>
-              {groups.length.toLocaleString()} groups
+              {groups.length.toLocaleString()} {groups.length === 1 ? "group" : "groups"}
             </WorkspaceHeaderContext>
             <WorkspaceHeaderContext icon={UsersRound}>
-              {summary.passengers.toLocaleString()} passengers
+              {summary.passengers.toLocaleString()} {summary.passengers === 1 ? "passenger" : "passengers"}
             </WorkspaceHeaderContext>
           </>
         )}
@@ -162,9 +159,7 @@ export function DocumentGroupList({
         aria-labelledby="distribution-groups-heading"
       >
         <div className="border-b border-slate-200 px-4 py-3.5 sm:px-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-            Group selection
-          </p>
+
           <h2 id="distribution-groups-heading" className="mt-0.5 font-semibold text-slate-950">
             {copy.heading}
           </h2>
@@ -178,7 +173,7 @@ export function DocumentGroupList({
           resultLabel={
             normalizedQuery && groupSearch.isFetching
               ? "Searching groups and passengers..."
-              : `${filteredGroups.length.toLocaleString()} groups`
+              : `${filteredGroups.length.toLocaleString()} ${filteredGroups.length === 1 ? "group" : "groups"}`
           }
         />
 

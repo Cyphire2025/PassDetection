@@ -144,7 +144,7 @@ export function CommonDocumentsPanel({
         <CardContent className="space-y-5 p-5">
           <div>
             <h3 className="text-lg font-semibold text-slate-900">Itinerary</h3>
-            <p className="mt-1 text-sm text-slate-500">This fixed document appears under the Itinerary heading in every authorized app. Publishing a replacement creates a new synchronized version.</p>
+            <p className="mt-1 text-sm text-slate-500">Published itineraries appear under Itinerary in the app. Publish a replacement to update the document.</p>
           </div>
           <DocumentUploadForm
             key={`itinerary-${itineraryReplacement?.id ?? "new"}`}
@@ -175,7 +175,7 @@ export function CommonDocumentsPanel({
         <CardContent className="space-y-5 p-5">
           <div>
             <h3 className="text-lg font-semibold text-slate-900">Other common documents</h3>
-            <p className="mt-1 text-sm text-slate-500">Travel tips and other published PDFs appear under their own headings in the app and synchronize without exposing storage URLs.</p>
+            <p className="mt-1 text-sm text-slate-500">Published PDFs, including travel tips, appear under their own headings in the app.</p>
           </div>
           <DocumentUploadForm
             key={`other-${otherReplacement?.id ?? "new"}`}
@@ -215,7 +215,6 @@ export function CommonDocumentsPanel({
       <GcDialog
         open={Boolean(preview)}
         title={preview?.document.title ?? "Document preview"}
-        description="Secure dashboard preview. The private storage address is never exposed."
         onClose={() => setPreview(null)}
         size="full"
       >

@@ -57,6 +57,9 @@ class ListPassportGroupSummariesUseCase:
                 agent_employee_code_enabled=summary.agent_employee_code_enabled,
                 meal_preference_enabled=summary.meal_preference_enabled,
                 require_selfie=summary.require_selfie,
+                custom_questions=list(summary.custom_questions or []),
+                custom_details=list(summary.custom_details or []),
+                upload_configuration=summary.upload_configuration,
                 allow_files_from_device=summary.allow_files_from_device,
                 ask_nearest_domestic_airport=summary.ask_nearest_domestic_airport,
                 relation_with_qualifier_enabled=(

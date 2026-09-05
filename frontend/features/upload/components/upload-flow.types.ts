@@ -12,6 +12,7 @@ export type UploadFlowStep =
   | "SELFIE_CAMERA"
   | "SELFIE_UPLOAD"
   | "CAMERA"
+  | "PASSPORT_UPLOAD"
   | "PASSPORT_CROP"
   | "UPLOADING"
   | "REVIEW"
@@ -39,6 +40,7 @@ export interface FamilyMember {
   submission: PassportSubmission | null;
   reviewFields: Record<string, string>;
   visaSelfie: File | null;
+  visaPhotoSource: "camera" | "file" | null;
   uploadIdempotencyKey: string;
   extractionNotice: string | null;
   canRetryExtraction: boolean;
@@ -47,6 +49,8 @@ export interface FamilyMember {
 export interface PassportDocumentBundle {
   front: File | null;
   back: File | null;
+  cover: File | null;
+  back_cover: File | null;
   frontSource: "camera" | "file" | null;
   backSource: "camera" | "file" | null;
   frontManuallyCropped: boolean;

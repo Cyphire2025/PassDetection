@@ -6,6 +6,7 @@
  */
 
 import { create } from "zustand";
+import { expiredSessionSignInPath } from "@/features/auth/services/restoration-destination";
 import type { User } from "@/types";
 import {
   clearServerSessionCookies,
@@ -22,6 +23,7 @@ import {
 } from "@/features/tour-operations/services/attendance-queue-safety-contract";
 
 interface AuthState {
+  restorationStatus: "restoring" | "authenticated" | "rejected" | "temporarily_unavailable";
   user: User | null;
   isAuthenticated: boolean;
   hasHydrated: boolean;
@@ -29,6 +31,7 @@ interface AuthState {
 }
 
 interface AuthActions {
+  markTemporarilyUnavailable: () => void;
   setSession: (user: User) => void;
   clearSession: (
     reason?: SensitiveStateResetReason,
@@ -44,6 +47,7 @@ interface AuthActions {
 }
 
 const initialState: AuthState = {
+  restorationStatus: "restoring",
   user: null,
   isAuthenticated: false,
   hasHydrated: false,
@@ -58,6 +62,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
     set((state) => ({
       user,
       isAuthenticated: true,
+      restorationStatus: "authenticated",
       hasHydrated: true,
       sessionVersion: state.sessionVersion + 1,
     }));
@@ -80,13 +85,14 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
       const current = get();
       if (
         current.sessionVersion !== expectedSessionVersion
-        || current.user?.id !== expectedUserId
+        || (current.user?.id ?? null) !== expectedUserId
       ) {
         return false;
       }
       set((state) => ({
         user: null,
         isAuthenticated: false,
+        restorationStatus: "rejected",
         hasHydrated: true,
         sessionVersion: state.sessionVersion + 1,
       }));
@@ -102,7 +108,9 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
         if (window.location.pathname.startsWith("/coordinator")) {
           params.set("from", `${window.location.pathname}${window.location.search}`);
         }
-        const destination = `/login${params.size > 0 ? `?${params.toString()}` : ""}`;
+        const destination = reason === "session_expired"
+          ? expiredSessionSignInPath(window.location.pathname, window.location.search)
+          : `/login${params.size > 0 ? `?${params.toString()}` : ""}`;
         window.location.replace(destination);
       }
       await cleanup;
@@ -139,6 +147,11 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
   },
 
   markHydrated: () => set({ hasHydrated: true }),
+  markTemporarilyUnavailable: () => {
+    if (!get().isAuthenticated) {
+      set({ restorationStatus: "temporarily_unavailable", hasHydrated: false });
+    }
+  },
 
   updateUser: (partial) => {
     const current = get().user;

@@ -36,6 +36,7 @@ from app.infrastructure.repositories.attendance_runtime_repository import (
     AttendanceRuntimeRepository,
 )
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.infrastructure.repositories.operational_roster import operational_roster_member
 from app.presentation.api.v1.routes.tour_operations import (
     _ensure_group_assigned_to_coordinator,
     _get_coordinator_attendance_session,
@@ -351,6 +352,7 @@ async def provision_browser_offline_authorization(
                 PassportSubmissionModel.agency_id == agency_id,
                 PassportSubmissionModel.group_id == group_id,
                 PassportSubmissionModel.status.in_(OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES),
+                operational_roster_member(),
             )
         )
         or 0
@@ -376,6 +378,7 @@ async def provision_browser_offline_authorization(
                     PassportSubmissionModel.status.in_(
                         OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
                     ),
+                    operational_roster_member(),
                     PassengerQRTokenModel.agency_id == agency_id,
                     PassengerQRTokenModel.is_active.is_(True),
                     PassengerQRTokenModel.revoked_at.is_(None),

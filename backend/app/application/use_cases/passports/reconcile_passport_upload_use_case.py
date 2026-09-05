@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import uuid
 
+from app.application.security.public_upload_capability import public_upload_is_active
 from app.core.security.upload_session import is_valid_upload_credential
 from app.domain.repositories.interfaces import (
     IClientGroupRepository,
@@ -35,7 +36,7 @@ class ReconcilePassportUploadUseCase:
             return None
 
         group = await self._client_group_repo.get_by_token(token)
-        if group is None or not group.is_active():
+        if group is None or not public_upload_is_active(group):
             return None
 
         submission = await self._passport_repo.get_by_upload_idempotency_key(

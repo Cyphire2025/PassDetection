@@ -11,6 +11,7 @@ from app.application.dtos.passport_dtos import (
     passport_submission_output_from_entity,
 )
 from app.application.mobile.group_capacity import GroupPassengerCapacityGuard
+from app.application.security.public_upload_capability import require_active_public_upload
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
 from app.core.security.upload_session import is_valid_upload_credential
@@ -30,6 +31,11 @@ from app.domain.repositories.interfaces import (
 )
 from app.domain.value_objects.qualifier_relations import (
     hash_qualifier_selection_token,
+)
+from app.domain.value_objects.upload_configuration import (
+    configuration_for,
+    validate_documents,
+    validate_visa_photo_source,
 )
 from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
 from app.infrastructure.processing.job_state import ProcessingJobStatus
@@ -67,12 +73,17 @@ class SubmitPassportUseCase:
         passport_back: tuple[bytes, str, str] | None = None,
         *,
         acquisition_mode: str = "file",
+        passport_cover: tuple[bytes, str, str] | None = None,
+        passport_back_cover: tuple[bytes, str, str] | None = None,
+        visa_photo_source: str | None = None,
         upload_idempotency_key: str | None = None,
         qualifier_selection_token: str | None = None,
     ) -> PassportSubmissionOutputDTO:
         group = await self._client_group_repo.get_by_token(token)
         if not group:
             raise EntityNotFoundError("ClientGroup", token)
+
+        require_active_public_upload(group)
 
         normalized_key = upload_idempotency_key.strip() if upload_idempotency_key else None
         if normalized_key and not is_valid_upload_credential(normalized_key):
@@ -89,7 +100,10 @@ class SubmitPassportUseCase:
 
         qualifier_selection = None
         qualifier_replay = None
-        if getattr(group, "relation_with_qualifier_enabled", False):
+        config = configuration_for(group)
+        if getattr(group, "relation_with_qualifier_enabled", False) and (
+            config.required("relation_with_qualifier") or qualifier_selection_token
+        ):
             qualifier_selection, qualifier_replay = (
                 await self._require_qualifier_selection(
                     group_id=group.id,
@@ -114,16 +128,21 @@ class SubmitPassportUseCase:
         if not group.is_active():
             raise GroupClosedError()
 
-        acquisition_mode = group.require_allowed_acquisition_mode(acquisition_mode)
-        if not file_content:
-            raise ValidationError("Passport front image is required.", field="file")
-        if not passport_back or not passport_back[0]:
-            raise ValidationError("Passport back image is required.", field="passport_back_file")
-        if group.require_selfie and (not passport_photo or not passport_photo[0]):
-            raise ValidationError(
-                "Visa Photo is required for this upload link.",
-                field="passport_photo_file",
-            )
+        acquisition_mode = acquisition_mode.strip().lower()
+        if acquisition_mode not in {"camera", "file"}:
+            raise ValidationError("Select a valid passport collection method.", field="acquisition_mode")
+        validate_documents(
+            group,
+            pages={
+                "front": file_content,
+                "back": passport_back and passport_back[0],
+                "cover": passport_cover and passport_cover[0],
+                "back_cover": passport_back_cover and passport_back_cover[0],
+            },
+            mode=acquisition_mode,
+            photo=passport_photo and passport_photo[0],
+        )
+        validate_visa_photo_source(group, photo=passport_photo, source=visa_photo_source)
 
         unique_id = uuid.uuid4()
         uploaded_keys: list[str] = []
@@ -134,11 +153,14 @@ class SubmitPassportUseCase:
                 unique_id=unique_id,
                 document_type=None,
                 content_type=content_type,
-            )
+            ) if file_content else ""
             upload_specs: list[tuple[str | None, bytes, str, str]] = [
                 (None, file_content, content_type, front_key),
-            ]
-            for document_type, upload in (("back", passport_back), ("photo", passport_photo)):
+            ] if file_content else []
+            for document_type, upload in (
+                ("back", passport_back), ("photo", passport_photo),
+                ("cover", passport_cover), ("back_cover", passport_back_cover),
+            ):
                 if not upload:
                     continue
                 upload_content, upload_content_type, _upload_filename = upload
@@ -239,10 +261,17 @@ class SubmitPassportUseCase:
                     continue
                 if stored_document_type == "photo":
                     submission.promote_passport_photo(upload_key)
-                else:
+                elif stored_document_type == "back":
                     # Back pages are persisted and displayed only. They are not
                     # passed to any field extraction service.
                     submission.promote_passport_back(upload_key)
+                elif stored_document_type == "cover":
+                    submission.promote_passport_cover(upload_key)
+                else:
+                    submission.promote_passport_back_cover(upload_key)
+
+            if not front_key:
+                submission.prepare_without_passport_front()
 
             submission, created = await self._passport_repo.save_idempotent(submission)
             if not created:
@@ -263,6 +292,11 @@ class SubmitPassportUseCase:
                     agency_id=str(group.agency_id),
                 )
                 return passport_submission_output_from_entity(submission)
+            if not front_key:
+                # Photo-only or details-only collection is a durable review
+                # draft. No passport OCR or classification job can run.
+                return passport_submission_output_from_entity(submission)
+
             extraction_revision = submission.mark_processing()
             await self._passport_repo.update(submission)
 

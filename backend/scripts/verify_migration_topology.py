@@ -7,7 +7,9 @@ from pathlib import Path
 from alembic.config import Config
 from alembic.script import ScriptDirectory
 
-EXPECTED_HEAD = "0088_merge_my_photos_hardening"
+EXPECTED_HEAD = "0090_upload_configuration"
+SECURITY_REVISION = "0089_revoke_legacy_refresh"
+MERGE_REVISION = "0088_merge_my_photos_hardening"
 EXPECTED_PARENTS = {
     "0086_my_photos_foundation",
     "0087_enterprise_hardening",
@@ -26,7 +28,12 @@ def main() -> int:
             f"Expected one Alembic head {EXPECTED_HEAD!r}; observed {heads!r}"
         )
     head = scripts.get_revision(EXPECTED_HEAD)
-    raw_parents = head.down_revision
+    if head.down_revision != SECURITY_REVISION:
+        raise RuntimeError("Upload configuration must follow the security data migration")
+    if scripts.get_revision(SECURITY_REVISION).down_revision != MERGE_REVISION:
+        raise RuntimeError("The security data migration must follow the reviewed 0088 merge")
+    merge = scripts.get_revision(MERGE_REVISION)
+    raw_parents = merge.down_revision
     observed_parents = (
         {raw_parents}
         if isinstance(raw_parents, str)
@@ -40,8 +47,8 @@ def main() -> int:
         )
 
     print(
-        "Alembic topology verified: one 0088 head merges the preserved "
-        "My Photos and enterprise-hardening branches."
+        "Alembic topology verified: 0090 follows 0089 and the preserved 0088 merge "
+        "of the My Photos and enterprise-hardening branches."
     )
     return 0
 

@@ -90,23 +90,23 @@ async def test_thumbnail_is_private_bounded_and_cached_after_authorization() -> 
 
     with (
         patch(
-            "app.presentation.api.v1.routes.passports._authorized_staff_passport_image",
+            'app.presentation.api.v1.routes.passport_routes.images._authorized_staff_passport_image',
             new=AsyncMock(return_value=(submission, submission.image_s3_key)),
         ) as authorize,
         patch(
-            "app.presentation.api.v1.routes.passports.MinioStorageRepository",
+            'app.presentation.api.v1.routes.passport_routes.images.MinioStorageRepository',
             return_value=storage,
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.PassportImageCropRepository",
+            'app.presentation.api.v1.routes.passport_routes.images.PassportImageCropRepository',
             return_value=crop_repository,
         ),
         patch(
-            "app.presentation.api.v1.routes.passports._dashboard_thumbnail_cache",
+            'app.presentation.api.v1.routes.passport_routes.images._dashboard_thumbnail_cache',
             return_value=thumbnail_cache,
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.get_settings",
+            'app.presentation.api.v1.routes.passport_routes.images.get_settings',
             return_value=SimpleNamespace(dashboard_thumbnail_max_dimension=320),
         ),
     ):
@@ -147,10 +147,10 @@ async def test_effective_stream_uses_view_permission_but_original_editor_uses_co
 
     with (
         patch(
-            "app.presentation.api.v1.routes.passports.PassportSubmissionRepository",
+            'app.presentation.api.v1.routes.passport_routes.image_support.PassportSubmissionRepository',
             return_value=repository,
         ),
-        patch("app.presentation.api.v1.routes.passports.AuthorizationPolicy", return_value=policy),
+        patch('app.presentation.api.v1.routes.passport_routes.image_support.AuthorizationPolicy', return_value=policy),
     ):
         await _authorized_staff_passport_image(
             submission_id=submission.id,
@@ -184,10 +184,10 @@ async def test_object_scope_denial_is_returned_as_forbidden() -> None:
 
     with (
         patch(
-            "app.presentation.api.v1.routes.passports.PassportSubmissionRepository",
+            'app.presentation.api.v1.routes.passport_routes.image_support.PassportSubmissionRepository',
             return_value=repository,
         ),
-        patch("app.presentation.api.v1.routes.passports.AuthorizationPolicy", return_value=policy),
+        patch('app.presentation.api.v1.routes.passport_routes.image_support.AuthorizationPolicy', return_value=policy),
         pytest.raises(HTTPException) as denied,
     ):
         await _authorized_staff_passport_image(
@@ -210,10 +210,10 @@ async def test_excel_placeholder_is_not_exposed_as_a_document() -> None:
 
     with (
         patch(
-            "app.presentation.api.v1.routes.passports.PassportSubmissionRepository",
+            'app.presentation.api.v1.routes.passport_routes.image_support.PassportSubmissionRepository',
             return_value=repository,
         ),
-        patch("app.presentation.api.v1.routes.passports.AuthorizationPolicy", return_value=policy),
+        patch('app.presentation.api.v1.routes.passport_routes.image_support.AuthorizationPolicy', return_value=policy),
         pytest.raises(HTTPException) as missing,
     ):
         await _authorized_staff_passport_image(
@@ -345,31 +345,31 @@ async def test_generated_visa_ai_image_is_uploaded_and_committed_to_library() ->
 
     with (
         patch(
-            "app.presentation.api.v1.routes.passports._authorized_staff_passport_image",
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_library._authorized_staff_passport_image',
             new=AsyncMock(return_value=(submission, submission.passport_photo_s3_key)),
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.MinioStorageRepository",
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_library.MinioStorageRepository',
             return_value=storage,
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.PassportImageCropRepository",
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_library.PassportImageCropRepository',
             return_value=crop_repository,
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.PassportSubmissionRepository",
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_library.PassportSubmissionRepository',
             return_value=submission_repository,
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.PassportVisaAiImageRepository",
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_library.PassportVisaAiImageRepository',
             return_value=library_repository,
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.GeminiVisaImageEditService",
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_library.GeminiVisaImageEditService',
             return_value=ai_service,
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.AuditLogRepository",
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_library.AuditLogRepository',
             return_value=audit_repository,
         ),
     ):
@@ -421,31 +421,31 @@ async def test_legacy_preview_signs_the_model_that_generated_the_image() -> None
 
     with (
         patch(
-            "app.presentation.api.v1.routes.passports._authorized_staff_passport_image",
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_edits._authorized_staff_passport_image',
             new=AsyncMock(return_value=(submission, submission.passport_photo_s3_key)),
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.PassportImageCropRepository",
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_edits.PassportImageCropRepository',
             return_value=crop_repository,
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.MinioStorageRepository",
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_edits.MinioStorageRepository',
             return_value=storage,
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.GeminiVisaImageEditService",
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_edits.GeminiVisaImageEditService',
             return_value=ai_service,
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.issue_passport_ai_edit_token",
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_edits.issue_passport_ai_edit_token',
             return_value="signed-preview-token",
         ) as issue_token,
         patch(
-            "app.presentation.api.v1.routes.passports.AuditLogRepository",
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_edits.AuditLogRepository',
             return_value=audit_repository,
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.get_settings",
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_edits.get_settings',
             return_value=SimpleNamespace(app_secret_key="test-secret"),
         ),
     ):
@@ -526,39 +526,39 @@ async def test_legacy_apply_persists_only_the_model_from_the_signed_token() -> N
 
     with (
         patch(
-            "app.presentation.api.v1.routes.passports._authorized_staff_passport_image",
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_edits._authorized_staff_passport_image',
             new=AsyncMock(return_value=(submission, submission.passport_photo_s3_key)),
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.verify_passport_ai_edit_token",
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_edits.verify_passport_ai_edit_token',
             return_value=SimpleNamespace(model="gemini-3-pro-image"),
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.render_passport_image_crop",
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_edits.render_passport_image_crop',
             side_effect=[canonical, rendered],
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.MinioStorageRepository",
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_edits.MinioStorageRepository',
             return_value=storage,
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.PassportSubmissionRepository",
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_edits.PassportSubmissionRepository',
             return_value=submission_repository,
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.PassportImageLibraryRepository",
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_edits.PassportImageLibraryRepository',
             return_value=library_repository,
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.PassportImageCropRepository",
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_edits.PassportImageCropRepository',
             return_value=crop_repository,
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.AuditLogRepository",
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_edits.AuditLogRepository',
             return_value=audit_repository,
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.get_settings",
+            'app.presentation.api.v1.routes.passport_routes.visa_ai_edits.get_settings',
             return_value=SimpleNamespace(
                 api_v1_prefix="/api/v1",
                 app_secret_key="test-secret",
@@ -619,22 +619,22 @@ async def test_stale_crop_save_returns_409_and_cleans_uncommitted_derivative() -
 
     with (
         patch(
-            "app.presentation.api.v1.routes.passports._authorized_staff_passport_image",
+            'app.presentation.api.v1.routes.passport_routes.images._authorized_staff_passport_image',
             new=AsyncMock(return_value=(submission, submission.image_s3_key)),
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.MinioStorageRepository", return_value=storage
+            'app.presentation.api.v1.routes.passport_routes.images.MinioStorageRepository', return_value=storage
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.PassportSubmissionRepository",
+            'app.presentation.api.v1.routes.passport_routes.images.PassportSubmissionRepository',
             return_value=submission_repository,
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.PassportImageCropRepository",
+            'app.presentation.api.v1.routes.passport_routes.images.PassportImageCropRepository',
             return_value=crop_repository,
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.render_passport_image_crop",
+            'app.presentation.api.v1.routes.passport_routes.images.render_passport_image_crop',
             return_value=rendered,
         ),
         pytest.raises(HTTPException) as conflict,

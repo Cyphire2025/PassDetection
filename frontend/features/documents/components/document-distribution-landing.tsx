@@ -4,12 +4,11 @@ import {
   FileCheck2,
   FileStack,
   Plane,
-  Route,
-  ShieldCheck,
+
+
 } from "lucide-react";
 import { IntentPrefetchLink } from "@/components/shared/intent-prefetch-link";
 import {
-  WorkspaceHeaderContext,
   WorkspacePageHeader,
 } from "@/components/shared/workspace-ui";
 import { ROUTES } from "@/constants/routes";
@@ -22,7 +21,7 @@ const DISTRIBUTION_CATEGORIES = [
     href: ROUTES.dashboard.documentDistributionVisa,
     icon: FileCheck2,
     action: "Choose a visa group",
-    detail: "One controlled visa workspace per group",
+    detail: "Review and distribute visas by group",
   },
   {
     title: "Flight Tickets",
@@ -39,21 +38,10 @@ export function DocumentDistributionLanding() {
   return (
     <div className="flex flex-col gap-5">
       <WorkspacePageHeader
-        eyebrow="Passenger document delivery"
         title="Document Distribution"
-        description="Choose the document family first. Each workflow keeps group selection, PDF checks, passenger matching, review, and delivery in one controlled path."
+        description="Choose visas or flight tickets, then select a group to review and distribute its documents."
         icon={FileStack}
         accent="cyan"
-        context={(
-          <>
-            <WorkspaceHeaderContext icon={Route}>
-              Two controlled workflows
-            </WorkspaceHeaderContext>
-            <WorkspaceHeaderContext icon={ShieldCheck}>
-              Review before delivery
-            </WorkspaceHeaderContext>
-          </>
-        )}
         actions={(
           <IntentPrefetchLink
             href={ROUTES.dashboard.documents}
@@ -70,9 +58,7 @@ export function DocumentDistributionLanding() {
         aria-labelledby="distribution-category-heading"
       >
         <div className="border-b border-slate-200 bg-slate-50/70 px-4 py-3.5 sm:px-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-            Document family
-          </p>
+
           <h2 id="distribution-category-heading" className="mt-0.5 font-semibold text-slate-950">
             What do you want to distribute?
           </h2>

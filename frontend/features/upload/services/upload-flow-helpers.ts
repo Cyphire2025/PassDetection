@@ -54,6 +54,7 @@ export function createFamilyMember(index: number): FamilyMember {
     submission: null,
     reviewFields: {},
     visaSelfie: null,
+    visaPhotoSource: null,
     uploadIdempotencyKey: createIdempotencyKey(),
     extractionNotice: null,
     canRetryExtraction: false,
@@ -80,6 +81,8 @@ export function emptyDocumentBundle(): PassportDocumentBundle {
   return {
     front: null,
     back: null,
+    cover: null,
+    back_cover: null,
     frontSource: null,
     backSource: null,
     frontManuallyCropped: false,

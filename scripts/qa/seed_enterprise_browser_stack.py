@@ -21,10 +21,11 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 BACKEND_ROOT = REPOSITORY_ROOT / "backend"
 sys.path.insert(0, str(BACKEND_ROOT))
 
-from app.core.security.identity_security import encrypt_mfa_secret  # noqa: E402
-from app.core.security.password import hash_password  # noqa: E402
-from app.domain.entities.entities import UserRole  # noqa: E402
-from app.infrastructure.database.models import (  # noqa: E402
+from app.core.config.settings import get_settings
+from app.core.security.identity_security import encrypt_mfa_secret
+from app.core.security.password import hash_password
+from app.domain.entities.entities import UserRole
+from app.infrastructure.database.models import (
     AgencyModel,
     AttendanceCloseoutCheckpointModel,
     AttendanceRecordModel,
@@ -34,7 +35,7 @@ from app.infrastructure.database.models import (  # noqa: E402
     UserModel,
     UserSecurityStateModel,
 )
-from app.infrastructure.database.session import (  # noqa: E402
+from app.infrastructure.database.session import (
     AsyncSessionFactory,
     engine,
 )
@@ -46,6 +47,11 @@ SESSION_ID = uuid.uuid5(NAMESPACE, "attendance-session")
 PASSENGER_IDS = tuple(uuid.uuid5(NAMESPACE, f"passenger-{index}") for index in range(3))
 MANAGER_PASSWORD = "Enterprise-Browser-QA-937!"
 MANAGERS = {
+    "admin": (
+        uuid.uuid5(NAMESPACE, "admin"),
+        "enterprise.browser.admin@example.test",
+        "ONSWG4TFOQXXGZLE",
+    ),
     "chromium": (
         uuid.uuid5(NAMESPACE, "manager-chromium"),
         "enterprise.browser.chromium@example.test",
@@ -66,6 +72,9 @@ PRIMARY_MANAGER_ID = MANAGERS["chromium"][0]
 
 
 async def seed() -> None:
+    settings = get_settings()
+    if not settings.is_development or not settings.database.db.startswith("passdetection_ci_"):
+        raise RuntimeError("Browser fixtures require a development passdetection_ci_ database")
     observed = datetime.now(tz=UTC)
     async with AsyncSessionFactory() as session:
         await session.execute(
@@ -81,23 +90,24 @@ async def seed() -> None:
         if agency is None:
             agency = AgencyModel(
                 id=AGENCY_ID,
-                name="Enterprise Browser QA",
+                name="Local Review Workspace",
                 email="enterprise.browser.agency@example.test",
             )
             session.add(agency)
         else:
-            agency.name = "Enterprise Browser QA"
+            agency.name = "Local Review Workspace"
             agency.is_active = True
 
         for project_name, (manager_id, email, _mfa_secret) in MANAGERS.items():
+            role = UserRole.SUPER_ADMIN.value if project_name == "admin" else UserRole.AGENCY_MANAGER.value
             manager = await session.get(UserModel, manager_id)
             if manager is None:
                 manager = UserModel(
                     id=manager_id,
                     email=email,
                     hashed_password=hash_password(MANAGER_PASSWORD),
-                    full_name=f"Enterprise Browser {project_name.title()} Manager",
-                    role=UserRole.AGENCY_MANAGER.value,
+                    full_name="Local Administrator" if project_name == "admin" else f"{project_name.title()} Manager",
+                    role=role,
                     agency_id=AGENCY_ID,
                     is_active=True,
                 )
@@ -105,8 +115,8 @@ async def seed() -> None:
             else:
                 manager.email = email
                 manager.hashed_password = hash_password(MANAGER_PASSWORD)
-                manager.full_name = f"Enterprise Browser {project_name.title()} Manager"
-                manager.role = UserRole.AGENCY_MANAGER.value
+                manager.full_name = "Local Administrator" if project_name == "admin" else f"{project_name.title()} Manager"
+                manager.role = role
                 manager.agency_id = AGENCY_ID
                 manager.is_active = True
                 manager.deleted_at = None
@@ -133,7 +143,7 @@ async def seed() -> None:
         if group is None:
             group = ClientGroupModel(
                 id=GROUP_ID,
-                name="Enterprise Browser Group",
+                name="Travel Review Group",
                 token="enterprise-browser-group-qa",
                 agency_id=AGENCY_ID,
                 status="active",
@@ -141,7 +151,7 @@ async def seed() -> None:
             )
             session.add(group)
         else:
-            group.name = "Enterprise Browser Group"
+            group.name = "Travel Review Group"
             group.status = "active"
             group.created_by_user_id = PRIMARY_MANAGER_ID
             group.deleted_at = None
@@ -191,6 +201,12 @@ async def seed() -> None:
                 passenger.client_name = f"Browser Passenger {index}"
                 passenger.status = "confirmed"
                 passenger.updated_at = observed
+        from dashboard_visual_fixtures import seed_visual_records
+
+        await seed_visual_records(
+            session, namespace=NAMESPACE, agency_id=AGENCY_ID, group_id=GROUP_ID,
+            owner_id=MANAGERS["admin"][0], passenger_ids=PASSENGER_IDS,
+        )
         await session.commit()
 
     print(
@@ -208,6 +224,7 @@ async def seed() -> None:
                 "group_id": str(GROUP_ID),
                 "session_id": str(SESSION_ID),
                 "passenger_count": len(PASSENGER_IDS),
+                "passenger_ids": [str(value) for value in PASSENGER_IDS],
             },
             sort_keys=True,
         )

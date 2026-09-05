@@ -27,24 +27,41 @@ services:
     ports: !reset []
 
   db:
+    mem_limit: ${POSTGRES_MEMORY_LIMIT:-2g}
+    cpus: ${POSTGRES_CPUS:-2.0}
     ports: !reset []
 
   redis:
+    mem_limit: ${REDIS_SECURITY_MEMORY_LIMIT:-384m}
+    cpus: ${REDIS_SECURITY_CPUS:-0.5}
     ports: !reset []
 
   redis-broker:
+    mem_limit: ${REDIS_BROKER_MEMORY_LIMIT:-1536m}
+    cpus: ${REDIS_BROKER_CPUS:-1.0}
     ports: !reset []
 
   redis-realtime:
+    mem_limit: ${REDIS_REALTIME_MEMORY_LIMIT:-256m}
+    cpus: ${REDIS_REALTIME_CPUS:-0.5}
     ports: !reset []
 
   redis-cache:
+    mem_limit: ${REDIS_CACHE_MEMORY_LIMIT:-384m}
+    cpus: ${REDIS_CACHE_CPUS:-0.5}
     ports: !reset []
 
   minio:
+    mem_limit: ${MINIO_MEMORY_LIMIT:-1g}
+    cpus: ${MINIO_CPUS:-1.0}
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Set a separate MinIO administrator identity}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Set a separate MinIO administrator secret}
     ports: !reset []
 
   backend:
+    mem_limit: ${BACKEND_MEMORY_LIMIT:-1536m}
+    cpus: ${BACKEND_CPUS:-2.0}
     command: null
     volumes: !reset []
     ports: !reset []
@@ -66,46 +83,64 @@ services:
           'http://localhost:8000/api/v1/health/ready', timeout=5)
 
   worker:
+    mem_limit: ${WORKER_MEMORY_LIMIT:-1g}
+    cpus: ${WORKER_CPUS:-1.0}
     volumes: !reset []
     environment:
       <<: *production-security-environment
 
   email-worker:
+    mem_limit: ${EMAIL_WORKER_MEMORY_LIMIT:-1g}
+    cpus: ${EMAIL_WORKER_CPUS:-1.0}
     volumes: !reset []
     environment:
       <<: *production-security-environment
 
   my-photos-worker:
+    mem_limit: ${MY_PHOTOS_WORKER_MEMORY_LIMIT:-1536m}
+    cpus: ${MY_PHOTOS_WORKER_CPUS:-2.0}
     volumes: !reset []
     environment:
       <<: *production-security-environment
 
   email-ai-worker:
+    mem_limit: ${EMAIL_AI_WORKER_MEMORY_LIMIT:-1g}
+    cpus: ${EMAIL_AI_WORKER_CPUS:-1.0}
     volumes: !reset []
     environment:
       <<: *production-security-environment
 
   email-beat:
+    mem_limit: ${SCHEDULER_MEMORY_LIMIT:-384m}
+    cpus: ${SCHEDULER_CPUS:-0.5}
     volumes: !reset []
     environment:
       <<: *production-security-environment
 
   extraction-worker:
+    mem_limit: ${EXTRACTION_WORKER_MEMORY_LIMIT:-2g}
+    cpus: ${EXTRACTION_WORKER_CPUS:-2.0}
     volumes: !reset []
     environment:
       <<: *production-security-environment
 
   verification-worker:
+    mem_limit: ${VERIFICATION_WORKER_MEMORY_LIMIT:-1g}
+    cpus: ${VERIFICATION_WORKER_CPUS:-1.0}
     volumes: !reset []
     environment:
       <<: *production-security-environment
 
   visa-ai-worker:
+    mem_limit: ${VISA_AI_WORKER_MEMORY_LIMIT:-1g}
+    cpus: ${VISA_AI_WORKER_CPUS:-1.0}
     volumes: !reset []
     environment:
       <<: *production-security-environment
 
   frontend:
+    mem_limit: ${FRONTEND_MEMORY_LIMIT:-768m}
+    cpus: ${FRONTEND_CPUS:-1.0}
     build:
       args:
         NEXT_PUBLIC_API_BASE_URL: ""
@@ -115,3 +150,7 @@ services:
       NEXT_PUBLIC_API_BASE_URL: ""
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
       NEXT_PUBLIC_DEV_APP_URL: ""
+
+  nginx:
+    mem_limit: ${NGINX_MEMORY_LIMIT:-128m}
+    cpus: ${NGINX_CPUS:-0.5}

@@ -116,9 +116,12 @@ def test_document_distribution_route_order_and_names_remain_stable() -> None:
         for route in document_distribution.router.routes
     ]
     assert actual == _EXPECTED_ROUTES
-    assert _decorated_route_names(document_distribution) == [
-        route_name for _, _, route_name in actual
-    ]
+    assert _decorated_route_names(document_distribution) == []
+    for route in document_distribution.router.routes:
+        assert route.endpoint is getattr(document_distribution, route.name)
+        assert inspect.unwrap(route.endpoint).__module__.startswith(
+            document_distribution.__name__ + "_"
+        )
 
 
 def test_document_distribution_support_modules_do_not_register_routes() -> None:

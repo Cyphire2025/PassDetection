@@ -263,10 +263,15 @@ async def run_whatsapp_broadcast(
         support_block = format_support_contacts(
             [(contact.name, contact.phone_number) for contact in support_contacts]
         )
+        # Rollback expires every ORM instance in the session, including primary
+        # keys and the broadcast loaded above. Keep only immutable values across
+        # recipient transactions and explicitly load each successfully claimed row.
+        log_ids = tuple(log.id for log in logs)
+        group_name = group.name
 
         last_batch_heartbeat_at = datetime.now(tz=UTC)
         async with httpx.AsyncClient(timeout=timeout) as client:
-            for log in logs:
+            for log_id in log_ids:
                 heartbeat_at = datetime.now(tz=UTC)
                 if heartbeat_at - last_batch_heartbeat_at >= WHATSAPP_BATCH_HEARTBEAT_INTERVAL:
                     await _heartbeat_queued_batch_claims(
@@ -279,7 +284,7 @@ async def run_whatsapp_broadcast(
                 claim_result = await session.execute(
                     update(WhatsAppMessageLogModel)
                     .where(
-                        WhatsAppMessageLogModel.id == log.id,
+                        WhatsAppMessageLogModel.id == log_id,
                         WhatsAppMessageLogModel.status == "queued",
                     )
                     .values(
@@ -293,7 +298,9 @@ async def run_whatsapp_broadcast(
                 if not claimed_id:
                     await session.rollback()
                     current_log_result = await session.execute(
-                        select(WhatsAppMessageLogModel).where(WhatsAppMessageLogModel.id == log.id)
+                        select(WhatsAppMessageLogModel)
+                        .where(WhatsAppMessageLogModel.id == log_id)
+                        .with_for_update()
                     )
                     current_log = current_log_result.scalar_one_or_none()
                     if current_log and current_log.status == "processing":
@@ -312,6 +319,12 @@ async def run_whatsapp_broadcast(
                         )
                         await session.commit()
                     continue
+                claimed_log_result = await session.execute(
+                    select(WhatsAppMessageLogModel)
+                    .where(WhatsAppMessageLogModel.id == log_id)
+                    .execution_options(populate_existing=True)
+                )
+                log = claimed_log_result.scalar_one()
                 if not getattr(log, "is_explicit_resend", False):
                     state_claim_result = await session.execute(
                         update(WhatsAppRecipientMessageStateModel)
@@ -367,7 +380,7 @@ async def run_whatsapp_broadcast(
 
                 fallback_parameters = template_parameters(
                     message_type=message_type,
-                    group_name=group.name,
+                    group_name=group_name,
                     support_contacts=support_block,
                     message_content=message_content,
                     passport_link=passport_link,
@@ -500,8 +513,9 @@ async def run_whatsapp_broadcast(
                         )
                         reconciliation_log = reconciliation_result.scalar_one_or_none()
                         if reconciliation_log:
-                            reconciliation_log.status = "submitted"
-                            reconciliation_log.status_updated_at = datetime.now(tz=UTC)
+                            if reconciliation_log.status not in ACCEPTED_DELIVERY_STATUSES:
+                                reconciliation_log.status = "submitted"
+                                reconciliation_log.status_updated_at = datetime.now(tz=UTC)
                             reconciliation_log.provider_message_id = provider_id
                             reconciliation_log.error_message = None
                             await _set_message_state(

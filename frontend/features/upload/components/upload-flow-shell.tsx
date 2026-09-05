@@ -1,8 +1,23 @@
 import type { ReactNode } from "react";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { BrandLogo } from "@/components/brand/brand-logo";
+import { isValidPassportIsoDate } from "@/lib/utils/passport-date";
 
-export function UploadHeader({ groupName }: { groupName: string }) {
+const travelDateFormatter = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric", month: "short", year: "numeric", timeZone: "UTC",
+});
+
+export function UploadHeader({ groupName, departureDate, returnDate }: {
+  groupName: string;
+  departureDate?: string | null;
+  returnDate?: string | null;
+}) {
+  const travelDates = [
+    { label: "Departure Date", value: departureDate?.trim() },
+    { label: "Return Date", value: returnDate?.trim() },
+  ].flatMap(({ label, value }) => value && isValidPassportIsoDate(value)
+    ? [{ label, value, display: travelDateFormatter.format(new Date(`${value}T00:00:00Z`)) }]
+    : []);
   return (
     <div className="mb-5 text-center sm:mb-8 lg:mb-10">
       <BrandLogo
@@ -16,6 +31,16 @@ export function UploadHeader({ groupName }: { groupName: string }) {
       <div className="mt-2 inline-flex max-w-full rounded-full bg-blue-50 px-3 py-1 font-semibold text-blue-600">
         <span className="truncate">{groupName}</span>
       </div>
+      {travelDates.length > 0 && (
+        <dl className="mx-auto mt-3 flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm">
+          {travelDates.map(({ label, value, display }) => (
+            <div key={label}>
+              <dt className="text-xs font-medium text-slate-500">{label}</dt>
+              <dd className="mt-0.5 font-semibold text-slate-800"><time dateTime={value}>{display}</time></dd>
+            </div>
+          ))}
+        </dl>
+      )}
     </div>
   );
 }

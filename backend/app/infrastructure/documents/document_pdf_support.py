@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import math
 import time
-from collections.abc import Callable, Mapping
+import unicodedata
+from collections.abc import Callable, Iterator, Mapping
+from contextlib import contextmanager
 from dataclasses import dataclass
 from io import BytesIO
 from typing import Any
@@ -36,6 +39,67 @@ class DocumentOcrUnavailableError(RuntimeError):
     """Image-only PDF OCR exhausted its bounded runtime and may be retried."""
 
 
+@contextmanager
+def _pdf_resource(resource: Any) -> Iterator[Any]:
+    """Release native allocations at page boundaries, including failed OCR."""
+
+    try:
+        yield resource
+    finally:
+        close = getattr(resource, "close", None)
+        if callable(close):
+            close()
+
+
+def _bounded_render_scale(page: Any, limits: PdfProcessingLimits) -> float:
+    """Enforce the pixel budget before PDFium allocates the render bitmap."""
+
+    get_size = getattr(page, "get_size", None)
+    if not callable(get_size):
+        return limits.ocr_render_scale
+    width, height = get_size()
+    if not (math.isfinite(width) and math.isfinite(height) and width > 0 and height > 0):
+        raise ValueError("Invalid PDF page dimensions")
+    scale = limits.ocr_render_scale
+    # PDFium rounds each dimension up. Account for that rounding before render.
+    if math.ceil(width * scale) * math.ceil(height * scale) > limits.max_ocr_pixels:
+        scale = min(
+            math.sqrt(limits.max_ocr_pixels / (width * height)),
+            limits.max_ocr_pixels / max(width, height),
+        )
+        while math.ceil(width * scale) * math.ceil(height * scale) > limits.max_ocr_pixels:
+            scale *= 0.99
+    return scale
+
+
+def _normalize_pdf_text(text: str) -> str:
+    """Normalize equivalent printed glyphs without guessing identity characters."""
+
+    text = unicodedata.normalize("NFKC", text)
+    text = text.translate({ord(char): None for char in "\u00ad\u200b\ufeff"})
+    return "\n".join(" ".join(line.split()) for line in text.splitlines() if line.strip())
+
+
+def _ocr_page(image: Any, *, pytesseract: Any, deadline: float) -> str:
+    """Keep the successful block layout; try sparse layout only on empty OCR."""
+
+    for layout in (6, 11):
+        remaining_seconds = deadline - time.monotonic()
+        if remaining_seconds <= 0.25:
+            raise DocumentOcrUnavailableError("PDF OCR time budget exhausted")
+        text = str(
+            pytesseract.image_to_string(
+                image,
+                lang="eng",
+                config=f"--oem 1 --psm {layout}",
+                timeout=remaining_seconds,
+            )
+        )
+        if text.strip():
+            return text
+    return ""
+
+
 def ocr_validated_image_only_pdf(
     content: bytes,
     *,
@@ -50,38 +114,36 @@ def ocr_validated_image_only_pdf(
     try:
         import pytesseract
 
-        document = pdfium.PdfDocument(content)
         page_texts: list[str] = []
         text_length = 0
-        page_count = min(len(document), limits.max_ocr_pages)
-        for page_index in range(page_count):
-            remaining_seconds = limits.max_ocr_seconds - (time.monotonic() - started_at)
-            if remaining_seconds <= 0.25:
-                break
-            page = document[page_index]
-            bitmap = page.render(scale=limits.ocr_render_scale)
-            image = bitmap.to_pil()
-            if image.width * image.height > limits.max_ocr_pixels:
-                image.thumbnail((2000, 2000))
-            try:
-                page_text = pytesseract.image_to_string(
-                    image,
-                    lang="eng",
-                    config="--oem 1 --psm 6",
-                    timeout=max(0.25, remaining_seconds),
-                )
-            except RuntimeError as exc:
-                if page_texts:
+        with _pdf_resource(pdfium.PdfDocument(content)) as document:
+            page_count = min(len(document), limits.max_ocr_pages)
+            for page_index in range(page_count):
+                remaining_seconds = limits.max_ocr_seconds - (time.monotonic() - started_at)
+                if remaining_seconds <= 0.25:
+                    if not any(page_texts):
+                        raise DocumentOcrUnavailableError("PDF OCR time budget exhausted")
                     break
-                raise DocumentOcrUnavailableError from exc
-            normalized = "\n".join(
-                " ".join(line.split()) for line in page_text.splitlines() if line.strip()
-            )
-            remaining_chars = limits.max_text_chars - text_length
-            if remaining_chars <= 0:
-                break
-            page_texts.append(normalized[:remaining_chars])
-            text_length += min(len(normalized), remaining_chars)
+                try:
+                    with _pdf_resource(document[page_index]) as page:
+                        scale = _bounded_render_scale(page, limits)
+                        with _pdf_resource(page.render(scale=scale)) as bitmap:
+                            with _pdf_resource(bitmap.to_pil()) as image:
+                                page_text = _ocr_page(
+                                    image,
+                                    pytesseract=pytesseract,
+                                    deadline=started_at + limits.max_ocr_seconds,
+                                )
+                except RuntimeError as exc:
+                    if any(page_texts):
+                        break
+                    raise DocumentOcrUnavailableError from exc
+                normalized = _normalize_pdf_text(page_text)
+                remaining_chars = limits.max_text_chars - text_length
+                if remaining_chars <= 0:
+                    break
+                page_texts.append(normalized[:remaining_chars])
+                text_length += min(len(normalized), remaining_chars)
         return "\n".join(page_texts)[: limits.max_text_chars]
     except DocumentOcrUnavailableError:
         raise
@@ -132,10 +194,7 @@ def read_pdf_text_with_pypdf(
                 return _PdfTextRead("", False)
             if not page_text:
                 continue
-            normalized_lines = [
-                " ".join(line.split()) for line in page_text.splitlines() if line.strip()
-            ]
-            normalized = "\n".join(normalized_lines)
+            normalized = _normalize_pdf_text(page_text)
             remaining = limits.max_text_chars - text_length
             if remaining <= 0:
                 break
@@ -162,23 +221,24 @@ def extract_pdf_text_with_pdfium(
     if pdfium is None:
         return None
     try:
-        document = pdfium.PdfDocument(content)
         page_texts: list[str] = []
         text_length = 0
-        for page_index in range(min(len(document), limits.max_text_layer_pages)):
-            if time.monotonic() > deadline:
-                return None
-            page = document[page_index]
-            text_page = page.get_textpage()
-            page_text = text_page.get_text_range()[: limits.max_page_text_chars]
-            normalized = "\n".join(
-                " ".join(line.split()) for line in page_text.splitlines() if line.strip()
-            )
-            remaining = limits.max_text_chars - text_length
-            if remaining <= 0:
-                break
-            page_texts.append(normalized[:remaining])
-            text_length += min(len(normalized), remaining)
+        with _pdf_resource(pdfium.PdfDocument(content)) as document:
+            for page_index in range(min(len(document), limits.max_text_layer_pages)):
+                remaining = limits.max_text_chars - text_length
+                if remaining <= 0:
+                    break
+                if time.monotonic() > deadline:
+                    return None
+                with _pdf_resource(document[page_index]) as page:
+                    with _pdf_resource(page.get_textpage()) as text_page:
+                        char_limit = min(limits.max_page_text_chars, remaining)
+                        page_text = text_page.get_text_range(
+                            count=min(text_page.count_chars(), char_limit)
+                        )
+                normalized = _normalize_pdf_text(page_text)
+                page_texts.append(normalized[:remaining])
+                text_length += min(len(normalized), remaining)
         return "\n".join(page_texts)[: limits.max_text_chars]
     except Exception:
         # pypdf remains the compatibility fallback for valid PDFs PDFium cannot decode.
@@ -199,8 +259,7 @@ def has_active_pdf_features(
     if not isinstance(root, Mapping):
         return True
     if any(
-        key in root
-        for key in ("/OpenAction", "/AA", "/AF", "/Collection", "/JavaScript", "/JS")
+        key in root for key in ("/OpenAction", "/AA", "/AF", "/Collection", "/JavaScript", "/JS")
     ):
         return True
 

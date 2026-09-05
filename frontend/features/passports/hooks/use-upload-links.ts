@@ -4,6 +4,8 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
+import { QUERY_KEYS as DASHBOARD_QUERY_KEYS } from "@/constants";
+import type { PassportGroupSummary } from "@/types/passport.types";
 import {
   uploadLinksApi,
   type CreateUploadLinkRequest,
@@ -88,11 +90,23 @@ export function useUpdateUploadLink() {
 
   return useMutation({
     mutationFn: ({ id, ...data }: UpdateUploadLinkRequest & { id: string }) => uploadLinksApi.update(id, data),
-    onSuccess: (_response, variables) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
-      queryClient.invalidateQueries({
-        queryKey: ["passport-export-fields", variables.id],
-      });
+    onSuccess: async (response, variables) => {
+      // Trip editing reads the group summary cache. Merge the saved response
+      // immediately so reopening the dialog cannot restore stale controls.
+      queryClient.setQueryData<PassportGroupSummary[]>(
+        DASHBOARD_QUERY_KEYS.passports.groups(),
+        (groups) => groups?.map((group) => group.group_id === response.id ? {
+          ...group,
+          ...response,
+          group_name: response.name,
+          group_status: response.status === "deleted" ? group.group_status : response.status,
+        } : group),
+      );
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all }),
+        queryClient.invalidateQueries({ queryKey: DASHBOARD_QUERY_KEYS.passports.groups() }),
+        queryClient.invalidateQueries({ queryKey: ["passport-export-fields", variables.id] }),
+      ]);
     },
   });
 }

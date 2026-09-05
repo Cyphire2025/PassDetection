@@ -56,20 +56,20 @@ export function EmailIntegrationsShell({
     <div className="space-y-6">
       <nav
         aria-label="Email integrations"
-        className="overflow-x-auto border-b border-slate-200"
+        className="sm:border-b sm:border-slate-200"
       >
-        <ul className="flex min-w-max gap-6" role="list">
+        <ul className="grid grid-cols-2 gap-1 sm:flex sm:flex-wrap sm:gap-6" role="list">
           {SECTION_LINKS.map((link) => {
             const isActive =
               link.href === ROUTES.dashboard.emailIntegrations
                 ? pathname === link.href
                 : pathname === link.href || pathname.startsWith(`${link.href}/`);
             return (
-              <li key={link.href}>
+              <li key={link.href} className="min-w-0">
                 <Link
                   href={link.href as never}
                   aria-current={isActive ? "page" : undefined}
-                  className={`block border-b-2 px-1 pb-3 text-sm font-medium transition-colors ${
+                  className={`flex min-h-11 items-center border-b-2 px-2 py-2 text-sm font-medium transition-colors sm:px-1 sm:pb-3 ${
                     isActive
                       ? "border-blue-600 text-blue-700"
                       : "border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-900"

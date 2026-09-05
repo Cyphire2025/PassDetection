@@ -1,6 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import { Badge, Button } from "@/components/ui";
+import { ROUTES } from "@/constants/routes";
+import { formatRelativeTime } from "@/lib/utils/format";
+import { selectUser, useAuthStore } from "@/stores/auth.store";
 import {
   Bell,
   Check,
@@ -9,25 +12,14 @@ import {
   RefreshCw,
   X,
 } from "lucide-react";
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { Badge, Button } from "@/components/ui";
-import { ROUTES } from "@/constants/routes";
-import { formatRelativeTime } from "@/lib/utils/format";
-import { selectUser, useAuthStore } from "@/stores/auth.store";
+import Link from "next/link";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   useMarkAllNotificationsRead,
   useMarkNotificationRead,
   useNotificationFeed,
 } from "../hooks/use-notifications";
-import type {
-  NotificationPriority,
-  OperationalNotification,
-} from "../types";
+import type { NotificationPriority, OperationalNotification } from "../types";
 import {
   notificationTargetRoute,
   readNotificationMetadata,
@@ -76,8 +68,8 @@ export function NotificationBell() {
 
     const handlePointerDown = (event: PointerEvent) => {
       if (
-        containerRef.current
-        && !containerRef.current.contains(event.target as Node)
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
       }
@@ -105,8 +97,8 @@ export function NotificationBell() {
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
       if (
-        event.shiftKey
-        && (document.activeElement === first || document.activeElement === panel)
+        event.shiftKey &&
+        (document.activeElement === first || document.activeElement === panel)
       ) {
         event.preventDefault();
         last.focus();
@@ -271,7 +263,8 @@ export function NotificationBell() {
                     key={notification.id}
                     notification={notification}
                     isMarkingRead={
-                      markRead.isPending && markRead.variables === notification.id
+                      markRead.isPending &&
+                      markRead.variables === notification.id
                     }
                     onOpen={() => {
                       if (!notification.is_read) {
@@ -303,6 +296,21 @@ export function NotificationBell() {
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 bg-slate-50 px-4 py-3">
+            {feed.isBrowsingHistory && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => void feed.returnToLatest()}
+              >
+                Return to latest
+              </Button>
+            )}
+            {feed.historyError && (
+              <p role="alert" className="px-4 py-2 text-sm text-red-700">
+                Older items could not be loaded. Try loading more again.
+              </p>
+            )}
             {feed.hasNextPage ? (
               <Button
                 type="button"
@@ -314,7 +322,9 @@ export function NotificationBell() {
                 Load older
               </Button>
             ) : (
-              <span className="text-xs text-slate-500">Latest updates shown</span>
+              <span className="text-xs text-slate-500">
+                Latest updates shown
+              </span>
             )}
             <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-1">
               <Link
@@ -353,8 +363,8 @@ function NotificationRow({
 }) {
   const target = notificationTargetRoute(notification);
   const account =
-    readNotificationMetadata(notification.metadata, "account_email")
-    ?? readNotificationMetadata(notification.metadata, "email_address");
+    readNotificationMetadata(notification.metadata, "account_email") ??
+    readNotificationMetadata(notification.metadata, "email_address");
   const provider = readNotificationMetadata(notification.metadata, "provider");
   const group = readNotificationMetadata(notification.metadata, "group_name");
 
@@ -469,7 +479,10 @@ function NotificationSkeletons() {
   return (
     <div aria-label="Loading notifications">
       {Array.from({ length: 4 }, (_, index) => (
-        <div key={index} className="space-y-2 border-b border-slate-100 px-4 py-4">
+        <div
+          key={index}
+          className="space-y-2 border-b border-slate-100 px-4 py-4"
+        >
           <div className="h-4 w-20 animate-pulse rounded bg-slate-200" />
           <div className="h-4 w-4/5 animate-pulse rounded bg-slate-200" />
           <div className="h-3 w-full animate-pulse rounded bg-slate-100" />

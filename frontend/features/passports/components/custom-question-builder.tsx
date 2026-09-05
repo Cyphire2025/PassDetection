@@ -18,6 +18,7 @@ const createQuestion = (): CustomUploadQuestion => ({
   label: "",
   options: ["", ""],
   enabled: true,
+  required: true,
 });
 
 export function CustomQuestionBuilder({
@@ -75,9 +76,11 @@ export function CustomQuestionBuilder({
         >
           <GroupOptionToggle
             label={question.label.trim() || `Custom question ${questionIndex + 1}`}
-            description="Travellers must choose one of the options below when this is enabled."
+            description="Let travellers choose one of the options below."
             checked={question.enabled}
             onChange={(enabled) => updateQuestion(questionIndex, { enabled })}
+            required={question.required ?? true}
+            onRequiredChange={(required) => updateQuestion(questionIndex, { required })}
             borderless
             disabled={disabled}
           />

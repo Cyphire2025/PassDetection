@@ -40,16 +40,12 @@ def test_main_authenticated_whatsapp_mutations_require_cookie_csrf() -> None:
             for route in whatsapp_router.routes
             if route.path == path and method in route.methods
         )
-        dependencies = {
-            dependency.call.__name__ for dependency in route.dependant.dependencies
-        }
+        dependencies = {dependency.call.__name__ for dependency in route.dependant.dependencies}
         assert "require_cookie_csrf" in dependencies, (path, method)
 
     for path in ("/webhook", "/contacts/preview", "/groups/{group_id}/preview"):
         route = next(route for route in whatsapp_router.routes if route.path == path)
-        dependencies = {
-            dependency.call.__name__ for dependency in route.dependant.dependencies
-        }
+        dependencies = {dependency.call.__name__ for dependency in route.dependant.dependencies}
         assert "require_cookie_csrf" not in dependencies
 
 
@@ -74,9 +70,7 @@ def test_attendance_qr_lifecycle_mutations_require_cookie_csrf() -> None:
             for route in tour_operations_router.routes
             if route.path == path and method in route.methods
         )
-        dependencies = {
-            dependency.call.__name__ for dependency in route.dependant.dependencies
-        }
+        dependencies = {dependency.call.__name__ for dependency in route.dependant.dependencies}
         assert "require_cookie_csrf" in dependencies, (path, method)
 
 

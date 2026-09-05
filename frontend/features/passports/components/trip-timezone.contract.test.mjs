@@ -6,10 +6,7 @@ const apiSource = readFileSync(
   new URL("../api/upload-links.api.ts", import.meta.url),
   "utf8",
 );
-const detailSource = readFileSync(
-  new URL("./passport-group-detail.tsx", import.meta.url),
-  "utf8",
-);
+import { passportGroupDetailSource as detailSource } from "./passport-group-detail-source.contract-helper.mjs";
 const dialogSource = readFileSync(
   new URL("./passport-trip-details-dialog.tsx", import.meta.url),
   "utf8",
@@ -25,7 +22,7 @@ const policySource = readFileSync(
 
 test("trip timezone is round-tripped by create, response, and edit contracts", () => {
   assert.equal((apiSource.match(/timezone[?]?: string/g) ?? []).length >= 3, true);
-  assert.match(detailSource, /timezone: groupDetails\.timezone \?\? DEFAULT_TRIP_TIMEZONE/);
+  assert.match(detailSource, /timezone:\s*groupDetails\.timezone \?\? DEFAULT_TRIP_TIMEZONE/);
   assert.match(detailSource, /timezone: tripForm\.timezone\.trim\(\)/);
   assert.match(detailSource, /label="Trip Timezone"/);
   assert.match(dialogSource, /<TripTimeZoneField/);

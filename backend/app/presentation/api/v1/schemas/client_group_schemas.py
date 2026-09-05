@@ -15,6 +15,7 @@ from app.domain.value_objects.trip_timezone import (
     DEFAULT_TRIP_TIMEZONE,
     normalize_trip_timezone,
 )
+from app.domain.value_objects.upload_configuration import UploadConfiguration
 
 
 def _normalize_departure_cities(values: list[str] | None) -> list[str]:
@@ -49,6 +50,7 @@ class CustomQuestionRequest(BaseModel):
     label: str = Field(..., min_length=1, max_length=100)
     options: list[str] = Field(..., min_length=2, max_length=50)
     enabled: bool = True
+    required: bool = True
 
     @field_validator("options", mode="before")
     @classmethod
@@ -79,6 +81,7 @@ class CustomDetailRequest(BaseModel):
     id: uuid.UUID
     label: str = Field(..., min_length=1, max_length=100)
     enabled: bool = True
+    required: bool = True
 
 
 class CustomDetailResponse(CustomDetailRequest):
@@ -101,6 +104,7 @@ class CreateClientGroupRequest(BaseModel):
     agent_employee_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
+    upload_configuration: UploadConfiguration | None = None
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False
@@ -167,6 +171,7 @@ class UpdateClientGroupRequest(BaseModel):
     agent_employee_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
+    upload_configuration: UploadConfiguration | None = None
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False
@@ -259,6 +264,7 @@ class ClientGroupResponse(BaseModel):
     agent_employee_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
+    upload_configuration: UploadConfiguration | None = None
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False

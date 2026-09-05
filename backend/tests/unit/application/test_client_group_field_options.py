@@ -238,7 +238,7 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
         cases = (
             ("base_city", {"base_city_enabled": True}),
             ("staff_code", {"staff_code_enabled": True}),
-            ("agent_employee_type", {"agent_employee_code_enabled": True}),
+            ("agent_employee_code", {"agent_employee_code_enabled": True}),
             ("designation", {"designation_enabled": True}),
             (
                 "agency_dealership_name",

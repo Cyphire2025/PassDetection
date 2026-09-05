@@ -41,11 +41,13 @@ from app.presentation.api.v1.routes.whatsapp import (
     resolve_broadcast_rejected_contact,
     send_broadcast_message,
 )
+from tests.route_dependencies import patch_route_dependency, set_route_dependency
 
 
 @pytest.fixture(autouse=True)
 def _isolate_mobile_passenger_reconciliation(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         whatsapp_routes,
         "reconcile_mobile_passenger_access_for_broadcast",
         AsyncMock(),
@@ -171,7 +173,7 @@ async def test_send_rejects_legacy_group_with_more_than_1500_active_recipients()
         role=UserRole.AGENCY_ADMIN,
     )
 
-    with patch(
+    with patch_route_dependency(
         "app.presentation.api.v1.routes.whatsapp._group_recipients",
         new=AsyncMock(return_value=recipients),
     ):
@@ -217,11 +219,11 @@ async def test_create_group_accepts_1500_manual_recipients_and_rejects_1501() ->
         return group
 
     with (
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp._group_detail",
             new=AsyncMock(side_effect=return_group),
         ),
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp._lock_active_whatsapp_actor",
             new=AsyncMock(return_value=actor),
         ),
@@ -293,7 +295,7 @@ async def test_add_recipients_rejects_aggregate_count_above_1500() -> None:
     )
 
     with (
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp._lock_active_whatsapp_actor",
             new=AsyncMock(
                 return_value=SimpleNamespace(
@@ -464,15 +466,15 @@ async def test_rejected_contact_reactivation_enforces_1500_boundary(
         session=session,
     )
     with (
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp._group_detail",
             new=AsyncMock(return_value=group),
         ),
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp.suppress_active_replacement_recipients",
             new=AsyncMock(),
         ),
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp._prepare_private_recipient_mutation",
             new=AsyncMock(),
         ),

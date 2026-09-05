@@ -18,6 +18,7 @@ from app.presentation.api.v1.routes import document_distribution
 from app.presentation.api.v1.schemas.document_distribution_schemas import (
     SendDocumentBroadcastRequest,
 )
+from tests.route_dependencies import set_route_dependency
 
 
 def test_document_whatsapp_send_accepts_full_bulk_selection() -> None:
@@ -107,26 +108,38 @@ def _passenger(
 def test_document_delivery_polling_is_lifecycle_bounded() -> None:
     now = datetime(2026, 8, 2, 12, 0, tzinfo=UTC)
 
-    assert document_distribution._document_delivery_poll_after_seconds(
-        status_counts={"processing": 1},
-        latest_status_updates={},
-        now=now,
-    ) == 5
-    assert document_distribution._document_delivery_poll_after_seconds(
-        status_counts={"submitted": 1},
-        latest_status_updates={"submitted": now},
-        now=now,
-    ) == 10
-    assert document_distribution._document_delivery_poll_after_seconds(
-        status_counts={"sent": 1},
-        latest_status_updates={"sent": now.replace(hour=11, minute=54)},
-        now=now,
-    ) is None
-    assert document_distribution._document_delivery_poll_after_seconds(
-        status_counts={"delivery_unknown": 1, "failed": 1},
-        latest_status_updates={"delivery_unknown": now},
-        now=now,
-    ) is None
+    assert (
+        document_distribution._document_delivery_poll_after_seconds(
+            status_counts={"processing": 1},
+            latest_status_updates={},
+            now=now,
+        )
+        == 5
+    )
+    assert (
+        document_distribution._document_delivery_poll_after_seconds(
+            status_counts={"submitted": 1},
+            latest_status_updates={"submitted": now},
+            now=now,
+        )
+        == 10
+    )
+    assert (
+        document_distribution._document_delivery_poll_after_seconds(
+            status_counts={"sent": 1},
+            latest_status_updates={"sent": now.replace(hour=11, minute=54)},
+            now=now,
+        )
+        is None
+    )
+    assert (
+        document_distribution._document_delivery_poll_after_seconds(
+            status_counts={"delivery_unknown": 1, "failed": 1},
+            latest_status_updates={"delivery_unknown": now},
+            now=now,
+        )
+        is None
+    )
 
 
 @pytest.mark.asyncio
@@ -181,7 +194,7 @@ async def test_linked_excel_code_requires_unique_scoped_passenger_match(monkeypa
             [scoped_recipient, foreign_recipient],
         )
     )
-    monkeypatch.setattr(document_distribution, "_linked_whatsapp_recipients", linked)
+    set_route_dependency(monkeypatch, document_distribution, "_linked_whatsapp_recipients", linked)
 
     identifiers = await document_distribution._linked_document_match_identifiers(
         AsyncMock(),
@@ -222,7 +235,8 @@ async def test_linked_excel_code_is_not_attached_to_ambiguous_passengers(
         )
         for name in ("Asha Mehta", "Ravi Sharma")
     ]
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_linked_whatsapp_recipients",
         AsyncMock(return_value=({broadcast_id: "Vietnam group"}, [recipient])),
@@ -280,12 +294,14 @@ async def test_private_document_preview_blocks_shared_whatsapp_destination(
     session.execute = AsyncMock(
         side_effect=[submissions_result, documents_result, deliveries_result]
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_linked_whatsapp_recipients",
         AsyncMock(return_value=({broadcast_id: "Vietnam group"}, [recipient])),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "compare_group_submissions",
         lambda *_args, **_kwargs: (
@@ -313,9 +329,9 @@ async def test_private_document_preview_blocks_shared_whatsapp_destination(
     assert all(row.eligible is False for row in preview.recipients)
     assert all(row.recipient_id is None for row in preview.recipients)
     assert all(row.phone_number is None for row in preview.recipients)
-    assert {
-        row.reason for row in preview.recipients
-    } == {document_distribution.SHARED_WHATSAPP_DESTINATION_REASON}
+    assert {row.reason for row in preview.recipients} == {
+        document_distribution.SHARED_WHATSAPP_DESTINATION_REASON
+    }
 
 
 @pytest.mark.asyncio
@@ -336,7 +352,8 @@ async def test_distribution_write_scope_reauthorizes_and_locks_actor_agency_grou
     session = MagicMock()
     session.execute = AsyncMock(return_value=result)
     authorize = AsyncMock()
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "AuthorizationPolicy",
         lambda _session: SimpleNamespace(require_export_data=authorize),
@@ -527,14 +544,19 @@ async def test_linked_identifier_or_link_churn_fails_precommit_closed(
     async def _passengers(*_args, **_kwargs):
         return [passenger]
 
-    monkeypatch.setattr(document_distribution, "_lock_active_document_scope", _lock_scope)
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch, document_distribution, "_lock_active_document_scope", _lock_scope
+    )
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_read_linked_document_match_source",
         _read_source,
     )
-    monkeypatch.setattr(document_distribution, "_lock_document_passenger_roster", _lock_roster)
-    monkeypatch.setattr(document_distribution, "_group_passengers", _passengers)
+    set_route_dependency(
+        monkeypatch, document_distribution, "_lock_document_passenger_roster", _lock_roster
+    )
+    set_route_dependency(monkeypatch, document_distribution, "_group_passengers", _passengers)
 
     with pytest.raises(HTTPException) as error:
         await document_distribution._lock_and_validate_document_match_scope(
@@ -560,12 +582,14 @@ async def test_distribution_precommit_cleanup_never_masks_root_failure(monkeypat
     storage = MagicMock()
     storage.delete_files = AsyncMock(side_effect=RuntimeError("storage unavailable"))
     persist_cleanup = AsyncMock(return_value=uuid.uuid4())
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "MinioStorageRepository",
         lambda: storage,
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "persist_storage_cleanup_job",
         persist_cleanup,
@@ -654,9 +678,7 @@ async def test_document_group_search_includes_submitted_passenger_names() -> Non
     passenger_result = MagicMock()
     passenger_result.all.return_value = [(group.id, 1)]
     session = MagicMock()
-    session.execute = AsyncMock(
-        side_effect=[groups_result, assigned_result, passenger_result]
-    )
+    session.execute = AsyncMock(side_effect=[groups_result, assigned_result, passenger_result])
     current_user = SimpleNamespace(
         id=uuid.uuid4(),
         agency_id=agency_id,
@@ -735,9 +757,7 @@ async def test_refresh_preserves_processing_status_for_incomplete_chunk_manifest
     documents_result = MagicMock()
     documents_result.all.return_value = [(batch.id, "matched")]
     session = MagicMock()
-    session.execute = AsyncMock(
-        side_effect=[batches_result, receipts_result, documents_result]
-    )
+    session.execute = AsyncMock(side_effect=[batches_result, receipts_result, documents_result])
 
     await document_distribution._refresh_distribution_batches(
         session,
@@ -819,7 +839,8 @@ async def test_final_distribution_response_aggregates_rejections_from_every_chun
     ]
     session = MagicMock()
     session.execute = AsyncMock(side_effect=[batches_result, receipts_result])
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "MinioStorageRepository",
         MagicMock(return_value=MagicMock()),
@@ -907,8 +928,10 @@ async def test_foreign_batch_save_returns_404_before_group_authorization(
     )
     lookup = AsyncMock(return_value=None)
     authorize_group = AsyncMock()
-    monkeypatch.setattr(document_distribution, "_get_visible_document_batch", lookup)
-    monkeypatch.setattr(document_distribution, "_get_authorized_group", authorize_group)
+    set_route_dependency(monkeypatch, document_distribution, "_get_visible_document_batch", lookup)
+    set_route_dependency(
+        monkeypatch, document_distribution, "_get_authorized_group", authorize_group
+    )
 
     with pytest.raises(HTTPException) as exc_info:
         await document_distribution.save_batch(
@@ -933,9 +956,12 @@ async def test_foreign_batch_send_returns_404_before_preview_or_queue_work(
     lookup = AsyncMock(return_value=None)
     authorize_group = AsyncMock()
     build_preview = AsyncMock()
-    monkeypatch.setattr(document_distribution, "_get_visible_document_batch", lookup)
-    monkeypatch.setattr(document_distribution, "_get_authorized_group", authorize_group)
-    monkeypatch.setattr(
+    set_route_dependency(monkeypatch, document_distribution, "_get_visible_document_batch", lookup)
+    set_route_dependency(
+        monkeypatch, document_distribution, "_get_authorized_group", authorize_group
+    )
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_build_document_delivery_preview",
         build_preview,

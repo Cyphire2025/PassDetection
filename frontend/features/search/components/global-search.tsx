@@ -1,15 +1,18 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { FileText, FolderOpen, Search, X } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
+import { FileText, FolderOpen, Search, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useId, useRef, useState } from "react";
 import { searchApi, type GlobalSearchResult } from "../api/search.api";
 
 export function GlobalSearch() {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<GlobalSearchResult[]>([]);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [retryKey, setRetryKey] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -20,12 +23,26 @@ export function GlobalSearch() {
 
   useEffect(() => {
     const handlePointerDown = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
+    const shortcut = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }
+    };
+    document.addEventListener("keydown", shortcut);
     document.addEventListener("mousedown", handlePointerDown);
-    return () => document.removeEventListener("mousedown", handlePointerDown);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", shortcut);
+    };
   }, []);
 
   useEffect(() => {
@@ -35,20 +52,21 @@ export function GlobalSearch() {
     }
 
     let active = true;
+    const controller = new AbortController();
     const timer = window.setTimeout(() => {
       searchApi
-        .global(trimmed)
+        .global(trimmed, controller.signal)
         .then((items) => {
           if (!active) return;
+          setError(null);
           setResults(items);
           setActiveIndex(items.length > 0 ? 0 : -1);
-          setIsOpen(true);
         })
         .catch(() => {
           if (!active) return;
+          setError("Search is temporarily unavailable. Try again.");
           setResults([]);
           setActiveIndex(-1);
-          setIsOpen(true);
         })
         .finally(() => {
           if (active) setIsLoading(false);
@@ -57,14 +75,16 @@ export function GlobalSearch() {
 
     return () => {
       active = false;
+      controller.abort();
       window.clearTimeout(timer);
     };
-  }, [query]);
+  }, [query, retryKey]);
 
   const openResult = (result: GlobalSearchResult) => {
-    const href = result.type === "passport"
-      ? ROUTES.dashboard.passportDetail(result.id)
-      : ROUTES.dashboard.passportGroup(result.group_id ?? result.id);
+    const href =
+      result.type === "passport"
+        ? ROUTES.dashboard.passportDetail(result.id)
+        : ROUTES.dashboard.passportGroup(result.group_id ?? result.id);
     setIsOpen(false);
     setQuery("");
     setActiveIndex(-1);
@@ -77,15 +97,19 @@ export function GlobalSearch() {
       setActiveIndex(-1);
       return;
     }
-    if (results.length === 0) return;
+    if (results.length === 0 || isLoading || error) return;
     if (event.key === "ArrowDown") {
       event.preventDefault();
       setIsOpen(true);
-      setActiveIndex((current) => (current + 1 + results.length) % results.length);
+      setActiveIndex(
+        (current) => (current + 1 + results.length) % results.length,
+      );
     } else if (event.key === "ArrowUp") {
       event.preventDefault();
       setIsOpen(true);
-      setActiveIndex((current) => (current - 1 + results.length) % results.length);
+      setActiveIndex(
+        (current) => (current - 1 + results.length) % results.length,
+      );
     } else if (event.key === "Enter" && isOpen && activeIndex >= 0) {
       event.preventDefault();
       openResult(results[activeIndex]);
@@ -93,11 +117,14 @@ export function GlobalSearch() {
   };
 
   return (
-    <div ref={containerRef} className="relative hidden w-full max-w-xl md:block">
+    <div ref={containerRef} className="relative w-full max-w-lg">
       <div className="relative">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-        <label htmlFor={inputId} className="sr-only">Search passports and groups</label>
+        <label htmlFor={inputId} className="sr-only">
+          Search passports and groups
+        </label>
         <input
+          ref={inputRef}
           id={inputId}
           suppressHydrationWarning
           value={query}
@@ -107,11 +134,17 @@ export function GlobalSearch() {
           aria-controls={listboxId}
           aria-describedby={statusId}
           aria-activedescendant={
-            isOpen && activeIndex >= 0 ? `${listboxId}-option-${activeIndex}` : undefined
+            isOpen && activeIndex >= 0
+              ? `${listboxId}-option-${activeIndex}`
+              : undefined
           }
           onChange={(event) => {
             const nextQuery = event.target.value;
+            setIsOpen(true);
             setQuery(nextQuery);
+            setError(null);
+            setResults([]);
+            setActiveIndex(-1);
             if (nextQuery.trim().length < 2) {
               setResults([]);
               setIsLoading(false);
@@ -119,14 +152,14 @@ export function GlobalSearch() {
             } else {
               setIsLoading(true);
             }
-            setIsOpen(true);
           }}
           onFocus={() => {
             if (query.trim().length >= 2) setIsOpen(true);
           }}
           onKeyDown={handleInputKeyDown}
-          placeholder="Search passport number, name, mobile, email, destination, group"
-          className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-10 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
+          placeholder="Search passengers, groups..."
+          title="Search passports and groups (Ctrl+K or Command+K)"
+          className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 pl-10 pr-10 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
         />
         {query && (
           <button
@@ -151,16 +184,46 @@ export function GlobalSearch() {
           id={listboxId}
           role="listbox"
           aria-label="Search results"
-          className="absolute left-0 right-0 top-12 z-50 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
+          className="fixed left-3 right-3 top-[68px] z-50 sm:absolute sm:left-0 sm:right-0 sm:top-11 sm:min-w-[min(26rem,85vw)] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
         >
           {isLoading ? (
-            <div id={statusId} role="status" className="px-4 py-4 text-sm text-slate-500">Searching...</div>
+            <div
+              id={statusId}
+              role="status"
+              className="px-4 py-4 text-sm text-slate-500"
+            >
+              Searching...
+            </div>
+          ) : error ? (
+            <div className="px-4 py-4 text-sm">
+              <p id={statusId} role="alert" className="text-red-700">
+                {error}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setError(null);
+                  setIsLoading(true);
+                  setRetryKey((value) => value + 1);
+                }}
+                className="mt-2 font-semibold text-blue-700"
+              >
+                Retry search
+              </button>
+            </div>
           ) : results.length === 0 ? (
-            <div id={statusId} role="status" className="px-4 py-4 text-sm text-slate-500">No matching passports or groups found.</div>
+            <div
+              id={statusId}
+              role="status"
+              className="px-4 py-4 text-sm text-slate-500"
+            >
+              No matching passports or groups found.
+            </div>
           ) : (
             <div className="max-h-96 overflow-y-auto py-2">
               <div id={statusId} role="status" className="sr-only">
-                {results.length} result{results.length === 1 ? "" : "s"} available. Use arrow keys to review.
+                {results.length} result{results.length === 1 ? "" : "s"}{" "}
+                available. Use arrow keys to review.
               </div>
               {results.map((result, index) => (
                 <button
@@ -177,18 +240,34 @@ export function GlobalSearch() {
                   onClick={() => openResult(result)}
                 >
                   <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                    {result.type === "passport" ? <FileText className="h-4 w-4" /> : <FolderOpen className="h-4 w-4" />}
+                    {result.type === "passport" ? (
+                      <FileText className="h-4 w-4" />
+                    ) : (
+                      <FolderOpen className="h-4 w-4" />
+                    )}
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-2">
-                      <span className="truncate text-sm font-semibold text-slate-900">{result.title}</span>
+                      <span className="truncate text-sm font-semibold text-slate-900">
+                        {result.title}
+                      </span>
                       <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium uppercase text-slate-500">
                         {result.type}
                       </span>
                     </span>
-                    {result.subtitle && <span className="mt-0.5 block truncate text-xs text-slate-500">{result.subtitle}</span>}
+                    {result.subtitle && (
+                      <span className="mt-0.5 block truncate text-xs text-slate-500">
+                        {result.subtitle}
+                      </span>
+                    )}
                     <span className="mt-1 block truncate text-xs text-slate-400">
-                      {[result.client_phone, result.group_name, result.destination].filter(Boolean).join(" | ")}
+                      {[
+                        result.client_phone,
+                        result.group_name,
+                        result.destination,
+                      ]
+                        .filter(Boolean)
+                        .join(" | ")}
                     </span>
                   </span>
                 </button>

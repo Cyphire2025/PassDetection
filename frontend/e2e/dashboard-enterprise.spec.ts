@@ -26,12 +26,16 @@ async function mockAuthenticatedApi(page: Page) {
     const pathname = new URL(route.request().url()).pathname;
     if (pathname === "/api/v1/auth/refresh") {
       await route.fulfill({
-        json: { user, token_type: "bearer", access_token_expires_at: "2026-08-22T13:00:00Z" },
+        json: { status: "authenticated", user, token_type: "bearer", access_token_expires_at: "2099-08-22T13:00:00Z" },
       });
       return;
     }
     if (pathname === "/api/v1/auth/me") {
       await route.fulfill({ json: user });
+      return;
+    }
+    if (pathname === "/api/v1/notifications/feed") {
+      await route.fulfill({ json: { items: [], unread_count: 0, next_cursor: null } });
       return;
     }
     if (pathname === "/api/v1/dashboard/stats") {
@@ -74,6 +78,7 @@ test("authenticated staff can navigate the dashboard at tablet width", async ({ 
 });
 
 test("every office route receives the same direct-link authentication boundary", async ({ page }) => {
+  await page.route("**/api/v1/auth/refresh", route => route.fulfill({status:401,json:{error:{code:"AUTH_REFRESH_REJECTED",message:"Sign in required"}}}));
   await page.goto("/documents?view=distribution");
-  await expect(page).toHaveURL(/\/login\?from=%2Fdocuments%3Fview%3Ddistribution$/);
+  await expect(page).toHaveURL(/\/login\?reason=session_expired&from=%2Fdocuments%3Fview%3Ddistribution$/);
 });

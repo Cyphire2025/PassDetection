@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { passportGroupDetailSource } from "./passport-group-detail-source.contract-helper.mjs";
+import { passportGroupDetailSource, passportGroupHandlerBody } from "./passport-group-detail-source.contract-helper.mjs";
 
 const source = passportGroupDetailSource;
 const api = readFileSync(
@@ -135,7 +135,7 @@ test("search is debounced and expiry alerts do not depend on the visible page", 
   assert.match(source, /submissionsView\?\.expiry_alerts \?\? \[\]/);
   assert.match(source, /submissionsView\?\.group_total \?\? 0/);
   assert.match(source, /passport\.submission_id/);
-  assert.match(source, /passport\.passport_number \|\| "Passport number not extracted"/);
+  assert.match(source, /passport\.passport_number\s*\|\|\s*"Passport number not extracted"/);
   assert.match(source, /passport\.date_of_expiry/);
   assert.doesNotMatch(
     source,
@@ -146,7 +146,7 @@ test("search is debounced and expiry alerts do not depend on the visible page", 
 
 test("full-group exports stay enabled when the current page is empty", () => {
   const fullGroupGuards = source.match(
-    /\|\| \(submissionsView\?\.group_total \?\? 0\) === 0/g,
+    /\|\|\s*\(submissionsView\?\.group_total \?\? 0\) === 0/g,
   );
   assert.equal(fullGroupGuards?.length, 2);
   assert.doesNotMatch(source, /disabled=\{[^}]*!data\?\.length/);
@@ -168,10 +168,10 @@ test("expiry guidance uses the group Travel/Departure date", () => {
 });
 
 test("group rows show imported birth, issue, and expiry dates", () => {
-  assert.match(source, />Passport Dates</);
-  assert.match(source, /getDashboardPassportDate\(passport, "date_of_birth"\)/);
-  assert.match(source, /getDashboardPassportDate\(passport, "date_of_issue"\)/);
-  assert.match(source, /getDashboardPassportDate\(passport, "date_of_expiry"\)/);
+  assert.match(source, />\s*Passport Dates\s*</);
+  assert.match(source, /getDashboardPassportDate\(\s*passport,\s*"date_of_birth",?\s*\)/);
+  assert.match(source, /getDashboardPassportDate\(\s*passport,\s*"date_of_issue",?\s*\)/);
+  assert.match(source, /getDashboardPassportDate\(\s*passport,\s*"date_of_expiry",?\s*\)/);
   assert.match(source, /formatPassportDateForUi/);
 });
 
@@ -213,9 +213,7 @@ test("selected passport downloads use the scoped ZIP endpoint without duplicate 
     /mutationErrorMessage\([\s\S]*?downloadError,[\s\S]*?"Selected passport download failed"/,
   );
   assert.match(source, /\{importMessage && \([\s\S]*?role="status"[\s\S]*?aria-live="polite"/);
-  const selectedDownloadHandler = source.match(
-    /const handleSelectedPassportDownload = \(\) => \{([\s\S]*?)\r?\n  \};\r?\n\r?\n  return \(/,
-  )?.[1];
+  const selectedDownloadHandler = passportGroupHandlerBody("handleSelectedPassportDownload");
   assert.ok(selectedDownloadHandler);
   assert.doesNotMatch(
     selectedDownloadHandler,
@@ -317,7 +315,7 @@ test("large selections keep synchronous passport image ZIPs within their safe ca
 test("all document-import previews use full-group backend reconciliation", () => {
   assert.match(
     source,
-    /passportPreviewMutation\.mutate\(\{[\s\S]*?files,[\s\S]*?Checking documents against the full group/,
+    /passportPreviewMutation\.mutate\(\s*\{[\s\S]*?files,[\s\S]*?Checking documents against the full group/,
   );
   assert.doesNotMatch(source, /buildLocalPassportDocumentPreview/);
   assert.doesNotMatch(source, /containsZip/);

@@ -13,7 +13,7 @@ def prefixed_agent_employee_code(person_type: Any, code: Any) -> str | None:
     normalized_type = str(person_type or "").strip().casefold()
     prefix = {"agent": "AGT", "employee": "EMP"}.get(normalized_type)
     if not prefix:
-        return None
+        return str(code or "").strip() or None
     return _prefixed_code(prefix, code)
 
 

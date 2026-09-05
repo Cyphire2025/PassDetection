@@ -62,7 +62,6 @@ export function TourGroupAssignmentsPage() {
   return (
     <div className="flex flex-col gap-5">
       <OperationsPageHeader
-        eyebrow="Live field operations"
         title="Tour Ops"
         description="Set group coverage, then move directly into attendance monitoring or passenger QR distribution. Every assigned coordinator can scan the full submitted roster."
         icon={ClipboardCheck}

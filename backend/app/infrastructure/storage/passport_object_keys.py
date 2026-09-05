@@ -9,6 +9,8 @@ PASSPORT_OBJECT_KEY_ATTRIBUTES = (
     "image_s3_key",
     "thumbnail_s3_key",
     "passport_back_s3_key",
+    "passport_cover_s3_key",
+    "passport_back_cover_s3_key",
     "passport_photo_s3_key",
 )
 

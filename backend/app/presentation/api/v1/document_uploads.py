@@ -14,7 +14,10 @@ from app.infrastructure.security.upload_security import (
     UploadSecurityService,
 )
 from app.infrastructure.security.upload_validator import (
+    DocumentIngestionDisabledError,
+    MalwareScannerConfigurationError,
     MalwareScannerUnavailableError,
+    MalwareScanRejectedError,
     malware_scanner_from_settings,
 )
 
@@ -68,9 +71,18 @@ async def read_bounded_document_uploads(
             )
 
         uploads: list[BoundedDocumentUpload] = []
-        upload_security = security_service or UploadSecurityService(
-            scanner=malware_scanner_from_settings()
-        )
+        try:
+            upload_security = security_service or UploadSecurityService(
+                scanner=malware_scanner_from_settings()
+            )
+        except MalwareScannerConfigurationError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=(
+                    "Document security scanning is not configured. "
+                    "Ask an administrator to configure the scanner before uploading PDFs"
+                ),
+            ) from exc
         active_context = security_context or UploadSecurityContext(
             ingestion_flow="authenticated_document_upload",
         )
@@ -110,16 +122,32 @@ async def read_bounded_document_uploads(
                     declared_content_type=file.content_type,
                     context=active_context,
                 )
+            except DocumentIngestionDisabledError as exc:
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail=(
+                        "PDF uploads are disabled on this deployment. Ask an administrator "
+                        "to enable document ingestion and security scanning"
+                    ),
+                ) from exc
             except (MalwareScannerUnavailableError, UploadSecurityEvidenceError) as exc:
                 raise HTTPException(
                     status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                     detail="Document security scanning is temporarily unavailable",
                     headers={"Retry-After": "30"},
                 ) from exc
-            except ImageValidationError as exc:
+            except MalwareScanRejectedError as exc:
                 raise HTTPException(
                     status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                     detail="One of the uploaded PDFs failed security scanning",
+                ) from exc
+            except ImageValidationError as exc:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                    detail=(
+                        "One of the uploaded files is not a readable, unencrypted PDF. "
+                        "Export it as a PDF without password protection and try again"
+                    ),
                 ) from exc
             uploads.append(
                 BoundedDocumentUpload(

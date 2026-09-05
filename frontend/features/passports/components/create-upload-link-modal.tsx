@@ -15,10 +15,8 @@ import {
 } from "@/lib/utils/public-url";
 import { createUploadLinkSchema, type CreateUploadLinkFormData } from "../schemas/upload-link.schema";
 import { useCreateUploadLink } from "../hooks/use-upload-links";
-import { GroupOptionToggle } from "./group-option-toggle";
+import { getUploadLinkSettings, getUploadLinkSettingsError, UploadLinkSettings, type UploadLinkSettingsValue } from "./upload-link-settings";
 import { WhatsAppBroadcastSelector } from "./whatsapp-broadcast-selector";
-import { CustomQuestionBuilder } from "./custom-question-builder";
-import { CustomDetailBuilder } from "./custom-detail-builder";
 import { TripTimeZoneField } from "./trip-timezone-field";
 import { DEFAULT_TRIP_TIMEZONE } from "../utils/trip-timezone";
 
@@ -32,7 +30,6 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
   const canAccessWhatsApp = canAccessWhatsAppBroadcasts(role);
   const [generatedTargets, setGeneratedTargets] = useState<PassportUploadTarget[]>([]);
   const [copiedTargetKey, setCopiedTargetKey] = useState<string | null>(null);
-  const [cityInput, setCityInput] = useState("");
   const [actionError, setActionError] = useState<string | null>(null);
   const copiedTimerRef = useRef<number | null>(null);
   const titleId = useId();
@@ -69,39 +66,14 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
       custom_questions: [],
       custom_details: [],
       whatsapp_broadcast_group_ids: [],
-      notes: "",
+      upload_configuration: getUploadLinkSettings({}).upload_configuration,
     },
   });
-  const departureCities = useWatch({ control, name: "departure_cities" }) ?? [];
-  const baseCityEnabled = useWatch({ control, name: "base_city_enabled" }) ?? false;
-  const airportEnabled = useWatch({ control, name: "nearest_international_airport_enabled" }) ?? false;
-  const staffCodeEnabled = useWatch({ control, name: "staff_code_enabled" }) ?? false;
-  const agentEmployeeCodeEnabled = useWatch({
-    control,
-    name: "agent_employee_code_enabled",
-  }) ?? false;
-  const mealPreferenceEnabled = useWatch({ control, name: "meal_preference_enabled" }) ?? false;
-  const requireSelfie = useWatch({ control, name: "require_selfie" }) ?? false;
-  const allowFilesFromDevice = useWatch({ control, name: "allow_files_from_device" }) ?? true;
-  const askNearestDomesticAirport = useWatch({ control, name: "ask_nearest_domestic_airport" }) ?? false;
-  const relationWithQualifierEnabled = useWatch({
-    control,
-    name: "relation_with_qualifier_enabled",
-  }) ?? false;
-  const designationEnabled = useWatch({
-    control,
-    name: "designation_enabled",
-  }) ?? false;
-  const agencyDealershipNameEnabled = useWatch({
-    control,
-    name: "agency_dealership_name_enabled",
-  }) ?? false;
+  const settings = useWatch({ control, compute: (values) => getUploadLinkSettings(values) });
   const whatsappBroadcastGroupIds = useWatch({
     control,
     name: "whatsapp_broadcast_group_ids",
   }) ?? [];
-  const customQuestions = useWatch({ control, name: "custom_questions" }) ?? [];
-  const customDetails = useWatch({ control, name: "custom_details" }) ?? [];
 
   useEffect(() => () => {
     if (copiedTimerRef.current !== null) window.clearTimeout(copiedTimerRef.current);
@@ -116,7 +88,6 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
     reset();
     setGeneratedTargets([]);
     setCopiedTargetKey(null);
-    setCityInput("");
     setActionError(null);
     onClose();
   }, [isPending, onClose, reset]);
@@ -148,7 +119,6 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
         departure_cities: data.nearest_international_airport_enabled
           ? normalizeCities(data.departure_cities)
           : [],
-        notes: data.notes || null,
         whatsapp_broadcast_group_ids: canAccessWhatsApp
           ? data.whatsapp_broadcast_group_ids
           : [],
@@ -161,22 +131,6 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
     } finally {
       leaveCreate();
     }
-  };
-
-  const addCity = () => {
-    const nextCity = normalizeCity(cityInput);
-    if (!nextCity) return;
-    const nextCities = normalizeCities([...departureCities, nextCity]);
-    setValue("departure_cities", nextCities, { shouldDirty: true, shouldValidate: true });
-    setCityInput("");
-  };
-
-  const removeCity = (city: string) => {
-    setValue(
-      "departure_cities",
-      departureCities.filter((item) => item !== city),
-      { shouldDirty: true, shouldValidate: true },
-    );
   };
 
   const copyTarget = async (target: PassportUploadTarget) => {
@@ -278,6 +232,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
             </div>
           ) : (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <h3 className="text-sm font-semibold text-slate-900">Group Details</h3>
               <Input
                 label="Group Name"
                 placeholder="e.g. Summer Europe Tour 2026"
@@ -315,165 +270,20 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                 />
               </div>
 
-              <div className="space-y-1">
-                <label htmlFor="create-upload-link-notes" className="text-sm font-medium text-slate-700">Notes</label>
-                <textarea
-                  id="create-upload-link-notes"
-                  {...register("notes")}
-                  rows={3}
-                  placeholder="Internal notes for this group"
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                />
-              </div>
-
-              <div className="space-y-3">
-                <GroupOptionToggle
-                  label="Allow files from device"
-                  description="Let travellers choose existing passport images from their gallery or file picker in addition to using the live scanner."
-                  checked={allowFilesFromDevice}
-                  onChange={(checked) => setValue("allow_files_from_device", checked, { shouldDirty: true })}
-                />
-                <GroupOptionToggle
-                  label="Ask for nearest domestic airport"
-                  description="Require each traveller to enter their nearest domestic airport during passport review."
-                  checked={askNearestDomesticAirport}
-                  onChange={(checked) => setValue("ask_nearest_domestic_airport", checked, { shouldDirty: true })}
-                />
-                <GroupOptionToggle
-                  label="Visa Photo Upload"
-                  description="Require each traveller to capture a Visa Photo against a plain white or off-white wall."
-                  checked={requireSelfie}
-                  onChange={(checked) => setValue("require_selfie", checked, { shouldDirty: true })}
-                />
-                <GroupOptionToggle
-                  label="Relation with Qualifier"
-                  description="Enable a required Self or approved family-relationship choice before this single-passenger upload flow begins."
-                  checked={relationWithQualifierEnabled}
-                  onChange={(checked) => setValue(
-                    "relation_with_qualifier_enabled",
-                    checked,
-                    { shouldDirty: true },
-                  )}
-                />
-                <GroupOptionToggle
-                  label="Base City"
-                  description="Require each client to enter the city where they reside."
-                  checked={baseCityEnabled}
-                  onChange={(checked) => setValue("base_city_enabled", checked, { shouldDirty: true })}
-                />
-
-                <div className={`rounded-xl border p-4 transition-colors ${airportEnabled ? "border-blue-200 bg-blue-50/40" : "border-slate-200 bg-white"}`}>
-                  <GroupOptionToggle
-                    label="Nearest International Airport"
-                    description="Require clients to select one airport from your list."
-                    checked={airportEnabled}
-                    onChange={(checked) => {
-                      setValue("nearest_international_airport_enabled", checked, { shouldDirty: true, shouldValidate: true });
-                      if (!checked) {
-                        setValue("departure_cities", [], { shouldDirty: true, shouldValidate: true });
-                        setCityInput("");
-                      }
-                    }}
-                    borderless
-                  />
-                  {airportEnabled && (
-                    <div className="mt-4 space-y-2 border-t border-slate-100 pt-4">
-                      <div className="flex gap-2">
-                        <Input
-                          value={cityInput}
-                          onChange={(event) => setCityInput(event.target.value)}
-                          onKeyDown={(event) => {
-                            if (event.key === "Enter") {
-                              event.preventDefault();
-                              addCity();
-                            }
-                          }}
-                          placeholder="e.g. Delhi, Chennai, Mumbai"
-                        />
-                        <Button type="button" variant="secondary" onClick={addCity}>
-                          Add
-                        </Button>
-                      </div>
-                      {departureCities.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {departureCities.map((city) => (
-                            <button
-                              key={city}
-                              type="button"
-                              onClick={() => removeCity(city)}
-                              className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-800 transition hover:bg-blue-100"
-                            >
-                              {city}
-                              <X className="h-3 w-3" aria-hidden="true" />
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                      {errors.departure_cities && <p className="text-xs text-red-500">{errors.departure_cities.message}</p>}
-                    </div>
-                  )}
-                </div>
-
-                <GroupOptionToggle
-                  label="Staff Code"
-                  description="Require each client to enter their staff code."
-                  checked={staffCodeEnabled}
-                  onChange={(checked) => setValue("staff_code_enabled", checked, { shouldDirty: true })}
-                />
-                <GroupOptionToggle
-                  label="Agent/Employee Code"
-                  description="Require each client to select Agent or Employee and enter a numeric code."
-                  checked={agentEmployeeCodeEnabled}
-                  onChange={(checked) => setValue("agent_employee_code_enabled", checked, { shouldDirty: true })}
-                />
-                <GroupOptionToggle
-                  label="Designation"
-                  description="Require each traveller to type their designation."
-                  checked={designationEnabled}
-                  onChange={(checked) => setValue(
-                    "designation_enabled",
-                    checked,
-                    { shouldDirty: true },
-                  )}
-                />
-                <GroupOptionToggle
-                  label="Agency/Dealership Name"
-                  description="Require each traveller to type their agency or dealership name."
-                  checked={agencyDealershipNameEnabled}
-                  onChange={(checked) => setValue(
-                    "agency_dealership_name_enabled",
-                    checked,
-                    { shouldDirty: true },
-                  )}
-                />
-                <GroupOptionToggle
-                  label="Meal Preference"
-                  description="Require each client to choose Veg, Non Veg, or Jain."
-                  checked={mealPreferenceEnabled}
-                  onChange={(checked) => setValue("meal_preference_enabled", checked, { shouldDirty: true })}
-                />
-
-                <CustomQuestionBuilder
-                  questions={customQuestions}
-                  disabled={isPending}
-                  error={errors.custom_questions?.message}
-                  onChange={(questions) => setValue(
-                    "custom_questions",
-                    questions,
-                    { shouldDirty: true, shouldValidate: true },
-                  )}
-                />
-                <CustomDetailBuilder
-                  details={customDetails}
-                  disabled={isPending}
-                  error={errors.custom_details?.message}
-                  onChange={(details) => setValue(
-                    "custom_details",
-                    details,
-                    { shouldDirty: true, shouldValidate: true },
-                  )}
-                />
-              </div>
+              <UploadLinkSettings
+                value={settings}
+                disabled={isPending}
+                error={
+                  errors.upload_configuration || errors.departure_cities || errors.custom_questions || errors.custom_details
+                    ? getUploadLinkSettingsError(settings)
+                    : undefined
+                }
+                onChange={(patch) => {
+                  for (const [key, value] of Object.entries(patch)) {
+                    setValue(key as keyof UploadLinkSettingsValue, value, { shouldDirty: true, shouldValidate: true });
+                  }
+                }}
+              />
 
               {canAccessWhatsApp && (
                 <WhatsAppBroadcastSelector

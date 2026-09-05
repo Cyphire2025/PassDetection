@@ -18,10 +18,17 @@ export interface GlobalSearchResult {
 }
 
 export const searchApi = {
-  global: async (query: string): Promise<GlobalSearchResult[]> => {
-    const { data } = await apiClient.get<GlobalSearchResult[]>(API_ENDPOINTS.search.global, {
-      params: { q: query, limit: 12 },
-    });
+  global: async (
+    query: string,
+    signal?: AbortSignal,
+  ): Promise<GlobalSearchResult[]> => {
+    const { data } = await apiClient.get<GlobalSearchResult[]>(
+      API_ENDPOINTS.search.global,
+      {
+        signal,
+        params: { q: query, limit: 12 },
+      },
+    );
     return data;
   },
 };

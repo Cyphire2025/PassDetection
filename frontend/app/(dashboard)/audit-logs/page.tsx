@@ -15,7 +15,6 @@ import {
 import {
   WorkspaceEmptyState,
   WorkspaceErrorNotice,
-  WorkspaceHeaderContext,
   WorkspacePageHeader,
   WorkspaceSummaryItem,
   WorkspaceSummaryStrip,
@@ -132,10 +131,10 @@ export default function AuditLogsPage() {
       URL.revokeObjectURL(url);
       setExportNotice(exported.truncated
         ? "The export reached the 10,000-row safety limit. Narrow the time range for complete evidence."
-        : "The bounded audit export was prepared successfully.");
+        : "The audit export is ready.");
     } catch {
       if (controller.signal.aborted) return;
-      setExportNotice("The audit export could not be prepared. No ledger data was changed.");
+      setExportNotice("The audit export could not be prepared. Please try again.");
     } finally {
       if (exportControllerRef.current === controller) {
         exportControllerRef.current = null;
@@ -146,22 +145,15 @@ export default function AuditLogsPage() {
   return (
     <div className="flex flex-col gap-5">
       <WorkspacePageHeader
-        eyebrow="Accountability ledger"
         title="Audit Logs"
-        description="Trace security-sensitive and operational activity across the exact account scope you are permitted to review."
+        description="Review account activity and security events."
         icon={ClipboardList}
         accent="lime"
-        context={(
-          <>
-            <WorkspaceHeaderContext icon={ShieldCheck}>Permission-scoped ledger</WorkspaceHeaderContext>
-            <WorkspaceHeaderContext icon={Activity}>Stable cursor pagination</WorkspaceHeaderContext>
-          </>
-        )}
       />
 
       {auditQuery.error && (
         <WorkspaceErrorNotice>
-          Audit Logs are unavailable for this account. No history has been removed or changed.
+          Audit logs could not be loaded. Please try again.
         </WorkspaceErrorNotice>
       )}
 
@@ -171,7 +163,7 @@ export default function AuditLogsPage() {
         </div>
       )}
 
-      <WorkspaceSummaryStrip label="Loaded audit evidence summary">
+      <WorkspaceSummaryStrip label="Loaded audit events">
         {auditQuery.isLoading ? (
           Array.from({ length: 4 }).map((_, index) => (
             <Skeleton key={index} className="h-[72px] rounded-none" />
@@ -181,20 +173,20 @@ export default function AuditLogsPage() {
             <WorkspaceSummaryItem
               label="Loaded events"
               value={data.length.toLocaleString()}
-              helper={isIncomplete ? "more history available" : "response snapshot complete"}
+              helper={isIncomplete ? "more history available" : "all matching events loaded"}
               icon={ClipboardList}
               tone="info"
             />
             <WorkspaceSummaryItem
-              label="Human actors"
+              label="Users"
               value={actors.size.toLocaleString()}
-              helper="within loaded pages"
+              helper="in loaded events"
               icon={UsersRound}
             />
             <WorkspaceSummaryItem
               label="System events"
               value={systemEvents.toLocaleString()}
-              helper="within loaded pages"
+              helper="in loaded events"
               icon={Bot}
             />
             <WorkspaceSummaryItem
@@ -211,16 +203,15 @@ export default function AuditLogsPage() {
       <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5" aria-labelledby="audit-filter-heading">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Server-side scope</p>
-            <h2 id="audit-filter-heading" className="mt-0.5 font-semibold text-slate-950">Ledger filters</h2>
-            <p className="mt-1 text-sm text-slate-600">Filters are evaluated by the authorized backend before any record reaches this browser.</p>
+            <h2 id="audit-filter-heading" className="mt-0.5 font-semibold text-slate-950">Filters</h2>
+            <p className="mt-1 text-sm text-slate-600">Filter events by date, user, action, or result.</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button type="button" variant="secondary" onClick={() => setFilters(EMPTY_FILTERS)} disabled={!isFiltered}>
               <FilterX className="h-4 w-4" aria-hidden="true" /> Clear filters
             </Button>
             <Button type="button" onClick={() => { void exportLedger(); }} disabled={!canExport} isLoading={exportMutation.isPending}>
-              <Download className="h-4 w-4" aria-hidden="true" /> Export bounded CSV
+              <Download className="h-4 w-4" aria-hidden="true" /> Export CSV
             </Button>
           </div>
         </div>
@@ -242,7 +233,7 @@ export default function AuditLogsPage() {
             </select>
           </label>
           {role === "super_admin" && (
-            <Input id="audit-agency-id" label="Tenant agency ID" value={filters.agencyId} onChange={(event) => updateFilter("agencyId", event.target.value)} maxLength={36} autoComplete="off" placeholder="Optional authorized tenant scope" />
+            <Input id="audit-agency-id" label="Agency ID" value={filters.agencyId} onChange={(event) => updateFilter("agencyId", event.target.value)} maxLength={36} autoComplete="off" placeholder="Optional agency ID" />
           )}
         </div>
         <p className="mt-3 text-xs text-slate-500">CSV export requires both times and is limited to 31 days and 10,000 rows per request.</p>
@@ -251,15 +242,14 @@ export default function AuditLogsPage() {
       <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm" aria-labelledby="audit-ledger-heading">
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 px-4 py-3.5 sm:px-5">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Chronological evidence</p>
-            <h2 id="audit-ledger-heading" className="mt-0.5 font-semibold text-slate-950">Activity ledger</h2>
+            <h2 id="audit-ledger-heading" className="mt-0.5 font-semibold text-slate-950">Activity history</h2>
           </div>
           <p className="text-sm text-slate-600" aria-live="polite">
             {auditQuery.isFetching && !auditQuery.isFetchingNextPage
-              ? "Refreshing filtered evidence…"
+              ? "Refreshing events…"
               : isIncomplete
                 ? `${data.length.toLocaleString()} loaded · more available`
-                : `${data.length.toLocaleString()} loaded · response snapshot complete`}
+                : `${data.length.toLocaleString()} loaded · all matching events loaded`}
           </p>
         </div>
 
@@ -271,28 +261,28 @@ export default function AuditLogsPage() {
           </div>
         ) : auditQuery.error ? (
           <WorkspaceEmptyState
-            title="Audit evidence could not be loaded"
-            description="Retry after checking the current session and authorized tenant scope."
+            title="Audit events could not be loaded"
+            description="Check your session and agency filter, then try again."
           />
         ) : data.length === 0 ? (
           <WorkspaceEmptyState
             filtered={isFiltered}
-            title={isFiltered ? "No events match these server filters" : "No audit events have been recorded"}
+            title={isFiltered ? "No events match these filters" : "No audit events have been recorded"}
             description={isFiltered
-              ? "Clear or broaden a filter. The empty state represents this complete response snapshot."
-              : "Security and operational activity will appear here as authorized users work across the platform."}
+              ? "Clear or broaden a filter to view more events."
+              : "Account activity and security events will appear here."}
           />
         ) : (
           <>
-            <div className="grid gap-3 p-4 md:hidden">
+            <div className="grid min-w-0 grid-cols-1 gap-3 p-4 md:hidden">
               {data.map((log) => (
-                <article key={log.id} className="rounded-xl border border-slate-200 bg-white p-4" style={{ contentVisibility: "auto", containIntrinsicSize: "0 160px" }}>
+                <article key={log.id} className="min-w-0 rounded-xl border border-slate-200 bg-white p-4" style={{ contentVisibility: "auto", containIntrinsicSize: "0 160px" }}>
                   <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="font-semibold text-slate-950">{toLabel(log.event_type)}</p>
-                      <p className="mt-1 flex items-center gap-1.5 truncate text-sm text-slate-600">
+                      <p className="mt-1 flex min-w-0 items-center gap-1.5 text-sm text-slate-600">
                         {log.actor_email ? <UserRound className="h-3.5 w-3.5 shrink-0" aria-hidden="true" /> : <Bot className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />}
-                        {log.actor_email ?? "System"}
+                        <span className="min-w-0 truncate" title={log.actor_email ?? "System"}>{log.actor_email ?? "System"}</span>
                       </p>
                     </div>
                     <ActivityMark action={log.event_type} />
@@ -309,7 +299,7 @@ export default function AuditLogsPage() {
 
             <div className="hidden overflow-x-auto md:block">
               <table className="w-full min-w-[900px] text-left text-sm">
-                <caption className="sr-only">Cursor-paginated audit log events</caption>
+                <caption className="sr-only">Audit log events</caption>
                 <thead><tr className="border-b border-slate-200 bg-slate-50/70 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500"><th scope="col" className="px-5 py-3">Event</th><th scope="col" className="px-5 py-3">Actor</th><th scope="col" className="px-5 py-3">Entity</th>{role === "super_admin" ? <th scope="col" className="px-5 py-3">Tenant</th> : null}<th scope="col" className="px-5 py-3">Result</th><th scope="col" className="px-5 py-3">Recorded</th></tr></thead>
                 <tbody className="divide-y divide-slate-100">
                   {data.map((log) => (
@@ -328,18 +318,18 @@ export default function AuditLogsPage() {
             <div className="border-t border-slate-200 p-4 text-center">
               {hasMore ? (
                 <Button type="button" variant="secondary" onClick={() => { void auditQuery.fetchNextPage(); }} isLoading={auditQuery.isFetchingNextPage}>
-                  Load older evidence
+                  Load older events
                 </Button>
               ) : hasBrokenContinuation ? (
                 <p role="alert" className="text-sm font-medium text-amber-800">
-                  The server marked this response incomplete but did not provide a continuation cursor. Refresh or narrow the filters; do not treat the loaded rows as complete evidence.
+                  Some events could not be loaded. Refresh or narrow the filters before using these results as a complete record.
                 </p>
               ) : isIncomplete ? (
                 <p role="status" className="text-sm font-medium text-amber-800">
-                  This response window is incomplete. Load older evidence before treating it as a complete snapshot.
+                  More events are available. Load older events to complete these results.
                 </p>
               ) : (
-                <p className="text-sm text-slate-500">End of this complete response snapshot.</p>
+                <p className="text-sm text-slate-500">All matching events have been loaded.</p>
               )}
             </div>
           </>

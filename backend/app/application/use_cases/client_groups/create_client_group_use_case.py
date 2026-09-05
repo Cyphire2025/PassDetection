@@ -66,6 +66,7 @@ class CreateClientGroupUseCase:
             agent_employee_code_enabled=dto.agent_employee_code_enabled,
             meal_preference_enabled=dto.meal_preference_enabled,
             require_selfie=dto.require_selfie,
+            upload_configuration=dto.upload_configuration,
             allow_files_from_device=dto.allow_files_from_device,
             ask_nearest_domestic_airport=dto.ask_nearest_domestic_airport,
             relation_with_qualifier_enabled=(

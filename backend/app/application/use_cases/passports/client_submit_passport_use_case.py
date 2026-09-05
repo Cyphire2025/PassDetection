@@ -17,6 +17,7 @@ from app.application.dtos.passport_dtos import (
     passport_submission_output_from_entity,
 )
 from app.application.platform_policies import PlatformPolicies, PlatformPolicyProvider
+from app.application.security.public_upload_capability import require_active_public_upload
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import OFFICE_VISIBLE_PASSPORT_STATUS_VALUES, PassportSubmission
 from app.domain.exceptions.exceptions import EntityNotFoundError, ValidationError
@@ -39,6 +40,7 @@ from app.domain.value_objects.passport_fields import (
     normalize_reviewed_passport_fields,
     validate_reviewed_passport_payload,
 )
+from app.domain.value_objects.upload_configuration import configuration_for, validate_documents
 
 logger = get_logger(__name__)
 
@@ -94,6 +96,7 @@ class ClientSubmitPassportUseCase:
         group = await self._client_group_repo.get_by_token(group_token)
         if not group:
             raise EntityNotFoundError("ClientGroup", group_token)
+        require_active_public_upload(group)
 
         policies = (
             await self._platform_policy_provider.load()
@@ -112,16 +115,29 @@ class ClientSubmitPassportUseCase:
 
         if submission.group_id != group.id:
             raise ValidationError("This passport submission does not belong to this upload link.")
-        if not submission.image_s3_key or submission.image_s3_key.startswith("excel-imports/"):
+        if submission.image_s3_key.startswith("excel-imports/"):
             raise ValidationError("Passport front image is required.", field="file")
-        if not submission.passport_back_s3_key:
-            raise ValidationError("Passport back image is required.", field="passport_back_file")
-        if group.require_selfie and not submission.passport_photo_s3_key:
+        config = configuration_for(group)
+        has_passport_front = bool(submission.image_s3_key)
+        validate_documents(
+            group,
+            pages={
+                "front": submission.image_s3_key,
+                "back": submission.passport_back_s3_key,
+                "cover": submission.passport_cover_s3_key,
+                "back_cover": submission.passport_back_cover_s3_key,
+            },
+            mode=submission.acquisition_mode,
+            photo=submission.passport_photo_s3_key,
+        )
+        if group.relation_with_qualifier_enabled and config.required("relation_with_qualifier") and not submission.qualifier_enabled_snapshot:
             raise ValidationError(
-                "Visa Photo is required for this upload link.",
-                field="passport_photo_file",
+                "Select the traveller's relationship with the qualifier before submitting.",
+                field="qualifier_selection_token",
             )
         if (
+            has_passport_front
+            and
             submission.status.value not in OFFICE_VISIBLE_PASSPORT_STATUS_VALUES
             and not is_accepted_passport_information_page(
                 passport_document_classification(submission.extracted_fields)
@@ -180,11 +196,14 @@ class ClientSubmitPassportUseCase:
             normalized_relation = " ".join((family_relation or "").strip().split())[:80] or None
             normalized_gender = " ".join((family_gender or "").strip().split())[:40] or None
 
-        airport_enabled = group.nearest_international_airport_enabled or bool(group.departure_cities)
+        airport_enabled = group.nearest_international_airport_enabled
+        if group.upload_configuration is None:
+            airport_enabled = airport_enabled or bool(group.departure_cities)
         normalized_departure_city = self._normalize_departure_city(
             departure_city,
             group.departure_cities,
             enabled=airport_enabled,
+            required=config.required("departure_city"),
         )
         normalized_base_city = self._normalize_configured_text(
             base_city,
@@ -192,6 +211,7 @@ class ClientSubmitPassportUseCase:
             field="base_city",
             label="base city",
             max_length=120,
+            required=config.required("base_city"),
         )
         normalized_domestic_airport = self._normalize_configured_text(
             nearest_domestic_airport,
@@ -199,6 +219,7 @@ class ClientSubmitPassportUseCase:
             field="nearest_domestic_airport",
             label="nearest domestic airport",
             max_length=120,
+            required=config.required("nearest_domestic_airport"),
         )
         normalized_staff_code = self._normalize_configured_text(
             staff_code,
@@ -206,6 +227,7 @@ class ClientSubmitPassportUseCase:
             field="staff_code",
             label="staff code",
             max_length=80,
+            required=config.required("staff_code"),
         )
         (
             normalized_agent_employee_type,
@@ -214,6 +236,8 @@ class ClientSubmitPassportUseCase:
             agent_employee_type,
             agent_employee_code,
             enabled=group.agent_employee_code_enabled,
+            required=config.required("agent_employee_code"),
+            label=config.agent_employee_code_label,
         )
         normalized_designation = self._normalize_configured_text(
             designation,
@@ -221,17 +245,20 @@ class ClientSubmitPassportUseCase:
             field="designation",
             label="designation",
             max_length=160,
+            required=config.required("designation"),
         )
         normalized_agency_dealership_name = self._normalize_configured_text(
             agency_dealership_name,
             enabled=group.agency_dealership_name_enabled,
             field="agency_dealership_name",
-            label="agency or dealership name",
+            label=config.agency_dealership_name_label,
             max_length=200,
+            required=config.required("agency_dealership_name"),
         )
         normalized_meal_preference = self._normalize_meal_preference(
             meal_preference,
             enabled=group.meal_preference_enabled,
+            required=config.required("meal_preference"),
         )
         normalized_custom_answers = normalize_custom_answers(
             group.custom_questions,
@@ -296,15 +323,18 @@ class ClientSubmitPassportUseCase:
         }
         validate_reviewed_passport_payload(passport_fields)
         clean_fields = normalize_reviewed_passport_fields(passport_fields)
+        if not has_passport_front and not clean_fields.get("given_names"):
+            raise ValidationError("Enter the traveller's full name.", field="given_names")
         if not any(clean_fields.values()):
             raise ValidationError("At least one reviewed field is required.", field="confirmed_fields")
         if normalized_base_city:
             clean_fields["base_city"] = normalized_base_city
         if normalized_staff_code:
             clean_fields["staff_code"] = normalized_staff_code
-        if normalized_agent_employee_type and normalized_agent_employee_code:
-            clean_fields["agent_employee_type"] = normalized_agent_employee_type
+        if normalized_agent_employee_code:
             clean_fields["agent_employee_code"] = normalized_agent_employee_code
+            if normalized_agent_employee_type:
+                clean_fields["agent_employee_type"] = normalized_agent_employee_type
         if normalized_designation:
             clean_fields["designation"] = normalized_designation
         if normalized_agency_dealership_name:
@@ -368,6 +398,8 @@ class ClientSubmitPassportUseCase:
             for document_type, current_key, promote in (
                 ("photo", submission.passport_photo_s3_key, submission.promote_passport_photo),
                 ("back", submission.passport_back_s3_key, submission.promote_passport_back),
+                ("cover", submission.passport_cover_s3_key, submission.promote_passport_cover),
+                ("back_cover", submission.passport_back_cover_s3_key, submission.promote_passport_back_cover),
             ):
                 if not current_key or not current_key.startswith("drafts/"):
                     continue
@@ -403,6 +435,12 @@ class ClientSubmitPassportUseCase:
                 family_broadcast_to_member=bool(normalized_email or normalized_phone),
                 custom_answers=normalized_custom_answers,
                 custom_detail_answers=normalized_custom_detail_answers,
+            )
+            if not has_passport_front:
+                submission.mark_no_passport_verification_required()
+            submission.snapshot_collection_labels(
+                agent_employee_code_label=config.agent_employee_code_label if group.agent_employee_code_enabled else None,
+                agency_dealership_name_label=config.agency_dealership_name_label if group.agency_dealership_name_enabled else None,
             )
             await self._passport_repo.update(submission)
         except Exception:
@@ -482,8 +520,12 @@ class ClientSubmitPassportUseCase:
         allowed_cities: list[str],
         *,
         enabled: bool,
+        required: bool = True,
     ) -> str | None:
         if not enabled:
+            return None
+        selected = " ".join(value.strip().split()) if value else ""
+        if not selected and not required:
             return None
         cities = [" ".join(city.strip().split()) for city in allowed_cities if city and city.strip()]
         if not cities:
@@ -491,7 +533,6 @@ class ClientSubmitPassportUseCase:
                 "No nearest international airports are configured for this group.",
                 field="departure_city",
             )
-        selected = " ".join(value.strip().split()) if value else ""
         if not selected:
             raise ValidationError("Select your nearest international airport.", field="departure_city")
         city_by_key = {city.casefold(): city for city in cities}
@@ -508,19 +549,24 @@ class ClientSubmitPassportUseCase:
         field: str,
         label: str,
         max_length: int,
+        required: bool = True,
     ) -> str | None:
         if not enabled:
             return None
         normalized = " ".join(value.strip().split())[:max_length] if value and value.strip() else ""
+        if not normalized and not required:
+            return None
         if not normalized:
             raise ValidationError(f"Enter your {label}.", field=field)
         return normalized
 
     @staticmethod
-    def _normalize_meal_preference(value: str | None, *, enabled: bool) -> str | None:
+    def _normalize_meal_preference(value: str | None, *, enabled: bool, required: bool = True) -> str | None:
         if not enabled:
             return None
         normalized = " ".join(value.strip().split()).casefold() if value else ""
+        if not normalized and not required:
+            return None
         meals = {"veg": "Veg", "non veg": "Non Veg", "jain": "Jain"}
         matched = meals.get(normalized)
         if not matched:
@@ -533,9 +579,22 @@ class ClientSubmitPassportUseCase:
         code: str | None,
         *,
         enabled: bool,
+        required: bool = True,
+        label: str = "Agent/Employee Code",
     ) -> tuple[str | None, str | None]:
         if not enabled:
             return None, None
+        normalized_code = " ".join(code.strip().split()) if code else ""
+        if not normalized_code:
+            if not required:
+                return None, None
+            raise ValidationError(f"Enter your {label}.", field="agent_employee_code")
+        if len(normalized_code) > 80:
+            raise ValidationError(f"{label} must be 80 characters or fewer.", field="agent_employee_code")
+        # New forms collect one configurable code without a role dropdown.
+        # Explicit legacy role payloads retain their original validation.
+        if not person_type:
+            return None, normalized_code
         normalized_type = (
             " ".join(person_type.strip().split()).casefold()
             if person_type
@@ -546,7 +605,6 @@ class ClientSubmitPassportUseCase:
                 "Select Agent or Employee.",
                 field="agent_employee_type",
             )
-        normalized_code = code.strip() if code else ""
         if not re.fullmatch(r"\d{1,10}", normalized_code):
             raise ValidationError(
                 "Enter an Agent/Employee code using up to 10 numbers.",

@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-location-assign-relative-destination -- Identity-action exits intentionally reload the document to discard credentials, MFA challenges and stale session state. */
+
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { KeyRound } from "lucide-react";

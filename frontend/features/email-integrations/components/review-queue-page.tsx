@@ -80,7 +80,7 @@ export function EmailReviewQueuePage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-950">
+          <h1 className="text-2xl font-semibold tracking-[-0.035em] text-slate-950 sm:text-[30px]">
             Email review queue
           </h1>
           <p className="mt-1 max-w-3xl text-sm text-slate-600">

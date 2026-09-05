@@ -27,6 +27,10 @@ from app.domain.entities.entities import (
     QualifierSelection,
     User,
 )
+from app.domain.value_objects.custom_questions import (
+    CustomDetailDefinition,
+    CustomQuestionDefinition,
+)
 from app.domain.value_objects.trip_timezone import DEFAULT_TRIP_TIMEZONE
 
 
@@ -52,6 +56,9 @@ class PassportSubmissionGroupSummary:
     agent_employee_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
+    custom_questions: list[CustomQuestionDefinition] | None = None
+    custom_details: list[CustomDetailDefinition] | None = None
+    upload_configuration: dict[str, object] | None = None
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False
@@ -258,6 +265,7 @@ class IPassportSubmissionRepository(ABC):
         exclude_archived_groups: bool = False,
         created_by_user_id: uuid.UUID | None = None,
         visible_to_user: User | None = None,
+        operational_only: bool = False,
     ) -> list[PassportSubmission]: ...
 
     @abstractmethod

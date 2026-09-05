@@ -20,6 +20,7 @@ from app.infrastructure.database.models import (
     PassengerQRTokenModel,
     PassportSubmissionModel,
 )
+from app.infrastructure.repositories.operational_roster import operational_roster_member
 
 QR_TOKEN_TTL = timedelta(days=365)
 QR_RETURN_GRACE_DAYS = 2
@@ -109,6 +110,7 @@ async def ensure_approved_passenger_qr(
             PassportSubmissionModel.status.in_(
                 OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
             ),
+            operational_roster_member(),
         )
         .with_for_update(of=PassportSubmissionModel)
     )
@@ -169,6 +171,7 @@ async def ensure_approved_passenger_qrs(
             PassportSubmissionModel.status.in_(
                 OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
             ),
+            operational_roster_member(),
         )
         .order_by(PassportSubmissionModel.id)
         .with_for_update(of=PassportSubmissionModel)
@@ -234,6 +237,7 @@ async def ensure_mobile_passenger_qr(
             .join(ClientGroupModel, ClientGroupModel.id == PassportSubmissionModel.group_id)
             .where(
                 PassportSubmissionModel.id == passenger_id,
+                operational_roster_member(),
                 PassportSubmissionModel.agency_id == agency_id,
                 PassportSubmissionModel.group_id == group_id,
                 PassportSubmissionModel.status.in_(OFFICE_VISIBLE_PASSPORT_STATUS_VALUES),

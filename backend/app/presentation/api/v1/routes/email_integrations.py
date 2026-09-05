@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import hashlib
 import uuid
 from datetime import UTC, datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy import and_, func, or_, select, true, update
 from sqlalchemy.exc import IntegrityError
@@ -96,6 +95,12 @@ from app.presentation.api.v1.schemas.email_integration_schemas import (
 )
 from app.presentation.dependencies.auth import require_role
 from app.presentation.dependencies.csrf import require_cookie_csrf
+from app.presentation.security.email_oauth_binding import (
+    OAuthBindingSnapshot,
+    revalidate_oauth_actor_for_persistence,
+    start_oauth_browser_binding,
+    verify_oauth_browser_binding,
+)
 
 router = APIRouter()
 logger = get_logger(__name__)
@@ -355,6 +360,7 @@ async def list_email_connections(
 )
 async def authorize_gmail(
     payload: EmailAuthorizeRequest,
+    response: Response,
     current_user: User = Depends(_current_email_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> EmailAuthorizationUrlResponse:
@@ -406,7 +412,10 @@ async def authorize_gmail(
             connection_id=payload.connection_id,
             provider="gmail",
             state_hash=hash_oauth_state(state_value),
-            nonce_hash=hashlib.sha256(uuid.uuid4().bytes).hexdigest(),
+            nonce_hash=start_oauth_browser_binding(
+                response, provider="gmail", user_id=current_user.id,
+                session_version=current_user.session_version, settings=settings,
+            ),
             code_verifier_ciphertext=encrypted_verifier.ciphertext.encode("ascii"),
             key_version=encrypted_verifier.key_version,
             requested_scopes=["https://www.googleapis.com/auth/gmail.readonly"],
@@ -430,6 +439,7 @@ async def authorize_gmail(
 
 @router.get("/oauth/gmail/callback", include_in_schema=False)
 async def gmail_oauth_callback(
+    request: Request,
     state_value: str | None = Query(default=None, alias="state"),
     code: str | None = Query(default=None, max_length=8_192),
     error: str | None = Query(default=None, max_length=128),
@@ -463,6 +473,11 @@ async def gmail_oauth_callback(
     connection_id = state_row.connection_id
     verifier_ciphertext = bytes(state_row.code_verifier_ciphertext)
     verifier_key_version = state_row.key_version
+    if not await verify_oauth_browser_binding(request, state_row, session):
+        return RedirectResponse(_oauth_return_url(settings, "failed"), status_code=303)
+    binding = OAuthBindingSnapshot(
+        provider="gmail", user_id=user_id, nonce_hash=state_row.nonce_hash,
+    )
     state_row.consumed_at = now
     await session.commit()
 
@@ -527,6 +542,10 @@ async def gmail_oauth_callback(
     reconnected = connection_id is not None
     connection: EmailConnectionModel | None = None
     try:
+        if not await revalidate_oauth_actor_for_persistence(
+            request, binding, agency_id=agency_id, session=session,
+        ):
+            raise ValueError("Mailbox authorization changed during provider consent")
         if connection_id is not None:
             connection = await _owned_connection(
                 session,
@@ -648,6 +667,7 @@ async def gmail_oauth_callback(
 )
 async def authorize_outlook(
     payload: EmailAuthorizeRequest,
+    response: Response,
     current_user: User = Depends(_current_email_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> EmailAuthorizationUrlResponse:
@@ -699,7 +719,10 @@ async def authorize_outlook(
             connection_id=payload.connection_id,
             provider="outlook",
             state_hash=hash_oauth_state(state_value),
-            nonce_hash=hashlib.sha256(uuid.uuid4().bytes).hexdigest(),
+            nonce_hash=start_oauth_browser_binding(
+                response, provider="outlook", user_id=current_user.id,
+                session_version=current_user.session_version, settings=settings,
+            ),
             code_verifier_ciphertext=encrypted_verifier.ciphertext.encode("ascii"),
             key_version=encrypted_verifier.key_version,
             requested_scopes=_provider_scopes("outlook"),
@@ -723,6 +746,7 @@ async def authorize_outlook(
 
 @router.get("/oauth/outlook/callback", include_in_schema=False)
 async def outlook_oauth_callback(
+    request: Request,
     state_value: str | None = Query(default=None, alias="state"),
     code: str | None = Query(default=None, max_length=8_192),
     error: str | None = Query(default=None, max_length=128),
@@ -765,6 +789,13 @@ async def outlook_oauth_callback(
     connection_id = state_row.connection_id
     verifier_ciphertext = bytes(state_row.code_verifier_ciphertext)
     verifier_key_version = state_row.key_version
+    if not await verify_oauth_browser_binding(request, state_row, session):
+        return RedirectResponse(
+            _oauth_return_url(settings, "failed", "outlook"), status_code=303,
+        )
+    binding = OAuthBindingSnapshot(
+        provider="outlook", user_id=user_id, nonce_hash=state_row.nonce_hash,
+    )
     state_row.consumed_at = now
     await session.commit()
 
@@ -844,6 +875,10 @@ async def outlook_oauth_callback(
     reconnected = connection_id is not None
     connection: EmailConnectionModel | None = None
     try:
+        if not await revalidate_oauth_actor_for_persistence(
+            request, binding, agency_id=agency_id, session=session,
+        ):
+            raise ValueError("Mailbox authorization changed during provider consent")
         if connection_id is not None:
             connection = await _owned_connection(
                 session,

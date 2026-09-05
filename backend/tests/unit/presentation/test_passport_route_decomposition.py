@@ -132,6 +132,7 @@ _ROUTE_SIGNATURES = (
         "apply_visa_ai_image_edit",
     ),
     (("DELETE",), "/{submission_id}/images/{image_type}/crop", "reset_passport_image_crop"),
+    (("GET",), "/{submission_id}/covers/{cover_type}", "get_passport_cover"),
     (("GET",), "/{submission_id}", "get_passport"),
     (("POST",), "/{submission_id}/client-submit", "client_submit_passport"),
     (("POST",), "/{submission_id}/staff-approve", "staff_approve_passport"),

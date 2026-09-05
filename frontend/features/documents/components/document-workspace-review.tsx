@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   CheckCircle2,
   FileX2,
@@ -29,7 +30,7 @@ export function VerificationPanel({ verification }: VerificationPanelProps) {
         <div>
           <h3 className="text-sm font-semibold text-slate-900">Document Check Results</h3>
           <p className="mt-1 text-sm text-slate-500">
-            {verification.accepted_count} accepted, {verification.rejected_count} rejected from {verification.total_count} selected files.
+            {verification.accepted_count} accepted, {verification.rejected_count} rejected from {verification.total_count} selected {verification.total_count === 1 ? "file" : "files"}.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -133,26 +134,50 @@ export function DocumentRowActionMenu({
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const [position, setPosition] = useState<{ left: number; top?: number; bottom?: number; maxHeight: number }>({ left: 8, top: 8, maxHeight: 320 });
   const label = distributionDocumentUploadLabel(documentType);
 
   useEffect(() => {
     if (!open) return;
+    menuRef.current?.querySelector<HTMLButtonElement>("[role=menuitem]")?.focus();
     const handlePointerDown = (event: PointerEvent) => {
-      if (!menuRef.current?.contains(event.target as Node)) setOpen(false);
+      if (!menuRef.current?.contains(event.target as Node)
+        && !triggerRef.current?.contains(event.target as Node)) setOpen(false);
     };
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") {
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
+      if (event.key === "Tab") setOpen(false);
+      if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+        const items = Array.from(menuRef.current?.querySelectorAll<HTMLButtonElement>("[role=menuitem]") ?? []);
+        if (!items.length) return;
+        event.preventDefault();
+        const current = items.indexOf(document.activeElement as HTMLButtonElement);
+        const next = event.key === "Home" ? 0 : event.key === "End" ? items.length - 1
+          : (current + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+        items[next]?.focus();
+      }
+    };
+    const closeOnMove = (event: Event) => {
+      if (!(event.target instanceof Node) || !menuRef.current?.contains(event.target)) setOpen(false);
     };
     document.addEventListener("pointerdown", handlePointerDown);
     document.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("scroll", closeOnMove, true);
+    window.addEventListener("resize", closeOnMove);
     return () => {
       document.removeEventListener("pointerdown", handlePointerDown);
       document.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("scroll", closeOnMove, true);
+      window.removeEventListener("resize", closeOnMove);
     };
   }, [open]);
 
   return (
-    <div ref={menuRef} className="relative inline-flex justify-end">
+    <div className="relative inline-flex justify-end">
       <input
         ref={inputRef}
         type="file"
@@ -166,18 +191,32 @@ export function DocumentRowActionMenu({
         }}
       />
       <button
+        ref={triggerRef}
         type="button"
         className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
         aria-label={`${row.passenger_name} document actions`}
         aria-expanded={open}
         aria-haspopup="menu"
         disabled={pending}
-        onClick={() => setOpen((current) => !current)}
+        onClick={() => {
+          const bounds = triggerRef.current?.getBoundingClientRect();
+          if (bounds) {
+            const availableBelow = window.innerHeight - bounds.bottom - 14;
+            const above = availableBelow < 220 && bounds.top > availableBelow;
+            const maxHeight = Math.min(320, Math.max(120, above ? bounds.top - 14 : availableBelow));
+            setPosition({
+              left: Math.max(8, Math.min(bounds.right - 288, window.innerWidth - 296)),
+              ...(above ? { bottom: window.innerHeight - bounds.top + 6 } : { top: bounds.bottom + 6 }),
+              maxHeight,
+            });
+          }
+          setOpen((current) => !current);
+        }}
       >
         <MoreVertical className="h-4 w-4" />
       </button>
-      {open && (
-        <div role="menu" className="absolute right-0 top-10 z-30 w-72 rounded-lg border border-slate-200 bg-white py-1 text-left shadow-lg">
+      {open && createPortal(
+        <div ref={menuRef} role="menu" aria-label={`${row.passenger_name} document actions`} style={position} className="fixed z-[70] w-72 max-w-[calc(100vw-16px)] overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 text-left shadow-lg">
           <button
             type="button"
             role="menuitem"
@@ -211,7 +250,8 @@ export function DocumentRowActionMenu({
           <div className="border-t border-slate-100 px-3 py-2 text-xs text-slate-500">
             Upload one more {label} PDF without removing saved documents.
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );

@@ -156,7 +156,10 @@ def test_whatsapp_route_order_and_names_remain_stable() -> None:
         for route in whatsapp.router.routes
     ]
     assert actual == _EXPECTED_ROUTES
-    assert _decorated_route_names(whatsapp) == [route_name for _, _, route_name in actual]
+    assert _decorated_route_names(whatsapp) == []
+    for route in whatsapp.router.routes:
+        assert route.endpoint is getattr(whatsapp, route.name)
+        assert route.endpoint.__module__.startswith(whatsapp.__name__ + "_")
 
 
 def test_support_modules_do_not_register_routes() -> None:

@@ -8,6 +8,7 @@ import apiClient from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import type { PublicFlowTelemetryPayload } from "@/features/upload/services/public-flow-telemetry";
 import { getOrCreatePublicUploadSessionId } from "./public-upload-session";
+import type { UploadConfiguration } from "../types/upload-configuration";
 
 const publicUploadHeaders = (token: string) => ({
   "X-Upload-Session-ID": getOrCreatePublicUploadSessionId(token),
@@ -18,12 +19,14 @@ export interface CustomUploadQuestion {
   label: string;
   options: string[];
   enabled: boolean;
+  required?: boolean;
 }
 
 export interface CustomUploadDetail {
   id: string;
   label: string;
   enabled: boolean;
+  required?: boolean;
 }
 
 export interface UpdateUploadLinkRequest {
@@ -45,6 +48,7 @@ export interface UpdateUploadLinkRequest {
   relation_with_qualifier_enabled: boolean;
   designation_enabled: boolean;
   agency_dealership_name_enabled: boolean;
+  upload_configuration?: UploadConfiguration;
   custom_questions?: CustomUploadQuestion[];
   custom_details?: CustomUploadDetail[];
   whatsapp_broadcast_group_ids?: string[];
@@ -224,6 +228,7 @@ export interface UploadLinkResponse {
   relation_with_qualifier_enabled: boolean;
   designation_enabled: boolean;
   agency_dealership_name_enabled: boolean;
+  upload_configuration?: UploadConfiguration | null;
   custom_questions: CustomUploadQuestion[];
   custom_details: CustomUploadDetail[];
   qualifier_relation_options: QualifierRelationOption[];

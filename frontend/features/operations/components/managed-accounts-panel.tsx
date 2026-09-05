@@ -4,7 +4,7 @@ import { FormEvent, useId, useRef, useState } from "react";
 import { Check, Copy, Plus, ShieldCheck, UserPlus, X } from "lucide-react";
 import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
 import { formatDateTime } from "@/lib/utils/format";
-import { PageHeader } from "@/components/shared";
+import { WorkspacePageHeader } from "@/components/shared/workspace-ui";
 import {
   useAdminGroups,
   useAssignStaffGroups,
@@ -75,9 +75,10 @@ export function ManagedAccountsPanel() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
+      <WorkspacePageHeader
+        icon={ShieldCheck}
         title="Staff"
-        description="Create and manage normal company employee accounts."
+        description="Create and manage staff accounts."
         actions={(
           <Button ref={createStaffButtonRef} type="button" onClick={() => setShowCreateStaff(true)}>
             <Plus className="h-4 w-4" aria-hidden="true" />

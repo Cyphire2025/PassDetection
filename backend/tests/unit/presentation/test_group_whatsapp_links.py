@@ -211,12 +211,8 @@ async def _seed(db_session: AsyncSession) -> dict[str, object]:
     await db_session.flush()
     return {
         "agency_id": agency_id,
-        "creator": _domain_user(
-            creator_id, agency_id, email="creator@example.test"
-        ),
-        "viewer": _domain_user(
-            viewer_id, agency_id, email="viewer@example.test"
-        ),
+        "creator": _domain_user(creator_id, agency_id, email="creator@example.test"),
+        "viewer": _domain_user(viewer_id, agency_id, email="viewer@example.test"),
         "group": group,
         "broadcasts": [
             first_broadcast,
@@ -265,15 +261,11 @@ async def test_same_agency_manager_can_manage_links_and_read_matches(
         current_user=viewer,
         session=db_session,
     )
-    assert {option.id for option in options} == {
-        broadcast.id for broadcast in seeded["broadcasts"]
-    }
+    assert {option.id for option in options} == {broadcast.id for broadcast in seeded["broadcasts"]}
 
     replacement = await replace_client_group_whatsapp_links(
         group.id,
-        ReplaceWhatsAppBroadcastLinksRequest(
-            whatsapp_broadcast_group_ids=[]
-        ),
+        ReplaceWhatsAppBroadcastLinksRequest(whatsapp_broadcast_group_ids=[]),
         current_user=viewer,
         session=db_session,
     )
@@ -349,8 +341,7 @@ async def test_match_api_exposes_imported_fields_and_evidence(
     recipients = (
         await db_session.scalars(
             select(WhatsAppBroadcastRecipientModel).where(
-                WhatsAppBroadcastRecipientModel.normalized_phone_number
-                == "+919876543210"
+                WhatsAppBroadcastRecipientModel.normalized_phone_number == "+919876543210"
             )
         )
     ).all()
@@ -401,9 +392,7 @@ async def test_match_api_exposes_imported_fields_and_evidence(
         "email",
         "staff_code",
     }
-    assert {item.fields["zone_name"] for item in row.recipient_fields} == {
-        "North"
-    }
+    assert {item.fields["zone_name"] for item in row.recipient_fields} == {"North"}
 
 
 @pytest.mark.asyncio
@@ -428,10 +417,7 @@ async def test_patch_without_link_field_preserves_links_and_cross_tenant_rejects
     link_count = await db_session.scalar(
         select(func.count())
         .select_from(ClientGroupWhatsAppBroadcastLinkModel)
-        .where(
-            ClientGroupWhatsAppBroadcastLinkModel.client_group_id
-            == group.id
-        )
+        .where(ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group.id)
     )
     assert link_count == 2
 
@@ -469,13 +455,8 @@ async def test_link_replacement_dedupes_and_is_idempotent(
                 ClientGroupWhatsAppBroadcastLinkModel.id,
                 ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
             )
-            .where(
-                ClientGroupWhatsAppBroadcastLinkModel.client_group_id
-                == group.id
-            )
-            .order_by(
-                ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id
-            )
+            .where(ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group.id)
+            .order_by(ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id)
         )
     ).all()
 
@@ -492,13 +473,8 @@ async def test_link_replacement_dedupes_and_is_idempotent(
                 ClientGroupWhatsAppBroadcastLinkModel.id,
                 ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
             )
-            .where(
-                ClientGroupWhatsAppBroadcastLinkModel.client_group_id
-                == group.id
-            )
-            .order_by(
-                ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id
-            )
+            .where(ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group.id)
+            .order_by(ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id)
         )
     ).all()
 
@@ -522,16 +498,9 @@ async def test_link_replacement_dedupes_and_is_idempotent(
     )
     replacement_rows = (
         await db_session.scalars(
-            select(
-                ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id
-            )
-            .where(
-                ClientGroupWhatsAppBroadcastLinkModel.client_group_id
-                == group.id
-            )
-            .order_by(
-                ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id
-            )
+            select(ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id)
+            .where(ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group.id)
+            .order_by(ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id)
         )
     ).all()
 
@@ -570,7 +539,6 @@ def test_public_token_response_model_has_no_whatsapp_metadata() -> None:
     token_route = next(
         route
         for route in router.routes
-        if route.path == "/token/{token}"
-        and "GET" in (route.methods or set())
+        if route.path == "/token/{token}" and "GET" in (route.methods or set())
     )
     assert token_route.response_model is ClientGroupResponse

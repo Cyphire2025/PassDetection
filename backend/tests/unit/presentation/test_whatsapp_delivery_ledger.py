@@ -54,6 +54,7 @@ from app.presentation.api.v1.routes.whatsapp import (
 from app.presentation.api.v1.routes.whatsapp import (
     router as whatsapp_router,
 )
+from tests.route_dependencies import set_route_dependency
 
 
 def test_delivery_ledger_schema_is_generic_and_unique_per_recipient_type() -> None:
@@ -361,6 +362,8 @@ async def test_worker_success_exits_retry_loop_and_remains_submitted(
     log_claim_result.scalar_one_or_none.return_value = log.id
     state_claim_result = MagicMock()
     state_claim_result.scalar_one_or_none.return_value = uuid.uuid4()
+    claimed_log_result = MagicMock()
+    claimed_log_result.scalar_one.return_value = log
 
     session = AsyncMock()
     session.execute.side_effect = [
@@ -368,6 +371,7 @@ async def test_worker_success_exits_retry_loop_and_remains_submitted(
         group_result,
         support_result,
         log_claim_result,
+        claimed_log_result,
         state_claim_result,
     ]
 
@@ -775,7 +779,8 @@ def test_imported_recipient_field_limit_accepts_large_rosters_but_remains_bounde
 async def test_excel_contact_upload_enforces_compressed_byte_limit(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp.MAX_WHATSAPP_CONTACT_FILE_BYTES",
         4,
     )
@@ -970,7 +975,8 @@ async def test_excel_contact_name_composes_given_names_and_surname() -> None:
 async def test_excel_contact_upload_converts_unexpected_parser_error_to_400(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp._validate_excel_archive",
         lambda _payload: None,
     )
@@ -978,7 +984,8 @@ async def test_excel_contact_upload_converts_unexpected_parser_error_to_400(
     def raise_malformed_workbook(*_args: object, **_kwargs: object) -> None:
         raise KeyError("missing OOXML workbook relationship")
 
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp.load_workbook",
         raise_malformed_workbook,
     )
@@ -1220,7 +1227,8 @@ async def test_excel_contact_direct_upload_remains_strict_but_allows_merged_dupl
 async def test_excel_contact_preview_bounds_rejected_row_payload(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp.MAX_WHATSAPP_REJECTED_ROWS",
         1,
     )
@@ -1572,7 +1580,8 @@ async def test_resend_endpoint_queues_one_edited_message_with_current_template(
     ]
     audit_record = AsyncMock()
     queue_message = MagicMock()
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp.AuditLogRepository.record",
         audit_record,
     )
@@ -1589,7 +1598,8 @@ async def test_resend_endpoint_queues_one_edited_message_with_current_template(
         whatsapp_welcome_template_name="welcome_v3",
         whatsapp_passport_link_template_name="passport_template",
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp.get_settings",
         lambda: settings,
     )
@@ -1764,8 +1774,10 @@ async def test_resend_queue_failure_does_not_release_baseline_sent_state(
         scalar_result(None),
         scalar_result(source_log),
         MagicMock(),
+        MagicMock(),
     ]
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp.AuditLogRepository.record",
         AsyncMock(),
     )
@@ -1777,7 +1789,8 @@ async def test_resend_queue_failure_does_not_release_baseline_sent_state(
             process_whatsapp_broadcast=SimpleNamespace(apply_async=queue_message),
         ),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp.get_settings",
         lambda: SimpleNamespace(
             whatsapp_access_token="token",
@@ -1807,7 +1820,10 @@ async def test_resend_queue_failure_does_not_release_baseline_sent_state(
     assert baseline_state.status == "delivered"
     queued_log = session.add.call_args.args[0]
     assert queued_log.is_explicit_resend is True
-    assert queued_log.status == "failed"
+    failure_statement = session.execute.await_args.args[0].compile()
+    assert "status =" in str(failure_statement)
+    assert "queued" in failure_statement.params.values()
+    assert "failed" in failure_statement.params.values()
     assert session.commit.await_count == 2
 
 
@@ -1826,7 +1842,8 @@ async def test_explicit_resend_webhook_updates_log_without_loading_baseline_stat
     logs_result.scalars.return_value.all.return_value = [log]
     session = AsyncMock()
     session.execute.return_value = logs_result
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp.get_settings",
         lambda: SimpleNamespace(
             whatsapp_app_secret="",
@@ -1902,7 +1919,8 @@ async def test_otp_webhook_records_provider_failure_without_phone_or_code(
         MagicMock(),
         chain_result,
     ]
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp.get_settings",
         lambda: SimpleNamespace(
             whatsapp_app_secret="",

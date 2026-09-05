@@ -11,6 +11,7 @@ from fastapi import HTTPException, UploadFile, status
 from sqlalchemy.dialects import postgresql
 
 from app.presentation.api.v1.routes import passports
+from app.presentation.api.v1.routes.passport_routes import excel_import as passport_excel_import
 
 
 def _imported_row(
@@ -105,7 +106,7 @@ async def test_excel_parser_is_offloaded_from_the_async_request_loop(
         calls.append((function, args))
         return function(*args)
 
-    monkeypatch.setattr(passports, "PassportExcelImporter", StubImporter)
+    monkeypatch.setattr(passport_excel_import, "PassportExcelImporter", StubImporter)
     monkeypatch.setattr(passports.asyncio, "to_thread", fake_to_thread)
 
     result = await passports._parse_passport_excel_rows(b"workbook")
@@ -465,10 +466,10 @@ async def test_locked_reauthorization_refreshes_user_group_and_policy_in_order(
             assert group is refreshed_group
             events.append("authorize")
 
-    monkeypatch.setattr(passports, "_lock_passport_excel_group_import", fake_lock)
-    monkeypatch.setattr(passports, "UserRepository", StubUserRepository)
-    monkeypatch.setattr(passports, "ClientGroupRepository", StubGroupRepository)
-    monkeypatch.setattr(passports, "AuthorizationPolicy", StubAuthorizationPolicy)
+    monkeypatch.setattr(passport_excel_import, "_lock_passport_excel_group_import", fake_lock)
+    monkeypatch.setattr(passport_excel_import, "UserRepository", StubUserRepository)
+    monkeypatch.setattr(passport_excel_import, "ClientGroupRepository", StubGroupRepository)
+    monkeypatch.setattr(passport_excel_import, "AuthorizationPolicy", StubAuthorizationPolicy)
 
     user, group = await passports._lock_and_reauthorize_passport_excel_import(
         object(),  # type: ignore[arg-type]
@@ -514,9 +515,9 @@ async def test_locked_reauthorization_fails_closed_after_user_agency_changes(
             assert requested_group_id == group_id
             return SimpleNamespace(id=group_id, agency_id=expected_agency_id)
 
-    monkeypatch.setattr(passports, "_lock_passport_excel_group_import", fake_lock)
-    monkeypatch.setattr(passports, "UserRepository", StubUserRepository)
-    monkeypatch.setattr(passports, "ClientGroupRepository", StubGroupRepository)
+    monkeypatch.setattr(passport_excel_import, "_lock_passport_excel_group_import", fake_lock)
+    monkeypatch.setattr(passport_excel_import, "UserRepository", StubUserRepository)
+    monkeypatch.setattr(passport_excel_import, "ClientGroupRepository", StubGroupRepository)
 
     with pytest.raises(HTTPException) as exc_info:
         await passports._lock_and_reauthorize_passport_excel_import(
@@ -577,12 +578,12 @@ async def test_route_releases_read_transaction_before_cpu_parsing(
         events.append("locked_reauthorize")
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
-    monkeypatch.setattr(passports, "ClientGroupRepository", StubGroupRepository)
-    monkeypatch.setattr(passports, "AuthorizationPolicy", StubAuthorizationPolicy)
-    monkeypatch.setattr(passports, "_read_bounded_passport_excel_upload", fake_read)
-    monkeypatch.setattr(passports, "_parse_passport_excel_rows", fake_parse)
+    monkeypatch.setattr(passport_excel_import, "ClientGroupRepository", StubGroupRepository)
+    monkeypatch.setattr(passport_excel_import, "AuthorizationPolicy", StubAuthorizationPolicy)
+    monkeypatch.setattr(passport_excel_import, "_read_bounded_passport_excel_upload", fake_read)
+    monkeypatch.setattr(passport_excel_import, "_parse_passport_excel_rows", fake_parse)
     monkeypatch.setattr(
-        passports,
+        passport_excel_import,
         "_lock_and_reauthorize_passport_excel_import",
         fail_locked_reauthorization,
     )

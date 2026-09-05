@@ -20,6 +20,7 @@ from app.domain.entities.entities import (
     UserRole,
 )
 from app.presentation.api.v1.routes import passports as passports_route
+from app.presentation.api.v1.routes.passport_routes import selected_exports
 from app.presentation.api.v1.schemas.passport_schemas import (
     ExportSelectedGroupsRequest,
 )
@@ -132,13 +133,13 @@ async def test_selected_groups_export_combines_pending_only_groups(
         ],
     }
     monkeypatch.setattr(
-        passports_route.ClientGroupRepository,
+        selected_exports.ClientGroupRepository,
         "_to_entity",
         staticmethod(lambda model: model),
     )
     matcher = AsyncMock(return_value=match_rows)
     monkeypatch.setattr(
-        passports_route,
+        selected_exports,
         "_export_whatsapp_match_rows",
         matcher,
     )
@@ -376,12 +377,12 @@ async def test_selected_groups_field_options_use_the_merged_catalog(
     }
 
     monkeypatch.setattr(
-        passports_route.ClientGroupRepository,
+        selected_exports.ClientGroupRepository,
         "_to_entity",
         staticmethod(lambda model: model),
     )
     monkeypatch.setattr(
-        passports_route,
+        selected_exports,
         "_export_whatsapp_match_rows",
         AsyncMock(return_value=rows_by_group),
     )
@@ -429,12 +430,12 @@ async def test_selected_groups_export_omits_zone_when_not_selected(
     session.execute.side_effect = [group_result, submission_result]
 
     monkeypatch.setattr(
-        passports_route.ClientGroupRepository,
+        selected_exports.ClientGroupRepository,
         "_to_entity",
         staticmethod(lambda model: model),
     )
     monkeypatch.setattr(
-        passports_route,
+        selected_exports,
         "_export_whatsapp_match_rows",
         AsyncMock(
             return_value={

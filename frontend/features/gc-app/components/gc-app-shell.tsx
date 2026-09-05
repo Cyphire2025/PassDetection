@@ -14,7 +14,7 @@ export const GC_APP_SECTION_LINKS = [
   {
     label: "Client Manager Accounts",
     href: ROUTES.dashboard.gcAppClientManagerAccounts,
-    description: "Accounts and scoped assignments",
+    description: "Accounts and group assignments",
     icon: Users,
   },
   {
@@ -46,19 +46,18 @@ export function GcAppShell({ children }: { children: ReactNode }) {
   return (
     <div className="space-y-5">
       <OperationsPageHeader
-        eyebrow="Global Connect Travels"
         title="GC App operations"
-        description="Manage client access and mobile publishing from one controlled agency workspace."
+        description="Manage client access and publish content to GC App."
         icon={Smartphone}
       />
 
-      <nav aria-label="GC App" className="overflow-x-auto">
-        <ul className="flex min-w-max gap-2 rounded-2xl border border-slate-200 bg-slate-100/70 p-1.5" role="list">
+      <nav aria-label="GC App">
+        <ul className="grid grid-cols-1 gap-2 rounded-2xl border border-slate-200 bg-slate-100/70 p-1.5 sm:flex sm:flex-wrap" role="list">
           {GC_APP_SECTION_LINKS.map((link) => {
             const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`);
             const Icon = link.icon;
             return (
-              <li key={link.href}>
+              <li key={link.href} className="min-w-0">
                 <Link
                   href={link.href as never}
                   aria-current={isActive ? "page" : undefined}
@@ -68,7 +67,7 @@ export function GcAppShell({ children }: { children: ReactNode }) {
                       : "text-slate-600 hover:bg-white/70 hover:text-slate-900"
                   }`}
                 >
-                  <Icon className={`h-4 w-4 ${isActive ? "text-blue-600" : "text-slate-400"}`} aria-hidden="true" />
+                  <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-blue-600" : "text-slate-400"}`} aria-hidden="true" />
                   <span className="text-left">
                     <span className="block font-semibold">{link.label}</span>
                     <span className="hidden text-[11px] font-normal text-slate-500 sm:block">{link.description}</span>

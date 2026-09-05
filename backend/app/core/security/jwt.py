@@ -78,7 +78,7 @@ def create_refresh_token() -> tuple[str, datetime]:
     """
     Create an opaque refresh token (UUID).
 
-    The token itself is stored in the database.
+    Only its keyed hash is stored in the database.
     Returns:
         (token_string, expires_at) tuple.
     """

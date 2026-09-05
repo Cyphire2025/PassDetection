@@ -545,7 +545,7 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
                       <p>
                         Last attempt {formatIssueTime(issue.lastAttemptAt ?? issue.rejectedAt)} · reference {issue.scanReference.slice(-10)}
                       </p>
-                      <p className="mt-1 font-medium">Next: confirm the authoritative roster, then rescan if still missing.</p>
+                      <p className="mt-1 font-medium">Check the latest attendance list. Rescan only if the passenger is still missing.</p>
                     </li>
                   ))}
                 </ul>

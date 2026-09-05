@@ -7,6 +7,7 @@ Docker daemon or start any container.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -64,7 +65,7 @@ PINNED_STATSD_EXPORTER_IMAGE = (
     "prom/statsd-exporter:v0.29.0"
     "@sha256:632f705804922d50c1c95ba8ff9c8c0cc18d4bbb0cc265dc4f9ae708271c95b3"
 )
-EXPECTED_DATABASE_SCHEMA_REVISION = "0088_merge_my_photos_hardening"
+EXPECTED_DATABASE_SCHEMA_REVISION = "0090_upload_configuration"
 FRONTEND_ALLOWED_ENVIRONMENT_KEYS = {
     "NEXT_PUBLIC_API_BASE_URL",
     "NEXT_PUBLIC_APP_URL",
@@ -129,6 +130,13 @@ def _render_compose(*files: Path) -> dict[str, Any]:
             check=False,
             capture_output=True,
             text=True,
+            env={
+                **os.environ,
+                # Render-only fixtures. Never start services using these values.
+                "MINIO_ROOT_USER": "compose-contract-storage-admin",
+                "MINIO_ROOT_PASSWORD": "compose-contract-storage-admin-secret",
+                "EXPECTED_DATABASE_SCHEMA_REVISION": EXPECTED_DATABASE_SCHEMA_REVISION,
+            },
         )
     except FileNotFoundError as exc:
         raise RuntimeError("Docker Compose CLI is required for this check.") from exc
@@ -236,6 +244,16 @@ def main() -> int:
     _require(
         "/var/lib/clamav" in _volume_targets(clamav),
         "ClamAV signatures must persist across container replacement.",
+    )
+    _require(
+        any(
+            mount.startswith("/var/log/clamav:")
+            and {"uid=100", "gid=101", "mode=0750"}.issubset(
+                set(mount.split(":", 1)[1].split(","))
+            )
+            for mount in clamav.get("tmpfs", [])
+        ),
+        "ClamAV's temporary log directory must be writable by its unprivileged user.",
     )
     clamav_healthcheck = _healthcheck_text(clamav)
     _require(
@@ -400,6 +418,18 @@ def main() -> int:
             f"Production {service_name} must start after the metrics exporter.",
         )
     security_command = _command_text(production_services["redis"])
+    for service_name in (*BACKEND_SERVICES, "db", *REDIS_SERVICES, "minio", "frontend", "nginx"):
+        _require(
+            int(production_services[service_name].get("mem_limit", 0)) > 0
+            and float(production_services[service_name].get("cpus", 0)) > 0,
+            f"Production {service_name} must declare memory and CPU ceilings.",
+        )
+    for service_name in REDIS_SERVICES:
+        _require("--maxmemory " in _command_text(production_services[service_name]),
+                 f"{service_name} must bound data memory below the container ceiling.")
+    storage_admin = production_services["minio"]["environment"]
+    _require(storage_admin["MINIO_ROOT_USER"] != backend_environment.get("S3_ACCESS_KEY_ID"),
+             "Application storage identity must differ from the MinIO administrator.")
     broker_command = _command_text(production_services["redis-broker"])
     realtime_command = _command_text(production_services["redis-realtime"])
     cache_command = _command_text(production_services["redis-cache"])

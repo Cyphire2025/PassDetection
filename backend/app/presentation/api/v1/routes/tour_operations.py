@@ -52,6 +52,7 @@ from app.infrastructure.repositories.attendance_dashboard_repository import (
     AttendanceDashboardRepository,
 )
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.infrastructure.repositories.operational_roster import operational_roster_member
 from app.presentation.api.v1.routes.tour_operations_attendance_batch_support import (
     AttendanceBatchDependencies,
     process_coordinator_attendance_scan_batch,
@@ -832,6 +833,7 @@ async def assign_group_passengers(
             PassportSubmissionModel.agency_id == agency_id,
             PassportSubmissionModel.group_id == group_id,
             PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
+            operational_roster_member(),
         )
     )
     valid_passenger_ids = set(passenger_result.scalars().all())
@@ -937,6 +939,7 @@ async def list_my_group_passengers(
             PassportSubmissionModel.agency_id == agency_id,
             PassportSubmissionModel.group_id == group_id,
             PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
+            operational_roster_member(),
         )
         .order_by(PassportSubmissionModel.client_name.asc())
     )
@@ -985,6 +988,7 @@ async def get_my_group_passenger_detail(
             PassportSubmissionModel.agency_id == agency_id,
             PassportSubmissionModel.group_id == group_id,
             PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
+            operational_roster_member(),
         )
     )
     passenger = result.scalar_one_or_none()
@@ -2093,6 +2097,7 @@ async def _attendance_session_responses(
         select(func.count(PassportSubmissionModel.id)).where(
             PassportSubmissionModel.group_id == group_id,
             PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
+            operational_roster_member(),
         )
     )
     assigned_count = int(assigned_result.scalar_one() or 0)
@@ -2200,6 +2205,7 @@ async def _attendance_session_details_response(
             PassportSubmissionModel.agency_id == attendance_session.agency_id,
             PassportSubmissionModel.group_id == attendance_session.group_id,
             PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
+            operational_roster_member(),
         )
         .order_by(PassportSubmissionModel.client_name.asc())
     )
@@ -2243,6 +2249,7 @@ async def _attendance_counts(
         .where(
             PassportSubmissionModel.group_id == group_id,
             PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
+            operational_roster_member(),
         )
         .scalar_subquery()
     )
@@ -2321,6 +2328,7 @@ async def _group_attendance_overview(
             PassportSubmissionModel.agency_id == agency_id,
             PassportSubmissionModel.group_id == group.id,
             PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
+            operational_roster_member(),
         )
     )
     passenger_count = int(passenger_count_result.scalar_one() or 0)
@@ -2373,6 +2381,7 @@ async def _group_attendance_overview(
             PassportSubmissionModel.agency_id == agency_id,
             PassportSubmissionModel.group_id == group.id,
             PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
+            operational_roster_member(),
         )
         .order_by(PassportSubmissionModel.client_name.asc())
     )
@@ -2456,6 +2465,7 @@ async def _group_passenger_responses(
             PassportSubmissionModel.agency_id == agency_id,
             PassportSubmissionModel.group_id == group_id,
             PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
+            operational_roster_member(),
         )
         .order_by(PassportSubmissionModel.client_name.asc())
     )

@@ -1,6 +1,13 @@
 "use client";
 
-import Link from "next/link";
+import { Badge, Button, Card, CardContent } from "@/components/ui";
+import { ROUTES } from "@/constants/routes";
+import {
+  formatConfidence,
+  formatDateTime,
+  formatRelativeTime,
+} from "@/lib/utils/format";
+import { selectUser, useAuthStore } from "@/stores/auth.store";
 import {
   AlertTriangle,
   ArrowRight,
@@ -12,15 +19,8 @@ import {
   Mail,
   type LucideIcon,
 } from "lucide-react";
+import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Badge, Button, Card, CardContent } from "@/components/ui";
-import { ROUTES } from "@/constants/routes";
-import {
-  formatConfidence,
-  formatDateTime,
-  formatRelativeTime,
-} from "@/lib/utils/format";
-import { selectUser, useAuthStore } from "@/stores/auth.store";
 import { useEmailOperationalInbox } from "../hooks/use-email-integrations";
 import type {
   EmailOperationalInboxItem,
@@ -98,12 +98,11 @@ export function EmailOperationalInboxPage() {
             <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">
               AI-assisted travel operations
             </p>
-            <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">
+            <h1 className="mt-1 text-2xl font-semibold tracking-[-0.035em] text-slate-950 sm:text-[30px]">
               Operations Inbox
             </h1>
             <p className="mt-1 max-w-3xl text-sm text-slate-600">
-              See what changed, what needs a decision, and what the platform
-              has prepared from your personally connected accounts.
+              Review updates, decisions, and drafts from your connected inboxes.
             </p>
           </div>
           <Link
@@ -212,13 +211,27 @@ export function EmailOperationalInboxPage() {
                 Nothing in {activeView?.label.toLowerCase() ?? "this view"}
               </h3>
               <p className="mt-1 max-w-lg text-sm text-slate-600">
-                New account-scoped operational items will appear after a
-                connected inbox synchronizes and analysis completes.
+                Updates will appear after your connected inbox synchronizes and email analysis finishes.
               </p>
             </CardContent>
           </Card>
         )}
 
+        {inbox.isBrowsingHistory && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => void inbox.returnToLatest()}
+          >
+            Return to latest
+          </Button>
+        )}
+        {inbox.historyError && (
+          <p role="alert" className="px-4 py-2 text-sm text-red-700">
+            Older items could not be loaded. Try loading more again.
+          </p>
+        )}
         {inbox.hasNextPage && (
           <div className="mt-4 flex justify-center">
             <Button
@@ -237,8 +250,7 @@ export function EmailOperationalInboxPage() {
 }
 
 function OperationalInboxCard({ item }: { item: EmailOperationalInboxItem }) {
-  const hasPreparedWork =
-    item.proposal_count > 0 || Boolean(item.draft_status);
+  const hasPreparedWork = item.proposal_count > 0 || Boolean(item.draft_status);
   const deadline = item.next_deadline;
   return (
     <li>
@@ -383,9 +395,11 @@ function OperationalInboxCard({ item }: { item: EmailOperationalInboxItem }) {
 
           <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
             <Link
-              href={ROUTES.dashboard.emailIntegrationMessage(
-                item.message_id,
-              ) as never}
+              href={
+                ROUTES.dashboard.emailIntegrationMessage(
+                  item.message_id,
+                ) as never
+              }
               className="inline-flex h-9 items-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
             >
               Review operational detail

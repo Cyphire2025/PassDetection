@@ -130,6 +130,8 @@ async def apply_platform_lifecycle_policies(
             PassportSubmissionModel.image_s3_key,
             PassportSubmissionModel.thumbnail_s3_key,
             PassportSubmissionModel.passport_back_s3_key,
+            PassportSubmissionModel.passport_cover_s3_key,
+            PassportSubmissionModel.passport_back_cover_s3_key,
             PassportSubmissionModel.passport_photo_s3_key,
         )
         .join(ClientGroupModel, ClientGroupModel.id == PassportSubmissionModel.group_id)

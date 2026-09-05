@@ -37,6 +37,11 @@ from app.domain.value_objects.trip_timezone import (
     DEFAULT_TRIP_TIMEZONE,
     normalize_trip_timezone,
 )
+from app.domain.value_objects.upload_configuration import (
+    configuration_for,
+    normalize_upload_configuration,
+    validate_capture_configuration,
+)
 
 
 def _utcnow() -> datetime:
@@ -423,6 +428,7 @@ class ClientGroup:
     agent_employee_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
+    upload_configuration: dict[str, object] | None = None
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False
@@ -460,6 +466,7 @@ class ClientGroup:
         agent_employee_code_enabled: bool = False,
         meal_preference_enabled: bool = False,
         require_selfie: bool = False,
+        upload_configuration: dict[str, object] | None = None,
         allow_files_from_device: bool = True,
         ask_nearest_domestic_airport: bool = False,
         relation_with_qualifier_enabled: bool = False,
@@ -515,6 +522,7 @@ class ClientGroup:
             agent_employee_code_enabled=agent_employee_code_enabled,
             meal_preference_enabled=meal_preference_enabled,
             require_selfie=require_selfie,
+            upload_configuration=normalize_upload_configuration(upload_configuration),
             allow_files_from_device=allow_files_from_device,
             ask_nearest_domestic_airport=ask_nearest_domestic_airport,
             relation_with_qualifier_enabled=relation_with_qualifier_enabled,
@@ -524,6 +532,7 @@ class ClientGroup:
             custom_details=normalize_custom_details(custom_details),
             notes=notes.strip() if notes else None,
         )
+        validate_capture_configuration(group)
         if initial_status == GroupStatus.CLOSED and passport_retention_days is not None:
             group.schedule_passport_purge(passport_retention_days)
         return group
@@ -552,6 +561,7 @@ class ClientGroup:
         custom_questions: list[dict[str, object]] | None,
         custom_details: list[dict[str, object]] | None,
         notes: str | None,
+        upload_configuration: dict[str, object] | None = None,
     ) -> None:
         """Apply editable group settings through one domain boundary."""
 
@@ -600,6 +610,9 @@ class ClientGroup:
             self.custom_questions = normalize_custom_questions(custom_questions)
         if custom_details is not None:
             self.custom_details = normalize_custom_details(custom_details)
+        if upload_configuration is not None:
+            self.upload_configuration = normalize_upload_configuration(upload_configuration)
+        validate_capture_configuration(self)
         self.notes = notes.strip() if notes else None
 
     def require_allowed_acquisition_mode(self, acquisition_mode: str) -> str:
@@ -611,6 +624,9 @@ class ClientGroup:
                 "Choose a supported passport capture method.",
                 field="acquisition_mode",
             )
+        config = configuration_for(self)
+        if not config.passport_enabled or (normalized == "camera" and not config.passport_live_scan):
+            raise ValidationError("This passport collection method is disabled.", field="acquisition_mode")
         if normalized == "file" and not self.allow_files_from_device:
             raise ValidationError(
                 "This group requires live passport scanning. Files from the device are not allowed.",
@@ -772,6 +788,8 @@ class PassportSubmission:
     confidence_score: dict[str, object] | None  # Layered confidence breakdown
     mrz_raw: str | None                        # Raw MRZ string
     error_message: str | None
+    passport_cover_s3_key: str | None = None
+    passport_back_cover_s3_key: str | None = None
     custom_answers: list[CustomAnswerSnapshot] = field(default_factory=list)
     custom_detail_answers: list[CustomDetailAnswerSnapshot] = field(default_factory=list)
     qualifier_enabled_snapshot: bool = False
@@ -1002,6 +1020,53 @@ class PassportSubmission:
         self.confirmed_fields = confirmed_fields
         self.extraction_conflicts = []
         self.confirmed_at = _utcnow()
+        self.updated_at = _utcnow()
+
+    def promote_passport_cover(self, key: str) -> None:
+        self.passport_cover_s3_key = key
+        self.updated_at = _utcnow()
+
+    def promote_passport_back_cover(self, key: str) -> None:
+        self.passport_back_cover_s3_key = key
+        self.updated_at = _utcnow()
+
+    def prepare_without_passport_front(self) -> None:
+        """Make a configured details-only draft reviewable without an OCR job."""
+        if self.image_s3_key:
+            raise ValidationError("A saved passport page must pass document verification.", field="file")
+        self.status = PassportProcessingStatus.READY_FOR_CLIENT_REVIEW
+        self.extraction_status = PassportExtractionStatus.READY_FOR_REVIEW
+        self.updated_at = _utcnow()
+
+    def snapshot_collection_labels(
+        self, *, agent_employee_code_label: str | None, agency_dealership_name_label: str | None,
+    ) -> None:
+        metadata = dict(self.staff_metadata or {})
+        for name, label in (
+            ("agent_employee_code_label", agent_employee_code_label),
+            ("agency_dealership_name_label", agency_dealership_name_label),
+        ):
+            if label:
+                metadata[name] = label
+        self.staff_metadata = metadata or None
+
+    def mark_no_passport_verification_required(self) -> None:
+        """Retain an honest staff-review state when no identity page was collected."""
+        if self.image_s3_key:
+            raise ValidationError("A saved passport page must pass document verification.", field="file")
+        self.status = PassportProcessingStatus.NEEDS_REVIEW
+        self.extraction_status = PassportExtractionStatus.READY_FOR_REVIEW
+        self.post_submission_verification = {
+            "verification_status": "needs_review",
+            "confidence": 0.0,
+            "explanation": "No passport personal details page was collected for this submission.",
+            "provider_status": "not_applicable",
+            "reason_code": "PASSPORT_NOT_COLLECTED",
+            "incorrect_fields": [],
+            "suspicious_fields": [],
+            "fields": [],
+        }
+        self.post_submission_verified_at = None
         self.updated_at = _utcnow()
 
     def submit_client_review(

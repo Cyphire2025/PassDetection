@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import importlib
 import re
 import unicodedata
@@ -229,6 +230,44 @@ def _raise_for_common_unsupported_format(
 
 
 def classify_documents_bounded(
+    matcher: DocumentMatcher,
+    jobs: list[tuple[str, bytes, str]],
+    *,
+    isolate_pdf_parsing: bool,
+    batch_timeout_seconds: float | None = None,
+    reject_common_unsupported_format: bool = False,
+) -> list[ClassifiedDocument]:
+    """Reuse exact duplicates within one request while preserving every input row.
+
+    There is no process-wide document cache: passenger text leaves scope with
+    the request. Filename and expected type remain part of the key so extension
+    validation, lane acceptance and subsequent filename matching cannot drift.
+    """
+
+    unique_jobs: list[tuple[str, bytes, str]] = []
+    positions: list[int] = []
+    job_positions: dict[tuple[str, str, bytes], int] = {}
+    for filename, content, expected_type in jobs:
+        key = (filename, expected_type, hashlib.sha256(content).digest())
+        index = job_positions.get(key)
+        if index is None:
+            index = len(unique_jobs)
+            job_positions[key] = index
+            unique_jobs.append((filename, content, expected_type))
+        positions.append(index)
+    unique_results = _classify_unique_documents(
+        matcher,
+        unique_jobs,
+        isolate_pdf_parsing=isolate_pdf_parsing,
+        batch_timeout_seconds=batch_timeout_seconds,
+    )
+    classifications = [unique_results[index] for index in positions]
+    if reject_common_unsupported_format:
+        _raise_for_common_unsupported_format(matcher, jobs, classifications)
+    return classifications
+
+
+def _classify_unique_documents(
     matcher: DocumentMatcher,
     jobs: list[tuple[str, bytes, str]],
     *,
@@ -673,8 +712,7 @@ class DocumentMatcher:
                     if match.passenger_id is not None:
                         matches_by_id.setdefault(match.passenger_id, match)
                 name_matches = [
-                    matches_by_id[passenger_id]
-                    for passenger_id in sorted(matches_by_id, key=str)
+                    matches_by_id[passenger_id] for passenger_id in sorted(matches_by_id, key=str)
                 ]
         if ambiguity is not None:
             content_ambiguities.append(ambiguity)
@@ -1350,11 +1388,7 @@ class DocumentMatcher:
             r"\b([A-Z]{1,2}[\s-]?[0-9]{6,8})\b",
             text.upper(),
         )
-        return (
-            self._normalize_identifier(fallback_match.group(1))
-            if fallback_match
-            else None
-        )
+        return self._normalize_identifier(fallback_match.group(1)) if fallback_match else None
 
     def _extract_reference(self, text: str) -> str | None:
         match = re.search(

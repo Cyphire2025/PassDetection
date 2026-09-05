@@ -25,6 +25,7 @@ from app.presentation.api.v1.routes.whatsapp import (
     resend_recipient_message,
     send_broadcast_message,
 )
+from tests.route_dependencies import set_route_dependency
 
 
 def test_custom_recipient_selection_is_optional_and_group_scoped() -> None:
@@ -128,12 +129,9 @@ def test_new_sends_require_nonempty_passport_intro_and_image_header() -> None:
     with pytest.raises(HTTPException) as image_error:
         _resolve_send_header_image("passport_link", None)
     assert image_error.value.status_code == 400
-    assert image_error.value.detail == (
-        "Upload the required Passport Link image before sending"
-    )
+    assert image_error.value.detail == ("Upload the required Passport Link image before sending")
     assert (
-        _resolve_send_header_image("passport_link", "  media-passport-v3  ")
-        == "media-passport-v3"
+        _resolve_send_header_image("passport_link", "  media-passport-v3  ") == "media-passport-v3"
     )
 
 
@@ -173,23 +171,28 @@ async def test_group_preview_reuses_latest_group_snapshot_not_preview_recipient(
     session = AsyncMock()
     session.execute.return_value = group_result
     latest_snapshot = AsyncMock(return_value=_composer_snapshot_from_log(_passport_log()))
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp._group_recipients",
         AsyncMock(return_value=[recipient]),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp._latest_composer_snapshot",
         latest_snapshot,
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp._support_contacts_for_group",
         AsyncMock(return_value=[]),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp._recipient_delivery_counts",
         AsyncMock(return_value=(0, 1, 0, 0)),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp.get_settings",
         lambda: SimpleNamespace(
             whatsapp_welcome_template_name="welcome_v3",
@@ -239,20 +242,26 @@ async def test_resend_preview_is_scoped_to_one_recipient_and_latest_recipient_co
     session = AsyncMock()
     session.execute.side_effect = [group_result, state_result]
     recipient = SimpleNamespace(id=recipient_id, name="Aarav")
-    latest_snapshot = AsyncMock(return_value=_composer_snapshot_from_log(_passport_log(explicit=True)))
-    monkeypatch.setattr(
+    latest_snapshot = AsyncMock(
+        return_value=_composer_snapshot_from_log(_passport_log(explicit=True))
+    )
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp._group_recipients",
         AsyncMock(return_value=[recipient]),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp._latest_composer_snapshot",
         latest_snapshot,
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp._support_contacts_for_group",
         AsyncMock(return_value=[]),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp.get_settings",
         lambda: SimpleNamespace(
             whatsapp_welcome_template_name="welcome_v3",
@@ -297,24 +306,24 @@ async def test_failed_message_preview_reuses_saved_content_for_one_person_retry(
     state_result.scalar_one_or_none.return_value = SimpleNamespace(status="failed")
     session = AsyncMock()
     session.execute.side_effect = [group_result, state_result]
-    latest_snapshot = AsyncMock(
-        return_value=_composer_snapshot_from_log(_passport_log())
-    )
-    monkeypatch.setattr(
+    latest_snapshot = AsyncMock(return_value=_composer_snapshot_from_log(_passport_log()))
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp._group_recipients",
-        AsyncMock(
-            return_value=[SimpleNamespace(id=recipient_id, name="Aarav")]
-        ),
+        AsyncMock(return_value=[SimpleNamespace(id=recipient_id, name="Aarav")]),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp._latest_composer_snapshot",
         latest_snapshot,
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp._support_contacts_for_group",
         AsyncMock(return_value=[]),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp.get_settings",
         lambda: SimpleNamespace(
             whatsapp_welcome_template_name="welcome_v3",
@@ -352,11 +361,13 @@ async def test_fresh_passport_send_rejects_missing_image_header(
     )
     session = AsyncMock()
     session.execute.return_value = group_result
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp._group_recipients",
         AsyncMock(return_value=[SimpleNamespace(id=uuid.uuid4())]),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp._support_contacts_for_group",
         AsyncMock(
             return_value=[
@@ -367,7 +378,8 @@ async def test_fresh_passport_send_rejects_missing_image_header(
             ]
         ),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp._latest_composer_snapshot",
         AsyncMock(return_value=None),
     )
@@ -389,9 +401,7 @@ async def test_fresh_passport_send_rejects_missing_image_header(
         )
 
     assert exc_info.value.status_code == 400
-    assert exc_info.value.detail == (
-        "Upload the required Passport Link image before sending"
-    )
+    assert exc_info.value.detail == ("Upload the required Passport Link image before sending")
 
 
 @pytest.mark.asyncio
@@ -407,23 +417,28 @@ async def test_missing_passport_link_stays_null_while_preview_renders_placeholde
     )
     session = AsyncMock()
     session.execute.return_value = group_result
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp._group_recipients",
         AsyncMock(return_value=[SimpleNamespace(id=recipient_id, name="Aarav")]),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp._latest_composer_snapshot",
         AsyncMock(return_value=None),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp._support_contacts_for_group",
         AsyncMock(return_value=[]),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp._recipient_delivery_counts",
         AsyncMock(return_value=(1, 0, 0, 0)),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp.get_settings",
         lambda: SimpleNamespace(
             whatsapp_welcome_template_name="welcome_v3",
@@ -490,11 +505,13 @@ async def test_old_passport_snapshot_prefills_current_image_template_resend(
         scalar_result(source_log),
         support_result,
     ]
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp.AuditLogRepository.record",
         AsyncMock(),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp.active_replacement_resolution_id_for_recipient",
         AsyncMock(return_value=None),
     )
@@ -506,7 +523,8 @@ async def test_old_passport_snapshot_prefills_current_image_template_resend(
             process_whatsapp_broadcast=SimpleNamespace(apply_async=queue_message),
         ),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         "app.presentation.api.v1.routes.whatsapp.get_settings",
         lambda: SimpleNamespace(
             whatsapp_access_token="token",

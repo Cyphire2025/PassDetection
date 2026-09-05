@@ -56,7 +56,7 @@ export function GroupAccessPanel({
         <CardContent className="space-y-4 p-5">
           <div>
             <h3 className="font-semibold text-slate-900">Role access</h3>
-            <p className="mt-1 text-sm text-slate-500">Each role is enforced by the backend. Turning a switch off does not modify the underlying travel group.</p>
+            <p className="mt-1 text-sm text-slate-500">Control mobile access for each role. These settings do not change the travel group.</p>
           </div>
           <div className="grid gap-3 md:grid-cols-3">
             <AccessSwitch label="Passenger access" checked={control.passenger_access_enabled} disabled={blocked || isUpdating} onChange={(enabled) => void update({ passenger_access_enabled: enabled })} />
@@ -98,7 +98,7 @@ export function GroupAccessPanel({
         <CardContent className="space-y-4 p-5">
           <div>
             <h3 className="font-semibold text-slate-900">App-access window</h3>
-            <p className="mt-1 text-sm text-slate-500">Times are entered in your local timezone and stored by the backend as UTC.</p>
+            <p className="mt-1 text-sm text-slate-500">Enter access dates and times in your local timezone.</p>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             <Input label="Access starts" type="datetime-local" value={startsAt} onChange={(event) => setStartsAt(event.target.value)} disabled={blocked || isUpdating} />

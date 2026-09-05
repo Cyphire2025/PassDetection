@@ -58,7 +58,7 @@ export function DocumentUploadPanel({
               )}
             </p>
           </div>
-          <Badge variant="outline">{passengerCount.toLocaleString()} passengers</Badge>
+          <Badge variant="outline">{passengerCount.toLocaleString()} {passengerCount === 1 ? "passenger" : "passengers"}</Badge>
         </div>
 
         {hasIncompleteUploads && (

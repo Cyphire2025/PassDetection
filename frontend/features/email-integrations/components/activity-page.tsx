@@ -19,7 +19,7 @@ export function EmailActivityPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-950">
+        <h1 className="text-2xl font-semibold tracking-[-0.035em] text-slate-950 sm:text-[30px]">
           Email processing activity
         </h1>
         <p className="mt-1 max-w-3xl text-sm text-slate-600">

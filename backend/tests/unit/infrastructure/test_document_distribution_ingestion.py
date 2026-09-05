@@ -202,9 +202,7 @@ async def test_dashboard_ingestion_rejects_a_verified_pdf_without_a_passenger_ma
                     extracted_reference=None,
                 )
             ],
-            staged_storage_keys=[
-                f"document-verification-staging/{agency_id}/unmatched.pdf"
-            ],
+            staged_storage_keys=[f"document-verification-staging/{agency_id}/unmatched.pdf"],
             require_passenger_match=True,
         )
 
@@ -233,9 +231,7 @@ async def test_staged_document_skips_second_parse_and_copies_server_side(
         extracted_passport_number="P1234567",
         extracted_reference="EV123456",
     )
-    source_key = (
-        f"document-verification-staging/{agency_id}/{uuid.uuid4()}/{uuid.uuid4()}.pdf"
-    )
+    source_key = f"document-verification-staging/{agency_id}/{uuid.uuid4()}/{uuid.uuid4()}.pdf"
     classify = MagicMock(side_effect=AssertionError("PDF must not be parsed twice"))
     monkeypatch.setattr(distribution_ingestion, "classify_documents_bounded", classify)
     session = MagicMock()

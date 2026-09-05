@@ -13,6 +13,7 @@ Responsibilities:
 
 from __future__ import annotations
 
+import re
 import uuid
 from datetime import UTC, datetime
 
@@ -65,11 +66,14 @@ class RefreshTokenRepository:
           - Not revoked
           - Not expired
         """
+        # Database digests must never be reusable bearer credentials.
+        if re.fullmatch(r"[0-9a-fA-F]{64}", token):
+            return None
         now = datetime.now(tz=UTC)
         hashed = hash_refresh_token(token)
         result = await self._session.execute(
             select(RefreshTokenModel).where(
-                RefreshTokenModel.token.in_([hashed, token]),
+                RefreshTokenModel.token == hashed,
                 RefreshTokenModel.is_revoked.is_(False),
                 RefreshTokenModel.expires_at > now,
             )
@@ -84,16 +88,18 @@ class RefreshTokenRepository:
         first transaction updates the row, later contenders re-check the
         predicates and receive no row from ``RETURNING``.
 
-        Both hashed and legacy plaintext rows remain readable during the
-        existing compatibility window.
+        Only keyed hashes are readable. Legacy plaintext rows cannot be used
+        and are revoked by the release data migration.
         """
 
+        if re.fullmatch(r"[0-9a-fA-F]{64}", token):
+            return None
         now = datetime.now(tz=UTC)
         hashed = hash_refresh_token(token)
         result = await self._session.execute(
             update(RefreshTokenModel)
             .where(
-                RefreshTokenModel.token.in_([hashed, token]),
+                RefreshTokenModel.token == hashed,
                 RefreshTokenModel.is_revoked.is_(False),
                 RefreshTokenModel.expires_at > now,
             )
@@ -111,7 +117,7 @@ class RefreshTokenRepository:
         hashed = hash_refresh_token(token)
         await self._session.execute(
             update(RefreshTokenModel)
-            .where(RefreshTokenModel.token.in_([hashed, token]))
+            .where(RefreshTokenModel.token == hashed)
             .values(is_revoked=True, revoked_at=datetime.now(tz=UTC))
         )
         await self._session.flush()

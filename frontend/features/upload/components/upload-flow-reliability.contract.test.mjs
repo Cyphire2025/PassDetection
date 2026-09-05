@@ -179,13 +179,13 @@ test("public upload entry uses Global Connect branding and requested copy", () =
   );
 });
 
-test("every Visa-enabled link offers live capture and verified studio upload together", () => {
+test("single and family flows share the configurable Visa Photo choice", () => {
   assert.match(source, /\| "SELFIE_CAMERA"/);
   assert.match(source, /\| "SELFIE_UPLOAD"/);
   assert.equal(
     source.match(/<VisaSelfieChoice/g)?.length,
     2,
-    "single and family method selection must use the paired Visa Photo choice",
+    "single and family method selection must share the Visa Photo choice",
   );
   assert.match(source, /onCameraClick=\{\(\) => setStep\("SELFIE_CAMERA"\)\}/);
   assert.match(source, /onUploadClick=\{\(\) => setStep\("SELFIE_UPLOAD"\)\}/);
@@ -216,13 +216,6 @@ test("single and qualifier choices go directly to passport upload", () => {
   );
 });
 
-test("enabled typed fields and custom details are required in both submission modes", () => {
-  assert.match(source, /agencyDealershipNameEnabled && !agencyDealershipName\.trim\(\)/);
-  assert.match(source, /designationEnabled && !designation\.trim\(\)/);
-  assert.match(source, /enabledCustomDetails\.some/);
-  assert.equal(
-    source.match(/custom_detail_answers: enabledCustomDetails\.map/g)?.length,
-    2,
-    "single and family submissions must send custom detail answers",
-  );
-});
+// Required versus optional configured fields and custom answers are exercised
+// through real forms in configured-passport-upload.test.tsx and
+// upload-flow-configured.test.tsx, including final single and family payloads.

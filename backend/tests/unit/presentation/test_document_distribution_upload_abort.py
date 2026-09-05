@@ -14,6 +14,7 @@ from app.infrastructure.documents.distribution_capacity import (
     DocumentDistributionCapacityError,
 )
 from app.presentation.api.v1.routes import document_distribution
+from tests.route_dependencies import set_route_dependency
 
 
 def _scalar_result(value):
@@ -41,13 +42,15 @@ async def test_new_first_chunk_is_rejected_while_another_upload_is_processing(
     group_id = uuid.uuid4()
     agency_id = uuid.uuid4()
     blocking_upload_id = uuid.uuid4()
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_get_authorized_group",
         AsyncMock(return_value=SimpleNamespace(id=group_id, agency_id=agency_id)),
     )
     blocker = AsyncMock(return_value=blocking_upload_id)
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_first_blocking_processing_upload_id",
         blocker,
@@ -94,7 +97,8 @@ async def test_review_surfaces_every_processing_upload_id(monkeypatch) -> None:
     ]
     session = MagicMock()
     session.execute = AsyncMock(return_value=_scalars_result(processing))
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "MinioStorageRepository",
         MagicMock(return_value=MagicMock()),
@@ -220,37 +224,43 @@ async def test_abort_processing_upload_is_scoped_transactional_and_cleans_after_
         events.append("commit")
 
     session.commit = AsyncMock(side_effect=commit)
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_get_authorized_group",
         AsyncMock(return_value=SimpleNamespace(id=group_id, agency_id=agency_id)),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_lock_active_document_scope",
         AsyncMock(return_value=(SimpleNamespace(id=actor_id), SimpleNamespace())),
     )
     scope_lock = AsyncMock()
     upload_lock = AsyncMock()
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "acquire_document_upload_scope_advisory_lock",
         scope_lock,
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "acquire_document_upload_advisory_lock",
         upload_lock,
     )
     staged_job = SimpleNamespace(id=uuid.uuid4(), object_count=1)
     stage_cleanup = MagicMock(return_value=(staged_job,))
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "stage_storage_cleanup_jobs",
         stage_cleanup,
     )
     audit_record = AsyncMock()
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "AuditLogRepository",
         lambda _session: SimpleNamespace(record=audit_record),
@@ -260,7 +270,8 @@ async def test_abort_processing_upload_is_scoped_transactional_and_cleans_after_
         events.append("cleanup")
         return SimpleNamespace(completed=True)
 
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "process_storage_cleanup_job",
         process_cleanup,
@@ -325,28 +336,33 @@ async def test_abort_refuses_completed_batch_before_delete_or_cleanup(monkeypatc
         return_value=_scalar_result(SimpleNamespace(id=batch_id, status="draft"))
     )
     session.commit = AsyncMock()
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_get_authorized_group",
         AsyncMock(return_value=SimpleNamespace(id=group_id, agency_id=agency_id)),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_lock_active_document_scope",
         AsyncMock(return_value=(SimpleNamespace(id=uuid.uuid4()), SimpleNamespace())),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "acquire_document_upload_scope_advisory_lock",
         AsyncMock(),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "acquire_document_upload_advisory_lock",
         AsyncMock(),
     )
     stage_cleanup = MagicMock()
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "stage_storage_cleanup_jobs",
         stage_cleanup,

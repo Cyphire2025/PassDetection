@@ -7,6 +7,8 @@ export function GroupOptionToggle({
   onChange,
   borderless = false,
   disabled = false,
+  required,
+  onRequiredChange,
 }: {
   label: string;
   description: string;
@@ -14,6 +16,8 @@ export function GroupOptionToggle({
   onChange: (checked: boolean) => void;
   borderless?: boolean;
   disabled?: boolean;
+  required?: boolean;
+  onRequiredChange?: (required: boolean) => void;
 }) {
   const containerClassName = borderless
     ? "flex items-start justify-between gap-4"
@@ -27,6 +31,7 @@ export function GroupOptionToggle({
         <p className="text-sm font-semibold text-slate-800">{label}</p>
         <p className="mt-1 text-xs leading-5 text-slate-500">{description}</p>
       </div>
+      <div className="flex shrink-0 flex-col items-end gap-2">
       <button
         type="button"
         role="switch"
@@ -44,6 +49,20 @@ export function GroupOptionToggle({
           }`}
         />
       </button>
+      {onRequiredChange && (
+        <label className={`inline-flex cursor-pointer items-center gap-1.5 text-xs ${checked ? "text-slate-600" : "text-slate-400"}`}>
+          <input
+            type="checkbox"
+            checked={required ?? true}
+            onChange={(event) => onRequiredChange(event.target.checked)}
+            disabled={disabled || !checked}
+            aria-label={`Make ${label} compulsory`}
+            className="h-3.5 w-3.5 rounded border-slate-300 accent-blue-600 focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed"
+          />
+          Compulsory
+        </label>
+      )}
+      </div>
     </div>
   );
 }

@@ -28,6 +28,7 @@ from app.infrastructure.database.models import (
 from app.infrastructure.repositories.attendance_runtime_repository import (
     AttendanceRuntimeRepository,
 )
+from app.infrastructure.repositories.operational_roster import operational_roster_member
 from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
     qr_hash,
 )
@@ -457,6 +458,7 @@ async def resolve_scannable_passenger(
             PassengerQRTokenModel.agency_id == agency_id,
             PassengerQRTokenModel.token_hash == token_hash,
             PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
+            operational_roster_member(),
         )
     )
     resolved = result.first()

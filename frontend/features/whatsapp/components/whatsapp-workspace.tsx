@@ -8,7 +8,6 @@ import {
   MoreVertical,
   Plus,
   Send,
-  ShieldCheck,
   Trash2,
   Users,
 } from "lucide-react";
@@ -180,16 +179,12 @@ export function WhatsAppPage() {
   return (
     <div className="flex flex-col gap-5">
       <WorkspacePageHeader
-        eyebrow="Passenger communication centre"
         title="WhatsApp"
-        description="Build controlled recipient groups, review contact readiness, preview approved trip wording, and monitor every individual send batch."
+        description="Manage recipient lists, preview trip messages, and track delivery."
         icon={MessageCircle}
         accent="emerald"
         context={(
-          <>
-            <WorkspaceHeaderContext icon={ShieldCheck}>Approved individual messaging</WorkspaceHeaderContext>
-            <WorkspaceHeaderContext icon={Users}>{totalEligibleRecipients.toLocaleString()} eligible recipients</WorkspaceHeaderContext>
-          </>
+          <WorkspaceHeaderContext icon={Users}>{totalEligibleRecipients.toLocaleString()} eligible recipients</WorkspaceHeaderContext>
         )}
         actions={(
           <Button

@@ -1,50 +1,11 @@
-import type { ReactNode } from "react";
-import {
-  AlertCircle,
-  ArrowRight,
-  Search,
-  type LucideIcon,
-} from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { AlertCircle, ArrowRight, Search, type LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 
 type WorkspaceAccent = "sky" | "cyan" | "emerald" | "lime" | "amber" | "violet";
 type WorkspaceMetricTone = "default" | "attention" | "success" | "info";
 
-const ACCENT_STYLES: Record<WorkspaceAccent, { icon: string; glow: string; eyebrow: string }> = {
-  sky: {
-    icon: "border-sky-300/20 bg-sky-300/10 text-sky-200",
-    glow: "bg-[radial-gradient(circle_at_center,rgba(56,189,248,0.2),transparent_68%)]",
-    eyebrow: "text-sky-300",
-  },
-  cyan: {
-    icon: "border-cyan-300/20 bg-cyan-300/10 text-cyan-200",
-    glow: "bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.18),transparent_68%)]",
-    eyebrow: "text-cyan-300",
-  },
-  emerald: {
-    icon: "border-emerald-300/20 bg-emerald-300/10 text-emerald-200",
-    glow: "bg-[radial-gradient(circle_at_center,rgba(52,211,153,0.17),transparent_68%)]",
-    eyebrow: "text-emerald-300",
-  },
-  lime: {
-    icon: "border-lime-300/20 bg-lime-300/10 text-lime-200",
-    glow: "bg-[radial-gradient(circle_at_center,rgba(163,230,53,0.15),transparent_68%)]",
-    eyebrow: "text-lime-300",
-  },
-  amber: {
-    icon: "border-amber-300/20 bg-amber-300/10 text-amber-200",
-    glow: "bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.15),transparent_68%)]",
-    eyebrow: "text-amber-300",
-  },
-  violet: {
-    icon: "border-violet-300/20 bg-violet-300/10 text-violet-200",
-    glow: "bg-[radial-gradient(circle_at_center,rgba(167,139,250,0.18),transparent_68%)]",
-    eyebrow: "text-violet-300",
-  },
-};
-
 export function WorkspacePageHeader({
-  eyebrow,
   title,
   description,
   icon: Icon,
@@ -53,7 +14,6 @@ export function WorkspacePageHeader({
   actions,
   className,
 }: {
-  eyebrow: string;
   title: string;
   description: string;
   icon: LucideIcon;
@@ -62,39 +22,27 @@ export function WorkspacePageHeader({
   actions?: ReactNode;
   className?: string;
 }) {
-  const accentStyle = ACCENT_STYLES[accent];
+  void accent;
 
   return (
-    <header
-      className={cn(
-        "relative isolate overflow-hidden rounded-2xl border border-[#245b8f] bg-[#123f73] px-5 py-5 text-white shadow-sm sm:px-6",
-        className,
-      )}
-    >
-      <div
-        className={cn("pointer-events-none absolute -right-20 -top-24 h-64 w-64", accentStyle.glow)}
-        aria-hidden="true"
-      />
-      <div
-        className="pointer-events-none absolute inset-y-0 right-0 w-2/5 bg-[linear-gradient(135deg,transparent,rgba(59,130,246,0.12))]"
-        aria-hidden="true"
-      />
+    <header className={cn("workspace-page-header relative pb-6", className)}>
       <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex min-w-0 items-start gap-4">
-          <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border", accentStyle.icon)}>
+          <span className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm">
             <Icon className="h-5 w-5" aria-hidden="true" />
           </span>
           <div className="min-w-0">
-            <p className={cn("text-[11px] font-bold uppercase tracking-[0.18em]", accentStyle.eyebrow)}>
-              {eyebrow}
-            </p>
-            <h1 className="mt-1 text-xl font-semibold tracking-tight text-white sm:text-2xl">
+            <h1 className="text-2xl font-semibold tracking-[-0.035em] text-slate-950 sm:text-[30px]">
               {title}
             </h1>
-            <p className="mt-1.5 max-w-3xl text-sm leading-6 text-slate-200">
+            <p className="mt-1.5 max-w-3xl text-sm leading-6 text-slate-500">
               {description}
             </p>
-            {context && <div className="mt-3 flex flex-wrap items-center gap-2">{context}</div>}
+            {context && (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {context}
+              </div>
+            )}
           </div>
         </div>
         {actions && (
@@ -115,8 +63,10 @@ export function WorkspaceHeaderContext({
   children: ReactNode;
 }) {
   return (
-    <span className="inline-flex min-h-7 items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-xs font-medium text-slate-100">
-      {Icon && <Icon className="h-3.5 w-3.5 text-sky-300" aria-hidden="true" />}
+    <span className="inline-flex min-h-6 items-center gap-1.5 rounded-md bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-600">
+      {Icon && (
+        <Icon className="h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
+      )}
       {children}
     </span>
   );
@@ -136,7 +86,11 @@ export function WorkspaceSummaryStrip({
       aria-label={label}
       className={cn(
         "grid overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm sm:grid-cols-2",
-        columns === 3 ? "lg:grid-cols-3" : columns === 4 ? "lg:grid-cols-4" : "lg:grid-cols-2",
+        columns === 3
+          ? "lg:grid-cols-3"
+          : columns === 4
+            ? "lg:grid-cols-4"
+            : "lg:grid-cols-2",
       )}
     >
       {children}
@@ -157,10 +111,19 @@ export function WorkspaceSummaryItem({
   icon: LucideIcon;
   tone?: WorkspaceMetricTone;
 }) {
-  const toneStyles: Record<WorkspaceMetricTone, { surface: string; icon: string }> = {
+  const toneStyles: Record<
+    WorkspaceMetricTone,
+    { surface: string; icon: string }
+  > = {
     default: { surface: "", icon: "bg-slate-100 text-slate-600" },
-    attention: { surface: "bg-amber-50/65", icon: "bg-amber-100 text-amber-700" },
-    success: { surface: "bg-emerald-50/55", icon: "bg-emerald-100 text-emerald-700" },
+    attention: {
+      surface: "bg-amber-50/65",
+      icon: "bg-amber-100 text-amber-700",
+    },
+    success: {
+      surface: "bg-emerald-50/55",
+      icon: "bg-emerald-100 text-emerald-700",
+    },
     info: { surface: "bg-blue-50/55", icon: "bg-blue-100 text-blue-700" },
   };
   const style = toneStyles[tone];
@@ -172,14 +135,25 @@ export function WorkspaceSummaryItem({
         style.surface,
       )}
     >
-      <span className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg", style.icon)}>
+      <span
+        className={cn(
+          "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
+          style.icon,
+        )}
+      >
         <Icon className="h-4 w-4" aria-hidden="true" />
       </span>
       <div className="min-w-0">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{label}</p>
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+          {label}
+        </p>
         <div className="mt-0.5 flex min-w-0 items-baseline gap-2">
-          <p className="text-lg font-semibold tabular-nums text-slate-950">{value}</p>
-          {helper && <p className="truncate text-xs text-slate-500">{helper}</p>}
+          <p className="text-lg font-semibold tabular-nums text-slate-950">
+            {value}
+          </p>
+          {helper && (
+            <p className="truncate text-xs text-slate-500">{helper}</p>
+          )}
         </div>
       </div>
     </div>
@@ -229,7 +203,10 @@ export function WorkspaceToolbar({
       </div>
       <div className="flex flex-wrap items-center gap-2">
         {resultLabel && (
-          <span className="mr-1 text-xs font-medium text-slate-500" aria-live="polite">
+          <span
+            className="mr-1 text-xs font-medium text-slate-500"
+            aria-live="polite"
+          >
             {resultLabel}
           </span>
         )}
@@ -260,7 +237,9 @@ export function WorkspaceEmptyState({
         )}
       </span>
       <h2 className="mt-4 text-base font-semibold text-slate-950">{title}</h2>
-      <p className="mx-auto mt-1.5 max-w-lg text-sm leading-6 text-slate-500">{description}</p>
+      <p className="mx-auto mt-1.5 max-w-lg text-sm leading-6 text-slate-500">
+        {description}
+      </p>
       {action && <div className="mt-5 flex justify-center">{action}</div>}
     </div>
   );
@@ -279,11 +258,9 @@ export function WorkspaceErrorNotice({ children }: { children: ReactNode }) {
 }
 
 export function WorkspaceRouteLoading({
-  eyebrow,
   title,
   rows = 5,
 }: {
-  eyebrow: string;
   title: string;
   rows?: number;
 }) {
@@ -294,26 +271,16 @@ export function WorkspaceRouteLoading({
       aria-live="polite"
       aria-busy="true"
     >
-      <header className="relative isolate overflow-hidden rounded-2xl border border-[#245b8f] bg-[#123f73] px-5 py-5 text-white shadow-sm sm:px-6">
-        <div
-          className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 bg-[radial-gradient(circle_at_center,rgba(56,189,248,0.2),transparent_68%)]"
-          aria-hidden="true"
-        />
+      <header className="workspace-page-header relative pb-6">
         <div className="relative flex items-start gap-4">
           <span
-            className="h-11 w-11 shrink-0 animate-pulse rounded-xl border border-sky-300/20 bg-sky-300/10 motion-reduce:animate-none"
+            className="h-11 w-11 shrink-0 animate-pulse rounded-xl border border-slate-200 bg-slate-100 motion-reduce:animate-none"
             aria-hidden="true"
           />
           <div className="min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-sky-300">
-              {eyebrow}
-            </p>
-            <h1 className="mt-1 text-xl font-semibold tracking-tight text-white sm:text-2xl">
+            <h1 className="text-2xl font-semibold tracking-[-0.035em] text-slate-950 sm:text-[30px]">
               {title}
             </h1>
-            <p className="mt-1.5 text-sm leading-6 text-slate-200">
-              Preparing the latest workspace context…
-            </p>
           </div>
         </div>
       </header>
@@ -353,7 +320,10 @@ export function WorkspaceRouteLoading({
             aria-hidden="true"
           />
         </div>
-        <div className="divide-y divide-slate-100 px-4 sm:px-5" aria-hidden="true">
+        <div
+          className="divide-y divide-slate-100 px-4 sm:px-5"
+          aria-hidden="true"
+        >
           {Array.from({ length: rows }).map((_, index) => (
             <div key={index} className="flex items-center gap-4 py-4">
               <span className="h-9 w-9 shrink-0 animate-pulse rounded-lg bg-slate-100 motion-reduce:animate-none" />

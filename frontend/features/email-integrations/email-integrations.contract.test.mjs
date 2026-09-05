@@ -16,7 +16,7 @@ const shell = read("./components/email-integrations-shell.tsx");
 const connections = read("./components/connections-page.tsx");
 const review = read("./components/review-queue-page.tsx");
 const inbox = read("./components/operational-inbox-page.tsx");
-const message = read("./components/message-activity-page.tsx");
+const message = ['message-activity-page.tsx', 'message-intelligence-brief.tsx', 'use-message-feedback-controller.ts', 'message-activity-model.ts', 'message-deadline-decisions.tsx', 'message-proposal-decisions.tsx', 'message-draft-editor.tsx', 'message-intelligence-feedback.tsx'].map((file) => read(`./components/${file}`)).join("\n");
 const activity = read("./components/activity-page.tsx");
 const dialog = read("./components/email-integrations-ui.tsx");
 const hooks = read("./hooks/use-email-integrations.ts");
@@ -69,9 +69,7 @@ test("email integration routes use both optimistic and direct role gates", () =>
 });
 
 test("sidebar and section navigation expose accessible normal links", () => {
-  const emailNav = sidebar
-    .split("\n")
-    .find((line) => line.includes('label: "Operations Inbox"'));
+  const emailNav = sidebar.match(/\{\s*label: "Operations Inbox",[\s\S]*?\}/)?.[0];
   assert.ok(emailNav);
   assert.match(emailNav, /emailIntegrationsInbox/);
   assert.match(emailNav, /icon: Mail/);
@@ -291,7 +289,8 @@ test("email connection, review, and activity views refresh near real time", () =
   assert.match(hooks, /refetchInterval: \(\) => emailRepairIntervalMs\(\)/);
   assert.match(hooks, /inbox: \(userId: string, view:/);
   assert.match(hooks, /queryKey: EMAIL_INTEGRATION_QUERY_KEYS\.inbox/);
-  assert.match(hooks, /maxPages: EMAIL_REPAIR_PAGE_BUDGET/);
+  assert.match(hooks, /useLiveHistoryFeed/);
+  assert.match(read("../../lib/hooks/use-live-history-feed.ts"), /maxPages: 5/);
   assert.match(hooks, /refetchIntervalInBackground: false/);
   assert.match(hooks, /useEmailMessageIntelligence/);
   assert.match(hooks, /pollWhileMissing/);

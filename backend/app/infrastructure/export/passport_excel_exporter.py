@@ -366,6 +366,7 @@ class PassportExcelExporter:
         )
         previous_group_key: str | None = None
         has_written_submission = False
+        row_index = header_row
         for submission, values in ordered_rows:
             group_key = self._group_value(values, group_by_header).casefold()
             if (
@@ -377,12 +378,13 @@ class PassportExcelExporter:
                 # the underlying submission or WhatsApp data.
                 for _ in range(_ZONE_SEPARATOR_BLANK_ROWS):
                     worksheet.append([])
+                    row_index += 1
             row_values = []
             for column in columns:
                 value = values[column.header]
                 row_values.append(_export_cell_value(column, value))
             worksheet.append(row_values)
-            row_index = worksheet.max_row
+            row_index += 1
             for column_index, column in enumerate(columns, start=1):
                 cell = worksheet.cell(row=row_index, column=column_index)
                 if column.number_format and isinstance(cell.value, (date, datetime)):
@@ -391,8 +393,9 @@ class PassportExcelExporter:
             has_written_submission = True
 
         if pending_rows:
-            self._append_pending_rows(
+            row_index = self._append_pending_rows(
                 worksheet,
+                after_row=row_index,
                 columns=columns,
                 pending_rows=pending_rows,
                 group_by_header=group_by_header,
@@ -400,7 +403,7 @@ class PassportExcelExporter:
 
         if ordered_rows or pending_rows:
             last_column = worksheet.cell(row=header_row, column=len(headers)).column_letter
-            table_ref = f"A{header_row}:{last_column}{worksheet.max_row}"
+            table_ref = f"A{header_row}:{last_column}{row_index}"
             table = Table(displayName="PassportSubmissions", ref=table_ref)
             table.tableStyleInfo = TableStyleInfo(
                 name="TableStyleMedium2",
@@ -424,10 +427,11 @@ class PassportExcelExporter:
         cls,
         worksheet: Any,
         *,
+        after_row: int,
         columns: list[_ExportColumn],
         pending_rows: list[dict[str, Any]],
         group_by_header: str | None,
-    ) -> None:
+    ) -> int:
         """Append non-submitters beneath the shared header with durable yellow cells."""
 
         ordered_rows = sorted(
@@ -439,18 +443,20 @@ class PassportExcelExporter:
         )
         previous_group_key: str | None = None
         has_written_row = False
+        row_index = after_row
         for values in ordered_rows:
             group_key = cls._group_value(values, group_by_header).casefold()
             if group_by_header and has_written_row and group_key != previous_group_key:
                 for _ in range(_ZONE_SEPARATOR_BLANK_ROWS):
                     worksheet.append([])
+                    row_index += 1
 
             row_values: list[Any] = []
             for column in columns:
                 value = values.get(column.header)
                 row_values.append(_export_cell_value(column, value))
             worksheet.append(row_values)
-            row_index = worksheet.max_row
+            row_index += 1
             for column_index, column in enumerate(columns, start=1):
                 cell = worksheet.cell(row=row_index, column=column_index)
                 cell.fill = _PENDING_ROW_FILL
@@ -459,6 +465,7 @@ class PassportExcelExporter:
 
             previous_group_key = group_key
             has_written_row = True
+        return row_index
 
     @staticmethod
     def _group_value(

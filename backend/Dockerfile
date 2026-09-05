@@ -67,8 +67,13 @@ WORKDIR /app
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy application source
-COPY --chown=appuser:appgroup . .
+# Copy only runtime sources. Local debug images, environments and logs must
+# never enter any release-image layer, even when building a dirty checkout.
+COPY --chown=appuser:appgroup app ./app
+COPY --chown=appuser:appgroup alembic ./alembic
+COPY --chown=appuser:appgroup scripts ./scripts
+COPY --chown=appuser:appgroup alembic.ini gunicorn.conf.py ./
+RUN python -c "import pillow_heif; v=pillow_heif.libheif_info()['libheif']; assert tuple(map(int,v.split('.'))) >= (1,23,2), v"
 
 # Switch to non-root user
 USER appuser

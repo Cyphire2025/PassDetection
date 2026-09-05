@@ -5,6 +5,7 @@ import uuid
 
 import pytest
 from openpyxl import load_workbook
+from openpyxl.worksheet.worksheet import Worksheet
 
 from app.domain.entities.entities import PassportSubmission
 from app.domain.value_objects.personnel_codes import prefixed_staff_code
@@ -28,6 +29,35 @@ _OPTION_FLAGS = {
     "designation_enabled": False,
     "agency_dealership_name_enabled": False,
 }
+
+
+@pytest.mark.parametrize("row_count", [2, 100])
+def test_export_avoids_repeated_worksheet_extent_scans(
+    monkeypatch: pytest.MonkeyPatch, row_count: int,
+) -> None:
+    original = Worksheet.max_row.fget
+    extent_reads = 0
+
+    def measured_extent(worksheet):
+        nonlocal extent_reads
+        extent_reads += 1
+        return original(worksheet)
+
+    monkeypatch.setattr(Worksheet, "max_row", property(measured_extent))
+    group_id = uuid.uuid4()
+    submissions = [_submission(group_id, client_name=f"Traveller {index}") for index in range(row_count)]
+    content = PassportExcelExporter().export_group(
+        submissions, group_name="Synthetic",
+        pending_rows=[{"GIVEN NAME": f"Pending {index}", "DOB": "2000-01-01"} for index in range(row_count)],
+    )
+    # Workbook finalization may inspect dimensions, but appended rows must
+    # never rescan every previously created cell to find their row number.
+    assert extent_reads <= 2
+    worksheet = _worksheet(content)
+    assert worksheet.max_row == 4 + 2 * row_count
+    pending_row = worksheet[5 + row_count]
+    assert all(cell.fill.fgColor.rgb == "00FFF2CC" for cell in pending_row)
+    assert next(iter(worksheet.tables.values())).ref.endswith(str(4 + 2 * row_count))
 
 
 def _submission(

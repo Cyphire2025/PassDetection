@@ -28,7 +28,7 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
     async def test_snapshots_submission_before_redelivery_commit(self) -> None:
         group_id = uuid.uuid4()
         submission_id = uuid.uuid4()
-        group = SimpleNamespace(id=group_id)
+        group = SimpleNamespace(id=group_id, is_active=lambda: True, deleted_at=None)
         upload_credential = "private-upload-credential-12345678"
         submission = SimpleNamespace(
             id=submission_id,
@@ -72,36 +72,31 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
 
         with (
             patch(
-                "app.presentation.api.v1.routes.passports.ClientGroupRepository",
+                'app.presentation.api.v1.routes.passport_routes.public_upload.ClientGroupRepository',
                 return_value=group_repository,
             ),
             patch(
-                "app.presentation.api.v1.routes.passports."
-                "PassportSubmissionRepository",
+                'app.presentation.api.v1.routes.passport_routes.public_upload.PassportSubmissionRepository',
                 return_value=submission_repository,
             ),
             patch(
-                "app.presentation.api.v1.routes.passports."
-                "PassportProcessingJobRepository",
+                'app.presentation.api.v1.routes.passport_routes.public_upload.PassportProcessingJobRepository',
                 return_value=job_repository,
             ),
             patch(
-                "app.presentation.api.v1.routes.passports."
-                "queued_job_needs_redelivery",
+                'app.presentation.api.v1.routes.passport_routes.public_upload.queued_job_needs_redelivery',
                 return_value=True,
             ),
             patch(
-                "app.presentation.api.v1.routes.passports."
-                "passport_submission_output_from_entity",
+                'app.presentation.api.v1.routes.passport_routes.public_upload.passport_submission_output_from_entity',
                 side_effect=snapshot,
             ),
             patch(
-                "app.presentation.api.v1.routes.passports."
-                "_dispatch_processing_job",
+                'app.presentation.api.v1.routes.passport_routes.public_upload._dispatch_processing_job',
                 new=dispatch,
             ),
             patch(
-                "app.presentation.api.v1.routes.passports._response_from_dto",
+                'app.presentation.api.v1.routes.passport_routes.public_upload._response_from_dto',
                 new=response,
             ),
         ):
@@ -122,7 +117,7 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
         group_id = uuid.uuid4()
         submission_id = uuid.uuid4()
         group_repository = SimpleNamespace(
-            get_by_token=AsyncMock(return_value=SimpleNamespace(id=group_id))
+            get_by_token=AsyncMock(return_value=SimpleNamespace(id=group_id, is_active=lambda: True, deleted_at=None))
         )
         submission_repository = SimpleNamespace(
             get_by_id=AsyncMock(
@@ -138,12 +133,11 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
 
         with (
             patch(
-                "app.presentation.api.v1.routes.passports.ClientGroupRepository",
+                'app.presentation.api.v1.routes.passport_routes.public_upload.ClientGroupRepository',
                 return_value=group_repository,
             ),
             patch(
-                "app.presentation.api.v1.routes.passports."
-                "PassportSubmissionRepository",
+                'app.presentation.api.v1.routes.passport_routes.public_upload.PassportSubmissionRepository',
                 return_value=submission_repository,
             ),
         ):
@@ -166,7 +160,7 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
         group_id = uuid.uuid4()
         agency_id = uuid.uuid4()
         submission_id = uuid.uuid4()
-        group = SimpleNamespace(id=group_id, agency_id=agency_id)
+        group = SimpleNamespace(id=group_id, agency_id=agency_id, is_active=lambda: True, deleted_at=None)
         group_repository = SimpleNamespace(
             get_by_token=AsyncMock(return_value=group)
         )
@@ -192,12 +186,11 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
 
         with (
             patch(
-                "app.presentation.api.v1.routes.passports.ClientGroupRepository",
+                'app.presentation.api.v1.routes.passport_routes.public_upload.ClientGroupRepository',
                 return_value=group_repository,
             ),
             patch(
-                "app.presentation.api.v1.routes.passports."
-                "PassportSubmissionRepository",
+                'app.presentation.api.v1.routes.passport_routes.public_upload.PassportSubmissionRepository',
                 return_value=submission_repository,
             ),
         ):
@@ -220,7 +213,7 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
         agency_id = uuid.uuid4()
         submission_id = uuid.uuid4()
         credential = "private-upload-credential-1234567890"
-        group = SimpleNamespace(id=group_id, agency_id=agency_id)
+        group = SimpleNamespace(id=group_id, agency_id=agency_id, is_active=lambda: True, deleted_at=None)
         locked_group = SimpleNamespace(
             id=group_id,
             agency_id=agency_id,
@@ -235,6 +228,8 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
             thumbnail_s3_key=None,
             passport_photo_s3_key=None,
             passport_back_s3_key="back/example.jpg",
+            passport_cover_s3_key="cover/example.jpg",
+            passport_back_cover_s3_key="back-cover/example.jpg",
         )
         events: list[str] = []
         submission_repository = SimpleNamespace(
@@ -247,10 +242,14 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
         audit = AsyncMock(side_effect=lambda **_kwargs: events.append("audit"))
         cleanup_job = SimpleNamespace(
             id=uuid.uuid4(),
-            object_count=2,
+            object_count=4,
         )
 
         def stage(*_args, **_kwargs):
+            self.assertEqual(
+                set(_kwargs["storage_keys"]),
+                {"front/example.jpg", "back/example.jpg", "cover/example.jpg", "back-cover/example.jpg"},
+            )
             events.append("cleanup-tombstone")
             return (cleanup_job,)
 
@@ -259,23 +258,23 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
 
         with (
             patch(
-                "app.presentation.api.v1.routes.passports.ClientGroupRepository",
+                'app.presentation.api.v1.routes.passport_routes.public_upload.ClientGroupRepository',
                 return_value=SimpleNamespace(get_by_token=AsyncMock(return_value=group)),
             ),
             patch(
-                "app.presentation.api.v1.routes.passports.PassportSubmissionRepository",
+                'app.presentation.api.v1.routes.passport_routes.public_upload.PassportSubmissionRepository',
                 return_value=submission_repository,
             ),
             patch(
-                "app.presentation.api.v1.routes.passports.stage_storage_cleanup_jobs",
+                'app.presentation.api.v1.routes.passport_routes.public_upload.stage_storage_cleanup_jobs',
                 side_effect=stage,
             ),
             patch(
-                "app.presentation.api.v1.routes.passports.AuditLogRepository",
+                'app.presentation.api.v1.routes.passport_routes.public_upload.AuditLogRepository',
                 return_value=SimpleNamespace(record=audit),
             ),
             patch(
-                "app.presentation.api.v1.routes.passports.process_storage_cleanup_job",
+                'app.presentation.api.v1.routes.passport_routes.public_upload.process_storage_cleanup_job',
                 new=process,
             ),
         ):
@@ -297,7 +296,7 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
         agency_id = uuid.uuid4()
         submission_id = uuid.uuid4()
         credential = "private-upload-credential-1234567890"
-        group = SimpleNamespace(id=group_id, agency_id=agency_id)
+        group = SimpleNamespace(id=group_id, agency_id=agency_id, is_active=lambda: True, deleted_at=None)
         submission_repository = SimpleNamespace(
             get_by_id_for_update=AsyncMock(
                 return_value=SimpleNamespace(
@@ -319,15 +318,15 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
 
         with (
             patch(
-                "app.presentation.api.v1.routes.passports.ClientGroupRepository",
+                'app.presentation.api.v1.routes.passport_routes.public_upload.ClientGroupRepository',
                 return_value=SimpleNamespace(get_by_token=AsyncMock(return_value=group)),
             ),
             patch(
-                "app.presentation.api.v1.routes.passports.PassportSubmissionRepository",
+                'app.presentation.api.v1.routes.passport_routes.public_upload.PassportSubmissionRepository',
                 return_value=submission_repository,
             ),
             patch(
-                "app.presentation.api.v1.routes.passports.AuditLogRepository",
+                'app.presentation.api.v1.routes.passport_routes.public_upload.AuditLogRepository',
                 return_value=SimpleNamespace(record=audit),
             ),
         ):
@@ -353,7 +352,7 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
         agency_id = uuid.uuid4()
         submission_id = uuid.uuid4()
         credential = "private-upload-credential-1234567890"
-        group = SimpleNamespace(id=group_id, agency_id=agency_id)
+        group = SimpleNamespace(id=group_id, agency_id=agency_id, is_active=lambda: True, deleted_at=None)
         submission = SimpleNamespace(
             id=submission_id,
             group_id=group_id,
@@ -363,6 +362,8 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
             thumbnail_s3_key=None,
             passport_photo_s3_key=None,
             passport_back_s3_key=None,
+            passport_cover_s3_key=None,
+            passport_back_cover_s3_key=None,
         )
         session = AsyncMock()
         session.scalar.return_value = SimpleNamespace(
@@ -375,26 +376,26 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
 
         with (
             patch(
-                "app.presentation.api.v1.routes.passports.ClientGroupRepository",
+                'app.presentation.api.v1.routes.passport_routes.public_upload.ClientGroupRepository',
                 return_value=SimpleNamespace(get_by_token=AsyncMock(return_value=group)),
             ),
             patch(
-                "app.presentation.api.v1.routes.passports.PassportSubmissionRepository",
+                'app.presentation.api.v1.routes.passport_routes.public_upload.PassportSubmissionRepository',
                 return_value=SimpleNamespace(
                     get_by_id_for_update=AsyncMock(return_value=submission),
                     delete=AsyncMock(),
                 ),
             ),
             patch(
-                "app.presentation.api.v1.routes.passports.stage_storage_cleanup_jobs",
+                'app.presentation.api.v1.routes.passport_routes.public_upload.stage_storage_cleanup_jobs',
                 return_value=(SimpleNamespace(id=uuid.uuid4(), object_count=1),),
             ),
             patch(
-                "app.presentation.api.v1.routes.passports.AuditLogRepository",
+                'app.presentation.api.v1.routes.passport_routes.public_upload.AuditLogRepository',
                 return_value=SimpleNamespace(record=AsyncMock()),
             ),
             patch(
-                "app.presentation.api.v1.routes.passports.process_storage_cleanup_job",
+                'app.presentation.api.v1.routes.passport_routes.public_upload.process_storage_cleanup_job',
                 new=process,
             ),
         ):

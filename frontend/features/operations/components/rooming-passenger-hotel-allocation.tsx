@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge, Button, Card, CardContent, Input } from "@/components/ui";
 import {
   ChevronDown,
   ChevronUp,
@@ -18,7 +19,6 @@ import {
   useRef,
   useState,
 } from "react";
-import { Badge, Button, Card, CardContent, Input } from "@/components/ui";
 import type {
   RoomingHotel,
   RoomingPassenger,
@@ -90,13 +90,20 @@ export function RoomingPassengerHotelAllocation({
   );
 
   const passengersById = useMemo(
-    () => new Map(workspace.passengers.map((passenger) => [passenger.passenger_id, passenger])),
+    () =>
+      new Map(
+        workspace.passengers.map((passenger) => [
+          passenger.passenger_id,
+          passenger,
+        ]),
+      ),
     [workspace.passengers],
   );
   const validSelectedPassengerIds = useMemo(
-    () => Array.from(selectedPassengerIds).filter(
-      (passengerId) => passengersById.has(passengerId),
-    ),
+    () =>
+      Array.from(selectedPassengerIds).filter((passengerId) =>
+        passengersById.has(passengerId),
+      ),
     [passengersById, selectedPassengerIds],
   );
 
@@ -105,23 +112,27 @@ export function RoomingPassengerHotelAllocation({
     [validSelectedPassengerIds],
   );
   const selectedPassengers = useMemo(
-    () => validSelectedPassengerIds
-      .map((passengerId) => passengersById.get(passengerId))
-      .filter((passenger): passenger is RoomingPassenger => Boolean(passenger)),
+    () =>
+      validSelectedPassengerIds
+        .map((passengerId) => passengersById.get(passengerId))
+        .filter((passenger): passenger is RoomingPassenger =>
+          Boolean(passenger),
+        ),
     [passengersById, validSelectedPassengerIds],
   );
   const selectedAtActiveHotel = useMemo(
-    () => selectedPassengers.filter(
-      (passenger) => passenger.selected_hotel_id === activeHotel.id,
-    ),
+    () =>
+      selectedPassengers.filter(
+        (passenger) => passenger.selected_hotel_id === activeHotel.id,
+      ),
     [activeHotel.id, selectedPassengers],
   );
   const statusFilteredPassengers = useMemo(() => {
     const query = deferredSearch.trim().toLocaleLowerCase();
     return workspace.passengers.filter((passenger) => {
       if (
-        filter === "this-hotel"
-        && passenger.selected_hotel_id !== activeHotel.id
+        filter === "this-hotel" &&
+        passenger.selected_hotel_id !== activeHotel.id
       ) {
         return false;
       }
@@ -129,11 +140,9 @@ export function RoomingPassengerHotelAllocation({
         return false;
       }
       if (
-        filter === "other-hotel"
-        && (
-          passenger.selected_hotel_id === null
-          || passenger.selected_hotel_id === activeHotel.id
-        )
+        filter === "other-hotel" &&
+        (passenger.selected_hotel_id === null ||
+          passenger.selected_hotel_id === activeHotel.id)
       ) {
         return false;
       }
@@ -148,31 +157,29 @@ export function RoomingPassengerHotelAllocation({
     });
   }, [activeHotel.id, deferredSearch, filter, workspace.passengers]);
   const fieldValuesByPassenger = rosterFieldValues.data?.values_by_passenger;
-  const groupingValuesReady = !groupByFieldKey || Boolean(fieldValuesByPassenger);
+  const groupingValuesReady =
+    !groupByFieldKey || Boolean(fieldValuesByPassenger);
   const groupValueOptions = useMemo(
-    () => (
+    () =>
       groupByFieldKey && fieldValuesByPassenger
         ? roomingRosterValueOptions(
             statusFilteredPassengers,
             fieldValuesByPassenger,
           )
-        : []
-    ),
+        : [],
     [fieldValuesByPassenger, groupByFieldKey, statusFilteredPassengers],
   );
   const visiblePassengers = useMemo(() => {
     if (groupByFieldKey && !fieldValuesByPassenger) return [];
-    const filtered = (
-      groupByFieldKey
-      && fieldValuesByPassenger
-      && groupValueFilter !== "all"
-    )
-      ? statusFilteredPassengers.filter(
-          (passenger) => roomingRosterValueKey(
-            fieldValuesByPassenger[passenger.passenger_id],
-          ) === groupValueFilter,
-        )
-      : statusFilteredPassengers;
+    const filtered =
+      groupByFieldKey && fieldValuesByPassenger && groupValueFilter !== "all"
+        ? statusFilteredPassengers.filter(
+            (passenger) =>
+              roomingRosterValueKey(
+                fieldValuesByPassenger[passenger.passenger_id],
+              ) === groupValueFilter,
+          )
+        : statusFilteredPassengers;
     return sortRoomingRosterPassengers(filtered, sortDirection);
   }, [
     fieldValuesByPassenger,
@@ -182,46 +189,48 @@ export function RoomingPassengerHotelAllocation({
     statusFilteredPassengers,
   ]);
   const passengerGroups = useMemo(
-    () => (
+    () =>
       groupByFieldKey && fieldValuesByPassenger
         ? groupRoomingRosterPassengers(
             visiblePassengers,
             fieldValuesByPassenger,
             sortDirection,
           )
-        : [{
-            key: "all",
-            label: "All passengers",
-            passengers: visiblePassengers,
-          }]
-    ),
-    [
-      fieldValuesByPassenger,
-      groupByFieldKey,
-      sortDirection,
-      visiblePassengers,
-    ],
+        : [
+            {
+              key: "all",
+              label: "All passengers",
+              passengers: visiblePassengers,
+            },
+          ],
+    [fieldValuesByPassenger, groupByFieldKey, sortDirection, visiblePassengers],
   );
 
   const parsedFirstCount = Number.parseInt(firstCount, 10);
-  const validFirstCount = (
-    Number.isFinite(parsedFirstCount)
-    && parsedFirstCount > 0
-  );
+  const validFirstCount =
+    Number.isFinite(parsedFirstCount) && parsedFirstCount > 0;
   const pending = isAssigning || isUpdatingVip;
 
   const selectVisible = () => {
-    setSelectedPassengerIds(new Set(
-      visiblePassengers.map((passenger) => passenger.passenger_id),
-    ));
+    setSelectedPassengerIds(
+      (current) =>
+        new Set([
+          ...current,
+          ...visiblePassengers.map((passenger) => passenger.passenger_id),
+        ]),
+    );
   };
   const selectFirst = () => {
     if (!validFirstCount) return;
-    setSelectedPassengerIds(new Set(
-      visiblePassengers
-        .slice(0, Math.min(parsedFirstCount, visiblePassengers.length))
-        .map((passenger) => passenger.passenger_id),
-    ));
+    setSelectedPassengerIds(
+      (current) =>
+        new Set([
+          ...current,
+          ...visiblePassengers
+            .slice(0, Math.min(parsedFirstCount, visiblePassengers.length))
+            .map((passenger) => passenger.passenger_id),
+        ]),
+    );
   };
   const togglePassenger = useCallback((passengerId: string) => {
     setSelectedPassengerIds((current) => {
@@ -260,7 +269,8 @@ export function RoomingPassengerHotelAllocation({
     : activeHotel.id;
 
   const assignSelected = async () => {
-    if (validSelectedPassengerIds.length === 0 || !effectiveTargetHotelId) return;
+    if (validSelectedPassengerIds.length === 0 || !effectiveTargetHotelId)
+      return;
     setActionError(null);
     setActionStatus(null);
     try {
@@ -288,7 +298,9 @@ export function RoomingPassengerHotelAllocation({
     setActionError(null);
     setActionStatus(null);
     try {
-      const ids = selectedAtActiveHotel.map((passenger) => passenger.passenger_id);
+      const ids = selectedAtActiveHotel.map(
+        (passenger) => passenger.passenger_id,
+      );
       await onSetVip(ids, isVip);
       setActionStatus(
         `${ids.length} passenger${ids.length === 1 ? "" : "s"} ${
@@ -379,7 +391,9 @@ export function RoomingPassengerHotelAllocation({
                 <select
                   id="rooming-roster-filter"
                   value={filter}
-                  onChange={(event) => setFilter(event.target.value as RosterFilter)}
+                  onChange={(event) =>
+                    setFilter(event.target.value as RosterFilter)
+                  }
                   disabled={pending}
                   className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:opacity-60"
                 >
@@ -402,32 +416,32 @@ export function RoomingPassengerHotelAllocation({
                       setExpandedGroupKeys(new Set());
                     }}
                     disabled={
-                      pending
-                      || groupingFieldsLoading
-                      || groupingFieldsError
+                      pending || groupingFieldsLoading || groupingFieldsError
                     }
                     className="mt-1.5 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:opacity-60"
                   >
                     <option value="">No grouping</option>
-                    {groupingFields.filter((field) => field.groupable).map(
-                      (field) => (
+                    {groupingFields
+                      .filter((field) => field.groupable)
+                      .map((field) => (
                         <option key={field.key} value={field.key}>
                           {field.label}
                         </option>
-                      ),
-                    )}
+                      ))}
                   </select>
                 </label>
                 <label className="block text-sm font-medium text-slate-700">
                   Filter grouped value
                   <select
                     value={groupValueFilter}
-                    onChange={(event) => setGroupValueFilter(event.target.value)}
+                    onChange={(event) =>
+                      setGroupValueFilter(event.target.value)
+                    }
                     disabled={
-                      pending
-                      || !groupByFieldKey
-                      || rosterFieldValues.isLoading
-                      || Boolean(rosterFieldValues.error)
+                      pending ||
+                      !groupByFieldKey ||
+                      rosterFieldValues.isLoading ||
+                      Boolean(rosterFieldValues.error)
                     }
                     className="mt-1.5 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:opacity-60"
                   >
@@ -443,9 +457,9 @@ export function RoomingPassengerHotelAllocation({
                   Passenger sort
                   <select
                     value={sortDirection}
-                    onChange={(event) => setSortDirection(
-                      event.target.value as "asc" | "desc",
-                    )}
+                    onChange={(event) =>
+                      setSortDirection(event.target.value as "asc" | "desc")
+                    }
                     disabled={pending}
                     className="mt-1.5 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:opacity-60"
                   >
@@ -493,11 +507,15 @@ export function RoomingPassengerHotelAllocation({
                   type="button"
                   size="sm"
                   variant="secondary"
-                  onClick={() => setSelectedPassengerIds(new Set(
-                    workspace.passengers.map(
-                      (passenger) => passenger.passenger_id,
-                    ),
-                  ))}
+                  onClick={() =>
+                    setSelectedPassengerIds(
+                      new Set(
+                        workspace.passengers.map(
+                          (passenger) => passenger.passenger_id,
+                        ),
+                      ),
+                    )
+                  }
                   disabled={pending || workspace.passengers.length === 0}
                 >
                   Select all group
@@ -521,9 +539,9 @@ export function RoomingPassengerHotelAllocation({
                     variant="secondary"
                     onClick={selectFirst}
                     disabled={
-                      pending
-                      || !validFirstCount
-                      || visiblePassengers.length === 0
+                      pending ||
+                      !validFirstCount ||
+                      visiblePassengers.length === 0
                     }
                   >
                     Select first
@@ -647,10 +665,9 @@ export function RoomingPassengerHotelAllocation({
                         selected={selected}
                         disabled={pending}
                         onToggleExpanded={() => toggleGroupExpanded(group.key)}
-                        onToggleGroup={(shouldSelect) => setGroupSelected(
-                          groupPassengerIds,
-                          shouldSelect,
-                        )}
+                        onToggleGroup={(shouldSelect) =>
+                          setGroupSelected(groupPassengerIds, shouldSelect)
+                        }
                         onTogglePassenger={togglePassenger}
                       />
                     );
@@ -726,11 +743,13 @@ function RosterGroupSection({
           className="flex min-w-0 flex-1 items-center justify-between gap-3 text-left"
         >
           <span className="min-w-0">
-            <span className={
-              isMissing
-                ? "font-semibold text-amber-800"
-                : "font-semibold text-slate-900"
-            }>
+            <span
+              className={
+                isMissing
+                  ? "font-semibold text-amber-800"
+                  : "font-semibold text-slate-900"
+              }
+            >
               {label}
             </span>
             <span className="ml-2 text-xs text-slate-500">
@@ -739,9 +758,15 @@ function RosterGroupSection({
             </span>
           </span>
           {expanded ? (
-            <ChevronUp className="h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
+            <ChevronUp
+              className="h-4 w-4 shrink-0 text-slate-500"
+              aria-hidden="true"
+            />
           ) : (
-            <ChevronDown className="h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
+            <ChevronDown
+              className="h-4 w-4 shrink-0 text-slate-500"
+              aria-hidden="true"
+            />
           )}
         </button>
         <button
@@ -754,7 +779,10 @@ function RosterGroupSection({
         </button>
       </div>
       {expanded && (
-        <div id={contentId} className="overflow-x-auto border-t border-slate-200">
+        <div
+          id={contentId}
+          className="overflow-x-auto border-t border-slate-200"
+        >
           <PassengerTable
             caption={`${label} passenger roster`}
             passengers={passengers}
@@ -817,6 +845,14 @@ function PassengerTable({
   disabled: boolean;
   onTogglePassenger: (passengerId: string) => void;
 }) {
+  const [page, setPage] = useState(1);
+  const pageSize = 50;
+  const pageCount = Math.max(1, Math.ceil(passengers.length / pageSize));
+  const currentPage = Math.min(page, pageCount);
+  const pagePassengers = passengers.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[760px] border-collapse text-left text-sm">
@@ -826,14 +862,22 @@ function PassengerTable({
             <th scope="col" className="w-12 px-4 py-3">
               <span className="sr-only">Select passenger</span>
             </th>
-            <th scope="col" className="px-3 py-3">Passenger</th>
-            <th scope="col" className="px-3 py-3">Gender</th>
-            <th scope="col" className="px-3 py-3">Current hotel</th>
-            <th scope="col" className="px-4 py-3">Room rule</th>
+            <th scope="col" className="px-3 py-3">
+              Passenger
+            </th>
+            <th scope="col" className="px-3 py-3">
+              Gender
+            </th>
+            <th scope="col" className="px-3 py-3">
+              Current hotel
+            </th>
+            <th scope="col" className="px-4 py-3">
+              Room rule
+            </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
-          {passengers.map((passenger) => (
+          {pagePassengers.map((passenger) => (
             <PassengerRow
               key={passenger.passenger_id}
               passenger={passenger}
@@ -845,6 +889,34 @@ function PassengerTable({
           ))}
         </tbody>
       </table>
+      {pageCount > 1 && (
+        <div className="flex items-center justify-between gap-3 border-t border-slate-200 px-4 py-3">
+          <p className="text-xs text-slate-500">
+            Page {currentPage} of {pageCount} | {passengers.length} passengers |
+            selections stay selected across pages
+          </p>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              disabled={currentPage <= 1}
+              onClick={() => setPage(currentPage - 1)}
+            >
+              Previous
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              disabled={currentPage >= pageCount}
+              onClick={() => setPage(currentPage + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -862,9 +934,7 @@ const PassengerRow = memo(function PassengerRow({
   disabled: boolean;
   onTogglePassenger: (passengerId: string) => void;
 }) {
-  const gender = normalizeRoomingGender(
-    passenger.passport_sex,
-  );
+  const gender = normalizeRoomingGender(passenger.passport_sex);
   const isAtActiveHotel = passenger.selected_hotel_id === activeHotelId;
 
   return (
@@ -888,7 +958,9 @@ const PassengerRow = memo(function PassengerRow({
         />
       </td>
       <td className="px-3 py-3 align-top">
-        <div className="font-semibold text-slate-900">{passenger.client_name}</div>
+        <div className="font-semibold text-slate-900">
+          {passenger.client_name}
+        </div>
         <div className="mt-1 flex flex-wrap gap-1.5 text-xs text-slate-500">
           {passenger.family_group_label && (
             <span>{passenger.family_group_label}</span>

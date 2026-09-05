@@ -1,29 +1,23 @@
 "use client";
 
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useLiveHistoryFeed } from "@/lib/hooks/use-live-history-feed";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef } from "react";
 import { emailIntegrationsApi } from "../api/email-integrations.api";
+import { emailRepairIntervalMs } from "../services/email-refresh-policy";
 import type {
   DecideEmailDeadlineRequest,
   DecideEmailDraftRequest,
   DecideEmailProposalRequest,
   EmailAiFeedbackRequest,
   EmailAiRolloutScope,
+  EmailOperationalInboxResponse,
   EmailOperationalInboxView,
   ResolveEmailReviewRequest,
   UpdateEmailAiRolloutPolicyRequest,
   UpdateEmailReplyDraftRequest,
 } from "../types";
 import { isEmailProcessingActive } from "../utils/email-integrations";
-import {
-  EMAIL_REPAIR_PAGE_BUDGET,
-  emailRepairIntervalMs,
-} from "../services/email-refresh-policy";
 
 export const EMAIL_INTEGRATION_QUERY_KEYS = {
   root: ["email-integrations"] as const,
@@ -51,11 +45,7 @@ export const EMAIL_INTEGRATION_QUERY_KEYS = {
     ["email-integrations", "messages", messageId, "intelligence"] as const,
   rolloutRoot: (userId: string) =>
     ["email-integrations", "ai-rollout", userId] as const,
-  rollout: (
-    userId: string,
-    scopeType: EmailAiRolloutScope,
-    search: string,
-  ) =>
+  rollout: (userId: string, scopeType: EmailAiRolloutScope, search: string) =>
     [
       "email-integrations",
       "ai-rollout",
@@ -128,8 +118,8 @@ export function useEmailMessage(messageId: string) {
     queryFn: () => emailIntegrationsApi.message(messageId),
     enabled: Boolean(messageId),
     refetchInterval: (query) =>
-      query.state.data
-      && isEmailProcessingActive(query.state.data.processing_status)
+      query.state.data &&
+      isEmailProcessingActive(query.state.data.processing_status)
         ? emailRepairIntervalMs({ active: true })
         : false,
   });
@@ -160,8 +150,8 @@ export function useEmailMessageIntelligence(
     retry: false,
     refetchInterval: (query) => {
       if (
-        missingPollWindow.current.messageId !== messageId
-        || missingPollWindow.current.pollWhileMissing !== pollWhileMissing
+        missingPollWindow.current.messageId !== messageId ||
+        missingPollWindow.current.pollWhileMissing !== pollWhileMissing
       ) {
         missingPollWindow.current = {
           messageId,
@@ -172,15 +162,14 @@ export function useEmailMessageIntelligence(
       const intelligence = query.state.data;
       if (intelligence === null) {
         const pollStartedAt = missingPollWindow.current.startedAt;
-        return pollWhileMissing
-          && pollStartedAt !== null
-          && Date.now() - pollStartedAt
-            < MISSING_INTELLIGENCE_POLL_WINDOW_MS
+        return pollWhileMissing &&
+          pollStartedAt !== null &&
+          Date.now() - pollStartedAt < MISSING_INTELLIGENCE_POLL_WINDOW_MS
           ? emailRepairIntervalMs({ active: true })
           : false;
       }
-      return intelligence
-        && ACTIVE_INTELLIGENCE_STATUSES.has(intelligence.status.toLowerCase())
+      return intelligence &&
+        ACTIVE_INTELLIGENCE_STATUSES.has(intelligence.status.toLowerCase())
         ? emailRepairIntervalMs({ active: true })
         : false;
     },
@@ -193,6 +182,7 @@ function useInvalidateEmailIntegrations() {
   return () =>
     queryClient.invalidateQueries({
       queryKey: EMAIL_INTEGRATION_QUERY_KEYS.root,
+      predicate: (query) => !query.meta?.historyOnly,
     });
 }
 
@@ -212,21 +202,13 @@ export function useEmailOperationalInbox(
   userId: string | null | undefined,
   view: EmailOperationalInboxView,
 ) {
-  return useInfiniteQuery({
+  return useLiveHistoryFeed<EmailOperationalInboxResponse>({
     queryKey: EMAIL_INTEGRATION_QUERY_KEYS.inbox(userId ?? "anonymous", view),
-    queryFn: ({ pageParam }) =>
-      emailIntegrationsApi.inbox({
-        view,
-        limit: 20,
-        cursor: pageParam ?? undefined,
-      }),
-    initialPageParam: null as string | null,
-    getNextPageParam: (lastPage) => lastPage.next_cursor,
-    getPreviousPageParam: () => undefined,
-    maxPages: EMAIL_REPAIR_PAGE_BUDGET,
+    itemKey: (item) => item.message_id,
+    loadPage: (cursor, signal) =>
+      emailIntegrationsApi.inbox({ view, limit: 20, cursor, signal }),
     enabled: Boolean(userId),
-    refetchInterval: () => emailRepairIntervalMs(),
-    refetchIntervalInBackground: false,
+    interval: () => emailRepairIntervalMs(),
   });
 }
 

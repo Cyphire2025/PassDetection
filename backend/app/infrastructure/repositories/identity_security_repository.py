@@ -63,7 +63,10 @@ class IdentitySecurityRepository:
     ) -> UserSecurityStateModel | None:
         statement = select(UserSecurityStateModel).where(UserSecurityStateModel.user_id == user_id)
         if lock:
-            statement = statement.with_for_update()
+            # Locking does not refresh an object already in SQLAlchemy's
+            # identity map. A concurrent generation change must be observed
+            # before a caller increments or authorizes against locked state.
+            statement = statement.with_for_update().execution_options(populate_existing=True)
         return (await self._session.execute(statement)).scalar_one_or_none()
 
     async def ensure_state(
@@ -85,6 +88,22 @@ class IdentitySecurityRepository:
         self._session.add(state)
         await self._session.flush()
         return state
+
+    async def fence_sessions(self, user_id: uuid.UUID) -> None:
+        """Advance the account generation in the caller's revocation transaction."""
+        # Lock the account as well as existing state so first-time state creation
+        # and simultaneous logout-all requests cannot lose an increment.
+        user = await self._session.scalar(
+            select(UserModel).where(UserModel.id == user_id).with_for_update()
+        )
+        if user is None:
+            raise ValueError("Cannot revoke sessions for a missing account")
+        state = await self.get_state(user_id, lock=True)
+        if state is None:
+            state = await self.ensure_state(user)
+        state.session_version += 1
+        state.updated_at = datetime.now(tz=UTC)
+        await self._session.flush()
 
     async def issue_action_token(
         self,

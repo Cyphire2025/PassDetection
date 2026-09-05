@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.entities.entities import User, UserRole
 from app.presentation.api.v1.routes import passports as passports_route
+from app.presentation.api.v1.routes.passport_routes import image_exports as passport_image_exports
 from app.presentation.api.v1.schemas.passport_schemas import (
     ExportSelectedPassportImagesRequest,
 )
@@ -74,37 +75,37 @@ async def test_selected_image_export_uses_full_group_naming_namespace(
     storage = object()
 
     monkeypatch.setattr(
-        passports_route,
+        passport_image_exports,
         "ClientGroupRepository",
         lambda session: SimpleNamespace(get_by_id=AsyncMock(return_value=group)),
     )
     monkeypatch.setattr(
-        passports_route,
+        passport_image_exports,
         "AuthorizationPolicy",
         lambda session: SimpleNamespace(require_export_data=authorize),
     )
     monkeypatch.setattr(
-        passports_route,
+        passport_image_exports,
         "_current_group_export_submissions",
         AsyncMock(return_value=current_submissions),
     )
     monkeypatch.setattr(
-        passports_route,
+        passport_image_exports,
         "PassportImageCropRepository",
         lambda session: SimpleNamespace(list_for_submissions=AsyncMock(return_value=crop_metadata)),
     )
     monkeypatch.setattr(
-        passports_route,
+        passport_image_exports,
         "_export_zone_names",
         AsyncMock(return_value=zones),
     )
     monkeypatch.setattr(
-        passports_route,
+        passport_image_exports,
         "PassportImageZipExporter",
         lambda: exporter,
     )
     monkeypatch.setattr(
-        passports_route,
+        passport_image_exports,
         "MinioStorageRepository",
         lambda: storage,
     )
@@ -127,6 +128,7 @@ async def test_selected_image_export_uses_full_group_naming_namespace(
     exporter.export_group.assert_awaited_once_with(
         [selected],
         group_name="Vietnam 2026",
+        require_both_pages=True,
         staff_code_enabled=True,
         agent_employee_code_enabled=True,
         storage=storage,
@@ -152,17 +154,17 @@ async def test_selected_image_export_rejects_ids_outside_the_current_group(
     )
 
     monkeypatch.setattr(
-        passports_route,
+        passport_image_exports,
         "ClientGroupRepository",
         lambda session: SimpleNamespace(get_by_id=AsyncMock(return_value=group)),
     )
     monkeypatch.setattr(
-        passports_route,
+        passport_image_exports,
         "AuthorizationPolicy",
         lambda session: SimpleNamespace(require_export_data=AsyncMock()),
     )
     monkeypatch.setattr(
-        passports_route,
+        passport_image_exports,
         "_current_group_export_submissions",
         AsyncMock(return_value=[SimpleNamespace(id=current_id)]),
     )

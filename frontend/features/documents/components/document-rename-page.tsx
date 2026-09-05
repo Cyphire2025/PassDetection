@@ -112,18 +112,17 @@ export function DocumentRenamePage() {
   return (
     <div className="flex flex-col gap-5">
       <WorkspacePageHeader
-        eyebrow="Document preparation pipeline"
         title="Rename Documents"
-        description="Turn mixed supplier PDFs into an identified, reviewable batch with passenger-aware filenames and a clear rejected-file exception queue."
+        description="Upload visa and ticket PDFs, review detected details, and download renamed files."
         icon={FileCheck2}
         accent="cyan"
         context={(
           <>
             <WorkspaceHeaderContext icon={Archive}>
-              {(batches.data?.length ?? 0).toLocaleString()} saved batches
+              {(batches.data?.length ?? 0).toLocaleString()} saved {batches.data?.length === 1 ? "batch" : "batches"}
             </WorkspaceHeaderContext>
             <WorkspaceHeaderContext icon={FileCheck2}>
-              {selectedFiles.length.toLocaleString()} PDFs selected
+              {selectedFiles.length.toLocaleString()} {selectedFiles.length === 1 ? "PDF" : "PDFs"} selected
             </WorkspaceHeaderContext>
           </>
         )}
@@ -340,8 +339,8 @@ function SavedRenameBatches({
                     </div>
                     <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-500">
                       <span>{batch.total_count} PDFs</span>
-                      <span>{batch.visa_count} visas</span>
-                      <span>{batch.ticket_count} tickets</span>
+                      <span>{batch.visa_count} {batch.visa_count === 1 ? "visa" : "visas"}</span>
+                      <span>{batch.ticket_count} {batch.ticket_count === 1 ? "ticket" : "tickets"}</span>
                       <span>{batch.unknown_count} rejected</span>
                     </div>
                   </div>
@@ -411,7 +410,7 @@ function RenameResults({ batch, onBack }: { batch: RenameDocumentBatch; onBack: 
               <h2 className="text-base font-semibold text-slate-900">Rename Results</h2>
               <div className="mt-1 text-sm font-medium text-slate-700">{batch.title}</div>
               <p className="mt-1 text-sm text-slate-500">
-                {batch.total_count} processed, {batch.visa_count} visas, {batch.ticket_count} flight tickets, {batch.unknown_count} rejected.
+                {batch.total_count} processed, {batch.visa_count} {batch.visa_count === 1 ? "visa" : "visas"}, {batch.ticket_count} flight {batch.ticket_count === 1 ? "ticket" : "tickets"}, {batch.unknown_count} rejected.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -421,7 +420,7 @@ function RenameResults({ batch, onBack }: { batch: RenameDocumentBatch; onBack: 
                 activeClassName="border-green-200 bg-green-50 text-green-700"
                 onClick={() => setFilter("visa")}
               >
-                {batch.visa_count} visas
+                {batch.visa_count} {batch.visa_count === 1 ? "visa" : "visas"}
               </FilterButton>
               <FilterButton
                 active={filter === "flight_ticket"}
@@ -429,7 +428,7 @@ function RenameResults({ batch, onBack }: { batch: RenameDocumentBatch; onBack: 
                 activeClassName="border-blue-200 bg-blue-50 text-blue-700"
                 onClick={() => setFilter("flight_ticket")}
               >
-                {batch.ticket_count} tickets
+                {batch.ticket_count} {batch.ticket_count === 1 ? "ticket" : "tickets"}
               </FilterButton>
               <FilterButton
                 active={filter === "unknown"}

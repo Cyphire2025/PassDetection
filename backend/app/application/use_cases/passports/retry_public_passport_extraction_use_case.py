@@ -8,6 +8,7 @@ from app.application.dtos.passport_dtos import (
     PassportSubmissionOutputDTO,
     passport_submission_output_from_entity,
 )
+from app.application.security.public_upload_capability import require_active_public_upload
 from app.core.config.settings import get_settings
 from app.domain.entities.entities import PassportProcessingStatus
 from app.domain.exceptions.exceptions import EntityNotFoundError, ValidationError
@@ -42,6 +43,7 @@ class RetryPublicPassportExtractionUseCase:
         group = await self._client_group_repo.get_by_token(token)
         if not group:
             raise EntityNotFoundError("ClientGroup", token)
+        require_active_public_upload(group)
 
         submission = await self._passport_repo.get_by_id_for_update(submission_id)
         if not submission or submission.group_id != group.id:

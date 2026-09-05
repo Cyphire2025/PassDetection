@@ -1103,7 +1103,7 @@ class Settings(BaseSettings):
         pattern=r"^(?:unknown|[0-9a-f]{7,64})$",
     )
     expected_database_schema_revision: str = Field(
-        default="0088_merge_my_photos_hardening",
+        default="0090_upload_configuration",
         min_length=1,
         max_length=32,
         pattern=r"^[A-Za-z0-9_]+$",
@@ -1383,7 +1383,7 @@ class Settings(BaseSettings):
     gemini_timeout_seconds: float = Field(default=30.0, ge=1.0, le=60.0)
     gemini_max_retries: int = Field(default=1, ge=0, le=1)
     gemini_max_output_tokens: int = Field(default=512, ge=128, le=1024)
-    gemini_extraction_max_concurrency: int = Field(default=32, ge=1, le=64)
+    gemini_extraction_max_concurrency: int = Field(default=4, ge=1, le=64)
     gemini_verification_max_concurrency: int = Field(default=1, ge=1, le=64)
     gemini_extraction_timeout_ms: int = Field(
         default=30_000,

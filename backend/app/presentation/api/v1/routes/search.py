@@ -76,12 +76,12 @@ async def _search_passports(
                 func.lower(PassportSubmissionModel.departure_city).like(pattern),
                 func.lower(ClientGroupModel.name).like(pattern),
                 func.lower(ClientGroupModel.destination).like(pattern),
-                func.lower(PassportSubmissionModel.extracted_fields["passport_number"].astext).like(pattern),
-                func.lower(PassportSubmissionModel.confirmed_fields["passport_number"].astext).like(pattern),
-                func.lower(PassportSubmissionModel.extracted_fields["surname"].astext).like(pattern),
-                func.lower(PassportSubmissionModel.confirmed_fields["surname"].astext).like(pattern),
-                func.lower(PassportSubmissionModel.extracted_fields["given_names"].astext).like(pattern),
-                func.lower(PassportSubmissionModel.confirmed_fields["given_names"].astext).like(pattern),
+                func.lower(PassportSubmissionModel.extracted_fields["passport_number"].as_string()).like(pattern),
+                func.lower(PassportSubmissionModel.confirmed_fields["passport_number"].as_string()).like(pattern),
+                func.lower(PassportSubmissionModel.extracted_fields["surname"].as_string()).like(pattern),
+                func.lower(PassportSubmissionModel.confirmed_fields["surname"].as_string()).like(pattern),
+                func.lower(PassportSubmissionModel.extracted_fields["given_names"].as_string()).like(pattern),
+                func.lower(PassportSubmissionModel.confirmed_fields["given_names"].as_string()).like(pattern),
             )
         )
         .order_by(PassportSubmissionModel.updated_at.desc())

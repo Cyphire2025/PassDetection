@@ -65,6 +65,8 @@ def _validated_rejection_code(value: str) -> WhatsAppContactRejectionCode:
     }:
         raise RuntimeError("Invalid persisted WhatsApp contact rejection code.")
     return cast(WhatsAppContactRejectionCode, value)
+
+
 MAX_WHATSAPP_IMPORTED_FIELD_KEY_LENGTH = 64
 MAX_WHATSAPP_IMPORTED_FIELD_VALUE_LENGTH = 256
 MAX_WHATSAPP_IMPORTED_FIELDS_BYTES = 8 * 1024

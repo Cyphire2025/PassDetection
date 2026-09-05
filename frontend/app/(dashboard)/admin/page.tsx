@@ -2,7 +2,7 @@
 
 import { FormEvent, useId, useRef, useState } from "react";
 import { Check, Copy, Plus, UserPlus, Users, X } from "lucide-react";
-import { PageHeader } from "@/components/shared";
+import { WorkspacePageHeader } from "@/components/shared/workspace-ui";
 import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
 import { formatDateTime } from "@/lib/utils/format";
 import { selectUserRole, useAuthStore } from "@/stores/auth.store";
@@ -45,7 +45,8 @@ export default function AdminPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
+      <WorkspacePageHeader
+        icon={Users}
         title="Admin"
         description="Create manager accounts for operational access across groups."
         actions={(

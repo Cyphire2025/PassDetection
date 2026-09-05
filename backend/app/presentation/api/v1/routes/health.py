@@ -33,11 +33,62 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.email.readiness import email_runtime_readiness
 from app.infrastructure.mobile_realtime import get_mobile_realtime_hub
 from app.infrastructure.observability.metrics import metrics
-from app.infrastructure.runtime_readiness import runtime_capability_readiness
+from app.infrastructure.readiness_executor import readiness_probe_executor
+from app.infrastructure.runtime_readiness import (
+    RuntimeCapabilitySnapshot,
+    runtime_capability_readiness,
+)
 from app.presentation.dependencies.auth import require_role
 
 router = APIRouter()
 logger = get_logger(__name__)
+READINESS_PROBE_TIMEOUT_SECONDS = 3.75
+
+
+async def _database_runtime_probe(
+    db: AsyncSession, settings: Settings
+) -> tuple[str, RuntimeCapabilitySnapshot]:
+    try:
+        await db.execute(text("SELECT 1"))
+    except Exception as exc:
+        logger.error("health_check_db_failed", error_type=type(exc).__name__)
+        return "unreachable", _failed_runtime_snapshot(settings, "database_unreachable")
+    return "ok", await runtime_capability_readiness(db=db, settings=settings)
+
+
+def _failed_runtime_snapshot(settings: Settings, reason: str) -> RuntimeCapabilitySnapshot:
+    security_required = any(
+        (
+            settings.dashboard_rate_limit_require_redis,
+            settings.login_lockout_require_redis,
+            settings.public_upload_rate_limit_require_redis,
+        )
+    )
+    return RuntimeCapabilitySnapshot(
+        checks={"runtime_capabilities": reason},
+        core_ready=False,
+        capabilities={
+            "runtime": {
+                "required": True,
+                "available": False,
+                "traffic_gate": True,
+                "status": reason,
+            },
+            "request_protection": {
+                "required": security_required,
+                "available": False,
+                "traffic_gate": security_required,
+                "status": reason,
+            },
+        },
+    )
+
+
+def _probe_checks(result: object, keys: tuple[str, ...]) -> tuple[dict[str, str], bool]:
+    if isinstance(result, tuple) and len(result) == 2:
+        return result
+    reason = "probe_timeout" if isinstance(result, TimeoutError) else "probe_failed"
+    return {key: reason for key in keys}, False
 
 
 @router.get(
@@ -79,27 +130,44 @@ async def readiness(
     capabilities: dict[str, dict[str, object]] = {}
     overall_healthy = True
 
-    # ── Database check ──────────────────────────────────────────
-    try:
-        await db.execute(text("SELECT 1"))
-        checks["database"] = "ok"
-    except Exception as exc:
-        logger.error(
-            "health_check_db_failed",
-            error_type=type(exc).__name__,
-        )
-        checks["database"] = "unreachable"
-        overall_healthy = False
-
-    try:
-        await asyncio.to_thread(get_ai_priority_coordinator().snapshot)
+    # Independent dependency checks share one deadline window. Database work
+    # stays sequential within its own task because AsyncSession cannot execute
+    # simultaneous queries. Timed-out sync work remains single-flight in the
+    # dedicated bounded executor instead of accumulating detached threads.
+    priority_result, worker_result, email_result, runtime_result = await asyncio.gather(
+        readiness_probe_executor.run(
+            "ai_priority",
+            lambda: get_ai_priority_coordinator().snapshot(),
+            timeout_seconds=READINESS_PROBE_TIMEOUT_SECONDS,
+            configuration=settings,
+        ),
+        readiness_probe_executor.run(
+            "gemini_workers",
+            lambda: gemini_worker_readiness(settings),
+            timeout_seconds=READINESS_PROBE_TIMEOUT_SECONDS,
+            configuration=settings,
+        ),
+        readiness_probe_executor.run(
+            "email_runtime",
+            lambda: email_runtime_readiness(settings),
+            timeout_seconds=READINESS_PROBE_TIMEOUT_SECONDS,
+            configuration=settings,
+        ),
+        asyncio.wait_for(
+            _database_runtime_probe(db, settings), timeout=READINESS_PROBE_TIMEOUT_SECONDS
+        ),
+        return_exceptions=True,
+    )
+    if not isinstance(priority_result, BaseException):
         checks["ai_priority_redis"] = "ok"
-    except Exception as exc:
+    else:
         logger.error(
             "health_check_ai_priority_redis_failed",
-            error_type=type(exc).__name__,
+            error_type=type(priority_result).__name__,
         )
-        checks["ai_priority_redis"] = "unreachable"
+        checks["ai_priority_redis"] = (
+            "probe_timeout" if isinstance(priority_result, TimeoutError) else "unreachable"
+        )
         overall_healthy = False
 
     realtime_status, realtime_ready = get_mobile_realtime_hub().readiness()
@@ -107,49 +175,46 @@ async def readiness(
     overall_healthy = overall_healthy and realtime_ready
     # Production/staging settings validation has already cryptographically
     # checked the Ed25519 private/public key match before the app can start.
-    checks["mobile_offline_authorization"] = (
-        "configured" if settings.mobile.enabled else "disabled"
-    )
+    checks["mobile_offline_authorization"] = "configured" if settings.mobile.enabled else "disabled"
 
     gemini_checks, gemini_ready = gemini_configuration_readiness(settings)
     checks.update(gemini_checks)
     overall_healthy = overall_healthy and gemini_ready
 
-    worker_checks, workers_ready = await asyncio.to_thread(
-        gemini_worker_readiness,
-        settings,
+    worker_checks, workers_ready = _probe_checks(
+        worker_result,
+        ("celery_worker_control", "gemini_extraction_worker", "gemini_verification_worker"),
     )
     checks.update(worker_checks)
     overall_healthy = overall_healthy and workers_ready
 
-    email_checks, email_ready = await asyncio.to_thread(
-        email_runtime_readiness,
-        settings,
+    email_checks, email_ready = _probe_checks(
+        email_result,
+        (
+            "email_provider_configuration",
+            "email_worker",
+            "email_ai_worker",
+            "email_ai_configuration",
+            "email_scheduler",
+            "email_malware_scanner",
+        ),
     )
     checks.update(email_checks)
     overall_healthy = overall_healthy and email_ready
 
-    try:
-        runtime_snapshot = await runtime_capability_readiness(
-            db=db,
-            settings=settings,
-        )
-        checks.update(runtime_snapshot.checks)
-        capabilities.update(runtime_snapshot.capabilities)
-        overall_healthy = overall_healthy and runtime_snapshot.core_ready
-    except Exception as exc:
+    if isinstance(runtime_result, tuple):
+        checks["database"], runtime_snapshot = runtime_result
+    else:
         logger.error(
             "health_check_runtime_capabilities_failed",
-            error_type=type(exc).__name__,
+            error_type=type(runtime_result).__name__,
         )
-        checks["runtime_capabilities"] = "probe_failed"
-        capabilities["runtime"] = {
-            "required": True,
-            "available": False,
-            "traffic_gate": True,
-            "status": "probe_failed",
-        }
-        overall_healthy = False
+        reason = "probe_timeout" if isinstance(runtime_result, TimeoutError) else "probe_failed"
+        checks["database"] = reason
+        runtime_snapshot = _failed_runtime_snapshot(settings, reason)
+    checks.update(runtime_snapshot.checks)
+    capabilities.update(runtime_snapshot.capabilities)
+    overall_healthy = overall_healthy and runtime_snapshot.core_ready
 
     capabilities.update(
         {
@@ -163,9 +228,7 @@ async def readiness(
                 "required": True,
                 "available": gemini_ready and workers_ready,
                 "traffic_gate": True,
-                "status": (
-                    "available" if gemini_ready and workers_ready else "degraded"
-                ),
+                "status": ("available" if gemini_ready and workers_ready else "degraded"),
             },
             "email_integrations": {
                 "required": settings.email_integrations_enabled,

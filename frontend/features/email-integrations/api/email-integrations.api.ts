@@ -5,21 +5,21 @@ import type {
   DecideEmailDraftRequest,
   DecideEmailProposalRequest,
   EmailActivityItem,
+  EmailAiConnectionSettingsResponse,
   EmailAiFeedbackRequest,
   EmailAiFeedbackResponse,
+  EmailAiRetryResponse,
   EmailAiRolloutScope,
   EmailAiRolloutTarget,
   EmailAiRolloutTargetsResponse,
-  EmailAiRetryResponse,
   EmailAuthorizationResponse,
-  EmailAiConnectionSettingsResponse,
   EmailConnection,
   EmailConnectionActionResponse,
   EmailInboxDeadline,
   EmailInboxDraft,
-  EmailIntelligenceDetail,
   EmailIntegrationStatus,
   EmailIntegrationSummary,
+  EmailIntelligenceDetail,
   EmailMessageDetail,
   EmailOperationalInboxResponse,
   EmailOperationalInboxView,
@@ -27,8 +27,8 @@ import type {
   EmailReviewActionResponse,
   EmailReviewItem,
   EmailReviewOptions,
-  ResolveEmailReviewRequest,
   RemoveEmailConnectionResponse,
+  ResolveEmailReviewRequest,
   UpdateEmailAiRolloutPolicyRequest,
   UpdateEmailReplyDraftRequest,
 } from "../types";
@@ -136,14 +136,17 @@ export const emailIntegrationsApi = {
     view,
     limit = 20,
     cursor,
+    signal,
   }: {
     view: EmailOperationalInboxView;
     limit?: number;
     cursor?: string;
+    signal?: AbortSignal;
   }): Promise<EmailOperationalInboxResponse> => {
     const { data } = await apiClient.get<EmailOperationalInboxResponse>(
       API_ENDPOINTS.emailIntegrations.inbox,
       {
+        signal,
         params: {
           view,
           limit,
@@ -330,9 +333,9 @@ export const emailIntegrationsApi = {
 
 function isNotFoundApiError(error: unknown): error is ApiError {
   return (
-    typeof error === "object"
-    && error !== null
-    && "code" in error
-    && error.code === "HTTP_404"
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    error.code === "HTTP_404"
   );
 }

@@ -80,9 +80,7 @@ export function FlightTicketLaneNavigation({
       aria-labelledby="flight-ticket-workspace-heading"
     >
       <div className="border-b border-slate-200 px-4 py-3.5 sm:px-5">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-          Flight-ticket workspace
-        </p>
+
         <h2 id="flight-ticket-workspace-heading" className="mt-0.5 font-semibold text-slate-950">
           Choose journey type and direction
         </h2>

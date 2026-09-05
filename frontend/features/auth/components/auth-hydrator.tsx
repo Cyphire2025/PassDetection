@@ -19,7 +19,7 @@ const SESSION_REFRESH_RETRY_DELAY_MS = 30_000;
 export function AuthHydrator() {
   const setSession = useAuthStore((state) => state.setSession);
   const clearSession = useAuthStore((state) => state.clearSession);
-  const markHydrated = useAuthStore((state) => state.markHydrated);
+  const markTemporarilyUnavailable = useAuthStore((state) => state.markTemporarilyUnavailable);
   const mountedRef = useRef(false);
   const activeControllerRef = useRef<AbortController | null>(null);
   const verificationRef = useRef<Promise<void> | null>(null);
@@ -54,7 +54,7 @@ export function AuthHydrator() {
 
   const verifySession = useCallback((force = false) => {
     if (typeof navigator !== "undefined" && !navigator.onLine) {
-      markHydrated();
+      markTemporarilyUnavailable();
       return Promise.resolve();
     }
     if (verificationRef.current) return verificationRef.current;
@@ -77,12 +77,14 @@ export function AuthHydrator() {
           lastVerifiedAtRef.current = Date.now();
         }
       })
-      .catch(() => {
+      .catch((error: unknown) => {
         // A 401 is handled centrally by the API refresh interceptor. Network
         // loss is recoverable and must not be treated as logout.
+        if (mountedRef.current && (error as Partial<ApiError>)?.code !== "AUTH_SESSION_EXPIRED") {
+          markTemporarilyUnavailable();
+        }
       })
       .finally(() => {
-        if (mountedRef.current) markHydrated();
         if (activeControllerRef.current === controller) {
           activeControllerRef.current = null;
         }
@@ -93,19 +95,20 @@ export function AuthHydrator() {
 
     verificationRef.current = verification;
     return verification;
-  }, [markHydrated, setSession]);
+  }, [markTemporarilyUnavailable, setSession]);
 
   const renewSession = useCallback(() => {
     if (renewalRef.current) return renewalRef.current;
     if (typeof navigator !== "undefined" && !navigator.onLine) {
-      markHydrated();
-      scheduleRenewal(null);
+      markTemporarilyUnavailable();
+      scheduleRenewal(null, SESSION_REFRESH_RETRY_DELAY_MS);
       return Promise.resolve();
     }
 
+    const expectedVersion = useAuthStore.getState().sessionVersion;
     const renewal = refreshAuthenticatedSession()
       .then(async (session) => {
-        if (!mountedRef.current) return;
+        if (!mountedRef.current || useAuthStore.getState().sessionVersion !== expectedVersion) return;
         if (session) {
           setSession(session.user);
           lastVerifiedAtRef.current = Date.now();
@@ -124,17 +127,17 @@ export function AuthHydrator() {
           mountedRef.current
           && (error as Partial<ApiError> | null)?.code !== "AUTH_SESSION_EXPIRED"
         ) {
+          markTemporarilyUnavailable();
           scheduleRenewal(null, SESSION_REFRESH_RETRY_DELAY_MS);
         }
       })
       .finally(() => {
-        if (mountedRef.current) markHydrated();
         if (renewalRef.current === renewal) renewalRef.current = null;
       });
 
     renewalRef.current = renewal;
     return renewal;
-  }, [markHydrated, scheduleRenewal, setSession, verifySession]);
+  }, [markTemporarilyUnavailable, scheduleRenewal, setSession, verifySession]);
 
   useEffect(() => {
     renewSessionRef.current = renewSession;
@@ -168,6 +171,7 @@ export function AuthHydrator() {
       if (document.visibilityState === "visible") handleUsable();
     };
     const handlePageShow = () => handleUsable();
+    const handleRetry = () => { void renewSession(); };
     const heartbeat = window.setInterval(() => {
       const now = Date.now();
       const likelyWokeFromSleep = now - lastHeartbeatRef.current > SESSION_RECHECK_INTERVAL_MS;
@@ -183,6 +187,7 @@ export function AuthHydrator() {
     });
 
     window.addEventListener("focus", handleUsable);
+    window.addEventListener("auth:retry-restoration", handleRetry);
     window.addEventListener("online", handleOnline);
     window.addEventListener("pageshow", handlePageShow);
     document.addEventListener("visibilitychange", handleVisibility);
@@ -200,6 +205,7 @@ export function AuthHydrator() {
       window.clearInterval(heartbeat);
       unsubscribeSessionResets();
       window.removeEventListener("focus", handleUsable);
+      window.removeEventListener("auth:retry-restoration", handleRetry);
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("pageshow", handlePageShow);
       document.removeEventListener("visibilitychange", handleVisibility);

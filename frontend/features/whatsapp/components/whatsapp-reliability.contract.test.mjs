@@ -4,6 +4,10 @@ import test from "node:test";
 import { whatsappFeatureSource } from "./whatsapp-source.contract-helper.mjs";
 
 const pageSource = whatsappFeatureSource;
+const previewSource = readFileSync(
+  new URL("./whatsapp-message-preview-dialog.tsx", import.meta.url),
+  "utf8",
+);
 const dialogSource = readFileSync(
   new URL("./whatsapp-dialog-ui.tsx", import.meta.url),
   "utf8",
@@ -27,7 +31,7 @@ const activityTrackerSource = readFileSync(
 
 test("create and send actions have synchronous single-flight guards", () => {
   assert.match(pageSource, /if \(isLoading \|\| submitInFlightRef\.current\) return;/);
-  assert.match(pageSource, /if \(isSending \|\| sendInFlightRef\.current\) return;/);
+  assert.match(previewSource, /if \(!canSend \|\| isSending \|\| sendInFlightRef\.current\)/);
   assert.match(pageSource, /submitInFlightRef\.current = false;/);
   assert.match(pageSource, /sendInFlightRef\.current = false;/);
 });
@@ -76,30 +80,30 @@ test("broadcast creation asks for group name without an organisation field", () 
   );
 });
 
-test("approved-template guidance exposes the required image and body positions", () => {
+test("approved-template guidance explains the image and editable message sections", () => {
   assert.match(
     pageSource,
-    /uploaded picture is the required Meta IMAGE header/,
+    /Add a header image and edit the message below/,
   );
   assert.match(
     pageSource,
-    /text\s+below supplies BODY variable \{"\{\{1\}\}"\}/,
+    /The greeting and\s+remaining text are fixed in the approved template/,
   );
   assert.match(
     pageSource,
-    /passport upload link\s+supplies BODY variable \{"\{\{2\}\}"\}/,
+    /Add a header image, introduction, passport upload link, and\s+instructions/,
   );
   assert.match(
     pageSource,
-    /Passport link introduction \(BODY \{"\{\{1\}\}"\}\)/,
+    /Passport link introduction/,
   );
   assert.match(
     pageSource,
-    /Welcome trip message \(BODY \{\{1\}\}\)/,
+    /Welcome trip message/,
   );
   assert.match(
     pageSource,
-    /Passport instructions \(BODY \{\{3\}\}\)/,
+    /Passport instructions/,
   );
   assert.match(pageSource, /\? "Welcome image"\s*: "Passport Link image"/);
   assert.match(pageSource, /const hasHeaderImage = Boolean\(headerImage \|\| headerImageId\)/);
@@ -235,8 +239,15 @@ test("message preview remains unsendable while the latest approved rendering loa
   assert.match(pageSource, /detail\?\.recipient_opt_in_confirmed/);
   assert.match(
     pageSource,
-    /messageType !== "passport_link" \|\| resolvedSupportContactIds\.length > 0/,
+    /messageType !== "passport_link"\s*\|\|\s*resolvedSupportContactIds\.length > 0/,
   );
+});
+
+test("send requires the successful preview to match the current draft before debounce starts", () => {
+  assert.match(previewSource, /previewedRequestKey === previewRequestKey/);
+  assert.match(previewSource, /const canSend = Boolean\(\s*previewIsCurrent &&\s*!previewRequest\.isPending/);
+  assert.match(previewSource, /if \(!canSend \|\| isSending \|\| sendInFlightRef\.current\)/);
+  assert.match(previewSource, /Retry preview/);
 });
 
 test("message editors expose selection-aware WhatsApp bold controls", () => {

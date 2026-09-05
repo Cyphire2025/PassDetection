@@ -195,19 +195,22 @@ def _build_blocks(
     # incomplete. A complete row can join a place-missing row only when the
     # passport number and demographic fallback both corroborate.
     for indexes in fallback_buckets.values():
-        # First allow cautious fallback among rows whose primary pair is
-        # incomplete, while honoring contradictory passport evidence.
-        for position, left in enumerate(indexes):
-            left_passport, left_place, _ = evidence[left]
-            left_complete = bool(left_passport and left_place)
-            for right in indexes[position + 1 :]:
-                right_passport, right_place, _ = evidence[right]
-                right_complete = bool(right_passport and right_place)
-                contradictory_passports = bool(
-                    left_passport and right_passport and left_passport != right_passport
-                )
-                if not left_complete and not right_complete and not contradictory_passports:
-                    union(left, right)
+        # Partition incomplete evidence in linear time. Equal passport numbers
+        # form a component; an unnumbered row connects the incomplete components
+        # exactly as the former pairwise algorithm did. Complete primary rows
+        # still need the corroboration below, preserving conflict boundaries.
+        incomplete_by_passport: dict[str, list[int]] = {}
+        for index in indexes:
+            passport_number, place, _ = evidence[index]
+            if not (passport_number and place):
+                incomplete_by_passport.setdefault(passport_number, []).append(index)
+        for incomplete_members in incomplete_by_passport.values():
+            for index in incomplete_members[1:]:
+                union(incomplete_members[0], index)
+        unnumbered = incomplete_by_passport.get("")
+        if unnumbered:
+            for incomplete_members in incomplete_by_passport.values():
+                union(unnumbered[0], incomplete_members[0])
 
         # A place-missing row may bridge to a complete primary row only
         # when this corroborated passport+fallback bucket contains exactly

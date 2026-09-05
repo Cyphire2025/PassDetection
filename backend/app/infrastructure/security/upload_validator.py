@@ -72,7 +72,7 @@ class MalwareScannerUnavailableError(ImageValidationError):
 
 
 class MalwareScanRejectedError(ImageValidationError):
-    """Raised when bytes are malicious or the scanner response is untrusted."""
+    """Raised for a positive malware verdict or a scan-bound byte mismatch."""
 
 
 class MalwareScannerConfigurationError(RuntimeError):
@@ -119,17 +119,34 @@ class ClamAVMalwareScanner:
                     sock.sendall(struct.pack("!I", len(chunk)) + chunk)
                 self._set_remaining_timeout(sock, deadline)
                 sock.sendall(struct.pack("!I", 0))
-                self._set_remaining_timeout(sock, deadline)
-                response = sock.recv(4096).decode("utf-8", errors="replace")
+                response = self._read_scan_response(sock, deadline)
         except (OSError, TimeoutError) as exc:
             raise MalwareScannerUnavailableError(
                 "Malware scanner is unavailable. Please try again later"
             ) from exc
 
-        if "FOUND" in response:
+        if re.fullmatch(r"stream: [^\x00\r\n]+ FOUND", response):
             raise MalwareScanRejectedError("Uploaded file failed security scanning")
-        if "OK" not in response:
-            raise MalwareScanRejectedError("Malware scanner returned an invalid response")
+        if response != "stream: OK":
+            # A daemon ERROR, truncated reply, or unknown verdict is not evidence
+            # of infection. Keep the upload blocked, but allow a later retry.
+            raise MalwareScannerUnavailableError("Malware scanner returned an invalid response")
+
+    def _read_scan_response(self, sock: socket.socket, deadline: float) -> str:
+        # TCP may split even a short response across reads. zINSTREAM requests
+        # a NUL-terminated result; never accept an incomplete or oversized frame.
+        response = bytearray()
+        while len(response) < 4096:
+            self._set_remaining_timeout(sock, deadline)
+            chunk = sock.recv(4096 - len(response))
+            if not chunk:
+                break
+            response.extend(chunk)
+            if b"\x00" in chunk:
+                if response.count(b"\x00") == 1 and response.endswith(b"\x00"):
+                    return response[:-1].decode("utf-8", errors="replace")
+                break
+        raise MalwareScannerUnavailableError("Malware scanner returned an incomplete response")
 
     def healthcheck(self) -> None:
         """Require a valid ClamAV PONG before a production process becomes ready."""

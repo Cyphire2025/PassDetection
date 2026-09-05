@@ -1,7 +1,7 @@
+import { GlobalSearch } from "@/features/search/components/global-search";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { GlobalSearch } from "@/features/search/components/global-search";
 
 const mocks = vi.hoisted(() => ({
   push: vi.fn(),
@@ -49,11 +49,17 @@ describe("GlobalSearch", () => {
     const user = userEvent.setup();
     render(<GlobalSearch />);
 
-    const input = screen.getByRole("combobox", { name: "Search passports and groups" });
+    const input = screen.getByRole("combobox", {
+      name: "Search passports and groups",
+    });
     expect(input).toHaveAttribute("aria-expanded", "false");
     await user.type(input, "singapore");
 
-    await waitFor(() => expect(screen.getByRole("listbox", { name: "Search results" })).toBeInTheDocument());
+    await waitFor(() =>
+      expect(
+        screen.getByRole("listbox", { name: "Search results" }),
+      ).toBeInTheDocument(),
+    );
     await waitFor(() => expect(screen.getAllByRole("option")).toHaveLength(2));
     expect(input).toHaveAttribute("aria-expanded", "true");
 
@@ -66,10 +72,14 @@ describe("GlobalSearch", () => {
     const user = userEvent.setup();
     render(<GlobalSearch />);
 
-    const input = screen.getByRole("combobox", { name: "Search passports and groups" });
+    const input = screen.getByRole("combobox", {
+      name: "Search passports and groups",
+    });
     await user.type(input, "missing");
     await waitFor(() => {
-      expect(screen.getByRole("status")).toHaveTextContent("No matching passports or groups found");
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "No matching passports or groups found",
+      );
     });
     await user.keyboard("{Escape}");
     expect(input).toHaveAttribute("aria-expanded", "false");
@@ -78,12 +88,41 @@ describe("GlobalSearch", () => {
   it("clears an active query without navigating", async () => {
     const user = userEvent.setup();
     render(<GlobalSearch />);
-    const input = screen.getByRole("combobox", { name: "Search passports and groups" });
+    const input = screen.getByRole("combobox", {
+      name: "Search passports and groups",
+    });
     await user.type(input, "aarav");
     await waitFor(() => expect(screen.getAllByRole("option")).toHaveLength(2));
     await user.click(screen.getByRole("button", { name: "Clear search" }));
     expect(input).toHaveValue("");
     expect(input).toHaveAttribute("aria-expanded", "false");
     expect(mocks.push).not.toHaveBeenCalled();
+  });
+  it("distinguishes a failed search from empty success and retries", async () => {
+    mocks.global.mockRejectedValueOnce(new Error("temporarily unavailable"));
+    const user = userEvent.setup();
+    render(<GlobalSearch />);
+    await user.type(screen.getByRole("combobox"), "aarav");
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "temporarily unavailable",
+    );
+    expect(
+      screen.queryByText("No matching passports or groups found."),
+    ).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Retry search" }));
+    await waitFor(() => expect(screen.getAllByRole("option")).toHaveLength(2));
+  });
+
+  it("cancels superseded requests and exposes the search shortcut", async () => {
+    const user = userEvent.setup();
+    render(<GlobalSearch />);
+    const input = screen.getByRole("combobox");
+    await user.keyboard("{Control>}k{/Control}");
+    expect(input).toHaveFocus();
+    await user.type(input, "first");
+    await waitFor(() => expect(mocks.global).toHaveBeenCalled());
+    const signal = mocks.global.mock.calls.at(-1)?.[1] as AbortSignal;
+    await user.type(input, " next");
+    expect(signal.aborted).toBe(true);
   });
 });

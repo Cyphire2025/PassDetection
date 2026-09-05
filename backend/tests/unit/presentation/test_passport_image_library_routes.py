@@ -559,7 +559,7 @@ async def test_reset_cleanup_never_deletes_a_common_library_variant() -> None:
     repository.contains_storage_key = AsyncMock(return_value=True)
 
     with patch(
-        "app.presentation.api.v1.routes.passports.PassportImageLibraryRepository",
+        'app.presentation.api.v1.routes.passport_routes.image_support.PassportImageLibraryRepository',
         return_value=repository,
     ):
         await _delete_ephemeral_edit_source_best_effort(
@@ -583,7 +583,7 @@ async def test_bulk_replacement_cleanup_keeps_library_images() -> None:
     )
 
     with patch(
-        "app.presentation.api.v1.routes.passports.PassportImageLibraryRepository",
+        'app.presentation.api.v1.routes.passport_routes.image_support.PassportImageLibraryRepository',
         return_value=repository,
     ):
         await _delete_unreferenced_passport_image_keys_best_effort(

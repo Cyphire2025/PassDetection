@@ -33,8 +33,6 @@ import { copyTextToClipboard } from "@/lib/utils/clipboard";
 import { getPassportUploadTargets } from "@/lib/utils/public-url";
 import { selectUserRole, useAuthStore } from "@/stores/auth.store";
 import type {
-  CustomUploadDetail,
-  CustomUploadQuestion,
   UploadLinkResponse,
 } from "../api/upload-links.api";
 import {
@@ -45,9 +43,12 @@ import {
   useUpdateUploadLink,
   useUploadLinks,
 } from "../hooks/use-upload-links";
-import { GroupOptionToggle } from "./group-option-toggle";
-import { CustomQuestionBuilder } from "./custom-question-builder";
-import { CustomDetailBuilder } from "./custom-detail-builder";
+import {
+  getUploadLinkSettings,
+  getUploadLinkSettingsError,
+  UploadLinkSettings,
+  type UploadLinkSettingsValue,
+} from "./upload-link-settings";
 
 const loadCreateUploadLinkModal = () =>
   import("./create-upload-link-modal");
@@ -75,13 +76,7 @@ export function UploadLinkList() {
   const [renameTarget, setRenameTarget] = useState<UploadLinkResponse | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<UploadLinkResponse | null>(null);
   const [renameValue, setRenameValue] = useState("");
-  const [editAllowFilesFromDevice, setEditAllowFilesFromDevice] = useState(true);
-  const [editAskNearestDomesticAirport, setEditAskNearestDomesticAirport] = useState(false);
-  const [editRelationWithQualifier, setEditRelationWithQualifier] = useState(false);
-  const [editDesignation, setEditDesignation] = useState(false);
-  const [editAgencyDealershipName, setEditAgencyDealershipName] = useState(false);
-  const [editCustomQuestions, setEditCustomQuestions] = useState<CustomUploadQuestion[]>([]);
-  const [editCustomDetails, setEditCustomDetails] = useState<CustomUploadDetail[]>([]);
+  const [editSettings, setEditSettings] = useState(() => getUploadLinkSettings({}));
   const {
     data: activeLinks = [],
     isLoading: isLoadingActive,
@@ -112,13 +107,7 @@ export function UploadLinkList() {
   const openGroupEditor = (link: UploadLinkResponse) => {
     setRenameTarget(link);
     setRenameValue(link.name);
-    setEditAllowFilesFromDevice(link.allow_files_from_device ?? true);
-    setEditAskNearestDomesticAirport(link.ask_nearest_domestic_airport ?? false);
-    setEditRelationWithQualifier(link.relation_with_qualifier_enabled ?? false);
-    setEditDesignation(link.designation_enabled ?? false);
-    setEditAgencyDealershipName(link.agency_dealership_name_enabled ?? false);
-    setEditCustomQuestions(link.custom_questions ?? []);
-    setEditCustomDetails(link.custom_details ?? []);
+    setEditSettings(getUploadLinkSettings(link));
   };
 
   const copyUploadLink = async (linkId: string, targetKey: string, url: string) => {
@@ -138,9 +127,8 @@ export function UploadLinkList() {
   return (
     <div className="flex flex-col gap-5">
       <WorkspacePageHeader
-        eyebrow="Secure passport intake"
         title="Group Links"
-        description="Create and govern passenger collection portals, keep closed groups distinct from live intake, and retain archived history without cluttering active work."
+        description="Create passport upload links and manage active, closed, and archived groups."
         icon={Link2}
         accent="emerald"
         context={(
@@ -225,9 +213,7 @@ export function UploadLinkList() {
       >
         <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3.5 sm:px-5">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-              Intake control
-            </p>
+
             <h2 id="group-links-heading" className="mt-0.5 font-semibold text-slate-950">
               Live and closed group links
             </h2>
@@ -250,7 +236,7 @@ export function UploadLinkList() {
         ) : activeLinks.length === 0 ? (
           <WorkspaceEmptyState
             title="No Group Links are collecting details"
-            description="Create a secure Group Link to begin collecting passport images and verified traveller information."
+            description="Create a Group Link to collect passport images and traveller details."
             action={(
               <Button type="button" onClick={() => setIsModalOpen(true)}>
                 <Link2 className="h-4 w-4" aria-hidden="true" />
@@ -299,9 +285,7 @@ export function UploadLinkList() {
       >
         <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3.5 sm:px-5">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-              Retained history
-            </p>
+
             <h2 id="archived-group-links-heading" className="mt-0.5 font-semibold text-slate-950">
               Archived groups
             </h2>
@@ -356,38 +340,17 @@ export function UploadLinkList() {
       <EditGroupDialog
         group={renameTarget}
         name={renameValue}
-        allowFilesFromDevice={editAllowFilesFromDevice}
-        askNearestDomesticAirport={editAskNearestDomesticAirport}
-        relationWithQualifier={editRelationWithQualifier}
-        designation={editDesignation}
-        agencyDealershipName={editAgencyDealershipName}
-        customQuestions={editCustomQuestions}
-        customDetails={editCustomDetails}
+        settings={editSettings}
         isLoading={isRenaming}
         onNameChange={setRenameValue}
-        onAllowFilesFromDeviceChange={setEditAllowFilesFromDevice}
-        onAskNearestDomesticAirportChange={setEditAskNearestDomesticAirport}
-        onRelationWithQualifierChange={setEditRelationWithQualifier}
-        onDesignationChange={setEditDesignation}
-        onAgencyDealershipNameChange={setEditAgencyDealershipName}
-        onCustomQuestionsChange={setEditCustomQuestions}
-        onCustomDetailsChange={setEditCustomDetails}
+        onSettingsChange={(patch) => setEditSettings((current) => ({ ...current, ...patch }))}
         onClose={() => setRenameTarget(null)}
         onConfirm={() => {
           if (!renameTarget) return;
           const nextName = renameValue.trim();
+          if (getUploadLinkSettingsError(editSettings)) return;
           const hasChanges = nextName !== renameTarget.name
-            || editAllowFilesFromDevice !== (renameTarget.allow_files_from_device ?? true)
-            || editAskNearestDomesticAirport !== (renameTarget.ask_nearest_domestic_airport ?? false)
-            || editRelationWithQualifier
-              !== (renameTarget.relation_with_qualifier_enabled ?? false)
-            || editDesignation !== (renameTarget.designation_enabled ?? false)
-            || editAgencyDealershipName
-              !== (renameTarget.agency_dealership_name_enabled ?? false)
-            || JSON.stringify(editCustomQuestions)
-              !== JSON.stringify(renameTarget.custom_questions ?? [])
-            || JSON.stringify(editCustomDetails)
-              !== JSON.stringify(renameTarget.custom_details ?? []);
+            || JSON.stringify(editSettings) !== JSON.stringify(getUploadLinkSettings(renameTarget));
           if (!nextName || !hasChanges) {
             setRenameTarget(null);
             return;
@@ -400,20 +363,9 @@ export function UploadLinkList() {
               travel_date: renameTarget.travel_date,
               return_date: renameTarget.return_date,
               package_name: renameTarget.package_name,
-              departure_cities: renameTarget.departure_cities,
-              base_city_enabled: renameTarget.base_city_enabled,
-              nearest_international_airport_enabled: renameTarget.nearest_international_airport_enabled,
-              staff_code_enabled: renameTarget.staff_code_enabled,
-              agent_employee_code_enabled: renameTarget.agent_employee_code_enabled,
-              meal_preference_enabled: renameTarget.meal_preference_enabled,
-              require_selfie: renameTarget.require_selfie,
-              allow_files_from_device: editAllowFilesFromDevice,
-              ask_nearest_domestic_airport: editAskNearestDomesticAirport,
-              relation_with_qualifier_enabled: editRelationWithQualifier,
-              designation_enabled: editDesignation,
-              agency_dealership_name_enabled: editAgencyDealershipName,
-              custom_questions: editCustomQuestions,
-              custom_details: editCustomDetails,
+              timezone: renameTarget.timezone,
+              ...editSettings,
+              departure_cities: editSettings.nearest_international_airport_enabled ? editSettings.departure_cities : [],
               notes: renameTarget.notes,
             },
             { onSuccess: () => setRenameTarget(null) },
@@ -446,43 +398,19 @@ export function UploadLinkList() {
 function EditGroupDialog({
   group,
   name,
-  allowFilesFromDevice,
-  askNearestDomesticAirport,
-  relationWithQualifier,
-  designation,
-  agencyDealershipName,
-  customQuestions,
-  customDetails,
+  settings,
   isLoading,
   onNameChange,
-  onAllowFilesFromDeviceChange,
-  onAskNearestDomesticAirportChange,
-  onRelationWithQualifierChange,
-  onDesignationChange,
-  onAgencyDealershipNameChange,
-  onCustomQuestionsChange,
-  onCustomDetailsChange,
+  onSettingsChange,
   onConfirm,
   onClose,
 }: {
   group: UploadLinkResponse | null;
   name: string;
-  allowFilesFromDevice: boolean;
-  askNearestDomesticAirport: boolean;
-  relationWithQualifier: boolean;
-  designation: boolean;
-  agencyDealershipName: boolean;
-  customQuestions: CustomUploadQuestion[];
-  customDetails: CustomUploadDetail[];
+  settings: UploadLinkSettingsValue;
   isLoading: boolean;
   onNameChange: (value: string) => void;
-  onAllowFilesFromDeviceChange: (checked: boolean) => void;
-  onAskNearestDomesticAirportChange: (checked: boolean) => void;
-  onRelationWithQualifierChange: (checked: boolean) => void;
-  onDesignationChange: (checked: boolean) => void;
-  onAgencyDealershipNameChange: (checked: boolean) => void;
-  onCustomQuestionsChange: (questions: CustomUploadQuestion[]) => void;
-  onCustomDetailsChange: (details: CustomUploadDetail[]) => void;
+  onSettingsChange: (patch: Partial<UploadLinkSettingsValue>) => void;
   onConfirm: () => void;
   onClose: () => void;
 }) {
@@ -494,20 +422,7 @@ function EditGroupDialog({
     onClose,
   });
   if (!group) return null;
-  const customQuestionsValid = customQuestions.every((question) => {
-    const options = question.options.map((option) => option.trim()).filter(Boolean);
-    return Boolean(question.label.trim())
-      && options.length >= 2
-      && new Set(options.map((option) => option.toLocaleLowerCase())).size
-        === options.length;
-  });
-  const normalizedDetailNames = customDetails.map(
-    (detail) => detail.label.trim().toLocaleLowerCase(),
-  );
-  const customDetailsValid = (
-    normalizedDetailNames.every(Boolean)
-    && new Set(normalizedDetailNames).size === normalizedDetailNames.length
-  );
+  const settingsError = getUploadLinkSettingsError(settings);
 
   return (
     <div
@@ -522,7 +437,7 @@ function EditGroupDialog({
         className="max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-xl bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200"
         onSubmit={(event) => {
           event.preventDefault();
-          onConfirm();
+          if (!isLoading && !settingsError && name.trim()) onConfirm();
         }}
       >
         <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-4">
@@ -554,56 +469,7 @@ function EditGroupDialog({
             disabled={isLoading}
             onChange={(event) => onNameChange(event.target.value)}
           />
-          <GroupOptionToggle
-            label="Allow files from device"
-            description="When disabled, travellers must capture both passport pages with the live camera."
-            checked={allowFilesFromDevice}
-            disabled={isLoading}
-            onChange={onAllowFilesFromDeviceChange}
-          />
-          <GroupOptionToggle
-            label="Ask for nearest domestic airport"
-            description="When enabled, each traveller must provide their nearest domestic airport during review."
-            checked={askNearestDomesticAirport}
-            disabled={isLoading}
-            onChange={onAskNearestDomesticAirportChange}
-          />
-          <GroupOptionToggle
-            label="Relation with Qualifier"
-            description="Require Self or one approved family relationship before this single-passenger upload."
-            checked={relationWithQualifier}
-            disabled={isLoading}
-            onChange={onRelationWithQualifierChange}
-          />
-          <GroupOptionToggle
-            label="Designation"
-            description="Require each traveller to type their designation."
-            checked={designation}
-            disabled={isLoading}
-            onChange={onDesignationChange}
-          />
-          <GroupOptionToggle
-            label="Agency/Dealership Name"
-            description="Require each traveller to type their agency or dealership name."
-            checked={agencyDealershipName}
-            disabled={isLoading}
-            onChange={onAgencyDealershipNameChange}
-          />
-          <CustomQuestionBuilder
-            questions={customQuestions}
-            onChange={onCustomQuestionsChange}
-            disabled={isLoading}
-          />
-          <CustomDetailBuilder
-            details={customDetails}
-            onChange={onCustomDetailsChange}
-            disabled={isLoading}
-            error={
-              customDetailsValid
-                ? undefined
-                : "Custom detail headings are required and must be unique."
-            }
-          />
+          <UploadLinkSettings value={settings} onChange={onSettingsChange} disabled={isLoading} error={settingsError} />
         </div>
         <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
           <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
@@ -612,7 +478,7 @@ function EditGroupDialog({
           <Button
             type="submit"
             isLoading={isLoading}
-            disabled={!name.trim() || !customQuestionsValid || !customDetailsValid}
+            disabled={!name.trim() || Boolean(settingsError) || isLoading}
           >
             Save changes
           </Button>

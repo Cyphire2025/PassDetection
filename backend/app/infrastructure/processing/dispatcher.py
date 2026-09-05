@@ -33,6 +33,21 @@ class PassportProcessingDispatcher:
         self._backend = backend or get_settings().processing_backend
         self._priority = priority_coordinator or get_ai_priority_coordinator()
 
+    async def dispatch_async(
+        self,
+        *,
+        job_id: uuid.UUID,
+        submission_id: uuid.UUID,
+        background_tasks: BackgroundTasks,
+    ) -> str | None:
+        """Keep bounded Redis/broker I/O off the request's event loop."""
+        return await asyncio.to_thread(
+            self.dispatch,
+            job_id=job_id,
+            submission_id=submission_id,
+            background_tasks=background_tasks,
+        )
+
     def dispatch(
         self,
         *,

@@ -15,7 +15,7 @@ const workspaceReview = readFileSync(
 const hooks = readFileSync(new URL("../hooks/use-document-distribution.ts", import.meta.url), "utf8");
 const api = readFileSync(new URL("../api/document-distribution.api.ts", import.meta.url), "utf8");
 const panel = readFileSync(new URL("../../passports/components/group-document-delivery-panel.tsx", import.meta.url), "utf8");
-const groupPage = readFileSync(new URL("../../passports/components/passport-group-detail.tsx", import.meta.url), "utf8");
+import { passportGroupDetailSource as groupPage } from "../../passports/components/passport-group-detail-source.contract-helper.mjs";
 const endpoints = readFileSync(new URL("../../../lib/api/endpoints.ts", import.meta.url), "utf8");
 const types = readFileSync(new URL("../../../types/document-distribution.types.ts", import.meta.url), "utf8");
 const lanes = readFileSync(

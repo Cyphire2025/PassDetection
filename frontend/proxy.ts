@@ -34,8 +34,6 @@ export const PROTECTED_PREFIXES = [
   "/settings",
 ];
 
-const AUTH_ROUTES = ["/login"];
-
 function matchesRouteBoundary(pathname: string, prefix: string) {
   return pathname === prefix || pathname.startsWith(`${prefix}/`);
 }
@@ -88,29 +86,16 @@ export function proxy(request: NextRequest): NextResponse {
   const isProtected = PROTECTED_PREFIXES.some((prefix) =>
     matchesRouteBoundary(pathname, prefix)
   );
-  const isAuthRoute = AUTH_ROUTES.some((route) => matchesRouteBoundary(pathname, route));
 
   // Redirect unauthenticated users away from protected pages
   if (isProtected && !isAuthenticated) {
-    const loginUrl = new URL("/login", request.url);
+    const loginUrl = new URL("/session-restore", request.url);
     loginUrl.searchParams.set("from", `${pathname}${request.nextUrl.search}`);
     return withContentSecurityPolicy(NextResponse.redirect(loginUrl), contentSecurityPolicy);
   }
 
-  // Redirect authenticated users away from auth pages
-  if (isAuthRoute && isAuthenticated) {
-    const requestedPath = request.nextUrl.searchParams.get("from");
-    const destination = requestedPath
-      && requestedPath.startsWith("/")
-      && !requestedPath.startsWith("//")
-      && !requestedPath.includes("\\")
-      ? requestedPath
-      : "/dashboard";
-    return withContentSecurityPolicy(
-      NextResponse.redirect(new URL(destination, request.url)),
-      contentSecurityPolicy,
-    );
-  }
+  // Cookie presence cannot prove an authenticated account. Leave sign-in
+  // accessible after a rejected refresh even if a stale access cookie remains.
 
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);

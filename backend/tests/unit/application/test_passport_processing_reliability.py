@@ -19,7 +19,7 @@ from app.application.use_cases.passports.process_passport_submission_job_use_cas
 )
 from app.application.use_cases.passports.submit_passport_use_case import SubmitPassportUseCase
 from app.domain.entities.entities import PassportSubmission
-from app.domain.exceptions.exceptions import StorageError, ValidationError
+from app.domain.exceptions.exceptions import EntityNotFoundError, StorageError, ValidationError
 from app.infrastructure.processing.job_state import ProcessingJobStatus
 
 
@@ -562,6 +562,7 @@ class PassportUploadIdempotencyTests(unittest.IsolatedAsyncioTestCase):
             agency_id=self.agency_id,
             require_selfie=False,
             is_active=lambda: True,
+            deleted_at=None,
             require_allowed_acquisition_mode=lambda value: value,
         )
         self.existing = PassportSubmission.create(
@@ -725,22 +726,23 @@ class PassportUploadIdempotencyTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(any(key.endswith("-back.jpg") for key in attempted_keys))
         self.passport_repo.save_idempotent.assert_not_awaited()
 
-    async def test_persisted_idempotent_replay_survives_group_closure(self) -> None:
+    async def test_persisted_idempotent_replay_cannot_bypass_group_closure(self) -> None:
         self.group.is_active = lambda: False
         self.passport_repo.get_by_upload_idempotency_key.return_value = self.existing
 
-        result = await self._use_case().execute(
-            token="public-token",
-            file_content=b"new-front",
-            content_type="image/jpeg",
-            filename="front.jpg",
-            client_name="Existing Traveller",
-            passport_back=(b"new-back", "image/jpeg", "back.jpg"),
-            acquisition_mode="camera",
-            upload_idempotency_key=self.idempotency_key,
-        )
+        with self.assertRaises(EntityNotFoundError):
+            await self._use_case().execute(
+                token="public-token",
+                file_content=b"new-front",
+                content_type="image/jpeg",
+                filename="front.jpg",
+                client_name="Existing Traveller",
+                passport_back=(b"new-back", "image/jpeg", "back.jpg"),
+                acquisition_mode="camera",
+                upload_idempotency_key=self.idempotency_key,
+            )
 
-        self.assertEqual(result.id, self.existing.id)
+        self.passport_repo.get_by_upload_idempotency_key.assert_not_awaited()
         self.storage_repo.upload_file.assert_not_awaited()
         self.passport_repo.save_idempotent.assert_not_awaited()
         self.job_repo.create.assert_not_awaited()

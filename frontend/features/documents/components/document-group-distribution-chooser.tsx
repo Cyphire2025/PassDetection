@@ -23,8 +23,7 @@ export function DocumentGroupDistributionChooser({ groupId }: { groupId: string 
   return (
     <div className="flex flex-col gap-5">
       <WorkspacePageHeader
-        eyebrow="Group document workspace"
-        title={group ? `${group.group_name} Documents` : "Choose a Document Family"}
+        title={group ? `${group.group_name} Documents` : "Choose a Document Type"}
         description="Choose Visa or Flight Tickets for this group. Existing ticket uploads remain in the International Onward and Return lanes."
         icon={FileStack}
         accent="cyan"
@@ -51,7 +50,7 @@ export function DocumentGroupDistributionChooser({ groupId }: { groupId: string 
 
       {groups.error && (
         <WorkspaceErrorNotice>
-          This group could not be refreshed. You can still choose a document family below.
+          This group could not be refreshed. You can still choose a document type below.
         </WorkspaceErrorNotice>
       )}
 
@@ -60,11 +59,9 @@ export function DocumentGroupDistributionChooser({ groupId }: { groupId: string 
         aria-labelledby="group-document-family-heading"
       >
         <div className="border-b border-slate-200 bg-slate-50/70 px-4 py-3.5 sm:px-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-            Document family
-          </p>
+
           <h2 id="group-document-family-heading" className="mt-0.5 font-semibold text-slate-950">
-            What do you want to manage for this group?
+            Choose a document type
           </h2>
         </div>
 

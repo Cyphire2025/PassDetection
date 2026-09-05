@@ -1089,9 +1089,8 @@ export function RecipientListDialog({
               <div>
                 <h3 className="font-semibold text-slate-900">Add recipients</h3>
                 <p className="mt-1 text-sm text-slate-500">
-                  Add people manually or import an Excel file. Existing phone
-                  numbers are safely ignored, and invalid rows can be saved for
-                  correction.
+                  Add recipients manually or import an Excel file. Duplicate phone
+                  numbers are skipped; invalid rows can be saved for correction.
                 </p>
               </div>
 

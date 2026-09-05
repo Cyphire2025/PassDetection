@@ -5,7 +5,7 @@ from __future__ import annotations
 import unittest
 import uuid
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 from fastapi import HTTPException
 
@@ -18,6 +18,7 @@ from app.presentation.api.v1.routes.whatsapp import (
     _resolve_send_message_content,
     create_broadcast_group,
 )
+from tests.route_dependencies import patch_route_dependency
 
 
 class WhatsAppMessageContentTests(unittest.TestCase):
@@ -79,11 +80,11 @@ class WhatsAppCreateGroupCompatibilityTests(unittest.IsolatedAsyncioTestCase):
             return group
 
         with (
-            patch(
+            patch_route_dependency(
                 "app.presentation.api.v1.routes.whatsapp._group_detail",
                 new=AsyncMock(side_effect=return_group),
             ),
-            patch(
+            patch_route_dependency(
                 "app.presentation.api.v1.routes.whatsapp._lock_active_whatsapp_actor",
                 new=AsyncMock(return_value=actor),
             ),

@@ -11,6 +11,7 @@ const routes = read("../../constants/routes.ts");
 const header = read("../../components/layout/header.tsx");
 const api = read("./api/notifications.api.ts");
 const hooks = read("./hooks/use-notifications.ts");
+const liveHistory = read("../../lib/hooks/use-live-history-feed.ts");
 const bell = read("./components/notification-bell.tsx");
 const navigation = read("./utils/notification-navigation.ts");
 const types = read("./types.ts");
@@ -67,10 +68,23 @@ test("notification polling is user scoped, visibility aware, and recoverable", (
   assert.match(hooks, /"notifications",\s*userId,\s*"feed"/);
   assert.match(hooks, /const CLOSED_REFRESH_INTERVAL_MS = 15_000/);
   assert.match(hooks, /const OPEN_REFRESH_INTERVAL_MS = 5_000/);
-  assert.match(hooks, /refetchIntervalInBackground: false/);
-  assert.match(hooks, /refetchOnWindowFocus: true/);
-  assert.match(hooks, /refetchOnReconnect: "always"/);
+  assert.match(hooks, /useLiveHistoryFeed<NotificationFeedResponse>/);
+  assert.match(liveHistory, /refetchIntervalInBackground: false/);
+  assert.match(liveHistory, /refetchOnWindowFocus: true/);
+  assert.match(liveHistory, /refetchOnReconnect: "always"/);
   assert.match(hooks, /enabled: Boolean\(userId\)/);
+});
+
+test("notification history is bounded and never polled with the live head", () => {
+  assert.match(liveHistory, /queryKey: \[\.\.\.queryKey, "live"\]/);
+  assert.match(liveHistory, /const historyKey = \[\.\.\.queryKey, "history", startCursor\]/);
+  assert.match(liveHistory, /maxPages: 5/);
+  assert.match(liveHistory, /staleTime: Infinity/);
+  assert.match(liveHistory, /refetchOnWindowFocus: false/);
+  assert.match(liveHistory, /refetchOnReconnect: false/);
+  assert.match(liveHistory, /refetchOnMount: false/);
+  assert.match(liveHistory, /meta: \{ historyOnly: true \}/);
+  assert.match(liveHistory, /const seen = new Set<string>\(\)/);
 });
 
 test("notification navigation accepts only known entity types and safe ids", () => {

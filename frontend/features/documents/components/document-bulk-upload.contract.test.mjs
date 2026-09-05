@@ -39,7 +39,7 @@ const laneNavigation = readFileSync(
 );
 const distributionRoute = readFileSync(
   new URL(
-    "../../../../backend/app/presentation/api/v1/routes/document_distribution.py",
+    "../../../../backend/app/presentation/api/v1/routes/document_distribution_delivery.py",
     import.meta.url,
   ),
   "utf8",
@@ -419,7 +419,7 @@ test("distribution distinguishes physical files from assigned passengers and sur
   assert.match(distributionTypes, /assigned_file_count: number/);
   assert.match(distributionTypes, /assigned_passenger_count: number/);
   assert.match(distributionTypes, /assignment_issues: DocumentAssignmentIssue\[\]/);
-  assert.match(workspace, /files assigned across \{assignedPassengerCount\} passengers/);
+  assert.match(workspace, /\{assignedFileCount\}\s+\{assignedFileCount === 1 \? "file" : "files"\} assigned across \{assignedPassengerCount\}\s+\{assignedPassengerCount === 1 \? "passenger" : "passengers"\}/);
   assert.match(workspace, /Needs assignment \(\{needsAssignmentCount\}\)/);
   assert.match(workspace, /Multiple files can be correctly assigned to the same passenger/);
   assert.match(workspace, /\{issue\.reason\}/);

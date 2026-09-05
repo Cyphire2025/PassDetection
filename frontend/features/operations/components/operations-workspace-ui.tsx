@@ -1,9 +1,9 @@
-import type React from "react";
-import { AlertCircle, ArrowRight, Search, type LucideIcon } from "lucide-react";
+import { WorkspacePageHeader } from "@/components/shared/workspace-ui";
 import { cn } from "@/lib/utils/cn";
+import { AlertCircle, ArrowRight, Search, type LucideIcon } from "lucide-react";
+import type React from "react";
 
 export function OperationsPageHeader({
-  eyebrow,
   title,
   description,
   icon: Icon,
@@ -11,7 +11,6 @@ export function OperationsPageHeader({
   context,
   tone = "navy",
 }: {
-  eyebrow: string;
   title: string;
   description: string;
   icon: LucideIcon;
@@ -20,43 +19,14 @@ export function OperationsPageHeader({
   tone?: "navy" | "blue";
 }) {
   return (
-    <header
-      className={cn(
-        "relative overflow-hidden rounded-2xl border px-5 py-5 text-white shadow-sm sm:px-6",
-        tone === "navy"
-          ? "border-[#245b8f] bg-[#123f73]"
-          : "border-[#2b6ba5] bg-[#16538f]",
-      )}
-    >
-      <div
-        className="pointer-events-none absolute inset-y-0 right-0 w-2/5 bg-[linear-gradient(135deg,transparent,rgba(59,130,246,0.16))]"
-        aria-hidden="true"
-      />
-      <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex min-w-0 items-start gap-4">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/10 text-sky-200">
-            <Icon className="h-5 w-5" aria-hidden="true" />
-          </span>
-          <div className="min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-sky-300">
-              {eyebrow}
-            </p>
-            <h1 className="mt-1 text-xl font-semibold tracking-tight text-white sm:text-2xl">
-              {title}
-            </h1>
-            <p className="mt-1.5 max-w-3xl text-sm leading-6 text-slate-300">
-              {description}
-            </p>
-            {context && <div className="mt-3 flex flex-wrap items-center gap-2">{context}</div>}
-          </div>
-        </div>
-        {actions && (
-          <div className="relative flex shrink-0 flex-wrap items-center gap-2 lg:justify-end">
-            {actions}
-          </div>
-        )}
-      </div>
-    </header>
+    <WorkspacePageHeader
+      title={title}
+      description={description}
+      icon={Icon}
+      actions={actions}
+      context={context}
+      accent={tone === "navy" ? "sky" : "cyan"}
+    />
   );
 }
 
@@ -111,10 +81,16 @@ export function OperationsSummaryItem({
         <Icon className="h-4 w-4" aria-hidden="true" />
       </span>
       <div className="min-w-0">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{label}</p>
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+          {label}
+        </p>
         <div className="mt-0.5 flex min-w-0 items-baseline gap-2">
-          <p className="text-lg font-semibold tabular-nums text-slate-950">{value}</p>
-          {helper && <p className="truncate text-xs text-slate-500">{helper}</p>}
+          <p className="text-lg font-semibold tabular-nums text-slate-950">
+            {value}
+          </p>
+          {helper && (
+            <p className="truncate text-xs text-slate-500">{helper}</p>
+          )}
         </div>
       </div>
     </div>
@@ -163,7 +139,14 @@ export function OperationsToolbar({
         )}
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        {resultLabel && <span className="mr-1 text-xs font-medium text-slate-500" aria-live="polite">{resultLabel}</span>}
+        {resultLabel && (
+          <span
+            className="mr-1 text-xs font-medium text-slate-500"
+            aria-live="polite"
+          >
+            {resultLabel}
+          </span>
+        )}
         {children}
       </div>
     </div>
@@ -184,18 +167,31 @@ export function OperationsEmptyState({
   return (
     <div className="px-5 py-12 text-center">
       <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
-        {filtered ? <Search className="h-5 w-5" aria-hidden="true" /> : <ArrowRight className="h-5 w-5" aria-hidden="true" />}
+        {filtered ? (
+          <Search className="h-5 w-5" aria-hidden="true" />
+        ) : (
+          <ArrowRight className="h-5 w-5" aria-hidden="true" />
+        )}
       </span>
       <h2 className="mt-4 text-base font-semibold text-slate-950">{title}</h2>
-      <p className="mx-auto mt-1.5 max-w-lg text-sm leading-6 text-slate-500">{description}</p>
+      <p className="mx-auto mt-1.5 max-w-lg text-sm leading-6 text-slate-500">
+        {description}
+      </p>
       {action && <div className="mt-5 flex justify-center">{action}</div>}
     </div>
   );
 }
 
-export function OperationsErrorNotice({ children }: { children: React.ReactNode }) {
+export function OperationsErrorNotice({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <div role="alert" className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+    <div
+      role="alert"
+      className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+    >
       <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
       <div>{children}</div>
     </div>

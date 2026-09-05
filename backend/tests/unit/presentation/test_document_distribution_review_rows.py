@@ -116,8 +116,7 @@ def test_review_rows_group_every_saved_document_under_one_submitted_passenger() 
 
 def test_physical_file_accounting_distinguishes_files_from_unique_passengers() -> None:
     passengers = [
-        _passenger(passenger_id=uuid.uuid4(), name=f"Passenger {index}")
-        for index in range(404)
+        _passenger(passenger_id=uuid.uuid4(), name=f"Passenger {index}") for index in range(404)
     ]
     documents: list[SimpleNamespace] = []
     responses: dict[uuid.UUID, DistributedDocumentResponse] = {}
@@ -165,10 +164,10 @@ def test_physical_file_accounting_lists_each_unassigned_pdf_once_with_a_reason()
     responses = {
         assigned_id: _response(document_id=assigned_id, filename="assigned.pdf", source="manual"),
         unassigned_id: _response(
-                document_id=unassigned_id,
-                filename="no-match.pdf",
-                source="manual",
-            ).model_copy(update={"match_reason": "No passenger match found"}),
+            document_id=unassigned_id,
+            filename="no-match.pdf",
+            source="manual",
+        ).model_copy(update={"match_reason": "No passenger match found"}),
         stale_id: _response(document_id=stale_id, filename="stale.pdf", source="manual"),
     }
 

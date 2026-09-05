@@ -28,6 +28,7 @@ from app.infrastructure.my_photos import (
     MY_PHOTOS_SEARCH_QUEUE,
 )
 from app.infrastructure.my_photos.providers import build_provider_bundle
+from app.infrastructure.readiness_executor import readiness_probe_executor
 from app.infrastructure.security.upload_validator import (
     ClamAVMalwareScanner,
     malware_scanner_from_settings,
@@ -40,6 +41,7 @@ PLATFORM_SCHEDULER_HEARTBEAT_KEY = (
 )
 READINESS_CACHE_SECONDS = 15.0
 READINESS_REFRESH_TIMEOUT_SECONDS = 3.5
+BLOCKING_PROBE_TIMEOUT_SECONDS = 3.0
 STORAGE_CLEANUP_WARNING_COUNT = 1_000
 STORAGE_CLEANUP_CRITICAL_AGE_SECONDS = 24 * 60 * 60
 
@@ -54,6 +56,7 @@ class RuntimeCapabilitySnapshot:
 @dataclass(frozen=True, slots=True)
 class _BlockingSnapshot:
     checks: dict[str, str]
+    security_ready: bool
     object_storage_ready: bool
     malware_ready: bool
     general_worker_ready: bool
@@ -118,6 +121,7 @@ class RuntimeReadinessProbe:
         core_ready = all(
             (
                 schema_ready,
+                blocking.security_ready,
                 blocking.object_storage_ready,
                 blocking.malware_ready,
                 blocking.general_worker_ready,
@@ -125,6 +129,12 @@ class RuntimeReadinessProbe:
             )
         )
         capabilities = {
+            "request_protection": _capability(
+                required=_security_redis_required(settings),
+                available=blocking.security_ready,
+                traffic_gate=_security_redis_required(settings),
+                status=blocking.checks["security_redis"],
+            ),
             "object_storage": _capability(
                 required=True,
                 available=blocking.object_storage_ready,
@@ -263,15 +273,17 @@ async def _cleanup_backlog(db: AsyncSession) -> _CleanupBacklog:
 
 
 async def _refresh_blocking_capabilities(settings: Settings) -> _BlockingSnapshot:
-    storage_result, scanner_result, runtime_result, provider_result = await asyncio.gather(
-        asyncio.to_thread(_probe_object_storage),
-        asyncio.to_thread(_probe_malware_scanner, settings),
-        asyncio.to_thread(_probe_worker_and_scheduler, settings),
-        asyncio.to_thread(_probe_my_photos, settings),
+    storage_result, scanner_result, runtime_result, provider_result, security_result = await asyncio.gather(
+        readiness_probe_executor.run("object_storage", _probe_object_storage, timeout_seconds=BLOCKING_PROBE_TIMEOUT_SECONDS, configuration=settings),
+        readiness_probe_executor.run("malware_scanner", lambda: _probe_malware_scanner(settings), timeout_seconds=BLOCKING_PROBE_TIMEOUT_SECONDS, configuration=settings),
+        readiness_probe_executor.run("worker_scheduler", lambda: _probe_worker_and_scheduler(settings), timeout_seconds=BLOCKING_PROBE_TIMEOUT_SECONDS, configuration=settings),
+        readiness_probe_executor.run("my_photos", lambda: _probe_my_photos(settings), timeout_seconds=BLOCKING_PROBE_TIMEOUT_SECONDS, configuration=settings),
+        readiness_probe_executor.run("security_redis", lambda: _probe_security_redis(settings), timeout_seconds=BLOCKING_PROBE_TIMEOUT_SECONDS, configuration=settings),
         return_exceptions=True,
     )
 
     storage_ready = storage_result is True
+    security_status, security_ready = _probe_result(security_result, failure_status="unreachable")
     malware_status, malware_ready = _probe_result(
         scanner_result,
         failure_status="unreachable",
@@ -293,6 +305,7 @@ async def _refresh_blocking_capabilities(settings: Settings) -> _BlockingSnapsho
 
     return _BlockingSnapshot(
         checks={
+            "security_redis": security_status,
             "object_storage": "available" if storage_ready else "unreachable",
             "malware_scanner": malware_status,
             "general_processing_worker": worker_status,
@@ -300,12 +313,35 @@ async def _refresh_blocking_capabilities(settings: Settings) -> _BlockingSnapsho
             "my_photos": my_photos_status,
         },
         object_storage_ready=storage_ready,
+        security_ready=security_ready,
         malware_ready=malware_ready,
         general_worker_ready=worker_ready,
         scheduler_ready=scheduler_ready,
         my_photos_ready=my_photos_ready,
         my_photos_required=my_photos_required,
     )
+
+
+def _security_redis_required(settings: Settings) -> bool:
+    return any((
+        settings.dashboard_rate_limit_require_redis,
+        settings.login_lockout_require_redis,
+        settings.public_upload_rate_limit_require_redis,
+    ))
+
+
+def _probe_security_redis(settings: Settings) -> tuple[str, bool]:
+    if not _security_redis_required(settings):
+        return "not_required", True
+    client = Redis.from_url(
+        settings.redis.security_url,
+        socket_connect_timeout=1.0,
+        socket_timeout=1.0,
+    )
+    try:
+        return ("available", True) if client.ping() else ("unreachable", False)
+    finally:
+        client.close()  # type: ignore[no-untyped-call]
 
 
 def _probe_object_storage() -> bool:
@@ -412,6 +448,10 @@ def _settings_cache_key(settings: Settings) -> tuple[object, ...]:
     my_photos = settings.my_photos
     return (
         settings.app_env,
+        settings.redis.security_url,
+        settings.dashboard_rate_limit_require_redis,
+        settings.login_lockout_require_redis,
+        settings.public_upload_rate_limit_require_redis,
         settings.processing_backend,
         settings.untrusted_document_ingestion_enabled,
         settings.malware_scanner_enabled,
@@ -429,6 +469,7 @@ def _timed_out_snapshot(settings: Settings) -> _BlockingSnapshot:
     my_photos_required = _my_photos_selected(settings)
     return _BlockingSnapshot(
         checks={
+            "security_redis": "probe_timeout",
             "object_storage": "probe_timeout",
             "malware_scanner": "probe_timeout",
             "general_processing_worker": "probe_timeout",
@@ -440,6 +481,7 @@ def _timed_out_snapshot(settings: Settings) -> _BlockingSnapshot:
             ),
         },
         object_storage_ready=False,
+        security_ready=False,
         malware_ready=False,
         general_worker_ready=False,
         scheduler_ready=False,

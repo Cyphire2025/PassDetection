@@ -96,8 +96,7 @@ def _broadcast_activity_statement(
         )
         .join(
             WhatsAppBroadcastGroupModel,
-            WhatsAppBroadcastGroupModel.id
-            == WhatsAppMessageLogModel.broadcast_group_id,
+            WhatsAppBroadcastGroupModel.id == WhatsAppMessageLogModel.broadcast_group_id,
         )
         .where(WhatsAppMessageLogModel.batch_id == batch_id)
         .group_by(
@@ -108,9 +107,7 @@ def _broadcast_activity_statement(
         )
     )
     if current_user.role != UserRole.SUPER_ADMIN:
-        statement = statement.where(
-            WhatsAppBroadcastGroupModel.agency_id == current_user.agency_id
-        )
+        statement = statement.where(WhatsAppBroadcastGroupModel.agency_id == current_user.agency_id)
     return statement
 
 
@@ -212,15 +209,11 @@ def _failed_status_predicate(status_column: Any) -> Any:
     return ~status_column.in_(KNOWN_STATUSES)
 
 
-def _broadcast_failures_statement(
-    *, batch_id: uuid.UUID, current_user: User
-) -> Any:
+def _broadcast_failures_statement(*, batch_id: uuid.UUID, current_user: User) -> Any:
     statement = (
         select(
             WhatsAppBroadcastRecipientModel.name.label("recipient_name"),
-            WhatsAppBroadcastRecipientModel.normalized_phone_number.label(
-                "phone_number"
-            ),
+            WhatsAppBroadcastRecipientModel.normalized_phone_number.label("phone_number"),
             WhatsAppMessageLogModel.error_message.label("error_message"),
         )
         .join(
@@ -229,8 +222,7 @@ def _broadcast_failures_statement(
         )
         .join(
             WhatsAppBroadcastGroupModel,
-            WhatsAppBroadcastGroupModel.id
-            == WhatsAppMessageLogModel.broadcast_group_id,
+            WhatsAppBroadcastGroupModel.id == WhatsAppMessageLogModel.broadcast_group_id,
         )
         .where(
             WhatsAppMessageLogModel.batch_id == batch_id,
@@ -242,21 +234,15 @@ def _broadcast_failures_statement(
         )
     )
     if current_user.role != UserRole.SUPER_ADMIN:
-        statement = statement.where(
-            WhatsAppBroadcastGroupModel.agency_id == current_user.agency_id
-        )
+        statement = statement.where(WhatsAppBroadcastGroupModel.agency_id == current_user.agency_id)
     return statement
 
 
-def _document_failures_statement(
-    *, batch_id: uuid.UUID, current_user: User
-) -> Any:
+def _document_failures_statement(*, batch_id: uuid.UUID, current_user: User) -> Any:
     statement = (
         select(
             DocumentWhatsAppDeliveryModel.passenger_name.label("recipient_name"),
-            DocumentWhatsAppDeliveryModel.normalized_phone_number.label(
-                "phone_number"
-            ),
+            DocumentWhatsAppDeliveryModel.normalized_phone_number.label("phone_number"),
             DocumentWhatsAppDeliveryModel.error_message.label("error_message"),
         )
         .join(
@@ -279,9 +265,7 @@ def _qr_failures_statement(*, batch_id: uuid.UUID, current_user: User) -> Any:
     statement = (
         select(
             PassengerQrWhatsAppDeliveryModel.passenger_name.label("recipient_name"),
-            PassengerQrWhatsAppDeliveryModel.normalized_phone_number.label(
-                "phone_number"
-            ),
+            PassengerQrWhatsAppDeliveryModel.normalized_phone_number.label("phone_number"),
             PassengerQrWhatsAppDeliveryModel.error_message.label("error_message"),
         )
         .join(
@@ -307,13 +291,9 @@ def _failures_statement(
     current_user: User,
 ) -> Any:
     if kind == "broadcast":
-        return _broadcast_failures_statement(
-            batch_id=batch_id, current_user=current_user
-        )
+        return _broadcast_failures_statement(batch_id=batch_id, current_user=current_user)
     if kind == "document":
-        return _document_failures_statement(
-            batch_id=batch_id, current_user=current_user
-        )
+        return _document_failures_statement(batch_id=batch_id, current_user=current_user)
     return _qr_failures_statement(batch_id=batch_id, current_user=current_user)
 
 
@@ -327,9 +307,7 @@ def _ensure_kind_access(kind: WhatsAppActivityKind, current_user: User) -> None:
 
 def _activity_title(kind: WhatsAppActivityKind, activity_label: str | None) -> str:
     if kind == "broadcast":
-        return _BROADCAST_TITLES.get(
-            activity_label or "", "WhatsApp message broadcast"
-        )
+        return _BROADCAST_TITLES.get(activity_label or "", "WhatsApp message broadcast")
     if kind == "document":
         return f"{document_type_label(activity_label or '')} broadcast"
     return "QR code broadcast"

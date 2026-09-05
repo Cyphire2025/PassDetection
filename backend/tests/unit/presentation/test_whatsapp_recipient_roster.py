@@ -30,6 +30,7 @@ from app.presentation.api.v1.routes.whatsapp import (
     get_broadcast_recipient_roster,
     list_broadcast_groups,
 )
+from tests.route_dependencies import set_route_dependency
 
 
 def _excel_payload() -> bytes:
@@ -296,9 +297,10 @@ async def test_recipient_roster_merges_rows_and_reports_delivery_counts() -> Non
         "replaced",
     ]
     assert response.items[0].recipient is not None
-    assert {
-        status.status for status in response.items[0].recipient.message_statuses
-    } == {"sent", "failed"}
+    assert {status.status for status in response.items[0].recipient.message_statuses} == {
+        "sent",
+        "failed",
+    }
     assert response.items[1].rejected_contact is not None
     assert response.items[2].recipient is not None
     assert response.items[2].recipient.message_statuses[0].status == "failed"
@@ -378,7 +380,8 @@ async def test_broadcast_unidentified_uploads_use_shared_group_matching(
             ],
         )
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         whatsapp_routes,
         "load_unresolved_passport_whatsapp_match_context",
         shared_loader,

@@ -4,13 +4,14 @@
 
 "use client";
 
-import { LogOut, Menu } from "lucide-react";
-import { useAuthStore, selectUser } from "@/stores/auth.store";
-import { useLogout } from "@/features/auth/hooks/use-logout";
 import { Button } from "@/components/ui";
-import { truncate } from "@/lib/utils/format";
-import { GlobalSearch } from "@/features/search/components/global-search";
+import { useLogout } from "@/features/auth/hooks/use-logout";
 import { NotificationBell } from "@/features/notifications/components/notification-bell";
+import { GlobalSearch } from "@/features/search/components/global-search";
+import { truncate } from "@/lib/utils/format";
+import { selectUser, useAuthStore } from "@/stores/auth.store";
+import { ChevronRight, LogOut, Menu } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 interface HeaderProps {
   title?: string;
@@ -18,7 +19,13 @@ interface HeaderProps {
   onOpenNavigation?: () => void;
 }
 
-export function Header({ title, navigationOpen = false, onOpenNavigation }: HeaderProps) {
+export function Header({
+  title,
+  navigationOpen = false,
+  onOpenNavigation,
+}: HeaderProps) {
+  const pathname = usePathname();
+  const section = pathname.split("/")[1]?.replaceAll("-", " ") ?? "Workspace";
   const user = useAuthStore(selectUser);
   const { mutate: logout } = useLogout();
 
@@ -26,9 +33,8 @@ export function Header({ title, navigationOpen = false, onOpenNavigation }: Head
     logout();
   };
 
-
   return (
-    <header className="flex h-[60px] shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 sm:px-6">
+    <header className="flex h-[68px] shrink-0 items-center justify-between gap-3 border-b border-slate-200/70 bg-white px-4 sm:px-7">
       {/* Page Title — set per-page via Header prop or left empty */}
       <div className="flex min-w-0 items-center gap-2">
         <Button
@@ -44,12 +50,18 @@ export function Header({ title, navigationOpen = false, onOpenNavigation }: Head
         >
           <Menu className="h-5 w-5" aria-hidden="true" />
         </Button>
-        {title && (
-          <h1 className="truncate text-sm font-semibold text-slate-900">{title}</h1>
+        {(title || section) && (
+          <div className="hidden items-center gap-2 text-xs sm:flex">
+            <span className="text-slate-400">Workspace</span>
+            <ChevronRight className="h-3 w-3 text-slate-300" />
+            <span className="truncate font-medium capitalize text-slate-700">
+              {title || section}
+            </span>
+          </div>
         )}
       </div>
 
-      <div className="mx-4 hidden min-w-0 flex-1 justify-center md:flex">
+      <div className="min-w-0 flex-1 justify-center flex">
         <GlobalSearch />
       </div>
 
@@ -57,7 +69,7 @@ export function Header({ title, navigationOpen = false, onOpenNavigation }: Head
       <div className="flex items-center gap-2">
         <NotificationBell />
         {user && (
-          <div className="flex items-center gap-2.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5">
+          <div className="flex items-center gap-2.5 px-2 py-1.5">
             <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
               {user.full_name.charAt(0).toUpperCase()}
             </div>

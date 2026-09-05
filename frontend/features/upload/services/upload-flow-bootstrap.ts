@@ -112,7 +112,9 @@ export async function runUploadFlowBootstrap({
       }
       if (isExtractionTerminal(savedSubmission)) {
         actions.setReviewFields(
-          getInitialReviewFields(savedSubmission.extracted_fields),
+          savedSubmission.image_s3_key
+            ? getInitialReviewFields(savedSubmission.extracted_fields)
+            : { given_names: savedSubmission.client_name },
         );
         actions.setExtractionNotice(extractionNoticeFor(savedSubmission));
         actions.setCanRetryExtraction(canRetryExtractionFor(savedSubmission));

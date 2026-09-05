@@ -53,7 +53,6 @@ export function RoomingGroupsPage() {
   return (
     <div className="flex flex-col gap-5">
       <OperationsPageHeader
-        eyebrow="Hotel planning workspace"
         title="Rooming Lists"
         description="Build hotel stays, place every passenger, apply rooming priorities, and hand the final plan to the hotel desk."
         icon={BedDouble}

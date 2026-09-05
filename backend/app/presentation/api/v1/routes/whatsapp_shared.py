@@ -1,0 +1,207 @@
+"""Whatsapp: shared."""
+
+from __future__ import annotations
+
+import logging
+
+from app.presentation.api.v1.routes import whatsapp_composer_support as _composer_support
+from app.presentation.api.v1.routes import whatsapp_contact_support as _contact_support
+from app.presentation.api.v1.routes import whatsapp_delivery_support as _delivery_support
+from app.presentation.api.v1.routes import whatsapp_roster_support as _roster_support
+from app.presentation.dependencies.auth import WHATSAPP_BROADCAST_ROLES
+
+logger = logging.getLogger("app.presentation.api.v1.routes.whatsapp")
+
+WHATSAPP_ROLES = [*WHATSAPP_BROADCAST_ROLES]
+
+PHONE_RE = _contact_support.PHONE_RE
+
+WHATSAPP_ACCEPTED_STATUSES = _delivery_support.WHATSAPP_ACCEPTED_STATUSES
+
+WHATSAPP_ACCEPTED_STATUS_RANK = _delivery_support.WHATSAPP_ACCEPTED_STATUS_RANK
+
+WHATSAPP_WEBHOOK_STATUSES = _delivery_support.WHATSAPP_WEBHOOK_STATUSES
+
+WHATSAPP_IN_PROGRESS_STATUSES = _delivery_support.WHATSAPP_IN_PROGRESS_STATUSES
+
+WHATSAPP_UNCERTAIN_STATUSES = _delivery_support.WHATSAPP_UNCERTAIN_STATUSES
+
+WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES = (
+    _delivery_support.WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES
+)
+
+WHATSAPP_SUPPRESSED_STATUSES = _delivery_support.WHATSAPP_SUPPRESSED_STATUSES
+
+WHATSAPP_STALE_CLAIM_AGE = _delivery_support.WHATSAPP_STALE_CLAIM_AGE
+
+MAX_WHATSAPP_CONTACT_FILE_BYTES = 5 * 1024 * 1024
+
+MAX_WHATSAPP_WELCOME_IMAGE_BYTES = 5 * 1024 * 1024
+
+MAX_WHATSAPP_EXCEL_UNCOMPRESSED_BYTES = _contact_support.MAX_WHATSAPP_EXCEL_UNCOMPRESSED_BYTES
+
+MAX_WHATSAPP_EXCEL_ARCHIVE_MEMBERS = _contact_support.MAX_WHATSAPP_EXCEL_ARCHIVE_MEMBERS
+
+MAX_WHATSAPP_EXCEL_COMPRESSION_RATIO = _contact_support.MAX_WHATSAPP_EXCEL_COMPRESSION_RATIO
+
+MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS = _contact_support.MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS
+
+MAX_WHATSAPP_EXCEL_SHEETS = 50
+
+MAX_WHATSAPP_EXCEL_ROWS = 2_000
+
+MAX_WHATSAPP_REJECTED_ROWS = 500
+
+MAX_WHATSAPP_REJECTED_CONTACTS_PER_GROUP = _contact_support.MAX_WHATSAPP_REJECTED_CONTACTS_PER_GROUP
+
+MAX_WHATSAPP_IMPORTED_FIELDS = _contact_support.MAX_WHATSAPP_IMPORTED_FIELDS
+
+MAX_WHATSAPP_IMPORTED_FIELD_KEY_LENGTH = _contact_support.MAX_WHATSAPP_IMPORTED_FIELD_KEY_LENGTH
+
+MAX_WHATSAPP_IMPORTED_FIELD_VALUE_LENGTH = _contact_support.MAX_WHATSAPP_IMPORTED_FIELD_VALUE_LENGTH
+
+MAX_WHATSAPP_IMPORTED_FIELDS_BYTES = _contact_support.MAX_WHATSAPP_IMPORTED_FIELDS_BYTES
+
+WHATSAPP_UPLOAD_READ_CHUNK_BYTES = _contact_support.WHATSAPP_UPLOAD_READ_CHUNK_BYTES
+
+WHATSAPP_ROSTER_SOURCE_FIELDS = _contact_support.WHATSAPP_ROSTER_SOURCE_FIELDS
+
+_WhatsAppExcelContactParseResult = _contact_support._WhatsAppExcelContactParseResult
+
+_WhatsAppComposerSnapshot = _composer_support._WhatsAppComposerSnapshot
+
+_iter_webhook_values = _delivery_support._iter_webhook_values
+
+_extract_status_error = _delivery_support._extract_status_error
+
+_parse_provider_status_at = _delivery_support._parse_provider_status_at
+
+_is_stale_provider_status = _delivery_support._is_stale_provider_status
+
+_apply_provider_status_to_delivery_state = (
+    _delivery_support._apply_provider_status_to_delivery_state
+)
+
+_apply_provider_status_to_message_log = _delivery_support._apply_provider_status_to_message_log
+
+_provider_status_state_predicates = _delivery_support._provider_status_state_predicates
+
+_agency_filter = _delivery_support._agency_filter
+
+_broadcast_batch_summary_statement = _delivery_support._broadcast_batch_summary_statement
+
+_normalize_phone = _contact_support._normalize_phone
+
+_clean_name = _contact_support._clean_name
+
+_clean_required_name = _contact_support._clean_required_name
+
+_validate_excel_archive = _contact_support._validate_excel_archive
+
+_excel_cell_text = _contact_support._excel_cell_text
+
+_excel_header_label = _contact_support._excel_header_label
+
+_EXCEL_FIELD_ALIASES = _contact_support._EXCEL_FIELD_ALIASES
+
+_EMPTY_EXCEL_VALUES = _contact_support._EMPTY_EXCEL_VALUES
+
+_excel_field_key = _contact_support._excel_field_key
+
+_safe_imported_fields = _contact_support._safe_imported_fields
+
+_is_excel_phone_header = _contact_support._is_excel_phone_header
+
+_is_excel_name_header = _contact_support._is_excel_name_header
+
+_excel_header_columns = _contact_support._excel_header_columns
+
+_find_excel_contact_header = _contact_support._find_excel_contact_header
+
+_excel_name_from_row = _contact_support._excel_name_from_row
+
+_excel_raw_name_from_row = _contact_support._excel_raw_name_from_row
+
+_bounded_excel_raw_value = _contact_support._bounded_excel_raw_value
+
+_is_repeated_excel_header = _contact_support._is_repeated_excel_header
+
+_row_has_contact_identity = _contact_support._row_has_contact_identity
+
+_WHATSAPP_CONTACT_REJECTION_REASONS = _contact_support._WHATSAPP_CONTACT_REJECTION_REASONS
+
+_excel_fields_from_row = _contact_support._excel_fields_from_row
+
+_merge_recipient_inputs = _contact_support._merge_recipient_inputs
+
+_excel_contact_preview_response = _contact_support._excel_contact_preview_response
+
+_parse_manual_contacts = _contact_support._parse_manual_contacts
+
+_rejected_contact_fingerprint = _contact_support._rejected_contact_fingerprint
+
+_parse_rejected_contacts = _contact_support._parse_rejected_contacts
+
+_positive_int = _contact_support._positive_int
+
+_roster_source_sort_key = _contact_support._roster_source_sort_key
+
+_new_roster_display_orders = _contact_support._new_roster_display_orders
+
+_next_roster_display_order = _contact_support._next_roster_display_order
+
+_add_rejected_contact_models = _contact_support._add_rejected_contact_models
+
+_normalized_recipient_inputs = _contact_support._normalized_recipient_inputs
+
+_activate_recipient_models = _contact_support._activate_recipient_models
+
+_parse_support_contacts = _contact_support._parse_support_contacts
+
+_recipient_response = _contact_support._recipient_response
+
+_rejected_contact_response = _contact_support._rejected_contact_response
+
+_support_contact_response = _contact_support._support_contact_response
+
+_support_contacts_for_group = _roster_support._support_contacts_for_group
+
+_recipient_delivery_state_maps = _roster_support._recipient_delivery_state_maps
+
+_group_detail = _roster_support._group_detail
+
+_group_recipients = _roster_support._group_recipients
+
+_select_group_recipients = _roster_support._select_group_recipients
+
+_select_support_contacts = _roster_support._select_support_contacts
+
+_recipient_delivery_counts = _roster_support._recipient_delivery_counts
+
+_as_message_type = _composer_support._as_message_type
+
+_resolve_message_content = _composer_support._resolve_message_content
+
+_resolve_send_message_content = _composer_support._resolve_send_message_content
+
+_resolve_passport_intro = _composer_support._resolve_passport_intro
+
+_resolve_send_passport_intro = _composer_support._resolve_send_passport_intro
+
+_resolve_send_header_image = _composer_support._resolve_send_header_image
+
+_validate_passport_link = _composer_support._validate_passport_link
+
+_message_values = _composer_support._message_values
+
+_split_rendered_support_block = _composer_support._split_rendered_support_block
+
+_decode_legacy_template_snapshot = _composer_support._decode_legacy_template_snapshot
+
+_template_snapshot_from_log = _composer_support._template_snapshot_from_log
+
+_composer_snapshot_from_log = _composer_support._composer_snapshot_from_log
+
+_latest_composer_snapshot = _composer_support._latest_composer_snapshot
+
+_merge_composer_snapshot = _composer_support._merge_composer_snapshot

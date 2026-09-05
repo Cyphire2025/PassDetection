@@ -6,7 +6,20 @@ from unittest.mock import patch
 import pytest
 
 from app.core.config.settings import Settings
+from app.infrastructure.readiness_executor import ReadinessProbeExecutor
 from app.infrastructure.runtime_readiness import RuntimeReadinessProbe
+
+
+@pytest.fixture(autouse=True)
+def isolated_dependency_probe_executor(monkeypatch):
+    # A timed-out real socket from another readiness test must not outlive its
+    # mock configuration and occupy this test's single-flight probe slot.
+    executor = ReadinessProbeExecutor()
+    monkeypatch.setattr("app.infrastructure.runtime_readiness.readiness_probe_executor", executor)
+    try:
+        yield
+    finally:
+        executor.close()
 
 
 class _ScalarView:
@@ -45,7 +58,7 @@ class _Database:
     def __init__(
         self,
         *,
-        versions: tuple[str, ...] = ("0088_merge_my_photos_hardening",),
+        versions: tuple[str, ...] = ("0090_upload_configuration",),
         due_count: int = 0,
         blocked_count: int = 0,
         oldest_due_seconds: int = 0,
@@ -71,8 +84,24 @@ def _settings() -> Settings:
         app_secret_key="runtime-readiness-test-secret",
         app_env="development",
         processing_backend="background",
+        dashboard_rate_limit_require_redis=False,
+        login_lockout_require_redis=False,
+        public_upload_rate_limit_require_redis=False,
         _env_file=None,
     )
+
+
+@pytest.mark.asyncio
+async def test_security_redis_outage_fails_readiness_while_storage_remains_healthy() -> None:
+    settings = _settings().model_copy(update={"dashboard_rate_limit_require_redis": True})
+    with patch("app.infrastructure.runtime_readiness._probe_object_storage", return_value=True), patch(
+        "app.infrastructure.runtime_readiness._probe_security_redis", return_value=("unreachable", False)
+    ):
+        snapshot = await RuntimeReadinessProbe().snapshot(db=_Database(), settings=settings)
+    assert snapshot.core_ready is False
+    assert snapshot.capabilities["object_storage"]["available"] is True
+    assert snapshot.capabilities["request_protection"]["available"] is False
+    assert snapshot.capabilities["request_protection"]["traffic_gate"] is True
 
 
 @pytest.mark.asyncio
@@ -101,6 +130,7 @@ async def test_ready_snapshot_requires_schema_storage_and_core_dependencies() ->
     [
         ((), "missing"),
         (("0087_enterprise_hardening",), "revision_mismatch"),
+        (("0089_revoke_legacy_refresh",), "revision_mismatch"),
         (
             ("0086_my_photos_foundation", "0087_enterprise_hardening"),
             "multiple_heads",

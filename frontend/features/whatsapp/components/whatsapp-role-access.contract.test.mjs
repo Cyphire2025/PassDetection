@@ -18,10 +18,7 @@ const createLinkModal = readFileSync(
   new URL("../../passports/components/create-upload-link-modal.tsx", import.meta.url),
   "utf8",
 );
-const groupDetail = readFileSync(
-  new URL("../../passports/components/passport-group-detail.tsx", import.meta.url),
-  "utf8",
-);
+import { passportGroupDetailSource as groupDetail } from "../../passports/components/passport-group-detail-source.contract-helper.mjs";
 const tracking = readFileSync(
   new URL("../../passports/components/group-whatsapp-broadcast-panel.tsx", import.meta.url),
   "utf8",

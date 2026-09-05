@@ -22,7 +22,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 import { IntentPrefetchLink } from "@/components/shared/intent-prefetch-link";
 import {
-  WorkspaceHeaderContext,
   WorkspacePageHeader,
 } from "@/components/shared/workspace-ui";
 import {
@@ -138,17 +137,10 @@ export function GroupWhatsAppBroadcastTrackingPage({
   return (
     <div className="space-y-5">
       <WorkspacePageHeader
-        eyebrow="Group communication reconciliation"
         title="WhatsApp Submission Tracking"
-        description="Compare linked broadcast recipients with passport submissions, surface missing matches, and keep recovery actions attached to the correct group."
+        description="Compare broadcast recipients with passport submissions and review unmatched records."
         icon={MessageCircle}
         accent="emerald"
-        context={(
-          <>
-            <WorkspaceHeaderContext icon={Users}>Recipient-to-submission matching</WorkspaceHeaderContext>
-            <WorkspaceHeaderContext icon={Link2}>Linked broadcast scope</WorkspaceHeaderContext>
-          </>
-        )}
         actions={(
           <IntentPrefetchLink
             href={ROUTES.dashboard.passportGroup(groupId)}

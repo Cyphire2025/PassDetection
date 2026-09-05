@@ -4,26 +4,26 @@
   "modules": [
     {
       "path": "app/presentation/api/v1/routes/passports.py",
-      "baseline_lines": 6578,
-      "maximum_lines": 6600,
-      "baseline_max_function_complexity": 44,
-      "maximum_function_complexity": 44,
-      "minimum_coverage_percent": 15.60
+      "baseline_lines": 457,
+      "maximum_lines": 500,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 15.6
     },
     {
       "path": "app/presentation/api/v1/routes/document_distribution.py",
-      "baseline_lines": 3823,
-      "maximum_lines": 3900,
-      "baseline_max_function_complexity": 64,
-      "maximum_function_complexity": 64,
+      "baseline_lines": 374,
+      "maximum_lines": 450,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
       "minimum_coverage_percent": 12.57
     },
     {
       "path": "app/presentation/api/v1/routes/whatsapp.py",
-      "baseline_lines": 3463,
-      "maximum_lines": 3535,
-      "baseline_max_function_complexity": 37,
-      "maximum_function_complexity": 37,
+      "baseline_lines": 525,
+      "maximum_lines": 555,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
       "minimum_coverage_percent": 18.82
     },
     {
@@ -96,7 +96,7 @@
       "maximum_lines": 2210,
       "baseline_max_function_complexity": 37,
       "maximum_function_complexity": 37,
-      "minimum_coverage_percent": 13.80
+      "minimum_coverage_percent": 13.8
     },
     {
       "path": "app/presentation/api/v1/routes/rooming.py",
@@ -105,6 +105,422 @@
       "baseline_max_function_complexity": 31,
       "maximum_function_complexity": 31,
       "minimum_coverage_percent": 16.15
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/bulk_actions.py",
+      "minimum_coverage_percent": 15.6,
+      "baseline_lines": 580,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 21,
+      "maximum_function_complexity": 21
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/constants.py",
+      "minimum_coverage_percent": 15.6,
+      "baseline_lines": 72,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/dependencies.py",
+      "minimum_coverage_percent": 15.6,
+      "baseline_lines": 151,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/document_import.py",
+      "minimum_coverage_percent": 15.6,
+      "baseline_lines": 415,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 21,
+      "maximum_function_complexity": 21
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/excel_exports.py",
+      "minimum_coverage_percent": 15.6,
+      "baseline_lines": 576,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 44,
+      "maximum_function_complexity": 44
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/excel_import.py",
+      "minimum_coverage_percent": 15.6,
+      "baseline_lines": 350,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 31,
+      "maximum_function_complexity": 31
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/export_context.py",
+      "minimum_coverage_percent": 15.6,
+      "baseline_lines": 186,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 9,
+      "maximum_function_complexity": 9
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/export_history.py",
+      "minimum_coverage_percent": 15.6,
+      "baseline_lines": 372,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 14,
+      "maximum_function_complexity": 14
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/images.py",
+      "minimum_coverage_percent": 15.6,
+      "baseline_lines": 479,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 15,
+      "maximum_function_complexity": 15
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/image_exports.py",
+      "minimum_coverage_percent": 15.6,
+      "baseline_lines": 279,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 14,
+      "maximum_function_complexity": 14
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/image_support.py",
+      "minimum_coverage_percent": 15.6,
+      "baseline_lines": 246,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 10,
+      "maximum_function_complexity": 10
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/processing_support.py",
+      "minimum_coverage_percent": 15.6,
+      "baseline_lines": 59,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 5,
+      "maximum_function_complexity": 5
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/public_security.py",
+      "minimum_coverage_percent": 15.6,
+      "baseline_lines": 87,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 5,
+      "maximum_function_complexity": 5
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/public_upload.py",
+      "minimum_coverage_percent": 15.6,
+      "baseline_lines": 599,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 16,
+      "maximum_function_complexity": 16
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/queries.py",
+      "minimum_coverage_percent": 15.6,
+      "baseline_lines": 300,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 14,
+      "maximum_function_complexity": 14
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/response_support.py",
+      "minimum_coverage_percent": 15.6,
+      "baseline_lines": 268,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/selected_exports.py",
+      "minimum_coverage_percent": 15.6,
+      "baseline_lines": 338,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 21,
+      "maximum_function_complexity": 21
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/submission_review.py",
+      "minimum_coverage_percent": 15.6,
+      "baseline_lines": 638,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 20,
+      "maximum_function_complexity": 20
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/visa_ai_edits.py",
+      "minimum_coverage_percent": 15.6,
+      "baseline_lines": 359,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 14,
+      "maximum_function_complexity": 14
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/visa_ai_jobs.py",
+      "minimum_coverage_percent": 15.6,
+      "baseline_lines": 190,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/visa_ai_library.py",
+      "minimum_coverage_percent": 15.6,
+      "baseline_lines": 410,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 13,
+      "maximum_function_complexity": 13
+    },
+    {
+      "path": "app/presentation/api/v1/routes/passport_routes/visa_ai_support.py",
+      "minimum_coverage_percent": 15.6,
+      "baseline_lines": 147,
+      "maximum_lines": 700,
+      "baseline_max_function_complexity": 8,
+      "maximum_function_complexity": 8
+    },
+    {
+      "path": "app/infrastructure/whatsapp/publication.py",
+      "baseline_lines": 58,
+      "maximum_lines": 70,
+      "baseline_max_function_complexity": 2,
+      "maximum_function_complexity": 2,
+      "minimum_coverage_percent": 18.82
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_assignments.py",
+      "baseline_lines": 413,
+      "maximum_lines": 450,
+      "baseline_max_function_complexity": 16,
+      "maximum_function_complexity": 16,
+      "minimum_coverage_percent": 12.57
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_delivery.py",
+      "baseline_lines": 472,
+      "maximum_lines": 510,
+      "baseline_max_function_complexity": 44,
+      "maximum_function_complexity": 44,
+      "minimum_coverage_percent": 12.57
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_delivery_preview.py",
+      "baseline_lines": 316,
+      "maximum_lines": 340,
+      "baseline_max_function_complexity": 51,
+      "maximum_function_complexity": 51,
+      "minimum_coverage_percent": 12.57
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_groups_read.py",
+      "baseline_lines": 284,
+      "maximum_lines": 310,
+      "baseline_max_function_complexity": 15,
+      "maximum_function_complexity": 15,
+      "minimum_coverage_percent": 12.57
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_matching.py",
+      "baseline_lines": 322,
+      "maximum_lines": 350,
+      "baseline_max_function_complexity": 28,
+      "maximum_function_complexity": 28,
+      "minimum_coverage_percent": 12.57
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_queries.py",
+      "baseline_lines": 212,
+      "maximum_lines": 230,
+      "baseline_max_function_complexity": 20,
+      "maximum_function_complexity": 20,
+      "minimum_coverage_percent": 12.57
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_responses.py",
+      "baseline_lines": 235,
+      "maximum_lines": 260,
+      "baseline_max_function_complexity": 34,
+      "maximum_function_complexity": 34,
+      "minimum_coverage_percent": 12.57
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_reupload.py",
+      "baseline_lines": 245,
+      "maximum_lines": 270,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 12.57
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_save.py",
+      "baseline_lines": 83,
+      "maximum_lines": 100,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 12.57
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_scope.py",
+      "baseline_lines": 250,
+      "maximum_lines": 270,
+      "baseline_max_function_complexity": 10,
+      "maximum_function_complexity": 10,
+      "minimum_coverage_percent": 12.57
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_shared.py",
+      "baseline_lines": 86,
+      "maximum_lines": 100,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 12.57
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_storage.py",
+      "baseline_lines": 141,
+      "maximum_lines": 160,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 12.57
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_upload.py",
+      "baseline_lines": 667,
+      "maximum_lines": 720,
+      "baseline_max_function_complexity": 64,
+      "maximum_function_complexity": 64,
+      "minimum_coverage_percent": 12.57
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_upload_abort.py",
+      "baseline_lines": 273,
+      "maximum_lines": 300,
+      "baseline_max_function_complexity": 14,
+      "maximum_function_complexity": 14,
+      "minimum_coverage_percent": 12.57
+    },
+    {
+      "path": "app/presentation/api/v1/routes/document_distribution_verification.py",
+      "baseline_lines": 298,
+      "maximum_lines": 320,
+      "baseline_max_function_complexity": 44,
+      "maximum_function_complexity": 44,
+      "minimum_coverage_percent": 12.57
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_batch_status.py",
+      "baseline_lines": 131,
+      "maximum_lines": 150,
+      "baseline_max_function_complexity": 15,
+      "maximum_function_complexity": 15,
+      "minimum_coverage_percent": 18.82
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_composer.py",
+      "baseline_lines": 330,
+      "maximum_lines": 360,
+      "baseline_max_function_complexity": 31,
+      "maximum_function_complexity": 31,
+      "minimum_coverage_percent": 18.82
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_contact_import.py",
+      "baseline_lines": 404,
+      "maximum_lines": 440,
+      "baseline_max_function_complexity": 37,
+      "maximum_function_complexity": 37,
+      "minimum_coverage_percent": 18.82
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_groups_delete.py",
+      "baseline_lines": 166,
+      "maximum_lines": 180,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 6,
+      "minimum_coverage_percent": 18.82
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_groups_manage.py",
+      "baseline_lines": 330,
+      "maximum_lines": 360,
+      "baseline_max_function_complexity": 35,
+      "maximum_function_complexity": 35,
+      "minimum_coverage_percent": 18.82
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_groups_read.py",
+      "baseline_lines": 96,
+      "maximum_lines": 110,
+      "baseline_max_function_complexity": 5,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 18.82
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_recipient_roster.py",
+      "baseline_lines": 361,
+      "maximum_lines": 390,
+      "baseline_max_function_complexity": 20,
+      "maximum_function_complexity": 20,
+      "minimum_coverage_percent": 18.82
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_recipients.py",
+      "baseline_lines": 434,
+      "maximum_lines": 470,
+      "baseline_max_function_complexity": 29,
+      "maximum_function_complexity": 29,
+      "minimum_coverage_percent": 18.82
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_rejected_contacts.py",
+      "baseline_lines": 273,
+      "maximum_lines": 300,
+      "baseline_max_function_complexity": 16,
+      "maximum_function_complexity": 16,
+      "minimum_coverage_percent": 18.82
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_resend.py",
+      "baseline_lines": 419,
+      "maximum_lines": 450,
+      "baseline_max_function_complexity": 31,
+      "maximum_function_complexity": 31,
+      "minimum_coverage_percent": 18.82
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_scope.py",
+      "baseline_lines": 165,
+      "maximum_lines": 180,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 18.82
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_send.py",
+      "baseline_lines": 405,
+      "maximum_lines": 440,
+      "baseline_max_function_complexity": 27,
+      "maximum_function_complexity": 27,
+      "minimum_coverage_percent": 18.82
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_shared.py",
+      "baseline_lines": 207,
+      "maximum_lines": 230,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 18.82
+    },
+    {
+      "path": "app/presentation/api/v1/routes/whatsapp_webhook.py",
+      "baseline_lines": 282,
+      "maximum_lines": 310,
+      "baseline_max_function_complexity": 35,
+      "maximum_function_complexity": 35,
+      "minimum_coverage_percent": 18.82
     }
   ]
 }

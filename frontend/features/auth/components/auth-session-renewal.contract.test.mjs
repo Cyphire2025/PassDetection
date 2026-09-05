@@ -34,7 +34,7 @@ test("protected workspaces renew before mounting feature queries", () => {
   assert.match(hydrator, /SESSION_REFRESH_SAFETY_WINDOW_MS/);
   assert.match(gate, /if \(!hasHydrated\)/);
   assert.match(gate, /if \(!isAuthenticated\)/);
-  assert.match(gate, /router\.replace\("\/login\?reason=session_expired"\)/);
+  assert.match(gate, /router\.replace\(expiredSessionSignInPath/);
   assert.match(dashboardLayout, /<AuthenticatedContent>/);
   assert.match(coordinatorLayout, /<AuthenticatedContent>/);
 });

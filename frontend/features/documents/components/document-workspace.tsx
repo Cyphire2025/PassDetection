@@ -415,9 +415,8 @@ export function DocumentWorkspace({
   return (
     <div className="flex flex-col gap-5">
       <WorkspacePageHeader
-        eyebrow="Group document workspace"
         title={group ? `${group.group_name} Documents` : "Group Documents"}
-        description="Validate uploaded files, resolve passenger matching exceptions, save the reviewed roster, and control delivery from one group context."
+        description="Upload PDFs, confirm passenger matches, and save the document list before sending."
         icon={LaneIcon}
         accent="cyan"
         context={(
@@ -569,8 +568,13 @@ export function DocumentWorkspace({
               onSearchQueryChange={setReviewSearchQuery}
             />
 
-            <div className="w-full overflow-visible">
-              <table className="w-full table-fixed text-left text-sm">
+            <div
+              className="w-full overflow-x-auto overscroll-x-contain"
+              role="region"
+              aria-label="Passenger document review table"
+              tabIndex={0}
+            >
+              <table className="w-full table-fixed min-w-[1120px] text-left text-sm">
                 <caption className="sr-only">Assigned passenger documents</caption>
                 <thead>
                   <tr className="border-b border-slate-100 text-xs uppercase tracking-wide text-slate-400">

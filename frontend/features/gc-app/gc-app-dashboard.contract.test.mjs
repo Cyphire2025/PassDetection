@@ -35,9 +35,9 @@ test("GC App has one top-level sidebar entry and exactly two primary section lin
   assert.match(shell, /label: "App Controls"/);
 });
 
-test("GC App reuses the visible blue Tour Ops workspace header", () => {
+test("GC App reuses the shared operations header without a repeated brand label", () => {
   assert.match(shell, /OperationsPageHeader/);
-  assert.match(shell, /eyebrow="Global Connect Travels"/);
+  assert.doesNotMatch(shell, /eyebrow=/);
   assert.doesNotMatch(shell, /from-slate-950|to-blue-950/);
 });
 
@@ -180,13 +180,13 @@ test("publishing remains inside App Controls with fixed itinerary and categorize
   assert.match(api, /responseType: "blob"/);
   assert.match(commonDocuments, /URL\.createObjectURL\(blob\)/);
   assert.match(commonDocuments, /URL\.revokeObjectURL\(preview\.url\)/);
-  assert.match(commonDocuments, /Secure dashboard preview/);
+  assert.match(commonDocuments, /src=\{preview.url\}/);
   assert.match(api, /announcements/);
   assert.match(api, /const form = new FormData\(\)/);
   assert.match(api, /form\.append\("file", upload\.file\)/);
   assert.match(api, /headers:\s*\{\s*["']Content-Type["']:\s*null\s*\}/);
   assert.match(api, /timeout:\s*120_000/);
-  assert.match(commonDocuments, /fixed document appears under the Itinerary heading/);
+  assert.match(commonDocuments, /Published itineraries appear under Itinerary in the app/);
   assert.match(commonDocuments, /Other common documents/);
   assert.match(commonDocuments, /OTHER_DOCUMENT_CATEGORIES/);
   assert.doesNotMatch(commonDocuments, /value: "itinerary_pdf", label:/);

@@ -38,6 +38,7 @@ from app.infrastructure.database.models import (
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.qr.approved_passenger_qr_issuer import qr_status
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.infrastructure.repositories.operational_roster import operational_roster_member
 from app.presentation.api.v1.schemas.tour_operations_schemas import (
     QrDeliveryPreviewRecipient,
     QrDeliveryPreviewResponse,
@@ -293,6 +294,7 @@ async def _build_preview(
             PassportSubmissionModel.agency_id == group.agency_id,
             PassportSubmissionModel.group_id == group.id,
             PassportSubmissionModel.status.in_(OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES),
+            operational_roster_member(),
         )
         .order_by(PassportSubmissionModel.client_name.asc())
     )

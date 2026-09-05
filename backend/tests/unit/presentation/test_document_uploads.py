@@ -8,6 +8,8 @@ import pytest
 from fastapi import HTTPException, UploadFile
 
 from app.infrastructure.security.upload_validator import (
+    DocumentIngestionDisabledError,
+    MalwareScannerConfigurationError,
     MalwareScannerUnavailableError,
     MalwareScanRejectedError,
 )
@@ -180,6 +182,7 @@ async def test_document_upload_scans_original_bytes_before_acceptance(monkeypatc
     [
         (MalwareScanRejectedError("malware"), 422),
         (MalwareScannerUnavailableError("offline"), 503),
+        (DocumentIngestionDisabledError("disabled"), 503),
     ],
 )
 async def test_document_upload_fails_closed_when_scanning_cannot_accept(
@@ -207,3 +210,23 @@ async def test_document_upload_fails_closed_when_scanning_cannot_accept(
 
     assert exc_info.value.status_code == expected_status
     assert upload.file.closed
+
+
+async def test_scanner_configuration_failure_closes_entire_batch_before_read(monkeypatch) -> None:
+    def fail_configuration():
+        raise MalwareScannerConfigurationError("synthetic configuration failure")
+
+    monkeypatch.setattr(document_uploads, "malware_scanner_from_settings", fail_configuration)
+    uploads = [_upload(b"first"), _upload(b"second")]
+    for upload in uploads:
+        upload.read = AsyncMock(side_effect=AssertionError("Unconfigured ingestion read content"))
+
+    with pytest.raises(HTTPException) as caught:
+        await document_uploads.read_bounded_document_uploads(uploads)
+
+    assert caught.value.status_code == 503
+    assert "not configured" in caught.value.detail
+    assert caught.value.headers is None
+    for upload in uploads:
+        upload.read.assert_not_awaited()
+        assert upload.file.closed

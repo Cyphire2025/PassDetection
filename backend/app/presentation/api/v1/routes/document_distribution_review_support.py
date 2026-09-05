@@ -227,9 +227,7 @@ def _document_match_roster_snapshot(
     for passenger in passengers:
         updated_at: object = getattr(passenger, "updated_at", None)
         updated_at_snapshot = (
-            updated_at.isoformat()
-            if isinstance(updated_at, (date, datetime))
-            else str(updated_at)
+            updated_at.isoformat() if isinstance(updated_at, (date, datetime)) else str(updated_at)
         )
         snapshots.append(
             (

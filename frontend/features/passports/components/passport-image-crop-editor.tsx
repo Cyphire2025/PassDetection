@@ -541,7 +541,7 @@ export function PassportImageCropEditor({
               Edit {label}
             </h2>
             <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-              Crop, rotate, and sharpen the saved image without changing its immutable original.
+              Crop, rotate, and sharpen the saved image. The original is preserved.
             </p>
           </div>
           <button
@@ -768,7 +768,7 @@ function ImageLibraryPanel({
             Image library
           </h3>
           <p className="mt-1 max-w-2xl text-sm leading-5 text-slate-500">
-            Choose any saved {label.toLowerCase()}, or upload a new image. The immutable original stays available whenever one was submitted.
+            Choose any saved {label.toLowerCase()}, or upload a new image. The original image remains available if one was submitted.
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-2">

@@ -241,7 +241,7 @@ function RetentionReasonDialog({
             placeholder={placingHold ? "Example: Active legal discovery request" : "Example: Legal review completed and release approved"}
             onChange={(event) => onReasonChange(event.target.value)}
           />
-          <p className="text-xs text-slate-500">3–500 characters; whitespace is normalized before submission.</p>
+          <p className="text-xs text-slate-500">Use 3–500 characters.</p>
           {Boolean(error) && (
             <p id={errorId} className="text-sm text-red-700" role="alert">
               {errorMessage(error, "The legal-hold update could not be saved.")}

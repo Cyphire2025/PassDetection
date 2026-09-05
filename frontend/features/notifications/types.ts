@@ -1,8 +1,4 @@
-export type NotificationPriority =
-  | "urgent"
-  | "high"
-  | "normal"
-  | "low";
+export type NotificationPriority = "urgent" | "high" | "normal" | "low";
 
 export interface OperationalNotification {
   id: string;

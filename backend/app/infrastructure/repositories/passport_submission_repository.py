@@ -36,6 +36,7 @@ from app.infrastructure.database.models import (
     ManagerGroupAccessModel,
     PassportSubmissionModel,
 )
+from app.infrastructure.repositories.operational_roster import operational_roster_member
 
 logger = get_logger(__name__)
 
@@ -69,6 +70,8 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             image_s3_key=model.image_s3_key,
             thumbnail_s3_key=model.thumbnail_s3_key,
             passport_photo_s3_key=model.passport_photo_s3_key,
+            passport_cover_s3_key=model.passport_cover_s3_key,
+            passport_back_cover_s3_key=model.passport_back_cover_s3_key,
             passport_back_s3_key=model.passport_back_s3_key,
             acquisition_mode=model.acquisition_mode,
             upload_idempotency_key=model.upload_idempotency_key,
@@ -128,6 +131,8 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             image_s3_key=entity.image_s3_key,
             thumbnail_s3_key=entity.thumbnail_s3_key,
             passport_photo_s3_key=entity.passport_photo_s3_key,
+            passport_cover_s3_key=entity.passport_cover_s3_key,
+            passport_back_cover_s3_key=entity.passport_back_cover_s3_key,
             passport_back_s3_key=entity.passport_back_s3_key,
             acquisition_mode=entity.acquisition_mode,
             upload_idempotency_key=entity.upload_idempotency_key,
@@ -271,6 +276,8 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         model.image_s3_key = submission.image_s3_key
         model.thumbnail_s3_key = submission.thumbnail_s3_key
         model.passport_photo_s3_key = submission.passport_photo_s3_key
+        model.passport_cover_s3_key = submission.passport_cover_s3_key
+        model.passport_back_cover_s3_key = submission.passport_back_cover_s3_key
         model.passport_back_s3_key = submission.passport_back_s3_key
         model.acquisition_mode = submission.acquisition_mode
         model.upload_idempotency_key = submission.upload_idempotency_key
@@ -506,6 +513,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         exclude_archived_groups: bool = False,
         created_by_user_id: uuid.UUID | None = None,
         visible_to_user: User | None = None,
+        operational_only: bool = False,
     ) -> list[PassportSubmission]:
         stmt = (
             select(PassportSubmissionModel)
@@ -516,6 +524,8 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 PassportSubmissionModel.status.in_(self._office_visible_statuses()),
             )
         )
+        if operational_only:
+            stmt = stmt.where(operational_roster_member())
         if exclude_archived_groups:
             stmt = stmt.where(ClientGroupModel.status.notin_(["archived", "deleted"]))
         if created_by_user_id:
@@ -541,10 +551,10 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 func.lower(PassportSubmissionModel.client_email).like(query),
                 func.lower(PassportSubmissionModel.client_phone).like(query),
                 func.lower(PassportSubmissionModel.departure_city).like(query),
-                func.lower(PassportSubmissionModel.extracted_fields["passport_number"].astext).like(query),
-                func.lower(PassportSubmissionModel.confirmed_fields["passport_number"].astext).like(query),
-                func.lower(PassportSubmissionModel.extracted_fields["surname"].astext).like(query),
-                func.lower(PassportSubmissionModel.confirmed_fields["surname"].astext).like(query),
+                func.lower(PassportSubmissionModel.extracted_fields["passport_number"].as_string()).like(query),
+                func.lower(PassportSubmissionModel.confirmed_fields["passport_number"].as_string()).like(query),
+                func.lower(PassportSubmissionModel.extracted_fields["surname"].as_string()).like(query),
+                func.lower(PassportSubmissionModel.confirmed_fields["surname"].as_string()).like(query),
             )
         )
 
@@ -578,6 +588,9 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 ),
                 ClientGroupModel.meal_preference_enabled.label("meal_preference_enabled"),
                 ClientGroupModel.require_selfie.label("require_selfie"),
+                ClientGroupModel.custom_questions.label("custom_questions"),
+                ClientGroupModel.custom_details.label("custom_details"),
+                ClientGroupModel.upload_configuration.label("upload_configuration"),
                 ClientGroupModel.allow_files_from_device.label("allow_files_from_device"),
                 ClientGroupModel.ask_nearest_domestic_airport.label("ask_nearest_domestic_airport"),
                 ClientGroupModel.relation_with_qualifier_enabled.label(
@@ -650,6 +663,9 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 ClientGroupModel.agent_employee_code_enabled,
                 ClientGroupModel.meal_preference_enabled,
                 ClientGroupModel.require_selfie,
+                ClientGroupModel.custom_questions,
+                ClientGroupModel.custom_details,
+                ClientGroupModel.upload_configuration,
                 ClientGroupModel.allow_files_from_device,
                 ClientGroupModel.ask_nearest_domestic_airport,
                 ClientGroupModel.relation_with_qualifier_enabled,
@@ -684,6 +700,9 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 agent_employee_code_enabled=row.agent_employee_code_enabled,
                 meal_preference_enabled=row.meal_preference_enabled,
                 require_selfie=row.require_selfie,
+                custom_questions=list(row.custom_questions or []),
+                custom_details=list(row.custom_details or []),
+                upload_configuration=row.upload_configuration,
                 allow_files_from_device=row.allow_files_from_device,
                 ask_nearest_domestic_airport=row.ask_nearest_domestic_airport,
                 relation_with_qualifier_enabled=(

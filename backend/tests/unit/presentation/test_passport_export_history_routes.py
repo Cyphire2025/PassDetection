@@ -12,6 +12,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.domain.entities.entities import User, UserRole
 from app.main import create_application
 from app.presentation.api.v1.routes import passports
+from app.presentation.api.v1.routes.passport_routes import export_context as passport_export_context
+from app.presentation.api.v1.routes.passport_routes import export_history as passport_export_history
 
 
 def _history(
@@ -138,7 +140,7 @@ async def test_incremental_payload_is_exact_current_set_difference_in_current_or
     repository = SimpleNamespace(get_compatible_baseline=AsyncMock(return_value=baseline))
 
     with patch.object(
-        passports,
+        passport_export_context,
         "PassportExportHistoryRepository",
         return_value=repository,
     ):
@@ -208,7 +210,7 @@ async def test_incremental_export_rejects_missing_corrupt_or_exhausted_baseline(
         repository = SimpleNamespace(get_compatible_baseline=AsyncMock(return_value=baseline))
         with (
             patch.object(
-                passports,
+                passport_export_context,
                 "PassportExportHistoryRepository",
                 return_value=repository,
             ),
@@ -352,14 +354,14 @@ async def test_completion_is_actor_scoped_committed_and_audited_once() -> None:
     session = AsyncMock()
 
     with (
-        patch.object(passports, "ClientGroupRepository", return_value=group_repository),
-        patch.object(passports, "AuthorizationPolicy", return_value=authorization),
+        patch.object(passport_export_history, "ClientGroupRepository", return_value=group_repository),
+        patch.object(passport_export_history, "AuthorizationPolicy", return_value=authorization),
         patch.object(
-            passports,
+            passport_export_history,
             "PassportExportHistoryRepository",
             return_value=history_repository,
         ),
-        patch.object(passports, "AuditLogRepository", return_value=audit_repository),
+        patch.object(passport_export_history, "AuditLogRepository", return_value=audit_repository),
     ):
         response = await passports.complete_passport_group_export_history(
             group_id=group_id,
@@ -404,25 +406,25 @@ async def test_completion_replay_is_idempotent_without_second_audit() -> None:
 
     with (
         patch.object(
-            passports,
+            passport_export_history,
             "ClientGroupRepository",
             return_value=SimpleNamespace(
                 get_by_id=AsyncMock(return_value=SimpleNamespace(id=group_id))
             ),
         ),
         patch.object(
-            passports,
+            passport_export_history,
             "AuthorizationPolicy",
             return_value=SimpleNamespace(require_export_data=AsyncMock()),
         ),
         patch.object(
-            passports,
+            passport_export_history,
             "PassportExportHistoryRepository",
             return_value=SimpleNamespace(
                 get_for_completion=AsyncMock(return_value=history)
             ),
         ),
-        patch.object(passports, "AuditLogRepository", return_value=audit_repository),
+        patch.object(passport_export_history, "AuditLogRepository", return_value=audit_repository),
     ):
         response = await passports.complete_passport_group_export_history(
             group_id=group_id,
@@ -448,19 +450,19 @@ async def test_completion_hides_wrong_actor_or_scope_as_not_found() -> None:
 
     with (
         patch.object(
-            passports,
+            passport_export_history,
             "ClientGroupRepository",
             return_value=SimpleNamespace(
                 get_by_id=AsyncMock(return_value=SimpleNamespace(id=group_id))
             ),
         ),
         patch.object(
-            passports,
+            passport_export_history,
             "AuthorizationPolicy",
             return_value=SimpleNamespace(require_export_data=AsyncMock()),
         ),
         patch.object(
-            passports,
+            passport_export_history,
             "PassportExportHistoryRepository",
             return_value=history_repository,
         ),
@@ -502,19 +504,19 @@ async def test_history_detail_keeps_frozen_people_after_source_record_is_deleted
 
     with (
         patch.object(
-            passports,
+            passport_export_history,
             "ClientGroupRepository",
             return_value=SimpleNamespace(
                 get_by_id=AsyncMock(return_value=SimpleNamespace(id=group_id))
             ),
         ),
         patch.object(
-            passports,
+            passport_export_history,
             "AuthorizationPolicy",
             return_value=SimpleNamespace(require_export_data=AsyncMock()),
         ),
         patch.object(
-            passports,
+            passport_export_history,
             "PassportExportHistoryRepository",
             return_value=SimpleNamespace(
                 get_for_group=AsyncMock(return_value=history)

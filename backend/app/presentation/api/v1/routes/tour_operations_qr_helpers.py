@@ -26,6 +26,7 @@ from app.infrastructure.qr.approved_passenger_qr_issuer import (
     qr_status,
 )
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.infrastructure.repositories.operational_roster import operational_roster_member
 from app.presentation.api.v1.schemas.tour_operations_schemas import (
     GroupPassengerQrCodeResponse,
     GroupPassengerQrCodesResponse,
@@ -54,6 +55,7 @@ async def group_passenger_qr_codes(
             PassportSubmissionModel.agency_id == agency_id,
             PassportSubmissionModel.group_id == group.id,
             PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
+            operational_roster_member(),
         )
         .order_by(PassportSubmissionModel.client_name.asc())
     )
@@ -110,8 +112,8 @@ async def group_passenger_qr_codes(
                 qr_expires_at=(
                     passenger_token.expires_at if passenger_token else None
                 ),
-                qr_revoked_at=token.revoked_at if token else None,
-                qr_payload=token.qr_payload if token and status_value in {"active", "inactive"} else None,
+                qr_revoked_at=passenger_token.revoked_at if passenger_token else None,
+                qr_payload=passenger_token.qr_payload if passenger_token and status_value in {"active", "inactive"} else None,
             )
         )
 
@@ -151,6 +153,7 @@ async def get_qr_passenger(
             PassportSubmissionModel.agency_id == agency_id,
             PassportSubmissionModel.group_id == group_id,
             PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
+            operational_roster_member(),
         )
     )
     passenger = result.scalar_one_or_none()

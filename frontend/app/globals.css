@@ -87,6 +87,14 @@
   overscroll-behavior-y: contain;
 }
 
+.dashboard-sidebar-scroll {
+  scrollbar-width: none;
+}
+
+.dashboard-sidebar-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 [data-coordinator-fixed-viewport] {
   height: 100svh;
   height: 100dvh;
@@ -138,3 +146,28 @@
 ::-webkit-scrollbar-track  { background: var(--color-surface-2); }
 ::-webkit-scrollbar-thumb  { background: var(--color-border-strong); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-brand-600); }
+
+/* Dashboard presentation preferences only affect the office workspace. */
+[data-dashboard-shell] { background: #fafbfc; }
+[data-dashboard-shell] #main-content { scrollbar-gutter: stable; }
+[data-dashboard-shell] .workspace-page-header [class*="bg-white/10"][class*="text-white"] { color: #334155; }
+[data-dashboard-shell] .workspace-page-header [class*="text-slate-100"] { color: #64748b; }
+[data-dashboard-shell] .workspace-page-header [class*="border-white/"] { border-color: #dce1e8; background: white; }
+[data-dashboard-shell] .workspace-page-header button[class*="bg-white"] { border: 1px solid #dce1e8; }
+[data-dashboard-shell] table { font-variant-numeric: tabular-nums; }
+[data-dashboard-shell] thead { letter-spacing: .035em; }
+[data-dashboard-shell] [data-density="compact"], [data-dashboard-shell][data-density="compact"] { --dashboard-cell-padding: .55rem; }
+[data-dashboard-shell][data-density="compact"] td,
+[data-dashboard-shell][data-density="compact"] th { padding-top: var(--dashboard-cell-padding); padding-bottom: var(--dashboard-cell-padding); }
+[data-dashboard-shell][data-density="compact"] .dashboard-content { padding-top: 1.25rem; }
+[data-dashboard-shell][data-text-size="large"] .dashboard-content .text-sm { font-size: .95rem; }
+[data-dashboard-shell][data-text-size="large"] .dashboard-content .text-xs { font-size: .82rem; }
+[data-dashboard-shell][data-reduce-motion="true"] *,
+[data-dashboard-shell][data-reduce-motion="true"] *::before,
+[data-dashboard-shell][data-reduce-motion="true"] *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+
+[data-dashboard-shell] .workspace-page-header [class*="text-slate-200"] { color: #64748b; }
+[data-dashboard-shell] .workspace-page-header [class*="text-sky-300"] { color: #64748b; }
+[data-dashboard-shell] .workspace-page-header :is([class*="text-blue-100"], [class*="text-blue-200"], [class*="text-sky-100"], [class*="text-sky-200"]) { color: #1d4ed8; }
+[data-dashboard-shell] .workspace-page-header :is([class*="text-amber-100"], [class*="text-amber-200"]) { color: #92400e; }
+[data-dashboard-shell] .workspace-page-header :is([class*="text-emerald-100"], [class*="text-emerald-200"], [class*="text-green-100"]) { color: #047857; }

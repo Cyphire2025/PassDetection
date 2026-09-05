@@ -10,11 +10,11 @@ export function notificationTargetRoute(
   const entityId = notification.entity_id;
 
   if (
-    entityType === "email_inbox"
-    || entityType === "email_analysis"
-    || entityType === "email_action_proposal"
-    || entityType === "email_deadline"
-    || entityType === "email_reply_draft"
+    entityType === "email_inbox" ||
+    entityType === "email_analysis" ||
+    entityType === "email_action_proposal" ||
+    entityType === "email_deadline" ||
+    entityType === "email_reply_draft"
   ) {
     return ROUTES.dashboard.emailIntegrationsInbox;
   }

@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import uuid
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from fastapi import HTTPException
@@ -16,11 +16,13 @@ from app.presentation.api.v1.routes.whatsapp import (
     add_broadcast_recipients,
     create_broadcast_group,
 )
+from tests.route_dependencies import patch_route_dependency, set_route_dependency
 
 
 @pytest.fixture(autouse=True)
 def _isolate_mobile_passenger_reconciliation(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         whatsapp_routes,
         "reconcile_mobile_passenger_access_for_broadcast",
         AsyncMock(),
@@ -111,15 +113,15 @@ async def test_create_group_parses_workbook_before_reauthorization_and_mutation(
         return group
 
     with (
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp._parse_excel_contacts",
             new=AsyncMock(side_effect=parse_contacts),
         ),
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp._lock_active_whatsapp_actor",
             new=AsyncMock(side_effect=lock_actor),
         ),
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp._group_detail",
             new=AsyncMock(side_effect=return_group),
         ),
@@ -187,27 +189,27 @@ async def test_add_recipients_parses_before_tenant_group_lock() -> None:
     session.flush = AsyncMock()
 
     with (
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp._parse_excel_contacts",
             new=AsyncMock(side_effect=parse_contacts),
         ),
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp._lock_active_whatsapp_actor",
             new=AsyncMock(side_effect=lock_actor),
         ),
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp._next_roster_display_order",
             new=AsyncMock(return_value=1),
         ),
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp.suppress_active_replacement_recipients",
             new=AsyncMock(),
         ),
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp._prepare_private_recipient_mutation",
             new=AsyncMock(),
         ),
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp._group_detail",
             new=AsyncMock(return_value=group),
         ),
@@ -263,7 +265,7 @@ async def test_create_group_rejects_revoked_actor_after_parsing_before_mutation(
     session.flush = AsyncMock()
 
     with (
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp._parse_excel_contacts",
             new=AsyncMock(side_effect=parse_contacts),
         ),

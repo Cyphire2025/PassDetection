@@ -116,19 +116,19 @@ class StaffApprovalRouteTests(unittest.IsolatedAsyncioTestCase):
 
         with (
             patch(
-                "app.presentation.api.v1.routes.passports.AuthorizationPolicy",
+                'app.presentation.api.v1.routes.passport_routes.submission_review.AuthorizationPolicy',
                 return_value=self.policy,
             ),
             patch(
-                "app.presentation.api.v1.routes.passports.AuditLogRepository",
+                'app.presentation.api.v1.routes.passport_routes.submission_review.AuditLogRepository',
                 return_value=audit_repository,
             ),
             patch(
-                "app.presentation.api.v1.routes.passports._ensure_submission_qr",
+                'app.presentation.api.v1.routes.passport_routes.submission_review._ensure_submission_qr',
                 new=ensure_qr,
             ),
             patch(
-                "app.presentation.api.v1.routes.passports._response_from_dto",
+                'app.presentation.api.v1.routes.passport_routes.submission_review._response_from_dto',
                 new=build_response,
             ),
         ):
@@ -196,19 +196,19 @@ class StaffApprovalRouteTests(unittest.IsolatedAsyncioTestCase):
 
         with (
             patch(
-                "app.presentation.api.v1.routes.passports.AuthorizationPolicy",
+                'app.presentation.api.v1.routes.passport_routes.submission_review.AuthorizationPolicy',
                 return_value=self.policy,
             ),
             patch(
-                "app.presentation.api.v1.routes.passports.AuditLogRepository",
+                'app.presentation.api.v1.routes.passport_routes.submission_review.AuditLogRepository',
                 return_value=audit_repository,
             ),
             patch(
-                "app.presentation.api.v1.routes.passports._ensure_submission_qr",
+                'app.presentation.api.v1.routes.passport_routes.submission_review._ensure_submission_qr',
                 new=ensure_qr,
             ),
             patch(
-                "app.presentation.api.v1.routes.passports._response_from_dto",
+                'app.presentation.api.v1.routes.passport_routes.submission_review._response_from_dto',
                 new=AsyncMock(return_value=expected_response),
             ),
         ):
@@ -257,7 +257,7 @@ class StaffApprovalRouteTests(unittest.IsolatedAsyncioTestCase):
                     execute=AsyncMock(side_effect=exception)
                 )
                 with patch(
-                    "app.presentation.api.v1.routes.passports.AuthorizationPolicy",
+                    'app.presentation.api.v1.routes.passport_routes.submission_review.AuthorizationPolicy',
                     return_value=self.policy,
                 ):
                     result = await staff_approve_passport(
@@ -292,7 +292,7 @@ class StaffApprovalRouteTests(unittest.IsolatedAsyncioTestCase):
         approve_use_case = SimpleNamespace(execute=AsyncMock())
 
         with patch(
-            "app.presentation.api.v1.routes.passports.AuthorizationPolicy",
+            'app.presentation.api.v1.routes.passport_routes.submission_review.AuthorizationPolicy',
             return_value=self.policy,
         ):
             with self.assertRaises(HTTPException) as raised:

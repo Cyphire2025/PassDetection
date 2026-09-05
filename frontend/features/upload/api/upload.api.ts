@@ -18,24 +18,32 @@ export const uploadApi = {
   uploadPassport: async (
     token: string,
     client_name: string,
-    file: File,
-    passportBackFile: File,
+    file: File | null,
+    passportBackFile: File | null,
     acquisitionMode: "camera" | "file",
     uploadIdempotencyKey: string,
     passportPhotoFile?: File | null,
     qualifierSelectionToken?: string | null,
     signal?: AbortSignal,
+    documents?: {
+      passportCoverFile?: File | null;
+      passportBackCoverFile?: File | null;
+      visaPhotoSource?: "camera" | "file" | null;
+    },
   ): Promise<PassportSubmission> => {
     const formData = new FormData();
     formData.append("client_name", client_name);
-    formData.append("file", file);
+    if (file) formData.append("file", file);
     formData.append("acquisition_mode", acquisitionMode);
     formData.append("upload_idempotency_key", uploadIdempotencyKey);
     if (qualifierSelectionToken) {
       formData.append("qualifier_selection_token", qualifierSelectionToken);
     }
     if (passportPhotoFile) formData.append("passport_photo_file", passportPhotoFile);
-    formData.append("passport_back_file", passportBackFile);
+    if (passportBackFile) formData.append("passport_back_file", passportBackFile);
+    if (documents?.passportCoverFile) formData.append("passport_cover_file", documents.passportCoverFile);
+    if (documents?.passportBackCoverFile) formData.append("passport_back_cover_file", documents.passportBackCoverFile);
+    if (passportPhotoFile && documents?.visaPhotoSource) formData.append("visa_photo_source", documents.visaPhotoSource);
 
     const response = await apiClient.post(
       API_ENDPOINTS.passports.upload(token),
@@ -111,7 +119,7 @@ export const uploadApi = {
   getUploadDocument: async (
     token: string,
     submissionId: string,
-    documentType: "front" | "back" | "photo",
+    documentType: "front" | "back" | "photo" | "cover" | "back_cover",
     uploadSessionId: string,
     signal?: AbortSignal,
   ): Promise<Blob> => {

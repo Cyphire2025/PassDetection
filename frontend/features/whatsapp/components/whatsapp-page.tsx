@@ -21,7 +21,6 @@ function WhatsAppWorkspaceLoading() {
   return (
     <div className="flex flex-col gap-5" aria-label="Loading WhatsApp communication centre">
       <WorkspacePageHeader
-        eyebrow="Passenger communication centre"
         title="WhatsApp"
         description="Loading broadcast groups, recipient readiness, delivery history, and approved trip-message controls."
         icon={MessageCircle}

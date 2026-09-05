@@ -16,19 +16,13 @@ import { REVIEW_FIELDS } from "./upload-flow.constants";
 export function ReviewLayout({
   title,
   description,
-  image,
-  photoImage,
-  backImage,
-  fields,
+  documents,
   onBack,
   children,
 }: {
   title: string;
   description: string;
-  image: ReactNode | null;
-  photoImage?: ReactNode | null;
-  backImage?: ReactNode | null;
-  fields: ExtractedPassportFields | null;
+  documents: ReactNode;
   onBack: () => void;
   children: ReactNode;
 }) {
@@ -50,30 +44,7 @@ export function ReviewLayout({
             <h1 className="text-2xl font-bold tracking-tight text-slate-900">{title}</h1>
             <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
           </div>
-          {image ? (
-            <div className="space-y-4">
-              {photoImage && (
-                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                  {photoImage}
-                </div>
-              )}
-              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="relative w-full">
-                  {image}
-                  <PassportRoiOverlays fields={fields} />
-                </div>
-              </div>
-              {backImage && (
-                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                  {backImage}
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="flex h-80 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-400">
-              Passport preview unavailable
-            </div>
-          )}
+          {documents}
         </div>
         {children}
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
+import { CompactPassportImage, PassportCoverPreview } from "./compact-passport-image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
@@ -225,7 +225,6 @@ export function PassportDetail({ id, navigationQuery = "" }: PassportDetailProps
     return (
       <div className="flex flex-col gap-5" aria-label="Loading passenger passport workspace">
         <WorkspacePageHeader
-          eyebrow="Passenger passport workspace"
           title="Passport Submission"
           description="Loading the passenger record, document images, extraction review, and workflow status."
           icon={FileCheck2}
@@ -248,7 +247,6 @@ export function PassportDetail({ id, navigationQuery = "" }: PassportDetailProps
     return (
       <div className="flex flex-col gap-5">
         <WorkspacePageHeader
-          eyebrow="Passenger passport workspace"
           title="Passport Submission"
           description="Review the passenger record, extracted fields, and current workflow status."
           icon={FileCheck2}
@@ -360,9 +358,8 @@ export function PassportDetail({ id, navigationQuery = "" }: PassportDetailProps
   return (
     <div className="flex flex-col gap-5">
       <WorkspacePageHeader
-        eyebrow="Passenger passport workspace"
         title={data.client_name}
-        description="Inspect document images, review extracted fields, resolve verification exceptions, and preserve the passenger's existing workflow state."
+        description="Review passport images, correct extracted details, and verify the passenger record."
         icon={FileCheck2}
         accent="sky"
         context={(
@@ -486,6 +483,8 @@ export function PassportDetail({ id, navigationQuery = "" }: PassportDetailProps
               onChange={(file) => void handleManualImageChange("visa_photo", file)}
               onCrop={(returnFocusTarget) => setCropEditor({ imageType: "visa_photo", label: "Visa Photo", returnFocusTarget })}
             />
+            <PassportCoverPreview url={data.passport_cover_url} label="Passport Front Cover" clientName={data.client_name} />
+            <PassportCoverPreview url={data.passport_back_cover_url} label="Passport Back Cover" clientName={data.client_name} />
             <PassportImagePreview
               label="Passport front"
               imageType="passport_front"
@@ -711,9 +710,9 @@ function PassportImagePreview({
           target="_blank"
           rel="noreferrer"
           aria-label={`Open ${label} for ${clientName} in a new tab`}
-          className="relative block aspect-[4/3] min-h-[15rem] overflow-hidden rounded-xl bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          className="inline-block max-w-full overflow-hidden rounded-xl bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
         >
-          <Image src={effectiveUrl} alt={`${label} for ${clientName}`} fill unoptimized className="object-contain" />
+          <CompactPassportImage src={effectiveUrl} alt={`${label} for ${clientName}`} />
         </a>
       ) : (
         <div className="flex min-h-32 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 text-sm text-slate-400">
@@ -743,7 +742,7 @@ function ClientProvidedFieldsCard({ passport }: { passport: PassportSubmission }
     ["Email entered by client", passport.client_email],
     ["Phone entered by client", passport.client_phone],
     [
-      "Agency/Dealership Name",
+      passport.staff_metadata?.agency_dealership_name_label || "Agency/Dealership Name",
       getStringField(fields, "agency_dealership_name")
         || getStringField(passport.staff_metadata ?? {}, "agency_dealership_name"),
     ],
@@ -751,7 +750,7 @@ function ClientProvidedFieldsCard({ passport }: { passport: PassportSubmission }
     ["Nearest Domestic Airport", passport.nearest_domestic_airport],
     ["Base City", getStringField(fields, "base_city")],
     ["Staff Code", prefixedStaffCode(getStringField(fields, "staff_code"))],
-    ["Agent/Employee Code", prefixedAgentEmployeeCode(fields)],
+    [passport.staff_metadata?.agent_employee_code_label || "Agent/Employee Code", prefixedAgentEmployeeCode(fields)],
     ["Meal Preference", getStringField(fields, "meal_preference")],
     ...(passport.custom_answers ?? []).map(
       (answer): [string, string] => [answer.label, answer.value],
@@ -1439,7 +1438,7 @@ function prefixedAgentEmployeeCode(fields: ExtractedPassportFields) {
   if (!code) return "";
   if (personType === "agent") return `AGT_${code}`;
   if (personType === "employee") return `EMP_${code}`;
-  return "";
+  return code;
 }
 
 function getExtractionConflicts(passport: PassportSubmission): PassportExtractionConflict[] {

@@ -50,7 +50,7 @@ def _use_request_actor_for_route_behavior_tests(monkeypatch: pytest.MonkeyPatch)
         return current_user
 
     monkeypatch.setattr(
-        "app.presentation.api.v1.routes.passports._lock_active_bulk_approval_actor",
+        "app.presentation.api.v1.routes.passport_routes.bulk_actions._lock_active_bulk_approval_actor",
         _same_actor,
     )
 
@@ -170,10 +170,10 @@ async def test_bulk_staff_approval_is_atomic_audited_and_reports_skips() -> None
         ),
         patch.object(AuthorizationPolicy, "can_view_group", AsyncMock(return_value=True)),
         patch(
-            "app.presentation.api.v1.routes.passports.ensure_approved_passenger_qrs",
+            'app.presentation.api.v1.routes.passport_routes.bulk_actions.ensure_approved_passenger_qrs',
             ensure_qrs,
         ),
-        patch("app.presentation.api.v1.routes.passports.record_operational_event") as record_event,
+        patch('app.presentation.api.v1.routes.passport_routes.bulk_actions.record_operational_event') as record_event,
     ):
         response = await bulk_staff_approve_passport_submissions(
             group_id=group_id,
@@ -268,10 +268,10 @@ async def test_bulk_staff_approval_rolls_back_when_qr_issuance_fails() -> None:
         ),
         patch.object(AuthorizationPolicy, "can_view_group", AsyncMock(return_value=True)),
         patch(
-            "app.presentation.api.v1.routes.passports.ensure_approved_passenger_qrs",
+            'app.presentation.api.v1.routes.passport_routes.bulk_actions.ensure_approved_passenger_qrs',
             AsyncMock(side_effect=RuntimeError("QR unavailable")),
         ),
-        patch("app.presentation.api.v1.routes.passports.record_operational_event") as record_event,
+        patch('app.presentation.api.v1.routes.passport_routes.bulk_actions.record_operational_event') as record_event,
         pytest.raises(RuntimeError, match="QR unavailable"),
     ):
         await bulk_staff_approve_passport_submissions(
@@ -475,7 +475,7 @@ async def test_bulk_staff_approval_rejects_foreign_or_missing_selected_ids() -> 
         ),
         patch.object(AuthorizationPolicy, "can_view_group", AsyncMock(return_value=True)),
         patch(
-            "app.presentation.api.v1.routes.passports.ensure_approved_passenger_qrs",
+            'app.presentation.api.v1.routes.passport_routes.bulk_actions.ensure_approved_passenger_qrs',
             ensure_qrs,
         ),
         pytest.raises(HTTPException) as caught,
@@ -532,10 +532,10 @@ async def test_bulk_staff_approval_retry_is_idempotent_without_qr_reissuance() -
         ),
         patch.object(AuthorizationPolicy, "can_view_group", AsyncMock(return_value=True)),
         patch(
-            "app.presentation.api.v1.routes.passports.ensure_approved_passenger_qrs",
+            'app.presentation.api.v1.routes.passport_routes.bulk_actions.ensure_approved_passenger_qrs',
             ensure_qrs,
         ),
-        patch("app.presentation.api.v1.routes.passports.record_operational_event") as record_event,
+        patch('app.presentation.api.v1.routes.passport_routes.bulk_actions.record_operational_event') as record_event,
     ):
         result = await bulk_staff_approve_passport_submissions(
             group_id=group_id,

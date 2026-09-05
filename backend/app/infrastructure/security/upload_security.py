@@ -22,6 +22,7 @@ from app.infrastructure.database.models import UntrustedUploadScanModel
 from app.infrastructure.database.session import AsyncSessionFactory
 from app.infrastructure.observability.metrics import metrics
 from app.infrastructure.security.upload_validator import (
+    DocumentIngestionDisabledError,
     MalwareScanner,
     MalwareScannerUnavailableError,
     MalwareScanRejectedError,
@@ -245,7 +246,7 @@ class UploadSecurityService:
             )
             metrics.increment("uploads.malware.scanner_error")
             raise
-        except ImageValidationError:
+        except DocumentIngestionDisabledError:
             await self._record(
                 content=content,
                 declared_media_type=declared_media_type,

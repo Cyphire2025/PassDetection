@@ -17,6 +17,7 @@ const createDetail = (): CustomUploadDetail => ({
   id: crypto.randomUUID(),
   label: "",
   enabled: true,
+  required: true,
 });
 
 export function CustomDetailBuilder({
@@ -40,7 +41,7 @@ export function CustomDetailBuilder({
         <div>
           <h3 className="font-semibold text-slate-900">Custom Detail</h3>
           <p className="mt-1 text-sm text-slate-600">
-            Add free-text headings that travellers must type when enabled.
+            Add headings for information travellers can type in their own words.
           </p>
         </div>
         <Button
@@ -67,9 +68,11 @@ export function CustomDetailBuilder({
         >
           <GroupOptionToggle
             label={detail.label.trim() || `Custom detail ${index + 1}`}
-            description="Travellers type a required answer when this detail is enabled."
+            description="Let travellers provide a typed answer for this detail."
             checked={detail.enabled}
             onChange={(enabled) => updateDetail(index, { enabled })}
+            required={detail.required ?? true}
+            onRequiredChange={(required) => updateDetail(index, { required })}
             borderless
             disabled={disabled}
           />

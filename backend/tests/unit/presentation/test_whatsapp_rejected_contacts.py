@@ -4,7 +4,7 @@ import json
 import uuid
 from datetime import UTC, datetime
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from sqlalchemy import UniqueConstraint
@@ -25,11 +25,13 @@ from app.presentation.api.v1.routes.whatsapp import (
     list_broadcast_rejected_contacts,
     resolve_broadcast_rejected_contact,
 )
+from tests.route_dependencies import patch_route_dependency, set_route_dependency
 
 
 @pytest.fixture(autouse=True)
 def _isolate_mobile_passenger_reconciliation(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         whatsapp_routes,
         "reconcile_mobile_passenger_access_for_broadcast",
         AsyncMock(),
@@ -91,11 +93,11 @@ async def test_create_group_persists_rejected_only_without_opt_in() -> None:
         return group
 
     with (
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp._group_detail",
             new=AsyncMock(side_effect=return_group),
         ),
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp._lock_active_whatsapp_actor",
             new=AsyncMock(return_value=actor),
         ),
@@ -155,11 +157,11 @@ async def test_add_rejected_only_deduplicates_existing_fingerprint() -> None:
     )
 
     with (
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp._group_detail",
             new=AsyncMock(return_value=group),
         ),
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp._lock_active_whatsapp_actor",
             new=AsyncMock(
                 return_value=SimpleNamespace(
@@ -205,11 +207,11 @@ async def test_create_group_persists_sendable_and_rejected_contacts_together() -
         return group
 
     with (
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp._group_detail",
             new=AsyncMock(side_effect=return_group),
         ),
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp._lock_active_whatsapp_actor",
             new=AsyncMock(return_value=actor),
         ),
@@ -335,15 +337,15 @@ async def test_corrected_rejected_contact_becomes_unsent_valid_recipient() -> No
     session.flush = AsyncMock()
 
     with (
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp._group_detail",
             new=AsyncMock(return_value=group),
         ),
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp.suppress_active_replacement_recipients",
             new=AsyncMock(),
         ),
-        patch(
+        patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp._prepare_private_recipient_mutation",
             new=AsyncMock(),
         ),

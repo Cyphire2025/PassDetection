@@ -122,7 +122,7 @@ export function CoordinatorGroupActivityPage({ groupId }: { groupId: string }) {
           </div>
           <h1 className="mt-5 text-xl font-bold text-slate-950">Coordinator login required</h1>
           <p className="mt-2 text-sm leading-6 text-slate-500">
-            Sign in with a coordinator account to use this group workflow.
+            Sign in with a coordinator account to open this group.
           </p>
           <Button
             type="button"

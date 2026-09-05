@@ -10,6 +10,10 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Any
 
+from app.domain.value_objects.custom_questions import (
+    CustomDetailDefinition,
+    CustomQuestionDefinition,
+)
 from app.domain.value_objects.passport_fields import canonical_passport_fields
 from app.domain.value_objects.trip_timezone import DEFAULT_TRIP_TIMEZONE
 
@@ -39,6 +43,8 @@ class PassportSubmissionOutputDTO:
     nearest_domestic_airport: str | None = None
     thumbnail_s3_key: str | None = None
     passport_photo_s3_key: str | None = None
+    passport_cover_s3_key: str | None = None
+    passport_back_cover_s3_key: str | None = None
     passport_back_s3_key: str | None = None
     staff_metadata: dict[str, Any] | None = None
     custom_answers: list[dict[str, str]] | None = None
@@ -107,6 +113,8 @@ def passport_submission_output_from_entity(
         image_s3_key=submission.image_s3_key,
         thumbnail_s3_key=submission.thumbnail_s3_key,
         passport_photo_s3_key=submission.passport_photo_s3_key,
+        passport_cover_s3_key=getattr(submission, "passport_cover_s3_key", None),
+        passport_back_cover_s3_key=getattr(submission, "passport_back_cover_s3_key", None),
         passport_back_s3_key=submission.passport_back_s3_key,
         staff_metadata=submission.staff_metadata,
         custom_answers=list(submission.custom_answers or []),
@@ -167,6 +175,9 @@ class PassportGroupSummaryDTO:
     agent_employee_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
+    custom_questions: list[CustomQuestionDefinition] | None = None
+    custom_details: list[CustomDetailDefinition] | None = None
+    upload_configuration: dict[str, object] | None = None
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AuthenticatedContent } from "./authenticated-content";
 import { useAuthStore } from "@/stores/auth.store";
@@ -17,6 +17,7 @@ describe("AuthenticatedContent", () => {
       isAuthenticated: false,
       hasHydrated: false,
       sessionVersion: 0,
+      restorationStatus: "restoring",
     });
   });
 
@@ -26,6 +27,7 @@ describe("AuthenticatedContent", () => {
       isAuthenticated: false,
       hasHydrated: false,
       sessionVersion: 0,
+      restorationStatus: "restoring",
     });
   });
 
@@ -56,5 +58,18 @@ describe("AuthenticatedContent", () => {
 
     expect(screen.getByText("Protected workspace")).toBeInTheDocument();
     expect(replace).not.toHaveBeenCalled();
+  });
+
+  it("keeps protected queries unmounted and allows retry after a transient outage", () => {
+    useAuthStore.getState().markTemporarilyUnavailable();
+    const retry = vi.fn();
+    window.addEventListener("auth:retry-restoration", retry);
+    render(<AuthenticatedContent>Protected workspace</AuthenticatedContent>);
+    expect(screen.getByRole("alert")).toHaveTextContent("temporarily unavailable");
+    expect(screen.queryByText("Protected workspace")).not.toBeInTheDocument();
+    expect(replace).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Retry connection" }));
+    expect(retry).toHaveBeenCalledOnce();
+    window.removeEventListener("auth:retry-restoration", retry);
   });
 });

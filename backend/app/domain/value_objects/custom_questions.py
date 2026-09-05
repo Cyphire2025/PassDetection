@@ -19,12 +19,14 @@ class CustomQuestionDefinition(TypedDict):
     label: str
     options: list[str]
     enabled: bool
+    required: bool
 
 
 class CustomDetailDefinition(TypedDict):
     id: str
     label: str
     enabled: bool
+    required: bool
 
 
 class CustomAnswerSnapshot(TypedDict):
@@ -104,6 +106,7 @@ def normalize_custom_questions(
                 "label": label,
                 "options": options,
                 "enabled": bool(raw.get("enabled", True)),
+                "required": bool(raw.get("required", True)),
             }
         )
     return normalized
@@ -139,6 +142,8 @@ def normalize_custom_answers(
 
     snapshots: list[CustomAnswerSnapshot] = []
     for question_id, question in enabled.items():
+        if not submitted.get(question_id, "") and not question["required"]:
+            continue
         option_by_key = {
             str(option).casefold(): str(option) for option in question["options"]
         }
@@ -198,6 +203,7 @@ def normalize_custom_details(
                 "id": detail_id,
                 "label": label,
                 "enabled": bool(raw.get("enabled", True)),
+                "required": bool(raw.get("required", True)),
             }
         )
     return normalized
@@ -242,6 +248,8 @@ def normalize_custom_detail_answers(
     snapshots: list[CustomDetailAnswerSnapshot] = []
     for detail_id, detail in enabled.items():
         value = submitted.get(detail_id, "")
+        if not value and not detail["required"]:
+            continue
         if not value:
             raise ValidationError(
                 f"Enter {detail['label']}.",

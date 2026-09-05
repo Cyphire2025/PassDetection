@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Activity,
   BarChart3,
   CalendarDays,
   CheckCircle2,
@@ -37,22 +36,20 @@ export default function AnalyticsPage() {
   return (
     <div className="flex flex-col gap-5">
       <WorkspacePageHeader
-        eyebrow="Processing intelligence"
         title="Analytics"
-        description="Read passport throughput, extraction confidence, and workflow distribution across the latest 30-day operating window."
+        description="Review passport submissions, extraction confidence, and processing status."
         icon={BarChart3}
         accent="violet"
         context={(
           <>
             <WorkspaceHeaderContext icon={CalendarDays}>Last 30 days</WorkspaceHeaderContext>
-            <WorkspaceHeaderContext icon={Activity}>Permission-scoped data</WorkspaceHeaderContext>
           </>
         )}
       />
 
       {error && (
         <WorkspaceErrorNotice>
-          Analytics are unavailable for this account. No operational data or access scope has been changed.
+          Analytics could not be loaded. Please try again.
         </WorkspaceErrorNotice>
       )}
 
@@ -99,11 +96,8 @@ export default function AnalyticsPage() {
           aria-labelledby="confidence-quality-heading"
         >
           <div className="border-b border-slate-200 bg-slate-50/70 px-4 py-3.5 sm:px-5">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-violet-600">
-              Extraction health
-            </p>
             <h2 id="confidence-quality-heading" className="mt-0.5 font-semibold text-slate-950">
-              Confidence quality
+              Extraction confidence
             </h2>
           </div>
           {isLoading ? (
@@ -115,8 +109,8 @@ export default function AnalyticsPage() {
             </div>
           ) : confidenceEntries.length === 0 && data?.average_confidence == null ? (
             <WorkspaceEmptyState
-              title="No confidence sample in this window"
-              description="Extraction-quality buckets will appear after passports are processed during the selected 30-day period."
+              title="No confidence data available"
+              description="Confidence data will appear after passports are processed."
             />
           ) : (
             <div className="p-5">
@@ -148,9 +142,6 @@ export default function AnalyticsPage() {
           aria-labelledby="status-distribution-heading"
         >
           <div className="border-b border-slate-200 bg-slate-50/70 px-4 py-3.5 sm:px-5">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-600">
-              Workflow composition
-            </p>
             <h2 id="status-distribution-heading" className="mt-0.5 font-semibold text-slate-950">
               Status distribution
             </h2>
@@ -163,8 +154,8 @@ export default function AnalyticsPage() {
             </div>
           ) : statusEntries.length === 0 ? (
             <WorkspaceEmptyState
-              title="No workflow statuses in this window"
-              description="Status distribution will populate as passport records move through processing and review."
+              title="No processing data available"
+              description="Processing statuses will appear after passports are submitted."
             />
           ) : (
             <div className="grid gap-px bg-slate-100 sm:grid-cols-2">
@@ -195,9 +186,6 @@ export default function AnalyticsPage() {
         aria-labelledby="daily-submissions-heading"
       >
         <div className="flex flex-col gap-1 border-b border-slate-200 bg-slate-50/70 px-4 py-3.5 sm:px-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-            Throughput timeline
-          </p>
           <h2 id="daily-submissions-heading" className="font-semibold text-slate-950">
             Daily submissions
           </h2>
@@ -210,8 +198,8 @@ export default function AnalyticsPage() {
           </div>
         ) : submissionEntries.length === 0 ? (
           <WorkspaceEmptyState
-            title="No submission timeline yet"
-            description="Daily volume will appear after passport intake begins in the current analytics window."
+            title="No submissions in this period"
+            description="Daily totals will appear after passports are submitted."
           />
         ) : (
           <div className="space-y-2 p-4 sm:p-5">

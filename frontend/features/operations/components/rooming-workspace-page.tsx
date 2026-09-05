@@ -110,9 +110,8 @@ export function RoomingWorkspacePage({ groupId }: { groupId: string }) {
   return (
     <div className="flex flex-col gap-5">
       <OperationsPageHeader
-        eyebrow="Rooming group workspace"
         title={data.group_name}
-        description="Move from hotel membership to an auto-generated room plan, then hand the current revision to the hotel check-in desk."
+        description="Assign passengers to hotels, allocate rooms, and manage check-in."
         icon={Hotel}
         context={(
           <>

@@ -5,7 +5,7 @@ from __future__ import annotations
 import unittest
 import uuid
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, patch
 
 from fastapi import BackgroundTasks
 
@@ -62,7 +62,7 @@ class RetryPostSubmissionVerificationRouteTests(
             record=AsyncMock(side_effect=lambda **_kwargs: events.append("audit"))
         )
         dispatcher = SimpleNamespace(
-            dispatch=Mock(side_effect=lambda **_kwargs: events.append("dispatch"))
+            dispatch_async=AsyncMock(side_effect=lambda **_kwargs: events.append("dispatch"))
         )
         session = AsyncMock()
         session.commit.side_effect = lambda: events.append("commit")
@@ -70,25 +70,23 @@ class RetryPostSubmissionVerificationRouteTests(
 
         with (
             patch(
-                "app.presentation.api.v1.routes.passports.AuthorizationPolicy",
+                'app.presentation.api.v1.routes.passport_routes.submission_review.AuthorizationPolicy',
                 return_value=authorization,
             ),
             patch(
-                "app.presentation.api.v1.routes.passports."
-                "PostSubmissionVerificationJobRepository",
+                'app.presentation.api.v1.routes.passport_routes.submission_review.PostSubmissionVerificationJobRepository',
                 return_value=job_repository,
             ),
             patch(
-                "app.presentation.api.v1.routes.passports.AuditLogRepository",
+                'app.presentation.api.v1.routes.passport_routes.submission_review.AuditLogRepository',
                 return_value=audit_repository,
             ),
             patch(
-                "app.presentation.api.v1.routes.passports."
-                "PostSubmissionVerificationDispatcher",
+                'app.presentation.api.v1.routes.passport_routes.submission_review.PostSubmissionVerificationDispatcher',
                 return_value=dispatcher,
             ),
             patch(
-                "app.presentation.api.v1.routes.passports._response_from_dto",
+                'app.presentation.api.v1.routes.passport_routes.submission_review._response_from_dto',
                 new=AsyncMock(return_value=expected_response),
             ),
         ):

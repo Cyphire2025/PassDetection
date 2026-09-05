@@ -46,6 +46,7 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.export.rooming_excel_exporter import RoomingExcelExporter
 from app.infrastructure.observability import metrics
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.infrastructure.repositories.operational_roster import operational_roster_member
 from app.infrastructure.rooming.priority_fields import (
     MAX_ROOMING_PRIORITY_FIELDS,
     ROOMING_GENDER_RULE,
@@ -1119,6 +1120,7 @@ async def scan_hotel_checkin(
             PassengerQRTokenModel.token_hash == qr_hash(body.qr_payload.strip()),
             PassportSubmissionModel.agency_id == hotel.agency_id,
             PassportSubmissionModel.status.in_(ROOMING_PASSENGER_STATUSES),
+            operational_roster_member(),
         )
     )
     pair = resolved.first()
@@ -1422,6 +1424,7 @@ async def _eligible_group_passengers(
             PassportSubmissionModel.group_id == group.id,
             PassportSubmissionModel.agency_id == group.agency_id,
             PassportSubmissionModel.status.in_(ROOMING_PASSENGER_STATUSES),
+            operational_roster_member(),
         )
         .order_by(
             PassportSubmissionModel.created_at.asc(),

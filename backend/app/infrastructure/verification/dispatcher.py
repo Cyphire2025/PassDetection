@@ -33,6 +33,23 @@ class PostSubmissionVerificationDispatcher:
         self._backend = backend or get_settings().processing_backend
         self._priority = priority_coordinator or get_ai_priority_coordinator()
 
+    async def dispatch_async(
+        self,
+        *,
+        job_id: uuid.UUID,
+        submission_id: uuid.UUID,
+        verification_revision: int,
+        background_tasks: BackgroundTasks,
+    ) -> str | None:
+        """Publish without blocking unrelated API requests on Redis/Celery."""
+        return await asyncio.to_thread(
+            self.dispatch,
+            job_id=job_id,
+            submission_id=submission_id,
+            verification_revision=verification_revision,
+            background_tasks=background_tasks,
+        )
+
     def dispatch(
         self,
         *,
@@ -102,7 +119,7 @@ async def recover_undispatched_post_submission_verifications() -> None:
         )
 
     for job in jobs:
-        dispatcher._priority.queue_verification(str(job.id))
+        await asyncio.to_thread(dispatcher._priority.queue_verification, str(job.id))
         if dispatcher._backend == "celery" and worker_available:
             try:
                 task = await asyncio.to_thread(

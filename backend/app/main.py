@@ -30,6 +30,7 @@ from app.infrastructure.mobile_realtime import (
 from app.infrastructure.observability.metrics import metrics
 from app.infrastructure.observability.sentry import sentry_init_options
 from app.infrastructure.observability.statsd import configure_metrics_export
+from app.infrastructure.processing.recovery import passport_extraction_recovery_loop
 from app.infrastructure.security.upload_validator import assert_malware_scanner_ready
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.infrastructure.verification.dispatcher import (
@@ -169,6 +170,9 @@ def create_application(
         except Exception:
             await stop_mobile_realtime()
             raise
+        app.state.passport_extraction_recovery_task = asyncio.create_task(
+            passport_extraction_recovery_loop()
+        )
         app.state.post_submission_verification_recovery_task = asyncio.create_task(
             post_submission_verification_recovery_loop()
         )
@@ -191,6 +195,11 @@ def create_application(
 
     @app.on_event("shutdown")
     async def on_shutdown() -> None:
+        extraction_task = getattr(app.state, "passport_extraction_recovery_task", None)
+        if extraction_task is not None:
+            extraction_task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await extraction_task
         recovery_task = getattr(
             app.state,
             "post_submission_verification_recovery_task",

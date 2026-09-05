@@ -15,6 +15,7 @@ from app.infrastructure.database.models import (
     PassportSubmissionModel,
     UserModel,
 )
+from app.infrastructure.repositories.operational_roster import operational_roster_member
 from app.presentation.api.v1.routes.tour_operations_attendance_scan_support import (
     SUBMITTED_PASSENGER_STATUSES,
 )
@@ -63,6 +64,7 @@ async def coordinator_responses(
             CoordinatorGroupAssignmentModel.coordinator_user_id.in_(coordinator_ids),
             CoordinatorGroupAssignmentModel.active.is_(True),
             PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
+            operational_roster_member(),
         )
         .group_by(CoordinatorGroupAssignmentModel.coordinator_user_id)
     )
@@ -99,6 +101,7 @@ async def group_responses(
         .where(
             PassportSubmissionModel.group_id.in_(group_ids),
             PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
+            operational_roster_member(),
         )
         .group_by(PassportSubmissionModel.group_id)
     )
@@ -193,6 +196,7 @@ async def group_passenger_responses(
             PassportSubmissionModel.agency_id == agency_id,
             PassportSubmissionModel.group_id == group_id,
             PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
+            operational_roster_member(),
         )
         .order_by(PassportSubmissionModel.client_name.asc())
     )

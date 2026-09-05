@@ -44,7 +44,6 @@ export function MenuPage() {
     return (
       <div className="flex flex-col gap-5">
         <WorkspacePageHeader
-          eyebrow="Culinary planning workspace"
           title="Menu"
           description="Build the dish library and generate balanced, non-repeating meal plans for each trip."
           icon={ChefHat}
@@ -93,9 +92,8 @@ export function MenuPage() {
   return (
     <div className="flex flex-col gap-5">
       <WorkspacePageHeader
-        eyebrow="Culinary planning workspace"
         title="Menu"
-        description="Maintain a controlled dish library, understand repeat-free capacity, and turn approved categories into balanced lunch and dinner plans."
+        description="Manage dishes and generate lunch and dinner plans without repeated dishes."
         icon={ChefHat}
         accent="amber"
         context={(
@@ -167,11 +165,9 @@ export function MenuPage() {
       >
         <div className="flex flex-col gap-4 border-b border-slate-200 bg-slate-50/70 px-4 py-3.5 lg:flex-row lg:items-center lg:justify-between sm:px-5">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-              Repeat-free workflow
-            </p>
+
             <h2 id="menu-workflow-heading" className="mt-0.5 font-semibold text-slate-950">
-              Build once, plan with confidence
+              Meal planning
             </h2>
           </div>
           <ol className="grid grid-cols-3 gap-2 text-center">
@@ -306,7 +302,6 @@ function MenuPageSkeleton() {
       aria-label="Loading menu planning workspace"
     >
       <WorkspacePageHeader
-        eyebrow="Culinary planning workspace"
         title="Menu"
         description="Loading the dish library, repeat-free capacity, and saved trip plans."
         icon={ChefHat}

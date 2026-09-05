@@ -36,7 +36,7 @@ x-database-capacity-environment: &database-capacity-environment
   EMAIL_WORKER_CONCURRENCY: ${EMAIL_WORKER_CONCURRENCY:-2}
   EMAIL_AI_WORKER_CONCURRENCY: ${EMAIL_AI_WORKER_CONCURRENCY:-2}
   MY_PHOTOS_WORKER_CONCURRENCY: ${MY_PHOTOS_WORKER_CONCURRENCY:-2}
-  GEMINI_EXTRACTION_MAX_CONCURRENCY: ${GEMINI_EXTRACTION_MAX_CONCURRENCY:-32}
+  GEMINI_EXTRACTION_MAX_CONCURRENCY: ${GEMINI_EXTRACTION_MAX_CONCURRENCY:-4}
   GEMINI_VERIFICATION_MAX_CONCURRENCY: ${GEMINI_VERIFICATION_MAX_CONCURRENCY:-1}
   GEMINI_IMAGE_EDIT_MAX_CONCURRENCY: ${GEMINI_IMAGE_EDIT_MAX_CONCURRENCY:-1}
   METRICS_EXPORTER: ${METRICS_EXPORTER:-disabled}
@@ -57,7 +57,7 @@ x-database-capacity-environment: &database-capacity-environment
   POSTGRES_SERVER_MAX_CONNECTIONS: ${POSTGRES_SERVER_MAX_CONNECTIONS:-100}
   POSTGRES_RESERVED_CONNECTIONS: ${POSTGRES_RESERVED_CONNECTIONS:-10}
   POSTGRES_API_CONNECTION_BUDGET: ${POSTGRES_API_CONNECTION_BUDGET:-80}
-  EXPECTED_DATABASE_SCHEMA_REVISION: ${EXPECTED_DATABASE_SCHEMA_REVISION:-0088_merge_my_photos_hardening}
+  EXPECTED_DATABASE_SCHEMA_REVISION: ${EXPECTED_DATABASE_SCHEMA_REVISION:-0090_upload_configuration}
   REDIS_DOMAIN_ISOLATION_REQUIRED: ${REDIS_DOMAIN_ISOLATION_REQUIRED:-true}
   REDIS_BROKER_HOST: redis-broker
   REDIS_BROKER_PORT: 6379
@@ -164,6 +164,7 @@ services:
       --requirepass ${REDIS_SECURITY_PASSWORD:-${REDIS_PASSWORD}}
       --appendonly yes
       --appendfsync everysec
+      --maxmemory ${REDIS_SECURITY_MAXMEMORY:-128mb}
       --maxmemory-policy noeviction
     volumes:
       - redis_data:/data
@@ -188,6 +189,7 @@ services:
       --requirepass ${REDIS_BROKER_PASSWORD:-${REDIS_PASSWORD}}
       --appendonly yes
       --appendfsync everysec
+      --maxmemory ${REDIS_BROKER_MAXMEMORY:-512mb}
       --maxmemory-policy noeviction
     volumes:
       - redis_broker_data:/data
@@ -212,6 +214,7 @@ services:
       --requirepass ${REDIS_REALTIME_PASSWORD:-${REDIS_PASSWORD}}
       --save ""
       --appendonly no
+      --maxmemory ${REDIS_REALTIME_MAXMEMORY:-128mb}
       --maxmemory-policy noeviction
     ports:
       - "6381:6379"
@@ -268,7 +271,7 @@ services:
     tmpfs:
       - /tmp:rw,noexec,nosuid,nodev,size=256m
       - /run:rw,nosuid,nodev,size=32m
-      - /var/log/clamav:rw,nosuid,nodev,size=64m
+      - /var/log/clamav:rw,nosuid,nodev,size=64m,uid=100,gid=101,mode=0750
     cap_drop:
       - ALL
     security_opt:
@@ -291,8 +294,8 @@ services:
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: ${S3_ACCESS_KEY_ID}
-      MINIO_ROOT_PASSWORD: ${S3_SECRET_ACCESS_KEY}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-${S3_ACCESS_KEY_ID}}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-${S3_SECRET_ACCESS_KEY}}
     volumes:
       - minio_data:/data
     ports:
@@ -597,7 +600,7 @@ services:
       worker
       --hostname=extraction@%h
       --loglevel=INFO
-      --concurrency=${GEMINI_EXTRACTION_MAX_CONCURRENCY:-32}
+      --concurrency=${GEMINI_EXTRACTION_MAX_CONCURRENCY:-4}
       -Q interactive-passport-extraction"
     networks:
       - passdetection-net

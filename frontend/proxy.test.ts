@@ -1,16 +1,16 @@
 import { NextRequest } from "next/server";
-import { describe, expect, it } from "vitest";
+import { describe,expect,it } from "vitest";
 import {
-  PROTECTED_PREFIXES,
-  buildContentSecurityPolicy,
-  proxy,
+PROTECTED_PREFIXES,
+buildContentSecurityPolicy,
+proxy,
 } from "./proxy";
 
 describe("dashboard proxy boundary", () => {
   it.each(PROTECTED_PREFIXES)("redirects unauthenticated requests for %s", (prefix) => {
     const response = proxy(new NextRequest(`https://dashboard.example${prefix}`));
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toContain(`/login?from=${encodeURIComponent(prefix)}`);
+    expect(response.headers.get("location")).toContain(`/session-restore?from=${encodeURIComponent(prefix)}`);
   });
 
   it("matches complete route segments rather than lookalike public paths", () => {
@@ -27,13 +27,13 @@ describe("dashboard proxy boundary", () => {
     expect(response.headers.get("content-security-policy")).toContain("'nonce-");
   });
 
-  it("redirects an authenticated login request to a validated in-app destination", () => {
+  it("keeps login available when an unverified stale cookie remains after rejected refresh", () => {
     const request = new NextRequest("https://dashboard.example/login?from=%2Fdocuments", {
       headers: { cookie: "access_token=test-session" },
     });
     const response = proxy(request);
-    expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("https://dashboard.example/documents");
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
   });
 });
 

@@ -62,9 +62,8 @@ export function TourCoordinatorsPage() {
   return (
     <div className="flex flex-col gap-6">
       <OperationsPageHeader
-        eyebrow="Tour Ops access"
         title="Tour Coordinators"
-        description="Manage restricted field accounts, review operational coverage, and keep coordinator access ready for attendance scanning."
+        description="Manage coordinator accounts and their group assignments."
         icon={UsersRound}
         context={<span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-xs font-medium text-slate-200"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-300" aria-hidden="true" />{activeCount} active accounts</span>}
         actions={(

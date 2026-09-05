@@ -2,10 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-const workspace = readFileSync(
-  new URL("./passport-group-detail.tsx", import.meta.url),
-  "utf8",
-);
+import { passportGroupCoordinatorSource as workspace } from "./passport-group-detail-source.contract-helper.mjs";
 const documentCell = readFileSync(
   new URL("./passport-document-cell.tsx", import.meta.url),
   "utf8",

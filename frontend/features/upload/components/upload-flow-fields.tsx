@@ -6,6 +6,7 @@ import type {
   CustomUploadQuestion,
 } from "@/features/passports/api/upload-links.api";
 import type { AgentEmployeeType } from "./upload-flow.types";
+import { DEFAULT_UPLOAD_CONFIGURATION, isUploadFieldRequired, type UploadConfiguration } from "@/features/passports/types/upload-configuration";
 
 export function NameInput({
   value,
@@ -115,6 +116,7 @@ export function ContactSection({
   title,
   emailRequired,
   phoneRequired,
+  departureCityRequired = true,
 }: {
   email: string;
   phone: string;
@@ -126,6 +128,7 @@ export function ContactSection({
   title: string;
   emailRequired?: boolean;
   phoneRequired?: boolean;
+  departureCityRequired?: boolean;
 }) {
   return (
     <div className="mt-6 border-t border-slate-100 pt-5">
@@ -153,6 +156,7 @@ export function ContactSection({
             cities={departureCities}
             onChange={onDepartureCity}
             className="sm:col-span-2"
+            required={departureCityRequired}
           />
         )}
       </div>
@@ -176,13 +180,13 @@ export function CustomQuestionFields({
       {questions.map((question) => (
         <label key={question.id} className="block min-w-0 space-y-1.5">
           <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            {question.label}
+            {question.label}{question.required !== false ? " *" : " (optional)"}
           </span>
           <select
             value={answers[question.id] ?? ""}
             onChange={(event) => onChange(question.id, event.target.value)}
             className="h-12 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-            required
+            required={question.required !== false}
           >
             <option value="">Select an option</option>
             {question.options.map((option) => (
@@ -216,7 +220,7 @@ export function CustomDetailFields({
           type="text"
           value={answers[detail.id] ?? ""}
           onChange={(value) => onChange(detail.id, value)}
-          required
+          required={detail.required !== false}
           maxLength={500}
         />
       ))}
@@ -225,6 +229,7 @@ export function CustomDetailFields({
 }
 
 export function ConfiguredClientFields({
+  config = DEFAULT_UPLOAD_CONFIGURATION,
   baseCityEnabled,
   askNearestDomesticAirport,
   staffCodeEnabled,
@@ -235,7 +240,6 @@ export function ConfiguredClientFields({
   baseCity,
   nearestDomesticAirport,
   staffCode,
-  agentEmployeeType,
   agentEmployeeCode,
   designation,
   agencyDealershipName,
@@ -243,12 +247,12 @@ export function ConfiguredClientFields({
   onBaseCity,
   onNearestDomesticAirport,
   onStaffCode,
-  onAgentEmployeeType,
   onAgentEmployeeCode,
   onDesignation,
   onAgencyDealershipName,
   onMealPreference,
 }: {
+  config?: UploadConfiguration;
   baseCityEnabled: boolean;
   askNearestDomesticAirport: boolean;
   staffCodeEnabled: boolean;
@@ -292,7 +296,7 @@ export function ConfiguredClientFields({
           type="text"
           value={baseCity}
           onChange={onBaseCity}
-          required
+          required={isUploadFieldRequired(config, "base_city")}
         />
       )}
       {askNearestDomesticAirport && (
@@ -302,7 +306,7 @@ export function ConfiguredClientFields({
           type="text"
           value={nearestDomesticAirport}
           onChange={onNearestDomesticAirport}
-          required
+          required={isUploadFieldRequired(config, "nearest_domestic_airport")}
           maxLength={120}
         />
       )}
@@ -313,38 +317,19 @@ export function ConfiguredClientFields({
           type="text"
           value={staffCode}
           onChange={onStaffCode}
-          required
+          required={isUploadFieldRequired(config, "staff_code")}
         />
       )}
       {agentEmployeeCodeEnabled && (
-        <div className="grid min-w-0 gap-3 sm:col-span-2 sm:grid-cols-2">
-          <label className="block min-w-0 space-y-1.5">
-            <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-              Agent or Employee
-            </span>
-            <select
-              value={agentEmployeeType}
-              onChange={(event) => onAgentEmployeeType(event.target.value as AgentEmployeeType)}
-              className="h-12 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              required
-            >
-              <option value="">Select Agent or Employee</option>
-              <option value="agent">Agent</option>
-              <option value="employee">Employee</option>
-            </select>
-          </label>
           <ContactInput
             icon={<BadgeCheck className="h-5 w-5" />}
-            label="Agent/Employee Code"
+            label={config.agent_employee_code_label}
             type="text"
             value={agentEmployeeCode}
-            onChange={(value) => onAgentEmployeeCode(value.replace(/\D/g, "").slice(0, 10))}
-            required
-            maxLength={10}
-            inputMode="numeric"
-            pattern="[0-9]{1,10}"
+            onChange={onAgentEmployeeCode}
+            required={isUploadFieldRequired(config, "agent_employee_code")}
+            maxLength={80}
           />
-        </div>
       )}
       {designationEnabled && (
         <ContactInput
@@ -353,18 +338,18 @@ export function ConfiguredClientFields({
           type="text"
           value={designation}
           onChange={onDesignation}
-          required
+          required={isUploadFieldRequired(config, "designation")}
           maxLength={160}
         />
       )}
       {agencyDealershipNameEnabled && (
         <ContactInput
           icon={<BadgeCheck className="h-5 w-5" />}
-          label="Agency/Dealership Name"
+          label={config.agency_dealership_name_label}
           type="text"
           value={agencyDealershipName}
           onChange={onAgencyDealershipName}
-          required
+          required={isUploadFieldRequired(config, "agency_dealership_name")}
           maxLength={200}
         />
       )}
@@ -379,7 +364,7 @@ export function ConfiguredClientFields({
               value={mealPreference}
               onChange={(event) => onMealPreference(event.target.value)}
               className="h-12 w-full min-w-0 rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              required
+              required={isUploadFieldRequired(config, "meal_preference")}
             >
               <option value="">Select meal preference</option>
               <option value="Veg">Veg</option>
@@ -394,6 +379,7 @@ export function ConfiguredClientFields({
 }
 
 export function DepartureCitySelect({
+  required = true,
   value,
   cities,
   onChange,
@@ -403,6 +389,7 @@ export function DepartureCitySelect({
   cities: string[];
   onChange: (value: string) => void;
   className?: string;
+  required?: boolean;
 }) {
   return (
     <label className={`block min-w-0 space-y-1.5 ${className}`}>
@@ -413,7 +400,7 @@ export function DepartureCitySelect({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         className="h-12 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-        required
+        required={required}
       >
         <option value="">Select your nearest international airport</option>
         {cities.map((city) => <option key={city} value={city}>{city}</option>)}

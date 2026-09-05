@@ -72,6 +72,10 @@ async function installApiSession(
       });
       return;
     }
+    if (pathname === "/api/v1/notifications/feed") {
+      await fulfillJson(route, { items: [], unread_count: 0, next_cursor: null });
+      return;
+    }
     if (pathname === "/api/v1/dashboard/stats") {
       await fulfillJson(route, {
         total_passports: 0,
@@ -112,6 +116,10 @@ test("credential login restores a cookie session and logout clears browser-owned
       });
       return;
     }
+    if (pathname === "/api/v1/notifications/feed") {
+      await fulfillJson(route, { items: [], unread_count: 0, next_cursor: null });
+      return;
+    }
     if (pathname === "/api/v1/dashboard/stats") {
       await fulfillJson(route, {
         total_passports: 0,
@@ -143,7 +151,7 @@ test("credential login restores a cookie session and logout clears browser-owned
 test("a rejected refresh expires the local session and explains the redirect", async ({ page }) => {
   await installApiSession(page, { refreshStatus: 401 });
   await page.goto("/dashboard");
-  await expect(page).toHaveURL(/\/login\?reason=session_expired$/);
+  await expect(page).toHaveURL(/\/login\?reason=session_expired&from=%2Fdashboard$/);
 });
 
 test("a lower-privilege direct-link journey is denied and returned to its safe workspace", async ({ page }) => {

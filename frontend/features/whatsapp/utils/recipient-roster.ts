@@ -1,6 +1,6 @@
 import type {
-  WhatsAppRecipient,
-  WhatsAppRecipientRosterItem,
+WhatsAppRecipient,
+WhatsAppRecipientRosterItem,
 } from "../api/whatsapp.api";
 
 export type WhatsAppRecipientRosterTab =
@@ -108,9 +108,12 @@ export function searchRecipientRosterItems(
 ): WhatsAppRecipientRosterItem[] {
   const normalized = query.trim().toLocaleLowerCase();
   if (!normalized) return items;
+  const digits = normalized.replace(/\D/g, "");
+  const isPhoneSearch = digits.length >= 3 && /^[+\d\s().-]+$/.test(normalized);
   return items.filter((item) =>
     recipientRosterSearchValues(item).some((value) =>
-      value?.toLocaleLowerCase().includes(normalized),
+      value?.toLocaleLowerCase().includes(normalized)
+      || (isPhoneSearch && value?.replace(/\D/g, "").includes(digits)),
     ),
   );
 }

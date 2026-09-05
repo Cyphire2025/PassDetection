@@ -27,14 +27,10 @@ def _user(role: UserRole, *, agency_id: uuid.UUID | None = None) -> SimpleNamesp
 
 def test_activity_routes_have_compact_role_gated_contracts() -> None:
     summary_route = next(
-        route
-        for route in router.routes
-        if route.path == "/activities/{kind}/{batch_id}"
+        route for route in router.routes if route.path == "/activities/{kind}/{batch_id}"
     )
     failures_route = next(
-        route
-        for route in router.routes
-        if route.path == "/activities/{kind}/{batch_id}/failures"
+        route for route in router.routes if route.path == "/activities/{kind}/{batch_id}/failures"
     )
 
     assert summary_route.methods == {"GET"}

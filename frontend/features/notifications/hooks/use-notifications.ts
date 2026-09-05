@@ -1,12 +1,9 @@
 "use client";
 
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useLiveHistoryFeed } from "@/lib/hooks/use-live-history-feed";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { notificationsApi } from "../api/notifications.api";
-import type { NotificationPriority } from "../types";
+import type { NotificationFeedResponse, NotificationPriority } from "../types";
 
 const CLOSED_REFRESH_INTERVAL_MS = 15_000;
 const OPEN_REFRESH_INTERVAL_MS = 5_000;
@@ -38,28 +35,16 @@ export function useNotificationFeed({
   priority?: NotificationPriority;
 }) {
   const scopedUserId = userId ?? "anonymous";
-  return useInfiniteQuery({
-    queryKey: notificationQueryKeys.feed(
-      scopedUserId,
-      unreadOnly,
-      priority,
-    ),
-    queryFn: ({ pageParam }) =>
-      notificationsApi.feed({
-        unreadOnly,
-        priority,
-        limit: 12,
-        cursor: pageParam ?? undefined,
-      }),
-    initialPageParam: null as string | null,
-    getNextPageParam: (lastPage) => lastPage.next_cursor,
+  return useLiveHistoryFeed<NotificationFeedResponse>({
+    queryKey: notificationQueryKeys.feed(scopedUserId, unreadOnly, priority),
+    itemKey: (item) => item.id,
+    loadPage: (cursor, signal) =>
+      notificationsApi.feed(
+        { unreadOnly, priority, limit: 12, cursor },
+        signal,
+      ),
     enabled: Boolean(userId),
-    refetchInterval: isOpen
-      ? OPEN_REFRESH_INTERVAL_MS
-      : CLOSED_REFRESH_INTERVAL_MS,
-    refetchIntervalInBackground: false,
-    refetchOnWindowFocus: true,
-    refetchOnReconnect: "always",
+    interval: isOpen ? OPEN_REFRESH_INTERVAL_MS : CLOSED_REFRESH_INTERVAL_MS,
   });
 }
 
@@ -73,9 +58,7 @@ function useInvalidateNotifications(userId: string | null | undefined) {
   };
 }
 
-export function useMarkNotificationRead(
-  userId: string | null | undefined,
-) {
+export function useMarkNotificationRead(userId: string | null | undefined) {
   const invalidate = useInvalidateNotifications(userId);
   return useMutation({
     mutationFn: notificationsApi.markRead,
@@ -83,9 +66,7 @@ export function useMarkNotificationRead(
   });
 }
 
-export function useMarkAllNotificationsRead(
-  userId: string | null | undefined,
-) {
+export function useMarkAllNotificationsRead(userId: string | null | undefined) {
   const invalidate = useInvalidateNotifications(userId);
   return useMutation({
     mutationFn: notificationsApi.markAllRead,

@@ -666,6 +666,7 @@ async def create_client_group(
         agent_employee_code_enabled=request.agent_employee_code_enabled,
         meal_preference_enabled=request.meal_preference_enabled,
         require_selfie=request.require_selfie,
+        upload_configuration=(request.upload_configuration.model_dump(mode="json") if request.upload_configuration is not None else None),
         allow_files_from_device=request.allow_files_from_device,
         ask_nearest_domestic_airport=request.ask_nearest_domestic_airport,
         relation_with_qualifier_enabled=request.relation_with_qualifier_enabled,
@@ -1929,6 +1930,7 @@ async def update_client_group(
         agent_employee_code_enabled=request.agent_employee_code_enabled,
         meal_preference_enabled=request.meal_preference_enabled,
         require_selfie=request.require_selfie,
+        upload_configuration=(request.upload_configuration.model_dump(mode="json") if request.upload_configuration is not None else None),
         allow_files_from_device=request.allow_files_from_device,
         ask_nearest_domestic_airport=request.ask_nearest_domestic_airport,
         relation_with_qualifier_enabled=request.relation_with_qualifier_enabled,
@@ -2134,6 +2136,8 @@ async def permanently_delete_client_group(
             PassportSubmissionModel.image_s3_key,
             PassportSubmissionModel.thumbnail_s3_key,
             PassportSubmissionModel.passport_back_s3_key,
+            PassportSubmissionModel.passport_cover_s3_key,
+            PassportSubmissionModel.passport_back_cover_s3_key,
             PassportSubmissionModel.passport_photo_s3_key,
         )
         .where(

@@ -3,3 +3,10 @@ node_modules
 .git
 npm-debug.log*
 .env*
+outputs
+playwright-report
+test-results
+coverage
+*.log
+*.pem
+*.key

@@ -9,6 +9,9 @@ export function useUploadPassport() {
       file,
       passportPhotoFile,
       passportBackFile,
+      passportCoverFile,
+      passportBackCoverFile,
+      visaPhotoSource,
       acquisitionMode,
       uploadIdempotencyKey,
       qualifierSelectionToken,
@@ -16,8 +19,11 @@ export function useUploadPassport() {
     }: {
       token: string;
       client_name: string;
-      file: File;
-      passportBackFile: File;
+      file: File | null;
+      passportBackFile: File | null;
+      passportCoverFile?: File | null;
+      passportBackCoverFile?: File | null;
+      visaPhotoSource?: "camera" | "file" | null;
       acquisitionMode: "camera" | "file";
       uploadIdempotencyKey: string;
       qualifierSelectionToken?: string | null;
@@ -33,6 +39,7 @@ export function useUploadPassport() {
       passportPhotoFile,
       qualifierSelectionToken,
       signal,
+      { passportCoverFile, passportBackCoverFile, visaPhotoSource },
     ),
   });
 }

@@ -12,9 +12,7 @@ const intentLink = read("../../../components/shared/intent-prefetch-link.tsx");
 const modalUi = read("../../../components/ui/modal.tsx");
 const dashboard = read("./dashboard-overview.tsx");
 const groupList = read("../../passports/components/passport-list.tsx");
-const groupWorkspace = read(
-  "../../passports/components/passport-group-detail.tsx",
-);
+import { passportGroupDetailSource as groupWorkspace } from "../../passports/components/passport-group-detail-source.contract-helper.mjs";
 const passengerWorkspace = read("../../passports/components/passport-detail.tsx");
 const groupWhatsApp = read(
   "../../passports/components/group-whatsapp-broadcast-panel.tsx",
@@ -35,7 +33,7 @@ const documentWorkspace = read(
   "../../documents/components/document-workspace.tsx",
 );
 const menu = read("../../menu/components/menu-page.tsx");
-const settings = read("../../../app/(dashboard)/settings/page.tsx");
+const settings = read("../../settings/components/dashboard-settings-page.tsx") + read("../../settings/components/platform-settings-panel.tsx");
 const auditLogs = read("../../../app/(dashboard)/audit-logs/page.tsx");
 const analytics = read("../../../app/(dashboard)/analytics/page.tsx");
 const roomingGroups = read(
@@ -98,7 +96,7 @@ test("requested dashboard routes share a compact enterprise workspace system", (
   assert.match(sharedUi, /export function WorkspaceToolbar/);
   assert.match(sharedUi, /export function WorkspaceEmptyState/);
   assert.match(sharedUi, /export function WorkspaceErrorNotice/);
-  assert.match(sharedUi, /#123f73/);
+  assert.match(sharedUi, /workspace-page-header/);
 
   for (const source of [
     dashboard,
@@ -128,7 +126,7 @@ test("All Groups covers its linked group, passenger, and WhatsApp workflows", ()
   assert.match(groupWorkspace, /GroupDocumentDeliveryPanel/);
   assert.match(groupWorkspace, /GroupWhatsAppBroadcastPanel/);
   assert.match(passengerWorkspace, /Extraction revision/);
-  assert.match(groupWhatsApp, /communication reconciliation/i);
+  assert.match(groupWhatsApp, /title="WhatsApp Submission Tracking"/);
 });
 
 test("large and interaction-heavy routes defer work until it is needed", () => {
@@ -215,9 +213,9 @@ test("the visual transformation retains each top-level data and mutation contrac
   assert.match(whatsappWorkspace, /useWhatsAppGroups\(\)/);
   assert.match(documentGroups, /useDocumentGroups\(\)/);
   assert.match(menu, /useMenuWorkspace\(\)/);
-  assert.match(settings, /apiClient\s*\.get<PlatformSettings>\(API_ENDPOINTS\.admin\.settings, \{ signal: controller\.signal \}\)/);
-  assert.match(settings, /apiClient\s*\.put<PlatformSettings>\(API_ENDPOINTS\.admin\.settings, payload\)/);
-  assert.match(settings, /apiClient\s*\.delete<PurgePassportDataResponse>\(API_ENDPOINTS\.admin\.passportData\)/);
+  assert.match(settings, /apiClient\s*\.get<PlatformSettings>\(API_ENDPOINTS\.admin\.settings,\s*\{\s*signal: controller\.signal,?\s*\}\)/);
+  assert.match(settings, /apiClient\s*\.put<PlatformSettings>\(\s*API_ENDPOINTS\.admin\.settings,\s*payload,?\s*\)/);
+  assert.match(settings, /apiClient\s*\.delete<PurgePassportDataResponse>\(\s*API_ENDPOINTS\.admin\.passportData,?\s*\)/);
   assert.match(auditLogs, /useAuditLogPages\(apiFilters\)/);
   assert.match(analytics, /useAnalyticsSummary\(30\)/);
 });
@@ -230,8 +228,9 @@ test("shared confirmations and Group Link retention choices expose modal semanti
   assert.match(groupLinks, /aria-labelledby="delete-archived-group-title"/);
 });
 
-test("Rooming now uses the same default navy header as Tour Ops and GC App", () => {
-  assert.match(operationsUi, /tone === "navy"[\s\S]*#123f73/);
+test("Rooming, Tour Ops and GC App delegate to the shared enterprise header", () => {
+  assert.match(operationsUi, /import \{ WorkspacePageHeader \} from "@\/components\/shared\/workspace-ui"/);
+  assert.match(operationsUi, /return\s*\(?\s*<WorkspacePageHeader[\s\S]*?title=\{title\}[\s\S]*?actions=\{actions\}/);
   assert.doesNotMatch(roomingGroups, /tone="blue"/);
   assert.doesNotMatch(roomingWorkspace, /tone="blue"/);
 });

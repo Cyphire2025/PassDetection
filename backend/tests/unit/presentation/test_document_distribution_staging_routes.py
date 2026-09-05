@@ -21,6 +21,7 @@ from app.infrastructure.documents.verification_staging import (
     VerificationReceiptScopeChangedError,
 )
 from app.presentation.api.v1.routes import document_distribution
+from tests.route_dependencies import set_route_dependency
 
 
 def _classification(filename: str = "verified.pdf") -> ClassifiedDocument:
@@ -105,33 +106,39 @@ def _arrange_upload_route(
     session.flush = AsyncMock()
     session.rollback = AsyncMock()
     session.commit = AsyncMock()
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_get_authorized_group",
         AsyncMock(return_value=group),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_group_passengers",
         AsyncMock(return_value=[passenger]),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_read_linked_document_match_source",
         AsyncMock(return_value=SimpleNamespace(snapshot=())),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_linked_document_match_identifiers",
         AsyncMock(return_value=()),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_all_group_documents",
         AsyncMock(return_value=[]),
     )
     response = SimpleNamespace(status="draft")
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_batch_response",
         AsyncMock(return_value=response),
@@ -142,13 +149,15 @@ def _arrange_upload_route(
         created_storage_keys=[],
     )
     ingest = AsyncMock(return_value=ingestion)
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "TravelDocumentIngestionService",
         lambda *_args, **_kwargs: SimpleNamespace(ingest=ingest),
     )
     cleanup = AsyncMock()
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "cleanup_staged_storage_keys",
         cleanup,
@@ -197,24 +206,27 @@ async def test_get_review_does_not_require_upload_form_state(
     batch = SimpleNamespace(id=uuid.uuid4())
     session = MagicMock()
     session.execute = AsyncMock(return_value=SimpleNamespace(scalar_one_or_none=lambda: batch))
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_get_authorized_group",
         AsyncMock(return_value=group),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_group_passengers",
         AsyncMock(return_value=[]),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_all_group_documents",
         AsyncMock(return_value=[]),
     )
     expected = SimpleNamespace(status="draft")
     batch_response = AsyncMock(return_value=expected)
-    monkeypatch.setattr(document_distribution, "_batch_response", batch_response)
+    set_route_dependency(monkeypatch, document_distribution, "_batch_response", batch_response)
 
     result = await document_distribution.get_document_review(
         group_id=group_id,
@@ -257,27 +269,32 @@ async def test_verify_unsupported_batch_never_references_upload_cleanup_guard(
     )
     session = MagicMock()
     session.rollback = AsyncMock()
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_get_authorized_group",
         AsyncMock(return_value=group),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_group_passengers",
         AsyncMock(return_value=[passenger]),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_read_linked_document_match_source",
         AsyncMock(return_value=SimpleNamespace(snapshot=())),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_linked_document_match_identifiers",
         AsyncMock(return_value=()),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "read_bounded_document_uploads",
         AsyncMock(
@@ -299,9 +316,11 @@ async def test_verify_unsupported_batch_never_references_upload_cleanup_guard(
     def unsupported(*_args: object, **_kwargs: object) -> object:
         raise UnsupportedDocumentBatchFormatError("Unsupported common document format")
 
-    monkeypatch.setattr(document_distribution, "classify_documents_bounded", unsupported)
+    set_route_dependency(
+        monkeypatch, document_distribution, "classify_documents_bounded", unsupported
+    )
     stage = AsyncMock()
-    monkeypatch.setattr(document_distribution, "stage_verified_documents", stage)
+    set_route_dependency(monkeypatch, document_distribution, "stage_verified_documents", stage)
 
     with pytest.raises(HTTPException) as exc_info:
         await document_distribution.verify_documents(
@@ -321,7 +340,7 @@ async def test_verify_rejects_partial_receipt_session_before_authorization(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     authorize = AsyncMock()
-    monkeypatch.setattr(document_distribution, "_get_authorized_group", authorize)
+    set_route_dependency(monkeypatch, document_distribution, "_get_authorized_group", authorize)
 
     with pytest.raises(HTTPException) as exc_info:
         await document_distribution.verify_documents(
@@ -365,23 +384,26 @@ async def test_verify_binds_staging_receipt_to_exact_upload_and_chunk(
         content_type="application/pdf",
     )
     session = MagicMock(rollback=AsyncMock())
-    monkeypatch.setattr(
-        document_distribution, "_get_authorized_group", AsyncMock(return_value=group)
+    set_route_dependency(
+        monkeypatch, document_distribution, "_get_authorized_group", AsyncMock(return_value=group)
     )
-    monkeypatch.setattr(
-        document_distribution, "_group_passengers", AsyncMock(return_value=[passenger])
+    set_route_dependency(
+        monkeypatch, document_distribution, "_group_passengers", AsyncMock(return_value=[passenger])
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_read_linked_document_match_source",
         AsyncMock(return_value=SimpleNamespace(snapshot=())),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_linked_document_match_identifiers",
         AsyncMock(return_value=()),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "read_bounded_document_uploads",
         AsyncMock(return_value=[upload]),
@@ -403,13 +425,14 @@ async def test_verify_binds_staging_receipt_to_exact_upload_and_chunk(
             )
         ],
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "classify_documents_bounded",
         lambda *_args, **_kwargs: [_classification()],
     )
     stage = AsyncMock(return_value=["opaque-receipt"])
-    monkeypatch.setattr(document_distribution, "stage_verified_documents", stage)
+    set_route_dependency(monkeypatch, document_distribution, "stage_verified_documents", stage)
 
     result = await document_distribution.verify_documents(
         group_id=group_id,
@@ -453,23 +476,26 @@ async def test_verify_does_not_stage_a_pdf_without_a_passenger_match(
         content_type="application/pdf",
     )
     session = MagicMock(rollback=AsyncMock())
-    monkeypatch.setattr(
-        document_distribution, "_get_authorized_group", AsyncMock(return_value=group)
+    set_route_dependency(
+        monkeypatch, document_distribution, "_get_authorized_group", AsyncMock(return_value=group)
     )
-    monkeypatch.setattr(
-        document_distribution, "_group_passengers", AsyncMock(return_value=[passenger])
+    set_route_dependency(
+        monkeypatch, document_distribution, "_group_passengers", AsyncMock(return_value=[passenger])
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_read_linked_document_match_source",
         AsyncMock(return_value=SimpleNamespace(snapshot=())),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "_linked_document_match_identifiers",
         AsyncMock(return_value=()),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "read_bounded_document_uploads",
         AsyncMock(return_value=[upload]),
@@ -491,13 +517,14 @@ async def test_verify_does_not_stage_a_pdf_without_a_passenger_match(
             )
         ],
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "classify_documents_bounded",
         lambda *_args, **_kwargs: [_classification("unmatched.pdf")],
     )
     stage = AsyncMock()
-    monkeypatch.setattr(document_distribution, "stage_verified_documents", stage)
+    set_route_dependency(monkeypatch, document_distribution, "stage_verified_documents", stage)
 
     result = await document_distribution.verify_documents(
         group_id=group_id,
@@ -530,7 +557,7 @@ async def test_upload_accepts_receipts_without_resending_pdf_bytes(
         chunk_id=context.chunk_id,
     )
     decode = MagicMock(return_value=[receipt])
-    monkeypatch.setattr(document_distribution, "decode_verification_receipts", decode)
+    set_route_dependency(monkeypatch, document_distribution, "decode_verification_receipts", decode)
 
     result = await _upload(context, staging_receipts=["opaque-receipt"])
 
@@ -552,7 +579,7 @@ async def test_upload_rejects_mixed_pdf_and_receipt_before_authorization(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     authorize = AsyncMock()
-    monkeypatch.setattr(document_distribution, "_get_authorized_group", authorize)
+    set_route_dependency(monkeypatch, document_distribution, "_get_authorized_group", authorize)
 
     with pytest.raises(HTTPException) as exc_info:
         await document_distribution.upload_documents(
@@ -590,7 +617,8 @@ async def test_upload_cleans_scoped_staging_after_expiry_or_scope_change(
     owned_key = (
         f"document-verification-staging/{context.agency_id}/{context.user.id}/{uuid.uuid4()}.pdf"
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "decode_verification_receipts",
         MagicMock(side_effect=error_type("Receipt cannot be finalized", storage_keys=(owned_key,))),
@@ -616,12 +644,14 @@ async def test_upload_guard_preserves_decoded_staging_on_transient_validation_fa
         upload_id=context.upload_id,
         chunk_id=context.chunk_id,
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "decode_verification_receipts",
         MagicMock(return_value=[receipt]),
     )
-    monkeypatch.setattr(
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "get_settings",
         MagicMock(side_effect=RuntimeError("settings unavailable")),
@@ -639,7 +669,7 @@ async def test_upload_guard_preserves_staging_on_cancellation(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     cleanup = AsyncMock()
-    monkeypatch.setattr(document_distribution, "cleanup_staged_storage_keys", cleanup)
+    set_route_dependency(monkeypatch, document_distribution, "cleanup_staged_storage_keys", cleanup)
     storage_key = f"document-verification-staging/{uuid.uuid4()}/object.pdf"
 
     @document_distribution._with_staging_cleanup
@@ -658,7 +688,7 @@ async def test_upload_guard_cleans_staging_on_terminal_client_rejection(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     cleanup = AsyncMock()
-    monkeypatch.setattr(document_distribution, "cleanup_staged_storage_keys", cleanup)
+    set_route_dependency(monkeypatch, document_distribution, "cleanup_staged_storage_keys", cleanup)
     storage_key = f"document-verification-staging/{uuid.uuid4()}/object.pdf"
 
     @document_distribution._with_staging_cleanup
@@ -678,7 +708,7 @@ async def test_upload_guard_preserves_staging_on_retryable_conflict(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     cleanup = AsyncMock()
-    monkeypatch.setattr(document_distribution, "cleanup_staged_storage_keys", cleanup)
+    set_route_dependency(monkeypatch, document_distribution, "cleanup_staged_storage_keys", cleanup)
     storage_key = f"document-verification-staging/{uuid.uuid4()}/object.pdf"
 
     @document_distribution._with_staging_cleanup
@@ -699,8 +729,8 @@ async def test_upload_rejects_51_receipts_before_decode_or_authorization(
 ) -> None:
     decode = MagicMock()
     authorize = AsyncMock()
-    monkeypatch.setattr(document_distribution, "decode_verification_receipts", decode)
-    monkeypatch.setattr(document_distribution, "_get_authorized_group", authorize)
+    set_route_dependency(monkeypatch, document_distribution, "decode_verification_receipts", decode)
+    set_route_dependency(monkeypatch, document_distribution, "_get_authorized_group", authorize)
 
     with pytest.raises(HTTPException) as exc_info:
         await document_distribution.upload_documents(
@@ -728,9 +758,10 @@ async def test_upload_rejects_aggregate_receipt_bytes_before_decrypt_or_authoriz
 ) -> None:
     decode = MagicMock()
     authorize = AsyncMock()
-    monkeypatch.setattr(document_distribution, "decode_verification_receipts", decode)
-    monkeypatch.setattr(document_distribution, "_get_authorized_group", authorize)
-    monkeypatch.setattr(
+    set_route_dependency(monkeypatch, document_distribution, "decode_verification_receipts", decode)
+    set_route_dependency(monkeypatch, document_distribution, "_get_authorized_group", authorize)
+    set_route_dependency(
+        monkeypatch,
         document_distribution,
         "validate_verification_receipt_token_batch",
         MagicMock(
@@ -775,8 +806,10 @@ async def test_upload_legacy_files_only_path_remains_supported(
         ]
     )
     decode = MagicMock()
-    monkeypatch.setattr(document_distribution, "read_bounded_document_uploads", read_uploads)
-    monkeypatch.setattr(document_distribution, "decode_verification_receipts", decode)
+    set_route_dependency(
+        monkeypatch, document_distribution, "read_bounded_document_uploads", read_uploads
+    )
+    set_route_dependency(monkeypatch, document_distribution, "decode_verification_receipts", decode)
 
     result = await _upload(context, files=[object()])
 

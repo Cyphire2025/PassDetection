@@ -152,7 +152,7 @@ test("durable browser enqueues trigger an immediate best-effort closeout recompu
 test("managers create canonical activities while coordinators remain selection-only", () => {
   assert.match(officeAttendance, /Prepare attendance activity/);
   assert.match(officeAttendance, /useCreateManagedAttendanceSession/);
-  assert.match(officeAttendance, /Create the canonical name and UUID before coordinators scan/);
+  assert.match(officeAttendance, /Name the activity before coordinators begin scanning/);
   assert.match(operationsHooks, /useCreateManagedAttendanceSession/);
   assert.match(operationsApi, /createManagedAttendanceSession/);
   assert.match(apiEndpoints, /managedSessions/);
@@ -169,8 +169,8 @@ test("office attendance uses targeted invalidation with bounded repair polling",
   assert.match(operationsHooks, /refetchIntervalInBackground: false/);
   assert.match(operationsHooks, /refetchOnReconnect: "always"/);
   assert.match(operationsHooks, /refetchOnWindowFocus: "always"/);
-  assert.match(officeAttendance, /Targeted updates with 5–7 second repair/);
-  assert.match(officeAttendance, /Targeted updates with 30–40 second repair/);
+  assert.match(officeAttendance, /Live attendance updates/);
+  assert.match(officeAttendance, /Automatic status updates/);
 });
 
 test("bounded coordinator summaries and cookie-auth hints retain authoritative repair", () => {

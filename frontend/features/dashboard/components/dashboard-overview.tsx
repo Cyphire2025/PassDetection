@@ -1,36 +1,34 @@
 /**
- * Agency command centre.
+ * Today at a glance.
  */
 
 "use client";
 
-import Link from "next/link";
-import {
-  Activity,
-  AlertCircle,
-  ArrowRight,
-  CalendarCheck,
-  CheckCircle2,
-  Eye,
-  FileText,
-  Link2,
-  ShieldCheck,
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { IntentPrefetchLink } from "@/components/shared/intent-prefetch-link";
 import {
-  WorkspaceErrorNotice,
-  WorkspaceHeaderContext,
-  WorkspacePageHeader,
-  WorkspaceSummaryItem,
-  WorkspaceSummaryStrip,
+WorkspaceErrorNotice,
+WorkspacePageHeader,
+WorkspaceSummaryItem,
+WorkspaceSummaryStrip,
 } from "@/components/shared/workspace-ui";
-import { useDashboardStats } from "../hooks/use-dashboard-stats";
-import { formatDate } from "@/lib/utils/format";
-import { PASSPORT_STATUS_LABELS, PASSPORT_STATUS_COLORS } from "@/constants";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { PASSPORT_STATUS_COLORS,PASSPORT_STATUS_LABELS } from "@/constants";
 import { ROUTES } from "@/constants/routes";
-import { selectUserRole, useAuthStore } from "@/stores/auth.store";
+import { formatDate } from "@/lib/utils/format";
+import { selectUserRole,useAuthStore } from "@/stores/auth.store";
+import {
+Activity,
+AlertCircle,
+ArrowRight,
+CalendarCheck,
+CheckCircle2,
+Eye,
+FileText,
+Link2,
+} from "lucide-react";
+import Link from "next/link";
+import { useDashboardStats } from "../hooks/use-dashboard-stats";
 
 export function DashboardOverview() {
   const role = useAuthStore(selectUserRole);
@@ -41,17 +39,10 @@ export function DashboardOverview() {
     return (
       <div className="flex min-w-0 flex-col gap-5">
         <WorkspacePageHeader
-          eyebrow="Field operations"
           title="Dashboard"
-          description="Move straight into your assigned tour groups, choose an activity, and begin attendance scanning."
+          description="Open an assigned tour group to record attendance."
           icon={CalendarCheck}
           accent="lime"
-          context={(
-            <>
-              <WorkspaceHeaderContext icon={ShieldCheck}>Coordinator workspace</WorkspaceHeaderContext>
-              <WorkspaceHeaderContext icon={Activity}>Live tour access</WorkspaceHeaderContext>
-            </>
-          )}
           actions={(
             <Link
               href={ROUTES.coordinator as never}
@@ -68,14 +59,11 @@ export function DashboardOverview() {
           aria-labelledby="coordinator-next-step"
         >
           <div className="p-5 sm:p-6">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-blue-600">
-              Next operational step
-            </p>
             <h2 id="coordinator-next-step" className="mt-1 text-lg font-semibold text-slate-950">
               Continue from your assigned group
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-              Your tour workspace keeps group access, activity selection, QR scanning, and attendance progress together.
+              Choose a group and activity to scan passenger QR codes or review attendance.
             </p>
           </div>
           <div className="flex items-center border-t border-slate-100 bg-slate-50/70 p-5 md:border-l md:border-t-0">
@@ -95,17 +83,10 @@ export function DashboardOverview() {
   return (
     <div className="flex min-w-0 flex-col gap-5">
       <WorkspacePageHeader
-        eyebrow="Agency command centre"
         title="Dashboard"
-        description="See passport throughput, review pressure, confirmed records, and active collection links before moving into the work that needs attention."
+        description="Your latest passport activity and the records that need attention."
         icon={Activity}
         accent="sky"
-        context={(
-          <>
-            <WorkspaceHeaderContext icon={ShieldCheck}>Permission-aware overview</WorkspaceHeaderContext>
-            <WorkspaceHeaderContext icon={Activity}>Live processing status</WorkspaceHeaderContext>
-          </>
-        )}
         actions={(
           <IntentPrefetchLink
             href={ROUTES.dashboard.passports}
@@ -119,7 +100,7 @@ export function DashboardOverview() {
 
       {error && (
         <WorkspaceErrorNotice>
-          Dashboard statistics could not be refreshed. Existing navigation remains available while you try again.
+          Dashboard statistics could not be refreshed. Please try again.
         </WorkspaceErrorNotice>
       )}
 
@@ -133,20 +114,17 @@ export function DashboardOverview() {
             <WorkspaceSummaryItem
               label="Passport records"
               value={(data?.total_passports ?? 0).toLocaleString()}
-              helper="in scope"
               icon={FileText}
             />
             <WorkspaceSummaryItem
               label="Needs review"
               value={(data?.pending_review ?? 0).toLocaleString()}
-              helper="attention queue"
               icon={AlertCircle}
               tone={(data?.pending_review ?? 0) > 0 ? "attention" : "success"}
             />
             <WorkspaceSummaryItem
               label="Confirmed"
               value={(data?.confirmed ?? 0).toLocaleString()}
-              helper="ready records"
               icon={CheckCircle2}
               tone="success"
             />
@@ -167,9 +145,6 @@ export function DashboardOverview() {
       >
         <div className="flex flex-col gap-3 border-b border-slate-200 bg-slate-50/70 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-5">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-              Latest intake
-            </p>
             <h2 id="recent-activity-heading" className="mt-0.5 font-semibold text-slate-950">
               Recent passport activity
             </h2>

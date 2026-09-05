@@ -108,7 +108,7 @@ test("resend opens the shared editor for one named recipient and is protected fr
   assert.match(pageSource, /targetRecipient\.action === "retry" \? "Retry" : "Resend"/);
   assert.match(
     pageSource,
-    /No other recipient will\s+receive this \{targetRecipient\.action\}\./,
+    /No other recipient will\s+receive\s+this \{targetRecipient\.action\}\./,
   );
   assert.match(
     pageSource,

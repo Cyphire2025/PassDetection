@@ -2,26 +2,22 @@
 
 import {
   ArrowRight,
-  FileCheck2,
   FilePenLine,
   FileStack,
-  Route,
   SendToBack,
   UsersRound,
 } from "lucide-react";
 import { IntentPrefetchLink } from "@/components/shared/intent-prefetch-link";
 import {
-  WorkspaceHeaderContext,
   WorkspacePageHeader,
 } from "@/components/shared/workspace-ui";
 import { ROUTES } from "@/constants/routes";
 
 const WORKFLOWS = [
   {
-    eyebrow: "Preparation workflow",
     title: "Rename Documents",
     description:
-      "Upload raw visa and flight-ticket PDFs, identify the passenger and document type, then download an audit-ready renamed batch.",
+      "Upload visa and flight-ticket PDFs, review the detected details, and download renamed files.",
     href: ROUTES.dashboard.documentRename,
     icon: FilePenLine,
     action: "Prepare a PDF batch",
@@ -30,16 +26,15 @@ const WORKFLOWS = [
     steps: ["Upload mixed PDFs", "Review detected records", "Download renamed files"],
   },
   {
-    eyebrow: "Delivery workflow",
     title: "Document Distribution",
     description:
-      "Choose Visa or Flight Tickets, open a passenger group, validate document matches, and save the reviewed delivery roster before sending.",
+      "Match visas or flight tickets to passengers and save the reviewed list before sending.",
     href: ROUTES.dashboard.documentDistribution,
     icon: SendToBack,
-    action: "Open distribution control",
+    action: "Open distribution",
     accent: "border-blue-200 bg-blue-50/55 text-blue-900",
     iconTone: "bg-blue-100 text-blue-700",
-    steps: ["Choose a document family", "Choose a group", "Review and distribute"],
+    steps: ["Choose a document type", "Choose a group", "Review and distribute"],
   },
 ] as const;
 
@@ -47,23 +42,16 @@ export function DocumentHub() {
   return (
     <div className="flex flex-col gap-5">
       <WorkspacePageHeader
-        eyebrow="Travel document control"
         title="Documents"
-        description="Move from unstructured supplier PDFs to reviewable passenger files, then distribute the approved records through a controlled group workflow."
+        description="Rename supplier PDFs or match and distribute documents to passengers."
         icon={FileStack}
         accent="cyan"
-        context={(
-          <>
-            <WorkspaceHeaderContext icon={Route}>Two controlled workflows</WorkspaceHeaderContext>
-            <WorkspaceHeaderContext icon={FileCheck2}>Review before delivery</WorkspaceHeaderContext>
-          </>
-        )}
         actions={(
           <IntentPrefetchLink
             href={ROUTES.dashboard.documentDistribution}
             className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-4 text-sm font-semibold text-[#123f73] shadow-sm transition hover:bg-cyan-50 active:bg-cyan-100"
           >
-            Distribution Control
+            Document Distribution
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </IntentPrefetchLink>
         )}
@@ -74,11 +62,9 @@ export function DocumentHub() {
         aria-labelledby="document-workflows-heading"
       >
         <div className="border-b border-slate-200 bg-slate-50/70 px-4 py-3.5 sm:px-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-            Controlled document lifecycle
-          </p>
+
           <h2 id="document-workflows-heading" className="mt-0.5 font-semibold text-slate-950">
-            Choose the stage you are working on
+            Choose a task
           </h2>
         </div>
 
@@ -95,9 +81,6 @@ export function DocumentHub() {
                     <Icon className="h-5 w-5" aria-hidden="true" />
                   </span>
                   <div className="min-w-0">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-                      {workflow.eyebrow}
-                    </p>
                     <h3 className="mt-1 text-lg font-semibold text-slate-950">{workflow.title}</h3>
                     <p className="mt-2 text-sm leading-6 text-slate-600">{workflow.description}</p>
                   </div>
@@ -133,7 +116,7 @@ export function DocumentHub() {
       <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm text-slate-600">
         <UsersRound className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
         <p>
-          Preparation does not assign files to passengers. Distribution keeps matching, exceptions, saved review state, and delivery actions inside the selected group.
+          Renaming does not assign files to passengers. Use Document Distribution to match files to a group and send them.
         </p>
       </div>
     </div>

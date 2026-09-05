@@ -6,3 +6,16 @@ __pycache__/
 .ruff_cache/
 *.pyc
 htmlcov/
+.venv/
+venv/
+debug/
+outputs/
+tests/
+*.log
+*.egg-info/
+.coverage*
+coverage.xml
+*.pem
+*.key
+*.sqlite*
+.git/

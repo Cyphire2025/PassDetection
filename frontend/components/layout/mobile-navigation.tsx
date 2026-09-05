@@ -27,7 +27,9 @@ export function MobileNavigation({ open, onClose }: MobileNavigationProps) {
     if (!open) return;
 
     const previousOverflow = document.body.style.overflow;
-    const trigger = document.querySelector<HTMLElement>("[data-mobile-navigation-trigger]");
+    const trigger = document.querySelector<HTMLElement>(
+      "[data-mobile-navigation-trigger]",
+    );
     document.body.style.overflow = "hidden";
     closeButtonRef.current?.focus();
 
@@ -48,7 +50,8 @@ export function MobileNavigation({ open, onClose }: MobileNavigationProps) {
     if (event.key !== "Tab") return;
 
     const focusable = Array.from(
-      dialogRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR) ?? [],
+      dialogRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR) ??
+        [],
     ).filter((element) => !element.hasAttribute("disabled"));
     if (focusable.length === 0) {
       event.preventDefault();

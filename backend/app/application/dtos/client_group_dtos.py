@@ -33,6 +33,7 @@ class CreateClientGroupInputDTO:
     agent_employee_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
+    upload_configuration: dict[str, object] | None = None
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False
@@ -58,6 +59,7 @@ class UpdateClientGroupInputDTO:
     agent_employee_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
+    upload_configuration: dict[str, object] | None = None
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False
@@ -90,6 +92,7 @@ class ClientGroupOutputDTO:
     agent_employee_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
+    upload_configuration: dict[str, object] | None = None
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False
@@ -128,6 +131,7 @@ def client_group_output_from_entity(link: ClientGroup) -> ClientGroupOutputDTO:
         agent_employee_code_enabled=link.agent_employee_code_enabled,
         meal_preference_enabled=link.meal_preference_enabled,
         require_selfie=link.require_selfie,
+        upload_configuration=link.upload_configuration,
         allow_files_from_device=link.allow_files_from_device,
         ask_nearest_domestic_airport=link.ask_nearest_domestic_airport,
         relation_with_qualifier_enabled=link.relation_with_qualifier_enabled,

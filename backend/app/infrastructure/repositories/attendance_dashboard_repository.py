@@ -24,6 +24,7 @@ from app.infrastructure.database.models import (
     AttendanceSessionModel,
     PassportSubmissionModel,
 )
+from app.infrastructure.repositories.operational_roster import operational_roster_member
 
 MAX_ATTENDANCE_SUMMARY_COORDINATORS = 25
 
@@ -115,6 +116,7 @@ class AttendanceDashboardRepository:
                     PassportSubmissionModel.status.in_(
                         OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
                     ),
+                    operational_roster_member(),
                 )
             )
         ).one()
@@ -297,6 +299,7 @@ class AttendanceDashboardRepository:
             PassportSubmissionModel.agency_id == agency_id,
             PassportSubmissionModel.group_id == group_id,
             PassportSubmissionModel.status.in_(OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES),
+            operational_roster_member(),
             ~already_present,
         )
         if cursor is not None:

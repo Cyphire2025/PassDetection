@@ -50,6 +50,7 @@ class ClientGroupRepository(IClientGroupRepository):
             agent_employee_code_enabled=model.agent_employee_code_enabled,
             meal_preference_enabled=model.meal_preference_enabled,
             require_selfie=model.require_selfie,
+            upload_configuration=model.upload_configuration,
             allow_files_from_device=model.allow_files_from_device,
             ask_nearest_domestic_airport=model.ask_nearest_domestic_airport,
             relation_with_qualifier_enabled=model.relation_with_qualifier_enabled,
@@ -106,6 +107,7 @@ class ClientGroupRepository(IClientGroupRepository):
             agent_employee_code_enabled=entity.agent_employee_code_enabled,
             meal_preference_enabled=entity.meal_preference_enabled,
             require_selfie=entity.require_selfie,
+            upload_configuration=entity.upload_configuration,
             allow_files_from_device=entity.allow_files_from_device,
             ask_nearest_domestic_airport=entity.ask_nearest_domestic_airport,
             relation_with_qualifier_enabled=entity.relation_with_qualifier_enabled,
@@ -251,6 +253,7 @@ class ClientGroupRepository(IClientGroupRepository):
         model.agent_employee_code_enabled = link.agent_employee_code_enabled
         model.meal_preference_enabled = link.meal_preference_enabled
         model.require_selfie = link.require_selfie
+        model.upload_configuration = link.upload_configuration
         model.allow_files_from_device = link.allow_files_from_device
         model.ask_nearest_domestic_airport = link.ask_nearest_domestic_airport
         model.relation_with_qualifier_enabled = link.relation_with_qualifier_enabled

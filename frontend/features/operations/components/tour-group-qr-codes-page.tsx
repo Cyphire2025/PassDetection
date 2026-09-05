@@ -257,9 +257,8 @@ export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
     <div className="space-y-5 print:space-y-4">
       <div className="print:hidden">
         <OperationsPageHeader
-          eyebrow="Passenger access distribution"
           title={data?.group_name ? `${data.group_name} QR codes` : "Group QR codes"}
-          description="Generate, review, print, and distribute passenger QR access while keeping lifecycle exceptions visible and recoverable."
+          description="Generate, print, and send passenger QR codes. Review expired or inactive codes."
           icon={QrCode}
           context={<span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-xs font-medium text-slate-200"><ShieldCheck className="h-3.5 w-3.5 text-sky-300" aria-hidden="true" />{activeCount} active codes</span>}
           actions={

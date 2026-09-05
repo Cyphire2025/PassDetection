@@ -163,6 +163,10 @@ export interface PassportSubmission extends TimestampedEntity {
   image_s3_key: string;
   image_url?: string | null;
   passport_photo_s3_key?: string | null;
+  passport_cover_s3_key?: string | null;
+  passport_back_cover_s3_key?: string | null;
+  passport_cover_url?: string | null;
+  passport_back_cover_url?: string | null;
   passport_back_s3_key?: string | null;
   passport_photo_url?: string | null;
   passport_back_url?: string | null;
@@ -255,6 +259,9 @@ export interface PassportGroupSummary {
   agent_employee_code_enabled: boolean;
   meal_preference_enabled: boolean;
   require_selfie: boolean;
+  custom_questions?: import("@/features/passports/api/upload-links.api").CustomUploadQuestion[];
+  custom_details?: import("@/features/passports/api/upload-links.api").CustomUploadDetail[];
+  upload_configuration?: import("@/features/passports/types/upload-configuration").UploadConfiguration | null;
   allow_files_from_device: boolean;
   ask_nearest_domestic_airport: boolean;
   relation_with_qualifier_enabled: boolean;

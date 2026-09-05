@@ -10,6 +10,10 @@ const schemaSource = readFileSync(
   new URL("../schemas/upload-link.schema.ts", import.meta.url),
   "utf8",
 );
+const settingsSource = readFileSync(
+  new URL("./upload-link-settings.tsx", import.meta.url),
+  "utf8",
+);
 
 test("link creation cannot submit twice before pending state rerenders", () => {
   assert.match(
@@ -80,9 +84,10 @@ test("group creation can link a bounded set of existing WhatsApp broadcasts", ()
 });
 
 test("group creation supports typed details and repeatable free-text headings", () => {
-  assert.match(modalSource, /label="Designation"/);
-  assert.match(modalSource, /label="Agency\/Dealership Name"/);
-  assert.match(modalSource, /<CustomDetailBuilder/);
+  assert.match(modalSource, /<UploadLinkSettings/);
+  assert.match(settingsSource, /label="Designation"/);
+  assert.match(settingsSource, /label="Agency\/Dealership Name"/);
+  assert.match(settingsSource, /<CustomDetailBuilder/);
   assert.match(schemaSource, /custom_details: z\.array\(customDetailSchema\)\.max\(20\)/);
   assert.match(schemaSource, /Custom detail names must be unique/);
 });

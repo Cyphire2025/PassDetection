@@ -8,7 +8,7 @@ import types
 import unittest
 import uuid
 from datetime import UTC, datetime, timedelta
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 from PIL import Image
 
@@ -29,6 +29,7 @@ from app.presentation.api.v1.routes.tour_operations_qr_delivery import (
     _recover_stale_qr_deliveries,
 )
 from app.presentation.api.v1.routes.whatsapp import receive_whatsapp_webhook
+from tests.route_dependencies import patch_route_dependency
 
 
 class QrWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
@@ -204,7 +205,7 @@ class QrWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
                 ).encode("utf-8")
             )
         )
-        with patch(
+        with patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp.get_settings",
             return_value=types.SimpleNamespace(
                 whatsapp_app_secret="",

@@ -18,10 +18,16 @@ export function VisaSelfieChoice({
   file,
   onCameraClick,
   onUploadClick,
+  allowCamera = true,
+  allowUpload = true,
+  required = true,
 }: {
   file: File | null;
   onCameraClick: () => void;
   onUploadClick: () => void;
+  allowCamera?: boolean;
+  allowUpload?: boolean;
+  required?: boolean;
 }) {
   return (
     <section
@@ -40,14 +46,14 @@ export function VisaSelfieChoice({
           </h4>
           <p className="mt-1 text-sm leading-5 text-slate-500">
             {file
-              ? "The selected Visa Photo passed the required checks. You can replace it using either option below."
-              : "Required. Choose live capture or upload the original digital photo supplied by a studio."}
+              ? "Your Visa Photo is ready. Use an available option below to replace it."
+              : `${required ? "Required" : "Optional"}. Add a clear portrait photograph against a plain white background.`}
           </p>
         </div>
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
-        <Button
+        {allowCamera && <Button
           type="button"
           variant="outline"
           onClick={onCameraClick}
@@ -55,8 +61,8 @@ export function VisaSelfieChoice({
         >
           <Camera className="h-4 w-4" />
           Use live camera
-        </Button>
-        <Button
+        </Button>}
+        {allowUpload && <Button
           type="button"
           variant="outline"
           onClick={onUploadClick}
@@ -64,17 +70,17 @@ export function VisaSelfieChoice({
         >
           <ImagePlus className="h-4 w-4" />
           Upload studio photo
-        </Button>
+        </Button>}
       </div>
 
-      <div className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2.5 text-xs leading-5 text-amber-950">
+      {allowUpload && <div className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2.5 text-xs leading-5 text-amber-950">
         Upload only a studio-taken photo with a plain white background.
-      </div>
+      </div>}
 
       <span className={`pointer-events-none absolute right-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-bold ${
         file ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"
       }`}>
-        {file ? "Completed" : "Required"}
+        {file ? "Completed" : required ? "Required" : "Optional"}
       </span>
     </section>
   );
@@ -83,9 +89,13 @@ export function VisaSelfieChoice({
 export function PassportUploadSection({
   children,
   allowFilesFromDevice,
+  allowLiveScan = true,
+  required = true,
 }: {
   children: ReactNode;
   allowFilesFromDevice: boolean;
+  allowLiveScan?: boolean;
+  required?: boolean;
 }) {
   return (
     <details className="group overflow-hidden rounded-2xl border-2 border-slate-100 bg-white shadow-sm" open>
@@ -93,9 +103,11 @@ export function PassportUploadSection({
         <div>
           <h4 className="text-base font-bold text-slate-900">Passport</h4>
           <p className="mt-1 text-sm text-slate-500">
-            {allowFilesFromDevice
+            {allowFilesFromDevice && allowLiveScan
               ? "Scan both passport pages live or choose existing images from this device."
-              : "Live scanning is mandatory for both passport pages in this group."}
+              : allowLiveScan ? "Use the live scanner to capture the personal details and address pages."
+              : "Upload the passport pages requested by your travel agency."}
+            {!required && " Passport documents are optional for this group."}
           </p>
         </div>
         <ChevronRight className="h-5 w-5 shrink-0 text-slate-400 transition-transform group-open:rotate-90" />
@@ -216,9 +228,9 @@ export function SavedPassportActions({
       <div className="flex items-start gap-3">
         <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" />
         <div>
-          <h4 className="text-sm font-bold text-emerald-950">Passport pages saved</h4>
+          <h4 className="text-sm font-bold text-emerald-950">Your submission is saved</h4>
           <p className="mt-1 text-sm leading-5 text-emerald-800">
-            Continue reviewing the saved images. Replacing them is an explicit action, so back-navigation will not discard a successful upload.
+            Continue reviewing your saved documents and details, or start a replacement submission.
           </p>
         </div>
       </div>
@@ -234,7 +246,7 @@ export function SavedPassportActions({
           aria-busy={isReplacing}
         >
           {isReplacing && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
-          {isReplacing ? "Replacing saved pages" : "Replace saved pages"}
+          {isReplacing ? "Preparing replacement" : "Replace saved submission"}
         </Button>
       </div>
     </div>

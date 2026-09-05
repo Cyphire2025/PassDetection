@@ -35,7 +35,7 @@ test("auth loss and account change preserve the owner-scoped queue", () => {
   assert.match(sessionState, /owner-scoped attendance queue is deliberately excluded/);
   assert.match(queue, /store\.index\(OWNER_INDEX\)\.getAll\(ownerUserId\)/);
   assert.match(queue, /ownerUserId !== ownerUserId/);
-  assert.match(authStore, /current\.user\?\.id !== expectedUserId/);
+  assert.match(authStore, /\(current\.user\?\.id \?\? null\) !== expectedUserId/);
 });
 
 test("terminal records and keys cannot retain the raw QR bearer", () => {

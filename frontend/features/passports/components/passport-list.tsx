@@ -111,9 +111,8 @@ export function PassportList() {
   return (
     <div className="flex flex-col gap-5">
       <WorkspacePageHeader
-        eyebrow="Passport operations portfolio"
         title="All Groups"
-        description="Prioritise review queues, open a group workspace, and move from submitted passports to confirmed travel records without losing operational context."
+        description="Review passport submissions and confirm passenger records by group."
         icon={FolderKanban}
         accent="sky"
         context={(
@@ -186,9 +185,7 @@ export function PassportList() {
         aria-labelledby="all-groups-heading"
       >
         <div className="border-b border-slate-200 px-4 py-3.5 sm:px-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-            Working roster
-          </p>
+
           <h2 id="all-groups-heading" className="mt-0.5 font-semibold text-slate-950">
             Group passport workspaces
           </h2>
@@ -268,7 +265,7 @@ export function PassportList() {
         ) : !data || data.length === 0 ? (
           <WorkspaceEmptyState
             title="Start the first passport group"
-            description="Create a Group Link to begin collecting verified passenger details. Submitted records will then appear in this portfolio."
+            description="Create a Group Link to collect passport details. Submitted records will appear here."
             action={(
               <IntentPrefetchLink
                 href={ROUTES.dashboard.uploadLinks}
@@ -283,7 +280,7 @@ export function PassportList() {
           <WorkspaceEmptyState
             filtered
             title="No groups match this working view"
-            description="The current status, readiness, or destination filter is hiding every group. Reset the view to return to the full portfolio."
+            description="No groups match the selected filters. Reset the filters to view all groups."
             action={(
               <Button type="button" variant="secondary" onClick={resetFilters}>
                 Reset filters

@@ -26,6 +26,7 @@ from app.infrastructure.whatsapp.document_delivery_runtime import (
     apply_document_provider_status,
 )
 from app.presentation.api.v1.routes.whatsapp import receive_whatsapp_webhook
+from tests.route_dependencies import patch_route_dependency
 
 
 class DocumentWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
@@ -47,9 +48,7 @@ class DocumentWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
             status_code=200,
             json=lambda: {"messages": [{"id": "wamid.document-1"}]},
         )
-        client = types.SimpleNamespace(
-            post=AsyncMock(side_effect=[upload_response, send_response])
-        )
+        client = types.SimpleNamespace(post=AsyncMock(side_effect=[upload_response, send_response]))
 
         media_id = await upload_whatsapp_document(
             client=client,
@@ -283,7 +282,7 @@ class DocumentWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
                 ).encode("utf-8")
             )
         )
-        with patch(
+        with patch_route_dependency(
             "app.presentation.api.v1.routes.whatsapp.get_settings",
             return_value=types.SimpleNamespace(
                 whatsapp_app_secret="",
@@ -345,9 +344,7 @@ class DocumentWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
         propagation.assert_awaited_once()
         kwargs = propagation.await_args.kwargs
         self.assertEqual(kwargs["passenger_submission_ids"], {first_passenger_id})
-        self.assertEqual(
-            kwargs["propagation_key"], f"document-delivery-batch:{batch_id}"
-        )
+        self.assertEqual(kwargs["propagation_key"], f"document-delivery-batch:{batch_id}")
         self.assertFalse(kwargs["reconcile_identities"])
 
     async def test_webhook_recovery_release_triggers_mobile_invalidation(self) -> None:
@@ -404,16 +401,15 @@ class DocumentWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
         )
         propagation = AsyncMock(return_value=types.SimpleNamespace(sync_changes=1))
         with (
-            patch(
+            patch_route_dependency(
                 "app.presentation.api.v1.routes.whatsapp.get_settings",
                 return_value=types.SimpleNamespace(
                     whatsapp_app_secret="",
                     is_production=False,
                 ),
             ),
-            patch(
-                "app.presentation.api.v1.routes.whatsapp."
-                "propagate_mobile_passenger_change",
+            patch_route_dependency(
+                "app.presentation.api.v1.routes.whatsapp.propagate_mobile_passenger_change",
                 propagation,
             ),
         ):

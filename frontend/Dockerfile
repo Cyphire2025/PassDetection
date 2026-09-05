@@ -6,6 +6,7 @@ WORKDIR /app
 FROM base AS deps
 COPY package.json package-lock.json ./
 RUN npm ci
+RUN node -e "const v=require('sharp').versions.heif.split('.').map(Number); if(v[0]<1||(v[0]===1&&(v[1]<23||(v[1]===23&&v[2]<2)))) throw Error('Unpatched libheif')"
 
 # Build the application
 FROM base AS builder
@@ -14,6 +15,8 @@ COPY . .
 ARG NEXT_PUBLIC_APP_URL
 ARG NEXT_PUBLIC_DEV_APP_URL
 ARG NEXT_PUBLIC_API_BASE_URL=""
+ARG API_BASE_URL=""
+ENV API_BASE_URL=$API_BASE_URL
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 ENV NEXT_PUBLIC_DEV_APP_URL=$NEXT_PUBLIC_DEV_APP_URL
 ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL

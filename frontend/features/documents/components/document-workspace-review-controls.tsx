@@ -102,7 +102,7 @@ export function DocumentWorkspaceReviewControls({
         <div>
           <h2 className="text-base font-semibold text-slate-900">Review Matches</h2>
           <p className="mt-1 text-sm text-slate-500">
-            {assignedFileCount} files assigned across {assignedPassengerCount} passengers, {needsAssignmentCount} need assignment, {rejectedCount} rejected.
+            {assignedFileCount} {assignedFileCount === 1 ? "file" : "files"} assigned across {assignedPassengerCount} {assignedPassengerCount === 1 ? "passenger" : "passengers"}, {needsAssignmentCount} {needsAssignmentCount === 1 ? "needs" : "need"} assignment, {rejectedCount} rejected.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -160,14 +160,14 @@ export function DocumentWorkspaceReviewControls({
                 Needs assignment ({needsAssignmentCount})
               </h3>
               <p className={`mt-1 text-sm ${needsAssignmentCount > 0 ? "text-amber-800" : "text-emerald-800"}`}>
-                {assignedFileCount} verified files are assigned across {assignedPassengerCount} passengers.
+                {assignedFileCount} verified {assignedFileCount === 1 ? "file is" : "files are"} assigned across {assignedPassengerCount} {assignedPassengerCount === 1 ? "passenger" : "passengers"}.
                 {assignedFileCount !== assignedPassengerCount
                   ? " Multiple files can be correctly assigned to the same passenger."
                   : ""}
               </p>
             </div>
             <div className="text-xs font-medium text-slate-600">
-              {physicalFileCount} verified files stored
+              {physicalFileCount} verified {physicalFileCount === 1 ? "file" : "files"} stored
             </div>
           </div>
 

@@ -125,7 +125,7 @@ class ClientSubmitPassportRequest(BaseModel):
     base_city: str | None = Field(default=None, max_length=120)
     staff_code: str | None = Field(default=None, max_length=80)
     agent_employee_type: str | None = Field(default=None, max_length=20)
-    agent_employee_code: str | None = Field(default=None, max_length=10)
+    agent_employee_code: str | None = Field(default=None, max_length=80)
     designation: str | None = Field(default=None, max_length=160)
     agency_dealership_name: str | None = Field(default=None, max_length=200)
     meal_preference: str | None = Field(default=None, max_length=20)
@@ -471,6 +471,8 @@ class PassportSubmissionResponse(BaseModel):
     image_s3_key: str
     thumbnail_s3_key: str | None = None
     passport_photo_s3_key: str | None = None
+    passport_cover_s3_key: str | None = None
+    passport_back_cover_s3_key: str | None = None
     passport_back_s3_key: str | None = None
     staff_metadata: dict[str, str] | None = None
     custom_answers: list[dict[str, str]] = Field(default_factory=list)
@@ -503,6 +505,8 @@ class PassportSubmissionResponse(BaseModel):
     image_url: str | None = None
     passport_photo_url: str | None = None
     passport_back_url: str | None = None
+    passport_cover_url: str | None = None
+    passport_back_cover_url: str | None = None
     client_reviewed_at: datetime | None = None
     confirmed_at: datetime | None = None
     post_submission_verification: PostSubmissionVerificationResponse | None = None
@@ -584,6 +588,9 @@ class PassportGroupSummaryResponse(BaseModel):
     agent_employee_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
+    custom_questions: list[dict[str, object]] = Field(default_factory=list)
+    custom_details: list[dict[str, object]] = Field(default_factory=list)
+    upload_configuration: dict[str, object] | None = None
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False

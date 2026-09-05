@@ -1,0 +1,121 @@
+# Isolated local dashboard QA. Synthetic credentials, no production env file,
+# no provider keys, and a dedicated volume/project namespace.
+name: passdetection-audit
+
+x-audit-environment: &audit-environment
+  APP_ENV: development
+  APP_SECRET_KEY: isolated-dashboard-qa-secret-20260905-only
+  APP_DEBUG: "false"
+  POSTGRES_HOST: db
+  POSTGRES_DB: passdetection_ci_browser
+  POSTGRES_USER: audit
+  POSTGRES_PASSWORD: isolated-audit-database
+  REDIS_HOST: redis
+  REDIS_PASSWORD: isolated-audit-redis
+  S3_ENDPOINT_URL: http://minio:9000
+  S3_PUBLIC_ENDPOINT_URL: http://127.0.0.1:59000
+  S3_ACCESS_KEY_ID: isolated-audit-storage
+  S3_SECRET_ACCESS_KEY: isolated-audit-storage-secret
+  S3_BUCKET_NAME: dashboard-audit
+  PROCESSING_BACKEND: background
+  LOGIN_LOCKOUT_REQUIRE_REDIS: "true"
+  DASHBOARD_RATE_LIMIT_REQUIRE_REDIS: "true"
+  PUBLIC_UPLOAD_RATE_LIMIT_REQUIRE_REDIS: "true"
+  UNTRUSTED_DOCUMENT_INGESTION_ENABLED: "true"
+  MALWARE_SCANNER_ENABLED: "true"
+  MALWARE_SCANNER_HOST: clamav
+  MALWARE_SCANNER_PORT: "3310"
+  MALWARE_SCANNER_TIMEOUT_SECONDS: "10"
+  EMAIL_INTEGRATIONS_ENABLED: "false"
+  EMAIL_AI_ENABLED: "false"
+  ALLOWED_ORIGINS: '["http://localhost:3200","http://127.0.0.1:3200"]'
+  JWT_COOKIE_SECURE: "false"
+  EXPECTED_DATABASE_SCHEMA_REVISION: 0090_upload_configuration
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: passdetection_ci_browser
+      POSTGRES_USER: audit
+      POSTGRES_PASSWORD: isolated-audit-database
+    volumes: [audit_db:/var/lib/postgresql/data]
+    mem_limit: 768m
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U audit -d passdetection_ci_browser"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  redis:
+    image: redis:7-alpine
+    command: [redis-server, --requirepass, isolated-audit-redis, --maxmemory, 128mb, --maxmemory-policy, noeviction]
+    mem_limit: 256m
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
+    command: server /data
+    environment:
+      MINIO_ROOT_USER: isolated-audit-storage
+      MINIO_ROOT_PASSWORD: isolated-audit-storage-secret
+    volumes: [audit_storage:/data]
+    ports: ["127.0.0.1:59000:9000"]
+    mem_limit: 512m
+  clamav:
+    image: clamav/clamav:1.5_base@sha256:2a682381f314a3ac6ec13eea55b69bd2594887598e5358d938e711a30df850f2
+    restart: unless-stopped
+    user: clamav
+    entrypoint: ["/init-unprivileged"]
+    environment:
+      CLAMAV_NO_CLAMD: "false"
+      CLAMAV_NO_FRESHCLAMD: "false"
+      CLAMAV_NO_MILTERD: "true"
+      CLAMD_STARTUP_TIMEOUT: "600"
+      FRESHCLAM_CHECKS: "24"
+    volumes: [audit_clamav_signatures:/var/lib/clamav]
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=256m
+      - /run:rw,nosuid,nodev,size=32m
+      - /var/log/clamav:rw,nosuid,nodev,size=64m,uid=100,gid=101,mode=0750
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 3g
+    cpus: 2.0
+    pids_limit: 256
+    healthcheck:
+      test: [CMD-SHELL, "echo PING | nc 127.0.0.1 3310 | grep -qx PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10m
+  backend:
+    image: passdetection-audit-backend:20260905
+    build:
+      context: ./backend
+      target: runtime
+    environment: *audit-environment
+    command: [sh, -c, "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+    depends_on:
+      db: {condition: service_healthy}
+      redis: {condition: service_started}
+      minio: {condition: service_started}
+      clamav: {condition: service_healthy}
+    ports: ["127.0.0.1:58000:8000"]
+    mem_limit: 1536m
+    volumes:
+      - ./scripts/qa:/workspace/scripts/qa:ro
+  frontend:
+    image: passdetection-audit-frontend:20260905
+    build:
+      context: ./frontend
+      target: runtime
+      args:
+        NEXT_PUBLIC_APP_URL: http://127.0.0.1:3200
+        NEXT_PUBLIC_API_BASE_URL: ""
+        API_BASE_URL: http://backend:8000
+    ports: ["127.0.0.1:3200:3000"]
+    depends_on: [backend]
+    mem_limit: 768m
+
+volumes:
+  audit_db:
+  audit_storage:
+  audit_clamav_signatures:

@@ -648,9 +648,7 @@ def test_operational_airline_booking_without_itinerary_heading_matches_all_passe
 
     assert document.detected_type == "flight_ticket"
     assert document.accepted is True
-    assert {match.passenger_id for match in matches} == {
-        passenger.id for passenger in passengers
-    }
+    assert {match.passenger_id for match in matches} == {passenger.id for passenger in passengers}
     assert {match.status for match in matches} == {"matched"}
 
 

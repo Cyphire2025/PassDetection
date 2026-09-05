@@ -218,7 +218,6 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
   return (
     <div className="flex flex-col gap-5">
       <OperationsPageHeader
-        eyebrow="Attendance control"
         title={data?.group_name ? `${data.group_name} attendance` : "Attendance"}
         description="Monitor coordinator activity, completion, and the passengers still missing from each live or completed attendance session."
         icon={Activity}
@@ -226,8 +225,8 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
           <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-xs font-medium text-slate-200">
             <RefreshCw className={`h-3.5 w-3.5 text-sky-300 ${isFetching ? "animate-spin" : ""}`} aria-hidden="true" />
             {openSessions > 0
-              ? "Targeted updates with 5–7 second repair"
-              : "Targeted updates with 30–40 second repair"}
+              ? "Live attendance updates"
+              : "Automatic status updates"}
           </span>
         )}
         actions={(
@@ -244,7 +243,7 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
 
       {error && (
         <OperationsErrorNotice>
-          Attendance could not be refreshed. Any visible counts are the last confirmed snapshot and are not current authority.
+          Attendance could not be refreshed. Visible counts show the last confirmed update and may be out of date.
         </OperationsErrorNotice>
       )}
 
@@ -266,7 +265,7 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
           <div className="mb-3">
             <h2 id="prepare-attendance-heading" className="font-semibold text-slate-950">Prepare attendance activity</h2>
             <p className="mt-1 text-sm text-slate-600">
-              Create the canonical name and UUID before coordinators scan. Repeating the same open name reuses its stable ID.
+              Name the activity before coordinators begin scanning. An open activity with the same name will be reused.
             </p>
           </div>
           <form
@@ -318,7 +317,7 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
       <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm" aria-labelledby="attendance-activities-heading">
         <div className="border-b border-slate-200 px-4 py-4 sm:px-5">
           <h2 id="attendance-activities-heading" className="font-semibold text-slate-950">Attendance activities</h2>
-          <p className="mt-0.5 text-sm text-slate-500">Each activity shows the shared roster count and bounded coordinator contribution without loading the passenger roster.</p>
+          <p className="mt-0.5 text-sm text-slate-500">Follow passenger attendance and see each coordinator’s scan totals for the activity.</p>
         </div>
         <OperationsToolbar
           query={query}
@@ -336,8 +335,8 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
           <OperationsEmptyState
             title="No attendance activity is prepared"
             description={canCloseActivity
-              ? "Create the canonical activity above before coordinators begin scanning."
-              : "An authorized manager or administrator must create the canonical activity before scanning begins."}
+              ? "Create an activity above before coordinators begin scanning."
+              : "An authorized manager or administrator must create an activity before scanning begins."}
           />
         ) : visibleSessions.length === 0 ? (
           <OperationsEmptyState
@@ -365,7 +364,7 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
                       <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
                         <span className="inline-flex items-center gap-1.5"><UsersRound className="h-3.5 w-3.5" aria-hidden="true" />{session.present_count.toLocaleString()} of {passengerCount.toLocaleString()} counted</span>
                         <span className="inline-flex items-center gap-1.5"><UserRoundCheck className="h-3.5 w-3.5" aria-hidden="true" />{session.coordinator_count} coordinator{session.coordinator_count === 1 ? "" : "s"}</span>
-                        <span>Canonical update {new Date(session.last_canonical_update_at).toLocaleTimeString()}</span>
+                        <span>Last updated {new Date(session.last_canonical_update_at).toLocaleTimeString()}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -445,7 +444,7 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
                       )}
                       {session.coordinators_truncated && (
                         <p className="mt-2 text-xs font-medium text-amber-900" role="status">
-                          Showing {session.coordinators.length} of {session.coordinator_count} coordinators in this bounded live summary.
+                          Showing {session.coordinators.length} of {session.coordinator_count} coordinators in this activity summary.
                         </p>
                       )}
                       {canCloseActivity && !session.closeout.ready && (
@@ -580,9 +579,9 @@ function MissingPeopleDialog({
       <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={titleId} className="max-h-[85vh] w-full max-w-2xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
         <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-4">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-amber-700">Attendance exception list</p>
+
             <h2 id={titleId} className="mt-1 font-semibold text-slate-950">Missing people · {session.name}</h2>
-            <p className="mt-1 text-sm text-slate-500">{session.present_count} of {session.present_count + session.missing_count} counted · revision-fenced roster</p>
+            <p className="mt-1 text-sm text-slate-500">{session.present_count} of {session.present_count + session.missing_count} counted</p>
           </div>
           <button ref={closeRef} type="button" onClick={onClose} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700" aria-label="Close missing people list">
             <X className="h-5 w-5" aria-hidden="true" />
@@ -606,7 +605,7 @@ function MissingPeopleDialog({
           {missingQuery.error ? (
             <div role="alert" className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
               <p className="font-semibold">The missing-passenger snapshot changed or could not be loaded.</p>
-              <p className="mt-1">Refresh authoritative counts and reopen this list. No attendance record was changed.</p>
+              <p className="mt-1">Refresh the attendance counts and reopen this list. No attendance record was changed.</p>
               <Button type="button" variant="secondary" size="sm" className="mt-3" onClick={onRefresh}>
                 Refresh counts
               </Button>
@@ -617,7 +616,7 @@ function MissingPeopleDialog({
             </div>
           ) : passengers.length === 0 ? (
             <div className="rounded-xl border border-slate-200 p-6 text-center text-sm text-slate-600">
-              {deferredSearch ? "No missing passenger matches this search." : "No passengers are missing in this revision."}
+              {deferredSearch ? "No missing passenger matches this search." : "No passengers are missing from the latest count."}
             </div>
           ) : (
             <>

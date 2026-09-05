@@ -92,6 +92,38 @@ def test_disabled_custom_detail_ignores_an_absent_answer() -> None:
     assert normalize_custom_detail_answers([detail], []) == []
 
 
+@pytest.mark.parametrize("required", [True, False])
+def test_custom_question_required_can_be_configured_individually(required: bool) -> None:
+    question = {**_question(), "required": required}
+    optional = {**_question(), "label": "Shirt fit", "required": False}
+    assert normalize_custom_questions([question])[0]["required"] is required
+    if required:
+        with pytest.raises(ValidationError, match="T-shirt size"):
+            normalize_custom_answers([question, optional], [])
+    else:
+        assert normalize_custom_answers([question, optional], []) == []
+    # Optional answers are still constrained to the configured choices.
+    with pytest.raises(ValidationError, match="Select an option"):
+        normalize_custom_answers([optional], [{"question_id": optional["id"], "value": "Invalid choice"}])
+
+
+@pytest.mark.parametrize("required", [True, False])
+def test_custom_detail_required_can_be_configured_individually(required: bool) -> None:
+    detail = {"id": str(uuid.uuid4()), "label": "Badge name", "enabled": True, "required": required}
+    assert normalize_custom_details([detail])[0]["required"] is required
+    if required:
+        with pytest.raises(ValidationError, match="Badge name"):
+            normalize_custom_detail_answers([detail], [])
+    else:
+        assert normalize_custom_detail_answers([detail], []) == []
+
+
+def test_historical_custom_definitions_remain_required_by_default() -> None:
+    assert normalize_custom_questions([_question()])[0]["required"] is True
+    detail = {"id": str(uuid.uuid4()), "label": "Badge name", "enabled": True}
+    assert normalize_custom_details([detail])[0]["required"] is True
+
+
 def test_custom_details_reject_duplicate_headings_case_insensitively() -> None:
     first = {
         "id": str(uuid.uuid4()),

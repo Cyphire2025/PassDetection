@@ -19,9 +19,10 @@ test("operations pages use a compact contextual header and summary system", () =
   assert.match(sharedUi, /export function OperationsPageHeader/);
   assert.match(sharedUi, /export function OperationsSummaryStrip/);
   assert.match(sharedUi, /aria-label=\{label\}/);
-  assert.match(tourAssignments, /eyebrow="Live field operations"/);
-  assert.match(roomingGroups, /eyebrow="Hotel planning workspace"/);
-  assert.match(roomingWorkspace, /eyebrow="Rooming group workspace"/);
+  for (const page of [tourAssignments, roomingGroups, roomingWorkspace]) {
+    assert.match(page, /OperationsPageHeader/);
+    assert.doesNotMatch(page, /eyebrow=/);
+  }
 });
 
 test("Tour Ops integrates search, coverage filters, and row-local mutation feedback", () => {

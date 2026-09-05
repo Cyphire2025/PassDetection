@@ -289,6 +289,7 @@ class ClientGroupModel(Base):
     require_selfie: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False, server_default="false"
     )
+    upload_configuration: Mapped[dict[str, object] | None] = mapped_column(JSONB, nullable=True)
     allow_files_from_device: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=True, server_default="true"
     )
@@ -613,6 +614,8 @@ class PassportSubmissionModel(Base):
         JSONB, nullable=False, default=list, server_default="[]"
     )
     passport_photo_s3_key: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    passport_cover_s3_key: Mapped[str | None] = mapped_column(String(1024), nullable=True)
+    passport_back_cover_s3_key: Mapped[str | None] = mapped_column(String(1024), nullable=True)
     passport_back_s3_key: Mapped[str | None] = mapped_column(String(512), nullable=True)
     acquisition_mode: Mapped[str] = mapped_column(
         String(16), nullable=False, default="file", server_default="file"

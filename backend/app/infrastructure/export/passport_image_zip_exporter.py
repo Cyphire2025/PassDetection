@@ -76,6 +76,7 @@ class PassportImageZipExporter:
         staff_code_enabled: bool,
         storage: IObjectStorageRepository,
         agent_employee_code_enabled: bool = False,
+        require_both_pages: bool = True,
         crop_metadata: (
             Mapping[uuid.UUID, Mapping[PassportImageType, PassportImageCrop]] | None
         ) = None,
@@ -124,7 +125,7 @@ class PassportImageZipExporter:
             or item.image_s3_key.startswith("excel-imports/")
             or not item.passport_back_s3_key
         ]
-        if missing:
+        if missing and require_both_pages:
             preview = ", ".join(missing[:5])
             remainder = f" and {len(missing) - 5} more" if len(missing) > 5 else ""
             raise MissingPassportImagesError(
@@ -218,9 +219,16 @@ class PassportImageZipExporter:
                             ),
                         )
 
+                    for label, key in (("passportcover", submission.passport_cover_s3_key), ("passportbackcover", submission.passport_back_cover_s3_key)):
+                        if key:
+                            image_specs.append(_ArchiveImageSpec(
+                                path_stem=f"{root}/{folder_path}/{passenger_folder}_{label}",
+                                storage_key=key, crop=None,
+                            ))
+
                     submission_crops = crop_metadata.get(submission.id, {}) if crop_metadata else {}
                     for label, image_type, storage_key in images:
-                        if not storage_key:
+                        if not storage_key or storage_key.startswith("excel-imports/"):
                             continue
                         crop = submission_crops.get(image_type)
                         effective_crop = (

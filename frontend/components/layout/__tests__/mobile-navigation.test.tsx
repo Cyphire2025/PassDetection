@@ -2,6 +2,8 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MobileNavigation } from "@/components/layout/mobile-navigation";
+import { Sidebar } from "@/components/layout/sidebar";
+import { useDashboardPreferences } from "@/features/settings/dashboard-preferences";
 import { useAuthStore } from "@/stores/auth.store";
 
 vi.mock("next/navigation", () => ({
@@ -41,6 +43,7 @@ const adminUser = {
 
 describe("MobileNavigation", () => {
   beforeEach(() => {
+    useDashboardPreferences.getState().reset();
     useAuthStore.setState({
       user: adminUser,
       isAuthenticated: true,
@@ -78,6 +81,7 @@ describe("MobileNavigation", () => {
 
     expect(screen.getByRole("link", { name: "All Groups" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Old Data" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Collapse sidebar" })).not.toBeInTheDocument();
     await userEvent.click(screen.getByRole("link", { name: "All Groups" }));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
@@ -95,5 +99,27 @@ describe("MobileNavigation", () => {
     close.focus();
     await userEvent.tab({ shift: true });
     expect(lastLink).toHaveFocus();
+  });
+
+  it("toggles the sidebar from its logo with mouse and keyboard and preserves collapsed link names", async () => {
+    render(<Sidebar />);
+    const collapse = screen.getByRole("button", { name: "Collapse sidebar" });
+    expect(collapse).toContainElement(screen.getByText("Global Connects"));
+    expect(collapse).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getAllByRole("button")).toHaveLength(1);
+    expect(screen.queryByText("Collapse navigation")).not.toBeInTheDocument();
+    await userEvent.click(screen.getByText("Global Connects"));
+    expect(useDashboardPreferences.getState().sidebarCollapsed).toBe(true);
+    expect(screen.getByRole("button", { name: "Expand sidebar" })).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByRole("link", { name: "All Groups" })).toHaveAttribute("href", "/passports");
+    expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute("aria-current", "page");
+    screen.getByRole("button", { name: "Expand sidebar" }).focus();
+    await userEvent.keyboard(" ");
+    expect(useDashboardPreferences.getState().sidebarCollapsed).toBe(false);
+    expect(screen.getByText("All Groups")).toBeVisible();
+    await userEvent.keyboard("{Enter}");
+    expect(useDashboardPreferences.getState().sidebarCollapsed).toBe(true);
+    await userEvent.click(screen.getByText("Global Connects"));
+    expect(useDashboardPreferences.getState().sidebarCollapsed).toBe(false);
   });
 });

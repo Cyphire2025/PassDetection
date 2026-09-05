@@ -26,6 +26,7 @@ def _submitted_result(*, submission_id: uuid.UUID, agency_id: uuid.UUID, group_i
         id=submission_id,
         agency_id=agency_id,
         group_id=group_id,
+        image_s3_key="front/current.jpg",
         post_submission_verification_revision=3,
         idempotent_replay=True,
         storage_cleanup_keys=("front/superseded.jpg", "back/superseded.jpg"),
@@ -62,7 +63,7 @@ async def test_client_submit_commits_cleanup_tombstone_before_object_worker() ->
     expected_response = object()
     with (
         patch(
-            "app.presentation.api.v1.routes.passports.PassportSubmissionRepository",
+            'app.presentation.api.v1.routes.passport_routes.submission_review.PassportSubmissionRepository',
             return_value=SimpleNamespace(
                 get_by_id=AsyncMock(
                     return_value=SimpleNamespace(
@@ -73,7 +74,7 @@ async def test_client_submit_commits_cleanup_tombstone_before_object_worker() ->
             ),
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.PostSubmissionVerificationJobRepository",
+            'app.presentation.api.v1.routes.passport_routes.submission_review.PostSubmissionVerificationJobRepository',
             return_value=SimpleNamespace(
                 enqueue=AsyncMock(
                     return_value=SimpleNamespace(
@@ -84,11 +85,11 @@ async def test_client_submit_commits_cleanup_tombstone_before_object_worker() ->
             ),
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.stage_storage_cleanup_jobs",
+            'app.presentation.api.v1.routes.passport_routes.submission_review.stage_storage_cleanup_jobs',
             side_effect=stage,
         ) as stage_cleanup,
         patch(
-            "app.presentation.api.v1.routes.passports.process_storage_cleanup_job",
+            'app.presentation.api.v1.routes.passport_routes.submission_review.process_storage_cleanup_job',
             new=process,
         ),
         patch.object(
@@ -127,7 +128,7 @@ async def test_client_submit_commit_failure_never_runs_object_cleanup() -> None:
 
     with (
         patch(
-            "app.presentation.api.v1.routes.passports.PassportSubmissionRepository",
+            'app.presentation.api.v1.routes.passport_routes.submission_review.PassportSubmissionRepository',
             return_value=SimpleNamespace(
                 get_by_id=AsyncMock(
                     return_value=SimpleNamespace(
@@ -138,7 +139,7 @@ async def test_client_submit_commit_failure_never_runs_object_cleanup() -> None:
             ),
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.PostSubmissionVerificationJobRepository",
+            'app.presentation.api.v1.routes.passport_routes.submission_review.PostSubmissionVerificationJobRepository',
             return_value=SimpleNamespace(
                 enqueue=AsyncMock(
                     return_value=SimpleNamespace(
@@ -149,11 +150,11 @@ async def test_client_submit_commit_failure_never_runs_object_cleanup() -> None:
             ),
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.stage_storage_cleanup_jobs",
+            'app.presentation.api.v1.routes.passport_routes.submission_review.stage_storage_cleanup_jobs',
             return_value=(SimpleNamespace(id=uuid.uuid4(), object_count=2),),
         ),
         patch(
-            "app.presentation.api.v1.routes.passports.process_storage_cleanup_job",
+            'app.presentation.api.v1.routes.passport_routes.submission_review.process_storage_cleanup_job',
             new=process,
         ),
     ):

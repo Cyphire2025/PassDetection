@@ -160,6 +160,7 @@ async def group_access_response(
                 ClientOrganizationModel,
                 MyPhotoGalleryModel.feature_enabled,
             )
+            .select_from(ClientGroupModel)
             .join(
                 ClientOrganizationModel,
                 (ClientOrganizationModel.id == access.client_organization_id)

@@ -8,6 +8,10 @@ contract and evidence checklist. It does **not** state that production high
 availability (HA), point-in-time recovery (PITR), backup restoration, or
 failover has already been proven.
 
+For the candidate release procedure, bucket-scoped application storage identity,
+host resource preflight, and schema-aware rollback decision, see
+[Production release readiness](PRODUCTION_RELEASE_READINESS.md).
+
 The CI migration rehearsal is deliberately narrower: it creates a synthetic
 PostgreSQL database at revision `0085_platform_retention_controls`, populates
 representative records, takes a logical backup, restores it to a fresh

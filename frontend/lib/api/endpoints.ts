@@ -226,7 +226,7 @@ export const API_ENDPOINTS = {
     uploadDocumentImage: (
       token: string,
       id: string,
-      documentType: "front" | "back" | "photo",
+      documentType: "front" | "back" | "photo" | "cover" | "back_cover",
     ) => `/api/v1/passports/upload/${token}/${id}/image/${documentType}`,
     uploadScanAgain: (token: string, id: string) => `/api/v1/passports/upload/${token}/${id}/scan-again`,
     discardUpload: (token: string, id: string) => `/api/v1/passports/upload/${token}/${id}`,

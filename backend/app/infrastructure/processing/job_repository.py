@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import and_, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -263,6 +263,52 @@ class PassportProcessingJobRepository:
             .execution_options(populate_existing=True)
         )
         return result.scalar_one_or_none()
+
+    async def claim_recoverable_jobs(self, *, limit: int = 2) -> list[PassportProcessingJob]:
+        """Lease stale outbox rows, including published tasks that never ran.
+
+        SKIP LOCKED allows each API process to repair disjoint work. Updating
+        the timestamp before publication reserves a recovery interval; the
+        worker's existing claim and extraction revision remain authoritative.
+        """
+        now = _utcnow()
+        queued_cutoff = now - timedelta(seconds=60)
+        running_cutoff = now - timedelta(
+            seconds=get_settings().processing_job_timeout_seconds + 30
+        )
+        rows = await self._session.execute(
+            select(PassportProcessingJobModel)
+            .where(
+                PassportProcessingJobModel.cancel_requested.is_(False),
+                or_(
+                    and_(
+                        PassportProcessingJobModel.status == ProcessingJobStatus.QUEUED.value,
+                        PassportProcessingJobModel.updated_at < queued_cutoff,
+                    ),
+                    and_(
+                        PassportProcessingJobModel.status == ProcessingJobStatus.RUNNING.value,
+                        PassportProcessingJobModel.updated_at < running_cutoff,
+                    ),
+                ),
+            )
+            .order_by(PassportProcessingJobModel.updated_at, PassportProcessingJobModel.id)
+            .limit(min(max(limit, 1), 100))
+            .with_for_update(skip_locked=True)
+        )
+        jobs: list[PassportProcessingJob] = []
+        for model in rows.scalars():
+            model.updated_at = now
+            if model.attempts >= model.max_attempts:
+                model.status = ProcessingJobStatus.DEAD_LETTER.value
+                model.current_stage = "dead_letter"
+                model.finished_at = now
+                model.error_message = "Processing attempts exhausted after interruption. Retry manually."
+                continue
+            model.status = ProcessingJobStatus.QUEUED.value
+            model.current_stage = "recovery_queued"
+            jobs.append(self._to_entity(model))
+        await self._session.flush()
+        return jobs
 
     async def _require_model(self, job_id: uuid.UUID) -> PassportProcessingJobModel:
         model = await self._get_model(job_id)

@@ -2,10 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-const component = readFileSync(
-  new URL("./passport-group-detail.tsx", import.meta.url),
-  "utf8",
-);
+import { passportGroupDetailSource as component } from "./passport-group-detail-source.contract-helper.mjs";
 const api = readFileSync(
   new URL("../api/passports.api.ts", import.meta.url),
   "utf8",
@@ -71,7 +68,7 @@ test("bulk delete requires a count-specific destructive confirmation", () => {
 test("success clears selection while failures remain visible", () => {
   assert.match(
     component,
-    /onSuccess: \(result\) => \{[\s\S]*?setSelectedPassports\(\[\]\)[\s\S]*?tone: "success"/,
+    /onSuccess: \(result\) => \{[\s\S]*?setSelectedPassports\(\[\]\)[\s\S]*?tone: result\.storage_cleanup_deferred \? "warning" : "success"/,
   );
   assert.match(
     component,
