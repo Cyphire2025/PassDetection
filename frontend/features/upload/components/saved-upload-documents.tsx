@@ -16,8 +16,8 @@ export function SavedUploadDocuments({ submission, token, uploadSessionId }: {
   ] as const;
   const savedDocuments = documents.filter((document) => Boolean(document.key));
   if (!savedDocuments.length) return <p className="rounded-2xl border border-slate-200 bg-white p-5 text-sm leading-6 text-slate-500">Your travel agency has allowed you to continue without passport images. Please complete the requested details.</p>;
-  return <div className="space-y-4">{savedDocuments.map((document) => (
-    <figure key={document.type} className="mx-auto w-fit max-w-full rounded-2xl border border-slate-200 bg-white p-3 shadow-sm lg:mx-0">
+  return <div className="space-y-6">{savedDocuments.map((document) => (
+    <figure key={document.type} className="mx-auto w-full max-w-[360px]">
       <ProtectedUploadDocumentImage token={token} submissionId={submission.id} uploadSessionId={uploadSessionId} documentType={document.type} alt={`${submission.client_name || "Traveller"}: ${document.label}`} overlay={document.type === "front" ? <PassportRoiOverlays fields={submission.extracted_fields} /> : null} />
       <figcaption className="mt-2 text-center text-xs font-medium text-slate-500">{document.label}</figcaption>
     </figure>

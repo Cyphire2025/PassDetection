@@ -104,7 +104,7 @@ export function ProtectedUploadDocumentImage({
     );
   }
 
-  // The frame has a fixed size, while the inner wrapper follows the displayed
+  // The preview has a fixed size, while the inner wrapper follows the displayed
   // image. Field overlays then remain aligned when the image is letterboxed.
   // Object URLs are created from authenticated same-origin API responses.
   return (
@@ -112,7 +112,7 @@ export function ProtectedUploadDocumentImage({
       data-testid="secure-document-preview-frame"
       data-orientation={orientation}
       style={{ width: orientation === "portrait" ? 220 : 360, height: orientation === "portrait" ? 300 : 230, maxWidth: "100%", marginInline: "auto" }}
-      className={`flex items-center justify-center rounded-lg bg-slate-50 ${className ?? ""}`}
+      className={`flex items-center justify-center ${className ?? ""}`}
     >
       <div className="relative inline-block max-w-full leading-none">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -122,7 +122,7 @@ export function ProtectedUploadDocumentImage({
           onLoad={(event) => setOrientation(event.currentTarget.naturalHeight > event.currentTarget.naturalWidth ? "portrait" : "landscape")}
           onError={() => setFailedRequestKey(requestKey)}
           style={{ maxHeight: orientation === "portrait" ? 300 : 230, maxWidth: "100%", width: "auto", height: "auto", objectFit: "contain" }}
-          className="block rounded-lg"
+          className="block"
         />
         {overlay}
       </div>

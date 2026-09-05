@@ -69,14 +69,6 @@ export const TripDetailsDialog = dynamic(
   },
 );
 
-export const PassportRetentionControl = dynamic(
-  () =>
-    import("./passport-retention-control").then(
-      (module) => module.PassportRetentionControl,
-    ),
-  { loading: () => <Skeleton className="h-48 w-full rounded-xl" /> },
-);
-
 export function PassportWorkflowLoadingOverlay({ label }: { label: string }) {
   return (
     <div

@@ -18,7 +18,6 @@ import { DEFAULT_UPLOAD_CONFIGURATION, isUploadFieldRequired, type RequiredUploa
 import {
   GroupDocumentDeliveryPanel,
   GroupWhatsAppBroadcastPanel,
-  PassportRetentionControl,
 } from "./passport-group-bindings";
 import { InfoPair } from "./passport-group-model";
 import type { PassportGroupController } from "./use-passport-group-controller";
@@ -31,7 +30,6 @@ export function PassportGroupOverviewPanel({
   setIsTripDetailsExpanded,
   setTripForm,
   setIsEditingTrip,
-  canPermanentlyDelete,
   error,
   groupId,
   includeDeleted,
@@ -48,7 +46,6 @@ export function PassportGroupOverviewPanel({
   | "setIsTripDetailsExpanded"
   | "setTripForm"
   | "setIsEditingTrip"
-  | "canPermanentlyDelete"
   | "error"
   | "groupId"
   | "includeDeleted"
@@ -275,12 +272,6 @@ export function PassportGroupOverviewPanel({
               )}
             </CardContent>
           </Card>
-          <PassportRetentionControl
-            allowed={canPermanentlyDelete}
-            enabled={!error}
-            groupId={groupId}
-            groupName={groupDetails.group_name}
-          />
         </>
       )}
       {!includeDeleted && groupDetails && !error && (

@@ -9,7 +9,6 @@ import { TripDetailsDialog, type TripDetailsForm } from "./passport-trip-details
 vi.mock("./passport-group-bindings", () => ({
   GroupDocumentDeliveryPanel: () => null,
   GroupWhatsAppBroadcastPanel: () => null,
-  PassportRetentionControl: () => null,
 }));
 
 const group: PassportGroupSummary = {
@@ -31,7 +30,7 @@ function overviewProps(groupDetails: PassportGroupSummary): ComponentProps<typeo
     isLoading: false, groupDetails, submissionsView: undefined,
     isTripDetailsExpanded: true, tripDetailsRegionId: "trip-details",
     setIsTripDetailsExpanded: vi.fn(), setTripForm: vi.fn(), setIsEditingTrip: vi.fn(),
-    canPermanentlyDelete: false, error: null, groupId: groupDetails.group_id,
+    error: null, groupId: groupDetails.group_id,
     includeDeleted: false, canAccessWhatsApp: false, importMessage: null, bulkDeleteFeedback: null,
   };
 }
