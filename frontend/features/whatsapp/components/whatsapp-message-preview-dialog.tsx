@@ -1,7 +1,7 @@
 "use client";
 
-import { Button, Input, Skeleton } from "@/components/ui";
-import { Bold, Info, Send, Upload } from "lucide-react";
+import { Button, Input } from "@/components/ui";
+import { Bold, CheckCircle2, Info, Send, Upload, UsersRound } from "lucide-react";
 import Image from "next/image";
 import {
   type Dispatch,
@@ -22,15 +22,12 @@ import {
   usePreviewWhatsAppMessage,
   useWhatsAppGroup,
 } from "../hooks/use-whatsapp";
-import { formatMessageType } from "../utils/message-types";
 import {
   getMessageStatus,
   isRecipientEligible,
 } from "../utils/recipient-delivery";
-import {
-  parseWhatsAppBoldSegments,
-  toggleWhatsAppBold,
-} from "../utils/whatsapp-formatting";
+import { toggleWhatsAppBold } from "../utils/whatsapp-formatting";
+import { MessageComposerSection, MessageDeliveryPreview } from "./whatsapp-message-composer-ui";
 import {
   DialogFrame,
   ErrorBanner,
@@ -439,10 +436,17 @@ export function MessagePreviewDialog({
       }`}
       onClose={onClose}
       isBusy={isSending}
-      widthClass="max-w-5xl"
+      widthClass="max-w-6xl"
+      layout="composer"
+      eyebrow="WhatsApp communications"
+      description={group.name}
     >
-      <form className="space-y-5" onSubmit={handleSend}>
-        <div className="flex gap-3 rounded-xl border border-blue-100 bg-blue-50/60 p-4 text-sm text-blue-900">
+      <form className="flex min-h-0 flex-1 flex-col" onSubmit={handleSend}>
+        <div className="min-h-0 overflow-y-auto overscroll-contain bg-slate-50/70 px-4 py-5 sm:px-7 sm:py-6">
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+        <div className="min-w-0 space-y-5">
+        <MessageComposerSection title="Message content" description="Prepare the image and wording your recipients will receive.">
+        <div className="flex gap-2.5 rounded-lg bg-blue-50/70 px-3 py-3 text-xs leading-5 text-slate-600">
           <Info className="mt-0.5 h-4 w-4 shrink-0" />
           {messageType === "welcome" ? (
             <p>
@@ -477,27 +481,36 @@ export function MessagePreviewDialog({
         {messageType !== "reminder" && (
           <div className="space-y-2">
             <label
-              className={`flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-dashed px-4 py-4 ${
+              className={`flex cursor-pointer items-center gap-3 rounded-lg border border-dashed px-3 py-4 transition-colors focus-within:ring-2 focus-within:ring-blue-500 ${
                 hasHeaderImage
-                  ? "border-emerald-300 bg-emerald-50/50"
-                  : "border-blue-300 bg-blue-50/40"
+                  ? "border-emerald-300 bg-emerald-50/30"
+                  : "border-slate-300 bg-slate-50 hover:border-blue-400 hover:bg-blue-50/40"
               }`}
             >
-              <span className="min-w-0">
-                <span className="block font-medium text-slate-900">
+              {headerImagePreview ? (
+                <span className="relative h-14 w-16 shrink-0 overflow-hidden rounded-md border border-slate-200 bg-white">
+                  <Image src={headerImagePreview} alt="Selected header thumbnail" fill unoptimized className="object-contain" />
+                </span>
+              ) : (
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500">
+                  <Upload className="h-5 w-5" aria-hidden="true" />
+                </span>
+              )}
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-semibold text-slate-900">
                   {messageType === "welcome"
                     ? "Welcome image"
                     : "Passport Link image"}{" "}
                   <span className="text-red-600">*</span>
                 </span>
-                <span className="block truncate text-sm text-slate-500">
+                <span className="mt-1 block break-words text-xs leading-5 text-slate-500">
                   {headerImage?.name ??
                     (headerImageId
                       ? "Previously sent image selected. Choose a file to replace it."
                       : "Upload the approved JPEG or PNG shown above the message.")}
                 </span>
               </span>
-              <Upload className="h-5 w-5 shrink-0 text-blue-600" />
+              <span className="shrink-0 text-xs font-semibold text-blue-700">{hasHeaderImage ? "Replace" : "Browse"}</span>
               <input
                 type="file"
                 accept="image/jpeg,image/png,.jpg,.jpeg,.png"
@@ -539,8 +552,6 @@ export function MessagePreviewDialog({
           />
         )}
 
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-          <div className="space-y-4">
             {messageType === "passport_link" && (
               <div>
                 <label
@@ -550,7 +561,7 @@ export function MessagePreviewDialog({
                   Passport link introduction
                 </label>
                 <div className="mt-1.5 overflow-hidden rounded-lg border border-slate-300 bg-white focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
-                  <div className="flex items-center border-b border-slate-200 bg-slate-50 px-2 py-1.5">
+                  <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-2 py-1.5">
                     <button
                       type="button"
                       aria-label="Bold selected passport introduction text or start bold typing"
@@ -568,11 +579,12 @@ export function MessagePreviewDialog({
                       <Bold className="h-3.5 w-3.5" aria-hidden="true" />
                       Bold
                     </button>
+                    <span className="pr-1 text-[11px] tabular-nums text-slate-400">{(passportIntro ?? preview?.passport_intro ?? "").length} / 600</span>
                   </div>
                   <textarea
                     id={passportIntroId}
                     ref={passportIntroRef}
-                    className="min-h-32 w-full resize-y border-0 bg-white px-3 py-2 text-sm leading-6 text-slate-900 outline-none"
+                    className="block min-h-28 w-full resize-y border-0 bg-white px-4 py-3 text-sm leading-6 text-slate-900 outline-none"
                     value={passportIntro ?? preview?.passport_intro ?? ""}
                     onChange={(event) => setPassportIntro(event.target.value)}
                     maxLength={600}
@@ -597,7 +609,7 @@ export function MessagePreviewDialog({
                     : "Passport instructions"}
               </label>
               <div className="mt-1.5 overflow-hidden rounded-lg border border-slate-300 bg-white focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
-                <div className="flex items-center border-b border-slate-200 bg-slate-50 px-2 py-1.5">
+                <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-2 py-1.5">
                   <button
                     type="button"
                     aria-label="Bold selected message text or start bold typing"
@@ -615,11 +627,12 @@ export function MessagePreviewDialog({
                     <Bold className="h-3.5 w-3.5" aria-hidden="true" />
                     Bold
                   </button>
+                  <span className="pr-1 text-[11px] tabular-nums text-slate-400">{(messageContent ?? preview?.message_content ?? "").length} / 600</span>
                 </div>
                 <textarea
                   id={messageContentId}
                   ref={messageContentRef}
-                  className="min-h-56 w-full resize-y border-0 bg-white px-3 py-2 text-sm leading-6 text-slate-900 outline-none"
+                  className="block min-h-40 w-full resize-y border-0 bg-white px-4 py-3 text-sm leading-6 text-slate-900 outline-none"
                   value={messageContent ?? preview?.message_content ?? ""}
                   onChange={(event) => setMessageContent(event.target.value)}
                   maxLength={600}
@@ -631,8 +644,17 @@ export function MessagePreviewDialog({
                 </span>
               )}
             </div>
+        </MessageComposerSection>
+        <MessageComposerSection title="Delivery settings" description="Confirm who will receive this message.">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500"><UsersRound className="h-5 w-5" aria-hidden="true" /></span>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-slate-900">{eligibleRecipientCount} eligible recipient{eligibleRecipientCount === 1 ? "" : "s"}</p>
+              <p className="mt-0.5 text-xs leading-5 text-slate-500">Each recipient receives an individual WhatsApp message.</p>
+            </div>
+          </div>
             {messageType === "passport_link" && detail && !targetRecipient && (
-              <fieldset className="rounded-xl border border-slate-200 p-3">
+              <fieldset className="min-w-0 rounded-lg border border-slate-200 p-3">
                 <legend className="px-1 text-sm font-medium text-slate-700">
                   Recipients for this send
                 </legend>
@@ -817,6 +839,26 @@ export function MessagePreviewDialog({
                 </div>
               </details>
             )}
+            {targetRecipient && (
+              <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900">
+                {targetRecipient.action === "retry" ? "Retry" : "Resend"} only
+                to <strong>{targetRecipient.recipientName}</strong> (
+                {targetRecipient.phoneNumber}). No other recipient will receive
+                this {targetRecipient.action}.
+              </div>
+            )}
+        </MessageComposerSection>
+        </div>
+        <aside aria-label="WhatsApp message preview" className="min-w-0 space-y-3 lg:sticky lg:top-0">
+          <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+            <h3 className="text-sm font-semibold text-slate-900">
+              {targetRecipient ? `One-person WhatsApp ${targetRecipient.action} preview` : "Individual WhatsApp preview"}
+            </h3>
+            <span className="text-xs tabular-nums text-slate-500">
+              {targetRecipient ? "1 selected recipient" : `${eligibleRecipientCount} eligible of ${preview?.recipient_count ?? group.recipient_count}`}
+            </span>
+          </div>
+          <MessageDeliveryPreview preview={preview} previewIsCurrent={previewIsCurrent} previewFailed={Boolean(error)} messageType={messageType} headerImagePreview={headerImagePreview} headerImageId={headerImageId}>
             {detail && detail.recipients.length > 1 && !targetRecipient && (
               <label className="block text-sm font-medium text-slate-700">
                 Preview recipient
@@ -839,78 +881,9 @@ export function MessagePreviewDialog({
                 </select>
               </label>
             )}
-            {targetRecipient && (
-              <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900">
-                {targetRecipient.action === "retry" ? "Retry" : "Resend"} only
-                to <strong>{targetRecipient.recipientName}</strong> (
-                {targetRecipient.phoneNumber}). No other recipient will receive
-                this {targetRecipient.action}.
-              </div>
-            )}
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="text-sm font-medium text-slate-700">
-                {targetRecipient
-                  ? `One-person WhatsApp ${targetRecipient.action} preview`
-                  : "Individual WhatsApp preview"}
-              </h3>
-              <span className="text-xs text-slate-500">
-                {targetRecipient
-                  ? "1 selected recipient"
-                  : `${eligibleRecipientCount} eligible of ${
-                      preview?.recipient_count ?? group.recipient_count
-                    }`}
-              </span>
-            </div>
-            <div className="mt-1.5 min-h-96 rounded-2xl bg-[#e5ddd5] p-4 shadow-inner">
-              <div className="ml-auto max-w-[94%] rounded-xl rounded-tr-sm bg-[#dcf8c6] p-3 text-sm leading-5 text-slate-900 shadow-sm">
-                {headerImagePreview ? (
-                  <div className="relative mb-3 aspect-[16/10] overflow-hidden rounded-lg bg-white">
-                    <Image
-                      src={headerImagePreview}
-                      alt={`Selected ${formatMessageType(messageType)} image header`}
-                      fill
-                      unoptimized
-                      className="object-contain"
-                    />
-                  </div>
-                ) : headerImageId ? (
-                  <div className="mb-3 flex aspect-[16/10] items-center justify-center rounded-lg border border-emerald-200 bg-white px-4 text-center text-xs font-medium text-emerald-700">
-                    The image from the previous message will be reused.
-                  </div>
-                ) : null}
-                {preview ? (
-                  <p className="whitespace-pre-wrap">
-                    {parseWhatsAppBoldSegments(preview.rendered_message).map(
-                      (segment, index) =>
-                        segment.bold ? (
-                          <strong key={`${index}:${segment.text}`}>
-                            {segment.text}
-                          </strong>
-                        ) : (
-                          <span key={`${index}:${segment.text}`}>
-                            {segment.text}
-                          </span>
-                        ),
-                    )}
-                  </p>
-                ) : (
-                  <div className="space-y-3 py-2">
-                    <Skeleton className="h-4 w-2/3" />
-                    <Skeleton className="h-24 w-full" />
-                    <Skeleton className="h-16 w-4/5" />
-                  </div>
-                )}
-              </div>
-            </div>
+          </MessageDeliveryPreview>
             {preview && (
               <div className="mt-2 space-y-1 text-xs text-slate-500">
-                <p>
-                  Template: {preview.template_name} - Previewing{" "}
-                  {preview.recipient_name}
-                </p>
                 {!targetRecipient && preview.already_sent_count > 0 && (
                   <p className="font-medium text-emerald-700">
                     {preview.already_sent_count} previous recipient
@@ -936,9 +909,9 @@ export function MessagePreviewDialog({
                 )}
               </div>
             )}
-          </div>
+        </aside>
         </div>
-
+        <div className="mt-5 space-y-3">
         {isLoadingDetail && (
           <p className="text-sm text-slate-500">
             Loading recipient
@@ -1010,12 +983,20 @@ export function MessagePreviewDialog({
           </Button>
         )}
 
-        <div className="flex justify-end gap-3">
+        </div>
+        </div>
+        <div data-testid="whatsapp-composer-footer" className="flex shrink-0 flex-col gap-3 border-t border-slate-200 bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-7">
+          <div className="flex min-w-0 items-center gap-2 text-xs text-slate-500">
+            {canSend ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" /> : <Info className="h-4 w-4 shrink-0" aria-hidden="true" />}
+            <span>{isSending ? "Submitting your messages..." : canSend ? "Message checked and ready to send." : "Complete the required fields and review the preview before sending."}</span>
+          </div>
+          <div className="flex min-w-0 items-center justify-end gap-2 sm:max-w-[60%]">
           <Button
             type="button"
             variant="secondary"
             onClick={onClose}
             disabled={isSending}
+            className="shrink-0"
           >
             Cancel
           </Button>
@@ -1023,12 +1004,14 @@ export function MessagePreviewDialog({
             type="submit"
             isLoading={isSending}
             disabled={!canSend || previewRequest.isPending}
+            className="min-w-0"
           >
-            <Send className="h-4 w-4" />
-            {targetRecipient
+            <Send className="h-4 w-4 shrink-0" aria-hidden="true" />
+            <span className="truncate">{targetRecipient
               ? `${targetRecipient.action === "retry" ? "Retry" : "Resend"} to ${targetRecipient.recipientName}`
-              : `Send individually to ${eligibleRecipientCount}`}
+              : `Send individually to ${eligibleRecipientCount}`}</span>
           </Button>
+          </div>
         </div>
       </form>
     </DialogFrame>

@@ -160,12 +160,18 @@ export function DialogFrame({
   onClose,
   isBusy = false,
   widthClass = "max-w-3xl",
+  layout = "default",
+  description,
+  eyebrow,
   children,
 }: {
   title: string;
   onClose: () => void;
   isBusy?: boolean;
   widthClass?: string;
+  layout?: "default" | "composer";
+  description?: string;
+  eyebrow?: string;
   children: ReactNode;
 }) {
   const titleId = useId();
@@ -231,14 +237,18 @@ export function DialogFrame({
         aria-labelledby={titleId}
         aria-busy={isBusy}
         tabIndex={-1}
-        className={`max-h-[92vh] w-full overflow-auto shadow-2xl outline-none ${widthClass}`}
+        className={`w-full shadow-2xl outline-none ${layout === "composer" ? "flex max-h-[94dvh] flex-col overflow-hidden rounded-2xl" : "max-h-[92vh] overflow-auto"} ${widthClass}`}
       >
-        <CardContent className="p-6">
-          <div className="mb-5 flex items-start justify-between gap-4">
-            <h2 id={titleId} className="text-lg font-semibold text-slate-900">{title}</h2>
+        <CardContent className={layout === "composer" ? "flex min-h-0 flex-1 flex-col p-0" : "p-6"}>
+          <div className={`flex shrink-0 items-start justify-between gap-4 ${layout === "composer" ? "border-b border-slate-200 px-5 py-4 sm:px-7 sm:py-5" : "mb-5"}`}>
+            <div className="min-w-0">
+              {eyebrow && <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{eyebrow}</p>}
+              <h2 id={titleId} className={`text-lg font-semibold text-slate-900 ${layout === "composer" ? "tracking-tight sm:text-xl" : ""}`}>{title}</h2>
+              {description && <p className="mt-1 break-words text-sm text-slate-500">{description}</p>}
+            </div>
             <button
               type="button"
-              className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              className="shrink-0 rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               onClick={onClose}
               disabled={isBusy}
               aria-label="Close dialog"

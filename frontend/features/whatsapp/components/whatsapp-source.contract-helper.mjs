@@ -7,6 +7,7 @@ const sourceFiles = [
   "./whatsapp-recipient-roster-rows.tsx",
   "./whatsapp-create-broadcast-dialog.tsx",
   "./whatsapp-message-preview-dialog.tsx",
+  "./whatsapp-message-composer-ui.tsx",
 ];
 
 export const whatsappFeatureSource = sourceFiles
