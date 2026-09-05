@@ -4,6 +4,7 @@
 
 import type { NextConfig } from "next";
 import { resolveApiRewriteBase } from "./config/api-routing";
+import { VISA_FACE_DETECTION_ASSET_VERSION } from "./config/visa-face-detection-assets";
 
 const PRIVATE_DYNAMIC_CACHE_CONTROL = "private, no-store, max-age=0, must-revalidate";
 const PUBLIC_REVALIDATED_CACHE_CONTROL = "public, max-age=0, must-revalidate";
@@ -97,6 +98,11 @@ const nextConfig: NextConfig = {
           value: PUBLIC_REVALIDATED_CACHE_CONTROL,
         }],
       })),
+      {
+        source: "/mediapipe/face_detection/:path*",
+        has: [{ type: "query", key: "v", value: VISA_FACE_DETECTION_ASSET_VERSION }],
+        headers: [{ key: "Cache-Control", value: "public, max-age=86400, immutable" }],
+      },
       {
         source: "/sw.js",
         headers: [

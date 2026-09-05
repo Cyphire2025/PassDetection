@@ -40,13 +40,10 @@ test("source validation mirrors production limits and rejects weak inputs early"
   assert.match(source, /if \(width > height\)/);
 });
 
-test("face-presence calls are serialized and never close active MediaPipe work", () => {
+test("face-presence calls use the reusable serialized detector", () => {
   assert.match(source, /let validationTail: Promise<void> = Promise\.resolve\(\)/);
   assert.match(source, /validationTail\.then\(/);
-  assert.match(source, /minDetectionConfidence: FACE_DETECTION_CONFIDENCE/);
-  assert.match(source, /const safeToClose =/);
-  assert.match(source, /settlesWithin\(/);
-  assert.match(source, /if \(safeToClose\)/);
+  assert.match(source, /import \{ detectVisaPhotoFaces \} from "\.\/visa-photo-upload-detector"/);
 });
 
 test("uploaded-photo failures require a face and a white background without framing rules", () => {

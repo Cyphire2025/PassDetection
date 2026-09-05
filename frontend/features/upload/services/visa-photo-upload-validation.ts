@@ -1,4 +1,4 @@
-import type { Detection } from "@mediapipe/face_detection";
+import { detectVisaPhotoFaces } from "./visa-photo-upload-detector";
 import {
   encodeVisaJpegUnderLimit,
   evaluateWhiteBackground,
@@ -29,10 +29,8 @@ export const VISA_PHOTO_UPLOAD_MAX_PIXELS = 24_000_000;
 
 const ANALYSIS_WIDTH = 96;
 const ANALYSIS_HEIGHT = 144;
-const DETECTOR_TIMEOUT_MS = 8_000;
 const MIN_SOURCE_WIDTH = 300;
 const MIN_SOURCE_HEIGHT = 400;
-const FACE_DETECTION_CONFIDENCE = 0.65;
 const ALLOWED_MIME_TYPES = new Set([
   "image/jpeg",
   "image/jpg",
@@ -248,75 +246,6 @@ async function verifyUploadedVisaPhotoInternal(
   }
 }
 
-async function detectVisaPhotoFaces(
-  image: HTMLImageElement,
-): Promise<Detection[]> {
-  let detector: import("@mediapipe/face_detection").FaceDetection | null = null;
-  let initialization: Promise<void> | null = null;
-  let send: Promise<void> | null = null;
-  try {
-    const { FaceDetection } = await import("@mediapipe/face_detection");
-    detector = new FaceDetection({
-      locateFile: (file) => `/mediapipe/face_detection/${file}`,
-    });
-    detector.setOptions({
-      model: "short",
-      selfieMode: false,
-      minDetectionConfidence: FACE_DETECTION_CONFIDENCE,
-    });
-    let resolveDetections!: (detections: Detection[]) => void;
-    const results = new Promise<Detection[]>((resolve) => {
-      resolveDetections = resolve;
-    });
-    detector.onResults((value) => resolveDetections(value.detections));
-    initialization = detector.initialize();
-    await withTimeout(
-      initialization,
-      DETECTOR_TIMEOUT_MS,
-      "Automatic face detection could not start. Try again or use the live camera.",
-    );
-    send = detector.send({ image });
-    const [detections] = await withTimeout(
-      Promise.all([results, send]),
-      DETECTOR_TIMEOUT_MS,
-      "Automatic face detection took too long. Try again or use the live camera.",
-    );
-    return detections;
-  } catch (error) {
-    console.error("Uploaded Visa Photo face detection failed", error);
-    if (
-      error instanceof Error
-      && error.message.startsWith("Automatic face detection")
-    ) {
-      throw error;
-    }
-    throw new Error("Automatic face detection could not finish safely. Try again or use the live camera.");
-  } finally {
-    if (detector) {
-      const operations = [initialization, send].filter(
-        (operation): operation is Promise<void> => operation !== null,
-      );
-      const safeToClose = (
-        await Promise.all(operations.map((operation) => settlesWithin(
-          operation,
-          1_500,
-        )))
-      ).every(Boolean);
-      if (safeToClose) {
-        await withTimeout(
-          detector.close(),
-          1_500,
-          "Visa Photo detector cleanup timed out.",
-        ).catch((error) => {
-          console.error("Uploaded Visa Photo detector cleanup failed", error);
-        });
-      } else {
-        console.error("Uploaded Visa Photo detector did not settle safely");
-      }
-    }
-  }
-}
-
 function validateSourceFile(file: File): void {
   if (!file.size) {
     throw new Error("The selected Visa Photo is empty. Choose another file.");
@@ -379,53 +308,6 @@ function canvasToJpeg(
         : reject(new Error("This browser could not prepare the selected Visa Photo.")),
       "image/jpeg",
       quality,
-    );
-  });
-}
-
-function withTimeout<T>(
-  operation: Promise<T>,
-  timeoutMs: number,
-  message: string,
-): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    const timeoutId = window.setTimeout(
-      () => reject(new Error(message)),
-      timeoutMs,
-    );
-    operation.then(
-      (value) => {
-        window.clearTimeout(timeoutId);
-        resolve(value);
-      },
-      (error) => {
-        window.clearTimeout(timeoutId);
-        reject(error);
-      },
-    );
-  });
-}
-
-function settlesWithin(
-  operation: Promise<unknown>,
-  timeoutMs: number,
-): Promise<boolean> {
-  return new Promise((resolve) => {
-    let settled = false;
-    const timeoutId = window.setTimeout(() => {
-      if (!settled) resolve(false);
-    }, timeoutMs);
-    operation.then(
-      () => {
-        settled = true;
-        window.clearTimeout(timeoutId);
-        resolve(true);
-      },
-      () => {
-        settled = true;
-        window.clearTimeout(timeoutId);
-        resolve(true);
-      },
     );
   });
 }

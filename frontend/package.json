@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0",
+    "prebuild": "node scripts/patch-mediapipe-csp.mjs --check",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -11,6 +12,7 @@
     "test:unit": "vitest run",
     "test:unit:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
+    "test:visa-browser": "node scripts/verify-visa-photo-browser.mjs",
     "maintainability:check": "node scripts/verify-frontend-module-budgets.mjs"
   },
   "dependencies": {

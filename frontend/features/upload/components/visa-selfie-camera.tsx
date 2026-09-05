@@ -5,6 +5,8 @@ import Image from "next/image";
 import { AlertTriangle, Check, Loader2, RefreshCcw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Detection } from "@mediapipe/face_detection";
+import { visaFaceDetectionAssetUrl } from "@/config/visa-face-detection-assets";
+import { initializeVisaFaceDetection, loadVisaFaceDetection } from "../services/visa-face-detection-loader";
 import { useStableTelemetryReason } from "../hooks/use-stable-telemetry-reason";
 import {
   visaPhotoRejectionReason,
@@ -474,10 +476,10 @@ export function VisaSelfieCamera({
         // legacy MediaPipe WASM.
         await inferenceQueue.drain();
         if (disposed) return;
-        const { FaceDetection } = await import("@mediapipe/face_detection");
+        const { FaceDetection } = await loadVisaFaceDetection();
         if (disposed) return;
 
-        const detector = new FaceDetection({ locateFile: (file) => `/mediapipe/face_detection/${file}` });
+        const detector = new FaceDetection({ locateFile: visaFaceDetectionAssetUrl });
         detectorInstance = detector;
         detector.setOptions({
           model: "short",
@@ -568,7 +570,7 @@ export function VisaSelfieCamera({
           setLiveReady((current) => current === isReady ? current : isReady);
           captureReadyRef.current = isReady;
         });
-        await detector.initialize();
+        await initializeVisaFaceDetection(detector);
         detectorInitialized = true;
         if (disposed) {
           await detector.close();

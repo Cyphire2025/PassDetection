@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { VisaPhotoSample } from "./visa-photo-sample";
+import { prewarmUploadedVisaPhotoDetector } from "../services/visa-photo-upload-detector";
 import type { VisaPhotoRejectionReason } from "../services/public-flow-telemetry";
 import {
   uploadedVisaPhotoFailureMessage,
@@ -51,9 +52,14 @@ export function VisaPhotoUpload({
     setPreviewUrl(nextUrl);
   }, []);
 
-  useEffect(() => () => {
-    validationRunRef.current += 1;
-    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+  useEffect(() => {
+    // Prepare WASM and its first inference while the file picker is open.
+    // A failed warmup is retried by validation and cannot accept a photo.
+    void prewarmUploadedVisaPhotoDetector().catch(() => undefined);
+    return () => {
+      validationRunRef.current += 1;
+      if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+    };
   }, []);
 
   const chooseFile = () => inputRef.current?.click();
@@ -83,7 +89,7 @@ export function VisaPhotoUpload({
       if (validationRunRef.current !== runId) return;
       const message = validationError instanceof Error
         ? validationError.message
-        : "The selected Visa Photo could not be verified. Try again or use the live camera.";
+        : "The selected Visa Photo could not be verified. Please try again or choose another studio photo.";
       if (message.startsWith("Automatic face detection")) {
         onTelemetryReason("quality_model_unavailable");
       }
@@ -176,7 +182,7 @@ export function VisaPhotoUpload({
                   <div>
                     <p className="font-bold">Verifying Visa Photo</p>
                     <p className="mt-1 text-xs leading-5 text-slate-200">
-                      Checking for a face and a white or off-white background. This usually takes 1–2 seconds.
+                      Checking for a face and a white or off-white background. The first check may take a little longer.
                     </p>
                   </div>
                 </div>

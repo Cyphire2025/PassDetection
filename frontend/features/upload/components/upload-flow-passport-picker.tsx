@@ -1,11 +1,13 @@
 import type { ReactNode } from "react";
 import {
   BadgeCheck,
+  BookOpen,
   Camera,
   CheckCircle2,
   ChevronRight,
   ImagePlus,
   Loader2,
+  ScanLine,
   User,
   X,
 } from "lucide-react";
@@ -13,6 +15,17 @@ import { Button } from "@/components/ui/button";
 import { formatFileSize } from "../services/upload-flow-helpers";
 import { PASSPORT_IMAGE_ACCEPT } from "./upload-flow.constants";
 import type { PassportDocumentBundle } from "./upload-flow.types";
+
+export function DocumentMethodActions({ children, hasBothMethods }: {
+  children: ReactNode;
+  hasBothMethods: boolean;
+}) {
+  return (
+    <div className={`mx-auto grid w-full gap-2 ${hasBothMethods ? "sm:grid-cols-2" : "sm:max-w-sm"}`}>
+      {children}
+    </div>
+  );
+}
 
 export function VisaSelfieChoice({
   file,
@@ -32,18 +45,25 @@ export function VisaSelfieChoice({
   return (
     <section
       data-testid="visa-photo-choice"
-      className="relative rounded-2xl border-2 border-slate-100 bg-white p-4 shadow-sm sm:p-5"
+      className="rounded-2xl border-2 border-slate-100 bg-white p-4 shadow-sm sm:p-5"
     >
-      <div className="flex items-start gap-3 pr-20 sm:gap-4">
+      <div className="flex items-start gap-3 sm:gap-4">
         <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl sm:h-12 sm:w-12 ${
           file ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-600"
         }`}>
-          {file ? <CheckCircle2 className="h-6 w-6" /> : <User className="h-6 w-6" />}
+          {file ? <CheckCircle2 className="h-6 w-6" aria-hidden="true" /> : <User className="h-6 w-6" aria-hidden="true" />}
         </div>
-        <div className="min-w-0">
-          <h4 className="text-base font-bold text-slate-900">
-            {file ? "Visa Photo ready" : "Upload Photo for Visa"}
-          </h4>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+            <h4 className="text-base font-bold text-slate-900">
+              {file ? "Visa Photo ready" : "Upload Photo for Visa"}
+            </h4>
+            <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${
+              file ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"
+            }`}>
+              {file ? "Completed" : required ? "Required" : "Optional"}
+            </span>
+          </div>
           <p className="mt-1 text-sm leading-5 text-slate-500">
             {file
               ? "Your Visa Photo is ready. Use an available option below to replace it."
@@ -52,36 +72,32 @@ export function VisaSelfieChoice({
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
-        {allowCamera && <Button
-          type="button"
-          variant="outline"
-          onClick={onCameraClick}
-          className="h-11 border-blue-200 bg-blue-50 text-blue-800 hover:border-blue-300 hover:bg-blue-100"
-        >
-          <Camera className="h-4 w-4" />
-          Use live camera
-        </Button>}
-        {allowUpload && <Button
-          type="button"
-          variant="outline"
-          onClick={onUploadClick}
-          className="h-11 border-blue-200 bg-white text-blue-800 hover:border-blue-300 hover:bg-blue-50"
-        >
-          <ImagePlus className="h-4 w-4" />
-          Upload studio photo
-        </Button>}
+      <div className="mt-4">
+        <DocumentMethodActions hasBothMethods={allowCamera && allowUpload}>
+          {allowCamera && <Button
+            type="button"
+            variant="outline"
+            onClick={onCameraClick}
+            className="h-12 w-full rounded-xl border-blue-200 bg-blue-50 text-blue-800 hover:border-blue-300 hover:bg-blue-100"
+          >
+            <Camera className="h-4 w-4" aria-hidden="true" />
+            Use live camera
+          </Button>}
+          {allowUpload && <Button
+            type="button"
+            variant="outline"
+            onClick={onUploadClick}
+            className="h-12 w-full rounded-xl border-blue-200 bg-white text-blue-800 hover:border-blue-300 hover:bg-blue-50"
+          >
+            <ImagePlus className="h-4 w-4" aria-hidden="true" />
+            Upload studio photo
+          </Button>}
+        </DocumentMethodActions>
       </div>
 
       {allowUpload && <div className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2.5 text-xs leading-5 text-amber-950">
         Upload only a studio-taken photo with a plain white background.
       </div>}
-
-      <span className={`pointer-events-none absolute right-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-bold ${
-        file ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"
-      }`}>
-        {file ? "Completed" : required ? "Required" : "Optional"}
-      </span>
     </section>
   );
 }
@@ -98,22 +114,37 @@ export function PassportUploadSection({
   required?: boolean;
 }) {
   return (
-    <details className="group overflow-hidden rounded-2xl border-2 border-slate-100 bg-white shadow-sm" open>
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 marker:hidden sm:p-5">
-        <div>
-          <h4 className="text-base font-bold text-slate-900">Passport</h4>
-          <p className="mt-1 text-sm text-slate-500">
+    <details data-testid="passport-document-choice" className="group overflow-hidden rounded-2xl border-2 border-slate-100 bg-white shadow-sm" open>
+      <summary className="flex cursor-pointer list-none items-start gap-3 p-4 marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500 sm:gap-4 sm:p-5 [&::-webkit-details-marker]:hidden">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600 sm:h-12 sm:w-12">
+          <BookOpen className="h-6 w-6" aria-hidden="true" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+            <h4 className="text-base font-bold text-slate-900">Passport</h4>
+            <span className="shrink-0 rounded-full bg-blue-100 px-2.5 py-1 text-[11px] font-bold text-blue-700">
+              {required ? "Required" : "Optional"}
+            </span>
+          </div>
+          <p className="mt-1 text-sm leading-5 text-slate-500">
             {allowFilesFromDevice && allowLiveScan
-              ? "Scan both passport pages live or choose existing images from this device."
+              ? "Use the live scanner or upload the passport pages requested for your trip."
               : allowLiveScan ? "Use the live scanner to capture the personal details and address pages."
               : "Upload the passport pages requested by your travel agency."}
             {!required && " Passport documents are optional for this group."}
           </p>
         </div>
-        <ChevronRight className="h-5 w-5 shrink-0 text-slate-400 transition-transform group-open:rotate-90" />
+        <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-slate-400 transition-transform group-open:rotate-90 motion-reduce:transition-none" aria-hidden="true" />
       </summary>
       <div className="border-t border-slate-100 p-4 pt-4 sm:p-5">
         <div className="space-y-4">{children}</div>
+        <div className="mt-3 flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2.5 text-xs leading-5 text-blue-950">
+          <ScanLine className="mt-0.5 h-4 w-4 shrink-0 text-blue-700" aria-hidden="true" />
+          <p>
+            Keep each page fully visible, with clear text and no glare.
+            {allowFilesFromDevice && <span className="block">Uploaded images must be 2 MB or smaller per page.</span>}
+          </p>
+        </div>
       </div>
     </details>
   );

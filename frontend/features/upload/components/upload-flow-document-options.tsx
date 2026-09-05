@@ -2,7 +2,7 @@ import { Camera, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { UploadConfiguration } from "@/features/passports/types/upload-configuration";
 import { NameInput } from "./upload-flow-fields";
-import { PassportDocumentBundlePanel, PassportUploadSection } from "./upload-flow-passport-picker";
+import { DocumentMethodActions, PassportDocumentBundlePanel, PassportUploadSection } from "./upload-flow-passport-picker";
 import type { FlowMode, PassportDocumentBundle } from "./upload-flow.types";
 
 export function UploadDocumentOptions({
@@ -31,10 +31,10 @@ export function UploadDocumentOptions({
       <NameInput value={clientName} onChange={onClientName} placeholder="Full name as shown on your travel documents" />
     </label>}
     {config.passport_enabled && <PassportUploadSection allowFilesFromDevice={allowFilesFromDevice} allowLiveScan={config.passport_live_scan} required={passportRequired}>
-      <div className="grid gap-3 sm:grid-cols-2">
-        {config.passport_live_scan && <Button type="button" variant="outline" onClick={() => onScan("front")} className="h-12"><Camera className="h-4 w-4" />Live scan</Button>}
-        {allowFilesFromDevice && <Button type="button" variant="outline" onClick={onOpenUpload} className="h-12"><ImagePlus className="h-4 w-4" />Upload passport images</Button>}
-      </div>
+      <DocumentMethodActions hasBothMethods={config.passport_live_scan && allowFilesFromDevice}>
+        {config.passport_live_scan && <Button type="button" variant="outline" onClick={() => onScan("front")} className="h-12 w-full rounded-xl border-blue-200 bg-blue-50 text-blue-800 hover:border-blue-300 hover:bg-blue-100"><Camera className="h-4 w-4" aria-hidden="true" />Live scan</Button>}
+        {allowFilesFromDevice && <Button type="button" variant="outline" onClick={onOpenUpload} className="h-12 w-full rounded-xl border-blue-200 bg-white text-blue-800 hover:border-blue-300 hover:bg-blue-50"><ImagePlus className="h-4 w-4" aria-hidden="true" />Upload passport images</Button>}
+      </DocumentMethodActions>
       {passportMethod === "camera" && (bundle.front || bundle.back) && <PassportDocumentBundlePanel bundle={bundle} allowFilesFromDevice={false} onChange={onBundleChange} onScan={onScan} onFileSelect={onFileSelect} onUpload={onUpload} />}
     </PassportUploadSection>}
     {!passportRequired && <Button type="button" className="h-12 w-full" onClick={onSkip}>{config.passport_enabled ? "Continue without passport" : "Continue to your details"}</Button>}
