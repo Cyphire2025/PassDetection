@@ -34,6 +34,7 @@ import {
   readErrorMessage,
 } from "./whatsapp-dialog-ui";
 import type { RecipientResendTarget } from "./whatsapp-workspace.types";
+import { WhatsAppBroadcastMotion } from "./whatsapp-broadcast-motion";
 
 const MAX_WELCOME_IMAGE_BYTES = 5 * 1024 * 1024;
 const WELCOME_IMAGE_TYPES = new Set(["image/jpeg", "image/png"]);
@@ -93,6 +94,8 @@ export function MessagePreviewDialog({
   const [headerImageRevision, setHeaderImageRevision] = useState(0);
   const [preview, setPreview] = useState<WhatsAppPreviewResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [submissionStartedAt, setSubmissionStartedAt] = useState<number | null>(null);
+  const submissionPending = submissionStartedAt !== null || isSending;
   const previewSequence = useRef(0);
   const sendInFlightRef = useRef(false);
   const headerImagePreviewUrlRef = useRef<string | null>(null);
@@ -397,6 +400,7 @@ export function MessagePreviewDialog({
     }
     if (isSending || sendInFlightRef.current) return;
     sendInFlightRef.current = true;
+    setSubmissionStartedAt(Date.now());
     try {
       await onSend({
         passportIntro: resolvedPassportIntro,
@@ -422,6 +426,7 @@ export function MessagePreviewDialog({
       );
     } finally {
       sendInFlightRef.current = false;
+      setSubmissionStartedAt(null);
     }
   };
 
@@ -435,7 +440,7 @@ export function MessagePreviewDialog({
             : "Passport Link Message"
       }`}
       onClose={onClose}
-      isBusy={isSending}
+      isBusy={submissionPending}
       widthClass="max-w-6xl"
       layout="composer"
       eyebrow="WhatsApp communications"
@@ -987,22 +992,31 @@ export function MessagePreviewDialog({
         </div>
         <div data-testid="whatsapp-composer-footer" className="flex shrink-0 flex-col gap-3 border-t border-slate-200 bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-7">
           <div className="flex min-w-0 items-center gap-2 text-xs text-slate-500">
-            {canSend ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" /> : <Info className="h-4 w-4 shrink-0" aria-hidden="true" />}
-            <span>{isSending ? "Submitting your messages..." : canSend ? "Message checked and ready to send." : "Complete the required fields and review the preview before sending."}</span>
+            {submissionPending ? (
+              <div className="w-24 shrink-0 sm:w-32">
+                <WhatsAppBroadcastMotion
+                  messageType={messageType}
+                  state="submitting"
+                  startedAt={submissionStartedAt ?? undefined}
+                  compact
+                />
+              </div>
+            ) : canSend ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" /> : <Info className="h-4 w-4 shrink-0" aria-hidden="true" />}
+            <span role={submissionPending ? "status" : undefined}>{submissionPending ? "Submitting your messages..." : canSend ? "Message checked and ready to send." : "Complete the required fields and review the preview before sending."}</span>
           </div>
           <div className="flex min-w-0 items-center justify-end gap-2 sm:max-w-[60%]">
           <Button
             type="button"
             variant="secondary"
             onClick={onClose}
-            disabled={isSending}
+            disabled={submissionPending}
             className="shrink-0"
           >
             Cancel
           </Button>
           <Button
             type="submit"
-            isLoading={isSending}
+            isLoading={submissionPending}
             disabled={!canSend || previewRequest.isPending}
             className="min-w-0"
           >

@@ -420,6 +420,7 @@ export function WhatsAppPage() {
             recipientIds,
             supportContactIds,
           }) => {
+            const startedAt = Date.now();
             const result =
               messageTarget.messageType === "welcome"
                 ? await sendWelcome.mutateAsync({
@@ -449,7 +450,8 @@ export function WhatsAppPage() {
               registerActivity({
                 id: result.batch_id,
                 kind: "broadcast",
-                startedAt: Date.now(),
+                messageType: messageTarget.messageType,
+                startedAt,
                 title: `${formatMessageType(messageTarget.messageType)} broadcast`,
                 contextLabel: messageTarget.group.name,
                 sourceGroupId: messageTarget.group.id,

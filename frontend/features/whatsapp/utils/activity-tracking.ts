@@ -4,6 +4,7 @@ import type {
   WhatsAppActivityKind,
   WhatsAppActivitySummary,
 } from "../api/whatsapp-activity.api";
+import type { WhatsAppMessageType } from "../api/whatsapp.api";
 
 export const WHATSAPP_ACTIVITY_STORAGE_KEY =
   "passdetection:whatsapp:tracked-activities:v1";
@@ -20,6 +21,7 @@ export interface TrackedWhatsAppActivity {
   contextLabel: string;
   sourceGroupId: string;
   documentType: string | null;
+  messageType?: WhatsAppMessageType;
   total: number;
   queued: number;
   sent: number;
@@ -31,6 +33,8 @@ export interface TrackedWhatsAppActivity {
 }
 
 export interface DisplayedWhatsAppActivity extends WhatsAppActivitySummary {
+  messageType?: WhatsAppMessageType;
+  startedAt?: number;
   skipped_already_sent: number;
   skipped_in_progress: number;
   skipped_delivery_unknown: number;
@@ -90,6 +94,12 @@ export function parseTrackedWhatsAppActivities(
           typeof candidate.documentType === "string"
             ? candidate.documentType
             : null,
+        messageType:
+          candidate.messageType === "welcome"
+          || candidate.messageType === "passport_link"
+          || candidate.messageType === "reminder"
+            ? candidate.messageType
+            : undefined,
         total: finiteNonNegative(candidate.total),
         queued: finiteNonNegative(candidate.queued),
         sent: finiteNonNegative(candidate.sent),

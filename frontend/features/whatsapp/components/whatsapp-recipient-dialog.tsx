@@ -330,6 +330,7 @@ export function RecipientListDialog({
     ) return;
 
     const target = recipientToResend;
+    const startedAt = Date.now();
     resendInFlightRef.current = true;
     setResendError(null);
     setResendNotice(null);
@@ -350,7 +351,8 @@ export function RecipientListDialog({
         registerActivity({
           id: result.batch_id,
           kind: "broadcast",
-          startedAt: Date.now(),
+          messageType: target.messageType,
+          startedAt,
           title: `${formatMessageType(target.messageType)} ${target.action}`,
           contextLabel: `${target.recipientName} - ${group.name}`,
           sourceGroupId: group.id,

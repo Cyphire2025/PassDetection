@@ -13,6 +13,7 @@ Use this folder as the central library for reusable PassDetection artwork, brand
 | [Transparent company logo](branding/global-connect/globalconnect-logo-removebg-preview.png) | Supplied PNG from the project root, preserved without modification |
 | [Login background artwork](branding/global-connect/login-background/README.md) | A sculptural aviation form for the navy panel and fine travel engraving for the white panel, with editable SVG source |
 | [Processing motion](branding/global-connect/processing-motion/README.md) | Distinct passport extraction, document analysis, renaming and distribution scenes, with a standalone animated preview |
+| [WhatsApp broadcast motion](branding/global-connect/broadcast-motion/README.md) | Welcome, passport-link and reminder dispatch scenes for the composer, live progress and floating tracker, with editable source and an interactive preview |
 
 The animation assembles the globe, lettering and flight-path swooshes, then holds on the original logo. The 4K master and supporting images were copied from the finished logo animation package and verified using SHA-256 checksums.
 

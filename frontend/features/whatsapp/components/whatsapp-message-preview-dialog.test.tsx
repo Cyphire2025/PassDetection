@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ComponentProps, ReactNode } from "react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
@@ -40,6 +40,23 @@ vi.mock("./whatsapp-dialog-ui", () => ({
     <div role="alert">{message}</div>
   ),
   readErrorMessage: (_error: unknown, fallback: string) => fallback,
+}));
+// The illustration has separate lifecycle tests; exercise the real composer's
+// validation and async send boundary with a stable decorative stand-in here.
+vi.mock("./whatsapp-broadcast-motion", () => ({
+  WhatsAppBroadcastMotion: ({
+    messageType,
+    state,
+    startedAt,
+  }: { messageType: string; state: string; startedAt?: number }) => (
+    <div
+      aria-hidden="true"
+      data-testid="broadcast-motion"
+      data-message-type={messageType}
+      data-state={state}
+      data-started-at={startedAt}
+    />
+  ),
 }));
 
 beforeEach(() => {
@@ -122,6 +139,7 @@ it("blocks immediate form submission after an edit until the exact new preview s
   const user = userEvent.setup();
   const { container, onSend } = renderDialog();
   const send = screen.getByRole("button", { name: "Send individually to 1" });
+  expect(screen.queryByTestId("broadcast-motion")).not.toBeInTheDocument();
   await waitFor(() => expect(send).toBeEnabled());
   fireEvent.change(screen.getByLabelText("Reminder paragraph"), {
     target: { value: "Updated reminder" },
@@ -168,6 +186,7 @@ it("requires a welcome image and a fresh preview after selecting a valid 5 MB im
   expect(send).toBeDisabled();
   fireEvent.submit(container.querySelector("form")!);
   expect(onSend).not.toHaveBeenCalled();
+  expect(screen.queryByTestId("broadcast-motion")).not.toBeInTheDocument();
 
   // Hold the replacement preview so the last successful text preview cannot
   // authorize a newly selected image, even if the form is submitted directly.
@@ -295,7 +314,110 @@ it("keeps a passport link unsendable when no support contact is configured", asy
   ).toBeDisabled();
   fireEvent.submit(container.querySelector("form")!);
   expect(onSend).not.toHaveBeenCalled();
+  expect(screen.queryByTestId("broadcast-motion")).not.toBeInTheDocument();
 });
+
+it.each(["welcome", "passport_link", "reminder"] as const)(
+  "starts %s motion immediately on a validated send and keeps it through pending updates",
+  async (messageType) => {
+    const user = userEvent.setup();
+    if (messageType === "passport_link") {
+      mocks.detail.support_contacts = [{
+        id: "support-a",
+        name: "Travel desk",
+        phone_number: "+918888888888",
+        normalized_phone_number: "+918888888888",
+      }];
+    }
+    let completeSend!: () => void;
+    const onSend = vi.fn(() => new Promise<void>((resolve) => { completeSend = resolve; }));
+    const props = { group: mocks.detail, messageType, onSend, onClose: vi.fn() };
+    const { container, rerender } = renderDialog(props);
+    expect(screen.queryByTestId("broadcast-motion")).not.toBeInTheDocument();
+    if (messageType !== "reminder") {
+      await user.upload(
+        screen.getByLabelText(messageType === "welcome" ? /Welcome image/ : /Passport Link image/),
+        new File(["image"], "message.jpg", { type: "image/jpeg" }),
+      );
+    }
+    const send = screen.getByRole("button", { name: "Send individually to 1" });
+    await waitFor(() => expect(send).toBeEnabled());
+    expect(screen.queryByTestId("broadcast-motion")).not.toBeInTheDocument();
+    await user.click(send);
+
+    const motion = screen.getByTestId("broadcast-motion");
+    expect(motion).toHaveAttribute("data-message-type", messageType);
+    expect(motion).toHaveAttribute("data-state", "submitting");
+    expect(Number(motion.getAttribute("data-started-at"))).toBeGreaterThan(0);
+    expect(screen.getByText("Submitting your messages...")).toBeVisible();
+    expect(send).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
+    fireEvent.submit(container.querySelector("form")!);
+    expect(onSend).toHaveBeenCalledTimes(1);
+
+    rerender(<MessagePreviewDialog {...props} isSending />);
+    expect(screen.getByTestId("broadcast-motion")).toBe(motion);
+    rerender(<MessagePreviewDialog {...props} isSending={false} />);
+    expect(screen.getByTestId("broadcast-motion")).toBe(motion);
+    await act(async () => completeSend());
+    expect(screen.queryByTestId("broadcast-motion")).not.toBeInTheDocument();
+    expect(send).toBeEnabled();
+  },
+);
+
+it("stops submission motion on request failure and allows a fresh attempt", async () => {
+  const user = userEvent.setup();
+  let failSend!: (error: Error) => void;
+  const onSend = vi.fn(() => new Promise<void>((_resolve, reject) => { failSend = reject; }));
+  renderDialog({ onSend });
+  const send = screen.getByRole("button", { name: "Send individually to 1" });
+  await waitFor(() => expect(send).toBeEnabled());
+  await user.click(send);
+  expect(screen.getByTestId("broadcast-motion")).toBeVisible();
+  await act(async () => failSend(new Error("Unavailable")));
+  expect(screen.queryByTestId("broadcast-motion")).not.toBeInTheDocument();
+  expect(screen.getByRole("alert")).toHaveTextContent("could not submit");
+  expect(send).toBeEnabled();
+  onSend.mockResolvedValueOnce(undefined);
+  await user.click(send);
+  expect(onSend).toHaveBeenCalledTimes(2);
+});
+
+it.each(["retry", "resend"] as const)(
+  "shows motion immediately for a validated single-recipient %s",
+  async (action) => {
+    const user = userEvent.setup();
+    mocks.detail.recipients[0].message_statuses = [{
+      message_type: "reminder",
+      status: action === "retry" ? "failed" : "sent",
+      already_sent: action === "resend",
+      resend_blocked: false,
+      latest_resend_status: null,
+      submitted_at: null,
+      status_updated_at: "2026-09-06T00:00:00Z",
+    }];
+    let completeSend!: () => void;
+    const onSend = vi.fn(() => new Promise<void>((resolve) => { completeSend = resolve; }));
+    renderDialog({
+      onSend,
+      targetRecipient: {
+        recipientId: "recipient-a",
+        recipientName: "Passenger A",
+        phoneNumber: "+919999999999",
+        messageType: "reminder",
+        action,
+      },
+    });
+    const send = screen.getByRole("button", { name: `${action === "retry" ? "Retry" : "Resend"} to Passenger A` });
+    await waitFor(() => expect(send).toBeEnabled());
+    expect(screen.queryByTestId("broadcast-motion")).not.toBeInTheDocument();
+    await user.click(send);
+    expect(screen.getByTestId("broadcast-motion")).toHaveAttribute("data-state", "submitting");
+    expect(onSend).toHaveBeenCalledTimes(1);
+    await act(async () => completeSend());
+    expect(screen.queryByTestId("broadcast-motion")).not.toBeInTheDocument();
+  },
+);
 
 it("revokes a one-person retry when the recipient's latest delivery is no longer failed", async () => {
   const status = {

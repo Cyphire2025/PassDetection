@@ -1,0 +1,54 @@
+.scene {
+  width: 100%;
+  max-width: 360px;
+  flex-shrink: 0;
+  contain: layout paint;
+  pointer-events: none;
+}
+.compact { max-width: 176px; }
+.artwork { display: block; width: 100%; height: auto; overflow: visible; }
+.phone { animation: float 6s ease-in-out infinite; animation-delay: var(--broadcast-phase, 0s); }
+.message { animation: message 6s ease-in-out infinite; animation-delay: var(--broadcast-phase, 0s); }
+.routeFlow { animation: flow 6s linear infinite; animation-delay: var(--broadcast-phase, 0s); }
+.packet {
+  offset-rotate: 0deg;
+  animation: travel 6s linear infinite;
+  animation-delay: calc(var(--broadcast-phase, 0s) + var(--packet-delay, 0s));
+}
+.northWest { offset-path: path("M182 83C142 83 138 59 94 59"); --packet-delay: 0s; }
+.northEast { offset-path: path("M257 84C294 84 297 57 336 57"); --packet-delay: -1.5s; }
+.southWest { offset-path: path("M180 134C140 134 135 160 94 160"); --packet-delay: -3s; }
+.southEast { offset-path: path("M257 132C295 132 300 158 338 158"); --packet-delay: -4.5s; }
+.recipientHighlight { animation: receive 6s ease-in-out infinite; animation-delay: calc(var(--broadcast-phase, 0s) + var(--recipient-delay, 0s)); }
+.typingDot { animation: type 6s ease-in-out infinite; animation-delay: calc(var(--broadcast-phase, 0s) + var(--dot-delay, 0s)); }
+.bell { transform-origin: 223px 84px; animation: bell 6s ease-in-out infinite; animation-delay: var(--broadcast-phase, 0s); }
+.greeting { animation: greeting 6s ease-in-out infinite; animation-delay: var(--broadcast-phase, 0s); }
+
+.scene[data-playing="false"] * { animation-play-state: paused !important; }
+.scene[data-state="submitting"] .packets,
+.scene[data-state="submitting"] .routeFlow { visibility: hidden; }
+.scene[data-state="complete"] .packets,
+.scene[data-state="attention"] .packets,
+.scene[data-state="reconnecting"] .packets { visibility: hidden; }
+.scene[data-state="complete"] .recipientHighlight { opacity: 1; }
+.scene[data-state="attention"] .recipientHighlight,
+.scene[data-state="reconnecting"] .recipientHighlight { stroke: #c39a45; opacity: .8; }
+
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes message { 0%, 100% { transform: translateY(1px); } 35%, 75% { transform: translateY(-1px); } }
+@keyframes flow { to { stroke-dashoffset: -114; } }
+@keyframes travel {
+  0% { offset-distance: 0%; opacity: 0; }
+  8% { opacity: 1; }
+  40% { offset-distance: 96%; opacity: 1; }
+  46%, 100% { offset-distance: 100%; opacity: 0; }
+}
+@keyframes receive { 0%, 100% { opacity: .35; } 35%, 52% { opacity: 1; } 70% { opacity: .35; } }
+@keyframes type { 0%, 100% { opacity: .3; } 25%, 42% { opacity: 1; } 65% { opacity: .3; } }
+@keyframes bell { 0%, 20%, 100% { transform: rotate(0); } 5%, 15% { transform: rotate(-7deg); } 10% { transform: rotate(7deg); } }
+@keyframes greeting { 0%, 100% { transform: translateY(0); } 20%, 60% { transform: translateY(-2px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .scene * { animation: none !important; }
+  .packets { visibility: hidden; }
+}

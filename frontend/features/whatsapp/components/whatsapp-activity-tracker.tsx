@@ -55,6 +55,7 @@ import {
   whatsappActivityKey,
   whatsappActivitySourceHref,
 } from "../utils/activity-tracking";
+import { WhatsAppBroadcastMotion } from "./whatsapp-broadcast-motion";
 
 const SUCCESS_AUTO_DISMISS_MS = 12_000;
 const FLOATING_EDGE_GAP = 16;
@@ -225,6 +226,8 @@ export function WhatsAppActivityTrackerProvider({
             ...summary,
             title: activity.title,
             context_label: activity.contextLabel,
+            messageType: activity.messageType,
+            startedAt: activity.startedAt,
             skipped_already_sent: activity.skippedAlreadySent ?? 0,
             skipped_in_progress: activity.skippedInProgress ?? 0,
             skipped_delivery_unknown: activity.skippedDeliveryUnknown ?? 0,
@@ -553,13 +556,13 @@ function DraggableWhatsAppActivityOverlay({
     <div
       ref={containerRef}
       className={cn(
-        "fixed z-[95] max-h-[calc(100vh-32px)] w-[min(420px,calc(100vw-24px))] cursor-grab select-none space-y-2 overflow-y-auto overscroll-contain active:cursor-grabbing",
+        "fixed z-[95] max-h-[calc(100vh-32px)] w-[min(420px,calc(100vw-32px))] cursor-grab select-none space-y-2 overflow-y-auto overscroll-contain active:cursor-grabbing",
         dragging && "cursor-grabbing will-change-transform",
       )}
       style={
         position
           ? { left: position.x, top: position.y }
-          : { bottom: 24, right: 24 }
+          : { bottom: FLOATING_EDGE_GAP, right: FLOATING_EDGE_GAP }
       }
       data-whatsapp-activity-floating
       onPointerDown={startDrag}
@@ -638,27 +641,58 @@ function WhatsAppActivityRow({
           variant === "floating" && "touch-none px-3 py-2.5",
         )}
       >
-        <span
-          className={cn(
-            "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
-            isRunning
-              ? "bg-blue-100 text-blue-700"
-              : activity.failed > 0 || activity.delivery_unknown > 0
-                ? "bg-amber-100 text-amber-700"
-                : "bg-emerald-100 text-emerald-700",
-          )}
-        >
-          {isRunning ? (
-            <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
-          ) : activity.failed > 0 || activity.delivery_unknown > 0 ? (
-            <AlertTriangle className="h-4 w-4" aria-hidden="true" />
-          ) : (
-            <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-          )}
-        </span>
+        {activity.kind === "broadcast" ? (
+          <div
+            className={cn(
+              "shrink-0",
+              variant === "floating"
+                ? "w-[76px] sm:w-[90px]"
+                : "w-[96px] sm:w-[132px]",
+            )}
+          >
+            <WhatsAppBroadcastMotion
+              compact
+              messageType={activity.messageType}
+              startedAt={activity.startedAt}
+              state={
+                activity.refresh_error
+                  ? "reconnecting"
+                  : isRunning
+                    ? "sending"
+                    : activity.failed > 0 || activity.delivery_unknown > 0
+                      ? "attention"
+                      : activity.total > 0
+                        ? "complete"
+                        : "reconnecting"
+              }
+            />
+          </div>
+        ) : (
+          <span
+            className={cn(
+              "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
+              isRunning
+                ? "bg-blue-100 text-blue-700"
+                : activity.failed > 0 || activity.delivery_unknown > 0
+                  ? "bg-amber-100 text-amber-700"
+                  : "bg-emerald-100 text-emerald-700",
+            )}
+          >
+            {isRunning ? (
+              <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
+            ) : activity.failed > 0 || activity.delivery_unknown > 0 ? (
+              <AlertTriangle className="h-4 w-4" aria-hidden="true" />
+            ) : (
+              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+            )}
+          </span>
+        )}
 
         <div className="min-w-0 flex-1">
-          <div className="flex min-w-0 items-center gap-2">
+          <div className={cn(
+            "flex min-w-0 items-center gap-2",
+            activity.kind === "broadcast" && "flex-wrap gap-y-0.5",
+          )}>
             <Link
               href={sourceHref as never}
               className="truncate text-sm font-semibold text-slate-950 hover:text-blue-700 hover:underline"
@@ -675,7 +709,10 @@ function WhatsAppActivityRow({
               </span>
             ) : null}
           </div>
-          <div className="mt-0.5 flex min-w-0 items-center gap-2 text-xs text-slate-500">
+          <div className={cn(
+            "mt-0.5 flex min-w-0 items-center gap-2 text-xs text-slate-500",
+            activity.kind === "broadcast" && "flex-wrap gap-x-2 gap-y-0.5",
+          )}>
             <span className="truncate">{activity.context_label}</span>
             <span aria-hidden="true">{"\u00b7"}</span>
             <span className="shrink-0 font-semibold tabular-nums text-slate-700">
