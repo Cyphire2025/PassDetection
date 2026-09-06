@@ -7,7 +7,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { KeyRound, Mail, Lock, ShieldCheck } from "lucide-react";
+import { ArrowRight, KeyRound, Mail, Lock, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { Button, Input, PasswordInput } from "@/components/ui";
 import { loginSchema, type LoginFormData } from "../schemas/auth.schemas";
@@ -30,25 +30,25 @@ export function LoginForm({ notice }: { notice?: string }) {
   }
 
   return (
-    <div className="bg-transparent p-3 text-white sm:p-4 [&_label]:text-white [&_label]:drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]">
-      <h2 className="mb-1 text-base font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]">Sign in to your account</h2>
-      <p className="mb-4 text-sm font-medium text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]">
-        Enter your credentials to access the platform
+    <div className="text-[#123047] [&_label]:text-[#253e50]" data-login-form>
+      <h1 className="text-[32px] leading-tight font-semibold tracking-[-0.035em] text-[#102e43]">Welcome back.</h1>
+      <p className="mt-3 mb-8 text-sm leading-relaxed text-slate-600">
+        Sign in to your Global Connect workspace.
       </p>
 
       {apiError && (
-        <div role="alert" className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <div role="alert" className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {apiError.message}
         </div>
       )}
 
       {notice && !apiError && (
-        <div role="status" className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+        <div role="status" className="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
           {notice}
         </div>
       )}
 
-      <form onSubmit={handleSubmit((d) => login(d))} className="flex flex-col gap-4" noValidate>
+      <form onSubmit={handleSubmit((d) => login(d))} className="flex flex-col gap-6" noValidate>
         <Input
           {...register("email")}
           id="login-email"
@@ -59,7 +59,7 @@ export function LoginForm({ notice }: { notice?: string }) {
           required
           error={errors.email?.message}
           leftAddon={<Mail className="h-4 w-4" aria-hidden="true" />}
-          className="h-12 text-base"
+          className="h-[54px] rounded-lg border-[#cbd5dc] bg-white text-base focus:ring-[#1d6297]"
         />
 
         <PasswordInput
@@ -71,16 +71,22 @@ export function LoginForm({ notice }: { notice?: string }) {
           required
           error={errors.password?.message}
           leftAddon={<Lock className="h-4 w-4" aria-hidden="true" />}
-          className="h-12 pr-12 text-base"
+          className="h-[54px] rounded-lg border-[#cbd5dc] bg-white pr-12 text-base focus:ring-[#1d6297]"
         />
 
-        <Button type="submit" isLoading={isPending} className="mt-1 h-12 w-full text-base" id="login-submit">
+        <Button
+          type="submit"
+          isLoading={isPending}
+          className="mt-1 h-[54px] w-full rounded-lg bg-[#123753] text-sm font-semibold hover:bg-[#17486d] active:bg-[#102e43]"
+          rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}
+          id="login-submit"
+        >
           Sign in
         </Button>
       </form>
 
-      <p className="mt-3 text-center text-xs font-medium text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]">
-        <a href="/forgot-password" className="underline decoration-white/60 underline-offset-2 hover:decoration-white">Forgot your password?</a>
+      <p className="mt-5 text-center text-sm">
+        <a href="/forgot-password" className="inline-flex min-h-11 items-center font-medium text-[#1b5b8a] underline-offset-4 hover:underline">Forgot your password?</a>
       </p>
     </div>
   );
@@ -103,34 +109,34 @@ export function MfaChallengePanel({ challenge, onBack }: { challenge: AuthChalle
 
   if (completed?.recovery_codes?.length) {
     return (
-      <div className="space-y-4 bg-transparent p-3 text-white sm:p-4">
+      <div className="space-y-6 text-[#123047]">
         <div>
-          <h2 className="text-base font-semibold drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]">Save your recovery codes</h2>
-          <p className="mt-1 text-sm font-medium drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]">Each code works once. Store them in a password manager before continuing.</p>
+          <h1 className="text-[28px] leading-tight font-semibold tracking-[-0.025em]">Save your recovery codes</h1>
+          <p className="mt-3 text-sm leading-relaxed text-slate-600">Each code works once. Store them in a password manager before continuing.</p>
         </div>
-        <div className="grid grid-cols-2 gap-2 rounded-xl border border-white/20 bg-slate-950/80 p-3 font-mono text-xs">
-          {completed.recovery_codes.map((recoveryCode) => <span key={recoveryCode}>{recoveryCode}</span>)}
+        <div className="grid grid-cols-2 gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 font-mono text-xs text-[#123047]">
+          {completed.recovery_codes.map((recoveryCode) => <span className="break-all" key={recoveryCode}>{recoveryCode}</span>)}
         </div>
-        <Button type="button" className="w-full" onClick={() => finishAuthentication(completed, setSession)}>I saved these codes</Button>
+        <Button type="button" className="h-[54px] w-full bg-[#123753] hover:bg-[#17486d] active:bg-[#102e43]" onClick={() => finishAuthentication(completed, setSession)}>I saved these codes</Button>
       </div>
     );
   }
 
   const enrolling = challenge.status === "mfa_enrollment_required";
   return (
-    <div className="space-y-4 bg-transparent p-3 text-white sm:p-4">
+    <div className="space-y-6 text-[#123047] [&_label]:text-[#253e50]">
       <div>
-        <h2 className="flex items-center gap-2 text-base font-semibold drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]">
-          <ShieldCheck className="h-5 w-5" aria-hidden="true" />
+        <h1 className="flex items-center gap-3 text-[28px] leading-tight font-semibold tracking-[-0.025em]">
+          <ShieldCheck className="h-6 w-6 shrink-0 text-[#1b5b8a]" aria-hidden="true" />
           {enrolling ? "Protect your account" : "Verify your identity"}
-        </h2>
-        <p className="mt-1 text-sm font-medium drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]">
+        </h1>
+        <p className="mt-3 text-sm leading-relaxed text-slate-600">
           {enrolling ? "Add this account to an authenticator app, then enter its six-digit code." : "Enter an authenticator code or one unused recovery code."}
         </p>
       </div>
       {enrolling && challenge.setup_secret && (
-        <div className="rounded-xl border border-white/20 bg-slate-950/80 p-3">
-          <p className="text-xs text-slate-200">Authenticator setup key</p>
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <p className="text-xs text-slate-600">Authenticator setup key</p>
           <p className="mt-1 break-all font-mono text-sm font-semibold tracking-wider">{challenge.setup_secret}</p>
         </div>
       )}
@@ -143,11 +149,12 @@ export function MfaChallengePanel({ challenge, onBack }: { challenge: AuthChalle
         autoComplete="one-time-code"
         inputMode="text"
         leftAddon={<KeyRound className="h-4 w-4" aria-hidden="true" />}
+        className="h-[54px] border-[#cbd5dc] text-base focus:ring-[#1d6297]"
       />
       {verify.error && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">The code was rejected or the challenge expired. Try again.</div>}
-      <div className="flex gap-2">
-        <Button type="button" variant="secondary" className="flex-1" onClick={onBack} disabled={verify.isPending}>Back</Button>
-        <Button type="button" className="flex-1" isLoading={verify.isPending} disabled={code.trim().length < 6} onClick={() => verify.mutate()}>Verify</Button>
+      <div className="flex gap-3">
+        <Button type="button" variant="secondary" className="h-[54px] flex-1" onClick={onBack} disabled={verify.isPending}>Back</Button>
+        <Button type="button" className="h-[54px] flex-1 bg-[#123753] hover:bg-[#17486d] active:bg-[#102e43]" isLoading={verify.isPending} disabled={code.trim().length < 6} onClick={() => verify.mutate()}>Verify</Button>
       </div>
     </div>
   );

@@ -1,0 +1,59 @@
+{
+  "verifiedOn": "2026-09-06",
+  "revision": "Pavilion v3: larger hotel and conference; detailed navigation-style platform",
+  "allThreeVideosFullyDecodedWithoutErrors": true,
+  "standaloneGlobeRadius": 278,
+  "hotelScale": 1.18,
+  "conferenceScale": 1.2,
+  "files": [
+    {
+      "name": "journey-film-web.mp4",
+      "sizeBytes": 2078001,
+      "sha256": "a1af2d0afde7b5fecfc1d09af4656d1a6e8a781e2f1fe829bd324fed5f36f4eb",
+      "topLevelAtoms": [
+        "ftyp",
+        "moov",
+        "free",
+        "mdat"
+      ]
+    },
+    {
+      "name": "journey-film-master.mp4",
+      "sizeBytes": 10403574,
+      "sha256": "7893649f9e2e829af23fe6a69da88ffe32c7ec3181280fa26c9b0d2557c956e2",
+      "topLevelAtoms": [
+        "ftyp",
+        "moov",
+        "free",
+        "mdat"
+      ]
+    },
+    {
+      "name": "journey-film-4k.mp4",
+      "sizeBytes": 8894517,
+      "sha256": "a68e15cd396dbbd66583093c56a9d6690e706d25f9d11e9a259545f93578dd33",
+      "topLevelAtoms": [
+        "ftyp",
+        "moov",
+        "free",
+        "mdat"
+      ],
+      "nativeRender": true,
+      "canvas": [
+        3840,
+        2160
+      ],
+      "containedArtwork": [
+        3456,
+        2160
+      ],
+      "horizontalMarginsPixels": 192,
+      "sphereRenderDiameterPixels": 1216
+    },
+    {
+      "name": "journey-film-poster.jpg",
+      "sizeBytes": 114609,
+      "sha256": "eb8d3cee87c283445e29cc8115936bee1eba578809e92e659bb8e92e0d9b6cd5"
+    }
+  ]
+}

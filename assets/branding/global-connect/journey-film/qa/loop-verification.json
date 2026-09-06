@@ -1,0 +1,19 @@
+{
+  "durationSeconds": 24,
+  "sourceLoopFrame0Vs24": {
+    "meanRGBAbsoluteDifference": 0,
+    "maximumChannelDifference": 0
+  },
+  "ordinaryFirstFrameStep": {
+    "meanRGBAbsoluteDifference": 0.3365775,
+    "maximumChannelDifference": 213
+  },
+  "loopBoundaryFrameStep": {
+    "meanRGBAbsoluteDifference": 0.3452791666666667,
+    "maximumChannelDifference": 226
+  },
+  "standaloneGlobeRadius": 278,
+  "hotelWidthAndHeightScale": 1.18,
+  "conferenceWidthAndHeightScale": 1.2,
+  "notes": "Standalone globe is unchanged. Enlarged scene transitions use smooth easing; time 0 and 24 are identical."
+}

@@ -246,10 +246,14 @@ export function useCreateTourCoordinator() {
   });
 }
 
-export function useTourGroups() {
+export function useTourGroups(assignmentEligibleOnly = false) {
   return useQuery({
-    queryKey: QUERY_KEYS.operations.tourGroups,
-    queryFn: operationsApi.tourGroups,
+    queryKey: assignmentEligibleOnly
+      ? [...QUERY_KEYS.operations.tourGroups, "assignment-eligible"]
+      : QUERY_KEYS.operations.tourGroups,
+    queryFn: () => operationsApi.tourGroups(assignmentEligibleOnly),
+    refetchInterval: assignmentEligibleOnly ? 60_000 : false,
+    refetchIntervalInBackground: false,
     retry: false,
   });
 }

@@ -1,0 +1,27 @@
+{
+    "programs": [
+
+    ],
+    "stream_groups": [
+
+    ],
+    "streams": [
+        {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 3200,
+            "height": 2000,
+            "pix_fmt": "yuvj420p",
+            "color_range": "pc",
+            "color_space": "bt709",
+            "color_transfer": "iec61966-2-1",
+            "color_primaries": "bt709",
+            "avg_frame_rate": "60/1",
+            "nb_read_frames": "1440"
+        }
+    ],
+    "format": {
+        "duration": "24.000000",
+        "size": "10403574"
+    }
+}

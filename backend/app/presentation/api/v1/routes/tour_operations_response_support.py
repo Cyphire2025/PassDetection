@@ -15,6 +15,7 @@ from app.infrastructure.database.models import (
     PassportSubmissionModel,
     UserModel,
 )
+from app.infrastructure.repositories.coordinator_assignment_lifecycle import expired_trip_clause
 from app.infrastructure.repositories.operational_roster import operational_roster_member
 from app.presentation.api.v1.routes.tour_operations_attendance_scan_support import (
     SUBMITTED_PASSENGER_STATUSES,
@@ -41,9 +42,11 @@ async def coordinator_responses(
                 "group_count"
             ),
         )
+        .join(ClientGroupModel, ClientGroupModel.id == CoordinatorGroupAssignmentModel.group_id)
         .where(
             CoordinatorGroupAssignmentModel.coordinator_user_id.in_(coordinator_ids),
             CoordinatorGroupAssignmentModel.active.is_(True),
+            ~expired_trip_clause(),
         )
         .group_by(CoordinatorGroupAssignmentModel.coordinator_user_id)
     )
@@ -60,9 +63,11 @@ async def coordinator_responses(
             PassportSubmissionModel,
             PassportSubmissionModel.group_id == CoordinatorGroupAssignmentModel.group_id,
         )
+        .join(ClientGroupModel, ClientGroupModel.id == CoordinatorGroupAssignmentModel.group_id)
         .where(
             CoordinatorGroupAssignmentModel.coordinator_user_id.in_(coordinator_ids),
             CoordinatorGroupAssignmentModel.active.is_(True),
+            ~expired_trip_clause(),
             PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
             operational_roster_member(),
         )
@@ -118,9 +123,11 @@ async def group_responses(
             UserModel,
             UserModel.id == CoordinatorGroupAssignmentModel.coordinator_user_id,
         )
+        .join(ClientGroupModel, ClientGroupModel.id == CoordinatorGroupAssignmentModel.group_id)
         .where(
             CoordinatorGroupAssignmentModel.group_id.in_(group_ids),
             CoordinatorGroupAssignmentModel.active.is_(True),
+            ~expired_trip_clause(),
         )
         .order_by(UserModel.full_name.asc())
     )
@@ -144,6 +151,8 @@ async def group_responses(
             status=group.status,
             destination=group.destination,
             travel_date=group.travel_date.isoformat() if group.travel_date else None,
+            return_date=group.return_date.isoformat() if group.return_date else None,
+            timezone=group.timezone,
             departure_cities=list(group.departure_cities or []),
             base_city_enabled=group.base_city_enabled,
             nearest_international_airport_enabled=(group.nearest_international_airport_enabled),

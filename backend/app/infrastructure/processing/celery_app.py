@@ -44,6 +44,7 @@ DOCUMENT_STORAGE_CLEANUP_TASK = "documents.cleanup_storage"
 DOCUMENT_STORAGE_ORPHAN_RECONCILIATION_TASK = "documents.reconcile_storage_orphans"
 PLATFORM_LIFECYCLE_TASK = "platform.apply_lifecycle_policies"
 PLATFORM_SCHEDULER_HEARTBEAT_TASK = "platform.scheduler_heartbeat"
+COORDINATOR_ASSIGNMENT_EXPIRY_TASK = "coordinators.expire_trip_assignments"
 IDENTITY_RECOVERY_DELIVERY_TASK = "identity.deliver_recovery_notifications"
 IDENTITY_RETENTION_TASK = "identity.apply_retention"
 WHATSAPP_BROADCAST_TASK = "whatsapp.process_broadcast"
@@ -74,6 +75,7 @@ celery_app = Celery(
         "app.infrastructure.email.ai_tasks",
         "app.infrastructure.documents.cleanup_tasks",
         "app.infrastructure.platform_lifecycle_tasks",
+        "app.infrastructure.coordinator_assignment_tasks",
         "app.infrastructure.security.identity_tasks",
         "app.infrastructure.mobile_push.tasks",
         "app.infrastructure.my_photos.tasks",
@@ -109,6 +111,7 @@ celery_app.conf.update(
         DOCUMENT_STORAGE_CLEANUP_TASK: {"queue": "passport_ocr"},
         DOCUMENT_STORAGE_ORPHAN_RECONCILIATION_TASK: {"queue": "passport_ocr"},
         PLATFORM_LIFECYCLE_TASK: {"queue": "passport_ocr"},
+        COORDINATOR_ASSIGNMENT_EXPIRY_TASK: {"queue": "passport_ocr"},
         IDENTITY_RECOVERY_DELIVERY_TASK: {"queue": "passport_ocr"},
         IDENTITY_RETENTION_TASK: {"queue": "passport_ocr"},
         WHATSAPP_BROADCAST_TASK: {"queue": "whatsapp"},
@@ -198,6 +201,10 @@ celery_app.conf.update(
             "soft_time_limit": 9 * 60,
             "time_limit": 10 * 60,
         },
+        COORDINATOR_ASSIGNMENT_EXPIRY_TASK: {
+            "soft_time_limit": 45,
+            "time_limit": 60,
+        },
         MOBILE_PUSH_COUNTDOWN_TASK: {
             "soft_time_limit": 4 * 60,
             "time_limit": 5 * 60,
@@ -274,6 +281,11 @@ celery_app.conf.update(
             "task": PLATFORM_LIFECYCLE_TASK,
             "schedule": 86_400.0,
             "options": {"queue": "passport_ocr"},
+        },
+        "expire-ended-trip-coordinator-assignments": {
+            "task": COORDINATOR_ASSIGNMENT_EXPIRY_TASK,
+            "schedule": 60.0,
+            "options": {"queue": "passport_ocr", "expires": 60},
         },
         "record-platform-scheduler-heartbeat": {
             "task": PLATFORM_SCHEDULER_HEARTBEAT_TASK,

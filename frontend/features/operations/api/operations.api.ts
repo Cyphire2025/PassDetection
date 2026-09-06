@@ -191,6 +191,8 @@ export interface TourGroup {
   status: string;
   destination: string | null;
   travel_date: string | null;
+  return_date?: string | null;
+  timezone?: string;
   departure_cities: string[];
   base_city_enabled: boolean;
   nearest_international_airport_enabled: boolean;
@@ -807,8 +809,10 @@ export const operationsApi = {
     return data;
   },
 
-  tourGroups: async (): Promise<TourGroup[]> => {
-    const { data } = await apiClient.get<TourGroup[]>(API_ENDPOINTS.tourOperations.groups);
+  tourGroups: async (assignmentEligibleOnly = false): Promise<TourGroup[]> => {
+    const { data } = await apiClient.get<TourGroup[]>(API_ENDPOINTS.tourOperations.groups, {
+      params: assignmentEligibleOnly ? { assignment_eligible_only: true } : undefined,
+    });
     return data;
   },
 

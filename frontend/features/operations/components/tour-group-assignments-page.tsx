@@ -36,7 +36,7 @@ type AssignmentFilter = "all" | "unassigned" | "assigned";
 
 export function TourGroupAssignmentsPage() {
   const { data: coordinators = [], isLoading: coordinatorsLoading, error: coordinatorsError } = useTourCoordinators();
-  const { data: groups = [], isLoading: groupsLoading, error: groupsError } = useTourGroups();
+  const { data: groups = [], isLoading: groupsLoading, error: groupsError } = useTourGroups(true);
   const assignGroup = useAssignTourGroupCoordinators();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<AssignmentFilter>("all");
@@ -53,6 +53,7 @@ export function TourGroupAssignmentsPage() {
         group.name,
         group.destination,
         group.travel_date,
+        group.return_date,
         ...group.coordinators.flatMap((coordinator) => [coordinator.full_name, coordinator.email]),
       ].some((value) => value?.toLocaleLowerCase().includes(normalized));
     });
@@ -102,7 +103,7 @@ export function TourGroupAssignmentsPage() {
           Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-[72px] rounded-none" />)
         ) : (
           <>
-            <OperationsSummaryItem label="Active groups" value={totals.groups} helper="tour workspaces" icon={ClipboardCheck} />
+            <OperationsSummaryItem label="Active groups" value={totals.groups} helper="upcoming and ongoing" icon={ClipboardCheck} />
             <OperationsSummaryItem label="Passengers" value={totals.passengers.toLocaleString()} helper="submitted roster" icon={UsersRound} />
             <OperationsSummaryItem label="Coordinators" value={coordinators.length} helper="field accounts" icon={UserRoundCheck} />
             <OperationsSummaryItem
@@ -121,7 +122,7 @@ export function TourGroupAssignmentsPage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 id="tour-coverage-heading" className="font-semibold text-slate-950">Group coverage</h2>
-              <p className="mt-0.5 text-sm text-slate-500">Assign coverage and launch the group&apos;s live operational tools.</p>
+              <p className="mt-0.5 text-sm text-slate-500">Upcoming and ongoing trips. Coordinator assignments end after the return date, or the departure date when no return date is set.</p>
             </div>
             <Badge variant="outline">{groups.length} groups</Badge>
           </div>
@@ -162,8 +163,8 @@ export function TourGroupAssignmentsPage() {
           </div>
         ) : groups.length === 0 ? (
           <OperationsEmptyState
-            title="No groups are available for Tour Ops"
-            description="Active groups with submitted passenger rosters will appear here for coordinator coverage."
+            title="No upcoming or ongoing trips"
+            description="Groups with current or future trip dates appear here. Add trip dates in All Groups to make a group available for coordinator assignment."
           />
         ) : visibleGroups.length === 0 ? (
           <OperationsEmptyState
@@ -220,7 +221,7 @@ function GroupAssignmentRow({
         <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-slate-500">
           <RowMetadata icon={UsersRound}>{group.passenger_count.toLocaleString()} passengers</RowMetadata>
           <RowMetadata icon={MapPin}>{group.destination || "Destination not set"}</RowMetadata>
-          <RowMetadata icon={CalendarDays}>{formatTripDate(group.travel_date)}</RowMetadata>
+          <RowMetadata icon={CalendarDays}>{formatTripDate(group.travel_date)}{group.return_date && group.return_date !== group.travel_date ? ` – ${formatTripDate(group.return_date)}` : ""}</RowMetadata>
         </div>
       </div>
 

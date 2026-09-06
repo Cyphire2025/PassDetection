@@ -104,6 +104,9 @@ from app.infrastructure.database.models import (
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.qr.approved_passenger_qr_issuer import ensure_mobile_passenger_qr
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.infrastructure.repositories.coordinator_assignment_lifecycle import (
+    expired_trip_clause,
+)
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.routes.mobile_integrity import get_mobile_integrity_service
 from app.presentation.api.v1.schemas.mobile_schemas import (
@@ -384,6 +387,7 @@ async def list_mobile_trips(
             CoordinatorGroupAssignmentModel.coordinator_user_id == claims.principal_id,
             CoordinatorGroupAssignmentModel.agency_id == claims.agency_id,
             CoordinatorGroupAssignmentModel.active.is_(True),
+            ~expired_trip_clause(now),
         )
     else:  # Defensive guard for future token-claim changes.
         raise AuthorizationError("Mobile trip access is not available")

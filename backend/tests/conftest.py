@@ -37,6 +37,7 @@ from app.core.config.settings import Settings  # noqa: E402
 from app.infrastructure.database.models import Base  # noqa: E402
 from app.infrastructure.database.session import get_db_session  # noqa: E402
 from app.main import create_application  # noqa: E402
+from tests.sqlite_trip_timezone import register_sqlite_trip_timezone  # noqa: E402
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
@@ -70,6 +71,7 @@ async def db_session() -> AsyncSession:
     session_factory = async_sessionmaker(engine, expire_on_commit=False)
 
     async with session_factory() as session:
+        await register_sqlite_trip_timezone(session)
         yield session
 
     async with engine.begin() as conn:

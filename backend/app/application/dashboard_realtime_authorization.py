@@ -20,6 +20,9 @@ from app.infrastructure.database.models import (
     UserModel,
     UserSecurityStateModel,
 )
+from app.infrastructure.repositories.coordinator_assignment_lifecycle import (
+    expired_trip_clause,
+)
 
 DASHBOARD_REALTIME_ROLES = frozenset(
     {
@@ -149,6 +152,7 @@ async def load_dashboard_realtime_authorization(
             CoordinatorGroupAssignmentModel.agency_id == claims.agency_id,
             CoordinatorGroupAssignmentModel.coordinator_user_id == claims.user_id,
             CoordinatorGroupAssignmentModel.active.is_(True),
+            ~expired_trip_clause(),
         )
 
     trips_result = await session.execute(

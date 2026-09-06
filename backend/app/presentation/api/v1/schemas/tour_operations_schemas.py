@@ -76,6 +76,8 @@ class TourOperationsGroupResponse(BaseModel):
     status: str
     destination: str | None = None
     travel_date: str | None = None
+    return_date: str | None = None
+    timezone: str = "Asia/Kolkata"
     departure_cities: list[str] = Field(default_factory=list)
     base_city_enabled: bool = False
     nearest_international_airport_enabled: bool = False

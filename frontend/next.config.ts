@@ -20,7 +20,7 @@ const PUBLIC_REVALIDATED_ASSETS = [
   "/pwa-icon-maskable-512.png",
   "/apple-touch-icon.png",
   "/globalconnect-logo.png",
-  "/globalconnectteam.png",
+  "/assets/branding/global-connect/:path*",
   "/mediapipe/:path*",
 ] as const;
 

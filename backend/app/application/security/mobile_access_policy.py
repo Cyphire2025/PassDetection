@@ -22,6 +22,9 @@ from app.infrastructure.database.models import (
     ClientGroupModel,
     CoordinatorGroupAssignmentModel,
 )
+from app.infrastructure.repositories.coordinator_assignment_lifecycle import (
+    expired_trip_clause,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -173,12 +176,17 @@ class MobileAccessPolicy:
             raise AuthorizationError("Mobile trip access is not available")
         result = await self._session.execute(
             select(CoordinatorGroupAssignmentModel.id)
+            .join(
+                ClientGroupModel,
+                ClientGroupModel.id == CoordinatorGroupAssignmentModel.group_id,
+            )
             .where(
                 CoordinatorGroupAssignmentModel.agency_id == claims.agency_id,
                 CoordinatorGroupAssignmentModel.group_id == group.id,
                 CoordinatorGroupAssignmentModel.coordinator_user_id
                 == claims.principal_id,
                 CoordinatorGroupAssignmentModel.active.is_(True),
+                ~expired_trip_clause(),
             )
             .limit(1)
         )

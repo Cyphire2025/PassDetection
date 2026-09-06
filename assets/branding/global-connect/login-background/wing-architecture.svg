@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" preserveAspectRatio="none" fill="none">
+  <defs>
+    <linearGradient id="outer" x1="690" y1="-80" x2="1080" y2="650" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#32637e"/><stop offset=".38" stop-color="#234e69"/><stop offset=".72" stop-color="#153b55"/><stop offset="1" stop-color="#0c263c"/>
+    </linearGradient>
+    <linearGradient id="surface" x1="720" y1="0" x2="1130" y2="485" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1b435f"/><stop offset=".46" stop-color="#205575"/><stop offset=".8" stop-color="#163e5a"/><stop offset="1" stop-color="#0e2d45"/>
+    </linearGradient>
+    <linearGradient id="return" x1="779" y1="45" x2="1060" y2="526" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#071d31"/><stop offset=".47" stop-color="#0d2b42"/><stop offset="1" stop-color="#1d465f"/>
+    </linearGradient>
+    <linearGradient id="edge" x1="685" y1="0" x2="1062" y2="620" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#608da6" stop-opacity=".62"/><stop offset=".6" stop-color="#7699aa" stop-opacity=".26"/><stop offset="1" stop-color="#254a61" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="seam" x1="802" y1="150" x2="1100" y2="490" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4f7890" stop-opacity="0"/><stop offset=".5" stop-color="#7497a8" stop-opacity=".4"/><stop offset="1" stop-color="#53768b" stop-opacity=".1"/>
+    </linearGradient>
+  </defs>
+  <!-- A single aerodynamic volume: outer leading edge, broad face and folded return. -->
+  <path d="M682-120H1150V690C1058 554 906 430 792 318C708 235 659 107 682-120Z" fill="url(#outer)"/>
+  <path d="M692-120H1150V654C1050 534 910 417 803 307C725 227 675 107 692-120Z" fill="url(#surface)"/>
+  <path d="M771-120H1150V536C1041 466 933 363 850 251C809 195 782 79 771-120Z" fill="url(#return)"/>
+  <path d="M692-120C675 107 725 227 803 307C910 417 1050 534 1150 654" stroke="url(#edge)" stroke-width="1.4"/>
+  <path d="M771-120C782 79 809 195 850 251C933 363 1041 466 1150 536" stroke="url(#seam)" stroke-width="1"/>
+  <!-- A precise inset echoes the brand's green without a glow or surface pattern. -->
+  <path d="M877 377C891 391 906 405 922 419L919 422C903 408 888 394 874 380Z" fill="#779d43"/>
+  <path d="M878 378C892 392 906 405 921 419" stroke="#b5db65" stroke-width="1"/>
+</svg>

@@ -19,6 +19,9 @@ from app.infrastructure.database.models import (
     ManagerGroupAccessModel,
     PassportSubmissionModel,
 )
+from app.infrastructure.repositories.coordinator_assignment_lifecycle import (
+    expired_trip_clause,
+)
 
 
 class AuthorizationPolicy:
@@ -58,6 +61,7 @@ class AuthorizationPolicy:
             stmt = stmt.where(AuthorizationPolicy.staff_group_visibility_filter(user))
         elif user.role == UserRole.AGENCY_COORDINATOR:
             stmt = stmt.where(
+                ~expired_trip_clause(),
                 ClientGroupModel.id.in_(
                     select(CoordinatorGroupAssignmentModel.group_id).where(
                         CoordinatorGroupAssignmentModel.coordinator_user_id == user.id,
@@ -79,9 +83,15 @@ class AuthorizationPolicy:
         elif user.role == UserRole.AGENCY_COORDINATOR:
             stmt = stmt.where(
                 PassportSubmissionModel.id.in_(
-                    select(CoordinatorAssignmentModel.passenger_id).where(
+                    select(CoordinatorAssignmentModel.passenger_id)
+                    .join(
+                        ClientGroupModel,
+                        ClientGroupModel.id == CoordinatorAssignmentModel.group_id,
+                    )
+                    .where(
                         CoordinatorAssignmentModel.coordinator_user_id == user.id,
                         CoordinatorAssignmentModel.active.is_(True),
+                        ~expired_trip_clause(),
                     )
                 )
             )
@@ -231,10 +241,15 @@ class AuthorizationPolicy:
     async def coordinator_has_group(self, coordinator_id: uuid.UUID, group_id: uuid.UUID) -> bool:
         result = await self._session.execute(
             select(CoordinatorGroupAssignmentModel.id)
+            .join(
+                ClientGroupModel,
+                ClientGroupModel.id == CoordinatorGroupAssignmentModel.group_id,
+            )
             .where(
                 CoordinatorGroupAssignmentModel.group_id == group_id,
                 CoordinatorGroupAssignmentModel.coordinator_user_id == coordinator_id,
                 CoordinatorGroupAssignmentModel.active.is_(True),
+                ~expired_trip_clause(),
             )
             .limit(1)
         )
@@ -250,11 +265,16 @@ class AuthorizationPolicy:
         # Attendance routes use the separate group-scoped authorization path.
         result = await self._session.execute(
             select(CoordinatorAssignmentModel.id)
+            .join(
+                ClientGroupModel,
+                ClientGroupModel.id == CoordinatorAssignmentModel.group_id,
+            )
             .where(
                 CoordinatorAssignmentModel.group_id == group_id,
                 CoordinatorAssignmentModel.passenger_id == passenger_id,
                 CoordinatorAssignmentModel.coordinator_user_id == coordinator_id,
                 CoordinatorAssignmentModel.active.is_(True),
+                ~expired_trip_clause(),
             )
             .limit(1)
         )

@@ -33,10 +33,10 @@ export function ActivationForm() {
 
   if (activation.data?.status === "action_completed") {
     return (
-      <div className="space-y-4 p-4 text-white">
-        <h1 className="text-lg font-semibold">Account activated</h1>
-        <p role="status" className="text-sm font-medium">{activation.data.message}</p>
-        <Button type="button" variant="secondary" className="w-full" onClick={() => window.location.assign("/login")}>Return to sign in</Button>
+      <div className="space-y-6 text-[#123047]">
+        <h1 className="text-[28px] leading-tight font-semibold tracking-[-0.025em]">Account activated</h1>
+        <p role="status" className="text-sm leading-relaxed text-slate-600">{activation.data.message}</p>
+        <Button type="button" variant="secondary" className="h-[54px] w-full" onClick={() => window.location.assign("/login")}>Return to sign in</Button>
       </div>
     );
   }
@@ -64,24 +64,24 @@ export function ActivationForm() {
   };
 
   if (tokenState === "checking") {
-    return <p role="status" className="p-4 text-sm font-medium text-white">Checking the activation link...</p>;
+    return <p role="status" className="text-sm leading-relaxed text-slate-600">Checking the activation link...</p>;
   }
 
   if (tokenState === "invalid") {
     return (
-      <div className="space-y-4 p-4 text-white">
-        <h1 className="text-lg font-semibold">Activation link unavailable</h1>
-        <p className="text-sm">Ask your administrator to issue a new single-use activation link.</p>
-        <Button type="button" variant="secondary" className="w-full" onClick={() => window.location.assign("/login")}>Return to sign in</Button>
+      <div className="space-y-6 text-[#123047]">
+        <h1 className="text-[28px] leading-tight font-semibold tracking-[-0.025em]">Activation link unavailable</h1>
+        <p className="text-sm leading-relaxed text-slate-600">Ask your administrator to issue a new single-use activation link.</p>
+        <Button type="button" variant="secondary" className="h-[54px] w-full" onClick={() => window.location.assign("/login")}>Return to sign in</Button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4 p-4 text-white [&_label]:text-white">
+    <div className="space-y-6 text-[#123047] [&_label]:text-[#253e50]">
       <div>
-        <h1 className="text-lg font-semibold drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]">Activate your account</h1>
-        <p className="mt-1 text-sm font-medium drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]">Choose a password known only to you. Staff accounts enroll MFA next.</p>
+        <h1 className="text-[28px] leading-tight font-semibold tracking-[-0.025em]">Activate your account</h1>
+        <p className="mt-3 text-sm leading-relaxed text-slate-600">Choose a password known only to you. Staff accounts enroll MFA next.</p>
       </div>
       <PasswordInput
         label="New password"
@@ -89,20 +89,22 @@ export function ActivationForm() {
         value={password}
         onChange={(event) => setPassword(event.target.value)}
         leftAddon={<KeyRound className="h-4 w-4" aria-hidden="true" />}
+        className="h-[54px] border-[#cbd5dc] pr-12 text-base focus:ring-[#1d6297]"
       />
       <PasswordInput
         label="Confirm password"
         autoComplete="new-password"
         value={confirmation}
         onChange={(event) => setConfirmation(event.target.value)}
+        className="h-[54px] border-[#cbd5dc] pr-12 text-base focus:ring-[#1d6297]"
       />
-      <p className="text-xs font-medium">Use uppercase, lowercase, a number, and at least 10 characters.</p>
+      <p className="text-xs leading-relaxed text-slate-600">Use uppercase, lowercase, a number, and at least 10 characters.</p>
       {(validationError || activation.error) && (
         <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
           {validationError ?? "The activation link is invalid, expired, or already used."}
         </div>
       )}
-      <Button type="button" className="w-full" isLoading={activation.isPending} onClick={submit}>Set password and continue</Button>
+      <Button type="button" className="h-[54px] w-full bg-[#123753] hover:bg-[#17486d] active:bg-[#102e43]" isLoading={activation.isPending} onClick={submit}>Set password and continue</Button>
     </div>
   );
 }

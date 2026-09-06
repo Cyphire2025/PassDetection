@@ -23,6 +23,9 @@ from app.infrastructure.database.models import (
     ClientGroupModel,
     CoordinatorGroupAssignmentModel,
 )
+from app.infrastructure.repositories.coordinator_assignment_lifecycle import (
+    expired_trip_clause,
+)
 from app.presentation.api.v1.schemas.mobile_schemas import MobileNotificationResponse
 
 _ANNOUNCEMENT_NOTIFICATION_TYPE = "group_announcement"
@@ -144,6 +147,7 @@ def _accessible_group_ids(
             CoordinatorGroupAssignmentModel.coordinator_user_id == claims.principal_id,
             CoordinatorGroupAssignmentModel.agency_id == claims.agency_id,
             CoordinatorGroupAssignmentModel.active.is_(True),
+            ~expired_trip_clause(now),
         )
     return statement.scalar_subquery()
 

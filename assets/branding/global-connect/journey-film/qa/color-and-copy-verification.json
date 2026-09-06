@@ -1,0 +1,25 @@
+{
+  "revision": "Pavilion v3: larger hospitality/event scenes and navigation-detail platform",
+  "webSHA256": "a1af2d0afde7b5fecfc1d09af4656d1a6e8a781e2f1fe829bd324fed5f36f4eb",
+  "publicCopyMatches": true,
+  "posterCopyMatches": true,
+  "expectedBackgroundRGB": [
+    11,
+    34,
+    57
+  ],
+  "decodedBackgroundRGB": [
+    10,
+    34,
+    56
+  ],
+  "maxChannelError": 1,
+  "colorTags": {
+    "range": "pc",
+    "matrix": "bt709",
+    "primaries": "bt709",
+    "transfer": "iec61966-2-1"
+  },
+  "browserProbeSelected": "D: full range with explicit sRGB transfer",
+  "browserFinding": "Selected explicit sRGB transfer avoids the original untagged full-range dark rectangle; integrated browser QA is handled by the application implementation."
+}

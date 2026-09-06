@@ -46,15 +46,6 @@ export function DocumentHub() {
         description="Rename supplier PDFs or match and distribute documents to passengers."
         icon={FileStack}
         accent="cyan"
-        actions={(
-          <IntentPrefetchLink
-            href={ROUTES.dashboard.documentDistribution}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-4 text-sm font-semibold text-[#123f73] shadow-sm transition hover:bg-cyan-50 active:bg-cyan-100"
-          >
-            Document Distribution
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </IntentPrefetchLink>
-        )}
       />
 
       <section

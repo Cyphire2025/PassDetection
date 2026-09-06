@@ -24,6 +24,9 @@ from app.infrastructure.database.models import (
     ClientGroupModel,
     CoordinatorGroupAssignmentModel,
 )
+from app.infrastructure.repositories.coordinator_assignment_lifecycle import (
+    expired_trip_clause,
+)
 
 RealtimePrincipalType: TypeAlias = Literal[
     "passenger",
@@ -165,6 +168,7 @@ async def load_mobile_realtime_authorization(
             GCGroupAccessModel.coordinator_access_enabled.is_(True),
             CoordinatorGroupAssignmentModel.coordinator_user_id == claims.principal_id,
             CoordinatorGroupAssignmentModel.active.is_(True),
+            ~expired_trip_clause(now),
         )
     else:  # pragma: no cover - MobileAccessClaims is a closed literal today.
         raise AuthorizationError("Mobile realtime access is not available")

@@ -54,7 +54,7 @@ export function MessageDeliveryPreview({
       {children && <div className="border-b border-slate-200 px-4 py-3">{children}</div>}
       <div className="bg-[#f0f2ef] p-3 sm:p-5">
         <p className="mb-4 text-center text-[10px] font-medium uppercase tracking-wider text-slate-500">Message preview</p>
-        <div className="ml-auto w-full max-w-[420px] overflow-hidden rounded-xl rounded-tr-sm border border-emerald-900/5 bg-[#e5f2df] shadow-sm">
+        <div className="ml-auto w-full max-w-[420px] overflow-hidden rounded-xl rounded-tr-sm border border-emerald-900/5 bg-[#dcf8c6] shadow-sm">
           {headerImagePreview ? (
             <div className="relative m-1.5 aspect-[16/10] overflow-hidden rounded-lg bg-white">
               <Image src={headerImagePreview} alt={`Selected ${formatMessageType(messageType)} image header`} fill unoptimized className="object-contain" />

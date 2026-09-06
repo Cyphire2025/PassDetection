@@ -34,6 +34,7 @@ from app.domain.exceptions.exceptions import AuthorizationError, StepUpRequiredE
 from app.domain.value_objects.attendance_activity import (
     normalize_attendance_activity_name,
 )
+from app.domain.value_objects.trip_lifecycle import trip_has_ended
 from app.infrastructure.database.models import (
     AttendanceRecordModel,
     AttendanceSessionModel,
@@ -52,6 +53,10 @@ from app.infrastructure.repositories.attendance_dashboard_repository import (
     AttendanceDashboardRepository,
 )
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.infrastructure.repositories.coordinator_assignment_lifecycle import (
+    current_trip_clause,
+    expired_trip_clause,
+)
 from app.infrastructure.repositories.operational_roster import operational_roster_member
 from app.presentation.api.v1.routes.tour_operations_attendance_batch_support import (
     AttendanceBatchDependencies,
@@ -472,6 +477,7 @@ async def create_coordinator(
 async def list_tour_operation_groups(
     current_user: User = Depends(require_role(COORDINATOR_MANAGEMENT_ROLES)),
     session: AsyncSession = Depends(get_db_session),
+    assignment_eligible_only: bool = False,
 ) -> list[TourOperationsGroupResponse]:
     agency_id = _agency_scope(current_user)
     filters: list[ColumnElement[bool]] = [
@@ -479,6 +485,8 @@ async def list_tour_operation_groups(
     ]
     if agency_id is not None:
         filters.append(ClientGroupModel.agency_id == agency_id)
+    if assignment_eligible_only:
+        filters.append(current_trip_clause())
 
     stmt = AuthorizationPolicy.apply_group_visibility_scope(
         select(ClientGroupModel).where(*filters), current_user
@@ -510,6 +518,7 @@ async def assign_group_coordinators(
     coordinator_ids = list(dict.fromkeys(body.coordinator_ids))
 
     if coordinator_ids:
+        _require_assignable_trip(group)
         coordinator_result = await session.execute(
             select(UserModel.id).where(
                 UserModel.id.in_(coordinator_ids),
@@ -824,7 +833,11 @@ async def assign_group_passengers(
     # Compatibility-only endpoint retained for rollback. The dashboard no
     # longer calls it, and attendance authorization ignores these assignments.
     agency_id = _require_agency(current_user)
-    await _get_manageable_group(session, agency_id, group_id, current_user)
+    group = await _get_manageable_group(
+        session, agency_id, group_id, current_user, lock_for_update=True
+    )
+    if body.coordinator_id is not None:
+        _require_assignable_trip(group)
     passenger_ids = list(dict.fromkeys(body.passenger_ids))
 
     passenger_result = await session.execute(
@@ -901,10 +914,12 @@ async def list_my_coordinator_groups(
     agency_id = _require_agency(current_user)
     group_ids_result = await session.execute(
         select(CoordinatorGroupAssignmentModel.group_id)
+        .join(ClientGroupModel, ClientGroupModel.id == CoordinatorGroupAssignmentModel.group_id)
         .where(
             CoordinatorGroupAssignmentModel.agency_id == agency_id,
             CoordinatorGroupAssignmentModel.coordinator_user_id == current_user.id,
             CoordinatorGroupAssignmentModel.active.is_(True),
+            ~expired_trip_clause(),
         )
         .distinct()
     )
@@ -1716,6 +1731,23 @@ async def _lock_attendance_closeout_group(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Group was not found")
 
 
+def _require_assignable_trip(group: ClientGroupModel) -> None:
+    if not (group.return_date or group.travel_date):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Set the trip dates before assigning coordinators.",
+        )
+    if trip_has_ended(
+        travel_date=group.travel_date,
+        return_date=group.return_date,
+        timezone=group.timezone,
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This trip has ended. Coordinators can only be assigned to upcoming or ongoing trips.",
+        )
+
+
 async def _get_manageable_group(
     session: AsyncSession,
     agency_id: uuid.UUID,
@@ -2038,6 +2070,7 @@ async def _get_coordinator_attendance_session(
             CoordinatorGroupAssignmentModel,
             CoordinatorGroupAssignmentModel.group_id == canonical_session.group_id,
         )
+        .join(ClientGroupModel, ClientGroupModel.id == canonical_session.group_id)
         .where(
             requested_session.id == session_id,
             requested_session.agency_id == agency_id,
@@ -2045,6 +2078,7 @@ async def _get_coordinator_attendance_session(
             CoordinatorGroupAssignmentModel.agency_id == agency_id,
             CoordinatorGroupAssignmentModel.coordinator_user_id == coordinator_id,
             CoordinatorGroupAssignmentModel.active.is_(True),
+            ~expired_trip_clause(),
         )
     )
     if lock_for_scan:
