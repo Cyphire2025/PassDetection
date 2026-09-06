@@ -699,8 +699,8 @@ export function UploadFlow({ token }: UploadFlowProps) {
     signal: AbortSignal,
     updateSingleReview = true,
   ): Promise<ExtractionWaitResult> => {
-    // The decorative scene follows the saved extraction job, never the upload
-    // request. The same boundary covers recovery and stored-image retries.
+    // Saved-job state drives extraction labels and recovery. The full-screen
+    // artwork stays mounted through preparation, upload and this polling phase.
     if (mountedRef.current && !signal.aborted) setExtractingSubmissionId(initial.id);
     try {
       let current = initial;
@@ -882,6 +882,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setUploadError(null);
       setExtractionNotice("Retrying automatic reading from the passport image that is already saved.");
       setIsScanningAgain(true);
+      setExtractingSubmissionId(submission.id);
       const queued = await uploadApi.scanAgain(
         token,
         submission.id,
@@ -911,7 +912,10 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setUploadError(errorMessage(error, "Could not scan the stored passport again. Please try again."));
     } finally {
       scanAgainInFlightRef.current = false;
-      if (mountedRef.current) setIsScanningAgain(false);
+      if (mountedRef.current) {
+        setIsScanningAgain(false);
+        setExtractingSubmissionId((current) => current === submission.id ? null : current);
+      }
       if (requestControllerRef.current === controller) {
         requestControllerRef.current = null;
       }
@@ -932,6 +936,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
     try {
       setUploadError(null);
       setIsScanningAgain(true);
+      setExtractingSubmissionId(savedSubmission.id);
       setFamilyMembers((current) => current.map((member, itemIndex) => (
         itemIndex === index
           ? {
@@ -982,7 +987,10 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setUploadError(errorMessage(error, "Could not scan the stored passport again. Please try again."));
     } finally {
       scanAgainInFlightRef.current = false;
-      if (mountedRef.current) setIsScanningAgain(false);
+      if (mountedRef.current) {
+        setIsScanningAgain(false);
+        setExtractingSubmissionId((current) => current === savedSubmission.id ? null : current);
+      }
       if (requestControllerRef.current === controller) {
         requestControllerRef.current = null;
       }
@@ -1353,6 +1361,10 @@ export function UploadFlow({ token }: UploadFlowProps) {
     );
   }
 
+  if (isPreparingFile) {
+    return <ProcessingScreen title="Preparing Passport Image" description="Straightening the capture and optimizing it before secure upload." showPassportMotion={Boolean(documentBundle.front)} />;
+  }
+
   if (step === "PASSPORT_CROP" && pendingPassportCrop) {
     return (
       <PassportManualCrop
@@ -1436,17 +1448,13 @@ export function UploadFlow({ token }: UploadFlowProps) {
     );
   }
 
-  if (isPreparingFile) {
-    return <ProcessingScreen title="Preparing Passport Image" description="Straightening the capture and optimizing it before secure upload." />;
-  }
-
   if (step === "UPLOADING") {
     return (
       <ProcessingScreen
         title={extractingSubmissionId ? "Reading Passport Details" : "Saving Travel Documents"}
         description={processingStage}
         progress={processingProgress}
-        extracting={extractingSubmissionId !== null}
+        showPassportMotion={Boolean(documentBundle.front || resumeSubmissionId || extractingSubmissionId)}
       />
     );
   }

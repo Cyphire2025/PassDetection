@@ -39,7 +39,7 @@ export function DocumentWorkspaceUploadStatus({
       <CardContent className="space-y-4 p-5">
         {(uploadPending || verifyPending || phase !== "idle") && (
           <div className="flex flex-col items-center gap-3 rounded-xl border border-blue-100 bg-blue-50/60 p-4 sm:flex-row sm:gap-5">
-            {progressDetail?.phase === "processing" && ((phase === "checking" && verifyPending) || (phase === "uploading" && uploadPending)) && (
+            {((phase === "checking" && verifyPending) || (phase === "uploading" && uploadPending)) && (
               <ProcessingMotion
                 variant={phase === "checking" ? "analysis" : "distribution"}
                 compact

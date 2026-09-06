@@ -192,7 +192,7 @@ export function DocumentRenamePage() {
 
           {(analyze.isPending || phase !== "idle") && (
             <div className="flex flex-col items-center gap-3 rounded-xl border border-blue-100 bg-blue-50/60 p-4 sm:flex-row sm:gap-5">
-              {analyze.isPending && progressDetail?.phase === "processing" && (
+              {analyze.isPending && (
                 <ProcessingMotion variant="rename" compact className="w-full shrink-0 sm:w-44" />
               )}
               <div className="w-full min-w-0 flex-1 space-y-3">

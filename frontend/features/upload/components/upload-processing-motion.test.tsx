@@ -94,7 +94,7 @@ async function startSingle() {
 }
 
 describe("passport extraction motion lifecycle", () => {
-  it("starts only after image preparation and durable upload, then stops for review and final submission", async () => {
+  it("keeps one scene from image preparation through upload and extraction, then stops for review and final submission", async () => {
     const preparation = deferred<{ file: File }>();
     const upload = deferred<PassportSubmission>();
     const extraction = deferred<PassportSubmission>();
@@ -106,13 +106,15 @@ describe("passport extraction motion lifecycle", () => {
     const passport = await startSingle();
     expect(mocks.normalize).toHaveBeenCalledWith(passport);
     expect(mocks.upload).not.toHaveBeenCalled();
-    expect(screen.queryByTestId("processing-motion")).not.toBeInTheDocument();
+    const animation = screen.getByTestId("processing-motion");
+    expect(animation).toHaveAttribute("data-variant", "passport");
+    expect(screen.getByRole("heading", { name: "Preparing Passport Image" })).toBeInTheDocument();
     await act(async () => preparation.resolve({ file: passport }));
     expect(screen.getByRole("heading", { name: "Saving Travel Documents" })).toBeInTheDocument();
-    expect(screen.queryByTestId("processing-motion")).not.toBeInTheDocument();
+    expect(screen.getByTestId("processing-motion")).toBe(animation);
     expect(mocks.getStatus).not.toHaveBeenCalled();
     await act(async () => upload.resolve(saved()));
-    expect(screen.getByTestId("processing-motion")).toHaveAttribute("data-variant", "passport");
+    expect(screen.getByTestId("processing-motion")).toBe(animation);
     expect(screen.getByRole("heading", { name: "Reading Passport Details" })).toBeInTheDocument();
     expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "32");
     await waitFor(() => expect(mocks.getStatus).toHaveBeenCalledOnce());
@@ -130,7 +132,7 @@ describe("passport extraction motion lifecycle", () => {
     expect(mocks.submit).toHaveBeenCalledOnce();
   });
 
-  it("does not animate a failed upload or an already completed extraction", async () => {
+  it("removes the scene after a failed upload or an already completed extraction", async () => {
     mocks.upload.mockRejectedValueOnce(new Error("Upload interrupted"));
     await startSingle();
     await screen.findByRole("button", { name: "Upload passport images" });
@@ -143,7 +145,7 @@ describe("passport extraction motion lifecycle", () => {
     expect(mocks.getStatus).not.toHaveBeenCalled();
   });
 
-  it("shows a compact scene only while a saved-image retry is being extracted and removes it on failure", async () => {
+  it("keeps one compact scene from the saved-image retry request through extraction and removes it on failure", async () => {
     mocks.upload.mockResolvedValue(saved({ status: "failed", extraction_status: "extraction_failed" }));
     const queued = deferred<PassportSubmission>();
     const extraction = deferred<PassportSubmission>();
@@ -151,14 +153,29 @@ describe("passport extraction motion lifecycle", () => {
     mocks.getStatus.mockReturnValue(extraction.promise);
     await startSingle();
     await userEvent.click(await screen.findByRole("button", { name: "Retry verification on saved image" }));
-    expect(screen.queryByTestId("processing-motion")).not.toBeInTheDocument();
+    const animation = screen.getByTestId("processing-motion");
+    expect(animation).toHaveAttribute("data-compact", "true");
+    expect(mocks.getStatus).not.toHaveBeenCalled();
     await act(async () => queued.resolve(saved()));
-    expect(screen.getByTestId("processing-motion")).toHaveAttribute("data-compact", "true");
+    expect(screen.getByTestId("processing-motion")).toBe(animation);
     await waitFor(() => expect(mocks.getStatus).toHaveBeenCalledOnce());
     await act(async () => extraction.reject({ code: "HTTP_403", message: "Session expired" }));
     expect(screen.queryByTestId("processing-motion")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Retry verification on saved image" })).toBeEnabled();
     expect(mocks.upload).toHaveBeenCalledOnce();
+  });
+
+  it("removes immediate retry motion if queueing the saved-image retry fails", async () => {
+    mocks.upload.mockResolvedValue(saved({ status: "failed", extraction_status: "extraction_failed" }));
+    const queued = deferred<PassportSubmission>();
+    mocks.scanAgain.mockReturnValue(queued.promise);
+    await startSingle();
+    await userEvent.click(await screen.findByRole("button", { name: "Retry verification on saved image" }));
+    expect(screen.getByTestId("processing-motion")).toBeInTheDocument();
+    await act(async () => queued.reject(new Error("Retry unavailable")));
+    expect(screen.queryByTestId("processing-motion")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Retry verification on saved image" })).toBeEnabled();
+    expect(mocks.getStatus).not.toHaveBeenCalled();
   });
 
   it("resumes the saved extraction scene and removes it when extraction fails terminally", async () => {
@@ -178,7 +195,8 @@ describe("passport extraction motion lifecycle", () => {
     mocks.upload.mockResolvedValueOnce(completed({ id: "asha-passport" }))
       .mockResolvedValueOnce(saved({ id: "rahul-passport", status: "failed", extraction_status: "extraction_failed" }));
     const extraction = deferred<PassportSubmission>();
-    mocks.scanAgain.mockResolvedValue(saved({ id: "rahul-passport" }));
+    const queued = deferred<PassportSubmission>();
+    mocks.scanAgain.mockReturnValue(queued.promise);
     mocks.getStatus.mockReturnValue(extraction.promise);
     render(<UploadFlow token="test-token" />);
     await userEvent.click(await screen.findByRole("button", { name: /Family/ }));
@@ -198,6 +216,9 @@ describe("passport extraction motion lifecycle", () => {
     const activeMember = animation.closest("section")!;
     expect(within(activeMember).getByText(/Rahul Example/)).toBeInTheDocument();
     expect(screen.getAllByTestId("processing-motion")).toHaveLength(1);
+    expect(mocks.getStatus).not.toHaveBeenCalled();
+    await act(async () => queued.resolve(saved({ id: "rahul-passport" })));
+    expect(screen.getByTestId("processing-motion")).toBe(animation);
     await waitFor(() => expect(mocks.getStatus).toHaveBeenCalledOnce());
     await act(async () => extraction.resolve(completed({ id: "rahul-passport" })));
     expect(screen.queryByTestId("processing-motion")).not.toBeInTheDocument();

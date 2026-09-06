@@ -125,12 +125,12 @@ export function ProcessingScreen({
   title,
   description,
   progress,
-  extracting = false,
+  showPassportMotion = false,
 }: {
   title: string;
   description: string;
   progress?: number | null;
-  extracting?: boolean;
+  showPassportMotion?: boolean;
 }) {
   const progressPercent = typeof progress === "number"
     ? Math.max(0, Math.min(100, Math.round(progress * 100)))
@@ -142,7 +142,7 @@ export function ProcessingScreen({
         aria-busy="true"
         className="flex w-full max-w-md flex-col items-center justify-center text-center"
       >
-        {extracting ? <ProcessingMotion variant="passport" className="mb-5 w-full" /> : <div className="relative mb-8">
+        {showPassportMotion ? <ProcessingMotion variant="passport" className="mb-5 w-full" /> : <div className="relative mb-8">
           <div className="absolute inset-0 animate-pulse rounded-full bg-blue-500/20 blur-xl" />
           <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-blue-600 shadow-xl shadow-blue-600/20">
             <Loader2 className="h-10 w-10 animate-spin text-white" aria-hidden="true" />
