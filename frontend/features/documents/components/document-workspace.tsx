@@ -330,6 +330,7 @@ export function DocumentWorkspace({
     setStagingManifest(null);
     setSelectionError(null);
     setPhase("checking");
+    setProgressDetail(null);
     setProgress(0);
     verify.mutate({
       files: selectedFiles,
@@ -376,6 +377,7 @@ export function DocumentWorkspace({
     const controller = beginAbortableRequest();
     setSelectionError(null);
     setPhase("uploading");
+    setProgressDetail(null);
     setProgress(0);
     upload.mutate(
       {
@@ -472,12 +474,13 @@ export function DocumentWorkspace({
         onDiscardIncomplete={() => setIsAbortUploadDialogOpen(true)}
       />
 
-      {(upload.isPending || phase !== "idle" || upload.error || selectionError || verify.error || reupload.error || deleteDocuments.error || unassignDocuments.error || verification) && (
+      {(upload.isPending || verify.isPending || phase !== "idle" || upload.error || selectionError || verify.error || reupload.error || deleteDocuments.error || unassignDocuments.error || verification) && (
         <DocumentWorkspaceUploadStatus
           phase={phase}
           progress={progress}
           progressDetail={progressDetail}
           uploadPending={upload.isPending}
+          verifyPending={verify.isPending}
           uploadError={upload.error}
           selectionError={selectionError}
           verifyError={verify.error}

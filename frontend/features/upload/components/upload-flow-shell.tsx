@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { BrandLogo } from "@/components/brand/brand-logo";
+import { ProcessingMotion } from "@/components/shared/processing-motion";
 import { isValidPassportIsoDate } from "@/lib/utils/passport-date";
 
 const travelDateFormatter = new Intl.DateTimeFormat("en-GB", {
@@ -124,10 +125,12 @@ export function ProcessingScreen({
   title,
   description,
   progress,
+  extracting = false,
 }: {
   title: string;
   description: string;
   progress?: number | null;
+  extracting?: boolean;
 }) {
   const progressPercent = typeof progress === "number"
     ? Math.max(0, Math.min(100, Math.round(progress * 100)))
@@ -139,12 +142,12 @@ export function ProcessingScreen({
         aria-busy="true"
         className="flex w-full max-w-md flex-col items-center justify-center text-center"
       >
-        <div className="relative mb-8">
+        {extracting ? <ProcessingMotion variant="passport" className="mb-5 w-full" /> : <div className="relative mb-8">
           <div className="absolute inset-0 animate-pulse rounded-full bg-blue-500/20 blur-xl" />
           <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-blue-600 shadow-xl shadow-blue-600/20">
             <Loader2 className="h-10 w-10 animate-spin text-white" aria-hidden="true" />
           </div>
-        </div>
+        </div>}
         <div role="status" aria-live="polite" aria-atomic="true">
           <h2 className="mb-2 text-2xl font-bold tracking-tight text-slate-900">{title}</h2>
           <p className="mx-auto max-w-xs text-slate-500">{description}</p>

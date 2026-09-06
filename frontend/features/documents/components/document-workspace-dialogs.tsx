@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Send, Trash2, X } from "lucide-react";
-import { Badge, Button, Skeleton } from "@/components/ui";
+import { Badge, Button } from "@/components/ui";
+import { ProcessingMotion } from "@/components/shared/processing-motion";
 import type { DocumentDeliveryPreview } from "@/types/document-distribution.types";
 
 type AbortIncompleteUploadDialogProps = {
@@ -245,9 +246,12 @@ export function DocumentDeliveryPreviewDialog({
 
         <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
           {loading ? (
-            <div className="space-y-3">
-              <Skeleton className="h-20 rounded-xl" />
-              <Skeleton className="h-72 rounded-xl" />
+            <div className="flex flex-col items-center gap-4 rounded-xl border border-blue-100 bg-blue-50/60 p-5 sm:flex-row sm:gap-6">
+              <ProcessingMotion variant="distribution" compact className="w-full shrink-0 sm:w-44" />
+              <div className="min-w-0" role="status">
+                <p className="text-sm font-semibold text-blue-950">Preparing the delivery preview</p>
+                <p className="mt-1 text-sm leading-6 text-slate-600">Checking document assignments and recipient eligibility before you review.</p>
+              </div>
             </div>
           ) : loadError ? (
             <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -390,6 +394,15 @@ export function DocumentDeliveryPreviewDialog({
         </div>
 
         <div className="border-t border-slate-200 px-6 py-4">
+          {sending && (
+            <div className="mb-4 flex flex-col items-center gap-3 rounded-xl border border-blue-100 bg-blue-50/60 p-3 sm:flex-row sm:gap-5">
+              <ProcessingMotion variant="distribution" compact className="w-full shrink-0 sm:w-36" />
+              <div className="min-w-0" role="status">
+                <p className="text-sm font-semibold text-blue-950">Queueing document messages</p>
+                <p className="mt-1 text-sm leading-6 text-slate-600">Preparing {selectedDocumentIds.length} selected {selectedDocumentIds.length === 1 ? "document" : "documents"} for individual delivery. Delivery status will update separately.</p>
+              </div>
+            </div>
+          )}
           {(sendError || loadError) && (
             <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
               {(sendError || loadError)?.message}

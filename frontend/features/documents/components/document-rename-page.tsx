@@ -14,6 +14,7 @@ import {
   UploadCloud,
 } from "lucide-react";
 import { IntentPrefetchLink } from "@/components/shared/intent-prefetch-link";
+import { ProcessingMotion } from "@/components/shared/processing-motion";
 import {
   WorkspaceHeaderContext,
   WorkspacePageHeader,
@@ -82,6 +83,7 @@ export function DocumentRenamePage() {
     setSelectionError(null);
     setResult(null);
     setPhase("analyzing");
+    setProgressDetail(null);
     setProgress(0);
     analyze.mutate(
       {
@@ -189,18 +191,23 @@ export function DocumentRenamePage() {
           </div>
 
           {(analyze.isPending || phase !== "idle") && (
-            <div className="space-y-2 rounded-lg border border-blue-100 bg-blue-50 p-3">
-              <div className="flex items-center justify-between text-sm font-medium text-blue-900">
-                <span>
-                  {progressDetail?.phase === "processing" ? "Processing PDFs" : "Uploading PDFs"}
-                  {progressDetail
-                    ? ` — ${progressDetail.completedFiles}/${progressDetail.totalFiles} complete`
-                    : ""}
-                </span>
-                <span>{progress}%</span>
-              </div>
-              <div className="h-2 overflow-hidden rounded-full bg-white">
-                <div className="h-full rounded-full bg-blue-600 transition-all" style={{ width: `${progress}%` }} />
+            <div className="flex flex-col items-center gap-3 rounded-xl border border-blue-100 bg-blue-50/60 p-4 sm:flex-row sm:gap-5">
+              {analyze.isPending && progressDetail?.phase === "processing" && (
+                <ProcessingMotion variant="rename" compact className="w-full shrink-0 sm:w-44" />
+              )}
+              <div className="w-full min-w-0 flex-1 space-y-3">
+                <div className="flex items-center justify-between gap-3 text-sm font-medium text-blue-950" role="status">
+                  <span>
+                    {progressDetail?.phase === "processing" ? "Analysing and renaming PDFs" : "Uploading PDFs"}
+                    {progressDetail
+                      ? ` — ${progressDetail.completedFiles}/${progressDetail.totalFiles} complete`
+                      : ""}
+                  </span>
+                  <span className="shrink-0 tabular-nums">{progress}%</span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-white">
+                  <div className="h-full rounded-full bg-blue-600 transition-all" style={{ width: `${progress}%` }} />
+                </div>
               </div>
             </div>
           )}
@@ -216,9 +223,7 @@ export function DocumentRenamePage() {
         </CardContent>
       </Card>
 
-      {analyze.isPending && !result ? (
-        <Skeleton className="h-96 rounded-xl" />
-      ) : result ? (
+      {analyze.isPending && !result ? null : result ? (
         <RenameResults batch={result} onBack={() => setResult(null)} />
       ) : (
         <SavedRenameBatches

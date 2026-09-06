@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui";
+import { ProcessingMotion } from "@/components/shared/processing-motion";
 import type { DocumentVerificationResult } from "@/types/document-distribution.types";
 import type { DocumentUploadProgress } from "../services/document-upload-batching";
 import type { DocumentUploadPhase } from "./document-upload-panel";
@@ -9,6 +10,7 @@ interface DocumentWorkspaceUploadStatusProps {
   progress: number;
   progressDetail: DocumentUploadProgress | null;
   uploadPending: boolean;
+  verifyPending: boolean;
   uploadError: Error | null;
   selectionError: string | null;
   verifyError: Error | null;
@@ -23,6 +25,7 @@ export function DocumentWorkspaceUploadStatus({
   progress,
   progressDetail,
   uploadPending,
+  verifyPending,
   uploadError,
   selectionError,
   verifyError,
@@ -34,28 +37,37 @@ export function DocumentWorkspaceUploadStatus({
   return (
     <Card>
       <CardContent className="space-y-4 p-5">
-        {(uploadPending || phase !== "idle") && (
-          <div className="space-y-2 rounded-lg border border-blue-100 bg-blue-50 p-3">
-            <div className="flex items-center justify-between text-sm font-medium text-blue-900">
-              <span>
-                {phase === "checking"
-                  ? progressDetail?.phase === "processing"
-                    ? "Checking PDFs in parallel"
-                    : "Preparing parallel PDF checks"
-                  : progressDetail?.phase === "processing"
-                    ? "Matching and saving PDFs"
-                    : "Uploading accepted PDFs"}
-                {progressDetail
-                  ? ` — ${progressDetail.completedFiles}/${progressDetail.totalFiles} complete`
-                  : ""}
-              </span>
-              <span>{progress}%</span>
-            </div>
-            <div className="h-2 overflow-hidden rounded-full bg-white">
-              <div
-                className="h-full rounded-full bg-blue-600 transition-all"
-                style={{ width: `${progress}%` }}
+        {(uploadPending || verifyPending || phase !== "idle") && (
+          <div className="flex flex-col items-center gap-3 rounded-xl border border-blue-100 bg-blue-50/60 p-4 sm:flex-row sm:gap-5">
+            {progressDetail?.phase === "processing" && ((phase === "checking" && verifyPending) || (phase === "uploading" && uploadPending)) && (
+              <ProcessingMotion
+                variant={phase === "checking" ? "analysis" : "distribution"}
+                compact
+                className="w-full shrink-0 sm:w-44"
               />
+            )}
+            <div className="w-full min-w-0 flex-1 space-y-3">
+              <div className="flex items-center justify-between gap-3 text-sm font-medium text-blue-950" role="status">
+                <span>
+                  {phase === "checking"
+                    ? progressDetail?.phase === "processing"
+                      ? "Checking PDFs in parallel"
+                      : "Preparing parallel PDF checks"
+                    : progressDetail?.phase === "processing"
+                      ? "Matching and saving PDFs"
+                      : "Uploading accepted PDFs"}
+                  {progressDetail
+                    ? ` — ${progressDetail.completedFiles}/${progressDetail.totalFiles} complete`
+                    : ""}
+                </span>
+                <span className="shrink-0 tabular-nums">{progress}%</span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-white">
+                <div
+                  className="h-full rounded-full bg-blue-600 transition-all"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
             </div>
           </div>
         )}

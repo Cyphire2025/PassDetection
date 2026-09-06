@@ -18,6 +18,7 @@ import {
 } from "@/features/passports/utils/passport-review";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ProcessingMotion } from "@/components/shared/processing-motion";
 import type { PassportSubmission } from "@/types/passport.types";
 import { isUploadFieldRequired, MAX_PASSPORT_UPLOAD_BYTES, type RequiredUploadField } from "@/features/passports/types/upload-configuration";
 import { passportBundleError, getUploadFlowSettings } from "../services/configured-upload";
@@ -184,6 +185,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [processingProgress, setProcessingProgress] = useState<number | null>(null);
   const [processingStage, setProcessingStage] = useState<string>("Uploading securely");
+  const [extractingSubmissionId, setExtractingSubmissionId] = useState<string | null>(null);
   const [isPreparingFile, setIsPreparingFile] = useState(false);
   const [isScanningAgain, setIsScanningAgain] = useState(false);
   const [isReplacingSavedPassport, setIsReplacingSavedPassport] = useState(false);
@@ -697,18 +699,61 @@ export function UploadFlow({ token }: UploadFlowProps) {
     signal: AbortSignal,
     updateSingleReview = true,
   ): Promise<ExtractionWaitResult> => {
-    let current = initial;
-    if (mountedRef.current) {
-      if (updateSingleReview) setSubmission(current);
-      setProcessingProgress(current.processing_progress ?? 0.05);
-      setProcessingStage(stageLabel(current.processing_stage ?? current.processing_job_status ?? "queued"));
-    }
+    // The decorative scene follows the saved extraction job, never the upload
+    // request. The same boundary covers recovery and stored-image retries.
+    if (mountedRef.current && !signal.aborted) setExtractingSubmissionId(initial.id);
+    try {
+      let current = initial;
+      if (mountedRef.current) {
+        if (updateSingleReview) setSubmission(current);
+        setProcessingProgress(current.processing_progress ?? 0.05);
+        setProcessingStage(stageLabel(current.processing_stage ?? current.processing_job_status ?? "queued"));
+      }
 
-    const deadline = Date.now() + EXTRACTION_POLL_WINDOW_MS;
-    let delayMs = EXTRACTION_POLL_INITIAL_DELAY_MS;
-    let consecutiveNetworkFailures = 0;
-    while (Date.now() < deadline && !signal.aborted) {
-      await sleep(delayMs, signal);
+      const deadline = Date.now() + EXTRACTION_POLL_WINDOW_MS;
+      let delayMs = EXTRACTION_POLL_INITIAL_DELAY_MS;
+      let consecutiveNetworkFailures = 0;
+      while (Date.now() < deadline && !signal.aborted) {
+        await sleep(delayMs, signal);
+        try {
+          current = await uploadApi.getUploadStatus(
+            token,
+            current.id,
+            uploadSessionId,
+            signal,
+          );
+          consecutiveNetworkFailures = 0;
+        } catch (pollError: unknown) {
+          if (signal.aborted) throw pollError;
+          if (!isTransientExtractionPollError(pollError)) throw pollError;
+          consecutiveNetworkFailures += 1;
+          if (mountedRef.current) {
+            setProcessingStage("Reconnecting to your saved passport");
+          }
+          delayMs = nextExtractionPollDelay(delayMs, "failure");
+          continue;
+        }
+        if (mountedRef.current) {
+          if (updateSingleReview) setSubmission(current);
+          setProcessingProgress(current.processing_progress ?? null);
+          setProcessingStage(stageLabel(current.processing_stage ?? current.processing_job_status ?? "processing"));
+        }
+
+        if (isExtractionTerminal(current)) {
+          if (mountedRef.current) setProcessingProgress(1);
+          return {
+            submission: current,
+            notice: extractionNoticeFor(current),
+            retryAllowed: canRetryExtractionFor(current),
+          };
+        }
+        delayMs = nextExtractionPollDelay(delayMs, "success");
+      }
+      if (signal.aborted) throw new DOMException("Operation cancelled", "AbortError");
+
+      // Reconcile once without a delay at the boundary. This prevents the UI
+      // from presenting stale empty fields when the worker completed during the
+      // final backoff interval.
       try {
         current = await uploadApi.getUploadStatus(
           token,
@@ -716,66 +761,32 @@ export function UploadFlow({ token }: UploadFlowProps) {
           uploadSessionId,
           signal,
         );
-        consecutiveNetworkFailures = 0;
-      } catch (pollError: unknown) {
-        if (signal.aborted) throw pollError;
-        if (!isTransientExtractionPollError(pollError)) throw pollError;
-        consecutiveNetworkFailures += 1;
-        if (mountedRef.current) {
-          setProcessingStage("Reconnecting to your saved passport");
+        if (isExtractionTerminal(current)) {
+          if (mountedRef.current) setProcessingProgress(1);
+          return {
+            submission: current,
+            notice: extractionNoticeFor(current),
+            retryAllowed: canRetryExtractionFor(current),
+          };
         }
-        delayMs = nextExtractionPollDelay(delayMs, "failure");
-        continue;
+      } catch {
+        // The durable upload remains safe. The review screen explains that
+        // automatic reading could not yet be confirmed and offers a stored-image
+        // retry without asking the traveller to upload again.
       }
+
+      return {
+        submission: current,
+        notice: consecutiveNetworkFailures > 0
+          ? "Your passport pages are saved. The connection remained unstable while checking the extracted details, so you can continue manually or retry reading the stored image."
+          : "Your passport pages are saved. Automatic reading is taking longer than expected, so you can enter the details manually now or retry reading the stored image.",
+        retryAllowed: true,
+      };
+    } finally {
       if (mountedRef.current) {
-        if (updateSingleReview) setSubmission(current);
-        setProcessingProgress(current.processing_progress ?? null);
-        setProcessingStage(stageLabel(current.processing_stage ?? current.processing_job_status ?? "processing"));
+        setExtractingSubmissionId((current) => current === initial.id ? null : current);
       }
-
-      if (isExtractionTerminal(current)) {
-        if (mountedRef.current) setProcessingProgress(1);
-        return {
-          submission: current,
-          notice: extractionNoticeFor(current),
-          retryAllowed: canRetryExtractionFor(current),
-        };
-      }
-      delayMs = nextExtractionPollDelay(delayMs, "success");
     }
-    if (signal.aborted) throw new DOMException("Operation cancelled", "AbortError");
-
-    // Reconcile once without a delay at the boundary. This prevents the UI
-    // from presenting stale empty fields when the worker completed during the
-    // final backoff interval.
-    try {
-      current = await uploadApi.getUploadStatus(
-        token,
-        current.id,
-        uploadSessionId,
-        signal,
-      );
-      if (isExtractionTerminal(current)) {
-        if (mountedRef.current) setProcessingProgress(1);
-        return {
-          submission: current,
-          notice: extractionNoticeFor(current),
-          retryAllowed: canRetryExtractionFor(current),
-        };
-      }
-    } catch {
-      // The durable upload remains safe. The review screen explains that
-      // automatic reading could not yet be confirmed and offers a stored-image
-      // retry without asking the traveller to upload again.
-    }
-
-    return {
-      submission: current,
-      notice: consecutiveNetworkFailures > 0
-        ? "Your passport pages are saved. The connection remained unstable while checking the extracted details, so you can continue manually or retry reading the stored image."
-        : "Your passport pages are saved. Automatic reading is taking longer than expected, so you can enter the details manually now or retry reading the stored image.",
-      retryAllowed: true,
-    };
   }, [token]);
 
   useEffect(() => {
@@ -1432,9 +1443,10 @@ export function UploadFlow({ token }: UploadFlowProps) {
   if (step === "UPLOADING") {
     return (
       <ProcessingScreen
-        title="Saving Travel Documents"
+        title={extractingSubmissionId ? "Reading Passport Details" : "Saving Travel Documents"}
         description={processingStage}
         progress={processingProgress}
+        extracting={extractingSubmissionId !== null}
       />
     );
   }
@@ -1460,6 +1472,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
       >
         {!reviewAllowed && !verificationGate.accepted ? (
           <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-xl shadow-slate-200/50 sm:p-6">
+            {extractingSubmissionId === submission.id && <ProcessingMotion variant="passport" compact className="mx-auto mb-4" />}
             <DocumentVerificationBlock
               gate={verificationGate}
               onRetry={() => void handleScanAgain()}
@@ -1471,6 +1484,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
           </div>
         ) : (
           <form onSubmit={handleFinalSubmit} className="rounded-3xl border border-slate-100 bg-white p-5 shadow-xl shadow-slate-200/50 sm:p-6">
+            {extractingSubmissionId === submission.id && <ProcessingMotion variant="passport" compact className="mx-auto mb-4" />}
             {hasPassport && <ReviewWarning />}
             <ExtractionNotice message={extractionNotice} />
             <ErrorMessage message={uploadError} />
@@ -1595,6 +1609,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
                   {member.submission ? "Review document options" : "Continue document step"}
                 </button>
               </div>
+              {extractingSubmissionId === member.submission?.id && <ProcessingMotion variant="passport" compact className="mx-auto mb-4" />}
               <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
                 {member.submission ? <SavedUploadDocuments submission={member.submission} token={token} uploadSessionId={member.uploadIdempotencyKey} /> : <p className="text-sm text-slate-500">Complete this member&apos;s document step to continue.</p>}
                 {!verificationGate ? (

@@ -1,0 +1,58 @@
+.scene {
+  width: 100%;
+  max-width: 420px;
+  flex-shrink: 0;
+  contain: layout paint;
+  pointer-events: none;
+}
+
+.compact { max-width: 232px; }
+.artwork { display: block; width: 100%; height: auto; overflow: visible; }
+.lift { animation: lift 4.8s ease-in-out infinite; }
+.scan { animation: scan 3.6s ease-in-out infinite; }
+.inspect { animation: inspect 5s ease-in-out infinite; }
+.field { animation: field 3.6s ease-in-out infinite; }
+.label { animation: label 4.2s ease-in-out infinite; }
+.beacon { animation: beacon 2.8s ease-in-out infinite; }
+.route { animation: route 5s linear infinite; }
+.destination { animation: destination 5s ease-in-out infinite; transform-box: fill-box; transform-origin: left; }
+.artwork g:nth-child(2) > .field,
+.artwork g:nth-child(2) > .label { animation-delay: .3s; }
+.artwork g:nth-child(3) > .field,
+.artwork g:nth-child(3) > .label { animation-delay: .6s; }
+
+.scene[data-playing="false"] * { animation-play-state: paused !important; }
+
+@keyframes lift {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes scan {
+  0%, 100% { transform: translateY(-30px); opacity: 0; }
+  12% { opacity: 1; }
+  72% { transform: translateY(99px); opacity: 1; }
+  87% { transform: translateY(110px); opacity: 0; }
+}
+@keyframes inspect {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(8px, 7px); }
+}
+@keyframes field {
+  0%, 100% { transform: translateX(0); opacity: .65; }
+  35%, 70% { transform: translateX(5px); opacity: 1; }
+}
+@keyframes label {
+  0%, 100% { transform: translateX(-7px); opacity: .6; }
+  30%, 72% { transform: translateX(0); opacity: 1; }
+}
+@keyframes beacon { 0%, 100% { opacity: .4; } 50% { opacity: 1; } }
+@keyframes route { to { stroke-dashoffset: -180; } }
+@keyframes destination {
+  0%, 100% { transform: scaleX(.7); opacity: .5; }
+  45%, 75% { transform: scaleX(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene * { animation: none !important; }
+  .scan { opacity: 0; }
+}
