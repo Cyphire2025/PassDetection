@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 from unittest.mock import AsyncMock
 
 import httpx
@@ -71,6 +72,66 @@ def test_country_or_state_is_not_replaced_with_same_named_village():
         )
         assert result.destination.place_type == kind
         assert result.destination.country_code == code
+
+
+@pytest.mark.parametrize("locality_kind", ["town", "city"])
+@pytest.mark.parametrize("reverse_order", [False, True])
+def test_exact_country_wins_over_foreign_locality_homonyms(locality_kind, reverse_order):
+    country = feature("Brazil", "Brazil", "BR", "country")
+    country["geometry"]["coordinates"] = [-53.2, -10.3333333]
+    places = [
+        country,
+        feature("Brazil", "United States", "US", state="Indiana", osm_value=locality_kind),
+        feature("Brazil", "Trinidad and Tobago", "TT", osm_value="village"),
+        feature("Brazil", "Uganda", "UG", osm_value="village"),
+    ]
+    result = select_destination(payload(*(reversed(places) if reverse_order else places)), "Brazil")
+    assert result.status == "resolved"
+    assert result.destination.country_code == "BR"
+    assert result.destination.place_type == "country"
+    assert result.destination.latitude == -10.3333333
+    assert result.destination.longitude == -53.2
+
+
+@pytest.mark.parametrize("query", ["Brazil, Indiana, USA", "Brazil, United States"])
+@pytest.mark.parametrize("reverse_order", [False, True])
+def test_explicit_foreign_locality_qualifiers_override_country_homonym(query, reverse_order):
+    city = feature("Brazil", "United States", "US", state="Indiana", osm_value="town")
+    city["geometry"]["coordinates"] = [-87.125, 39.524]
+    places = [feature("Brazil", "Brazil", "BR", "country"), city]
+    result = select_destination(payload(*(reversed(places) if reverse_order else places)), query)
+    assert result.status == "resolved"
+    assert result.destination.country_code == "US"
+    assert result.destination.place_type == "city"
+    assert result.destination.latitude == 39.524
+    assert result.destination.longitude == -87.125
+
+
+@pytest.mark.parametrize("reverse_order", [False, True])
+def test_country_preference_preserves_competing_state_even_with_city_homonym(reverse_order):
+    places = [
+        feature("Georgia", "Georgia", "GE", "country"),
+        feature("Georgia", "United States", "US", "state"),
+        feature("Georgia", "United States", "US", state="Vermont", osm_value="town"),
+    ]
+    result = select_destination(
+        payload(*(reversed(places) if reverse_order else places)), "Georgia"
+    )
+    assert result.status == "ambiguous"
+    assert result.destination is None
+
+
+@pytest.mark.parametrize("reverse_order", [False, True])
+def test_multiple_exact_country_candidates_do_not_choose_first_provider_result(reverse_order):
+    places = [
+        feature("Congo", "Congo", "CG", "country"),
+        feature("Congo", "Democratic Republic of the Congo", "CD", "country"),
+    ]
+    places[0]["geometry"]["coordinates"] = [15.0, -1.0]
+    places[1]["geometry"]["coordinates"] = [23.0, -3.0]
+    result = select_destination(payload(*(reversed(places) if reverse_order else places)), "Congo")
+    assert result.status == "ambiguous"
+    assert result.destination is None
 
 
 def test_city_state_duplicate_and_city_country_duplicate_choose_appropriate_scope():
@@ -172,6 +233,39 @@ def admission():
     result = AsyncMock()
     result.set.return_value = True
     return result
+
+
+async def test_country_resolution_ignores_old_ambiguous_cache_but_keeps_shared_upstream_lease():
+    calls, cache, gate = [], Cache(), admission()
+    settings = MobileSettings(_env_file=None)
+    digest = hashlib.sha256(f"{settings.journey_geocoding_url}\0brazil".encode()).hexdigest()
+    previous_key = f"mobile-journey:photon:v1:{digest}"
+    cache.values[previous_key] = '{"status":"ambiguous"}'
+
+    def handler(request):
+        calls.append(request)
+        return httpx.Response(
+            200,
+            json=payload(
+                feature("Brazil", "Brazil", "BR", "country"),
+                feature("Brazil", "United States", "US", state="Indiana", osm_value="town"),
+            ),
+        )
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        service = MobileJourneyGeocoder(
+            settings=settings, cache=cache, admission=gate, client=client
+        )
+        for query in ["Brazil", "  BRAZIL  "]:
+            result = await service.resolve(query)
+            assert result.status == "resolved"
+            assert result.destination.country_code == "BR"
+    assert len(calls) == 1
+    assert cache.values[previous_key] == '{"status":"ambiguous"}'
+    assert f"mobile-journey:photon:v2:{digest}" in cache.values
+    gate.set.assert_awaited_once()
+    assert gate.set.await_args.args[0] == "mobile-journey:photon:upstream:v1"
+    assert gate.eval.await_args.args[2] == "mobile-journey:photon:upstream:v1"
 
 
 async def test_cached_places_are_shared_across_calls_and_aliases_without_upstream_repeats():

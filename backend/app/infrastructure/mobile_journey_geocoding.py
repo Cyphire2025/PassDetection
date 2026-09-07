@@ -36,6 +36,9 @@ end
 return 0
 """
 _PROVIDER_LEASE_KEY = "mobile-journey:photon:upstream:v1"
+# Selection policy changed: a country name wins over city-level homonyms.
+# Expire old ambiguous results without touching the shared upstream lease.
+_RESULT_CACHE_PREFIX = "mobile-journey:photon:v2"
 _MAX_RESPONSE_BYTES = 131_072
 _COUNTRY_ALIASES = {
     "united arab emirates": "ae",
@@ -174,15 +177,16 @@ def select_destination(payload: object, query: str) -> MobileJourneyDestinationR
     matches = [item[0] for item in candidates if item[1] == rank]
     countries = [item for item in matches if item.place_type == "country"]
     if countries:
+        # A bare country name describes that country, even when Photon also
+        # returns towns with its name abroad (Brazil, Indiana, for example).
+        # A qualified city query cannot reach this branch unless its country
+        # candidate also matched the full query. Keep competing states and
+        # countries ambiguous rather than guessing between geographic regions.
         matches = [
             item
             for item in matches
             if item.place_type != "city"
-            or not any(
-                item.country_code == country.country_code
-                and _words(item.label) == _words(country.label)
-                for country in countries
-            )
+            or not any(_words(item.label) == _words(country.label) for country in countries)
         ]
     # A city and its enclosing same-named state (Dubai, Singapore etc.) describe
     # the same destination. Prefer the city point without inventing an airport.
@@ -241,7 +245,7 @@ class MobileJourneyGeocoder:
         if url is None:
             return MobileJourneyDestinationResponse(status="not_configured")
         digest = hashlib.sha256(f"{url}\0{_words(query)}".encode()).hexdigest()
-        cache_key = f"mobile-journey:photon:v1:{digest}"
+        cache_key = f"{_RESULT_CACHE_PREFIX}:{digest}"
         unavailable = MobileJourneyDestinationResponse(status="unavailable", retry_after_seconds=5)
         try:
             cached = await self._cached(cache_key)
