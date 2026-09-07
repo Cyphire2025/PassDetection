@@ -27,6 +27,7 @@ from app.infrastructure.whatsapp.publication import (
     fail_unclaimed_broadcast_rows,
     publish_whatsapp_task,
 )
+from app.presentation.api.v1.routes.whatsapp_bulk_resend_composer import validate_bulk_resend_edits
 from app.presentation.api.v1.routes.whatsapp_bulk_resend_support import (
     SKIP_MESSAGES,
     build_response,
@@ -147,6 +148,7 @@ async def resend_selected_recipient_messages(
             detail="One or more selected recipients are unavailable in this WhatsApp broadcast",
         )
 
+    edits = await validate_bulk_resend_edits(session, group=group, body=body)
     await expire_stale_explicit_claims(session, group_id=group.id, body=body)
     states, active_statuses, sources = await selection_delivery_maps(
         session, group_id=group.id, body=body
@@ -175,7 +177,12 @@ async def resend_selected_recipient_messages(
             else:
                 try:
                     log = frozen_resend_log(
-                        recipient=recipient, source=source, state=state, batch_id=batch_id, now=now
+                        recipient=recipient,
+                        source=source,
+                        state=state,
+                        batch_id=batch_id,
+                        now=now,
+                        edits=edits,
                     )
                 except (ValueError, IndexError):
                     reason = "skipped_no_saved_message"

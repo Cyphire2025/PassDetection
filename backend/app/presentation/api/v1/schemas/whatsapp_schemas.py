@@ -207,14 +207,17 @@ class WhatsAppResendRequest(WhatsAppSendRequest):
     pass
 
 
-class WhatsAppBulkResendRequest(BaseModel):
-    """An explicit, idempotent selection; never an implicit entire broadcast."""
+class WhatsAppBulkResendDraft(BaseModel):
+    """Explicit selection with optional edits; null keeps each saved value."""
 
     model_config = ConfigDict(extra="forbid")
 
     message_type: Literal["welcome", "passport_link"]
     recipient_ids: list[uuid.UUID] = Field(min_length=1, max_length=MAX_WHATSAPP_RECIPIENTS)
-    request_id: uuid.UUID
+    message_content: str | None = Field(default=None, max_length=600)
+    passport_intro: str | None = Field(default=None, max_length=600)
+    header_image_id: str | None = Field(default=None, max_length=255)
+    support_contact_ids: list[uuid.UUID] | None = Field(default=None, max_length=1)
 
     @field_validator("recipient_ids")
     @classmethod
@@ -222,6 +225,14 @@ class WhatsAppBulkResendRequest(BaseModel):
         if len(set(value)) != len(value):
             raise ValueError("Each selected recipient must appear only once")
         return value
+
+
+class WhatsAppBulkResendRequest(WhatsAppBulkResendDraft):
+    request_id: uuid.UUID
+
+
+class WhatsAppBulkResendPreviewRequest(WhatsAppBulkResendDraft):
+    preview_recipient_id: uuid.UUID | None = None
 
 
 class WhatsAppRecipientPhoneUpdateRequest(BaseModel):
@@ -251,6 +262,16 @@ class WhatsAppPreviewResponse(BaseModel):
     rendered_message: str
     header_parameter_values: list[str]
     parameter_values: list[str]
+
+
+class WhatsAppBulkResendPreviewResponse(WhatsAppPreviewResponse):
+    selected: int
+    eligible_recipient_ids: list[uuid.UUID]
+    skipped_no_saved_message: int = 0
+    skipped_replaced: int = 0
+    skipped_ineligible: int = 0
+    skipped_in_progress: int = 0
+    skipped_delivery_unknown: int = 0
 
 
 class WhatsAppWelcomeMediaResponse(BaseModel):

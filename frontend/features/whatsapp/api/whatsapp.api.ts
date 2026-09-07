@@ -207,6 +207,24 @@ export interface WhatsAppBatchSummary {
 
 export type WhatsAppBulkResendMessageType = "welcome" | "passport_link";
 
+/** Null or omitted fields preserve each recipient's own saved value. */
+export interface WhatsAppBulkResendOverrides {
+  messageContent?: string | null;
+  passportIntro?: string | null;
+  headerImageId?: string | null;
+  supportContactIds?: string[] | null;
+}
+
+export interface WhatsAppBulkResendPreviewResponse extends WhatsAppPreviewResponse {
+  selected: number;
+  eligible_recipient_ids: string[];
+  skipped_no_saved_message: number;
+  skipped_replaced: number;
+  skipped_ineligible: number;
+  skipped_in_progress: number;
+  skipped_delivery_unknown: number;
+}
+
 export interface WhatsAppBulkResendResponse extends WhatsAppSendResponse {
   selected: number;
   skipped_no_saved_message: number;
@@ -233,6 +251,24 @@ async function uploadWelcomeImage(
     { headers: { "Content-Type": "multipart/form-data" } },
   );
   return data;
+}
+
+function bulkResendOverridesPayload(overrides?: WhatsAppBulkResendOverrides) {
+  return {
+    ...(overrides?.messageContent !== undefined && { message_content: overrides.messageContent }),
+    ...(overrides?.passportIntro !== undefined && { passport_intro: overrides.passportIntro }),
+    ...(overrides?.headerImageId !== undefined && { header_image_id: overrides.headerImageId }),
+    ...(overrides?.supportContactIds !== undefined && { support_contact_ids: overrides.supportContactIds }),
+  };
+}
+
+function validateBulkRecipientSelection(recipientIds: string[]) {
+  if (!recipientIds.length || recipientIds.some((id) => !id.trim())) {
+    throw new Error("Select at least one recipient to resend a message.");
+  }
+  if (new Set(recipientIds).size !== recipientIds.length) {
+    throw new Error("The resend selection is invalid. Review the selected recipients.");
+  }
 }
 
 export const whatsappApi = {
@@ -488,16 +524,16 @@ export const whatsappApi = {
     messageType,
     recipientIds,
     requestId,
+    overrides,
   }: {
     groupId: string;
     messageType: WhatsAppBulkResendMessageType;
     recipientIds: string[];
     requestId: string;
+    overrides?: WhatsAppBulkResendOverrides;
   }): Promise<WhatsAppBulkResendResponse> => {
-    if (!recipientIds.length || recipientIds.some((id) => !id.trim())) {
-      throw new Error("Select at least one recipient to resend a message.");
-    }
-    if (new Set(recipientIds).size !== recipientIds.length || !requestId.trim()) {
+    validateBulkRecipientSelection(recipientIds);
+    if (!requestId.trim()) {
       throw new Error("The resend selection is invalid. Review the selected recipients.");
     }
     const { data } = await apiClient.post<WhatsAppBulkResendResponse>(
@@ -506,7 +542,35 @@ export const whatsappApi = {
         message_type: messageType,
         recipient_ids: recipientIds,
         request_id: requestId,
+        ...bulkResendOverridesPayload(overrides),
       },
+    );
+    return data;
+  },
+
+  previewRecipientsResend: async ({
+    groupId, messageType, recipientIds, previewRecipientId, overrides, signal,
+  }: {
+    groupId: string;
+    messageType: WhatsAppBulkResendMessageType;
+    recipientIds: string[];
+    previewRecipientId?: string | null;
+    overrides?: WhatsAppBulkResendOverrides;
+    signal?: AbortSignal;
+  }): Promise<WhatsAppBulkResendPreviewResponse> => {
+    validateBulkRecipientSelection(recipientIds);
+    if (previewRecipientId && !recipientIds.includes(previewRecipientId)) {
+      throw new Error("Choose a preview recipient from the selected people.");
+    }
+    const { data } = await apiClient.post<WhatsAppBulkResendPreviewResponse>(
+      API_ENDPOINTS.whatsapp.previewRecipientsResend(groupId),
+      {
+        message_type: messageType,
+        recipient_ids: recipientIds,
+        preview_recipient_id: previewRecipientId ?? null,
+        ...bulkResendOverridesPayload(overrides),
+      },
+      { signal },
     );
     return data;
   },

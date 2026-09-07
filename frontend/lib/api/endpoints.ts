@@ -101,6 +101,8 @@ export const API_ENDPOINTS = {
       `/api/v1/whatsapp/groups/${groupId}/recipients/${recipientId}/resend`,
     resendRecipientsMessage: (groupId: string) =>
       `/api/v1/whatsapp/groups/${groupId}/recipients/resend`,
+    previewRecipientsResend: (groupId: string) =>
+      `/api/v1/whatsapp/groups/${groupId}/recipients/resend/preview`,
     preview: (groupId: string) => `/api/v1/whatsapp/groups/${groupId}/preview`,
     welcomeMedia: (groupId: string) =>
       `/api/v1/whatsapp/groups/${groupId}/welcome-media`,

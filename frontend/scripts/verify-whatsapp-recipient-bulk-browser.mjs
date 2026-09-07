@@ -97,11 +97,58 @@ function responseFor(body, batchId) {
   };
 }
 
+function savedContent(recipient, type) {
+  return type === "welcome"
+    ? `Welcome ${recipient.name}. Your ${recipient.id === recipients[0].id ? "Operations" : "Delegate"} travel arrangements are ready.`
+    : `Please check the passport details for ${recipient.name} before your departure.`;
+}
+function savedIntro(recipient) {
+  return `Hello ${recipient.name}, please use your secure personal document link below.`;
+}
+function passportUrl(recipient) {
+  return `https://travel.example.test/private-passport/${recipient.id}/sample-personal-token`;
+}
+function previewFor(body) {
+  const selected = recipients.filter((recipient) => body.recipient_ids.includes(recipient.id));
+  const selectedRecipient = selected.find((recipient) => recipient.id === body.preview_recipient_id) ?? selected[0];
+  const outcome = responseFor(body, "preview-only");
+  const content = body.message_content ?? savedContent(selectedRecipient, body.message_type);
+  const intro = body.passport_intro ?? savedIntro(selectedRecipient);
+  const link = passportUrl(selectedRecipient);
+  return {
+    message_type: body.message_type, template_name: `sample_${body.message_type}_approved_v3`,
+    recipient_id: selectedRecipient.id, recipient_name: selectedRecipient.name,
+    recipient_count: selected.length, selected: selected.length,
+    eligible_recipient_ids: outcome.results.map((result) => result.recipient_id),
+    eligible_recipient_count: outcome.queued, already_sent_count: selected.filter((recipient) => recipient.message_statuses.some((status) => status.message_type === body.message_type && status.already_sent)).length,
+    in_progress_count: outcome.skipped_in_progress, uncertain_recipient_count: 0,
+    skipped_in_progress: outcome.skipped_in_progress, skipped_delivery_unknown: 0,
+    skipped_no_saved_message: outcome.skipped_no_saved_message, skipped_replaced: 0, skipped_ineligible: 0,
+    passport_intro: body.message_type === "passport_link" ? intro : null,
+    passport_link: body.message_type === "passport_link" ? link : null,
+    message_content: content, header_image_id: body.header_image_id ?? `saved-image-${selectedRecipient.id}`,
+    content_source: "latest_recipient", header_parameter_values: [], parameter_values: [content],
+    rendered_message: `Dear ${selectedRecipient.name},\n\nGreetings from Global Connect Travels.\n\n${body.message_type === "passport_link" ? `${intro}\n\n${link}\n\n` : ""}${content}\n\nRegards,\nTeam Global Connect Travels`,
+  };
+}
+async function syntheticHeader(page) {
+  const base64 = await page.evaluate(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 640; canvas.height = 400;
+    const context = canvas.getContext("2d");
+    context.fillStyle = "#173b59"; context.fillRect(0, 0, 640, 400);
+    context.fillStyle = "#ffffff"; context.font = "bold 32px sans-serif";
+    context.fillText("Synthetic recipient preview", 34, 190);
+    return canvas.toDataURL("image/png").split(",")[1];
+  });
+  return { name: "sample-bulk-header.png", mimeType: "image/png", buffer: Buffer.from(base64, "base64") };
+}
+
 async function createCase(browser, viewport, name) {
   const context = await browser.newContext({ viewport, serviceWorkers: "block" });
   const page = await context.newPage();
   page.setDefaultTimeout(25_000);
-  const state = { errors: [], requests: [], blocked: [], bulkRequests: [], holdNext: false, failNext: false, release: null, activities: new Map() };
+  const state = { errors: [], requests: [], blocked: [], bulkRequests: [], previewRequests: [], uploads: [], holdNext: false, failNext: false, advanceOnFailure: false, lostReceipt: null, failedPreviewCount: 0, holdNextPreview: false, release: null, releasePreview: null, activities: new Map() };
   page.on("pageerror", (error) => state.errors.push(String(error)));
   await context.addCookies([{ name: "access_token", value: "synthetic-local-session", domain: origin.hostname, path: "/", httpOnly: true, sameSite: "Lax" }]);
   await page.route("**/*", async (route) => {
@@ -124,14 +171,52 @@ async function createCase(browser, viewport, name) {
     if (url.pathname === "/api/v1/auth/refresh") return json({ status: "authenticated", user, token_type: "bearer", access_token_expires_at: "2099-01-01T00:00:00Z" });
     if (url.pathname === "/api/v1/notifications/feed") return json({ items: [], unread_count: 0, next_cursor: null });
     if (url.pathname === "/api/v1/whatsapp/groups") return json(groups);
+    const currentRecipient = (recipient) => state.lostReceipt?.body.recipient_ids.includes(recipient.id)
+      ? { ...recipient, message_statuses: recipient.message_statuses.map((status) => status.message_type === state.lostReceipt.body.message_type ? { ...status, latest_resend_status: "queued", resend_blocked: true } : status) }
+      : recipient;
     for (const group of groups) {
-      if (url.pathname === `/api/v1/whatsapp/groups/${group.id}` && request.method() === "GET") return json(detail(group));
-      if (url.pathname === `/api/v1/whatsapp/groups/${group.id}/recipient-roster` && request.method() === "GET") return json(roster(group));
+      if (url.pathname === `/api/v1/whatsapp/groups/${group.id}` && request.method() === "GET") {
+        const data = detail(group);
+        return json(state.lostReceipt ? { ...data, updated_at: "2026-09-08T01:00:00Z", recipients: data.recipients.map(currentRecipient) } : data);
+      }
+      if (url.pathname === `/api/v1/whatsapp/groups/${group.id}/recipient-roster` && request.method() === "GET") {
+        const data = roster(group);
+        return json(state.lostReceipt ? { ...data, items: data.items.map((item) => item.kind === "recipient" ? { ...item, recipient: currentRecipient(item.recipient) } : item) } : data);
+      }
+    }
+    if (url.pathname === `/api/v1/whatsapp/groups/${groups[0].id}/recipients/resend/preview` && request.method() === "POST") {
+      const body = request.postDataJSON();
+      state.previewRequests.push(body);
+      if (state.lostReceipt) {
+        state.failedPreviewCount++;
+        return json({ error: { code: "NO_ELIGIBLE_RECIPIENTS", message: "The selected recipients are already queued. No eligible saved message is available for a new resend." } }, 409);
+      }
+      if (state.holdNextPreview) {
+        state.holdNextPreview = false;
+        await new Promise((release) => { state.releasePreview = release; });
+        state.releasePreview = null;
+      }
+      if (body.message_content !== null && body.message_content !== undefined && !body.message_content.trim()) {
+        return json({ error: { code: "INVALID_MESSAGE_CONTENT", message: "Message content cannot be empty." } }, 422);
+      }
+      return json(previewFor(body));
+    }
+    if (url.pathname === `/api/v1/whatsapp/groups/${groups[0].id}/welcome-media` && request.method() === "POST") {
+      state.uploads.push({ contentType: request.headers()["content-type"], bodyLength: request.postDataBuffer()?.length });
+      return json({ media_id: `uploaded-header-${state.uploads.length}`, file_name: "sample-bulk-header.png", content_type: "image/png" });
     }
     if (url.pathname === `/api/v1/whatsapp/groups/${groups[0].id}/recipients/resend` && request.method() === "POST") {
       const body = request.postDataJSON();
       state.bulkRequests.push(body);
-      if (state.failNext) { state.failNext = false; return route.abort("failed"); }
+      if (state.failNext) {
+        state.failNext = false;
+        if (state.advanceOnFailure) state.lostReceipt = { body, response: responseFor(body, "synthetic-lost-response-batch") };
+        return route.abort("failed");
+      }
+      if (state.lostReceipt) {
+        if (JSON.stringify(body) !== JSON.stringify(state.lostReceipt.body)) return json({ error: { code: "RECEIPT_MISMATCH", message: "A retry must use the original request and draft." } }, 409);
+        return json({ ...state.lostReceipt.response, replayed: true });
+      }
       if (state.holdNext) {
         state.holdNext = false;
         await new Promise((release) => { state.release = release; });
@@ -180,7 +265,7 @@ async function assertFit(dialog, viewport) {
 }
 async function review(page, dialog, type) {
   await selectionActions(dialog).getByRole("button", { name: type === "welcome" ? "Resend welcome" : "Resend passport link", exact: true }).click();
-  const confirmation = page.getByRole("dialog", { name: type === "welcome" ? "Resend welcome message?" : "Resend passport link?", exact: true });
+  const confirmation = page.getByRole("dialog", { name: type === "welcome" ? "Resend Welcome Message" : "Resend Passport Link Message", exact: true });
   await expect(confirmation).toBeVisible();
   return confirmation;
 }
@@ -188,6 +273,37 @@ function assertPayload(body, type, ids) {
   assert.equal(body.message_type, type);
   assert.deepEqual([...body.recipient_ids].sort(), [...ids].sort(), "Only explicitly selected recipient IDs reach the bulk endpoint");
   assert.match(body.request_id, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i, "Every operation has a UUID idempotency key");
+  assert.equal("passport_link" in body, false, "A bulk resend must never replace personal links with one common passport URL");
+}
+
+function sendButton(composer, count = 2) {
+  return composer.getByRole("button", { name: `Resend to ${count} selected`, exact: true });
+}
+async function inspectSavedPreview(composer, state, type) {
+  const editor = composer.getByLabel(type === "welcome" ? "Welcome trip message" : "Passport instructions", { exact: true });
+  await expect(editor).toHaveValue(savedContent(recipients[0], type));
+  await expect(sendButton(composer)).toBeEnabled();
+  const fromIndex = state.previewRequests.length;
+  const picker = composer.getByRole("combobox", { name: "Preview recipient", exact: true });
+  await expect(picker.locator("option")).toHaveCount(2);
+  if (type === "passport_link") await expect(composer.getByRole("textbox", { name: "Passport upload link", exact: true })).toHaveValue(passportUrl(recipients[0]));
+  await picker.selectOption(recipients[1].id);
+  await expect(editor).toHaveValue(savedContent(recipients[1], type));
+  await expect(sendButton(composer)).toBeEnabled();
+  await picker.selectOption(recipients[0].id);
+  await expect(editor).toHaveValue(savedContent(recipients[0], type));
+  await expect(sendButton(composer)).toBeEnabled();
+  await picker.selectOption(recipients[1].id);
+  await expect(editor).toHaveValue(savedContent(recipients[1], type));
+  await expect(sendButton(composer)).toBeEnabled();
+  assert.ok(state.previewRequests.slice(fromIndex).every((body) => body.message_content == null && body.passport_intro == null && body.header_image_id == null && body.support_contact_ids == null), "Switching preview recipients must not turn their saved values into shared overrides");
+  if (type === "passport_link") {
+    await expect(composer.getByRole("textbox", { name: "Passport upload link", exact: true })).toHaveValue(passportUrl(recipients[1]));
+    await expect(composer.getByRole("textbox", { name: "Passport upload link", exact: true })).toHaveAttribute("readonly", "");
+    await expect(composer.getByLabel("Passport link introduction", { exact: true })).toHaveValue(savedIntro(recipients[1]));
+  }
+  await expect(composer.getByText(/previous recipients? will be skipped automatically/i)).toHaveCount(0);
+  return editor;
 }
 
 async function verifyWorkspace(browser, viewport) {
@@ -223,7 +339,8 @@ async function verifyWorkspace(browser, viewport) {
     assert.equal(state.bulkRequests.length, 0, "Review does not send a message");
     result.confirmationDimensions = await assertFit(confirmation, viewport);
     await page.screenshot({ path: join(output, `${viewport.name}-review.png`), animations: "disabled" });
-    await confirmation.getByRole("button", { name: "Confirm resend", exact: true }).focus();
+    await expect(sendButton(confirmation)).toBeEnabled();
+    await sendButton(confirmation).focus();
     await page.keyboard.press("Tab");
     await expect(confirmation.getByRole("button", { name: "Close dialog", exact: true })).toBeFocused();
     await page.keyboard.press("Escape");
@@ -232,23 +349,55 @@ async function verifyWorkspace(browser, viewport) {
     await expect(dialog.getByRole("checkbox", { name: `Select ${recipients[0].name}`, exact: true })).toBeChecked();
     result.reviewFocusAndEscapeKeepWorkspaceSelection = true;
     confirmation = await review(page, dialog, "welcome");
+    const welcomeEditor = await inspectSavedPreview(confirmation, state, "welcome");
+    result.savedMessagesChangePerPreviewRecipientWithoutSharedOverrides = true;
+    await welcomeEditor.fill("");
+    await expect(sendButton(confirmation)).toBeDisabled();
+    const editedWelcome = "Please review your updated Singapore conference arrangements before departure.";
+    state.holdNextPreview = true;
+    await welcomeEditor.fill(editedWelcome);
+    await expect.poll(() => state.releasePreview !== null).toBe(true);
+    await expect(sendButton(confirmation)).toBeDisabled();
+    assert.equal(state.bulkRequests.length, 0, "Edited wording cannot send using a stale preview");
+    state.releasePreview();
+    await expect(sendButton(confirmation)).toBeEnabled();
+    await expect(confirmation.getByTestId("whatsapp-message-preview")).toContainText(editedWelcome);
+    await page.screenshot({ path: join(output, `${viewport.name}-edited-welcome.png`), animations: "disabled" });
+    result.emptyBodyAndStalePreviewBlockSending = true;
     state.holdNext = true;
-    await confirmation.getByRole("button", { name: "Confirm resend", exact: true }).click();
+    await sendButton(confirmation).click();
     await expect.poll(() => state.bulkRequests.length).toBe(1);
-    await expect(confirmation.getByRole("button", { name: "Confirm resend", exact: true })).toBeDisabled();
+    await expect(sendButton(confirmation)).toBeDisabled();
     await page.keyboard.press("Enter");
     assert.equal(state.bulkRequests.length, 1, "A pending operation cannot submit twice");
     assertPayload(state.bulkRequests[0], "welcome", [recipients[0].id, recipients[1].id]);
+    assert.equal(state.bulkRequests[0].message_content, editedWelcome);
+    assert.equal(state.bulkRequests[0].header_image_id ?? null, null, "An unchanged image preserves each recipient's saved image");
+    assert.equal(state.bulkRequests[0].support_contact_ids ?? null, null);
     state.release();
     await expect(confirmation).toHaveCount(0);
     await expect(actions).toContainText(/2 selected|2 recipients/i);
     result.confirmationAndPendingLockVerified = true;
 
     const passportReview = await review(page, dialog, "passport_link");
-    await passportReview.getByRole("button", { name: "Confirm resend", exact: true }).click();
+    const passportEditor = await inspectSavedPreview(passportReview, state, "passport_link");
+    const editedPassport = "Please submit a clear passport scan and review all passenger details.";
+    const editedIntro = "Your team has updated the passport submission instructions.";
+    await passportEditor.fill(editedPassport);
+    await passportReview.getByLabel("Passport link introduction", { exact: true }).fill(editedIntro);
+    await expect(sendButton(passportReview)).toBeEnabled();
+    await expect(passportReview.getByTestId("whatsapp-message-preview")).toContainText(editedPassport);
+    await expect(passportReview.getByTestId("whatsapp-message-preview")).toContainText(editedIntro);
+    await expect(passportReview.getByTestId("whatsapp-message-preview")).toContainText(passportUrl(recipients[1]));
+    await page.screenshot({ path: join(output, `${viewport.name}-edited-passport.png`), animations: "disabled" });
+    await sendButton(passportReview).click();
     await expect.poll(() => state.bulkRequests.length).toBe(2);
     await expect(passportReview).toHaveCount(0);
     assertPayload(state.bulkRequests[1], "passport_link", [recipients[0].id, recipients[1].id]);
+    assert.equal(state.bulkRequests[1].message_content, editedPassport);
+    assert.equal(state.bulkRequests[1].passport_intro, editedIntro);
+    assert.equal(state.bulkRequests[1].support_contact_ids ?? null, null);
+    assert.equal(state.uploads.length, 0, "Keeping saved images causes no unnecessary uploads");
     assert.notEqual(state.bulkRequests[0].request_id, state.bulkRequests[1].request_id, "Different operations have different request IDs");
     result.bothMessageTypesUseExplicitSelection = true;
     await expect.poll(async () => page.evaluate(() => JSON.parse(sessionStorage.getItem("passdetection:whatsapp:tracked-activities:v1") ?? "[]").length)).toBe(2);
@@ -263,8 +412,18 @@ async function verifyWorkspace(browser, viewport) {
     await expect(actions).toContainText(/5 selected|5 recipients/i);
     const allReview = await review(page, dialog, "welcome");
     await expect(allReview).toContainText(/skip|progress|pending|unavailable/i);
-    await allReview.getByRole("button", { name: "Back to recipients", exact: true }).click();
+    const allPicker = allReview.getByRole("combobox", { name: "Preview recipient", exact: true });
+    await expect(allPicker.locator("option")).toHaveCount(4);
+    await expect(allPicker.locator(`option[value="${recipients[2].id}"]`)).toHaveCount(1);
+    await expect(allPicker.locator(`option[value="${recipients[3].id}"]`)).toHaveCount(0);
+    await allReview.getByRole("button", { name: "Close dialog", exact: true }).click();
+    const allPassportReview = await review(page, dialog, "passport_link");
+    const passportPicker = allPassportReview.getByRole("combobox", { name: "Preview recipient", exact: true });
+    await expect(passportPicker.locator("option")).toHaveCount(4);
+    await expect(passportPicker.locator(`option[value="${recipients[4].id}"]`)).toHaveCount(0);
+    await allPassportReview.getByRole("button", { name: "Close dialog", exact: true }).click();
     result.allBroadcastAndInProgressReviewVerified = true;
+    result.failedMessagesAllowedAndUnavailableSavedMessagesSkipped = true;
 
     const navigation = dialog.getByRole("navigation", { name: "Broadcast workspace", exact: true });
     await navigation.getByRole("button", { name: /^Add recipients\b/ }).click();
@@ -303,6 +462,7 @@ async function verifyWorkspace(browser, viewport) {
     throw Object.assign(error, { caseResult: { ...result, status: "failed", error: String(error), errors: state.errors, blocked: state.blocked, requests: state.requests, bulkRequests: state.bulkRequests } });
   } finally {
     state.release?.();
+    state.releasePreview?.();
     await context.close();
   }
 }
@@ -314,19 +474,30 @@ async function verifyUncertainRetry(browser) {
     await page.goto(`${origin.origin}/whatsapp`);
     const dialog = await openRecipients(page);
     await dialog.getByRole("checkbox", { name: `Select ${recipients[0].name}`, exact: true }).check();
+    await dialog.getByRole("checkbox", { name: `Select ${recipients[1].name}`, exact: true }).check();
     const confirmation = await review(page, dialog, "welcome");
+    await expect(sendButton(confirmation)).toBeEnabled();
+    await confirmation.locator('input[type="file"]').setInputFiles(await syntheticHeader(page));
+    await expect(sendButton(confirmation)).toBeEnabled();
     state.failNext = true;
-    await confirmation.getByRole("button", { name: "Confirm resend", exact: true }).click();
+    state.advanceOnFailure = true;
+    await sendButton(confirmation).click();
     await expect.poll(() => state.bulkRequests.length).toBe(1);
-    await expect(confirmation.getByRole("alert")).toBeVisible();
-    await confirmation.getByRole("button", { name: "Confirm resend", exact: true }).click();
+    await expect(confirmation.getByRole("alert").first()).toBeVisible();
+    await confirmation.getByRole("combobox", { name: "Preview recipient", exact: true }).selectOption(recipients[1].id);
+    await expect.poll(() => state.failedPreviewCount, { timeout: 15_000 }).toBeGreaterThan(0);
+    const recover = confirmation.getByRole("button", { name: "Check resend status", exact: true });
+    await expect(recover).toBeEnabled();
+    await recover.click();
     await expect.poll(() => state.bulkRequests.length).toBe(2);
     await expect(confirmation).toHaveCount(0);
-    assertPayload(state.bulkRequests[0], "welcome", [recipients[0].id]);
+    assertPayload(state.bulkRequests[0], "welcome", [recipients[0].id, recipients[1].id]);
     assert.deepEqual(state.bulkRequests[0], state.bulkRequests[1], "Retry after an uncertain network response reuses the exact operation and request ID");
+    assert.equal(state.uploads.length, 1, "An uncertain send retry reuses the already uploaded image");
+    assert.equal(state.bulkRequests[0].header_image_id, "uploaded-header-1");
     assert.deepEqual(state.errors, []);
     assert.deepEqual(state.blocked, []);
-    return { ...result, status: "passed", sameRequestIdOnRetry: true, bulkRequests: state.bulkRequests };
+    return { ...result, status: "passed", sameRequestIdOnRetry: true, sameUploadedImageOnRetry: true, freshPreviewUnavailableAfterQueue: true, failedPreviewCount: state.failedPreviewCount, bulkRequests: state.bulkRequests };
   } catch (error) {
     await page.screenshot({ path: join(output, "uncertain-retry-failure.png"), animations: "disabled" }).catch(() => {});
     throw Object.assign(error, { caseResult: { ...result, status: "failed", error: String(error), errors: state.errors, requests: state.requests, bulkRequests: state.bulkRequests } });

@@ -15,11 +15,15 @@ import {
 } from "react";
 import type {
   WhatsAppBroadcastGroup,
+  WhatsAppBulkResendOverrides,
+  WhatsAppBulkResendPreviewResponse,
   WhatsAppMessageType,
   WhatsAppPreviewResponse,
+  WhatsAppRecipient,
 } from "../api/whatsapp.api";
 import {
   usePreviewWhatsAppMessage,
+  usePreviewWhatsAppBulkResendMessage,
   useWhatsAppGroup,
 } from "../hooks/use-whatsapp";
 import {
@@ -35,14 +39,28 @@ import {
 } from "./whatsapp-dialog-ui";
 import type { RecipientResendTarget } from "./whatsapp-workspace.types";
 import { WhatsAppBroadcastMotion } from "./whatsapp-broadcast-motion";
+import { RecipientBulkComposerAudience } from "./whatsapp-bulk-composer-audience";
 
 const MAX_WELCOME_IMAGE_BYTES = 5 * 1024 * 1024;
 const WELCOME_IMAGE_TYPES = new Set(["image/jpeg", "image/png"]);
+
+export type MessagePreviewSendPayload = {
+  passportIntro: string;
+  passportLink: string;
+  messageContent: string;
+  headerImage: File | null;
+  headerImageId: string | null;
+  recipientIds: string[] | null;
+  supportContactIds: string[] | null;
+  bulkDraft?: WhatsAppBulkResendOverrides;
+};
 
 export function MessagePreviewDialog({
   group,
   messageType,
   targetRecipient,
+  bulkRecipients,
+  hiddenSelectedCount = 0,
   isSending,
   onClose,
   onSend,
@@ -50,22 +68,19 @@ export function MessagePreviewDialog({
   group: WhatsAppBroadcastGroup;
   messageType: WhatsAppMessageType;
   targetRecipient?: RecipientResendTarget;
+  bulkRecipients?: WhatsAppRecipient[];
+  hiddenSelectedCount?: number;
   isSending: boolean;
   onClose: () => void;
-  onSend: (payload: {
-    passportIntro: string;
-    passportLink: string;
-    messageContent: string;
-    headerImage: File | null;
-    headerImageId: string | null;
-    recipientIds: string[] | null;
-    supportContactIds: string[] | null;
-  }) => Promise<void>;
+  onSend: (payload: MessagePreviewSendPayload) => Promise<void>;
 }) {
   const { data: detail, isLoading: isLoadingDetail } = useWhatsAppGroup(
     group.id,
   );
   const previewRequest = usePreviewWhatsAppMessage();
+  const bulkPreviewRequest = usePreviewWhatsAppBulkResendMessage();
+  const bulkMode = bulkRecipients !== undefined;
+  const bulkRecipientIds = useMemo(() => bulkRecipients?.map((recipient) => recipient.id) ?? null, [bulkRecipients]);
   const [passportIntro, setPassportIntro] = useState<string | null>(null);
   const [passportLink, setPassportLink] = useState<string | null>(null);
   const [messageContent, setMessageContent] = useState<string | null>(null);
@@ -93,8 +108,10 @@ export function MessagePreviewDialog({
   );
   const [headerImageRevision, setHeaderImageRevision] = useState(0);
   const [preview, setPreview] = useState<WhatsAppPreviewResponse | null>(null);
+  const [bulkPreview, setBulkPreview] = useState<WhatsAppBulkResendPreviewResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submissionStartedAt, setSubmissionStartedAt] = useState<number | null>(null);
+  const [bulkRecovery, setBulkRecovery] = useState<{ draftKey: string; payload: MessagePreviewSendPayload } | null>(null);
   const submissionPending = submissionStartedAt !== null || isSending;
   const previewSequence = useRef(0);
   const sendInFlightRef = useRef(false);
@@ -104,6 +121,8 @@ export function MessagePreviewDialog({
   const passportIntroId = useId();
   const messageContentId = useId();
   const previewMutate = previewRequest.mutate;
+  const bulkPreviewMutate = bulkPreviewRequest.mutate;
+  const previewPending = bulkMode ? bulkPreviewRequest.isPending : previewRequest.isPending;
   const resolvedSupportContactIds = useMemo(() => {
     if (selectedSupportContactIds !== null) {
       return selectedSupportContactIds.slice(0, 1);
@@ -169,7 +188,8 @@ export function MessagePreviewDialog({
     previewRecipientId,
     recipientSelectionMode,
     selectedRecipientIds,
-    resolvedSupportContactIds,
+    supportContactIds: bulkMode ? selectedSupportContactIds : resolvedSupportContactIds,
+    bulkRecipientIds,
     resendRecipientId: targetRecipient?.recipientId ?? null,
     groupRevision: detail?.updated_at ?? null,
   });
@@ -181,6 +201,37 @@ export function MessagePreviewDialog({
     const sequence = ++previewSequence.current;
     const controller = new AbortController();
     const timeout = window.setTimeout(() => {
+      if (bulkMode && bulkRecipientIds && messageType !== "reminder") {
+        bulkPreviewMutate({
+          groupId: group.id,
+          messageType,
+          recipientIds: bulkRecipientIds,
+          previewRecipientId,
+          overrides: {
+            messageContent,
+            passportIntro: messageType === "passport_link" ? passportIntro : null,
+            headerImageId,
+            supportContactIds: messageType === "passport_link" ? selectedSupportContactIds : null,
+          },
+          signal: controller.signal,
+        }, {
+          onSuccess: (response) => {
+            if (controller.signal.aborted || sequence !== previewSequence.current) return;
+            setPreview(response);
+            setBulkPreview(response);
+            setPreviewedRequestKey(previewRequestKey);
+            // Saved values remain preview fallbacks. Only staff edits become
+            // overrides shared with the other selected recipients.
+            setError(null);
+          },
+          onError: (previewError) => {
+            if (controller.signal.aborted || sequence !== previewSequence.current) return;
+            setPreviewedRequestKey(null);
+            setError(readErrorMessage(previewError, "Could not generate the selected recipients’ resend preview."));
+          },
+        });
+        return;
+      }
       previewMutate(
         {
           groupId: group.id,
@@ -268,6 +319,10 @@ export function MessagePreviewDialog({
     selectedRecipientIds,
     resolvedSupportContactIds,
     targetRecipient,
+    bulkMode,
+    bulkRecipientIds,
+    bulkPreviewMutate,
+    selectedSupportContactIds,
   ]);
 
   const resolvedMessageContent = (
@@ -285,7 +340,8 @@ export function MessagePreviewDialog({
     preview?.passport_link ??
     ""
   ).trim();
-  const hasHeaderImage = Boolean(headerImage || headerImageId);
+  const effectiveHeaderImageId = headerImageId ?? (bulkMode ? preview?.header_image_id ?? null : null);
+  const hasHeaderImage = Boolean(headerImage || effectiveHeaderImageId);
   const targetRecipientDetail =
     targetRecipient && detail
       ? detail.recipients.find(
@@ -331,7 +387,9 @@ export function MessagePreviewDialog({
       targetRecipient,
     ],
   );
-  const eligibleRecipientCount = targetRecipient
+  const eligibleRecipientCount = bulkMode
+    ? (bulkPreview?.eligible_recipient_count ?? 0)
+    : targetRecipient
     ? 1
     : recipientSelectionMode === "custom"
       ? selectedEligibleRecipients.length
@@ -340,10 +398,10 @@ export function MessagePreviewDialog({
         group.recipient_count);
   const canSend = Boolean(
     previewIsCurrent &&
-      !previewRequest.isPending &&
+      !previewPending &&
       detail?.recipient_opt_in_confirmed &&
       (messageType !== "passport_link" ||
-        resolvedSupportContactIds.length > 0) &&
+        (bulkMode && selectedSupportContactIds === null) || resolvedSupportContactIds.length > 0) &&
       resolvedMessageContent &&
       eligibleRecipientCount > 0 &&
       canResendTarget &&
@@ -351,6 +409,24 @@ export function MessagePreviewDialog({
       (messageType !== "passport_link" ||
         (resolvedPassportIntro && resolvedPassportLink)),
   );
+  const bulkDraftKey = JSON.stringify({ messageType, bulkRecipientIds, messageContent, passportIntro, headerImageId, headerImageRevision, selectedSupportContactIds });
+  const canRecoverBulkRequest = bulkMode && bulkRecovery?.draftKey === bulkDraftKey;
+  const submitPayload = async (payload: MessagePreviewSendPayload) => {
+    if (isSending || sendInFlightRef.current) return;
+    sendInFlightRef.current = true;
+    setSubmissionStartedAt(Date.now());
+    setError(null);
+    try {
+      await onSend(payload);
+      setBulkRecovery(null);
+    } catch (sendError) {
+      if (bulkMode) setBulkRecovery({ draftKey: bulkDraftKey, payload });
+      setError(readErrorMessage(sendError, "WhatsApp could not submit this broadcast."));
+    } finally {
+      sendInFlightRef.current = false;
+      setSubmissionStartedAt(null);
+    }
+  };
 
   const handleSend = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -382,6 +458,7 @@ export function MessagePreviewDialog({
     }
     if (
       messageType === "passport_link" &&
+      !(bulkMode && selectedSupportContactIds === null) &&
       resolvedSupportContactIds.length === 0
     ) {
       setError(
@@ -392,17 +469,14 @@ export function MessagePreviewDialog({
     if (
       messageType === "passport_link" &&
       !targetRecipient &&
+      !bulkMode &&
       recipientSelectionMode === "custom" &&
       selectedRecipientIds.length === 0
     ) {
       setError("Select at least one unsent recipient for this custom send.");
       return;
     }
-    if (isSending || sendInFlightRef.current) return;
-    sendInFlightRef.current = true;
-    setSubmissionStartedAt(Date.now());
-    try {
-      await onSend({
+      await submitPayload({
         passportIntro: resolvedPassportIntro,
         passportLink: resolvedPassportLink,
         messageContent: resolvedMessageContent,
@@ -416,23 +490,21 @@ export function MessagePreviewDialog({
             : null,
         supportContactIds:
           messageType === "passport_link" ? resolvedSupportContactIds : null,
+        ...(bulkMode ? {
+          recipientIds: bulkRecipientIds,
+          bulkDraft: {
+            messageContent: messageContent === null ? null : resolvedMessageContent,
+            passportIntro: messageType === "passport_link" && passportIntro !== null ? resolvedPassportIntro : null,
+            headerImageId,
+            supportContactIds: messageType === "passport_link" ? selectedSupportContactIds : null,
+          },
+        } : {}),
       });
-    } catch (sendError) {
-      setError(
-        readErrorMessage(
-          sendError,
-          "WhatsApp could not submit this broadcast.",
-        ),
-      );
-    } finally {
-      sendInFlightRef.current = false;
-      setSubmissionStartedAt(null);
-    }
   };
 
   return (
     <DialogFrame
-      title={`${targetRecipient ? (targetRecipient.action === "retry" ? "Retry" : "Resend") : "Preview"} ${
+      title={`${bulkMode ? "Resend" : targetRecipient ? (targetRecipient.action === "retry" ? "Retry" : "Resend") : "Preview"} ${
         messageType === "welcome"
           ? "Welcome Message"
           : messageType === "reminder"
@@ -453,7 +525,9 @@ export function MessagePreviewDialog({
         <MessageComposerSection title="Message content" description="Prepare the image and wording your recipients will receive.">
         <div className="flex gap-2.5 rounded-lg bg-blue-50/70 px-3 py-3 text-xs leading-5 text-slate-600">
           <Info className="mt-0.5 h-4 w-4 shrink-0" />
-          {messageType === "welcome" ? (
+          {bulkMode ? (
+            <p>Edit the image and wording for the selected recipients. Fields you leave unchanged keep each person’s saved message{messageType === "passport_link" ? " and personal passport link" : ""}.</p>
+          ) : messageType === "welcome" ? (
             <p>
               Add a header image and edit the message below. The greeting and
               remaining text are fixed in the approved template.
@@ -477,7 +551,9 @@ export function MessagePreviewDialog({
               role="status"
               className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800"
             >
-              {preview.content_source === "latest_recipient"
+              {bulkMode
+                ? `Showing the saved message for ${preview.recipient_name}. Your edits apply to the selected recipients; unchanged fields stay personal.`
+                : preview.content_source === "latest_recipient"
                 ? `Loaded the latest saved message for this recipient. You can edit it before ${targetRecipient?.action === "retry" ? "retrying" : "resending"}.`
                 : "Loaded the most recent message used for this broadcast. You can edit it before sending to the remaining recipients."}
             </div>
@@ -510,7 +586,7 @@ export function MessagePreviewDialog({
                 </span>
                 <span className="mt-1 block break-words text-xs leading-5 text-slate-500">
                   {headerImage?.name ??
-                    (headerImageId
+                    (effectiveHeaderImageId
                       ? "Previously sent image selected. Choose a file to replace it."
                       : "Upload the approved JPEG or PNG shown above the message.")}
                 </span>
@@ -543,17 +619,19 @@ export function MessagePreviewDialog({
             <p className="text-xs text-slate-500">
               Required for every send. Maximum size: 5 MB.
             </p>
+            {bulkMode && headerImage && <button type="button" className="text-xs font-semibold text-blue-700 hover:underline" onClick={() => { replaceHeaderImage(null); setHeaderImageId(null); }}>Use each recipient’s saved image</button>}
           </div>
         )}
 
         {messageType === "passport_link" && (
           <Input
             label="Passport upload link"
-            hint="This upload link is included in each recipient's message."
+            hint={bulkMode ? "Preview only. Each recipient keeps their own personal passport link automatically." : "This upload link is included in each recipient's message."}
             placeholder="https://..."
             value={passportLink ?? preview?.passport_link ?? ""}
-            onChange={(event) => setPassportLink(event.target.value)}
-            required
+            onChange={bulkMode ? undefined : (event) => setPassportLink(event.target.value)}
+            readOnly={bulkMode}
+            required={!bulkMode}
           />
         )}
 
@@ -600,6 +678,7 @@ export function MessagePreviewDialog({
                     Enter an introduction.
                   </span>
                 )}
+                {bulkMode && passportIntro !== null && <button type="button" className="mt-2 text-xs font-semibold text-blue-700 hover:underline" onClick={() => setPassportIntro(null)}>Use each recipient’s saved introduction</button>}
               </div>
             )}
             <div>
@@ -648,17 +727,18 @@ export function MessagePreviewDialog({
                   Enter the message text before sending.
                 </span>
               )}
+              {bulkMode && messageContent !== null && <button type="button" className="mt-2 text-xs font-semibold text-blue-700 hover:underline" onClick={() => setMessageContent(null)}>Use each recipient’s saved wording</button>}
             </div>
         </MessageComposerSection>
         <MessageComposerSection title="Delivery settings" description="Confirm who will receive this message.">
-          <div className="flex items-center gap-3">
+          {bulkRecipients && messageType !== "reminder" ? <RecipientBulkComposerAudience recipients={bulkRecipients} messageType={messageType} hiddenCount={hiddenSelectedCount} preview={bulkPreview} /> : <div className="flex items-center gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500"><UsersRound className="h-5 w-5" aria-hidden="true" /></span>
             <div className="min-w-0">
               <p className="text-sm font-semibold text-slate-900">{eligibleRecipientCount} eligible recipient{eligibleRecipientCount === 1 ? "" : "s"}</p>
               <p className="mt-0.5 text-xs leading-5 text-slate-500">Each recipient receives an individual WhatsApp message.</p>
             </div>
-          </div>
-            {messageType === "passport_link" && detail && !targetRecipient && (
+          </div>}
+            {messageType === "passport_link" && detail && !targetRecipient && !bulkMode && (
               <fieldset className="min-w-0 rounded-lg border border-slate-200 p-3">
                 <legend className="px-1 text-sm font-medium text-slate-700">
                   Recipients for this send
@@ -811,12 +891,13 @@ export function MessagePreviewDialog({
             {messageType === "passport_link" && detail && (
               <details className="rounded-xl border border-slate-200 p-3" open>
                 <summary className="cursor-pointer text-sm font-medium text-slate-700">
-                  Support contacts included ({resolvedSupportContactIds.length})
+                  {bulkMode && selectedSupportContactIds === null ? "Support contacts · keep saved details" : `Support contacts included (${resolvedSupportContactIds.length})`}
                 </summary>
                 <p className="mt-1 text-xs text-slate-500">
-                  Select one contact to show in this Passport Link message.
+                  {bulkMode ? "Keep each person’s saved support details, or choose one contact for all selected recipients." : "Select one contact to show in this Passport Link message."}
                 </p>
                 <div className="mt-2 space-y-1">
+                  {bulkMode && <label className="mb-2 flex items-start gap-2 rounded-md border border-blue-100 bg-blue-50/40 px-2 py-2.5 text-sm"><input type="radio" name="passport-link-support-contact" className="mt-0.5 h-4 w-4 border-slate-300 text-blue-600 focus:ring-blue-500" checked={selectedSupportContactIds === null} onChange={() => setSelectedSupportContactIds(null)} /><span className="font-medium text-slate-800">Keep each recipient’s saved support details</span></label>}
                   {detail.support_contacts.map((contact) => (
                     <label
                       key={contact.id}
@@ -826,7 +907,7 @@ export function MessagePreviewDialog({
                         type="radio"
                         name="passport-link-support-contact"
                         className="mt-0.5 h-4 w-4 border-slate-300 text-blue-600 focus:ring-blue-500"
-                        checked={resolvedSupportContactIds.includes(contact.id)}
+                        checked={bulkMode ? Boolean(selectedSupportContactIds?.includes(contact.id)) : resolvedSupportContactIds.includes(contact.id)}
                         onChange={() =>
                           setSelectedSupportContactIds([contact.id])
                         }
@@ -857,14 +938,14 @@ export function MessagePreviewDialog({
         <aside aria-label="WhatsApp message preview" className="min-w-0 space-y-3 lg:sticky lg:top-0">
           <div className="flex flex-wrap items-center justify-between gap-2 px-1">
             <h3 className="text-sm font-semibold text-slate-900">
-              {targetRecipient ? `One-person WhatsApp ${targetRecipient.action} preview` : "Individual WhatsApp preview"}
+              {bulkMode ? "Selected recipient preview" : targetRecipient ? `One-person WhatsApp ${targetRecipient.action} preview` : "Individual WhatsApp preview"}
             </h3>
             <span className="text-xs tabular-nums text-slate-500">
-              {targetRecipient ? "1 selected recipient" : `${eligibleRecipientCount} eligible of ${preview?.recipient_count ?? group.recipient_count}`}
+              {bulkMode ? `${bulkRecipients?.length ?? 0} selected recipients` : targetRecipient ? "1 selected recipient" : `${eligibleRecipientCount} eligible of ${preview?.recipient_count ?? group.recipient_count}`}
             </span>
           </div>
-          <MessageDeliveryPreview preview={preview} previewIsCurrent={previewIsCurrent} previewFailed={Boolean(error)} messageType={messageType} headerImagePreview={headerImagePreview} headerImageId={headerImageId}>
-            {detail && detail.recipients.length > 1 && !targetRecipient && (
+          <MessageDeliveryPreview preview={preview} previewIsCurrent={previewIsCurrent} previewFailed={Boolean(error)} messageType={messageType} headerImagePreview={headerImagePreview} headerImageId={effectiveHeaderImageId}>
+            {detail && (bulkMode ? (bulkPreview?.eligible_recipient_ids.length ?? 0) > 1 : detail.recipients.length > 1) && !targetRecipient && (
               <label className="block text-sm font-medium text-slate-700">
                 Preview recipient
                 <select
@@ -874,7 +955,9 @@ export function MessagePreviewDialog({
                     setPreviewRecipientId(event.target.value)
                   }
                 >
-                  {(recipientSelectionMode === "custom"
+                  {(bulkMode
+                    ? (bulkRecipients ?? []).filter((recipient) => bulkPreview?.eligible_recipient_ids.includes(recipient.id))
+                    : recipientSelectionMode === "custom"
                     ? selectedEligibleRecipients
                     : detail.recipients
                   ).map((recipient) => (
@@ -889,21 +972,21 @@ export function MessagePreviewDialog({
           </MessageDeliveryPreview>
             {preview && (
               <div className="mt-2 space-y-1 text-xs text-slate-500">
-                {!targetRecipient && preview.already_sent_count > 0 && (
+                {!targetRecipient && !bulkMode && preview.already_sent_count > 0 && (
                   <p className="font-medium text-emerald-700">
                     {preview.already_sent_count} previous recipient
                     {preview.already_sent_count === 1 ? "" : "s"} will be
                     skipped automatically.
                   </p>
                 )}
-                {!targetRecipient && preview.in_progress_count > 0 && (
+                {!targetRecipient && !bulkMode && preview.in_progress_count > 0 && (
                   <p className="font-medium text-blue-700">
                     {preview.in_progress_count} recipient
                     {preview.in_progress_count === 1 ? " is" : "s are"} already
                     queued and will not be queued twice.
                   </p>
                 )}
-                {!targetRecipient && preview.uncertain_recipient_count > 0 && (
+                {!targetRecipient && !bulkMode && preview.uncertain_recipient_count > 0 && (
                   <p className="font-medium text-amber-700">
                     {preview.uncertain_recipient_count} recipient
                     {preview.uncertain_recipient_count === 1
@@ -927,6 +1010,7 @@ export function MessagePreviewDialog({
           <ErrorBanner message="This older list has no recorded recipient opt-in confirmation. Create a new list before sending." />
         )}
         {messageType === "passport_link" &&
+          !bulkMode &&
           detail &&
           detail.support_contacts.length === 0 && (
             <ErrorBanner message="This older list has no customer support contacts. Create a new list before sending." />
@@ -937,6 +1021,7 @@ export function MessagePreviewDialog({
           />
         )}
         {!targetRecipient &&
+          !bulkMode &&
           preview &&
           eligibleRecipientCount === 0 &&
           preview.already_sent_count === preview.recipient_count && (
@@ -946,6 +1031,7 @@ export function MessagePreviewDialog({
             </div>
           )}
         {!targetRecipient &&
+          !bulkMode &&
           preview &&
           eligibleRecipientCount === 0 &&
           preview.uncertain_recipient_count > 0 && (
@@ -958,6 +1044,7 @@ export function MessagePreviewDialog({
             </div>
           )}
         {!targetRecipient &&
+          !bulkMode &&
           preview &&
           eligibleRecipientCount === 0 &&
           preview.uncertain_recipient_count === 0 &&
@@ -975,6 +1062,7 @@ export function MessagePreviewDialog({
           </p>
         )}
         {error && <ErrorBanner message={error} />}
+        {canRecoverBulkRequest && <p role="status" className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">The last resend has not been confirmed. Check that same request safely, even if recipient statuses have changed. Editing the message starts a different request.</p>}
         {error && !previewIsCurrent && (
           <Button
             type="button"
@@ -1015,13 +1103,14 @@ export function MessagePreviewDialog({
             Cancel
           </Button>
           <Button
-            type="submit"
+            type={canRecoverBulkRequest ? "button" : "submit"}
+            onClick={canRecoverBulkRequest && bulkRecovery ? () => void submitPayload(bulkRecovery.payload) : undefined}
             isLoading={submissionPending}
-            disabled={!canSend || previewRequest.isPending}
+            disabled={!canRecoverBulkRequest && (!canSend || previewPending)}
             className="min-w-0"
           >
             <Send className="h-4 w-4 shrink-0" aria-hidden="true" />
-            <span className="truncate">{targetRecipient
+            <span className="truncate">{canRecoverBulkRequest ? "Check resend status" : bulkMode ? `Resend to ${eligibleRecipientCount} selected` : targetRecipient
               ? `${targetRecipient.action === "retry" ? "Retry" : "Resend"} to ${targetRecipient.recipientName}`
               : `Send individually to ${eligibleRecipientCount}`}</span>
           </Button>

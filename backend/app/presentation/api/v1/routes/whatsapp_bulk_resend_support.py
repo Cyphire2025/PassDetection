@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import uuid
 from datetime import UTC, datetime
 
-from fastapi import HTTPException
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,15 +15,18 @@ from app.infrastructure.database.models import (
     WhatsAppMessageLogModel,
     WhatsAppRecipientMessageStateModel,
 )
+from app.presentation.api.v1.routes.whatsapp_bulk_resend_composer import (
+    BulkResendEdits,
+    resolve_saved_resend_snapshot,
+)
 from app.presentation.api.v1.routes.whatsapp_shared import (
     WHATSAPP_ACCEPTED_STATUSES,
     WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES,
     WHATSAPP_IN_PROGRESS_STATUSES,
     WHATSAPP_STALE_CLAIM_AGE,
-    _template_snapshot_from_log,
-    _validate_passport_link,
 )
 from app.presentation.api.v1.schemas.whatsapp_schemas import (
+    WhatsAppBulkResendDraft,
     WhatsAppBulkResendRequest,
     WhatsAppBulkResendResponse,
     WhatsAppSendResult,
@@ -40,7 +43,16 @@ SKIP_MESSAGES = {
 
 def selection_fingerprint(body: WhatsAppBulkResendRequest) -> str:
     selected = ",".join(sorted(str(value) for value in body.recipient_ids))
-    return hashlib.sha256(f"{body.message_type}:{selected}".encode()).hexdigest()
+    selection = f"{body.message_type}:{selected}"
+    overrides = body.model_dump(
+        mode="json",
+        include={"message_content", "passport_intro", "header_image_id", "support_contact_ids"},
+        exclude_none=True,
+    )
+    if overrides:
+        # Keep the deployed no-edit fingerprint stable for old durable receipts.
+        selection += ":" + json.dumps(overrides, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(selection.encode()).hexdigest()
 
 
 def recipient_skip_reason(
@@ -71,20 +83,14 @@ def frozen_resend_log(
     state: WhatsAppRecipientMessageStateModel,
     batch_id: uuid.UUID,
     now: datetime,
+    edits: BulkResendEdits | None = None,
 ) -> WhatsAppMessageLogModel:
     """Keep every recipient's own template, message, support block and private link.
 
     No common composer defaults are substituted into an existing saved message.
     Legacy snapshots are accepted only if the existing decoder verifies them.
     """
-    header, parameters = _template_snapshot_from_log(source)
-    if not source.template_name or not source.template_name.strip() or not source.rendered_message:
-        raise ValueError("The saved template or rendered message is missing")
-    if source.message_type == "passport_link":
-        try:
-            _validate_passport_link(parameters[1])
-        except HTTPException as exc:
-            raise ValueError("The saved passport link is invalid") from exc
+    snapshot = resolve_saved_resend_snapshot(source, edits)
     return WhatsAppMessageLogModel(
         batch_id=batch_id,
         broadcast_group_id=recipient.broadcast_group_id,
@@ -95,10 +101,10 @@ def frozen_resend_log(
         status_updated_at=now,
         provider_message_id=None,
         error_message=None,
-        template_name=source.template_name,
-        rendered_message=source.rendered_message,
-        header_parameter_values=header,
-        template_parameter_values=parameters,
+        template_name=snapshot.template_name,
+        rendered_message=snapshot.rendered_message,
+        header_parameter_values=snapshot.header_parameters,
+        template_parameter_values=snapshot.parameters,
         is_explicit_resend=state.status != "failed",
         created_at=now,
     )
@@ -132,27 +138,24 @@ async def expire_stale_explicit_claims(
 
 
 async def selection_delivery_maps(
-    session: AsyncSession, *, group_id: uuid.UUID, body: WhatsAppBulkResendRequest
+    session: AsyncSession,
+    *,
+    group_id: uuid.UUID,
+    body: WhatsAppBulkResendDraft,
+    lock_states: bool = True,
 ) -> tuple[
     dict[uuid.UUID, WhatsAppRecipientMessageStateModel],
     dict[uuid.UUID, set[str]],
     dict[uuid.UUID, WhatsAppMessageLogModel],
 ]:
-    states = list(
-        (
-            await session.execute(
-                select(WhatsAppRecipientMessageStateModel)
-                .where(
-                    WhatsAppRecipientMessageStateModel.broadcast_group_id == group_id,
-                    WhatsAppRecipientMessageStateModel.recipient_id.in_(body.recipient_ids),
-                    WhatsAppRecipientMessageStateModel.message_type == body.message_type,
-                )
-                .with_for_update()
-            )
-        )
-        .scalars()
-        .all()
+    state_statement = select(WhatsAppRecipientMessageStateModel).where(
+        WhatsAppRecipientMessageStateModel.broadcast_group_id == group_id,
+        WhatsAppRecipientMessageStateModel.recipient_id.in_(body.recipient_ids),
+        WhatsAppRecipientMessageStateModel.message_type == body.message_type,
     )
+    if lock_states:
+        state_statement = state_statement.with_for_update()
+    states = list((await session.execute(state_statement)).scalars().all())
     active = list(
         (
             await session.execute(
@@ -199,8 +202,16 @@ async def selection_delivery_maps(
         .all()
     )
     active_by_recipient: dict[uuid.UUID, set[str]] = {}
+    stale_cutoff = datetime.now(tz=UTC) - WHATSAPP_STALE_CLAIM_AGE
     for log in active:
-        active_by_recipient.setdefault(log.recipient_id, set()).add(log.status)
+        log_status = log.status
+        if not lock_states and log.is_explicit_resend and log.status_updated_at < stale_cutoff:
+            # Preview mirrors send's stale recovery without changing any row.
+            if log_status == "queued":
+                continue
+            if log_status == "processing":
+                log_status = "delivery_unknown"
+        active_by_recipient.setdefault(log.recipient_id, set()).add(log_status)
     return (
         {state.recipient_id: state for state in states},
         active_by_recipient,

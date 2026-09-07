@@ -106,7 +106,8 @@ test("approved-template guidance explains the image and editable message section
     /Passport instructions/,
   );
   assert.match(pageSource, /\? "Welcome image"\s*: "Passport Link image"/);
-  assert.match(pageSource, /const hasHeaderImage = Boolean\(headerImage \|\| headerImageId\)/);
+  assert.match(previewSource, /const effectiveHeaderImageId = headerImageId \?\? \(bulkMode \? preview\?\.header_image_id \?\? null : null\)/);
+  assert.match(pageSource, /const hasHeaderImage = Boolean\(headerImage \|\| effectiveHeaderImageId\)/);
   assert.match(pageSource, /required=\{!hasHeaderImage\}/);
   assert.match(pageSource, /Previously sent image selected/);
   assert.match(apiSource, /header_image_id: resolvedHeaderImageId/);
@@ -233,19 +234,22 @@ test("passport-link sends custom recipients with one selected support contact", 
 test("message preview remains unsendable while the latest approved rendering loads", () => {
   assert.match(
     pageSource,
-    /disabled=\{!canSend \|\| previewRequest\.isPending\}/,
+    /disabled=\{!canRecoverBulkRequest && \(!canSend \|\| previewPending\)\}/,
   );
+  assert.match(previewSource, /const previewPending = bulkMode \? bulkPreviewRequest\.isPending : previewRequest\.isPending/);
+  assert.match(previewSource, /const canRecoverBulkRequest = bulkMode && bulkRecovery\?\.draftKey === bulkDraftKey/);
+  assert.match(previewSource, /submitPayload\(bulkRecovery\.payload\)/);
   assert.match(pageSource, /eligibleRecipientCount > 0/);
   assert.match(pageSource, /detail\?\.recipient_opt_in_confirmed/);
   assert.match(
     pageSource,
-    /messageType !== "passport_link"\s*\|\|\s*resolvedSupportContactIds\.length > 0/,
+    /messageType !== "passport_link"\s*\|\|\s*\(bulkMode && selectedSupportContactIds === null\) \|\| resolvedSupportContactIds\.length > 0/,
   );
 });
 
 test("send requires the successful preview to match the current draft before debounce starts", () => {
   assert.match(previewSource, /previewedRequestKey === previewRequestKey/);
-  assert.match(previewSource, /const canSend = Boolean\(\s*previewIsCurrent &&\s*!previewRequest\.isPending/);
+  assert.match(previewSource, /const canSend = Boolean\(\s*previewIsCurrent &&\s*!previewPending/);
   assert.match(previewSource, /if \(!canSend \|\| isSending \|\| sendInFlightRef\.current\)/);
   assert.match(previewSource, /Retry preview/);
 });

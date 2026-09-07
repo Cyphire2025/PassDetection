@@ -39,4 +39,78 @@ describe("selected recipient resend API", () => {
     })).rejects.toThrow();
     expect(post).not.toHaveBeenCalled();
   });
+
+  it("previews and resends the same edits without forwarding a shared passport link", async () => {
+    post.mockResolvedValue({ data: {} });
+    const overrides = {
+      messageContent: "Please complete your details by Friday.",
+      passportIntro: "Here is your secure upload link.",
+      headerImageId: "uploaded-image-a",
+      supportContactIds: ["support-a"],
+      passportLink: "https://example.test/private-link-for-one-person",
+    };
+    const selection = {
+      groupId: "group-a", messageType: "passport_link" as const,
+      recipientIds: ["recipient-a", "recipient-b"], overrides,
+    };
+    const controller = new AbortController();
+    await whatsappApi.previewRecipientsResend({ ...selection, previewRecipientId: "recipient-b", signal: controller.signal });
+    await whatsappApi.resendRecipientsMessage({ ...selection, requestId: "same-reviewed-operation" });
+    expect(post.mock.calls[0][0]).toBe("/api/v1/whatsapp/groups/group-a/recipients/resend/preview");
+    expect(post.mock.calls[0][2]).toEqual({ signal: controller.signal });
+    const { preview_recipient_id, ...previewBody } = post.mock.calls[0][1];
+    const { request_id, ...sendBody } = post.mock.calls[1][1];
+    expect(preview_recipient_id).toBe("recipient-b");
+    expect(request_id).toBe("same-reviewed-operation");
+    expect(sendBody).toEqual(previewBody);
+    expect(sendBody).toEqual({
+      message_type: "passport_link", recipient_ids: ["recipient-a", "recipient-b"],
+      message_content: overrides.messageContent, passport_intro: overrides.passportIntro,
+      header_image_id: "uploaded-image-a", support_contact_ids: ["support-a"],
+    });
+  });
+
+  it("keeps untouched fields null when switching the sampled recipient", async () => {
+    post.mockResolvedValue({ data: {} });
+    const selection = {
+      groupId: "group-a", messageType: "passport_link" as const,
+      recipientIds: ["recipient-a", "recipient-b"],
+      overrides: { messageContent: null, passportIntro: null, headerImageId: null, supportContactIds: null },
+    };
+    for (const previewRecipientId of selection.recipientIds) {
+      await whatsappApi.previewRecipientsResend({ ...selection, previewRecipientId });
+    }
+    const { preview_recipient_id: firstRecipient, ...firstDraft } = post.mock.calls[0][1];
+    const { preview_recipient_id: secondRecipient, ...secondDraft } = post.mock.calls[1][1];
+    expect(firstRecipient).not.toEqual(secondRecipient);
+    expect(firstDraft).toEqual(secondDraft);
+    expect(firstDraft.message_content).toBeNull();
+    expect(firstDraft.passport_intro).toBeNull();
+    expect(firstDraft.header_image_id).toBeNull();
+    expect(firstDraft.support_contact_ids).toBeNull();
+  });
+
+  it("lets the server choose an eligible saved message for the initial preview", async () => {
+    post.mockResolvedValue({ data: {} });
+    await whatsappApi.previewRecipientsResend({
+      groupId: "group-a", messageType: "welcome", recipientIds: ["recipient-a", "recipient-b"],
+    });
+    expect(post.mock.calls[0][1]).toEqual({
+      message_type: "welcome", recipient_ids: ["recipient-a", "recipient-b"], preview_recipient_id: null,
+    });
+  });
+
+  it("rejects a preview person outside the selected audience before requesting a private link", async () => {
+    await expect(whatsappApi.previewRecipientsResend({
+      groupId: "group-a", messageType: "passport_link", recipientIds: ["recipient-a"], previewRecipientId: "recipient-b",
+    })).rejects.toThrow("Choose a preview recipient from the selected people.");
+    expect(post).not.toHaveBeenCalled();
+  });
+
+  it("never previews the whole broadcast when the selection is empty", async () => {
+    await expect(whatsappApi.previewRecipientsResend({
+      groupId: "group-a", messageType: "welcome", recipientIds: [],
+    })).rejects.toThrow();
+    expect(post).not.toHaveBeenCalled();
+  });
 });

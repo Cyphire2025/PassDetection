@@ -327,6 +327,13 @@ export function useWhatsAppBatchStatus(
   });
 }
 
+export function usePreviewWhatsAppBulkResendMessage() {
+  return useMutation({
+    mutationFn: whatsappApi.previewRecipientsResend,
+    retry: false,
+  });
+}
+
 export function usePreviewWhatsAppMessage() {
   return useMutation({
     mutationFn: ({

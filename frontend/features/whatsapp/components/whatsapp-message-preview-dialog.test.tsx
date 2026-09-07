@@ -10,6 +10,7 @@ import { MessagePreviewDialog } from "./whatsapp-message-preview-dialog";
 
 const mocks = vi.hoisted(() => ({
   preview: vi.fn(),
+  bulkPreview: vi.fn(),
   detail: {
     id: "group-a",
     name: "Office team",
@@ -33,6 +34,7 @@ vi.mock("../hooks/use-whatsapp", () => ({
     mutate: mocks.preview,
     isPending: false,
   }),
+  usePreviewWhatsAppBulkResendMessage: () => ({ mutate: mocks.bulkPreview, isPending: false }),
 }));
 vi.mock("./whatsapp-dialog-ui", () => ({
   DialogFrame: ({ children }: { children: ReactNode }) => <div>{children}</div>,
@@ -60,6 +62,7 @@ vi.mock("./whatsapp-broadcast-motion", () => ({
 }));
 
 beforeEach(() => {
+  mocks.bulkPreview.mockReset();
   mocks.detail = {
     ...mocks.detail,
     recipient_count: 1,
@@ -134,6 +137,139 @@ function renderDialog(
   );
   return { ...view, onSend };
 }
+
+function setupBulkPreview() {
+  const selected = [recipient("a"), recipient("b"), recipient("c")].map((item) => ({
+    ...item,
+    message_statuses: ["welcome", "passport_link"].map((type) => ({
+      message_type: type,
+      status: item.id === "recipient-c" ? "processing" : "sent",
+      already_sent: item.id !== "recipient-c",
+      latest_resend_status: null,
+      resend_blocked: item.id === "recipient-c",
+      submitted_at: null,
+      status_updated_at: "2026-09-05T00:00:00Z",
+    })),
+  }));
+  mocks.detail = { ...mocks.detail, recipients: selected, recipient_count: 3, support_contacts: [] };
+  mocks.bulkPreview.mockImplementation((request, callbacks) => {
+    const id = request.previewRecipientId ?? "recipient-a";
+    const wording = request.overrides?.messageContent ?? `Saved wording for ${id}`;
+    callbacks.onSuccess({
+      message_type: request.messageType,
+      template_name: `${request.messageType}_v1`,
+      recipient_id: id,
+      recipient_name: selected.find((item) => item.id === id)?.name,
+      recipient_count: 3,
+      selected: 3,
+      eligible_recipient_count: 2,
+      eligible_recipient_ids: ["recipient-a", "recipient-b"],
+      already_sent_count: 2,
+      in_progress_count: 1,
+      uncertain_recipient_count: 0,
+      skipped_no_saved_message: 0,
+      skipped_replaced: 0,
+      skipped_ineligible: 0,
+      skipped_in_progress: 1,
+      skipped_delivery_unknown: 0,
+      passport_intro: request.messageType === "passport_link" ? request.overrides?.passportIntro ?? `Saved introduction for ${id}` : null,
+      passport_link: request.messageType === "passport_link" ? `https://example.test/personal/${id}` : null,
+      message_content: wording,
+      header_image_id: `saved-image-${id}`,
+      content_source: "latest_recipient",
+      rendered_message: wording,
+      header_parameter_values: [],
+      parameter_values: [],
+    });
+  });
+  return selected;
+}
+
+it.each(["welcome", "passport_link"] as const)("bulk %s switches saved previews without turning their personal values into shared overrides", async (messageType) => {
+  const user = userEvent.setup();
+  const bulkRecipients = setupBulkPreview();
+  const { onSend } = renderDialog({ messageType, bulkRecipients });
+  const send = screen.getByRole("button", { name: "Resend to 0 selected" });
+  await waitFor(() => expect(send).toBeEnabled());
+  expect(send).toHaveTextContent("Resend to 2 selected");
+  const body = screen.getByLabelText(messageType === "welcome" ? "Welcome trip message" : "Passport instructions");
+  expect(body).toHaveValue("Saved wording for recipient-a");
+  const picker = screen.getByLabelText("Preview recipient");
+  expect(Array.from((picker as HTMLSelectElement).options).map((option) => option.value)).toEqual(["recipient-a", "recipient-b"]);
+  await user.selectOptions(picker, "recipient-b");
+  expect(send).toBeDisabled();
+  await waitFor(() => expect(body).toHaveValue("Saved wording for recipient-b"));
+  if (messageType === "passport_link") {
+    const link = screen.getByLabelText("Passport upload link");
+    expect(link).toHaveAttribute("readonly");
+    expect(link).toHaveValue("https://example.test/personal/recipient-b");
+    expect(screen.getByLabelText("Keep each recipient’s saved support details")).toBeChecked();
+    expect(screen.queryByText("All unsent recipients")).not.toBeInTheDocument();
+  }
+  await waitFor(() => expect(send).toBeEnabled());
+  await user.click(send);
+  expect(onSend).toHaveBeenCalledWith(expect.objectContaining({
+    recipientIds: ["recipient-a", "recipient-b", "recipient-c"],
+    headerImage: null,
+    bulkDraft: { messageContent: null, passportIntro: null, headerImageId: null, supportContactIds: null },
+  }));
+  expect(mocks.preview).not.toHaveBeenCalled();
+});
+
+it("bulk shared text edits need a fresh preview and preserve personal passport links and saved images", async () => {
+  const user = userEvent.setup();
+  const bulkRecipients = setupBulkPreview();
+  const { container, onSend } = renderDialog({ messageType: "passport_link", bulkRecipients });
+  const send = screen.getByRole("button", { name: "Resend to 0 selected" });
+  await waitFor(() => expect(send).toBeEnabled());
+  fireEvent.change(screen.getByLabelText("Passport instructions"), { target: { value: "Please upload before Friday." } });
+  expect(send).toBeDisabled();
+  fireEvent.submit(container.querySelector("form")!);
+  expect(onSend).not.toHaveBeenCalled();
+  await waitFor(() => expect(send).toBeEnabled());
+  await user.selectOptions(screen.getByLabelText("Preview recipient"), "recipient-b");
+  await waitFor(() => expect(send).toBeEnabled());
+  expect(screen.getByLabelText("Passport instructions")).toHaveValue("Please upload before Friday.");
+  expect(screen.getByLabelText("Passport upload link")).toHaveValue("https://example.test/personal/recipient-b");
+  await user.click(send);
+  expect(onSend).toHaveBeenCalledWith(expect.objectContaining({ bulkDraft: {
+    messageContent: "Please upload before Friday.", passportIntro: null, headerImageId: null, supportContactIds: null,
+  } }));
+});
+
+it("an uncertain bulk submission can recover the exact old payload even after its current preview becomes unavailable", async () => {
+  const user = userEvent.setup();
+  const bulkRecipients = setupBulkPreview();
+  const onSend = vi.fn().mockRejectedValueOnce(new Error("Network disconnected")).mockResolvedValue(undefined);
+  renderDialog({ messageType: "passport_link", bulkRecipients, onSend });
+  const send = screen.getByRole("button", { name: "Resend to 0 selected" });
+  await waitFor(() => expect(send).toBeEnabled());
+  await user.click(send);
+  const recover = await screen.findByRole("button", { name: "Check resend status" });
+  mocks.bulkPreview.mockImplementation((_request, callbacks) => callbacks.onError(new Error("All selected sends are in progress")));
+  await user.selectOptions(screen.getByLabelText("Preview recipient"), "recipient-b");
+  await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("Could not generate"));
+  expect(recover).toBeEnabled();
+  await user.click(recover);
+  expect(onSend).toHaveBeenCalledTimes(2);
+  expect(onSend.mock.calls[1][0]).toEqual(onSend.mock.calls[0][0]);
+});
+
+it("editing an uncertain bulk draft disables recovery of the previous wording", async () => {
+  const user = userEvent.setup();
+  const bulkRecipients = setupBulkPreview();
+  const onSend = vi.fn().mockRejectedValueOnce(new Error("Network disconnected"));
+  renderDialog({ messageType: "welcome", bulkRecipients, onSend });
+  const send = screen.getByRole("button", { name: "Resend to 0 selected" });
+  await waitFor(() => expect(send).toBeEnabled());
+  await user.click(send);
+  await screen.findByRole("button", { name: "Check resend status" });
+  fireEvent.change(screen.getByLabelText("Welcome trip message"), { target: { value: "A different welcome message" } });
+  expect(screen.queryByRole("button", { name: "Check resend status" })).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Resend to 2 selected" })).toBeDisabled();
+  await waitFor(() => expect(screen.getByRole("button", { name: "Resend to 2 selected" })).toBeEnabled());
+  expect(onSend).toHaveBeenCalledTimes(1);
+});
 
 it("blocks immediate form submission after an edit until the exact new preview succeeds", async () => {
   const user = userEvent.setup();

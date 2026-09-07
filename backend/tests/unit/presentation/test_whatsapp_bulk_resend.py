@@ -150,7 +150,7 @@ async def invoke(fixture, body=None):
         {"message_type": "reminder"},
         {"message_type": "unknown"},
         {"request_id": None},
-        {"message_content": "Do not silently accept an override"},
+        {"unsupported_override": "Do not silently accept an unknown override"},
         {"passport_link": "https://example.com/shared"},
     ],
 )

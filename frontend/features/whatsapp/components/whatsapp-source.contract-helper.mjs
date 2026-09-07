@@ -6,7 +6,7 @@ const sourceFiles = [
   "./whatsapp-recipient-dialog.tsx",
   "./whatsapp-active-recipient-row.tsx",
   "./whatsapp-recipient-selection.tsx",
-  "./whatsapp-recipient-bulk-review.tsx",
+  "./whatsapp-bulk-composer-audience.tsx",
   "./whatsapp-recipient-roster-rows.tsx",
   "./whatsapp-create-broadcast-dialog.tsx",
   "./whatsapp-message-preview-dialog.tsx",

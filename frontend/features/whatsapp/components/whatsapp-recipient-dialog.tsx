@@ -22,7 +22,9 @@ import type {
   WhatsAppBulkResendResponse,
   WhatsAppReplacedRecipient,
   WhatsAppRecipientInput,
+  WhatsAppRecipient,
 } from "../api/whatsapp.api";
+import { whatsappApi } from "../api/whatsapp.api";
 import {
   useAddWhatsAppRecipients,
   useDeleteWhatsAppRecipient,
@@ -59,10 +61,10 @@ import {
   type RejectedContactCorrection,
 } from "./whatsapp-recipient-roster-rows";
 import { ActiveRecipientRow } from "./whatsapp-active-recipient-row";
-import { RecipientBulkReview } from "./whatsapp-recipient-bulk-review";
 import { RecipientBulkOutcome } from "./whatsapp-recipient-bulk-outcome";
 import { RecipientWorkspaceNavigation, RecipientSelectionCheckbox, RecipientSelectionPanel, RecipientMobileSelectionBar, type RecipientWorkspaceSection } from "./whatsapp-recipient-selection";
 import type { RecipientResendTarget } from "./whatsapp-workspace.types";
+import type { MessagePreviewSendPayload } from "./whatsapp-message-preview-dialog";
 
 const MessagePreviewDialog = dynamic(
   () => import("./whatsapp-message-preview-dialog").then((module) => module.MessagePreviewDialog),
@@ -127,11 +129,13 @@ export function RecipientListDialog({
   const [section, setSection] = useState<RecipientWorkspaceSection>("recipients");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [bulkMessageType, setBulkMessageType] = useState<"welcome" | "passport_link" | null>(null);
+  const [bulkSelectionSnapshot, setBulkSelectionSnapshot] = useState<WhatsAppRecipient[]>([]);
   const [bulkError, setBulkError] = useState<string | null>(null);
   const [bulkNotice, setBulkNotice] = useState<string | null>(null);
   const [bulkOutcome, setBulkOutcome] = useState<WhatsAppBulkResendResponse | null>(null);
   const bulkRequestRef = useRef<{ key: string; requestId: string } | null>(null);
   const bulkInFlightRef = useRef(false);
+  const bulkImageUploadRef = useRef<{ file: File; mediaId: string } | null>(null);
   const [name, setName] = useState(group.name);
   const [support, setSupport] = useState<ManualContact>({
     name: "",
@@ -450,6 +454,11 @@ export function RecipientListDialog({
   const someVisibleSelected = visibleSelectedCount > 0;
   const hiddenSelectedCount = selectedRecipients.length - visibleSelectedCount;
   const selectionLocked = bulkResend.isPending || Boolean(bulkMessageType);
+  const openBulkComposer = (type: "welcome" | "passport_link") => {
+    setBulkSelectionSnapshot(selectedRecipients);
+    setBulkMessageType(type);
+    setBulkError(null);
+  };
   const toggleRecipients = (ids: string[], checked: boolean) => {
     if (selectionLocked) return;
     setSelectedIds((current) => {
@@ -461,18 +470,32 @@ export function RecipientListDialog({
     setBulkError(null);
     setBulkNotice(null);
   };
-  const confirmBulkResend = async () => {
-    if (!bulkMessageType || bulkInFlightRef.current || bulkResend.isPending || selectedRecipients.length === 0) return;
-    const recipientIds = selectedRecipients.map((recipient) => recipient.id);
+  const confirmBulkResend = async (payload: MessagePreviewSendPayload) => {
+    const recipientIds = payload.recipientIds ?? bulkSelectionSnapshot.map((recipient) => recipient.id);
+    if (!bulkMessageType || bulkInFlightRef.current || bulkResend.isPending || recipientIds.length === 0) return;
     const messageType = bulkMessageType;
-    const requestKey = JSON.stringify([group.id, messageType, [...recipientIds].sort()]);
-    if (bulkRequestRef.current?.key !== requestKey) bulkRequestRef.current = { key: requestKey, requestId: crypto.randomUUID() };
     bulkInFlightRef.current = true;
     setBulkError(null);
     setBulkNotice(null);
     const startedAt = Date.now();
     try {
-      const result = await bulkResend.mutateAsync({ groupId: group.id, messageType, recipientIds, requestId: bulkRequestRef.current.requestId });
+      let uploadedImageId: string | null = null;
+      if (payload.headerImage) {
+        if (bulkImageUploadRef.current?.file !== payload.headerImage) {
+          const image = await whatsappApi.uploadWelcomeImage(group.id, payload.headerImage);
+          bulkImageUploadRef.current = { file: payload.headerImage, mediaId: image.media_id };
+        }
+        uploadedImageId = bulkImageUploadRef.current.mediaId;
+      }
+      const overrides = {
+        messageContent: payload.bulkDraft?.messageContent ?? null,
+        passportIntro: payload.bulkDraft?.passportIntro ?? null,
+        headerImageId: uploadedImageId ?? payload.bulkDraft?.headerImageId ?? null,
+        supportContactIds: payload.bulkDraft?.supportContactIds ?? null,
+      };
+      const requestKey = JSON.stringify([group.id, messageType, [...recipientIds].sort(), overrides]);
+      if (bulkRequestRef.current?.key !== requestKey) bulkRequestRef.current = { key: requestKey, requestId: crypto.randomUUID() };
+      const result = await bulkResend.mutateAsync({ groupId: group.id, messageType, recipientIds, requestId: bulkRequestRef.current.requestId, overrides });
       setBulkOutcome(result);
       if (result.batch_id) registerActivity({
         id: result.batch_id, kind: "broadcast", messageType, startedAt,
@@ -502,6 +525,7 @@ export function RecipientListDialog({
       bulkRequestRef.current = null;
     } catch (error) {
       setBulkError(readErrorMessage(error, "Could not confirm the resend. Retry to check this same request safely."));
+      throw error;
     } finally {
       bulkInFlightRef.current = false;
     }
@@ -1075,7 +1099,7 @@ export function RecipientListDialog({
                 )}
               </div>
             </section>
-            <RecipientSelectionPanel selectedCount={selectedRecipients.length} hiddenCount={hiddenSelectedCount} allCount={allRecipients.length} onSelectAll={() => toggleRecipients(allRecipients.map((recipient) => recipient.id), true)} onClear={() => { setSelectedIds(new Set()); bulkRequestRef.current = null; setBulkError(null); setBulkNotice(null); }} onReview={(type) => { setBulkMessageType(type); setBulkError(null); }} disabled={selectionLocked} error={bulkMessageType ? null : bulkError} notice={bulkNotice} />
+            <RecipientSelectionPanel selectedCount={selectedRecipients.length} hiddenCount={hiddenSelectedCount} allCount={allRecipients.length} onSelectAll={() => toggleRecipients(allRecipients.map((recipient) => recipient.id), true)} onClear={() => { setSelectedIds(new Set()); bulkRequestRef.current = null; setBulkError(null); setBulkNotice(null); }} onReview={openBulkComposer} disabled={selectionLocked} error={bulkMessageType ? null : bulkError} notice={bulkNotice} />
             </div>
             )}
 
@@ -1089,7 +1113,7 @@ export function RecipientListDialog({
           </div>
         )}
         </div>
-        {section === "recipients" && <RecipientMobileSelectionBar selectedCount={selectedRecipients.length} hiddenCount={hiddenSelectedCount} allCount={allRecipients.length} onSelectAll={() => toggleRecipients(allRecipients.map((recipient) => recipient.id), true)} onClear={() => { setSelectedIds(new Set()); bulkRequestRef.current = null; setBulkError(null); setBulkNotice(null); }} onReview={(type) => { setBulkMessageType(type); setBulkError(null); }} disabled={selectionLocked} />}
+        {section === "recipients" && <RecipientMobileSelectionBar selectedCount={selectedRecipients.length} hiddenCount={hiddenSelectedCount} allCount={allRecipients.length} onSelectAll={() => toggleRecipients(allRecipients.map((recipient) => recipient.id), true)} onClear={() => { setSelectedIds(new Set()); bulkRequestRef.current = null; setBulkError(null); setBulkNotice(null); }} onReview={openBulkComposer} disabled={selectionLocked} />}
         </DialogFrame>
       )}
 
@@ -1111,7 +1135,7 @@ export function RecipientListDialog({
         />
       )}
 
-      {bulkMessageType && <RecipientBulkReview messageType={bulkMessageType} recipients={selectedRecipients} hiddenCount={hiddenSelectedCount} isSending={bulkResend.isPending} error={bulkError} onClose={() => { if (!bulkResend.isPending && !bulkInFlightRef.current) setBulkMessageType(null); }} onConfirm={() => void confirmBulkResend()} />}
+      {bulkMessageType && <MessagePreviewDialog group={group} messageType={bulkMessageType} bulkRecipients={bulkSelectionSnapshot} hiddenSelectedCount={hiddenSelectedCount} isSending={bulkResend.isPending} onClose={() => { if (!bulkResend.isPending && !bulkInFlightRef.current) setBulkMessageType(null); }} onSend={confirmBulkResend} />}
 
       <ConfirmDialog
         isOpen={Boolean(replacedRecipientToRestore)}
