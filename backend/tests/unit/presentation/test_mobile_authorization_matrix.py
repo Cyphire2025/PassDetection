@@ -79,6 +79,7 @@ _UNRESTRICTED_SESSION_MOBILE_HTTP: frozenset[RouteKey] = frozenset(
     {
         ("GET", "/mobile/trips"),
         ("GET", "/mobile/trips/{group_id}/manifest"),
+        ("GET", "/mobile/trips/{group_id}/journey-destination"),
         ("GET", "/mobile/sync/snapshot"),
         ("GET", "/mobile/sync/changes"),
         ("POST", "/mobile/sync/ack"),

@@ -400,6 +400,49 @@ class MobileSettings(BaseSettings):
     otp_phone_limit_per_hour: int = Field(default=10, ge=1, le=100)
     otp_ip_limit_per_hour: int = Field(default=30, ge=1, le=1_000)
     otp_require_redis: bool = True
+    # Server-only Photon endpoint; replace with a private instance without an APK update.
+    journey_geocoding_url: str | None = Field(
+        default="https://photon.komoot.io/api/", max_length=2_048
+    )
+    journey_geocoding_user_agent: str = Field(
+        default="GlobalConnects-TripJourney/1.0", min_length=8, max_length=255
+    )
+    journey_geocoding_timeout_seconds: float = Field(default=5.0, ge=1, le=10)
+    journey_geocoding_cache_ttl_seconds: int = Field(
+        default=2_592_000, ge=86_400, le=7_776_000
+    )
+    journey_geocoding_failure_ttl_seconds: int = Field(default=300, ge=30, le=3_600)
+
+    @field_validator("journey_geocoding_url")
+    @classmethod
+    def validate_journey_geocoding_url(cls, value: str | None) -> str | None:
+        if value is None or not value.strip():
+            return None
+        value = value.strip()
+        parsed = urlsplit(value)
+        if (
+            parsed.scheme != "https"
+            or not parsed.hostname
+            or parsed.username
+            or parsed.password
+            or parsed.query
+            or parsed.fragment
+            or any(character.isspace() for character in value)
+        ):
+            raise ValueError("Journey geocoding URL must be HTTPS without credentials or query")
+        return value
+
+    @field_validator("journey_geocoding_user_agent")
+    @classmethod
+    def validate_journey_geocoding_user_agent(cls, value: str) -> str:
+        if (
+            len(value.strip()) < 8
+            or not value.isascii()
+            or any(ord(character) < 32 or ord(character) == 127 for character in value)
+        ):
+            raise ValueError("Journey geocoding User-Agent must be printable ASCII")
+        return value.strip()
+
     sync_page_size: int = Field(default=200, ge=25, le=500)
     # Shared dashboard/API/mobile capacity contracts. These are deliberately
     # configurable, but one deployed environment must expose and enforce the

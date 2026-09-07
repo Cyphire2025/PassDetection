@@ -41,6 +41,7 @@ from app.presentation.api.v1.routes.mobile_associations import (
 )
 from app.presentation.api.v1.routes.mobile_auth import router as mobile_auth_router
 from app.presentation.api.v1.routes.mobile_integrity import router as mobile_integrity_router
+from app.presentation.api.v1.routes.mobile_journey import router as mobile_journey_router
 from app.presentation.api.v1.routes.mobile_my_photos import router as mobile_my_photos_router
 from app.presentation.api.v1.routes.mobile_ops import router as mobile_ops_router
 from app.presentation.api.v1.routes.mobile_realtime import router as mobile_realtime_router
@@ -79,6 +80,11 @@ api_v1_router.include_router(
     mobile_resources_router,
     prefix="/mobile",
     tags=["GC Mobile Resources"],
+)
+api_v1_router.include_router(
+    mobile_journey_router,
+    prefix="/mobile",
+    tags=["GC Mobile Journey"],
 )
 api_v1_router.include_router(
     mobile_integrity_router,
