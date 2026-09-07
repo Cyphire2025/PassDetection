@@ -153,7 +153,10 @@ async function verifyCase(browser, viewport, scenario) {
     assert.equal(response.status(), 200);
     const openActions = page.getByRole("button", { name: `Open actions for ${group.name}`, exact: true }).filter({ visible: true });
     await openActions.click();
-    if (scenario.targetAction) await page.getByRole("button", { name: "Recipient List", exact: true }).click();
+    if (scenario.targetAction) {
+      await page.getByRole("button", { name: "Recipient List", exact: true }).click();
+      await page.getByLabel(`Actions for ${recipients[0].name}`, { exact: true }).click();
+    }
     await page.getByRole("button", { name: scenario.action, exact: true }).click();
     const dialog = page.getByRole("dialog", { name: scenario.title, exact: true });
     await expect(dialog).toBeVisible();
@@ -225,6 +228,7 @@ async function verifyCase(browser, viewport, scenario) {
     await page.keyboard.press("Escape");
     await expect(dialog).toHaveCount(0);
     if (!scenario.targetAction) await openActions.click();
+    else await page.getByLabel(`Actions for ${recipients[0].name}`, { exact: true }).click();
     await page.getByRole("button", { name: scenario.action, exact: true }).click();
     const reopened = page.getByRole("dialog", { name: scenario.title, exact: true });
     await reopened.getByRole("button", { name: "Close dialog", exact: true }).click();

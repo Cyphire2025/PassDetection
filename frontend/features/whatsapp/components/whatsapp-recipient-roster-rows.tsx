@@ -73,6 +73,7 @@ export function RejectedRosterRows({
   contact,
   serialNumber,
   messageColumnCount,
+  showSelectionColumn = false,
   correction,
   isSaving,
   onEdit,
@@ -83,6 +84,7 @@ export function RejectedRosterRows({
   contact: WhatsAppRejectedContact;
   serialNumber: number;
   messageColumnCount: number;
+  showSelectionColumn?: boolean;
   correction: RejectedContactCorrection | null;
   isSaving: boolean;
   onEdit: () => void;
@@ -98,6 +100,7 @@ export function RejectedRosterRows({
   return (
     <Fragment>
       <tr className="bg-amber-50/40">
+        {showSelectionColumn && <td className="px-4 py-3"><span className="sr-only">Rejected contact cannot be selected</span></td>}
         <td className="px-4 py-3 text-center font-semibold text-slate-500">
           {serialNumber}
         </td>
@@ -156,7 +159,7 @@ export function RejectedRosterRows({
       </tr>
       {isEditing && correction && (
         <tr className="bg-amber-50/40">
-          <td colSpan={messageColumnCount + 4} className="px-4 pb-4 pt-0">
+          <td colSpan={messageColumnCount + 4 + (showSelectionColumn ? 1 : 0)} className="px-4 pb-4 pt-0">
             <div className="rounded-xl border border-amber-200 bg-white p-4">
               <p className="mb-3 break-words rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">
                 {contact.reason}
@@ -243,12 +246,14 @@ export function ReplacedRosterRow({
   recipient,
   serialNumber,
   messageColumnCount,
+  showSelectionColumn = false,
   isRestoring,
   onRestore,
 }: {
   recipient: WhatsAppReplacedRecipient;
   serialNumber: number;
   messageColumnCount: number;
+  showSelectionColumn?: boolean;
   isRestoring: boolean;
   onRestore: () => void;
 }) {
@@ -257,6 +262,7 @@ export function ReplacedRosterRow({
   );
   return (
     <tr className="bg-blue-50/40">
+      {showSelectionColumn && <td className="px-4 py-3"><span className="sr-only">Replaced recipient cannot be selected</span></td>}
       <td className="px-4 py-3 text-center font-semibold text-slate-500">
         {serialNumber}
       </td>
@@ -331,14 +337,17 @@ export function UnidentifiedRosterRow({
   upload,
   serialNumber,
   messageColumnCount,
+  showSelectionColumn = false,
 }: {
   upload: WhatsAppUnidentifiedUpload;
   serialNumber: number;
   messageColumnCount: number;
+  showSelectionColumn?: boolean;
 }) {
   const detailEntries = visibleUnidentifiedDetailEntries(upload.details);
   return (
     <tr className="bg-red-50/40">
+      {showSelectionColumn && <td className="px-4 py-3"><span className="sr-only">Unidentified upload cannot be selected</span></td>}
       <td className="px-4 py-3 text-center font-semibold text-slate-500">
         {serialNumber}
       </td>

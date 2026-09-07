@@ -271,6 +271,21 @@ export function useResendWhatsAppRecipientMessage() {
   });
 }
 
+export function useResendWhatsAppRecipientsMessage() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: whatsappApi.resendRecipientsMessage,
+    retry: false,
+    onSuccess: async (_, { groupId }) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.group(groupId) }),
+        queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups }),
+        queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.recipientRoster(groupId) }),
+      ]);
+    },
+  });
+}
+
 function whatsappBatchErrorStatus(error: unknown): number | undefined {
   return whatsappBatchHttpStatus(error);
 }

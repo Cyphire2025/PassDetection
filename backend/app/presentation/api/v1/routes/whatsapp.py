@@ -107,6 +107,10 @@ from app.presentation.api.v1.routes.whatsapp_batch_status import (
     get_broadcast_batch_summary as get_broadcast_batch_summary,
 )
 from app.presentation.api.v1.routes.whatsapp_batch_status import router as _batch_status_router
+from app.presentation.api.v1.routes.whatsapp_bulk_resend import (
+    resend_selected_recipient_messages as resend_selected_recipient_messages,
+)
+from app.presentation.api.v1.routes.whatsapp_bulk_resend import router as _bulk_resend_router
 from app.presentation.api.v1.routes.whatsapp_composer import (
     preview_broadcast_message as preview_broadcast_message,
 )
@@ -520,6 +524,7 @@ router.include_router(_composer_router)
 router.include_router(_groups_manage_router)
 router.include_router(_recipients_router)
 router.include_router(_resend_router)
+router.include_router(_bulk_resend_router)
 router.include_router(_groups_delete_router)
 router.include_router(_send_router)
 router.include_router(_batch_status_router)

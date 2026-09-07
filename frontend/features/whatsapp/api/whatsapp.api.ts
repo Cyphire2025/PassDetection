@@ -205,6 +205,16 @@ export interface WhatsAppBatchSummary {
   delivery_unknown: number;
 }
 
+export type WhatsAppBulkResendMessageType = "welcome" | "passport_link";
+
+export interface WhatsAppBulkResendResponse extends WhatsAppSendResponse {
+  selected: number;
+  skipped_no_saved_message: number;
+  skipped_replaced: number;
+  skipped_ineligible: number;
+  replayed: boolean;
+}
+
 export interface WhatsAppWelcomeMediaResponse {
   media_id: string;
   file_name: string;
@@ -468,6 +478,34 @@ export const whatsappApi = {
         header_image_id: resolvedHeaderImageId,
         support_contact_ids:
           messageType === "passport_link" ? supportContactIds ?? null : null,
+      },
+    );
+    return data;
+  },
+
+  resendRecipientsMessage: async ({
+    groupId,
+    messageType,
+    recipientIds,
+    requestId,
+  }: {
+    groupId: string;
+    messageType: WhatsAppBulkResendMessageType;
+    recipientIds: string[];
+    requestId: string;
+  }): Promise<WhatsAppBulkResendResponse> => {
+    if (!recipientIds.length || recipientIds.some((id) => !id.trim())) {
+      throw new Error("Select at least one recipient to resend a message.");
+    }
+    if (new Set(recipientIds).size !== recipientIds.length || !requestId.trim()) {
+      throw new Error("The resend selection is invalid. Review the selected recipients.");
+    }
+    const { data } = await apiClient.post<WhatsAppBulkResendResponse>(
+      API_ENDPOINTS.whatsapp.resendRecipientsMessage(groupId),
+      {
+        message_type: messageType,
+        recipient_ids: recipientIds,
+        request_id: requestId,
       },
     );
     return data;

@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.application.use_cases.whatsapp.recipient_capacity import (
     MAX_WHATSAPP_RECIPIENTS,
@@ -207,6 +207,23 @@ class WhatsAppResendRequest(WhatsAppSendRequest):
     pass
 
 
+class WhatsAppBulkResendRequest(BaseModel):
+    """An explicit, idempotent selection; never an implicit entire broadcast."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    message_type: Literal["welcome", "passport_link"]
+    recipient_ids: list[uuid.UUID] = Field(min_length=1, max_length=MAX_WHATSAPP_RECIPIENTS)
+    request_id: uuid.UUID
+
+    @field_validator("recipient_ids")
+    @classmethod
+    def require_unique_recipients(cls, value: list[uuid.UUID]) -> list[uuid.UUID]:
+        if len(set(value)) != len(value):
+            raise ValueError("Each selected recipient must appear only once")
+        return value
+
+
 class WhatsAppRecipientPhoneUpdateRequest(BaseModel):
     phone_number: str = Field(min_length=1, max_length=64)
 
@@ -260,6 +277,14 @@ class WhatsAppSendResponse(BaseModel):
     skipped_in_progress: int = 0
     skipped_delivery_unknown: int = 0
     results: list[WhatsAppSendResult]
+
+
+class WhatsAppBulkResendResponse(WhatsAppSendResponse):
+    selected: int
+    skipped_no_saved_message: int = 0
+    skipped_replaced: int = 0
+    skipped_ineligible: int = 0
+    replayed: bool = False
 
 
 class WhatsAppBatchSummaryResponse(BaseModel):

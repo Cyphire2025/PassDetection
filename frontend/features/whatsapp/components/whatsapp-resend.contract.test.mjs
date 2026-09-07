@@ -87,15 +87,15 @@ test("large broadcasts retain progress polling and set-based recipient selection
 test("sent messages expose resend and failed messages expose retry", () => {
   assert.match(
     pageSource,
-    /const knownMessageType =\s*isWhatsAppMessageType\(messageType\)/,
+    /if \(!isWhatsAppMessageType\(messageType\)\) return \[\]/,
   );
   assert.match(
     pageSource,
-    /knownMessageType\s*&&\s*hasAlreadySentMessage\(\s*recipient,\s*messageType,\s*\)/,
+    /if \(!canRetry && !hasAlreadySentMessage\(recipient, messageType\)\) return \[\]/,
   );
-  assert.match(pageSource, /messageStatus\?\.status === "failed"/);
-  assert.match(pageSource, /\{\(canResend \|\| canRetry\) && \(/);
-  assert.match(pageSource, /canRetry\s*\? "Retry"/);
+  assert.match(pageSource, /const canRetry = status\?\.status === "failed"/);
+  assert.match(pageSource, /resendActions\.map\(/);
+  assert.match(pageSource, /action === "retry" \? "Retry" : "Resend"/);
   assert.match(
     pageSource,
     /messageType === "welcome"[\s\S]*messageType === "passport_link"[\s\S]*messageType === "reminder"/,
@@ -138,7 +138,7 @@ test("opening the resend editor replaces the recipient-list modal instead of sta
 
   assert.ok(start >= 0);
   assert.ok(end > start);
-  assert.match(recipientDialog, /!recipientToResend && \(\s*<DialogFrame/);
+  assert.match(recipientDialog, /!recipientToResend && !bulkMessageType && \(\s*<DialogFrame/);
   assert.match(recipientDialog, /recipientToResend && \(\s*<MessagePreviewDialog/);
 });
 
@@ -150,10 +150,10 @@ test("resend refreshes blocked delivery state and announces success or failure",
   );
   assert.match(hooksSource, /\? 2_000\s*: false/);
   assert.match(pageSource, /await refetchGroup\(\)/);
-  assert.match(pageSource, /messageStatus\?\.resend_blocked/);
-  assert.match(pageSource, /latestResendStatus === "delivery_unknown"/);
+  assert.match(pageSource, /status\?\.resend_blocked/);
+  assert.match(pageSource, /latest === "delivery_unknown"/);
   assert.match(pageSource, /Last resend failed/);
-  assert.match(pageSource, />\s*Resent\s*</);
+  assert.match(pageSource, /includes\(latest\) \? "Resent"/);
   assert.match(pageSource, /displayedResendNotice/);
   assert.match(pageSource, /role="status"/);
   assert.match(pageSource, /setResendError\(/);

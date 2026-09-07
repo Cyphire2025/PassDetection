@@ -190,7 +190,11 @@ export function DialogFrame({
     dialog?.focus();
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return;
       if (event.key === "Escape") {
+        const visibleDialogs = Array.from(document.querySelectorAll<HTMLElement>('[role="dialog"][aria-modal="true"]'))
+          .filter((element) => element.getClientRects().length > 0);
+        if (visibleDialogs.at(-1) !== dialog) return;
         if (!isBusyRef.current) onCloseRef.current();
         return;
       }
@@ -202,9 +206,9 @@ export function DialogFrame({
 
       const focusable = Array.from(
         dialog.querySelectorAll<HTMLElement>(
-          'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+          'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [href], [tabindex]:not([tabindex="-1"])',
         ),
-      ).filter((element) => !element.hasAttribute("hidden"));
+      ).filter((element) => element.getClientRects().length > 0 && !element.closest("[inert]") && element.tabIndex >= 0);
       if (focusable.length === 0) {
         event.preventDefault();
         dialog.focus();

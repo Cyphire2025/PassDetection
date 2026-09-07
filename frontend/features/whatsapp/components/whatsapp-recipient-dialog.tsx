@@ -1,6 +1,6 @@
 "use client";
 
-import { Info, Pencil, Plus, RotateCw, Search, Trash2, X } from "lucide-react";
+import { Info, Plus, Search, X } from "lucide-react";
 import dynamic from "next/dynamic";
 import {
   useDeferredValue,
@@ -19,6 +19,7 @@ import {
 } from "./whatsapp-dialog-ui";
 import type {
   WhatsAppBroadcastGroup,
+  WhatsAppBulkResendResponse,
   WhatsAppReplacedRecipient,
   WhatsAppRecipientInput,
 } from "../api/whatsapp.api";
@@ -27,6 +28,7 @@ import {
   useDeleteWhatsAppRecipient,
   useResolveWhatsAppRejectedContact,
   useResendWhatsAppRecipientMessage,
+  useResendWhatsAppRecipientsMessage,
   useRestoreWhatsAppReplacedRecipient,
   useUpdateWhatsAppGroup,
   useUpdateWhatsAppRecipientPhone,
@@ -35,7 +37,6 @@ import {
 } from "../hooks/use-whatsapp";
 import {
   getMessageStatus,
-  hasAlreadySentMessage,
 } from "../utils/recipient-delivery";
 import {
   filterRecipientRosterItems,
@@ -44,7 +45,6 @@ import {
 } from "../utils/recipient-roster";
 import {
   formatMessageType,
-  isWhatsAppMessageType,
 } from "../utils/message-types";
 import { useWhatsAppActivityTracker } from "./whatsapp-activity-tracker";
 import {
@@ -53,14 +53,15 @@ import {
   useRecipientExcelPreview,
 } from "./whatsapp-recipient-import";
 import {
-  DeliveryBadge,
   RejectedRosterRows,
   ReplacedRosterRow,
   UnidentifiedRosterRow,
-  importedFieldLabel,
-  visibleImportedFieldEntries,
   type RejectedContactCorrection,
 } from "./whatsapp-recipient-roster-rows";
+import { ActiveRecipientRow } from "./whatsapp-active-recipient-row";
+import { RecipientBulkReview } from "./whatsapp-recipient-bulk-review";
+import { RecipientBulkOutcome } from "./whatsapp-recipient-bulk-outcome";
+import { RecipientWorkspaceNavigation, RecipientSelectionCheckbox, RecipientSelectionPanel, RecipientMobileSelectionBar, type RecipientWorkspaceSection } from "./whatsapp-recipient-selection";
 import type { RecipientResendTarget } from "./whatsapp-workspace.types";
 
 const MessagePreviewDialog = dynamic(
@@ -122,6 +123,15 @@ export function RecipientListDialog({
   const resolveRejectedContact = useResolveWhatsAppRejectedContact();
   const restoreReplacedRecipient = useRestoreWhatsAppReplacedRecipient();
   const resendRecipientMessage = useResendWhatsAppRecipientMessage();
+  const bulkResend = useResendWhatsAppRecipientsMessage();
+  const [section, setSection] = useState<RecipientWorkspaceSection>("recipients");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
+  const [bulkMessageType, setBulkMessageType] = useState<"welcome" | "passport_link" | null>(null);
+  const [bulkError, setBulkError] = useState<string | null>(null);
+  const [bulkNotice, setBulkNotice] = useState<string | null>(null);
+  const [bulkOutcome, setBulkOutcome] = useState<WhatsAppBulkResendResponse | null>(null);
+  const bulkRequestRef = useRef<{ key: string; requestId: string } | null>(null);
+  const bulkInFlightRef = useRef(false);
   const [name, setName] = useState(group.name);
   const [support, setSupport] = useState<ManualContact>({
     name: "",
@@ -302,6 +312,7 @@ export function RecipientListDialog({
       resetImport();
       setRecipientOptInConfirmed(false);
       setRecipientRosterTab("all");
+      setSection("recipients");
       setSuccessMessage(
         `Recipient list updated. It now contains ${updated.recipient_count} valid recipient${updated.recipient_count === 1 ? "" : "s"}.${savedRejectedCount > 0 ? ` ${savedRejectedCount} rejected contact${savedRejectedCount === 1 ? " was" : "s were"} saved for correction.` : ""}`,
       );
@@ -431,6 +442,71 @@ export function RecipientListDialog({
       );
     }, [deferredRecipientSearchQuery, recipientRoster, recipientRosterTab],
   );
+  const allRecipients = useMemo(() => recipientRoster?.items.flatMap((item) => item.kind === "recipient" ? [item.recipient] : []) ?? [], [recipientRoster]);
+  const visibleRecipientIds = useMemo(() => visibleRosterItems.flatMap((item) => item.kind === "recipient" ? [item.recipient.id] : []), [visibleRosterItems]);
+  const selectedRecipients = useMemo(() => allRecipients.filter((recipient) => selectedIds.has(recipient.id)), [allRecipients, selectedIds]);
+  const visibleSelectedCount = visibleRecipientIds.filter((id) => selectedIds.has(id)).length;
+  const allVisibleSelected = visibleRecipientIds.length > 0 && visibleSelectedCount === visibleRecipientIds.length;
+  const someVisibleSelected = visibleSelectedCount > 0;
+  const hiddenSelectedCount = selectedRecipients.length - visibleSelectedCount;
+  const selectionLocked = bulkResend.isPending || Boolean(bulkMessageType);
+  const toggleRecipients = (ids: string[], checked: boolean) => {
+    if (selectionLocked) return;
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      for (const id of ids) { if (checked) next.add(id); else next.delete(id); }
+      return next;
+    });
+    bulkRequestRef.current = null;
+    setBulkError(null);
+    setBulkNotice(null);
+  };
+  const confirmBulkResend = async () => {
+    if (!bulkMessageType || bulkInFlightRef.current || bulkResend.isPending || selectedRecipients.length === 0) return;
+    const recipientIds = selectedRecipients.map((recipient) => recipient.id);
+    const messageType = bulkMessageType;
+    const requestKey = JSON.stringify([group.id, messageType, [...recipientIds].sort()]);
+    if (bulkRequestRef.current?.key !== requestKey) bulkRequestRef.current = { key: requestKey, requestId: crypto.randomUUID() };
+    bulkInFlightRef.current = true;
+    setBulkError(null);
+    setBulkNotice(null);
+    const startedAt = Date.now();
+    try {
+      const result = await bulkResend.mutateAsync({ groupId: group.id, messageType, recipientIds, requestId: bulkRequestRef.current.requestId });
+      setBulkOutcome(result);
+      if (result.batch_id) registerActivity({
+        id: result.batch_id, kind: "broadcast", messageType, startedAt,
+        title: `${formatMessageType(messageType)} resend`, contextLabel: `${recipientIds.length} selected · ${group.name}`,
+        sourceGroupId: group.id, documentType: null,
+        total: result.queued + result.sent + result.failed + result.delivery_unknown,
+        queued: result.queued, sent: result.sent, failed: result.failed, deliveryUnknown: result.delivery_unknown,
+        skippedAlreadySent: result.skipped_already_sent, skippedInProgress: result.skipped_in_progress, skippedDeliveryUnknown: result.skipped_delivery_unknown,
+      });
+      const skipped = result.skipped_in_progress + result.skipped_delivery_unknown + result.skipped_no_saved_message + result.skipped_replaced + result.skipped_ineligible;
+      const skipReasons = [
+        result.skipped_in_progress > 0 ? `${result.skipped_in_progress} already in progress` : null,
+        result.skipped_delivery_unknown > 0 ? `${result.skipped_delivery_unknown} need delivery review` : null,
+        result.skipped_no_saved_message > 0 ? `${result.skipped_no_saved_message} have no saved message` : null,
+        result.skipped_replaced > 0 ? `${result.skipped_replaced} replaced` : null,
+        result.skipped_ineligible > 0 ? `${result.skipped_ineligible} not eligible` : null,
+      ].filter(Boolean).join("; ");
+      const outcomes = [
+        result.queued > 0 ? `${result.queued} queued` : null,
+        result.sent > 0 ? `${result.sent} sent` : null,
+        result.failed > 0 ? `${result.failed} failed` : null,
+        result.delivery_unknown > 0 ? `${result.delivery_unknown} awaiting delivery review` : null,
+        skipped > 0 ? `${skipped} skipped (${skipReasons})` : null,
+      ].filter(Boolean).join(" · ");
+      setBulkNotice(`${formatMessageType(messageType)}: ${outcomes || "no messages queued"}. Selection kept for your next action.`);
+      setBulkMessageType(null);
+      bulkRequestRef.current = null;
+    } catch (error) {
+      setBulkError(readErrorMessage(error, "Could not confirm the resend. Retry to check this same request safely."));
+    } finally {
+      bulkInFlightRef.current = false;
+    }
+  };
+
   const lastResendMessageStatus =
     lastResendTarget && detail
       ? getMessageStatus(
@@ -465,9 +541,12 @@ export function RecipientListDialog({
 
   return (
     <>
-      {!recipientToResend && (
+      {!recipientToResend && !bulkMessageType && (
         <DialogFrame
-          title={`Recipient List - ${detail?.name ?? group.name}`}
+          title={`Recipients — ${detail?.name ?? group.name}`}
+          eyebrow="WhatsApp broadcast"
+          description="Manage your audience, review delivery and send selected messages again."
+          layout="composer"
           onClose={onClose}
           isBusy={
             updateGroup.isPending
@@ -477,11 +556,15 @@ export function RecipientListDialog({
             || resolveRejectedContact.isPending
             || restoreReplacedRecipient.isPending
             || resendRecipientMessage.isPending
+            || bulkResend.isPending
+            || Boolean(bulkMessageType)
             || Boolean(recipientToRemove)
             || Boolean(replacedRecipientToRestore)
           }
-          widthClass="max-w-5xl"
+          widthClass="max-w-[1600px] h-[94dvh]"
         >
+        <RecipientWorkspaceNavigation section={section} onChange={setSection} recipientCount={detail?.recipient_count ?? group.recipient_count} pendingCount={contacts.length + rejectedContacts.length} />
+        <div className="min-h-0 flex-1 overflow-y-auto bg-slate-50/70 p-4 sm:p-6">
         {loadError ? (
           <ErrorBanner message="The recipient list could not be loaded." />
         ) : isLoading || !detail ? (
@@ -490,8 +573,9 @@ export function RecipientListDialog({
             <Skeleton className="h-48" />
           </div>
         ) : (
-          <div className="space-y-6">
-            <section className="rounded-xl border border-slate-200 p-4">
+          <div className="space-y-4">
+            {section === "details" && (
+            <section className="mx-auto w-full max-w-4xl rounded-2xl border border-slate-200 bg-white p-5 sm:p-7">
               <div>
                 <h3 className="font-semibold text-slate-900">
                   Broadcast details
@@ -580,514 +664,9 @@ export function RecipientListDialog({
                 </Button>
               </div>
             </section>
-
-            <section>
-              <div>
-                <h3 className="font-semibold text-slate-900">
-                  Current recipients
-                </h3>
-                <p className="mt-1 text-sm text-slate-500">
-                  Review everyone in their original import order. Sent and
-                  Failed can overlap when different message types have
-                  different outcomes. Replaced people stay separate and cannot
-                  receive further messages unless they are restored.
-                  Unidentified uploads are people who submitted passport
-                  details but are not in this WhatsApp broadcast.
-                </p>
-              </div>
-
-              <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                <div className="w-full sm:max-w-xl">
-                  <Input
-                    id="recipient-roster-search"
-                    type="search"
-                    value={recipientSearchQuery}
-                    onChange={(event) => setRecipientSearchQuery(event.target.value)}
-                    placeholder="Search passenger name, WhatsApp number, passport or imported details"
-                    aria-label="Search current recipients"
-                    leftAddon={<Search className="h-4 w-4" aria-hidden="true" />}
-                    rightAddon={
-                      recipientSearchQuery ? (
-                        <button
-                          type="button"
-                          className="-mr-2 inline-flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-                          aria-label="Clear recipient search"
-                          onClick={() => setRecipientSearchQuery("")}
-                        >
-                          <X className="h-4 w-4" aria-hidden="true" />
-                        </button>
-                      ) : null
-                    }
-                  />
-                </div>
-                <p className="shrink-0 text-xs font-medium text-slate-500" aria-live="polite">
-                  {visibleRosterItems.length.toLocaleString()} matching
-                  {visibleRosterItems.length === 1 ? " person" : " people"}
-                </p>
-              </div>
-
-              <div
-                className="mt-3 flex flex-wrap gap-2"
-                role="tablist"
-                aria-label="Recipient delivery filters"
-              >
-                {ROSTER_TABS.map((tab) => {
-                  const isActive = recipientRosterTab === tab.id;
-                  const count = recipientRoster?.counts[tab.id] ?? 0;
-                  return (
-                    <button
-                      key={tab.id}
-                      type="button"
-                      role="tab"
-                      aria-selected={isActive}
-                      aria-controls="recipient-roster-panel"
-                      title={tab.description}
-                      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition ${
-                        isActive
-                          ? "border-blue-600 bg-blue-600 text-white"
-                          : tab.id === "failed"
-                            ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
-                            : tab.id === "rejected"
-                              ? "border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100"
-                              : tab.id === "replaced"
-                                ? "border-blue-200 bg-blue-50 text-blue-800 hover:bg-blue-100"
-                              : tab.id === "unidentified"
-                                ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
-                              : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                      }`}
-                      onClick={() => {
-                        setRecipientRosterTab(tab.id);
-                        setRejectedContactEdit(null);
-                        setRejectedContactError(null);
-                        setRestoreReplacedError(null);
-                      }}
-                    >
-                      {tab.label}
-                      {tab.description && (
-                        <Info className="h-3.5 w-3.5" aria-hidden="true" />
-                      )}
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-xs ${
-                          isActive
-                            ? "bg-white/20 text-white"
-                            : "bg-slate-100 text-slate-600"
-                        }`}
-                      >
-                        {count}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {displayedResendError && (
-                <div className="mt-3">
-                  <ErrorBanner message={displayedResendError} />
-                </div>
-              )}
-              {displayedResendNotice && (
-                <div
-                  className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700"
-                  role="status"
-                >
-                  {displayedResendNotice}
-                </div>
-              )}
-              {rejectedContactError && (
-                <div className="mt-3">
-                  <ErrorBanner message={rejectedContactError} />
-                </div>
-              )}
-              {restoreReplacedError && (
-                <div className="mt-3">
-                  <ErrorBanner message={restoreReplacedError} />
-                </div>
-              )}
-
-              <div
-                id="recipient-roster-panel"
-                role="tabpanel"
-                className="mt-3"
-              >
-                {recipientRosterError ? (
-                  <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-                    <p role="alert" className="text-sm text-red-700">
-                      The recipient roster could not be loaded.
-                    </p>
-                    <button
-                      type="button"
-                      className="mt-2 text-sm font-semibold text-blue-700 hover:text-blue-800"
-                      onClick={() => void refetchRecipientRoster()}
-                    >
-                      Try again
-                    </button>
-                  </div>
-                ) : recipientRosterLoading || !recipientRoster ? (
-                  <div
-                    className="space-y-2"
-                    role="status"
-                    aria-label="Loading recipient roster"
-                  >
-                    <Skeleton className="h-12" />
-                    <Skeleton className="h-12" />
-                    <Skeleton className="h-12" />
-                  </div>
-                ) : visibleRosterItems.length === 0 ? (
-                  <p className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-                    {deferredRecipientSearchQuery.trim()
-                      ? `No recipients match "${deferredRecipientSearchQuery.trim()}" in this filter.`
-                      : recipientRosterTab === "unidentified"
-                      ? "No unidentified uploads were found."
-                      : `No ${recipientRosterTab === "all" ? "" : `${recipientRosterTab} `}contacts were found.`}
-                  </p>
-                ) : (
-                  <div className="max-h-96 overflow-auto rounded-xl border border-slate-200">
-                    <table className="w-full min-w-[880px] text-left text-sm">
-                      <caption className="sr-only">WhatsApp recipient delivery and resolution roster</caption>
-                      <thead className="sticky top-0 z-10 border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        <tr>
-                          <th scope="col" className="w-14 px-4 py-3 text-center">#</th>
-                          <th scope="col" className="px-4 py-3">Recipient</th>
-                          <th scope="col" className="px-4 py-3">WhatsApp number</th>
-                          {messageTypes.map((messageType) => (
-                            <th key={messageType} scope="col" className="px-4 py-3">
-                              {formatMessageType(messageType)}
-                            </th>
-                          ))}
-                          <th scope="col" className="px-4 py-3 text-right">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {visibleRosterItems.map((item, index) => {
-                          const serialNumber = index + 1;
-                          if (item.kind === "unidentified") {
-                            return (
-                              <UnidentifiedRosterRow
-                                key={`unidentified:${item.unidentified_upload.submission_id}`}
-                                upload={item.unidentified_upload}
-                                serialNumber={serialNumber}
-                                messageColumnCount={messageTypes.length}
-                              />
-                            );
-                          }
-                          if (item.kind === "replaced") {
-                            const replacedRecipient = item.replaced_recipient;
-                            return (
-                              <ReplacedRosterRow
-                                key={`replaced:${replacedRecipient.recipient_id}`}
-                                recipient={replacedRecipient}
-                                serialNumber={serialNumber}
-                                messageColumnCount={messageTypes.length}
-                                isRestoring={restoreReplacedRecipient.isPending}
-                                onRestore={() => {
-                                  setRestoreReplacedError(null);
-                                  setReplacedRecipientToRestore(
-                                    replacedRecipient,
-                                  );
-                                }}
-                              />
-                            );
-                          }
-                          if (item.kind === "rejected") {
-                            const contact = item.rejected_contact;
-                            return (
-                              <RejectedRosterRows
-                                key={`rejected:${contact.id}`}
-                                contact={contact}
-                                serialNumber={serialNumber}
-                                messageColumnCount={messageTypes.length}
-                                correction={rejectedContactEdit}
-                                isSaving={resolveRejectedContact.isPending}
-                                onEdit={() => {
-                                  setRejectedContactError(null);
-                                  setRejectedContactEdit({
-                                    id: contact.id,
-                                    name: contact.raw_name?.trim() || "",
-                                    phoneNumber:
-                                      contact.raw_phone_number?.trim() || "",
-                                    optInConfirmed:
-                                      detail.recipient_opt_in_confirmed,
-                                  });
-                                }}
-                                onCorrectionChange={setRejectedContactEdit}
-                                onCancel={() => {
-                                  setRejectedContactEdit(null);
-                                  setRejectedContactError(null);
-                                }}
-                                onSave={async () => {
-                                  const correction = rejectedContactEdit;
-                                  if (!correction || correction.id !== contact.id) {
-                                    return;
-                                  }
-                                  setRejectedContactError(null);
-                                  try {
-                                    await resolveRejectedContact.mutateAsync({
-                                      groupId: group.id,
-                                      rejectedContactId: contact.id,
-                                      name: correction.name.trim(),
-                                      phoneNumber:
-                                        correction.phoneNumber.trim(),
-                                      recipientOptInConfirmed:
-                                        correction.optInConfirmed,
-                                    });
-                                    setRejectedContactEdit(null);
-                                    setSuccessMessage(
-                                      `${correction.name.trim()} was added to the valid recipient list as Not sent.`,
-                                    );
-                                    await refetchRecipientRoster();
-                                  } catch (correctionError) {
-                                    setRejectedContactError(
-                                      readErrorMessage(
-                                        correctionError,
-                                        "Could not add this corrected contact.",
-                                      ),
-                                    );
-                                  }
-                                }}
-                              />
-                            );
-                          }
-
-                          const recipient = item.recipient;
-                          const importedEntries =
-                            visibleImportedFieldEntries(
-                              recipient.imported_fields,
-                            );
-                          return (
-                            <tr key={`recipient:${recipient.id}`}>
-                              <td className="px-4 py-3 text-center font-semibold text-slate-500">
-                                {serialNumber}
-                              </td>
-                              <td className="px-4 py-3">
-                                <div className="font-medium text-slate-900">
-                                  {recipient.name || "Unnamed recipient"}
-                                </div>
-                                {importedEntries.length > 0 && (
-                                  <details className="mt-1">
-                                    <summary className="cursor-pointer text-xs font-semibold text-blue-700">
-                                      View {importedEntries.length}{" "}
-                                      imported detail
-                                      {importedEntries.length === 1 ? "" : "s"}
-                                    </summary>
-                                    <dl className="mt-2 grid min-w-64 gap-2 rounded-lg bg-slate-50 p-3 sm:grid-cols-2">
-                                      {importedEntries.map(([key, value]) => (
-                                          <div key={key} className="min-w-0">
-                                            <dt className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                                              {importedFieldLabel(key)}
-                                            </dt>
-                                            <dd className="break-words text-xs font-normal text-slate-700">
-                                              {value}
-                                            </dd>
-                                          </div>
-                                        ))}
-                                    </dl>
-                                  </details>
-                                )}
-                              </td>
-                              <td className="px-4 py-3 text-slate-600">
-                                {editingRecipientId === recipient.id ? (
-                                  <div className="flex min-w-64 items-center gap-2">
-                                    <input
-                                      type="tel"
-                                      value={editedPhoneNumber}
-                                      autoFocus
-                                      aria-label={`WhatsApp number for ${recipient.name || "unnamed recipient"}`}
-                                      className="min-w-0 flex-1 rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                                      onChange={(event) =>
-                                        setEditedPhoneNumber(event.target.value)
-                                      }
-                                    />
-                                    <button
-                                      type="button"
-                                      className="rounded-md px-2 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-50 disabled:opacity-50"
-                                      disabled={
-                                        updateRecipientPhone.isPending
-                                        || !editedPhoneNumber.trim()
-                                      }
-                                      onClick={async () => {
-                                        setRecipientError(null);
-                                        try {
-                                          await updateRecipientPhone.mutateAsync({
-                                            groupId: group.id,
-                                            recipientId: recipient.id,
-                                            phoneNumber:
-                                              editedPhoneNumber.trim(),
-                                          });
-                                          setEditingRecipientId(null);
-                                          setSuccessMessage(
-                                            `WhatsApp number updated for ${recipient.name || "this recipient"}. Previous message statuses are ready to retry on the new number.`,
-                                          );
-                                        } catch (phoneError) {
-                                          setRecipientError(
-                                            readErrorMessage(
-                                              phoneError,
-                                              "Could not update this WhatsApp number.",
-                                            ),
-                                          );
-                                        }
-                                      }}
-                                    >
-                                      Save
-                                    </button>
-                                    <button
-                                      type="button"
-                                      className="rounded-md px-2 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100"
-                                      disabled={updateRecipientPhone.isPending}
-                                      onClick={() => setEditingRecipientId(null)}
-                                    >
-                                      Cancel
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <div className="flex items-center gap-2">
-                                    <span>
-                                      {recipient.normalized_phone_number}
-                                    </span>
-                                    <button
-                                      type="button"
-                                      className="rounded-md p-1 text-blue-700 hover:bg-blue-50"
-                                      aria-label={`Edit WhatsApp number for ${recipient.name || "unnamed recipient"}`}
-                                      title="Edit WhatsApp number"
-                                      onClick={() => {
-                                        setRecipientError(null);
-                                        setEditingRecipientId(recipient.id);
-                                        setEditedPhoneNumber(
-                                          recipient.phone_number,
-                                        );
-                                      }}
-                                    >
-                                      <Pencil className="h-3.5 w-3.5" />
-                                    </button>
-                                  </div>
-                                )}
-                              </td>
-                              {messageTypes.map((messageType) => {
-                                const messageStatus = getMessageStatus(
-                                  recipient,
-                                  messageType,
-                                );
-                                const knownMessageType =
-                                  isWhatsAppMessageType(messageType);
-                                const canResend =
-                                  knownMessageType
-                                  && hasAlreadySentMessage(
-                                    recipient,
-                                    messageType,
-                                  );
-                                const canRetry =
-                                  knownMessageType
-                                  && messageStatus?.status === "failed";
-                                const resendBlocked =
-                                  messageStatus?.resend_blocked ?? false;
-                                const latestResendStatus =
-                                  messageStatus?.latest_resend_status;
-                                const isResendProcessing =
-                                  latestResendStatus === "queued"
-                                  || latestResendStatus === "processing";
-                                const needsResendReview =
-                                  latestResendStatus === "delivery_unknown";
-                                return (
-                                  <td key={messageType} className="px-4 py-3">
-                                    <div className="flex flex-wrap items-center gap-2">
-                                      <DeliveryBadge status={messageStatus} />
-                                      {(canResend || canRetry) && (
-                                        <button
-                                          type="button"
-                                          className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
-                                          disabled={
-                                            resendRecipientMessage.isPending
-                                            || resendBlocked
-                                          }
-                                          title={
-                                            needsResendReview
-                                              ? "The latest resend outcome is unknown. Review it before sending another duplicate."
-                                              : isResendProcessing
-                                                ? "A resend is already in progress for this person."
-                                                : undefined
-                                          }
-                                          aria-label={`${canRetry ? "Retry" : "Resend"} ${formatMessageType(messageType)} to ${recipient.name || "unnamed recipient"}`}
-                                          onClick={() => {
-                                            setResendError(null);
-                                            setResendNotice(null);
-                                            setLastResendTarget(null);
-                                            setRecipientToResend({
-                                              recipientId: recipient.id,
-                                              recipientName:
-                                                recipient.name
-                                                || "Unnamed recipient",
-                                              phoneNumber:
-                                                recipient.normalized_phone_number,
-                                              messageType,
-                                              action: canRetry
-                                                ? "retry"
-                                                : "resend",
-                                            });
-                                          }}
-                                        >
-                                          <RotateCw className="h-3.5 w-3.5" />
-                                          {needsResendReview
-                                            ? "Review required"
-                                            : isResendProcessing
-                                              ? "Resending..."
-                                              : canRetry
-                                                ? "Retry"
-                                                : "Resend"}
-                                        </button>
-                                      )}
-                                      {latestResendStatus === "failed" && (
-                                        <span className="text-xs font-medium text-red-600">
-                                          Last resend failed
-                                        </span>
-                                      )}
-                                      {(
-                                        latestResendStatus === "sent"
-                                        || latestResendStatus === "delivered"
-                                        || latestResendStatus === "read"
-                                      ) && (
-                                        <span className="text-xs font-medium text-emerald-700">
-                                          Resent
-                                        </span>
-                                      )}
-                                    </div>
-                                  </td>
-                                );
-                              })}
-                              <td className="px-4 py-3 text-right">
-                                <button
-                                  type="button"
-                                  className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50"
-                                  disabled={
-                                    detail.recipient_count <= 1
-                                    || deleteRecipient.isPending
-                                  }
-                                  title={
-                                    detail.recipient_count <= 1
-                                      ? "A broadcast must keep at least one recipient"
-                                      : undefined
-                                  }
-                                  onClick={() =>
-                                    setRecipientToRemove({
-                                      id: recipient.id,
-                                      name: recipient.name,
-                                      phone_number: recipient.phone_number,
-                                    })
-                                  }
-                                >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                  Remove
-                                </button>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            </section>
-
-            <section className="space-y-4 rounded-xl border border-blue-100 bg-blue-50/30 p-4">
+            )}
+            {section === "add" && (
+            <section className="mx-auto w-full max-w-4xl space-y-5 rounded-2xl border border-slate-200 bg-white p-5 sm:p-7">
               <div>
                 <h3 className="font-semibold text-slate-900">Add recipients</h3>
                 <p className="mt-1 text-sm text-slate-500">
@@ -1169,7 +748,339 @@ export function RecipientListDialog({
                 </Button>
               </div>
             </section>
+            )}
+            {section === "recipients" && (
+            <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
+            <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+              {bulkOutcome && <RecipientBulkOutcome response={bulkOutcome} recipients={allRecipients} onDismiss={() => setBulkOutcome(null)} />}
+              <div>
+                <h3 className="font-semibold text-slate-900">
+                  Recipient list
+                </h3>
+                <p className="mt-1 text-sm text-slate-500">
+                  Select recipients to resend a message. Search and filter without losing your selection.
+                </p>
+              </div>
 
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div className="w-full sm:max-w-xl">
+                  <Input
+                    id="recipient-roster-search"
+                    type="search"
+                    value={recipientSearchQuery}
+                    onChange={(event) => setRecipientSearchQuery(event.target.value)}
+                    placeholder="Search name, number, passport or imported details"
+                    aria-label="Search current recipients"
+                    leftAddon={<Search className="h-4 w-4" aria-hidden="true" />}
+                    rightAddon={
+                      recipientSearchQuery ? (
+                        <button
+                          type="button"
+                          className="-mr-2 inline-flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                          aria-label="Clear recipient search"
+                          onClick={() => setRecipientSearchQuery("")}
+                        >
+                          <X className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                      ) : null
+                    }
+                  />
+                </div>
+                <p className="shrink-0 text-xs font-medium text-slate-500" aria-live="polite">
+                  {visibleRosterItems.length.toLocaleString()} matching
+                  {visibleRosterItems.length === 1 ? " person" : " people"}
+                </p>
+              </div>
+
+              <div
+                className="mt-3 flex flex-wrap gap-2"
+                role="tablist"
+                aria-label="Recipient delivery filters"
+              >
+                {ROSTER_TABS.map((tab) => {
+                  const isActive = recipientRosterTab === tab.id;
+                  const count = recipientRoster?.counts[tab.id] ?? 0;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={isActive}
+                      aria-controls="recipient-roster-panel"
+                      title={tab.description}
+                      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition ${
+                        isActive
+                          ? "border-blue-600 bg-blue-600 text-white"
+                          : tab.id === "failed"
+                            ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
+                            : tab.id === "rejected"
+                              ? "border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100"
+                              : tab.id === "replaced"
+                                ? "border-blue-200 bg-blue-50 text-blue-800 hover:bg-blue-100"
+                              : tab.id === "unidentified"
+                                ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
+                              : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                      }`}
+                      onClick={() => {
+                        setRecipientRosterTab(tab.id);
+                        setRejectedContactEdit(null);
+                        setRejectedContactError(null);
+                        setRestoreReplacedError(null);
+                      }}
+                    >
+                      {tab.label}
+                      {tab.description && (
+                        <Info className="h-3.5 w-3.5" aria-hidden="true" />
+                      )}
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs ${
+                          isActive
+                            ? "bg-white/20 text-white"
+                            : "bg-slate-100 text-slate-600"
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2.5">
+                <span className="text-xs text-slate-500">{selectedRecipients.length ? `${selectedRecipients.length.toLocaleString()} selected across the broadcast` : "Choose people using the checkboxes"}</span>
+                <button type="button" disabled={!visibleRecipientIds.length || selectionLocked} onClick={() => toggleRecipients(visibleRecipientIds, !allVisibleSelected)} className="text-xs font-semibold text-blue-700 hover:underline disabled:opacity-40">{allVisibleSelected ? "Deselect matching" : `Select all matching (${visibleRecipientIds.length.toLocaleString()})`}</button>
+              </div>
+              <details className="mt-3 text-xs text-slate-500">
+                <summary className="cursor-pointer hover:text-slate-800">About these delivery filters</summary>
+                <p className="mt-2 max-w-3xl leading-relaxed">Sent and Failed can overlap across message types. Replaced people cannot receive further messages unless they are restored. Rejected contacts need correction. Unidentified uploads have passport details but are not in this broadcast.</p>
+              </details>
+              {recipientError && <div className="mt-3"><ErrorBanner message={recipientError} /></div>}
+              {displayedResendError && (
+                <div className="mt-3">
+                  <ErrorBanner message={displayedResendError} />
+                </div>
+              )}
+              {displayedResendNotice && (
+                <div
+                  className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700"
+                  role="status"
+                >
+                  {displayedResendNotice}
+                </div>
+              )}
+              {rejectedContactError && (
+                <div className="mt-3">
+                  <ErrorBanner message={rejectedContactError} />
+                </div>
+              )}
+              {restoreReplacedError && (
+                <div className="mt-3">
+                  <ErrorBanner message={restoreReplacedError} />
+                </div>
+              )}
+
+              <div
+                id="recipient-roster-panel"
+                role="tabpanel"
+                className="mt-3"
+              >
+                {recipientRosterError ? (
+                  <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+                    <p role="alert" className="text-sm text-red-700">
+                      The recipient roster could not be loaded.
+                    </p>
+                    <button
+                      type="button"
+                      className="mt-2 text-sm font-semibold text-blue-700 hover:text-blue-800"
+                      onClick={() => void refetchRecipientRoster()}
+                    >
+                      Try again
+                    </button>
+                  </div>
+                ) : recipientRosterLoading || !recipientRoster ? (
+                  <div
+                    className="space-y-2"
+                    role="status"
+                    aria-label="Loading recipient roster"
+                  >
+                    <Skeleton className="h-12" />
+                    <Skeleton className="h-12" />
+                    <Skeleton className="h-12" />
+                  </div>
+                ) : visibleRosterItems.length === 0 ? (
+                  <p className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                    {deferredRecipientSearchQuery.trim()
+                      ? `No recipients match "${deferredRecipientSearchQuery.trim()}" in this filter.`
+                      : recipientRosterTab === "unidentified"
+                      ? "No unidentified uploads were found."
+                      : `No ${recipientRosterTab === "all" ? "" : `${recipientRosterTab} `}contacts were found.`}
+                  </p>
+                ) : (
+                  <div className="max-h-[max(260px,calc(94dvh-400px))] overflow-auto rounded-xl border border-slate-200">
+                    <table className="w-full min-w-[790px] text-left text-sm">
+                      <caption className="sr-only">WhatsApp recipient delivery and resolution roster</caption>
+                      <thead className="sticky top-0 z-10 border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        <tr>
+                          <th scope="col" className="w-12 px-4 py-3 text-center"><RecipientSelectionCheckbox label="Select all matching recipients" checked={allVisibleSelected} indeterminate={someVisibleSelected && !allVisibleSelected} disabled={!visibleRecipientIds.length || selectionLocked} onChange={(checked) => toggleRecipients(visibleRecipientIds, checked)} /></th>
+                          <th scope="col" className="w-12 px-2 py-3 text-center">#</th>
+                          <th scope="col" className="px-4 py-3">Recipient</th>
+                          <th scope="col" className="px-4 py-3">WhatsApp number</th>
+                          {messageTypes.map((messageType) => (
+                            <th key={messageType} scope="col" className="px-4 py-3">
+                              {formatMessageType(messageType)}
+                            </th>
+                          ))}
+                          <th scope="col" className="px-4 py-3 text-right">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {visibleRosterItems.map((item, index) => {
+                          const serialNumber = index + 1;
+                          if (item.kind === "unidentified") {
+                            return (
+                              <UnidentifiedRosterRow
+                                key={`unidentified:${item.unidentified_upload.submission_id}`}
+                                upload={item.unidentified_upload}
+                                serialNumber={serialNumber}
+                                messageColumnCount={messageTypes.length}
+                                showSelectionColumn
+                              />
+                            );
+                          }
+                          if (item.kind === "replaced") {
+                            const replacedRecipient = item.replaced_recipient;
+                            return (
+                              <ReplacedRosterRow
+                                key={`replaced:${replacedRecipient.recipient_id}`}
+                                recipient={replacedRecipient}
+                                serialNumber={serialNumber}
+                                messageColumnCount={messageTypes.length}
+                                showSelectionColumn
+                                isRestoring={restoreReplacedRecipient.isPending}
+                                onRestore={() => {
+                                  setRestoreReplacedError(null);
+                                  setReplacedRecipientToRestore(
+                                    replacedRecipient,
+                                  );
+                                }}
+                              />
+                            );
+                          }
+                          if (item.kind === "rejected") {
+                            const contact = item.rejected_contact;
+                            return (
+                              <RejectedRosterRows
+                                key={`rejected:${contact.id}`}
+                                contact={contact}
+                                serialNumber={serialNumber}
+                                messageColumnCount={messageTypes.length}
+                                showSelectionColumn
+                                correction={rejectedContactEdit}
+                                isSaving={resolveRejectedContact.isPending}
+                                onEdit={() => {
+                                  setRejectedContactError(null);
+                                  setRejectedContactEdit({
+                                    id: contact.id,
+                                    name: contact.raw_name?.trim() || "",
+                                    phoneNumber:
+                                      contact.raw_phone_number?.trim() || "",
+                                    optInConfirmed:
+                                      detail.recipient_opt_in_confirmed,
+                                  });
+                                }}
+                                onCorrectionChange={setRejectedContactEdit}
+                                onCancel={() => {
+                                  setRejectedContactEdit(null);
+                                  setRejectedContactError(null);
+                                }}
+                                onSave={async () => {
+                                  const correction = rejectedContactEdit;
+                                  if (!correction || correction.id !== contact.id) {
+                                    return;
+                                  }
+                                  setRejectedContactError(null);
+                                  try {
+                                    await resolveRejectedContact.mutateAsync({
+                                      groupId: group.id,
+                                      rejectedContactId: contact.id,
+                                      name: correction.name.trim(),
+                                      phoneNumber:
+                                        correction.phoneNumber.trim(),
+                                      recipientOptInConfirmed:
+                                        correction.optInConfirmed,
+                                    });
+                                    setRejectedContactEdit(null);
+                                    setSuccessMessage(
+                                      `${correction.name.trim()} was added to the valid recipient list as Not sent.`,
+                                    );
+                                    await refetchRecipientRoster();
+                                  } catch (correctionError) {
+                                    setRejectedContactError(
+                                      readErrorMessage(
+                                        correctionError,
+                                        "Could not add this corrected contact.",
+                                      ),
+                                    );
+                                  }
+                                }}
+                              />
+                            );
+                          }
+
+                          const recipient = item.recipient;
+                          return (
+                            <ActiveRecipientRow
+                              key={`recipient:${recipient.id}`}
+                              recipient={recipient}
+                              serialNumber={serialNumber}
+                              messageTypes={messageTypes}
+                              selected={selectedIds.has(recipient.id)}
+                              selectionDisabled={bulkResend.isPending || Boolean(bulkMessageType)}
+                              onSelect={(checked) => toggleRecipients([recipient.id], checked)}
+                              editing={editingRecipientId === recipient.id}
+                              editedPhone={editedPhoneNumber}
+                              onPhoneChange={setEditedPhoneNumber}
+                              onEdit={() => {
+                                setRecipientError(null);
+                                setEditingRecipientId(recipient.id);
+                                setEditedPhoneNumber(recipient.phone_number);
+                              }}
+                              onCancelEdit={() => setEditingRecipientId(null)}
+                              phoneSaving={updateRecipientPhone.isPending}
+                              onSavePhone={async () => {
+                                setRecipientError(null);
+                                try {
+                                  await updateRecipientPhone.mutateAsync({ groupId: group.id, recipientId: recipient.id, phoneNumber: editedPhoneNumber.trim() });
+                                  setEditingRecipientId(null);
+                                  setSuccessMessage(`WhatsApp number updated for ${recipient.name || "this recipient"}. Previous message statuses are ready to retry on the new number.`);
+                                } catch (phoneError) {
+                                  setRecipientError(readErrorMessage(phoneError, "Could not update this WhatsApp number."));
+                                }
+                              }}
+                              resendPending={resendRecipientMessage.isPending}
+                              onResend={(target) => {
+                                setResendError(null);
+                                setResendNotice(null);
+                                setLastResendTarget(null);
+                                setRecipientToResend(target);
+                              }}
+                              removeDisabled={detail.recipient_count <= 1 || deleteRecipient.isPending}
+                              onRemove={() => setRecipientToRemove({ id: recipient.id, name: recipient.name, phone_number: recipient.phone_number })}
+                            />
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </section>
+            <RecipientSelectionPanel selectedCount={selectedRecipients.length} hiddenCount={hiddenSelectedCount} allCount={allRecipients.length} onSelectAll={() => toggleRecipients(allRecipients.map((recipient) => recipient.id), true)} onClear={() => { setSelectedIds(new Set()); bulkRequestRef.current = null; setBulkError(null); setBulkNotice(null); }} onReview={(type) => { setBulkMessageType(type); setBulkError(null); }} disabled={selectionLocked} error={bulkMessageType ? null : bulkError} notice={bulkNotice} />
+            </div>
+            )}
+
+            {section === "recipients" && bulkNotice && <p role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700 xl:hidden">{bulkNotice}</p>}
+            {section === "recipients" && bulkError && !bulkMessageType && <div className="xl:hidden"><ErrorBanner message={bulkError} /></div>}
             {successMessage && (
               <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
                 {successMessage}
@@ -1177,6 +1088,8 @@ export function RecipientListDialog({
             )}
           </div>
         )}
+        </div>
+        {section === "recipients" && <RecipientMobileSelectionBar selectedCount={selectedRecipients.length} hiddenCount={hiddenSelectedCount} allCount={allRecipients.length} onSelectAll={() => toggleRecipients(allRecipients.map((recipient) => recipient.id), true)} onClear={() => { setSelectedIds(new Set()); bulkRequestRef.current = null; setBulkError(null); setBulkNotice(null); }} onReview={(type) => { setBulkMessageType(type); setBulkError(null); }} disabled={selectionLocked} />}
         </DialogFrame>
       )}
 
@@ -1197,6 +1110,8 @@ export function RecipientListDialog({
           onSend={resendSelectedMessage}
         />
       )}
+
+      {bulkMessageType && <RecipientBulkReview messageType={bulkMessageType} recipients={selectedRecipients} hiddenCount={hiddenSelectedCount} isSending={bulkResend.isPending} error={bulkError} onClose={() => { if (!bulkResend.isPending && !bulkInFlightRef.current) setBulkMessageType(null); }} onConfirm={() => void confirmBulkResend()} />}
 
       <ConfirmDialog
         isOpen={Boolean(replacedRecipientToRestore)}
