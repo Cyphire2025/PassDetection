@@ -14,8 +14,8 @@ import {
   Images,
   Loader2,
   Pencil,
-  RotateCw,
   Save,
+  ShieldCheck,
   SlidersHorizontal,
   Sparkles,
   Upload,
@@ -47,6 +47,7 @@ import {
   PASSPORT_LIBRARY_IMAGE_ACCEPT,
   validatePassportLibraryImage,
 } from "../utils/passport-image-library";
+import { PassportImageAdjustWorkspace } from "./passport-image-adjust-workspace";
 
 interface PassportImageCropEditorProps {
   submissionId: string;
@@ -84,6 +85,7 @@ export function PassportImageCropEditor({
   const [fineRotation, setFineRotation] = useState(0);
   const [isFineRotating, setIsFineRotating] = useState(false);
   const [sharpness, setSharpness] = useState(1);
+  const [previewDimension, setPreviewDimension] = useState(1200);
   const [sourceObjectUrl, setSourceObjectUrl] = useState<string | null>(null);
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const [activePanel, setActivePanel] =
@@ -255,6 +257,7 @@ export function PassportImageCropEditor({
         cropRect.rotation_degrees,
         isFineRotating ? 1 : sharpness,
         isFineRotating,
+        previewDimension,
       );
     });
     return () => window.cancelAnimationFrame(animationFrame);
@@ -263,6 +266,7 @@ export function PassportImageCropEditor({
     cropRect.rotation_degrees,
     imageSize.width,
     isFineRotating,
+    previewDimension,
     sharpness,
     workingObjectUrl,
   ]);
@@ -314,6 +318,7 @@ export function PassportImageCropEditor({
     event: ReactPointerEvent<HTMLElement>,
     mode: CropDragMode,
   ) => {
+    if (busyRef.current) return;
     event.preventDefault();
     event.stopPropagation();
     event.currentTarget.setPointerCapture(event.pointerId);
@@ -327,6 +332,7 @@ export function PassportImageCropEditor({
   };
 
   const movePointerDrag = (event: ReactPointerEvent<HTMLElement>) => {
+    if (busyRef.current) return;
     const drag = dragRef.current;
     const stage = stageRef.current;
     if (!drag || drag.pointerId !== event.pointerId || !stage) return;
@@ -349,10 +355,12 @@ export function PassportImageCropEditor({
     event: ReactKeyboardEvent<HTMLElement>,
     mode: CropDragMode,
   ) => {
+    if (busyRef.current) return;
     const step = event.shiftKey ? 0.05 : 0.01;
     const delta = keyboardDelta(event.key, step);
     if (!delta) return;
     event.preventDefault();
+    event.stopPropagation();
     setCropRect((current) => resizeCrop(current, mode, delta.x, delta.y));
   };
 
@@ -370,9 +378,23 @@ export function PassportImageCropEditor({
     }));
   };
 
-  const rotateClockwise = () => {
-    rotationBaseRef.current = normalizeRotationDegrees(rotationBaseRef.current + 90);
-    setCropRect((current) => rotateCropClockwise(current));
+  const rotate = (direction: "left" | "right") => {
+    const turns = direction === "right" ? 1 : 3;
+    rotationBaseRef.current = normalizeRotationDegrees(rotationBaseRef.current + turns * 90);
+    setCropRect((current) => {
+      let next = current;
+      for (let turn = 0; turn < turns; turn += 1) next = rotateCropClockwise(next);
+      return next;
+    });
+  };
+
+  const undoChanges = () => {
+    const savedCrop = normalizeCrop(metadata?.crop ?? FULL_IMAGE_CROP);
+    const savedFineRotation = fineRotationOffset(savedCrop.rotation_degrees);
+    rotationBaseRef.current = normalizeRotationDegrees(savedCrop.rotation_degrees - savedFineRotation);
+    setCropRect(savedCrop);
+    setFineRotation(savedFineRotation);
+    setSharpness(clampSharpness(metadata?.sharpness ?? 1));
   };
 
   const updatePrompt = (value: string) => {
@@ -522,18 +544,22 @@ export function PassportImageCropEditor({
   const canReset = Boolean(
     metadata?.crop || metadata?.ai_edited || (metadata?.sharpness ?? 1) > 1,
   );
+  const savedCrop = normalizeCrop(metadata?.crop ?? FULL_IMAGE_CROP);
+  const hasChanges = sharpness !== clampSharpness(metadata?.sharpness ?? 1)
+    || (Object.keys(savedCrop) as (keyof PassportImageCropRect)[])
+      .some(key => cropRect[key] !== savedCrop[key]);
   const aiLibrary = imageLibrary.filter(
     (item) => item.source === "ai_generated",
   );
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/70 p-2 sm:p-5"
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/60 sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="passport-edit-title"
     >
-      <div ref={dialogRef} className="flex max-h-[96vh] w-full max-w-7xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+      <div ref={dialogRef} className="flex h-[100dvh] max-h-[900px] w-full max-w-[1360px] flex-col overflow-hidden bg-white shadow-2xl sm:h-[calc(100dvh-2rem)] sm:rounded-2xl">
         <header className="flex shrink-0 items-start justify-between gap-4 border-b border-slate-200 px-4 py-3 sm:px-6 sm:py-4">
           <div>
             <h2 id="passport-edit-title" className="flex items-center gap-2 font-semibold text-slate-950">
@@ -541,7 +567,7 @@ export function PassportImageCropEditor({
               Edit {label}
             </h2>
             <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-              Crop, rotate, and sharpen the saved image. The original is preserved.
+              Fine-tune the document before saving. Your original stays safely in the library.
             </p>
           </div>
           <button
@@ -564,6 +590,7 @@ export function PassportImageCropEditor({
             <button
               type="button"
               role="tab"
+              id="passport-image-adjust-tab"
               aria-selected={activePanel === "adjust"}
               aria-controls="passport-image-adjust-panel"
               onClick={() => setActivePanel("adjust")}
@@ -595,14 +622,14 @@ export function PassportImageCropEditor({
           )}
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain bg-slate-100 p-3 sm:p-5">
+        <div className={`flex min-h-0 flex-1 flex-col overscroll-contain bg-slate-50 ${activePanel === "adjust" ? "overflow-hidden" : "overflow-y-auto p-4 sm:p-5"}`}>
           {error && (
-            <div role="alert" className="mb-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div role="alert" className="m-3 shrink-0 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
             </div>
           )}
           {!metadata || !sourceObjectUrl || imageSize.width === 0 ? (
-            <div className="flex min-h-80 flex-1 items-center justify-center text-sm text-slate-500" role="status">
+            <div className="flex min-h-0 flex-1 items-center justify-center text-sm text-slate-500" role="status">
               {error ? "Image editor unavailable" : <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading image</>}
             </div>
           ) : activePanel === "library" ? (
@@ -631,65 +658,32 @@ export function PassportImageCropEditor({
               onUseGeneration={(generationId) => void activateLibraryImage(generationId)}
             />
           ) : (
-            <div
-              id="passport-image-adjust-panel"
-              role="tabpanel"
-              className="flex flex-col gap-4"
-            >
-              <div className="flex w-full items-start justify-center overflow-x-auto pb-1">
-                <div ref={stageRef} className="relative inline-block max-w-full select-none overflow-hidden bg-black shadow-xl">
-                  <canvas
-                    ref={canvasRef}
-                    aria-label={`Editable ${label}`}
-                    className="block max-w-full"
-                  />
-                  <CropShade crop={cropRect} />
-                  <div
-                    role="group"
-                    tabIndex={0}
-                    aria-label="Crop frame. Use arrow keys to move it; hold Shift for larger steps."
-                    className="absolute cursor-move touch-none border-2 border-white shadow-[0_0_0_1px_rgba(15,23,42,0.8)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-                    style={cropStyle(cropRect)}
-                    onPointerDown={(event) => beginPointerDrag(event, "move")}
-                    onPointerMove={movePointerDrag}
-                    onPointerUp={endPointerDrag}
-                    onPointerCancel={endPointerDrag}
-                    onKeyDown={(event) => handleKeyboard(event, "move")}
-                  >
-                    {(["nw", "ne", "sw", "se"] as const).map((corner) => (
-                      <button
-                        key={corner}
-                        type="button"
-                        aria-label={`Resize crop from ${cornerLabel(corner)} corner`}
-                        className={`absolute h-7 w-7 touch-none rounded-full border-2 border-white bg-black shadow-[0_0_0_2px_rgba(15,23,42,0.9),0_2px_8px_rgba(15,23,42,0.7)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${cornerClassName(corner)}`}
-                        onPointerDown={(event) => beginPointerDrag(event, corner)}
-                        onPointerMove={movePointerDrag}
-                        onPointerUp={endPointerDrag}
-                        onPointerCancel={endPointerDrag}
-                        onKeyDown={(event) => handleKeyboard(event, corner)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div className="mx-auto grid w-full max-w-5xl gap-3 sm:grid-cols-2">
-                <FineRotationControl
-                  value={fineRotation}
-                  disabled={busy}
-                  onChange={updateFineRotation}
-                  onInteractionChange={setIsFineRotating}
-                />
-                <SharpnessControl
-                  value={sharpness}
-                  disabled={busy}
-                  onChange={setSharpness}
-                />
-              </div>
-            </div>
+            <PassportImageAdjustWorkspace
+              label={label}
+              imageSize={imageSize}
+              crop={cropRect}
+              fineRotation={fineRotation}
+              sharpness={sharpness}
+              busy={busy}
+              hasChanges={hasChanges}
+              canvasRef={canvasRef}
+              stageRef={stageRef}
+              onBeginDrag={beginPointerDrag}
+              onMoveDrag={movePointerDrag}
+              onEndDrag={endPointerDrag}
+              onCropKeyDown={handleKeyboard}
+              onRotate={rotate}
+              onFineRotation={updateFineRotation}
+              onRotationInteraction={setIsFineRotating}
+              onSharpness={setSharpness}
+              onFullImage={() => setCropRect(current => ({ ...FULL_IMAGE_CROP, rotation_degrees: current.rotation_degrees }))}
+              onUndo={undoChanges}
+              onPreviewSizeChange={setPreviewDimension}
+            />
           )}
         </div>
 
-        <footer className="flex shrink-0 flex-col gap-3 border-t border-slate-200 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-4">
+        <footer className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-slate-200 bg-white px-3 py-3 sm:px-6 sm:py-4">
           {activePanel === "library" ? (
             <>
               <p className="text-xs text-slate-500">
@@ -704,16 +698,17 @@ export function PassportImageCropEditor({
             </>
           ) : (
             <>
-          <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="outline" className="gap-2" disabled={busy || !metadata} onClick={rotateClockwise}>
-              <RotateCw className="h-4 w-4" /> Rotate 90 degrees
-            </Button>
-            <Button type="button" variant="secondary" disabled={busy || !metadata || !canReset} onClick={() => void reset()}>
+          <div className="flex shrink-0 items-center gap-3">
+            <span className="hidden items-center gap-1.5 text-xs text-slate-500 sm:inline-flex">
+              <ShieldCheck className="h-4 w-4 text-blue-600" aria-hidden="true" /> Original preserved
+            </span>
+            <Button type="button" variant="ghost" size="sm" disabled={busy || !metadata || !canReset} onClick={() => void reset()}>
               {isResetting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Reset edits
             </Button>
+            {hasChanges ? <span className="hidden text-xs font-medium text-amber-700 xl:inline">Unsaved changes</span> : null}
           </div>
-          <div className="flex gap-2 sm:justify-end">
+          <div className="ml-auto flex shrink-0 gap-2 sm:justify-end">
             <Button type="button" variant="outline" className="flex-1 sm:flex-none" disabled={busy} onClick={onClose}>
               Cancel
             </Button>
@@ -1031,137 +1026,18 @@ function ImageComparisonCard({
   );
 }
 
-function FineRotationControl({
-  value,
-  disabled,
-  onChange,
-  onInteractionChange,
-}: {
-  value: number;
-  disabled: boolean;
-  onChange: (value: number) => void;
-  onInteractionChange: (isInteracting: boolean) => void;
-}) {
-  const formattedValue = `${value > 0 ? "+" : ""}${value}°`;
-  return (
-    <div className="h-full rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <label
-            htmlFor="passport-image-fine-rotation"
-            className="flex items-center gap-2 text-sm font-semibold text-slate-800"
-          >
-            <RotateCw className="h-4 w-4 text-blue-600" /> Fine rotation
-          </label>
-          <p className="mt-0.5 text-xs text-slate-500">
-            Drag to straighten the image one degree at a time.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <output
-            htmlFor="passport-image-fine-rotation"
-            className="min-w-12 text-right text-sm font-semibold tabular-nums text-blue-700"
-            aria-live="polite"
-          >
-            {formattedValue}
-          </output>
-          <button
-            type="button"
-            disabled={disabled || value === 0}
-            onClick={() => onChange(0)}
-            className="rounded-md px-2 py-1 text-xs font-semibold text-slate-500 hover:bg-slate-100 hover:text-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Reset
-          </button>
-        </div>
-      </div>
-      <input
-        id="passport-image-fine-rotation"
-        type="range"
-        min={MIN_FINE_ROTATION}
-        max={MAX_FINE_ROTATION}
-        step="1"
-        value={value}
-        disabled={disabled}
-        onPointerDown={() => onInteractionChange(true)}
-        onPointerUp={() => onInteractionChange(false)}
-        onPointerCancel={() => onInteractionChange(false)}
-        onLostPointerCapture={() => onInteractionChange(false)}
-        onBlur={() => onInteractionChange(false)}
-        onChange={(event) => onChange(Number(event.target.value))}
-        className="mt-3 w-full touch-none accent-blue-600"
-      />
-      <div className="mt-1 flex justify-between text-[11px] tabular-nums text-slate-400">
-        <span>{MIN_FINE_ROTATION}°</span>
-        <span>0°</span>
-        <span>+{MAX_FINE_ROTATION}°</span>
-      </div>
-    </div>
-  );
-}
-
-function SharpnessControl({
-  value,
-  disabled,
-  onChange,
-}: {
-  value: number;
-  disabled: boolean;
-  onChange: (value: number) => void;
-}) {
-  return (
-    <div className="h-full w-full rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-      <div className="flex items-center justify-between gap-3">
-        <label htmlFor="passport-image-sharpness" className="flex items-center gap-2 text-sm font-semibold text-slate-800">
-          <SlidersHorizontal className="h-4 w-4 text-blue-600" /> Sharpness
-        </label>
-        <output htmlFor="passport-image-sharpness" className="text-sm font-semibold tabular-nums text-blue-700">
-          {Math.round(value * 100)}%
-        </output>
-      </div>
-      <input
-        id="passport-image-sharpness"
-        type="range"
-        min="1"
-        max="3"
-        step="0.05"
-        value={value}
-        disabled={disabled}
-        onChange={(event) => onChange(clampSharpness(Number(event.target.value)))}
-        className="mt-3 w-full accent-blue-600"
-      />
-      <div className="mt-1 flex justify-between text-[11px] text-slate-400">
-        <span>Enhanced</span><span>Maximum</span>
-      </div>
-    </div>
-  );
-}
-
-function CropShade({ crop }: { crop: PassportImageCropRect }) {
-  const right = crop.x + crop.width;
-  const bottom = crop.y + crop.height;
-  const shared = "pointer-events-none absolute bg-slate-950/60";
-  return (
-    <>
-      <div className={shared} style={{ inset: `0 0 ${percent(1 - crop.y)} 0` }} />
-      <div className={shared} style={{ inset: `${percent(bottom)} 0 0 0` }} />
-      <div className={shared} style={{ inset: `${percent(crop.y)} ${percent(1 - crop.x)} ${percent(1 - bottom)} 0` }} />
-      <div className={shared} style={{ inset: `${percent(crop.y)} 0 ${percent(1 - bottom)} ${percent(right)}` }} />
-    </>
-  );
-}
-
 function drawEditedImage(
   canvas: HTMLCanvasElement,
   image: HTMLImageElement,
   rotation: PassportImageCropRect["rotation_degrees"],
   sharpness: number,
   isInteractive: boolean,
+  previewDimension: number,
 ) {
   const sourceWidth = image.naturalWidth;
   const sourceHeight = image.naturalHeight;
   const rotatedBounds = rotatedImageBounds(sourceWidth, sourceHeight, rotation);
-  const maxPreviewDimension = isInteractive ? 800 : 1200;
+  const maxPreviewDimension = isInteractive ? 800 : previewDimension;
   const scale = Math.min(
     1,
     maxPreviewDimension / Math.max(rotatedBounds.width, rotatedBounds.height),
@@ -1227,35 +1103,12 @@ function applySharpnessPreview(
   context.putImageData(target, 0, 0);
 }
 
-function cropStyle(crop: PassportImageCropRect) {
-  return {
-    left: percent(crop.x),
-    top: percent(crop.y),
-    width: percent(crop.width),
-    height: percent(crop.height),
-  };
-}
-
 function keyboardDelta(key: string, step: number) {
   if (key === "ArrowLeft") return { x: -step, y: 0 };
   if (key === "ArrowRight") return { x: step, y: 0 };
   if (key === "ArrowUp") return { x: 0, y: -step };
   if (key === "ArrowDown") return { x: 0, y: step };
   return null;
-}
-
-function cornerClassName(corner: Exclude<CropDragMode, "move">) {
-  const vertical = corner.startsWith("n") ? "-top-3.5" : "-bottom-3.5";
-  const horizontal = corner.endsWith("w") ? "-left-3.5" : "-right-3.5";
-  return `${vertical} ${horizontal}`;
-}
-
-function cornerLabel(corner: Exclude<CropDragMode, "move">) {
-  return ({ nw: "top left", ne: "top right", sw: "bottom left", se: "bottom right" })[corner];
-}
-
-function percent(value: number) {
-  return `${value * 100}%`;
 }
 
 function clampSharpness(value: number) {

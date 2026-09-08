@@ -2,10 +2,15 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-const editor = readFileSync(
+const controller = readFileSync(
   new URL("./passport-image-crop-editor.tsx", import.meta.url),
   "utf8",
 );
+const workspace = readFileSync(
+  new URL("./passport-image-adjust-workspace.tsx", import.meta.url),
+  "utf8",
+);
+const editor = `${controller}\n${workspace}`;
 const detail = readFileSync(
   new URL("./passport-detail.tsx", import.meta.url),
   "utf8",
@@ -171,46 +176,9 @@ test("fine rotation supports each degree with a frame-budgeted cached preview", 
   assert.match(editor, /window\.requestAnimationFrame/);
   assert.match(editor, /window\.cancelAnimationFrame/);
   assert.match(editor, /isFineRotating \? 1 : sharpness/);
-  assert.match(editor, /const maxPreviewDimension = isInteractive \? 800 : 1200/);
+  assert.match(editor, /const maxPreviewDimension = isInteractive \? 800 : previewDimension/);
+  assert.match(workspace, /Math\.min\(2400, Math\.max\(1200, requested\)\)/);
   assert.match(api, /rotation_degrees: number;/);
-});
-
-test("Adjust keeps a full-size preview inside a vertically scrollable modal body", () => {
-  assert.match(
-    editor,
-    /className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain bg-slate-100 p-3 sm:p-5"/,
-  );
-  assert.match(editor, /<header className="flex shrink-0/);
-  assert.match(editor, /<footer className="flex shrink-0/);
-  assert.match(
-    editor,
-    /id="passport-image-adjust-panel"[\s\S]*?className="flex flex-col gap-4"/,
-  );
-  assert.match(
-    editor,
-    /className="flex w-full items-start justify-center overflow-x-auto pb-1"/,
-  );
-  assert.match(editor, /className="block max-w-full"/);
-  assert.doesNotMatch(editor, /className="block max-h-\[[^\]]+\] max-w-full"/);
-  assert.doesNotMatch(
-    editor,
-    /id="passport-image-adjust-panel"[\s\S]*?className="flex min-h-0 flex-1 flex-col gap-4"/,
-  );
-});
-
-test("Adjust controls form two responsive columns below the preview", () => {
-  assert.match(
-    editor,
-    /className="mx-auto grid w-full max-w-5xl gap-3 sm:grid-cols-2"[\s\S]*?<FineRotationControl[\s\S]*?<SharpnessControl/,
-  );
-  assert.match(
-    editor,
-    /function FineRotationControl[\s\S]*?className="h-full rounded-xl/,
-  );
-  assert.match(
-    editor,
-    /function SharpnessControl[\s\S]*?className="h-full w-full rounded-xl/,
-  );
 });
 
 test("crop resize handles are black with high-contrast borders and shadows", () => {
