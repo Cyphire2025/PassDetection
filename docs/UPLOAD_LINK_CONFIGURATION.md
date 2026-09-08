@@ -12,7 +12,7 @@ Device passport uploads select from front cover, back cover, personal details pa
 
 Travel Preferences groups Base City and domestic/international airports. Professional Details groups Staff Code, Agent/Employee Code, Agency/Dealership Name, and Designation. Staff Code retains its existing behavior. The other code and organisation fields accept configurable display labels. New traveller forms do not show an Agent/Employee type selector.
 
-Miscellaneous groups Meal Preference, custom questions, and custom details. Each enabled data field and each custom definition has an independent compulsory setting. Qualifier relationships retain their existing selection workflow and may also be optional.
+Miscellaneous groups Meal Preference, custom questions, and custom details. Each enabled data field and each custom definition has an independent compulsory setting. Qualifier relationships may also be optional. Enabling Relation with Qualifier exposes independent Choose from list and Other relationship switches; at least one must remain enabled. Existing links default to list-only. Self remains available, and the public link shows the enabled methods as equal-width cards when both are enabled or a full-width card when only one is enabled. Other answers are trimmed, normalized, validated, saved, and restored when a traveller resumes the link.
 
 ## Traveller and staff behavior
 
@@ -33,7 +33,9 @@ Miscellaneous groups Meal Preference, custom questions, and custom details. Each
 
 Apply Alembic revision `0090_upload_configuration` before serving this code. It adds nullable `client_groups.upload_configuration`, `passport_submissions.passport_cover_s3_key`, and `passport_submissions.passport_back_cover_s3_key` columns. The migration follows `0089_revoke_legacy_refresh` and preserves the existing merged migration ancestry.
 
-A null configuration preserves legacy link defaults. Updating unrelated group details without a configuration preserves existing settings. Older custom definitions that omit `required` retain compulsory behavior. Readiness defaults and Compose configuration expect revision 0090; existing backend/worker containers must be recreated to pick up revised environment defaults.
+A null configuration preserves legacy link defaults. Updating unrelated group details without a configuration preserves existing settings. Older custom definitions that omit `required` retain compulsory behavior.
+
+The subsequent `0091_qualifier_other_relation` revision adds the Other relationship code and expands saved relationship labels to 100 characters without rewriting existing answers. Apply the full migration chain before serving the current code. Readiness defaults and Compose configuration now expect revision 0091; update any explicit `EXPECTED_DATABASE_SCHEMA_REVISION` override in the deployment environment and recreate backend/worker containers. Downgrading is refused while stored Other answers or labels longer than 80 characters would be lost.
 
 The migration's forward SQL was generated successfully without connecting to a database. The migration was then applied successfully to the existing isolated local PostgreSQL review database. This release candidate is published on the feature branch for review; no production deployment was performed for this task.
 

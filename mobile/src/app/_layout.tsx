@@ -1,14 +1,14 @@
 import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
 
 import { useSessionStore } from '@/core/auth/session-store';
 import { navigationAnimation, useReducedMotion } from '@/design/accessibility/use-reduced-motion';
 import { ApplicationErrorBoundary } from '@/core/errors/application-error-boundary';
 import { initializeMobileObservability } from '@/core/observability/mobile-observability';
+import { prepareNativeSplash } from '@/core/startup/native-splash';
 import { AppProviders } from '@/providers/app-providers';
 
 initializeMobileObservability();
-void SplashScreen.preventAutoHideAsync().catch(() => undefined);
+prepareNativeSplash();
 
 export default function RootLayout() {
   return (

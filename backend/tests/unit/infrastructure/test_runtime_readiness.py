@@ -58,7 +58,7 @@ class _Database:
     def __init__(
         self,
         *,
-        versions: tuple[str, ...] = ("0090_upload_configuration",),
+        versions: tuple[str, ...] = ("0091_qualifier_other_relation",),
         due_count: int = 0,
         blocked_count: int = 0,
         oldest_due_seconds: int = 0,
@@ -131,6 +131,7 @@ async def test_ready_snapshot_requires_schema_storage_and_core_dependencies() ->
         ((), "missing"),
         (("0087_enterprise_hardening",), "revision_mismatch"),
         (("0089_revoke_legacy_refresh",), "revision_mismatch"),
+        (("0090_upload_configuration",), "revision_mismatch"),
         (
             ("0086_my_photos_foundation", "0087_enterprise_hardening"),
             "multiple_heads",

@@ -46,6 +46,34 @@ function OverviewEditorHarness({ source, onSave }: { source: PassportGroupSummar
 }
 
 describe("trip settings summary and editor", () => {
+  it.each([
+    [true, false, "Choose from list"],
+    [false, true, "Other relationship"],
+    [true, true, "Choose from list and Other relationship"],
+  ] as const)("summarizes and preserves relationship methods list=%s other=%s through an edit", (list, other, label) => {
+    const onSave = vi.fn();
+    const upload_configuration = { ...DEFAULT_UPLOAD_CONFIGURATION, qualifier_relation_list_enabled: list, qualifier_relation_other_enabled: other };
+    render(<OverviewEditorHarness source={{ ...group, upload_configuration }} onSave={onSave} />);
+    expect(screen.getByText("Relationship Options").parentElement).toHaveTextContent(label);
+    fireEvent.click(screen.getByRole("button", { name: "Edit" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save Details" }));
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ upload_configuration }));
+  });
+
+  it("blocks saving until an enabled relationship section has a method", () => {
+    const onSave = vi.fn();
+    render(<OverviewEditorHarness source={{ ...group, upload_configuration: DEFAULT_UPLOAD_CONFIGURATION }} onSave={onSave} />);
+    fireEvent.click(screen.getByRole("button", { name: "Edit" }));
+    fireEvent.click(screen.getByRole("switch", { name: "Disable Choose from list" }));
+    expect(screen.getByRole("alert")).toHaveTextContent("Enable at least one option for Relation with Qualifier.");
+    expect(screen.getByRole("button", { name: "Save Details" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("switch", { name: "Enable Other relationship" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save Details" }));
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
+      upload_configuration: expect.objectContaining({ qualifier_relation_list_enabled: false, qualifier_relation_other_enabled: true }),
+    }));
+  });
+
   it.each([undefined, null])("preserves legacy airport and custom settings through an unchanged edit for configuration %s", (upload_configuration) => {
     const onSave = vi.fn();
     render(<OverviewEditorHarness source={{ ...group, upload_configuration }} onSave={onSave} />);

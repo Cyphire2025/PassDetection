@@ -31,6 +31,7 @@ from app.domain.repositories.interfaces import (
 )
 from app.domain.value_objects.qualifier_relations import (
     hash_qualifier_selection_token,
+    require_enabled_qualifier_choice,
 )
 from app.domain.value_objects.upload_configuration import (
     configuration_for,
@@ -124,6 +125,13 @@ class SubmitPassportUseCase:
             return await self._idempotent_replay_result(existing, group)
         if qualifier_replay is not None:
             return await self._idempotent_replay_result(qualifier_replay, group)
+
+        if qualifier_selection is not None:
+            require_enabled_qualifier_choice(
+                group,
+                is_self=qualifier_selection.is_self,
+                relation_code=qualifier_selection.relation_code,
+            )
 
         if not group.is_active():
             raise GroupClosedError()

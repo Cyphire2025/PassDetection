@@ -10,6 +10,8 @@ export const uploadConfigurationSchema = z.object({
   visa_photo_required: z.boolean(),
   visa_photo_live_capture: z.boolean(),
   visa_photo_upload: z.boolean(),
+  qualifier_relation_list_enabled: z.boolean().default(true),
+  qualifier_relation_other_enabled: z.boolean().default(false),
   required_fields: z.partialRecord(z.enum([
     "base_city", "nearest_domestic_airport", "departure_city", "staff_code",
     "agent_employee_code", "designation", "agency_dealership_name", "meal_preference",
@@ -83,6 +85,9 @@ export const createUploadLinkSchema = z.object({
   if (configuration.passport_enabled && data.allow_files_from_device && configuration.passport_upload_pages.length === 0) {
     context.addIssue({ code: "custom", path: ["upload_configuration"], message: "Select at least one passport page to upload." });
   }
+  if (data.relation_with_qualifier_enabled && !configuration.qualifier_relation_list_enabled && !configuration.qualifier_relation_other_enabled) {
+    context.addIssue({ code: "custom", path: ["upload_configuration"], message: "Enable at least one option for Relation with Qualifier." });
+  }
   const questionNames = data.custom_questions.map(
     (question) => question.label.trim().toLocaleLowerCase(),
   );
@@ -120,3 +125,4 @@ export const createUploadLinkSchema = z.object({
 });
 
 export type CreateUploadLinkFormData = z.infer<typeof createUploadLinkSchema>;
+export type CreateUploadLinkFormInput = z.input<typeof createUploadLinkSchema>;

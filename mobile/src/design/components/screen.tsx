@@ -1,5 +1,3 @@
-import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
 import type { PropsWithChildren } from 'react';
 import {
   ScrollView,
@@ -13,9 +11,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { responsiveContentLayout } from '@/design/accessibility/layout-policy';
+import { ScreenBackdrop } from '@/design/components/screen-backdrop';
 import { spacing } from '@/design/theme';
-
-const wallpaperSource = require('../../../assets/images/wallpaper.png') as number;
 
 type Props = PropsWithChildren<{
   scroll?: boolean;
@@ -37,12 +34,7 @@ export function Screen({ children, scroll = true, contentStyle, bottomInset = 24
 
   return (
     <View style={styles.root}>
-      <Image source={wallpaperSource} contentFit="cover" cachePolicy="memory-disk" style={styles.wallpaper} />
-      <LinearGradient
-        pointerEvents="none"
-        colors={['rgba(238,248,250,0.18)', 'rgba(255,255,255,0.28)', 'rgba(238,245,246,0.2)']}
-        style={StyleSheet.absoluteFill}
-      />
+      <ScreenBackdrop />
       {scroll ? (
         <ScrollView
           {...scrollProps}
@@ -60,7 +52,6 @@ export function Screen({ children, scroll = true, contentStyle, bottomInset = 24
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  wallpaper: { position: 'absolute', inset: 0 },
   fill: { flex: 1 },
   content: { width: '100%', alignSelf: 'center' },
 });

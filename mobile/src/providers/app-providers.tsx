@@ -1,7 +1,6 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Image } from 'expo-image';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useLayoutEffect, useRef, type PropsWithChildren } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type PropsWithChildren } from 'react';
 import { AppState, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -14,7 +13,7 @@ import { isDemoMode } from '@/core/demo/demo-mode';
 import { shouldPurgeDiskCacheForAccountTransition } from '@/core/storage/render-cache-policy';
 import { purgeTemporaryViews } from '@/core/storage/vault';
 import { NotificationRuntime } from '@/core/notifications/notification-runtime';
-import { markApplicationInteractive } from '@/core/observability/mobile-observability';
+import { AppLaunchGate } from '@/core/startup/app-launch-gate';
 import { LocalizationProvider } from '@/core/localization/localization-provider';
 import { mobileQueryClient } from '@/core/query/query-client';
 import { ReactNativeQueryRuntime } from '@/core/query/react-native-query-runtime';
@@ -71,6 +70,7 @@ async function purgeSensitiveRenderingResidue(includeDiskCache: boolean): Promis
 }
 
 export function AppProviders({ children }: PropsWithChildren) {
+  const [bootstrapReady, setBootstrapReady] = useState(false);
   const demoMode = isDemoMode();
   const queryClient = mobileQueryClient;
   const agencyId = useSessionStore((state) => state.session?.principal.agencyId ?? null);
@@ -107,8 +107,7 @@ export function AppProviders({ children }: PropsWithChildren) {
     // unhandled promise or leave the router permanently in `booting`.
     void bootstrapApplicationSession().finally(() => {
       if (active) {
-        markApplicationInteractive();
-        void SplashScreen.hideAsync().catch(() => undefined);
+        setBootstrapReady(true);
       }
     });
     return () => {
@@ -132,18 +131,22 @@ export function AppProviders({ children }: PropsWithChildren) {
 
   return (
     <GestureHandlerRootView style={styles.fill}>
-      <SafeAreaProvider>
-        <LocalizationProvider>
-          <QueryClientProvider client={queryClient}>
-            <ReactNativeQueryRuntime />
-            <SyncRuntime />
-            <RealtimeRuntime />
-            <NotificationRuntime />
-            <MyPhotosCapabilityRuntime />
-            {children}
-          </QueryClientProvider>
-        </LocalizationProvider>
-      </SafeAreaProvider>
+      {/* SafeAreaProvider can wait for a native draw before mounting children.
+          The launch gate must own the splash handoff outside that boundary. */}
+      <AppLaunchGate appReady={bootstrapReady} welcomeExpected={!activeAccount}>
+        <SafeAreaProvider>
+          <LocalizationProvider>
+            <QueryClientProvider client={queryClient}>
+              <ReactNativeQueryRuntime />
+              <SyncRuntime />
+              <RealtimeRuntime />
+              <NotificationRuntime />
+              <MyPhotosCapabilityRuntime />
+              {children}
+            </QueryClientProvider>
+          </LocalizationProvider>
+        </SafeAreaProvider>
+      </AppLaunchGate>
     </GestureHandlerRootView>
   );
 }

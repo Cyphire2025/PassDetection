@@ -148,6 +148,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const [flowMode, setFlowMode] = useState<FlowMode | null>(null);
   const [qualifierPath, setQualifierPath] = useState<QualifierPath>(null);
   const [qualifierRelationCode, setQualifierRelationCode] = useState("");
+  const [qualifierOtherRelation, setQualifierOtherRelation] = useState("");
   const [qualifierSelectionToken, setQualifierSelectionToken] = useState<string | null>(null);
   const [persistedQualifierChoice, setPersistedQualifierChoice] = useState<string | null>(null);
   const [isSavingQualifier, setIsSavingQualifier] = useState(false);
@@ -272,6 +273,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
         setPersistedQualifierChoice,
         setQualifierPath,
         setQualifierRelationCode,
+        setQualifierOtherRelation,
       },
     });
 
@@ -295,9 +297,11 @@ export function UploadFlow({ token }: UploadFlowProps) {
       qualifierPath,
       qualifierRelationCode,
       group?.qualifier_relation_options ?? [],
+      qualifierOtherRelation,
+      { listEnabled: uploadConfig.qualifier_relation_list_enabled, otherEnabled: uploadConfig.qualifier_relation_other_enabled },
     );
     if (!selectionRequest || qualifierPath === null) return;
-    const choiceKey = qualifierChoiceKey(qualifierPath, qualifierRelationCode);
+    const choiceKey = qualifierChoiceKey(qualifierPath, qualifierRelationCode, qualifierOtherRelation);
     if (qualifierSelectionToken && persistedQualifierChoice === choiceKey) {
       setStep("METHOD_SELECT");
       return;
@@ -1791,14 +1795,21 @@ export function UploadFlow({ token }: UploadFlowProps) {
             <RelationQualifierStep
               path={qualifierPath}
               relationCode={qualifierRelationCode}
+              otherRelation={qualifierOtherRelation}
+              listEnabled={uploadConfig.qualifier_relation_list_enabled}
+              otherEnabled={uploadConfig.qualifier_relation_other_enabled}
               options={group.qualifier_relation_options ?? []}
               isSaving={isSavingQualifier}
               onPathChange={(nextPath) => {
                 setQualifierPath(nextPath);
-                if (nextPath === "self") setQualifierRelationCode("");
+                if (nextPath === "self") {
+                  setQualifierRelationCode("");
+                  setQualifierOtherRelation("");
+                }
                 setUploadError(null);
               }}
               onRelationChange={setQualifierRelationCode}
+              onOtherRelationChange={setQualifierOtherRelation}
               onContinue={saveQualifierChoice}
             />
             {!requiredField("relation_with_qualifier") && <Button type="button" variant="ghost" className="mt-4 h-11 w-full" onClick={() => {
@@ -1807,6 +1818,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
               setPersistedQualifierChoice(null);
               setQualifierPath(null);
               setQualifierRelationCode("");
+              setQualifierOtherRelation("");
               setFlowMode("single");
               setStep("METHOD_SELECT");
             }}>Continue without relationship details</Button>}

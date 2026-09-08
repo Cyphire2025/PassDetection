@@ -8,6 +8,7 @@ from pydantic import ValidationError
 from app.presentation.api.v1.schemas.client_group_schemas import (
     CreateClientGroupRequest,
     CreateQualifierSelectionRequest,
+    UpdateClientGroupRequest,
 )
 
 
@@ -60,6 +61,20 @@ class QualifierSchemaTests(unittest.TestCase):
                 is_self=True,
                 unrelated_person_id="not-allowed",
             )
+
+    def test_group_schemas_reject_enabled_relation_without_entry_methods(self) -> None:
+        fields = {
+            "name": "Trip", "destination": "Thailand",
+            "travel_date": date(2026, 9, 1), "return_date": date(2026, 9, 7),
+            "relation_with_qualifier_enabled": True,
+            "upload_configuration": {
+                "qualifier_relation_list_enabled": False,
+                "qualifier_relation_other_enabled": False,
+            },
+        }
+        for schema in (CreateClientGroupRequest, UpdateClientGroupRequest):
+            with self.assertRaises(ValidationError):
+                schema(**fields)
 
 
 if __name__ == "__main__":

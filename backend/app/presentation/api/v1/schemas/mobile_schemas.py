@@ -631,7 +631,7 @@ class MobileCoordinatorPassengerDetailResponse(BaseModel):
     family_head_name: str | None = Field(default=None, max_length=255)
     family_head_phone: str | None = Field(default=None, max_length=32)
     family_head_email: str | None = Field(default=None, max_length=255)
-    qualifier_relation: str | None = Field(default=None, max_length=80)
+    qualifier_relation: str | None = Field(default=None, max_length=100)
     emergency_contact_name: str | None = Field(default=None, max_length=255)
     emergency_contact_phone: str | None = Field(default=None, max_length=64)
     emergency_contact_relation: str | None = Field(default=None, max_length=120)

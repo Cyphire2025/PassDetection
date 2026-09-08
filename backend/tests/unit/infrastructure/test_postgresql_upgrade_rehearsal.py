@@ -78,7 +78,7 @@ def test_rehearsal_contract_is_previous_release_populated_and_evidence_oriented(
     )
 
     assert rehearsal.PREVIOUS_RELEASE_REVISION == "0085_platform_retention_controls"
-    assert rehearsal.EXPECTED_HEAD_REVISION == "0090_upload_configuration"
+    assert rehearsal.EXPECTED_HEAD_REVISION == "0091_qualifier_other_relation"
     assert "INSERT INTO attendance_records" in source
     assert "INSERT INTO passport_submissions" in source
     assert "INSERT INTO audit_logs" in source

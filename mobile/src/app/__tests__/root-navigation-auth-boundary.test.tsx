@@ -26,8 +26,10 @@ jest.mock('expo-router', () => {
   return { Stack };
 });
 
-jest.mock('expo-splash-screen', () => ({
-  preventAutoHideAsync: jest.fn(async () => undefined),
+// Navigation tests do not own the pre-mount native watchdog. It has a separate
+// timer-only suite that exercises the real helper without rendering React.
+jest.mock('@/core/startup/native-splash', () => ({
+  prepareNativeSplash: jest.fn(),
 }));
 
 jest.mock('@/core/observability/mobile-observability', () => ({

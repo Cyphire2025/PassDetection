@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import hashlib
+import unicodedata
 from enum import Enum
+from typing import Any
 
 from app.domain.exceptions.exceptions import ValidationError
+from app.domain.value_objects.upload_configuration import configuration_for
 
 
 class QualifierRelation(str, Enum):
@@ -74,17 +77,32 @@ def normalize_qualifier_choice(
     *,
     is_self: bool,
     relation_code: str | None,
+    other_relation: str | None = None,
 ) -> tuple[bool, str | None, str]:
-    """Enforce exactly one of Self or one approved canonical relation."""
+    """Enforce exactly one of Self, a listed relation or explicit Other text."""
 
     normalized_code = relation_code.strip().casefold() if relation_code else None
     if is_self:
-        if normalized_code:
+        if normalized_code or other_relation is not None:
             raise ValidationError(
                 "Choose either Self or a relationship, not both.",
                 field="relation_code",
             )
         return True, None, "Self"
+    if normalized_code == "other":
+        label = unicodedata.normalize("NFC", other_relation or "").strip()
+        if not label or len(label) > 100:
+            raise ValidationError(
+                "Enter the passenger's relationship using 1 to 100 characters.",
+                field="other_relation",
+            )
+        if label.casefold() == "self":
+            raise ValidationError("Choose Self when the qualifier is travelling.", field="other_relation")
+        if any(unicodedata.category(character) in {"Cc", "Cf", "Zl", "Zp"} for character in label):
+            raise ValidationError("Enter the relationship on one line.", field="other_relation")
+        return False, "other", label
+    if other_relation is not None:
+        raise ValidationError("Choose Other to enter a relationship.", field="other_relation")
     if not normalized_code:
         raise ValidationError(
             "Choose the passenger's relationship with the qualifier.",
@@ -98,6 +116,28 @@ def normalize_qualifier_choice(
             field="relation_code",
         ) from exc
     return False, relation.value, QUALIFIER_RELATION_LABELS[relation]
+
+
+def require_enabled_qualifier_choice(group: Any, *, is_self: bool, relation_code: str | None) -> None:
+    """Recheck current link settings before accepting an unconsumed choice."""
+    if not getattr(group, "relation_with_qualifier_enabled", False):
+        raise ValidationError(
+            "Relation with Qualifier is not enabled for this upload link.",
+            field="qualifier_selection_token",
+        )
+    if is_self:
+        return
+    config = configuration_for(group)
+    enabled = (
+        config.qualifier_relation_other_enabled
+        if relation_code == "other"
+        else config.qualifier_relation_list_enabled
+    )
+    if not enabled:
+        raise ValidationError(
+            "This relationship entry option is no longer enabled. Please choose again.",
+            field="qualifier_selection_token",
+        )
 
 
 def hash_qualifier_selection_token(token: str) -> str:

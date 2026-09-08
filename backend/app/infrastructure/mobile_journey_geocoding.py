@@ -36,10 +36,15 @@ end
 return 0
 """
 _PROVIDER_LEASE_KEY = "mobile-journey:photon:upstream:v1"
-# Selection policy changed: a country name wins over city-level homonyms.
+# Selection policy changed: clearly prominent cities can win over city homonyms.
 # Expire old ambiguous results without touching the shared upstream lease.
-_RESULT_CACHE_PREFIX = "mobile-journey:photon:v2"
+_RESULT_CACHE_PREFIX = "mobile-journey:photon:v3"
 _MAX_RESPONSE_BYTES = 131_072
+# Photon importance is a prominence signal, not a probability. These conservative
+# product thresholds require both a high value and a substantial lead; otherwise
+# the place still needs a qualifier. They are not provider confidence guarantees.
+_MIN_CITY_IMPORTANCE = 0.75
+_MIN_CITY_IMPORTANCE_GAP = 0.20
 _COUNTRY_ALIASES = {
     "united arab emirates": "ae",
     "uae": "ae",
@@ -91,7 +96,9 @@ def _words(value: str) -> str:
 def _search_params(query: str) -> list[tuple[str, str]]:
     words = _words(query)
     suffix = words.rsplit(" ", 1)[-1]
-    params = [("q", _canonical_place(query)), ("lang", "en"), ("limit", "8")]
+    # Photon exposes importance in debug raw_data, not the public GeoJSON
+    # features. Keep the same one-request/byte-limit/admission contract.
+    params = [("q", _canonical_place(query)), ("lang", "en"), ("limit", "8"), ("debug", "true")]
     layers: tuple[str, ...] = ("country", "state", "city")
     if suffix in _COUNTRY_NAMES:
         # Photon can interpret 'UAE' as fuzzy Ukrainian text. Expand known
@@ -164,6 +171,75 @@ def _candidate(feature: object, query: str) -> tuple[JourneyDestination, int] | 
     return destination, rank
 
 
+def _city_importance(properties: dict[str, Any], raw_data: object) -> float | None:
+    """Read provider prominence by OSM identity, never by response position."""
+    osm_id, osm_type = properties.get("osm_id"), properties.get("osm_type")
+    if (
+        isinstance(osm_id, bool)
+        or not isinstance(osm_id, int)
+        or osm_id <= 0
+        or not isinstance(osm_type, str)
+        or osm_type not in {"N", "W", "R"}
+        or not isinstance(raw_data, list)
+        or len(raw_data) > 20
+    ):
+        return None
+    records = [
+        record["infos"]
+        for record in raw_data
+        if isinstance(record, dict)
+        and isinstance(record.get("infos"), dict)
+        and not isinstance(record["infos"].get("osm_id"), bool)
+        and isinstance(record["infos"].get("osm_id"), int)
+        and record["infos"].get("osm_type") == osm_type
+        and record["infos"].get("osm_id") == osm_id
+    ]
+    if len(records) != 1:
+        return None
+    info = records[0]
+    # A mismatched or incomplete diagnostic record cannot disambiguate a city.
+    if any(
+        key not in properties or info.get(key) != properties[key]
+        for key in ("countrycode", "type", "osm_key", "osm_value")
+    ):
+        return None
+    value = info.get("importance")
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not 0 <= value <= 1:
+        return None
+    return float(value)
+
+
+def _prominent_city(
+    features: list[Any],
+    raw_data: object,
+    query: str,
+    matches: list[JourneyDestination],
+) -> JourneyDestination | None:
+    # Prominence is only a tie-break for a bare exact city name. Countries,
+    # states and qualified names retain their existing strict interpretation.
+    if any(item.place_type != "city" or _words(item.label) != _words(query) for item in matches):
+        return None
+    ranked: list[tuple[float, JourneyDestination]] = []
+    for item in matches:
+        scores = [
+            _city_importance(feature["properties"], raw_data)
+            for feature in features
+            if (candidate := _candidate(feature, query)) and candidate[0] == item
+        ]
+        if not scores or any(score is None for score in scores):
+            return None
+        # Duplicate features cannot improve the evidence for this destination.
+        ranked.append((min(cast(list[float], scores)), item))
+    ranked.sort(key=lambda match: match[0], reverse=True)
+    if (
+        len(ranked) > 1
+        and ranked[0][0] >= _MIN_CITY_IMPORTANCE
+        and ranked[0][0] >= ranked[1][0] + _MIN_CITY_IMPORTANCE_GAP
+    ):
+        return ranked[0][1]
+    return None
+
+
 def select_destination(payload: object, query: str) -> MobileJourneyDestinationResponse:
     if not isinstance(payload, dict) or not isinstance(payload.get("features"), list):
         return MobileJourneyDestinationResponse(status="unavailable")
@@ -213,6 +289,11 @@ def select_destination(payload: object, query: str) -> MobileJourneyDestinationR
         ):
             distinct.append(item)
     if len(distinct) != 1:
+        properties = payload.get("properties")
+        raw_data = properties.get("raw_data") if isinstance(properties, dict) else None
+        prominent = _prominent_city(features, raw_data, query, distinct)
+        if prominent is not None:
+            return MobileJourneyDestinationResponse(status="resolved", destination=prominent)
         return MobileJourneyDestinationResponse(status="ambiguous")
     return MobileJourneyDestinationResponse(status="resolved", destination=distinct[0])
 

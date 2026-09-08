@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import uuid
+from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock
 
 import pytest
@@ -10,7 +11,7 @@ from app.application.use_cases.passports.client_submit_passport_use_case import 
     ClientSubmitPassportUseCase,
 )
 from app.application.use_cases.passports.submit_passport_use_case import SubmitPassportUseCase
-from app.domain.entities.entities import ClientGroup, PassportSubmission
+from app.domain.entities.entities import ClientGroup, PassportSubmission, QualifierSelection
 from app.domain.exceptions.exceptions import ValidationError
 from app.domain.value_objects.upload_configuration import (
     validate_documents,
@@ -219,6 +220,27 @@ async def test_qualifier_selection_can_be_optional_for_upload(required):
     else:
         result = await use_case.execute(**kwargs)
         assert result.qualifier_enabled_snapshot is False
+
+
+async def test_final_review_preserves_consumed_other_snapshot_after_settings_change():
+    group = _group(
+        {"passport_enabled": False, "qualifier_relation_other_enabled": False},
+        relation_with_qualifier_enabled=True,
+    )
+    submission = PassportSubmission.create(group.id, group.agency_id, "Traveller", None, "")
+    now = datetime.now(tz=UTC)
+    selection = QualifierSelection.create(
+        group_id=group.id, token_hash="q" * 64, is_self=False, relation_code="other",
+        other_relation="Cousin", selected_at=now, expires_at=now + timedelta(hours=1),
+    )
+    submission.attach_qualifier_selection(selection)
+    use_case, _, _ = _review(group, submission)
+    result = await use_case.execute(
+        submission.id, group_token=group.token, confirmed_fields={"given_names": "Synthetic Traveller"},
+        client_email=None, client_phone=None,
+    )
+    assert result.qualifier_relation_code == "other"
+    assert result.qualifier_relation_label == "Cousin"
 
 
 async def test_disabled_international_airport_does_not_require_stale_saved_choices():

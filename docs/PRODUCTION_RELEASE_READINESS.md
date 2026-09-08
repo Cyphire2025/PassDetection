@@ -193,8 +193,8 @@ durable/security domain to cache eviction to hide pressure. See the
 
 ## 4. Rehearse the forward migration and rollback decision
 
-The current candidate's reviewed schema head is `0090_upload_configuration`,
-which follows `0089_revoke_legacy_refresh` and descends from
+The current candidate's reviewed schema head is `0091_qualifier_other_relation`,
+which follows `0090_upload_configuration`, then `0089_revoke_legacy_refresh`, and descends from
 `0088_merge_my_photos_hardening`. Preserve the merge topology
 described in the DR runbook. Verify the exact checkout's migration head and
 `EXPECTED_DATABASE_SCHEMA_REVISION` together before release. Record migration
@@ -204,7 +204,16 @@ the production window.
 The `0090` migration adds nullable upload-link configuration and passport cover
 storage keys. Existing links retain their collection defaults. Apply this
 schema before starting application code that reads those columns, and use
-`0090_upload_configuration` for the runtime readiness revision.
+`0091_qualifier_other_relation` for the runtime readiness revision.
+
+The `0091` migration allows the explicitly enabled Other relationship method and
+extends the saved relationship label limit from 80 to 100 characters. It preserves
+existing answers and group configuration. Apply it with the newly built backend
+image before recreating application and worker containers. Update any explicit
+`EXPECTED_DATABASE_SCHEMA_REVISION` in the protected production `.env` to
+`0091_qualifier_other_relation`; an old environment override takes precedence over
+the source defaults. Its downgrade refuses to run while Other answers or labels
+longer than 80 characters exist, preventing truncation or recategorization.
 
 The `0089` migration revokes unknown/legacy refresh credentials. Current keyed
 hash rows remain valid; affected historical sessions must sign in again. Its

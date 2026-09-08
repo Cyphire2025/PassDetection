@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import json
+from pathlib import Path
 from unittest.mock import AsyncMock
 
 import httpx
@@ -34,6 +36,145 @@ def feature(name="Dubai", country="United Arab Emirates", code="AE", kind="city"
 
 def payload(*features):
     return {"type": "FeatureCollection", "features": list(features)}
+
+
+@pytest.fixture
+def london_payload():
+    # Observed Photon /api response for q=london, lang=en, limit=8, debug=true,
+    # layer=country/state/city on 2026-09-08. Unused diagnostic localeTags and
+    # search scores are omitted; feature data and importance values are intact.
+    source = Path(__file__).parent / "fixtures" / "mobile_journey_london_photon.json"
+    return json.loads(source.read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize("reverse_features", [False, True])
+@pytest.mark.parametrize("reverse_metadata", [False, True])
+def test_bare_london_resolves_prominent_provider_city_independent_of_result_order(
+    london_payload, reverse_features, reverse_metadata
+):
+    if reverse_features:
+        london_payload["features"].reverse()
+    if reverse_metadata:
+        london_payload["properties"]["raw_data"].reverse()
+    result = select_destination(london_payload, "London")
+    assert result.status == "resolved"
+    assert result.destination.label == "London"
+    assert result.destination.country_code == "GB"
+    assert result.destination.place_type == "city"
+    assert result.destination.latitude == 51.5074456
+    assert result.destination.longitude == -0.1277653
+
+
+@pytest.mark.parametrize(
+    "query,code,latitude,longitude",
+    [
+        ("London, UK", "GB", 51.5074456, -0.1277653),
+        ("London, Ontario", "CA", 42.9836747, -81.2496068),
+        ("London, Canada", "CA", 42.9836747, -81.2496068),
+        ("London, Ontario, Canada", "CA", 42.9836747, -81.2496068),
+        ("London, Kentucky, USA", "US", 37.1283343, -84.0835576),
+    ],
+)
+def test_qualified_london_keeps_requested_location_despite_prominent_homonym(
+    london_payload, query, code, latitude, longitude
+):
+    result = select_destination(london_payload, query)
+    assert result.status == "resolved"
+    assert result.destination.country_code == code
+    assert result.destination.latitude == latitude
+    assert result.destination.longitude == longitude
+
+
+def test_qualified_city_ambiguity_cannot_be_overridden_by_importance(london_payload):
+    # Even an artificially huge prominence gap must not decide which US London
+    # was requested when the destination supplies only the country qualifier.
+    london_payload["properties"]["raw_data"][2]["infos"]["importance"] = 1.0
+    result = select_destination(london_payload, "London, USA")
+    assert result.status == "ambiguous"
+    assert result.destination is None
+    assert select_destination(london_payload, "London, France").status == "not_found"
+
+
+@pytest.mark.parametrize("raw_data", [None, {}, "invalid", [], [None] * 21])
+def test_missing_or_invalid_prominence_metadata_keeps_city_ambiguous(london_payload, raw_data):
+    london_payload["properties"]["raw_data"] = raw_data
+    result = select_destination(london_payload, "London")
+    assert result.status == "ambiguous"
+    assert result.destination is None
+
+
+@pytest.mark.parametrize("record_index", [0, 1])
+@pytest.mark.parametrize("importance", [None, "0.85", True, -0.1, 1.1, float("nan"), float("inf")])
+def test_invalid_winner_or_competitor_importance_keeps_city_ambiguous(
+    london_payload, record_index, importance
+):
+    london_payload["properties"]["raw_data"][record_index]["infos"]["importance"] = importance
+    assert select_destination(london_payload, "London").status == "ambiguous"
+
+
+@pytest.mark.parametrize(
+    "change", ["missing", "duplicate", "wrong_id", "wrong_country", "wrong_type"]
+)
+def test_prominence_requires_unique_matching_osm_identity_and_place_context(london_payload, change):
+    records = london_payload["properties"]["raw_data"]
+    if change == "missing":
+        records.pop(1)
+    elif change == "duplicate":
+        records.append(records[0])
+    elif change == "wrong_id":
+        records[0]["infos"]["osm_id"] = 999999
+    elif change == "wrong_country":
+        records[0]["infos"]["countrycode"] = "CA"
+    else:
+        records[0]["infos"]["type"] = "state"
+    assert select_destination(london_payload, "London").status == "ambiguous"
+
+
+@pytest.mark.parametrize(
+    "importance,runner_up,status",
+    [
+        (0.75, 0.55, "resolved"),
+        (0.749, 0.50, "ambiguous"),
+        (0.85, 0.651, "ambiguous"),
+        (0.85, 0.85, "ambiguous"),
+    ],
+)
+def test_city_prominence_requires_both_conservative_minimum_and_clear_lead(
+    london_payload, importance, runner_up, status
+):
+    records = london_payload["properties"]["raw_data"]
+    records[0]["infos"]["importance"] = importance
+    records[1]["infos"]["importance"] = runner_up
+    result = select_destination(london_payload, "London")
+    assert result.status == status
+    assert (result.destination is not None) == (status == "resolved")
+
+
+def test_city_prominence_is_not_a_london_name_or_country_override(london_payload):
+    # The provider identity and evidence must govern the result for any exact
+    # city name, including when the prominent record belongs to another country.
+    for place in london_payload["features"]:
+        place["properties"]["name"] = "Example City"
+    records = london_payload["properties"]["raw_data"]
+    records[0]["infos"]["importance"] = 0.50
+    records[1]["infos"]["importance"] = 0.85
+    result = select_destination(london_payload, "Example City")
+    assert result.status == "resolved"
+    assert result.destination.country_code == "CA"
+    assert result.destination.latitude == 42.9836747
+
+
+@pytest.mark.parametrize("region_kind", ["country", "state"])
+def test_city_prominence_cannot_override_competing_geographic_regions(london_payload, region_kind):
+    london_payload["features"][1]["properties"]["type"] = region_kind
+    result = select_destination(london_payload, "London")
+    if region_kind == "country":
+        assert result.status == "resolved"
+        assert result.destination.place_type == "country"
+        assert result.destination.country_code == "CA"
+    else:
+        assert result.status == "ambiguous"
+        assert result.destination is None
 
 
 @pytest.mark.parametrize(
@@ -262,7 +403,36 @@ async def test_country_resolution_ignores_old_ambiguous_cache_but_keeps_shared_u
             assert result.destination.country_code == "BR"
     assert len(calls) == 1
     assert cache.values[previous_key] == '{"status":"ambiguous"}'
-    assert f"mobile-journey:photon:v2:{digest}" in cache.values
+    assert f"mobile-journey:photon:v3:{digest}" in cache.values
+    gate.set.assert_awaited_once()
+    assert gate.set.await_args.args[0] == "mobile-journey:photon:upstream:v1"
+    assert gate.eval.await_args.args[2] == "mobile-journey:photon:upstream:v1"
+
+
+async def test_london_ignores_v2_ambiguity_and_caches_current_provider_selection(london_payload):
+    calls, cache, gate = [], Cache(), admission()
+    settings = MobileSettings(_env_file=None)
+    digest = hashlib.sha256(f"{settings.journey_geocoding_url}\0london".encode()).hexdigest()
+    previous_key = f"mobile-journey:photon:v2:{digest}"
+    cache.values[previous_key] = '{"status":"ambiguous"}'
+
+    def handler(request):
+        calls.append(request)
+        return httpx.Response(200, json=london_payload)
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        service = MobileJourneyGeocoder(
+            settings=settings, cache=cache, admission=gate, client=client
+        )
+        for query in ["London", "  LONDON  "]:
+            result = await service.resolve(query)
+            assert result.status == "resolved"
+            assert result.destination.country_code == "GB"
+    assert len(calls) == 1
+    assert calls[0].url.params["debug"] == "true"
+    assert calls[0].url.params.get_list("layer") == ["country", "state", "city"]
+    assert cache.values[previous_key] == '{"status":"ambiguous"}'
+    assert cache.ttls[f"mobile-journey:photon:v3:{digest}"] == 2_592_000
     gate.set.assert_awaited_once()
     assert gate.set.await_args.args[0] == "mobile-journey:photon:upstream:v1"
     assert gate.eval.await_args.args[2] == "mobile-journey:photon:upstream:v1"

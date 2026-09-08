@@ -13,7 +13,7 @@ import {
   getPassportUploadTargets,
   type PassportUploadTarget,
 } from "@/lib/utils/public-url";
-import { createUploadLinkSchema, type CreateUploadLinkFormData } from "../schemas/upload-link.schema";
+import { createUploadLinkSchema, type CreateUploadLinkFormData, type CreateUploadLinkFormInput } from "../schemas/upload-link.schema";
 import { useCreateUploadLink } from "../hooks/use-upload-links";
 import { getUploadLinkSettings, getUploadLinkSettingsError, UploadLinkSettings, type UploadLinkSettingsValue } from "./upload-link-settings";
 import { WhatsAppBroadcastSelector } from "./whatsapp-broadcast-selector";
@@ -43,7 +43,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
     setValue,
     control,
     formState: { errors },
-  } = useForm<CreateUploadLinkFormData>({
+  } = useForm<CreateUploadLinkFormInput, unknown, CreateUploadLinkFormData>({
     resolver: zodResolver(createUploadLinkSchema),
     defaultValues: {
       name: "",

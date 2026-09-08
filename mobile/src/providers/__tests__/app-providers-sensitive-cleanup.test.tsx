@@ -11,6 +11,8 @@ import { purgeManagerDocumentPreviews } from '@/features/manager/data/manager-do
 
 import { AppProviders } from '../app-providers';
 
+let mockSafeAreaReady = true;
+
 jest.mock('@tanstack/react-query', () => {
   return {
     QueryClientProvider: ({ children }: { children: import('react').ReactNode }) => children,
@@ -23,6 +25,13 @@ jest.mock('expo-image', () => ({
   },
 }));
 jest.mock('expo-splash-screen', () => ({ hideAsync: jest.fn(async () => undefined) }));
+jest.mock('@/core/startup/app-launch-gate', () => ({
+  AppLaunchGate: ({ children }: { children: import('react').ReactNode }) => {
+    const React = require('react') as typeof import('react');
+    const { View: MockView } = require('react-native') as typeof import('react-native');
+    return React.createElement(MockView, { testID: 'mounted-launch-gate' }, children);
+  },
+}));
 jest.mock('react-native-gesture-handler', () => {
   const React = require('react') as typeof import('react');
   const { View: MockView } = require('react-native') as typeof import('react-native');
@@ -36,9 +45,9 @@ jest.mock('react-native-safe-area-context', () => {
   const React = require('react') as typeof import('react');
   const { View: MockView } = require('react-native') as typeof import('react-native');
   return {
-    SafeAreaProvider: ({ children }: { children: React.ReactNode }) => (
-      React.createElement(MockView, null, children)
-    ),
+    SafeAreaProvider: ({ children }: { children: React.ReactNode }) => mockSafeAreaReady
+      ? React.createElement(MockView, null, children)
+      : null,
   };
 });
 jest.mock('@/core/auth/application-bootstrap', () => ({
@@ -86,6 +95,7 @@ const SESSION: MobileSession = {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockSafeAreaReady = true;
   mockClearDiskCache.mockResolvedValue(false);
   mockClearMemoryCache.mockResolvedValue(false);
   useSessionStore.getState().clear();
@@ -94,6 +104,18 @@ beforeEach(() => {
 afterEach(() => {
   useSessionStore.getState().clear();
   jest.restoreAllMocks();
+});
+
+test('mounts the launch gate while native safe-area readiness still defers application children', async () => {
+  mockSafeAreaReady = false;
+  const screen = await render(<AppProviders><Text>Application</Text></AppProviders>);
+  expect(screen.getByTestId('mounted-launch-gate')).toBeTruthy();
+  expect(screen.queryByText('Application')).toBeNull();
+  mockSafeAreaReady = true;
+  await screen.rerender(<AppProviders><Text>Application</Text></AppProviders>);
+  expect(screen.getByTestId('mounted-launch-gate')).toBeTruthy();
+  expect(screen.getByText('Application')).toBeTruthy();
+  await screen.unmount();
 });
 
 test('purges manager plaintext on startup, background, login, and logout boundaries', async () => {

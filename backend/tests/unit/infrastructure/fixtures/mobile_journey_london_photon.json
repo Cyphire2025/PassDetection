@@ -1,0 +1,352 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "osm_type": "R",
+        "osm_id": 175342,
+        "osm_key": "place",
+        "osm_value": "city",
+        "type": "city",
+        "name": "London",
+        "state": "England",
+        "country": "United Kingdom",
+        "countrycode": "GB",
+        "extra": {
+          "admin_level": "5"
+        },
+        "extent": [
+          -0.5103751,
+          51.6918741,
+          0.3340155,
+          51.2867601
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.1277653,
+          51.5074456
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "osm_type": "R",
+        "osm_id": 7485368,
+        "osm_key": "place",
+        "osm_value": "city",
+        "type": "city",
+        "name": "London",
+        "county": "Southwestern Ontario",
+        "state": "Ontario",
+        "country": "Canada",
+        "countrycode": "CA",
+        "extra": {
+          "admin_level": "6"
+        },
+        "extent": [
+          -81.3906556,
+          43.0730461,
+          -81.1070784,
+          42.8245667
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -81.2496068,
+          42.9836747
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "osm_type": "R",
+        "osm_id": 130591,
+        "osm_key": "place",
+        "osm_value": "city",
+        "type": "city",
+        "name": "London",
+        "county": "Laurel",
+        "state": "Kentucky",
+        "country": "United States",
+        "postcode": "40741",
+        "countrycode": "US",
+        "extra": {
+          "admin_level": "8"
+        },
+        "extent": [
+          -84.126262,
+          37.15226,
+          -84.035957,
+          37.079759
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -84.0835576,
+          37.1283343
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "osm_type": "R",
+        "osm_id": 182481,
+        "osm_key": "place",
+        "osm_value": "city",
+        "type": "city",
+        "name": "London",
+        "county": "Madison",
+        "state": "Ohio",
+        "country": "United States",
+        "postcode": "43140",
+        "countrycode": "US",
+        "extra": {
+          "admin_level": "8"
+        },
+        "extent": [
+          -83.478923,
+          39.921786,
+          -83.389997,
+          39.85928
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -83.448253,
+          39.8864493
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "osm_type": "R",
+        "osm_id": 111457,
+        "osm_key": "place",
+        "osm_value": "village",
+        "type": "city",
+        "name": "London",
+        "county": "Pope",
+        "state": "Arkansas",
+        "country": "United States",
+        "countrycode": "US",
+        "extra": {
+          "admin_level": "8"
+        },
+        "extent": [
+          -93.2716305,
+          35.3389327,
+          -93.1874567,
+          35.3169503
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -93.2529553,
+          35.328973
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "osm_type": "N",
+        "osm_id": 150938750,
+        "osm_key": "place",
+        "osm_value": "village",
+        "type": "city",
+        "name": "London",
+        "county": "Tulare",
+        "state": "California",
+        "country": "United States",
+        "postcode": "93273",
+        "countrycode": "US"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119.4431785,
+          36.4760619
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "osm_type": "R",
+        "osm_id": 19843361,
+        "osm_key": "place",
+        "osm_value": "village",
+        "type": "city",
+        "name": "London",
+        "county": "Freeborn",
+        "state": "Minnesota",
+        "country": "United States",
+        "countrycode": "US",
+        "extra": {
+          "admin_level": "8"
+        },
+        "extent": [
+          -93.1692461,
+          43.5868231,
+          -93.0493471,
+          43.4996215
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -93.0626967,
+          43.5260729
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "osm_type": "N",
+        "osm_id": 153802229,
+        "osm_key": "place",
+        "osm_value": "village",
+        "type": "city",
+        "name": "London",
+        "county": "Shelby",
+        "state": "Indiana",
+        "country": "United States",
+        "postcode": "46126",
+        "countrycode": "US"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -85.9202594,
+          39.625602
+        ]
+      }
+    }
+  ],
+  "properties": {
+    "raw_data": [
+      {
+        "infos": {
+          "osm_id": 175342,
+          "osm_type": "R",
+          "osm_key": "place",
+          "importance": 0.8460498629374331,
+          "countrycode": "GB",
+          "extra": {
+            "admin_level": "5"
+          },
+          "osm_value": "city",
+          "type": "city"
+        }
+      },
+      {
+        "infos": {
+          "osm_id": 7485368,
+          "osm_type": "R",
+          "osm_key": "place",
+          "importance": 0.6114082963930206,
+          "countrycode": "CA",
+          "extra": {
+            "admin_level": "6"
+          },
+          "osm_value": "city",
+          "type": "city"
+        }
+      },
+      {
+        "infos": {
+          "osm_id": 130591,
+          "osm_type": "R",
+          "osm_key": "place",
+          "importance": 0.4773557680588548,
+          "countrycode": "US",
+          "extra": {
+            "admin_level": "8"
+          },
+          "postcode": "40741",
+          "osm_value": "city",
+          "type": "city"
+        }
+      },
+      {
+        "infos": {
+          "osm_id": 182481,
+          "osm_type": "R",
+          "osm_key": "place",
+          "importance": 0.44714508551195986,
+          "countrycode": "US",
+          "extra": {
+            "admin_level": "8"
+          },
+          "postcode": "43140",
+          "osm_value": "city",
+          "type": "city"
+        }
+      },
+      {
+        "infos": {
+          "osm_id": 111457,
+          "osm_type": "R",
+          "osm_key": "place",
+          "importance": 0.4217164953504801,
+          "countrycode": "US",
+          "extra": {
+            "admin_level": "8"
+          },
+          "osm_value": "village",
+          "type": "city"
+        }
+      },
+      {
+        "infos": {
+          "osm_id": 150938750,
+          "osm_type": "N",
+          "osm_key": "place",
+          "importance": 0.4134776339011324,
+          "countrycode": "US",
+          "postcode": "93273",
+          "osm_value": "village",
+          "type": "city"
+        }
+      },
+      {
+        "infos": {
+          "osm_id": 19843361,
+          "osm_type": "R",
+          "osm_key": "place",
+          "importance": 0.31877743112977514,
+          "countrycode": "US",
+          "extra": {
+            "admin_level": "8"
+          },
+          "osm_value": "village",
+          "type": "city"
+        }
+      },
+      {
+        "infos": {
+          "osm_id": 153802229,
+          "osm_type": "N",
+          "osm_key": "place",
+          "importance": 0.31074813956852465,
+          "countrycode": "US",
+          "postcode": "46126",
+          "osm_value": "village",
+          "type": "city"
+        }
+      }
+    ]
+  }
+}

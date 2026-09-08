@@ -21,6 +21,7 @@ from app.domain.repositories.interfaces import (
 )
 from app.domain.value_objects.qualifier_relations import (
     hash_qualifier_selection_token,
+    require_enabled_qualifier_choice,
 )
 
 QUALIFIER_SELECTION_TTL = timedelta(hours=2)
@@ -42,6 +43,7 @@ class CreateQualifierSelectionUseCase:
         group_token: str,
         is_self: bool,
         relation_code: str | None,
+        other_relation: str | None = None,
     ) -> QualifierSelectionOutputDTO:
         group = await self._client_group_repo.get_by_token(group_token)
         if group is None:
@@ -61,8 +63,12 @@ class CreateQualifierSelectionUseCase:
             token_hash=hash_qualifier_selection_token(raw_token),
             is_self=is_self,
             relation_code=relation_code,
+            other_relation=other_relation,
             selected_at=selected_at,
             expires_at=selected_at + QUALIFIER_SELECTION_TTL,
+        )
+        require_enabled_qualifier_choice(
+            group, is_self=selection.is_self, relation_code=selection.relation_code,
         )
         await self._selection_repo.save(selection)
         logger.info(

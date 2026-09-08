@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import CloudDownload from 'lucide-react-native/icons/cloud-download';
 import FileClock from 'lucide-react-native/icons/file-clock';
 import FileText from 'lucide-react-native/icons/file-text';
@@ -11,6 +11,8 @@ import {
   Text,
   View,
   type SectionListRenderItemInfo,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
 } from 'react-native';
 
 import { MOBILE_LIST_WINDOWING } from '@/core/performance/mobile-performance-budgets';
@@ -29,6 +31,8 @@ import { useAnnouncements, useCommonDocuments } from '@/features/content/hooks/u
 import { useTrips } from '@/features/trips/hooks/use-trips';
 import { DepartureCountdownCard } from '@/features/trips/ui/departure-countdown-card';
 import { MyPhotosTripCard } from '@/features/my-photos/ui/my-photos-trip-card';
+import { useJourneyRouteRefresh } from '@/features/journey-globe/hooks/use-journey-route';
+import { TripJourneyCard } from '@/features/journey-globe/ui/trip-journey-card';
 
 type CommonDocumentSection = {
   key: string;
@@ -38,6 +42,16 @@ type CommonDocumentSection = {
 };
 
 export default function PassengerTripScreen() {
+  const [focused, setFocused] = useState(true);
+  useFocusEffect(useCallback(() => {
+    setFocused(true);
+    return () => setFocused(false);
+  }, []));
+  const [heroVisible, setHeroVisible] = useState(true);
+  const onScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const visible = event.nativeEvent.contentOffset.y < 320;
+    setHeroVisible((previous) => previous === visible ? previous : visible);
+  }, []);
   const trips = useTrips();
   const selectedTimeZone = trips.selectedTrip?.timeZone;
   const announcements = useAnnouncements(trips.selectedTripId);
@@ -46,10 +60,11 @@ export default function PassengerTripScreen() {
   const refreshTrips = trips.refetch;
   const refreshAnnouncements = announcements.refetch;
   const refreshCommonDocuments = commonDocuments.refetch;
+  const refreshJourneyRoute = useJourneyRouteRefresh(trips.selectedTrip);
   const manualRefreshTask = useCallback(async () => {
     setDocumentError(null);
-    await Promise.all([refreshTrips(), refreshAnnouncements(), refreshCommonDocuments()]);
-  }, [refreshAnnouncements, refreshCommonDocuments, refreshTrips]);
+    await Promise.all([refreshTrips(), refreshAnnouncements(), refreshCommonDocuments(), refreshJourneyRoute()]);
+  }, [refreshAnnouncements, refreshCommonDocuments, refreshJourneyRoute, refreshTrips]);
   const manualRefresh = useManualRefresh();
 
   const sections = useMemo<CommonDocumentSection[]>(() => {
@@ -158,6 +173,8 @@ export default function PassengerTripScreen() {
         renderItem={renderDocument}
         renderSectionHeader={renderSectionHeader}
         stickySectionHeadersEnabled={false}
+        onScroll={onScroll}
+        scrollEventThrottle={100}
         contentContainerStyle={styles.list}
         {...MOBILE_LIST_WINDOWING.compact}
         refreshControl={(
@@ -168,7 +185,7 @@ export default function PassengerTripScreen() {
         )}
         ListHeaderComponent={
           <View style={styles.header}>
-            <PageHeader eyebrow="My trip" title={trip.destination || trip.name} subtitle={trip.name} tone="passenger" />
+            <TripJourneyCard key={trip.id} trip={trip} active={focused && heroVisible} />
             {trips.trips.length > 1 ? (
               <PrimaryButton
                 label="Switch trip"

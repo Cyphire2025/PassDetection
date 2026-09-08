@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { isDemoMode } from '@/core/demo/demo-mode';
 import { useMessages } from '@/core/localization/localization-provider';
+import { LaunchEntrance, LaunchLogoAnchor } from '@/core/startup/launch-choreography';
 import { AmbientHeroGlow } from '@/design/components/ambient-hero-glow';
 import { BrandLogo } from '@/design/components/brand-logo';
 import { GlassCard } from '@/design/components/glass-card';
@@ -18,17 +19,18 @@ export function AuthShell({
   children,
   centerContent = false,
   showBrandLogo = false,
+  launchChoreography = false,
 }: PropsWithChildren<{
   eyebrow: string;
   title: string;
   description: string;
   centerContent?: boolean;
   showBrandLogo?: boolean;
+  launchChoreography?: boolean;
 }>) {
   const messages = useMessages();
-  return (
-    <Screen contentStyle={[styles.screen, centerContent ? styles.centerContent : null]}>
-      {showBrandLogo ? <View style={styles.centeredLogo}><BrandLogo /></View> : null}
+  const hero = (
+    <>
       {isDemoMode() ? (
         <View accessibilityRole="text" style={styles.demoBanner}>
           <Text style={styles.demoText}>{messages.demoModeBanner()}</Text>
@@ -47,7 +49,23 @@ export function AuthShell({
         <Text style={styles.description}>{description}</Text>
         <View style={styles.heroAccent} />
       </LinearGradient>
-      <GlassCard style={styles.card}>{children}</GlassCard>
+    </>
+  );
+  const card = <GlassCard style={styles.card}>{children}</GlassCard>;
+
+  return (
+    <Screen contentStyle={[styles.screen, centerContent ? styles.centerContent : null]}>
+      {showBrandLogo ? (
+        <View style={styles.centeredLogo}>
+          {launchChoreography ? <LaunchLogoAnchor /> : <BrandLogo />}
+        </View>
+      ) : null}
+      {launchChoreography ? (
+        <LaunchEntrance order={0}>
+          <View style={styles.heroGroup}>{hero}</View>
+        </LaunchEntrance>
+      ) : hero}
+      {launchChoreography ? <LaunchEntrance order={1}>{card}</LaunchEntrance> : card}
     </Screen>
   );
 }
@@ -56,6 +74,7 @@ const styles = StyleSheet.create({
   screen: { paddingTop: 48, gap: spacing.lg },
   centerContent: { paddingTop: 116 },
   centeredLogo: { alignItems: 'center', justifyContent: 'center' },
+  heroGroup: { gap: spacing.lg },
   welcomeHero: { marginTop: 14 },
   demoBanner: {
     alignSelf: 'flex-start',

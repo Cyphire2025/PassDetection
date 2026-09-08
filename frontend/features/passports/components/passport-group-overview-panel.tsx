@@ -53,7 +53,7 @@ export function PassportGroupOverviewPanel({
   | "importMessage"
   | "bulkDeleteFeedback"
 >) {
-  const configuration = groupDetails?.upload_configuration ?? DEFAULT_UPLOAD_CONFIGURATION;
+  const configuration = { ...DEFAULT_UPLOAD_CONFIGURATION, ...groupDetails?.upload_configuration };
   const airportEnabled = Boolean(groupDetails?.nearest_international_airport_enabled)
     || (groupDetails?.upload_configuration == null && (groupDetails?.departure_cities?.length ?? 0) > 0);
   return (
@@ -254,6 +254,15 @@ export function PassportGroupOverviewPanel({
                     label="Relation with Qualifier"
                     value={fieldRequirement(configuration, groupDetails.relation_with_qualifier_enabled, "relation_with_qualifier")}
                   />
+                  {groupDetails.relation_with_qualifier_enabled && (
+                    <InfoPair
+                      label="Relationship Options"
+                      value={[
+                        configuration.qualifier_relation_list_enabled && "Choose from list",
+                        configuration.qualifier_relation_other_enabled && "Other relationship",
+                      ].filter(Boolean).join(" and ") || "No options enabled"}
+                    />
+                  )}
                   <InfoPair
                     label="Designation"
                     value={fieldRequirement(configuration, groupDetails.designation_enabled, "designation")}

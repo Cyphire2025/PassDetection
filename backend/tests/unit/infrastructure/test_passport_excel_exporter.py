@@ -571,13 +571,14 @@ def test_staff_code_prefix_is_canonical_and_not_duplicated(
     assert prefixed_staff_code(source) == expected
 
 
-def test_export_includes_relation_snapshot_only_for_enabled_groups() -> None:
+@pytest.mark.parametrize("code,label", [("spouse", "Spouse"), ("other", "Cousin from mother's side"), ("other", "=1+1")])
+def test_export_includes_relation_snapshot_only_for_enabled_groups(code, label) -> None:
     group_id = uuid.uuid4()
     submission = _submission(group_id)
     submission.qualifier_enabled_snapshot = True
     submission.qualifier_is_self = False
-    submission.qualifier_relation_code = "spouse"
-    submission.qualifier_relation_label = "Spouse"
+    submission.qualifier_relation_code = code
+    submission.qualifier_relation_label = label
 
     worksheet = _worksheet(
         PassportExcelExporter().export_group(
@@ -595,7 +596,7 @@ def test_export_includes_relation_snapshot_only_for_enabled_groups() -> None:
     headers, values = _row_values(worksheet)
 
     assert "Relation with Qualifier" in headers
-    assert values["Relation with Qualifier"] == "Spouse"
+    assert values["Relation with Qualifier"] == ("'" + label if label.startswith("=") else label)
 
 
 def test_export_neutralizes_formula_like_text_after_leading_whitespace() -> None:

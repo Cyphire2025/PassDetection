@@ -404,7 +404,7 @@ export const uploadLinksApi = {
 
   createQualifierSelection: async (
     token: string,
-    choice: { is_self: boolean; relation_code: string | null },
+    choice: { is_self: boolean; relation_code: string | null; other_relation?: string },
   ): Promise<QualifierSelectionState & { selection_token: string }> => {
     const response = await apiClient.post<QualifierSelectionState & { selection_token: string }>(
       API_ENDPOINTS.uploadLinks.qualifierSelection(token),

@@ -5,12 +5,15 @@ Upload Link Presentation Schemas
 
 from __future__ import annotations
 
+import unicodedata
 import uuid
 from datetime import date, datetime
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from app.domain.exceptions.exceptions import ValidationError as DomainValidationError
+from app.domain.value_objects.qualifier_relations import normalize_qualifier_choice
 from app.domain.value_objects.trip_timezone import (
     DEFAULT_TRIP_TIMEZONE,
     normalize_trip_timezone,
@@ -144,6 +147,7 @@ class CreateClientGroupRequest(BaseModel):
 
     @model_validator(mode="after")
     def validate_airport_configuration(self) -> CreateClientGroupRequest:
+        self._validate_qualifier_methods()
         if self.nearest_international_airport_enabled and not self.departure_cities:
             raise ValueError(
                 "Add at least one nearest international airport when the option is enabled."
@@ -153,6 +157,13 @@ class CreateClientGroupRequest(BaseModel):
         if self.return_date < self.travel_date:
             raise ValueError("Return date cannot be before the Travel/Departure date.")
         return self
+
+    def _validate_qualifier_methods(self) -> None:
+        config = self.upload_configuration or UploadConfiguration()
+        if self.relation_with_qualifier_enabled and not (
+            config.qualifier_relation_list_enabled or config.qualifier_relation_other_enabled
+        ):
+            raise ValueError("Enable at least one relationship entry option.")
 
 
 class UpdateClientGroupRequest(BaseModel):
@@ -213,6 +224,11 @@ class UpdateClientGroupRequest(BaseModel):
 
     @model_validator(mode="after")
     def validate_airport_configuration(self) -> UpdateClientGroupRequest:
+        config = self.upload_configuration or UploadConfiguration()
+        if self.relation_with_qualifier_enabled and not (
+            config.qualifier_relation_list_enabled or config.qualifier_relation_other_enabled
+        ):
+            raise ValueError("Enable at least one relationship entry option.")
         if "timezone" in self.model_fields_set and self.timezone is None:
             raise ValueError("Trip timezone cannot be null.")
         if self.nearest_international_airport_enabled and not self.departure_cities:
@@ -454,13 +470,33 @@ class CreateQualifierSelectionRequest(BaseModel):
 
     is_self: bool
     relation_code: str | None = Field(default=None, max_length=40)
+    other_relation: str | None = Field(default=None, min_length=1, max_length=100)
+
+    @field_validator("other_relation", mode="before")
+    @classmethod
+    def normalize_other_relation_input(cls, value: object) -> object:
+        return unicodedata.normalize("NFC", value).strip() if isinstance(value, str) else value
 
     @model_validator(mode="after")
     def validate_exactly_one_path(self) -> CreateQualifierSelectionRequest:
-        if self.is_self and self.relation_code:
+        if self.is_self and (self.relation_code or self.other_relation is not None):
             raise ValueError("Choose either Self or a relationship, not both.")
         if not self.is_self and not self.relation_code:
             raise ValueError("Choose the passenger's relationship with the qualifier.")
+        if (self.relation_code or "").casefold() != "other":
+            if self.other_relation is not None:
+                raise ValueError("Choose Other to enter a relationship.")
+            return self
+        try:
+            _is_self, code, label = normalize_qualifier_choice(
+                is_self=self.is_self,
+                relation_code=self.relation_code,
+                other_relation=self.other_relation,
+            )
+        except DomainValidationError as exc:
+            raise ValueError(str(exc)) from exc
+        self.relation_code = code
+        self.other_relation = label if code == "other" else None
         return self
 
 

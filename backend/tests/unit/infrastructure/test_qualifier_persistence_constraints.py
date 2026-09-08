@@ -95,6 +95,26 @@ class QualifierPersistenceConstraintTests(unittest.TestCase):
             session.add(self._submission(selection))
             session.commit()
 
+    def test_other_relationship_persists_full_custom_label_in_both_records(self) -> None:
+        label = "A" * 100
+        selection = self._selection(relation_code="other", relation_label=label)
+        with Session(self.engine) as session:
+            session.add(selection)
+            session.flush()
+            submission = self._submission(selection)
+            session.add(submission)
+            session.commit()
+            self.assertEqual(selection.relation_label, label)
+            self.assertEqual(submission.qualifier_relation_label, label)
+
+    def test_other_relationship_rejects_empty_self_and_oversized_database_labels(self) -> None:
+        for label in ("", "   ", "Self", "self", "x" * 101):
+            with self.subTest(label=label):
+                with Session(self.engine) as session:
+                    session.add(self._selection(relation_code="other", relation_label=label))
+                    with self.assertRaises(IntegrityError):
+                        session.commit()
+
     def test_database_rejects_friend_and_nonexclusive_snapshot(self) -> None:
         with Session(self.engine) as session:
             session.add(

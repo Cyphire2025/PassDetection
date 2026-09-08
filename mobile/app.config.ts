@@ -186,14 +186,15 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       "expo-router",
       "expo-font",
       "expo-image",
+      ["expo-video", { supportsBackgroundPlayback: false, supportsPictureInPicture: false }],
       "expo-sharing",
       "expo-asset",
       [
         "expo-splash-screen",
         {
-          backgroundColor: "#CACF42",
-          image: "./assets/images/gc-app-monochrome.png",
-          imageWidth: 112,
+          backgroundColor: "#FFFFFF",
+          image: "./assets/images/global-connect-launch-first-frame.png",
+          imageWidth: 1,
         },
       ],
       [

@@ -912,6 +912,7 @@ async def create_qualifier_selection(
             group_token=token,
             is_self=request.is_self,
             relation_code=request.relation_code,
+            other_relation=request.other_relation,
         )
         return CreateQualifierSelectionResponse.model_validate(result)
     except EntityNotFoundError as exc:

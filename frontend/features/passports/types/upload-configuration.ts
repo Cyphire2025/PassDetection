@@ -11,6 +11,8 @@ export interface UploadConfiguration {
   visa_photo_required: boolean;
   visa_photo_live_capture: boolean;
   visa_photo_upload: boolean;
+  qualifier_relation_list_enabled: boolean;
+  qualifier_relation_other_enabled: boolean;
   required_fields: Partial<Record<RequiredUploadField, boolean>>;
   agent_employee_code_label: string;
   agency_dealership_name_label: string;
@@ -24,6 +26,8 @@ export const DEFAULT_UPLOAD_CONFIGURATION: UploadConfiguration = {
   visa_photo_required: true,
   visa_photo_live_capture: true,
   visa_photo_upload: true,
+  qualifier_relation_list_enabled: true,
+  qualifier_relation_other_enabled: false,
   required_fields: {},
   agent_employee_code_label: "Agent/Employee Code",
   agency_dealership_name_label: "Agency/Dealership Name",

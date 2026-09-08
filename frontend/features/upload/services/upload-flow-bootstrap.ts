@@ -53,6 +53,7 @@ interface UploadFlowBootstrapActions {
   setPersistedQualifierChoice: (value: string | null) => void;
   setQualifierPath: (value: QualifierPath) => void;
   setQualifierRelationCode: (value: string) => void;
+  setQualifierOtherRelation: (value: string) => void;
 }
 
 interface RunUploadFlowBootstrapOptions {
@@ -252,12 +253,19 @@ export async function runUploadFlowBootstrap({
     return;
   }
 
+  const restoredPath = selection.is_self
+    ? "self"
+    : selection.relation_code === "other" ? "other" : "relation";
+  const restoredRelationCode = restoredPath === "relation" ? selection.relation_code ?? "" : "";
+  const restoredOtherRelation = restoredPath === "other" ? selection.relation_label : "";
   actions.setQualifierSelectionToken(storedToken);
-  actions.setQualifierPath(selection.is_self ? "self" : "relation");
-  actions.setQualifierRelationCode(selection.relation_code ?? "");
+  actions.setQualifierPath(restoredPath);
+  actions.setQualifierRelationCode(restoredRelationCode);
+  actions.setQualifierOtherRelation(restoredOtherRelation);
   actions.setPersistedQualifierChoice(qualifierChoiceKey(
-    selection.is_self ? "self" : "relation",
-    selection.relation_code ?? "",
+    restoredPath,
+    restoredRelationCode,
+    restoredOtherRelation,
   ));
 
   if (selection.status === "active" || !selection.submission_id) {

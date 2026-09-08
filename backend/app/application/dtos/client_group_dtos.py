@@ -16,6 +16,7 @@ from app.domain.value_objects.custom_questions import (
 )
 from app.domain.value_objects.qualifier_relations import qualifier_relation_options
 from app.domain.value_objects.trip_timezone import DEFAULT_TRIP_TIMEZONE
+from app.domain.value_objects.upload_configuration import configuration_for
 
 
 @dataclass(frozen=True)
@@ -139,7 +140,11 @@ def client_group_output_from_entity(link: ClientGroup) -> ClientGroupOutputDTO:
         agency_dealership_name_enabled=link.agency_dealership_name_enabled,
         custom_questions=list(link.custom_questions or []),
         custom_details=list(link.custom_details or []),
-        qualifier_relation_options=qualifier_relation_options(),
+        qualifier_relation_options=(
+            qualifier_relation_options()
+            if link.relation_with_qualifier_enabled and configuration_for(link).qualifier_relation_list_enabled
+            else []
+        ),
         notes=link.notes,
         deleted_at=link.deleted_at,
         deleted_passport_count=link.deleted_passport_count,

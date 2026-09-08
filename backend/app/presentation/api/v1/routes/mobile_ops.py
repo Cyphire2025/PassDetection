@@ -841,7 +841,7 @@ async def _mobile_operational_passenger_detail(
         family_head_name=_bounded_optional_text(row.family_head_name, 255),
         family_head_phone=_bounded_optional_text(row.family_head_phone, 32),
         family_head_email=_bounded_optional_text(row.family_head_email, 255),
-        qualifier_relation=_bounded_optional_text(row.qualifier_relation_label, 80),
+        qualifier_relation=_bounded_optional_text(row.qualifier_relation_label, 100),
         emergency_contact_name=emergency_contact_name,
         emergency_contact_phone=emergency_contact_phone,
         emergency_contact_relation=emergency_contact_relation,

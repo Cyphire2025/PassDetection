@@ -41,6 +41,8 @@ class UploadConfiguration(BaseModel):
     visa_photo_required: bool = True
     visa_photo_live_capture: bool = True
     visa_photo_upload: bool = True
+    qualifier_relation_list_enabled: bool = True
+    qualifier_relation_other_enabled: bool = False
     required_fields: dict[RequiredField, bool] = Field(default_factory=dict)
     agent_employee_code_label: str = Field(default="Agent/Employee Code", min_length=1, max_length=100)
     agency_dealership_name_label: str = Field(default="Agency/Dealership Name", min_length=1, max_length=100)
@@ -71,6 +73,10 @@ def normalize_upload_configuration(value: Mapping[str, object] | None) -> dict[s
 
 def validate_capture_configuration(group: Any) -> None:
     config = configuration_for(group)
+    if getattr(group, "relation_with_qualifier_enabled", False) and not (
+        config.qualifier_relation_list_enabled or config.qualifier_relation_other_enabled
+    ):
+        raise ValidationError("Enable at least one relationship entry option.", field="upload_configuration")
     if config.passport_enabled:
         if not config.passport_live_scan and not group.allow_files_from_device:
             raise ValidationError("Enable at least one passport collection method.", field="upload_configuration")

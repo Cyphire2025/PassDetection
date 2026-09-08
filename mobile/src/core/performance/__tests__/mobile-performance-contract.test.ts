@@ -1,5 +1,6 @@
 import {
   MOBILE_LIST_WINDOWING,
+  MOBILE_LAUNCH_STILL_BUDGET,
   MOBILE_REQUEST_BUDGET,
   MOBILE_STATIC_ASSET_BUDGET,
   MY_PHOTOS_CLIENT_BUDGET,
@@ -171,19 +172,21 @@ describe('mobile request and render-work budgets', () => {
 });
 
 describe('bundled static-asset budgets', () => {
-  it('bounds compressed bytes, decode dimensions, and asset count', () => {
+  it('keeps ordinary images within the original byte and decode ceilings', () => {
     const imageDirectory = pathModule.join(MOBILE_ROOT, 'assets/images');
     const images = fileSystem.readdirSync(imageDirectory)
       .filter((name) => name.toLowerCase().endsWith('.png'))
       .map((name) => pathModule.join(imageDirectory, name));
-    const totalBytes = images.reduce(
+    const launchNames = new Set(Object.keys(MOBILE_LAUNCH_STILL_BUDGET.maximumBytesByName));
+    const ordinaryImages = images.filter((filePath) => !launchNames.has(pathModule.basename(filePath)));
+    const totalBytes = ordinaryImages.reduce(
       (total, filePath) => total + fileSystem.statSync(filePath).size,
       0,
     );
 
     expect(images.length).toBeLessThanOrEqual(MOBILE_STATIC_ASSET_BUDGET.bundledImageCount);
     expect(totalBytes).toBeLessThanOrEqual(MOBILE_STATIC_ASSET_BUDGET.bundledImageBytes);
-    for (const filePath of images) {
+    for (const filePath of ordinaryImages) {
       const dimensions = pngDimensions(filePath);
       expect(fileSystem.statSync(filePath).size).toBeLessThanOrEqual(
         MOBILE_STATIC_ASSET_BUDGET.singleImageBytes,
@@ -192,5 +195,20 @@ describe('bundled static-asset budgets', () => {
         MOBILE_STATIC_ASSET_BUDGET.singleImagePixels,
       );
     }
+  });
+
+  it('bounds each named 4K launch still and their combined encoded size', () => {
+    let totalBytes = 0;
+    for (const [name, maximumBytes] of Object.entries(MOBILE_LAUNCH_STILL_BUDGET.maximumBytesByName)) {
+      const filePath = pathModule.join(MOBILE_ROOT, 'assets/images', name);
+      const bytes = fileSystem.statSync(filePath).size;
+      totalBytes += bytes;
+      expect(bytes).toBeLessThanOrEqual(maximumBytes);
+      expect(pngDimensions(filePath)).toEqual({
+        width: MOBILE_LAUNCH_STILL_BUDGET.width,
+        height: MOBILE_LAUNCH_STILL_BUDGET.height,
+      });
+    }
+    expect(totalBytes).toBeLessThanOrEqual(MOBILE_LAUNCH_STILL_BUDGET.bundledImageBytes);
   });
 });

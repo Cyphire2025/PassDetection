@@ -12,6 +12,7 @@ from app.domain.repositories.interfaces import (
 )
 from app.domain.value_objects.qualifier_relations import (
     hash_qualifier_selection_token,
+    require_enabled_qualifier_choice,
 )
 
 
@@ -49,6 +50,10 @@ class GetQualifierSelectionUseCase:
             if selection.is_expired()
             else "active"
         )
+        if status == "active":
+            require_enabled_qualifier_choice(
+                group, is_self=selection.is_self, relation_code=selection.relation_code,
+            )
         return QualifierSelectionOutputDTO(
             is_self=selection.is_self,
             relation_code=selection.relation_code,

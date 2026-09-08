@@ -37,7 +37,7 @@ export interface UploadLinkSettingsValue {
 }
 
 export function getUploadLinkSettings(value: Omit<Partial<UploadLinkSettingsValue>, "upload_configuration"> & {
-  upload_configuration?: UploadConfiguration | null;
+  upload_configuration?: Partial<UploadConfiguration> | null;
 }): UploadLinkSettingsValue {
   const configuration = value.upload_configuration;
   return {
@@ -77,6 +77,9 @@ export function getUploadLinkSettingsError(value: UploadLinkSettingsValue): stri
   }
   if (configuration.passport_enabled && value.allow_files_from_device && configuration.passport_upload_pages.length === 0) {
     return "Select at least one passport page to upload.";
+  }
+  if (value.relation_with_qualifier_enabled && !configuration.qualifier_relation_list_enabled && !configuration.qualifier_relation_other_enabled) {
+    return "Enable at least one option for Relation with Qualifier.";
   }
   if (value.nearest_international_airport_enabled && value.departure_cities.length === 0) {
     return "Add at least one nearest international airport.";
@@ -241,8 +244,18 @@ export function UploadLinkSettings({
       <SettingsSection title="Miscellaneous" number="05">
         <GroupOptionToggle label="Meal Preference" description="Let travellers select Vegetarian, Non-Vegetarian or Jain."
           checked={value.meal_preference_enabled} onChange={(meal_preference_enabled) => onChange({ meal_preference_enabled })} disabled={disabled} {...requiredControl("meal_preference")} />
-        <GroupOptionToggle label="Relation with Qualifier" description="Ask whether the traveller is the qualifier or an approved family member."
+        <GroupOptionToggle label="Relation with Qualifier" description="Ask whether the traveller is the qualifier or someone travelling in their place."
           checked={value.relation_with_qualifier_enabled} onChange={(relation_with_qualifier_enabled) => onChange({ relation_with_qualifier_enabled })} disabled={disabled} {...requiredControl("relation_with_qualifier")} />
+        {value.relation_with_qualifier_enabled && (
+          <div role="group" aria-label="Relationship options" className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
+            <p className="text-xs font-medium text-slate-600">Choose how travellers can provide their relationship.</p>
+            <GroupOptionToggle label="Choose from list" description="Let travellers select a relationship from the existing list."
+              checked={configuration.qualifier_relation_list_enabled} onChange={(qualifier_relation_list_enabled) => updateConfiguration({ qualifier_relation_list_enabled })} disabled={disabled} />
+            <GroupOptionToggle label="Other relationship" description="Let travellers type a relationship in their own words."
+              checked={configuration.qualifier_relation_other_enabled} onChange={(qualifier_relation_other_enabled) => updateConfiguration({ qualifier_relation_other_enabled })} disabled={disabled} />
+            <p className="text-xs leading-5 text-slate-500">Self stays available. When both options are enabled, they appear side by side and travellers use either one.</p>
+          </div>
+        )}
         <CustomQuestionBuilder questions={value.custom_questions} onChange={(custom_questions) => onChange({ custom_questions })} disabled={disabled} />
         <CustomDetailBuilder details={value.custom_details} onChange={(custom_details) => onChange({ custom_details })} disabled={disabled} />
       </SettingsSection>

@@ -722,6 +722,7 @@ class QualifierSelection:
         relation_code: str | None,
         selected_at: datetime,
         expires_at: datetime,
+        other_relation: str | None = None,
     ) -> QualifierSelection:
         if expires_at <= selected_at:
             raise ValidationError(
@@ -731,6 +732,7 @@ class QualifierSelection:
         canonical_self, canonical_code, label = normalize_qualifier_choice(
             is_self=is_self,
             relation_code=relation_code,
+            other_relation=other_relation,
         )
         return cls(
             id=_new_uuid(),

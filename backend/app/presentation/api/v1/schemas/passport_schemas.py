@@ -481,7 +481,7 @@ class PassportSubmissionResponse(BaseModel):
     qualifier_enabled_snapshot: bool = False
     qualifier_is_self: bool | None = None
     qualifier_relation_code: str | None = Field(default=None, max_length=40)
-    qualifier_relation_label: str | None = Field(default=None, max_length=80)
+    qualifier_relation_label: str | None = Field(default=None, max_length=100)
     qualifier_selected_at: datetime | None = None
     extraction_status: Literal[
         "not_started",

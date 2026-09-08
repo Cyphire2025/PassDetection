@@ -27,6 +27,7 @@ export default function WelcomeScreen() {
     <AuthShell
       centerContent
       showBrandLogo
+      launchChoreography
       eyebrow={APP_DISPLAY_NAME}
       title="Your trip, ready when you are."
       description="Itinerary, personal QR, travel documents and important updates in one secure place.">

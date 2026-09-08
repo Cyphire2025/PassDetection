@@ -15,9 +15,11 @@ from app.infrastructure.database.models import (
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("other", [False, True])
 async def test_public_qualifier_create_and_resume_api(
     client: AsyncClient,
     db_session: AsyncSession,
+    other: bool,
 ) -> None:
     agency_id = uuid.uuid4()
     token = "public-qualifier-enabled-token-123456"
@@ -37,6 +39,10 @@ async def test_public_qualifier_create_and_resume_api(
             status="active",
             created_by_user_id=None,
             relation_with_qualifier_enabled=True,
+            upload_configuration=(
+                {"qualifier_relation_list_enabled": False, "qualifier_relation_other_enabled": True}
+                if other else None
+            ),
         )
     )
     await db_session.commit()
@@ -51,6 +57,7 @@ async def test_public_qualifier_create_and_resume_api(
     assert group_response.status_code == 200
     group_payload = group_response.json()
     assert group_payload["relation_with_qualifier_enabled"] is True
+    assert bool(group_payload["qualifier_relation_options"]) is not other
     assert "friend" not in {
         option["code"]
         for option in group_payload["qualifier_relation_options"]
@@ -58,13 +65,16 @@ async def test_public_qualifier_create_and_resume_api(
 
     create_response = await client.post(
         f"/api/v1/upload-links/token/{token}/qualifier-selection",
-        json={"is_self": False, "relation_code": "spouse"},
+        json=(
+            {"is_self": False, "relation_code": "other", "other_relation": "  Cousin  "}
+            if other else {"is_self": False, "relation_code": "spouse"}
+        ),
         headers=upload_headers,
     )
     assert create_response.status_code == 201
     created = create_response.json()
-    assert created["relation_code"] == "spouse"
-    assert created["relation_label"] == "Spouse"
+    assert created["relation_code"] == ("other" if other else "spouse")
+    assert created["relation_label"] == ("Cousin" if other else "Spouse")
     assert created["status"] == "active"
     selection_token = created["selection_token"]
 
@@ -72,6 +82,7 @@ async def test_public_qualifier_create_and_resume_api(
         await db_session.execute(select(QualifierSelectionModel))
     ).scalar_one()
     assert persisted.token_hash != selection_token
+    assert persisted.relation_label == created["relation_label"]
 
     resume_response = await client.get(
         f"/api/v1/upload-links/token/{token}/qualifier-selection",
@@ -82,9 +93,20 @@ async def test_public_qualifier_create_and_resume_api(
     )
     assert resume_response.status_code == 200
     resumed = resume_response.json()
-    assert resumed["relation_code"] == "spouse"
+    assert resumed["relation_code"] == created["relation_code"]
+    assert resumed["relation_label"] == created["relation_label"]
     assert resumed["status"] == "active"
     assert "selection_token" not in resumed
+
+    disabled_method = await client.post(
+        f"/api/v1/upload-links/token/{token}/qualifier-selection",
+        json=(
+            {"is_self": False, "relation_code": "spouse"}
+            if other else {"is_self": False, "relation_code": "other", "other_relation": "Cousin"}
+        ),
+        headers=upload_headers,
+    )
+    assert disabled_method.status_code == 400
 
 
 @pytest.mark.asyncio

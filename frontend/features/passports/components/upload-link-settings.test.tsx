@@ -8,6 +8,7 @@ import {
   UploadLinkSettings,
   type UploadLinkSettingsValue,
 } from "./upload-link-settings";
+import { DEFAULT_UPLOAD_CONFIGURATION } from "../types/upload-configuration";
 
 function Harness({ initial = {} }: { initial?: Partial<UploadLinkSettingsValue> }) {
   const [value, setValue] = useState(() => getUploadLinkSettings(initial));
@@ -22,6 +23,59 @@ function Harness({ initial = {} }: { initial?: Partial<UploadLinkSettingsValue> 
 const readSettings = (): UploadLinkSettingsValue => JSON.parse(screen.getByTestId("settings").textContent || "{}");
 
 describe("upload link settings", () => {
+  it.each([undefined, null, { passport_enabled: true }])("defaults legacy relationship settings to the existing list for %j", (upload_configuration) => {
+    const settings = getUploadLinkSettings({ relation_with_qualifier_enabled: true, upload_configuration });
+    expect(settings.upload_configuration.qualifier_relation_list_enabled).toBe(true);
+    expect(settings.upload_configuration.qualifier_relation_other_enabled).toBe(false);
+    expect(getUploadLinkSettingsError(settings)).toBeUndefined();
+  });
+
+  it("reveals independent relationship options and preserves them when the parent is disabled", async () => {
+    const user = userEvent.setup();
+    render(<Harness />);
+    expect(screen.queryByRole("group", { name: "Relationship options" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("switch", { name: "Enable Relation with Qualifier" }));
+    expect(screen.getByRole("switch", { name: "Disable Choose from list" })).toBeChecked();
+    expect(screen.getByRole("switch", { name: "Enable Other relationship" })).not.toBeChecked();
+    await user.click(screen.getByRole("switch", { name: "Enable Other relationship" }));
+    await user.click(screen.getByRole("switch", { name: "Disable Choose from list" }));
+    await user.click(screen.getByRole("checkbox", { name: "Make Relation with Qualifier compulsory" }));
+    expect(readSettings().upload_configuration).toEqual(expect.objectContaining({
+      qualifier_relation_list_enabled: false,
+      qualifier_relation_other_enabled: true,
+      required_fields: { relation_with_qualifier: false },
+    }));
+    await user.click(screen.getByRole("switch", { name: "Disable Relation with Qualifier" }));
+    expect(screen.queryByRole("group", { name: "Relationship options" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("switch", { name: "Enable Relation with Qualifier" }));
+    expect(screen.getByRole("switch", { name: "Enable Choose from list" })).not.toBeChecked();
+    expect(screen.getByRole("switch", { name: "Disable Other relationship" })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: "Make Relation with Qualifier compulsory" })).not.toBeChecked();
+  });
+
+  it.each([
+    [true, false, true],
+    [false, true, true],
+    [true, true, true],
+    [false, false, false],
+  ])("validates enabled relationship collection with list=%s and other=%s", (list, other, valid) => {
+    const settings = getUploadLinkSettings({
+      relation_with_qualifier_enabled: true,
+      upload_configuration: { ...DEFAULT_UPLOAD_CONFIGURATION, qualifier_relation_list_enabled: list, qualifier_relation_other_enabled: other },
+    });
+    expect(getUploadLinkSettingsError(settings)).toBe(valid ? undefined : "Enable at least one option for Relation with Qualifier.");
+    settings.upload_configuration.required_fields.relation_with_qualifier = false;
+    expect(getUploadLinkSettingsError(settings)).toBe(valid ? undefined : "Enable at least one option for Relation with Qualifier.");
+    settings.relation_with_qualifier_enabled = false;
+    expect(getUploadLinkSettingsError(settings)).toBeUndefined();
+  });
+
+  it("disables the relationship controls while settings are being saved", () => {
+    render(<UploadLinkSettings value={getUploadLinkSettings({ relation_with_qualifier_enabled: true })} onChange={() => undefined} disabled />);
+    expect(screen.getByRole("switch", { name: "Disable Choose from list" })).toBeDisabled();
+    expect(screen.getByRole("switch", { name: "Enable Other relationship" })).toBeDisabled();
+  });
+
   it.each([undefined, null])("preserves legacy airport collection when configuration is %s", (upload_configuration) => {
     const settings = getUploadLinkSettings({
       upload_configuration,

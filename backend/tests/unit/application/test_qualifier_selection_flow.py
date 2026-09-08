@@ -244,6 +244,28 @@ class QualifierUploadEnforcementTests(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(result.qualifier_relation_code)
         self.assertEqual(result.qualifier_relation_label, "Self")
 
+    async def test_other_snapshot_preserves_custom_text_and_blocks_disabled_method(self) -> None:
+        self.group.upload_configuration = {"qualifier_relation_other_enabled": True}
+        self.selection.relation_code = "other"
+        self.selection.relation_label = "Cousin from mother's side"
+        result = await self._upload()
+        self.assertEqual(result.qualifier_relation_code, "other")
+        self.assertEqual(result.qualifier_relation_label, "Cousin from mother's side")
+        self.storage_repo.reset_mock()
+        self.group.upload_configuration["qualifier_relation_other_enabled"] = False
+        with self.assertRaises(ValidationError):
+            await self._upload()
+        self.storage_repo.upload_file.assert_not_awaited()
+
+    async def test_disabled_list_cannot_be_used_through_an_old_selection_token(self) -> None:
+        self.group.upload_configuration = {
+            "qualifier_relation_list_enabled": False,
+            "qualifier_relation_other_enabled": True,
+        }
+        with self.assertRaises(ValidationError):
+            await self._upload()
+        self.storage_repo.upload_file.assert_not_awaited()
+
     async def test_expired_or_wrong_group_selection_is_rejected_before_storage(
         self,
     ) -> None:
@@ -270,6 +292,11 @@ class QualifierUploadEnforcementTests(unittest.IsolatedAsyncioTestCase):
             ),
         )
         existing.attach_qualifier_selection(self.selection)
+        # Changing enabled entry methods must not strand an already saved upload.
+        self.group.upload_configuration = {
+            "qualifier_relation_list_enabled": False,
+            "qualifier_relation_other_enabled": True,
+        }
         self.selection_repo.get_submission_id.return_value = existing.id
         self.passport_repo.get_by_id.return_value = existing
         self.passport_repo.get_by_upload_idempotency_key.return_value = existing

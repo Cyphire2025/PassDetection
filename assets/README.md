@@ -7,6 +7,7 @@ Use this folder as the central library for reusable PassDetection artwork, brand
 | Asset | Description |
 | --- | --- |
 | [4K logo animation](branding/global-connect/global-connect-logo-reveal-4k.mp4) | 3840 × 2160, 60 fps, 9 seconds, H.264 MP4 with stereo AAC sound and a white background |
+| [Mobile launch cut](../mobile/assets/videos/README.md) | First 5.000 seconds of the 4K logo reveal, silent and bundled in the Android/iOS app, with matching first/final frames |
 | [Original company logo](branding/global-connect/global-connect-logo-original.jpeg) | Supplied original JPEG, preserved without modification |
 | [Animation poster](branding/global-connect/global-connect-logo-reveal-poster.png) | 1920 × 1080 PNG of the completed logo composition |
 | [Company journey film](branding/global-connect/journey-film/README.md) | The login experience: a seamless motion film about corporate travel, destination hospitality and conferences, with editable source and delivery exports |

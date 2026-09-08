@@ -624,13 +624,21 @@ function WhatsAppActivityRow({
     activity.skipped_already_sent
     + activity.skipped_in_progress
     + activity.skipped_delivery_unknown;
+  const hasExpandedContent =
+    skipCount > 0
+    || activity.delivery_unknown > 0
+    || (showFailures && activity.failed > 0);
 
   return (
     <article
       className={cn(
         "text-slate-950",
         variant === "floating"
-          ? "overflow-hidden rounded-[2rem] border border-emerald-200 bg-emerald-50 shadow-[0_16px_48px_rgba(6,78,59,0.20)]"
+          ? cn(
+              // The scroll container clips outer shadows into a visible rectangle.
+              "overflow-hidden border border-emerald-200 bg-emerald-50",
+              hasExpandedContent ? "rounded-[2rem]" : "rounded-full",
+            )
           : "bg-white px-4 py-3",
       )}
       aria-label={`${activity.title}: ${activity.sent} sent of ${activity.total}`}

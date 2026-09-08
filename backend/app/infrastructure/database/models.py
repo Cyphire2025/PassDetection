@@ -553,9 +553,16 @@ class PassportSubmissionModel(Base):
             "'grandfather', 'grandmother', 'grandson', 'granddaughter', "
             "'father_in_law', 'mother_in_law', 'brother_in_law', "
             "'sister_in_law', 'son_in_law', 'daughter_in_law', "
-            "'legal_guardian'"
+            "'legal_guardian', 'other'"
             ")",
             name="ck_passport_submissions_qualifier_relation_code",
+        ),
+        CheckConstraint(
+            "qualifier_relation_code <> 'other' OR ("
+            "qualifier_relation_label IS NOT NULL AND "
+            "length(trim(qualifier_relation_label)) BETWEEN 1 AND 100 AND "
+            "lower(trim(qualifier_relation_label)) <> 'self')",
+            name="ck_passport_submissions_qualifier_other_text",
         ),
         UniqueConstraint(
             "qualifier_selection_id",
@@ -633,7 +640,7 @@ class PassportSubmissionModel(Base):
     )
     qualifier_is_self: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
     qualifier_relation_code: Mapped[str | None] = mapped_column(String(40), nullable=True)
-    qualifier_relation_label: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    qualifier_relation_label: Mapped[str | None] = mapped_column(String(100), nullable=True)
     qualifier_selected_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
@@ -1217,9 +1224,15 @@ class QualifierSelectionModel(Base):
             "'grandfather', 'grandmother', 'grandson', 'granddaughter', "
             "'father_in_law', 'mother_in_law', 'brother_in_law', "
             "'sister_in_law', 'son_in_law', 'daughter_in_law', "
-            "'legal_guardian'"
+            "'legal_guardian', 'other'"
             ")",
             name="ck_qualifier_selections_relation_code",
+        ),
+        CheckConstraint(
+            "relation_code <> 'other' OR ("
+            "length(trim(relation_label)) BETWEEN 1 AND 100 AND "
+            "lower(trim(relation_label)) <> 'self')",
+            name="ck_qualifier_selections_other_text",
         ),
         Index(
             "ix_qualifier_selections_group_expires",
@@ -1251,7 +1264,7 @@ class QualifierSelectionModel(Base):
     )
     is_self: Mapped[bool] = mapped_column(Boolean, nullable=False)
     relation_code: Mapped[str | None] = mapped_column(String(40), nullable=True)
-    relation_label: Mapped[str] = mapped_column(String(80), nullable=False)
+    relation_label: Mapped[str] = mapped_column(String(100), nullable=False)
     selected_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,

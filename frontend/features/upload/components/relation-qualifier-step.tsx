@@ -1,48 +1,65 @@
 "use client";
 
 import { type KeyboardEvent, useRef } from "react";
-import { CheckCircle2, ChevronRight, User, UsersRound } from "lucide-react";
+import { CheckCircle2, ChevronRight, PencilLine, User, UsersRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { QualifierRelationOption } from "@/features/passports/api/upload-links.api";
-import type { QualifierPath } from "../services/relation-qualifier";
+import {
+  buildQualifierSelectionRequest,
+  qualifierOtherRelationError,
+  type QualifierPath,
+} from "../services/relation-qualifier";
 
 export function RelationQualifierStep({
   path,
   relationCode,
+  otherRelation,
+  listEnabled,
+  otherEnabled,
   options,
   isSaving,
   onPathChange,
   onRelationChange,
+  onOtherRelationChange,
   onContinue,
 }: {
   path: QualifierPath;
   relationCode: string;
+  otherRelation: string;
+  listEnabled: boolean;
+  otherEnabled: boolean;
   options: QualifierRelationOption[];
   isSaving: boolean;
   onPathChange: (path: Exclude<QualifierPath, null>) => void;
   onRelationChange: (code: string) => void;
+  onOtherRelationChange: (relation: string) => void;
   onContinue: () => void;
 }) {
   const selfOptionRef = useRef<HTMLButtonElement>(null);
   const relationOptionRef = useRef<HTMLButtonElement>(null);
-  const hasRelationOptions = options.length > 0;
-  const relationIsAllowed = options.some((option) => option.code === relationCode);
-  const canContinue = path === "self" || (
-    path === "relation"
-    && relationIsAllowed
-  );
+  const otherOptionRef = useRef<HTMLButtonElement>(null);
+  const hasRelationOptions = listEnabled && options.length > 0;
+  const availablePaths: Exclude<QualifierPath, null>[] = [
+    "self", ...(hasRelationOptions ? ["relation" as const] : []), ...(otherEnabled ? ["other" as const] : []),
+  ];
+  const focusPath = path && availablePaths.includes(path) ? path : "self";
+  const optionRefs = { self: selfOptionRef, relation: relationOptionRef, other: otherOptionRef };
+  const canContinue = buildQualifierSelectionRequest(path, relationCode, options, otherRelation, { listEnabled, otherEnabled }) !== null;
+  const otherError = path === "other" ? qualifierOtherRelationError(otherRelation) : null;
   const handleRadioKeyDown = (
     event: KeyboardEvent<HTMLButtonElement>,
     currentPath: Exclude<QualifierPath, null>,
   ) => {
-    if (!["ArrowDown", "ArrowRight", "ArrowUp", "ArrowLeft"].includes(event.key)) {
+    if (isSaving || !["ArrowDown", "ArrowRight", "ArrowUp", "ArrowLeft", "Home", "End"].includes(event.key)) {
       return;
     }
     event.preventDefault();
-    const nextPath = currentPath === "self" ? "relation" : "self";
-    if (nextPath === "relation" && !hasRelationOptions) return;
+    const direction = event.key === "ArrowUp" || event.key === "ArrowLeft" ? -1 : 1;
+    const nextIndex = event.key === "Home" ? 0 : event.key === "End" ? availablePaths.length - 1
+      : (availablePaths.indexOf(currentPath) + direction + availablePaths.length) % availablePaths.length;
+    const nextPath = availablePaths[nextIndex]!;
     onPathChange(nextPath);
-    (nextPath === "self" ? selfOptionRef : relationOptionRef).current?.focus();
+    optionRefs[nextPath].current?.focus();
   };
 
   return (
@@ -56,7 +73,7 @@ export function RelationQualifierStep({
       </h3>
       <p id="qualifier-choice-description" className="mb-6 text-sm leading-6 text-slate-600">
         If the person is travelling personally, select Self. If someone else will
-        travel in the qualifier&apos;s place, select the passenger&apos;s relationship
+        travel in the qualifier&apos;s place, provide the passenger&apos;s relationship
         with the qualifier and upload that passenger&apos;s details in the following steps.
       </p>
 
@@ -71,7 +88,7 @@ export function RelationQualifierStep({
           type="button"
           role="radio"
           aria-checked={path === "self"}
-          tabIndex={path === "relation" ? -1 : 0}
+          tabIndex={focusPath === "self" ? 0 : -1}
           disabled={isSaving}
           onClick={() => onPathChange("self")}
           onKeyDown={(event) => handleRadioKeyDown(event, "self")}
@@ -91,36 +108,37 @@ export function RelationQualifierStep({
           )}
         </button>
 
-        <div className={choiceClassName(path === "relation")}>
+        <div data-testid="qualifier-relationship-methods" className={`grid items-stretch gap-3 ${listEnabled && otherEnabled ? "grid-cols-2" : "grid-cols-1"}`}>
+        {listEnabled && <div data-testid="qualifier-list-card" className={`${choiceClassName(path === "relation")} flex min-w-0 flex-col`}>
           <button
             ref={relationOptionRef}
             type="button"
             role="radio"
             aria-checked={path === "relation"}
-            tabIndex={path === "relation" && hasRelationOptions ? 0 : -1}
+            tabIndex={focusPath === "relation" ? 0 : -1}
             disabled={isSaving || !hasRelationOptions}
             onClick={() => onPathChange("relation")}
             onKeyDown={(event) => handleRadioKeyDown(event, "relation")}
-            className="flex min-w-0 flex-1 items-start gap-3 text-left disabled:cursor-not-allowed disabled:opacity-60"
+            className="relative flex w-full min-w-0 flex-col gap-2 text-left disabled:cursor-not-allowed disabled:opacity-60 sm:flex-row sm:items-start"
           >
             <span className={iconClassName(path === "relation")}>
-              <UsersRound className="h-6 w-6" aria-hidden="true" />
+              <UsersRound className="h-5 w-5" aria-hidden="true" />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block text-base font-bold text-slate-900">
-                Relationship
+              <span className="block text-sm font-bold leading-5 text-slate-900">
+                Choose from list
               </span>
-              <span className="mt-1 block text-sm leading-5 text-slate-500">
-                The passenger is an eligible family relation of the qualifier.
+              <span className="mt-1 block text-xs leading-5 text-slate-500">
+                Select one of the available relationships.
               </span>
             </span>
             {path === "relation" && (
-              <CheckCircle2 className="h-5 w-5 shrink-0 text-blue-600" aria-hidden="true" />
+              <CheckCircle2 className="absolute right-0 top-1 h-4 w-4 shrink-0 text-blue-600 sm:static" aria-hidden="true" />
             )}
           </button>
 
-          <label className="mt-4 block border-t border-slate-200 pt-4">
-            <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <label className="mt-auto block pt-4">
+            <span className="mb-2 block text-xs font-semibold text-slate-600">
               Passenger&apos;s relationship
             </span>
             <select
@@ -131,7 +149,7 @@ export function RelationQualifierStep({
                 onPathChange("relation");
                 onRelationChange(event.target.value);
               }}
-              className="h-12 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
+              className={fieldClassName}
             >
               <option value="">Select relationship</option>
               {options.map((option) => (
@@ -141,14 +159,57 @@ export function RelationQualifierStep({
               ))}
             </select>
           </label>
+          <p className="mt-2 text-xs text-slate-500">Choose one option.</p>
           {!hasRelationOptions && (
             <p role="status" className="mt-3 text-xs leading-5 text-amber-700">
               No eligible relationships are currently available. Select Self or
               contact the travel coordinator.
             </p>
           )}
+        </div>}
+
+        {otherEnabled && <div data-testid="qualifier-other-card" className={`${choiceClassName(path === "other")} flex min-w-0 flex-col`}>
+          <button
+            ref={otherOptionRef}
+            type="button"
+            role="radio"
+            aria-checked={path === "other"}
+            tabIndex={focusPath === "other" ? 0 : -1}
+            disabled={isSaving}
+            onClick={() => onPathChange("other")}
+            onKeyDown={(event) => handleRadioKeyDown(event, "other")}
+            className="relative flex w-full min-w-0 flex-col gap-2 text-left disabled:cursor-not-allowed disabled:opacity-60 sm:flex-row sm:items-start"
+          >
+            <span className={iconClassName(path === "other")}><PencilLine className="h-5 w-5" aria-hidden="true" /></span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-bold leading-5 text-slate-900">Other relationship</span>
+              <span className="mt-1 block text-xs leading-5 text-slate-500">Enter the relationship in your own words.</span>
+            </span>
+            {path === "other" && <CheckCircle2 className="absolute right-0 top-1 h-4 w-4 shrink-0 text-blue-600 sm:static" aria-hidden="true" />}
+          </button>
+          <label className="mt-auto block pt-4">
+            <span className="mb-2 block text-xs font-semibold text-slate-600">Specify relationship</span>
+            <input
+              type="text"
+              value={otherRelation}
+              disabled={isSaving}
+              autoComplete="off"
+              placeholder="e.g. Cousin"
+              aria-invalid={Boolean(otherError)}
+              aria-describedby={otherError ? "qualifier-other-error" : "qualifier-other-hint"}
+              onFocus={() => onPathChange("other")}
+              onChange={(event) => {
+                onPathChange("other");
+                onOtherRelationChange(event.target.value);
+              }}
+              className={fieldClassName}
+            />
+          </label>
+          <p id="qualifier-other-hint" className="mt-2 text-xs text-slate-500">Up to 100 characters.</p>
+        </div>}
         </div>
       </div>
+      {otherEnabled && otherError && <p id="qualifier-other-error" role="status" className="mt-3 text-sm text-red-600">{otherError}</p>}
 
       <Button
         type="button"
@@ -166,7 +227,7 @@ export function RelationQualifierStep({
 }
 
 function choiceClassName(selected: boolean) {
-  return `w-full rounded-2xl border-2 p-4 transition ${
+  return `w-full rounded-2xl border-2 p-3 transition sm:p-4 ${
     selected
       ? "border-blue-500 bg-blue-50/70 shadow-sm"
       : "border-slate-200 bg-white hover:border-blue-200"
@@ -174,7 +235,9 @@ function choiceClassName(selected: boolean) {
 }
 
 function iconClassName(selected: boolean) {
-  return `flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
+  return `flex h-8 w-8 shrink-0 items-center justify-center rounded-lg sm:h-10 sm:w-10 ${
     selected ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600"
   }`;
 }
+
+const fieldClassName = "h-12 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-2 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-60 sm:px-3";

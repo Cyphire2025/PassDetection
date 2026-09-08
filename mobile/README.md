@@ -5,6 +5,7 @@ Production React Native companion for PassDetection passengers, client managers,
 ## Architecture
 
 - Expo SDK 57, React Native 0.86, React 19, Expo Router, and role-gated native stacks.
+- Launch screen: the first five seconds of the existing 4K company logo reveal play once over the welcome page's travel wallpaper. Simulators use an equivalent 1080p/30 cut; physical devices try 4K with one compatibility fallback if decoding fails. Android 8/9 uses a transparent animated derivative. Session restoration and navigation initialize underneath; the completed logo holds until bootstrap settles, then moves and shrinks into the measured welcome header as the hero and controls rise into view. Other destinations use a 650 ms crossfade. Reduced motion settles immediately and unrecoverable playback failures skip the video wait. See `assets/videos/README.md` for provenance and rebuild requirements.
 - TanStack Query for bounded server state and request deduplication; Zustand only for small ephemeral selections.
 - Dedicated `/api/v1/mobile` contracts validated at runtime with strict Zod schemas.
 - Per-account SQLCipher databases, incremental cursors, resource fingerprints, full-page aggregation before authoritative pruning, and idempotent mutation queues.
