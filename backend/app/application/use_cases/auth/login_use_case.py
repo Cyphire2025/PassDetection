@@ -15,9 +15,10 @@ Steps:
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from app.application.dtos.auth_dtos import AuthResponseDTO, LoginInputDTO, UserOutputDTO
+from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
 from app.core.security.jwt import create_access_token, create_refresh_token
 from app.core.security.password import verify_password
@@ -138,6 +139,7 @@ class LoginUseCase:
         session_version: int = 1,
         authentication_methods: tuple[str, ...] = ("pwd",),
         mfa_authenticated_at: datetime | None = None,
+        session_expires_at: datetime | None = None,
     ) -> AuthResponseDTO:
         """Mint a session only after every required authentication gate passes."""
 
@@ -146,6 +148,13 @@ class LoginUseCase:
         await self._user_repo.update(user)
 
         # 5. Issue tokens
+        mfa_deadline = (
+            mfa_authenticated_at + timedelta(days=get_settings().jwt.refresh_token_expire_days)
+            if mfa_authenticated_at is not None else None
+        )
+        if session_expires_at is not None:
+            mfa_deadline = min(mfa_deadline, session_expires_at) if mfa_deadline else session_expires_at
+        refresh_token, refresh_expires = create_refresh_token(expires_at=mfa_deadline)
         access_token, access_expires = create_access_token(
             user_id=user.id,
             role=user.role.value,
@@ -153,8 +162,8 @@ class LoginUseCase:
             session_version=session_version,
             authentication_methods=authentication_methods,
             mfa_authenticated_at=mfa_authenticated_at,
+            session_expires_at=refresh_expires,
         )
-        refresh_token, refresh_expires = create_refresh_token()
 
         # 6. Persist refresh token
         await self._token_repo.save(
@@ -188,4 +197,5 @@ class LoginUseCase:
             access_token=access_token,
             refresh_token=refresh_token,
             access_token_expires_at=access_expires,
+            refresh_token_expires_at=refresh_expires,
         )

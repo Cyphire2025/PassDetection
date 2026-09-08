@@ -56,3 +56,4 @@ class AuthResponseDTO:
     refresh_token: str
     token_type: str = "bearer"
     access_token_expires_at: datetime | None = None
+    refresh_token_expires_at: datetime | None = None

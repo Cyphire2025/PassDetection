@@ -156,7 +156,11 @@ async def login(
         session_version=security_state.session_version if security_state else 1,
         authentication_methods=("pwd",),
     )
-    set_auth_cookies(response, access_token=result.access_token, refresh_token=result.refresh_token)
+    set_auth_cookies(
+        response, access_token=result.access_token, refresh_token=result.refresh_token,
+        access_token_expires_at=result.access_token_expires_at,
+        refresh_token_expires_at=result.refresh_token_expires_at,
+    )
     return AuthResponse(
         user=_user_response(result.user),
         token_type=result.token_type,
@@ -204,7 +208,11 @@ async def refresh_token(
         )
         clear_auth_cookies(error_response)
         return error_response
-    set_auth_cookies(response, access_token=result.access_token, refresh_token=result.refresh_token)
+    set_auth_cookies(
+        response, access_token=result.access_token, refresh_token=result.refresh_token,
+        access_token_expires_at=result.access_token_expires_at,
+        refresh_token_expires_at=result.refresh_token_expires_at,
+    )
     return AuthResponse(
         user=_user_response(result.user),
         token_type=result.token_type,

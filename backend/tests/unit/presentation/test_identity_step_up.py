@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from fastapi import HTTPException, Request, Response
@@ -17,6 +17,7 @@ from app.core.security.identity_security import (
     mfa_ciphertext_key_id,
     totp_code,
 )
+from app.core.security.jwt import decode_access_token
 from app.core.security.password import hash_password
 from app.infrastructure.database.models import AuditLogModel, UserModel, UserSecurityStateModel
 from app.infrastructure.repositories.user_repository import UserRepository
@@ -171,3 +172,42 @@ async def test_successful_step_up_lazily_reencrypts_legacy_mfa_secret(
             select(AuditLogModel).where(AuditLogModel.action == "auth.step_up_completed")
         )
     ).scalar_one().metadata_json == {"method": "totp"}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("legacy_session", [False, True])
+async def test_step_up_keeps_existing_session_deadline(
+    db_session: AsyncSession,
+    monkeypatch: pytest.MonkeyPatch,
+    legacy_session: bool,
+) -> None:
+    secret = generate_mfa_secret()
+    user, _ = await _staff_with_mfa(db_session, ciphertext=encrypt_mfa_secret(secret))
+    current_user = await UserRepository(db_session).get_by_id(user.id)
+    assert current_user is not None
+    monkeypatch.setattr(auth_identity, "MFAStepUpRateLimiter", _StepUpLimiter)
+    now = datetime.now(tz=UTC)
+    deadline = int((now + timedelta(minutes=1)).timestamp())
+    request = _request()
+    request.state.auth_claims = {"exp": deadline, "mfa_at": int((now - timedelta(days=6)).timestamp())}
+    if not legacy_session:
+        request.state.auth_claims["session_exp"] = deadline
+    response = Response()
+
+    result = await auth_identity.step_up_dashboard_session(
+        body=MFAStepUpRequest(code=totp_code(secret, counter=int(now.timestamp()) // 30)),
+        request=request, response=response, current_user=current_user, session=db_session,
+    )
+
+    from http.cookies import SimpleCookie
+
+    cookies = SimpleCookie()
+    for header in response.headers.getlist("set-cookie"):
+        cookies.load(header)
+    claims = decode_access_token(cookies["access_token"].value)
+    assert claims["session_exp"] == deadline
+    assert claims["exp"] == deadline
+    assert claims["mfa_at"] >= int(now.timestamp())
+    assert 0 < int(cookies["access_token"]["max-age"]) <= 60
+    assert "refresh_token" not in cookies
+    assert result.access_token_expires_at.timestamp() == deadline

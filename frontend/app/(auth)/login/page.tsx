@@ -6,7 +6,7 @@
  */
 
 import type { Metadata } from "next";
-import { LoginForm } from "@/features/auth/components/login-form";
+import { LoginSessionEntry } from "@/features/auth/components/login-session-entry";
 
 export const metadata: Metadata = {
   title: "Sign In | Global Connects Dashboard",
@@ -15,11 +15,11 @@ export const metadata: Metadata = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ reason?: string }>;
+  searchParams: Promise<{ reason?: string; from?: string }>;
 }) {
-  const { reason } = await searchParams;
+  const { reason, from } = await searchParams;
   const notice = reason === "password_changed"
     ? "Password changed. Every previous session was revoked; sign in again with your new password."
     : undefined;
-  return <LoginForm notice={notice} />;
+  return <LoginSessionEntry notice={notice} from={from} />;
 }

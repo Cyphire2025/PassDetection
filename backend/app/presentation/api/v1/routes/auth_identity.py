@@ -186,6 +186,14 @@ async def begin_dashboard_mfa_challenge(
     )
 
 
+def _existing_session_deadline(request: Request) -> datetime | None:
+    claims = getattr(request.state, "auth_claims", {})
+    # Legacy signed tokens have no session_exp; retaining their access expiry
+    # is conservative until the next original refresh or a fresh sign-in.
+    expires = claims.get("session_exp", claims.get("exp"))
+    return datetime.fromtimestamp(expires, tz=UTC) if expires is not None else None
+
+
 async def _issue_authenticated_session(
     *,
     user: User,
@@ -195,6 +203,7 @@ async def _issue_authenticated_session(
     session: AsyncSession,
     method: str,
     mfa_at: datetime | None,
+    session_expires_at: datetime | None = None,
 ) -> AuthResponse:
     # The user repository may have loaded the domain entity before this
     # transaction enabled MFA or advanced the credential/session state. Keep
@@ -210,11 +219,14 @@ async def _issue_authenticated_session(
         session_version=state.session_version,
         authentication_methods=methods,
         mfa_authenticated_at=mfa_at,
+        session_expires_at=session_expires_at,
     )
     set_auth_cookies(
         response,
         access_token=result.access_token,
         refresh_token=result.refresh_token,
+        access_token_expires_at=result.access_token_expires_at,
+        refresh_token_expires_at=result.refresh_token_expires_at,
     )
     response.headers["Cache-Control"] = "private, no-store, max-age=0"
     response.headers["Pragma"] = "no-cache"
@@ -448,6 +460,8 @@ async def step_up_dashboard_session(
     state.mfa_secret_ciphertext = reencrypt_mfa_secret_if_needed(state.mfa_secret_ciphertext)
     state.mfa_last_counter = counter if counter is not None else state.mfa_last_counter
     state.updated_at = now
+    # A fresh factor authorizes this action; it must not extend the browser's
+    # sign-in deadline. Legacy access tokens retain their existing expiry.
     access_token, access_expires = create_access_token(
         user_id=current_user.id,
         role=current_user.role.value,
@@ -455,8 +469,9 @@ async def step_up_dashboard_session(
         session_version=state.session_version,
         authentication_methods=("pwd", method),
         mfa_authenticated_at=now,
+        session_expires_at=_existing_session_deadline(request),
     )
-    set_access_cookie(response, access_token=access_token)
+    set_access_cookie(response, access_token=access_token, expires_at=access_expires)
     response.headers["Cache-Control"] = "private, no-store, max-age=0"
     await AuditLogRepository(session).record(
         action="auth.step_up_completed",
@@ -880,6 +895,7 @@ async def regenerate_mfa_recovery_codes(
         session=session,
         method=factor_method,
         mfa_at=now,
+        session_expires_at=_existing_session_deadline(request),
     )
     await AuditLogRepository(session).record(
         action="auth.mfa_recovery_codes_regenerated",

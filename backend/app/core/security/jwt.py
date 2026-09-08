@@ -7,7 +7,8 @@ Design:
   - Access tokens: short-lived (30 min), carry user identity + role.
   - Refresh tokens: long-lived (7 days), stored as opaque UUIDs in DB.
     The JWT is only used for the access token; refresh tokens are
-    looked up in the database so they can be revoked.
+    looked up in the database so they can be revoked. Browser sessions
+    keep a fixed deadline through rotation and sensitive-action step-up.
   - All token operations are stateless on the access token side.
 """
 
@@ -43,6 +44,7 @@ def create_access_token(
     session_version: int = 1,
     authentication_methods: tuple[str, ...] = ("pwd",),
     mfa_authenticated_at: datetime | None = None,
+    session_expires_at: datetime | None = None,
 ) -> tuple[str, datetime]:
     """
     Create a signed JWT access token.
@@ -50,22 +52,29 @@ def create_access_token(
     Returns:
         (encoded_token, expires_at) tuple.
     """
-    expires_at = datetime.now(tz=UTC) + timedelta(
+    now = datetime.now(tz=UTC)
+    expires_at = now + timedelta(
         minutes=_settings.jwt.access_token_expire_minutes
     )
+    if session_expires_at is not None:
+        if session_expires_at <= now:
+            raise TokenExpiredError()
+        expires_at = min(expires_at, session_expires_at)
     payload: dict[str, Any] = {
         "sub":       str(user_id),
         "role":      role,
         "agency_id": str(agency_id) if agency_id else None,
         "type":      TOKEN_TYPE_ACCESS,
         "exp":       expires_at,
-        "iat":       datetime.now(tz=UTC),
+        "iat":       now,
         "jti":       str(uuid.uuid4()),   # unique token ID
         "sv":        session_version,
         "amr":       list(authentication_methods),
     }
     if mfa_authenticated_at is not None:
         payload["mfa_at"] = int(mfa_authenticated_at.timestamp())
+    if session_expires_at is not None:
+        payload["session_exp"] = int(session_expires_at.timestamp())
     encoded = jwt.encode(
         payload,
         _settings.app_secret_key,
@@ -74,7 +83,7 @@ def create_access_token(
     return encoded, expires_at
 
 
-def create_refresh_token() -> tuple[str, datetime]:
+def create_refresh_token(*, expires_at: datetime | None = None) -> tuple[str, datetime]:
     """
     Create an opaque refresh token (UUID).
 
@@ -82,9 +91,10 @@ def create_refresh_token() -> tuple[str, datetime]:
     Returns:
         (token_string, expires_at) tuple.
     """
-    expires_at = datetime.now(tz=UTC) + timedelta(
-        days=_settings.jwt.refresh_token_expire_days
-    )
+    now = datetime.now(tz=UTC)
+    expires_at = expires_at or now + timedelta(days=_settings.jwt.refresh_token_expire_days)
+    if expires_at <= now:
+        raise TokenExpiredError()
     return str(uuid.uuid4()), expires_at
 
 

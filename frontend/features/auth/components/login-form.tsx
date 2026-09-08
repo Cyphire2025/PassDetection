@@ -85,6 +85,10 @@ export function LoginForm({ notice }: { notice?: string }) {
         </Button>
       </form>
 
+      <p className="mt-4 text-xs leading-relaxed text-slate-500">
+        After verification, stay signed in on this browser for 7 days. Signing out or clearing cookies ends the session.
+      </p>
+
       <p className="mt-5 text-center text-sm">
         <a href="/forgot-password" className="inline-flex min-h-11 items-center font-medium text-[#1b5b8a] underline-offset-4 hover:underline">Forgot your password?</a>
       </p>

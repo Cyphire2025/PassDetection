@@ -102,7 +102,10 @@ test("credential login restores a cookie session and logout clears browser-owned
       return;
     }
     if (pathname === "/api/v1/auth/refresh") {
-      await fulfillJson(route, session);
+      const hasCookie = request.headers().cookie?.includes("access_token=e2e-session");
+      await fulfillJson(route, hasCookie ? session : {
+        error: { code: "AUTH_REFRESH_REJECTED", message: "Sign in is required." },
+      }, hasCookie ? 200 : 401);
       return;
     }
     if (pathname === "/api/v1/auth/me") {

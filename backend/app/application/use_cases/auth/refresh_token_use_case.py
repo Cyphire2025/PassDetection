@@ -8,11 +8,16 @@ Token Rotation Strategy:
     and a NEW refresh token is issued.
   - This means a stolen refresh token can only be used once before
     the real user's next refresh invalidates it.
+  - Rotation preserves the verified sign-in's expiry; it never starts
+    another seven-day window.
 """
 
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
+
 from app.application.dtos.auth_dtos import AuthResponseDTO, RefreshTokenInputDTO, UserOutputDTO
+from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
 from app.core.security.jwt import create_access_token, create_refresh_token
 from app.domain.entities.entities import UserRole
@@ -95,6 +100,22 @@ class RefreshTokenUseCase:
                 await self._token_repo.revoke(dto.refresh_token)
                 raise AuthenticationError("Session is no longer valid")
 
+        # Rotation changes the secret, not the original sign-in deadline. Cap
+        # pre-update sliding MFA sessions as well, using their verified login.
+        session_expires = stored_token.expires_at
+        if session_expires.tzinfo is None:
+            session_expires = session_expires.replace(tzinfo=UTC)
+        if mfa_authenticated_at is not None:
+            if mfa_authenticated_at.tzinfo is None:
+                mfa_authenticated_at = mfa_authenticated_at.replace(tzinfo=UTC)
+            session_expires = min(
+                session_expires,
+                mfa_authenticated_at + timedelta(days=get_settings().jwt.refresh_token_expire_days),
+            )
+        if session_expires <= datetime.now(tz=UTC):
+            await self._token_repo.revoke(dto.refresh_token)
+            raise TokenExpiredError()
+
         # 3. Atomically claim the used refresh token. A concurrent request may
         # have consumed it after the initial lookup while the user was loaded.
         consumed_token = await self._token_repo.consume_valid_token(dto.refresh_token)
@@ -110,8 +131,9 @@ class RefreshTokenUseCase:
             session_version=session_version,
             authentication_methods=authentication_methods,
             mfa_authenticated_at=mfa_authenticated_at,
+            session_expires_at=session_expires,
         )
-        new_refresh_token, refresh_expires = create_refresh_token()
+        new_refresh_token, refresh_expires = create_refresh_token(expires_at=session_expires)
 
         # 5. Persist new refresh token
         await self._token_repo.save(
@@ -144,4 +166,5 @@ class RefreshTokenUseCase:
             access_token=access_token,
             refresh_token=new_refresh_token,
             access_token_expires_at=access_expires,
+            refresh_token_expires_at=refresh_expires,
         )
