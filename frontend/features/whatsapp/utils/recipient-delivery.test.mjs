@@ -62,3 +62,37 @@ test("does not suppress one message type because another type was sent", () => {
   assert.equal(countEligibleRecipients(recipients, "welcome"), 1);
   assert.equal(countEligibleRecipients(recipients, "passport_link"), 1);
 });
+
+test("a new reminder includes all completed earlier attempts, even previously accepted ones", () => {
+  const recipients = ["submitted", "sent", "delivered", "read", "failed", "delivery_unknown"].map(
+    (deliveryStatus) => ({
+      message_statuses: [status("reminder", deliveryStatus, true)],
+    }),
+  );
+
+  assert.equal(countEligibleRecipients(recipients, "reminder"), 6);
+});
+
+test("reminders wait for active deliveries without becoming permanently blocked", () => {
+  const recipients = ["queued", "processing", "sent"].map((deliveryStatus) => ({
+    message_statuses: [status("reminder", deliveryStatus, true)],
+  }));
+
+  assert.equal(countEligibleRecipients(recipients, "reminder"), 1);
+  recipients[0].message_statuses[0].status = "delivered";
+  recipients[1].message_statuses[0].status = "failed";
+  assert.equal(countEligibleRecipients(recipients, "reminder"), 3);
+});
+
+test("a reminder also waits for an active individual resend of that reminder", () => {
+  const recipients = ["queued", "processing", "sent", "delivery_unknown"].map(
+    (resendStatus) => ({
+      message_statuses: [{
+        ...status("reminder", "sent", true),
+        latest_resend_status: resendStatus,
+      }],
+    }),
+  );
+
+  assert.equal(countEligibleRecipients(recipients, "reminder"), 2);
+});

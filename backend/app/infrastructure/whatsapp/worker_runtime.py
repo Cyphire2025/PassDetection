@@ -93,6 +93,10 @@ async def _set_message_state(
         WhatsAppRecipientMessageStateModel.message_type == log.message_type,
     ]
     if submitted:
+        if log.message_type == "reminder":
+            # An earlier reminder completing late must not consume a newer
+            # deliberate reminder's claim or move its delivery timestamps.
+            predicates.append(WhatsAppRecipientMessageStateModel.batch_id == expected_batch_id)
         # Provider acceptance is authoritative even if removal or stale-claim
         # recovery changed the ledger while the HTTP request was in flight.
         # Never regress a more advanced accepted state.

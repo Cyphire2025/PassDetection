@@ -27,6 +27,12 @@ export function isRecipientEligible(
   messageType: string,
 ): boolean {
   const status = getMessageStatus(recipient, messageType);
+  // Each manually submitted reminder is a new broadcast. Only an active
+  // delivery is excluded; the result of an earlier reminder is not a limit.
+  if (messageType === "reminder") {
+    return !IN_PROGRESS_STATUSES.has(status?.status ?? "")
+      && !IN_PROGRESS_STATUSES.has(status?.latest_resend_status ?? "");
+  }
   return (
     !status?.already_sent
     && !IN_PROGRESS_STATUSES.has(status?.status ?? "")

@@ -153,10 +153,11 @@ def _provider_status_state_predicates(
         WhatsAppRecipientMessageStateModel.recipient_id == log.recipient_id,
         WhatsAppRecipientMessageStateModel.message_type == log.message_type,
     ]
-    if provider_status == "failed":
+    if provider_status == "failed" or log.message_type == "reminder":
         # A failed receipt is only authoritative for the matching attempt. A
         # delayed failure from an older provider message must never release a
-        # newer claim for retry.
+        # newer claim for retry. Reminders are deliberate, repeatable sends,
+        # so every receipt must stay within its own attempt, including success.
         predicates.append(WhatsAppRecipientMessageStateModel.batch_id == log.batch_id)
     # Provider acceptance is authoritative for this recipient and message
     # type even if a later retry has already claimed the ledger. Omitting the

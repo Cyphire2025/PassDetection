@@ -27,6 +27,9 @@ from app.infrastructure.whatsapp.publication import (
     fail_unclaimed_broadcast_rows,
     publish_whatsapp_task,
 )
+from app.presentation.api.v1.routes.whatsapp_roster_support import (
+    _active_explicit_reminder_recipient_ids,
+)
 from app.presentation.api.v1.routes.whatsapp_scope import _configured_template_name
 from app.presentation.api.v1.routes.whatsapp_shared import (
     WHATSAPP_ACCEPTED_STATUSES,
@@ -177,10 +180,18 @@ async def send_broadcast_message(
     batch_id = uuid.uuid4()
     now = datetime.now(tz=UTC)
     stale_cutoff = now - WHATSAPP_STALE_CLAIM_AGE
+    # Each deliberate reminder is a new broadcast. Prior outcomes belong to
+    # that earlier attempt; only a reminder currently being sent blocks it.
+    suppressed_statuses = (
+        WHATSAPP_IN_PROGRESS_STATUSES
+        if message_type == "reminder"
+        else WHATSAPP_SUPPRESSED_STATUSES
+    )
 
     # A queued task has not contacted Meta and is safe to reclaim. A stale
     # processing task may have submitted bytes before a worker interruption,
-    # so it becomes delivery_unknown and remains suppressed.
+    # so it becomes delivery_unknown. Automatic retry remains suppressed;
+    # a deliberate new reminder is a separate attempt and may replace it.
     await session.execute(
         update(WhatsAppMessageLogModel)
         .where(
@@ -230,6 +241,11 @@ async def send_broadcast_message(
         .execution_options(synchronize_session=False)
     )
 
+    active_explicit_reminder_ids = (
+        await _active_explicit_reminder_recipient_ids(session, recipients)
+        if message_type == "reminder"
+        else set()
+    )
     claim_values = [
         {
             "id": uuid.uuid4(),
@@ -245,39 +261,46 @@ async def send_broadcast_message(
             "updated_at": now,
         }
         for recipient in recipients
+        if recipient.id not in active_explicit_reminder_ids
     ]
-    claim_insert = pg_insert(WhatsAppRecipientMessageStateModel).values(claim_values)
-    claim_statement = (
-        claim_insert.on_conflict_do_update(
-            constraint="uq_whatsapp_recipient_message_state",
-            set_={
-                "status": "queued",
-                "batch_id": batch_id,
-                "submitted_at": None,
-                "status_updated_at": now,
-                "updated_at": now,
-            },
-            where=or_(
-                ~WhatsAppRecipientMessageStateModel.status.in_(WHATSAPP_SUPPRESSED_STATUSES),
-                and_(
-                    WhatsAppRecipientMessageStateModel.status == "queued",
-                    WhatsAppRecipientMessageStateModel.status_updated_at < stale_cutoff,
+    claimed_recipient_ids: set[uuid.UUID] = set()
+    if claim_values:
+        claim_insert = pg_insert(WhatsAppRecipientMessageStateModel).values(claim_values)
+        claim_statement = (
+            claim_insert.on_conflict_do_update(
+                constraint="uq_whatsapp_recipient_message_state",
+                set_={
+                    "status": "queued",
+                    "batch_id": batch_id,
+                    "submitted_at": None,
+                    "status_updated_at": now,
+                    "updated_at": now,
+                    **({"provider_status_at": None} if message_type == "reminder" else {}),
+                },
+                where=or_(
+                    ~WhatsAppRecipientMessageStateModel.status.in_(suppressed_statuses),
+                    and_(
+                        WhatsAppRecipientMessageStateModel.status == "queued",
+                        WhatsAppRecipientMessageStateModel.status_updated_at < stale_cutoff,
+                    ),
                 ),
-            ),
+            )
+            .returning(WhatsAppRecipientMessageStateModel.recipient_id)
+            .execution_options(synchronize_session=False)
         )
-        .returning(WhatsAppRecipientMessageStateModel.recipient_id)
-        .execution_options(synchronize_session=False)
-    )
-    claimed_result = await session.execute(claim_statement)
-    claimed_recipient_ids = set(claimed_result.scalars().all())
+        claimed_result = await session.execute(claim_statement)
+        claimed_recipient_ids = set(claimed_result.scalars().all())
     claimed_recipients = [
         recipient for recipient in recipients if recipient.id in claimed_recipient_ids
     ]
     unclaimed_recipient_ids = [
-        recipient.id for recipient in recipients if recipient.id not in claimed_recipient_ids
+        recipient.id
+        for recipient in recipients
+        if recipient.id not in claimed_recipient_ids
+        and recipient.id not in active_explicit_reminder_ids
     ]
     skipped_already_sent = 0
-    skipped_in_progress = 0
+    skipped_in_progress = len(active_explicit_reminder_ids)
     skipped_delivery_unknown = 0
     if unclaimed_recipient_ids:
         skipped_result = await session.execute(
@@ -292,7 +315,7 @@ async def send_broadcast_message(
             for delivery_status in skipped_statuses
             if delivery_status in WHATSAPP_ACCEPTED_STATUSES
         )
-        skipped_in_progress = sum(
+        skipped_in_progress += sum(
             1
             for delivery_status in skipped_statuses
             if delivery_status in WHATSAPP_IN_PROGRESS_STATUSES

@@ -218,6 +218,23 @@ def _select_support_contacts(
     return selected
 
 
+async def _active_explicit_reminder_recipient_ids(
+    session: AsyncSession,
+    recipients: list[WhatsAppBroadcastRecipientModel],
+) -> set[uuid.UUID]:
+    if not recipients:
+        return set()
+    result = await session.execute(
+        select(WhatsAppMessageLogModel.recipient_id).where(
+            WhatsAppMessageLogModel.recipient_id.in_([recipient.id for recipient in recipients]),
+            WhatsAppMessageLogModel.message_type == "reminder",
+            WhatsAppMessageLogModel.is_explicit_resend.is_(True),
+            WhatsAppMessageLogModel.status.in_(WHATSAPP_IN_PROGRESS_STATUSES),
+        )
+    )
+    return set(result.scalars().all())
+
+
 async def _recipient_delivery_counts(
     session: AsyncSession,
     *,
@@ -238,14 +255,23 @@ async def _recipient_delivery_counts(
         )
     )
     statuses = {recipient_id: state_status for recipient_id, state_status in states_result.all()}
+    if message_type == "reminder":
+        for recipient_id in await _active_explicit_reminder_recipient_ids(session, recipients):
+            # Explicit resends intentionally retain the baseline ledger. Their
+            # active log must still prevent a simultaneous fresh reminder.
+            statuses[recipient_id] = "processing"
     already_sent = sum(
-        1 for state_status in statuses.values() if state_status in WHATSAPP_ACCEPTED_STATUSES
+        1
+        for state_status in statuses.values()
+        if message_type != "reminder" and state_status in WHATSAPP_ACCEPTED_STATUSES
     )
     in_progress = sum(
         1 for state_status in statuses.values() if state_status in WHATSAPP_IN_PROGRESS_STATUSES
     )
     uncertain = sum(
-        1 for state_status in statuses.values() if state_status in WHATSAPP_UNCERTAIN_STATUSES
+        1
+        for state_status in statuses.values()
+        if message_type != "reminder" and state_status in WHATSAPP_UNCERTAIN_STATUSES
     )
     return (
         len(recipients) - already_sent - in_progress - uncertain,

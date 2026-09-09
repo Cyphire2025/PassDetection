@@ -504,7 +504,7 @@ export function MessagePreviewDialog({
 
   return (
     <DialogFrame
-      title={`${bulkMode ? "Resend" : targetRecipient ? (targetRecipient.action === "retry" ? "Retry" : "Resend") : "Preview"} ${
+      title={`${bulkMode ? "Resend" : targetRecipient ? (targetRecipient.action === "retry" ? "Retry" : "Resend") : messageType === "reminder" ? "Edit" : "Preview"} ${
         messageType === "welcome"
           ? "Welcome Message"
           : messageType === "reminder"
@@ -522,7 +522,7 @@ export function MessagePreviewDialog({
         <div className="min-h-0 overflow-y-auto overscroll-contain bg-slate-50/70 px-4 py-5 sm:px-7 sm:py-6">
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
         <div className="min-w-0 space-y-5">
-        <MessageComposerSection title="Message content" description="Prepare the image and wording your recipients will receive.">
+        <MessageComposerSection title="Message content" description={messageType === "reminder" ? "Review and edit the reminder your recipients will receive." : "Prepare the image and wording your recipients will receive."}>
         <div className="flex gap-2.5 rounded-lg bg-blue-50/70 px-3 py-3 text-xs leading-5 text-slate-600">
           <Info className="mt-0.5 h-4 w-4 shrink-0" />
           {bulkMode ? (
@@ -536,6 +536,9 @@ export function MessagePreviewDialog({
             <p>
               Edit the reminder paragraph below. The header, greeting, and
               sign-off are fixed in the approved template.
+              {" "}Each send is a new reminder to everyone in this recipient list,
+              including people who received earlier reminders. You can send
+              another whenever you need to, after the current send finishes.
             </p>
           ) : (
             <p>
@@ -555,6 +558,8 @@ export function MessagePreviewDialog({
                 ? `Showing the saved message for ${preview.recipient_name}. Your edits apply to the selected recipients; unchanged fields stay personal.`
                 : preview.content_source === "latest_recipient"
                 ? `Loaded the latest saved message for this recipient. You can edit it before ${targetRecipient?.action === "retry" ? "retrying" : "resending"}.`
+                : messageType === "reminder"
+                ? "Loaded your most recent reminder. Review or edit it before sending the next reminder to everyone."
                 : "Loaded the most recent message used for this broadcast. You can edit it before sending to the remaining recipients."}
             </div>
           )}
@@ -972,7 +977,7 @@ export function MessagePreviewDialog({
           </MessageDeliveryPreview>
             {preview && (
               <div className="mt-2 space-y-1 text-xs text-slate-500">
-                {!targetRecipient && !bulkMode && preview.already_sent_count > 0 && (
+                {!targetRecipient && !bulkMode && messageType !== "reminder" && preview.already_sent_count > 0 && (
                   <p className="font-medium text-emerald-700">
                     {preview.already_sent_count} previous recipient
                     {preview.already_sent_count === 1 ? "" : "s"} will be
@@ -986,7 +991,7 @@ export function MessagePreviewDialog({
                     queued and will not be queued twice.
                   </p>
                 )}
-                {!targetRecipient && !bulkMode && preview.uncertain_recipient_count > 0 && (
+                {!targetRecipient && !bulkMode && messageType !== "reminder" && preview.uncertain_recipient_count > 0 && (
                   <p className="font-medium text-amber-700">
                     {preview.uncertain_recipient_count} recipient
                     {preview.uncertain_recipient_count === 1
@@ -1022,6 +1027,7 @@ export function MessagePreviewDialog({
         )}
         {!targetRecipient &&
           !bulkMode &&
+          messageType !== "reminder" &&
           preview &&
           eligibleRecipientCount === 0 &&
           preview.already_sent_count === preview.recipient_count && (
@@ -1032,6 +1038,7 @@ export function MessagePreviewDialog({
           )}
         {!targetRecipient &&
           !bulkMode &&
+          messageType !== "reminder" &&
           preview &&
           eligibleRecipientCount === 0 &&
           preview.uncertain_recipient_count > 0 && (
@@ -1050,9 +1057,11 @@ export function MessagePreviewDialog({
           preview.uncertain_recipient_count === 0 &&
           preview.in_progress_count > 0 && (
             <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-700">
-              No new deliveries can be queued: {preview.already_sent_count}{" "}
+              {messageType === "reminder" ? (
+                <>A reminder is still being sent to {preview.in_progress_count} recipient{preview.in_progress_count === 1 ? "" : "s"}. Wait for it to finish, then open Send Reminder again to review and send your next message.</>
+              ) : <>No new deliveries can be queued: {preview.already_sent_count}{" "}
               already sent and {preview.in_progress_count} currently in
-              progress.
+              progress.</>}
             </div>
           )}
         {!previewIsCurrent && !error && (
