@@ -65,6 +65,7 @@ import {
 import { WhatsAppBroadcastSelector } from "./whatsapp-broadcast-selector";
 import { groupWhatsAppEvidenceLabel } from "./whatsapp-match-evidence";
 import { broadcastMatchingSummary } from "./whatsapp-match-field-selector";
+import { matchExplanation } from "./whatsapp-match-description";
 
 type MatchFilter = "all" | GroupWhatsAppMatchStatus;
 
@@ -76,7 +77,7 @@ const MATCH_FILTERS: Array<{
   { value: "all", label: "All records" },
   { value: "submitted", label: "Identified" },
   { value: "not_submitted", label: "Not submitted" },
-  { value: "multiple_submissions", label: "Multiple submissions" },
+  { value: "multiple_submissions", label: "Duplicate uploads" },
   { value: "needs_review", label: "Needs review" },
   {
     value: "unmatched_submission",
@@ -432,8 +433,9 @@ function GroupWhatsAppBroadcastWorkspace({
                   icon={<AlertCircle className="h-4 w-4" aria-hidden="true" />}
                 />
                 <TrackingStat
-                  label="Multiple uploads"
+                  label="Duplicate uploads"
                   value={matchesQuery.data?.counts.multiple_submission_count ?? null}
+                  detail="Recipients with repeated passenger passport details"
                   tone="info"
                   icon={<MessageCircle className="h-4 w-4" aria-hidden="true" />}
                 />
@@ -1446,6 +1448,9 @@ function BroadcastMatchTable({
                                 {linkedSubmissionIds.length > 1
                                   ? ` ${submissionIndex + 1}`
                                   : ""}
+                                {row.duplicate_submission_ids?.includes(submissionId) && (
+                                  <span className="ml-1 rounded bg-amber-50 px-1 text-amber-800">Duplicate</span>
+                                )}
                               </Link>
                             ),
                           )}
@@ -1526,7 +1531,7 @@ function BroadcastMatchTable({
 
 function MatchStatusBadge({ status }: { status: GroupWhatsAppMatchStatus }) {
   if (status === "multiple_submissions") {
-    return <Badge variant="warning">Multiple submissions</Badge>;
+    return <Badge variant="warning">Duplicate uploads</Badge>;
   }
   if (status === "submitted") {
     return <Badge variant="success">Identified</Badge>;
@@ -1717,26 +1722,4 @@ function createRosterRequestId(): string {
     hex.slice(8, 10).join(""),
     hex.slice(10).join(""),
   ].join("-");
-}
-
-function matchExplanation(row: GroupWhatsAppMatch): string {
-  if (row.status === "submitted") {
-    return "Automatically linked using reliable matching details.";
-  }
-  if (row.status === "multiple_submissions") {
-    return "Reliable details link this recipient to more than one upload.";
-  }
-  if (row.status === "needs_review") {
-    return "Some details match, but the result is not unique or strong enough to assign automatically.";
-  }
-  if (row.status === "unmatched_submission") {
-    return "This upload could not be linked reliably to anyone in the selected broadcasts.";
-  }
-  if (row.status === "replacement") {
-    return "This person is going in place of the selected original broadcast recipient.";
-  }
-  if (row.status === "rejected_upload") {
-    return "This unidentified upload was removed from the active list without deleting its saved details.";
-  }
-  return "No submission could be linked reliably to this broadcast recipient.";
 }

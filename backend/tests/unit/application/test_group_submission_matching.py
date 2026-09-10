@@ -88,10 +88,10 @@ def test_family_head_phone_matches_and_multiple_submissions_stay_visible() -> No
 
     rows, counts = compare_group_submissions([recipient], [member, head])
 
-    assert rows[0].status == "multiple_submissions"
+    assert rows[0].status == "submitted"
     assert set(rows[0].submission_ids) == {member.id, head.id}
     assert counts.submitted_count == 1
-    assert counts.multiple_submission_count == 1
+    assert counts.multiple_submission_count == 0
     assert counts.matched_submission_count == 2
 
 
@@ -455,7 +455,7 @@ def test_explicit_empty_matching_policy_fails_closed() -> None:
     assert counts.unmatched_submission_count == 1
 
 
-def test_selected_legacy_named_fields_keep_collision_safety() -> None:
+def test_selected_non_contact_fields_allow_party_without_private_identity() -> None:
     cases = (
         (
             "email",
@@ -486,13 +486,18 @@ def test_selected_legacy_named_fields_keep_collision_safety() -> None:
         rows, counts = compare_group_submissions([recipient], [first, second])
         recipient_row = next(row for row in rows if row.recipient_ids)
 
-        assert recipient_row.status == "needs_review", field_key
-        assert recipient_row.submission_ids == (), field_key
-        assert set(recipient_row.candidate_submission_ids) == {
+        expected_status = "multiple_submissions" if field_key == "passport_number" else "submitted"
+        assert recipient_row.status == expected_status, field_key
+        assert recipient_row.candidate_submission_ids == (), field_key
+        assert set(recipient_row.submission_ids) == {
             first.id,
             second.id,
         }, field_key
-        assert counts.matched_submission_count == 0, field_key
+        assert counts.matched_submission_count == 2, field_key
+        assert all(item.private_identity_confirmed is False for item in recipient_row.match_evidence)
+        assert set(recipient_row.duplicate_submission_ids) == (
+            {first.id, second.id} if field_key == "passport_number" else set()
+        )
 
 
 def test_selected_field_prefers_unique_shared_value_over_lexical_first() -> None:
@@ -545,10 +550,10 @@ def test_selected_shared_email_is_not_private_identity_when_location_assigns() -
     evidence_by_kind = {item.kind: item for item in recipient_row.match_evidence}
 
     assert recipient_row.status == "submitted"
-    assert recipient_row.submission_ids == (identified.id,)
+    assert set(recipient_row.submission_ids) == {identified.id, same_email.id}
     assert evidence_by_kind["email"].private_identity_confirmed is False
     assert evidence_by_kind["location"].private_identity_confirmed is False
-    assert counts.matched_submission_count == 1
+    assert counts.matched_submission_count == 2
 
 
 def test_unique_selected_private_fields_confirm_private_identity() -> None:

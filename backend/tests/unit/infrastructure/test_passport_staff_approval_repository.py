@@ -39,6 +39,7 @@ class PassportStaffApprovalRepositoryTests(unittest.IsolatedAsyncioTestCase):
             )
         )
         self.assertIn("FOR UPDATE", sql)
+        self.assertTrue(statement.get_execution_options()["populate_existing"])
         self.assertIn(str(submission_id), sql)
 
 

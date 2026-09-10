@@ -382,6 +382,7 @@ def build_whatsapp_matches_response(
                     for evidence in row.match_evidence
                 ],
                 candidate_submission_ids=list(row.candidate_submission_ids),
+                duplicate_submission_ids=list(row.duplicate_submission_ids),
                 recipient_fields=[
                     WhatsAppRecipientImportedFieldsResponse(
                         recipient_id=field_set.recipient_id,

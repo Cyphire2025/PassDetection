@@ -200,6 +200,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             select(PassportSubmissionModel)
             .where(PassportSubmissionModel.id == submission_id)
             .with_for_update()
+            .execution_options(populate_existing=True)
         )
         model = result.scalar_one_or_none()
         return self._to_entity(model) if model else None

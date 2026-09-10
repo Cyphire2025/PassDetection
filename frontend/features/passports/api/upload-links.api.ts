@@ -147,6 +147,7 @@ export interface GroupWhatsAppMatch {
   confidence: "high" | "medium" | "none";
   match_evidence: GroupWhatsAppMatchEvidence[];
   candidate_submission_ids: string[];
+  duplicate_submission_ids?: string[];
   recipient_fields: GroupWhatsAppRecipientFields[];
   submission_details: GroupWhatsAppSubmissionDetail[];
   resolution_id: string | null;

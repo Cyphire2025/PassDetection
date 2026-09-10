@@ -6,7 +6,9 @@ import uuid
 from datetime import UTC, datetime, timedelta
 
 from app.application.use_cases.whatsapp.group_submission_matching import (
+    SubmissionMatchRow,
     SubmissionMatchSummary,
+    summarize_match_rows,
 )
 from app.infrastructure.database.models import (
     PassportRosterResolutionModel,
@@ -107,3 +109,23 @@ def test_manual_roster_resolution_rows_preserve_recovery_context_and_pagination(
         "rejected_upload",
     ]
     assert response.matches[0].submission_details[0].name == "Passenger One"
+
+
+def test_duplicate_response_marks_only_repeated_passports_within_a_qualifier_party() -> None:
+    ids = (uuid.uuid4(), uuid.uuid4(), uuid.uuid4())
+    row = SubmissionMatchRow(
+        status="multiple_submissions", match_basis="agent_employee_code",
+        normalized_phone=None, recipient_ids=(uuid.uuid4(),), submission_ids=ids,
+        broadcast_ids=(uuid.uuid4(),), broadcast_names=("Roster",),
+        recipient_names=("Qualifier",), submission_names=("First", "Repeated", "Different"),
+        updated_at=datetime.now(UTC), duplicate_submission_ids=ids[:2],
+    )
+    response = build_whatsapp_matches_response(
+        client_group_id=uuid.uuid4(), selected_broadcast_id=None, linked_broadcast_count=1,
+        counts=summarize_match_rows([row]), page_rows=[row], submissions_by_id={},
+        total=1, page=1, page_size=50,
+    )
+    assert response.matches[0].submission_ids == list(ids)
+    assert response.matches[0].duplicate_submission_ids == list(ids[:2])
+    assert response.counts.matched_submission_count == 3
+    assert response.counts.multiple_submission_count == 1

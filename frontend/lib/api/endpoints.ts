@@ -238,6 +238,7 @@ export const API_ENDPOINTS = {
     staffApprove: (id: string) => `/api/v1/passports/${id}/staff-approve`,
     retryAiVerification: (id: string) => `/api/v1/passports/${id}/retry-ai-verification`,
     clientSubmit: (id: string) => `/api/v1/passports/${id}/client-submit`,
+    clientDetails: (id: string) => `/api/v1/passports/${id}/client-details`,
     reextract: (id: string) => `/api/v1/passports/${id}/reextract`,
     cancelProcessing: (id: string) => `/api/v1/passports/${id}/cancel-processing`,
   },

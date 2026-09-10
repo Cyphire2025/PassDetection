@@ -101,7 +101,7 @@ async def _build_document_delivery_preview(
     ] = {}
     ambiguous_submission_ids: set[uuid.UUID] = set()
     for row in match_rows:
-        if row.status == "multiple_submissions":
+        if row.status == "multiple_submissions" or len(row.submission_ids) > 1:
             ambiguous_submission_ids.update(row.submission_ids)
             continue
         if not is_private_delivery_match(row):

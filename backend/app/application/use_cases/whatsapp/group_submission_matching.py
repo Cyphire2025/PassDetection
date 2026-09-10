@@ -23,6 +23,10 @@ from app.application.use_cases.whatsapp.contact_normalization import (
     clean_whatsapp_name,
     normalize_whatsapp_phone,
 )
+from app.application.use_cases.whatsapp.group_submission_policy import (
+    duplicate_passport_submission_ids,
+    selected_field_value_uniqueness,
+)
 
 _EMAIL_KEYS = frozenset({"email", "email_address", "e_mail", "mail"})
 _PASSPORT_KEYS = frozenset({"passport", "passport_no", "passport_number", "passportnumber"})
@@ -227,6 +231,7 @@ class SubmissionMatchRow:
     candidate_submission_ids: tuple[uuid.UUID, ...] = ()
     recipient_fields: tuple[RecipientFieldSet, ...] = ()
     resolution_id: uuid.UUID | None = None
+    duplicate_submission_ids: tuple[uuid.UUID, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -709,6 +714,7 @@ def _evidence_item(
     submission_values: frozenset[str],
     weight: int,
     preferred_values: frozenset[str] = frozenset(),
+    association_values: frozenset[str] = frozenset(),
     private_identity_kind: bool | None = None,
 ) -> MatchEvidence | None:
     shared = sorted(recipient_values & submission_values)
@@ -717,7 +723,8 @@ def _evidence_item(
     # Evidence stores one representative value. For selected fields, prefer a
     # value that is unique on both sides so the persisted explanation reflects
     # the value that actually made the pair safe to auto-assign.
-    value = next((item for item in shared if item in preferred_values), shared[0])
+    association_value = next((item for item in shared if item in association_values), shared[0])
+    value = next((item for item in shared if item in preferred_values), association_value)
     return MatchEvidence(
         submission_id=submission_id,
         kind=kind,
@@ -741,6 +748,7 @@ def _pair_evidence(
     submission_profile: _IdentityProfile,
     unique_compound_names: frozenset[str],
     unique_selected_values: frozenset[tuple[str, str]],
+    roster_unique_selected_values: frozenset[tuple[str, str]],
 ) -> _PairEvidence | None:
     evidence = [
         item
@@ -804,6 +812,10 @@ def _pair_evidence(
             ),
             weight=_SELECTED_FIELD_EVIDENCE_WEIGHT,
             preferred_values=unique_values,
+            association_values=frozenset(
+                value for value in recipient_values
+                if (field_key, value) in roster_unique_selected_values
+            ),
             private_identity_kind=field_key in _PRIVATE_SELECTED_FIELD_KEYS,
         )
         if item is not None:
@@ -811,9 +823,9 @@ def _pair_evidence(
     if not evidence:
         return None
     # A selected heading may canonicalize to a legacy evidence name such as
-    # ``email`` or ``staff_code``. Determine legacy strength from the dedicated
-    # legacy profiles, not from the display kind, so every configured heading
-    # consistently obeys selected-value uniqueness.
+    # ``email`` or ``staff_code``. Determine legacy strength from its dedicated
+    # profile, not the display kind. Roster association may use roster-only
+    # uniqueness; private evidence above still requires uniqueness on both sides.
     strong = any(
         (
             bool(recipient.profile.phones & submission_profile.phones),
@@ -824,7 +836,10 @@ def _pair_evidence(
     )
     selected = any(
         item.kind in recipient.profile.selected_fields
-        and (item.kind, item.recipient_value) in unique_selected_values
+        and (
+            (item.kind, item.recipient_value) in unique_selected_values
+            or (item.kind, item.recipient_value) in roster_unique_selected_values
+        )
         for item in evidence
     )
     name_intersection = (
@@ -896,33 +911,18 @@ def _submission_evidence_indexes(
     return phones, emails, passports, staff_codes, names, selected_fields
 
 
-def _unique_selected_values(
-    recipients: list[_LogicalRecipient],
-    submission_profiles: list[_IdentityProfile],
-) -> frozenset[tuple[str, str]]:
-    """Return selected values that identify one row on each side.
-
-    Operators may deliberately select low-cardinality columns such as
-    location. OR semantics still applies, but a shared value must not silently
-    assign many submissions to one recipient or one submission to many
-    recipients.
-    """
-
-    recipient_frequency: dict[tuple[str, str], int] = defaultdict(int)
-    submission_frequency: dict[tuple[str, str], int] = defaultdict(int)
-    for recipient in recipients:
-        for field_key, values in recipient.profile.selected_fields.items():
-            for value in values:
-                recipient_frequency[(field_key, value)] += 1
-    for profile in submission_profiles:
-        for field_key, values in profile.selected_fields.items():
-            for value in values:
-                submission_frequency[(field_key, value)] += 1
-    return frozenset(
-        pair
-        for pair, recipient_count in recipient_frequency.items()
-        if recipient_count == 1 and submission_frequency.get(pair) == 1
-    )
+def _duplicate_submission_ids(
+    submissions: list[SubmissionForComparison],
+) -> tuple[uuid.UUID, ...]:
+    identities: list[tuple[uuid.UUID, frozenset[str], str | None]] = []
+    for submission in submissions:
+        fields = _passport_fields(submission)
+        passports = _normalized_values(
+            _mapping_values(fields, _PASSPORT_KEYS), _normalized_identifier,
+        )
+        birth_dates = _normalized_values([fields.get("date_of_birth")], _normalized_date)
+        identities.append((submission.id, passports, next(iter(birth_dates), None)))
+    return duplicate_passport_submission_ids(identities)
 
 
 def _candidate_submission_indexes(
@@ -989,6 +989,7 @@ def _recipient_row(
     submissions: list[SubmissionForComparison],
     matches: list[_PairEvidence],
     candidate_submission_ids: set[uuid.UUID],
+    duplicate_submission_ids: tuple[uuid.UUID, ...] = (),
 ) -> SubmissionMatchRow:
     source_recipients = logical_recipient.recipients
     broadcast_pairs = sorted(
@@ -1044,6 +1045,7 @@ def _recipient_row(
         else "none"
     )
     return SubmissionMatchRow(
+        duplicate_submission_ids=duplicate_submission_ids,
         status=status,
         match_basis=basis,
         normalized_phone=normalized_phone,
@@ -1140,9 +1142,9 @@ def compare_group_submissions(
         logical_recipients,
         submission_profiles,
     )
-    unique_selected = _unique_selected_values(
-        logical_recipients,
-        submission_profiles,
+    unique_selected, roster_unique_selected = selected_field_value_uniqueness(
+        (recipient.profile.selected_fields for recipient in logical_recipients),
+        (profile.selected_fields for profile in submission_profiles),
     )
     evidence_indexes = _submission_evidence_indexes(submission_profiles)
 
@@ -1163,6 +1165,7 @@ def compare_group_submissions(
                 submission_profile=profile,
                 unique_compound_names=unique_names,
                 unique_selected_values=unique_selected,
+                roster_unique_selected_values=roster_unique_selected,
             )
             if pair:
                 pairs.append(pair)
@@ -1211,8 +1214,25 @@ def compare_group_submissions(
         }
         assigned_indexes = {pair.submission_index for pair in assigned}
 
-        contradictory_assignments = len(assigned) > 1 and not _same_identity_basis(assigned)
-        if contradictory_assignments:
+        selected_party = any(
+            item.kind in recipient.profile.selected_fields
+            and (item.kind, item.recipient_value) in roster_unique_selected
+            for pair in assigned for item in pair.evidence
+        )
+        unresolved_selected_candidates = any(
+            pair.submission_index in candidate_indexes
+            and any(
+                item.kind in recipient.profile.selected_fields
+                and item.kind not in {"name", "phone_number"}
+                for item in pair.evidence
+            )
+            for pair in potential
+        )
+        contradictory_assignments = (
+            len(assigned) > 1 and not selected_party and not _same_identity_basis(assigned)
+        )
+        duplicate_ids: tuple[uuid.UUID, ...] = ()
+        if contradictory_assignments or (assigned and unresolved_selected_candidates):
             status = "needs_review"
             candidate_indexes.update(assigned_indexes)
             candidate_submission_indexes.update(assigned_indexes)
@@ -1222,9 +1242,10 @@ def compare_group_submissions(
         elif assigned:
             assigned_submission_indexes.update(assigned_indexes)
             candidate_indexes = set()
-            status = "multiple_submissions" if len(assigned) > 1 else "submitted"
             row_pairs = assigned
             row_submissions = [ordered_submissions[pair.submission_index] for pair in assigned]
+            duplicate_ids = _duplicate_submission_ids(row_submissions)
+            status = "multiple_submissions" if duplicate_ids else "submitted"
         elif potential:
             status = "needs_review"
             candidate_indexes.update(pair.submission_index for pair in potential)
@@ -1245,6 +1266,7 @@ def compare_group_submissions(
                 candidate_submission_ids={
                     ordered_submissions[index].id for index in candidate_indexes
                 },
+                duplicate_submission_ids=duplicate_ids,
             )
         )
 

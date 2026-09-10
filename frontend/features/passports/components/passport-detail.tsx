@@ -59,6 +59,7 @@ import {
 } from "../utils/passport-review";
 import { passportsApi, type PassportImageType } from "../api/passports.api";
 import { canEditPassportImages } from "../utils/passport-image-crop-permissions";
+import { ClientProvidedFieldsCard } from "./client-provided-fields-card";
 import {
   PASSPORT_LIBRARY_IMAGE_ACCEPT,
   validatePassportLibraryImage,
@@ -546,7 +547,7 @@ export function PassportDetail({ id, navigationQuery = "" }: PassportDetailProps
             </CardContent>
           </Card>
 
-          <ClientProvidedFieldsCard passport={data} />
+          <ClientProvidedFieldsCard passport={data} canEdit={canCropPassportImages} />
 
           <ReviewFieldsCard
             key={`${data.id}:${data.extraction_revision}:${data.updated_at}`}
@@ -734,44 +735,6 @@ function readManualImageChangeError(error: unknown): string {
     if (typeof message === "string" && message.trim()) return message;
   }
   return "Could not change this image. Please try again.";
-}
-
-function ClientProvidedFieldsCard({ passport }: { passport: PassportSubmission }) {
-  const fields = passport.confirmed_fields ?? passport.extracted_fields ?? {};
-  const values: Array<[string, string | null | undefined]> = [
-    ["Email entered by client", passport.client_email],
-    ["Phone entered by client", passport.client_phone],
-    [
-      passport.staff_metadata?.agency_dealership_name_label || "Agency/Dealership Name",
-      getStringField(fields, "agency_dealership_name")
-        || getStringField(passport.staff_metadata ?? {}, "agency_dealership_name"),
-    ],
-    ["Nearest International Airport", passport.departure_city],
-    ["Nearest Domestic Airport", passport.nearest_domestic_airport],
-    ["Base City", getStringField(fields, "base_city")],
-    ["Staff Code", prefixedStaffCode(getStringField(fields, "staff_code"))],
-    [passport.staff_metadata?.agent_employee_code_label || "Agent/Employee Code", prefixedAgentEmployeeCode(fields)],
-    ["Meal Preference", getStringField(fields, "meal_preference")],
-    ...(passport.custom_answers ?? []).map(
-      (answer): [string, string] => [answer.label, answer.value],
-    ),
-  ];
-  const visibleValues = values.filter(
-    (item): item is [string, string] => Boolean(item[1]),
-  );
-
-  if (visibleValues.length === 0) return null;
-
-  return (
-    <Card className="rounded-3xl">
-      <CardContent className="p-5">
-        <h3 className="font-semibold text-slate-900">Client-provided group details</h3>
-        <div className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm sm:grid-cols-2">
-          {visibleValues.map(([label, value]) => <MetaItem key={label} label={label} value={value} />)}
-        </div>
-      </CardContent>
-    </Card>
-  );
 }
 
 function formatQrStatus(status: string) {
@@ -1423,22 +1386,6 @@ function getWorkflowStatusMessage(status: PassportSubmission["status"]) {
 function getStringField(fields: ExtractedPassportFields, key: string) {
   const value = fields[key];
   return typeof value === "string" ? value : "";
-}
-
-function prefixedStaffCode(value: string) {
-  if (!value) return "";
-  const normalized = value.trim();
-  const prefixed = normalized.match(/^STF[_\-\s]+(.+)$/i);
-  return prefixed ? `STF_${prefixed[1]}` : `STF_${normalized}`;
-}
-
-function prefixedAgentEmployeeCode(fields: ExtractedPassportFields) {
-  const personType = getStringField(fields, "agent_employee_type").toLowerCase();
-  const code = getStringField(fields, "agent_employee_code");
-  if (!code) return "";
-  if (personType === "agent") return `AGT_${code}`;
-  if (personType === "employee") return `EMP_${code}`;
-  return code;
 }
 
 function getExtractionConflicts(passport: PassportSubmission): PassportExtractionConflict[] {

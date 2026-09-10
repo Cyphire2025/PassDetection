@@ -134,6 +134,8 @@ _ROUTE_SIGNATURES = (
     (("DELETE",), "/{submission_id}/images/{image_type}/crop", "reset_passport_image_crop"),
     (("GET",), "/{submission_id}/covers/{cover_type}", "get_passport_cover"),
     (("GET",), "/{submission_id}", "get_passport"),
+    (("GET",), "/{submission_id}/client-details", "get_passport_client_details"),
+    (("PATCH",), "/{submission_id}/client-details", "update_passport_client_details"),
     (("POST",), "/{submission_id}/client-submit", "client_submit_passport"),
     (("POST",), "/{submission_id}/staff-approve", "staff_approve_passport"),
     (
@@ -181,7 +183,7 @@ _EXPORT_FACADE_NAMES = (
 )
 
 
-def test_passport_router_keeps_the_pre_decomposition_contract_and_order() -> None:
+def test_passport_router_keeps_existing_routes_and_registers_additions_in_order() -> None:
     actual = tuple(
         (tuple(sorted(route.methods or ())), route.path, route.name)
         for route in passports.router.routes

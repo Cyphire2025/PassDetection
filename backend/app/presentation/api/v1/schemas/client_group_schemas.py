@@ -483,6 +483,7 @@ class WhatsAppSubmissionMatchRowResponse(BaseModel):
     confidence: Literal["high", "medium", "none"] = "none"
     match_evidence: list[WhatsAppSubmissionMatchEvidenceResponse] = Field(default_factory=list)
     candidate_submission_ids: list[uuid.UUID] = Field(default_factory=list)
+    duplicate_submission_ids: list[uuid.UUID] = Field(default_factory=list)
     recipient_fields: list[WhatsAppRecipientImportedFieldsResponse] = Field(default_factory=list)
     submission_details: list[WhatsAppSubmissionDetailResponse] = Field(default_factory=list)
     resolution_id: uuid.UUID | None = None

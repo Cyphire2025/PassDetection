@@ -5,11 +5,24 @@ import { describe, expect, it, vi } from "vitest";
 import { QUERY_KEYS } from "@/constants";
 import { uploadLinksApi, type UploadLinkResponse, type UpdateUploadLinkRequest } from "../api/upload-links.api";
 import { DEFAULT_UPLOAD_CONFIGURATION } from "../types/upload-configuration";
-import { useUpdateUploadLink } from "./use-upload-links";
+import { useUpdateGroupWhatsAppLinks, useUpdateUploadLink } from "./use-upload-links";
 
-vi.mock("../api/upload-links.api", () => ({ uploadLinksApi: { update: vi.fn() } }));
+vi.mock("../api/upload-links.api", () => ({ uploadLinksApi: { update: vi.fn(), updateWhatsAppLinks: vi.fn() } }));
 
 describe("saved upload-link settings", () => {
+  it("invalidates the broadcast roster after changing identification fields", async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
+    const rosterKey = ["whatsapp", "groups", "broadcast-1", "recipient-roster"];
+    client.setQueryData(rosterKey, { items: [{ kind: "unidentified" }] });
+    vi.mocked(uploadLinksApi.updateWhatsAppLinks).mockResolvedValue({
+      client_group_id: "trip", broadcasts: [], broadcast_count: 1, recipient_count: 1, can_manage: true,
+    });
+    const wrapper = ({ children }: { children: ReactNode }) => <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+    const { result } = renderHook(() => useUpdateGroupWhatsAppLinks("trip"), { wrapper });
+    await act(() => result.current.mutateAsync({ whatsappBroadcastGroupIds: ["broadcast-1"], matchingFieldsByBroadcast: { "broadcast-1": ["producer_code"] } }));
+    expect(client.getQueryState(rosterKey)?.isInvalidated).toBe(true);
+  });
+
   it("refreshes the trip editor's summary immediately, preserving roster counts", async () => {
     const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
     client.setQueryData(QUERY_KEYS.passports.groups(), [{ group_id: "trip", group_name: "Old name", group_status: "active", total_passports: 12 }]);

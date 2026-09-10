@@ -10,6 +10,10 @@ const hooksSource = readFileSync(
   new URL("../hooks/use-passports.ts", import.meta.url),
   "utf8",
 );
+const clientDetailsSource = readFileSync(
+  new URL("./client-provided-fields-card.tsx", import.meta.url),
+  "utf8",
+);
 
 test("manual approval sends the rendered revision and optional reason", () => {
   assert.match(
@@ -87,12 +91,10 @@ test("a replaced passport never displays its stale AI approval", () => {
 });
 
 test("client-provided details show the submitted email, phone, and agency name", () => {
-  assert.match(source, /\["Email entered by client", passport\.client_email\]/);
-  assert.match(source, /\["Phone entered by client", passport\.client_phone\]/);
-  assert.match(
-    source,
-    /"Agency\/Dealership Name",[\s\S]*?getStringField\(fields, "agency_dealership_name"\)[\s\S]*?getStringField\(passport\.staff_metadata \?\? \{\}, "agency_dealership_name"\)/,
-  );
+  assert.match(source, /<ClientProvidedFieldsCard passport=\{data\}/);
+  assert.match(clientDetailsSource, /label: "Email entered by client", value: passport\.client_email/);
+  assert.match(clientDetailsSource, /label: "Phone entered by client", value: passport\.client_phone/);
+  assert.match(clientDetailsSource, /agency_dealership_name_label \|\| "Agency\/Dealership Name", value: text\("agency_dealership_name"\)/);
 });
 
 test("individual review fields prefill imported confirmed passport dates", () => {

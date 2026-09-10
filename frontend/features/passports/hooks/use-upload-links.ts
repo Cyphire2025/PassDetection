@@ -106,6 +106,9 @@ export function useUpdateUploadLink() {
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all }),
         queryClient.invalidateQueries({ queryKey: DASHBOARD_QUERY_KEYS.passports.groups() }),
         queryClient.invalidateQueries({ queryKey: ["passport-export-fields", variables.id] }),
+        ...(variables.matching_fields_by_broadcast !== undefined || variables.whatsapp_broadcast_group_ids !== undefined
+          ? [queryClient.invalidateQueries({ queryKey: ["whatsapp"] })]
+          : []),
       ]);
     },
   });
@@ -148,6 +151,7 @@ export function useUpdateGroupWhatsAppLinks(id: string) {
     onSuccess: (response) => {
       queryClient.setQueryData(QUERY_KEYS.whatsappLinks(id), response);
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["whatsapp"] });
       queryClient.invalidateQueries({
         queryKey: ["upload-links", id, "whatsapp-matches"],
       });

@@ -29,11 +29,28 @@ placeholder values are not identity evidence. Corrected submission fields take
 precedence over stale extracted values. This is identity matching, not fuzzy text
 search.
 
-Conflicting or shared identity evidence stays in **Needs review** rather than
-being assigned to the wrong person. Staff should prefer specific identifiers over
+Evidence that points to competing roster recipients stays in **Needs review**
+rather than being assigned to the wrong person. Staff should prefer specific identifiers over
 common values such as a shared location. Linked copies of the same normalized
 WhatsApp phone are treated as one logical recipient, preserving existing roster
 behavior across broadcasts.
+
+A selected field other than name or phone can identify several travellers under
+one qualifier when its value belongs to just one logical roster recipient. It does
+not need to occur in only one upload. For example, a qualifier and a travelling
+family member may share a producer code while keeping their own names, phone
+numbers, and passports. Both stay **Identified**. Values that point to different
+roster recipients remain reviewable; matching candidates are never silently
+discarded just because that recipient already has an identified upload.
+
+**Duplicate uploads** is separate from sharing a qualifier. A repeated normalized
+passport number with no conflicting known birth dates flags repeated passenger
+uploads. Distinct passports or missing passport evidence do not create duplicate
+flags merely because selected details match. On a row containing both duplicates
+and other travellers, only the affected links carry a Duplicate badge. The
+backwards-compatible API status remains `multiple_submissions`, with
+`duplicate_submission_ids` identifying the affected uploads. No record is deleted
+or merged by this classification.
 
 Roster identification is separate from authorization to deliver private items.
 Name, location, producer code, or other newly configurable evidence alone does not
@@ -47,6 +64,32 @@ Existing links with no saved selection retain legacy smart matching. Editing an
 unrelated link setting does not silently change their matching policy. New
 explicit policies are stored per broadcast/upload-group link, not globally on the
 broadcast.
+
+## Correcting client-provided details
+
+Authorized staff can use **Edit** on the passport detail page's **Client-provided
+group details** card. The editor covers saved contact and professional fields,
+airports, meal preferences, and custom question/detail answers using the saved
+labels and configured options. Only changed values are sent; custom fields retain
+their stable IDs and cannot have their labels rewritten through this endpoint.
+
+Matching remains exact: `AIG12345` does not automatically equal `12345`. Staff can
+correct such an entry deliberately. Saving refreshes the submission, roster
+tracking, and reminder-related caches. The backend re-evaluates matches from the
+corrected data; no re-upload or bulk backfill is required.
+
+GET/PATCH `/api/v1/passports/{id}/client-details` are authorized and tenant scoped.
+PATCH checks `expected_updated_at` under a row lock and rejects stale edits with
+HTTP 409. Corrections, the changed-field audit, and mobile invalidation are saved
+atomically. Passport documents, approval status, and verification revisions are
+preserved; saving does not send messages or enqueue passport verification.
+
+Corrections reuse the private-delivery identity-change guard. Queued private
+document/QR deliveries in the affected group are cancelled transactionally and
+need a fresh preview before resending. Processing or unknown-outcome private
+deliveries block the correction with HTTP 409. Ordinary reminders and welcome
+messages are not cancelled by this operation. A no-op correction does not change
+timestamps, write an audit, or cancel queued private deliveries.
 
 ## Reminder safeguards
 
@@ -86,7 +129,10 @@ real XLSX parsing, saved per-link policy, producer-code-only identification from
 three submission sources, both reminder audiences, and a submission arriving
 between preview and a later audience resolution.
 
-## Verification recorded for this change
+The shared-qualifier, duplicate-classification, and client-details correction
+changes need no additional database migration beyond revision 0092.
+
+## Verification recorded for the original configurable-matching release
 
 - Full backend regression run: 2,960 passed, 16 skipped, 131 subtests passed.
 - Frontend unit tests: 343 passed across 67 files.
@@ -100,3 +146,25 @@ between preview and a later audience resolution.
 These are local automated checks, including database-backed tests; they are not
 a live WhatsApp provider test or a production deployment. No real messages were
 sent and no production database migration was performed.
+
+## Verification recorded for shared qualifiers and client-details corrections
+
+- Full backend regression run: 3,028 passed, 16 skipped, 131 subtests passed.
+- Frontend unit tests: 361 passed across 70 files.
+- Frontend Node contract tests: 713 passed.
+- Three isolated Playwright scenarios passed: desktop and mobile corrections,
+  plus cancellation and stale-save handling. Screenshots were visually reviewed;
+  unexpected API calls and browser/React errors fail the tests.
+- The database-backed matching/reminder regression covers one or two travellers
+  sharing a producer code, three answer sources, and a manually corrected prefix.
+- Optimized frontend production build, TypeScript, backend mypy (560 source
+  files), changed-file Ruff/ESLint, whitespace checks, and existing backend/frontend
+  maintainability budgets passed without increasing their limits.
+- Route tests cover authorization, tenant isolation, cookie CSRF wiring, fresh
+  locked reads, stale timestamps, private-delivery mutation guards, no-op edits,
+  and rollback of correction/audit/mobile invalidation failures.
+
+Browser tests use synthetic intercepted API responses, and database-backed tests
+use isolated SQLite fixtures. Locking and concurrency contracts are tested; this
+is not a live PostgreSQL contention test, production-data audit, deployment, or
+WhatsApp provider send.

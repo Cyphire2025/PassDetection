@@ -136,6 +136,13 @@ test("comparison rows are paginated while aggregate counts remain visible", () =
   );
 });
 
+test("duplicate uploads are distinguished from different travellers sharing qualifier details", () => {
+  assert.match(api, /duplicate_submission_ids\?: string\[\]/);
+  assert.match(panel, /label: "Duplicate uploads"/);
+  assert.match(panel, /duplicate_submission_ids\?\.includes\(submissionId\)/);
+  assert.match(panel, /Recipients with repeated passenger passport details/);
+});
+
 test("manage actions follow backend authorization instead of inferred roles", () => {
   assert.match(api, /can_manage: boolean/);
   assert.match(panel, /const canManage = Boolean\(links\?\.can_manage\)/);

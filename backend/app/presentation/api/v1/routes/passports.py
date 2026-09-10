@@ -14,6 +14,7 @@ from app.infrastructure.imports.passport_excel_importer import (
 
 from .passport_routes import (
     bulk_actions,
+    client_details,
     covers,
     document_import,
     excel_exports,
@@ -429,6 +430,8 @@ _ROUTE_ORDER = (
     "reset_passport_image_crop",
     "get_passport_cover",
     "get_passport",
+    "get_passport_client_details",
+    "update_passport_client_details",
     "client_submit_passport",
     "staff_approve_passport",
     "retry_post_submission_verification",
@@ -440,6 +443,7 @@ _ROUTE_ORDER = (
 router = APIRouter()
 for _module in (
     bulk_actions,
+    client_details,
     covers,
     document_import,
     excel_exports,
