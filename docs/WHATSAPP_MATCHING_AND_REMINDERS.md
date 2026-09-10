@@ -168,3 +168,29 @@ Browser tests use synthetic intercepted API responses, and database-backed tests
 use isolated SQLite fixtures. Locking and concurrency contracts are tested; this
 is not a live PostgreSQL contention test, production-data audit, deployment, or
 WhatsApp provider send.
+
+## Client-details save regression: PostgreSQL targeted matching
+
+The PostgreSQL-only targeted matching loader used an invalid SQLAlchemy
+`not_in_` method in its recipient and submission exclusion queries. Client-detail
+corrections could therefore raise an `AttributeError` before commit while
+reconciling GC App passenger identity. Both queries now use `not_in`.
+
+SQLite takes the full-matcher fallback and did not expose this defect; the earlier
+route tests also mocked the propagation helper. The added HTTP transaction test
+uses real repositories, audit persistence, identity propagation, and response
+building. It covers GC passenger access enabled/disabled and unlinked, legacy,
+and explicitly configured broadcasts. Against PostgreSQL it also retains an
+existing active QR token. Set `CLIENT_DETAILS_TEST_DATABASE_URL` to an isolated
+local PostgreSQL database to run that variant; the fixture creates and removes
+only its own unique test schema. Six scenarios were verified on PostgreSQL 18.3.
+Additional SQL-construction regressions cover both exclusion queries across
+multiple rounds while retaining tenant scope and cluster limits.
+
+After the correction, the full backend suite passed: 3,036 tests, 16 skipped,
+and 131 subtests. Strict mypy, scoped Ruff checks, and backend quality budgets
+also passed. The isolated PostgreSQL test cluster was stopped after verification.
+
+This is a backend query correction, with no schema or frontend change required.
+Production causation must still be confirmed against the failing request's
+server traceback; a browser HTTP 500 alone does not identify its exception.

@@ -370,7 +370,7 @@ async def load_targeted_unresolved_passport_whatsapp_match_context(
             )
             if recipient_models:
                 recipient_statement = recipient_statement.where(
-                    WhatsAppBroadcastRecipientModel.id.not_in_(tuple(recipient_models))
+                    WhatsAppBroadcastRecipientModel.id.not_in(tuple(recipient_models))
                 )
             recipient_candidates = list(
                 (await session.execute(recipient_statement.limit(max_cluster_size + 1))).scalars()
@@ -398,7 +398,7 @@ async def load_targeted_unresolved_passport_whatsapp_match_context(
         )
         if submission_models:
             submission_statement = submission_statement.where(
-                PassportSubmissionModel.id.not_in_(tuple(submission_models))
+                PassportSubmissionModel.id.not_in(tuple(submission_models))
             )
         submission_candidates = list(
             (await session.execute(submission_statement.limit(max_cluster_size + 1))).scalars()
