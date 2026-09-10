@@ -47,6 +47,7 @@ import type {
   GroupWhatsAppMatch,
   GroupWhatsAppMatchStatus,
   GroupWhatsAppSubmissionDetail,
+  LinkedWhatsAppBroadcast,
   ReplacementCandidate,
 } from "../api/upload-links.api";
 import {
@@ -62,6 +63,8 @@ import {
   useUpdateGroupWhatsAppLinks,
 } from "../hooks/use-upload-links";
 import { WhatsAppBroadcastSelector } from "./whatsapp-broadcast-selector";
+import { groupWhatsAppEvidenceLabel } from "./whatsapp-match-evidence";
+import { broadcastMatchingSummary } from "./whatsapp-match-field-selector";
 
 type MatchFilter = "all" | GroupWhatsAppMatchStatus;
 
@@ -291,9 +294,12 @@ function GroupWhatsAppBroadcastWorkspace({
                   {links?.broadcasts.map((broadcast) => (
                     <span
                       key={broadcast.id}
-                      className="rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-sm font-semibold text-emerald-900"
+                      className="inline-flex max-w-full flex-col rounded-xl border border-emerald-200 bg-white px-3 py-1.5 text-emerald-900"
                     >
-                      {broadcast.name}
+                      <span className="truncate text-sm font-semibold">{broadcast.name}</span>
+                      <span className="truncate text-[11px] font-medium text-emerald-700">
+                        {broadcastMatchingSummary(broadcast)}
+                      </span>
                     </span>
                   ))}
                 </div>
@@ -317,9 +323,7 @@ function GroupWhatsAppBroadcastWorkspace({
         {isManaging && (
           <ManageBroadcastsDialog
             groupId={groupId}
-            initialIds={
-              links?.broadcasts.map((broadcast) => broadcast.id) ?? []
-            }
+            initialBroadcasts={links?.broadcasts ?? []}
             onClose={() => setIsManaging(false)}
           />
         )}
@@ -341,10 +345,9 @@ function GroupWhatsAppBroadcastWorkspace({
                   WhatsApp broadcast tracking
                 </h2>
                 <p className="mt-1 text-sm leading-6 text-slate-600">
-                  Imported phone numbers, emails, passport numbers, staff codes,
-                  names entered in the form, and names read from passports are
-                  compared together. Uncertain matches are kept for review
-                  instead of being guessed.
+                  Each recipient is identified when any selected spreadsheet field
+                  matches a submitted value. If a value is ambiguous, it stays in
+                  Needs review instead of being guessed.
                 </p>
               </div>
             </div>
@@ -382,9 +385,14 @@ function GroupWhatsAppBroadcastWorkspace({
                   {links?.broadcasts.map((broadcast) => (
                     <span
                       key={broadcast.id}
-                      className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm text-emerald-900"
+                      className="inline-flex max-w-full items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm text-emerald-900"
                     >
-                      <span className="font-medium">{broadcast.name}</span>
+                      <span className="min-w-0">
+                        <span className="block truncate font-medium">{broadcast.name}</span>
+                        <span className="block truncate text-[11px] text-emerald-700">
+                          {broadcastMatchingSummary(broadcast)}
+                        </span>
+                      </span>
                       <span className="text-xs text-emerald-700">
                         {broadcast.recipient_count.toLocaleString()}
                       </span>
@@ -649,7 +657,7 @@ function GroupWhatsAppBroadcastWorkspace({
       {isManaging && (
         <ManageBroadcastsDialog
           groupId={groupId}
-          initialIds={links?.broadcasts.map((broadcast) => broadcast.id) ?? []}
+          initialBroadcasts={links?.broadcasts ?? []}
           onClose={() => setIsManaging(false)}
         />
       )}
@@ -1040,15 +1048,25 @@ function ReplacementDialog({
 
 function ManageBroadcastsDialog({
   groupId,
-  initialIds,
+  initialBroadcasts,
   onClose,
 }: {
   groupId: string;
-  initialIds: string[];
+  initialBroadcasts: LinkedWhatsAppBroadcast[];
   onClose: () => void;
 }) {
   const titleId = useId();
+  const initialIds = initialBroadcasts.map((broadcast) => broadcast.id);
   const [selectedIds, setSelectedIds] = useState<string[]>(() => [...initialIds]);
+  const [selectedMatchingFields, setSelectedMatchingFields] = useState<Record<string, string[]>>(
+    () => Object.fromEntries(
+      initialBroadcasts.flatMap((broadcast) => (
+        broadcast.matching_field_keys && broadcast.matching_field_keys.length > 0
+          ? [[broadcast.id, [...broadcast.matching_field_keys]]]
+          : []
+      )),
+    ),
+  );
   const [saveError, setSaveError] = useState<string | null>(null);
   const [confirmUnlinkAll, setConfirmUnlinkAll] = useState(false);
   const updateLinks = useUpdateGroupWhatsAppLinks(groupId);
@@ -1068,7 +1086,18 @@ function ManageBroadcastsDialog({
 
   const saveLinks = () => {
     setSaveError(null);
-    updateLinks.mutate(selectedIds, {
+    const matchingFieldsByBroadcast = Object.fromEntries(
+      selectedIds.flatMap((broadcastId) => {
+        const fields = selectedMatchingFields[broadcastId];
+        return fields && fields.length > 0
+          ? [[broadcastId, fields]]
+          : [];
+      }),
+    );
+    updateLinks.mutate({
+      whatsappBroadcastGroupIds: selectedIds,
+      matchingFieldsByBroadcast,
+    }, {
       onSuccess: onClose,
       onError: () => setSaveError(
         "The WhatsApp broadcasts could not be linked. Try again.",
@@ -1110,6 +1139,8 @@ function ManageBroadcastsDialog({
           <WhatsAppBroadcastSelector
             selectedIds={selectedIds}
             onChange={setSelectedIds}
+            selectedMatchingFields={selectedMatchingFields}
+            onMatchingFieldsChange={setSelectedMatchingFields}
             disabled={updateLinks.isPending}
             groupId={groupId}
           />
@@ -1376,7 +1407,7 @@ function BroadcastMatchTable({
                           key={kind}
                           className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-medium text-slate-600"
                         >
-                          {evidenceLabel(kind)}
+                          {groupWhatsAppEvidenceLabel(kind, row)}
                         </span>
                       ))}
                     </div>
@@ -1525,20 +1556,6 @@ function fieldLabel(value: string): string {
     .filter(Boolean)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
-}
-
-function evidenceLabel(
-  value: GroupWhatsAppMatch["match_evidence"][number]["kind"],
-): string {
-  const labels = {
-    phone: "Phone number",
-    email: "Email",
-    passport_number: "Passport number",
-    staff_code: "Staff code",
-    entered_name: "Name entered in form",
-    passport_name: "Name read from passport",
-  };
-  return labels[value];
 }
 
 function uniqueEvidenceKinds(

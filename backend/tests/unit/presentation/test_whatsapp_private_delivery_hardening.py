@@ -113,3 +113,83 @@ def test_qr_private_delivery_never_selects_first_shared_phone_passenger() -> Non
 
     assert matched == {}
     assert ambiguous == {passenger.id for passenger in passengers}
+
+
+def test_qr_private_delivery_rejects_configured_generic_answer_match() -> None:
+    agency_id = uuid.uuid4()
+    broadcast_id = uuid.uuid4()
+    recipient = WhatsAppBroadcastRecipientModel(
+        id=uuid.uuid4(),
+        agency_id=agency_id,
+        broadcast_group_id=broadcast_id,
+        name="Roster Name",
+        phone_number="+919222222222",
+        normalized_phone_number="+919222222222",
+        imported_fields={"Producer Code": "PR-42"},
+        created_at=NOW,
+    )
+    passenger = PassportSubmissionModel(
+        id=uuid.uuid4(),
+        agency_id=agency_id,
+        group_id=uuid.uuid4(),
+        client_name="Submitted Name",
+        client_phone="+919111111111",
+        image_s3_key="private-test/configured.jpg",
+        status="confirmed",
+        confirmed_fields={},
+        extracted_fields={},
+        staff_metadata={},
+        custom_answers=[{"label": "Producer Code", "value": "PR-42"}],
+        custom_detail_answers=[],
+        created_at=NOW,
+        updated_at=NOW,
+    )
+
+    matched, ambiguous = _matched_recipients(
+        submissions=[passenger],
+        recipients=[recipient],
+        linked_broadcasts={broadcast_id: "Configured list"},
+        matching_fields_by_broadcast={broadcast_id: ("producer_code",)},
+    )
+
+    assert ambiguous == set()
+    assert matched == {}
+
+
+def test_qr_private_delivery_accepts_configured_phone_match() -> None:
+    agency_id = uuid.uuid4()
+    broadcast_id = uuid.uuid4()
+    recipient = WhatsAppBroadcastRecipientModel(
+        id=uuid.uuid4(),
+        agency_id=agency_id,
+        broadcast_group_id=broadcast_id,
+        name="Roster Name",
+        phone_number="+919222222222",
+        normalized_phone_number="+919222222222",
+        imported_fields={"Mobile": "+919222222222"},
+        created_at=NOW,
+    )
+    passenger = PassportSubmissionModel(
+        id=uuid.uuid4(),
+        agency_id=agency_id,
+        group_id=uuid.uuid4(),
+        client_name="Submitted Name",
+        client_phone="+919222222222",
+        image_s3_key="private-test/configured-phone.jpg",
+        status="confirmed",
+        confirmed_fields={},
+        extracted_fields={},
+        staff_metadata={},
+        created_at=NOW,
+        updated_at=NOW,
+    )
+
+    matched, ambiguous = _matched_recipients(
+        submissions=[passenger],
+        recipients=[recipient],
+        linked_broadcasts={broadcast_id: "Configured list"},
+        matching_fields_by_broadcast={broadcast_id: ("phone_number",)},
+    )
+
+    assert ambiguous == set()
+    assert matched == {passenger.id: (recipient, "Configured list")}

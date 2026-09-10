@@ -15,6 +15,9 @@ from app.application.use_cases.whatsapp.group_submission_matching import (
     SubmissionForComparison,
     compare_group_submissions,
 )
+from app.application.use_cases.whatsapp.private_delivery_identity import (
+    is_private_delivery_match,
+)
 from app.domain.entities.entities import OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
 from app.infrastructure.database.models import (
     ClientGroupModel,
@@ -25,10 +28,11 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
 )
-
-PRIVATE_DELIVERY_ACTIVE_STATUSES = frozenset(
-    {"queued", "processing", "delivery_unknown"}
+from app.infrastructure.repositories.passport_whatsapp_matching_repository import (
+    matching_field_keys_from_storage,
 )
+
+PRIVATE_DELIVERY_ACTIVE_STATUSES = frozenset({"queued", "processing", "delivery_unknown"})
 PRIVATE_DELIVERY_MUTATION_BLOCKED = (
     "A private WhatsApp delivery is already in progress or has an unknown "
     "outcome. Review it before changing recipients or linked broadcasts."
@@ -56,9 +60,7 @@ class PrivateDeliveryGroupSourceSnapshot:
     agency_id: uuid.UUID
     group_id: uuid.UUID
     group_name: str
-    allowed_destinations: frozenset[
-        tuple[uuid.UUID, uuid.UUID, uuid.UUID, str]
-    ]
+    allowed_destinations: frozenset[tuple[uuid.UUID, uuid.UUID, uuid.UUID, str]]
 
     def allows(
         self,
@@ -127,8 +129,13 @@ async def lock_private_delivery_group_source_snapshot(
         .order_by(ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id)
         .with_for_update()
     )
+    linked_rows = linked_result.all()
     locked_broadcasts: dict[uuid.UUID, WhatsAppBroadcastGroupModel] = {
-        broadcast.id: broadcast for _link, broadcast in linked_result.all()
+        broadcast.id: broadcast for _link, broadcast in linked_rows
+    }
+    matching_fields_by_broadcast: dict[uuid.UUID, tuple[str, ...] | None] = {
+        broadcast.id: matching_field_keys_from_storage(link.matching_field_keys)
+        for link, broadcast in linked_rows
     }
     eligible_broadcasts: dict[uuid.UUID, str] = {
         broadcast_id: broadcast.name
@@ -142,9 +149,7 @@ async def lock_private_delivery_group_source_snapshot(
             select(WhatsAppBroadcastRecipientModel)
             .where(
                 WhatsAppBroadcastRecipientModel.agency_id == agency_id,
-                WhatsAppBroadcastRecipientModel.broadcast_group_id.in_(
-                    list(locked_broadcasts)
-                ),
+                WhatsAppBroadcastRecipientModel.broadcast_group_id.in_(list(locked_broadcasts)),
             )
             .order_by(
                 WhatsAppBroadcastRecipientModel.broadcast_group_id,
@@ -178,6 +183,7 @@ async def lock_private_delivery_group_source_snapshot(
             phone=recipient.normalized_phone_number,
             updated_at=recipient.created_at,
             imported_fields=dict(recipient.imported_fields or {}),
+            matching_field_keys=matching_fields_by_broadcast.get(recipient.broadcast_group_id),
         )
         for recipient in recipient_rows
         if (
@@ -198,6 +204,13 @@ async def lock_private_delivery_group_source_snapshot(
             confirmed_fields=dict(submission.confirmed_fields or {}),
             extracted_fields=dict(submission.extracted_fields or {}),
             staff_metadata=dict(submission.staff_metadata or {}),
+            custom_answers=tuple(submission.custom_answers or ()),
+            custom_detail_answers=tuple(submission.custom_detail_answers or ()),
+            departure_city=submission.departure_city,
+            nearest_domestic_airport=submission.nearest_domestic_airport,
+            family_relation=submission.family_relation,
+            family_gender=submission.family_gender,
+            family_head_name=submission.family_head_name,
         )
         for submission in submissions
     ]
@@ -209,7 +222,7 @@ async def lock_private_delivery_group_source_snapshot(
     recipients_by_id = {recipient.id: recipient for recipient in recipient_rows}
     allowed_destinations: set[tuple[uuid.UUID, uuid.UUID, uuid.UUID, str]] = set()
     for row in rows:
-        if row.status != "submitted" or len(row.submission_ids) != 1:
+        if not is_private_delivery_match(row):
             continue
         passenger_id = row.submission_ids[0]
         for matched_recipient_id in row.recipient_ids:
@@ -300,12 +313,8 @@ async def prepare_private_delivery_identity_mutation(
             PassengerQrWhatsAppDeliveryModel.broadcast_group_id.in_(broadcast_group_ids)
         )
     if recipient_ids is not None:
-        document_predicates.append(
-            DocumentWhatsAppDeliveryModel.recipient_id.in_(recipient_ids)
-        )
-        qr_predicates.append(
-            PassengerQrWhatsAppDeliveryModel.recipient_id.in_(recipient_ids)
-        )
+        document_predicates.append(DocumentWhatsAppDeliveryModel.recipient_id.in_(recipient_ids))
+        qr_predicates.append(PassengerQrWhatsAppDeliveryModel.recipient_id.in_(recipient_ids))
     document_result = await session.execute(
         select(DocumentWhatsAppDeliveryModel)
         .where(*document_predicates)

@@ -419,6 +419,8 @@ export function WhatsAppPage() {
             headerImageId,
             recipientIds,
             supportContactIds,
+            reminderAudience,
+            reminderAudienceClientGroupId,
           }) => {
             const startedAt = Date.now();
             const result =
@@ -435,6 +437,8 @@ export function WhatsAppPage() {
                       groupId: messageTarget.group.id,
                       messageContent,
                       recipientIds,
+                      audience: reminderAudience ?? "all",
+                      audienceClientGroupId: reminderAudienceClientGroupId ?? null,
                     })
                   : await sendPassportLink.mutateAsync({
                     groupId: messageTarget.group.id,

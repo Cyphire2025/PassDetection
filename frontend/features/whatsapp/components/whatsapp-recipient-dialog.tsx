@@ -186,6 +186,7 @@ export function RecipientListDialog({
     importState,
     previewFile,
     rejectedContacts,
+    importedFieldKeys,
     resetImport,
   } = useRecipientExcelPreview({
     contacts,
@@ -310,6 +311,7 @@ export function RecipientListDialog({
         rejectedContacts: toRejectedContactInputs(rejectedContacts),
         recipientOptInConfirmed:
           contacts.length > 0 && recipientOptInConfirmed,
+        importedFieldKeys,
       });
       const savedRejectedCount = rejectedContacts.length;
       setContacts([]);

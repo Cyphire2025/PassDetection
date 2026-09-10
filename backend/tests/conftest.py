@@ -72,6 +72,10 @@ async def db_session() -> AsyncSession:
 
     async with session_factory() as session:
         await register_sqlite_trip_timezone(session)
+        # Registering the SQLite compatibility function acquires a connection
+        # and triggers SQLAlchemy's autobegin. Tests must receive a pristine
+        # session so they can deliberately open their own outer transaction.
+        await session.rollback()
         yield session
 
     async with engine.begin() as conn:

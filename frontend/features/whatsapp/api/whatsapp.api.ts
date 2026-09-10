@@ -135,17 +135,31 @@ export interface WhatsAppBroadcastGroup {
   /** Complete visible roster: valid recipients plus rejected import rows. */
   total_contact_count: number;
   recipient_opt_in_confirmed: boolean;
+  available_matching_fields?: WhatsAppMatchingFieldOption[];
   created_at: string;
   updated_at: string;
+}
+
+export interface WhatsAppMatchingFieldOption {
+  key: string;
+  label: string;
+}
+
+export interface WhatsAppLinkedClientGroup {
+  id: string;
+  name: string;
+  status: string;
 }
 
 export interface WhatsAppBroadcastGroupDetail extends WhatsAppBroadcastGroup {
   recipients: WhatsAppRecipient[];
   support_contacts: WhatsAppSupportContact[];
   rejected_contact_count: number;
+  linked_client_groups?: WhatsAppLinkedClientGroup[];
 }
 
 export type WhatsAppMessageType = "welcome" | "passport_link" | "reminder";
+export type WhatsAppReminderAudience = "all" | "not_submitted";
 
 export interface WhatsAppMessageDraft {
   message_type: WhatsAppMessageType;
@@ -157,6 +171,8 @@ export interface WhatsAppMessageDraft {
   header_image_id?: string | null;
   recipient_ids?: string[] | null;
   support_contact_ids?: string[] | null;
+  audience?: WhatsAppReminderAudience;
+  audience_client_group_id?: string | null;
 }
 
 export interface WhatsAppPreviewResponse {
@@ -165,6 +181,11 @@ export interface WhatsAppPreviewResponse {
   recipient_id: string;
   recipient_name: string;
   recipient_count: number;
+  audience?: WhatsAppReminderAudience;
+  audience_client_group_id?: string | null;
+  audience_recipient_count?: number;
+  excluded_submitted_count?: number;
+  excluded_needs_review_count?: number;
   eligible_recipient_count: number;
   already_sent_count: number;
   in_progress_count: number;
@@ -181,6 +202,12 @@ export interface WhatsAppPreviewResponse {
 
 export interface WhatsAppSendResponse {
   batch_id?: string | null;
+  audience?: WhatsAppReminderAudience;
+  audience_client_group_id?: string | null;
+  recipient_count?: number;
+  audience_recipient_count?: number;
+  excluded_submitted_count?: number;
+  excluded_needs_review_count?: number;
   queued: number;
   sent: number;
   failed: number;
@@ -329,6 +356,7 @@ export const whatsappApi = {
     rejectedContacts,
     supportContacts,
     recipientOptInConfirmed,
+    importedFieldKeys,
     file,
   }: {
     name: string;
@@ -336,6 +364,7 @@ export const whatsappApi = {
     rejectedContacts: WhatsAppRejectedContactInput[];
     supportContacts: WhatsAppSupportContactInput[];
     recipientOptInConfirmed: boolean;
+    importedFieldKeys?: string[];
     file?: File | null;
   }): Promise<WhatsAppBroadcastGroupDetail> => {
     const formData = new FormData();
@@ -347,6 +376,7 @@ export const whatsappApi = {
     );
     formData.append("support_contacts_json", JSON.stringify(supportContacts));
     formData.append("recipient_opt_in_confirmed", String(recipientOptInConfirmed));
+    formData.append("imported_field_keys_json", JSON.stringify(importedFieldKeys ?? []));
     if (file) formData.append("contacts_file", file);
     const { data } = await apiClient.post<WhatsAppBroadcastGroupDetail>(API_ENDPOINTS.whatsapp.groups, formData, {
       headers: { "Content-Type": "multipart/form-data" },
@@ -381,12 +411,14 @@ export const whatsappApi = {
     contacts,
     rejectedContacts,
     recipientOptInConfirmed,
+    importedFieldKeys,
     file,
   }: {
     groupId: string;
     contacts: WhatsAppRecipientInput[];
     rejectedContacts: WhatsAppRejectedContactInput[];
     recipientOptInConfirmed: boolean;
+    importedFieldKeys?: string[];
     file?: File | null;
   }): Promise<WhatsAppBroadcastGroupDetail> => {
     const formData = new FormData();
@@ -396,6 +428,7 @@ export const whatsappApi = {
       JSON.stringify(rejectedContacts),
     );
     formData.append("recipient_opt_in_confirmed", String(recipientOptInConfirmed));
+    formData.append("imported_field_keys_json", JSON.stringify(importedFieldKeys ?? []));
     if (file) formData.append("contacts_file", file);
     const { data } = await apiClient.post<WhatsAppBroadcastGroupDetail>(
       API_ENDPOINTS.whatsapp.recipients(groupId),
@@ -638,6 +671,8 @@ export const whatsappApi = {
     groupId: string,
     messageContent: string,
     recipientIds: string[] | null = null,
+    audience: WhatsAppReminderAudience = "all",
+    audienceClientGroupId: string | null = null,
   ): Promise<WhatsAppSendResponse> => {
     const { data } = await apiClient.post<WhatsAppSendResponse>(
       API_ENDPOINTS.whatsapp.send(groupId),
@@ -645,6 +680,8 @@ export const whatsappApi = {
         message_type: "reminder",
         message_content: messageContent,
         recipient_ids: recipientIds,
+        audience,
+        audience_client_group_id: audienceClientGroupId,
       },
     );
     return data;

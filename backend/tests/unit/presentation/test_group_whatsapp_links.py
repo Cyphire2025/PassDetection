@@ -509,6 +509,75 @@ async def test_link_replacement_dedupes_and_is_idempotent(
     assert replacement_rows == sorted([second.id, third.id])
 
 
+@pytest.mark.asyncio
+async def test_matching_field_configuration_is_persisted_and_retained(
+    db_session: AsyncSession,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    seeded = await _seed(db_session)
+    creator = seeded["creator"]
+    first, second, third = seeded["broadcasts"]
+    first.imported_field_keys = ["name", "phone_number", "producer_code"]
+    await db_session.flush()
+    mutation_guard = AsyncMock()
+    reconciliation = AsyncMock()
+    monkeypatch.setattr(
+        client_group_routes,
+        "prepare_private_delivery_identity_mutation",
+        mutation_guard,
+    )
+    monkeypatch.setattr(
+        client_group_routes,
+        "reconcile_mobile_passenger_access_for_group",
+        reconciliation,
+    )
+
+    summaries, _, changed = await _replace_whatsapp_links(
+        db_session,
+        group_id=seeded["group"].id,
+        agency_id=seeded["agency_id"],
+        created_by_user_id=creator.id,
+        broadcast_ids=[first.id, second.id],
+        matching_fields_by_broadcast={first.id: ["producer_code"]},
+    )
+
+    assert changed is True
+    mutation_guard.assert_awaited_once()
+    reconciliation.assert_awaited_once()
+    assert next(item for item in summaries if item.id == first.id).matching_field_keys == [
+        "producer_code"
+    ]
+    configured = await db_session.scalar(
+        select(ClientGroupWhatsAppBroadcastLinkModel.matching_field_keys).where(
+            ClientGroupWhatsAppBroadcastLinkModel.client_group_id == seeded["group"].id,
+            ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id == first.id,
+        )
+    )
+    assert configured == ["producer_code"]
+
+    await _replace_whatsapp_links(
+        db_session,
+        group_id=seeded["group"].id,
+        agency_id=seeded["agency_id"],
+        created_by_user_id=creator.id,
+        broadcast_ids=[first.id, second.id, third.id],
+    )
+    retained = dict(
+        (
+            await db_session.execute(
+                select(
+                    ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
+                    ClientGroupWhatsAppBroadcastLinkModel.matching_field_keys,
+                ).where(ClientGroupWhatsAppBroadcastLinkModel.client_group_id == seeded["group"].id)
+            )
+        ).all()
+    )
+
+    assert retained[first.id] == ["producer_code"]
+    assert retained[second.id] is None
+    assert retained[third.id] is None
+
+
 def test_create_request_dedupes_and_limits_broadcast_ids() -> None:
     first = uuid.uuid4()
     request = CreateClientGroupRequest(

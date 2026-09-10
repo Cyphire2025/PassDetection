@@ -11,8 +11,6 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.use_cases.whatsapp.group_submission_matching import (
-    RecipientForComparison,
-    SubmissionForComparison,
     SubmissionMatchRow,
     compare_group_submissions,
 )
@@ -22,6 +20,11 @@ from app.infrastructure.database.models import (
     PassportSubmissionModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
+)
+from app.infrastructure.repositories.passport_whatsapp_matching_repository import (
+    matching_field_keys_from_storage,
+    recipient_comparison_from_model,
+    submission_comparison_from_model,
 )
 
 MAX_ROOMING_PRIORITY_FIELDS = 6
@@ -533,6 +536,7 @@ async def build_rooming_priority_context(
         select(
             ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
             WhatsAppBroadcastGroupModel.name,
+            ClientGroupWhatsAppBroadcastLinkModel.matching_field_keys,
         )
         .join(
             WhatsAppBroadcastGroupModel,
@@ -548,8 +552,17 @@ async def build_rooming_priority_context(
     if lock_inputs:
         linked_statement = linked_statement.with_for_update(read=True)
     linked_result = await session.execute(linked_statement)
+    linked_rows = linked_result.all()
     linked_broadcasts: dict[uuid.UUID, str] = {
-        row[0]: row[1] for row in linked_result.all()
+        broadcast_id: broadcast_name
+        for broadcast_id, broadcast_name, _matching_fields in linked_rows
+    }
+    matching_fields_by_broadcast: dict[
+        uuid.UUID,
+        tuple[str, ...] | None,
+    ] = {
+        broadcast_id: matching_field_keys_from_storage(matching_fields)
+        for broadcast_id, _broadcast_name, matching_fields in linked_rows
     }
     if not linked_broadcasts:
         value_fields_by_key = {
@@ -640,30 +653,15 @@ async def build_rooming_priority_context(
         )
 
     comparison_recipients = [
-        RecipientForComparison(
-            id=recipient.id,
-            broadcast_id=recipient.broadcast_group_id,
-            broadcast_name=linked_broadcasts[recipient.broadcast_group_id],
-            name=recipient.name,
-            phone=recipient.normalized_phone_number,
-            updated_at=recipient.created_at,
-            imported_fields=dict(recipient.imported_fields or {}),
+        recipient_comparison_from_model(
+            recipient,
+            linked_broadcasts,
+            matching_fields_by_broadcast,
         )
         for recipient in recipients
     ]
     comparison_submissions = [
-        SubmissionForComparison(
-            id=passenger.id,
-            name=passenger.client_name,
-            client_phone=passenger.client_phone,
-            family_head_phone=passenger.family_head_phone,
-            updated_at=passenger.updated_at,
-            client_email=passenger.client_email,
-            family_head_email=passenger.family_head_email,
-            confirmed_fields=dict(passenger.confirmed_fields or {}),
-            extracted_fields=dict(passenger.extracted_fields or {}),
-            staff_metadata=dict(passenger.staff_metadata or {}),
-        )
+        submission_comparison_from_model(passenger)
         for passenger in passengers
     ]
     rows, _ = compare_group_submissions(comparison_recipients, comparison_submissions)

@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from app.application.use_cases.whatsapp.recipient_capacity import (
     MAX_WHATSAPP_RECIPIENTS,
@@ -17,6 +17,13 @@ class WhatsAppRecipientInput(BaseModel):
     name: str | None = None
     phone_number: str = Field(min_length=6, max_length=64)
     imported_fields: dict[str, str] = Field(default_factory=dict)
+
+
+class WhatsAppMatchingFieldOption(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    key: str = Field(min_length=1, max_length=64)
+    label: str = Field(min_length=1, max_length=100)
 
 
 class WhatsAppContactPreviewRecipient(BaseModel):
@@ -51,6 +58,7 @@ class WhatsAppContactPreviewResponse(BaseModel):
     rejected_rows: list[WhatsAppContactPreviewRejectedRow]
     rejected_rows_truncated: bool
     omitted_rejected_count: int
+    available_matching_fields: list[WhatsAppMatchingFieldOption] = Field(default_factory=list)
 
 
 class WhatsAppRejectedContactInput(BaseModel):
@@ -180,17 +188,29 @@ class WhatsAppBroadcastGroupResponse(BaseModel):
     recipient_count: int
     total_contact_count: int
     recipient_opt_in_confirmed: bool
+    available_matching_fields: list[WhatsAppMatchingFieldOption] = Field(default_factory=list)
     created_at: datetime
     updated_at: datetime
+
+
+class WhatsAppLinkedClientGroupResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: uuid.UUID
+    name: str
+    status: str
 
 
 class WhatsAppBroadcastGroupDetailResponse(WhatsAppBroadcastGroupResponse):
     recipients: list[WhatsAppRecipientResponse]
     support_contacts: list[WhatsAppSupportContactResponse]
     rejected_contact_count: int
+    linked_client_groups: list[WhatsAppLinkedClientGroupResponse] = Field(default_factory=list)
 
 
 class WhatsAppSendRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     message_type: str = Field(pattern="^(welcome|passport_link|reminder)$")
     passport_intro: str | None = Field(default=None, max_length=600)
     passport_link: str | None = None
@@ -201,10 +221,28 @@ class WhatsAppSendRequest(BaseModel):
         max_length=MAX_WHATSAPP_RECIPIENTS,
     )
     support_contact_ids: list[uuid.UUID] | None = Field(default=None, max_length=1)
+    audience: Literal["all", "not_submitted"] = "all"
+    audience_client_group_id: uuid.UUID | None = None
+
+    @model_validator(mode="after")
+    def validate_audience(self) -> WhatsAppSendRequest:
+        if self.message_type != "reminder" and (
+            self.audience != "all" or self.audience_client_group_id is not None
+        ):
+            raise ValueError("A targeted audience is available only for reminders")
+        if self.audience == "all" and self.audience_client_group_id is not None:
+            raise ValueError("Choose an upload group only for the not-submitted reminder audience")
+        if self.audience == "not_submitted" and self.recipient_ids is not None:
+            raise ValueError("Choose either explicit recipients or the not-submitted audience")
+        return self
 
 
 class WhatsAppResendRequest(WhatsAppSendRequest):
-    pass
+    @model_validator(mode="after")
+    def validate_resend_audience(self) -> WhatsAppResendRequest:
+        if self.audience != "all" or self.audience_client_group_id is not None:
+            raise ValueError("A resend targets only its selected recipient")
+        return self
 
 
 class WhatsAppBulkResendDraft(BaseModel):
@@ -243,6 +281,12 @@ class WhatsAppPreviewRequest(WhatsAppSendRequest):
     recipient_id: uuid.UUID | None = None
     resend_recipient_id: uuid.UUID | None = None
 
+    @model_validator(mode="after")
+    def validate_resend_preview_audience(self) -> WhatsAppPreviewRequest:
+        if self.resend_recipient_id is not None and self.audience != "all":
+            raise ValueError("A resend preview cannot use a targeted reminder audience")
+        return self
+
 
 class WhatsAppPreviewResponse(BaseModel):
     message_type: str
@@ -250,6 +294,11 @@ class WhatsAppPreviewResponse(BaseModel):
     recipient_id: uuid.UUID
     recipient_name: str
     recipient_count: int
+    audience: Literal["all", "not_submitted"] = "all"
+    audience_client_group_id: uuid.UUID | None = None
+    audience_recipient_count: int = Field(default=0, ge=0)
+    excluded_submitted_count: int = Field(default=0, ge=0)
+    excluded_needs_review_count: int = Field(default=0, ge=0)
     eligible_recipient_count: int
     already_sent_count: int
     in_progress_count: int
@@ -290,6 +339,12 @@ class WhatsAppSendResult(BaseModel):
 
 class WhatsAppSendResponse(BaseModel):
     batch_id: uuid.UUID | None = None
+    audience: Literal["all", "not_submitted"] = "all"
+    audience_client_group_id: uuid.UUID | None = None
+    recipient_count: int = Field(default=0, ge=0)
+    audience_recipient_count: int = Field(default=0, ge=0)
+    excluded_submitted_count: int = Field(default=0, ge=0)
+    excluded_needs_review_count: int = Field(default=0, ge=0)
     queued: int = 0
     sent: int
     failed: int

@@ -114,3 +114,62 @@ describe("selected recipient resend API", () => {
     expect(post).not.toHaveBeenCalled();
   });
 });
+
+describe("recipient import and reminder audience API contracts", () => {
+  beforeEach(() => post.mockReset());
+
+  it("preserves previewed spreadsheet headings when creating and extending a broadcast", async () => {
+    post.mockResolvedValue({ data: {} });
+    const importedFieldKeys = [
+      "name",
+      "mobile_number",
+      "producer_code",
+      "empty_location_column",
+    ];
+
+    await whatsappApi.createGroup({
+      name: "September Tour",
+      contacts: [{ name: "Aarav", phone_number: "+919818752221" }],
+      rejectedContacts: [],
+      supportContacts: [],
+      recipientOptInConfirmed: true,
+      importedFieldKeys,
+    });
+    await whatsappApi.addRecipients({
+      groupId: "broadcast-a",
+      contacts: [{ name: "Meera", phone_number: "+919999911111" }],
+      rejectedContacts: [],
+      recipientOptInConfirmed: true,
+      importedFieldKeys,
+    });
+
+    const createBody = post.mock.calls[0]?.[1] as FormData;
+    const addBody = post.mock.calls[1]?.[1] as FormData;
+    expect(createBody.get("imported_field_keys_json")).toBe(JSON.stringify(importedFieldKeys));
+    expect(addBody.get("imported_field_keys_json")).toBe(JSON.stringify(importedFieldKeys));
+    expect(post.mock.calls[0]?.[0]).toBe("/api/v1/whatsapp/groups");
+    expect(post.mock.calls[1]?.[0]).toBe("/api/v1/whatsapp/groups/broadcast-a/recipients");
+  });
+
+  it("sends the reviewed not-submitted audience against one explicit linked group", async () => {
+    post.mockResolvedValue({ data: { queued: 2 } });
+    await whatsappApi.sendReminder(
+      "broadcast-a",
+      "Please submit your passport details today.",
+      null,
+      "not_submitted",
+      "client-group-a",
+    );
+
+    expect(post).toHaveBeenCalledWith(
+      "/api/v1/whatsapp/groups/broadcast-a/send",
+      {
+        message_type: "reminder",
+        message_content: "Please submit your passport details today.",
+        recipient_ids: null,
+        audience: "not_submitted",
+        audience_client_group_id: "client-group-a",
+      },
+    );
+  });
+});

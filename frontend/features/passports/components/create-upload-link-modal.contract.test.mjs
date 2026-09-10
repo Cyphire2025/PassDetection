@@ -81,6 +81,11 @@ test("group creation can link a bounded set of existing WhatsApp broadcasts", ()
     schemaSource,
     /whatsapp_broadcast_group_ids: z\.array\(z\.string\(\)\.uuid\(\)\)\.max\(50\)/,
   );
+  assert.match(modalSource, /name: "matching_fields_by_broadcast"/);
+  assert.match(modalSource, /selectedMatchingFields=\{matchingFieldsByBroadcast\}/);
+  assert.match(modalSource, /matching_fields_by_broadcast: canAccessWhatsApp/);
+  assert.match(schemaSource, /matching_fields_by_broadcast: z\.record/);
+  assert.match(schemaSource, /\.min\(1\)\.max\(32\)/);
 });
 
 test("group creation supports typed details and repeatable free-text headings", () => {

@@ -5,6 +5,7 @@ Upload Link Presentation Schemas
 
 from __future__ import annotations
 
+import re
 import unicodedata
 import uuid
 from datetime import date, datetime
@@ -19,6 +20,9 @@ from app.domain.value_objects.trip_timezone import (
     normalize_trip_timezone,
 )
 from app.domain.value_objects.upload_configuration import UploadConfiguration
+from app.presentation.api.v1.schemas.whatsapp_schemas import (
+    WhatsAppMatchingFieldOption,
+)
 
 
 def _normalize_departure_cities(values: list[str] | None) -> list[str]:
@@ -44,6 +48,44 @@ def _normalize_broadcast_group_ids(
     if not values:
         return []
     return list(dict.fromkeys(values))
+
+
+def _normalize_matching_fields_by_broadcast(
+    value: object,
+) -> dict[uuid.UUID, list[str]] | None:
+    if value is None:
+        return None
+    if not isinstance(value, dict):
+        raise ValueError("Matching fields must be keyed by WhatsApp broadcast id")
+    if len(value) > 50:
+        raise ValueError("Configure matching fields for at most 50 broadcasts")
+    normalized: dict[uuid.UUID, list[str]] = {}
+    for raw_broadcast_id, raw_fields in value.items():
+        try:
+            broadcast_id = uuid.UUID(str(raw_broadcast_id))
+        except (TypeError, ValueError, AttributeError) as exc:
+            raise ValueError("Matching fields require valid WhatsApp broadcast ids") from exc
+        if not isinstance(raw_fields, list):
+            raise ValueError("Each WhatsApp broadcast requires a list of matching fields")
+        fields: list[str] = []
+        for raw_field in raw_fields:
+            if not isinstance(raw_field, str):
+                raise ValueError("Matching field keys must be text")
+            key = re.sub(
+                r"_+",
+                "_",
+                re.sub(r"[^a-z0-9]+", "_", raw_field.strip().casefold()),
+            ).strip("_")
+            if len(key) > 64:
+                raise ValueError("Matching field keys must be 64 characters or fewer")
+            if key and key not in fields:
+                fields.append(key)
+        if not fields:
+            raise ValueError("Select at least one matching field for each broadcast")
+        if len(fields) > 32:
+            raise ValueError("Select at most 32 matching fields for each broadcast")
+        normalized[broadcast_id] = fields
+    return normalized
 
 
 class CustomQuestionRequest(BaseModel):
@@ -126,6 +168,7 @@ class CreateClientGroupRequest(BaseModel):
         default_factory=list,
         max_length=50,
     )
+    matching_fields_by_broadcast: dict[uuid.UUID, list[str]] | None = None
 
     @field_validator("departure_cities", mode="before")
     @classmethod
@@ -145,9 +188,21 @@ class CreateClientGroupRequest(BaseModel):
     ) -> list[uuid.UUID]:
         return _normalize_broadcast_group_ids(value)
 
+    @field_validator("matching_fields_by_broadcast", mode="before")
+    @classmethod
+    def normalize_matching_fields(
+        cls,
+        value: object,
+    ) -> dict[uuid.UUID, list[str]] | None:
+        return _normalize_matching_fields_by_broadcast(value)
+
     @model_validator(mode="after")
     def validate_airport_configuration(self) -> CreateClientGroupRequest:
         self._validate_qualifier_methods()
+        if self.matching_fields_by_broadcast is not None and not set(
+            self.matching_fields_by_broadcast
+        ).issubset(self.whatsapp_broadcast_group_ids):
+            raise ValueError("Matching fields must belong to a selected WhatsApp broadcast")
         if self.nearest_international_airport_enabled and not self.departure_cities:
             raise ValueError(
                 "Add at least one nearest international airport when the option is enabled."
@@ -201,6 +256,7 @@ class UpdateClientGroupRequest(BaseModel):
         default=None,
         max_length=50,
     )
+    matching_fields_by_broadcast: dict[uuid.UUID, list[str]] | None = None
 
     @field_validator("departure_cities", mode="before")
     @classmethod
@@ -222,8 +278,25 @@ class UpdateClientGroupRequest(BaseModel):
             return None
         return _normalize_broadcast_group_ids(value)
 
+    @field_validator("matching_fields_by_broadcast", mode="before")
+    @classmethod
+    def normalize_matching_fields(
+        cls,
+        value: object,
+    ) -> dict[uuid.UUID, list[str]] | None:
+        return _normalize_matching_fields_by_broadcast(value)
+
     @model_validator(mode="after")
     def validate_airport_configuration(self) -> UpdateClientGroupRequest:
+        if self.matching_fields_by_broadcast is not None:
+            if self.whatsapp_broadcast_group_ids is None:
+                raise ValueError(
+                    "Include selected WhatsApp broadcasts when updating matching fields"
+                )
+            if not set(self.matching_fields_by_broadcast).issubset(
+                self.whatsapp_broadcast_group_ids
+            ):
+                raise ValueError("Matching fields must belong to a selected WhatsApp broadcast")
         config = self.upload_configuration or UploadConfiguration()
         if self.relation_with_qualifier_enabled and not (
             config.qualifier_relation_list_enabled or config.qualifier_relation_other_enabled
@@ -255,6 +328,8 @@ class WhatsAppBroadcastSummaryResponse(BaseModel):
     id: uuid.UUID
     name: str
     recipient_count: int = Field(default=0, ge=0)
+    available_matching_fields: list[WhatsAppMatchingFieldOption] = Field(default_factory=list)
+    matching_field_keys: list[str] | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -306,6 +381,7 @@ class ReplaceWhatsAppBroadcastLinksRequest(BaseModel):
         ...,
         max_length=50,
     )
+    matching_fields_by_broadcast: dict[uuid.UUID, list[str]] | None = None
 
     @field_validator("whatsapp_broadcast_group_ids", mode="before")
     @classmethod
@@ -314,6 +390,22 @@ class ReplaceWhatsAppBroadcastLinksRequest(BaseModel):
         value: list[uuid.UUID] | None,
     ) -> list[uuid.UUID]:
         return _normalize_broadcast_group_ids(value)
+
+    @field_validator("matching_fields_by_broadcast", mode="before")
+    @classmethod
+    def normalize_matching_fields(
+        cls,
+        value: object,
+    ) -> dict[uuid.UUID, list[str]] | None:
+        return _normalize_matching_fields_by_broadcast(value)
+
+    @model_validator(mode="after")
+    def validate_matching_fields(self) -> ReplaceWhatsAppBroadcastLinksRequest:
+        if self.matching_fields_by_broadcast is not None and not set(
+            self.matching_fields_by_broadcast
+        ).issubset(self.whatsapp_broadcast_group_ids):
+            raise ValueError("Matching fields must belong to a selected WhatsApp broadcast")
+        return self
 
 
 class ClientGroupWhatsAppLinksResponse(BaseModel):
@@ -345,14 +437,7 @@ class WhatsAppSubmissionMatchEvidenceResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     submission_id: uuid.UUID
-    kind: Literal[
-        "phone",
-        "email",
-        "passport_number",
-        "staff_code",
-        "entered_name",
-        "passport_name",
-    ]
+    kind: str = Field(min_length=1, max_length=64, pattern=r"^[a-z0-9_]+$")
     recipient_value: str
     submission_value: str
     weight: int = Field(ge=0)

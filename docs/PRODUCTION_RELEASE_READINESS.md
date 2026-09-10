@@ -193,27 +193,33 @@ durable/security domain to cache eviction to hide pressure. See the
 
 ## 4. Rehearse the forward migration and rollback decision
 
-The current candidate's reviewed schema head is `0091_qualifier_other_relation`,
-which follows `0090_upload_configuration`, then `0089_revoke_legacy_refresh`, and descends from
-`0088_merge_my_photos_hardening`. Preserve the merge topology
-described in the DR runbook. Verify the exact checkout's migration head and
+The current candidate's reviewed schema head is `0092_whatsapp_matching_fields`,
+which follows `0091_qualifier_other_relation`, `0090_upload_configuration`, then
+`0089_revoke_legacy_refresh`, and descends from
+`0088_merge_my_photos_hardening`. Preserve the merge topology described in the
+DR runbook. Verify the exact checkout's migration head and
 `EXPECTED_DATABASE_SCHEMA_REVISION` together before release. Record migration
 duration and readiness results on a restored, isolated database before scheduling
 the production window.
 
 The `0090` migration adds nullable upload-link configuration and passport cover
 storage keys. Existing links retain their collection defaults. Apply this
-schema before starting application code that reads those columns, and use
-`0091_qualifier_other_relation` for the runtime readiness revision.
+schema before starting application code that reads those columns.
 
 The `0091` migration allows the explicitly enabled Other relationship method and
 extends the saved relationship label limit from 80 to 100 characters. It preserves
 existing answers and group configuration. Apply it with the newly built backend
-image before recreating application and worker containers. Update any explicit
-`EXPECTED_DATABASE_SCHEMA_REVISION` in the protected production `.env` to
-`0091_qualifier_other_relation`; an old environment override takes precedence over
-the source defaults. Its downgrade refuses to run while Other answers or labels
-longer than 80 characters exist, preventing truncation or recategorization.
+image before recreating application and worker containers. Its downgrade refuses
+to run while Other answers or labels longer than 80 characters exist, preventing
+truncation or recategorization.
+
+The `0092` migration stores the safe spreadsheet-heading catalog on each WhatsApp
+broadcast and the selected OR-matching fields on each upload-group link. It
+backfills headings from existing recipient and rejected-contact imports while
+leaving existing links on the legacy matcher until an operator explicitly saves
+field choices. Apply it before serving this dashboard version, and set any explicit
+`EXPECTED_DATABASE_SCHEMA_REVISION` override to `0092_whatsapp_matching_fields`;
+an old environment override takes precedence over the source defaults.
 
 The `0089` migration revokes unknown/legacy refresh credentials. Current keyed
 hash rows remain valid; affected historical sessions must sign in again. Its

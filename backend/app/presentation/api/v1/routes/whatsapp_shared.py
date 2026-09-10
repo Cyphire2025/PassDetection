@@ -110,6 +110,12 @@ _excel_field_key = _contact_support._excel_field_key
 
 _safe_imported_fields = _contact_support._safe_imported_fields
 
+_merge_imported_field_keys = _contact_support._merge_imported_field_keys
+
+_matching_field_options = _contact_support._matching_field_options
+
+_parse_imported_field_keys = _contact_support._parse_imported_field_keys
+
 _is_excel_phone_header = _contact_support._is_excel_phone_header
 
 _is_excel_name_header = _contact_support._is_excel_name_header

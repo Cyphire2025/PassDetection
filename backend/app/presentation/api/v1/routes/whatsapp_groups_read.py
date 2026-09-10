@@ -19,6 +19,7 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
     WHATSAPP_ROLES,
     _agency_filter,
     _group_detail,
+    _matching_field_options,
 )
 from app.presentation.api.v1.schemas.whatsapp_schemas import (
     WhatsAppBroadcastGroupDetailResponse,
@@ -69,6 +70,9 @@ async def list_broadcast_groups(
             recipient_count=int(recipient_count or 0),
             total_contact_count=(int(recipient_count or 0) + int(rejected_count or 0)),
             recipient_opt_in_confirmed=group.recipient_opt_in_confirmed_at is not None,
+            available_matching_fields=_matching_field_options(
+                getattr(group, "imported_field_keys", [])
+            ),
             created_at=group.created_at,
             updated_at=group.updated_at,
         )

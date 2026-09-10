@@ -10,6 +10,14 @@ const selector = readFileSync(
   new URL("./whatsapp-broadcast-selector.tsx", import.meta.url),
   "utf8",
 );
+const matchFieldSelector = readFileSync(
+  new URL("./whatsapp-match-field-selector.tsx", import.meta.url),
+  "utf8",
+);
+const matchEvidence = readFileSync(
+  new URL("./whatsapp-match-evidence.ts", import.meta.url),
+  "utf8",
+);
 const api = readFileSync(
   new URL("../api/upload-links.api.ts", import.meta.url),
   "utf8",
@@ -68,6 +76,8 @@ test("existing groups replace linked broadcasts through an explicit PUT", () => 
   assert.match(panel, /Unlink every WhatsApp broadcast\?/);
   assert.match(panel, /Unlink all broadcasts/);
   assert.match(hooks, /useUpdateGroupWhatsAppLinks/);
+  assert.match(api, /matching_fields_by_broadcast/);
+  assert.match(panel, /matchingFieldsByBroadcast/);
 });
 
 test("comparison exposes multi-field identity evidence and review outcomes", () => {
@@ -80,14 +90,28 @@ test("comparison exposes multi-field identity evidence and review outcomes", () 
   assert.match(api, /unmatched_submission_count: number/);
   assert.match(api, /match_evidence: GroupWhatsAppMatchEvidence\[\]/);
   assert.match(api, /recipient_fields: GroupWhatsAppRecipientFields\[\]/);
-  assert.match(
-    panel,
-    /phone numbers, emails, passport numbers, staff codes/,
-  );
+  assert.match(api, /available_matching_fields/);
+  assert.match(api, /matching_field_keys/);
+  assert.match(panel, /any selected spreadsheet field/);
+  assert.match(matchFieldSelector, /Every imported Excel heading is available/);
+  assert.match(matchFieldSelector, /any one/);
+  assert.match(matchFieldSelector, /Needs review instead of/);
+  assert.match(matchFieldSelector, /Search spreadsheet headings/);
   assert.match(panel, /broadcast_names\.map/);
   assert.match(panel, /submission_names\.join/);
-  assert.match(panel, /Name entered in form/);
-  assert.match(panel, /Name read from passport/);
+  assert.match(
+    panel,
+    /import \{ groupWhatsAppEvidenceLabel \} from "\.\/whatsapp-match-evidence"/,
+  );
+  assert.match(panel, /groupWhatsAppEvidenceLabel\(kind, row\)/);
+  assert.match(matchEvidence, /Name entered in form/);
+  assert.match(matchEvidence, /Name read from passport/);
+  assert.match(matchEvidence, /detail\.fields\[`\$\{value\}_label`\]/);
+  assert.match(matchEvidence, /normalizedFieldKey\(candidateLabel\) === value/);
+  assert.match(
+    matchEvidence,
+    /BUILT_IN_EVIDENCE_LABELS\[value\] \?\? fieldLabel\(value\)/,
+  );
   assert.match(panel, /Unidentified uploads/);
   assert.match(panel, /Needs review/);
   assert.doesNotMatch(panel, /Matched by exact phone number/);

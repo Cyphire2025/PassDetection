@@ -21,6 +21,9 @@ from app.application.use_cases.whatsapp.contact_normalization import (
 from app.application.use_cases.whatsapp.group_submission_matching import (
     SubmissionMatchRow,
 )
+from app.application.use_cases.whatsapp.private_delivery_identity import (
+    has_private_delivery_identity_evidence,
+)
 from app.core.security.mobile_jwt import (
     hash_mobile_lookup,
     hash_mobile_secondary_factor,
@@ -39,9 +42,6 @@ from app.infrastructure.repositories.passport_whatsapp_matching_repository impor
     load_unresolved_passport_whatsapp_match_context,
 )
 
-_STRONG_MATCH_KINDS = frozenset(
-    {"phone", "email", "passport_number", "staff_code"}
-)
 _SECONDARY_FIELDS: tuple[tuple[str, tuple[str, ...]], ...] = (
     (
         "employee_code",
@@ -123,12 +123,10 @@ def plan_passenger_identities(
             continue
         for submission_id in row.submission_ids:
             submission = by_id.get(submission_id)
-            evidence_kinds = {
-                evidence.kind
-                for evidence in row.match_evidence
-                if evidence.submission_id == submission_id
-            }
-            if submission is None or not (evidence_kinds & _STRONG_MATCH_KINDS):
+            if submission is None or not has_private_delivery_identity_evidence(
+                row,
+                submission_id=submission_id,
+            ):
                 skipped_ambiguous += 1
                 continue
             provisional.append((submission_id, phone, _secondary_factor(submission)))

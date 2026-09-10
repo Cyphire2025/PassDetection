@@ -52,6 +52,8 @@ def _row(
     *submissions,
     status: str = "submitted",
     phone: str = "+919876543210",
+    evidence_kind: str = "phone",
+    private_identity_confirmed: bool | None = None,
 ) -> SubmissionMatchRow:
     return SubmissionMatchRow(
         status=status,
@@ -68,10 +70,11 @@ def _row(
         match_evidence=tuple(
             MatchEvidence(
                 submission_id=item.id,
-                kind="phone",
+                kind=evidence_kind,
                 recipient_value=phone,
                 submission_value=phone,
                 weight=100,
+                private_identity_confirmed=private_identity_confirmed,
             )
             for item in submissions
         ),
@@ -167,6 +170,65 @@ def test_name_only_or_ambiguous_rows_never_provision() -> None:
 
     plan = plan_passenger_identities(
         [row], [submission], agency_id=agency_id, group_id=group_id
+    )
+
+    assert plan.candidates == ()
+    assert plan.skipped_ambiguous == 1
+
+
+def test_configured_phone_is_strong_but_generic_selected_field_is_not() -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    phone_submission = _submission(agency_id=agency_id, group_id=group_id)
+    generic_submission = _submission(agency_id=agency_id, group_id=group_id)
+
+    phone_plan = plan_passenger_identities(
+        [
+            _row(
+                phone_submission,
+                evidence_kind="phone_number",
+                private_identity_confirmed=True,
+            )
+        ],
+        [phone_submission],
+        agency_id=agency_id,
+        group_id=group_id,
+    )
+    generic_plan = plan_passenger_identities(
+        [
+            _row(
+                generic_submission,
+                evidence_kind="producer_code",
+                private_identity_confirmed=False,
+            )
+        ],
+        [generic_submission],
+        agency_id=agency_id,
+        group_id=group_id,
+    )
+
+    assert len(phone_plan.candidates) == 1
+    assert phone_plan.candidates[0].passenger_submission_id == phone_submission.id
+    assert generic_plan.candidates == ()
+    assert generic_plan.skipped_ambiguous == 1
+
+
+def test_non_unique_selected_phone_cannot_provision_private_identity() -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    submission = _submission(agency_id=agency_id, group_id=group_id)
+
+    plan = plan_passenger_identities(
+        [
+            _row(
+                submission,
+                evidence_kind="phone_number",
+                private_identity_confirmed=False,
+            )
+        ],
+        [submission],
+        agency_id=agency_id,
+        group_id=group_id,
     )
 
     assert plan.candidates == ()

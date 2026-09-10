@@ -36,6 +36,7 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
     _excel_raw_name_from_row,
     _find_excel_contact_header,
     _is_repeated_excel_header,
+    _merge_imported_field_keys,
     _merge_recipient_inputs,
     _normalize_phone,
     _row_has_contact_identity,
@@ -160,11 +161,13 @@ def _parse_excel_contact_bytes(
             contacts=[],
             rejected_rows=[],
             rejected_counts={},
+            field_keys=[],
         )
 
     contacts_by_phone: dict[str, WhatsAppRecipientInput] = {}
     rejected_rows: list[WhatsAppContactPreviewRejectedRow] = []
     rejected_counts: dict[WhatsAppContactRejectionCode, int] = {}
+    field_keys: list[str] = []
     source_order = 0
     for sheet_index, (sheet_name, rows) in enumerate(sheet_rows):
         if not rows:
@@ -179,6 +182,7 @@ def _parse_excel_contact_bytes(
                 surname_columns,
             ) = header_match
             header_row = rows[header_row_index]
+            field_keys = _merge_imported_field_keys(field_keys, declared_keys=header_row)
             data_rows = rows[header_row_index + 1 :]
             first_data_row_number = header_row_index + 2
         elif sheet_index == 0:
@@ -340,6 +344,7 @@ def _parse_excel_contact_bytes(
         contacts=list(contacts_by_phone.values()),
         rejected_rows=rejected_rows,
         rejected_counts=rejected_counts,
+        field_keys=field_keys,
     )
 
 
@@ -365,9 +370,9 @@ async def _parse_excel_contact_preview(
     )
 
 
-async def _parse_excel_contacts(
+async def _parse_excel_contacts_result(
     upload: UploadFile,
-) -> list[WhatsAppRecipientInput]:
+) -> _WhatsAppExcelContactParseResult:
     result = await _parse_excel_contact_preview(upload)
     blocking_rejection_count = sum(
         count
@@ -383,7 +388,13 @@ async def _parse_excel_contacts(
                 "rows, and upload it again."
             ),
         )
-    return result.contacts
+    return result
+
+
+async def _parse_excel_contacts(
+    upload: UploadFile,
+) -> list[WhatsAppRecipientInput]:
+    return (await _parse_excel_contacts_result(upload)).contacts
 
 
 @router.post(
@@ -401,4 +412,5 @@ async def preview_excel_contacts(
         result.contacts,
         result.rejected_rows,
         rejected_count=result.rejected_count,
+        available_field_keys=result.field_keys,
     )

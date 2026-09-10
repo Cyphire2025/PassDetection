@@ -17,8 +17,6 @@ from app.application.use_cases.whatsapp.contact_normalization import (
 )
 from app.application.use_cases.whatsapp.group_submission_matching import (
     RecipientFieldSet,
-    RecipientForComparison,
-    SubmissionForComparison,
     SubmissionMatchRow,
     compare_group_submissions,
 )
@@ -41,6 +39,11 @@ from app.infrastructure.repositories.passport_export_history_repository import (
     PassportExportMode,
     PassportExportPersonSnapshot,
     validated_export_people_snapshot,
+)
+from app.infrastructure.repositories.passport_whatsapp_matching_repository import (
+    matching_field_keys_from_storage,
+    recipient_comparison_from_model,
+    submission_comparison_from_model,
 )
 
 logger = get_logger(__name__)
@@ -225,6 +228,7 @@ async def _export_whatsapp_match_rows(
             ClientGroupWhatsAppBroadcastLinkModel.client_group_id,
             ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
             WhatsAppBroadcastGroupModel.name,
+            ClientGroupWhatsAppBroadcastLinkModel.matching_field_keys,
         )
         .join(
             WhatsAppBroadcastGroupModel,
@@ -238,8 +242,17 @@ async def _export_whatsapp_match_rows(
         )
     )
     linked_by_group: dict[uuid.UUID, dict[uuid.UUID, str]] = {}
-    for group_id, broadcast_id, broadcast_name in linked_result.all():
+    matching_fields_by_group: dict[
+        uuid.UUID,
+        dict[uuid.UUID, tuple[str, ...] | None],
+    ] = {}
+    for group_id, broadcast_id, broadcast_name, matching_fields in linked_result.all():
         linked_by_group.setdefault(group_id, {})[broadcast_id] = broadcast_name
+        matching_fields_by_group.setdefault(group_id, {})[
+            broadcast_id
+        ] = matching_field_keys_from_storage(
+            matching_fields,
+        )
     broadcast_ids = {
         broadcast_id for broadcasts in linked_by_group.values() for broadcast_id in broadcasts
     }
@@ -268,32 +281,18 @@ async def _export_whatsapp_match_rows(
         linked_broadcasts = linked_by_group.get(group_id, {})
         if not linked_broadcasts:
             continue
+        matching_fields_by_broadcast = matching_fields_by_group.get(group_id, {})
         comparison_recipients = [
-            RecipientForComparison(
-                id=recipient.id,
-                broadcast_id=broadcast_id,
-                broadcast_name=broadcast_name,
-                name=recipient.name,
-                phone=recipient.normalized_phone_number,
-                updated_at=recipient.created_at,
-                imported_fields=dict(recipient.imported_fields or {}),
+            recipient_comparison_from_model(
+                recipient,
+                linked_broadcasts,
+                matching_fields_by_broadcast,
             )
-            for broadcast_id, broadcast_name in linked_broadcasts.items()
+            for broadcast_id in linked_broadcasts
             for recipient in recipients_by_broadcast.get(broadcast_id, [])
         ]
         comparison_submissions = [
-            SubmissionForComparison(
-                id=submission.id,
-                name=submission.client_name,
-                client_phone=submission.client_phone,
-                family_head_phone=submission.family_head_phone,
-                updated_at=submission.updated_at,
-                client_email=submission.client_email,
-                family_head_email=submission.family_head_email,
-                confirmed_fields=dict(submission.confirmed_fields or {}),
-                extracted_fields=dict(submission.extracted_fields or {}),
-                staff_metadata=dict(submission.staff_metadata or {}),
-            )
+            submission_comparison_from_model(submission)
             for submission in group_submissions
         ]
         rows, _ = compare_group_submissions(
@@ -326,6 +325,7 @@ async def _whatsapp_tracking_export_rows(
         select(
             ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
             WhatsAppBroadcastGroupModel.name,
+            ClientGroupWhatsAppBroadcastLinkModel.matching_field_keys,
         )
         .join(
             WhatsAppBroadcastGroupModel,
@@ -338,8 +338,14 @@ async def _whatsapp_tracking_export_rows(
             WhatsAppBroadcastGroupModel.agency_id == group.agency_id,
         )
     )
+    linked_rows = linked_result.all()
     linked_broadcasts = {
-        broadcast_id: broadcast_name for broadcast_id, broadcast_name in linked_result.all()
+        broadcast_id: broadcast_name
+        for broadcast_id, broadcast_name, _matching_fields in linked_rows
+    }
+    matching_fields_by_broadcast = {
+        broadcast_id: matching_field_keys_from_storage(matching_fields)
+        for broadcast_id, _broadcast_name, matching_fields in linked_rows
     }
 
     resolution_result = await session.execute(
@@ -384,32 +390,17 @@ async def _whatsapp_tracking_export_rows(
         recipient_models = list(recipient_result.scalars().all())
     recipients_by_id = {recipient.id: recipient for recipient in recipient_models}
     comparison_recipients = [
-        RecipientForComparison(
-            id=recipient.id,
-            broadcast_id=recipient.broadcast_group_id,
-            broadcast_name=linked_broadcasts[recipient.broadcast_group_id],
-            name=recipient.name,
-            phone=recipient.normalized_phone_number,
-            updated_at=recipient.created_at,
-            imported_fields=dict(recipient.imported_fields or {}),
+        recipient_comparison_from_model(
+            recipient,
+            linked_broadcasts,
+            matching_fields_by_broadcast,
         )
         for recipient in recipient_models
         if recipient.removed_at is None and recipient.id not in suppressed_recipient_ids
     ]
     submissions_by_id = {submission.id: submission for submission in submissions}
     comparison_submissions = [
-        SubmissionForComparison(
-            id=submission.id,
-            name=submission.client_name,
-            client_phone=submission.client_phone,
-            family_head_phone=submission.family_head_phone,
-            updated_at=submission.updated_at,
-            client_email=submission.client_email,
-            family_head_email=submission.family_head_email,
-            confirmed_fields=dict(submission.confirmed_fields or {}),
-            extracted_fields=dict(submission.extracted_fields or {}),
-            staff_metadata=dict(submission.staff_metadata or {}),
-        )
+        submission_comparison_from_model(submission)
         for submission in submissions
         if submission.id not in excluded_submission_ids
     ]

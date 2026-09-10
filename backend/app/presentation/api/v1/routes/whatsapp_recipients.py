@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import UTC, datetime
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy import select, update
@@ -30,7 +31,13 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.passport_roster_resolution_repository import (
     suppress_active_replacement_recipients,
 )
-from app.presentation.api.v1.routes.whatsapp_contact_import import _parse_excel_contacts
+from app.presentation.api.v1.routes.whatsapp_contact_import import (
+    _parse_excel_contacts_result,
+)
+from app.presentation.api.v1.routes.whatsapp_contact_support import (
+    _imported_field_keys_for_contacts,
+    _WhatsAppExcelContactParseResult,
+)
 from app.presentation.api.v1.routes.whatsapp_scope import (
     _lock_active_whatsapp_actor,
     _lock_removable_broadcast_recipient,
@@ -49,6 +56,7 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
     _next_roster_display_order,
     _normalize_phone,
     _normalized_recipient_inputs,
+    _parse_imported_field_keys,
     _parse_manual_contacts,
     _parse_rejected_contacts,
     _rejected_contact_fingerprint,
@@ -71,6 +79,7 @@ router = APIRouter()
 async def add_broadcast_recipients(
     group_id: uuid.UUID,
     contacts_json: str = Form("[]"),
+    imported_field_keys_json: Annotated[str, Form()] = "[]",
     rejected_contacts_json: str = Form("[]"),
     recipient_opt_in_confirmed: bool = Form(...),
     contacts_file: UploadFile | None = File(None),
@@ -80,10 +89,15 @@ async def add_broadcast_recipients(
     # Do not retain the authentication transaction (or a group row lock)
     # while reading and parsing an untrusted workbook.
     await session.rollback()
+    preview_field_keys = _parse_imported_field_keys(imported_field_keys_json)
     manual_contacts = _parse_manual_contacts(contacts_json)
     rejected_contacts = _parse_rejected_contacts(rejected_contacts_json)
-    excel_contacts = await _parse_excel_contacts(contacts_file) if contacts_file else []
-    contacts = manual_contacts + excel_contacts
+    excel_result = (
+        await _parse_excel_contacts_result(contacts_file)
+        if contacts_file
+        else _WhatsAppExcelContactParseResult([], [], {}, [])
+    )
+    contacts = manual_contacts + excel_result.contacts
     normalized_contacts = _normalized_recipient_inputs(contacts) if contacts else {}
     if not normalized_contacts and not rejected_contacts:
         raise HTTPException(
@@ -193,6 +207,11 @@ async def add_broadcast_recipients(
     )
 
     now = datetime.now(tz=UTC)
+    group.imported_field_keys = _imported_field_keys_for_contacts(
+        getattr(group, "imported_field_keys", []),
+        declared_keys=[*preview_field_keys, *excel_result.field_keys],
+        contacts=[*contacts, *rejected_contacts],
+    )
     _activate_recipient_models(
         session=session,
         group=group,

@@ -118,6 +118,7 @@ async def _seed_private_delivery_context(
         "group": group,
         "broadcast": broadcast,
         "recipient": recipient,
+        "link": link,
         "passengers": passengers,
         "token": token,
     }
@@ -199,6 +200,52 @@ async def test_shared_phone_between_passengers_fails_closed(
     assert result.allowed is False
     assert result.reason is not None
     assert PHONE not in result.reason
+
+
+@pytest.mark.asyncio
+async def test_configured_generic_match_cannot_authorize_private_delivery(
+    db_session: AsyncSession,
+) -> None:
+    context = await _seed_private_delivery_context(db_session)
+    context["link"].matching_field_keys = ["producer_code"]
+    context["recipient"].imported_fields = {"Producer Code": "PR-42"}
+    context["passengers"][0].custom_answers = [
+        {"label": "Producer Code", "value": "PR-42"}
+    ]
+    await db_session.flush()
+
+    result = await validate_private_delivery_recipient(
+        db_session,
+        agency_id=context["agency"].id,
+        group_id=context["group"].id,
+        passenger_id=context["passengers"][0].id,
+        broadcast_group_id=context["broadcast"].id,
+        recipient_id=context["recipient"].id,
+        normalized_phone_number=PHONE,
+    )
+
+    assert result.allowed is False
+
+
+@pytest.mark.asyncio
+async def test_configured_phone_match_authorizes_private_delivery(
+    db_session: AsyncSession,
+) -> None:
+    context = await _seed_private_delivery_context(db_session)
+    context["link"].matching_field_keys = ["phone_number"]
+    await db_session.flush()
+
+    result = await validate_private_delivery_recipient(
+        db_session,
+        agency_id=context["agency"].id,
+        group_id=context["group"].id,
+        passenger_id=context["passengers"][0].id,
+        broadcast_group_id=context["broadcast"].id,
+        recipient_id=context["recipient"].id,
+        normalized_phone_number=PHONE,
+    )
+
+    assert result.allowed is True
 
 
 @pytest.mark.asyncio

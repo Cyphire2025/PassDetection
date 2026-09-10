@@ -132,8 +132,18 @@ export function useUpdateGroupWhatsAppLinks(id: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (whatsappBroadcastGroupIds: string[]) => (
-      uploadLinksApi.updateWhatsAppLinks(id, whatsappBroadcastGroupIds)
+    mutationFn: ({
+      whatsappBroadcastGroupIds,
+      matchingFieldsByBroadcast,
+    }: {
+      whatsappBroadcastGroupIds: string[];
+      matchingFieldsByBroadcast: Record<string, string[]>;
+    }) => (
+      uploadLinksApi.updateWhatsAppLinks(
+        id,
+        whatsappBroadcastGroupIds,
+        matchingFieldsByBroadcast,
+      )
     ),
     onSuccess: (response) => {
       queryClient.setQueryData(QUERY_KEYS.whatsappLinks(id), response);

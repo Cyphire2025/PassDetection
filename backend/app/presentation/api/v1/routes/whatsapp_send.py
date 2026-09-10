@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import UTC, datetime
+from typing import Literal, cast
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import and_, or_, select, update
@@ -27,17 +28,19 @@ from app.infrastructure.whatsapp.publication import (
     fail_unclaimed_broadcast_rows,
     publish_whatsapp_task,
 )
+from app.presentation.api.v1.routes.whatsapp_reminder_audience import (
+    resolve_reminder_audience,
+)
 from app.presentation.api.v1.routes.whatsapp_roster_support import (
     _active_explicit_reminder_recipient_ids,
 )
 from app.presentation.api.v1.routes.whatsapp_scope import _configured_template_name
+from app.presentation.api.v1.routes.whatsapp_send_support import unclaimed_delivery_counts
 from app.presentation.api.v1.routes.whatsapp_shared import (
-    WHATSAPP_ACCEPTED_STATUSES,
     WHATSAPP_IN_PROGRESS_STATUSES,
     WHATSAPP_ROLES,
     WHATSAPP_STALE_CLAIM_AGE,
     WHATSAPP_SUPPRESSED_STATUSES,
-    WHATSAPP_UNCERTAIN_STATUSES,
     _agency_filter,
     _as_message_type,
     _group_recipients,
@@ -114,7 +117,15 @@ async def send_broadcast_message(
             ),
         ) from exc
     message_type = _as_message_type(body.message_type)
-    recipients = _select_group_recipients(all_recipients, body.recipient_ids)
+    source_recipients = _select_group_recipients(all_recipients, body.recipient_ids)
+    audience_resolution = await resolve_reminder_audience(
+        session,
+        broadcast_group=group,
+        recipients=source_recipients,
+        audience=body.audience,
+        audience_client_group_id=body.audience_client_group_id,
+    )
+    recipients = list(audience_resolution.recipients)
     support_contacts = await _support_contacts_for_group(session, group.id)
     snapshot = await _latest_composer_snapshot(
         session,
@@ -176,6 +187,8 @@ async def send_broadcast_message(
         header_image_id=header_image_id,
         recipient_ids=merged_body.recipient_ids,
         support_contact_ids=merged_body.support_contact_ids,
+        audience=merged_body.audience,
+        audience_client_group_id=merged_body.audience_client_group_id,
     )
     batch_id = uuid.uuid4()
     now = datetime.now(tz=UTC)
@@ -299,37 +312,23 @@ async def send_broadcast_message(
         if recipient.id not in claimed_recipient_ids
         and recipient.id not in active_explicit_reminder_ids
     ]
-    skipped_already_sent = 0
-    skipped_in_progress = len(active_explicit_reminder_ids)
-    skipped_delivery_unknown = 0
-    if unclaimed_recipient_ids:
-        skipped_result = await session.execute(
-            select(WhatsAppRecipientMessageStateModel.status).where(
-                WhatsAppRecipientMessageStateModel.recipient_id.in_(unclaimed_recipient_ids),
-                WhatsAppRecipientMessageStateModel.message_type == message_type,
-            )
+    skipped_already_sent, skipped_in_progress, skipped_delivery_unknown = (
+        await unclaimed_delivery_counts(
+            session, recipient_ids=unclaimed_recipient_ids, message_type=message_type,
         )
-        skipped_statuses = list(skipped_result.scalars().all())
-        skipped_already_sent = sum(
-            1
-            for delivery_status in skipped_statuses
-            if delivery_status in WHATSAPP_ACCEPTED_STATUSES
-        )
-        skipped_in_progress += sum(
-            1
-            for delivery_status in skipped_statuses
-            if delivery_status in WHATSAPP_IN_PROGRESS_STATUSES
-        )
-        skipped_delivery_unknown = sum(
-            1
-            for delivery_status in skipped_statuses
-            if delivery_status in WHATSAPP_UNCERTAIN_STATUSES
-        )
+    )
+    skipped_in_progress += len(active_explicit_reminder_ids)
 
     if not claimed_recipients:
         await session.commit()
         return WhatsAppSendResponse(
             batch_id=None,
+            audience=cast(Literal["all", "not_submitted"], audience_resolution.audience),
+            audience_client_group_id=audience_resolution.client_group_id,
+            recipient_count=len(source_recipients),
+            audience_recipient_count=len(recipients),
+            excluded_submitted_count=(audience_resolution.excluded_submitted_count),
+            excluded_needs_review_count=(audience_resolution.excluded_needs_review_count),
             queued=0,
             sent=0,
             failed=0,
@@ -418,6 +417,12 @@ async def send_broadcast_message(
 
     return WhatsAppSendResponse(
         batch_id=batch_id,
+        audience=cast(Literal["all", "not_submitted"], audience_resolution.audience),
+        audience_client_group_id=audience_resolution.client_group_id,
+        recipient_count=len(source_recipients),
+        audience_recipient_count=len(recipients),
+        excluded_submitted_count=audience_resolution.excluded_submitted_count,
+        excluded_needs_review_count=(audience_resolution.excluded_needs_review_count),
         queued=len(results),
         sent=0,
         failed=0,

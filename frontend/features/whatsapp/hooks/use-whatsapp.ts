@@ -1,5 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { WhatsAppBroadcastGroupDetail } from "../api/whatsapp.api";
+import type {
+  WhatsAppBroadcastGroupDetail,
+  WhatsAppReminderAudience,
+} from "../api/whatsapp.api";
 import { whatsappApi } from "../api/whatsapp.api";
 import {
   isMissingWhatsAppBatchStatus,
@@ -393,11 +396,21 @@ export function useSendWhatsAppReminder() {
       groupId,
       messageContent,
       recipientIds,
+      audience,
+      audienceClientGroupId,
     }: {
       groupId: string;
       messageContent: string;
       recipientIds: string[] | null;
-    }) => whatsappApi.sendReminder(groupId, messageContent, recipientIds),
+      audience: WhatsAppReminderAudience;
+      audienceClientGroupId: string | null;
+    }) => whatsappApi.sendReminder(
+      groupId,
+      messageContent,
+      recipientIds,
+      audience,
+      audienceClientGroupId,
+    ),
     onSuccess: async (_, { groupId }) => {
       await Promise.all([
         queryClient.invalidateQueries({

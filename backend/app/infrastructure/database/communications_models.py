@@ -46,6 +46,15 @@ class WhatsAppBroadcastGroupModel(Base):
     recipient_opt_in_confirmed_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
+    # Canonical headings discovered across imported workbooks. Keeping the
+    # bounded union on the list makes link configuration cheap even for large
+    # recipient rosters and preserves headings whose column is currently empty.
+    imported_field_keys: Mapped[list[str]] = mapped_column(
+        JSONB,
+        nullable=False,
+        default=list,
+        server_default="[]",
+    )
     created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
     )

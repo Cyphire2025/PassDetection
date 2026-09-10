@@ -7,6 +7,7 @@ import json
 import math
 import re
 import uuid
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from datetime import datetime
 from io import BytesIO
@@ -38,6 +39,7 @@ from app.presentation.api.v1.schemas.whatsapp_schemas import (
     WhatsAppContactPreviewRejectedRow,
     WhatsAppContactPreviewResponse,
     WhatsAppContactRejectionCode,
+    WhatsAppMatchingFieldOption,
     WhatsAppRecipientInput,
     WhatsAppRecipientMessageStatusResponse,
     WhatsAppRecipientResponse,
@@ -74,6 +76,19 @@ WHATSAPP_UPLOAD_READ_CHUNK_BYTES = 1024 * 1024
 WHATSAPP_ROSTER_SOURCE_FIELDS = frozenset(
     {"source_file", "source_order", "source_sheet", "source_row"}
 )
+WHATSAPP_NON_MATCHING_IMPORTED_FIELDS = WHATSAPP_ROSTER_SOURCE_FIELDS | frozenset(
+    {"duplicate_conflicting_fields"}
+)
+_MATCHING_FIELD_LABELS = {
+    "name": "Name",
+    "phone_number": "Mobile number",
+    "email": "Email",
+    "date_of_birth": "Date of birth",
+    "dob": "DOB",
+    "passport_number": "Passport number",
+    "staff_code": "Staff code",
+    "agent_employee_code": "Producer code",
+}
 
 
 @dataclass(slots=True)
@@ -81,6 +96,7 @@ class _WhatsAppExcelContactParseResult:
     contacts: list[WhatsAppRecipientInput]
     rejected_rows: list[WhatsAppContactPreviewRejectedRow]
     rejected_counts: dict[WhatsAppContactRejectionCode, int]
+    field_keys: list[str]
 
     @property
     def rejected_count(self) -> int:
@@ -264,6 +280,90 @@ def _safe_imported_fields(value: Any) -> dict[str, str]:
         if not is_roster_source_field:
             imported_field_count += 1
     return cleaned
+
+
+def _matching_field_label(key: str) -> str:
+    return _MATCHING_FIELD_LABELS.get(
+        key,
+        " ".join(part.capitalize() for part in key.split("_") if part),
+    )
+
+
+def _merge_imported_field_keys(
+    existing: Any = None,
+    *,
+    declared_keys: Iterable[object] = (),
+    imported_fields: Iterable[Mapping[str, object]] = (),
+) -> list[str]:
+    """Return a bounded, stable union of selectable imported field keys."""
+
+    ordered: list[str] = []
+    for raw_key in existing if isinstance(existing, list) else []:
+        key = _excel_field_key(raw_key)
+        if key and key not in WHATSAPP_NON_MATCHING_IMPORTED_FIELDS and key not in ordered:
+            ordered.append(key)
+    for raw_key in declared_keys:
+        key = _excel_field_key(raw_key)
+        if key and key not in WHATSAPP_NON_MATCHING_IMPORTED_FIELDS and key not in ordered:
+            ordered.append(key)
+    for fields in imported_fields:
+        conflicting = {
+            _excel_field_key(value)
+            for value in str(fields.get("duplicate_conflicting_fields", "")).split(",")
+            if _excel_field_key(value)
+        }
+        for raw_key in fields:
+            key = _excel_field_key(raw_key)
+            generated_base = re.sub(r"_\d+$", "", key)
+            if generated_base != key and generated_base in conflicting:
+                continue
+            if key and key not in WHATSAPP_NON_MATCHING_IMPORTED_FIELDS and key not in ordered:
+                ordered.append(key)
+    return ordered[:MAX_WHATSAPP_IMPORTED_FIELDS]
+
+
+def _matching_field_options(keys: Any) -> list[WhatsAppMatchingFieldOption]:
+    return [
+        WhatsAppMatchingFieldOption(key=key, label=_matching_field_label(key))
+        for key in _merge_imported_field_keys(keys)
+    ]
+
+
+def _imported_field_keys_for_contacts(
+    existing: Any = None,
+    *,
+    declared_keys: Iterable[object] = (),
+    contacts: Iterable[WhatsAppRecipientInput | WhatsAppRejectedContactInput] = (),
+) -> list[str]:
+    """Preserve headings from the workbook and all accepted/rejected input rows."""
+    return _merge_imported_field_keys(
+        existing,
+        declared_keys=declared_keys,
+        imported_fields=(contact.imported_fields for contact in contacts),
+    )
+
+
+def _parse_imported_field_keys(value: str | None) -> list[str]:
+    """Parse the header catalog carried from a prior workbook preview."""
+
+    try:
+        raw_keys = json.loads(value or "[]")
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid imported Excel heading list",
+        ) from exc
+    if not isinstance(raw_keys, list) or any(not isinstance(raw_key, str) for raw_key in raw_keys):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Imported Excel headings must be a list of text keys",
+        )
+    if len(raw_keys) > MAX_WHATSAPP_IMPORTED_FIELDS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(f"An Excel import can expose at most {MAX_WHATSAPP_IMPORTED_FIELDS} headings"),
+        )
+    return _merge_imported_field_keys(declared_keys=raw_keys)
 
 
 def _is_excel_phone_header(label: str) -> bool:
@@ -575,6 +675,7 @@ def _excel_contact_preview_response(
     rejected_rows: list[WhatsAppContactPreviewRejectedRow] | None = None,
     *,
     rejected_count: int | None = None,
+    available_field_keys: Iterable[object] = (),
 ) -> WhatsAppContactPreviewResponse:
     rejected_rows = rejected_rows or []
     total_rejected = len(rejected_rows) if rejected_count is None else rejected_count
@@ -604,6 +705,15 @@ def _excel_contact_preview_response(
         rejected_rows=rejected_rows,
         rejected_rows_truncated=total_rejected > len(rejected_rows),
         omitted_rejected_count=max(0, total_rejected - len(rejected_rows)),
+        available_matching_fields=_matching_field_options(
+            _merge_imported_field_keys(
+                declared_keys=available_field_keys,
+                imported_fields=[
+                    *(contact.imported_fields for contact in contacts),
+                    *(row.imported_fields for row in rejected_rows),
+                ],
+            )
+        ),
     )
 
 

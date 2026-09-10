@@ -18,7 +18,7 @@ from fastapi import (
     Response,
     status,
 )
-from sqlalchemy import and_, delete, func, or_, select, update
+from sqlalchemy import and_, delete, func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute
@@ -63,10 +63,7 @@ from app.application.use_cases.whatsapp.contact_normalization import (
     normalize_whatsapp_phone,
 )
 from app.application.use_cases.whatsapp.group_submission_matching import (
-    RecipientForComparison,
-    SubmissionForComparison,
     SubmissionMatchRow,
-    compare_group_submissions,
     filter_and_sort_match_rows,
     summarize_match_rows,
 )
@@ -122,6 +119,7 @@ from app.infrastructure.repositories.passport_roster_resolution_repository impor
 )
 from app.infrastructure.repositories.passport_whatsapp_matching_repository import (
     load_unresolved_passport_whatsapp_match_context,
+    matching_field_keys_from_storage,
 )
 from app.infrastructure.repositories.platform_policy_repository import (
     PlatformPolicyRepository,
@@ -141,6 +139,9 @@ from app.presentation.api.v1.routes import (
     client_group_whatsapp_match_support as _whatsapp_match_support,
 )
 from app.presentation.api.v1.routes.tour_operations_qr_helpers import qr_expires_at_for_group
+from app.presentation.api.v1.routes.whatsapp_contact_support import (
+    _matching_field_options,
+)
 from app.presentation.api.v1.schemas.client_group_schemas import (
     ClientGroupResponse,
     ClientGroupWhatsAppLinksResponse,
@@ -292,6 +293,9 @@ async def _broadcast_summaries(
             id=broadcast.id,
             name=broadcast.name,
             recipient_count=int(recipient_count or 0),
+            available_matching_fields=_matching_field_options(
+                getattr(broadcast, "imported_field_keys", [])
+            ),
             created_at=broadcast.created_at,
             updated_at=broadcast.updated_at,
         )
@@ -329,6 +333,7 @@ async def _linked_broadcast_summaries_by_group(
     result = await session.execute(
         select(
             ClientGroupWhatsAppBroadcastLinkModel.client_group_id,
+            ClientGroupWhatsAppBroadcastLinkModel.matching_field_keys,
             WhatsAppBroadcastGroupModel,
             func.count(WhatsAppBroadcastRecipientModel.id).label("recipient_count"),
         )
@@ -351,6 +356,7 @@ async def _linked_broadcast_summaries_by_group(
         )
         .group_by(
             ClientGroupWhatsAppBroadcastLinkModel.client_group_id,
+            ClientGroupWhatsAppBroadcastLinkModel.matching_field_keys,
             WhatsAppBroadcastGroupModel.id,
         )
         .order_by(
@@ -362,12 +368,19 @@ async def _linked_broadcast_summaries_by_group(
     summaries: dict[uuid.UUID, list[WhatsAppBroadcastSummaryResponse]] = {
         group_id: [] for group_id in client_group_ids
     }
-    for group_id, broadcast, recipient_count in result.all():
+    for group_id, matching_field_keys, broadcast, recipient_count in result.all():
+        decoded_matching_fields = matching_field_keys_from_storage(matching_field_keys)
         summaries.setdefault(group_id, []).append(
             WhatsAppBroadcastSummaryResponse(
                 id=broadcast.id,
                 name=broadcast.name,
                 recipient_count=int(recipient_count or 0),
+                available_matching_fields=_matching_field_options(
+                    getattr(broadcast, "imported_field_keys", [])
+                ),
+                matching_field_keys=(
+                    list(decoded_matching_fields) if decoded_matching_fields is not None else None
+                ),
                 created_at=broadcast.created_at,
                 updated_at=broadcast.updated_at,
             )
@@ -382,6 +395,7 @@ async def _replace_whatsapp_links(
     agency_id: uuid.UUID,
     created_by_user_id: uuid.UUID,
     broadcast_ids: list[uuid.UUID],
+    matching_fields_by_broadcast: dict[uuid.UUID, list[str]] | None = None,
 ) -> tuple[list[WhatsAppBroadcastSummaryResponse], list[uuid.UUID], bool]:
     # Serialize link-set edits for this passport group. Broadcast rows are then
     # locked in the same stable order used by replacement creation so an
@@ -395,12 +409,20 @@ async def _replace_whatsapp_links(
         .with_for_update()
     )
     existing_result = await session.execute(
-        select(ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id).where(
+        select(
+            ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
+            ClientGroupWhatsAppBroadcastLinkModel.matching_field_keys,
+        ).where(
             ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group_id,
             ClientGroupWhatsAppBroadcastLinkModel.agency_id == agency_id,
         )
     )
-    previous_ids = sorted(set(existing_result.scalars().all()), key=str)
+    existing_rows = existing_result.all()
+    previous_configuration = {
+        broadcast_id: matching_field_keys_from_storage(matching_field_keys)
+        for broadcast_id, matching_field_keys in existing_rows
+    }
+    previous_ids = sorted(previous_configuration, key=str)
     requested_ids = sorted(set(broadcast_ids), key=str)
     affected_broadcast_ids = sorted(
         set(previous_ids).union(requested_ids),
@@ -424,7 +446,28 @@ async def _replace_whatsapp_links(
         agency_id=agency_id,
         broadcast_ids=requested_ids,
     )
-    changed = previous_ids != requested_ids
+    requested_configuration: dict[uuid.UUID, tuple[str, ...] | None] = {}
+    supplied_configuration = matching_fields_by_broadcast or {}
+    available_by_broadcast = {
+        summary.id: {field.key for field in getattr(summary, "available_matching_fields", [])}
+        for summary in summaries
+    }
+    for broadcast_id in requested_ids:
+        if broadcast_id in supplied_configuration:
+            selected = tuple(dict.fromkeys(supplied_configuration[broadcast_id]))
+            unavailable = sorted(set(selected) - available_by_broadcast.get(broadcast_id, set()))
+            if unavailable:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=(
+                        "One or more selected matching fields are not available "
+                        "in the WhatsApp broadcast: " + ", ".join(unavailable)
+                    ),
+                )
+            requested_configuration[broadcast_id] = selected
+        else:
+            requested_configuration[broadcast_id] = previous_configuration.get(broadcast_id)
+    changed = previous_ids != requested_ids or previous_configuration != requested_configuration
     if changed:
         try:
             await prepare_private_delivery_identity_mutation(
@@ -432,9 +475,7 @@ async def _replace_whatsapp_links(
                 agency_id=agency_id,
                 group_id=group_id,
                 cancel_queued=True,
-                cancellation_reason=(
-                    "WhatsApp broadcast links changed before private delivery"
-                ),
+                cancellation_reason=("WhatsApp broadcast links changed before private delivery"),
             )
         except PrivateDeliveryMutationBlocked as exc:
             raise HTTPException(
@@ -482,6 +523,11 @@ async def _replace_whatsapp_links(
                     broadcast_group_id=broadcast_id,
                     agency_id=agency_id,
                     created_by_user_id=created_by_user_id,
+                    matching_field_keys=(
+                        list(requested_configuration[broadcast_id] or ())
+                        if requested_configuration[broadcast_id] is not None
+                        else None
+                    ),
                 )
                 for broadcast_id in requested_ids
             ]
@@ -500,6 +546,22 @@ async def _replace_whatsapp_links(
             agency_id=agency_id,
             broadcast_ids=requested_ids,
         )
+    summaries = [
+        (
+            summary.model_copy(
+                update={
+                    "matching_field_keys": (
+                        list(requested_configuration[summary.id] or ())
+                        if requested_configuration[summary.id] is not None
+                        else None
+                    )
+                }
+            )
+            if hasattr(summary, "model_copy")
+            else summary
+        )
+        for summary in summaries
+    ]
     if changed:
         await reconcile_mobile_passenger_access_for_group(
             session,
@@ -522,15 +584,11 @@ async def _require_client_group_creation_access(
         return
 
     result = await session.execute(
-        select(PlatformSettingModel.value).where(
-            PlatformSettingModel.key == _PLATFORM_SETTINGS_KEY
-        )
+        select(PlatformSettingModel.value).where(PlatformSettingModel.key == _PLATFORM_SETTINGS_KEY)
     )
     values = result.scalar_one_or_none() or {}
     if values.get("allow_manager_group_creation", True) is not True:
-        raise AuthorizationError(
-            "Manager upload-link creation is disabled by platform settings"
-        )
+        raise AuthorizationError("Manager upload-link creation is disabled by platform settings")
 
 
 async def _require_managed_group(
@@ -666,7 +724,11 @@ async def create_client_group(
         agent_employee_code_enabled=request.agent_employee_code_enabled,
         meal_preference_enabled=request.meal_preference_enabled,
         require_selfie=request.require_selfie,
-        upload_configuration=(request.upload_configuration.model_dump(mode="json") if request.upload_configuration is not None else None),
+        upload_configuration=(
+            request.upload_configuration.model_dump(mode="json")
+            if request.upload_configuration is not None
+            else None
+        ),
         allow_files_from_device=request.allow_files_from_device,
         ask_nearest_domestic_airport=request.ask_nearest_domestic_airport,
         relation_with_qualifier_enabled=request.relation_with_qualifier_enabled,
@@ -695,6 +757,7 @@ async def create_client_group(
         agency_id=current_user.agency_id,
         created_by_user_id=current_user.id,
         broadcast_ids=request.whatsapp_broadcast_group_ids,
+        matching_fields_by_broadcast=request.matching_fields_by_broadcast,
     )
     await AuditLogRepository(session).record(
         action="client_group_created",
@@ -734,6 +797,27 @@ async def _linked_broadcast_names_for_group(
         )
     )
     return {broadcast_id: broadcast_name for broadcast_id, broadcast_name in result.all()}
+
+
+async def _linked_broadcast_matching_fields_for_group(
+    session: AsyncSession,
+    *,
+    group_id: uuid.UUID,
+    agency_id: uuid.UUID,
+) -> dict[uuid.UUID, tuple[str, ...] | None]:
+    result = await session.execute(
+        select(
+            ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
+            ClientGroupWhatsAppBroadcastLinkModel.matching_field_keys,
+        ).where(
+            ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group_id,
+            ClientGroupWhatsAppBroadcastLinkModel.agency_id == agency_id,
+        )
+    )
+    return {
+        broadcast_id: matching_field_keys_from_storage(matching_field_keys)
+        for broadcast_id, matching_field_keys in result.all()
+    }
 
 
 async def _current_unresolved_match_context(
@@ -1015,6 +1099,7 @@ async def replace_client_group_whatsapp_links(
         agency_id=group.agency_id,
         created_by_user_id=current_user.id,
         broadcast_ids=body.whatsapp_broadcast_group_ids,
+        matching_fields_by_broadcast=body.matching_fields_by_broadcast,
     )
     await AuditLogRepository(session).record(
         action="client_group_whatsapp_links_replaced",
@@ -1076,98 +1161,22 @@ async def get_client_group_whatsapp_matches(
         group_id=group.id,
         agency_id=group.agency_id,
     )
+    matching_fields_by_broadcast = await _linked_broadcast_matching_fields_for_group(
+        session,
+        group_id=group.id,
+        agency_id=group.agency_id,
+    )
     if broadcast_id is not None and broadcast_id not in linked_broadcasts:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=("The selected WhatsApp broadcast is not linked to this client group."),
         )
 
-    resolution_result = await session.execute(
-        select(PassportRosterResolutionModel).where(
-            PassportRosterResolutionModel.client_group_id == group.id,
-            PassportRosterResolutionModel.agency_id == group.agency_id,
-            PassportRosterResolutionModel.status == "active",
-        )
-    )
-    active_resolutions = list(resolution_result.scalars().all())
-    suppressed_recipient_ids = {
-        recipient_id
-        for resolution in active_resolutions
-        for recipient_id in _stored_uuid_list(resolution.suppressed_recipient_ids)
-    }
-    excluded_submission_ids = {
-        submission_id
-        for resolution in active_resolutions
-        for submission_id in (
-            [resolution.submission_id] + _stored_uuid_list(resolution.excluded_submission_ids)
-        )
-    }
-
-    recipient_models: list[WhatsAppBroadcastRecipientModel] = []
-    if linked_broadcasts:
-        recipient_visibility = (
-            or_(
-                WhatsAppBroadcastRecipientModel.removed_at.is_(None),
-                WhatsAppBroadcastRecipientModel.id.in_(suppressed_recipient_ids),
-            )
-            if suppressed_recipient_ids
-            else WhatsAppBroadcastRecipientModel.removed_at.is_(None)
-        )
-        recipient_result = await session.execute(
-            select(WhatsAppBroadcastRecipientModel).where(
-                WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
-                WhatsAppBroadcastRecipientModel.broadcast_group_id.in_(list(linked_broadcasts)),
-                recipient_visibility,
-            )
-        )
-        recipient_models = list(recipient_result.scalars().all())
-    recipient_model_by_id = {recipient.id: recipient for recipient in recipient_models}
-    recipients = [
-        RecipientForComparison(
-            id=recipient.id,
-            broadcast_id=recipient.broadcast_group_id,
-            broadcast_name=linked_broadcasts[recipient.broadcast_group_id],
-            name=recipient.name,
-            phone=recipient.normalized_phone_number,
-            updated_at=recipient.created_at,
-            imported_fields=dict(recipient.imported_fields or {}),
-        )
-        for recipient in recipient_models
-        if recipient.removed_at is None and recipient.id not in suppressed_recipient_ids
-    ]
-
-    submission_result = await session.execute(
-        select(PassportSubmissionModel).where(
-            PassportSubmissionModel.group_id == group.id,
-            PassportSubmissionModel.agency_id == group.agency_id,
-            PassportSubmissionModel.status.in_(OFFICE_VISIBLE_PASSPORT_STATUS_VALUES),
-        )
-    )
-    submission_models = list(submission_result.scalars().all())
-    submission_model_by_id = {submission.id: submission for submission in submission_models}
-    submissions = [
-        SubmissionForComparison(
-            id=submission.id,
-            name=submission.client_name,
-            client_phone=submission.client_phone,
-            family_head_phone=submission.family_head_phone,
-            updated_at=submission.updated_at,
-            client_email=submission.client_email,
-            family_head_email=submission.family_head_email,
-            confirmed_fields=dict(submission.confirmed_fields or {}),
-            extracted_fields=dict(submission.extracted_fields or {}),
-            staff_metadata=dict(submission.staff_metadata or {}),
-        )
-        for submission in submission_models
-        if submission.id not in excluded_submission_ids
-    ]
-    rows, _ = compare_group_submissions(recipients, submissions)
-    rows = _whatsapp_match_support.include_active_resolution_rows(
-        rows,
-        active_resolutions=active_resolutions,
-        submissions_by_id=submission_model_by_id,
-        recipients_by_id=recipient_model_by_id,
+    rows, submission_model_by_id = await _whatsapp_match_support.load_current_whatsapp_match_rows(
+        session,
+        group=group,
         linked_broadcasts=linked_broadcasts,
+        matching_fields_by_broadcast=matching_fields_by_broadcast,
     )
     counts = summarize_match_rows(rows)
     if broadcast_id is not None:
@@ -1931,7 +1940,11 @@ async def update_client_group(
         agent_employee_code_enabled=request.agent_employee_code_enabled,
         meal_preference_enabled=request.meal_preference_enabled,
         require_selfie=request.require_selfie,
-        upload_configuration=(request.upload_configuration.model_dump(mode="json") if request.upload_configuration is not None else None),
+        upload_configuration=(
+            request.upload_configuration.model_dump(mode="json")
+            if request.upload_configuration is not None
+            else None
+        ),
         allow_files_from_device=request.allow_files_from_device,
         ask_nearest_domestic_airport=request.ask_nearest_domestic_airport,
         relation_with_qualifier_enabled=request.relation_with_qualifier_enabled,
@@ -1957,6 +1970,7 @@ async def update_client_group(
             agency_id=group.agency_id,
             created_by_user_id=current_user.id,
             broadcast_ids=request.whatsapp_broadcast_group_ids,
+            matching_fields_by_broadcast=request.matching_fields_by_broadcast,
         )
         await AuditLogRepository(session).record(
             action="client_group_whatsapp_links_replaced",
@@ -2222,15 +2236,11 @@ async def permanently_delete_client_group(
             "deleted_processing_jobs": deleted_processing_jobs,
             "deleted_qualifier_selections": deleted_qualifier_selections,
             "deleted_storage_objects": deleted_storage_objects,
-            "storage_objects_scheduled_for_cleanup": len(storage_keys)
-            if not retain_records
-            else 0,
+            "storage_objects_scheduled_for_cleanup": len(storage_keys) if not retain_records else 0,
             "storage_cleanup_job_count": len(cleanup_jobs),
             "request_fingerprint": mutation.request_fingerprint,
             "passport_purge_at": (
-                group.passport_purge_at.isoformat()
-                if group.passport_purge_at is not None
-                else None
+                group.passport_purge_at.isoformat() if group.passport_purge_at is not None else None
             ),
         },
     )

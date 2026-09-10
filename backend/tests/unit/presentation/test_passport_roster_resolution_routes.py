@@ -487,7 +487,7 @@ async def test_linked_broadcast_cannot_be_removed_while_replacement_is_active() 
     agency_id = uuid.uuid4()
     broadcast_id = uuid.uuid4()
     existing_links_result = MagicMock()
-    existing_links_result.scalars.return_value.all.return_value = [broadcast_id]
+    existing_links_result.all.return_value = [(broadcast_id, None)]
     active_replacement_result = MagicMock()
     active_replacement_result.scalar_one_or_none.return_value = uuid.uuid4()
     session = MagicMock()
@@ -543,7 +543,7 @@ async def test_newly_linked_broadcast_is_reconciled_against_active_replacements(
     agency_id = uuid.uuid4()
     broadcast_id = uuid.uuid4()
     existing_links_result = MagicMock()
-    existing_links_result.scalars.return_value.all.return_value = []
+    existing_links_result.all.return_value = []
     session = MagicMock()
     session.execute = AsyncMock(
         side_effect=[

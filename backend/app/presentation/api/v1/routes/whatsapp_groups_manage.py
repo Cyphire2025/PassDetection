@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import uuid
 from datetime import UTC, datetime
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy import delete, select
@@ -22,7 +23,13 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastSupportContactModel,
 )
 from app.infrastructure.database.session import get_db_session
-from app.presentation.api.v1.routes.whatsapp_contact_import import _parse_excel_contacts
+from app.presentation.api.v1.routes.whatsapp_contact_import import (
+    _parse_excel_contacts_result,
+)
+from app.presentation.api.v1.routes.whatsapp_contact_support import (
+    _imported_field_keys_for_contacts,
+    _WhatsAppExcelContactParseResult,
+)
 from app.presentation.api.v1.routes.whatsapp_scope import _lock_active_whatsapp_actor
 from app.presentation.api.v1.routes.whatsapp_shared import (
     WHATSAPP_ROLES,
@@ -34,6 +41,7 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
     _new_roster_display_orders,
     _normalize_phone,
     _normalized_recipient_inputs,
+    _parse_imported_field_keys,
     _parse_rejected_contacts,
     _parse_support_contacts,
 )
@@ -58,6 +66,7 @@ async def create_broadcast_group(
     name: str = Form(...),
     organizing_company_name: str | None = Form(None),
     contacts_json: str = Form("[]"),
+    imported_field_keys_json: Annotated[str, Form()] = "[]",
     rejected_contacts_json: str = Form("[]"),
     support_contacts_json: str = Form("[]"),
     recipient_opt_in_confirmed: bool = Form(...),
@@ -72,6 +81,7 @@ async def create_broadcast_group(
     # The authentication dependency has already performed a database read.
     # Release that transaction before parsing request JSON or workbook bytes.
     await session.rollback()
+    preview_field_keys = _parse_imported_field_keys(imported_field_keys_json)
     group_name = name.strip()
     if not group_name:
         raise HTTPException(
@@ -114,8 +124,12 @@ async def create_broadcast_group(
             detail="Add at least one customer support contact",
         )
 
-    excel_contacts = await _parse_excel_contacts(contacts_file) if contacts_file else []
-    contacts = manual_contacts + excel_contacts
+    excel_result = (
+        await _parse_excel_contacts_result(contacts_file)
+        if contacts_file
+        else _WhatsAppExcelContactParseResult([], [], {}, [])
+    )
+    contacts = manual_contacts + excel_result.contacts
     normalized_contacts = _normalized_recipient_inputs(contacts) if contacts else {}
     if not normalized_contacts and not rejected_contacts:
         raise HTTPException(
@@ -194,6 +208,10 @@ async def create_broadcast_group(
         name=group_name,
         organizing_company_name=company_name,
         recipient_opt_in_confirmed_at=now if normalized_contacts else None,
+        imported_field_keys=_imported_field_keys_for_contacts(
+            declared_keys=[*preview_field_keys, *excel_result.field_keys],
+            contacts=[*contacts, *rejected_contacts],
+        ),
         created_by_user_id=actor.id,
         created_at=now,
         updated_at=now,

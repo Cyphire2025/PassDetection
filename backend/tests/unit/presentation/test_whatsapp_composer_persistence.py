@@ -120,6 +120,76 @@ def test_passport_snapshot_restores_every_editable_composer_field() -> None:
     assert merged.header_image_id == snapshot.header_image_id
 
 
+def test_reminder_audience_survives_composer_snapshot_merge() -> None:
+    client_group_id = uuid.uuid4()
+    snapshot = _composer_snapshot_from_log(
+        SimpleNamespace(
+            **{
+                **vars(_passport_log()),
+                "message_type": "reminder",
+                "header_parameter_values": [],
+                "template_parameter_values": ["Saved reminder"],
+            }
+        )
+    )
+
+    merged = _merge_composer_snapshot(
+        WhatsAppSendRequest(
+            message_type="reminder",
+            audience="not_submitted",
+            audience_client_group_id=client_group_id,
+        ),
+        snapshot,
+    )
+
+    assert merged.audience == "not_submitted"
+    assert merged.audience_client_group_id == client_group_id
+    assert merged.message_content == "Saved reminder"
+
+
+def test_not_submitted_audience_rejects_explicit_recipient_ids() -> None:
+    with pytest.raises(ValueError, match="explicit recipients"):
+        WhatsAppSendRequest(
+            message_type="reminder",
+            audience="not_submitted",
+            recipient_ids=[uuid.uuid4()],
+        )
+
+
+def test_non_reminder_rejects_targeted_audience() -> None:
+    with pytest.raises(ValueError, match="only for reminders"):
+        WhatsAppSendRequest(
+            message_type="welcome",
+            audience="not_submitted",
+        )
+
+
+def test_send_request_rejects_unknown_audience_fields() -> None:
+    with pytest.raises(ValueError, match="Extra inputs are not permitted"):
+        WhatsAppSendRequest(
+            message_type="reminder",
+            audience="not_submitted",
+            audience_client_group=uuid.uuid4(),  # type: ignore[call-arg]
+        )
+
+
+def test_resend_request_rejects_not_submitted_audience() -> None:
+    with pytest.raises(ValueError, match="selected recipient"):
+        WhatsAppResendRequest(
+            message_type="reminder",
+            audience="not_submitted",
+        )
+
+
+def test_resend_preview_rejects_not_submitted_audience() -> None:
+    with pytest.raises(ValueError, match="resend preview"):
+        WhatsAppPreviewRequest(
+            message_type="reminder",
+            audience="not_submitted",
+            resend_recipient_id=uuid.uuid4(),
+        )
+
+
 def test_new_sends_require_nonempty_passport_intro_and_image_header() -> None:
     with pytest.raises(HTTPException) as intro_error:
         _resolve_send_passport_intro("   ", group_name="Vietnam")

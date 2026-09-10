@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   mergeRecipientImportContacts,
+  mergeRecipientImportMatchingFields,
   mergeRecipientImportPreview,
   mergeRecipientImportRejectedRows,
   recipientPhoneMergeKey,
@@ -75,6 +76,38 @@ test("preserves imported spreadsheet fields for review and persistence", () => {
     email: "aarav@example.com",
     staff_code: "GC-42",
   });
+});
+
+test("preserves every preview heading, including empty-column headings, across imports", () => {
+  const firstPreview = mergeRecipientImportPreview([], {
+    recipient_count: 1,
+    recipients: [{ name: "Aarav", phone_number: "+91 9818752221" }],
+    available_matching_fields: [
+      { key: "name", label: "Name" },
+      { key: "producer_code", label: "Producer Code" },
+      { key: "location", label: "Location" },
+    ],
+  });
+  const accumulated = mergeRecipientImportMatchingFields(
+    firstPreview.availableMatchingFields,
+    [
+      { key: "producer_code", label: "Duplicate label is ignored" },
+      { key: "date_of_birth", label: "Date of Birth" },
+      { key: "", label: "Invalid" },
+    ],
+  );
+
+  assert.deepEqual(firstPreview.availableMatchingFields, [
+    { key: "name", label: "Name" },
+    { key: "producer_code", label: "Producer Code" },
+    { key: "location", label: "Location" },
+  ]);
+  assert.deepEqual(accumulated, [
+    { key: "name", label: "Name" },
+    { key: "producer_code", label: "Producer Code" },
+    { key: "location", label: "Location" },
+    { key: "date_of_birth", label: "Date of Birth" },
+  ]);
 });
 
 test("keeps every valid contact from a mixed preview and returns every rejected source row", () => {

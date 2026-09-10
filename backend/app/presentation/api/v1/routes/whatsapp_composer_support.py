@@ -440,4 +440,6 @@ def _merge_composer_snapshot(
         ),
         recipient_ids=body.recipient_ids,
         support_contact_ids=body.support_contact_ids,
+        audience=body.audience,
+        audience_client_group_id=body.audience_client_group_id,
     )

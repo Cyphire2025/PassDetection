@@ -40,3 +40,47 @@ describe("qualifier relationship configuration", () => {
     expect(uploadConfigurationSchema.safeParse({ ...DEFAULT_UPLOAD_CONFIGURATION, qualifier_relation_other_enabled: value }).success).toBe(false);
   });
 });
+
+describe("WhatsApp identification field configuration", () => {
+  const broadcastId = "0d252766-b75b-4698-8502-92ea0c339f15";
+
+  it("defaults older create payloads to no explicit per-broadcast configuration", () => {
+    const result = createUploadLinkSchema.parse(validLink);
+    expect(result.matching_fields_by_broadcast).toEqual({});
+  });
+
+  it("preserves one or more selected spreadsheet headings for a linked broadcast", () => {
+    const result = createUploadLinkSchema.parse({
+      ...validLink,
+      whatsapp_broadcast_group_ids: [broadcastId],
+      matching_fields_by_broadcast: {
+        [broadcastId]: ["name", "mobile_number", "producer_code"],
+      },
+    });
+    expect(result.matching_fields_by_broadcast).toEqual({
+      [broadcastId]: ["name", "mobile_number", "producer_code"],
+    });
+  });
+
+  it("rejects empty field selections instead of silently replacing configured matching", () => {
+    const result = createUploadLinkSchema.safeParse({
+      ...validLink,
+      whatsapp_broadcast_group_ids: [broadcastId],
+      matching_fields_by_broadcast: { [broadcastId]: [] },
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects identification fields for a broadcast that is no longer linked", () => {
+    const result = createUploadLinkSchema.safeParse({
+      ...validLink,
+      matching_fields_by_broadcast: { [broadcastId]: ["producer_code"] },
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues).toContainEqual(expect.objectContaining({
+        path: ["matching_fields_by_broadcast", broadcastId],
+      }));
+    }
+  });
+});

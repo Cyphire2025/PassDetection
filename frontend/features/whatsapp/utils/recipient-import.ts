@@ -25,6 +25,11 @@ export type RecipientImportRejectedRowWithSource =
     source_file_name: string;
   };
 
+export type RecipientImportMatchingField = {
+  key: string;
+  label: string;
+};
+
 export type RecipientImportPreview = {
   recipient_count: number;
   accepted_count?: number;
@@ -33,6 +38,7 @@ export type RecipientImportPreview = {
   rejected_rows?: RecipientImportRejectedRow[];
   rejected_rows_truncated?: boolean;
   omitted_rejected_count?: number;
+  available_matching_fields?: RecipientImportMatchingField[];
 };
 
 export type RecipientImportMergeResult = {
@@ -47,7 +53,22 @@ export type RecipientImportPreviewMergeResult = RecipientImportMergeResult & {
   rejectedRows: RecipientImportRejectedRow[];
   rejectedRowsTruncated: boolean;
   omittedRejectedCount: number;
+  availableMatchingFields: RecipientImportMatchingField[];
 };
+
+export function mergeRecipientImportMatchingFields(
+  existingFields: RecipientImportMatchingField[],
+  importedFields: RecipientImportMatchingField[],
+): RecipientImportMatchingField[] {
+  const fieldsByKey = new Map(
+    existingFields.map((field) => [field.key, { ...field }]),
+  );
+  for (const field of importedFields) {
+    if (!field.key.trim() || fieldsByKey.has(field.key)) continue;
+    fieldsByKey.set(field.key, { ...field });
+  }
+  return Array.from(fieldsByKey.values());
+}
 
 /**
  * Mirrors the backend's useful phone-normalization cases closely enough for
@@ -159,6 +180,9 @@ export function mergeRecipientImportPreview(
       preview.rejected_rows_truncated ??
       omittedRejectedCount > 0,
     omittedRejectedCount,
+    availableMatchingFields: (preview.available_matching_fields ?? []).map(
+      (field) => ({ ...field }),
+    ),
   };
 }
 

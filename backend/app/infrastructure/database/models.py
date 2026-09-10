@@ -1372,6 +1372,12 @@ class ClientGroupWhatsAppBroadcastLinkModel(Base):
         nullable=True,
         index=True,
     )
+    # NULL is the backwards-compatible legacy matcher. Explicit values are a
+    # non-empty set of imported field keys evaluated with OR semantics.
+    matching_field_keys: Mapped[list[str] | None] = mapped_column(
+        JSONB,
+        nullable=True,
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, nullable=False
     )

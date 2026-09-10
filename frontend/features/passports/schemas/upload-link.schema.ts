@@ -73,9 +73,23 @@ export const createUploadLinkSchema = z.object({
   custom_questions: z.array(customQuestionSchema).max(20),
   custom_details: z.array(customDetailSchema).max(20),
   whatsapp_broadcast_group_ids: z.array(z.string().uuid()).max(50),
+  matching_fields_by_broadcast: z.record(
+    z.string().uuid(),
+    z.array(z.string().trim().min(1).max(120)).min(1).max(32),
+  ).default({}),
   notes: z.string().trim().max(2000).optional(),
 }).superRefine((data, context) => {
   const configuration = data.upload_configuration ?? DEFAULT_UPLOAD_CONFIGURATION;
+  const linkedWhatsAppBroadcastIds = new Set(data.whatsapp_broadcast_group_ids);
+  for (const broadcastId of Object.keys(data.matching_fields_by_broadcast)) {
+    if (!linkedWhatsAppBroadcastIds.has(broadcastId)) {
+      context.addIssue({
+        code: "custom",
+        path: ["matching_fields_by_broadcast", broadcastId],
+        message: "Identification fields can only be set for a linked WhatsApp broadcast.",
+      });
+    }
+  }
   if (data.require_selfie && !configuration.visa_photo_live_capture && !configuration.visa_photo_upload) {
     context.addIssue({ code: "custom", path: ["upload_configuration"], message: "Enable at least one method for Visa Photo." });
   }

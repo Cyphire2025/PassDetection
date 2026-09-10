@@ -13,6 +13,7 @@ from app.presentation.api.v1.routes import whatsapp as whatsapp_routes
 from app.presentation.api.v1.routes.whatsapp import (
     WhatsAppRecipientInput,
     _lock_active_whatsapp_actor,
+    _WhatsAppExcelContactParseResult,
     add_broadcast_recipients,
     create_broadcast_group,
 )
@@ -94,9 +95,14 @@ async def test_create_group_parses_workbook_before_reauthorization_and_mutation(
     async def rollback() -> None:
         events.append("rollback_auth_transaction")
 
-    async def parse_contacts(_upload: object) -> list[WhatsAppRecipientInput]:
+    async def parse_contacts(_upload: object) -> _WhatsAppExcelContactParseResult:
         events.append("parse_workbook")
-        return [WhatsAppRecipientInput(name="Aarav", phone_number="9876543210")]
+        return _WhatsAppExcelContactParseResult(
+            contacts=[WhatsAppRecipientInput(name="Aarav", phone_number="9876543210")],
+            rejected_rows=[],
+            rejected_counts={},
+            field_keys=[],
+        )
 
     async def lock_actor(*_args: object, **_kwargs: object) -> object:
         events.append("reauthorize_actor")
@@ -114,7 +120,7 @@ async def test_create_group_parses_workbook_before_reauthorization_and_mutation(
 
     with (
         patch_route_dependency(
-            "app.presentation.api.v1.routes.whatsapp._parse_excel_contacts",
+            "app.presentation.api.v1.routes.whatsapp_groups_manage._parse_excel_contacts_result",
             new=AsyncMock(side_effect=parse_contacts),
         ),
         patch_route_dependency(
@@ -172,9 +178,14 @@ async def test_add_recipients_parses_before_tenant_group_lock() -> None:
     async def rollback() -> None:
         events.append("rollback_auth_transaction")
 
-    async def parse_contacts(_upload: object) -> list[WhatsAppRecipientInput]:
+    async def parse_contacts(_upload: object) -> _WhatsAppExcelContactParseResult:
         events.append("parse_workbook")
-        return [WhatsAppRecipientInput(name="Aarav", phone_number="9876543210")]
+        return _WhatsAppExcelContactParseResult(
+            contacts=[WhatsAppRecipientInput(name="Aarav", phone_number="9876543210")],
+            rejected_rows=[],
+            rejected_counts={},
+            field_keys=[],
+        )
 
     async def lock_actor(*_args: object, **_kwargs: object) -> object:
         events.append("reauthorize_actor")
@@ -190,7 +201,7 @@ async def test_add_recipients_parses_before_tenant_group_lock() -> None:
 
     with (
         patch_route_dependency(
-            "app.presentation.api.v1.routes.whatsapp._parse_excel_contacts",
+            "app.presentation.api.v1.routes.whatsapp_recipients._parse_excel_contacts_result",
             new=AsyncMock(side_effect=parse_contacts),
         ),
         patch_route_dependency(
@@ -252,9 +263,14 @@ async def test_create_group_rejects_revoked_actor_after_parsing_before_mutation(
     async def rollback() -> None:
         events.append("rollback_auth_transaction")
 
-    async def parse_contacts(_upload: object) -> list[WhatsAppRecipientInput]:
+    async def parse_contacts(_upload: object) -> _WhatsAppExcelContactParseResult:
         events.append("parse_workbook")
-        return [WhatsAppRecipientInput(name="Aarav", phone_number="9876543210")]
+        return _WhatsAppExcelContactParseResult(
+            contacts=[WhatsAppRecipientInput(name="Aarav", phone_number="9876543210")],
+            rejected_rows=[],
+            rejected_counts={},
+            field_keys=[],
+        )
 
     async def execute(_statement: object) -> MagicMock:
         events.append("reauthorize_actor")
@@ -266,7 +282,7 @@ async def test_create_group_rejects_revoked_actor_after_parsing_before_mutation(
 
     with (
         patch_route_dependency(
-            "app.presentation.api.v1.routes.whatsapp._parse_excel_contacts",
+            "app.presentation.api.v1.routes.whatsapp_groups_manage._parse_excel_contacts_result",
             new=AsyncMock(side_effect=parse_contacts),
         ),
         pytest.raises(HTTPException) as exc_info,

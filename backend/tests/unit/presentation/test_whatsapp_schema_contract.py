@@ -40,9 +40,9 @@ _MODEL_NAMES = [
 ]
 _SCHEMA_SHA256_BY_PYDANTIC = {
     # Repository-pinned production and CI runtime.
-    "2.7.4": "412e9736798e5e1d039797e4bd189db5930d544845a51c861fa821346c205fa0",
+    "2.7.4": "480aa411a4b6de69aaace60558016c97c8746ae15f1a7b8441120fd15fffc5d2",
     # Python 3.13-compatible Windows development runtime.
-    "2.13.4": "0bff4a036b43b8ca87677f4c366df3522ae6cc9087b9c7f734044d72d319a6bf",
+    "2.13.4": "56d4ff77d88b7b37c30260e03829749d5a544e7054c88dca8390a02b3affd493",
 }
 
 

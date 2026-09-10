@@ -1077,6 +1077,11 @@ async def test_excel_contact_preview_returns_named_normalized_recipients() -> No
         ],
         "rejected_rows_truncated": False,
         "omitted_rejected_count": 0,
+        "available_matching_fields": [
+            {"key": "s_no", "label": "S No"},
+            {"key": "name", "label": "Name"},
+            {"key": "phone_number", "label": "Mobile number"},
+        ],
     }
 
 
@@ -1257,6 +1262,34 @@ async def test_excel_contact_preview_bounds_rejected_row_payload(
     assert response.omitted_rejected_count == 1
 
 
+@pytest.mark.asyncio
+async def test_excel_contact_preview_preserves_an_empty_column_heading() -> None:
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.append(["Name", "Mobile", "Producer Code"])
+    sheet.append(["Aarav", "9873361557", None])
+    payload = BytesIO()
+    workbook.save(payload)
+    workbook.close()
+    payload.seek(0)
+
+    result = await _parse_excel_contact_preview(
+        UploadFile(file=payload, filename="contacts.xlsx"),
+    )
+    response = _excel_contact_preview_response(
+        result.contacts,
+        result.rejected_rows,
+        rejected_count=result.rejected_count,
+        available_field_keys=result.field_keys,
+    )
+
+    assert [field.key for field in response.available_matching_fields] == [
+        "name",
+        "phone_number",
+        "producer_code",
+    ]
+
+
 def test_excel_contact_preview_rejects_empty_or_unnamed_contacts() -> None:
     with pytest.raises(HTTPException) as empty_error:
         _excel_contact_preview_response([])
@@ -1308,6 +1341,7 @@ def test_excel_contact_preview_route_is_role_gated_and_has_stable_contract() -> 
         "rejected_rows",
         "rejected_rows_truncated",
         "omitted_rejected_count",
+        "available_matching_fields",
     }
     assert [dependency.call.__name__ for dependency in route.dependant.dependencies] == [
         "_check_role",

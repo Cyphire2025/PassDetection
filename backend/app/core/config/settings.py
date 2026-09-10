@@ -408,9 +408,7 @@ class MobileSettings(BaseSettings):
         default="GlobalConnects-TripJourney/1.0", min_length=8, max_length=255
     )
     journey_geocoding_timeout_seconds: float = Field(default=5.0, ge=1, le=10)
-    journey_geocoding_cache_ttl_seconds: int = Field(
-        default=2_592_000, ge=86_400, le=7_776_000
-    )
+    journey_geocoding_cache_ttl_seconds: int = Field(default=2_592_000, ge=86_400, le=7_776_000)
     journey_geocoding_failure_ttl_seconds: int = Field(default=300, ge=30, le=3_600)
 
     @field_validator("journey_geocoding_url")
@@ -1146,7 +1144,7 @@ class Settings(BaseSettings):
         pattern=r"^(?:unknown|[0-9a-f]{7,64})$",
     )
     expected_database_schema_revision: str = Field(
-        default="0091_qualifier_other_relation",
+        default="0092_whatsapp_matching_fields",
         min_length=1,
         max_length=32,
         pattern=r"^[A-Za-z0-9_]+$",

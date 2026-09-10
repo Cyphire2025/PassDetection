@@ -11,10 +11,14 @@ from pydantic import ValidationError
 from sqlalchemy import inspect
 from sqlalchemy.orm import Session
 
+from app.application.use_cases.whatsapp.group_submission_matching import (
+    MatchEvidence,
+    SubmissionMatchRow,
+)
 from app.domain.entities.entities import UserRole
 from app.infrastructure.database.models import DocumentDistributionBatchModel
 from app.infrastructure.documents.document_matcher import DocumentMatcher
-from app.presentation.api.v1.routes import document_distribution
+from app.presentation.api.v1.routes import document_distribution, document_distribution_matching
 from app.presentation.api.v1.schemas.document_distribution_schemas import (
     SendDocumentBroadcastRequest,
 )
@@ -146,7 +150,7 @@ def test_document_delivery_polling_is_lifecycle_bounded() -> None:
 async def test_private_document_recipient_query_excludes_suppressed_roster_rows() -> None:
     agency_id, group_id, broadcast_id = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
     linked_result = MagicMock()
-    linked_result.all.return_value = [(broadcast_id, "Vietnam group")]
+    linked_result.all.return_value = [(broadcast_id, "Vietnam group", None)]
     recipient_result = MagicMock()
     recipient_result.scalars.return_value.all.return_value = []
     session = MagicMock()
@@ -191,6 +195,7 @@ async def test_linked_excel_code_requires_unique_scoped_passenger_match(monkeypa
     linked = AsyncMock(
         return_value=(
             {broadcast_id: "Vietnam group"},
+            {broadcast_id: None},
             [scoped_recipient, foreign_recipient],
         )
     )
@@ -210,6 +215,129 @@ async def test_linked_excel_code_requires_unique_scoped_passenger_match(monkeypa
         group=group,
         require_opt_in=False,
     )
+
+
+@pytest.mark.asyncio
+async def test_linked_document_matching_propagates_config_and_all_submission_answers(
+    monkeypatch,
+) -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    broadcast_id = uuid.uuid4()
+    group = SimpleNamespace(id=group_id, agency_id=agency_id)
+    passenger = _passenger(
+        agency_id=agency_id,
+        group_id=group_id,
+        phone="9111111111",
+        name="Different Name",
+    )
+    passenger.custom_answers = [
+        {"label": "Producer Code", "value": "PR-42"},
+    ]
+    passenger.custom_detail_answers = [
+        {"label": "Branch", "value": "Pune"},
+    ]
+    passenger.departure_city = "Mumbai"
+    passenger.nearest_domestic_airport = "Pune"
+    passenger.family_relation = "Spouse"
+    passenger.family_gender = "Female"
+    passenger.family_head_name = "Family Head"
+    recipient = _recipient(
+        agency_id=agency_id,
+        broadcast_id=broadcast_id,
+        phone="9222222222",
+        imported_fields={"Producer Code": "PR-42"},
+    )
+    captured: dict[str, object] = {}
+
+    def compare(recipients, submissions):
+        captured["recipients"] = recipients
+        captured["submissions"] = submissions
+        return [], SimpleNamespace()
+
+    set_route_dependency(
+        monkeypatch,
+        document_distribution,
+        "_linked_whatsapp_recipients",
+        AsyncMock(
+            return_value=(
+                {broadcast_id: "Vietnam group"},
+                {broadcast_id: ("producer_code",)},
+                [recipient],
+            )
+        ),
+    )
+    set_route_dependency(
+        monkeypatch,
+        document_distribution,
+        "compare_group_submissions",
+        compare,
+    )
+
+    identifiers = await document_distribution._linked_document_match_identifiers(
+        AsyncMock(),
+        group=group,
+        passengers=[passenger],
+        matcher=DocumentMatcher(),
+    )
+
+    assert identifiers == ()
+    compared_recipient = captured["recipients"][0]  # type: ignore[index]
+    compared_submission = captured["submissions"][0]  # type: ignore[index]
+    assert compared_recipient.matching_field_keys == ("producer_code",)
+    assert compared_submission.custom_answers == tuple(passenger.custom_answers)
+    assert compared_submission.custom_detail_answers == tuple(
+        passenger.custom_detail_answers
+    )
+    assert compared_submission.departure_city == "Mumbai"
+    assert compared_submission.nearest_domestic_airport == "Pune"
+    assert compared_submission.family_relation == "Spouse"
+    assert compared_submission.family_gender == "Female"
+    assert compared_submission.family_head_name == "Family Head"
+
+
+@pytest.mark.asyncio
+async def test_generic_configured_match_does_not_supply_private_document_identifiers(
+    monkeypatch,
+) -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    broadcast_id = uuid.uuid4()
+    group = SimpleNamespace(id=group_id, agency_id=agency_id)
+    passenger = _passenger(
+        agency_id=agency_id,
+        group_id=group_id,
+        phone="9111111111",
+        name="Submitted Name",
+    )
+    passenger.custom_answers = [{"label": "Producer Code", "value": "PR-42"}]
+    recipient = _recipient(
+        agency_id=agency_id,
+        broadcast_id=broadcast_id,
+        phone="9222222222",
+        imported_fields={"Producer Code": "PR-42", "agent_code": "8899"},
+    )
+    set_route_dependency(
+        monkeypatch,
+        document_distribution,
+        "_linked_whatsapp_recipients",
+        AsyncMock(
+            return_value=(
+                {broadcast_id: "Vietnam group"},
+                {broadcast_id: ("producer_code",)},
+                [recipient],
+            )
+        ),
+    )
+
+    identifiers = await document_distribution._linked_document_match_identifiers(
+        AsyncMock(),
+        group=group,
+        passengers=[passenger],
+        matcher=DocumentMatcher(),
+    )
+
+    assert identifiers == ()
 
 
 @pytest.mark.asyncio
@@ -239,7 +367,13 @@ async def test_linked_excel_code_is_not_attached_to_ambiguous_passengers(
         monkeypatch,
         document_distribution,
         "_linked_whatsapp_recipients",
-        AsyncMock(return_value=({broadcast_id: "Vietnam group"}, [recipient])),
+        AsyncMock(
+            return_value=(
+                {broadcast_id: "Vietnam group"},
+                {broadcast_id: None},
+                [recipient],
+            )
+        ),
     )
 
     identifiers = await document_distribution._linked_document_match_identifiers(
@@ -294,17 +428,12 @@ async def test_private_document_preview_blocks_shared_whatsapp_destination(
     session.execute = AsyncMock(
         side_effect=[submissions_result, documents_result, deliveries_result]
     )
-    set_route_dependency(
-        monkeypatch,
-        document_distribution,
-        "_linked_whatsapp_recipients",
-        AsyncMock(return_value=({broadcast_id: "Vietnam group"}, [recipient])),
-    )
-    set_route_dependency(
-        monkeypatch,
-        document_distribution,
-        "compare_group_submissions",
-        lambda *_args, **_kwargs: (
+    captured_comparison: dict[str, object] = {}
+
+    def compare(recipients, submissions):
+        captured_comparison["recipients"] = recipients
+        captured_comparison["submissions"] = submissions
+        return (
             [
                 SimpleNamespace(
                     status="multiple_submissions",
@@ -313,7 +442,25 @@ async def test_private_document_preview_blocks_shared_whatsapp_destination(
                 )
             ],
             SimpleNamespace(),
+        )
+
+    set_route_dependency(
+        monkeypatch,
+        document_distribution,
+        "_linked_whatsapp_recipients",
+        AsyncMock(
+            return_value=(
+                {broadcast_id: "Vietnam group"},
+                {broadcast_id: ("phone_number",)},
+                [recipient],
+            )
         ),
+    )
+    set_route_dependency(
+        monkeypatch,
+        document_distribution,
+        "compare_group_submissions",
+        compare,
     )
 
     preview = await document_distribution._build_document_delivery_preview(
@@ -332,6 +479,103 @@ async def test_private_document_preview_blocks_shared_whatsapp_destination(
     assert {row.reason for row in preview.recipients} == {
         document_distribution.SHARED_WHATSAPP_DESTINATION_REASON
     }
+    compared_recipients = captured_comparison["recipients"]
+    compared_submissions = captured_comparison["submissions"]
+    assert compared_recipients[0].matching_field_keys == ("phone_number",)  # type: ignore[index]
+    assert {item.id for item in compared_submissions} == {  # type: ignore[union-attr]
+        passenger.id for passenger in passengers
+    }
+
+
+@pytest.mark.asyncio
+async def test_private_document_preview_rejects_weak_configured_match(monkeypatch) -> None:
+    agency_id, group_id, broadcast_id = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
+    group = SimpleNamespace(id=group_id, agency_id=agency_id)
+    batch = SimpleNamespace(id=uuid.uuid4(), document_type="visa")
+    passenger = _passenger(
+        agency_id=agency_id,
+        group_id=group_id,
+        phone="9111111111",
+        name="Submitted Name",
+    )
+    recipient = _recipient(
+        agency_id=agency_id,
+        broadcast_id=broadcast_id,
+        phone="9222222222",
+        imported_fields={"producer_code": "PR-42"},
+    )
+    document = SimpleNamespace(
+        id=uuid.uuid4(),
+        passenger_id=passenger.id,
+        original_filename="private.pdf",
+        document_type="visa",
+        match_status="matched",
+    )
+    submissions_result = MagicMock()
+    submissions_result.scalars.return_value.all.return_value = [passenger]
+    documents_result = MagicMock()
+    documents_result.all.return_value = [(document, "saved")]
+    deliveries_result = MagicMock()
+    deliveries_result.scalars.return_value.all.return_value = []
+    session = MagicMock()
+    session.execute = AsyncMock(
+        side_effect=[submissions_result, documents_result, deliveries_result]
+    )
+    weak_row = SubmissionMatchRow(
+        status="submitted",
+        match_basis="producer_code",
+        normalized_phone=None,
+        recipient_ids=(recipient.id,),
+        submission_ids=(passenger.id,),
+        broadcast_ids=(broadcast_id,),
+        broadcast_names=("Vietnam group",),
+        recipient_names=(recipient.name,),
+        submission_names=(passenger.client_name,),
+        updated_at=passenger.updated_at,
+        confidence="high",
+        match_evidence=(
+            MatchEvidence(
+                submission_id=passenger.id,
+                kind="producer_code",
+                recipient_value="PR-42",
+                submission_value="PR-42",
+                weight=100,
+                private_identity_confirmed=False,
+            ),
+        ),
+    )
+    set_route_dependency(
+        monkeypatch,
+        document_distribution,
+        "_linked_whatsapp_recipients",
+        AsyncMock(
+            return_value=(
+                {broadcast_id: "Vietnam group"},
+                {broadcast_id: ("producer_code",)},
+                [recipient],
+            )
+        ),
+    )
+    set_route_dependency(
+        monkeypatch,
+        document_distribution,
+        "compare_group_submissions",
+        lambda _recipients, _submissions: ([weak_row], SimpleNamespace()),
+    )
+
+    preview = await document_distribution._build_document_delivery_preview(
+        session,
+        group=group,
+        batch=batch,
+        passengers=[passenger],
+    )
+
+    assert preview.summary.blocked == 1
+    assert preview.summary.ready == 0
+    assert len(preview.recipients) == 1
+    assert preview.recipients[0].eligible is False
+    assert preview.recipients[0].recipient_id is None
+    assert preview.recipients[0].phone_number is None
 
 
 @pytest.mark.asyncio
@@ -506,6 +750,57 @@ def test_linked_matching_snapshot_tracks_recipient_codes_and_link_identity() -> 
 
     assert changed_code.snapshot != original.snapshot
     assert changed_link.snapshot != changed_code.snapshot
+
+
+def test_linked_matching_policy_snapshot_round_trips_and_fences_mutations() -> None:
+    broadcast_id = uuid.uuid4()
+    link_id = uuid.uuid4()
+    source = document_distribution._LinkedDocumentMatchSource(
+        linked_broadcasts={broadcast_id: "Vietnam group"},
+        recipients=(),
+        snapshot=(("link", str(link_id)),),
+    )
+    legacy_link = SimpleNamespace(
+        id=link_id,
+        broadcast_group_id=broadcast_id,
+        matching_field_keys=None,
+    )
+    configured_link = SimpleNamespace(
+        id=link_id,
+        broadcast_group_id=broadcast_id,
+        matching_field_keys=["producer_code", "name"],
+    )
+    empty_link = SimpleNamespace(
+        id=link_id,
+        broadcast_group_id=broadcast_id,
+        matching_field_keys=[],
+    )
+
+    legacy = document_distribution_matching._source_with_matching_fields(
+        source,
+        [legacy_link],
+    )
+    configured = document_distribution_matching._source_with_matching_fields(
+        source,
+        [configured_link],
+    )
+    empty = document_distribution_matching._source_with_matching_fields(
+        source,
+        [empty_link],
+    )
+
+    assert document_distribution_matching._source_matching_fields_by_broadcast(
+        legacy
+    ) == {broadcast_id: None}
+    assert document_distribution_matching._source_matching_fields_by_broadcast(
+        configured
+    ) == {broadcast_id: ("producer_code", "name")}
+    assert document_distribution_matching._source_matching_fields_by_broadcast(
+        empty
+    ) == {broadcast_id: ()}
+    assert legacy.snapshot != configured.snapshot
+    assert configured.snapshot != empty.snapshot
+    assert legacy.snapshot != empty.snapshot
 
 
 @pytest.mark.asyncio

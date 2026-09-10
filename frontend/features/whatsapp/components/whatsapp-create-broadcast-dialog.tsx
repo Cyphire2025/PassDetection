@@ -37,6 +37,7 @@ export function CreateBroadcastDialog({
     rejectedContacts: WhatsAppRejectedContactInput[];
     supportContacts: WhatsAppSupportContactInput[];
     recipientOptInConfirmed: boolean;
+    importedFieldKeys: string[];
   }) => Promise<void>;
 }) {
   const [name, setName] = useState("");
@@ -53,7 +54,7 @@ export function CreateBroadcastDialog({
   const [recipientOptInConfirmed, setRecipientOptInConfirmed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const submitInFlightRef = useRef(false);
-  const { importState, previewFile, rejectedContacts } =
+  const { importState, previewFile, rejectedContacts, importedFieldKeys } =
     useRecipientExcelPreview({
       contacts,
       setContacts,
@@ -123,6 +124,7 @@ export function CreateBroadcastDialog({
         supportContacts,
         recipientOptInConfirmed:
           contacts.length > 0 && recipientOptInConfirmed,
+        importedFieldKeys,
       });
     } catch (submitError) {
       setError(

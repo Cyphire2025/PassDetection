@@ -10,10 +10,9 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
-from app.application.use_cases.whatsapp.group_submission_matching import (
-    RecipientForComparison,
-    SubmissionForComparison,
-    compare_group_submissions,
+from app.application.use_cases.whatsapp.group_submission_matching import compare_group_submissions
+from app.application.use_cases.whatsapp.private_delivery_identity import (
+    is_private_delivery_match,
 )
 from app.application.use_cases.whatsapp.qr_templates import (
     QR_DEFAULT_MESSAGE_CONTENT,
@@ -39,6 +38,11 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.qr.approved_passenger_qr_issuer import qr_status
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.operational_roster import operational_roster_member
+from app.infrastructure.repositories.passport_whatsapp_matching_repository import (
+    matching_field_keys_from_storage,
+    recipient_comparison_from_model,
+    submission_comparison_from_model,
+)
 from app.presentation.api.v1.schemas.tour_operations_schemas import (
     QrDeliveryPreviewRecipient,
     QrDeliveryPreviewResponse,
@@ -173,11 +177,16 @@ async def _linked_recipients(
     session: AsyncSession,
     *,
     group: ClientGroupModel,
-) -> tuple[dict[uuid.UUID, str], list[WhatsAppBroadcastRecipientModel]]:
+) -> tuple[
+    dict[uuid.UUID, str],
+    dict[uuid.UUID, tuple[str, ...] | None],
+    list[WhatsAppBroadcastRecipientModel],
+]:
     linked_result = await session.execute(
         select(
             ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
             WhatsAppBroadcastGroupModel.name,
+            ClientGroupWhatsAppBroadcastLinkModel.matching_field_keys,
         )
         .join(
             WhatsAppBroadcastGroupModel,
@@ -191,9 +200,17 @@ async def _linked_recipients(
             WhatsAppBroadcastGroupModel.recipient_opt_in_confirmed_at.is_not(None),
         )
     )
-    linked = {broadcast_id: broadcast_name for broadcast_id, broadcast_name in linked_result.all()}
+    linked_rows = linked_result.all()
+    linked = {
+        broadcast_id: broadcast_name
+        for broadcast_id, broadcast_name, _matching_fields in linked_rows
+    }
+    matching_fields_by_broadcast = {
+        broadcast_id: matching_field_keys_from_storage(matching_fields)
+        for broadcast_id, _broadcast_name, matching_fields in linked_rows
+    }
     if not linked:
-        return {}, []
+        return {}, {}, []
     recipient_result = await session.execute(
         select(WhatsAppBroadcastRecipientModel).where(
             WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
@@ -204,7 +221,7 @@ async def _linked_recipients(
             ),
         )
     )
-    return linked, list(recipient_result.scalars().all())
+    return linked, matching_fields_by_broadcast, list(recipient_result.scalars().all())
 
 
 def _matched_recipients(
@@ -212,35 +229,24 @@ def _matched_recipients(
     submissions: list[PassportSubmissionModel],
     recipients: list[WhatsAppBroadcastRecipientModel],
     linked_broadcasts: dict[uuid.UUID, str],
+    matching_fields_by_broadcast: dict[
+        uuid.UUID,
+        tuple[str, ...] | None,
+    ] | None = None,
 ) -> tuple[
     dict[uuid.UUID, tuple[WhatsAppBroadcastRecipientModel, str]],
     set[uuid.UUID],
 ]:
     comparison_recipients = [
-        RecipientForComparison(
-            id=recipient.id,
-            broadcast_id=recipient.broadcast_group_id,
-            broadcast_name=linked_broadcasts[recipient.broadcast_group_id],
-            name=recipient.name,
-            phone=recipient.normalized_phone_number,
-            updated_at=recipient.created_at,
-            imported_fields=dict(recipient.imported_fields or {}),
+        recipient_comparison_from_model(
+            recipient,
+            linked_broadcasts,
+            matching_fields_by_broadcast,
         )
         for recipient in recipients
     ]
     comparison_submissions = [
-        SubmissionForComparison(
-            id=submission.id,
-            name=submission.client_name,
-            client_phone=submission.client_phone,
-            family_head_phone=submission.family_head_phone,
-            updated_at=submission.updated_at,
-            client_email=submission.client_email,
-            family_head_email=submission.family_head_email,
-            confirmed_fields=dict(submission.confirmed_fields or {}),
-            extracted_fields=dict(submission.extracted_fields or {}),
-            staff_metadata=dict(submission.staff_metadata or {}),
-        )
+        submission_comparison_from_model(submission)
         for submission in submissions
     ]
     rows, _ = compare_group_submissions(
@@ -257,8 +263,9 @@ def _matched_recipients(
         if row.status == "multiple_submissions":
             ambiguous_submission_ids.update(row.submission_ids)
             continue
-        if row.status != "submitted" or len(row.submission_ids) != 1:
+        if not is_private_delivery_match(row):
             continue
+        submission_id = row.submission_ids[0]
         candidates = sorted(
             (
                 recipients_by_id[recipient_id]
@@ -276,7 +283,7 @@ def _matched_recipients(
         if not candidates:
             continue
         selected = candidates[0]
-        matched[row.submission_ids[0]] = (
+        matched[submission_id] = (
             selected,
             linked_broadcasts[selected.broadcast_group_id],
         )
@@ -327,7 +334,11 @@ async def _build_preview(
             delivery.qr_token_id: delivery for delivery in delivery_result.scalars().all()
         }
 
-    linked_broadcasts, recipient_models = await _linked_recipients(
+    (
+        linked_broadcasts,
+        matching_fields_by_broadcast,
+        recipient_models,
+    ) = await _linked_recipients(
         session,
         group=group,
     )
@@ -335,6 +346,7 @@ async def _build_preview(
         submissions=passengers,
         recipients=recipient_models,
         linked_broadcasts=linked_broadcasts,
+        matching_fields_by_broadcast=matching_fields_by_broadcast,
     )
 
     rows: list[QrDeliveryPreviewRecipient] = []

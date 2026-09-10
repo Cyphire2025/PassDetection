@@ -7,7 +7,7 @@ from pathlib import Path
 from alembic.config import Config
 from alembic.script import ScriptDirectory
 
-EXPECTED_HEAD = "0091_qualifier_other_relation"
+EXPECTED_HEAD = "0092_whatsapp_matching_fields"
 UPLOAD_CONFIGURATION_REVISION = "0090_upload_configuration"
 SECURITY_REVISION = "0089_revoke_legacy_refresh"
 MERGE_REVISION = "0088_merge_my_photos_hardening"
@@ -25,11 +25,12 @@ def main() -> int:
 
     heads = tuple(scripts.get_heads())
     if heads != (EXPECTED_HEAD,):
-        raise RuntimeError(
-            f"Expected one Alembic head {EXPECTED_HEAD!r}; observed {heads!r}"
-        )
+        raise RuntimeError(f"Expected one Alembic head {EXPECTED_HEAD!r}; observed {heads!r}")
     head = scripts.get_revision(EXPECTED_HEAD)
-    if head.down_revision != UPLOAD_CONFIGURATION_REVISION:
+    if head.down_revision != "0091_qualifier_other_relation":
+        raise RuntimeError("WhatsApp matching fields must follow qualifier relationships")
+    qualifier = scripts.get_revision("0091_qualifier_other_relation")
+    if qualifier.down_revision != UPLOAD_CONFIGURATION_REVISION:
         raise RuntimeError("Custom qualifier relationships must follow upload configuration")
     if scripts.get_revision(UPLOAD_CONFIGURATION_REVISION).down_revision != SECURITY_REVISION:
         raise RuntimeError("Upload configuration must follow the security data migration")
@@ -37,11 +38,7 @@ def main() -> int:
         raise RuntimeError("The security data migration must follow the reviewed 0088 merge")
     merge = scripts.get_revision(MERGE_REVISION)
     raw_parents = merge.down_revision
-    observed_parents = (
-        {raw_parents}
-        if isinstance(raw_parents, str)
-        else set(raw_parents or ())
-    )
+    observed_parents = {raw_parents} if isinstance(raw_parents, str) else set(raw_parents or ())
     if observed_parents != EXPECTED_PARENTS:
         raise RuntimeError(
             "The reviewed 0088 merge parents changed: "
@@ -50,7 +47,7 @@ def main() -> int:
         )
 
     print(
-        "Alembic topology verified: 0091 follows 0090, 0089 and the preserved 0088 merge "
+        "Alembic topology verified: 0092 follows 0091, 0090, 0089 and the preserved 0088 merge "
         "of the My Photos and enterprise-hardening branches."
     )
     return 0

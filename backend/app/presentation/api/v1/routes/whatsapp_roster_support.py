@@ -10,6 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.use_cases.whatsapp.message_templates import WhatsAppMessageType
 from app.infrastructure.database.models import (
+    ClientGroupModel,
+    ClientGroupWhatsAppBroadcastLinkModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
     WhatsAppBroadcastRejectedContactModel,
@@ -21,6 +23,7 @@ from app.infrastructure.repositories.passport_roster_resolution_repository impor
     active_replacement_phone_numbers_for_broadcast,
 )
 from app.presentation.api.v1.routes.whatsapp_contact_support import (
+    _matching_field_options,
     _recipient_response,
     _support_contact_response,
 )
@@ -31,6 +34,7 @@ from app.presentation.api.v1.routes.whatsapp_delivery_support import (
 )
 from app.presentation.api.v1.schemas.whatsapp_schemas import (
     WhatsAppBroadcastGroupDetailResponse,
+    WhatsAppLinkedClientGroupResponse,
 )
 
 
@@ -117,6 +121,22 @@ async def _group_detail(
         )
     )
     rejected_contact_count = int(rejected_count_result.scalar_one())
+    linked_groups_result = await session.execute(
+        select(ClientGroupModel)
+        .join(
+            ClientGroupWhatsAppBroadcastLinkModel,
+            ClientGroupWhatsAppBroadcastLinkModel.client_group_id == ClientGroupModel.id,
+        )
+        .where(
+            ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id == group.id,
+            ClientGroupWhatsAppBroadcastLinkModel.agency_id == group.agency_id,
+            ClientGroupModel.agency_id == group.agency_id,
+            ClientGroupModel.status == "active",
+            ClientGroupModel.deleted_at.is_(None),
+        )
+        .order_by(ClientGroupModel.name.asc(), ClientGroupModel.id.asc())
+    )
+    linked_client_groups = list(linked_groups_result.scalars().all())
     return WhatsAppBroadcastGroupDetailResponse(
         id=group.id,
         name=group.name,
@@ -124,6 +144,9 @@ async def _group_detail(
         recipient_count=len(recipients),
         total_contact_count=len(recipients) + rejected_contact_count,
         recipient_opt_in_confirmed=group.recipient_opt_in_confirmed_at is not None,
+        available_matching_fields=_matching_field_options(
+            getattr(group, "imported_field_keys", [])
+        ),
         created_at=group.created_at,
         updated_at=group.updated_at,
         recipients=[
@@ -136,6 +159,14 @@ async def _group_detail(
         ],
         support_contacts=[_support_contact_response(contact) for contact in support_contacts],
         rejected_contact_count=rejected_contact_count,
+        linked_client_groups=[
+            WhatsAppLinkedClientGroupResponse(
+                id=client_group.id,
+                name=client_group.name,
+                status=client_group.status,
+            )
+            for client_group in linked_client_groups
+        ],
     )
 
 

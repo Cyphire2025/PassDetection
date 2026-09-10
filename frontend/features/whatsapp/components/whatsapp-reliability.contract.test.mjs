@@ -150,6 +150,16 @@ test("create and add flows persist rejected contacts separately from valid recip
   assert.match(pageSource, /source_file_name: contact\.source_file_name/);
 });
 
+test("create and add flows preserve every imported spreadsheet heading", () => {
+  assert.match(apiSource, /available_matching_fields\?: WhatsAppMatchingFieldOption\[\]/);
+  assert.equal(
+    apiSource.match(/formData\.append\("imported_field_keys_json", JSON\.stringify\(importedFieldKeys \?\? \[\]\)\)/g)?.length,
+    2,
+  );
+  assert.match(pageSource, /mergeRecipientImportMatchingFields\(/);
+  assert.match(pageSource, /importedFieldKeys/);
+});
+
 test("saved rejected contacts are loaded in the unified ordered recipient roster", () => {
   assert.match(endpointsSource, /recipient-roster/);
   assert.match(

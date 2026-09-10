@@ -20,6 +20,7 @@ import type {
   WhatsAppMessageType,
   WhatsAppPreviewResponse,
   WhatsAppRecipient,
+  WhatsAppReminderAudience,
 } from "../api/whatsapp.api";
 import {
   usePreviewWhatsAppMessage,
@@ -40,6 +41,7 @@ import {
 import type { RecipientResendTarget } from "./whatsapp-workspace.types";
 import { WhatsAppBroadcastMotion } from "./whatsapp-broadcast-motion";
 import { RecipientBulkComposerAudience } from "./whatsapp-bulk-composer-audience";
+import { ReminderAudienceSelector } from "./whatsapp-reminder-audience";
 
 const MAX_WELCOME_IMAGE_BYTES = 5 * 1024 * 1024;
 const WELCOME_IMAGE_TYPES = new Set(["image/jpeg", "image/png"]);
@@ -52,6 +54,8 @@ export type MessagePreviewSendPayload = {
   headerImageId: string | null;
   recipientIds: string[] | null;
   supportContactIds: string[] | null;
+  reminderAudience?: WhatsAppReminderAudience;
+  reminderAudienceClientGroupId?: string | null;
   bulkDraft?: WhatsAppBulkResendOverrides;
 };
 
@@ -99,6 +103,8 @@ export function MessagePreviewDialog({
   const [selectedRecipientIds, setSelectedRecipientIds] = useState<string[]>(
     [],
   );
+  const [reminderAudience, setReminderAudience] = useState<WhatsAppReminderAudience>("all");
+  const [reminderAudienceClientGroupId, setReminderAudienceClientGroupId] = useState<string | null>(null);
   const [selectedSupportContactIds, setSelectedSupportContactIds] = useState<
     string[] | null
   >(null);
@@ -123,6 +129,46 @@ export function MessagePreviewDialog({
   const previewMutate = previewRequest.mutate;
   const bulkPreviewMutate = bulkPreviewRequest.mutate;
   const previewPending = bulkMode ? bulkPreviewRequest.isPending : previewRequest.isPending;
+  const linkedClientGroups = (detail?.linked_client_groups ?? []).filter(
+    (clientGroup) => clientGroup.status === "active",
+  );
+  const previewDetailRevision = useMemo(() => (
+    detail
+      ? JSON.stringify({
+          updatedAt: detail.updated_at,
+          recipientOptInConfirmed: detail.recipient_opt_in_confirmed,
+          linkedClientGroups: (detail.linked_client_groups ?? []).map((clientGroup) => [
+            clientGroup.id,
+            clientGroup.status,
+          ]),
+          recipients: detail.recipients.map((recipient) => ({
+            id: recipient.id,
+            name: recipient.name,
+            phone: recipient.normalized_phone_number,
+            messageStatuses: recipient.message_statuses.map((messageStatus) => [
+              messageStatus.message_type,
+              messageStatus.status,
+              messageStatus.latest_resend_status,
+              messageStatus.resend_blocked,
+              messageStatus.status_updated_at,
+            ]),
+          })),
+        })
+      : null
+  ), [detail]);
+  const selectedActiveReminderGroupId = reminderAudienceClientGroupId
+    && linkedClientGroups.some((clientGroup) => (
+      clientGroup.id === reminderAudienceClientGroupId
+    ))
+    ? reminderAudienceClientGroupId
+    : null;
+  const resolvedReminderAudienceClientGroupId = reminderAudience === "not_submitted"
+    ? selectedActiveReminderGroupId
+      ?? (linkedClientGroups.length === 1 ? linkedClientGroups[0]?.id ?? null : null)
+    : null;
+  const reminderAudienceSelectionReady = messageType !== "reminder"
+    || reminderAudience === "all"
+    || Boolean(resolvedReminderAudienceClientGroupId);
   const resolvedSupportContactIds = useMemo(() => {
     if (selectedSupportContactIds !== null) {
       return selectedSupportContactIds.slice(0, 1);
@@ -188,10 +234,12 @@ export function MessagePreviewDialog({
     previewRecipientId,
     recipientSelectionMode,
     selectedRecipientIds,
+    reminderAudience,
+    reminderAudienceClientGroupId: resolvedReminderAudienceClientGroupId,
     supportContactIds: bulkMode ? selectedSupportContactIds : resolvedSupportContactIds,
     bulkRecipientIds,
     resendRecipientId: targetRecipient?.recipientId ?? null,
-    groupRevision: detail?.updated_at ?? null,
+    detailRevision: previewDetailRevision,
   });
   const previewIsCurrent = Boolean(
     preview && previewedRequestKey === previewRequestKey,
@@ -200,6 +248,9 @@ export function MessagePreviewDialog({
   useEffect(() => {
     const sequence = ++previewSequence.current;
     const controller = new AbortController();
+    if (!reminderAudienceSelectionReady) {
+      return () => controller.abort();
+    }
     const timeout = window.setTimeout(() => {
       if (bulkMode && bulkRecipientIds && messageType !== "reminder") {
         bulkPreviewMutate({
@@ -255,6 +306,10 @@ export function MessagePreviewDialog({
               messageType === "passport_link" && detail
                 ? resolvedSupportContactIds
                 : null,
+            ...(messageType === "reminder" ? {
+              audience: reminderAudience,
+              audience_client_group_id: resolvedReminderAudienceClientGroupId,
+            } : {}),
           },
           signal: controller.signal,
         },
@@ -317,6 +372,9 @@ export function MessagePreviewDialog({
     previewRecipientId,
     recipientSelectionMode,
     selectedRecipientIds,
+    reminderAudience,
+    resolvedReminderAudienceClientGroupId,
+    reminderAudienceSelectionReady,
     resolvedSupportContactIds,
     targetRecipient,
     bulkMode,
@@ -387,15 +445,44 @@ export function MessagePreviewDialog({
       targetRecipient,
     ],
   );
+  const usesNotSubmittedAudience = messageType === "reminder"
+    && !targetRecipient
+    && !bulkMode
+    && reminderAudience === "not_submitted";
+  const currentPreviewEligibleCount = previewIsCurrent
+    ? preview?.eligible_recipient_count
+    : undefined;
   const eligibleRecipientCount = bulkMode
     ? (bulkPreview?.eligible_recipient_count ?? 0)
     : targetRecipient
     ? 1
     : recipientSelectionMode === "custom"
       ? selectedEligibleRecipients.length
-      : (preview?.eligible_recipient_count ??
+      : usesNotSubmittedAudience
+        ? currentPreviewEligibleCount ?? 0
+        : (currentPreviewEligibleCount ??
         (detail ? eligibleRecipients.length : undefined) ??
         group.recipient_count);
+  const audienceRecipientCount = previewIsCurrent
+    ? preview?.audience_recipient_count
+      ?? (reminderAudience === "all" ? preview?.recipient_count ?? group.recipient_count : null)
+    : null;
+  const excludedSubmittedCount = previewIsCurrent
+    ? preview?.excluded_submitted_count ?? 0
+    : 0;
+  const excludedNeedsReviewCount = previewIsCurrent
+    ? preview?.excluded_needs_review_count ?? 0
+    : 0;
+  const reminderAudienceConfirmed = messageType !== "reminder"
+    || targetRecipient !== undefined
+    || reminderAudience === "all"
+    || (
+      preview?.audience === "not_submitted"
+      && preview.audience_client_group_id === resolvedReminderAudienceClientGroupId
+      && typeof preview.audience_recipient_count === "number"
+      && typeof preview.excluded_submitted_count === "number"
+      && typeof preview.excluded_needs_review_count === "number"
+    );
   const canSend = Boolean(
     previewIsCurrent &&
       !previewPending &&
@@ -404,6 +491,8 @@ export function MessagePreviewDialog({
         (bulkMode && selectedSupportContactIds === null) || resolvedSupportContactIds.length > 0) &&
       resolvedMessageContent &&
       eligibleRecipientCount > 0 &&
+      reminderAudienceSelectionReady &&
+      reminderAudienceConfirmed &&
       canResendTarget &&
       (messageType === "reminder" || hasHeaderImage) &&
       (messageType !== "passport_link" ||
@@ -431,8 +520,17 @@ export function MessagePreviewDialog({
   const handleSend = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!canSend || isSending || sendInFlightRef.current) {
-      if (!previewIsCurrent)
+      if (!reminderAudienceSelectionReady) {
+        setError(
+          "Choose the linked passport group used to check submission status before sending.",
+        );
+      } else if (!reminderAudienceConfirmed) {
+        setError(
+          "The server did not confirm the not-submitted audience. Refresh after the dashboard update is active.",
+        );
+      } else if (!previewIsCurrent) {
         setError("Wait for a current message preview before sending.");
+      }
       return;
     }
     setError(null);
@@ -440,6 +538,16 @@ export function MessagePreviewDialog({
       setError(
         "Add text before sending. Meta requires this editable template section to contain text.",
       );
+      return;
+    }
+    if (!reminderAudienceSelectionReady) {
+      setError(
+        "Choose the linked passport group used to check submission status before sending.",
+      );
+      return;
+    }
+    if (!reminderAudienceConfirmed) {
+      setError("The server did not confirm the not-submitted audience. Refresh after the dashboard update is active.");
       return;
     }
     if (messageType !== "reminder" && !hasHeaderImage) {
@@ -490,6 +598,10 @@ export function MessagePreviewDialog({
             : null,
         supportContactIds:
           messageType === "passport_link" ? resolvedSupportContactIds : null,
+        ...(messageType === "reminder" ? {
+          reminderAudience,
+          reminderAudienceClientGroupId: resolvedReminderAudienceClientGroupId,
+        } : {}),
         ...(bulkMode ? {
           recipientIds: bulkRecipientIds,
           bulkDraft: {
@@ -536,9 +648,8 @@ export function MessagePreviewDialog({
             <p>
               Edit the reminder paragraph below. The header, greeting, and
               sign-off are fixed in the approved template.
-              {" "}Each send is a new reminder to everyone in this recipient list,
-              including people who received earlier reminders. You can send
-              another whenever you need to, after the current send finishes.
+              {" "}Each send is a new reminder. Choose everyone or only people
+              who have not submitted, then review this editor before sending.
             </p>
           ) : (
             <p>
@@ -559,7 +670,7 @@ export function MessagePreviewDialog({
                 : preview.content_source === "latest_recipient"
                 ? `Loaded the latest saved message for this recipient. You can edit it before ${targetRecipient?.action === "retry" ? "retrying" : "resending"}.`
                 : messageType === "reminder"
-                ? "Loaded your most recent reminder. Review or edit it before sending the next reminder to everyone."
+                ? "Loaded your most recent reminder. Review or edit it, then confirm the audience for this send."
                 : "Loaded the most recent message used for this broadcast. You can edit it before sending to the remaining recipients."}
             </div>
           )}
@@ -736,11 +847,54 @@ export function MessagePreviewDialog({
             </div>
         </MessageComposerSection>
         <MessageComposerSection title="Delivery settings" description="Confirm who will receive this message.">
+          {messageType === "reminder" && !targetRecipient && !bulkMode && (
+            <ReminderAudienceSelector
+              audience={reminderAudience}
+              audienceClientGroupId={resolvedReminderAudienceClientGroupId}
+              linkedClientGroups={linkedClientGroups}
+              eligibleRecipientCount={eligibleRecipientCount}
+              audienceRecipientCount={audienceRecipientCount}
+              excludedSubmittedCount={excludedSubmittedCount}
+              excludedNeedsReviewCount={excludedNeedsReviewCount}
+              isLoadingGroups={isLoadingDetail}
+              isPreviewCurrent={previewIsCurrent}
+              disabled={submissionPending}
+              onAudienceChange={(audience) => {
+                setReminderAudience(audience);
+                setReminderAudienceClientGroupId(
+                  audience === "not_submitted" && linkedClientGroups.length === 1
+                    ? linkedClientGroups[0]?.id ?? null
+                    : null,
+                );
+                setPreviewRecipientId(null);
+                setError(null);
+              }}
+              onClientGroupChange={(clientGroupId) => {
+                setReminderAudienceClientGroupId(clientGroupId || null);
+                setPreviewRecipientId(null);
+                setError(null);
+              }}
+            />
+          )}
           {bulkRecipients && messageType !== "reminder" ? <RecipientBulkComposerAudience recipients={bulkRecipients} messageType={messageType} hiddenCount={hiddenSelectedCount} preview={bulkPreview} /> : <div className="flex items-center gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500"><UsersRound className="h-5 w-5" aria-hidden="true" /></span>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-slate-900">{eligibleRecipientCount} eligible recipient{eligibleRecipientCount === 1 ? "" : "s"}</p>
-              <p className="mt-0.5 text-xs leading-5 text-slate-500">Each recipient receives an individual WhatsApp message.</p>
+              <p className="text-sm font-semibold text-slate-900">
+                {usesNotSubmittedAudience && !previewIsCurrent
+                  ? reminderAudienceSelectionReady
+                    ? "Checking eligible recipients…"
+                    : "Choose a passport upload group"
+                  : `${eligibleRecipientCount} eligible recipient${eligibleRecipientCount === 1 ? "" : "s"}`}
+              </p>
+              <p className="mt-0.5 text-xs leading-5 text-slate-500">
+                {usesNotSubmittedAudience && !previewIsCurrent
+                  ? "Server-confirmed counts will appear after the current submission check."
+                  : usesNotSubmittedAudience
+                  ? `${audienceRecipientCount ?? 0} confirmed not submitted. ${excludedSubmittedCount} submitted and ${excludedNeedsReviewCount} needing review excluded.`
+                  : messageType === "reminder"
+                    ? "Everyone in this audience receives an individual WhatsApp reminder, including people who received earlier reminders."
+                    : "Each recipient receives an individual WhatsApp message."}
+              </p>
             </div>
           </div>}
             {messageType === "passport_link" && detail && !targetRecipient && !bulkMode && (
@@ -946,11 +1100,24 @@ export function MessagePreviewDialog({
               {bulkMode ? "Selected recipient preview" : targetRecipient ? `One-person WhatsApp ${targetRecipient.action} preview` : "Individual WhatsApp preview"}
             </h3>
             <span className="text-xs tabular-nums text-slate-500">
-              {bulkMode ? `${bulkRecipients?.length ?? 0} selected recipients` : targetRecipient ? "1 selected recipient" : `${eligibleRecipientCount} eligible of ${preview?.recipient_count ?? group.recipient_count}`}
+              {bulkMode
+                ? `${bulkRecipients?.length ?? 0} selected recipients`
+                : targetRecipient
+                  ? "1 selected recipient"
+                  : usesNotSubmittedAudience && !previewIsCurrent
+                    ? "Checking not-submitted audience…"
+                    : usesNotSubmittedAudience
+                    ? `${eligibleRecipientCount} ready of ${audienceRecipientCount ?? 0} not submitted`
+                    : `${eligibleRecipientCount} eligible of ${preview?.recipient_count ?? group.recipient_count}`}
             </span>
           </div>
           <MessageDeliveryPreview preview={preview} previewIsCurrent={previewIsCurrent} previewFailed={Boolean(error)} messageType={messageType} headerImagePreview={headerImagePreview} headerImageId={effectiveHeaderImageId}>
-            {detail && (bulkMode ? (bulkPreview?.eligible_recipient_ids.length ?? 0) > 1 : detail.recipients.length > 1) && !targetRecipient && (
+            {detail &&
+              (bulkMode
+                ? (bulkPreview?.eligible_recipient_ids.length ?? 0) > 1
+                : detail.recipients.length > 1) &&
+              !targetRecipient &&
+              !(messageType === "reminder" && reminderAudience === "not_submitted") && (
               <label className="block text-sm font-medium text-slate-700">
                 Preview recipient
                 <select
@@ -1064,7 +1231,7 @@ export function MessagePreviewDialog({
               progress.</>}
             </div>
           )}
-        {!previewIsCurrent && !error && (
+        {!previewIsCurrent && !error && reminderAudienceSelectionReady && (
           <p role="status" className="text-sm text-slate-500">
             Updating message preview. Sending will be available after this
             version has been checked.
@@ -1121,7 +1288,13 @@ export function MessagePreviewDialog({
             <Send className="h-4 w-4 shrink-0" aria-hidden="true" />
             <span className="truncate">{canRecoverBulkRequest ? "Check resend status" : bulkMode ? `Resend to ${eligibleRecipientCount} selected` : targetRecipient
               ? `${targetRecipient.action === "retry" ? "Retry" : "Resend"} to ${targetRecipient.recipientName}`
-              : `Send individually to ${eligibleRecipientCount}`}</span>
+              : usesNotSubmittedAudience && !previewIsCurrent
+                ? reminderAudienceSelectionReady
+                  ? "Checking not-submitted audience"
+                  : "Choose a passport upload group"
+                : usesNotSubmittedAudience
+                ? `Send to ${eligibleRecipientCount} not submitted`
+                : `Send individually to ${eligibleRecipientCount}`}</span>
           </Button>
           </div>
         </div>

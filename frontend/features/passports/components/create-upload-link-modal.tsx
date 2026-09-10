@@ -66,6 +66,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
       custom_questions: [],
       custom_details: [],
       whatsapp_broadcast_group_ids: [],
+      matching_fields_by_broadcast: {},
       upload_configuration: getUploadLinkSettings({}).upload_configuration,
     },
   });
@@ -74,6 +75,10 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
     control,
     name: "whatsapp_broadcast_group_ids",
   }) ?? [];
+  const matchingFieldsByBroadcast = useWatch({
+    control,
+    name: "matching_fields_by_broadcast",
+  }) ?? {};
 
   useEffect(() => () => {
     if (copiedTimerRef.current !== null) window.clearTimeout(copiedTimerRef.current);
@@ -122,6 +127,9 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
         whatsapp_broadcast_group_ids: canAccessWhatsApp
           ? data.whatsapp_broadcast_group_ids
           : [],
+        matching_fields_by_broadcast: canAccessWhatsApp
+          ? data.matching_fields_by_broadcast
+          : {},
       });
       setGeneratedTargets(getPassportUploadTargets(result.token));
     } catch {
@@ -291,6 +299,12 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                   onChange={(ids) => setValue(
                     "whatsapp_broadcast_group_ids",
                     ids,
+                    { shouldDirty: true, shouldValidate: true },
+                  )}
+                  selectedMatchingFields={matchingFieldsByBroadcast}
+                  onMatchingFieldsChange={(fields) => setValue(
+                    "matching_fields_by_broadcast",
+                    fields,
                     { shouldDirty: true, shouldValidate: true },
                   )}
                   disabled={isPending}

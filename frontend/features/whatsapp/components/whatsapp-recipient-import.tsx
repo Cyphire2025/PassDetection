@@ -25,7 +25,9 @@ import {
 } from "../api/whatsapp.api";
 import {
   mergeRecipientImportRejectedRows,
+  mergeRecipientImportMatchingFields,
   mergeRecipientImportPreview,
+  type RecipientImportMatchingField,
   type RecipientImportRejectedRowWithSource,
 } from "../utils/recipient-import";
 
@@ -58,6 +60,7 @@ export type RecipientImportState =
       rejectedRows: RejectedContactDraft[];
       rejectedRowsTruncated: boolean;
       omittedRejectedCount: number;
+      matchingFieldCount: number;
     }
   | { status: "error"; fileName: string; message: string };
 
@@ -80,10 +83,12 @@ export function useRecipientExcelPreview({
   const contactsRef = useRef(contacts);
   const excludedPhoneNumbersRef = useRef(excludedPhoneNumbers);
   const rejectedContactsRef = useRef<RejectedContactDraft[]>([]);
+  const matchingFieldsRef = useRef<RecipientImportMatchingField[]>([]);
   const omittedRejectedCountsRef = useRef(new Map<string, number>());
   const [rejectedContacts, setRejectedContacts] = useState<
     RejectedContactDraft[]
   >([]);
+  const [importedFieldKeys, setImportedFieldKeys] = useState<string[]>([]);
 
   useEffect(() => {
     contactsRef.current = contacts;
@@ -127,6 +132,12 @@ export function useRecipientExcelPreview({
         file.name,
       );
       rejectedContactsRef.current = accumulatedRejectedRows;
+      const accumulatedMatchingFields = mergeRecipientImportMatchingFields(
+        matchingFieldsRef.current,
+        merged.availableMatchingFields,
+      );
+      matchingFieldsRef.current = accumulatedMatchingFields;
+      setImportedFieldKeys(accumulatedMatchingFields.map((field) => field.key));
       omittedRejectedCountsRef.current.set(
         file.name,
         merged.omittedRejectedCount,
@@ -150,6 +161,7 @@ export function useRecipientExcelPreview({
         rejectedRows: accumulatedRejectedRows,
         rejectedRowsTruncated: accumulatedOmittedRejectedCount > 0,
         omittedRejectedCount: accumulatedOmittedRejectedCount,
+        matchingFieldCount: accumulatedMatchingFields.length,
       });
     } catch (previewError) {
       if (requestId !== requestIdRef.current || controller.signal.aborted) return;
@@ -171,12 +183,20 @@ export function useRecipientExcelPreview({
     controllerRef.current?.abort();
     controllerRef.current = null;
     rejectedContactsRef.current = [];
+    matchingFieldsRef.current = [];
     omittedRejectedCountsRef.current.clear();
     setRejectedContacts([]);
+    setImportedFieldKeys([]);
     setImportState({ status: "idle" });
   };
 
-  return { importState, previewFile, rejectedContacts, resetImport };
+  return {
+    importState,
+    previewFile,
+    rejectedContacts,
+    importedFieldKeys,
+    resetImport,
+  };
 }
 
 export function ExcelRecipientImport({
@@ -254,6 +274,9 @@ export function ExcelRecipientImport({
               {state.duplicateCount > 0
                 ? ` ${state.duplicateCount} contact${state.duplicateCount === 1 ? " was" : "s were"} skipped because the number is already in this list or broadcast.`
                 : " You can edit or remove the accepted recipients above before saving."}
+              {state.matchingFieldCount > 0
+                ? ` ${state.matchingFieldCount} Excel heading${state.matchingFieldCount === 1 ? "" : "s"} will be available for identification matching.`
+                : ""}
             </p>
             {state.rejectedCount > 0 && (
               <section

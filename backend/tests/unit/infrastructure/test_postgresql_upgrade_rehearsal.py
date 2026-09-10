@@ -65,20 +65,16 @@ def test_destructive_database_operations_require_explicit_acknowledgement() -> N
     with pytest.raises(RuntimeError):
         rehearsal.require_destructive_acknowledgement({})
 
-    rehearsal.require_destructive_acknowledgement(
-        {rehearsal.DESTRUCTIVE_ACKNOWLEDGEMENT: "1"}
-    )
+    rehearsal.require_destructive_acknowledgement({rehearsal.DESTRUCTIVE_ACKNOWLEDGEMENT: "1"})
 
 
 def test_rehearsal_contract_is_previous_release_populated_and_evidence_oriented() -> None:
     rehearsal = _load_script()
     source = SCRIPT_PATH.read_text(encoding="utf-8")
-    workflow = (REPOSITORY_ROOT / ".github" / "workflows" / "ci.yml").read_text(
-        encoding="utf-8"
-    )
+    workflow = (REPOSITORY_ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
 
     assert rehearsal.PREVIOUS_RELEASE_REVISION == "0085_platform_retention_controls"
-    assert rehearsal.EXPECTED_HEAD_REVISION == "0091_qualifier_other_relation"
+    assert rehearsal.EXPECTED_HEAD_REVISION == "0092_whatsapp_matching_fields"
     assert "INSERT INTO attendance_records" in source
     assert "INSERT INTO passport_submissions" in source
     assert "INSERT INTO audit_logs" in source

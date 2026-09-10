@@ -52,6 +52,7 @@ export interface UpdateUploadLinkRequest {
   custom_questions?: CustomUploadQuestion[];
   custom_details?: CustomUploadDetail[];
   whatsapp_broadcast_group_ids?: string[];
+  matching_fields_by_broadcast?: Record<string, string[]>;
   notes?: string | null;
 }
 
@@ -64,12 +65,21 @@ export interface CreateUploadLinkRequest extends UpdateUploadLinkRequest {
   custom_details: CustomUploadDetail[];
 }
 
+export interface WhatsAppMatchFieldOption {
+  key: string;
+  label: string;
+}
+
 export interface LinkedWhatsAppBroadcast {
   id: string;
   name: string;
   recipient_count: number;
   created_at: string;
   updated_at: string;
+  /** All safe spreadsheet headings currently stored for this broadcast. */
+  available_matching_fields?: WhatsAppMatchFieldOption[];
+  /** Null means a legacy link still uses the previous automatic matcher. */
+  matching_field_keys?: string[] | null;
 }
 
 export interface GroupWhatsAppLinksResponse {
@@ -104,13 +114,8 @@ export interface GroupWhatsAppMatchCounts {
 
 export interface GroupWhatsAppMatchEvidence {
   submission_id: string;
-  kind:
-    | "phone"
-    | "email"
-    | "passport_number"
-    | "staff_code"
-    | "entered_name"
-    | "passport_name";
+  /** Built-in evidence names and normalized configured spreadsheet keys. */
+  kind: string;
   recipient_value: string;
   submission_value: string;
   weight: number;
@@ -276,10 +281,16 @@ export const uploadLinksApi = {
   updateWhatsAppLinks: async (
     id: string,
     whatsappBroadcastGroupIds: string[],
+    matchingFieldsByBroadcast?: Record<string, string[]>,
   ): Promise<GroupWhatsAppLinksResponse> => {
     const response = await apiClient.put<GroupWhatsAppLinksResponse>(
       API_ENDPOINTS.uploadLinks.whatsappLinks(id),
-      { whatsapp_broadcast_group_ids: whatsappBroadcastGroupIds },
+      {
+        whatsapp_broadcast_group_ids: whatsappBroadcastGroupIds,
+        ...(matchingFieldsByBroadcast
+          ? { matching_fields_by_broadcast: matchingFieldsByBroadcast }
+          : {}),
+      },
     );
     return response.data;
   },

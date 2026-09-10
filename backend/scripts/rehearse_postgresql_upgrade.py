@@ -25,7 +25,7 @@ from psycopg2 import sql
 from psycopg2.extensions import connection as Connection
 
 PREVIOUS_RELEASE_REVISION = "0085_platform_retention_controls"
-EXPECTED_HEAD_REVISION = "0091_qualifier_other_relation"
+EXPECTED_HEAD_REVISION = "0092_whatsapp_matching_fields"
 SAFE_DATABASE_NAME = re.compile(r"^passdetection_ci_[a-z0-9_]+$")
 PROTECTED_DATABASE_NAMES = frozenset({"postgres", "template0", "template1"})
 DESTRUCTIVE_ACKNOWLEDGEMENT = "MIGRATION_REHEARSAL_ALLOW_EPHEMERAL_DATABASE_DELETION"
@@ -337,9 +337,7 @@ def _row_counts(connection: Connection) -> dict[str, int]:
     counts: dict[str, int] = {}
     with connection.cursor() as cursor:
         for table_name in PRESERVED_TABLES:
-            cursor.execute(
-                sql.SQL("SELECT count(*) FROM {}").format(sql.Identifier(table_name))
-            )
+            cursor.execute(sql.SQL("SELECT count(*) FROM {}").format(sql.Identifier(table_name)))
             row = cursor.fetchone()
             assert row is not None
             counts[table_name] = int(row[0])
@@ -373,8 +371,7 @@ def _previous_release_snapshot(connection: Connection) -> dict[str, Any]:
         ),
         "passport_number": _scalar(
             connection,
-            "SELECT confirmed_fields ->> 'passport_number' "
-            "FROM passport_submissions WHERE id = %s",
+            "SELECT confirmed_fields ->> 'passport_number' FROM passport_submissions WHERE id = %s",
             (IDS["passenger_a"],),
         ),
     }
@@ -671,9 +668,10 @@ def rehearse(
                 lambda: _seed_previous_release(source_connection),
             )
             source_snapshot = _previous_release_snapshot(source_connection)
-            server_major = int(
-                _scalar(source_connection, "SELECT current_setting('server_version_num')")
-            ) // 10000
+            server_major = (
+                int(_scalar(source_connection, "SELECT current_setting('server_version_num')"))
+                // 10000
+            )
         finally:
             source_connection.close()
 

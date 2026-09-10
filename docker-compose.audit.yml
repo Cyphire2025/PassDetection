@@ -30,7 +30,7 @@ x-audit-environment: &audit-environment
   EMAIL_AI_ENABLED: "false"
   ALLOWED_ORIGINS: '["http://localhost:3200","http://127.0.0.1:3200"]'
   JWT_COOKIE_SECURE: "false"
-  EXPECTED_DATABASE_SCHEMA_REVISION: 0091_qualifier_other_relation
+  EXPECTED_DATABASE_SCHEMA_REVISION: 0092_whatsapp_matching_fields
 
 services:
   db:

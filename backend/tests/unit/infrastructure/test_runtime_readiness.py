@@ -58,7 +58,7 @@ class _Database:
     def __init__(
         self,
         *,
-        versions: tuple[str, ...] = ("0091_qualifier_other_relation",),
+        versions: tuple[str, ...] = ("0092_whatsapp_matching_fields",),
         due_count: int = 0,
         blocked_count: int = 0,
         oldest_due_seconds: int = 0,
@@ -94,8 +94,12 @@ def _settings() -> Settings:
 @pytest.mark.asyncio
 async def test_security_redis_outage_fails_readiness_while_storage_remains_healthy() -> None:
     settings = _settings().model_copy(update={"dashboard_rate_limit_require_redis": True})
-    with patch("app.infrastructure.runtime_readiness._probe_object_storage", return_value=True), patch(
-        "app.infrastructure.runtime_readiness._probe_security_redis", return_value=("unreachable", False)
+    with (
+        patch("app.infrastructure.runtime_readiness._probe_object_storage", return_value=True),
+        patch(
+            "app.infrastructure.runtime_readiness._probe_security_redis",
+            return_value=("unreachable", False),
+        ),
     ):
         snapshot = await RuntimeReadinessProbe().snapshot(db=_Database(), settings=settings)
     assert snapshot.core_ready is False

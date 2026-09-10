@@ -29,6 +29,7 @@ from app.presentation.api.v1.routes.passports import (
     _recipient_export_value,
     _resolve_export_group_by,
     _select_whatsapp_tracking_export_payload,
+    _whatsapp_tracking_export_rows,
 )
 
 NOW = datetime(2026, 7, 23, 12, tzinfo=UTC)
@@ -735,7 +736,7 @@ async def test_match_rows_load_pending_recipients_when_group_has_no_submissions(
 
     linked_result = MagicMock()
     linked_result.all.return_value = [
-        (group.id, broadcast_id, "Vietnam recipients"),
+        (group.id, broadcast_id, "Vietnam recipients", None),
     ]
     recipient_result = MagicMock()
     recipient_result.scalars.return_value.all.return_value = [
@@ -766,3 +767,129 @@ async def test_match_rows_load_pending_recipients_when_group_has_no_submissions(
     assert rows[0].status == "not_submitted"
     assert rows[0].recipient_ids == (recipient_id,)
     assert rows[0].recipient_fields[0].fields["Zone Name"] == "Delhi"
+
+
+@pytest.mark.asyncio
+async def test_match_rows_use_link_selected_field_and_custom_answer() -> None:
+    group = _group()
+    broadcast_id = uuid.uuid4()
+    submission_id = uuid.uuid4()
+    recipient_id = uuid.uuid4()
+    submission = SimpleNamespace(
+        id=submission_id,
+        group_id=group.id,
+        agency_id=group.agency_id,
+        client_name="Submitted Name",
+        client_phone="+919111111111",
+        family_head_phone=None,
+        client_email=None,
+        family_head_email=None,
+        updated_at=NOW,
+        confirmed_fields={},
+        extracted_fields={},
+        staff_metadata={},
+        custom_answers=(
+            {"label": "Producer Code", "value": "PR-42"},
+        ),
+        custom_detail_answers=(),
+        departure_city=None,
+        nearest_domestic_airport=None,
+        family_relation=None,
+        family_gender=None,
+        family_head_name=None,
+    )
+    recipient = SimpleNamespace(
+        id=recipient_id,
+        broadcast_group_id=broadcast_id,
+        name="Roster Name",
+        normalized_phone_number="+919222222222",
+        created_at=NOW,
+        imported_fields={"Producer Code": "PR-42"},
+    )
+    linked_result = MagicMock()
+    linked_result.all.return_value = [
+        (group.id, broadcast_id, "Vietnam recipients", ["producer_code"]),
+    ]
+    recipient_result = MagicMock()
+    recipient_result.scalars.return_value.all.return_value = [recipient]
+    session = AsyncMock(spec=AsyncSession)
+    session.execute.side_effect = [linked_result, recipient_result]
+
+    rows_by_group = await _export_whatsapp_match_rows(
+        session,
+        [submission],  # type: ignore[list-item]
+        groups=[group],
+    )
+
+    [row] = rows_by_group[group.id]
+    assert row.status == "submitted"
+    assert row.submission_ids == (submission_id,)
+    assert row.recipient_ids == (recipient_id,)
+    assert row.match_basis == "agent_employee_code"
+
+
+@pytest.mark.asyncio
+async def test_tracking_rows_use_link_selected_field_and_custom_detail_answer() -> None:
+    group = _group()
+    broadcast_id = uuid.uuid4()
+    submission_id = uuid.uuid4()
+    recipient_id = uuid.uuid4()
+    submission = SimpleNamespace(
+        id=submission_id,
+        group_id=group.id,
+        agency_id=group.agency_id,
+        client_name="Submitted Name",
+        client_phone="+919111111111",
+        family_head_phone=None,
+        client_email=None,
+        family_head_email=None,
+        updated_at=NOW,
+        confirmed_fields={},
+        extracted_fields={},
+        staff_metadata={},
+        custom_answers=(),
+        custom_detail_answers=(
+            {"label": "Location", "value": "Pune"},
+        ),
+        departure_city=None,
+        nearest_domestic_airport=None,
+        family_relation=None,
+        family_gender=None,
+        family_head_name=None,
+    )
+    recipient = SimpleNamespace(
+        id=recipient_id,
+        broadcast_group_id=broadcast_id,
+        name="Roster Name",
+        normalized_phone_number="+919222222222",
+        created_at=NOW,
+        imported_fields={"Location": "Pune"},
+        removed_at=None,
+    )
+    linked_result = MagicMock()
+    linked_result.all.return_value = [
+        (broadcast_id, "Vietnam recipients", ["location"]),
+    ]
+    resolution_result = MagicMock()
+    resolution_result.scalars.return_value.all.return_value = []
+    recipient_result = MagicMock()
+    recipient_result.scalars.return_value.all.return_value = [recipient]
+    session = AsyncMock(spec=AsyncSession)
+    session.execute.side_effect = [
+        linked_result,
+        resolution_result,
+        recipient_result,
+    ]
+
+    linked, rows = await _whatsapp_tracking_export_rows(
+        session,
+        group=group,
+        submissions=[submission],  # type: ignore[list-item]
+    )
+
+    assert linked == {broadcast_id: "Vietnam recipients"}
+    [row] = rows
+    assert row.status == "submitted"
+    assert row.submission_ids == (submission_id,)
+    assert row.recipient_ids == (recipient_id,)
+    assert row.match_basis == "location"

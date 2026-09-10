@@ -36,6 +36,7 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
     _agency_filter,
     _clean_name,
     _group_detail,
+    _merge_imported_field_keys,
     _next_roster_display_order,
     _normalize_phone,
     _rejected_contact_response,
@@ -220,6 +221,10 @@ async def resolve_broadcast_rejected_contact(
     imported_fields.setdefault("source_sheet", rejected_contact.sheet_name)
     imported_fields.setdefault("source_row", str(rejected_contact.row_number))
     imported_fields = _safe_imported_fields(imported_fields)
+    group.imported_field_keys = _merge_imported_field_keys(
+        getattr(group, "imported_field_keys", []),
+        imported_fields=[imported_fields],
+    )
     resolved_display_order = rejected_contact.display_order
     if resolved_display_order is None:
         resolved_display_order = await _next_roster_display_order(session, group.id)

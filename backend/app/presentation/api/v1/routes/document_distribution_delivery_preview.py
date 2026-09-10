@@ -12,10 +12,9 @@ from app.application.use_cases.whatsapp.document_templates import (
     default_document_message_content,
     render_document_message,
 )
-from app.application.use_cases.whatsapp.group_submission_matching import (
-    RecipientForComparison,
-    SubmissionForComparison,
-    compare_group_submissions,
+from app.application.use_cases.whatsapp.group_submission_matching import compare_group_submissions
+from app.application.use_cases.whatsapp.private_delivery_identity import (
+    is_private_delivery_match,
 )
 from app.core.config.settings import get_settings
 from app.domain.entities.entities import PassportSubmission
@@ -28,6 +27,10 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastRecipientModel,
 )
 from app.infrastructure.repositories.operational_roster import operational_roster_member
+from app.infrastructure.repositories.passport_whatsapp_matching_repository import (
+    recipient_comparison_from_model,
+    submission_comparison_from_model,
+)
 from app.presentation.api.v1.routes.document_distribution_matching import (
     _linked_whatsapp_recipients,
 )
@@ -54,19 +57,19 @@ async def _build_document_delivery_preview(
     passengers: list[PassportSubmission],
 ) -> DocumentDeliveryPreviewResponse:
     message_content_1, message_content_2 = default_document_message_content(batch.document_type)
-    linked_broadcasts, recipient_models = await _linked_whatsapp_recipients(
+    (
+        linked_broadcasts,
+        matching_fields_by_broadcast,
+        recipient_models,
+    ) = await _linked_whatsapp_recipients(
         session,
         group=group,
     )
     recipients_for_comparison = [
-        RecipientForComparison(
-            id=recipient.id,
-            broadcast_id=recipient.broadcast_group_id,
-            broadcast_name=linked_broadcasts[recipient.broadcast_group_id],
-            name=recipient.name,
-            phone=recipient.normalized_phone_number,
-            updated_at=recipient.created_at,
-            imported_fields=dict(recipient.imported_fields or {}),
+        recipient_comparison_from_model(
+            recipient,
+            linked_broadcasts,
+            matching_fields_by_broadcast,
         )
         for recipient in recipient_models
     ]
@@ -83,18 +86,7 @@ async def _build_document_delivery_preview(
         )
         submission_models = list(submission_result.scalars().all())
     submissions_for_comparison = [
-        SubmissionForComparison(
-            id=submission.id,
-            name=submission.client_name,
-            client_phone=submission.client_phone,
-            family_head_phone=submission.family_head_phone,
-            updated_at=submission.updated_at,
-            client_email=submission.client_email,
-            family_head_email=submission.family_head_email,
-            confirmed_fields=dict(submission.confirmed_fields or {}),
-            extracted_fields=dict(submission.extracted_fields or {}),
-            staff_metadata=dict(submission.staff_metadata or {}),
-        )
+        submission_comparison_from_model(submission)
         for submission in submission_models
     ]
     match_rows, _ = await asyncio.to_thread(
@@ -112,7 +104,7 @@ async def _build_document_delivery_preview(
         if row.status == "multiple_submissions":
             ambiguous_submission_ids.update(row.submission_ids)
             continue
-        if row.status != "submitted":
+        if not is_private_delivery_match(row):
             continue
         candidates = sorted(
             (

@@ -2,8 +2,10 @@
 
 Exact contact and identifier evidence can assign a submission automatically.
 Names remain useful evidence, but a name alone never creates an automatic
-match. A submission is assigned to at most one logical recipient; collisions
-and contradictory evidence are surfaced for staff review.
+match under the legacy policy. Explicit per-link field selections are an
+operator-authored policy: an exact normalized match on *any* selected field is
+strong evidence. A submission is assigned to at most one logical recipient;
+collisions and contradictory evidence are surfaced for staff review.
 """
 
 from __future__ import annotations
@@ -14,7 +16,7 @@ import uuid
 from collections import defaultdict
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from typing import TypeVar
 
 from app.application.use_cases.whatsapp.contact_normalization import (
@@ -66,6 +68,89 @@ _STRONG_EVIDENCE_WEIGHTS = {
     "phone": 100,
 }
 _NAME_EVIDENCE_WEIGHT = 20
+_SELECTED_FIELD_EVIDENCE_WEIGHT = 100
+_PRIVATE_SELECTED_FIELD_KEYS = frozenset(
+    {
+        "phone_number",
+        "email",
+        "passport_number",
+        "staff_code",
+    }
+)
+_MATCH_FIELD_KEY_ALIASES = {
+    "client_name": "name",
+    "contact_name": "name",
+    "employee_name": "name",
+    "full_name": "name",
+    "passenger_name": "name",
+    "recipient_name": "name",
+    "staff_name": "name",
+    "staffname": "name",
+    "contact": "phone_number",
+    "contact_no": "phone_number",
+    "contact_number": "phone_number",
+    "mobile": "phone_number",
+    "mobile_no": "phone_number",
+    "mobile_number": "phone_number",
+    "phone": "phone_number",
+    "phone_no": "phone_number",
+    "telephone": "phone_number",
+    "whatsapp": "phone_number",
+    "whatsapp_no": "phone_number",
+    "whatsapp_number": "phone_number",
+    "email_address": "email",
+    "e_mail": "email",
+    "mail": "email",
+    "passport": "passport_number",
+    "passport_no": "passport_number",
+    "passportnumber": "passport_number",
+    "employee_code": "staff_code",
+    "staff_id": "staff_code",
+    "staffcode": "staff_code",
+    "producer_code": "agent_employee_code",
+    "agent_code": "agent_employee_code",
+    "agentcode": "agent_employee_code",
+    "dealer_code": "agent_employee_code",
+    "agency_name": "agency_dealership_name",
+    "agent_company": "agency_dealership_name",
+    "company": "agency_dealership_name",
+    "company_name": "agency_dealership_name",
+    "birth_date": "date_of_birth",
+    "birthdate": "date_of_birth",
+    "dob": "date_of_birth",
+}
+_MATCH_DATE_FIELD_KEYS = frozenset(
+    {
+        "date_of_birth",
+        "birth_date",
+        "birthdate",
+        "dob",
+    }
+)
+_MATCH_IDENTIFIER_FIELD_KEYS = frozenset(
+    {
+        "agent_employee_code",
+        "employee_code",
+        "passport",
+        "passport_no",
+        "passport_number",
+        "passportnumber",
+        "staff_code",
+        "staff_id",
+    }
+)
+_MISSING_MATCH_VALUES = frozenset(
+    {
+        "",
+        "n a",
+        "na",
+        "nil",
+        "none",
+        "not applicable",
+        "not available",
+        "null",
+    }
+)
 _MappingValue = TypeVar("_MappingValue")
 _NormalizedInput = TypeVar("_NormalizedInput")
 
@@ -79,6 +164,10 @@ class RecipientForComparison:
     phone: str | None
     updated_at: datetime
     imported_fields: dict[str, str] = field(default_factory=dict)
+    # ``None`` preserves the historical phone/email/passport/staff/name policy.
+    # A non-empty tuple is the explicit policy configured on this broadcast
+    # link and uses OR semantics across the selected fields.
+    matching_field_keys: tuple[str, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -93,6 +182,13 @@ class SubmissionForComparison:
     confirmed_fields: dict[str, object] = field(default_factory=dict)
     extracted_fields: dict[str, object] = field(default_factory=dict)
     staff_metadata: dict[str, object] = field(default_factory=dict)
+    custom_answers: tuple[Mapping[str, object], ...] = ()
+    custom_detail_answers: tuple[Mapping[str, object], ...] = ()
+    departure_city: str | None = None
+    nearest_domestic_airport: str | None = None
+    family_relation: str | None = None
+    family_gender: str | None = None
+    family_head_name: str | None = None
 
 
 @dataclass(frozen=True)
@@ -102,6 +198,10 @@ class MatchEvidence:
     recipient_value: str
     submission_value: str
     weight: int
+    # ``None`` denotes legacy/synthetic evidence whose historical semantics
+    # are preserved. Selected-field evidence is explicit: only a unique value
+    # from a private-grade field is safe for sensitive delivery decisions.
+    private_identity_confirmed: bool | None = None
 
 
 @dataclass(frozen=True)
@@ -152,6 +252,7 @@ class _IdentityProfile:
     names: frozenset[str] = frozenset()
     entered_names: frozenset[str] = frozenset()
     passport_names: frozenset[str] = frozenset()
+    selected_fields: Mapping[str, frozenset[str]] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -169,15 +270,18 @@ class IdentityEvidenceValues:
     passport_numbers: frozenset[str] = frozenset()
     staff_codes: frozenset[str] = frozenset()
     names: frozenset[str] = frozenset()
+    selected_fields: Mapping[str, frozenset[str]] = field(default_factory=dict)
 
     @property
     def all_values(self) -> frozenset[str]:
+        selected = frozenset(value for values in self.selected_fields.values() for value in values)
         return (
             self.phones
             | self.emails
             | self.passport_numbers
             | self.staff_codes
             | self.names
+            | selected
         )
 
 
@@ -199,6 +303,18 @@ class _PairEvidence:
 def _normalized_key(value: object) -> str:
     text = str(value or "").strip().casefold()
     return re.sub(r"_+", "_", re.sub(r"[^a-z0-9]+", "_", text)).strip("_")
+
+
+def normalize_matching_field_key(value: object) -> str:
+    """Return the stable key used to join an imported heading to an answer.
+
+    The import layer already stores snake-case keys. Keeping this normalizer in
+    the matcher also supports older/manual payloads and common aliases such as
+    ``DOB`` versus the passport field ``date_of_birth``.
+    """
+
+    normalized = _normalized_key(value)
+    return _MATCH_FIELD_KEY_ALIASES.get(normalized, normalized)
 
 
 def _normalized_name(value: object) -> str | None:
@@ -227,6 +343,59 @@ def _normalized_identifier(value: object) -> str | None:
     return normalized or None
 
 
+def _normalized_date(value: object) -> str | None:
+    if isinstance(value, datetime):
+        return value.date().isoformat()
+    if isinstance(value, date):
+        return value.isoformat()
+    text = " ".join(str(value or "").strip().split())
+    if not text:
+        return None
+    iso_candidate = text.replace("Z", "+00:00")
+    try:
+        return datetime.fromisoformat(iso_candidate).date().isoformat()
+    except ValueError:
+        pass
+    for pattern in ("%d/%m/%Y", "%d-%m-%Y", "%m/%d/%Y", "%Y/%m/%d"):
+        try:
+            return datetime.strptime(text, pattern).date().isoformat()
+        except ValueError:
+            continue
+    return _normalized_identifier(text)
+
+
+def _normalized_generic(value: object) -> str | None:
+    compatible = unicodedata.normalize("NFKC", str(value or "")).casefold()
+    normalized = "".join(character if character.isalnum() else " " for character in compatible)
+    normalized = " ".join(normalized.split())
+    if normalized in _MISSING_MATCH_VALUES:
+        return None
+    return normalized
+
+
+def _normalized_phone(value: object) -> str | None:
+    return normalize_whatsapp_phone(None if value is None else str(value))
+
+
+def _selected_field_normalizer(field_key: str) -> Callable[[object], str | None]:
+    canonical = normalize_matching_field_key(field_key)
+    if canonical == "phone_number":
+        return _normalized_phone
+    if canonical == "email":
+        return _normalized_email
+    if canonical == "name":
+        return _normalized_name
+    if canonical in _MATCH_DATE_FIELD_KEYS or "date_of_birth" in canonical:
+        return _normalized_date
+    if (
+        canonical in _MATCH_IDENTIFIER_FIELD_KEYS
+        or canonical.endswith("_code")
+        or canonical.endswith("_id")
+    ):
+        return _normalized_identifier
+    return _normalized_generic
+
+
 def _mapping_values(
     mapping: Mapping[str, _MappingValue],
     keys: frozenset[str],
@@ -240,12 +409,42 @@ def _mapping_values(
     return values
 
 
+def _mapping_field_values(
+    mapping: Mapping[str, _MappingValue],
+    field_key: str,
+) -> list[_MappingValue]:
+    selected_key = _normalized_key(field_key)
+    values: list[_MappingValue] = []
+    for raw_key, value in mapping.items():
+        normalized = _normalized_key(raw_key)
+        # Alternate ``_2`` keys are created only when the importer records the
+        # base key in duplicate_conflicting_fields. Do not strip suffixes from
+        # legitimate headings such as ``terminal_2``.
+        conflicting = {
+            _normalized_key(item)
+            for item in str(mapping.get("duplicate_conflicting_fields", "")).split(",")
+            if _normalized_key(item)
+        }
+        base_key = (
+            re.sub(r"_\d+$", "", normalized)
+            if re.sub(r"_\d+$", "", normalized) in conflicting
+            else normalized
+        )
+        if normalized == selected_key or base_key == selected_key:
+            values.append(value)
+    return values
+
+
 def _normalized_values(
     values: Iterable[_NormalizedInput],
     normalizer: Callable[[_NormalizedInput], str | None],
 ) -> frozenset[str]:
     normalized: set[str] = set()
     for value in values:
+        # Placeholder cells must never become strong exact-match tokens such
+        # as ``NA`` or ``NOTAVAILABLE`` under identifier/date normalizers.
+        if _normalized_generic(value) is None:
+            continue
         item = normalizer(value)
         if item:
             normalized.add(item)
@@ -253,8 +452,14 @@ def _normalized_values(
 
 
 def _passport_fields(submission: SubmissionForComparison) -> dict[str, object]:
-    fields = dict(submission.extracted_fields or {})
-    fields.update(submission.confirmed_fields or {})
+    # Merge on the same canonical key used for matching, so a confirmed
+    # correction replaces a stale extracted alias (for example ``dob`` versus
+    # ``date_of_birth``) instead of leaving both values eligible.
+    fields: dict[str, object] = {}
+    for mapping in (submission.extracted_fields, submission.confirmed_fields):
+        for raw_key, value in (mapping or {}).items():
+            if key := normalize_matching_field_key(raw_key):
+                fields[key] = value
     return fields
 
 
@@ -273,11 +478,34 @@ def _composed_names(mapping: Mapping[str, object]) -> list[str]:
 def _recipient_profile(
     recipients: tuple[RecipientForComparison, ...],
 ) -> _IdentityProfile:
-    fields = [dict(recipient.imported_fields or {}) for recipient in recipients]
+    legacy_recipients = tuple(
+        recipient for recipient in recipients if recipient.matching_field_keys is None
+    )
+    fields = [dict(recipient.imported_fields or {}) for recipient in legacy_recipients]
+    selected_values: dict[str, set[str]] = defaultdict(set)
+    for recipient in recipients:
+        if recipient.matching_field_keys is None:
+            continue
+        imported_fields = dict(recipient.imported_fields or {})
+        for raw_field_key in recipient.matching_field_keys:
+            field_key = normalize_matching_field_key(raw_field_key)
+            # Read only the stored heading the operator selected. Aliases are
+            # applied to the comparison key below, not to independent roster
+            # columns that were never selected.
+            raw_values: list[object] = list(_mapping_field_values(imported_fields, raw_field_key))
+            if field_key == "name":
+                raw_values.insert(0, recipient.name)
+            elif field_key == "phone_number":
+                raw_values.insert(0, recipient.phone)
+            normalized = _normalized_values(
+                raw_values,
+                _selected_field_normalizer(field_key),
+            )
+            selected_values[field_key].update(normalized)
     return _IdentityProfile(
         phones=_normalized_values(
             [
-                *(recipient.phone for recipient in recipients),
+                *(recipient.phone for recipient in legacy_recipients),
                 *(value for mapping in fields for value in _mapping_values(mapping, _PHONE_KEYS)),
             ],
             normalize_whatsapp_phone,
@@ -296,13 +524,69 @@ def _recipient_profile(
         ),
         names=_normalized_values(
             [
-                *(recipient.name for recipient in recipients),
+                *(recipient.name for recipient in legacy_recipients),
                 *(value for mapping in fields for value in _mapping_values(mapping, _NAME_KEYS)),
                 *(name for mapping in fields for name in _composed_names(mapping)),
             ],
             _normalized_name,
         ),
+        selected_fields={
+            key: frozenset(values) for key, values in sorted(selected_values.items()) if values
+        },
     )
+
+
+def _submission_field_map(
+    submission: SubmissionForComparison,
+) -> dict[str, list[object]]:
+    values: dict[str, list[object]] = defaultdict(list)
+
+    def add(key: object, value: object) -> None:
+        if value is None or str(value).strip() == "":
+            return
+        canonical = normalize_matching_field_key(key)
+        if canonical:
+            values[canonical].append(value)
+
+    add("name", submission.name)
+    add("phone_number", submission.client_phone)
+    add("phone_number", submission.family_head_phone)
+    add("email", submission.client_email)
+    add("email", submission.family_head_email)
+    add("departure_city", submission.departure_city)
+    add("nearest_international_airport", submission.departure_city)
+    add("nearest_domestic_airport", submission.nearest_domestic_airport)
+    add("family_relation", submission.family_relation)
+    add("family_gender", submission.family_gender)
+    add("family_head_name", submission.family_head_name)
+    # Confirmed client/staff corrections supersede stale OCR values per key.
+    staff_fields = dict(submission.staff_metadata or {})
+    passport_fields = _passport_fields(submission)
+    layered_fields: dict[str, object] = {}
+    for key, value in staff_fields.items():
+        if not _normalized_key(key).endswith("_label"):
+            if canonical := normalize_matching_field_key(key):
+                layered_fields[canonical] = value
+    # Confirmed/extracted passport fields use the same precedence as the
+    # legacy profile and replace stale staff metadata for the canonical key.
+    layered_fields.update(passport_fields)
+    for key, value in layered_fields.items():
+        add(key, value)
+    for value_key, label_key in (
+        ("agent_employee_code", "agent_employee_code_label"),
+        ("agency_dealership_name", "agency_dealership_name_label"),
+    ):
+        configured_label = staff_fields.get(label_key)
+        configured_value = passport_fields.get(value_key, staff_fields.get(value_key))
+        if configured_label and configured_value not in (None, ""):
+            add(configured_label, configured_value)
+    for composed_name in _composed_names(passport_fields):
+        add("name", composed_name)
+    for snapshot in (*submission.custom_answers, *submission.custom_detail_answers):
+        label = snapshot.get("label")
+        value = snapshot.get("value")
+        add(label, value)
+    return dict(values)
 
 
 def _submission_profile(
@@ -321,6 +605,14 @@ def _submission_profile(
         ],
         _normalized_name,
     )
+    selected_fields: dict[str, frozenset[str]] = {}
+    for field_key, raw_values in _submission_field_map(submission).items():
+        normalized = _normalized_values(
+            raw_values,
+            _selected_field_normalizer(field_key),
+        )
+        if normalized:
+            selected_fields[field_key] = normalized
     return _IdentityProfile(
         phones=_normalized_values(
             [submission.client_phone, submission.family_head_phone],
@@ -341,6 +633,7 @@ def _submission_profile(
         names=entered_names | passport_names,
         entered_names=entered_names,
         passport_names=passport_names,
+        selected_fields=selected_fields,
     )
 
 
@@ -357,6 +650,7 @@ def recipient_identity_evidence(
         passport_numbers=profile.passport_numbers,
         staff_codes=profile.staff_codes,
         names=profile.names,
+        selected_fields=profile.selected_fields,
     )
 
 
@@ -372,6 +666,7 @@ def submission_identity_evidence(
         passport_numbers=profile.passport_numbers,
         staff_codes=profile.staff_codes,
         names=profile.names,
+        selected_fields=profile.selected_fields,
     )
 
 
@@ -413,17 +708,27 @@ def _evidence_item(
     recipient_values: frozenset[str],
     submission_values: frozenset[str],
     weight: int,
+    preferred_values: frozenset[str] = frozenset(),
+    private_identity_kind: bool | None = None,
 ) -> MatchEvidence | None:
     shared = sorted(recipient_values & submission_values)
     if not shared:
         return None
-    value = shared[0]
+    # Evidence stores one representative value. For selected fields, prefer a
+    # value that is unique on both sides so the persisted explanation reflects
+    # the value that actually made the pair safe to auto-assign.
+    value = next((item for item in shared if item in preferred_values), shared[0])
     return MatchEvidence(
         submission_id=submission_id,
         kind=kind,
         recipient_value=value,
         submission_value=value,
         weight=weight,
+        private_identity_confirmed=(
+            None
+            if private_identity_kind is None
+            else private_identity_kind and value in preferred_values
+        ),
     )
 
 
@@ -435,6 +740,7 @@ def _pair_evidence(
     submission: SubmissionForComparison,
     submission_profile: _IdentityProfile,
     unique_compound_names: frozenset[str],
+    unique_selected_values: frozenset[tuple[str, str]],
 ) -> _PairEvidence | None:
     evidence = [
         item
@@ -484,10 +790,43 @@ def _pair_evidence(
         )
         if item is not None
     ]
+    for field_key, recipient_values in sorted(recipient.profile.selected_fields.items()):
+        unique_values = frozenset(
+            value for value in recipient_values if (field_key, value) in unique_selected_values
+        )
+        item = _evidence_item(
+            submission_id=submission.id,
+            kind=field_key,
+            recipient_values=recipient_values,
+            submission_values=submission_profile.selected_fields.get(
+                field_key,
+                frozenset(),
+            ),
+            weight=_SELECTED_FIELD_EVIDENCE_WEIGHT,
+            preferred_values=unique_values,
+            private_identity_kind=field_key in _PRIVATE_SELECTED_FIELD_KEYS,
+        )
+        if item is not None:
+            evidence.append(item)
     if not evidence:
         return None
-    kinds = {item.kind for item in evidence}
-    strong = bool(kinds & _STRONG_EVIDENCE_WEIGHTS.keys())
+    # A selected heading may canonicalize to a legacy evidence name such as
+    # ``email`` or ``staff_code``. Determine legacy strength from the dedicated
+    # legacy profiles, not from the display kind, so every configured heading
+    # consistently obeys selected-value uniqueness.
+    strong = any(
+        (
+            bool(recipient.profile.phones & submission_profile.phones),
+            bool(recipient.profile.emails & submission_profile.emails),
+            bool(recipient.profile.passport_numbers & submission_profile.passport_numbers),
+            bool(recipient.profile.staff_codes & submission_profile.staff_codes),
+        )
+    )
+    selected = any(
+        item.kind in recipient.profile.selected_fields
+        and (item.kind, item.recipient_value) in unique_selected_values
+        for item in evidence
+    )
     name_intersection = (
         recipient.profile.names
         & submission_profile.entered_names
@@ -499,7 +838,7 @@ def _pair_evidence(
         submission_index=submission_index,
         evidence=tuple(sorted(evidence, key=lambda item: (-item.weight, item.kind))),
         score=sum(item.weight for item in evidence),
-        auto_match=strong or unique_compound,
+        auto_match=strong or selected or unique_compound,
     )
 
 
@@ -530,6 +869,7 @@ def _submission_evidence_indexes(
     dict[str, set[int]],
     dict[str, set[int]],
     dict[str, set[int]],
+    dict[str, dict[str, set[int]]],
 ]:
     """Invert exact evidence once instead of scanning every recipient/submission pair."""
 
@@ -538,6 +878,7 @@ def _submission_evidence_indexes(
     passports: dict[str, set[int]] = defaultdict(set)
     staff_codes: dict[str, set[int]] = defaultdict(set)
     names: dict[str, set[int]] = defaultdict(set)
+    selected_fields: dict[str, dict[str, set[int]]] = defaultdict(lambda: defaultdict(set))
     for index, profile in enumerate(profiles):
         for value in profile.phones:
             phones[value].add(index)
@@ -549,7 +890,39 @@ def _submission_evidence_indexes(
             staff_codes[value].add(index)
         for value in profile.entered_names | profile.passport_names:
             names[value].add(index)
-    return phones, emails, passports, staff_codes, names
+        for field_key, values in profile.selected_fields.items():
+            for value in values:
+                selected_fields[field_key][value].add(index)
+    return phones, emails, passports, staff_codes, names, selected_fields
+
+
+def _unique_selected_values(
+    recipients: list[_LogicalRecipient],
+    submission_profiles: list[_IdentityProfile],
+) -> frozenset[tuple[str, str]]:
+    """Return selected values that identify one row on each side.
+
+    Operators may deliberately select low-cardinality columns such as
+    location. OR semantics still applies, but a shared value must not silently
+    assign many submissions to one recipient or one submission to many
+    recipients.
+    """
+
+    recipient_frequency: dict[tuple[str, str], int] = defaultdict(int)
+    submission_frequency: dict[tuple[str, str], int] = defaultdict(int)
+    for recipient in recipients:
+        for field_key, values in recipient.profile.selected_fields.items():
+            for value in values:
+                recipient_frequency[(field_key, value)] += 1
+    for profile in submission_profiles:
+        for field_key, values in profile.selected_fields.items():
+            for value in values:
+                submission_frequency[(field_key, value)] += 1
+    return frozenset(
+        pair
+        for pair, recipient_count in recipient_frequency.items()
+        if recipient_count == 1 and submission_frequency.get(pair) == 1
+    )
 
 
 def _candidate_submission_indexes(
@@ -560,6 +933,7 @@ def _candidate_submission_indexes(
         dict[str, set[int]],
         dict[str, set[int]],
         dict[str, set[int]],
+        dict[str, dict[str, set[int]]],
     ],
 ) -> set[int]:
     candidates: set[int] = set()
@@ -573,6 +947,10 @@ def _candidate_submission_indexes(
     for values, index in value_groups:
         for value in values:
             candidates.update(index.get(value, ()))
+    for field_key, values in profile.selected_fields.items():
+        index = evidence_indexes[5].get(field_key, {})
+        for value in values:
+            candidates.update(index.get(value, ()))
     return candidates
 
 
@@ -584,6 +962,7 @@ def _same_identity_basis(matches: list[_PairEvidence]) -> bool:
             (item.kind, item.recipient_value)
             for item in match.evidence
             if item.kind in _STRONG_EVIDENCE_WEIGHTS
+            or item.weight == _SELECTED_FIELD_EVIDENCE_WEIGHT
         }
         for match in matches
     ]
@@ -642,8 +1021,19 @@ def _recipient_row(
         *(recipient.updated_at for recipient in source_recipients),
         *(submission.updated_at for submission in ordered_submissions),
     ]
+    # The matching profile intentionally omits unselected phone evidence for an
+    # explicit policy. Row display and delivery diagnostics still need the
+    # actual normalized roster destination without making it match evidence.
     normalized_phone = next(
-        iter(sorted(logical_recipient.profile.phones)),
+        iter(
+            sorted(
+                {
+                    phone
+                    for recipient in source_recipients
+                    if (phone := normalize_whatsapp_phone(recipient.phone))
+                }
+            )
+        ),
         None,
     )
     confidence = (
@@ -750,6 +1140,10 @@ def compare_group_submissions(
         logical_recipients,
         submission_profiles,
     )
+    unique_selected = _unique_selected_values(
+        logical_recipients,
+        submission_profiles,
+    )
     evidence_indexes = _submission_evidence_indexes(submission_profiles)
 
     pairs: list[_PairEvidence] = []
@@ -768,6 +1162,7 @@ def compare_group_submissions(
                 submission=submission,
                 submission_profile=profile,
                 unique_compound_names=unique_names,
+                unique_selected_values=unique_selected,
             )
             if pair:
                 pairs.append(pair)

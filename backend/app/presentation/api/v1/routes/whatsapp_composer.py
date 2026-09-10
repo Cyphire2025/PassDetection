@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from typing import Literal
+from typing import Literal, cast
 
 import httpx
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
@@ -27,6 +27,9 @@ from app.infrastructure.security.upload_validator import MalwareScannerUnavailab
 from app.infrastructure.whatsapp.cloud_api_provider import (
     WhatsAppCloudApiError,
     upload_whatsapp_image,
+)
+from app.presentation.api.v1.routes.whatsapp_reminder_audience import (
+    resolve_reminder_audience,
 )
 from app.presentation.api.v1.routes.whatsapp_scope import _configured_template_name
 from app.presentation.api.v1.routes.whatsapp_shared import (
@@ -196,7 +199,16 @@ async def preview_broadcast_message(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Choose either a preview recipient or a resend recipient, not both",
         )
-    recipients = _select_group_recipients(all_recipients, body.recipient_ids)
+    source_recipients = _select_group_recipients(all_recipients, body.recipient_ids)
+    message_type = _as_message_type(body.message_type)
+    audience_resolution = await resolve_reminder_audience(
+        session,
+        broadcast_group=group,
+        recipients=source_recipients,
+        audience=body.audience,
+        audience_client_group_id=body.audience_client_group_id,
+    )
+    recipients = list(audience_resolution.recipients)
     if (
         body.resend_recipient_id
         and body.recipient_ids is not None
@@ -220,7 +232,6 @@ async def preview_broadcast_message(
             )
         recipient = selected
 
-    message_type = _as_message_type(body.message_type)
     snapshot: _WhatsAppComposerSnapshot | None = None
     content_source: Literal["default", "latest_group", "latest_recipient"] = "default"
     if body.resend_recipient_id:
@@ -297,7 +308,7 @@ async def preview_broadcast_message(
         in_progress_count = 0
         uncertain_count = 0
     else:
-        recipient_count = len(recipients)
+        recipient_count = len(source_recipients)
         (
             eligible_count,
             already_sent_count,
@@ -315,6 +326,11 @@ async def preview_broadcast_message(
         recipient_id=recipient.id,
         recipient_name=recipient_name,
         recipient_count=recipient_count,
+        audience=cast(Literal["all", "not_submitted"], audience_resolution.audience),
+        audience_client_group_id=audience_resolution.client_group_id,
+        audience_recipient_count=len(recipients),
+        excluded_submitted_count=audience_resolution.excluded_submitted_count,
+        excluded_needs_review_count=(audience_resolution.excluded_needs_review_count),
         eligible_recipient_count=eligible_count,
         already_sent_count=already_sent_count,
         in_progress_count=in_progress_count,

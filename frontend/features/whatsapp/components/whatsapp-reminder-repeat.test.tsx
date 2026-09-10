@@ -23,6 +23,10 @@ const mocks = vi.hoisted(() => ({
   inProgressCount: 0,
   alreadySentCount: 0,
   uncertainCount: 0,
+  audienceCount: 3,
+  excludedSubmittedCount: 0,
+  excludedNeedsReviewCount: 0,
+  confirmReminderAudience: true,
 }));
 
 // Keep the real workspace menu, lazy composer, modal, editor and send boundary.
@@ -76,6 +80,7 @@ function setRecipients(statuses: string[]) {
     recipients: statuses.map(recipient),
     support_contacts: [],
     rejected_contact_count: 0,
+    linked_client_groups: [],
   };
 }
 
@@ -87,6 +92,10 @@ beforeEach(() => {
   mocks.inProgressCount = 0;
   mocks.alreadySentCount = 0;
   mocks.uncertainCount = 0;
+  mocks.audienceCount = 3;
+  mocks.excludedSubmittedCount = 0;
+  mocks.excludedNeedsReviewCount = 0;
+  mocks.confirmReminderAudience = true;
   vi.stubGlobal("URL", class extends URL {
     static createObjectURL = vi.fn(() => "blob:synthetic-header");
     static revokeObjectURL = vi.fn();
@@ -104,6 +113,15 @@ beforeEach(() => {
       recipient_id: selected?.id ?? "",
       recipient_name: selected?.name ?? "",
       recipient_count: mocks.detail.recipient_count,
+      ...(mocks.confirmReminderAudience ? {
+        audience: request.draft.audience ?? "all",
+        audience_client_group_id: request.draft.audience_client_group_id ?? null,
+        audience_recipient_count: request.draft.audience === "not_submitted"
+          ? mocks.audienceCount
+          : mocks.detail.recipient_count,
+        excluded_submitted_count: mocks.excludedSubmittedCount,
+        excluded_needs_review_count: mocks.excludedNeedsReviewCount,
+      } : {}),
       eligible_recipient_count: mocks.eligibleCount,
       already_sent_count: mocks.alreadySentCount,
       in_progress_count: mocks.inProgressCount,
@@ -179,13 +197,177 @@ it("opens the editor before every reminder and supports cancel, edit, send, reop
     await user.click(send);
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
     expect(mocks.sendReminder).toHaveBeenNthCalledWith(index + 1, {
-      groupId: "reminder-group", messageContent: wording, recipientIds: null,
+      groupId: "reminder-group",
+      messageContent: wording,
+      recipientIds: null,
+      audience: "all",
+      audienceClientGroupId: null,
     });
   }
   expect(mocks.registerActivity).toHaveBeenCalledTimes(2);
   expect(mocks.sendWelcome).not.toHaveBeenCalled();
   expect(mocks.sendPassportLink).not.toHaveBeenCalled();
   expect(mocks.bulkPreview).not.toHaveBeenCalled();
+});
+
+it("requires one linked upload group and sends only the server-confirmed not-submitted audience", async () => {
+  setRecipients(["new", "new", "sent", "read", "new"]);
+  mocks.detail.linked_client_groups = [
+    { id: "client-group-north", name: "North tour passports", status: "active" },
+    { id: "client-group-south", name: "South tour passports", status: "active" },
+    { id: "client-group-expired", name: "Expired passport link", status: "expired" },
+  ];
+  mocks.eligibleCount = 2;
+  mocks.audienceCount = 3;
+  mocks.excludedSubmittedCount = 1;
+  mocks.excludedNeedsReviewCount = 1;
+
+  const user = userEvent.setup();
+  render(<WhatsAppPage />);
+  const { dialog } = await openReminder(user);
+
+  await user.click(within(dialog).getByRole("radio", {
+    name: /Only people who haven't submitted/i,
+  }));
+  const send = within(dialog).getByRole("button", {
+    name: "Choose a passport upload group",
+  });
+  expect(send).toBeDisabled();
+  expect(send).not.toHaveTextContent(/not submitted/i);
+  expect(within(dialog).queryByText(/Updating message preview/)).not.toBeInTheDocument();
+
+  await user.selectOptions(
+    within(dialog).getByLabelText("Passport upload group used to check submissions"),
+    "client-group-south",
+  );
+  expect(send).toHaveTextContent("Checking not-submitted audience");
+  expect(send).toBeDisabled();
+  expect(within(dialog).queryByRole("option", { name: "Expired passport link" }))
+    .not.toBeInTheDocument();
+
+  await waitFor(() => expect(send).toBeEnabled());
+  expect(send).toHaveTextContent("Send to 2 not submitted");
+  expect(within(dialog).getAllByText(/1 submitted/).length).toBeGreaterThan(0);
+  expect(within(dialog).getAllByText(/1 ambiguous recipient was also excluded for safety/).length).toBeGreaterThan(0);
+  expect(within(dialog).queryByLabelText("Preview recipient")).not.toBeInTheDocument();
+  expect(mocks.preview).toHaveBeenLastCalledWith(
+    expect.objectContaining({
+      groupId: "reminder-group",
+      draft: expect.objectContaining({
+        message_type: "reminder",
+        audience: "not_submitted",
+        audience_client_group_id: "client-group-south",
+        recipient_ids: null,
+      }),
+    }),
+    expect.any(Object),
+  );
+
+  await user.click(send);
+  await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+  expect(mocks.sendReminder).toHaveBeenCalledWith({
+    groupId: "reminder-group",
+    messageContent: mocks.latestReminder,
+    recipientIds: null,
+    audience: "not_submitted",
+    audienceClientGroupId: "client-group-south",
+  });
+});
+
+it("keeps not-submitted unavailable without a link and refuses an unconfirmed mixed-version preview", async () => {
+  const user = userEvent.setup();
+  const { rerender } = render(
+    <MessagePreviewDialog
+      group={mocks.detail}
+      messageType="reminder"
+      isSending={false}
+      onClose={vi.fn()}
+      onSend={mocks.sendReminder}
+    />,
+  );
+  const unavailable = await screen.findByRole("radio", {
+    name: /Only people who haven't submitted/i,
+  });
+  expect(unavailable).toBeDisabled();
+  expect(screen.getByText(/Link this broadcast to a passport upload group/)).toBeInTheDocument();
+
+  mocks.detail = {
+    ...mocks.detail,
+    linked_client_groups: [
+      { id: "client-group-only", name: "Only linked group", status: "active" },
+    ],
+  };
+  mocks.confirmReminderAudience = false;
+  rerender(
+    <MessagePreviewDialog
+      group={mocks.detail}
+      messageType="reminder"
+      isSending={false}
+      onClose={vi.fn()}
+      onSend={mocks.sendReminder}
+    />,
+  );
+  await user.click(await screen.findByRole("radio", {
+    name: /Only people who haven't submitted/i,
+  }));
+  const send = screen.getByRole("button", {
+    name: "Checking not-submitted audience",
+  });
+  await waitFor(() => expect(mocks.preview).toHaveBeenLastCalledWith(
+    expect.objectContaining({
+      draft: expect.objectContaining({ audience: "not_submitted" }),
+    }),
+    expect.any(Object),
+  ));
+  expect(send).toBeDisabled();
+  fireEvent.submit(screen.getByRole("dialog").querySelector("form")!);
+  expect(await screen.findByText(/server did not confirm the not-submitted audience/i)).toBeInTheDocument();
+  expect(mocks.sendReminder).not.toHaveBeenCalled();
+});
+
+it("invalidates an accepted preview immediately when recipient delivery state changes", async () => {
+  setRecipients(["new", "new"]);
+  mocks.eligibleCount = 2;
+  const onClose = vi.fn();
+  const { rerender } = render(
+    <MessagePreviewDialog
+      group={mocks.detail}
+      messageType="reminder"
+      isSending={false}
+      onClose={onClose}
+      onSend={mocks.sendReminder}
+    />,
+  );
+
+  const send = await screen.findByRole("button", {
+    name: "Send individually to 2",
+  });
+  await waitFor(() => expect(send).toBeEnabled());
+
+  const unchangedGroupTimestamp = mocks.detail.updated_at;
+  mocks.detail = {
+    ...mocks.detail,
+    updated_at: unchangedGroupTimestamp,
+    recipients: [recipient("queued", 0), recipient("processing", 1)],
+  };
+  mocks.eligibleCount = 0;
+  mocks.inProgressCount = 2;
+  rerender(
+    <MessagePreviewDialog
+      group={mocks.detail}
+      messageType="reminder"
+      isSending={false}
+      onClose={onClose}
+      onSend={mocks.sendReminder}
+    />,
+  );
+
+  expect(send).toBeDisabled();
+  expect(screen.getByText(/Updating message preview/)).toBeInTheDocument();
+  await waitFor(() => expect(mocks.preview).toHaveBeenLastCalledWith(
+    expect.objectContaining({ groupId: "reminder-group" }),
+    expect.any(Object),
+  ));
 });
 
 it("keeps earlier terminal reminders in the audience and preview list while using the server count for active deliveries", async () => {

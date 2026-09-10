@@ -4,8 +4,14 @@ import { Check, Loader2, MessageCircle, Search } from "lucide-react";
 import { useId, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { useWhatsAppBroadcastOptions } from "../hooks/use-upload-links";
+import {
+  recommendedMatchingFieldKeys,
+  WhatsAppMatchFieldSelector,
+  type WhatsAppMatchingFieldsByBroadcast,
+} from "./whatsapp-match-field-selector";
 
 const MAX_LINKED_BROADCASTS = 50;
+const EMPTY_MATCHING_FIELDS: WhatsAppMatchingFieldsByBroadcast = Object.freeze({});
 
 interface WhatsAppBroadcastSelectorProps {
   selectedIds: string[];
@@ -14,6 +20,8 @@ interface WhatsAppBroadcastSelectorProps {
   groupId?: string;
   title?: string;
   description?: string;
+  selectedMatchingFields?: WhatsAppMatchingFieldsByBroadcast;
+  onMatchingFieldsChange?: (fields: WhatsAppMatchingFieldsByBroadcast) => void;
 }
 
 export function WhatsAppBroadcastSelector({
@@ -23,6 +31,8 @@ export function WhatsAppBroadcastSelector({
   groupId,
   title = "Link existing WhatsApp broadcasts",
   description = "Choose one or more recipient lists to compare with passport submissions.",
+  selectedMatchingFields = EMPTY_MATCHING_FIELDS,
+  onMatchingFieldsChange,
 }: WhatsAppBroadcastSelectorProps) {
   const [search, setSearch] = useState("");
   const titleId = useId();
@@ -44,11 +54,38 @@ export function WhatsAppBroadcastSelector({
     if (disabled) return;
     if (selected.has(id)) {
       onChange(selectedIds.filter((selectedId) => selectedId !== id));
+      if (onMatchingFieldsChange) {
+        const remainingFields = { ...selectedMatchingFields };
+        delete remainingFields[id];
+        onMatchingFieldsChange(remainingFields);
+      }
       return;
     }
     if (selectedIds.length >= MAX_LINKED_BROADCASTS) return;
     onChange([...selectedIds, id]);
+    const broadcast = broadcasts.find((item) => item.id === id);
+    const availableFields = broadcast?.available_matching_fields ?? [];
+    if (onMatchingFieldsChange && availableFields.length > 0) {
+      const existingFields = broadcast?.matching_field_keys ?? [];
+      const nextFields = existingFields.length > 0
+        ? existingFields
+        : recommendedMatchingFieldKeys(availableFields);
+      if (nextFields.length > 0) {
+        onMatchingFieldsChange({
+          ...selectedMatchingFields,
+          [id]: nextFields,
+        });
+      }
+    }
   };
+
+  const selectedBroadcasts = useMemo(() => {
+    const broadcastsById = new Map(broadcasts.map((broadcast) => [broadcast.id, broadcast]));
+    return selectedIds.flatMap((id) => {
+      const broadcast = broadcastsById.get(id);
+      return broadcast ? [broadcast] : [];
+    });
+  }, [broadcasts, selectedIds]);
 
   return (
     <section
@@ -150,6 +187,17 @@ export function WhatsAppBroadcastSelector({
         <p role="status" className="border-t border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">
           A group can link up to {MAX_LINKED_BROADCASTS} WhatsApp broadcasts.
         </p>
+      )}
+
+      {onMatchingFieldsChange && selectedBroadcasts.length > 0 && (
+        <div className="border-t border-slate-200 bg-slate-50/70 p-3 sm:p-4">
+          <WhatsAppMatchFieldSelector
+            broadcasts={selectedBroadcasts}
+            selectedMatchingFields={selectedMatchingFields}
+            onChange={onMatchingFieldsChange}
+            disabled={disabled}
+          />
+        </div>
       )}
     </section>
   );

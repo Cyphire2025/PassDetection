@@ -10,9 +10,10 @@ from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.use_cases.whatsapp.group_submission_matching import (
-    RecipientForComparison,
-    SubmissionForComparison,
     compare_group_submissions,
+)
+from app.application.use_cases.whatsapp.private_delivery_identity import (
+    is_private_delivery_match,
 )
 from app.domain.entities.entities import PassportSubmission
 from app.infrastructure.database.models import (
@@ -27,6 +28,17 @@ from app.infrastructure.documents.document_matcher import (
     DocumentMatcher,
     PassengerIdentifier,
 )
+from app.infrastructure.repositories.passport_whatsapp_matching_repository import (
+    matching_field_keys_from_storage,
+    recipient_comparison_from_model,
+    submission_comparison_from_model,
+)
+from app.presentation.api.v1.routes.document_distribution_match_policy import (
+    source_matching_fields_by_broadcast as _source_matching_fields_by_broadcast,
+)
+from app.presentation.api.v1.routes.document_distribution_match_policy import (
+    source_with_matching_fields as _source_with_matching_fields,
+)
 from app.presentation.api.v1.routes.document_distribution_shared import (
     _linked_document_match_source_from_models,
     _LinkedDocumentMatchSource,
@@ -38,7 +50,11 @@ async def _linked_whatsapp_recipients(
     *,
     group: ClientGroupModel,
     require_opt_in: bool = True,
-) -> tuple[dict[uuid.UUID, str], list[WhatsAppBroadcastRecipientModel]]:
+) -> tuple[
+    dict[uuid.UUID, str],
+    dict[uuid.UUID, tuple[str, ...] | None],
+    list[WhatsAppBroadcastRecipientModel],
+]:
     filters = [
         ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group.id,
         ClientGroupWhatsAppBroadcastLinkModel.agency_id == group.agency_id,
@@ -50,6 +66,7 @@ async def _linked_whatsapp_recipients(
         select(
             ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
             WhatsAppBroadcastGroupModel.name,
+            ClientGroupWhatsAppBroadcastLinkModel.matching_field_keys,
         )
         .join(
             WhatsAppBroadcastGroupModel,
@@ -58,11 +75,17 @@ async def _linked_whatsapp_recipients(
         )
         .where(*filters)
     )
+    linked_rows = linked_result.all()
     linked_broadcasts = {
-        broadcast_id: broadcast_name for broadcast_id, broadcast_name in linked_result.all()
+        broadcast_id: broadcast_name
+        for broadcast_id, broadcast_name, _matching_fields in linked_rows
+    }
+    matching_fields_by_broadcast = {
+        broadcast_id: matching_field_keys_from_storage(matching_fields)
+        for broadcast_id, _broadcast_name, matching_fields in linked_rows
     }
     if not linked_broadcasts:
-        return {}, []
+        return {}, {}, []
     recipient_result = await session.execute(
         select(WhatsAppBroadcastRecipientModel).where(
             WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
@@ -71,7 +94,11 @@ async def _linked_whatsapp_recipients(
             WhatsAppBroadcastRecipientModel.suppressed_by_roster_resolution_id.is_(None),
         )
     )
-    return linked_broadcasts, list(recipient_result.scalars().all())
+    return (
+        linked_broadcasts,
+        matching_fields_by_broadcast,
+        list(recipient_result.scalars().all()),
+    )
 
 
 async def _read_linked_document_match_source(
@@ -129,11 +156,15 @@ async def _read_linked_document_match_source(
             broadcasts_by_id[broadcast.id] = broadcast
             if recipient is not None:
                 recipients_by_id[recipient.id] = recipient
-        return _linked_document_match_source_from_models(
-            group=group,
-            links=list(links_by_id.values()),
-            broadcasts=list(broadcasts_by_id.values()),
-            recipients=list(recipients_by_id.values()),
+        links = list(links_by_id.values())
+        return _source_with_matching_fields(
+            _linked_document_match_source_from_models(
+                group=group,
+                links=links,
+                broadcasts=list(broadcasts_by_id.values()),
+                recipients=list(recipients_by_id.values()),
+            ),
+            links,
         )
 
     linked_id_result = await session.execute(
@@ -201,11 +232,14 @@ async def _read_linked_document_match_source(
             .execution_options(populate_existing=True)
         )
         recipients = list(recipient_result.scalars().all())
-    return _linked_document_match_source_from_models(
-        group=group,
-        links=links,
-        broadcasts=broadcasts,
-        recipients=recipients,
+    return _source_with_matching_fields(
+        _linked_document_match_source_from_models(
+            group=group,
+            links=links,
+            broadcasts=broadcasts,
+            recipients=recipients,
+        ),
+        links,
     )
 
 
@@ -220,13 +254,18 @@ async def _linked_document_match_identifiers(
     """Attach linked WhatsApp-Excel codes only after an unambiguous roster match."""
 
     if source is None:
-        linked_broadcasts, recipients = await _linked_whatsapp_recipients(
+        (
+            linked_broadcasts,
+            matching_fields_by_broadcast,
+            recipients,
+        ) = await _linked_whatsapp_recipients(
             session,
             group=group,
             require_opt_in=False,
         )
     else:
         linked_broadcasts = source.linked_broadcasts
+        matching_fields_by_broadcast = _source_matching_fields_by_broadcast(source)
         recipients = list(source.recipients)
     scoped_recipients = [
         recipient
@@ -242,30 +281,15 @@ async def _linked_document_match_identifiers(
     if not scoped_recipients or not scoped_passengers:
         return ()
     comparison_recipients = [
-        RecipientForComparison(
-            id=recipient.id,
-            broadcast_id=recipient.broadcast_group_id,
-            broadcast_name=linked_broadcasts[recipient.broadcast_group_id],
-            name=recipient.name,
-            phone=recipient.normalized_phone_number,
-            updated_at=recipient.created_at,
-            imported_fields=dict(recipient.imported_fields or {}),
+        recipient_comparison_from_model(
+            recipient,
+            linked_broadcasts,
+            matching_fields_by_broadcast,
         )
         for recipient in scoped_recipients
     ]
     comparison_submissions = [
-        SubmissionForComparison(
-            id=passenger.id,
-            name=passenger.client_name,
-            client_phone=passenger.client_phone,
-            family_head_phone=passenger.family_head_phone,
-            updated_at=passenger.updated_at,
-            client_email=passenger.client_email,
-            family_head_email=passenger.family_head_email,
-            confirmed_fields=dict(passenger.confirmed_fields or {}),
-            extracted_fields=dict(passenger.extracted_fields or {}),
-            staff_metadata=dict(passenger.staff_metadata or {}),
-        )
+        submission_comparison_from_model(passenger)
         for passenger in scoped_passengers
     ]
     rows, _ = await asyncio.to_thread(
@@ -277,7 +301,7 @@ async def _linked_document_match_identifiers(
     identifiers_seen: set[tuple[uuid.UUID, str, str]] = set()
     identifiers_per_passenger: dict[uuid.UUID, int] = {}
     matched_rows = sorted(
-        (row for row in rows if row.status == "submitted" and len(row.submission_ids) == 1),
+        (row for row in rows if is_private_delivery_match(row)),
         key=lambda row: (str(row.submission_ids[0]), tuple(map(str, row.recipient_ids))),
     )
     for row in matched_rows:

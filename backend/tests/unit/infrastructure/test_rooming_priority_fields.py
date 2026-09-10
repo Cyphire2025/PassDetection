@@ -95,7 +95,7 @@ async def test_catalog_includes_enabled_collected_fields_and_excludes_fixed_gend
     )
     session = _Session(
         [
-            _RowsResult([(broadcast_id, "Roster")]),
+            _RowsResult([(broadcast_id, "Roster", None)]),
             _ScalarResult([recipient]),
         ]
     )
@@ -156,7 +156,7 @@ async def test_catalog_includes_enabled_collected_fields_and_excludes_fixed_gend
 
 
 @pytest.mark.asyncio
-async def test_priority_values_resolve_custom_group_and_matched_whatsapp_data() -> None:
+async def test_priority_values_resolve_selected_custom_match_and_whatsapp_data() -> None:
     broadcast_id = uuid.uuid4()
     passenger_id = uuid.uuid4()
     question_id = uuid.uuid4()
@@ -180,9 +180,12 @@ async def test_priority_values_resolve_custom_group_and_matched_whatsapp_data() 
         id=uuid.uuid4(),
         broadcast_group_id=broadcast_id,
         name="Asha",
-        normalized_phone_number="+919999999999",
+        normalized_phone_number="+918888888888",
         created_at=now,
-        imported_fields={"Department": "Sales"},
+        imported_fields={
+            "Department": "Sales",
+            "Producer Code": "PR-42",
+        },
     )
     passenger = SimpleNamespace(
         id=passenger_id,
@@ -200,7 +203,12 @@ async def test_priority_values_resolve_custom_group_and_matched_whatsapp_data() 
                 "question_id": str(question_id),
                 "label": "Team",
                 "value": "Alpha",
-            }
+            },
+            {
+                "question_id": str(uuid.uuid4()),
+                "label": "Producer Code",
+                "value": "PR-42",
+            },
         ],
         custom_detail_answers=[],
         family_head_name=None,
@@ -214,7 +222,7 @@ async def test_priority_values_resolve_custom_group_and_matched_whatsapp_data() 
     )
     session = _Session(
         [
-            _RowsResult([(broadcast_id, "Roster")]),
+            _RowsResult([(broadcast_id, "Roster", ["producer_code"])]),
             _ScalarResult([recipient]),
         ]
     )
@@ -370,7 +378,7 @@ async def test_catalog_only_and_local_field_resolution_skip_whatsapp_comparison(
     catalog = await build_rooming_priority_context(
         _Session(
             [
-                _RowsResult([(broadcast_id, "Roster")]),
+                _RowsResult([(broadcast_id, "Roster", None)]),
                 _ScalarResult([recipient]),
             ]
         ),  # type: ignore[arg-type]
@@ -406,7 +414,7 @@ async def test_catalog_only_and_local_field_resolution_skip_whatsapp_comparison(
     local = await build_rooming_priority_context(
         _Session(
             [
-                _RowsResult([(broadcast_id, "Roster")]),
+                _RowsResult([(broadcast_id, "Roster", None)]),
                 _ScalarResult([recipient]),
             ]
         ),  # type: ignore[arg-type]
