@@ -110,6 +110,9 @@ class WhatsAppRecipientResponse(BaseModel):
     imported_fields: dict[str, str] = Field(default_factory=dict)
     sent_message_types: list[str] = Field(default_factory=list)
     message_statuses: list["WhatsAppRecipientMessageStatusResponse"] = Field(default_factory=list)
+    welcome_status: str | None = None
+    welcome_delivered: bool = False
+    welcome_required_reason: str | None = None
 
 
 class WhatsAppRecipientMessageStatusResponse(BaseModel):
@@ -303,6 +306,8 @@ class WhatsAppPreviewResponse(BaseModel):
     already_sent_count: int
     in_progress_count: int
     uncertain_recipient_count: int
+    welcome_required_count: int = 0
+    welcome_required_reason: str | None = None
     passport_intro: str | None
     passport_link: str | None
     message_content: str

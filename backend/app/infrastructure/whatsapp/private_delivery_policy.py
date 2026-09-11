@@ -6,10 +6,12 @@ import asyncio
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from typing import Literal
 
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.use_cases.whatsapp.contact_normalization import normalize_whatsapp_phone
 from app.application.use_cases.whatsapp.group_submission_matching import (
     RecipientForComparison,
     SubmissionForComparison,
@@ -28,8 +30,13 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
 )
+from app.infrastructure.repositories.operational_roster import operational_roster_member
 from app.infrastructure.repositories.passport_whatsapp_matching_repository import (
     matching_field_keys_from_storage,
+)
+from app.infrastructure.whatsapp.phone_welcome import (
+    welcome_required_reason,
+    welcome_states_for_phones,
 )
 
 PRIVATE_DELIVERY_ACTIVE_STATUSES = frozenset({"queued", "processing", "delivery_unknown"})
@@ -61,6 +68,7 @@ class PrivateDeliveryGroupSourceSnapshot:
     group_id: uuid.UUID
     group_name: str
     allowed_destinations: frozenset[tuple[uuid.UUID, uuid.UUID, uuid.UUID, str]]
+    submission_destinations: frozenset[tuple[uuid.UUID, str]] = frozenset()
 
     def allows(
         self,
@@ -71,14 +79,17 @@ class PrivateDeliveryGroupSourceSnapshot:
         broadcast_group_id: uuid.UUID | None,
         recipient_id: uuid.UUID | None,
         normalized_phone_number: str,
+        delivery_source: Literal["broadcast", "submission"] = "broadcast",
     ) -> bool:
         if (
             agency_id != self.agency_id
             or group_id != self.group_id
             or passenger_id is None
-            or broadcast_group_id is None
-            or recipient_id is None
         ):
+            return False
+        if delivery_source == "submission":
+            return (passenger_id, normalized_phone_number) in self.submission_destinations
+        if delivery_source != "broadcast" or broadcast_group_id is None or recipient_id is None:
             return False
         return (
             passenger_id,
@@ -164,6 +175,7 @@ async def lock_private_delivery_group_source_snapshot(
         .where(
             PassportSubmissionModel.agency_id == agency_id,
             PassportSubmissionModel.group_id == group_id,
+            operational_roster_member(),
         )
         .order_by(PassportSubmissionModel.id)
         .with_for_update()
@@ -242,6 +254,12 @@ async def lock_private_delivery_group_source_snapshot(
         group_id=group_id,
         group_name=group.name,
         allowed_destinations=frozenset(allowed_destinations),
+        submission_destinations=frozenset(
+            (submission.id, phone)
+            for submission in submissions
+            if eligible_broadcasts
+            and (phone := normalize_whatsapp_phone(submission.client_phone))
+        ),
     )
 
 
@@ -254,6 +272,7 @@ async def validate_private_delivery_recipient(
     broadcast_group_id: uuid.UUID | None,
     recipient_id: uuid.UUID | None,
     normalized_phone_number: str,
+    delivery_source: Literal["broadcast", "submission"] = "broadcast",
 ) -> PrivateDeliveryRecipientValidation:
     """Rebuild the exact current identity mapping immediately before send."""
 
@@ -269,12 +288,34 @@ async def validate_private_delivery_recipient(
         broadcast_group_id=broadcast_group_id,
         recipient_id=recipient_id,
         normalized_phone_number=normalized_phone_number,
+        delivery_source=delivery_source,
     ):
         return PrivateDeliveryRecipientValidation(
             allowed=False,
             reason=PRIVATE_DELIVERY_RECIPIENT_CHANGED,
         )
-    return PrivateDeliveryRecipientValidation(allowed=True)
+    return await validate_private_delivery_welcome(
+        session,
+        agency_id=agency_id,
+        normalized_phone_number=normalized_phone_number,
+    )
+
+
+async def validate_private_delivery_welcome(
+    session: AsyncSession,
+    *,
+    agency_id: uuid.UUID,
+    normalized_phone_number: str,
+) -> PrivateDeliveryRecipientValidation:
+    """Require an actual welcome receipt for this exact destination before send."""
+
+    states = await welcome_states_for_phones(
+        session,
+        agency_id=agency_id,
+        phones=[normalized_phone_number],
+    )
+    reason = welcome_required_reason(states.get(normalized_phone_number))
+    return PrivateDeliveryRecipientValidation(allowed=reason is None, reason=reason)
 
 
 async def prepare_private_delivery_identity_mutation(

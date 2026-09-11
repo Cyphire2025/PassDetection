@@ -341,6 +341,7 @@ from app.presentation.api.v1.routes.document_distribution_verification import (
 from app.presentation.api.v1.routes.document_distribution_verification import (
     verify_documents as verify_documents,
 )
+from app.presentation.api.v1.routes.traveller_welcome import router as _traveller_welcome_router
 from app.presentation.api.v1.schemas.document_distribution_schemas import (
     AbortDocumentUploadResponse,
     DeleteDistributionDocumentsRequest,
@@ -364,6 +365,7 @@ from app.presentation.dependencies.auth import get_current_active_user
 from app.presentation.dependencies.csrf import require_cookie_csrf
 
 router = APIRouter()
+router.include_router(_traveller_welcome_router)
 router.include_router(_groups_read_router)
 router.include_router(_verification_router)
 router.include_router(_upload_router)

@@ -30,11 +30,13 @@ from app.presentation.api.v1.routes.document_distribution_scope import (
     _get_authorized_group,
     _get_visible_document_batch,
     _group_passengers,
+    _lock_active_document_scope,
 )
 from app.presentation.api.v1.routes.document_distribution_shared import (
     _document_delivery_poll_after_seconds,
 )
 from app.presentation.api.v1.schemas.document_distribution_schemas import (
+    DocumentDeliveryPreviewRecipient,
     DocumentDeliveryPreviewResponse,
     DocumentDeliveryTrackingCounts,
     DocumentDeliveryTrackingResponse,
@@ -46,6 +48,17 @@ from app.presentation.dependencies.auth import get_current_active_user
 from app.presentation.dependencies.csrf import require_cookie_csrf
 
 router = APIRouter()
+
+
+def _require_selected_documents_ready(
+    requested_ids: set[uuid.UUID], eligible_rows: list[DocumentDeliveryPreviewRecipient],
+) -> None:
+    if requested_ids - {row.document_id for row in eligible_rows}:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=("A selected document is blocked. Confirm welcome delivery to each traveller's "
+                    "current number and refresh the preview before sending."),
+        )
 
 
 @router.get(
@@ -157,6 +170,9 @@ async def send_document_whatsapp_broadcast(
         current_user=current_user,
         session=session,
     )
+    _, group = await _lock_active_document_scope(
+        session, current_user=current_user, group_id=group.id, agency_id=group.agency_id,
+    )
     # Serialize the whole group/type ledger, not just the caller's possibly
     # stale batch id. This closes the race where two clients could otherwise
     # create concurrent first-send or explicit-resend attempts.
@@ -217,6 +233,7 @@ async def send_document_whatsapp_broadcast(
         for row in preview.recipients
         if row.document_id in requested_ids and (row.eligible or row.document_id in resend_ids)
     ]
+    _require_selected_documents_ready(requested_ids, eligible_rows)
     if not eligible_rows:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -253,7 +270,6 @@ async def send_document_whatsapp_broadcast(
     for row in eligible_rows:
         if not (
             row.document_id
-            and row.recipient_id
             and row.broadcast_group_id
             and row.phone_number
             and row.document_filename

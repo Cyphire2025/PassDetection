@@ -43,6 +43,10 @@ from app.infrastructure.repositories.passport_whatsapp_matching_repository impor
     recipient_comparison_from_model,
     submission_comparison_from_model,
 )
+from app.infrastructure.whatsapp.phone_welcome import (
+    welcome_required_reason,
+    welcome_states_for_phones,
+)
 from app.presentation.api.v1.schemas.tour_operations_schemas import (
     QrDeliveryPreviewRecipient,
     QrDeliveryPreviewResponse,
@@ -348,6 +352,11 @@ async def _build_preview(
         linked_broadcasts=linked_broadcasts,
         matching_fields_by_broadcast=matching_fields_by_broadcast,
     )
+    welcome_states = await welcome_states_for_phones(
+        session,
+        agency_id=group.agency_id,
+        phones=[recipient.normalized_phone_number for recipient in recipient_models],
+    )
 
     rows: list[QrDeliveryPreviewRecipient] = []
     summary = QrDeliveryPreviewSummary(total_passengers=len(passengers))
@@ -376,7 +385,12 @@ async def _build_preview(
                 "from the linked broadcasts."
             )
         elif token and matched_recipient:
-            if existing_delivery and existing_delivery.status in ACCEPTED_STATUSES:
+            welcome_reason = welcome_required_reason(
+                welcome_states.get(matched_recipient[0].normalized_phone_number)
+            )
+            if welcome_reason:
+                reason = welcome_reason
+            elif existing_delivery and existing_delivery.status in ACCEPTED_STATUSES:
                 delivery_status = "already_sent"
                 reason = "This QR version was already accepted by WhatsApp."
                 summary.already_sent += 1
@@ -519,6 +533,27 @@ async def send_qr_whatsapp_broadcast(
         group=group,
     )
     preview = await _build_preview(session, group=group)
+    requested_ids = (
+        set(payload.qr_token_ids)
+        if payload.qr_token_ids is not None
+        else {row.qr_token_id for row in preview.recipients if row.qr_token_id and row.eligible}
+    )
+    selected_phones = {
+        row.phone_number
+        for row in preview.recipients
+        if row.qr_token_id in requested_ids and row.phone_number
+    }
+    welcome_states = await welcome_states_for_phones(
+        session, agency_id=group.agency_id, phones=selected_phones,
+    )
+    if any(welcome_required_reason(welcome_states.get(phone)) for phone in selected_phones):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "Welcome must be delivered to every selected WhatsApp number before sending QR "
+                "codes. Send the remaining welcomes first, then refresh this preview."
+            ),
+        )
     if not preview.can_send:
         error_status = (
             status.HTTP_503_SERVICE_UNAVAILABLE
@@ -530,11 +565,6 @@ async def send_qr_whatsapp_broadcast(
             detail=preview.configuration_error or "QR codes are not ready to send",
         )
 
-    requested_ids = (
-        set(payload.qr_token_ids)
-        if payload.qr_token_ids is not None
-        else {row.qr_token_id for row in preview.recipients if row.qr_token_id and row.eligible}
-    )
     eligible_rows = [
         row for row in preview.recipients if row.qr_token_id in requested_ids and row.eligible
     ]

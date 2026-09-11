@@ -11,7 +11,7 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
-from app.domain.entities.entities import User, UserRole
+from app.domain.entities.entities import User
 from app.domain.value_objects.travel_document_taxonomy import (
     DOCUMENT_TYPES,
     DOMESTIC_ONWARD_DOCUMENT_TYPE,
@@ -33,6 +33,10 @@ from app.infrastructure.export.document_assignment_excel_exporter import (
     build_document_assignment_workbook,
 )
 from app.infrastructure.repositories.operational_roster import operational_roster_member
+from app.presentation.api.v1.routes.document_distribution_access import (
+    document_agency_scope,
+    document_scope_available,
+)
 from app.presentation.api.v1.routes.document_distribution_queries import _all_group_documents
 from app.presentation.api.v1.routes.document_distribution_responses import _batch_response
 from app.presentation.api.v1.routes.document_distribution_scope import (
@@ -59,16 +63,16 @@ async def list_document_groups(
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> list[DocumentGroupResponse]:
-    if not current_user.agency_id or current_user.role == UserRole.AGENCY_COORDINATOR:
+    if not document_scope_available(current_user):
         return []
 
-    stmt = select(ClientGroupModel).where(ClientGroupModel.agency_id == current_user.agency_id)
+    stmt = select(ClientGroupModel).where(*document_agency_scope(ClientGroupModel.agency_id, current_user))
     stmt = stmt.where(ClientGroupModel.status.notin_(["archived", "deleted"]))
     stmt = AuthorizationPolicy.apply_group_visibility_scope(stmt, current_user)
     normalized_search = search.strip() if search else ""
     if normalized_search:
         passenger_group_ids = select(PassportSubmissionModel.group_id).where(
-            PassportSubmissionModel.agency_id == current_user.agency_id,
+            *document_agency_scope(PassportSubmissionModel.agency_id, current_user),
             PassportSubmissionModel.status.in_(_submitted_statuses()),
             operational_roster_member(),
             PassportSubmissionModel.client_name.icontains(
@@ -103,7 +107,7 @@ async def list_document_groups(
                 PassportSubmissionModel.id == DistributedDocumentModel.passenger_id,
             )
             .where(
-                DistributedDocumentModel.agency_id == current_user.agency_id,
+                *document_agency_scope(DistributedDocumentModel.agency_id, current_user),
                 DistributedDocumentModel.group_id.in_([group.id for group in groups]),
                 DistributedDocumentModel.document_type.in_(tuple(DOCUMENT_TYPES)),
                 PassportSubmissionModel.group_id == DistributedDocumentModel.group_id,
@@ -128,7 +132,7 @@ async def list_document_groups(
                 func.count(PassportSubmissionModel.id),
             )
             .where(
-                PassportSubmissionModel.agency_id == current_user.agency_id,
+                *document_agency_scope(PassportSubmissionModel.agency_id, current_user),
                 PassportSubmissionModel.group_id.in_([group.id for group in groups]),
                 PassportSubmissionModel.status.in_(_submitted_statuses()),
                 operational_roster_member(),

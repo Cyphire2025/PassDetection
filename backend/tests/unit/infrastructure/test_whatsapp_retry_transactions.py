@@ -16,6 +16,7 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
     WhatsAppMessageLogModel,
+    WhatsAppPhoneWelcomeModel,
     WhatsAppRecipientMessageStateModel,
 )
 from app.infrastructure.whatsapp import worker_runtime
@@ -49,6 +50,7 @@ async def _seed_batch(session, statuses):
                 recipient_id=recipient_id,
                 agency_id=agency_id,
                 message_type="welcome",
+                normalized_phone_number=f"+9198765432{index:02}",
                 status=status,
                 template_name="welcome",
                 created_at=now + timedelta(seconds=index),
@@ -67,6 +69,10 @@ async def _seed_batch(session, statuses):
             )
         )
         log_ids.append(log_id)
+        session.add(WhatsAppPhoneWelcomeModel(
+            agency_id=agency_id, normalized_phone_number=f"+9198765432{index:02}",
+            status=status, attempt_id=log_id, attempt_kind="broadcast",
+        ))
     await session.commit()
     return batch_id, log_ids
 
@@ -147,6 +153,10 @@ async def test_lost_publication_ack_never_releases_processing_or_accepted_rows(d
         "delivery_unknown",
     }
     assert all(state.batch_id == batch_id for state in states if state.status != "failed")
+    phone_states = (await db_session.execute(select(WhatsAppPhoneWelcomeModel))).scalars().all()
+    assert {state.status for state in phone_states} == {
+        "failed", "processing", "delivered", "delivery_unknown",
+    }
 
 
 async def test_slow_broker_publication_leaves_event_loop_responsive():

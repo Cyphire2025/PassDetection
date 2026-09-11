@@ -28,6 +28,10 @@ from app.infrastructure.whatsapp.publication import (
     fail_unclaimed_broadcast_rows,
     publish_whatsapp_task,
 )
+from app.presentation.api.v1.routes.whatsapp_phone_welcome import (
+    claim_broadcast_welcome_phones,
+    enforce_broadcast_welcome_prerequisite,
+)
 from app.presentation.api.v1.routes.whatsapp_reminder_audience import (
     resolve_reminder_audience,
 )
@@ -35,7 +39,10 @@ from app.presentation.api.v1.routes.whatsapp_roster_support import (
     _active_explicit_reminder_recipient_ids,
 )
 from app.presentation.api.v1.routes.whatsapp_scope import _configured_template_name
-from app.presentation.api.v1.routes.whatsapp_send_support import unclaimed_delivery_counts
+from app.presentation.api.v1.routes.whatsapp_send_support import (
+    add_frozen_broadcast_logs,
+    unclaimed_delivery_counts,
+)
 from app.presentation.api.v1.routes.whatsapp_shared import (
     WHATSAPP_IN_PROGRESS_STATUSES,
     WHATSAPP_ROLES,
@@ -46,7 +53,6 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
     _group_recipients,
     _latest_composer_snapshot,
     _merge_composer_snapshot,
-    _message_values,
     _resolve_send_header_image,
     _resolve_send_message_content,
     _resolve_send_passport_intro,
@@ -59,7 +65,6 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
 from app.presentation.api.v1.schemas.whatsapp_schemas import (
     WhatsAppSendRequest,
     WhatsAppSendResponse,
-    WhatsAppSendResult,
 )
 from app.presentation.dependencies.auth import require_role
 from app.presentation.dependencies.csrf import require_cookie_csrf
@@ -127,6 +132,12 @@ async def send_broadcast_message(
         current_user=current_user,
     )
     recipients = list(audience_resolution.recipients)
+    await enforce_broadcast_welcome_prerequisite(
+        session,
+        agency_id=group.agency_id,
+        message_type=message_type,
+        recipients=recipients,
+    )
     support_contacts = await _support_contacts_for_group(session, group.id)
     snapshot = await _latest_composer_snapshot(
         session,
@@ -307,18 +318,39 @@ async def send_broadcast_message(
     claimed_recipients = [
         recipient for recipient in recipients if recipient.id in claimed_recipient_ids
     ]
+    (
+        claimed_recipients,
+        welcome_log_ids,
+        phone_skipped_already,
+        phone_skipped_progress,
+        phone_skipped_unknown,
+    ) = await claim_broadcast_welcome_phones(
+        session,
+        agency_id=group.agency_id,
+        message_type=message_type,
+        recipients=claimed_recipients,
+        batch_id=batch_id,
+        now=now,
+    )
     unclaimed_recipient_ids = [
         recipient.id
         for recipient in recipients
         if recipient.id not in claimed_recipient_ids
         and recipient.id not in active_explicit_reminder_ids
     ]
-    skipped_already_sent, skipped_in_progress, skipped_delivery_unknown = (
-        await unclaimed_delivery_counts(
-            session, recipient_ids=unclaimed_recipient_ids, message_type=message_type,
-        )
+    (
+        skipped_already_sent,
+        skipped_in_progress,
+        skipped_delivery_unknown,
+    ) = await unclaimed_delivery_counts(
+        session,
+        recipient_ids=unclaimed_recipient_ids,
+        message_type=message_type,
     )
     skipped_in_progress += len(active_explicit_reminder_ids)
+    skipped_already_sent += phone_skipped_already
+    skipped_in_progress += phone_skipped_progress
+    skipped_delivery_unknown += phone_skipped_unknown
 
     if not claimed_recipients:
         await session.commit()
@@ -339,49 +371,17 @@ async def send_broadcast_message(
             results=[],
         )
 
-    results: list[WhatsAppSendResult] = []
-    for recipient in claimed_recipients:
-        (
-            _,
-            _,
-            _,
-            _,
-            _,
-            rendered,
-            header_parameters,
-            parameters,
-        ) = _message_values(
-            group=group,
-            recipient=recipient,
-            support_contacts=support_contacts,
-            body=resolved_body,
-        )
-        session.add(
-            WhatsAppMessageLogModel(
-                batch_id=batch_id,
-                broadcast_group_id=group.id,
-                recipient_id=recipient.id,
-                agency_id=recipient.agency_id,
-                message_type=message_type,
-                status="queued",
-                status_updated_at=now,
-                provider_message_id=None,
-                error_message=None,
-                template_name=template_name,
-                rendered_message=rendered,
-                header_parameter_values=header_parameters,
-                template_parameter_values=parameters,
-                is_explicit_resend=False,
-                created_at=now,
-            )
-        )
-        results.append(
-            WhatsAppSendResult(
-                recipient_id=recipient.id,
-                phone_number=recipient.normalized_phone_number,
-                status="queued",
-            )
-        )
+    results = add_frozen_broadcast_logs(
+        session,
+        group=group,
+        recipients=claimed_recipients,
+        support_contacts=support_contacts,
+        body=resolved_body,
+        batch_id=batch_id,
+        now=now,
+        template_name=template_name,
+        log_ids=welcome_log_ids,
+    )
     await session.commit()
 
     from app.infrastructure.whatsapp.tasks import process_whatsapp_broadcast

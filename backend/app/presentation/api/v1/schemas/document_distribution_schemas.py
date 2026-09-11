@@ -145,6 +145,9 @@ class DocumentDeliveryPreviewRecipient(BaseModel):
     broadcast_group_id: uuid.UUID | None = None
     broadcast_name: str | None = None
     phone_number: str | None = None
+    phone_source: str = "submission"
+    welcome_status: str = "required"
+    welcome_required: bool = True
     delivery_id: uuid.UUID | None = None
     delivery_status: str
     eligible: bool = False
@@ -161,6 +164,7 @@ class DocumentDeliveryPreviewSummary(BaseModel):
     already_sent: int = 0
     in_progress: int = 0
     blocked: int = 0
+    welcome_required: int = 0
 
 
 class DocumentDeliveryPreviewResponse(BaseModel):

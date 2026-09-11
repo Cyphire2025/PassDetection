@@ -33,6 +33,7 @@ from app.presentation.api.v1.schemas.whatsapp_schemas import (
 )
 
 SKIP_MESSAGES = {
+    "skipped_already_sent": "This WhatsApp number already received a welcome or delivery is pending.",
     "skipped_replaced": "This person is replaced in a linked passport group.",
     "skipped_in_progress": "A message of this type is already in progress.",
     "skipped_delivery_unknown": "Previous delivery is unknown; verify it before resending.",
@@ -92,6 +93,8 @@ def frozen_resend_log(
     """
     snapshot = resolve_saved_resend_snapshot(source, edits)
     return WhatsAppMessageLogModel(
+        id=uuid.uuid4(),
+        normalized_phone_number=recipient.normalized_phone_number,
         batch_id=batch_id,
         broadcast_group_id=recipient.broadcast_group_id,
         recipient_id=recipient.id,
@@ -231,6 +234,7 @@ def build_response(
         failed=statuses.count("failed"),
         delivery_unknown=statuses.count("delivery_unknown") + statuses.count("stalled"),
         skipped_in_progress=statuses.count("skipped_in_progress"),
+        skipped_already_sent=statuses.count("skipped_already_sent"),
         skipped_delivery_unknown=statuses.count("skipped_delivery_unknown"),
         skipped_no_saved_message=statuses.count("skipped_no_saved_message"),
         skipped_replaced=statuses.count("skipped_replaced"),

@@ -170,6 +170,24 @@ export function documentIdsForRows(
   return documentIds;
 }
 
+export function activeDeliverySelection(
+  preview: DocumentDeliveryPreview | undefined,
+  selectedDocumentIds: string[] | null,
+  resendDocumentIds: string[],
+) {
+  const eligibleIds = eligibleDeliveryDocumentIds(preview);
+  const allowedIds = new Set(eligibleIds);
+  const allowedResends = new Set((preview?.recipients ?? []).flatMap((row) => (
+    row.document_id && row.resend_allowed && !row.welcome_required && row.delivery_status === "already_sent"
+      ? [row.document_id] : []
+  )));
+  const resends = resendDocumentIds.filter((id) => allowedResends.has(id));
+  for (const id of resends) allowedIds.add(id);
+  const documentIds = (selectedDocumentIds ?? eligibleIds).filter((id) => allowedIds.has(id));
+  const selectedSet = new Set(documentIds);
+  return { documentIds: Array.from(selectedSet), resendDocumentIds: resends.filter((id) => selectedSet.has(id)) };
+}
+
 export function createActiveDocumentSelection(
   selectedDocumentIds: string[],
   model: DocumentReviewModel,
@@ -240,9 +258,9 @@ export function eligibleDeliveryDocumentIds(
   if (!preview) return [];
   const documentIds: string[] = [];
   for (const recipient of preview.recipients) {
-    if (recipient.eligible && recipient.document_id) {
+    if (recipient.eligible && !recipient.welcome_required && recipient.document_id) {
       documentIds.push(recipient.document_id);
     }
   }
-  return documentIds;
+  return Array.from(new Set(documentIds));
 }

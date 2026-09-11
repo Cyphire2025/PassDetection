@@ -8,7 +8,7 @@ import types
 import unittest
 import uuid
 from datetime import UTC, datetime, timedelta
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 from PIL import Image
 
@@ -166,7 +166,12 @@ class QrWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("passenger_qr_whatsapp_deliveries.status", queued_statement)
         self.assertIn("passenger_qr_whatsapp_deliveries.status", processing_statement)
 
-    async def test_webhook_updates_qr_delivery_when_no_other_log_matches(self) -> None:
+    @patch(
+        "app.presentation.api.v1.routes.whatsapp_webhook.process_traveller_welcome_receipt",
+        new_callable=AsyncMock,
+        return_value=0,
+    )
+    async def test_webhook_updates_qr_delivery_when_no_other_log_matches(self, _welcome_receipt) -> None:
         now = datetime.now(tz=UTC)
         delivery = self._delivery(
             now=now,

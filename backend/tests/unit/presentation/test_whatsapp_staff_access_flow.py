@@ -12,7 +12,12 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.entities.entities import User, UserRole
-from app.infrastructure.database.models import AgencyModel, UserModel, WhatsAppMessageLogModel
+from app.infrastructure.database.models import (
+    AgencyModel,
+    UserModel,
+    WhatsAppMessageLogModel,
+    WhatsAppPhoneWelcomeModel,
+)
 from app.infrastructure.database.session import get_db_session
 from app.presentation.api.v1.routes import client_groups, whatsapp, whatsapp_activity
 from app.presentation.dependencies.auth import get_current_active_user
@@ -83,7 +88,18 @@ async def test_staff_can_manage_and_track_broadcasts_only_in_their_agency(
         assert updated.json()["name"] == "Corrected staff list"
         preview = await client.post(f"{path}/preview", json={"message_type": "reminder"})
         assert preview.status_code == 200, preview.text
+        assert preview.json()["eligible_recipient_count"] == 0
+        assert preview.json()["welcome_required_count"] == 1
+        db_session.add(WhatsAppPhoneWelcomeModel(
+            id=uuid.uuid4(), agency_id=agency_id, normalized_phone_number="+919876543210",
+            status="delivered", attempt_id=uuid.uuid4(), attempt_kind="broadcast",
+            delivered_at=datetime.now(tz=UTC),
+        ))
+        await db_session.commit()
+        preview = await client.post(f"{path}/preview", json={"message_type": "reminder"})
+        assert preview.status_code == 200, preview.text
         assert preview.json()["eligible_recipient_count"] == 1
+        assert preview.json()["welcome_required_count"] == 0
 
         batch_id = uuid.uuid4()
         now = datetime.now(tz=UTC)

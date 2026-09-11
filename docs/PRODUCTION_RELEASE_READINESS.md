@@ -193,8 +193,8 @@ durable/security domain to cache eviction to hide pressure. See the
 
 ## 4. Rehearse the forward migration and rollback decision
 
-The current candidate's reviewed schema head is `0092_whatsapp_matching_fields`,
-which follows `0091_qualifier_other_relation`, `0090_upload_configuration`, then
+The current candidate's reviewed schema head is `0093_phone_welcome`,
+which follows `0092_whatsapp_matching_fields`, `0091_qualifier_other_relation`, `0090_upload_configuration`, then
 `0089_revoke_legacy_refresh`, and descends from
 `0088_merge_my_photos_hardening`. Preserve the merge topology described in the
 DR runbook. Verify the exact checkout's migration head and
@@ -217,8 +217,10 @@ The `0092` migration stores the safe spreadsheet-heading catalog on each WhatsAp
 broadcast and the selected OR-matching fields on each upload-group link. It
 backfills headings from existing recipient and rejected-contact imports while
 leaving existing links on the legacy matcher until an operator explicitly saves
-field choices. Apply it before serving this dashboard version, and set any explicit
-`EXPECTED_DATABASE_SCHEMA_REVISION` override to `0092_whatsapp_matching_fields`;
+field choices. The subsequent `0093` migration adds a phone-scoped welcome ledger,
+traveller welcome outbox, and frozen destination snapshots for original welcomes.
+Apply the full chain before serving this dashboard version, and set any explicit
+`EXPECTED_DATABASE_SCHEMA_REVISION` override to `0093_phone_welcome`;
 an old environment override takes precedence over the source defaults.
 
 The `0089` migration revokes unknown/legacy refresh credentials. Current keyed

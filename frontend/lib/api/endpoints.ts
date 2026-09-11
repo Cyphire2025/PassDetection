@@ -266,6 +266,10 @@ export const API_ENDPOINTS = {
       `/api/v1/document-distribution/batches/${batchId}/whatsapp-send`,
     deliveryTracking: (groupId: string) =>
       `/api/v1/document-distribution/groups/${groupId}/whatsapp-deliveries/tracking`,
+    travellerWelcomePreview: (groupId: string) =>
+      `/api/v1/document-distribution/groups/${groupId}/whatsapp-welcome-preview`,
+    travellerWelcomeSend: (groupId: string) =>
+      `/api/v1/document-distribution/groups/${groupId}/whatsapp-welcome-send`,
   },
 
   documentRename: {

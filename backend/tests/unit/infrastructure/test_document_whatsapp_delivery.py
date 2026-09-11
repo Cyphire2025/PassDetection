@@ -231,7 +231,12 @@ class DocumentWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
         )
         self.assertEqual(delivery.status, "read")
 
-    async def test_webhook_updates_document_delivery_when_no_broadcast_log(self) -> None:
+    @patch(
+        "app.presentation.api.v1.routes.whatsapp_webhook.process_traveller_welcome_receipt",
+        new_callable=AsyncMock,
+        return_value=0,
+    )
+    async def test_webhook_updates_document_delivery_when_no_broadcast_log(self, _welcome_receipt) -> None:
         now = datetime.now(tz=UTC)
         delivery = DocumentWhatsAppDeliveryModel(
             id=uuid.uuid4(),
@@ -347,7 +352,12 @@ class DocumentWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(kwargs["propagation_key"], f"document-delivery-batch:{batch_id}")
         self.assertFalse(kwargs["reconcile_identities"])
 
-    async def test_webhook_recovery_release_triggers_mobile_invalidation(self) -> None:
+    @patch(
+        "app.presentation.api.v1.routes.whatsapp_webhook.process_traveller_welcome_receipt",
+        new_callable=AsyncMock,
+        return_value=0,
+    )
+    async def test_webhook_recovery_release_triggers_mobile_invalidation(self, _welcome_receipt) -> None:
         now = datetime.now(tz=UTC)
         delivery = DocumentWhatsAppDeliveryModel(
             id=uuid.uuid4(),

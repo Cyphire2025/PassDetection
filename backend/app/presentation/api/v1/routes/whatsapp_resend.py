@@ -27,6 +27,10 @@ from app.infrastructure.whatsapp.publication import (
     fail_unclaimed_broadcast_rows,
     publish_whatsapp_task,
 )
+from app.presentation.api.v1.routes.whatsapp_phone_welcome import (
+    claim_resend_welcome_or_reject,
+    enforce_broadcast_welcome_prerequisite,
+)
 from app.presentation.api.v1.routes.whatsapp_scope import _configured_template_name
 from app.presentation.api.v1.routes.whatsapp_shared import (
     WHATSAPP_ACCEPTED_STATUSES,
@@ -125,6 +129,12 @@ async def resend_recipient_message(
         )
 
     message_type = _as_message_type(body.message_type)
+    await enforce_broadcast_welcome_prerequisite(
+        session,
+        agency_id=group.agency_id,
+        message_type=message_type,
+        recipients=[recipient],
+    )
     state_result = await session.execute(
         select(WhatsAppRecipientMessageStateModel)
         .where(
@@ -311,6 +321,8 @@ async def resend_recipient_message(
 
     batch_id = uuid.uuid4()
     resend_log = WhatsAppMessageLogModel(
+        id=uuid.uuid4(),
+        normalized_phone_number=recipient.normalized_phone_number,
         batch_id=batch_id,
         broadcast_group_id=group.id,
         recipient_id=recipient.id,
@@ -327,6 +339,7 @@ async def resend_recipient_message(
         is_explicit_resend=not is_retry,
         created_at=now,
     )
+    await claim_resend_welcome_or_reject(session, resend_log)
     session.add(resend_log)
     if is_retry:
         delivery_state.status = "queued"

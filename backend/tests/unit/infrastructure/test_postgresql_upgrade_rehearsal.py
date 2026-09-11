@@ -74,7 +74,7 @@ def test_rehearsal_contract_is_previous_release_populated_and_evidence_oriented(
     workflow = (REPOSITORY_ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
 
     assert rehearsal.PREVIOUS_RELEASE_REVISION == "0085_platform_retention_controls"
-    assert rehearsal.EXPECTED_HEAD_REVISION == "0092_whatsapp_matching_fields"
+    assert rehearsal.EXPECTED_HEAD_REVISION == "0093_phone_welcome"
     assert "INSERT INTO attendance_records" in source
     assert "INSERT INTO passport_submissions" in source
     assert "INSERT INTO audit_logs" in source

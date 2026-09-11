@@ -459,7 +459,8 @@ async def test_worker_guard_rejects_removed_recipient_before_provider_call() -> 
 
 
 @pytest.mark.asyncio
-async def test_worker_guard_requires_current_processing_batch() -> None:
+async def test_worker_guard_requires_current_processing_batch(monkeypatch) -> None:
+    monkeypatch.setattr("app.infrastructure.whatsapp.worker_runtime.assert_phone_welcome_claim", AsyncMock(return_value=True))
     batch_id = uuid.uuid4()
     recipient = SimpleNamespace(
         id=uuid.uuid4(),
@@ -489,7 +490,9 @@ async def test_worker_guard_requires_current_processing_batch() -> None:
 
     sendable, reason = await _load_sendable_recipient(
         session,
-        log=SimpleNamespace(
+        log=SimpleNamespace(id=uuid.uuid4(),
+            agency_id=recipient.agency_id,
+            normalized_phone_number=recipient.normalized_phone_number,
             recipient_id=recipient.id,
             broadcast_group_id=group_result.scalar_one_or_none.return_value.id,
             message_type="welcome",
@@ -653,7 +656,7 @@ def test_older_provider_event_is_ignored() -> None:
     assert state.provider_status_at == latest_event_at
 
 
-def test_late_accepted_receipt_promotes_ledger_across_retry_batches() -> None:
+def test_late_welcome_receipt_stays_batch_fenced_for_recipient_phone_changes() -> None:
     log = SimpleNamespace(
         recipient_id=uuid.uuid4(),
         message_type="welcome",
@@ -664,7 +667,8 @@ def test_late_accepted_receipt_promotes_ledger_across_retry_batches() -> None:
         *_provider_status_state_predicates(log, provider_status="delivered")
     )
 
-    assert "batch_id" not in str(statement.whereclause)
+    assert "batch_id" in str(statement.whereclause)
+    assert "id IS NULL" in str(statement.whereclause)
 
 
 def test_late_failed_receipt_remains_scoped_to_its_original_batch() -> None:
@@ -1499,7 +1503,8 @@ async def test_explicit_resend_never_mutates_baseline_delivery_ledger() -> None:
 
 
 @pytest.mark.asyncio
-async def test_explicit_resend_worker_guard_uses_log_claim_not_baseline_state() -> None:
+async def test_explicit_resend_worker_guard_uses_log_claim_not_baseline_state(monkeypatch) -> None:
+    monkeypatch.setattr("app.infrastructure.whatsapp.worker_runtime.assert_phone_welcome_claim", AsyncMock(return_value=True))
     batch_id = uuid.uuid4()
     recipient = SimpleNamespace(
         id=uuid.uuid4(),
@@ -1528,6 +1533,8 @@ async def test_explicit_resend_worker_guard_uses_log_claim_not_baseline_state() 
         session,
         log=SimpleNamespace(
             id=uuid.uuid4(),
+            agency_id=recipient.agency_id,
+            normalized_phone_number=recipient.normalized_phone_number,
             recipient_id=recipient.id,
             broadcast_group_id=group_result.scalar_one_or_none.return_value.id,
             message_type="welcome",
@@ -1561,6 +1568,9 @@ def test_explicit_resend_route_is_role_gated_and_returns_send_contract() -> None
 async def test_resend_endpoint_queues_one_edited_message_with_current_template(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr("app.presentation.api.v1.routes.whatsapp_phone_welcome.claim_phone_welcome", AsyncMock(return_value="claimed"))
+    monkeypatch.setattr("app.presentation.api.v1.routes.whatsapp_phone_welcome.sync_failed_broadcast_welcomes", AsyncMock())
+
     group_id = uuid.uuid4()
     recipient_id = uuid.uuid4()
     agency_id = uuid.uuid4()
@@ -1758,6 +1768,9 @@ async def test_resend_endpoint_rejects_removed_or_missing_recipient() -> None:
 async def test_resend_queue_failure_does_not_release_baseline_sent_state(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr("app.presentation.api.v1.routes.whatsapp_phone_welcome.claim_phone_welcome", AsyncMock(return_value="claimed"))
+    monkeypatch.setattr("app.presentation.api.v1.routes.whatsapp_phone_welcome.sync_failed_broadcast_welcomes", AsyncMock())
+
     group_id = uuid.uuid4()
     recipient_id = uuid.uuid4()
     agency_id = uuid.uuid4()
@@ -1866,6 +1879,8 @@ async def test_explicit_resend_webhook_updates_log_without_loading_baseline_stat
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     log = SimpleNamespace(
+        message_type="welcome",
+        normalized_phone_number=None,
         is_explicit_resend=True,
         status="submitted",
         status_updated_at=datetime.now(tz=UTC),
@@ -1921,6 +1936,8 @@ async def test_explicit_resend_webhook_updates_log_without_loading_baseline_stat
 async def test_otp_webhook_records_provider_failure_without_phone_or_code(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr("app.presentation.api.v1.routes.whatsapp_webhook.process_traveller_welcome_receipt", AsyncMock(return_value=0))
+
     empty_logs = MagicMock()
     empty_logs.scalars.return_value.all.return_value = []
     empty_documents = MagicMock()

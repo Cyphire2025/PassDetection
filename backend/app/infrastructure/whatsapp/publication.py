@@ -14,6 +14,7 @@ from app.infrastructure.database.models import (
     WhatsAppMessageLogModel,
     WhatsAppRecipientMessageStateModel,
 )
+from app.infrastructure.whatsapp.phone_welcome import sync_failed_broadcast_welcomes
 
 
 async def publish_whatsapp_task(task: Any, *, payload: dict[str, object]) -> None:
@@ -56,3 +57,4 @@ async def fail_unclaimed_broadcast_rows(
         .values(status="failed", batch_id=None, status_updated_at=now, updated_at=now)
         .execution_options(synchronize_session=False)
     )
+    await sync_failed_broadcast_welcomes(session, batch_id=batch_id)

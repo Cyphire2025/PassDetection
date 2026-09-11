@@ -4,7 +4,7 @@ import { MoreHorizontal, Pencil, RotateCw, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { WhatsAppRecipient } from "../api/whatsapp.api";
 import { formatMessageType, isWhatsAppMessageType } from "../utils/message-types";
-import { getMessageStatus, hasAlreadySentMessage } from "../utils/recipient-delivery";
+import { canRetryOrResendRecipient, getMessageStatus, hasAlreadySentMessage, welcomeDeliveryBlockReason } from "../utils/recipient-delivery";
 import type { RecipientResendTarget } from "./whatsapp-workspace.types";
 import { DeliveryBadge, importedFieldLabel, visibleImportedFieldEntries } from "./whatsapp-recipient-roster-rows";
 import { RecipientSelectionCheckbox } from "./whatsapp-recipient-selection";
@@ -41,7 +41,8 @@ export function ActiveRecipientRow({
     const status = getMessageStatus(recipient, messageType);
     const canRetry = status?.status === "failed";
     if (!canRetry && !hasAlreadySentMessage(recipient, messageType)) return [];
-    return [{ messageType, status, action: canRetry ? "retry" as const : "resend" as const }];
+    const action = canRetry ? "retry" as const : "resend" as const;
+    return [{ messageType, status, action, allowed: canRetryOrResendRecipient(recipient, messageType, action), reason: welcomeDeliveryBlockReason(recipient, messageType) }];
   });
   const closeMenu = () => { if (menuRef.current) menuRef.current.open = false; };
   useEffect(() => {
@@ -111,6 +112,7 @@ export function ActiveRecipientRow({
         return (
           <td key={messageType} className="px-4 py-4">
             <DeliveryBadge status={status} />
+            {messageType !== "welcome" && recipient.welcome_delivered === false && <p className="mt-1 max-w-44 text-[11px] leading-4 text-amber-700">{recipient.welcome_required_reason || "Welcome delivery required"}</p>}
             {latest && <p className={`mt-1.5 text-[11px] ${latest === "failed" ? "text-red-600" : latest === "delivery_unknown" ? "text-amber-700" : "text-slate-500"}`}>
               {latest === "failed" ? "Last resend failed" : latest === "delivery_unknown" ? "Resend needs review" : latest === "queued" || latest === "processing" ? "Resending…" : ["sent", "delivered", "read"].includes(latest) ? "Resent" : null}
             </p>}
@@ -131,8 +133,8 @@ export function ActiveRecipientRow({
           <summary aria-label={`Actions for ${name}`} className="flex h-8 w-8 cursor-pointer list-none items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 [&::-webkit-details-marker]:hidden"><MoreHorizontal className="h-4 w-4" /></summary>
           <div data-recipient-menu-content style={menuPosition ?? undefined} className="fixed z-[60] min-w-56 rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl">
             <p className="px-2.5 py-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">For this recipient</p>
-            {resendActions.map(({ messageType, status, action }) => (
-              <button key={messageType} type="button" className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2.5 text-left text-xs font-medium text-slate-700 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-40" disabled={resendPending || status?.resend_blocked || selectionDisabled} title={status?.resend_blocked ? "A send is in progress or its delivery needs review." : undefined} aria-label={`${action === "retry" ? "Retry" : "Resend"} ${formatMessageType(messageType)} to ${name}`} onClick={() => { closeMenu(); onResend({ recipientId: recipient.id, recipientName: name, phoneNumber: recipient.normalized_phone_number, messageType, action }); }}>
+            {resendActions.map(({ messageType, status, action, allowed, reason }) => (
+              <button key={messageType} type="button" className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2.5 text-left text-xs font-medium text-slate-700 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-40" disabled={resendPending || !allowed || selectionDisabled} title={reason ?? (status?.resend_blocked ? "A send is in progress or its delivery needs review." : undefined)} aria-label={`${action === "retry" ? "Retry" : "Resend"} ${formatMessageType(messageType)} to ${name}`} onClick={() => { if (!allowed) return; closeMenu(); onResend({ recipientId: recipient.id, recipientName: name, phoneNumber: recipient.normalized_phone_number, messageType, action }); }}>
                 <RotateCw className="h-3.5 w-3.5" /> {action === "retry" ? "Retry" : "Resend"} {formatMessageType(messageType).toLowerCase()}
               </button>
             ))}

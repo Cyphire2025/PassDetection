@@ -33,6 +33,10 @@ bulk_resend_fixture = resend_test_support.fixture
 @pytest.fixture
 def preview_fixture(bulk_resend_fixture, monkeypatch):
     fixture = bulk_resend_fixture
+    async def welcomed_phones(*args, **kwargs):
+        return {recipient.normalized_phone_number: "delivered" for recipient in fixture.recipients} if fixture.body.message_type != "welcome" else {}
+    monkeypatch.setattr(preview_route, "welcome_states_for_phones", welcomed_phones)
+
     for recipient in fixture.recipients:
         recipient.name = f"Passenger {recipient.id}"
     fixture.body = fixture.body.model_copy(update={"message_type": "passport_link"})

@@ -8,21 +8,29 @@ from unittest.mock import ANY, AsyncMock, MagicMock
 import pytest
 from fastapi import HTTPException
 from pydantic import ValidationError
-from sqlalchemy import inspect
+from sqlalchemy import inspect, select
 from sqlalchemy.orm import Session
 
-from app.application.use_cases.whatsapp.group_submission_matching import (
-    MatchEvidence,
-    SubmissionMatchRow,
-)
 from app.domain.entities.entities import UserRole
-from app.infrastructure.database.models import DocumentDistributionBatchModel
+from app.infrastructure.database.models import (
+    DistributedDocumentModel,
+    DocumentDistributionBatchModel,
+    WhatsAppPhoneWelcomeModel,
+)
 from app.infrastructure.documents.document_matcher import DocumentMatcher
-from app.presentation.api.v1.routes import document_distribution, document_distribution_matching
+from app.presentation.api.v1.routes import (
+    document_distribution,
+    document_distribution_delivery_preview,
+    document_distribution_matching,
+)
 from app.presentation.api.v1.schemas.document_distribution_schemas import (
     SendDocumentBroadcastRequest,
 )
 from tests.route_dependencies import set_route_dependency
+from tests.unit.infrastructure.test_private_delivery_policy import (
+    PHONE,
+    _seed_private_delivery_context,
+)
 
 
 def test_document_whatsapp_send_accepts_full_bulk_selection() -> None:
@@ -386,196 +394,85 @@ async def test_linked_excel_code_is_not_attached_to_ambiguous_passengers(
     assert identifiers == ()
 
 
-@pytest.mark.asyncio
-async def test_private_document_preview_blocks_shared_whatsapp_destination(
-    monkeypatch,
-) -> None:
-    agency_id, group_id, broadcast_id = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
-    group = SimpleNamespace(id=group_id, agency_id=agency_id)
-    batch = SimpleNamespace(id=uuid.uuid4(), document_type="visa")
-    passengers = [
-        _passenger(
-            agency_id=agency_id,
-            group_id=group_id,
-            phone="9876543210",
-            name=name,
-        )
-        for name in ("Asha Mehta", "Ravi Sharma")
-    ]
-    recipient = _recipient(
-        agency_id=agency_id,
-        broadcast_id=broadcast_id,
-        phone="9876543210",
-        imported_fields={},
+async def _saved_preview_documents(session, context):
+    batch = DocumentDistributionBatchModel(
+        id=uuid.uuid4(), agency_id=context["agency"].id,
+        group_id=context["group"].id, document_type="visa", status="saved",
     )
-    documents = [
-        SimpleNamespace(
-            id=uuid.uuid4(),
-            passenger_id=passenger.id,
-            original_filename=f"private-{index}.pdf",
-            document_type="visa",
+    session.add(batch)
+    await session.flush()
+    for passenger in context["passengers"]:
+        session.add(DistributedDocumentModel(
+            agency_id=context["agency"].id, group_id=context["group"].id,
+            batch_id=batch.id, passenger_id=passenger.id, document_type="visa",
+            original_filename=f"private-{passenger.id}.pdf", storage_key=f"test/{passenger.id}.pdf",
             match_status="matched",
-        )
-        for index, passenger in enumerate(passengers)
-    ]
-    submissions_result = MagicMock()
-    submissions_result.scalars.return_value.all.return_value = passengers
-    documents_result = MagicMock()
-    documents_result.all.return_value = [(document, "saved") for document in documents]
-    deliveries_result = MagicMock()
-    deliveries_result.scalars.return_value.all.return_value = []
-    session = MagicMock()
-    session.execute = AsyncMock(
-        side_effect=[submissions_result, documents_result, deliveries_result]
-    )
-    captured_comparison: dict[str, object] = {}
+        ))
+    await session.flush()
+    return batch
 
-    def compare(recipients, submissions):
-        captured_comparison["recipients"] = recipients
-        captured_comparison["submissions"] = submissions
-        return (
-            [
-                SimpleNamespace(
-                    status="multiple_submissions",
-                    submission_ids=tuple(passenger.id for passenger in passengers),
-                    recipient_ids=(recipient.id,),
-                )
-            ],
-            SimpleNamespace(),
-        )
 
-    set_route_dependency(
-        monkeypatch,
-        document_distribution,
-        "_linked_whatsapp_recipients",
-        AsyncMock(
-            return_value=(
-                {broadcast_id: "Vietnam group"},
-                {broadcast_id: ("phone_number",)},
-                [recipient],
-            )
-        ),
-    )
-    set_route_dependency(
-        monkeypatch,
-        document_distribution,
-        "compare_group_submissions",
-        compare,
-    )
-
-    preview = await document_distribution._build_document_delivery_preview(
-        session,
-        group=group,
-        batch=batch,
-        passengers=passengers,
-    )
-
-    assert preview.summary.blocked == 2
-    assert len(preview.recipients) == 2
-    assert all(row.delivery_status == "blocked" for row in preview.recipients)
-    assert all(row.eligible is False for row in preview.recipients)
-    assert all(row.recipient_id is None for row in preview.recipients)
-    assert all(row.phone_number is None for row in preview.recipients)
-    assert {row.reason for row in preview.recipients} == {
-        document_distribution.SHARED_WHATSAPP_DESTINATION_REASON
-    }
-    compared_recipients = captured_comparison["recipients"]
-    compared_submissions = captured_comparison["submissions"]
-    assert compared_recipients[0].matching_field_keys == ("phone_number",)  # type: ignore[index]
-    assert {item.id for item in compared_submissions} == {  # type: ignore[union-attr]
-        passenger.id for passenger in passengers
-    }
+def _configure_preview_provider(monkeypatch):
+    monkeypatch.setattr(document_distribution_delivery_preview, "get_settings", lambda: SimpleNamespace(
+        whatsapp_document_template_name="documents_fixture", whatsapp_access_token="fixture",
+        whatsapp_phone_number_id="fixture",
+    ))
 
 
 @pytest.mark.asyncio
-async def test_private_document_preview_rejects_weak_configured_match(monkeypatch) -> None:
-    agency_id, group_id, broadcast_id = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
-    group = SimpleNamespace(id=group_id, agency_id=agency_id)
-    batch = SimpleNamespace(id=uuid.uuid4(), document_type="visa")
-    passenger = _passenger(
-        agency_id=agency_id,
-        group_id=group_id,
-        phone="9111111111",
-        name="Submitted Name",
-    )
-    recipient = _recipient(
-        agency_id=agency_id,
-        broadcast_id=broadcast_id,
-        phone="9222222222",
-        imported_fields={"producer_code": "PR-42"},
-    )
-    document = SimpleNamespace(
-        id=uuid.uuid4(),
-        passenger_id=passenger.id,
-        original_filename="private.pdf",
-        document_type="visa",
-        match_status="matched",
-    )
-    submissions_result = MagicMock()
-    submissions_result.scalars.return_value.all.return_value = [passenger]
-    documents_result = MagicMock()
-    documents_result.all.return_value = [(document, "saved")]
-    deliveries_result = MagicMock()
-    deliveries_result.scalars.return_value.all.return_value = []
-    session = MagicMock()
-    session.execute = AsyncMock(
-        side_effect=[submissions_result, documents_result, deliveries_result]
-    )
-    weak_row = SubmissionMatchRow(
-        status="submitted",
-        match_basis="producer_code",
-        normalized_phone=None,
-        recipient_ids=(recipient.id,),
-        submission_ids=(passenger.id,),
-        broadcast_ids=(broadcast_id,),
-        broadcast_names=("Vietnam group",),
-        recipient_names=(recipient.name,),
-        submission_names=(passenger.client_name,),
-        updated_at=passenger.updated_at,
-        confidence="high",
-        match_evidence=(
-            MatchEvidence(
-                submission_id=passenger.id,
-                kind="producer_code",
-                recipient_value="PR-42",
-                submission_value="PR-42",
-                weight=100,
-                private_identity_confirmed=False,
-            ),
-        ),
-    )
-    set_route_dependency(
-        monkeypatch,
-        document_distribution,
-        "_linked_whatsapp_recipients",
-        AsyncMock(
-            return_value=(
-                {broadcast_id: "Vietnam group"},
-                {broadcast_id: ("producer_code",)},
-                [recipient],
-            )
-        ),
-    )
-    set_route_dependency(
-        monkeypatch,
-        document_distribution,
-        "compare_group_submissions",
-        lambda _recipients, _submissions: ([weak_row], SimpleNamespace()),
-    )
+@pytest.mark.parametrize("welcomed", [False, True])
+async def test_private_document_preview_allows_shared_submitted_phone_only_after_welcome(
+    db_session, monkeypatch, welcomed,
+) -> None:
+    context = await _seed_private_delivery_context(db_session, passenger_count=2)
+    for passenger in context["passengers"]:
+        passenger.client_phone = PHONE
+    state = (await db_session.scalars(select(WhatsAppPhoneWelcomeModel))).one()
+    state.status = "delivered" if welcomed else "queued"
+    batch = await _saved_preview_documents(db_session, context)
+    _configure_preview_provider(monkeypatch)
 
     preview = await document_distribution._build_document_delivery_preview(
-        session,
-        group=group,
-        batch=batch,
-        passengers=[passenger],
+        db_session, group=context["group"], batch=batch, passengers=context["passengers"],
     )
 
-    assert preview.summary.blocked == 1
-    assert preview.summary.ready == 0
-    assert len(preview.recipients) == 1
-    assert preview.recipients[0].eligible is False
-    assert preview.recipients[0].recipient_id is None
-    assert preview.recipients[0].phone_number is None
+    assert len(preview.recipients) == 2
+    assert {row.passenger_id for row in preview.recipients} == {
+        passenger.id for passenger in context["passengers"]
+    }
+    assert all(row.recipient_id is None for row in preview.recipients)
+    assert all(row.phone_number == PHONE and row.phone_source == "submission" for row in preview.recipients)
+    assert all(row.eligible is welcomed for row in preview.recipients)
+    assert preview.summary.ready == (2 if welcomed else 0)
+    assert preview.summary.blocked == (0 if welcomed else 2)
+    if not welcomed:
+        assert all("welcome" in row.reason.lower() for row in preview.recipients)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("submitted_phone", [None, "", "+919111111111"])
+async def test_private_document_preview_never_routes_qualifier_match_to_original_phone(
+    db_session, monkeypatch, submitted_phone,
+) -> None:
+    context = await _seed_private_delivery_context(db_session)
+    passenger = context["passengers"][0]
+    passenger.client_phone = submitted_phone
+    passenger.custom_answers = [{"label": "Producer Code", "value": "PR-42"}]
+    context["recipient"].imported_fields = {"Producer Code": "PR-42"}
+    context["link"].matching_field_keys = ["producer_code"]
+    batch = await _saved_preview_documents(db_session, context)
+    _configure_preview_provider(monkeypatch)
+
+    preview = await document_distribution._build_document_delivery_preview(
+        db_session, group=context["group"], batch=batch, passengers=[passenger],
+    )
+
+    assert preview.summary.blocked == 1 and preview.summary.ready == 0
+    row = preview.recipients[0]
+    assert not row.eligible and row.recipient_id is None
+    assert row.phone_number != PHONE  # The qualifier received welcome, but is not travelling.
+    assert row.phone_number == (submitted_phone or None)
+    assert ("welcome" in row.reason.lower()) if submitted_phone else ("valid WhatsApp number" in row.reason)
 
 
 @pytest.mark.asyncio

@@ -28,6 +28,10 @@ from app.infrastructure.documents.document_matcher import DocumentMatcher, Passe
 from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
+from app.presentation.api.v1.routes.document_distribution_access import (
+    document_agency_scope,
+    document_scope_available,
+)
 from app.presentation.api.v1.routes.document_distribution_matching import (
     _linked_document_match_identifiers,
     _read_linked_document_match_source,
@@ -44,13 +48,13 @@ async def _get_authorized_group(
     current_user: User,
     session: AsyncSession,
 ) -> ClientGroupModel:
-    if not current_user.agency_id or current_user.role == UserRole.AGENCY_COORDINATOR:
+    if not document_scope_available(current_user):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
         )
     statement = select(ClientGroupModel).where(
         ClientGroupModel.id == group_id,
-        ClientGroupModel.agency_id == current_user.agency_id,
+        *document_agency_scope(ClientGroupModel.agency_id, current_user),
     )
     statement = AuthorizationPolicy.apply_group_visibility_scope(statement, current_user)
     result = await session.execute(statement)
@@ -75,7 +79,7 @@ async def _get_visible_document_batch(
 ) -> DocumentDistributionBatchModel | None:
     """Resolve a batch only through the caller's tenant and group visibility."""
 
-    if not current_user.agency_id or current_user.role == UserRole.AGENCY_COORDINATOR:
+    if not document_scope_available(current_user):
         return None
     statement = (
         select(DocumentDistributionBatchModel)
@@ -85,8 +89,8 @@ async def _get_visible_document_batch(
         )
         .where(
             DocumentDistributionBatchModel.id == batch_id,
-            DocumentDistributionBatchModel.agency_id == current_user.agency_id,
-            ClientGroupModel.agency_id == current_user.agency_id,
+            DocumentDistributionBatchModel.agency_id == ClientGroupModel.agency_id,
+            *document_agency_scope(ClientGroupModel.agency_id, current_user),
         )
     )
     statement = AuthorizationPolicy.apply_group_visibility_scope(statement, current_user)
@@ -246,10 +250,15 @@ async def _group_passengers(
     current_user: User,
     session: AsyncSession,
 ) -> list[PassportSubmission]:
-    if not current_user.agency_id:
+    if not document_scope_available(current_user):
         return []
+    agency_id = current_user.agency_id
+    if current_user.role == UserRole.SUPER_ADMIN:
+        group = await _get_authorized_group(group_id, current_user=current_user, session=session)
+        agency_id = group.agency_id
+    assert agency_id is not None
     return await PassportSubmissionRepository(session).list_by_group(
-        current_user.agency_id,
+        agency_id,
         group_id,
         limit=5000,
         operational_only=True,

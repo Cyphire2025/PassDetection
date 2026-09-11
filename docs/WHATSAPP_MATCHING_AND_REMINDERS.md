@@ -134,7 +134,8 @@ broadcast heading catalogs from retained row data. Existing matching policies ar
 not rewritten. Entirely blank headings from historical imports cannot be
 reconstructed if they were never retained; re-import the workbook to capture them.
 
-Readiness and Compose schema expectations are updated to `0092_whatsapp_matching_fields`.
+The current readiness and Compose schema expectation is `0093_phone_welcome`,
+which adds the phone-scoped welcome prerequisite after the matching migration.
 Update any explicit deployment override accordingly. Deploy backend and frontend
 from the same revision, and recreate workers against the upgraded schema. This
 implementation does not itself perform a production migration or send messages.

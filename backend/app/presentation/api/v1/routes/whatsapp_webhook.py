@@ -28,7 +28,11 @@ from app.infrastructure.whatsapp.document_delivery_runtime import (
     ACCEPTED_STATUSES as DOCUMENT_DELIVERY_ACCEPTED_STATUSES,
 )
 from app.infrastructure.whatsapp.document_delivery_runtime import apply_document_provider_status
+from app.infrastructure.whatsapp.phone_welcome import order_welcome_receipts, sync_welcome_from_log
 from app.infrastructure.whatsapp.qr_delivery_runtime import apply_qr_provider_status
+from app.infrastructure.whatsapp.traveller_welcome_runtime import (
+    process_traveller_welcome_receipt,
+)
 from app.presentation.api.v1.routes.whatsapp_shared import (
     WHATSAPP_WEBHOOK_STATUSES,
     _apply_provider_status_to_delivery_state,
@@ -136,7 +140,7 @@ async def receive_whatsapp_webhook(
     released_document_changes: dict[
         tuple[uuid.UUID, uuid.UUID], tuple[set[uuid.UUID], set[str]]
     ] = {}
-    provider_statuses.sort(key=lambda item: item[3] or datetime.min.replace(tzinfo=UTC))
+    await order_welcome_receipts(session, provider_statuses)
     for (
         provider_id,
         provider_status,
@@ -178,8 +182,16 @@ async def receive_whatsapp_webhook(
                         provider_status_at=provider_status_at,
                         now=now,
                     )
+            await sync_welcome_from_log(session, log)
             processed_statuses += 1
         if not message_logs:
+            processed_statuses += await process_traveller_welcome_receipt(
+                session,
+                provider_id=provider_id,
+                provider_status=provider_status,
+                error_message=error_message,
+                provider_status_at=provider_status_at,
+            )
             document_result = await session.execute(
                 select(DocumentWhatsAppDeliveryModel)
                 .where(DocumentWhatsAppDeliveryModel.provider_message_id == provider_id)

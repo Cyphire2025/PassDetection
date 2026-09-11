@@ -232,9 +232,11 @@ async def test_group_snapshot_is_successful_non_resend_and_authored_ordered() ->
 async def test_group_preview_reuses_latest_group_snapshot_not_preview_recipient(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr("app.presentation.api.v1.routes.whatsapp_composer.welcome_preview_values", AsyncMock(return_value={}))
+
     group_id = uuid.uuid4()
     preview_recipient_id = uuid.uuid4()
-    group = SimpleNamespace(id=group_id, name="Vietnam")
+    group = SimpleNamespace(agency_id=uuid.uuid4(), id=group_id, name="Vietnam")
     recipient = SimpleNamespace(id=preview_recipient_id, name="Aarav")
     group_result = MagicMock()
     group_result.scalar_one_or_none.return_value = group
@@ -298,10 +300,13 @@ async def test_group_preview_reuses_latest_group_snapshot_not_preview_recipient(
 async def test_resend_preview_is_scoped_to_one_recipient_and_latest_recipient_content(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr("app.presentation.api.v1.routes.whatsapp_composer.welcome_preview_values", AsyncMock(return_value={}))
+
     group_id = uuid.uuid4()
     recipient_id = uuid.uuid4()
     group_result = MagicMock()
     group_result.scalar_one_or_none.return_value = SimpleNamespace(
+        agency_id=uuid.uuid4(),
         id=group_id,
         name="Vietnam",
     )
@@ -365,10 +370,13 @@ async def test_resend_preview_is_scoped_to_one_recipient_and_latest_recipient_co
 async def test_failed_message_preview_reuses_saved_content_for_one_person_retry(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr("app.presentation.api.v1.routes.whatsapp_composer.welcome_preview_values", AsyncMock(return_value={}))
+
     group_id = uuid.uuid4()
     recipient_id = uuid.uuid4()
     group_result = MagicMock()
     group_result.scalar_one_or_none.return_value = SimpleNamespace(
+        agency_id=uuid.uuid4(),
         id=group_id,
         name="Vietnam",
     )
@@ -422,10 +430,13 @@ async def test_failed_message_preview_reuses_saved_content_for_one_person_retry(
 async def test_fresh_passport_send_rejects_missing_image_header(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr("app.presentation.api.v1.routes.whatsapp_send.enforce_broadcast_welcome_prerequisite", AsyncMock())
+
     group_id = uuid.uuid4()
     group_result = MagicMock()
     group_result.scalar_one_or_none.return_value = SimpleNamespace(
         id=group_id,
+        agency_id=uuid.uuid4(),
         name="Vietnam",
         recipient_opt_in_confirmed_at=datetime.now(tz=UTC),
     )
@@ -478,10 +489,13 @@ async def test_fresh_passport_send_rejects_missing_image_header(
 async def test_missing_passport_link_stays_null_while_preview_renders_placeholder(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr("app.presentation.api.v1.routes.whatsapp_composer.welcome_preview_values", AsyncMock(return_value={}))
+
     group_id = uuid.uuid4()
     recipient_id = uuid.uuid4()
     group_result = MagicMock()
     group_result.scalar_one_or_none.return_value = SimpleNamespace(
+        agency_id=uuid.uuid4(),
         id=group_id,
         name="Vietnam",
     )
@@ -534,6 +548,8 @@ async def test_missing_passport_link_stays_null_while_preview_renders_placeholde
 async def test_old_passport_snapshot_prefills_current_image_template_resend(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr("app.presentation.api.v1.routes.whatsapp_resend.enforce_broadcast_welcome_prerequisite", AsyncMock())
+
     group_id = uuid.uuid4()
     recipient_id = uuid.uuid4()
     agency_id = uuid.uuid4()

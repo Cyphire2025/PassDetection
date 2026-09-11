@@ -22,6 +22,7 @@ from app.infrastructure.database.models import (
     PassportSubmissionModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
+    WhatsAppPhoneWelcomeModel,
 )
 from app.infrastructure.whatsapp.document_delivery_runtime import (
     run_document_whatsapp_broadcast,
@@ -111,7 +112,21 @@ async def _seed_private_delivery_context(
         created_at=NOW,
         updated_at=NOW,
     )
-    session.add_all([agency, group, broadcast, recipient, link, *passengers, token])
+    # Explicit parent order also runs against PostgreSQL's enforced foreign keys.
+    session.add(agency)
+    await session.flush()
+    session.add_all([group, broadcast])
+    await session.flush()
+    session.add_all([recipient, link, *passengers])
+    await session.flush()
+    session.add(token)
+    session.add(WhatsAppPhoneWelcomeModel(
+        agency_id=agency.id,
+        normalized_phone_number=PHONE,
+        status="delivered",
+        attempt_id=uuid.uuid4(),
+        attempt_kind="broadcast",
+    ))
     await session.flush()
     return {
         "agency": agency,
@@ -305,12 +320,12 @@ async def test_final_validation_locks_every_authoritative_identity_source(
     )
 
     assert result.allowed is True
-    assert len(statements) == 4
+    assert len(statements) > 4
     compiled = [
         str(statement.compile(dialect=postgresql.dialect()))
         for statement in statements
     ]
-    assert all("FOR UPDATE" in sql for sql in compiled)
+    assert all("FOR UPDATE" in sql for sql in compiled[:4])
     assert "client_groups" in compiled[0]
     assert "client_group_whatsapp_broadcast_links" in compiled[1]
     assert "whatsapp_broadcast_groups" in compiled[1]

@@ -1099,12 +1099,18 @@ def _recipient_response(
 ) -> WhatsAppRecipientResponse:
     ordered_states = sorted(states or [], key=lambda state: state.message_type)
     latest_resend_statuses = resend_statuses or {}
+    welcome_status = next((state.status for state in ordered_states if state.message_type == "welcome"), None)
+    from app.infrastructure.whatsapp.phone_welcome import welcome_required_reason
+    welcome_reason = welcome_required_reason(welcome_status)
     return WhatsAppRecipientResponse(
         id=model.id,
         name=model.name,
         phone_number=model.phone_number,
         normalized_phone_number=model.normalized_phone_number,
         imported_fields=dict(getattr(model, "imported_fields", {}) or {}),
+        welcome_status=welcome_status,
+        welcome_delivered=welcome_reason is None,
+        welcome_required_reason=welcome_reason,
         sent_message_types=[
             state.message_type
             for state in ordered_states
@@ -1117,8 +1123,10 @@ def _recipient_response(
                 already_sent=state.status in WHATSAPP_ACCEPTED_STATUSES,
                 send_suppressed=state.status in WHATSAPP_SUPPRESSED_STATUSES,
                 latest_resend_status=latest_resend_statuses.get(state.message_type),
-                resend_blocked=latest_resend_statuses.get(state.message_type)
-                in WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES,
+                resend_blocked=(latest_resend_statuses.get(state.message_type)
+                    in WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES
+                    or (state.message_type == "welcome" and state.status in WHATSAPP_SUPPRESSED_STATUSES)
+                    or (state.message_type != "welcome" and welcome_reason is not None)),
                 submitted_at=state.submitted_at,
                 status_updated_at=state.status_updated_at,
             )

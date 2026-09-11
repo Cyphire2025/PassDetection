@@ -23,6 +23,13 @@ from app.infrastructure.repositories.audit_log_repository import AuditLogReposit
 from app.infrastructure.repositories.passport_roster_resolution_repository import (
     active_replacement_phone_numbers_for_broadcast,
 )
+from app.infrastructure.whatsapp.phone_welcome import (
+    WELCOME_DELIVERED_STATUSES,
+    WELCOME_REQUIRED,
+    claim_phone_welcome,
+    sync_failed_broadcast_welcomes,
+    welcome_states_for_phones,
+)
 from app.infrastructure.whatsapp.publication import (
     fail_unclaimed_broadcast_rows,
     publish_whatsapp_task,
@@ -149,7 +156,20 @@ async def resend_selected_recipient_messages(
         )
 
     edits = await validate_bulk_resend_edits(session, group=group, body=body)
+    if body.message_type != "welcome":
+        welcome_states = await welcome_states_for_phones(
+            session,
+            agency_id=group.agency_id,
+            phones=[recipient.normalized_phone_number for recipient in recipients],
+        )
+        if any(
+            welcome_states.get(recipient.normalized_phone_number) not in WELCOME_DELIVERED_STATUSES
+            for recipient in recipients
+        ):
+            raise HTTPException(status_code=409, detail=WELCOME_REQUIRED)
     await expire_stale_explicit_claims(session, group_id=group.id, body=body)
+    if body.message_type == "welcome":
+        await sync_failed_broadcast_welcomes(session, broadcast_group_id=group.id)
     states, active_statuses, sources = await selection_delivery_maps(
         session, group_id=group.id, body=body
     )
@@ -161,7 +181,11 @@ async def resend_selected_recipient_messages(
     logs: list[WhatsAppMessageLogModel] = []
     results: list[WhatsAppSendResult] = []
     by_id = {recipient.id: recipient for recipient in recipients}
-    for recipient_id in body.recipient_ids:
+    # Different lists may overlap phone destinations; acquire phone claims in
+    # canonical order to avoid a reversed-selection deadlock across lists.
+    for recipient_id in sorted(
+        body.recipient_ids, key=lambda key: by_id[key].normalized_phone_number
+    ):
         recipient = by_id[recipient_id]
         state = states.get(recipient.id)
         reason = recipient_skip_reason(
@@ -187,6 +211,32 @@ async def resend_selected_recipient_messages(
                 except (ValueError, IndexError):
                     reason = "skipped_no_saved_message"
                 else:
+                    if body.message_type == "welcome":
+                        phone_status = await claim_phone_welcome(
+                            session,
+                            agency_id=group.agency_id,
+                            phone=recipient.normalized_phone_number,
+                            attempt_id=log.id,
+                            attempt_kind="broadcast",
+                        )
+                        if phone_status != "claimed":
+                            reason = (
+                                "skipped_in_progress"
+                                if phone_status in {"queued", "processing"}
+                                else "skipped_delivery_unknown"
+                                if phone_status == "delivery_unknown"
+                                else "skipped_already_sent"
+                            )
+                    if reason is not None:
+                        results.append(
+                            WhatsAppSendResult(
+                                recipient_id=recipient.id,
+                                phone_number=recipient.normalized_phone_number,
+                                status=reason,
+                                error_message=SKIP_MESSAGES.get(reason),
+                            )
+                        )
+                        continue
                     logs.append(log)
                     session.add(log)
                     if state.status == "failed":
@@ -205,6 +255,8 @@ async def resend_selected_recipient_messages(
             )
         )
 
+    by_result_id = {item.recipient_id: item for item in results}
+    results = [by_result_id[key] for key in body.recipient_ids]
     if logs:
         settings = get_settings()
         if not settings.whatsapp_access_token or not settings.whatsapp_phone_number_id:

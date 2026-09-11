@@ -34,6 +34,7 @@ from app.presentation.api.v1.routes.whatsapp_delivery_support import (
     WHATSAPP_UNCERTAIN_STATUSES,
 )
 from app.presentation.api.v1.routes.whatsapp_group_visibility import staff_linked_group_filters
+from app.presentation.api.v1.routes.whatsapp_welcome_view import overlay_phone_welcome_states
 from app.presentation.api.v1.schemas.whatsapp_schemas import (
     WhatsAppBroadcastGroupDetailResponse,
     WhatsAppLinkedClientGroupResponse,
@@ -104,6 +105,7 @@ async def _recipient_delivery_state_maps(
             {},
         )
         recipient_statuses.setdefault(resend_log.message_type, resend_log.status)
+    await overlay_phone_welcome_states(session, recipients, states_by_recipient)
     return states_by_recipient, resend_statuses_by_recipient
 
 

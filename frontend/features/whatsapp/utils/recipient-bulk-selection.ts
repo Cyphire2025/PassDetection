@@ -1,7 +1,7 @@
 import type {
   WhatsAppBulkResendMessageType,
-  WhatsAppRecipient,
 } from "../api/whatsapp.api";
+import { type RecipientDeliveryState, welcomeDeliveryBlockReason } from "./recipient-delivery";
 
 export type BulkResendEligibility =
   | "eligible"
@@ -12,21 +12,23 @@ export type BulkResendEligibility =
 
 /** Review estimate only; the server validates the saved snapshot before queuing. */
 export function getBulkResendEligibility(
-  recipient: Pick<WhatsAppRecipient, "message_statuses">,
+  recipient: RecipientDeliveryState,
   messageType: WhatsAppBulkResendMessageType,
 ): BulkResendEligibility {
+  if (messageType !== "welcome" && welcomeDeliveryBlockReason(recipient, messageType)) return "blocked";
   const state = recipient.message_statuses.find((item) => item.message_type === messageType);
   if (!state) return "no_saved_message";
   const statuses = [state.status, state.latest_resend_status];
   if (statuses.includes("delivery_unknown")) return "delivery_unknown";
   if (statuses.some((value) => value === "queued" || value === "processing")) return "in_progress";
   if (state.resend_blocked) return "blocked";
+  if (welcomeDeliveryBlockReason(recipient, messageType)) return "blocked";
   if (state.already_sent || statuses.includes("failed")) return "eligible";
   return "no_saved_message";
 }
 
 export function summarizeBulkResend(
-  recipients: ReadonlyArray<Pick<WhatsAppRecipient, "message_statuses">>,
+  recipients: ReadonlyArray<RecipientDeliveryState>,
   messageType: WhatsAppBulkResendMessageType,
 ) {
   const summary = {

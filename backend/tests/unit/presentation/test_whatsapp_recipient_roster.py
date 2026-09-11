@@ -85,7 +85,9 @@ def test_excel_source_order_preserves_accepted_and_rejected_interleaving() -> No
 
 
 @pytest.mark.asyncio
-async def test_recipient_roster_merges_rows_and_reports_delivery_counts() -> None:
+async def test_recipient_roster_merges_rows_and_reports_delivery_counts(monkeypatch) -> None:
+    monkeypatch.setattr("app.presentation.api.v1.routes.whatsapp_roster_support.overlay_phone_welcome_states", AsyncMock())
+
     group_id = uuid.uuid4()
     agency_id = uuid.uuid4()
     now = datetime.now(tz=UTC)

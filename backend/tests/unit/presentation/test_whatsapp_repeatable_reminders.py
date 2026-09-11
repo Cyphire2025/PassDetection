@@ -19,6 +19,7 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
     WhatsAppMessageLogModel,
+    WhatsAppPhoneWelcomeModel,
     WhatsAppRecipientMessageStateModel,
 )
 from app.infrastructure.whatsapp import worker_runtime
@@ -110,6 +111,10 @@ async def broadcast(db_session, monkeypatch, test_settings):
         )
         db_session.add(recipient)
         recipients.append(recipient)
+        db_session.add(WhatsAppPhoneWelcomeModel(
+            agency_id=group.agency_id, normalized_phone_number=recipient.normalized_phone_number,
+            status="delivered", attempt_id=uuid.uuid4(), attempt_kind="broadcast",
+        ))
         for message_type, previous_status in (
             ("welcome", "delivered"),
             ("passport_link", "read"),

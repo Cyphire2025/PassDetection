@@ -110,6 +110,37 @@ beforeEach(() => {
 
 afterEach(() => vi.unstubAllGlobals());
 
+it("blocks normal composer submission when the server reports welcome-required numbers", async () => {
+  const originalPreview = mocks.preview.getMockImplementation()!;
+  mocks.preview.mockImplementation((request, callbacks) => originalPreview(request, {
+    ...callbacks,
+    onSuccess: (data: Record<string, unknown>) => callbacks.onSuccess({ ...data, welcome_required_count: 1, welcome_required_reason: "Welcome delivery is required before reminders." }),
+  }));
+  const { container, onSend } = renderDialog();
+  await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("Welcome delivery is required before reminders."));
+  expect(screen.getByRole("button", { name: "Send individually to 1" })).toBeDisabled();
+  fireEvent.submit(container.querySelector("form")!);
+  expect(onSend).not.toHaveBeenCalled();
+});
+
+it("blocks a stale single retry when its phone has not received welcome", async () => {
+  mocks.detail.recipients[0] = { ...recipient("a"), welcome_status: "required", welcome_delivered: false, welcome_required_reason: "Welcome this number first.", message_statuses: [{ message_type: "reminder", status: "failed", already_sent: false, resend_blocked: false, latest_resend_status: null, submitted_at: null, status_updated_at: "2026-09-12T00:00:00Z" }] };
+  const { onSend } = renderDialog({ targetRecipient: { recipientId: "recipient-a", recipientName: "Passenger A", phoneNumber: "+919999999999", messageType: "reminder", action: "retry" } });
+  await waitFor(() => expect(mocks.preview).toHaveBeenCalled());
+  expect(screen.getByText("Welcome this number first.")).toBeVisible();
+  expect(screen.getByRole("button", { name: "Retry to Passenger A" })).toBeDisabled();
+  expect(onSend).not.toHaveBeenCalled();
+});
+
+it("does not enable bulk welcome resend for a delivered number even if a stale preview says ready", async () => {
+  const recipients = setupBulkPreview().map((item) => ({ ...item, welcome_status: "delivered", welcome_delivered: true }));
+  mocks.detail = { ...mocks.detail, recipients };
+  const { onSend } = renderDialog({ messageType: "welcome", bulkRecipients: recipients });
+  await waitFor(() => expect(mocks.bulkPreview).toHaveBeenCalled());
+  expect(screen.getByRole("button", { name: "Resend to 0 selected" })).toBeDisabled();
+  expect(onSend).not.toHaveBeenCalled();
+});
+
 function recipient(suffix: string): WhatsAppRecipient {
   return {
     id: `recipient-${suffix}`,
@@ -143,8 +174,8 @@ function setupBulkPreview() {
     ...item,
     message_statuses: ["welcome", "passport_link"].map((type) => ({
       message_type: type,
-      status: item.id === "recipient-c" ? "processing" : "sent",
-      already_sent: item.id !== "recipient-c",
+      status: item.id === "recipient-c" ? "processing" : type === "welcome" ? "failed" : "sent",
+      already_sent: item.id !== "recipient-c" && type !== "welcome",
       latest_resend_status: null,
       resend_blocked: item.id === "recipient-c",
       submitted_at: null,

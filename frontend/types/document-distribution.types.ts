@@ -137,6 +137,9 @@ export interface DocumentDeliveryPreviewRecipient {
   broadcast_group_id: string | null;
   broadcast_name: string | null;
   phone_number: string | null;
+  phone_source?: "submission";
+  welcome_status?: string;
+  welcome_required?: boolean;
   delivery_id: string | null;
   delivery_status: DocumentDeliveryPreviewStatus | string;
   eligible: boolean;
@@ -164,6 +167,7 @@ export interface DocumentDeliveryPreview {
     already_sent: number;
     in_progress: number;
     blocked: number;
+    welcome_required?: number;
   };
   recipients: DocumentDeliveryPreviewRecipient[];
 }
@@ -172,6 +176,54 @@ export interface SendDocumentBroadcastResult {
   send_batch_id: string | null;
   queued_count: number;
   skipped_count: number;
+  message: string;
+}
+
+export interface TravellerWelcomeRecipient {
+  phone_number: string | null;
+  passenger_ids: string[];
+  passenger_names: string[];
+  status: string;
+  eligible: boolean;
+  reason: string | null;
+  rendered_message: string | null;
+}
+
+export interface TravellerWelcomePreview {
+  group_id: string;
+  preview_token: string;
+  source_broadcast_id: string | null;
+  source_broadcast_name: string | null;
+  sources: { id: string; name: string }[];
+  template_name: string | null;
+  template_configured: boolean;
+  can_send: boolean;
+  configuration_error: string | null;
+  header_image_url: string | null;
+  summary: {
+    total_numbers: number;
+    needs_welcome: number;
+    already_welcomed: number;
+    in_progress: number;
+    blocked: number;
+  };
+  recipients: TravellerWelcomeRecipient[];
+  poll_after_seconds: number | null;
+}
+
+export interface SendTravellerWelcomeRequest {
+  phone_numbers: string[];
+  preview_token: string;
+  source_broadcast_id?: string;
+  header_image_id?: string;
+}
+
+export interface SendTravellerWelcomeResult {
+  group_id: string;
+  batch_id: string | null;
+  queued_count: number;
+  skipped_count: number;
+  blocked_count: number;
   message: string;
 }
 

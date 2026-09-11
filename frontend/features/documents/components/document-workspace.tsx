@@ -52,6 +52,7 @@ import {
 } from "../config/document-distribution-lanes";
 import {
   countPassengersForDocuments,
+  activeDeliverySelection,
   createActiveDocumentSelection,
   createDocumentReviewModel,
   documentIdsForRows,
@@ -64,6 +65,7 @@ import {
   DocumentUploadPanel,
   type DocumentUploadPhase,
 } from "./document-upload-panel";
+import { TravellerWelcomePanel } from "./traveller-welcome-panel";
 
 function DialogLoadingFallback() {
   return (
@@ -137,6 +139,7 @@ export function DocumentWorkspace({
   const [isAbortUploadDialogOpen, setIsAbortUploadDialogOpen] = useState(false);
   const [phase, setPhase] = useState<DocumentUploadPhase>("idle");
   const [isSendPreviewOpen, setIsSendPreviewOpen] = useState(false);
+  const [isWelcomePreviewOpen, setIsWelcomePreviewOpen] = useState(false);
   const [deliveryDocumentIds, setDeliveryDocumentIds] = useState<string[] | null>(null);
   const [deliveryResendDocumentIds, setDeliveryResendDocumentIds] = useState<string[]>([]);
   const [deliveryMessageContent1, setDeliveryMessageContent1] = useState<string | null>(null);
@@ -261,8 +264,11 @@ export function DocumentWorkspace({
     () => eligibleDeliveryDocumentIds(deliveryPreview.data),
     [deliveryPreview.data],
   );
-  const activeDeliveryDocumentIds =
-    deliveryDocumentIds ?? defaultDeliveryDocumentIds;
+  const deliverySelection = useMemo(
+    () => activeDeliverySelection(deliveryPreview.data, deliveryDocumentIds, deliveryResendDocumentIds),
+    [deliveryPreview.data, deliveryDocumentIds, deliveryResendDocumentIds],
+  );
+  const activeDeliveryDocumentIds = deliverySelection.documentIds;
   const activeDeliveryMessageContent1 =
     deliveryMessageContent1 ?? deliveryPreview.data?.message_content_1 ?? "";
   const activeDeliveryMessageContent2 =
@@ -455,6 +461,8 @@ export function DocumentWorkspace({
           hasUncommittedSelection={hasUncommittedSelection}
         />
       )}
+
+      <TravellerWelcomePanel key={groupId} groupId={groupId} disabled={documentTypeOperationPending} open={isWelcomePreviewOpen} onOpenChange={setIsWelcomePreviewOpen} />
 
       <DocumentUploadPanel
         lane={lane}
@@ -736,13 +744,14 @@ export function DocumentWorkspace({
           loading={deliveryPreview.isLoading}
           loadError={deliveryPreview.error}
           selectedDocumentIds={activeDeliveryDocumentIds}
-          resendDocumentIds={deliveryResendDocumentIds}
+          resendDocumentIds={deliverySelection.resendDocumentIds}
           sending={sendDocuments.isPending}
           sendError={sendDocuments.error}
           messageContent1={activeDeliveryMessageContent1}
           messageContent2={activeDeliveryMessageContent2}
           onMessageContent1Change={setDeliveryMessageContent1}
           onMessageContent2Change={setDeliveryMessageContent2}
+          onReviewWelcomes={() => { setIsSendPreviewOpen(false); setIsWelcomePreviewOpen(true); }}
           onToggleDocument={(documentId) => {
             setDeliveryDocumentIds((current) => {
               const selection = current ?? defaultDeliveryDocumentIds;
@@ -786,7 +795,7 @@ export function DocumentWorkspace({
               {
                 batchId,
                 documentIds: activeDeliveryDocumentIds,
-                resendDocumentIds: deliveryResendDocumentIds,
+                resendDocumentIds: deliverySelection.resendDocumentIds,
                 messageContent1: activeDeliveryMessageContent1.trim(),
                 messageContent2: activeDeliveryMessageContent2.trim(),
               },

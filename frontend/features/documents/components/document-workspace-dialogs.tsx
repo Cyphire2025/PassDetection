@@ -3,6 +3,7 @@ import { Send, Trash2, X } from "lucide-react";
 import { Badge, Button } from "@/components/ui";
 import { ProcessingMotion } from "@/components/shared/processing-motion";
 import type { DocumentDeliveryPreview } from "@/types/document-distribution.types";
+import { welcomeStatusLabel, welcomeStatusTone } from "./traveller-welcome-model";
 
 type AbortIncompleteUploadDialogProps = {
   uploadCount: number;
@@ -177,6 +178,7 @@ type DocumentDeliveryPreviewDialogProps = {
   onToggleResend: (documentId: string) => void;
   onClose: () => void;
   onSend: () => void;
+  onReviewWelcomes?: () => void;
 };
 
 export function DocumentDeliveryPreviewDialog({
@@ -195,6 +197,7 @@ export function DocumentDeliveryPreviewDialog({
   onToggleResend,
   onClose,
   onSend,
+  onReviewWelcomes,
 }: DocumentDeliveryPreviewDialogProps) {
   const selectedDocumentIdSet = useMemo(
     () => new Set(selectedDocumentIds),
@@ -230,7 +233,7 @@ export function DocumentDeliveryPreviewDialog({
               Preview WhatsApp document delivery
             </h2>
             <p className="mt-1 text-sm text-slate-600">
-              Confirm the exact document, passenger, and opted-in WhatsApp number before queueing individual messages.
+              Confirm each document and the traveller’s submitted WhatsApp number before queueing individual messages.
             </p>
           </div>
           <button
@@ -271,6 +274,13 @@ export function DocumentDeliveryPreviewDialog({
               {preview.configuration_error && (
                 <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
                   {preview.configuration_error}
+                </div>
+              )}
+
+              {Boolean(preview.summary.welcome_required) && (
+                <div className="flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-sm leading-6 text-amber-900">{preview.summary.welcome_required} document recipients still need confirmed welcome delivery. Their documents cannot be sent yet.</p>
+                  {onReviewWelcomes && <Button type="button" variant="outline" className="shrink-0" disabled={sending} onClick={onReviewWelcomes}>Review traveller welcomes</Button>}
                 </div>
               )}
 
@@ -341,7 +351,7 @@ export function DocumentDeliveryPreviewDialog({
                         return (
                         <tr key={`${row.passenger_id}:${row.document_id ?? "empty"}`} className={row.eligible || resendSelected ? "bg-white" : "bg-slate-50/60"}>
                           <td className="px-4 py-3">
-                            {row.delivery_status === "already_sent" && row.resend_allowed && row.document_id ? (
+                            {row.delivery_status === "already_sent" && row.resend_allowed && !row.welcome_required && row.document_id ? (
                               <Button
                                 type="button"
                                 size="sm"
@@ -355,7 +365,7 @@ export function DocumentDeliveryPreviewDialog({
                               <input
                                 type="checkbox"
                                 checked={Boolean(row.document_id && selectedDocumentIdSet.has(row.document_id))}
-                                disabled={!row.eligible || !row.document_id || sending}
+                                disabled={!row.eligible || row.welcome_required || !row.document_id || sending}
                                 onChange={() => row.document_id && onToggleDocument(row.document_id)}
                                 aria-label={`Send document to ${row.passenger_name}`}
                                 className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
@@ -370,8 +380,9 @@ export function DocumentDeliveryPreviewDialog({
                             <div className="font-medium text-slate-800">{row.document_filename || "No document"}</div>
                           </td>
                           <td className="px-4 py-3">
-                            <div className="font-medium text-slate-800">{row.phone_number || "Not matched"}</div>
-                            <div className="mt-1 text-xs text-slate-500">{row.broadcast_name || "No linked broadcast match"}</div>
+                            <div className="font-medium text-slate-800">{row.phone_number || "No valid traveller number"}</div>
+                            <div className="mt-1 text-xs text-slate-500">{row.phone_source === "submission" ? "Entered for this traveller" : row.broadcast_name || "No linked broadcast match"}</div>
+                            {row.welcome_status && <div className="mt-2"><Badge variant={welcomeStatusTone(row.welcome_status)}>{welcomeStatusLabel(row.welcome_status)}</Badge></div>}
                           </td>
                           <td className="px-4 py-3">
                             <DeliveryPreviewStatus status={row.delivery_status} />
@@ -422,6 +433,7 @@ export function DocumentDeliveryPreviewDialog({
                   !preview?.can_send ||
                   selectedDocumentIds.length === 0 ||
                   loading ||
+                  Boolean(loadError) ||
                   !messageContentValid
                 }
               >

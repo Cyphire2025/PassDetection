@@ -17,6 +17,7 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.passport_roster_resolution_repository import (
     active_replacement_phone_numbers_for_broadcast,
 )
+from app.infrastructure.whatsapp.phone_welcome import WELCOME_REQUIRED, welcome_states_for_phones
 from app.presentation.api.v1.routes.whatsapp_bulk_resend_composer import (
     SavedResendSnapshot,
     resolve_saved_resend_snapshot,
@@ -32,6 +33,7 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
     _agency_filter,
     _clean_name,
 )
+from app.presentation.api.v1.routes.whatsapp_welcome_view import welcome_resend_skip_reason
 from app.presentation.api.v1.schemas.whatsapp_schemas import (
     WhatsAppBulkResendPreviewRequest,
     WhatsAppBulkResendPreviewResponse,
@@ -97,6 +99,8 @@ async def preview_selected_recipient_messages(
     )
     snapshots: dict[uuid.UUID, SavedResendSnapshot] = {}
     reasons: list[str] = []
+    phone_states = await welcome_states_for_phones(session, agency_id=group.agency_id,
+        phones=[recipient.normalized_phone_number for recipient in recipients])
     for recipient_id in body.recipient_ids:
         recipient = by_id[recipient_id]
         reason = recipient_skip_reason(
@@ -104,6 +108,9 @@ async def preview_selected_recipient_messages(
             state=states.get(recipient.id),
             active_statuses=active_statuses.get(recipient.id, set()),
             replaced_phones=replaced,
+        )
+        reason = reason or welcome_resend_skip_reason(
+            body.message_type, phone_states.get(recipient.normalized_phone_number),
         )
         if reason is None:
             source = sources.get(recipient.id)
@@ -143,6 +150,8 @@ async def preview_selected_recipient_messages(
         ),
         in_progress_count=reasons.count("skipped_in_progress"),
         uncertain_recipient_count=reasons.count("skipped_delivery_unknown"),
+        welcome_required_count=reasons.count("skipped_welcome_required"),
+        welcome_required_reason=WELCOME_REQUIRED if "skipped_welcome_required" in reasons else None,
         passport_intro=snapshot.parameters[0] if passport else None,
         passport_link=snapshot.parameters[1] if passport else None,
         message_content=snapshot.parameters[2] if passport else snapshot.parameters[0],

@@ -49,6 +49,7 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
     _support_contacts_for_group,
     _WhatsAppComposerSnapshot,
 )
+from app.presentation.api.v1.routes.whatsapp_welcome_view import welcome_preview_values
 from app.presentation.api.v1.schemas.whatsapp_schemas import (
     WhatsAppPreviewRequest,
     WhatsAppPreviewResponse,
@@ -321,7 +322,7 @@ async def preview_broadcast_message(
             message_type=message_type,
         )
     template_name = _configured_template_name(message_type)
-    return WhatsAppPreviewResponse(
+    preview_response = WhatsAppPreviewResponse(
         message_type=message_type,
         template_name=template_name,
         recipient_id=recipient.id,
@@ -345,3 +346,8 @@ async def preview_broadcast_message(
         header_parameter_values=header_parameters,
         parameter_values=parameters,
     )
+    values = await welcome_preview_values(
+        session, agency_id=group.agency_id, message_type=message_type,
+        recipients=recipients, selected_recipient_id=body.resend_recipient_id,
+    )
+    return preview_response.model_copy(update=values)

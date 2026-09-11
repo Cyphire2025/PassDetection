@@ -85,6 +85,13 @@ def fixture(monkeypatch):
     expire = AsyncMock()
     maps = AsyncMock(return_value=(states, {}, sources))
     replaced = AsyncMock(return_value=set())
+    # These tests isolate saved-message selection/idempotency. The real
+    # phone ledger and cross-source claims are exercised in test_phone_welcome.
+    monkeypatch.setattr(route, "claim_phone_welcome", AsyncMock(return_value="claimed"))
+    monkeypatch.setattr(route, "sync_failed_broadcast_welcomes", AsyncMock())
+    monkeypatch.setattr(route, "welcome_states_for_phones", AsyncMock(return_value={
+        recipient.normalized_phone_number: "delivered" for recipient in recipients
+    }))
     monkeypatch.setattr(route.AuditLogRepository, "record", audit)
     monkeypatch.setattr(route, "publish_whatsapp_task", publish)
     monkeypatch.setattr(route, "expire_stale_explicit_claims", expire)

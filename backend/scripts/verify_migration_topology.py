@@ -7,7 +7,7 @@ from pathlib import Path
 from alembic.config import Config
 from alembic.script import ScriptDirectory
 
-EXPECTED_HEAD = "0092_whatsapp_matching_fields"
+EXPECTED_HEAD = "0093_phone_welcome"
 UPLOAD_CONFIGURATION_REVISION = "0090_upload_configuration"
 SECURITY_REVISION = "0089_revoke_legacy_refresh"
 MERGE_REVISION = "0088_merge_my_photos_hardening"
@@ -27,7 +27,10 @@ def main() -> int:
     if heads != (EXPECTED_HEAD,):
         raise RuntimeError(f"Expected one Alembic head {EXPECTED_HEAD!r}; observed {heads!r}")
     head = scripts.get_revision(EXPECTED_HEAD)
-    if head.down_revision != "0091_qualifier_other_relation":
+    if head.down_revision != "0092_whatsapp_matching_fields":
+        raise RuntimeError("Phone welcome prerequisites must follow WhatsApp matching fields")
+    matching = scripts.get_revision("0092_whatsapp_matching_fields")
+    if matching.down_revision != "0091_qualifier_other_relation":
         raise RuntimeError("WhatsApp matching fields must follow qualifier relationships")
     qualifier = scripts.get_revision("0091_qualifier_other_relation")
     if qualifier.down_revision != UPLOAD_CONFIGURATION_REVISION:
@@ -47,7 +50,7 @@ def main() -> int:
         )
 
     print(
-        "Alembic topology verified: 0092 follows 0091, 0090, 0089 and the preserved 0088 merge "
+        "Alembic topology verified: 0093 follows 0092, 0091, 0090, 0089 and the preserved 0088 merge "
         "of the My Photos and enterprise-hardening branches."
     )
     return 0

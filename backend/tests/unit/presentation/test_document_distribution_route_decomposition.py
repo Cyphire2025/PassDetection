@@ -9,9 +9,12 @@ from app.presentation.api.v1.routes import (
     document_distribution,
     document_distribution_delivery_support,
     document_distribution_review_support,
+    traveller_welcome,
 )
 
 _EXPECTED_ROUTES = [
+    (("GET",), "/groups/{group_id}/whatsapp-welcome-preview", "preview_traveller_welcomes"),
+    (("POST",), "/groups/{group_id}/whatsapp-welcome-send", "send_traveller_welcomes"),
     (("GET",), "/groups", "list_document_groups"),
     (("GET",), "/groups/{group_id}/{document_type}", "get_document_review"),
     (
@@ -118,10 +121,22 @@ def test_document_distribution_route_order_and_names_remain_stable() -> None:
     assert actual == _EXPECTED_ROUTES
     assert _decorated_route_names(document_distribution) == []
     for route in document_distribution.router.routes:
-        assert route.endpoint is getattr(document_distribution, route.name)
-        assert inspect.unwrap(route.endpoint).__module__.startswith(
-            document_distribution.__name__ + "_"
-        )
+        if route.name in {"preview_traveller_welcomes", "send_traveller_welcomes"}:
+            assert route.endpoint is getattr(traveller_welcome, route.name)
+            assert inspect.unwrap(route.endpoint).__module__ == traveller_welcome.__name__
+        else:
+            assert route.endpoint is getattr(document_distribution, route.name)
+            assert inspect.unwrap(route.endpoint).__module__.startswith(
+                document_distribution.__name__ + "_"
+            )
+
+
+def test_static_welcome_routes_precede_generic_document_type_route() -> None:
+    routes = document_distribution.router.routes
+    paths = [route.path for route in routes]
+    generic_index = paths.index("/groups/{group_id}/{document_type}")
+    for path in ("/groups/{group_id}/whatsapp-welcome-preview", "/groups/{group_id}/whatsapp-welcome-send"):
+        assert paths.index(path) < generic_index
 
 
 def test_document_distribution_support_modules_do_not_register_routes() -> None:

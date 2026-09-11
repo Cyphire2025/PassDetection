@@ -201,6 +201,14 @@ export function useDocumentDeliveryPreview(
     queryFn: () => documentDistributionApi.previewWhatsAppDelivery(groupId, documentType),
     enabled: Boolean(groupId && documentType && enabled),
     staleTime: 5_000,
+    refetchInterval: (query) => {
+      const preview = query.state.data;
+      const waiting = preview?.summary.in_progress || preview?.recipients.some((row) => (
+        ["queued", "processing", "submitted", "sent"].includes(row.welcome_status ?? "")
+      ));
+      return waiting ? 5_000 : false;
+    },
+    refetchIntervalInBackground: false,
   });
 }
 

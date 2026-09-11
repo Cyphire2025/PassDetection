@@ -12,6 +12,7 @@ from sqlalchemy import and_, func, or_, select
 from app.domain.entities.entities import User, UserRole
 from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
+    WhatsAppBroadcastRecipientModel,
     WhatsAppMessageLogModel,
     WhatsAppRecipientMessageStateModel,
 )
@@ -153,12 +154,26 @@ def _provider_status_state_predicates(
         WhatsAppRecipientMessageStateModel.recipient_id == log.recipient_id,
         WhatsAppRecipientMessageStateModel.message_type == log.message_type,
     ]
-    if provider_status == "failed" or log.message_type == "reminder":
+    if provider_status == "failed" or log.message_type in {"welcome", "reminder"}:
         # A failed receipt is only authoritative for the matching attempt. A
         # delayed failure from an older provider message must never release a
         # newer claim for retry. Reminders are deliberate, repeatable sends,
         # so every receipt must stay within its own attempt, including success.
         predicates.append(WhatsAppRecipientMessageStateModel.batch_id == log.batch_id)
+    if log.message_type == "welcome":
+        frozen_phone = getattr(log, "normalized_phone_number", None)
+        if frozen_phone:
+            predicates.append(
+                WhatsAppRecipientMessageStateModel.recipient_id.in_(
+                    select(WhatsAppBroadcastRecipientModel.id).where(
+                        WhatsAppBroadcastRecipientModel.agency_id == log.agency_id,
+                        WhatsAppBroadcastRecipientModel.normalized_phone_number == frozen_phone,
+                    )
+                )
+            )
+        else:
+            # Unbound legacy receipts cannot qualify the current edited number.
+            predicates.append(WhatsAppRecipientMessageStateModel.id.is_(None))
     # Provider acceptance is authoritative for this recipient and message
     # type even if a later retry has already claimed the ledger. Omitting the
     # batch predicate promotes the ledger and suppresses that duplicate send

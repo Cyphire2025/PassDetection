@@ -23,6 +23,9 @@ export interface WhatsAppRecipient {
   normalized_phone_number: string;
   imported_fields: Record<string, string>;
   message_statuses: WhatsAppRecipientMessageStatus[];
+  welcome_status?: string | null;
+  welcome_delivered?: boolean;
+  welcome_required_reason?: string | null;
 }
 
 export interface WhatsAppRejectedContactInput {
@@ -187,6 +190,8 @@ export interface WhatsAppPreviewResponse {
   excluded_submitted_count?: number;
   excluded_needs_review_count?: number;
   eligible_recipient_count: number;
+  welcome_required_count?: number;
+  welcome_required_reason?: string | null;
   already_sent_count: number;
   in_progress_count: number;
   uncertain_recipient_count: number;

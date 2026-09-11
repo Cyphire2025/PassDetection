@@ -37,6 +37,7 @@ from app.infrastructure.whatsapp.private_delivery_policy import (
     PrivateDeliveryGroupSourceSnapshot,
     lock_private_delivery_group_source_snapshot,
     validate_private_delivery_recipient,
+    validate_private_delivery_welcome,
 )
 
 MAX_PROVIDER_ATTEMPTS = 3
@@ -383,6 +384,13 @@ async def run_qr_whatsapp_broadcast(
                     if _source_snapshot is not None
                     else bool(validation and validation.allowed)
                 )
+                if recipient_allowed and _source_snapshot is not None:
+                    validation = await validate_private_delivery_welcome(
+                        session,
+                        agency_id=delivery_snapshot.agency_id,
+                        normalized_phone_number=delivery_snapshot.normalized_phone_number,
+                    )
+                    recipient_allowed = validation.allowed
 
                 token_result = await session.execute(
                     select(PassengerQRTokenModel)

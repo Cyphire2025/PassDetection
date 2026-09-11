@@ -1721,7 +1721,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
             <>
               <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-xl shadow-slate-200/50 sm:rounded-3xl sm:p-5">
                 <h2 className="text-lg font-bold text-slate-900">Head of family contact</h2>
-                <p className="mt-1 text-sm leading-6 text-slate-500">Provide WhatsApp active contact for the head of family. They will receive the full family packet later when WhatsApp broadcast is enabled.</p>
+                <p className="mt-1 text-sm leading-6 text-slate-500">Provide the head of family contact. Tickets and visas are sent to each member’s entered WhatsApp number. To use one family number, enter it for each member who should receive documents there.</p>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   <ContactInput icon={<Mail className="h-5 w-5" />} label="Head email" type="email" value={headEmail} onChange={setHeadEmail} required />
                   <ContactInput icon={<Phone className="h-5 w-5" />} label="Head WhatsApp active number" type="tel" value={headPhone} onChange={setHeadPhone} required />
@@ -1829,7 +1829,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
             <div className="animate-in fade-in slide-in-from-right-4 duration-500">
               <BackButton onClick={() => setStep("MODE_SELECT")} />
               <h3 className="mb-2 text-xl font-bold text-slate-900">Family Details</h3>
-              <p className="mb-5 text-sm leading-6 text-slate-500 sm:mb-6">Enter every member first. Member email and phone are optional; head contact is required at final submit.</p>
+              <p className="mb-5 text-sm leading-6 text-slate-500 sm:mb-6">Enter every member first. Member email and phone are optional for submission; a valid WhatsApp number for each member is needed before sending their tickets or visas. Head contact is required at final submit.</p>
               <form onSubmit={startFamilyUploads} className="space-y-4 sm:space-y-5">
                 <label className="space-y-1.5">
                   <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">How many people?</span>

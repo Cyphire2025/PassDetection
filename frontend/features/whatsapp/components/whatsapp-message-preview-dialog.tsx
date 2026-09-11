@@ -28,8 +28,9 @@ import {
   useWhatsAppGroup,
 } from "../hooks/use-whatsapp";
 import {
-  getMessageStatus,
+  canRetryOrResendRecipient,
   isRecipientEligible,
+  welcomeDeliveryBlockReason,
 } from "../utils/recipient-delivery";
 import { toggleWhatsAppBold } from "../utils/whatsapp-formatting";
 import { MessageComposerSection, MessageDeliveryPreview } from "./whatsapp-message-composer-ui";
@@ -145,6 +146,9 @@ export function MessagePreviewDialog({
             id: recipient.id,
             name: recipient.name,
             phone: recipient.normalized_phone_number,
+            welcomeStatus: recipient.welcome_status,
+            welcomeDelivered: recipient.welcome_delivered,
+            welcomeRequiredReason: recipient.welcome_required_reason,
             messageStatuses: recipient.message_statuses.map((messageStatus) => [
               messageStatus.message_type,
               messageStatus.status,
@@ -406,16 +410,10 @@ export function MessagePreviewDialog({
           (recipient) => recipient.id === targetRecipient.recipientId,
         )
       : undefined;
-  const targetMessageStatus = targetRecipientDetail
-    ? getMessageStatus(targetRecipientDetail, messageType)
-    : undefined;
   const canResendTarget =
     !targetRecipient ||
     Boolean(
-      targetRecipient.action === "retry"
-        ? targetMessageStatus?.status === "failed"
-        : targetMessageStatus?.already_sent &&
-            !targetMessageStatus.resend_blocked,
+      targetRecipientDetail && canRetryOrResendRecipient(targetRecipientDetail, messageType, targetRecipient.action),
     );
   const eligibleRecipients = useMemo(
     () =>
@@ -452,8 +450,14 @@ export function MessagePreviewDialog({
   const currentPreviewEligibleCount = previewIsCurrent
     ? preview?.eligible_recipient_count
     : undefined;
+  const bulkWelcomeBlockedIds = useMemo(() => {
+    const currentRecipients = new Map(detail?.recipients.map((recipient) => [recipient.id, recipient]));
+    return new Set((bulkRecipients ?? []).filter((recipient) =>
+      welcomeDeliveryBlockReason(currentRecipients.get(recipient.id) ?? recipient, messageType),
+    ).map((recipient) => recipient.id));
+  }, [bulkRecipients, detail?.recipients, messageType]);
   const eligibleRecipientCount = bulkMode
-    ? (bulkPreview?.eligible_recipient_count ?? 0)
+    ? (bulkPreview?.eligible_recipient_ids.filter((id) => !bulkWelcomeBlockedIds.has(id)).length ?? 0)
     : targetRecipient
     ? 1
     : recipientSelectionMode === "custom"
@@ -483,6 +487,13 @@ export function MessagePreviewDialog({
       && typeof preview.excluded_submitted_count === "number"
       && typeof preview.excluded_needs_review_count === "number"
     );
+  const previewWelcomeRequiredCount = (bulkMode ? bulkPreview : preview)?.welcome_required_count ?? 0;
+  const welcomeGateReason = previewWelcomeRequiredCount > 0
+    ? (bulkMode ? bulkPreview : preview)?.welcome_required_reason
+      || `${previewWelcomeRequiredCount} selected numbers need confirmed welcome delivery before other messages can be sent.`
+    : targetRecipientDetail
+      ? welcomeDeliveryBlockReason(targetRecipientDetail, messageType)
+      : null;
   const canSend = Boolean(
     previewIsCurrent &&
       !previewPending &&
@@ -494,6 +505,7 @@ export function MessagePreviewDialog({
       reminderAudienceSelectionReady &&
       reminderAudienceConfirmed &&
       canResendTarget &&
+      !welcomeGateReason &&
       (messageType === "reminder" || hasHeaderImage) &&
       (messageType !== "passport_link" ||
         (resolvedPassportIntro && resolvedPassportLink)),
@@ -1192,6 +1204,7 @@ export function MessagePreviewDialog({
             message={`This ${targetRecipient.action} can no longer be submitted because its latest delivery state changed. Refresh the recipient list before trying again.`}
           />
         )}
+        {welcomeGateReason && <ErrorBanner message={welcomeGateReason} />}
         {!targetRecipient &&
           !bulkMode &&
           messageType !== "reminder" &&

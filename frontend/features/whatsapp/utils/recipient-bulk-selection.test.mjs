@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getBulkResendEligibility, summarizeBulkResend } from "./recipient-bulk-selection.ts";
+import { readFileSync } from "node:fs";
+import ts from "typescript";
+
+const moduleUrl = (source) => `data:text/javascript;base64,${Buffer.from(ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText).toString("base64")}`;
+const deliveryUrl = moduleUrl(readFileSync(new URL("./recipient-delivery.ts", import.meta.url), "utf8"));
+const bulkSource = readFileSync(new URL("./recipient-bulk-selection.ts", import.meta.url), "utf8").replace('"./recipient-delivery"', JSON.stringify(deliveryUrl));
+const { getBulkResendEligibility, summarizeBulkResend } = await import(moduleUrl(bulkSource));
 
 function recipient(overrides = {}) {
   return {
@@ -11,8 +17,8 @@ function recipient(overrides = {}) {
   };
 }
 
-test("explicit resend includes a previously sent message and a failed attempt", () => {
-  assert.equal(getBulkResendEligibility(recipient(), "welcome"), "eligible");
+test("welcome retries include failed attempts while previously sent welcomes stay blocked", () => {
+  assert.equal(getBulkResendEligibility(recipient(), "welcome"), "blocked");
   assert.equal(getBulkResendEligibility(recipient({status: "failed", already_sent: false}), "welcome"), "eligible");
 });
 
@@ -43,7 +49,7 @@ test("review totals account for every selected recipient without mutating input"
   ];
   const before = structuredClone(selected);
   assert.deepEqual(summarizeBulkResend(selected, "welcome"), {
-    selected: 6, eligible: 2, noSavedMessage: 1, inProgress: 1, deliveryUnknown: 1, blocked: 1,
+    selected: 6, eligible: 1, noSavedMessage: 1, inProgress: 1, deliveryUnknown: 1, blocked: 2,
   });
   assert.deepEqual(selected, before);
   assert.deepEqual(summarizeBulkResend([], "passport_link"), {

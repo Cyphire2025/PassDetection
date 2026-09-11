@@ -33,6 +33,12 @@ from app.infrastructure.whatsapp.cloud_api_provider import (
     WhatsAppCloudApiError,
     send_whatsapp_template,
 )
+from app.infrastructure.whatsapp.phone_welcome import (
+    WELCOME_REQUIRED,
+    assert_phone_welcome_claim,
+    require_welcome_delivered,
+    sync_welcome_from_log,
+)
 
 MAX_PROVIDER_ATTEMPTS = 3
 WHATSAPP_BATCH_HEARTBEAT_INTERVAL = timedelta(minutes=5)
@@ -75,6 +81,8 @@ async def _set_message_state(
     release_claim: bool = False,
     submitted: bool = False,
 ) -> None:
+    if log.message_type == "welcome":
+        await sync_welcome_from_log(session, log)
     if getattr(log, "is_explicit_resend", False):
         return
     now = datetime.now(tz=UTC)
@@ -147,6 +155,19 @@ async def _load_sendable_recipient(
     ):
         return None, "WhatsApp recipient was replaced in a linked passport group"
 
+    frozen_phone = getattr(log, "normalized_phone_number", None)
+    if not frozen_phone or frozen_phone != recipient.normalized_phone_number:
+        return None, "WhatsApp destination changed or lacks a safe snapshot. Review and send again."
+    if log.message_type == "welcome":
+        if not await assert_phone_welcome_claim(
+            session,
+            agency_id=log.agency_id,
+            phone=frozen_phone,
+            attempt_id=log.id,
+        ):
+            return None, "This number already has a welcome or another welcome is in progress."
+    elif not await require_welcome_delivered(session, agency_id=log.agency_id, phone=frozen_phone):
+        return None, WELCOME_REQUIRED
     if getattr(log, "is_explicit_resend", False):
         resend_claim_result = await session.execute(
             select(WhatsAppMessageLogModel.id).where(
@@ -362,6 +383,7 @@ async def run_whatsapp_broadcast(
                         )
                         await session.commit()
                         continue
+                await sync_welcome_from_log(session, log)
                 await session.commit()
                 recipient, claim_error = await _load_sendable_recipient(
                     session,
@@ -540,9 +562,15 @@ async def mark_whatsapp_batch_failed(*, batch_id: str, error_message: str) -> No
 
     async with AsyncSessionFactory() as session:
         result = await session.execute(
-            select(WhatsAppMessageLogModel).where(
+            select(WhatsAppMessageLogModel)
+            .where(
                 WhatsAppMessageLogModel.batch_id == uuid.UUID(batch_id),
                 WhatsAppMessageLogModel.status.in_(["queued", "processing"]),
+            )
+            .order_by(
+                WhatsAppMessageLogModel.agency_id,
+                WhatsAppMessageLogModel.normalized_phone_number,
+                WhatsAppMessageLogModel.id,
             )
         )
         for log in result.scalars().all():

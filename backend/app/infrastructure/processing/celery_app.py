@@ -50,6 +50,8 @@ IDENTITY_RETENTION_TASK = "identity.apply_retention"
 WHATSAPP_BROADCAST_TASK = "whatsapp.process_broadcast"
 WHATSAPP_DOCUMENT_BROADCAST_TASK = "whatsapp.process_document_broadcast"
 WHATSAPP_QR_BROADCAST_TASK = "whatsapp.process_qr_broadcast"
+WHATSAPP_TRAVELLER_WELCOME_TASK = "whatsapp.process_traveller_welcome_broadcast"
+WHATSAPP_WELCOME_RECOVERY_TASK = "whatsapp.recover_stale_welcomes"
 
 # A task-specific provider timeout remains the first line of defence. These
 # worker envelopes are the final process-level circuit breaker for bugs,
@@ -117,6 +119,8 @@ celery_app.conf.update(
         WHATSAPP_BROADCAST_TASK: {"queue": "whatsapp"},
         WHATSAPP_DOCUMENT_BROADCAST_TASK: {"queue": "whatsapp"},
         WHATSAPP_QR_BROADCAST_TASK: {"queue": "whatsapp"},
+        WHATSAPP_TRAVELLER_WELCOME_TASK: {"queue": "whatsapp"},
+        WHATSAPP_WELCOME_RECOVERY_TASK: {"queue": "whatsapp"},
         MOBILE_PUSH_COUNTDOWN_TASK: {"queue": "passport_ocr"},
         MOBILE_PUSH_DISPATCH_TASK: {"queue": "passport_ocr"},
         MOBILE_PUSH_RECEIPT_TASK: {"queue": "passport_ocr"},
@@ -242,6 +246,11 @@ celery_app.conf.update(
     timezone="UTC",
     enable_utc=True,
     beat_schedule={
+        "recover-stale-welcome-deliveries": {
+            "task": WHATSAPP_WELCOME_RECOVERY_TASK,
+            "schedule": 300.0,
+            "options": {"queue": "whatsapp", "expires": 300},
+        },
         "dispatch-due-email-connections": {
             "task": EMAIL_DISPATCH_TASK,
             "schedule": 5.0,
