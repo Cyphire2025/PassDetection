@@ -5,9 +5,14 @@ from __future__ import annotations
 import uuid
 
 from fastapi import Depends, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import Select, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.security.access_level_actor import (
+    actual_user_agency_id,
+    actual_user_role,
+    refresh_access_level_actor,
+)
 from app.application.use_cases.whatsapp.message_templates import WhatsAppMessageType
 from app.core.config.settings import get_settings
 from app.domain.entities.entities import User
@@ -56,7 +61,7 @@ async def _lock_active_whatsapp_actor(
     *,
     current_user: User,
     require_agency: bool,
-) -> UserModel:
+) -> UserModel | User:
     """Re-authorize the actor after untrusted workbook parsing.
 
     Authentication and role dependencies read the user before the route starts,
@@ -67,13 +72,32 @@ async def _lock_active_whatsapp_actor(
     during parsing fail closed before any roster mutation.
     """
 
+    statement = _whatsapp_actor_lock_statement(current_user, require_agency=require_agency)
+    result = await session.execute(statement.execution_options(populate_existing=True))
+    actor = result.scalar_one_or_none()
+    if actor is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your account is no longer authorized for WhatsApp broadcasts.",
+        )
+    if getattr(current_user, "actual_role", None) is not None:
+        return await refresh_access_level_actor(session, current_user)
+    return actor
+
+
+def _whatsapp_actor_lock_statement(
+    current_user: User, *, require_agency: bool,
+) -> Select[tuple[UserModel]]:
+    """Lock the stored account identity and, when needed, the effective agency."""
+
     expected_agency_id = current_user.agency_id
-    expected_role = current_user.role.value
+    actual_agency_id = actual_user_agency_id(current_user)
     predicates = [
         UserModel.id == current_user.id,
-        UserModel.role == expected_role,
+        UserModel.role == actual_user_role(current_user).value,
         UserModel.is_active.is_(True),
         UserModel.deleted_at.is_(None),
+        UserModel.agency_id == actual_agency_id,
     ]
     statement = select(UserModel).where(*predicates)
     if require_agency:
@@ -84,25 +108,15 @@ async def _lock_active_whatsapp_actor(
             )
         statement = (
             select(UserModel)
-            .join(AgencyModel, AgencyModel.id == UserModel.agency_id)
+            .join(AgencyModel, AgencyModel.id == expected_agency_id)
             .where(
                 *predicates,
-                UserModel.agency_id == expected_agency_id,
                 AgencyModel.is_active.is_(True),
             )
             .with_for_update()
         )
-    else:
-        statement = statement.with_for_update(of=UserModel)
-
-    result = await session.execute(statement.execution_options(populate_existing=True))
-    actor = result.scalar_one_or_none()
-    if actor is None:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Your account is no longer authorized for WhatsApp broadcasts.",
-        )
-    return actor
+        return statement
+    return statement.with_for_update(of=UserModel)
 
 
 async def _release_auth_transaction(

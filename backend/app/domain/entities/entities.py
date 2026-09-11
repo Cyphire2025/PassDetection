@@ -207,6 +207,10 @@ class User:
     session_version: int = 1
     mfa_required: bool = False
     mfa_enabled: bool = False
+    # Request-only access-level context; never persisted as the account's role.
+    actual_role: UserRole | None = None
+    actual_agency_id: uuid.UUID | None = None
+    access_level_agency_name: str | None = None
 
     @classmethod
     def create(

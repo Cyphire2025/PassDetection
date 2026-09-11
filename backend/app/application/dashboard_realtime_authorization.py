@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
@@ -11,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mobile.realtime_authorization import MobileRealtimeAuthorization
 from app.core.security.jwt import decode_access_token
-from app.domain.entities.entities import GroupStatus, UserRole
+from app.domain.entities.entities import GroupStatus, User, UserRole
 from app.domain.exceptions.exceptions import AuthenticationError, AuthorizationError
 from app.infrastructure.database.models import (
     ClientGroupModel,
@@ -23,6 +24,7 @@ from app.infrastructure.database.models import (
 from app.infrastructure.repositories.coordinator_assignment_lifecycle import (
     expired_trip_clause,
 )
+from app.infrastructure.repositories.user_repository import UserRepository
 
 DASHBOARD_REALTIME_ROLES = frozenset(
     {
@@ -40,7 +42,7 @@ class DashboardRealtimeClaims:
 
     user_id: uuid.UUID
     role: UserRole
-    agency_id: uuid.UUID
+    agency_id: uuid.UUID | None
     token_id: uuid.UUID
     session_version: int
 
@@ -48,7 +50,14 @@ class DashboardRealtimeClaims:
 def parse_dashboard_realtime_claims(token: str) -> DashboardRealtimeClaims:
     """Verify the signed access token and reject malformed authority claims."""
 
-    payload = decode_access_token(token)
+    return _parse_dashboard_realtime_claims(decode_access_token(token))
+
+
+def _parse_dashboard_realtime_claims(
+    payload: dict[str, Any],
+    *,
+    allow_superadmin: bool = False,
+) -> DashboardRealtimeClaims:
     try:
         user_id = uuid.UUID(_required_string(payload, "sub"))
         token_id = uuid.UUID(_required_string(payload, "jti"))
@@ -63,10 +72,16 @@ def parse_dashboard_realtime_claims(token: str) -> DashboardRealtimeClaims:
         or raw_session_version < 1
     ):
         raise AuthenticationError("Invalid dashboard access token")
-    if role not in DASHBOARD_REALTIME_ROLES:
+    if role not in DASHBOARD_REALTIME_ROLES and not (
+        allow_superadmin and role == UserRole.SUPER_ADMIN
+    ):
         raise AuthorizationError("Dashboard realtime access is not available")
     try:
-        agency_id = uuid.UUID(_required_string(payload, "agency_id"))
+        agency_id = (
+            None
+            if role == UserRole.SUPER_ADMIN and payload.get("agency_id") is None
+            else uuid.UUID(_required_string(payload, "agency_id"))
+        )
     except (TypeError, ValueError) as exc:
         raise AuthenticationError("Invalid dashboard access token") from exc
     return DashboardRealtimeClaims(
@@ -83,6 +98,7 @@ async def load_dashboard_realtime_authorization(
     token: str,
     *,
     maximum_trips: int,
+    resolve_effective_user: Callable[[User, dict[str, Any]], User] | None = None,
 ) -> MobileRealtimeAuthorization:
     """Resolve current identity state and the exact visible trip set.
 
@@ -91,7 +107,10 @@ async def load_dashboard_realtime_authorization(
     tenant moves, and assignment removal revoke fanout without reconnecting.
     """
 
-    claims = parse_dashboard_realtime_claims(token)
+    payload = decode_access_token(token)
+    claims = _parse_dashboard_realtime_claims(
+        payload, allow_superadmin=resolve_effective_user is not None
+    )
     identity_result = await session.execute(
         select(UserModel, UserSecurityStateModel)
         .outerjoin(
@@ -121,15 +140,26 @@ async def load_dashboard_realtime_authorization(
     ):
         raise AuthenticationError("Session is no longer valid")
 
+    effective_user = UserRepository._to_entity(user, security_state)
+    if resolve_effective_user is not None:
+        effective_user = resolve_effective_user(effective_user, payload)
+    if (
+        effective_user.id != claims.user_id
+        or effective_user.role not in DASHBOARD_REALTIME_ROLES
+        or effective_user.agency_id is None
+    ):
+        raise AuthorizationError("Dashboard realtime access is not available")
+    agency_id = effective_user.agency_id
+
     trip_statement = select(ClientGroupModel.id).where(
-        ClientGroupModel.agency_id == claims.agency_id,
+        ClientGroupModel.agency_id == agency_id,
         ClientGroupModel.status.in_((GroupStatus.ACTIVE.value, GroupStatus.CLOSED.value)),
         ClientGroupModel.deleted_at.is_(None),
     )
-    if claims.role == UserRole.AGENCY_STAFF:
+    if effective_user.role == UserRole.AGENCY_STAFF:
         assigned = exists().where(
             ManagerGroupAccessModel.manager_id == claims.user_id,
-            ManagerGroupAccessModel.agency_id == claims.agency_id,
+            ManagerGroupAccessModel.agency_id == agency_id,
             ManagerGroupAccessModel.group_id == ClientGroupModel.id,
         )
         trip_statement = trip_statement.where(
@@ -138,7 +168,7 @@ async def load_dashboard_realtime_authorization(
                 assigned,
             )
         )
-    elif claims.role == UserRole.AGENCY_COORDINATOR:
+    elif effective_user.role == UserRole.AGENCY_COORDINATOR:
         trip_statement = trip_statement.join(
             CoordinatorGroupAssignmentModel,
             (
@@ -149,7 +179,7 @@ async def load_dashboard_realtime_authorization(
                 == ClientGroupModel.agency_id
             ),
         ).where(
-            CoordinatorGroupAssignmentModel.agency_id == claims.agency_id,
+            CoordinatorGroupAssignmentModel.agency_id == agency_id,
             CoordinatorGroupAssignmentModel.coordinator_user_id == claims.user_id,
             CoordinatorGroupAssignmentModel.active.is_(True),
             ~expired_trip_clause(),
@@ -162,7 +192,7 @@ async def load_dashboard_realtime_authorization(
     if len(trip_ids) > maximum_trips:
         raise AuthorizationError("Dashboard realtime trip limit exceeded")
     return MobileRealtimeAuthorization(
-        agency_id=claims.agency_id,
+        agency_id=agency_id,
         account_id=claims.user_id,
         principal_id=claims.user_id,
         principal_type="dashboard",

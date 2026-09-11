@@ -19,6 +19,11 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.elements import ColumnElement
 
+from app.application.security.access_level_actor import (
+    actual_user_agency_id,
+    actual_user_role,
+    refresh_access_level_actor,
+)
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import User, UserRole
 from app.domain.value_objects.travel_document_taxonomy import (
@@ -95,18 +100,22 @@ async def _lock_active_rename_actor(
     user_id: uuid.UUID,
     agency_id: uuid.UUID,
     expected_role: UserRole,
-) -> UserModel:
+    current_user: User | None = None,
+) -> UserModel | User:
     """Re-authorize the unchanged actor role and agency under row locks."""
 
+    actual_agency_id = actual_user_agency_id(current_user) if current_user is not None else agency_id
+    actual_role = actual_user_role(current_user) if current_user is not None else expected_role
     result = await session.execute(
         select(UserModel)
-        .join(AgencyModel, AgencyModel.id == UserModel.agency_id)
+        .join(AgencyModel, AgencyModel.id == agency_id)
         .where(
             UserModel.id == user_id,
-            UserModel.agency_id == agency_id,
+            UserModel.agency_id == actual_agency_id
+            if actual_agency_id is not None else UserModel.agency_id.is_(None),
             UserModel.is_active.is_(True),
             UserModel.deleted_at.is_(None),
-            UserModel.role == expected_role.value,
+            UserModel.role == actual_role.value,
             AgencyModel.is_active.is_(True),
         )
         .with_for_update(of=(UserModel, AgencyModel))  # type: ignore[arg-type]
@@ -118,6 +127,8 @@ async def _lock_active_rename_actor(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Your account or agency is no longer authorized for document rename.",
         )
+    if current_user is not None and getattr(current_user, "actual_role", None) is not None:
+        return await refresh_access_level_actor(session, current_user)
     return actor
 
 
@@ -724,6 +735,7 @@ async def analyze_and_rename_documents(
             user_id=actor_id,
             agency_id=agency_id,
             expected_role=expected_actor_role,
+            current_user=current_user,
         )
         complete = True
         if chunk_metadata is not None:

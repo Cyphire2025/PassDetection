@@ -7,7 +7,7 @@
 
 import { create } from "zustand";
 import { expiredSessionSignInPath } from "@/features/auth/services/restoration-destination";
-import type { User } from "@/types";
+import type { AccessLevelAgencyChoice, User } from "@/types";
 import {
   clearServerSessionCookies,
   clearSensitiveBrowserState,
@@ -28,9 +28,15 @@ interface AuthState {
   isAuthenticated: boolean;
   hasHydrated: boolean;
   sessionVersion: number;
+  isChangingAccessLevel: boolean;
+  accessLevelError: string | null;
+  accessLevelAgencyChoice: AccessLevelAgencyChoice | null;
 }
 
 interface AuthActions {
+  setAccessLevelAgencyChoice: (choice: AccessLevelAgencyChoice) => void;
+  beginAccessLevelChange: () => void;
+  failAccessLevelChange: (message: string, confirmedUser?: User) => void;
   markTemporarilyUnavailable: () => void;
   setSession: (user: User) => void;
   clearSession: (
@@ -52,10 +58,31 @@ const initialState: AuthState = {
   isAuthenticated: false,
   hasHydrated: false,
   sessionVersion: 0,
+  isChangingAccessLevel: false,
+  accessLevelError: null,
+  accessLevelAgencyChoice: null,
 };
 
 export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
   ...initialState,
+
+  setAccessLevelAgencyChoice: (choice) => set({ accessLevelAgencyChoice: choice }),
+
+  beginAccessLevelChange: () => set((state) => ({
+    isChangingAccessLevel: true,
+    accessLevelError: null,
+    accessLevelAgencyChoice: null,
+    sessionVersion: state.sessionVersion + 1,
+  })),
+
+  failAccessLevelChange: (message, confirmedUser) => set((state) => ({
+    accessLevelError: message,
+    ...(confirmedUser ? {
+      user: confirmedUser,
+      isChangingAccessLevel: false,
+      sessionVersion: state.sessionVersion + 1,
+    } : {}),
+  })),
 
   setSession: (user) => {
     prepareSensitiveBrowserStateForUser(user.id);
@@ -65,6 +92,9 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
       restorationStatus: "authenticated",
       hasHydrated: true,
       sessionVersion: state.sessionVersion + 1,
+      isChangingAccessLevel: false,
+      accessLevelError: null,
+      accessLevelAgencyChoice: null,
     }));
   },
 
@@ -95,6 +125,9 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
         restorationStatus: "rejected",
         hasHydrated: true,
         sessionVersion: state.sessionVersion + 1,
+        isChangingAccessLevel: false,
+        accessLevelError: null,
+        accessLevelAgencyChoice: null,
       }));
       const cleanup = Promise.all([
         revokeServerSession ? clearServerSessionCookies() : Promise.resolve(),

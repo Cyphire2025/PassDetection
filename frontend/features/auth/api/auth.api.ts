@@ -7,10 +7,16 @@
 
 import apiClient from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
-import type { AuthOutcome, AuthSession, IdentityActionOutcome, MFAEnrollmentSession, User } from "@/types";
+import type { AuthOutcome, AuthSession, IdentityActionOutcome, MFAEnrollmentSession, SwitchableAccessLevel, User } from "@/types";
 import type { LoginFormData } from "../schemas/auth.schemas";
 
 export const authApi = {
+  changeAccessLevel: async (role: SwitchableAccessLevel, agencyId?: string): Promise<User> => {
+    const response = await apiClient.post<User>(API_ENDPOINTS.auth.accessLevel, {
+      role, ...(agencyId ? { agency_id: agencyId } : {}),
+    });
+    return response.data;
+  },
   /**
    * Exchange credentials for an httpOnly cookie session.
    */

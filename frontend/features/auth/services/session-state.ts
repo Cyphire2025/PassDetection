@@ -16,7 +16,7 @@ const SESSION_RESET_STORAGE_KEY = "pd:session-reset";
 const APP_STORAGE_PREFIX = "passdetection";
 const APP_CACHE_PREFIX = "passdetection-";
 
-export type SensitiveStateResetReason = "account_changed" | "logout" | "session_expired";
+export type SensitiveStateResetReason = "account_changed" | "logout" | "session_expired" | "access_level_changed";
 
 export function prepareSensitiveBrowserStateForUser(userId: string) {
   if (typeof window === "undefined") return;
@@ -135,6 +135,7 @@ function parseResetReason(value: unknown): SensitiveStateResetReason | null {
     return reason === "account_changed"
       || reason === "logout"
       || reason === "session_expired"
+      || reason === "access_level_changed"
       ? reason
       : null;
   } catch {

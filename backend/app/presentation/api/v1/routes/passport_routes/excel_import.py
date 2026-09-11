@@ -11,6 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mobile.passenger_change_propagation import propagate_mobile_passenger_change
+from app.application.security.access_level_actor import revalidate_access_level_actor
 from app.application.security.authorization_policy import AuthorizationPolicy
 from app.core.config.settings import get_settings
 from app.domain.entities.entities import ClientGroup, User, UserRole
@@ -104,6 +105,7 @@ async def _lock_and_reauthorize_passport_excel_import(
     group_id: uuid.UUID,
     expected_agency_id: uuid.UUID,
     user_id: uuid.UUID,
+    current_user: User | None = None,
 ) -> tuple[User, ClientGroup]:
     """Lock the group, then refresh every authorization input atomically."""
 
@@ -119,6 +121,12 @@ async def _lock_and_reauthorize_passport_excel_import(
         )
 
     refreshed_user = await UserRepository(session).get_by_id(user_id)
+    if (
+        refreshed_user is not None
+        and current_user is not None
+        and getattr(current_user, "actual_role", None) is not None
+    ):
+        refreshed_user = revalidate_access_level_actor(current_user, refreshed_user)
     if (
         refreshed_user is None
         or not refreshed_user.is_active
@@ -229,6 +237,7 @@ async def import_passports_by_group(
             group_id=group_id,
             expected_agency_id=expected_agency_id,
             user_id=current_user.id,
+            current_user=current_user,
         )
     except HTTPException:
         await session.rollback()

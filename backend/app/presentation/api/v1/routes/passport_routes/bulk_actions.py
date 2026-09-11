@@ -10,6 +10,11 @@ from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mobile.passenger_change_propagation import propagate_mobile_passenger_change
+from app.application.security.access_level_actor import (
+    actual_user_agency_id,
+    actual_user_role,
+    refresh_access_level_actor,
+)
 from app.application.security.authorization_policy import AuthorizationPolicy
 from app.application.security.destructive_mutation_policy import (
     DestructiveMutationPolicy,
@@ -76,16 +81,17 @@ async def _lock_active_bulk_approval_actor(
 ) -> User:
     """Revalidate the unchanged bulk-approval actor under a row lock."""
 
+    actual_agency_id = actual_user_agency_id(current_user)
     agency_filter = (
         UserModel.agency_id.is_(None)
-        if current_user.agency_id is None
-        else UserModel.agency_id == current_user.agency_id
+        if actual_agency_id is None
+        else UserModel.agency_id == actual_agency_id
     )
     result = await session.execute(
         select(UserModel)
         .where(
             UserModel.id == current_user.id,
-            UserModel.role == current_user.role.value,
+            UserModel.role == actual_user_role(current_user).value,
             agency_filter,
             UserModel.is_active.is_(True),
             UserModel.deleted_at.is_(None),
@@ -99,6 +105,8 @@ async def _lock_active_bulk_approval_actor(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Your account permissions changed. Sign in again and retry.",
         )
+    if getattr(current_user, "actual_role", None) is not None:
+        return await refresh_access_level_actor(session, current_user)
     return UserRepository._to_entity(actor_model)
 
 

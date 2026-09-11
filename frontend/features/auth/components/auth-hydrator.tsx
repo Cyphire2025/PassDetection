@@ -3,11 +3,13 @@
 import { useCallback, useEffect, useRef } from "react";
 import { authApi } from "../api/auth.api";
 import { subscribeToSessionResets } from "../services/session-state";
+import { synchronizeAccessLevel } from "../services/access-level";
 import {
   refreshAuthenticatedSession,
   type ApiError,
 } from "@/lib/api/client";
 import { useAuthStore } from "@/stores/auth.store";
+import type { User } from "@/types";
 
 const SESSION_RECHECK_INTERVAL_MS = 60_000;
 const WAKE_CHECK_INTERVAL_MS = 30_000;
@@ -15,6 +17,12 @@ const SESSION_REFRESH_FALLBACK_MS = 20 * 60_000;
 const SESSION_REFRESH_SAFETY_WINDOW_MS = 2 * 60_000;
 const SESSION_REFRESH_MINIMUM_DELAY_MS = 30_000;
 const SESSION_REFRESH_RETRY_DELAY_MS = 30_000;
+
+function accessContextChanged(user: User) {
+  const current = useAuthStore.getState().user;
+  return current?.id === user.id
+    && (current.role !== user.role || current.agency_id !== user.agency_id);
+}
 
 export function AuthHydrator() {
   const setSession = useAuthStore((state) => state.setSession);
@@ -53,6 +61,7 @@ export function AuthHydrator() {
   );
 
   const verifySession = useCallback((force = false) => {
+    if (useAuthStore.getState().isChangingAccessLevel) return Promise.resolve();
     if (typeof navigator !== "undefined" && !navigator.onLine) {
       markTemporarilyUnavailable();
       return Promise.resolve();
@@ -73,6 +82,10 @@ export function AuthHydrator() {
           !controller.signal.aborted &&
           useAuthStore.getState().sessionVersion === expectedVersion
         ) {
+          if (accessContextChanged(user)) {
+            void synchronizeAccessLevel();
+            return;
+          }
           setSession(user);
           lastVerifiedAtRef.current = Date.now();
         }
@@ -98,6 +111,7 @@ export function AuthHydrator() {
   }, [markTemporarilyUnavailable, setSession]);
 
   const renewSession = useCallback(() => {
+    if (useAuthStore.getState().isChangingAccessLevel) return Promise.resolve();
     if (renewalRef.current) return renewalRef.current;
     if (typeof navigator !== "undefined" && !navigator.onLine) {
       markTemporarilyUnavailable();
@@ -110,6 +124,10 @@ export function AuthHydrator() {
       .then(async (session) => {
         if (!mountedRef.current || useAuthStore.getState().sessionVersion !== expectedVersion) return;
         if (session) {
+          if (accessContextChanged(session.user)) {
+            await synchronizeAccessLevel();
+            return;
+          }
           setSession(session.user);
           lastVerifiedAtRef.current = Date.now();
           scheduleRenewal(session.access_token_expires_at);
@@ -180,6 +198,10 @@ export function AuthHydrator() {
     }, WAKE_CHECK_INTERVAL_MS);
     const unsubscribeSessionResets = subscribeToSessionResets((reason) => {
       activeControllerRef.current?.abort();
+      if (reason === "access_level_changed") {
+        void synchronizeAccessLevel();
+        return;
+      }
       void clearSession(reason, {
         notifyOtherTabs: false,
         revokeServerSession: false,

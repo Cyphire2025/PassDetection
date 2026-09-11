@@ -7,12 +7,21 @@
 import type { TimestampedEntity } from "./api.types";
 
 export type UserRole = "super_admin" | "agency_admin" | "agency_manager" | "agency_staff" | "agency_coordinator";
+export type SwitchableAccessLevel = Exclude<UserRole, "agency_admin">;
+export interface AccessLevelAgencyChoice {
+  role: SwitchableAccessLevel;
+  agencies: Array<{ id: string; name: string }>;
+}
 
 export interface User extends TimestampedEntity {
   id: string;
   email: string;
   full_name: string;
   role: UserRole;
+  /** Account identity stays unchanged while the server applies an access level. */
+  actual_role?: UserRole;
+  can_switch_access_level?: boolean;
+  access_level_agency_name?: string | null;
   agency_id: string | null;
   is_active: boolean;
   last_login_at: string | null;

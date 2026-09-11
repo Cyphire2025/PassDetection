@@ -9,6 +9,11 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.security.access_level_actor import (
+    actual_user_agency_id,
+    actual_user_role,
+    refresh_access_level_actor,
+)
 from app.application.security.authorization_policy import AuthorizationPolicy
 from app.domain.entities.entities import PassportSubmission, User, UserRole
 from app.domain.exceptions.exceptions import AuthorizationError
@@ -95,18 +100,20 @@ async def _lock_active_document_scope(
     current_user: User,
     group_id: uuid.UUID,
     agency_id: uuid.UUID,
-) -> tuple[UserModel, ClientGroupModel]:
+) -> tuple[UserModel | User, ClientGroupModel]:
     """Re-fetch and lock the active actor, agency, and group before DB writes."""
 
+    actual_agency_id = actual_user_agency_id(current_user)
     result = await session.execute(
         select(UserModel, ClientGroupModel)
         .select_from(UserModel)
-        .join(AgencyModel, AgencyModel.id == UserModel.agency_id)
+        .join(AgencyModel, AgencyModel.id == agency_id)
         .join(ClientGroupModel, ClientGroupModel.agency_id == AgencyModel.id)
         .where(
             UserModel.id == current_user.id,
-            UserModel.agency_id == agency_id,
-            UserModel.role == current_user.role.value,
+            UserModel.agency_id == actual_agency_id
+            if actual_agency_id is not None else UserModel.agency_id.is_(None),
+            UserModel.role == actual_user_role(current_user).value,
             UserModel.is_active.is_(True),
             UserModel.deleted_at.is_(None),
             AgencyModel.id == agency_id,
@@ -124,6 +131,8 @@ async def _lock_active_document_scope(
             detail="Your account, agency, or group is no longer authorized for this upload.",
         )
     actor, group = row
+    if getattr(current_user, "actual_role", None) is not None:
+        actor = await refresh_access_level_actor(session, current_user)
     try:
         # Authorize with the row that was just re-read under lock, not the
         # request-scoped principal snapshot created before PDF processing.
@@ -181,7 +190,7 @@ async def _lock_and_validate_document_match_scope(
     expected_source_snapshot: tuple[tuple[str, ...], ...],
     expected_supplemental_identifiers: tuple[PassengerIdentifier, ...] | None,
     required_passenger_id: uuid.UUID | None = None,
-) -> tuple[UserModel, list[PassportSubmission]]:
+) -> tuple[UserModel | User, list[PassportSubmission]]:
     """Lock and revalidate every mutable row that influenced assignment."""
 
     actor, locked_group = await _lock_active_document_scope(

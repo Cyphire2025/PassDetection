@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import uuid
+from collections.abc import Mapping
 from urllib.parse import urlsplit
 
 from fastapi import APIRouter, Depends, WebSocket
@@ -14,6 +15,7 @@ from app.application.dashboard_realtime_authorization import (
 from app.application.mobile.realtime_authorization import MobileRealtimeAuthorization
 from app.core.config.settings import Settings, get_settings
 from app.core.logging.logger import get_logger
+from app.core.security.access_level import apply_access_level_cookie
 from app.domain.exceptions.exceptions import AuthenticationError, AuthorizationError
 from app.infrastructure.database.session import AsyncSessionFactory
 from app.infrastructure.mobile_realtime import (
@@ -100,6 +102,7 @@ async def authorize_dashboard_realtime(
     token: str,
     *,
     maximum_trips: int,
+    cookies: Mapping[str, str] | None = None,
 ) -> MobileRealtimeAuthorization:
     """Authenticate and resolve current dashboard grants in one short session."""
 
@@ -109,6 +112,9 @@ async def authorize_dashboard_realtime(
                 session,
                 token,
                 maximum_trips=maximum_trips,
+                resolve_effective_user=lambda user, claims: apply_access_level_cookie(
+                    user, cookies or {}, claims
+                ),
             )
             await session.commit()
             return authorization
@@ -124,6 +130,7 @@ async def _refresh_dashboard_authorization(
     *,
     interval_seconds: int,
     maximum_trips: int,
+    cookies: Mapping[str, str] | None = None,
 ) -> None:
     while True:
         await asyncio.sleep(interval_seconds)
@@ -131,6 +138,7 @@ async def _refresh_dashboard_authorization(
             current = await authorize_dashboard_realtime(
                 token,
                 maximum_trips=maximum_trips,
+                cookies=cookies,
             )
         except AuthenticationError as exc:
             raise RealtimeSocketClose(4401) from exc
@@ -168,6 +176,7 @@ async def dashboard_realtime_socket(
         authorization = await authorize_dashboard_realtime(
             token,
             maximum_trips=config.max_trips_per_connection,
+            cookies=websocket.cookies,
         )
     except AuthenticationError:
         await websocket.close(code=4401)
@@ -213,6 +222,7 @@ async def dashboard_realtime_socket(
             token,
             interval_seconds=config.authorization_refresh_seconds,
             maximum_trips=config.max_trips_per_connection,
+            cookies=websocket.cookies,
         ),
         task_prefix="dashboard-realtime",
     )

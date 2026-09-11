@@ -3,6 +3,7 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { SENSITIVE_STATE_RESET_EVENT } from "@/features/auth/services/session-state";
+import { useAuthStore } from "@/stores/auth.store";
 
 type RecoveryState = "online" | "offline" | "recovering" | "error";
 
@@ -22,6 +23,7 @@ export function SessionLifecycle({ queryClient }: { queryClient: QueryClient }) 
   const lastHeartbeatRef = useRef(0);
 
   const recover = useCallback((force = false) => {
+    if (useAuthStore.getState().isChangingAccessLevel) return Promise.resolve();
     if (!navigator.onLine) {
       if (mountedRef.current) setState("offline");
       return Promise.resolve();

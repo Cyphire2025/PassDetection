@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import uuid
+from typing import Any
 
+import jwt
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,7 +11,10 @@ from app.application.dashboard_realtime_authorization import (
     load_dashboard_realtime_authorization,
     parse_dashboard_realtime_claims,
 )
-from app.core.security.jwt import create_access_token
+from app.core.config.settings import get_settings
+from app.core.security.access_level import ACCESS_LEVEL_COOKIE, apply_access_level_cookie
+from app.core.security.jwt import create_access_token, decode_access_token
+from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import AuthenticationError, AuthorizationError
 from app.infrastructure.database.models import (
     AgencyModel,
@@ -235,4 +240,127 @@ async def test_coordinator_snapshot_uses_only_live_tenant_assignments(
             db_session,
             token,
             maximum_trips=0,
+        )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("mode", "visible"),
+    [
+        (UserRole.AGENCY_MANAGER, {"owned", "staff", "coordinator", "hidden"}),
+        (UserRole.AGENCY_STAFF, {"owned", "staff"}),
+        (UserRole.AGENCY_COORDINATOR, {"coordinator"}),
+    ],
+)
+async def test_superadmin_access_level_uses_scoped_grants_and_base_identity(
+    db_session: AsyncSession, mode: UserRole, visible: set[str]
+) -> None:
+    agency_id, other_agency_id, user_id = (uuid.uuid4() for _ in range(3))
+    groups = {
+        name: uuid.uuid4()
+        for name in ("owned", "staff", "coordinator", "hidden", "archived", "foreign")
+    }
+    actor = UserModel(
+        id=user_id,
+        email=f"{user_id}@example.test",
+        hashed_password="not-used",
+        full_name="Superadmin testing access",
+        role="super_admin",
+        agency_id=None,
+    )
+    db_session.add_all(
+        [
+            AgencyModel(id=key, name="Agency", email=f"{key}@example.test")
+            for key in (agency_id, other_agency_id)
+        ]
+        + [actor]
+        + [
+            ClientGroupModel(
+                id=key,
+                name=name,
+                token=f"realtime-{key}",
+                agency_id=other_agency_id if name == "foreign" else agency_id,
+                status="archived" if name == "archived" else "active",
+                created_by_user_id=user_id if name in {"owned", "archived", "foreign"} else None,
+            )
+            for name, key in groups.items()
+        ]
+    )
+    await db_session.flush()
+    db_session.add_all(
+        [
+            ManagerGroupAccessModel(
+                manager_id=user_id, group_id=groups["staff"], agency_id=agency_id
+            ),
+            CoordinatorGroupAssignmentModel(
+                agency_id=agency_id,
+                group_id=groups["coordinator"],
+                coordinator_user_id=user_id,
+                active=True,
+            ),
+        ]
+    )
+    await db_session.flush()
+    token = _token(user_id, None, role="super_admin")
+    token_claims = decode_access_token(token)
+    settings = get_settings()
+    mode_token = jwt.encode(
+        {
+            "sub": str(user_id),
+            "sv": 1,
+            "iat": token_claims["iat"],
+            "exp": token_claims["exp"],
+            "type": "dashboard_access_level",
+            "role": mode.value,
+            "agency_id": str(agency_id),
+        },
+        settings.app_secret_key,
+        algorithm=settings.jwt.algorithm,
+    )
+
+    def resolve(user: User, claims: dict[str, Any]) -> User:
+        assert user.role == UserRole.SUPER_ADMIN
+        assert claims["sub"] == str(user_id)
+        assert claims["role"] == "super_admin"
+        return apply_access_level_cookie(user, {ACCESS_LEVEL_COOKIE: mode_token}, claims)
+
+    authorization = await load_dashboard_realtime_authorization(
+        db_session, token, maximum_trips=10, resolve_effective_user=resolve
+    )
+    assert authorization.agency_id == agency_id
+    assert authorization.principal_id == user_id
+    assert authorization.trip_ids == frozenset(groups[name] for name in visible)
+    assert actor.role == "super_admin"
+    assert actor.agency_id is None
+
+    actor.role = "agency_manager"
+    await db_session.flush()
+    with pytest.raises(AuthenticationError, match="Session is no longer valid"):
+        await load_dashboard_realtime_authorization(
+            db_session, token, maximum_trips=10, resolve_effective_user=resolve
+        )
+
+
+@pytest.mark.asyncio
+async def test_superadmin_without_scoped_access_level_cannot_subscribe(
+    db_session: AsyncSession,
+) -> None:
+    user_id = uuid.uuid4()
+    db_session.add(
+        UserModel(
+            id=user_id,
+            email=f"{user_id}@example.test",
+            hashed_password="not-used",
+            full_name="Global superadmin",
+            role="super_admin",
+            agency_id=None,
+        )
+    )
+    await db_session.flush()
+    with pytest.raises(AuthorizationError, match="not available"):
+        await load_dashboard_realtime_authorization(
+            db_session,
+            _token(user_id, None, role="super_admin"),
+            maximum_trips=10,
+            resolve_effective_user=lambda user, _claims: user,
         )

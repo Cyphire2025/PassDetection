@@ -24,6 +24,8 @@ export function AuthenticatedContent({ children }: AuthenticatedContentProps) {
   const hasHydrated = useAuthStore(selectHasHydrated);
   const isAuthenticated = useAuthStore(selectIsAuthenticated);
   const restorationStatus = useAuthStore((state) => state.restorationStatus);
+  const isChangingAccessLevel = useAuthStore((state) => state.isChangingAccessLevel);
+  const accessLevelError = useAuthStore((state) => state.accessLevelError);
   const redirectStartedRef = useRef(false);
 
   useEffect(() => {
@@ -36,6 +38,24 @@ export function AuthenticatedContent({ children }: AuthenticatedContentProps) {
     redirectStartedRef.current = true;
     router.replace(expiredSessionSignInPath(window.location.pathname, window.location.search));
   }, [hasHydrated, isAuthenticated, router]);
+
+  if (isChangingAccessLevel) {
+    return (
+      <div className="fixed inset-0 z-50 flex min-h-dvh items-center justify-center bg-slate-50 p-6">
+        <div className="max-w-md text-center" role={accessLevelError ? "alert" : "status"}>
+          {accessLevelError ? (
+            <>
+              <p className="text-sm text-slate-700">{accessLevelError}</p>
+              <button type="button" className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white"
+                onClick={() => window.location.reload()}>
+                Reload to check access level
+              </button>
+            </>
+          ) : <LoadingSpinner size="lg" label="Changing access level" />}
+        </div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated && restorationStatus === "temporarily_unavailable") {
     return (

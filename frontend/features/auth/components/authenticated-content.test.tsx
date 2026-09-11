@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AuthenticatedContent } from "./authenticated-content";
 import { useAuthStore } from "@/stores/auth.store";
@@ -18,6 +18,8 @@ describe("AuthenticatedContent", () => {
       hasHydrated: false,
       sessionVersion: 0,
       restorationStatus: "restoring",
+      isChangingAccessLevel: false,
+      accessLevelError: null,
     });
   });
 
@@ -28,6 +30,8 @@ describe("AuthenticatedContent", () => {
       hasHydrated: false,
       sessionVersion: 0,
       restorationStatus: "restoring",
+      isChangingAccessLevel: false,
+      accessLevelError: null,
     });
   });
 
@@ -71,5 +75,18 @@ describe("AuthenticatedContent", () => {
     fireEvent.click(screen.getByRole("button", { name: "Retry connection" }));
     expect(retry).toHaveBeenCalledOnce();
     window.removeEventListener("auth:retry-restoration", retry);
+  });
+
+  it("unmounts the previous role's protected content immediately during switching", () => {
+    useAuthStore.setState({ hasHydrated: true, isAuthenticated: true });
+    render(<AuthenticatedContent>Privileged workspace data</AuthenticatedContent>);
+    act(() => useAuthStore.getState().beginAccessLevelChange());
+    expect(screen.queryByText("Privileged workspace data")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Changing access level")).toBeInTheDocument();
+    expect(replace).not.toHaveBeenCalled();
+    act(() => useAuthStore.getState().failAccessLevelChange("Connection interrupted"));
+    expect(screen.getByRole("alert")).toHaveTextContent("Connection interrupted");
+    expect(screen.getByRole("button", { name: "Reload to check access level" })).toBeInTheDocument();
+    expect(screen.queryByText("Privileged workspace data")).not.toBeInTheDocument();
   });
 });

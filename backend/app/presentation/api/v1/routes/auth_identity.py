@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from typing import Literal
@@ -14,6 +15,7 @@ from app.application.dtos.auth_dtos import AuthResponseDTO
 from app.application.interfaces.identity_notification_provider import (
     IdentityNotificationDeliveryDisabled,
 )
+from app.application.security.access_level_actor import actual_user_agency_id, actual_user_role
 from app.application.use_cases.auth.login_use_case import LoginUseCase
 from app.core.config.settings import get_settings
 from app.core.security.identity_security import (
@@ -67,15 +69,16 @@ from app.presentation.api.v1.schemas.auth_schemas import (
     PasswordChangeRequest,
     PasswordRecoveryRequest,
     PasswordRecoveryRequestResponse,
-    UserResponse,
 )
 from app.presentation.dependencies.auth import get_current_active_user, require_recent_mfa
 from app.presentation.dependencies.csrf import require_cookie_csrf, require_trusted_request_origin
+from app.presentation.security.access_level import clear_access_level_cookie
 from app.presentation.security.auth_cookies import (
     clear_auth_cookies,
     set_access_cookie,
     set_auth_cookies,
 )
+from app.presentation.security.auth_user_response import user_response as _user_response
 from app.presentation.security.client_ip import trusted_client_ip
 
 router = APIRouter()
@@ -99,23 +102,6 @@ def _login_use_case(session: AsyncSession) -> LoginUseCase:
         user_repository=UserRepository(session),
         refresh_token_repository=RefreshTokenRepository(session),
     )
-
-
-def _user_response(user: object) -> UserResponse:
-    values = dict(vars(user))
-    raw_role = values.get("role")
-    role = raw_role.value if isinstance(raw_role, UserRole) else raw_role
-    is_active = values.get("is_active") is True
-    agency_id = values.get("agency_id")
-    can_manage_gc_app = is_active and (
-        role == UserRole.SUPER_ADMIN.value
-        or (
-            role in {UserRole.AGENCY_ADMIN.value, UserRole.AGENCY_MANAGER.value}
-            and agency_id is not None
-        )
-    )
-    values["capabilities"] = ["gc_app.manage"] if can_manage_gc_app else []
-    return UserResponse.model_validate(values)
 
 
 def _auth_response(result: AuthResponseDTO) -> AuthResponse:
@@ -213,6 +199,10 @@ async def _issue_authenticated_session(
     user.mfa_required = state.mfa_required
     user.mfa_enabled = state.mfa_enabled_at is not None
     methods = ("pwd", method) if mfa_at is not None else (method,)
+    user = replace(
+        user, role=actual_user_role(user), agency_id=actual_user_agency_id(user),
+        actual_role=None, actual_agency_id=None, access_level_agency_name=None,
+    )
     result = await _login_use_case(session).issue_session(
         user,
         client_ip=trusted_client_ip(request),
@@ -228,6 +218,7 @@ async def _issue_authenticated_session(
         access_token_expires_at=result.access_token_expires_at,
         refresh_token_expires_at=result.refresh_token_expires_at,
     )
+    clear_access_level_cookie(response)
     response.headers["Cache-Control"] = "private, no-store, max-age=0"
     response.headers["Pragma"] = "no-cache"
     return _auth_response(result)
@@ -464,8 +455,8 @@ async def step_up_dashboard_session(
     # sign-in deadline. Legacy access tokens retain their existing expiry.
     access_token, access_expires = create_access_token(
         user_id=current_user.id,
-        role=current_user.role.value,
-        agency_id=current_user.agency_id,
+        role=actual_user_role(current_user).value,
+        agency_id=actual_user_agency_id(current_user),
         session_version=state.session_version,
         authentication_methods=("pwd", method),
         mfa_authenticated_at=now,

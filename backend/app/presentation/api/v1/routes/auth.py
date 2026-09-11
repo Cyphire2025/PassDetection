@@ -13,6 +13,7 @@ All business logic lives in use cases — routes only:
 from __future__ import annotations
 
 from collections.abc import AsyncIterator
+from types import SimpleNamespace
 
 from fastapi import APIRouter, Depends, Request, Response, status
 from fastapi.responses import JSONResponse
@@ -26,12 +27,14 @@ from app.application.use_cases.auth.logout_all_use_case import LogoutAllUseCase
 from app.application.use_cases.auth.logout_use_case import LogoutUseCase
 from app.application.use_cases.auth.refresh_token_use_case import RefreshTokenUseCase
 from app.core.config.settings import get_settings
-from app.domain.entities.entities import User, UserRole
+from app.core.security.jwt import decode_access_token
+from app.domain.entities.entities import User
 from app.domain.exceptions.exceptions import AuthenticationError
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.identity_security_repository import IdentitySecurityRepository
 from app.infrastructure.repositories.refresh_token_repository import RefreshTokenRepository
 from app.infrastructure.repositories.user_repository import UserRepository
+from app.presentation.api.v1.routes.auth_access_level import router as access_level_router
 from app.presentation.api.v1.routes.auth_identity import (
     begin_dashboard_mfa_challenge,
 )
@@ -50,11 +53,18 @@ from app.presentation.dependencies.csrf import (
     require_cookie_csrf,
     require_trusted_request_origin,
 )
+from app.presentation.security.access_level import (
+    ACCESS_LEVEL_COOKIE,
+    access_level_response_values,
+    clear_access_level_cookie,
+)
 from app.presentation.security.auth_cookies import clear_auth_cookies, set_auth_cookies
+from app.presentation.security.auth_user_response import user_response as _user_response
 from app.presentation.security.client_ip import trusted_client_ip
 
 router = APIRouter()
 router.include_router(identity_router)
+router.include_router(access_level_router)
 
 
 
@@ -150,6 +160,7 @@ async def login(
         response.headers["Pragma"] = "no-cache"
         return challenge
     security_state = await IdentitySecurityRepository(session).get_state(user.id)
+    clear_access_level_cookie(response)
     result = await use_case.issue_session(
         user,
         client_ip=client_ip,
@@ -208,13 +219,17 @@ async def refresh_token(
         )
         clear_auth_cookies(error_response)
         return error_response
+    selected_values = access_level_response_values(
+        result.user, request.cookies,
+        decode_access_token(result.access_token) if request.cookies.get(ACCESS_LEVEL_COOKIE) else {},
+    )
     set_auth_cookies(
         response, access_token=result.access_token, refresh_token=result.refresh_token,
         access_token_expires_at=result.access_token_expires_at,
         refresh_token_expires_at=result.refresh_token_expires_at,
     )
     return AuthResponse(
-        user=_user_response(result.user),
+        user=_user_response(SimpleNamespace(**selected_values)),
         token_type=result.token_type,
         access_token_expires_at=result.access_token_expires_at,
     )
@@ -269,28 +284,5 @@ async def get_me(
     current_user: User = Depends(get_current_active_user),
     use_case: GetMeUseCase = Depends(_get_me_use_case),
 ) -> UserResponse:
-    result = await use_case.execute(user_id=current_user.id)
-    return _user_response(result)
-
-
-def _user_response(user: object) -> UserResponse:
-    """Attach server-authoritative dashboard capabilities to auth responses."""
-
-    values = dict(vars(user))
-    raw_role = values.get("role")
-    role = raw_role.value if isinstance(raw_role, UserRole) else raw_role
-    is_active = values.get("is_active") is True
-    agency_id = values.get("agency_id")
-    can_manage_gc_app = is_active and (
-        role == UserRole.SUPER_ADMIN.value
-        or (
-            role
-            in {
-                UserRole.AGENCY_ADMIN.value,
-                UserRole.AGENCY_MANAGER.value,
-            }
-            and agency_id is not None
-        )
-    )
-    values["capabilities"] = ["gc_app.manage"] if can_manage_gc_app else []
-    return UserResponse.model_validate(values)
+    # The dependency has freshly read the account and applied its selected role.
+    return _user_response(current_user)

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import uuid
+from collections.abc import Mapping
 from types import SimpleNamespace
 
 import pytest
@@ -10,6 +11,7 @@ from starlette.websockets import WebSocketState
 from app.application.mobile.realtime_authorization import MobileRealtimeAuthorization
 from app.application.mobile.realtime_hints import MobileRealtimeHint
 from app.core.config.settings import Settings
+from app.core.security.access_level import ACCESS_LEVEL_COOKIE
 from app.infrastructure.mobile_realtime import MobileRealtimeConnection
 from app.presentation.api.v1.router import api_v1_router
 from app.presentation.api.v1.routes import dashboard_realtime as realtime_route
@@ -148,8 +150,10 @@ async def test_server_frame_guard_rejects_payload_over_one_kibibyte() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("mode_cookie", [None, "signed-access-level"])
 async def test_cookie_authenticated_socket_registers_then_releases_capacity(
     monkeypatch: pytest.MonkeyPatch,
+    mode_cookie: str | None,
 ) -> None:
     principal_id = uuid.uuid4()
     authorization = MobileRealtimeAuthorization(
@@ -166,9 +170,13 @@ async def test_cookie_authenticated_socket_registers_then_releases_capacity(
         maximum_pending_trips=4,
     )
 
-    async def authorize(token: str, *, maximum_trips: int) -> MobileRealtimeAuthorization:
+    async def authorize(
+        token: str, *, maximum_trips: int, cookies: Mapping[str, str] | None = None
+    ) -> MobileRealtimeAuthorization:
         assert token == "cookie-token"
         assert maximum_trips == 100
+        assert cookies is not None
+        assert cookies.get(ACCESS_LEVEL_COOKIE) == mode_cookie
         return authorization
 
     monkeypatch.setattr(realtime_route, "authorize_dashboard_realtime", authorize)
@@ -237,6 +245,8 @@ async def test_cookie_authenticated_socket_registers_then_releases_capacity(
 
     hub = _Hub()
     socket = _Socket()
+    if mode_cookie is not None:
+        socket.cookies = {**socket.cookies, ACCESS_LEVEL_COOKIE: mode_cookie}
     await realtime_route.dashboard_realtime_socket(
         socket,  # type: ignore[arg-type]
         settings=_settings(),
@@ -253,3 +263,54 @@ async def test_cookie_authenticated_socket_registers_then_releases_capacity(
             "idle_timeout_seconds": 65,
         }
     ]
+
+
+@pytest.mark.asyncio
+async def test_socket_refresh_keeps_signed_access_level_cookie(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    principal_id = uuid.uuid4()
+    authorization = MobileRealtimeAuthorization(
+        agency_id=uuid.uuid4(),
+        account_id=principal_id,
+        principal_id=principal_id,
+        principal_type="dashboard",
+        session_id=uuid.uuid4(),
+        session_generation=2,
+        trip_ids=frozenset(),
+    )
+    connection = MobileRealtimeConnection(authorization=authorization, maximum_pending_trips=4)
+    cookies = {"access_token": "base-token", ACCESS_LEVEL_COOKIE: "signed-access-level"}
+
+    async def no_wait(_seconds: int) -> None:
+        return None
+
+    async def authorize(
+        token: str, *, maximum_trips: int, cookies: Mapping[str, str] | None = None
+    ) -> MobileRealtimeAuthorization:
+        assert token == "base-token"
+        assert maximum_trips == 100
+        assert cookies is not None
+        assert cookies[ACCESS_LEVEL_COOKIE] == "signed-access-level"
+        return authorization
+
+    class _Hub:
+        async def update_authorization(
+            self, current: MobileRealtimeConnection, updated: MobileRealtimeAuthorization
+        ) -> bool:
+            assert current is connection
+            assert updated is authorization
+            return False
+
+    monkeypatch.setattr(realtime_route.asyncio, "sleep", no_wait)
+    monkeypatch.setattr(realtime_route, "authorize_dashboard_realtime", authorize)
+    with pytest.raises(RealtimeSocketClose) as closed:
+        await realtime_route._refresh_dashboard_authorization(
+            connection,
+            _Hub(),  # type: ignore[arg-type]
+            "base-token",
+            interval_seconds=60,
+            maximum_trips=100,
+            cookies=cookies,
+        )
+    assert closed.value.code == 4401

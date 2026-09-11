@@ -32,6 +32,11 @@ class LogoutRequest(BaseModel):
     refresh_token: str | None = Field(default=None, min_length=1)
 
 
+class AccessLevelRequest(BaseModel):
+    role: Literal["super_admin", "agency_manager", "agency_staff", "agency_coordinator"]
+    agency_id: uuid.UUID | None = None
+
+
 class CompleteIdentityActionRequest(BaseModel):
     token: str = Field(min_length=32, max_length=512)
     new_password: str = Field(min_length=10, max_length=128)
@@ -87,6 +92,10 @@ class UserResponse(BaseModel):
     credential_state: Literal["invited", "active"] = "active"
     mfa_required: bool = False
     mfa_enabled: bool = False
+    actual_role: str | None = None
+    access_level: str | None = None
+    can_switch_access_level: bool = False
+    access_level_agency_name: str | None = None
 
     model_config = {"from_attributes": True}
 

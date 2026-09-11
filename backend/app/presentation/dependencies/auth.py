@@ -30,6 +30,7 @@ from fastapi import Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.security.access_level_actor import actual_user_role
 from app.core.config.settings import get_settings
 from app.core.security.jwt import decode_access_token
 from app.domain.entities.entities import User, UserRole
@@ -43,6 +44,7 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.identity_security_repository import role_requires_dashboard_mfa
 from app.infrastructure.repositories.user_repository import UserRepository
 from app.presentation.dependencies.csrf import require_cookie_csrf
+from app.presentation.security.access_level import apply_access_level_cookie
 
 _bearer = HTTPBearer(auto_error=False)
 
@@ -68,7 +70,7 @@ def get_user_repository(
 
 # ── Token Extraction ──────────────────────────────────────────────────────────
 
-async def get_current_user(
+async def get_authenticated_user(
     request: Request,
     credentials: HTTPAuthorizationCredentials | None = Depends(_bearer),
     user_repo: IUserRepository = Depends(get_user_repository),
@@ -118,6 +120,16 @@ async def get_current_user(
     return user
 
 
+async def get_current_user(
+    request: Request,
+    credentials: HTTPAuthorizationCredentials | None = Depends(_bearer),
+    user_repo: IUserRepository = Depends(get_user_repository),
+) -> User:
+    user = await get_authenticated_user(request, credentials, user_repo)
+    claims = getattr(getattr(request, "state", None), "auth_claims", {})
+    return apply_access_level_cookie(user, request.cookies, claims)
+
+
 async def get_current_active_user(
     user: User = Depends(get_current_user),
 ) -> User:
@@ -159,7 +171,7 @@ async def require_recent_mfa(
 ) -> User:
     """Require MFA performed in the last ten minutes for privileged users."""
 
-    if not role_requires_dashboard_mfa(user.role):
+    if not role_requires_dashboard_mfa(actual_user_role(user)):
         return user
     payload = getattr(getattr(request, "state", None), "auth_claims", {})
     methods = payload.get("amr") if isinstance(payload, dict) else None

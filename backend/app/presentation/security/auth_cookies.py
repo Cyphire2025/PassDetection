@@ -7,6 +7,7 @@ from datetime import UTC, datetime, timedelta
 from fastapi import Response
 
 from app.core.config.settings import get_settings
+from app.presentation.security.access_level import clear_access_level_cookie
 from app.presentation.security.email_oauth_binding import clear_oauth_browser_bindings
 
 ATTENDANCE_RUNTIME_COOKIE_NAME = "attendance_runtime"
@@ -62,6 +63,7 @@ def set_auth_cookies(
 def clear_auth_cookies(response: Response) -> None:
     root_settings = get_settings()
     clear_oauth_browser_bindings(response, root_settings)
+    clear_access_level_cookie(response)
     settings = root_settings.jwt
     secure = settings.cookie_secure or root_settings.is_production
     for name, path in (

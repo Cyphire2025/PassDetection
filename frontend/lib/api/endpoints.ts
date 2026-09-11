@@ -32,6 +32,7 @@ export const API_ENDPOINTS = {
   },
 
   auth: {
+    accessLevel: "/api/v1/auth/access-level",
     login: "/api/v1/auth/login",
     logout: "/api/v1/auth/logout",
     logoutAll: "/api/v1/auth/logout-all",
