@@ -124,6 +124,7 @@ async def send_broadcast_message(
         recipients=source_recipients,
         audience=body.audience,
         audience_client_group_id=body.audience_client_group_id,
+        current_user=current_user,
     )
     recipients = list(audience_resolution.recipients)
     support_contacts = await _support_contacts_for_group(session, group.id)

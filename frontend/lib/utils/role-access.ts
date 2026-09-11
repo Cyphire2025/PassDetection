@@ -4,6 +4,13 @@ export const WHATSAPP_BROADCAST_ROLES: readonly UserRole[] = [
   "super_admin",
   "agency_admin",
   "agency_manager",
+  "agency_staff",
+];
+
+export const PASSPORT_SUBMISSION_DELETE_ROLES: readonly UserRole[] = [
+  "super_admin",
+  "agency_admin",
+  "agency_manager",
 ];
 
 export const EMAIL_INTEGRATION_ROLES: readonly UserRole[] = [
@@ -29,6 +36,14 @@ export function canAccessEmailIntegrations(
   return role !== null
     && role !== undefined
     && EMAIL_INTEGRATION_ROLES.includes(role);
+}
+
+export function canDeletePassportSubmissions(
+  role: UserRole | null | undefined,
+): boolean {
+  return role !== null
+    && role !== undefined
+    && PASSPORT_SUBMISSION_DELETE_ROLES.includes(role);
 }
 
 /**

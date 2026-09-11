@@ -248,7 +248,7 @@ async def add_broadcast_recipients(
             broadcast_group_id=group.id,
             actor_user_id=current_user.id,
         )
-    return await _group_detail(session, group)
+    return await _group_detail(session, group, current_user=current_user)
 
 
 @router.patch(
@@ -342,7 +342,7 @@ async def update_broadcast_recipient_phone(
             ),
         )
     if normalized_phone == recipient.normalized_phone_number:
-        return await _group_detail(session, group)
+        return await _group_detail(session, group, current_user=current_user)
 
     await _prepare_private_recipient_mutation(
         session,
@@ -384,7 +384,7 @@ async def update_broadcast_recipient_phone(
         broadcast_group_id=group.id,
         actor_user_id=current_user.id,
     )
-    return await _group_detail(session, group)
+    return await _group_detail(session, group, current_user=current_user)
 
 
 @router.delete(

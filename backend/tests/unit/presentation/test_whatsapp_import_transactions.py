@@ -115,7 +115,7 @@ async def test_create_group_parses_workbook_before_reauthorization_and_mutation(
     session.flush = AsyncMock()
     session.add = MagicMock(side_effect=add_model)
 
-    async def return_group(_session: object, group: object) -> object:
+    async def return_group(_session: object, group: object, **_kwargs: object) -> object:
         return group
 
     with (

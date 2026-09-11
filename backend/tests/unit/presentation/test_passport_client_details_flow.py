@@ -86,6 +86,7 @@ async def test_client_detail_correction_real_http_transaction(
         client_phone="9876543210",
         image_s3_key="synthetic/passport.jpg",
         status="ai_approved",
+        extraction_status="extraction_complete",
         confirmed_fields={"passport_number": "P1234567", "agent_employee_code": "AIG12345"},
         extracted_fields={"passport_number": "P1234567"},
         staff_metadata={"agent_employee_code_label": "Producer Code"},
@@ -196,16 +197,24 @@ async def test_client_detail_correction_real_http_transaction(
             json={
                 "expected_updated_at": version,
                 "agent_employee_code": "12345",
+                "client_email": "corrected@example.com",
+                "client_phone": "9876543211",
             },
         )
         assert response.status_code == 200, response.text
         assert response.json()["confirmed_fields"]["agent_employee_code"] == "12345"
+        assert response.json()["client_email"] == "corrected@example.com"
+        assert response.json()["client_phone"] == "9876543211"
         assert response.json()["status"] == "ai_approved"
+        assert response.json()["extraction_status"] == "extraction_complete"
         if db_session.get_bind().dialect.name == "postgresql":
             assert response.json()["qr_status"]["status"] == "active"
 
     await db_session.refresh(submission)
     assert submission.confirmed_fields["agent_employee_code"] == "12345"
+    assert submission.client_email == "corrected@example.com"
+    assert submission.client_phone == "9876543211"
+    assert submission.extraction_status == "extraction_complete"
     audit = (
         await db_session.execute(
             select(AuditLogModel).where(
@@ -215,4 +224,8 @@ async def test_client_detail_correction_real_http_transaction(
         )
     ).scalar_one()
     assert audit.user_id == user_id
-    assert audit.metadata_json["changed_fields"] == ["agent_employee_code"]
+    assert set(audit.metadata_json["changed_fields"]) == {
+        "agent_employee_code",
+        "client_email",
+        "client_phone",
+    }

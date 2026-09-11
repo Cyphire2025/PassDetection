@@ -130,7 +130,8 @@ async def test_activity_summary_returns_document_context_and_live_counts() -> No
 
 
 @pytest.mark.asyncio
-async def test_staff_cannot_probe_main_broadcast_activity() -> None:
+@pytest.mark.parametrize("role", [UserRole.AGENCY_COORDINATOR, UserRole.CLIENT_MANAGER])
+async def test_non_office_roles_cannot_probe_main_broadcast_activity(role: UserRole) -> None:
     session = MagicMock()
     session.execute = AsyncMock()
 
@@ -138,7 +139,7 @@ async def test_staff_cannot_probe_main_broadcast_activity() -> None:
         await get_whatsapp_activity_summary(
             kind="broadcast",
             batch_id=uuid.uuid4(),
-            current_user=_user(UserRole.AGENCY_STAFF, agency_id=uuid.uuid4()),
+            current_user=_user(role, agency_id=uuid.uuid4()),
             session=session,
         )
 

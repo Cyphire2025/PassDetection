@@ -259,7 +259,7 @@ async def create_broadcast_group(
             )
         )
     await session.flush()
-    return await _group_detail(session, group)
+    return await _group_detail(session, group, current_user=current_user)
 
 
 @router.patch(
@@ -345,4 +345,4 @@ async def update_broadcast_group(
 
     group.updated_at = datetime.now(tz=UTC)
     await session.flush()
-    return await _group_detail(session, group)
+    return await _group_detail(session, group, current_user=current_user)

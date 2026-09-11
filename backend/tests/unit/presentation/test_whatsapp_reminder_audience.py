@@ -7,6 +7,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from fastapi import HTTPException
 
+from app.domain.entities.entities import UserRole
 from app.presentation.api.v1.routes import whatsapp_reminder_audience
 
 
@@ -59,6 +60,7 @@ async def test_not_submitted_audience_uses_exact_match_statuses(
         recipients=recipients,
         audience="not_submitted",
         audience_client_group_id=None,
+        current_user=SimpleNamespace(role=UserRole.AGENCY_ADMIN),
     )
 
     assert [recipient.id for recipient in resolved.recipients] == [recipients[0].id]
@@ -84,6 +86,7 @@ async def test_not_submitted_audience_requires_group_choice_when_multiple_linked
             recipients=[SimpleNamespace(id=uuid.uuid4())],
             audience="not_submitted",
             audience_client_group_id=None,
+            current_user=SimpleNamespace(role=UserRole.AGENCY_ADMIN),
         )
 
     assert exc_info.value.status_code == 409
@@ -118,6 +121,7 @@ async def test_not_submitted_audience_rejects_empty_target(
             recipients=[recipient],
             audience="not_submitted",
             audience_client_group_id=upload_group_id,
+            current_user=SimpleNamespace(role=UserRole.AGENCY_ADMIN),
         )
 
     assert exc_info.value.status_code == 409

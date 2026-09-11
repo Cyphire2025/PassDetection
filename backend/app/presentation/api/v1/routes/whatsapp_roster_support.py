@@ -9,6 +9,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.use_cases.whatsapp.message_templates import WhatsAppMessageType
+from app.domain.entities.entities import User
 from app.infrastructure.database.models import (
     ClientGroupModel,
     ClientGroupWhatsAppBroadcastLinkModel,
@@ -32,6 +33,7 @@ from app.presentation.api.v1.routes.whatsapp_delivery_support import (
     WHATSAPP_IN_PROGRESS_STATUSES,
     WHATSAPP_UNCERTAIN_STATUSES,
 )
+from app.presentation.api.v1.routes.whatsapp_group_visibility import staff_linked_group_filters
 from app.presentation.api.v1.schemas.whatsapp_schemas import (
     WhatsAppBroadcastGroupDetailResponse,
     WhatsAppLinkedClientGroupResponse,
@@ -106,7 +108,7 @@ async def _recipient_delivery_state_maps(
 
 
 async def _group_detail(
-    session: AsyncSession, group: WhatsAppBroadcastGroupModel
+    session: AsyncSession, group: WhatsAppBroadcastGroupModel, *, current_user: User
 ) -> WhatsAppBroadcastGroupDetailResponse:
     recipients = await _group_recipients(session, group.id)
     states_by_recipient, resend_statuses_by_recipient = await _recipient_delivery_state_maps(
@@ -133,6 +135,7 @@ async def _group_detail(
             ClientGroupModel.agency_id == group.agency_id,
             ClientGroupModel.status == "active",
             ClientGroupModel.deleted_at.is_(None),
+            *staff_linked_group_filters(current_user),
         )
         .order_by(ClientGroupModel.name.asc(), ClientGroupModel.id.asc())
     )

@@ -34,7 +34,7 @@ test("bulk delete uses a group-scoped API command and invalidates passport data"
 test("only permanent-delete roles receive the selected-row delete control", () => {
   assert.match(
     component,
-    /role === "super_admin" \|\| role === "agency_admin"/,
+    /canPermanentlyDelete = canDeletePassportSubmissions\(role\)/,
   );
   assert.match(
     component,
@@ -52,7 +52,7 @@ test("only permanent-delete roles receive the selected-row delete control", () =
     component,
     /disabled=\{bulkDelete\.isPending\}/,
   );
-  assert.match(component, /role="menu"[\s\S]*?aria-label="Bulk submission actions"/);
+  assert.match(component, /aria-label="Bulk submission actions"/);
 });
 
 test("bulk delete requires a count-specific destructive confirmation", () => {

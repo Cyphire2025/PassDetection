@@ -3,7 +3,10 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { CreateUploadLinkModal } from "./create-upload-link-modal";
 
-const { createLink } = vi.hoisted(() => ({ createLink: vi.fn() }));
+const { createLink, broadcastId } = vi.hoisted(() => ({
+  createLink: vi.fn(),
+  broadcastId: "ab75ac17-ad58-4629-a28b-3e02bef9ca31",
+}));
 
 vi.mock("../hooks/use-upload-links", () => ({
   useCreateUploadLink: () => ({ mutateAsync: createLink, isPending: false }),
@@ -12,7 +15,15 @@ vi.mock("@/stores/auth.store", () => ({
   selectUserRole: vi.fn(),
   useAuthStore: () => "agency_staff",
 }));
-vi.mock("@/lib/utils/role-access", () => ({ canAccessWhatsAppBroadcasts: () => false }));
+vi.mock("./whatsapp-broadcast-selector", () => ({
+  WhatsAppBroadcastSelector: ({ onChange, onMatchingFieldsChange }: {
+    onChange: (ids: string[]) => void;
+    onMatchingFieldsChange: (fields: Record<string, string[]>) => void;
+  }) => <button type="button" onClick={() => {
+    onChange([broadcastId]);
+    onMatchingFieldsChange({ [broadcastId]: ["phone"] });
+  }}>Select WhatsApp broadcast</button>,
+}));
 vi.mock("@/lib/utils/public-url", () => ({
   getPassportUploadTargets: () => [{ key: "web", label: "Client", description: "Upload documents", url: "https://example.test/upload/test-token" }],
 }));
@@ -29,6 +40,17 @@ function fillGroupDetails() {
 }
 
 describe("create upload link", () => {
+  it("lets staff attach a WhatsApp broadcast and matching fields when creating a group", async () => {
+    render(<CreateUploadLinkModal isOpen onClose={vi.fn()} />);
+    fillGroupDetails();
+    fireEvent.click(screen.getByRole("button", { name: "Select WhatsApp broadcast" }));
+    fireEvent.click(screen.getByRole("button", { name: "Generate Links" }));
+    await waitFor(() => expect(createLink).toHaveBeenCalledWith(expect.objectContaining({
+      whatsapp_broadcast_group_ids: [broadcastId],
+      matching_fields_by_broadcast: { [broadcastId]: ["phone"] },
+    })));
+  });
+
   it("submits renamed optional fields and selected passport pages using the settings shown in the dialog", async () => {
     const user = userEvent.setup();
     render(<CreateUploadLinkModal isOpen onClose={vi.fn()} />);

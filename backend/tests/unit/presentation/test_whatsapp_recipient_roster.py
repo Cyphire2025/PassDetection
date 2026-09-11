@@ -391,6 +391,7 @@ async def test_broadcast_unidentified_uploads_use_shared_group_matching(
         session,
         broadcast_group_id=broadcast_group_id,
         agency_id=agency_id,
+        current_user=SimpleNamespace(role=UserRole.AGENCY_ADMIN),
     )
 
     assert len(uploads) == 1

@@ -79,6 +79,7 @@ class DestructiveMutationPolicy:
         group_id: uuid.UUID,
         action: str,
         target_ids: Sequence[uuid.UUID] = (),
+        delete_scope: Literal["group", "submissions"] = "group",
     ) -> DestructiveGroupMutation:
         """Lock and authorize one group without disclosing cross-tenant state."""
 
@@ -106,7 +107,10 @@ class DestructiveMutationPolicy:
         )
         await self._record_group_event(context, user=user, result="attempted")
         try:
-            await self._authorization.require_delete_data(user, group, permanent=True)
+            if delete_scope == "submissions":
+                await self._authorization.require_delete_passport_submissions(user, group)
+            else:
+                await self._authorization.require_delete_data(user, group, permanent=True)
         except AuthorizationError as error:
             await self._record_group_event(
                 context,

@@ -224,12 +224,17 @@ async def _seed(db_session: AsyncSession) -> dict[str, object]:
 
 
 @pytest.mark.asyncio
-async def test_same_agency_manager_can_manage_links_and_read_matches(
+@pytest.mark.parametrize("role", [UserRole.AGENCY_MANAGER, UserRole.AGENCY_STAFF])
+@pytest.mark.parametrize("access", ["owned", "assigned"])
+async def test_office_user_can_manage_accessible_group_links_and_read_matches(
     db_session: AsyncSession,
+    role: UserRole,
+    access: str,
 ) -> None:
     seeded = await _seed(db_session)
     group = seeded["group"]
-    viewer = seeded["viewer"]
+    viewer = seeded["creator"] if access == "owned" else seeded["viewer"]
+    viewer.role = role
 
     links = await get_client_group_whatsapp_links(
         group.id,
@@ -271,6 +276,66 @@ async def test_same_agency_manager_can_manage_links_and_read_matches(
     )
     assert replacement.can_manage is True
     assert replacement.broadcast_count == 0
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("same_agency", [True, False])
+async def test_staff_cannot_access_links_or_tracking_for_inaccessible_groups(
+    db_session: AsyncSession,
+    same_agency: bool,
+) -> None:
+    seeded = await _seed(db_session)
+    staff = _domain_user(
+        uuid.uuid4(),
+        seeded["agency_id"] if same_agency else uuid.uuid4(),
+        email="unassigned-staff@example.test",
+    )
+    staff.role = UserRole.AGENCY_STAFF
+    calls = [
+        (get_client_group_whatsapp_links, {}),
+        (list_whatsapp_broadcast_options_for_group, {}),
+        (
+            replace_client_group_whatsapp_links,
+            {"body": ReplaceWhatsAppBroadcastLinksRequest(whatsapp_broadcast_group_ids=[])},
+        ),
+        (get_client_group_whatsapp_matches, {}),
+    ]
+    for endpoint, kwargs in calls:
+        with pytest.raises(HTTPException) as exc_info:
+            await endpoint(
+                seeded["group"].id,
+                current_user=staff,
+                session=db_session,
+                **kwargs,
+            )
+        assert exc_info.value.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_staff_cannot_link_another_agencys_broadcast(db_session: AsyncSession) -> None:
+    seeded = await _seed(db_session)
+    staff = seeded["viewer"]
+    staff.role = UserRole.AGENCY_STAFF
+
+    with pytest.raises(HTTPException) as exc_info:
+        await replace_client_group_whatsapp_links(
+            seeded["group"].id,
+            ReplaceWhatsAppBroadcastLinksRequest(
+                whatsapp_broadcast_group_ids=[seeded["other_broadcast"].id],
+            ),
+            current_user=staff,
+            session=db_session,
+        )
+
+    assert exc_info.value.status_code == 409
+    links = await get_client_group_whatsapp_links(
+        seeded["group"].id,
+        current_user=staff,
+        session=db_session,
+    )
+    assert {broadcast.id for broadcast in links.broadcasts} == {
+        broadcast.id for broadcast in seeded["broadcasts"][:2]
+    }
 
 
 @pytest.mark.asyncio

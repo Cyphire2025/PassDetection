@@ -23,6 +23,7 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.passport_whatsapp_matching_repository import (
     load_unresolved_passport_whatsapp_match_context,
 )
+from app.presentation.api.v1.routes.whatsapp_group_visibility import staff_linked_group_filters
 from app.presentation.api.v1.routes.whatsapp_shared import (
     WHATSAPP_ACCEPTED_STATUSES,
     WHATSAPP_ROLES,
@@ -69,6 +70,7 @@ async def _unidentified_uploads_for_broadcast(
     *,
     broadcast_group_id: uuid.UUID,
     agency_id: uuid.UUID,
+    current_user: User,
 ) -> list[WhatsAppUnidentifiedUploadResponse]:
     linked_group_result = await session.execute(
         select(ClientGroupModel)
@@ -81,6 +83,7 @@ async def _unidentified_uploads_for_broadcast(
             ClientGroupWhatsAppBroadcastLinkModel.agency_id == agency_id,
             ClientGroupModel.agency_id == agency_id,
             ClientGroupModel.deleted_at.is_(None),
+            *staff_linked_group_filters(current_user),
         )
         .order_by(ClientGroupModel.name.asc(), ClientGroupModel.id.asc())
     )
@@ -217,6 +220,7 @@ async def get_broadcast_recipient_roster(
             PassportRosterResolutionModel.resolution_type == "replacement",
             ClientGroupModel.agency_id == group.agency_id,
             PassportSubmissionModel.agency_id == group.agency_id,
+            *staff_linked_group_filters(current_user),
         )
         .order_by(
             WhatsAppBroadcastRecipientModel.display_order.asc().nullslast(),
@@ -232,6 +236,7 @@ async def get_broadcast_recipient_roster(
         session,
         broadcast_group_id=group_id,
         agency_id=group.agency_id,
+        current_user=current_user,
     )
 
     roster_models: list[

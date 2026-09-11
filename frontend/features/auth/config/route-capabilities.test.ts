@@ -56,11 +56,20 @@ describe("typed route capability map", () => {
     expect(canAccessApplicationPath(user("agency_coordinator"), ROUTES.dashboard.root)).toBe(false);
   });
 
-  it("applies WhatsApp capability to the nested group tracking workflow", () => {
+  it.each(["super_admin", "agency_admin", "agency_manager", "agency_staff"] as const)("allows %s to manage broadcasts and open group tracking", (role) => {
     const trackingPath = ROUTES.dashboard.passportGroupWhatsAppTracking("group-1");
     expect(resolveRouteCapability(trackingPath)).toBe("whatsapp.broadcast.manage");
-    expect(canAccessApplicationPath(user("agency_manager"), trackingPath)).toBe(true);
-    expect(canAccessApplicationPath(user("agency_staff"), trackingPath)).toBe(false);
+    expect(canAccessApplicationPath(user(role), trackingPath)).toBe(true);
+    expect(canAccessApplicationPath(user(role), ROUTES.dashboard.whatsapp)).toBe(true);
+    expect(canAccessApplicationPath(user(role), `${ROUTES.dashboard.whatsapp}/broadcast-1`)).toBe(true);
+  });
+
+  it("keeps WhatsApp management unavailable to coordinators and inactive staff", () => {
+    for (const path of [ROUTES.dashboard.whatsapp, ROUTES.dashboard.passportGroupWhatsAppTracking("group-1")]) {
+      expect(canAccessApplicationPath(user("agency_coordinator"), path)).toBe(false);
+      expect(canAccessApplicationPath(user("agency_staff", { is_active: false }), path)).toBe(false);
+      expect(canAccessApplicationPath(null, path)).toBe(false);
+    }
   });
 
   it("denies inactive and missing sessions before a route can mount", () => {

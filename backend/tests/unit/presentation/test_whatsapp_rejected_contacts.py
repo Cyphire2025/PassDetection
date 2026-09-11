@@ -89,7 +89,7 @@ async def test_create_group_persists_rejected_only_without_opt_in() -> None:
     )
     actor = SimpleNamespace(id=current_user.id, agency_id=current_user.agency_id)
 
-    async def return_group(_session: object, group: object) -> object:
+    async def return_group(_session: object, group: object, **_kwargs: object) -> object:
         return group
 
     with (
@@ -203,7 +203,7 @@ async def test_create_group_persists_sendable_and_rejected_contacts_together() -
     )
     actor = SimpleNamespace(id=current_user.id, agency_id=current_user.agency_id)
 
-    async def return_group(_session: object, group: object) -> object:
+    async def return_group(_session: object, group: object, **_kwargs: object) -> object:
         return group
 
     with (

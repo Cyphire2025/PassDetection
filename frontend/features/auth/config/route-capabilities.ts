@@ -88,6 +88,7 @@ const ROLE_CAPABILITIES: Record<UserRole, readonly ApplicationCapability[]> = {
   ],
   agency_staff: [
     "passports.workspace.view",
+    "whatsapp.broadcast.manage",
     "email.integrations.view",
     "documents.workspace.view",
     "tour_operations.view",

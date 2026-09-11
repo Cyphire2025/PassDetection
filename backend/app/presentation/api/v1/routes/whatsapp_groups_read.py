@@ -97,4 +97,4 @@ async def get_broadcast_group(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="WhatsApp broadcast group not found"
         )
-    return await _group_detail(session, group)
+    return await _group_detail(session, group, current_user=current_user)

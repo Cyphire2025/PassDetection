@@ -159,6 +159,7 @@ async def bulk_delete_passport_submissions(
         group_id=group_id,
         action="passport_submissions_bulk_delete",
         target_ids=submission_ids,
+        delete_scope="submissions",
     )
     group = mutation.group
     selected_rows = await session.execute(

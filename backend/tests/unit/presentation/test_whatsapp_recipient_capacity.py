@@ -215,7 +215,7 @@ async def test_create_group_accepts_1500_manual_recipients_and_rejects_1501() ->
     )
     actor = SimpleNamespace(id=current_user.id, agency_id=current_user.agency_id)
 
-    async def return_group(_session: object, group: object) -> object:
+    async def return_group(_session: object, group: object, **_kwargs: object) -> object:
         return group
 
     with (

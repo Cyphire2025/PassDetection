@@ -224,6 +224,7 @@ async def _response_from_submission(
     payload = {
         **submission.__dict__,
         "status": submission.status.value,
+        "extraction_status": submission.extraction_status.value,
         **_staff_image_urls(submission, crop_rows.get(submission.id)),
         "qr_status": await _passport_qr_status(session, submission.id),
     }

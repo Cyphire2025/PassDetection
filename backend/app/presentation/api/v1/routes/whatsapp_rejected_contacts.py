@@ -275,4 +275,4 @@ async def resolve_broadcast_rejected_contact(
         broadcast_group_id=group.id,
         actor_user_id=current_user.id,
     )
-    return await _group_detail(session, group)
+    return await _group_detail(session, group, current_user=current_user)

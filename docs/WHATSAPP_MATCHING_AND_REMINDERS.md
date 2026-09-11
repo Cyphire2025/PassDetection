@@ -1,5 +1,21 @@
 # WhatsApp identification fields and reminder audiences
 
+## Office role access
+
+Super administrators, agency administrators, managers, and staff can open
+Communication > WhatsApp and manage broadcasts, recipients, previews, sends,
+and delivery tracking. Agency accounts remain scoped to their own agency;
+super administrators retain their existing global access.
+Staff can also link broadcasts and open WhatsApp tracking from client groups
+they created or were assigned. Granting WhatsApp access does not expand their
+client-group visibility. Coordinator and external client-manager accounts do
+not gain broadcast access.
+
+Broadcast details and recipient tracking omit passport data from groups outside
+a staff member's scope. Both preview and send authorize the selected upload
+group for a Not submitted reminder before matching. Hidden linked groups do
+not silently change which group's submissions define that reminder audience.
+
 ## Staff workflow
 
 1. Import the contact workbook into a WhatsApp broadcast. Accepted and rejected

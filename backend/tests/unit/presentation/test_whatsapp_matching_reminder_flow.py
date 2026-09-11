@@ -5,6 +5,7 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime
 from io import BytesIO
+from types import SimpleNamespace
 
 import pytest
 from fastapi import HTTPException
@@ -13,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.use_cases.passports.correct_client_details import correct_client_details
 from app.application.use_cases.whatsapp.private_delivery_identity import is_private_delivery_match
+from app.domain.entities.entities import UserRole
 from app.infrastructure.database.models import (
     AgencyModel,
     ClientGroupModel,
@@ -188,6 +190,7 @@ async def test_imported_producer_code_identifies_and_excludes_from_reminders(
         recipients=recipients,
         audience="not_submitted",
         audience_client_group_id=group.id,
+        current_user=SimpleNamespace(role=UserRole.AGENCY_ADMIN),
     )
     assert [recipient.id for recipient in targeted.recipients] == [recipients[1].id]
     assert targeted.excluded_submitted_count == 1
@@ -199,6 +202,7 @@ async def test_imported_producer_code_identifies_and_excludes_from_reminders(
         recipients=recipients,
         audience="all",
         audience_client_group_id=None,
+        current_user=SimpleNamespace(role=UserRole.AGENCY_ADMIN),
     )
     assert everyone.recipients == tuple(recipients)
 
@@ -225,4 +229,5 @@ async def test_imported_producer_code_identifies_and_excludes_from_reminders(
             recipients=recipients,
             audience="not_submitted",
             audience_client_group_id=group.id,
+            current_user=SimpleNamespace(role=UserRole.AGENCY_ADMIN),
         )

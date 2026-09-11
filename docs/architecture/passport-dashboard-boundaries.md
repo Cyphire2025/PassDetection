@@ -24,6 +24,20 @@ maintainability guard, not a substitute for testing business behavior.
 
 ## Authorization and roster consistency
 
+Selected submission deletion uses
+`AuthorizationPolicy.require_delete_passport_submissions` under the existing
+destructive group lock. Super administrators retain global access; agency
+administrators and managers can delete selected submissions in their agency.
+Staff, coordinators, and external client managers cannot delete submissions,
+including submissions in groups they own or are assigned. One selected row
+and multiple selected rows use the same bulk-delete endpoint.
+
+This permission is separate from permanent group deletion and account/data
+purges. The default destructive-group permission remains unchanged. Legal
+holds, active roster-decision protection, CSRF, applicable recent MFA,
+all-or-nothing selection validation, durable audit records, and storage
+cleanup after database commit still apply to manager submission deletion.
+
 `public_upload_capability.require_active_public_upload` rejects missing, closed,
 archived and deleted groups before accessing retained submissions or private
 objects. Public upload checks the capability before image validation/decoding.

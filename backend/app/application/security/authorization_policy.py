@@ -182,6 +182,15 @@ class AuthorizationPolicy:
             return await self.staff_can_access_group(user.id, group.id)
         return False
 
+    async def can_delete_passport_submissions(self, user: User, group: Any) -> bool:
+        """Allow managers to delete submissions without granting group purge access."""
+
+        return user.role in {
+            UserRole.SUPER_ADMIN,
+            UserRole.AGENCY_ADMIN,
+            UserRole.AGENCY_MANAGER,
+        } and await self.can_manage_group(user, group)
+
     async def require_view_group(self, user: User, group: Any) -> None:
         if not await self.can_view_group(user, group):
             raise AuthorizationError("You do not have access to this group")
@@ -213,6 +222,10 @@ class AuthorizationPolicy:
     async def require_delete_data(self, user: User, group: Any, *, permanent: bool = False) -> None:
         if not await self.can_delete_data(user, group, permanent=permanent):
             raise AuthorizationError("You cannot delete data for this group")
+
+    async def require_delete_passport_submissions(self, user: User, group: Any) -> None:
+        if not await self.can_delete_passport_submissions(user, group):
+            raise AuthorizationError("You cannot delete passport submissions from this group")
 
     async def staff_can_access_group(self, staff_id: uuid.UUID, group_id: uuid.UUID) -> bool:
         """Allow staff-owned or assigned groups while rejecting removed groups."""

@@ -363,7 +363,7 @@ async def test_bulk_delete_blocks_uploads_referenced_by_active_roster_decisions(
 
 
 @pytest.mark.asyncio
-async def test_bulk_delete_enforces_permanent_data_delete_permission() -> None:
+async def test_bulk_delete_enforces_submission_delete_permission() -> None:
     group_id = uuid.uuid4()
     session = SimpleNamespace(execute=AsyncMock())
 
@@ -372,7 +372,7 @@ async def test_bulk_delete_enforces_permanent_data_delete_permission() -> None:
             DestructiveMutationPolicy,
             "require_group",
             AsyncMock(side_effect=AuthorizationError("You cannot delete data for this group")),
-        ),
+        ) as authorize,
         pytest.raises(AuthorizationError) as caught,
     ):
         await bulk_delete_passport_submissions(
@@ -384,6 +384,7 @@ async def test_bulk_delete_enforces_permanent_data_delete_permission() -> None:
         )
 
     assert caught.value.code == "AUTHORIZATION_ERROR"
+    assert authorize.await_args.kwargs["delete_scope"] == "submissions"
     session.execute.assert_not_awaited()
 
 

@@ -53,6 +53,7 @@ WHATSAPP_BROADCAST_ROLES = [
     UserRole.SUPER_ADMIN,
     UserRole.AGENCY_ADMIN,
     UserRole.AGENCY_MANAGER,
+    UserRole.AGENCY_STAFF,
 ]
 
 

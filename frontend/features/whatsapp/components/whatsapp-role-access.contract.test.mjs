@@ -24,7 +24,7 @@ const tracking = readFileSync(
   "utf8",
 );
 
-test("WhatsApp broadcast capability excludes staff", () => {
+test("WhatsApp broadcast capability includes office staff", () => {
   const roleList = roleAccess.match(
     /WHATSAPP_BROADCAST_ROLES[\s\S]*?= \[([\s\S]*?)\];/,
   );
@@ -32,15 +32,16 @@ test("WhatsApp broadcast capability excludes staff", () => {
   assert.match(roleList[1], /"super_admin"/);
   assert.match(roleList[1], /"agency_admin"/);
   assert.match(roleList[1], /"agency_manager"/);
-  assert.doesNotMatch(roleList[1], /"agency_staff"/);
+  assert.match(roleList[1], /"agency_staff"/);
+  assert.doesNotMatch(roleList[1], /"agency_coordinator"/);
 });
 
-test("staff never sees the WhatsApp navigation or group integration", () => {
+test("WhatsApp navigation and group integration use the shared access policies", () => {
   const whatsappNav = sidebar
     .split("\n")
     .find((line) => line.includes('label: "WhatsApp"'));
   assert.ok(whatsappNav);
-  assert.doesNotMatch(whatsappNav, /agency_staff/);
+  assert.match(sidebar, /canAccessApplicationPath\(user, item\.href\)/);
   assert.match(createLinkModal, /\{canAccessWhatsApp && \(\s*<WhatsAppBroadcastSelector/);
   assert.match(groupDetail, /\{canAccessWhatsApp && \(\s*<GroupWhatsAppBroadcastPanel/);
 });

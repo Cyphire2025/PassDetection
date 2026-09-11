@@ -1,5 +1,5 @@
 "use client";
-import { canAccessWhatsAppBroadcasts } from "@/lib/utils/role-access";
+import { canAccessWhatsAppBroadcasts, canDeletePassportSubmissions } from "@/lib/utils/role-access";
 import { selectUser, useAuthStore } from "@/stores/auth.store";
 import { useSearchParams } from "next/navigation";
 import {
@@ -54,8 +54,7 @@ export function usePassportGroupController({ groupId }: { groupId: string }) {
   const currentUser = useAuthStore(selectUser);
   const currentUserId = currentUser?.id ?? null;
   const role = currentUser?.role ?? null;
-  const canPermanentlyDelete =
-    role === "super_admin" || role === "agency_admin";
+  const canPermanentlyDelete = canDeletePassportSubmissions(role);
   const canBulkStaffApprove =
     role === "super_admin" ||
     role === "agency_admin" ||

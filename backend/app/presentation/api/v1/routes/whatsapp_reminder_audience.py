@@ -9,6 +9,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.domain.entities.entities import User, UserRole
 from app.infrastructure.database.models import (
     ClientGroupModel,
     ClientGroupWhatsAppBroadcastLinkModel,
@@ -18,6 +19,7 @@ from app.infrastructure.database.models import (
 from app.infrastructure.repositories.passport_whatsapp_matching_repository import (
     load_unresolved_passport_whatsapp_match_context,
 )
+from app.presentation.api.v1.routes.whatsapp_group_visibility import staff_linked_group_filters
 
 
 @dataclass(frozen=True, slots=True)
@@ -37,6 +39,7 @@ async def resolve_reminder_audience(
     recipients: list[WhatsAppBroadcastRecipientModel],
     audience: str,
     audience_client_group_id: uuid.UUID | None,
+    current_user: User,
 ) -> ReminderAudienceResolution:
     """Resolve one reminder scope without taking locks after the broadcast lock.
 
@@ -99,6 +102,18 @@ async def resolve_reminder_audience(
             ),
         )
     client_group_id = linked_ids[0]
+    if current_user.role == UserRole.AGENCY_STAFF:
+        accessible_group = await session.execute(
+            select(ClientGroupModel.id).where(
+                ClientGroupModel.id == client_group_id,
+                *staff_linked_group_filters(current_user),
+            )
+        )
+        if accessible_group.scalar_one_or_none() is None:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have access to the upload group for this reminder audience.",
+            )
     (
         _linked,
         _recipient_models,

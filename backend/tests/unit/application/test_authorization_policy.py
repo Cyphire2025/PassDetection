@@ -10,6 +10,7 @@ from sqlalchemy.dialects import postgresql
 
 from app.application.security.authorization_policy import AuthorizationPolicy
 from app.domain.entities.entities import User, UserRole
+from app.domain.exceptions.exceptions import AuthorizationError
 from app.infrastructure.database.models import ClientGroupModel, PassportSubmissionModel
 
 
@@ -281,3 +282,40 @@ async def test_delete_policy_separates_archive_from_permanent_delete() -> None:
     )
     assert await policy.can_delete_data(manager, other_manager_group) is True
     assert await policy.can_delete_data(manager, _group(uuid.uuid4())) is False
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("role", list(UserRole))
+async def test_submission_delete_permission_keeps_staff_denied(role: UserRole) -> None:
+    policy = AuthorizationPolicy(AsyncMock())
+    agency_id = uuid.uuid4()
+    user = _user(role, agency_id)
+    group = _group(agency_id, created_by_user_id=user.id)
+    allowed = role in {
+        UserRole.SUPER_ADMIN,
+        UserRole.AGENCY_ADMIN,
+        UserRole.AGENCY_MANAGER,
+    }
+
+    assert await policy.can_delete_passport_submissions(user, group) is allowed
+    if allowed:
+        await policy.require_delete_passport_submissions(user, group)
+    else:
+        with pytest.raises(AuthorizationError):
+            await policy.require_delete_passport_submissions(user, group)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("role", [UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER])
+@pytest.mark.parametrize("has_agency", [True, False])
+async def test_submission_deletion_requires_the_same_agency(
+    role: UserRole,
+    has_agency: bool,
+) -> None:
+    policy = AuthorizationPolicy(AsyncMock())
+    user = _user(role, uuid.uuid4() if has_agency else None)
+    foreign_group = _group(uuid.uuid4())
+
+    assert await policy.can_delete_passport_submissions(user, foreign_group) is False
+    with pytest.raises(AuthorizationError):
+        await policy.require_delete_passport_submissions(user, foreign_group)
