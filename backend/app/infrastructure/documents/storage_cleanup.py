@@ -59,7 +59,7 @@ STORAGE_CLEANUP_SOURCES: dict[str, tuple[str, ...]] = {
 _UUID_PATH_SEGMENT = r"[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
 _CANONICAL_PASSPORT_OBJECT_KEY = re.compile(
     rf"^{_UUID_PATH_SEGMENT}/{_UUID_PATH_SEGMENT}/{_UUID_PATH_SEGMENT}"
-    r"(?:-(?:photo|back))?\.(?:jpe?g|png|webp)$",
+    r"(?:-(?:photo|back|cover|back_cover))?\.(?:jpe?g|png|webp)$",
     re.IGNORECASE,
 )
 

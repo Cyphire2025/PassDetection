@@ -28,6 +28,7 @@ from app.infrastructure.database.models import (
     UserModel,
 )
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.documents.storage_cleanup import StorageCleanupCipher
 from app.presentation.api.v1.routes.passport_routes import bulk_actions
 from app.presentation.dependencies.auth import get_current_active_user
 from app.presentation.middleware.error_handler import register_exception_handlers
@@ -264,6 +265,51 @@ async def test_manager_and_admins_delete_selected_submissions_with_real_audit_an
     assert propagate.await_args.kwargs["passenger_submission_ids"] == selected
     assert propagate.await_args.kwargs["operation"] == "delete"
     assert cleanup.await_count == len(jobs)
+
+
+@pytest.mark.parametrize("role", [UserRole.AGENCY_MANAGER, UserRole.AGENCY_STAFF])
+async def test_submission_with_canonical_covers_keeps_delete_role_and_cleanup_contract(
+    db_session: AsyncSession, external_effects, role: UserRole
+) -> None:
+    case = await _seed(db_session, role=role, access="owned")
+    submission_id = case.own_ids[0]
+    submission = await db_session.get(PassportSubmissionModel, submission_id)
+    assert submission is not None
+    prefix = f"{case.actor.agency_id}/{case.group_id}/{submission_id}"
+    stored_keys = {
+        "image_s3_key": f"{prefix}.jpg",
+        "thumbnail_s3_key": f"thumbnail/{submission_id}.jpg",
+        "passport_back_s3_key": f"{prefix}-back.jpg",
+        "passport_cover_s3_key": f"{prefix}-cover.jpg",
+        "passport_back_cover_s3_key": f"{prefix}-back_cover.jpg",
+        "passport_photo_s3_key": f"{prefix}-photo.jpg",
+    }
+    for attribute, key in stored_keys.items():
+        setattr(submission, attribute, key)
+    await db_session.commit()
+
+    response = await _post(case, [submission_id])
+    if role == UserRole.AGENCY_STAFF:
+        assert response.status_code == 403, response.text
+        await _assert_retained(case, external_effects)
+        return
+
+    assert response.status_code == 200, response.text
+    assert response.json()["deleted_count"] == 1
+    remaining = set((await db_session.execute(select(PassportSubmissionModel.id))).scalars())
+    assert remaining == case.all_ids - {submission_id}
+    jobs = (await db_session.execute(select(StorageCleanupJobModel))).scalars().all()
+    assert sum(job.object_count for job in jobs) == len(stored_keys)
+    cipher = StorageCleanupCipher.from_settings()
+    scheduled_keys = {
+        key
+        for job in jobs
+        for key in cipher.decrypt(
+            bytes(job.storage_keys_ciphertext), key_version=job.encryption_key_version
+        )
+    }
+    assert scheduled_keys == set(stored_keys.values())
+    assert all(job.agency_id == case.actor.agency_id for job in jobs)
 
 
 @pytest.mark.parametrize(
