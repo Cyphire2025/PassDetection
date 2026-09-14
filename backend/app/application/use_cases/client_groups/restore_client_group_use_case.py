@@ -1,7 +1,7 @@
 """
 Restore Client Group Use Case
 =============================
-Restores an archived or retained deleted client group back to active workflows.
+Reopens closed links and restores archived or retained deleted client groups.
 """
 
 from __future__ import annotations

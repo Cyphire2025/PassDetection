@@ -264,6 +264,7 @@ export function UploadLinkList() {
                 onConfirm: () => closeLink(id, { onSuccess: () => setConfirmAction(null) }),
               });
             }}
+            onOpen={(id) => restoreLink(id)}
             onArchive={(id) => {
               setConfirmAction({
                 title: "Archive Group",
@@ -273,7 +274,7 @@ export function UploadLinkList() {
               });
             }}
             onRename={openGroupEditor}
-            isMutating={isClosing || isArchiving || isRenaming}
+            isMutating={isClosing || isArchiving || isRestoring || isRenaming}
             compact
           />
         )}
@@ -494,6 +495,7 @@ type UploadLinkTableProps = {
   copiedLinkKey: string | null;
   onCopy: (linkId: string, targetKey: string, url: string) => void;
   onClose?: (id: string) => void;
+  onOpen?: (id: string) => void;
   onArchive?: (id: string) => void;
   onRestore?: (id: string) => void;
   onRename?: (link: UploadLinkResponse) => void;
@@ -509,6 +511,7 @@ function UploadLinkTable({
   copiedLinkKey,
   onCopy,
   onClose,
+  onOpen,
   onArchive,
   onRestore,
   onRename,
@@ -550,6 +553,11 @@ function UploadLinkTable({
         {link.status === "active" && onClose && (
           <Button type="button" variant="outline" size="sm" onClick={() => onClose(link.id)} disabled={isMutating}>
             <XCircle className="h-3.5 w-3.5" /> Close
+          </Button>
+        )}
+        {link.status === "closed" && onOpen && (
+          <Button type="button" variant="outline" size="sm" onClick={() => onOpen(link.id)} disabled={isMutating}>
+            <RotateCcw className="h-3.5 w-3.5" /> Open
           </Button>
         )}
         {onRename && (

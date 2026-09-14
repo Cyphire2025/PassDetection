@@ -673,7 +673,7 @@ class ClientGroup:
             self.schedule_passport_purge(passport_retention_days)
 
     def restore(self) -> None:
-        """Restore an archived or retained deleted group to active workflows."""
+        """Reopen a closed link or restore an archived or retained deleted group."""
         self.status = GroupStatus.ACTIVE
         self.closed_at = None
         self.deleted_at = None

@@ -25,8 +25,11 @@ async function json(route: Route, body: unknown, status = 200) {
 async function mockUploadLinkApi(page: Page) {
   const created: CreateUploadLinkRequest[] = [];
   const updated: UpdateUploadLinkRequest[] = [];
+  const lifecycle: string[] = [];
   const unexpectedMutations: string[] = [];
   let savedGroup: UploadLinkResponse | null = null;
+  let finishRestore!: () => void;
+  const restoreGate = new Promise<void>((resolve) => { finishRestore = resolve; });
 
   await page.context().addCookies([{
     name: "access_token",
@@ -83,25 +86,37 @@ async function mockUploadLinkApi(page: Page) {
       savedGroup = { ...savedGroup, ...body };
       return json(route, savedGroup);
     }
+    if (pathname === "/api/v1/upload-links/e2e-configured-upload-link/revoke" && request.method() === "POST" && savedGroup) {
+      lifecycle.push("close");
+      savedGroup = { ...savedGroup, status: "closed", closed_at: "2026-09-05T14:00:00Z" };
+      return json(route, savedGroup);
+    }
+    if (pathname === "/api/v1/upload-links/e2e-configured-upload-link/restore" && request.method() === "POST" && savedGroup) {
+      lifecycle.push("open");
+      await restoreGate;
+      savedGroup = { ...savedGroup, status: "active", closed_at: null };
+      return json(route, savedGroup);
+    }
     if (request.method() === "GET") return json(route, []);
     unexpectedMutations.push(`${request.method()} ${pathname}`);
     return json(route, { error: { code: "E2E_UNEXPECTED_MUTATION", message: "The test does not allow this mutation." } }, 400);
   });
 
-  return { created, updated, unexpectedMutations, getSavedGroup: () => savedGroup };
+  return { created, updated, lifecycle, finishRestore, unexpectedMutations, getSavedGroup: () => savedGroup };
 }
 
 for (const viewport of [
   { name: "desktop", width: 1440, height: 1080 },
   { name: "mobile", width: 390, height: 844 },
 ]) {
-  test(`upload link configuration survives create and edit on ${viewport.name}`, async ({ page }, testInfo) => {
+  test(`upload link configuration survives create, edit, close and reopen on ${viewport.name}`, async ({ page }, testInfo) => {
     test.setTimeout(90_000);
     const api = await mockUploadLinkApi(page);
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await page.goto("/upload-links");
     await expect(page.getByRole("heading", { name: "Group Links", level: 1 })).toBeVisible();
-    await page.getByRole("button", { name: "Create Group Link", exact: true }).click();
+    await page.getByRole("region", { name: "Live and closed group links", exact: true })
+      .getByRole("button", { name: "Create Group Link", exact: true }).click();
     const createDialog = page.getByRole("dialog", { name: "Create Upload Link", exact: true });
     await expect(createDialog).toBeVisible();
 
@@ -218,6 +233,51 @@ for (const viewport of [
     await expect(reopened.getByRole("checkbox", { name: "Make Excursion compulsory", exact: true })).not.toBeChecked();
     await expect(reopened.getByRole("checkbox", { name: "Make Membership Number compulsory", exact: true })).not.toBeChecked();
     expect(api.getSavedGroup()?.upload_configuration?.passport_upload_pages).toEqual(["cover", "back_cover", "front", "back"]);
+    await reopened.getByRole("button", { name: "Cancel", exact: true }).click();
+
+    const groupLinks = page.getByRole("region", { name: "Live and closed group links", exact: true });
+    const publicLink = groupLinks.getByRole("button", { name: "Copy public upload link for Autumn Producer Group", exact: true });
+    const beforeClose = structuredClone(api.getSavedGroup());
+    await expect(groupLinks.getByRole("button", { name: "Open", exact: true })).toHaveCount(0);
+    await expect(publicLink).toBeVisible();
+    await page.context().grantPermissions(["clipboard-read", "clipboard-write"]);
+    await publicLink.click();
+    const originalUrl = await page.evaluate(() => navigator.clipboard.readText());
+    expect(originalUrl).toBe(`${new URL(page.url()).origin}/upload/${beforeClose?.token}`);
+
+    await groupLinks.getByRole("button", { name: "Close", exact: true }).click();
+    const closeDialog = page.getByRole("dialog", { name: "Close Group", exact: true });
+    await closeDialog.getByRole("button", { name: "Close Group", exact: true }).click();
+    await expect(closeDialog).toHaveCount(0);
+    await expect(groupLinks.getByRole("button", { name: "Open", exact: true })).toBeVisible();
+    await expect(groupLinks.getByRole("button", { name: "Close", exact: true })).toHaveCount(0);
+    await expect(groupLinks.getByRole("button", { name: "Archive", exact: true })).toBeEnabled();
+    await expect(publicLink).toHaveCount(0);
+    expect(api.getSavedGroup()?.status).toBe("closed");
+    const closedScreenshot = testInfo.outputPath(`upload-link-closed-${viewport.name}.png`);
+    await groupLinks.screenshot({ path: closedScreenshot, animations: "disabled" });
+    await testInfo.attach(`Closed group with Open action — ${viewport.name}`, { path: closedScreenshot, contentType: "image/png" });
+
+    await groupLinks.getByRole("button", { name: "Open", exact: true }).click();
+    await expect.poll(() => api.lifecycle).toEqual(["close", "open"]);
+    // Keep the response pending long enough to verify duplicate lifecycle actions are blocked.
+    await expect(groupLinks.getByRole("button", { name: "Open", exact: true })).toBeDisabled();
+    await expect(groupLinks.getByRole("button", { name: "Archive", exact: true })).toBeDisabled();
+    api.finishRestore();
+    await expect(groupLinks.getByRole("button", { name: "Close", exact: true })).toBeVisible();
+    await expect(groupLinks.getByRole("button", { name: "Open", exact: true })).toHaveCount(0);
+    await expect(groupLinks.getByRole("button", { name: "Archive", exact: true })).toBeEnabled();
+    await expect(publicLink).toBeVisible();
+    expect(api.getSavedGroup()).toEqual(beforeClose);
+
+    await page.reload();
+    await expect(groupLinks.getByRole("button", { name: "Close", exact: true })).toBeVisible();
+    await expect(groupLinks.getByRole("button", { name: "Open", exact: true })).toHaveCount(0);
+    await publicLink.click();
+    await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(originalUrl);
+    const activeScreenshot = testInfo.outputPath(`upload-link-reopened-${viewport.name}.png`);
+    await groupLinks.screenshot({ path: activeScreenshot, animations: "disabled" });
+    await testInfo.attach(`Reopened group — ${viewport.name}`, { path: activeScreenshot, contentType: "image/png" });
     expect(api.unexpectedMutations).toEqual([]);
   });
 }

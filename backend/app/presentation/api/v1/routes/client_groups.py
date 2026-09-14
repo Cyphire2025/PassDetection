@@ -2269,7 +2269,7 @@ async def permanently_delete_client_group(
     "/{link_id}/restore",
     response_model=ClientGroupResponse,
     status_code=status.HTTP_200_OK,
-    summary="Restore an archived or retained deleted client group",
+    summary="Reopen a closed link or restore an archived or retained deleted client group",
 )
 async def restore_client_group(
     link_id: uuid.UUID,
