@@ -188,6 +188,7 @@ async def test_renamed_code_accepts_letters_without_role_and_snapshots_labels():
     assert "agent_employee_type" not in result.confirmed_fields
     assert submission.staff_metadata == {
         "existing": "retained", "agent_employee_code_label": "Producer Code", "agency_dealership_name_label": "Production Company",
+        "client_collection_submitted": "public_group_link_v1",
     }
 
 

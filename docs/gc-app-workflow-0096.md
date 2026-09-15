@@ -20,8 +20,9 @@ Closing a collection link stops new collection submissions. It does not, by itse
 Passenger OTP eligibility uses the current WhatsApp contact on a completed public collection submission. It does not use broadcast membership, imported roster phone fields, or family-head fallback. The same canonical phone normalization is used for login and the stored submission.
 
 - A submitted **Needs review** record may establish login eligibility; passport approval and document-release rules remain separate.
+- A completed details-only public submission may qualify without a passport image.
 - An unfinished upload or a record known to come only from Excel does not establish eligibility.
-- New public submissions receive a reserved server-owned provenance marker. Excel imports cannot set it. A legacy genuine submission keeps its contact authority when an import updates other fields without changing its canonical contact.
+- New public submissions receive a reserved server-owned provenance marker. Excel imports cannot set it. A known imported record can qualify after the client actually completes its public collection flow. A legacy genuine submission keeps its contact authority when an import updates other fields without changing its canonical contact.
 - Existing session grants and notification targets are rechecked against the current submission. A stale phone binding cannot continue through refresh, switching trips, or using another already-granted trip.
 - Shared-number identity selection and secondary proof remain in place.
 
@@ -33,7 +34,7 @@ The phone-entry response remains neutral. After a correct OTP proves ownership, 
 | Access start is in the future | Your trip access starts later. |
 | Access period ended | Your trip access has ended. |
 
-These responses contain no access token or trip names. Existing installed apps retain the active-login contract; the new explanatory screens require app **1.0.5 / Android version code 6**.
+These explanations apply when no eligible active identity exists; an eligible active trip follows normal login. Where several inactive trips share a phone, scheduled access takes precedence over not-active access, then ended access. These responses contain no access token or trip names. Existing installed apps retain the active-login contract; the new explanatory screens require app **1.0.5 / Android version code 6**.
 
 ## Reliability and operating limits
 
@@ -41,7 +42,7 @@ These responses contain no access token or trip names. Existing installed apps r
 - Revision checks reject a competing operator's stale save. The dashboard preserves unsaved date/editor values during unrelated refreshes and failed requests.
 - Announcement save-and-publish rolls back completely if publication/audit/notification-enqueue persistence fails. Publishing a replacement retires the old version before promotion within the same transaction.
 - Announcement and history queries are paged; inactive tabs do not fetch those resources. Access summaries refresh every 30 seconds while visible.
-- Login phone discovery has a PostgreSQL expression index. Candidate discovery is bounded to 100 records per normalized phone; session grants remain bounded to 50. An overflow fails closed and records a bounded diagnostic event instead of authorizing a partial identity set.
+- Login phone discovery has a PostgreSQL expression index. Candidate discovery is bounded to 100 records per normalized phone; an overflow fails closed and records a bounded diagnostic event. Session grants remain bounded to 50; an invalid oversized session is revoked instead of authorizing a partial identity set.
 - The existing common-document admin list/reorder contract remains capped at 200 draft/published versions per trip. Larger document libraries need a separate paging and global-ordering change. This release does not claim unlimited per-trip content.
 - Publishing while a trip has no eligible recipients does not promise a future push when access is later enabled. Check notification status and publish the intended announcement when its audience is ready.
 - Provider acceptance and a notification visibly appearing on a phone are different evidence. The owner performs the remaining physical-device test.
