@@ -44,8 +44,11 @@ def cursor_filter(
             .decode()
             .split("|")
         )
+        created_at = datetime.fromisoformat(created)
+        if created_at.tzinfo is None or created_at.utcoffset() is None:
+            raise ValueError("Notification cursor timestamp must include a timezone")
         return tuple_(model.created_at, model.id) < (
-            datetime.fromisoformat(created),
+            created_at,
             uuid.UUID(identifier),
         )
     except (ValueError, UnicodeError) as exc:

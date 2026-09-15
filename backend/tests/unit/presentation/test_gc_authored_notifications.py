@@ -1,5 +1,6 @@
 """HTTP contract, role/tenant boundaries and exact reviewed-send recovery."""
 
+import base64
 import uuid
 from datetime import UTC, datetime
 
@@ -171,3 +172,36 @@ async def test_send_route_commit_failure_cannot_return_success_and_retry_is_safe
     response = await send_draft(draft_id, request, None, actor, db_session)
     assert response.request_id == request.request_id
     assert not db_session.in_transaction()
+
+
+@pytest.mark.parametrize("path", [_PREFIX, f"{_PREFIX}/batches"])
+async def test_history_cursor_requires_timezone_before_query_and_accepts_generated_cursor(
+    client, db_session, monkeypatch, path
+):
+    from unittest.mock import AsyncMock
+
+    from app.application.mobile.authored_notification_history import page_cursor
+    from app.infrastructure.database.gc_notification_models import GCNotificationDraftModel
+
+    actor, _, _, _, _ = await authored_audience(db_session, device=False)
+    client._transport.app.dependency_overrides[get_current_active_user] = lambda: actor
+    execute = AsyncMock(wraps=db_session.execute)
+    monkeypatch.setattr(db_session, "execute", execute)
+    for timestamp in ("2026-09-15T18:00:00", "2026-09-15"):
+        cursor = (
+            base64.urlsafe_b64encode(f"{timestamp}|{uuid.uuid4()}".encode()).decode().rstrip("=")
+        )
+        response = await client.get(path, params={"cursor": cursor})
+        assert response.status_code == 422, response.text
+        assert "Invalid notification cursor" in response.text
+    oversized = await client.get(path, params={"cursor": "a" * 257})
+    assert oversized.status_code == 422
+    execute.assert_not_awaited()
+
+    # PostgreSQL TIMESTAMPTZ rows carry an offset; use that production shape
+    # through the actual cursor encoder and HTTP route on the test database.
+    generated = page_cursor(GCNotificationDraftModel(id=uuid.uuid4(), created_at=datetime.now(UTC)))
+    accepted = await client.get(path, params={"cursor": generated})
+    assert accepted.status_code == 200, accepted.text
+    assert accepted.json() == {"items": [], "next_cursor": None}
+    execute.assert_awaited_once()
