@@ -484,17 +484,25 @@ async def test_my_photos_real_postgresql_api_and_job_contracts(
             assert first_page.status_code == 200
             assert first_page.json()["total_count"] == 34
             assert len(first_page.json()["items"]) == 20
-            # Includes the two trip/passenger policy queries plus the
-            # fail-closed feature gate, then seven bounded gallery/page
-            # queries with one variant batch. The gate must remain a single
-            # scalar lookup rather than growing with the page size.
+            # The existing ten-query budget still covers trip/identity policy,
+            # the feature gate, and bounded gallery/page queries. Current
+            # submitted-contact authorization adds exactly one scoped point
+            # lookup, independent of gallery or page size.
+            authority_statements = [
+                statement
+                for statement in statements
+                if "where passport_submissions.id =" in " ".join(statement.lower().split())
+            ]
+            assert len(authority_statements) == 1
+            assert "passport_submissions.agency_id =" in authority_statements[0].lower()
+            assert "passport_submissions.group_id =" in authority_statements[0].lower()
             feature_gate_statements = [
                 statement
                 for statement in statements
                 if "select my_photo_galleries.feature_enabled" in statement.lower()
             ]
             assert len(feature_gate_statements) == 1
-            assert len(statements) <= 10
+            assert len(statements) - len(authority_statements) <= 10
             cursor = first_page.json()["next_cursor"]
             assert cursor
             second_page = await client.get(
