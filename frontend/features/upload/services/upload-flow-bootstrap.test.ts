@@ -4,8 +4,11 @@ import type { QualifierSelectionState } from "@/features/passports/api/upload-li
 import { runUploadFlowBootstrap } from "./upload-flow-bootstrap";
 import { qualifierChoiceKey } from "./relation-qualifier";
 import { readQualifierSelectionToken, writeQualifierSelectionToken } from "./upload-flow-session";
+import { readUploadRecoveryRecord, writeUploadRecoveryRecord } from "./upload-flow-session";
+import { createUploadRecoveryRecord } from "./upload-recovery";
+import { uploadApi } from "../api/upload.api";
 
-const api = vi.hoisted(() => ({ getQualifierSelection: vi.fn() }));
+const api = vi.hoisted(() => ({ getQualifierSelection: vi.fn(), getByToken: vi.fn() }));
 vi.mock("@/features/passports/api/upload-links.api", () => ({ uploadLinksApi: api }));
 vi.mock("../api/upload.api", () => ({
   uploadApi: { getUploadStatus: vi.fn(), reconcileUpload: vi.fn() },
@@ -33,6 +36,7 @@ function createActions() {
     setQualifierSelectionToken: vi.fn(), setPersistedQualifierChoice: vi.fn(),
     setQualifierPath: vi.fn(), setQualifierRelationCode: vi.fn(),
     setQualifierOtherRelation: vi.fn(),
+    setLinkError: vi.fn(),
   };
 }
 
@@ -40,6 +44,7 @@ describe("qualifier relationship recovery", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     window.sessionStorage.clear();
+    api.getByToken.mockResolvedValue({ status: "active" });
     writeQualifierSelectionToken(token, selectionToken);
   });
 
@@ -94,5 +99,41 @@ describe("qualifier relationship recovery", () => {
     expect(readQualifierSelectionToken(token)).toBe(selectionToken);
     expect(actions.setQualifierOtherRelation).not.toHaveBeenCalled();
     expect(actions.setStep).toHaveBeenLastCalledWith("RECOVERY_ERROR");
+  });
+
+  it.each([404, 410])("replaces an unavailable draft only after confirming the link is active (%s)", async (status) => {
+    const original = createUploadRecoveryRecord("private-attempt-key-0123456789abcdef0123456789", "missing-draft");
+    writeUploadRecoveryRecord(token, original);
+    vi.mocked(uploadApi.getUploadStatus).mockRejectedValue({ code: `HTTP_${status}`, status, message: "Not found" });
+    const actions = createActions();
+    await runUploadFlowBootstrap({ token, relationWithQualifierEnabled: false, isCancelled: () => false, reportPublicFlowOnce: vi.fn(), actions });
+    expect(api.getByToken).toHaveBeenCalledWith(token);
+    expect(readUploadRecoveryRecord(token)?.idempotencyKey).not.toBe(original.idempotencyKey);
+    expect(readUploadRecoveryRecord(token)?.submissionId).toBeNull();
+    expect(actions.setStep).toHaveBeenLastCalledWith("MODE_SELECT");
+  });
+
+  it.each([
+    { status: 410, code: "CLIENT_GROUP_CLOSED", message: "This link is closed." },
+    { status: 503, code: "HTTP_503", message: "Try again" },
+  ])("keeps a saved draft when the link recheck fails ($code)", async (linkError) => {
+    const original = createUploadRecoveryRecord("private-attempt-key-0123456789abcdef0123456789", "saved-draft");
+    writeUploadRecoveryRecord(token, original);
+    vi.mocked(uploadApi.getUploadStatus).mockRejectedValue({ status: 404, code: "HTTP_404" });
+    api.getByToken.mockRejectedValue(linkError);
+    const actions = createActions();
+    await runUploadFlowBootstrap({ token, relationWithQualifierEnabled: true, isCancelled: () => false, reportPublicFlowOnce: vi.fn(), actions });
+    expect(readUploadRecoveryRecord(token)).toEqual(original);
+    expect(readQualifierSelectionToken(token)).toBe(selectionToken);
+    expect(actions.setLinkError).toHaveBeenCalledWith(linkError);
+    expect(actions.setStep).toHaveBeenLastCalledWith("RECOVERY_ERROR");
+  });
+
+  it("recognizes normalized permanent qualifier errors from the real API error contract", async () => {
+    api.getQualifierSelection.mockRejectedValue({ status: 422, code: "VALIDATION_ERROR", message: "Selection unavailable" });
+    const actions = createActions();
+    await runUploadFlowBootstrap({ token, relationWithQualifierEnabled: true, isCancelled: () => false, reportPublicFlowOnce: vi.fn(), actions });
+    expect(readQualifierSelectionToken(token)).toBeNull();
+    expect(actions.setStep).toHaveBeenLastCalledWith("QUALIFIER_SELECT");
   });
 });

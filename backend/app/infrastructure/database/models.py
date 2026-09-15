@@ -37,6 +37,7 @@ from app.infrastructure.database import communications_models as _communications
 from app.infrastructure.database import document_models as _document_models
 from app.infrastructure.database import identity_security_models as _identity_security_models
 from app.infrastructure.database import operations_models as _operations_models
+from app.infrastructure.database import whatsapp_receipt_models as _whatsapp_receipt_models
 from app.infrastructure.database.model_base import JSONB, Base, _utcnow
 
 WhatsAppBroadcastGroupModel = _communications_models.WhatsAppBroadcastGroupModel
@@ -47,6 +48,8 @@ WhatsAppMessageLogModel = _communications_models.WhatsAppMessageLogModel
 WhatsAppRecipientMessageStateModel = _communications_models.WhatsAppRecipientMessageStateModel
 WhatsAppPhoneWelcomeModel = _communications_models.WhatsAppPhoneWelcomeModel
 WhatsAppPhoneWelcomeAttemptModel = _communications_models.WhatsAppPhoneWelcomeAttemptModel
+WhatsAppProviderMessageBindingModel = _whatsapp_receipt_models.WhatsAppProviderMessageBindingModel
+WhatsAppProviderReceiptModel = _whatsapp_receipt_models.WhatsAppProviderReceiptModel
 DocumentDistributionBatchModel = _document_models.DocumentDistributionBatchModel
 DistributedDocumentModel = _document_models.DistributedDocumentModel
 DocumentWhatsAppDeliveryModel = _document_models.DocumentWhatsAppDeliveryModel

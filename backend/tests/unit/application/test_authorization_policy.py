@@ -285,6 +285,19 @@ async def test_delete_policy_separates_archive_from_permanent_delete() -> None:
 
 
 @pytest.mark.asyncio
+async def test_assigned_staff_keeps_group_management_but_cannot_archive() -> None:
+    policy = AuthorizationPolicy(AsyncMock())
+    policy.staff_can_access_group = AsyncMock(return_value=True)
+    agency_id = uuid.uuid4()
+    staff = _user(UserRole.AGENCY_STAFF, agency_id)
+    group = _group(agency_id, created_by_user_id=staff.id)
+    assert await policy.can_manage_group(staff, group) is True
+    assert await policy.can_delete_data(staff, group) is False
+    with pytest.raises(AuthorizationError):
+        await policy.require_delete_data(staff, group)
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("role", list(UserRole))
 async def test_submission_delete_permission_keeps_staff_denied(role: UserRole) -> None:
     policy = AuthorizationPolicy(AsyncMock())

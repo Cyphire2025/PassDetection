@@ -437,8 +437,9 @@ async def test_source_mutation_waits_until_provider_window_is_recorded() -> None
 
     delivery_id = uuid.uuid4()
     batch_id = uuid.uuid4()
-    delivery = SimpleNamespace(
+    delivery = DocumentWhatsAppDeliveryModel(
         id=delivery_id,
+        send_batch_id=batch_id,
         agency_id=uuid.uuid4(),
         group_id=uuid.uuid4(),
         passenger_id=uuid.uuid4(),
@@ -490,6 +491,7 @@ async def test_source_mutation_waits_until_provider_window_is_recorded() -> None
     mutation_attempted = asyncio.Event()
     mutation_finished = asyncio.Event()
     mutation_task: asyncio.Task[None] | None = None
+    persistence_order: list[str] = []
 
     async def final_validation(*_args: object, **_kwargs: object) -> PrivateDeliveryRecipientValidation:
         await source_lock.acquire()
@@ -498,6 +500,7 @@ async def test_source_mutation_waits_until_provider_window_is_recorded() -> None
     async def source_mutation() -> None:
         mutation_attempted.set()
         async with source_lock:
+            persistence_order.append("mutation")
             mutation_finished.set()
 
     async def provider_send(**_kwargs: object) -> str:
@@ -506,9 +509,19 @@ async def test_source_mutation_waits_until_provider_window_is_recorded() -> None
         await mutation_attempted.wait()
         await asyncio.sleep(0)
         assert mutation_finished.is_set() is False
+        persistence_order.append("provider")
         return "wamid.private-1"
 
+    async def record_provider_binding(*args: object, **kwargs: object) -> None:
+        assert args == (provider_session, delivery)
+        assert kwargs == {"provider_phone_number_id": "test-provider-account"}
+        assert source_lock.locked()
+        assert mutation_finished.is_set() is False
+        assert delivery.provider_message_id == "wamid.private-1"
+        persistence_order.append("binding")
+
     async def commit_provider_outcome() -> None:
+        persistence_order.append("commit")
         if source_lock.locked():
             source_lock.release()
 
@@ -538,7 +551,7 @@ async def test_source_mutation_waits_until_provider_window_is_recorded() -> None
         ),
         patch(
             "app.infrastructure.whatsapp.document_delivery_runtime.get_settings",
-            return_value=SimpleNamespace(),
+            return_value=SimpleNamespace(whatsapp_phone_number_id="test-provider-account"),
         ),
         patch(
             "app.infrastructure.whatsapp.document_delivery_runtime.upload_whatsapp_document",
@@ -552,6 +565,10 @@ async def test_source_mutation_waits_until_provider_window_is_recorded() -> None
             "app.infrastructure.whatsapp.document_delivery_runtime.send_whatsapp_document_template",
             side_effect=provider_send,
         ),
+        patch(
+            "app.infrastructure.whatsapp.receipt_bindings.bind_source_provider_message",
+            side_effect=record_provider_binding,
+        ),
     ):
         await run_document_whatsapp_broadcast(
             send_batch_id=str(batch_id),
@@ -562,3 +579,4 @@ async def test_source_mutation_waits_until_provider_window_is_recorded() -> None
     await mutation_task
     assert mutation_finished.is_set() is True
     assert delivery.status == "submitted"
+    assert persistence_order == ["provider", "binding", "commit", "mutation"]

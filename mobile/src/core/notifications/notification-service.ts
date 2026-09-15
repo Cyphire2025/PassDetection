@@ -19,6 +19,8 @@ import {
   setPushRegistrationMarker,
 } from '@/core/storage/secure-store';
 
+import { usePushRegistrationState, type PushRegistrationStatus } from './notification-registration-state';
+
 const PUSH_REGISTRATION_REFRESH_MS = 24 * 60 * 60_000;
 
 export const NotificationDataSchema = z.object({
@@ -93,6 +95,39 @@ export async function registerPushDevice(
   provider: NotificationProvider = expoNotificationProvider,
   options: Readonly<{ force?: boolean }> = {},
 ): Promise<boolean> {
+  const session = useSessionStore.getState().session;
+  if (!session) return false;
+  const authentication = captureAuthenticationSnapshot();
+  const scope = `${principalAccountNamespace(session.principal)}.${session.sessionId}`;
+  const update = (status: PushRegistrationStatus) => {
+    const current = useSessionStore.getState().session;
+    if (isAuthenticationSnapshotCurrent(authentication)
+      && current?.sessionId === session.sessionId
+      && principalAccountNamespace(current.principal) === principalAccountNamespace(session.principal)) {
+      usePushRegistrationState.getState().update(scope, status);
+    }
+  };
+  if (!session.accessToken || session.networkMode !== 'online') {
+    update('offline');
+    return false;
+  }
+  update('registering');
+  try {
+    const registered = await performPushRegistration(provider, options);
+    update(registered ? 'registered' : Device.isDevice ? 'permission_denied' : 'unsupported_device');
+    return registered;
+  } catch (error) {
+    update(error instanceof NotificationRegistrationError
+      ? error.code === 'PUSH_PROJECT_NOT_CONFIGURED' ? 'build_unconfigured' : 'token_unavailable'
+      : 'registration_failed');
+    throw error;
+  }
+}
+
+async function performPushRegistration(
+  provider: NotificationProvider,
+  options: Readonly<{ force?: boolean }>,
+): Promise<boolean> {
   const requestSession = useSessionStore.getState().session;
   if (!requestSession?.accessToken || requestSession.networkMode !== 'online') return false;
   const authentication = captureAuthenticationSnapshot();
@@ -120,7 +155,7 @@ export async function registerPushDevice(
   ) {
     return true;
   }
-  await apiRequest('/mobile/push/register', {
+  const result = await apiRequest('/mobile/push/register', {
     method: 'POST',
     schema: z.object({ registration_id: z.string().uuid(), registered: z.boolean() }).strict(),
     body: {
@@ -129,6 +164,7 @@ export async function registerPushDevice(
       installation_id: installationId,
     },
   });
+  if (!result.registered) throw new Error('The server did not accept notification registration.');
   if (!isAuthenticationSnapshotCurrent(authentication)) {
     throw new Error('The active account changed during push registration.');
   }

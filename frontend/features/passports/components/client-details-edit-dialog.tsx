@@ -4,6 +4,7 @@ import { useId, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { normalizePhoneNumber, PHONE_FORMAT_HELP } from "@/lib/utils/phone-number";
 import { useModalKeyboardBoundary } from "@/components/ui/modal";
 import type { ClientDetailsEditorResponse } from "../api/client-details.api";
 import { useClientDetailsEditor, useUpdateClientDetails } from "../hooks/use-client-details";
@@ -121,7 +122,10 @@ function ClientDetailInput({ label, value, required, type, options, max_length, 
   onChange: (value: string) => void;
 }) {
   const id = useId();
-  if (type !== "select") return <Input label={label} value={value} type={type} maxLength={max_length} required={required} onChange={(event) => onChange(event.target.value)} />;
+  if (type !== "select") return <Input label={label} value={value} type={type} maxLength={max_length} required={required}
+    hint={type === "tel" ? PHONE_FORMAT_HELP : undefined}
+    error={type === "tel" && value.trim() && !normalizePhoneNumber(value) ? "This saved number needs correction before WhatsApp delivery." : undefined}
+    onChange={(event) => onChange(event.target.value)} />;
   return <div className="space-y-1.5">
     <label htmlFor={id} className="text-sm font-medium text-slate-700">{label}</label>
     <select id={id} value={value} required={required} onChange={(event) => onChange(event.target.value)}

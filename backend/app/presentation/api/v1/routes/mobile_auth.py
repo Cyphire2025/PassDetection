@@ -55,6 +55,7 @@ from app.infrastructure.security.mobile_otp_rate_limiter import (
     OTPRateLimitUnavailable,
 )
 from app.infrastructure.whatsapp.otp_provider import get_otp_provider
+from app.infrastructure.whatsapp.receipt_bindings import bind_source_provider_message
 from app.presentation.api.v1.routes.mobile_auth_otp_support import (
     _claim_summary,
     _direct_passenger_otp_rows,
@@ -137,7 +138,8 @@ async def request_passenger_otp(
     started_at = time.monotonic()
     timing_jitter_ms = secrets.randbelow(_OTP_NEUTRAL_RESPONSE_JITTER_MS + 1)
     _require_mobile_enabled()
-    settings = get_settings().mobile
+    app_settings = get_settings()
+    settings = app_settings.mobile
     normalized_phone = normalize_whatsapp_phone(body.phone_number)
     limiter_value = normalized_phone or f"invalid:{body.phone_number.strip().casefold()}"
     try:
@@ -278,7 +280,7 @@ async def request_passenger_otp(
                 code=code,
                 expires_in_seconds=settings.otp_ttl_seconds,
             )
-            delivery_status = "delivered"
+            delivery_status = "submitted" if settings.otp_provider == "whatsapp" else "delivered"
         except OTPDeliveryError as exc:
             # The response remains neutral; logs/audit contain no phone or OTP.
             delivery_status = "unknown" if exc.delivery_unknown else "failed"
@@ -309,6 +311,10 @@ async def request_passenger_otp(
         challenge.resend_available_at = challenge.expires_at
     challenge.updated_at = datetime.now(tz=UTC)
     try:
+        if settings.otp_provider == "whatsapp" and provider_reference:
+            await bind_source_provider_message(
+                session, challenge, provider_phone_number_id=app_settings.whatsapp_phone_number_id
+            )
         await AuditLogRepository(session).record(
             action="mobile.otp_requested",
             entity_type="mobile_otp_challenge",
@@ -328,10 +334,31 @@ async def request_passenger_otp(
         # provider outcome fails. Never turn that persistence issue into an
         # account-enumeration signal or log phone/code material.
         await session.rollback()
+        if settings.otp_provider == "whatsapp" and provider_reference:
+            try:
+                saved = (
+                    await session.execute(
+                        select(MobileOTPChallengeModel)
+                        .where(
+                            MobileOTPChallengeModel.id == challenge_id,
+                        )
+                        .with_for_update()
+                    )
+                ).scalar_one_or_none()
+                if saved is not None and saved.provider_reference in {None, provider_reference}:
+                    saved.provider_reference = provider_reference
+                    await bind_source_provider_message(
+                        session,
+                        saved,
+                        provider_phone_number_id=app_settings.whatsapp_phone_number_id,
+                    )
+                    await session.commit()
+            except Exception:
+                await session.rollback()
         logger.error(
             "mobile_otp_delivery_state_persistence_failed",
             provider=settings.otp_provider,
-            challenge_id=str(challenge.id),
+            challenge_id=str(challenge_id),
         )
 
     await _complete_neutral_otp_timing(
@@ -339,7 +366,7 @@ async def request_passenger_otp(
         jitter_ms=timing_jitter_ms,
     )
     return MobileOTPRequestResponse(
-        challenge_id=challenge.id,
+        challenge_id=challenge_id,
         expires_in_seconds=settings.otp_ttl_seconds,
         resend_after_seconds=settings.otp_resend_cooldown_seconds,
     )

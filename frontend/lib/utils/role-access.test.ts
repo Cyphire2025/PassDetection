@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canAccessWhatsAppBroadcasts, canDeletePassportSubmissions } from "./role-access";
+import { canAccessWhatsAppBroadcasts, canDeletePassportSubmissions, canArchiveGroup, canPermanentlyDeleteGroup } from "./role-access";
 
 describe("office workflow role access", () => {
   it.each([
@@ -13,5 +13,7 @@ describe("office workflow role access", () => {
   ] as const)("%s has WhatsApp access=%s and submission deletion=%s", (role, whatsapp, deletion) => {
     expect(canAccessWhatsAppBroadcasts(role)).toBe(whatsapp);
     expect(canDeletePassportSubmissions(role)).toBe(deletion);
+    expect(canArchiveGroup(role)).toBe(deletion);
+    expect(canPermanentlyDeleteGroup(role)).toBe(role === "super_admin" || role === "agency_admin");
   });
 });

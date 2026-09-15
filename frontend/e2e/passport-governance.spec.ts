@@ -170,8 +170,45 @@ function authenticatedResponse() {
     status: "authenticated",
     user: admin,
     token_type: "bearer",
-    access_token_expires_at: "2099-08-22T13:00:00Z",
+    access_token_expires_at: new Date(Date.now() + 15 * 60_000).toISOString(),
   };
+}
+
+for (const role of ["agency_staff", "agency_manager"] as const) {
+  for (const width of [1280, 390]) {
+    test(`${role} group deletion controls match server permissions at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await installAdminCookie(page);
+      const account = { ...admin, role };
+      let mutations = 0;
+      await page.route("**/api/v1/**", async (route) => {
+        const url = new URL(route.request().url());
+        if (url.pathname === "/api/v1/auth/refresh") return json(route, { ...authenticatedResponse(), user: account });
+        if (url.pathname === "/api/v1/auth/me") return json(route, account);
+        if (url.pathname === "/api/v1/notifications/feed") return json(route, { items: [], unread_count: 0, next_cursor: null });
+        if (url.pathname === "/api/v1/upload-links" && route.request().method() === "GET") {
+          return json(route, url.searchParams.get("status_filter") === "archived"
+            ? [{ ...groupLink, id: "archived-group", name: "Archived trip", status: "archived" }]
+            : [groupLink]);
+        }
+        if (route.request().method() === "DELETE") mutations += 1;
+        return json(route, []);
+      });
+      await page.goto("/upload-links");
+      await expect(page.getByRole("heading", { name: "Group Links", level: 1 })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Close", exact: true })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Edit", exact: true }).first()).toBeVisible();
+      await expect(page.getByRole("button", { name: "Delete", exact: true })).toHaveCount(0);
+      if (role === "agency_staff") {
+        await expect(page.getByRole("button", { name: "Archive", exact: true })).toHaveCount(0);
+      } else {
+        await page.getByRole("button", { name: "Archive", exact: true }).click();
+        await expect(page.getByRole("dialog", { name: "Archive Group" })).toBeVisible();
+        await page.getByRole("button", { name: "Cancel", exact: true }).click();
+      }
+      expect(mutations).toBe(0);
+    });
+  }
 }
 
 test("All Groups opens Save As from the download click, supports cancel and rename, and increases suggested filenames", async ({ page }) => {
@@ -516,108 +553,33 @@ test("staff can select, export, open, and manually approve a passport in a rende
   expect(approvalBody).toMatchObject({ expected_extraction_revision: 4 });
 });
 
-test("an administrator can release a passport legal hold only after an audited reason and MFA step-up", async ({ page }) => {
+test("the group workspace keeps existing retention controls unexposed", async ({ page }) => {
+  // Retention API, audit and MFA behavior remain covered by their focused tests.
+  // This workspace does not mount that optional control; this release preserves it.
   await installAdminCookie(page);
-  let retention = {
-    group_id: groupLink.id,
-    passport_purge_at: "2027-11-08T00:00:00Z",
-    passport_retention_days_applied: 365,
-    legal_hold: true,
-    legal_hold_reason: "Active legal discovery request" as string | null,
-    legal_hold_set_at: "2026-08-22T00:00:00Z" as string | null,
-    legal_hold_set_by_user_id: admin.id as string | null,
-  };
-  let updateAttempts = 0;
-  let updateBody: unknown = null;
-
+  let retentionRequests = 0;
   await page.route("**/api/v1/**", async (route) => {
-    const request = route.request();
-    const pathname = new URL(request.url()).pathname;
+    const pathname = new URL(route.request().url()).pathname;
     if (pathname === "/api/v1/auth/refresh") return json(route, authenticatedResponse());
     if (pathname === "/api/v1/auth/me") return json(route, admin);
-    if (pathname === "/api/v1/auth/mfa/step-up") return json(route, authenticatedResponse());
-    if (pathname === "/api/v1/notifications/feed") {
-      return json(route, { items: [], unread_count: 0, next_cursor: null });
-    }
+    if (pathname === "/api/v1/notifications/feed") return json(route, { items: [], unread_count: 0, next_cursor: null });
     if (pathname === "/api/v1/passports/groups") return json(route, [groupSummary]);
     if (pathname === `/api/v1/passports/groups/${groupLink.id}/submissions-view`) {
       return json(route, {
-        items: [submission],
-        ordered_submission_ids: [submission.id],
+        items: [submission], ordered_submission_ids: [submission.id],
         ordered_selection_snapshot: [{ submission_id: submission.id, extraction_revision: 4 }],
-        group_total: 1,
-        total: 1,
-        page: 1,
-        page_size: 50,
-        total_pages: 1,
-        returned_count: 1,
-        cluster_boundaries_preserved: true,
-        expiry_alerts: [],
+        group_total: 1, total: 1, page: 1, page_size: 50, total_pages: 1,
+        returned_count: 1, cluster_boundaries_preserved: true, expiry_alerts: [],
       });
     }
-    if (pathname === `/api/v1/admin/groups/${groupLink.id}/passport-retention`) {
-      if (request.method() === "GET") return json(route, retention);
-      updateAttempts += 1;
-      updateBody = request.postDataJSON();
-      if (updateAttempts === 1) {
-        return json(route, {
-          error: {
-            code: "STEP_UP_REQUIRED",
-            message: "Confirm your identity before changing a legal hold.",
-          },
-        }, 403);
-      }
-      retention = {
-        ...retention,
-        legal_hold: false,
-        legal_hold_reason: null,
-        legal_hold_set_at: null,
-        legal_hold_set_by_user_id: null,
-      };
-      return json(route, retention);
-    }
-    if (pathname === `/api/v1/upload-links/${groupLink.id}/whatsapp-links`) {
-      return json(route, {
-        client_group_id: groupLink.id,
-        broadcasts: [],
-        broadcast_count: 0,
-        recipient_count: 0,
-        can_manage: true,
-      });
-    }
-    if (pathname === `/api/v1/document-distribution/groups/${groupLink.id}/whatsapp-deliveries/tracking`) {
-      return json(route, {
-        group_id: groupLink.id,
-        poll_after_seconds: null,
-        counts: { total: 0, queued: 0, sent: 0, delivered: 0, read: 0, failed: 0, delivery_unknown: 0 },
-        deliveries: [],
-      });
-    }
-    if (pathname === "/api/v1/upload-links") return json(route, []);
-    return json(route, request.method() === "GET" ? [] : {});
+    if (pathname.includes("passport-retention")) retentionRequests += 1;
+    return json(route, []);
   });
-
   await page.goto(`/passports/groups/${groupLink.id}`);
-  await expect(page.getByRole("heading", { name: "Passport retention & legal hold" })).toBeVisible();
-  await expect(page.getByText("Active legal discovery request")).toBeVisible();
-  await page.getByRole("button", { name: "Release legal hold" }).click();
-
-  const retentionDialog = page.getByRole("dialog", { name: "Release passport legal hold" });
-  await expect(retentionDialog.getByRole("textbox", { name: "Audit reason" })).toBeFocused();
-  await retentionDialog.getByRole("textbox", { name: "Audit reason" }).fill("Legal review completed and release approved");
-  await retentionDialog.getByRole("button", { name: "Release legal hold" }).click();
-
-  const stepUpDialog = page.getByRole("dialog", { name: "Confirm this sensitive action" });
-  await stepUpDialog.getByRole("textbox", { name: "Verification code" }).fill("123456");
-  await stepUpDialog.getByRole("button", { name: "Verify and continue" }).click();
-
-  await expect.poll(() => updateAttempts).toBe(2);
-  expect(updateBody).toEqual({
-    legal_hold: false,
-    reason: "Legal review completed and release approved",
-  });
-  await expect(page.getByText("Scheduled retention active")).toBeVisible();
-  await expect(page.getByText("The explicit retention schedule is active again.", { exact: false })).toBeVisible();
+  await expect(page.getByRole("heading", { name: groupLink.name, level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Passport retention & legal hold" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Release legal hold" })).toHaveCount(0);
+  expect(retentionRequests).toBe(0);
 });
 
 test("a direct cross-tenant passport workspace request fails closed without rendering foreign records", async ({ page }) => {

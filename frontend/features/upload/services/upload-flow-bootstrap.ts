@@ -54,6 +54,7 @@ interface UploadFlowBootstrapActions {
   setQualifierPath: (value: QualifierPath) => void;
   setQualifierRelationCode: (value: string) => void;
   setQualifierOtherRelation: (value: string) => void;
+  setLinkError?: (error: unknown) => void;
 }
 
 interface RunUploadFlowBootstrapOptions {
@@ -81,6 +82,20 @@ export async function runUploadFlowBootstrap({
     ?? createUploadRecoveryRecord(createIdempotencyKey());
   actions.setSingleUploadIdempotencyKey(recovery.idempotencyKey);
   if (!storedRecovery) writeUploadRecoveryRecord(token, recovery);
+
+  const linkStillActive = async () => {
+    try {
+      await uploadLinksApi.getByToken(token);
+      return !isCancelled();
+    } catch (linkError: unknown) {
+      if (!isCancelled()) {
+        actions.setLinkError?.(linkError);
+        actions.setUploadError(errorMessage(linkError, "The group link could not be reached. Your saved upload has been kept."));
+        actions.setStep("RECOVERY_ERROR");
+      }
+      return false;
+    }
+  };
 
   const restoreSubmission = async (submissionId: string) => {
     try {
@@ -136,6 +151,9 @@ export async function runUploadFlowBootstrap({
       if (isCancelled()) return;
       reportPublicFlowOnce("recovery_missed");
       if (isMissingSavedSubmissionError(restoreError)) {
+        // A closed link and an unavailable draft deliberately share a 404 at
+        // the private status endpoint. Recheck the link before replacing proof.
+        if (!(await linkStillActive())) return;
         const replacement = createUploadRecoveryRecord(createIdempotencyKey());
         writeUploadRecoveryRecord(token, replacement);
         actions.setSingleUploadIdempotencyKey(replacement.idempotencyKey);
@@ -182,6 +200,7 @@ export async function runUploadFlowBootstrap({
         return;
       }
       reportPublicFlowOnce("recovery_missed");
+      if (!(await linkStillActive())) return;
     } catch (reconciliationError: unknown) {
       if (isCancelled()) return;
       reportPublicFlowOnce("recovery_missed");
@@ -224,6 +243,7 @@ export async function runUploadFlowBootstrap({
   } catch (restoreError: unknown) {
     if (isCancelled()) return;
     if (isPermanentQualifierRestoreError(restoreError)) {
+      if (!(await linkStillActive())) return;
       clearQualifierSelectionToken(token);
       actions.setQualifierSelectionToken(null);
       actions.setPersistedQualifierChoice(null);

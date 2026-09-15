@@ -51,6 +51,11 @@ async def test_lifecycle_task_applies_operational_retention_in_same_transaction(
             "apply_operational_retention",
             new=AsyncMock(return_value=operational),
         ) as apply_operational,
+        patch.object(
+            platform_lifecycle_tasks,
+            "apply_receipt_retention",
+            new=AsyncMock(return_value={"expired_whatsapp_receipts": 1}),
+        ) as apply_receipts,
     ):
         result = await platform_lifecycle_tasks._apply_and_commit()
 
@@ -58,9 +63,11 @@ async def test_lifecycle_task_applies_operational_retention_in_same_transaction(
         "deleted_passports": 2,
         "expired_runtimes": 3,
         "deleted_discard_tombstones": 4,
+        "expired_whatsapp_receipts": 1,
     }
     apply_lifecycle.assert_awaited_once_with(session)
     apply_operational.assert_awaited_once_with(session)
+    apply_receipts.assert_awaited_once_with(session)
     session.commit.assert_awaited_once_with()
     session.rollback.assert_not_awaited()
 

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import io
-import json
 import types
 import unittest
 import uuid
@@ -28,8 +27,6 @@ from app.infrastructure.whatsapp.qr_delivery_runtime import (
 from app.presentation.api.v1.routes.tour_operations_qr_delivery import (
     _recover_stale_qr_deliveries,
 )
-from app.presentation.api.v1.routes.whatsapp import receive_whatsapp_webhook
-from tests.route_dependencies import patch_route_dependency
 
 
 class QrWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
@@ -166,65 +163,38 @@ class QrWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("passenger_qr_whatsapp_deliveries.status", queued_statement)
         self.assertIn("passenger_qr_whatsapp_deliveries.status", processing_statement)
 
-    @patch(
-        "app.presentation.api.v1.routes.whatsapp_webhook.process_traveller_welcome_receipt",
-        new_callable=AsyncMock,
-        return_value=0,
-    )
-    async def test_webhook_updates_qr_delivery_when_no_other_log_matches(self, _welcome_receipt) -> None:
+    async def test_webhook_updates_qr_delivery_when_no_other_log_matches(self) -> None:
         now = datetime.now(tz=UTC)
         delivery = self._delivery(
             now=now,
             provider_message_id="wamid.qr-1",
         )
-        empty_logs = MagicMock()
-        empty_logs.scalars.return_value.all.return_value = []
-        empty_documents = MagicMock()
-        empty_documents.scalars.return_value.all.return_value = []
-        qr_rows = MagicMock()
-        qr_rows.scalars.return_value.all.return_value = [delivery]
+        from app.infrastructure.whatsapp.receipt_runtime import _apply_to_source
+
+        source_result = MagicMock()
+        source_result.scalar_one_or_none.return_value = delivery
         session = AsyncMock()
-        session.execute.side_effect = [empty_logs, empty_documents, qr_rows]
-        request = types.SimpleNamespace(
-            body=AsyncMock(
-                return_value=json.dumps(
-                    {
-                        "entry": [
-                            {
-                                "changes": [
-                                    {
-                                        "value": {
-                                            "statuses": [
-                                                {
-                                                    "id": "wamid.qr-1",
-                                                    "status": "delivered",
-                                                    "timestamp": "1784419200",
-                                                }
-                                            ]
-                                        }
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ).encode("utf-8")
-            )
+        session.execute.return_value = source_result
+        binding = types.SimpleNamespace(
+            source_kind="qr",
+            source_id=delivery.id,
+            source_attempt_key=delivery.send_batch_id,
+            provider_message_id=delivery.provider_message_id,
         )
-        with patch_route_dependency(
-            "app.presentation.api.v1.routes.whatsapp.get_settings",
-            return_value=types.SimpleNamespace(
-                whatsapp_app_secret="",
-                is_production=False,
-            ),
+        receipt = types.SimpleNamespace(
+            provider_status="delivered",
+            provider_status_at=now,
+            error_message=None,
+            dedupe_key="fixed-receipt-key",
+        )
+        propagation = AsyncMock()
+        with patch(
+            "app.infrastructure.whatsapp.receipt_runtime.propagate_mobile_passenger_change",
+            propagation,
         ):
-            response = await receive_whatsapp_webhook(
-                request=request,
-                x_hub_signature_256=None,
-                session=session,
-            )
-        self.assertEqual(response.processed_statuses, 1)
+            outcome = await _apply_to_source(session, receipt, binding, now)
+        self.assertEqual(outcome, "applied")
         self.assertEqual(delivery.status, "delivered")
-        session.commit.assert_awaited_once()
 
 
 if __name__ == "__main__":

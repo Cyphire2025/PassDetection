@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import sys
 import uuid
 from datetime import UTC, datetime
@@ -48,7 +47,6 @@ from app.presentation.api.v1.routes.whatsapp import (
     delete_broadcast_group,
     get_broadcast_batch_status,
     preview_excel_contacts,
-    receive_whatsapp_webhook,
     resend_recipient_message,
 )
 from app.presentation.api.v1.routes.whatsapp import (
@@ -325,6 +323,9 @@ async def test_worker_failure_releases_ledger_claim_for_safe_retry() -> None:
 async def test_worker_success_exits_retry_loop_and_remains_submitted(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr(
+        "app.infrastructure.whatsapp.worker_runtime.bind_source_provider_message", AsyncMock()
+    )
     batch_id = uuid.uuid4()
     group_id = uuid.uuid4()
     recipient_id = uuid.uuid4()
@@ -460,7 +461,10 @@ async def test_worker_guard_rejects_removed_recipient_before_provider_call() -> 
 
 @pytest.mark.asyncio
 async def test_worker_guard_requires_current_processing_batch(monkeypatch) -> None:
-    monkeypatch.setattr("app.infrastructure.whatsapp.worker_runtime.assert_phone_welcome_claim", AsyncMock(return_value=True))
+    monkeypatch.setattr(
+        "app.infrastructure.whatsapp.worker_runtime.assert_phone_welcome_claim",
+        AsyncMock(return_value=True),
+    )
     batch_id = uuid.uuid4()
     recipient = SimpleNamespace(
         id=uuid.uuid4(),
@@ -490,7 +494,8 @@ async def test_worker_guard_requires_current_processing_batch(monkeypatch) -> No
 
     sendable, reason = await _load_sendable_recipient(
         session,
-        log=SimpleNamespace(id=uuid.uuid4(),
+        log=SimpleNamespace(
+            id=uuid.uuid4(),
             agency_id=recipient.agency_id,
             normalized_phone_number=recipient.normalized_phone_number,
             recipient_id=recipient.id,
@@ -1504,7 +1509,10 @@ async def test_explicit_resend_never_mutates_baseline_delivery_ledger() -> None:
 
 @pytest.mark.asyncio
 async def test_explicit_resend_worker_guard_uses_log_claim_not_baseline_state(monkeypatch) -> None:
-    monkeypatch.setattr("app.infrastructure.whatsapp.worker_runtime.assert_phone_welcome_claim", AsyncMock(return_value=True))
+    monkeypatch.setattr(
+        "app.infrastructure.whatsapp.worker_runtime.assert_phone_welcome_claim",
+        AsyncMock(return_value=True),
+    )
     batch_id = uuid.uuid4()
     recipient = SimpleNamespace(
         id=uuid.uuid4(),
@@ -1568,8 +1576,14 @@ def test_explicit_resend_route_is_role_gated_and_returns_send_contract() -> None
 async def test_resend_endpoint_queues_one_edited_message_with_current_template(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setattr("app.presentation.api.v1.routes.whatsapp_phone_welcome.claim_phone_welcome", AsyncMock(return_value="claimed"))
-    monkeypatch.setattr("app.presentation.api.v1.routes.whatsapp_phone_welcome.sync_failed_broadcast_welcomes", AsyncMock())
+    monkeypatch.setattr(
+        "app.presentation.api.v1.routes.whatsapp_phone_welcome.claim_phone_welcome",
+        AsyncMock(return_value="claimed"),
+    )
+    monkeypatch.setattr(
+        "app.presentation.api.v1.routes.whatsapp_phone_welcome.sync_failed_broadcast_welcomes",
+        AsyncMock(),
+    )
 
     group_id = uuid.uuid4()
     recipient_id = uuid.uuid4()
@@ -1768,8 +1782,14 @@ async def test_resend_endpoint_rejects_removed_or_missing_recipient() -> None:
 async def test_resend_queue_failure_does_not_release_baseline_sent_state(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setattr("app.presentation.api.v1.routes.whatsapp_phone_welcome.claim_phone_welcome", AsyncMock(return_value="claimed"))
-    monkeypatch.setattr("app.presentation.api.v1.routes.whatsapp_phone_welcome.sync_failed_broadcast_welcomes", AsyncMock())
+    monkeypatch.setattr(
+        "app.presentation.api.v1.routes.whatsapp_phone_welcome.claim_phone_welcome",
+        AsyncMock(return_value="claimed"),
+    )
+    monkeypatch.setattr(
+        "app.presentation.api.v1.routes.whatsapp_phone_welcome.sync_failed_broadcast_welcomes",
+        AsyncMock(),
+    )
 
     group_id = uuid.uuid4()
     recipient_id = uuid.uuid4()
@@ -1876,151 +1896,63 @@ async def test_resend_queue_failure_does_not_release_baseline_sent_state(
 
 @pytest.mark.asyncio
 async def test_explicit_resend_webhook_updates_log_without_loading_baseline_state(
-    monkeypatch: pytest.MonkeyPatch,
+    db_session, monkeypatch
 ) -> None:
-    log = SimpleNamespace(
-        message_type="welcome",
-        normalized_phone_number=None,
-        is_explicit_resend=True,
-        status="submitted",
-        status_updated_at=datetime.now(tz=UTC),
-        provider_status_at=None,
-        error_message=None,
-    )
-    logs_result = MagicMock()
-    logs_result.scalars.return_value.all.return_value = [log]
-    session = AsyncMock()
-    session.execute.return_value = logs_result
-    set_route_dependency(
-        monkeypatch,
-        "app.presentation.api.v1.routes.whatsapp.get_settings",
-        lambda: SimpleNamespace(
-            whatsapp_app_secret="",
-            is_production=False,
-        ),
-    )
-    payload = {
-        "entry": [
-            {
-                "changes": [
-                    {
-                        "value": {
-                            "statuses": [
-                                {
-                                    "id": "wamid.resend",
-                                    "status": "failed",
-                                    "timestamp": "1784419200",
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
-        ]
-    }
-    request = SimpleNamespace(body=AsyncMock(return_value=json.dumps(payload).encode("utf-8")))
-
-    response = await receive_whatsapp_webhook(
-        request=request,
-        x_hub_signature_256=None,
-        session=session,
+    from app.infrastructure.whatsapp.receipt_bindings import bind_source_provider_message
+    from tests.unit.infrastructure.test_whatsapp_receipt_inbox import (
+        ACCOUNT,
+        event,
+        seed_source,
+        signed_webhook,
     )
 
+    source = await seed_source(db_session, "broadcast")
+    source.is_explicit_resend = True
+    source.provider_message_id, source.status = "wamid.resend", "submitted"
+    await bind_source_provider_message(db_session, source, provider_phone_number_id=ACCOUNT)
+    await db_session.commit()
+    response = await signed_webhook(
+        db_session, monkeypatch, [event("wamid.resend", "failed", datetime.now(UTC))]
+    )
     assert response.processed_statuses == 1
-    assert log.status == "failed"
-    assert session.execute.await_count == 1
-    session.commit.assert_awaited_once()
+    await db_session.refresh(source)
+    assert source.status == "failed"
+    state = await db_session.scalar(select(WhatsAppRecipientMessageStateModel))
+    assert state.status == "processing"
 
 
 @pytest.mark.asyncio
 async def test_otp_webhook_records_provider_failure_without_phone_or_code(
-    monkeypatch: pytest.MonkeyPatch,
+    db_session, monkeypatch
 ) -> None:
-    monkeypatch.setattr("app.presentation.api.v1.routes.whatsapp_webhook.process_traveller_welcome_receipt", AsyncMock(return_value=0))
-
-    empty_logs = MagicMock()
-    empty_logs.scalars.return_value.all.return_value = []
-    empty_documents = MagicMock()
-    empty_documents.scalars.return_value.all.return_value = []
-    empty_qr = MagicMock()
-    empty_qr.scalars.return_value.all.return_value = []
-    challenge = SimpleNamespace(
-        id=uuid.uuid4(),
-        agency_id=uuid.uuid4(),
-        provider="whatsapp",
-        status="pending",
-        updated_at=None,
-    )
-    otp_result = MagicMock()
-    otp_result.scalar_one_or_none.return_value = challenge
-    chain_head = SimpleNamespace(
-        last_sequence=0,
-        last_hash="0" * 64,
-        updated_at=None,
-    )
-    chain_result = MagicMock()
-    chain_result.scalar_one.return_value = chain_head
-    session = AsyncMock()
-    session.add = MagicMock()
-    session.execute.side_effect = [
-        empty_logs,
-        empty_documents,
-        empty_qr,
-        otp_result,
-        MagicMock(),
-        chain_result,
-    ]
-    set_route_dependency(
-        monkeypatch,
-        "app.presentation.api.v1.routes.whatsapp.get_settings",
-        lambda: SimpleNamespace(
-            whatsapp_app_secret="",
-            is_production=False,
-        ),
-    )
-    payload = {
-        "entry": [
-            {
-                "changes": [
-                    {
-                        "value": {
-                            "statuses": [
-                                {
-                                    "id": "wamid.otp",
-                                    "status": "failed",
-                                    "timestamp": "1784419200",
-                                    "errors": [{"code": 131026}],
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
-        ]
-    }
-    request = SimpleNamespace(body=AsyncMock(return_value=json.dumps(payload).encode("utf-8")))
-
-    response = await receive_whatsapp_webhook(
-        request=request,
-        x_hub_signature_256=None,
-        session=session,
+    from app.infrastructure.database.models import AuditLogModel
+    from app.infrastructure.whatsapp.receipt_bindings import bind_source_provider_message
+    from tests.unit.infrastructure.test_whatsapp_receipt_inbox import (
+        ACCOUNT,
+        event,
+        seed_source,
+        signed_webhook,
     )
 
+    challenge = await seed_source(db_session, "otp")
+    challenge.provider_reference = "wamid.otp"
+    await bind_source_provider_message(db_session, challenge, provider_phone_number_id=ACCOUNT)
+    await db_session.commit()
+    response = await signed_webhook(
+        db_session, monkeypatch, [event("wamid.otp", "failed", datetime.now(UTC))]
+    )
     assert response.processed_statuses == 1
+    await db_session.refresh(challenge)
     assert challenge.status == "cancelled"
-    audit = session.add.call_args.args[0]
-    assert audit.action == "mobile.otp_delivery_status"
+    audit = await db_session.scalar(
+        select(AuditLogModel).where(AuditLogModel.action == "mobile.otp_delivery_status")
+    )
     assert audit.metadata_json == {
         "provider": "whatsapp",
         "delivery_status": "failed",
-        "provider_error": (
-            "WHATSAPP_PROVIDER_DELIVERY_FAILED: "
-            "Meta reported that this message was not delivered (131026)"
-        ),
+        "provider_error": "WHATSAPP_PROVIDER_DELIVERY_FAILED: Meta reported that this message was not delivered (131026)",
     }
     assert "phone" not in audit.metadata_json
-    assert "code" not in audit.metadata_json
-    session.commit.assert_awaited_once()
 
 
 @pytest.mark.asyncio

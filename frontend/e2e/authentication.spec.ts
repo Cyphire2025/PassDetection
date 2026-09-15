@@ -17,7 +17,7 @@ const session = {
   status: "authenticated",
   user: adminUser,
   token_type: "bearer",
-  access_token_expires_at: "2099-08-22T13:00:00Z",
+  access_token_expires_at: new Date(Date.now() + 30 * 60_000).toISOString(),
 };
 
 async function fulfillJson(route: Route, body: unknown, status = 200, headers = {}) {

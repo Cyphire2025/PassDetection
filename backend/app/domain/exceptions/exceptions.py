@@ -192,10 +192,10 @@ class LowConfidenceError(PassDetectionError):
 # ── Upload Links ──────────────────────────────────────────────────────────────
 
 class GroupClosedError(PassDetectionError):
-    """Raised when a client upload link has expired."""
+    """Raised when a client upload link is closed to new submissions."""
 
     def __init__(self) -> None:
-        super().__init__("Upload link has expired", code="CLIENT_GROUP_EXPIRED")
+        super().__init__("This link is closed.", code="CLIENT_GROUP_CLOSED")
 
 
 class ClientGroupUsedError(PassDetectionError):

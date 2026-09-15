@@ -32,7 +32,7 @@ from app.application.use_cases.passports.staff_approve_passport_use_case import 
     StaffApprovePassportUseCase,
 )
 from app.core.logging.logger import get_logger
-from app.domain.entities.entities import StaffApprovalOutcome, User
+from app.domain.entities.entities import PassportProcessingStatus, StaffApprovalOutcome, User
 from app.domain.exceptions.exceptions import (
     AuthorizationError,
     EntityNotFoundError,
@@ -41,6 +41,7 @@ from app.domain.exceptions.exceptions import (
     StaffApprovalUnavailableError,
     StorageError,
 )
+from app.domain.value_objects.passport_document_classification import requires_manual_staff_review
 from app.infrastructure.database.models import StorageCleanupJobModel
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.documents.storage_cleanup import (
@@ -255,7 +256,11 @@ async def client_submit_passport(
                 answer.model_dump(mode="json") for answer in body.custom_detail_answers
             ],
         )
-        if result.image_s3_key:
+        if (
+            result.image_s3_key
+            and result.status == PassportProcessingStatus.SUBMITTED.value
+            and not requires_manual_staff_review(result.post_submission_verification)
+        ):
             verification_job = await PostSubmissionVerificationJobRepository(session).enqueue(
                 submission_id=result.id,
                 verification_revision=result.post_submission_verification_revision,

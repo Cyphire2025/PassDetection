@@ -39,6 +39,7 @@ from app.infrastructure.whatsapp.phone_welcome import (
     require_welcome_delivered,
     sync_welcome_from_log,
 )
+from app.infrastructure.whatsapp.receipt_bindings import bind_source_provider_message
 
 MAX_PROVIDER_ATTEMPTS = 3
 WHATSAPP_BATCH_HEARTBEAT_INTERVAL = timedelta(minutes=5)
@@ -519,6 +520,9 @@ async def run_whatsapp_broadcast(
                         log.status_updated_at = datetime.now(tz=UTC)
                         log.provider_message_id = provider_id
                         log.error_message = None
+                        await bind_source_provider_message(
+                            session, log, provider_phone_number_id=settings.whatsapp_phone_number_id
+                        )
                         await _set_message_state(
                             session,
                             log=log,
@@ -544,6 +548,10 @@ async def run_whatsapp_broadcast(
                                 reconciliation_log.status_updated_at = datetime.now(tz=UTC)
                             reconciliation_log.provider_message_id = provider_id
                             reconciliation_log.error_message = None
+                            await bind_source_provider_message(
+                                session, reconciliation_log,
+                                provider_phone_number_id=settings.whatsapp_phone_number_id,
+                            )
                             await _set_message_state(
                                 session,
                                 log=reconciliation_log,

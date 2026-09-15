@@ -3,7 +3,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
+import { apiErrorStatus } from "@/lib/api/error-status";
 import { QUERY_KEYS as DASHBOARD_QUERY_KEYS } from "@/constants";
 import type { PassportGroupSummary } from "@/types/passport.types";
 import {
@@ -44,7 +44,7 @@ export function useUploadLinkByToken(token: string) {
     queryFn: () => uploadLinksApi.getByToken(token),
     enabled: Boolean(token),
     retry: (failureCount, error) => {
-      const status = isAxiosError(error) ? error.response?.status : undefined;
+      const status = apiErrorStatus(error);
       if (status && [400, 401, 403, 404, 410, 422].includes(status)) return false;
       return failureCount < 2;
     },

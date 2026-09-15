@@ -1,4 +1,5 @@
 import type { ClientDetailsEditorResponse, ClientDetailsPatch, ClientDetailKey } from "../api/client-details.api";
+import { normalizePhoneNumber, PHONE_FORMAT_HELP } from "@/lib/utils/phone-number";
 
 export interface ClientDetailsDraft {
   fields: Partial<Record<ClientDetailKey, string>>;
@@ -43,6 +44,7 @@ export function clientDetailsValidation(data: ClientDetailsEditorResponse, draft
   for (const field of fields) {
     if (field.next === (field.value ?? "")) continue;
     const value = field.next.trim();
+    if (field.type === "tel" && value && !normalizePhoneNumber(value)) return `${field.label}: ${PHONE_FORMAT_HELP}`;
     if (field.required && !value) return `${field.label} is required.`;
     if (value.length > field.max_length) return `${field.label} must be ${field.max_length} characters or fewer.`;
     if (value && field.type === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return `Enter a valid ${field.label.toLowerCase()}.`;

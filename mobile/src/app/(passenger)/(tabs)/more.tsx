@@ -17,6 +17,7 @@ import { Screen } from '@/design/components/screen';
 import { colors, spacing } from '@/design/theme';
 import { useTrips } from '@/features/trips/hooks/use-trips';
 import { SafeSignOutButton } from '@/features/profile/ui/safe-sign-out-button';
+import { NotificationSettingsCard } from '@/features/profile/ui/notification-settings-card';
 
 function initials(value: string): string {
   return value
@@ -96,6 +97,7 @@ export default function PassengerMoreScreen() {
         />
       ) : null}
 
+      <NotificationSettingsCard />
       <View style={styles.signOut}>
         <LogOut color={colors.danger} size={22} />
         <Text style={styles.signOutNote}>Sign out of this passenger account</Text>

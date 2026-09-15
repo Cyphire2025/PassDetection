@@ -9,6 +9,7 @@ import { Screen } from '@/design/components/screen';
 import { colors, radii, spacing } from '@/design/theme';
 import { OperationHeader } from '@/features/coordinator/ui/operation-header';
 import { SafeSignOutButton } from '@/features/profile/ui/safe-sign-out-button';
+import { NotificationSettingsCard } from '@/features/profile/ui/notification-settings-card';
 
 export default function CoordinatorProfileScreen() {
   const principal = useSessionStore((state) => state.session?.principal ?? null);
@@ -43,6 +44,7 @@ export default function CoordinatorProfileScreen() {
           <Text style={styles.unavailable}>No additional contact details are available for this account.</Text>
         ) : null}
       </GlassCard>
+      <NotificationSettingsCard />
       <SafeSignOutButton />
     </Screen>
   );

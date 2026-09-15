@@ -178,8 +178,6 @@ class AuthorizationPolicy:
             return True
         if user.role == UserRole.AGENCY_MANAGER:
             return await self.can_manage_group(user, group)
-        if user.role == UserRole.AGENCY_STAFF:
-            return await self.staff_can_access_group(user.id, group.id)
         return False
 
     async def can_delete_passport_submissions(self, user: User, group: Any) -> bool:

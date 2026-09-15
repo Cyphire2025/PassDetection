@@ -204,7 +204,7 @@ async def test_client_detail_correction_real_http_transaction(
         assert response.status_code == 200, response.text
         assert response.json()["confirmed_fields"]["agent_employee_code"] == "12345"
         assert response.json()["client_email"] == "corrected@example.com"
-        assert response.json()["client_phone"] == "9876543211"
+        assert response.json()["client_phone"] == "+919876543211"
         assert response.json()["status"] == "ai_approved"
         assert response.json()["extraction_status"] == "extraction_complete"
         if db_session.get_bind().dialect.name == "postgresql":
@@ -213,7 +213,7 @@ async def test_client_detail_correction_real_http_transaction(
     await db_session.refresh(submission)
     assert submission.confirmed_fields["agent_employee_code"] == "12345"
     assert submission.client_email == "corrected@example.com"
-    assert submission.client_phone == "9876543211"
+    assert submission.client_phone == "+919876543211"
     assert submission.extraction_status == "extraction_complete"
     audit = (
         await db_session.execute(

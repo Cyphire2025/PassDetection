@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
+import { normalizePhoneNumber, PHONE_FORMAT_HELP } from "@/lib/utils/phone-number";
 import { BadgeCheck, Mail, MapPin, Phone, User, Utensils } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import type {
@@ -85,23 +86,35 @@ export function ContactInput({
   inputMode?: React.InputHTMLAttributes<HTMLInputElement>["inputMode"];
   pattern?: string;
 }) {
+  const inputId = useId();
+  const hintId = `${inputId}-hint`;
+  const phoneInvalid = type === "tel" && Boolean(value.trim()) && !normalizePhoneNumber(value);
   return (
-    <label className="block min-w-0 space-y-1.5">
-      <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</span>
+    <div className="block min-w-0 space-y-1.5">
+      <label htmlFor={inputId} className="text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</label>
       <div className="relative min-w-0">
         <span className="absolute left-3 top-3 text-slate-400">{icon}</span>
         <Input
           type={type}
+          id={inputId}
+          ref={(input) => { input?.setCustomValidity(phoneInvalid ? PHONE_FORMAT_HELP : ""); }}
           value={value}
-          onChange={(event) => onChange(event.target.value)}
+          onChange={(event) => {
+            const text = event.target.value;
+            event.target.setCustomValidity(type === "tel" && text.trim() && !normalizePhoneNumber(text) ? PHONE_FORMAT_HELP : "");
+            onChange(text);
+          }}
           className="h-12 w-full min-w-0 rounded-xl border-slate-200 bg-white pl-10 text-base shadow-sm placeholder:text-slate-400 focus-visible:bg-white"
           required={required}
-          maxLength={maxLength}
-          inputMode={inputMode}
+          maxLength={maxLength ?? (type === "tel" ? 64 : undefined)}
+          inputMode={inputMode ?? (type === "tel" ? "tel" : undefined)}
           pattern={pattern}
+          aria-invalid={phoneInvalid || undefined}
+          aria-describedby={type === "tel" ? hintId : undefined}
         />
       </div>
-    </label>
+      {type === "tel" && <span id={hintId} className={`block text-xs normal-case tracking-normal ${phoneInvalid ? "text-red-700" : "text-slate-500"}`}>{PHONE_FORMAT_HELP}</span>}
+    </div>
   );
 }
 

@@ -24,6 +24,7 @@ from app.infrastructure.whatsapp.cloud_api_provider import (
     send_whatsapp_template,
 )
 from app.infrastructure.whatsapp.phone_welcome import assert_phone_welcome_claim, sync_phone_welcome
+from app.infrastructure.whatsapp.receipt_bindings import bind_source_provider_message
 from app.infrastructure.whatsapp.traveller_destinations import load_traveller_destinations
 
 
@@ -41,9 +42,14 @@ async def _sync_attempt(session: AsyncSession, attempt: WhatsAppPhoneWelcomeAtte
 async def _commit_provider_outcome(
     session: AsyncSession,
     attempt: WhatsAppPhoneWelcomeAttemptModel,
+    *,
+    provider_phone_number_id: str | None,
 ) -> None:
     attempt_id, provider_id = attempt.id, attempt.provider_message_id
     try:
+        await bind_source_provider_message(
+            session, attempt, provider_phone_number_id=provider_phone_number_id
+        )
         await _sync_attempt(session, attempt)
         await session.commit()
     except Exception:
@@ -66,6 +72,9 @@ async def _commit_provider_outcome(
         saved.provider_message_id = provider_id
         saved.error_message = None
         saved.status_updated_at = saved.updated_at = datetime.now(tz=UTC)
+        await bind_source_provider_message(
+            session, saved, provider_phone_number_id=provider_phone_number_id
+        )
         await _sync_attempt(session, saved)
         await session.commit()
 
@@ -259,10 +268,11 @@ async def _run_attempt(attempt_id: uuid.UUID, client: httpx.AsyncClient) -> None
                 await session.commit()
                 return
             retry = False
+            provider_settings = get_settings()
             try:
                 provider_id = await send_whatsapp_template(
                     client=client,
-                    settings=get_settings(),
+                    settings=provider_settings,
                     to_number=current.normalized_phone_number,
                     template_name=current.template_name,
                     message_type="welcome",
@@ -288,7 +298,11 @@ async def _run_attempt(attempt_id: uuid.UUID, client: httpx.AsyncClient) -> None
             # Preserve a known provider ID after a transient commit failure.
             # A persistent DB outage leaves processing durable; scheduled
             # recovery eventually marks it unknown without submitting again.
-            await _commit_provider_outcome(session, current)
+            await _commit_provider_outcome(
+                session,
+                current,
+                provider_phone_number_id=provider_settings.whatsapp_phone_number_id,
+            )
             if not retry:
                 return
             await asyncio.sleep(2**provider_attempt)

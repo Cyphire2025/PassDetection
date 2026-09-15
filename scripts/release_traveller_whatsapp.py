@@ -59,8 +59,8 @@ class ReleaseError(RuntimeError):
     pass
 
 
-def updated_environment(text: str, revision: str) -> str:
-    values = {"APP_REVISION": revision, "EXPECTED_DATABASE_SCHEMA_REVISION": SCHEMA}
+def updated_environment(text: str, revision: str, expected_schema: str = SCHEMA) -> str:
+    values = {"APP_REVISION": revision, "EXPECTED_DATABASE_SCHEMA_REVISION": expected_schema}
     seen: set[str] = set()
     lines = []
     for line in text.splitlines():
@@ -109,17 +109,27 @@ def image_reference(config: dict[str, Any], images: set[str], service: str) -> s
 
 
 class Release:
-    def __init__(self, revision: str, root: Path = ROOT) -> None:
+    def __init__(
+        self, revision: str, root: Path = ROOT, *, expected_schema: str = SCHEMA,
+        previous_schema: str = PREVIOUS_SCHEMA, directory_name: str = "traveller-whatsapp-release",
+    ) -> None:
         if not re.fullmatch(r"[0-9a-f]{40}", revision):
             raise ReleaseError(
                 "--revision must be the full 40-character pushed commit SHA"
             )
         self.root = root.resolve()
         self.revision = revision
+        if not all(re.fullmatch(r"[0-9]{4}_[A-Za-z0-9_]+", value) for value in (expected_schema, previous_schema)):
+            raise ReleaseError("Release schema identifiers are invalid")
+        if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", directory_name):
+            raise ReleaseError("Release directory name must be one safe directory component")
+        self.expected_schema = expected_schema
+        self.previous_schema = previous_schema
         self.env = dict(
-            os.environ, APP_REVISION=revision, EXPECTED_DATABASE_SCHEMA_REVISION=SCHEMA
+            os.environ, APP_REVISION=revision, EXPECTED_DATABASE_SCHEMA_REVISION=expected_schema
         )
-        self.directory = self.root / "tmp" / "traveller-whatsapp-release"
+        self.directory = self.root / "tmp" / directory_name
+        self.lock_directory = self.root / "tmp" / "compose-release-lock"
         self.manifest_path = self.directory / f"{revision}.json"
         self.pin_path = self.directory / f"{revision}.compose.json"
         self.phase = "preflight"
@@ -227,13 +237,13 @@ class Release:
 
     def config_fingerprint(self, config: dict[str, Any]) -> str:
         # The two intentional release variables are normalized before hashing .env.
-        env_text = updated_environment((self.root / ".env").read_text(), self.revision)
+        env_text = updated_environment((self.root / ".env").read_text(), self.revision, self.expected_schema)
         resolved = copy.deepcopy(config)
         for service, definition in resolved["services"].items():
             environment = definition.setdefault("environment", {})
             for key, value in {
                 "APP_REVISION": self.revision,
-                "EXPECTED_DATABASE_SCHEMA_REVISION": SCHEMA,
+                "EXPECTED_DATABASE_SCHEMA_REVISION": self.expected_schema,
             }.items():
                 if key in environment or service in (*WORKERS, "backend"):
                     environment[key] = value
@@ -252,6 +262,9 @@ class Release:
             descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
             with os.fdopen(descriptor, "w") as output:
                 output.write(data)
+                output.flush()
+                os.fsync(output.fileno())
+            self.sync_directory(path.parent)
             return
         descriptor, filename = tempfile.mkstemp(
             prefix=".traveller-release-", dir=path.parent
@@ -260,9 +273,21 @@ class Release:
         try:
             with os.fdopen(descriptor, "w") as output:
                 output.write(data)
+                output.flush()
+                os.fsync(output.fileno())
             os.replace(temporary, path)
+            self.sync_directory(path.parent)
         finally:
             temporary.unlink(missing_ok=True)
+
+    @staticmethod
+    def sync_directory(path: Path) -> None:
+        if os.name == "posix":
+            descriptor = os.open(path, os.O_RDONLY | os.O_DIRECTORY)
+            try:
+                os.fsync(descriptor)
+            finally:
+                os.close(descriptor)
 
     def verify_image(self, identifier: str, *, backend: bool) -> str:
         image = self.inspect(identifier, image=True)
@@ -297,6 +322,7 @@ class Release:
             raise ReleaseError(
                 "All seven workers and beat must share the configured worker image"
             )
+        self.prepare_recovery(config)
         self.say(
             "Building backend, the shared worker image, and frontend; current containers stay running"
         )
@@ -323,7 +349,7 @@ class Release:
         manifest = {
             "version": 1,
             "revision": self.revision,
-            "schema": SCHEMA,
+            "schema": self.expected_schema,
             "project": config["name"],
             "config_fingerprint": fingerprint,
             "images": images,
@@ -333,6 +359,12 @@ class Release:
         self.say(
             "PREPARED: images verified. Pause new uploads and message sends before activate."
         )
+
+    def prepare_recovery(self, config: dict[str, Any]) -> None:
+        """Optional release-specific recovery evidence, before image tags change."""
+
+    def before_migration(self, current_schema: str) -> None:
+        """Optional release-specific backup gate, before database/environment mutation."""
 
     def container(self, service: str) -> dict[str, Any]:
         ids = self.dc("ps", "--quiet", service).split()
@@ -394,7 +426,7 @@ class Release:
                 )
                 if (
                     env.get("APP_REVISION") != self.revision
-                    or env.get("EXPECTED_DATABASE_SCHEMA_REVISION") != SCHEMA
+                    or env.get("EXPECTED_DATABASE_SCHEMA_REVISION") != self.expected_schema
                 ):
                     raise ReleaseError(
                         f"{service}: running revision/schema setting is incorrect"
@@ -412,7 +444,7 @@ class Release:
             timeout=180,
         )
         matches = re.findall(
-            r"^(009\d_[A-Za-z0-9_]+)(?:\s|$)", output, flags=re.MULTILINE
+            r"^([0-9]{4}_[A-Za-z0-9_]+)(?:\s|$)", output, flags=re.MULTILINE
         )
         if len(matches) != 1:
             raise ReleaseError(
@@ -433,7 +465,7 @@ class Release:
         if (
             manifest.get("version") != 1
             or manifest.get("revision") != self.revision
-            or manifest.get("schema") != SCHEMA
+            or manifest.get("schema") != self.expected_schema
             or manifest.get("project") != config["name"]
             or manifest.get("config_fingerprint") != self.config_fingerprint(config)
         ):
@@ -470,17 +502,19 @@ class Release:
             )
             + "\n",
         )
+        current_schema = self.schema()
+        if current_schema not in {self.previous_schema, self.expected_schema}:
+            raise ReleaseError(
+                f"This release requires database revision {self.previous_schema} or {self.expected_schema}; no broader migration was attempted"
+            )
+        self.before_migration(current_schema)
         env_path = self.root / ".env"
         original = env_path.read_text()
         backup = self.directory / f"{self.revision}.env.backup"
         if not backup.exists():
             self.write_private(backup, original, exclusive=True)
-        self.write_private(env_path, updated_environment(original, self.revision))
-        self.say("Applying additive migration 0093 from the prepared backend image")
-        if self.schema() not in {PREVIOUS_SCHEMA, SCHEMA}:
-            raise ReleaseError(
-                "This release requires database revision 0092 or 0093; no broader migration was attempted"
-            )
+        self.write_private(env_path, updated_environment(original, self.revision, self.expected_schema))
+        self.say(f"Applying additive migration {self.expected_schema} from the prepared backend image")
         self.dc(
             "run",
             "--rm",
@@ -488,13 +522,13 @@ class Release:
             "backend",
             "alembic",
             "upgrade",
-            SCHEMA,
+            self.expected_schema,
             pinned=True,
             timeout=600,
             stream=True,
         )
-        if self.schema() != SCHEMA:
-            raise ReleaseError("Migration 0093 was not confirmed")
+        if self.schema() != self.expected_schema:
+            raise ReleaseError(f"Migration {self.expected_schema} was not confirmed")
         # No worker is recreated on stale pre-migration idle evidence.
         self.worker_probe(idle=True)
         options = (
@@ -550,7 +584,7 @@ class Release:
         self.verify_containers(ACTIVATED, images)
         self.dc("ps", stream=True)
         self.say(
-            f"RELEASE VERIFIED: {self.revision}; schema {SCHEMA}; backend, frontend, seven workers and beat."
+            f"RELEASE VERIFIED: {self.revision}; schema {self.expected_schema}; backend, frontend, seven workers and beat."
         )
 
 
@@ -566,12 +600,12 @@ def release_lock(directory: Path):
         try:
             fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError as error:
-            raise ReleaseError("Another traveller release helper is running") from error
+            raise ReleaseError("Another Compose release helper is running") from error
         yield
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+def main(release_type: type[Release] = Release, *, description: str | None = None) -> int:
+    parser = argparse.ArgumentParser(description=description or __doc__)
     parser.add_argument("mode", choices=("prepare", "activate"))
     parser.add_argument("--revision", required=True, help="Full pushed main commit SHA")
     parser.add_argument(
@@ -581,12 +615,12 @@ def main() -> int:
     )
     args = parser.parse_args()
     try:
-        release = Release(args.revision)
+        release = release_type(args.revision)
         if args.mode == "activate" and not args.traffic_paused:
             raise ReleaseError(
                 "Pause new uploads and message sends, then use activate --traffic-paused"
             )
-        with release_lock(release.directory):
+        with release_lock(release.lock_directory):
             getattr(release, args.mode)()
     except (ReleaseError, ValueError, OSError) as error:
         print(

@@ -9,8 +9,9 @@ import uuid
 from datetime import date, datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
 
+from app.domain.value_objects.phone_number import normalize_phone_number
 from app.domain.value_objects.trip_timezone import DEFAULT_TRIP_TIMEZONE
 
 PassportImageTypeValue = Literal["visa_photo", "passport_front", "passport_back"]
@@ -119,7 +120,7 @@ class ClientSubmitPassportRequest(BaseModel):
 
     confirmed_fields: dict[str, str] = Field(..., min_length=1)
     client_email: EmailStr | None = None
-    client_phone: str | None = Field(default=None, min_length=7, max_length=32)
+    client_phone: str | None = Field(default=None, max_length=64)
     departure_city: str | None = Field(default=None, max_length=120)
     nearest_domestic_airport: str | None = Field(default=None, max_length=120)
     base_city: str | None = Field(default=None, max_length=120)
@@ -137,7 +138,7 @@ class ClientSubmitPassportRequest(BaseModel):
     family_gender: str | None = Field(default=None, max_length=40)
     family_head_name: str | None = Field(default=None, max_length=255)
     family_head_email: EmailStr | None = None
-    family_head_phone: str | None = Field(default=None, min_length=7, max_length=32)
+    family_head_phone: str | None = Field(default=None, max_length=64)
     custom_answers: list["ClientCustomAnswerRequest"] = Field(
         default_factory=list,
         max_length=20,
@@ -146,6 +147,16 @@ class ClientSubmitPassportRequest(BaseModel):
         default_factory=list,
         max_length=20,
     )
+
+    @field_validator("client_phone", "family_head_phone")
+    @classmethod
+    def normalize_contact_phone(cls, value: str | None) -> str | None:
+        if not value or not value.strip():
+            return None
+        normalized = normalize_phone_number(value)
+        if normalized is None:
+            raise ValueError("Enter a valid phone number with a country code or a 10-digit Indian number.")
+        return normalized
 
 
 class ClientCustomAnswerRequest(BaseModel):
@@ -492,6 +503,8 @@ class PassportSubmissionResponse(BaseModel):
         "ready_for_review",
     ] = "not_started"
     extraction_revision: int = Field(default=0, ge=0)
+    manual_review_submission_allowed: bool = False
+    manual_review_reason_code: Literal["AI_EXTRACTION_UNAVAILABLE"] | None = None
     status: str
     created_at: datetime
     updated_at: datetime

@@ -455,9 +455,9 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
         call = passport_repo.exists_contact_in_group.await_args
         self.assertEqual(call.kwargs["scope"], "platform")
         self.assertEqual(call.kwargs["client_email"], "head@example.com")
-        self.assertEqual(call.kwargs["client_phone"], "9000022222")
+        self.assertEqual(call.kwargs["client_phone"], "+919000022222")
         self.assertEqual(call.kwargs["additional_emails"], ("member@example.com",))
-        self.assertEqual(call.kwargs["additional_phones"], ("9000011111",))
+        self.assertEqual(call.kwargs["additional_phones"], ("+919000011111",))
         passport_repo.update.assert_not_awaited()
 
     async def test_qualifier_submission_cannot_be_changed_to_family_mode(self) -> None:

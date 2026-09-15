@@ -84,6 +84,33 @@ def sample():
     return submission, group
 
 
+@pytest.mark.parametrize("raw", ["9876543211", "0091 98765 43211", "+91 (98765) 43211"])
+def test_staff_phone_correction_uses_delivery_canonical_number_without_changing_approval(raw):
+    submission, group = sample()
+    submission.client_phone = "+919876543210"
+    updated, changed = correct_client_details(submission, group, {"client_phone": raw})
+    assert updated.client_phone == "+919876543211"
+    assert changed == ("client_phone",)
+    assert submission.client_phone == "+919876543210"
+    assert updated.status == submission.status
+    assert updated.post_submission_verification_revision == submission.post_submission_verification_revision
+
+
+def test_staff_format_only_edit_preserves_legacy_number_without_publishing_a_contact_change():
+    submission, group = sample()
+    submission.client_phone = "9876543210"
+    updated, changed = correct_client_details(submission, group, {"client_phone": "+91 98765 43210"})
+    assert not changed
+    assert updated.client_phone == "9876543210"
+
+
+@pytest.mark.parametrize("raw", ["1234567", "1234567890123456", "+01234567890", "++919876543210"])
+def test_staff_phone_correction_rejects_numbers_delivery_cannot_use(raw):
+    submission, group = sample()
+    with pytest.raises(ValidationError):
+        correct_client_details(submission, group, {"client_phone": raw})
+
+
 def test_descriptors_use_historical_labels_and_current_options():
     submission, group = sample()
     descriptor = PassportClientDetailsResponse.model_validate(

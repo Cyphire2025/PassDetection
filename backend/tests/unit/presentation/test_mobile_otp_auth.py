@@ -195,8 +195,14 @@ async def test_otp_challenge_is_committed_before_provider_delivery() -> None:
 
     with (
         patch(
+            "app.presentation.api.v1.routes.mobile_auth.bind_source_provider_message",
+            AsyncMock(side_effect=lambda *a, **k: events.append("binding")),
+        ),
+        patch(
             "app.presentation.api.v1.routes.mobile_auth.get_settings",
-            return_value=SimpleNamespace(mobile=_otp_settings()),
+            return_value=SimpleNamespace(
+                mobile=_otp_settings(), whatsapp_phone_number_id="test-account"
+            ),
         ),
         patch(
             "app.presentation.api.v1.routes.mobile_auth.MobileOTPRateLimiter.consume",
@@ -230,7 +236,7 @@ async def test_otp_challenge_is_committed_before_provider_delivery() -> None:
         )
 
     assert response.challenge_id == session.add.call_args.args[0].id
-    assert events == ["commit", "provider", "commit"]
+    assert events == ["commit", "provider", "binding", "commit"]
     assert session.flush.await_count == 1
     challenge = session.add.call_args.args[0]
     assert challenge.provider_reference == "wamid.otp-test"
@@ -1315,9 +1321,7 @@ async def test_passenger_trip_switch_rotates_subject_and_both_token_types() -> N
     assert switch_lease_claims["account_id"] == str(old_identity_id)
     assert switch_lease_claims["agency_id"] == str(agency_id)
     assert switch_lease_claims["principal_type"] == "passenger"
-    assert switch_lease_claims["passenger_id"] == str(
-        target_identity.passenger_submission_id
-    )
+    assert switch_lease_claims["passenger_id"] == str(target_identity.passenger_submission_id)
     assert switch_lease_claims["session_id"] == str(session_id)
     assert switch_lease_claims["installation_id"] == _device().installation_id
     assert device_session.passenger_identity_id == target_identity.id

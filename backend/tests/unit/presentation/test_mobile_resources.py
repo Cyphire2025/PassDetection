@@ -68,6 +68,33 @@ def test_mobile_resources_project_domestic_lanes_as_flight_tickets() -> None:
     assert _mobile_document_category("flight_ticket_domestic_arrival") == "flight_ticket"
 
 
+@pytest.mark.asyncio
+async def test_historical_content_revokes_project_as_deletes_without_rewriting_journal() -> None:
+    claims = _claims()
+    group_id = uuid.uuid4()
+    trip = SimpleNamespace(group=SimpleNamespace(id=group_id),
+        access=SimpleNamespace(id=uuid.uuid4(), access_generation=3),
+        principal_type="passenger", passenger_identity=SimpleNamespace(id=claims.principal_id))
+    types = ["announcement", "itinerary", "common_document", "group_access", "role_access"]
+    rows = [SimpleNamespace(sequence=index + 1, group_id=group_id, entity_type=kind,
+        entity_id=uuid.uuid4(), operation="revoke", version=1, occurred_at=datetime.now(tz=UTC), payload={})
+        for index, kind in enumerate(types)]
+    watermark, page = MagicMock(), MagicMock()
+    watermark.scalar_one.return_value = len(rows)
+    page.scalars.return_value.all.return_value = rows
+    session = MagicMock(execute=AsyncMock(side_effect=[watermark, page]))
+    with patch("app.presentation.api.v1.routes.mobile_resources.MobileAccessPolicy.require_trip_access",
+        new=AsyncMock(return_value=trip)):
+        response = await list_mobile_sync_changes(trip_id=group_id, cursor=0, limit=25, claims=claims, session=session)
+    assert [change.operation for change in response.changes] == ["delete", "delete", "delete", "revoke", "revoke"]
+    assert [change.sequence for change in response.changes] == [1, 2, 3, 4, 5]
+    assert [change.entity_id for change in response.changes] == [row.entity_id for row in rows]
+    assert all(row.operation == "revoke" for row in rows)
+    assert response.next_cursor == 5
+    session.commit.assert_not_called()
+    session.flush.assert_not_called()
+
+
 def test_mobile_resource_keeps_lane_specific_ticket_display_name() -> None:
     source = _distributed_document_source(
         SimpleNamespace(

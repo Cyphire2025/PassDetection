@@ -199,8 +199,11 @@ export function isExtractionTerminal(submission: PassportSubmission) {
 }
 
 export function extractionNoticeFor(submission: PassportSubmission) {
+  if (submission.manual_review_submission_allowed) {
+    return "Automatic reading is unavailable. Enter the details and submit them for staff review. Your passport will remain unverified until staff approve it.";
+  }
   if (submission.extraction_status === "extraction_failed" || submission.status === "failed") {
-    return "Automatic passport detail extraction failed. Your passport images are saved. Retry automatic reading or enter the details manually.";
+    return "Automatic passport reading failed. Your saved images are safe. Retry reading or replace the image if it could not be verified as the correct passport page.";
   }
   if (submission.extraction_status === "extraction_partial") {
     return "Your passport pages were saved. Some details could not be read confidently, so check and complete the missing fields manually.";

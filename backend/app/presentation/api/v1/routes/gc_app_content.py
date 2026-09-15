@@ -7,7 +7,7 @@ import hashlib
 import json
 import uuid
 from contextlib import aclosing
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from typing import AsyncGenerator, AsyncIterator, Literal, cast
 from urllib.parse import quote
@@ -28,6 +28,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.mobile.announcement_notification_status import announcement_notification_status
 from app.application.mobile.notification_service import (
     cancel_announcement_notifications,
     enqueue_announcement_notifications,
@@ -50,6 +51,9 @@ from app.infrastructure.email.pdf_validator import EmailPdfValidationError, Emai
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.routes.gc_app_history_support import gc_app_audit_responses
+from app.presentation.api.v1.schemas.announcement_notification_status import (
+    AnnouncementNotificationStatusResponse,
+)
 from app.presentation.api.v1.schemas.gc_app_schemas import (
     AnnouncementCreateRequest,
     AnnouncementResponse,
@@ -319,7 +323,7 @@ async def unpublish_itinerary(
         access=access,
         entity_type="itinerary",
         entity_id=itinerary.id,
-        operation="revoke",
+        operation="delete",
         version=access.itinerary_version,
         changed_by_user_id=current_user.id,
         payload={"resource_path": f"/api/v1/mobile/trips/{group_id}/itinerary"},
@@ -688,7 +692,7 @@ async def unpublish_common_document(
         access=access,
         entity_type="common_document",
         entity_id=document.id,
-        operation="revoke",
+        operation="delete",
         version=access.common_document_version,
         changed_by_user_id=current_user.id,
         payload={"resource_path": f"/api/v1/mobile/trips/{group_id}/common-documents"},
@@ -803,6 +807,30 @@ async def list_announcements(
         ).scalars()
     )
     return [_announcement_response(item) for item in items]
+
+
+@router.get(
+    "/groups/{group_id}/announcements/{announcement_id}/notification-status",
+    response_model=AnnouncementNotificationStatusResponse,
+)
+async def get_announcement_notification_status(
+    group_id: uuid.UUID,
+    announcement_id: uuid.UUID,
+    agency_id: uuid.UUID | None = None,
+    current_user: User = Depends(require_role(GC_CONTENT_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> AnnouncementNotificationStatusResponse:
+    access, _group = await _admin_access_context(
+        session, current_user, group_id, agency_id=agency_id, lock=False
+    )
+    await _get_announcement(session, access, announcement_id, lock=False)
+    settings = get_settings().mobile
+    summary = await announcement_notification_status(
+        session, agency_id=access.agency_id, group_id=group_id,
+        access_id=access.id, announcement_id=announcement_id,
+        provider_enabled=settings.enabled and settings.push_provider != "disabled",
+    )
+    return AnnouncementNotificationStatusResponse.model_validate(asdict(summary))
 
 
 @router.post(
@@ -1010,7 +1038,7 @@ async def unpublish_announcement(
         access=access,
         entity_type="announcement",
         entity_id=announcement.id,
-        operation="revoke",
+        operation="delete",
         version=access.announcement_version,
         changed_by_user_id=current_user.id,
         payload={"resource_path": f"/api/v1/mobile/trips/{group_id}/announcements"},

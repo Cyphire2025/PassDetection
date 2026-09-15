@@ -27,6 +27,8 @@ def _submitted_result(*, submission_id: uuid.UUID, agency_id: uuid.UUID, group_i
         agency_id=agency_id,
         group_id=group_id,
         image_s3_key="front/current.jpg",
+        status="submitted",
+        post_submission_verification=None,
         post_submission_verification_revision=3,
         idempotent_replay=True,
         storage_cleanup_keys=("front/superseded.jpg", "back/superseded.jpg"),
@@ -34,7 +36,8 @@ def _submitted_result(*, submission_id: uuid.UUID, agency_id: uuid.UUID, group_i
     )
 
 
-async def test_client_submit_commits_cleanup_tombstone_before_object_worker() -> None:
+@pytest.mark.parametrize("submission_status", ["submitted", "needs_review", "staff_approved"])
+async def test_client_submit_commits_cleanup_tombstone_before_object_worker(submission_status) -> None:
     submission_id = uuid.uuid4()
     agency_id = uuid.uuid4()
     group_id = uuid.uuid4()
@@ -44,6 +47,7 @@ async def test_client_submit_commits_cleanup_tombstone_before_object_worker() ->
         agency_id=agency_id,
         group_id=group_id,
     )
+    result.status = submission_status
     events: list[str] = []
     session = AsyncMock()
 
@@ -61,6 +65,7 @@ async def test_client_submit_commits_cleanup_tombstone_before_object_worker() ->
         events.append("object-worker")
 
     expected_response = object()
+    enqueue = AsyncMock(return_value=SimpleNamespace(id=uuid.uuid4(), status="completed"))
     with (
         patch(
             'app.presentation.api.v1.routes.passport_routes.submission_review.PassportSubmissionRepository',
@@ -76,12 +81,7 @@ async def test_client_submit_commits_cleanup_tombstone_before_object_worker() ->
         patch(
             'app.presentation.api.v1.routes.passport_routes.submission_review.PostSubmissionVerificationJobRepository',
             return_value=SimpleNamespace(
-                enqueue=AsyncMock(
-                    return_value=SimpleNamespace(
-                        id=uuid.uuid4(),
-                        status="completed",
-                    )
-                )
+                enqueue=enqueue,
             ),
         ),
         patch(
@@ -110,6 +110,7 @@ async def test_client_submit_commits_cleanup_tombstone_before_object_worker() ->
     assert response is expected_response
     assert events == ["cleanup-tombstone", "commit", "object-worker"]
     assert stage_cleanup.call_args.kwargs["storage_keys"] == result.storage_cleanup_keys
+    assert enqueue.await_count == (1 if submission_status == "submitted" else 0)
 
 
 async def test_client_submit_commit_failure_never_runs_object_cleanup() -> None:

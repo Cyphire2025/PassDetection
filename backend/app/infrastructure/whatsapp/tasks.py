@@ -17,6 +17,7 @@ from app.infrastructure.whatsapp.qr_delivery_runtime import (
     mark_qr_batch_failed,
     run_qr_whatsapp_broadcast,
 )
+from app.infrastructure.whatsapp.receipt_runtime import run_receipt_reconciliation
 from app.infrastructure.whatsapp.traveller_welcome_runtime import (
     mark_traveller_welcome_batch_failed,
     run_traveller_welcome_broadcast,
@@ -184,3 +185,8 @@ def process_traveller_welcome_broadcast(self: _BoundTask, *, batch_id: str) -> N
 @celery_app.task(name="whatsapp.recover_stale_welcomes", queue="whatsapp")  # type: ignore[untyped-decorator]
 def recover_stale_welcome_deliveries() -> None:
     celery_async_runtime.run(run_stale_welcome_recovery())
+
+
+@celery_app.task(name="whatsapp.reconcile_receipts", queue="whatsapp")  # type: ignore[untyped-decorator]
+def reconcile_whatsapp_receipts() -> dict[str, int]:
+    return celery_async_runtime.run(run_receipt_reconciliation())

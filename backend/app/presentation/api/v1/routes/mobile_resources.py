@@ -109,6 +109,9 @@ from app.infrastructure.repositories.coordinator_assignment_lifecycle import (
 )
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.routes.mobile_integrity import get_mobile_integrity_service
+from app.presentation.api.v1.routes.mobile_sync_projection import (
+    mobile_sync_operation as _mobile_sync_operation,
+)
 from app.presentation.api.v1.schemas.mobile_schemas import (
     MobileAnnouncementPageResponse,
     MobileAnnouncementResponse,
@@ -171,7 +174,6 @@ MobileDocumentContentType = Literal[
     "image/webp",
 ]
 MobilePrincipalType = Literal["passenger", "client_manager", "coordinator"]
-MobileSyncOperation = Literal["upsert", "delete", "revoke"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -616,7 +618,7 @@ async def list_mobile_sync_changes(
             group_id=row.group_id,
             entity_type=row.entity_type,
             entity_id=row.entity_id,
-            operation=_mobile_sync_operation(row.operation),
+            operation=_mobile_sync_operation(row.operation, entity_type=row.entity_type),
             version=row.version,
             occurred_at=row.occurred_at,
             payload=_safe_sync_payload(row.payload),
@@ -2730,16 +2732,6 @@ def _mobile_announcement_priority(
     if value == "high":
         return "important"
     return "normal"
-
-
-def _mobile_sync_operation(value: str) -> MobileSyncOperation:
-    if value in {"upsert", "publish"}:
-        return "upsert"
-    if value == "delete":
-        return "delete"
-    if value == "revoke":
-        return "revoke"
-    raise ValueError("Unsupported mobile sync operation")
 
 
 def _mobile_document_content_type(value: str) -> MobileDocumentContentType:

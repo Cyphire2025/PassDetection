@@ -8,11 +8,14 @@ from __future__ import annotations
 import uuid
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any
+from typing import Any, Literal
 
 from app.domain.value_objects.custom_questions import (
     CustomDetailDefinition,
     CustomQuestionDefinition,
+)
+from app.domain.value_objects.passport_document_classification import (
+    manual_review_submission_allowed,
 )
 from app.domain.value_objects.passport_fields import canonical_passport_fields
 from app.domain.value_objects.trip_timezone import DEFAULT_TRIP_TIMEZONE
@@ -58,6 +61,8 @@ class PassportSubmissionOutputDTO:
     qualifier_selected_at: datetime | None = None
     extraction_status: str = "not_started"
     extraction_revision: int = 0
+    manual_review_submission_allowed: bool = False
+    manual_review_reason_code: Literal["AI_EXTRACTION_UNAVAILABLE"] | None = None
     extracted_fields: dict[str, Any] | None = None
     confirmed_fields: dict[str, Any] | None = None
     extraction_conflicts: list[dict[str, Any]] | None = None
@@ -92,6 +97,15 @@ def passport_submission_output_from_entity(
 ) -> PassportSubmissionOutputDTO:
     """Map one domain entity consistently across public and dashboard flows."""
 
+    manual_allowed = manual_review_submission_allowed(
+        extracted_fields=submission.extracted_fields,
+        extraction_revision=submission.extraction_revision,
+        extraction_status=submission.extraction_status.value,
+        status=submission.status.value,
+        image_s3_key=submission.image_s3_key,
+        processing_job_revision=job.extraction_revision if job else None,
+        processing_job_status=job.status.value if job else None,
+    )
     return PassportSubmissionOutputDTO(
         id=submission.id,
         group_id=submission.group_id,
@@ -128,6 +142,10 @@ def passport_submission_output_from_entity(
         qualifier_selected_at=submission.qualifier_selected_at,
         extraction_status=submission.extraction_status.value,
         extraction_revision=submission.extraction_revision,
+        manual_review_submission_allowed=manual_allowed,
+        manual_review_reason_code=(
+            "AI_EXTRACTION_UNAVAILABLE" if manual_allowed else None
+        ),
         status=submission.status.value,
         created_at=submission.created_at,
         updated_at=submission.updated_at,

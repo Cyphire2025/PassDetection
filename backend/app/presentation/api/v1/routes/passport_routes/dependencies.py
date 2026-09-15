@@ -115,6 +115,7 @@ def _get_client_submit_passport_use_case(
         client_group_repo=ClientGroupRepository(session),
         storage_repo=MinioStorageRepository(),
         platform_policy_provider=PlatformPolicyRepository(session),
+        processing_job_repo=PassportProcessingJobRepository(session),
     )
 
 

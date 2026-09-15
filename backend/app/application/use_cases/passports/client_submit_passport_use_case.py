@@ -40,7 +40,9 @@ from app.domain.value_objects.passport_fields import (
     normalize_reviewed_passport_fields,
     validate_reviewed_passport_payload,
 )
+from app.domain.value_objects.phone_number import normalize_phone_number, phone_numbers_equal
 from app.domain.value_objects.upload_configuration import configuration_for, validate_documents
+from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
 
 logger = get_logger(__name__)
 
@@ -59,11 +61,13 @@ class ClientSubmitPassportUseCase:
         client_group_repo: IClientGroupRepository,
         storage_repo: IObjectStorageRepository,
         platform_policy_provider: PlatformPolicyProvider | None = None,
+        processing_job_repo: PassportProcessingJobRepository | None = None,
     ) -> None:
         self._passport_repo = passport_repo
         self._client_group_repo = client_group_repo
         self._storage_repo = storage_repo
         self._platform_policy_provider = platform_policy_provider
+        self._processing_job_repo = processing_job_repo
 
     async def execute(
         self,
@@ -136,16 +140,29 @@ class ClientSubmitPassportUseCase:
                 field="qualifier_selection_token",
             )
         if (
+            not submission.manual_review_submission_allowed
+            and self._processing_job_repo is not None
+            and submission.status.value not in OFFICE_VISIBLE_PASSPORT_STATUS_VALUES
+        ):
+            latest_job = await self._processing_job_repo.latest_for_submission(submission.id)
+            if latest_job is not None:
+                submission.restore_legacy_provider_failure_evidence(
+                    processing_job_revision=latest_job.extraction_revision,
+                    processing_job_status=latest_job.status.value,
+                )
+        require_staff_review = submission.manual_review_submission_allowed
+        if (
             has_passport_front
             and
             submission.status.value not in OFFICE_VISIBLE_PASSPORT_STATUS_VALUES
             and not is_accepted_passport_information_page(
                 passport_document_classification(submission.extracted_fields)
             )
+            and not require_staff_review
         ):
             # The browser cannot bypass the final server-side document gate by
-            # manually entering plausible passport fields. This also fails
-            # closed while Gemini classification is unavailable or incomplete.
+            # manually entering plausible passport fields. Only a trusted
+            # current-revision provider failure permits pending staff review.
             raise ValidationError(
                 PUBLIC_DOCUMENT_CLASSIFICATION_REQUIRED,
                 field="file",
@@ -435,6 +452,7 @@ class ClientSubmitPassportUseCase:
                 family_broadcast_to_member=bool(normalized_email or normalized_phone),
                 custom_answers=normalized_custom_answers,
                 custom_detail_answers=normalized_custom_detail_answers,
+                require_staff_review=require_staff_review,
             )
             if not has_passport_front:
                 submission.mark_no_passport_verification_required()
@@ -485,7 +503,7 @@ class ClientSubmitPassportUseCase:
         return (
             dict(submission.confirmed_fields or {}) == clean_fields
             and submission.client_email == client_email
-            and submission.client_phone == client_phone
+            and phone_numbers_equal(submission.client_phone, client_phone)
             and submission.departure_city == departure_city
             and submission.nearest_domestic_airport
             == nearest_domestic_airport
@@ -496,7 +514,7 @@ class ClientSubmitPassportUseCase:
             and submission.family_gender == family_gender
             and submission.family_head_name == family_head_name
             and submission.family_head_email == family_head_email
-            and submission.family_head_phone == family_head_phone
+            and phone_numbers_equal(submission.family_head_phone, family_head_phone)
             and submission.family_broadcast_to_member
             == family_broadcast_to_member
             and list(submission.custom_answers or []) == custom_answers
@@ -505,14 +523,7 @@ class ClientSubmitPassportUseCase:
         )
 
     def _normalize_phone(self, value: str | None) -> str:
-        if not value:
-            return ""
-        normalized = re.sub(r"[^\d+]", "", value.strip())
-        if normalized.startswith("+"):
-            digits = "+" + re.sub(r"\D", "", normalized[1:])
-        else:
-            digits = re.sub(r"\D", "", normalized)
-        return digits if len(digits.replace("+", "")) >= 7 else ""
+        return normalize_phone_number(value) or ""
 
     @staticmethod
     def _normalize_departure_city(

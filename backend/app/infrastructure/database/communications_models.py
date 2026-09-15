@@ -243,6 +243,7 @@ class WhatsAppMessageLogModel(Base):
     __tablename__ = "whatsapp_message_logs"
     __table_args__ = (
         Index("ix_whatsapp_message_logs_group_created", "broadcast_group_id", "created_at"),
+        Index("ix_whatsapp_message_logs_provider_id", "provider_message_id"),
         Index(
             "uq_whatsapp_active_explicit_resend",
             "recipient_id",

@@ -136,6 +136,8 @@ export function AppControlGroupWorkspace({ groupId }: { groupId: string }) {
       {tab === "announcements" && content.data && (
         <div role="tabpanel">
           <AnnouncementsPanel
+            agencyId={agencyId}
+            groupId={groupId}
             announcements={content.data.announcements}
             isCreating={actions.createAnnouncement.isPending}
             isUpdating={actions.updateAnnouncement.isPending || actions.setAnnouncementPublished.isPending || actions.deleteAnnouncement.isPending}

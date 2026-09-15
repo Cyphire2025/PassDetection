@@ -34,7 +34,7 @@ async function mockOfficeApi(page: Page) {
         status: "authenticated",
         user,
         token_type: "bearer",
-        access_token_expires_at: "2099-08-22T13:00:00Z",
+        access_token_expires_at: new Date(Date.now() + 30 * 60_000).toISOString(),
       });
       return;
     }
@@ -80,7 +80,7 @@ test("critical office workspaces render and retain their primary keyboard-operab
 
   await page.goto("/documents");
   await expect(page.getByRole("heading", { name: "Documents", level: 1 })).toBeVisible();
-  await page.getByRole("link", { name: /Open distribution control/i }).click();
+  await page.getByRole("link", { name: "Open distribution", exact: true }).click();
   await expect(page).toHaveURL(/\/documents\/distribution$/);
 
   await page.goto("/rooming");

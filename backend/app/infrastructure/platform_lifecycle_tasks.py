@@ -10,9 +10,11 @@ from redis import Redis
 from app.core.config.settings import get_settings
 from app.infrastructure.celery_async_runtime import celery_async_runtime
 from app.infrastructure.database.session import AsyncSessionFactory
+from app.infrastructure.observability.metrics import metrics
 from app.infrastructure.operational_retention import apply_operational_retention
 from app.infrastructure.platform_lifecycle import apply_platform_lifecycle_policies
 from app.infrastructure.processing.celery_app import celery_app
+from app.infrastructure.whatsapp.receipt_retention import apply_receipt_retention
 
 logger = get_task_logger(__name__)
 PLATFORM_LIFECYCLE_TASK = "platform.apply_lifecycle_policies"
@@ -76,8 +78,11 @@ async def _apply_and_commit() -> dict[str, int]:
         try:
             result = await apply_platform_lifecycle_policies(session)
             operational = await apply_operational_retention(session)
+            receipts = await apply_receipt_retention(session)
             await session.commit()
-            return {**result.as_dict(), **operational.as_dict()}
+            for name, value in receipts.items():
+                metrics.increment(f"operational_retention.{name}", value)
+            return {**result.as_dict(), **operational.as_dict(), **receipts}
         except Exception:
             await session.rollback()
             raise

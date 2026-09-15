@@ -31,6 +31,12 @@ from app.domain.value_objects.custom_questions import (
     normalize_custom_details,
     normalize_custom_questions,
 )
+from app.domain.value_objects.passport_document_classification import (
+    MANUAL_REVIEW_REASON_CODE,
+    classification_outcome,
+    manual_review_submission_allowed,
+    requires_manual_staff_review,
+)
 from app.domain.value_objects.passport_fields import reconcile_confirmed_with_extraction
 from app.domain.value_objects.qualifier_relations import normalize_qualifier_choice
 from app.domain.value_objects.trip_timezone import (
@@ -1075,6 +1081,39 @@ class PassportSubmission:
         self.post_submission_verified_at = None
         self.updated_at = _utcnow()
 
+    @property
+    def manual_review_submission_allowed(self) -> bool:
+        return manual_review_submission_allowed(
+            extracted_fields=self.extracted_fields,
+            extraction_revision=self.extraction_revision,
+            extraction_status=self.extraction_status.value,
+            status=self.status.value,
+            image_s3_key=self.image_s3_key,
+        )
+
+    def restore_legacy_provider_failure_evidence(
+        self, *, processing_job_revision: int, processing_job_status: str,
+    ) -> None:
+        """Upgrade legacy diagnostics only using a matching terminal server job."""
+        if not manual_review_submission_allowed(
+            extracted_fields=self.extracted_fields,
+            extraction_revision=self.extraction_revision,
+            extraction_status=self.extraction_status.value,
+            status=self.status.value,
+            image_s3_key=self.image_s3_key,
+            processing_job_revision=processing_job_revision,
+            processing_job_status=processing_job_status,
+        ):
+            return
+        fields = dict(self.extracted_fields or {})
+        classification = fields.get("ai_verification")
+        if isinstance(classification, dict):
+            fields["ai_verification"] = {
+                **classification,
+                **classification_outcome(classification, extraction_revision=self.extraction_revision),
+            }
+            self.extracted_fields = fields
+
     def submit_client_review(
         self,
         confirmed_fields: dict[str, str],
@@ -1094,11 +1133,17 @@ class PassportSubmission:
         nearest_domestic_airport: str | None = None,
         custom_answers: list[CustomAnswerSnapshot] | None = None,
         custom_detail_answers: list[CustomDetailAnswerSnapshot] | None = None,
+        require_staff_review: bool = False,
     ) -> None:
         if self.status.value in OFFICE_VISIBLE_PASSPORT_STATUS_VALUES:
             raise ValidationError(
                 "Passport details were already submitted.",
                 field="status",
+            )
+        if require_staff_review and not self.manual_review_submission_allowed:
+            raise ValidationError(
+                "This passport is not eligible for manual submission for staff review.",
+                field="file",
             )
         # Invalidate any extraction job that started before this correction.
         self.extraction_revision += 1
@@ -1146,6 +1191,21 @@ class PassportSubmission:
         self.verification_reviewed_at = None
         self.client_reviewed_at = _utcnow()
         self.updated_at = _utcnow()
+        if require_staff_review:
+            self.status = PassportProcessingStatus.NEEDS_REVIEW
+            self.post_submission_verification = {
+                "verification_status": "needs_review",
+                "confidence": 0.0,
+                "explanation": (
+                    "Automatic passport reading was unavailable. Staff must review "
+                    "the saved images and submitted details."
+                ),
+                "provider_status": "manual_review_required",
+                "reason_code": MANUAL_REVIEW_REASON_CODE,
+                "incorrect_fields": [],
+                "suspicious_fields": [],
+                "fields": [],
+            }
 
     def apply_post_submission_verification(
         self,
@@ -1159,6 +1219,7 @@ class PassportSubmission:
         if (
             expected_revision != self.post_submission_verification_revision
             or self.status != PassportProcessingStatus.SUBMITTED
+            or requires_manual_staff_review(self.post_submission_verification)
         ):
             return False
         if decision not in {
@@ -1177,6 +1238,11 @@ class PassportSubmission:
     def request_post_submission_verification_retry(self) -> int:
         """Requeue only a prior decision caused by a temporary AI provider failure."""
 
+        if requires_manual_staff_review(self.post_submission_verification):
+            raise ValidationError(
+                "This manual submission requires staff approval after reviewing the saved images.",
+                field="post_submission_verification",
+            )
         if self.status != PassportProcessingStatus.NEEDS_REVIEW:
             raise ValidationError(
                 "AI verification can only be retried after a temporary provider failure.",

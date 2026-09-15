@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import types
 import unittest
 import uuid
@@ -25,8 +24,6 @@ from app.infrastructure.whatsapp.document_delivery_runtime import (
     _propagate_first_released_document_batch,
     apply_document_provider_status,
 )
-from app.presentation.api.v1.routes.whatsapp import receive_whatsapp_webhook
-from tests.route_dependencies import patch_route_dependency
 
 
 class DocumentWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
@@ -231,12 +228,7 @@ class DocumentWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
         )
         self.assertEqual(delivery.status, "read")
 
-    @patch(
-        "app.presentation.api.v1.routes.whatsapp_webhook.process_traveller_welcome_receipt",
-        new_callable=AsyncMock,
-        return_value=0,
-    )
-    async def test_webhook_updates_document_delivery_when_no_broadcast_log(self, _welcome_receipt) -> None:
+    async def test_webhook_updates_document_delivery_when_no_broadcast_log(self) -> None:
         now = datetime.now(tz=UTC)
         delivery = DocumentWhatsAppDeliveryModel(
             id=uuid.uuid4(),
@@ -256,52 +248,32 @@ class DocumentWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
             created_at=now,
             updated_at=now,
         )
-        empty_logs = MagicMock()
-        empty_logs.scalars.return_value.all.return_value = []
-        document_rows = MagicMock()
-        document_rows.scalars.return_value.all.return_value = [delivery]
+        from app.infrastructure.whatsapp.receipt_runtime import _apply_to_source
+
+        source_result = MagicMock()
+        source_result.scalar_one_or_none.return_value = delivery
         session = AsyncMock()
-        session.execute.side_effect = [empty_logs, document_rows]
-        request = types.SimpleNamespace(
-            body=AsyncMock(
-                return_value=json.dumps(
-                    {
-                        "entry": [
-                            {
-                                "changes": [
-                                    {
-                                        "value": {
-                                            "statuses": [
-                                                {
-                                                    "id": "wamid.document-1",
-                                                    "status": "delivered",
-                                                    "timestamp": "1784419200",
-                                                }
-                                            ]
-                                        }
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ).encode("utf-8")
-            )
+        session.execute.return_value = source_result
+        binding = types.SimpleNamespace(
+            source_kind="document",
+            source_id=delivery.id,
+            source_attempt_key=delivery.send_batch_id,
+            provider_message_id=delivery.provider_message_id,
         )
-        with patch_route_dependency(
-            "app.presentation.api.v1.routes.whatsapp.get_settings",
-            return_value=types.SimpleNamespace(
-                whatsapp_app_secret="",
-                is_production=False,
-            ),
+        receipt = types.SimpleNamespace(
+            provider_status="delivered",
+            provider_status_at=now,
+            error_message=None,
+            dedupe_key="fixed-receipt-key",
+        )
+        propagation = AsyncMock()
+        with patch(
+            "app.infrastructure.whatsapp.receipt_runtime.propagate_mobile_passenger_change",
+            propagation,
         ):
-            response = await receive_whatsapp_webhook(
-                request=request,
-                x_hub_signature_256=None,
-                session=session,
-            )
-        self.assertEqual(response.processed_statuses, 1)
+            outcome = await _apply_to_source(session, receipt, binding, now)
+        self.assertEqual(outcome, "applied")
         self.assertEqual(delivery.status, "delivered")
-        session.commit.assert_awaited_once()
 
     async def test_worker_collapses_first_release_batch_and_skips_prior_release(self) -> None:
         agency_id = uuid.uuid4()
@@ -352,12 +324,7 @@ class DocumentWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(kwargs["propagation_key"], f"document-delivery-batch:{batch_id}")
         self.assertFalse(kwargs["reconcile_identities"])
 
-    @patch(
-        "app.presentation.api.v1.routes.whatsapp_webhook.process_traveller_welcome_receipt",
-        new_callable=AsyncMock,
-        return_value=0,
-    )
-    async def test_webhook_recovery_release_triggers_mobile_invalidation(self, _welcome_receipt) -> None:
+    async def test_webhook_recovery_release_triggers_mobile_invalidation(self) -> None:
         now = datetime.now(tz=UTC)
         delivery = DocumentWhatsAppDeliveryModel(
             id=uuid.uuid4(),
@@ -378,65 +345,40 @@ class DocumentWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
             created_at=now,
             updated_at=now,
         )
-        empty_logs = MagicMock()
-        empty_logs.scalars.return_value.all.return_value = []
-        document_rows = MagicMock()
-        document_rows.scalars.return_value.all.return_value = [delivery]
-        session = AsyncMock()
-        session.execute.side_effect = [empty_logs, document_rows]
-        request = types.SimpleNamespace(
-            body=AsyncMock(
-                return_value=json.dumps(
-                    {
-                        "entry": [
-                            {
-                                "changes": [
-                                    {
-                                        "value": {
-                                            "statuses": [
-                                                {
-                                                    "id": "wamid.document-recovered",
-                                                    "status": "delivered",
-                                                    "timestamp": "1784419200",
-                                                }
-                                            ]
-                                        }
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ).encode("utf-8")
-            )
-        )
-        propagation = AsyncMock(return_value=types.SimpleNamespace(sync_changes=1))
-        with (
-            patch_route_dependency(
-                "app.presentation.api.v1.routes.whatsapp.get_settings",
-                return_value=types.SimpleNamespace(
-                    whatsapp_app_secret="",
-                    is_production=False,
-                ),
-            ),
-            patch_route_dependency(
-                "app.presentation.api.v1.routes.whatsapp.propagate_mobile_passenger_change",
-                propagation,
-            ),
-        ):
-            response = await receive_whatsapp_webhook(
-                request=request,
-                x_hub_signature_256=None,
-                session=session,
-            )
+        from app.infrastructure.whatsapp.receipt_runtime import _apply_to_source
 
-        self.assertEqual(response.processed_statuses, 1)
+        source_result = MagicMock()
+        source_result.scalar_one_or_none.return_value = delivery
+        session = AsyncMock()
+        session.execute.return_value = source_result
+        binding = types.SimpleNamespace(
+            source_kind="document",
+            source_id=delivery.id,
+            source_attempt_key=delivery.send_batch_id,
+            provider_message_id=delivery.provider_message_id,
+        )
+        receipt = types.SimpleNamespace(
+            provider_status="delivered",
+            provider_status_at=now,
+            error_message=None,
+            dedupe_key="fixed-receipt-key",
+        )
+        propagation = AsyncMock()
+        with patch(
+            "app.infrastructure.whatsapp.receipt_runtime.propagate_mobile_passenger_change",
+            propagation,
+        ):
+            outcome = await _apply_to_source(session, receipt, binding, now)
+        self.assertEqual(outcome, "applied")
         self.assertEqual(delivery.status, "delivered")
         propagation.assert_awaited_once()
         self.assertEqual(
-            propagation.await_args.kwargs["passenger_submission_ids"],
-            {delivery.passenger_id},
+            propagation.await_args.kwargs["passenger_submission_ids"], [delivery.passenger_id]
         )
-        session.commit.assert_awaited_once()
+        self.assertEqual(
+            propagation.await_args.kwargs["propagation_key"],
+            "document-delivery-receipt:fixed-receipt-key",
+        )
 
 
 if __name__ == "__main__":

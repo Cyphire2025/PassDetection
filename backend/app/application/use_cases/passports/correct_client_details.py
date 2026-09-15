@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import re
 from collections.abc import Mapping, Sequence
 from dataclasses import replace
 from datetime import UTC, datetime
@@ -22,6 +21,7 @@ from app.domain.value_objects.custom_questions import (
     CustomAnswerSnapshot,
     CustomDetailAnswerSnapshot,
 )
+from app.domain.value_objects.phone_number import normalize_phone_number, phone_numbers_equal
 
 
 def _validate_value(value: object, field: Mapping[str, Any]) -> str | None:
@@ -95,12 +95,12 @@ def correct_client_details(
         descriptor = scalar_fields[key]
         cleaned = _validate_value(value, descriptor.__dict__)
         if key == "client_phone" and cleaned:
-            if re.search(r"[^\d\s()+.\-]", cleaned):
+            normalized_phone = normalize_phone_number(cleaned)
+            if normalized_phone is None:
                 raise ValidationError("Enter a valid phone number.", field=key)
-            digits = re.sub(r"\D", "", cleaned)
-            if not 7 <= len(digits) <= 15:
-                raise ValidationError("Enter a valid phone number.", field=key)
-            cleaned = ("+" if cleaned.startswith("+") else "") + digits
+            cleaned = normalized_phone
+            if phone_numbers_equal(descriptor.value, cleaned):
+                continue
         if key == "client_email" and cleaned:
             cleaned = cleaned.lower()
         if cleaned == (descriptor.value or None):

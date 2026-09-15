@@ -1,4 +1,4 @@
-import { isAxiosError } from "axios";
+import { apiErrorStatus } from "@/lib/api/error-status";
 import {
   createUploadRecoveryRecord,
   parseUploadRecoveryRecord,
@@ -99,11 +99,9 @@ export function clearQualifierSelectionToken(groupToken: string) {
 }
 
 export function isPermanentQualifierRestoreError(error: unknown) {
-  if (!isAxiosError(error)) return false;
-  return PERMANENT_QUALIFIER_ERROR_STATUSES.has(error.response?.status ?? 0);
+  return PERMANENT_QUALIFIER_ERROR_STATUSES.has(apiErrorStatus(error) ?? 0);
 }
 
 export function isMissingSavedSubmissionError(error: unknown) {
-  if (!isAxiosError(error)) return false;
-  return MISSING_SUBMISSION_STATUSES.has(error.response?.status ?? 0);
+  return MISSING_SUBMISSION_STATUSES.has(apiErrorStatus(error) ?? 0);
 }

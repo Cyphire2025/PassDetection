@@ -254,7 +254,10 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
         )
 
         failure = self.passport_repo.apply_extraction_failure.await_args.kwargs
-        self.assertEqual(failure["diagnostics"]["ai_verification"], classification)
+        self.assertEqual(failure["diagnostics"]["ai_verification"], {
+            **classification, "outcome_kind": "document_rejected",
+            "extraction_revision": self.revision,
+        })
         self.assertIn("aadhaar card", failure["public_message"].lower())
         self.assertIn("passport", failure["public_message"].lower())
         self.passport_repo.apply_extraction_result.assert_not_awaited()
@@ -409,7 +412,9 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
             submission_id=self.submission_id,
             expected_revision=self.revision,
             public_message=PUBLIC_EXTRACTION_FAILURE,
-            diagnostics={"ai_verification": classification},
+            diagnostics={"ai_verification": {
+                **classification, "outcome_kind": "accepted", "extraction_revision": self.revision,
+            }},
         )
         self.job_repo.mark_dead_letter.assert_awaited_once_with(
             self.job_id,
@@ -463,6 +468,14 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(
                     failure["public_message"],
                     PUBLIC_DOCUMENT_VERIFICATION_UNAVAILABLE,
+                )
+                self.assertEqual(
+                    failure["diagnostics"]["ai_verification"]["outcome_kind"],
+                    "unclassified" if status == "disabled" else "provider_failure",
+                )
+                self.assertEqual(
+                    failure["diagnostics"]["ai_verification"]["extraction_revision"],
+                    self.revision,
                 )
                 self.assertEqual(
                     failure["diagnostics"]["ai_verification"]["status"],

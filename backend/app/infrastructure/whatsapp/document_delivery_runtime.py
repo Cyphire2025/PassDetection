@@ -44,6 +44,7 @@ from app.infrastructure.whatsapp.private_delivery_policy import (
     validate_private_delivery_recipient,
     validate_private_delivery_welcome,
 )
+from app.infrastructure.whatsapp.receipt_bindings import commit_private_provider_outcome
 
 MAX_PROVIDER_ATTEMPTS = 3
 ACCEPTED_STATUSES = frozenset({"submitted", "sent", "delivered", "read"})
@@ -663,7 +664,10 @@ async def run_document_whatsapp_broadcast(
                 locked_delivery.provider_media_id = media_id
                 locked_delivery.status_updated_at = now
                 locked_delivery.updated_at = now
-                await session.commit()
+                await commit_private_provider_outcome(
+                    session, locked_delivery,
+                    provider_phone_number_id=settings.whatsapp_phone_number_id,
+                )
 
 
 async def mark_document_batch_failed(*, send_batch_id: str, error_message: str) -> None:

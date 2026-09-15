@@ -32,6 +32,7 @@ import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store
 
 import { syncAllTripsWithSummary, syncTrip } from '../sync-service';
 import { performSnapshotRebase } from '../snapshot-rebase';
+import { purgeTripCache } from '../access-cache';
 
 jest.mock('@/core/api/client', () => {
   const actual = jest.requireActual('@/core/api/client');
@@ -374,6 +375,80 @@ beforeEach(() => {
 afterEach(() => {
   useSessionStore.getState().clear();
   useSelectedTripStore.getState().clear();
+});
+
+test.each(['revoke', 'delete'] as const)('announcement %s across pages preserves the trip and advances a recovered cursor', async (withdrawal) => {
+  const harness = installHarness('passenger');
+  // The buggy installed version could have purged the cursor. A normal trip
+  // refresh restores the assignment; replay from zero must now complete.
+  harness.state.cursor = null;
+  useSelectedTripStore.getState().selectTrip(TRIP_ID);
+  const currentManifest = manifest('passenger', 1);
+  currentManifest.sync_cursor = 3;
+  currentManifest.versions.announcements = 3;
+  currentManifest.trip.announcement_version = 3;
+  const change = (sequence: number, operation: 'upsert' | 'revoke' | 'delete') => ({
+    sequence, operation, group_id: TRIP_ID, entity_type: 'announcement',
+    entity_id: sequence === 3 ? AGENCY_ID : PRINCIPAL_ID,
+    version: sequence, occurred_at: SERVER_TIME,
+    payload: { resource_path: `/api/v1/mobile/trips/${TRIP_ID}/announcements` },
+  });
+  mockedApiRequest.mockImplementation(async (path: string) => {
+    if (path.endsWith('/manifest')) return currentManifest as never;
+    if (path.startsWith('/mobile/sync/changes?')) {
+      return (path.includes('cursor=0&')
+        ? { changes: [change(1, 'upsert'), change(2, withdrawal)], next_cursor: 2, has_more: true }
+        : { changes: [change(3, 'upsert')], next_cursor: 3, has_more: false }) as never;
+    }
+    if (path === '/mobile/sync/ack') return {
+      trip_id: TRIP_ID, cursor: 3, access_generation: 1, acknowledged_at: SERVER_TIME,
+    } as never;
+    throw new Error(`Unexpected API path: ${path}`);
+  });
+  await expect(syncTrip(TRIP_ID)).resolves.toMatchObject({ cursor: 3, changed: true });
+  expect(purgeTripCache).not.toHaveBeenCalled();
+  expect(useSelectedTripStore.getState().tripId).toBe(TRIP_ID);
+  expect(mockedAnnouncements).toHaveBeenCalledTimes(1);
+  expect(harness.state.cursor).toBe(3);
+  expect(harness.state.applied.announcements).toBe(3);
+  expect(harness.state.applied.personalDocuments).toBe(1);
+});
+
+test.each(['group_access', 'gc_group_access', 'role_access'])('%s revocation still purges trip data', async (entityType) => {
+  installHarness('passenger');
+  mockedApiRequest.mockImplementation(async (path: string) => {
+    if (path.endsWith('/manifest')) return manifest('passenger') as never;
+    if (path.startsWith('/mobile/sync/changes?')) return {
+      changes: [{ sequence: 2, group_id: TRIP_ID, entity_type: entityType,
+        entity_id: null, operation: 'revoke', version: 2, occurred_at: SERVER_TIME, payload: {} }],
+      next_cursor: 2, has_more: false,
+    } as never;
+    throw new Error(`Unexpected API path: ${path}`);
+  });
+  await expect(syncTrip(TRIP_ID)).rejects.toThrow('Trip access was revoked');
+  expect(purgeTripCache).toHaveBeenCalledWith(TRIP_ID, expect.any(Object));
+  expect(mockedAnnouncements).not.toHaveBeenCalled();
+});
+
+test.each(['delete', 'revoke'] as const)('unknown %s fails recoverably without purging or advancing the cursor', async (operation) => {
+  const harness = installHarness('passenger');
+  useSelectedTripStore.getState().selectTrip(TRIP_ID);
+  const previous = { ...harness.state.applied };
+  mockedApiRequest.mockImplementation(async (path: string) => {
+    if (path.endsWith('/manifest')) return manifest('passenger') as never;
+    if (path.startsWith('/mobile/sync/changes?')) return {
+      changes: [{ sequence: 2, group_id: TRIP_ID, entity_type: 'future_resource',
+        entity_id: null, operation, version: 2, occurred_at: SERVER_TIME, payload: {} }],
+      next_cursor: 2, has_more: false,
+    } as never;
+    throw new Error(`Unexpected API path: ${path}`);
+  });
+  await expect(syncTrip(TRIP_ID)).rejects.toMatchObject({ code: 'SYNC_UNSUPPORTED_REMOVAL' });
+  expect(purgeTripCache).not.toHaveBeenCalled();
+  expect(useSelectedTripStore.getState().tripId).toBe(TRIP_ID);
+  expect(harness.state.cursor).toBe(1);
+  expect(harness.state.applied).toEqual(previous);
+  expect(mockedApiRequest.mock.calls.some(([path]) => path === '/mobile/sync/ack')).toBe(false);
 });
 
 test('empty-journal passenger v1 to v2 refreshes every passenger resource before atomic finalization', async () => {

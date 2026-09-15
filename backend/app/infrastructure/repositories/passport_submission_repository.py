@@ -31,6 +31,7 @@ from app.domain.repositories.interfaces import (
     IPassportSubmissionRepository,
     PassportSubmissionGroupSummary,
 )
+from app.domain.value_objects.phone_number import normalize_phone_number, phone_storage_variants
 from app.infrastructure.database.models import (
     ClientGroupModel,
     ManagerGroupAccessModel,
@@ -736,7 +737,8 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         )
         phones = tuple(
             dict.fromkeys(
-                value for value in (client_phone, *additional_phones) if value
+                normalize_phone_number(value) or value
+                for value in (client_phone, *additional_phones) if value
             )
         )
         if not emails and not phones:
@@ -769,10 +771,13 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 )
             )
         if phones:
+            # Canonicalize locks while recognizing values saved by older
+            # versions; never rewrite existing/frozen delivery destinations.
+            stored_phones = {variant for phone in phones for variant in phone_storage_variants(phone)}
             contact_filters.extend(
                 (
-                    PassportSubmissionModel.client_phone.in_(phones),
-                    PassportSubmissionModel.family_head_phone.in_(phones),
+                    PassportSubmissionModel.client_phone.in_(stored_phones),
+                    PassportSubmissionModel.family_head_phone.in_(stored_phones),
                 )
             )
         stmt = select(PassportSubmissionModel.id).where(or_(*contact_filters))

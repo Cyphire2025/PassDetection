@@ -269,6 +269,8 @@ def test_gc_mobile_migration_matches_orm_tables_and_indexes() -> None:
                 "ix_client_manager_admin_list",
                 "ix_mobile_session_account",
                 "ix_mobile_session_group_status_expiry",
+                # Added by 0094; keep the applied foundation migration immutable.
+                "ix_mobile_otp_provider_reference",
                 "uq_mobile_otp_pending_phone",
             }:
                 continue

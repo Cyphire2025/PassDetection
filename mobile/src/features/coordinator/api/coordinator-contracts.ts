@@ -121,7 +121,7 @@ export const CoordinatorPassengerDetailSchema = z
     family_head_name: z.string().max(255).nullable(),
     family_head_phone: z.string().max(32).nullable(),
     family_head_email: z.string().max(255).nullable(),
-    qualifier_relation: z.string().max(80).nullable(),
+    qualifier_relation: z.string().max(100).nullable(),
     emergency_contact_name: z.string().max(255).nullable(),
     emergency_contact_phone: z.string().max(64).nullable(),
     emergency_contact_relation: z.string().max(120).nullable(),

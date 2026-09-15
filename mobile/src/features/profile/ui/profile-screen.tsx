@@ -9,6 +9,7 @@ import { Screen } from '@/design/components/screen';
 import { colors, radii, spacing } from '@/design/theme';
 
 import { SafeSignOutButton } from './safe-sign-out-button';
+import { NotificationSettingsCard } from './notification-settings-card';
 
 export function ProfileScreen({
   eyebrow,
@@ -40,6 +41,7 @@ export function ProfileScreen({
           </View>
         </GlassCard>
       ) : null}
+      <NotificationSettingsCard />
       <GlassCard style={styles.card}>
         <View style={styles.row}>
           <LogOut color={colors.danger} size={24} />

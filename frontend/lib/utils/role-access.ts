@@ -22,6 +22,14 @@ export const EMAIL_INTEGRATION_ROLES: readonly UserRole[] = [
 
 export const GC_APP_MANAGE_CAPABILITY = "gc_app.manage";
 
+export function canArchiveGroup(role: UserRole | null | undefined): boolean {
+  return role === "super_admin" || role === "agency_admin" || role === "agency_manager";
+}
+
+export function canPermanentlyDeleteGroup(role: UserRole | null | undefined): boolean {
+  return role === "super_admin" || role === "agency_admin";
+}
+
 export function canAccessWhatsAppBroadcasts(
   role: UserRole | null | undefined,
 ): boolean {

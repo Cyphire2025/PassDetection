@@ -927,6 +927,11 @@ async def get_client_group_by_token(
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
     except PassDetectionError as e:
+        if e.code == "CLIENT_GROUP_CLOSED":
+            raise HTTPException(
+                status_code=status.HTTP_410_GONE,
+                detail={"code": e.code, "message": e.message},
+            )
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.message)
 
 

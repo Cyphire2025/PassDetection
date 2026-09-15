@@ -21,6 +21,9 @@ from app.domain.entities.entities import (
     UserRole,
 )
 from app.domain.exceptions.exceptions import StorageError
+from app.domain.value_objects.passport_document_classification import (
+    manual_review_submission_allowed,
+)
 from app.domain.value_objects.passport_image_crop import (
     PassportImageCrop,
     PassportImageType,
@@ -210,6 +213,7 @@ async def _response_from_dto(
                     "processing_job_status": job.status.value,
                     "processing_progress": job.progress,
                     "processing_stage": job.current_stage,
+                    **_manual_review_response_fields(result, job.extraction_revision, job.status.value),
                 }
             )
     return PassportSubmissionResponse.model_validate(payload)
@@ -225,6 +229,7 @@ async def _response_from_submission(
         **submission.__dict__,
         "status": submission.status.value,
         "extraction_status": submission.extraction_status.value,
+        **_manual_review_response_fields(submission),
         **_staff_image_urls(submission, crop_rows.get(submission.id)),
         "qr_status": await _passport_qr_status(session, submission.id),
     }
@@ -236,9 +241,29 @@ async def _response_from_submission(
                 "processing_job_status": job.status.value,
                 "processing_progress": job.progress,
                 "processing_stage": job.current_stage,
+                **_manual_review_response_fields(submission, job.extraction_revision, job.status.value),
             }
         )
     return PassportSubmissionResponse.model_validate(payload)
+
+
+def _manual_review_response_fields(
+    submission: PassportSubmission | PassportSubmissionOutputDTO,
+    job_revision: int | None = None, job_status: str | None = None,
+) -> dict[str, object]:
+    allowed = manual_review_submission_allowed(
+        extracted_fields=submission.extracted_fields,
+        extraction_revision=submission.extraction_revision,
+        extraction_status=submission.extraction_status,
+        status=submission.status,
+        image_s3_key=submission.image_s3_key,
+        processing_job_revision=job_revision,
+        processing_job_status=job_status,
+    )
+    return {
+        "manual_review_submission_allowed": allowed,
+        "manual_review_reason_code": "AI_EXTRACTION_UNAVAILABLE" if allowed else None,
+    }
 
 
 async def _passport_qr_status(

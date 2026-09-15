@@ -190,6 +190,8 @@ export interface PassportSubmission extends TimestampedEntity {
   qualifier_selected_at?: string | null;
   extraction_status: PassportExtractionStatus;
   extraction_revision: number;
+  manual_review_submission_allowed?: boolean;
+  manual_review_reason_code?: "AI_EXTRACTION_UNAVAILABLE" | null;
   status: PassportStatus;
   extracted_fields: ExtractedPassportFields | null;
   confirmed_fields: ExtractedPassportFields | null;

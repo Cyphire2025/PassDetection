@@ -9,6 +9,7 @@ const uploadFlowFiles = [
   "./upload-flow-fields.tsx",
   "./upload-flow-review.tsx",
   "./upload-flow-shell.tsx",
+  "./upload-flow-status.tsx",
   "../services/upload-flow-helpers.ts",
   "../services/upload-flow-session.ts",
 ];

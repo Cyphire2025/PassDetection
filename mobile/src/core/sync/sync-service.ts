@@ -460,6 +460,27 @@ async function storeSyncFailure(
 }
 
 function changeFlags(changes: SyncChange[]) {
+  const accessTypes = new Set(['group_access', 'gc_group_access', 'role_access']);
+  const contentTypes = new Set(['announcement', 'itinerary', 'common_document']);
+  const otherDeleteTypes = new Set(['personal_document', 'coordinator_passenger', 'passenger_roster']);
+  const revoked = changes.some((change) => {
+    // Historical content revokes must not withdraw otherwise-valid trip access.
+    if (!accessTypes.has(change.entity_type)) return false;
+    if (change.operation === 'revoke' || change.operation === 'delete') return true;
+    const payload = change.payload;
+    return typeof payload === 'object' && payload !== null && 'enabled' in payload && payload.enabled === false;
+  });
+  if (!revoked && changes.some((change) =>
+    (change.operation === 'revoke' || change.operation === 'delete')
+    && !contentTypes.has(change.entity_type)
+    && !(change.operation === 'delete' && otherDeleteTypes.has(change.entity_type)),
+  )) {
+    // Keep the committed cursor and cache so a server correction or app update
+    // can replay this page. Unknown removal semantics must never be skipped.
+    throw Object.assign(new Error('A removal update could not be applied. Retry synchronization or update the app.'), {
+      code: 'SYNC_UNSUPPORTED_REMOVAL',
+    });
+  }
   const types = new Set(changes.map((change) => change.entity_type));
   const passengerChanges = changes.flatMap((change) =>
     change.entity_type === 'coordinator_passenger' &&
@@ -469,12 +490,7 @@ function changeFlags(changes: SyncChange[]) {
       : [],
   );
   return {
-    revoke: changes.some((change) => {
-      if (change.operation === 'revoke') return true;
-      if (!['group_access', 'gc_group_access', 'role_access'].includes(change.entity_type)) return false;
-      const payload = change.payload;
-      return typeof payload === 'object' && payload !== null && 'enabled' in payload && payload.enabled === false;
-    }),
+    revoke: revoked,
     itinerary: [...types].some((value) => value.includes('itinerary')),
     announcements: types.has('announcement'),
     documents: [...types].some((value) => value.includes('document')),

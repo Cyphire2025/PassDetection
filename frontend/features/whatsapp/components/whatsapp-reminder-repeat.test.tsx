@@ -208,7 +208,9 @@ it("opens the editor before every reminder and supports cancel, edit, send, reop
   expect(mocks.sendWelcome).not.toHaveBeenCalled();
   expect(mocks.sendPassportLink).not.toHaveBeenCalled();
   expect(mocks.bulkPreview).not.toHaveBeenCalled();
-});
+  // Three real composer openings and two debounced previews exceed the default
+  // five-second budget on the Windows integration runner.
+}, 15_000);
 
 it("requires one linked upload group and sends only the server-confirmed not-submitted audience", async () => {
   setRecipients(["new", "new", "sent", "read", "new"]);

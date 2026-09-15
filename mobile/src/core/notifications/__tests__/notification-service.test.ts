@@ -7,6 +7,7 @@ import {
   expoNotificationProvider,
   registerPushDevice,
 } from '../notification-service';
+import { usePushRegistrationState } from '../notification-registration-state';
 
 const mockEnv: { easProjectId: string | undefined } = { easProjectId: undefined };
 const mockDevice = { isDevice: true };
@@ -89,6 +90,7 @@ describe('notification registration', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    usePushRegistrationState.setState({ scope: null, status: null });
     useSessionStore.getState().setSession(onlineSession);
     mockDevice.isDevice = true;
     mockEnv.easProjectId = undefined;
@@ -183,5 +185,36 @@ describe('notification registration', () => {
     expect(mockRequestPermissions).not.toHaveBeenCalled();
     expect(mockGetExpoToken).not.toHaveBeenCalled();
     expect(mockApiRequest).not.toHaveBeenCalled();
+    expect(usePushRegistrationState.getState().status).toBe('permission_denied');
+  });
+
+  it('reports a safe error and does not mark an explicitly rejected registration as registered', async () => {
+    mockEnv.easProjectId = '123e4567-e89b-42d3-a456-426614174000';
+    mockApiRequest.mockResolvedValue({ registered: false, registration_id: 'registration-a' });
+    await expect(registerPushDevice()).rejects.toThrow();
+    expect(usePushRegistrationState.getState().status).toBe('registration_failed');
+    expect(mockSetPushRegistrationMarker).not.toHaveBeenCalled();
+  });
+
+  it('force retry re-registers a current marker and exposes a confirmed result', async () => {
+    mockEnv.easProjectId = '123e4567-e89b-42d3-a456-426614174000';
+    mockGetPushRegistrationMarker.mockResolvedValue({ sessionId: onlineSession.sessionId,
+      provider: 'expo', tokenDigest: 'a'.repeat(64), installationId: '44444444-4444-4444-8444-444444444444',
+      registeredAtMs: Date.now(), formatVersion: 1 });
+    await expect(registerPushDevice(undefined, { force: true })).resolves.toBe(true);
+    expect(mockApiRequest).toHaveBeenCalledTimes(1);
+    expect(usePushRegistrationState.getState().status).toBe('registered');
+  });
+
+  it('does not publish a late registration result into a different account session', async () => {
+    mockEnv.easProjectId = '123e4567-e89b-42d3-a456-426614174000';
+    mockApiRequest.mockImplementation(async () => {
+      useSessionStore.getState().setSession({ ...onlineSession, sessionId: 'different-session' });
+      return { registered: true, registration_id: 'registration-a' };
+    });
+    await expect(registerPushDevice()).rejects.toThrow('active device session changed');
+    expect(usePushRegistrationState.getState().status).toBe('registering');
+    expect(usePushRegistrationState.getState().scope).toContain(onlineSession.sessionId);
+    expect(mockSetPushRegistrationMarker).not.toHaveBeenCalled();
   });
 });

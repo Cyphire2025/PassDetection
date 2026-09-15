@@ -1254,6 +1254,7 @@ class MobileOTPChallengeModel(Base):
             name="ck_mobile_otp_consumed_shape",
         ),
         Index("ix_mobile_otp_phone_created", "phone_lookup_hash", "created_at"),
+        Index("ix_mobile_otp_provider_reference", "provider_reference"),
         Index("ix_mobile_otp_expiry_status", "status", "expires_at"),
         Index(
             "uq_mobile_otp_pending_phone",

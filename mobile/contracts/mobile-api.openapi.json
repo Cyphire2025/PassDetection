@@ -458,6 +458,58 @@
         "title": "HTTPValidationError",
         "type": "object"
       },
+      "JourneyDestination": {
+        "properties": {
+          "country": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Country",
+            "type": "string"
+          },
+          "country_code": {
+            "pattern": "^[A-Z]{2}$",
+            "title": "Country Code",
+            "type": "string"
+          },
+          "label": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "latitude": {
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Latitude",
+            "type": "number"
+          },
+          "longitude": {
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Longitude",
+            "type": "number"
+          },
+          "place_type": {
+            "enum": [
+              "country",
+              "state",
+              "city"
+            ],
+            "title": "Place Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "country",
+          "country_code",
+          "latitude",
+          "longitude",
+          "place_type"
+        ],
+        "title": "JourneyDestination",
+        "type": "object"
+      },
       "MobileActivationRequest": {
         "properties": {
           "activation_token": {
@@ -1804,7 +1856,7 @@
           "qualifier_relation": {
             "anyOf": [
               {
-                "maxLength": 80,
+                "maxLength": 100,
                 "type": "string"
               },
               {
@@ -2638,6 +2690,67 @@
           "days"
         ],
         "title": "MobileItineraryResponse",
+        "type": "object"
+      },
+      "MobileJourneyDestinationResponse": {
+        "properties": {
+          "attribution": {
+            "const": "© OpenStreetMap contributors",
+            "default": "© OpenStreetMap contributors",
+            "enum": [
+              "© OpenStreetMap contributors"
+            ],
+            "title": "Attribution",
+            "type": "string"
+          },
+          "attribution_url": {
+            "const": "https://www.openstreetmap.org/copyright",
+            "default": "https://www.openstreetmap.org/copyright",
+            "enum": [
+              "https://www.openstreetmap.org/copyright"
+            ],
+            "title": "Attribution Url",
+            "type": "string"
+          },
+          "destination": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JourneyDestination"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "retry_after_seconds": {
+            "anyOf": [
+              {
+                "maximum": 86400.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retry After Seconds"
+          },
+          "status": {
+            "enum": [
+              "resolved",
+              "not_found",
+              "ambiguous",
+              "unavailable",
+              "not_configured"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "MobileJourneyDestinationResponse",
         "type": "object"
       },
       "MobileLogoutRequest": {
@@ -9212,6 +9325,54 @@
         "summary": "Get Mobile Itinerary",
         "tags": [
           "GC Mobile Resources"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/journey-destination": {
+      "get": {
+        "operationId": "get_mobile_journey_destination_api_v1_mobile_trips__group_id__journey_destination_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileJourneyDestinationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Mobile Journey Destination",
+        "tags": [
+          "GC Mobile Journey"
         ]
       }
     },

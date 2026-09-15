@@ -63,6 +63,17 @@ test('accepts the explicit coordinator passenger detail projection', () => {
 });
 
 test.each([
+  ['81 characters', 'R'.repeat(81), true],
+  ['100 characters', 'R'.repeat(100), true],
+  ['101 characters', 'R'.repeat(101), false],
+  ['no relationship', null, true],
+] as const)('matches the backend relationship boundary for %s', (_label, relation, accepted) => {
+  expect(CoordinatorPassengerDetailSchema.safeParse({
+    ...safeDetail, qualifier_relation: relation,
+  }).success).toBe(accepted);
+});
+
+test.each([
   ['passport_number', 'P1234567'],
   ['mrz', 'P<IND...'],
   ['passport_image_url', 'https://storage.example/passport.jpg'],

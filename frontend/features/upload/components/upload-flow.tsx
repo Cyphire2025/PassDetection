@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import {
-  AlertCircle,
   ArrowLeft,
   CheckCircle2,
   Mail,
@@ -18,6 +17,9 @@ import {
 } from "@/features/passports/utils/passport-review";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { normalizePhoneNumber, PHONE_FORMAT_HELP } from "@/lib/utils/phone-number";
+import { apiErrorStatus } from "@/lib/api/error-status";
+import { UploadLinkErrorScreen } from "./upload-link-error-screen";
 import { ProcessingMotion } from "@/components/shared/processing-motion";
 import type { PassportSubmission } from "@/types/passport.types";
 import { isUploadFieldRequired, MAX_PASSPORT_UPLOAD_BYTES, type RequiredUploadField } from "@/features/passports/types/upload-configuration";
@@ -48,6 +50,7 @@ import {
   hasMissingRequiredFields,
   hasValidReviewDates,
   isExtractionTerminal,
+  isClientSubmissionComplete,
   mergeMissingReviewFields,
   passportHolderName,
   resizeFamilyMembers,
@@ -102,12 +105,16 @@ import {
 import {
   BackButton,
   CenteredLoader,
-  CenteredShell,
   ChoiceCard,
   ErrorMessage,
   ProcessingScreen,
   UploadHeader,
 } from "./upload-flow-shell";
+import {
+  resolveUploadLinkFailure,
+  UploadRecoveryScreen,
+  UploadSuccessScreen,
+} from "./upload-flow-status";
 import type {
   AgentEmployeeType,
   ExtractionWaitResult,
@@ -140,7 +147,8 @@ interface UploadFlowProps {
 }
 
 export function UploadFlow({ token }: UploadFlowProps) {
-  const { data: group, isLoading, error } = useUploadLinkByToken(token);
+  const { data: group, isLoading, error, refetch: refetchLink, isFetching: isFetchingLink } = useUploadLinkByToken(token);
+  const [linkError, setLinkError] = useState<unknown>(null);
   const { mutateAsync: uploadPassport } = useUploadPassport();
   const { mutateAsync: submitClientReview } = useSubmitClientPassportReview();
 
@@ -217,7 +225,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const activeVisaPhotoSource = flowMode === "family" ? activeFamilyMember?.visaPhotoSource ?? null : visaPhotoSource;
   const requiresPassportReview = (saved: PassportSubmission) => Boolean(saved.image_s3_key);
   const canReviewSubmission = (saved: PassportSubmission) => requiresPassportReview(saved)
-    ? passportDocumentVerificationGate(saved).accepted
+    ? isClientSubmissionComplete(saved) || saved.manual_review_submission_allowed === true || passportDocumentVerificationGate(saved).accepted
     : !passportRequired || (allowFilesFromDevice && !uploadConfig.passport_upload_pages.includes("front"));
   const hasBlockedFamilyVerification = familyMembers.some((member) => (
     member.submission === null
@@ -254,6 +262,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
       isCancelled: () => cancelled,
       reportPublicFlowOnce,
       actions: {
+        setLinkError,
         setSingleUploadIdempotencyKey,
         setSubmission,
         setClientName,
@@ -1082,6 +1091,10 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const handleFinalSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!submission || operationInFlightRef.current) return;
+    if (clientPhone.trim() && !normalizePhoneNumber(clientPhone)) {
+      setUploadError(PHONE_FORMAT_HELP);
+      return;
+    }
     const verificationGate = passportDocumentVerificationGate(submission);
     if (!canReviewSubmission(submission)) {
       setUploadError(verificationGate.message);
@@ -1147,7 +1160,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
     try {
       setUploadError(null);
       setStep("SUBMITTING");
-      await submitClientReview({
+      const submitted = await submitClientReview({
         submissionId: submission.id,
         uploadSessionId: singleUploadIdempotencyKey,
         group_token: token,
@@ -1173,11 +1186,15 @@ export function UploadFlow({ token }: UploadFlowProps) {
           value: customDetailAnswers[detail.id],
         })),
       });
+      setSubmission(submitted);
       setClientName(passportHolderName(reviewFields));
       setStep("SUCCESS");
     } catch (error: unknown) {
       setUploadError(submitErrorMessage(error));
       setStep("REVIEW");
+      if ([404, 410].includes(apiErrorStatus(error) ?? 0)) {
+        await uploadLinksApi.getByToken(token).catch(setLinkError);
+      }
     } finally {
       operationInFlightRef.current = false;
     }
@@ -1186,6 +1203,11 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const handleFamilySubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (operationInFlightRef.current) return;
+    if ((headPhone.trim() && !normalizePhoneNumber(headPhone))
+      || familyMembers.some((member) => member.phone.trim() && !normalizePhoneNumber(member.phone))) {
+      setUploadError(PHONE_FORMAT_HELP);
+      return;
+    }
     const blockedVerification = familyMembers.find((member) => (
       member.submission !== null
       && !canReviewSubmission(member.submission)
@@ -1251,7 +1273,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setStep("SUBMITTING");
       for (const [index, member] of familyMembers.entries()) {
         if (!member.submission) continue;
-        await submitClientReview({
+        const submitted = await submitClientReview({
           submissionId: member.submission.id,
           uploadSessionId: member.uploadIdempotencyKey,
           group_token: token,
@@ -1285,11 +1307,15 @@ export function UploadFlow({ token }: UploadFlowProps) {
             value: member.customDetailAnswers[detail.id],
           })),
         });
+        updateFamilyMember(index, { submission: submitted });
       }
       setStep("SUCCESS");
     } catch (error: unknown) {
       setUploadError(submitErrorMessage(error));
       setStep("FAMILY_REVIEW");
+      if ([404, 410].includes(apiErrorStatus(error) ?? 0)) {
+        await uploadLinksApi.getByToken(token).catch(setLinkError);
+      }
     } finally {
       operationInFlightRef.current = false;
     }
@@ -1310,59 +1336,22 @@ export function UploadFlow({ token }: UploadFlowProps) {
     setStep("PASSPORT_UPLOAD");
   }} />;
 
-  if (isLoading || step === "BOOTSTRAP") return <CenteredLoader />;
-
-  if (error || !group) {
-    return (
-      <CenteredShell>
-        <div
-          role="alert"
-          aria-labelledby="upload-link-unavailable-title"
-          className="w-full max-w-md rounded-2xl border border-red-200 bg-white p-8 text-center shadow-lg"
-        >
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
-            <AlertCircle className="h-7 w-7 text-red-600" aria-hidden="true" />
-          </div>
-          <h2 id="upload-link-unavailable-title" className="mb-2 text-2xl font-bold tracking-tight text-slate-900">Link Unavailable</h2>
-          <p className="text-base text-slate-500">This secure group link is invalid, closed, or expired.</p>
-        </div>
-      </CenteredShell>
-    );
+  const linkFailure = resolveUploadLinkFailure({ error, linkError, isLoading, hasGroup: Boolean(group) });
+  if (linkFailure) {
+    return <UploadLinkErrorScreen error={linkFailure.error} isRetrying={isFetchingLink} onRetry={() => {
+      void refetchLink().then((result) => {
+        if (result.error) { setLinkError(result.error); return; }
+        setLinkError(null);
+        initializedGroupTokenRef.current = null;
+        setRecoveryRetryNonce((value) => value + 1);
+      });
+    }} />;
   }
 
+  if (isLoading || step === "BOOTSTRAP" || !group) return <CenteredLoader />;
+
   if (step === "RECOVERY_ERROR") {
-    return (
-      <CenteredShell>
-        <div className="w-full max-w-md rounded-2xl border border-amber-200 bg-white p-7 text-center shadow-lg">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-amber-100">
-            <AlertCircle className="h-7 w-7 text-amber-700" aria-hidden="true" />
-          </div>
-          <div
-            role="alert"
-            aria-labelledby="upload-recovery-error-title"
-            aria-atomic="true"
-          >
-            <h2 id="upload-recovery-error-title" className="text-xl font-bold tracking-tight text-slate-900">
-              Reconnect to your saved upload
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              {uploadError
-                ?? "Your saved progress could not be reached. It has not been replaced or submitted again."}
-            </p>
-          </div>
-          <Button
-            type="button"
-            className="mt-6 h-11 w-full"
-            onClick={retrySavedUploadRecovery}
-          >
-            Retry reconnecting
-          </Button>
-          <p className="mt-3 text-xs leading-5 text-slate-400">
-            If you are offline, restore your connection first. This action checks the existing upload only.
-          </p>
-        </div>
-      </CenteredShell>
-    );
+    return <UploadRecoveryScreen error={uploadError} onRetry={retrySavedUploadRecovery} />;
   }
 
   if (isPreparingFile) {
@@ -1576,7 +1565,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
               disabled={isScanningAgain}
               className="mt-6 h-12 w-full rounded-xl bg-blue-600 text-base font-semibold shadow-md shadow-blue-600/20 hover:bg-blue-700"
             >
-              {hasPassport ? "Submit Verified Details" : "Submit Traveller Details"}
+              {submission.manual_review_submission_allowed ? "Submit for staff review" : hasPassport ? "Submit Verified Details" : "Submit Traveller Details"}
             </Button>
           </form>
         )}
@@ -1660,7 +1649,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
                 <>
                   <div className="mt-5 rounded-2xl border border-slate-100 bg-slate-50 p-3 sm:p-4">
                     <h3 className="text-sm font-bold text-slate-900">Individual broadcast contact optional</h3>
-                    <p className="mt-1 text-xs leading-5 text-slate-500">If provided, this member can receive only their own details later. The head still receives all details.</p>
+                    <p className="mt-1 text-xs leading-5 text-slate-500">Documents are sent to the WhatsApp number entered for each traveller. To use one family number, enter that same number for each member who should receive documents there. A number may be omitted for submission, but is needed before sending that member’s documents.</p>
                     <div className="mt-3 grid min-w-0 gap-3 sm:grid-cols-2">
                       <ContactInput icon={<Mail className="h-5 w-5" />} label="Member email" type="email" value={member.email} onChange={(value) => updateFamilyMember(index, { email: value })} />
                       <ContactInput icon={<Phone className="h-5 w-5" />} label="Member WhatsApp active number" type="tel" value={member.phone} onChange={(value) => updateFamilyMember(index, { phone: value })} />
@@ -1736,7 +1725,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
                 disabled={isScanningAgain}
                 className="h-12 w-full rounded-xl bg-blue-600 text-base font-semibold shadow-md shadow-blue-600/20 hover:bg-blue-700"
               >
-                Submit Family Details
+                {familyMembers.some((member) => member.submission?.manual_review_submission_allowed) ? "Submit family for staff review" : "Submit Family Details"}
               </Button>
             </>
           ) : (
@@ -1750,26 +1739,14 @@ export function UploadFlow({ token }: UploadFlowProps) {
   }
 
   if (step === "SUCCESS") {
-    const name = flowMode === "family"
-      ? `${familyMembers.length} family members`
-      : (clientName || "your traveller details");
     return (
-      <CenteredShell>
-        <div
-          role="status"
-          aria-live="polite"
-          className="w-full max-w-md rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-xl shadow-slate-200/50"
-        >
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-tr from-green-500 to-emerald-400 shadow-lg shadow-green-500/30">
-            <CheckCircle2 className="h-10 w-10 text-white" aria-hidden="true" />
-          </div>
-          <h2 className="mb-3 text-3xl font-bold tracking-tight text-slate-900">Details Submitted</h2>
-          <p className="mb-8 text-base leading-relaxed text-slate-500">
-            Thank you. <span className="font-semibold text-slate-900">{name}</span> have been securely submitted to the <strong>{group.name}</strong> group.
-          </p>
-          <div className="rounded-xl border border-slate-100 bg-slate-50 p-4 text-sm font-medium text-slate-500">You may now safely close this window.</div>
-        </div>
-      </CenteredShell>
+      <UploadSuccessScreen
+        flowMode={flowMode}
+        familyMembers={familyMembers}
+        submission={submission}
+        clientName={clientName}
+        groupName={group.name}
+      />
     );
   }
 

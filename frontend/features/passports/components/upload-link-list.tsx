@@ -31,6 +31,7 @@ import { ConfirmDialog } from "@/components/ui";
 import { useModalKeyboardBoundary } from "@/components/ui/modal";
 import { copyTextToClipboard } from "@/lib/utils/clipboard";
 import { getPassportUploadTargets } from "@/lib/utils/public-url";
+import { canArchiveGroup, canPermanentlyDeleteGroup } from "@/lib/utils/role-access";
 import { selectUserRole, useAuthStore } from "@/stores/auth.store";
 import type {
   UploadLinkResponse,
@@ -60,7 +61,8 @@ const CreateUploadLinkModal = dynamic(
 
 export function UploadLinkList() {
   const role = useAuthStore(selectUserRole);
-  const canPermanentlyDelete = role !== "agency_staff";
+  const canPermanentlyDelete = canPermanentlyDeleteGroup(role);
+  const canArchive = canArchiveGroup(role);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
@@ -265,14 +267,14 @@ export function UploadLinkList() {
               });
             }}
             onOpen={(id) => restoreLink(id)}
-            onArchive={(id) => {
+            onArchive={canArchive ? (id) => {
               setConfirmAction({
                 title: "Archive Group",
                 description: "This group will be removed from active work. Existing passport records and uploaded images will be retained.",
                 confirmLabel: "Archive Group",
                 onConfirm: () => archiveLink(id, { onSuccess: () => setConfirmAction(null) }),
               });
-            }}
+            } : undefined}
             onRename={openGroupEditor}
             isMutating={isClosing || isArchiving || isRestoring || isRenaming}
             compact

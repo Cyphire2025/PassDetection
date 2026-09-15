@@ -8,6 +8,7 @@ import { formatGcDateTime, gcAppErrorMessage, toApiDateTime, toLocalDateTime } f
 import { GcAlert } from "./gc-app-feedback";
 import { GcDialog } from "./gc-dialog";
 import { GcSelect } from "./gc-select";
+import { AnnouncementNotificationStatusPanel } from "./announcement-notification-status";
 
 const PRIORITY_OPTIONS = [
   { value: "normal", label: "Normal", description: "Standard in-app announcement" },
@@ -34,6 +35,8 @@ interface AnnouncementForm {
 }
 
 export function AnnouncementsPanel({
+  agencyId,
+  groupId,
   announcements,
   isCreating,
   isUpdating,
@@ -42,6 +45,8 @@ export function AnnouncementsPanel({
   onSetPublished,
   onDelete,
 }: {
+  agencyId: string | null;
+  groupId: string;
   announcements: GcAnnouncement[];
   isCreating: boolean;
   isUpdating: boolean;
@@ -112,9 +117,10 @@ export function AnnouncementsPanel({
         <CardContent className="space-y-3 p-5">
           <div className="flex items-center justify-between"><div><h3 className="font-semibold text-slate-900">Announcements</h3><p className="mt-1 text-sm text-slate-500">Publication updates the group announcement version.</p></div><Badge variant="secondary">{announcements.length}</Badge></div>
           {announcements.length === 0 ? <p className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">No announcements created.</p> : announcements.map((announcement) => (
-            <div key={announcement.id} className="flex flex-col gap-4 rounded-xl border border-slate-200 p-4 lg:flex-row lg:items-start lg:justify-between">
+            <div key={announcement.id} className="flex flex-col gap-4 rounded-xl border border-slate-200 p-4">
               <div className="flex min-w-0 gap-3"><span className="rounded-lg bg-blue-50 p-2 text-blue-700"><Bell className="h-5 w-5" /></span><div><div className="flex flex-wrap items-center gap-2"><p className="font-medium text-slate-900">{announcement.title}</p><Badge variant={announcement.is_published ? "success" : "outline"}>{announcement.is_published ? "Published" : "Draft"}</Badge><Badge variant={announcement.priority === "emergency" ? "destructive" : announcement.priority === "important" ? "warning" : "default"}>{announcement.priority}</Badge></div><p className="mt-2 whitespace-pre-wrap text-sm text-slate-600">{announcement.body}</p><p className="mt-2 text-xs text-slate-500">v{announcement.version} · Updated {formatGcDateTime(announcement.updated_at)}</p></div></div>
               <div className="flex shrink-0 flex-wrap gap-2"><Button type="button" variant="secondary" size="sm" leftIcon={<Pencil className="h-4 w-4" />} onClick={() => { setEditingId(announcement.id); setForm({ title: announcement.title, body: announcement.body, priority: announcement.priority, availableFrom: toLocalDateTime(announcement.available_from), availableUntil: toLocalDateTime(announcement.available_until), publish: announcement.is_published }); window.scrollTo({ top: 0 }); }}>Edit</Button><Button type="button" variant="secondary" size="sm" isLoading={isUpdating} onClick={() => void onSetPublished(announcement.id, !announcement.is_published).catch((updateError: unknown) => setError(gcAppErrorMessage(updateError, "Publication state was not changed.")))}>{announcement.is_published ? "Unpublish" : "Publish"}</Button><Button type="button" variant="danger" size="sm" leftIcon={<Trash2 className="h-4 w-4" aria-hidden="true" />} onClick={() => setDeleteAnnouncement(announcement)}>Delete</Button></div>
+              <AnnouncementNotificationStatusPanel agencyId={agencyId} groupId={groupId} announcementId={announcement.id} version={announcement.version} />
             </div>
           ))}
         </CardContent>

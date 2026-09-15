@@ -23,6 +23,7 @@ from app.domain.repositories.interfaces import (
 )
 from app.domain.value_objects.passport_document_classification import (
     ACCEPTED_PASSPORT_DOCUMENT_STATUSES,
+    classification_outcome,
 )
 from app.infrastructure.observability.operational_events import (
     OperationalEvent,
@@ -35,7 +36,8 @@ logger = get_logger(__name__)
 
 PUBLIC_EXTRACTION_FAILURE = (
     "Automatic passport detail extraction failed after trying the available AI models. "
-    "Your passport images are saved. Retry automatic reading or enter the details manually."
+    "Your passport images are saved. Retry automatic reading. "
+    "If manual submission is available, staff must review and approve the details."
 )
 PUBLIC_DOCUMENT_VERIFICATION_UNAVAILABLE = PUBLIC_EXTRACTION_FAILURE
 MAX_FIRST_PASS_SECONDS = 45.0
@@ -229,6 +231,9 @@ class ProcessPassportSubmissionJobUseCase:
                 ):
                     return
                 classification = self._safe_document_classification(extracted_fields)
+                classification.update(classification_outcome(
+                    classification, extraction_revision=job.extraction_revision,
+                ))
                 classification_status = classification.get("status")
                 if classification_status in DOCUMENT_CLASSIFICATION_FAILURE_MESSAGES:
                     record_operational_event(

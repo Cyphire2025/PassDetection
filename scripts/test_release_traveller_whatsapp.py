@@ -50,6 +50,7 @@ class FakeDocker:
         self.head = REVISION
         self.dirty = False
         self.schema = PREVIOUS_SCHEMA
+        self.expected_schema = SCHEMA
         self.fail_migration = False
         self.fail_service: str | None = None
         self.public_status = "200"
@@ -100,7 +101,7 @@ class FakeDocker:
         )
         for service in (*WORKERS, "backend"):
             services[service]["environment"] = dict(
-                values, EXPECTED_DATABASE_SCHEMA_REVISION=SCHEMA
+                values, EXPECTED_DATABASE_SCHEMA_REVISION=self.expected_schema
             )
         return {"name": self.project, "services": services}
 
@@ -128,7 +129,7 @@ class FakeDocker:
         self.calls.append(args)
         assert kwargs["stdin"] == subprocess.DEVNULL
         assert kwargs["env"]["APP_REVISION"] == REVISION
-        assert kwargs["env"]["EXPECTED_DATABASE_SCHEMA_REVISION"] == SCHEMA
+        assert kwargs["env"]["EXPECTED_DATABASE_SCHEMA_REVISION"] == self.expected_schema
         code = 0
         output = ""
         if args[0] == "git":
@@ -196,10 +197,10 @@ class FakeDocker:
                 assert "--no-deps" in tail and "--rm" in tail
                 if tail[-1] == "current":
                     output = self.schema + " (head)"
-                elif tail[-2:] == ["upgrade", SCHEMA]:
+                elif tail[-2:] == ["upgrade", self.expected_schema]:
                     code = int(self.fail_migration)
                     if not code:
-                        self.schema = SCHEMA
+                        self.schema = self.expected_schema
                 else:
                     raise AssertionError(f"Unexpected migration command: {tail}")
             elif tail[:1] == ["up"]:
@@ -213,7 +214,7 @@ class FakeDocker:
                     self.containers[service]["Image"] = pins[service]["image"]
                     self.containers[service]["Config"]["Env"] = [
                         f"APP_REVISION={REVISION}",
-                        f"EXPECTED_DATABASE_SCHEMA_REVISION={SCHEMA}",
+                        f"EXPECTED_DATABASE_SCHEMA_REVISION={self.expected_schema}",
                     ]
                     self.containers[service]["Config"]["Hostname"] = (
                         f"new-host-{service}"

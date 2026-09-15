@@ -120,15 +120,18 @@ test("loading, failure, processing, and completion states are announced", () => 
   );
 });
 
-test("exhausted AI extraction is explicit while saved passport images remain recoverable", () => {
+test("extraction recovery distinguishes staff-review eligibility from unverified images", () => {
   const failureNotice =
     "Automatic passport detail extraction failed. Your passport images are saved. Retry automatic reading or enter the details manually.";
 
-  assert.equal(
-    source.match(new RegExp(failureNotice.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"))
-      ?.length,
-    2,
-    "persisted and terminal failure paths must show the same explicit recovery message",
+  assert.ok(source.includes(failureNotice), "response-loss recovery preserves the saved images");
+  assert.match(
+    source,
+    /if \(submission\.manual_review_submission_allowed\) \{\s*return "Automatic reading is unavailable\. Enter the details and submit them for staff review\. Your passport will remain unverified until staff approve it\.";/,
+  );
+  assert.match(
+    source,
+    /if \(submission\.extraction_status === "extraction_failed" \|\| submission\.status === "failed"\) \{\s*return "Automatic passport reading failed\. Your saved images are safe\. Retry reading or replace the image if it could not be verified as the correct passport page\.";/,
   );
   assert.doesNotMatch(
     source,
