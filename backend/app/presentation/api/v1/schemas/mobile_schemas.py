@@ -131,6 +131,7 @@ class MobileOTPVerifyRequest(BaseModel):
     challenge_id: uuid.UUID
     code: str = Field(min_length=4, max_length=12, pattern=r"^[0-9]+$")
     device: MobileDeviceInput
+    phone_number: str | None = Field(default=None, min_length=8, max_length=64)
 
 
 class MobileTripClaimSummary(BaseModel):
@@ -153,6 +154,7 @@ class MobileClaimVerifyRequest(BaseModel):
     challenge_id: uuid.UUID
     claim_id: uuid.UUID | None = None
     verification_value: str | None = Field(default=None, min_length=2, max_length=128)
+    phone_number: str | None = Field(default=None, min_length=8, max_length=64)
     device: MobileDeviceInput
 
 
@@ -226,6 +228,9 @@ class MobileOTPVerifyResponse(BaseModel):
         "claim_selection_required",
         "secondary_verification_required",
         "authenticated",
+        "trip_not_active",
+        "trip_starts_later",
+        "trip_access_ended",
     ]
     claims: list[MobileTripClaimSummary] = Field(default_factory=list, max_length=50)
     tokens: MobileTokenResponse | None = None
@@ -244,7 +249,7 @@ class MobileOTPVerifyResponse(BaseModel):
             raise ValueError("Unauthenticated OTP responses must not contain tokens")
         if self.status == "claim_selection_required" and not self.claims:
             raise ValueError("Claim selection responses require at least one claim")
-        if self.status == "secondary_verification_required" and self.claims:
+        if self.status != "claim_selection_required" and self.claims:
             raise ValueError(
                 "Secondary verification responses must not disclose claims"
             )

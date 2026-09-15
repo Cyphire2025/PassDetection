@@ -9,6 +9,7 @@ import type {
   GcAnnouncement,
   GcAgencyReference,
   GcAppAccountStatus,
+  GcAppAvailability,
   GcAppControlPatch,
   GcAppGroupContent,
   GcAppGroupControl,
@@ -103,6 +104,9 @@ interface RawGroupAccess {
   last_successful_sync_at: string | null;
   active_mobile_users?: number;
   synced_device_count?: number;
+  app_availability?: GcAppAvailability;
+  app_availability_reason?: GcGroupReference["app_availability_reason"];
+  app_availability_evaluated_at?: string;
 }
 
 interface RawItineraryItem {
@@ -269,6 +273,9 @@ function normalizeControl(access: RawGroupAccess, group?: RawGroup): GcAppGroupC
     active_mobile_users: access.active_mobile_users ?? 0,
     synced_device_count: access.synced_device_count ?? 0,
     last_successful_sync_at: access.last_successful_sync_at,
+    app_availability: access.app_availability ?? "unavailable",
+    app_availability_reason: access.app_availability_reason ?? null,
+    app_availability_evaluated_at: access.app_availability_evaluated_at,
     versions: {
       itinerary_version: access.itinerary_version,
       common_document_version: access.common_document_version,
@@ -283,7 +290,7 @@ function fullControlBody(control: GcAppGroupControl, patch: GcAppControlPatch, e
   }
   return {
     client_organization_id: control.organization_id,
-    enabled,
+    enabled: patch.enabled ?? enabled,
     passenger_access_enabled: patch.passenger_access_enabled ?? control.passenger_access_enabled,
     client_manager_access_enabled: patch.client_manager_access_enabled ?? control.client_manager_access_enabled,
     coordinator_access_enabled: patch.coordinator_access_enabled ?? control.coordinator_access_enabled,
@@ -615,6 +622,7 @@ export const gcAppAdminApi = {
           ...toOffsetParams(params),
           agency_id: agencyId ?? undefined,
           eligible_only: params.eligible_only || undefined,
+          unconfigured_only: params.eligible_only || undefined,
         },
         signal,
       },
@@ -632,14 +640,14 @@ export const gcAppAdminApi = {
       params: {
         ...toOffsetParams(params),
         agency_id: agencyId ?? undefined,
-        gc_enabled: true,
+        configured_only: true,
+        availability: params.availability === "all" ? undefined : params.availability,
         lifecycle_status: params.lifecycle === "all" ? undefined : params.lifecycle,
       },
       signal,
     });
     const page = asPage(data, params);
-    const enabledGroups = page.items.filter((group) => group.gc_enabled);
-    const items = await mapBounded(enabledGroups, 4, async (group) => {
+    const items = await mapBounded(page.items, 4, async (group) => {
       if (group.access) return normalizeControl(group.access, group);
       const response = await apiClient.get<RawGroupAccess>(`${ROOT}/groups/${group.id}`, {
         params: agencyParams(agencyId),
@@ -647,7 +655,7 @@ export const gcAppAdminApi = {
       });
       return normalizeControl(response.data, group);
     });
-    return { ...page, items, total: enabledGroups.length === page.items.length ? page.total : items.length, has_next: enabledGroups.length === page.items.length ? page.has_next : false };
+    return { ...page, items };
   },
 
   getGroupControl: async (
@@ -758,20 +766,30 @@ export const gcAppAdminApi = {
     groupId: string,
     signal?: AbortSignal,
   ): Promise<GcAppGroupContent> => {
-    const [documents, announcements] = await Promise.all([
-      apiClient.get<RawCommonDocument[]>(`${ROOT}/groups/${groupId}/common-documents`, {
-        params: agencyParams(agencyId),
-        signal,
-      }),
-      apiClient.get<RawAnnouncement[]>(`${ROOT}/groups/${groupId}/announcements`, {
-        params: agencyParams(agencyId),
-        signal,
-      }),
-    ]);
+    const documents = await apiClient.get<RawCommonDocument[]>(`${ROOT}/groups/${groupId}/common-documents`, {
+      params: agencyParams(agencyId),
+      signal,
+    });
     return {
       common_documents: documents.data.map(normalizeDocument),
-      announcements: announcements.data.map(normalizeAnnouncement),
+      // Announcements have their own paged query; visiting Documents must not
+      // fetch the legacy announcement history as an unrelated side effect.
+      announcements: [],
     };
+  },
+
+  listAnnouncements: async (
+    agencyId: string | null,
+    groupId: string,
+    params: GcPageParams,
+    signal?: AbortSignal,
+  ): Promise<GcPage<GcAnnouncement>> => {
+    const { data } = await apiClient.get<PageEnvelope<RawAnnouncement>>(
+      `${ROOT}/groups/${groupId}/announcements/page`,
+      { params: agencyParams(agencyId, toOffsetParams(params)), signal },
+    );
+    const page = asPage(data, params);
+    return { ...page, items: page.items.map(normalizeAnnouncement) };
   },
 
   saveItineraryDraft: async (
@@ -945,16 +963,11 @@ export const gcAppAdminApi = {
         available_from: body.available_from,
         available_until: body.available_until,
         expected_access_revision: expectedAccessRevision,
+        publish: body.publish,
       },
       { params: agencyParams(agencyId) },
     );
-    if (!body.publish) return normalizeAnnouncement(data);
-    const published = await apiClient.post<RawAnnouncement>(
-      `${ROOT}/groups/${groupId}/announcements/${data.id}/publish`,
-      undefined,
-      { params: agencyParams(agencyId) },
-    );
-    return normalizeAnnouncement(published.data);
+    return normalizeAnnouncement(data);
   },
 
   updateAnnouncement: async (
@@ -973,16 +986,11 @@ export const gcAppAdminApi = {
         available_from: body.available_from,
         available_until: body.available_until,
         expected_access_revision: expectedAccessRevision,
+        publish: body.publish,
       },
       { params: agencyParams(agencyId) },
     );
-    if (!body.publish) return normalizeAnnouncement(data);
-    const published = await apiClient.post<RawAnnouncement>(
-      `${ROOT}/groups/${groupId}/announcements/${data.id}/publish`,
-      undefined,
-      { params: agencyParams(agencyId) },
-    );
-    return normalizeAnnouncement(published.data);
+    return normalizeAnnouncement(data);
   },
 
   setAnnouncementPublished: async (

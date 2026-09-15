@@ -38,3 +38,14 @@ export function toLocalDateTime(value: string | null): string {
 export function createClientId(prefix: string): string {
   return `${prefix}-${crypto.randomUUID()}`;
 }
+
+export function gcPublicationState(item: {
+  is_published: boolean;
+  available_from: string | null;
+  available_until: string | null;
+}, now: number): { label: string; variant: "outline" | "success" | "warning" } {
+  if (!item.is_published) return { label: "Draft", variant: "outline" };
+  if (item.available_until && Date.parse(item.available_until) <= now) return { label: "Expired", variant: "warning" };
+  if (item.available_from && Date.parse(item.available_from) > now) return { label: "Scheduled", variant: "outline" };
+  return { label: "Published", variant: "success" };
+}

@@ -1161,6 +1161,19 @@
           "device": {
             "$ref": "#/components/schemas/MobileDeviceInput"
           },
+          "phone_number": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "minLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone Number"
+          },
           "verification_value": {
             "anyOf": [
               {
@@ -3360,6 +3373,19 @@
           },
           "device": {
             "$ref": "#/components/schemas/MobileDeviceInput"
+          },
+          "phone_number": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "minLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone Number"
           }
         },
         "required": [
@@ -3384,7 +3410,10 @@
             "enum": [
               "claim_selection_required",
               "secondary_verification_required",
-              "authenticated"
+              "authenticated",
+              "trip_not_active",
+              "trip_starts_later",
+              "trip_access_ended"
             ],
             "title": "Status",
             "type": "string"

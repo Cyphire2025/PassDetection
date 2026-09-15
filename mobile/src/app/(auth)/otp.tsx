@@ -9,12 +9,14 @@ import { AuthError, authErrorMessage } from '@/features/auth/ui/auth-error';
 import { AuthShell } from '@/features/auth/ui/auth-shell';
 import { CountdownProgress } from '@/features/auth/ui/countdown-progress';
 import { OtpCodeInput } from '@/features/auth/ui/otp-code-input';
+import { isTripAvailability, TripAvailabilityNotice, type TripAvailability } from '@/features/auth/ui/trip-availability-notice';
 
 export default function OtpScreen() {
   const flow = useAuthFlowStore();
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [availability, setAvailability] = useState<TripAvailability | null>(null);
   const [resendSeconds, setResendSeconds] = useState(flow.resendAfterSeconds);
 
   useEffect(() => {
@@ -26,6 +28,10 @@ export default function OtpScreen() {
   }, []);
 
   if (!flow.challengeId) return <Redirect href="/(auth)/phone" />;
+  if (availability) return <TripAvailabilityNotice status={availability} onBack={() => {
+    flow.reset();
+    router.replace('/(auth)/phone');
+  }} />;
 
   async function submit() {
     if (!/^\d{6}$/.test(code)) {
@@ -35,7 +41,12 @@ export default function OtpScreen() {
     setLoading(true);
     setError(null);
     try {
-      const result = await verifyOtp(flow.challengeId!, code);
+      const result = await verifyOtp(flow.challengeId!, code, flow.phoneNumber);
+      if (isTripAvailability(result.status)) {
+        setAvailability(result.status);
+        setCode('');
+        return;
+      }
       if (result.status === 'authenticated' && result.tokens) {
         await activateSession(result.tokens);
         flow.reset();
@@ -75,7 +86,7 @@ export default function OtpScreen() {
     <AuthShell
       eyebrow="Verification"
       title="Check WhatsApp."
-      description="Enter the 6-digit code sent to the WhatsApp number you provided. We use the same response whether or not a trip is eligible.">
+      description="If this number was submitted through your trip’s collection link, a 6-digit code will arrive on WhatsApp. After verification, we’ll check whether your trip is ready to open.">
       <OtpCodeInput
         value={code}
         disabled={loading}

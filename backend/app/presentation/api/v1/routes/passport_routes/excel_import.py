@@ -16,6 +16,7 @@ from app.application.security.authorization_policy import AuthorizationPolicy
 from app.core.config.settings import get_settings
 from app.domain.entities.entities import ClientGroup, User, UserRole
 from app.domain.exceptions.exceptions import AuthorizationError
+from app.domain.value_objects.client_collection_provenance import strip_client_collection_provenance
 from app.infrastructure.database.models import ClientGroupModel, PassportSubmissionModel
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.imports.passport_excel_importer import (
@@ -306,7 +307,7 @@ async def import_passports_by_group(
                 status="client_submitted",
                 confirmed_fields=row.confirmed_fields or None,
                 extracted_fields=row.confirmed_fields or None,
-                staff_metadata=row.staff_metadata or None,
+                staff_metadata=strip_client_collection_provenance(row.staff_metadata) or None,
                 overall_confidence=1.0 if row.confirmed_fields else None,
                 confidence_score={
                     "source": "excel_import",

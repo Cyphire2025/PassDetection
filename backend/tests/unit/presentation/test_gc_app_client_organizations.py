@@ -195,7 +195,8 @@ async def test_eligible_group_search_filters_before_pagination_and_searches_dest
     assert all(str(agency_id) in statement for statement in statements)
     assert "client_groups.name ILIKE" in statements[0]
     assert "client_groups.destination ILIKE" in statements[0]
-    assert "client_groups.status = 'active'" in statements[0]
+    assert "client_groups.status IN ('active', 'closed')" in statements[0]
+    assert "client_groups.deleted_at IS NULL" in statements[0]
     assert "gc_group_access.id IS NULL" in statements[0]
     assert "LIMIT 20 OFFSET 40" in statements[1]
 
@@ -212,6 +213,7 @@ async def test_enabled_group_page_embeds_aggregated_usage_metrics() -> None:
         travel_date=None,
         return_date=None,
         status="active",
+        deleted_at=None,
     )
     organization = SimpleNamespace(id=uuid.uuid4(), name="Bluechip")
     access = SimpleNamespace(
@@ -298,6 +300,7 @@ async def test_group_metrics_distinguish_accounts_from_acknowledged_devices() ->
         travel_date=None,
         return_date=None,
         status="active",
+        deleted_at=None,
     )
     organization = SimpleNamespace(id=access.client_organization_id, name="Bluechip")
     session = SimpleNamespace(

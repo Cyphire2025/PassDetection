@@ -1,4 +1,4 @@
-"""Reconcile strong WhatsApp/passport evidence into mobile passenger identities.
+"""Reconcile collection-submitted numbers into mobile passenger identities.
 
 Names alone are never sufficient. Shared phone numbers are provisioned only
 when every passenger has a distinct, user-knowable secondary factor.
@@ -14,15 +14,10 @@ from datetime import UTC, datetime
 from sqlalchemy import or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.mobile.passenger_phone_authority import authoritative_submission_phone
 from app.application.mobile.sync_journal import append_mobile_sync_change
-from app.application.use_cases.whatsapp.contact_normalization import (
-    normalize_whatsapp_phone,
-)
 from app.application.use_cases.whatsapp.group_submission_matching import (
     SubmissionMatchRow,
-)
-from app.application.use_cases.whatsapp.private_delivery_identity import (
-    has_private_delivery_identity_evidence,
 )
 from app.core.security.mobile_jwt import (
     hash_mobile_lookup,
@@ -99,7 +94,11 @@ def plan_passenger_identities(
     agency_id: uuid.UUID | None = None,
     group_id: uuid.UUID | None = None,
 ) -> PassengerIdentityPlan:
-    """Create a deterministic fail-closed plan from existing matching output."""
+    """Create a fail-closed plan exclusively from completed collection contacts.
+
+    ``rows`` remains an input for compatibility with bounded change loaders;
+    no broadcast match or recipient phone confers mobile authorization.
+    """
 
     by_id = {
         submission.id: submission
@@ -112,40 +111,9 @@ def plan_passenger_identities(
     ] = []
     skipped_ambiguous = 0
 
-    for row in rows:
-        if row.status not in {"submitted", "multiple_submissions"}:
-            if row.candidate_submission_ids:
-                skipped_ambiguous += len(row.candidate_submission_ids)
-            continue
-        phone = normalize_whatsapp_phone(row.normalized_phone)
-        if phone is None:
-            skipped_ambiguous += len(row.submission_ids)
-            continue
-        for submission_id in row.submission_ids:
-            submission = by_id.get(submission_id)
-            if submission is None or not has_private_delivery_identity_evidence(
-                row,
-                submission_id=submission_id,
-            ):
-                skipped_ambiguous += 1
-                continue
-            provisional.append((submission_id, phone, _secondary_factor(submission)))
-
-    # A passenger-entered phone on the authoritative submission is itself
-    # strong ownership evidence once the user proves control of that number by
-    # OTP.  Keep WhatsApp roster matches authoritative when both sources are
-    # present, and use this source only for submissions that were not already
-    # resolved by the matching engine.  This closes the gap where a newly
-    # added passenger belongs to a GC-enabled group but its broadcast link has
-    # not yet been rebuilt.
-    provisioned_submission_ids = {
-        submission_id for submission_id, _phone, _factor in provisional
-    }
     for submission_id in sorted(by_id, key=str):
-        if submission_id in provisioned_submission_ids:
-            continue
         submission = by_id[submission_id]
-        phone = normalize_whatsapp_phone(getattr(submission, "client_phone", None))
+        phone = authoritative_submission_phone(submission)
         if phone is None:
             continue
         provisional.append((submission_id, phone, _secondary_factor(submission)))

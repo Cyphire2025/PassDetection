@@ -56,6 +56,7 @@ from app.presentation.api.v1.schemas.announcement_notification_status import (
 )
 from app.presentation.api.v1.schemas.gc_app_schemas import (
     AnnouncementCreateRequest,
+    AnnouncementPageResponse,
     AnnouncementResponse,
     CommonDocumentCategory,
     CommonDocumentReorderRequest,
@@ -257,6 +258,9 @@ async def publish_itinerary(
     for item in previous:
         item.status = "retired"
         item.updated_at = now
+    # Release the partial unique "published" slot before promoting the draft;
+    # SQLAlchemy may otherwise order the new row's UPDATE before the old one.
+    await session.flush()
     itinerary.status = "published"
     itinerary.published_at = now
     itinerary.published_by_user_id = current_user.id
@@ -623,6 +627,7 @@ async def publish_common_document(
         item.status = "retired"
         item.retired_at = now
         item.updated_at = now
+    await session.flush()
     document.status = "published"
     document.passenger_visible = True
     document.client_manager_visible = True
@@ -809,6 +814,37 @@ async def list_announcements(
     return [_announcement_response(item) for item in items]
 
 
+@router.get("/groups/{group_id}/announcements/page", response_model=AnnouncementPageResponse)
+async def page_announcements(
+    group_id: uuid.UUID,
+    offset: int = Query(default=0, ge=0),
+    limit: int = Query(default=25, ge=1, le=100),
+    agency_id: uuid.UUID | None = None,
+    current_user: User = Depends(require_role(GC_CONTENT_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> AnnouncementPageResponse:
+    access, _group = await _admin_access_context(
+        session, current_user, group_id, agency_id=agency_id, lock=False,
+    )
+    filters = (
+        GCAnnouncementModel.gc_group_access_id == access.id,
+        GCAnnouncementModel.agency_id == access.agency_id,
+        GCAnnouncementModel.group_id == access.group_id,
+        GCAnnouncementModel.status.in_(("draft", "published")),
+    )
+    total = int((await session.execute(
+        select(func.count()).select_from(GCAnnouncementModel).where(*filters),
+    )).scalar_one())
+    rows = (await session.execute(
+        select(GCAnnouncementModel).where(*filters)
+        .order_by(GCAnnouncementModel.created_at.desc(), GCAnnouncementModel.id.desc())
+        .offset(offset).limit(limit),
+    )).scalars()
+    return AnnouncementPageResponse(
+        items=[_announcement_response(row) for row in rows], total=total, offset=offset, limit=limit,
+    )
+
+
 @router.get(
     "/groups/{group_id}/announcements/{announcement_id}/notification-status",
     response_model=AnnouncementNotificationStatusResponse,
@@ -963,6 +999,7 @@ async def publish_announcement(
         item.status = "retired"
         item.retired_at = now
         item.updated_at = now
+    await session.flush()
     announcement.status = "published"
     announcement.passenger_visible = True
     announcement.client_manager_visible = True
@@ -1420,6 +1457,18 @@ async def _create_announcement_version(
         entity_type="gc_announcement",
         entity_id=announcement.id,
     )
+    if body.publish:
+        # Saving and publishing share the request transaction. A failed queue,
+        # audit or publication write must not leave an invisible saved draft
+        # that the operator accidentally duplicates by retrying the form.
+        return await publish_announcement(
+            group_id=access.group_id,
+            announcement_id=announcement.id,
+            request=request,
+            agency_id=access.agency_id,
+            current_user=current_user,
+            session=session,
+        )
     return _announcement_response(announcement)
 
 

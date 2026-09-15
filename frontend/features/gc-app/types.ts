@@ -1,6 +1,10 @@
 export type GcAppAccountStatus = "invited" | "active" | "suspended" | "deleted";
 export type GcAppGroupLifecycle = "active" | "closed" | "archived" | "deleted";
 export type GcAppRole = "passenger" | "client_manager" | "coordinator";
+export type GcAppAvailability = "active" | "scheduled" | "paused" | "ended" | "unavailable";
+export type GcAppAvailabilityReason = "group_deleted" | "group_archived" | "group_unavailable"
+  | "not_configured" | "app_disabled" | "access_revoked" | "no_roles_enabled"
+  | "access_ended" | "access_not_started";
 
 export interface GcPage<T> {
   items: T[];
@@ -39,6 +43,9 @@ export interface GcGroupReference {
   company: GcCompanyReference | null;
   gc_enabled?: boolean;
   gc_revision?: number;
+  app_availability?: GcAppAvailability;
+  app_availability_reason?: GcAppAvailabilityReason | null;
+  app_availability_evaluated_at?: string;
 }
 
 export interface ClientManagerAccount {
@@ -117,9 +124,11 @@ export interface GcAppGroupControl extends GcGroupReference {
 
 export interface GcAppGroupFilters extends GcPageParams {
   lifecycle?: GcAppGroupLifecycle | "all";
+  availability?: GcAppAvailability | "all";
 }
 
 export interface GcAppControlPatch {
+  enabled?: boolean;
   passenger_access_enabled?: boolean;
   client_manager_access_enabled?: boolean;
   coordinator_access_enabled?: boolean;

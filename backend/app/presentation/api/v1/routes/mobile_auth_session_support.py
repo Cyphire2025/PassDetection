@@ -11,6 +11,9 @@ from fastapi import HTTPException, Request, status
 from sqlalchemy import and_, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.mobile.passenger_session_authority import (
+    ensure_current_passenger_session_bindings,
+)
 from app.core.security.mobile_jwt import MobileAccessClaims, MobilePrincipalType
 from app.domain.entities.entities import GroupStatus, UserRole
 from app.infrastructure.database.gc_mobile_models import (
@@ -311,6 +314,8 @@ async def _refresh_principal(
     GCGroupAccessModel | None,
 ]:
     if device_session.subject_role == "passenger":
+        if not await ensure_current_passenger_session_bindings(session, device_session):
+            raise HTTPException(401, "Mobile passenger identity is inactive")
         now = datetime.now(tz=UTC)
         rows = list(
             (

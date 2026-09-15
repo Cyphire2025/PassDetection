@@ -51,7 +51,7 @@ export default function PhoneScreen() {
       title={demoMode ? 'Open the passenger demo.' : 'Let’s find your trip.'}
       description={demoMode
         ? 'Enter any value. This isolated emulator build opens local sample data without checking a real passenger record.'
-        : 'Use the mobile number already registered with your passenger or WhatsApp record.'}>
+        : 'Use the WhatsApp number you entered when submitting your details through your trip’s collection link.'}>
       <TextField
         testID="passenger-phone-input"
         label="Mobile number"

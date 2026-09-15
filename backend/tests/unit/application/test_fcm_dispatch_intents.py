@@ -18,6 +18,7 @@ from app.core.security.mobile_push_crypto import mobile_push_fernet
 from app.infrastructure.database.gc_mobile_models import (
     GCAnnouncementModel,
     MobileDeviceSessionModel,
+    MobilePassengerSessionIdentityModel,
     MobilePushDeliveryModel,
     MobilePushRegistrationModel,
 )
@@ -105,7 +106,17 @@ async def _additional_device(session, registration, now):
         notifications_authorized=True,
         last_registered_at=now,
     )
-    session.add_all([device, extra])
+    original_binding = await session.get(
+        MobilePassengerSessionIdentityModel,
+        (original.id, original.passenger_identity_id),
+    )
+    binding = MobilePassengerSessionIdentityModel(
+        session_id=device.id, passenger_identity_id=original_binding.passenger_identity_id,
+        agency_id=original_binding.agency_id, group_id=original_binding.group_id,
+        gc_group_access_id=original_binding.gc_group_access_id,
+        identity_claim_generation=original_binding.identity_claim_generation,
+    )
+    session.add_all([device, extra, binding])
     await session.flush()
     return extra
 

@@ -116,6 +116,9 @@ export const OtpVerifyResponseSchema = z
       'claim_selection_required',
       'secondary_verification_required',
       'authenticated',
+      'trip_not_active',
+      'trip_starts_later',
+      'trip_access_ended',
     ]),
     claims: z.array(TripClaimSchema).max(50),
     tokens: TokenResponseSchema.nullable(),
@@ -143,7 +146,7 @@ export const OtpVerifyResponseSchema = z
         message: 'Claim selection responses require at least one claim.',
       });
     }
-    if (response.status === 'secondary_verification_required' && response.claims.length > 0) {
+    if (response.status !== 'claim_selection_required' && response.claims.length > 0) {
       context.addIssue({
         code: 'custom',
         message: 'Secondary verification responses must not disclose claims.',

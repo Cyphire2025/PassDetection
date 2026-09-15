@@ -12,6 +12,7 @@ import { verifyPassengerClaim } from '@/features/auth/api/auth-api';
 import { useAuthFlowStore } from '@/features/auth/state/auth-flow-store';
 import { AuthError, authErrorMessage } from '@/features/auth/ui/auth-error';
 import { AuthShell } from '@/features/auth/ui/auth-shell';
+import { isTripAvailability, TripAvailabilityNotice, type TripAvailability } from '@/features/auth/ui/trip-availability-notice';
 
 export default function ClaimScreen() {
   const flow = useAuthFlowStore();
@@ -21,12 +22,17 @@ export default function ClaimScreen() {
   const [verificationValue, setVerificationValue] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [availability, setAvailability] = useState<TripAvailability | null>(null);
   const selected = useMemo(
     () => flow.claims.find((claim) => claim.claim_id === selectedClaimId),
     [flow.claims, selectedClaimId],
   );
 
   if (!flow.challengeId) return <Redirect href="/(auth)/phone" />;
+  if (availability) return <TripAvailabilityNotice status={availability} onBack={() => {
+    flow.reset();
+    router.replace('/(auth)/phone');
+  }} />;
   const needsSecondary = flow.claims.length === 0 || selected?.requires_secondary_verification;
 
   async function submit() {
@@ -43,9 +49,15 @@ export default function ClaimScreen() {
     try {
       const result = await verifyPassengerClaim({
         challengeId: flow.challengeId!,
+        phoneNumber: flow.phoneNumber,
         ...(selectedClaimId ? { claimId: selectedClaimId } : {}),
         ...(verificationValue.trim() ? { verificationValue: verificationValue.trim() } : {}),
       });
+      if (isTripAvailability(result.status)) {
+        setAvailability(result.status);
+        setVerificationValue('');
+        return;
+      }
       if (result.status === 'authenticated' && result.tokens) {
         await activateSession(result.tokens);
         flow.reset();

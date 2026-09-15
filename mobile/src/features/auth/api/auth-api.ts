@@ -35,7 +35,7 @@ export function requestOtp(phoneNumber: string) {
   });
 }
 
-export async function verifyOtp(challengeId: string, code: string) {
+export async function verifyOtp(challengeId: string, code: string, phoneNumber?: string) {
   return apiRequest('/mobile/auth/otp/verify', {
     method: 'POST',
     authenticated: false,
@@ -43,6 +43,7 @@ export async function verifyOtp(challengeId: string, code: string) {
     body: {
       challenge_id: challengeId,
       code,
+      ...(phoneNumber ? { phone_number: phoneNumber } : {}),
       device: await mobileDevice(),
     },
   });
@@ -52,6 +53,7 @@ export async function verifyPassengerClaim(input: {
   challengeId: string;
   claimId?: string;
   verificationValue?: string;
+  phoneNumber?: string;
 }) {
   return apiRequest('/mobile/auth/claim/verify', {
     method: 'POST',
@@ -61,6 +63,7 @@ export async function verifyPassengerClaim(input: {
       challenge_id: input.challengeId,
       ...(input.claimId ? { claim_id: input.claimId } : {}),
       ...(input.verificationValue ? { verification_value: input.verificationValue } : {}),
+      ...(input.phoneNumber ? { phone_number: input.phoneNumber } : {}),
       device: await mobileDevice(),
     },
   });

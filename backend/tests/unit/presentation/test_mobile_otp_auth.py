@@ -47,6 +47,25 @@ from app.presentation.api.v1.schemas.mobile_schemas import (
 from app.presentation.dependencies.mobile_auth import get_current_mobile_claims
 
 
+@pytest.fixture(autouse=True)
+def _isolate_submitted_authority_for_route_unit_tests(monkeypatch: pytest.MonkeyPatch):
+    """Keep provider/rotation unit fixtures independent of the new source query.
+
+    Source authorization and stale grant behavior are exercised with actual
+    helpers in test_mobile_submitted_phone_auth and test_passenger_session_authority.
+    """
+    for module in (
+        "app.presentation.api.v1.routes.mobile_auth",
+        "app.presentation.dependencies.mobile_auth",
+        "app.presentation.api.v1.routes.mobile_auth_session_support",
+    ):
+        monkeypatch.setattr(f"{module}.ensure_current_passenger_session_bindings", AsyncMock(return_value=True))
+    monkeypatch.setattr(
+        "app.presentation.api.v1.routes.mobile_auth.submitted_phone_rows",
+        AsyncMock(return_value=[(SimpleNamespace(), SimpleNamespace(), None)]),
+    )
+
+
 def _request(path: str) -> Request:
     return Request(
         {
@@ -259,6 +278,7 @@ async def test_ineligible_otp_request_is_neutral_and_never_calls_provider() -> N
     neutral_timing = AsyncMock()
 
     with (
+        patch("app.presentation.api.v1.routes.mobile_auth.submitted_phone_rows", AsyncMock(return_value=[])),
         patch(
             "app.presentation.api.v1.routes.mobile_auth.get_settings",
             return_value=SimpleNamespace(mobile=_otp_settings()),

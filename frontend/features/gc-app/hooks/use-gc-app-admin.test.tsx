@@ -8,6 +8,10 @@ import { gcAppQueryKeys, useGcAppGroupMutations } from "./use-gc-app-admin";
 
 const api = vi.hoisted(() => ({
   setMyPhotosEnabled: vi.fn(),
+  updateGroupControl: vi.fn(),
+  createAnnouncement: vi.fn(),
+  updateAnnouncement: vi.fn(),
+  uploadCommonDocument: vi.fn(),
 }));
 
 vi.mock("../api/gc-app-admin.api", () => ({ gcAppAdminApi: api }));
@@ -45,7 +49,62 @@ const CONTROL: GcAppGroupControl = {
 
 afterEach(() => {
   cleanup();
-  api.setMyPhotosEnabled.mockReset();
+  Object.values(api).forEach((mock) => mock.mockReset());
+});
+
+describe("GC App operator save consistency", () => {
+  it("updates access immediately from the response even if background refresh fails", async () => {
+    const queryClient = client();
+    const key = gcAppQueryKeys.groupControl(AGENCY_ID, CONTROL.id);
+    queryClient.setQueryData(key, CONTROL);
+    vi.spyOn(queryClient, "invalidateQueries").mockRejectedValue(new Error("offline refresh"));
+    api.updateGroupControl.mockResolvedValue({ ...CONTROL, passenger_access_enabled: false, revision: 8 });
+    const { result } = renderHook(() => useGcAppGroupMutations(AGENCY_ID, CONTROL.id, 7), { wrapper: wrapper(queryClient) });
+    await act(async () => {
+      await result.current.updateControl.mutateAsync({ control: CONTROL, patch: { passenger_access_enabled: false } });
+    });
+    expect(queryClient.getQueryData(key)).toMatchObject({ passenger_access_enabled: false, revision: 8 });
+    expect(api.updateGroupControl).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not move a newer confirmed access revision backwards", async () => {
+    const queryClient = client();
+    const key = gcAppQueryKeys.groupControl(AGENCY_ID, CONTROL.id);
+    queryClient.setQueryData(key, { ...CONTROL, revision: 10 });
+    api.updateGroupControl.mockResolvedValue({ ...CONTROL, revision: 8 });
+    const { result } = renderHook(() => useGcAppGroupMutations(AGENCY_ID, CONTROL.id, 7), { wrapper: wrapper(queryClient) });
+    await act(async () => { await result.current.updateControl.mutateAsync({ control: CONTROL, patch: {} }); });
+    expect(queryClient.getQueryData(key)).toMatchObject({ revision: 10 });
+  });
+
+  it("reconciles content and revision after an uncertain save without automatically resending", async () => {
+    const queryClient = client();
+    const invalidations = vi.spyOn(queryClient, "invalidateQueries");
+    api.createAnnouncement.mockRejectedValue(new Error("response lost"));
+    const { result } = renderHook(() => useGcAppGroupMutations(AGENCY_ID, CONTROL.id, 7), { wrapper: wrapper(queryClient) });
+    await act(async () => {
+      await expect(result.current.createAnnouncement.mutateAsync({
+        title: "Test", body: "Test", priority: "normal", available_from: null, available_until: null, publish: true,
+      })).rejects.toThrow("response lost");
+    });
+    expect(api.createAnnouncement).toHaveBeenCalledTimes(1);
+    expect(invalidations).toHaveBeenCalledWith({ queryKey: gcAppQueryKeys.groupContent(AGENCY_ID, CONTROL.id) });
+    expect(invalidations).toHaveBeenCalledWith({ queryKey: gcAppQueryKeys.groupControl(AGENCY_ID, CONTROL.id) });
+  });
+
+  it("keeps the published document visible while its replacement is still a draft", async () => {
+    const queryClient = client();
+    const key = gcAppQueryKeys.groupContent(AGENCY_ID, CONTROL.id);
+    const published = { id: "old", title: "Itinerary", is_published: true };
+    const draft = { id: "new", title: "Itinerary", is_published: false };
+    queryClient.setQueryData(key, { common_documents: [published], announcements: [] });
+    api.uploadCommonDocument.mockResolvedValue(draft);
+    const { result } = renderHook(() => useGcAppGroupMutations(AGENCY_ID, CONTROL.id, 7), { wrapper: wrapper(queryClient) });
+    await act(async () => {
+      await result.current.uploadDocument.mutateAsync({ file: new File(["test"], "test.pdf", { type: "application/pdf" }), title: "Itinerary", category: "itinerary_pdf", replace_document_id: "old" });
+    });
+    expect(queryClient.getQueryData(key)).toMatchObject({ common_documents: [draft, published] });
+  });
 });
 
 describe("useGcAppGroupMutations My Photos control", () => {

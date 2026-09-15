@@ -26,6 +26,7 @@ from app.domain.repositories.interfaces import (
     IObjectStorageRepository,
     IPassportSubmissionRepository,
 )
+from app.domain.value_objects.client_collection_provenance import mark_client_collection_submitted
 from app.domain.value_objects.custom_questions import (
     CustomAnswerSnapshot,
     CustomDetailAnswerSnapshot,
@@ -460,6 +461,7 @@ class ClientSubmitPassportUseCase:
                 agent_employee_code_label=config.agent_employee_code_label if group.agent_employee_code_enabled else None,
                 agency_dealership_name_label=config.agency_dealership_name_label if group.agency_dealership_name_enabled else None,
             )
+            submission.staff_metadata = mark_client_collection_submitted(submission.staff_metadata)
             await self._passport_repo.update(submission)
         except Exception:
             if promoted_keys:

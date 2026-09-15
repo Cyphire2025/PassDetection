@@ -64,7 +64,7 @@ export function ClientManagerAccountsPage() {
     <div className="space-y-5">
       <PageHeader
         title="Client Manager Accounts"
-        description="Create and manage client-side accounts with explicit company and group assignments."
+        description="Create accounts for company representatives and assign their GC App trips. Set up each trip in App Controls first; account status and trip access are managed separately."
         actions={(
           <Button
             type="button"

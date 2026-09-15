@@ -8,12 +8,13 @@ from datetime import UTC, datetime
 from typing import cast
 
 from fastapi import HTTPException, status
-from sqlalchemy import func, select
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mobile.passenger_identity_reconciliation import (
     reconcile_passenger_identities,
 )
+from app.application.mobile.passenger_phone_authority import submitted_phone_matches_identity
 from app.core.security.mobile_jwt import (
     hash_mobile_otp_code,
     hash_mobile_secondary_factor,
@@ -26,10 +27,9 @@ from app.infrastructure.database.gc_mobile_models import (
 )
 from app.infrastructure.database.models import (
     ClientGroupModel,
-    ClientGroupWhatsAppBroadcastLinkModel,
     PassportSubmissionModel,
-    WhatsAppBroadcastRecipientModel,
 )
+from app.presentation.api.v1.routes.mobile_auth_phone_support import submitted_phone_rows
 from app.presentation.api.v1.schemas.mobile_schemas import MobileTripClaimSummary
 
 
@@ -40,12 +40,17 @@ async def _eligible_passenger_identities(
     now = datetime.now(tz=UTC)
     rows = (
         await session.execute(
-            select(MobilePassengerIdentityModel, GCGroupAccessModel, ClientGroupModel)
+            select(MobilePassengerIdentityModel, GCGroupAccessModel, ClientGroupModel, PassportSubmissionModel)
             .join(
                 GCGroupAccessModel,
                 GCGroupAccessModel.id == MobilePassengerIdentityModel.gc_group_access_id,
             )
             .join(ClientGroupModel, ClientGroupModel.id == MobilePassengerIdentityModel.group_id)
+            .join(PassportSubmissionModel, (
+                (PassportSubmissionModel.id == MobilePassengerIdentityModel.passenger_submission_id)
+                & (PassportSubmissionModel.agency_id == MobilePassengerIdentityModel.agency_id)
+                & (PassportSubmissionModel.group_id == MobilePassengerIdentityModel.group_id)
+            ))
             .where(
                 MobilePassengerIdentityModel.phone_lookup_hash == phone_lookup_hash,
                 MobilePassengerIdentityModel.status.in_(("eligible", "claimed")),
@@ -79,7 +84,8 @@ async def _eligible_passenger_identities(
                 ClientGroupModel,
             ]
         ],
-        list(rows),
+        [(identity, access, group) for identity, access, group, submission in rows
+         if submitted_phone_matches_identity(identity, submission)],
     )
 
 
@@ -89,145 +95,33 @@ async def _reconcile_phone_candidate_groups(
     normalized_phone: str,
     phone_lookup_hash: str,
 ) -> None:
-    """Reconcile only newly relevant GC groups during neutral OTP discovery.
+    """Migrate current and legacy bindings even when this number was known.
 
-    Passenger/WhatsApp records can be added after a group is enabled for the
-    mobile app.  The dashboard used to require an access toggle (or remove and
-    re-add) before that passenger could request an OTP.  Resolve the gap from
-    the indexed WhatsApp phone evidence, but avoid rebuilding an already-known
-    group roster on every OTP request.
-
-    The bounded query and neutral public response preserve abuse resistance and
-    do not disclose whether a phone exists in another tenant or group.
+    Current submitted contacts discover their GC groups. Old identity hashes
+    additionally discover groups that must revoke a roster-derived or changed
+    binding. Broadcast tables never supply authorization candidates.
     """
 
-    broadcast_candidate_accesses = list(
-        (
-            await session.execute(
-                select(GCGroupAccessModel)
-                .join(
-                    ClientGroupWhatsAppBroadcastLinkModel,
-                    (
-                        ClientGroupWhatsAppBroadcastLinkModel.client_group_id
-                        == GCGroupAccessModel.group_id
-                    )
-                    & (
-                        ClientGroupWhatsAppBroadcastLinkModel.agency_id
-                        == GCGroupAccessModel.agency_id
-                    ),
-                )
-                .join(
-                    WhatsAppBroadcastRecipientModel,
-                    (
-                        WhatsAppBroadcastRecipientModel.broadcast_group_id
-                        == ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id
-                    )
-                    & (
-                        WhatsAppBroadcastRecipientModel.agency_id
-                        == GCGroupAccessModel.agency_id
-                    ),
-                )
-                .join(
-                    ClientGroupModel,
-                    (ClientGroupModel.id == GCGroupAccessModel.group_id)
-                    & (ClientGroupModel.agency_id == GCGroupAccessModel.agency_id),
-                )
-                .where(
-                    WhatsAppBroadcastRecipientModel.normalized_phone_number
-                    == normalized_phone,
-                    WhatsAppBroadcastRecipientModel.removed_at.is_(None),
-                    WhatsAppBroadcastRecipientModel.suppressed_by_roster_resolution_id.is_(
-                        None
-                    ),
-                    GCGroupAccessModel.is_enabled.is_(True),
-                    GCGroupAccessModel.passenger_access_enabled.is_(True),
-                    GCGroupAccessModel.revoked_at.is_(None),
-                    ClientGroupModel.status.in_(
-                        (GroupStatus.ACTIVE.value, GroupStatus.CLOSED.value)
-                    ),
-                )
-                .order_by(GCGroupAccessModel.id)
-                .limit(20)
-                .with_for_update(of=GCGroupAccessModel)
-            )
-        ).scalars().unique()
+    submitted = await submitted_phone_rows(session, normalized_phone)
+    submission_access_ids = {access.id for _, _, access in submitted if access is not None}
+    legacy_access_ids = select(MobilePassengerIdentityModel.gc_group_access_id).where(
+        MobilePassengerIdentityModel.phone_lookup_hash == phone_lookup_hash,
     )
-    normalized_digits = normalized_phone.removeprefix("+")
-    accepted_phone_digits = {normalized_digits}
-    if normalized_phone.startswith("+91") and len(normalized_digits) == 12:
-        accepted_phone_digits.add(normalized_digits[2:])
-    passport_phone_digits = func.regexp_replace(
-        func.coalesce(PassportSubmissionModel.client_phone, ""),
-        r"\D",
-        "",
-    )
-    submission_candidate_accesses = list(
-        (
-            await session.execute(
-                select(GCGroupAccessModel)
-                .join(
-                    PassportSubmissionModel,
-                    (
-                        PassportSubmissionModel.group_id
-                        == GCGroupAccessModel.group_id
-                    )
-                    & (
-                        PassportSubmissionModel.agency_id
-                        == GCGroupAccessModel.agency_id
-                    ),
-                )
-                .join(
-                    ClientGroupModel,
-                    (ClientGroupModel.id == GCGroupAccessModel.group_id)
-                    & (ClientGroupModel.agency_id == GCGroupAccessModel.agency_id),
-                )
-                .where(
-                    passport_phone_digits.in_(sorted(accepted_phone_digits)),
-                    GCGroupAccessModel.is_enabled.is_(True),
-                    GCGroupAccessModel.passenger_access_enabled.is_(True),
-                    GCGroupAccessModel.revoked_at.is_(None),
-                    ClientGroupModel.status.in_(
-                        (GroupStatus.ACTIVE.value, GroupStatus.CLOSED.value)
-                    ),
-                    ClientGroupModel.deleted_at.is_(None),
-                )
-                .order_by(GCGroupAccessModel.id)
-                .limit(20)
-                .with_for_update(of=GCGroupAccessModel)
-            )
-        ).scalars().unique()
-    )
-    candidate_accesses = list(
-        {
-            access.id: access
-            for access in [
-                *broadcast_candidate_accesses,
-                *submission_candidate_accesses,
-            ]
-        }.values()
-    )[:20]
-    if not candidate_accesses:
-        return
-
-    access_ids = [access.id for access in candidate_accesses]
-    existing_access_ids = set(
-        (
-            await session.execute(
-                select(MobilePassengerIdentityModel.gc_group_access_id).where(
-                    MobilePassengerIdentityModel.gc_group_access_id.in_(access_ids),
-                    MobilePassengerIdentityModel.phone_lookup_hash == phone_lookup_hash,
-                    MobilePassengerIdentityModel.status.in_(("eligible", "claimed")),
-                    MobilePassengerIdentityModel.revoked_at.is_(None),
-                )
-            )
-        ).scalars()
-    )
-    for access in candidate_accesses:
-        if access.id in existing_access_ids:
-            continue
+    accesses = list((await session.execute(
+        select(GCGroupAccessModel)
+        .where(or_(
+            GCGroupAccessModel.id.in_(submission_access_ids),
+            GCGroupAccessModel.id.in_(legacy_access_ids),
+        ))
+        .order_by(GCGroupAccessModel.id)
+        .limit(101)
+        .with_for_update()
+    )).scalars().unique())
+    if len(accesses) > 100:
+        raise HTTPException(503, "OTP verification is temporarily unavailable")
+    for access in accesses:
         await reconcile_passenger_identities(
-            session,
-            access=access,
+            session, access=access,
             actor_user_id=access.updated_by_user_id or access.created_by_user_id,
         )
 

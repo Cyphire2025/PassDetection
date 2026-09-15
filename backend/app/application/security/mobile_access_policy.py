@@ -9,6 +9,7 @@ from datetime import UTC, datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.mobile.passenger_phone_authority import submitted_phone_matches_identity
 from app.core.security.mobile_jwt import MobileAccessClaims, MobilePrincipalType
 from app.domain.entities.entities import GroupStatus
 from app.domain.exceptions.exceptions import AuthorizationError
@@ -21,6 +22,7 @@ from app.infrastructure.database.gc_mobile_models import (
 from app.infrastructure.database.models import (
     ClientGroupModel,
     CoordinatorGroupAssignmentModel,
+    PassportSubmissionModel,
 )
 from app.infrastructure.repositories.coordinator_assignment_lifecycle import (
     expired_trip_clause,
@@ -120,6 +122,17 @@ class MobileAccessPolicy:
         )
         identity = result.scalar_one_or_none()
         if identity is None:
+            raise AuthorizationError("Mobile trip access is not available")
+        submission = (await self._session.execute(
+            select(PassportSubmissionModel)
+            .where(
+                PassportSubmissionModel.id == identity.passenger_submission_id,
+                PassportSubmissionModel.agency_id == claims.agency_id,
+                PassportSubmissionModel.group_id == group.id,
+            )
+            .execution_options(populate_existing=True)
+        )).scalar_one_or_none()
+        if submission is None or not submitted_phone_matches_identity(identity, submission):
             raise AuthorizationError("Mobile trip access is not available")
         return AuthorizedMobileTrip(
             group=group,

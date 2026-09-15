@@ -8,10 +8,16 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, TypeVar
 
+from app.application.mobile.passenger_phone_authority import authoritative_submission_phone
+from app.domain.value_objects.client_collection_provenance import (
+    mark_client_collection_submitted,
+    strip_client_collection_provenance,
+)
 from app.domain.value_objects.passport_fields import (
     normalize_passport_number_identity,
     reconcile_confirmed_with_extraction,
 )
+from app.domain.value_objects.phone_number import phone_numbers_equal
 from app.infrastructure.database.models import PassportSubmissionModel
 from app.infrastructure.imports.passport_excel_importer import ImportedPassportRow
 
@@ -370,6 +376,7 @@ def _apply_passport_excel_row_to_submission(
     *,
     now: datetime,
 ) -> None:
+    saved_metadata = _preserve_existing_collection_contact(submission, row.client_phone)
     submission.client_name = row.client_name
     if row.client_email is not None:
         submission.client_email = row.client_email
@@ -380,8 +387,8 @@ def _apply_passport_excel_row_to_submission(
     if row.nearest_domestic_airport is not None:
         submission.nearest_domestic_airport = row.nearest_domestic_airport
     submission.staff_metadata = {
-        **(submission.staff_metadata or {}),
-        **(row.staff_metadata or {}),
+        **saved_metadata,
+        **strip_client_collection_provenance(row.staff_metadata),
     } or None
     merged_confirmed_fields = _merge_excel_fields(
         submission.confirmed_fields,
@@ -411,3 +418,17 @@ def _apply_passport_excel_row_to_submission(
         else (1.0 if row.confirmed_fields else None)
     )
     submission.updated_at = now
+
+
+def _preserve_existing_collection_contact(
+    submission: PassportSubmissionModel, imported_phone: str | None,
+) -> dict[str, str]:
+    metadata = submission.staff_metadata or {}
+    if imported_phone is not None and not phone_numbers_equal(submission.client_phone, imported_phone):
+        return strip_client_collection_provenance(metadata)
+    # Compatibility conversion is based only on the trusted pre-import row.
+    # Preserve an already-authoritative legacy contact when Excel edits other
+    # fields; the import's own metadata can never establish this provenance.
+    if getattr(submission, "client_reviewed_at", None) is not None and authoritative_submission_phone(submission):
+        return mark_client_collection_submitted(metadata)
+    return dict(metadata)

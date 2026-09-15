@@ -13,6 +13,7 @@ import type {
   GcAppGroupContent,
   GcAppGroupFilters,
   GcAppGroupControl,
+  GcAnnouncement,
   GcCompanyReference,
   GcGroupReference,
   GcPageParams,
@@ -47,6 +48,9 @@ export const gcAppQueryKeys = {
     [...gcAppQueryKeys.root, agencyId, "groups", groupId, "control"] as const,
   groupContent: (agencyId: string | null, groupId: string) =>
     [...gcAppQueryKeys.root, agencyId, "groups", groupId, "content"] as const,
+  groupAnnouncements: (agencyId: string | null, groupId: string, params?: GcPageParams) => params
+    ? [...gcAppQueryKeys.root, agencyId, "groups", groupId, "announcements", params] as const
+    : [...gcAppQueryKeys.root, agencyId, "groups", groupId, "announcements"] as const,
   groupAudit: (agencyId: string | null, groupId: string, params?: GcPageParams) => params
     ? [...gcAppQueryKeys.root, agencyId, "groups", groupId, "audit", params] as const
     : [...gcAppQueryKeys.root, agencyId, "groups", groupId, "audit"] as const,
@@ -209,6 +213,8 @@ export function useGcAppGroups(agencyId: string | null, filters: GcAppGroupFilte
     queryFn: ({ signal }) => gcAppAdminApi.listGroups(agencyId, filters, signal),
     placeholderData: keepPreviousData,
     ...SECURITY_QUERY_OPTIONS,
+    refetchInterval: 30_000,
+    refetchIntervalInBackground: false,
   });
 }
 
@@ -218,6 +224,8 @@ export function useGcAppGroupControl(agencyId: string | null, groupId: string) {
     queryFn: ({ signal }) => gcAppAdminApi.getGroupControl(agencyId, groupId, signal),
     enabled: Boolean(groupId && agencyId),
     ...SECURITY_QUERY_OPTIONS,
+    refetchInterval: 30_000,
+    refetchIntervalInBackground: false,
   });
 }
 
@@ -235,13 +243,27 @@ export function useGcAppGroupAudit(
   groupId: string,
   page = 1,
   pageSize = 50,
+  enabled = true,
 ) {
   const params = { page, page_size: pageSize };
   return useQuery({
     queryKey: gcAppQueryKeys.groupAudit(agencyId, groupId, params),
     queryFn: ({ signal }) =>
       gcAppAdminApi.listGroupAudit(agencyId, groupId, params, signal),
-    enabled: Boolean(groupId && agencyId),
+    enabled: Boolean(groupId && agencyId && enabled),
+    placeholderData: keepPreviousData,
+    ...SECURITY_QUERY_OPTIONS,
+  });
+}
+
+export function useGcAppAnnouncements(
+  agencyId: string | null, groupId: string, page = 1, pageSize = 25, enabled = true,
+) {
+  const params = { page, page_size: pageSize };
+  return useQuery({
+    queryKey: gcAppQueryKeys.groupAnnouncements(agencyId, groupId, params),
+    queryFn: ({ signal }) => gcAppAdminApi.listAnnouncements(agencyId, groupId, params, signal),
+    enabled: Boolean(groupId && agencyId && enabled),
     placeholderData: keepPreviousData,
     ...SECURITY_QUERY_OPTIONS,
   });
@@ -266,14 +288,37 @@ export function useGcAppGroupMutations(agencyId: string | null, groupId?: string
     queryClient.invalidateQueries({ queryKey: gcAppQueryKeys.groupContent(agencyId, id) }),
     queryClient.invalidateQueries({ queryKey: gcAppQueryKeys.groupControl(agencyId, id) }),
     queryClient.invalidateQueries({ queryKey: gcAppQueryKeys.groupAudit(agencyId, id) }),
+    queryClient.invalidateQueries({ queryKey: gcAppQueryKeys.groupAnnouncements(agencyId, id) }),
     invalidateGroupLists(),
   ]);
+  const refreshControl = (id: string) => { void invalidateControl(id).catch(() => undefined); };
+  const refreshContent = () => { void invalidateContent(groupId!).catch(() => undefined); };
+  const acceptControl = async (updated: GcAppGroupControl) => {
+    const key = gcAppQueryKeys.groupControl(agencyId, updated.id);
+    await queryClient.cancelQueries({ queryKey: key });
+    queryClient.setQueryData<GcAppGroupControl>(key, (current) => (
+      current && current.revision > updated.revision ? current : updated
+    ));
+    refreshControl(updated.id);
+  };
+  const acceptAnnouncement = async (updated: GcAnnouncement, previousId?: string) => {
+    const key = gcAppQueryKeys.groupContent(agencyId, groupId!);
+    await queryClient.cancelQueries({ queryKey: key });
+    queryClient.setQueryData<GcAppGroupContent>(key, (current) => current ? {
+      ...current,
+      announcements: [updated, ...current.announcements.filter((item) => (
+        item.id !== updated.id
+        && (item.id !== previousId || (!updated.is_published && item.is_published))
+      ))],
+    } : current);
+  };
 
   return {
     add: useMutation({
       mutationFn: ({ group, company }: { group: GcGroupReference; company: GcCompanyReference }) =>
         gcAppAdminApi.addGroup(agencyId, group, company),
-      onSuccess: () => { void invalidateGroupLists(); },
+      onSuccess: acceptControl,
+      onError: () => { void invalidateGroupLists().catch(() => undefined); },
     }),
     remove: useMutation({
       mutationFn: (control: GcAppGroupControl) => gcAppAdminApi.removeGroup(agencyId, control),
@@ -282,20 +327,13 @@ export function useGcAppGroupMutations(agencyId: string | null, groupId?: string
     updateControl: useMutation({
       mutationFn: ({ control, patch }: { control: GcAppGroupControl; patch: GcAppControlPatch }) =>
         gcAppAdminApi.updateGroupControl(agencyId, control, patch),
-      onSuccess: (_data, variables) => { void invalidateControl(variables.control.id); },
+      onSuccess: acceptControl,
+      onError: (_error, variables) => refreshControl(variables.control.id),
     }),
     setMyPhotosEnabled: useMutation({
       mutationFn: ({ control, enabled }: { control: GcAppGroupControl; enabled: boolean }) =>
         gcAppAdminApi.setMyPhotosEnabled(agencyId, control, enabled),
-      onSuccess: async (updatedControl, variables) => {
-        const controlKey = gcAppQueryKeys.groupControl(agencyId, variables.control.id);
-        // This is a server-confirmed state change, not an optimistic toggle.
-        // Cancel an older background GET before publishing the canonical
-        // response so it cannot overwrite the newly accepted revision.
-        await queryClient.cancelQueries({ queryKey: controlKey });
-        queryClient.setQueryData<GcAppGroupControl>(controlKey, updatedControl);
-        void invalidateControl(variables.control.id).catch(() => undefined);
-      },
+      onSuccess: acceptControl,
       onError: (_error, variables) => {
         // A revision conflict must show the latest authoritative state. Never
         // retry a stale full intent automatically because another operator may
@@ -321,17 +359,19 @@ export function useGcAppGroupMutations(agencyId: string | null, groupId?: string
     }),
     uploadDocument: useMutation({
       mutationFn: (upload: CommonDocumentUpload) => gcAppAdminApi.uploadCommonDocument(agencyId, groupId!, upload, requireAccessRevision(accessRevision)),
-      onSuccess: (uploadedDocument, upload) => {
+      onSuccess: async (uploadedDocument, upload) => {
         // The upload command has already succeeded at this point. Do not keep
         // the button in a pending state while unrelated group/audit queries
         // refetch. Surface the returned draft immediately, then reconcile all
         // version counters and access revisions in the background.
+        await queryClient.cancelQueries({ queryKey: gcAppQueryKeys.groupContent(agencyId, groupId!) });
         queryClient.setQueryData<GcAppGroupContent>(
           gcAppQueryKeys.groupContent(agencyId, groupId!),
           (current) => {
             if (!current) return current;
             const retainedDocuments = current.common_documents.filter(
-              (document) => document.id !== upload.replace_document_id && document.id !== uploadedDocument.id,
+              (document) => document.id !== uploadedDocument.id
+                && (document.id !== upload.replace_document_id || document.is_published),
             );
             return {
               ...current,
@@ -341,11 +381,12 @@ export function useGcAppGroupMutations(agencyId: string | null, groupId?: string
         );
         void invalidateContent(groupId!).catch(() => undefined);
       },
+      onError: refreshContent,
     }),
     setDocumentPublished: useMutation({
       mutationFn: ({ documentId, published }: { documentId: string; published: boolean }) =>
         gcAppAdminApi.setCommonDocumentPublished(agencyId, groupId!, documentId, published),
-      onSuccess: () => { void invalidateContent(groupId!); },
+      onSettled: refreshContent,
     }),
     previewDocument: useMutation({
       mutationFn: (documentId: string) => gcAppAdminApi.previewCommonDocument(
@@ -361,25 +402,27 @@ export function useGcAppGroupMutations(agencyId: string | null, groupId?: string
         orderedDocumentIds,
         requireAccessRevision(accessRevision),
       ),
-      onSuccess: () => { void invalidateContent(groupId!); },
+      onSettled: refreshContent,
     }),
     deleteDocument: useMutation({
       mutationFn: (documentId: string) => gcAppAdminApi.deleteCommonDocument(agencyId, groupId!, documentId),
-      onSuccess: () => { void invalidateContent(groupId!); },
+      onSettled: refreshContent,
     }),
     createAnnouncement: useMutation({
       mutationFn: (body: AnnouncementInput) => gcAppAdminApi.createAnnouncement(agencyId, groupId!, body, requireAccessRevision(accessRevision)),
-      onSuccess: () => { void invalidateContent(groupId!); },
+      onSuccess: (updated) => acceptAnnouncement(updated),
+      onSettled: refreshContent,
     }),
     updateAnnouncement: useMutation({
       mutationFn: ({ announcementId, body }: { announcementId: string; body: AnnouncementInput }) =>
         gcAppAdminApi.updateAnnouncement(agencyId, groupId!, announcementId, body, requireAccessRevision(accessRevision)),
-      onSuccess: () => { void invalidateContent(groupId!); },
+      onSuccess: (updated, variables) => acceptAnnouncement(updated, variables.announcementId),
+      onSettled: refreshContent,
     }),
     setAnnouncementPublished: useMutation({
       mutationFn: ({ announcementId, published }: { announcementId: string; published: boolean }) =>
         gcAppAdminApi.setAnnouncementPublished(agencyId, groupId!, announcementId, published),
-      onSuccess: () => { void invalidateContent(groupId!); },
+      onSettled: refreshContent,
     }),
     deleteAnnouncement: useMutation({
       mutationFn: (announcementId: string) => gcAppAdminApi.deleteAnnouncement(agencyId, groupId!, announcementId),
@@ -395,6 +438,7 @@ export function useGcAppGroupMutations(agencyId: string | null, groupId?: string
         );
         void invalidateContent(groupId!);
       },
+      onError: refreshContent,
     }),
   };
 }

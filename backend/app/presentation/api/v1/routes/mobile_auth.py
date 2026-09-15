@@ -15,6 +15,9 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mobile.otp_provider import OTPDeliveryError
+from app.application.mobile.passenger_session_authority import (
+    ensure_current_passenger_session_bindings,
+)
 from app.application.use_cases.whatsapp.contact_normalization import normalize_whatsapp_phone
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
@@ -65,6 +68,11 @@ from app.presentation.api.v1.routes.mobile_auth_otp_support import (
     _reconcile_phone_candidate_groups,
     _validate_passenger_session_identities,
     _verify_challenge_code,
+)
+from app.presentation.api.v1.routes.mobile_auth_phone_support import (
+    challenge_phone,
+    submitted_phone_rows,
+    unavailable_trip_status,
 )
 from app.presentation.api.v1.routes.mobile_auth_session_support import (
     MobileSessionIssueDependencies,
@@ -201,8 +209,10 @@ async def request_passenger_otp(
             phone_lookup_hash=phone_lookup_hash,
         )
         eligible = await _eligible_passenger_identities(session, phone_lookup_hash)
+        submitted = await submitted_phone_rows(session, normalized_phone)
     else:
         eligible = []
+        submitted = []
     agencies = {identity.agency_id for identity, _access, _group in eligible}
     challenge = MobileOTPChallengeModel(
         id=challenge_id,
@@ -273,7 +283,7 @@ async def request_passenger_otp(
     provider_reference: str | None = None
     delivery_status = "not_attempted"
     provider_error_code: str | None = None
-    if eligible:
+    if submitted:
         try:
             provider_reference = await get_otp_provider().send_code(
                 normalized_phone=normalized_phone or "",
@@ -381,12 +391,26 @@ async def verify_passenger_otp(
     _require_mobile_enabled()
     challenge = await _locked_challenge(session, body.challenge_id)
     await _verify_challenge_code(session, challenge, body.code)
+    submitted = []
+    if body.phone_number is not None:
+        phone = await challenge_phone(session, challenge.phone_lookup_hash, body.phone_number)
+        if phone is not None:
+            await _reconcile_phone_candidate_groups(
+                session, normalized_phone=phone, phone_lookup_hash=challenge.phone_lookup_hash,
+            )
+            submitted = await submitted_phone_rows(session, phone)
     now = datetime.now(tz=UTC)
     challenge.status = "verified"
     challenge.verified_at = now
     challenge.updated_at = now
     eligible = await _eligible_passenger_identities(session, challenge.phone_lookup_hash)
     if not eligible:
+        unavailable = unavailable_trip_status(submitted)
+        if unavailable is not None:
+            challenge.status = "consumed"
+            challenge.consumed_at = now
+            await session.commit()
+            return MobileOTPVerifyResponse(status=unavailable)
         await session.commit()
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -442,7 +466,22 @@ async def verify_passenger_claim(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired verification challenge",
         )
+    submitted = []
+    if body.phone_number is not None:
+        phone = await challenge_phone(session, challenge.phone_lookup_hash, body.phone_number)
+        if phone is not None:
+            await _reconcile_phone_candidate_groups(
+                session, normalized_phone=phone, phone_lookup_hash=challenge.phone_lookup_hash,
+            )
+            submitted = await submitted_phone_rows(session, phone)
     eligible = await _eligible_passenger_identities(session, challenge.phone_lookup_hash)
+    unavailable = unavailable_trip_status(submitted) if not eligible else None
+    if unavailable is not None:
+        challenge.status = "consumed"
+        challenge.consumed_at = now
+        challenge.updated_at = now
+        await session.commit()
+        return MobileOTPVerifyResponse(status=unavailable)
     proven_matches = _matching_passenger_claims(
         eligible,
         claim_id=None,
@@ -927,6 +966,9 @@ async def switch_passenger_trip(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Mobile session is no longer active",
         )
+
+    if not await ensure_current_passenger_session_bindings(session, device_session):
+        raise HTTPException(401, "Mobile passenger identity is inactive")
 
     target_rows = (
         await session.execute(

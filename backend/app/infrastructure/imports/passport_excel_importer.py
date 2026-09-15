@@ -51,7 +51,9 @@ _NAME_FIELDS: Final[frozenset[str]] = frozenset({"client_name", "given_names", "
 _DATE_FIELDS: Final[frozenset[str]] = frozenset(
     {"date_of_birth", "date_of_issue", "date_of_expiry"}
 )
-_RESERVED_METADATA_KEYS: Final[frozenset[str]] = frozenset({"source_sheet", "source_zone"})
+_RESERVED_METADATA_KEYS: Final[frozenset[str]] = frozenset({
+    "source_sheet", "source_zone", "client_collection_submitted",
+})
 _EMPTY_CELL_VALUES: Final[frozenset[str]] = frozenset(
     {"", "-", "--", "#n/a", "n/a", "na", "none", "null"}
 )

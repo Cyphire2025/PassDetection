@@ -32,12 +32,14 @@ from app.infrastructure.database.gc_mobile_models import (
     MobileDeviceSessionModel,
     MobileNotificationModel,
     MobilePassengerIdentityModel,
+    MobilePassengerSessionIdentityModel,
     MobilePushDeliveryModel,
     MobilePushRegistrationModel,
 )
 from app.infrastructure.database.models import (
     ClientGroupModel,
     CoordinatorGroupAssignmentModel,
+    PassportSubmissionModel,
     UserModel,
 )
 from app.presentation.api.v1.routes.mobile_ops import list_mobile_notifications
@@ -89,6 +91,24 @@ def _group(
         token=f"countdown-{uuid.uuid4().hex}",
         status="active",
         travel_date=travel_date,
+    )
+
+
+def _submission(identity):
+    return PassportSubmissionModel(
+        id=identity.passenger_submission_id, agency_id=identity.agency_id,
+        group_id=identity.group_id, client_name="Synthetic passenger",
+        client_phone=identity.normalized_phone_number, image_s3_key="synthetic/public.jpg",
+        status="needs_review", client_reviewed_at=datetime.now(UTC),
+    )
+
+
+def _binding(identity, device):
+    return MobilePassengerSessionIdentityModel(
+        session_id=device.id, passenger_identity_id=identity.id,
+        agency_id=identity.agency_id, group_id=identity.group_id,
+        gc_group_access_id=identity.gc_group_access_id,
+        identity_claim_generation=identity.claim_generation or 0,
     )
 
 
@@ -162,6 +182,8 @@ async def _persist_push_target(
             access,
             announcement,
             passenger,
+            _submission(passenger),
+            _binding(passenger, device_session),
             device_session,
             registration,
             notification,
@@ -249,7 +271,7 @@ async def test_trip_countdown_scheduler_is_push_only_deduplicated_and_reschedula
         status="claimed",
         claimed_at=now,
     )
-    db_session.add_all([group, access, passenger])
+    db_session.add_all([group, access, passenger, _submission(passenger)])
     await db_session.flush()
 
     first = await schedule_trip_countdown_notifications(
@@ -323,7 +345,7 @@ async def test_trip_countdown_scheduler_does_not_catch_up_a_passed_window(
         status="claimed",
         claimed_at=now,
     )
-    db_session.add_all([group, access, passenger])
+    db_session.add_all([group, access, passenger, _submission(passenger)])
     await db_session.flush()
 
     counts = await schedule_trip_countdown_notifications(
@@ -423,7 +445,9 @@ async def test_announcement_producer_targets_only_explicit_role_grants(
             access,
             announcement,
             passenger,
+            _submission(passenger),
             unrelated_passenger,
+            _submission(unrelated_passenger),
             manager_user,
             manager_profile,
             manager_assignment,
@@ -505,13 +529,13 @@ async def test_announcement_cancellation_removes_all_delivery_states_from_feed(
             group_id=access.group_id,
             gc_group_access_id=access.id,
             passenger_submission_id=uuid.uuid4(),
-            normalized_phone_number=f"+9199999999{index}",
+            normalized_phone_number=f"+9199999999{index:02d}",
             phone_lookup_hash=f"{index + 10:064x}",
             status="eligible",
         )
         for index in range(3)
     ]
-    db_session.add_all([access, announcement, *passengers])
+    db_session.add_all([access, announcement, *passengers, *[_submission(item) for item in passengers]])
     await db_session.flush()
     counts = await enqueue_announcement_notifications(
         db_session,
@@ -562,7 +586,7 @@ async def test_notification_feed_hides_an_already_orphaned_announcement(
         phone_lookup_hash=uuid.uuid4().hex * 2,
         status="eligible",
     )
-    db_session.add_all([group, access, announcement, passenger])
+    db_session.add_all([group, access, announcement, passenger, _submission(passenger)])
     await db_session.flush()
     await enqueue_announcement_notifications(
         db_session,
@@ -671,6 +695,8 @@ async def test_dispatch_uses_encrypted_token_and_marks_ticket_sent(
             access,
             announcement,
             passenger,
+            _submission(passenger),
+            _binding(passenger, device_session),
             device_session,
             registration,
             notification,
@@ -1155,13 +1181,13 @@ async def test_passenger_notification_producer_pages_beyond_250(
             group_id=access.group_id,
             gc_group_access_id=access.id,
             passenger_submission_id=uuid.uuid4(),
-            normalized_phone_number=f"+91{index:010d}",
+            normalized_phone_number=f"+919{index:09d}",
             phone_lookup_hash=f"{index:064x}",
             status="eligible",
         )
         for index in range(251)
     ]
-    db_session.add_all([access, announcement, *identities])
+    db_session.add_all([access, announcement, *identities, *[_submission(item) for item in identities]])
     await db_session.flush()
 
     counts = await enqueue_announcement_notifications(

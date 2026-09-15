@@ -4,7 +4,7 @@ import { ArrowDown, ArrowUp, Eye, FileText, RefreshCw, Trash2, Upload } from "lu
 import { useEffect, useMemo, useState } from "react";
 import { Badge, Button, Card, CardContent, Input } from "@/components/ui";
 import type { CommonDocumentUpload, GcCommonDocument, GcDocumentCategory } from "../types";
-import { formatGcDateTime, gcAppErrorMessage } from "../utils";
+import { formatGcDateTime, gcAppErrorMessage, gcPublicationState } from "../utils";
 import { GcAlert } from "./gc-app-feedback";
 import { GcDialog } from "./gc-dialog";
 import { GcSelect } from "./gc-select";
@@ -25,6 +25,7 @@ const OTHER_DOCUMENT_CATEGORIES: { value: GcDocumentCategory; label: string }[] 
 
 export function CommonDocumentsPanel({
   documents,
+  disabled = false,
   isUploading,
   isUpdating,
   previewingDocumentId,
@@ -35,6 +36,7 @@ export function CommonDocumentsPanel({
   onDelete,
 }: {
   documents: GcCommonDocument[];
+  disabled?: boolean;
   isUploading: boolean;
   isUpdating: boolean;
   previewingDocumentId: string | null;
@@ -48,6 +50,7 @@ export function CommonDocumentsPanel({
   const [deleteDocument, setDeleteDocument] = useState<GcCommonDocument | null>(null);
   const [preview, setPreview] = useState<{ document: GcCommonDocument; url: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [now, setNow] = useState(() => Date.now());
   const orderedDocuments = useMemo(
     () => [...documents].sort((a, b) => a.sort_order - b.sort_order || a.title.localeCompare(b.title)),
     [documents],
@@ -87,6 +90,10 @@ export function CommonDocumentsPanel({
   useEffect(() => () => {
     if (preview) URL.revokeObjectURL(preview.url);
   }, [preview]);
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(timer);
+  }, []);
 
   const setPublished = async (documentId: string, published: boolean) => {
     setError(null);
@@ -137,7 +144,7 @@ export function CommonDocumentsPanel({
   };
 
   return (
-    <div className="space-y-5">
+    <fieldset disabled={disabled || isUploading || isUpdating} className="min-w-0 space-y-5" aria-label="Trip documents">
       {error && <GcAlert message={error} />}
 
       <Card>
@@ -158,6 +165,7 @@ export function CommonDocumentsPanel({
             onError={setError}
           />
           <DocumentRows
+            now={now}
             documents={itineraryDocuments}
             emptyMessage="No itinerary PDF has been uploaded."
             isUpdating={isUpdating}
@@ -197,6 +205,7 @@ export function CommonDocumentsPanel({
                 <Badge variant="secondary">{group.documents.length}</Badge>
               </div>
               <DocumentRows
+                now={now}
                 documents={group.documents}
                 emptyMessage={`No ${group.label.toLowerCase()} uploaded.`}
                 isUpdating={isUpdating}
@@ -237,7 +246,7 @@ export function CommonDocumentsPanel({
         footer={(
           <>
             <Button type="button" variant="secondary" onClick={() => setDeleteDocument(null)} disabled={isUpdating}>Cancel</Button>
-            <Button type="button" variant="danger" isLoading={isUpdating} onClick={() => {
+            <Button type="button" variant="danger" disabled={disabled} isLoading={isUpdating} onClick={() => {
               if (!deleteDocument) return;
               setError(null);
               void onDelete(deleteDocument.id).then(() => setDeleteDocument(null)).catch((deleteError: unknown) => setError(gcAppErrorMessage(deleteError, "The document could not be deleted.")));
@@ -247,7 +256,7 @@ export function CommonDocumentsPanel({
       >
         <p className="text-sm text-slate-600">Document history remains auditable. This action does not affect personal passenger documents.</p>
       </GcDialog>
-    </div>
+    </fieldset>
   );
 }
 
@@ -394,6 +403,7 @@ function DocumentUploadForm({
 }
 
 function DocumentRows({
+  now,
   documents,
   emptyMessage,
   isUpdating,
@@ -404,6 +414,7 @@ function DocumentRows({
   onSetPublished,
   onDelete,
 }: {
+  now: number;
   documents: GcCommonDocument[];
   emptyMessage: string;
   isUpdating: boolean;
@@ -427,7 +438,7 @@ function DocumentRows({
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="truncate font-medium text-slate-900">{document.title}</p>
-                <Badge variant={document.is_published ? "success" : "outline"}>{document.is_published ? "Published" : "Draft"}</Badge>
+                <Badge variant={gcPublicationState(document, now).variant}>{gcPublicationState(document, now).label}</Badge>
                 <Badge variant="default">v{document.version}</Badge>
               </div>
               <p className="mt-1 truncate text-xs text-slate-500">{document.filename} · Updated {formatGcDateTime(document.updated_at)}</p>

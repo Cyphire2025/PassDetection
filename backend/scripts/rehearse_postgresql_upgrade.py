@@ -25,7 +25,7 @@ from psycopg2 import sql
 from psycopg2.extensions import connection as Connection
 
 PREVIOUS_RELEASE_REVISION = "0085_platform_retention_controls"
-EXPECTED_HEAD_REVISION = "0095_mobile_fcm_delivery"
+EXPECTED_HEAD_REVISION = "0096_mobile_phone_lookup"
 SAFE_DATABASE_NAME = re.compile(r"^passdetection_ci_[a-z0-9_]+$")
 PROTECTED_DATABASE_NAMES = frozenset({"postgres", "template0", "template1"})
 DESTRUCTIVE_ACKNOWLEDGEMENT = "MIGRATION_REHEARSAL_ALLOW_EPHEMERAL_DATABASE_DELETION"

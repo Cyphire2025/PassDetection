@@ -21,6 +21,7 @@ const announcements = read("./components/announcements-panel.tsx");
 const select = read("./components/gc-select.tsx");
 const access = read("./components/group-access-panel.tsx");
 const workspace = read("./components/app-control-group-workspace.tsx");
+const overview = read("./components/group-app-overview.tsx");
 const commonDocuments = read("./components/common-documents-panel.tsx");
 const dialog = read("./components/gc-dialog.tsx");
 const feedback = read("./components/gc-app-feedback.tsx");
@@ -127,20 +128,23 @@ test("My Photos visibility uses a dedicated revision-safe group feature control"
   assert.match(api, /setMyPhotosEnabled:[\s\S]{0,500}enabled, expected_revision: control\.revision/);
   assert.doesNotMatch(fullControlBody, /my_photos_enabled/);
   assert.match(hooks, /setMyPhotosEnabled: useMutation/);
-  assert.match(hooks, /cancelQueries\(\{ queryKey: controlKey \}\)/);
-  assert.match(hooks, /setQueryData<GcAppGroupControl>\(controlKey, updatedControl\)/);
+  assert.match(hooks, /cancelQueries\(\{ queryKey: key \}\)/);
+  assert.match(hooks, /setQueryData<GcAppGroupControl>\(key, \(current\)/);
+  assert.match(hooks, /current\.revision > updated\.revision \? current : updated/);
   assert.match(workspace, /actions\.setMyPhotosEnabled\.mutateAsync/);
   assert.match(access, /<AccessSwitch[\s\S]{0,120}label="My Photos"/);
   assert.match(access, /checked=\{control\.my_photos_enabled\}/);
   assert.doesNotMatch(hooks, /onMutate/);
 });
 
-test("new groups enable every mobile role while list cards keep role switches in Manage and publish", () => {
+test("new groups explicitly enable every mobile role while settings live inside the trip", () => {
   assert.match(api, /passenger_access_enabled: true/);
   assert.match(api, /client_manager_access_enabled: true/);
   assert.match(api, /coordinator_access_enabled: true/);
   assert.doesNotMatch(controls, /<AccessSwitch/);
-  assert.match(controls, /can be changed in Manage & publish/);
+  assert.match(controls, /Adding a new trip enables app access immediately/);
+  assert.match(controls, /Review permissions and dates in Access & features/);
+  assert.match(controls, /Open trip/);
   assert.match(access, /<AccessSwitch label="Passenger access"/);
   assert.match(access, /<AccessSwitch label="Client Manager access"/);
   assert.match(access, /<AccessSwitch label="Coordinator access"/);
@@ -167,11 +171,13 @@ test("group metrics and workspace control loads avoid per-card request fan-out",
 });
 
 test("publishing remains inside App Controls with fixed itinerary and categorized common documents", () => {
-  assert.match(workspace, /type WorkspaceTab = "access" \| "documents" \| "announcements"/);
+  assert.match(overview, /GroupWorkspaceTab = "overview" \| "access" \| "documents" \| "announcements" \| "history"/);
   assert.doesNotMatch(workspace, /value: "itinerary"/);
-  assert.doesNotMatch(workspace, /value: "audit"/);
-  assert.doesNotMatch(workspace, /useGcAppGroupAudit|ItineraryEditor|AuditTimeline/);
-  assert.match(workspace, /tab !== "access"/);
+  assert.match(workspace, /value: "history"/);
+  assert.match(workspace, /useGcAppGroupAudit\(agencyId, groupId, historyPage, 25, tab === "history"\)/);
+  assert.match(workspace, /useGcAppAnnouncements\(agencyId, groupId, announcementPage, 25, tab === "announcements"\)/);
+  assert.match(workspace, /useGcAppGroupContent\(agencyId, groupId, tab === "documents"\)/);
+  assert.doesNotMatch(workspace, /key=\{control\.data\.revision\}/);
   assert.doesNotMatch(api, /itineraries\/preview/);
   assert.match(api, /itineraries\/drafts/);
   assert.match(api, /itineraries\/\$\{versionId\}\/publish/);

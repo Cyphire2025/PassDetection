@@ -581,7 +581,9 @@ async def test_live_dependency_rechecks_session_and_staff_account_state(
 @pytest.mark.parametrize("row_count", [0, 2])
 async def test_refresh_fails_closed_on_missing_or_ambiguous_selected_trip_access(
     row_count: int,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr("app.presentation.api.v1.routes.mobile_auth_session_support.ensure_current_passenger_session_bindings", AsyncMock(return_value=True))
     identity = SimpleNamespace(
         id=uuid.uuid4(),
         agency_id=uuid.uuid4(),
@@ -623,7 +625,8 @@ async def test_refresh_fails_closed_on_missing_or_ambiguous_selected_trip_access
 
 
 @pytest.mark.asyncio
-async def test_refresh_returns_the_exact_locked_access_used_for_offline_lease() -> None:
+async def test_refresh_returns_the_exact_locked_access_used_for_offline_lease(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("app.presentation.api.v1.routes.mobile_auth_session_support.ensure_current_passenger_session_bindings", AsyncMock(return_value=True))
     identity = SimpleNamespace(
         id=uuid.uuid4(),
         agency_id=uuid.uuid4(),

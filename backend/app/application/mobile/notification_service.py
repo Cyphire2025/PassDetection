@@ -26,6 +26,11 @@ from app.application.mobile.fcm_dispatch_intents import (
     recover_interrupted_fcm_intents,
     send_with_durable_fcm_intents,
 )
+from app.application.mobile.passenger_notification_authority import (
+    authoritative_passenger_device_ids,
+    authoritative_passenger_ids,
+    retain_recipient_ids,
+)
 from app.application.mobile.push_provider import MobilePushMessage, MobilePushProvider
 from app.application.mobile.push_receipt_claims import claim_mobile_push_receipts
 from app.core.config.settings import get_settings
@@ -1140,6 +1145,7 @@ async def _retain_currently_authorized_notifications(
 
     access_conditions = (
         ClientGroupModel.status.in_(("active", "closed")),
+        ClientGroupModel.deleted_at.is_(None),
         GCGroupAccessModel.is_enabled.is_(True),
         GCGroupAccessModel.revoked_at.is_(None),
         or_(
@@ -1174,7 +1180,10 @@ async def _retain_currently_authorized_notifications(
                 )
             )
         ).all()
-        eligible.update(("passenger", *row) for row in passenger_rows)
+        allowed_passengers = await authoritative_passenger_ids(
+            session, [row[3] for row in passenger_rows]
+        )
+        eligible.update(("passenger", *row) for row in passenger_rows if row[3] in allowed_passengers)
     if manager_filters:
         manager_rows = (
             await session.execute(
@@ -1503,6 +1512,9 @@ async def _enqueue_countdown_pages(
         )
         if not ids:
             break
+        allowed_ids = await retain_recipient_ids(
+            session, recipient_ids=ids, recipient_type=recipient_type, access=access
+        )
         rows = [
             _countdown_notification_values(
                 recipient_id=recipient_id,
@@ -1514,7 +1526,7 @@ async def _enqueue_countdown_pages(
                 available_at=available_at,
                 expires_at=expires_at,
             )
-            for recipient_id in ids
+            for recipient_id in allowed_ids
         ]
         inserted += await _insert_notifications_ignore_duplicates(session, rows=rows)
         cursor = ids[-1]
@@ -1616,7 +1628,10 @@ async def _enqueue_recipient_pages(
         )
         if not ids:
             break
-        for recipient_id in ids:
+        allowed_ids = await retain_recipient_ids(
+            session, recipient_ids=ids, recipient_type=recipient_type, access=access
+        )
+        for recipient_id in allowed_ids:
             session.add(
                 _announcement_notification(
                     recipient_id=recipient_id,
@@ -1628,7 +1643,7 @@ async def _enqueue_recipient_pages(
                 )
             )
         await session.flush()
-        inserted += len(ids)
+        inserted += len(allowed_ids)
         cursor = ids[-1]
         if len(ids) < _RECIPIENT_PAGE_SIZE:
             break
@@ -1688,6 +1703,9 @@ async def _enqueue_document_change_ids(
     available_at: datetime,
     expires_at: datetime | None,
 ) -> int:
+    recipient_ids = await retain_recipient_ids(
+        session, recipient_ids=recipient_ids, recipient_type=recipient_type, access=access
+    )
     for recipient_id in recipient_ids:
         session.add(
             _personal_document_change_notification(
@@ -1874,11 +1892,16 @@ async def _load_recipient_registrations(
             )
         ).all()
     )
+    allowed_devices = await authoritative_passenger_device_ids(
+        session, [device for _, device in rows]
+    )
     result: dict[
         tuple[str, uuid.UUID, uuid.UUID],
         list[MobilePushRegistrationModel],
     ] = {}
     for registration, device_session in rows:
+        if device_session.subject_role == "passenger" and device_session.id not in allowed_devices:
+            continue
         principal_id = (
             device_session.passenger_identity_id
             if device_session.subject_role == "passenger"

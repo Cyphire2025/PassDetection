@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import uuid
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock
 
 import pytest
@@ -18,6 +19,7 @@ from app.infrastructure.database.gc_mobile_models import (
     MobilePassengerIdentityModel,
     MobileSyncChangeModel,
 )
+from app.infrastructure.database.models import PassportSubmissionModel
 
 
 def test_plans_targeted_role_scoped_events_without_pii() -> None:
@@ -150,8 +152,10 @@ async def test_targeted_coordinator_change_carries_authoritative_roster_proof(
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("submitted_contact", [True, False])
 async def test_document_availability_and_revocation_are_incremental_and_idempotent(
     db_session: AsyncSession,
+    submitted_contact: bool,
 ) -> None:
     access = GCGroupAccessModel(
         id=uuid.uuid4(),
@@ -173,7 +177,17 @@ async def test_document_availability_and_revocation_are_incremental_and_idempote
         phone_lookup_hash="8" * 64,
         status="eligible",
     )
-    db_session.add_all([access, identity])
+    submission = PassportSubmissionModel(
+        id=identity.passenger_submission_id,
+        agency_id=access.agency_id,
+        group_id=access.group_id,
+        client_name="Synthetic passenger",
+        client_phone=identity.normalized_phone_number,
+        image_s3_key="synthetic/public-passport.jpg",
+        status="needs_review",
+        client_reviewed_at=datetime.now(UTC) if submitted_contact else None,
+    )
+    db_session.add_all([access, identity, submission])
     await db_session.flush()
     initial_manifest_version = access.manifest_version
 
@@ -188,7 +202,7 @@ async def test_document_availability_and_revocation_are_incremental_and_idempote
         propagation_key="worker-batch:stable-1",
     )
     assert available.sync_changes == 1
-    assert available.push_notifications == 1
+    assert available.push_notifications == (1 if submitted_contact else 0)
     assert access.manifest_version == initial_manifest_version + 1
 
     # Simulate a retried worker using a fresh unit-of-work cache. The durable
@@ -221,7 +235,7 @@ async def test_document_availability_and_revocation_are_incremental_and_idempote
         propagation_key="document-revocation:stable-1",
     )
     assert revoked.sync_changes == 1
-    assert revoked.push_notifications == 1
+    assert revoked.push_notifications == (1 if submitted_contact else 0)
     assert access.manifest_version == initial_manifest_version + 2
 
     changes = list(
@@ -247,7 +261,7 @@ async def test_document_availability_and_revocation_are_incremental_and_idempote
     assert all(
         change.passenger_identity_id == identity.id for change in changes
     )
-    assert [item.status for item in notifications] == ["queued", "queued"]
+    assert [item.status for item in notifications] == (["queued", "queued"] if submitted_contact else [])
     assert all(item.lock_screen_body is None for item in notifications)
     assert all(
         set(item.public_payload) == {"route", "trip_id"}

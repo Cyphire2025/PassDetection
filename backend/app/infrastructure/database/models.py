@@ -503,6 +503,11 @@ class PassportSubmissionModel(Base):
             "group_id",
             "client_phone",
         ),
+        Index(
+            "ix_passport_submissions_mobile_phone_lookup",
+            text(r"regexp_replace(coalesce(client_phone, ''), '\D', '', 'g')"),
+            postgresql_where=text("client_reviewed_at IS NOT NULL"),
+        ).ddl_if(dialect="postgresql"),
         UniqueConstraint(
             "group_id",
             "upload_idempotency_key",

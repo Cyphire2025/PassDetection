@@ -15,6 +15,7 @@ from app.application.mobile.passenger_identity_reconciliation import (
     _reconcile_passenger_identities_targeted,
     _revoke_passenger_identity_sessions,
     plan_passenger_identities,
+    reconcile_passenger_identities,
     reconcile_passenger_identities_for_changes,
 )
 from app.application.use_cases.whatsapp.group_submission_matching import (
@@ -36,13 +37,17 @@ def _submission(
     agency_id: uuid.UUID,
     group_id: uuid.UUID,
     employee_code: str | None = None,
-    client_phone: str | None = None,
+    client_phone: str | None = "+919876543210",
 ):
     return SimpleNamespace(
         id=uuid.uuid4(),
         agency_id=agency_id,
         group_id=group_id,
         client_phone=client_phone,
+        status="submitted",
+        client_reviewed_at=datetime.now(UTC),
+        image_s3_key="passports/client-upload.jpg",
+        confidence_score={},
         confirmed_fields={},
         staff_metadata={"employee_code": employee_code} if employee_code else {},
     )
@@ -153,86 +158,32 @@ def test_shared_number_with_duplicate_factor_fails_closed() -> None:
     assert plan.skipped_without_secondary_factor == 2
 
 
-def test_name_only_or_ambiguous_rows_never_provision() -> None:
-    agency_id = uuid.uuid4()
-    group_id = uuid.uuid4()
-    submission = _submission(agency_id=agency_id, group_id=group_id)
-    row = _row(submission, status="needs_review")
-    row = SubmissionMatchRow(
-        **{
-            **row.__dict__,
-            "match_basis": "entered_name",
-            "submission_ids": (),
-            "candidate_submission_ids": (submission.id,),
-            "match_evidence": (),
-        }
-    )
-
-    plan = plan_passenger_identities(
-        [row], [submission], agency_id=agency_id, group_id=group_id
-    )
-
+def test_strong_roster_number_never_provisions_without_submitted_phone() -> None:
+    agency_id, group_id = uuid.uuid4(), uuid.uuid4()
+    submission = _submission(agency_id=agency_id, group_id=group_id, client_phone=None)
+    plan = plan_passenger_identities([_row(submission)], [submission], agency_id=agency_id, group_id=group_id)
     assert plan.candidates == ()
-    assert plan.skipped_ambiguous == 1
 
 
-def test_configured_phone_is_strong_but_generic_selected_field_is_not() -> None:
-    agency_id = uuid.uuid4()
-    group_id = uuid.uuid4()
-    phone_submission = _submission(agency_id=agency_id, group_id=group_id)
-    generic_submission = _submission(agency_id=agency_id, group_id=group_id)
-
-    phone_plan = plan_passenger_identities(
-        [
-            _row(
-                phone_submission,
-                evidence_kind="phone_number",
-                private_identity_confirmed=True,
-            )
-        ],
-        [phone_submission],
-        agency_id=agency_id,
-        group_id=group_id,
-    )
-    generic_plan = plan_passenger_identities(
-        [
-            _row(
-                generic_submission,
-                evidence_kind="producer_code",
-                private_identity_confirmed=False,
-            )
-        ],
-        [generic_submission],
-        agency_id=agency_id,
-        group_id=group_id,
-    )
-
-    assert len(phone_plan.candidates) == 1
-    assert phone_plan.candidates[0].passenger_submission_id == phone_submission.id
-    assert generic_plan.candidates == ()
-    assert generic_plan.skipped_ambiguous == 1
-
-
-def test_non_unique_selected_phone_cannot_provision_private_identity() -> None:
-    agency_id = uuid.uuid4()
-    group_id = uuid.uuid4()
-    submission = _submission(agency_id=agency_id, group_id=group_id)
-
+@pytest.mark.parametrize("evidence_kind", ["phone", "email", "passport_number", "staff_code"])
+def test_submitted_phone_overrides_every_strong_roster_match(evidence_kind: str) -> None:
+    agency_id, group_id = uuid.uuid4(), uuid.uuid4()
+    submission = _submission(agency_id=agency_id, group_id=group_id, client_phone="+919800000002")
     plan = plan_passenger_identities(
-        [
-            _row(
-                submission,
-                evidence_kind="phone_number",
-                private_identity_confirmed=False,
-            )
-        ],
-        [submission],
-        agency_id=agency_id,
-        group_id=group_id,
+        [_row(submission, phone="+919800000001", evidence_kind=evidence_kind)],
+        [submission], agency_id=agency_id, group_id=group_id,
     )
+    assert [candidate.normalized_phone for candidate in plan.candidates] == ["+919800000002"]
 
-    assert plan.candidates == ()
-    assert plan.skipped_ambiguous == 1
+
+@pytest.mark.parametrize("roster_status", ["needs_review", "not_submitted", "submitted"])
+def test_roster_match_status_does_not_restrict_submitted_phone(roster_status: str) -> None:
+    agency_id, group_id = uuid.uuid4(), uuid.uuid4()
+    submission = _submission(agency_id=agency_id, group_id=group_id)
+    plan = plan_passenger_identities(
+        [_row(submission, status=roster_status)], [submission], agency_id=agency_id, group_id=group_id,
+    )
+    assert len(plan.candidates) == 1
 
 
 def test_direct_submission_phone_provisions_without_a_broadcast_link() -> None:
@@ -291,7 +242,7 @@ def test_cross_tenant_submission_is_rejected_even_if_row_references_it() -> None
     )
 
     assert plan.candidates == ()
-    assert plan.skipped_ambiguous == 1
+    assert plan.skipped_ambiguous == 0
 
 
 @pytest.mark.asyncio
@@ -482,6 +433,7 @@ async def test_targeted_phone_change_closes_old_and_new_phone_clusters(
     )
     old_phone = "+919800000001"
     new_phone = "+919800000002"
+    submission.client_phone = new_phone
     identity = _identity(
         access=access,
         passenger_id=submission.id,
@@ -595,3 +547,39 @@ async def test_unprovable_target_cluster_falls_back_to_full_reconciliation(
     assert result is expected
     targeted.assert_awaited_once()
     full.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_full_reconcile_migrates_claimed_roster_binding_then_revokes_removed_contact(db_session, monkeypatch):
+    access = GCGroupAccessModel(
+        id=uuid.uuid4(), agency_id=uuid.uuid4(), group_id=uuid.uuid4(),
+        client_organization_id=uuid.uuid4(), is_enabled=True, passenger_access_enabled=True,
+    )
+    passenger = _submission(agency_id=access.agency_id, group_id=access.group_id, client_phone="+919800000002")
+    identity = _identity(access=access, passenger_id=passenger.id, phone="+919800000001")
+    identity.status = "claimed"
+    identity.claimed_at = datetime.now(UTC)
+    identity.last_verified_at = datetime.now(UTC)
+    db_session.add_all([access, identity])
+    await db_session.flush()
+    loader = AsyncMock(return_value=({}, [], [passenger], [_row(passenger, phone="+919800000001")]))
+    monkeypatch.setattr(reconciliation_module, "load_unresolved_passport_whatsapp_match_context", loader)
+    revoke = AsyncMock()
+    monkeypatch.setattr(reconciliation_module, "_revoke_passenger_identity_sessions", revoke)
+    result = await reconcile_passenger_identities(db_session, access=access, actor_user_id=None)
+    assert result.updated == 1
+    assert identity.normalized_phone_number == passenger.client_phone
+    assert identity.claim_generation == 1
+    assert identity.status == "eligible"
+    assert identity.claimed_at is None
+    revoke.assert_awaited_once()
+    # A second pass with the same submitted number preserves a legitimate binding.
+    unchanged = await reconcile_passenger_identities(db_session, access=access, actor_user_id=None)
+    assert unchanged.unchanged == 1
+    assert revoke.await_count == 1
+    passenger.client_phone = None
+    removed = await reconcile_passenger_identities(db_session, access=access, actor_user_id=None)
+    assert removed.revoked == 1
+    assert identity.status == "revoked"
+    assert identity.claim_generation == 2
+    assert revoke.await_count == 2

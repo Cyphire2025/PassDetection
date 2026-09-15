@@ -10,28 +10,19 @@ import { ROUTES } from "@/constants/routes";
 import { useDebounce } from "@/hooks/use-debounce";
 import { cn } from "@/lib/utils/cn";
 import { GC_APP_DEFAULT_PAGE_SIZE } from "../api/gc-app-admin.api";
+import { APP_AVAILABILITY_OPTIONS, describeAppAvailability } from "../availability";
 import { useClientCompanies, useClientCompanyMutations, useGcAppGroupMutations, useGcAppGroups, useGcGroupSearch } from "../hooks/use-gc-app-admin";
-import type { GcAppGroupControl, GcAppGroupLifecycle, GcCompanyReference } from "../types";
+import type { GcAppAvailability, GcAppGroupControl, GcCompanyReference } from "../types";
 import { formatGcDateTime, gcAppErrorMessage } from "../utils";
 import { GcAlert, GcLoadingRows, GcPagination } from "./gc-app-feedback";
 import { useGcAppAgencyScope } from "./gc-app-agency-scope";
 import { GcDialog } from "./gc-dialog";
 import { GcSelect } from "./gc-select";
 
-type PendingGroupAction = { type: "revoke" | "remove"; group: GcAppGroupControl } | null;
-
-const LIFECYCLE_OPTIONS = [
-  { value: "all", label: "All lifecycle states" },
-  { value: "active", label: "Active", description: "Travel group is currently active" },
-  { value: "closed", label: "Closed", description: "Collection is closed" },
-  { value: "archived", label: "Archived", description: "Retained for reference" },
-  { value: "deleted", label: "Deleted", description: "Soft-deleted group record" },
-] as const;
-
 export function AppControlsPage() {
   const { agencyId } = useGcAppAgencyScope();
   const [search, setSearch] = useState("");
-  const [lifecycle, setLifecycle] = useState<GcAppGroupLifecycle | "all">("all");
+  const [availability, setAvailability] = useState<GcAppAvailability | "all">("all");
   const [page, setPage] = useState(1);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerSearch, setPickerSearch] = useState("");
@@ -44,12 +35,10 @@ export function AppControlsPage() {
   const [pickerError, setPickerError] = useState<string | null>(null);
   const [pendingCompanyRemoval, setPendingCompanyRemoval] = useState<GcCompanyReference | null>(null);
   const [companyRemovalConfirmation, setCompanyRemovalConfirmation] = useState("");
-  const [pendingAction, setPendingAction] = useState<PendingGroupAction>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
   const debouncedSearch = useDebounce(search, 300);
   const debouncedPickerSearch = useDebounce(pickerSearch, 300);
   const debouncedCompanySearch = useDebounce(companySearch, 300);
-  const filters = { page, page_size: GC_APP_DEFAULT_PAGE_SIZE, search: debouncedSearch, lifecycle } as const;
+  const filters = { page, page_size: GC_APP_DEFAULT_PAGE_SIZE, search: debouncedSearch, availability } as const;
   const groups = useGcAppGroups(agencyId, filters);
   const candidates = useGcGroupSearch(
     agencyId,
@@ -66,24 +55,6 @@ export function AppControlsPage() {
     ? [pickerCompany, ...activeCompanies]
     : activeCompanies;
   const pickerBusy = actions.add.isPending || companyActions.create.isPending || companyActions.remove.isPending;
-  const mutationPending = actions.add.isPending
-    || actions.revoke.isPending
-    || actions.remove.isPending;
-
-  const confirmGroupAction = async () => {
-    if (!pendingAction) return;
-    setActionError(null);
-    try {
-      if (pendingAction.type === "revoke") {
-        await actions.revoke.mutateAsync(pendingAction.group.id);
-      } else {
-        await actions.remove.mutateAsync(pendingAction.group);
-      }
-      setPendingAction(null);
-    } catch (error) {
-      setActionError(gcAppErrorMessage(error, "The group access action could not be completed."));
-    }
-  };
 
   const openPicker = () => {
     setPickerError(null);
@@ -121,7 +92,7 @@ export function AppControlsPage() {
     <div className="space-y-5">
       <PageHeader
         title="App Controls"
-        description="Explicitly enable groups, configure role access, publish content, and revoke mobile access."
+        description="Manage GC App one trip at a time: availability, people, documents, and announcements. Paused trips stay here so you can restore them."
         actions={(
           <Button type="button" leftIcon={<Plus className="h-4 w-4" />} onClick={openPicker}>
             Add group to GC App
@@ -129,12 +100,10 @@ export function AppControlsPage() {
         )}
       />
 
-      {actionError && <GcAlert message={actionError} />}
-
       <Card className="overflow-visible border-slate-200/80 shadow-[0_8px_30px_-24px_rgba(15,23,42,0.45)]">
         <CardContent className="grid gap-3 p-4 sm:p-5 md:grid-cols-[minmax(0,1fr)_18rem] md:items-end">
           <Input
-            label="Search enabled groups"
+            label="Search GC App trips"
             value={search}
             onChange={(event) => {
               setSearch(event.target.value);
@@ -144,28 +113,29 @@ export function AppControlsPage() {
             leftAddon={<Search className="h-4 w-4" aria-hidden="true" />}
           />
           <GcSelect
-            id="gc-group-lifecycle"
-            label="Group lifecycle"
-            value={lifecycle}
-            options={LIFECYCLE_OPTIONS}
-            onChange={(nextLifecycle) => {
-              setLifecycle(nextLifecycle as GcAppGroupLifecycle | "all");
+            id="gc-group-availability"
+            label="App availability"
+            value={availability}
+            options={APP_AVAILABILITY_OPTIONS}
+            onChange={(nextAvailability) => {
+              setAvailability(nextAvailability as GcAppAvailability | "all");
               setPage(1);
             }}
           />
         </CardContent>
       </Card>
 
+      {groups.isError && groups.data && <GcAlert message="The trip list could not be refreshed. The last loaded data is shown; refresh before making changes." />}
       {groups.isLoading ? (
         <Card><GcLoadingRows count={3} /></Card>
-      ) : groups.isError ? (
+      ) : groups.isError && !groups.data ? (
         <Card><CardContent className="space-y-3 p-5"><GcAlert message="GC App groups could not be loaded." /><Button type="button" variant="secondary" size="sm" onClick={() => void groups.refetch()}>Retry</Button></CardContent></Card>
       ) : groups.data?.items.length === 0 ? (
         <EmptyState
           icon={<Smartphone className="h-5 w-5" aria-hidden="true" />}
-          title="No groups enabled in GC App"
-          description={search || lifecycle !== "all" ? "Adjust the search or lifecycle filter." : "Groups remain unavailable in the mobile app until staff explicitly add them here."}
-          action={!search && lifecycle === "all" ? { label: "Add group to GC App", onClick: openPicker } : undefined}
+          title="No GC App trips found"
+          description={search || availability !== "all" ? "Adjust the search or app availability filter." : "Add a passport group to set up its trip in GC App. Its collection link can be open or closed."}
+          action={!search && availability === "all" ? { label: "Add group to GC App", onClick: openPicker } : undefined}
         />
       ) : (
         <div className="space-y-4">
@@ -173,9 +143,6 @@ export function AppControlsPage() {
             <GroupControlCard
               key={group.id}
               group={group}
-              disabled={mutationPending}
-              onRevoke={() => setPendingAction({ type: "revoke", group })}
-              onRemove={() => setPendingAction({ type: "remove", group })}
             />
           ))}
           {groups.data && (
@@ -196,7 +163,7 @@ export function AppControlsPage() {
       <GcDialog
         open={pickerOpen}
         title="Add group to GC App"
-        description="Only active eligible groups appear here. Passenger, Client Manager, and Coordinator access are enabled by default and can be changed in Manage & publish."
+        description="Choose a non-archived group, whether its collection link is open or closed. Adding a new trip enables app access immediately for Passenger, Client Manager, and Coordinator roles. Review permissions and dates in Access & features."
         onClose={closePicker}
         closeDisabled={pickerBusy}
         size="lg"
@@ -361,7 +328,7 @@ export function AppControlsPage() {
             {candidates.isLoading ? <GcLoadingRows count={3} /> : candidates.isError ? (
               <p role="alert" className="p-4 text-sm text-red-700">Eligible groups could not be searched.</p>
             ) : candidates.data?.items.length === 0 ? (
-              <p className="p-6 text-center text-sm text-slate-500">No eligible active groups found.</p>
+              <p className="p-6 text-center text-sm text-slate-500">No eligible non-archived groups found.</p>
             ) : candidates.data?.items.map((group) => (
               <div key={group.id} className="flex items-center justify-between gap-4 border-b border-slate-100 p-4 last:border-0">
                 <div>
@@ -411,42 +378,16 @@ export function AppControlsPage() {
         </div>
       </GcDialog>
 
-      <GcDialog
-        open={Boolean(pendingAction)}
-        title={pendingAction?.type === "remove" ? "Remove group from GC App" : "Immediately revoke mobile access"}
-        description={pendingAction ? `${pendingAction.group.name} · This action is enforced by the GC App backend and does not close, archive, delete, or revoke the existing passport collection group.` : undefined}
-        onClose={() => !mutationPending && setPendingAction(null)}
-        closeDisabled={mutationPending}
-        size="md"
-        footer={(
-          <>
-            <Button type="button" variant="secondary" onClick={() => setPendingAction(null)} disabled={mutationPending}>Cancel</Button>
-            <Button type="button" variant="danger" isLoading={mutationPending} onClick={() => void confirmGroupAction()}>
-              {pendingAction?.type === "remove" ? "Remove from GC App" : "Revoke access now"}
-            </Button>
-          </>
-        )}
-      >
-        <div className="flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
-          <p>{pendingAction?.type === "remove" ? "All mobile roles will lose access and the group will leave this control list. Published travel data remains in the platform audit history." : "All currently signed-in mobile users for this group will be denied on their next backend request and devices will be instructed to clear scoped offline data."}</p>
-        </div>
-      </GcDialog>
     </div>
   );
 }
 
 function GroupControlCard({
   group,
-  disabled,
-  onRevoke,
-  onRemove,
 }: {
   group: GcAppGroupControl;
-  disabled: boolean;
-  onRevoke: () => void;
-  onRemove: () => void;
 }) {
+  const availability = describeAppAvailability(group);
   return (
     <Card className={group.access_revoked_at ? "border-red-200" : undefined}>
       <CardContent className="space-y-5 p-5">
@@ -454,12 +395,12 @@ function GroupControlCard({
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h3 className="truncate text-base font-semibold text-slate-900">{group.name}</h3>
-              <Badge variant={lifecycleVariant(group.lifecycle)}>{capitalize(group.lifecycle)}</Badge>
-              {group.access_revoked_at && <Badge variant="destructive">Access revoked</Badge>}
+              <Badge variant={availability.variant}>{availability.label}</Badge>
             </div>
             <p className="mt-1 text-sm text-slate-500">{group.destination ?? "Destination not set"} · {group.company?.name ?? "Client not assigned"}</p>
+            <p className="mt-2 text-sm text-slate-600">{availability.description}</p>
             <p className="mt-1 text-xs text-slate-500">
-              Access window: {group.access_starts_at ? formatGcDateTime(group.access_starts_at) : "Immediate"} – {group.access_expires_at ? formatGcDateTime(group.access_expires_at) : "No expiry"}
+              Passport collection: {capitalize(group.lifecycle)} · App access: {group.access_starts_at ? formatGcDateTime(group.access_starts_at) : "Immediate"} – {group.access_expires_at ? formatGcDateTime(group.access_expires_at) : "No expiry"}
             </p>
           </div>
           <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap">
@@ -468,23 +409,14 @@ function GroupControlCard({
               className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "col-span-2 justify-center sm:col-span-1")}
             >
               <Settings2 className="h-4 w-4" aria-hidden="true" />
-              Manage & publish
+              Open trip
             </Link>
-            <Button type="button" variant="secondary" size="sm" className="w-full sm:w-auto" onClick={onRevoke} disabled={disabled || Boolean(group.access_revoked_at)}>
-              Revoke now
-            </Button>
-            <Button type="button" variant="ghost" size="sm" className="w-full text-red-700 hover:bg-red-50 hover:text-red-800 sm:w-auto" onClick={onRemove} disabled={disabled}>
-              Remove
-            </Button>
           </div>
         </div>
-        <dl className="grid gap-3 border-t border-slate-100 pt-4 text-sm sm:grid-cols-2 lg:grid-cols-6">
+        <dl className="grid gap-3 border-t border-slate-100 pt-4 text-sm sm:grid-cols-3">
           <Metric label="Active mobile users" value={group.active_mobile_users} />
           <Metric label="Synced devices" value={group.synced_device_count} />
           <Metric label="Last successful sync" value={group.last_successful_sync_at ? formatGcDateTime(group.last_successful_sync_at) : "Never"} />
-          <Metric label="Itinerary version" value={`v${group.versions.itinerary_version}`} />
-          <Metric label="Document version" value={`v${group.versions.common_document_version}`} />
-          <Metric label="Announcement version" value={`v${group.versions.announcement_version}`} />
         </dl>
       </CardContent>
     </Card>
@@ -497,11 +429,4 @@ function Metric({ label, value }: { label: string; value: string | number }) {
 
 function capitalize(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
-function lifecycleVariant(lifecycle: GcAppGroupLifecycle): "success" | "warning" | "outline" | "destructive" {
-  if (lifecycle === "active") return "success";
-  if (lifecycle === "closed") return "warning";
-  if (lifecycle === "deleted") return "destructive";
-  return "outline";
 }

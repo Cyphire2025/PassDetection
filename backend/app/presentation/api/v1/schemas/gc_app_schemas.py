@@ -6,7 +6,9 @@ import uuid
 from datetime import date, datetime
 from typing import Literal
 
-from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
+from pydantic import AwareDatetime, BaseModel, EmailStr, Field, field_validator, model_validator
+
+from app.application.mobile.group_app_availability import GCAppAvailability, GCAppAvailabilityReason
 
 
 class ClientOrganizationCreateRequest(BaseModel):
@@ -179,7 +181,13 @@ class GCAgencyPageResponse(BaseModel):
     limit: int
 
 
-class GCGroupSearchAccess(BaseModel):
+class GCAppAvailabilityFields(BaseModel):
+    app_availability: GCAppAvailability = "unavailable"
+    app_availability_reason: GCAppAvailabilityReason | None = None
+    app_availability_evaluated_at: datetime | None = None
+
+
+class GCGroupSearchAccess(GCAppAvailabilityFields):
     group_id: uuid.UUID
     agency_id: uuid.UUID
     client_organization_id: uuid.UUID
@@ -202,7 +210,7 @@ class GCGroupSearchAccess(BaseModel):
     updated_at: datetime
 
 
-class GCGroupSearchItem(BaseModel):
+class GCGroupSearchItem(GCAppAvailabilityFields):
     id: uuid.UUID
     agency_id: uuid.UUID
     name: str
@@ -229,8 +237,8 @@ class GCGroupAccessUpdateRequest(BaseModel):
     passenger_access_enabled: bool = True
     client_manager_access_enabled: bool = True
     coordinator_access_enabled: bool = True
-    access_starts_at: datetime | None = None
-    access_expires_at: datetime | None = None
+    access_starts_at: AwareDatetime | None = None
+    access_expires_at: AwareDatetime | None = None
     expected_revision: int | None = Field(default=None, ge=1)
 
     @model_validator(mode="after")
@@ -249,7 +257,7 @@ class GCMyPhotosFeatureUpdateRequest(BaseModel):
     expected_revision: int = Field(ge=1)
 
 
-class GCGroupAccessResponse(BaseModel):
+class GCGroupAccessResponse(GCAppAvailabilityFields):
     group_id: uuid.UUID
     agency_id: uuid.UUID
     name: str
@@ -290,8 +298,8 @@ class PassengerIdentityReconciliationResponse(BaseModel):
 class ItineraryItemInput(BaseModel):
     title: str = Field(min_length=1, max_length=255)
     description: str | None = Field(default=None, max_length=4000)
-    starts_at: datetime | None = None
-    ends_at: datetime | None = None
+    starts_at: AwareDatetime | None = None
+    ends_at: AwareDatetime | None = None
     location_name: str | None = Field(default=None, max_length=255)
     latitude: float | None = Field(default=None, ge=-90, le=90)
     longitude: float | None = Field(default=None, ge=-180, le=180)
@@ -373,9 +381,10 @@ class AnnouncementCreateRequest(BaseModel):
     title: str = Field(min_length=1, max_length=255)
     message: str = Field(min_length=1, max_length=10_000)
     priority: Literal["normal", "important", "emergency"] = "normal"
-    available_from: datetime | None = None
-    available_until: datetime | None = None
+    available_from: AwareDatetime | None = None
+    available_until: AwareDatetime | None = None
     expected_access_revision: int = Field(ge=1)
+    publish: bool = False
 
 
 class AnnouncementResponse(BaseModel):
@@ -391,3 +400,10 @@ class AnnouncementResponse(BaseModel):
     published_at: datetime | None
     created_at: datetime
     updated_at: datetime
+
+
+class AnnouncementPageResponse(BaseModel):
+    items: list[AnnouncementResponse]
+    total: int
+    offset: int
+    limit: int

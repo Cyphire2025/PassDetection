@@ -10,6 +10,7 @@ from fastapi import HTTPException, Request, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.mobile.group_app_availability import availability_fields
 from app.domain.entities.entities import GroupStatus, User
 from app.infrastructure.database.gc_mobile_models import (
     ClientOrganizationModel,
@@ -186,6 +187,7 @@ async def group_access_response(
         )
     group, organization, my_photos_enabled = context
     return GCGroupAccessResponse(
+        **availability_fields(group, access, now=now),
         group_id=access.group_id,
         agency_id=access.agency_id,
         name=group.name,

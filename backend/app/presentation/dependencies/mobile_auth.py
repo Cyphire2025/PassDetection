@@ -9,6 +9,9 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.mobile.passenger_session_authority import (
+    ensure_current_passenger_session_bindings,
+)
 from app.core.security.mobile_jwt import MobileAccessClaims, decode_mobile_access_token
 from app.domain.entities.entities import UserRole
 from app.domain.exceptions.exceptions import AuthenticationError
@@ -74,6 +77,8 @@ async def get_current_mobile_claims(
     if claims.principal_type == "passenger":
         if device_session.passenger_identity_id != claims.principal_id:
             raise AuthenticationError("Mobile session subject mismatch")
+        if not await ensure_current_passenger_session_bindings(session, device_session):
+            raise AuthenticationError("Passenger contact changed. Sign in with the submitted number.")
         identity = (
             await session.execute(
                 select(MobilePassengerIdentityModel.id)

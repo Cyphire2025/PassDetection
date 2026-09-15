@@ -13,6 +13,12 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.elements import ColumnElement
 
+from app.application.mobile.group_app_availability import (
+    GCAppAvailability,
+    availability_fields,
+    availability_filter,
+    group_can_enable_mobile_access,
+)
 from app.application.mobile.passenger_identity_reconciliation import (
     PassengerIdentityReconciliationResult,
     reconcile_passenger_identities,
@@ -157,6 +163,9 @@ async def search_gc_groups(
     group_id: uuid.UUID | None = None,
     gc_enabled: bool | None = None,
     eligible_only: bool = False,
+    configured_only: bool = False,
+    unconfigured_only: bool = False,
+    availability: GCAppAvailability | None = None,
     lifecycle_status: str | None = Query(default=None, max_length=16),
     offset: int = Query(default=0, ge=0),
     limit: int = Query(default=50, ge=1, le=100),
@@ -164,6 +173,7 @@ async def search_gc_groups(
     session: AsyncSession = Depends(get_db_session),
 ) -> GCGroupSearchPageResponse:
     tenant_id = _tenant_id(current_user, agency_id)
+    now = datetime.now(UTC)
     filters: list[ColumnElement[bool]] = [ClientGroupModel.agency_id == tenant_id]
     if group_id is not None:
         filters.append(ClientGroupModel.id == group_id)
@@ -188,7 +198,8 @@ async def search_gc_groups(
     if eligible_only:
         filters.extend(
             [
-                ClientGroupModel.status == GroupStatus.ACTIVE.value,
+                ClientGroupModel.status.in_((GroupStatus.ACTIVE.value, GroupStatus.CLOSED.value)),
+                ClientGroupModel.deleted_at.is_(None),
                 or_(
                     GCGroupAccessModel.id.is_(None),
                     GCGroupAccessModel.is_enabled.is_(False),
@@ -211,6 +222,12 @@ async def search_gc_groups(
                 GCGroupAccessModel.revoked_at.is_not(None),
             )
         )
+    if configured_only:
+        filters.append(GCGroupAccessModel.id.is_not(None))
+    if unconfigured_only:
+        filters.append(GCGroupAccessModel.id.is_(None))
+    if availability is not None:
+        filters.append(availability_filter(availability, now=now))
     total = int(
         (
             await session.execute(
@@ -225,10 +242,9 @@ async def search_gc_groups(
     # Aggregate once for the whole page instead of issuing two count queries
     # per group.  The account count and acknowledged-device count deliberately
     # have different semantics and therefore must not reuse one session count.
-    include_metrics = gc_enabled is True or group_id is not None
+    include_metrics = gc_enabled is True or group_id is not None or configured_only
     usage_metrics = None
     if include_metrics:
-        now = datetime.now(tz=UTC)
         usage_metrics = (
             select(
                 MobileDeviceSessionModel.selected_gc_group_access_id.label(
@@ -337,6 +353,7 @@ async def search_gc_groups(
     for group, access, organization, active_mobile_users, synced_device_count in rows:
         items.append(
             GCGroupSearchItem(
+                **availability_fields(group, access, now=now),
                 id=group.id,
                 agency_id=group.agency_id,
                 name=group.name,
@@ -353,6 +370,7 @@ async def search_gc_groups(
                 client_organization_name=(organization.name if organization else None),
                 access=(
                     GCGroupSearchAccess(
+                        **availability_fields(group, access, now=now),
                         group_id=group.id,
                         agency_id=group.agency_id,
                         client_organization_id=access.client_organization_id,
@@ -419,10 +437,8 @@ async def configure_gc_group_access(
 ) -> GCGroupAccessResponse:
     tenant_id = _tenant_id(current_user, agency_id)
     group = await _get_group(session, tenant_id, group_id, lock=True)
-    if body.enabled and group.status not in {
-        GroupStatus.ACTIVE.value,
-        GroupStatus.CLOSED.value,
-    }:
+    can_enable = group_can_enable_mobile_access(group)
+    if body.enabled and not can_enable:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Archived or deleted groups cannot be enabled in GC App",
@@ -461,10 +477,10 @@ async def configure_gc_group_access(
     revoke_all_group_sessions = False
     access_window_changed = False
     if access is None:
-        if group.status != GroupStatus.ACTIVE.value:
+        if not can_enable:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="Only an active group can be added to GC App",
+                detail="Archived or deleted groups cannot be added to GC App",
             )
         access = GCGroupAccessModel(
             id=uuid.uuid4(),

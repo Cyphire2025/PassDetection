@@ -27,6 +27,12 @@ const tokens = {
 };
 
 describe('strict mobile authentication response contracts', () => {
+  it.each(['trip_not_active', 'trip_starts_later', 'trip_access_ended'] as const)(
+    'accepts %s guidance only without authenticated tokens', (status) => {
+      expect(OtpVerifyResponseSchema.parse({ status, claims: [], tokens: null }).status).toBe(status);
+      expect(OtpVerifyResponseSchema.safeParse({ status, claims: [], tokens }).success).toBe(false);
+    },
+  );
   it('accepts the complete token response required by every token-issuance path', () => {
     expect(TokenResponseSchema.parse(tokens)).toEqual(tokens);
   });
