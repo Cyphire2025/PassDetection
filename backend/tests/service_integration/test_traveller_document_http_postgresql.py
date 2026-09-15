@@ -105,7 +105,8 @@ async def test_real_http_receipt_unlocks_only_actual_traveller_documents(test_se
                     "message_content_1": "Your travel document", "message_content_2": "Safe travels"}
             document_url = f"{PREFIX}/batches/{context.batch.id}/whatsapp-send"
             assert (await client.post(document_url, json=body)).status_code == 409
-            receipts = json.dumps({"entry": [{"changes": [{"value": {"statuses": [
+            receipts = json.dumps({"entry": [{"changes": [{"value": {
+                "metadata": {"phone_number_id": settings.whatsapp_phone_number_id}, "statuses": [
                 {"id": provider_id, "status": "delivered", "timestamp": str(int(datetime.now(tz=UTC).timestamp()))}
                 for _, provider_id in welcomes
             ]}}]}]}).encode()

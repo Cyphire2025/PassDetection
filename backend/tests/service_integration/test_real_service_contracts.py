@@ -1136,6 +1136,9 @@ def test_real_celery_worker_executes_idempotent_database_task() -> None:
         "quarantine_cleanup_jobs",
         "quarantine_objects_scheduled",
         "quarantine_locator_failures",
+        "deleted_whatsapp_receipts",
+        "deleted_whatsapp_bindings",
+        "expired_whatsapp_receipts",
     }
     assert set(first_result) == expected_result_fields
     assert set(second_result) == expected_result_fields

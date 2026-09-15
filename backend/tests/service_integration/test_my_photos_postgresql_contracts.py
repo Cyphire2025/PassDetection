@@ -137,6 +137,8 @@ async def _seed_fixture(session_factory: async_sessionmaker) -> _Fixture:  # typ
             group_id=group.id,
             agency_id=group.agency_id,
             client_name=f"Synthetic Passenger {index}",
+            client_phone=f"+91990000{index:04d}",
+            client_reviewed_at=datetime.now(tz=UTC),
             image_s3_key=f"service-integration/{uuid.uuid4()}.jpg",
             acquisition_mode="file",
             status="staff_approved",
