@@ -4,14 +4,14 @@
 
 Open **GC App → App Controls**. This is now the default GC App page.
 
-1. **Add group to GC App:** choose a passport group and its company/client. The passport collection link can be open or closed. Adding a new group enables the app immediately with the existing default roles; the dialog explains this before saving.
+1. **Add group to GC App:** choose a passport group and its company/client. The passport collection link can be open or closed. Adding a previously unconfigured group enables Passenger, Client Manager and Coordinator access immediately, with no expiry; the dialog explains this before saving. Review roles and dates in **Access & features** after adding it.
 2. **Open trip → Overview:** check app availability and collection status separately. Configured paused trips remain in the list.
 3. **Access & features:** choose permitted roles, optional My Photos visibility, and the access start/expiry. Date inputs use the operator's local timezone and send a timezone-qualified instant to the server.
 4. **Documents:** upload a draft, preview it, then publish it. A replacement draft leaves the currently published version available until the replacement is published.
 5. **Announcements:** save a draft, publish now, or set a future visibility start. Editing and publishing a replacement happens in one server transaction. Phone notification delivery has its own status view.
 6. **History:** inspect the paged audit history when needed.
 
-**Pause app access** preserves stored role settings, dates, and content. Enabling/restoring access respects those settings; it does not automatically sign a user back in. Changing access policy can end existing sessions. The separate emergency revocation action instructs devices to clear that trip's scoped offline data.
+**Pause app access** stops access and ends current trip sessions. It preserves the trip's roles, dates and content on the server, but instructs devices to clear their cached trip data. Restore keeps those saved settings; users may need to sign in again. **Emergency revocation** additionally turns off all three roles. To restore after an emergency revocation, enable the intended roles, restore app access, and check the app availability status.
 
 Closing a collection link stops new collection submissions. It does not, by itself, turn off GC App access. Archived/deleted passport groups remain unavailable to mobile users.
 
