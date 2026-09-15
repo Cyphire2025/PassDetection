@@ -26,6 +26,36 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
 
+async def queued_notification_inventory(session: AsyncSession) -> list[dict[str, Any]]:
+    """Count all queue types before source/access/device eligibility checks."""
+    from sqlalchemy import and_, func, or_, select
+
+    from app.infrastructure.database.gc_mobile_models import MobileNotificationModel as Notification
+
+    now = datetime.now(UTC)
+    unexpired = or_(Notification.expires_at.is_(None), Notification.expires_at > now)
+    rows = (await session.execute(
+        select(
+            Notification.notification_type,
+            func.count(),
+            func.count().filter(and_(Notification.available_at <= now, unexpired)),
+            func.count().filter(Notification.available_at > now),
+            func.count().filter(Notification.expires_at <= now),
+            func.count().filter(Notification.read_at.is_not(None)),
+            func.min(Notification.available_at),
+        )
+        .where(Notification.status == "queued")
+        .group_by(Notification.notification_type)
+        .order_by(Notification.notification_type)
+    )).all()
+    return [
+        {"notification_type": kind, "queued": count, "due_now": due,
+         "scheduled_for_later": future, "expired": expired,
+         "already_read_in_app": read, "oldest_available_at": oldest}
+        for kind, count, due, future, expired, read, oldest in rows
+    ]
+
+
 async def collect_evidence(
     session: AsyncSession,
     *,
@@ -104,6 +134,10 @@ async def collect_evidence(
              "status": state, "count": count}
             for provider, platform, environment, state, count in registrations
         ],
+        "queued_notification_inventory_scope": (
+            "server-wide, before source/access/device checks; due_now is not a delivery prediction"
+        ),
+        "queued_notification_inventory": await queued_notification_inventory(session),
         "announcements": summaries,
         "evidence_limit": "Configuration and database evidence only. Worker execution and visible phone banners must be checked separately.",
     }

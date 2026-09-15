@@ -29,6 +29,7 @@ async def test_operator_diagnostic_executes_without_writes_or_secrets(pg_factory
         assert result["app_revision"] == "a" * 40
         assert result["announcements"] == []
         assert result["registration_inventory"] == []
+        assert result["queued_notification_inventory"] == []
         assert "token_ciphertext" not in json.dumps(result, default=str)
         assert (await session.scalar(text("SHOW transaction_read_only"))) == "on"
         with pytest.raises(DBAPIError, match="read-only"):

@@ -18,7 +18,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from release_traveller_whatsapp import ACTIVATED, ROOT, Release, ReleaseError
+from release_traveller_whatsapp import ROOT, Release, ReleaseError
 from release_traveller_whatsapp import main as run_release
 
 SCHEMA = "0094_whatsapp_receipt_inbox"
@@ -40,10 +40,18 @@ def file_sha256(path: Path) -> str:
 
 
 class ReliabilityRelease(Release):
-    def __init__(self, revision: str, root: Path = ROOT) -> None:
+    def __init__(
+        self, revision: str, root: Path = ROOT, *,
+        previous_schema: str = PREVIOUS_SCHEMA,
+        directory_name: str = "reliability-release",
+        include_frontend: bool = True,
+        preserve_release_artifacts: bool = False,
+    ) -> None:
         super().__init__(
-            revision, root, expected_schema=SCHEMA, previous_schema=PREVIOUS_SCHEMA,
-            directory_name="reliability-release",
+            revision, root, expected_schema=SCHEMA, previous_schema=previous_schema,
+            directory_name=directory_name,
+            include_frontend=include_frontend,
+            preserve_release_artifacts=preserve_release_artifacts,
         )
         self.previous_images_path = self.directory / f"{revision}.previous-images.json"
         self.backups_path = self.directory / f"{revision}.database-backups.json"
@@ -64,7 +72,7 @@ class ReliabilityRelease(Release):
             raise ReleaseError("Previous image recovery evidence is missing; run prepare first")
         evidence = self._load_evidence(self.previous_images_path)
         services = evidence.get("services", {})
-        if not isinstance(services, dict) or set(services) != set(ACTIVATED):
+        if not isinstance(services, dict) or set(services) != set(self.activated_services):
             raise ReleaseError("Previous image recovery evidence is incomplete")
         for service, entry in services.items():
             if (
@@ -87,7 +95,7 @@ class ReliabilityRelease(Release):
         self.say("Preserving all previous running application image IDs and recovery tags")
         scope = hashlib.sha256(f"{config['name']}:{self.root}".encode()).hexdigest()[:12]
         services: dict[str, dict[str, str]] = {}
-        for service in ACTIVATED:
+        for service in self.activated_services:
             container = self.container(service)
             image_id = container.get("Image", "")
             if not isinstance(image_id, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", image_id):
@@ -158,12 +166,15 @@ class ReliabilityRelease(Release):
         records = evidence.get("backups")
         if not isinstance(records, list):
             raise ReleaseError("The database backup history is malformed")
-        if current_schema == self.expected_schema:
+        if current_schema == self.expected_schema and self.previous_schema != self.expected_schema:
             if not records:
                 raise ReleaseError("Migration is already applied but its pre-migration backup evidence is missing")
             self._validate_backup_record(records[-1])
             self.say("Validated the preserved pre-migration database backup for activation retry")
             return
+        # A code-only release has no schema transition that identifies a retry.
+        # Capture current data before every activation; never reuse an older
+        # snapshot as evidence of a fresh backup for that deployment attempt.
         self.say("Saving and validating a private PostgreSQL custom archive before migration")
         postgres = self._database_container(json.loads(self.dc("config", "--format", "json")))
         attempt = uuid.uuid4().hex
@@ -204,13 +215,16 @@ class ReliabilityRelease(Release):
             self.write_private(self.backups_path, json.dumps(evidence, indent=2) + "\n")
             self.say(f"BACKUP VERIFIED: {destination}; SHA-256 {remote_digest}")
         finally:
-            partial.unlink(missing_ok=True)
-            # Remove only this invocation's unpredictable, explicitly named
-            # temporary archive. The private host backup is retained.
-            try:
-                self.dc("exec", "-T", DATABASE_SERVICE, "rm", "-f", "--", remote)
-            except ReleaseError:
-                print("Temporary PostgreSQL archive cleanup was deferred; host backup evidence is preserved.", flush=True)
+            if self.preserve_release_artifacts:
+                self.say(f"Release artifacts retained, including any temporary PostgreSQL archive at {remote}")
+            else:
+                partial.unlink(missing_ok=True)
+                # Remove only this invocation's unpredictable, explicitly named
+                # temporary archive. The private host backup is retained.
+                try:
+                    self.dc("exec", "-T", DATABASE_SERVICE, "rm", "-f", "--", remote)
+                except ReleaseError:
+                    print("Temporary PostgreSQL archive cleanup was deferred; host backup evidence is preserved.", flush=True)
 
 
 def main() -> int:

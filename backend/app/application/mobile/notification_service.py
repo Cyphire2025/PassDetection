@@ -17,7 +17,11 @@ from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute, undefer
 
+from app.application.mobile.announcement_push_guard import (
+    retain_dispatchable_announcement_notifications,
+)
 from app.application.mobile.push_provider import MobilePushMessage, MobilePushProvider
+from app.application.mobile.push_receipt_claims import claim_mobile_push_receipts
 from app.core.security.mobile_push_crypto import mobile_push_fernet
 from app.domain.value_objects.trip_timezone import (
     DEFAULT_TRIP_TIMEZONE,
@@ -533,6 +537,13 @@ async def dispatch_mobile_push_batch(
     )
     if not notifications:
         return 0
+    notifications = await retain_dispatchable_announcement_notifications(
+        session,
+        notifications=notifications,
+        now=current,
+    )
+    if not notifications:
+        return 0
     notifications = await _retain_currently_authorized_notifications(
         session,
         notifications=notifications,
@@ -762,42 +773,16 @@ async def reconcile_mobile_push_receipts(
     if max_attempts < 1 or max_age <= timedelta(0) or retry_base_seconds < 1:
         raise ValueError("Mobile push receipt retry policy was invalid")
     current = now or datetime.now(tz=UTC)
-    deliveries = list(
-        (
-            await session.execute(
-                select(MobilePushDeliveryModel)
-                .where(
-                    MobilePushDeliveryModel.provider == provider.name,
-                    MobilePushDeliveryModel.status == "receipt_pending",
-                    MobilePushDeliveryModel.next_attempt_at <= current,
-                    MobilePushDeliveryModel.provider_ticket_id.is_not(None),
-                )
-                .order_by(
-                    MobilePushDeliveryModel.next_attempt_at.asc(),
-                    MobilePushDeliveryModel.id.asc(),
-                )
-                .limit(limit)
-                .with_for_update(skip_locked=True)
-            )
-        ).scalars()
+    deliveries, notifications = await claim_mobile_push_receipts(
+        session,
+        provider_name=provider.name,
+        limit=limit,
+        now=current,
     )
     if not deliveries:
         return 0
 
-    notification_ids = {item.notification_id for item in deliveries}
     registration_ids = {item.registration_id for item in deliveries}
-    notifications = {
-        item.id: item
-        for item in (
-            (
-                await session.execute(
-                    select(MobileNotificationModel).where(
-                        MobileNotificationModel.id.in_(notification_ids)
-                    )
-                )
-            ).scalars()
-        )
-    }
     registrations = {
         item.id: item
         for item in (

@@ -112,6 +112,8 @@ class Release:
     def __init__(
         self, revision: str, root: Path = ROOT, *, expected_schema: str = SCHEMA,
         previous_schema: str = PREVIOUS_SCHEMA, directory_name: str = "traveller-whatsapp-release",
+        include_frontend: bool = True,
+        preserve_release_artifacts: bool = False,
     ) -> None:
         if not re.fullmatch(r"[0-9a-f]{40}", revision):
             raise ReleaseError(
@@ -125,6 +127,10 @@ class Release:
             raise ReleaseError("Release directory name must be one safe directory component")
         self.expected_schema = expected_schema
         self.previous_schema = previous_schema
+        self.preserve_release_artifacts = preserve_release_artifacts
+        self.activated_services = tuple(
+            service for service in ACTIVATED if include_frontend or service != "frontend"
+        )
         self.env = dict(
             os.environ, APP_REVISION=revision, EXPECTED_DATABASE_SCHEMA_REVISION=expected_schema
         )
@@ -227,7 +233,7 @@ class Release:
             "docker-compose.prod.yml",
         ]
         config = json.loads(self.dc("config", "--format", "json"))
-        if config.get("name") != project or not {*ACTIVATED, "nginx"} <= set(
+        if config.get("name") != project or not {*self.activated_services, "nginx"} <= set(
             config.get("services", {})
         ):
             raise ReleaseError(
@@ -278,7 +284,8 @@ class Release:
             os.replace(temporary, path)
             self.sync_directory(path.parent)
         finally:
-            temporary.unlink(missing_ok=True)
+            if not self.preserve_release_artifacts:
+                temporary.unlink(missing_ok=True)
 
     @staticmethod
     def sync_directory(path: Path) -> None:
@@ -316,29 +323,29 @@ class Release:
         references = set(self.dc("config", "--images").splitlines())
         refs = {
             service: image_reference(config, references, service)
-            for service in ACTIVATED
+            for service in self.activated_services
         }
         if any(refs[service] != refs["worker"] for service in WORKERS):
             raise ReleaseError(
                 "All seven workers and beat must share the configured worker image"
             )
         self.prepare_recovery(config)
-        self.say(
-            "Building backend, the shared worker image, and frontend; current containers stay running"
+        build_services = tuple(
+            service for service in ("backend", "worker", "frontend")
+            if service in self.activated_services
         )
+        self.say(f"Building {', '.join(build_services)}; current containers stay running")
         self.dc(
             "build",
             "--build-arg",
             f"APP_REVISION={self.revision}",
-            "backend",
-            "worker",
-            "frontend",
+            *build_services,
             timeout=7200,
             stream=True,
         )
         images = {
             service: self.verify_image(refs[service], backend=service != "frontend")
-            for service in ACTIVATED
+            for service in self.activated_services
         }
         # Recheck Git/environment after a potentially long build before recording it.
         after = self.preflight()
@@ -435,7 +442,7 @@ class Release:
     def schema(self) -> str:
         output = self.dc(
             "run",
-            "--rm",
+            *(() if self.preserve_release_artifacts else ("--rm",)),
             "--no-deps",
             "backend",
             "alembic",
@@ -474,9 +481,9 @@ class Release:
             )
         images = manifest.get("images", {})
         refs = manifest.get("references", {})
-        if set(images) != set(ACTIVATED) or set(refs) != set(ACTIVATED):
+        if set(images) != set(self.activated_services) or set(refs) != set(self.activated_services):
             raise ReleaseError("Prepared image manifest is incomplete")
-        for service in ACTIVATED:
+        for service in self.activated_services:
             if (
                 self.verify_image(refs[service], backend=service != "frontend")
                 != images[service]
@@ -495,7 +502,7 @@ class Release:
                 {
                     "services": {
                         service: {"image": images[service], "pull_policy": "never"}
-                        for service in ACTIVATED
+                        for service in self.activated_services
                     }
                 },
                 indent=2,
@@ -517,7 +524,7 @@ class Release:
         self.say(f"Applying additive migration {self.expected_schema} from the prepared backend image")
         self.dc(
             "run",
-            "--rm",
+            *(() if self.preserve_release_artifacts else ("--rm",)),
             "--no-deps",
             "backend",
             "alembic",
@@ -553,12 +560,14 @@ class Release:
                 if attempt == 5:
                     raise
                 time.sleep(5)
-        self.say("Activating and verifying backend, then frontend")
+        self.say("Activating and verifying backend")
         self.dc(*options, "backend", pinned=True, timeout=240, stream=True)
         self.verify_containers(("backend",), images)
         self.dc("exec", "-T", "backend", "python", "-c", READY_PROBE)
-        self.dc(*options, "frontend", pinned=True, timeout=240, stream=True)
-        self.verify_containers(("frontend",), images)
+        if "frontend" in self.activated_services:
+            self.say("Activating and verifying frontend")
+            self.dc(*options, "frontend", pinned=True, timeout=240, stream=True)
+            self.verify_containers(("frontend",), images)
         self.say("Checking Nginx and public API/frontend readiness")
         self.dc("exec", "-T", "nginx", "nginx", "-t", stream=True)
         self.dc("exec", "-T", "nginx", "nginx", "-s", "reload", stream=True)
@@ -581,10 +590,15 @@ class Release:
             )
             if status != "200":
                 raise ReleaseError(f"Public {route} did not return HTTP 200")
-        self.verify_containers(ACTIVATED, images)
+        self.verify_containers(self.activated_services, images)
         self.dc("ps", stream=True)
+        service_summary = (
+            "backend, frontend, seven workers and beat."
+            if "frontend" in self.activated_services
+            else "backend, seven workers and beat; frontend unchanged."
+        )
         self.say(
-            f"RELEASE VERIFIED: {self.revision}; schema {self.expected_schema}; backend, frontend, seven workers and beat."
+            f"RELEASE VERIFIED: {self.revision}; schema {self.expected_schema}; {service_summary}"
         )
 
 
