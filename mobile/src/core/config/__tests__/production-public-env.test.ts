@@ -71,13 +71,12 @@ describe('validateProductionPublicEnvironment', () => {
     });
   });
 
-  it('accepts a production binary with push configured and OTA updates unconfigured', () => {
+  it('accepts a direct-FCM production binary without an Expo project or OTA updates', () => {
     expect(validateProductionPublicEnvironment({
       EXPO_PUBLIC_API_URL: 'https://tech.gctravels.com/api/v1',
       EXPO_PUBLIC_APP_ENV: 'production',
       EXPO_PUBLIC_DEMO_MODE: 'false',
       EXPO_PUBLIC_MAESTRO_ATTENDANCE_FIXTURE: 'false',
-      EXPO_PUBLIC_EAS_PROJECT_ID: projectId,
       EXPO_PUBLIC_REALTIME_ENABLED: 'true',
       EXPO_PUBLIC_APP_INTEGRITY_MODE: 'enforce',
       EXPO_PUBLIC_PLAY_INTEGRITY_CLOUD_PROJECT_NUMBER: '123456789012',
@@ -88,7 +87,7 @@ describe('validateProductionPublicEnvironment', () => {
       apiUrl: 'https://tech.gctravels.com/api/v1',
       appEnv: 'production',
       demoMode: false,
-      easProjectId: projectId,
+      easProjectId: undefined,
       expoOwner: undefined,
       updatesUrl: undefined,
       updatesCodeSigningCertificate: undefined,
@@ -101,7 +100,7 @@ describe('validateProductionPublicEnvironment', () => {
     });
   });
 
-  it('accepts a project ID for push notifications without enabling OTA updates', () => {
+  it('accepts optional EAS build metadata without enabling OTA updates', () => {
     expect(validateProductionPublicEnvironment({
       EXPO_PUBLIC_API_URL: 'https://tech.gctravels.com/api/v1',
       EXPO_PUBLIC_APP_ENV: 'production',
@@ -148,7 +147,7 @@ describe('validateProductionPublicEnvironment', () => {
     ['EXPO_PUBLIC_REALTIME_ENABLED', 'false', 'must be explicitly set to true'],
     ['EXPO_PUBLIC_APP_INTEGRITY_MODE', 'monitor', 'must equal enforce'],
     ['EXPO_PUBLIC_EAS_PROJECT_ID', 'not-a-uuid', 'must be a valid UUID'],
-    ['EXPO_PUBLIC_EAS_PROJECT_ID', undefined, 'is required for production push notifications'],
+    ['EXPO_PUBLIC_EAS_PROJECT_ID', undefined, 'is required when OTA updates are configured'],
     ['EXPO_PUBLIC_SENTRY_DSN', undefined, 'is required for production crash and ANR reporting'],
     ['EXPO_PUBLIC_SENTRY_DSN', 'http://public@example.test/1', 'must use HTTPS'],
     ['EXPO_PUBLIC_SENTRY_DSN', 'https://public:password@example.test/1', 'no password'],
@@ -223,7 +222,6 @@ describe('validateProductionPublicEnvironment', () => {
         'EXPO_PUBLIC_MAESTRO_ATTENDANCE_FIXTURE must be explicitly set to false in production.',
         'EXPO_PUBLIC_REALTIME_ENABLED must be explicitly set to true in production.',
         'EXPO_PUBLIC_APP_INTEGRITY_MODE must equal enforce in production.',
-        'EXPO_PUBLIC_EAS_PROJECT_ID is required for production push notifications.',
         'EXPO_PUBLIC_API_URL is required.',
       ].join('\n- '),
     );

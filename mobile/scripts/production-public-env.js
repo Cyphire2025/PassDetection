@@ -401,9 +401,7 @@ function validateProductionPublicEnvironment(source) {
     errors.push('EXPO_PUBLIC_APP_INTEGRITY_MODE must equal enforce in production.');
   }
   const hasUpdatesConfiguration = Boolean(source.EXPO_PUBLIC_UPDATES_URL);
-  if (!easProjectId) {
-    errors.push('EXPO_PUBLIC_EAS_PROJECT_ID is required for production push notifications.');
-  } else if (!EAS_PROJECT_ID_PATTERN.test(easProjectId)) {
+  if (easProjectId && !EAS_PROJECT_ID_PATTERN.test(easProjectId)) {
     errors.push('EXPO_PUBLIC_EAS_PROJECT_ID must be a valid UUID.');
   }
   if (expoOwner && /\s/.test(expoOwner)) {

@@ -85,9 +85,18 @@ services:
   worker:
     mem_limit: ${WORKER_MEMORY_LIMIT:-1g}
     cpus: ${WORKER_CPUS:-1.0}
-    volumes: !reset []
+    # Replace the development source bind; only the push consumer can read this
+    # operator-managed directory. It may be empty while push remains disabled.
+    volumes: !override
+      - type: bind
+        source: /opt/global-connect-secrets/fcm
+        target: /run/gc-fcm
+        read_only: true
+        bind:
+          create_host_path: false
     environment:
       <<: *production-security-environment
+      MOBILE_PUSH_FCM_CREDENTIALS_FILE: /run/gc-fcm/service-account.json
 
   email-worker:
     mem_limit: ${EMAIL_WORKER_MEMORY_LIMIT:-1g}

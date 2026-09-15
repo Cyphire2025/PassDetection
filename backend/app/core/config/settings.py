@@ -535,8 +535,11 @@ class MobileSettings(BaseSettings):
         le=25 * 1024 * 1024,
     )
     document_grant_ttl_seconds: int = Field(default=60, ge=30, le=300)
-    push_provider: Literal["disabled", "expo"] = "disabled"
+    push_provider: Literal["disabled", "expo", "fcm"] = "disabled"
     push_access_token: SecretStr | None = None
+    # Must match the Firebase project bundled with the released Android app.
+    push_fcm_project_id: Literal["group-companion-c2c30"] = "group-companion-c2c30"
+    push_fcm_credentials_file: str | None = Field(default=None, max_length=1024)
     push_batch_size: int = Field(default=100, ge=1, le=100)
     push_timeout_seconds: float = Field(default=10.0, ge=1.0, le=30.0)
     push_dispatch_interval_seconds: int = Field(default=5, ge=1, le=300)
@@ -571,6 +574,7 @@ class MobileSettings(BaseSettings):
         "app_attest_team_id",
         "app_attest_allowed_validation_categories_json",
         "app_attest_allowed_bundle_versions_json",
+        "push_fcm_credentials_file",
         mode="before",
     )
     @classmethod
@@ -697,6 +701,14 @@ class MobileSettings(BaseSettings):
             raise ValueError(
                 "MOBILE_PUSH_RECEIPT_INITIAL_DELAY_SECONDS must be shorter than "
                 "MOBILE_PUSH_RECEIPT_MAX_AGE_HOURS"
+            )
+        return self
+
+    @model_validator(mode="after")
+    def validate_fcm_credentials_configuration(self) -> Self:
+        if self.push_provider == "fcm" and not self.push_fcm_credentials_file:
+            raise ValueError(
+                "MOBILE_PUSH_FCM_CREDENTIALS_FILE must name the mounted service-account file"
             )
         return self
 
@@ -1144,7 +1156,7 @@ class Settings(BaseSettings):
         pattern=r"^(?:unknown|[0-9a-f]{7,64})$",
     )
     expected_database_schema_revision: str = Field(
-        default="0094_whatsapp_receipt_inbox",
+        default="0095_mobile_fcm_delivery",
         min_length=1,
         max_length=32,
         pattern=r"^[A-Za-z0-9_]+$",

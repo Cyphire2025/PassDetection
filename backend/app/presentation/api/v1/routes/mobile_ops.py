@@ -2182,7 +2182,9 @@ async def register_mobile_push_token(
                 select(MobilePushRegistrationModel).where(
                     MobilePushRegistrationModel.session_id == claims.session_id,
                     MobilePushRegistrationModel.agency_id == claims.agency_id,
-                    MobilePushRegistrationModel.provider == body.provider,
+                    MobilePushRegistrationModel.provider.in_(
+                        ("fcm", "expo") if body.provider == "fcm" else (body.provider,)
+                    ),
                     MobilePushRegistrationModel.id != registration.id,
                     MobilePushRegistrationModel.status == "active",
                 )
@@ -2191,6 +2193,7 @@ async def register_mobile_push_token(
     )
     for previous in previous_rows:
         previous.status = "revoked"
+        previous.notifications_authorized = False
         previous.revoked_at = now
         previous.updated_at = now
     await session.flush()

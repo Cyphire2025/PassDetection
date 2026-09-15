@@ -29,14 +29,18 @@ class MobilePushMessage:
     body: str | None
     data: dict[str, str]
     priority: str = "default"
+    ttl_seconds: int = 3600
 
-    def expo_payload(self) -> dict[str, object]:
+    def validate_public_payload(self) -> None:
         if set(self.data) - _ALLOWED_DATA_KEYS:
             raise ValueError("Push data contained a non-allowlisted key")
         if self.data.get("route") not in _ALLOWED_ROUTES:
             raise ValueError("Push data contained an invalid route")
         if len(self.title) > 120 or (self.body is not None and len(self.body) > 240):
             raise ValueError("Push lock-screen content exceeded its safe bound")
+
+    def expo_payload(self) -> dict[str, object]:
+        self.validate_public_payload()
         payload: dict[str, object] = {
             "to": self.token,
             "title": self.title,
@@ -57,6 +61,9 @@ class MobilePushTicket:
     retryable: bool
     provider_ticket_id: str | None = None
     error_code: str | None = None
+    requires_receipt: bool = True
+    outcome_unknown: bool = False
+    retry_after_seconds: int | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -95,6 +102,10 @@ class DisabledMobilePushProvider:
     def enabled(self) -> bool:
         return False
 
+    @property
+    def supports_receipts(self) -> bool:
+        return False
+
     async def send(self, messages: list[MobilePushMessage]) -> list[MobilePushTicket]:
         del messages
         return []
@@ -125,6 +136,10 @@ class ExpoMobilePushProvider:
 
     @property
     def enabled(self) -> bool:
+        return True
+
+    @property
+    def supports_receipts(self) -> bool:
         return True
 
     async def send(self, messages: list[MobilePushMessage]) -> list[MobilePushTicket]:
@@ -341,6 +356,10 @@ class ExpoMobilePushProvider:
 
 
 def get_mobile_push_provider(settings: MobileSettings) -> MobilePushProvider:
+    if settings.push_provider == "fcm":
+        from app.infrastructure.mobile_push.fcm_provider import FcmMobilePushProvider
+
+        return FcmMobilePushProvider(settings)
     if settings.push_provider == "expo":
         return ExpoMobilePushProvider(settings)
     return DisabledMobilePushProvider()

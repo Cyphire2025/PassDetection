@@ -11,7 +11,6 @@ import {
   useSessionStore,
 } from '@/core/auth/session-store';
 import { principalAccountNamespace } from '@/core/auth/types';
-import { env } from '@/core/config/env';
 import {
   clearPushRegistrationMarker,
   getInstallationId,
@@ -36,9 +35,9 @@ export interface NotificationProvider {
 }
 
 export class NotificationRegistrationError extends Error {
-  constructor(readonly code: 'PUSH_PROJECT_NOT_CONFIGURED' | 'PUSH_TOKEN_UNAVAILABLE') {
-    super(code === 'PUSH_PROJECT_NOT_CONFIGURED'
-      ? 'Push notifications are not configured for this app build.'
+  constructor(readonly code: 'PUSH_PLATFORM_UNSUPPORTED' | 'PUSH_TOKEN_UNAVAILABLE') {
+    super(code === 'PUSH_PLATFORM_UNSUPPORTED'
+      ? 'Phone alerts are not supported on this platform. Read trip updates in the app.'
       : 'The device push token is temporarily unavailable.');
     this.name = 'NotificationRegistrationError';
   }
@@ -73,26 +72,33 @@ export async function requestNotificationPermission(): Promise<boolean> {
     || iosStatus === Notifications.IosAuthorizationStatus.EPHEMERAL;
 }
 
-export const expoNotificationProvider: NotificationProvider = {
+export const fcmNotificationProvider: NotificationProvider = {
   async register() {
-    if (!(await requestNotificationPermission())) return null;
-    if (!env.easProjectId) {
-      throw new NotificationRegistrationError('PUSH_PROJECT_NOT_CONFIGURED');
+    // Retire the installed Expo relay's persisted auto-registration preference.
+    // The Metro adapter also prevents its import-time token upload/listener.
+    if (Platform.OS !== 'android') {
+      throw new NotificationRegistrationError('PUSH_PLATFORM_UNSUPPORTED');
     }
-    let tokenData: string;
+    await Notifications.setAutoServerRegistrationEnabledAsync(false);
+    if (!(await requestNotificationPermission())) return null;
+    let nativeToken: Notifications.DevicePushToken;
     try {
-      tokenData = (
-        await Notifications.getExpoPushTokenAsync({ projectId: env.easProjectId })
-      ).data;
+      nativeToken = await Notifications.getDevicePushTokenAsync();
     } catch {
       throw new NotificationRegistrationError('PUSH_TOKEN_UNAVAILABLE');
     }
-    return { provider: 'expo', token: tokenData };
+    if (nativeToken.type !== 'android' || typeof nativeToken.data !== 'string'
+      || nativeToken.data.length < 16 || nativeToken.data.length > 512
+      || /[^\x21-\x7e]/.test(nativeToken.data)
+      || /^(Exponent|Expo)PushToken\[/.test(nativeToken.data)) {
+      throw new NotificationRegistrationError('PUSH_TOKEN_UNAVAILABLE');
+    }
+    return { provider: 'fcm', token: nativeToken.data };
   },
 };
 
 export async function registerPushDevice(
-  provider: NotificationProvider = expoNotificationProvider,
+  provider: NotificationProvider = fcmNotificationProvider,
   options: Readonly<{ force?: boolean }> = {},
 ): Promise<boolean> {
   const session = useSessionStore.getState().session;
@@ -118,7 +124,7 @@ export async function registerPushDevice(
     return registered;
   } catch (error) {
     update(error instanceof NotificationRegistrationError
-      ? error.code === 'PUSH_PROJECT_NOT_CONFIGURED' ? 'build_unconfigured' : 'token_unavailable'
+      ? error.code === 'PUSH_PLATFORM_UNSUPPORTED' ? 'unsupported_platform' : 'token_unavailable'
       : 'registration_failed');
     throw error;
   }
@@ -143,6 +149,12 @@ async function performPushRegistration(
     throw new Error('The active account changed during push registration.');
   }
   const marker = await getPushRegistrationMarker(namespace);
+  if (!isAuthenticationSnapshotCurrent(authentication)) {
+    throw new Error('The active account changed during push registration.');
+  }
+  if (useSessionStore.getState().session?.sessionId !== requestSession.sessionId) {
+    throw new Error('The active device session changed during push registration.');
+  }
   const now = Date.now();
   if (
     !options.force
@@ -194,7 +206,17 @@ export function notificationData(response: Notifications.NotificationResponse): 
 }
 
 export function notificationContentData(notification: Notifications.Notification): NotificationData | null {
-  const parsed = NotificationDataSchema.safeParse(notification.request.content.data);
+  let data = notification.request.content.data;
+  // Android's cold-start FCM response includes transport extras alongside the
+  // custom data. Strip only those keys; unknown application fields still fail.
+  const trigger = notification.request.trigger;
+  if (Platform.OS === 'android' && trigger && 'type' in trigger && trigger.type === 'push'
+    && data && typeof data === 'object' && !Array.isArray(data)) {
+    data = Object.fromEntries(Object.entries(data).filter(([key]) =>
+      !key.startsWith('google.') && !key.startsWith('gcm.')
+      && !['from', 'collapse_key', 'message_type'].includes(key)));
+  }
+  const parsed = NotificationDataSchema.safeParse(data);
   return parsed.success ? parsed.data : null;
 }
 

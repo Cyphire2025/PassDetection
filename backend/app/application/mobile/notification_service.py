@@ -11,7 +11,7 @@ from typing import Literal
 from zoneinfo import ZoneInfo
 
 from cryptography.fernet import InvalidToken
-from sqlalchemy import Select, and_, or_, select, update
+from sqlalchemy import Select, and_, literal, or_, select, update
 from sqlalchemy.dialects.postgresql import insert as postgresql_insert
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -20,8 +20,15 @@ from sqlalchemy.orm import InstrumentedAttribute, undefer
 from app.application.mobile.announcement_push_guard import (
     retain_dispatchable_announcement_notifications,
 )
+from app.application.mobile.fcm_dispatch_intents import (
+    UNKNOWN_CODE,
+    mark_delivery_unknown,
+    recover_interrupted_fcm_intents,
+    send_with_durable_fcm_intents,
+)
 from app.application.mobile.push_provider import MobilePushMessage, MobilePushProvider
 from app.application.mobile.push_receipt_claims import claim_mobile_push_receipts
+from app.core.config.settings import get_settings
 from app.core.security.mobile_push_crypto import mobile_push_fernet
 from app.domain.value_objects.trip_timezone import (
     DEFAULT_TRIP_TIMEZONE,
@@ -165,8 +172,7 @@ async def enqueue_announcement_notifications(
                 )
                 .join(
                     ClientManagerGroupAssignmentModel,
-                    ClientManagerGroupAssignmentModel.profile_id
-                    == ClientManagerProfileModel.id,
+                    ClientManagerGroupAssignmentModel.profile_id == ClientManagerProfileModel.id,
                 )
                 .where(
                     UserModel.agency_id == access.agency_id,
@@ -242,9 +248,7 @@ async def enqueue_personal_document_change_notifications(
     current = now or datetime.now(tz=UTC)
     if not access.is_enabled or access.revoked_at is not None:
         return DocumentChangeNotificationCounts()
-    available_at = max(
-        value for value in (current, access.access_starts_at) if value is not None
-    )
+    available_at = max(value for value in (current, access.access_starts_at) if value is not None)
     expires_at = access.access_expires_at
     if expires_at is not None and expires_at <= available_at:
         return DocumentChangeNotificationCounts()
@@ -275,8 +279,7 @@ async def enqueue_personal_document_change_notifications(
                 )
                 .join(
                     ClientManagerGroupAssignmentModel,
-                    ClientManagerGroupAssignmentModel.profile_id
-                    == ClientManagerProfileModel.id,
+                    ClientManagerGroupAssignmentModel.profile_id == ClientManagerProfileModel.id,
                 )
                 .where(
                     UserModel.agency_id == access.agency_id,
@@ -398,9 +401,7 @@ async def schedule_trip_countdown_notifications(
             )
             trip_timezone = ZoneInfo(trip_timezone_name)
             local_today = current.astimezone(trip_timezone).date()
-            if not (
-                local_today < group.travel_date <= local_today + timedelta(days=366)
-            ):
+            if not (local_today < group.travel_date <= local_today + timedelta(days=366)):
                 continue
             trip_starts_at = datetime.combine(
                 group.travel_date,
@@ -420,9 +421,7 @@ async def schedule_trip_countdown_notifications(
                 if access_start is not None and access_start > scheduled_at:
                     continue
                 expires_at = min(
-                    value
-                    for value in (access_expiry, trip_starts_at)
-                    if value is not None
+                    value for value in (access_expiry, trip_starts_at) if value is not None
                 )
                 if expires_at <= scheduled_at:
                     continue
@@ -476,8 +475,7 @@ async def cancel_announcement_notifications(
                 select(MobileNotificationModel.id).where(
                     MobileNotificationModel.agency_id == access.agency_id,
                     MobileNotificationModel.gc_group_access_id == access.id,
-                    MobileNotificationModel.dedupe_key
-                    == _announcement_dedupe_key(announcement_id),
+                    MobileNotificationModel.dedupe_key == _announcement_dedupe_key(announcement_id),
                     MobileNotificationModel.status == "cancelled",
                 )
             ),
@@ -503,23 +501,51 @@ async def dispatch_mobile_push_batch(
     retry_base_seconds: int = 5,
     receipt_initial_delay_seconds: int = 900,
 ) -> int:
-    """Submit a bounded batch and durably retain every provider ticket."""
+    """Submit a bounded batch and durably retain every provider ticket.
+
+    FCM requires a dedicated worker session: its send intent commits before HTTP
+    so a worker interruption cannot silently turn a possible send into a retry.
+    """
 
     if not provider.enabled:
         return 0
     if limit < 1 or limit > 100:
         raise ValueError("Mobile push batch limit must be between 1 and 100")
+    # FCM uses individual HTTP requests. One concurrent wave bounds how long
+    # authorization/source locks are held and avoids idle transaction expiry.
+    if provider.name == "fcm":
+        limit = min(limit, 20)
     if max_send_attempts < 1:
         raise ValueError("Mobile push send attempts must be positive")
     if retry_base_seconds < 1 or receipt_initial_delay_seconds < 1:
         raise ValueError("Mobile push retry delays must be positive")
+    if provider.name == "fcm" and (prepare := getattr(provider, "prepare", None)) is not None:
+        # Obtain OAuth outside the source/access lock transaction.
+        await prepare()
     current = now or datetime.now(tz=UTC)
+    if provider.name == "fcm":
+        await recover_interrupted_fcm_intents(session, now=current)
     notifications = list(
         (
             await session.execute(
                 select(MobileNotificationModel)
                 .where(
-                    MobileNotificationModel.status == "queued",
+                    or_(
+                        MobileNotificationModel.status == "queued",
+                        and_(
+                            literal(provider.name == "fcm"),
+                            MobileNotificationModel.status == "sent",
+                            select(MobilePushDeliveryModel.id)
+                            .where(
+                                MobilePushDeliveryModel.notification_id
+                                == MobileNotificationModel.id,
+                                MobilePushDeliveryModel.provider == "fcm",
+                                MobilePushDeliveryModel.status == "retry",
+                                MobilePushDeliveryModel.next_attempt_at <= current,
+                            )
+                            .exists(),
+                        ),
+                    ),
                     MobileNotificationModel.available_at <= current,
                     or_(
                         MobileNotificationModel.expires_at.is_(None),
@@ -562,9 +588,7 @@ async def dispatch_mobile_push_batch(
             )
         ).scalars()
     )
-    delivery_by_target = {
-        (item.notification_id, item.registration_id): item for item in deliveries
-    }
+    delivery_by_target = {(item.notification_id, item.registration_id): item for item in deliveries}
 
     registrations = await _load_recipient_registrations(
         session,
@@ -572,6 +596,29 @@ async def dispatch_mobile_push_batch(
         provider_name=provider.name,
         now=current,
     )
+    if provider.name == "fcm":
+        allowed_targets = {
+            (notification.id, notification.agency_id, registration.id)
+            for notification in notifications
+            for registration in registrations.get(_notification_recipient_key(notification), [])
+        }
+        for retry_target in deliveries:
+            if (
+                retry_target.provider == "fcm"
+                and retry_target.status == "retry"
+                and (
+                    retry_target.notification_id,
+                    retry_target.agency_id,
+                    retry_target.registration_id,
+                )
+                not in allowed_targets
+            ):
+                # A logged-out/disabled device must not leave an immortal due
+                # retry that repeatedly takes capacity from newer notifications.
+                # These targets are definitely unsent on their next attempt.
+                retry_target.status = "cancelled"
+                retry_target.last_error_code = "registration_unavailable"
+                retry_target.updated_at = current
     messages: list[MobilePushMessage] = []
     registration_by_id: dict[str, MobilePushRegistrationModel] = {}
     notification_by_id = {str(item.id): item for item in notifications}
@@ -579,7 +626,7 @@ async def dispatch_mobile_push_batch(
     for notification in notifications:
         key = _notification_recipient_key(notification)
         for registration in registrations.get(key, []):
-            if len(messages) >= limit:
+            if len(messages) >= limit and provider.name != "fcm":
                 break
             delivery = delivery_by_target.get((notification.id, registration.id))
             if delivery is not None:
@@ -601,9 +648,7 @@ async def dispatch_mobile_push_batch(
                     _fail_delivery(delivery, current, "send_attempts_exhausted")
                     continue
             try:
-                token = mobile_push_fernet().decrypt(registration.token_ciphertext).decode(
-                    "utf-8"
-                )
+                token = mobile_push_fernet().decrypt(registration.token_ciphertext).decode("utf-8")
                 data = _validated_public_payload(notification)
             except (InvalidToken, UnicodeDecodeError):
                 registration.status = "disabled"
@@ -623,7 +668,7 @@ async def dispatch_mobile_push_batch(
                     notification_id=notification.id,
                     registration_id=registration.id,
                     provider=provider.name,
-                    status="submitting",
+                    status="retry",
                     send_attempts=0,
                     receipt_attempts=0,
                     next_attempt_at=current,
@@ -631,6 +676,12 @@ async def dispatch_mobile_push_batch(
                 session.add(delivery)
                 deliveries.append(delivery)
                 delivery_by_target[(notification.id, registration.id)] = delivery
+            if len(messages) >= limit:
+                # Retain a definitely-unsent target when the HTTP wave fills up.
+                # An accepted sibling may project the parent to sent; this retry
+                # row keeps the remaining device discoverable on the next run.
+                # It has not used a sending attempt or crossed the HTTP boundary.
+                continue
             delivery.status = "submitting"
             delivery.send_attempts += 1
             delivery.last_error_code = None
@@ -647,11 +698,26 @@ async def dispatch_mobile_push_batch(
                 ),
                 data=data,
                 priority="high" if notification.priority in {"high", "emergency"} else "default",
+                ttl_seconds=min(
+                    3600,
+                    max(
+                        0,
+                        int(
+                            (
+                                (
+                                    _aware_utc(notification.expires_at)
+                                    or (current + timedelta(hours=1))
+                                )
+                                - current
+                            ).total_seconds()
+                        ),
+                    ),
+                ),
             )
             messages.append(message)
             registration_by_id[str(registration.id)] = registration
             delivery_by_message[(str(notification.id), str(registration.id))] = delivery
-        if len(messages) >= limit:
+        if len(messages) >= limit and provider.name != "fcm":
             break
 
     if not messages:
@@ -671,32 +737,37 @@ async def dispatch_mobile_push_batch(
         return 0
 
     await session.flush()
-    tickets = await provider.send(messages)
+    tickets = (
+        await send_with_durable_fcm_intents(
+            session,
+            provider=provider,
+            messages=messages,
+            notifications=notifications,
+            now=current,
+        )
+        if provider.name == "fcm"
+        else await provider.send(messages)
+    )
     submitted_notifications: set[str] = set()
     returned_targets: set[tuple[str, str]] = set()
     for ticket in tickets:
         ticket_notification = notification_by_id.get(ticket.notification_id)
         ticket_registration = registration_by_id.get(ticket.registration_id)
-        delivery = delivery_by_message.get(
-            (ticket.notification_id, ticket.registration_id)
-        )
-        if (
-            ticket_notification is None
-            or ticket_registration is None
-            or delivery is None
-        ):
+        delivery = delivery_by_message.get((ticket.notification_id, ticket.registration_id))
+        if ticket_notification is None or ticket_registration is None or delivery is None:
             continue
         returned_targets.add((ticket.notification_id, ticket.registration_id))
         if ticket.accepted and ticket.provider_ticket_id is not None:
             submitted_notifications.add(ticket.notification_id)
             delivery.provider_ticket_id = ticket.provider_ticket_id
-            delivery.status = "receipt_pending"
+            delivery.status = "receipt_pending" if ticket.requires_receipt else "provider_accepted"
             delivery.submitted_at = current
-            delivery.next_attempt_at = current + timedelta(
-                seconds=receipt_initial_delay_seconds
-            )
+            delivery.next_attempt_at = current + timedelta(seconds=receipt_initial_delay_seconds)
             delivery.last_error_code = None
             record_operational_event(OperationalEvent.MOBILE_PUSH, "ticket_accepted")
+        elif ticket.outcome_unknown:
+            mark_delivery_unknown(delivery, current)
+            record_operational_event(OperationalEvent.MOBILE_PUSH, "send_outcome_unknown")
         else:
             code = ticket.error_code or "provider_ticket_error"
             ticket_registration.last_failure_at = current
@@ -710,9 +781,9 @@ async def dispatch_mobile_push_batch(
                     delivery,
                     current,
                     code,
-                    delay_seconds=_bounded_backoff_seconds(
-                        retry_base_seconds,
-                        delivery.send_attempts,
+                    delay_seconds=max(
+                        _bounded_backoff_seconds(retry_base_seconds, delivery.send_attempts),
+                        min(3600, max(0, ticket.retry_after_seconds or 0)),
                     ),
                 )
                 record_operational_event(
@@ -726,6 +797,9 @@ async def dispatch_mobile_push_batch(
 
     for target, delivery in delivery_by_message.items():
         if target in returned_targets:
+            continue
+        if provider.name == "fcm":
+            mark_delivery_unknown(delivery, current)
             continue
         if delivery.send_attempts < max_send_attempts:
             _retry_delivery(
@@ -766,7 +840,7 @@ async def reconcile_mobile_push_receipts(
 ) -> int:
     """Poll due provider receipts and apply monotonic delivery transitions."""
 
-    if not provider.enabled:
+    if not provider.enabled or not getattr(provider, "supports_receipts", True):
         return 0
     if limit < 1 or limit > 1_000:
         raise ValueError("Mobile push receipt batch limit must be between 1 and 1,000")
@@ -828,13 +902,10 @@ async def reconcile_mobile_push_receipts(
         return 0
 
     ticket_ids = [
-        item.provider_ticket_id
-        for item in eligible
-        if item.provider_ticket_id is not None
+        item.provider_ticket_id for item in eligible if item.provider_ticket_id is not None
     ]
     receipt_by_ticket = {
-        item.provider_ticket_id: item
-        for item in await provider.get_receipts(ticket_ids)
+        item.provider_ticket_id: item for item in await provider.get_receipts(ticket_ids)
     }
     delivered_notifications: set[uuid.UUID] = set()
     for delivery in eligible:
@@ -906,7 +977,7 @@ def _retry_delivery(
     *,
     delay_seconds: int,
 ) -> None:
-    if delivery.status in {"delivered", "failed", "cancelled"}:
+    if delivery.status in {"delivered", "failed", "cancelled", "provider_accepted", "unknown"}:
         return
     delivery.status = "retry"
     delivery.provider_ticket_id = None
@@ -923,7 +994,7 @@ def _fail_delivery(
     now: datetime,
     code: str,
 ) -> None:
-    if delivery.status in {"delivered", "cancelled"}:
+    if delivery.status in {"delivered", "cancelled", "provider_accepted", "unknown"}:
         return
     delivery.status = "failed"
     delivery.delivered_at = None
@@ -974,7 +1045,7 @@ async def _refresh_notification_delivery_states(
         rows = grouped.get(notification.id, [])
         if not rows:
             continue
-        if any(item.status == "delivered" for item in rows):
+        if any(item.status in {"delivered", "provider_accepted"} for item in rows):
             notification.status = "sent"
             notification.sent_at = notification.sent_at or now
             notification.failure_code = None
@@ -983,9 +1054,7 @@ async def _refresh_notification_delivery_states(
         if notification.status == "sent":
             continue
         pending = [
-            item
-            for item in rows
-            if item.status in {"submitting", "retry", "receipt_pending"}
+            item for item in rows if item.status in {"submitting", "retry", "receipt_pending"}
         ]
         if pending:
             notification.status = "queued"
@@ -998,13 +1067,13 @@ async def _refresh_notification_delivery_states(
             notification.updated_at = now
             continue
         notification.status = "failed"
-        notification.failure_code = next(
-            (
-                item.last_error_code
-                for item in rows
-                if item.last_error_code is not None
-            ),
-            "provider_rejected",
+        notification.failure_code = (
+            UNKNOWN_CODE
+            if any(item.status == "unknown" for item in rows)
+            else next(
+                (item.last_error_code for item in rows if item.last_error_code is not None),
+                "provider_rejected",
+            )
         )
         notification.updated_at = now
 
@@ -1043,9 +1112,7 @@ async def _retain_currently_authorized_notifications(
     if not grouped:
         return notifications
 
-    eligible: set[
-        tuple[str, uuid.UUID, uuid.UUID, uuid.UUID, uuid.UUID]
-    ] = set()
+    eligible: set[tuple[str, uuid.UUID, uuid.UUID, uuid.UUID, uuid.UUID]] = set()
     passenger_filters = []
     manager_filters = []
     coordinator_filters = []
@@ -1095,8 +1162,7 @@ async def _retain_currently_authorized_notifications(
                 )
                 .join(
                     GCGroupAccessModel,
-                    GCGroupAccessModel.id
-                    == MobilePassengerIdentityModel.gc_group_access_id,
+                    GCGroupAccessModel.id == MobilePassengerIdentityModel.gc_group_access_id,
                 )
                 .join(ClientGroupModel, ClientGroupModel.id == GCGroupAccessModel.group_id)
                 .where(
@@ -1124,13 +1190,11 @@ async def _retain_currently_authorized_notifications(
                 )
                 .join(
                     ClientManagerGroupAssignmentModel,
-                    ClientManagerGroupAssignmentModel.profile_id
-                    == ClientManagerProfileModel.id,
+                    ClientManagerGroupAssignmentModel.profile_id == ClientManagerProfileModel.id,
                 )
                 .join(
                     GCGroupAccessModel,
-                    GCGroupAccessModel.id
-                    == ClientManagerGroupAssignmentModel.gc_group_access_id,
+                    GCGroupAccessModel.id == ClientManagerGroupAssignmentModel.gc_group_access_id,
                 )
                 .join(ClientGroupModel, ClientGroupModel.id == GCGroupAccessModel.group_id)
                 .where(
@@ -1159,16 +1223,13 @@ async def _retain_currently_authorized_notifications(
                 )
                 .join(
                     CoordinatorGroupAssignmentModel,
-                    CoordinatorGroupAssignmentModel.coordinator_user_id
-                    == UserModel.id,
+                    CoordinatorGroupAssignmentModel.coordinator_user_id == UserModel.id,
                 )
                 .join(
                     GCGroupAccessModel,
                     and_(
-                        GCGroupAccessModel.agency_id
-                        == CoordinatorGroupAssignmentModel.agency_id,
-                        GCGroupAccessModel.group_id
-                        == CoordinatorGroupAssignmentModel.group_id,
+                        GCGroupAccessModel.agency_id == CoordinatorGroupAssignmentModel.agency_id,
+                        GCGroupAccessModel.group_id == CoordinatorGroupAssignmentModel.group_id,
                     ),
                 )
                 .join(ClientGroupModel, ClientGroupModel.id == GCGroupAccessModel.group_id)
@@ -1243,16 +1304,14 @@ async def _cancel_stale_countdowns(
             )
             .join(
                 GCGroupAccessModel,
-                GCGroupAccessModel.id
-                == MobileNotificationModel.gc_group_access_id,
+                GCGroupAccessModel.id == MobileNotificationModel.gc_group_access_id,
             )
             .join(
                 ClientGroupModel,
                 ClientGroupModel.id == MobileNotificationModel.group_id,
             )
             .where(
-                MobileNotificationModel.notification_type
-                == _COUNTDOWN_NOTIFICATION_TYPE,
+                MobileNotificationModel.notification_type == _COUNTDOWN_NOTIFICATION_TYPE,
                 MobileNotificationModel.status == "queued",
             )
             .order_by(MobileNotificationModel.id.asc())
@@ -1277,12 +1336,8 @@ async def _cancel_stale_countdowns(
             trip_timezone_name = normalize_trip_timezone(
                 getattr(group, "timezone", None) or DEFAULT_TRIP_TIMEZONE
             )
-            current_schedule = (
-                group.travel_date is not None
-                and notification.dedupe_key.startswith(
-                    "trip-countdown:"
-                    f"{group.travel_date.isoformat()}:{trip_timezone_name}:"
-                )
+            current_schedule = group.travel_date is not None and notification.dedupe_key.startswith(
+                f"trip-countdown:{group.travel_date.isoformat()}:{trip_timezone_name}:"
             )
             invalid = (
                 group.status not in {"active", "closed"}
@@ -1363,8 +1418,7 @@ async def _enqueue_countdown_recipients(
                 )
                 .join(
                     ClientManagerGroupAssignmentModel,
-                    ClientManagerGroupAssignmentModel.profile_id
-                    == ClientManagerProfileModel.id,
+                    ClientManagerGroupAssignmentModel.profile_id == ClientManagerProfileModel.id,
                 )
                 .where(
                     UserModel.agency_id == access.agency_id,
@@ -1397,8 +1451,7 @@ async def _enqueue_countdown_recipients(
                 select(UserModel.id)
                 .join(
                     CoordinatorGroupAssignmentModel,
-                    CoordinatorGroupAssignmentModel.coordinator_user_id
-                    == UserModel.id,
+                    CoordinatorGroupAssignmentModel.coordinator_user_id == UserModel.id,
                 )
                 .where(
                     UserModel.agency_id == access.agency_id,
@@ -1444,9 +1497,7 @@ async def _enqueue_countdown_pages(
         ids = list(
             (
                 await session.execute(
-                    page_statement.order_by(id_column.asc()).limit(
-                        _RECIPIENT_PAGE_SIZE
-                    )
+                    page_statement.order_by(id_column.asc()).limit(_RECIPIENT_PAGE_SIZE)
                 )
             ).scalars()
         )
@@ -1488,9 +1539,7 @@ def _countdown_notification_values(
         f"{access.group_id}:{recipient_id}:{travel_date.isoformat()}:"
         f"{timezone_name}:{days_remaining}"
     ).encode("ascii")
-    template_index = int.from_bytes(hashlib.sha256(seed).digest()[:2], "big") % len(
-        templates
-    )
+    template_index = int.from_bytes(hashlib.sha256(seed).digest()[:2], "big") % len(templates)
     title, body = templates[template_index]
     is_passenger = recipient_type == "passenger"
     return {
@@ -1530,15 +1579,11 @@ async def _insert_notifications_ignore_duplicates(
     dialect_name = session.get_bind().dialect.name
     if dialect_name == "postgresql":
         result = await session.execute(
-            postgresql_insert(MobileNotificationModel)
-            .values(rows)
-            .on_conflict_do_nothing()
+            postgresql_insert(MobileNotificationModel).values(rows).on_conflict_do_nothing()
         )
     elif dialect_name == "sqlite":
         result = await session.execute(
-            sqlite_insert(MobileNotificationModel)
-            .values(rows)
-            .on_conflict_do_nothing()
+            sqlite_insert(MobileNotificationModel).values(rows).on_conflict_do_nothing()
         )
     else:
         raise RuntimeError("Countdown scheduling requires PostgreSQL or SQLite")
@@ -1565,9 +1610,7 @@ async def _enqueue_recipient_pages(
         ids = list(
             (
                 await session.execute(
-                    page_statement.order_by(id_column.asc()).limit(
-                        _RECIPIENT_PAGE_SIZE
-                    )
+                    page_statement.order_by(id_column.asc()).limit(_RECIPIENT_PAGE_SIZE)
                 )
             ).scalars()
         )
@@ -1612,9 +1655,7 @@ async def _enqueue_document_change_user_pages(
         ids = list(
             (
                 await session.execute(
-                    page_statement.order_by(UserModel.id.asc()).limit(
-                        _RECIPIENT_PAGE_SIZE
-                    )
+                    page_statement.order_by(UserModel.id.asc()).limit(_RECIPIENT_PAGE_SIZE)
                 )
             ).scalars()
         )
@@ -1756,9 +1797,7 @@ def _announcement_notification(
         lock_screen_title=_LOCK_SCREEN_TITLE,
         lock_screen_body=None,
         contains_sensitive_content=True,
-        deep_link_path=(
-            f"/updates?trip_id={access.group_id}&event_id={announcement.id}"
-        ),
+        deep_link_path=(f"/updates?trip_id={access.group_id}&event_id={announcement.id}"),
         dedupe_key=_announcement_dedupe_key(announcement.id),
         public_payload={
             "route": "updates",
@@ -1779,9 +1818,7 @@ async def _load_recipient_registrations(
     now: datetime,
 ) -> dict[tuple[str, uuid.UUID, uuid.UUID], list[MobilePushRegistrationModel]]:
     user_ids = {
-        item.recipient_user_id
-        for item in notifications
-        if item.recipient_user_id is not None
+        item.recipient_user_id for item in notifications if item.recipient_user_id is not None
     }
     passenger_ids = {
         item.recipient_passenger_identity_id
@@ -1790,6 +1827,16 @@ async def _load_recipient_registrations(
     }
     if not user_ids and not passenger_ids:
         return {}
+    provider_scope = (
+        (
+            MobilePushRegistrationModel.platform == "android",
+            MobilePushRegistrationModel.environment
+            == ("production" if get_settings().is_production else "development"),
+            MobilePushRegistrationModel.app_bundle_id == "com.globalconnects.groupcompanion",
+        )
+        if provider_name == "fcm"
+        else ()
+    )
     recipient_filter = or_(
         and_(
             MobileDeviceSessionModel.subject_role.in_(("client_manager", "coordinator")),
@@ -1814,6 +1861,7 @@ async def _load_recipient_registrations(
                 )
                 .where(
                     MobilePushRegistrationModel.provider == provider_name,
+                    *provider_scope,
                     MobilePushRegistrationModel.status == "active",
                     MobilePushRegistrationModel.notifications_authorized.is_(True),
                     MobileDeviceSessionModel.status == "active",
@@ -1822,6 +1870,7 @@ async def _load_recipient_registrations(
                     recipient_filter,
                 )
                 .order_by(MobilePushRegistrationModel.last_registered_at.desc())
+                .execution_options(populate_existing=True)
             )
         ).all()
     )

@@ -30,6 +30,7 @@ class AnnouncementRecipientCounts:
     cancelled: int = 0
     read: int = 0
     no_active_registration: int = 0
+    unknown: int = 0
 
 
 @dataclass
@@ -41,6 +42,8 @@ class AnnouncementDeviceDeliveryCounts:
     delivered: int = 0
     failed: int = 0
     cancelled: int = 0
+    provider_accepted: int = 0
+    unknown: int = 0
 
 
 @dataclass(frozen=True)
@@ -84,6 +87,20 @@ _SAFE_FAILURE_CODES = frozenset(
         "MessageRateExceeded",
         "MismatchSenderId",
         "InvalidCredentials",
+        "provider_outcome_unknown",
+        "source_recheck_deferred",
+        "fcm_credentials_missing",
+        "fcm_credentials_invalid",
+        "fcm_credentials_project_or_type_mismatch",
+        "fcm_credentials_path_must_be_absolute",
+        "fcm_credentials_unavailable",
+        "fcm_connection_unavailable",
+        "fcm_quota_exceeded",
+        "fcm_unavailable",
+        "fcm_sender_id_mismatch",
+        "fcm_authentication_failed",
+        "fcm_invalid_argument",
+        "fcm_provider_rejected",
     }
 )
 
@@ -143,7 +160,11 @@ async def announcement_notification_status(
     for state, code, count, read_count in recipient_rows:
         recipients.total += count
         recipients.read += read_count
-        if state in {"queued", "sent", "failed", "cancelled"}:
+        # The stored terminal state suppresses resends, but the provider may
+        # have accepted it. Present unknown outcomes separately from failures.
+        if state == "failed" and code == "provider_outcome_unknown":
+            recipients.unknown += count
+        elif state in {"queued", "sent", "failed", "cancelled"}:
             setattr(recipients, state, getattr(recipients, state) + count)
         if code == "no_active_registration":
             recipients.no_active_registration += count
@@ -151,7 +172,16 @@ async def announcement_notification_status(
             failures[("recipient", code if code in _SAFE_FAILURE_CODES else "other")] += count
     for state, code, count in delivery_rows:
         devices.total += count
-        if state in {"submitting", "retry", "receipt_pending", "delivered", "failed", "cancelled"}:
+        if state in {
+            "submitting",
+            "retry",
+            "receipt_pending",
+            "delivered",
+            "failed",
+            "cancelled",
+            "provider_accepted",
+            "unknown",
+        }:
             setattr(devices, state, getattr(devices, state) + count)
         if code:
             failures[("device", code if code in _SAFE_FAILURE_CODES else "other")] += count

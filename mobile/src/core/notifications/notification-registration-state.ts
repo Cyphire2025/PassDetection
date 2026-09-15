@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 export type PushRegistrationStatus =
   | 'registering' | 'registered' | 'permission_denied' | 'unsupported_device'
-  | 'offline' | 'build_unconfigured' | 'token_unavailable' | 'registration_failed';
+  | 'offline' | 'build_unconfigured' | 'token_unavailable' | 'registration_failed' | 'unsupported_platform';
 
 // Ephemeral, account/session-scoped diagnostics. Never retain a push token or
 // provider response, and never show an earlier account's registration result.

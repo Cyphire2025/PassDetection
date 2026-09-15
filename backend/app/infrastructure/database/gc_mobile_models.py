@@ -1842,7 +1842,7 @@ class MobilePushDeliveryModel(Base):
         ),
         CheckConstraint(
             "status IN ('submitting', 'retry', 'receipt_pending', 'delivered', "
-            "'failed', 'cancelled')",
+            "'failed', 'cancelled', 'provider_accepted', 'unknown')",
             name="ck_mobile_push_delivery_status",
         ),
         CheckConstraint(
@@ -1855,7 +1855,7 @@ class MobilePushDeliveryModel(Base):
             name="ck_mobile_push_delivery_ticket_shape",
         ),
         CheckConstraint(
-            "status NOT IN ('receipt_pending', 'delivered') OR "
+            "status NOT IN ('receipt_pending', 'delivered', 'provider_accepted') OR "
             "provider_ticket_id IS NOT NULL",
             name="ck_mobile_push_delivery_receipt_shape",
         ),

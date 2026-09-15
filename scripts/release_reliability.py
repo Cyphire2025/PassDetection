@@ -42,13 +42,14 @@ def file_sha256(path: Path) -> str:
 class ReliabilityRelease(Release):
     def __init__(
         self, revision: str, root: Path = ROOT, *,
+        expected_schema: str = SCHEMA,
         previous_schema: str = PREVIOUS_SCHEMA,
         directory_name: str = "reliability-release",
         include_frontend: bool = True,
         preserve_release_artifacts: bool = False,
     ) -> None:
         super().__init__(
-            revision, root, expected_schema=SCHEMA, previous_schema=previous_schema,
+            revision, root, expected_schema=expected_schema, previous_schema=previous_schema,
             directory_name=directory_name,
             include_frontend=include_frontend,
             preserve_release_artifacts=preserve_release_artifacts,

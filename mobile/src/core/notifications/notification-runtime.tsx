@@ -125,9 +125,12 @@ export function NotificationRuntime() {
         response.notification.request.identifier,
       );
       if (!responseKey || handlingResponses.has(responseKey)) return;
-      if ((await getHandledNotificationResponse(accountKey)) === responseKey) return;
+      // Native startup can deliver the same response through both the listener
+      // and last-response lookup. Claim synchronously before either can await.
       handlingResponses.add(responseKey);
       try {
+        if ((await getHandledNotificationResponse(accountKey)) === responseKey) return;
+        if (!sessionStillActive()) return;
         const assignments = await refreshTrips();
         if (!sessionStillActive()) return;
         const assigned = isAssignedNotificationTrip(assignments.trips, data.trip_id);
@@ -136,6 +139,7 @@ export function NotificationRuntime() {
         // cannot replay it on a later render or process restart. Storage failure is
         // non-fatal to the user journey; the in-memory claim still coalesces this run.
         await setHandledNotificationResponse(accountKey, responseKey).catch(() => undefined);
+        if (!sessionStillActive()) return;
         if (!assigned) {
           if (expectedRole === 'coordinator') {
             useCoordinatorTripStore.getState().clearSelection(accountKey);

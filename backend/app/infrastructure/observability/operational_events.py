@@ -143,6 +143,7 @@ _ALLOWED_REASONS: dict[OperationalEvent, frozenset[str]] = {
             "ticket_accepted",
             "send_retry_scheduled",
             "send_failed",
+            "send_outcome_unknown",
             "receipt_delivered",
             "receipt_retry_scheduled",
             "receipt_failed",

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { AppState, Linking, StyleSheet, Text } from 'react-native';
+import { AppState, Linking, Platform, StyleSheet, Text } from 'react-native';
 
 import { useSessionStore } from '@/core/auth/session-store';
 import { principalAccountNamespace } from '@/core/auth/types';
@@ -16,6 +16,7 @@ const REGISTRATION_MESSAGES = {
   registered: 'This device is registered for trip alerts. Delivery also depends on your connection and phone settings.',
   permission_denied: 'Phone notifications are not allowed. Enable them in phone settings, then retry registration.',
   unsupported_device: 'Phone alerts require a physical device.',
+  unsupported_platform: 'Phone alerts are available on Android only in this version. Read Updates in the app and contact your travel team for urgent changes.',
   offline: 'Connect to the internet to register this device for alerts.',
   build_unconfigured: 'This app build is missing notification configuration. Contact your travel team for an updated build.',
   token_unavailable: 'The phone notification service is temporarily unavailable. Check your connection and retry.',
@@ -30,6 +31,7 @@ export function NotificationSettingsCard() {
   const [error, setError] = useState<string | null>(null);
   const [retrying, setRetrying] = useState(false);
   const demo = isDemoMode();
+  const supportedPlatform = Platform.OS === 'android';
 
   const refreshSettings = useCallback(() => readNotificationSettings()
     .then((next) => { setSettings(next); setError(null); })
@@ -57,7 +59,8 @@ export function NotificationSettingsCard() {
     }
   };
   const message = demo ? 'Phone alerts are unavailable in the demo.'
-    : settings && !settings.physicalDevice ? REGISTRATION_MESSAGES.unsupported_device
+    : !supportedPlatform ? REGISTRATION_MESSAGES.unsupported_platform
+      : settings && !settings.physicalDevice ? REGISTRATION_MESSAGES.unsupported_device
       : settings && !settings.permissionGranted ? REGISTRATION_MESSAGES.permission_denied
         : settings?.channelBlocked ? 'Trip updates are blocked in Android notification settings. Enable the Trip updates channel, then retry.'
           : session?.networkMode !== 'online' ? REGISTRATION_MESSAGES.offline
@@ -70,7 +73,7 @@ export function NotificationSettingsCard() {
       <Text accessibilityLiveRegion="polite" style={styles.description}>{message}</Text>
       {error ? <Text accessibilityRole="alert" style={styles.description}>{error}</Text> : null}
       <PrimaryButton label="Retry notification registration" tone="secondary" loading={retrying}
-        disabled={demo || !session || session.networkMode !== 'online'} onPress={() => void retry()} />
+        disabled={demo || !supportedPlatform || !session || session.networkMode !== 'online'} onPress={() => void retry()} />
       <PrimaryButton label="Open phone notification settings" tone="secondary" onPress={() => {
         void Linking.openSettings().catch(() => setError('Open this app’s notification settings from your phone Settings app.'));
       }} />

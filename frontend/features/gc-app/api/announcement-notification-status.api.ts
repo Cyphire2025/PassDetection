@@ -3,8 +3,8 @@ import apiClient from "@/lib/api/client";
 export interface AnnouncementNotificationStatus {
   announcement_id: string;
   provider_enabled: boolean;
-  recipient_counts: Record<"total" | "queued" | "sent" | "failed" | "cancelled" | "read" | "no_active_registration", number>;
-  device_delivery_counts: Record<"total" | "submitting" | "retry" | "receipt_pending" | "delivered" | "failed" | "cancelled", number>;
+  recipient_counts: Record<"total" | "queued" | "sent" | "failed" | "cancelled" | "read" | "no_active_registration" | "unknown", number>;
+  device_delivery_counts: Record<"total" | "submitting" | "retry" | "receipt_pending" | "delivered" | "failed" | "cancelled" | "provider_accepted" | "unknown", number>;
   failures: Array<{ scope: "recipient" | "device"; code: string; count: number }>;
   checked_at: string;
 }

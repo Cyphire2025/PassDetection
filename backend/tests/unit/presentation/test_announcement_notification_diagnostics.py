@@ -18,6 +18,9 @@ from app.application.mobile.announcement_notification_status import (
 from app.domain.entities.entities import UserRole
 from app.infrastructure.database.session import get_db_session
 from app.presentation.api.v1.routes import gc_app_content as routes
+from app.presentation.api.v1.schemas.announcement_notification_status import (
+    AnnouncementNotificationStatusResponse,
+)
 from app.presentation.dependencies.auth import get_current_active_user
 from app.presentation.middleware.error_handler import register_exception_handlers
 
@@ -25,7 +28,13 @@ from app.presentation.middleware.error_handler import register_exception_handler
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "enabled,provider,expected",
-    [(True, "expo", True), (True, "disabled", False), (False, "expo", False)],
+    [
+        (True, "expo", True),
+        (True, "fcm", True),
+        (True, "disabled", False),
+        (False, "expo", False),
+        (False, "fcm", False),
+    ],
 )
 async def test_notification_status_response_checks_runtime_provider_and_remains_read_only(
     enabled, provider, expected
@@ -35,8 +44,10 @@ async def test_notification_status_response_checks_runtime_provider_and_remains_
     summary = AnnouncementNotificationStatus(
         announcement_id,
         expected,
-        AnnouncementRecipientCounts(total=2, queued=2),
-        AnnouncementDeviceDeliveryCounts(),
+        AnnouncementRecipientCounts(total=4, queued=1, sent=1, failed=1, unknown=1),
+        AnnouncementDeviceDeliveryCounts(
+            total=5, provider_accepted=2, unknown=1, delivered=1, retry=1
+        ),
         [],
         datetime.now(tz=UTC),
     )
@@ -63,8 +74,17 @@ async def test_notification_status_response_checks_runtime_provider_and_remains_
             session=session,
         )
     assert response.provider_enabled is expected
-    assert response.recipient_counts.total == 2
-    assert response.device_delivery_counts.total == 0
+    assert response.recipient_counts.total == 4
+    assert response.recipient_counts.failed == 1
+    assert response.recipient_counts.unknown == 1
+    assert response.device_delivery_counts.total == 5
+    assert response.device_delivery_counts.provider_accepted == 2
+    assert response.device_delivery_counts.unknown == 1
+    assert response.device_delivery_counts.delivered == 1
+    serialized = response.model_dump(mode="json")
+    assert serialized["recipient_counts"]["unknown"] == 1
+    assert serialized["device_delivery_counts"]["provider_accepted"] == 2
+    assert serialized["device_delivery_counts"]["unknown"] == 1
     report.assert_awaited_once_with(
         session,
         agency_id=agency_id,
@@ -75,6 +95,22 @@ async def test_notification_status_response_checks_runtime_provider_and_remains_
     )
     session.commit.assert_not_called()
     session.flush.assert_not_called()
+
+
+def test_additive_fcm_status_fields_default_to_zero_for_existing_status_payloads() -> None:
+    response = AnnouncementNotificationStatusResponse.model_validate(
+        {
+            "announcement_id": uuid.uuid4(),
+            "provider_enabled": False,
+            "recipient_counts": {"total": 1, "queued": 1},
+            "device_delivery_counts": {"total": 1, "receipt_pending": 1},
+            "checked_at": datetime.now(tz=UTC),
+        }
+    )
+    assert response.recipient_counts.unknown == 0
+    assert response.device_delivery_counts.provider_accepted == 0
+    assert response.device_delivery_counts.unknown == 0
+    assert response.device_delivery_counts.receipt_pending == 1
 
 
 @pytest.mark.asyncio

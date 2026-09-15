@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
-import { Linking } from 'react-native';
+import { Linking, Platform } from 'react-native';
 
 import { useSessionStore } from '@/core/auth/session-store';
 import type { MobileSession } from '@/core/auth/types';
@@ -21,8 +21,11 @@ const account: MobileSession = {
     forcePasswordChange: false },
 };
 
+const originalPlatform = Platform.OS;
+afterAll(() => { Object.defineProperty(Platform, 'OS', { configurable: true, value: originalPlatform }); });
 beforeEach(() => {
   jest.clearAllMocks();
+  Object.defineProperty(Platform, 'OS', { configurable: true, value: 'android' });
   useSessionStore.getState().setSession(account);
   usePushRegistrationState.setState({ scope: null, status: null });
   jest.mocked(readNotificationSettings).mockResolvedValue({ physicalDevice: true, permissionGranted: true, channelBlocked: false });
@@ -58,4 +61,15 @@ test('does not show another session’s successful registration', async () => {
   const screen = await render(<NotificationSettingsCard />);
   await waitFor(() => expect(screen.getByText(/has not been confirmed in this session/)).toBeTruthy());
   expect(screen.queryByText(/This device is registered/)).toBeNull();
+});
+
+test('iOS offers in-app updates and cannot claim Android delivery is ready', async () => {
+  Object.defineProperty(Platform, 'OS', { configurable: true, value: 'ios' });
+  usePushRegistrationState.getState().update('agency-a.account-a.session-a', 'registered');
+  const screen = await render(<NotificationSettingsCard />);
+  await waitFor(() => expect(screen.getByText(/Phone alerts are available on Android only/)).toBeTruthy());
+  expect(screen.getByText(/Read Updates in the app/)).toBeTruthy();
+  expect(screen.queryByText(/This device is registered/)).toBeNull();
+  await fireEvent.press(screen.getByText('Retry notification registration'));
+  expect(registerPushDevice).not.toHaveBeenCalled();
 });

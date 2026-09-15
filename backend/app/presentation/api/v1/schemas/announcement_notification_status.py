@@ -15,6 +15,7 @@ class AnnouncementRecipientCounts(BaseModel):
     cancelled: int = 0
     read: int = 0
     no_active_registration: int = 0
+    unknown: int = 0
 
 
 class AnnouncementDeviceDeliveryCounts(BaseModel):
@@ -25,6 +26,8 @@ class AnnouncementDeviceDeliveryCounts(BaseModel):
     delivered: int = 0
     failed: int = 0
     cancelled: int = 0
+    provider_accepted: int = 0
+    unknown: int = 0
 
 
 class AnnouncementNotificationFailure(BaseModel):
