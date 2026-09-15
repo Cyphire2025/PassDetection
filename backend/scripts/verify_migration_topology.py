@@ -7,7 +7,7 @@ from pathlib import Path
 from alembic.config import Config
 from alembic.script import ScriptDirectory
 
-EXPECTED_HEAD = "0096_mobile_phone_lookup"
+EXPECTED_HEAD = "0097_authored_notifications"
 UPLOAD_CONFIGURATION_REVISION = "0090_upload_configuration"
 SECURITY_REVISION = "0089_revoke_legacy_refresh"
 MERGE_REVISION = "0088_merge_my_photos_hardening"
@@ -27,7 +27,9 @@ def main() -> int:
     if heads != (EXPECTED_HEAD,):
         raise RuntimeError(f"Expected one Alembic head {EXPECTED_HEAD!r}; observed {heads!r}")
     head = scripts.get_revision(EXPECTED_HEAD)
-    if head.down_revision != "0095_mobile_fcm_delivery":
+    if head.down_revision != "0096_mobile_phone_lookup":
+        raise RuntimeError("Authored notifications must follow submitted phone lookup")
+    if scripts.get_revision("0096_mobile_phone_lookup").down_revision != "0095_mobile_fcm_delivery":
         raise RuntimeError("Submitted phone lookup must follow FCM delivery states")
     if scripts.get_revision("0095_mobile_fcm_delivery").down_revision != "0094_whatsapp_receipt_inbox":
         raise RuntimeError("FCM delivery states must follow the durable WhatsApp receipt inbox")
@@ -57,7 +59,7 @@ def main() -> int:
         )
 
     print(
-        "Alembic topology verified: 0096 follows 0095, 0094, 0093, 0092, 0091, 0090, 0089 and the preserved 0088 merge "
+        "Alembic topology verified: 0097 follows 0096, 0095, 0094, 0093, 0092, 0091, 0090, 0089 and the preserved 0088 merge "
         "of the My Photos and enterprise-hardening branches."
     )
     return 0

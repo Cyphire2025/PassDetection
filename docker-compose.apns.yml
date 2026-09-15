@@ -1,0 +1,20 @@
+# Optional production overlay, only after the protected APNs directory exists.
+# docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.apns.yml ...
+# Credentials remain outside source control; only the push worker can read them.
+services:
+  worker:
+    volumes: !override
+      - type: bind
+        source: /opt/global-connect-secrets/fcm
+        target: /run/gc-fcm
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: /opt/global-connect-secrets/apns
+        target: /run/gc-apns
+        read_only: true
+        bind:
+          create_host_path: false
+    environment:
+      MOBILE_PUSH_APNS_KEY_FILE: /run/gc-apns/AuthKey.p8

@@ -77,6 +77,7 @@ test('removes every authenticated route from navigation history when sign-out cl
   useSessionStore.getState().setSession(passengerSession);
   const screen = await render(<RootNavigation />);
 
+  expect(screen.getByTestId('root-screen:phone-alerts')).toBeTruthy();
   expect(screen.getByTestId('root-screen:(passenger)')).toBeTruthy();
   expect(screen.getByTestId('root-screen:document/[id]')).toBeTruthy();
   expect(screen.queryByTestId('root-screen:(manager)')).toBeNull();
@@ -86,6 +87,7 @@ test('removes every authenticated route from navigation history when sign-out cl
     useSessionStore.getState().clear();
   });
 
+  expect(screen.queryByTestId('root-screen:phone-alerts')).toBeNull();
   expect(screen.queryByTestId('root-screen:(passenger)')).toBeNull();
   expect(screen.queryByTestId('root-screen:document/[id]')).toBeNull();
   expect(screen.queryByTestId('root-screen:(manager)')).toBeNull();

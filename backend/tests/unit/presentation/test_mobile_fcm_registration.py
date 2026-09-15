@@ -148,7 +148,8 @@ async def _request(db_session, claims, installation, *, token=None, provider="fc
             json={
                 "provider": provider,
                 "installation_id": installation,
-                "push_token": token or f"synthetic-native-token-{uuid.uuid4().hex}",
+                "push_token": token or ("ab" * 32 if provider == "apns" else f"synthetic-native-token-{uuid.uuid4().hex}"),
+                **({"apns_environment": "development"} if provider == "apns" else {}),
             },
         )
 

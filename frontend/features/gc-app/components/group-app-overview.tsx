@@ -36,7 +36,7 @@ export function GroupAppOverview({ control, onNavigate }: {
       <div className="grid gap-4 md:grid-cols-2">
         <Task title="1. Set access & features" action="Manage access" description="Enable or pause the app, choose roles, and review access dates and passenger features." onClick={() => onNavigate("access")} />
         <Task title="2. Prepare trip documents" action="Manage documents" description="Upload the itinerary and shared PDFs as drafts. Review and publish each document when ready." onClick={() => onNavigate("documents")} />
-        <Task title="3. Publish announcements" action="Write announcement" description="Save drafts, publish now or schedule availability, and inspect notification delivery separately." onClick={() => onNavigate("announcements")} />
+        <Task title="3. Publish announcements" action="Write announcement" description="Save drafts, publish now or schedule when updates appear inside the trip in the app." onClick={() => onNavigate("announcements")} />
         <Task title="Review change history" action="View history" description="Check who changed app access, published content, or revoked access for this trip." onClick={() => onNavigate("history")} />
       </div>
     </div>

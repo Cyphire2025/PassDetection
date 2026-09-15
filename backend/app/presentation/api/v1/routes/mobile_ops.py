@@ -28,6 +28,7 @@ from app.application.mobile.attendance_qr_evidence import (
 from app.application.mobile.coordinator_roster_revision import (
     coordinator_roster_revision,
 )
+from app.application.mobile.push_registration import register_push_token
 from app.application.mobile.sync_journal import (
     append_attendance_realtime_invalidation,
     append_mobile_sync_change,
@@ -2108,96 +2109,10 @@ async def register_mobile_push_token(
 ) -> MobilePushRegistrationResponse:
     now = datetime.now(tz=UTC)
     device_session = await _current_device_session(session, claims)
-    expected_device_hash = hash_mobile_lookup(body.installation_id, purpose="device-installation")
-    if not hmac.compare_digest(expected_device_hash, device_session.device_identifier_hash):
-        raise AuthorizationError("Push registration is not available")
-    if (body.provider == "fcm" and device_session.platform != "android") or (
-        body.provider == "apns" and device_session.platform != "ios"
-    ):
-        raise AuthorizationError("Push registration is not available")
-
-    token_hash = hash_mobile_lookup(body.push_token, purpose="push-token")
-    registration = (
-        await session.execute(
-            select(MobilePushRegistrationModel)
-            .where(
-                MobilePushRegistrationModel.provider == body.provider,
-                MobilePushRegistrationModel.token_lookup_hash == token_hash,
-            )
-            .with_for_update()
-        )
-    ).scalar_one_or_none()
-    if registration is not None and registration.session_id != claims.session_id:
-        old_session = (
-            await session.execute(
-                select(MobileDeviceSessionModel).where(
-                    MobileDeviceSessionModel.id == registration.session_id
-                )
-            )
-        ).scalar_one_or_none()
-        if old_session is None or not hmac.compare_digest(
-            old_session.device_identifier_hash, device_session.device_identifier_hash
-        ):
-            raise AuthorizationError("Push registration is not available")
-
-    ciphertext = _push_fernet().encrypt(body.push_token.encode("utf-8"))
-    if registration is None:
-        registration = MobilePushRegistrationModel(
-            id=uuid.uuid4(),
-            agency_id=claims.agency_id,
-            session_id=claims.session_id,
-            provider=body.provider,
-            platform=device_session.platform,
-            environment="production" if get_settings().is_production else "development",
-            app_bundle_id=_APP_BUNDLE_ID,
-            token_ciphertext=ciphertext,
-            token_lookup_hash=token_hash,
-            token_key_version=1,
-            status="active",
-            notifications_authorized=True,
-            last_registered_at=now,
-            created_at=now,
-            updated_at=now,
-        )
-        session.add(registration)
-    else:
-        registration.agency_id = claims.agency_id
-        registration.session_id = claims.session_id
-        registration.platform = device_session.platform
-        registration.environment = "production" if get_settings().is_production else "development"
-        registration.app_bundle_id = _APP_BUNDLE_ID
-        registration.token_ciphertext = ciphertext
-        registration.token_key_version = 1
-        registration.status = "active"
-        registration.notifications_authorized = True
-        registration.last_registered_at = now
-        registration.last_failure_at = None
-        registration.last_failure_code = None
-        registration.revoked_at = None
-        registration.updated_at = now
-
-    previous_rows = list(
-        (
-            await session.execute(
-                select(MobilePushRegistrationModel).where(
-                    MobilePushRegistrationModel.session_id == claims.session_id,
-                    MobilePushRegistrationModel.agency_id == claims.agency_id,
-                    MobilePushRegistrationModel.provider.in_(
-                        ("fcm", "expo") if body.provider == "fcm" else (body.provider,)
-                    ),
-                    MobilePushRegistrationModel.id != registration.id,
-                    MobilePushRegistrationModel.status == "active",
-                )
-            )
-        ).scalars()
+    registration_id = await register_push_token(
+        session, body=body, claims=claims, device_session=device_session, now=now
     )
-    for previous in previous_rows:
-        previous.status = "revoked"
-        previous.notifications_authorized = False
-        previous.revoked_at = now
-        previous.updated_at = now
-    await session.flush()
-    return MobilePushRegistrationResponse(registration_id=registration.id)
+    return MobilePushRegistrationResponse(registration_id=registration_id)
 
 
 @router.post("/push/unregister", response_model=MobilePushUnregisterResponse)
@@ -2230,6 +2145,7 @@ async def unregister_mobile_push_token(
 @router.get("/notifications", response_model=MobileNotificationPageResponse)
 async def list_mobile_notifications(
     trip_id: uuid.UUID | None = Query(default=None),
+    notification_type: Literal["gc_alert"] | None = None,
     cursor: uuid.UUID | None = Query(default=None),
     unread_only: bool = Query(default=False),
     limit: int = Query(default=100, ge=1, le=_MAX_NOTIFICATION_PAGE),
@@ -2239,7 +2155,13 @@ async def list_mobile_notifications(
     if trip_id is not None:
         await MobileAccessPolicy(session).require_trip_access(claims, trip_id)
     now = datetime.now(tz=UTC)
+    from app.presentation.api.v1.routes.mobile_ops_notification_support import (
+        authored_notification_filter,
+    )
+
     recipient_filter = _notification_recipient_filter(claims)
+    if notification_type == "gc_alert":
+        recipient_filter = await authored_notification_filter(session, claims, now)
     accessible_groups = _accessible_group_ids(claims, now)
     filters = [
         MobileNotificationModel.agency_id == claims.agency_id,
@@ -2260,6 +2182,12 @@ async def list_mobile_notifications(
     ]
     if trip_id is not None:
         filters.append(MobileNotificationModel.group_id == trip_id)
+    if notification_type is not None:
+        filters.append(MobileNotificationModel.notification_type == notification_type)
+    else:
+        # Authored phone alerts have their own role-neutral inbox, separate from
+        # the in-app announcement/update feed.
+        filters.append(MobileNotificationModel.notification_type != "gc_alert")
     if unread_only:
         filters.append(MobileNotificationModel.read_at.is_(None))
     unread_count = (
@@ -2300,13 +2228,18 @@ async def mark_mobile_notification_read(
     claims: MobileAccessClaims = Depends(require_unrestricted_mobile_claims),
     session: AsyncSession = Depends(get_db_session),
 ) -> MobileNotificationReadResponse:
+    from app.presentation.api.v1.routes.mobile_ops_notification_support import (
+        authored_notification_filter,
+    )
+
+    authored_filter = await authored_notification_filter(session, claims, datetime.now(tz=UTC))
     notification = (
         await session.execute(
             select(MobileNotificationModel)
             .where(
                 MobileNotificationModel.id == notification_id,
                 MobileNotificationModel.agency_id == claims.agency_id,
-                _notification_recipient_filter(claims),
+                or_(_notification_recipient_filter(claims), authored_filter),
             )
             .with_for_update()
         )

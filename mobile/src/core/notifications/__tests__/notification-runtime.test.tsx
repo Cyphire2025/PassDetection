@@ -1,5 +1,5 @@
 import { act, render, waitFor } from '@testing-library/react-native';
-import type { NotificationResponse } from 'expo-notifications';
+import type { DevicePushToken, NotificationResponse } from 'expo-notifications';
 
 import { useSessionStore } from '@/core/auth/session-store';
 import type { MobileSession } from '@/core/auth/types';
@@ -15,15 +15,20 @@ const mockSetHandled = jest.fn();
 const mockRefreshTrips = jest.fn();
 const mockGetLastResponse = jest.fn();
 const mockAddResponseListener = jest.fn();
+const mockAddTokenListener = jest.fn();
+const mockAddReceivedListener = jest.fn();
+const mockRegisterPush = jest.fn();
+const mockInvalidateQueries = jest.fn();
 const mockSubscription = () => ({ remove: jest.fn() });
 
 jest.mock('expo-router', () => ({ useRouter: () => mockRouter }));
 jest.mock('expo-notifications', () => ({
-  addPushTokenListener: () => mockSubscription(),
-  addNotificationReceivedListener: () => mockSubscription(),
+  addPushTokenListener: (...args: unknown[]) => mockAddTokenListener(...args),
+  addNotificationReceivedListener: (...args: unknown[]) => mockAddReceivedListener(...args),
   addNotificationResponseReceivedListener: (...args: unknown[]) => mockAddResponseListener(...args),
   getLastNotificationResponseAsync: () => mockGetLastResponse(),
 }));
+jest.mock('@/core/query/query-client', () => ({ mobileQueryClient: { invalidateQueries: (...args: unknown[]) => mockInvalidateQueries(...args) } }));
 jest.mock('@/core/demo/demo-mode', () => ({ isDemoMode: () => false }));
 jest.mock('@/core/observability/mobile-observability', () => ({ recordMobileMetric: jest.fn() }));
 jest.mock('@/core/storage/secure-store', () => ({
@@ -43,10 +48,10 @@ jest.mock('@/features/trips/state/selected-trip-store', () => ({
 }));
 jest.mock('../departure-reminders', () => ({ reconcileDepartureReminders: async () => undefined }));
 jest.mock('../notification-service', () => ({
-  registerPushDevice: async () => true,
+  registerPushDevice: (...args: unknown[]) => mockRegisterPush(...args),
   invalidateCurrentPushRegistration: async () => undefined,
   notificationData: (response: NotificationResponse) => response.notification.request.content.data,
-  notificationContentData: () => null,
+  notificationContentData: (notification: NotificationResponse['notification']) => notification.request.content.data,
 }));
 
 const tripId = '11111111-1111-4111-8111-111111111111';
@@ -71,9 +76,9 @@ function deferred<T>() {
   return { promise, resolve };
 }
 
-function emitResponse() {
+function emitResponse(item = response) {
   const callback = mockAddResponseListener.mock.calls[0]![0] as (item: NotificationResponse) => void;
-  callback(response);
+  callback(item);
 }
 
 beforeEach(() => {
@@ -84,6 +89,10 @@ beforeEach(() => {
   mockRefreshTrips.mockReset().mockResolvedValue({ trips: [{ id: tripId }] });
   mockGetLastResponse.mockReset().mockResolvedValue(null);
   mockAddResponseListener.mockImplementation(mockSubscription);
+  mockAddTokenListener.mockImplementation(mockSubscription);
+  mockAddReceivedListener.mockImplementation(mockSubscription);
+  mockRegisterPush.mockReset().mockResolvedValue(true);
+  mockInvalidateQueries.mockResolvedValue(undefined);
 });
 
 test('coalesces the native cold-start response and listener before the storage read resolves', async () => {
@@ -135,4 +144,63 @@ test('a stored handled response does not navigate again', async () => {
   await waitFor(() => expect(mockGetHandled).toHaveBeenCalledTimes(1));
   expect(mockRefreshTrips).not.toHaveBeenCalled();
   expect(mockPush).not.toHaveBeenCalled();
+});
+
+const standaloneResponse: NotificationResponse = { ...response, notification: {
+  ...response.notification, request: { ...response.notification.request,
+    content: { ...response.notification.request.content, data: { route: 'updates', event_id: eventId } },
+  },
+} };
+
+test.each(['passenger', 'client_manager', 'coordinator'] as const)('opens standalone alerts for %s without loading or selecting trips', async (role) => {
+  useSessionStore.getState().setSession({ ...session, principal: { ...session.principal, principalType: role } });
+  mockGetLastResponse.mockResolvedValue(standaloneResponse);
+  await render(<NotificationRuntime />);
+  await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/phone-alerts'));
+  expect(mockRefreshTrips).not.toHaveBeenCalled();
+  expect(mockSelectTrip).not.toHaveBeenCalled();
+});
+
+test('a standalone tap cannot navigate after an account switch during its claim write', async () => {
+  const write = deferred<void>();
+  mockSetHandled.mockReturnValue(write.promise);
+  await render(<NotificationRuntime />);
+  await act(async () => { emitResponse(standaloneResponse); });
+  await waitFor(() => expect(mockSetHandled).toHaveBeenCalled());
+  await act(async () => { useSessionStore.getState().clear(); write.resolve(); });
+  expect(mockPush).not.toHaveBeenCalled();
+});
+
+test('foreground standalone APNs/FCM alerts refresh only the current account inbox', async () => {
+  await render(<NotificationRuntime />);
+  const callback = mockAddReceivedListener.mock.calls[0]![0] as (item: NotificationResponse['notification']) => void;
+  await act(async () => { callback(standaloneResponse.notification); });
+  expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey: ['phone-alerts', 'agency-a.account-a', 'session-a'] });
+  mockInvalidateQueries.mockClear();
+  await act(async () => { useSessionStore.getState().clear(); callback(standaloneResponse.notification); });
+  expect(mockInvalidateQueries).not.toHaveBeenCalled();
+});
+
+test('iOS initial token events are coalesced and reuse the native token without recursive acquisition', async () => {
+  const initialRegistration = deferred<boolean>();
+  mockRegisterPush.mockReturnValueOnce(initialRegistration.promise).mockResolvedValue(true);
+  await render(<NotificationRuntime />);
+  const listener = mockAddTokenListener.mock.calls[0]![0] as (token: DevicePushToken) => void;
+  const latest: DevicePushToken = { type: 'ios', data: 'cd'.repeat(32) };
+  await act(async () => { listener({ type: 'ios', data: 'ab'.repeat(32) }); listener(latest); });
+  expect(mockRegisterPush).toHaveBeenCalledTimes(1);
+  await act(async () => { initialRegistration.resolve(true); });
+  await waitFor(() => expect(mockRegisterPush).toHaveBeenCalledTimes(2));
+  expect(mockRegisterPush).toHaveBeenLastCalledWith(undefined, { nativeToken: latest });
+});
+
+test('a queued token event is discarded when its session is removed', async () => {
+  const initialRegistration = deferred<boolean>();
+  mockRegisterPush.mockReturnValueOnce(initialRegistration.promise);
+  const screen = await render(<NotificationRuntime />);
+  const listener = mockAddTokenListener.mock.calls[0]![0] as (token: DevicePushToken) => void;
+  await act(async () => { listener({ type: 'ios', data: 'ab'.repeat(32) }); });
+  await screen.unmount();
+  await act(async () => { initialRegistration.resolve(true); });
+  expect(mockRegisterPush).toHaveBeenCalledTimes(1);
 });

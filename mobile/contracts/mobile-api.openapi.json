@@ -3716,6 +3716,21 @@
       },
       "MobilePushRegistrationRequest": {
         "properties": {
+          "apns_environment": {
+            "anyOf": [
+              {
+                "enum": [
+                  "development",
+                  "production"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Apns Environment"
+          },
           "installation_id": {
             "maxLength": 128,
             "minLength": 16,
@@ -8456,6 +8471,26 @@
                 }
               ],
               "title": "Trip Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "notification_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "const": "gc_alert",
+                  "enum": [
+                    "gc_alert"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Notification Type"
             }
           },
           {

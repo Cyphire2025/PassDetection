@@ -16,6 +16,7 @@ from sqlalchemy.dialects.postgresql import insert as postgresql_insert
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute, undefer
+from sqlalchemy.sql.elements import ColumnElement
 
 from app.application.mobile.announcement_push_guard import (
     retain_dispatchable_announcement_notifications,
@@ -25,6 +26,13 @@ from app.application.mobile.fcm_dispatch_intents import (
     mark_delivery_unknown,
     recover_interrupted_fcm_intents,
     send_with_durable_fcm_intents,
+)
+from app.application.mobile.mobile_push_payload import (
+    validated_public_payload as _validated_public_payload,
+)
+from app.application.mobile.native_push_targets import (
+    NATIVE_PROVIDERS,
+    seed_native_delivery_targets,
 )
 from app.application.mobile.passenger_notification_authority import (
     authoritative_passenger_device_ids,
@@ -83,9 +91,7 @@ _COUNTDOWN_TEMPLATES: dict[int, tuple[tuple[str, str], ...]] = {
         ("Adventure starts tomorrow 🌍", "Documents ready? Bags zipped? Let's go."),
     ),
 }
-_ALLOWED_PUSH_ROUTES = frozenset(
-    {"trip", "documents", "qr", "updates", "readiness", "attendance", "passengers"}
-)
+
 
 
 @dataclass(frozen=True, slots=True)
@@ -518,33 +524,48 @@ async def dispatch_mobile_push_batch(
         raise ValueError("Mobile push batch limit must be between 1 and 100")
     # FCM uses individual HTTP requests. One concurrent wave bounds how long
     # authorization/source locks are held and avoids idle transaction expiry.
-    if provider.name == "fcm":
+    if provider.name in NATIVE_PROVIDERS:
         limit = min(limit, 20)
     if max_send_attempts < 1:
         raise ValueError("Mobile push send attempts must be positive")
     if retry_base_seconds < 1 or receipt_initial_delay_seconds < 1:
         raise ValueError("Mobile push retry delays must be positive")
-    if provider.name == "fcm" and (prepare := getattr(provider, "prepare", None)) is not None:
+    if provider.name in NATIVE_PROVIDERS and (prepare := getattr(provider, "prepare", None)) is not None:
         # Obtain OAuth outside the source/access lock transaction.
         await prepare()
     current = now or datetime.now(tz=UTC)
-    if provider.name == "fcm":
-        await recover_interrupted_fcm_intents(session, now=current)
+    if provider.name in NATIVE_PROVIDERS:
+        await recover_interrupted_fcm_intents(session, now=current, provider_name=provider.name)
     notifications = list(
         (
             await session.execute(
                 select(MobileNotificationModel)
                 .where(
+                    MobileNotificationModel.notification_type != "group_announcement",
                     or_(
-                        MobileNotificationModel.status == "queued",
                         and_(
-                            literal(provider.name == "fcm"),
+                            MobileNotificationModel.status == "queued",
+                            or_(
+                                literal(provider.name not in NATIVE_PROVIDERS),
+                                ~select(MobilePushDeliveryModel.id).where(
+                                    MobilePushDeliveryModel.notification_id == MobileNotificationModel.id
+                                ).exists(),
+                                select(MobilePushDeliveryModel.id).where(
+                                    MobilePushDeliveryModel.notification_id == MobileNotificationModel.id,
+                                    MobilePushDeliveryModel.provider == provider.name,
+                                    MobilePushDeliveryModel.status == "retry",
+                                    MobilePushDeliveryModel.next_attempt_at <= current,
+                                ).exists(),
+                            ),
+                        ),
+                        and_(
+                            literal(provider.name in NATIVE_PROVIDERS),
                             MobileNotificationModel.status == "sent",
                             select(MobilePushDeliveryModel.id)
                             .where(
                                 MobilePushDeliveryModel.notification_id
                                 == MobileNotificationModel.id,
-                                MobilePushDeliveryModel.provider == "fcm",
+                                MobilePushDeliveryModel.provider == provider.name,
                                 MobilePushDeliveryModel.status == "retry",
                                 MobilePushDeliveryModel.next_attempt_at <= current,
                             )
@@ -552,6 +573,10 @@ async def dispatch_mobile_push_batch(
                         ),
                     ),
                     MobileNotificationModel.available_at <= current,
+                    or_(
+                        MobileNotificationModel.next_push_attempt_at.is_(None),
+                        MobileNotificationModel.next_push_attempt_at <= current,
+                    ),
                     or_(
                         MobileNotificationModel.expires_at.is_(None),
                         MobileNotificationModel.expires_at > current,
@@ -593,6 +618,11 @@ async def dispatch_mobile_push_batch(
             )
         ).scalars()
     )
+    if provider.name in NATIVE_PROVIDERS:
+        await seed_native_delivery_targets(
+            session, notifications=notifications, deliveries=deliveries,
+            other_provider="apns" if provider.name == "fcm" else "fcm", now=current,
+        )
     delivery_by_target = {(item.notification_id, item.registration_id): item for item in deliveries}
 
     registrations = await _load_recipient_registrations(
@@ -601,7 +631,7 @@ async def dispatch_mobile_push_batch(
         provider_name=provider.name,
         now=current,
     )
-    if provider.name == "fcm":
+    if provider.name in NATIVE_PROVIDERS:
         allowed_targets = {
             (notification.id, notification.agency_id, registration.id)
             for notification in notifications
@@ -609,7 +639,7 @@ async def dispatch_mobile_push_batch(
         }
         for retry_target in deliveries:
             if (
-                retry_target.provider == "fcm"
+                retry_target.provider == provider.name
                 and retry_target.status == "retry"
                 and (
                     retry_target.notification_id,
@@ -631,7 +661,7 @@ async def dispatch_mobile_push_batch(
     for notification in notifications:
         key = _notification_recipient_key(notification)
         for registration in registrations.get(key, []):
-            if len(messages) >= limit and provider.name != "fcm":
+            if len(messages) >= limit and provider.name not in NATIVE_PROVIDERS:
                 break
             delivery = delivery_by_target.get((notification.id, registration.id))
             if delivery is not None:
@@ -702,6 +732,7 @@ async def dispatch_mobile_push_batch(
                     else notification.lock_screen_body
                 ),
                 data=data,
+                apns_environment=registration.apns_environment,
                 priority="high" if notification.priority in {"high", "emergency"} else "default",
                 ttl_seconds=min(
                     3600,
@@ -722,7 +753,7 @@ async def dispatch_mobile_push_batch(
             messages.append(message)
             registration_by_id[str(registration.id)] = registration
             delivery_by_message[(str(notification.id), str(registration.id))] = delivery
-        if len(messages) >= limit and provider.name != "fcm":
+        if len(messages) >= limit and provider.name not in NATIVE_PROVIDERS:
             break
 
     if not messages:
@@ -737,7 +768,7 @@ async def dispatch_mobile_push_batch(
                 item.notification_id == notification.id for item in deliveries
             ):
                 notification.failure_code = "no_active_registration"
-                notification.available_at = current + timedelta(minutes=5)
+                notification.next_push_attempt_at = current + timedelta(minutes=5)
                 notification.updated_at = current
         return 0
 
@@ -750,7 +781,7 @@ async def dispatch_mobile_push_batch(
             notifications=notifications,
             now=current,
         )
-        if provider.name == "fcm"
+        if provider.name in NATIVE_PROVIDERS
         else await provider.send(messages)
     )
     submitted_notifications: set[str] = set()
@@ -803,7 +834,7 @@ async def dispatch_mobile_push_batch(
     for target, delivery in delivery_by_message.items():
         if target in returned_targets:
             continue
-        if provider.name == "fcm":
+        if provider.name in NATIVE_PROVIDERS:
             mark_delivery_unknown(delivery, current)
             continue
         if delivery.send_attempts < max_send_attempts:
@@ -1108,6 +1139,12 @@ async def _retain_currently_authorized_notifications(
     now: datetime,
 ) -> list[MobileNotificationModel]:
     """Cancel due group pushes whose recipient no longer has trip access."""
+
+    from app.application.mobile.authored_notification_access import (
+        retain_authorized_authored_notifications,
+    )
+
+    notifications = await retain_authorized_authored_notifications(session, notifications=notifications, now=now)
 
     grouped = [
         item
@@ -1835,6 +1872,13 @@ async def _load_recipient_registrations(
     provider_name: str,
     now: datetime,
 ) -> dict[tuple[str, uuid.UUID, uuid.UUID], list[MobilePushRegistrationModel]]:
+    from app.application.mobile.authored_notification_access import (
+        load_authored_recipient_registrations,
+    )
+
+    authored = await load_authored_recipient_registrations(
+        session, notifications=notifications, provider_name=provider_name, now=now
+    )
     user_ids = {
         item.recipient_user_id for item in notifications if item.recipient_user_id is not None
     }
@@ -1844,17 +1888,19 @@ async def _load_recipient_registrations(
         if item.recipient_passenger_identity_id is not None
     }
     if not user_ids and not passenger_ids:
-        return {}
-    provider_scope = (
+        return authored
+    provider_scope: tuple[ColumnElement[bool], ...] = (
         (
-            MobilePushRegistrationModel.platform == "android",
+            MobilePushRegistrationModel.platform == ("android" if provider_name == "fcm" else "ios"),
             MobilePushRegistrationModel.environment
             == ("production" if get_settings().is_production else "development"),
             MobilePushRegistrationModel.app_bundle_id == "com.globalconnects.groupcompanion",
         )
-        if provider_name == "fcm"
+        if provider_name in NATIVE_PROVIDERS
         else ()
     )
+    if provider_name == "apns":
+        provider_scope += (MobilePushRegistrationModel.apns_environment.in_(("development", "production")),)
     recipient_filter = or_(
         and_(
             MobileDeviceSessionModel.subject_role.in_(("client_manager", "coordinator")),
@@ -1898,7 +1944,7 @@ async def _load_recipient_registrations(
     result: dict[
         tuple[str, uuid.UUID, uuid.UUID],
         list[MobilePushRegistrationModel],
-    ] = {}
+    ] = authored
     for registration, device_session in rows:
         if device_session.subject_role == "passenger" and device_session.id not in allowed_devices:
             continue
@@ -1917,6 +1963,8 @@ async def _load_recipient_registrations(
 def _notification_recipient_key(
     notification: MobileNotificationModel,
 ) -> tuple[str, uuid.UUID, uuid.UUID]:
+    if notification.recipient_type == "authored" and notification.authored_recipient_id is not None:
+        return ("authored", notification.authored_recipient_id, notification.agency_id)
     principal_id = (
         notification.recipient_passenger_identity_id
         if notification.recipient_type == "passenger"
@@ -1927,25 +1975,6 @@ def _notification_recipient_key(
     return (notification.recipient_type, principal_id, notification.agency_id)
 
 
-def _validated_public_payload(notification: MobileNotificationModel) -> dict[str, str]:
-    payload = notification.public_payload
-    if not isinstance(payload, dict) or set(payload) - {"route", "trip_id", "event_id"}:
-        raise ValueError("Notification public payload was malformed")
-    route = payload.get("route")
-    trip_id = payload.get("trip_id")
-    event_id = payload.get("event_id")
-    if route not in _ALLOWED_PUSH_ROUTES or trip_id != str(notification.group_id):
-        raise ValueError("Notification public payload was out of scope")
-    try:
-        uuid.UUID(str(trip_id))
-        if event_id is not None:
-            uuid.UUID(str(event_id))
-    except (TypeError, ValueError) as exc:
-        raise ValueError("Notification public payload contained an invalid identifier") from exc
-    result = {"route": str(route), "trip_id": str(trip_id)}
-    if event_id is not None:
-        result["event_id"] = str(event_id)
-    return result
 
 
 def _announcement_dedupe_key(announcement_id: uuid.UUID) -> str:

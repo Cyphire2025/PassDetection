@@ -28,12 +28,14 @@ const feedback = read("./components/gc-app-feedback.tsx");
 const types = read("./types.ts");
 const groupRoute = read("../../app/(dashboard)/gc-app/app-controls/[groupId]/page.tsx");
 
-test("GC App has one top-level sidebar entry and exactly two primary section links", () => {
+test("GC App has one top-level sidebar entry and three distinct primary sections", () => {
   assert.equal((sidebar.match(/label: "GC App"/g) ?? []).length, 1);
   assert.doesNotMatch(sidebar, /label: "Client Manager Accounts"/);
-  assert.equal((shell.match(/label: "(?:Client Manager Accounts|App Controls)"/g) ?? []).length, 2);
+  assert.match(sidebar, /label: "GC App",\s+href: ROUTES\.dashboard\.gcAppAppControls/);
+  assert.equal((shell.match(/label: "(?:Client Manager Accounts|App Controls|Notifications)"/g) ?? []).length, 3);
   assert.match(shell, /label: "Client Manager Accounts"/);
   assert.match(shell, /label: "App Controls"/);
+  assert.match(shell, /label: "Notifications"/);
 });
 
 test("GC App reuses the shared operations header without a repeated brand label", () => {
@@ -46,6 +48,7 @@ test("all GC App routes are centrally registered and protected", () => {
   assert.match(routes, /gcAppRoot: "\/gc-app"/);
   assert.match(routes, /gcAppClientManagerAccounts: "\/gc-app\/client-manager-accounts"/);
   assert.match(routes, /gcAppAppControls: "\/gc-app\/app-controls"/);
+  assert.match(routes, /gcAppNotifications: "\/gc-app\/notifications"/);
   assert.match(routes, /gcAppGroup: \(groupId: string\)/);
   assert.match(proxy, /"\/gc-app"/);
   assert.match(groupRoute, /params: Promise<\{ groupId: string \}>/);

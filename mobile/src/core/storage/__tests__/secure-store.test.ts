@@ -644,3 +644,19 @@ test('authentication-lock acknowledgement requires both durable replicas to clea
     'private file write unavailable',
   );
 });
+
+
+test('APNs markers retain the signed environment and accept legacy six-field markers only as legacy', async () => {
+  const marker = { formatVersion: 1 as const, sessionId: '33333333-3333-4333-8333-333333333333',
+    provider: 'apns' as const, tokenDigest: 'a'.repeat(64),
+    installationId: '44444444-4444-4444-8444-444444444444', registeredAtMs: 1_700_000_000_000 };
+  for (const value of [marker, { ...marker, apnsEnvironment: 'development' }, { ...marker, apnsEnvironment: 'production' }]) {
+    jest.mocked(SecureStore.getItemAsync).mockResolvedValueOnce(JSON.stringify(value));
+    await expect(getPushRegistrationMarker(namespace)).resolves.toEqual(value);
+  }
+  for (const value of [{ ...marker, apnsEnvironment: 'preview' },
+    { ...marker, provider: 'fcm', apnsEnvironment: 'development' }, { ...marker, unknown: 'field' }]) {
+    jest.mocked(SecureStore.getItemAsync).mockResolvedValueOnce(JSON.stringify(value));
+    await expect(getPushRegistrationMarker(namespace)).resolves.toBeNull();
+  }
+});

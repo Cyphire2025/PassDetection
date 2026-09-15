@@ -32,6 +32,15 @@ def configure_logging() -> None:
 
     Call once at application startup before any other code runs.
     """
+    # HTTPX includes the complete APNs device-token URL at INFO; HTTP/2 debug
+    # traces can include authentication headers. Keep transport internals quiet
+    # even in debug builds. Application delivery logs use bounded identifiers.
+    for noisy in (
+        "uvicorn.access", "sqlalchemy.engine", "boto3", "botocore",
+        "httpx", "httpcore", "hpack",
+    ):
+        logging.getLogger(noisy).setLevel(logging.WARNING)
+
     if structlog is None:
         logging.basicConfig(
             stream=sys.stdout,
@@ -81,11 +90,6 @@ def configure_logging() -> None:
     root_logger = logging.getLogger()
     root_logger.addHandler(handler)
     root_logger.setLevel(logging.DEBUG if settings.app_debug else logging.INFO)
-
-    # Silence noisy third-party loggers
-    for noisy in ("uvicorn.access", "sqlalchemy.engine", "boto3", "botocore"):
-        logging.getLogger(noisy).setLevel(logging.WARNING)
-
 
 class _StdlibStructuredLogger:
     def __init__(self, name: str) -> None:

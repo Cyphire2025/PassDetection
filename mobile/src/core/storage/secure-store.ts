@@ -50,6 +50,7 @@ export type PushRegistrationMarker = Readonly<{
   formatVersion: 1;
   sessionId: string;
   provider: 'expo' | 'fcm' | 'apns';
+  apnsEnvironment?: 'development' | 'production';
   tokenDigest: string;
   installationId: string;
   registeredAtMs: number;
@@ -104,7 +105,10 @@ function isDatabaseHealthMarker(value: unknown): value is DatabaseHealthMarker {
 function isPushRegistrationMarker(value: unknown): value is PushRegistrationMarker {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const marker = value as Record<string, unknown>;
-  return Object.keys(marker).length === 6
+  const hasEnvironment = Object.hasOwn(marker, 'apnsEnvironment');
+  return Object.keys(marker).length === (hasEnvironment ? 7 : 6)
+    && (!hasEnvironment || (marker.provider === 'apns'
+      && (marker.apnsEnvironment === 'development' || marker.apnsEnvironment === 'production')))
     && marker.formatVersion === 1
     && typeof marker.sessionId === 'string'
     && UUID_PATTERN.test(marker.sessionId)

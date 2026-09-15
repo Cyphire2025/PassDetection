@@ -34,6 +34,7 @@ from app.presentation.api.v1.routes.email_integrations import (
 )
 from app.presentation.api.v1.routes.gc_app import router as gc_app_router
 from app.presentation.api.v1.routes.gc_app_content import router as gc_app_content_router
+from app.presentation.api.v1.routes.gc_notifications import router as gc_notifications_router
 from app.presentation.api.v1.routes.health import router as health_router
 from app.presentation.api.v1.routes.menu import router as menu_router
 from app.presentation.api.v1.routes.mobile_associations import (
@@ -120,7 +121,9 @@ api_v1_router.include_router(
     tags=["Passports"],
 )
 api_v1_router.include_router(search_router, prefix="/search", tags=["Search"])
-api_v1_router.include_router(tour_operations_router, prefix="/tour-operations", tags=["Tour Operations"])
+api_v1_router.include_router(
+    tour_operations_router, prefix="/tour-operations", tags=["Tour Operations"]
+)
 api_v1_router.include_router(
     attendance_runtime_router,
     prefix="/tour-operations",
@@ -133,7 +136,9 @@ api_v1_router.include_router(
 )
 api_v1_router.include_router(rooming_router, prefix="/rooming", tags=["Rooming Lists"])
 api_v1_router.include_router(menu_router, prefix="/menu", tags=["Menu & Meal Planner"])
-api_v1_router.include_router(document_distribution_router, prefix="/document-distribution", tags=["Document Distribution"])
+api_v1_router.include_router(
+    document_distribution_router, prefix="/document-distribution", tags=["Document Distribution"]
+)
 api_v1_router.include_router(
     email_integrations_router,
     prefix="/email-integrations",
@@ -149,9 +154,13 @@ api_v1_router.include_router(
     prefix="/admin/email-ai-rollout",
     tags=["AI Travel Operations Rollout"],
 )
-api_v1_router.include_router(document_rename_router, prefix="/document-rename", tags=["Document Rename"])
+api_v1_router.include_router(
+    document_rename_router, prefix="/document-rename", tags=["Document Rename"]
+)
 api_v1_router.include_router(admin_router, prefix="/admin", tags=["Admin"])
-api_v1_router.include_router(admin_accounts_router, prefix="/admin/accounts", tags=["Account Administration"])
+api_v1_router.include_router(
+    admin_accounts_router, prefix="/admin/accounts", tags=["Account Administration"]
+)
 api_v1_router.include_router(
     gc_app_router,
     prefix="/gc-app/admin",
@@ -161,6 +170,9 @@ api_v1_router.include_router(
     gc_app_content_router,
     prefix="/gc-app/admin",
     tags=["GC App Content Publishing"],
+)
+api_v1_router.include_router(
+    gc_notifications_router, prefix="/gc-app/admin", tags=["GC App Notifications"]
 )
 api_v1_router.include_router(analytics_router, prefix="/analytics", tags=["Analytics"])
 api_v1_router.include_router(audit_logs_router, prefix="/audit-logs", tags=["Audit Logs"])

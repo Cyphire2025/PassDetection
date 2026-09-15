@@ -5,6 +5,7 @@ import { AppState } from 'react-native';
 
 import { useSessionStore } from '@/core/auth/session-store';
 import { isDemoMode } from '@/core/demo/demo-mode';
+import { mobileQueryClient } from '@/core/query/query-client';
 import { recordMobileMetric } from '@/core/observability/mobile-observability';
 import {
   getHandledNotificationResponse,
@@ -19,7 +20,6 @@ import { reconcileDepartureReminders } from './departure-reminders';
 import {
   notificationContentData,
   notificationData,
-  invalidateCurrentPushRegistration,
   registerPushDevice,
 } from './notification-service';
 import {
@@ -40,11 +40,10 @@ export function NotificationRuntime() {
   const sessionId = session?.sessionId ?? null;
   const networkMode = session?.networkMode ?? null;
   const registrationInFlight = useRef<Promise<void> | null>(null);
-  const tokenRotationScheduled = useRef(false);
 
-  const registerNotifications = useCallback(() => {
+  const registerNotifications = useCallback((nativeToken?: Notifications.DevicePushToken) => {
     if (!sessionId || networkMode !== 'online' || demoMode || registrationInFlight.current) return;
-    const operation = registerPushDevice()
+    const operation = registerPushDevice(undefined, nativeToken ? { nativeToken } : {})
       .then((registered) => {
         recordMobileMetric('push_registration', 1, {
           outcome: registered ? 'success' : 'cancelled',
@@ -76,20 +75,27 @@ export function NotificationRuntime() {
     const subscription = AppState.addEventListener('change', (state) => {
       if (state === 'active') registerNotifications();
     });
-    const tokenSubscription = Notifications.addPushTokenListener(() => {
-      if (tokenRotationScheduled.current) return;
-      tokenRotationScheduled.current = true;
+    let disposed = false;
+    let pendingToken: Notifications.DevicePushToken | null = null;
+    let rotationScheduled = false;
+    const tokenSubscription = Notifications.addPushTokenListener((token) => {
+      pendingToken = token;
+      if (rotationScheduled) return;
+      rotationScheduled = true;
       const activeRegistration = registrationInFlight.current ?? Promise.resolve();
-      void activeRegistration
-        .catch(() => undefined)
-        .then(() => invalidateCurrentPushRegistration())
-        .catch(() => undefined)
-        .finally(() => {
-          tokenRotationScheduled.current = false;
-          registerNotifications();
-        });
+      void activeRegistration.catch(() => undefined).finally(() => {
+        rotationScheduled = false;
+        if (disposed || !pendingToken) return;
+        const receivedToken = pendingToken;
+        pendingToken = null;
+        // iOS emits this event after getDevicePushTokenAsync too. Register the
+        // received token directly; requesting it here would create a loop.
+        registerNotifications(receivedToken);
+      });
     });
     return () => {
+      disposed = true;
+      pendingToken = null;
       subscription.remove();
       tokenSubscription.remove();
     };
@@ -131,6 +137,12 @@ export function NotificationRuntime() {
       try {
         if ((await getHandledNotificationResponse(accountKey)) === responseKey) return;
         if (!sessionStillActive()) return;
+        if (!data.trip_id) {
+          await setHandledNotificationResponse(accountKey, responseKey).catch(() => undefined);
+          if (!sessionStillActive()) return;
+          router.push('/phone-alerts');
+          return;
+        }
         const assignments = await refreshTrips();
         if (!sessionStillActive()) return;
         const assigned = isAssignedNotificationTrip(assignments.trips, data.trip_id);
@@ -179,7 +191,9 @@ export function NotificationRuntime() {
 
     const received = Notifications.addNotificationReceivedListener((notification) => {
       const data = notificationContentData(notification);
-      if (!data || !principalId) return;
+      if (!data || !sessionStillActive()) return;
+      void mobileQueryClient.invalidateQueries({ queryKey: ['phone-alerts', accountKey, expectedSessionId] });
+      if (!data.trip_id) return;
       void requestSync({
         scope: 'trip',
         tripId: data.trip_id,

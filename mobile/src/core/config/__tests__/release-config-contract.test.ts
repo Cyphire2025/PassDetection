@@ -11,6 +11,11 @@ describe("mobile release configuration", () => {
 
     expect(config.name).toBe("Global Connect Travels");
     expect(config.slug).toBe("group-companion");
+    expect(config.version).toBe("1.0.6");
+    expect(config.android?.versionCode).toBe(7);
+    expect(config.ios?.buildNumber).toBe("2");
+    expect(require("../../../../package.json").version).toBe(config.version);
+    expect(require("../../../../package-lock.json").packages[""].version).toBe(config.version);
     expect(config.runtimeVersion).toEqual({ policy: "fingerprint" });
     expect(config.updates?.enabled).toBe(false);
     expect(config.updates).toMatchObject({

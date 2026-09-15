@@ -42,7 +42,7 @@ bcrypt==5.0.0
 python-multipart==0.0.32  # file uploads
 
 # ── HTTP Client (for webhooks, cloud APIs) ────────────────────────────────────
-httpx==0.27.0
+httpx[http2]==0.27.0      # APNs requires HTTP/2
 google-auth==2.56.3       # Application Default Credentials for Play Integrity REST verification
 
 # ── Storage ───────────────────────────────────────────────────────────────────

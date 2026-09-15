@@ -30,6 +30,7 @@ class MobilePushMessage:
     data: dict[str, str]
     priority: str = "default"
     ttl_seconds: int = 3600
+    apns_environment: str | None = None
 
     def validate_public_payload(self) -> None:
         if set(self.data) - _ALLOWED_DATA_KEYS:
@@ -363,6 +364,16 @@ def get_mobile_push_provider(settings: MobileSettings) -> MobilePushProvider:
     if settings.push_provider == "expo":
         return ExpoMobilePushProvider(settings)
     return DisabledMobilePushProvider()
+
+
+def get_mobile_push_providers(settings: MobileSettings) -> list[MobilePushProvider]:
+    """Independent transports: a disabled iOS configuration must not block Android."""
+    providers = [get_mobile_push_provider(settings)]
+    if settings.push_apns_enabled:
+        from app.infrastructure.mobile_push.apns_provider import ApnsMobilePushProvider
+
+        providers.append(ApnsMobilePushProvider(settings))
+    return [provider for provider in providers if provider.enabled]
 
 
 def _batch_failure(

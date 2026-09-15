@@ -13,7 +13,11 @@ from app.application.mobile.notification_service import (
 from app.application.mobile.notification_service import (
     schedule_trip_countdown_notifications as reconcile_trip_countdown_notifications,
 )
-from app.application.mobile.push_provider import MobilePushProvider, get_mobile_push_provider
+from app.application.mobile.push_provider import (
+    MobilePushProvider,
+    get_mobile_push_provider,
+    get_mobile_push_providers,
+)
 from app.core.config.settings import get_settings
 from app.infrastructure.celery_async_runtime import celery_async_runtime
 from app.infrastructure.database.session import AsyncSessionFactory
@@ -36,8 +40,7 @@ logger = get_task_logger(__name__)
 def schedule_mobile_trip_countdowns(self: object) -> int:
     del self
     settings = get_settings()
-    provider = get_mobile_push_provider(settings.mobile)
-    if not settings.mobile.enabled or not provider.enabled:
+    if not settings.mobile.enabled or not get_mobile_push_providers(settings.mobile):
         return 0
     try:
         return int(
@@ -65,32 +68,35 @@ def schedule_mobile_trip_countdowns(self: object) -> int:
 def dispatch_mobile_push_notifications(self: object) -> int:
     del self
     settings = get_settings()
-    provider = get_mobile_push_provider(settings.mobile)
-    if not settings.mobile.enabled or not provider.enabled:
+    providers = get_mobile_push_providers(settings.mobile)
+    if not settings.mobile.enabled or not providers:
         return 0
-    try:
-        return int(
-            celery_async_runtime.run(
-                _dispatch_mobile_push(
-                    provider=provider,
-                    limit=settings.mobile.push_batch_size,
-                    max_send_attempts=settings.mobile.push_max_send_attempts,
-                    retry_base_seconds=settings.mobile.push_retry_base_seconds,
-                    receipt_initial_delay_seconds=(
-                        settings.mobile.push_receipt_initial_delay_seconds
-                    ),
+    submitted = 0
+    for provider in providers:
+        try:
+            submitted += int(
+                celery_async_runtime.run(
+                    _dispatch_mobile_push(
+                        provider=provider,
+                        limit=settings.mobile.push_batch_size,
+                        max_send_attempts=settings.mobile.push_max_send_attempts,
+                        retry_base_seconds=settings.mobile.push_retry_base_seconds,
+                        receipt_initial_delay_seconds=(
+                            settings.mobile.push_receipt_initial_delay_seconds
+                        ),
+                    )
                 )
             )
-        )
-    except Exception as exc:
-        # The transaction rolls back, leaving the durable queue retryable on
-        # the next beat.  Logs contain only the exception type, never tokens,
-        # notification bodies, tenant IDs, or passenger IDs.
-        logger.error(
-            "mobile_push_dispatch_failed",
-            extra={"error_type": type(exc).__name__},
-        )
-        return 0
+        except Exception as exc:
+            # A failing transport must not prevent the other platform from progressing.
+            logger.error(
+                "mobile_push_dispatch_failed",
+                extra={
+                    "error_type": type(exc).__name__,
+                    "provider": provider.name,
+                },
+            )
+    return submitted
 
 
 @celery_app.task(
@@ -112,9 +118,7 @@ def reconcile_mobile_push_delivery_receipts(self: object) -> int:
                     provider=provider,
                     limit=settings.mobile.push_receipt_batch_size,
                     max_attempts=settings.mobile.push_receipt_max_attempts,
-                    max_age=timedelta(
-                        hours=settings.mobile.push_receipt_max_age_hours
-                    ),
+                    max_age=timedelta(hours=settings.mobile.push_receipt_max_age_hours),
                     retry_base_seconds=settings.mobile.push_retry_base_seconds,
                 )
             )

@@ -10,6 +10,9 @@ from datetime import UTC, datetime, timedelta
 import pytest
 from sqlalchemy import select, text
 
+from app.application.mobile.announcement_push_guard import (
+    retain_dispatchable_announcement_notifications,
+)
 from app.application.mobile.notification_service import (
     _announcement_notification,
     cancel_announcement_notifications,
@@ -216,17 +219,17 @@ async def test_source_locked_first_defers_without_deadlock_or_wrong_cancellation
     async with pg_factory() as session:
         notification = await session.get(MobileNotificationModel, notification_id)
         assert notification.status == ("cancelled" if withdrawal_commits else "queued")
-        assert await dispatch_mobile_push_batch(
+        assert await _legacy_guard_then_dispatch(
             session,
             provider=provider,
             limit=100,
             now=now,
-        ) == (0 if withdrawal_commits else 1)
+        ) == 0
         await session.commit()
-    assert provider.calls == (0 if withdrawal_commits else 1)
+    assert provider.calls == 0
 
 
-async def test_validated_source_lock_is_held_through_provider_send_and_commit(
+async def test_legacy_source_guard_lock_is_held_until_commit_without_phone_send(
     pg_factory, push_target
 ):
     now, access_id, source_id, notification_id = push_target
@@ -237,21 +240,19 @@ async def test_validated_source_lock_is_held_through_provider_send_and_commit(
     )
     contender_pid = []
 
-    class PausedProvider(RecordingProvider):
-        async def send(self, messages):
-            send_entered.set()
-            await release_send.wait()
-            return await super().send(messages)
-
-    provider = PausedProvider()
+    provider = RecordingProvider()
 
     async def dispatch():
         async with pg_factory() as session:
-            result = await dispatch_mobile_push_batch(
-                session, provider=provider, limit=100, now=now
-            )
+            notification = await session.scalar(select(MobileNotificationModel).where(
+                MobileNotificationModel.id == notification_id).with_for_update())
+            retained = await retain_dispatchable_announcement_notifications(
+                session, notifications=[notification], now=now)
+            assert retained == [notification]
+            send_entered.set()
+            await release_send.wait()
             await session.commit()
-            return result
+            return len(retained)
 
     async def withdraw():
         async with pg_factory() as session:
@@ -282,7 +283,7 @@ async def test_validated_source_lock_is_held_through_provider_send_and_commit(
         second = asyncio.create_task(withdraw())
         await asyncio.wait_for(withdrawal_started.wait(), timeout=5)
         await _wait_blocked(pg_factory, contender_pid[0])
-        assert not second.done()  # Withdrawal cannot commit during the outbound call.
+        assert not second.done()  # The legacy source guard holds its lock until commit.
         release_send.set()
         assert await asyncio.wait_for(first, timeout=5) == 1
         await asyncio.wait_for(second, timeout=5)
@@ -297,10 +298,9 @@ async def test_validated_source_lock_is_held_through_provider_send_and_commit(
         assert (await session.get(GCAnnouncementModel, source_id)).status == "retired"
         assert (await session.get(MobileNotificationModel, notification_id)).status == "cancelled"
         delivery = await session.scalar(select(MobilePushDeliveryModel))
-        assert delivery.status == "receipt_pending"
-        assert delivery.provider_ticket_id == f"ticket-{notification_id}"
-        assert await dispatch_mobile_push_batch(session, provider=provider, limit=100, now=now) == 0
-    assert provider.calls == 1  # Only the send serialized before withdrawal was allowed.
+        assert delivery is None
+        assert await _legacy_guard_then_dispatch(session, provider=provider, limit=100, now=now) == 0
+    assert provider.calls == 0  # Announcements are now exclusively in-app.
 
 
 class ReceiptProvider(RecordingProvider):
@@ -317,16 +317,16 @@ class ReceiptProvider(RecordingProvider):
 
 
 async def _submit_ticket(factory, now):
+    """Seed accepted history from before the in-app-only release for receipt recovery."""
     async with factory() as session:
-        assert (
-            await dispatch_mobile_push_batch(
-                session,
-                provider=RecordingProvider(),
-                limit=100,
-                now=now,
-            )
-            == 1
-        )
+        notification = await session.scalar(select(MobileNotificationModel))
+        registration = await session.scalar(select(MobilePushRegistrationModel))
+        session.add(MobilePushDeliveryModel(
+            id=uuid.uuid4(), agency_id=notification.agency_id, notification_id=notification.id,
+            registration_id=registration.id, provider="expo", status="receipt_pending",
+            provider_ticket_id=f"ticket-{notification.id}", send_attempts=1,
+            receipt_attempts=0, next_attempt_at=now, submitted_at=now,
+        ))
         await session.commit()
 
 
@@ -348,7 +348,7 @@ async def test_receipt_refreshes_stale_parent_and_cannot_resurrect_cancelled_not
             source.retired_at = now
             if canceller == "source_guard":
                 assert (
-                    await dispatch_mobile_push_batch(
+                    await _legacy_guard_then_dispatch(
                         cancellation_session,
                         provider=provider,
                         limit=100,
@@ -480,3 +480,10 @@ async def test_withdrawal_waits_for_receipt_and_cancellation_wins_without_deadlo
         assert delivery.provider_ticket_id == f"ticket-{notification_id}"
     assert provider.calls == 0
     assert provider.receipt_calls == 1
+
+
+async def _legacy_guard_then_dispatch(session, *, provider, limit, now):
+    """Exercise legacy source/receipt ordering independently of the new push exclusion."""
+    rows = list(await session.scalars(select(MobileNotificationModel).with_for_update(skip_locked=True)))
+    await retain_dispatchable_announcement_notifications(session, notifications=rows, now=now)
+    return await dispatch_mobile_push_batch(session, provider=provider, limit=limit, now=now)

@@ -113,6 +113,8 @@ async def fcm_target(pg_factory, push_target):
         registration.provider = "fcm"
         registration.app_bundle_id = "com.globalconnects.groupcompanion"
         registration.token_ciphertext = mobile_push_fernet().encrypt(b"synthetic-native-fcm-token")
+        notification = await session.get(MobileNotificationModel, notification_id)
+        notification.notification_type = "personal_document_changed"
         await session.commit()
         registration_id = registration.id
     return now, access_id, source_id, notification_id, registration_id
@@ -235,7 +237,7 @@ async def test_crash_after_possible_send_preserves_intent_and_recovers_unknown_w
     assert interrupted.calls == 1 and later.calls == 0
 
 
-async def test_withdrawal_in_the_intent_commit_gap_prevents_provider_send(
+async def test_access_revocation_in_the_intent_commit_gap_prevents_provider_send(
     pg_factory,
     fcm_target,
     monkeypatch,
@@ -269,6 +271,7 @@ async def test_withdrawal_in_the_intent_commit_gap_prevents_provider_send(
                 )
                 source.status = "retired"
                 source.retired_at = now
+                access.is_enabled = False
                 await withdrawal.flush()
                 await cancel_announcement_notifications(
                     withdrawal,

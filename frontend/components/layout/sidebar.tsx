@@ -75,7 +75,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     label: "GC App",
-    href: ROUTES.dashboard.gcAppClientManagerAccounts,
+    href: ROUTES.dashboard.gcAppAppControls,
     icon: Smartphone,
     activePrefixes: [ROUTES.dashboard.gcAppRoot],
   },

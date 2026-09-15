@@ -16,7 +16,7 @@ from app.application.mobile.notification_service import (
 from app.application.mobile.push_provider import MobilePushMessage, MobilePushTicket
 from app.core.security.mobile_push_crypto import mobile_push_fernet
 from app.infrastructure.database.gc_mobile_models import (
-    GCAnnouncementModel,
+    GCGroupAccessModel,
     MobileDeviceSessionModel,
     MobilePassengerSessionIdentityModel,
     MobilePushDeliveryModel,
@@ -195,7 +195,7 @@ async def test_failed_intent_commit_prevents_any_fcm_request(db_session, monkeyp
 
 
 @pytest.mark.asyncio
-async def test_withdrawal_in_intent_commit_gap_prevents_send(db_session, monkeypatch):
+async def test_access_revocation_in_intent_commit_gap_prevents_send(db_session, monkeypatch):
     now = datetime.now(UTC)
     _, notification = await _target(db_session, now)
     original_commit = db_session.commit
@@ -203,7 +203,7 @@ async def test_withdrawal_in_intent_commit_gap_prevents_send(db_session, monkeyp
     async def commit_then_withdraw():
         await original_commit()
         await db_session.execute(
-            update(GCAnnouncementModel).values(status="revoked", revoked_at=now)
+            update(GCGroupAccessModel).values(is_enabled=False, revoked_at=now)
         )
         await original_commit()
 

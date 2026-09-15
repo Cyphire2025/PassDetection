@@ -33,6 +33,9 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
+from app.infrastructure.database import (
+    gc_notification_models as _gc_notification_models,  # noqa: F401
+)
 from app.infrastructure.database.model_base import JSONB, Base
 
 
@@ -1000,7 +1003,11 @@ class MobilePassengerIdentityModel(Base):
         ),
         ForeignKeyConstraint(
             ["passenger_submission_id", "agency_id", "group_id"],
-            ["passport_submissions.id", "passport_submissions.agency_id", "passport_submissions.group_id"],
+            [
+                "passport_submissions.id",
+                "passport_submissions.agency_id",
+                "passport_submissions.group_id",
+            ],
             name="fk_mobile_passenger_identity_submission_scope",
             ondelete="CASCADE",
         ),
@@ -1533,12 +1540,8 @@ class MobilePassengerSessionIdentityModel(Base):
         ),
     )
 
-    session_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True
-    )
-    passenger_identity_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True
-    )
+    session_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    passenger_identity_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
     agency_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     group_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     gc_group_access_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
@@ -1764,6 +1767,10 @@ class MobilePushRegistrationModel(Base):
         ),
         CheckConstraint("platform IN ('android', 'ios')", name="ck_mobile_push_platform"),
         CheckConstraint(
+            "apns_environment IS NULL OR apns_environment IN ('development', 'production')",
+            name="ck_mobile_push_apns_environment",
+        ),
+        CheckConstraint(
             "environment IN ('development', 'production')",
             name="ck_mobile_push_environment",
         ),
@@ -1792,6 +1799,7 @@ class MobilePushRegistrationModel(Base):
     platform: Mapped[str] = mapped_column(String(16), nullable=False)
     environment: Mapped[str] = mapped_column(String(16), nullable=False)
     app_bundle_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    apns_environment: Mapped[str | None] = mapped_column(String(11), nullable=True)
     token_ciphertext: Mapped[bytes] = mapped_column(LargeBinary, nullable=False, deferred=True)
     token_lookup_hash: Mapped[str] = mapped_column(String(64), nullable=False)
     token_key_version: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -1887,9 +1895,7 @@ class MobilePushDeliveryModel(Base):
         Index("ix_mobile_push_delivery_registration", "registration_id", "status"),
     )
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     agency_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("agencies.id", ondelete="CASCADE"),
@@ -1922,12 +1928,8 @@ class MobilePushDeliveryModel(Base):
         default=_utcnow,
         server_default=text("CURRENT_TIMESTAMP"),
     )
-    submitted_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
-    delivered_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+    submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    delivered_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     failed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     last_error_code: Mapped[str | None] = mapped_column(String(80), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
@@ -1957,17 +1959,31 @@ class MobileNotificationModel(Base):
             ondelete="CASCADE",
         ),
         CheckConstraint(
-            "recipient_type IN ('passenger', 'client_manager', 'coordinator')",
+            "recipient_type IN ('passenger', 'client_manager', 'coordinator', 'authored')",
             name="ck_mobile_notification_recipient_type",
         ),
         CheckConstraint(
             "(recipient_type = 'passenger' AND recipient_passenger_identity_id IS NOT NULL "
-            "AND recipient_user_id IS NULL) OR "
+            "AND recipient_user_id IS NULL AND authored_recipient_id IS NULL) OR "
             "(recipient_type IN ('client_manager', 'coordinator') "
             "AND recipient_user_id IS NOT NULL "
-            "AND recipient_passenger_identity_id IS NULL)",
+            "AND recipient_passenger_identity_id IS NULL AND authored_recipient_id IS NULL) OR "
+            "(recipient_type = 'authored' AND authored_recipient_id IS NOT NULL "
+            "AND recipient_user_id IS NULL AND recipient_passenger_identity_id IS NULL "
+            "AND group_id IS NULL AND gc_group_access_id IS NULL)",
             name="ck_mobile_notification_recipient_shape",
         ),
+        CheckConstraint(
+            "(notification_type = 'gc_alert') = (authored_recipient_id IS NOT NULL)",
+            name="ck_mobile_notification_authored_type",
+        ),
+        ForeignKeyConstraint(
+            ["authored_recipient_id", "agency_id"],
+            ["gc_notification_recipients.id", "gc_notification_recipients.agency_id"],
+            name="fk_mobile_notification_authored_recipient",
+            ondelete="CASCADE",
+        ),
+        UniqueConstraint("authored_recipient_id", name="uq_mobile_notification_authored_recipient"),
         CheckConstraint(
             "category IN ('announcement', 'itinerary', 'room', 'flight', 'document', "
             "'coordinator', 'emergency', 'security', 'sync')",
@@ -2022,6 +2038,7 @@ class MobileNotificationModel(Base):
             "created_at",
         ),
         Index("ix_mobile_notification_delivery", "status", "available_at"),
+        Index("ix_mobile_notification_push_due", "status", "next_push_attempt_at", "id"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -2040,6 +2057,9 @@ class MobileNotificationModel(Base):
         nullable=True,
     )
     notification_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    authored_recipient_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), nullable=True
+    )
     category: Mapped[str] = mapped_column(String(24), nullable=False)
     priority: Mapped[str] = mapped_column(
         String(16), nullable=False, default="normal", server_default="normal"
@@ -2067,6 +2087,9 @@ class MobileNotificationModel(Base):
     )
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    next_push_attempt_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     failure_code: Mapped[str | None] = mapped_column(String(80), nullable=True)
     created_at: Mapped[datetime] = mapped_column(

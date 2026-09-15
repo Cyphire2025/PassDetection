@@ -58,7 +58,7 @@ class _Database:
     def __init__(
         self,
         *,
-        versions: tuple[str, ...] = ("0096_mobile_phone_lookup",),
+        versions: tuple[str, ...] = ("0097_authored_notifications",),
         due_count: int = 0,
         blocked_count: int = 0,
         oldest_due_seconds: int = 0,

@@ -2,6 +2,8 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
+import { hasNotificationPermission } from './notification-permission';
+
 export type NotificationSettings = {
   physicalDevice: boolean;
   permissionGranted: boolean;
@@ -19,9 +21,7 @@ export async function readNotificationSettings(): Promise<NotificationSettings> 
     : null;
   return {
     physicalDevice: true,
-    permissionGranted: permission.granted
-      || permission.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL
-      || permission.ios?.status === Notifications.IosAuthorizationStatus.EPHEMERAL,
+    permissionGranted: hasNotificationPermission(permission),
     channelBlocked: channel?.importance === Notifications.AndroidImportance.NONE,
   };
 }

@@ -158,8 +158,6 @@ export function AppControlGroupWorkspace({ groupId }: { groupId: string }) {
       {announcements.data && (
         <div role="tabpanel" id="gc-trip-panel-announcements" aria-labelledby="gc-trip-tab-announcements" hidden={tab !== "announcements"} className="space-y-4">
           <AnnouncementsPanel
-            agencyId={agencyId}
-            groupId={groupId}
             announcements={announcements.data.items}
             total={announcements.data.total}
             disabled={control.isError || announcements.isError || control.data.lifecycle === "archived" || control.data.lifecycle === "deleted"}

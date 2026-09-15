@@ -9,6 +9,8 @@ import { readNotificationSettings } from '@/core/notifications/notification-sett
 
 import { NotificationSettingsCard } from '../notification-settings-card';
 
+const mockPush = jest.fn();
+jest.mock('expo-router', () => ({ useRouter: () => ({ push: mockPush }) }));
 jest.mock('@/core/demo/demo-mode', () => ({ isDemoMode: () => false }));
 jest.mock('@/core/notifications/notification-service', () => ({ registerPushDevice: jest.fn() }));
 jest.mock('@/core/notifications/notification-settings', () => ({ readNotificationSettings: jest.fn() }));
@@ -63,13 +65,26 @@ test('does not show another session’s successful registration', async () => {
   expect(screen.queryByText(/This device is registered/)).toBeNull();
 });
 
-test('iOS offers in-app updates and cannot claim Android delivery is ready', async () => {
+test('iOS confirms its own registration and allows a forced retry', async () => {
   Object.defineProperty(Platform, 'OS', { configurable: true, value: 'ios' });
   usePushRegistrationState.getState().update('agency-a.account-a.session-a', 'registered');
   const screen = await render(<NotificationSettingsCard />);
-  await waitFor(() => expect(screen.getByText(/Phone alerts are available on Android only/)).toBeTruthy());
-  expect(screen.getByText(/Read Updates in the app/)).toBeTruthy();
-  expect(screen.queryByText(/This device is registered/)).toBeNull();
+  await waitFor(() => expect(screen.getByText(/This device is registered/)).toBeTruthy());
   await fireEvent.press(screen.getByText('Retry notification registration'));
-  expect(registerPushDevice).not.toHaveBeenCalled();
+  await waitFor(() => expect(registerPushDevice).toHaveBeenCalledWith(undefined, { force: true }));
+});
+
+test('missing Apple signing configuration offers an updated build and in-app Updates', async () => {
+  Object.defineProperty(Platform, 'OS', { configurable: true, value: 'ios' });
+  usePushRegistrationState.getState().update('agency-a.account-a.session-a', 'build_unconfigured');
+  const screen = await render(<NotificationSettingsCard />);
+  await waitFor(() => expect(screen.getByText(/missing its signed notification configuration/)).toBeTruthy());
+  expect(screen.getByText(/still read Updates in the app/)).toBeTruthy();
+  expect(screen.queryByText(/This device is registered/)).toBeNull();
+});
+
+test('phone-alert inbox remains reachable without changing the selected trip', async () => {
+  const screen = await render(<NotificationSettingsCard />);
+  await fireEvent.press(screen.getByText('View phone alerts'));
+  expect(mockPush).toHaveBeenCalledWith('/phone-alerts');
 });

@@ -6,10 +6,12 @@ import uuid
 from datetime import datetime
 from typing import Literal
 
-from sqlalchemy import String, cast, func, or_, select
+from sqlalchemy import String, cast, false, func, or_, select, tuple_
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.elements import ColumnElement
 from sqlalchemy.sql.selectable import ScalarSelect
 
+from app.application.mobile.authored_notification_audience import collect_notification_audience
 from app.core.security.mobile_jwt import MobileAccessClaims
 from app.infrastructure.database.gc_mobile_models import (
     ClientManagerGroupAssignmentModel,
@@ -18,6 +20,11 @@ from app.infrastructure.database.gc_mobile_models import (
     GCGroupAccessModel,
     MobileNotificationModel,
     MobilePassengerIdentityModel,
+    MobilePassengerSessionIdentityModel,
+)
+from app.infrastructure.database.gc_notification_models import (
+    GCNotificationRecipientGrantModel,
+    GCNotificationRecipientModel,
 )
 from app.infrastructure.database.models import (
     ClientGroupModel,
@@ -29,6 +36,88 @@ from app.infrastructure.repositories.coordinator_assignment_lifecycle import (
 from app.presentation.api.v1.schemas.mobile_schemas import MobileNotificationResponse
 
 _ANNOUNCEMENT_NOTIFICATION_TYPE = "group_announcement"
+
+
+async def authored_notification_filter(
+    session: AsyncSession, claims: MobileAccessClaims, now: datetime
+) -> ColumnElement[bool]:
+    """Resolve current session authority once; filter every historical batch in SQL."""
+    group_ids: list[uuid.UUID] | None = None
+    principal_ids = {claims.principal_id}
+    bindings: dict[uuid.UUID, MobilePassengerSessionIdentityModel] = {}
+    if claims.principal_type == "passenger":
+        rows = (
+            await session.execute(
+                select(MobilePassengerSessionIdentityModel).where(
+                    MobilePassengerSessionIdentityModel.session_id == claims.session_id,
+                    MobilePassengerSessionIdentityModel.agency_id == claims.agency_id,
+                )
+            )
+        ).scalars()
+        bindings = {row.passenger_identity_id: row for row in rows}
+        principal_ids = set(bindings)
+        group_ids = list({row.group_id for row in bindings.values()})
+    if not principal_ids:
+        return false()
+    audience = await collect_notification_audience(
+        session,
+        agency_id=claims.agency_id,
+        group_ids=group_ids,
+        principal_ids=principal_ids,
+        now=now,
+    )
+    grants = [grant for grant in audience.grants if grant.role == claims.principal_type]
+    if claims.principal_type == "passenger":
+        grants = [
+            grant
+            for grant in grants
+            if (binding := bindings.get(grant.principal_id)) is not None
+            and binding.identity_claim_generation == grant.claim_generation
+            and binding.gc_group_access_id == grant.access_id
+            and binding.group_id == grant.group_id
+        ]
+    if not grants:
+        return false()
+    Grant, Recipient = GCNotificationRecipientGrantModel, GCNotificationRecipientModel
+    columns = (
+        Grant.principal_id,
+        Grant.group_id,
+        Grant.gc_group_access_id,
+        Grant.access_generation,
+        Recipient.person_key,
+    )
+    values = [
+        (
+            grant.principal_id,
+            grant.group_id,
+            grant.access_id,
+            grant.access_generation,
+            grant.person_key,
+        )
+        for grant in grants
+    ]
+    live_grant = tuple_(*columns).in_(values)
+    if claims.principal_type == "passenger":
+        live_grant = tuple_(*columns, Grant.identity_claim_generation).in_(
+            [(*value, grant.claim_generation) for value, grant in zip(values, grants, strict=True)]
+        )
+    exists = (
+        select(Grant.id)
+        .join(
+            Recipient,
+            (Recipient.id == Grant.recipient_id) & (Recipient.agency_id == Grant.agency_id),
+        )
+        .where(
+            Recipient.id == MobileNotificationModel.authored_recipient_id,
+            Recipient.agency_id == claims.agency_id,
+            Recipient.recipient_type == claims.principal_type,
+            MobileNotificationModel.notification_type == "gc_alert",
+            live_grant,
+        )
+        .correlate(MobileNotificationModel)
+        .exists()
+    )
+    return exists
 
 
 def _notification_recipient_filter(claims: MobileAccessClaims) -> ColumnElement[bool]:
@@ -70,8 +159,7 @@ def _published_announcement_notification_filter(
             GCAnnouncementModel.agency_id == agency_id,
             GCAnnouncementModel.agency_id == MobileNotificationModel.agency_id,
             GCAnnouncementModel.group_id == MobileNotificationModel.group_id,
-            GCAnnouncementModel.gc_group_access_id
-            == MobileNotificationModel.gc_group_access_id,
+            GCAnnouncementModel.gc_group_access_id == MobileNotificationModel.gc_group_access_id,
             GCAnnouncementModel.status == "published",
             normalized_announcement_id == normalized_notification_source_id,
         )
@@ -79,8 +167,7 @@ def _published_announcement_notification_filter(
         .exists()
     )
     return or_(
-        MobileNotificationModel.notification_type
-        != _ANNOUNCEMENT_NOTIFICATION_TYPE,
+        MobileNotificationModel.notification_type != _ANNOUNCEMENT_NOTIFICATION_TYPE,
         current_announcement_exists,
     )
 

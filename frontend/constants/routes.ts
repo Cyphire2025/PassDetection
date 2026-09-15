@@ -63,6 +63,7 @@ export const ROUTES = {
     gcAppRoot: "/gc-app",
     gcAppClientManagerAccounts: "/gc-app/client-manager-accounts",
     gcAppAppControls: "/gc-app/app-controls",
+    gcAppNotifications: "/gc-app/notifications",
     gcAppGroup: (groupId: string) => `/gc-app/app-controls/${groupId}`,
     admin: "/admin",
     staff: "/staff",

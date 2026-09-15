@@ -19,87 +19,25 @@ import {
 } from '@/core/storage/secure-store';
 
 import { usePushRegistrationState, type PushRegistrationStatus } from './notification-registration-state';
+import { nativeNotificationProvider, NotificationRegistrationError, type NotificationProvider } from './native-push-provider';
+
+export { configureTripUpdateChannel, fcmNotificationProvider, requestNotificationPermission, NotificationRegistrationError, type NotificationProvider } from './native-push-provider';
 
 const PUSH_REGISTRATION_REFRESH_MS = 24 * 60 * 60_000;
 
 export const NotificationDataSchema = z.object({
   route: z.enum(['trip', 'documents', 'qr', 'updates', 'readiness', 'attendance', 'passengers']),
-  trip_id: z.string().uuid(),
+  trip_id: z.string().uuid().optional(),
   event_id: z.string().uuid().optional(),
-}).strict();
+}).strict().refine((data) => Boolean(data.trip_id) || (data.route === 'updates' && Boolean(data.event_id)), {
+  message: 'Only an identified Updates notification can open without a trip.',
+});
 
 export type NotificationData = z.infer<typeof NotificationDataSchema>;
 
-export interface NotificationProvider {
-  register(): Promise<{ provider: 'expo' | 'fcm' | 'apns'; token: string } | null>;
-}
-
-export class NotificationRegistrationError extends Error {
-  constructor(readonly code: 'PUSH_PLATFORM_UNSUPPORTED' | 'PUSH_TOKEN_UNAVAILABLE') {
-    super(code === 'PUSH_PLATFORM_UNSUPPORTED'
-      ? 'Phone alerts are not supported on this platform. Read trip updates in the app.'
-      : 'The device push token is temporarily unavailable.');
-    this.name = 'NotificationRegistrationError';
-  }
-}
-
-export async function configureTripUpdateChannel(): Promise<void> {
-  if (Platform.OS !== 'android') return;
-  await Notifications.setNotificationChannelAsync('trip-updates', {
-    name: 'Trip updates',
-    importance: Notifications.AndroidImportance.HIGH,
-    lockscreenVisibility: Notifications.AndroidNotificationVisibility.PRIVATE,
-    vibrationPattern: [0, 180, 90, 240],
-    sound: 'default',
-  });
-}
-
-export async function requestNotificationPermission(): Promise<boolean> {
-  if (!Device.isDevice) return false;
-  // Android requires the channel before the runtime permission prompt so the
-  // operating system can present the final notification behavior accurately.
-  await configureTripUpdateChannel();
-
-  const current = await Notifications.getPermissionsAsync();
-  const permission = current.granted
-    ? current
-    : current.canAskAgain
-      ? await Notifications.requestPermissionsAsync()
-      : current;
-  const iosStatus = permission.ios?.status;
-  return permission.granted
-    || iosStatus === Notifications.IosAuthorizationStatus.PROVISIONAL
-    || iosStatus === Notifications.IosAuthorizationStatus.EPHEMERAL;
-}
-
-export const fcmNotificationProvider: NotificationProvider = {
-  async register() {
-    // Retire the installed Expo relay's persisted auto-registration preference.
-    // The Metro adapter also prevents its import-time token upload/listener.
-    if (Platform.OS !== 'android') {
-      throw new NotificationRegistrationError('PUSH_PLATFORM_UNSUPPORTED');
-    }
-    await Notifications.setAutoServerRegistrationEnabledAsync(false);
-    if (!(await requestNotificationPermission())) return null;
-    let nativeToken: Notifications.DevicePushToken;
-    try {
-      nativeToken = await Notifications.getDevicePushTokenAsync();
-    } catch {
-      throw new NotificationRegistrationError('PUSH_TOKEN_UNAVAILABLE');
-    }
-    if (nativeToken.type !== 'android' || typeof nativeToken.data !== 'string'
-      || nativeToken.data.length < 16 || nativeToken.data.length > 512
-      || /[^\x21-\x7e]/.test(nativeToken.data)
-      || /^(Exponent|Expo)PushToken\[/.test(nativeToken.data)) {
-      throw new NotificationRegistrationError('PUSH_TOKEN_UNAVAILABLE');
-    }
-    return { provider: 'fcm', token: nativeToken.data };
-  },
-};
-
 export async function registerPushDevice(
-  provider: NotificationProvider = fcmNotificationProvider,
-  options: Readonly<{ force?: boolean }> = {},
+  provider: NotificationProvider = nativeNotificationProvider,
+  options: Readonly<{ force?: boolean; nativeToken?: Notifications.DevicePushToken }> = {},
 ): Promise<boolean> {
   const session = useSessionStore.getState().session;
   if (!session) return false;
@@ -124,7 +62,8 @@ export async function registerPushDevice(
     return registered;
   } catch (error) {
     update(error instanceof NotificationRegistrationError
-      ? error.code === 'PUSH_PLATFORM_UNSUPPORTED' ? 'unsupported_platform' : 'token_unavailable'
+      ? error.code === 'PUSH_PLATFORM_UNSUPPORTED' ? 'unsupported_platform'
+        : error.code === 'PUSH_ENVIRONMENT_UNAVAILABLE' ? 'build_unconfigured' : 'token_unavailable'
       : 'registration_failed');
     throw error;
   }
@@ -132,13 +71,13 @@ export async function registerPushDevice(
 
 async function performPushRegistration(
   provider: NotificationProvider,
-  options: Readonly<{ force?: boolean }>,
+  options: Readonly<{ force?: boolean; nativeToken?: Notifications.DevicePushToken }>,
 ): Promise<boolean> {
   const requestSession = useSessionStore.getState().session;
   if (!requestSession?.accessToken || requestSession.networkMode !== 'online') return false;
   const authentication = captureAuthenticationSnapshot();
   const namespace = principalAccountNamespace(requestSession.principal);
-  const registration = await provider.register();
+  const registration = await provider.register(options.nativeToken);
   if (!registration) return false;
   const installationId = await getInstallationId();
   const tokenDigest = await Crypto.digestStringAsync(
@@ -160,6 +99,7 @@ async function performPushRegistration(
     !options.force
     && marker?.sessionId === requestSession.sessionId
     && marker.provider === registration.provider
+    && marker.apnsEnvironment === registration.apnsEnvironment
     && marker.tokenDigest === tokenDigest
     && marker.installationId === installationId
     && now - marker.registeredAtMs >= 0
@@ -174,6 +114,7 @@ async function performPushRegistration(
       provider: registration.provider,
       push_token: registration.token,
       installation_id: installationId,
+      ...(registration.provider === 'apns' ? { apns_environment: registration.apnsEnvironment } : {}),
     },
   });
   if (!result.registered) throw new Error('The server did not accept notification registration.');
@@ -188,6 +129,7 @@ async function performPushRegistration(
     formatVersion: 1,
     sessionId: requestSession.sessionId,
     provider: registration.provider,
+    ...(registration.provider === 'apns' ? { apnsEnvironment: registration.apnsEnvironment } : {}),
     tokenDigest,
     installationId,
     registeredAtMs: now,

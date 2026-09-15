@@ -849,6 +849,24 @@ class MobilePushRegistrationRequest(BaseModel):
     provider: Literal["expo", "fcm", "apns"]
     push_token: str = Field(min_length=16, max_length=512)
     installation_id: str = Field(min_length=16, max_length=128)
+    apns_environment: Literal["development", "production"] | None = None
+
+    @model_validator(mode="after")
+    def validate_native_push_registration(self) -> MobilePushRegistrationRequest:
+        if self.provider == "apns":
+            if self.apns_environment is None:
+                raise ValueError("APNs registration requires the signed provisioning environment")
+            if (
+                len(self.push_token) % 2
+                or any(char not in "0123456789abcdefABCDEF" for char in self.push_token)
+            ):
+                raise ValueError("APNs requires a hexadecimal native device token")
+            self.push_token = self.push_token.lower()
+        elif self.apns_environment is not None:
+            raise ValueError("APNs environment is only valid for APNs registrations")
+        if any(char.isspace() for char in self.push_token):
+            raise ValueError("Push token must not contain whitespace")
+        return self
 
     @field_validator("push_token", mode="before")
     @classmethod

@@ -107,6 +107,21 @@ def _foundation_constraint_signatures(
     """
 
     projected = set(model_constraints)
+    if table_name == "mobile_push_registrations":
+        projected = {item for item in projected if item[1] != "ck_mobile_push_apns_environment"}
+    if table_name == "mobile_notifications":
+        # 0097 adds a recipient shape for authored alerts. Preserve the exact
+        # historical 0069 contract while the 0097 PostgreSQL test checks the new one.
+        later_constraints = {
+            "ck_mobile_notification_recipient_type", "ck_mobile_notification_recipient_shape",
+            "ck_mobile_notification_authored_type", "fk_mobile_notification_authored_recipient",
+            "uq_mobile_notification_authored_recipient",
+        }
+        projected = {item for item in projected if item[1] not in later_constraints}
+        projected.add(("check", "ck_mobile_notification_recipient_type",
+                       "recipient_type IN ('passenger', 'client_manager', 'coordinator')"))
+        projected.add(("check", "ck_mobile_notification_recipient_shape",
+                       "(recipient_type = 'passenger' AND recipient_passenger_identity_id IS NOT NULL AND recipient_user_id IS NULL) OR (recipient_type IN ('client_manager', 'coordinator') AND recipient_user_id IS NOT NULL AND recipient_passenger_identity_id IS NULL)"))
     if table_name == "mobile_passenger_identities":
         projected.discard((
             "unique",
@@ -225,6 +240,10 @@ def test_gc_mobile_migration_matches_orm_tables_and_indexes() -> None:
             item.name: item for item in table_call.args[1:] if isinstance(item, sa.Column)
         }
         model_column_names = set(model_table.c.keys())
+        if table_name == "mobile_push_registrations":
+            model_column_names.discard("apns_environment")
+        if table_name == "mobile_notifications":
+            model_column_names -= {"authored_recipient_id", "next_push_attempt_at"}
         if table_name == "mobile_device_sessions":
             # Added by later migrations; the immutable foundation migration must
             # not be rewritten after production databases have applied it.
@@ -272,6 +291,7 @@ def test_gc_mobile_migration_matches_orm_tables_and_indexes() -> None:
                 # Added by 0094; keep the applied foundation migration immutable.
                 "ix_mobile_otp_provider_reference",
                 "uq_mobile_otp_pending_phone",
+                "ix_mobile_notification_push_due",
             }:
                 continue
             postgres_where = index.dialect_options["postgresql"].get("where")

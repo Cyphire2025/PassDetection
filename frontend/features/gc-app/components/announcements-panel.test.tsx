@@ -10,7 +10,7 @@ afterEach(() => { cleanup(); clients.splice(0).forEach((client) => client.clear(
 
 function renderPanel(overrides: Partial<ComponentProps<typeof AnnouncementsPanel>> = {}) {
   const props = {
-    agencyId: "agency-1", groupId: "group-1", announcements: [], isCreating: false, isUpdating: false,
+    announcements: [], isCreating: false, isUpdating: false,
     onCreate: vi.fn().mockResolvedValue(undefined), onUpdate: vi.fn().mockResolvedValue(undefined),
     onSetPublished: vi.fn().mockResolvedValue(undefined), onDelete: vi.fn().mockResolvedValue(undefined),
     ...overrides,
@@ -74,7 +74,8 @@ describe("Announcement publishing workflow", () => {
     expect(within(screen.getByRole("article", { name: "Future update" })).getByText("Scheduled")).toBeVisible();
     expect(within(screen.getByRole("article", { name: "Expired update" })).getByText("Expired")).toBeVisible();
     expect(screen.getByText("27 total")).toBeVisible();
-    expect(screen.getByText(/Publishing and phone notification delivery are separate/)).toBeVisible();
+    expect(screen.getByText(/Publishing an announcement does not send a phone alert/)).toBeVisible();
+    expect(screen.queryByText("Notification delivery status")).not.toBeInTheDocument();
   });
 
   it("protects unsaved editor text from selecting a different announcement", async () => {

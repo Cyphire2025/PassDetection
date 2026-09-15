@@ -27,6 +27,9 @@ export function RootNavigation() {
         <Stack.Screen name="index" />
         <Stack.Screen name="activate" />
         <Stack.Screen name="(auth)" />
+        <Stack.Protected guard={principalType !== null}>
+          <Stack.Screen name="phone-alerts" />
+        </Stack.Protected>
         <Stack.Protected guard={principalType === 'passenger'}>
           <Stack.Screen name="(passenger)" />
           <Stack.Screen name="document/[id]" />

@@ -10,6 +10,8 @@ import {
 } from '../notification-service';
 import { usePushRegistrationState } from '../notification-registration-state';
 
+const mockApnsEnvironment = jest.fn();
+const mockReleaseType = jest.fn();
 const mockDevice = { isDevice: true };
 const mockGetPermissions = jest.fn();
 const mockRequestPermissions = jest.fn();
@@ -43,6 +45,12 @@ const onlineSession: MobileSession = {
   },
 };
 
+jest.mock('expo-application', () => ({
+  getIosPushNotificationServiceEnvironmentAsync: () => mockApnsEnvironment(),
+  getIosApplicationReleaseTypeAsync: () => mockReleaseType(),
+  ApplicationReleaseType: { APP_STORE: 4 },
+}));
+
 jest.mock('expo-device', () => ({
   get isDevice() {
     return mockDevice.isDevice;
@@ -52,7 +60,7 @@ jest.mock('expo-device', () => ({
 jest.mock('expo-notifications', () => ({
   AndroidImportance: { HIGH: 4 },
   AndroidNotificationVisibility: { PRIVATE: 0 },
-  IosAuthorizationStatus: { PROVISIONAL: 3, EPHEMERAL: 4 },
+  IosAuthorizationStatus: { AUTHORIZED: 2, PROVISIONAL: 3, EPHEMERAL: 4 },
   getPermissionsAsync: (...args: unknown[]) => mockGetPermissions(...args),
   requestPermissionsAsync: (...args: unknown[]) => mockRequestPermissions(...args),
   setNotificationChannelAsync: (...args: unknown[]) => mockSetChannel(...args),
@@ -89,6 +97,8 @@ describe('notification registration', () => {
     usePushRegistrationState.setState({ scope: null, status: null });
     useSessionStore.getState().setSession(onlineSession);
     mockDevice.isDevice = true;
+    mockApnsEnvironment.mockResolvedValue('development');
+    mockReleaseType.mockResolvedValue(0);
     mockGetPermissions.mockResolvedValue({ granted: false, canAskAgain: true, ios: null });
     mockRequestPermissions.mockResolvedValue({ granted: true, canAskAgain: true, ios: null });
     mockSetChannel.mockResolvedValue(undefined);
@@ -232,13 +242,48 @@ describe('notification registration', () => {
     expect(mockApiRequest).toHaveBeenCalledTimes(1);
   });
 
-  it('reports iOS as unsupported without registering its APNs token as FCM', async () => {
-    Object.defineProperty(Platform, 'OS', { configurable: true, value: 'ios' });
+  it('reports an unsupported platform without registering a native token', async () => {
+    Object.defineProperty(Platform, 'OS', { configurable: true, value: 'web' });
     await expect(registerPushDevice()).rejects.toMatchObject({ code: 'PUSH_PLATFORM_UNSUPPORTED' });
     expect(usePushRegistrationState.getState().status).toBe('unsupported_platform');
     expect(mockGetPermissions).not.toHaveBeenCalled();
     expect(mockGetDeviceToken).not.toHaveBeenCalled();
     expect(mockGetExpoToken).not.toHaveBeenCalled();
+    expect(mockApiRequest).not.toHaveBeenCalled();
+  });
+
+  it.each(['development', 'production'])('registers APNs with its signed %s environment', async (environment) => {
+    Object.defineProperty(Platform, 'OS', { configurable: true, value: 'ios' });
+    mockApnsEnvironment.mockResolvedValue(environment);
+    mockGetDeviceToken.mockResolvedValue({ type: 'ios', data: 'AB'.repeat(32) });
+    await expect(registerPushDevice()).resolves.toBe(true);
+    expect(mockApiRequest).toHaveBeenCalledWith('/mobile/push/register', expect.objectContaining({
+      body: { provider: 'apns', push_token: 'ab'.repeat(32), apns_environment: environment,
+        installation_id: '44444444-4444-4444-8444-444444444444' },
+    }));
+    expect(mockSetPushRegistrationMarker).toHaveBeenCalledWith(expect.any(String),
+      expect.objectContaining({ provider: 'apns', apnsEnvironment: environment }));
+    expect(mockSetChannel).not.toHaveBeenCalled();
+    expect(mockGetExpoToken).not.toHaveBeenCalled();
+  });
+
+  it.each([undefined, 'development', 'production'])('refreshes legacy/changed APNs environment %s correctly', async (savedEnvironment) => {
+    Object.defineProperty(Platform, 'OS', { configurable: true, value: 'ios' });
+    mockApnsEnvironment.mockResolvedValue('production');
+    mockGetDeviceToken.mockResolvedValue({ type: 'ios', data: 'ab'.repeat(32) });
+    mockGetPushRegistrationMarker.mockResolvedValue({ sessionId: onlineSession.sessionId,
+      provider: 'apns', apnsEnvironment: savedEnvironment, tokenDigest: 'a'.repeat(64),
+      installationId: '44444444-4444-4444-8444-444444444444', registeredAtMs: Date.now(), formatVersion: 1 });
+    await expect(registerPushDevice()).resolves.toBe(true);
+    expect(mockApiRequest).toHaveBeenCalledTimes(savedEnvironment === 'production' ? 0 : 1);
+  });
+
+  it('shows missing signed Apple configuration as a build issue without registering', async () => {
+    Object.defineProperty(Platform, 'OS', { configurable: true, value: 'ios' });
+    mockGetDeviceToken.mockResolvedValue({ type: 'ios', data: 'ab'.repeat(32) });
+    mockApnsEnvironment.mockResolvedValue(null);
+    await expect(registerPushDevice()).rejects.toMatchObject({ code: 'PUSH_ENVIRONMENT_UNAVAILABLE' });
+    expect(usePushRegistrationState.getState().status).toBe('build_unconfigured');
     expect(mockApiRequest).not.toHaveBeenCalled();
   });
 
@@ -329,5 +374,28 @@ describe('direct FCM notification routing payloads', () => {
     expect(notificationContentData(notification({ ...route, from: 'test' }, 'date'))).toBeNull();
     Object.defineProperty(Platform, 'OS', { configurable: true, value: 'ios' });
     expect(notificationContentData(notification({ ...route, from: 'test' }))).toBeNull();
+  });
+});
+
+
+describe('standalone phone-alert payloads', () => {
+  const event = '22222222-2222-4222-8222-222222222222';
+  const notification = (data: Record<string, unknown>) => ({
+    request: { content: { data }, trigger: { type: 'push' } },
+  } as Parameters<typeof notificationContentData>[0]);
+  it('accepts an identified Updates alert without an announcement or trip', () => {
+    expect(notificationContentData(notification({ route: 'updates', event_id: event })))
+      .toEqual({ route: 'updates', event_id: event });
+  });
+  it.each([{ route: 'updates' }, { route: 'attendance', event_id: event },
+    { route: 'updates', event_id: 'invalid' }, { route: 'updates', event_id: event, url: '/admin' }])
+  ('rejects an unsafe or ambiguous standalone payload %j', (data) => {
+    expect(notificationContentData(notification(data))).toBeNull();
+  });
+  it('accepts the iOS native serializer result from the APNs custom body object', () => {
+    const apnsPayload = { aps: { alert: { title: 'Travel message', body: 'Open the app' } },
+      body: { route: 'updates', event_id: event } };
+    expect(notificationContentData(notification(apnsPayload.body))).toEqual(apnsPayload.body);
+    expect(notificationContentData(notification(apnsPayload))).toBeNull();
   });
 });

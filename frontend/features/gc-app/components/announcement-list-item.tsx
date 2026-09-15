@@ -1,13 +1,10 @@
-import { Bell, Pencil, Trash2 } from "lucide-react";
+import { MessageSquare, Pencil, Trash2 } from "lucide-react";
 import { Badge, Button } from "@/components/ui";
 import type { GcAnnouncement } from "../types";
 import { formatGcDateTime, gcPublicationState } from "../utils";
-import { AnnouncementNotificationStatusPanel } from "./announcement-notification-status";
 
-export function AnnouncementListItem({ announcement, agencyId, groupId, now, disabled, onEdit, onTogglePublished, onDelete }: {
+export function AnnouncementListItem({ announcement, now, disabled, onEdit, onTogglePublished, onDelete }: {
   announcement: GcAnnouncement;
-  agencyId: string | null;
-  groupId: string;
   now: number;
   disabled: boolean;
   onEdit: () => void;
@@ -18,7 +15,7 @@ export function AnnouncementListItem({ announcement, agencyId, groupId, now, dis
   return (
     <article className="space-y-4 rounded-xl border border-slate-200 p-4" aria-label={announcement.title}>
       <div className="flex min-w-0 gap-3">
-        <span className="h-fit rounded-lg bg-blue-50 p-2 text-blue-700"><Bell className="h-5 w-5" aria-hidden="true" /></span>
+        <span className="h-fit rounded-lg bg-blue-50 p-2 text-blue-700"><MessageSquare className="h-5 w-5" aria-hidden="true" /></span>
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h4 className="font-medium text-slate-900">{announcement.title}</h4>
@@ -35,7 +32,6 @@ export function AnnouncementListItem({ announcement, agencyId, groupId, now, dis
         <Button type="button" variant="secondary" size="sm" disabled={disabled} onClick={onTogglePublished}>{announcement.is_published ? "Unpublish" : "Publish"}</Button>
         <Button type="button" variant="danger" size="sm" disabled={disabled} leftIcon={<Trash2 className="h-4 w-4" aria-hidden="true" />} onClick={onDelete}>Delete</Button>
       </div>
-      <AnnouncementNotificationStatusPanel agencyId={agencyId} groupId={groupId} announcementId={announcement.id} version={announcement.version} />
     </article>
   );
 }

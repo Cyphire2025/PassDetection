@@ -32,8 +32,6 @@ interface AnnouncementForm {
 }
 
 export function AnnouncementsPanel({
-  agencyId,
-  groupId,
   announcements,
   total = announcements.length,
   disabled = false,
@@ -45,8 +43,6 @@ export function AnnouncementsPanel({
   onSetPublished,
   onDelete,
 }: {
-  agencyId: string | null;
-  groupId: string;
   announcements: GcAnnouncement[];
   total?: number;
   disabled?: boolean;
@@ -102,7 +98,7 @@ export function AnnouncementsPanel({
       else await onCreate(body);
       setEditingId(null);
       setForm(EMPTY_FORM);
-      setSuccess(publish ? "Announcement published with its availability dates. Check notification delivery separately." : "Draft saved. It is hidden from the app.");
+      setSuccess(publish ? "Announcement published in the app with its availability dates." : "Draft saved. It is hidden from the app.");
     } catch (saveError) {
       setError(gcAppErrorMessage(saveError, "The announcement could not be saved."));
     }
@@ -115,7 +111,7 @@ export function AnnouncementsPanel({
       {appAvailability && appAvailability !== "active" && <GcAlert tone="info" message="This trip is not currently available to app users. You can prepare announcements here; users also need trip access to see published content." />}
       <Card>
         <CardContent className="p-5"><fieldset disabled={disabled || busy} className="min-w-0 space-y-4">
-          <div><h3 className="font-semibold text-slate-900">{editingId ? "Edit announcement" : "Create group announcement"}</h3><p className="mt-1 text-sm text-slate-500">Draft messages remain hidden. Avoid sensitive passenger or document details in notification text.</p></div>
+          <div><h3 className="font-semibold text-slate-900">{editingId ? "Edit announcement" : "Create in-app announcement"}</h3><p className="mt-1 text-sm text-slate-500">Announcements appear inside this trip in the app. Drafts remain hidden. Use Notifications to send a separate phone alert.</p></div>
           <div className="grid gap-4 md:grid-cols-2">
             <Input label="Title" value={form.title} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} required />
             <GcSelect id="announcement-priority" label="Priority" value={form.priority} options={PRIORITY_OPTIONS} onChange={(priority) => setForm((current) => ({ ...current, priority: priority as GcAnnouncement["priority"] }))} />
@@ -125,7 +121,7 @@ export function AnnouncementsPanel({
             <Input label="Available from" type="datetime-local" value={form.availableFrom} onChange={(event) => setForm((current) => ({ ...current, availableFrom: event.target.value }))} />
             <Input label="Available until" type="datetime-local" value={form.availableUntil} onChange={(event) => setForm((current) => ({ ...current, availableUntil: event.target.value }))} />
           </div>
-          <p className="text-xs text-slate-500">Dates use your local timezone. A future start schedules app visibility; an expiry ends it. Publishing and phone notification delivery are separate states.</p>
+          <p className="text-xs text-slate-500">Dates use your local timezone. A future start schedules app visibility; an expiry ends it. Publishing an announcement does not send a phone alert.</p>
           {editingId && <p className="text-xs text-slate-500">Save draft prepares a hidden new version. The current published version stays visible until you publish its replacement or explicitly unpublish it.</p>}
           <div className="flex justify-end gap-2">
             {(editingId || hasEdits) && <Button type="button" variant="secondary" onClick={() => { setEditingId(null); setForm(EMPTY_FORM); setError(null); }} disabled={isUpdating}>{editingId ? "Cancel editing" : "Discard draft edits"}</Button>}
@@ -140,7 +136,7 @@ export function AnnouncementsPanel({
           <div className="flex items-center justify-between"><div><h3 className="font-semibold text-slate-900">Announcements</h3><p className="mt-1 text-sm text-slate-500">Drafts, scheduled messages, and published announcements for this trip.</p></div><Badge variant="secondary">{total} total</Badge></div>
           {hasEdits && <p className="text-xs text-slate-500">Save or discard your editor changes before changing another announcement.</p>}
           {announcements.length === 0 ? <p className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">No announcements on this page.</p> : announcements.map((announcement) => (
-            <AnnouncementListItem key={announcement.id} announcement={announcement} agencyId={agencyId} groupId={groupId} now={now} disabled={disabled || busy || hasEdits}
+            <AnnouncementListItem key={announcement.id} announcement={announcement} now={now} disabled={disabled || busy || hasEdits}
               onEdit={() => {
                 setEditingId(announcement.id);
                 setSuccess(null);

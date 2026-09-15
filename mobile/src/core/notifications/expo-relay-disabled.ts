@@ -9,6 +9,6 @@ const registration = requireOptionalNativeModule<{
 }>('NotificationsServerRegistrationModule');
 
 export async function setAutoServerRegistrationEnabledAsync(enabled: boolean): Promise<void> {
-  if (enabled) throw new Error('Expo push delivery is disabled. Use native Android FCM registration.');
+  if (enabled) throw new Error('Expo push delivery is disabled. Use native FCM or APNs registration.');
   await registration?.setRegistrationInfoAsync(null);
 }

@@ -11,10 +11,10 @@ const notificationsRoot = path.dirname(require.resolve('expo-notifications/packa
 const replacement = path.join(root, 'src/core/notifications/expo-relay-disabled.ts');
 
 test('suppresses both pinned Expo relay module entry paths before their side effects run', () => {
-  for (const entry of ['build/DevicePushTokenAutoRegistration.fx.js', 'src/DevicePushTokenAutoRegistration.fx.ts']) {
+  for (const platform of ['android', 'ios']) for (const entry of ['build/DevicePushTokenAutoRegistration.fx.js', 'src/DevicePushTokenAutoRegistration.fx.ts']) {
     const context = { resolveRequest: () => ({ type: 'sourceFile', filePath: path.join(notificationsRoot, entry) }) };
     const configured = withDirectFcmNotifications({}, root);
-    assert.deepEqual(configured.resolver.resolveRequest(context, './DevicePushTokenAutoRegistration.fx', 'android'), {
+    assert.deepEqual(configured.resolver.resolveRequest(context, './DevicePushTokenAutoRegistration.fx', platform), {
       type: 'sourceFile', filePath: replacement,
     });
   }

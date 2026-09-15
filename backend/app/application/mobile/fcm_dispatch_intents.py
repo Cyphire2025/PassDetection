@@ -19,6 +19,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.mobile.announcement_push_guard import (
     retain_dispatchable_announcement_notifications,
 )
+from app.application.mobile.mobile_push_payload import (
+    validated_public_payload as _validated_public_payload,
+)
 from app.application.mobile.push_provider import (
     MobilePushMessage,
     MobilePushProvider,
@@ -44,10 +47,12 @@ def mark_delivery_unknown(delivery: MobilePushDeliveryModel, now: datetime) -> N
     delivery.updated_at = now
 
 
-async def recover_interrupted_fcm_intents(session: AsyncSession, *, now: datetime) -> None:
+async def recover_interrupted_fcm_intents(
+    session: AsyncSession, *, now: datetime, provider_name: str = "fcm"
+) -> None:
     """Bounded parent-first recovery. A live sender owns its parent row lock."""
     due = (
-        MobilePushDeliveryModel.provider == "fcm",
+        MobilePushDeliveryModel.provider == provider_name,
         MobilePushDeliveryModel.status == "submitting",
         MobilePushDeliveryModel.updated_at < now - INTENT_TIMEOUT,
     )
@@ -108,7 +113,6 @@ async def send_with_durable_fcm_intents(
         _load_recipient_registrations,
         _notification_recipient_key,
         _retain_currently_authorized_notifications,
-        _validated_public_payload,
     )
 
     parent_ids = [item.id for item in notifications]
@@ -118,14 +122,14 @@ async def send_with_durable_fcm_intents(
         for item in await session.scalars(
             select(MobilePushDeliveryModel).where(
                 MobilePushDeliveryModel.notification_id.in_(parent_ids),
-                MobilePushDeliveryModel.provider == "fcm",
+                MobilePushDeliveryModel.provider == provider.name,
                 MobilePushDeliveryModel.status == "submitting",
             )
         )
         if (str(item.notification_id), str(item.registration_id)) in target_keys
     }
     if len(claims) != len(messages):
-        raise RuntimeError("FCM intent claim was incomplete")
+        raise RuntimeError("Native push intent claim was incomplete")
     # No HTTP request is made if this durable commit fails.
     await session.commit()
 
@@ -144,7 +148,9 @@ async def send_with_durable_fcm_intents(
     eligible = [
         item
         for item in current_parents
-        if item.status in {"queued", "sent"} and _is_due(item, recheck_now)
+        if item.status in {"queued", "sent"}
+        and item.notification_type != "group_announcement"
+        and _is_due(item, recheck_now)
     ]
     eligible = await retain_dispatchable_announcement_notifications(
         session,
@@ -159,7 +165,7 @@ async def send_with_durable_fcm_intents(
     registrations = await _load_recipient_registrations(
         session,
         notifications=eligible,
-        provider_name="fcm",
+        provider_name=provider.name,
         now=recheck_now,
     )
     allowed = {
@@ -203,6 +209,10 @@ async def send_with_durable_fcm_intents(
                         message.token,
                     )
                     and _validated_public_payload(parent) == message.data
+                    and (
+                        provider.name != "apns"
+                        or registration.apns_environment == message.apns_environment
+                    )
                 )
             except (InvalidToken, UnicodeDecodeError, ValueError):
                 valid = False

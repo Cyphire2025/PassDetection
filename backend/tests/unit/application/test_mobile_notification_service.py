@@ -116,6 +116,7 @@ async def _persist_push_target(
     db_session: AsyncSession,
     *,
     now: datetime,
+    notification_type: str = "personal_document_changed",
 ) -> tuple[
     MobilePushRegistrationModel,
     MobileNotificationModel,
@@ -176,6 +177,9 @@ async def _persist_push_target(
         available_at=now,
         expires_at=None,
     )
+    # The shared delivery fixture exercises transport reliability. Announcements
+    # are now in-app only; source-guard tests explicitly request the legacy type.
+    notification.notification_type = notification_type
     db_session.add_all(
         [
             group,
@@ -689,6 +693,7 @@ async def test_dispatch_uses_encrypted_token_and_marks_ticket_sent(
         available_at=now,
         expires_at=None,
     )
+    notification.notification_type = "personal_document_changed"
     db_session.add_all(
         [
             group,

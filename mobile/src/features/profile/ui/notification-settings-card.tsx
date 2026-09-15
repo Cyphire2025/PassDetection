@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { AppState, Linking, Platform, StyleSheet, Text } from 'react-native';
 
@@ -16,14 +17,15 @@ const REGISTRATION_MESSAGES = {
   registered: 'This device is registered for trip alerts. Delivery also depends on your connection and phone settings.',
   permission_denied: 'Phone notifications are not allowed. Enable them in phone settings, then retry registration.',
   unsupported_device: 'Phone alerts require a physical device.',
-  unsupported_platform: 'Phone alerts are available on Android only in this version. Read Updates in the app and contact your travel team for urgent changes.',
+  unsupported_platform: 'Phone alerts are unavailable on this platform. Read Updates in the app and contact your travel team for urgent changes.',
   offline: 'Connect to the internet to register this device for alerts.',
-  build_unconfigured: 'This app build is missing notification configuration. Contact your travel team for an updated build.',
+  build_unconfigured: 'This app build is missing its signed notification configuration. iPhone phone alerts need a push-enabled build signed with an Apple Developer Program team. Contact your travel team for an updated build; you can still read Updates in the app.',
   token_unavailable: 'The phone notification service is temporarily unavailable. Check your connection and retry.',
   registration_failed: 'Notification registration could not be confirmed with the server. Check your connection and retry.',
 };
 
 export function NotificationSettingsCard() {
+  const router = useRouter();
   const session = useSessionStore((state) => state.session);
   const scope = session ? `${principalAccountNamespace(session.principal)}.${session.sessionId}` : null;
   const status = usePushRegistrationState((state) => state.scope === scope ? state.status : null);
@@ -31,7 +33,7 @@ export function NotificationSettingsCard() {
   const [error, setError] = useState<string | null>(null);
   const [retrying, setRetrying] = useState(false);
   const demo = isDemoMode();
-  const supportedPlatform = Platform.OS === 'android';
+  const supportedPlatform = Platform.OS === 'android' || Platform.OS === 'ios';
 
   const refreshSettings = useCallback(() => readNotificationSettings()
     .then((next) => { setSettings(next); setError(null); })
@@ -61,6 +63,7 @@ export function NotificationSettingsCard() {
   const message = demo ? 'Phone alerts are unavailable in the demo.'
     : !supportedPlatform ? REGISTRATION_MESSAGES.unsupported_platform
       : settings && !settings.physicalDevice ? REGISTRATION_MESSAGES.unsupported_device
+      : status === 'build_unconfigured' ? REGISTRATION_MESSAGES.build_unconfigured
       : settings && !settings.permissionGranted ? REGISTRATION_MESSAGES.permission_denied
         : settings?.channelBlocked ? 'Trip updates are blocked in Android notification settings. Enable the Trip updates channel, then retry.'
           : session?.networkMode !== 'online' ? REGISTRATION_MESSAGES.offline
@@ -72,6 +75,7 @@ export function NotificationSettingsCard() {
       <Text accessibilityRole="header" style={styles.title}>Phone notifications</Text>
       <Text accessibilityLiveRegion="polite" style={styles.description}>{message}</Text>
       {error ? <Text accessibilityRole="alert" style={styles.description}>{error}</Text> : null}
+      <PrimaryButton label="View phone alerts" tone="secondary" onPress={() => router.push('/phone-alerts')} />
       <PrimaryButton label="Retry notification registration" tone="secondary" loading={retrying}
         disabled={demo || !supportedPlatform || !session || session.networkMode !== 'online'} onPress={() => void retry()} />
       <PrimaryButton label="Open phone notification settings" tone="secondary" onPress={() => {

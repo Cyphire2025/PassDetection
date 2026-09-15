@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Settings2, Smartphone, Users } from "lucide-react";
+import { Bell, Settings2, Smartphone, Users } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
 import { ROUTES } from "@/constants/routes";
 import { OperationsPageHeader } from "@/features/operations/components/operations-workspace-ui";
@@ -16,6 +16,12 @@ export const GC_APP_SECTION_LINKS = [
     href: ROUTES.dashboard.gcAppAppControls,
     description: "Trips, access and publishing",
     icon: Settings2,
+  },
+  {
+    label: "Notifications",
+    href: ROUTES.dashboard.gcAppNotifications,
+    description: "Review audiences and send phone alerts",
+    icon: Bell,
   },
   {
     label: "Client Manager Accounts",
@@ -48,7 +54,7 @@ export function GcAppShell({ children }: { children: ReactNode }) {
     <div className="space-y-5">
       <div className={isTripWorkspace ? "hidden sm:block" : undefined}><OperationsPageHeader
         title="GC App operations"
-        description="Set up each trip in App Controls, then assign Client Manager accounts where needed."
+        description="Manage trip access and in-app content, send phone notifications, and assign Client Manager accounts."
         icon={Smartphone}
       /></div>
 
@@ -58,7 +64,7 @@ export function GcAppShell({ children }: { children: ReactNode }) {
             const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`);
             const Icon = link.icon;
             return (
-              <li key={link.href} className="min-w-0">
+              <li key={link.href} className={`min-w-0 ${link.href === ROUTES.dashboard.gcAppClientManagerAccounts ? "col-span-2 sm:col-span-1" : ""}`}>
                 <Link
                   href={link.href as never}
                   aria-current={isActive ? "page" : undefined}

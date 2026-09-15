@@ -29,6 +29,8 @@ const androidFaceLivenessRegion =
 const androidFaceLivenessIdentityPoolId =
   process.env.GC_ANDROID_FACE_LIVENESS_IDENTITY_POOL_ID;
 
+const iosPushNotificationsEnabled = process.env.GC_IOS_PUSH_NOTIFICATIONS_ENABLED !== "false";
+
 const shouldValidateProductionEnvironment =
   process.env.EXPO_PUBLIC_APP_ENV === "production" ||
   process.env.GC_VALIDATE_PRODUCTION_PUBLIC_ENV === "true" ||
@@ -37,6 +39,10 @@ const appIntegrityBuild = validateAppIntegrityBuildEnvironment(
   process.env,
   shouldValidateProductionEnvironment,
 );
+
+if (shouldValidateProductionEnvironment && !iosPushNotificationsEnabled) {
+  throw new Error("Production iOS builds require push notifications. Personal-team testing must use a private development or preview build.");
+}
 
 if (shouldValidateProductionEnvironment) {
   validateProductionPublicEnvironment(process.env);
@@ -65,7 +71,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ...(process.env.EXPO_PUBLIC_EXPO_OWNER
       ? { owner: process.env.EXPO_PUBLIC_EXPO_OWNER }
       : {}),
-    version: "1.0.5",
+    version: "1.0.6",
     jsEngine: "hermes",
     orientation: "portrait",
     icon: "./assets/images/gc-app-icon.png",
@@ -92,7 +98,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     assetBundlePatterns: ["assets/**/*"],
     ios: {
       bundleIdentifier: APP_ID,
-      buildNumber: "1",
+      buildNumber: "2",
       supportsTablet: true,
       requireFullScreen: false,
       usesAppleSignIn: false,
@@ -120,7 +126,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     android: {
       package: APP_ID,
-      versionCode: 6,
+      versionCode: 7,
       ...(googleServicesFile ? { googleServicesFile } : {}),
       allowBackup: false,
       blockedPermissions: [
@@ -234,6 +240,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           enableBackgroundPlayback: false,
         },
       ],
+      // Entitlement mods execute in reverse registration order. Remove the
+      // optional capability after Expo adds it, only in the explicit test lane.
+      ["./plugins/with-ios-push-capability", { enabled: iosPushNotificationsEnabled }],
       [
         "expo-notifications",
         {
@@ -266,6 +275,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       reactCompiler: true,
     },
     extra: {
+      iosPushNotificationsEnabled,
       eas: {
         projectId: process.env.EXPO_PUBLIC_EAS_PROJECT_ID || undefined,
       },
