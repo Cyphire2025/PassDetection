@@ -1,5 +1,6 @@
 import apiClient from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
+import { downloadStreamedResponse } from "@/lib/api/streamed-download";
 
 export interface MenuDish {
   id: string;
@@ -280,11 +281,10 @@ export const menuApi = {
     planId: string;
     planName: string;
   }): Promise<void> => {
-    const response = await apiClient.get<Blob>(
-      API_ENDPOINTS.menu.planExport(planId),
-      { responseType: "blob" },
-    );
-    downloadBlob(response.data, `${safeFilename(planName)}.xlsx`);
+    await downloadStreamedResponse({
+      url: API_ENDPOINTS.menu.planExport(planId),
+      suggestedFilename: `${safeFilename(planName)}.xlsx`,
+    });
   },
 };
 
@@ -297,15 +297,4 @@ function safeFilename(value: string): string {
       .toLowerCase()
       .slice(0, 80) || "meal-plan"
   );
-}
-
-function downloadBlob(blob: Blob, filename: string): void {
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = filename;
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-  URL.revokeObjectURL(url);
 }

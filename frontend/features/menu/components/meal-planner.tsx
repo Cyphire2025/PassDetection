@@ -28,6 +28,7 @@ import {
 } from "@/components/ui";
 import { EmptyState } from "@/components/shared/empty-state";
 import { copyTextToClipboard } from "@/lib/utils/clipboard";
+import { isDownloadCancelled } from "@/lib/api/download-destination";
 import { cn } from "@/lib/utils/cn";
 import type {
   MealPlan,
@@ -270,6 +271,7 @@ export function MealPlanner({
         message: `${plan.name} exported to Excel.`,
       });
     } catch (error) {
+      if (isDownloadCancelled(error)) return;
       setFeedback({
         kind: "error",
         message: menuErrorMessage(error, "The Excel file could not be exported."),

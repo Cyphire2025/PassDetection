@@ -25,6 +25,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
+import { isDownloadCancelled } from "@/lib/api/download-destination";
 import { operationsApi, type RoomingHotel } from "../api/operations.api";
 import {
   useRoomingActions,
@@ -70,18 +71,9 @@ export function RoomingWorkspacePage({ groupId }: { groupId: string }) {
     setActionError(null);
     setIsExporting(true);
     try {
-      const blob = await operationsApi.exportRoomingHotel(activeHotel.id);
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = `${
-        activeHotel.hotel_name.replace(/[^a-z0-9]+/gi, "_").toLowerCase()
-      }_rooming_list.xlsx`;
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-      URL.revokeObjectURL(url);
+      await operationsApi.exportRoomingHotel(activeHotel.id, activeHotel.hotel_name);
     } catch (exportError) {
+      if (isDownloadCancelled(exportError)) return;
       setActionError(
         roomingErrorMessage(
           exportError,

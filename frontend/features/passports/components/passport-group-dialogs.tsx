@@ -1,5 +1,6 @@
 "use client";
 import { ConfirmDialog } from "@/components/ui";
+import { isDownloadCancelled } from "@/lib/api/download-destination";
 import { normalizeCities } from "../utils/passport-group-trip";
 import {
   PassportExportDialog,
@@ -142,7 +143,7 @@ export function PassportGroupDialogs({
               : exportMutation.isPending
           }
           onClose={() => setExportDialogKind(null)}
-          onDownload={({
+          onDownload={async ({
             mode,
             baselineExportId,
             supplementalFields,
@@ -153,8 +154,8 @@ export function PassportGroupDialogs({
               exportDialogKind === "passport_images"
                 ? exportImagesMutation
                 : exportMutation;
-            mutation.mutate(
-              {
+            try {
+              await mutation.mutateAsync({
                 groupId,
                 groupName: groupDetails?.group_name,
                 mode,
@@ -163,22 +164,20 @@ export function PassportGroupDialogs({
                 groupByField,
                 agencyMatchField,
                 requestId: createExportRequestId(),
-              },
-              {
-                onSuccess: () => setExportDialogKind(null),
-                onError: (exportError) => {
-                  setExportDialogKind(null);
-                  setImportMessage(
-                    mutationErrorMessage(
-                      exportError,
-                      exportDialogKind === "passport_images"
-                        ? "Image download failed"
-                        : "Excel export failed",
-                    ),
-                  );
-                },
-              },
-            );
+              });
+              setExportDialogKind(null);
+            } catch (exportError) {
+              if (isDownloadCancelled(exportError)) return;
+              setExportDialogKind(null);
+              setImportMessage(
+                mutationErrorMessage(
+                  exportError,
+                  exportDialogKind === "passport_images"
+                    ? "Image download failed"
+                    : "Excel export failed",
+                ),
+              );
+            }
           }}
         />
       )}

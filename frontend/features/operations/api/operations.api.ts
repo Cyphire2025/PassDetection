@@ -1,5 +1,6 @@
 import apiClient from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
+import { downloadStreamedResponse } from "@/lib/api/streamed-download";
 
 export interface AdminOverview {
   agencies: number;
@@ -782,14 +783,14 @@ export const operationsApi = {
   }: {
     filters: AuditLogFilters & { start_at: string; end_at: string };
     signal?: AbortSignal;
-  }): Promise<{ content: Blob; truncated: boolean }> => {
-    const response = await apiClient.get<Blob>(API_ENDPOINTS.auditLogs.export, {
+  }): Promise<{ truncated: boolean }> => {
+    const response = await downloadStreamedResponse({
+      url: API_ENDPOINTS.auditLogs.export,
       params: filters,
-      responseType: "blob",
+      suggestedFilename: `audit-logs-${new Date().toISOString().slice(0, 10)}.csv`,
       signal,
     });
     return {
-      content: response.data,
       truncated: String(response.headers["x-audit-export-truncated"]).toLowerCase() === "true",
     };
   },
@@ -903,9 +904,11 @@ export const operationsApi = {
     return data;
   },
 
-  exportRoomingHotel: async (hotelId: string): Promise<Blob> => {
-    const { data } = await apiClient.get<Blob>(API_ENDPOINTS.rooming.hotelExport(hotelId), { responseType: "blob" });
-    return data;
+  exportRoomingHotel: async (hotelId: string, hotelName = "hotel"): Promise<void> => {
+    await downloadStreamedResponse({
+      url: API_ENDPOINTS.rooming.hotelExport(hotelId),
+      suggestedFilename: `${hotelName}_rooming_list.xlsx`,
+    });
   },
 
   hotelCheckins: async (hotelId: string): Promise<HotelCheckinDashboard> => {
@@ -917,8 +920,11 @@ export const operationsApi = {
   updateHotelCheckin: async (checkinId: string, body: { key_issued?: boolean; welcome_letter_issued?: boolean; remarks?: string }): Promise<HotelCheckinPassenger> => {
     const { data } = await apiClient.patch<HotelCheckinPassenger>(API_ENDPOINTS.rooming.checkin(checkinId), body); return data;
   },
-  exportHotelCheckins: async (hotelId: string): Promise<Blob> => {
-    const { data } = await apiClient.get<Blob>(API_ENDPOINTS.rooming.checkinExport(hotelId), { responseType: "blob" }); return data;
+  exportHotelCheckins: async (hotelId: string, hotelName = "hotel"): Promise<void> => {
+    await downloadStreamedResponse({
+      url: API_ENDPOINTS.rooming.checkinExport(hotelId),
+      suggestedFilename: `${hotelName}_checkins.xlsx`,
+    });
   },
 
   assignTourGroupCoordinators: async (groupId: string, coordinatorIds: string[]): Promise<TourGroup> => {

@@ -21,6 +21,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 import { IntentPrefetchLink } from "@/components/shared/intent-prefetch-link";
+import { isDownloadCancelled } from "@/lib/api/download-destination";
 import {
   WorkspacePageHeader,
 } from "@/components/shared/workspace-ui";
@@ -576,7 +577,7 @@ function GroupWhatsAppBroadcastWorkspace({
                   </div>
                 </div>
 
-                {exportTracking.error && (
+                {exportTracking.error && !isDownloadCancelled(exportTracking.error) && (
                   <div
                     role="alert"
                     className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"

@@ -7,6 +7,7 @@ vi.mock("./client", () => ({
 }));
 
 import apiClient from "./client";
+import { dispatchSensitiveStateReset } from "@/features/auth/services/session-state";
 import {
   attachmentFilename,
   downloadStreamedResponse,
@@ -36,6 +37,7 @@ describe("downloadStreamedResponse", () => {
       value: vi.fn(),
     });
     vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
+    vi.spyOn(window, "prompt").mockReset().mockImplementation((_message, suggestedName) => suggestedName ?? "download.xlsx");
   });
 
   it("writes one response chunk at a time to a browser file sink", async () => {
@@ -148,6 +150,102 @@ describe("downloadStreamedResponse", () => {
     expect(cancel).toHaveBeenCalledOnce();
     expect(createWritable).not.toHaveBeenCalled();
     expect(window.URL.createObjectURL).not.toHaveBeenCalled();
+  });
+
+  it("opens Save As before requesting Excel and honors the user's name over server headers", async () => {
+    const write = vi.fn(async () => undefined);
+    const picker = vi.fn(async () => ({
+      name: "My renamed trip.xlsx",
+      createWritable: async () => ({ write, close: vi.fn(async () => undefined) }),
+    }));
+    Object.defineProperty(window, "showSaveFilePicker", { configurable: true, value: picker });
+    requestMock.mockResolvedValue({
+      data: byteStream([1, 2, 3]),
+      headers: { "content-disposition": 'attachment; filename="fixed-server-name.xlsx"' },
+    } as never);
+
+    const pending = downloadStreamedResponse({ url: "/excel", suggestedFilename: "Trip.xlsx" });
+    expect(picker).toHaveBeenCalledOnce();
+    expect(requestMock).not.toHaveBeenCalled();
+    const result = await pending;
+    expect(picker).toHaveBeenCalledWith(expect.objectContaining({
+      suggestedName: expect.stringMatching(/^Trip-\d{4}-\d{2}-\d{2}_.*-\d{4,}\.xlsx$/),
+      types: [{ description: "Excel workbook", accept: {
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+      } }],
+    }));
+    expect(result.filename).toBe("My renamed trip.xlsx");
+    expect(write).toHaveBeenCalledOnce();
+    expect(window.prompt).not.toHaveBeenCalled();
+  });
+
+  it("does not request or silently download an export when Save As is cancelled", async () => {
+    Object.defineProperty(window, "showSaveFilePicker", {
+      configurable: true,
+      value: vi.fn().mockRejectedValue(new DOMException("Cancelled", "AbortError")),
+    });
+    await expect(downloadStreamedResponse({ url: "/excel", suggestedFilename: "Trip.xlsx" }))
+      .rejects.toMatchObject({ name: "AbortError" });
+    expect(requestMock).not.toHaveBeenCalled();
+    expect(window.prompt).not.toHaveBeenCalled();
+    expect(window.URL.createObjectURL).not.toHaveBeenCalled();
+  });
+
+  it("does not export under a changed session after the user chooses a file", async () => {
+    let selectFile!: (value: { createWritable: ReturnType<typeof vi.fn> }) => void;
+    const createWritable = vi.fn();
+    Object.defineProperty(window, "showSaveFilePicker", {
+      configurable: true,
+      value: () => new Promise((resolve) => { selectFile = resolve; }),
+    });
+    const pending = downloadStreamedResponse({ url: "/excel", suggestedFilename: "Trip.xlsx" });
+    dispatchSensitiveStateReset("account_changed");
+    selectFile({ createWritable });
+    await expect(pending).rejects.toBe("session-reset");
+    expect(requestMock).not.toHaveBeenCalled();
+    expect(createWritable).not.toHaveBeenCalled();
+  });
+
+  it("uses the compatibility rename choice even when the server provides a fixed name", async () => {
+    vi.mocked(window.prompt).mockReturnValueOnce("Office roster");
+    requestMock.mockResolvedValueOnce({
+      data: byteStream([1]),
+      headers: { "content-disposition": 'attachment; filename="fixed.xlsx"' },
+    } as never);
+    let downloadedName = "";
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (this: HTMLAnchorElement) {
+      downloadedName = this.download;
+    });
+    const result = await downloadStreamedResponse({ url: "/excel", suggestedFilename: "Trip.xlsx" });
+    expect(result.filename).toBe("Office roster.xlsx");
+    expect(downloadedName).toBe("Office roster.xlsx");
+  });
+
+  it("discards the partial file if the session changes during the final write", async () => {
+    const close = vi.fn(async () => undefined);
+    const abort = vi.fn(async () => undefined);
+    Object.defineProperty(window, "showSaveFilePicker", {
+      configurable: true,
+      value: async () => ({
+        createWritable: async () => ({
+          write: async () => { dispatchSensitiveStateReset("logout"); },
+          close,
+          abort,
+        }),
+      }),
+    });
+    requestMock.mockResolvedValueOnce({ data: byteStream([1]), headers: {} } as never);
+    await expect(downloadStreamedResponse({ url: "/excel", suggestedFilename: "Trip.xlsx" }))
+      .rejects.toBe("session-reset");
+    expect(close).not.toHaveBeenCalled();
+    expect(abort).toHaveBeenCalledOnce();
+  });
+
+  it("cancels the compatibility rename prompt without making a request", async () => {
+    vi.mocked(window.prompt).mockReturnValueOnce(null);
+    await expect(downloadStreamedResponse({ url: "/excel", suggestedFilename: "Trip.xlsx" }))
+      .rejects.toMatchObject({ name: "AbortError" });
+    expect(requestMock).not.toHaveBeenCalled();
   });
 });
 

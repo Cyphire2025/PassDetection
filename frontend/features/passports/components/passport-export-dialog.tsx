@@ -35,7 +35,7 @@ interface PassportExportDialogProps {
     supplementalFields?: string[];
     groupByField?: string;
     agencyMatchField?: string;
-  }) => void;
+  }) => Promise<void>;
 }
 
 export function PassportExportDialog({
@@ -485,7 +485,7 @@ export function PassportExportDialog({
               || (isExcelFieldStep && (exportFields.isLoading || Boolean(exportFields.error)))
             }
             isLoading={isBusy}
-            onClick={() => {
+            onClick={async () => {
               if (!isImages && step === 1) {
                 setStep(2);
                 return;
@@ -494,7 +494,7 @@ export function PassportExportDialog({
               downloadStartedRef.current = true;
               setIsStartingDownload(true);
               try {
-                onDownload({
+                await onDownload({
                   mode,
                   ...(mode === "incremental" && baselineExportId
                     ? { baselineExportId }
@@ -505,10 +505,9 @@ export function PassportExportDialog({
                     agencyMatchField: agencyMatchField || undefined,
                   } : {}),
                 });
-              } catch (downloadError) {
+              } finally {
                 downloadStartedRef.current = false;
                 setIsStartingDownload(false);
-                throw downloadError;
               }
             }}
           >

@@ -17,6 +17,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Badge, Button, Skeleton } from "@/components/ui";
 import { cn } from "@/lib/utils/cn";
+import { isDownloadCancelled } from "@/lib/api/download-destination";
 import { operationsApi, type HotelCheckinDashboard as HotelCheckinDashboardData, type HotelCheckinPassenger } from "../api/operations.api";
 import { OperationsErrorNotice, OperationsSummaryItem, OperationsSummaryStrip } from "./operations-workspace-ui";
 
@@ -69,16 +70,9 @@ export function HotelCheckinDashboard({ hotelId }: { hotelId: string }) {
     setExportError(null);
     setExporting(true);
     try {
-      const blob = await operationsApi.exportHotelCheckins(hotelId);
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = "hotel_checkins.xlsx";
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-      URL.revokeObjectURL(url);
-    } catch {
+      await operationsApi.exportHotelCheckins(hotelId, data?.hotel_name);
+    } catch (error) {
+      if (isDownloadCancelled(error)) return;
       setExportError("The hotel check-in sheet could not be exported. Please try again.");
     } finally {
       setExporting(false);

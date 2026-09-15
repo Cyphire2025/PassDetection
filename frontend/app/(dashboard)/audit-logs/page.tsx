@@ -21,6 +21,7 @@ import {
 } from "@/components/shared/workspace-ui";
 import { Badge, Button, Input, Skeleton } from "@/components/ui";
 import { formatDateTime } from "@/lib/utils/format";
+import { isDownloadCancelled } from "@/lib/api/download-destination";
 import { selectUserRole, useAuthStore } from "@/stores/auth.store";
 import type {
   AuditLogFilters,
@@ -123,17 +124,11 @@ export default function AuditLogsPage() {
         signal: controller.signal,
       });
       if (controller.signal.aborted) return;
-      const url = URL.createObjectURL(exported.content);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `audit-logs-${new Date().toISOString().slice(0, 10)}.csv`;
-      link.click();
-      URL.revokeObjectURL(url);
       setExportNotice(exported.truncated
         ? "The export reached the 10,000-row safety limit. Narrow the time range for complete evidence."
         : "The audit export is ready.");
-    } catch {
-      if (controller.signal.aborted) return;
+    } catch (error) {
+      if (controller.signal.aborted || isDownloadCancelled(error)) return;
       setExportNotice("The audit export could not be prepared. Please try again.");
     } finally {
       if (exportControllerRef.current === controller) {

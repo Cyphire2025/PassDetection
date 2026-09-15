@@ -714,6 +714,7 @@ export const passportsApi = {
 
   exportGroup: async ({
     groupId,
+    groupName,
     mode,
     baselineExportId,
     requestId,
@@ -733,7 +734,7 @@ export const passportsApi = {
         group_by_field: groupByField,
         agency_match_field: agencyMatchField,
       },
-      suggestedFilename: `passport-export-${groupId}.xlsx`,
+      suggestedFilename: `${groupName?.trim() || groupId}_PASSPORTS.xlsx`,
       validateHeaders: (headers) => {
         requireExportHistoryId(headers["x-passport-export-history-id"]);
       },

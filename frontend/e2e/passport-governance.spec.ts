@@ -174,6 +174,138 @@ function authenticatedResponse() {
   };
 }
 
+test("All Groups opens Save As from the download click, supports cancel and rename, and increases suggested filenames", async ({ page }) => {
+  await installAdminCookie(page);
+  type SaveEvent = {
+    type: "picker" | "write" | "close";
+    suggestedName?: string;
+    selectedName?: string;
+    active?: boolean;
+    text?: string;
+  };
+  const saveEvents: SaveEvent[] = [];
+  const browserErrors: string[] = [];
+  const exportBodies: unknown[] = [];
+  let browserDownloads = 0;
+  page.on("pageerror", (error) => browserErrors.push(error.message));
+  page.on("download", () => { browserDownloads += 1; });
+  await page.exposeFunction("recordSavePickerEvent", (event: SaveEvent) => {
+    saveEvents.push(event);
+  });
+  await page.addInitScript(() => {
+    // Headless Chromium cannot drive Windows Save As. Keep the native boundary
+    // mocked while exercising the real click, mutation, request and stream.
+    const report = (window as unknown as Window & {
+      recordSavePickerEvent: (event: {
+        type: "picker" | "write" | "close";
+        suggestedName?: string;
+        selectedName?: string;
+        active?: boolean;
+        text?: string;
+      }) => Promise<void>;
+    }).recordSavePickerEvent;
+    let attempts = 0;
+    Object.defineProperty(window, "showSaveFilePicker", {
+      configurable: true,
+      value: async ({ suggestedName }: { suggestedName: string }) => {
+        attempts += 1;
+        const selectedName = `Staff renamed export ${attempts}.xlsx`;
+        const active = navigator.userActivation.isActive;
+        await report({ type: "picker", suggestedName, selectedName, active });
+        if (attempts === 1) throw new DOMException("User cancelled Save As", "AbortError");
+        return {
+          name: selectedName,
+          createWritable: async () => ({
+            write: async (chunk: Uint8Array) => {
+              await report({ type: "write", selectedName, text: new TextDecoder().decode(chunk) });
+            },
+            close: async () => { await report({ type: "close", selectedName }); },
+            abort: async () => undefined,
+          }),
+        };
+      },
+    });
+  });
+  await page.route("**/api/v1/**", async (route) => {
+    const request = route.request();
+    const pathname = new URL(request.url()).pathname;
+    if (pathname === "/api/v1/auth/refresh") return json(route, authenticatedResponse());
+    if (pathname === "/api/v1/auth/me") return json(route, admin);
+    if (pathname === "/api/v1/notifications/feed") {
+      return json(route, { items: [], unread_count: 0, next_cursor: null });
+    }
+    if (pathname === "/api/v1/passports/groups") return json(route, [groupSummary]);
+    if (pathname === "/api/v1/passports/groups/export-fields") {
+      return json(route, {
+        group_ids: [groupLink.id],
+        fields: [],
+        grouping_fields: [],
+        default_selected_fields: [],
+        default_group_by_field: null,
+      });
+    }
+    if (pathname === "/api/v1/passports/groups/export.xlsx") {
+      exportBodies.push(request.postDataJSON());
+      await route.fulfill({
+        status: 200,
+        contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers: { "content-disposition": 'attachment; filename="same-server-name.xlsx"' },
+        body: "e2e-selected-groups-export",
+      });
+      return;
+    }
+    return json(route, request.method() === "GET" ? [] : {});
+  });
+
+  await page.goto("/passports");
+  await expect(page.getByRole("heading", { name: "All Groups", level: 1 })).toBeVisible();
+  await expect(page.locator("[data-nextjs-dialog]")).toHaveCount(0);
+  await page.getByRole("checkbox", { name: `Select ${groupLink.name}` }).click();
+  await page.getByRole("button", { name: "Export Selected", exact: true }).click();
+  const options = page.getByRole("dialog", { name: "Export selected groups" });
+  const downloadButton = options.getByRole("button", { name: "Download Excel" });
+  await expect(downloadButton).toBeEnabled();
+
+  // Cancelling Save As keeps the export options usable and makes no export request.
+  await downloadButton.click();
+  await expect.poll(() => saveEvents.filter((event) => event.type === "picker").length).toBe(1);
+  await expect(downloadButton).toBeEnabled();
+  await expect(options).toBeVisible();
+  await expect(options.getByRole("alert")).toHaveCount(0);
+  expect(exportBodies).toHaveLength(0);
+  expect(saveEvents.filter((event) => event.type === "write")).toHaveLength(0);
+
+  await downloadButton.click();
+  await expect.poll(() => saveEvents.filter((event) => event.type === "close").length).toBe(1);
+  await expect(options).toHaveCount(0);
+  expect(exportBodies).toEqual([{
+    group_ids: [groupLink.id], supplemental_fields: [], group_by_field: "none",
+  }]);
+
+  await page.getByRole("button", { name: "Export Selected", exact: true }).click();
+  await downloadButton.click();
+  await expect.poll(() => saveEvents.filter((event) => event.type === "close").length).toBe(2);
+  await expect(options).toHaveCount(0);
+  const pickerEvents = saveEvents.filter((event) => event.type === "picker");
+  expect(pickerEvents).toHaveLength(3);
+  expect(pickerEvents.every((event) => event.active)).toBe(true);
+  const suggestions = pickerEvents.map((event) => event.suggestedName!);
+  expect(new Set(suggestions).size).toBe(3);
+  const sequences = suggestions.map((name) => {
+    expect(name).toMatch(/^selected-groups-passports-.*-\d+\.xlsx$/);
+    return Number(name.match(/-(\d+)\.xlsx$/)![1]);
+  });
+  expect(sequences[1]).toBe(sequences[0] + 1);
+  expect(sequences[2]).toBe(sequences[1] + 1);
+  for (const selectedName of ["Staff renamed export 2.xlsx", "Staff renamed export 3.xlsx"]) {
+    expect(saveEvents.filter((event) => event.type === "write" && event.selectedName === selectedName)
+      .map((event) => event.text).join("")).toBe("e2e-selected-groups-export");
+  }
+  expect(exportBodies).toHaveLength(2);
+  expect(browserDownloads).toBe(0);
+  expect(browserErrors).toEqual([]);
+});
+
 test("group archival and permanent passport deletion require a verified destructive-action boundary", async ({ page }) => {
   await installAdminCookie(page);
   let liveGroups: Array<Record<string, unknown>> = [{ ...groupLink }];

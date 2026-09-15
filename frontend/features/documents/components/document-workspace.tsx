@@ -15,6 +15,7 @@ import {
 } from "@/components/shared/workspace-ui";
 import { Card, CardContent, Skeleton } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
+import { isDownloadCancelled } from "@/lib/api/download-destination";
 import {
   SENSITIVE_STATE_RESET_EVENT,
   subscribeToSessionResets,
@@ -521,7 +522,7 @@ export function DocumentWorkspace({
               saved={review.data?.status === "saved"}
               deliveryDisabled={!review.data?.batch_id || review.data.status !== "saved"}
               exportPending={exportAssignments.isPending}
-              exportError={exportAssignments.isError}
+              exportError={exportAssignments.isError && !isDownloadCancelled(exportAssignments.error)}
               hasReviewData={Boolean(review.data)}
               physicalFileCount={physicalFileCount}
               assignmentIssues={assignmentIssues}

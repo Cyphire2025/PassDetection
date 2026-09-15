@@ -33,6 +33,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ROUTES } from "@/constants/routes";
+import { isDownloadCancelled } from "@/lib/api/download-destination";
 import { formatDateTime } from "@/lib/utils/format";
 import type { PassportGroupSummary } from "@/types/passport.types";
 import { useExportSelectedGroups, usePassportGroups } from "../hooks/use-passports";
@@ -390,7 +391,7 @@ export function PassportList() {
         <PassportSelectedGroupsExportDialog
           groupIds={selectedGroups}
           isDownloading={exportSelected.isPending}
-          hasDownloadError={exportSelected.isError}
+          hasDownloadError={exportSelected.isError && !isDownloadCancelled(exportSelected.error)}
           onClose={() => {
             if (!exportSelected.isPending) {
               setIsExportDialogOpen(false);

@@ -1,4 +1,5 @@
 "use client";
+import { isDownloadCancelled } from "@/lib/api/download-destination";
 import { canAccessWhatsAppBroadcasts, canDeletePassportSubmissions } from "@/lib/utils/role-access";
 import { selectUser, useAuthStore } from "@/stores/auth.store";
 import { useSearchParams } from "next/navigation";
@@ -577,6 +578,7 @@ export function usePassportGroupController({ groupId }: { groupId: string }) {
       },
       {
         onError: (downloadError) => {
+          if (isDownloadCancelled(downloadError)) return;
           setImportMessage(
             mutationErrorMessage(
               downloadError,

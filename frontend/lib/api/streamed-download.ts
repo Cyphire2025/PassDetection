@@ -4,26 +4,12 @@ import {
   subscribeToSessionResets,
 } from "@/features/auth/services/session-state";
 import apiClient from "./client";
+import { chooseDownloadDestination, type FileDownloadWritable } from "./download-destination";
+import { safeSuggestedFilename } from "./download-filename";
 
 export const MAX_BOUNDED_DOWNLOAD_FALLBACK_BYTES = 32 * 1024 * 1024;
 export const DOWNLOAD_HARD_TIMEOUT_MS = 10 * 60 * 1_000;
 export const DOWNLOAD_IDLE_TIMEOUT_MS = 60_000;
-
-interface FileDownloadWritable {
-  write(data: Uint8Array): Promise<void>;
-  close(): Promise<void>;
-  abort?(reason?: unknown): Promise<void>;
-}
-
-interface FileDownloadHandle {
-  createWritable(): Promise<FileDownloadWritable>;
-}
-
-interface FilePickerWindow extends Window {
-  showSaveFilePicker?: (options: {
-    suggestedName: string;
-  }) => Promise<FileDownloadHandle>;
-}
 
 export interface StreamedDownloadRequest {
   url: string;
@@ -73,16 +59,6 @@ export async function downloadStreamedResponse({
     throw new Error("The bounded download limit must be a positive integer");
   }
 
-  const picker = typeof window === "undefined"
-    ? undefined
-    : (window as FilePickerWindow).showSaveFilePicker;
-  // Request the handle while the click still owns transient user activation.
-  // The file is not opened or truncated until the server has accepted the
-  // authenticated export request.
-  const fileHandle = picker
-    ? await picker.call(window, { suggestedName: safeSuggestedFilename(suggestedFilename) })
-    : null;
-
   const controller = new AbortController();
   const abortFromCaller = () => controller.abort(signal?.reason);
   if (signal?.aborted) abortFromCaller();
@@ -94,14 +70,21 @@ export async function downloadStreamedResponse({
     window.addEventListener(SENSITIVE_STATE_RESET_EVENT, abortForSessionReset);
     unsubscribeSessionResets = subscribeToSessionResets(abortForSessionReset);
   }
-  const hardTimeout = globalThis.setTimeout(
-    () => controller.abort("download-hard-timeout"),
-    DOWNLOAD_HARD_TIMEOUT_MS,
-  );
-
+  let hardTimeout: ReturnType<typeof globalThis.setTimeout> | undefined;
   let writable: FileDownloadWritable | null = null;
   let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
   try {
+    // Listen for logout/account changes even while the native dialog is open.
+    // Request the handle before any network work; open/truncate only after the
+    // authenticated response has passed its export-history checks.
+    controller.signal.throwIfAborted();
+    const destination = await chooseDownloadDestination(suggestedFilename);
+    controller.signal.throwIfAborted();
+    const { fileHandle } = destination;
+    hardTimeout = globalThis.setTimeout(
+      () => controller.abort("download-hard-timeout"),
+      DOWNLOAD_HARD_TIMEOUT_MS,
+    );
     const response = await apiClient.request<ReadableStream<Uint8Array>>({
       url,
       method,
@@ -120,7 +103,7 @@ export async function downloadStreamedResponse({
       );
     }
 
-    const filename = attachmentFilename(
+    const filename = destination.useChosenFilename ? destination.filename : attachmentFilename(
       response.headers["content-disposition"],
       suggestedFilename,
     );
@@ -130,6 +113,7 @@ export async function downloadStreamedResponse({
     // selected file and before retaining a compatibility Blob. If validation
     // fails, the catch path cancels the unread response stream.
     validateHeaders?.(response.headers);
+    controller.signal.throwIfAborted();
 
     if (fileHandle) {
       writable = await fileHandle.createWritable();
@@ -138,6 +122,7 @@ export async function downloadStreamedResponse({
         writable,
         controller,
       );
+      controller.signal.throwIfAborted();
       await writable.close();
       writable = null;
       reader = null;
@@ -160,6 +145,7 @@ export async function downloadStreamedResponse({
       controller,
     );
     reader = null;
+    controller.signal.throwIfAborted();
     triggerBlobDownload(
       new Blob(parts, {
         type: String(response.headers["content-type"] ?? "application/octet-stream"),
@@ -183,7 +169,7 @@ export async function downloadStreamedResponse({
     }
     throw error;
   } finally {
-    globalThis.clearTimeout(hardTimeout);
+    if (hardTimeout !== undefined) globalThis.clearTimeout(hardTimeout);
     signal?.removeEventListener("abort", abortFromCaller);
     if (typeof window !== "undefined") {
       window.removeEventListener(SENSITIVE_STATE_RESET_EVENT, abortForSessionReset);
@@ -199,7 +185,9 @@ async function copyStreamToWritable(
 ) {
   let bytesWritten = 0;
   while (true) {
+    controller.signal.throwIfAborted();
     const result = await readWithIdleTimeout(reader, controller);
+    controller.signal.throwIfAborted();
     if (result.done) return bytesWritten;
     await writable.write(result.value);
     bytesWritten += result.value.byteLength;
@@ -214,7 +202,9 @@ async function readBoundedStream(
   const parts: ArrayBuffer[] = [];
   let bytesWritten = 0;
   while (true) {
+    controller.signal.throwIfAborted();
     const result = await readWithIdleTimeout(reader, controller);
+    controller.signal.throwIfAborted();
     if (result.done) return { parts, bytesWritten };
     bytesWritten += result.value.byteLength;
     if (bytesWritten > maxBytes) {
@@ -292,8 +282,4 @@ export function attachmentFilename(value: unknown, fallback: string) {
   } catch {
     return safeSuggestedFilename(fallback);
   }
-}
-
-function safeSuggestedFilename(value: string) {
-  return value.trim().replace(/[\\/:*?"<>|\u0000-\u001f\u007f]/g, "_") || "download";
 }
