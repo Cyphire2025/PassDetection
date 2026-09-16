@@ -705,7 +705,7 @@ export const gcAppAdminApi = {
 
   removeGroup: async (agencyId: string | null, control: GcAppGroupControl): Promise<void> => {
     await apiClient.delete(
-      `${ROOT}/groups/${control.id}`,
+      `${ROOT}/groups/${control.id}/app-setup`,
       { params: agencyParams(agencyId, { expected_revision: control.revision }) },
     );
   },

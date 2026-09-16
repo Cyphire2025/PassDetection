@@ -26,8 +26,17 @@ describe("GC App administrative API workflow", () => {
     client.get.mockResolvedValue({ data: { ...access, lifecycle_status: "deleted", client_organization_id: null } });
     const current = await gcAppAdminApi.getGroupControl("agency", "trip");
     await gcAppAdminApi.removeGroup("agency", current);
-    expect(client.delete).toHaveBeenCalledExactlyOnceWith("/api/v1/gc-app/admin/groups/trip", {
+    expect(client.delete).toHaveBeenCalledExactlyOnceWith("/api/v1/gc-app/admin/groups/trip/app-setup", {
       params: { agency_id: "agency", expected_revision: 8 },
+    });
+    expect(client.put).not.toHaveBeenCalled();
+    expect(client.post).not.toHaveBeenCalled();
+  });
+
+  it("keeps emergency revocation distinct from removing the GC App setup", async () => {
+    await gcAppAdminApi.revokeGroupAccess("agency", "trip");
+    expect(client.delete).toHaveBeenCalledExactlyOnceWith("/api/v1/gc-app/admin/groups/trip", {
+      params: { agency_id: "agency" },
     });
     expect(client.put).not.toHaveBeenCalled();
     expect(client.post).not.toHaveBeenCalled();

@@ -39,7 +39,7 @@ function directory(initial = [group()]) {
     throw new Error(`Unexpected request ${url}`);
   });
   http.delete.mockImplementation(async (url: string) => {
-    const current = state.groups.find((entry) => url === `${ROOT}/groups/${entry.id}`)!;
+    const current = state.groups.find((entry) => url === `${ROOT}/groups/${entry.id}/app-setup`)!;
     current.access.removed_at = "2026-09-16T12:00:00Z";
     current.access.revision++;
     return { data: undefined };
@@ -81,7 +81,7 @@ describe("Manual GC App group removal", () => {
     await user.click(within(dialog).getByRole("button", { name: "Remove from GC App" }));
     expect(await screen.findByText("No GC App trips found")).toBeVisible();
     expect(screen.getByRole("status")).toHaveTextContent("The original group and its records are kept");
-    expect(http.delete).toHaveBeenCalledExactlyOnceWith(`${ROOT}/groups/trip`, { params: { agency_id: "agency-1", expected_revision: 7 } });
+    expect(http.delete).toHaveBeenCalledExactlyOnceWith(`${ROOT}/groups/trip/app-setup`, { params: { agency_id: "agency-1", expected_revision: 7 } });
     expect(http.put).not.toHaveBeenCalled();
     expect(http.post).not.toHaveBeenCalled();
   });

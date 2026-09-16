@@ -16,6 +16,12 @@ from app.infrastructure.database.gc_mobile_models import GCGroupAccessModel
 from app.infrastructure.database.models import ClientGroupModel
 from tests.service_integration.test_fcm_dispatch_postgresql import pg_factory as pg_factory
 from tests.unit.presentation.test_gc_app_closed_collection_groups import _configure
+from tests.unit.presentation.test_gc_app_emergency_revocation import (
+    test_emergency_path_keeps_setup_and_invalidates_sessions as test_emergency_path_keeps_setup_and_invalidates_sessions,
+)
+from tests.unit.presentation.test_gc_app_emergency_revocation import (
+    test_emergency_revoke_checks_revision_role_tenant_csrf_and_removed_state as test_emergency_revoke_checks_revision_role_tenant_csrf_and_removed_state,
+)
 from tests.unit.presentation.test_gc_app_group_removal import configured_group, remove
 from tests.unit.presentation.test_gc_app_group_removal import (
     test_deliberate_readd_preserves_history_and_rejects_old_delete_or_ordinary_edit as test_deliberate_readd_preserves_history_and_rejects_old_delete_or_ordinary_edit,

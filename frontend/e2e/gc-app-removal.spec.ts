@@ -45,7 +45,7 @@ async function mockRemoval(page: Page) {
       return json(route, { items, total: items.length, offset: 0, limit: 20 });
     }
     if (path === `${ROOT}/groups/${GROUP}` && method === "GET") return json(route, state.access);
-    if (path === `${ROOT}/groups/${GROUP}` && method === "DELETE") {
+    if (path === `${ROOT}/groups/${GROUP}/app-setup` && method === "DELETE") {
       expect(url.searchParams.get("agency_id")).toBe(USER.agency_id);
       state.deletes.push(Number(url.searchParams.get("expected_revision")));
       if (state.conflict) {

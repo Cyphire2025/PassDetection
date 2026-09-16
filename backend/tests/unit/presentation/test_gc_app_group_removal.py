@@ -57,7 +57,7 @@ async def test_authorized_operator_can_remove_old_group_from_list(client, db_ses
     await db_session.commit()
     client._transport.app.dependency_overrides[get_current_active_user] = lambda: actor
     scope = {"agency_id": str(actor.agency_id)} if role == UserRole.SUPER_ADMIN else {}
-    deleted = await client.delete(f"{PREFIX}/{group.id}", params={**scope, "expected_revision": configured.revision})
+    deleted = await client.delete(f"{PREFIX}/{group.id}/app-setup", params={**scope, "expected_revision": configured.revision})
     assert deleted.status_code == 204 and not deleted.content
     listed = await client.get(PREFIX, params={**scope, "configured_only": "true"})
     assert listed.status_code == 200 and listed.json()["total"] == 0
@@ -66,7 +66,7 @@ async def test_authorized_operator_can_remove_old_group_from_list(client, db_ses
     assert access.access_generation == configured.access_generation + 1
     assert group.status == lifecycle
     assert (await db_session.scalars(select(ClientGroupModel))).one().id == group.id
-    assert (await client.delete(f"{PREFIX}/{group.id}", params={**scope, "expected_revision": access.revision})).status_code == 204
+    assert (await client.delete(f"{PREFIX}/{group.id}/app-setup", params={**scope, "expected_revision": access.revision})).status_code == 204
     audits = list(await db_session.scalars(select(AuditLogModel).where(AuditLogModel.action == "gc_app.group_removed")))
     assert len(audits) == 1 and audits[0].user_id == actor.id
     changes = list(await db_session.scalars(select(MobileSyncChangeModel).where(MobileSyncChangeModel.operation == "revoke")))
@@ -79,7 +79,7 @@ async def test_normal_staff_cannot_remove_group(client, db_session, role):
     actor, _, group, configured = await configured_group(db_session)
     actor.role = role
     client._transport.app.dependency_overrides[get_current_active_user] = lambda: actor
-    response = await client.delete(f"{PREFIX}/{group.id}", params={"expected_revision": configured.revision})
+    response = await client.delete(f"{PREFIX}/{group.id}/app-setup", params={"expected_revision": configured.revision})
     assert response.status_code == 403
     assert (await db_session.scalar(select(GCGroupAccessModel))).removed_at is None
 
@@ -88,14 +88,14 @@ async def test_delete_checks_tenant_revision_and_cookie_csrf(client, db_session)
     actor, _, group, configured = await configured_group(db_session)
     other, _, _ = await _context(db_session)
     client._transport.app.dependency_overrides[get_current_active_user] = lambda: other
-    assert (await client.delete(f"{PREFIX}/{group.id}", params={"expected_revision": 1})).status_code == 404
+    assert (await client.delete(f"{PREFIX}/{group.id}/app-setup", params={"expected_revision": 1})).status_code == 404
     client._transport.app.dependency_overrides[get_current_active_user] = lambda: actor
-    assert (await client.delete(f"{PREFIX}/{group.id}", params={"expected_revision": 1, "agency_id": str(other.agency_id)})).status_code == 403
+    assert (await client.delete(f"{PREFIX}/{group.id}/app-setup", params={"expected_revision": 1, "agency_id": str(other.agency_id)})).status_code == 403
     for params in ({}, {"expected_revision": 0}):
-        assert (await client.delete(f"{PREFIX}/{group.id}", params=params)).status_code == 422
-    assert (await client.delete(f"{PREFIX}/{group.id}", params={"expected_revision": 2})).status_code == 409
+        assert (await client.delete(f"{PREFIX}/{group.id}/app-setup", params=params)).status_code == 422
+    assert (await client.delete(f"{PREFIX}/{group.id}/app-setup", params={"expected_revision": 2})).status_code == 409
     client.cookies.set(get_settings().jwt.access_cookie_name, "synthetic-session-cookie")
-    assert (await client.delete(f"{PREFIX}/{group.id}", params={"expected_revision": configured.revision}, headers={"origin": "https://untrusted.example"})).status_code == 403
+    assert (await client.delete(f"{PREFIX}/{group.id}/app-setup", params={"expected_revision": configured.revision}, headers={"origin": "https://untrusted.example"})).status_code == 403
     assert (await db_session.scalar(select(GCGroupAccessModel))).removed_at is None
 
 
@@ -192,4 +192,4 @@ async def test_failed_commit_does_not_acknowledge_or_partially_remove(db_session
 async def test_missing_group_does_not_create_setup(client, db_session):
     actor, _, _, _ = await configured_group(db_session)
     client._transport.app.dependency_overrides[get_current_active_user] = lambda: actor
-    assert (await client.delete(f"{PREFIX}/{uuid.uuid4()}", params={"expected_revision": 1})).status_code == 404
+    assert (await client.delete(f"{PREFIX}/{uuid.uuid4()}/app-setup", params={"expected_revision": 1})).status_code == 404
