@@ -837,8 +837,10 @@ class MobileRealtimeHub:
             redis = self._redis_factory(config.redis_url)
             try:
                 await redis.ping()
-                probe_key = f"{config.lease_namespace}:startup-probe"
                 probe_id = str(uuid.uuid4())
+                # Startup checks must not compete for the same one-slot lease
+                # when several API workers connect or reconnect together.
+                probe_key = f"{config.lease_namespace}:startup-probe:{probe_id}"
                 probe_result = await asyncio.wait_for(
                     redis.eval(
                         _LEASE_ACQUIRE_SCRIPT,

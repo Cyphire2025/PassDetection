@@ -145,6 +145,39 @@ def _authorization(
 
 
 @pytest.mark.asyncio
+async def test_concurrent_worker_startup_probes_do_not_consume_each_others_capacity() -> None:
+    state = _FakeLeaseState()
+    arrived = 0
+    all_acquired = asyncio.Event()
+
+    class OverlappingRedis(_FakeRedis):
+        async def eval(self, script: str, numkeys: int, *args: object) -> object:
+            nonlocal arrived
+            result = await super().eval(script, numkeys, *args)
+            if "lease-acquire" in script and ":startup-probe" in str(args[0]):
+                arrived += 1
+                if arrived == 4:
+                    all_acquired.set()
+                # Hold every acquire response until all workers have tested Redis,
+                # preventing an early release from hiding the shared-key race.
+                await asyncio.wait_for(all_acquired.wait(), timeout=1)
+            return result
+
+    hubs = [
+        MobileRealtimeHub(redis_factory=lambda _url: OverlappingRedis(lease_state=state))
+        for _ in range(4)
+    ]
+    try:
+        results = await asyncio.gather(
+            *(hub.start(_config()) for hub in hubs), return_exceptions=True
+        )
+        assert results == [None] * 4
+        assert all(hub.accepting_connections for hub in hubs)
+    finally:
+        await asyncio.gather(*(hub.stop() for hub in hubs))
+
+
+@pytest.mark.asyncio
 async def test_hub_fanout_is_exact_tenant_and_trip_scoped_and_revocable() -> None:
     redis = _FakeRedis()
     hub = MobileRealtimeHub(redis_factory=lambda _url: redis)
