@@ -107,6 +107,10 @@ def _foundation_constraint_signatures(
     """
 
     projected = set(model_constraints)
+    if table_name == "gc_group_access":
+        # The 0099 removal marker and its deny-by-default invariant are
+        # additive; keep the original applied 0069 migration unchanged.
+        projected = {item for item in projected if item[1] != "ck_gc_group_access_removed_disabled"}
     if table_name == "mobile_push_registrations":
         projected = {item for item in projected if item[1] != "ck_mobile_push_apns_environment"}
     if table_name == "mobile_notifications":
@@ -240,6 +244,8 @@ def test_gc_mobile_migration_matches_orm_tables_and_indexes() -> None:
             item.name: item for item in table_call.args[1:] if isinstance(item, sa.Column)
         }
         model_column_names = set(model_table.c.keys())
+        if table_name == "gc_group_access":
+            model_column_names.discard("removed_at")
         if table_name == "mobile_push_registrations":
             model_column_names.discard("apns_environment")
         if table_name == "mobile_notifications":

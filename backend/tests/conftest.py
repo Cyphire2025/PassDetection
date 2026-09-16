@@ -12,6 +12,7 @@ Design:
 from __future__ import annotations
 
 import os
+from collections import defaultdict
 
 import pytest
 from httpx import ASGITransport, AsyncClient
@@ -40,6 +41,15 @@ from app.main import create_application  # noqa: E402
 from tests.sqlite_trip_timezone import register_sqlite_trip_timezone  # noqa: E402
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+
+
+@pytest.fixture(autouse=True)
+def isolate_local_rate_limit_state(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Keep fallback quotas shared within a test, never between test apps."""
+    from app.presentation.middleware.rate_limit import RateLimitMiddleware
+
+    monkeypatch.setattr(RateLimitMiddleware, "_local_counts", defaultdict(lambda: (0, 0.0)))
+    monkeypatch.setattr(RateLimitMiddleware, "_local_token_buckets", {})
 
 
 @pytest.fixture(scope="session")
