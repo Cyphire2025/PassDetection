@@ -40,6 +40,7 @@ const {
   assertProductionAndroidReleaseEvidenceEnvironment,
 } = require('./android-build-config-fingerprint');
 const { loadReviewedGradleWrapper } = require('./android-release-toolchain');
+const { retainLatestAndroidApks, simpleAndroidApkName } = require('./android-apk-exports');
 
 const GIT_COMMIT_PATTERN = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/i;
 const REVIEWED_AAPT2_VERSION_OUTPUT =
@@ -201,28 +202,7 @@ function configuredToolVersions(mobileRoot, tools, execute = runTool) {
   });
 }
 
-function canonicalLocalArtifactName({
-  expectedAbi,
-  gitHead,
-  snapshotHash,
-  versionCode,
-  versionName,
-  buildTimestamp,
-}) {
-  const safeVersion = versionName.replace(/[^A-Za-z0-9._-]+/g, '-').slice(0, 80);
-  if (!safeVersion) throw new Error('Android version name cannot be used in an artifact filename.');
-  const timestamp = new Date(buildTimestamp).toISOString().replace(/[-:.]/g, '');
-  return [
-    'global-connect-travels',
-    `v${safeVersion}`,
-    `vc${String(versionCode)}`,
-    'local-signed-sideload',
-    expectedAbi,
-    gitHead.slice(0, 12),
-    `src${snapshotHash.slice(0, 12).toLowerCase()}`,
-    timestamp,
-  ].join('-') + '.apk';
-}
+const canonicalLocalArtifactName = simpleAndroidApkName;
 
 function normalizedBuildTimestamp(value) {
   const parsed = new Date(value);
@@ -322,11 +302,7 @@ async function createLocalAndroidSideloadReceipt(options, dependencies = {}) {
   }
   const canonicalArtifactFile = canonicalLocalArtifactName({
     expectedAbi: options.expectedAbi,
-    gitHead: source.git_head,
-    snapshotHash: snapshot.sha256,
-    versionCode: inspectedArtifact.version_code,
     versionName: inspectedArtifact.version_name,
-    buildTimestamp,
   });
 
   return Object.freeze({
@@ -403,6 +379,7 @@ async function materializeLocalAndroidSideload(options, dependencies = {}) {
   let canonicalArtifactPath;
   let receiptPath;
   let canonicalCreated = false;
+  let result;
   try {
     copyFileSync(sourceArtifactPath, temporaryArtifactPath, fsConstants.COPYFILE_EXCL);
     const receipt = await createLocalAndroidSideloadReceipt({
@@ -469,7 +446,7 @@ async function materializeLocalAndroidSideload(options, dependencies = {}) {
       flag: 'wx',
       mode: 0o600,
     });
-    return Object.freeze({ canonicalArtifactPath, receiptPath, receipt });
+    result = { canonicalArtifactPath, receiptPath, receipt };
   } catch (error) {
     if (existsSync(temporaryArtifactPath)) unlinkSync(temporaryArtifactPath);
     if (canonicalCreated && canonicalArtifactPath && existsSync(canonicalArtifactPath)) {
@@ -477,6 +454,16 @@ async function materializeLocalAndroidSideload(options, dependencies = {}) {
     }
     throw error;
   }
+  // Retention starts only after a complete, independently verified export. A
+  // cleanup failure must never roll back the new APK or its completed receipt.
+  const retention = retainLatestAndroidApks({
+    artifactPath: canonicalArtifactPath,
+    mobileRoot: join(
+      resolve(options.repoRoot || join(dirname(require.resolve('../package.json')), '..')),
+      'mobile',
+    ),
+  });
+  return Object.freeze({ ...result, retention });
 }
 
 function parseCliArguments(args) {
@@ -512,6 +499,9 @@ async function main() {
   process.stdout.write(
     `Created local-only signed sideload evidence ${basename(result.canonicalArtifactPath)} with adjacent receipt ${basename(result.receiptPath)}.\n`,
   );
+  if (result.retention.removed.length) {
+    process.stdout.write(`Kept the latest APK and one previous version; removed ${result.retention.removed.length} older APK(s).\n`);
+  }
 }
 
 if (require.main === module) {

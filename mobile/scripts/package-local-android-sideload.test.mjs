@@ -8,6 +8,7 @@ import {
   readFileSync,
   readdirSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -16,6 +17,7 @@ import test from 'node:test';
 
 const require = createRequire(import.meta.url);
 const { BUILD_CONFIG_INPUT_NAMES } = require('./android-build-config-fingerprint.js');
+const { retainLatestAndroidApks, simpleAndroidApkName } = require('./android-apk-exports.js');
 const {
   REVIEWED_AAPT2_VERSION_OUTPUT,
   configuredToolVersions,
@@ -125,8 +127,8 @@ function fixture(t, nativeAbi = 'x86_64', dependencyOverrides = {}) {
   const directory = mkdtempSync(join(tmpdir(), 'gc-local-sideload-'));
   t.after(() => rmSync(directory, { force: true, recursive: true }));
   const artifactPath = join(directory, 'app-release.apk');
-  const outputDirectory = join(directory, 'outputs');
-  mkdirSync(outputDirectory);
+  const outputDirectory = join(directory, 'mobile', 'outputs', 'apk');
+  mkdirSync(outputDirectory, { recursive: true });
   writeFileSync(artifactPath, 'signed-local-apk');
   const stageManifestPath = `${artifactPath}.stage.json`;
   const stageManifest = {
@@ -245,7 +247,7 @@ test('creates fail-honest dirty-worktree local sideload evidence without EAS cla
     'post_build_local_source_association_not_source_to_build_attestation',
   );
   assert.equal(receipt.source_snapshot_timing, 'captured_after_artifact_build');
-  assert.match(receipt.canonical_artifact_file, /local-signed-sideload-x86_64/);
+  assert.equal(receipt.canonical_artifact_file, 'GC-App-1.0.0-Emulator.apk');
   assert.doesNotMatch(receipt.canonical_artifact_file, /production|eas/i);
 });
 
@@ -371,12 +373,14 @@ test('rejects an artifact that predates the declared build start', async (t) => 
 
 test('removes a canonical copy when its final hash differs from verified staging', async (t) => {
   let hashCall = 0;
-  const { artifactPath, dependencies, outputDirectory } = fixture(t, 'x86_64', {
+  const { artifactPath, dependencies, directory, outputDirectory } = fixture(t, 'x86_64', {
     sha256File: async () => {
       hashCall += 1;
       return hashCall === 4 ? 'E7'.repeat(32) : ARTIFACT_HASH;
     },
   });
+  const previousNames = ['GC-App-0.9.8-Emulator.apk', 'GC-App-0.9.9-Emulator.apk'];
+  previousNames.forEach((name) => writeFileSync(join(outputDirectory, name), name));
   await assert.rejects(
     () => materializeLocalAndroidSideload({
       approvedFingerprints: new Set([APPROVED_FINGERPRINT]),
@@ -386,10 +390,77 @@ test('removes a canonical copy when its final hash differs from verified staging
       expectedVersion: EXPECTED_VERSION,
       nativeSnapshot: NATIVE_SNAPSHOT,
       outputDirectory,
+      repoRoot: directory,
     }, dependencies),
     /final canonical sideload copy does not match/,
   );
-  assert.deepEqual(readdirSync(outputDirectory), []);
+  assert.deepEqual(readdirSync(outputDirectory), previousNames);
+  previousNames.forEach((name) => assert.equal(readFileSync(join(outputDirectory, name), 'utf8'), name));
+});
+
+test('exports simple phone and emulator names without losing receipt provenance', () => {
+  assert.equal(simpleAndroidApkName({ expectedAbi: 'arm64-v8a', versionName: '1.0.8' }), 'GC-App-1.0.8.apk');
+  assert.equal(simpleAndroidApkName({ expectedAbi: 'x86_64', versionName: '1.0.8' }), 'GC-App-1.0.8-Emulator.apk');
+  assert.throws(() => simpleAndroidApkName({ expectedAbi: 'unknown', versionName: '1.0.8' }), /variant/);
+  assert.throws(() => simpleAndroidApkName({ expectedAbi: 'arm64-v8a', versionName: '../1.0.8' }), /version/);
+});
+
+test('verified packaging retains only the latest two versions of that variant', async (t) => {
+  const { artifactPath, dependencies, directory, outputDirectory } = fixture(t, 'arm64-v8a');
+  const prior = [
+    'GC-App-0.9.9.apk', 'GC-App-0.9.10.apk',
+    'GC-App-0.9.9.apk.receipt.json', 'release.log',
+    'GC-App-0.9.8-Emulator.apk', 'GC-App-0.9.9-Emulator.apk', 'GC-App-0.9.10-Emulator.apk',
+    'other-app.apk',
+  ];
+  prior.forEach((name) => writeFileSync(join(outputDirectory, name), name));
+  const nested = join(outputDirectory, 'old-evidence');
+  mkdirSync(nested);
+  writeFileSync(join(nested, 'GC-App-0.9.7.apk'), 'nested');
+  const result = await materializeLocalAndroidSideload({
+    approvedFingerprints: new Set([APPROVED_FINGERPRINT]),
+    artifactPath,
+    buildTimestamp: '2020-01-01T00:00:00.000Z',
+    expectedAbi: 'arm64-v8a',
+    expectedVersion: EXPECTED_VERSION,
+    nativeSnapshot: NATIVE_SNAPSHOT,
+    outputDirectory,
+    repoRoot: directory,
+  }, dependencies);
+  assert.equal(basename(result.canonicalArtifactPath), 'GC-App-1.0.0.apk');
+  assert.deepEqual(result.retention.removed, ['GC-App-0.9.9.apk']);
+  assert.equal(existsSync(join(outputDirectory, 'GC-App-0.9.9.apk')), false);
+  prior.filter((name) => name !== 'GC-App-0.9.9.apk').forEach((name) => {
+    assert.equal(readFileSync(join(outputDirectory, name), 'utf8'), name);
+  });
+  assert.equal(readFileSync(join(nested, 'GC-App-0.9.7.apk'), 'utf8'), 'nested');
+});
+
+test('retention ignores evidence folders and never removes an older just-exported APK', (t) => {
+  const { directory, outputDirectory } = fixture(t);
+  ['GC-App-1.0.8.apk', 'GC-App-1.0.9.apk', 'GC-App-1.0.10.apk'].forEach((name) => {
+    writeFileSync(join(outputDirectory, name), name);
+  });
+  const olderExport = join(outputDirectory, 'GC-App-1.0.8.apk');
+  assert.equal(retainLatestAndroidApks({ artifactPath: olderExport, mobileRoot: join(directory, 'mobile') }).skipped, 'older_version_exported');
+  assert.equal(retainLatestAndroidApks({ artifactPath: olderExport, mobileRoot: directory }).skipped, 'outside_managed_export_directory');
+  assert.equal(readdirSync(outputDirectory).length, 3);
+});
+
+test('retention refuses a directory junction or symlink ancestor outside the managed location', (t) => {
+  const directory = mkdtempSync(join(tmpdir(), 'gc-apk-linked-export-'));
+  t.after(() => rmSync(directory, { force: true, recursive: true }));
+  const mobileRoot = join(directory, 'mobile');
+  const linkedTarget = join(directory, 'elsewhere');
+  mkdirSync(mobileRoot);
+  mkdirSync(join(linkedTarget, 'apk'), { recursive: true });
+  symlinkSync(linkedTarget, join(mobileRoot, 'outputs'), 'junction');
+  const names = ['GC-App-1.0.8.apk', 'GC-App-1.0.9.apk', 'GC-App-1.0.10.apk'];
+  names.forEach((name) => writeFileSync(join(linkedTarget, 'apk', name), name));
+  assert.throws(() => retainLatestAndroidApks({
+    artifactPath: join(mobileRoot, 'outputs', 'apk', names[2]), mobileRoot,
+  }), /does not follow linked export directories or ancestors/);
+  names.forEach((name) => assert.equal(readFileSync(join(linkedTarget, 'apk', name), 'utf8'), name));
 });
 
 test('rejects missing and surplus packager CLI arguments', () => {

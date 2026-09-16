@@ -1,6 +1,6 @@
 # Global Connect Travels Mobile
 
-Current source release: **1.0.6**, Android version code **7**, iOS build **2**. Regenerate/update the native project through the reviewed build workflow before producing a new binary; previously built APKs remain separate historical artifacts.
+Read the current source release and native build numbers from `app.config.ts` and `package.json`. Regenerate/update the native project through the reviewed build workflow before producing a new binary.
 
 Production React Native companion for PassDetection passengers, client managers, and coordinators. It is an Expo Prebuild application—not a WebView—and produces native Android and iOS projects from one strict TypeScript codebase.
 
@@ -183,6 +183,20 @@ sets `release_eligible=false`, never emits an EAS build ID, requires the observe
 signer to be in the approved distribution fingerprint set, and refuses to overwrite prior evidence.
 It verifies the final canonical copy itself and rejects an APK whose modification
 time predates the caller-captured build start.
+
+Delivered local APKs use short names: `GC-App-1.0.8.apk` for a phone and
+`GC-App-1.0.8-Emulator.apk` for emulator testing. The exact build, signer, checksum,
+source revision and configuration remain in the adjacent receipt. Use a new
+numeric `major.minor.patch` version for a changed build; packaging refuses to
+overwrite a file or receipt with the same name.
+
+Use `mobile/outputs/apk` as the managed export folder. After the new APK and its
+receipt pass all checks, packaging keeps the latest release plus one previous
+version of that variant. A phone export does not prune emulator builds or vice
+versa. It removes only matching APK files directly in that folder; receipts,
+logs, subfolders, unrelated files and Gradle intermediates remain. A failed build
+or verification does not prune previous APKs. An intentionally older export is
+retained without automatic pruning, so its returned download path stays valid.
 
 The local AAB packager likewise uses exclusive temporary and final copies and final
 re-verification, requires cryptographic coverage of every archive entry, exactly
