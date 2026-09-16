@@ -184,7 +184,10 @@ async def test_new_app_access_reconciles_passengers_without_reopening_collection
     response = await _configure(db_session, actor, organization, group)
     await db_session.commit()
     assert response.enabled and response.lifecycle_status == collection_status
-    assert group.status == collection_status and group.closed_at == closed_at
+    assert group.status == collection_status
+    # Locking refreshes the group from storage; SQLite loses timezone metadata
+    # even though the original UTC closure instant remains unchanged.
+    assert (group.closed_at.replace(tzinfo=UTC) if group.closed_at else None) == closed_at
     identity = (await db_session.scalars(select(MobilePassengerIdentityModel))).one()
     assert identity.group_id == group.id and identity.agency_id == actor.agency_id
     assert identity.passenger_submission_id == passenger.id and identity.status == "eligible"

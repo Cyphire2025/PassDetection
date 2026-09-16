@@ -39,14 +39,27 @@ export function AppControlGroupWorkspace({ groupId }: { groupId: string }) {
   const [announcementPage, setAnnouncementPage] = useState(1);
   const [historyPage, setHistoryPage] = useState(1);
   const control = useGcAppGroupControl(agencyId, groupId);
-  const content = useGcAppGroupContent(agencyId, groupId, tab === "documents");
-  const announcements = useGcAppAnnouncements(agencyId, groupId, announcementPage, 25, tab === "announcements");
+  const content = useGcAppGroupContent(agencyId, groupId, tab === "documents" && !control.data?.gc_removed_at);
+  const announcements = useGcAppAnnouncements(agencyId, groupId, announcementPage, 25, tab === "announcements" && !control.data?.gc_removed_at);
   const history = useGcAppGroupAudit(agencyId, groupId, historyPage, 25, tab === "history");
   const actions = useGcAppGroupMutations(agencyId, groupId, control.data?.revision);
 
   if (control.isLoading) return <Card><GcLoadingRows count={4} /></Card>;
   if (!control.data) {
     return <div className="space-y-3"><GcAlert message="This GC App trip could not be loaded. It may have been removed or your permission may have changed." /><Button type="button" onClick={() => void control.refetch()}>Retry</Button></div>;
+  }
+  if (control.data.gc_removed_at) {
+    return <div className="space-y-4">
+      <PageHeader title={control.data.name} description="Removed from GC App" />
+      <GcAlert tone="info" message="This trip was removed from GC App. Its original group, travellers, documents and history are kept. To restore an eligible group, use Add group to GC App in App Controls." />
+      <Link href={ROUTES.dashboard.gcAppAppControls as never} className={buttonVariants({ variant: "secondary" })}>Back to App Controls</Link>
+      <Button type="button" variant="secondary" onClick={() => setTab("history")}>View history</Button>
+      {tab === "history" && <Card>
+        {history.isLoading ? <GcLoadingRows count={3} /> : history.isError ? <GcAlert message="History could not be loaded." /> : <AuditTimeline events={history.data?.items ?? []} />}
+        {history.data && <GcPagination page={history.data.page} total={history.data.total} pageSize={history.data.page_size}
+          hasNext={history.data.has_next} disabled={history.isFetching} onPageChange={setHistoryPage} />}
+      </Card>}
+    </div>;
   }
 
   const updateControl = async (patch: GcAppControlPatch) => {

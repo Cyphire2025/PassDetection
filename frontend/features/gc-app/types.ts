@@ -43,6 +43,7 @@ export interface GcGroupReference {
   company: GcCompanyReference | null;
   gc_enabled?: boolean;
   gc_revision?: number;
+  gc_removed_at?: string | null;
   app_availability?: GcAppAvailability;
   app_availability_reason?: GcAppAvailabilityReason | null;
   app_availability_evaluated_at?: string;

@@ -5,6 +5,7 @@ from __future__ import annotations
 import uuid
 from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
+from typing import Literal
 
 from fastapi import HTTPException, Request, status
 from sqlalchemy import func, select
@@ -21,12 +22,40 @@ from app.infrastructure.database.models import ClientGroupModel
 from app.infrastructure.database.my_photos_models import MyPhotoGalleryModel
 from app.presentation.api.v1.schemas.gc_app_schemas import (
     GCGroupAccessResponse,
+    GCGroupAccessUpdateRequest,
     GCMyPhotosFeatureUpdateRequest,
 )
 
 MobileSyncAppender = Callable[..., Awaitable[object]]
 AuditRecorder = Callable[..., Awaitable[None]]
 GroupAccessResponseBuilder = Callable[..., Awaitable[GCGroupAccessResponse]]
+MobileAudience = Literal["passenger", "client_manager", "coordinator"]
+
+
+def session_roles_to_revoke(
+    roles: set[MobileAudience], revoke_all: bool, *, restoring: bool
+) -> set[MobileAudience]:
+    if restoring:
+        # Removal only fenced the trip, and restoring must not sign the same
+        # account out of unrelated trips. Current phone/grant checks still run.
+        return set()
+    return {"passenger", "client_manager", "coordinator"} if revoke_all else roles
+
+
+def validate_removed_access_restore(
+    access: GCGroupAccessModel | None, body: GCGroupAccessUpdateRequest, *, can_enable: bool
+) -> bool:
+    """Require a fresh, explicit Add action; ordinary edits never resurrect a row."""
+    if access is None or access.removed_at is None:
+        return False
+    if not (body.restore_removed and body.enabled and can_enable):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This group was removed from GC App; add it again from App Controls",
+        )
+    if body.expected_revision != access.revision:
+        raise HTTPException(status_code=409, detail="GC App settings changed; refresh and retry")
+    return True
 
 
 async def configure_my_photos_feature(
@@ -205,6 +234,7 @@ async def group_access_response(
         access_starts_at=access.access_starts_at,
         access_expires_at=access.access_expires_at,
         revoked_at=access.revoked_at,
+        removed_at=access.removed_at,
         access_generation=access.access_generation,
         itinerary_version=access.itinerary_version,
         common_document_version=access.common_document_version,

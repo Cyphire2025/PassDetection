@@ -322,7 +322,8 @@ export function useGcAppGroupMutations(agencyId: string | null, groupId?: string
     }),
     remove: useMutation({
       mutationFn: (control: GcAppGroupControl) => gcAppAdminApi.removeGroup(agencyId, control),
-      onSuccess: (_data, control) => { void invalidateControl(control.id); },
+      retry: false,
+      onSettled: (_data, _error, control) => refreshControl(control.id),
     }),
     updateControl: useMutation({
       mutationFn: ({ control, patch }: { control: GcAppGroupControl; patch: GcAppControlPatch }) =>

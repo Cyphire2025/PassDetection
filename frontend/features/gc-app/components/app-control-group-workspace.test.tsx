@@ -47,6 +47,18 @@ function renderWorkspace() {
 }
 
 describe("Trip-centric GC App workspace", () => {
+  it("keeps a removed trip read-only while retaining its audit history", async () => {
+    queries.control.mockReturnValue(result({ ...CONTROL, gc_removed_at: "2026-09-16T12:00:00Z" }));
+    queries.history.mockReturnValue(result(page));
+    renderWorkspace();
+    expect(screen.getByText("Removed from GC App")).toBeVisible();
+    expect(screen.queryByRole("tab", { name: "Access & features" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Back to App Controls" })).toHaveAttribute("href", "/gc-app/app-controls");
+    await userEvent.setup().click(screen.getByRole("button", { name: "View history" }));
+    expect(screen.getByRole("heading", { name: "App-access audit history" })).toBeVisible();
+    expect(queries.history).toHaveBeenLastCalledWith("agency-1", "trip-1", 1, 25, true);
+  });
+
   it("opens the overview and lazily fetches content and history when selected", async () => {
     renderWorkspace();
     expect(screen.getByRole("tab", { name: "Overview" })).toHaveAttribute("aria-selected", "true");

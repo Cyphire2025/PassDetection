@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { gcAppAdminApi } from "./gc-app-admin.api";
 
-const client = vi.hoisted(() => ({ get: vi.fn(), put: vi.fn(), post: vi.fn() }));
+const client = vi.hoisted(() => ({ get: vi.fn(), put: vi.fn(), post: vi.fn(), delete: vi.fn() }));
 vi.mock("@/lib/api/client", () => ({ default: client }));
 
 const access = {
@@ -22,6 +22,27 @@ const body = { title: "Synthetic", body: "Test announcement", priority: "normal"
 beforeEach(() => Object.values(client).forEach((mock) => mock.mockReset()));
 
 describe("GC App administrative API workflow", () => {
+  it("removes only GC App access using the selected revision, including archived or deleted groups", async () => {
+    client.get.mockResolvedValue({ data: { ...access, lifecycle_status: "deleted", client_organization_id: null } });
+    const current = await gcAppAdminApi.getGroupControl("agency", "trip");
+    await gcAppAdminApi.removeGroup("agency", current);
+    expect(client.delete).toHaveBeenCalledExactlyOnceWith("/api/v1/gc-app/admin/groups/trip", {
+      params: { agency_id: "agency", expected_revision: 8 },
+    });
+    expect(client.put).not.toHaveBeenCalled();
+    expect(client.post).not.toHaveBeenCalled();
+  });
+
+  it("restores removed groups only through an explicit add using their preserved revision", async () => {
+    client.get.mockResolvedValue({ data: { items: [{ id: "trip", name: "Synthetic trip", lifecycle_status: "closed",
+      access: { ...access, removed_at: "2026-09-16T12:00:00Z", revision: 9 } }], total: 1, offset: 0, limit: 20 } });
+    const candidates = await gcAppAdminApi.searchGroups("agency", { page: 1, page_size: 20, eligible_only: true });
+    expect(candidates.items[0]).toMatchObject({ gc_removed_at: "2026-09-16T12:00:00Z", gc_revision: 9 });
+    client.put.mockResolvedValue({ data: { ...access, revision: 10, enabled: true, removed_at: null } });
+    await gcAppAdminApi.addGroup("agency", candidates.items[0]!, { id: "company", name: "Synthetic company" });
+    expect(client.put.mock.calls[0][1]).toMatchObject({ expected_revision: 9, enabled: true, restore_removed: true });
+  });
+
   it("loads documents without eagerly fetching announcement history", async () => {
     client.get.mockResolvedValue({ data: [] });
     expect(await gcAppAdminApi.getGroupContent("agency", "trip")).toEqual({ common_documents: [], announcements: [] });

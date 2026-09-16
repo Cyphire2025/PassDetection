@@ -1,26 +1,34 @@
 "use client";
 
-import Link from "next/link";
-import { AlertTriangle, Building2, Plus, Search, Settings2, Smartphone, Trash2 } from "lucide-react";
+import { AlertTriangle, Building2, Plus, Search, Smartphone, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Badge, Button, Card, CardContent, Input, buttonVariants } from "@/components/ui";
+import { Badge, Button, Card, CardContent, Input } from "@/components/ui";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
-import { ROUTES } from "@/constants/routes";
+import { canArchiveGroup } from "@/lib/utils/role-access";
+import { selectUser, useAuthStore } from "@/stores/auth.store";
 import { useDebounce } from "@/hooks/use-debounce";
-import { cn } from "@/lib/utils/cn";
 import { GC_APP_DEFAULT_PAGE_SIZE } from "../api/gc-app-admin.api";
-import { APP_AVAILABILITY_OPTIONS, describeAppAvailability } from "../availability";
+import { APP_AVAILABILITY_OPTIONS } from "../availability";
 import { useClientCompanies, useClientCompanyMutations, useGcAppGroupMutations, useGcAppGroups, useGcGroupSearch } from "../hooks/use-gc-app-admin";
 import type { GcAppAvailability, GcAppGroupControl, GcCompanyReference } from "../types";
-import { formatGcDateTime, gcAppErrorMessage } from "../utils";
+import { gcAppErrorMessage } from "../utils";
 import { GcAlert, GcLoadingRows, GcPagination } from "./gc-app-feedback";
 import { useGcAppAgencyScope } from "./gc-app-agency-scope";
 import { GcDialog } from "./gc-dialog";
 import { GcSelect } from "./gc-select";
+import { GroupControlCard } from "./group-control-card";
+import { RemoveAppGroupDialog } from "./remove-app-group-dialog";
 
 export function AppControlsPage() {
   const { agencyId } = useGcAppAgencyScope();
+  return <AppControlsWorkspace key={agencyId} agencyId={agencyId} />;
+}
+
+function AppControlsWorkspace({ agencyId }: { agencyId: string | null }) {
+  const canRemove = canArchiveGroup(useAuthStore(selectUser)?.role);
+  const [pendingRemoval, setPendingRemoval] = useState<GcAppGroupControl | null>(null);
+  const [removalMessage, setRemovalMessage] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [availability, setAvailability] = useState<GcAppAvailability | "all">("all");
   const [page, setPage] = useState(1);
@@ -125,6 +133,7 @@ export function AppControlsPage() {
         </CardContent>
       </Card>
 
+      {removalMessage && <GcAlert tone="success" message={removalMessage} />}
       {groups.isError && groups.data && <GcAlert message="The trip list could not be refreshed. The last loaded data is shown; refresh before making changes." />}
       {groups.isLoading ? (
         <Card><GcLoadingRows count={3} /></Card>
@@ -133,9 +142,9 @@ export function AppControlsPage() {
       ) : groups.data?.items.length === 0 ? (
         <EmptyState
           icon={<Smartphone className="h-5 w-5" aria-hidden="true" />}
-          title="No GC App trips found"
-          description={search || availability !== "all" ? "Adjust the search or app availability filter." : "Add a passport group to set up its trip in GC App. Its collection link can be open or closed."}
-          action={!search && availability === "all" ? { label: "Add group to GC App", onClick: openPicker } : undefined}
+          title={page > 1 ? "No trips on this page" : "No GC App trips found"}
+          description={page > 1 ? "The trip list has changed. Return to the previous page to see the remaining trips." : search || availability !== "all" ? "Adjust the search or app availability filter." : "Add a passport group to set up its trip in GC App. Its collection link can be open or closed."}
+          action={page > 1 ? { label: "Previous page", onClick: () => setPage(page - 1) } : !search && availability === "all" ? { label: "Add group to GC App", onClick: openPicker } : undefined}
         />
       ) : (
         <div className="space-y-4">
@@ -143,6 +152,8 @@ export function AppControlsPage() {
             <GroupControlCard
               key={group.id}
               group={group}
+              removalDisabled={groups.isFetching || groups.isError}
+              onRemove={canRemove && agencyId ? () => { setRemovalMessage(null); setPendingRemoval(group); } : undefined}
             />
           ))}
           {groups.data && (
@@ -159,6 +170,19 @@ export function AppControlsPage() {
           )}
         </div>
       )}
+
+      {pendingRemoval && agencyId && canRemove && <RemoveAppGroupDialog
+        key={`${agencyId}:${pendingRemoval.id}`} agencyId={agencyId} group={pendingRemoval}
+        onClose={() => setPendingRemoval(null)}
+        onRemoved={() => {
+          setRemovalMessage(`${pendingRemoval.name} was removed from GC App. The original group and its records are kept.`);
+          setPendingRemoval(null);
+          const stillListed = groups.data?.items.some((item) => item.id === pendingRemoval.id);
+          const remaining = Math.max(0, (groups.data?.total ?? 0) - (stillListed ? 1 : 0));
+          setPage((current) => Math.min(current, Math.max(1, Math.ceil(remaining / GC_APP_DEFAULT_PAGE_SIZE))));
+          void groups.refetch();
+        }}
+      />}
 
       <GcDialog
         open={pickerOpen}
@@ -380,53 +404,4 @@ export function AppControlsPage() {
 
     </div>
   );
-}
-
-function GroupControlCard({
-  group,
-}: {
-  group: GcAppGroupControl;
-}) {
-  const availability = describeAppAvailability(group);
-  return (
-    <Card className={group.access_revoked_at ? "border-red-200" : undefined}>
-      <CardContent className="space-y-5 p-5">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <h3 className="truncate text-base font-semibold text-slate-900">{group.name}</h3>
-              <Badge variant={availability.variant}>{availability.label}</Badge>
-            </div>
-            <p className="mt-1 text-sm text-slate-500">{group.destination ?? "Destination not set"} · {group.company?.name ?? "Client not assigned"}</p>
-            <p className="mt-2 text-sm text-slate-600">{availability.description}</p>
-            <p className="mt-1 text-xs text-slate-500">
-              Passport collection: {capitalize(group.lifecycle)} · App access: {group.access_starts_at ? formatGcDateTime(group.access_starts_at) : "Immediate"} – {group.access_expires_at ? formatGcDateTime(group.access_expires_at) : "No expiry"}
-            </p>
-          </div>
-          <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap">
-            <Link
-              href={ROUTES.dashboard.gcAppGroup(group.id) as never}
-              className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "col-span-2 justify-center sm:col-span-1")}
-            >
-              <Settings2 className="h-4 w-4" aria-hidden="true" />
-              Open trip
-            </Link>
-          </div>
-        </div>
-        <dl className="grid gap-3 border-t border-slate-100 pt-4 text-sm sm:grid-cols-3">
-          <Metric label="Active mobile users" value={group.active_mobile_users} />
-          <Metric label="Synced devices" value={group.synced_device_count} />
-          <Metric label="Last successful sync" value={group.last_successful_sync_at ? formatGcDateTime(group.last_successful_sync_at) : "Never"} />
-        </dl>
-      </CardContent>
-    </Card>
-  );
-}
-
-function Metric({ label, value }: { label: string; value: string | number }) {
-  return <div><dt className="text-xs text-slate-500">{label}</dt><dd className="mt-1 font-medium text-slate-800">{value}</dd></div>;
-}
-
-function capitalize(value: string) {
-  return value.charAt(0).toUpperCase() + value.slice(1);
 }

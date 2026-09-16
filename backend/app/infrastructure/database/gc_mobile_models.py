@@ -249,6 +249,10 @@ class GCGroupAccessModel(Base):
         CheckConstraint("revision >= 1", name="ck_gc_group_access_revision"),
         CheckConstraint("access_generation >= 0", name="ck_gc_group_access_generation"),
         CheckConstraint(
+            "removed_at IS NULL OR (NOT is_enabled AND revoked_at IS NOT NULL)",
+            name="ck_gc_group_access_removed_disabled",
+        ),
+        CheckConstraint(
             "manifest_version >= 0 AND itinerary_version >= 0 "
             "AND common_document_version >= 0 AND announcement_version >= 0 "
             "AND rooming_version >= 0 AND meal_version >= 0 AND qr_version >= 0",
@@ -298,6 +302,7 @@ class GCGroupAccessModel(Base):
         DateTime(timezone=True), nullable=True
     )
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    removed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     revoked_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )

@@ -97,6 +97,7 @@ interface RawGroupAccess {
   access_starts_at: string | null;
   access_expires_at: string | null;
   revoked_at: string | null;
+  removed_at?: string | null;
   itinerary_version: number;
   common_document_version: number;
   announcement_version: number;
@@ -213,6 +214,7 @@ function normalizeGroup(group: RawGroup): GcGroupReference {
     } : null,
     gc_enabled: group.gc_enabled,
     gc_revision: group.access?.revision,
+    gc_removed_at: group.access?.removed_at ?? null,
   };
 }
 
@@ -268,6 +270,7 @@ function normalizeControl(access: RawGroupAccess, group?: RawGroup): GcAppGroupC
     access_starts_at: access.access_starts_at,
     access_expires_at: access.access_expires_at,
     access_revoked_at: access.revoked_at,
+    gc_removed_at: access.removed_at ?? null,
     revision: access.revision,
     organization_id: organizationId,
     active_mobile_users: access.active_mobile_users ?? 0,
@@ -684,6 +687,7 @@ export const gcAppAdminApi = {
       access_starts_at: null,
       access_expires_at: null,
       expected_revision: group.gc_revision ?? null,
+      ...(group.gc_removed_at ? { restore_removed: true } : {}),
     }, { params: agencyParams(agencyId) });
     const normalized = normalizeControl(data, {
       id: group.id,
@@ -700,14 +704,9 @@ export const gcAppAdminApi = {
   },
 
   removeGroup: async (agencyId: string | null, control: GcAppGroupControl): Promise<void> => {
-    await apiClient.put(
+    await apiClient.delete(
       `${ROOT}/groups/${control.id}`,
-      fullControlBody(control, {
-        passenger_access_enabled: false,
-        client_manager_access_enabled: false,
-        coordinator_access_enabled: false,
-      }, false),
-      { params: agencyParams(agencyId) },
+      { params: agencyParams(agencyId, { expected_revision: control.revision }) },
     );
   },
 

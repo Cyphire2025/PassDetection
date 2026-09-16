@@ -621,7 +621,7 @@ async def test_refresh_fails_closed_on_missing_or_ambiguous_selected_trip_access
     assert "gc_group_access.access_expires_at" in sql
     assert "client_groups.status IN ('active', 'closed')" in sql
     assert "client_groups.deleted_at IS NULL" in sql
-    assert selected_access_id.hex in sql
+    assert device_session.id.hex in sql
 
 
 @pytest.mark.asyncio

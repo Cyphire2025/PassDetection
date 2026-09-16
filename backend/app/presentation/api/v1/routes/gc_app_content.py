@@ -1531,7 +1531,7 @@ async def _admin_access_context(
     if lock:
         # Without an ``OF`` list PostgreSQL locks every selected base table,
         # preserving the existing access-and-group mutation boundary.
-        stmt = stmt.with_for_update()
+        stmt = stmt.where(GCGroupAccessModel.removed_at.is_(None)).with_for_update()
     row = (await session.execute(stmt)).first()
     if row is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="GC App group not found")

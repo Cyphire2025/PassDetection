@@ -34,6 +34,9 @@ from app.presentation.api.v1.routes.email_integrations import (
 )
 from app.presentation.api.v1.routes.gc_app import router as gc_app_router
 from app.presentation.api.v1.routes.gc_app_content import router as gc_app_content_router
+from app.presentation.api.v1.routes.gc_app_group_removal import (
+    router as gc_app_group_removal_router,
+)
 from app.presentation.api.v1.routes.gc_notifications import router as gc_notifications_router
 from app.presentation.api.v1.routes.health import router as health_router
 from app.presentation.api.v1.routes.menu import router as menu_router
@@ -165,6 +168,9 @@ api_v1_router.include_router(
     gc_app_router,
     prefix="/gc-app/admin",
     tags=["GC App Administration"],
+)
+api_v1_router.include_router(
+    gc_app_group_removal_router, prefix="/gc-app/admin", tags=["GC App Administration"]
 )
 api_v1_router.include_router(
     gc_app_content_router,

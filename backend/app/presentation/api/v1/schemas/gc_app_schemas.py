@@ -188,6 +188,7 @@ class GCAppAvailabilityFields(BaseModel):
 
 
 class GCGroupSearchAccess(GCAppAvailabilityFields):
+    removed_at: datetime | None = None
     group_id: uuid.UUID
     agency_id: uuid.UUID
     client_organization_id: uuid.UUID
@@ -232,6 +233,7 @@ class GCGroupSearchPageResponse(BaseModel):
 
 
 class GCGroupAccessUpdateRequest(BaseModel):
+    restore_removed: bool = False
     client_organization_id: uuid.UUID | None = None
     enabled: bool
     passenger_access_enabled: bool = True
@@ -258,6 +260,7 @@ class GCMyPhotosFeatureUpdateRequest(BaseModel):
 
 
 class GCGroupAccessResponse(GCAppAvailabilityFields):
+    removed_at: datetime | None = None
     group_id: uuid.UUID
     agency_id: uuid.UUID
     name: str

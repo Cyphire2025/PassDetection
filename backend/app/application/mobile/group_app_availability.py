@@ -53,7 +53,7 @@ def _availability(
         return "unavailable", "group_archived"
     if not group_can_enable_mobile_access(group):
         return "unavailable", "group_unavailable"
-    if access is None:
+    if access is None or access.removed_at is not None:
         return "unavailable", "not_configured"
     if not access.is_enabled:
         return "paused", "app_disabled"
@@ -81,6 +81,7 @@ def availability_filter(value: GCAppAvailability, *, now: datetime) -> ColumnEle
                     ClientGroupModel.status.not_in(("active", "closed")),
                     ClientGroupModel.deleted_at.is_not(None),
                     GCGroupAccessModel.id.is_(None),
+                    GCGroupAccessModel.removed_at.is_not(None),
                 ),
                 "unavailable",
             ),

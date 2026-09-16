@@ -779,7 +779,7 @@ class Settings(BaseSettings):
         pattern=r"^(?:unknown|[0-9a-f]{7,64})$",
     )
     expected_database_schema_revision: str = Field(
-        default="0098_notification_saved_delete",
+        default="0099_gc_group_access_removal",
         min_length=1,
         max_length=32,
         pattern=r"^[A-Za-z0-9_]+$",

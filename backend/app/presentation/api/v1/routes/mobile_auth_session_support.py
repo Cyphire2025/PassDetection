@@ -12,6 +12,7 @@ from sqlalchemy import and_, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mobile.passenger_session_authority import (
+    MAX_SESSION_PASSENGER_IDENTITIES,
     ensure_current_passenger_session_bindings,
 )
 from app.core.security.mobile_jwt import MobileAccessClaims, MobilePrincipalType
@@ -348,13 +349,6 @@ async def _refresh_principal(
                     .where(
                         MobilePassengerSessionIdentityModel.session_id == device_session.id,
                         MobilePassengerSessionIdentityModel.agency_id == device_session.agency_id,
-                        MobilePassengerSessionIdentityModel.passenger_identity_id
-                        == device_session.passenger_identity_id,
-                        MobilePassengerSessionIdentityModel.gc_group_access_id
-                        == device_session.selected_gc_group_access_id,
-                        MobilePassengerSessionIdentityModel.group_id
-                        == device_session.selected_group_id,
-                        MobilePassengerIdentityModel.id == device_session.passenger_identity_id,
                         MobilePassengerIdentityModel.agency_id == device_session.agency_id,
                         MobilePassengerIdentityModel.gc_group_access_id
                         == MobilePassengerSessionIdentityModel.gc_group_access_id,
@@ -362,11 +356,15 @@ async def _refresh_principal(
                         == MobilePassengerSessionIdentityModel.group_id,
                         MobilePassengerIdentityModel.claim_generation
                         == MobilePassengerSessionIdentityModel.identity_claim_generation,
-                        MobilePassengerIdentityModel.status == "claimed",
+                        or_(
+                            MobilePassengerIdentityModel.status == "claimed",
+                            and_(
+                                MobilePassengerIdentityModel.id != device_session.passenger_identity_id,
+                                MobilePassengerIdentityModel.status == "eligible",
+                            ),
+                        ),
                         MobilePassengerIdentityModel.revoked_at.is_(None),
-                        GCGroupAccessModel.id == device_session.selected_gc_group_access_id,
                         GCGroupAccessModel.agency_id == device_session.agency_id,
-                        GCGroupAccessModel.group_id == device_session.selected_group_id,
                         GCGroupAccessModel.is_enabled.is_(True),
                         GCGroupAccessModel.passenger_access_enabled.is_(True),
                         GCGroupAccessModel.revoked_at.is_(None),
@@ -383,16 +381,45 @@ async def _refresh_principal(
                         ),
                         ClientGroupModel.deleted_at.is_(None),
                     )
-                    .limit(2)
+                    .order_by(
+                        # Every session locks the same trip set in the same
+                        # order; choosing the preferred trip happens below.
+                        GCGroupAccessModel.group_id,
+                        MobilePassengerIdentityModel.id,
+                    )
+                    .limit(MAX_SESSION_PASSENGER_IDENTITIES + 1)
+                    .execution_options(populate_existing=True)
                     .with_for_update()
                 )
             ).all()
         )
-        if len(rows) != 1:
+        if (
+            not rows
+            or len(rows) > MAX_SESSION_PASSENGER_IDENTITIES
+            or len({identity.id for identity, _access in rows}) != len(rows)
+        ):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Mobile identity is inactive"
             )
-        identity, access = rows[0]
+        identity, access = next(
+            (row for row in rows if row[0].id == device_session.passenger_identity_id),
+            rows[0],
+        )
+        if identity.id != device_session.passenger_identity_id:
+            # The selected trip may have been removed while this account still
+            # has another OTP-proven binding. Refresh never discovers or grants
+            # a new identity; it only selects an existing, currently valid one.
+            # Preserve the stable account/session and fence the previous bearer.
+            identity.status = "claimed"
+            identity.claimed_at = identity.claimed_at or now
+            identity.last_verified_at = now
+            identity.updated_at = now
+            device_session.passenger_identity_id = identity.id
+            device_session.selected_gc_group_access_id = access.id
+            device_session.selected_group_id = access.group_id
+            device_session.last_sync_acknowledged_at = None
+            device_session.session_generation += 1
+            device_session.updated_at = now
         name = (
             await session.execute(
                 select(PassportSubmissionModel.client_name).where(

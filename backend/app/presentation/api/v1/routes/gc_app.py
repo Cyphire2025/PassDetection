@@ -226,9 +226,13 @@ async def search_gc_groups(
             )
         )
     if configured_only:
-        filters.append(GCGroupAccessModel.id.is_not(None))
+        filters.extend([
+            GCGroupAccessModel.id.is_not(None), GCGroupAccessModel.removed_at.is_(None),
+        ])
     if unconfigured_only:
-        filters.append(GCGroupAccessModel.id.is_(None))
+        filters.append(or_(
+            GCGroupAccessModel.id.is_(None), GCGroupAccessModel.removed_at.is_not(None),
+        ))
     if availability is not None:
         filters.append(availability_filter(availability, now=now))
     total = int(
@@ -385,6 +389,7 @@ async def search_gc_groups(
                         access_starts_at=access.access_starts_at,
                         access_expires_at=access.access_expires_at,
                         revoked_at=access.revoked_at,
+                        removed_at=access.removed_at,
                         access_generation=access.access_generation,
                         itinerary_version=access.itinerary_version,
                         common_document_version=access.common_document_version,
@@ -421,7 +426,9 @@ async def get_gc_group_access(
     session: AsyncSession = Depends(get_db_session),
 ) -> GCGroupAccessResponse:
     tenant_id = _tenant_id(current_user, agency_id)
-    access = await _get_group_access(session, tenant_id, group_id, lock=False)
+    access = await _get_group_access(
+        session, tenant_id, group_id, lock=False, include_removed=True,
+    )
     return await _group_access_response(session, access)
 
 
@@ -462,9 +469,13 @@ async def configure_gc_group_access(
                 GCGroupAccessModel.agency_id == tenant_id,
                 GCGroupAccessModel.group_id == group_id,
             )
+            .execution_options(populate_existing=True)
             .with_for_update()
         )
     ).scalar_one_or_none()
+    restoring = _group_access_support.validate_removed_access_restore(
+        access, body, can_enable=can_enable,
+    )
     organization_id = body.client_organization_id or (
         access.client_organization_id if access else None
     )
@@ -559,6 +570,7 @@ async def configure_gc_group_access(
             revoke_all_group_sessions = True
             access_window_changed = True
         access.client_organization_id = organization_id
+        access.removed_at = None
         access.is_enabled = body.enabled
         access.passenger_access_enabled = body.passenger_access_enabled
         access.client_manager_access_enabled = body.client_manager_access_enabled
@@ -572,7 +584,9 @@ async def configure_gc_group_access(
         access.revision += 1
         access.updated_by_user_id = current_user.id
         access.updated_at = now
-        action = "gc_app.group_enabled" if body.enabled else "gc_app.group_disabled"
+        action = "gc_app.group_restored" if restoring else (
+            "gc_app.group_enabled" if body.enabled else "gc_app.group_disabled"
+        )
 
     if access_window_changed:
         await session.execute(
@@ -589,12 +603,9 @@ async def configure_gc_group_access(
         )
         access.common_document_version += 1
 
-    if revoke_all_group_sessions:
-        revoked_roles = {
-            "passenger",
-            "client_manager",
-            "coordinator",
-        }
+    revoked_roles = _group_access_support.session_roles_to_revoke(
+        revoked_roles, revoke_all_group_sessions, restoring=restoring,
+    )
     if revoked_roles:
         await _revoke_group_mobile_sessions(
             session,
@@ -763,87 +774,6 @@ async def refresh_mobile_passenger_identities(
         skipped_ambiguous=result.skipped_ambiguous,
         skipped_without_secondary_factor=result.skipped_without_secondary_factor,
     )
-
-
-@router.delete(
-    "/groups/{group_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-    response_class=Response,
-    dependencies=[Depends(require_cookie_csrf)],
-)
-async def revoke_gc_group_access(
-    group_id: uuid.UUID,
-    request: Request,
-    agency_id: uuid.UUID | None = None,
-    current_user: User = Depends(require_role(GC_ADMIN_ROLES)),
-    session: AsyncSession = Depends(get_db_session),
-) -> Response:
-    tenant_id = _tenant_id(current_user, agency_id)
-    access = await _get_group_access(session, tenant_id, group_id, lock=True)
-    now = datetime.now(tz=UTC)
-    access.is_enabled = False
-    access.passenger_access_enabled = False
-    access.client_manager_access_enabled = False
-    access.coordinator_access_enabled = False
-    access.revoked_at = now
-    access.revoked_by_user_id = current_user.id
-    access.access_generation += 1
-    access.manifest_version += 1
-    access.revision += 1
-    access.updated_by_user_id = current_user.id
-    access.updated_at = now
-    revoked_roles: set[MobileAudience] = {
-        "passenger",
-        "client_manager",
-        "coordinator",
-    }
-    await _revoke_group_mobile_sessions(
-        session,
-        access,
-        subject_roles=revoked_roles,
-        reason="group_access_revoked",
-    )
-    await append_mobile_sync_change(
-        session,
-        access=access,
-        entity_type="group_access",
-        entity_id=access.id,
-        operation="revoke",
-        version=access.manifest_version,
-        changed_by_user_id=current_user.id,
-        payload={
-            "resource_path": f"/api/v1/mobile/trips/{group_id}/manifest",
-            "purge_required": True,
-            "revoked_roles": sorted(revoked_roles),
-        },
-    )
-    for revoked_role in sorted(revoked_roles):
-        await append_mobile_sync_change(
-            session,
-            access=access,
-            audience=revoked_role,
-            entity_type="role_access",
-            entity_id=access.id,
-            operation="revoke",
-            version=access.manifest_version,
-            changed_by_user_id=current_user.id,
-            payload={
-                "resource_path": f"/api/v1/mobile/trips/{group_id}/manifest",
-                "purge_required": True,
-                "role": revoked_role,
-            },
-        )
-    await _audit(
-        session,
-        current_user,
-        request,
-        agency_id=tenant_id,
-        action="gc_app.group_revoked",
-        entity_type="gc_group_access",
-        entity_id=access.id,
-        metadata={"group_id": str(group_id), "access_generation": access.access_generation},
-    )
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get(
@@ -1856,7 +1786,7 @@ async def _get_group(
         ClientGroupModel.agency_id == agency_id,
     )
     if lock:
-        stmt = stmt.with_for_update()
+        stmt = stmt.with_for_update().execution_options(populate_existing=True)
     group = (await session.execute(stmt)).scalar_one_or_none()
     if group is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Group not found")
@@ -1869,13 +1799,16 @@ async def _get_group_access(
     group_id: uuid.UUID,
     *,
     lock: bool,
+    include_removed: bool = False,
 ) -> GCGroupAccessModel:
     stmt = select(GCGroupAccessModel).where(
         GCGroupAccessModel.agency_id == agency_id,
         GCGroupAccessModel.group_id == group_id,
     )
+    if not include_removed:
+        stmt = stmt.where(GCGroupAccessModel.removed_at.is_(None))
     if lock:
-        stmt = stmt.with_for_update()
+        stmt = stmt.with_for_update().execution_options(populate_existing=True)
     access = (await session.execute(stmt)).scalar_one_or_none()
     if access is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="GC App group not found")
