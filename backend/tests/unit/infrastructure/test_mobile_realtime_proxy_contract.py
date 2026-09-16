@@ -37,6 +37,19 @@ def test_mobile_realtime_proxy_preserves_upgrade_auth_and_bounded_timeouts() -> 
         assert directive in location
 
 
+def test_optional_maintenance_controls_run_before_all_tls_location_handlers() -> None:
+    site = (_REPOSITORY_ROOT / "nginx/conf.d/default.conf").read_text(encoding="utf-8")
+    directive = "include /etc/nginx/conf.d/server-controls/*.conf;"
+    assert site.count(directive) == 1
+    tls_start = site.index("listen 443 ssl;")
+    assert tls_start < site.index(directive) < site.index("\n    location", tls_start)
+    # Do not enable maintenance in the shipped configuration or change the
+    # application's 403 responses, which still mean denied authorization.
+    directives = "\n".join(line.split("#", 1)[0] for line in site.splitlines())
+    assert "return 503" not in directives
+    assert "error_page 403" not in directives
+
+
 def test_dashboard_realtime_proxy_preserves_same_origin_cookie_upgrade() -> None:
     site = (_REPOSITORY_ROOT / "nginx/conf.d/default.conf").read_text(encoding="utf-8")
     location = _exact_location(site, "/api/v1/dashboard/realtime")
