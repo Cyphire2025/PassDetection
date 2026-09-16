@@ -32,6 +32,22 @@ function setup() {
 const fill = (result: ReturnType<typeof setup>["result"]) => act(() => result.current.change({ title: draft.title, body: draft.body, audience: "selected_groups", group_ids: [groupId] }));
 
 describe("Explicit notification composition and send recovery", () => {
+  it("resends the saved message with a fresh review and request without duplicating Saved", async () => {
+    const { result } = setup();
+    const saved = { ...draft, status: "sent" as const, last_sent_at: batch.created_at };
+    act(() => result.current.resendSaved(saved));
+    expect(result.current.editorOpen).toBe(true);
+    expect(result.current.resending).toBe(true);
+    expect(notificationsApi.send).not.toHaveBeenCalled();
+    await act(() => result.current.prepareReview());
+    expect(notificationsApi.createDraft).not.toHaveBeenCalled();
+    expect(notificationsApi.updateDraft).not.toHaveBeenCalled();
+    expect(notificationsApi.preview).toHaveBeenCalledExactlyOnceWith(agencyId, saved);
+    await act(() => result.current.send());
+    expect(notificationsApi.send).toHaveBeenCalledWith(agencyId, saved.id, expect.objectContaining({ expected_revision: saved.revision }));
+    expect(vi.mocked(notificationsApi.send).mock.calls[0]?.[2].request_id).not.toBe(batch.request_id);
+    expect(result.current.editorOpen).toBe(false);
+  });
   it("saving and reviewing create no phone send and reuse an unchanged saved draft", async () => {
     const { result } = setup(); fill(result);
     await act(() => result.current.save());
@@ -109,7 +125,7 @@ describe("Explicit notification composition and send recovery", () => {
     expect(notificationsApi.send).toHaveBeenCalledTimes(1);
     vi.mocked(notificationsApi.byRequest).mockResolvedValue({ ...batch, request_id: marker.request_id });
     await act(() => second.result.current.checkPending());
-    expect(notificationsApi.byRequest).toHaveBeenCalledWith(agencyId, marker.request_id);
+    expect(notificationsApi.byRequest).toHaveBeenCalledWith(agencyId, marker.request_id, marker.draft_id);
     expect(notificationsApi.send).toHaveBeenCalledTimes(1);
     expect(second.result.current.pending).toBeNull();
   });
@@ -192,5 +208,29 @@ describe("Explicit notification composition and send recovery", () => {
     await act(() => result.current.send());
     expect(notificationsApi.send).not.toHaveBeenCalled();
     expect(result.current.error).toContain("session storage");
+  });
+
+  it.each(["checkPending", "reviewPending"] as const)("unlocks %s only after a locked server lookup proves deletion without a send", async (action) => {
+    persistPendingSend(pendingSendKey(agencyId, actorId), { request_id: batch.request_id, draft_id: draft.id });
+    const { result } = setup();
+    vi.mocked(notificationsApi.byRequest).mockRejectedValue({ status: 410, message: "notification_deleted_without_send" });
+    await act(() => result.current[action]());
+    expect(result.current.pending).toBeNull();
+    expect(sessionStorage.length).toBe(0);
+    expect(result.current.notice).toContain("No send was created for this request");
+    expect(notificationsApi.send).not.toHaveBeenCalled();
+    expect(notificationsApi.getDraft).not.toHaveBeenCalled();
+    act(() => result.current.openNew());
+    expect(result.current.editorOpen).toBe(true);
+  });
+
+  it.each([{ status: 404 }, { status: 410, message: "unavailable" }, { status: 500, message: "notification_deleted_without_send" }])("keeps send recovery on an unproven unavailable response $status/$message", async (error) => {
+    persistPendingSend(pendingSendKey(agencyId, actorId), { request_id: batch.request_id, draft_id: draft.id });
+    const { result } = setup();
+    vi.mocked(notificationsApi.byRequest).mockRejectedValue(error);
+    await act(() => result.current.checkPending());
+    expect(result.current.pending?.request_id).toBe(batch.request_id);
+    expect(sessionStorage.length).toBe(1);
+    expect(notificationsApi.send).not.toHaveBeenCalled();
   });
 });

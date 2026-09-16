@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { notificationsApi } from "./notifications.api";
-import { isNotFound, isRejectedBeforeSend, notificationError } from "./notification-errors";
+import { isDeletedWithoutSend, isNotFound, isRejectedBeforeSend, notificationError } from "./notification-errors";
 import { clearPendingSend, pendingSendKey, persistPendingSend, readPendingSend } from "./pending-send";
 import { NOTIFICATION_BODY_LIMIT, NOTIFICATION_TITLE_LIMIT, type NotificationBatch, type NotificationDraft, type NotificationDraftInput, type NotificationPreview, type NotificationSendInput } from "./notification-types";
 
@@ -25,6 +25,7 @@ export function useNotificationComposer(agencyId: string, actorId: string) {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [resending, setResending] = useState(false);
+  const [editorOpen, setEditorOpen] = useState(false);
   const running = useRef(false);
   const hasEdits = draft ? !sameInput(form, draft) : Boolean(form.title || form.body || form.group_ids.length || form.audience === "all_active_trips");
 
@@ -49,6 +50,7 @@ export function useNotificationComposer(agencyId: string, actorId: string) {
     setForm(emptyMessage());
     setGroupNames({});
     setResending(false);
+    setEditorOpen(false);
     setNotice("Send recorded. Check the delivery summary below; phone display is not confirmed.");
     refreshLists();
   };
@@ -58,6 +60,7 @@ export function useNotificationComposer(agencyId: string, actorId: string) {
     setPending(null);
     setSendInput(null);
     setNotice("The server rejected this request before recording a send. Your message is kept; update it or its audience and review again.");
+    setEditorOpen(true);
     return true;
   };
   const saveCurrent = async (): Promise<NotificationDraft> => {
@@ -84,6 +87,7 @@ export function useNotificationComposer(agencyId: string, actorId: string) {
   const save = () => run(async () => {
     if (pending) return;
     await saveCurrent();
+    setEditorOpen(false);
     setNotice("Message saved. This action did not send a phone notification.");
   }, "The notification draft could not be saved.");
   const prepareReview = () => run(async () => {
@@ -107,14 +111,16 @@ export function useNotificationComposer(agencyId: string, actorId: string) {
     catch (cause) {
       setReview(null);
       if (releaseRejectedSend(cause)) throw cause;
+      setEditorOpen(false);
       throw new Error(`${notificationError(cause, "The server response was not received.")} Check this send before creating another notification.`);
     }
   }, "The send could not be confirmed. Check its recorded outcome before starting another send.");
 
   const checkPending = () => run(async () => {
     if (!pending) return;
-    try { accept(await notificationsApi.byRequest(agencyId, pending.request_id)); }
+    try { accept(await notificationsApi.byRequest(agencyId, pending.request_id, pending.draft_id)); }
     catch (cause) {
+      if (releaseDeletedSend(cause)) return;
       if (!isNotFound(cause)) throw cause;
       setNotice("No recorded send was found yet. You can check again or review and retry this same request. A new send has not been started.");
     }
@@ -122,8 +128,8 @@ export function useNotificationComposer(agencyId: string, actorId: string) {
 
   const reviewPending = () => run(async () => {
     if (!pending) return;
-    try { accept(await notificationsApi.byRequest(agencyId, pending.request_id)); return; }
-    catch (cause) { if (!isNotFound(cause)) throw cause; }
+    try { accept(await notificationsApi.byRequest(agencyId, pending.request_id, pending.draft_id)); return; }
+    catch (cause) { if (releaseDeletedSend(cause)) return; if (!isNotFound(cause)) throw cause; }
     const saved = await notificationsApi.getDraft(agencyId, pending.draft_id);
     const preview = await notificationsApi.preview(agencyId, saved);
     setDraft(saved);
@@ -144,20 +150,48 @@ export function useNotificationComposer(agencyId: string, actorId: string) {
     if (busy || pending || hasEdits) return;
     setForm(inputFrom(saved)); setDraft(saved); applyNames(saved);
     setReview(null); setError(null); setNotice(null); setResending(false);
+    setEditorOpen(true);
+  };
+  const resendSaved = (saved: NotificationDraft) => {
+    if (busy || pending || hasEdits) return;
+    edit(saved);
+    setResending(true);
+    setNotice("Review the current audience before sending again. Previous recipients may receive this alert again.");
   };
   const resend = (batch: NotificationBatch) => {
     if (busy || pending || hasEdits) return;
     setForm(inputFrom(batch)); setDraft(null); applyNames(batch);
     setReview(null); setError(null); setResending(true);
+    setEditorOpen(true);
     setNotice("Preparing another phone alert from this previous send. Review the current audience; recipients may receive the alert again.");
   };
   const discard = () => {
     if (busy || pending) return;
     setForm(emptyMessage()); setDraft(null); setGroupNames({}); setReview(null);
     setError(null); setNotice(null); setResending(false);
+    setEditorOpen(false);
   };
 
-  return { form, draft, groupNames, review, pending, lastBatch, busy, error, notice, hasEdits, resending,
-    change, save, prepareReview, send, checkPending, reviewPending, retryPending, edit, resend, discard,
+  const openNew = () => {
+    if (busy || pending || hasEdits) return;
+    discard();
+    setEditorOpen(true);
+  };
+
+  const releaseDeletedSend = (cause: unknown): boolean => {
+    // Only the server's locked draft + second request lookup can prove this.
+    // Ordinary 404/410 responses and failed lookups remain recoverable.
+    if (!isDeletedWithoutSend(cause)) return false;
+    clearPendingSend(storageKey);
+    setPending(null); setSendInput(null); setReview(null);
+    setForm(emptyMessage()); setDraft(null); setGroupNames({});
+    setEditorOpen(false); setResending(false);
+    setNotice("This saved notification was deleted before this send was recorded. No send was created for this request. You can create a new notification.");
+    refreshLists();
+    return true;
+  };
+
+  return { form, draft, groupNames, review, pending, lastBatch, busy, error, notice, hasEdits, resending, editorOpen,
+    change, save, prepareReview, send, checkPending, reviewPending, retryPending, edit, resend, resendSaved, discard, openNew,
     closeReview: () => { if (!busy) setReview(null); }, selectBatch: setLastBatch };
 }

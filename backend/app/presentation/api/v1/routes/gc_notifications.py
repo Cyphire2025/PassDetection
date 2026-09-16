@@ -2,7 +2,7 @@
 
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,6 +13,7 @@ from app.application.mobile.authored_notification_history import (
 )
 from app.application.mobile.authored_notification_service import (
     batch_by_request,
+    delete_notification_draft,
     draft_response,
     preview_notification,
     require_draft,
@@ -62,7 +63,8 @@ async def list_drafts(
     session: AsyncSession = Depends(get_db_session),
 ) -> NotificationDraftPage:
     statement = select(GCNotificationDraftModel).where(
-        GCNotificationDraftModel.agency_id == _agency(current_user, agency_id)
+        GCNotificationDraftModel.agency_id == _agency(current_user, agency_id),
+        GCNotificationDraftModel.deleted_at.is_(None),
     )
     if cursor:
         statement = statement.where(cursor_filter(GCNotificationDraftModel, cursor))
@@ -113,10 +115,26 @@ async def list_batches(
 async def get_batch_by_request(
     request_id: uuid.UUID,
     agency_id: uuid.UUID | None = None,
+    draft_id: uuid.UUID | None = None,
     current_user: User = Depends(require_role(_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> NotificationBatchResponse:
-    batch = await batch_by_request(session, _agency(current_user, agency_id), request_id)
+    selected_agency = _agency(current_user, agency_id)
+    batch = await batch_by_request(session, selected_agency, request_id)
+    if batch is None and draft_id is not None:
+        # A missing lookup alone cannot rule out a send that is still committing.
+        # Deletion and send share this row lock. Once we hold a tombstoned row,
+        # any earlier send has completed and no future send can use the draft.
+        draft = await require_draft(
+            session,
+            agency_id=selected_agency,
+            draft_id=draft_id,
+            lock=True,
+            include_deleted=True,
+        )
+        batch = await batch_by_request(session, selected_agency, request_id)
+        if batch is None and draft.deleted_at is not None:
+            raise HTTPException(410, "notification_deleted_without_send")
     if batch is None:
         raise HTTPException(404, "Notification batch not found")
     return (await batch_responses(session, [batch]))[0]
@@ -194,6 +212,30 @@ async def update_draft(
             draft_id=draft_id,
         )
     )
+
+
+@router.delete(
+    "/{draft_id}",
+    status_code=204,
+    dependencies=[Depends(require_cookie_csrf)],
+)
+async def delete_draft(
+    draft_id: uuid.UUID,
+    expected_revision: int = Query(..., ge=1),
+    agency_id: uuid.UUID | None = None,
+    current_user: User = Depends(require_role(_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> Response:
+    await delete_notification_draft(
+        session,
+        agency_id=_agency(current_user, agency_id),
+        actor_id=current_user.id,
+        draft_id=draft_id,
+        expected_revision=expected_revision,
+    )
+    # Commit before acknowledging so a failed commit never looks like a completed deletion.
+    await session.commit()
+    return Response(status_code=204)
 
 
 @router.post(

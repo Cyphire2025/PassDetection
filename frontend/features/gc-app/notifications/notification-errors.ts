@@ -17,6 +17,10 @@ export function isNotFound(error: unknown): boolean {
   return typeof error === "object" && error !== null && "status" in error && error.status === 404;
 }
 
+export function isDeletedWithoutSend(error: unknown): boolean {
+  return typeof error === "object" && error !== null && "status" in error && error.status === 410 && "message" in error && error.message === "notification_deleted_without_send";
+}
+
 export function isRejectedBeforeSend(error: unknown): boolean {
   if (typeof error !== "object" || error === null || !("status" in error) || error.status !== 409 || !("message" in error)) return false;
   // These responses follow the server's lookup for an already recorded request.

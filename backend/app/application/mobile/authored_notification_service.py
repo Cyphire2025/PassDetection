@@ -41,7 +41,12 @@ from app.presentation.api.v1.schemas.gc_notification_schemas import (
 
 
 async def require_draft(
-    session: AsyncSession, *, agency_id: uuid.UUID, draft_id: uuid.UUID, lock: bool = False
+    session: AsyncSession,
+    *,
+    agency_id: uuid.UUID,
+    draft_id: uuid.UUID,
+    lock: bool = False,
+    include_deleted: bool = False,
 ) -> GCNotificationDraftModel:
     statement = (
         select(GCNotificationDraftModel)
@@ -53,7 +58,7 @@ async def require_draft(
     if lock:
         statement = statement.with_for_update()
     result = (await session.execute(statement)).scalar_one_or_none()
-    if result is None:
+    if result is None or (result.deleted_at is not None and not include_deleted):
         raise HTTPException(404, "Notification draft not found")
     return result
 
@@ -141,6 +146,41 @@ async def save_notification_draft(
         metadata={"revision": draft.revision},
     )
     return draft
+
+
+async def delete_notification_draft(
+    session: AsyncSession,
+    *,
+    agency_id: uuid.UUID,
+    actor_id: uuid.UUID,
+    draft_id: uuid.UUID,
+    expected_revision: int,
+    now: datetime | None = None,
+) -> None:
+    """Hide saved content only; existing send transactions and delivery remain durable."""
+    draft = await require_draft(
+        session, agency_id=agency_id, draft_id=draft_id, lock=True, include_deleted=True
+    )
+    if draft.deleted_at is not None:
+        # A lost successful response can be safely retried with its original revision.
+        if expected_revision != draft.revision - 1:
+            raise HTTPException(409, "draft_conflict")
+        return
+    if expected_revision != draft.revision:
+        raise HTTPException(409, "draft_conflict")
+    current = now or datetime.now(UTC)
+    draft.deleted_at, draft.deleted_by_user_id = current, actor_id
+    draft.updated_at, draft.updated_by_user_id = current, actor_id
+    draft.revision += 1
+    await session.flush()
+    await AuditLogRepository(session).record(
+        action="gc_notification.saved_deleted",
+        entity_type="gc_notification",
+        agency_id=agency_id,
+        user_id=actor_id,
+        entity_id=str(draft.id),
+        metadata={"revision": draft.revision, "history_retained": True},
+    )
 
 
 async def _audience(

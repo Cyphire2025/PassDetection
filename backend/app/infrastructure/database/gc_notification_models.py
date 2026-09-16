@@ -41,6 +41,14 @@ class GCNotificationDraftModel(Base):
             name="ck_gc_notification_draft_content",
         ),
         Index("ix_gc_notification_draft_page", "agency_id", "id"),
+        Index(
+            "ix_gc_notification_saved_page",
+            "agency_id",
+            "created_at",
+            "id",
+            postgresql_where=text("deleted_at IS NULL"),
+            sqlite_where=text("deleted_at IS NULL"),
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -67,6 +75,13 @@ class GCNotificationDraftModel(Base):
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
     last_sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Removing a saved message must never erase a send, its recipients or delivery evidence.
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    deleted_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", name="fk_gc_notification_draft_deleted_by", ondelete="SET NULL"),
+        nullable=True,
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=_utcnow
     )

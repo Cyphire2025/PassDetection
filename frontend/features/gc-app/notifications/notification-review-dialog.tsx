@@ -3,15 +3,17 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui";
 import { GcDialog } from "../components/gc-dialog";
+import { GcAlert } from "../components/gc-app-feedback";
 import { formatGcDateTime } from "../utils";
 import type { NotificationDraft, NotificationPreview } from "./notification-types";
 
-export function NotificationReviewDialog({ draft, preview, busy, recovering, resending, onClose, onRefresh, onSend }: {
+export function NotificationReviewDialog({ draft, preview, busy, recovering, resending, error, onClose, onRefresh, onSend }: {
   draft: NotificationDraft;
   preview: NotificationPreview;
   busy: boolean;
   recovering: boolean;
   resending: boolean;
+  error?: string | null;
   onClose: () => void;
   onRefresh: () => void;
   onSend: () => void;
@@ -26,6 +28,7 @@ export function NotificationReviewDialog({ draft, preview, busy, recovering, res
     <Button type="button" isLoading={busy} disabled={expired || preview.recipient_count === 0 || unavailableGroups.length > 0} onClick={onSend}>{recovering ? "Retry same send request" : resending ? "Send again" : "Send notification"}</Button>
   </>}>
     <div className="space-y-4">
+      {error && <GcAlert message={error} />}
       {!preview.provider_enabled && <p role="status" className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">Phone delivery is disabled on the server. Sending records the notification, but a phone alert cannot be delivered while the provider remains disabled.</p>}
       {preview.provider_enabled && (!preview.android_provider_enabled || !preview.ios_provider_enabled) && <p role="status" className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">Phone delivery is enabled for {preview.android_provider_enabled ? "Android" : "iOS"} only. {preview.android_provider_enabled ? "iOS" : "Android"} alerts cannot be delivered while that provider is disabled.</p>}
       {preview.eligible_device_count === 0 && <p role="status" className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">There are no eligible registered devices. This send cannot reach a phone right now.</p>}

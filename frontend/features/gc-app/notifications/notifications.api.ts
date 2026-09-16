@@ -21,6 +21,9 @@ export const notificationsApi = {
     const { data } = await apiClient.patch<NotificationDraft>(`${ROOT}/${encodeURIComponent(draft.id)}`, { ...body, expected_revision: draft.revision }, { params: scope(agencyId) });
     return data;
   },
+  deleteDraft: async (agencyId: string, draft: NotificationDraft): Promise<void> => {
+    await apiClient.delete(`${ROOT}/${encodeURIComponent(draft.id)}`, { params: { ...scope(agencyId), expected_revision: draft.revision } });
+  },
   preview: async (agencyId: string, draft: NotificationDraft): Promise<NotificationPreview> => {
     const { data } = await apiClient.post<NotificationPreview>(`${ROOT}/${encodeURIComponent(draft.id)}/preview`, { expected_revision: draft.revision }, { params: scope(agencyId) });
     return data;
@@ -29,8 +32,8 @@ export const notificationsApi = {
     const { data } = await apiClient.post<NotificationBatch>(`${ROOT}/${encodeURIComponent(draftId)}/send`, body, { params: scope(agencyId) });
     return data;
   },
-  byRequest: async (agencyId: string, requestId: string): Promise<NotificationBatch> => {
-    const { data } = await apiClient.get<NotificationBatch>(`${ROOT}/batches/by-request/${encodeURIComponent(requestId)}`, { params: scope(agencyId) });
+  byRequest: async (agencyId: string, requestId: string, draftId?: string): Promise<NotificationBatch> => {
+    const { data } = await apiClient.get<NotificationBatch>(`${ROOT}/batches/by-request/${encodeURIComponent(requestId)}`, { params: { ...scope(agencyId), ...(draftId ? { draft_id: draftId } : {}) } });
     return data;
   },
   getBatch: async (agencyId: string, batchId: string, signal?: AbortSignal): Promise<NotificationBatch> => {

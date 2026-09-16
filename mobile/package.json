@@ -1,7 +1,7 @@
 {
   "name": "group-companion-mobile",
   "main": "expo-router/entry",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "engines": {
     "node": "^20.19.4 || ^22.13.0 || ^24.3.0",
     "npm": ">=10 <12"
