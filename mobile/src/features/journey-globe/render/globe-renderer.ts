@@ -22,9 +22,12 @@ export function createGlobeRenderer(gl: GL, land: LandMask, mode: 'card' | 'expa
     if (disposed) return;
     disposed = true;
     cancelAnimationFrame(frame);
-    buffers.forEach((buffer) => gl.deleteBuffer(buffer));
-    programs.forEach((program) => gl.deleteProgram(program));
-    textures.forEach((texture) => gl.deleteTexture(texture));
+    // Surface destruction may precede React cleanup. Release every remaining
+    // allocation even if one native deletion rejects the already lost context.
+    const release = (operation: () => void) => { try { operation(); } catch { /* View owns its context. */ } };
+    buffers.splice(0).forEach((buffer) => release(() => gl.deleteBuffer(buffer)));
+    programs.splice(0).forEach((program) => release(() => gl.deleteProgram(program)));
+    textures.splice(0).forEach((texture) => release(() => gl.deleteTexture(texture)));
   };
 
   try {
@@ -74,6 +77,7 @@ export function createGlobeRenderer(gl: GL, land: LandMask, mode: 'card' | 'expa
     };
 
     const draw = () => {
+      if (disposed) return;
       const width = gl.drawingBufferWidth;
       const height = gl.drawingBufferHeight;
       if (!width || !height) return;

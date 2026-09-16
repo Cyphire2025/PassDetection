@@ -36,11 +36,18 @@ an Android image resource. See `mobile/assets/maps/README.md` for regeneration.
 
 ## Lifecycle and accessibility
 
-Animation pauses when the card is scrolled away, the trip tab loses focus, a
-modal covers the card, or the app backgrounds. Reduced-motion preference freezes
+The native GL view and its renderer are released when the card is scrolled away,
+the trip tab loses focus, a modal covers the card, or the app backgrounds. A
+fresh view creates a new context when visible again. Background release is
+synchronous, and a generation key prevents reusing a context when background
+and resume events are batched while a screen is frozen. Reduced-motion preference freezes
 aircraft motion and removes expansion timing. The expanded view also offers
 labelled buttons for zoom/reset and supports Android Back. Native GL failures
-retain readable route details and a working close control.
+retain readable route details and a working close control. This boundary covers
+later route updates, camera gestures and resource cleanup as well as initial
+setup and animation frames; a lost GPU context cannot interrupt the trip screen.
+Callbacks from released contexts are ignored. Native view teardown owns context
+destruction; the app does not use the headless-context destruction API here.
 
 Each GL context uploads explicit RGBA geography pixels and verifies texture
 completeness plus land/ocean pixel readback before reporting ready. Failed or

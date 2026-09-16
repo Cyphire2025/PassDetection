@@ -16,7 +16,7 @@ import {
   protectManagedVaultStorageFromBackup,
 } from './vault';
 
-let initializationInFlight: Promise<void> | null = null;
+let initialization: Promise<void> | null = null;
 
 async function initializeInstallationBoundary(): Promise<void> {
   const binding = await readInstallationBinding();
@@ -39,12 +39,19 @@ async function initializeInstallationBoundary(): Promise<void> {
   await writeInstallationBinding(Crypto.randomUUID());
 }
 
-/** Coalesces concurrent bootstrap calls and always runs before session/database bootstrap. */
+/**
+ * Establishes the installation boundary once per JS process, before any account
+ * opens. Root-screen recovery and account changes reuse that completed boundary:
+ * repeating its pre-open backup protection while a database is open would fail.
+ * Newly opened account databases/vault artifacts enforce their own protection.
+ * Failed attempts remain retryable and never count as a trusted initialization.
+ */
 export function initializeFreshInstallGuard(): Promise<void> {
-  if (initializationInFlight) return initializationInFlight;
-  const operation = initializeInstallationBoundary();
-  initializationInFlight = operation;
-  return operation.finally(() => {
-    if (initializationInFlight === operation) initializationInFlight = null;
+  if (initialization) return initialization;
+  const operation = initializeInstallationBoundary().catch((error: unknown) => {
+    if (initialization === operation) initialization = null;
+    throw error;
   });
+  initialization = operation;
+  return operation;
 }

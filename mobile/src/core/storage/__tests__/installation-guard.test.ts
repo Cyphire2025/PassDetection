@@ -43,12 +43,17 @@ jest.mock('../vault', () => ({
   protectManagedVaultStorageFromBackup: () => mockProtectManagedVaultStorageFromBackup(),
 }));
 
-// eslint-disable-next-line import/first -- Native/storage mocks must precede the bootstrap singleton.
-import { initializeFreshInstallGuard } from '../installation-guard';
+let initializeFreshInstallGuard: typeof import('../installation-guard').initializeFreshInstallGuard;
 
 const validInstallationId = '33333333-3333-4333-8333-333333333333';
 
 beforeEach(() => {
+  // Each test represents a new process. Calls within one test share its real
+  // installation-boundary singleton, including recovery after an account opens.
+  jest.isolateModules(() => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports -- Model a fresh process without a production reset hook.
+    ({ initializeFreshInstallGuard } = require('../installation-guard'));
+  });
   jest.clearAllMocks();
   mockReadInstallationBinding.mockResolvedValue({
     markerInstallationId: validInstallationId,
@@ -73,6 +78,42 @@ test('accepts only an equal device-bound UUID and protects existing managed arti
   expect(mockDeleteAllManagedAccountDatabases).not.toHaveBeenCalled();
   expect(mockClearSecureStateForInstallationReset).not.toHaveBeenCalled();
   expect(mockWriteInstallationBinding).not.toHaveBeenCalled();
+});
+
+test('screen recovery after opening an account reuses the successfully established installation boundary', async () => {
+  await initializeFreshInstallGuard();
+  // This is the database lifecycle precondition after the first session has
+  // opened its account. Root error recovery does not close that connection.
+  mockProtectManagedAccountDatabasesFromBackup.mockRejectedValue(
+    new Error('Managed database backup protection must run before opening an account.'),
+  );
+
+  await expect(initializeFreshInstallGuard()).resolves.toBeUndefined();
+  await expect(initializeFreshInstallGuard()).resolves.toBeUndefined();
+
+  expect(mockReadInstallationBinding).toHaveBeenCalledTimes(1);
+  expect(mockProtectManagedAccountDatabasesFromBackup).toHaveBeenCalledTimes(1);
+  expect(mockDeleteAllManagedAccountDatabases).not.toHaveBeenCalled();
+  expect(mockDeleteAllManagedVaultStorage).not.toHaveBeenCalled();
+  expect(mockClearSecureStateForInstallationReset).not.toHaveBeenCalled();
+  expect(mockWriteInstallationBinding).not.toHaveBeenCalled();
+});
+
+test('failed backup protection is not cached as a successful installation boundary', async () => {
+  mockProtectManagedAccountDatabasesFromBackup.mockRejectedValueOnce(
+    new Error('Backup protection unavailable'),
+  );
+
+  await expect(initializeFreshInstallGuard()).rejects.toThrow('Backup protection unavailable');
+  expect(mockProtectManagedVaultStorageFromBackup).not.toHaveBeenCalled();
+  await expect(initializeFreshInstallGuard()).resolves.toBeUndefined();
+  await expect(initializeFreshInstallGuard()).resolves.toBeUndefined();
+
+  expect(mockReadInstallationBinding).toHaveBeenCalledTimes(2);
+  expect(mockProtectManagedAccountDatabasesFromBackup).toHaveBeenCalledTimes(2);
+  expect(mockProtectManagedVaultStorageFromBackup).toHaveBeenCalledTimes(1);
+  expect(mockDeleteAllManagedAccountDatabases).not.toHaveBeenCalled();
+  expect(mockClearSecureStateForInstallationReset).not.toHaveBeenCalled();
 });
 
 test.each([
@@ -161,6 +202,7 @@ test('concurrent bootstrap callers share one installation-boundary operation', a
 
   const first = initializeFreshInstallGuard();
   const second = initializeFreshInstallGuard();
+  expect(first).toBe(second);
   releaseRead();
   await Promise.all([first, second]);
 
