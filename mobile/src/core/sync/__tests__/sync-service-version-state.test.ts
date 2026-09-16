@@ -1,4 +1,5 @@
 import { ApiError, apiRequest } from '@/core/api/client';
+import { SyncPageSchema } from '@/core/api/contracts';
 import { useSessionStore } from '@/core/auth/session-store';
 import type { MobileRole, MobileSession } from '@/core/auth/types';
 import { DEFAULT_TRIP_TIME_ZONE } from '@/core/localization/time-zone';
@@ -412,6 +413,87 @@ test.each(['revoke', 'delete'] as const)('announcement %s across pages preserves
   expect(harness.state.cursor).toBe(3);
   expect(harness.state.applied.announcements).toBe(3);
   expect(harness.state.applied.personalDocuments).toBe(1);
+});
+
+test('server-normalized historical role invalidation restores the passenger baseline without removing the trip', async () => {
+  const harness = installHarness('passenger');
+  harness.state.accessGeneration = 2;
+  harness.state.applied = versions(-1);
+  harness.state.cursor = null;
+  useSelectedTripStore.getState().selectTrip(TRIP_ID);
+  const authenticatedSession = useSessionStore.getState().session!;
+  authenticatedSession.principal.passengerId = '44444444-4444-4444-8444-444444444444';
+  const principalBefore = { ...authenticatedSession.principal };
+  const currentManifest = manifest('passenger', 2);
+  currentManifest.trip.access_generation = 2;
+  currentManifest.sync_cursor = 2710;
+  const accessId = '55555555-5555-4555-8555-555555555555';
+  let acknowledgedState: DurableState | null = null;
+  // The server excludes the previous generation's 2701 event and projects the
+  // old session's 2705 role revoke as an upsert for this currently authorized
+  // session. Its safe payload contains navigation hints, not purge flags.
+  const page = SyncPageSchema.parse({
+    changes: [
+      { sequence: 2702, entity_type: 'group_access', entity_id: accessId },
+      { sequence: 2705, entity_type: 'role_access', entity_id: accessId },
+      { sequence: 2710, entity_type: 'passenger_identity', entity_id: PRINCIPAL_ID },
+    ].map((change) => ({
+      ...change,
+      group_id: TRIP_ID,
+      operation: 'upsert',
+      version: 2,
+      occurred_at: SERVER_TIME,
+      payload: { resource_path: `/api/v1/mobile/trips/${TRIP_ID}/manifest` },
+    })),
+    next_cursor: 2710,
+    has_more: false,
+  });
+  mockedApiRequest.mockImplementation(async (path: string) => {
+    if (path === `/mobile/trips/${TRIP_ID}/manifest`) return currentManifest as never;
+    if (path.startsWith('/mobile/sync/changes?')) {
+      expect(path).toContain('cursor=0&');
+      return page as never;
+    }
+    if (path === '/mobile/sync/ack') {
+      acknowledgedState = {
+        ...harness.state,
+        applied: { ...harness.state.applied },
+        advertised: { ...harness.state.advertised },
+      };
+      return {
+        trip_id: TRIP_ID, cursor: 2710, access_generation: 2, acknowledged_at: SERVER_TIME,
+      } as never;
+    }
+    throw new Error(`Unexpected API path: ${path}`);
+  });
+
+  await expect(syncTrip(TRIP_ID)).resolves.toMatchObject({ cursor: 2710, changes: 3, changed: true });
+
+  expect(mockedApiRequest).toHaveBeenCalledWith('/mobile/sync/ack', expect.objectContaining({
+    method: 'POST',
+    body: {
+      trip_id: TRIP_ID,
+      cursor: 2710,
+      access_generation: 2,
+      versions: currentManifest.versions,
+    },
+  }));
+  expect(acknowledgedState).toMatchObject({ cursor: 2710, applied: versions(2) });
+  const ackCallIndex = mockedApiRequest.mock.calls.findIndex(([path]) => path === '/mobile/sync/ack');
+  const ackCallOrder = mockedApiRequest.mock.invocationCallOrder[ackCallIndex]!;
+  for (const resource of [
+    mockedItinerary, mockedAnnouncements, mockedCommonDocuments,
+    mockedPersonalDocuments, mockedRoom, mockedMeal, mockedQr,
+  ]) {
+    expect(resource).toHaveBeenCalledTimes(1);
+    expect(resource.mock.invocationCallOrder[0]).toBeLessThan(ackCallOrder);
+  }
+  expect(purgeTripCache).not.toHaveBeenCalled();
+  expect(useSelectedTripStore.getState().tripId).toBe(TRIP_ID);
+  expect(useSessionStore.getState().session).toBe(authenticatedSession);
+  expect(useSessionStore.getState().session?.principal).toEqual(principalBefore);
+  expect(harness.state.cursor).toBe(2710);
+  expect(harness.state.applied).toEqual(versions(2));
 });
 
 test.each(['group_access', 'gc_group_access', 'role_access'])('%s revocation still purges trip data', async (entityType) => {

@@ -110,7 +110,8 @@ from app.infrastructure.repositories.coordinator_assignment_lifecycle import (
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.routes.mobile_integrity import get_mobile_integrity_service
 from app.presentation.api.v1.routes.mobile_sync_projection import (
-    mobile_sync_operation as _mobile_sync_operation,
+    authorized_mobile_sync_operation,
+    mobile_sync_operation,
 )
 from app.presentation.api.v1.schemas.mobile_schemas import (
     MobileAnnouncementPageResponse,
@@ -149,6 +150,7 @@ from app.presentation.dependencies.mobile_auth import (
 from app.presentation.security.client_ip import trusted_client_ip
 
 router = APIRouter()
+_mobile_sync_operation = mobile_sync_operation  # Retained route helper compatibility.
 
 _MAX_TRIP_PAGE = 100
 _MAX_ANNOUNCEMENT_PAGE = 200
@@ -618,7 +620,7 @@ async def list_mobile_sync_changes(
             group_id=row.group_id,
             entity_type=row.entity_type,
             entity_id=row.entity_id,
-            operation=_mobile_sync_operation(row.operation, entity_type=row.entity_type),
+            operation=authorized_mobile_sync_operation(row, trip),
             version=row.version,
             occurred_at=row.occurred_at,
             payload=_safe_sync_payload(row.payload),

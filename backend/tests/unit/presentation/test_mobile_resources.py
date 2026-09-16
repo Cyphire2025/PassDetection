@@ -73,11 +73,12 @@ async def test_historical_content_revokes_project_as_deletes_without_rewriting_j
     claims = _claims()
     group_id = uuid.uuid4()
     trip = SimpleNamespace(group=SimpleNamespace(id=group_id),
-        access=SimpleNamespace(id=uuid.uuid4(), access_generation=3),
+        access=SimpleNamespace(id=uuid.uuid4(), agency_id=claims.agency_id, access_generation=3),
         principal_type="passenger", passenger_identity=SimpleNamespace(id=claims.principal_id))
     types = ["announcement", "itinerary", "common_document", "group_access", "role_access"]
     rows = [SimpleNamespace(sequence=index + 1, group_id=group_id, entity_type=kind,
-        entity_id=uuid.uuid4(), operation="revoke", version=1, occurred_at=datetime.now(tz=UTC), payload={})
+        entity_id=uuid.uuid4(), operation="revoke", version=1, occurred_at=datetime.now(tz=UTC), payload={},
+        agency_id=claims.agency_id, gc_group_access_id=trip.access.id, access_generation=3, audience="passenger")
         for index, kind in enumerate(types)]
     watermark, page = MagicMock(), MagicMock()
     watermark.scalar_one.return_value = len(rows)

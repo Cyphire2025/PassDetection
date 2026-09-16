@@ -24,6 +24,19 @@ AttendanceRealtimeEntityType = Literal[
 ]
 
 
+def current_role_access_operation(
+    access: GCGroupAccessModel,
+    role: str,
+) -> Literal["upsert", "revoke"]:
+    """Session invalidation does not remove a still-enabled role's entitlement."""
+    enabled = {
+        "passenger": access.passenger_access_enabled,
+        "client_manager": access.client_manager_access_enabled,
+        "coordinator": access.coordinator_access_enabled,
+    }
+    return "upsert" if access.is_enabled and enabled.get(role, False) else "revoke"
+
+
 async def append_attendance_realtime_change(
     session: AsyncSession,
     *,

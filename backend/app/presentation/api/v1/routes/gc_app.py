@@ -23,7 +23,10 @@ from app.application.mobile.passenger_identity_reconciliation import (
     PassengerIdentityReconciliationResult,
     reconcile_passenger_identities,
 )
-from app.application.mobile.sync_journal import append_mobile_sync_change
+from app.application.mobile.sync_journal import (
+    append_mobile_sync_change,
+    current_role_access_operation,
+)
 from app.application.use_cases.whatsapp.contact_normalization import normalize_whatsapp_phone
 from app.core.security.mobile_jwt import hash_mobile_lookup
 from app.core.security.password import hash_password
@@ -627,18 +630,20 @@ async def configure_gc_group_access(
         },
     )
     for revoked_role in sorted(revoked_roles):
+        # A new session may still access this role after a window/owner change.
+        operation = current_role_access_operation(access, revoked_role)
         await append_mobile_sync_change(
             session,
             access=access,
             audience=revoked_role,
             entity_type="role_access",
             entity_id=access.id,
-            operation="revoke",
+            operation=operation,
             version=access.manifest_version,
             changed_by_user_id=current_user.id,
             payload={
                 "resource_path": f"/api/v1/mobile/trips/{group_id}/manifest",
-                "purge_required": True,
+                "purge_required": operation == "revoke",
                 "role": revoked_role,
             },
         )
