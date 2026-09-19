@@ -76,6 +76,7 @@ export function RejectedRosterRows({
   showSelectionColumn = false,
   correction,
   isSaving,
+  readOnly = false,
   onEdit,
   onCorrectionChange,
   onCancel,
@@ -87,6 +88,7 @@ export function RejectedRosterRows({
   showSelectionColumn?: boolean;
   correction: RejectedContactCorrection | null;
   isSaving: boolean;
+  readOnly?: boolean;
   onEdit: () => void;
   onCorrectionChange: (value: RejectedContactCorrection) => void;
   onCancel: () => void;
@@ -150,6 +152,8 @@ export function RejectedRosterRows({
             type="button"
             className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-50"
             aria-expanded={isEditing}
+            disabled={readOnly}
+            title={readOnly ? "Restore the broadcast before correcting contacts" : undefined}
             onClick={onEdit}
           >
             <Pencil className="h-3.5 w-3.5" />
@@ -157,7 +161,7 @@ export function RejectedRosterRows({
           </button>
         </td>
       </tr>
-      {isEditing && correction && (
+      {!readOnly && isEditing && correction && (
         <tr className="bg-amber-50/40">
           <td colSpan={messageColumnCount + 4 + (showSelectionColumn ? 1 : 0)} className="px-4 pb-4 pt-0">
             <div className="rounded-xl border border-amber-200 bg-white p-4">
@@ -248,6 +252,7 @@ export function ReplacedRosterRow({
   messageColumnCount,
   showSelectionColumn = false,
   isRestoring,
+  readOnly = false,
   onRestore,
 }: {
   recipient: WhatsAppReplacedRecipient;
@@ -255,6 +260,7 @@ export function ReplacedRosterRow({
   messageColumnCount: number;
   showSelectionColumn?: boolean;
   isRestoring: boolean;
+  readOnly?: boolean;
   onRestore: () => void;
 }) {
   const importedEntries = visibleImportedFieldEntries(
@@ -322,7 +328,7 @@ export function ReplacedRosterRow({
         <button
           type="button"
           className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100 disabled:opacity-50"
-          disabled={isRestoring}
+          disabled={isRestoring || readOnly}
           onClick={onRestore}
         >
           <RotateCw className="h-3.5 w-3.5" />

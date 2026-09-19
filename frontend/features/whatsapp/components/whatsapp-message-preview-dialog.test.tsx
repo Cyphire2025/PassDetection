@@ -65,6 +65,7 @@ beforeEach(() => {
   mocks.bulkPreview.mockReset();
   mocks.detail = {
     ...mocks.detail,
+    is_archived: false,
     recipient_count: 1,
     recipient_opt_in_confirmed: true,
     updated_at: "2026-09-05T00:00:00Z",
@@ -109,6 +110,25 @@ beforeEach(() => {
 });
 
 afterEach(() => vi.unstubAllGlobals());
+
+it("blocks sending when a loaded broadcast has been archived even if its preview is ready", async () => {
+  mocks.detail.is_archived = true;
+  const { container, onSend } = renderDialog();
+  await waitFor(() => expect(mocks.preview).toHaveBeenCalled());
+  expect(screen.getByText("This broadcast is archived. Restore it before editing or sending messages.")).toBeVisible();
+  expect(screen.getByRole("button", { name: "Send individually to 1" })).toBeDisabled();
+  fireEvent.submit(container.querySelector("form")!);
+  expect(onSend).not.toHaveBeenCalled();
+});
+
+it("keeps a newly archived broadcast locked when a cached detail still says active", async () => {
+  const { container, onSend } = renderDialog({ group: { ...mocks.detail, is_archived: true } });
+  await waitFor(() => expect(mocks.preview).toHaveBeenCalled());
+  expect(screen.getByRole("button", { name: "Send individually to 1" })).toBeDisabled();
+  expect(screen.getByLabelText("Reminder paragraph")).toBeDisabled();
+  fireEvent.submit(container.querySelector("form")!);
+  expect(onSend).not.toHaveBeenCalled();
+});
 
 it("blocks normal composer submission when the server reports welcome-required numbers", async () => {
   const originalPreview = mocks.preview.getMockImplementation()!;

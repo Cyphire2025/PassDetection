@@ -118,6 +118,7 @@ export function RecipientListDialog({
     error: loadError,
     refetch: refetchGroup,
   } = useWhatsAppGroup(group.id);
+  const isArchived = Boolean(group.is_archived || detail?.is_archived);
   const updateGroup = useUpdateWhatsAppGroup();
   const addRecipientsMutation = useAddWhatsAppRecipients();
   const deleteRecipient = useDeleteWhatsAppRecipient();
@@ -126,7 +127,8 @@ export function RecipientListDialog({
   const restoreReplacedRecipient = useRestoreWhatsAppReplacedRecipient();
   const resendRecipientMessage = useResendWhatsAppRecipientMessage();
   const bulkResend = useResendWhatsAppRecipientsMessage();
-  const [section, setSection] = useState<RecipientWorkspaceSection>("recipients");
+  const [selectedSection, setSection] = useState<RecipientWorkspaceSection>("recipients");
+  const section = isArchived && selectedSection === "add" ? "recipients" : selectedSection;
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [bulkMessageType, setBulkMessageType] = useState<"welcome" | "passport_link" | null>(null);
   const [bulkSelectionSnapshot, setBulkSelectionSnapshot] = useState<WhatsAppRecipient[]>([]);
@@ -232,6 +234,7 @@ export function RecipientListDialog({
   };
 
   const saveDetails = async () => {
+    if (isArchived) return;
     setDetailsError(null);
     setSuccessMessage(null);
     if (!name.trim()) {
@@ -271,6 +274,7 @@ export function RecipientListDialog({
   };
 
   const addRecipients = async () => {
+    if (isArchived) return;
     setRecipientError(null);
     setSuccessMessage(null);
     if (importState.status === "loading") {
@@ -342,6 +346,7 @@ export function RecipientListDialog({
   }) => {
     if (
       !recipientToResend
+      || isArchived
       || resendRecipientMessage.isPending
       || resendInFlightRef.current
     ) return;
@@ -455,7 +460,7 @@ export function RecipientListDialog({
   const allVisibleSelected = visibleRecipientIds.length > 0 && visibleSelectedCount === visibleRecipientIds.length;
   const someVisibleSelected = visibleSelectedCount > 0;
   const hiddenSelectedCount = selectedRecipients.length - visibleSelectedCount;
-  const selectionLocked = bulkResend.isPending || Boolean(bulkMessageType);
+  const selectionLocked = isArchived || bulkResend.isPending || Boolean(bulkMessageType);
   const openBulkComposer = (type: "welcome" | "passport_link") => {
     setBulkSelectionSnapshot(selectedRecipients);
     setBulkMessageType(type);
@@ -473,6 +478,7 @@ export function RecipientListDialog({
     setBulkNotice(null);
   };
   const confirmBulkResend = async (payload: MessagePreviewSendPayload) => {
+    if (isArchived) return;
     const recipientIds = payload.recipientIds ?? bulkSelectionSnapshot.map((recipient) => recipient.id);
     if (!bulkMessageType || bulkInFlightRef.current || bulkResend.isPending || recipientIds.length === 0) return;
     const messageType = bulkMessageType;
@@ -567,11 +573,11 @@ export function RecipientListDialog({
 
   return (
     <>
-      {!recipientToResend && !bulkMessageType && (
+      {((!recipientToResend && !bulkMessageType) || isArchived) && (
         <DialogFrame
           title={`Recipients — ${detail?.name ?? group.name}`}
           eyebrow="WhatsApp broadcast"
-          description="Manage your audience, review delivery and send selected messages again."
+          description={isArchived ? "Archived broadcast. Review retained recipients and delivery history." : "Manage your audience, review delivery and send selected messages again."}
           layout="composer"
           onClose={onClose}
           isBusy={
@@ -583,14 +589,15 @@ export function RecipientListDialog({
             || restoreReplacedRecipient.isPending
             || resendRecipientMessage.isPending
             || bulkResend.isPending
-            || Boolean(bulkMessageType)
-            || Boolean(recipientToRemove)
-            || Boolean(replacedRecipientToRestore)
+            || (!isArchived && Boolean(bulkMessageType))
+            || (!isArchived && Boolean(recipientToRemove))
+            || (!isArchived && Boolean(replacedRecipientToRestore))
           }
           widthClass="max-w-[1600px] h-[94dvh]"
         >
-        <RecipientWorkspaceNavigation section={section} onChange={setSection} recipientCount={detail?.recipient_count ?? group.recipient_count} pendingCount={contacts.length + rejectedContacts.length} />
+        <RecipientWorkspaceNavigation section={section} onChange={setSection} recipientCount={detail?.recipient_count ?? group.recipient_count} pendingCount={contacts.length + rejectedContacts.length} readOnly={isArchived} />
         <div className="min-h-0 flex-1 overflow-y-auto bg-slate-50/70 p-4 sm:p-6">
+        {isArchived && <p role="status" className="mb-4 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700">This broadcast is archived and read-only. Restore it from Archived broadcasts to edit recipients or send messages.</p>}
         {loadError ? (
           <ErrorBanner message="The recipient list could not be loaded." />
         ) : isLoading || !detail ? (
@@ -601,6 +608,7 @@ export function RecipientListDialog({
         ) : (
           <div className="space-y-4">
             {section === "details" && (
+            <fieldset disabled={isArchived}>
             <section className="mx-auto w-full max-w-4xl rounded-2xl border border-slate-200 bg-white p-5 sm:p-7">
               <div>
                 <h3 className="font-semibold text-slate-900">
@@ -690,8 +698,9 @@ export function RecipientListDialog({
                 </Button>
               </div>
             </section>
+            </fieldset>
             )}
-            {section === "add" && (
+            {section === "add" && !isArchived && (
             <section className="mx-auto w-full max-w-4xl space-y-5 rounded-2xl border border-slate-200 bg-white p-5 sm:p-7">
               <div>
                 <h3 className="font-semibold text-slate-900">Add recipients</h3>
@@ -776,7 +785,7 @@ export function RecipientListDialog({
             </section>
             )}
             {section === "recipients" && (
-            <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
+            <div className={`grid items-start gap-5 ${isArchived ? "" : "xl:grid-cols-[minmax(0,1fr)_280px]"}`}>
             <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
               {bulkOutcome && <RecipientBulkOutcome response={bulkOutcome} recipients={allRecipients} onDismiss={() => setBulkOutcome(null)} />}
               <div>
@@ -784,7 +793,7 @@ export function RecipientListDialog({
                   Recipient list
                 </h3>
                 <p className="mt-1 text-sm text-slate-500">
-                  Select recipients to resend a message. Search and filter without losing your selection.
+                  {isArchived ? "Search recipients and review saved delivery statuses." : "Select recipients to resend a message. Search and filter without losing your selection."}
                 </p>
               </div>
 
@@ -872,10 +881,10 @@ export function RecipientListDialog({
                 })}
               </div>
 
-              <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2.5">
+              {!isArchived && <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2.5">
                 <span className="text-xs text-slate-500">{selectedRecipients.length ? `${selectedRecipients.length.toLocaleString()} selected across the broadcast` : "Choose people using the checkboxes"}</span>
                 <button type="button" disabled={!visibleRecipientIds.length || selectionLocked} onClick={() => toggleRecipients(visibleRecipientIds, !allVisibleSelected)} className="text-xs font-semibold text-blue-700 hover:underline disabled:opacity-40">{allVisibleSelected ? "Deselect matching" : `Select all matching (${visibleRecipientIds.length.toLocaleString()})`}</button>
-              </div>
+              </div>}
               <details className="mt-3 text-xs text-slate-500">
                 <summary className="cursor-pointer hover:text-slate-800">About these delivery filters</summary>
                 <p className="mt-2 max-w-3xl leading-relaxed">Sent and Failed can overlap across message types. Replaced people cannot receive further messages unless they are restored. Rejected contacts need correction. Unidentified uploads have passport details but are not in this broadcast.</p>
@@ -982,6 +991,7 @@ export function RecipientListDialog({
                                 serialNumber={serialNumber}
                                 messageColumnCount={messageTypes.length}
                                 showSelectionColumn
+                                readOnly={isArchived}
                                 isRestoring={restoreReplacedRecipient.isPending}
                                 onRestore={() => {
                                   setRestoreReplacedError(null);
@@ -1001,7 +1011,8 @@ export function RecipientListDialog({
                                 serialNumber={serialNumber}
                                 messageColumnCount={messageTypes.length}
                                 showSelectionColumn
-                                correction={rejectedContactEdit}
+                                readOnly={isArchived}
+                                correction={isArchived ? null : rejectedContactEdit}
                                 isSaving={resolveRejectedContact.isPending}
                                 onEdit={() => {
                                   setRejectedContactError(null);
@@ -1061,9 +1072,9 @@ export function RecipientListDialog({
                               serialNumber={serialNumber}
                               messageTypes={messageTypes}
                               selected={selectedIds.has(recipient.id)}
-                              selectionDisabled={bulkResend.isPending || Boolean(bulkMessageType)}
+                              selectionDisabled={selectionLocked}
                               onSelect={(checked) => toggleRecipients([recipient.id], checked)}
-                              editing={editingRecipientId === recipient.id}
+                              editing={!isArchived && editingRecipientId === recipient.id}
                               editedPhone={editedPhoneNumber}
                               onPhoneChange={setEditedPhoneNumber}
                               onEdit={() => {
@@ -1101,7 +1112,7 @@ export function RecipientListDialog({
                 )}
               </div>
             </section>
-            <RecipientSelectionPanel selectedCount={selectedRecipients.length} hiddenCount={hiddenSelectedCount} allCount={allRecipients.length} onSelectAll={() => toggleRecipients(allRecipients.map((recipient) => recipient.id), true)} onClear={() => { setSelectedIds(new Set()); bulkRequestRef.current = null; setBulkError(null); setBulkNotice(null); }} onReview={openBulkComposer} disabled={selectionLocked} error={bulkMessageType ? null : bulkError} notice={bulkNotice} />
+            {!isArchived && <RecipientSelectionPanel selectedCount={selectedRecipients.length} hiddenCount={hiddenSelectedCount} allCount={allRecipients.length} onSelectAll={() => toggleRecipients(allRecipients.map((recipient) => recipient.id), true)} onClear={() => { setSelectedIds(new Set()); bulkRequestRef.current = null; setBulkError(null); setBulkNotice(null); }} onReview={openBulkComposer} disabled={selectionLocked} error={bulkMessageType ? null : bulkError} notice={bulkNotice} />}
             </div>
             )}
 
@@ -1115,11 +1126,11 @@ export function RecipientListDialog({
           </div>
         )}
         </div>
-        {section === "recipients" && <RecipientMobileSelectionBar selectedCount={selectedRecipients.length} hiddenCount={hiddenSelectedCount} allCount={allRecipients.length} onSelectAll={() => toggleRecipients(allRecipients.map((recipient) => recipient.id), true)} onClear={() => { setSelectedIds(new Set()); bulkRequestRef.current = null; setBulkError(null); setBulkNotice(null); }} onReview={openBulkComposer} disabled={selectionLocked} />}
+        {section === "recipients" && !isArchived && <RecipientMobileSelectionBar selectedCount={selectedRecipients.length} hiddenCount={hiddenSelectedCount} allCount={allRecipients.length} onSelectAll={() => toggleRecipients(allRecipients.map((recipient) => recipient.id), true)} onClear={() => { setSelectedIds(new Set()); bulkRequestRef.current = null; setBulkError(null); setBulkNotice(null); }} onReview={openBulkComposer} disabled={selectionLocked} />}
         </DialogFrame>
       )}
 
-      {recipientToResend && (
+      {recipientToResend && !isArchived && (
         <MessagePreviewDialog
           group={group}
           messageType={recipientToResend.messageType}
@@ -1137,10 +1148,10 @@ export function RecipientListDialog({
         />
       )}
 
-      {bulkMessageType && <MessagePreviewDialog group={group} messageType={bulkMessageType} bulkRecipients={bulkSelectionSnapshot} hiddenSelectedCount={hiddenSelectedCount} isSending={bulkResend.isPending} onClose={() => { if (!bulkResend.isPending && !bulkInFlightRef.current) setBulkMessageType(null); }} onSend={confirmBulkResend} />}
+      {bulkMessageType && !isArchived && <MessagePreviewDialog group={group} messageType={bulkMessageType} bulkRecipients={bulkSelectionSnapshot} hiddenSelectedCount={hiddenSelectedCount} isSending={bulkResend.isPending} onClose={() => { if (!bulkResend.isPending && !bulkInFlightRef.current) setBulkMessageType(null); }} onSend={confirmBulkResend} />}
 
       <ConfirmDialog
-        isOpen={Boolean(replacedRecipientToRestore)}
+        isOpen={!isArchived && Boolean(replacedRecipientToRestore)}
         title="Restore the original recipient?"
         description={`${replacedRecipientToRestore?.name || replacedRecipientToRestore?.normalized_phone_number || "This recipient"} will become active for future WhatsApp messages again. ${replacedRecipientToRestore?.replacement_name || "The replacement upload"} will return to Unidentified uploads in ${replacedRecipientToRestore?.client_group_name || "the passport group"}.`}
         confirmLabel="Restore / add back"
@@ -1179,7 +1190,7 @@ export function RecipientListDialog({
       />
 
       <ConfirmDialog
-        isOpen={Boolean(recipientToRemove)}
+        isOpen={!isArchived && Boolean(recipientToRemove)}
         title="Remove recipient?"
         description={`${recipientToRemove?.name || recipientToRemove?.phone_number || "This recipient"} will be removed from this broadcast. Their existing delivery records remain available for audit purposes.`}
         confirmLabel="Remove Recipient"

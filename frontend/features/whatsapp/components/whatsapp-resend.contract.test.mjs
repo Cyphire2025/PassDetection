@@ -138,8 +138,8 @@ test("opening the resend editor replaces the recipient-list modal instead of sta
 
   assert.ok(start >= 0);
   assert.ok(end > start);
-  assert.match(recipientDialog, /!recipientToResend && !bulkMessageType && \(\s*<DialogFrame/);
-  assert.match(recipientDialog, /recipientToResend && \(\s*<MessagePreviewDialog/);
+  assert.match(recipientDialog, /\(\(!recipientToResend && !bulkMessageType\) \|\| isArchived\) && \(\s*<DialogFrame/);
+  assert.match(recipientDialog, /recipientToResend && !isArchived && \(\s*<MessagePreviewDialog/);
 });
 
 test("resend refreshes blocked delivery state and announces success or failure", () => {

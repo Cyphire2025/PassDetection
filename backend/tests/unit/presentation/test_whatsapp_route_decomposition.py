@@ -57,6 +57,8 @@ _EXPECTED_ROUTES = [
         "preview_selected_recipient_messages",
     ),
     (("DELETE",), "/groups/{group_id}", "delete_broadcast_group"),
+    (("POST",), "/groups/{group_id}/archive", "archive_broadcast_group"),
+    (("POST",), "/groups/{group_id}/restore", "restore_broadcast_group"),
     (("POST",), "/groups/{group_id}/send", "send_broadcast_message"),
     (("GET",), "/batches/{batch_id}/summary", "get_broadcast_batch_summary"),
     (("GET",), "/batches/{batch_id}", "get_broadcast_batch_status"),

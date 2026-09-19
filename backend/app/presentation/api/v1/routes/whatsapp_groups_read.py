@@ -34,6 +34,7 @@ router = APIRouter()
 async def list_broadcast_groups(
     current_user: User = Depends(require_role(WHATSAPP_ROLES)),
     session: AsyncSession = Depends(get_db_session),
+    archived: bool = False,
 ) -> list[WhatsAppBroadcastGroupResponse]:
     rejected_contact_count = (
         select(func.count(WhatsAppBroadcastRejectedContactModel.id))
@@ -58,7 +59,11 @@ async def list_broadcast_groups(
                 WhatsAppBroadcastRecipientModel.removed_at.is_(None),
             ),
         )
-        .where(*_agency_filter(current_user))
+        .where(
+            *_agency_filter(current_user),
+            WhatsAppBroadcastGroupModel.archived_at.is_not(None)
+            if archived else WhatsAppBroadcastGroupModel.archived_at.is_(None),
+        )
         .group_by(WhatsAppBroadcastGroupModel.id)
         .order_by(WhatsAppBroadcastGroupModel.created_at.desc())
     )
@@ -67,6 +72,8 @@ async def list_broadcast_groups(
             id=group.id,
             name=group.name,
             organizing_company_name=group.organizing_company_name,
+            archived_at=group.archived_at,
+            is_archived=group.archived_at is not None,
             recipient_count=int(recipient_count or 0),
             total_contact_count=(int(recipient_count or 0) + int(rejected_count or 0)),
             recipient_opt_in_confirmed=group.recipient_opt_in_confirmed_at is not None,

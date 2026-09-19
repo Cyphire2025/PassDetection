@@ -46,6 +46,21 @@ function OverviewEditorHarness({ source, onSave }: { source: PassportGroupSummar
 }
 
 describe("trip settings summary and editor", () => {
+  it("keeps import group editing limited to trip details and clears stale collection settings", () => {
+    const onSave = vi.fn();
+    render(<OverviewEditorHarness source={{ ...group, import_only: true }} onSave={onSave} />);
+    expect(screen.queryByText("Passport Collection")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Edit" }));
+    expect(screen.queryByRole("switch")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Save Details" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "Save Details" }));
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
+      import_only: true, destination: "Dubai", timezone: "Asia/Kolkata",
+      require_selfie: false, custom_questions: [], custom_details: [],
+      upload_configuration: expect.objectContaining({ passport_enabled: false }),
+    }));
+  });
+
   it.each([
     [true, false, "Choose from list"],
     [false, true, "Other relationship"],

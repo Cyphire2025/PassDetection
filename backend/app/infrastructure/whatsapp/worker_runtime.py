@@ -136,9 +136,13 @@ async def _load_sendable_recipient(
         select(WhatsAppBroadcastGroupModel)
         .where(WhatsAppBroadcastGroupModel.id == log.broadcast_group_id)
         .with_for_update()
+        .execution_options(populate_existing=True)
     )
-    if not group_result.scalar_one_or_none():
+    group = group_result.scalar_one_or_none()
+    if not group:
         return None, "WhatsApp broadcast group no longer exists"
+    if getattr(group, "archived_at", None) is not None:
+        return None, "WhatsApp broadcast is archived. Restore it before sending messages."
 
     recipient_result = await session.execute(
         select(WhatsAppBroadcastRecipientModel)

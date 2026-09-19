@@ -82,6 +82,7 @@ export function MessagePreviewDialog({
   const { data: detail, isLoading: isLoadingDetail } = useWhatsAppGroup(
     group.id,
   );
+  const isArchived = Boolean(group.is_archived || detail?.is_archived);
   const previewRequest = usePreviewWhatsAppMessage();
   const bulkPreviewRequest = usePreviewWhatsAppBulkResendMessage();
   const bulkMode = bulkRecipients !== undefined;
@@ -497,6 +498,7 @@ export function MessagePreviewDialog({
   const canSend = Boolean(
     previewIsCurrent &&
       !previewPending &&
+      !isArchived &&
       detail?.recipient_opt_in_confirmed &&
       (messageType !== "passport_link" ||
         (bulkMode && selectedSupportContactIds === null) || resolvedSupportContactIds.length > 0) &&
@@ -511,9 +513,9 @@ export function MessagePreviewDialog({
         (resolvedPassportIntro && resolvedPassportLink)),
   );
   const bulkDraftKey = JSON.stringify({ messageType, bulkRecipientIds, messageContent, passportIntro, headerImageId, headerImageRevision, selectedSupportContactIds });
-  const canRecoverBulkRequest = bulkMode && bulkRecovery?.draftKey === bulkDraftKey;
+  const canRecoverBulkRequest = !isArchived && bulkMode && bulkRecovery?.draftKey === bulkDraftKey;
   const submitPayload = async (payload: MessagePreviewSendPayload) => {
-    if (isSending || sendInFlightRef.current) return;
+    if (isArchived || isSending || sendInFlightRef.current) return;
     sendInFlightRef.current = true;
     setSubmissionStartedAt(Date.now());
     setError(null);
@@ -643,7 +645,9 @@ export function MessagePreviewDialog({
       description={group.name}
     >
       <form className="flex min-h-0 flex-1 flex-col" onSubmit={handleSend}>
+        {isArchived && <ErrorBanner message="This broadcast is archived. Restore it before editing or sending messages." />}
         <div className="min-h-0 overflow-y-auto overscroll-contain bg-slate-50/70 px-4 py-5 sm:px-7 sm:py-6">
+        <fieldset disabled={isArchived} className="contents">
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
         <div className="min-w-0 space-y-5">
         <MessageComposerSection title="Message content" description={messageType === "reminder" ? "Review and edit the reminder your recipients will receive." : "Prepare the image and wording your recipients will receive."}>
@@ -1266,6 +1270,7 @@ export function MessagePreviewDialog({
         )}
 
         </div>
+        </fieldset>
         </div>
         <div data-testid="whatsapp-composer-footer" className="flex shrink-0 flex-col gap-3 border-t border-slate-200 bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-7">
           <div className="flex min-w-0 items-center gap-2 text-xs text-slate-500">

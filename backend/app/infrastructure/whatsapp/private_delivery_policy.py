@@ -151,7 +151,7 @@ async def lock_private_delivery_group_source_snapshot(
     eligible_broadcasts: dict[uuid.UUID, str] = {
         broadcast_id: broadcast.name
         for broadcast_id, broadcast in locked_broadcasts.items()
-        if broadcast.recipient_opt_in_confirmed_at is not None
+        if broadcast.recipient_opt_in_confirmed_at is not None and broadcast.archived_at is None
     }
 
     recipient_rows: list[WhatsAppBroadcastRecipientModel] = []

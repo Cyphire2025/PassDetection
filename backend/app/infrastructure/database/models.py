@@ -264,6 +264,9 @@ class ClientGroupModel(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, nullable=False
     )
+    import_only: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
     closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     destination: Mapped[str | None] = mapped_column(String(255), nullable=True)
     travel_date: Mapped[date | None] = mapped_column(Date, nullable=True)

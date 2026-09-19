@@ -39,8 +39,9 @@ test("create and send actions have synchronous single-flight guards", () => {
 test("mobile and desktop broadcast menus use distinct open-state keys", () => {
   assert.match(pageSource, /surface: "mobile" \| "desktop"/);
   assert.match(pageSource, /const menuKey = `\$\{surface\}:\$\{group\.id\}`/);
-  assert.match(pageSource, /renderGroupActionMenu\(group, "mobile"\)/);
-  assert.match(pageSource, /renderGroupActionMenu\(group, "desktop"\)/);
+  assert.match(pageSource, /renderActions=\{renderGroupActionMenu\}/);
+  assert.match(pageSource, /renderActions\(group, "mobile"\)/);
+  assert.match(pageSource, /renderActions\(group, "desktop"\)/);
   assert.match(
     pageSource,
     /setOpenMenuKey\(\(current\) => \(current === menuKey \? null : menuKey\)\)/,
@@ -247,7 +248,7 @@ test("message preview remains unsendable while the latest approved rendering loa
     /disabled=\{!canRecoverBulkRequest && \(!canSend \|\| previewPending\)\}/,
   );
   assert.match(previewSource, /const previewPending = bulkMode \? bulkPreviewRequest\.isPending : previewRequest\.isPending/);
-  assert.match(previewSource, /const canRecoverBulkRequest = bulkMode && bulkRecovery\?\.draftKey === bulkDraftKey/);
+  assert.match(previewSource, /const canRecoverBulkRequest = !isArchived && bulkMode && bulkRecovery\?\.draftKey === bulkDraftKey/);
   assert.match(previewSource, /submitPayload\(bulkRecovery\.payload\)/);
   assert.match(pageSource, /eligibleRecipientCount > 0/);
   assert.match(pageSource, /detail\?\.recipient_opt_in_confirmed/);

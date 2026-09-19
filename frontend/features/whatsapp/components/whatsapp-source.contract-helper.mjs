@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 
 const sourceFiles = [
   "./whatsapp-workspace.tsx",
+  "./whatsapp-broadcast-list.tsx",
   "./whatsapp-recipient-import.tsx",
   "./whatsapp-recipient-dialog.tsx",
   "./whatsapp-active-recipient-row.tsx",

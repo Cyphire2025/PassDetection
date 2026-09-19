@@ -57,6 +57,7 @@ export interface UpdateUploadLinkRequest {
 }
 
 export interface CreateUploadLinkRequest extends UpdateUploadLinkRequest {
+  import_only?: boolean;
   destination: string;
   travel_date: string;
   return_date: string;
@@ -71,6 +72,7 @@ export interface WhatsAppMatchFieldOption {
 }
 
 export interface LinkedWhatsAppBroadcast {
+  archived_at?: string | null;
   id: string;
   name: string;
   recipient_count: number;
@@ -209,6 +211,7 @@ export interface QualifierRelationOption {
 }
 
 export interface UploadLinkResponse {
+  import_only?: boolean;
   id: string;
   name: string;
   token: string;

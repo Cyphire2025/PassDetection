@@ -7,12 +7,13 @@ import { Button } from "@/components/ui";
 export type RecipientWorkspaceSection = "recipients" | "add" | "details";
 
 export function RecipientWorkspaceNavigation({
-  section, onChange, recipientCount, pendingCount,
+  section, onChange, recipientCount, pendingCount, readOnly = false,
 }: {
   section: RecipientWorkspaceSection;
   onChange: (section: RecipientWorkspaceSection) => void;
   recipientCount: number;
   pendingCount: number;
+  readOnly?: boolean;
 }) {
   return (
     <nav aria-label="Broadcast workspace" className="flex shrink-0 gap-1 overflow-x-auto border-b border-slate-200 bg-white px-4 sm:px-7">
@@ -20,7 +21,7 @@ export function RecipientWorkspaceNavigation({
         ["recipients", "Recipients", recipientCount],
         ["add", "Add recipients", pendingCount || null],
         ["details", "Broadcast details", null],
-      ] as const).map(([id, label, count]) => (
+      ] as const).filter(([id]) => !readOnly || id !== "add").map(([id, label, count]) => (
         <button
           key={id}
           type="button"

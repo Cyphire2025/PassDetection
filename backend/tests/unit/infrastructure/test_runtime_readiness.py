@@ -58,7 +58,7 @@ class _Database:
     def __init__(
         self,
         *,
-        versions: tuple[str, ...] = ("0099_gc_group_access_removal",),
+        versions: tuple[str, ...] = ("0101_client_group_import_only",),
         due_count: int = 0,
         blocked_count: int = 0,
         oldest_due_seconds: int = 0,

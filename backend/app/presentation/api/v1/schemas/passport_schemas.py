@@ -600,6 +600,7 @@ class PassportGroupSummaryResponse(BaseModel):
     staff_code_enabled: bool = False
     agent_employee_code_enabled: bool = False
     meal_preference_enabled: bool = False
+    import_only: bool = False
     require_selfie: bool = False
     custom_questions: list[dict[str, object]] = Field(default_factory=list)
     custom_details: list[dict[str, object]] = Field(default_factory=list)

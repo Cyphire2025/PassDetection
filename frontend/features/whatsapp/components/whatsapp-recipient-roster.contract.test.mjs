@@ -50,7 +50,7 @@ test("recipient dialog exposes active, rejected, unidentified, and replaced tabs
 
 test("broadcast list shows the complete roster while delivery keeps the valid count", () => {
   assert.match(apiSource, /total_contact_count: number/);
-  assert.match(pageSource, /\{group\.total_contact_count\}/);
+  assert.match(pageSource, /\{group\.total_contact_count\.toLocaleString\(\)\}/);
   assert.match(pageSource, /group\.recipient_count === 0/);
 });
 

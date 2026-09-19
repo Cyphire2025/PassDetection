@@ -115,6 +115,7 @@ async def _lock_current_source(
                 WhatsAppBroadcastGroupModel.id == broadcast_group_id,
                 WhatsAppBroadcastGroupModel.agency_id == agency_id,
                 WhatsAppBroadcastGroupModel.recipient_opt_in_confirmed_at.is_not(None),
+                WhatsAppBroadcastGroupModel.archived_at.is_(None),
             )
             .with_for_update()
         )

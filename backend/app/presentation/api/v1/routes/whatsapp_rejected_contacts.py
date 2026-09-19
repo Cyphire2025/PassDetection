@@ -30,6 +30,7 @@ from app.infrastructure.repositories.passport_roster_resolution_repository impor
 from app.infrastructure.repositories.whatsapp_recipient_capacity_repository import (
     require_locked_broadcast_recipient_capacity,
 )
+from app.presentation.api.v1.routes.whatsapp_archive_policy import require_active_broadcast
 from app.presentation.api.v1.routes.whatsapp_scope import _prepare_private_recipient_mutation
 from app.presentation.api.v1.routes.whatsapp_shared import (
     WHATSAPP_ROLES,
@@ -133,6 +134,7 @@ async def resolve_broadcast_rejected_contact(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="WhatsApp broadcast group not found",
         )
+    require_active_broadcast(group)
 
     rejected_result = await session.execute(
         select(WhatsAppBroadcastRejectedContactModel)

@@ -118,6 +118,7 @@ export function PassportGroupHeaderPanel({
         accent={includeDeleted ? "amber" : "sky"}
         context={
           <>
+            {groupDetails?.import_only && <WorkspaceHeaderContext icon={UploadCloud}>Excel import group</WorkspaceHeaderContext>}
             {groupDetails?.destination && (
               <WorkspaceHeaderContext icon={MapPin}>
                 {groupDetails.destination}
@@ -140,6 +141,7 @@ export function PassportGroupHeaderPanel({
         }
         actions={
           <div className="flex items-center gap-2">
+            <ImportGroupExcelAction groupDetails={groupDetails} includeDeleted={includeDeleted} importMutation={importMutation} importInputRef={importInputRef} />
             {exportImagesMutation.isPending && (
               <div
                 role="status"
@@ -285,5 +287,15 @@ export function PassportGroupHeaderPanel({
         }
       />
     </>
+  );
+}
+
+function ImportGroupExcelAction({ groupDetails, includeDeleted, importMutation, importInputRef }: Pick<PassportGroupController, "groupDetails" | "includeDeleted" | "importMutation" | "importInputRef">) {
+  if (!groupDetails?.import_only || includeDeleted || groupDetails.group_status === "archived") return null;
+  return (
+    <Button type="button" disabled={importMutation.isPending} onClick={() => importInputRef.current?.click()} className="bg-white text-blue-800 hover:bg-blue-50">
+      <UploadCloud className="h-4 w-4" aria-hidden="true" />
+      {importMutation.isPending ? "Importing..." : "Import Excel"}
+    </Button>
   );
 }

@@ -54,6 +54,7 @@ async def linked_welcome_sources(
         ClientGroupWhatsAppBroadcastLinkModel.agency_id == group.agency_id,
         WhatsAppBroadcastGroupModel.agency_id == group.agency_id,
         WhatsAppBroadcastGroupModel.recipient_opt_in_confirmed_at.is_not(None),
+        WhatsAppBroadcastGroupModel.archived_at.is_(None),
     ).order_by(WhatsAppBroadcastGroupModel.id)
     if lock:
         statement = statement.with_for_update().execution_options(populate_existing=True)

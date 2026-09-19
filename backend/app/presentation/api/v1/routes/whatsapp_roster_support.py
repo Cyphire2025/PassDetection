@@ -146,6 +146,8 @@ async def _group_detail(
         id=group.id,
         name=group.name,
         organizing_company_name=group.organizing_company_name,
+        archived_at=group.archived_at,
+        is_archived=group.archived_at is not None,
         recipient_count=len(recipients),
         total_contact_count=len(recipients) + rejected_contact_count,
         recipient_opt_in_confirmed=group.recipient_opt_in_confirmed_at is not None,

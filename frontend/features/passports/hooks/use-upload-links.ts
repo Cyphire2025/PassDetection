@@ -59,6 +59,7 @@ export function useCreateUploadLink() {
     mutationFn: (data: CreateUploadLinkRequest) => uploadLinksApi.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: DASHBOARD_QUERY_KEYS.passports.groups() });
     },
   });
 }

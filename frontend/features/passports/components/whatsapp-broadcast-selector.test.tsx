@@ -62,6 +62,21 @@ beforeEach(() => {
   }];
 });
 
+it("preserves an archived linked broadcast and allows unlinking without relinking it", async () => {
+  mocks.broadcasts[0].archived_at = "2026-09-19T12:00:00Z";
+  const user = userEvent.setup();
+  render(<SelectorHarness initialIds={["broadcast-tour"]} initialMatchingFields={{ "broadcast-tour": ["producer_code"] }} />);
+  const choice = screen.getByRole("checkbox", { name: /September Tour/ });
+  expect(choice).toBeChecked();
+  expect(choice).toHaveTextContent("Archived · existing link");
+  expect(screen.getByTestId("selected-fields")).toHaveTextContent("producer_code");
+  await user.click(choice);
+  expect(choice).not.toBeChecked();
+  expect(choice).toBeDisabled();
+  expect(screen.getByTestId("selected-broadcasts")).toHaveTextContent("[]");
+  expect(screen.getByTestId("selected-fields")).toHaveTextContent("{}");
+});
+
 it("defaults a newly linked broadcast to safe familiar fields and persists additional OR fields", async () => {
   const user = userEvent.setup();
   render(<SelectorHarness />);

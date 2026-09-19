@@ -202,6 +202,7 @@ async def _linked_recipients(
             ClientGroupWhatsAppBroadcastLinkModel.agency_id == group.agency_id,
             WhatsAppBroadcastGroupModel.agency_id == group.agency_id,
             WhatsAppBroadcastGroupModel.recipient_opt_in_confirmed_at.is_not(None),
+            WhatsAppBroadcastGroupModel.archived_at.is_(None),
         )
     )
     linked_rows = linked_result.all()

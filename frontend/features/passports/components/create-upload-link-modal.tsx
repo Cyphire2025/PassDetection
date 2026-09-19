@@ -1,10 +1,11 @@
 "use client";
 
-import { X, Copy, Check } from "lucide-react";
+import { X, Copy, Check, UploadCloud } from "lucide-react";
+import Link from "next/link";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { copyTextToClipboard } from "@/lib/utils/clipboard";
 import { canAccessWhatsAppBroadcasts } from "@/lib/utils/role-access";
@@ -29,6 +30,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
   const role = useAuthStore(selectUserRole);
   const canAccessWhatsApp = canAccessWhatsAppBroadcasts(role);
   const [generatedTargets, setGeneratedTargets] = useState<PassportUploadTarget[]>([]);
+  const [createdImportGroupId, setCreatedImportGroupId] = useState<string | null>(null);
   const [copiedTargetKey, setCopiedTargetKey] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const copiedTimerRef = useRef<number | null>(null);
@@ -46,6 +48,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
   } = useForm<CreateUploadLinkFormInput, unknown, CreateUploadLinkFormData>({
     resolver: zodResolver(createUploadLinkSchema),
     defaultValues: {
+      import_only: false,
       name: "",
       destination: "",
       travel_date: "",
@@ -70,7 +73,8 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
       upload_configuration: getUploadLinkSettings({}).upload_configuration,
     },
   });
-  const settings = useWatch({ control, compute: (values) => getUploadLinkSettings(values) });
+  const importOnly = useWatch({ control, name: "import_only" }) === true;
+  const settings = useWatch({ control, compute: (values) => getUploadLinkSettings("upload_configuration" in values ? values : {}) });
   const whatsappBroadcastGroupIds = useWatch({
     control,
     name: "whatsapp_broadcast_group_ids",
@@ -92,6 +96,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
     }
     reset();
     setGeneratedTargets([]);
+    setCreatedImportGroupId(null);
     setCopiedTargetKey(null);
     setActionError(null);
     onClose();
@@ -131,7 +136,11 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
           ? data.matching_fields_by_broadcast
           : {},
       });
-      setGeneratedTargets(getPassportUploadTargets(result.token));
+      if (data.import_only) {
+        setCreatedImportGroupId(result.id);
+      } else {
+        setGeneratedTargets(getPassportUploadTargets(result.token));
+      }
     } catch {
       setActionError(
         "The upload link could not be created. Check your connection and try again.",
@@ -159,6 +168,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
   };
 
   const hasGeneratedTargets = generatedTargets.length > 0;
+  const isCreated = hasGeneratedTargets || createdImportGroupId !== null;
 
   if (!isOpen) return null;
 
@@ -173,7 +183,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
       >
         <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
           <h2 id={titleId} className="text-lg font-semibold text-slate-800">
-            {hasGeneratedTargets ? "Links Generated" : "Create Upload Link"}
+            {createdImportGroupId ? "Group Created" : hasGeneratedTargets ? "Links Generated" : "Create Upload Link"}
           </h2>
           <button
             type="button"
@@ -187,11 +197,24 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
         </div>
 
         <div className="max-h-[calc(90vh-73px)] overflow-y-auto p-6">
-          {hasGeneratedTargets ? (
+          {isCreated ? (
             <div className="space-y-6">
               <div role="status" className="rounded-lg border border-green-100 bg-green-50 p-4 text-sm text-green-800">
-                Success. The public client link is ready for sharing.
+                {createdImportGroupId
+                  ? "Your group is ready. Open the group and choose Import Excel to upload your final passenger list."
+                  : "Success. The public client link is ready for sharing."}
               </div>
+
+              {createdImportGroupId && (
+                <Link
+                  href={`/passports/groups/${createdImportGroupId}`}
+                  className={`${buttonVariants()} w-full`}
+                  onClick={handleClose}
+                >
+                  <UploadCloud className="h-4 w-4" aria-hidden="true" />
+                  Open group to import Excel
+                </Link>
+              )}
 
               <div className="space-y-4">
                 {generatedTargets.map((target) => (
@@ -240,6 +263,19 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
             </div>
           ) : (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <fieldset disabled={isPending} className="space-y-2">
+                <legend className="mb-2 text-sm font-semibold text-slate-900">Group purpose</legend>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 ${!importOnly ? "border-blue-500 bg-blue-50" : "border-slate-200"}`}>
+                    <input type="radio" name="group-purpose" checked={!importOnly} onChange={() => setValue("import_only", false, { shouldDirty: true, shouldValidate: true })} className="mt-1" />
+                    <span><span className="block text-sm font-medium text-slate-900">Collect documents</span><span className="mt-1 block text-xs text-slate-600">Share a link for passengers to submit their details.</span></span>
+                  </label>
+                  <label className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 ${importOnly ? "border-blue-500 bg-blue-50" : "border-slate-200"}`}>
+                    <input type="radio" name="group-purpose" checked={importOnly} onChange={() => setValue("import_only", true, { shouldDirty: true, shouldValidate: true })} className="mt-1" />
+                    <span><span className="block text-sm font-medium text-slate-900">Import data</span><span className="mt-1 block text-xs text-slate-600">Create a group for your final Excel list. You can import after creation.</span></span>
+                  </label>
+                </div>
+              </fieldset>
               <h3 className="text-sm font-semibold text-slate-900">Group Details</h3>
               <Input
                 label="Group Name"
@@ -278,11 +314,14 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                 />
               </div>
 
-              <UploadLinkSettings
+              {!importOnly && <UploadLinkSettings
                 value={settings}
                 disabled={isPending}
                 error={
-                  errors.upload_configuration || errors.departure_cities || errors.custom_questions || errors.custom_details
+                  ("upload_configuration" in errors && errors.upload_configuration)
+                    || ("departure_cities" in errors && errors.departure_cities)
+                    || ("custom_questions" in errors && errors.custom_questions)
+                    || ("custom_details" in errors && errors.custom_details)
                     ? getUploadLinkSettingsError(settings)
                     : undefined
                 }
@@ -291,9 +330,9 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                     setValue(key as keyof UploadLinkSettingsValue, value, { shouldDirty: true, shouldValidate: true });
                   }
                 }}
-              />
+              />}
 
-              {canAccessWhatsApp && (
+              {!importOnly && canAccessWhatsApp && (
                 <WhatsAppBroadcastSelector
                   selectedIds={whatsappBroadcastGroupIds}
                   onChange={(ids) => setValue(
@@ -313,8 +352,10 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
               )}
 
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-                This will generate:
-                <div className="mt-2">1. An upload link for clients on phones or browsers</div>
+                {importOnly ? "Only the group details above are needed. After creation, import your Excel file from the group workspace." : <>
+                  This will generate:
+                  <div className="mt-2">1. An upload link for clients on phones or browsers</div>
+                </>}
               </div>
 
               {actionError && (
@@ -328,7 +369,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isPending}>
-                  {isPending ? "Creating..." : "Generate Links"}
+                  {isPending ? "Creating..." : importOnly ? "Create Group" : "Generate Links"}
                 </Button>
               </div>
             </form>

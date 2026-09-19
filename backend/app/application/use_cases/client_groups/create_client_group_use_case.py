@@ -51,6 +51,7 @@ class CreateClientGroupUseCase:
         # Create Domain Entity
         link = ClientGroup.create(
             name=dto.name,
+            import_only=dto.import_only,
             token=token,
             agency_id=agency_id,
             created_by_user_id=created_by_user_id,

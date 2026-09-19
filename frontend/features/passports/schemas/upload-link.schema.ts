@@ -47,7 +47,7 @@ export const customDetailSchema = z.object({
   required: z.boolean().optional(),
 });
 
-export const createUploadLinkSchema = z.object({
+const groupDetailsSchema = z.object({
   name: z.string().trim().min(1, "Group name is required").max(100),
   destination: z.string().trim().min(1, "Destination is required").max(255),
   travel_date: z.string().trim().min(1, "Travel/Departure date is required"),
@@ -57,6 +57,42 @@ export const createUploadLinkSchema = z.object({
     .min(1, "Trip timezone is required")
     .max(64, "Trip timezone must be 64 characters or fewer")
     .refine(isSupportedIanaTimeZone, "Enter a valid IANA timezone, such as Asia/Kolkata"),
+});
+
+export function getImportOnlySettings() {
+  return {
+    departure_cities: [] as string[],
+    base_city_enabled: false,
+    nearest_international_airport_enabled: false,
+    staff_code_enabled: false,
+    agent_employee_code_enabled: false,
+    meal_preference_enabled: false,
+    require_selfie: false,
+    allow_files_from_device: false,
+    ask_nearest_domestic_airport: false,
+    relation_with_qualifier_enabled: false,
+    designation_enabled: false,
+    agency_dealership_name_enabled: false,
+    custom_questions: [] as z.infer<typeof customQuestionSchema>[],
+    custom_details: [] as z.infer<typeof customDetailSchema>[],
+    upload_configuration: {
+      ...DEFAULT_UPLOAD_CONFIGURATION,
+      passport_enabled: false,
+      passport_required: false,
+      passport_live_scan: false,
+      passport_upload_pages: [],
+      visa_photo_required: false,
+      visa_photo_live_capture: false,
+      visa_photo_upload: false,
+      qualifier_relation_list_enabled: false,
+      qualifier_relation_other_enabled: false,
+      required_fields: {},
+    },
+  };
+}
+
+const collectionLinkSchema = groupDetailsSchema.extend({
+  import_only: z.literal(false).optional(),
   departure_cities: z.array(z.string().trim().min(1).max(120)).max(50),
   base_city_enabled: z.boolean(),
   nearest_international_airport_enabled: z.boolean(),
@@ -129,6 +165,23 @@ export const createUploadLinkSchema = z.object({
       message: "Add at least one nearest international airport",
     });
   }
+});
+
+// Parse import groups independently so stale, hidden collection fields never
+// prevent creation or reach the API after switching modes.
+const importLinkSchema = groupDetailsSchema.extend({
+  import_only: z.literal(true),
+}).transform((data) => ({
+  ...data,
+  ...getImportOnlySettings(),
+  whatsapp_broadcast_group_ids: [] as string[],
+  matching_fields_by_broadcast: {} as Record<string, string[]>,
+}));
+
+export const createUploadLinkSchema = z.union([
+  importLinkSchema,
+  collectionLinkSchema,
+]).superRefine((data, context) => {
   if (data.travel_date && data.return_date && data.return_date < data.travel_date) {
     context.addIssue({
       code: "custom",

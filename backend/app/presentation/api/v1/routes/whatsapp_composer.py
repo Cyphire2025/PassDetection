@@ -28,6 +28,7 @@ from app.infrastructure.whatsapp.cloud_api_provider import (
     WhatsAppCloudApiError,
     upload_whatsapp_image,
 )
+from app.presentation.api.v1.routes.whatsapp_archive_policy import require_active_broadcast
 from app.presentation.api.v1.routes.whatsapp_reminder_audience import (
     resolve_reminder_audience,
 )
@@ -73,17 +74,19 @@ async def upload_welcome_media(
     session: AsyncSession = Depends(get_db_session),
 ) -> WhatsAppWelcomeMediaResponse:
     result = await session.execute(
-        select(WhatsAppBroadcastGroupModel.agency_id).where(
+        select(WhatsAppBroadcastGroupModel).where(
             WhatsAppBroadcastGroupModel.id == group_id,
             *_agency_filter(current_user),
         )
     )
-    group_agency_id = result.scalar_one_or_none()
-    if group_agency_id is None:
+    group = result.scalar_one_or_none()
+    if group is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="WhatsApp broadcast group not found",
         )
+    require_active_broadcast(group)
+    group_agency_id = group.agency_id
     if image.content_type not in {"image/jpeg", "image/png"}:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -188,6 +191,7 @@ async def preview_broadcast_message(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="WhatsApp broadcast group not found",
         )
+    require_active_broadcast(group)
 
     all_recipients = await _group_recipients(session, group.id)
     if not all_recipients:

@@ -37,6 +37,7 @@ class ClientGroupRepository(IClientGroupRepository):
             status=GroupStatus(model.status),
             created_by_user_id=model.created_by_user_id,
             created_at=model.created_at,
+            import_only=bool(getattr(model, "import_only", False)),
             closed_at=model.closed_at,
             destination=model.destination,
             travel_date=model.travel_date,
@@ -94,6 +95,7 @@ class ClientGroupRepository(IClientGroupRepository):
             status=entity.status.value,
             created_by_user_id=entity.created_by_user_id,
             created_at=entity.created_at,
+            import_only=entity.import_only,
             closed_at=entity.closed_at,
             destination=entity.destination,
             travel_date=entity.travel_date,
@@ -240,6 +242,7 @@ class ClientGroupRepository(IClientGroupRepository):
         model.token = link.token
         model.agency_id = link.agency_id
         model.status = link.status.value
+        model.import_only = link.import_only
         model.closed_at = link.closed_at
         model.destination = link.destination
         model.travel_date = link.travel_date

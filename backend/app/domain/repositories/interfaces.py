@@ -55,6 +55,7 @@ class PassportSubmissionGroupSummary:
     staff_code_enabled: bool = False
     agent_employee_code_enabled: bool = False
     meal_preference_enabled: bool = False
+    import_only: bool = False
     require_selfie: bool = False
     custom_questions: list[CustomQuestionDefinition] | None = None
     custom_details: list[CustomDetailDefinition] | None = None

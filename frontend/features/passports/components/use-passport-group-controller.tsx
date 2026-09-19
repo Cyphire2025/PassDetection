@@ -141,6 +141,7 @@ export function usePassportGroupController({ groupId }: { groupId: string }) {
           group_id: deletedGroup.id,
           group_name: deletedGroup.name,
           group_status: deletedGroup.status,
+          import_only: deletedGroup.import_only,
           total_passports: deletedGroup.deleted_passport_count,
           pending_review_count: 0,
           confirmed_count: 0,

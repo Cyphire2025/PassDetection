@@ -23,6 +23,7 @@ export function PassportGroupRosterPanel({
   error,
   isLoading,
   submissionsView,
+  groupDetails,
   data,
   setSearch,
   setDebouncedSearch,
@@ -48,6 +49,7 @@ export function PassportGroupRosterPanel({
   | "error"
   | "isLoading"
   | "submissionsView"
+  | "groupDetails"
   | "data"
   | "setSearch"
   | "setDebouncedSearch"
@@ -85,8 +87,8 @@ export function PassportGroupRosterPanel({
       ) : error ? null : (submissionsView?.group_total ?? 0) === 0 ? (
         <EmptyState
           icon={<UploadCloud className="h-5 w-5" />}
-          title="Drop passport here"
-          description="Share this group link with clients or upload a passport through the client page. Submitted passports will appear here."
+          title={groupDetails?.import_only ? "Your group is ready for Excel import" : "Drop passport here"}
+          description={groupDetails?.import_only ? "Choose Import Excel above to add your final passenger list to this group." : "Share this group link with clients or upload a passport through the client page. Submitted passports will appear here."}
         />
       ) : !data || data.length === 0 ? (
         <EmptyState

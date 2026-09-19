@@ -133,6 +133,8 @@ export interface WhatsAppSupportContact {
 export interface WhatsAppBroadcastGroup {
   id: string;
   name: string;
+  is_archived?: boolean;
+  archived_at?: string | null;
   /** Active, valid recipients that can receive a message. */
   recipient_count: number;
   /** Complete visible roster: valid recipients plus rejected import rows. */
@@ -321,8 +323,24 @@ export const whatsappApi = {
     return data;
   },
 
-  groups: async (): Promise<WhatsAppBroadcastGroup[]> => {
-    const { data } = await apiClient.get<WhatsAppBroadcastGroup[]>(API_ENDPOINTS.whatsapp.groups);
+  groups: async (archived = false): Promise<WhatsAppBroadcastGroup[]> => {
+    const { data } = await apiClient.get<WhatsAppBroadcastGroup[]>(API_ENDPOINTS.whatsapp.groups, {
+      params: { archived },
+    });
+    return data;
+  },
+
+  archiveGroup: async (groupId: string): Promise<WhatsAppBroadcastGroupDetail> => {
+    const { data } = await apiClient.post<WhatsAppBroadcastGroupDetail>(
+      `${API_ENDPOINTS.whatsapp.group(groupId)}/archive`,
+    );
+    return data;
+  },
+
+  restoreGroup: async (groupId: string): Promise<WhatsAppBroadcastGroupDetail> => {
+    const { data } = await apiClient.post<WhatsAppBroadcastGroupDetail>(
+      `${API_ENDPOINTS.whatsapp.group(groupId)}/restore`,
+    );
     return data;
   },
 

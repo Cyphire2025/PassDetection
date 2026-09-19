@@ -31,6 +31,7 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.passport_roster_resolution_repository import (
     suppress_active_replacement_recipients,
 )
+from app.presentation.api.v1.routes.whatsapp_archive_policy import require_active_broadcast
 from app.presentation.api.v1.routes.whatsapp_contact_import import (
     _parse_excel_contacts_result,
 )
@@ -131,6 +132,7 @@ async def add_broadcast_recipients(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="WhatsApp broadcast group not found",
         )
+    require_active_broadcast(group)
 
     existing_by_phone: dict[str, WhatsAppBroadcastRecipientModel] = {}
     if normalized_contacts:
@@ -277,6 +279,7 @@ async def update_broadcast_recipient_phone(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="WhatsApp broadcast group not found",
         )
+    require_active_broadcast(group)
     recipient_result = await session.execute(
         select(WhatsAppBroadcastRecipientModel)
         .where(

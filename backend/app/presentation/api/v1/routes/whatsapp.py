@@ -140,6 +140,15 @@ from app.presentation.api.v1.routes.whatsapp_contact_import import (
     preview_excel_contacts as preview_excel_contacts,
 )
 from app.presentation.api.v1.routes.whatsapp_contact_import import router as _contact_import_router
+from app.presentation.api.v1.routes.whatsapp_groups_archive import (
+    archive_broadcast_group as archive_broadcast_group,
+)
+from app.presentation.api.v1.routes.whatsapp_groups_archive import (
+    restore_broadcast_group as restore_broadcast_group,
+)
+from app.presentation.api.v1.routes.whatsapp_groups_archive import (
+    router as _groups_archive_router,
+)
 from app.presentation.api.v1.routes.whatsapp_groups_delete import (
     delete_broadcast_group as delete_broadcast_group,
 )
@@ -533,5 +542,6 @@ router.include_router(_resend_router)
 router.include_router(_bulk_resend_router)
 router.include_router(_bulk_resend_preview_router)
 router.include_router(_groups_delete_router)
+router.include_router(_groups_archive_router)
 router.include_router(_send_router)
 router.include_router(_batch_status_router)

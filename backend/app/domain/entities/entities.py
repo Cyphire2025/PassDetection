@@ -31,6 +31,7 @@ from app.domain.value_objects.custom_questions import (
     normalize_custom_details,
     normalize_custom_questions,
 )
+from app.domain.value_objects.import_group import import_group_settings
 from app.domain.value_objects.passport_document_classification import (
     MANUAL_REVIEW_REASON_CODE,
     classification_outcome,
@@ -424,6 +425,7 @@ class ClientGroup:
     agency_id: uuid.UUID
     status: GroupStatus
     created_by_user_id: uuid.UUID | None
+    import_only: bool = False
     created_at: datetime = field(default_factory=_utcnow)
     closed_at: datetime | None = None
     destination: str | None = None
@@ -487,6 +489,7 @@ class ClientGroup:
         notes: str | None = None,
         initial_status: GroupStatus = GroupStatus.ACTIVE,
         passport_retention_days: int | None = None,
+        import_only: bool = False,
     ) -> ClientGroup:
         normalized_name = " ".join(name.strip().split())
         if not normalized_name:
@@ -502,10 +505,10 @@ class ClientGroup:
             raise ValidationError(str(exc), field="timezone") from exc
         normalized_departure_cities = (
             _normalize_departure_cities(departure_cities or [])
-            if nearest_international_airport_enabled
+            if nearest_international_airport_enabled and not import_only
             else []
         )
-        if nearest_international_airport_enabled and not normalized_departure_cities:
+        if not import_only and nearest_international_airport_enabled and not normalized_departure_cities:
             raise ValidationError(
                 "Add at least one nearest international airport.",
                 field="departure_cities",
@@ -517,6 +520,7 @@ class ClientGroup:
             token=token,
             agency_id=agency_id,
             status=initial_status,
+            import_only=import_only,
             created_by_user_id=created_by_user_id,
             created_at=lifecycle_at,
             closed_at=lifecycle_at if initial_status == GroupStatus.CLOSED else None,
@@ -532,16 +536,18 @@ class ClientGroup:
             agent_employee_code_enabled=agent_employee_code_enabled,
             meal_preference_enabled=meal_preference_enabled,
             require_selfie=require_selfie,
-            upload_configuration=normalize_upload_configuration(upload_configuration),
+            upload_configuration=normalize_upload_configuration(upload_configuration) if not import_only else None,
             allow_files_from_device=allow_files_from_device,
             ask_nearest_domestic_airport=ask_nearest_domestic_airport,
             relation_with_qualifier_enabled=relation_with_qualifier_enabled,
             designation_enabled=designation_enabled,
             agency_dealership_name_enabled=agency_dealership_name_enabled,
-            custom_questions=normalize_custom_questions(custom_questions),
-            custom_details=normalize_custom_details(custom_details),
+            custom_questions=normalize_custom_questions(custom_questions) if not import_only else [],
+            custom_details=normalize_custom_details(custom_details) if not import_only else [],
             notes=notes.strip() if notes else None,
         )
+        if import_only:
+            group._disable_public_collection()
         validate_capture_configuration(group)
         if initial_status == GroupStatus.CLOSED and passport_retention_days is not None:
             group.schedule_passport_purge(passport_retention_days)
@@ -589,10 +595,10 @@ class ClientGroup:
             raise ValidationError(str(exc), field="timezone") from exc
         normalized_departure_cities = (
             _normalize_departure_cities(departure_cities or [])
-            if nearest_international_airport_enabled
+            if nearest_international_airport_enabled and not self.import_only
             else []
         )
-        if nearest_international_airport_enabled and not normalized_departure_cities:
+        if not self.import_only and nearest_international_airport_enabled and not normalized_departure_cities:
             raise ValidationError(
                 "Add at least one nearest international airport.",
                 field="departure_cities",
@@ -616,14 +622,20 @@ class ClientGroup:
         self.relation_with_qualifier_enabled = relation_with_qualifier_enabled
         self.designation_enabled = designation_enabled
         self.agency_dealership_name_enabled = agency_dealership_name_enabled
-        if custom_questions is not None:
+        if custom_questions is not None and not self.import_only:
             self.custom_questions = normalize_custom_questions(custom_questions)
-        if custom_details is not None:
+        if custom_details is not None and not self.import_only:
             self.custom_details = normalize_custom_details(custom_details)
-        if upload_configuration is not None:
+        if upload_configuration is not None and not self.import_only:
             self.upload_configuration = normalize_upload_configuration(upload_configuration)
-        validate_capture_configuration(self)
         self.notes = notes.strip() if notes else None
+        if self.import_only:
+            self._disable_public_collection()
+        validate_capture_configuration(self)
+
+    def _disable_public_collection(self) -> None:
+        for key, value in import_group_settings().items():
+            setattr(self, key, value)
 
     def require_allowed_acquisition_mode(self, acquisition_mode: str) -> str:
         """Validate whether a public upload came through an enabled capture path."""
@@ -645,7 +657,7 @@ class ClientGroup:
         return normalized
 
     def is_active(self) -> bool:
-        """True if the group is still accepting uploads."""
+        """True for an active lifecycle; public access also checks the import mode."""
         return self.status == GroupStatus.ACTIVE
 
     def schedule_passport_purge(self, retention_days: int) -> None:

@@ -62,8 +62,9 @@ export function WhatsAppBroadcastSelector({
       return;
     }
     if (selectedIds.length >= MAX_LINKED_BROADCASTS) return;
-    onChange([...selectedIds, id]);
     const broadcast = broadcasts.find((item) => item.id === id);
+    if (broadcast?.archived_at) return;
+    onChange([...selectedIds, id]);
     const availableFields = broadcast?.available_matching_fields ?? [];
     if (onMatchingFieldsChange && availableFields.length > 0) {
       const existingFields = broadcast?.matching_field_keys ?? [];
@@ -150,7 +151,7 @@ export function WhatsAppBroadcastSelector({
                   type="button"
                   role="checkbox"
                   aria-checked={isSelected}
-                  disabled={disabled || atLimit}
+                  disabled={disabled || atLimit || Boolean(broadcast.archived_at && !isSelected)}
                   onClick={() => toggle(broadcast.id)}
                   className={`flex min-h-20 items-center gap-3 rounded-xl border p-3 text-left transition ${
                     isSelected
@@ -175,6 +176,7 @@ export function WhatsAppBroadcastSelector({
                       {broadcast.recipient_count.toLocaleString()} recipient
                       {broadcast.recipient_count === 1 ? "" : "s"}
                     </span>
+                    {broadcast.archived_at && <span className="mt-1 block text-xs font-medium text-amber-700">Archived · existing link</span>}
                   </span>
                 </button>
               );

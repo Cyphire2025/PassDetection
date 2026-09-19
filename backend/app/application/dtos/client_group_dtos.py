@@ -22,6 +22,7 @@ from app.domain.value_objects.upload_configuration import configuration_for
 @dataclass(frozen=True)
 class CreateClientGroupInputDTO:
     name: str
+    import_only: bool = False
     destination: str | None = None
     travel_date: date | None = None
     return_date: date | None = None
@@ -80,6 +81,7 @@ class ClientGroupOutputDTO:
     status: str
     created_by_user_id: uuid.UUID | None
     created_at: datetime
+    import_only: bool = False
     closed_at: datetime | None = None
     destination: str | None = None
     travel_date: date | None = None
@@ -119,6 +121,7 @@ def client_group_output_from_entity(link: ClientGroup) -> ClientGroupOutputDTO:
         status=link.status.value,
         created_by_user_id=link.created_by_user_id,
         created_at=link.created_at,
+        import_only=link.import_only,
         closed_at=link.closed_at,
         destination=link.destination,
         travel_date=link.travel_date,

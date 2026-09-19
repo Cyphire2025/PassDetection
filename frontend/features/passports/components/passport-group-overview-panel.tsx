@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { DEFAULT_TRIP_TIMEZONE } from "../utils/trip-timezone";
+import { getImportOnlySettings } from "../schemas/upload-link.schema";
 import { DEFAULT_UPLOAD_CONFIGURATION, isUploadFieldRequired, type RequiredUploadField, type UploadConfiguration } from "../types/upload-configuration";
 import {
   GroupDocumentDeliveryPanel,
@@ -147,6 +148,7 @@ export function PassportGroupOverviewPanel({
                     size="sm"
                     onClick={() => {
                       setTripForm({
+                        import_only: groupDetails.import_only,
                         upload_configuration: groupDetails.upload_configuration ?? undefined,
                         custom_questions: groupDetails.custom_questions,
                         custom_details: groupDetails.custom_details,
@@ -177,6 +179,7 @@ export function PassportGroupOverviewPanel({
                         agency_dealership_name_enabled:
                           groupDetails.agency_dealership_name_enabled ?? false,
                         notes: groupDetails.notes ?? "",
+                        ...(groupDetails.import_only ? getImportOnlySettings() : {}),
                       });
                       setIsEditingTrip(true);
                     }}
@@ -209,6 +212,7 @@ export function PassportGroupOverviewPanel({
                     label="Trip Timezone"
                     value={groupDetails.timezone || DEFAULT_TRIP_TIMEZONE}
                   />
+                  {!groupDetails.import_only && <>
                   <InfoPair
                     label="Base City"
                     value={fieldRequirement(configuration, groupDetails.base_city_enabled, "base_city")}
@@ -277,6 +281,7 @@ export function PassportGroupOverviewPanel({
                       value={groupDetails.notes || "No notes"}
                     />
                   </div>
+                  </>}
                 </div>
               )}
             </CardContent>

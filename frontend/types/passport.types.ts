@@ -241,6 +241,7 @@ export interface StaffApprovalResult {
 }
 
 export interface PassportGroupSummary {
+  import_only?: boolean;
   group_id: string;
   group_name: string;
   group_status: "active" | "closed" | "archived";

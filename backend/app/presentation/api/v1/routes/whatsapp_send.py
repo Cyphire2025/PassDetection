@@ -28,6 +28,7 @@ from app.infrastructure.whatsapp.publication import (
     fail_unclaimed_broadcast_rows,
     publish_whatsapp_task,
 )
+from app.presentation.api.v1.routes.whatsapp_archive_policy import require_active_broadcast
 from app.presentation.api.v1.routes.whatsapp_phone_welcome import (
     claim_broadcast_welcome_phones,
     enforce_broadcast_welcome_prerequisite,
@@ -96,6 +97,7 @@ async def send_broadcast_message(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="WhatsApp broadcast group not found"
         )
+    require_active_broadcast(group)
     if group.recipient_opt_in_confirmed_at is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

@@ -186,6 +186,8 @@ class WhatsAppBroadcastGroupResponse(BaseModel):
     id: uuid.UUID
     name: str
     organizing_company_name: str
+    archived_at: datetime | None = None
+    is_archived: bool = False
     # Delivery actions use active valid recipients. The total is the visible
     # roster size and also includes unresolved rejected spreadsheet rows.
     recipient_count: int

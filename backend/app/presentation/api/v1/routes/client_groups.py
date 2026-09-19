@@ -18,7 +18,7 @@ from fastapi import (
     Response,
     status,
 )
-from sqlalchemy import and_, delete, func, select, update
+from sqlalchemy import and_, delete, func, or_, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute
@@ -262,6 +262,8 @@ async def _broadcast_summaries(
     *,
     agency_id: uuid.UUID,
     broadcast_ids: list[uuid.UUID] | None = None,
+    existing_group_id: uuid.UUID | None = None,
+    allowed_archived_ids: list[uuid.UUID] | None = None,
 ) -> list[WhatsAppBroadcastSummaryResponse]:
     stmt = (
         select(
@@ -278,6 +280,17 @@ async def _broadcast_summaries(
         )
         .where(WhatsAppBroadcastGroupModel.agency_id == agency_id)
     )
+    active_or_retained = [WhatsAppBroadcastGroupModel.archived_at.is_(None)]
+    if existing_group_id is not None:
+        active_or_retained.append(WhatsAppBroadcastGroupModel.id.in_(
+            select(ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id).where(
+                ClientGroupWhatsAppBroadcastLinkModel.client_group_id == existing_group_id,
+                ClientGroupWhatsAppBroadcastLinkModel.agency_id == agency_id,
+            )
+        ))
+    if allowed_archived_ids:
+        active_or_retained.append(WhatsAppBroadcastGroupModel.id.in_(allowed_archived_ids))
+    stmt = stmt.where(or_(*active_or_retained))
     if broadcast_ids is not None:
         if not broadcast_ids:
             return []
@@ -292,6 +305,7 @@ async def _broadcast_summaries(
         WhatsAppBroadcastSummaryResponse(
             id=broadcast.id,
             name=broadcast.name,
+            archived_at=broadcast.archived_at,
             recipient_count=int(recipient_count or 0),
             available_matching_fields=_matching_field_options(
                 getattr(broadcast, "imported_field_keys", [])
@@ -308,11 +322,13 @@ async def _validate_broadcast_ids(
     *,
     agency_id: uuid.UUID,
     broadcast_ids: list[uuid.UUID],
+    allowed_archived_ids: list[uuid.UUID] | None = None,
 ) -> list[WhatsAppBroadcastSummaryResponse]:
     summaries = await _broadcast_summaries(
         session,
         agency_id=agency_id,
         broadcast_ids=broadcast_ids,
+        allowed_archived_ids=allowed_archived_ids,
     )
     if {summary.id for summary in summaries} != set(broadcast_ids):
         raise HTTPException(
@@ -374,6 +390,7 @@ async def _linked_broadcast_summaries_by_group(
             WhatsAppBroadcastSummaryResponse(
                 id=broadcast.id,
                 name=broadcast.name,
+                archived_at=broadcast.archived_at,
                 recipient_count=int(recipient_count or 0),
                 available_matching_fields=_matching_field_options(
                     getattr(broadcast, "imported_field_keys", [])
@@ -445,6 +462,7 @@ async def _replace_whatsapp_links(
         session,
         agency_id=agency_id,
         broadcast_ids=requested_ids,
+        allowed_archived_ids=previous_ids,
     )
     requested_configuration: dict[uuid.UUID, tuple[str, ...] | None] = {}
     supplied_configuration = matching_fields_by_broadcast or {}
@@ -545,6 +563,7 @@ async def _replace_whatsapp_links(
             session,
             agency_id=agency_id,
             broadcast_ids=requested_ids,
+            allowed_archived_ids=previous_ids,
         )
     summaries = [
         (
@@ -712,6 +731,7 @@ async def create_client_group(
 
     dto = CreateClientGroupInputDTO(
         name=request.name,
+        import_only=request.import_only,
         destination=request.destination,
         travel_date=request.travel_date,
         return_date=request.return_date,
@@ -767,6 +787,7 @@ async def create_client_group(
         user_id=current_user.id,
         actor_email=current_user.email,
         metadata={
+            "import_only": result.import_only,
             "whatsapp_broadcast_count": len(linked),
             "whatsapp_broadcast_group_ids": [str(summary.id) for summary in linked],
         },
@@ -908,6 +929,7 @@ async def list_whatsapp_broadcast_options_for_group(
     return await _broadcast_summaries(
         session,
         agency_id=group.agency_id,
+        existing_group_id=group.id,
     )
 
 

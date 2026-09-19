@@ -42,6 +42,58 @@ from app.presentation.api.v1.schemas.client_group_schemas import (
 NOW = datetime(2026, 7, 20, 12, tzinfo=UTC)
 
 
+@pytest.mark.asyncio
+async def test_archived_broadcasts_can_be_retained_but_not_newly_linked(db_session):
+    seeded = await _seed(db_session)
+    first, second, unlinked = seeded["broadcasts"]
+    first.archived_at = NOW
+    unlinked.archived_at = NOW
+    await db_session.flush()
+
+    new_options = await client_group_routes._broadcast_summaries(
+        db_session, agency_id=seeded["agency_id"],
+    )
+    assert [option.id for option in new_options] == [second.id]
+    existing_options = await list_whatsapp_broadcast_options_for_group(
+        seeded["group"].id, current_user=seeded["creator"], session=db_session,
+    )
+    assert {option.id for option in existing_options} == {first.id, second.id}
+    assert next(option for option in existing_options if option.id == first.id).archived_at is not None
+
+    links = await get_client_group_whatsapp_links(
+        seeded["group"].id, current_user=seeded["creator"], session=db_session,
+    )
+    assert links.broadcast_count == 2
+    assert next(option for option in links.broadcasts if option.id == first.id).archived_at is not None
+    replacement = await replace_client_group_whatsapp_links(
+        seeded["group"].id,
+        ReplaceWhatsAppBroadcastLinksRequest(whatsapp_broadcast_group_ids=[first.id, second.id]),
+        current_user=seeded["creator"], session=db_session,
+    )
+    assert {option.id for option in replacement.broadcasts} == {first.id, second.id}
+    with pytest.raises(HTTPException) as exc:
+        await replace_client_group_whatsapp_links(
+            seeded["group"].id,
+            ReplaceWhatsAppBroadcastLinksRequest(whatsapp_broadcast_group_ids=[first.id, second.id, unlinked.id]),
+            current_user=seeded["creator"], session=db_session,
+        )
+    assert exc.value.status_code == 400
+
+    # Once deliberately unlinked, an archived list cannot be added back until restored.
+    await replace_client_group_whatsapp_links(
+        seeded["group"].id,
+        ReplaceWhatsAppBroadcastLinksRequest(whatsapp_broadcast_group_ids=[second.id]),
+        current_user=seeded["creator"], session=db_session,
+    )
+    with pytest.raises(HTTPException) as exc:
+        await replace_client_group_whatsapp_links(
+            seeded["group"].id,
+            ReplaceWhatsAppBroadcastLinksRequest(whatsapp_broadcast_group_ids=[first.id, second.id]),
+            current_user=seeded["creator"], session=db_session,
+        )
+    assert exc.value.status_code == 400
+
+
 @pytest.fixture(autouse=True)
 def _isolate_mobile_passenger_reconciliation(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(

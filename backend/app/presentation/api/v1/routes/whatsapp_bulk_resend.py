@@ -34,6 +34,7 @@ from app.infrastructure.whatsapp.publication import (
     fail_unclaimed_broadcast_rows,
     publish_whatsapp_task,
 )
+from app.presentation.api.v1.routes.whatsapp_archive_policy import require_active_broadcast
 from app.presentation.api.v1.routes.whatsapp_bulk_resend_composer import validate_bulk_resend_edits
 from app.presentation.api.v1.routes.whatsapp_bulk_resend_support import (
     SKIP_MESSAGES,
@@ -80,6 +81,7 @@ async def resend_selected_recipient_messages(
     ).scalar_one_or_none()
     if group is None:
         raise HTTPException(status_code=404, detail="WhatsApp broadcast group not found")
+    require_active_broadcast(group)
     if group.recipient_opt_in_confirmed_at is None:
         raise HTTPException(
             status_code=400, detail="Recipient WhatsApp opt-in has not been confirmed for this list"

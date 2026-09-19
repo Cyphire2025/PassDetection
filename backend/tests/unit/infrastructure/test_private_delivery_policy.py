@@ -9,9 +9,11 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from fastapi import HTTPException
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.domain.entities.entities import User, UserRole
 from app.infrastructure.database.models import (
     AgencyModel,
     ClientGroupModel,
@@ -33,9 +35,44 @@ from app.infrastructure.whatsapp.private_delivery_policy import (
     prepare_private_delivery_identity_mutation,
     validate_private_delivery_recipient,
 )
+from app.presentation.api.v1.routes.whatsapp_groups_archive import archive_broadcast_group
 
 NOW = datetime(2026, 8, 2, 12, tzinfo=UTC)
 PHONE = "+919876543210"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("kind", ["document", "qr"])
+@pytest.mark.parametrize("delivery_status", ["queued", "processing", "delivery_unknown"])
+async def test_broadcast_archive_waits_for_private_delivery(db_session, kind, delivery_status):
+    context = await _seed_private_delivery_context(db_session)
+    delivery = (_document_delivery if kind == "document" else _qr_delivery)(context, status=delivery_status)
+    db_session.add(delivery)
+    await db_session.flush()
+    actor = User(id=uuid.uuid4(), email="staff@example.test", hashed_password="unused",
+        full_name="Staff", role=UserRole.AGENCY_STAFF, agency_id=context["agency"].id)
+    with pytest.raises(HTTPException) as exc:
+        await archive_broadcast_group(context["broadcast"].id, current_user=actor, session=db_session)
+    assert exc.value.status_code == 409
+    assert context["broadcast"].archived_at is None
+    assert delivery.status == delivery_status
+
+
+@pytest.mark.asyncio
+async def test_private_delivery_is_blocked_until_archived_broadcast_is_restored(db_session):
+    context = await _seed_private_delivery_context(db_session)
+    broadcast = context["broadcast"]
+    broadcast.archived_at = NOW
+    await db_session.flush()
+    kwargs = dict(agency_id=context["agency"].id, group_id=context["group"].id,
+        passenger_id=context["passengers"][0].id, broadcast_group_id=broadcast.id,
+        recipient_id=context["recipient"].id, normalized_phone_number=PHONE)
+    archived = await validate_private_delivery_recipient(db_session, **kwargs)
+    assert archived.allowed is False
+    broadcast.archived_at = None
+    await db_session.flush()
+    restored = await validate_private_delivery_recipient(db_session, **kwargs)
+    assert restored.allowed is True
 
 
 async def _seed_private_delivery_context(

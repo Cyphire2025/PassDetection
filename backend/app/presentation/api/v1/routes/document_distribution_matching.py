@@ -62,6 +62,7 @@ async def _linked_whatsapp_recipients(
     ]
     if require_opt_in:
         filters.append(WhatsAppBroadcastGroupModel.recipient_opt_in_confirmed_at.is_not(None))
+        filters.append(WhatsAppBroadcastGroupModel.archived_at.is_(None))
     linked_result = await session.execute(
         select(
             ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,

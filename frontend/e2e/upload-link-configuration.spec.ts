@@ -26,6 +26,7 @@ async function mockUploadLinkApi(page: Page) {
   const created: CreateUploadLinkRequest[] = [];
   const updated: UpdateUploadLinkRequest[] = [];
   const lifecycle: string[] = [];
+  const imports: string[] = [];
   const unexpectedMutations: string[] = [];
   let savedGroup: UploadLinkResponse | null = null;
   let finishRestore!: () => void;
@@ -97,18 +98,101 @@ async function mockUploadLinkApi(page: Page) {
       savedGroup = { ...savedGroup, status: "active", closed_at: null };
       return json(route, savedGroup);
     }
+    if (pathname === "/api/v1/passports/groups") {
+      return json(route, savedGroup ? [{
+        ...savedGroup, group_id: savedGroup.id, group_name: savedGroup.name,
+        group_status: savedGroup.status, total_passports: 0, pending_review_count: 0,
+        confirmed_count: 0, failed_count: 0, latest_submission_at: null,
+      }] : []);
+    }
+    if (pathname.endsWith("/submissions-view")) return json(route, {
+      items: [], ordered_submission_ids: [], ordered_selection_snapshot: [],
+      group_total: 0, total: 0, page: 1, page_size: 50, total_pages: 1,
+      returned_count: 0, cluster_boundaries_preserved: true, expiry_alerts: [],
+    });
+    if (pathname.endsWith("/whatsapp-links")) return json(route, {
+      client_group_id: savedGroup?.id, broadcasts: [], broadcast_count: 0, recipient_count: 0, can_manage: true,
+    });
+    if (pathname.endsWith("/whatsapp-deliveries/tracking")) return json(route, {
+      group_id: savedGroup?.id, poll_after_seconds: null,
+      counts: { total: 0, queued: 0, sent: 0, delivered: 0, read: 0, failed: 0, delivery_unknown: 0 }, deliveries: [],
+    });
+    if (pathname.endsWith("/passport-retention")) return json(route, {
+      group_id: savedGroup?.id, passport_purge_at: null, passport_retention_days_applied: null,
+      legal_hold: false, legal_hold_reason: null, legal_hold_set_at: null, legal_hold_set_by_user_id: null,
+    });
+    if (pathname === "/api/v1/passports/groups/e2e-configured-upload-link/import.xlsx" && request.method() === "POST") {
+      imports.push(request.postData() ?? "");
+      return json(route, { imported_count: 2, updated_count: 0, skipped_count: 0 });
+    }
     if (request.method() === "GET") return json(route, []);
     unexpectedMutations.push(`${request.method()} ${pathname}`);
     return json(route, { error: { code: "E2E_UNEXPECTED_MUTATION", message: "The test does not allow this mutation." } }, 400);
   });
 
-  return { created, updated, lifecycle, finishRestore, unexpectedMutations, getSavedGroup: () => savedGroup };
+  return { created, updated, lifecycle, imports, finishRestore, unexpectedMutations, getSavedGroup: () => savedGroup };
 }
 
 for (const viewport of [
   { name: "desktop", width: 1440, height: 1080 },
   { name: "mobile", width: 390, height: 844 },
 ]) {
+  test(`import group needs only trip details and opens the Excel workflow on ${viewport.name}`, async ({ page }, testInfo) => {
+    test.setTimeout(90_000);
+    const api = await mockUploadLinkApi(page);
+    const pageErrors: string[] = [];
+    page.on("pageerror", (error) => pageErrors.push(error.message));
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    await page.goto("/upload-links");
+    await page.getByRole("region", { name: "Live and closed group links", exact: true }).getByRole("button", { name: "Create Group Link", exact: true }).click();
+    const dialog = page.getByRole("dialog", { name: "Create Upload Link", exact: true });
+    await dialog.getByRole("switch", { name: "Disable Live Passport Scan", exact: true }).click();
+    await dialog.getByRole("switch", { name: "Disable Passport Document Upload", exact: true }).click();
+    await dialog.getByRole("radio", { name: /^Import data/ }).check();
+    await expect(dialog.getByRole("switch")).toHaveCount(0);
+    await expect(dialog.getByRole("heading", { name: "Link existing WhatsApp broadcasts" })).toHaveCount(0);
+    await dialog.getByRole("textbox", { name: "Group Name", exact: true }).fill("Final Excel Roster");
+    await dialog.getByRole("textbox", { name: "Destination", exact: true }).fill("Dubai");
+    await dialog.getByLabel(/Travel\/Departure Date/).fill("2026-11-01");
+    await dialog.getByLabel(/Return Date/).fill("2026-11-08");
+    const formScreenshot = testInfo.outputPath(`import-group-form-${viewport.name}.png`);
+    await dialog.screenshot({ path: formScreenshot, animations: "disabled" });
+    await testInfo.attach(`Import group form — ${viewport.name}`, { path: formScreenshot, contentType: "image/png" });
+    await dialog.getByRole("button", { name: "Create Group", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Group Created", exact: true })).toBeVisible();
+    expect(api.created).toHaveLength(1);
+    expect(api.created[0]).toMatchObject({
+      import_only: true, name: "Final Excel Roster", destination: "Dubai",
+      travel_date: "2026-11-01", return_date: "2026-11-08", timezone: "Asia/Kolkata",
+      custom_questions: [], custom_details: [], whatsapp_broadcast_group_ids: [],
+      upload_configuration: { passport_enabled: false, passport_required: false },
+    });
+    await expect(page.getByRole("textbox", { name: /upload link/ })).toHaveCount(0);
+    await page.getByRole("button", { name: "Done", exact: true }).click();
+    await expect(page.getByRole("button", { name: /^Copy .*upload link/ })).toHaveCount(0);
+    await page.getByRole("button", { name: "Edit", exact: true }).click();
+    const editor = page.getByRole("dialog", { name: "Edit Group", exact: true });
+    await expect(editor.getByRole("switch")).toHaveCount(0);
+    await editor.getByRole("textbox", { name: "Group name", exact: true }).fill("Final Excel Roster Updated");
+    await editor.getByRole("button", { name: "Save changes", exact: true }).click();
+    await expect(editor).toHaveCount(0);
+    await page.getByRole("link", { name: "Open Final Excel Roster Updated to import Excel", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Final Excel Roster Updated", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Your group is ready for Excel import", exact: true })).toBeVisible();
+    const workspaceScreenshot = testInfo.outputPath(`import-group-workspace-${viewport.name}.png`);
+    await page.screenshot({ path: workspaceScreenshot, animations: "disabled", fullPage: true });
+    await testInfo.attach(`Import group workspace — ${viewport.name}`, { path: workspaceScreenshot, contentType: "image/png" });
+    const fileChooserPromise = page.waitForEvent("filechooser");
+    await page.getByRole("button", { name: "Import Excel", exact: true }).click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles({ name: "final-roster.xlsx", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", buffer: Buffer.from("e2e workbook upload") });
+    await expect(page.getByRole("status").filter({ hasText: "Imported 2 new" })).toHaveText("Imported 2 new, updated 0, skipped 0 duplicate rows.");
+    expect(api.imports).toHaveLength(1);
+    expect(api.imports[0]).toContain("final-roster.xlsx");
+    expect(api.unexpectedMutations).toEqual([]);
+    expect(pageErrors).toEqual([]);
+  });
+
   test(`upload link configuration survives create, edit, close and reopen on ${viewport.name}`, async ({ page }, testInfo) => {
     test.setTimeout(90_000);
     const api = await mockUploadLinkApi(page);

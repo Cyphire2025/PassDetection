@@ -42,7 +42,7 @@ test("WhatsApp navigation and group integration use the shared access policies",
     .find((line) => line.includes('label: "WhatsApp"'));
   assert.ok(whatsappNav);
   assert.match(sidebar, /canAccessApplicationPath\(user, item\.href\)/);
-  assert.match(createLinkModal, /\{canAccessWhatsApp && \(\s*<WhatsAppBroadcastSelector/);
+  assert.match(createLinkModal, /\{!importOnly && canAccessWhatsApp && \(\s*<WhatsAppBroadcastSelector/);
   assert.match(groupDetail, /\{canAccessWhatsApp && \(\s*<GroupWhatsAppBroadcastPanel/);
 });
 

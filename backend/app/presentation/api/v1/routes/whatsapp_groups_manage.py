@@ -23,6 +23,7 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastSupportContactModel,
 )
 from app.infrastructure.database.session import get_db_session
+from app.presentation.api.v1.routes.whatsapp_archive_policy import require_active_broadcast
 from app.presentation.api.v1.routes.whatsapp_contact_import import (
     _parse_excel_contacts_result,
 )
@@ -289,6 +290,7 @@ async def update_broadcast_group(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="WhatsApp broadcast group not found",
         )
+    require_active_broadcast(group)
 
     if name is not None:
         group_name = name.strip()

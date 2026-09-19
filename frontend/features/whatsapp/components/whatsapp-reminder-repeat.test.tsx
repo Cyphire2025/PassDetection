@@ -33,10 +33,12 @@ const mocks = vi.hoisted(() => ({
 // Only data/provider hooks and the separately tested activity illustration are
 // replaced. No preview or send can reach the network in these tests.
 vi.mock("../hooks/use-whatsapp", () => ({
-  useWhatsAppGroups: () => ({ data: [mocks.detail], isLoading: false }),
+  useWhatsAppGroups: (archived = false) => ({ data: archived ? [] : [mocks.detail], isLoading: false }),
   useWhatsAppGroup: () => ({ data: mocks.detail, isLoading: false }),
   useCreateWhatsAppGroup: () => ({ mutateAsync: vi.fn(), isPending: false }),
   useDeleteWhatsAppGroup: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useArchiveWhatsAppGroup: () => ({ mutate: vi.fn(), isPending: false }),
+  useRestoreWhatsAppGroup: () => ({ mutate: vi.fn(), isPending: false }),
   useSendWhatsAppWelcome: () => ({ mutateAsync: mocks.sendWelcome, isPending: false }),
   useSendWhatsAppPassportLink: () => ({ mutateAsync: mocks.sendPassportLink, isPending: false }),
   useSendWhatsAppReminder: () => ({ mutateAsync: mocks.sendReminder, isPending: false }),

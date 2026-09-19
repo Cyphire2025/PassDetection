@@ -31,6 +31,8 @@ def test_main_authenticated_whatsapp_mutations_require_cookie_csrf() -> None:
         ("/groups/{group_id}/recipients/{recipient_id}", "DELETE"),
         ("/groups/{group_id}/recipients/{recipient_id}/resend", "POST"),
         ("/groups/{group_id}", "DELETE"),
+        ("/groups/{group_id}/archive", "POST"),
+        ("/groups/{group_id}/restore", "POST"),
         ("/groups/{group_id}/send", "POST"),
     }
 

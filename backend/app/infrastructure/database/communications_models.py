@@ -32,6 +32,7 @@ class WhatsAppBroadcastGroupModel(Base):
     __tablename__ = "whatsapp_broadcast_groups"
     __table_args__ = (
         Index("ix_whatsapp_broadcast_groups_agency_created", "agency_id", "created_at"),
+        Index("ix_whatsapp_groups_agency_archive_created", "agency_id", "archived_at", "created_at"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -46,6 +47,7 @@ class WhatsAppBroadcastGroupModel(Base):
     recipient_opt_in_confirmed_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
+    archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     # Canonical headings discovered across imported workbooks. Keeping the
     # bounded union on the list makes link configuration cheap even for large
     # recipient rosters and preserves headings whose column is currently empty.

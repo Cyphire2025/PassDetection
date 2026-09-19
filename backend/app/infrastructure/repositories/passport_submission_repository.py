@@ -589,6 +589,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                     "agent_employee_code_enabled"
                 ),
                 ClientGroupModel.meal_preference_enabled.label("meal_preference_enabled"),
+                ClientGroupModel.import_only.label("import_only"),
                 ClientGroupModel.require_selfie.label("require_selfie"),
                 ClientGroupModel.custom_questions.label("custom_questions"),
                 ClientGroupModel.custom_details.label("custom_details"),
@@ -664,6 +665,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 ClientGroupModel.staff_code_enabled,
                 ClientGroupModel.agent_employee_code_enabled,
                 ClientGroupModel.meal_preference_enabled,
+                ClientGroupModel.import_only,
                 ClientGroupModel.require_selfie,
                 ClientGroupModel.custom_questions,
                 ClientGroupModel.custom_details,
@@ -701,6 +703,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 staff_code_enabled=row.staff_code_enabled,
                 agent_employee_code_enabled=row.agent_employee_code_enabled,
                 meal_preference_enabled=row.meal_preference_enabled,
+                import_only=row.import_only,
                 require_selfie=row.require_selfie,
                 custom_questions=list(row.custom_questions or []),
                 custom_details=list(row.custom_details or []),

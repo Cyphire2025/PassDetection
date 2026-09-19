@@ -30,6 +30,8 @@ class GetClientGroupByTokenUseCase:
             raise EntityNotFoundError("ClientGroup", token)
 
         # Validate status
+        if link.import_only:
+            raise EntityNotFoundError("ClientGroup", "upload link")
         if not link.is_active():
             if link.status == GroupStatus.CLOSED:
                 raise GroupClosedError()

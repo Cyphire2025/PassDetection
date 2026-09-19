@@ -574,6 +574,7 @@ class PassportUploadIdempotencyTests(unittest.IsolatedAsyncioTestCase):
             id=self.group_id,
             agency_id=self.agency_id,
             require_selfie=False,
+            import_only=False,
             is_active=lambda: True,
             deleted_at=None,
             require_allowed_acquisition_mode=lambda value: value,

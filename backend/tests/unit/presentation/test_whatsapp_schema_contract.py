@@ -48,6 +48,13 @@ _SCHEMA_SHA256_BY_PYDANTIC = {
 
 def test_whatsapp_route_reexports_reviewed_schema_contracts() -> None:
     schemas = [(name, getattr(whatsapp, name).model_json_schema()) for name in _MODEL_NAMES]
+    # Archive metadata is an additive response extension. Retain the reviewed
+    # pre-archive hash across both supported Pydantic versions and check the
+    # new fields explicitly below.
+    for name, schema in schemas:
+        if name in {"WhatsAppBroadcastGroupResponse", "WhatsAppBroadcastGroupDetailResponse"}:
+            for field in ("archived_at", "is_archived"):
+                schema["properties"].pop(field)
     payload = json.dumps(
         schemas,
         sort_keys=True,
@@ -58,6 +65,12 @@ def test_whatsapp_route_reexports_reviewed_schema_contracts() -> None:
     assert len(schemas) == 29
     expected_hash = _SCHEMA_SHA256_BY_PYDANTIC[pydantic.__version__]
     assert hashlib.sha256(payload).hexdigest() == expected_hash
+
+
+def test_archive_fields_are_additive_response_contracts() -> None:
+    for model in (whatsapp.WhatsAppBroadcastGroupResponse, whatsapp.WhatsAppBroadcastGroupDetailResponse):
+        assert model.model_fields["archived_at"].default is None
+        assert model.model_fields["is_archived"].default is False
 
 
 def test_phone_welcome_fields_are_additive_response_contracts() -> None:

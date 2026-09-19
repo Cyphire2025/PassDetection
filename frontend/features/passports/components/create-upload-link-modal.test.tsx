@@ -29,7 +29,7 @@ vi.mock("@/lib/utils/public-url", () => ({
 }));
 
 beforeEach(() => {
-  createLink.mockReset().mockResolvedValue({ token: "test-token" });
+  createLink.mockReset().mockResolvedValue({ id: "created-group", token: "test-token" });
 });
 
 function fillGroupDetails() {
@@ -40,6 +40,68 @@ function fillGroupDetails() {
 }
 
 describe("create upload link", () => {
+  it("creates an import group using only group details and provides its Excel workspace link", async () => {
+    const user = userEvent.setup();
+    render(<CreateUploadLinkModal isOpen onClose={vi.fn()} />);
+    fillGroupDetails();
+    await user.click(screen.getByRole("radio", { name: /^Import data/ }));
+    expect(screen.queryByRole("switch", { name: /Passport/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Select WhatsApp broadcast" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Create Group" }));
+
+    await waitFor(() => expect(createLink).toHaveBeenCalledTimes(1));
+    expect(createLink).toHaveBeenCalledWith(expect.objectContaining({
+      import_only: true,
+      name: "Autumn Group",
+      destination: "Dubai",
+      travel_date: "2026-10-01",
+      return_date: "2026-10-08",
+      timezone: "Asia/Kolkata",
+      require_selfie: false,
+      allow_files_from_device: false,
+      upload_configuration: expect.objectContaining({ passport_enabled: false, passport_required: false }),
+    }));
+    expect(await screen.findByRole("link", { name: "Open group to import Excel" })).toHaveAttribute("href", "/passports/groups/created-group");
+    expect(screen.queryByRole("textbox", { name: "Client upload link" })).not.toBeInTheDocument();
+  });
+
+  it("discards invalid hidden collection requirements and prior broadcasts when switching to import mode", async () => {
+    const user = userEvent.setup();
+    render(<CreateUploadLinkModal isOpen onClose={vi.fn()} />);
+    fillGroupDetails();
+    await user.click(screen.getByRole("switch", { name: "Disable Live Passport Scan" }));
+    await user.click(screen.getByRole("switch", { name: "Disable Passport Document Upload" }));
+    await user.click(screen.getByRole("switch", { name: "Enable Agent/Employee Code" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Code field label" }), { target: { value: "" } });
+    await user.click(screen.getByRole("button", { name: "Select WhatsApp broadcast" }));
+    await user.click(screen.getByRole("radio", { name: /^Import data/ }));
+    await user.click(screen.getByRole("button", { name: "Create Group" }));
+
+    await waitFor(() => expect(createLink).toHaveBeenCalledTimes(1));
+    expect(createLink).toHaveBeenCalledWith(expect.objectContaining({
+      import_only: true,
+      agent_employee_code_enabled: false,
+      custom_details: [],
+      custom_questions: [],
+      whatsapp_broadcast_group_ids: [],
+      matching_fields_by_broadcast: {},
+      upload_configuration: expect.objectContaining({ agent_employee_code_label: "Agent/Employee Code" }),
+    }));
+  });
+
+  it("restores collection validation when switching back from import mode", async () => {
+    const user = userEvent.setup();
+    render(<CreateUploadLinkModal isOpen onClose={vi.fn()} />);
+    fillGroupDetails();
+    await user.click(screen.getByRole("switch", { name: "Disable Live Passport Scan" }));
+    await user.click(screen.getByRole("switch", { name: "Disable Passport Document Upload" }));
+    await user.click(screen.getByRole("radio", { name: /^Import data/ }));
+    await user.click(screen.getByRole("radio", { name: /^Collect documents/ }));
+    await user.click(screen.getByRole("button", { name: "Generate Links" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Enable at least one method for Passport.");
+    expect(createLink).not.toHaveBeenCalled();
+  });
+
   it("lets staff attach a WhatsApp broadcast and matching fields when creating a group", async () => {
     render(<CreateUploadLinkModal isOpen onClose={vi.fn()} />);
     fillGroupDetails();

@@ -56,6 +56,7 @@ class ListPassportGroupSummariesUseCase:
                 staff_code_enabled=summary.staff_code_enabled,
                 agent_employee_code_enabled=summary.agent_employee_code_enabled,
                 meal_preference_enabled=summary.meal_preference_enabled,
+                import_only=summary.import_only,
                 require_selfie=summary.require_selfie,
                 custom_questions=list(summary.custom_questions or []),
                 custom_details=list(summary.custom_details or []),

@@ -13,6 +13,7 @@ import {
 
 export const WHATSAPP_QUERY_KEYS = {
   groups: ["whatsapp", "groups"] as const,
+  groupList: (archived: boolean) => ["whatsapp", "groups", { archived }] as const,
   group: (groupId: string) => ["whatsapp", "groups", groupId] as const,
   rejectedContacts: (groupId: string) =>
     ["whatsapp", "groups", groupId, "rejected-contacts"] as const,
@@ -25,11 +26,37 @@ export const WHATSAPP_QUERY_KEYS = {
     ] as const,
 };
 
-export function useWhatsAppGroups() {
+export function useWhatsAppGroups(archived = false) {
   return useQuery({
-    queryKey: WHATSAPP_QUERY_KEYS.groups,
-    queryFn: whatsappApi.groups,
+    queryKey: WHATSAPP_QUERY_KEYS.groupList(archived),
+    queryFn: () => whatsappApi.groups(archived),
   });
+}
+
+function useWhatsAppArchiveMutation(restore: boolean) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: restore ? whatsappApi.restoreGroup : whatsappApi.archiveGroup,
+    onSuccess: async (group) => {
+      queryClient.setQueryData(WHATSAPP_QUERY_KEYS.group(group.id), group);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups }),
+        queryClient.invalidateQueries({
+          queryKey: ["upload-links"],
+          predicate: (query) => query.queryKey[2] === "whatsapp-broadcast-options"
+            || query.queryKey[2] === "whatsapp-links",
+        }),
+      ]);
+    },
+  });
+}
+
+export function useArchiveWhatsAppGroup() {
+  return useWhatsAppArchiveMutation(false);
+}
+
+export function useRestoreWhatsAppGroup() {
+  return useWhatsAppArchiveMutation(true);
 }
 
 export function useWhatsAppGroup(groupId: string | null) {
@@ -37,6 +64,7 @@ export function useWhatsAppGroup(groupId: string | null) {
     queryKey: groupId ? WHATSAPP_QUERY_KEYS.group(groupId) : ["whatsapp", "groups", "none"],
     queryFn: () => whatsappApi.group(groupId as string),
     enabled: Boolean(groupId),
+    refetchOnMount: "always",
     refetchInterval: (query) => (
       query.state.data?.recipients.some((recipient) =>
         recipient.message_statuses.some(

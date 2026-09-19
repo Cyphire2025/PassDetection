@@ -8,6 +8,7 @@ import type { CustomUploadDetail, CustomUploadQuestion } from "../api/upload-lin
 import { TripTimeZoneField } from "./trip-timezone-field";
 
 export interface TripDetailsForm {
+  import_only?: boolean;
   name: string;
   destination: string;
   travel_date: string;
@@ -45,7 +46,7 @@ export function TripDetailsDialog({
   onSave: () => void;
 }) {
   const settings = getUploadLinkSettings(form);
-  const settingsError = getUploadLinkSettingsError(settings);
+  const settingsError = form.import_only ? undefined : getUploadLinkSettingsError(settings);
   const timezoneError = isSupportedIanaTimeZone(form.timezone)
     ? undefined
     : "Enter a valid IANA timezone, such as Asia/Kolkata";
@@ -83,9 +84,9 @@ export function TripDetailsDialog({
             error={timezoneError}
             required
           />
-          <div className="sm:col-span-2">
+          {!form.import_only && <div className="sm:col-span-2">
             <UploadLinkSettings value={settings} onChange={(patch) => onChange({ ...form, ...patch })} disabled={isLoading} error={settingsError} />
-          </div>
+          </div>}
         </div>
         <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
           <Button type="button" variant="ghost" onClick={onClose} disabled={isLoading}>
@@ -99,7 +100,7 @@ export function TripDetailsDialog({
               isLoading
               || Boolean(timezoneError)
               || Boolean(settingsError)
-              || (form.nearest_international_airport_enabled && form.departure_cities.length === 0)
+              || (!form.import_only && form.nearest_international_airport_enabled && form.departure_cities.length === 0)
             }
           >
             Save Details

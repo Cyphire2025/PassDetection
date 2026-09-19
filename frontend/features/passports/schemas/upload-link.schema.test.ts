@@ -11,6 +11,38 @@ const validLink = {
   custom_questions: [], custom_details: [], whatsapp_broadcast_group_ids: [],
 };
 
+describe("import data groups", () => {
+  const details = { name: "Final roster", destination: "Dubai", travel_date: "2026-11-01", return_date: "2026-11-08", timezone: "Asia/Kolkata", import_only: true };
+
+  it("accepts only the five group details and disables document collection", () => {
+    expect(createUploadLinkSchema.parse(details)).toMatchObject({
+      ...details, require_selfie: false, allow_files_from_device: false,
+      custom_questions: [], custom_details: [], departure_cities: [],
+      whatsapp_broadcast_group_ids: [], matching_fields_by_broadcast: {},
+      upload_configuration: { passport_enabled: false, passport_required: false, passport_live_scan: false, passport_upload_pages: [], visa_photo_upload: false },
+    });
+  });
+
+  it("ignores invalid hidden fields instead of validating or retaining them", () => {
+    const parsed = createUploadLinkSchema.parse({
+      ...details, upload_configuration: { agent_employee_code_label: "" },
+      custom_questions: [{ label: "" }], custom_details: null,
+      departure_cities: [""], nearest_international_airport_enabled: true,
+      whatsapp_broadcast_group_ids: ["not-a-uuid"], matching_fields_by_broadcast: { invalid: [] },
+      notes: "hidden notes",
+    });
+    expect(parsed).toMatchObject({ custom_questions: [], custom_details: [], nearest_international_airport_enabled: false, whatsapp_broadcast_group_ids: [] });
+    expect(parsed).not.toHaveProperty("notes");
+  });
+
+  it.each([
+    { name: " " }, { destination: " " }, { travel_date: "" }, { return_date: "" },
+    { timezone: "not-a-timezone" }, { return_date: "2026-10-01" },
+  ])("still validates required trip details %j", (invalid) => {
+    expect(createUploadLinkSchema.safeParse({ ...details, ...invalid }).success).toBe(false);
+  });
+});
+
 describe("qualifier relationship configuration", () => {
   it("parses older configurations with list-only defaults", () => {
     const legacyConfiguration = Object.fromEntries(Object.entries(DEFAULT_UPLOAD_CONFIGURATION).filter(([key]) => !key.startsWith("qualifier_relation_")));

@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import {
   Archive,
   CalendarDays,
@@ -12,6 +13,7 @@ import {
   Pencil,
   RotateCcw,
   Trash2,
+  UploadCloud,
   X,
   XCircle,
 } from "lucide-react";
@@ -25,7 +27,7 @@ import {
   WorkspaceSummaryStrip,
   WorkspaceToolbar,
 } from "@/components/shared/workspace-ui";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ConfirmDialog } from "@/components/ui";
 import { useModalKeyboardBoundary } from "@/components/ui/modal";
@@ -33,6 +35,7 @@ import { copyTextToClipboard } from "@/lib/utils/clipboard";
 import { getPassportUploadTargets } from "@/lib/utils/public-url";
 import { canArchiveGroup, canPermanentlyDeleteGroup } from "@/lib/utils/role-access";
 import { selectUserRole, useAuthStore } from "@/stores/auth.store";
+import { getImportOnlySettings } from "../schemas/upload-link.schema";
 import type {
   UploadLinkResponse,
 } from "../api/upload-links.api";
@@ -102,14 +105,14 @@ export function UploadLinkList() {
     () => filterUploadLinks(archivedLinks, deferredQuery),
     [archivedLinks, deferredQuery],
   );
-  const activeCount = activeLinks.filter((link) => link.status === "active").length;
+  const activeCount = activeLinks.filter((link) => link.status === "active" && !link.import_only).length;
   const closedCount = activeLinks.filter((link) => link.status === "closed").length;
   const datedCount = [...activeLinks, ...archivedLinks].filter((link) => link.travel_date).length;
 
   const openGroupEditor = (link: UploadLinkResponse) => {
     setRenameTarget(link);
     setRenameValue(link.name);
-    setEditSettings(getUploadLinkSettings(link));
+    setEditSettings(link.import_only ? getImportOnlySettings() : getUploadLinkSettings(link));
   };
 
   const copyUploadLink = async (linkId: string, targetKey: string, url: string) => {
@@ -130,7 +133,7 @@ export function UploadLinkList() {
     <div className="flex flex-col gap-5">
       <WorkspacePageHeader
         title="Group Links"
-        description="Create passport upload links and manage active, closed, and archived groups."
+        description="Create groups for document collection or Excel imports, and manage active, closed, and archived groups."
         icon={Link2}
         accent="emerald"
         context={(
@@ -351,7 +354,7 @@ export function UploadLinkList() {
         onConfirm={() => {
           if (!renameTarget) return;
           const nextName = renameValue.trim();
-          if (getUploadLinkSettingsError(editSettings)) return;
+          if (!renameTarget.import_only && getUploadLinkSettingsError(editSettings)) return;
           const hasChanges = nextName !== renameTarget.name
             || JSON.stringify(editSettings) !== JSON.stringify(getUploadLinkSettings(renameTarget));
           if (!nextName || !hasChanges) {
@@ -367,7 +370,7 @@ export function UploadLinkList() {
               return_date: renameTarget.return_date,
               package_name: renameTarget.package_name,
               timezone: renameTarget.timezone,
-              ...editSettings,
+              ...(renameTarget.import_only ? getImportOnlySettings() : editSettings),
               departure_cities: editSettings.nearest_international_airport_enabled ? editSettings.departure_cities : [],
               notes: renameTarget.notes,
             },
@@ -425,7 +428,7 @@ function EditGroupDialog({
     onClose,
   });
   if (!group) return null;
-  const settingsError = getUploadLinkSettingsError(settings);
+  const settingsError = group.import_only ? undefined : getUploadLinkSettingsError(settings);
 
   return (
     <div
@@ -449,7 +452,7 @@ function EditGroupDialog({
               Edit Group
             </h2>
             <p className="mt-1 text-sm leading-6 text-slate-600">
-              Update the group name and traveller passport-capture requirements.
+              {group.import_only ? "Update the name of your Excel import group. Trip details can be edited in the group workspace." : "Update the group name and traveller passport-capture requirements."}
             </p>
           </div>
           <button
@@ -472,7 +475,7 @@ function EditGroupDialog({
             disabled={isLoading}
             onChange={(event) => onNameChange(event.target.value)}
           />
-          <UploadLinkSettings value={settings} onChange={onSettingsChange} disabled={isLoading} error={settingsError} />
+          {!group.import_only && <UploadLinkSettings value={settings} onChange={onSettingsChange} disabled={isLoading} error={settingsError} />}
         </div>
         <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
           <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
@@ -526,7 +529,7 @@ function UploadLinkTable({
     link: UploadLinkResponse,
     align: "start" | "end",
   ) => {
-    const uploadTargets = getPassportUploadTargets(link.token);
+    const uploadTargets = link.import_only ? [] : getPassportUploadTargets(link.token);
     return (
       <div
         className={`flex flex-wrap items-center gap-2 ${
@@ -552,12 +555,17 @@ function UploadLinkTable({
             </Button>
           );
         })}
-        {link.status === "active" && onClose && (
+        {link.import_only && link.status !== "archived" && (
+          <Link href={`/passports/groups/${link.id}`} className={buttonVariants({ variant: "secondary", size: "sm" })} aria-label={`Open ${link.name} to import Excel`}>
+            <UploadCloud className="h-3.5 w-3.5" aria-hidden="true" /> Import Excel
+          </Link>
+        )}
+        {!link.import_only && link.status === "active" && onClose && (
           <Button type="button" variant="outline" size="sm" onClick={() => onClose(link.id)} disabled={isMutating}>
             <XCircle className="h-3.5 w-3.5" /> Close
           </Button>
         )}
-        {link.status === "closed" && onOpen && (
+        {!link.import_only && link.status === "closed" && onOpen && (
           <Button type="button" variant="outline" size="sm" onClick={() => onOpen(link.id)} disabled={isMutating}>
             <RotateCcw className="h-3.5 w-3.5" /> Open
           </Button>
@@ -598,6 +606,7 @@ function UploadLinkTable({
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <h3 className="font-semibold text-slate-950">{link.name}</h3>
+                {link.import_only && <span className="mt-1 inline-block rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">Excel import</span>}
                 {link.destination && (
                   <p className="mt-1 truncate text-xs text-slate-500">{link.destination}</p>
                 )}
@@ -640,6 +649,7 @@ function UploadLinkTable({
               <tr key={link.id} className="transition-colors hover:bg-slate-50/50">
                 <td className="px-6 py-4">
                   <div className="font-medium text-slate-900">{link.name}</div>
+                  {link.import_only && <span className="mt-1 inline-block rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">Excel import</span>}
                 </td>
                 <td className="px-6 py-4"><StatusPill status={link.status} /></td>
                 <td className="px-6 py-4 text-slate-600">{new Date(link.created_at).toLocaleDateString()}</td>

@@ -27,6 +27,7 @@ from app.infrastructure.whatsapp.private_delivery_policy import (
     PrivateDeliveryMutationBlocked,
     prepare_private_delivery_identity_mutation,
 )
+from app.presentation.api.v1.routes.whatsapp_archive_policy import require_active_broadcast
 from app.presentation.api.v1.routes.whatsapp_shared import _agency_filter
 
 
@@ -159,6 +160,7 @@ async def _lock_removable_broadcast_recipient(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="WhatsApp recipient not found",
         )
+    require_active_broadcast(group)
 
     recipient_result = await session.execute(
         select(WhatsAppBroadcastRecipientModel)

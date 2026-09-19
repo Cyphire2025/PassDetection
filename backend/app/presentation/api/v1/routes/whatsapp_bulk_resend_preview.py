@@ -18,6 +18,7 @@ from app.infrastructure.repositories.passport_roster_resolution_repository impor
     active_replacement_phone_numbers_for_broadcast,
 )
 from app.infrastructure.whatsapp.phone_welcome import WELCOME_REQUIRED, welcome_states_for_phones
+from app.presentation.api.v1.routes.whatsapp_archive_policy import require_active_broadcast
 from app.presentation.api.v1.routes.whatsapp_bulk_resend_composer import (
     SavedResendSnapshot,
     resolve_saved_resend_snapshot,
@@ -63,6 +64,7 @@ async def preview_selected_recipient_messages(
     ).scalar_one_or_none()
     if group is None:
         raise HTTPException(status_code=404, detail="WhatsApp broadcast group not found")
+    require_active_broadcast(group)
     if (
         body.preview_recipient_id is not None
         and body.preview_recipient_id not in body.recipient_ids

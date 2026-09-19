@@ -14,6 +14,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from app.domain.exceptions.exceptions import ValidationError as DomainValidationError
+from app.domain.value_objects.import_group import import_group_settings
 from app.domain.value_objects.qualifier_relations import normalize_qualifier_choice
 from app.domain.value_objects.trip_timezone import (
     DEFAULT_TRIP_TIMEZONE,
@@ -136,6 +137,7 @@ class CustomDetailResponse(CustomDetailRequest):
 class CreateClientGroupRequest(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
+    import_only: bool = Field(default=False, strict=True)
     name: str = Field(..., min_length=1, max_length=100)
     destination: str = Field(..., min_length=1, max_length=255)
     travel_date: date
@@ -169,6 +171,18 @@ class CreateClientGroupRequest(BaseModel):
         max_length=50,
     )
     matching_fields_by_broadcast: dict[uuid.UUID, list[str]] | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def discard_import_collection_settings(cls, value: object) -> object:
+        if isinstance(value, dict) and value.get("import_only") is True:
+            return {
+                **value,
+                **import_group_settings(),
+                "whatsapp_broadcast_group_ids": [],
+                "matching_fields_by_broadcast": None,
+            }
+        return value
 
     @field_validator("departure_cities", mode="before")
     @classmethod
@@ -327,6 +341,7 @@ class WhatsAppBroadcastSummaryResponse(BaseModel):
 
     id: uuid.UUID
     name: str
+    archived_at: datetime | None = None
     recipient_count: int = Field(default=0, ge=0)
     available_matching_fields: list[WhatsAppMatchingFieldOption] = Field(default_factory=list)
     matching_field_keys: list[str] | None = None
@@ -342,6 +357,7 @@ class ClientGroupResponse(BaseModel):
     status: str
     created_by_user_id: uuid.UUID | None
     created_at: datetime
+    import_only: bool = False
     closed_at: datetime | None = None
     destination: str | None = None
     travel_date: date | None = None

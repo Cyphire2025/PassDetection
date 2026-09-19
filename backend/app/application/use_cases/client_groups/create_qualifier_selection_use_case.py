@@ -48,6 +48,8 @@ class CreateQualifierSelectionUseCase:
         group = await self._client_group_repo.get_by_token(group_token)
         if group is None:
             raise EntityNotFoundError("ClientGroup", "upload-link")
+        if group.import_only:
+            raise EntityNotFoundError("ClientGroup", "upload link")
         if not group.is_active():
             raise GroupClosedError()
         if not group.relation_with_qualifier_enabled:
