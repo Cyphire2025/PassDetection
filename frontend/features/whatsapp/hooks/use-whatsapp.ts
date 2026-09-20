@@ -501,3 +501,18 @@ export function useSendWhatsAppPassportLink() {
     },
   });
 }
+
+export function useSendWhatsAppGroupInvite() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: whatsappApi.sendGroupInvite,
+    retry: false,
+    onSuccess: async (_, { groupId }) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.group(groupId) }),
+        queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.recipientRoster(groupId) }),
+        queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups }),
+      ]);
+    },
+  });
+}

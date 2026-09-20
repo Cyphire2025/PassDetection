@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import re
 from collections.abc import Sequence
 from typing import Literal
+from urllib.parse import urlsplit
 
-WhatsAppMessageType = Literal["welcome", "passport_link", "reminder"]
+WhatsAppMessageType = Literal["welcome", "passport_link", "reminder", "group_invite"]
 
 STATIC_TEMPLATE_HEADER = "Dear Delegates"
 GREETING = "Greetings from Global Connect Travels."
@@ -20,6 +22,30 @@ REMINDER_DEFAULT_MESSAGE_CONTENT = (
     "These details are required to process your application. If you have already "
     "submitted them, please ignore this reminder."
 )
+
+GROUP_INVITE_DEFAULT_MESSAGE_CONTENT = (
+    "Please join our WhatsApp group using the link below to receive important trip updates "
+    "and coordination details."
+)
+
+
+def validate_group_invite_link(value: str) -> str:
+    """Accept official WhatsApp group invitations without changing their query parameters."""
+    link = value.strip()
+    try:
+        parsed = urlsplit(link)
+    except ValueError as exc:
+        raise ValueError("Enter a valid WhatsApp group invite link starting with https://chat.whatsapp.com/.") from exc
+    if (
+        len(link) > 2048
+        or any(character.isspace() or ord(character) < 32 for character in link)
+        or parsed.scheme != "https"
+        or parsed.netloc.lower() != "chat.whatsapp.com"
+        or re.fullmatch(r"/[A-Za-z0-9]+/?", parsed.path) is None
+        or parsed.fragment
+    ):
+        raise ValueError("Enter a valid WhatsApp group invite link starting with https://chat.whatsapp.com/.")
+    return link
 
 AUTOMATED_NOTICE = (
     "This is an automated notification sent individually to you. Replies to this WhatsApp "
@@ -37,6 +63,7 @@ EXPECTED_BODY_PARAMETER_COUNTS: dict[WhatsAppMessageType, int] = {
     "welcome": 1,
     "passport_link": 4,
     "reminder": 1,
+    "group_invite": 2,
 }
 
 
@@ -60,6 +87,8 @@ def default_message_content(message_type: WhatsAppMessageType, *, group_name: st
         return welcome_default_message_content(group_name)
     if message_type == "reminder":
         return REMINDER_DEFAULT_MESSAGE_CONTENT
+    if message_type == "group_invite":
+        return GROUP_INVITE_DEFAULT_MESSAGE_CONTENT
     return PASSPORT_LINK_DEFAULT_MESSAGE_CONTENT
 
 
@@ -79,9 +108,19 @@ def render_message(
     message_content: str,
     passport_link: str | None = None,
     passport_intro: str | None = None,
+    group_invite_link: str | None = None,
 ) -> str:
     """Render the same message a recipient sees after Meta substitutes variables."""
 
+    if message_type == "group_invite":
+        return (
+            "Dear Delegates\n\n"
+            "Greetings from Global Connect Travels\n\n"
+            f"{message_content}\n\n"
+            f"{group_invite_link or '[WhatsApp group invite link]'}\n\n"
+            "Regards\n"
+            "Team Global Connect Travels"
+        )
     if message_type == "welcome":
         return (
             f"{STATIC_TEMPLATE_HEADER}\n\n"
@@ -123,9 +162,12 @@ def template_parameters(
     message_content: str,
     passport_link: str | None = None,
     passport_intro: str | None = None,
+    group_invite_link: str | None = None,
 ) -> list[str]:
     """Return positional BODY variables in the exact Meta template order."""
 
+    if message_type == "group_invite":
+        return [message_content, group_invite_link or ""]
     if message_type == "welcome":
         return [message_content]
     if message_type == "reminder":
@@ -146,6 +188,8 @@ def template_header_parameters(
 ) -> list[str]:
     """Return positional HEADER variables in the exact Meta template order."""
 
+    if message_type in {"reminder", "group_invite"}:
+        return []
     resolved_image_id = header_image_id or welcome_image_id
     if resolved_image_id:
         return [resolved_image_id]
@@ -160,7 +204,13 @@ def validate_template_parameters(
 ) -> None:
     """Reject payloads that cannot match the approved Meta templates."""
 
-    if message_type == "reminder":
+    if message_type == "group_invite":
+        if header_parameters or len(body_parameters) != 2:
+            raise ValueError("group_invite requires no header and exactly two body parameters")
+        if not isinstance(body_parameters[1], str):
+            raise ValueError("WhatsApp template parameters must contain non-empty text")
+        validate_group_invite_link(body_parameters[1])
+    elif message_type == "reminder":
         if header_parameters or len(body_parameters) != 1:
             raise ValueError(
                 "reminder requires no media header and exactly one body parameter"

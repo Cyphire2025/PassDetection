@@ -87,6 +87,37 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
             ],
         )
 
+    async def test_group_invite_uses_plain_english_and_two_text_variables_without_header(self) -> None:
+        settings = self._settings()
+        settings.whatsapp_group_invite_template_language = "en"
+        response = types.SimpleNamespace(status_code=200, json=lambda: {"messages": [{"id": "wamid.invite"}]})
+        client = types.SimpleNamespace(post=AsyncMock(return_value=response))
+        await send_whatsapp_template(
+            client=client, settings=settings, to_number="+919876543210",
+            template_name="whatsapp_group_invite_v1", message_type="group_invite",
+            parameters=["Please join our trip group.", "https://chat.whatsapp.com/InviteAbc123?mode=ac_t"],
+        )
+        template = client.post.call_args.kwargs["json"]["template"]
+        self.assertEqual(template["language"], {"code": "en"})
+        self.assertEqual(template["components"], [{
+            "type": "body", "parameters": [
+                {"type": "text", "text": "Please join our trip group."},
+                {"type": "text", "text": "https://chat.whatsapp.com/InviteAbc123?mode=ac_t"},
+            ],
+        }])
+
+    async def test_saved_invite_language_overrides_later_configuration_changes(self) -> None:
+        settings = self._settings()
+        settings.whatsapp_group_invite_template_language = "en_US"
+        response = types.SimpleNamespace(status_code=200, json=lambda: {"messages": [{"id": "wamid.invite"}]})
+        client = types.SimpleNamespace(post=AsyncMock(return_value=response))
+        await send_whatsapp_template(
+            client=client, settings=settings, to_number="+919876543210",
+            template_name="whatsapp_group_invite_v1", message_type="group_invite", language_code="en",
+            parameters=["Please join our trip group.", "https://chat.whatsapp.com/InviteAbc123"],
+        )
+        self.assertEqual(client.post.call_args.kwargs["json"]["template"]["language"], {"code": "en"})
+
     async def test_authentication_template_binds_code_to_body_and_otp_button(self) -> None:
         response = types.SimpleNamespace(
             status_code=200,

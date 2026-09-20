@@ -54,13 +54,14 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
     _group_recipients,
     _latest_composer_snapshot,
     _merge_composer_snapshot,
+    _resolve_message_links,
     _resolve_send_header_image,
     _resolve_send_message_content,
     _resolve_send_passport_intro,
     _select_group_recipients,
     _select_support_contacts,
+    _snapshot_template_language,
     _support_contacts_for_group,
-    _validate_passport_link,
     logger,
 )
 from app.presentation.api.v1.schemas.whatsapp_schemas import (
@@ -188,16 +189,13 @@ async def send_broadcast_message(
             detail=f"WhatsApp {message_type} template name is not configured",
         )
 
-    passport_link = (
-        _validate_passport_link(merged_body.passport_link)
-        if message_type == "passport_link"
-        else None
-    )
+    passport_link, group_invite_link = _resolve_message_links(merged_body)
     resolved_body = WhatsAppSendRequest(
         message_type=message_type,
         passport_intro=passport_intro,
         passport_link=passport_link,
         message_content=message_content,
+        group_invite_link=group_invite_link,
         header_image_id=header_image_id,
         recipient_ids=merged_body.recipient_ids,
         support_contact_ids=merged_body.support_contact_ids,
@@ -382,6 +380,7 @@ async def send_broadcast_message(
         batch_id=batch_id,
         now=now,
         template_name=template_name,
+        template_language=_snapshot_template_language(settings, message_type),
         log_ids=welcome_log_ids,
     )
     await session.commit()
@@ -397,6 +396,7 @@ async def send_broadcast_message(
                 "message_content": message_content,
                 "passport_intro": passport_intro,
                 "passport_link": passport_link,
+                "group_invite_link": resolved_body.group_invite_link,
                 "header_image_id": resolved_body.header_image_id,
             },
         )

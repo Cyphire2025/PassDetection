@@ -58,6 +58,7 @@ def process_whatsapp_broadcast(
     passport_link: str | None,
     header_image_id: str | None = None,
     passport_intro: str | None = None,
+    group_invite_link: str | None = None,
 ) -> None:
     try:
         celery_async_runtime.run(
@@ -66,6 +67,7 @@ def process_whatsapp_broadcast(
                 message_type=message_type,
                 message_content=message_content,
                 passport_intro=passport_intro,
+                group_invite_link=group_invite_link,
                 passport_link=passport_link,
                 header_image_id=header_image_id,
             )

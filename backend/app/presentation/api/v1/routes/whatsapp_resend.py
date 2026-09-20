@@ -43,12 +43,13 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
     _composer_snapshot_from_log,
     _merge_composer_snapshot,
     _message_values,
+    _resolve_message_links,
     _resolve_send_header_image,
     _resolve_send_message_content,
     _resolve_send_passport_intro,
     _select_support_contacts,
+    _snapshot_template_language,
     _support_contacts_for_group,
-    _validate_passport_link,
     logger,
 )
 from app.presentation.api.v1.schemas.whatsapp_schemas import (
@@ -285,16 +286,13 @@ async def resend_recipient_message(
         if message_type == "passport_link"
         else None
     )
-    passport_link = (
-        _validate_passport_link(merged_body.passport_link)
-        if message_type == "passport_link"
-        else None
-    )
+    passport_link, group_invite_link = _resolve_message_links(merged_body)
     resolved_body = WhatsAppSendRequest(
         message_type=message_type,
         passport_intro=passport_intro,
         passport_link=passport_link,
         message_content=message_content,
+        group_invite_link=group_invite_link,
         header_image_id=header_image_id,
         recipient_ids=merged_body.recipient_ids,
         support_contact_ids=merged_body.support_contact_ids,
@@ -335,6 +333,7 @@ async def resend_recipient_message(
         provider_message_id=None,
         error_message=None,
         template_name=template_name,
+        template_language=_snapshot_template_language(settings, message_type, source_log),
         rendered_message=rendered_message,
         header_parameter_values=header_parameters,
         template_parameter_values=parameters,
@@ -390,10 +389,11 @@ async def resend_recipient_message(
                 "batch_id": str(batch_id),
                 "message_type": message_type,
                 "message_content": (
-                    parameters[0] if message_type in {"welcome", "reminder"} else parameters[2]
+                    parameters[2] if message_type == "passport_link" else parameters[0]
                 ),
                 "passport_intro": parameters[0] if message_type == "passport_link" else None,
                 "passport_link": parameters[1] if message_type == "passport_link" else None,
+                "group_invite_link": parameters[1] if message_type == "group_invite" else None,
                 "header_image_id": (header_parameters[0] if header_parameters else None),
             },
         )

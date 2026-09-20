@@ -617,6 +617,7 @@ async def send_whatsapp_template(
     message_type: WhatsAppMessageType,
     parameters: list[str],
     header_parameters: list[str] | None = None,
+    language_code: str | None = None,
 ) -> str:
     try:
         validate_template_parameters(
@@ -650,6 +651,9 @@ async def send_whatsapp_template(
         settings=settings,
         to_number=to_number,
         template_name=template_name,
-        language_code=settings.whatsapp_template_language,
+        language_code=(
+            language_code
+            or (settings.whatsapp_group_invite_template_language if message_type == "group_invite" else settings.whatsapp_template_language)
+        ),
         components=components,
     )

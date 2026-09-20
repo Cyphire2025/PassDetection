@@ -216,10 +216,11 @@ class WhatsAppBroadcastGroupDetailResponse(WhatsAppBroadcastGroupResponse):
 class WhatsAppSendRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    message_type: str = Field(pattern="^(welcome|passport_link|reminder)$")
+    message_type: str = Field(pattern="^(welcome|passport_link|reminder|group_invite)$")
     passport_intro: str | None = Field(default=None, max_length=600)
     passport_link: str | None = None
     message_content: str | None = Field(default=None, max_length=600)
+    group_invite_link: str | None = Field(default=None, max_length=2048)
     header_image_id: str | None = Field(default=None, max_length=255)
     recipient_ids: list[uuid.UUID] | None = Field(
         default=None,
@@ -255,9 +256,10 @@ class WhatsAppBulkResendDraft(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    message_type: Literal["welcome", "passport_link"]
+    message_type: Literal["welcome", "passport_link", "group_invite"]
     recipient_ids: list[uuid.UUID] = Field(min_length=1, max_length=MAX_WHATSAPP_RECIPIENTS)
     message_content: str | None = Field(default=None, max_length=600)
+    group_invite_link: str | None = Field(default=None, max_length=2048)
     passport_intro: str | None = Field(default=None, max_length=600)
     header_image_id: str | None = Field(default=None, max_length=255)
     support_contact_ids: list[uuid.UUID] | None = Field(default=None, max_length=1)
@@ -312,6 +314,7 @@ class WhatsAppPreviewResponse(BaseModel):
     welcome_required_reason: str | None = None
     passport_intro: str | None
     passport_link: str | None
+    group_invite_link: str | None = None
     message_content: str
     header_image_id: str | None
     content_source: Literal["default", "latest_group", "latest_recipient"]

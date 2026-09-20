@@ -24,8 +24,10 @@ from app.application.use_cases.whatsapp.message_templates import (
     render_message,
     template_header_parameters,
     template_parameters,
+    validate_group_invite_link,
     validate_template_parameters,
 )
+from app.core.config.settings import Settings
 from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
@@ -49,9 +51,12 @@ class _WhatsAppComposerSnapshot:
     passport_link: str | None
     message_content: str
     header_image_id: str | None
+    group_invite_link: str | None = None
 
 
 def _as_message_type(value: str) -> WhatsAppMessageType:
+    if value == "group_invite":
+        return "group_invite"
     if value == "welcome":
         return "welcome"
     if value == "reminder":
@@ -113,7 +118,7 @@ def _resolve_send_header_image(
     *,
     resend: bool = False,
 ) -> str | None:
-    if message_type == "reminder":
+    if message_type in {"reminder", "group_invite"}:
         return None
     media_id = (value or "").strip()
     if media_id:
@@ -137,6 +142,53 @@ def _validate_passport_link(value: str | None, *, allow_placeholder: bool = Fals
             detail="Enter a valid passport upload link starting with http:// or https://",
         )
     return link
+
+
+def _validate_group_invite_link(value: str | None, *, allow_placeholder: bool = False) -> str:
+    link = (value or "").strip()
+    if not link and allow_placeholder:
+        return "[WhatsApp group invite link]"
+    try:
+        return validate_group_invite_link(link)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+def _resolve_message_links(
+    body: WhatsAppSendRequest, *, preview: bool = False,
+) -> tuple[str | None, str | None]:
+    """Validate only the link belonging to the selected template."""
+    if body.message_type == "passport_link":
+        return _validate_passport_link(body.passport_link, allow_placeholder=preview), None
+    if body.message_type == "group_invite":
+        return None, _validate_group_invite_link(body.group_invite_link, allow_placeholder=preview)
+    return None, None
+
+
+def _preview_message_metadata(
+    body: WhatsAppSendRequest, header_parameters: list[str],
+) -> dict[str, Any]:
+    """Expose editable links and the actual template header without placeholders."""
+    return {
+        "passport_link": (body.passport_link or "").strip() or None,
+        "group_invite_link": (
+            (body.group_invite_link or "").strip() or None
+            if body.message_type == "group_invite" else None
+        ),
+        "header_image_id": header_parameters[0] if header_parameters else None,
+    }
+
+
+def _snapshot_template_language(
+    settings: Settings, message_type: str, source: WhatsAppMessageLogModel | None = None,
+) -> str | None:
+    """Keep saved languages stable and freeze the invite's independent locale."""
+    saved_language: str | None = getattr(source, "template_language", None)
+    if saved_language:
+        return saved_language
+    if message_type == "group_invite":
+        return settings.whatsapp_group_invite_template_language
+    return None
 
 
 def _message_values(
@@ -167,11 +219,7 @@ def _message_values(
         if message_type == "passport_link"
         else None
     )
-    passport_link = (
-        _validate_passport_link(body.passport_link, allow_placeholder=preview)
-        if message_type == "passport_link"
-        else None
-    )
+    passport_link, group_invite_link = _resolve_message_links(body, preview=preview)
     recipient_name = _clean_name(recipient.name) or "Guest"
     support_block = format_support_contacts(
         [(contact.name, contact.phone_number) for contact in support_contacts]
@@ -183,6 +231,7 @@ def _message_values(
         message_content=message_content,
         passport_link=passport_link,
         passport_intro=passport_intro,
+        group_invite_link=group_invite_link,
     )
     header_parameters = template_header_parameters(
         message_type=message_type,
@@ -195,6 +244,7 @@ def _message_values(
         message_content=message_content,
         passport_link=passport_link,
         passport_intro=passport_intro,
+        group_invite_link=group_invite_link,
     )
     return (
         message_type,
@@ -308,7 +358,7 @@ def _decode_legacy_template_snapshot(
 def _template_snapshot_from_log(
     log: WhatsAppMessageLogModel,
 ) -> tuple[list[str], list[str]]:
-    if log.message_type not in {"welcome", "passport_link", "reminder"}:
+    if log.message_type not in {"welcome", "passport_link", "reminder", "group_invite"}:
         raise ValueError("The saved WhatsApp message type cannot be resent")
     message_type = _as_message_type(log.message_type)
     saved_header = log.header_parameter_values
@@ -337,13 +387,14 @@ def _composer_snapshot_from_log(
 ) -> _WhatsAppComposerSnapshot:
     header_parameters, parameters = _template_snapshot_from_log(log)
     header_image_id = header_parameters[0] if header_parameters else None
-    if log.message_type in {"welcome", "reminder"}:
+    if log.message_type in {"welcome", "reminder", "group_invite"}:
         return _WhatsAppComposerSnapshot(
             log=log,
             passport_intro=None,
             passport_link=None,
             message_content=parameters[0],
             header_image_id=header_image_id,
+            group_invite_link=parameters[1] if log.message_type == "group_invite" else None,
         )
     return _WhatsAppComposerSnapshot(
         log=log,
@@ -428,6 +479,13 @@ def _merge_composer_snapshot(
             body.message_content
             if body.message_content is not None
             else snapshot.message_content
+            if snapshot
+            else None
+        ),
+        group_invite_link=(
+            body.group_invite_link
+            if body.group_invite_link is not None
+            else snapshot.group_invite_link
             if snapshot
             else None
         ),

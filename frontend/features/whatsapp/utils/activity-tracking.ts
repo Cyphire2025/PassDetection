@@ -98,6 +98,7 @@ export function parseTrackedWhatsAppActivities(
           candidate.messageType === "welcome"
           || candidate.messageType === "passport_link"
           || candidate.messageType === "reminder"
+          || candidate.messageType === "group_invite"
             ? candidate.messageType
             : undefined,
         total: finiteNonNegative(candidate.total),

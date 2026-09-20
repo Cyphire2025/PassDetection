@@ -25,6 +25,7 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
     _select_support_contacts,
     _support_contacts_for_group,
     _template_snapshot_from_log,
+    _validate_group_invite_link,
     _validate_passport_link,
 )
 from app.presentation.api.v1.schemas.whatsapp_schemas import WhatsAppBulkResendDraft
@@ -37,6 +38,7 @@ class BulkResendEdits:
     header_image_id: str | None = None
     support_block: str | None = None
     media_template_name: str | None = None
+    group_invite_link: str | None = None
 
 
 @dataclass(frozen=True)
@@ -55,19 +57,22 @@ async def validate_bulk_resend_edits(
         value is None
         for value in (
             body.message_content,
+            body.group_invite_link,
             body.passport_intro,
             body.header_image_id,
             body.support_contact_ids,
         )
     ):
         return None
-    if body.message_type == "welcome" and (
+    if body.message_type != "passport_link" and (
         body.passport_intro is not None or body.support_contact_ids is not None
     ):
         raise HTTPException(
             status_code=400,
             detail="Passport introduction and support edits are only available for Passport Link messages",
         )
+    if body.group_invite_link is not None and body.message_type != "group_invite":
+        raise HTTPException(status_code=400, detail="Group invite link edits are only available for Group Invite messages")
     content = (
         _resolve_send_message_content(
             body.message_type, body.message_content, group_name=group.name
@@ -102,7 +107,11 @@ async def validate_bulk_resend_edits(
         support_block = format_support_contacts(
             [(contact.name, contact.phone_number) for contact in contacts]
         )
-    return BulkResendEdits(content, intro, header, support_block, template_name)
+    invite_link = (
+        _validate_group_invite_link(body.group_invite_link)
+        if body.group_invite_link is not None else None
+    )
+    return BulkResendEdits(content, intro, header, support_block, template_name, invite_link)
 
 
 def resolve_saved_resend_snapshot(
@@ -131,7 +140,7 @@ def resolve_saved_resend_snapshot(
         template_name = edits.media_template_name
         if message_type == "welcome":
             parameters = parameters[:1]
-    content_index = 0 if message_type == "welcome" else 2
+    content_index = 2 if message_type == "passport_link" else 0
     if edits.message_content is not None:
         parameters[content_index] = edits.message_content
     if message_type == "passport_link":
@@ -139,6 +148,8 @@ def resolve_saved_resend_snapshot(
             parameters[0] = edits.passport_intro
         if edits.support_block is not None:
             parameters[3] = edits.support_block
+    if message_type == "group_invite" and edits.group_invite_link is not None:
+        parameters[1] = edits.group_invite_link
     validate_template_parameters(
         message_type=message_type, header_parameters=header, body_parameters=parameters
     )
@@ -156,5 +167,6 @@ def resolve_saved_resend_snapshot(
             message_content=parameters[content_index],
             passport_link=parameters[1] if message_type == "passport_link" else None,
             passport_intro=parameters[0] if message_type == "passport_link" else None,
+            group_invite_link=parameters[1] if message_type == "group_invite" else None,
         )
     return SavedResendSnapshot(template_name, rendered, header, parameters)

@@ -25,7 +25,7 @@ from psycopg2 import sql
 from psycopg2.extensions import connection as Connection
 
 PREVIOUS_RELEASE_REVISION = "0085_platform_retention_controls"
-EXPECTED_HEAD_REVISION = "0102_public_upload_contact_otp"
+EXPECTED_HEAD_REVISION = "0103_whatsapp_template_language"
 SAFE_DATABASE_NAME = re.compile(r"^passdetection_ci_[a-z0-9_]+$")
 PROTECTED_DATABASE_NAMES = frozenset({"postgres", "template0", "template1"})
 DESTRUCTIVE_ACKNOWLEDGEMENT = "MIGRATION_REHEARSAL_ALLOW_EPHEMERAL_DATABASE_DELETION"

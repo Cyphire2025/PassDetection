@@ -312,10 +312,11 @@ async def resend_selected_recipient_messages(
                 "batch_id": str(batch_id),
                 "message_type": body.message_type,
                 "message_content": parameters[0]
-                if body.message_type == "welcome"
+                if body.message_type != "passport_link"
                 else parameters[2],
                 "passport_intro": parameters[0] if body.message_type == "passport_link" else None,
                 "passport_link": parameters[1] if body.message_type == "passport_link" else None,
+                "group_invite_link": parameters[1] if body.message_type == "group_invite" else None,
                 "header_image_id": header[0] if header else None,
             },
         )

@@ -293,6 +293,7 @@ class WhatsAppMessageLogModel(Base):
     provider_message_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     template_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    template_language: Mapped[str | None] = mapped_column(String(16), nullable=True)
     rendered_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     header_parameter_values: Mapped[list[str] | None] = mapped_column(JSONB, nullable=True)
     template_parameter_values: Mapped[list[str] | None] = mapped_column(JSONB, nullable=True)

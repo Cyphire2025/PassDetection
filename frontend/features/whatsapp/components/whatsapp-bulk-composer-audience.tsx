@@ -14,7 +14,7 @@ const ELIGIBILITY_LABELS = {
 
 export function RecipientBulkComposerAudience({ recipients, messageType, hiddenCount, preview }: {
   recipients: WhatsAppRecipient[];
-  messageType: "welcome" | "passport_link";
+  messageType: "welcome" | "passport_link" | "group_invite";
   hiddenCount: number;
   preview: WhatsAppBulkResendPreviewResponse | null;
 }) {

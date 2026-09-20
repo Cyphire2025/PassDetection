@@ -156,6 +156,7 @@ async def preview_selected_recipient_messages(
         welcome_required_reason=WELCOME_REQUIRED if "skipped_welcome_required" in reasons else None,
         passport_intro=snapshot.parameters[0] if passport else None,
         passport_link=snapshot.parameters[1] if passport else None,
+        group_invite_link=snapshot.parameters[1] if body.message_type == "group_invite" else None,
         message_content=snapshot.parameters[2] if passport else snapshot.parameters[0],
         header_image_id=snapshot.header_parameters[0] if snapshot.header_parameters else None,
         content_source="latest_recipient",

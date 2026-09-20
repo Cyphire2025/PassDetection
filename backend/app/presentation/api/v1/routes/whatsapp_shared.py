@@ -69,6 +69,7 @@ WHATSAPP_ROSTER_SOURCE_FIELDS = _contact_support.WHATSAPP_ROSTER_SOURCE_FIELDS
 _WhatsAppExcelContactParseResult = _contact_support._WhatsAppExcelContactParseResult
 
 _WhatsAppComposerSnapshot = _composer_support._WhatsAppComposerSnapshot
+_validate_group_invite_link = _composer_support._validate_group_invite_link
 
 _iter_webhook_values = _delivery_support._iter_webhook_values
 
@@ -185,6 +186,12 @@ _select_support_contacts = _roster_support._select_support_contacts
 _recipient_delivery_counts = _roster_support._recipient_delivery_counts
 
 _as_message_type = _composer_support._as_message_type
+
+_resolve_message_links = _composer_support._resolve_message_links
+
+_preview_message_metadata = _composer_support._preview_message_metadata
+
+_snapshot_template_language = _composer_support._snapshot_template_language
 
 _resolve_message_content = _composer_support._resolve_message_content
 

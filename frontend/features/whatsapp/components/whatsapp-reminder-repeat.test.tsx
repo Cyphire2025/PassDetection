@@ -42,6 +42,7 @@ vi.mock("../hooks/use-whatsapp", () => ({
   useSendWhatsAppWelcome: () => ({ mutateAsync: mocks.sendWelcome, isPending: false }),
   useSendWhatsAppPassportLink: () => ({ mutateAsync: mocks.sendPassportLink, isPending: false }),
   useSendWhatsAppReminder: () => ({ mutateAsync: mocks.sendReminder, isPending: false }),
+  useSendWhatsAppGroupInvite: () => ({ mutateAsync: vi.fn(), isPending: false }),
   usePreviewWhatsAppMessage: () => ({ mutate: mocks.preview, isPending: false }),
   usePreviewWhatsAppBulkResendMessage: () => ({ mutate: mocks.bulkPreview, isPending: false }),
 }));

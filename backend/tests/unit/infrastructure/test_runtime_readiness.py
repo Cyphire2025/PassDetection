@@ -58,7 +58,7 @@ class _Database:
     def __init__(
         self,
         *,
-        versions: tuple[str, ...] = ("0102_public_upload_contact_otp",),
+        versions: tuple[str, ...] = ("0103_whatsapp_template_language",),
         due_count: int = 0,
         blocked_count: int = 0,
         oldest_due_seconds: int = 0,

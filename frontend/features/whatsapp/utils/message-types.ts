@@ -4,6 +4,7 @@ export function formatMessageType(messageType: string): string {
   if (messageType === "welcome") return "Welcome message";
   if (messageType === "passport_link") return "Passport link";
   if (messageType === "reminder") return "Reminder";
+  if (messageType === "group_invite") return "Group invite";
   return messageType
     .split("_")
     .filter(Boolean)
@@ -17,6 +18,7 @@ export function isWhatsAppMessageType(
   return (
     messageType === "welcome" ||
     messageType === "passport_link" ||
-    messageType === "reminder"
+    messageType === "reminder" ||
+    messageType === "group_invite"
   );
 }

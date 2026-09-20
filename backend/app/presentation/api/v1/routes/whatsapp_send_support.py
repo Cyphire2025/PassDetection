@@ -58,6 +58,7 @@ def add_frozen_broadcast_logs(
     now: datetime,
     template_name: str,
     log_ids: dict[uuid.UUID, uuid.UUID],
+    template_language: str | None = None,
 ) -> list[WhatsAppSendResult]:
     """Freeze content and destination in the same transaction as both claims."""
     results: list[WhatsAppSendResult] = []
@@ -82,6 +83,7 @@ def add_frozen_broadcast_logs(
                 provider_message_id=None,
                 error_message=None,
                 template_name=template_name,
+                template_language=template_language,
                 rendered_message=rendered,
                 header_parameter_values=headers,
                 template_parameter_values=parameters,

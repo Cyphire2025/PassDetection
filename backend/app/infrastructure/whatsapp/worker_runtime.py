@@ -58,6 +58,12 @@ def _resolve_log_template_snapshot(
     if saved_header is None and saved_body is None:
         if getattr(log, "is_explicit_resend", False):
             raise ValueError("Explicit resend is missing its frozen template parameters")
+        if message_type == "group_invite":
+            validate_template_parameters(
+                message_type=message_type,
+                header_parameters=fallback_header_parameters,
+                body_parameters=fallback_parameters,
+            )
         return fallback_header_parameters, fallback_parameters
     if not isinstance(saved_header, list) or not isinstance(saved_body, list):
         raise ValueError("Saved WhatsApp template parameters are incomplete")
@@ -242,6 +248,7 @@ async def run_whatsapp_broadcast(
     passport_link: str | None,
     header_image_id: str | None = None,
     passport_intro: str | None = None,
+    group_invite_link: str | None = None,
 ) -> None:
     parsed_batch_id = uuid.UUID(batch_id)
     settings = get_settings()
@@ -416,6 +423,7 @@ async def run_whatsapp_broadcast(
                     message_content=message_content,
                     passport_link=passport_link,
                     passport_intro=passport_intro,
+                    group_invite_link=group_invite_link,
                 )
                 fallback_header_parameters = template_header_parameters(
                     message_type=message_type,
@@ -469,6 +477,10 @@ async def run_whatsapp_broadcast(
                             message_type=message_type,
                             parameters=parameters,
                             header_parameters=header_parameters,
+                            language_code=(
+                                getattr(log, "template_language", None)
+                                or (settings.whatsapp_group_invite_template_language if message_type == "group_invite" else settings.whatsapp_template_language)
+                            ),
                         )
                     except WhatsAppCloudApiError as exc:
                         safe_error = exc.persistence_message[:2000]

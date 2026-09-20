@@ -779,7 +779,7 @@ class Settings(BaseSettings):
         pattern=r"^(?:unknown|[0-9a-f]{7,64})$",
     )
     expected_database_schema_revision: str = Field(
-        default="0102_public_upload_contact_otp",
+        default="0103_whatsapp_template_language",
         min_length=1,
         max_length=32,
         pattern=r"^[A-Za-z0-9_]+$",
@@ -1240,6 +1240,8 @@ class Settings(BaseSettings):
     whatsapp_welcome_template_name: str = ""
     whatsapp_passport_link_template_name: str = ""
     whatsapp_reminder_template_name: str = "reminder_v1"
+    whatsapp_group_invite_template_name: str = "whatsapp_group_invite_v1"
+    whatsapp_group_invite_template_language: str = "en"
     whatsapp_document_template_name: str = "documents_v1"
     whatsapp_qr_template_name: str = "qrcode_v1"
     whatsapp_otp_template_name: str = ""
@@ -1279,7 +1281,7 @@ class Settings(BaseSettings):
             )
         return normalized
 
-    @field_validator("whatsapp_otp_template_language")
+    @field_validator("whatsapp_otp_template_language", "whatsapp_group_invite_template_language")
     @classmethod
     def validate_whatsapp_otp_template_language(cls, value: str) -> str:
         normalized = value.strip()

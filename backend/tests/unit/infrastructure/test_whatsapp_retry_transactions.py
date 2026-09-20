@@ -10,6 +10,7 @@ from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
+import pytest
 from sqlalchemy import select
 
 from app.infrastructure.database.models import (
@@ -111,6 +112,52 @@ async def test_retry_skips_accepted_and_interrupted_rows_and_continues_after_rol
     assert (
         next(row for row in rows if row.id == log_ids[0]).provider_message_id == "already-delivered"
     )
+
+
+@pytest.mark.parametrize("blocked", [None, "archive", "welcome"])
+async def test_group_invite_worker_uses_frozen_link_and_language_with_existing_gates(db_session, monkeypatch, blocked):
+    batch_id, _ = await _seed_batch(db_session, ["queued"])
+    log = (await db_session.execute(select(WhatsAppMessageLogModel))).scalar_one()
+    state = (await db_session.execute(select(WhatsAppRecipientMessageStateModel))).scalar_one()
+    welcome = (await db_session.execute(select(WhatsAppPhoneWelcomeModel))).scalar_one()
+    group = (await db_session.execute(select(WhatsAppBroadcastGroupModel))).scalar_one()
+    log.message_type = state.message_type = "group_invite"
+    log.template_name = "whatsapp_group_invite_v1"
+    log.template_language = "en"
+    log.header_parameter_values = []
+    log.template_parameter_values = ["Frozen invitation", "https://chat.whatsapp.com/Frozen123?mode=ac_t"]
+    welcome.status = "queued" if blocked == "welcome" else "delivered"
+    if blocked == "archive":
+        group.archived_at = datetime.now(UTC)
+    await db_session.commit()
+    # A real task opens a new ORM session. Drop fixture-owned identity-map rows
+    # before exercising SQL claims with synchronize_session=False.
+    db_session.expunge_all()
+
+    @asynccontextmanager
+    async def session_factory():
+        yield db_session
+
+    send = AsyncMock(return_value="wamid.group-invite")
+    monkeypatch.setattr(worker_runtime, "AsyncSessionFactory", session_factory)
+    monkeypatch.setattr(worker_runtime, "send_whatsapp_template", send)
+    kwargs = dict(
+        batch_id=str(batch_id), message_type="group_invite", message_content="Changed task fallback",
+        group_invite_link="https://chat.whatsapp.com/Changed456", passport_link=None,
+        header_image_id="stale-image",
+    )
+    await worker_runtime.run_whatsapp_broadcast(**kwargs)
+    saved = (await db_session.execute(select(WhatsAppMessageLogModel))).scalar_one()
+    if blocked:
+        send.assert_not_awaited()
+        assert saved.status == "failed"
+    else:
+        assert saved.status == "submitted", saved.error_message
+        assert send.await_args.kwargs["parameters"] == ["Frozen invitation", "https://chat.whatsapp.com/Frozen123?mode=ac_t"]
+        assert send.await_args.kwargs["header_parameters"] == []
+        assert send.await_args.kwargs["language_code"] == "en"
+        await worker_runtime.run_whatsapp_broadcast(**kwargs)
+        send.assert_awaited_once()
 
 
 async def test_lost_publication_ack_never_releases_processing_or_accepted_rows(db_session):

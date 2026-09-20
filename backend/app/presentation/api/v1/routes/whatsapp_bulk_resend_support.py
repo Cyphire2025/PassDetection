@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config.settings import get_settings
 from app.infrastructure.database.models import (
     WhatsAppBroadcastRecipientModel,
     WhatsAppMessageLogModel,
@@ -24,6 +25,7 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
     WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES,
     WHATSAPP_IN_PROGRESS_STATUSES,
     WHATSAPP_STALE_CLAIM_AGE,
+    _snapshot_template_language,
 )
 from app.presentation.api.v1.schemas.whatsapp_schemas import (
     WhatsAppBulkResendDraft,
@@ -47,7 +49,7 @@ def selection_fingerprint(body: WhatsAppBulkResendRequest) -> str:
     selection = f"{body.message_type}:{selected}"
     overrides = body.model_dump(
         mode="json",
-        include={"message_content", "passport_intro", "header_image_id", "support_contact_ids"},
+        include={"message_content", "passport_intro", "header_image_id", "support_contact_ids", "group_invite_link"},
         exclude_none=True,
     )
     if overrides:
@@ -105,6 +107,7 @@ def frozen_resend_log(
         provider_message_id=None,
         error_message=None,
         template_name=snapshot.template_name,
+        template_language=_snapshot_template_language(get_settings(), source.message_type, source),
         rendered_message=snapshot.rendered_message,
         header_parameter_values=snapshot.header_parameters,
         template_parameter_values=snapshot.parameters,

@@ -130,11 +130,7 @@ async def _release_auth_transaction(
 
 def _configured_template_name(message_type: WhatsAppMessageType) -> str:
     settings = get_settings()
-    if message_type == "welcome":
-        return settings.whatsapp_welcome_template_name
-    if message_type == "reminder":
-        return settings.whatsapp_reminder_template_name
-    return settings.whatsapp_passport_link_template_name
+    return str(getattr(settings, f"whatsapp_{message_type}_template_name"))
 
 
 async def _lock_removable_broadcast_recipient(

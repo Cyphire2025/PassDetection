@@ -62,6 +62,25 @@ async function openActions(name: string) {
 }
 
 describe("WhatsApp archive workspace", () => {
+  it("starts collapsed and retains the chosen expansion while searching", async () => {
+    renderWorkspace();
+    await screen.findAllByText("September travellers");
+    const toggle = screen.getByRole("button", { name: "Archived broadcasts" });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(toggle).toHaveTextContent("1");
+    expect(screen.queryByText("August travellers")).not.toBeInTheDocument();
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getAllByText("August travellers")).toHaveLength(2);
+    fireEvent.change(screen.getByRole("searchbox", { name: "Search WhatsApp broadcast groups" }), { target: { value: "August" } });
+    await screen.findByText("No active broadcasts match this search");
+    expect(screen.getByRole("button", { name: "Archived broadcasts" })).toHaveAttribute("aria-expanded", "true");
+    await openActions("August travellers");
+    fireEvent.click(screen.getByRole("button", { name: "Archived broadcasts" }));
+    expect(screen.queryByText("August travellers")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Restore Broadcast" })).not.toBeInTheDocument();
+  });
+
   it("loads active and archived lists separately and searches both", async () => {
     renderWorkspace();
     await openActions("September travellers");
@@ -69,6 +88,7 @@ describe("WhatsApp archive workspace", () => {
     expect(whatsappApi.groups).toHaveBeenCalledWith(true);
     expect(screen.getByRole("button", { name: "Archive Broadcast" })).toBeEnabled();
     expect(screen.queryByRole("button", { name: "Delete Broadcast" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Archived broadcasts" }));
     fireEvent.change(screen.getByRole("searchbox", { name: "Search WhatsApp broadcast groups" }), { target: { value: "August" } });
     expect(await screen.findByText("No active broadcasts match this search")).toBeInTheDocument();
     expect(screen.getAllByText("August travellers")).toHaveLength(2);
@@ -89,6 +109,7 @@ describe("WhatsApp archive workspace", () => {
     expect(client.getQueryData<WhatsAppBroadcastGroupDetail>(WHATSAPP_QUERY_KEYS.group("live"))?.is_archived).toBe(true);
     expect(records.find((group) => group.id === "live")?.recipients).toHaveLength(1);
     expect(screen.getByText("No active broadcasts")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Archived broadcasts" }));
     await openActions("September travellers");
     expect(screen.getByRole("button", { name: "Restore Broadcast" })).toBeEnabled();
     expect(screen.queryByRole("button", { name: "Send Welcome Message" })).not.toBeInTheDocument();
@@ -96,6 +117,8 @@ describe("WhatsApp archive workspace", () => {
 
   it("restores an archived broadcast to the active list", async () => {
     renderWorkspace();
+    await screen.findAllByText("September travellers");
+    fireEvent.click(screen.getByRole("button", { name: "Archived broadcasts" }));
     await openActions("August travellers");
     expect(screen.queryByRole("button", { name: "Send Reminder" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Restore Broadcast" }));

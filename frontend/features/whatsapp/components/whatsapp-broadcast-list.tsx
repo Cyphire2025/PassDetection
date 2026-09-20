@@ -1,6 +1,6 @@
 "use client";
 
-import { Archive, Users } from "lucide-react";
+import { Archive, ChevronDown, Users } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Button, Skeleton } from "@/components/ui";
 import { WorkspaceEmptyState } from "@/components/shared/workspace-ui";
@@ -10,11 +10,13 @@ import type { WhatsAppBroadcastGroup } from "../api/whatsapp.api";
 const PAGE_SIZE = 20;
 
 export function WhatsAppBroadcastList({
-  groups, totalCount, archived = false, isLoading, renderActions, onCreate,
+  groups, totalCount, archived = false, expanded = false, onToggle, isLoading, renderActions, onCreate,
 }: {
   groups: WhatsAppBroadcastGroup[];
   totalCount: number;
   archived?: boolean;
+  expanded?: boolean;
+  onToggle?: () => void;
   isLoading: boolean;
   renderActions: (group: WhatsAppBroadcastGroup, surface: "mobile" | "desktop") => ReactNode;
   onCreate: () => void;
@@ -26,19 +28,42 @@ export function WhatsAppBroadcastList({
   const visibleGroups = groups.slice(offset, offset + PAGE_SIZE);
   const headingId = archived ? "whatsapp-archived-groups-heading" : "whatsapp-broadcast-groups-heading";
   const title = archived ? "Archived broadcasts" : "Active broadcasts";
+  const contentId = `${headingId}-content`;
+  const isExpanded = !archived || expanded;
 
   return (
     <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm" aria-labelledby={headingId}>
-      <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3.5 sm:px-5">
+      {archived ? (
+        <div className={isExpanded ? "border-b border-slate-200" : undefined}>
+          <h2 id={headingId}>
+            <button
+              type="button"
+              aria-expanded={isExpanded}
+              aria-controls={contentId}
+              aria-label={title}
+              onClick={onToggle}
+              className="flex w-full items-center justify-between gap-3 px-4 py-3.5 text-left hover:bg-slate-50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-emerald-600 sm:px-5"
+            >
+              <span className="flex items-center gap-2 font-semibold text-slate-950"><Archive aria-hidden="true" className="h-4 w-4 text-slate-500" />{title}</span>
+              <span className="flex items-center gap-3">
+                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">{totalCount.toLocaleString()}</span>
+                <ChevronDown aria-hidden="true" className={`h-4 w-4 text-slate-500 transition-transform motion-reduce:transition-none ${isExpanded ? "rotate-180" : ""}`} />
+              </span>
+            </button>
+          </h2>
+          {isExpanded && <p className="px-4 pb-3.5 text-sm text-slate-500 sm:px-5">Recipient lists and delivery history are retained. Restore a broadcast to use it again.</p>}
+        </div>
+      ) : <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3.5 sm:px-5">
         <div>
           <h2 id={headingId} className="font-semibold text-slate-950">{title}</h2>
           <p className="mt-1 text-sm text-slate-500">
-            {archived ? "Recipient lists and delivery history are retained. Restore a broadcast to use it again." : "Manage recipients and send approved trip messages."}
+            Manage recipients and send approved trip messages.
           </p>
         </div>
         <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">{totalCount.toLocaleString()}</span>
-      </div>
-      {isLoading ? (
+      </div>}
+      <div id={contentId} hidden={!isExpanded}>
+      {isExpanded && (isLoading ? (
         <div className="space-y-3 p-5">{Array.from({ length: 3 }, (_, index) => <Skeleton key={index} className="h-16 w-full rounded-lg" />)}</div>
       ) : totalCount === 0 ? (
         <WorkspaceEmptyState
@@ -109,7 +134,8 @@ export function WhatsAppBroadcastList({
             </nav>
           )}
         </>
-      )}
+      ))}
+      </div>
     </section>
   );
 }

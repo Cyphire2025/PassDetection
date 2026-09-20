@@ -43,6 +43,7 @@ import type { RecipientResendTarget } from "./whatsapp-workspace.types";
 import { WhatsAppBroadcastMotion } from "./whatsapp-broadcast-motion";
 import { RecipientBulkComposerAudience } from "./whatsapp-bulk-composer-audience";
 import { ReminderAudienceSelector } from "./whatsapp-reminder-audience";
+import { GroupInvitePreviewDialog } from "./whatsapp-group-invite-dialog";
 
 const MAX_WELCOME_IMAGE_BYTES = 5 * 1024 * 1024;
 const WELCOME_IMAGE_TYPES = new Set(["image/jpeg", "image/png"]);
@@ -50,6 +51,7 @@ const WELCOME_IMAGE_TYPES = new Set(["image/jpeg", "image/png"]);
 export type MessagePreviewSendPayload = {
   passportIntro: string;
   passportLink: string;
+  groupInviteLink?: string;
   messageContent: string;
   headerImage: File | null;
   headerImageId: string | null;
@@ -60,7 +62,24 @@ export type MessagePreviewSendPayload = {
   bulkDraft?: WhatsAppBulkResendOverrides;
 };
 
-export function MessagePreviewDialog({
+export interface MessagePreviewDialogProps {
+  group: WhatsAppBroadcastGroup;
+  messageType: WhatsAppMessageType;
+  targetRecipient?: RecipientResendTarget;
+  bulkRecipients?: WhatsAppRecipient[];
+  hiddenSelectedCount?: number;
+  isSending: boolean;
+  onClose: () => void;
+  onSend: (payload: MessagePreviewSendPayload) => Promise<void>;
+}
+
+export function MessagePreviewDialog(props: MessagePreviewDialogProps) {
+  return props.messageType === "group_invite"
+    ? <GroupInvitePreviewDialog {...props} />
+    : <StandardMessagePreviewDialog {...props} messageType={props.messageType} />;
+}
+
+function StandardMessagePreviewDialog({
   group,
   messageType,
   targetRecipient,
@@ -71,7 +90,7 @@ export function MessagePreviewDialog({
   onSend,
 }: {
   group: WhatsAppBroadcastGroup;
-  messageType: WhatsAppMessageType;
+  messageType: Exclude<WhatsAppMessageType, "group_invite">;
   targetRecipient?: RecipientResendTarget;
   bulkRecipients?: WhatsAppRecipient[];
   hiddenSelectedCount?: number;

@@ -47,6 +47,7 @@ import {
   useRestoreWhatsAppGroup,
   useSendWhatsAppPassportLink,
   useSendWhatsAppReminder,
+  useSendWhatsAppGroupInvite,
   useSendWhatsAppWelcome,
   useWhatsAppGroups,
 } from "../hooks/use-whatsapp";
@@ -106,6 +107,8 @@ export function WhatsAppPage() {
   const sendWelcome = useSendWhatsAppWelcome();
   const sendPassportLink = useSendWhatsAppPassportLink();
   const sendReminder = useSendWhatsAppReminder();
+  const sendGroupInvite = useSendWhatsAppGroupInvite();
+  const [isArchiveExpanded, setIsArchiveExpanded] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [groupQuery, setGroupQuery] = useState("");
   const deferredGroupQuery = useDeferredValue(groupQuery);
@@ -157,7 +160,7 @@ export function WhatsAppPage() {
     setMessageTarget({ group, messageType });
   };
   const isSendingAnyMessage =
-    sendWelcome.isPending || sendPassportLink.isPending || sendReminder.isPending;
+    sendWelcome.isPending || sendPassportLink.isPending || sendReminder.isPending || sendGroupInvite.isPending;
   const renderGroupActionMenu = (
     group: WhatsAppBroadcastGroup,
     surface: "mobile" | "desktop",
@@ -180,6 +183,7 @@ export function WhatsAppPage() {
         onWelcome={() => openMessagePreview(group, "welcome")}
         onPassportLink={() => openMessagePreview(group, "passport_link")}
         onReminder={() => openMessagePreview(group, "reminder")}
+        onGroupInvite={() => openMessagePreview(group, "group_invite")}
         onArchive={() => {
           setActionError(null);
           setOpenMenuKey(null);
@@ -290,6 +294,8 @@ export function WhatsAppPage() {
       <WhatsAppBroadcastList
         key={`archived:${deferredGroupQuery}`}
         archived
+        expanded={isArchiveExpanded}
+        onToggle={() => { setIsArchiveExpanded((current) => !current); setOpenMenuKey(null); }}
         groups={filteredArchivedGroups}
         totalCount={archivedGroups.length}
         isLoading={isLoadingArchived}
@@ -314,12 +320,13 @@ export function WhatsAppPage() {
           isSending={
             sendWelcome.isPending ||
             sendPassportLink.isPending ||
-            sendReminder.isPending
+            sendReminder.isPending || sendGroupInvite.isPending
           }
           onClose={() => setMessageTarget(null)}
           onSend={async ({
             passportIntro,
             passportLink,
+            groupInviteLink,
             messageContent,
             headerImage,
             headerImageId,
@@ -346,7 +353,9 @@ export function WhatsAppPage() {
                       audience: reminderAudience ?? "all",
                       audienceClientGroupId: reminderAudienceClientGroupId ?? null,
                     })
-                  : await sendPassportLink.mutateAsync({
+                  : messageTarget.messageType === "group_invite"
+                    ? await sendGroupInvite.mutateAsync({ groupId: messageTarget.group.id, messageContent, groupInviteLink: groupInviteLink ?? "", recipientIds })
+                    : await sendPassportLink.mutateAsync({
                     groupId: messageTarget.group.id,
                     passportIntro,
                     passportLink,
@@ -450,6 +459,7 @@ function ActionMenu({
   onWelcome,
   onPassportLink,
   onReminder,
+  onGroupInvite,
   onArchive,
   onRestore,
   onDelete,
@@ -464,6 +474,7 @@ function ActionMenu({
   onWelcome: () => void;
   onPassportLink: () => void;
   onReminder: () => void;
+  onGroupInvite: () => void;
   onArchive: () => void;
   onRestore: () => void;
   onDelete: () => void;
@@ -497,7 +508,7 @@ function ActionMenu({
           const rect = buttonRef.current?.getBoundingClientRect();
           if (rect) {
             const menuWidth = 240;
-            const menuHeight = group.is_archived ? 152 : 248;
+            const menuHeight = group.is_archived ? 152 : 296;
             const top =
               rect.bottom + 8 + menuHeight > window.innerHeight
                 ? Math.max(8, rect.top - menuHeight - 8)
@@ -578,6 +589,9 @@ function ActionMenu({
             >
               <Send className="h-4 w-4" />
               Send Reminder
+            </button>
+            <button type="button" className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50" disabled={isSending || group.recipient_count === 0} title={group.recipient_count === 0 ? "Add a valid recipient before sending" : undefined} onClick={onGroupInvite}>
+              <Send className="h-4 w-4" /> Send group invite
             </button>
             <button
               type="button"

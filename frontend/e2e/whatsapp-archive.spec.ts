@@ -63,6 +63,8 @@ for (const viewport of [{ name: "desktop", width: 1440, height: 1080 }, { name: 
     await page.goto("/whatsapp");
     const active = page.getByRole("region", { name: "Active broadcasts", exact: true });
     const archived = page.getByRole("region", { name: "Archived broadcasts", exact: true });
+    const archiveToggle = archived.getByRole("button", { name: "Archived broadcasts", exact: true });
+    await expect(archiveToggle).toHaveAttribute("aria-expanded", "false");
     await active.getByRole("button", { name: "Open actions for September travellers" }).filter({ visible: true }).click();
     await expect(page.getByRole("button", { name: "Delete Broadcast", exact: true })).toHaveCount(0);
     await page.getByRole("button", { name: "Archive Broadcast", exact: true }).click();
@@ -72,6 +74,9 @@ for (const viewport of [{ name: "desktop", width: 1440, height: 1080 }, { name: 
     await expect(confirmation).toHaveCount(0);
     await expect(active.getByText("No active broadcasts", { exact: true })).toBeVisible();
     await archived.scrollIntoViewIfNeeded();
+    await archiveToggle.focus();
+    await page.keyboard.press("Enter");
+    await expect(archiveToggle).toHaveAttribute("aria-expanded", "true");
     await archived.getByRole("button", { name: "Open actions for September travellers" }).filter({ visible: true }).click();
     await expect(page.getByRole("button", { name: "Send Reminder", exact: true })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Restore Broadcast", exact: true })).toBeVisible();
@@ -94,6 +99,7 @@ for (const viewport of [{ name: "desktop", width: 1440, height: 1080 }, { name: 
     await page.keyboard.press("Escape");
     await expect(recipients).toHaveCount(0);
     await page.getByRole("searchbox", { name: "Search WhatsApp broadcast groups" }).fill("does not exist");
+    await expect(archiveToggle).toHaveAttribute("aria-expanded", "true");
     await expect(archived.getByText("No archived broadcasts match this search")).toBeVisible();
     await page.getByRole("searchbox", { name: "Search WhatsApp broadcast groups" }).fill("");
     await archived.getByRole("button", { name: "Open actions for September travellers" }).filter({ visible: true }).click();

@@ -47,6 +47,7 @@ _BROADCAST_TITLES = {
     "welcome": "Welcome message broadcast",
     "passport_link": "Passport link broadcast",
     "reminder": "Reminder broadcast",
+    "group_invite": "WhatsApp group invite broadcast",
 }
 
 

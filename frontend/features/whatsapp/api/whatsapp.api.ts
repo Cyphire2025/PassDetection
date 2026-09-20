@@ -163,13 +163,14 @@ export interface WhatsAppBroadcastGroupDetail extends WhatsAppBroadcastGroup {
   linked_client_groups?: WhatsAppLinkedClientGroup[];
 }
 
-export type WhatsAppMessageType = "welcome" | "passport_link" | "reminder";
+export type WhatsAppMessageType = "welcome" | "passport_link" | "reminder" | "group_invite";
 export type WhatsAppReminderAudience = "all" | "not_submitted";
 
 export interface WhatsAppMessageDraft {
   message_type: WhatsAppMessageType;
   passport_intro?: string | null;
   passport_link?: string | null;
+  group_invite_link?: string | null;
   message_content?: string | null;
   recipient_id?: string | null;
   resend_recipient_id?: string | null;
@@ -199,6 +200,7 @@ export interface WhatsAppPreviewResponse {
   uncertain_recipient_count: number;
   passport_intro: string | null;
   passport_link: string | null;
+  group_invite_link?: string | null;
   message_content: string;
   header_image_id: string | null;
   content_source: "default" | "latest_group" | "latest_recipient";
@@ -239,12 +241,13 @@ export interface WhatsAppBatchSummary {
   delivery_unknown: number;
 }
 
-export type WhatsAppBulkResendMessageType = "welcome" | "passport_link";
+export type WhatsAppBulkResendMessageType = "welcome" | "passport_link" | "group_invite";
 
 /** Null or omitted fields preserve each recipient's own saved value. */
 export interface WhatsAppBulkResendOverrides {
   messageContent?: string | null;
   passportIntro?: string | null;
+  groupInviteLink?: string | null;
   headerImageId?: string | null;
   supportContactIds?: string[] | null;
 }
@@ -291,6 +294,7 @@ function bulkResendOverridesPayload(overrides?: WhatsAppBulkResendOverrides) {
   return {
     ...(overrides?.messageContent !== undefined && { message_content: overrides.messageContent }),
     ...(overrides?.passportIntro !== undefined && { passport_intro: overrides.passportIntro }),
+    ...(overrides?.groupInviteLink !== undefined && { group_invite_link: overrides.groupInviteLink }),
     ...(overrides?.headerImageId !== undefined && { header_image_id: overrides.headerImageId }),
     ...(overrides?.supportContactIds !== undefined && { support_contact_ids: overrides.supportContactIds }),
   };
@@ -540,6 +544,7 @@ export const whatsappApi = {
     messageType,
     passportIntro,
     passportLink,
+    groupInviteLink,
     messageContent,
     image,
     headerImageId,
@@ -550,18 +555,20 @@ export const whatsappApi = {
     messageType: WhatsAppMessageType;
     passportIntro: string;
     passportLink: string;
+    groupInviteLink?: string;
     messageContent: string;
     image: File | null;
     headerImageId: string | null;
     supportContactIds?: string[] | null;
   }): Promise<WhatsAppSendResponse> => {
-    const resolvedHeaderImageId = image
+    const resolvedHeaderImageId = messageType === "group_invite" ? null : image
       ? (await uploadWelcomeImage(groupId, image)).media_id
       : headerImageId;
     const { data } = await apiClient.post<WhatsAppSendResponse>(
       API_ENDPOINTS.whatsapp.resendRecipientMessage(groupId, recipientId),
       {
         message_type: messageType,
+        ...(messageType === "group_invite" ? { group_invite_link: groupInviteLink, message_content: messageContent } : {
         passport_intro:
           messageType === "passport_link" ? passportIntro : null,
         passport_link:
@@ -570,6 +577,7 @@ export const whatsappApi = {
         header_image_id: resolvedHeaderImageId,
         support_contact_ids:
           messageType === "passport_link" ? supportContactIds ?? null : null,
+        }),
       },
     );
     return data;
@@ -707,6 +715,19 @@ export const whatsappApi = {
         audience_client_group_id: audienceClientGroupId,
       },
     );
+    return data;
+  },
+
+  sendGroupInvite: async ({ groupId, messageContent, groupInviteLink, recipientIds }: {
+    groupId: string;
+    messageContent: string;
+    groupInviteLink: string;
+    recipientIds: string[] | null;
+  }): Promise<WhatsAppSendResponse> => {
+    const { data } = await apiClient.post<WhatsAppSendResponse>(API_ENDPOINTS.whatsapp.send(groupId), {
+      message_type: "group_invite", message_content: messageContent,
+      group_invite_link: groupInviteLink, recipient_ids: recipientIds,
+    });
     return data;
   },
 

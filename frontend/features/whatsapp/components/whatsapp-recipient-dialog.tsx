@@ -130,7 +130,7 @@ export function RecipientListDialog({
   const [selectedSection, setSection] = useState<RecipientWorkspaceSection>("recipients");
   const section = isArchived && selectedSection === "add" ? "recipients" : selectedSection;
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
-  const [bulkMessageType, setBulkMessageType] = useState<"welcome" | "passport_link" | null>(null);
+  const [bulkMessageType, setBulkMessageType] = useState<"welcome" | "passport_link" | "group_invite" | null>(null);
   const [bulkSelectionSnapshot, setBulkSelectionSnapshot] = useState<WhatsAppRecipient[]>([]);
   const [bulkError, setBulkError] = useState<string | null>(null);
   const [bulkNotice, setBulkNotice] = useState<string | null>(null);
@@ -335,15 +335,7 @@ export function RecipientListDialog({
     }
   };
 
-  const resendSelectedMessage = async (payload: {
-    passportIntro: string;
-    passportLink: string;
-    messageContent: string;
-    headerImage: File | null;
-    headerImageId: string | null;
-    recipientIds: string[] | null;
-    supportContactIds: string[] | null;
-  }) => {
+  const resendSelectedMessage = async (payload: MessagePreviewSendPayload) => {
     if (
       !recipientToResend
       || isArchived
@@ -364,6 +356,7 @@ export function RecipientListDialog({
         messageType: target.messageType,
         passportIntro: payload.passportIntro,
         passportLink: payload.passportLink,
+        groupInviteLink: payload.groupInviteLink,
         messageContent: payload.messageContent,
         image: payload.headerImage,
         headerImageId: payload.headerImageId,
@@ -461,7 +454,7 @@ export function RecipientListDialog({
   const someVisibleSelected = visibleSelectedCount > 0;
   const hiddenSelectedCount = selectedRecipients.length - visibleSelectedCount;
   const selectionLocked = isArchived || bulkResend.isPending || Boolean(bulkMessageType);
-  const openBulkComposer = (type: "welcome" | "passport_link") => {
+  const openBulkComposer = (type: "welcome" | "passport_link" | "group_invite") => {
     setBulkSelectionSnapshot(selectedRecipients);
     setBulkMessageType(type);
     setBulkError(null);
@@ -497,9 +490,11 @@ export function RecipientListDialog({
       }
       const overrides = {
         messageContent: payload.bulkDraft?.messageContent ?? null,
+        ...(messageType === "group_invite" ? { groupInviteLink: payload.bulkDraft?.groupInviteLink ?? null } : {
         passportIntro: payload.bulkDraft?.passportIntro ?? null,
         headerImageId: uploadedImageId ?? payload.bulkDraft?.headerImageId ?? null,
         supportContactIds: payload.bulkDraft?.supportContactIds ?? null,
+        }),
       };
       const requestKey = JSON.stringify([group.id, messageType, [...recipientIds].sort(), overrides]);
       if (bulkRequestRef.current?.key !== requestKey) bulkRequestRef.current = { key: requestKey, requestId: crypto.randomUUID() };
