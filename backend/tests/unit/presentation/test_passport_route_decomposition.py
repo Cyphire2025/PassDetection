@@ -137,6 +137,8 @@ _ROUTE_SIGNATURES = (
     (("GET",), "/{submission_id}/client-details", "get_passport_client_details"),
     (("PATCH",), "/{submission_id}/client-details", "update_passport_client_details"),
     (("POST",), "/{submission_id}/client-submit", "client_submit_passport"),
+    (("POST",), "/{submission_id}/contact-otp/request", "request_public_contact_otp"),
+    (("POST",), "/{submission_id}/contact-otp/verify", "verify_public_contact_otp"),
     (("POST",), "/{submission_id}/staff-approve", "staff_approve_passport"),
     (
         ("POST",),

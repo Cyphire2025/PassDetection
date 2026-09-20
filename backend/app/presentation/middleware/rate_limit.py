@@ -38,7 +38,7 @@ _PUBLIC_UPLOAD_PATH_RE = re.compile(
     r"^/api/v1/passports/upload/[^/]+(?:/([^/]+)(?:/.*)?)?/?$"
 )
 _PUBLIC_CLIENT_SUBMIT_PATH_RE = re.compile(
-    r"^/api/v1/passports/([^/]+)/client-submit/?$"
+    r"^/api/v1/passports/([^/]+)/(?:client-submit|contact-otp/(?:request|verify))/?$"
 )
 _PUBLIC_UPLOAD_BOOTSTRAP_PATH_RE = re.compile(
     r"^/api/v1/upload-links/token/[^/]+"

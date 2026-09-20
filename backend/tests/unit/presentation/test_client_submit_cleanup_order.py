@@ -18,6 +18,9 @@ def _request() -> ClientSubmitPassportRequest:
     return ClientSubmitPassportRequest(
         confirmed_fields={"full_name": "Test Passenger"},
         group_token="public-group-token-1234567890",
+        client_email="traveller@example.com",
+        client_phone="9876543210",
+        phone_verification_id=uuid.uuid4(),
     )
 
 
@@ -68,9 +71,13 @@ async def test_client_submit_commits_cleanup_tombstone_before_object_worker(subm
     enqueue = AsyncMock(return_value=SimpleNamespace(id=uuid.uuid4(), status="completed"))
     with (
         patch(
-            'app.presentation.api.v1.routes.passport_routes.submission_review.PassportSubmissionRepository',
+            "app.presentation.api.v1.routes.passport_routes.submission_contact.require_public_contact_proof",
+            new=AsyncMock(return_value=SimpleNamespace()),
+        ),
+        patch(
+            'app.presentation.api.v1.routes.passport_routes.submission_contact.PassportSubmissionRepository',
             return_value=SimpleNamespace(
-                get_by_id=AsyncMock(
+                get_by_id_for_update=AsyncMock(
                     return_value=SimpleNamespace(
                         id=submission_id,
                         upload_idempotency_key=credential,
@@ -129,9 +136,13 @@ async def test_client_submit_commit_failure_never_runs_object_cleanup() -> None:
 
     with (
         patch(
-            'app.presentation.api.v1.routes.passport_routes.submission_review.PassportSubmissionRepository',
+            "app.presentation.api.v1.routes.passport_routes.submission_contact.require_public_contact_proof",
+            new=AsyncMock(return_value=SimpleNamespace()),
+        ),
+        patch(
+            'app.presentation.api.v1.routes.passport_routes.submission_contact.PassportSubmissionRepository',
             return_value=SimpleNamespace(
-                get_by_id=AsyncMock(
+                get_by_id_for_update=AsyncMock(
                     return_value=SimpleNamespace(
                         id=submission_id,
                         upload_idempotency_key=credential,

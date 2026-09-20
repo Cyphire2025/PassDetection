@@ -63,14 +63,22 @@ export function cameraForRoute(route: JourneyRoute | null): GlobeCamera {
 }
 
 /** Column-major matrix converting world positions into the camera's orthographic frame. */
-export function cameraMatrix(camera: GlobeCamera): Float32Array {
+export function cameraMatrix(camera: GlobeCamera, matrix = new Float32Array(9)): Float32Array {
   const { longitude: lon, latitude: lat } = camera;
-  const right: Vec3 = [Math.cos(lon), 0, -Math.sin(lon)];
-  const up: Vec3 = [-Math.sin(lat) * Math.sin(lon), Math.cos(lat), -Math.sin(lat) * Math.cos(lon)];
-  const forward = geoVector({ latitude: lat / DEG, longitude: lon / DEG });
-  return new Float32Array([
-    right[0], up[0], forward[0], right[1], up[1], forward[1], right[2], up[2], forward[2],
-  ]);
+  const sinLon = Math.sin(lon);
+  const cosLon = Math.cos(lon);
+  const sinLat = Math.sin(lat);
+  const cosLat = Math.cos(lat);
+  matrix[0] = cosLon;
+  matrix[1] = -sinLat * sinLon;
+  matrix[2] = cosLat * sinLon;
+  matrix[3] = 0;
+  matrix[4] = cosLat;
+  matrix[5] = sinLat;
+  matrix[6] = -sinLon;
+  matrix[7] = -sinLat * cosLon;
+  matrix[8] = cosLat * cosLon;
+  return matrix;
 }
 
 export function boundedCamera(camera: GlobeCamera): GlobeCamera {

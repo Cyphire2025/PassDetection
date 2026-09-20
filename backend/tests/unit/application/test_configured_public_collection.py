@@ -53,6 +53,26 @@ def _review(group, submission):
     return ClientSubmitPassportUseCase(passports, groups, storage, policies), passports, storage
 
 
+@pytest.mark.parametrize("mode", ["single", "family"])
+@pytest.mark.parametrize("missing_field", ["client_email", "client_phone"])
+async def test_public_contact_is_mandatory_even_when_platform_policy_says_optional(mode, missing_field):
+    group = _group({"passport_enabled": False})
+    submission = PassportSubmission.create(group.id, group.agency_id, "Traveller", None, "")
+    use_case, passports, storage = _review(group, submission)
+    args = dict(
+        group_token=group.token, confirmed_fields={"given_names": "Synthetic Traveller"},
+        client_email="traveller@example.com", client_phone="9876543210", submission_mode=mode,
+        family_group_id=uuid.uuid4(), family_head_name="Head of Family",
+        family_head_email="head@example.com", family_head_phone="9876543211",
+    )
+    args[missing_field] = None
+    with pytest.raises(ValidationError) as error:
+        await use_case.execute(submission.id, **args)
+    assert error.value.field == missing_field
+    passports.update.assert_not_awaited()
+    storage.upload_file.assert_not_awaited()
+
+
 @pytest.mark.parametrize("config", [{"passport_enabled": False}, {"passport_required": False}])
 async def test_no_passport_upload_persists_review_draft_without_storage_or_ocr(config):
     group = _group(config)
@@ -84,7 +104,7 @@ async def test_requested_covers_are_stored_and_promoted_without_ocr():
     review, _, permanent_storage = _review(group, submission)
     final = await review.execute(
         submission.id, group_token=group.token, confirmed_fields={"given_names": "Synthetic Traveller"},
-        client_email=None, client_phone=None,
+        client_email="traveller@example.com", client_phone="9876543210",
     )
     assert final.status == "needs_review"
     assert final.post_submission_verified_at is None
@@ -94,7 +114,7 @@ async def test_requested_covers_are_stored_and_promoted_without_ocr():
     assert permanent_storage.upload_file.await_count == 2
     replay = await review.execute(
         submission.id, group_token=group.token, confirmed_fields={"given_names": "Synthetic Traveller"},
-        client_email=None, client_phone=None,
+        client_email="traveller@example.com", client_phone="9876543210",
     )
     assert replay.idempotent_replay
     assert permanent_storage.upload_file.await_count == 2
@@ -161,7 +181,7 @@ async def test_each_configured_detail_enforces_its_own_required_setting(field, o
     )
     submission = PassportSubmission.create(group.id, group.agency_id, "Traveller", None, "")
     use_case, passports, _ = _review(group, submission)
-    kwargs = dict(group_token=group.token, confirmed_fields={"given_names": "Synthetic Traveller"}, client_email=None, client_phone=None)
+    kwargs = dict(group_token=group.token, confirmed_fields={"given_names": "Synthetic Traveller"}, client_email="traveller@example.com", client_phone="9876543210")
     if required:
         with pytest.raises(ValidationError) as exc:
             await use_case.execute(submission.id, **kwargs)
@@ -182,7 +202,7 @@ async def test_renamed_code_accepts_letters_without_role_and_snapshots_labels():
     use_case, _, _ = _review(group, submission)
     result = await use_case.execute(
         submission.id, group_token=group.token, confirmed_fields={"given_names": "Synthetic Traveller"},
-        client_email=None, client_phone=None, agent_employee_code="  PROD-42  ", agency_dealership_name="Example Productions",
+        client_email="traveller@example.com", client_phone="9876543210", agent_employee_code="  PROD-42  ", agency_dealership_name="Example Productions",
     )
     assert result.confirmed_fields["agent_employee_code"] == "PROD-42"
     assert "agent_employee_type" not in result.confirmed_fields
@@ -200,7 +220,7 @@ async def test_present_front_retains_classification_gate_even_when_passport_opti
     with pytest.raises(ValidationError, match="could not confirm"):
         await use_case.execute(
             submission.id, group_token=group.token, confirmed_fields={"given_names": "Synthetic Traveller"},
-            client_email=None, client_phone=None,
+            client_email="traveller@example.com", client_phone="9876543210",
         )
     passports.update.assert_not_awaited()
 
@@ -238,7 +258,7 @@ async def test_final_review_preserves_consumed_other_snapshot_after_settings_cha
     use_case, _, _ = _review(group, submission)
     result = await use_case.execute(
         submission.id, group_token=group.token, confirmed_fields={"given_names": "Synthetic Traveller"},
-        client_email=None, client_phone=None,
+        client_email="traveller@example.com", client_phone="9876543210",
     )
     assert result.qualifier_relation_code == "other"
     assert result.qualifier_relation_label == "Cousin"
@@ -251,6 +271,6 @@ async def test_disabled_international_airport_does_not_require_stale_saved_choic
     use_case, _, _ = _review(group, submission)
     result = await use_case.execute(
         submission.id, group_token=group.token, confirmed_fields={"given_names": "Synthetic Traveller"},
-        client_email=None, client_phone=None,
+        client_email="traveller@example.com", client_phone="9876543210",
     )
     assert result.departure_city is None

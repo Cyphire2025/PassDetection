@@ -376,20 +376,9 @@ export function PlatformSettingsPanel({
                         group creation.
                       </p>
                       <div className="grid gap-2">
-                        <ToggleSetting
-                          label="Require client email"
-                          checked={settings.require_client_email}
-                          onChange={(checked) =>
-                            updateSetting("require_client_email", checked)
-                          }
-                        />
-                        <ToggleSetting
-                          label="Require client phone"
-                          checked={settings.require_client_phone}
-                          onChange={(checked) =>
-                            updateSetting("require_client_phone", checked)
-                          }
-                        />
+                        <p className="rounded-xl border border-blue-100 bg-blue-50 p-3 text-sm leading-6 text-blue-900">
+                          Every traveller must provide an email and verify their WhatsApp number with an OTP before continuing to the submission details. This also applies to every family member.
+                        </p>
                         <ToggleSetting
                           label="Allow managers to create groups"
                           checked={settings.allow_manager_group_creation}

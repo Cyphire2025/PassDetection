@@ -58,7 +58,7 @@ class _Database:
     def __init__(
         self,
         *,
-        versions: tuple[str, ...] = ("0101_client_group_import_only",),
+        versions: tuple[str, ...] = ("0102_public_upload_contact_otp",),
         due_count: int = 0,
         blocked_count: int = 0,
         oldest_due_seconds: int = 0,

@@ -3,6 +3,10 @@ import type { ExpoWebGLRenderingContext as GL } from 'expo-gl';
 import type { LandMask } from './land-asset';
 
 type TextureProbe = { x: number; y: number; value: number };
+type PreparedLandTexture = ReturnType<typeof prepareLandTexture>;
+// The bundled mask is immutable. Card/modal contexts can reuse its CPU bytes,
+// while every native context still owns and verifies its own GPU texture.
+const preparedMasks = new WeakMap<LandMask, Map<number, PreparedLandTexture>>();
 
 /** Use explicit RGBA bytes on both GLES 2/3; no file decoder or format inference. */
 export function prepareLandTexture(mask: LandMask, maximumSize: number) {
@@ -35,7 +39,16 @@ export function prepareLandTexture(mask: LandMask, maximumSize: number) {
 
 /** Initial context setup only. Verify the actual uploaded texture before onReady. */
 export function uploadLandTexture(gl: GL, mask: LandMask): WebGLTexture {
-  const prepared = prepareLandTexture(mask, Number(gl.getParameter(gl.MAX_TEXTURE_SIZE)));
+  const maximumSize = Number(gl.getParameter(gl.MAX_TEXTURE_SIZE));
+  if (!Number.isInteger(maximumSize) || maximumSize < 4) throw new Error('Globe texture size unavailable');
+  const effectiveSize = Math.min(mask.width, maximumSize);
+  let prepared = preparedMasks.get(mask)?.get(effectiveSize);
+  if (!prepared) {
+    prepared = prepareLandTexture(mask, maximumSize);
+    const sizes = preparedMasks.get(mask) ?? new Map<number, PreparedLandTexture>();
+    sizes.set(effectiveSize, prepared);
+    preparedMasks.set(mask, sizes);
+  }
   const texture = gl.createTexture();
   if (!texture) throw new Error('Globe texture unavailable');
   let probeBuffer: WebGLFramebuffer | null = null;

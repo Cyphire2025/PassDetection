@@ -353,8 +353,8 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
         request = {
             "group_token": group.token,
             "confirmed_fields": {"passport_number": "P1234567"},
-            "client_email": None,
-            "client_phone": None,
+            "client_email": "member@example.com",
+            "client_phone": "9876543210",
             "submission_mode": "family",
             "family_group_id": family_id,
             "family_member_index": 0,
@@ -376,7 +376,7 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(ValidationError):
             await use_case.execute(submission.id, **changed)
 
-    async def test_contact_requirements_follow_persisted_platform_policy(self) -> None:
+    async def test_public_contacts_remain_required_when_platform_policy_is_optional(self) -> None:
         group = self._group()
         optional_submission = self._submission(group)
         optional_use_case, optional_repo = self._build_use_case(
@@ -389,14 +389,17 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
             ),
         )
 
-        await optional_use_case.execute(
-            optional_submission.id,
-            group_token=group.token,
-            confirmed_fields={"passport_number": "P1234567"},
-            client_email=None,
-            client_phone=None,
-        )
+        with self.assertRaises(ValidationError) as optional_error:
+            await optional_use_case.execute(
+                optional_submission.id,
+                group_token=group.token,
+                confirmed_fields={"passport_number": "P1234567"},
+                client_email=None,
+                client_phone=None,
+            )
 
+        self.assertEqual(optional_error.exception.field, "client_email")
+        optional_repo.update.assert_not_awaited()
         optional_repo.exists_contact_in_group.assert_not_awaited()
         self.assertIsNone(optional_submission.client_email)
         self.assertIsNone(optional_submission.client_phone)

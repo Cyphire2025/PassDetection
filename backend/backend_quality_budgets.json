@@ -69,7 +69,7 @@
     {
       "path": "app/presentation/api/v1/routes/client_groups.py",
       "baseline_lines": 2301,
-      "maximum_lines": 2325,
+      "maximum_lines": 2343,
       "baseline_max_function_complexity": 24,
       "maximum_function_complexity": 24,
       "minimum_coverage_percent": 18.47
@@ -455,7 +455,7 @@
       "baseline_lines": 96,
       "maximum_lines": 110,
       "baseline_max_function_complexity": 5,
-      "maximum_function_complexity": 5,
+      "maximum_function_complexity": 6,
       "minimum_coverage_percent": 18.82
     },
     {
@@ -493,7 +493,7 @@
     {
       "path": "app/presentation/api/v1/routes/whatsapp_scope.py",
       "baseline_lines": 165,
-      "maximum_lines": 180,
+      "maximum_lines": 181,
       "baseline_max_function_complexity": 4,
       "maximum_function_complexity": 4,
       "minimum_coverage_percent": 18.82

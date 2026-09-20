@@ -1,6 +1,6 @@
 import type { GeoPoint, JourneyRoute } from '../../model/journey-route';
 import { arcPoint, boundedCamera, cameraForRoute, cameraMatrix, dot, geoVector, greatCircle, type Vec3 } from '../globe-math';
-import { endpointMesh, planeMesh, routeTube } from '../route-mesh';
+import { endpointMesh, PLANE_VERTEX_COMPONENTS, planeMesh, routeTube } from '../route-mesh';
 
 const point = (latitude: number, longitude: number): GeoPoint => ({
   city: 'Fixture', country: 'Fixture', countryCode: 'XX', latitude, longitude,
@@ -85,6 +85,24 @@ describe('geographically anchored globe', () => {
         expect(vertices.length % 9).toBe(0);
         expect(Array.from(vertices).every(Number.isFinite)).toBe(true);
       }
+    }
+  });
+
+  it('writes changing flight geometry and camera rotations into reusable storage', () => {
+    const a = geoVector(point(28.6, 77.2));
+    const b = geoVector(point(-33.87, 151.2));
+    const vertices = new Float32Array(PLANE_VERTEX_COMPONENTS);
+    const matrix = new Float32Array(9);
+    for (const progress of [0, 0.25, 0.75, 1]) {
+      expect(planeMesh(a, b, progress, vertices)).toBe(vertices);
+      expect(vertices).toEqual(planeMesh(a, b, progress));
+    }
+    for (const longitude of [0, Math.PI / 2, Math.PI]) {
+      const camera = { longitude, latitude: 0.3, zoom: 1 };
+      expect(cameraMatrix(camera, matrix)).toBe(matrix);
+      const transformed = project(matrix, a);
+      expect(dot(transformed, transformed)).toBeCloseTo(1);
+      expect(matrix).toEqual(cameraMatrix(camera));
     }
   });
 });

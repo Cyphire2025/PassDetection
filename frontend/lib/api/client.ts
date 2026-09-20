@@ -252,6 +252,7 @@ function isRefreshEligibleRequest(url: string | undefined) {
   if (url.includes("/api/v1/passports/upload/")) return false;
   if (url.includes("/api/v1/upload-links/token/")) return false;
   if (/\/api\/v1\/passports\/[^/]+\/client-submit(?:[/?]|$)/.test(url)) return false;
+  if (/\/api\/v1\/passports\/[^/]+\/contact-otp\/(?:request|verify)(?:[/?]|$)/.test(url)) return false;
 
   return true;
 }

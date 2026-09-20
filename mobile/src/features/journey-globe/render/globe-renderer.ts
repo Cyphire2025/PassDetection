@@ -6,7 +6,7 @@ import { boundedCamera, cameraForRoute, cameraMatrix, geoVector, type GlobeCamer
 import { EARTH_FRAGMENT, EARTH_VERTEX, OBJECT_FRAGMENT, OBJECT_VERTEX } from './globe-shaders';
 import type { LandMask } from './land-asset';
 import { uploadLandTexture } from './land-texture';
-import { endpointMesh, planeMesh, routeTube } from './route-mesh';
+import { endpointMesh, PLANE_VERTEX_COMPONENTS, planeMesh, routeTube } from './route-mesh';
 
 type Mesh = { buffer: WebGLBuffer; count: number };
 type Uniforms = { camera: WebGLUniformLocation | null; aspect: WebGLUniformLocation | null; scale: WebGLUniformLocation | null };
@@ -41,7 +41,8 @@ export function createGlobeRenderer(gl: GL, land: LandMask, mode: 'card' | 'expa
       return { buffer: created, count: data.length / 3 };
     };
     const quad = buffer(new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]));
-    const plane = buffer(new Float32Array(99), true);
+    const planeVertices = new Float32Array(PLANE_VERTEX_COMPONENTS);
+    const plane = buffer(planeVertices, true);
     const texture = uploadLandTexture(gl, land);
     textures.push(texture);
 
@@ -57,6 +58,16 @@ export function createGlobeRenderer(gl: GL, land: LandMask, mode: 'card' | 'expa
     const colorUniform = gl.getUniformLocation(objects, 'uColor');
     const earthPosition = gl.getAttribLocation(earth, 'aPosition');
     const objectPosition = gl.getAttribLocation(objects, 'aPosition');
+    // This renderer owns its GLView context. Keep invariant state outside the
+    // animation loop so every frame submits only changes and draw commands.
+    gl.disable(gl.DEPTH_TEST);
+    gl.disable(gl.CULL_FACE);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.clearColor(0, 0, 0, 0);
+    gl.useProgram(earth);
+    gl.uniform1f(cardUniform, mode === 'card' ? 1 : 0);
+    gl.uniform1i(landUniform, 0);
     let route: JourneyRoute | null = null;
     let endpoints: readonly [Vec3, Vec3] | null = null;
     let meshes: Mesh[] = [];
@@ -66,6 +77,11 @@ export function createGlobeRenderer(gl: GL, land: LandMask, mode: 'card' | 'expa
     let reducedMotion = false;
     let previousTime = 0;
     let needsFrame = true;
+    const matrix = new Float32Array(9);
+    let previousWidth = 0;
+    let previousHeight = 0;
+    let cameraDirty = true;
+    let previousProgress = -1;
 
     const deleteMeshes = () => {
       meshes.forEach((mesh) => {
@@ -81,26 +97,24 @@ export function createGlobeRenderer(gl: GL, land: LandMask, mode: 'card' | 'expa
       const width = gl.drawingBufferWidth;
       const height = gl.drawingBufferHeight;
       if (!width || !height) return;
+      const resized = width !== previousWidth || height !== previousHeight;
       const shorter = Math.min(width, height);
-      const matrix = cameraMatrix(current);
+      if (resized) {
+        gl.viewport(0, 0, width, height);
+        previousWidth = width;
+        previousHeight = height;
+      }
+      const updateCamera = cameraDirty || resized;
+      if (updateCamera) cameraMatrix(current, matrix);
       const setCamera = (locations: Uniforms) => {
+        if (!updateCamera) return;
         gl.uniformMatrix3fv(locations.camera, false, matrix);
         gl.uniform2f(locations.aspect, width / shorter, height / shorter);
         gl.uniform1f(locations.scale, 0.82 * current.zoom);
       };
-      gl.viewport(0, 0, width, height);
-      gl.disable(gl.DEPTH_TEST);
-      gl.disable(gl.CULL_FACE);
-      gl.enable(gl.BLEND);
-      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-      gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.useProgram(earth);
       setCamera(earthUniforms);
-      gl.uniform1f(cardUniform, mode === 'card' ? 1 : 0);
-      gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D, texture);
-      gl.uniform1i(landUniform, 0);
       gl.bindBuffer(gl.ARRAY_BUFFER, quad.buffer);
       gl.enableVertexAttribArray(earthPosition);
       gl.vertexAttribPointer(earthPosition, 2, gl.FLOAT, false, 0, 0);
@@ -118,20 +132,25 @@ export function createGlobeRenderer(gl: GL, land: LandMask, mode: 'card' | 'expa
           gl.drawArrays(gl.TRIANGLES, 0, mesh.count);
         };
         if (meshes[0]) drawMesh(meshes[0], [0.72, 0.91, 0.32, 0.95]);
-        meshes.slice(1).forEach((mesh, index) => drawMesh(mesh,
-          index % 2 === 0 ? [0.80, 0.96, 0.52, 0.7] : [0.97, 1, 0.93, 1]));
+        for (let index = 1; index < meshes.length; index += 1) {
+          drawMesh(meshes[index]!, index % 2 === 1 ? [0.80, 0.96, 0.52, 0.7] : [0.97, 1, 0.93, 1]);
+        }
         // Both card and modal renderers use one monotonic clock. The aircraft
         // keeps its position when the destination card expands or closes.
         const progress = reducedMotion ? 0.45 : ((performance.now() + 3500) % 16000) / 16000;
-        const vertices = planeMesh(endpoints[0], endpoints[1], progress);
-        gl.bindBuffer(gl.ARRAY_BUFFER, plane.buffer);
-        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
-        plane.count = vertices.length / 3;
+        if (progress !== previousProgress) {
+          planeMesh(endpoints[0], endpoints[1], progress, planeVertices);
+          gl.bindBuffer(gl.ARRAY_BUFFER, plane.buffer);
+          // Storage was allocated once at setup; movement only replaces its bytes.
+          gl.bufferSubData(gl.ARRAY_BUFFER, 0, planeVertices);
+          previousProgress = progress;
+        }
         const fade = Math.min(1, progress * 16, (1 - progress) * 16);
         drawMesh(plane, [0.98, 1, 0.99, fade]);
         gl.disableVertexAttribArray(objectPosition);
       }
-      gl.flush();
+      cameraDirty = false;
+      // Expo's endFrameEXP submits and flushes this context's command batch.
       gl.endFrameEXP();
     };
 
@@ -141,11 +160,15 @@ export function createGlobeRenderer(gl: GL, land: LandMask, mode: 'card' | 'expa
       const delta = previousTime ? Math.min(48, timestamp - previousTime) : 16;
       previousTime = timestamp;
       const ease = reducedMotion ? 1 : 1 - Math.exp(-delta / 75);
-      current = {
-        longitude: current.longitude + (target.longitude - current.longitude) * ease,
-        latitude: current.latitude + (target.latitude - current.latitude) * ease,
-        zoom: current.zoom + (target.zoom - current.zoom) * ease,
-      };
+      if (current.longitude !== target.longitude || current.latitude !== target.latitude || current.zoom !== target.zoom) {
+        current.longitude += (target.longitude - current.longitude) * ease;
+        current.latitude += (target.latitude - current.latitude) * ease;
+        current.zoom += (target.zoom - current.zoom) * ease;
+        const remaining = Math.abs(target.longitude - current.longitude) + Math.abs(target.latitude - current.latitude)
+          + Math.abs(target.zoom - current.zoom);
+        if (remaining <= 0.0001) Object.assign(current, target);
+        cameraDirty = true;
+      }
       try { draw(); } catch { dispose(); onFrameError?.(); return; }
       needsFrame = Math.abs(target.longitude - current.longitude) + Math.abs(target.latitude - current.latitude)
         + Math.abs(target.zoom - current.zoom) > 0.0001;
@@ -168,9 +191,15 @@ export function createGlobeRenderer(gl: GL, land: LandMask, mode: 'card' | 'expa
       },
       setRoute(nextRoute: JourneyRoute | null) {
         if (disposed) return;
+        if (route === nextRoute || (route && nextRoute && route.key === nextRoute.key
+          && route.origin.latitude === nextRoute.origin.latitude && route.origin.longitude === nextRoute.origin.longitude
+          && route.destination.latitude === nextRoute.destination.latitude
+          && route.destination.longitude === nextRoute.destination.longitude)) return;
         route = nextRoute;
         current = cameraForRoute(route);
         target = { ...current };
+        cameraDirty = true;
+        previousProgress = -1;
         deleteMeshes();
         endpoints = route ? [geoVector(route.origin), geoVector(route.destination)] : null;
         if (endpoints) {

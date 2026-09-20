@@ -82,21 +82,22 @@ export function useTrips() {
       markResolved();
       return;
     }
+    if (trips.length === 1 && trips[0]?.role === 'passenger') {
+      const trip = trips[0];
+      // There is no choice to restore. Show the available trip immediately;
+      // slow or unavailable secure storage must not hold up the home screen.
+      selectStoredTrip(trip.id);
+      markResolved();
+      void rememberPassengerTrip(trips, trip.id).catch(() => undefined);
+      return;
+    }
 
     let active = true;
-    void rememberedPassengerTrip(trips).then(async (remembered) => {
+    void rememberedPassengerTrip(trips).then((remembered) => {
       if (!active) return;
       if (remembered) {
         selectStoredTrip(remembered.id);
         markResolved();
-        return;
-      }
-      if (trips.length === 1 && trips[0]) {
-        await rememberPassengerTrip(trips, trips[0].id);
-        if (active) {
-          selectStoredTrip(trips[0].id);
-          markResolved();
-        }
         return;
       }
       clearStoredTrip();

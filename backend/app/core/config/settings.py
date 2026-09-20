@@ -779,7 +779,7 @@ class Settings(BaseSettings):
         pattern=r"^(?:unknown|[0-9a-f]{7,64})$",
     )
     expected_database_schema_revision: str = Field(
-        default="0101_client_group_import_only",
+        default="0102_public_upload_contact_otp",
         min_length=1,
         max_length=32,
         pattern=r"^[A-Za-z0-9_]+$",
@@ -978,6 +978,8 @@ class Settings(BaseSettings):
         le=100_000,
     )
     public_upload_rate_limit_require_redis: bool = True
+    public_upload_otp_phone_limit_per_hour: int = Field(default=30, ge=20, le=100)
+    public_upload_otp_ip_limit_per_hour: int = Field(default=60, ge=20, le=500)
     sentry_dsn: str | None = None
     # General HTTP/business metrics leave each API or Celery process through a
     # non-blocking StatsD boundary. Production Compose requires this exporter;

@@ -19,13 +19,14 @@ export function routeTube(origin: Vec3, destination: Vec3): Float32Array {
       return add(center, add(multiply(side, Math.cos(angle) * 0.006), multiply(up, Math.sin(angle) * 0.006)));
     });
   };
+  let a = ring(0);
   for (let segment = 0; segment < SEGMENTS; segment += 1) {
-    const a = ring(segment / SEGMENTS);
     const b = ring((segment + 1) / SEGMENTS);
     for (let side = 0; side < SIDES; side += 1) {
       const next = (side + 1) % SIDES;
       vertices.push(...a[side]!, ...b[side]!, ...a[next]!, ...a[next]!, ...b[side]!, ...b[next]!);
     }
+    a = b;
   }
   return new Float32Array(vertices);
 }
@@ -64,7 +65,13 @@ const PLANE_TRIANGLES: readonly (readonly [number, number])[] = [
   [0, -0.044], [0.04, -0.09], [0, -0.07],
 ];
 
-export function planeMesh(origin: Vec3, destination: Vec3, progress: number): Float32Array {
+export const PLANE_VERTEX_COMPONENTS = PLANE_TRIANGLES.length * 3;
+
+/** Reuse the renderer's storage instead of creating arrays for every vertex each frame. */
+export function planeMesh(
+  origin: Vec3, destination: Vec3, progress: number,
+  vertices = new Float32Array(PLANE_VERTEX_COMPONENTS),
+): Float32Array {
   const center = arcPoint(origin, destination, progress);
   const radial = normalize(center);
   const after = greatCircle(origin, destination, Math.min(1, progress + 0.001));
@@ -72,6 +79,12 @@ export function planeMesh(origin: Vec3, destination: Vec3, progress: number): Fl
   const forward = normalize(add(after, multiply(before, -1)));
   const side = normalize(cross(forward, radial));
   const raised = add(center, multiply(radial, 0.022));
-  return new Float32Array(PLANE_TRIANGLES.flatMap(([x, y]) =>
-    add(raised, add(multiply(side, x), multiply(forward, y)))));
+  for (let index = 0; index < PLANE_TRIANGLES.length; index += 1) {
+    const [x, y] = PLANE_TRIANGLES[index]!;
+    const offset = index * 3;
+    vertices[offset] = raised[0] + side[0] * x + forward[0] * y;
+    vertices[offset + 1] = raised[1] + side[1] * x + forward[1] * y;
+    vertices[offset + 2] = raised[2] + side[2] * x + forward[2] * y;
+  }
+  return vertices;
 }

@@ -71,7 +71,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ...(process.env.EXPO_PUBLIC_EXPO_OWNER
       ? { owner: process.env.EXPO_PUBLIC_EXPO_OWNER }
       : {}),
-    version: "1.0.8",
+    version: "1.0.9",
     jsEngine: "hermes",
     orientation: "portrait",
     icon: "./assets/images/gc-app-icon.png",
@@ -126,7 +126,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     android: {
       package: APP_ID,
-      versionCode: 9,
+      versionCode: 10,
       ...(googleServicesFile ? { googleServicesFile } : {}),
       allowBackup: false,
       blockedPermissions: [

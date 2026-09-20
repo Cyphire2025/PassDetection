@@ -197,6 +197,17 @@ class PublicUploadRateLimitTests(unittest.IsolatedAsyncioTestCase):
             )
             self.assertEqual(allowed.status_code, 200, index)
 
+    async def test_contact_otp_routes_use_public_upload_session_guards(self) -> None:
+        for action in ("request", "verify"):
+            path = f"/api/v1/passports/submission-12345678/contact-otp/{action}"
+            missing = await self.middleware.dispatch(_request(path=path), _ok)
+            self.assertEqual(missing.status_code, 400)
+            self.assertEqual(json.loads(missing.body)["error"]["code"], "UPLOAD_SESSION_ID_REQUIRED")
+            allowed = await self.middleware.dispatch(
+                _request(path=path, session_id="synthetic-upload-session-1234567890"), _ok,
+            )
+            self.assertEqual(allowed.status_code, 200)
+
     async def test_one_hundred_initial_uploads_behind_one_nat_are_allowed(self) -> None:
         for index in range(100):
             response = await self.middleware.dispatch(
@@ -697,6 +708,52 @@ class PublicUploadProxyContractTests(unittest.TestCase):
         ):
             self.assertIsNone(upload_edge.fullmatch(excluded_path))
 
+    def test_nginx_contact_otp_uses_public_followup_limits_and_submission_fallback(self) -> None:
+        repo_root = Path(__file__).resolve().parents[4]
+        nginx_main = (repo_root / "nginx" / "nginx.conf").read_text(encoding="utf-8")
+        nginx_site = (repo_root / "nginx" / "conf.d" / "default.conf").read_text(
+            encoding="utf-8"
+        )
+        locations = re.findall(r"location ~ (\S+) \{", nginx_site)
+        public_expression = next(
+            expression for expression in locations
+            if expression.startswith("^/api/v1/passports/") and "contact-otp" in expression
+        )
+        dashboard_expression = next(
+            expression for expression in locations
+            if expression.startswith("^/api/v1/(?:dashboard")
+        )
+        fallback_line = next(
+            line for line in nginx_main.splitlines() if "(?<client_submit_id>" in line
+        )
+        fallback_expression = fallback_line.strip().split()[0][1:].replace(
+            "(?<client_submit_id>", "(?P<client_submit_id>"
+        )
+        public_location = re.compile(public_expression)
+        dashboard_location = re.compile(dashboard_expression)
+        fallback = re.compile(fallback_expression)
+        public_block = nginx_site.split(f"location ~ {public_expression} {{", 1)[1].split("}", 1)[0]
+        self.assertIn("limit_req zone=upload_followup_session", public_block)
+        self.assertIn("limit_req zone=upload_followup_aggregate", public_block)
+        self.assertIn("proxy_set_header X-Upload-Session-ID $http_x_upload_session_id;", public_block)
+
+        for action in ("client-submit", "contact-otp/request", "contact-otp/verify"):
+            for suffix in ("", "/"):
+                path = f"/api/v1/passports/submission-12345678/{action}{suffix}"
+                with self.subTest(path=path):
+                    self.assertIsNotNone(public_location.fullmatch(path))
+                    self.assertIsNone(dashboard_location.match(path))
+                    matched_fallback = fallback.fullmatch(path)
+                    self.assertIsNotNone(matched_fallback)
+                    self.assertEqual(matched_fallback.group("client_submit_id"), "submission-12345678")
+
+        for action in ("contact-otp", "contact-otp/unknown", "contact-otp/request/extra", "review"):
+            path = f"/api/v1/passports/submission-12345678/{action}"
+            with self.subTest(path=path):
+                self.assertIsNone(public_location.fullmatch(path))
+                self.assertIsNone(fallback.fullmatch(path))
+                self.assertIsNotNone(dashboard_location.match(path))
+
     def test_nginx_and_browser_client_keep_the_two_tier_contract(self) -> None:
         repo_root = Path(__file__).resolve().parents[4]
         nginx_main = (repo_root / "nginx" / "nginx.conf").read_text(encoding="utf-8")
@@ -764,7 +821,7 @@ class PublicUploadProxyContractTests(unittest.TestCase):
         self.assertIn("PROXY_UPLOAD_BOOTSTRAP_RATE_LIMITED", nginx_site)
         self.assertIn("PROXY_UPLOAD_FOLLOWUP_RATE_LIMITED", nginx_site)
         self.assertIn(
-            "location ~ ^/api/v1/passports/[^/]+/client-submit/?$",
+            "location ~ ^/api/v1/passports/[^/]+/(?:client-submit|contact-otp/(?:request|verify))/?$",
             nginx_site,
         )
         self.assertIn(
@@ -807,7 +864,7 @@ class PublicUploadProxyContractTests(unittest.TestCase):
         self.assertIn("gc-app(?:/|$)", nginx_site)
         self.assertIn("upload-links(?:$|/(?!token(?:/|$)))", nginx_site)
         self.assertIn(
-            "passports(?:$|/(?!upload(?:/|$)|[^/]+/client-submit/?$))",
+            "passports(?:$|/(?!upload(?:/|$)|[^/]+/(?:client-submit|contact-otp/(?:request|verify))/?$))",
             nginx_site,
         )
         self.assertIn("whatsapp(?:$|/(?!webhook/?$))", nginx_site)

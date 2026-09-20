@@ -91,6 +91,8 @@ MOBILE_OTP_RESEND_COOLDOWN_SECONDS=60
 MOBILE_OTP_MAX_ATTEMPTS=5
 MOBILE_OTP_PHONE_LIMIT_PER_HOUR=6
 MOBILE_OTP_IP_LIMIT_PER_HOUR=30
+PUBLIC_UPLOAD_OTP_PHONE_LIMIT_PER_HOUR=30
+PUBLIC_UPLOAD_OTP_IP_LIMIT_PER_HOUR=60
 MOBILE_OTP_REQUIRE_REDIS=true
 
 WHATSAPP_ACCESS_TOKEN=<system-user token with whatsapp_business_messaging>
@@ -128,3 +130,54 @@ fail closed if the limiter is unavailable.
 Rollback is configuration-only: set `MOBILE_OTP_PROVIDER=disabled` and recreate
 the API service. Existing passenger, group, broadcast, and document data is not
 modified.
+
+## Public passport submission contact verification
+
+Public submissions require an email address and a WhatsApp number, independently
+of the legacy optional-contact policy flags. After saving the document draft,
+the visitor enters both contacts on a dedicated verification screen. A complete
+phone number exposes **Send OTP**. Successful code verification opens the
+separate review/details screen; its remaining fields are not rendered below the
+OTP form. The email is required and validated for format, but is not verified by
+email OTP.
+
+These endpoints use the group token and the draft's `X-Upload-Session-ID`
+credential, not a staff login or a GC App passenger session:
+
+- `POST /api/v1/passports/{submission_id}/contact-otp/request` takes
+  `group_token`, `phone_number`, and `email`.
+- `POST /api/v1/passports/{submission_id}/contact-otp/verify` takes
+  `group_token`, `challenge_id`, and the six-digit `code`.
+- Final `client-submit` requests include the returned `phone_verification_id`
+  alongside the same `client_phone` and `client_email`.
+
+Apply migration `0102_public_upload_contact_otp` before deploying the endpoints.
+Challenges are persisted in `public_upload_contact_challenges`, scoped to the
+draft, group, browser upload credential, normalized phone, and email. Codes and
+credential/email bindings use keyed hashes. Successful verification lasts 60
+minutes; final submission checks and consumes the proof in the same transaction.
+Changing either contact requires verification again. A rejected or expired proof
+returns the visitor to verification while preserving details entered in the
+current browser session. Reloaded drafts require verification again.
+
+Every family member has a separate draft and must complete verification. Members
+may share a family WhatsApp number; the first member's verified contact is used
+as the head-of-family contact. Already-submitted members are skipped when a
+partial family submission is retried. The backend requires member zero's head
+contact to match its own verification. Later members must match that completed
+head and its consumed verification proof in the same upload group and family.
+An arbitrary or older, unverified head contact cannot be supplied through the API.
+
+Delivery reuses `MOBILE_OTP_PROVIDER`, the approved WhatsApp authentication
+template, and the existing code lifetime, resend cooldown, attempt cap, delivery
+timeout, and Redis availability policy. Public contact requests use independent
+`public-upload-otp:v1` limiter keys and the two `PUBLIC_UPLOAD_OTP_*` limits above;
+they do not use or change passenger-login hourly counters. Both public limits
+have a minimum of 20 to support the maximum family size.
+
+For rollout, configure the approved WhatsApp provider and Redis before enabling
+the updated public form. Setting the shared provider to `disabled` also blocks
+new public contact verification, so it is not a way to retain normal public
+submissions after rollback. Browser and backend automated tests use isolated
+delivery fakes; validate one actual send, code verification, and final submission
+with a controlled test number after deploying the migration and configuration.

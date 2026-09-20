@@ -28,7 +28,7 @@ export function globeTestContext() {
     shaderSource: jest.fn(), compileShader: jest.fn(), getShaderParameter: jest.fn(() => true),
     attachShader: jest.fn(), linkProgram: jest.fn(), getProgramParameter: jest.fn(() => true),
     createBuffer: jest.fn<WebGLBuffer | null, []>(() => ({} as WebGLBuffer)), deleteBuffer: jest.fn(),
-    bindBuffer: jest.fn(), bufferData: jest.fn(),
+    bindBuffer: jest.fn(), bufferData: jest.fn(), bufferSubData: jest.fn(),
     getParameter: jest.fn(() => 2048), createTexture: jest.fn(() => ({} as WebGLTexture)), deleteTexture: jest.fn(),
     activeTexture: jest.fn(), bindTexture: jest.fn(), texParameteri: jest.fn(), pixelStorei: jest.fn(),
     texImage2D: jest.fn((...args: unknown[]) => { width = Number(args[3]); uploaded = args[8] as Uint8Array<ArrayBuffer>; }),

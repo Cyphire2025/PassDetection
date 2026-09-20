@@ -1,4 +1,5 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
+import { mockPublicContactOtp, verifyPublicContact } from "./support/public-contact-otp";
 
 const token = "public-recovery-token";
 const idempotencyKey = "recovery-key-0123456789abcdef0123456789abcdef";
@@ -178,12 +179,14 @@ test("a temporary recovery failure retains the saved upload and retry restores i
     if (route.request().method() === "POST" && path.startsWith(`/api/v1/passports/upload/${token}`)) newUploads += 1;
     return json(route, {});
   });
+  await mockPublicContactOtp(page);
   await page.goto(`/upload/${token}`);
   await expect(page.getByRole("heading", { name: "Reconnect to your saved upload" })).toBeVisible();
   const record = await page.evaluate((token) => JSON.parse(sessionStorage.getItem(`gct:upload-recovery:${token}`)!), token);
   expect(record).toMatchObject({ submissionId, idempotencyKey });
   recovering = true;
   await page.getByRole("button", { name: "Retry reconnecting" }).click();
+  await verifyPublicContact(page);
   await expect(page.getByRole("button", { name: "Submit Verified Details", exact: true })).toBeVisible();
   expect(newUploads).toBe(0);
 });
@@ -205,14 +208,14 @@ test("AI service failure permits manual entry but reports awaiting staff review"
     }
     return json(route, {});
   });
+  await mockPublicContactOtp(page);
   await page.goto(`/upload/${token}`);
+  await verifyPublicContact(page);
   await expect(page.getByRole("button", { name: "Submit for staff review", exact: true })).toBeVisible();
   await expect(page.getByText(/Automatic reading is unavailable/)).toBeVisible();
-  await page.getByRole("textbox", { name: "Email", exact: true }).fill("aarav@example.test");
-  await page.getByRole("textbox", { name: "WhatsApp active number", exact: true }).fill("9900001234");
   await page.getByRole("button", { name: "Submit for staff review", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Submitted — awaiting staff review" })).toBeVisible();
-  expect(submittedBody).toMatchObject({ client_phone: "9900001234", group_token: token });
+  expect(submittedBody).toMatchObject({ client_phone: "+919900001234", group_token: token, phone_verification_id: expect.any(String) });
   expect(submittedBody).not.toHaveProperty("manual_review_submission_allowed");
 });
 
@@ -258,7 +261,7 @@ test("an interrupted public upload restores the durable submission and completes
       return json(route, {
         ...recoveredSubmission,
         status: "submitted",
-        client_email: "aarav@example.test",
+        client_email: "aarav@example.com",
         client_phone: "+919900001234",
         confirmed_fields: recoveredSubmission.extracted_fields,
       });
@@ -277,11 +280,12 @@ test("an interrupted public upload restores the durable submission and completes
     return json(route, {});
   });
 
+  await mockPublicContactOtp(page);
   await page.goto(`/upload/${token}`);
+  await expect(page.getByRole("textbox", { name: "Passport Number" })).toHaveCount(0);
+  await verifyPublicContact(page);
   await expect(page.getByRole("heading", { name: "Verify Passport Details" })).toBeVisible();
   await expect(page.getByRole("textbox", { name: "Passport Number" })).toHaveValue("P1234567");
-  await page.getByRole("textbox", { name: "Email" }).fill("aarav@example.test");
-  await page.getByRole("textbox", { name: "WhatsApp active number" }).fill("+919900001234");
   await page.getByRole("button", { name: "Submit Verified Details" }).click();
 
   await expect(page.getByRole("heading", { name: "Details Submitted" })).toBeVisible();
@@ -289,8 +293,9 @@ test("an interrupted public upload restores the durable submission and completes
   expect(newUploadAttempts).toBe(0);
   expect(submitBody).toMatchObject({
     group_token: token,
-    client_email: "aarav@example.test",
+    client_email: "aarav@example.com",
     client_phone: "+919900001234",
+    phone_verification_id: expect.any(String),
     submission_mode: "single",
   });
 });

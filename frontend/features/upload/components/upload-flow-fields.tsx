@@ -75,6 +75,7 @@ export function ContactInput({
   maxLength,
   inputMode,
   pattern,
+  phoneNormalizer = normalizePhoneNumber,
 }: {
   icon: ReactNode;
   label: string;
@@ -85,10 +86,11 @@ export function ContactInput({
   maxLength?: number;
   inputMode?: React.InputHTMLAttributes<HTMLInputElement>["inputMode"];
   pattern?: string;
+  phoneNormalizer?: (phone: string) => string | null;
 }) {
   const inputId = useId();
   const hintId = `${inputId}-hint`;
-  const phoneInvalid = type === "tel" && Boolean(value.trim()) && !normalizePhoneNumber(value);
+  const phoneInvalid = type === "tel" && Boolean(value.trim()) && !phoneNormalizer(value);
   return (
     <div className="block min-w-0 space-y-1.5">
       <label htmlFor={inputId} className="text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</label>
@@ -101,7 +103,7 @@ export function ContactInput({
           value={value}
           onChange={(event) => {
             const text = event.target.value;
-            event.target.setCustomValidity(type === "tel" && text.trim() && !normalizePhoneNumber(text) ? PHONE_FORMAT_HELP : "");
+            event.target.setCustomValidity(type === "tel" && text.trim() && !phoneNormalizer(text) ? PHONE_FORMAT_HELP : "");
             onChange(text);
           }}
           className="h-12 w-full min-w-0 rounded-xl border-slate-200 bg-white pl-10 text-base shadow-sm placeholder:text-slate-400 focus-visible:bg-white"

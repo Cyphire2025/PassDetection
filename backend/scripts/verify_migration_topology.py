@@ -7,7 +7,7 @@ from pathlib import Path
 from alembic.config import Config
 from alembic.script import ScriptDirectory
 
-EXPECTED_HEAD = "0101_client_group_import_only"
+EXPECTED_HEAD = "0102_public_upload_contact_otp"
 UPLOAD_CONFIGURATION_REVISION = "0090_upload_configuration"
 SECURITY_REVISION = "0089_revoke_legacy_refresh"
 MERGE_REVISION = "0088_merge_my_photos_hardening"
@@ -27,7 +27,9 @@ def main() -> int:
     if heads != (EXPECTED_HEAD,):
         raise RuntimeError(f"Expected one Alembic head {EXPECTED_HEAD!r}; observed {heads!r}")
     head = scripts.get_revision(EXPECTED_HEAD)
-    if head.down_revision != "0100_whatsapp_group_archive":
+    if head.down_revision != "0101_client_group_import_only":
+        raise RuntimeError("Public contact OTP must follow import-only groups")
+    if scripts.get_revision("0101_client_group_import_only").down_revision != "0100_whatsapp_group_archive":
         raise RuntimeError("Import-only groups must follow WhatsApp broadcast archives")
     if scripts.get_revision("0100_whatsapp_group_archive").down_revision != "0099_gc_group_access_removal":
         raise RuntimeError("WhatsApp broadcast archives must follow GC App group removal")
@@ -67,7 +69,7 @@ def main() -> int:
         )
 
     print(
-        "Alembic topology verified: 0101 follows 0100, 0099, 0098, 0097, 0096, 0095, 0094, 0093, 0092, 0091, 0090, 0089 and the preserved 0088 merge "
+        "Alembic topology verified: 0102 follows 0101, 0100, 0099, 0098, 0097, 0096, 0095, 0094, 0093, 0092, 0091, 0090, 0089 and the preserved 0088 merge "
         "of the My Photos and enterprise-hardening branches."
     )
     return 0

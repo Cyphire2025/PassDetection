@@ -11,7 +11,7 @@ export type GlobeContextHandle = GlobeSurfaceHandle & { release(): void };
 
 /** A failure in optional GPU rendering cannot interrupt the trip's other content. */
 export const GlobeContext = forwardRef<GlobeContextHandle, GlobeSurfaceProps>(function GlobeContext(
-  { route, mode, reduceMotion, style, onReady, onError }, ref,
+  { route, mode, reduceMotion, paused = false, style, onReady, onError, onRelease, onLoading }, ref,
 ) {
   const renderer = useRef<GlobeRenderer | null>(null);
   const alive = useRef(true);
@@ -19,9 +19,9 @@ export const GlobeContext = forwardRef<GlobeContextHandle, GlobeSurfaceProps>(fu
   const errorReported = useRef(false);
   const [failed, setFailed] = useState(false);
   const pinchStart = useRef(1);
-  const latest = useRef({ route, reduceMotion, onReady, onError });
-  useLayoutEffect(() => { latest.current = { route, reduceMotion, onReady, onError }; },
-    [route, reduceMotion, onReady, onError]);
+  const latest = useRef({ route, reduceMotion, paused, onReady, onError, onRelease, onLoading });
+  useLayoutEffect(() => { latest.current = { route, reduceMotion, paused, onReady, onError, onRelease, onLoading }; },
+    [route, reduceMotion, paused, onReady, onError, onRelease, onLoading]);
 
   const disposeRenderer = useCallback(() => {
     generation.current += 1;
@@ -32,11 +32,14 @@ export const GlobeContext = forwardRef<GlobeContextHandle, GlobeSurfaceProps>(fu
     try { previous?.dispose(); } catch { /* Native GLView teardown owns final context cleanup. */ }
   }, []);
   const release = useCallback(() => {
+    if (!alive.current) return;
     alive.current = false;
     disposeRenderer();
+    latest.current.onRelease?.();
   }, [disposeRenderer]);
   useLayoutEffect(() => {
     alive.current = true;
+    latest.current.onLoading?.();
     return release;
   }, [release]);
 
@@ -57,6 +60,7 @@ export const GlobeContext = forwardRef<GlobeContextHandle, GlobeSurfaceProps>(fu
   // updates allocate GPU buffers too, and need the same fallback as first load.
   useEffect(() => { update((view) => view.setRoute(route)); }, [route, update]);
   useEffect(() => { update((view) => view.setReducedMotion(reduceMotion)); }, [reduceMotion, update]);
+  useLayoutEffect(() => { update((view) => view.setActive(!paused)); }, [paused, update]);
   useImperativeHandle(ref, () => ({
     release,
     zoomIn: () => update((view) => { const camera = view.getCamera(); view.setCamera({ ...camera, zoom: camera.zoom * 1.25 }); }),
@@ -76,28 +80,28 @@ export const GlobeContext = forwardRef<GlobeContextHandle, GlobeSurfaceProps>(fu
       view.setRoute(latest.current.route);
       view.setReducedMotion(latest.current.reduceMotion);
       view.renderStill();
-      view.setActive(true);
+      view.setActive(!latest.current.paused);
     } catch { fail(); return; }
     if (alive.current && generation.current === contextGeneration) latest.current.onReady?.();
   }, [disposeRenderer, fail, mode]);
 
   const gestures = useMemo(() => {
-    const pan = Gesture.Pan().enabled(mode === 'expanded').minDistance(3).maxPointers(1).runOnJS(true)
+    const pan = Gesture.Pan().enabled(mode === 'expanded' && !paused).minDistance(3).maxPointers(1).runOnJS(true)
       .onChange((event) => update((view) => {
         const camera = view.getCamera();
         view.setCamera({ ...camera, longitude: camera.longitude - event.changeX * 0.006 / camera.zoom,
           latitude: camera.latitude + event.changeY * 0.006 / camera.zoom });
       }));
-    const pinch = Gesture.Pinch().enabled(mode === 'expanded').runOnJS(true)
+    const pinch = Gesture.Pinch().enabled(mode === 'expanded' && !paused).runOnJS(true)
       .onBegin(() => update((view) => { pinchStart.current = view.getCamera().zoom; }))
       .onUpdate((event) => update((view) => view.setCamera({ ...view.getCamera(), zoom: pinchStart.current * event.scale })));
     return Gesture.Simultaneous(pan, pinch);
-  }, [mode, update]);
+  }, [mode, paused, update]);
 
   return (
     <GestureDetector gesture={gestures}>
       <View accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants"
-        pointerEvents={mode === 'card' ? 'none' : 'auto'} style={[styles.surface, style]}>
+        pointerEvents={mode === 'card' || paused ? 'none' : 'auto'} style={[styles.surface, style]}>
         {!failed ? <GLView style={StyleSheet.absoluteFill} onContextCreate={createContext} msaaSamples={4} /> : null}
       </View>
     </GestureDetector>

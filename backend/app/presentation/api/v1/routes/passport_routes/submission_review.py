@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import replace
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Response, status
 from fastapi.responses import JSONResponse
@@ -83,8 +84,8 @@ from .dependencies import (
     _get_staff_approve_passport_use_case,
 )
 from .processing_support import _dispatch_processing_job
-from .public_security import _require_public_upload_credential
 from .response_support import _ensure_submission_qr, _response_from_dto, _response_from_submission
+from .submission_contact import require_verified_submission_contact
 
 router = APIRouter()
 
@@ -214,13 +215,12 @@ async def client_submit_passport(
     use_case: ClientSubmitPassportUseCase = Depends(_get_client_submit_passport_use_case),
     session: AsyncSession = Depends(get_db_session),
 ) -> PassportSubmissionResponse:
-    existing = await PassportSubmissionRepository(session).get_by_id(submission_id)
-    if existing is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Passport submission was not found",
-        )
-    _require_public_upload_credential(existing, upload_session_id)
+    contact_proof = await require_verified_submission_contact(
+        session,
+        submission_id=submission_id,
+        body=body,
+        upload_session_id=upload_session_id,
+    )
 
     result: PassportSubmissionOutputDTO | None = None
     verification_job = None
@@ -256,6 +256,13 @@ async def client_submit_passport(
                 answer.model_dump(mode="json") for answer in body.custom_detail_answers
             ],
         )
+        # Proof consumption and submission promotion commit atomically. A failed
+        # save leaves the verified proof usable; successful retries are checked
+        # against the use case's existing exact-replay contract.
+        if not result.idempotent_replay:
+            contact_proof.status = "consumed"
+            contact_proof.consumed_at = datetime.now(UTC)
+            contact_proof.updated_at = contact_proof.consumed_at
         if (
             result.image_s3_key
             and result.status == PassportProcessingStatus.SUBMITTED.value

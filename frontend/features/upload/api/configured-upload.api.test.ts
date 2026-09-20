@@ -10,6 +10,15 @@ beforeEach(() => {
 });
 
 describe("configured document upload transport", () => {
+  it("binds OTP request and verification to the private draft session and sends the proof on submit", async () => {
+    const controller = new AbortController();
+    await uploadApi.requestContactOtp("draft-1", "private-key", { group_token: "group-token", email: "asha@example.com", phone_number: "+919999999999" }, controller.signal);
+    expect(apiClient.post).toHaveBeenNthCalledWith(1, "/api/v1/passports/draft-1/contact-otp/request", { group_token: "group-token", email: "asha@example.com", phone_number: "+919999999999" }, expect.objectContaining({ headers: { "X-Upload-Session-ID": "private-key" }, signal: controller.signal }));
+    await uploadApi.verifyContactOtp("draft-1", "private-key", { group_token: "group-token", challenge_id: "challenge-1", code: "123456" }, controller.signal);
+    expect(apiClient.post).toHaveBeenNthCalledWith(2, "/api/v1/passports/draft-1/contact-otp/verify", { group_token: "group-token", challenge_id: "challenge-1", code: "123456" }, expect.objectContaining({ headers: { "X-Upload-Session-ID": "private-key" }, signal: controller.signal }));
+    await uploadApi.submitClientReview("draft-1", "private-key", { group_token: "group-token", confirmed_fields: {}, client_email: "asha@example.com", client_phone: "+919999999999", phone_verification_id: "proof-1" });
+    expect(apiClient.post).toHaveBeenNthCalledWith(3, "/api/v1/passports/draft-1/client-submit", expect.objectContaining({ phone_verification_id: "proof-1", client_phone: "+919999999999" }), { headers: { "X-Upload-Session-ID": "private-key" } });
+  });
   it("sends all requested passport pages with their distinct document fields and the selected Visa Photo source", async () => {
     const front = new File(["front"], "front.jpg", { type: "image/jpeg" });
     const back = new File(["back"], "back.jpg", { type: "image/jpeg" });

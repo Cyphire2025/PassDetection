@@ -1,5 +1,4 @@
-import * as Brightness from 'expo-brightness';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { RefreshControl, StyleSheet, Text, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
@@ -20,21 +19,6 @@ export default function PassengerQrScreen() {
     await refetchQr();
   }, [refetchQr]);
   const manualRefresh = useManualRefresh();
-  useEffect(() => {
-    let active = true;
-    let previous: number | null = null;
-    void Brightness.isAvailableAsync().then(async (available) => {
-      if (!available || !active) return;
-      previous = await Brightness.getBrightnessAsync();
-      if (!active) return;
-      await Brightness.setBrightnessAsync(1);
-    }).catch(() => undefined);
-    return () => {
-      active = false;
-      if (previous !== null) void Brightness.setBrightnessAsync(previous);
-    };
-  }, []);
-
   return (
     <Screen
       bottomInset={104}
@@ -60,7 +44,6 @@ export default function PassengerQrScreen() {
           <Text style={styles.help}>Show this screen at your group checkpoint. It is bound to you and this trip.</Text>
         </GlassCard>
       ) : null}
-      <Text style={styles.brightness}>Screen brightness is raised only while this page is open and restored when you leave.</Text>
     </Screen>
   );
 }
@@ -72,5 +55,4 @@ const styles = StyleSheet.create({
   name: { color: colors.ink, fontSize: 20, fontWeight: '800', textAlign: 'center' },
   ready: { color: colors.greenDeep, fontSize: 13, fontWeight: '800', textAlign: 'center' },
   help: { color: colors.inkMuted, fontSize: 13, lineHeight: 19, textAlign: 'center', maxWidth: 300 },
-  brightness: { color: colors.inkMuted, fontSize: 12, lineHeight: 18, textAlign: 'center' },
 });

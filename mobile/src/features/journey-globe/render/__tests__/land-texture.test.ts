@@ -57,6 +57,18 @@ describe('portable globe texture upload', () => {
     expect(pixels[3]).toBe(255);
   });
 
+  it('reuses prepared pixels across native contexts while verifying each separate GPU upload', () => {
+    const first = mockContext();
+    const second = mockContext();
+    second.context.getParameter.mockReturnValue(4096);
+    const firstTexture = uploadLandTexture(first.gl, mask);
+    const secondTexture = uploadLandTexture(second.gl, mask);
+    expect(firstTexture).not.toBe(secondTexture);
+    expect(first.context.texImage2D.mock.calls[0]![8]).toBe(second.context.texImage2D.mock.calls[0]![8]);
+    expect(first.context.readPixels).toHaveBeenCalledTimes(2);
+    expect(second.context.readPixels).toHaveBeenCalledTimes(2);
+  });
+
   it('fits the bundled world into a lower-resolution texture without losing its continents', () => {
     const prepared = prepareLandTexture(loadLandMask(), 1024);
     expect([prepared.width, prepared.height, prepared.pixels.length]).toEqual([1024, 512, 2097152]);

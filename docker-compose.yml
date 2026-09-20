@@ -57,7 +57,7 @@ x-database-capacity-environment: &database-capacity-environment
   POSTGRES_SERVER_MAX_CONNECTIONS: ${POSTGRES_SERVER_MAX_CONNECTIONS:-100}
   POSTGRES_RESERVED_CONNECTIONS: ${POSTGRES_RESERVED_CONNECTIONS:-10}
   POSTGRES_API_CONNECTION_BUDGET: ${POSTGRES_API_CONNECTION_BUDGET:-80}
-  EXPECTED_DATABASE_SCHEMA_REVISION: ${EXPECTED_DATABASE_SCHEMA_REVISION:-0097_authored_notifications}
+  EXPECTED_DATABASE_SCHEMA_REVISION: ${EXPECTED_DATABASE_SCHEMA_REVISION:-0102_public_upload_contact_otp}
   REDIS_DOMAIN_ISOLATION_REQUIRED: ${REDIS_DOMAIN_ISOLATION_REQUIRED:-true}
   REDIS_BROKER_HOST: redis-broker
   REDIS_BROKER_PORT: 6379
@@ -382,7 +382,7 @@ services:
     volumes:
       - ./backend:/app
     command: >
-      sh -c "celery -A app.infrastructure.processing.celery_app:celery_app
+      sh -c "exec celery -A app.infrastructure.processing.celery_app:celery_app
       worker
       --hostname=general@%h
       --loglevel=INFO
@@ -427,7 +427,7 @@ services:
     volumes:
       - ./backend:/app
     command: >
-      sh -c "celery -A app.infrastructure.processing.celery_app:celery_app
+      sh -c "exec celery -A app.infrastructure.processing.celery_app:celery_app
       worker
       --hostname=my-photos@%h
       --loglevel=INFO
@@ -473,7 +473,7 @@ services:
     volumes:
       - ./backend:/app
     command: >
-      sh -c "celery -A app.infrastructure.processing.celery_app:celery_app
+      sh -c "exec celery -A app.infrastructure.processing.celery_app:celery_app
       worker
       --hostname=email@%h
       --loglevel=INFO
@@ -514,7 +514,7 @@ services:
     volumes:
       - ./backend:/app
     command: >
-      sh -c "celery -A app.infrastructure.processing.celery_app:celery_app
+      sh -c "exec celery -A app.infrastructure.processing.celery_app:celery_app
       worker
       --hostname=email-ai@%h
       --loglevel=INFO
@@ -556,7 +556,7 @@ services:
     volumes:
       - ./backend:/app
     command: >
-      sh -c "celery -A app.infrastructure.processing.celery_app:celery_app
+      sh -c "exec celery -A app.infrastructure.processing.celery_app:celery_app
       beat
       --loglevel=INFO
       --schedule=/tmp/passdetection-email-beat"
@@ -596,7 +596,7 @@ services:
     volumes:
       - ./backend:/app
     command: >
-      sh -c "celery -A app.infrastructure.processing.celery_app:celery_app
+      sh -c "exec celery -A app.infrastructure.processing.celery_app:celery_app
       worker
       --hostname=extraction@%h
       --loglevel=INFO
@@ -640,7 +640,7 @@ services:
     volumes:
       - ./backend:/app
     command: >
-      sh -c "celery -A app.infrastructure.processing.celery_app:celery_app
+      sh -c "exec celery -A app.infrastructure.processing.celery_app:celery_app
       worker
       --hostname=verification@%h
       --loglevel=INFO
@@ -685,7 +685,7 @@ services:
     volumes:
       - ./backend:/app
     command: >
-      sh -c "celery -A app.infrastructure.processing.celery_app:celery_app
+      sh -c "exec celery -A app.infrastructure.processing.celery_app:celery_app
       worker
       --hostname=visa-ai@%h
       --loglevel=INFO

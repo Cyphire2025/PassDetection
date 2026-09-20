@@ -37,10 +37,17 @@ an Android image resource. See `mobile/assets/maps/README.md` for regeneration.
 ## Lifecycle and accessibility
 
 The native GL view and its renderer are released when the card is scrolled away,
-the trip tab loses focus, a modal covers the card, or the app backgrounds. A
+the trip tab loses focus, or the app backgrounds. A
 fresh view creates a new context when visible again. Background release is
 synchronous, and a generation key prevents reusing a context when background
-and resume events are batched while a screen is frozen. Reduced-motion preference freezes
+and resume events are batched while a screen is frozen. The card retains its
+context with rendering paused while the expanded globe covers it, so closing
+does not repeat GPU initialization. Readiness resets whenever a context is released.
+The modal starts expansion on native presentation without waiting for GL readiness;
+its fixed-size clipping frame and globe use transforms rather than animated layout.
+A loading placeholder and usable close control remain available during setup.
+The expanded rendering loop and gestures pause during opening/closing transitions.
+Reduced-motion preference freezes
 aircraft motion and removes expansion timing. The expanded view also offers
 labelled buttons for zoom/reset and supports Android Back. Native GL failures
 retain readable route details and a working close control. This boundary covers

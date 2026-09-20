@@ -14,10 +14,14 @@ export type GlobeSurfaceProps = {
   route: JourneyRoute | null;
   mode: 'card' | 'expanded';
   active: boolean;
+  /** Keep the native context while a covering transition temporarily hides it. */
+  paused?: boolean;
   reduceMotion: boolean;
   style?: StyleProp<ViewStyle>;
   onReady?: () => void;
   onError?: () => void;
+  onRelease?: () => void;
+  onLoading?: () => void;
 };
 
 /** Native view-owned contexts must not outlive the visible, foreground globe. */

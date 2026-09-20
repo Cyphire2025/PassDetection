@@ -15,6 +15,7 @@ from app.domain.value_objects.upload_configuration import MAX_PUBLIC_DOCUMENT_BY
 from app.presentation.api.v1.routes.passport_routes import (
     public_security,
     public_upload,
+    submission_contact,
     submission_review,
 )
 from app.presentation.api.v1.schemas.passport_schemas import (
@@ -68,7 +69,8 @@ async def test_details_only_final_submit_commits_without_verification_job(monkey
     submission_id = uuid.uuid4()
     credential = "synthetic-upload-session-" + "a" * 40
     existing = SimpleNamespace(upload_idempotency_key=credential)
-    monkeypatch.setattr(submission_review, "PassportSubmissionRepository", lambda _: Mock(get_by_id=AsyncMock(return_value=existing)))
+    monkeypatch.setattr(submission_contact, "PassportSubmissionRepository", lambda _: Mock(get_by_id_for_update=AsyncMock(return_value=existing)))
+    monkeypatch.setattr(submission_contact, "require_public_contact_proof", AsyncMock())
     verification_repo = Mock(enqueue=AsyncMock())
     monkeypatch.setattr(submission_review, "PostSubmissionVerificationJobRepository", lambda _: verification_repo)
     result = SimpleNamespace(
@@ -81,7 +83,7 @@ async def test_details_only_final_submit_commits_without_verification_job(monkey
     session = AsyncMock()
     response = await submission_review.client_submit_passport(
         submission_id=submission_id,
-        body=ClientSubmitPassportRequest(group_token="synthetic-configured-upload-link", confirmed_fields={"given_names": "Synthetic Traveller"}),
+        body=ClientSubmitPassportRequest(group_token="synthetic-configured-upload-link", confirmed_fields={"given_names": "Synthetic Traveller"}, client_email="traveller@example.com", client_phone="9876543210", phone_verification_id=uuid.uuid4()),
         background_tasks=BackgroundTasks(), upload_session_id=credential,
         use_case=Mock(execute=AsyncMock(return_value=result)), session=session,
     )

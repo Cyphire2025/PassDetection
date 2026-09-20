@@ -39,6 +39,9 @@ from app.infrastructure.database import identity_security_models as _identity_se
 from app.infrastructure.database import operations_models as _operations_models
 from app.infrastructure.database import whatsapp_receipt_models as _whatsapp_receipt_models
 from app.infrastructure.database.model_base import JSONB, Base, _utcnow
+from app.infrastructure.database.public_upload_contact_model import (
+    PublicUploadContactChallengeModel as PublicUploadContactChallengeModel,
+)
 
 WhatsAppBroadcastGroupModel = _communications_models.WhatsAppBroadcastGroupModel
 WhatsAppBroadcastRecipientModel = _communications_models.WhatsAppBroadcastRecipientModel

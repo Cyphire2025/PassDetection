@@ -119,8 +119,9 @@ class ClientSubmitPassportRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     confirmed_fields: dict[str, str] = Field(..., min_length=1)
-    client_email: EmailStr | None = None
-    client_phone: str | None = Field(default=None, max_length=64)
+    client_email: EmailStr = Field(max_length=255)
+    client_phone: str = Field(min_length=8, max_length=64)
+    phone_verification_id: uuid.UUID
     departure_city: str | None = Field(default=None, max_length=120)
     nearest_domestic_airport: str | None = Field(default=None, max_length=120)
     base_city: str | None = Field(default=None, max_length=120)
@@ -157,6 +158,13 @@ class ClientSubmitPassportRequest(BaseModel):
         if normalized is None:
             raise ValueError("Enter a valid phone number with a country code or a 10-digit Indian number.")
         return normalized
+
+    @field_validator("client_phone")
+    @classmethod
+    def require_client_phone(cls, value: str | None) -> str:
+        if value is None:
+            raise ValueError("Enter your WhatsApp number.")
+        return value
 
 
 class ClientCustomAnswerRequest(BaseModel):

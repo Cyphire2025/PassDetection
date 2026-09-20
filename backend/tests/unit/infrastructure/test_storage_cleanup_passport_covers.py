@@ -48,8 +48,8 @@ async def test_cleanup_accepts_cover_keys_from_real_client_submission(
         submission.id,
         group_token=group.token,
         confirmed_fields={"given_names": "Synthetic Traveller"},
-        client_email=None,
-        client_phone=None,
+        client_email="traveller@example.com",
+        client_phone="9876543210",
     )
     keys = passport_storage_keys([submission])
     assert keys == [call.args[1] for call in storage.upload_file.await_args_list]

@@ -15,6 +15,7 @@ from app.infrastructure.imports.passport_excel_importer import (
 from .passport_routes import (
     bulk_actions,
     client_details,
+    contact_verification,
     covers,
     document_import,
     excel_exports,
@@ -433,6 +434,8 @@ _ROUTE_ORDER = (
     "get_passport_client_details",
     "update_passport_client_details",
     "client_submit_passport",
+    "request_public_contact_otp",
+    "verify_public_contact_otp",
     "staff_approve_passport",
     "retry_post_submission_verification",
     "reextract_passport",
@@ -444,6 +447,7 @@ router = APIRouter()
 for _module in (
     bulk_actions,
     client_details,
+    contact_verification,
     covers,
     document_import,
     excel_exports,

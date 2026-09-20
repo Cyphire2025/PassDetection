@@ -15,6 +15,30 @@ export interface UploadReconciliationResult {
 }
 
 export const uploadApi = {
+  requestContactOtp: async (
+    submissionId: string,
+    uploadSessionId: string,
+    data: { group_token: string; phone_number: string; email: string },
+    signal?: AbortSignal,
+  ): Promise<{ challenge_id: string; expires_in_seconds: number; resend_after_seconds: number }> => {
+    const response = await apiClient.post(API_ENDPOINTS.passports.requestContactOtp(submissionId), data, {
+      headers: uploadSessionHeaders(uploadSessionId), signal, timeout: 30_000,
+    });
+    return response.data;
+  },
+
+  verifyContactOtp: async (
+    submissionId: string,
+    uploadSessionId: string,
+    data: { group_token: string; challenge_id: string; code: string },
+    signal?: AbortSignal,
+  ): Promise<{ phone_verification_id: string; phone_number: string; expires_in_seconds: number }> => {
+    const response = await apiClient.post(API_ENDPOINTS.passports.verifyContactOtp(submissionId), data, {
+      headers: uploadSessionHeaders(uploadSessionId), signal, timeout: 15_000,
+    });
+    return response.data;
+  },
+
   uploadPassport: async (
     token: string,
     client_name: string,
@@ -155,8 +179,9 @@ export const uploadApi = {
     data: {
       group_token: string;
       confirmed_fields: Record<string, string>;
-      client_email?: string | null;
-      client_phone?: string | null;
+      client_email: string;
+      client_phone: string;
+      phone_verification_id: string;
       departure_city?: string | null;
       base_city?: string | null;
       nearest_domestic_airport?: string | null;

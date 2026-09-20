@@ -5,8 +5,6 @@ import dynamic from "next/dynamic";
 import {
   ArrowLeft,
   CheckCircle2,
-  Mail,
-  Phone,
   User,
   Users,
 } from "lucide-react";
@@ -27,6 +25,8 @@ import { passportBundleError, getUploadFlowSettings } from "../services/configur
 import { PassportUploadPage } from "./passport-upload-page";
 import { useSubmitClientPassportReview, useUploadPassport } from "../hooks/use-upload";
 import { usePublicFlowTelemetry } from "../hooks/use-public-flow-telemetry";
+import { isContactVerificationError, useUploadContactVerification } from "../hooks/use-upload-contact-verification";
+import { VerifiedContactSummary } from "./upload-contact-verification";
 import { uploadApi } from "../api/upload.api";
 import { normalizePassportFile } from "../services/passport-perspective-correction";
 import {
@@ -83,8 +83,6 @@ import {
 } from "./upload-flow.constants";
 import {
   ConfiguredClientFields,
-  ContactInput,
-  ContactSection,
   CustomDetailFields,
   CustomQuestionFields,
   DepartureCitySelect,
@@ -188,8 +186,6 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const [familyCountInput, setFamilyCountInput] = useState("2");
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>(() => createFamilyMembers(2));
   const [activeFamilyIndex, setActiveFamilyIndex] = useState(0);
-  const [headEmail, setHeadEmail] = useState("");
-  const [headPhone, setHeadPhone] = useState("");
 
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [processingProgress, setProcessingProgress] = useState<number | null>(null);
@@ -377,6 +373,14 @@ export function UploadFlow({ token }: UploadFlowProps) {
     setFamilyMembers((current) => current.map((member, itemIndex) => itemIndex === index ? { ...member, ...patch } : member));
   };
 
+  const contactVerification = useUploadContactVerification({
+    token, step, submission, sessionId: singleUploadIdempotencyKey, name: clientName,
+    email: clientEmail, phone: clientPhone, familyMembers,
+    onSingleContact: (email, phone) => { setClientEmail(email); setClientPhone(phone); },
+    onFamilyContact: (index, email, phone) => updateFamilyMember(index, { email, phone }),
+    onBack: () => handleBackToUploadMethods(),
+  });
+
   const startFamilyUploads = (event: React.FormEvent) => {
     event.preventDefault();
     const invalidMember = familyMembers.find((member) => member.name.trim().length < 2 || !member.relation || !member.gender);
@@ -384,8 +388,6 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setUploadError("Enter name, relation, and gender for every family member.");
       return;
     }
-    if (!headEmail.trim() && familyMembers[0]?.email.trim()) setHeadEmail(familyMembers[0].email.trim());
-    if (!headPhone.trim() && familyMembers[0]?.phone.trim()) setHeadPhone(familyMembers[0].phone.trim());
     setUploadError(null);
     selectFamilyMember(familyMembers.findIndex((member) => !member.submission) === -1 ? 0 : familyMembers.findIndex((member) => !member.submission));
     setStep("METHOD_SELECT");
@@ -1091,6 +1093,8 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const handleFinalSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!submission || operationInFlightRef.current) return;
+    const contactProof = contactVerification.getProof(submission.id, singleUploadIdempotencyKey, clientEmail, clientPhone);
+    if (!contactProof) { contactVerification.edit(submission.id); return; }
     if (clientPhone.trim() && !normalizePhoneNumber(clientPhone)) {
       setUploadError(PHONE_FORMAT_HELP);
       return;
@@ -1167,6 +1171,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
         confirmed_fields: cleanReviewFields(reviewFields),
         client_email: clientEmail,
         client_phone: clientPhone,
+        phone_verification_id: contactProof.id,
         departure_city: departureCity || null,
         base_city: baseCity.trim() || null,
         nearest_domestic_airport: nearestDomesticAirport.trim() || null,
@@ -1191,6 +1196,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setStep("SUCCESS");
     } catch (error: unknown) {
       setUploadError(submitErrorMessage(error));
+      if (isContactVerificationError(error)) contactVerification.invalidate(submission.id);
       setStep("REVIEW");
       if ([404, 410].includes(apiErrorStatus(error) ?? 0)) {
         await uploadLinksApi.getByToken(token).catch(setLinkError);
@@ -1203,6 +1209,10 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const handleFamilySubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (operationInFlightRef.current) return;
+    const headEmail = familyMembers[0]?.email ?? "";
+    const headPhone = familyMembers[0]?.phone ?? "";
+    const unverified = familyMembers.find((member) => member.submission && !isClientSubmissionComplete(member.submission) && !contactVerification.getProof(member.submission.id, member.uploadIdempotencyKey, member.email, member.phone));
+    if (unverified?.submission) { contactVerification.edit(unverified.submission.id); return; }
     if ((headPhone.trim() && !normalizePhoneNumber(headPhone))
       || familyMembers.some((member) => member.phone.trim() && !normalizePhoneNumber(member.phone))) {
       setUploadError(PHONE_FORMAT_HELP);
@@ -1272,14 +1282,17 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setUploadError(null);
       setStep("SUBMITTING");
       for (const [index, member] of familyMembers.entries()) {
-        if (!member.submission) continue;
+        if (!member.submission || isClientSubmissionComplete(member.submission)) continue;
+        const contactProof = contactVerification.getProof(member.submission.id, member.uploadIdempotencyKey, member.email, member.phone);
+        if (!contactProof) throw { code: "CONTACT_VERIFICATION_REQUIRED", message: "Verify your WhatsApp number again before submitting." };
         const submitted = await submitClientReview({
           submissionId: member.submission.id,
           uploadSessionId: member.uploadIdempotencyKey,
           group_token: token,
           confirmed_fields: cleanReviewFields(member.reviewFields),
-          client_email: member.email.trim() || null,
-          client_phone: member.phone.trim() || null,
+          client_email: member.email.trim(),
+          client_phone: member.phone.trim(),
+          phone_verification_id: contactProof.id,
           departure_city: departureCity || null,
           base_city: member.baseCity.trim() || null,
           nearest_domestic_airport: member.nearestDomesticAirport.trim() || null,
@@ -1312,6 +1325,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setStep("SUCCESS");
     } catch (error: unknown) {
       setUploadError(submitErrorMessage(error));
+      if (isContactVerificationError(error)) familyMembers.forEach((member) => { if (member.submission) contactVerification.invalidate(member.submission.id); });
       setStep("FAMILY_REVIEW");
       if ([404, 410].includes(apiErrorStatus(error) ?? 0)) {
         await uploadLinksApi.getByToken(token).catch(setLinkError);
@@ -1456,6 +1470,8 @@ export function UploadFlow({ token }: UploadFlowProps) {
     return <ProcessingScreen title="Submitting Reviewed Details" description="Sending your reviewed information to your travel agency." />;
   }
 
+  if (contactVerification.page) return contactVerification.page;
+
   if (step === "REVIEW" && submission) {
     const verificationGate = passportDocumentVerificationGate(submission);
     const reviewAllowed = canReviewSubmission(submission);
@@ -1469,7 +1485,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
           ? "Please check every field carefully before submitting."
           : "The saved upload must be verified before any passport details can be reviewed or submitted."}
         documents={<SavedUploadDocuments submission={submission} token={token} uploadSessionId={singleUploadIdempotencyKey} />}
-        onBack={handleBackToUploadMethods}
+        onBack={() => contactVerification.edit(submission.id)}
       >
         {!reviewAllowed && !verificationGate.accepted ? (
           <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-xl shadow-slate-200/50 sm:p-6">
@@ -1504,19 +1520,8 @@ export function UploadFlow({ token }: UploadFlowProps) {
             {hasPassport ? <ReviewFields fields={reviewFields} onChange={handleReviewFieldChange} /> : (
               <label className="block space-y-2 text-sm font-semibold text-slate-700">Full name *<NameInput value={clientName} onChange={(value) => { setClientName(value); handleReviewFieldChange("given_names", value); }} /></label>
             )}
-            <ContactSection
-              email={clientEmail}
-              phone={clientPhone}
-              departureCity={departureCity}
-              departureCities={departureCities}
-              onEmail={setClientEmail}
-              onPhone={setClientPhone}
-              onDepartureCity={setDepartureCity}
-              title="Contact Details"
-              departureCityRequired={requiredField("departure_city")}
-              emailRequired
-              phoneRequired
-            />
+            <VerifiedContactSummary email={clientEmail} phone={clientPhone} onEdit={() => contactVerification.edit(submission.id)} />
+            {airportEnabled && <DepartureCitySelect value={departureCity} cities={departureCities} onChange={setDepartureCity} className="mt-4" required={requiredField("departure_city")} />}
             <ConfiguredClientFields
               config={uploadConfig}
               baseCityEnabled={baseCityEnabled}
@@ -1593,7 +1598,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
             const reviewAllowed = Boolean(member.submission && canReviewSubmission(member.submission));
             const hasPassport = Boolean(member.submission?.image_s3_key);
             return (
-              <section key={member.localId} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-xl shadow-slate-200/50 sm:rounded-3xl sm:p-5">
+              <fieldset key={member.localId} disabled={Boolean(member.submission && isClientSubmissionComplete(member.submission))} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-xl shadow-slate-200/50 sm:rounded-3xl sm:p-5">
               <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <h2 className="text-lg font-bold text-slate-900">{member.name}</h2>
@@ -1647,14 +1652,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
               </div>
               {reviewAllowed && (
                 <>
-                  <div className="mt-5 rounded-2xl border border-slate-100 bg-slate-50 p-3 sm:p-4">
-                    <h3 className="text-sm font-bold text-slate-900">Individual broadcast contact optional</h3>
-                    <p className="mt-1 text-xs leading-5 text-slate-500">Documents are sent to the WhatsApp number entered for each traveller. To use one family number, enter that same number for each member who should receive documents there. A number may be omitted for submission, but is needed before sending that member’s documents.</p>
-                    <div className="mt-3 grid min-w-0 gap-3 sm:grid-cols-2">
-                      <ContactInput icon={<Mail className="h-5 w-5" />} label="Member email" type="email" value={member.email} onChange={(value) => updateFamilyMember(index, { email: value })} />
-                      <ContactInput icon={<Phone className="h-5 w-5" />} label="Member WhatsApp active number" type="tel" value={member.phone} onChange={(value) => updateFamilyMember(index, { phone: value })} />
-                    </div>
-                  </div>
+                  <VerifiedContactSummary email={member.email} phone={member.phone} onEdit={() => { if (member.submission) contactVerification.edit(member.submission.id); }} />
                   <ConfiguredClientFields
               config={uploadConfig}
                     baseCityEnabled={baseCityEnabled}
@@ -1703,18 +1701,14 @@ export function UploadFlow({ token }: UploadFlowProps) {
                   />
                 </>
               )}
-            </section>
+            </fieldset>
             );
           })}
           {!hasBlockedFamilyVerification ? (
             <>
               <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-xl shadow-slate-200/50 sm:rounded-3xl sm:p-5">
                 <h2 className="text-lg font-bold text-slate-900">Head of family contact</h2>
-                <p className="mt-1 text-sm leading-6 text-slate-500">Provide the head of family contact. Tickets and visas are sent to each member’s entered WhatsApp number. To use one family number, enter it for each member who should receive documents there.</p>
-                <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  <ContactInput icon={<Mail className="h-5 w-5" />} label="Head email" type="email" value={headEmail} onChange={setHeadEmail} required />
-                  <ContactInput icon={<Phone className="h-5 w-5" />} label="Head WhatsApp active number" type="tel" value={headPhone} onChange={setHeadPhone} required />
-                </div>
+                <p className="mt-1 text-sm leading-6 text-slate-500">The first member’s verified email and WhatsApp number are used as the head of family contact. Tickets and visas are sent to each member’s verified number.</p>
                 {airportEnabled && (
                   <DepartureCitySelect value={departureCity} cities={departureCities} onChange={setDepartureCity} className="mt-4" required={requiredField("departure_city")} />
                 )}
@@ -1806,7 +1800,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
             <div className="animate-in fade-in slide-in-from-right-4 duration-500">
               <BackButton onClick={() => setStep("MODE_SELECT")} />
               <h3 className="mb-2 text-xl font-bold text-slate-900">Family Details</h3>
-              <p className="mb-5 text-sm leading-6 text-slate-500 sm:mb-6">Enter every member first. Member email and phone are optional for submission; a valid WhatsApp number for each member is needed before sending their tickets or visas. Head contact is required at final submit.</p>
+              <p className="mb-5 text-sm leading-6 text-slate-500 sm:mb-6">Enter every member first. After saving the documents, every member must provide an email and verify their WhatsApp number before filling further details. You may use the same family number for multiple members.</p>
               <form onSubmit={startFamilyUploads} className="space-y-4 sm:space-y-5">
                 <label className="space-y-1.5">
                   <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">How many people?</span>
@@ -1830,10 +1824,6 @@ export function UploadFlow({ token }: UploadFlowProps) {
                         <div className="grid min-w-0 gap-3 sm:grid-cols-2">
                           <SelectInput label="Relation" value={member.relation} values={FAMILY_RELATIONS} onChange={(value) => updateFamilyMember(index, { relation: value })} disabled={index === 0} />
                           <SelectInput label="Gender" value={member.gender} values={GENDERS} onChange={(value) => updateFamilyMember(index, { gender: value })} />
-                        </div>
-                        <div className="grid min-w-0 gap-3 sm:grid-cols-2">
-                          <ContactInput icon={<Mail className="h-5 w-5" />} label="Email optional" type="email" value={member.email} onChange={(value) => updateFamilyMember(index, { email: value })} />
-                          <ContactInput icon={<Phone className="h-5 w-5" />} label="WhatsApp number optional" type="tel" value={member.phone} onChange={(value) => updateFamilyMember(index, { phone: value })} />
                         </div>
                       </div>
                     </div>

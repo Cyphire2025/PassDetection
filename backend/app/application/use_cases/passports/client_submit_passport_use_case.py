@@ -179,6 +179,13 @@ class ClientSubmitPassportUseCase:
         normalized_head_email = family_head_email.lower().strip() if family_head_email and family_head_email.strip() else None
         normalized_head_phone = self._normalize_phone(family_head_phone) if family_head_phone and family_head_phone.strip() else None
 
+        # Public traveller contact collection is mandatory for single and family
+        # submissions, independently of historical optional-contact settings.
+        if not normalized_email:
+            raise ValidationError("Enter a valid email address.", field="client_email")
+        if not normalized_phone:
+            raise ValidationError("Enter a valid WhatsApp number.", field="client_phone")
+
         if normalized_mode == "single":
             if policies.require_client_email and not normalized_email:
                 raise ValidationError("Enter a valid email address.", field="client_email")

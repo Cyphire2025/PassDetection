@@ -53,6 +53,7 @@ export function useSubmitClientPassportReview() {
       confirmed_fields,
       client_email,
       client_phone,
+      phone_verification_id,
       departure_city,
       base_city,
       nearest_domestic_airport,
@@ -77,8 +78,9 @@ export function useSubmitClientPassportReview() {
       uploadSessionId: string;
       group_token: string;
       confirmed_fields: Record<string, string>;
-      client_email?: string | null;
-      client_phone?: string | null;
+      client_email: string;
+      client_phone: string;
+      phone_verification_id: string;
       departure_city?: string | null;
       base_city?: string | null;
       nearest_domestic_airport?: string | null;
@@ -104,6 +106,7 @@ export function useSubmitClientPassportReview() {
         confirmed_fields,
         client_email,
         client_phone,
+        phone_verification_id,
         departure_city,
         base_city,
         nearest_domestic_airport,

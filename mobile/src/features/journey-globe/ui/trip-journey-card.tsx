@@ -63,8 +63,8 @@ export const TripJourneyCard = memo(function TripJourneyCard({ trip, active }: {
           onPress={open}>
           <LinearGradient colors={['#092A3B', '#103F51', '#145166']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0.8 }} style={styles.card}>
             <View pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.globe}>
-              {!globeReady ? <View style={styles.placeholder}><Earth size={173} strokeWidth={0.6} color="#446D7B" /></View> : null}
-              <GlobeSurface route={route} mode="card" active={active && !bounds} reduceMotion={reduceMotion} onReady={ready} onError={failed} style={styles.fill} />
+              {!globeReady ? <View testID="journey-card-placeholder" style={styles.placeholder}><Earth size={173} strokeWidth={0.6} color="#446D7B" /></View> : null}
+              <GlobeSurface route={route} mode="card" active={active} paused={!!bounds} reduceMotion={reduceMotion} onReady={ready} onError={failed} onRelease={failed} style={styles.fill} />
             </View>
             <LinearGradient pointerEvents="none" colors={['rgba(9,42,59,0.4)', 'rgba(9,42,59,0)']} start={{ x: 0, y: 0.5 }} end={{ x: 0.8, y: 0.5 }} style={StyleSheet.absoluteFill} />
             <View style={styles.top}>

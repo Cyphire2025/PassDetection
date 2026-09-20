@@ -13,6 +13,7 @@ import { TripJourneyCard } from '../trip-journey-card';
 const mockZoomIn = jest.fn();
 const mockZoomOut = jest.fn();
 const mockReset = jest.fn();
+const mockTransitions = jest.fn();
 
 jest.mock('lucide-react-native/icons/arrow-right', () => () => null);
 jest.mock('lucide-react-native/icons/arrow-up-right', () => () => null);
@@ -55,12 +56,14 @@ jest.mock('react-native-reanimated', () => {
       value >= input[input.length - 1]! ? output[output.length - 1] : output[0]
     ),
     runOnJS: (callback: (...args: unknown[]) => unknown) => callback,
+    cancelAnimation: jest.fn(),
     useAnimatedStyle: (factory: () => unknown) => factory(),
     useSharedValue: (value: number) => React.useRef({
       value,
       set(next: number) { this.value = next; },
     }).current,
     withTiming: (value: number, _options: unknown, complete?: (finished: boolean) => void) => {
+      mockTransitions(value);
       complete?.(true);
       return value;
     },
@@ -79,6 +82,7 @@ jest.mock('../globe-surface', () => {
         testID: `mock-globe-${props.mode}`,
         accessibilityLabel: props.route?.destination.city ?? 'unmapped globe',
         accessibilityState: { disabled: !props.active },
+        ...{ paused: props.paused, onRelease: props.onRelease, onLoading: props.onLoading },
         onTouchEnd: props.onReady,
         onTouchCancel: props.onError,
       });
@@ -98,6 +102,7 @@ function trip(destination: string | null, id = 'trip-one'): Trip {
 }
 
 const bounds = { x: 20, y: 100, width: 340, height: 206, globeSize: 246 };
+const showModal = () => fireEvent(screen.getByTestId('journey-globe-modal'), 'show');
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -157,6 +162,7 @@ test('wires expanded controls to the globe handle and completes close once', asy
     <JourneyGlobeModal bounds={bounds} route={resolveJourneyRoute(trip('Dubai'))}
       title="Dubai" groupName="Leadership visit" reduceMotion onClose={onClose} />,
   );
+  await showModal();
   await fireEvent(screen.getByTestId('mock-globe-expanded'), 'touchEnd');
   await fireEvent.press(screen.getByRole('button', { name: 'Zoom in on globe' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Zoom out on globe' }));
@@ -177,6 +183,7 @@ test('still exposes route details and dismissal when the GPU boundary fails', as
     <JourneyGlobeModal bounds={bounds} route={resolveJourneyRoute(trip('Australia'))}
       title="Australia" groupName="Leadership visit" reduceMotion onClose={onClose} />,
   );
+  await showModal();
   await fireEvent(screen.getByTestId('mock-globe-expanded'), 'touchCancel');
   expect(screen.getByText(/Globe unavailable on this device/)).toBeOnTheScreen();
   expect(screen.getByText('Sydney')).toBeOnTheScreen();
@@ -185,12 +192,12 @@ test('still exposes route details and dismissal when the GPU boundary fails', as
   expect(onClose).toHaveBeenCalledTimes(1);
 });
 
-test('opens the unknown-destination fallback after readiness without inventing a route', async () => {
+test('opens the unknown-destination fallback without waiting for GPU readiness or inventing a route', async () => {
   const result = await render(
     <JourneyGlobeModal bounds={bounds} route={null} title="Atlantis"
       groupName="Leadership visit" reduceMotion onClose={jest.fn()} />,
   );
-  await fireEvent(screen.getByTestId('mock-globe-expanded'), 'touchEnd');
+  await showModal();
   expect(screen.getByText('A world to discover')).toBeOnTheScreen();
   expect(screen.queryByText('DEL')).toBeNull();
   await result.unmount();
@@ -202,6 +209,7 @@ test('a missing GL callback settles into usable fallback and late readiness reco
     <JourneyGlobeModal bounds={bounds} route={resolveJourneyRoute(trip('Singapore'))}
       title="Singapore" groupName="Leadership visit" reduceMotion onClose={jest.fn()} />,
   );
+  await showModal();
   await act(async () => { jest.advanceTimersByTime(1_500); });
   expect(screen.getByText(/Globe unavailable on this device/)).toBeOnTheScreen();
   expect(screen.getByText('SIN')).toBeOnTheScreen();
@@ -209,6 +217,80 @@ test('a missing GL callback settles into usable fallback and late readiness reco
   await fireEvent(screen.getByTestId('mock-globe-expanded'), 'touchEnd');
   expect(screen.queryByText(/Globe unavailable on this device/)).toBeNull();
   expect(screen.getByRole('button', { name: 'Zoom in on globe' })).toBeOnTheScreen();
+  expect(mockTransitions.mock.calls).toEqual([[1]]);
+});
+
+test('native presentation expands immediately and late readiness does not replay the animation', async () => {
+  await render(<JourneyGlobeModal bounds={bounds} route={resolveJourneyRoute(trip('Dubai'))}
+    title="Dubai" groupName="Leadership visit" reduceMotion={false} onClose={jest.fn()} />);
+  const globe = () => screen.getByTestId('mock-globe-expanded', { includeHiddenElements: true });
+  expect(globe().props.paused).toBe(true);
+  await act(async () => { jest.advanceTimersByTime(2_000); });
+  expect(mockTransitions).not.toHaveBeenCalled();
+  await showModal();
+  expect(globe().props.paused).toBe(false);
+  expect(screen.getByText('Preparing your globe…')).toBeOnTheScreen();
+  expect(screen.getByText('DXB')).toBeOnTheScreen();
+  await fireEvent(globe(), 'touchEnd');
+  await act(async () => { jest.advanceTimersByTime(2_000); });
+  expect(screen.queryByText(/Globe unavailable/)).toBeNull();
+  expect(mockTransitions.mock.calls).toEqual([[1]]);
+});
+
+test('close before native presentation ignores late show and readiness callbacks', async () => {
+  const onClose = jest.fn();
+  const result = await render(<JourneyGlobeModal bounds={bounds} route={null}
+    title="World" groupName="Leadership visit" reduceMotion={false} onClose={onClose} />);
+  const lateReady = screen.getByTestId('mock-globe-expanded', { includeHiddenElements: true }).props.onTouchEnd;
+  const lateShow = screen.getByTestId('journey-globe-modal').props.onShow;
+  await fireEvent.press(screen.getByRole('button', { name: 'Close journey globe' }));
+  await act(async () => { lateReady(); lateShow(); jest.advanceTimersByTime(2_000); });
+  expect(onClose).toHaveBeenCalledTimes(1);
+  expect(mockTransitions).not.toHaveBeenCalled();
+  await result.unmount();
+  await act(async () => { lateReady(); lateShow(); });
+  expect(mockTransitions).not.toHaveBeenCalled();
+});
+
+test('closing a loading globe clears fallback and late readiness cannot reopen it', async () => {
+  const onClose = jest.fn();
+  await render(<JourneyGlobeModal bounds={bounds} route={null}
+    title="World" groupName="Leadership visit" reduceMotion={false} onClose={onClose} />);
+  await showModal();
+  const lateReady = screen.getByTestId('mock-globe-expanded').props.onTouchEnd;
+  await fireEvent.press(screen.getByRole('button', { name: 'Close journey globe' }));
+  await act(async () => { lateReady(); jest.advanceTimersByTime(2_000); });
+  expect(onClose).toHaveBeenCalledTimes(1);
+  expect(mockTransitions.mock.calls).toEqual([[1], [0]]);
+  expect(screen.getByTestId('mock-globe-expanded', { includeHiddenElements: true }).props.paused).toBe(true);
+});
+
+test('actual card context release restores its loading placeholder', async () => {
+  await render(<TripJourneyCard trip={trip('Dubai')} active />);
+  const globe = () => screen.getByTestId('mock-globe-card', { includeHiddenElements: true });
+  await fireEvent(globe(), 'touchEnd');
+  expect(screen.queryByTestId('journey-card-placeholder', { includeHiddenElements: true })).toBeNull();
+  await fireEvent(globe(), 'release');
+  expect(screen.getByTestId('journey-card-placeholder', { includeHiddenElements: true })).toBeOnTheScreen();
+});
+
+test('a fresh context after backgrounding resets readiness and restarts only its fallback', async () => {
+  await render(<JourneyGlobeModal bounds={bounds} route={resolveJourneyRoute(trip('Dubai'))}
+    title="Dubai" groupName="Leadership visit" reduceMotion onClose={jest.fn()} />);
+  await showModal();
+  const globe = () => screen.getByTestId('mock-globe-expanded');
+  await fireEvent(globe(), 'touchEnd');
+  expect(screen.getByRole('button', { name: 'Zoom in on globe' })).toBeOnTheScreen();
+  await fireEvent(globe(), 'release');
+  await act(async () => { jest.advanceTimersByTime(2_000); });
+  expect(screen.queryByRole('button', { name: 'Zoom in on globe' })).toBeNull();
+  expect(screen.getByText('Preparing your globe…')).toBeOnTheScreen();
+  await fireEvent(globe(), 'loading');
+  await act(async () => { jest.advanceTimersByTime(1_500); });
+  expect(screen.getByText(/Globe unavailable/)).toBeOnTheScreen();
+  await fireEvent(globe(), 'touchEnd');
+  expect(screen.getByRole('button', { name: 'Zoom in on globe' })).toBeOnTheScreen();
+  expect(mockTransitions.mock.calls).toEqual([[1]]);
 });
 
 test('updates the card route and globe activity when its group or visibility changes', async () => {

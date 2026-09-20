@@ -150,3 +150,55 @@ test('imperative camera failures stop the globe and further controls become harm
   expect(onError).toHaveBeenCalledTimes(1);
   expect(screen.queryByTestId('native-gl-view', { includeHiddenElements: true })).toBeNull();
 });
+
+test('a covered card pauses frames but retains its native context until it becomes hidden', async () => {
+  const actual = rendererModule.createGlobeRenderer;
+  const setActive = jest.fn();
+  jest.spyOn(rendererModule, 'createGlobeRenderer').mockImplementation((...args) => {
+    const view = actual(...args);
+    return { ...view, setActive: (active) => { setActive(active); view.setActive(active); } };
+  });
+  const { gl, context } = globeTestContext();
+  const onReady = jest.fn(); const onRelease = jest.fn();
+  const surface = (active: boolean, paused: boolean) => <GlobeSurface route={testRoute} mode="card"
+    active={active} paused={paused} reduceMotion={false} onReady={onReady} onRelease={onRelease} />;
+  const result = await render(surface(true, false));
+  const originalCreate = nativeCallback();
+  await fireEvent(nativeView(), 'contextCreate', gl);
+  await result.rerender(surface(true, true));
+  expect(setActive).toHaveBeenLastCalledWith(false);
+  expect(nativeCallback()).toBe(originalCreate);
+  expect(context.deleteTexture).not.toHaveBeenCalled();
+  expect(onRelease).not.toHaveBeenCalled();
+  const drawn = context.endFrameEXP.mock.calls.length;
+  await act(async () => { jest.advanceTimersByTime(1_000); });
+  expect(context.endFrameEXP).toHaveBeenCalledTimes(drawn);
+  await result.rerender(surface(true, false));
+  expect(setActive).toHaveBeenLastCalledWith(true);
+  expect(onReady).toHaveBeenCalledTimes(1);
+  expect(nativeCallback()).toBe(originalCreate);
+  await result.rerender(surface(false, false));
+  expect(context.deleteTexture).toHaveBeenCalledTimes(1);
+  expect(onRelease).toHaveBeenCalledTimes(1);
+});
+
+test('a context created while paused presents one still frame and resumes without allocating again', async () => {
+  const { gl, context } = globeTestContext();
+  const onReady = jest.fn(); const onRelease = jest.fn();
+  const surface = (paused: boolean) => <GlobeSurface route={testRoute} mode="expanded" active
+    paused={paused} reduceMotion={false} onReady={onReady} onRelease={onRelease} />;
+  const result = await render(surface(true));
+  await fireEvent(nativeView(), 'contextCreate', gl);
+  expect(onReady).toHaveBeenCalledTimes(1);
+  const allocations = context.createBuffer.mock.calls.length;
+  const drawn = context.endFrameEXP.mock.calls.length;
+  await act(async () => { jest.advanceTimersByTime(500); });
+  expect(context.endFrameEXP).toHaveBeenCalledTimes(drawn);
+  await result.rerender(surface(false));
+  await act(async () => { jest.advanceTimersByTime(100); });
+  expect(context.endFrameEXP.mock.calls.length).toBeGreaterThan(drawn);
+  expect(context.createBuffer).toHaveBeenCalledTimes(allocations);
+  await act(async () => { appStateListener('background'); appStateListener('active'); });
+  expect(onRelease).toHaveBeenCalledTimes(1);
+  expect(context.deleteTexture).toHaveBeenCalledTimes(1);
+});
