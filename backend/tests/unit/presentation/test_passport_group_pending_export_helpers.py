@@ -338,6 +338,33 @@ def test_export_field_catalog_lists_only_selectable_whatsapp_columns() -> None:
     assert "whatsapp:email_id" not in by_key
 
 
+def test_export_field_catalog_excludes_phone_aliases_but_keeps_other_contact_metadata() -> None:
+    phone_labels = (
+        "Upload Phone",
+        "WhatsApp Phone",
+        "Verified WhatsApp Numbers",
+        "Mobile No.",
+        "Phone No",
+        "Telephone",
+        "Family Head Phone",
+        "Emergency Contact Number",
+    )
+    retained_labels = ("Smartphone Model", "Contact Preference", "Emergency Contact Name")
+    row = _match_row(
+        status="not_submitted",
+        recipient_fields=(
+            RecipientFieldSet(
+                recipient_id=uuid.uuid4(),
+                fields={label: "sample" for label in (*phone_labels, *retained_labels)},
+            ),
+        ),
+    )
+
+    catalog = _export_field_catalog(_group(), [row])
+
+    assert {field["label"] for field in catalog} == set(retained_labels)
+
+
 def test_agency_match_catalog_is_gated_and_includes_fixed_whatsapp_fields() -> None:
     group = _group()
     row = _match_row(

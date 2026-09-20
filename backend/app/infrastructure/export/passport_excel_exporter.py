@@ -18,10 +18,15 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
+from app.application.mobile.passenger_phone_authority import authoritative_submission_phone
 from app.domain.entities.entities import PassportSubmission
 from app.domain.value_objects.personnel_codes import (
     prefixed_agent_employee_code,
     prefixed_staff_code,
+)
+from app.infrastructure.export.passport_excel_phone_columns import (
+    VERIFIED_WHATSAPP_HEADER,
+    is_phone_export_field,
 )
 
 
@@ -67,7 +72,6 @@ _TRAVELLER_COLUMNS = (
         "ask_nearest_domestic_airport",
     ),
     _ExportColumn("WhatsApp Email", 28),
-    _ExportColumn("WhatsApp Phone", 18),
     _ExportColumn("Meal Preference", 18, "meal_preference_enabled"),
     _ExportColumn(
         "International Airport",
@@ -84,7 +88,7 @@ _TRAVELLER_COLUMNS = (
     _ExportColumn("Place of Issue", 22),
     _ExportColumn("Nationality", 22),
     _ExportColumn("Upload Email", 28),
-    _ExportColumn("Upload Phone", 18),
+    _ExportColumn(VERIFIED_WHATSAPP_HEADER, 28),
 )
 _COLUMNS = _PREFIX_COLUMNS + _TRAVELLER_COLUMNS
 _NAME_HISTORY_COLUMNS = (
@@ -147,7 +151,7 @@ def _excel_date_value(value: Any) -> Any:
 def _export_cell_value(column: _ExportColumn, value: Any) -> Any:
     if column.number_format:
         value = _excel_date_value(value)
-    if column.header == "WhatsApp Phone":
+    if column.header == VERIFIED_WHATSAPP_HEADER:
         value = _whatsapp_phone_value(value)
     return _safe_xlsx_value(value)
 
@@ -258,6 +262,7 @@ class PassportExcelExporter:
                 or str(field.get("key", "")).startswith("whatsapp:")
             )
             and field.get("label")
+            and not is_phone_export_field(str(field.get("key", "")), str(field["label"]))
         ]
         traveller_columns = self._enabled_traveller_columns(
             group_details,
@@ -453,7 +458,11 @@ class PassportExcelExporter:
 
             row_values: list[Any] = []
             for column in columns:
-                value = values.get(column.header)
+                # A roster recipient who has not submitted through the link
+                # cannot supply the completed-upload contact column.
+                value = (
+                    None if column.header == VERIFIED_WHATSAPP_HEADER else values.get(column.header)
+                )
                 row_values.append(_export_cell_value(column, value))
             worksheet.append(row_values)
             row_index += 1
@@ -593,7 +602,6 @@ class PassportExcelExporter:
             ),
             "Domestic Airport": submission.nearest_domestic_airport,
             "WhatsApp Email": whatsapp_contact.get("email"),
-            "WhatsApp Phone": whatsapp_contact.get("phone"),
             "International Airport": submission.departure_city,
             "SURNAME": _uppercase(fields.get("surname")),
             "GIVEN NAME": _uppercase(fields.get("given_names")),
@@ -608,7 +616,7 @@ class PassportExcelExporter:
             "Place of Issue": fields.get("place_of_issue"),
             "Nationality": _nationality_display_value(fields.get("nationality")),
             "Upload Email": submission.client_email,
-            "Upload Phone": submission.client_phone,
+            VERIFIED_WHATSAPP_HEADER: authoritative_submission_phone(submission),
         }
         row_metadata = (additional_values or {}).get(submission.id, {})
         custom_answers = {
@@ -687,7 +695,12 @@ class PassportExcelExporter:
 
         def add(key: str, label: str, source_label: str) -> None:
             normalized_label = " ".join(str(label).strip().split())
-            if not key or key in seen_keys or not normalized_label:
+            if (
+                not key
+                or key in seen_keys
+                or not normalized_label
+                or is_phone_export_field(key, normalized_label)
+            ):
                 return
             seen_keys.add(key)
             definitions.append((key, normalized_label[:120], source_label))

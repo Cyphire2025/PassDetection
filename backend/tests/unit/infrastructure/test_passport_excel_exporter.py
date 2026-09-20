@@ -819,32 +819,31 @@ def test_dynamic_export_can_omit_zone_and_group_by_another_saved_field() -> None
 
     assert "Zone Name" not in headers
     assert headers[4] == "Session"
-    assert headers[-1] == "Upload Phone"
+    assert headers[-1] == "Verified WhatsApp Numbers"
     assert worksheet.cell(row=5, column=headers.index("GIVEN NAME") + 1).value == "ALPHA"
     assert worksheet.cell(row=8, column=headers.index("GIVEN NAME") + 1).value == "BETA"
 
 
 @pytest.mark.parametrize(
-    ("whatsapp_phone", "expected"),
+    ("submitted_phone", "expected"),
     (
         ("+919876543210", "9876543210"),
-        ("'+919876543210", "9876543210"),
         ("+91 9876543210", "9876543210"),
         ("+91-9876543210", "9876543210"),
-        ("'+91 9876543210", "9876543210"),
-        ("'+91-9876543210", "9876543210"),
+        ("00919876543210", "9876543210"),
+        ("9876543210", "9876543210"),
         ("+12025550123", "'+12025550123"),
-        ("919876543210", "919876543210"),
+        ("919876543210", "9876543210"),
     ),
 )
-def test_export_removes_only_explicit_india_code_from_whatsapp_phone(
-    whatsapp_phone: str,
+def test_export_uses_only_the_completed_upload_phone_with_existing_whatsapp_formatting(
+    submitted_phone: str,
     expected: str,
 ) -> None:
     group_id = uuid.uuid4()
     submission = _submission(
         group_id,
-        client_phone="+919111111111",
+        client_phone=submitted_phone,
     )
 
     worksheet = _worksheet(
@@ -860,15 +859,19 @@ def test_export_removes_only_explicit_india_code_from_whatsapp_phone(
             whatsapp_contacts={
                 submission.id: {
                     "email": "broadcast@example.com",
-                    "phone": whatsapp_phone,
+                    "phone": "+919111111111",
                 }
             },
         )
     )
-    _, values = _row_values(worksheet)
+    headers, values = _row_values(worksheet)
 
-    assert values["WhatsApp Phone"] == expected
-    assert values["Upload Phone"] == "'+919111111111"
+    assert headers.count("Verified WhatsApp Numbers") == 1
+    assert "WhatsApp Phone" not in headers
+    assert "Upload Phone" not in headers
+    assert values["Verified WhatsApp Numbers"] == expected
+    cell = worksheet.cell(row=5, column=headers.index("Verified WhatsApp Numbers") + 1)
+    assert cell.data_type == "s"
 
 
 @pytest.mark.parametrize(
@@ -880,7 +883,7 @@ def test_export_removes_only_explicit_india_code_from_whatsapp_phone(
         "'+91-9222222222",
     ),
 )
-def test_pending_whatsapp_phone_uses_the_same_india_code_normalization(
+def test_pending_recipient_never_supplies_a_verified_whatsapp_number(
     pending_phone: str,
 ) -> None:
     group_id = uuid.uuid4()
@@ -899,6 +902,7 @@ def test_pending_whatsapp_phone_uses_the_same_india_code_normalization(
                     "GIVEN NAME": "Pending Traveller",
                     "WhatsApp Phone": pending_phone,
                     "Upload Phone": "+919333333333",
+                    "Verified WhatsApp Numbers": "+919444444444",
                 }
             ],
         )
@@ -914,14 +918,84 @@ def test_pending_whatsapp_phone_uses_the_same_india_code_normalization(
         == "Pending Traveller"
     )
 
+    assert "WhatsApp Phone" not in headers
+    assert "Upload Phone" not in headers
     assert worksheet.cell(
         row=pending_row,
-        column=headers.index("WhatsApp Phone") + 1,
-    ).value == "9222222222"
-    assert worksheet.cell(
-        row=pending_row,
-        column=headers.index("Upload Phone") + 1,
-    ).value == "'+919333333333"
+        column=headers.index("Verified WhatsApp Numbers") + 1,
+    ).value is None
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    (
+        ("legacy_public_link", "9876543210"),
+        ("missing_phone", None),
+        ("unsubmitted", None),
+        ("excel_image", None),
+        ("excel_metadata", None),
+        ("import_then_public_link", "9876543210"),
+    ),
+)
+def test_verified_whatsapp_column_requires_a_completed_public_link_contact(source, expected) -> None:
+    group_id = uuid.uuid4()
+    submission = _submission(group_id)
+    submission.family_head_phone = "+919555555555"
+    if source == "missing_phone":
+        submission.client_phone = None
+    elif source == "unsubmitted":
+        submission.client_reviewed_at = None
+    elif source == "excel_image":
+        submission.image_s3_key = "excel-imports/roster/row-1"
+    elif source in {"excel_metadata", "import_then_public_link"}:
+        submission.confidence_score = {"source": "excel_import"}
+        if source == "import_then_public_link":
+            submission.staff_metadata = {"client_collection_submitted": "public_group_link_v1"}
+
+    _, values = _row_values(_worksheet(PassportExcelExporter().export_group(
+        [submission],
+        group_name="Contact Provenance",
+        whatsapp_contacts={submission.id: {"phone": "+919111111111"}},
+    )))
+
+    assert values["Verified WhatsApp Numbers"] == expected
+
+
+def test_imported_and_custom_phone_columns_cannot_duplicate_or_replace_the_link_contact() -> None:
+    group_id = uuid.uuid4()
+    submission = _submission(group_id)
+    question_id, detail_id = uuid.uuid4(), uuid.uuid4()
+    submission.custom_answers = [{
+        "question_id": str(question_id), "label": "Alternate Phone Number", "value": "9999999999",
+    }]
+    submission.custom_detail_answers = [{
+        "detail_id": str(detail_id), "label": "Verified WhatsApp Numbers", "value": "8888888888",
+    }]
+    imported_fields = [
+        {"key": "whatsapp:mobile_number", "label": "Mobile Number"},
+        {"key": "whatsapp:upload_phone", "label": "Upload Phone"},
+        {"key": "whatsapp:whatsapp_phone", "label": "WhatsApp Phone"},
+        {"key": "whatsapp:verified_whatsapp_numbers", "label": "Verified WhatsApp Numbers"},
+        {"key": "whatsapp:phone_no", "label": "Old Phone No"},
+        {"key": "whatsapp:department", "label": "Department"},
+    ]
+    worksheet = _worksheet(PassportExcelExporter().export_group(
+        [submission],
+        group_name="One Phone Column",
+        additional_fields=imported_fields,
+        additional_values={submission.id: {
+            field["key"]: "Sales" if field["label"] == "Department" else "7777777777"
+            for field in imported_fields
+        }},
+    ))
+    headers, values = _row_values(worksheet)
+
+    assert [header for header in headers if "phone" in header.casefold()
+            or "mobile" in header.casefold() or "whatsapp number" in header.casefold()] == [
+        "Verified WhatsApp Numbers",
+    ]
+    assert values["Verified WhatsApp Numbers"] == "9876543210"
+    assert values["Department"] == "Sales"
 
 
 def test_export_uses_the_requested_exact_column_order() -> None:
@@ -1032,7 +1106,6 @@ def test_export_uses_the_requested_exact_column_order() -> None:
         "Base City",
         "Domestic Airport",
         "WhatsApp Email",
-        "WhatsApp Phone",
         "Meal Preference",
         "International Airport",
         "SURNAME",
@@ -1045,15 +1118,14 @@ def test_export_uses_the_requested_exact_column_order() -> None:
         "Place of Issue",
         "Nationality",
         "Upload Email",
-        "Upload Phone",
+        "Verified WhatsApp Numbers",
         "Activity",
         "Badge name",
     ]
     assert values["Age Group"] == "Adult"
     assert values["WhatsApp Email"] == "broadcast@example.com"
-    assert values["WhatsApp Phone"] == "9000000001"
     assert values["Upload Email"] == "traveller@example.com"
-    assert values["Upload Phone"] == "9876543210"
+    assert values["Verified WhatsApp Numbers"] == "9876543210"
     assert values["Activity"] == "Workshop"
     assert values["Badge name"] == "Nipun S."
     assert "Agent/Employee Code" not in headers

@@ -34,6 +34,7 @@ from app.infrastructure.export.passport_excel_exporter import (
     PassportExcelExporter,
     passport_age_group,
 )
+from app.infrastructure.export.passport_excel_phone_columns import is_phone_export_field
 from app.infrastructure.repositories.passport_export_history_repository import (
     PassportExportKind,
     PassportExportMode,
@@ -973,7 +974,11 @@ def _export_field_catalog(
         for field_set in row.recipient_fields:
             for raw_key in field_set.fields:
                 normalized = _normalized_imported_field_key(str(raw_key))
-                if not normalized or normalized in _FIXED_IMPORTED_EXPORT_KEYS:
+                if (
+                    not normalized
+                    or normalized in _FIXED_IMPORTED_EXPORT_KEYS
+                    or is_phone_export_field(normalized, str(raw_key))
+                ):
                     continue
                 if normalized in _ZONE_IMPORTED_KEYS:
                     imported_labels["zone_name"] = "Zone Name"
