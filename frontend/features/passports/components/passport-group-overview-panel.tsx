@@ -290,7 +290,7 @@ export function PassportGroupOverviewPanel({
       )}
       {!includeDeleted && groupDetails && !error && (
         <>
-          {canAccessWhatsApp && (
+          {canAccessWhatsApp && !groupDetails.import_only && (
             <GroupWhatsAppBroadcastPanel groupId={groupId} />
           )}
           <GroupDocumentDeliveryPanel groupId={groupId} />

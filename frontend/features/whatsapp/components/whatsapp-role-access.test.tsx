@@ -9,7 +9,7 @@ import {
 import { useAuthStore } from "@/stores/auth.store";
 import type { User, UserRole } from "@/types";
 
-const { router, links, updateLinks, idleMutation } = vi.hoisted(() => ({
+const { router, links, updateLinks, idleMutation, passportGroups } = vi.hoisted(() => ({
   router: { replace: vi.fn(), prefetch: vi.fn() },
   links: {
     can_manage: true,
@@ -19,6 +19,7 @@ const { router, links, updateLinks, idleMutation } = vi.hoisted(() => ({
   },
   updateLinks: { mutate: vi.fn(), isPending: false },
   idleMutation: { mutate: vi.fn(), isPending: false },
+  passportGroups: { data: [{ group_id: "group-1", import_only: false }], isLoading: false, isError: false },
 }));
 
 vi.mock("next/navigation", () => ({
@@ -36,6 +37,7 @@ vi.mock("@/features/passports/hooks/use-upload-links", () => ({
 }));
 vi.mock("@/features/passports/hooks/use-passports", () => ({
   useExportWhatsAppTracking: () => idleMutation,
+  usePassportGroups: () => passportGroups,
 }));
 vi.mock("@/features/passports/components/whatsapp-broadcast-selector", () => ({
   WhatsAppBroadcastSelector: ({ onChange }: { onChange: (ids: string[]) => void }) => (
@@ -56,6 +58,9 @@ beforeEach(() => {
   updateLinks.mutate.mockReset();
   links.can_manage = true;
   links.broadcast_count = 1;
+  passportGroups.data = [{ group_id: "group-1", import_only: false }];
+  passportGroups.isLoading = false;
+  passportGroups.isError = false;
   signIn("agency_staff");
 });
 
@@ -72,6 +77,23 @@ describe("staff WhatsApp access", () => {
     render(<GroupWhatsAppBroadcastTrackingPage groupId="group-1" />);
     expect(screen.getByRole("heading", { name: "WhatsApp Submission Tracking" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Manage broadcasts" })).toBeEnabled();
+    expect(router.replace).not.toHaveBeenCalled();
+  });
+
+  it("redirects an import-only group's direct tracking URL without showing tracking controls", () => {
+    passportGroups.data = [{ group_id: "group-1", import_only: true }];
+    render(<GroupWhatsAppBroadcastTrackingPage groupId="group-1" />);
+    expect(screen.queryByRole("heading", { name: "WhatsApp Submission Tracking" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Manage broadcasts" })).not.toBeInTheDocument();
+    expect(router.replace).toHaveBeenCalledWith("/passports/groups/group-1");
+  });
+
+  it("waits for group details before rendering any tracking controls", () => {
+    passportGroups.data = [];
+    passportGroups.isLoading = true;
+    render(<GroupWhatsAppBroadcastTrackingPage groupId="group-1" />);
+    expect(screen.queryByRole("heading", { name: "WhatsApp Submission Tracking" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Manage broadcasts" })).not.toBeInTheDocument();
     expect(router.replace).not.toHaveBeenCalled();
   });
 

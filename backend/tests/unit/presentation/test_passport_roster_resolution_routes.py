@@ -25,11 +25,13 @@ def _isolate_mobile_passenger_reconciliation(monkeypatch: pytest.MonkeyPatch) ->
         "reconcile_mobile_passenger_access_for_group",
         AsyncMock(),
     )
+    monkeypatch.setattr(client_groups, "sync_group_broadcast_contacts", AsyncMock())
 
 
 def _scalar_result(value: object) -> MagicMock:
     result = MagicMock()
     result.scalar_one_or_none.return_value = value
+    result.scalar_one.return_value = value
     return result
 
 
@@ -486,14 +488,17 @@ async def test_linked_broadcast_cannot_be_removed_while_replacement_is_active() 
     group_id = uuid.uuid4()
     agency_id = uuid.uuid4()
     broadcast_id = uuid.uuid4()
-    existing_links_result = MagicMock()
-    existing_links_result.all.return_value = [(broadcast_id, None)]
+    existing_links_result = _scalars_result([SimpleNamespace(
+        broadcast_group_id=broadcast_id,
+        matching_field_keys=None,
+        sync_contacts_from_group=False,
+    )])
     active_replacement_result = MagicMock()
     active_replacement_result.scalar_one_or_none.return_value = uuid.uuid4()
     session = MagicMock()
     session.execute = AsyncMock(
         side_effect=[
-            MagicMock(),
+            _scalar_result(SimpleNamespace(import_only=False)),
             existing_links_result,
             active_replacement_result,
         ]
@@ -542,12 +547,11 @@ async def test_newly_linked_broadcast_is_reconciled_against_active_replacements(
     group_id = uuid.uuid4()
     agency_id = uuid.uuid4()
     broadcast_id = uuid.uuid4()
-    existing_links_result = MagicMock()
-    existing_links_result.all.return_value = []
+    existing_links_result = _scalars_result([])
     session = MagicMock()
     session.execute = AsyncMock(
         side_effect=[
-            MagicMock(),
+            _scalar_result(SimpleNamespace(import_only=False)),
             existing_links_result,
             MagicMock(),
         ]

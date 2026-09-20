@@ -3,6 +3,8 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime, timedelta
 
+import pytest
+
 from app.application.use_cases.whatsapp.group_submission_matching import (
     RecipientForComparison,
     SubmissionForComparison,
@@ -10,6 +12,7 @@ from app.application.use_cases.whatsapp.group_submission_matching import (
     filter_and_sort_match_rows,
     summarize_match_rows,
 )
+from app.application.use_cases.whatsapp.private_delivery_identity import is_private_delivery_match
 
 NOW = datetime(2026, 7, 20, 12, tzinfo=UTC)
 
@@ -47,6 +50,7 @@ def _submission(
     staff_metadata: dict[str, object] | None = None,
     custom_answers: tuple[dict[str, object], ...] = (),
     custom_detail_answers: tuple[dict[str, object], ...] = (),
+    has_public_collection_contact: bool = False,
 ) -> SubmissionForComparison:
     return SubmissionForComparison(
         id=uuid.uuid4(),
@@ -61,6 +65,7 @@ def _submission(
         staff_metadata=staff_metadata or {},
         custom_answers=custom_answers,
         custom_detail_answers=custom_detail_answers,
+        has_public_collection_contact=has_public_collection_contact,
     )
 
 
@@ -108,6 +113,41 @@ def test_current_public_phone_still_matches_source_broadcast_with_old_imported_c
     assert rows[0].status == "submitted"
     assert rows[0].submission_ids == (submission.id,)
     assert counts.submitted_count == 1
+
+
+@pytest.mark.parametrize("metadata", [
+    {"upload_phone": "9876543210", "mobile_number": "9123456789", "whatsapp_phone": "9000000000"},
+    {"mobile_number": "9123456789", "whatsapp_phone": "9000000000", "upload_phone": "9876543210"},
+])
+def test_legacy_upload_source_matches_independently_of_generic_phone_column_order(metadata) -> None:
+    recipient = _recipient("+919876543210", matching_field_keys=("phone_number",))
+    submission = _submission(staff_metadata=metadata)
+    rows, counts = compare_group_submissions([recipient], [submission])
+    assert rows[0].status == "submitted"
+    assert counts.submitted_count == 1
+
+
+@pytest.mark.parametrize("verified", ["9123456789", "invalid", ""])
+def test_stale_upload_phone_cannot_be_private_evidence_when_verified_column_exists(verified) -> None:
+    recipient = _recipient("+919876543210", matching_field_keys=("phone_number",))
+    submission = _submission(staff_metadata={
+        "verified_whatsapp_numbers": verified, "upload_phone": "9876543210",
+    })
+    rows, _ = compare_group_submissions([recipient], [submission])
+    assert not any(is_private_delivery_match(row) for row in rows)
+    assert not any(row.status == "submitted" for row in rows)
+
+
+@pytest.mark.parametrize("current_phone", ["9123456789", "invalid", None])
+def test_old_imported_contacts_cannot_be_private_evidence_after_public_contact_change(current_phone) -> None:
+    recipient = _recipient("+919876543210", matching_field_keys=("phone_number",))
+    submission = _submission(
+        client_phone=current_phone, has_public_collection_contact=True,
+        staff_metadata={"verified_whatsapp_numbers": "9876543210", "upload_phone": "9876543210"},
+    )
+    rows, _ = compare_group_submissions([recipient], [submission])
+    assert not any(is_private_delivery_match(row) for row in rows)
+    assert not any(row.status == "submitted" for row in rows)
 
 
 def test_family_head_phone_matches_and_multiple_submissions_stay_visible() -> None:

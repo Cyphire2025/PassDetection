@@ -67,6 +67,7 @@ import { WhatsAppBroadcastSelector } from "./whatsapp-broadcast-selector";
 import { groupWhatsAppEvidenceLabel } from "./whatsapp-match-evidence";
 import { broadcastMatchingSummary } from "./whatsapp-match-field-selector";
 import { matchExplanation } from "./whatsapp-match-description";
+import { GroupWhatsAppTrackingGate } from "./group-whatsapp-tracking-gate";
 
 type MatchFilter = "all" | GroupWhatsAppMatchStatus;
 
@@ -140,6 +141,7 @@ export function GroupWhatsAppBroadcastTrackingPage({
   if (!hasHydrated || !canAccessWhatsApp) return null;
 
   return (
+    <GroupWhatsAppTrackingGate groupId={groupId}>
     <div className="space-y-5">
       <WorkspacePageHeader
         title="WhatsApp Submission Tracking"
@@ -158,6 +160,7 @@ export function GroupWhatsAppBroadcastTrackingPage({
       />
       <GroupWhatsAppBroadcastWorkspace groupId={groupId} mode="tracking" />
     </div>
+    </GroupWhatsAppTrackingGate>
   );
 }
 

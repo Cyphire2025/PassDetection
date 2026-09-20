@@ -81,13 +81,14 @@ export function WhatsAppBroadcastList({
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <h3 className="font-semibold text-slate-950">{group.name}</h3>
+                    {group.has_import_only_source && <ImportOnlySourceBadge />}
                     <p className="mt-1 text-xs text-slate-500">{archived ? "Archived" : "Updated"} {formatDateTime(archived ? group.archived_at ?? group.updated_at : group.updated_at)}</p>
                   </div>
                   {renderActions(group, "mobile")}
                 </div>
-                <p className="mt-3 text-sm text-slate-700">{group.total_contact_count.toLocaleString()} total contacts</p>
-                <p className="mt-1 text-xs text-slate-500">{archived ? "Read-only · restore to edit or send messages" : `${group.recipient_count.toLocaleString()} eligible to receive`}</p>
-                {!archived && group.total_contact_count !== group.recipient_count && <p className="mt-2 text-xs text-amber-700">{(group.total_contact_count - group.recipient_count).toLocaleString()} contact exceptions require review</p>}
+                <p className="mt-3 text-sm text-slate-700">{(group.source_contact_count ?? 0) > 0 ? `${group.source_contact_count!.toLocaleString()} travellers` : `${group.total_contact_count.toLocaleString()} total contacts`}</p>
+                <p className="mt-1 text-xs text-slate-500">{archived ? "Read-only · restore to edit or send messages" : `${group.recipient_count.toLocaleString()} ${(group.source_contact_count ?? 0) > 0 ? "delivery numbers" : "eligible to receive"}`}</p>
+                {!archived && !group.source_contact_count && group.total_contact_count !== group.recipient_count && <p className="mt-2 text-xs text-amber-700">{(group.total_contact_count - group.recipient_count).toLocaleString()} contact exceptions require review</p>}
               </article>
             ))}
           </div>
@@ -107,13 +108,14 @@ export function WhatsAppBroadcastList({
                   <tr key={group.id} className="transition-colors hover:bg-slate-50/70">
                     <td className="px-5 py-4">
                       <div className="font-medium text-slate-900">{group.name}</div>
+                      {group.has_import_only_source && <ImportOnlySourceBadge />}
                       <div className="mt-1 text-xs text-slate-500">{archived ? <span className="inline-flex items-center gap-1"><Archive className="h-3 w-3" />Archived · read-only</span> : "Used in approved trip wording"}</div>
                     </td>
                     <td className="px-5 py-4 text-slate-700">
-                      <span className="inline-flex items-center gap-1.5 font-medium"><Users className="h-4 w-4 text-slate-400" />{group.total_contact_count.toLocaleString()} total contacts</span>
+                      <span className="inline-flex items-center gap-1.5 font-medium"><Users className="h-4 w-4 text-slate-400" />{(group.source_contact_count ?? 0) > 0 ? `${group.source_contact_count!.toLocaleString()} travellers` : `${group.total_contact_count.toLocaleString()} total contacts`}</span>
                       {archived ? <p className="mt-1 text-xs text-slate-500">Delivery history retained</p> : <>
-                        <p className="mt-1 text-xs text-emerald-700">{group.recipient_count.toLocaleString()} eligible to receive</p>
-                        {group.total_contact_count !== group.recipient_count && <p className="mt-1 text-xs text-amber-700">{(group.total_contact_count - group.recipient_count).toLocaleString()} contact exceptions</p>}
+                        <p className="mt-1 text-xs text-emerald-700">{group.recipient_count.toLocaleString()} {(group.source_contact_count ?? 0) > 0 ? "delivery numbers" : "eligible to receive"}</p>
+                        {!group.source_contact_count && group.total_contact_count !== group.recipient_count && <p className="mt-1 text-xs text-amber-700">{(group.total_contact_count - group.recipient_count).toLocaleString()} contact exceptions</p>}
                       </>}
                     </td>
                     <td className="px-5 py-4 text-slate-600">{formatDateTime(archived ? group.archived_at ?? group.updated_at : group.updated_at)}</td>
@@ -138,4 +140,8 @@ export function WhatsAppBroadcastList({
       </div>
     </section>
   );
+}
+
+function ImportOnlySourceBadge() {
+  return <span className="mt-1.5 inline-flex rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">Import only</span>;
 }

@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiErrorStatus } from "@/lib/api/error-status";
 import { QUERY_KEYS as DASHBOARD_QUERY_KEYS } from "@/constants";
 import type { PassportGroupSummary } from "@/types/passport.types";
+import { invalidateWhatsAppSourceGroups } from "@/features/whatsapp/utils/source-group-cache";
 import {
   uploadLinksApi,
   type CreateUploadLinkRequest,
@@ -57,9 +58,10 @@ export function useCreateUploadLink() {
 
   return useMutation({
     mutationFn: (data: CreateUploadLinkRequest) => uploadLinksApi.create(data),
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
       queryClient.invalidateQueries({ queryKey: DASHBOARD_QUERY_KEYS.passports.groups() });
+      return invalidateWhatsAppSourceGroups(queryClient, response.id);
     },
   });
 }
@@ -69,8 +71,9 @@ export function useRevokeUploadLink() {
 
   return useMutation({
     mutationFn: (id: string) => uploadLinksApi.revoke(id),
-    onSuccess: () => {
+    onSuccess: (_response, id) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
+      return invalidateWhatsAppSourceGroups(queryClient, id);
     },
   });
 }
@@ -80,8 +83,9 @@ export function useDeleteUploadLink() {
 
   return useMutation({
     mutationFn: (id: string) => uploadLinksApi.delete(id),
-    onSuccess: () => {
+    onSuccess: (_response, id) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
+      return invalidateWhatsAppSourceGroups(queryClient, id);
     },
   });
 }
@@ -104,6 +108,7 @@ export function useUpdateUploadLink() {
         } : group),
       );
       await Promise.all([
+        invalidateWhatsAppSourceGroups(queryClient, variables.id),
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all }),
         queryClient.invalidateQueries({ queryKey: DASHBOARD_QUERY_KEYS.passports.groups() }),
         queryClient.invalidateQueries({ queryKey: ["passport-export-fields", variables.id] }),
@@ -242,6 +247,7 @@ export function useRejectUnidentifiedUpload(id: string) {
       queryClient.invalidateQueries({
         queryKey: ["passport-export-history", id],
       });
+      return invalidateWhatsAppSourceGroups(queryClient, id);
     },
   });
 }
@@ -277,8 +283,9 @@ export function usePermanentlyDeleteUploadLink() {
   return useMutation({
     mutationFn: ({ id, retainRecords }: { id: string; retainRecords: boolean }) =>
       uploadLinksApi.permanentDelete(id, retainRecords),
-    onSuccess: () => {
+    onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
+      return invalidateWhatsAppSourceGroups(queryClient, variables.id);
     },
   });
 }
@@ -288,8 +295,9 @@ export function useRestoreUploadLink() {
 
   return useMutation({
     mutationFn: (id: string) => uploadLinksApi.restore(id),
-    onSuccess: () => {
+    onSuccess: (_response, id) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
+      return invalidateWhatsAppSourceGroups(queryClient, id);
     },
   });
 }

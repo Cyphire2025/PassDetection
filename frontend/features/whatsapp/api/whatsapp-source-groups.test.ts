@@ -7,6 +7,13 @@ import { whatsappSourceGroupsApi } from "./whatsapp-source-groups.api";
 beforeEach(() => { vi.clearAllMocks(); });
 
 describe("create broadcast from source group API", () => {
+  it("loads the full traveller roster for an existing broadcast", async () => {
+    const response = { sources: [], contacts: [], total_contacts: 377, unique_phone_count: 366, needs_attention_count: 2, shared_phone_count: 9 };
+    get.mockResolvedValue({ data: response });
+    const controller = new AbortController();
+    expect(await whatsappSourceGroupsApi.groupContacts("broadcast-a", controller.signal)).toEqual(response);
+    expect(get).toHaveBeenCalledWith("/api/v1/whatsapp/groups/broadcast-a/source-contacts", { signal: controller.signal });
+  });
   it("requests scoped source groups and propagates cancellation", async () => {
     const groups = [{ id: "source-a", name: "September trip", submission_count: 4 }];
     get.mockResolvedValue({ data: groups });

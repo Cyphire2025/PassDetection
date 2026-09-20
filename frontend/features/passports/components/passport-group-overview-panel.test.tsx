@@ -8,7 +8,7 @@ import { TripDetailsDialog, type TripDetailsForm } from "./passport-trip-details
 
 vi.mock("./passport-group-bindings", () => ({
   GroupDocumentDeliveryPanel: () => null,
-  GroupWhatsAppBroadcastPanel: () => null,
+  GroupWhatsAppBroadcastPanel: () => <section aria-label="WhatsApp broadcasts">Broadcast tracking</section>,
 }));
 
 const group: PassportGroupSummary = {
@@ -46,6 +46,15 @@ function OverviewEditorHarness({ source, onSave }: { source: PassportGroupSummar
 }
 
 describe("trip settings summary and editor", () => {
+  it("hides the entire broadcast section for import-only groups", () => {
+    render(<PassportGroupOverviewPanel {...overviewProps({ ...group, import_only: true })} canAccessWhatsApp />);
+    expect(screen.queryByRole("region", { name: "WhatsApp broadcasts" })).not.toBeInTheDocument();
+  });
+
+  it("keeps broadcast tracking available for normal passport groups", () => {
+    render(<PassportGroupOverviewPanel {...overviewProps({ ...group, import_only: false })} canAccessWhatsApp />);
+    expect(screen.getByRole("region", { name: "WhatsApp broadcasts" })).toBeInTheDocument();
+  });
   it("keeps import group editing limited to trip details and clears stale collection settings", () => {
     const onSave = vi.fn();
     render(<OverviewEditorHarness source={{ ...group, import_only: true }} onSave={onSave} />);

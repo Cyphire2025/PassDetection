@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants";
+import { invalidateWhatsAppSourceGroups } from "@/features/whatsapp/utils/source-group-cache";
 import type { StaffApprovalRequest } from "@/types/passport.types";
 import { passportsApi } from "../api/passports.api";
 import type {
@@ -136,6 +137,7 @@ export function useImportPassportGroup(groupId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.passports.all });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats });
+      return invalidateWhatsAppSourceGroups(queryClient, groupId);
     },
   });
 }
@@ -153,6 +155,8 @@ export function useSavePassportDocuments(groupId: string) {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.passports.groupDetail(groupId, {}) });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats });
     },
+    // A later chunk can fail after earlier records have already been saved.
+    onSettled: () => invalidateWhatsAppSourceGroups(queryClient, groupId),
   });
 }
 
@@ -201,6 +205,7 @@ export function useBulkDeletePassportSubmissions(groupId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.passports.all });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats });
+      return invalidateWhatsAppSourceGroups(queryClient, groupId);
     },
   });
 }
@@ -215,6 +220,7 @@ export function useBulkStaffApprovePassportSubmissions(groupId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.passports.all });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats });
+      return invalidateWhatsAppSourceGroups(queryClient, groupId);
     },
   });
 }
@@ -263,6 +269,7 @@ export function useConfirmPassportSubmission(id: string) {
       queryClient.setQueryData(QUERY_KEYS.passports.detail(id), updated);
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.passports.all });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats });
+      return invalidateWhatsAppSourceGroups(queryClient, updated.group_id);
     },
   });
 }
@@ -284,6 +291,7 @@ export function useStaffApprovePassportSubmission(id: string) {
       });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.passports.all });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats });
+      return invalidateWhatsAppSourceGroups(queryClient, result.submission.group_id);
     },
     onError: (error) => {
       const feedback = getStaffApprovalErrorFeedback(error);
@@ -308,6 +316,7 @@ export function useRetryPassportAiVerification(id: string) {
       queryClient.setQueryData(QUERY_KEYS.passports.detail(id), updated);
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.passports.all });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats });
+      return invalidateWhatsAppSourceGroups(queryClient, updated.group_id);
     },
   });
 }
@@ -325,6 +334,7 @@ export function useReextractPassportSubmission() {
       queryClient.setQueryData(QUERY_KEYS.passports.detail(updated.id), updated);
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.passports.all });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats });
+      return invalidateWhatsAppSourceGroups(queryClient, updated.group_id);
     },
   });
 }

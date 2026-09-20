@@ -22,6 +22,58 @@ from app.infrastructure.database.gc_mobile_models import (
 from app.infrastructure.database.models import PassportSubmissionModel
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("change_kind", "operation", "explicit_sync", "expected_calls"),
+    [
+        ("profile", "upsert", False, 1),
+        ("documents", "upsert", True, 1),
+        ("documents", "delete", True, 1),
+        ("documents", "delete", False, 0),
+        ("documents", "upsert", False, 0),
+    ],
+)
+async def test_source_contacts_follow_roster_mutations_without_mobile_access(
+    db_session, monkeypatch, change_kind, operation, explicit_sync, expected_calls,
+) -> None:
+    sync = AsyncMock()
+    monkeypatch.setattr(propagation_module, "sync_group_broadcast_contacts", sync)
+    agency_id, group_id, actor_id = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
+
+    result = await propagate_mobile_passenger_change(
+        db_session,
+        agency_id=agency_id,
+        group_id=group_id,
+        passenger_submission_ids=[uuid.uuid4()],
+        actor_user_id=actor_id,
+        change_kind=change_kind,
+        operation=operation,
+        sync_broadcast_contacts=explicit_sync,
+    )
+
+    assert result.enabled is False
+    assert result.sync_changes == 0
+    assert sync.await_count == expected_calls
+    if expected_calls:
+        sync.assert_awaited_once_with(
+            db_session, agency_id=agency_id, group_id=group_id, actor_user_id=actor_id,
+        )
+
+
+@pytest.mark.asyncio
+async def test_broadcast_edits_do_not_reimport_source_group_contacts(
+    db_session, monkeypatch,
+) -> None:
+    sync = AsyncMock()
+    monkeypatch.setattr(propagation_module, "sync_group_broadcast_contacts", sync)
+
+    await propagation_module.reconcile_mobile_passenger_access_for_group(
+        db_session, agency_id=uuid.uuid4(), group_id=uuid.uuid4(), actor_user_id=None,
+    )
+
+    sync.assert_not_awaited()
+
+
 def test_plans_targeted_role_scoped_events_without_pii() -> None:
     group_id = uuid.uuid4()
     passenger_id = uuid.uuid4()

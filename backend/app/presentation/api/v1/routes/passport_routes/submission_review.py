@@ -8,6 +8,7 @@ from datetime import UTC, datetime
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Response, status
 from fastapi.responses import JSONResponse
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.dtos.passport_dtos import PassportSubmissionOutputDTO
@@ -36,6 +37,7 @@ from app.core.logging.logger import get_logger
 from app.domain.entities.entities import PassportProcessingStatus, StaffApprovalOutcome, User
 from app.domain.exceptions.exceptions import (
     AuthorizationError,
+    ConflictError,
     EntityNotFoundError,
     PassDetectionError,
     StaffApprovalStaleError,
@@ -43,7 +45,7 @@ from app.domain.exceptions.exceptions import (
     StorageError,
 )
 from app.domain.value_objects.passport_document_classification import requires_manual_staff_review
-from app.infrastructure.database.models import StorageCleanupJobModel
+from app.infrastructure.database.models import ClientGroupModel, StorageCleanupJobModel
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.documents.storage_cleanup import (
     process_storage_cleanup_job,
@@ -280,6 +282,7 @@ async def client_submit_passport(
                 passenger_submission_ids=[result.id],
                 actor_user_id=None,
                 change_kind="documents",
+                sync_broadcast_contacts=True,
             )
             await AuditLogRepository(session).record(
                 action="client_passport_submitted",
@@ -337,7 +340,13 @@ async def client_submit_passport(
     except PassDetectionError as e:
         if not committed and not commit_attempted:
             await _cleanup_uncommitted_promotions(result)
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.message)
+        raise HTTPException(
+            status_code=(
+                status.HTTP_409_CONFLICT if isinstance(e, ConflictError)
+                else status.HTTP_400_BAD_REQUEST
+            ),
+            detail=e.message,
+        )
     except Exception:
         # Once commit was attempted its outcome can be ambiguous after a
         # connection loss. Deleting promoted objects could break a row that
@@ -369,6 +378,14 @@ async def staff_approve_passport(
             current_user,
             existing,
         )
+        await session.execute(
+            select(ClientGroupModel.id)
+            .where(
+                ClientGroupModel.id == existing.group_id,
+                ClientGroupModel.agency_id == existing.agency_id,
+            )
+            .with_for_update()
+        )
         approval: StaffApprovalResult = await approve_use_case.execute(
             submission_id,
             reviewer_id=current_user.id,
@@ -399,6 +416,13 @@ async def staff_approve_passport(
                 metadata=audit_metadata,
             )
             await _ensure_submission_qr(session, result.id, current_user.id)
+            await propagate_mobile_passenger_change(
+                session,
+                agency_id=result.agency_id,
+                group_id=result.group_id,
+                passenger_submission_ids=[result.id],
+                actor_user_id=current_user.id,
+            )
 
         # The locked transition, audit row, and first QR issuance are one
         # transaction. Commit before presigned-URL work so the row lock is
@@ -646,6 +670,14 @@ async def confirm_passport(
         existing = await get_use_case.execute(submission_id)
         await AuthorizationPolicy(session).require_confirm_passport(current_user, existing)
 
+        await session.execute(
+            select(ClientGroupModel.id)
+            .where(
+                ClientGroupModel.id == existing.group_id,
+                ClientGroupModel.agency_id == existing.agency_id,
+            )
+            .with_for_update()
+        )
         result = await confirm_use_case.execute(
             submission_id,
             confirmed_fields=body.confirmed_fields,
@@ -659,10 +691,23 @@ async def confirm_passport(
             actor_email=current_user.email,
         )
         await _ensure_submission_qr(session, result.id, current_user.id)
+        await propagate_mobile_passenger_change(
+            session,
+            agency_id=result.agency_id,
+            group_id=result.group_id,
+            passenger_submission_ids=[result.id],
+            actor_user_id=current_user.id,
+        )
         return await _response_from_dto(result, session=session)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
     except AuthorizationError as e:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=e.message)
     except PassDetectionError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.message)
+        raise HTTPException(
+            status_code=(
+                status.HTTP_409_CONFLICT if isinstance(e, ConflictError)
+                else status.HTTP_400_BAD_REQUEST
+            ),
+            detail=e.message,
+        )

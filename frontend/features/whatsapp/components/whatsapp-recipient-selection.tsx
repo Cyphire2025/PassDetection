@@ -4,24 +4,26 @@ import { Check, FileText, MessageCircle, Users } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui";
 
-export type RecipientWorkspaceSection = "recipients" | "add" | "details";
+export type RecipientWorkspaceSection = "recipients" | "travellers" | "add" | "details";
 
 export function RecipientWorkspaceNavigation({
-  section, onChange, recipientCount, pendingCount, readOnly = false,
+  section, onChange, recipientCount, pendingCount, readOnly = false, sourceContactCount,
 }: {
   section: RecipientWorkspaceSection;
   onChange: (section: RecipientWorkspaceSection) => void;
   recipientCount: number;
   pendingCount: number;
   readOnly?: boolean;
+  sourceContactCount?: number;
 }) {
   return (
     <nav aria-label="Broadcast workspace" className="flex shrink-0 gap-1 overflow-x-auto border-b border-slate-200 bg-white px-4 sm:px-7">
       {([
-        ["recipients", "Recipients", recipientCount],
+        ["travellers", "Travellers", sourceContactCount ?? null],
+        ["recipients", sourceContactCount === undefined ? "Recipients" : "Delivery numbers", recipientCount],
         ["add", "Add recipients", pendingCount || null],
         ["details", "Broadcast details", null],
-      ] as const).filter(([id]) => !readOnly || id !== "add").map(([id, label, count]) => (
+      ] as const).filter(([id]) => (!readOnly || id !== "add") && (id !== "travellers" || sourceContactCount !== undefined)).map(([id, label, count]) => (
         <button
           key={id}
           type="button"

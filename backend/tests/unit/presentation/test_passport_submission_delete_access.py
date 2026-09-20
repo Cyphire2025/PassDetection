@@ -23,6 +23,7 @@ from app.infrastructure.database.models import (
     ClientGroupModel,
     ManagerGroupAccessModel,
     NotificationModel,
+    PassengerQrWhatsAppDeliveryModel,
     PassportSubmissionModel,
     StorageCleanupJobModel,
     UserModel,
@@ -229,6 +230,44 @@ async def _assert_retained(case: DeleteCase, external_effects) -> None:
     propagate, cleanup = external_effects
     propagate.assert_not_awaited()
     cleanup.assert_not_awaited()
+
+
+@pytest.mark.parametrize("delivery_status", ["processing", "delivery_unknown", "queued"])
+async def test_delete_checks_private_qr_delivery_before_passenger_cascade(
+    db_session: AsyncSession, external_effects, delivery_status: str,
+) -> None:
+    case = await _seed(db_session, role=UserRole.AGENCY_ADMIN)
+    passenger_id = case.own_ids[0]
+    group = await db_session.get(ClientGroupModel, case.group_id)
+    assert group is not None
+    delivery = PassengerQrWhatsAppDeliveryModel(
+        id=uuid.uuid4(), agency_id=group.agency_id, group_id=case.group_id,
+        passenger_id=passenger_id, qr_token_id=uuid.uuid4(), send_batch_id=uuid.uuid4(),
+        passenger_name="Synthetic traveller", phone_number="+919876543221",
+        normalized_phone_number="+919876543221", template_name="synthetic_qr",
+        template_parameter_values=[], status=delivery_status,
+    )
+    db_session.add(delivery)
+    await db_session.commit()
+    delivery_id = delivery.id
+
+    response = await _post(case, [passenger_id])
+
+    if delivery_status == "queued":
+        assert response.status_code == 200, response.text
+        assert await db_session.get(PassportSubmissionModel, passenger_id) is None
+        # The guard changes the queued record before DELETE can cascade to it.
+        assert delivery.status == "failed"
+        assert "Passenger removed" in delivery.error_message
+    else:
+        assert response.status_code == 409, response.text
+        assert response.json()["error"]["code"] == "WHATSAPP_SOURCE_SYNC_DELIVERY_ACTIVE"
+        assert await db_session.get(PassportSubmissionModel, passenger_id) is not None
+        stored = await db_session.get(PassengerQrWhatsAppDeliveryModel, delivery_id)
+        assert stored is not None and stored.status == delivery_status
+        propagate, cleanup = external_effects
+        propagate.assert_not_awaited()
+        cleanup.assert_not_awaited()
 
 
 @pytest.mark.parametrize(

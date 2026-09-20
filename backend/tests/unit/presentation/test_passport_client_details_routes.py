@@ -52,6 +52,7 @@ def rig():
     audit = SimpleNamespace(record=AsyncMock(side_effect=lambda **kwargs: events.append("audit")))
     propagate = AsyncMock(side_effect=lambda *args, **kwargs: events.append("propagate"))
     guard = AsyncMock(side_effect=lambda *args, **kwargs: (events.append("private_guard"), 2)[1])
+    broadcast_lock = AsyncMock(side_effect=lambda *args, **kwargs: events.append("broadcast_lock"))
     response_builder = AsyncMock(return_value=object())
     with (
         patch.object(routes, "PassportSubmissionRepository", return_value=repo),
@@ -59,6 +60,7 @@ def rig():
         patch.object(routes, "AuditLogRepository", return_value=audit),
         patch.object(routes, "propagate_mobile_passenger_change", new=propagate),
         patch.object(routes, "prepare_private_delivery_identity_mutation", new=guard),
+        patch.object(routes, "lock_linked_whatsapp_broadcast_groups", new=broadcast_lock),
         patch.object(routes, "_response_from_submission", new=response_builder),
     ):
         yield SimpleNamespace(
@@ -71,6 +73,7 @@ def rig():
             audit=audit,
             propagate=propagate,
             guard=guard,
+            broadcast_lock=broadcast_lock,
             response_builder=response_builder,
             events=events,
         )
@@ -89,6 +92,7 @@ async def test_authorized_correction_commits_audit_profile_refresh_and_private_g
     result = await save(rig, agent_employee_code="12345")
     assert result is rig.response_builder.return_value
     assert rig.events == [
+        "broadcast_lock",
         "private_guard",
         "submission_lock",
         "update",

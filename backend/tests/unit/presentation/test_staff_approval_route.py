@@ -94,6 +94,13 @@ class StaffApprovalRouteTests(unittest.IsolatedAsyncioTestCase):
             require_staff_approve_passport=AsyncMock()
         )
         self.session = AsyncMock()
+        self.propagate = AsyncMock()
+        propagation_patch = patch(
+            "app.presentation.api.v1.routes.passport_routes.submission_review.propagate_mobile_passenger_change",
+            self.propagate,
+        )
+        propagation_patch.start()
+        self.addCleanup(propagation_patch.stop)
 
     async def test_first_approval_commits_audit_and_qr_once_without_pii(self) -> None:
         approval = _approval_result()
@@ -178,6 +185,13 @@ class StaffApprovalRouteTests(unittest.IsolatedAsyncioTestCase):
             self.current_user.id,
         )
         self.session.commit.assert_awaited_once()
+        self.propagate.assert_awaited_once_with(
+            self.session,
+            agency_id=approval.submission.agency_id,
+            group_id=approval.submission.group_id,
+            passenger_submission_ids=[approval.submission.id],
+            actor_user_id=self.current_user.id,
+        )
         self.assertEqual(response.headers["X-Staff-Approval-Outcome"], "approved")
         self.assertEqual(response.headers["X-Staff-Approval-Revision"], "8")
         self.assertEqual(events, ["commit", "response"])

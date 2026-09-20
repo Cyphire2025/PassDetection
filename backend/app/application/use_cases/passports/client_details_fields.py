@@ -9,6 +9,10 @@ from typing import Any, Literal
 from app.application.use_cases.whatsapp.group_submission_matching import (
     normalize_matching_field_key,
 )
+from app.application.use_cases.whatsapp.imported_broadcast_phone import (
+    has_public_collection_contact,
+    raw_explicit_imported_broadcast_phone,
+)
 from app.domain.entities.entities import ClientGroup, PassportSubmission
 from app.domain.value_objects.upload_configuration import configuration_for
 
@@ -31,6 +35,12 @@ class ClientDetailField:
 
 
 def scalar_value(submission: PassportSubmission, key: str) -> str | None:
+    if key == "client_phone" and not has_public_collection_contact(submission):
+        raw_phone, has_explicit_column = raw_explicit_imported_broadcast_phone(
+            submission.staff_metadata or {},
+        )
+        if has_explicit_column:
+            return raw_phone or None
     if key in DIRECT_FIELDS:
         value = getattr(submission, key)
     else:

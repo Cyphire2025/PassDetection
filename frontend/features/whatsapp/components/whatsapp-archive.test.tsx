@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { WhatsAppBroadcastGroupDetail } from "../api/whatsapp.api";
 import { whatsappApi } from "../api/whatsapp.api";
+import { whatsappSourceGroupsApi } from "../api/whatsapp-source-groups.api";
 import { WHATSAPP_QUERY_KEYS } from "../hooks/use-whatsapp";
 import { WhatsAppPage } from "./whatsapp-workspace";
 import { RecipientListDialog } from "./whatsapp-recipient-dialog";
@@ -62,6 +63,29 @@ async function openActions(name: string) {
 }
 
 describe("WhatsApp archive workspace", () => {
+  it("shows every linked traveller separately from the unique delivery list", async () => {
+    records[0].linked_client_groups = [{ id: "source-a", name: "Imported trip", status: "active", import_only: true }];
+    records[0].source_contact_count = 3;
+    const contact = { phone_number: "+919999999999", normalized_phone_number: "+919999999999", issue: null, imported_fields: {}, source_group_id: "source-a", source_group_name: "Imported trip", source_import_only: true, recipient_id: "live-recipient" };
+    const roster = vi.spyOn(whatsappSourceGroupsApi, "groupContacts").mockResolvedValue({
+      sources: [{ id: "source-a", name: "Imported trip", import_only: true }], total_contacts: 3, unique_phone_count: 1, shared_phone_count: 1, needs_attention_count: 1,
+      contacts: [
+        { ...contact, source_submission_id: "person-a", name: "Traveller A" },
+        { ...contact, source_submission_id: "person-b", name: "Traveller B" },
+        { ...contact, source_submission_id: "person-c", name: "Traveller C", phone_number: "invalid", normalized_phone_number: null, issue: "invalid_phone", recipient_id: null },
+      ],
+    });
+    renderWorkspace(records[0]);
+    expect(await screen.findByRole("button", { name: /Travellers/ })).toHaveAttribute("aria-current", "page");
+    expect(await screen.findByText("Traveller A")).toBeInTheDocument();
+    expect(screen.getByText("Traveller B")).toBeInTheDocument();
+    expect(screen.getByText("Traveller C")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Delivery numbers/ })).toHaveTextContent("1");
+    fireEvent.click(screen.getByRole("button", { name: /Delivery numbers/ }));
+    expect(screen.queryByText("Traveller B")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Delivery numbers/ })).toHaveAttribute("aria-current", "page");
+    roster.mockRestore();
+  });
   it("starts collapsed and retains the chosen expansion while searching", async () => {
     renderWorkspace();
     await screen.findAllByText("September travellers");

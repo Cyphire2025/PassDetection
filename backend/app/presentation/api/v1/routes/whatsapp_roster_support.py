@@ -16,6 +16,7 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
     WhatsAppBroadcastRejectedContactModel,
+    WhatsAppBroadcastSourceContactModel,
     WhatsAppBroadcastSupportContactModel,
     WhatsAppMessageLogModel,
     WhatsAppRecipientMessageStateModel,
@@ -142,12 +143,19 @@ async def _group_detail(
         .order_by(ClientGroupModel.name.asc(), ClientGroupModel.id.asc())
     )
     linked_client_groups = list(linked_groups_result.scalars().all())
+    source_contact_count = await session.scalar(select(func.count(WhatsAppBroadcastSourceContactModel.id)).where(
+        WhatsAppBroadcastSourceContactModel.broadcast_group_id == group.id,
+        WhatsAppBroadcastSourceContactModel.agency_id == group.agency_id,
+        WhatsAppBroadcastSourceContactModel.source_group_id.in_([item.id for item in linked_client_groups]),
+    ))
     return WhatsAppBroadcastGroupDetailResponse(
         id=group.id,
         name=group.name,
         organizing_company_name=group.organizing_company_name,
         archived_at=group.archived_at,
         is_archived=group.archived_at is not None,
+        has_import_only_source=any(client_group.import_only for client_group in linked_client_groups),
+        source_contact_count=int(source_contact_count or 0),
         recipient_count=len(recipients),
         total_contact_count=len(recipients) + rejected_contact_count,
         recipient_opt_in_confirmed=group.recipient_opt_in_confirmed_at is not None,
@@ -171,6 +179,7 @@ async def _group_detail(
                 id=client_group.id,
                 name=client_group.name,
                 status=client_group.status,
+                import_only=client_group.import_only,
             )
             for client_group in linked_client_groups
         ],

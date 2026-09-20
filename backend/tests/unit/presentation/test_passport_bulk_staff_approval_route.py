@@ -53,6 +53,10 @@ def _use_request_actor_for_route_behavior_tests(monkeypatch: pytest.MonkeyPatch)
         "app.presentation.api.v1.routes.passport_routes.bulk_actions._lock_active_bulk_approval_actor",
         _same_actor,
     )
+    monkeypatch.setattr(
+        "app.presentation.api.v1.routes.passport_routes.bulk_actions.propagate_mobile_passenger_change",
+        AsyncMock(),
+    )
 
 
 def _user(*, role: UserRole = UserRole.SUPER_ADMIN) -> User:

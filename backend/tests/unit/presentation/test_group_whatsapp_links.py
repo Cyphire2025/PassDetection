@@ -10,6 +10,10 @@ from pydantic import ValidationError
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.mobile.passenger_change_propagation import (
+    propagate_mobile_passenger_change,
+    reconcile_mobile_passenger_access_for_broadcast,
+)
 from app.domain.entities.entities import User, UserRole
 from app.infrastructure.database.models import (
     AgencyModel,
@@ -40,6 +44,166 @@ from app.presentation.api.v1.schemas.client_group_schemas import (
 )
 
 NOW = datetime(2026, 7, 20, 12, tzinfo=UTC)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("import_only", [True, False])
+async def test_manual_link_syncs_import_only_group_and_keeps_normal_tracking_links(
+    db_session, import_only,
+) -> None:
+    seeded = await _seed(db_session)
+    group, creator = seeded["group"], seeded["creator"]
+    broadcast = seeded["broadcasts"][2]
+    group.import_only = import_only
+    submission = PassportSubmissionModel(
+        id=uuid.uuid4(), group_id=group.id, agency_id=group.agency_id,
+        client_name="Source traveller", status="client_submitted",
+        image_s3_key="excel-imports/source.placeholder",
+        confirmed_fields={"given_names": "Source", "surname": "Traveller"},
+        staff_metadata={"upload_phone": "9876543221"},
+        confidence_score={"source": "excel_import"},
+    )
+    db_session.add(submission)
+    await db_session.flush()
+
+    await _replace_whatsapp_links(
+        db_session, group_id=group.id, agency_id=group.agency_id,
+        created_by_user_id=creator.id, broadcast_ids=[broadcast.id],
+    )
+    link = (await db_session.scalars(
+        select(ClientGroupWhatsAppBroadcastLinkModel).where(
+            ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group.id,
+            ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id == broadcast.id,
+        )
+    )).one()
+    assert link.sync_contacts_from_group is import_only
+    recipients = (await db_session.scalars(
+        select(WhatsAppBroadcastRecipientModel).where(
+            WhatsAppBroadcastRecipientModel.broadcast_group_id == broadcast.id,
+            WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+        )
+    )).all()
+    assert [row.normalized_phone_number for row in recipients] == (
+        ["+919876543221"] if import_only else []
+    )
+
+
+@pytest.mark.asyncio
+async def test_linked_imported_contacts_follow_add_edit_delete_without_mobile_access(db_session):
+    seeded = await _seed(db_session)
+    group, creator = seeded["group"], seeded["creator"]
+    broadcast = seeded["broadcasts"][2]
+    group.import_only = True
+    await _replace_whatsapp_links(
+        db_session, group_id=group.id, agency_id=group.agency_id,
+        created_by_user_id=creator.id, broadcast_ids=[broadcast.id],
+    )
+    submission = PassportSubmissionModel(
+        id=uuid.uuid4(), group_id=group.id, agency_id=group.agency_id,
+        client_name="Added traveller", status="client_submitted",
+        image_s3_key="excel-imports/source.placeholder",
+        confirmed_fields={"given_names": "Added", "surname": "Traveller"},
+        staff_metadata={"upload_phone": "9876543221"},
+        confidence_score={"source": "excel_import"},
+    )
+    db_session.add(submission)
+
+    async def propagate(*, operation="upsert"):
+        await propagate_mobile_passenger_change(
+            db_session, agency_id=group.agency_id, group_id=group.id,
+            passenger_submission_ids=[submission.id], actor_user_id=creator.id,
+            operation=operation,
+        )
+
+    async def active_phones():
+        return set((await db_session.scalars(
+            select(WhatsAppBroadcastRecipientModel.normalized_phone_number).where(
+                WhatsAppBroadcastRecipientModel.broadcast_group_id == broadcast.id,
+                WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+            )
+        )).all())
+
+    await propagate()
+    assert await active_phones() == {"+919876543221"}
+    submission.staff_metadata = {"upload_phone": "9876543222"}
+    submission.confirmed_fields = {"given_names": "Corrected", "surname": "Traveller"}
+    await propagate()
+    assert await active_phones() == {"+919876543222"}
+    await db_session.delete(submission)
+    await propagate(operation="delete")
+    assert await active_phones() == set()
+
+
+@pytest.mark.asyncio
+async def test_normal_source_created_link_retains_sync_while_editing_other_links(db_session):
+    seeded = await _seed(db_session)
+    group, creator = seeded["group"], seeded["creator"]
+    first, _second, third = seeded["broadcasts"]
+    source_link = (await db_session.scalars(
+        select(ClientGroupWhatsAppBroadcastLinkModel).where(
+            ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group.id,
+            ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id == first.id,
+        )
+    )).one()
+    source_link.sync_contacts_from_group = True
+    original_link_id = source_link.id
+    await db_session.flush()
+
+    await _replace_whatsapp_links(
+        db_session, group_id=group.id, agency_id=group.agency_id,
+        created_by_user_id=creator.id, broadcast_ids=[first.id, third.id],
+    )
+
+    links = (await db_session.scalars(
+        select(ClientGroupWhatsAppBroadcastLinkModel).where(
+            ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group.id,
+        )
+    )).all()
+    retained = next(row for row in links if row.broadcast_group_id == first.id)
+    assert retained.id == original_link_id
+    assert retained.sync_contacts_from_group is True
+    assert next(row for row in links if row.broadcast_group_id == third.id).sync_contacts_from_group is False
+
+
+@pytest.mark.asyncio
+async def test_broadcast_contact_edit_does_not_change_source_or_trigger_source_refresh(db_session):
+    seeded = await _seed(db_session)
+    group, creator = seeded["group"], seeded["creator"]
+    broadcast = seeded["broadcasts"][2]
+    group.import_only = True
+    submission = PassportSubmissionModel(
+        id=uuid.uuid4(), group_id=group.id, agency_id=group.agency_id,
+        client_name="Source traveller", status="client_submitted",
+        image_s3_key="excel-imports/source.placeholder",
+        confirmed_fields={"given_names": "Source", "surname": "Traveller"},
+        staff_metadata={"upload_phone": "9876543221"},
+        confidence_score={"source": "excel_import"},
+    )
+    db_session.add(submission)
+    await _replace_whatsapp_links(
+        db_session, group_id=group.id, agency_id=group.agency_id,
+        created_by_user_id=creator.id, broadcast_ids=[broadcast.id],
+    )
+    recipient = (await db_session.scalars(
+        select(WhatsAppBroadcastRecipientModel).where(
+            WhatsAppBroadcastRecipientModel.broadcast_group_id == broadcast.id,
+        )
+    )).one()
+    recipient.name = "Edited on broadcast"
+    recipient.phone_number = "+919876543223"
+    recipient.normalized_phone_number = "+919876543223"
+
+    await reconcile_mobile_passenger_access_for_broadcast(
+        db_session, agency_id=group.agency_id, broadcast_group_id=broadcast.id,
+        actor_user_id=creator.id,
+    )
+
+    await db_session.refresh(submission)
+    await db_session.refresh(recipient)
+    assert submission.staff_metadata == {"upload_phone": "9876543221"}
+    assert submission.confirmed_fields == {"given_names": "Source", "surname": "Traveller"}
+    assert recipient.name == "Edited on broadcast"
+    assert recipient.normalized_phone_number == "+919876543223"
 
 
 @pytest.mark.asyncio

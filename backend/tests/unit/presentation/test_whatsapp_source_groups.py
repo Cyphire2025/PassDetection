@@ -9,7 +9,7 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 import pytest
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile
 from httpx import ASGITransport, AsyncClient
 from openpyxl import Workbook
 from sqlalchemy import func, select
@@ -64,6 +64,58 @@ def test_imported_verified_column_round_trips_without_granting_phone_authority()
     assert row.client_phone == "9123456789"
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize("import_only", [True, False])
+async def test_source_creation_retains_shared_and_invalid_travellers(source_api, import_only):
+    client, session, groups, agency_id, _ = source_api
+    source = await session.get(ClientGroupModel, groups["assigned"])
+    source.import_only = import_only
+    for index, phone in enumerate(("9876543210", "9876543210", "invalid")):
+        session.add(PassportSubmissionModel(
+            id=uuid.uuid4(), agency_id=agency_id, group_id=source.id,
+            client_name=f"Traveller {index}", status="staff_approved",
+            image_s3_key="excel-imports/source", client_reviewed_at=datetime.now(tz=UTC),
+            confirmed_fields={"given_names": f"Traveller {index}", "surname": "Test"},
+            staff_metadata={"upload_phone": phone},
+        ))
+    await session.commit()
+    response = await client.post("/whatsapp/groups/from-client-group", json=await _body(client, source.id))
+    assert response.status_code == 201
+    detail = response.json()["group"]
+    assert detail["recipient_count"] == 1
+    assert detail["source_contact_count"] == 3
+    assert detail["has_import_only_source"] == import_only
+    roster = await client.get(f"/whatsapp/groups/{detail['id']}/source-contacts")
+    assert roster.status_code == 200
+    payload = roster.json()
+    assert payload["total_contacts"] == 3
+    assert payload["unique_phone_count"] == 1
+    assert payload["shared_phone_count"] == 1
+    assert payload["needs_attention_count"] == 1
+    assert {row["name"] for row in payload["contacts"]} == {f"Traveller {i} Test" for i in range(3)}
+    assert len({row["source_submission_id"] for row in payload["contacts"]}) == 3
+    ready = [row for row in payload["contacts"] if not row["issue"]]
+    assert len(ready) == 2
+    assert ready[0]["recipient_id"] == ready[1]["recipient_id"]
+    assert payload["sources"][0]["import_only"] == import_only
+
+
+@pytest.mark.asyncio
+async def test_all_invalid_source_rows_can_be_saved_for_correction(source_api):
+    client, session, groups, _, submission_id = source_api
+    row = await session.get(PassportSubmissionModel, submission_id)
+    row.staff_metadata = {"upload_phone": "invalid"}
+    await session.commit()
+    response = await client.post("/whatsapp/groups/from-client-group", json=await _body(client, groups["owned"]))
+    assert response.status_code == 201
+    detail = response.json()["group"]
+    assert detail["recipient_count"] == 0
+    assert detail["source_contact_count"] == 1
+    roster = (await client.get(f"/whatsapp/groups/{detail['id']}/source-contacts")).json()
+    assert roster["contacts"][0]["issue"] == "invalid_phone"
+    assert roster["contacts"][0]["recipient_id"] is None
+
+
 def test_public_contact_wins_and_legacy_verified_column_is_supported():
     public = _submission(
         client_phone="9123456789", image_s3_key="uploads/passport.jpg", confidence_score={},
@@ -85,8 +137,11 @@ def test_exclusion_counts_and_no_generic_phone_or_uploader_name_fallback():
     ]
     preview = build_source_contacts(uuid.uuid4(), "Trip", rows)
     assert preview["recipient_count"] == 1
-    assert preview["excluded_count"] == 6
-    assert all(value == 1 for value in preview["excluded_counts"].values())
+    assert len(preview["contacts"]) == 7
+    assert preview["shared_phone_count"] == 1
+    assert preview["excluded_count"] == 5
+    assert preview["excluded_counts"]["duplicate_phone"] == 0
+    assert all(value == 1 for key, value in preview["excluded_counts"].items() if key != "duplicate_phone")
 
 
 @pytest.mark.parametrize("phone", [None, "invalid"])
@@ -107,6 +162,33 @@ def test_conflicting_duplicate_verified_columns_fail_closed():
     preview = build_source_contacts(uuid.uuid4(), "Trip", [row])
     assert preview["recipient_count"] == 0
     assert preview["excluded_counts"]["invalid_phone"] == 1
+
+
+@pytest.mark.parametrize("metadata,expected", [
+    ({"upload_phone": "9876543210"}, "+919876543210"),
+    ({"Upload Phone": "9876543210", "mobile_number": "9123456789"}, "+919876543210"),
+    ({"verified_whatsapp_numbers": "9123456789", "upload_phone": "9876543210"}, "+919123456789"),
+    ({"verified_whatsapp_numbers": "invalid", "upload_phone": "9876543210"}, None),
+    ({"verified_whatsapp_numbers": "", "upload_phone": "9876543210"}, None),
+    ({"verified_whatsapp_numbers": "9123456789", "verified_whatsapp_numbers_2": "9000000000", "upload_phone": "9876543210"}, None),
+])
+def test_legacy_upload_phone_uses_explicit_source_priority(metadata, expected):
+    row = _submission(staff_metadata=metadata)
+    preview = build_source_contacts(uuid.uuid4(), "Trip", [row])
+    assert [contact["phone_number"] for contact in preview["recipients"]] == ([expected] if expected else [])
+    assert authoritative_submission_phone(row) is None
+
+
+@pytest.mark.parametrize("phone", [None, "invalid", "9123456789"])
+def test_completed_public_contact_always_precedes_legacy_upload_phone(phone):
+    row = _submission(
+        client_phone=phone, image_s3_key="uploads/passport.jpg", confidence_score={},
+        staff_metadata={"upload_phone": "9876543210"},
+    )
+    preview = build_source_contacts(uuid.uuid4(), "Trip", [row])
+    assert [contact["phone_number"] for contact in preview["recipients"]] == (
+        ["+919123456789"] if phone == "9123456789" else []
+    )
 
 
 @pytest.fixture
@@ -284,3 +366,56 @@ async def test_creation_enforces_capacity_before_any_broadcast_mutation(source_a
     response = await client.post("/whatsapp/groups/from-client-group", json=await _body(client, groups["owned"]))
     assert response.status_code == 400
     assert await session.scalar(select(func.count(WhatsAppBroadcastGroupModel.id))) == 0
+
+
+@pytest.mark.asyncio
+async def test_import_persistence_staff_approval_then_source_preview_retains_legacy_phone(source_api, monkeypatch):
+    from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+    from app.infrastructure.repositories.passport_submission_repository import (
+        PassportSubmissionRepository,
+    )
+    from app.infrastructure.repositories.user_repository import UserRepository
+    from app.presentation.api.v1.routes.passport_routes import excel_import
+
+    client, session, groups, _, _ = source_api
+    actor_model = (await session.execute(select(UserModel))).scalar_one()
+    actor = UserRepository._to_entity(actor_model)
+    workbook = Workbook()
+    workbook.active.append(["SURNAME", "GIVEN NAME", "Passport Number", "Upload Email", "Upload Phone"])
+    workbook.active.append(["Lovelace", "Ada", "P1234567", "ada@example.test", "9876543210"])
+    workbook.active.append(["Hopper", "Grace", "P1234568", "grace@example.test", "9876543210"])
+    workbook.active.append(["Johnson", "Katherine", "P1234569", "katherine@example.test", "invalid"])
+    workbook_bytes = io.BytesIO()
+    workbook.save(workbook_bytes)
+    monkeypatch.setattr(excel_import, "propagate_mobile_passenger_change", AsyncMock())
+    monkeypatch.setattr(AuditLogRepository, "record", AsyncMock())
+    result = await excel_import.import_passports_by_group(
+        group_id=groups["assigned"], current_user=actor, session=session,
+        file=UploadFile(file=io.BytesIO(workbook_bytes.getvalue()), filename="legacy.xlsx"),
+    )
+    assert result.imported_count == 3
+    models = (await session.execute(select(PassportSubmissionModel).where(
+        PassportSubmissionModel.group_id == groups["assigned"],
+    ))).scalars().all()
+    repository = PassportSubmissionRepository(session)
+    for model in models:
+        assert "upload_phone" in model.staff_metadata
+        assert model.client_phone is None
+        entity = await repository.get_by_id_for_update(model.id)
+        entity.bulk_staff_approve_completed_verification(reviewer_id=actor.id, reviewer_name=actor.full_name)
+        await repository.update(entity)
+    await session.commit()
+    session.expire_all()
+    stored = (await session.execute(select(PassportSubmissionModel).where(
+        PassportSubmissionModel.group_id == groups["assigned"],
+    ))).scalars().all()
+    assert all(row.status == "staff_approved" for row in stored)
+    assert all(authoritative_submission_phone(row) is None for row in stored)
+    preview = (await client.get(f"/whatsapp/source-groups/{groups['assigned']}/preview")).json()
+    assert preview["total_submissions"] == 3
+    assert preview["recipient_count"] == 1
+    assert len(preview["contacts"]) == 3
+    assert preview["shared_phone_count"] == 1
+    assert preview["excluded_counts"]["duplicate_phone"] == 0
+    assert preview["excluded_counts"]["invalid_phone"] == 1
+    assert preview["recipients"][0]["phone_number"] == "+919876543210"

@@ -10,9 +10,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.entities.entities import User
 from app.infrastructure.database.models import (
+    ClientGroupModel,
+    ClientGroupWhatsAppBroadcastLinkModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
     WhatsAppBroadcastRejectedContactModel,
+    WhatsAppBroadcastSourceContactModel,
 )
 from app.infrastructure.database.session import get_db_session
 from app.presentation.api.v1.routes.whatsapp_shared import (
@@ -45,11 +48,27 @@ async def list_broadcast_groups(
         .correlate(WhatsAppBroadcastGroupModel)
         .scalar_subquery()
     )
+    import_only_source = select(ClientGroupWhatsAppBroadcastLinkModel.id).join(
+        ClientGroupModel,
+        ClientGroupModel.id == ClientGroupWhatsAppBroadcastLinkModel.client_group_id,
+    ).where(
+        ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id == WhatsAppBroadcastGroupModel.id,
+        ClientGroupWhatsAppBroadcastLinkModel.agency_id == WhatsAppBroadcastGroupModel.agency_id,
+        ClientGroupModel.agency_id == WhatsAppBroadcastGroupModel.agency_id,
+        ClientGroupModel.import_only.is_(True),
+        ClientGroupModel.deleted_at.is_(None),
+    ).exists()
+    source_contact_count = select(func.count(WhatsAppBroadcastSourceContactModel.id)).where(
+        WhatsAppBroadcastSourceContactModel.broadcast_group_id == WhatsAppBroadcastGroupModel.id,
+        WhatsAppBroadcastSourceContactModel.agency_id == WhatsAppBroadcastGroupModel.agency_id,
+    ).correlate(WhatsAppBroadcastGroupModel).scalar_subquery()
     result = await session.execute(
         select(
             WhatsAppBroadcastGroupModel,
             func.count(WhatsAppBroadcastRecipientModel.id).label("recipient_count"),
             rejected_contact_count.label("rejected_contact_count"),
+            import_only_source.label("has_import_only_source"),
+            source_contact_count.label("source_contact_count"),
         )
         .outerjoin(
             WhatsAppBroadcastRecipientModel,
@@ -74,6 +93,8 @@ async def list_broadcast_groups(
             organizing_company_name=group.organizing_company_name,
             archived_at=group.archived_at,
             is_archived=group.archived_at is not None,
+            has_import_only_source=bool(has_import_only_source),
+            source_contact_count=int(source_count or 0),
             recipient_count=int(recipient_count or 0),
             total_contact_count=(int(recipient_count or 0) + int(rejected_count or 0)),
             recipient_opt_in_confirmed=group.recipient_opt_in_confirmed_at is not None,
@@ -83,7 +104,7 @@ async def list_broadcast_groups(
             created_at=group.created_at,
             updated_at=group.updated_at,
         )
-        for group, recipient_count, rejected_count in result.all()
+        for group, recipient_count, rejected_count, has_import_only_source, source_count in result.all()
     ]
 
 

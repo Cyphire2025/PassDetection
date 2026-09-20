@@ -27,6 +27,10 @@ from app.application.use_cases.whatsapp.group_submission_policy import (
     duplicate_passport_submission_ids,
     selected_field_value_uniqueness,
 )
+from app.application.use_cases.whatsapp.imported_broadcast_phone import (
+    explicit_imported_broadcast_phone,
+    imported_phone_column_priority,
+)
 
 _EMAIL_KEYS = frozenset({"email", "email_address", "e_mail", "mail"})
 _PASSPORT_KEYS = frozenset({"passport", "passport_no", "passport_number", "passportnumber"})
@@ -195,6 +199,7 @@ class SubmissionForComparison:
     family_relation: str | None = None
     family_gender: str | None = None
     family_head_name: str | None = None
+    has_public_collection_contact: bool = False
 
 
 @dataclass(frozen=True)
@@ -570,11 +575,13 @@ def _submission_field_map(
     staff_fields = dict(submission.staff_metadata or {})
     passport_fields = _passport_fields(submission)
     layered_fields: dict[str, object] = {}
+    if not submission.has_public_collection_contact:
+        imported_phone, _ = explicit_imported_broadcast_phone(staff_fields)
+        add("phone_number", imported_phone)
     for key, value in staff_fields.items():
-        if _normalized_key(key) in {"verified_whatsapp_number", "verified_whatsapp_numbers"}:
-            # Keep the explicit contact column alongside generic mobile data;
-            # workbook column order must not decide whether its source matches.
-            add("phone_number", value)
+        if imported_phone_column_priority(key) is not None:
+            # Only the winning explicit source may contribute; a stale Upload
+            # Phone must not revive a superseded verified/public destination.
             continue
         if not _normalized_key(key).endswith("_label"):
             if canonical := normalize_matching_field_key(key):

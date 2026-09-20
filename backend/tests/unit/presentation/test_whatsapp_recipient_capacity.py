@@ -551,6 +551,7 @@ async def test_multi_group_restore_is_atomic_at_1500_boundary(overflow: bool) ->
 
     with (
         patch.object(client_groups, "_require_whatsapp_broadcast_access"),
+        patch.object(client_groups, "sync_group_broadcast_contacts", new=AsyncMock()) as sync_contacts,
         patch.object(
             client_groups,
             "_require_managed_group",
@@ -587,6 +588,7 @@ async def test_multi_group_restore_is_atomic_at_1500_boundary(overflow: bool) ->
                 recipient.suppressed_by_roster_resolution_id is None for recipient in recipients
             )
             assert session.execute.await_count == 6
+            sync_contacts.assert_awaited_once()
         else:
             with pytest.raises(HTTPException) as exc_info:
                 await call
@@ -600,6 +602,7 @@ async def test_multi_group_restore_is_atomic_at_1500_boundary(overflow: bool) ->
             assert resolution.status == "active"
             assert session.execute.await_count == 5
             session.flush.assert_not_awaited()
+            sync_contacts.assert_not_awaited()
             audit_repository.record.assert_not_awaited()
 
 

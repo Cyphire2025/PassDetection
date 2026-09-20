@@ -25,7 +25,7 @@ export function SourceGroupBroadcastForm({ isLoading, onClose, onSubmit }: {
   const selectedGroup = groups.data?.find((group) => group.id === sourceGroupId);
   const preview = selectedGroup && !groups.isError && !previewQuery.isError
     && previewQuery.data?.source_group_id === sourceGroupId ? previewQuery.data : undefined;
-  const previewReady = Boolean(preview && !previewQuery.isFetching && preview.recipient_count > 0);
+  const previewReady = Boolean(preview && !previewQuery.isFetching && (preview.contacts?.length ?? preview.recipient_count) > 0);
   const optedIn = Boolean(preview && confirmedRevision === preview.preview_revision);
 
   function refreshPreview() {
@@ -90,7 +90,7 @@ export function SourceGroupBroadcastForm({ isLoading, onClose, onSubmit }: {
             }}
           >
             <option value="">Select an existing group</option>
-            {groups.data?.map((group) => <option key={group.id} value={group.id}>{group.name} ({group.submission_count} submissions)</option>)}
+            {groups.data?.map((group) => <option key={group.id} value={group.id}>{group.name}{group.import_only ? " · Import only" : ""} ({group.submission_count} submissions)</option>)}
           </select>
           <p className="text-xs text-slate-500">Active groups you have access to are shown here.</p>
           {groups.isPending && <p role="status" className="text-sm text-slate-500">Loading available groups…</p>}

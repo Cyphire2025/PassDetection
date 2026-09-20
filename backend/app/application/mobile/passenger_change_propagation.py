@@ -36,6 +36,7 @@ from app.infrastructure.database.gc_mobile_models import (
     MobileSyncChangeModel,
 )
 from app.infrastructure.database.models import ClientGroupWhatsAppBroadcastLinkModel
+from app.infrastructure.whatsapp.source_group_sync import sync_group_broadcast_contacts
 
 MobilePassengerChangeKind = Literal["profile", "documents"]
 _TARGETED_COORDINATOR_CHANGE_LIMIT = 100
@@ -168,11 +169,13 @@ async def propagate_mobile_passenger_change(
     change_kind: MobilePassengerChangeKind = "profile",
     reconcile_identities: bool = True,
     propagation_key: str | None = None,
+    sync_broadcast_contacts: bool = False,
 ) -> MobilePassengerPropagationResult:
     """Reconcile and publish one passenger mutation in the caller's transaction.
 
-    The helper is deliberately a no-op unless the exact tenant/group is enabled
-    in GC App.  It never serializes passenger fields into the journal.
+    Source-linked WhatsApp contacts follow roster changes independently of GC
+    App. The mobile journal remains a no-op for groups without GC App enabled.
+    It never serializes passenger fields into the journal.
     """
 
     passenger_ids = tuple(sorted(set(passenger_submission_ids), key=str))
@@ -185,8 +188,17 @@ async def propagate_mobile_passenger_change(
         change_kind,
         reconcile_identities,
         propagation_key,
+        sync_broadcast_contacts,
     )
     propagated = session.info.setdefault("mobile_passenger_propagation", set())
+    await session.flush()
+    if change_kind == "profile" or sync_broadcast_contacts:
+        await sync_group_broadcast_contacts(
+            session,
+            agency_id=agency_id,
+            group_id=group_id,
+            actor_user_id=actor_user_id,
+        )
     if dedupe_key in propagated:
         return MobilePassengerPropagationResult(
             enabled=True,
@@ -194,7 +206,6 @@ async def propagate_mobile_passenger_change(
             sync_changes=0,
         )
 
-    await session.flush()
     access = (
         await session.execute(
             select(GCGroupAccessModel)

@@ -114,6 +114,7 @@ from app.infrastructure.repositories.passport_image_crop_repository import (
     PassportImageCropRepository,
 )
 from app.infrastructure.repositories.passport_roster_resolution_repository import (
+    lock_linked_whatsapp_broadcast_groups,
     lock_whatsapp_broadcast_groups,
     suppress_active_replacement_recipients,
 )
@@ -135,6 +136,7 @@ from app.infrastructure.whatsapp.private_delivery_policy import (
     PrivateDeliveryMutationBlocked,
     prepare_private_delivery_identity_mutation,
 )
+from app.infrastructure.whatsapp.source_group_sync import sync_group_broadcast_contacts
 from app.presentation.api.v1.routes import (
     client_group_whatsapp_match_support as _whatsapp_match_support,
 )
@@ -417,27 +419,26 @@ async def _replace_whatsapp_links(
     # Serialize link-set edits for this passport group. Broadcast rows are then
     # locked in the same stable order used by replacement creation so an
     # unlink cannot pass the active-replacement check concurrently.
-    await session.execute(
-        select(ClientGroupModel.id)
+    group_result = await session.execute(
+        select(ClientGroupModel)
         .where(
             ClientGroupModel.id == group_id,
             ClientGroupModel.agency_id == agency_id,
         )
         .with_for_update()
     )
+    group_model = group_result.scalar_one()
     existing_result = await session.execute(
-        select(
-            ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
-            ClientGroupWhatsAppBroadcastLinkModel.matching_field_keys,
-        ).where(
+        select(ClientGroupWhatsAppBroadcastLinkModel).where(
             ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group_id,
             ClientGroupWhatsAppBroadcastLinkModel.agency_id == agency_id,
         )
     )
-    existing_rows = existing_result.all()
+    existing_rows = list(existing_result.scalars().all())
+    existing_by_broadcast = {row.broadcast_group_id: row for row in existing_rows}
     previous_configuration = {
-        broadcast_id: matching_field_keys_from_storage(matching_field_keys)
-        for broadcast_id, matching_field_keys in existing_rows
+        row.broadcast_group_id: matching_field_keys_from_storage(row.matching_field_keys)
+        for row in existing_rows
     }
     previous_ids = sorted(previous_configuration, key=str)
     requested_ids = sorted(set(broadcast_ids), key=str)
@@ -485,7 +486,24 @@ async def _replace_whatsapp_links(
             requested_configuration[broadcast_id] = selected
         else:
             requested_configuration[broadcast_id] = previous_configuration.get(broadcast_id)
-    changed = previous_ids != requested_ids or previous_configuration != requested_configuration
+    requested_sync = {
+        broadcast_id: bool(
+            group_model.import_only
+            or (
+                broadcast_id in existing_by_broadcast
+                and existing_by_broadcast[broadcast_id].sync_contacts_from_group
+            )
+        )
+        for broadcast_id in requested_ids
+    }
+    changed = (
+        previous_ids != requested_ids
+        or previous_configuration != requested_configuration
+        or any(
+            row.sync_contacts_from_group != requested_sync.get(row.broadcast_group_id, False)
+            for row in existing_rows
+        )
+    )
     if changed:
         try:
             await prepare_private_delivery_identity_mutation(
@@ -527,30 +545,34 @@ async def _replace_whatsapp_links(
                         "Restore the replacement first."
                     ),
                 )
-        await session.execute(
-            delete(ClientGroupWhatsAppBroadcastLinkModel).where(
-                ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group_id,
-                ClientGroupWhatsAppBroadcastLinkModel.agency_id == agency_id,
-            )
-        )
-        session.add_all(
-            [
-                ClientGroupWhatsAppBroadcastLinkModel(
+        for row in existing_rows:
+            if row.broadcast_group_id not in requested_configuration:
+                await session.delete(row)
+        for broadcast_id in requested_ids:
+            link_row = existing_by_broadcast.get(broadcast_id)
+            if link_row is None:
+                link_row = ClientGroupWhatsAppBroadcastLinkModel(
                     id=uuid.uuid4(),
                     client_group_id=group_id,
                     broadcast_group_id=broadcast_id,
                     agency_id=agency_id,
                     created_by_user_id=created_by_user_id,
-                    matching_field_keys=(
-                        list(requested_configuration[broadcast_id] or ())
-                        if requested_configuration[broadcast_id] is not None
-                        else None
-                    ),
                 )
-                for broadcast_id in requested_ids
-            ]
-        )
+                session.add(link_row)
+            link_row.matching_field_keys = (
+                list(requested_configuration[broadcast_id] or ())
+                if requested_configuration[broadcast_id] is not None
+                else None
+            )
+            link_row.sync_contacts_from_group = requested_sync[broadcast_id]
         await session.flush()
+    await sync_group_broadcast_contacts(
+        session,
+        agency_id=agency_id,
+        group_id=group_id,
+        actor_user_id=created_by_user_id,
+        affected_broadcast_ids=affected_broadcast_ids,
+    )
     if requested_ids:
         await suppress_active_replacement_recipients(
             session,
@@ -614,6 +636,8 @@ async def _require_managed_group(
     session: AsyncSession,
     current_user: User,
     link_id: uuid.UUID,
+    *,
+    lock: bool = False,
 ) -> ClientGroup:
     group = await ClientGroupRepository(session).get_by_id(link_id)
     if not group:
@@ -628,6 +652,15 @@ async def _require_managed_group(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=exc.message,
         ) from exc
+    if lock:
+        await session.execute(
+            select(ClientGroupModel.id)
+            .where(
+                ClientGroupModel.id == group.id,
+                ClientGroupModel.agency_id == group.agency_id,
+            )
+            .with_for_update()
+        )
     return group
 
 
@@ -1324,7 +1357,7 @@ async def resolve_unidentified_as_replacement(
     _csrf: None = Depends(require_cookie_csrf),
 ) -> PassportRosterResolutionResponse:
     _require_whatsapp_broadcast_access(current_user)
-    group = await _require_managed_group(session, current_user, link_id)
+    group = await _require_managed_group(session, current_user, link_id, lock=True)
     existing_result = await session.execute(
         select(PassportRosterResolutionModel).where(
             PassportRosterResolutionModel.client_group_id == group.id,
@@ -1570,6 +1603,12 @@ async def resolve_unidentified_as_replacement(
             ),
         )
 
+    await sync_group_broadcast_contacts(
+        session,
+        agency_id=group.agency_id,
+        group_id=group.id,
+        actor_user_id=current_user.id,
+    )
     await reconcile_mobile_passenger_access_for_group(
         session,
         agency_id=group.agency_id,
@@ -1609,7 +1648,7 @@ async def reject_unidentified_upload(
     _csrf: None = Depends(require_cookie_csrf),
 ) -> PassportRosterResolutionResponse:
     _require_whatsapp_broadcast_access(current_user)
-    group = await _require_managed_group(session, current_user, link_id)
+    group = await _require_managed_group(session, current_user, link_id, lock=True)
     existing_result = await session.execute(
         select(PassportRosterResolutionModel).where(
             PassportRosterResolutionModel.client_group_id == group.id,
@@ -1700,6 +1739,12 @@ async def reject_unidentified_upload(
             status_code=status.HTTP_409_CONFLICT,
             detail="This upload was resolved by another request. Refresh the page.",
         )
+    await sync_group_broadcast_contacts(
+        session,
+        agency_id=group.agency_id,
+        group_id=group.id,
+        actor_user_id=current_user.id,
+    )
     await reconcile_mobile_passenger_access_for_group(
         session,
         agency_id=group.agency_id,
@@ -1735,7 +1780,7 @@ async def restore_roster_resolution(
     _csrf: None = Depends(require_cookie_csrf),
 ) -> PassportRosterResolutionResponse:
     _require_whatsapp_broadcast_access(current_user)
-    group = await _require_managed_group(session, current_user, link_id)
+    group = await _require_managed_group(session, current_user, link_id, lock=True)
     preliminary_result = await session.execute(
         select(PassportRosterResolutionModel).where(
             PassportRosterResolutionModel.id == resolution_id,
@@ -1858,6 +1903,12 @@ async def restore_roster_resolution(
             now=now,
         )
         await session.flush()
+    await sync_group_broadcast_contacts(
+        session,
+        agency_id=group.agency_id,
+        group_id=group.id,
+        actor_user_id=current_user.id,
+    )
     await reconcile_mobile_passenger_access_for_group(
         session,
         agency_id=group.agency_id,
@@ -1990,6 +2041,12 @@ async def update_client_group(
         notes=request.notes,
     )
     await repo.update(group)
+    await sync_group_broadcast_contacts(
+        session,
+        agency_id=group.agency_id,
+        group_id=group.id,
+        actor_user_id=current_user.id,
+    )
     if request.whatsapp_broadcast_group_ids is not None:
         summaries, previous_ids, changed = await _replace_whatsapp_links(
             session,
@@ -2172,6 +2229,20 @@ async def permanently_delete_client_group(
             ),
         )
 
+    await lock_linked_whatsapp_broadcast_groups(
+        session, agency_id=group.agency_id, group_id=link_id,
+    )
+    try:
+        await prepare_private_delivery_identity_mutation(
+            session,
+            agency_id=group.agency_id,
+            group_id=link_id,
+            cancel_queued=True,
+            cancellation_reason="Source group deleted before private WhatsApp delivery.",
+        )
+    except PrivateDeliveryMutationBlocked as exc:
+        raise ConflictError(str(exc), code="WHATSAPP_SOURCE_SYNC_DELIVERY_ACTIVE") from exc
+
     submission_rows = await session.execute(
         select(
             PassportSubmissionModel.id,
@@ -2197,6 +2268,15 @@ async def permanently_delete_client_group(
 
     await session.execute(
         delete(ManagerGroupAccessModel).where(ManagerGroupAccessModel.group_id == link_id)
+    )
+    affected_broadcast_ids = tuple(
+        (await session.scalars(
+            select(ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id).where(
+                ClientGroupWhatsAppBroadcastLinkModel.client_group_id == link_id,
+                ClientGroupWhatsAppBroadcastLinkModel.agency_id == group.agency_id,
+                ClientGroupWhatsAppBroadcastLinkModel.sync_contacts_from_group.is_(True),
+            )
+        )).all()
     )
     await session.execute(
         delete(ClientGroupWhatsAppBroadcastLinkModel).where(
@@ -2246,6 +2326,13 @@ async def permanently_delete_client_group(
         passport_retention_days=policies.passport_data_retention_days,
     )
     await repo.update(group)
+    await sync_group_broadcast_contacts(
+        session,
+        agency_id=group.agency_id,
+        group_id=group.id,
+        actor_user_id=current_user.id,
+        affected_broadcast_ids=affected_broadcast_ids,
+    )
     await AuditLogRepository(session).record(
         action="client_group_deleted_with_retention"
         if retain_records
@@ -2322,13 +2409,25 @@ async def restore_client_group(
             created_by_user_id=None,
             allow_deleted_restore=current_user.role == UserRole.SUPER_ADMIN,
         )
+        await sync_group_broadcast_contacts(
+            session,
+            agency_id=group.agency_id,
+            group_id=group.id,
+            actor_user_id=current_user.id,
+        )
         return ClientGroupResponse.model_validate(result)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
     except AuthorizationError as e:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=e.message)
     except PassDetectionError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.message)
+        raise HTTPException(
+            status_code=(
+                status.HTTP_409_CONFLICT if isinstance(e, ConflictError)
+                else status.HTTP_400_BAD_REQUEST
+            ),
+            detail=e.message,
+        )
 
 
 async def _delete_by_ids(

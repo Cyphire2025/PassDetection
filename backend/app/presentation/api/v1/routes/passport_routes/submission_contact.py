@@ -5,8 +5,10 @@ from __future__ import annotations
 import uuid
 
 from fastapi import HTTPException, status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.infrastructure.database.models import ClientGroupModel, PassportSubmissionModel
 from app.infrastructure.database.public_upload_contact_model import (
     PublicUploadContactChallengeModel,
 )
@@ -26,7 +28,13 @@ async def require_verified_submission_contact(
     body: ClientSubmitPassportRequest,
     upload_session_id: str,
 ) -> PublicUploadContactChallengeModel:
-    """Lock the draft, then validate its capability and contact/family proof in order."""
+    """Lock the group before its draft, then validate capability and contact proof."""
+    await session.execute(
+        select(ClientGroupModel.id)
+        .join(PassportSubmissionModel, PassportSubmissionModel.group_id == ClientGroupModel.id)
+        .where(PassportSubmissionModel.id == submission_id)
+        .with_for_update(of=ClientGroupModel)
+    )
     existing = await PassportSubmissionRepository(session).get_by_id_for_update(submission_id)
     if existing is None:
         raise HTTPException(

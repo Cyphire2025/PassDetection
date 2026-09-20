@@ -10,15 +10,43 @@ import type {
 export interface WhatsAppSourceGroup {
   id: string;
   name: string;
+  import_only?: boolean;
   submission_count: number;
+}
+
+export interface WhatsAppSourceContact {
+  source_submission_id: string;
+  name: string;
+  phone_number: string;
+  normalized_phone_number: string | null;
+  issue: string | null;
+  imported_fields: Record<string, string>;
+}
+
+export interface WhatsAppBroadcastSourceContacts {
+  sources: { id: string; name: string; import_only: boolean }[];
+  total_contacts: number;
+  unique_phone_count: number;
+  needs_attention_count: number;
+  shared_phone_count: number;
+  contacts: (WhatsAppSourceContact & {
+    source_group_id: string;
+    source_group_name: string;
+    source_import_only: boolean;
+    recipient_id: string | null;
+  })[];
 }
 
 export interface WhatsAppSourceGroupPreview {
   source_group_id: string;
   source_group_name: string;
+  source_import_only?: boolean;
   total_submissions: number;
   recipient_count: number;
-  recipients: WhatsAppRecipientInput[];
+  recipients: (WhatsAppRecipientInput & { source_submission_id?: string })[];
+  contacts?: WhatsAppSourceContact[];
+  shared_phone_count?: number;
+  needs_attention_count?: number;
   excluded_count: number;
   excluded_counts: {
     missing_phone: number;
@@ -55,6 +83,14 @@ export const whatsappSourceGroupsApi = {
   preview: async (groupId: string, signal?: AbortSignal): Promise<WhatsAppSourceGroupPreview> => {
     const { data } = await apiClient.get<WhatsAppSourceGroupPreview>(
       API_ENDPOINTS.whatsapp.sourceGroupPreview(groupId),
+      { signal },
+    );
+    return data;
+  },
+
+  groupContacts: async (groupId: string, signal?: AbortSignal): Promise<WhatsAppBroadcastSourceContacts> => {
+    const { data } = await apiClient.get<WhatsAppBroadcastSourceContacts>(
+      API_ENDPOINTS.whatsapp.sourceContacts(groupId),
       { signal },
     );
     return data;

@@ -24,6 +24,9 @@ from app.application.use_cases.whatsapp.group_submission_matching import (
     recipient_identity_evidence,
     submission_identity_evidence,
 )
+from app.application.use_cases.whatsapp.imported_broadcast_phone import (
+    has_public_collection_contact,
+)
 from app.domain.entities.entities import OFFICE_VISIBLE_PASSPORT_STATUS_VALUES
 from app.infrastructure.database.models import (
     ClientGroupWhatsAppBroadcastLinkModel,
@@ -177,6 +180,7 @@ def _submission_comparison(
         family_relation=getattr(submission, "family_relation", None),
         family_gender=getattr(submission, "family_gender", None),
         family_head_name=getattr(submission, "family_head_name", None),
+        has_public_collection_contact=has_public_collection_contact(submission),
     )
 
 

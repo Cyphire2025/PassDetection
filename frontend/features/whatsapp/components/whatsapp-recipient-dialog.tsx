@@ -65,6 +65,8 @@ import { RecipientBulkOutcome } from "./whatsapp-recipient-bulk-outcome";
 import { RecipientWorkspaceNavigation, RecipientSelectionCheckbox, RecipientSelectionPanel, RecipientMobileSelectionBar, type RecipientWorkspaceSection } from "./whatsapp-recipient-selection";
 import type { RecipientResendTarget } from "./whatsapp-workspace.types";
 import type { MessagePreviewSendPayload } from "./whatsapp-message-preview-dialog";
+import { useWhatsAppBroadcastSourceContacts } from "../hooks/use-whatsapp-source-groups";
+import { SourceRosterPanel } from "./whatsapp-source-roster-panel";
 
 const MessagePreviewDialog = dynamic(
   () => import("./whatsapp-message-preview-dialog").then((module) => module.MessagePreviewDialog),
@@ -118,6 +120,10 @@ export function RecipientListDialog({
     error: loadError,
     refetch: refetchGroup,
   } = useWhatsAppGroup(group.id);
+  const sourceContacts = useWhatsAppBroadcastSourceContacts(group.id, Boolean(detail?.linked_client_groups?.length));
+  const sourceContactCount = sourceContacts.data?.sources.length
+    ? sourceContacts.data.total_contacts
+    : (detail?.source_contact_count ?? 0) > 0 ? detail?.source_contact_count : undefined;
   const isArchived = Boolean(group.is_archived || detail?.is_archived);
   const updateGroup = useUpdateWhatsAppGroup();
   const addRecipientsMutation = useAddWhatsAppRecipients();
@@ -127,8 +133,9 @@ export function RecipientListDialog({
   const restoreReplacedRecipient = useRestoreWhatsAppReplacedRecipient();
   const resendRecipientMessage = useResendWhatsAppRecipientMessage();
   const bulkResend = useResendWhatsAppRecipientsMessage();
-  const [selectedSection, setSection] = useState<RecipientWorkspaceSection>("recipients");
-  const section = isArchived && selectedSection === "add" ? "recipients" : selectedSection;
+  const [selectedSection, setSection] = useState<RecipientWorkspaceSection | null>(null);
+  const defaultSection = sourceContactCount === undefined ? "recipients" : "travellers";
+  const section = isArchived && selectedSection === "add" ? "recipients" : selectedSection ?? defaultSection;
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [bulkMessageType, setBulkMessageType] = useState<"welcome" | "passport_link" | "group_invite" | null>(null);
   const [bulkSelectionSnapshot, setBulkSelectionSnapshot] = useState<WhatsAppRecipient[]>([]);
@@ -590,7 +597,7 @@ export function RecipientListDialog({
           }
           widthClass="max-w-[1600px] h-[94dvh]"
         >
-        <RecipientWorkspaceNavigation section={section} onChange={setSection} recipientCount={detail?.recipient_count ?? group.recipient_count} pendingCount={contacts.length + rejectedContacts.length} readOnly={isArchived} />
+        <RecipientWorkspaceNavigation section={section} onChange={setSection} recipientCount={detail?.recipient_count ?? group.recipient_count} pendingCount={contacts.length + rejectedContacts.length} readOnly={isArchived} sourceContactCount={sourceContactCount} />
         <div className="min-h-0 flex-1 overflow-y-auto bg-slate-50/70 p-4 sm:p-6">
         {isArchived && <p role="status" className="mb-4 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700">This broadcast is archived and read-only. Restore it from Archived broadcasts to edit recipients or send messages.</p>}
         {loadError ? (
@@ -602,6 +609,7 @@ export function RecipientListDialog({
           </div>
         ) : (
           <div className="space-y-4">
+            {section === "travellers" && <SourceRosterPanel data={sourceContacts.data} isLoading={sourceContacts.isLoading} isFetching={sourceContacts.isFetching} error={sourceContacts.error} onRetry={() => void sourceContacts.refetch()} />}
             {section === "details" && (
             <fieldset disabled={isArchived}>
             <section className="mx-auto w-full max-w-4xl rounded-2xl border border-slate-200 bg-white p-5 sm:p-7">

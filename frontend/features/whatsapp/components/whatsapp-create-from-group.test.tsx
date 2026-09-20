@@ -21,7 +21,14 @@ function preview(id = "source-a", revision = "revision-a"): WhatsAppSourceGroupP
     source_group_id: id, source_group_name: sourceGroups.find((group) => group.id === id)!.name,
     total_submissions: 4, recipient_count: 1,
     recipients: [{ name: id === "source-a" ? "Aarav Sharma" : "Meera Singh", phone_number: id === "source-a" ? "+919999999991" : "+919999999992", imported_fields: {} }],
-    excluded_count: 3, excluded_counts: { missing_phone: 1, invalid_phone: 0, unverified_phone: 1, missing_name: 0, name_too_long: 0, duplicate_phone: 1 },
+    contacts: [
+      { source_submission_id: "person-a", name: id === "source-a" ? "Aarav Sharma" : "Meera Singh", phone_number: id === "source-a" ? "+919999999991" : "+919999999992", normalized_phone_number: "+919999999991", issue: null, imported_fields: {} },
+      { source_submission_id: "person-b", name: "Other Traveller", phone_number: "+919999999991", normalized_phone_number: "+919999999991", issue: null, imported_fields: {} },
+      { source_submission_id: "person-c", name: "Missing Phone", phone_number: "", normalized_phone_number: null, issue: "missing_phone", imported_fields: {} },
+      { source_submission_id: "person-d", name: "Unverified Contact", phone_number: "1234", normalized_phone_number: null, issue: "unverified_phone", imported_fields: {} },
+    ],
+    excluded_count: 2, excluded_counts: { missing_phone: 1, invalid_phone: 0, unverified_phone: 1, missing_name: 0, name_too_long: 0, duplicate_phone: 0 },
+    shared_phone_count: 1, needs_attention_count: 2,
     preview_revision: revision,
   };
 }
@@ -61,14 +68,15 @@ const saveButton = () => screen.getByRole("button", { name: "Save List" });
 const optIn = () => screen.getByRole("checkbox", { name: /I confirm these recipients/ });
 
 describe("create broadcast from an existing group", () => {
-  it("previews names, numbers and skipped counts and submits the selected source with editable name", async () => {
+  it("keeps every traveller row including shared numbers and contacts needing attention", async () => {
     const { onSubmit } = setup();
     expect(whatsappSourceGroupsApi.list).not.toHaveBeenCalled();
     await chooseSource();
     expect(await screen.findByText("Aarav Sharma")).toBeInTheDocument();
-    expect(screen.getByText("+919999999991")).toBeInTheDocument();
-    expect(screen.getByText("Missing WhatsApp number: 1")).toBeInTheDocument();
-    expect(screen.getByText("Duplicate WhatsApp number: 1")).toBeInTheDocument();
+    expect(screen.getAllByText("+919999999991")).toHaveLength(2);
+    expect(screen.getByText("WhatsApp number missing")).toBeInTheDocument();
+    expect(screen.getByText("Other Traveller")).toBeInTheDocument();
+    expect(screen.getAllByText("Shared number · one message")).toHaveLength(2);
     expect(screen.getByRole("textbox", { name: "Group name" })).toHaveValue("Vietnam trip");
     fireEvent.change(screen.getByRole("textbox", { name: "Group name" }), { target: { value: "Vietnam travellers" } });
     addSupport();
@@ -191,10 +199,23 @@ describe("create broadcast from an existing group", () => {
     await chooseSource();
     expect(await screen.findByText("Preview unavailable")).toBeInTheDocument();
     expect(saveButton()).toBeDisabled();
-    vi.mocked(whatsappSourceGroupsApi.preview).mockResolvedValue({ ...preview(), recipients: [], recipient_count: 0 });
+    vi.mocked(whatsappSourceGroupsApi.preview).mockResolvedValue({ ...preview(), contacts: [], recipients: [], recipient_count: 0 });
     fireEvent.click(screen.getByRole("button", { name: "Refresh preview" }));
-    expect(await screen.findByText(/No eligible contacts to import/)).toBeInTheDocument();
+    expect(await screen.findByText(/No traveller rows to import/)).toBeInTheDocument();
     expect(saveButton()).toBeDisabled();
+  });
+
+  it("allows saving retained traveller rows even when every number needs attention", async () => {
+    const source = preview();
+    vi.mocked(whatsappSourceGroupsApi.preview).mockResolvedValue({ ...source, source_import_only: true, contacts: source.contacts!.filter((contact) => contact.issue), recipients: [], recipient_count: 0 });
+    const { onSubmit } = setup();
+    await chooseSource();
+    await screen.findByText("Import only");
+    expect(saveButton()).toBeEnabled();
+    addSupport();
+    fireEvent.click(optIn());
+    fireEvent.click(saveButton());
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ sourceGroupId: "source-a" })));
   });
 
   it("preserves the manual draft when switching methods and resets source selection", async () => {

@@ -1,4 +1,5 @@
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
+import { WHATSAPP_SOURCE_QUERY_KEYS } from "@/features/whatsapp/utils/source-group-cache";
 
 export const DASHBOARD_REALTIME_PATH = API_ENDPOINTS.dashboard.realtime;
 
@@ -73,6 +74,9 @@ export function dashboardRealtimeQueryPrefixes(
       return [groupOperations, ["operations", "rooming", frame.trip_id]];
     case "roster":
       return [
+        ["whatsapp", "groups"],
+        WHATSAPP_SOURCE_QUERY_KEYS.groups,
+        WHATSAPP_SOURCE_QUERY_KEYS.preview(frame.trip_id),
         groupOperations,
         ["operations", "rooming", frame.trip_id],
         ["passports"],
@@ -81,6 +85,9 @@ export function dashboardRealtimeQueryPrefixes(
       ];
     case "all":
       return [
+        ["whatsapp", "groups"],
+        WHATSAPP_SOURCE_QUERY_KEYS.groups,
+        WHATSAPP_SOURCE_QUERY_KEYS.preview(frame.trip_id),
         ["gc-app"],
         groupOperations,
         ["operations", "rooming", frame.trip_id],

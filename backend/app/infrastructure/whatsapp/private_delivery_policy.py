@@ -17,6 +17,9 @@ from app.application.use_cases.whatsapp.group_submission_matching import (
     SubmissionForComparison,
     compare_group_submissions,
 )
+from app.application.use_cases.whatsapp.imported_broadcast_phone import (
+    has_public_collection_contact,
+)
 from app.application.use_cases.whatsapp.private_delivery_identity import (
     is_private_delivery_match,
 )
@@ -223,6 +226,7 @@ async def lock_private_delivery_group_source_snapshot(
             family_relation=submission.family_relation,
             family_gender=submission.family_gender,
             family_head_name=submission.family_head_name,
+            has_public_collection_contact=has_public_collection_contact(submission),
         )
         for submission in submissions
     ]

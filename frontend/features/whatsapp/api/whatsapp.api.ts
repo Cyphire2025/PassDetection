@@ -135,6 +135,8 @@ export interface WhatsAppBroadcastGroup {
   name: string;
   is_archived?: boolean;
   archived_at?: string | null;
+  has_import_only_source?: boolean;
+  source_contact_count?: number;
   /** Active, valid recipients that can receive a message. */
   recipient_count: number;
   /** Complete visible roster: valid recipients plus rejected import rows. */
@@ -153,6 +155,7 @@ export interface WhatsAppMatchingFieldOption {
 export interface WhatsAppLinkedClientGroup {
   id: string;
   name: string;
+  import_only?: boolean;
   status: string;
 }
 

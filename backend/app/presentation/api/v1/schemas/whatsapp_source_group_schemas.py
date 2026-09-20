@@ -17,6 +17,16 @@ class WhatsAppSourceGroupOption(BaseModel):
     id: uuid.UUID
     name: str
     submission_count: int
+    import_only: bool = False
+
+
+class WhatsAppSourceContact(BaseModel):
+    source_submission_id: uuid.UUID
+    name: str
+    phone_number: str
+    normalized_phone_number: str | None = None
+    issue: str | None = None
+    imported_fields: dict[str, str] = Field(default_factory=dict)
 
 
 class WhatsAppSourceExcludedCounts(BaseModel):
@@ -31,9 +41,13 @@ class WhatsAppSourceExcludedCounts(BaseModel):
 class WhatsAppSourceGroupPreview(BaseModel):
     source_group_id: uuid.UUID
     source_group_name: str
+    source_import_only: bool = False
     total_submissions: int
     recipient_count: int
     recipients: list[WhatsAppContactPreviewRecipient]
+    contacts: list[WhatsAppSourceContact] = Field(default_factory=list)
+    shared_phone_count: int = 0
+    needs_attention_count: int = 0
     excluded_count: int
     excluded_counts: WhatsAppSourceExcludedCounts
     preview_revision: str
@@ -53,3 +67,19 @@ class WhatsAppSourceGroupCreateRequest(BaseModel):
 class WhatsAppSourceGroupCreateResponse(BaseModel):
     group: WhatsAppBroadcastGroupDetailResponse
     source: WhatsAppSourceGroupPreview
+
+
+class WhatsAppBroadcastSourceContact(WhatsAppSourceContact):
+    source_group_id: uuid.UUID
+    source_group_name: str
+    source_import_only: bool
+    recipient_id: uuid.UUID | None = None
+
+
+class WhatsAppBroadcastSourceRoster(BaseModel):
+    sources: list[WhatsAppSourceGroupOption]
+    total_contacts: int
+    unique_phone_count: int
+    shared_phone_count: int
+    needs_attention_count: int
+    contacts: list[WhatsAppBroadcastSourceContact]

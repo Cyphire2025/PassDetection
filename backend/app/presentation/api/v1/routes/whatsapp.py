@@ -487,6 +487,9 @@ from app.presentation.api.v1.routes.whatsapp_source_groups import (
     create_broadcast_from_source_group as create_broadcast_from_source_group,
 )
 from app.presentation.api.v1.routes.whatsapp_source_groups import (
+    get_broadcast_source_contacts as get_broadcast_source_contacts,
+)
+from app.presentation.api.v1.routes.whatsapp_source_groups import (
     list_source_groups as list_source_groups,
 )
 from app.presentation.api.v1.routes.whatsapp_source_groups import (

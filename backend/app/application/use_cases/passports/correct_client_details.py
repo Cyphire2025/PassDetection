@@ -15,6 +15,9 @@ from app.application.use_cases.passports.client_details_fields import (
 from app.application.use_cases.whatsapp.group_submission_matching import (
     normalize_matching_field_key,
 )
+from app.application.use_cases.whatsapp.imported_broadcast_phone import (
+    imported_phone_column_priority,
+)
 from app.domain.entities.entities import ClientGroup, PassportSubmission
 from app.domain.exceptions.exceptions import ValidationError
 from app.domain.value_objects.custom_questions import (
@@ -120,7 +123,9 @@ def correct_client_details(
             aliases = {key} if key not in DIRECT_FIELDS else set()
             for source in (confirmed, metadata, submission.extracted_fields or {}):
                 aliases.update(
-                    raw for raw in source if normalize_matching_field_key(raw) in canonical_keys
+                    raw for raw in source
+                    if normalize_matching_field_key(raw) in canonical_keys
+                    or (key == "client_phone" and imported_phone_column_priority(raw) is not None)
                 )
             for alias in aliases:
                 confirmed[alias] = cleaned or ""

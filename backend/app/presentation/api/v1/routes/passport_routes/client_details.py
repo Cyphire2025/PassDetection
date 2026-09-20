@@ -25,6 +25,9 @@ from app.infrastructure.database.models import ClientGroupModel
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
+from app.infrastructure.repositories.passport_roster_resolution_repository import (
+    lock_linked_whatsapp_broadcast_groups,
+)
 from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
@@ -121,6 +124,11 @@ async def update_passport_client_details(
         _, proposed_changes = correct_client_details(before, current_group, changes)
         cancelled_deliveries = 0
         if proposed_changes:
+            await lock_linked_whatsapp_broadcast_groups(
+                session,
+                agency_id=before.agency_id,
+                group_id=before.group_id,
+            )
             cancelled_deliveries = await prepare_private_delivery_identity_mutation(
                 session,
                 agency_id=before.agency_id,

@@ -45,6 +45,7 @@ from app.infrastructure.database.public_upload_contact_model import (
 
 WhatsAppBroadcastGroupModel = _communications_models.WhatsAppBroadcastGroupModel
 WhatsAppBroadcastRecipientModel = _communications_models.WhatsAppBroadcastRecipientModel
+WhatsAppBroadcastSourceContactModel = _communications_models.WhatsAppBroadcastSourceContactModel
 WhatsAppBroadcastRejectedContactModel = _communications_models.WhatsAppBroadcastRejectedContactModel
 WhatsAppBroadcastSupportContactModel = _communications_models.WhatsAppBroadcastSupportContactModel
 WhatsAppMessageLogModel = _communications_models.WhatsAppMessageLogModel
@@ -1393,6 +1394,9 @@ class ClientGroupWhatsAppBroadcastLinkModel(Base):
     matching_field_keys: Mapped[list[str] | None] = mapped_column(
         JSONB,
         nullable=True,
+    )
+    sync_contacts_from_group: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default=text("false")
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, nullable=False

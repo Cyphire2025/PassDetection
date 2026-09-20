@@ -4,16 +4,19 @@ from __future__ import annotations
 
 import copy
 import uuid
+from datetime import UTC, datetime
 
 import pytest
 from pydantic import ValidationError as SchemaValidationError
 
+from app.application.mobile.passenger_phone_authority import authoritative_submission_phone
 from app.application.use_cases.passports.client_details_fields import client_details_payload
 from app.application.use_cases.passports.correct_client_details import correct_client_details
 from app.application.use_cases.whatsapp.group_submission_matching import (
     SubmissionForComparison,
     _submission_field_map,
 )
+from app.application.use_cases.whatsapp.source_group_contacts import build_source_contacts
 from app.domain.entities.entities import ClientGroup, PassportProcessingStatus, PassportSubmission
 from app.domain.exceptions.exceptions import ValidationError
 from app.presentation.api.v1.schemas.passport_client_details_schemas import (
@@ -102,6 +105,43 @@ def test_staff_format_only_edit_preserves_legacy_number_without_publishing_a_con
     updated, changed = correct_client_details(submission, group, {"client_phone": "+91 98765 43210"})
     assert not changed
     assert updated.client_phone == "9876543210"
+
+
+@pytest.mark.parametrize("raw", ["9876543210", "not a valid number"])
+@pytest.mark.parametrize("new_phone", ["9123456789", None])
+def test_imported_phone_edit_and_clear_update_source_column_without_otp_authority(raw, new_phone):
+    submission, group = sample()
+    submission.image_s3_key = "excel-imports/source"
+    submission.client_reviewed_at = datetime.now(tz=UTC)
+    submission.client_phone = "9000000000"
+    submission.staff_metadata = {"upload_phone": raw, "Upload Phone 2": raw}
+    fields = client_details_payload(submission, group)["fields"]
+    assert next(field.value for field in fields if field.key == "client_phone") == raw
+    updated, changed = correct_client_details(submission, group, {"client_phone": new_phone})
+    assert changed == ("client_phone",)
+    expected = "+919123456789" if new_phone else ""
+    assert updated.staff_metadata == {"upload_phone": expected, "Upload Phone 2": expected}
+    assert authoritative_submission_phone(updated) is None
+    preview = build_source_contacts(group.id, group.name, [updated])
+    assert [row["phone_number"] for row in preview["recipients"]] == ([expected] if new_phone else [])
+    assert submission.staff_metadata["upload_phone"] == raw
+
+
+def test_imported_editor_uses_verified_column_and_public_editor_uses_current_contact():
+    submission, group = sample()
+    submission.image_s3_key = "excel-imports/source"
+    submission.client_reviewed_at = datetime.now(tz=UTC)
+    submission.client_phone = "9000000000"
+    submission.staff_metadata = {
+        "upload_phone": "9876543210", "verified_whatsapp_numbers": "invalid verified number",
+    }
+    fields = client_details_payload(submission, group)["fields"]
+    assert next(field.value for field in fields if field.key == "client_phone") == "invalid verified number"
+    updated, _ = correct_client_details(submission, group, {"client_phone": "9123456789"})
+    assert set(updated.staff_metadata.values()) == {"+919123456789"}
+    submission.image_s3_key = "uploads/passport.jpg"
+    fields = client_details_payload(submission, group)["fields"]
+    assert next(field.value for field in fields if field.key == "client_phone") == "9000000000"
 
 
 @pytest.mark.parametrize("raw", ["1234567", "1234567890123456", "+01234567890", "++919876543210"])

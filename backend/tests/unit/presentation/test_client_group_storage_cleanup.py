@@ -24,6 +24,23 @@ from app.presentation.api.v1.routes.client_groups import (
 from app.presentation.api.v1.routes.client_groups import router as client_group_router
 
 
+@pytest.fixture(autouse=True)
+def source_contact_sync(monkeypatch):
+    sync = AsyncMock()
+    monkeypatch.setattr(
+        "app.presentation.api.v1.routes.client_groups.sync_group_broadcast_contacts", sync,
+    )
+    monkeypatch.setattr(
+        "app.presentation.api.v1.routes.client_groups.lock_linked_whatsapp_broadcast_groups",
+        AsyncMock(),
+    )
+    monkeypatch.setattr(
+        "app.presentation.api.v1.routes.client_groups.prepare_private_delivery_identity_mutation",
+        AsyncMock(),
+    )
+    return sync
+
+
 def _mutation(group: ClientGroup) -> SimpleNamespace:
     return SimpleNamespace(
         group=group,
@@ -70,7 +87,7 @@ def test_permanent_group_cleanup_includes_every_passport_image_variant() -> None
 
 
 @pytest.mark.asyncio
-async def test_data_removal_deletes_submissions_before_qualifier_rows() -> None:
+async def test_data_removal_deletes_submissions_before_qualifier_rows(source_contact_sync) -> None:
     group = ClientGroup.create(
         name="Delete Group",
         token="delete-group-token",
@@ -93,6 +110,7 @@ async def test_data_removal_deletes_submissions_before_qualifier_rows() -> None:
     )
     session = SimpleNamespace(
         execute=AsyncMock(return_value=execute_result),
+        scalars=AsyncMock(return_value=SimpleNamespace(all=lambda: [])),
         commit=AsyncMock(),
     )
     current_user = SimpleNamespace(
@@ -145,6 +163,13 @@ async def test_data_removal_deletes_submissions_before_qualifier_rows() -> None:
             session=session,  # type: ignore[arg-type]
         )
 
+    source_contact_sync.assert_awaited_once_with(
+        session,
+        agency_id=group.agency_id,
+        group_id=group.id,
+        actor_user_id=current_user.id,
+        affected_broadcast_ids=(),
+    )
     stage_cleanup.assert_called_once_with(
         session,
         agency_id=group.agency_id,
@@ -200,6 +225,7 @@ async def test_group_delete_commit_failure_records_failure_and_keeps_cleanup_def
     )
     session = SimpleNamespace(
         execute=AsyncMock(return_value=execute_result),
+        scalars=AsyncMock(return_value=SimpleNamespace(all=lambda: [])),
         commit=AsyncMock(side_effect=RuntimeError("commit unavailable")),
     )
     current_user = SimpleNamespace(

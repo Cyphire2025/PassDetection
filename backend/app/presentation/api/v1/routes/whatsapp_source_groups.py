@@ -27,26 +27,34 @@ from app.infrastructure.database.models import (
     ClientGroupWhatsAppBroadcastLinkModel,
     PassportSubmissionModel,
     WhatsAppBroadcastGroupModel,
-    WhatsAppBroadcastRecipientModel,
+    WhatsAppBroadcastSourceContactModel,
     WhatsAppBroadcastSupportContactModel,
 )
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.operational_roster import operational_roster_member
 from app.infrastructure.repositories.passport_roster_resolution_repository import (
+    lock_linked_whatsapp_broadcast_groups,
     suppress_active_replacement_recipients,
 )
 from app.infrastructure.whatsapp.private_delivery_policy import (
     PrivateDeliveryMutationBlocked,
     prepare_private_delivery_identity_mutation,
 )
+from app.infrastructure.whatsapp.source_group_sync import sync_group_broadcast_contacts
 from app.presentation.api.v1.routes.whatsapp_contact_support import (
     _clean_required_name,
     _normalize_phone,
     _parse_support_contacts,
 )
 from app.presentation.api.v1.routes.whatsapp_scope import _lock_active_whatsapp_actor
-from app.presentation.api.v1.routes.whatsapp_shared import WHATSAPP_ROLES, _group_detail
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    WHATSAPP_ROLES,
+    _agency_filter,
+    _group_detail,
+)
 from app.presentation.api.v1.schemas.whatsapp_source_group_schemas import (
+    WhatsAppBroadcastSourceContact,
+    WhatsAppBroadcastSourceRoster,
     WhatsAppSourceGroupCreateRequest,
     WhatsAppSourceGroupCreateResponse,
     WhatsAppSourceGroupOption,
@@ -98,7 +106,7 @@ async def _source_preview(
         statement = statement.with_for_update().execution_options(populate_existing=True)
     submissions = (await session.execute(statement)).scalars().all()
     return WhatsAppSourceGroupPreview.model_validate(
-        build_source_contacts(group.id, group.name, submissions)
+        build_source_contacts(group.id, group.name, submissions, import_only=group.import_only)
     )
 
 
@@ -117,7 +125,7 @@ async def list_source_groups(
     )).group_by(ClientGroupModel.id).order_by(ClientGroupModel.created_at.desc())
     rows = (await session.execute(statement)).all()
     return [
-        WhatsAppSourceGroupOption(id=group.id, name=group.name, submission_count=count)
+        WhatsAppSourceGroupOption(id=group.id, name=group.name, submission_count=count, import_only=group.import_only)
         for group, count in rows
     ]
 
@@ -150,15 +158,18 @@ async def create_broadcast_from_source_group(
     actor = await _lock_active_whatsapp_actor(session, current_user=current_user, require_agency=True)
     effective_actor = cast(User, actor)
     source = await _source_group(body.source_group_id, effective_actor, session, lock=True)
-    preview = await _source_preview(source, session, lock=True)
+    preview = await _source_preview(source, session)
     if preview.preview_revision != body.preview_revision:
         raise HTTPException(409, "The source group changed. Refresh its preview and confirm the recipients again.")
-    if not preview.recipient_count:
-        raise HTTPException(400, "This group has no usable named WhatsApp recipients.")
+    if not preview.contacts:
+        raise HTTPException(400, "This group has no traveller records to import.")
     try:
         require_whatsapp_recipient_capacity(active_count=0, activating_count=preview.recipient_count)
     except WhatsAppRecipientCapacityExceeded as exc:
         raise HTTPException(400, "A WhatsApp broadcast can contain at most 1500 recipients.") from exc
+    await lock_linked_whatsapp_broadcast_groups(
+        session, agency_id=source.agency_id, group_id=source.id,
+    )
     try:
         await prepare_private_delivery_identity_mutation(
             session, agency_id=source.agency_id, group_id=source.id,
@@ -176,13 +187,6 @@ async def create_broadcast_from_source_group(
         created_by_user_id=actor.id, created_at=now, updated_at=now,
     )
     session.add(group)
-    for order, contact in enumerate(preview.recipients, 1):
-        session.add(WhatsAppBroadcastRecipientModel(
-            broadcast_group_id=group.id, agency_id=source.agency_id,
-            name=contact.name, phone_number=contact.phone_number,
-            normalized_phone_number=contact.phone_number, imported_fields=contact.imported_fields,
-            display_order=order, created_at=now,
-        ))
     for order, support_contact in enumerate(support_contacts):
         session.add(WhatsAppBroadcastSupportContactModel(
             broadcast_group_id=group.id, agency_id=source.agency_id,
@@ -194,8 +198,12 @@ async def create_broadcast_from_source_group(
     session.add(ClientGroupWhatsAppBroadcastLinkModel(
         client_group_id=source.id, broadcast_group_id=group.id, agency_id=source.agency_id,
         created_by_user_id=actor.id, matching_field_keys=["phone_number"], created_at=now,
+        sync_contacts_from_group=True,
     ))
     await session.flush()
+    await sync_group_broadcast_contacts(
+        session, agency_id=source.agency_id, group_id=source.id, actor_user_id=actor.id,
+    )
     await suppress_active_replacement_recipients(
         session, agency_id=source.agency_id, broadcast_group_ids=[group.id], now=now,
     )
@@ -205,4 +213,62 @@ async def create_broadcast_from_source_group(
     )
     return WhatsAppSourceGroupCreateResponse(
         group=await _group_detail(session, group, current_user=effective_actor), source=preview,
+    )
+
+
+@router.get("/groups/{group_id}/source-contacts", response_model=WhatsAppBroadcastSourceRoster)
+async def get_broadcast_source_contacts(
+    group_id: uuid.UUID,
+    current_user: User = Depends(require_role(WHATSAPP_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> WhatsAppBroadcastSourceRoster:
+    broadcast = (await session.execute(select(WhatsAppBroadcastGroupModel).where(
+        WhatsAppBroadcastGroupModel.id == group_id, *_agency_filter(current_user),
+    ))).scalar_one_or_none()
+    if broadcast is None:
+        raise HTTPException(404, "WhatsApp broadcast group not found")
+    sources_statement = select(ClientGroupModel).join(
+        ClientGroupWhatsAppBroadcastLinkModel,
+        ClientGroupWhatsAppBroadcastLinkModel.client_group_id == ClientGroupModel.id,
+    ).where(
+        ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id == broadcast.id,
+        ClientGroupWhatsAppBroadcastLinkModel.agency_id == broadcast.agency_id,
+        ClientGroupModel.agency_id == broadcast.agency_id,
+        ClientGroupModel.status == GroupStatus.ACTIVE.value,
+        ClientGroupModel.deleted_at.is_(None),
+        ClientGroupWhatsAppBroadcastLinkModel.sync_contacts_from_group.is_(True)
+        | ClientGroupModel.import_only.is_(True),
+    ).order_by(ClientGroupModel.name, ClientGroupModel.id)
+    sources = (await session.execute(
+        AuthorizationPolicy.apply_group_visibility_scope(sources_statement, current_user)
+    )).scalars().all()
+    by_id = {source.id: source for source in sources}
+    rows = (await session.execute(select(WhatsAppBroadcastSourceContactModel).where(
+        WhatsAppBroadcastSourceContactModel.broadcast_group_id == broadcast.id,
+        WhatsAppBroadcastSourceContactModel.agency_id == broadcast.agency_id,
+        WhatsAppBroadcastSourceContactModel.source_group_id.in_(by_id),
+    ).order_by(
+        WhatsAppBroadcastSourceContactModel.created_at, WhatsAppBroadcastSourceContactModel.id,
+    ))).scalars().all() if by_id else []
+    contacts = [WhatsAppBroadcastSourceContact(
+        source_submission_id=row.source_submission_id,
+        source_group_id=row.source_group_id,
+        source_group_name=by_id[row.source_group_id].name,
+        source_import_only=by_id[row.source_group_id].import_only,
+        name=row.name,
+        phone_number=row.raw_phone_number or "",
+        normalized_phone_number=row.normalized_phone_number,
+        issue=row.issue,
+        imported_fields=row.imported_fields or {},
+        recipient_id=row.recipient_id,
+    ) for row in rows]
+    phones = [row.normalized_phone_number for row in rows if not row.issue and row.normalized_phone_number]
+    return WhatsAppBroadcastSourceRoster(
+        sources=[WhatsAppSourceGroupOption(
+            id=source.id, name=source.name, import_only=source.import_only,
+            submission_count=sum(row.source_group_id == source.id for row in rows),
+        ) for source in sources],
+        total_contacts=len(contacts), unique_phone_count=len(set(phones)),
+        shared_phone_count=len(phones) - len(set(phones)),
+        needs_attention_count=sum(bool(row.issue) for row in rows), contacts=contacts,
     )

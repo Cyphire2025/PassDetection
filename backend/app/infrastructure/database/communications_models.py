@@ -121,6 +121,9 @@ class WhatsAppBroadcastRecipientModel(Base):
         server_default="{}",
     )
     display_order: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    is_source_managed: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default=text("false")
+    )
     removed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     suppressed_by_roster_resolution_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
@@ -134,6 +137,53 @@ class WhatsAppBroadcastRecipientModel(Base):
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+
+
+class WhatsAppBroadcastSourceContactModel(Base):
+    """Every source traveller; several travellers may share one delivery recipient."""
+
+    __tablename__ = "whatsapp_broadcast_source_contacts"
+    __table_args__ = (
+        UniqueConstraint(
+            "broadcast_group_id", "source_group_id", "source_submission_id",
+            name="uq_whatsapp_source_contact_submission",
+        ),
+        Index("ix_whatsapp_source_contacts_agency_source", "agency_id", "source_group_id"),
+        Index("ix_whatsapp_source_contacts_broadcast", "broadcast_group_id"),
+        Index("ix_whatsapp_source_contacts_recipient", "recipient_id"),
+        Index("ix_whatsapp_source_contacts_submission", "source_submission_id"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False
+    )
+    broadcast_group_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("whatsapp_broadcast_groups.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    source_group_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("client_groups.id", ondelete="CASCADE"), nullable=False
+    )
+    source_submission_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("passport_submissions.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    recipient_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("whatsapp_broadcast_recipients.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    name: Mapped[str] = mapped_column(Text, nullable=False)
+    raw_phone_number: Mapped[str | None] = mapped_column(Text, nullable=True)
+    normalized_phone_number: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    issue: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    imported_fields: Mapped[dict[str, str]] = mapped_column(
+        JSONB, nullable=False, default=dict, server_default="{}"
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
     )
 
 

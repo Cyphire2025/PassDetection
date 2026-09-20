@@ -35,6 +35,8 @@ def _isolate_mobile_passenger_propagation(monkeypatch: pytest.MonkeyPatch) -> No
         "propagate_mobile_passenger_change",
         AsyncMock(),
     )
+    monkeypatch.setattr(passport_bulk_actions, "lock_linked_whatsapp_broadcast_groups", AsyncMock())
+    monkeypatch.setattr(passport_bulk_actions, "prepare_private_delivery_identity_mutation", AsyncMock())
 
 
 class _Result:

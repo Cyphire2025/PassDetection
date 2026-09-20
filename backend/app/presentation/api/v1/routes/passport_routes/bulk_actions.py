@@ -52,11 +52,18 @@ from app.infrastructure.repositories.client_group_repository import ClientGroupR
 from app.infrastructure.repositories.passport_image_crop_repository import (
     PassportImageCropRepository,
 )
+from app.infrastructure.repositories.passport_roster_resolution_repository import (
+    lock_linked_whatsapp_broadcast_groups,
+)
 from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
 from app.infrastructure.repositories.user_repository import UserRepository
 from app.infrastructure.storage.passport_object_keys import passport_storage_keys
+from app.infrastructure.whatsapp.private_delivery_policy import (
+    PrivateDeliveryMutationBlocked,
+    prepare_private_delivery_identity_mutation,
+)
 from app.presentation.api.v1.routes.passport_deletion_support import previous_bulk_delete_result
 from app.presentation.api.v1.schemas.passport_schemas import (
     BulkDeletePassportSubmissionsRequest,
@@ -170,6 +177,9 @@ async def bulk_delete_passport_submissions(
         delete_scope="submissions",
     )
     group = mutation.group
+    await lock_linked_whatsapp_broadcast_groups(
+        session, agency_id=group.agency_id, group_id=group_id,
+    )
     selected_rows = await session.execute(
         select(
             PassportSubmissionModel.id,
@@ -246,6 +256,17 @@ async def bulk_delete_passport_submissions(
             ),
         )
 
+    try:
+        await prepare_private_delivery_identity_mutation(
+            session,
+            agency_id=group.agency_id,
+            group_id=group_id,
+            cancel_queued=True,
+            cancellation_reason="Passenger removed before private WhatsApp delivery.",
+        )
+    except PrivateDeliveryMutationBlocked as exc:
+        raise ConflictError(str(exc), code="WHATSAPP_SOURCE_SYNC_DELIVERY_ACTIVE") from exc
+
     storage_keys = passport_storage_keys(submissions)
     crop_repository = PassportImageCropRepository(session)
     storage_keys.extend(await crop_repository.derived_storage_keys(submission_ids))
@@ -294,6 +315,7 @@ async def bulk_delete_passport_submissions(
         actor_user_id=current_user.id,
         operation="delete",
         change_kind="documents",
+        sync_broadcast_contacts=True,
     )
     await AuditLogRepository(session).record(
         action="passport_submissions_bulk_deleted",
@@ -425,6 +447,14 @@ async def bulk_staff_approve_passport_submissions(
                 ),
             )
     requested_ids = list(selection_by_id)
+    await session.execute(
+        select(ClientGroupModel.id)
+        .where(
+            ClientGroupModel.id == group_id,
+            ClientGroupModel.agency_id == group.agency_id,
+        )
+        .with_for_update()
+    )
     # Lock in a stable order to avoid deadlocks between overlapping batches.
     stmt = (
         select(PassportSubmissionModel)
@@ -550,6 +580,13 @@ async def bulk_staff_approve_passport_submissions(
                 session,
                 approved_ids,
                 created_by_user_id=actor.id,
+            )
+            await propagate_mobile_passenger_change(
+                session,
+                agency_id=group.agency_id,
+                group_id=group_id,
+                passenger_submission_ids=approved_ids,
+                actor_user_id=actor.id,
             )
         await session.commit()
     except Exception:

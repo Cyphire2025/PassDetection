@@ -20,6 +20,7 @@ _EXPECTED_ROUTES = [
     (("GET",), "/source-groups", "list_source_groups"),
     (("GET",), "/source-groups/{group_id}/preview", "preview_source_group"),
     (("POST",), "/groups/from-client-group", "create_broadcast_from_source_group"),
+    (("GET",), "/groups/{group_id}/source-contacts", "get_broadcast_source_contacts"),
     (("GET",), "/groups", "list_broadcast_groups"),
     (("GET",), "/groups/{group_id}", "get_broadcast_group"),
     (("GET",), "/groups/{group_id}/recipient-roster", "get_broadcast_recipient_roster"),

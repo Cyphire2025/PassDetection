@@ -42,6 +42,31 @@ async def lock_whatsapp_broadcast_groups(
     return list(result.scalars().all())
 
 
+async def lock_linked_whatsapp_broadcast_groups(
+    session: AsyncSession,
+    *,
+    agency_id: uuid.UUID,
+    group_id: uuid.UUID,
+) -> None:
+    """Lock linked broadcasts before private ledgers while the source group is locked."""
+
+    await session.execute(
+        select(WhatsAppBroadcastGroupModel.id)
+        .join(
+            ClientGroupWhatsAppBroadcastLinkModel,
+            ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id
+            == WhatsAppBroadcastGroupModel.id,
+        )
+        .where(
+            WhatsAppBroadcastGroupModel.agency_id == agency_id,
+            ClientGroupWhatsAppBroadcastLinkModel.agency_id == agency_id,
+            ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group_id,
+        )
+        .order_by(WhatsAppBroadcastGroupModel.id)
+        .with_for_update(of=WhatsAppBroadcastGroupModel)
+    )
+
+
 async def active_replacement_phone_numbers_for_broadcast(
     session: AsyncSession,
     *,
