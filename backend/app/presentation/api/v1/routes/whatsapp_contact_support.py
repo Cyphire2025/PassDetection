@@ -187,6 +187,8 @@ _EXCEL_FIELD_ALIASES = {
     "whatsapp": "phone_number",
     "whatsapp no": "phone_number",
     "whatsapp number": "phone_number",
+    "verified whatsapp number": "phone_number",
+    "verified whatsapp numbers": "phone_number",
     "email address": "email",
     "e mail": "email",
     "mail": "email",

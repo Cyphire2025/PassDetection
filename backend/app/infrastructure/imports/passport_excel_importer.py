@@ -106,6 +106,8 @@ def _canonicalize_numeric_date_separators(value: str) -> str:
 
 
 _HEADER_ALIASES: Final[dict[str, tuple[str, ...]]] = {
+    # An explicit spreadsheet contact source, never a public collection/OTP marker.
+    "verified_whatsapp_numbers": ("verified whatsapp numbers", "verified whatsapp number"),
     "client_name": (
         "passenger name",
         "full name",
@@ -547,6 +549,8 @@ class PassportExcelImporter:
                     )
                     if mapped.get("staff_code"):
                         staff_metadata.setdefault("staff_code", mapped["staff_code"])
+                    if mapped.get("verified_whatsapp_numbers"):
+                        staff_metadata["verified_whatsapp_numbers"] = mapped["verified_whatsapp_numbers"]
                     staff_metadata["source_sheet"] = worksheet.title
                     # A zone heading is not guaranteed in third-party templates;
                     # the worksheet name remains a reliable grouping fallback.

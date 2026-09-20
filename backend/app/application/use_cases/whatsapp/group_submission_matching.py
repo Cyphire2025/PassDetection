@@ -102,6 +102,8 @@ _MATCH_FIELD_KEY_ALIASES = {
     "whatsapp": "phone_number",
     "whatsapp_no": "phone_number",
     "whatsapp_number": "phone_number",
+    "verified_whatsapp_number": "phone_number",
+    "verified_whatsapp_numbers": "phone_number",
     "email_address": "email",
     "e_mail": "email",
     "mail": "email",
@@ -569,6 +571,11 @@ def _submission_field_map(
     passport_fields = _passport_fields(submission)
     layered_fields: dict[str, object] = {}
     for key, value in staff_fields.items():
+        if _normalized_key(key) in {"verified_whatsapp_number", "verified_whatsapp_numbers"}:
+            # Keep the explicit contact column alongside generic mobile data;
+            # workbook column order must not decide whether its source matches.
+            add("phone_number", value)
+            continue
         if not _normalized_key(key).endswith("_label"):
             if canonical := normalize_matching_field_key(key):
                 layered_fields[canonical] = value

@@ -1,0 +1,55 @@
+"""Contracts for creating a broadcast from an existing passport group."""
+
+from __future__ import annotations
+
+import uuid
+
+from pydantic import BaseModel, ConfigDict, Field
+
+from app.presentation.api.v1.schemas.whatsapp_schemas import (
+    WhatsAppBroadcastGroupDetailResponse,
+    WhatsAppContactPreviewRecipient,
+    WhatsAppSupportContactInput,
+)
+
+
+class WhatsAppSourceGroupOption(BaseModel):
+    id: uuid.UUID
+    name: str
+    submission_count: int
+
+
+class WhatsAppSourceExcludedCounts(BaseModel):
+    missing_phone: int = 0
+    invalid_phone: int = 0
+    unverified_phone: int = 0
+    missing_name: int = 0
+    name_too_long: int = 0
+    duplicate_phone: int = 0
+
+
+class WhatsAppSourceGroupPreview(BaseModel):
+    source_group_id: uuid.UUID
+    source_group_name: str
+    total_submissions: int
+    recipient_count: int
+    recipients: list[WhatsAppContactPreviewRecipient]
+    excluded_count: int
+    excluded_counts: WhatsAppSourceExcludedCounts
+    preview_revision: str
+
+
+class WhatsAppSourceGroupCreateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    source_group_id: uuid.UUID
+    name: str = Field(min_length=1, max_length=100)
+    organizing_company_name: str | None = Field(default=None, max_length=100)
+    support_contacts: list[WhatsAppSupportContactInput] = Field(min_length=1, max_length=3)
+    recipient_opt_in_confirmed: bool
+    preview_revision: str = Field(pattern=r"^[a-f0-9]{64}$")
+
+
+class WhatsAppSourceGroupCreateResponse(BaseModel):
+    group: WhatsAppBroadcastGroupDetailResponse
+    source: WhatsAppSourceGroupPreview

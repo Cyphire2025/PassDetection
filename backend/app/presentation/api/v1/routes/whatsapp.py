@@ -483,6 +483,16 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
     _WhatsAppExcelContactParseResult as _WhatsAppExcelContactParseResult,
 )
 from app.presentation.api.v1.routes.whatsapp_shared import logger as logger
+from app.presentation.api.v1.routes.whatsapp_source_groups import (
+    create_broadcast_from_source_group as create_broadcast_from_source_group,
+)
+from app.presentation.api.v1.routes.whatsapp_source_groups import (
+    list_source_groups as list_source_groups,
+)
+from app.presentation.api.v1.routes.whatsapp_source_groups import (
+    preview_source_group as preview_source_group,
+)
+from app.presentation.api.v1.routes.whatsapp_source_groups import router as _source_groups_router
 from app.presentation.api.v1.routes.whatsapp_webhook import (
     _verify_meta_signature as _verify_meta_signature,
 )
@@ -532,6 +542,7 @@ from app.presentation.security.client_ip import trusted_client_ip
 router = APIRouter()
 router.include_router(_webhook_router)
 router.include_router(_contact_import_router)
+router.include_router(_source_groups_router)
 router.include_router(_groups_read_router)
 router.include_router(_recipient_roster_router)
 router.include_router(_rejected_contacts_router)

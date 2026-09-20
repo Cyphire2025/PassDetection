@@ -81,6 +81,35 @@ def test_same_phone_across_broadcasts_is_one_logical_submitted_recipient() -> No
     assert counts.not_submitted_count == 0
 
 
+def test_explicit_verified_import_column_matches_source_broadcast_phone_selection() -> None:
+    recipient = _recipient(
+        "+919876543210", name="Ada Lovelace", matching_field_keys=("phone_number",),
+    )
+    for metadata in (
+        {"verified_whatsapp_numbers": "9876543210", "mobile_number": "9123456789"},
+        {"mobile_number": "9123456789", "verified_whatsapp_number": "9876543210"},
+    ):
+        submission = _submission(
+            name="Ada Lovelace", client_phone=None, staff_metadata=metadata,
+        )
+        rows, counts = compare_group_submissions([recipient], [submission])
+        assert rows[0].status == "submitted"
+        assert rows[0].submission_ids == (submission.id,)
+        assert counts.submitted_count == 1
+
+
+def test_current_public_phone_still_matches_source_broadcast_with_old_imported_column() -> None:
+    recipient = _recipient("+919876543210", matching_field_keys=("phone_number",))
+    submission = _submission(
+        client_phone="9876543210",
+        staff_metadata={"verified_whatsapp_numbers": "9123456789", "mobile_number": "9000000000"},
+    )
+    rows, counts = compare_group_submissions([recipient], [submission])
+    assert rows[0].status == "submitted"
+    assert rows[0].submission_ids == (submission.id,)
+    assert counts.submitted_count == 1
+
+
 def test_family_head_phone_matches_and_multiple_submissions_stay_visible() -> None:
     recipient = _recipient("+919999888877")
     member = _submission(family_head_phone="9999888877", name="Member")

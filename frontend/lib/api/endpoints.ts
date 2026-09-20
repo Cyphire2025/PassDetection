@@ -87,6 +87,10 @@ export const API_ENDPOINTS = {
 
   whatsapp: {
     groups: "/api/v1/whatsapp/groups",
+    sourceGroups: "/api/v1/whatsapp/source-groups",
+    sourceGroupPreview: (groupId: string) =>
+      `/api/v1/whatsapp/source-groups/${groupId}/preview`,
+    createFromClientGroup: "/api/v1/whatsapp/groups/from-client-group",
     contactsPreview: "/api/v1/whatsapp/contacts/preview",
     group: (groupId: string) => `/api/v1/whatsapp/groups/${groupId}`,
     recipients: (groupId: string) => `/api/v1/whatsapp/groups/${groupId}/recipients`,

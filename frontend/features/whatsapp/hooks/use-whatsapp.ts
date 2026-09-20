@@ -5,6 +5,10 @@ import type {
 } from "../api/whatsapp.api";
 import { whatsappApi } from "../api/whatsapp.api";
 import {
+  type CreateWhatsAppGroupInput,
+  whatsappSourceGroupsApi,
+} from "../api/whatsapp-source-groups.api";
+import {
   isMissingWhatsAppBatchStatus,
   shouldRetryWhatsAppBatchStatus,
   whatsappBatchHttpStatus,
@@ -191,9 +195,19 @@ export function useRestoreWhatsAppReplacedRecipient() {
 export function useCreateWhatsAppGroup() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: whatsappApi.createGroup,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
+    mutationFn: (input: CreateWhatsAppGroupInput) => "sourceGroupId" in input
+      ? whatsappSourceGroupsApi.create(input)
+      : whatsappApi.createGroup(input),
+    onSuccess: async (group) => {
+      queryClient.setQueryData(WHATSAPP_QUERY_KEYS.group(group.id), group);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups }),
+        queryClient.invalidateQueries({
+          queryKey: ["upload-links"],
+          predicate: (query) => query.queryKey[2] === "whatsapp-broadcast-options"
+            || query.queryKey[2] === "whatsapp-links",
+        }),
+      ]);
     },
   });
 }

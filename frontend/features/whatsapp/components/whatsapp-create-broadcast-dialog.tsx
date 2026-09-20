@@ -6,6 +6,9 @@ import {
   useState,
 } from "react";
 import { Button, Input } from "@/components/ui";
+import { FileSpreadsheet, UsersRound } from "lucide-react";
+import type { CreateWhatsAppGroupInput } from "../api/whatsapp-source-groups.api";
+import { SourceGroupBroadcastForm } from "./whatsapp-source-group-form";
 import {
   ContactEditor,
   DialogFrame,
@@ -25,6 +28,47 @@ import {
 } from "./whatsapp-recipient-import";
 
 export function CreateBroadcastDialog({
+  isLoading,
+  onClose,
+  onSubmit,
+}: {
+  isLoading: boolean;
+  onClose: () => void;
+  onSubmit: (payload: CreateWhatsAppGroupInput) => Promise<void>;
+}) {
+  const [method, setMethod] = useState<"contacts" | "source-group">("contacts");
+  return (
+    <DialogFrame title="Create WhatsApp Broadcast Group" onClose={onClose} isBusy={isLoading}>
+      <p className="text-sm text-slate-500">
+        Each saved recipient receives a separate WhatsApp message; this does not
+        create a shared WhatsApp chat group.
+      </p>
+      <fieldset className="mt-5" disabled={isLoading}>
+        <legend className="mb-2 text-sm font-medium text-slate-700">How would you like to create it?</legend>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {([
+            { value: "contacts", label: "Enter contacts or upload Excel", description: "Add recipients manually or import a spreadsheet.", Icon: FileSpreadsheet },
+            { value: "source-group", label: "Create from existing group", description: "Import names and saved WhatsApp numbers from a group.", Icon: UsersRound },
+          ] as const).map(({ value, label, description, Icon }) => (
+            <label key={value} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-blue-500 ${method === value ? "border-blue-500 bg-blue-50/60" : "border-slate-200 hover:bg-slate-50"}`}>
+              <input type="radio" name="broadcast-creation-method" value={value} checked={method === value} onChange={() => setMethod(value)} className="mt-1 h-4 w-4 shrink-0 accent-blue-600" aria-label={label} />
+              <span className="min-w-0">
+                <span className="flex items-center gap-2 text-sm font-medium text-slate-900"><Icon className="h-4 w-4 shrink-0" aria-hidden="true" />{label}</span>
+                <span className="mt-1 block text-xs leading-relaxed text-slate-500">{description}</span>
+              </span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      <div hidden={method !== "contacts"}>
+        <ManualBroadcastForm isLoading={isLoading} onClose={onClose} onSubmit={onSubmit} />
+      </div>
+      {method === "source-group" && <SourceGroupBroadcastForm isLoading={isLoading} onClose={onClose} onSubmit={onSubmit} />}
+    </DialogFrame>
+  );
+}
+
+function ManualBroadcastForm({
   isLoading,
   onClose,
   onSubmit,
@@ -136,15 +180,6 @@ export function CreateBroadcastDialog({
   };
 
   return (
-    <DialogFrame
-      title="Create WhatsApp Broadcast Group"
-      onClose={onClose}
-      isBusy={isLoading}
-    >
-      <p className="text-sm text-slate-500">
-        Each saved recipient receives a separate WhatsApp message; this does not
-        create a shared WhatsApp chat group.
-      </p>
       <form className="mt-5 space-y-5" onSubmit={handleSubmit}>
         <div className="max-w-xl">
           <Input
@@ -258,6 +293,5 @@ export function CreateBroadcastDialog({
           </Button>
         </div>
       </form>
-    </DialogFrame>
   );
 }

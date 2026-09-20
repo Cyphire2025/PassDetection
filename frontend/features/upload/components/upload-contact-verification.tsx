@@ -142,6 +142,9 @@ export function UploadContactVerification({ token, submissionId, sessionId, name
           <form onSubmit={verifyCode} className="mt-6 space-y-5">
             <ContactInput icon={<Mail className="h-5 w-5" />} label="Email" type="email" value={email} onChange={(value) => changeContact(value, phone)} required maxLength={254} />
             <ContactInput icon={<Phone className="h-5 w-5" />} label="WhatsApp active number" type="tel" value={phone} onChange={(value) => changeContact(email, value)} phoneNormalizer={normalizeOtpPhone} required />
+            <p className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-900">
+              All further trip details, travel documents and important updates will be shared on this WhatsApp number. Please use a number you check regularly.
+            </p>
             <ErrorMessage message={error} />
             {verification ? (
               <>
