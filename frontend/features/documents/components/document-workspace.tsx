@@ -66,7 +66,6 @@ import {
   DocumentUploadPanel,
   type DocumentUploadPhase,
 } from "./document-upload-panel";
-import { TravellerWelcomePanel } from "./traveller-welcome-panel";
 
 function DialogLoadingFallback() {
   return (
@@ -140,7 +139,6 @@ export function DocumentWorkspace({
   const [isAbortUploadDialogOpen, setIsAbortUploadDialogOpen] = useState(false);
   const [phase, setPhase] = useState<DocumentUploadPhase>("idle");
   const [isSendPreviewOpen, setIsSendPreviewOpen] = useState(false);
-  const [isWelcomePreviewOpen, setIsWelcomePreviewOpen] = useState(false);
   const [deliveryDocumentIds, setDeliveryDocumentIds] = useState<string[] | null>(null);
   const [deliveryResendDocumentIds, setDeliveryResendDocumentIds] = useState<string[]>([]);
   const [deliveryMessageContent1, setDeliveryMessageContent1] = useState<string | null>(null);
@@ -462,8 +460,6 @@ export function DocumentWorkspace({
           hasUncommittedSelection={hasUncommittedSelection}
         />
       )}
-
-      <TravellerWelcomePanel key={groupId} groupId={groupId} disabled={documentTypeOperationPending} open={isWelcomePreviewOpen} onOpenChange={setIsWelcomePreviewOpen} />
 
       <DocumentUploadPanel
         lane={lane}

@@ -4,7 +4,7 @@ Private visas and flight tickets use the traveller destination resolver describe
 in [Document distribution lanes](document-distribution-lanes.md#whatsapp-destination-contract).
 Submitted contacts take precedence over explicit imported group numbers. A
 linked broadcast fallback requires an unambiguous, strong identity match.
-Welcome messages are optional for document delivery.
+Document Distribution has no welcome-message section or welcome prerequisite.
 
 ## Operator workflow
 
@@ -17,22 +17,10 @@ Welcome messages are optional for document delivery.
    welcome or welcome-delivery receipt is required. If a family deliberately
    shares one number, each person still receives their own assigned document.
 
-The separate **Traveller welcomes (optional)** review loads a saved original
-welcome from a linked broadcast.
-If several broadcasts are linked, select the intended source. A source with a
-usable welcome is selected automatically when no source is specified.
-Review the numbers and message, then send the welcome to the remaining numbers.
-A review can queue up to 1,500 distinct numbers; subsequent reviews expose the
-remaining numbers. Shared numbers receive one welcome.
-Sending a welcome never automatically sends a document or passport-link message.
-
-Already welcomed numbers are excluded across all lists in the same agency.
-Numbers with a pending or uncertain welcome are also excluded from another send,
-without blocking document delivery. Refreshing the review fetches the current state;
-it does not send anything. A failed welcome may be reviewed and retried.
-
-For a media welcome, the original image reference is reused. The review supports
-uploading a replacement and shows the selected welcome message before sending.
+The document workspace does not mount the traveller-welcome panel, open its
+dialog, fetch welcome counts or poll welcome status. Welcome messaging is
+separate from document distribution. The existing welcome ledger and handlers
+remain for compatibility and message types that still use them.
 
 Missing or invalid traveller numbers are blocked with a correction instruction.
 An invalid or cleared higher-priority contact cannot fall back to older data.

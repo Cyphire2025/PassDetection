@@ -99,9 +99,10 @@ traveller's own phone. Otherwise, the resolver selects a current same-phone
 recipient or an eligible linked broadcast without a recipient association.
 Every source is scoped to the agency and group; archived broadcasts, removed
 recipients and suppressed recipients are excluded. Shared explicit contacts
-retain every traveller and their individually assigned documents. Welcome
-messages remain an optional, separate action deduplicated by phone. Document
-delivery does not require a welcome message or welcome-delivery confirmation;
+retain every traveller and their individually assigned documents. The Document
+Distribution workspace has no welcome panel, welcome review action or background
+welcome query. Document delivery uses assigned PDFs and current destination
+numbers without requiring a welcome message or welcome-delivery confirmation;
 the separate QR delivery policy keeps its existing welcome prerequisite.
 
 The send preview includes only travellers with assigned PDFs in the selected
