@@ -145,7 +145,7 @@ class DocumentDeliveryPreviewRecipient(BaseModel):
     broadcast_group_id: uuid.UUID | None = None
     broadcast_name: str | None = None
     phone_number: str | None = None
-    phone_source: str = "submission"
+    phone_source: str | None = None
     welcome_status: str = "required"
     welcome_required: bool = True
     delivery_id: uuid.UUID | None = None
@@ -165,6 +165,9 @@ class DocumentDeliveryPreviewSummary(BaseModel):
     in_progress: int = 0
     blocked: int = 0
     welcome_required: int = 0
+    missing_phone: int = 0
+    missing_document: int = 0
+    unsaved_document: int = 0
 
 
 class DocumentDeliveryPreviewResponse(BaseModel):
@@ -176,6 +179,7 @@ class DocumentDeliveryPreviewResponse(BaseModel):
     linked_broadcast_count: int = 0
     can_send: bool = False
     configuration_error: str | None = None
+    preview_token: str | None = None
     message_content_1: str
     message_content_2: str
     summary: DocumentDeliveryPreviewSummary
@@ -183,6 +187,9 @@ class DocumentDeliveryPreviewResponse(BaseModel):
 
 
 class SendDocumentBroadcastRequest(BaseModel):
+    preview_token: str | None = Field(
+        default=None, min_length=64, max_length=64, pattern=r"^[0-9a-f]{64}$",
+    )
     document_ids: list[uuid.UUID] | None = Field(default=None, max_length=1_500)
     resend_document_ids: list[uuid.UUID] = Field(default_factory=list, max_length=1_500)
     message_content_1: str = Field(min_length=1, max_length=600)

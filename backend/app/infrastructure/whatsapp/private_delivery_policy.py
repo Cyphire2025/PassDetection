@@ -41,6 +41,7 @@ from app.infrastructure.whatsapp.phone_welcome import (
     welcome_required_reason,
     welcome_states_for_phones,
 )
+from app.infrastructure.whatsapp.traveller_destinations import load_traveller_destinations
 
 PRIVATE_DELIVERY_ACTIVE_STATUSES = frozenset({"queued", "processing", "delivery_unknown"})
 PRIVATE_DELIVERY_MUTATION_BLOCKED = (
@@ -72,6 +73,9 @@ class PrivateDeliveryGroupSourceSnapshot:
     group_name: str
     allowed_destinations: frozenset[tuple[uuid.UUID, uuid.UUID, uuid.UUID, str]]
     submission_destinations: frozenset[tuple[uuid.UUID, str]] = frozenset()
+    traveller_destinations: frozenset[
+        tuple[uuid.UUID, uuid.UUID, uuid.UUID | None, str]
+    ] = frozenset()
 
     def allows(
         self,
@@ -82,7 +86,7 @@ class PrivateDeliveryGroupSourceSnapshot:
         broadcast_group_id: uuid.UUID | None,
         recipient_id: uuid.UUID | None,
         normalized_phone_number: str,
-        delivery_source: Literal["broadcast", "submission"] = "broadcast",
+        delivery_source: Literal["broadcast", "submission", "traveller"] = "broadcast",
     ) -> bool:
         if (
             agency_id != self.agency_id
@@ -90,6 +94,15 @@ class PrivateDeliveryGroupSourceSnapshot:
             or passenger_id is None
         ):
             return False
+        if delivery_source == "traveller":
+            if broadcast_group_id is None:
+                return False
+            return (
+                passenger_id,
+                broadcast_group_id,
+                recipient_id,
+                normalized_phone_number,
+            ) in self.traveller_destinations
         if delivery_source == "submission":
             return (passenger_id, normalized_phone_number) in self.submission_destinations
         if delivery_source != "broadcast" or broadcast_group_id is None or recipient_id is None:
@@ -107,6 +120,7 @@ async def lock_private_delivery_group_source_snapshot(
     *,
     agency_id: uuid.UUID,
     group_id: uuid.UUID,
+    delivery_source: Literal["broadcast", "submission", "traveller"] = "broadcast",
 ) -> PrivateDeliveryGroupSourceSnapshot | None:
     """Exclusively freeze one group's authoritative private-delivery identity."""
 
@@ -118,10 +132,43 @@ async def lock_private_delivery_group_source_snapshot(
             ClientGroupModel.deleted_at.is_(None),
         )
         .with_for_update()
+        .execution_options(populate_existing=True)
     )
     group = group_result.scalar_one_or_none()
     if group is None:
         return None
+
+    if delivery_source == "traveller":
+        if group.status in {"archived", "deleted"}:
+            return None
+        # The resolver locks the same current group, eligible links, recipients,
+        # source contacts and operational passengers as the document preview.
+        # Retain that fence for the complete batch without running the separate
+        # QR matcher as well. The frozen provenance must match exactly at send.
+        destinations = await load_traveller_destinations(
+            session, agency_id=agency_id, group_id=group_id, lock=True,
+        )
+        return PrivateDeliveryGroupSourceSnapshot(
+            agency_id=agency_id,
+            group_id=group_id,
+            group_name=group.name,
+            allowed_destinations=frozenset(),
+            traveller_destinations=frozenset(
+                (
+                    destination.passenger_id,
+                    destination.broadcast_group_id,
+                    destination.recipient_id,
+                    destination.phone_number,
+                )
+                for destination in destinations
+                if destination.phone_number
+                and destination.broadcast_group_id is not None
+                and destination.reason is None
+                and destination.phone_source in {
+                    "submission", "imported_group", "linked_broadcast",
+                }
+            ),
+        )
 
     linked_result = await session.execute(
         select(
@@ -276,7 +323,7 @@ async def validate_private_delivery_recipient(
     broadcast_group_id: uuid.UUID | None,
     recipient_id: uuid.UUID | None,
     normalized_phone_number: str,
-    delivery_source: Literal["broadcast", "submission"] = "broadcast",
+    delivery_source: Literal["broadcast", "submission", "traveller"] = "broadcast",
 ) -> PrivateDeliveryRecipientValidation:
     """Rebuild the exact current identity mapping immediately before send."""
 
@@ -284,6 +331,7 @@ async def validate_private_delivery_recipient(
         session,
         agency_id=agency_id,
         group_id=group_id,
+        delivery_source=delivery_source,
     )
     if snapshot is None or not snapshot.allows(
         agency_id=agency_id,

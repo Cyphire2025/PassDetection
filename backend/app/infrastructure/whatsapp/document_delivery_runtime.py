@@ -328,6 +328,7 @@ async def run_document_whatsapp_broadcast(
                 session,
                 agency_id=agency_id,
                 group_id=group_id,
+                delivery_source="traveller",
             )
             if source_snapshot is None:
                 raise RuntimeError(
@@ -523,7 +524,7 @@ async def run_document_whatsapp_broadcast(
                         normalized_phone_number=(
                             delivery_snapshot.normalized_phone_number
                         ),
-                        delivery_source="submission",
+                        delivery_source="traveller",
                     )
                 )
                 recipient_allowed = (
@@ -536,7 +537,7 @@ async def run_document_whatsapp_broadcast(
                         normalized_phone_number=(
                             delivery_snapshot.normalized_phone_number
                         ),
-                        delivery_source="submission",
+                        delivery_source="traveller",
                     )
                     if _source_snapshot is not None
                     else bool(validation and validation.allowed)

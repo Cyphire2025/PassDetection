@@ -198,9 +198,10 @@ export function useDocumentDeliveryPreview(
 ) {
   return useQuery({
     queryKey: documentKeys.deliveryPreview(groupId, documentType),
-    queryFn: () => documentDistributionApi.previewWhatsAppDelivery(groupId, documentType),
+    queryFn: ({ signal }) => documentDistributionApi.previewWhatsAppDelivery(groupId, documentType, signal),
     enabled: Boolean(groupId && documentType && enabled),
-    staleTime: 5_000,
+    staleTime: 0,
+    refetchOnMount: "always",
     refetchInterval: (query) => {
       const preview = query.state.data;
       const waiting = preview?.summary.in_progress || preview?.recipients.some((row) => (
@@ -224,12 +225,14 @@ export function useSendDocumentWhatsAppBroadcast(
       resendDocumentIds,
       messageContent1,
       messageContent2,
+      previewToken,
     }: {
       batchId: string;
       documentIds: string[];
       resendDocumentIds: string[];
       messageContent1: string;
       messageContent2: string;
+      previewToken: string;
     }) =>
       documentDistributionApi.sendWhatsAppDelivery(
         batchId,
@@ -237,8 +240,10 @@ export function useSendDocumentWhatsAppBroadcast(
         resendDocumentIds,
         messageContent1,
         messageContent2,
+        previewToken,
       ),
-    onSuccess: () => {
+    onSettled: () => {
+      // A timeout may follow a successful queue operation; recheck before retrying.
       queryClient.invalidateQueries({ queryKey: documentKeys.deliveryPreview(groupId, documentType) });
       queryClient.invalidateQueries({ queryKey: documentKeys.deliveryTracking(groupId) });
     },

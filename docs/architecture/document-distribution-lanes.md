@@ -76,7 +76,49 @@ sequential commit order remain unchanged.
 - Existing documents, deliveries, audit rows, and storage objects are never
   removed by a taxonomy migration.
 
-## Release order
+## WhatsApp destination contract
+
+Document previews, traveller welcomes and document workers share
+`infrastructure/whatsapp/traveller_destinations.py`. Each approved operational
+traveller resolves their own contact in this order:
+
+1. Completed public contact details, including an invalid or cleared value
+   that blocks reuse of older contact data.
+2. A legacy entered contact for a submission without known Excel-import
+   provenance.
+3. Explicit imported `Verified WhatsApp Numbers`, or legacy `Upload Phone`
+   when the preferred column is absent. A present but empty, invalid or
+   conflicting preferred column blocks delivery. This applies to both normal
+   and import-only groups and does not confer OTP or mobile-login authority.
+4. A linked broadcast contact backed by the existing strong, one-to-one private
+   identity policy. Names alone and conflicting phone numbers cannot select a
+   destination.
+
+An exact live source-contact binding is preferred when it agrees with the
+traveller's own phone. Otherwise, the resolver selects a current same-phone
+recipient or an eligible linked broadcast without a recipient association.
+Every source is scoped to the agency and group; archived broadcasts, removed
+recipients and suppressed recipients are excluded. Shared explicit contacts
+retain every traveller and their individually assigned documents. Welcome
+messages remain deduplicated by phone and require confirmed delivery before
+documents can be sent.
+
+The preview reports the actual contact source and linked broadcast, with
+separate missing-number, missing-document and unsaved-document counts. The
+frontend refreshes on opening and submits a fingerprint of the reviewed
+document identities and destinations. The send route rejects a supplied stale
+fingerprint; its optional request field preserves compatibility with older
+clients. Worker validation remains mandatory for every client and freezes the
+exact passenger, broadcast, optional recipient and phone mapping under source
+locks. A changed mapping requires a fresh preview and retry. Retrying a failed
+attempt also refreshes its complete document/passenger snapshot.
+
+This contact fix requires backend, main worker and frontend deployment, without
+a database migration. Older queued rows that lack the newly resolved recipient
+association can fail closed and require a fresh preview/retry. Accepted and
+uncertain deliveries retain the existing duplicate-send protections.
+
+## Lane migration release order
 
 Apply migration `0080_domestic_ticket_lanes` before serving frontend or backend
 code that can submit Domestic chunks. Then deploy every backend consumer

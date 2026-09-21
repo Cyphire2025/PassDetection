@@ -137,7 +137,7 @@ export interface DocumentDeliveryPreviewRecipient {
   broadcast_group_id: string | null;
   broadcast_name: string | null;
   phone_number: string | null;
-  phone_source?: "submission";
+  phone_source?: "submission" | "imported_group" | "linked_broadcast" | null;
   welcome_status?: string;
   welcome_required?: boolean;
   delivery_id: string | null;
@@ -152,6 +152,7 @@ export interface DocumentDeliveryPreviewRecipient {
 export interface DocumentDeliveryPreview {
   group_id: string;
   batch_id: string;
+  preview_token?: string | null;
   document_type: DistributionDocumentType | string;
   template_name: string | null;
   template_configured: boolean;
@@ -168,6 +169,9 @@ export interface DocumentDeliveryPreview {
     in_progress: number;
     blocked: number;
     welcome_required?: number;
+    missing_phone?: number;
+    missing_document?: number;
+    unsaved_document?: number;
   };
   recipients: DocumentDeliveryPreviewRecipient[];
 }

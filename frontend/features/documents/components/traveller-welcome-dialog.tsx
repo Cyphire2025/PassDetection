@@ -54,7 +54,7 @@ export function TravellerWelcomeDialog({ preview, loading, refreshing, loadError
             <div className="overflow-hidden rounded-xl border border-slate-200">
               <div className="border-b border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900">Traveller WhatsApp numbers</div>
               <div className="max-h-[420px] divide-y divide-slate-100 overflow-y-auto">
-                {preview.recipients.length === 0 && <p className="p-4 text-sm text-slate-500">No submitted traveller numbers yet.</p>}
+                {preview.recipients.length === 0 && <p className="p-4 text-sm text-slate-500">No traveller delivery numbers are available yet.</p>}
                 {preview.recipients.map((row, index) => {
                   const eligible = Boolean(row.phone_number && eligibleSet.has(row.phone_number));
                   return <div key={row.phone_number ?? (row.passenger_ids.join(":") || String(index))} className="space-y-2 px-4 py-3">

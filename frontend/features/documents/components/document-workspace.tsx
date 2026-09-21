@@ -548,6 +548,7 @@ export function DocumentWorkspace({
                 review.data?.batch_id && save.mutate(review.data.batch_id)
               }
               onOpenDelivery={() => {
+                sendDocuments.reset();
                 setDeliveryDocumentIds(null);
                 setDeliveryResendDocumentIds([]);
                 setDeliveryMessageContent1(null);
@@ -638,6 +639,7 @@ export function DocumentWorkspace({
                     setPendingRemovalDocumentIds([documentId])
                   }
                   onResend={(documentId) => {
+                    sendDocuments.reset();
                     setDeliveryDocumentIds([documentId]);
                     setDeliveryResendDocumentIds([documentId]);
                     setDeliveryMessageContent1(null);
@@ -743,6 +745,7 @@ export function DocumentWorkspace({
         <DocumentDeliveryPreviewDialog
           preview={deliveryPreview.data}
           loading={deliveryPreview.isLoading}
+          refreshing={deliveryPreview.isFetching}
           loadError={deliveryPreview.error}
           selectedDocumentIds={activeDeliveryDocumentIds}
           resendDocumentIds={deliverySelection.resendDocumentIds}
@@ -752,6 +755,7 @@ export function DocumentWorkspace({
           messageContent2={activeDeliveryMessageContent2}
           onMessageContent1Change={setDeliveryMessageContent1}
           onMessageContent2Change={setDeliveryMessageContent2}
+          onRefresh={() => void deliveryPreview.refetch()}
           onReviewWelcomes={() => { setIsSendPreviewOpen(false); setIsWelcomePreviewOpen(true); }}
           onToggleDocument={(documentId) => {
             setDeliveryDocumentIds((current) => {
@@ -791,7 +795,9 @@ export function DocumentWorkspace({
           }}
           onSend={() => {
             const batchId = deliveryPreview.data?.batch_id;
-            if (!batchId) return;
+            const previewToken = deliveryPreview.data?.preview_token;
+            if (!batchId || !previewToken || !deliveryPreview.data?.can_send || deliveryPreview.isFetching
+              || deliveryPreview.error || sendDocuments.isPending || activeDeliveryDocumentIds.length === 0) return;
             sendDocuments.mutate(
               {
                 batchId,
@@ -799,6 +805,7 @@ export function DocumentWorkspace({
                 resendDocumentIds: deliverySelection.resendDocumentIds,
                 messageContent1: activeDeliveryMessageContent1.trim(),
                 messageContent2: activeDeliveryMessageContent2.trim(),
+                previewToken,
               },
               {
                 onSuccess: (result) => {

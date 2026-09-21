@@ -260,9 +260,11 @@ export const documentDistributionApi = {
   previewWhatsAppDelivery: async (
     groupId: string,
     documentType: DistributionDocumentType,
+    signal?: AbortSignal,
   ): Promise<DocumentDeliveryPreview> => {
     const { data } = await apiClient.get<DocumentDeliveryPreview>(
       API_ENDPOINTS.documents.whatsappPreview(groupId, documentType),
+      { signal },
     );
     return data;
   },
@@ -273,6 +275,7 @@ export const documentDistributionApi = {
     resendDocumentIds: string[],
     messageContent1: string,
     messageContent2: string,
+    previewToken: string,
   ): Promise<SendDocumentBroadcastResult> => {
     const { data } = await apiClient.post<SendDocumentBroadcastResult>(
       API_ENDPOINTS.documents.sendWhatsApp(batchId),
@@ -281,6 +284,7 @@ export const documentDistributionApi = {
         resend_document_ids: resendDocumentIds,
         message_content_1: messageContent1,
         message_content_2: messageContent2,
+        preview_token: previewToken,
       },
     );
     return data;

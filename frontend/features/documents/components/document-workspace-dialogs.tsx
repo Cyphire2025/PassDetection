@@ -1,8 +1,9 @@
 import { useMemo } from "react";
-import { Send, Trash2, X } from "lucide-react";
+import { RefreshCw, Send, Trash2, X } from "lucide-react";
 import { Badge, Button } from "@/components/ui";
 import { ProcessingMotion } from "@/components/shared/processing-motion";
-import type { DocumentDeliveryPreview } from "@/types/document-distribution.types";
+import type { DocumentDeliveryPreview, DocumentDeliveryPreviewRecipient } from "@/types/document-distribution.types";
+import { distributionDocumentLabel } from "../config/document-distribution-lanes";
 import { welcomeStatusLabel, welcomeStatusTone } from "./traveller-welcome-model";
 
 type AbortIncompleteUploadDialogProps = {
@@ -165,6 +166,7 @@ export function RemoveAssignmentsDialog({
 type DocumentDeliveryPreviewDialogProps = {
   preview: DocumentDeliveryPreview | undefined;
   loading: boolean;
+  refreshing?: boolean;
   loadError: Error | null;
   selectedDocumentIds: string[];
   resendDocumentIds: string[];
@@ -178,12 +180,14 @@ type DocumentDeliveryPreviewDialogProps = {
   onToggleResend: (documentId: string) => void;
   onClose: () => void;
   onSend: () => void;
+  onRefresh?: () => void;
   onReviewWelcomes?: () => void;
 };
 
 export function DocumentDeliveryPreviewDialog({
   preview,
   loading,
+  refreshing = false,
   loadError,
   selectedDocumentIds,
   resendDocumentIds,
@@ -197,6 +201,7 @@ export function DocumentDeliveryPreviewDialog({
   onToggleResend,
   onClose,
   onSend,
+  onRefresh,
   onReviewWelcomes,
 }: DocumentDeliveryPreviewDialogProps) {
   const selectedDocumentIdSet = useMemo(
@@ -219,6 +224,12 @@ export function DocumentDeliveryPreviewDialog({
     Boolean(messageContent2.trim()) &&
     messageContent1.length <= 600 &&
     messageContent2.length <= 600;
+  const recipientSelectionBusy = sending || refreshing;
+  const deliveryIssues = [
+    { label: "Travellers without a number", count: preview?.summary.missing_phone ?? 0 },
+    { label: "Travellers without a document", count: preview?.summary.missing_document ?? 0 },
+    { label: "Documents not saved", count: preview?.summary.unsaved_document ?? 0 },
+  ].filter((issue) => issue.count > 0);
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm"
@@ -233,7 +244,7 @@ export function DocumentDeliveryPreviewDialog({
               Preview WhatsApp document delivery
             </h2>
             <p className="mt-1 text-sm text-slate-600">
-              Confirm each document and the traveller’s submitted WhatsApp number before queueing individual messages.
+              Confirm each PDF, its delivery WhatsApp number, and the contact source before queueing individual messages.
             </p>
           </div>
           <button
@@ -262,6 +273,10 @@ export function DocumentDeliveryPreviewDialog({
             </div>
           ) : preview ? (
             <div className="space-y-5">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-slate-600">
+                <p><span className="font-semibold text-slate-900">{distributionDocumentLabel(preview.document_type)}</span> document delivery</p>
+                {refreshing && <p role="status" className="text-blue-700">Refreshing documents and recipient details…</p>}
+              </div>
               <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
                 <DeliverySummary label="Passengers" value={preview.summary.total_passengers} />
                 <DeliverySummary label="Ready" value={preview.summary.ready} tone="success" />
@@ -271,10 +286,27 @@ export function DocumentDeliveryPreviewDialog({
                 <DeliverySummary label="Blocked" value={preview.summary.blocked} tone="danger" />
               </div>
 
+              {deliveryIssues.length > 0 && (
+                <dl aria-label="Delivery issues" className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-amber-900">
+                  {deliveryIssues.map((issue) => (
+                    <div key={issue.label} className="flex items-baseline gap-2">
+                      <dt>{issue.label}</dt>
+                      <dd className="font-semibold tabular-nums">{issue.count.toLocaleString()}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+
               {preview.configuration_error && (
                 <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
                   {preview.configuration_error}
                 </div>
+              )}
+
+              {preview.can_send && !preview.preview_token && (
+                <p role="alert" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                  Refresh the preview to check the latest document recipients before sending.
+                </p>
               )}
 
               {Boolean(preview.summary.welcome_required) && (
@@ -319,7 +351,7 @@ export function DocumentDeliveryPreviewDialog({
                 </div>
                 <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
                   <div className="text-xs font-semibold uppercase tracking-wide text-emerald-800">
-                    documents_v1 preview
+                    {preview.template_name || "Document message"} preview
                   </div>
                   <div className="mt-3 rounded-lg border border-emerald-100 bg-white p-3 text-xs font-medium text-slate-600">
                     PDF document attached individually
@@ -356,7 +388,7 @@ export function DocumentDeliveryPreviewDialog({
                                 type="button"
                                 size="sm"
                                 variant={resendSelected ? "secondary" : "outline"}
-                                disabled={sending}
+                                disabled={recipientSelectionBusy}
                                 onClick={() => onToggleResend(row.document_id as string)}
                               >
                                 {resendSelected ? "Resend selected" : "Resend"}
@@ -365,7 +397,7 @@ export function DocumentDeliveryPreviewDialog({
                               <input
                                 type="checkbox"
                                 checked={Boolean(row.document_id && selectedDocumentIdSet.has(row.document_id))}
-                                disabled={!row.eligible || row.welcome_required || !row.document_id || sending}
+                                disabled={!row.eligible || row.welcome_required || !row.document_id || recipientSelectionBusy}
                                 onChange={() => row.document_id && onToggleDocument(row.document_id)}
                                 aria-label={`Send document to ${row.passenger_name}`}
                                 className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
@@ -380,8 +412,9 @@ export function DocumentDeliveryPreviewDialog({
                             <div className="font-medium text-slate-800">{row.document_filename || "No document"}</div>
                           </td>
                           <td className="px-4 py-3">
-                            <div className="font-medium text-slate-800">{row.phone_number || "No valid traveller number"}</div>
-                            <div className="mt-1 text-xs text-slate-500">{row.phone_source === "submission" ? "Entered for this traveller" : row.broadcast_name || "No linked broadcast match"}</div>
+                            <div className="font-medium text-slate-800">{row.phone_number || "No valid WhatsApp number"}</div>
+                            <div className="mt-1 text-xs text-slate-500">{documentPhoneSourceLabel(row)}</div>
+                            {row.broadcast_name && <div className="mt-1 text-xs text-slate-500">Linked broadcast: {row.broadcast_name}</div>}
                             {row.welcome_status && <div className="mt-2"><Badge variant={welcomeStatusTone(row.welcome_status)}>{welcomeStatusLabel(row.welcome_status)}</Badge></div>}
                           </td>
                           <td className="px-4 py-3">
@@ -423,7 +456,13 @@ export function DocumentDeliveryPreviewDialog({
             <p className="text-xs text-slate-500">
               Successful and uncertain deliveries are excluded automatically to prevent duplicates.
             </p>
-            <div className="flex justify-end gap-3">
+            <div className="flex flex-wrap justify-end gap-3">
+              {onRefresh && (
+                <Button type="button" variant="outline" onClick={onRefresh} disabled={sending || loading || refreshing}>
+                  <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} aria-hidden="true" />
+                  {refreshing ? "Refreshing" : "Refresh preview"}
+                </Button>
+              )}
               <Button type="button" variant="secondary" onClick={onClose} disabled={sending}>Cancel</Button>
               <Button
                 type="button"
@@ -431,8 +470,10 @@ export function DocumentDeliveryPreviewDialog({
                 isLoading={sending}
                 disabled={
                   !preview?.can_send ||
+                  !preview?.preview_token ||
                   selectedDocumentIds.length === 0 ||
                   loading ||
+                  refreshing ||
                   Boolean(loadError) ||
                   !messageContentValid
                 }
@@ -446,6 +487,14 @@ export function DocumentDeliveryPreviewDialog({
       </div>
     </div>
   );
+}
+
+function documentPhoneSourceLabel(row: DocumentDeliveryPreviewRecipient) {
+  if (!row.phone_number) return "Contact details need review";
+  if (row.phone_source === "submission") return "Entered for this traveller";
+  if (row.phone_source === "imported_group") return "Imported group number";
+  if (row.phone_source === "linked_broadcast" || row.recipient_id) return "Linked broadcast number";
+  return "Traveller delivery number";
 }
 
 type DeliverySummaryProps = {

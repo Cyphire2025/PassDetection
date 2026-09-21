@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hmac
 import uuid
 from datetime import UTC, datetime
 from typing import Annotated
@@ -128,6 +129,7 @@ async def _lock_retry_document_deliveries(
         )
         .order_by(DocumentWhatsAppDeliveryModel.id)
         .with_for_update()
+        .execution_options(populate_existing=True)
     )
     return {
         delivery.id: delivery
@@ -197,6 +199,13 @@ async def send_document_whatsapp_broadcast(
         batch=batch,
         passengers=passengers,
     )
+    if payload.preview_token is not None and not hmac.compare_digest(
+        payload.preview_token, preview.preview_token or "",
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="The document list, WhatsApp numbers, or linked broadcast changed. Refresh the preview before sending.",
+        )
     if not preview.can_send:
         error_status = (
             status.HTTP_503_SERVICE_UNAVAILABLE
@@ -286,6 +295,15 @@ async def send_document_whatsapp_broadcast(
             if delivery.status != "failed":
                 continue
             delivery.send_batch_id = send_batch_id
+            # A failed document may have been corrected or reassigned since its
+            # last attempt. Freeze the complete identity just reviewed again.
+            delivery.document_batch_id = document.batch_id
+            delivery.distributed_document_id = document.id
+            delivery.passenger_id = row.passenger_id
+            delivery.passenger_name = row.passenger_name
+            delivery.passport_number = row.passport_number
+            delivery.document_type = document.document_type
+            delivery.document_filename = row.document_filename
             delivery.broadcast_group_id = row.broadcast_group_id
             delivery.recipient_id = row.recipient_id
             delivery.phone_number = row.phone_number

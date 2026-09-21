@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import uuid
 
 from sqlalchemy import select
@@ -40,6 +42,29 @@ from app.presentation.api.v1.schemas.document_distribution_schemas import (
 )
 
 
+def _delivery_preview_token(
+    *, group: ClientGroupModel, batch: DocumentDistributionBatchModel,
+    template_name: str | None, rows: list[DocumentDeliveryPreviewRecipient],
+    documents: list[DistributedDocumentModel],
+) -> str:
+    """Bind the reviewed destinations and document identities, not live receipts."""
+    value = {
+        "agency": str(group.agency_id), "group": str(group.id),
+        "batch": str(batch.id), "type": batch.document_type, "template": template_name,
+        "rows": sorted((
+            str(row.passenger_id), str(row.document_id or ""),
+            row.phone_number or "", row.phone_source or "",
+            str(row.broadcast_group_id or ""), str(row.recipient_id or ""),
+        ) for row in rows),
+        "documents": sorted((
+            str(document.id), str(document.passenger_id or ""),
+            str(document.batch_id), document.original_filename,
+            document.storage_key, document.match_status,
+        ) for document in documents),
+    }
+    return hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
+
+
 async def _build_document_delivery_preview(
     session: AsyncSession,
     *,
@@ -49,7 +74,7 @@ async def _build_document_delivery_preview(
 ) -> DocumentDeliveryPreviewResponse:
     message_content_1, message_content_2 = default_document_message_content(batch.document_type)
     sources = await linked_welcome_sources(session, group=group)
-    source = sources[0] if sources else None
+    sources_by_id = {source.id: source for source in sources}
     destinations = {row.passenger_id: row for row in await load_traveller_destinations(
         session, agency_id=group.agency_id, group_id=group.id,
     )}
@@ -122,9 +147,14 @@ async def _build_document_delivery_preview(
     for passenger in passengers:
         destination = destinations.get(passenger.id)
         phone = destination.phone_number if destination else None
+        source = sources_by_id.get(destination.broadcast_group_id) if destination else None
         welcome_status = welcome_states.get(phone, "required") if phone else "blocked"
         welcome_reason = welcome_required_reason(welcome_status)
         passenger_documents = documents_by_passenger.get(passenger.id, [])
+        if not phone:
+            summary.missing_phone += 1
+        if not passenger_documents:
+            summary.missing_document += 1
         candidate_documents: list[DistributedDocumentModel | None] = [*passenger_documents] or [None]
         for document in candidate_documents:
             history = deliveries_by_document.get(document.id, []) if document else []
@@ -150,6 +180,8 @@ async def _build_document_delivery_preview(
                 )
             if welcome_reason and phone:
                 summary.welcome_required += 1
+            if document is not None and document.id not in saved_document_ids:
+                summary.unsaved_document += 1
             if decision.status in {"ready", "retryable", "already_sent"}:
                 setattr(summary, decision.status, getattr(summary, decision.status) + 1)
             elif decision.status in DOCUMENT_DELIVERY_IN_PROGRESS_STATUSES:
@@ -162,9 +194,11 @@ async def _build_document_delivery_preview(
                 document_id=document.id if document else None,
                 document_filename=document.original_filename if document else None,
                 document_type=batch.document_type,
-                recipient_id=None, broadcast_group_id=source.id if source else None,
+                recipient_id=destination.recipient_id if destination else None,
+                broadcast_group_id=source.id if source else None,
                 broadcast_name=source.name if source else None,
-                phone_number=phone, phone_source="submission", welcome_status=welcome_status,
+                phone_number=phone, phone_source=destination.phone_source if destination else None,
+                welcome_status=welcome_status,
                 welcome_required=welcome_reason is not None,
                 delivery_id=latest.id if latest else None,
                 delivery_status=decision.status, eligible=decision.eligible,
@@ -188,10 +222,25 @@ async def _build_document_delivery_preview(
             "The WhatsApp document template or Cloud API credentials are not configured."
         )
     elif summary.ready + summary.retryable + summary.already_sent == 0:
-        configuration_error = (
-            "Send welcome to the remaining traveller numbers and wait for delivery confirmation first."
-            if summary.welcome_required else "There are no saved documents available to send."
-        )
+        if not documents:
+            configuration_error = "No documents have been uploaded in this document section yet."
+        elif not saved_document_ids:
+            configuration_error = "Save the uploaded document list before sending documents."
+        elif not any(document.passenger_id for document in documents if document.id in saved_document_ids):
+            configuration_error = "Match the saved documents to travellers before sending."
+        elif summary.in_progress and not summary.blocked:
+            configuration_error = "Document deliveries are already in progress. Wait for their delivery updates."
+        elif summary.missing_phone:
+            configuration_error = (
+                f"{summary.missing_phone} traveller(s) need a valid WhatsApp destination. "
+                "Review their group contact details or linked broadcast matches below."
+            )
+        elif summary.welcome_required:
+            configuration_error = (
+                "Send welcome to the remaining traveller numbers and wait for delivery confirmation first."
+            )
+        else:
+            configuration_error = "No documents are currently ready to send. Review the reason shown beside each traveller."
 
     return DocumentDeliveryPreviewResponse(
         group_id=group.id,
@@ -202,6 +251,10 @@ async def _build_document_delivery_preview(
         linked_broadcast_count=len(sources),
         can_send=configuration_error is None,
         configuration_error=configuration_error,
+        preview_token=_delivery_preview_token(
+            group=group, batch=batch, template_name=template_name,
+            rows=preview_rows, documents=documents,
+        ),
         message_content_1=message_content_1,
         message_content_2=message_content_2,
         summary=summary,

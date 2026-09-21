@@ -28,7 +28,7 @@ export function TravellerWelcomePanel({ groupId, disabled = false, open, onOpenC
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700"><MessageCircle className="h-5 w-5" aria-hidden="true" /></div>
           <div>
             <h2 id="traveller-welcome-heading" className="font-semibold text-slate-950">Welcome travellers before sending documents</h2>
-            <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">Tickets and visas go to the WhatsApp number entered for each traveller. Send the welcome to new numbers first; numbers already welcomed are skipped automatically.</p>
+            <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">Review each traveller’s delivery WhatsApp number from their contact details or the linked broadcast. Send the welcome to new numbers first; numbers already welcomed are skipped automatically.</p>
           </div>
         </div>
         <Button type="button" variant="outline" className="shrink-0" disabled={disabled || send.isPending || preview.isLoading} onClick={() => { send.reset(); onOpenChange(true); }}>
