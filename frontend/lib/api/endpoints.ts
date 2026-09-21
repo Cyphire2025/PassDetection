@@ -100,6 +100,7 @@ export const API_ENDPOINTS = {
       `/api/v1/whatsapp/groups/${groupId}/rejected-contacts`,
     recipientRoster: (groupId: string) =>
       `/api/v1/whatsapp/groups/${groupId}/recipient-roster`,
+    groupExport: (groupId: string) => `/api/v1/whatsapp/groups/${groupId}/export`,
     resolveRejectedContact: (groupId: string, rejectedContactId: string) =>
       `/api/v1/whatsapp/groups/${groupId}/rejected-contacts/${rejectedContactId}/resolve`,
     recipient: (groupId: string, recipientId: string) =>

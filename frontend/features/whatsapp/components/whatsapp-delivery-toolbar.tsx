@@ -22,6 +22,12 @@ const CONTACT_FILTERS = [
   { id: "replaced", label: "Replaced contacts" },
 ] as const;
 
+export function deliveryFilterLabel(filter: WhatsAppRecipientRosterTab) {
+  return DELIVERY_FILTERS.find(({ id }) => id === filter)?.label
+    ?? CONTACT_FILTERS.find(({ id }) => id === filter)?.label
+    ?? filter;
+}
+
 export function DeliveryToolbar({ messageTypes, messageType, onMessageTypeChange, filter, onFilterChange, counts, disabled, refreshing, onRefresh }: {
   messageTypes: string[];
   messageType: string;

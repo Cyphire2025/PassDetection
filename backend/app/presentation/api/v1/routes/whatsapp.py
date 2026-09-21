@@ -140,6 +140,7 @@ from app.presentation.api.v1.routes.whatsapp_contact_import import (
     preview_excel_contacts as preview_excel_contacts,
 )
 from app.presentation.api.v1.routes.whatsapp_contact_import import router as _contact_import_router
+from app.presentation.api.v1.routes.whatsapp_exports import router as _exports_router
 from app.presentation.api.v1.routes.whatsapp_groups_archive import (
     archive_broadcast_group as archive_broadcast_group,
 )
@@ -548,6 +549,7 @@ router.include_router(_contact_import_router)
 router.include_router(_source_groups_router)
 router.include_router(_groups_read_router)
 router.include_router(_recipient_roster_router)
+router.include_router(_exports_router)
 router.include_router(_rejected_contacts_router)
 router.include_router(_composer_router)
 router.include_router(_groups_manage_router)

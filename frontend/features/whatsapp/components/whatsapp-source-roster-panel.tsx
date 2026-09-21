@@ -3,15 +3,17 @@ import type { Route } from "next";
 import { Button, Skeleton } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
 import type { WhatsAppBroadcastSourceContacts } from "../api/whatsapp-source-groups.api";
+import type { WhatsAppBroadcastGroup } from "../api/whatsapp.api";
 import { ErrorBanner, readErrorMessage } from "./whatsapp-dialog-ui";
 import { SourceContactTable } from "./whatsapp-source-contact-table";
 
-export function SourceRosterPanel({ data, isLoading, isFetching, error, onRetry }: {
+export function SourceRosterPanel({ data, isLoading, isFetching, error, onRetry, exportGroup }: {
   data: WhatsAppBroadcastSourceContacts | undefined;
   isLoading: boolean;
   isFetching: boolean;
   error: unknown;
   onRetry: () => void;
+  exportGroup?: Pick<WhatsAppBroadcastGroup, "id" | "name">;
 }) {
   return (
     <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6" aria-label="Source group travellers">
@@ -29,7 +31,7 @@ export function SourceRosterPanel({ data, isLoading, isFetching, error, onRetry 
           </div>
           {data.needs_attention_count > 0 && <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">{data.needs_attention_count} traveller {data.needs_attention_count === 1 ? "row needs" : "rows need"} attention. Review the contact status below before delivery. These rows stay visible here.</p>}
           {data.shared_phone_count > 0 && <p className="text-sm text-blue-700">{data.shared_phone_count} additional traveller{data.shared_phone_count === 1 ? " shares" : "s share"} an existing delivery number. Every name is retained.</p>}
-          <SourceContactTable contacts={data.contacts} showGroup={data.sources.length > 1} />
+          <SourceContactTable contacts={data.contacts} showGroup={data.sources.length > 1} exportGroup={exportGroup} />
         </>}
     </section>
   );

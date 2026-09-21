@@ -3,6 +3,9 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { Button, Input } from "@/components/ui";
 import type { WhatsAppSourceContact } from "../api/whatsapp-source-groups.api";
+import type { WhatsAppBroadcastGroup } from "../api/whatsapp.api";
+import type { WhatsAppExportItem } from "../api/whatsapp-export.api";
+import { WhatsAppExportButton } from "./whatsapp-export-button";
 
 type SourceContactRow = WhatsAppSourceContact & { source_group_id?: string; source_group_name?: string; source_import_only?: boolean };
 type TravellerFilter = "all" | "ready" | "review" | "shared";
@@ -58,7 +61,11 @@ function TravellerRow({ contact, showGroup, shared, sharedRole }: {
   </tr>;
 }
 
-export function SourceContactTable({ contacts, showGroup = false }: { contacts: SourceContactRow[]; showGroup?: boolean }) {
+export function SourceContactTable({ contacts, showGroup = false, exportGroup }: {
+  contacts: SourceContactRow[];
+  showGroup?: boolean;
+  exportGroup?: Pick<WhatsAppBroadcastGroup, "id" | "name">;
+}) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<TravellerFilter>("all");
   const [requestedPage, setPage] = useState(1);
@@ -108,7 +115,24 @@ export function SourceContactTable({ contacts, showGroup = false }: { contacts: 
           {FILTER_LABELS[value]}<span className={`rounded px-1.5 py-0.5 tabular-nums ${filter === value ? "bg-blue-100 text-blue-800" : "bg-slate-100 text-slate-500"}`}>{counts[value].toLocaleString()}</span>
         </button>)}
       </div>
-      <Input type="search" label="Search travellers" placeholder="Search by name or WhatsApp number" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div className="min-w-0 flex-1"><Input type="search" label="Search travellers" placeholder="Search by name or WhatsApp number" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} /></div>
+        {exportGroup && (
+          <WhatsAppExportButton
+            group={exportGroup}
+            view="travellers"
+            filterLabel={FILTER_LABELS[filter]}
+            count={filteredCount}
+            disabled={query !== search.trim().toLowerCase()}
+            getItems={() => filteredSets.flatMap((set) => set.contacts).map<WhatsAppExportItem>((contact) => {
+              if (!contact.source_group_id) {
+                throw new Error("The source group for a traveller is missing. Refresh travellers before exporting.");
+              }
+              return { kind: "source_contact", id: contact.source_submission_id, source_group_id: contact.source_group_id };
+            })}
+          />
+        )}
+      </div>
       {filter === "shared" && <p className="text-xs leading-5 text-slate-500">The primary contact is the first traveller listed for each number in the source data. Searches show the whole shared group.</p>}
       <div className="overflow-x-auto rounded-lg border border-slate-200" aria-busy={query !== search.trim().toLowerCase()}>
         <table className="w-full text-left text-sm">

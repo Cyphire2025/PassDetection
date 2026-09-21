@@ -25,6 +25,7 @@ import type {
   WhatsAppRecipient,
 } from "../api/whatsapp.api";
 import { whatsappApi } from "../api/whatsapp.api";
+import { rosterItemForExport } from "../api/whatsapp-export.api";
 import {
   useAddWhatsAppRecipients,
   useDeleteWhatsAppRecipient,
@@ -49,6 +50,7 @@ import {
 } from "../utils/recipient-roster";
 import {
   formatMessageType,
+  isWhatsAppMessageType,
 } from "../utils/message-types";
 import { useWhatsAppActivityTracker } from "./whatsapp-activity-tracker";
 import {
@@ -65,7 +67,8 @@ import {
 import { ActiveRecipientRow } from "./whatsapp-active-recipient-row";
 import { RecipientBulkOutcome } from "./whatsapp-recipient-bulk-outcome";
 import { RecipientWorkspaceNavigation, RecipientSelectionCheckbox, type RecipientWorkspaceSection } from "./whatsapp-recipient-selection";
-import { DeliveryToolbar, DeliverySelectionBar } from "./whatsapp-delivery-toolbar";
+import { DeliveryToolbar, DeliverySelectionBar, deliveryFilterLabel } from "./whatsapp-delivery-toolbar";
+import { WhatsAppExportButton } from "./whatsapp-export-button";
 import type { RecipientResendTarget } from "./whatsapp-workspace.types";
 import type { MessagePreviewSendPayload } from "./whatsapp-message-preview-dialog";
 import { useWhatsAppBroadcastSourceContacts } from "../hooks/use-whatsapp-source-groups";
@@ -619,7 +622,16 @@ export function RecipientListDialog({
           </div>
         ) : (
           <div className="space-y-4">
-            {section === "travellers" && <SourceRosterPanel data={sourceContacts.data} isLoading={sourceContacts.isLoading} isFetching={sourceContacts.isFetching} error={sourceContacts.error} onRetry={() => void sourceContacts.refetch()} />}
+            {section === "travellers" && (
+              <SourceRosterPanel
+                data={sourceContacts.data}
+                isLoading={sourceContacts.isLoading}
+                isFetching={sourceContacts.isFetching}
+                error={sourceContacts.error}
+                onRetry={() => void sourceContacts.refetch()}
+                exportGroup={detail}
+              />
+            )}
             {section === "details" && (
             <fieldset disabled={isArchived}>
             <section className="mx-auto w-full max-w-4xl rounded-2xl border border-slate-200 bg-white p-5 sm:p-7">
@@ -837,10 +849,25 @@ export function RecipientListDialog({
                     }
                   />
                 </div>
-                <p className="shrink-0 text-xs font-medium text-slate-500" aria-live="polite">
-                  {visibleRosterItems.length.toLocaleString()} matching
-                  {visibleRosterItems.length === 1 ? " person" : " people"}
-                </p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <p className="shrink-0 text-xs font-medium text-slate-500" aria-live="polite">
+                    {visibleRosterItems.length.toLocaleString()} matching
+                    {visibleRosterItems.length === 1 ? " person" : " people"}
+                  </p>
+                  <WhatsAppExportButton
+                    group={detail}
+                    view="delivery"
+                    filterLabel={deliveryFilterLabel(recipientRosterTab)}
+                    messageType={isWhatsAppMessageType(selectedMessageType) ? selectedMessageType : undefined}
+                    count={visibleRosterItems.length}
+                    getItems={() => visibleRosterItems.map(rosterItemForExport)}
+                    disabled={
+                      recipientRosterLoading || !recipientRoster || Boolean(recipientRosterError)
+                      || bulkResend.isPending || Boolean(bulkMessageType)
+                      || deferredRecipientSearchQuery.trim().toLocaleLowerCase() !== recipientSearchQuery.trim().toLocaleLowerCase()
+                    }
+                  />
+                </div>
               </div>
 
               {!isArchived && <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2.5">
