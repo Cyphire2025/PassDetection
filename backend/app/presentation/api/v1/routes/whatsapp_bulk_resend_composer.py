@@ -115,7 +115,8 @@ async def validate_bulk_resend_edits(
 
 
 def resolve_saved_resend_snapshot(
-    source: WhatsAppMessageLogModel, edits: BulkResendEdits | None = None
+    source: WhatsAppMessageLogModel, edits: BulkResendEdits | None = None,
+    *, preview: bool = False,
 ) -> SavedResendSnapshot:
     """Apply only explicit edits; a passport link always comes from this source row."""
     header, parameters = _template_snapshot_from_log(source)
@@ -128,6 +129,10 @@ def resolve_saved_resend_snapshot(
         except HTTPException as exc:
             raise ValueError("The saved passport link is invalid") from exc
     if edits is None:
+        validate_template_parameters(
+            message_type=message_type, header_parameters=header, body_parameters=parameters,
+            allow_legacy_group_invite_header=preview,
+        )
         return SavedResendSnapshot(
             source.template_name, source.rendered_message, header, parameters
         )
@@ -151,7 +156,8 @@ def resolve_saved_resend_snapshot(
     if message_type == "group_invite" and edits.group_invite_link is not None:
         parameters[1] = edits.group_invite_link
     validate_template_parameters(
-        message_type=message_type, header_parameters=header, body_parameters=parameters
+        message_type=message_type, header_parameters=header, body_parameters=parameters,
+        allow_legacy_group_invite_header=preview,
     )
     if message_type == "welcome" and not header and len(parameters) == 2:
         # Legacy text welcome templates include their own saved support block.

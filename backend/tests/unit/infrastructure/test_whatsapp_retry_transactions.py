@@ -114,7 +114,7 @@ async def test_retry_skips_accepted_and_interrupted_rows_and_continues_after_rol
     )
 
 
-@pytest.mark.parametrize("blocked", [None, "archive", "welcome"])
+@pytest.mark.parametrize("blocked", [None, "archive", "welcome", "missing_image"])
 async def test_group_invite_worker_uses_frozen_link_and_language_with_existing_gates(db_session, monkeypatch, blocked):
     batch_id, _ = await _seed_batch(db_session, ["queued"])
     log = (await db_session.execute(select(WhatsAppMessageLogModel))).scalar_one()
@@ -124,7 +124,7 @@ async def test_group_invite_worker_uses_frozen_link_and_language_with_existing_g
     log.message_type = state.message_type = "group_invite"
     log.template_name = "whatsapp_group_invite_v1"
     log.template_language = "en"
-    log.header_parameter_values = []
+    log.header_parameter_values = [] if blocked == "missing_image" else ["frozen-invite-image"]
     log.template_parameter_values = ["Frozen invitation", "https://chat.whatsapp.com/Frozen123?mode=ac_t"]
     welcome.status = "queued" if blocked == "welcome" else "delivered"
     if blocked == "archive":
@@ -151,10 +151,12 @@ async def test_group_invite_worker_uses_frozen_link_and_language_with_existing_g
     if blocked:
         send.assert_not_awaited()
         assert saved.status == "failed"
+        if blocked == "missing_image":
+            assert "required Group Invite image" in saved.error_message
     else:
         assert saved.status == "submitted", saved.error_message
         assert send.await_args.kwargs["parameters"] == ["Frozen invitation", "https://chat.whatsapp.com/Frozen123?mode=ac_t"]
-        assert send.await_args.kwargs["header_parameters"] == []
+        assert send.await_args.kwargs["header_parameters"] == ["frozen-invite-image"]
         assert send.await_args.kwargs["language_code"] == "en"
         await worker_runtime.run_whatsapp_broadcast(**kwargs)
         send.assert_awaited_once()

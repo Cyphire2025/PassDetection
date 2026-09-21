@@ -449,3 +449,37 @@ def test_draft_schema_limits_match_existing_composer(field):
         WhatsAppBulkResendPreviewRequest(
             message_type="passport_link", recipient_ids=[uuid.uuid4()], **{field: "x" * (limit + 1)}
         )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mixed", [False, True])
+async def test_old_invite_previews_keep_body_and_count_missing_images_then_upgrade_all(preview_fixture, mixed):
+    fixture = preview_fixture
+    fixture.body = fixture.body.model_copy(update={"message_type": "group_invite"})
+    for index, person in enumerate(fixture.recipients):
+        fixture.sources[person.id] = source(
+            person, "group_invite", template_name="whatsapp_group_invite_v1",
+            template_parameter_values=[f"Trip invite {index}", f"https://chat.whatsapp.com/Invite{index}"],
+            header_parameter_values=["old-selected-image"] if mixed and index == 0 else [],
+        )
+    chosen = fixture.recipients[0]
+    shown = await preview(fixture, preview_recipient_id=chosen.id)
+    assert shown.eligible_recipient_count == 10
+    assert shown.missing_header_image_count == (9 if mixed else 10)
+    assert shown.header_image_id == ("old-selected-image" if mixed else None)
+    assert shown.parameter_values == ["Trip invite 0", "https://chat.whatsapp.com/Invite0"]
+    fixture.session.add.assert_not_called()
+    fixture.publish.assert_not_awaited()
+    fixture.session.execute.side_effect = [result(fixture.group), result(rows=fixture.recipients)]
+    upgraded = await preview(fixture, header_image_id="new-selected-photo")
+    assert upgraded.missing_header_image_count == 0
+    assert upgraded.header_parameter_values == ["new-selected-photo"]
+    fixture.body = fixture.body.model_copy(update={"header_image_id": "new-selected-photo"})
+    fixture.session.execute.side_effect = [result(fixture.group), result(), result(rows=fixture.recipients)]
+    sent = await invoke(fixture)
+    assert sent.queued == 10
+    logs = {call.args[0].recipient_id: call.args[0] for call in fixture.session.add.call_args_list}
+    for index, person in enumerate(fixture.recipients):
+        assert logs[person.id].header_parameter_values == ["new-selected-photo"]
+        assert logs[person.id].template_parameter_values == [f"Trip invite {index}", f"https://chat.whatsapp.com/Invite{index}"]
+    assert fixture.publish.await_args.kwargs["payload"]["header_image_id"] == "new-selected-photo"

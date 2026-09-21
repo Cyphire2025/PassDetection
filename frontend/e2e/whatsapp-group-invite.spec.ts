@@ -1,4 +1,5 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
+import sharp from "sharp";
 import type { WhatsAppBroadcastGroupDetail, WhatsAppMessageDraft } from "../features/whatsapp/api/whatsapp.api";
 
 const inviteLink = "https://chat.whatsapp.com/AbCdEfGhIjKlMnOpQrStUv?mode=ac_t";
@@ -23,6 +24,7 @@ async function mockInviteApi(page: Page) {
   };
   const previews: WhatsAppMessageDraft[] = [];
   const sends: WhatsAppMessageDraft[] = [];
+  const uploads: string[] = [];
   const unexpectedMutations: string[] = [];
   await page.context().addCookies([{ name: "access_token", value: "e2e-session", domain: "127.0.0.1", path: "/", httpOnly: true, sameSite: "Lax" }]);
   await page.route("**/api/v1/**", async (route) => {
@@ -44,9 +46,13 @@ async function mockInviteApi(page: Page) {
         recipient_count: 2, eligible_recipient_count: body.recipient_ids?.length ?? 2,
         already_sent_count: 0, in_progress_count: 0, uncertain_recipient_count: 0, welcome_required_count: 0,
         passport_intro: null, passport_link: null, message_content: message, group_invite_link: link,
-        header_image_id: null, content_source: "default", header_parameter_values: [], parameter_values: [message, link],
+        header_image_id: body.header_image_id ?? null, content_source: "default", header_parameter_values: body.header_image_id ? [body.header_image_id] : [], parameter_values: [message, link],
         rendered_message: renderedMessage(message, link || "[WhatsApp group invite link]"),
       });
+    }
+    if (path === "/api/v1/whatsapp/groups/invite-broadcast/welcome-media" && request.method() === "POST") {
+      uploads.push(request.headers()["content-type"]);
+      return json(route, { media_id: "uploaded-invite-photo", file_name: "invite.png", content_type: "image/png" });
     }
     if (path === "/api/v1/whatsapp/groups/invite-broadcast/send" && request.method() === "POST") {
       const body = request.postDataJSON() as WhatsAppMessageDraft;
@@ -61,7 +67,7 @@ async function mockInviteApi(page: Page) {
     unexpectedMutations.push(`${request.method()} ${path}`);
     return json(route, { detail: "Unexpected API request in isolated invite test." }, 400);
   });
-  return { previews, sends, unexpectedMutations };
+  return { previews, sends, uploads, unexpectedMutations };
 }
 
 for (const viewport of [{ name: "desktop", width: 1440, height: 1080 }, { name: "mobile", width: 390, height: 844 }]) {
@@ -86,9 +92,14 @@ for (const viewport of [{ name: "desktop", width: 1440, height: 1080 }, { name: 
     await linkInput.fill(inviteLink);
     const preview = dialog.getByTestId("whatsapp-message-preview");
     await expect(preview).toHaveText(renderedMessage("Join our September delegates group for the final travel schedule.", inviteLink));
+    await expect(sendButton).toBeDisabled();
+    const imageInput = dialog.locator('input[type="file"]');
+    await expect(imageInput).toHaveCount(1);
+    const imageBytes = await sharp({ create: { width: 640, height: 360, channels: 3, background: { r: 30, g: 140, b: 170 } } }).png().toBuffer();
+    await imageInput.setInputFiles({ name: "invite.png", mimeType: "image/png", buffer: imageBytes });
+    await expect(dialog.getByRole("img", { name: "Selected Group invite image header" })).toBeVisible();
+    await expect.poll(() => dialog.getByRole("img", { name: "Selected Group invite image header" }).evaluate((image: HTMLImageElement) => image.naturalWidth)).toBe(640);
     await expect(sendButton).toBeEnabled();
-    await expect(dialog.getByText("Your header image will appear here", { exact: true })).toHaveCount(0);
-    await expect(dialog.locator('input[type="file"]')).toHaveCount(0);
     await expect(dialog).not.toContainText("Passport upload link");
     await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     const screenshot = testInfo.outputPath(`whatsapp-group-invite-${viewport.name}.png`);
@@ -105,7 +116,9 @@ for (const viewport of [{ name: "desktop", width: 1440, height: 1080 }, { name: 
     await sendButton.click();
     await expect(dialog).toHaveCount(0);
     expect(api.sends).toHaveLength(1);
-    expect(api.sends[0]).toMatchObject({ message_type: "group_invite", message_content: "Join our September delegates group for the final travel schedule.", group_invite_link: inviteLink });
+    expect(api.sends[0]).toMatchObject({ message_type: "group_invite", message_content: "Join our September delegates group for the final travel schedule.", group_invite_link: inviteLink, header_image_id: "uploaded-invite-photo" });
+    expect(api.uploads).toHaveLength(1);
+    expect(api.uploads[0]).toContain("multipart/form-data");
     expect(api.previews.at(-1)).toMatchObject({ message_type: "group_invite", group_invite_link: inviteLink });
     expect(api.unexpectedMutations).toEqual([]);
     expect(pageErrors).toEqual([]);

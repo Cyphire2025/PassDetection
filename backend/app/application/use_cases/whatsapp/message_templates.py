@@ -67,6 +67,10 @@ EXPECTED_BODY_PARAMETER_COUNTS: dict[WhatsAppMessageType, int] = {
 }
 
 
+class GroupInviteImageRequired(ValueError):
+    """A historical text invite must receive an image before it can be sent again."""
+
+
 def welcome_default_message_content(group_name: str) -> str:
     """Build approved BODY {{1}} using only the saved group name."""
 
@@ -188,8 +192,12 @@ def template_header_parameters(
 ) -> list[str]:
     """Return positional HEADER variables in the exact Meta template order."""
 
-    if message_type in {"reminder", "group_invite"}:
+    if message_type == "reminder":
         return []
+    if message_type == "group_invite":
+        # The invite has its own user-selected photo. Never reuse a configured
+        # welcome image merely because an invite draft has no image yet.
+        return [header_image_id.strip()] if header_image_id and header_image_id.strip() else []
     resolved_image_id = header_image_id or welcome_image_id
     if resolved_image_id:
         return [resolved_image_id]
@@ -201,12 +209,15 @@ def validate_template_parameters(
     message_type: WhatsAppMessageType,
     header_parameters: Sequence[str],
     body_parameters: Sequence[str],
+    allow_legacy_group_invite_header: bool = False,
 ) -> None:
     """Reject payloads that cannot match the approved Meta templates."""
 
     if message_type == "group_invite":
-        if header_parameters or len(body_parameters) != 2:
-            raise ValueError("group_invite requires no header and exactly two body parameters")
+        if not header_parameters and not allow_legacy_group_invite_header:
+            raise GroupInviteImageRequired("Upload the required Group Invite image before sending or resending")
+        if len(header_parameters) > 1 or len(body_parameters) != 2:
+            raise ValueError("group_invite requires one image header and exactly two body parameters")
         if not isinstance(body_parameters[1], str):
             raise ValueError("WhatsApp template parameters must contain non-empty text")
         validate_group_invite_link(body_parameters[1])

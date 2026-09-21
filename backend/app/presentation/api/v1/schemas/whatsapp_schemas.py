@@ -328,6 +328,7 @@ class WhatsAppPreviewResponse(BaseModel):
 
 class WhatsAppBulkResendPreviewResponse(WhatsAppPreviewResponse):
     selected: int
+    missing_header_image_count: int = Field(default=0, ge=0)
     eligible_recipient_ids: list[uuid.UUID]
     skipped_no_saved_message: int = 0
     skipped_replaced: int = 0

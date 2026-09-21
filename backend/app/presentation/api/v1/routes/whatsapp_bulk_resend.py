@@ -10,6 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.use_cases.whatsapp.message_templates import GroupInviteImageRequired
 from app.core.config.settings import get_settings
 from app.domain.entities.entities import User
 from app.infrastructure.database.models import (
@@ -210,6 +211,9 @@ async def resend_selected_recipient_messages(
                         now=now,
                         edits=edits,
                     )
+                except GroupInviteImageRequired as exc:
+                    await session.rollback()
+                    raise HTTPException(status_code=400, detail=str(exc)) from exc
                 except (ValueError, IndexError):
                     reason = "skipped_no_saved_message"
                 else:

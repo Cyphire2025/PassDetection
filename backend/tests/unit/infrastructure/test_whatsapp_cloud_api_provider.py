@@ -87,7 +87,7 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
             ],
         )
 
-    async def test_group_invite_uses_plain_english_and_two_text_variables_without_header(self) -> None:
+    async def test_group_invite_uses_english_image_header_and_two_ordered_body_variables(self) -> None:
         settings = self._settings()
         settings.whatsapp_group_invite_template_language = "en"
         response = types.SimpleNamespace(status_code=200, json=lambda: {"messages": [{"id": "wamid.invite"}]})
@@ -95,11 +95,14 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
         await send_whatsapp_template(
             client=client, settings=settings, to_number="+919876543210",
             template_name="whatsapp_group_invite_v1", message_type="group_invite",
+            header_parameters=["invite-image"],
             parameters=["Please join our trip group.", "https://chat.whatsapp.com/InviteAbc123?mode=ac_t"],
         )
         template = client.post.call_args.kwargs["json"]["template"]
         self.assertEqual(template["language"], {"code": "en"})
         self.assertEqual(template["components"], [{
+            "type": "header", "parameters": [{"type": "image", "image": {"id": "invite-image"}}],
+        }, {
             "type": "body", "parameters": [
                 {"type": "text", "text": "Please join our trip group."},
                 {"type": "text", "text": "https://chat.whatsapp.com/InviteAbc123?mode=ac_t"},
@@ -114,9 +117,22 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
         await send_whatsapp_template(
             client=client, settings=settings, to_number="+919876543210",
             template_name="whatsapp_group_invite_v1", message_type="group_invite", language_code="en",
+            header_parameters=["invite-image"],
             parameters=["Please join our trip group.", "https://chat.whatsapp.com/InviteAbc123"],
         )
         self.assertEqual(client.post.call_args.kwargs["json"]["template"]["language"], {"code": "en"})
+
+    async def test_invite_without_exactly_one_valid_image_never_contacts_provider(self) -> None:
+        client = types.SimpleNamespace(post=AsyncMock())
+        for header in ([], [""], ["one", "two"]):
+            with self.assertRaises(WhatsAppCloudApiError) as captured:
+                await send_whatsapp_template(
+                    client=client, settings=self._settings(), to_number="+919876543210",
+                    template_name="whatsapp_group_invite_v1", message_type="group_invite",
+                    header_parameters=header, parameters=["Trip update", "https://chat.whatsapp.com/Invite123"],
+                )
+            self.assertEqual(captured.exception.code, "WHATSAPP_TEMPLATE_PAYLOAD_INVALID")
+        client.post.assert_not_awaited()
 
     async def test_authentication_template_binds_code_to_body_and_otp_button(self) -> None:
         response = types.SimpleNamespace(

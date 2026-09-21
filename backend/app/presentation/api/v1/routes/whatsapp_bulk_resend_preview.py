@@ -120,7 +120,7 @@ async def preview_selected_recipient_messages(
                 reason = "skipped_no_saved_message"
             else:
                 try:
-                    snapshots[recipient.id] = resolve_saved_resend_snapshot(source, edits)
+                    snapshots[recipient.id] = resolve_saved_resend_snapshot(source, edits, preview=True)
                 except (ValueError, IndexError):
                     reason = "skipped_no_saved_message"
         if reason is not None:
@@ -164,6 +164,10 @@ async def preview_selected_recipient_messages(
         header_parameter_values=snapshot.header_parameters,
         parameter_values=snapshot.parameters,
         selected=len(recipients),
+        missing_header_image_count=sum(
+            body.message_type == "group_invite" and not item.header_parameters
+            for item in snapshots.values()
+        ),
         eligible_recipient_ids=list(snapshots),
         skipped_no_saved_message=reasons.count("skipped_no_saved_message"),
         skipped_replaced=reasons.count("skipped_replaced"),

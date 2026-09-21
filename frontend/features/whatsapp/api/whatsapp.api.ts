@@ -257,6 +257,7 @@ export interface WhatsAppBulkResendOverrides {
 
 export interface WhatsAppBulkResendPreviewResponse extends WhatsAppPreviewResponse {
   selected: number;
+  missing_header_image_count?: number;
   eligible_recipient_ids: string[];
   skipped_no_saved_message: number;
   skipped_replaced: number;
@@ -564,14 +565,14 @@ export const whatsappApi = {
     headerImageId: string | null;
     supportContactIds?: string[] | null;
   }): Promise<WhatsAppSendResponse> => {
-    const resolvedHeaderImageId = messageType === "group_invite" ? null : image
+    const resolvedHeaderImageId = image
       ? (await uploadWelcomeImage(groupId, image)).media_id
       : headerImageId;
     const { data } = await apiClient.post<WhatsAppSendResponse>(
       API_ENDPOINTS.whatsapp.resendRecipientMessage(groupId, recipientId),
       {
         message_type: messageType,
-        ...(messageType === "group_invite" ? { group_invite_link: groupInviteLink, message_content: messageContent } : {
+        ...(messageType === "group_invite" ? { group_invite_link: groupInviteLink, message_content: messageContent, header_image_id: resolvedHeaderImageId } : {
         passport_intro:
           messageType === "passport_link" ? passportIntro : null,
         passport_link:
@@ -721,15 +722,21 @@ export const whatsappApi = {
     return data;
   },
 
-  sendGroupInvite: async ({ groupId, messageContent, groupInviteLink, recipientIds }: {
+  sendGroupInvite: async ({ groupId, messageContent, groupInviteLink, recipientIds, image, headerImageId }: {
     groupId: string;
     messageContent: string;
     groupInviteLink: string;
     recipientIds: string[] | null;
+    image: File | null;
+    headerImageId: string | null;
   }): Promise<WhatsAppSendResponse> => {
+    const resolvedHeaderImageId = image
+      ? (await uploadWelcomeImage(groupId, image)).media_id
+      : headerImageId;
     const { data } = await apiClient.post<WhatsAppSendResponse>(API_ENDPOINTS.whatsapp.send(groupId), {
       message_type: "group_invite", message_content: messageContent,
       group_invite_link: groupInviteLink, recipient_ids: recipientIds,
+      header_image_id: resolvedHeaderImageId,
     });
     return data;
   },

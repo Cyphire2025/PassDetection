@@ -354,7 +354,7 @@ export function WhatsAppPage() {
                       audienceClientGroupId: reminderAudienceClientGroupId ?? null,
                     })
                   : messageTarget.messageType === "group_invite"
-                    ? await sendGroupInvite.mutateAsync({ groupId: messageTarget.group.id, messageContent, groupInviteLink: groupInviteLink ?? "", recipientIds })
+                    ? await sendGroupInvite.mutateAsync({ groupId: messageTarget.group.id, messageContent, groupInviteLink: groupInviteLink ?? "", recipientIds, image: headerImage, headerImageId })
                     : await sendPassportLink.mutateAsync({
                     groupId: messageTarget.group.id,
                     passportIntro,

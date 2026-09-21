@@ -1,4 +1,4 @@
-"""Official group invitations preserve their two-variable text template end to end."""
+"""Group invitations preserve their image header and two body variables end to end."""
 
 from __future__ import annotations
 
@@ -59,7 +59,7 @@ def rendered(content=CONTENT, link=LINK):
 def saved_log(**overrides):
     values = dict(
         id=uuid.uuid4(), message_type="group_invite", template_name="whatsapp_group_invite_v1",
-        header_parameter_values=[], template_parameter_values=[CONTENT, LINK],
+        header_parameter_values=["invite-media"], template_parameter_values=[CONTENT, LINK],
         rendered_message=rendered(), status="delivered", template_language="en",
     )
     return SimpleNamespace(**(values | overrides))
@@ -83,8 +83,9 @@ def test_invite_matches_exact_approved_copy_and_parameter_order():
         message_content=CONTENT, group_invite_link=LINK,
     )
     assert params == [CONTENT, LINK]
-    assert template_header_parameters(message_type="group_invite", header_image_id="stale-media") == []
-    validate_template_parameters(message_type="group_invite", header_parameters=[], body_parameters=params)
+    assert template_header_parameters(message_type="group_invite", header_image_id="invite-media") == ["invite-media"]
+    assert template_header_parameters(message_type="group_invite", welcome_image_id="welcome-media") == []
+    validate_template_parameters(message_type="group_invite", header_parameters=["invite-media"], body_parameters=params)
 
 
 @pytest.mark.parametrize("link", [
@@ -106,14 +107,14 @@ def test_invite_preserves_valid_share_query(link):
     assert validate_group_invite_link(f" {link} ") == link
 
 
-@pytest.mark.parametrize("headers,body", [(["image"], [CONTENT, LINK]), ([], [CONTENT]), ([], [CONTENT, LINK, "extra"]), ([], ["", LINK]), ([], [CONTENT, "https://example.com/unsafe"])])
+@pytest.mark.parametrize("headers,body", [( [], [CONTENT, LINK]), (["image", "extra"], [CONTENT, LINK]), ([""], [CONTENT, LINK]), (["image"], [CONTENT]), (["image"], [CONTENT, LINK, "extra"]), (["image"], ["", LINK]), (["image"], [CONTENT, "https://example.com/unsafe"])])
 def test_invalid_provider_shape_is_rejected(headers, body):
     with pytest.raises(ValueError):
         validate_template_parameters(message_type="group_invite", header_parameters=headers, body_parameters=body)
 
 
 def test_snapshot_reopens_and_edits_each_invite_without_passport_fields():
-    original = saved_log()
+    original = saved_log(header_parameter_values=[])
     snapshot = _composer_snapshot_from_log(original)
     assert snapshot.group_invite_link == LINK
     assert snapshot.message_content == CONTENT
@@ -126,11 +127,19 @@ def test_snapshot_reopens_and_edits_each_invite_without_passport_fields():
     )
     assert edited.group_invite_link == EDITED_LINK
     assert edited.message_content == "New invitation"
-    bulk = resolve_saved_resend_snapshot(original, BulkResendEdits(message_content="Updated invitation", group_invite_link=EDITED_LINK))
+    bulk = resolve_saved_resend_snapshot(original, BulkResendEdits(message_content="Updated invitation", group_invite_link=EDITED_LINK), preview=True)
     assert bulk.parameters == ["Updated invitation", EDITED_LINK]
     assert bulk.header_parameters == []
     assert bulk.rendered_message == rendered("Updated invitation", EDITED_LINK)
     assert original.template_parameter_values == [CONTENT, LINK]
+    with pytest.raises(ValueError, match="required Group Invite image"):
+        resolve_saved_resend_snapshot(original)
+    upgraded = resolve_saved_resend_snapshot(original, BulkResendEdits(
+        header_image_id="selected-invite-photo", media_template_name="whatsapp_group_invite_v1",
+    ))
+    assert upgraded.header_parameters == ["selected-invite-photo"]
+    assert upgraded.parameters == [CONTENT, LINK]
+    assert original.header_parameter_values == []
 
 
 def test_bulk_idempotency_fingerprint_changes_with_invite_link_edit():
@@ -167,17 +176,17 @@ def rig(monkeypatch):
     return SimpleNamespace(group=group, recipient=recipient, user=user, session=session, publish=publish, prerequisite=prerequisite, settings=settings)
 
 
-async def test_preview_returns_invite_field_exact_body_and_no_image(rig):
+async def test_preview_returns_invite_field_exact_body_and_selected_image(rig):
     rig.session.execute.return_value = db_result(rig.group)
     response = await preview_route.preview_broadcast_message(
-        rig.group.id, WhatsAppPreviewRequest(message_type="group_invite", message_content=CONTENT, group_invite_link=LINK, header_image_id="stale-media"),
+        rig.group.id, WhatsAppPreviewRequest(message_type="group_invite", message_content=CONTENT, group_invite_link=LINK, header_image_id="invite-media"),
         current_user=rig.user, session=rig.session,
     )
     assert response.group_invite_link == LINK
     assert response.rendered_message == rendered()
     assert response.parameter_values == [CONTENT, LINK]
-    assert response.header_parameter_values == []
-    assert response.header_image_id is None
+    assert response.header_parameter_values == ["invite-media"]
+    assert response.header_image_id == "invite-media"
     assert response.template_name == "whatsapp_group_invite_v1"
 
 
@@ -190,7 +199,7 @@ async def test_preview_keeps_missing_invite_null_with_clear_placeholder(rig):
     assert "[WhatsApp group invite link]" in response.rendered_message
 
 
-@pytest.mark.parametrize("blocked", [None, "archive", "opt_in", "welcome", "missing_link"])
+@pytest.mark.parametrize("blocked", [None, "archive", "opt_in", "welcome", "missing_link", "missing_image"])
 async def test_send_freezes_valid_invite_before_queue_and_keeps_existing_gates(rig, blocked):
     rig.session.execute.side_effect = [db_result(rig.group), db_result(), db_result(), db_result(), db_result(rows=[rig.recipient.id])]
     if blocked == "archive":
@@ -199,7 +208,7 @@ async def test_send_freezes_valid_invite_before_queue_and_keeps_existing_gates(r
         rig.group.recipient_opt_in_confirmed_at = None
     elif blocked == "welcome":
         rig.prerequisite.side_effect = HTTPException(409, "Welcome required")
-    body = WhatsAppSendRequest(message_type="group_invite", message_content=CONTENT, group_invite_link=None if blocked == "missing_link" else LINK)
+    body = WhatsAppSendRequest(message_type="group_invite", message_content=CONTENT, group_invite_link=None if blocked == "missing_link" else LINK, header_image_id=None if blocked == "missing_image" else "invite-media")
     if blocked:
         with pytest.raises(HTTPException):
             await whatsapp_send.send_broadcast_message(rig.group.id, body, current_user=rig.user, session=rig.session)
@@ -210,12 +219,13 @@ async def test_send_freezes_valid_invite_before_queue_and_keeps_existing_gates(r
     assert response.queued == 1
     log = rig.session.add.call_args.args[0]
     assert log.template_parameter_values == [CONTENT, LINK]
-    assert log.header_parameter_values == []
+    assert log.header_parameter_values == ["invite-media"]
     assert log.rendered_message == rendered()
     assert log.template_language == "en"
     payload = rig.publish.await_args.kwargs["payload"]
     assert payload["group_invite_link"] == LINK
     assert payload["message_type"] == "group_invite"
+    assert payload["header_image_id"] == "invite-media"
     assert payload["passport_link"] is None
     rig.session.commit.assert_awaited_once()
     assert rig.prerequisite.await_args.kwargs["message_type"] == "group_invite"
@@ -223,25 +233,26 @@ async def test_send_freezes_valid_invite_before_queue_and_keeps_existing_gates(r
 
 @pytest.mark.parametrize("prior_status", ["failed", "delivered"])
 async def test_single_retry_and_explicit_resend_use_saved_invite_and_edited_link(rig, prior_status):
-    source = saved_log()
+    source = saved_log(header_parameter_values=[])
     rig.settings.whatsapp_group_invite_template_language = "en_US"
     state = SimpleNamespace(status=prior_status)
     rig.session.execute.side_effect = [db_result(rig.group), db_result(rig.recipient), db_result(state), db_result(), db_result(), db_result(), db_result(source)]
     response = await resend_route.resend_recipient_message(
         rig.group.id, rig.recipient.id,
-        WhatsAppResendRequest(message_type="group_invite", group_invite_link=EDITED_LINK),
+        WhatsAppResendRequest(message_type="group_invite", group_invite_link=EDITED_LINK, header_image_id="selected-invite-photo"),
         Request({"type": "http", "client": ("127.0.0.1", 1234)}), current_user=rig.user, session=rig.session,
     )
     assert response.queued == 1
     log = rig.session.add.call_args.args[0]
     assert log.template_parameter_values == [CONTENT, EDITED_LINK]
     assert log.template_language == "en"
-    assert log.header_parameter_values == []
+    assert log.header_parameter_values == ["selected-invite-photo"]
     assert log.rendered_message == rendered(link=EDITED_LINK)
     assert log.is_explicit_resend == (prior_status == "delivered")
     payload = rig.publish.await_args.kwargs["payload"]
     assert payload["group_invite_link"] == EDITED_LINK
     assert payload["message_content"] == CONTENT
+    assert payload["header_image_id"] == "selected-invite-photo"
     if prior_status == "failed":
         assert state.status == "queued"
 
@@ -263,9 +274,42 @@ async def test_bulk_retry_preserves_each_saved_invite_and_applies_only_explicit_
     for index, person in enumerate(fixture.recipients):
         expected = ["Updated shared invitation", EDITED_LINK] if edited else [f"Saved invitation {index}", f"https://chat.whatsapp.com/PersonalInvite{index}"]
         assert logs[person.id].template_parameter_values == expected
-        assert logs[person.id].header_parameter_values == []
+        assert logs[person.id].header_parameter_values == ["invite-media"]
         assert logs[person.id].template_language == "en"
     payload = fixture.publish.await_args.kwargs["payload"]
     assert payload["message_type"] == "group_invite"
     assert payload["group_invite_link"].startswith("https://chat.whatsapp.com/")
     assert payload["passport_link"] is None
+
+
+async def test_single_old_text_invite_requires_image_before_resend(rig):
+    source = saved_log(header_parameter_values=[])
+    rig.session.execute.side_effect = [
+        db_result(rig.group), db_result(rig.recipient), db_result(SimpleNamespace(status="delivered")),
+        db_result(), db_result(), db_result(), db_result(source),
+    ]
+    with pytest.raises(HTTPException, match="required Group Invite image") as exc:
+        await resend_route.resend_recipient_message(
+            rig.group.id, rig.recipient.id, WhatsAppResendRequest(message_type="group_invite"),
+            Request({"type": "http", "client": ("127.0.0.1", 1234)}),
+            current_user=rig.user, session=rig.session,
+        )
+    assert exc.value.status_code == 400
+    rig.session.add.assert_not_called()
+    rig.publish.assert_not_awaited()
+
+
+@pytest.mark.parametrize("mixed", [False, True])
+async def test_bulk_old_text_invites_require_photo_and_never_publish_malformed_rows(bulk_fixture, mixed):
+    fixture = bulk_fixture
+    fixture.body = fixture.body.model_copy(update={"message_type": "group_invite"})
+    for index, person in enumerate(fixture.recipients):
+        fixture.sources[person.id] = saved_log(
+            header_parameter_values=["existing-invite-image"] if mixed and index == 0 else [],
+        )
+    with pytest.raises(HTTPException, match="required Group Invite image") as exc:
+        await bulk_test_support.invoke(fixture)
+    assert exc.value.status_code == 400
+    fixture.publish.assert_not_awaited()
+    fixture.session.commit.assert_not_awaited()
+    fixture.session.rollback.assert_awaited_once()

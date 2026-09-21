@@ -118,13 +118,13 @@ def _resolve_send_header_image(
     *,
     resend: bool = False,
 ) -> str | None:
-    if message_type in {"reminder", "group_invite"}:
+    if message_type == "reminder":
         return None
     media_id = (value or "").strip()
     if media_id:
         return media_id
     action = "resending" if resend else "sending"
-    label = "Welcome" if message_type == "welcome" else "Passport Link"
+    label = {"welcome": "Welcome", "passport_link": "Passport Link", "group_invite": "Group Invite"}[message_type]
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
         detail=f"Upload the required {label} image before {action}",
@@ -378,6 +378,7 @@ def _template_snapshot_from_log(
         message_type=message_type,
         header_parameters=header_parameters,
         body_parameters=parameters,
+        allow_legacy_group_invite_header=True,
     )
     return header_parameters, parameters
 

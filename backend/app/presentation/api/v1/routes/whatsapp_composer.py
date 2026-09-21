@@ -91,7 +91,7 @@ async def upload_welcome_media(
     if image.content_type not in {"image/jpeg", "image/png"}:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Use a JPEG or PNG image for the Welcome message",
+            detail="Use a JPEG or PNG image for the message header",
         )
 
     payload = bytearray()
@@ -114,7 +114,7 @@ async def upload_welcome_media(
                 except ImageValidationError:
                     raise HTTPException(
                         status_code=status.HTTP_413_CONTENT_TOO_LARGE,
-                        detail="The Welcome image must be 5 MB or smaller",
+                        detail="The message header image must be 5 MB or smaller",
                     ) from None
     finally:
         try:

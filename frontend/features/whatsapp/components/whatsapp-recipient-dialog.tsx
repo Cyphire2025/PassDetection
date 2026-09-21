@@ -497,9 +497,9 @@ export function RecipientListDialog({
       }
       const overrides = {
         messageContent: payload.bulkDraft?.messageContent ?? null,
+        headerImageId: uploadedImageId ?? payload.bulkDraft?.headerImageId ?? null,
         ...(messageType === "group_invite" ? { groupInviteLink: payload.bulkDraft?.groupInviteLink ?? null } : {
         passportIntro: payload.bulkDraft?.passportIntro ?? null,
-        headerImageId: uploadedImageId ?? payload.bulkDraft?.headerImageId ?? null,
         supportContactIds: payload.bulkDraft?.supportContactIds ?? null,
         }),
       };
