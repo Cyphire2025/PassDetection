@@ -16,6 +16,8 @@ import {
 } from "../utils/batch-polling";
 
 export const WHATSAPP_QUERY_KEYS = {
+  // This prefix also refreshes details, recipient/rejected rosters and source
+  // contacts. Do not invalidate its children again for the same mutation.
   groups: ["whatsapp", "groups"] as const,
   groupList: (archived: boolean) => ["whatsapp", "groups", { archived }] as const,
   group: (groupId: string) => ["whatsapp", "groups", groupId] as const,
@@ -33,7 +35,7 @@ export const WHATSAPP_QUERY_KEYS = {
 export function useWhatsAppGroups(archived = false) {
   return useQuery({
     queryKey: WHATSAPP_QUERY_KEYS.groupList(archived),
-    queryFn: () => whatsappApi.groups(archived),
+    queryFn: ({ signal }) => whatsappApi.groups(archived, signal),
   });
 }
 
@@ -66,7 +68,7 @@ export function useRestoreWhatsAppGroup() {
 export function useWhatsAppGroup(groupId: string | null) {
   return useQuery({
     queryKey: groupId ? WHATSAPP_QUERY_KEYS.group(groupId) : ["whatsapp", "groups", "none"],
-    queryFn: () => whatsappApi.group(groupId as string),
+    queryFn: ({ signal }) => whatsappApi.group(groupId as string, signal),
     enabled: Boolean(groupId),
     refetchOnMount: "always",
     refetchInterval: (query) => (
@@ -91,7 +93,7 @@ export function useWhatsAppRecipientRoster(groupId: string | null) {
     queryKey: groupId
       ? WHATSAPP_QUERY_KEYS.recipientRoster(groupId)
       : ["whatsapp", "groups", "none", "recipient-roster"],
-    queryFn: () => whatsappApi.recipientRoster(groupId as string),
+    queryFn: ({ signal }) => whatsappApi.recipientRoster(groupId as string, signal),
     enabled: Boolean(groupId),
     refetchInterval: (query) => (
       query.state.data?.items.some(
@@ -129,7 +131,7 @@ export function useWhatsAppRejectedContacts({
       limit,
       offset,
     ),
-    queryFn: () => whatsappApi.rejectedContacts({ groupId, limit, offset }),
+    queryFn: ({ signal }) => whatsappApi.rejectedContacts({ groupId, limit, offset, signal }),
     enabled,
   });
 }
@@ -140,15 +142,7 @@ export function useResolveWhatsAppRejectedContact() {
     mutationFn: whatsappApi.resolveRejectedContact,
     onSuccess: async (group) => {
       queryClient.setQueryData(WHATSAPP_QUERY_KEYS.group(group.id), group);
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups }),
-        queryClient.invalidateQueries({
-          queryKey: WHATSAPP_QUERY_KEYS.rejectedContacts(group.id),
-        }),
-        queryClient.invalidateQueries({
-          queryKey: WHATSAPP_QUERY_KEYS.recipientRoster(group.id),
-        }),
-      ]);
+      await queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
     },
   });
 }
@@ -230,12 +224,6 @@ export function useAddWhatsAppRecipients() {
     onSuccess: (group) => {
       queryClient.setQueryData(WHATSAPP_QUERY_KEYS.group(group.id), group);
       queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
-      queryClient.invalidateQueries({
-        queryKey: WHATSAPP_QUERY_KEYS.rejectedContacts(group.id),
-      });
-      queryClient.invalidateQueries({
-        queryKey: WHATSAPP_QUERY_KEYS.recipientRoster(group.id),
-      });
     },
   });
 }
@@ -272,11 +260,7 @@ export function useDeleteWhatsAppRecipient() {
             }
           : current,
       );
-      queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.group(groupId) });
       queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
-      queryClient.invalidateQueries({
-        queryKey: WHATSAPP_QUERY_KEYS.recipientRoster(groupId),
-      });
     },
   });
 }
@@ -291,9 +275,6 @@ export function useUpdateWhatsAppRecipientPhone() {
         group,
       );
       queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
-      queryClient.invalidateQueries({
-        queryKey: WHATSAPP_QUERY_KEYS.recipientRoster(group.id),
-      });
     },
   });
 }
@@ -302,15 +283,9 @@ export function useResendWhatsAppRecipientMessage() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: whatsappApi.resendRecipientMessage,
-    onSuccess: async (_, { groupId }) => {
-      await queryClient.invalidateQueries({
-        queryKey: WHATSAPP_QUERY_KEYS.group(groupId),
-      });
+    onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: WHATSAPP_QUERY_KEYS.groups,
-      });
-      await queryClient.invalidateQueries({
-        queryKey: WHATSAPP_QUERY_KEYS.recipientRoster(groupId),
       });
     },
   });
@@ -321,12 +296,8 @@ export function useResendWhatsAppRecipientsMessage() {
   return useMutation({
     mutationFn: whatsappApi.resendRecipientsMessage,
     retry: false,
-    onSuccess: async (_, { groupId }) => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.group(groupId) }),
-        queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups }),
-        queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.recipientRoster(groupId) }),
-      ]);
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
     },
   });
 }
@@ -346,9 +317,9 @@ export function useWhatsAppBatchStatus(
 ) {
   return useQuery({
     queryKey: ["whatsapp", "batches", batchId],
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       try {
-        return await whatsappApi.batchSummary(batchId as string);
+        return await whatsappApi.batchSummary(batchId as string, signal);
       } catch (error) {
         if (batchId && isMissingWhatsAppBatchError(error)) {
           onMissingBatch?.(batchId);
@@ -415,18 +386,8 @@ export function useSendWhatsAppWelcome() {
       headerImageId,
       recipientIds,
     ),
-    onSuccess: async (_, { groupId }) => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: WHATSAPP_QUERY_KEYS.group(groupId),
-        }),
-        queryClient.invalidateQueries({
-          queryKey: WHATSAPP_QUERY_KEYS.recipientRoster(groupId),
-        }),
-        queryClient.invalidateQueries({
-          queryKey: WHATSAPP_QUERY_KEYS.groups,
-        }),
-      ]);
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
     },
   });
 }
@@ -453,18 +414,8 @@ export function useSendWhatsAppReminder() {
       audience,
       audienceClientGroupId,
     ),
-    onSuccess: async (_, { groupId }) => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: WHATSAPP_QUERY_KEYS.group(groupId),
-        }),
-        queryClient.invalidateQueries({
-          queryKey: WHATSAPP_QUERY_KEYS.recipientRoster(groupId),
-        }),
-        queryClient.invalidateQueries({
-          queryKey: WHATSAPP_QUERY_KEYS.groups,
-        }),
-      ]);
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
     },
   });
 }
@@ -500,18 +451,8 @@ export function useSendWhatsAppPassportLink() {
       recipientIds,
       supportContactIds,
     ),
-    onSuccess: async (_, { groupId }) => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: WHATSAPP_QUERY_KEYS.group(groupId),
-        }),
-        queryClient.invalidateQueries({
-          queryKey: WHATSAPP_QUERY_KEYS.recipientRoster(groupId),
-        }),
-        queryClient.invalidateQueries({
-          queryKey: WHATSAPP_QUERY_KEYS.groups,
-        }),
-      ]);
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
     },
   });
 }
@@ -521,12 +462,8 @@ export function useSendWhatsAppGroupInvite() {
   return useMutation({
     mutationFn: whatsappApi.sendGroupInvite,
     retry: false,
-    onSuccess: async (_, { groupId }) => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.group(groupId) }),
-        queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.recipientRoster(groupId) }),
-        queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups }),
-      ]);
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
     },
   });
 }

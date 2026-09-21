@@ -2,8 +2,12 @@
 
 ## Runtime configuration
 
-The two active Meta template names are configured only through the backend settings loaded
-from the repository-root `.env` file:
+Template names default to backend settings loaded from the repository-root `.env`.
+Super administrators can now save persistent name overrides in Settings, or reset
+each name to its ENV default, without restarting services. See
+[WhatsApp template-name settings](whatsapp-template-settings.md) for all seven slots,
+permissions, revision checks, and the current component contracts. The original
+Welcome/Passport Link ENV defaults are:
 
 ```dotenv
 WHATSAPP_WELCOME_TEMPLATE_NAME=<exact approved welcome template name>
@@ -15,10 +19,15 @@ The template names are intentionally blank in code and `.env.example`. Enter the
 shown in WhatsApp Manager. The language code must also exactly match the language attached to
 the approved templates; retain `en_US` only if that is the approved language.
 
-Both the `backend` and `worker` services load the root `.env`. Restart both services after
-changing this configuration.
+Both the `backend` and `worker` services load the root `.env`. Recreate the containers
+after changing ENV configuration; changes saved through Settings apply to new
+operations immediately. Already queued messages keep their saved template names.
 
 ## Approved component contracts
+
+This section records the original text-template rollout for historical saved
+messages. Current media templates use the contracts described in the linked
+template-name settings document; do not use these legacy shapes for a new image template.
 
 Both templates have the fixed header `Dear Delegates`. The API must not send a dynamic
 `header` component. Neither template has a dynamic button component.

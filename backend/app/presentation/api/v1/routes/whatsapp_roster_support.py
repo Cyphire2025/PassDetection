@@ -80,15 +80,39 @@ async def _recipient_delivery_state_maps(
     for state_model in states_result.scalars().all():
         states_by_recipient.setdefault(state_model.recipient_id, []).append(state_model)
 
-    resend_result = await session.execute(
-        select(WhatsAppMessageLogModel)
+    # The roster only needs the newest explicit attempt for each message type.
+    # Rank in SQL so repeated polling never loads old rendered messages or media
+    # snapshots. If the newest attempt predates a failed baseline, every older
+    # attempt does too; keep that cutoff against the already loaded state below.
+    ranked_resends = (
+        select(
+            WhatsAppMessageLogModel.recipient_id,
+            WhatsAppMessageLogModel.message_type,
+            WhatsAppMessageLogModel.status,
+            WhatsAppMessageLogModel.created_at,
+            func.row_number().over(
+                partition_by=(
+                    WhatsAppMessageLogModel.recipient_id,
+                    WhatsAppMessageLogModel.message_type,
+                ),
+                order_by=WhatsAppMessageLogModel.created_at.desc(),
+            ).label("attempt_order"),
+        )
         .where(
             WhatsAppMessageLogModel.recipient_id.in_(recipient_ids),
             WhatsAppMessageLogModel.is_explicit_resend.is_(True),
         )
-        .order_by(WhatsAppMessageLogModel.created_at.desc())
+        .subquery()
     )
-    for resend_log in resend_result.scalars().all():
+    resend_result = await session.execute(
+        select(
+            ranked_resends.c.recipient_id,
+            ranked_resends.c.message_type,
+            ranked_resends.c.status,
+            ranked_resends.c.created_at,
+        ).where(ranked_resends.c.attempt_order == 1)
+    )
+    for resend_log in resend_result.all():
         current_state = next(
             (
                 state

@@ -31,6 +31,9 @@ approved and enabled the matching template before real sends can succeed.
 
 Configuration defaults:
 
+Super administrators can override this name in Settings without a restart; see
+[WhatsApp template-name settings](whatsapp-template-settings.md). ENV remains the default.
+
 ```dotenv
 WHATSAPP_GROUP_INVITE_TEMPLATE_NAME=whatsapp_group_invite_v1
 WHATSAPP_GROUP_INVITE_TEMPLATE_LANGUAGE=en

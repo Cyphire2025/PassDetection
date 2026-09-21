@@ -41,6 +41,8 @@ import {
   getMessageStatus,
 } from "../utils/recipient-delivery";
 import {
+  countRecipientRosterItems,
+  createRecipientRosterSearchIndex,
   filterRecipientRosterItems,
   searchRecipientRosterItems,
   type WhatsAppRecipientRosterTab,
@@ -381,7 +383,6 @@ export function RecipientListDialog({
         });
       }
       setRecipientToResend(null);
-      await refetchGroup();
       setLastResendTarget(target);
 
       if (result.queued > 0) {
@@ -441,13 +442,15 @@ export function RecipientListDialog({
     return names;
   }, [sourceContacts.data?.contacts]);
   const sharedPhones = useMemo(() => new Set([...sourceNamesByPhone].filter(([, names]) => names.length > 1).map(([phone]) => phone)), [sourceNamesByPhone]);
-  const searchedRosterItems = useMemo(() => searchRecipientRosterItems(recipientRoster?.items ?? [], deferredRecipientSearchQuery, sourceNamesByPhone), [recipientRoster?.items, deferredRecipientSearchQuery, sourceNamesByPhone]);
-  const filterCounts = useMemo(() => Object.fromEntries(ROSTER_FILTER_IDS.map((id) => [id, filterRecipientRosterItems(searchedRosterItems, id, selectedMessageType, sharedPhones).length])) as Record<WhatsAppRecipientRosterTab, number>, [searchedRosterItems, selectedMessageType, sharedPhones]);
+  const hasRecipientSearch = Boolean(deferredRecipientSearchQuery.trim());
+  const rosterSearchIndex = useMemo(() => hasRecipientSearch ? createRecipientRosterSearchIndex(recipientRoster?.items ?? [], sourceNamesByPhone) : undefined, [recipientRoster?.items, sourceNamesByPhone, hasRecipientSearch]);
+  const searchedRosterItems = useMemo(() => searchRecipientRosterItems(recipientRoster?.items ?? [], deferredRecipientSearchQuery, sourceNamesByPhone, rosterSearchIndex), [recipientRoster?.items, deferredRecipientSearchQuery, sourceNamesByPhone, rosterSearchIndex]);
+  const filterCounts = useMemo(() => Object.fromEntries(ROSTER_FILTER_IDS.map((id) => [id, countRecipientRosterItems(searchedRosterItems, id, selectedMessageType, sharedPhones)])) as Record<WhatsAppRecipientRosterTab, number>, [searchedRosterItems, selectedMessageType, sharedPhones]);
   const visibleRosterItems = useMemo(
     () => filterRecipientRosterItems(searchedRosterItems, recipientRosterTab, selectedMessageType, sharedPhones),
     [searchedRosterItems, recipientRosterTab, selectedMessageType, sharedPhones],
   );
-  const allRecipients = useMemo(() => recipientRoster?.items.flatMap((item) => item.kind === "recipient" ? [item.recipient] : []) ?? [], [recipientRoster]);
+  const allRecipients = useMemo(() => recipientRoster?.items.flatMap((item) => item.kind === "recipient" ? [item.recipient] : []) ?? [], [recipientRoster?.items]);
   const visibleRecipientIds = useMemo(() => visibleRosterItems.flatMap((item) => item.kind === "recipient" ? [item.recipient.id] : []), [visibleRosterItems]);
   const selectedRecipients = useMemo(() => allRecipients.filter((recipient) => selectedIds.has(recipient.id)), [allRecipients, selectedIds]);
   const visibleSelectedCount = visibleRecipientIds.filter((id) => selectedIds.has(id)).length;
@@ -1006,7 +1009,6 @@ export function RecipientListDialog({
                                     setSuccessMessage(
                                       `${correction.name.trim()} was added to the valid recipient list as Not sent.`,
                                     );
-                                    await refetchRecipientRoster();
                                   } catch (correctionError) {
                                     setRejectedContactError(
                                       readErrorMessage(

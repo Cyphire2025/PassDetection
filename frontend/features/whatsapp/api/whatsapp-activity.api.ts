@@ -29,9 +29,11 @@ export const whatsappActivityApi = {
   summary: async (
     kind: WhatsAppActivityKind,
     batchId: string,
+    signal?: AbortSignal,
   ): Promise<WhatsAppActivitySummary> => {
     const { data } = await apiClient.get<WhatsAppActivitySummary>(
       API_ENDPOINTS.whatsapp.activity(kind, batchId),
+      { signal },
     );
     return data;
   },
@@ -39,9 +41,11 @@ export const whatsappActivityApi = {
   failures: async (
     kind: WhatsAppActivityKind,
     batchId: string,
+    signal?: AbortSignal,
   ): Promise<WhatsAppActivityFailure[]> => {
     const { data } = await apiClient.get<WhatsAppActivityFailure[]>(
       API_ENDPOINTS.whatsapp.activityFailures(kind, batchId),
+      { signal },
     );
     return data;
   },

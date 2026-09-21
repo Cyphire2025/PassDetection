@@ -331,9 +331,10 @@ export const whatsappApi = {
     return data;
   },
 
-  groups: async (archived = false): Promise<WhatsAppBroadcastGroup[]> => {
+  groups: async (archived = false, signal?: AbortSignal): Promise<WhatsAppBroadcastGroup[]> => {
     const { data } = await apiClient.get<WhatsAppBroadcastGroup[]>(API_ENDPOINTS.whatsapp.groups, {
       params: { archived },
+      signal,
     });
     return data;
   },
@@ -352,16 +353,18 @@ export const whatsappApi = {
     return data;
   },
 
-  group: async (groupId: string): Promise<WhatsAppBroadcastGroupDetail> => {
-    const { data } = await apiClient.get<WhatsAppBroadcastGroupDetail>(API_ENDPOINTS.whatsapp.group(groupId));
+  group: async (groupId: string, signal?: AbortSignal): Promise<WhatsAppBroadcastGroupDetail> => {
+    const { data } = await apiClient.get<WhatsAppBroadcastGroupDetail>(API_ENDPOINTS.whatsapp.group(groupId), { signal });
     return data;
   },
 
   recipientRoster: async (
     groupId: string,
+    signal?: AbortSignal,
   ): Promise<WhatsAppRecipientRosterResponse> => {
     const { data } = await apiClient.get<WhatsAppRecipientRosterResponse>(
       API_ENDPOINTS.whatsapp.recipientRoster(groupId),
+      { signal },
     );
     return data;
   },
@@ -473,14 +476,16 @@ export const whatsappApi = {
     groupId,
     limit,
     offset,
+    signal,
   }: {
     groupId: string;
     limit: number;
     offset: number;
+    signal?: AbortSignal;
   }): Promise<WhatsAppRejectedContactPage> => {
     const { data } = await apiClient.get<WhatsAppRejectedContactPage>(
       API_ENDPOINTS.whatsapp.rejectedContacts(groupId),
-      { params: { limit, offset } },
+      { params: { limit, offset }, signal },
     );
     return data;
   },
@@ -748,9 +753,10 @@ export const whatsappApi = {
     return data;
   },
 
-  batchSummary: async (batchId: string): Promise<WhatsAppBatchSummary> => {
+  batchSummary: async (batchId: string, signal?: AbortSignal): Promise<WhatsAppBatchSummary> => {
     const { data } = await apiClient.get<WhatsAppBatchSummary>(
       API_ENDPOINTS.whatsapp.batchSummary(batchId),
+      { signal },
     );
     return data;
   },

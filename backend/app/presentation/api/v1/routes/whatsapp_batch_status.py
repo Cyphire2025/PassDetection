@@ -72,7 +72,14 @@ async def get_broadcast_batch_status(
     session: AsyncSession = Depends(get_db_session),
 ) -> WhatsAppSendResponse:
     result = await session.execute(
-        select(WhatsAppMessageLogModel, WhatsAppBroadcastRecipientModel)
+        select(
+            WhatsAppMessageLogModel.recipient_id,
+            WhatsAppBroadcastRecipientModel.normalized_phone_number,
+            WhatsAppMessageLogModel.status,
+            WhatsAppMessageLogModel.status_updated_at,
+            WhatsAppMessageLogModel.provider_message_id,
+            WhatsAppMessageLogModel.error_message,
+        )
         .join(
             WhatsAppBroadcastRecipientModel,
             WhatsAppBroadcastRecipientModel.id == WhatsAppMessageLogModel.recipient_id,
@@ -99,16 +106,16 @@ async def get_broadcast_batch_status(
     uncertain_statuses = {"delivery_unknown", "stalled"}
     stale_cutoff = datetime.now(tz=UTC) - timedelta(minutes=30)
     results: list[WhatsAppSendResult] = []
-    for log, recipient in rows:
-        is_stalled = log.status in queued_statuses and log.status_updated_at < stale_cutoff
+    for row in rows:
+        is_stalled = row.status in queued_statuses and row.status_updated_at < stale_cutoff
         results.append(
             WhatsAppSendResult(
-                recipient_id=recipient.id,
-                phone_number=recipient.normalized_phone_number,
-                status="stalled" if is_stalled else log.status,
-                provider_message_id=log.provider_message_id,
+                recipient_id=row.recipient_id,
+                phone_number=row.normalized_phone_number,
+                status="stalled" if is_stalled else row.status,
+                provider_message_id=row.provider_message_id,
                 error_message=(
-                    log.error_message
+                    row.error_message
                     or (
                         "Delivery status is unknown after a worker interruption; verify before resending"
                         if is_stalled

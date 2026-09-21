@@ -31,12 +31,12 @@ from app.infrastructure.whatsapp.publication import (
     fail_unclaimed_broadcast_rows,
     publish_whatsapp_task,
 )
+from app.infrastructure.whatsapp.template_settings import configured_template_name
 from app.presentation.api.v1.routes.whatsapp_archive_policy import require_active_broadcast
 from app.presentation.api.v1.routes.whatsapp_phone_welcome import (
     claim_resend_welcome_or_reject,
     enforce_broadcast_welcome_prerequisite,
 )
-from app.presentation.api.v1.routes.whatsapp_scope import _configured_template_name
 from app.presentation.api.v1.routes.whatsapp_shared import (
     WHATSAPP_ACCEPTED_STATUSES,
     WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES,
@@ -267,7 +267,7 @@ async def resend_recipient_message(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="WhatsApp Cloud API credentials are incomplete",
         )
-    configured_template_name = _configured_template_name(message_type)
+    effective_template_name = await configured_template_name(session, message_type)
     merged_body = _merge_composer_snapshot(body, source_snapshot)
     header_image_id = _resolve_send_header_image(
         message_type,
@@ -323,7 +323,7 @@ async def resend_recipient_message(
         support_contacts=support_contacts,
         body=resolved_body,
     )
-    template_name = configured_template_name.strip()
+    template_name = effective_template_name.strip()
     if not template_name:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

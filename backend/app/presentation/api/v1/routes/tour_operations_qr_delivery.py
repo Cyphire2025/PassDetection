@@ -47,6 +47,7 @@ from app.infrastructure.whatsapp.phone_welcome import (
     welcome_required_reason,
     welcome_states_for_phones,
 )
+from app.infrastructure.whatsapp.template_settings import configured_template_name
 from app.presentation.api.v1.schemas.tour_operations_schemas import (
     QrDeliveryPreviewRecipient,
     QrDeliveryPreviewResponse,
@@ -452,7 +453,7 @@ async def _build_preview(
         )
 
     settings = get_settings()
-    template_name = settings.whatsapp_qr_template_name.strip()
+    template_name = await configured_template_name(session, "qr")
     provider_configured = bool(
         template_name and settings.whatsapp_access_token and settings.whatsapp_phone_number_id
     )

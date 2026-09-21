@@ -4,6 +4,7 @@ import {
   useQueries,
   useQuery,
   useQueryClient,
+  type UseQueryResult,
 } from "@tanstack/react-query";
 import {
   AlertTriangle,
@@ -171,12 +172,33 @@ export function WhatsAppActivityTrackerProvider({
     [queryClient],
   );
 
-  const activityQueries = useQueries({
-    queries: trackedActivities.map((activity) => ({
+  const combineActivities = useCallback(
+    (queries: UseQueryResult<WhatsAppActivitySummary>[]): DisplayedWhatsAppActivity[] => {
+      if (!storageReady) return [];
+      return trackedActivities.map((activity, index) => {
+        const query = queries[index];
+        const summary = query?.data ?? initialWhatsAppActivitySummary(activity);
+        return {
+          ...summary,
+          title: activity.title,
+          context_label: activity.contextLabel,
+          messageType: activity.messageType,
+          startedAt: activity.startedAt,
+          skipped_already_sent: activity.skippedAlreadySent ?? 0,
+          skipped_in_progress: activity.skippedInProgress ?? 0,
+          skipped_delivery_unknown: activity.skippedDeliveryUnknown ?? 0,
+          refresh_error: Boolean(query?.error),
+        };
+      });
+    },
+    [storageReady, trackedActivities],
+  );
+  const activityQueryOptions = useMemo(
+    () => trackedActivities.map((activity) => ({
       queryKey: ["whatsapp", "activities", activity.kind, activity.id],
-      queryFn: async () => {
+      queryFn: async ({ signal }: { signal: AbortSignal }) => {
         try {
-          return await whatsappActivityApi.summary(activity.kind, activity.id);
+          return await whatsappActivityApi.summary(activity.kind, activity.id, signal);
         } catch (error) {
           if (
             isMissingWhatsAppBatchStatus(whatsappBatchHttpStatus(error))
@@ -212,33 +234,22 @@ export function WhatsAppActivityTrackerProvider({
           activity.startedAt,
         );
       },
-      refetchIntervalInBackground: true,
+      refetchIntervalInBackground: false,
+      refetchOnWindowFocus: "always" as const,
     })),
+    [storageReady, trackedActivities],
+  );
+  const activities = useQueries({
+    queries: activityQueryOptions,
+    // Query combines preserve equal objects, so polling the same server state
+    // does not refresh every workspace subscribed to the activity context.
+    combine: combineActivities,
   });
 
-  const activities = useMemo(
-    () => {
-      if (!storageReady) return [];
-      return trackedActivities.map<DisplayedWhatsAppActivity>((activity, index) => {
-          const query = activityQueries[index];
-          const summary = query?.data ?? initialWhatsAppActivitySummary(activity);
-          return {
-            ...summary,
-            title: activity.title,
-            context_label: activity.contextLabel,
-            messageType: activity.messageType,
-            startedAt: activity.startedAt,
-            skipped_already_sent: activity.skippedAlreadySent ?? 0,
-            skipped_in_progress: activity.skippedInProgress ?? 0,
-            skipped_delivery_unknown: activity.skippedDeliveryUnknown ?? 0,
-            refresh_error: Boolean(query?.error),
-          };
-        });
-    },
-    [activityQueries, storageReady, trackedActivities],
-  );
-
   useEffect(() => {
+    let refreshBroadcasts = false;
+    let refreshDocuments = false;
+    const qrGroupsToRefresh = new Set<string>();
     for (const activity of activities) {
       if (activity.total <= 0 || activity.queued > 0) continue;
       const key = `${activity.kind}:${activity.activity_id}`;
@@ -246,23 +257,17 @@ export function WhatsAppActivityTrackerProvider({
       refreshedTerminalActivitiesRef.current.add(key);
 
       if (activity.kind === "broadcast") {
-        void queryClient.invalidateQueries({
-          queryKey: ["whatsapp", "groups"],
-        });
+        refreshBroadcasts = true;
       } else if (activity.kind === "document") {
-        void queryClient.invalidateQueries({
-          queryKey: ["document-distribution"],
-        });
+        refreshDocuments = true;
       } else {
-        void queryClient.invalidateQueries({
-          queryKey: [
-            "operations",
-            "tour-operations",
-            "groups",
-            activity.source_group_id,
-          ],
-        });
+        qrGroupsToRefresh.add(activity.source_group_id);
       }
+    }
+    if (refreshBroadcasts) void queryClient.invalidateQueries({ queryKey: ["whatsapp", "groups"] });
+    if (refreshDocuments) void queryClient.invalidateQueries({ queryKey: ["document-distribution"] });
+    for (const groupId of qrGroupsToRefresh) {
+      void queryClient.invalidateQueries({ queryKey: ["operations", "tour-operations", "groups", groupId] });
     }
   }, [activities, queryClient]);
 
@@ -602,8 +607,8 @@ function WhatsAppActivityRow({
       activity.activity_id,
       "failures",
     ],
-    queryFn: () =>
-      whatsappActivityApi.failures(activity.kind, activity.activity_id),
+    queryFn: ({ signal }) =>
+      whatsappActivityApi.failures(activity.kind, activity.activity_id, signal),
     enabled: showFailures && activity.failed > 0,
     refetchInterval:
       showFailures && activity.failed > 0 && activity.queued > 0

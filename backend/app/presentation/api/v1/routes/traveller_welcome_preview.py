@@ -11,7 +11,7 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.use_cases.whatsapp.message_templates import validate_template_parameters
+from app.application.use_cases.whatsapp.message_templates import render_message, validate_template_parameters
 from app.core.config.settings import get_settings
 from app.infrastructure.database.models import (
     ClientGroupModel,
@@ -19,6 +19,7 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
 )
 from app.infrastructure.whatsapp.phone_welcome import welcome_states_for_phones
+from app.infrastructure.whatsapp.template_settings import load_template_settings
 from app.infrastructure.whatsapp.traveller_destinations import load_traveller_destinations
 from app.presentation.api.v1.routes.whatsapp_composer_support import (
     _latest_composer_snapshot,
@@ -72,8 +73,14 @@ async def _original_welcome_content(
     if snapshot is None:
         return None
     headers, parameters = _template_snapshot_from_log(snapshot.log)
+    template_settings = await load_template_settings(session)
+    legacy_text = not headers and len(parameters) == 2
     if header_image_id:
         headers = [header_image_id]
+        if legacy_text:
+            parameters = parameters[:1]
+    if legacy_text and "welcome" in template_settings.overrides and not header_image_id:
+        return None
     try:
         validate_template_parameters(
             message_type="welcome", header_parameters=headers, body_parameters=parameters,
@@ -82,9 +89,19 @@ async def _original_welcome_content(
         return None
     if not snapshot.log.template_name or not snapshot.log.rendered_message:
         return None
+    template_name = (
+        snapshot.log.template_name
+        if legacy_text and not header_image_id
+        else template_settings.name("welcome")
+    )
+    if not template_name:
+        return None
     return TravellerWelcomeContent(
-        template_name=snapshot.log.template_name,
-        rendered_message=snapshot.log.rendered_message,
+        template_name=template_name,
+        rendered_message=(
+            render_message(message_type="welcome", group_name="", support_contacts="", message_content=parameters[0])
+            if legacy_text and header_image_id else snapshot.log.rendered_message
+        ),
         header_parameters=headers,
         body_parameters=parameters,
     )
@@ -138,8 +155,8 @@ async def build_traveller_welcome_preview(
     elif not content:
         error = (
             "No reusable welcome is available with these template parameters. Select the "
-            "broadcast containing the original welcome. Legacy text welcomes must retain "
-            "their original format without a replacement image."
+            "broadcast containing the original welcome. Add a photo to upgrade a legacy "
+            "text welcome before using the configured image template."
         )
     elif not configured:
         error = "WhatsApp Cloud API credentials are not configured."

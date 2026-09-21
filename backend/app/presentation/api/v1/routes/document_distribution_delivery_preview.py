@@ -23,6 +23,7 @@ from app.infrastructure.whatsapp.phone_welcome import (
     welcome_required_reason,
     welcome_states_for_phones,
 )
+from app.infrastructure.whatsapp.template_settings import configured_template_name
 from app.infrastructure.whatsapp.traveller_destinations import load_traveller_destinations
 from app.presentation.api.v1.routes.document_distribution_shared import (
     DOCUMENT_DELIVERY_IN_PROGRESS_STATUSES,
@@ -175,7 +176,7 @@ async def _build_document_delivery_preview(
             ))
 
     settings = get_settings()
-    template_name = settings.whatsapp_document_template_name.strip()
+    template_name = await configured_template_name(session, "document")
     provider_configured = bool(
         template_name and settings.whatsapp_access_token and settings.whatsapp_phone_number_id
     )

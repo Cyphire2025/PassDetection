@@ -7,6 +7,7 @@ import { selectUser, useAuthStore } from "@/stores/auth.store";
 import {
   Check,
   Database,
+  MessageSquare,
   Monitor,
   PanelLeft,
   RotateCcw,
@@ -15,8 +16,22 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { useDashboardPreferences } from "../dashboard-preferences";
 import { PlatformSettingsPanel } from "./platform-settings-panel";
+
+const WhatsAppTemplateSettingsPanel = dynamic(
+  () => import("./whatsapp-template-settings-panel").then(
+    (module) => module.WhatsAppTemplateSettingsPanel,
+  ),
+  {
+    loading: () => (
+      <div role="status" className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500">
+        Loading WhatsApp template settings…
+      </div>
+    ),
+  },
+);
 
 const SECTIONS = [
   {
@@ -30,6 +45,12 @@ const SECTIONS = [
     title: "Platform policies",
     description: "Intake, review and retention",
     icon: SlidersHorizontal,
+  },
+  {
+    id: "whatsapp",
+    title: "WhatsApp templates",
+    description: "Approved message template names",
+    icon: MessageSquare,
   },
   {
     id: "security",
@@ -48,7 +69,9 @@ type Section = (typeof SECTIONS)[number]["id"];
 
 export function DashboardSettingsPage() {
   const [section, setSection] = useState<Section>("appearance");
+  const [templatesVisited, setTemplatesVisited] = useState(false);
   const user = useAuthStore(selectUser);
+  const canViewTemplates = user?.role === "super_admin" || user?.role === "agency_admin";
   return (
     <div className="space-y-5">
       <WorkspacePageHeader
@@ -61,12 +84,15 @@ export function DashboardSettingsPage() {
           aria-label="Settings sections"
           className="grid gap-1 sm:grid-cols-2 xl:sticky xl:top-0 xl:grid-cols-1"
         >
-          {SECTIONS.map(({ id, title, description, icon: Icon }) => (
+          {SECTIONS.filter(({ id }) => id !== "whatsapp" || canViewTemplates).map(({ id, title, description, icon: Icon }) => (
             <button
               key={id}
               type="button"
               aria-current={section === id ? "page" : undefined}
-              onClick={() => setSection(id)}
+              onClick={() => {
+                setSection(id);
+                if (id === "whatsapp") setTemplatesVisited(true);
+              }}
               className={`flex items-start gap-3 rounded-xl px-4 py-3.5 text-left transition ${section === id ? "bg-white shadow-sm ring-1 ring-slate-200" : "hover:bg-slate-100"}`}
             >
               <Icon
@@ -91,6 +117,11 @@ export function DashboardSettingsPage() {
               section={section === "data" ? "data" : "policies"}
             />
           </div>
+          {templatesVisited && canViewTemplates && (
+            <div hidden={section !== "whatsapp"}>
+              <WhatsAppTemplateSettingsPanel key={user?.id} active={section === "whatsapp"} />
+            </div>
+          )}
           {section === "security" && (
             <div className="space-y-6">
               <section className="rounded-xl border border-slate-200 bg-white p-6">

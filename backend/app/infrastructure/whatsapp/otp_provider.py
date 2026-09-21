@@ -14,10 +14,12 @@ from app.application.use_cases.whatsapp.contact_normalization import (
     normalize_whatsapp_phone,
 )
 from app.core.config.settings import Settings, get_settings
+from app.infrastructure.database.session import AsyncSessionFactory
 from app.infrastructure.whatsapp.cloud_api_provider import (
     WhatsAppCloudApiError,
     send_whatsapp_authentication_template,
 )
+from app.infrastructure.whatsapp.template_settings import load_template_settings
 
 
 class WhatsAppOTPProvider:
@@ -69,12 +71,17 @@ class WhatsAppOTPProvider:
         normalized_phone: str,
         code: str,
     ) -> str:
+        # Read once per code delivery, and release the connection before HTTP.
+        # No provider instance or process cache may retain an administrator's old name.
+        async with AsyncSessionFactory() as session:
+            template_settings = await load_template_settings(session)
+            template_name = template_settings.name("otp", settings=self._settings)
         try:
             return await send_whatsapp_authentication_template(
                 client=client,
                 settings=self._settings,
                 to_number=normalized_phone,
-                template_name=self._settings.whatsapp_otp_template_name,
+                template_name=template_name,
                 language_code=self._settings.whatsapp_otp_template_language,
                 code=code,
             )

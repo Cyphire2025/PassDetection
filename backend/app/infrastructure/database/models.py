@@ -1666,6 +1666,9 @@ class NotificationModel(Base):
 
 
 class PlatformSettingsValue(TypedDict, total=False):
+    # Stored only under the separate whatsapp_template_names settings key.
+    whatsapp_template_revision: int
+    whatsapp_template_overrides: dict[str, str]
     platform_name: str
     require_client_email: bool
     require_client_phone: bool

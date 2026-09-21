@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 from collections.abc import Sequence
 
-from sqlalchemy import func, or_, select, tuple_
+from sqlalchemy import case, func, or_, select, tuple_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.infrastructure.database.models import (
@@ -22,6 +22,7 @@ _STATUS_PRIORITY = {
         ("queued", "processing", "delivery_unknown", "submitted", "sent", "delivered", "read")
     )
 }
+_STATUS_BY_PRIORITY = {priority: value for value, priority in _STATUS_PRIORITY.items()}
 
 
 def group_invite_skip_reason(status: str | None) -> str | None:
@@ -66,10 +67,12 @@ async def group_invite_blocking_statuses(
     )
     log_query = (
         select(
-            WhatsAppMessageLogModel.agency_id,
-            WhatsAppMessageLogModel.broadcast_group_id,
-            log_phone,
-            WhatsAppMessageLogModel.status,
+            WhatsAppMessageLogModel.agency_id.label("agency_id"),
+            WhatsAppMessageLogModel.broadcast_group_id.label("broadcast_group_id"),
+            log_phone.label("phone"),
+            case(
+                _STATUS_PRIORITY, value=WhatsAppMessageLogModel.status, else_=-1,
+            ).label("status_priority"),
         )
         .outerjoin(
             WhatsAppBroadcastRecipientModel,
@@ -92,7 +95,9 @@ async def group_invite_blocking_statuses(
             WhatsAppRecipientMessageStateModel.agency_id,
             WhatsAppRecipientMessageStateModel.broadcast_group_id,
             WhatsAppBroadcastRecipientModel.normalized_phone_number,
-            WhatsAppRecipientMessageStateModel.status,
+            case(
+                _STATUS_PRIORITY, value=WhatsAppRecipientMessageStateModel.status, else_=-1,
+            ),
         )
         .join(
             WhatsAppBroadcastRecipientModel,
@@ -119,12 +124,22 @@ async def group_invite_blocking_statuses(
                 ~WhatsAppRecipientMessageStateModel.status.in_({"queued", "processing"}),
             )
         )
-    by_phone: dict[tuple[uuid.UUID, uuid.UUID, str], str] = {}
-    for row in [*(await session.execute(log_query)).all(), *(await session.execute(state_query)).all()]:
-        agency_id, group_id, phone, delivery_status = row
-        key = (agency_id, group_id, phone)
-        if key not in by_phone or _STATUS_PRIORITY[delivery_status] > _STATUS_PRIORITY[by_phone[key]]:
-            by_phone[key] = delivery_status
+    # Reduce all historical attempts in the database. The result stays bounded
+    # by the requested destinations even after years of retained delivery logs.
+    # Worker exclusions above are applied before either source is aggregated.
+    history = log_query.union_all(state_query).subquery()
+    blocking_result = await session.execute(
+        select(
+            history.c.agency_id,
+            history.c.broadcast_group_id,
+            history.c.phone,
+            func.max(history.c.status_priority),
+        ).group_by(history.c.agency_id, history.c.broadcast_group_id, history.c.phone)
+    )
+    by_phone: dict[tuple[uuid.UUID, uuid.UUID, str], str] = {
+        (agency_id, group_id, phone): _STATUS_BY_PRIORITY[priority]
+        for agency_id, group_id, phone, priority in blocking_result.all()
+    }
     result = {}
     for item in recipients:
         key = (item.agency_id, item.broadcast_group_id, item.normalized_phone_number)

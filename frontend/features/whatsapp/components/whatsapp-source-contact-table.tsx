@@ -7,6 +7,7 @@ import type { WhatsAppSourceContact } from "../api/whatsapp-source-groups.api";
 type SourceContactRow = WhatsAppSourceContact & { source_group_id?: string; source_group_name?: string; source_import_only?: boolean };
 type TravellerFilter = "all" | "ready" | "review" | "shared";
 type ContactSet = { key: string; phone: string | null; contacts: SourceContactRow[] };
+type ContactPage = { sets: ContactSet[]; start: number; count: number };
 const PAGE_SIZE = 25;
 const FILTER_LABELS: Record<TravellerFilter, string> = { all: "All", ready: "Ready", review: "Needs review", shared: "Shared" };
 const ISSUE_LABELS: Record<string, string> = {
@@ -19,21 +20,20 @@ function isContactReady(contact: SourceContactRow) {
   return Boolean(contact.normalized_phone_number && !contact.issue);
 }
 
-function matchesSearch(contact: SourceContactRow, query: string) {
-  return !query || [contact.name, contact.phone_number, contact.normalized_phone_number ?? "", contact.source_group_name ?? ""]
-    .some((value) => value.toLowerCase().includes(query));
+function matchesSearch(contact: SourceContactRow, query: string, index: ReadonlyMap<SourceContactRow, string[]> | null) {
+  return !query || Boolean(index?.get(contact)?.some((value) => value.includes(query)));
 }
 
 function paginateContactSets(sets: ContactSet[]) {
-  const pages: ContactSet[][] = [[]];
-  let currentSize = 0;
+  let page: ContactPage = { sets: [], start: 0, count: 0 };
+  const pages = [page];
   for (const set of sets) {
-    if (currentSize > 0 && currentSize + set.contacts.length > PAGE_SIZE) {
-      pages.push([]);
-      currentSize = 0;
+    if (page.count > 0 && page.count + set.contacts.length > PAGE_SIZE) {
+      page = { sets: [], start: page.start + page.count, count: 0 };
+      pages.push(page);
     }
-    pages[pages.length - 1].push(set);
-    currentSize += set.contacts.length;
+    page.sets.push(set);
+    page.count += set.contacts.length;
   }
   return pages;
 }
@@ -63,6 +63,11 @@ export function SourceContactTable({ contacts, showGroup = false }: { contacts: 
   const [filter, setFilter] = useState<TravellerFilter>("all");
   const [requestedPage, setPage] = useState(1);
   const query = useDeferredValue(search.trim().toLowerCase());
+  const hasSearch = Boolean(query);
+  const searchIndex = useMemo(() => hasSearch ? new Map(contacts.map((contact) => [
+    contact,
+    [contact.name, contact.phone_number, contact.normalized_phone_number ?? "", contact.source_group_name ?? ""].map((value) => value.toLowerCase()),
+  ])) : null, [contacts, hasSearch]);
   const phoneGroups = useMemo(() => {
     const groups = new Map<string, SourceContactRow[]>();
     for (const contact of contacts) {
@@ -82,21 +87,20 @@ export function SourceContactTable({ contacts, showGroup = false }: { contacts: 
   const filteredSets = useMemo<ContactSet[]>(() => {
     if (filter === "shared") {
       return Array.from(phoneGroups.entries())
-        .filter(([, group]) => group.length > 1 && group.some((contact) => matchesSearch(contact, query)))
+        .filter(([, group]) => group.length > 1 && group.some((contact) => matchesSearch(contact, query, searchIndex)))
         .map(([phone, group]) => ({ key: phone, phone, contacts: group }));
     }
     return contacts.filter((contact) => (
       (filter === "all" || (filter === "ready" ? isContactReady(contact) : !isContactReady(contact)))
-      && matchesSearch(contact, query)
+      && matchesSearch(contact, query, searchIndex)
     )).map((contact) => ({ key: `${contact.source_group_id ?? "source"}-${contact.source_submission_id}`, phone: null, contacts: [contact] }));
-  }, [contacts, filter, phoneGroups, query]);
+  }, [contacts, filter, phoneGroups, query, searchIndex]);
   const pages = useMemo(() => paginateContactSets(filteredSets), [filteredSets]);
   const totalPages = pages.length;
   const page = Math.min(requestedPage, totalPages);
-  const visibleSets = pages[page - 1];
-  const filteredCount = filteredSets.reduce((count, set) => count + set.contacts.length, 0);
-  const start = pages.slice(0, page - 1).reduce((count, sets) => count + sets.reduce((size, set) => size + set.contacts.length, 0), 0);
-  const visibleCount = visibleSets.reduce((count, set) => count + set.contacts.length, 0);
+  const { sets: visibleSets, start, count: visibleCount } = pages[page - 1];
+  const lastPage = pages[totalPages - 1];
+  const filteredCount = lastPage.start + lastPage.count;
   return (
     <div className="space-y-3">
       <div role="group" aria-label="Filter travellers" className="flex flex-wrap gap-2">

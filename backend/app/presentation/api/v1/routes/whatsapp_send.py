@@ -32,6 +32,7 @@ from app.infrastructure.whatsapp.publication import (
     fail_unclaimed_broadcast_rows,
     publish_whatsapp_task,
 )
+from app.infrastructure.whatsapp.template_settings import configured_template_name
 from app.presentation.api.v1.routes.whatsapp_archive_policy import require_active_broadcast
 from app.presentation.api.v1.routes.whatsapp_phone_welcome import (
     claim_broadcast_welcome_phones,
@@ -43,7 +44,6 @@ from app.presentation.api.v1.routes.whatsapp_reminder_audience import (
 from app.presentation.api.v1.routes.whatsapp_roster_support import (
     _active_explicit_reminder_recipient_ids,
 )
-from app.presentation.api.v1.routes.whatsapp_scope import _configured_template_name
 from app.presentation.api.v1.routes.whatsapp_send_support import (
     add_frozen_broadcast_logs,
     unclaimed_delivery_counts,
@@ -186,7 +186,7 @@ async def send_broadcast_message(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="WhatsApp Cloud API credentials are incomplete",
         )
-    template_name = _configured_template_name(message_type)
+    template_name = await configured_template_name(session, message_type)
     if not template_name.strip():
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

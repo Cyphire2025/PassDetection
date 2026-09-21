@@ -10,6 +10,7 @@ from fastapi import APIRouter
 
 from app.presentation.api.v1.routes.admin import router as admin_router
 from app.presentation.api.v1.routes.admin_accounts import router as admin_accounts_router
+from app.presentation.api.v1.routes.admin_whatsapp_templates import router as admin_whatsapp_templates_router
 from app.presentation.api.v1.routes.analytics import router as analytics_router
 from app.presentation.api.v1.routes.attendance_runtime import router as attendance_runtime_router
 from app.presentation.api.v1.routes.audit_logs import router as audit_logs_router
@@ -67,6 +68,7 @@ from app.presentation.api.v1.routes.whatsapp_activity import (
 )
 
 api_v1_router = APIRouter()
+api_v1_router.include_router(admin_whatsapp_templates_router, prefix="/admin", tags=["Admin"])
 
 api_v1_router.include_router(health_router, prefix="/health", tags=["Health"])
 api_v1_router.include_router(auth_router, prefix="/auth", tags=["Authentication"])

@@ -32,11 +32,11 @@ from app.infrastructure.whatsapp.group_invite_policy import (
     group_invite_block_message,
     group_invite_blocking_statuses,
 )
+from app.infrastructure.whatsapp.template_settings import configured_template_name
 from app.presentation.api.v1.routes.whatsapp_archive_policy import require_active_broadcast
 from app.presentation.api.v1.routes.whatsapp_reminder_audience import (
     resolve_reminder_audience,
 )
-from app.presentation.api.v1.routes.whatsapp_scope import _configured_template_name
 from app.presentation.api.v1.routes.whatsapp_shared import (
     MAX_WHATSAPP_WELCOME_IMAGE_BYTES,
     WHATSAPP_ACCEPTED_STATUSES,
@@ -336,7 +336,7 @@ async def preview_broadcast_message(
             recipients=recipients,
             message_type=message_type,
         )
-    template_name = _configured_template_name(message_type)
+    template_name = await configured_template_name(session, message_type)
     preview_response = WhatsAppPreviewResponse(
         message_type=message_type,
         template_name=template_name,

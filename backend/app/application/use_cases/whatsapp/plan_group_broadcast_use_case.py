@@ -3,6 +3,9 @@ Build WhatsApp broadcast plans without sending messages.
 
 This is intentionally a pure planner so future UI/API work can preview exactly
 who would receive which template before any BSP integration is enabled.
+
+This legacy planner has no live API callers and reads only ENV defaults. Actual
+preview/queue operations use the database-backed WhatsApp template resolver.
 """
 
 from __future__ import annotations

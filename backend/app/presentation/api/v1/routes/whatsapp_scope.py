@@ -129,6 +129,7 @@ async def _release_auth_transaction(
 
 
 def _configured_template_name(message_type: WhatsAppMessageType) -> str:
+    """Legacy ENV-only export; live API operations use template_settings's async resolver."""
     settings = get_settings()
     return str(getattr(settings, f"whatsapp_{message_type}_template_name"))
 
