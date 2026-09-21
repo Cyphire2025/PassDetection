@@ -8,6 +8,7 @@ import type { DocumentAssignmentExportFilter } from "../api/document-distributio
 import type {
   DocumentStagingManifest,
   DocumentUploadProgress,
+  DocumentFilenameReplacement,
 } from "../services/document-upload-batching";
 
 const documentKeys = {
@@ -125,8 +126,9 @@ export function useAbortDistributionUploads(
 export function useVerifyDistributionDocuments(groupId: string, documentType: DistributionDocumentType) {
   return useMutation({
     gcTime: 0,
-    mutationFn: ({ files, onProgress, signal }: {
+    mutationFn: ({ files, onProgress, signal, filenameReplacements }: {
       files: File[];
+      filenameReplacements?: DocumentFilenameReplacement[];
       onProgress?: (progress: DocumentUploadProgress) => void;
       signal?: AbortSignal;
     }) => documentDistributionApi.verifyDocuments(
@@ -135,6 +137,7 @@ export function useVerifyDistributionDocuments(groupId: string, documentType: Di
       files,
       onProgress,
       signal,
+      filenameReplacements,
     ),
   });
 }

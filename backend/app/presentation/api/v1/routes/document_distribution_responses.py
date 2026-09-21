@@ -63,6 +63,7 @@ async def _document_response(
     return DistributedDocumentResponse(
         id=document.id,
         original_filename=document.original_filename,
+        updated_at=document.updated_at,
         document_type=document.document_type,
         detected_type=document.detected_type,
         match_status=document.match_status,

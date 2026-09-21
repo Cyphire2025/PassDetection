@@ -27,6 +27,12 @@ export interface DocumentStagingChunk {
   receipts: string[];
   fileCount: number;
   totalBytes: number;
+  filenameReplacements?: DocumentFilenameReplacement[];
+}
+
+export interface DocumentFilenameReplacement {
+  filename: string;
+  documents: { id: string; updated_at: string }[];
 }
 
 export interface DocumentStagingManifest {

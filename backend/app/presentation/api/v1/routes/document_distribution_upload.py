@@ -13,6 +13,7 @@ from app.core.config.settings import get_settings
 from app.domain.entities.entities import User
 from app.domain.value_objects.travel_document_taxonomy import DOCUMENT_TYPES
 from app.infrastructure.database.models import (
+    DistributedDocumentModel,
     DocumentDistributionBatchModel,
     DocumentUploadChunkModel,
 )
@@ -29,6 +30,7 @@ from app.infrastructure.documents.document_matcher import (
     UnsupportedDocumentBatchFormatError,
 )
 from app.infrastructure.documents.pdf_parser_sandbox import bounded_pdf_batch_timeout_seconds
+from app.infrastructure.documents.storage_cleanup import process_storage_cleanup_job
 from app.infrastructure.documents.storage_transfers import finish_cleanup_despite_cancellation
 from app.infrastructure.documents.verification_staging import (
     StagedDocumentReceipt,
@@ -65,6 +67,12 @@ from app.presentation.api.v1.routes.document_distribution_queries import (
     _all_group_documents,
     _enforce_group_document_assignment_capacity,
     _first_blocking_processing_upload_id,
+)
+from app.presentation.api.v1.routes.document_distribution_replacements import (
+    MAX_FILENAME_REPLACEMENTS_LENGTH,
+    apply_filename_replacements,
+    parse_filename_replacements,
+    replacement_chunk_fingerprint,
 )
 from app.presentation.api.v1.routes.document_distribution_responses import _batch_response
 from app.presentation.api.v1.routes.document_distribution_scope import (
@@ -112,6 +120,9 @@ async def upload_documents(
     chunk_index: Annotated[int | None, Form()] = None,
     expected_chunk_count: Annotated[int | None, Form()] = None,
     expected_file_count: Annotated[int | None, Form()] = None,
+    filename_replacements: Annotated[
+        str | None, Form(max_length=MAX_FILENAME_REPLACEMENTS_LENGTH)
+    ] = None,
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> DocumentBatchResponse:
@@ -291,6 +302,15 @@ async def upload_documents(
             for upload in uploads
         ]
 
+    replacement_decisions = parse_filename_replacements(
+        filename_replacements,
+        incoming_filenames=[file.filename for file in file_payloads],
+    )
+    fingerprint = replacement_chunk_fingerprint(fingerprint, replacement_decisions)
+    replacement_cleanup_ids: list[uuid.UUID] = []
+    replacement_actor_id = current_user.id
+    replacement_actor_email = current_user.email
+
     async def cleanup_request_staging() -> None:
         await _cleanup_remembered_request_staging()
 
@@ -398,6 +418,7 @@ async def upload_documents(
     await session.rollback()
 
     async def reauthorize_before_persistence() -> tuple[uuid.UUID | None, str | None]:
+        nonlocal replacement_actor_id, replacement_actor_email
         actor, _ = await _lock_and_validate_document_match_scope(
             session,
             current_user=current_user,
@@ -413,6 +434,18 @@ async def upload_documents(
             agency_id=agency_id,
             group_id=group_id,
             document_type=document_type,
+        )
+        # Use the same batch-before-document order as Save/Delete. This also
+        # serializes replacement against document assignment and draft edits.
+        await session.execute(
+            select(DocumentDistributionBatchModel.id)
+            .where(
+                DocumentDistributionBatchModel.agency_id == agency_id,
+                DocumentDistributionBatchModel.group_id == group_id,
+                DocumentDistributionBatchModel.document_type == document_type,
+            )
+            .order_by(DocumentDistributionBatchModel.id)
+            .with_for_update()
         )
         if chunk_metadata is not None:
             await acquire_document_upload_advisory_lock(
@@ -492,12 +525,22 @@ async def upload_documents(
                     status_code=status.HTTP_409_CONFLICT,
                     detail="The upload session is no longer available",
                 )
+            if serialized_batch is not None and serialized_batch.status != "processing":
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=(
+                        "This upload was completed or closed while the PDFs were being processed. "
+                        "Check the remaining PDFs in a new upload."
+                    ),
+                )
             validate_next_document_chunk(
                 locked_receipts,
                 metadata=chunk_metadata,
                 incoming_file_count=incoming_file_count,
                 incoming_byte_count=chunk_byte_count,
             )
+        replacement_actor_id = actor.id
+        replacement_actor_email = actor.email
         return actor.id, actor.email
 
     async def enforce_capacity_before_persistence(incoming_rows: int) -> None:
@@ -507,6 +550,22 @@ async def upload_documents(
             agency_id=agency_id,
             document_type=document_type,
             incoming_rows=incoming_rows,
+        )
+
+    async def replace_successfully_stored_documents(
+        documents: list[DistributedDocumentModel],
+    ) -> None:
+        replacement_cleanup_ids.extend(
+            await apply_filename_replacements(
+                session,
+                agency_id=agency_id,
+                group_id=group_id,
+                document_type=document_type,
+                new_documents=documents,
+                replacements=replacement_decisions,
+                actor_id=replacement_actor_id,
+                actor_email=replacement_actor_email,
+            )
         )
 
     try:
@@ -533,6 +592,7 @@ async def upload_documents(
             require_passenger_match=True,
             before_persistence=reauthorize_before_persistence,
             before_persistence_capacity=enforce_capacity_before_persistence,
+            before_persistence_documents=replace_successfully_stored_documents,
         )
     except UnsupportedDocumentBatchFormatError as exc:
         raise HTTPException(
@@ -636,6 +696,15 @@ async def upload_documents(
         )
         raise
     await finish_cleanup_despite_cancellation(cleanup_request_staging())
+    for cleanup_id in replacement_cleanup_ids:
+        try:
+            await process_storage_cleanup_job(cleanup_id)
+        except Exception as exc:
+            logger.warning(
+                "document_distribution_replacement_cleanup_deferred",
+                cleanup_job_id=str(cleanup_id),
+                error_type=type(exc).__name__,
+            )
     if ingestion.batch.status == "processing":
         return _processing_batch_response(ingestion.batch)
     documents = await _all_group_documents(

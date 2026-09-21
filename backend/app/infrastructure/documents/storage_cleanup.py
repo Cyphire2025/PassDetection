@@ -31,6 +31,10 @@ MAX_STORAGE_CLEANUP_KEY_LENGTH = 512
 MAX_STORAGE_CLEANUP_ATTEMPTS = 12
 STORAGE_CLEANUP_SOURCES: dict[str, tuple[str, ...]] = {
     "document_distribution_delete": ("document-distribution/",),
+    "document_distribution_replace": (
+        "document-distribution/",
+        "email-integrations-canonical/",
+    ),
     "document_distribution_abort": ("document-distribution/",),
     "document_distribution_compensation": ("document-distribution/",),
     "document_rename_batch_delete": ("document-rename/",),

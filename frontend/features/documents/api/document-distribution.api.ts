@@ -21,6 +21,7 @@ import {
   runStagedDocumentUpload,
   type DocumentStagingManifest,
   type DocumentUploadProgress,
+  type DocumentFilenameReplacement,
 } from "../services/document-upload-batching";
 import { verificationWithoutStagingReceipts } from "../services/document-upload-recovery";
 import type { DocumentManualReviewCandidate } from "../services/document-manual-review";
@@ -47,8 +48,8 @@ export const documentDistributionApi = {
     return data;
   },
 
-  getReview: async (groupId: string, documentType: DistributionDocumentType): Promise<DocumentBatchReview> => {
-    const { data } = await apiClient.get<DocumentBatchReview>(API_ENDPOINTS.documents.review(groupId, documentType));
+  getReview: async (groupId: string, documentType: DistributionDocumentType, signal?: AbortSignal): Promise<DocumentBatchReview> => {
+    const { data } = await apiClient.get<DocumentBatchReview>(API_ENDPOINTS.documents.review(groupId, documentType), { signal });
     return data;
   },
 
@@ -76,6 +77,7 @@ export const documentDistributionApi = {
     files: File[],
     onProgress?: (progress: DocumentUploadProgress) => void,
     signal?: AbortSignal,
+    filenameReplacements: DocumentFilenameReplacement[] = [],
   ): Promise<DocumentVerificationUploadPlan> => {
     const session = createDocumentVerificationSession(files);
     const manualReviewByChunk: DocumentManualReviewCandidate[][] = [];
@@ -116,6 +118,7 @@ export const documentDistributionApi = {
               approvalToken: result.manual_review_token,
               uploadId: session.uploadId,
               chunkId: crypto.randomUUID(),
+              filenameReplacement: filenameReplacements.find((entry) => entry.filename === result.filename),
             }]
             : [],
         );
@@ -148,6 +151,11 @@ export const documentDistributionApi = {
         result.files.map((file) => file.staging_receipt),
       ),
     );
+    for (const chunk of stagingManifest.chunks) {
+      const resultIndex = session.chunkIds.indexOf(chunk.chunkId);
+      const acceptedNames = new Set(normalizedResults[resultIndex]?.files.filter((file) => file.accepted).map((file) => file.filename));
+      chunk.filenameReplacements = filenameReplacements.filter((entry) => acceptedNames.has(entry.filename));
+    }
     const verification = verificationWithoutStagingReceipts({
       group_id: groupId,
       document_type: documentType,
@@ -177,6 +185,7 @@ export const documentDistributionApi = {
     documentType: DistributionDocumentType,
     candidate: DocumentManualReviewCandidate,
     signal?: AbortSignal,
+    targetUploadId?: string,
   ): Promise<VerifiedDistributedDocument> => {
     const formData = new FormData();
     formData.append("file", candidate.file);
@@ -184,6 +193,7 @@ export const documentDistributionApi = {
     formData.append("upload_id", candidate.uploadId);
     formData.append("chunk_id", candidate.chunkId);
     formData.append("confirmed", "true");
+    if (targetUploadId) formData.append("target_upload_id", targetUploadId);
     const { data } = await apiClient.post<VerifiedDistributedDocument>(
       API_ENDPOINTS.documents.manualVerify(groupId, documentType),
       formData,
@@ -216,6 +226,9 @@ export const documentDistributionApi = {
         formData.append("chunk_index", String(chunkIndex));
         formData.append("expected_chunk_count", String(manifest.chunks.length));
         formData.append("expected_file_count", String(manifest.totalFiles));
+        if (chunk.filenameReplacements?.length) {
+          formData.append("filename_replacements", JSON.stringify(chunk.filenameReplacements));
+        }
         chunk.receipts.forEach((receipt) =>
           formData.append("staging_receipts", receipt),
         );

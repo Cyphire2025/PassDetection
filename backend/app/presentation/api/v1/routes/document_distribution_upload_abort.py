@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import uuid
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import delete, select
@@ -11,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.domain.entities.entities import User
 from app.domain.value_objects.travel_document_taxonomy import DOCUMENT_TYPES
 from app.infrastructure.database.models import (
+    AuditLogModel,
     DistributedDocumentModel,
     DocumentDistributionBatchModel,
     DocumentUploadChunkModel,
@@ -150,6 +152,69 @@ async def abort_incomplete_distribution_upload(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="This upload has delivery history and cannot be discarded",
+        )
+
+    replacement_audit_id = await session.scalar(
+        select(AuditLogModel.id)
+        .where(
+            AuditLogModel.agency_id == group.agency_id,
+            AuditLogModel.entity_type == "client_group",
+            AuditLogModel.entity_id == str(group_id),
+            AuditLogModel.action == "document_distribution_filenames_replaced",
+            AuditLogModel.metadata_json["upload_id"].as_string() == str(batch_id),
+        )
+        .limit(1)
+    )
+    if replacement_audit_id is not None:
+        # Earlier chunks atomically replaced their originals. Discarding those
+        # committed new copies would lose both versions; finish the partial
+        # upload as a reviewable draft instead, without requiring stale receipts.
+        batch.status = "draft"
+        batch.uploaded_count = len(documents)
+        batch.matched_count = sum(document.match_status == "matched" for document in documents)
+        batch.rejected_count = sum(receipt.rejected_count for receipt in receipts)
+        batch.saved_at = None
+        batch.updated_at = datetime.now(tz=UTC)
+        remaining_processing_upload_ids = list((await session.scalars(
+            select(DocumentDistributionBatchModel.id)
+            .where(
+                DocumentDistributionBatchModel.agency_id == group.agency_id,
+                DocumentDistributionBatchModel.group_id == group_id,
+                DocumentDistributionBatchModel.document_type == document_type,
+                DocumentDistributionBatchModel.status == "processing",
+                DocumentDistributionBatchModel.id != batch_id,
+            )
+            .order_by(DocumentDistributionBatchModel.id)
+            .with_for_update()
+        )).all())
+        await AuditLogRepository(session).record(
+            action="document_distribution_partial_replacements_retained",
+            entity_type="document_distribution_batch",
+            entity_id=str(batch_id),
+            agency_id=group.agency_id,
+            user_id=actor.id,
+            actor_email=actor.email,
+            metadata={
+                "group_id": str(group_id),
+                "document_type": document_type,
+                "retained_document_count": len(documents),
+                "retained_chunk_count": len(receipts),
+            },
+        )
+        try:
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+        return AbortDocumentUploadResponse(
+            batch_id=batch_id,
+            status="partial_retained",
+            retained_document_count=len(documents),
+            deleted_document_count=0,
+            deleted_chunk_count=0,
+            deleted_storage_object_count=0,
+            storage_cleanup_pending=False,
+            remaining_processing_upload_ids=remaining_processing_upload_ids,
         )
 
     candidate_storage_keys = sorted({document.storage_key for document in documents})

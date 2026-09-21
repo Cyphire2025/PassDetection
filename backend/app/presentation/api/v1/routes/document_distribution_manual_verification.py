@@ -79,6 +79,7 @@ async def manually_verify_document(
     upload_id: Annotated[uuid.UUID, Form()],
     chunk_id: Annotated[uuid.UUID, Form()],
     confirmed: Annotated[bool, Form()],
+    target_upload_id: Annotated[uuid.UUID | None, Form()] = None,
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> VerifiedDocumentResponse:
@@ -94,7 +95,8 @@ async def manually_verify_document(
         )
     group = await _get_authorized_group(group_id, current_user=current_user, session=session)
     agency_id = group.agency_id
-    await _require_unstarted_upload(session, upload_id)
+    staging_upload_id = target_upload_id or upload_id
+    await _require_unstarted_upload(session, staging_upload_id)
     await session.rollback()
     uploads = await read_bounded_document_uploads(
         [file],
@@ -174,7 +176,7 @@ async def manually_verify_document(
                 agency_id=agency_id,
                 actor_id=current_user.id,
                 group_id=group_id,
-                upload_id=upload_id,
+                upload_id=staging_upload_id,
                 chunk_id=chunk_id,
                 document_type=document_type,
                 roster_fingerprint=fingerprints[0],
@@ -209,7 +211,7 @@ async def manually_verify_document(
         expected_source_snapshot=linked_source.snapshot,
         expected_supplemental_identifiers=identifiers,
     )
-    await _require_unstarted_upload(session, upload_id)
+    await _require_unstarted_upload(session, staging_upload_id)
     await AuditLogRepository(session).record(
         action="document_type_manually_approved",
         entity_type="client_group",
@@ -221,7 +223,8 @@ async def manually_verify_document(
             "document_type": document_type,
             "original_detected_type": "unknown",
             "content_sha256": hashlib.sha256(upload.content).hexdigest(),
-            "upload_id": str(upload_id),
+            "upload_id": str(staging_upload_id),
+            "reviewed_upload_id": str(upload_id),
             "chunk_id": str(chunk_id),
             "passenger_match_count": len(matches),
             "staged_for_upload": receipt is not None,

@@ -39,6 +39,7 @@ export function persistDocumentUploadRecovery(
   groupId: string,
   documentType: DistributionDocumentType,
   plan: DocumentUploadRecoveryPlan,
+  purpose: "regular" | "manual" = "regular",
 ) {
   if (typeof window === "undefined") return false;
   try {
@@ -46,11 +47,11 @@ export function persistDocumentUploadRecovery(
       plan.manifest.chunks.length > 0 &&
       plan.manifest.completedChunks === plan.manifest.chunks.length
     ) {
-      window.sessionStorage.removeItem(recoveryKey(groupId, documentType));
+      window.sessionStorage.removeItem(recoveryKey(groupId, documentType, purpose));
       return true;
     }
     window.sessionStorage.setItem(
-      recoveryKey(groupId, documentType),
+      recoveryKey(groupId, documentType, purpose),
       JSON.stringify({
         version: DOCUMENT_UPLOAD_RECOVERY_VERSION,
         groupId,
@@ -71,9 +72,10 @@ export function persistDocumentUploadRecovery(
 export function readDocumentUploadRecovery(
   groupId: string,
   documentType: DistributionDocumentType,
+  purpose: "regular" | "manual" = "regular",
 ): DocumentUploadRecoveryPlan | null {
   if (typeof window === "undefined") return null;
-  const key = recoveryKey(groupId, documentType);
+  const key = recoveryKey(groupId, documentType, purpose);
   try {
     const raw = window.sessionStorage.getItem(key);
     if (!raw) return null;
@@ -95,17 +97,18 @@ export function readDocumentUploadRecovery(
 export function clearDocumentUploadRecovery(
   groupId: string,
   documentType: DistributionDocumentType,
+  purpose: "regular" | "manual" = "regular",
 ) {
   if (typeof window === "undefined") return;
   try {
-    window.sessionStorage.removeItem(recoveryKey(groupId, documentType));
+    window.sessionStorage.removeItem(recoveryKey(groupId, documentType, purpose));
   } catch {
     // In-memory state is still cleared by the caller.
   }
 }
 
-function recoveryKey(groupId: string, documentType: DistributionDocumentType) {
-  return `${DOCUMENT_UPLOAD_RECOVERY_PREFIX}:${groupId}:${documentType}`;
+function recoveryKey(groupId: string, documentType: DistributionDocumentType, purpose: "regular" | "manual") {
+  return `${DOCUMENT_UPLOAD_RECOVERY_PREFIX}:${groupId}:${documentType}${purpose === "manual" ? ":manual" : ""}`;
 }
 
 function isRecoveryPlan(
@@ -129,7 +132,9 @@ function isRecoveryPlan(
   ) {
     return false;
   }
-  return value.manifest.totalFiles === value.verification.accepted_count;
+  return value.manifest.totalFiles === value.verification.files.filter(
+    (file) => file.accepted && !file.uploaded && !file.manual_uploaded,
+  ).length;
 }
 
 function isDocumentStagingManifest(value: unknown): value is DocumentStagingManifest {
@@ -160,6 +165,14 @@ function isDocumentStagingManifest(value: unknown): value is DocumentStagingMani
     ) {
       return false;
     }
+    if (chunk.filenameReplacements !== undefined && (
+      !Array.isArray(chunk.filenameReplacements) || chunk.filenameReplacements.length > chunk.fileCount ||
+      !chunk.filenameReplacements.every((entry: unknown) => isRecord(entry)
+        && isBoundedString(entry.filename, 2_000) && Array.isArray(entry.documents)
+        && entry.documents.length > 0 && entry.documents.length <= 3_000
+        && entry.documents.every((document: unknown) => isRecord(document)
+          && isBoundedString(document.id, 200) && isBoundedString(document.updated_at, 200)))
+    )) return false;
     if (index < value.completedChunks) {
       if (chunk.receipts.length !== 0) return false;
     } else if (
@@ -224,6 +237,9 @@ function isVerifiedDocument(value: unknown): value is VerifiedDistributedDocumen
     isNullableBoundedString(value.match_reason, 4_000) &&
     (value.manual_review_available === undefined || typeof value.manual_review_available === "boolean") &&
     (value.manual_type_approved === undefined || typeof value.manual_type_approved === "boolean") &&
+    (value.manual_uploaded === undefined || typeof value.manual_uploaded === "boolean") &&
+    (value.uploaded === undefined || typeof value.uploaded === "boolean") &&
+    (value.manual_source_index === undefined || isSafeIntegerBetween(value.manual_source_index, 0, MAX_DOCUMENT_SELECTION_FILES - 1)) &&
     value.manual_review_token == null &&
     value.staging_receipt === null
   );

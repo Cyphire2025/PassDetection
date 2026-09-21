@@ -58,6 +58,7 @@ class VerifyDocumentBatchResponse(BaseModel):
 class DistributedDocumentResponse(BaseModel):
     id: uuid.UUID
     original_filename: str
+    updated_at: datetime | None = None
     document_type: str
     detected_type: str
     manual_type_approved: bool = False
@@ -130,6 +131,7 @@ class SaveDocumentBatchResponse(BaseModel):
 class AbortDocumentUploadResponse(BaseModel):
     batch_id: uuid.UUID
     status: str = "aborted"
+    retained_document_count: int = 0
     deleted_document_count: int = 0
     deleted_chunk_count: int = 0
     deleted_storage_object_count: int = 0

@@ -34,7 +34,7 @@ export function AbortIncompleteUploadDialog({
               Discard incomplete {uploadCount === 1 ? "upload" : "uploads"}?
             </h2>
             <p className="mt-1 text-sm leading-6 text-slate-600">
-              This permanently removes only the PDFs and partial matches from {uploadCount === 1 ? "this unfinished upload" : `these ${uploadCount} unfinished uploads`}. Completed and saved document lists are not changed.
+              This removes PDFs and partial matches from {uploadCount === 1 ? "this unfinished upload" : `these ${uploadCount} unfinished uploads`}. If an upload has already replaced saved PDFs, its successfully uploaded copies are kept for review. Other completed and saved document lists stay unchanged.
             </p>
           </div>
           <button

@@ -129,6 +129,9 @@ class TravelDocumentIngestionService:
             Callable[[], Awaitable[tuple[uuid.UUID | None, str | None] | None]] | None
         ) = None,
         before_persistence_capacity: Callable[[int], Awaitable[None]] | None = None,
+        before_persistence_documents: (
+            Callable[[list[DistributedDocumentModel]], Awaitable[None]] | None
+        ) = None,
     ) -> TravelDocumentIngestionResult:
         if document_type not in DOCUMENT_TYPES:
             raise ValueError("Unsupported document type")
@@ -369,6 +372,12 @@ class TravelDocumentIngestionService:
                 if refreshed_actor is not None:
                     created_by_user_id, actor_email = refreshed_actor
                     batch.created_by_user_id = created_by_user_id
+            # Replacement authorization only runs after new object storage
+            # and passenger matching succeeded, inside this transaction.
+            # Removing old rows first also gives capacity checks the final
+            # projected ledger size rather than counting both versions.
+            if before_persistence_documents is not None:
+                await before_persistence_documents(documents)
             if before_persistence_capacity is not None:
                 await before_persistence_capacity(len(documents))
             batch.uploaded_count += len(documents)

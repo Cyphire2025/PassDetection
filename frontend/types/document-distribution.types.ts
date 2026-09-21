@@ -43,6 +43,10 @@ export interface VerifiedDistributedDocument {
   /** Browser metadata only; the approval token and original PDF are not persisted. */
   manual_review_available?: boolean;
   manual_type_approved?: boolean;
+  /** Browser-only upload progress; never submitted as verification evidence. */
+  manual_uploaded?: boolean;
+  uploaded?: boolean;
+  manual_source_index?: number;
 }
 
 export interface DocumentVerificationResult {
@@ -56,6 +60,7 @@ export interface DocumentVerificationResult {
 
 export interface DistributedDocument {
   id: string;
+  updated_at?: string;
   original_filename: string;
   document_type: DistributionDocumentType | string;
   detected_type: string;
@@ -113,6 +118,7 @@ export interface DocumentBatchReview {
 }
 
 export interface AbortDocumentUploadResult {
+  retained_document_count?: number;
   batch_id: string;
   status: string;
   deleted_document_count: number;
