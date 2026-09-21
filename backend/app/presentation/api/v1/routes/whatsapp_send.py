@@ -24,6 +24,10 @@ from app.infrastructure.database.models import (
     WhatsAppRecipientMessageStateModel,
 )
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.whatsapp.group_invite_policy import (
+    group_invite_blocking_statuses,
+    group_invite_skip_reason,
+)
 from app.infrastructure.whatsapp.publication import (
     fail_unclaimed_broadcast_rows,
     publish_whatsapp_task,
@@ -213,7 +217,8 @@ async def send_broadcast_message(
         else WHATSAPP_SUPPRESSED_STATUSES
     )
 
-    # A queued task has not contacted Meta and is safe to reclaim. A stale
+    # Other message types may reclaim a queued task that has not contacted Meta.
+    # An invite remains blocked while any queued attempt still exists. A stale
     # processing task may have submitted bytes before a worker interruption,
     # so it becomes delivery_unknown. Automatic retry remains suppressed;
     # a deliberate new reminder is a separate attempt and may replace it.
@@ -223,6 +228,7 @@ async def send_broadcast_message(
             WhatsAppMessageLogModel.broadcast_group_id == group.id,
             WhatsAppMessageLogModel.message_type == message_type,
             WhatsAppMessageLogModel.status == "queued",
+            WhatsAppMessageLogModel.message_type != "group_invite",
             WhatsAppMessageLogModel.status_updated_at < stale_cutoff,
         )
         .values(
@@ -271,6 +277,10 @@ async def send_broadcast_message(
         if message_type == "reminder"
         else set()
     )
+    invite_blocks = (
+        await group_invite_blocking_statuses(session, recipients)
+        if message_type == "group_invite" else {}
+    )
     claim_values = [
         {
             "id": uuid.uuid4(),
@@ -287,6 +297,7 @@ async def send_broadcast_message(
         }
         for recipient in recipients
         if recipient.id not in active_explicit_reminder_ids
+        and recipient.id not in invite_blocks
     ]
     claimed_recipient_ids: set[uuid.UUID] = set()
     if claim_values:
@@ -305,6 +316,7 @@ async def send_broadcast_message(
                 where=or_(
                     ~WhatsAppRecipientMessageStateModel.status.in_(suppressed_statuses),
                     and_(
+                        message_type != "group_invite",
                         WhatsAppRecipientMessageStateModel.status == "queued",
                         WhatsAppRecipientMessageStateModel.status_updated_at < stale_cutoff,
                     ),
@@ -337,6 +349,7 @@ async def send_broadcast_message(
         for recipient in recipients
         if recipient.id not in claimed_recipient_ids
         and recipient.id not in active_explicit_reminder_ids
+        and recipient.id not in invite_blocks
     ]
     (
         skipped_already_sent,
@@ -348,6 +361,10 @@ async def send_broadcast_message(
         message_type=message_type,
     )
     skipped_in_progress += len(active_explicit_reminder_ids)
+    invite_reasons = [group_invite_skip_reason(value) for value in invite_blocks.values()]
+    skipped_already_sent += invite_reasons.count("skipped_already_sent")
+    skipped_in_progress += invite_reasons.count("skipped_in_progress")
+    skipped_delivery_unknown += invite_reasons.count("skipped_delivery_unknown")
     skipped_already_sent += phone_skipped_already
     skipped_in_progress += phone_skipped_progress
     skipped_delivery_unknown += phone_skipped_unknown

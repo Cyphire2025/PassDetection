@@ -193,6 +193,7 @@ async def resend_selected_recipient_messages(
         recipient = by_id[recipient_id]
         state = states.get(recipient.id)
         reason = recipient_skip_reason(
+            message_type=body.message_type,
             recipient=recipient,
             state=state,
             active_statuses=active_statuses.get(recipient.id, set()),

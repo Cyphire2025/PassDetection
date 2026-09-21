@@ -10,6 +10,18 @@ const WELCOME_NO_REPEAT_STATUSES = new Set(["queued", "processing", "submitted",
 export type RecipientDeliveryState = Pick<WhatsAppRecipient, "message_statuses">
   & Partial<Pick<WhatsAppRecipient, "welcome_status" | "welcome_delivered" | "welcome_required_reason">>;
 
+export function groupInviteDeliveryBlockReason(recipient: RecipientDeliveryState): string | null {
+  const status = getMessageStatus(recipient, "group_invite");
+  const states = [status?.status, status?.latest_resend_status];
+  if (status?.already_sent || states.some((value) => ["submitted", "sent", "delivered", "read"].includes(value ?? ""))) {
+    return "A group invite has already been sent to this number for this broadcast. It will not be sent again.";
+  }
+  if (states.includes("delivery_unknown")) return "Invite delivery is uncertain. Review it before sending again.";
+  if (states.some((value) => value === "queued" || value === "processing")) return "A group invite is already in progress.";
+  if (status?.resend_blocked) return "This number is not eligible for another group invite. Refresh its delivery status.";
+  return null;
+}
+
 export function welcomeDeliveryBlockReason(recipient: RecipientDeliveryState, messageType: string): string | null {
   if (messageType === "group_invite") return null;
   if (messageType === "welcome") {
@@ -29,8 +41,10 @@ export function welcomeDeliveryBlockReason(recipient: RecipientDeliveryState, me
 
 export function canRetryOrResendRecipient(recipient: RecipientDeliveryState, messageType: string, action: "retry" | "resend") {
   if (welcomeDeliveryBlockReason(recipient, messageType)) return false;
+  if (messageType === "group_invite" && groupInviteDeliveryBlockReason(recipient)) return false;
   const status = getMessageStatus(recipient, messageType);
   if (status?.resend_blocked) return false;
+  if (messageType === "group_invite") return status?.status === "failed" || status?.latest_resend_status === "failed";
   return action === "retry" ? status?.status === "failed" : Boolean(status?.already_sent);
 }
 
@@ -55,6 +69,7 @@ export function isRecipientEligible(
   messageType: string,
 ): boolean {
   if (welcomeDeliveryBlockReason(recipient, messageType)) return false;
+  if (messageType === "group_invite" && groupInviteDeliveryBlockReason(recipient)) return false;
   const status = getMessageStatus(recipient, messageType);
   // Each manually submitted reminder is a new broadcast. Only an active
   // delivery is excluded; the result of an earlier reminder is not a limit.

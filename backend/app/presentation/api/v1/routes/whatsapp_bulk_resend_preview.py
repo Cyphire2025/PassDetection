@@ -110,6 +110,7 @@ async def preview_selected_recipient_messages(
     for recipient_id in body.recipient_ids:
         recipient = by_id[recipient_id]
         reason = recipient_skip_reason(
+            message_type=body.message_type,
             recipient=recipient,
             state=states.get(recipient.id),
             active_statuses=active_statuses.get(recipient.id, set()),
@@ -151,8 +152,10 @@ async def preview_selected_recipient_messages(
         recipient_name=_clean_name(person.name) or "Guest",
         recipient_count=len(recipients),
         eligible_recipient_count=len(snapshots),
-        already_sent_count=sum(
-            states[recipient_id].status in WHATSAPP_ACCEPTED_STATUSES for recipient_id in snapshots
+        already_sent_count=(
+            reasons.count("skipped_already_sent")
+            if body.message_type == "group_invite"
+            else sum(states[recipient_id].status in WHATSAPP_ACCEPTED_STATUSES for recipient_id in snapshots)
         ),
         in_progress_count=reasons.count("skipped_in_progress"),
         uncertain_recipient_count=reasons.count("skipped_delivery_unknown"),

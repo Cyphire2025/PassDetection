@@ -1128,7 +1128,7 @@ def _recipient_response(
                 latest_resend_status=latest_resend_statuses.get(state.message_type),
                 resend_blocked=(latest_resend_statuses.get(state.message_type)
                     in WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES
-                    or (state.message_type == "welcome" and state.status in WHATSAPP_SUPPRESSED_STATUSES)
+                    or (state.message_type in {"welcome", "group_invite"} and state.status in WHATSAPP_SUPPRESSED_STATUSES)
                     or (requires_prior_welcome(state.message_type) and welcome_reason is not None)),
                 submitted_at=state.submitted_at,
                 status_updated_at=state.status_updated_at,

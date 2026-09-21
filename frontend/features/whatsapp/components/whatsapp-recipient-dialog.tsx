@@ -1,6 +1,6 @@
 "use client";
 
-import { Info, Plus, Search, X } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
 import dynamic from "next/dynamic";
 import {
   useDeferredValue,
@@ -62,7 +62,8 @@ import {
 } from "./whatsapp-recipient-roster-rows";
 import { ActiveRecipientRow } from "./whatsapp-active-recipient-row";
 import { RecipientBulkOutcome } from "./whatsapp-recipient-bulk-outcome";
-import { RecipientWorkspaceNavigation, RecipientSelectionCheckbox, RecipientSelectionPanel, RecipientMobileSelectionBar, type RecipientWorkspaceSection } from "./whatsapp-recipient-selection";
+import { RecipientWorkspaceNavigation, RecipientSelectionCheckbox, type RecipientWorkspaceSection } from "./whatsapp-recipient-selection";
+import { DeliveryToolbar, DeliverySelectionBar } from "./whatsapp-delivery-toolbar";
 import type { RecipientResendTarget } from "./whatsapp-workspace.types";
 import type { MessagePreviewSendPayload } from "./whatsapp-message-preview-dialog";
 import { useWhatsAppBroadcastSourceContacts } from "../hooks/use-whatsapp-source-groups";
@@ -88,23 +89,7 @@ function DialogLoadingState({ label }: { label: string }) {
   );
 }
 
-const ROSTER_TABS: ReadonlyArray<{
-  id: WhatsAppRecipientRosterTab;
-  label: string;
-  description?: string;
-}> = [
-  { id: "all", label: "All" },
-  { id: "sent", label: "Sent" },
-  { id: "failed", label: "Failed" },
-  { id: "rejected", label: "Rejected" },
-  {
-    id: "unidentified",
-    label: "Unidentified",
-    description:
-      "People who uploaded passport details but are not in this WhatsApp broadcast.",
-  },
-  { id: "replaced", label: "Replaced" },
-];
+const ROSTER_FILTER_IDS: WhatsAppRecipientRosterTab[] = ["all", "ready", "not_sent", "sent", "failed", "in_progress", "needs_review", "shared", "rejected", "unidentified", "replaced"];
 
 export function RecipientListDialog({
   group,
@@ -160,6 +145,7 @@ export function RecipientListDialog({
   const [recipientRosterTab, setRecipientRosterTab] =
     useState<WhatsAppRecipientRosterTab>("all");
   const [recipientSearchQuery, setRecipientSearchQuery] = useState("");
+  const [selectedMessageType, setSelectedMessageType] = useState("welcome");
   const deferredRecipientSearchQuery = useDeferredValue(recipientSearchQuery);
   const [rejectedContactEdit, setRejectedContactEdit] =
     useState<RejectedContactCorrection | null>(null);
@@ -211,6 +197,7 @@ export function RecipientListDialog({
   const {
     data: recipientRoster,
     isLoading: recipientRosterLoading,
+    isFetching: recipientRosterFetching,
     error: recipientRosterError,
     refetch: refetchRecipientRoster,
   } = useWhatsAppRecipientRoster(group.id);
@@ -430,6 +417,8 @@ export function RecipientListDialog({
         new Set([
           "welcome",
           "passport_link",
+          "group_invite",
+          "reminder",
           ...(recipientRoster?.items.flatMap((item) =>
             item.kind === "recipient"
               ? item.recipient.message_statuses.map(
@@ -441,17 +430,22 @@ export function RecipientListDialog({
       ),
     [recipientRoster?.items],
   );
+  const sourceNamesByPhone = useMemo(() => {
+    const names = new Map<string, string[]>();
+    for (const contact of sourceContacts.data?.contacts ?? []) {
+      if (!contact.normalized_phone_number) continue;
+      const entries = names.get(contact.normalized_phone_number) ?? [];
+      entries.push(contact.name || "Name missing");
+      names.set(contact.normalized_phone_number, entries);
+    }
+    return names;
+  }, [sourceContacts.data?.contacts]);
+  const sharedPhones = useMemo(() => new Set([...sourceNamesByPhone].filter(([, names]) => names.length > 1).map(([phone]) => phone)), [sourceNamesByPhone]);
+  const searchedRosterItems = useMemo(() => searchRecipientRosterItems(recipientRoster?.items ?? [], deferredRecipientSearchQuery, sourceNamesByPhone), [recipientRoster?.items, deferredRecipientSearchQuery, sourceNamesByPhone]);
+  const filterCounts = useMemo(() => Object.fromEntries(ROSTER_FILTER_IDS.map((id) => [id, filterRecipientRosterItems(searchedRosterItems, id, selectedMessageType, sharedPhones).length])) as Record<WhatsAppRecipientRosterTab, number>, [searchedRosterItems, selectedMessageType, sharedPhones]);
   const visibleRosterItems = useMemo(
-    () => {
-      if (!recipientRoster) return [];
-      return searchRecipientRosterItems(
-        filterRecipientRosterItems(
-          recipientRoster.items,
-          recipientRosterTab,
-        ),
-        deferredRecipientSearchQuery,
-      );
-    }, [deferredRecipientSearchQuery, recipientRoster, recipientRosterTab],
+    () => filterRecipientRosterItems(searchedRosterItems, recipientRosterTab, selectedMessageType, sharedPhones),
+    [searchedRosterItems, recipientRosterTab, selectedMessageType, sharedPhones],
   );
   const allRecipients = useMemo(() => recipientRoster?.items.flatMap((item) => item.kind === "recipient" ? [item.recipient] : []) ?? [], [recipientRoster]);
   const visibleRecipientIds = useMemo(() => visibleRosterItems.flatMap((item) => item.kind === "recipient" ? [item.recipient.id] : []), [visibleRosterItems]);
@@ -461,6 +455,18 @@ export function RecipientListDialog({
   const someVisibleSelected = visibleSelectedCount > 0;
   const hiddenSelectedCount = selectedRecipients.length - visibleSelectedCount;
   const selectionLocked = isArchived || bulkResend.isPending || Boolean(bulkMessageType);
+  const clearSelection = () => {
+    setSelectedIds(new Set());
+    bulkRequestRef.current = null;
+    setBulkError(null);
+    setBulkNotice(null);
+  };
+  const changeDeliveryFilter = (filter: WhatsAppRecipientRosterTab) => {
+    setRecipientRosterTab(filter);
+    setRejectedContactEdit(null);
+    setRejectedContactError(null);
+    setRestoreReplacedError(null);
+  };
   const openBulkComposer = (type: "welcome" | "passport_link" | "group_invite") => {
     setBulkSelectionSnapshot(selectedRecipients);
     setBulkMessageType(type);
@@ -515,8 +521,9 @@ export function RecipientListDialog({
         queued: result.queued, sent: result.sent, failed: result.failed, deliveryUnknown: result.delivery_unknown,
         skippedAlreadySent: result.skipped_already_sent, skippedInProgress: result.skipped_in_progress, skippedDeliveryUnknown: result.skipped_delivery_unknown,
       });
-      const skipped = result.skipped_in_progress + result.skipped_delivery_unknown + result.skipped_no_saved_message + result.skipped_replaced + result.skipped_ineligible;
+      const skipped = result.skipped_already_sent + result.skipped_in_progress + result.skipped_delivery_unknown + result.skipped_no_saved_message + result.skipped_replaced + result.skipped_ineligible;
       const skipReasons = [
+        result.skipped_already_sent > 0 ? `${result.skipped_already_sent} already sent` : null,
         result.skipped_in_progress > 0 ? `${result.skipped_in_progress} already in progress` : null,
         result.skipped_delivery_unknown > 0 ? `${result.skipped_delivery_unknown} need delivery review` : null,
         result.skipped_no_saved_message > 0 ? `${result.skipped_no_saved_message} have no saved message` : null,
@@ -788,17 +795,20 @@ export function RecipientListDialog({
             </section>
             )}
             {section === "recipients" && (
-            <div className={`grid items-start gap-5 ${isArchived ? "" : "xl:grid-cols-[minmax(0,1fr)_280px]"}`}>
+            <div className="space-y-4">
             <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
               {bulkOutcome && <RecipientBulkOutcome response={bulkOutcome} recipients={allRecipients} onDismiss={() => setBulkOutcome(null)} />}
-              <div>
-                <h3 className="font-semibold text-slate-900">
-                  Recipient list
-                </h3>
-                <p className="mt-1 text-sm text-slate-500">
-                  {isArchived ? "Search recipients and review saved delivery statuses." : "Select recipients to resend a message. Search and filter without losing your selection."}
-                </p>
-              </div>
+              <DeliveryToolbar
+                messageTypes={messageTypes}
+                messageType={selectedMessageType}
+                onMessageTypeChange={(type) => { setSelectedMessageType(type); clearSelection(); setBulkOutcome(null); changeDeliveryFilter("all"); }}
+                filter={recipientRosterTab}
+                onFilterChange={changeDeliveryFilter}
+                counts={filterCounts}
+                disabled={bulkResend.isPending || Boolean(bulkMessageType)}
+                refreshing={recipientRosterFetching}
+                onRefresh={() => { void refetchRecipientRoster(); void refetchGroup(); }}
+              />
 
               <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div className="w-full sm:max-w-xl">
@@ -830,67 +840,13 @@ export function RecipientListDialog({
                 </p>
               </div>
 
-              <div
-                className="mt-3 flex flex-wrap gap-2"
-                role="tablist"
-                aria-label="Recipient delivery filters"
-              >
-                {ROSTER_TABS.map((tab) => {
-                  const isActive = recipientRosterTab === tab.id;
-                  const count = recipientRoster?.counts[tab.id] ?? 0;
-                  return (
-                    <button
-                      key={tab.id}
-                      type="button"
-                      role="tab"
-                      aria-selected={isActive}
-                      aria-controls="recipient-roster-panel"
-                      title={tab.description}
-                      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition ${
-                        isActive
-                          ? "border-blue-600 bg-blue-600 text-white"
-                          : tab.id === "failed"
-                            ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
-                            : tab.id === "rejected"
-                              ? "border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100"
-                              : tab.id === "replaced"
-                                ? "border-blue-200 bg-blue-50 text-blue-800 hover:bg-blue-100"
-                              : tab.id === "unidentified"
-                                ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
-                              : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                      }`}
-                      onClick={() => {
-                        setRecipientRosterTab(tab.id);
-                        setRejectedContactEdit(null);
-                        setRejectedContactError(null);
-                        setRestoreReplacedError(null);
-                      }}
-                    >
-                      {tab.label}
-                      {tab.description && (
-                        <Info className="h-3.5 w-3.5" aria-hidden="true" />
-                      )}
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-xs ${
-                          isActive
-                            ? "bg-white/20 text-white"
-                            : "bg-slate-100 text-slate-600"
-                        }`}
-                      >
-                        {count}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-
               {!isArchived && <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2.5">
                 <span className="text-xs text-slate-500">{selectedRecipients.length ? `${selectedRecipients.length.toLocaleString()} selected across the broadcast` : "Choose people using the checkboxes"}</span>
                 <button type="button" disabled={!visibleRecipientIds.length || selectionLocked} onClick={() => toggleRecipients(visibleRecipientIds, !allVisibleSelected)} className="text-xs font-semibold text-blue-700 hover:underline disabled:opacity-40">{allVisibleSelected ? "Deselect matching" : `Select all matching (${visibleRecipientIds.length.toLocaleString()})`}</button>
               </div>}
               <details className="mt-3 text-xs text-slate-500">
                 <summary className="cursor-pointer hover:text-slate-800">About these delivery filters</summary>
-                <p className="mt-2 max-w-3xl leading-relaxed">Sent and Failed can overlap across message types. Replaced people cannot receive further messages unless they are restored. Rejected contacts need correction. Unidentified uploads have passport details but are not in this broadcast.</p>
+                <p className="mt-2 max-w-3xl leading-relaxed">Every delivery filter uses the selected message type. Sent includes messages accepted by WhatsApp; only Delivered or Read confirms receipt. Ready includes eligible first sends and failed attempts. Needs review includes uncertain delivery or a missing required welcome. A failed later resend can appear under Failed while the original remains Sent. Shared numbers represent multiple travellers receiving one copy. Contact records lists rejected imports, replaced people and unidentified uploads separately.</p>
               </details>
               {recipientError && <div className="mt-3"><ErrorBanner message={recipientError} /></div>}
               {displayedResendError && (
@@ -919,7 +875,8 @@ export function RecipientListDialog({
 
               <div
                 id="recipient-roster-panel"
-                role="tabpanel"
+                role="region"
+                aria-label="Filtered delivery numbers"
                 className="mt-3"
               >
                 {recipientRosterError ? (
@@ -955,19 +912,15 @@ export function RecipientListDialog({
                   </p>
                 ) : (
                   <div className="max-h-[max(260px,calc(94dvh-400px))] overflow-auto rounded-xl border border-slate-200">
-                    <table className="w-full min-w-[790px] text-left text-sm">
-                      <caption className="sr-only">WhatsApp recipient delivery and resolution roster</caption>
+                    <table className="w-full min-w-[640px] text-left text-sm">
+                      <caption className="sr-only">{formatMessageType(selectedMessageType)} delivery and contact records</caption>
                       <thead className="sticky top-0 z-10 border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                         <tr>
                           <th scope="col" className="w-12 px-4 py-3 text-center"><RecipientSelectionCheckbox label="Select all matching recipients" checked={allVisibleSelected} indeterminate={someVisibleSelected && !allVisibleSelected} disabled={!visibleRecipientIds.length || selectionLocked} onChange={(checked) => toggleRecipients(visibleRecipientIds, checked)} /></th>
                           <th scope="col" className="w-12 px-2 py-3 text-center">#</th>
                           <th scope="col" className="px-4 py-3">Recipient</th>
                           <th scope="col" className="px-4 py-3">WhatsApp number</th>
-                          {messageTypes.map((messageType) => (
-                            <th key={messageType} scope="col" className="px-4 py-3">
-                              {formatMessageType(messageType)}
-                            </th>
-                          ))}
+                          <th scope="col" className="px-4 py-3">Delivery status</th>
                           <th scope="col" className="px-4 py-3 text-right">Action</th>
                         </tr>
                       </thead>
@@ -980,7 +933,7 @@ export function RecipientListDialog({
                                 key={`unidentified:${item.unidentified_upload.submission_id}`}
                                 upload={item.unidentified_upload}
                                 serialNumber={serialNumber}
-                                messageColumnCount={messageTypes.length}
+                                messageColumnCount={1}
                                 showSelectionColumn
                               />
                             );
@@ -992,7 +945,7 @@ export function RecipientListDialog({
                                 key={`replaced:${replacedRecipient.recipient_id}`}
                                 recipient={replacedRecipient}
                                 serialNumber={serialNumber}
-                                messageColumnCount={messageTypes.length}
+                                messageColumnCount={1}
                                 showSelectionColumn
                                 readOnly={isArchived}
                                 isRestoring={restoreReplacedRecipient.isPending}
@@ -1012,7 +965,7 @@ export function RecipientListDialog({
                                 key={`rejected:${contact.id}`}
                                 contact={contact}
                                 serialNumber={serialNumber}
-                                messageColumnCount={messageTypes.length}
+                                messageColumnCount={1}
                                 showSelectionColumn
                                 readOnly={isArchived}
                                 correction={isArchived ? null : rejectedContactEdit}
@@ -1073,7 +1026,8 @@ export function RecipientListDialog({
                               key={`recipient:${recipient.id}`}
                               recipient={recipient}
                               serialNumber={serialNumber}
-                              messageTypes={messageTypes}
+                              messageTypes={[selectedMessageType]}
+                              sharedContactNames={sourceNamesByPhone.get(recipient.normalized_phone_number)}
                               selected={selectedIds.has(recipient.id)}
                               selectionDisabled={selectionLocked}
                               onSelect={(checked) => toggleRecipients([recipient.id], checked)}
@@ -1115,12 +1069,12 @@ export function RecipientListDialog({
                 )}
               </div>
             </section>
-            {!isArchived && <RecipientSelectionPanel selectedCount={selectedRecipients.length} hiddenCount={hiddenSelectedCount} allCount={allRecipients.length} onSelectAll={() => toggleRecipients(allRecipients.map((recipient) => recipient.id), true)} onClear={() => { setSelectedIds(new Set()); bulkRequestRef.current = null; setBulkError(null); setBulkNotice(null); }} onReview={openBulkComposer} disabled={selectionLocked} error={bulkMessageType ? null : bulkError} notice={bulkNotice} />}
+
             </div>
             )}
 
-            {section === "recipients" && bulkNotice && <p role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700 xl:hidden">{bulkNotice}</p>}
-            {section === "recipients" && bulkError && !bulkMessageType && <div className="xl:hidden"><ErrorBanner message={bulkError} /></div>}
+            {section === "recipients" && bulkNotice && <p role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">{bulkNotice}</p>}
+            {section === "recipients" && bulkError && !bulkMessageType && <div><ErrorBanner message={bulkError} /></div>}
             {successMessage && (
               <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
                 {successMessage}
@@ -1129,7 +1083,7 @@ export function RecipientListDialog({
           </div>
         )}
         </div>
-        {section === "recipients" && !isArchived && <RecipientMobileSelectionBar selectedCount={selectedRecipients.length} hiddenCount={hiddenSelectedCount} allCount={allRecipients.length} onSelectAll={() => toggleRecipients(allRecipients.map((recipient) => recipient.id), true)} onClear={() => { setSelectedIds(new Set()); bulkRequestRef.current = null; setBulkError(null); setBulkNotice(null); }} onReview={openBulkComposer} disabled={selectionLocked} />}
+        {section === "recipients" && !isArchived && <DeliverySelectionBar selectedCount={selectedRecipients.length} hiddenCount={hiddenSelectedCount} messageType={selectedMessageType} onClear={clearSelection} onReview={openBulkComposer} disabled={selectionLocked} />}
         </DialogFrame>
       )}
 

@@ -16,6 +16,10 @@ from app.infrastructure.database.models import (
     WhatsAppMessageLogModel,
     WhatsAppRecipientMessageStateModel,
 )
+from app.infrastructure.whatsapp.group_invite_policy import (
+    group_invite_blocking_statuses,
+    group_invite_skip_reason,
+)
 from app.presentation.api.v1.routes.whatsapp_bulk_resend_composer import (
     BulkResendEdits,
     resolve_saved_resend_snapshot,
@@ -35,7 +39,7 @@ from app.presentation.api.v1.schemas.whatsapp_schemas import (
 )
 
 SKIP_MESSAGES = {
-    "skipped_already_sent": "This WhatsApp number already received a welcome or delivery is pending.",
+    "skipped_already_sent": "This WhatsApp number already has this message submitted or delivered; another send is blocked.",
     "skipped_replaced": "This person is replaced in a linked passport group.",
     "skipped_in_progress": "A message of this type is already in progress.",
     "skipped_delivery_unknown": "Previous delivery is unknown; verify it before resending.",
@@ -64,10 +68,15 @@ def recipient_skip_reason(
     state: WhatsAppRecipientMessageStateModel | None,
     active_statuses: set[str],
     replaced_phones: set[str],
+    message_type: str | None = None,
 ) -> str | None:
     if recipient.normalized_phone_number in replaced_phones:
         return "skipped_replaced"
     state_status = state.status if state else None
+    if message_type == "group_invite":
+        for candidate in ("read", "delivered", "sent", "submitted", "delivery_unknown", "processing", "queued"):
+            if candidate == state_status or candidate in active_statuses:
+                return group_invite_skip_reason(candidate)
     if state_status == "delivery_unknown" or "delivery_unknown" in active_statuses:
         return "skipped_delivery_unknown"
     if state_status in WHATSAPP_IN_PROGRESS_STATUSES or active_statuses:
@@ -128,6 +137,8 @@ async def expire_stale_explicit_claims(
             "Explicit resend outcome is unknown after worker interruption; another resend is blocked",
         ),
     ):
+        if body.message_type == "group_invite" and previous_status == "queued":
+            continue
         await session.execute(
             update(WhatsAppMessageLogModel)
             .where(
@@ -211,13 +222,27 @@ async def selection_delivery_maps(
     stale_cutoff = datetime.now(tz=UTC) - WHATSAPP_STALE_CLAIM_AGE
     for log in active:
         log_status = log.status
-        if not lock_states and log.is_explicit_resend and log.status_updated_at < stale_cutoff:
+        if (
+            body.message_type != "group_invite" and not lock_states
+            and log.is_explicit_resend and log.status_updated_at < stale_cutoff
+        ):
             # Preview mirrors send's stale recovery without changing any row.
             if log_status == "queued":
                 continue
             if log_status == "processing":
                 log_status = "delivery_unknown"
         active_by_recipient.setdefault(log.recipient_id, set()).add(log_status)
+    if body.message_type == "group_invite":
+        recipients_result = await session.execute(
+            select(WhatsAppBroadcastRecipientModel).where(
+                WhatsAppBroadcastRecipientModel.broadcast_group_id == group_id,
+                WhatsAppBroadcastRecipientModel.id.in_(body.recipient_ids),
+            )
+        )
+        recipients = list(recipients_result.scalars().all())
+        invite_blocks = await group_invite_blocking_statuses(session, recipients)
+        for recipient_id, invite_status in invite_blocks.items():
+            active_by_recipient.setdefault(recipient_id, set()).add(invite_status)
     return (
         {state.recipient_id: state for state in states},
         active_by_recipient,

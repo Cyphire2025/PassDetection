@@ -3,6 +3,7 @@
 import type { WhatsAppBulkResendResponse, WhatsAppRecipient } from "../api/whatsapp.api";
 
 const OUTCOME_LABELS: Record<string, string> = {
+  skipped_already_sent: "Skipped: this number already has this message submitted or delivered. No duplicate was sent.",
   skipped_replaced: "Skipped: this person has been replaced in the linked passport group.",
   skipped_in_progress: "Skipped: a message of this type is already in progress.",
   skipped_delivery_unknown: "Skipped: verify the previous delivery before resending.",
@@ -24,7 +25,7 @@ export function RecipientBulkOutcome({ response, recipients, onDismiss }: {
   return (
     <details className="mb-4 rounded-xl border border-amber-200 bg-amber-50/50 px-4 py-3">
       <summary className="cursor-pointer text-sm font-semibold text-amber-900">
-        Last resend: {exceptions.length} {exceptions.length === 1 ? "recipient needs" : "recipients need"} attention
+        Last resend: {exceptions.length} {exceptions.length === 1 ? "delivery result" : "delivery results"} to review
       </summary>
       <p className="mt-2 text-xs leading-relaxed text-slate-600">These are the results returned when you submitted the resend. Ongoing delivery updates appear in the broadcast activity.</p>
       <ul aria-label="Resend results needing attention" className="mt-3 max-h-60 divide-y divide-amber-100 overflow-y-auto">

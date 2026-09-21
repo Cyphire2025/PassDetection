@@ -28,6 +28,10 @@ from app.infrastructure.whatsapp.cloud_api_provider import (
     WhatsAppCloudApiError,
     upload_whatsapp_image,
 )
+from app.infrastructure.whatsapp.group_invite_policy import (
+    group_invite_block_message,
+    group_invite_blocking_statuses,
+)
 from app.presentation.api.v1.routes.whatsapp_archive_policy import require_active_broadcast
 from app.presentation.api.v1.routes.whatsapp_reminder_audience import (
     resolve_reminder_audience,
@@ -242,6 +246,12 @@ async def preview_broadcast_message(
     snapshot: _WhatsAppComposerSnapshot | None = None
     content_source: Literal["default", "latest_group", "latest_recipient"] = "default"
     if body.resend_recipient_id:
+        if message_type == "group_invite":
+            invite_blocks = await group_invite_blocking_statuses(session, [recipient])
+            if recipient.id in invite_blocks:
+                raise HTTPException(
+                    status_code=409, detail=group_invite_block_message(invite_blocks[recipient.id])
+                )
         state_result = await session.execute(
             select(WhatsAppRecipientMessageStateModel).where(
                 WhatsAppRecipientMessageStateModel.recipient_id == body.resend_recipient_id,

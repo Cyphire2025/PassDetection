@@ -5,7 +5,7 @@ import { Send } from "lucide-react";
 import { Button, Input } from "@/components/ui";
 import type { WhatsAppBulkResendPreviewResponse, WhatsAppPreviewResponse } from "../api/whatsapp.api";
 import { usePreviewWhatsAppBulkResendMessage, usePreviewWhatsAppMessage, useWhatsAppGroup } from "../hooks/use-whatsapp";
-import { canRetryOrResendRecipient, isRecipientEligible } from "../utils/recipient-delivery";
+import { canRetryOrResendRecipient, groupInviteDeliveryBlockReason, isRecipientEligible } from "../utils/recipient-delivery";
 import { GROUP_INVITE_LINK_HELP, validWhatsAppGroupInviteLink } from "../utils/group-invite";
 import { DialogFrame, ErrorBanner, readErrorMessage } from "./whatsapp-dialog-ui";
 import { MessageComposerSection, MessageDeliveryPreview } from "./whatsapp-message-composer-ui";
@@ -88,7 +88,10 @@ export function GroupInvitePreviewDialog({ group, targetRecipient, bulkRecipient
     return () => { window.clearTimeout(timer); controller.abort(); };
   }, [group.id, messageContent, groupInviteLink, selectionMode, selectedIds, bulkIds, effectivePreviewRecipientId, targetRecipient, requestKey, retryNonce, requestPreview, requestBulkPreview]);
 
-  const bulkEligibleIds = bulkPreview?.eligible_recipient_ids.filter((id) => currentRecipients.has(id) || bulkRecipients?.some((item) => item.id === id)) ?? [];
+  const bulkEligibleIds = bulkPreview?.eligible_recipient_ids.filter((id) => {
+    const recipient = currentRecipients.get(id) ?? bulkRecipients?.find((item) => item.id === id);
+    return recipient && !groupInviteDeliveryBlockReason(recipient);
+  }) ?? [];
   const eligibleCount = bulkMode ? bulkEligibleIds.length : targetRecipient ? (targetAllowed ? 1 : 0)
     : previewCurrent ? preview?.eligible_recipient_count ?? 0 : 0;
   const missingPhotoCount = bulkMode && previewCurrent ? bulkPreview?.missing_header_image_count ?? 0 : 0;

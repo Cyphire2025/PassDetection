@@ -34,6 +34,10 @@ from app.infrastructure.whatsapp.cloud_api_provider import (
     WhatsAppCloudApiError,
     send_whatsapp_template,
 )
+from app.infrastructure.whatsapp.group_invite_policy import (
+    group_invite_block_message,
+    group_invite_blocking_statuses,
+)
 from app.infrastructure.whatsapp.phone_welcome import (
     WELCOME_REQUIRED,
     assert_phone_welcome_claim,
@@ -170,6 +174,10 @@ async def _load_sendable_recipient(
     frozen_phone = getattr(log, "normalized_phone_number", None)
     if not frozen_phone or frozen_phone != recipient.normalized_phone_number:
         return None, "WhatsApp destination changed or lacks a safe snapshot. Review and send again."
+    if log.message_type == "group_invite":
+        invite_blocks = await group_invite_blocking_statuses(session, [recipient], current_log=log)
+        if recipient.id in invite_blocks:
+            return None, group_invite_block_message(invite_blocks[recipient.id])
     if log.message_type == "welcome":
         if not await assert_phone_welcome_claim(
             session,

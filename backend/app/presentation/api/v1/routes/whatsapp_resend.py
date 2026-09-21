@@ -23,6 +23,10 @@ from app.infrastructure.repositories.audit_log_repository import AuditLogReposit
 from app.infrastructure.repositories.passport_roster_resolution_repository import (
     active_replacement_resolution_id_for_recipient,
 )
+from app.infrastructure.whatsapp.group_invite_policy import (
+    group_invite_block_message,
+    group_invite_blocking_statuses,
+)
 from app.infrastructure.whatsapp.publication import (
     fail_unclaimed_broadcast_rows,
     publish_whatsapp_task,
@@ -132,6 +136,12 @@ async def resend_recipient_message(
         )
 
     message_type = _as_message_type(body.message_type)
+    if message_type == "group_invite":
+        invite_blocks = await group_invite_blocking_statuses(session, [recipient])
+        if recipient.id in invite_blocks:
+            raise HTTPException(
+                status_code=409, detail=group_invite_block_message(invite_blocks[recipient.id])
+            )
     await enforce_broadcast_welcome_prerequisite(
         session,
         agency_id=group.agency_id,
@@ -168,6 +178,7 @@ async def resend_recipient_message(
             WhatsAppMessageLogModel.message_type == message_type,
             WhatsAppMessageLogModel.is_explicit_resend.is_(True),
             WhatsAppMessageLogModel.status == "queued",
+            WhatsAppMessageLogModel.message_type != "group_invite",
             WhatsAppMessageLogModel.status_updated_at < stale_cutoff,
         )
         .values(

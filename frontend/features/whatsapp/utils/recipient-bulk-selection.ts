@@ -1,7 +1,7 @@
 import type {
   WhatsAppBulkResendMessageType,
 } from "../api/whatsapp.api";
-import { type RecipientDeliveryState, welcomeDeliveryBlockReason } from "./recipient-delivery";
+import { type RecipientDeliveryState, groupInviteDeliveryBlockReason, welcomeDeliveryBlockReason } from "./recipient-delivery";
 
 export type BulkResendEligibility =
   | "eligible"
@@ -22,6 +22,7 @@ export function getBulkResendEligibility(
   if (statuses.includes("delivery_unknown")) return "delivery_unknown";
   if (statuses.some((value) => value === "queued" || value === "processing")) return "in_progress";
   if (state.resend_blocked) return "blocked";
+  if (messageType === "group_invite" && groupInviteDeliveryBlockReason(recipient)) return "blocked";
   if (welcomeDeliveryBlockReason(recipient, messageType)) return "blocked";
   if (state.already_sent || statuses.includes("failed")) return "eligible";
   return "no_saved_message";

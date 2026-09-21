@@ -123,6 +123,13 @@ def resolve_saved_resend_snapshot(
     if not source.template_name or not source.template_name.strip() or not source.rendered_message:
         raise ValueError("The saved template or rendered message is missing")
     message_type = _as_message_type(source.message_type)
+    template_name = source.template_name
+    if message_type == "group_invite":
+        # Failed invite retries can move to a replacement approved template with
+        # the same image + two-body-variable contract. Queued logs stay frozen.
+        template_name = _configured_template_name(message_type).strip()
+        if not template_name:
+            raise HTTPException(status_code=503, detail="The WhatsApp group invite template is not configured")
     if message_type == "passport_link":
         try:
             _validate_passport_link(parameters[1])
@@ -134,10 +141,9 @@ def resolve_saved_resend_snapshot(
             allow_legacy_group_invite_header=preview,
         )
         return SavedResendSnapshot(
-            source.template_name, source.rendered_message, header, parameters
+            template_name, source.rendered_message, header, parameters
         )
 
-    template_name = source.template_name
     if edits.header_image_id is not None:
         header = [edits.header_image_id]
         if not edits.media_template_name:

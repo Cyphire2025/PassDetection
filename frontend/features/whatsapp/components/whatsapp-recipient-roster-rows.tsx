@@ -422,7 +422,13 @@ export function DeliveryBadge({
   const isInProgress =
     status?.status === "queued" || status?.status === "processing";
   const isDeliveryUnknown = status?.status === "delivery_unknown";
-  const label = status?.already_sent
+  const label = status?.status === "read"
+    ? "Read"
+    : status?.status === "delivered"
+      ? "Delivered"
+      : status?.status === "submitted"
+        ? "Awaiting delivery"
+        : status?.already_sent
     ? "Sent"
     : isDeliveryUnknown
       ? "Delivery unknown - review"

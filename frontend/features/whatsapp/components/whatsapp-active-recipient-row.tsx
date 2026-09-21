@@ -4,7 +4,7 @@ import { MoreHorizontal, Pencil, RotateCw, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { WhatsAppRecipient } from "../api/whatsapp.api";
 import { formatMessageType, isWhatsAppMessageType } from "../utils/message-types";
-import { canRetryOrResendRecipient, getMessageStatus, hasAlreadySentMessage, welcomeDeliveryBlockReason } from "../utils/recipient-delivery";
+import { canRetryOrResendRecipient, getMessageStatus, groupInviteDeliveryBlockReason, hasAlreadySentMessage, welcomeDeliveryBlockReason } from "../utils/recipient-delivery";
 import type { RecipientResendTarget } from "./whatsapp-workspace.types";
 import { DeliveryBadge, importedFieldLabel, visibleImportedFieldEntries } from "./whatsapp-recipient-roster-rows";
 import { RecipientSelectionCheckbox } from "./whatsapp-recipient-selection";
@@ -12,7 +12,7 @@ import { RecipientSelectionCheckbox } from "./whatsapp-recipient-selection";
 export function ActiveRecipientRow({
   recipient, serialNumber, messageTypes, selected, selectionDisabled, onSelect,
   editing, editedPhone, onPhoneChange, onEdit, onCancelEdit, onSavePhone,
-  phoneSaving, resendPending, onResend, removeDisabled, onRemove,
+  phoneSaving, resendPending, onResend, removeDisabled, onRemove, sharedContactNames,
 }: {
   recipient: WhatsAppRecipient;
   serialNumber: number;
@@ -31,6 +31,7 @@ export function ActiveRecipientRow({
   onResend: (target: RecipientResendTarget) => void;
   removeDisabled: boolean;
   onRemove: () => void;
+  sharedContactNames?: string[];
 }) {
   const menuRef = useRef<HTMLDetailsElement>(null);
   const [menuPosition, setMenuPosition] = useState<{ top: number; right: number } | null>(null);
@@ -39,7 +40,8 @@ export function ActiveRecipientRow({
   const resendActions = messageTypes.flatMap((messageType) => {
     if (!isWhatsAppMessageType(messageType)) return [];
     const status = getMessageStatus(recipient, messageType);
-    const canRetry = status?.status === "failed";
+    if (messageType === "group_invite" && groupInviteDeliveryBlockReason(recipient)) return [];
+    const canRetry = status?.status === "failed" || (messageType === "group_invite" && status?.latest_resend_status === "failed");
     if (!canRetry && !hasAlreadySentMessage(recipient, messageType)) return [];
     const action = canRetry ? "retry" as const : "resend" as const;
     return [{ messageType, status, action, allowed: canRetryOrResendRecipient(recipient, messageType, action), reason: welcomeDeliveryBlockReason(recipient, messageType) }];
@@ -81,6 +83,10 @@ export function ActiveRecipientRow({
       <td className="w-12 px-2 py-4 text-center text-xs tabular-nums text-slate-400">{serialNumber}</td>
       <td className="min-w-44 px-4 py-4">
         <div className="font-semibold text-slate-800">{name}</div>
+        {sharedContactNames && sharedContactNames.length > 1 && <details className="mt-1">
+          <summary className="cursor-pointer text-xs font-medium text-blue-700">{sharedContactNames.length} travellers · shared number</summary>
+          <ol className="mt-2 space-y-1 border-l-2 border-blue-100 pl-3 text-xs text-slate-600">{sharedContactNames.map((contactName, index) => <li key={`${index}-${contactName}`}>{contactName}{index === 0 && <span className="ml-1 text-[10px] text-blue-600">First source contact</span>}</li>)}</ol>
+        </details>}
         {importedEntries.length > 0 && (
           <details className="mt-1">
             <summary className="cursor-pointer text-xs text-slate-500 hover:text-blue-700">{importedEntries.length} imported {importedEntries.length === 1 ? "detail" : "details"}</summary>
@@ -112,7 +118,7 @@ export function ActiveRecipientRow({
         return (
           <td key={messageType} className="px-4 py-4">
             <DeliveryBadge status={status} />
-            {messageType !== "welcome" && messageType !== "group_invite" && recipient.welcome_delivered === false && <p className="mt-1 max-w-44 text-[11px] leading-4 text-amber-700">{recipient.welcome_required_reason || "Welcome delivery required"}</p>}
+            {messageType !== "welcome" && messageType !== "group_invite" && !status?.already_sent && recipient.welcome_delivered === false && <p title={recipient.welcome_required_reason || "Welcome must be delivered before this message can be sent."} className="mt-1 text-[11px] leading-4 text-amber-700">Welcome required</p>}
             {latest && <p className={`mt-1.5 text-[11px] ${latest === "failed" ? "text-red-600" : latest === "delivery_unknown" ? "text-amber-700" : "text-slate-500"}`}>
               {latest === "failed" ? "Last resend failed" : latest === "delivery_unknown" ? "Resend needs review" : latest === "queued" || latest === "processing" ? "Resending…" : ["sent", "delivered", "read"].includes(latest) ? "Resent" : null}
             </p>}
