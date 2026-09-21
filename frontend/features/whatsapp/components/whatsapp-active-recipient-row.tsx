@@ -112,7 +112,7 @@ export function ActiveRecipientRow({
         return (
           <td key={messageType} className="px-4 py-4">
             <DeliveryBadge status={status} />
-            {messageType !== "welcome" && recipient.welcome_delivered === false && <p className="mt-1 max-w-44 text-[11px] leading-4 text-amber-700">{recipient.welcome_required_reason || "Welcome delivery required"}</p>}
+            {messageType !== "welcome" && messageType !== "group_invite" && recipient.welcome_delivered === false && <p className="mt-1 max-w-44 text-[11px] leading-4 text-amber-700">{recipient.welcome_required_reason || "Welcome delivery required"}</p>}
             {latest && <p className={`mt-1.5 text-[11px] ${latest === "failed" ? "text-red-600" : latest === "delivery_unknown" ? "text-amber-700" : "text-slate-500"}`}>
               {latest === "failed" ? "Last resend failed" : latest === "delivery_unknown" ? "Resend needs review" : latest === "queued" || latest === "processing" ? "Resending…" : ["sent", "delivered", "read"].includes(latest) ? "Resent" : null}
             </p>}

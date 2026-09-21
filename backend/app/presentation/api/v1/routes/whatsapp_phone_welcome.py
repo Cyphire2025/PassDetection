@@ -10,6 +10,7 @@ from fastapi import HTTPException
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.use_cases.whatsapp.welcome_policy import requires_prior_welcome
 from app.infrastructure.database.models import (
     WhatsAppBroadcastRecipientModel,
     WhatsAppMessageLogModel,
@@ -31,7 +32,7 @@ async def enforce_broadcast_welcome_prerequisite(
     message_type: str,
     recipients: Sequence[WhatsAppBroadcastRecipientModel],
 ) -> None:
-    if message_type == "welcome":
+    if not requires_prior_welcome(message_type):
         return
     states = await welcome_states_for_phones(
         session,

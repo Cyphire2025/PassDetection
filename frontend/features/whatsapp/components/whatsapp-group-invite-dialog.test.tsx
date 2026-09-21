@@ -17,7 +17,7 @@ vi.mock("./whatsapp-dialog-ui", () => ({
 }));
 
 const link = "https://chat.whatsapp.com/InviteAbC123?mode=ac_t";
-const recipient = (id: string): WhatsAppRecipient => ({ id, name: `Delegate ${id}`, phone_number: "+919999999999", normalized_phone_number: "+919999999999", imported_fields: {}, message_statuses: [], welcome_delivered: true });
+const recipient = (id: string): WhatsAppRecipient => ({ id, name: `Delegate ${id}`, phone_number: "+919999999999", normalized_phone_number: "+919999999999", imported_fields: {}, message_statuses: [], welcome_delivered: false, welcome_status: "required", welcome_required_reason: "Welcome must arrive first." });
 function preview(draft: WhatsAppMessageDraft): WhatsAppPreviewResponse {
   const message = draft.message_content ?? "Please join our official travel group.";
   const invitation = draft.group_invite_link ?? link;
@@ -55,7 +55,7 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("group invite composer", () => {
-  it("requires a photo, shows it above the exact template, and sends edited content with the query-bearing invite link", async () => {
+  it("sends a first invitation without welcome delivery while requiring a photo and valid message", async () => {
     mocks.preview.mockImplementation(({ draft }, callbacks) => callbacks.onSuccess({ ...preview(draft), header_image_id: null }));
     const { onSend } = mount();
     await screen.findByDisplayValue(link);
@@ -66,6 +66,7 @@ describe("group invite composer", () => {
     expect(screen.queryByLabelText(/passport/i)).not.toBeInTheDocument();
     expect(screen.queryByText("Customer support")).not.toBeInTheDocument();
     expect(screen.queryByText("Reminder audience")).not.toBeInTheDocument();
+    expect(screen.queryByText(/welcome/i)).not.toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("Invitation message"), { target: { value: "Join for departure updates." } });
     expect(screen.getByRole("button", { name: /Send individually/ })).toBeDisabled();
     await waitFor(() => expect(screen.getByRole("button", { name: "Send individually to 2" })).toBeEnabled());
@@ -113,10 +114,9 @@ describe("group invite composer", () => {
     expect(screen.getByTestId("whatsapp-message-preview")).not.toHaveTextContent("Old invitation");
   });
 
-  it.each(["archived", "opt-in", "welcome"])("keeps the existing %s guardrail", async (guard) => {
+  it.each(["archived", "opt-in"])("keeps the existing %s guardrail", async (guard) => {
     if (guard === "archived") mocks.detail.is_archived = true;
     if (guard === "opt-in") mocks.detail.recipient_opt_in_confirmed = false;
-    if (guard === "welcome") mocks.preview.mockImplementation(({ draft }, callbacks) => callbacks.onSuccess({ ...preview(draft), welcome_required_count: 1, welcome_required_reason: "Welcome must be delivered first." }));
     const { onSend, container } = mount();
     await screen.findByDisplayValue(link);
     expect(screen.getByRole("button", { name: /Send individually/ })).toBeDisabled();
@@ -125,10 +125,11 @@ describe("group invite composer", () => {
     expect(screen.getByRole("alert")).toBeVisible();
   });
 
-  it("keeps each bulk recipient's saved link unless explicitly edited, and safely retries an uncertain request", async () => {
+  it("allows bulk invitation resends without welcome delivery and safely recovers the same request", async () => {
     const onSend = vi.fn().mockRejectedValueOnce(new Error("Connection lost")).mockResolvedValue(undefined);
     mount({ bulkRecipients: mocks.detail.recipients, onSend });
     await waitFor(() => expect(screen.getByRole("button", { name: "Resend to 2 selected" })).toBeEnabled());
+    expect(screen.queryByText(/welcome/i)).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Resend to 2 selected" }));
     await screen.findByRole("button", { name: "Check resend status" });
     expect(onSend).toHaveBeenLastCalledWith(expect.objectContaining({ recipientIds: ["A", "B"], headerImage: null, headerImageId: null, bulkDraft: { messageContent: null, groupInviteLink: null, headerImageId: null } }));
@@ -141,10 +142,11 @@ describe("group invite composer", () => {
     expect(onSend).toHaveBeenLastCalledWith(expect.objectContaining({ bulkDraft: { messageContent: null, groupInviteLink: "https://chat.whatsapp.com/Replacement123", headerImageId: null } }));
   });
 
-  it("reuses a saved photo for a single resend, but never revives it after removal without an explicit reset", async () => {
+  it("allows a single resend without welcome and never revives a removed photo without explicit reset", async () => {
     mocks.detail.recipients[0].message_statuses = [{ message_type: "group_invite", status: "delivered", already_sent: true, latest_resend_status: null, resend_blocked: false, submitted_at: null, status_updated_at: "2026-09-21" }];
     const { onSend, container } = mount({ targetRecipient: { recipientId: "A", recipientName: "Delegate A", phoneNumber: "+919999999999", messageType: "group_invite", action: "resend" } });
     await waitFor(() => expect(screen.getByRole("button", { name: "Resend to Delegate A" })).toBeEnabled());
+    expect(screen.queryByText(/welcome/i)).not.toBeInTheDocument();
     expect(screen.getByText("Saved message image")).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "Remove photo" }));
     await waitFor(() => expect(mocks.preview).toHaveBeenCalledTimes(2));
@@ -156,6 +158,24 @@ describe("group invite composer", () => {
     await waitFor(() => expect(screen.getByRole("button", { name: "Resend to Delegate A" })).toBeEnabled());
     fireEvent.click(screen.getByRole("button", { name: "Resend to Delegate A" }));
     await waitFor(() => expect(onSend).toHaveBeenCalledWith(expect.objectContaining({ headerImage: null, headerImageId: "saved-invite-photo" })));
+  });
+
+  it("allows a failed invitation retry without welcome delivery", async () => {
+    mocks.detail.recipients[0].message_statuses = [{ message_type: "group_invite", status: "failed", already_sent: false, latest_resend_status: null, resend_blocked: false, submitted_at: null, status_updated_at: "2026-09-21" }];
+    const { onSend } = mount({ targetRecipient: { recipientId: "A", recipientName: "Delegate A", phoneNumber: "+919999999999", messageType: "group_invite", action: "retry" } });
+    await waitFor(() => expect(screen.getByRole("button", { name: "Retry to Delegate A" })).toBeEnabled());
+    expect(screen.queryByText(/welcome/i)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Retry to Delegate A" }));
+    await waitFor(() => expect(onSend).toHaveBeenCalledTimes(1));
+  });
+
+  it("keeps a blocked single resend unavailable even without the welcome prerequisite", async () => {
+    mocks.detail.recipients[0].message_statuses = [{ message_type: "group_invite", status: "sent", already_sent: true, latest_resend_status: "processing", resend_blocked: true, submitted_at: null, status_updated_at: "2026-09-21" }];
+    const { onSend, container } = mount({ targetRecipient: { recipientId: "A", recipientName: "Delegate A", phoneNumber: "+919999999999", messageType: "group_invite", action: "resend" } });
+    await screen.findByDisplayValue(link);
+    expect(screen.getByRole("button", { name: "Resend to Delegate A" })).toBeDisabled();
+    fireEvent.submit(container.querySelector("form")!);
+    expect(onSend).not.toHaveBeenCalled();
   });
 
   it.each([

@@ -11,6 +11,7 @@ export type RecipientDeliveryState = Pick<WhatsAppRecipient, "message_statuses">
   & Partial<Pick<WhatsAppRecipient, "welcome_status" | "welcome_delivered" | "welcome_required_reason">>;
 
 export function welcomeDeliveryBlockReason(recipient: RecipientDeliveryState, messageType: string): string | null {
+  if (messageType === "group_invite") return null;
   if (messageType === "welcome") {
     const status = getMessageStatus(recipient, "welcome");
     if (recipient.welcome_delivered || WELCOME_NO_REPEAT_STATUSES.has(recipient.welcome_status ?? status?.status ?? "") || status?.already_sent || WELCOME_NO_REPEAT_STATUSES.has(status?.latest_resend_status ?? "")) {

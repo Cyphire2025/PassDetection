@@ -19,7 +19,9 @@ async function mockInviteApi(page: Page) {
     support_contacts: [], rejected_contact_count: 0,
     recipients: ["Passenger A", "Passenger B"].map((name, index) => ({
       id: `recipient-${index}`, name, phone_number: `+91999999999${index}`, normalized_phone_number: `+91999999999${index}`,
-      welcome_delivered: true, welcome_status: "delivered", imported_fields: {}, message_statuses: [],
+      welcome_delivered: false, welcome_status: index === 0 ? null : "failed",
+      welcome_required_reason: "Welcome must be delivered to this number before other messages can be sent.",
+      imported_fields: {}, message_statuses: [],
     })),
   };
   const previews: WhatsAppMessageDraft[] = [];
@@ -71,7 +73,7 @@ async function mockInviteApi(page: Page) {
 }
 
 for (const viewport of [{ name: "desktop", width: 1440, height: 1080 }, { name: "mobile", width: 390, height: 844 }]) {
-  test(`staff can edit, preview and queue a group invite on ${viewport.name}`, async ({ page }, testInfo) => {
+  test(`staff can queue an image group invite without a previous welcome on ${viewport.name}`, async ({ page }, testInfo) => {
     test.setTimeout(90_000);
     const api = await mockInviteApi(page);
     const pageErrors: string[] = [];
@@ -101,6 +103,8 @@ for (const viewport of [{ name: "desktop", width: 1440, height: 1080 }, { name: 
     await expect.poll(() => dialog.getByRole("img", { name: "Selected Group invite image header" }).evaluate((image: HTMLImageElement) => image.naturalWidth)).toBe(640);
     await expect(sendButton).toBeEnabled();
     await expect(dialog).not.toContainText("Passport upload link");
+    await expect(dialog).not.toContainText("Welcome must be delivered");
+    await expect(dialog).not.toContainText("Welcome delivery must be confirmed first");
     await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     const screenshot = testInfo.outputPath(`whatsapp-group-invite-${viewport.name}.png`);
     await page.screenshot({ path: screenshot, animations: "disabled", fullPage: true });

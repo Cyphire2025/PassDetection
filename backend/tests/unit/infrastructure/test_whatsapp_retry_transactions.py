@@ -114,8 +114,9 @@ async def test_retry_skips_accepted_and_interrupted_rows_and_continues_after_rol
     )
 
 
-@pytest.mark.parametrize("blocked", [None, "archive", "welcome", "missing_image"])
-async def test_group_invite_worker_uses_frozen_link_and_language_with_existing_gates(db_session, monkeypatch, blocked):
+@pytest.mark.parametrize("blocked", [None, "archive", "missing_image"])
+@pytest.mark.parametrize("welcome_status", [None, "queued", "failed", "delivery_unknown", "delivered"])
+async def test_group_invite_worker_uses_frozen_link_and_language_with_existing_gates(db_session, monkeypatch, blocked, welcome_status):
     batch_id, _ = await _seed_batch(db_session, ["queued"])
     log = (await db_session.execute(select(WhatsAppMessageLogModel))).scalar_one()
     state = (await db_session.execute(select(WhatsAppRecipientMessageStateModel))).scalar_one()
@@ -126,7 +127,11 @@ async def test_group_invite_worker_uses_frozen_link_and_language_with_existing_g
     log.template_language = "en"
     log.header_parameter_values = [] if blocked == "missing_image" else ["frozen-invite-image"]
     log.template_parameter_values = ["Frozen invitation", "https://chat.whatsapp.com/Frozen123?mode=ac_t"]
-    welcome.status = "queued" if blocked == "welcome" else "delivered"
+    welcome_id, welcome_attempt_id = welcome.id, welcome.attempt_id
+    if welcome_status is None:
+        await db_session.delete(welcome)
+    else:
+        welcome.status = welcome_status
     if blocked == "archive":
         group.archived_at = datetime.now(UTC)
     await db_session.commit()
@@ -160,6 +165,15 @@ async def test_group_invite_worker_uses_frozen_link_and_language_with_existing_g
         assert send.await_args.kwargs["language_code"] == "en"
         await worker_runtime.run_whatsapp_broadcast(**kwargs)
         send.assert_awaited_once()
+    # Sending or failing an invite never establishes, releases, or upgrades a
+    # separate global welcome claim, even if that welcome is already pending.
+    current_welcome = (await db_session.execute(select(WhatsAppPhoneWelcomeModel))).scalar_one_or_none()
+    if welcome_status is None:
+        assert current_welcome is None
+    else:
+        assert (current_welcome.id, current_welcome.attempt_id, current_welcome.status) == (
+            welcome_id, welcome_attempt_id, welcome_status,
+        )
 
 
 async def test_lost_publication_ack_never_releases_processing_or_accepted_rows(db_session):

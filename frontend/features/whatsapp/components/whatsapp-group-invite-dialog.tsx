@@ -5,7 +5,7 @@ import { Send } from "lucide-react";
 import { Button, Input } from "@/components/ui";
 import type { WhatsAppBulkResendPreviewResponse, WhatsAppPreviewResponse } from "../api/whatsapp.api";
 import { usePreviewWhatsAppBulkResendMessage, usePreviewWhatsAppMessage, useWhatsAppGroup } from "../hooks/use-whatsapp";
-import { canRetryOrResendRecipient, isRecipientEligible, welcomeDeliveryBlockReason } from "../utils/recipient-delivery";
+import { canRetryOrResendRecipient, isRecipientEligible } from "../utils/recipient-delivery";
 import { GROUP_INVITE_LINK_HELP, validWhatsAppGroupInviteLink } from "../utils/group-invite";
 import { DialogFrame, ErrorBanner, readErrorMessage } from "./whatsapp-dialog-ui";
 import { MessageComposerSection, MessageDeliveryPreview } from "./whatsapp-message-composer-ui";
@@ -88,18 +88,12 @@ export function GroupInvitePreviewDialog({ group, targetRecipient, bulkRecipient
     return () => { window.clearTimeout(timer); controller.abort(); };
   }, [group.id, messageContent, groupInviteLink, selectionMode, selectedIds, bulkIds, effectivePreviewRecipientId, targetRecipient, requestKey, retryNonce, requestPreview, requestBulkPreview]);
 
-  const bulkEligibleIds = bulkPreview?.eligible_recipient_ids.filter((id) => {
-    const recipient = currentRecipients.get(id) ?? bulkRecipients?.find((item) => item.id === id);
-    return recipient && !welcomeDeliveryBlockReason(recipient, "group_invite");
-  }) ?? [];
+  const bulkEligibleIds = bulkPreview?.eligible_recipient_ids.filter((id) => currentRecipients.has(id) || bulkRecipients?.some((item) => item.id === id)) ?? [];
   const eligibleCount = bulkMode ? bulkEligibleIds.length : targetRecipient ? (targetAllowed ? 1 : 0)
     : previewCurrent ? preview?.eligible_recipient_count ?? 0 : 0;
-  const welcomeReason = (preview?.welcome_required_count ?? 0) > 0
-    ? preview?.welcome_required_reason || "Welcome must be delivered to the selected numbers before sending other messages."
-    : target ? welcomeDeliveryBlockReason(target, "group_invite") : null;
   const missingPhotoCount = bulkMode && previewCurrent ? bulkPreview?.missing_header_image_count ?? 0 : 0;
   const needsReplacementPhoto = missingPhotoCount > 0 && !image.file;
-  const canSend = Boolean(previewCurrent && image.hasImage && !image.error && !needsReplacementPhoto && !archived && detail?.recipient_opt_in_confirmed && resolvedContent && validLink && eligibleCount > 0 && targetAllowed && !welcomeReason
+  const canSend = Boolean(previewCurrent && image.hasImage && !image.error && !needsReplacementPhoto && !archived && detail?.recipient_opt_in_confirmed && resolvedContent && validLink && eligibleCount > 0 && targetAllowed
     && (bulkMode || targetRecipient || selectionMode !== "custom" || selectedIds.length > 0));
   const recoverable = Boolean(bulkMode && recovery?.key === draftKey && !archived);
   const submitPayload = async (payload: MessagePreviewSendPayload) => {
@@ -172,7 +166,7 @@ export function GroupInvitePreviewDialog({ group, targetRecipient, bulkRecipient
                       {!filteredRecipients.length && <p className="p-3 text-sm text-slate-500">No eligible recipients match this search.</p>}
                     </div>
                   </div>}
-                  <p className="text-xs leading-5 text-slate-500">Previous successful invites, sends in progress, and unknown delivery outcomes are skipped. Welcome delivery must be confirmed first.</p>
+                  <p className="text-xs leading-5 text-slate-500">Previous successful invites, sends in progress, and unknown delivery outcomes are skipped.</p>
                 </>}
               </MessageComposerSection>
             </div>
@@ -187,7 +181,6 @@ export function GroupInvitePreviewDialog({ group, targetRecipient, bulkRecipient
             {isLoadingDetail && <p role="status" className="text-sm text-slate-500">Loading recipient details...</p>}
             {detail && !detail.recipient_opt_in_confirmed && <ErrorBanner message="This older list has no recorded recipient opt-in confirmation. Create a new list before sending." />}
             {!targetAllowed && <ErrorBanner message="This recipient’s delivery state changed. Refresh the recipient list before trying again." />}
-            {welcomeReason && <ErrorBanner message={welcomeReason} />}
             {needsReplacementPhoto && <ErrorBanner message={`${missingPhotoCount} selected recipient${missingPhotoCount === 1 ? " has" : "s have"} no saved invitation photo. Choose a replacement photo before resending.`} />}
             {!previewCurrent && !error && <p role="status" className="text-sm text-slate-500">Updating message preview. Sending will be available after this version has been checked.</p>}
             {error && <ErrorBanner message={error} />}

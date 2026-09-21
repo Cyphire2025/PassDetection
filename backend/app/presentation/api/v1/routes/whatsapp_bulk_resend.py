@@ -11,6 +11,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.use_cases.whatsapp.message_templates import GroupInviteImageRequired
+from app.application.use_cases.whatsapp.welcome_policy import requires_prior_welcome
 from app.core.config.settings import get_settings
 from app.domain.entities.entities import User
 from app.infrastructure.database.models import (
@@ -159,7 +160,7 @@ async def resend_selected_recipient_messages(
         )
 
     edits = await validate_bulk_resend_edits(session, group=group, body=body)
-    if body.message_type != "welcome":
+    if requires_prior_welcome(body.message_type):
         welcome_states = await welcome_states_for_phones(
             session,
             agency_id=group.agency_id,

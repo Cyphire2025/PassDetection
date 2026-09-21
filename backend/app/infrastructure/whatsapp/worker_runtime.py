@@ -17,6 +17,7 @@ from app.application.use_cases.whatsapp.message_templates import (
     template_parameters,
     validate_template_parameters,
 )
+from app.application.use_cases.whatsapp.welcome_policy import requires_prior_welcome
 from app.core.config.settings import get_settings
 from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
@@ -177,7 +178,9 @@ async def _load_sendable_recipient(
             attempt_id=log.id,
         ):
             return None, "This number already has a welcome or another welcome is in progress."
-    elif not await require_welcome_delivered(session, agency_id=log.agency_id, phone=frozen_phone):
+    elif requires_prior_welcome(log.message_type) and not await require_welcome_delivered(
+        session, agency_id=log.agency_id, phone=frozen_phone,
+    ):
         return None, WELCOME_REQUIRED
     if getattr(log, "is_explicit_resend", False):
         resend_claim_result = await session.execute(

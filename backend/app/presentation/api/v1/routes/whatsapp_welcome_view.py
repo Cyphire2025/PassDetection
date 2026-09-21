@@ -7,6 +7,7 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.use_cases.whatsapp.welcome_policy import requires_prior_welcome
 from app.infrastructure.database.models import (
     WhatsAppBroadcastRecipientModel,
     WhatsAppPhoneWelcomeModel,
@@ -75,6 +76,8 @@ async def welcome_preview_values(
     message_type: str,
     selected_recipient_id: uuid.UUID | None = None,
 ) -> dict[str, object]:
+    if message_type != "welcome" and not requires_prior_welcome(message_type):
+        return {"welcome_required_count": 0, "welcome_required_reason": None}
     if selected_recipient_id is not None:
         recipients = [recipient for recipient in recipients if recipient.id == selected_recipient_id]
     states = await welcome_states_for_phones(
@@ -104,7 +107,9 @@ async def welcome_preview_values(
 def welcome_resend_skip_reason(message_type: str, phone_status: str | None) -> str | None:
     if message_type != "welcome":
         return (
-            "skipped_welcome_required" if phone_status not in WELCOME_DELIVERED_STATUSES else None
+            "skipped_welcome_required"
+            if requires_prior_welcome(message_type) and phone_status not in WELCOME_DELIVERED_STATUSES
+            else None
         )
     if phone_status in {"submitted", "sent", "delivered", "read"}:
         return "skipped_already_sent"

@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.use_cases.whatsapp.welcome_policy import requires_prior_welcome
 from app.domain.entities.entities import User
 from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
@@ -101,8 +102,11 @@ async def preview_selected_recipient_messages(
     )
     snapshots: dict[uuid.UUID, SavedResendSnapshot] = {}
     reasons: list[str] = []
-    phone_states = await welcome_states_for_phones(session, agency_id=group.agency_id,
-        phones=[recipient.normalized_phone_number for recipient in recipients])
+    phone_states = (
+        await welcome_states_for_phones(session, agency_id=group.agency_id,
+            phones=[recipient.normalized_phone_number for recipient in recipients])
+        if body.message_type == "welcome" or requires_prior_welcome(body.message_type) else {}
+    )
     for recipient_id in body.recipient_ids:
         recipient = by_id[recipient_id]
         reason = recipient_skip_reason(

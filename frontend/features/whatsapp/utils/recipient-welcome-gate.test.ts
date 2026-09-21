@@ -37,4 +37,35 @@ describe("agency and phone welcome gates in the original WhatsApp workspace", ()
     expect(getBulkResendEligibility(recipient, "passport_link")).toBe("blocked");
     expect(getBulkResendEligibility({ ...recipient, welcome_delivered: true, welcome_status: "read" }, "passport_link")).toBe("eligible");
   });
+
+  it.each(["required", "failed", "queued", "processing", "sent", "delivery_unknown"])("allows group invitations when welcome is %s", (welcomeStatus) => {
+    const recipient: RecipientDeliveryState = { welcome_status: welcomeStatus, welcome_delivered: false, welcome_required_reason: "Welcome must arrive first.", message_statuses: [] };
+    expect(welcomeDeliveryBlockReason(recipient, "group_invite")).toBeNull();
+    expect(isRecipientEligible(recipient, "group_invite")).toBe(true);
+    const failed = { ...recipient, message_statuses: [state("group_invite", "failed")] };
+    const delivered = { ...recipient, message_statuses: [state("group_invite", "delivered", true)] };
+    expect(canRetryOrResendRecipient(failed, "group_invite", "retry")).toBe(true);
+    expect(canRetryOrResendRecipient(delivered, "group_invite", "resend")).toBe(true);
+    expect(getBulkResendEligibility(failed, "group_invite")).toBe("eligible");
+    expect(getBulkResendEligibility(delivered, "group_invite")).toBe("eligible");
+  });
+
+  it.each(["queued", "processing", "delivery_unknown"])("preserves group invite %s exclusions without a welcome", (deliveryStatus) => {
+    const recipient = { welcome_delivered: false, message_statuses: [state("group_invite", deliveryStatus)] };
+    expect(isRecipientEligible(recipient, "group_invite")).toBe(false);
+    expect(canRetryOrResendRecipient(recipient, "group_invite", "retry")).toBe(false);
+    expect(canRetryOrResendRecipient(recipient, "group_invite", "resend")).toBe(false);
+    expect(getBulkResendEligibility(recipient, "group_invite")).toBe(deliveryStatus === "delivery_unknown" ? "delivery_unknown" : "in_progress");
+    const latestResend = { ...recipient, message_statuses: [{ ...state("group_invite", "delivered", true), latest_resend_status: deliveryStatus, resend_blocked: true }] };
+    expect(canRetryOrResendRecipient(latestResend, "group_invite", "resend")).toBe(false);
+    expect(getBulkResendEligibility(latestResend, "group_invite")).toBe(deliveryStatus === "delivery_unknown" ? "delivery_unknown" : "in_progress");
+  });
+
+  it("keeps already-sent, blocked, and missing-snapshot invitation exclusions", () => {
+    const recipient = { welcome_delivered: false, message_statuses: [{ ...state("group_invite", "delivered", true), resend_blocked: true }] };
+    expect(isRecipientEligible(recipient, "group_invite")).toBe(false);
+    expect(canRetryOrResendRecipient(recipient, "group_invite", "resend")).toBe(false);
+    expect(getBulkResendEligibility(recipient, "group_invite")).toBe("blocked");
+    expect(getBulkResendEligibility({ ...recipient, message_statuses: [] }, "group_invite")).toBe("no_saved_message");
+  });
 });

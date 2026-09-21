@@ -34,6 +34,10 @@ from app.presentation.api.v1.routes.whatsapp_composer_support import (
     _merge_composer_snapshot,
     _validate_group_invite_link,
 )
+from app.presentation.api.v1.routes.whatsapp_phone_welcome import (
+    enforce_broadcast_welcome_prerequisite,
+)
+from app.presentation.api.v1.routes.whatsapp_welcome_view import welcome_preview_values
 from app.presentation.api.v1.schemas.whatsapp_schemas import (
     WhatsAppBulkResendRequest,
     WhatsAppPreviewRequest,
@@ -157,7 +161,7 @@ def rig(monkeypatch):
     session = AsyncMock()
     session.add = MagicMock()
     publish = AsyncMock()
-    prerequisite = AsyncMock()
+    prerequisite = AsyncMock(wraps=enforce_broadcast_welcome_prerequisite)
     for module in (whatsapp_send, preview_route, resend_route):
         monkeypatch.setattr(module, "_support_contacts_for_group", AsyncMock(return_value=[]))
     for module in (whatsapp_send, preview_route):
@@ -169,7 +173,7 @@ def rig(monkeypatch):
         monkeypatch.setattr(module, "publish_whatsapp_task", publish)
     monkeypatch.setattr(whatsapp_scope, "get_settings", lambda: settings)
     monkeypatch.setattr(preview_route, "_recipient_delivery_counts", AsyncMock(return_value=(1, 0, 0, 0)))
-    monkeypatch.setattr(preview_route, "welcome_preview_values", AsyncMock(return_value={}))
+    monkeypatch.setattr(preview_route, "welcome_preview_values", AsyncMock(wraps=welcome_preview_values))
     monkeypatch.setattr(resend_route, "active_replacement_resolution_id_for_recipient", AsyncMock(return_value=None))
     monkeypatch.setattr(resend_route.AuditLogRepository, "record", AsyncMock())
     monkeypatch.setitem(sys.modules, "app.infrastructure.whatsapp.tasks", SimpleNamespace(process_whatsapp_broadcast=object()))
@@ -188,6 +192,9 @@ async def test_preview_returns_invite_field_exact_body_and_selected_image(rig):
     assert response.header_parameter_values == ["invite-media"]
     assert response.header_image_id == "invite-media"
     assert response.template_name == "whatsapp_group_invite_v1"
+    assert response.welcome_required_count == 0
+    assert response.welcome_required_reason is None
+    assert response.eligible_recipient_count == 1
 
 
 async def test_preview_keeps_missing_invite_null_with_clear_placeholder(rig):
@@ -199,15 +206,13 @@ async def test_preview_keeps_missing_invite_null_with_clear_placeholder(rig):
     assert "[WhatsApp group invite link]" in response.rendered_message
 
 
-@pytest.mark.parametrize("blocked", [None, "archive", "opt_in", "welcome", "missing_link", "missing_image"])
+@pytest.mark.parametrize("blocked", [None, "archive", "opt_in", "missing_link", "missing_image"])
 async def test_send_freezes_valid_invite_before_queue_and_keeps_existing_gates(rig, blocked):
     rig.session.execute.side_effect = [db_result(rig.group), db_result(), db_result(), db_result(), db_result(rows=[rig.recipient.id])]
     if blocked == "archive":
         rig.group.archived_at = datetime.now(UTC)
     elif blocked == "opt_in":
         rig.group.recipient_opt_in_confirmed_at = None
-    elif blocked == "welcome":
-        rig.prerequisite.side_effect = HTTPException(409, "Welcome required")
     body = WhatsAppSendRequest(message_type="group_invite", message_content=CONTENT, group_invite_link=None if blocked == "missing_link" else LINK, header_image_id=None if blocked == "missing_image" else "invite-media")
     if blocked:
         with pytest.raises(HTTPException):
@@ -280,6 +285,8 @@ async def test_bulk_retry_preserves_each_saved_invite_and_applies_only_explicit_
     assert payload["message_type"] == "group_invite"
     assert payload["group_invite_link"].startswith("https://chat.whatsapp.com/")
     assert payload["passport_link"] is None
+    bulk_test_support.route.welcome_states_for_phones.assert_not_awaited()
+    bulk_test_support.route.claim_phone_welcome.assert_not_awaited()
 
 
 async def test_single_old_text_invite_requires_image_before_resend(rig):

@@ -12,6 +12,12 @@ const ELIGIBILITY_LABELS = {
   blocked: "Needs review",
 } as const;
 
+const RESEND_DESCRIPTION = {
+  welcome: "Only failed welcome attempts can be retried. Numbers already welcomed or awaiting delivery are skipped.",
+  passport_link: "This will send another message, including to people who already received it, after confirmed welcome delivery.",
+  group_invite: "This will send another group invitation, including to people who already received it.",
+} as const;
+
 export function RecipientBulkComposerAudience({ recipients, messageType, hiddenCount, preview }: {
   recipients: WhatsAppRecipient[];
   messageType: "welcome" | "passport_link" | "group_invite";
@@ -29,7 +35,7 @@ export function RecipientBulkComposerAudience({ recipients, messageType, hiddenC
         <div><p className="text-lg font-semibold tabular-nums text-blue-700">{readyCount}</p><p className="mt-0.5 text-xs text-slate-500">Ready to resend</p></div>
         <div><p className="text-lg font-semibold tabular-nums text-slate-500">{recipients.length - readyCount}</p><p className="mt-0.5 text-xs text-slate-500">Will be skipped</p></div>
       </div>
-      <p className="text-xs leading-5 text-slate-600">{messageType === "welcome" ? "Only failed welcome attempts can be retried. Numbers already welcomed or awaiting delivery are skipped." : "This will send another message, including to people who already received it, after confirmed welcome delivery."} Your recipient selection is fixed here; go back to the list to change it.</p>
+      <p className="text-xs leading-5 text-slate-600">{RESEND_DESCRIPTION[messageType]} Your recipient selection is fixed here; go back to the list to change it.</p>
       {hiddenCount > 0 && <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">Includes {hiddenCount} selected {hiddenCount === 1 ? "person" : "people"} outside your previous search or filter.</p>}
       <details className="rounded-lg border border-slate-200">
         <summary className="cursor-pointer px-3 py-2.5 text-xs font-semibold text-slate-700">Review {recipients.length} selected recipients</summary>
