@@ -1,7 +1,8 @@
-"""Traveller destinations stay passenger-bound and wait for a welcome receipt."""
+"""Traveller destinations stay passenger-bound; only QR requires a welcome receipt."""
 
 from __future__ import annotations
 
+import asyncio
 import uuid
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
@@ -44,7 +45,10 @@ def _welcome(agency_id: uuid.UUID, phone: str, status: str = "delivered"):
     )
 
 
-async def _validate(session: AsyncSession, context, passenger, phone: str, source="submission"):
+async def _validate(
+    session: AsyncSession, context, passenger, phone: str, source="submission",
+    *, require_welcome: bool = False,
+):
     return await validate_private_delivery_recipient(
         session,
         agency_id=context["agency"].id,
@@ -54,6 +58,7 @@ async def _validate(session: AsyncSession, context, passenger, phone: str, sourc
         recipient_id=context["recipient"].id,
         normalized_phone_number=phone,
         delivery_source=source,
+        require_welcome=require_welcome,
     )
 
 
@@ -86,7 +91,7 @@ async def test_explicit_shared_traveller_phone_can_receive_each_passengers_docum
     for passenger in context["passengers"]:
         assert (await _validate(db_session, context, passenger, PHONE)).allowed
         # QR's imported identity policy retains its stronger one-passenger requirement.
-        assert not (await _validate(db_session, context, passenger, PHONE, "broadcast")).allowed
+        assert not (await _validate(db_session, context, passenger, PHONE, "broadcast", require_welcome=True)).allowed
 
 
 @pytest.mark.asyncio
@@ -104,7 +109,7 @@ async def test_document_destination_never_falls_back_to_qualifier_or_family_head
     "welcome_status", [None, "queued", "processing", "submitted", "sent", "failed", "delivery_unknown"]
 )
 @pytest.mark.parametrize("source", ["submission", "broadcast"])
-async def test_private_documents_and_qr_require_confirmed_welcome(db_session, welcome_status, source):
+async def test_documents_allow_unwelcomed_numbers_while_qr_requires_welcome(db_session, welcome_status, source):
     context = await _seed_private_delivery_context(db_session)
     passenger = context["passengers"][0]
     passenger.client_phone = PHONE
@@ -114,10 +119,16 @@ async def test_private_documents_and_qr_require_confirmed_welcome(db_session, we
     else:
         state.status = welcome_status
     await db_session.flush()
-    result = await _validate(db_session, context, passenger, PHONE, source)
-    assert not result.allowed
-    assert result.reason and "welcome" in result.reason.lower()
-    assert PHONE not in result.reason
+    result = await _validate(
+        db_session, context, passenger, PHONE, source,
+        require_welcome=source == "broadcast",
+    )
+    if source == "submission":
+        assert result.allowed
+    else:
+        assert not result.allowed
+        assert result.reason and "welcome" in result.reason.lower()
+        assert PHONE not in result.reason
 
 
 @pytest.mark.asyncio
@@ -129,7 +140,7 @@ async def test_welcome_success_on_same_number_reuses_existing_broadcast_receipt(
     state = (await db_session.execute(select(WhatsAppPhoneWelcomeModel))).scalar_one()
     state.status = welcome_status
     await db_session.flush()
-    assert (await _validate(db_session, context, passenger, PHONE)).allowed
+    assert (await _validate(db_session, context, passenger, PHONE, require_welcome=True)).allowed
 
 
 @pytest.mark.asyncio
@@ -166,13 +177,13 @@ async def test_new_phone_does_not_inherit_previous_phone_welcome(db_session):
     passenger = context["passengers"][0]
     passenger.client_phone = PARENT_PHONE
     await db_session.flush()
-    assert not (await _validate(db_session, context, passenger, PARENT_PHONE)).allowed
+    assert not (await _validate(db_session, context, passenger, PARENT_PHONE, require_welcome=True)).allowed
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("kind", ["document", "qr"])
 @pytest.mark.parametrize("welcome_status", ["delivered", "queued", "submitted", "delivery_unknown"])
-async def test_worker_rechecks_welcome_before_provider_even_with_batch_snapshot(
+async def test_worker_requires_welcome_only_for_qr_before_provider(
     db_session, monkeypatch, kind, welcome_status
 ):
     context = await _seed_private_delivery_context(db_session)
@@ -221,17 +232,21 @@ async def test_worker_rechecks_welcome_before_provider_even_with_batch_snapshot(
         monkeypatch.setattr(runtime, "send_whatsapp_qr_template", send)
     db_session.add(delivery)
     await db_session.commit()
-    snapshot = await lock_private_delivery_group_source_snapshot(
-        db_session, agency_id=context["agency"].id, group_id=context["group"].id,
-    )
-    await db_session.commit()
+    if kind == "qr":
+        snapshot = await lock_private_delivery_group_source_snapshot(
+            db_session, agency_id=context["agency"].id, group_id=context["group"].id,
+        )
+        await db_session.commit()
+        runtime_options = {"_source_snapshot": snapshot}
+    else:
+        runtime_options = {"_database_gate": asyncio.Semaphore(1)}
     monkeypatch.setattr(runtime, "AsyncSessionFactory", async_sessionmaker(
         db_session.bind, expire_on_commit=False,
     ))
     await runner(send_batch_id=str(delivery.send_batch_id), _delivery_id=delivery.id,
-                 _source_snapshot=snapshot, _client=SimpleNamespace())
+                 _client=SimpleNamespace(), **runtime_options)
     await db_session.refresh(delivery)
-    if welcome_status == "delivered":
+    if kind == "document" or welcome_status == "delivered":
         assert send.await_count == 1
         assert send.await_args.kwargs["to_number"] == PHONE
         assert delivery.status == "submitted"

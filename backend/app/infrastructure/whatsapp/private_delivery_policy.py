@@ -143,8 +143,8 @@ async def lock_private_delivery_group_source_snapshot(
             return None
         # The resolver locks the same current group, eligible links, recipients,
         # source contacts and operational passengers as the document preview.
-        # Retain that fence for the complete batch without running the separate
-        # QR matcher as well. The frozen provenance must match exactly at send.
+        # Retain those locks through this transaction's provider call without
+        # running the separate QR matcher. Provenance must match exactly at send.
         destinations = await load_traveller_destinations(
             session, agency_id=agency_id, group_id=group_id, lock=True,
         )

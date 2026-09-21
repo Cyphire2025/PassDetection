@@ -124,6 +124,23 @@ a database migration. Older queued rows that lack the newly resolved recipient
 association can fail closed and require a fresh preview/retry. Accepted and
 uncertain deliveries retain the existing duplicate-send protections.
 
+Document execution releases the coordinator's database session before processing
+the batch. PDF reads and media uploads still use bounded concurrency, while a
+shared semaphore serializes each batch's database phases before opening a
+session. This supports the production worker's one-connection pool without
+nested checkouts or competing source locks. Each PDF gets fresh destination,
+saved-document and delivery-row locks immediately before sending; no database
+transaction spans the entire broadcast or the media uploads.
+
+Provider attempts have a 35-second overall deadline. Only the final send
+transaction uses a local 120-second idle timeout, covering the bounded attempts
+and backoff while retaining the source locks. An uncertain message-send outcome
+is not automatically retried. Batch failure cleanup updates only still-queued
+or processing rows atomically, and mobile document invalidation uses a fresh
+transaction after the item work, including partially successful batches. These
+worker changes require a main-worker image rebuild; they need no schema change
+or database pool increase.
+
 ## Lane migration release order
 
 Apply migration `0080_domestic_ticket_lanes` before serving frontend or backend

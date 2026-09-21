@@ -518,6 +518,9 @@ async def test_source_mutation_waits_until_provider_window_is_recorded() -> None
     locked_result = MagicMock()
     locked_result.scalar_one_or_none.return_value = delivery
     provider_session = AsyncMock()
+    provider_session.get_bind = MagicMock(
+        return_value=SimpleNamespace(dialect=SimpleNamespace(name="sqlite")),
+    )
     provider_session.execute.side_effect = [
         snapshot_result,
         source_result,

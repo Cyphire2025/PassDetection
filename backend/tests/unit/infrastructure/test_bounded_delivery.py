@@ -25,7 +25,7 @@ from app.infrastructure.whatsapp.qr_delivery_runtime import (
 )
 
 
-def test_document_batch_fence_locks_all_batches_once_and_children_lock_only_docs() -> None:
+def test_document_batch_preflight_and_child_final_validation_lock_saved_sources() -> None:
     agency_id = uuid.uuid4()
     group_id = uuid.uuid4()
     batch_ids = {uuid.uuid4(), uuid.uuid4()}
@@ -45,7 +45,7 @@ def test_document_batch_fence_locks_all_batches_once_and_children_lock_only_docs
         document_type="visa",
     )
     child_sql = str(
-        _locked_document_source_statement(delivery, batch_fenced=True).compile(
+        _locked_document_source_statement(delivery, batch_fenced=False).compile(
             dialect=postgresql.dialect()
         )
     )
@@ -53,8 +53,8 @@ def test_document_batch_fence_locks_all_batches_once_and_children_lock_only_docs
     assert "document_distribution_batches.id IN" in batch_sql
     assert "ORDER BY document_distribution_batches.id" in batch_sql
     assert batch_sql.endswith("FOR UPDATE")
-    assert "FOR UPDATE OF distributed_documents" in child_sql
-    assert "FOR UPDATE OF document_distribution_batches" not in child_sql
+    assert child_sql.endswith("FOR UPDATE")
+    assert "FOR UPDATE OF distributed_documents" not in child_sql
 
 
 def test_private_media_reads_require_ledger_tenant_and_passenger_parity() -> None:
@@ -235,6 +235,11 @@ async def test_batch_runtimes_use_bounded_hard_capped_fanout(
     bounded_runner = AsyncMock()
     source_snapshot = SimpleNamespace()
     source_locker = AsyncMock(return_value=source_snapshot)
+    source_patch = (
+        nullcontext()
+        if "document_delivery_runtime" in module_path
+        else patch(f"{module_path}.lock_private_delivery_group_source_snapshot", source_locker)
+    )
     propagation_patch = (
         patch(
             f"{module_path}._propagate_first_released_document_batch",
@@ -251,21 +256,19 @@ async def test_batch_runtimes_use_bounded_hard_capped_fanout(
             return_value=SimpleNamespace(whatsapp_delivery_concurrency=99),
         ),
         patch(f"{module_path}.run_bounded_delivery_items", bounded_runner),
-        patch(
-            f"{module_path}.lock_private_delivery_group_source_snapshot",
-            source_locker,
-        ),
+        source_patch,
         propagation_patch,
     ):
         await runner(send_batch_id=str(uuid.uuid4()))
 
     assert bounded_runner.await_args.args[0] == delivery_ids
     assert bounded_runner.await_args.kwargs["concurrency"] == 16
-    source_locker.assert_awaited_once_with(
-        session,
-        agency_id=agency_id,
-        group_id=group_id,
-    )
+    if "qr_delivery_runtime" in module_path:
+        source_locker.assert_awaited_once_with(
+            session,
+            agency_id=agency_id,
+            group_id=group_id,
+        )
 
 
 @pytest.mark.asyncio
@@ -284,12 +287,12 @@ async def test_batch_runtimes_use_bounded_hard_capped_fanout(
         ),
     ],
 )
-async def test_batch_source_fence_allows_four_child_provider_windows_to_overlap(
+async def test_batch_coordination_allows_four_child_upload_windows_to_overlap(
     runner: object,
     module_path: str,
     runner_name: str,
 ) -> None:
-    """Synthetic child/provider timing proves the coordinator does not serialize."""
+    """Synthetic upload timing preserves bounded media fan-out for both runtimes."""
 
     agency_id = uuid.uuid4()
     group_id = uuid.uuid4()
@@ -317,6 +320,14 @@ async def test_batch_source_fence_allows_four_child_provider_windows_to_overlap(
     session_context.__aenter__ = AsyncMock(return_value=session)
     session_context.__aexit__ = AsyncMock(return_value=False)
     snapshot = SimpleNamespace()
+    source_patch = (
+        nullcontext()
+        if "document_delivery_runtime" in module_path
+        else patch(
+            f"{module_path}.lock_private_delivery_group_source_snapshot",
+            new=AsyncMock(return_value=snapshot),
+        )
+    )
     active = 0
     peak = 0
     completed: list[uuid.UUID] = []
@@ -334,12 +345,16 @@ async def test_batch_source_fence_allows_four_child_provider_windows_to_overlap(
         *,
         send_batch_id: str,
         _delivery_id: uuid.UUID,
-        _source_snapshot: object,
         _client: object,
+        _source_snapshot: object | None = None,
+        _database_gate: asyncio.Semaphore | None = None,
     ) -> None:
         del send_batch_id
         nonlocal active, peak
-        assert _source_snapshot is snapshot
+        if "document_delivery_runtime" in module_path:
+            assert isinstance(_database_gate, asyncio.Semaphore)
+        else:
+            assert _source_snapshot is snapshot
         shared_clients.add(id(_client))
         active += 1
         peak = max(peak, active)
@@ -353,10 +368,7 @@ async def test_batch_source_fence_allows_four_child_provider_windows_to_overlap(
             f"{module_path}.get_settings",
             return_value=SimpleNamespace(whatsapp_delivery_concurrency=4),
         ),
-        patch(
-            f"{module_path}.lock_private_delivery_group_source_snapshot",
-            new=AsyncMock(return_value=snapshot),
-        ),
+        source_patch,
         patch(f"{module_path}.{runner_name}", side_effect=synthetic_child_provider),
         propagation_patch,
     ):

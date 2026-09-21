@@ -9,7 +9,7 @@ from contextlib import nullcontext
 from datetime import UTC, datetime
 
 import httpx
-from sqlalchemy import Select, select, update
+from sqlalchemy import Select, case, select, text, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mobile.passenger_change_propagation import (
@@ -39,13 +39,15 @@ from app.infrastructure.whatsapp.cloud_api_provider import (
 )
 from app.infrastructure.whatsapp.private_delivery_policy import (
     PRIVATE_DELIVERY_RECIPIENT_CHANGED,
-    PrivateDeliveryGroupSourceSnapshot,
-    lock_private_delivery_group_source_snapshot,
     validate_private_delivery_recipient,
 )
 from app.infrastructure.whatsapp.receipt_bindings import commit_private_provider_outcome
 
 MAX_PROVIDER_ATTEMPTS = 3
+PROVIDER_ATTEMPT_DEADLINE_SECONDS = 35
+# Three explicitly rejected/unreachable attempts plus backoff fit within this
+# transaction-local deadline. Other database transactions keep their normal limit.
+PROVIDER_TRANSACTION_IDLE_TIMEOUT_SECONDS = 120
 ACCEPTED_STATUSES = frozenset({"submitted", "sent", "delivered", "read"})
 ACCEPTED_STATUS_RANK = {"submitted": 0, "sent": 1, "delivered": 2, "read": 3}
 logger = logging.getLogger(__name__)
@@ -265,15 +267,21 @@ def apply_document_provider_status(
 async def _mark_delivery(
     delivery_id: uuid.UUID,
     *,
+    send_batch_id: uuid.UUID,
+    database_gate: asyncio.Semaphore,
     status: str,
     error_message: str | None,
     provider_message_id: str | None = None,
     provider_media_id: str | None = None,
 ) -> None:
-    async with AsyncSessionFactory() as session:
+    async with database_gate, AsyncSessionFactory() as session:
         result = await session.execute(
             select(DocumentWhatsAppDeliveryModel)
-            .where(DocumentWhatsAppDeliveryModel.id == delivery_id)
+            .where(
+                DocumentWhatsAppDeliveryModel.id == delivery_id,
+                DocumentWhatsAppDeliveryModel.send_batch_id == send_batch_id,
+                DocumentWhatsAppDeliveryModel.status == "processing",
+            )
             .with_for_update()
         )
         delivery = result.scalar_one_or_none()
@@ -295,7 +303,7 @@ async def run_document_whatsapp_broadcast(
     *,
     send_batch_id: str,
     _delivery_id: uuid.UUID | None = None,
-    _source_snapshot: PrivateDeliveryGroupSourceSnapshot | None = None,
+    _database_gate: asyncio.Semaphore | None = None,
     _client: httpx.AsyncClient | None = None,
 ) -> None:
     parsed_batch_id = uuid.UUID(send_batch_id)
@@ -323,16 +331,6 @@ async def run_document_whatsapp_broadcast(
                     "A private delivery batch must belong to exactly one group"
                 )
             agency_id, group_id = next(iter(source_pairs))
-            source_snapshot = await lock_private_delivery_group_source_snapshot(
-                session,
-                agency_id=agency_id,
-                group_id=group_id,
-                delivery_source="traveller",
-            )
-            if source_snapshot is None:
-                raise RuntimeError(
-                    "The private delivery source is no longer available"
-                )
             if any(row.document_batch_id is None for row in batch_rows):
                 raise RuntimeError(
                     "A private document delivery batch has an incomplete source"
@@ -350,30 +348,39 @@ async def run_document_whatsapp_broadcast(
                 raise RuntimeError(
                     "One or more private document sources are no longer saved"
                 )
-            concurrency = bounded_delivery_concurrency(
-                getattr(settings, "whatsapp_delivery_concurrency", 4)
-            )
+        # Release the coordinator's connection before any child claims a row.
+        # Production workers have one pooled connection. Uploads can overlap,
+        # but database phases (including final source locks) must take turns.
+        database_gate = asyncio.Semaphore(1)
+        concurrency = bounded_delivery_concurrency(
+            getattr(settings, "whatsapp_delivery_concurrency", 4)
+        )
+        try:
             async with httpx.AsyncClient(timeout=timeout) as client:
                 await run_bounded_delivery_items(
                     [row.id for row in batch_rows],
                     lambda delivery_id: run_document_whatsapp_broadcast(
                         send_batch_id=send_batch_id,
                         _delivery_id=delivery_id,
-                        _source_snapshot=source_snapshot,
+                        _database_gate=database_gate,
                         _client=client,
                     ),
                     concurrency=concurrency,
                 )
-            await _propagate_first_released_document_batch(
-                session,
-                send_batch_id=parsed_batch_id,
-                agency_id=agency_id,
-                group_id=group_id,
-            )
-            await session.commit()
+        finally:
+            # Publish already-committed successes even if another item failed.
+            async with database_gate, AsyncSessionFactory() as session:
+                await _propagate_first_released_document_batch(
+                    session,
+                    send_batch_id=parsed_batch_id,
+                    agency_id=agency_id,
+                    group_id=group_id,
+                )
+                await session.commit()
         return
 
     delivery_ids = [_delivery_id]
+    database_gate = _database_gate if _database_gate is not None else asyncio.Semaphore(1)
 
     storage = MinioStorageRepository()
     client_context = (
@@ -383,7 +390,7 @@ async def run_document_whatsapp_broadcast(
     )
     async with client_context as client:
         for delivery_id in delivery_ids:
-            async with AsyncSessionFactory() as session:
+            async with database_gate, AsyncSessionFactory() as session:
                 claim_time = datetime.now(tz=UTC)
                 claim_result = await session.execute(
                     update(DocumentWhatsAppDeliveryModel)
@@ -426,7 +433,7 @@ async def run_document_whatsapp_broadcast(
                     continue
                 await session.commit()
 
-            async with AsyncSessionFactory() as session:
+            async with database_gate, AsyncSessionFactory() as session:
                 data_result = await session.execute(
                     _document_media_source_statement(
                         delivery_id=delivery_id,
@@ -434,14 +441,16 @@ async def run_document_whatsapp_broadcast(
                     )
                 )
                 row = data_result.one_or_none()
-                if not row:
-                    await _mark_delivery(
-                        delivery_id,
-                        status="failed",
-                        error_message="The saved document is no longer available",
-                    )
-                    continue
-                delivery, document, group = row
+            if not row:
+                await _mark_delivery(
+                    delivery_id,
+                    send_batch_id=parsed_batch_id,
+                    database_gate=database_gate,
+                    status="failed",
+                    error_message="The saved document is no longer available",
+                )
+                continue
+            delivery, document, group = row
 
             try:
                 content = await storage.get_file(document.storage_key)
@@ -452,6 +461,8 @@ async def run_document_whatsapp_broadcast(
                 )
                 await _mark_delivery(
                     delivery_id,
+                    send_batch_id=parsed_batch_id,
+                    database_gate=database_gate,
                     status="failed",
                     error_message="The saved document could not be read from storage",
                 )
@@ -461,13 +472,30 @@ async def run_document_whatsapp_broadcast(
             upload_failed = False
             for attempt in range(MAX_PROVIDER_ATTEMPTS):
                 try:
-                    media_id = await upload_whatsapp_document(
-                        client=client,
-                        settings=settings,
-                        file_name=delivery.document_filename,
-                        file_content=content,
-                        content_type=document.content_type,
+                    async with asyncio.timeout(PROVIDER_ATTEMPT_DEADLINE_SECONDS):
+                        media_id = await upload_whatsapp_document(
+                            client=client,
+                            settings=settings,
+                            file_name=delivery.document_filename,
+                            file_content=content,
+                            content_type=document.content_type,
+                        )
+                    break
+                except TimeoutError:
+                    if attempt + 1 < MAX_PROVIDER_ATTEMPTS:
+                        await asyncio.sleep(2**attempt)
+                        continue
+                    await _mark_delivery(
+                        delivery_id,
+                        send_batch_id=parsed_batch_id,
+                        database_gate=database_gate,
+                        status="failed",
+                        error_message=(
+                            "WHATSAPP_DOCUMENT_UPLOAD_TIMEOUT: The PDF upload timed "
+                            "out before any message was sent"
+                        ),
                     )
+                    upload_failed = True
                     break
                 except WhatsAppCloudApiError as exc:
                     if exc.transient and attempt + 1 < MAX_PROVIDER_ATTEMPTS:
@@ -475,6 +503,8 @@ async def run_document_whatsapp_broadcast(
                         continue
                     await _mark_delivery(
                         delivery_id,
+                        send_batch_id=parsed_batch_id,
+                        database_gate=database_gate,
                         status="failed",
                         error_message=exc.persistence_message,
                     )
@@ -483,11 +513,16 @@ async def run_document_whatsapp_broadcast(
             if upload_failed or not media_id:
                 continue
 
-            # The batch coordinator retains one authoritative identity-source
-            # fence. Lock only this item's document/batch and delivery rows here
-            # so distinct provider requests can overlap without weakening the
-            # recipient snapshot.
-            async with AsyncSessionFactory() as session:
+            # Rebuild and lock the current destination for this PDF. Keep the
+            # gate through persistence; sibling uploads need no DB connection.
+            async with database_gate, AsyncSessionFactory() as session:
+                if session.get_bind().dialect.name == "postgresql":
+                    await session.execute(
+                        text(
+                            "SET LOCAL idle_in_transaction_session_timeout = "
+                            f"'{PROVIDER_TRANSACTION_IDLE_TIMEOUT_SECONDS}s'"
+                        )
+                    )
                 snapshot_result = await session.execute(
                     select(DocumentWhatsAppDeliveryModel)
                     .where(
@@ -510,42 +545,23 @@ async def run_document_whatsapp_broadcast(
                     delivery_snapshot.normalized_phone_number,
                 )
 
-                validation = (
-                    None
-                    if _source_snapshot is not None
-                    else await validate_private_delivery_recipient(
-                        session,
-                        agency_id=delivery_snapshot.agency_id,
-                        group_id=delivery_snapshot.group_id,
-                        passenger_id=delivery_snapshot.passenger_id,
-                        broadcast_group_id=delivery_snapshot.broadcast_group_id,
-                        recipient_id=delivery_snapshot.recipient_id,
-                        normalized_phone_number=(
-                            delivery_snapshot.normalized_phone_number
-                        ),
-                        delivery_source="traveller",
-                        require_welcome=False,
-                    )
-                )
-                recipient_allowed = (
-                    _source_snapshot.allows(
-                        agency_id=delivery_snapshot.agency_id,
-                        group_id=delivery_snapshot.group_id,
-                        passenger_id=delivery_snapshot.passenger_id,
-                        broadcast_group_id=delivery_snapshot.broadcast_group_id,
-                        recipient_id=delivery_snapshot.recipient_id,
-                        normalized_phone_number=(
-                            delivery_snapshot.normalized_phone_number
-                        ),
-                        delivery_source="traveller",
-                    )
-                    if _source_snapshot is not None
-                    else bool(validation and validation.allowed)
+                validation = await validate_private_delivery_recipient(
+                    session,
+                    agency_id=delivery_snapshot.agency_id,
+                    group_id=delivery_snapshot.group_id,
+                    passenger_id=delivery_snapshot.passenger_id,
+                    broadcast_group_id=delivery_snapshot.broadcast_group_id,
+                    recipient_id=delivery_snapshot.recipient_id,
+                    normalized_phone_number=(
+                        delivery_snapshot.normalized_phone_number
+                    ),
+                    delivery_source="traveller",
+                    require_welcome=False,
                 )
                 source_result = await session.execute(
                     _locked_document_source_statement(
                         delivery_snapshot,
-                        batch_fenced=_source_snapshot is not None,
+                        batch_fenced=False,
                     )
                 )
                 source_row = source_result.one_or_none()
@@ -557,6 +573,7 @@ async def run_document_whatsapp_broadcast(
                         DocumentWhatsAppDeliveryModel.status == "processing",
                     )
                     .with_for_update()
+                    .execution_options(populate_existing=True)
                 )
                 locked_delivery = locked_result.scalar_one_or_none()
                 current_identity = (
@@ -577,8 +594,9 @@ async def run_document_whatsapp_broadcast(
                     continue
                 if (
                     source_row is None
-                    or not recipient_allowed
+                    or not validation.allowed
                     or current_identity != queued_identity
+                    or source_row[0].storage_key != document.storage_key
                 ):
                     now = datetime.now(tz=UTC)
                     locked_delivery.status = "failed"
@@ -587,7 +605,7 @@ async def run_document_whatsapp_broadcast(
                     locked_delivery.provider_media_id = media_id
                     locked_delivery.error_message = (
                         validation.reason
-                        if validation is not None and not validation.allowed
+                        if not validation.allowed
                         else PRIVATE_DELIVERY_RECIPIENT_CHANGED
                     )
                     await session.commit()
@@ -608,24 +626,21 @@ async def run_document_whatsapp_broadcast(
                     else legacy_document_template_parameters(
                         passenger_name=locked_delivery.passenger_name,
                         document_type=locked_delivery.document_type,
-                        group_name=(
-                            _source_snapshot.group_name
-                            if _source_snapshot is not None
-                            else group.name
-                        ),
+                        group_name=group.name,
                     )
                 )
                 for attempt in range(MAX_PROVIDER_ATTEMPTS):
                     try:
-                        provider_id = await send_whatsapp_document_template(
-                            client=client,
-                            settings=settings,
-                            to_number=locked_delivery.normalized_phone_number,
-                            template_name=locked_delivery.template_name,
-                            media_id=media_id,
-                            filename=locked_delivery.document_filename,
-                            parameters=parameters,
-                        )
+                        async with asyncio.timeout(PROVIDER_ATTEMPT_DEADLINE_SECONDS):
+                            provider_id = await send_whatsapp_document_template(
+                                client=client,
+                                settings=settings,
+                                to_number=locked_delivery.normalized_phone_number,
+                                template_name=locked_delivery.template_name,
+                                media_id=media_id,
+                                filename=locked_delivery.document_filename,
+                                parameters=parameters,
+                            )
                     except WhatsAppCloudApiError as exc:
                         if exc.delivery_unknown:
                             locked_delivery.status = "delivery_unknown"
@@ -637,10 +652,11 @@ async def run_document_whatsapp_broadcast(
                         locked_delivery.status = "failed"
                         locked_delivery.error_message = exc.persistence_message
                         break
-                    except Exception:  # noqa: BLE001 - outcome is ambiguous.
+                    except Exception as exc:  # noqa: BLE001 - outcome is ambiguous.
                         logger.warning(
-                            "document_whatsapp_provider_outcome_unknown delivery_id=%s",
-                            delivery_id,
+                            "document_whatsapp_provider_outcome_unknown "
+                            "delivery_id=%s error_type=%s",
+                            delivery_id, type(exc).__name__,
                         )
                         locked_delivery.status = "delivery_unknown"
                         locked_delivery.error_message = (
@@ -661,23 +677,32 @@ async def run_document_whatsapp_broadcast(
                     session, locked_delivery,
                     provider_phone_number_id=settings.whatsapp_phone_number_id,
                 )
+                logger.info(
+                    "document_whatsapp_delivery_processed send_batch_id=%s "
+                    "delivery_id=%s status=%s",
+                    send_batch_id, delivery_id, locked_delivery.status,
+                )
 
 
 async def mark_document_batch_failed(*, send_batch_id: str, error_message: str) -> None:
     parsed_batch_id = uuid.UUID(send_batch_id)
     async with AsyncSessionFactory() as session:
-        result = await session.execute(
-            select(DocumentWhatsAppDeliveryModel).where(
+        now = datetime.now(tz=UTC)
+        await session.execute(
+            update(DocumentWhatsAppDeliveryModel)
+            .where(
                 DocumentWhatsAppDeliveryModel.send_batch_id == parsed_batch_id,
                 DocumentWhatsAppDeliveryModel.status.in_(["queued", "processing"]),
             )
-        )
-        now = datetime.now(tz=UTC)
-        for delivery in result.scalars().all():
-            delivery.status = (
-                "delivery_unknown" if delivery.status == "processing" else "failed"
+            .values(
+                status=case(
+                    (DocumentWhatsAppDeliveryModel.status == "processing", "delivery_unknown"),
+                    else_="failed",
+                ),
+                status_updated_at=now,
+                updated_at=now,
+                error_message=error_message[:2000],
             )
-            delivery.status_updated_at = now
-            delivery.updated_at = now
-            delivery.error_message = error_message[:2000]
+            .execution_options(synchronize_session=False)
+        )
         await session.commit()
