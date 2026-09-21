@@ -21,15 +21,27 @@ from app.application.use_cases.whatsapp.recipient_capacity import (
 from app.domain.entities.entities import User, UserRole
 from app.infrastructure.database.models import (
     AgencyModel,
+    ClientGroupModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
     WhatsAppBroadcastRejectedContactModel,
+    WhatsAppBroadcastSourceContactModel,
     WhatsAppMessageLogModel,
     WhatsAppRecipientMessageStateModel,
 )
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.passport_roster_resolution_repository import (
+    active_replacement_resolution_id_for_recipient,
     suppress_active_replacement_recipients,
+)
+from app.infrastructure.whatsapp.phone_overrides import (
+    apply_recipient_traveller_phone_overrides,
+    linked_recipient_source_group_ids,
+    snapshot_recipient_traveller_phone_overrides,
+)
+from app.infrastructure.whatsapp.private_delivery_policy import (
+    PrivateDeliveryMutationBlocked,
+    prepare_private_delivery_identity_mutation,
 )
 from app.presentation.api.v1.routes.whatsapp_archive_policy import require_active_broadcast
 from app.presentation.api.v1.routes.whatsapp_contact_import import (
@@ -265,6 +277,40 @@ async def update_broadcast_recipient_phone(
     current_user: User = Depends(require_role(WHATSAPP_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> WhatsAppBroadcastGroupDetailResponse:
+    normalized_phone = _normalize_phone(body.phone_number)
+    if not normalized_phone:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Use 8 to 15 digits with an optional country code",
+        )
+    await _lock_active_whatsapp_actor(
+        session, current_user=current_user,
+        require_agency=current_user.role != UserRole.SUPER_ADMIN,
+    )
+    # Passport mutations and private sends lock the source groups first. Discover
+    # that scope without taking the broadcast lock, then recheck it underneath it.
+    initial_group = (await session.execute(
+        select(WhatsAppBroadcastGroupModel).where(
+            WhatsAppBroadcastGroupModel.id == group_id,
+            *_agency_filter(current_user),
+        )
+    )).scalar_one_or_none()
+    if initial_group is None:
+        raise HTTPException(status_code=404, detail="WhatsApp broadcast group not found")
+    source_group_ids = await linked_recipient_source_group_ids(
+        session, agency_id=initial_group.agency_id, broadcast_group_id=group_id,
+    )
+    if source_group_ids:
+        await session.execute(
+            select(ClientGroupModel)
+            .where(
+                ClientGroupModel.id.in_(source_group_ids),
+                ClientGroupModel.agency_id == initial_group.agency_id,
+            )
+            .order_by(ClientGroupModel.id)
+            .with_for_update()
+            .execution_options(populate_existing=True)
+        )
     group_result = await session.execute(
         select(WhatsAppBroadcastGroupModel)
         .where(
@@ -272,6 +318,7 @@ async def update_broadcast_recipient_phone(
             *_agency_filter(current_user),
         )
         .with_for_update()
+        .execution_options(populate_existing=True)
     )
     group = group_result.scalar_one_or_none()
     if not group:
@@ -280,42 +327,51 @@ async def update_broadcast_recipient_phone(
             detail="WhatsApp broadcast group not found",
         )
     require_active_broadcast(group)
+    if source_group_ids != await linked_recipient_source_group_ids(
+        session, agency_id=group.agency_id, broadcast_group_id=group.id,
+    ):
+        raise HTTPException(
+            status_code=409,
+            detail="The linked groups changed while editing this number. Please try again.",
+        )
+    # The broadcast lock serializes roster changes. Lock its recipient
+    # set in stable order so redirects can be flattened without child lock races.
     recipient_result = await session.execute(
         select(WhatsAppBroadcastRecipientModel)
         .where(
-            WhatsAppBroadcastRecipientModel.id == recipient_id,
             WhatsAppBroadcastRecipientModel.broadcast_group_id == group.id,
-            WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+            WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
         )
+        .order_by(WhatsAppBroadcastRecipientModel.id)
         .with_for_update()
+        .execution_options(populate_existing=True)
     )
-    recipient = recipient_result.scalar_one_or_none()
+    all_recipients = list(recipient_result.scalars().all())
+    recipient = next((row for row in all_recipients if row.id == recipient_id
+                      and row.removed_at is None and row.merged_into_recipient_id is None), None)
     if not recipient:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="WhatsApp recipient not found",
         )
-    normalized_phone = _normalize_phone(body.phone_number)
-    if not normalized_phone:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Use 8 to 15 digits with an optional country code",
-        )
-    duplicate_result = await session.execute(
-        select(WhatsAppBroadcastRecipientModel.id).where(
-            WhatsAppBroadcastRecipientModel.broadcast_group_id == group.id,
-            WhatsAppBroadcastRecipientModel.normalized_phone_number == normalized_phone,
-            WhatsAppBroadcastRecipientModel.id != recipient.id,
-        )
-    )
-    if duplicate_result.scalar_one_or_none():
+    target = next((row for row in all_recipients
+                   if row.normalized_phone_number == normalized_phone and row.id != recipient.id), None)
+    if recipient.suppressed_by_roster_resolution_id is not None or (
+        target is not None and target.suppressed_by_roster_resolution_id is not None
+    ) or await active_replacement_resolution_id_for_recipient(session, recipient=recipient) or (
+        target is not None
+        and await active_replacement_resolution_id_for_recipient(session, recipient=target)
+    ):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="That WhatsApp number already belongs to another recipient in this list",
+            detail="Restore the replacement in its passport group before using this recipient.",
         )
+    protected_recipient_ids = {recipient.id}
+    if target is not None and target.removed_at is not None:
+        protected_recipient_ids.add(target.id)
     active_state_result = await session.execute(
         select(WhatsAppRecipientMessageStateModel.id).where(
-            WhatsAppRecipientMessageStateModel.recipient_id == recipient.id,
+            WhatsAppRecipientMessageStateModel.recipient_id.in_(protected_recipient_ids),
             WhatsAppRecipientMessageStateModel.status.in_(
                 WHATSAPP_IN_PROGRESS_STATUSES | WHATSAPP_UNCERTAIN_STATUSES
             ),
@@ -329,48 +385,105 @@ async def update_broadcast_recipient_phone(
                 "outcome, before changing this number"
             ),
         )
-    active_resend_result = await session.execute(
+    active_log_result = await session.execute(
         select(WhatsAppMessageLogModel.id).where(
-            WhatsAppMessageLogModel.recipient_id == recipient.id,
-            WhatsAppMessageLogModel.is_explicit_resend.is_(True),
+            WhatsAppMessageLogModel.recipient_id.in_(protected_recipient_ids),
             WhatsAppMessageLogModel.status.in_(WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES),
         )
     )
-    if active_resend_result.first():
+    if active_log_result.first():
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=(
-                "Wait until the current resend finishes, or review its unknown "
+                "Wait until the current delivery finishes, or review its unknown "
                 "outcome, before changing this number"
             ),
         )
     if normalized_phone == recipient.normalized_phone_number:
         return await _group_detail(session, group, current_user=current_user)
 
+    snapshots = await snapshot_recipient_traveller_phone_overrides(
+        session, agency_id=group.agency_id, broadcast_group_id=group.id,
+        recipient_id=recipient.id,
+    )
+    cancellation_reason = "WhatsApp recipient details changed before private document or QR delivery"
+    # Include legacy rows with recipient_id=NULL as well as exact recipient rows.
     await _prepare_private_recipient_mutation(
         session,
         agency_id=group.agency_id,
         broadcast_group_id=group.id,
-        recipient_id=recipient.id,
-        cancellation_reason=(
-            "WhatsApp recipient details changed before private document or QR delivery"
-        ),
+        cancellation_reason=cancellation_reason,
     )
+    try:
+        for source_group_id in sorted({item.group_id for item in snapshots}, key=str):
+            await prepare_private_delivery_identity_mutation(
+                session, agency_id=group.agency_id, group_id=source_group_id,
+                cancel_queued=True, cancellation_reason=cancellation_reason,
+            )
+    except PrivateDeliveryMutationBlocked as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
     now = datetime.now(tz=UTC)
-    recipient.phone_number = body.phone_number.strip()
-    recipient.normalized_phone_number = normalized_phone
-    await session.execute(
-        update(WhatsAppRecipientMessageStateModel)
-        .where(WhatsAppRecipientMessageStateModel.recipient_id == recipient.id)
-        .values(
-            status="failed",
-            batch_id=None,
-            submitted_at=None,
-            provider_status_at=None,
-            status_updated_at=now,
-            updated_at=now,
+    if target is not None:
+        merged_contacts = list(target.merged_contacts or [])
+        incoming_contacts = list(recipient.merged_contacts or [])
+        canonical_source_identity = None
+        if not recipient.is_source_managed:
+            canonical_source_identity = await session.scalar(
+                select(WhatsAppBroadcastSourceContactModel.id).where(
+                    WhatsAppBroadcastSourceContactModel.agency_id == group.agency_id,
+                    WhatsAppBroadcastSourceContactModel.broadcast_group_id == group.id,
+                    WhatsAppBroadcastSourceContactModel.recipient_id == recipient.id,
+                    WhatsAppBroadcastSourceContactModel.name == recipient.name,
+                    WhatsAppBroadcastSourceContactModel.imported_fields == (recipient.imported_fields or {}),
+                ).limit(1)
+            )
+        if not recipient.is_source_managed and canonical_source_identity is None:
+            incoming_contacts.append({
+                "id": str(uuid.uuid4()),
+                "source_recipient_id": str(recipient.id),
+                "name": recipient.name,
+                "imported_fields": dict(recipient.imported_fields or {}),
+            })
+        for contact in incoming_contacts:
+            # A reverse merge can reactivate this very identity. A recycled
+            # phone slot holding another person must retain the old snapshot.
+            same_target_identity = (
+                contact.get("source_recipient_id") == str(target.id)
+                and contact.get("name") == target.name
+                and (contact.get("imported_fields") or {}) == (target.imported_fields or {})
+            )
+            if not same_target_identity:
+                merged_contacts.append(contact)
+        target.merged_contacts = merged_contacts
+        recipient.merged_contacts = []
+        target.removed_at = None
+        target.merged_into_recipient_id = None
+        target.is_source_managed = target.is_source_managed and recipient.is_source_managed
+        recipient.removed_at = now
+        recipient.merged_into_recipient_id = target.id
+        # Existing redirects are flat. In particular, reactivating an old alias
+        # must detach it before redirecting the old canonical row back to it.
+        for alias in all_recipients:
+            if alias.id != target.id and alias.merged_into_recipient_id == recipient.id:
+                alias.merged_into_recipient_id = target.id
+    else:
+        target = recipient
+        recipient.phone_number = body.phone_number.strip()
+        recipient.normalized_phone_number = normalized_phone
+        recipient.merged_into_recipient_id = None
+        await session.execute(
+            update(WhatsAppRecipientMessageStateModel)
+            .where(WhatsAppRecipientMessageStateModel.recipient_id == recipient.id)
+            .values(
+                status="failed", batch_id=None, submitted_at=None,
+                provider_status_at=None, status_updated_at=now, updated_at=now,
+            )
+            .execution_options(synchronize_session=False)
         )
-        .execution_options(synchronize_session=False)
+    await session.flush()
+    await apply_recipient_traveller_phone_overrides(
+        session, agency_id=group.agency_id, broadcast_group_id=group.id,
+        recipient_id=target.id, snapshots=snapshots,
     )
     group.updated_at = now
     await session.flush()

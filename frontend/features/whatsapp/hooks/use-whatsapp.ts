@@ -269,12 +269,16 @@ export function useUpdateWhatsAppRecipientPhone() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: whatsappApi.updateRecipientPhone,
-    onSuccess: (group) => {
+    onSuccess: async (group) => {
       queryClient.setQueryData(
         WHATSAPP_QUERY_KEYS.group(group.id),
         group,
       );
-      queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups }),
+        queryClient.invalidateQueries({ queryKey: ["document-distribution", "delivery-preview"] }),
+        queryClient.invalidateQueries({ queryKey: ["document-distribution", "delivery-tracking"] }),
+      ]);
     },
   });
 }

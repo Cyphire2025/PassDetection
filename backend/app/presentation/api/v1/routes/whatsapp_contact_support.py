@@ -41,6 +41,7 @@ from app.presentation.api.v1.schemas.whatsapp_schemas import (
     WhatsAppContactPreviewResponse,
     WhatsAppContactRejectionCode,
     WhatsAppMatchingFieldOption,
+    WhatsAppMergedContactResponse,
     WhatsAppRecipientInput,
     WhatsAppRecipientMessageStatusResponse,
     WhatsAppRecipientResponse,
@@ -1046,6 +1047,7 @@ def _activate_recipient_models(
             if contact.imported_fields:
                 existing.imported_fields = contact.imported_fields
             existing.removed_at = None
+            existing.merged_into_recipient_id = None
             continue
         session.add(
             WhatsAppBroadcastRecipientModel(
@@ -1099,6 +1101,7 @@ def _recipient_response(
     model: WhatsAppBroadcastRecipientModel,
     states: list[WhatsAppRecipientMessageStateModel] | None = None,
     resend_statuses: dict[str, str] | None = None,
+    merged_contacts: list[WhatsAppMergedContactResponse] | None = None,
 ) -> WhatsAppRecipientResponse:
     ordered_states = sorted(states or [], key=lambda state: state.message_type)
     latest_resend_statuses = resend_statuses or {}
@@ -1111,6 +1114,7 @@ def _recipient_response(
         phone_number=model.phone_number,
         normalized_phone_number=model.normalized_phone_number,
         imported_fields=dict(getattr(model, "imported_fields", {}) or {}),
+        merged_contacts=merged_contacts or [],
         welcome_status=welcome_status,
         welcome_delivered=welcome_reason is None,
         welcome_required_reason=welcome_reason,

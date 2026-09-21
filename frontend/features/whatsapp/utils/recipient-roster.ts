@@ -107,6 +107,7 @@ function recipientRosterSearchValues(
       item.recipient.phone_number,
       item.recipient.normalized_phone_number,
       ...importedValues(item.recipient.imported_fields),
+      ...(item.recipient.merged_contacts ?? []).flatMap((contact) => [contact.name, ...importedValues(contact.imported_fields)]),
     ];
   }
   if (item.kind === "rejected") {

@@ -21,11 +21,16 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
     WhatsAppBroadcastSourceContactModel,
+    WhatsAppTravellerPhoneOverrideModel,
 )
 from app.infrastructure.repositories.operational_roster import operational_roster_member
 from app.infrastructure.repositories.passport_roster_resolution_repository import (
     active_replacement_phone_numbers_for_broadcast,
     suppress_active_replacement_recipients,
+)
+from app.infrastructure.whatsapp.phone_overrides import (
+    load_valid_traveller_phone_overrides,
+    source_phone_fingerprint,
 )
 from app.infrastructure.whatsapp.private_delivery_policy import (
     PrivateDeliveryMutationBlocked,
@@ -84,22 +89,53 @@ async def _sync_broadcast(
         Recipient.agency_id == agency_id, Recipient.broadcast_group_id == broadcast.id,
     ).order_by(Recipient.display_order, Recipient.created_at, Recipient.id).with_for_update())).all())
     by_phone = {row.normalized_phone_number: row for row in recipients}
+    overrides = await load_valid_traveller_phone_overrides(
+        session, agency_id=agency_id, broadcast_group_ids={broadcast.id},
+        require_active_groups=False, include_inactive_targets=True,
+    )
+    effective_phones: dict[uuid.UUID, str | None] = {}
+    override_target_phones: set[str] = set()
+    for row, values, _is_new in plans:
+        target = overrides.get((broadcast.id, row.source_submission_id))
+        phone = values["normalized_phone_number"]
+        if target is not None:
+            if (target.removed_at is not None or target.merged_into_recipient_id is not None
+                    or target.suppressed_by_roster_resolution_id is not None):
+                phone = None
+                values["issue"] = "override_unavailable"
+            else:
+                phone = target.normalized_phone_number
+                if values["issue"] in {
+                    "missing_phone", "invalid_phone", "unverified_phone", "recipient_limit", "override_unavailable",
+                }:
+                    values["issue"] = None
+        effective_phones[row.id] = phone
+    for target in overrides.values():
+        if (target.removed_at is None and target.merged_into_recipient_id is None
+                and target.suppressed_by_roster_resolution_id is None):
+            override_target_phones.add(target.normalized_phone_number)
     blocked = await active_replacement_phone_numbers_for_broadcast(
         session, agency_id=agency_id, broadcast_group_id=broadcast.id,
     )
     representatives: dict[str, dict[str, Any]] = {}
-    for _, values, _ in plans:
+    original_representatives: set[str] = set()
+    for row, values, _ in plans:
         # A previously full broadcast may have room after source removals.
         if values["issue"] == "recipient_limit":
             values["issue"] = None
-        phone = values["normalized_phone_number"]
+        phone = effective_phones[row.id]
         if phone and values["issue"] is None:
-            representatives.setdefault(phone, values)
+            if phone not in representatives or (
+                phone == values["normalized_phone_number"] and phone not in original_representatives
+            ):
+                representatives[phone] = values
+            if phone == values["normalized_phone_number"]:
+                original_representatives.add(phone)
     manual_active = {
         row.normalized_phone_number for row in recipients
-        if not row.is_source_managed and row.removed_at is None
+        if not row.is_source_managed and row.removed_at is None and row.merged_into_recipient_id is None
     }
-    selected = set(manual_active)
+    selected = manual_active | override_target_phones
     # Existing delivery identities keep their places before newly added phones.
     source_order = {phone: index for index, phone in enumerate(representatives)}
     ordered_phones = sorted(representatives, key=lambda phone: (
@@ -138,13 +174,15 @@ async def _sync_broadcast(
             }
             if phone not in blocked:
                 changes["suppressed_by_roster_resolution_id"] = None
+                changes["merged_into_recipient_id"] = None
         recipient_plans.append((recipient, changes, is_new))
     for recipient in recipients:
-        if (recipient.is_source_managed and recipient.normalized_phone_number not in admitted
+        if (recipient.is_source_managed
+                and recipient.normalized_phone_number not in (admitted | override_target_phones)
                 and recipient.removed_at is None):
             recipient_plans.append((recipient, {"removed_at": now}, False))
-    for _, values, _ in plans:
-        phone = values["normalized_phone_number"]
+    for row, values, _ in plans:
+        phone = effective_phones[row.id]
         values["recipient_id"] = None
         if phone and values["issue"] is None:
             if phone in admitted:
@@ -226,7 +264,13 @@ async def sync_group_broadcast_contacts(
     old_ids = set((await session.scalars(select(Contact.broadcast_group_id).where(
         Contact.agency_id == agency_id, Contact.source_group_id == group_id,
     ).distinct())).all())
-    affected = eligible | old_ids | set(affected_broadcast_ids)
+    overrides = list((await session.scalars(select(WhatsAppTravellerPhoneOverrideModel).where(
+        WhatsAppTravellerPhoneOverrideModel.agency_id == agency_id,
+        WhatsAppTravellerPhoneOverrideModel.group_id == group_id,
+    ))).all())
+    affected = eligible | old_ids | set(affected_broadcast_ids) | {
+        override.broadcast_group_id for override in overrides
+    }
     result = dict.fromkeys(("broadcasts", "contacts", "added", "updated", "removed"), 0)
     if not affected:
         return result
@@ -235,7 +279,8 @@ async def sync_group_broadcast_contacts(
         WhatsAppBroadcastGroupModel.id.in_(affected),
     ).order_by(WhatsAppBroadcastGroupModel.id).with_for_update())).all())
     contacts: list[dict[str, Any]] = []
-    if eligible and source is not None:
+    submissions: list[PassportSubmissionModel] = []
+    if (eligible or overrides) and source is not None and source.deleted_at is None:
         # Some mutations already hold a passport lock. Read the committed roster
         # without acquiring more passport locks after taking the broadcast lock.
         submissions = list((await session.scalars(select(PassportSubmissionModel).where(
@@ -244,9 +289,28 @@ async def sync_group_broadcast_contacts(
             PassportSubmissionModel.status.in_(OFFICE_VISIBLE_PASSPORT_STATUS_VALUES),
             operational_roster_member(),
         ).order_by(PassportSubmissionModel.created_at, PassportSubmissionModel.id))).all())
-        contacts = build_source_contacts(
-            group_id, source.name, submissions, import_only=source.import_only,
-        )["contacts"]
+        if eligible:
+            contacts = build_source_contacts(
+                group_id, source.name, submissions, import_only=source.import_only,
+            )["contacts"]
+    by_id = {submission.id: submission for submission in submissions}
+    linked_ids = {link.broadcast_group_id for link in links}
+    invalid_overrides = [override for override in overrides if (
+        source is None or source.deleted_at is not None or override.broadcast_group_id not in linked_ids
+        or (passenger := by_id.get(override.passenger_id)) is None
+        or override.source_phone_fingerprint != source_phone_fingerprint(passenger)
+    )]
+    if invalid_overrides:
+        try:
+            await prepare_private_delivery_identity_mutation(
+                session, agency_id=agency_id, group_id=group_id, cancel_queued=True,
+                cancellation_reason="The traveller's source phone or broadcast link changed; review this private delivery again.",
+            )
+        except PrivateDeliveryMutationBlocked as exc:
+            raise ConflictError(str(exc), code="WHATSAPP_SOURCE_SYNC_DELIVERY_ACTIVE") from exc
+        for override in invalid_overrides:
+            await session.delete(override)
+        await session.flush()
     for broadcast in broadcasts:
         counts = await _sync_broadcast(
             session, agency_id=agency_id, group_id=group_id, broadcast=broadcast,

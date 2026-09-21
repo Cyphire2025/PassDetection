@@ -41,6 +41,7 @@ from app.infrastructure.whatsapp.private_delivery_policy import (
     prepare_private_delivery_identity_mutation,
 )
 from app.infrastructure.whatsapp.source_group_sync import sync_group_broadcast_contacts
+from app.infrastructure.whatsapp.phone_overrides import load_valid_traveller_phone_overrides
 from app.presentation.api.v1.routes.whatsapp_contact_support import (
     _clean_required_name,
     _normalize_phone,
@@ -250,19 +251,25 @@ async def get_broadcast_source_contacts(
     ).order_by(
         WhatsAppBroadcastSourceContactModel.created_at, WhatsAppBroadcastSourceContactModel.id,
     ))).scalars().all() if by_id else []
-    contacts = [WhatsAppBroadcastSourceContact(
-        source_submission_id=row.source_submission_id,
-        source_group_id=row.source_group_id,
-        source_group_name=by_id[row.source_group_id].name,
-        source_import_only=by_id[row.source_group_id].import_only,
-        name=row.name,
-        phone_number=row.raw_phone_number or "",
-        normalized_phone_number=row.normalized_phone_number,
-        issue=row.issue,
-        imported_fields=row.imported_fields or {},
-        recipient_id=row.recipient_id,
-    ) for row in rows]
-    phones = [row.normalized_phone_number for row in rows if not row.issue and row.normalized_phone_number]
+    overrides = await load_valid_traveller_phone_overrides(
+        session, agency_id=broadcast.agency_id, broadcast_group_ids={broadcast.id},
+    ) if rows else {}
+    contacts = []
+    for row in rows:
+        corrected = overrides.get((broadcast.id, row.source_submission_id))
+        contacts.append(WhatsAppBroadcastSourceContact(
+            source_submission_id=row.source_submission_id,
+            source_group_id=row.source_group_id,
+            source_group_name=by_id[row.source_group_id].name,
+            source_import_only=by_id[row.source_group_id].import_only,
+            name=row.name,
+            phone_number=corrected.phone_number if corrected else row.raw_phone_number or "",
+            normalized_phone_number=corrected.normalized_phone_number if corrected else row.normalized_phone_number,
+            issue=None if corrected and row.issue in {"missing_phone", "invalid_phone", "unverified_phone", "recipient_limit", "override_unavailable"} else row.issue,
+            imported_fields=row.imported_fields or {},
+            recipient_id=corrected.id if corrected else row.recipient_id,
+        ))
+    phones = [row.normalized_phone_number for row in contacts if not row.issue and row.normalized_phone_number]
     return WhatsAppBroadcastSourceRoster(
         sources=[WhatsAppSourceGroupOption(
             id=source.id, name=source.name, import_only=source.import_only,
@@ -270,5 +277,5 @@ async def get_broadcast_source_contacts(
         ) for source in sources],
         total_contacts=len(contacts), unique_phone_count=len(set(phones)),
         shared_phone_count=len(phones) - len(set(phones)),
-        needs_attention_count=sum(bool(row.issue) for row in rows), contacts=contacts,
+        needs_attention_count=sum(bool(row.issue) for row in contacts), contacts=contacts,
     )

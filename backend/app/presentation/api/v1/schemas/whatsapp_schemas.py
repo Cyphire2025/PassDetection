@@ -102,12 +102,19 @@ class WhatsAppSupportContactInput(BaseModel):
     phone_number: str = Field(min_length=6, max_length=64)
 
 
+class WhatsAppMergedContactResponse(BaseModel):
+    id: uuid.UUID
+    name: str | None
+    imported_fields: dict[str, str] = Field(default_factory=dict)
+
+
 class WhatsAppRecipientResponse(BaseModel):
     id: uuid.UUID
     name: str | None
     phone_number: str
     normalized_phone_number: str
     imported_fields: dict[str, str] = Field(default_factory=dict)
+    merged_contacts: list[WhatsAppMergedContactResponse] = Field(default_factory=list)
     sent_message_types: list[str] = Field(default_factory=list)
     message_statuses: list["WhatsAppRecipientMessageStatusResponse"] = Field(default_factory=list)
     welcome_status: str | None = None

@@ -1,9 +1,10 @@
-"""Send a group invite once per broadcast destination, including explicit retries."""
+"""Destination history guards for group invites and ordinary passport links."""
 
 from __future__ import annotations
 
 import uuid
 from collections.abc import Sequence
+from datetime import datetime
 
 from sqlalchemy import case, func, or_, select, tuple_
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -49,6 +50,20 @@ async def group_invite_blocking_statuses(
     *,
     current_log: WhatsAppMessageLogModel | None = None,
 ) -> dict[uuid.UUID, str]:
+    return await message_phone_blocking_statuses(
+        session, recipients, message_type="group_invite", current_log=current_log,
+    )
+
+
+async def message_phone_blocking_statuses(
+    session: AsyncSession,
+    recipients: Sequence[WhatsAppBroadcastRecipientModel],
+    *,
+    current_log: WhatsAppMessageLogModel | None = None,
+    message_type: str,
+    include_accepted: bool = True,
+    stale_explicit_queued_cutoff: datetime | None = None,
+) -> dict[uuid.UUID, str]:
     """Read destination history; a failed receipt releases only its own attempt.
 
     Callers taking delivery claims must hold the broadcast row lock. The worker
@@ -57,6 +72,10 @@ async def group_invite_blocking_statuses(
     """
     if not recipients:
         return {}
+    blocking_statuses = (
+        INVITE_BLOCKING_STATUSES if include_accepted
+        else INVITE_BLOCKING_STATUSES - INVITE_ACCEPTED_STATUSES
+    )
     keys = {
         (item.agency_id, item.broadcast_group_id, item.normalized_phone_number)
         for item in recipients
@@ -79,8 +98,8 @@ async def group_invite_blocking_statuses(
             WhatsAppBroadcastRecipientModel.id == WhatsAppMessageLogModel.recipient_id,
         )
         .where(
-            WhatsAppMessageLogModel.message_type == "group_invite",
-            WhatsAppMessageLogModel.status.in_(INVITE_BLOCKING_STATUSES),
+            WhatsAppMessageLogModel.message_type == message_type,
+            WhatsAppMessageLogModel.status.in_(blocking_statuses),
             tuple_(
                 WhatsAppMessageLogModel.agency_id,
                 WhatsAppMessageLogModel.broadcast_group_id,
@@ -90,6 +109,14 @@ async def group_invite_blocking_statuses(
     )
     if current_log is not None:
         log_query = log_query.where(WhatsAppMessageLogModel.id != current_log.id)
+    if stale_explicit_queued_cutoff is not None:
+        # Read-only resend previews mirror the send route's explicit claim
+        # expiry; processing/unknown outcomes are never released here.
+        log_query = log_query.where(or_(
+            WhatsAppMessageLogModel.is_explicit_resend.is_(False),
+            WhatsAppMessageLogModel.status != "queued",
+            WhatsAppMessageLogModel.status_updated_at >= stale_explicit_queued_cutoff,
+        ))
     state_query = (
         select(
             WhatsAppRecipientMessageStateModel.agency_id,
@@ -104,8 +131,8 @@ async def group_invite_blocking_statuses(
             WhatsAppBroadcastRecipientModel.id == WhatsAppRecipientMessageStateModel.recipient_id,
         )
         .where(
-            WhatsAppRecipientMessageStateModel.message_type == "group_invite",
-            WhatsAppRecipientMessageStateModel.status.in_(INVITE_BLOCKING_STATUSES),
+            WhatsAppRecipientMessageStateModel.message_type == message_type,
+            WhatsAppRecipientMessageStateModel.status.in_(blocking_statuses),
             tuple_(
                 WhatsAppRecipientMessageStateModel.agency_id,
                 WhatsAppRecipientMessageStateModel.broadcast_group_id,
@@ -146,3 +173,11 @@ async def group_invite_blocking_statuses(
         if key in by_phone:
             result[item.id] = by_phone[key]
     return result
+
+
+def passport_link_block_message(status: str) -> str:
+    if status in INVITE_ACCEPTED_STATUSES:
+        return "A passport link has already been submitted or delivered to this number in this broadcast."
+    if status == "delivery_unknown":
+        return "A previous passport link has an unknown delivery outcome; another send is blocked."
+    return "A passport link is already queued or being sent to this number in this broadcast."

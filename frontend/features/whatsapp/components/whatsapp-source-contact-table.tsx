@@ -17,6 +17,7 @@ const ISSUE_LABELS: Record<string, string> = {
   missing_phone: "WhatsApp number missing", invalid_phone: "WhatsApp number invalid",
   unverified_phone: "No verified WhatsApp contact", missing_name: "Name missing", name_too_long: "Name is too long",
   recipient_limit: "Broadcast recipient limit reached",
+  override_unavailable: "Corrected broadcast number is unavailable",
 };
 
 function isContactReady(contact: SourceContactRow) {

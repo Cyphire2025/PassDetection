@@ -95,11 +95,21 @@ export function ActiveRecipientRow({
             </dl>
           </details>
         )}
+        {(recipient.merged_contacts ?? []).map((contact) => (
+          <details key={contact.id} className="mt-1">
+            <summary className="cursor-pointer text-xs text-slate-500 hover:text-blue-700">{contact.name || "Unnamed contact"} · saved contact details</summary>
+            <dl className="mt-2 grid gap-2 rounded-lg border border-slate-200 bg-white p-3">
+              {visibleImportedFieldEntries(contact.imported_fields).map(([key, value]) => <div key={key}><dt className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">{importedFieldLabel(key)}</dt><dd className="break-words text-xs text-slate-700">{value}</dd></div>)}
+              {Object.keys(contact.imported_fields).length === 0 && <div className="text-xs text-slate-500">No additional imported details.</div>}
+            </dl>
+          </details>
+        ))}
       </td>
       <td className="px-4 py-4 text-slate-600">
         {editing ? (
           <div className="min-w-56 space-y-2">
             <input type="tel" value={editedPhone} autoFocus aria-label={`WhatsApp number for ${name}`} className="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" onChange={(event) => onPhoneChange(event.target.value)} />
+            <p className="max-w-sm text-xs leading-5 text-slate-500">A number can be shared. This updates all contacts using this delivery number. Each assigned PDF is still sent separately.</p>
             <div className="flex gap-2">
               <button type="button" className="rounded-md px-2 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-50 disabled:opacity-50" disabled={phoneSaving || !editedPhone.trim()} onClick={onSavePhone}>Save</button>
               <button type="button" className="rounded-md px-2 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100" disabled={phoneSaving} onClick={onCancelEdit}>Cancel</button>

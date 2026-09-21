@@ -26,6 +26,8 @@ from app.infrastructure.repositories.passport_roster_resolution_repository impor
 from app.infrastructure.whatsapp.group_invite_policy import (
     group_invite_block_message,
     group_invite_blocking_statuses,
+    message_phone_blocking_statuses,
+    passport_link_block_message,
 )
 from app.infrastructure.whatsapp.publication import (
     fail_unclaimed_broadcast_rows,
@@ -227,6 +229,15 @@ async def resend_recipient_message(
             status_code=status.HTTP_409_CONFLICT,
             detail=detail,
         )
+
+    if message_type == "passport_link":
+        phone_blocks = await message_phone_blocking_statuses(
+            session, [recipient], message_type=message_type, include_accepted=is_retry,
+        )
+        if recipient.id in phone_blocks:
+            raise HTTPException(
+                status_code=409, detail=passport_link_block_message(phone_blocks[recipient.id]),
+            )
 
     source_result = await session.execute(
         select(WhatsAppMessageLogModel)

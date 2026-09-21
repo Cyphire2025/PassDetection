@@ -22,6 +22,7 @@ export interface WhatsAppRecipient {
   phone_number: string;
   normalized_phone_number: string;
   imported_fields: Record<string, string>;
+  merged_contacts?: { id: string; name: string | null; imported_fields: Record<string, string> }[];
   message_statuses: WhatsAppRecipientMessageStatus[];
   welcome_status?: string | null;
   welcome_delivered?: boolean;

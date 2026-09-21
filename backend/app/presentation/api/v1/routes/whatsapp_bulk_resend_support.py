@@ -19,6 +19,7 @@ from app.infrastructure.database.models import (
 from app.infrastructure.whatsapp.group_invite_policy import (
     group_invite_blocking_statuses,
     group_invite_skip_reason,
+    message_phone_blocking_statuses,
 )
 from app.presentation.api.v1.routes.whatsapp_bulk_resend_composer import (
     BulkResendEdits,
@@ -79,6 +80,9 @@ def recipient_skip_reason(
                 return group_invite_skip_reason(candidate)
     if state_status == "delivery_unknown" or "delivery_unknown" in active_statuses:
         return "skipped_delivery_unknown"
+    if message_type == "passport_link" and state_status == "failed":
+        if active_statuses & WHATSAPP_ACCEPTED_STATUSES:
+            return "skipped_already_sent"
     if state_status in WHATSAPP_IN_PROGRESS_STATUSES or active_statuses:
         return "skipped_in_progress"
     if state_status is None:
@@ -232,7 +236,7 @@ async def selection_delivery_maps(
             if log_status == "processing":
                 log_status = "delivery_unknown"
         active_by_recipient.setdefault(log.recipient_id, set()).add(log_status)
-    if body.message_type == "group_invite":
+    if body.message_type in {"group_invite", "passport_link"}:
         recipients_result = await session.execute(
             select(WhatsAppBroadcastRecipientModel).where(
                 WhatsAppBroadcastRecipientModel.broadcast_group_id == group_id,
@@ -240,7 +244,20 @@ async def selection_delivery_maps(
             )
         )
         recipients = list(recipients_result.scalars().all())
-        invite_blocks = await group_invite_blocking_statuses(session, recipients)
+        if body.message_type == "group_invite":
+            invite_blocks = await group_invite_blocking_statuses(session, recipients)
+        else:
+            # An intentional resend may repeat a successful message. A failed
+            # retry cannot bypass accepted delivery through an older recipient.
+            invite_blocks = await message_phone_blocking_statuses(
+                session, recipients, message_type="passport_link", include_accepted=False,
+                stale_explicit_queued_cutoff=stale_cutoff if not lock_states else None,
+            )
+            retry_recipients = [item for item in recipients if item.id in retry_ids]
+            invite_blocks.update(await message_phone_blocking_statuses(
+                session, retry_recipients, message_type="passport_link",
+                stale_explicit_queued_cutoff=stale_cutoff if not lock_states else None,
+            ))
         for recipient_id, invite_status in invite_blocks.items():
             active_by_recipient.setdefault(recipient_id, set()).add(invite_status)
     return (

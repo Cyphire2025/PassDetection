@@ -7,7 +7,7 @@ from pathlib import Path
 from alembic.config import Config
 from alembic.script import ScriptDirectory
 
-EXPECTED_HEAD = "0104_whatsapp_source_contacts"
+EXPECTED_HEAD = "0105_whatsapp_phone_overrides"
 UPLOAD_CONFIGURATION_REVISION = "0090_upload_configuration"
 SECURITY_REVISION = "0089_revoke_legacy_refresh"
 MERGE_REVISION = "0088_merge_my_photos_hardening"

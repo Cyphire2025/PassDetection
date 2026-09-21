@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import (
     BigInteger,
@@ -125,6 +125,15 @@ class WhatsAppBroadcastRecipientModel(Base):
         Boolean, nullable=False, default=False, server_default=text("false")
     )
     removed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    merged_into_recipient_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("whatsapp_broadcast_recipients.id", name="fk_whatsapp_recipient_merge_target", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    merged_contacts: Mapped[list[dict[str, Any]]] = mapped_column(
+        JSONB, nullable=False, default=list, server_default="[]",
+    )
     suppressed_by_roster_resolution_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey(
@@ -184,6 +193,39 @@ class WhatsAppBroadcastSourceContactModel(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
+    )
+
+
+class WhatsAppTravellerPhoneOverrideModel(Base):
+    """An exact traveller's broadcast-only correction, never collection authority."""
+
+    __tablename__ = "whatsapp_traveller_phone_overrides"
+    __table_args__ = (
+        UniqueConstraint("broadcast_group_id", "passenger_id", name="uq_whatsapp_phone_override_passenger"),
+        Index("ix_whatsapp_phone_overrides_agency_group", "agency_id", "group_id"),
+        Index("ix_whatsapp_phone_overrides_recipient", "recipient_id"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False,
+    )
+    broadcast_group_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("whatsapp_broadcast_groups.id", ondelete="CASCADE"), nullable=False,
+    )
+    group_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("client_groups.id", ondelete="CASCADE"), nullable=False,
+    )
+    passenger_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("passport_submissions.id", ondelete="CASCADE"), nullable=False,
+    )
+    recipient_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("whatsapp_broadcast_recipients.id", ondelete="CASCADE"), nullable=False,
+    )
+    source_phone_fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False,
     )
 
 

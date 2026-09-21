@@ -31,6 +31,7 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
     WhatsAppBroadcastSourceContactModel,
+    WhatsAppTravellerPhoneOverrideModel,
 )
 from app.infrastructure.repositories.operational_roster import operational_roster_member
 from app.infrastructure.repositories.passport_whatsapp_matching_repository import (
@@ -38,6 +39,7 @@ from app.infrastructure.repositories.passport_whatsapp_matching_repository impor
     recipient_comparison_from_model,
     submission_comparison_from_model,
 )
+from app.infrastructure.whatsapp.phone_overrides import source_phone_fingerprint
 
 
 @dataclass(frozen=True, slots=True)
@@ -161,6 +163,7 @@ async def load_traveller_destinations(
         WhatsAppBroadcastRecipientModel.agency_id == agency_id,
         WhatsAppBroadcastRecipientModel.broadcast_group_id.in_(broadcasts),
         WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+        WhatsAppBroadcastRecipientModel.merged_into_recipient_id.is_(None),
         WhatsAppBroadcastRecipientModel.suppressed_by_roster_resolution_id.is_(None),
     ).order_by(WhatsAppBroadcastRecipientModel.broadcast_group_id, WhatsAppBroadcastRecipientModel.id)
     source_statement = select(WhatsAppBroadcastSourceContactModel).where(
@@ -174,13 +177,27 @@ async def load_traveller_destinations(
         PassportSubmissionModel.status.in_(OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES),
         operational_roster_member(),
     ).order_by(PassportSubmissionModel.id)
+    overrides_statement = select(WhatsAppTravellerPhoneOverrideModel).where(
+        WhatsAppTravellerPhoneOverrideModel.agency_id == agency_id,
+        WhatsAppTravellerPhoneOverrideModel.group_id == group_id,
+        WhatsAppTravellerPhoneOverrideModel.broadcast_group_id.in_(broadcasts),
+    ).order_by(WhatsAppTravellerPhoneOverrideModel.broadcast_group_id,
+               WhatsAppTravellerPhoneOverrideModel.passenger_id)
     if lock:
         recipients_statement = recipients_statement.with_for_update().execution_options(populate_existing=True)
         source_statement = source_statement.with_for_update().execution_options(populate_existing=True)
         passengers_statement = passengers_statement.with_for_update().execution_options(populate_existing=True)
+        overrides_statement = overrides_statement.with_for_update().execution_options(populate_existing=True)
     recipients = list((await session.scalars(recipients_statement)).all()) if broadcasts else []
     sources = list((await session.scalars(source_statement)).all()) if broadcasts else []
     passengers = list((await session.scalars(passengers_statement)).all())
+    overrides = list((await session.scalars(overrides_statement)).all()) if broadcasts else []
+    passengers_by_id = {passenger.id: passenger for passenger in passengers}
+    overrides_by_passenger: dict[uuid.UUID, list[WhatsAppTravellerPhoneOverrideModel]] = defaultdict(list)
+    for override in overrides:
+        passenger = passengers_by_id.get(override.passenger_id)
+        if passenger is not None and override.source_phone_fingerprint == source_phone_fingerprint(passenger):
+            overrides_by_passenger[passenger.id].append(override)
     own_destinations = [
         resolve_traveller_destination(passenger, import_only=group.import_only)
         for passenger in passengers
@@ -194,7 +211,10 @@ async def load_traveller_destinations(
     exact_sources: dict[uuid.UUID, list[WhatsAppBroadcastSourceContactModel]] = defaultdict(list)
     for source in sources:
         exact_sources[source.source_submission_id].append(source)
-    fallback_ids = {row.passenger_id for row in own_destinations if row.phone_source is None}
+    fallback_ids = {
+        row.passenger_id for row in own_destinations
+        if row.phone_source is None and row.passenger_id not in overrides_by_passenger
+    }
     matched_recipients: dict[uuid.UUID, list[WhatsAppBroadcastRecipientModel]] = defaultdict(list)
     if fallback_ids and recipients:
         comparison_submissions = []
@@ -218,6 +238,32 @@ async def load_traveller_destinations(
     resolved: list[TravellerDestination] = []
     for destination in own_destinations:
         selected: WhatsAppBroadcastRecipientModel | None = None
+        explicit_overrides = overrides_by_passenger.get(destination.passenger_id, [])
+        if explicit_overrides:
+            override_candidates = [
+                recipient for override in explicit_overrides
+                if (recipient := recipients_by_id.get(override.recipient_id)) is not None
+                and recipient.broadcast_group_id == override.broadcast_group_id
+            ]
+            override_phones = {
+                normalize_whatsapp_phone(recipient.normalized_phone_number)
+                for recipient in override_candidates
+            }
+            if (len(override_candidates) != len(explicit_overrides)
+                    or len(override_phones) != 1 or None in override_phones):
+                resolved.append(replace(destination, phone_number=None, phone_source="linked_broadcast", reason=(
+                    "This traveller's corrected broadcast contact is unavailable or linked broadcasts "
+                    "have conflicting corrections. Review the broadcast number before sending."
+                )))
+                continue
+            selected = min(override_candidates, key=lambda item: (str(item.broadcast_group_id), str(item.id)))
+            broadcast = broadcasts[selected.broadcast_group_id]
+            resolved.append(replace(
+                destination, phone_number=selected.normalized_phone_number,
+                phone_source="linked_broadcast", reason=None, recipient_id=selected.id,
+                broadcast_group_id=broadcast.id, broadcast_name=broadcast.name,
+            ))
+            continue
         if destination.phone_number:
             for source in exact_sources.get(destination.passenger_id, []):
                 candidate = recipients_by_id.get(source.recipient_id) if source.recipient_id else None

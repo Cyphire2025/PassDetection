@@ -27,6 +27,7 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastRecipientModel,
     WhatsAppBroadcastSourceContactModel,
     WhatsAppMessageLogModel,
+    WhatsAppTravellerPhoneOverrideModel,
 )
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.export.whatsapp_filter_excel_exporter import (
@@ -36,6 +37,7 @@ from app.infrastructure.export.whatsapp_filter_excel_exporter import (
     build_whatsapp_filter_workbook,
 )
 from app.infrastructure.repositories.operational_roster import operational_roster_member
+from app.infrastructure.whatsapp.phone_overrides import load_valid_traveller_phone_overrides
 from app.infrastructure.repositories.passport_submission_repository import PassportSubmissionRepository
 from app.infrastructure.repositories.passport_whatsapp_matching_repository import (
     load_unresolved_passport_whatsapp_match_context,
@@ -49,6 +51,7 @@ from app.presentation.api.v1.routes.passport_export_support import (
     _normalized_imported_field_key,
 )
 from app.presentation.api.v1.routes.whatsapp_recipient_roster import get_broadcast_recipient_roster
+from app.presentation.api.v1.routes.whatsapp_merged_contacts import merged_contacts_by_recipient
 from app.presentation.api.v1.routes.whatsapp_shared import (
     WHATSAPP_ROLES,
     _agency_filter,
@@ -245,6 +248,30 @@ async def _gather_export_rows(
         raise _stale_rows()
 
     if body.view == "delivery":
+        # An exact broadcast correction survives a change away from the source
+        # phone. Enrich only with groups this operator may export; generic phone
+        # matching cannot reconstruct that association after a merge.
+        overrides = await load_valid_traveller_phone_overrides(
+            session, agency_id=broadcast.agency_id, broadcast_group_ids={broadcast.id},
+            require_active_groups=False,
+        )
+        override_sources = (await session.execute(select(
+            WhatsAppTravellerPhoneOverrideModel.group_id,
+            WhatsAppTravellerPhoneOverrideModel.passenger_id,
+        ).where(
+            WhatsAppTravellerPhoneOverrideModel.agency_id == broadcast.agency_id,
+            WhatsAppTravellerPhoneOverrideModel.broadcast_group_id == broadcast.id,
+            WhatsAppTravellerPhoneOverrideModel.group_id.in_(groups),
+        ))).all() if overrides else []
+        for source_group_id, passenger_id in override_sources:
+            target = overrides.get((broadcast.id, passenger_id))
+            if target is None or target.id not in selected_recipient_ids:
+                continue
+            key = (source_group_id, passenger_id)
+            if key not in sources_by_recipient[target.id]:
+                sources_by_recipient[target.id].append(key)
+            required_sources.add(key)
+            current_source_keys.add(key)
         # Normal manually linked groups have no durable source-contact rows. Use
         # their configured matching policy; ambiguous candidates are never exported.
         manual_groups = [group for group, link in links if not (group.import_only or link.sync_contacts_from_group)]
@@ -267,6 +294,9 @@ async def _gather_export_rows(
                         continue
                     for recipient_id in set(match.recipient_ids) & selected_recipient_ids:
                         for submission_id in match.submission_ids:
+                            corrected = overrides.get((broadcast.id, submission_id))
+                            if corrected is not None and corrected.id != recipient_id:
+                                continue
                             key = (group.id, submission_id)
                             matched_source_keys.add(key)
                             if key not in sources_by_recipient[recipient_id]:
@@ -349,6 +379,9 @@ async def _gather_export_rows(
         raise _stale_rows()
     states, resends = await _recipient_delivery_state_maps(session, recipient_models)
     recipients = {row.id: _recipient_response(row, states.get(row.id, []), resends.get(row.id, {})) for row in recipient_models}
+    merged_contacts = await merged_contacts_by_recipient(
+        session, agency_id=broadcast.agency_id, broadcast_group_id=broadcast.id,
+    )
     latest_attempts = await _latest_attempt_values(session, broadcast, selected_recipient_ids)
     details = {group_id: _group_export_details(group) for group_id, group in groups.items()}
     output: list[WhatsAppExportRow] = []
@@ -411,6 +444,18 @@ async def _gather_export_rows(
             )
         if not source_keys:
             output.append(WhatsAppExportRow(values=values, broadcast_fields=imported_fields))
+        # A manual contact merged into a shared phone remains its own export row.
+        # Keep that person's imported data separate from the primary contact.
+        if item.kind == "recipient" and recipient_id:
+            for contact in merged_contacts.get(recipient_id, []):
+                alias_fields = dict(contact.imported_fields)
+                output.append(WhatsAppExportRow(values={
+                    **values,
+                    "Roster row ID": str(contact.id),
+                    "Broadcast contact name": contact.name,
+                    "Shared delivery number": True,
+                    **_broadcast_import_contact_values(alias_fields),
+                }, broadcast_fields=alias_fields))
         for key in source_keys:
             group = groups[key[0]]
             submission = entities[key]

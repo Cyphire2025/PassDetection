@@ -18,7 +18,7 @@ export function SourceRosterPanel({ data, isLoading, isFetching, error, onRetry,
   return (
     <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6" aria-label="Source group travellers">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div><h3 className="font-semibold text-slate-900">Travellers</h3><p className="mt-1 max-w-3xl text-sm leading-relaxed text-slate-500">Every traveller from the source group is kept here, including people who share a WhatsApp number. Delivery numbers receive one message each per send.</p></div>
+        <div><h3 className="font-semibold text-slate-900">Travellers</h3><p className="mt-1 max-w-3xl text-sm leading-relaxed text-slate-500">Every traveller from the source group is kept here, including people who share a WhatsApp number. Broadcast messages use each number once per send. Assigned documents are delivered separately for every traveller.</p></div>
         <Button type="button" variant="secondary" onClick={onRetry} isLoading={isFetching}>Refresh travellers</Button>
       </div>
       {error ? <ErrorBanner message={readErrorMessage(error, "The source traveller list could not be loaded. Try refreshing it.")} />

@@ -442,8 +442,15 @@ export function RecipientListDialog({
       entries.push(contact.name || "Name missing");
       names.set(contact.normalized_phone_number, entries);
     }
+    for (const item of recipientRoster?.items ?? []) {
+      if (item.kind !== "recipient" || !item.recipient.merged_contacts?.length) continue;
+      const recipient = item.recipient;
+      const entries = names.get(recipient.normalized_phone_number) ?? [recipient.name || "Unnamed recipient"];
+      entries.push(...(recipient.merged_contacts ?? []).map((contact) => contact.name || "Unnamed recipient"));
+      names.set(recipient.normalized_phone_number, entries);
+    }
     return names;
-  }, [sourceContacts.data?.contacts]);
+  }, [sourceContacts.data?.contacts, recipientRoster?.items]);
   const sharedPhones = useMemo(() => new Set([...sourceNamesByPhone].filter(([, names]) => names.length > 1).map(([phone]) => phone)), [sourceNamesByPhone]);
   const hasRecipientSearch = Boolean(deferredRecipientSearchQuery.trim());
   const rosterSearchIndex = useMemo(() => hasRecipientSearch ? createRecipientRosterSearchIndex(recipientRoster?.items ?? [], sourceNamesByPhone) : undefined, [recipientRoster?.items, sourceNamesByPhone, hasRecipientSearch]);
@@ -1075,7 +1082,8 @@ export function RecipientListDialog({
                                 try {
                                   await updateRecipientPhone.mutateAsync({ groupId: group.id, recipientId: recipient.id, phoneNumber: editedPhoneNumber.trim() });
                                   setEditingRecipientId(null);
-                                  setSuccessMessage(`WhatsApp number updated for ${recipient.name || "this recipient"}. Previous message statuses are ready to retry on the new number.`);
+                                  clearSelection();
+                                  setSuccessMessage(`WhatsApp number updated for ${recipient.name || "this recipient"}. Shared numbers receive one copy of each broadcast; assigned documents are delivered separately. Refresh any open document preview before sending.`);
                                 } catch (phoneError) {
                                   setRecipientError(readErrorMessage(phoneError, "Could not update this WhatsApp number."));
                                 }

@@ -27,6 +27,7 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.whatsapp.group_invite_policy import (
     group_invite_blocking_statuses,
     group_invite_skip_reason,
+    message_phone_blocking_statuses,
 )
 from app.infrastructure.whatsapp.publication import (
     fail_unclaimed_broadcast_rows,
@@ -277,9 +278,25 @@ async def send_broadcast_message(
         if message_type == "reminder"
         else set()
     )
+    if message_type == "passport_link":
+        # Its phone-history guard also reads the baseline ledger. Release the
+        # same stale, unsubmitted claim that the upsert formerly reclaimed.
+        await session.execute(
+            update(WhatsAppRecipientMessageStateModel)
+            .where(
+                WhatsAppRecipientMessageStateModel.broadcast_group_id == group.id,
+                WhatsAppRecipientMessageStateModel.message_type == message_type,
+                WhatsAppRecipientMessageStateModel.status == "queued",
+                WhatsAppRecipientMessageStateModel.status_updated_at < stale_cutoff,
+            )
+            .values(status="failed", batch_id=None, status_updated_at=now, updated_at=now)
+            .execution_options(synchronize_session=False)
+        )
     invite_blocks = (
         await group_invite_blocking_statuses(session, recipients)
-        if message_type == "group_invite" else {}
+        if message_type == "group_invite"
+        else await message_phone_blocking_statuses(session, recipients, message_type=message_type)
+        if message_type == "passport_link" else {}
     )
     claim_values = [
         {

@@ -25,7 +25,10 @@ from app.infrastructure.database.models import (
 from app.infrastructure.repositories.passport_roster_resolution_repository import (
     active_replacement_phone_numbers_for_broadcast,
 )
-from app.infrastructure.whatsapp.group_invite_policy import group_invite_blocking_statuses
+from app.infrastructure.whatsapp.group_invite_policy import (
+    group_invite_blocking_statuses,
+    message_phone_blocking_statuses,
+)
 from app.presentation.api.v1.routes.whatsapp_contact_support import (
     _matching_field_options,
     _recipient_response,
@@ -37,6 +40,7 @@ from app.presentation.api.v1.routes.whatsapp_delivery_support import (
     WHATSAPP_UNCERTAIN_STATUSES,
 )
 from app.presentation.api.v1.routes.whatsapp_group_visibility import staff_linked_group_filters
+from app.presentation.api.v1.routes.whatsapp_merged_contacts import merged_contacts_by_recipient
 from app.presentation.api.v1.routes.whatsapp_welcome_view import overlay_phone_welcome_states
 from app.presentation.api.v1.schemas.whatsapp_schemas import (
     WhatsAppBroadcastGroupDetailResponse,
@@ -133,21 +137,24 @@ async def _recipient_delivery_state_maps(
         )
         recipient_statuses.setdefault(resend_log.message_type, resend_log.status)
     await overlay_phone_welcome_states(session, recipients, states_by_recipient)
-    invite_blocks = await group_invite_blocking_statuses(session, recipients)
-    for recipient in recipients:
-        if recipient.id not in invite_blocks:
-            continue
-        recipient_states = states_by_recipient.setdefault(recipient.id, [])
-        previous = next((item for item in recipient_states if item.message_type == "group_invite"), None)
-        # Project historical destination protection without mutating the ledger.
-        recipient_states[:] = [item for item in recipient_states if item.message_type != "group_invite"]
-        recipient_states.append(WhatsAppRecipientMessageStateModel(
-            recipient_id=recipient.id, broadcast_group_id=recipient.broadcast_group_id,
-            agency_id=recipient.agency_id, message_type="group_invite",
-            status=invite_blocks[recipient.id],
-            submitted_at=previous.submitted_at if previous else None,
-            status_updated_at=previous.status_updated_at if previous else datetime.now(tz=UTC),
-        ))
+    for message_type in ("group_invite", "passport_link"):
+        phone_blocks = await message_phone_blocking_statuses(
+            session, recipients, message_type=message_type,
+        ) if message_type == "passport_link" else await group_invite_blocking_statuses(session, recipients)
+        for recipient in recipients:
+            if recipient.id not in phone_blocks:
+                continue
+            recipient_states = states_by_recipient.setdefault(recipient.id, [])
+            previous = next((item for item in recipient_states if item.message_type == message_type), None)
+            # Project historical destination protection without mutating the ledger.
+            recipient_states[:] = [item for item in recipient_states if item.message_type != message_type]
+            recipient_states.append(WhatsAppRecipientMessageStateModel(
+                recipient_id=recipient.id, broadcast_group_id=recipient.broadcast_group_id,
+                agency_id=recipient.agency_id, message_type=message_type,
+                status=phone_blocks[recipient.id],
+                submitted_at=previous.submitted_at if previous else None,
+                status_updated_at=previous.status_updated_at if previous else datetime.now(tz=UTC),
+            ))
     return states_by_recipient, resend_statuses_by_recipient
 
 
@@ -155,6 +162,9 @@ async def _group_detail(
     session: AsyncSession, group: WhatsAppBroadcastGroupModel, *, current_user: User
 ) -> WhatsAppBroadcastGroupDetailResponse:
     recipients = await _group_recipients(session, group.id)
+    merged_contacts = await merged_contacts_by_recipient(
+        session, agency_id=group.agency_id, broadcast_group_id=group.id,
+    )
     states_by_recipient, resend_statuses_by_recipient = await _recipient_delivery_state_maps(
         session, recipients
     )
@@ -210,6 +220,7 @@ async def _group_detail(
                 recipient,
                 states_by_recipient.get(recipient.id, []),
                 resend_statuses_by_recipient.get(recipient.id, {}),
+                merged_contacts=merged_contacts.get(recipient.id, []),
             )
             for recipient in recipients
         ],
@@ -331,8 +342,12 @@ async def _recipient_delivery_counts(
 ) -> tuple[int, int, int, int]:
     if not recipients:
         return 0, 0, 0, 0
-    if message_type == "group_invite":
-        statuses = await group_invite_blocking_statuses(session, recipients)
+    if message_type in {"group_invite", "passport_link"}:
+        statuses = (
+            await group_invite_blocking_statuses(session, recipients)
+            if message_type == "group_invite"
+            else await message_phone_blocking_statuses(session, recipients, message_type=message_type)
+        )
         already_sent = sum(value in WHATSAPP_ACCEPTED_STATUSES for value in statuses.values())
         in_progress = sum(value in WHATSAPP_IN_PROGRESS_STATUSES for value in statuses.values())
         uncertain = sum(value in WHATSAPP_UNCERTAIN_STATUSES for value in statuses.values())

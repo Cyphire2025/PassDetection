@@ -237,6 +237,7 @@ async def resolve_broadcast_rejected_contact(
         if existing_recipient.display_order is None:
             existing_recipient.display_order = resolved_display_order
         existing_recipient.removed_at = None
+        existing_recipient.merged_into_recipient_id = None
         await session.execute(
             delete(WhatsAppRecipientMessageStateModel).where(
                 WhatsAppRecipientMessageStateModel.recipient_id == existing_recipient.id,

@@ -24,6 +24,7 @@ from app.infrastructure.repositories.passport_whatsapp_matching_repository impor
     load_unresolved_passport_whatsapp_match_context,
 )
 from app.presentation.api.v1.routes.whatsapp_group_visibility import staff_linked_group_filters
+from app.presentation.api.v1.routes.whatsapp_merged_contacts import merged_contacts_by_recipient
 from app.presentation.api.v1.routes.whatsapp_shared import (
     WHATSAPP_ACCEPTED_STATUSES,
     WHATSAPP_ROLES,
@@ -232,6 +233,9 @@ async def get_broadcast_recipient_roster(
     states_by_recipient, resend_statuses_by_recipient = await _recipient_delivery_state_maps(
         session, recipients
     )
+    merged_contacts = await merged_contacts_by_recipient(
+        session, agency_id=group.agency_id, broadcast_group_id=group.id,
+    )
     unidentified_uploads = await _unidentified_uploads_for_broadcast(
         session,
         broadcast_group_id=group_id,
@@ -289,6 +293,7 @@ async def get_broadcast_recipient_roster(
                         recipient,
                         states_by_recipient.get(recipient.id, []),
                         resend_statuses_by_recipient.get(recipient.id, {}),
+                        merged_contacts=merged_contacts.get(recipient.id, []),
                     ),
                 )
             )

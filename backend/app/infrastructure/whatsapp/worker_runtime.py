@@ -37,6 +37,8 @@ from app.infrastructure.whatsapp.cloud_api_provider import (
 from app.infrastructure.whatsapp.group_invite_policy import (
     group_invite_block_message,
     group_invite_blocking_statuses,
+    message_phone_blocking_statuses,
+    passport_link_block_message,
 )
 from app.infrastructure.whatsapp.phone_welcome import (
     WELCOME_REQUIRED,
@@ -178,6 +180,13 @@ async def _load_sendable_recipient(
         invite_blocks = await group_invite_blocking_statuses(session, [recipient], current_log=log)
         if recipient.id in invite_blocks:
             return None, group_invite_block_message(invite_blocks[recipient.id])
+    if log.message_type == "passport_link":
+        phone_blocks = await message_phone_blocking_statuses(
+            session, [recipient], message_type="passport_link", current_log=log,
+            include_accepted=not log.is_explicit_resend,
+        )
+        if recipient.id in phone_blocks:
+            return None, passport_link_block_message(phone_blocks[recipient.id])
     if log.message_type == "welcome":
         if not await assert_phone_welcome_claim(
             session,
