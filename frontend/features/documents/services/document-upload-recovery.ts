@@ -20,7 +20,7 @@ export interface DocumentUploadRecoveryPlan {
   verification: DocumentVerificationResult;
 }
 
-/** Remove opaque capability receipts before verification metadata enters React state. */
+/** Keep upload/review capabilities out of verification display and recovery metadata. */
 export function verificationWithoutStagingReceipts(
   verification: DocumentVerificationResult,
 ): DocumentVerificationResult {
@@ -29,6 +29,8 @@ export function verificationWithoutStagingReceipts(
     files: verification.files.map((file) => ({
       ...file,
       staging_receipt: null,
+      manual_review_available: Boolean(file.manual_review_available || file.manual_review_token),
+      manual_review_token: null,
     })),
   };
 }
@@ -140,7 +142,8 @@ function isDocumentStagingManifest(value: unknown): value is DocumentStagingMani
     !isSafeIntegerBetween(value.totalBytes, 0, MAX_DOCUMENT_SELECTION_BYTES) ||
     !isSafeIntegerBetween(value.completedChunks, 0, value.chunks.length) ||
     typeof value.createdAt !== "string" ||
-    !Number.isFinite(Date.parse(value.createdAt))
+    !Number.isFinite(Date.parse(value.createdAt)) ||
+    (value.finalizationStarted !== undefined && typeof value.finalizationStarted !== "boolean")
   ) {
     return false;
   }
@@ -219,6 +222,9 @@ function isVerifiedDocument(value: unknown): value is VerifiedDistributedDocumen
     Number.isFinite(value.match_confidence) &&
     isNullableBoundedString(value.match_status, 200) &&
     isNullableBoundedString(value.match_reason, 4_000) &&
+    (value.manual_review_available === undefined || typeof value.manual_review_available === "boolean") &&
+    (value.manual_type_approved === undefined || typeof value.manual_type_approved === "boolean") &&
+    value.manual_review_token == null &&
     value.staging_receipt === null
   );
 }

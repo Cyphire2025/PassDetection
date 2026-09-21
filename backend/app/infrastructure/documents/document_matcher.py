@@ -27,6 +27,10 @@ from app.domain.value_objects.travel_document_taxonomy import (
     SUPPORTED_TRAVEL_DOCUMENT_TYPES as SUPPORTED_TRAVEL_DOCUMENT_TYPES,
 )
 from app.infrastructure.documents import document_pdf_support as _pdf_support
+from app.infrastructure.documents.document_approval_provenance import (
+    MANUAL_DOCUMENT_TYPE_APPROVAL_PREFIX,
+    has_manual_document_type_approval,
+)
 from app.infrastructure.documents.document_pdf_support import (
     DocumentOcrUnavailableError as DocumentOcrUnavailableError,
 )
@@ -128,6 +132,7 @@ class ClassifiedDocument:
     extracted_name: str | None
     extracted_passport_number: str | None
     extracted_reference: str | None
+    manual_review_allowed: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -328,6 +333,7 @@ def _classify_unique_documents(
         extracted_name = payload.get("extracted_name")
         extracted_passport_number = payload.get("extracted_passport_number")
         extracted_reference = payload.get("extracted_reference")
+        manual_review_allowed = payload.get("manual_review_allowed", False)
         if reason in {
             "PDF parser capacity is temporarily exhausted",
             "PDF parser service is temporarily unavailable",
@@ -343,6 +349,7 @@ def _classify_unique_documents(
             and (extracted_name is None or isinstance(extracted_name, str))
             and (extracted_passport_number is None or isinstance(extracted_passport_number, str))
             and (extracted_reference is None or isinstance(extracted_reference, str))
+            and isinstance(manual_review_allowed, bool)
         )
         if not payload_is_valid:
             sandbox_classifications.append(
@@ -368,6 +375,9 @@ def _classify_unique_documents(
                 extracted_name=cast(str | None, extracted_name),
                 extracted_passport_number=cast(str | None, extracted_passport_number),
                 extracted_reference=cast(str | None, extracted_reference),
+                manual_review_allowed=(
+                    manual_review_allowed is True and detected_type == "unknown" and not accepted
+                ),
             )
         )
     if reject_common_unsupported_format:
@@ -395,6 +405,7 @@ class DocumentMatcher:
 
         # The filename is intentionally excluded from classification. A file
         # named VISA.pdf must not turn an unrelated or unreadable PDF into a visa.
+        self._last_pdf_safety_passed = False
         text = self._pdf_text(content)
         visa_facts = self._extract_visa_facts(text)
         detected_type = self._detect_type(text, visa_facts=visa_facts)
@@ -419,6 +430,9 @@ class DocumentMatcher:
             extracted_name=visa_facts.name or self._extract_name(text, detected_type),
             extracted_passport_number=visa_facts.passport_number,
             extracted_reference=self._extract_reference(text),
+            manual_review_allowed=(
+                not accepted and detected_type == "unknown" and self._last_pdf_safety_passed
+            ),
         )
 
     def build_index(
@@ -697,7 +711,14 @@ class DocumentMatcher:
             reason="PDF text exact passenger name uniquely matched",
             ambiguity_reason="PDF text passenger name matches multiple passengers",
         )
-        if document.detected_type == "flight_ticket":
+        manually_approved_flight = (
+            document.accepted
+            and has_manual_document_type_approval(document.reason)
+            and classification_document_type(
+                document.reason.removeprefix(MANUAL_DOCUMENT_TYPE_APPROVAL_PREFIX)
+            ) == "flight_ticket"
+        )
+        if document.detected_type == "flight_ticket" or manually_approved_flight:
             partial_name_matches = self._resolve_ticket_manifest_partial_names(
                 document.text,
                 prepared,
@@ -841,6 +862,7 @@ class DocumentMatcher:
 
     def _pdf_text(self, content: bytes) -> str:
         read = self._read_pdf_text_with_pypdf(content)
+        self._last_pdf_safety_passed = read.safe_for_ocr
         if read.text or not read.safe_for_ocr:
             return read.text
         return self._ocr_validated_image_only_pdf(content)

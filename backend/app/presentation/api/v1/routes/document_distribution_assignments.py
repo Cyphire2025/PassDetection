@@ -18,6 +18,9 @@ from app.infrastructure.database.models import (
     DocumentWhatsAppDeliveryModel,
 )
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.documents.document_approval_provenance import (
+    preserve_document_type_approval,
+)
 from app.infrastructure.documents.storage_cleanup import (
     process_storage_cleanup_job,
     stage_storage_cleanup_jobs,
@@ -162,7 +165,10 @@ async def unassign_distribution_documents(
         document.passenger_id = None
         document.match_status = "needs_review"
         document.match_confidence = 0.0
-        document.match_reason = "Assignment removed manually; saved PDF retained for review"
+        document.match_reason = preserve_document_type_approval(
+            document.match_reason,
+            "Assignment removed manually; saved PDF retained for review",
+        )
         document.updated_at = now
     await session.flush()
     await _refresh_distribution_batches(

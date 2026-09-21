@@ -39,6 +39,10 @@ export interface VerifiedDistributedDocument {
   match_status: string | null;
   match_reason: string | null;
   staging_receipt: string | null;
+  manual_review_token?: string | null;
+  /** Browser metadata only; the approval token and original PDF are not persisted. */
+  manual_review_available?: boolean;
+  manual_type_approved?: boolean;
 }
 
 export interface DocumentVerificationResult {
@@ -56,6 +60,7 @@ export interface DistributedDocument {
   document_type: DistributionDocumentType | string;
   detected_type: string;
   match_status: "matched" | "needs_review" | "duplicate_document" | string;
+  manual_type_approved?: boolean;
   match_confidence: number;
   match_reason: string | null;
   extracted_name: string | null;

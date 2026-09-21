@@ -66,6 +66,7 @@ import {
   DocumentUploadPanel,
   type DocumentUploadPhase,
 } from "./document-upload-panel";
+import { useDocumentManualReview } from "../hooks/use-document-manual-review";
 
 function DialogLoadingFallback() {
   return (
@@ -92,6 +93,10 @@ const RemoveAssignmentsDialog = dynamic(
 const DocumentWorkspaceUploadStatus = dynamic(
   () => import("./document-workspace-upload-status").then((module) => module.DocumentWorkspaceUploadStatus),
   { loading: () => <Skeleton className="h-32 rounded-xl" /> },
+);
+const DocumentManualReviewDialog = dynamic(
+  () => import("./document-manual-review-dialog").then((module) => module.DocumentManualReviewDialog),
+  { loading: DialogLoadingFallback },
 );
 const DocumentWorkspaceReviewControls = dynamic(
   () => import("./document-workspace-review-controls").then((module) => module.DocumentWorkspaceReviewControls),
@@ -153,6 +158,13 @@ export function DocumentWorkspace({
     group?.group_name,
   );
   const verify = useVerifyDistributionDocuments(groupId, documentType);
+  const { reset: resetVerification } = verify;
+  const manualReview = useDocumentManualReview(groupId, documentType);
+  const { replaceCandidates: replaceManualReviewCandidates } = manualReview;
+  const reviewableFileIndexes = useMemo(
+    () => new Set(manualReview.candidates.keys()),
+    [manualReview.candidates],
+  );
   const upload = useUploadDistributionDocuments(groupId, documentType);
   const abortUploads = useAbortDistributionUploads(groupId, documentType);
   const reupload = useReuploadPassengerDocument(groupId, documentType);
@@ -169,6 +181,7 @@ export function DocumentWorkspace({
   const documentTypeOperationPending =
     phase !== "idle" ||
     verify.isPending ||
+    manualReview.pending ||
     upload.isPending ||
     abortUploads.isPending ||
     reupload.isPending ||
@@ -189,6 +202,11 @@ export function DocumentWorkspace({
     stagingManifest && processingUploadIds.includes(stagingManifest.uploadId),
   );
   const hasIncompleteUploads = processingUploadIds.length > 0;
+  const manualReviewLocked = Boolean(
+    hasIncompleteUploads || stagingManifest?.finalizationStarted
+    || (stagingManifest?.completedChunks ?? 0) > 0,
+  );
+  const manualReviewDisabled = documentTypeOperationPending || manualReviewLocked;
   const reviewModel = useMemo(
     () => createDocumentReviewModel(review.data),
     [review.data],
@@ -281,12 +299,16 @@ export function DocumentWorkspace({
       setVerification(recovered?.verification ?? null);
       setStagingManifest(recovered?.manifest ?? null);
       setSelectedFiles([]);
+      replaceManualReviewCandidates([]);
+      resetVerification();
     });
 
     const abortSensitiveWork = () => {
       activeRequestRef.current?.abort("session-reset");
       activeRequestRef.current = null;
       setSelectedFiles([]);
+      replaceManualReviewCandidates([]);
+      resetVerification();
       setVerification(null);
       setStagingManifest(null);
       setProgressDetail(null);
@@ -302,7 +324,7 @@ export function DocumentWorkspace({
       window.removeEventListener(SENSITIVE_STATE_RESET_EVENT, abortSensitiveWork);
       unsubscribeSessionResets();
     };
-  }, [documentType, groupId]);
+  }, [documentType, groupId, replaceManualReviewCandidates, resetVerification]);
 
   const beginAbortableRequest = () => {
     activeRequestRef.current?.abort("document-operation-replaced");
@@ -320,6 +342,8 @@ export function DocumentWorkspace({
     activeRequestRef.current = null;
     clearDocumentUploadRecovery(groupId, documentType);
     setSelectedFiles(files);
+    replaceManualReviewCandidates([]);
+    resetVerification();
     setVerification(null);
     setStagingManifest(null);
     setSelectionError(null);
@@ -329,10 +353,11 @@ export function DocumentWorkspace({
   };
 
   const checkDocuments = () => {
-    if (selectedFiles.length === 0) return;
+    if (selectedFiles.length === 0 || manualReview.pending) return;
     const controller = beginAbortableRequest();
     clearDocumentUploadRecovery(groupId, documentType);
     setStagingManifest(null);
+    replaceManualReviewCandidates([]);
     setSelectionError(null);
     setPhase("checking");
     setProgressDetail(null);
@@ -341,39 +366,47 @@ export function DocumentWorkspace({
       files: selectedFiles,
       signal: controller.signal,
       onProgress: (value) => {
+        if (controller.signal.aborted) return;
         setProgressDetail(value);
         setProgress(value.percent);
       },
     }, {
       onSuccess: (data) => {
+        if (controller.signal.aborted) return;
         persistDocumentUploadRecovery(groupId, documentType, {
           verification: data.verification,
           manifest: data.stagingManifest,
         });
-        // Verification has transferred durable ownership to encrypted staging;
-        // do not keep the original browser File objects alive in React state.
+        // Accepted PDFs now belong to encrypted staging. Retain only originals
+        // with a server-issued manual-review capability, in page memory.
         setSelectedFiles([]);
+        replaceManualReviewCandidates(data.manualReviewCandidates ?? []);
         setVerification(data.verification);
         setStagingManifest(data.stagingManifest);
         setProgress(100);
         setPhase("idle");
       },
       onError: () => {
+        if (controller.signal.aborted) return;
         setPhase("idle");
       },
-      onSettled: () => releaseRequest(controller),
+      onSettled: (data) => {
+        // Release the mutation's input File array and transient review tokens.
+        if (data && !controller.signal.aborted) resetVerification();
+        releaseRequest(controller);
+      },
     });
   };
 
   const startUpload = () => {
-    if (acceptedFileCount === 0) return;
+    if (acceptedFileCount === 0 || manualReview.pending) return;
     if (hasIncompleteUploads && !canResumeCurrentUpload) {
       setSelectionError(
         "Discard the incomplete upload before starting another PDF upload.",
       );
       return;
     }
-    const activeManifest = stagingManifest;
+    const activeManifest = stagingManifest ? { ...stagingManifest, finalizationStarted: true } : null;
     const activeVerification = verification;
     if (!activeManifest || !activeVerification) {
       setSelectionError("Check the selected PDFs again before uploading them.");
@@ -382,6 +415,11 @@ export function DocumentWorkspace({
     const controller = beginAbortableRequest();
     setSelectionError(null);
     setPhase("uploading");
+    setStagingManifest(activeManifest);
+    persistDocumentUploadRecovery(groupId, documentType, {
+      verification: activeVerification,
+      manifest: activeManifest,
+    });
     setProgressDetail(null);
     setProgress(0);
     upload.mutate(
@@ -389,6 +427,7 @@ export function DocumentWorkspace({
         manifest: activeManifest,
         signal: controller.signal,
         onManifestChange: (manifest) => {
+          if (controller.signal.aborted) return;
           setStagingManifest(manifest);
           persistDocumentUploadRecovery(groupId, documentType, {
             verification: activeVerification,
@@ -396,6 +435,7 @@ export function DocumentWorkspace({
           });
         },
         onProgress: (value) => {
+          if (controller.signal.aborted) return;
           setPhase("uploading");
           setProgressDetail(value);
           setProgress(value.percent);
@@ -403,8 +443,10 @@ export function DocumentWorkspace({
       },
       {
         onSuccess: () => {
+          if (controller.signal.aborted) return;
           clearDocumentUploadRecovery(groupId, documentType);
           setSelectedFiles([]);
+          replaceManualReviewCandidates([]);
           setVerification(null);
           setStagingManifest(null);
           setProgressDetail(null);
@@ -412,6 +454,7 @@ export function DocumentWorkspace({
           setPhase("idle");
         },
         onError: () => {
+          if (controller.signal.aborted) return;
           setPhase("idle");
         },
         onSettled: () => releaseRequest(controller),
@@ -473,6 +516,7 @@ export function DocumentWorkspace({
         uploadPending={upload.isPending}
         verifyPending={verify.isPending}
         abortPending={abortUploads.isPending}
+        manualReviewPending={manualReview.pending}
         onFilesSelected={resetSelection}
         onCheck={checkDocuments}
         onUpload={startUpload}
@@ -493,6 +537,33 @@ export function DocumentWorkspace({
           deleteError={deleteDocuments.error}
           unassignError={unassignDocuments.error}
           verification={verification}
+          reviewableFileIndexes={reviewableFileIndexes}
+          manualReviewDisabled={manualReviewDisabled}
+          manualReviewLocked={manualReviewLocked}
+          onReviewFile={manualReview.openReview}
+        />
+      )}
+
+      {manualReview.reviewCandidate && verification && (
+        <DocumentManualReviewDialog
+          key={manualReview.reviewCandidate.chunkId}
+          file={manualReview.reviewCandidate.file}
+          lane={lane}
+          reason={verification.files[manualReview.reviewCandidate.fileIndex]?.reason ?? "Document type could not be identified."}
+          pending={manualReview.pending}
+          error={manualReview.error}
+          onClose={manualReview.closeReview}
+          onApprove={() => {
+            if (manualReviewDisabled || !stagingManifest) return;
+            void manualReview.approve(verification, stagingManifest, (plan) => {
+              setVerification(plan.verification);
+              setStagingManifest(plan.stagingManifest);
+              persistDocumentUploadRecovery(groupId, documentType, {
+                verification: plan.verification,
+                manifest: plan.stagingManifest,
+              });
+            });
+          }}
         />
       )}
 
@@ -718,6 +789,7 @@ export function DocumentWorkspace({
               onSuccess: () => {
                 clearDocumentUploadRecovery(groupId, documentType);
                 setSelectedFiles([]);
+                replaceManualReviewCandidates([]);
                 setVerification(null);
                 setStagingManifest(null);
                 setSelectionError(null);

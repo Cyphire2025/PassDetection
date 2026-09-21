@@ -37,6 +37,8 @@ export interface DocumentStagingManifest {
   totalBytes: number;
   completedChunks: number;
   createdAt: string;
+  /** Freeze the receipt roster once a request may have reached finalization. */
+  finalizationStarted?: boolean;
 }
 
 export interface DocumentUploadProgress {

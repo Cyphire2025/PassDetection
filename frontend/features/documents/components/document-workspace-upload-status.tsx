@@ -18,6 +18,10 @@ interface DocumentWorkspaceUploadStatusProps {
   deleteError: Error | null;
   unassignError: Error | null;
   verification: DocumentVerificationResult | null;
+  reviewableFileIndexes?: ReadonlySet<number>;
+  manualReviewDisabled?: boolean;
+  manualReviewLocked?: boolean;
+  onReviewFile?: (index: number) => void;
 }
 
 export function DocumentWorkspaceUploadStatus({
@@ -33,6 +37,10 @@ export function DocumentWorkspaceUploadStatus({
   deleteError,
   unassignError,
   verification,
+  reviewableFileIndexes,
+  manualReviewDisabled,
+  manualReviewLocked,
+  onReviewFile,
 }: DocumentWorkspaceUploadStatusProps) {
   return (
     <Card>
@@ -111,7 +119,15 @@ export function DocumentWorkspaceUploadStatus({
           </div>
         )}
 
-        {verification && <VerificationPanel verification={verification} />}
+        {verification && (
+          <VerificationPanel
+            verification={verification}
+            reviewableFileIndexes={reviewableFileIndexes}
+            manualReviewDisabled={manualReviewDisabled}
+            manualReviewLocked={manualReviewLocked}
+            onReviewFile={onReviewFile}
+          />
+        )}
       </CardContent>
     </Card>
   );

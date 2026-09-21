@@ -7,7 +7,7 @@ import {
   RefreshCw,
   XCircle,
 } from "lucide-react";
-import { Badge } from "@/components/ui";
+import { Badge, Button } from "@/components/ui";
 import type {
   DistributedDocument,
   DistributionDocumentType,
@@ -18,11 +18,23 @@ import { distributionDocumentUploadLabel } from "../config/document-distribution
 
 type VerificationPanelProps = {
   verification: DocumentVerificationResult;
+  reviewableFileIndexes?: ReadonlySet<number>;
+  manualReviewDisabled?: boolean;
+  manualReviewLocked?: boolean;
+  onReviewFile?: (index: number) => void;
 };
 
-export function VerificationPanel({ verification }: VerificationPanelProps) {
-  const accepted = verification.files.filter((file) => file.accepted);
-  const rejected = verification.files.filter((file) => !file.accepted);
+export function VerificationPanel({
+  verification,
+  reviewableFileIndexes,
+  manualReviewDisabled = false,
+  manualReviewLocked = false,
+  onReviewFile,
+}: VerificationPanelProps) {
+  const indexedFiles = verification.files.map((file, index) => ({ file, index }));
+  const accepted = indexedFiles.filter(({ file }) => file.accepted);
+  const rejected = indexedFiles.filter(({ file }) => !file.accepted);
+  const hasManualReview = rejected.some(({ file }) => file.manual_review_available && !file.manual_type_approved);
 
   return (
     <div className="rounded-xl border border-slate-200 bg-slate-50">
@@ -39,6 +51,14 @@ export function VerificationPanel({ verification }: VerificationPanelProps) {
         </div>
       </div>
 
+      {hasManualReview && (
+        <p className="border-b border-slate-200 px-4 py-3 text-sm text-slate-600">
+          {manualReviewLocked
+            ? "This upload has started. Finish or discard it, then select and check any remaining rejected PDFs again to review their type."
+            : "If the document type could not be identified, review the PDF and approve its type before clicking Upload Accepted. A confirmed passenger match is still required. Review originals stay available only on this page; after a refresh, select and check those PDFs again."}
+        </p>
+      )}
+
       <div className="grid gap-4 p-4 lg:grid-cols-2">
         <div className="min-w-0">
           <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-green-800">
@@ -50,8 +70,8 @@ export function VerificationPanel({ verification }: VerificationPanelProps) {
               <div className="p-4 text-sm text-slate-500">No files passed the document check.</div>
             ) : (
               <div className="divide-y divide-slate-100">
-                {accepted.map((file) => (
-                  <div key={file.filename} className="p-3 text-sm">
+                {accepted.map(({ file, index }) => (
+                  <div key={index} className="p-3 text-sm">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="truncate font-medium text-slate-900">{file.filename}</div>
@@ -59,7 +79,7 @@ export function VerificationPanel({ verification }: VerificationPanelProps) {
                           <VerificationMatchText file={file} />
                         </div>
                       </div>
-                      <Badge variant="success">{file.detected_type}</Badge>
+                      <Badge variant="success">{file.manual_type_approved ? "Manually approved" : file.detected_type}</Badge>
                     </div>
                   </div>
                 ))}
@@ -78,15 +98,37 @@ export function VerificationPanel({ verification }: VerificationPanelProps) {
               <div className="p-4 text-sm text-slate-500">No files were rejected.</div>
             ) : (
               <div className="divide-y divide-slate-100">
-                {rejected.map((file) => (
-                  <div key={file.filename} className="p-3 text-sm">
+                {rejected.map(({ file, index }) => (
+                  <div key={index} className="p-3 text-sm">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="truncate font-medium text-slate-900">{file.filename}</div>
                         <div className="mt-1 text-xs text-red-700">{file.reason}</div>
+                        {file.manual_type_approved && (
+                          <p className="mt-1 text-xs text-slate-600">Type approved; a confirmed passenger match is still needed before upload.</p>
+                        )}
                       </div>
-                      <Badge variant="destructive">{file.detected_type}</Badge>
+                      <Badge variant={file.manual_type_approved ? "outline" : "destructive"}>
+                        {file.manual_type_approved ? "Type approved" : file.detected_type}
+                      </Badge>
                     </div>
+                    {file.manual_review_available && !file.manual_type_approved && onReviewFile && (
+                      <div className="mt-2">
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          disabled={manualReviewDisabled || !reviewableFileIndexes?.has(index)}
+                          onClick={() => onReviewFile(index)}
+                          aria-label={`Review and approve ${file.filename}`}
+                        >
+                          Review &amp; approve
+                        </Button>
+                        {!reviewableFileIndexes?.has(index) && (
+                          <p className="mt-1 text-xs text-slate-500">Select and check this PDF again to review its type.</p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

@@ -42,6 +42,8 @@ class VerifiedDocumentResponse(BaseModel):
     match_status: str | None = None
     match_reason: str | None = None
     staging_receipt: str | None = None
+    manual_review_token: str | None = None
+    manual_type_approved: bool = False
 
 
 class VerifyDocumentBatchResponse(BaseModel):
@@ -58,6 +60,7 @@ class DistributedDocumentResponse(BaseModel):
     original_filename: str
     document_type: str
     detected_type: str
+    manual_type_approved: bool = False
     match_status: str
     match_confidence: float
     match_reason: str | None = None

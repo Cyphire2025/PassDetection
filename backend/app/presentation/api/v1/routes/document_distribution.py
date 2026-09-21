@@ -165,6 +165,9 @@ from app.presentation.api.v1.routes.document_distribution_groups_read import (
 from app.presentation.api.v1.routes.document_distribution_groups_read import (
     router as _groups_read_router,
 )
+from app.presentation.api.v1.routes.document_distribution_manual_verification import (
+    router as _manual_verification_router,
+)
 from app.presentation.api.v1.routes.document_distribution_matching import (
     _linked_document_match_identifiers as _linked_document_match_identifiers,
 )
@@ -368,6 +371,7 @@ router = APIRouter()
 router.include_router(_traveller_welcome_router)
 router.include_router(_groups_read_router)
 router.include_router(_verification_router)
+router.include_router(_manual_verification_router)
 router.include_router(_upload_router)
 router.include_router(_upload_abort_router)
 router.include_router(_reupload_router)

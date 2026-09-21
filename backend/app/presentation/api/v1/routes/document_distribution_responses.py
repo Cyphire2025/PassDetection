@@ -16,6 +16,9 @@ from app.infrastructure.database.models import (
     DocumentUploadChunkModel,
     DocumentWhatsAppDeliveryModel,
 )
+from app.infrastructure.documents.document_approval_provenance import (
+    has_manual_document_type_approval,
+)
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.routes.document_distribution_shared import (
     DOCUMENT_DELIVERY_ACCEPTED_STATUSES,
@@ -65,6 +68,7 @@ async def _document_response(
         match_status=document.match_status,
         match_confidence=document.match_confidence,
         match_reason=document.match_reason,
+        manual_type_approved=has_manual_document_type_approval(document.match_reason),
         extracted_name=document.extracted_name,
         extracted_passport_number=document.extracted_passport_number,
         extracted_reference=document.extracted_reference,

@@ -266,6 +266,7 @@ def _classify_one_pdf(
             "extracted_name": classification.extracted_name,
             "extracted_passport_number": classification.extracted_passport_number,
             "extracted_reference": classification.extracted_reference,
+            "manual_review_allowed": classification.manual_review_allowed,
         }
     except DocumentOcrUnavailableError:
         return index, _failed_payload(filename, PDF_OCR_RETRY_REASON)

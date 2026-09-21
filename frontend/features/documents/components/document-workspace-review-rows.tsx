@@ -106,6 +106,9 @@ export function DocumentWorkspaceReviewRows({
                       <div className="mt-1 text-xs text-slate-500">
                         {document.source === "email" ? "Saved from email" : "Manual upload"}
                       </div>
+                      {document.manual_type_approved && (
+                        <Badge variant="outline" className="mt-1 w-fit">Manually approved</Badge>
+                      )}
                     </div>
                   ))}
                 </div>

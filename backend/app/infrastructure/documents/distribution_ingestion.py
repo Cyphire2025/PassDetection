@@ -27,6 +27,10 @@ from app.infrastructure.database.models import (
 from app.infrastructure.documents.distribution_capacity import (
     enforce_distribution_assignment_capacity,
 )
+from app.infrastructure.documents.document_approval_provenance import (
+    has_manual_document_type_approval,
+    preserve_document_type_approval,
+)
 from app.infrastructure.documents.document_matcher import (
     ClassifiedDocument,
     DocumentMatcher,
@@ -328,12 +332,15 @@ class TravelDocumentIngestionService:
                         detected_type=classification.detected_type,
                         match_status=match.status,
                         match_confidence=match.confidence,
-                        match_reason=(
-                            "Shared PDF matched "
-                            f"{len(matches)} passenger"
-                            f"{'' if len(matches) == 1 else 's'}"
-                            if len(matches) > 1 and match.status == "matched"
-                            else match.reason
+                        match_reason=preserve_document_type_approval(
+                            classification.reason,
+                            (
+                                "Shared PDF matched "
+                                f"{len(matches)} passenger"
+                                f"{'' if len(matches) == 1 else 's'}"
+                                if len(matches) > 1 and match.status == "matched"
+                                else match.reason
+                            ),
                         ),
                         extracted_name=classification.extracted_name,
                         extracted_passport_number=(classification.extracted_passport_number),
@@ -392,6 +399,11 @@ class TravelDocumentIngestionService:
                     "rejected_count": batch.rejected_count,
                     "matched_count": batch.matched_count,
                     "source": audit_source,
+                    "manual_type_approved_files": [
+                        file.filename
+                        for file, classification, _ in accepted
+                        if has_manual_document_type_approval(classification.reason)
+                    ],
                 },
             )
             # Surface relational constraint errors while object-storage

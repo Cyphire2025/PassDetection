@@ -10,6 +10,7 @@ import type {
   DocumentDeliveryTracking,
   DocumentVerificationResult,
   SendDocumentBroadcastResult,
+  VerifiedDistributedDocument,
 } from "@/types/document-distribution.types";
 import {
   createDocumentStagingManifest,
@@ -22,10 +23,12 @@ import {
   type DocumentUploadProgress,
 } from "../services/document-upload-batching";
 import { verificationWithoutStagingReceipts } from "../services/document-upload-recovery";
+import type { DocumentManualReviewCandidate } from "../services/document-manual-review";
 
 export interface DocumentVerificationUploadPlan {
   verification: DocumentVerificationResult;
   stagingManifest: DocumentStagingManifest;
+  manualReviewCandidates?: DocumentManualReviewCandidate[];
 }
 
 export type DocumentAssignmentExportFilter =
@@ -75,6 +78,13 @@ export const documentDistributionApi = {
     signal?: AbortSignal,
   ): Promise<DocumentVerificationUploadPlan> => {
     const session = createDocumentVerificationSession(files);
+    const manualReviewByChunk: DocumentManualReviewCandidate[][] = [];
+    let fileOffset = 0;
+    const fileOffsets = session.chunks.map((chunk) => {
+      const offset = fileOffset;
+      fileOffset += chunk.length;
+      return offset;
+    });
     const completedResults = await runConcurrentDocumentVerification({
       session,
       concurrency: MAX_DOCUMENT_VERIFICATION_CONCURRENCY,
@@ -94,6 +104,20 @@ export const documentDistributionApi = {
             signal,
             onUploadProgress: (event) => reportUpload(event.loaded, event.total),
           },
+        );
+        if (data.files.length !== chunk.length) {
+          throw new Error("The document verification response did not match the selected PDFs.");
+        }
+        manualReviewByChunk[chunkIndex] = data.files.flatMap((result, index) =>
+          !result.accepted && result.manual_review_token
+            ? [{
+              fileIndex: fileOffsets[chunkIndex] + index,
+              file: chunk[index],
+              approvalToken: result.manual_review_token,
+              uploadId: session.uploadId,
+              chunkId: crypto.randomUUID(),
+            }]
+            : [],
         );
         return data;
       },
@@ -144,7 +168,32 @@ export const documentDistributionApi = {
     return {
       stagingManifest,
       verification,
+      manualReviewCandidates: manualReviewByChunk.flat(),
     };
+  },
+
+  manuallyVerifyDocument: async (
+    groupId: string,
+    documentType: DistributionDocumentType,
+    candidate: DocumentManualReviewCandidate,
+    signal?: AbortSignal,
+  ): Promise<VerifiedDistributedDocument> => {
+    const formData = new FormData();
+    formData.append("file", candidate.file);
+    formData.append("approval_token", candidate.approvalToken);
+    formData.append("upload_id", candidate.uploadId);
+    formData.append("chunk_id", candidate.chunkId);
+    formData.append("confirmed", "true");
+    const { data } = await apiClient.post<VerifiedDistributedDocument>(
+      API_ENDPOINTS.documents.manualVerify(groupId, documentType),
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+        timeout: 240_000,
+        signal,
+      },
+    );
+    return data;
   },
 
   uploadDocuments: async (

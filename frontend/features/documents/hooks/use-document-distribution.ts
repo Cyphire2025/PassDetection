@@ -124,6 +124,7 @@ export function useAbortDistributionUploads(
 
 export function useVerifyDistributionDocuments(groupId: string, documentType: DistributionDocumentType) {
   return useMutation({
+    gcTime: 0,
     mutationFn: ({ files, onProgress, signal }: {
       files: File[];
       onProgress?: (progress: DocumentUploadProgress) => void;

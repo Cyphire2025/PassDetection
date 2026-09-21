@@ -19,9 +19,9 @@ from app.infrastructure.documents.document_matcher import (
     DocumentMatcher,
     DocumentParserUnavailableError,
     MatchResult,
-    UnsupportedDocumentBatchFormatError,
     classify_documents_bounded,
 )
+from app.infrastructure.documents.manual_type_approval import ManualDocumentApprovalCipher
 from app.infrastructure.documents.pdf_parser_sandbox import bounded_pdf_batch_timeout_seconds
 from app.infrastructure.documents.verification_staging import (
     VerificationStagingInput,
@@ -134,13 +134,8 @@ async def verify_documents(
             [(upload.filename, upload.content, document_type) for upload in uploads],
             isolate_pdf_parsing=True,
             batch_timeout_seconds=bounded_pdf_batch_timeout_seconds(len(uploads)),
-            reject_common_unsupported_format=True,
+            reject_common_unsupported_format=False,
         )
-    except UnsupportedDocumentBatchFormatError as exc:
-        raise HTTPException(
-            status_code=422,
-            detail=str(exc),
-        ) from exc
     except DocumentParserUnavailableError as exc:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -221,6 +216,7 @@ async def verify_documents(
         else {}
     )
 
+    approval_cipher = ManualDocumentApprovalCipher() if upload_id is not None else None
     verified: list[VerifiedDocumentResponse] = []
     for index, (upload, classification, candidate_matches, matches) in enumerate(
         zip(
@@ -269,6 +265,19 @@ async def verify_documents(
                     else None
                 ),
                 staging_receipt=staging_token_by_index.get(index),
+                manual_review_token=(
+                    approval_cipher.issue(
+                        classification=classification,
+                        content=upload.content,
+                        agency_id=agency_id,
+                        actor_id=current_user.id,
+                        group_id=group_id,
+                        upload_id=upload_id,
+                        document_type=document_type,
+                    )
+                    if approval_cipher is not None and upload_id is not None
+                    else None
+                ),
             )
         )
 

@@ -19,6 +19,7 @@ export function DocumentUploadPanel({
   uploadPending,
   verifyPending,
   abortPending,
+  manualReviewPending = false,
   onFilesSelected,
   onCheck,
   onUpload,
@@ -35,13 +36,14 @@ export function DocumentUploadPanel({
   uploadPending: boolean;
   verifyPending: boolean;
   abortPending: boolean;
+  manualReviewPending?: boolean;
   onFilesSelected: (files: File[]) => void;
   onCheck: () => void;
   onUpload: () => void;
   onDiscardIncomplete: () => void;
 }) {
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const operationPending = uploadPending || verifyPending;
+  const operationPending = uploadPending || verifyPending || manualReviewPending;
 
   return (
     <Card>
