@@ -6,8 +6,8 @@ import uuid
 from datetime import UTC, datetime, timedelta
 from typing import Any, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import and_, func, or_, select
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import and_, case, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
@@ -23,6 +23,9 @@ from app.infrastructure.database.models import (
 )
 from app.infrastructure.database.session import get_db_session
 from app.presentation.api.v1.schemas.whatsapp_activity_schemas import (
+    DocumentActivityDeliveriesResponse,
+    DocumentActivityDeliveryResponse,
+    DocumentActivityStatusFilter,
     WhatsAppActivityFailureResponse,
     WhatsAppActivityKind,
     WhatsAppActivitySummaryResponse,
@@ -42,6 +45,10 @@ SUCCESS_STATUSES = frozenset({"submitted", "sent", "delivered", "read"})
 UNCERTAIN_STATUSES = frozenset({"delivery_unknown", "stalled"})
 KNOWN_STATUSES = ACTIVE_STATUSES | SUCCESS_STATUSES | UNCERTAIN_STATUSES
 ACTIVITY_STALE_AFTER = timedelta(minutes=30)
+ACTIVITY_STATUS_COUNT_KEYS = (
+    "queued", "processing", "submitted", "sent", "delivered", "read",
+    "failed", "delivery_unknown", "stalled",
+)
 
 _BROADCAST_TITLES = {
     "welcome": "Welcome message broadcast",
@@ -49,6 +56,21 @@ _BROADCAST_TITLES = {
     "reminder": "Reminder broadcast",
     "group_invite": "WhatsApp group invite broadcast",
 }
+
+
+def _normalized_activity_status(
+    status_column: Any,
+    status_updated_column: Any,
+    *,
+    stale_cutoff: datetime,
+) -> Any:
+    return case(
+        (
+            and_(status_column.in_(ACTIVE_STATUSES), status_updated_column < stale_cutoff),
+            "stalled",
+        ),
+        else_=status_column,
+    )
 
 
 def _status_aggregates(
@@ -62,12 +84,21 @@ def _status_aggregates(
     is_queued = and_(is_active, ~is_stale)
     is_unknown = or_(status_column.in_(UNCERTAIN_STATUSES), is_stale)
     is_failed = ~status_column.in_(KNOWN_STATUSES)
+    normalized_status = _normalized_activity_status(
+        status_column, status_updated_column, stale_cutoff=stale_cutoff,
+    )
     return (
         func.count().label("total"),
         func.count().filter(is_queued).label("queued"),
         func.count().filter(status_column.in_(SUCCESS_STATUSES)).label("sent"),
         func.count().filter(is_failed).label("failed"),
         func.count().filter(is_unknown).label("delivery_unknown"),
+        *(
+            func.count()
+            .filter(is_failed if name == "failed" else normalized_status == name)
+            .label(f"status_count_{name}")
+            for name in ACTIVITY_STATUS_COUNT_KEYS
+        ),
     )
 
 
@@ -134,7 +165,10 @@ def _document_activity_statement(
         )
         .join(
             ClientGroupModel,
-            ClientGroupModel.id == DocumentWhatsAppDeliveryModel.group_id,
+            and_(
+                ClientGroupModel.id == DocumentWhatsAppDeliveryModel.group_id,
+                ClientGroupModel.agency_id == DocumentWhatsAppDeliveryModel.agency_id,
+            ),
         )
         .where(DocumentWhatsAppDeliveryModel.send_batch_id == batch_id)
         .group_by(
@@ -145,6 +179,60 @@ def _document_activity_statement(
         )
     )
     return _scope_client_group_statement(statement, current_user)
+
+
+def _document_activity_deliveries_statement(
+    *,
+    batch_id: uuid.UUID,
+    current_user: User,
+    stale_cutoff: datetime,
+) -> Any:
+    statement = (
+        select(
+            DocumentWhatsAppDeliveryModel.id.label("delivery_id"),
+            DocumentWhatsAppDeliveryModel.passenger_name,
+            DocumentWhatsAppDeliveryModel.phone_number,
+            DocumentWhatsAppDeliveryModel.document_filename,
+            DocumentWhatsAppDeliveryModel.document_type,
+            _normalized_activity_status(
+                DocumentWhatsAppDeliveryModel.status,
+                DocumentWhatsAppDeliveryModel.status_updated_at,
+                stale_cutoff=stale_cutoff,
+            ).label("status"),
+            DocumentWhatsAppDeliveryModel.error_message,
+            DocumentWhatsAppDeliveryModel.status_updated_at,
+        )
+        .select_from(DocumentWhatsAppDeliveryModel)
+        .join(
+            ClientGroupModel,
+            and_(
+                ClientGroupModel.id == DocumentWhatsAppDeliveryModel.group_id,
+                ClientGroupModel.agency_id == DocumentWhatsAppDeliveryModel.agency_id,
+            ),
+        )
+        .where(DocumentWhatsAppDeliveryModel.send_batch_id == batch_id)
+    )
+    return _scope_client_group_statement(statement, current_user)
+
+
+def _document_activity_status_predicate(
+    status_filter: DocumentActivityStatusFilter, *, stale_cutoff: datetime,
+) -> Any:
+    status_column = DocumentWhatsAppDeliveryModel.status
+    if status_filter == "sent":
+        return status_column.in_(SUCCESS_STATUSES)
+    if status_filter == "delivered":
+        return status_column.in_(("delivered", "read"))
+    if status_filter == "failed":
+        return _failed_status_predicate(status_column)
+    normalized_status = _normalized_activity_status(
+        status_column,
+        DocumentWhatsAppDeliveryModel.status_updated_at,
+        stale_cutoff=stale_cutoff,
+    )
+    if status_filter == "needs_review":
+        return normalized_status.in_(UNCERTAIN_STATUSES)
+    return normalized_status == status_filter
 
 
 def _qr_activity_statement(
@@ -355,8 +443,90 @@ async def get_whatsapp_activity_summary(
         sent=int(summary.sent),
         failed=int(summary.failed),
         delivery_unknown=int(summary.delivery_unknown),
+        status_counts={
+            name: int(value)
+            for name in ACTIVITY_STATUS_COUNT_KEYS
+            if (value := getattr(summary, f"status_count_{name}", None)) is not None
+        },
         started_at=summary.started_at,
         updated_at=summary.updated_at,
+    )
+
+
+@router.get(
+    "/activities/document/{batch_id}/deliveries",
+    response_model=DocumentActivityDeliveriesResponse,
+)
+async def get_document_activity_deliveries(
+    batch_id: uuid.UUID,
+    status_filter: DocumentActivityStatusFilter = Query(default="all"),
+    q: str = Query(default="", max_length=120),
+    offset: int = Query(default=0, ge=0),
+    limit: int = Query(default=50, ge=1, le=100),
+    current_user: User = Depends(require_role(ACTIVITY_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> DocumentActivityDeliveriesResponse:
+    """Reveal only the requested page of an authorized document send batch."""
+
+    stale_cutoff = datetime.now(tz=UTC) - ACTIVITY_STALE_AFTER
+    statement = _document_activity_deliveries_statement(
+        batch_id=batch_id, current_user=current_user, stale_cutoff=stale_cutoff,
+    )
+    # Check batch visibility before applying filters; an empty filtered page is
+    # distinct from a missing batch or one belonging to an inaccessible group.
+    exists_result = await session.execute(
+        statement.with_only_columns(DocumentWhatsAppDeliveryModel.id).limit(1)
+    )
+    if exists_result.scalar_one_or_none() is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="WhatsApp broadcast activity not found",
+        )
+    if status_filter != "all":
+        statement = statement.where(
+            _document_activity_status_predicate(status_filter, stale_cutoff=stale_cutoff)
+        )
+    normalized_search = q.strip()
+    if normalized_search:
+        # Escape the LIKE escape character before user-provided wildcards.
+        escaped_search = (
+            normalized_search.replace("\\", "\\\\")
+            .replace("%", "\\%")
+            .replace("_", "\\_")
+        )
+        pattern = f"%{escaped_search}%"
+        statement = statement.where(or_(
+            DocumentWhatsAppDeliveryModel.passenger_name.ilike(pattern, escape="\\"),
+            DocumentWhatsAppDeliveryModel.phone_number.ilike(pattern, escape="\\"),
+            DocumentWhatsAppDeliveryModel.document_filename.ilike(pattern, escape="\\"),
+        ))
+    count_result = await session.execute(
+        statement.with_only_columns(func.count(), maintain_column_froms=True)
+    )
+    total = int(count_result.scalar_one())
+    result = await session.execute(
+        statement.order_by(
+            DocumentWhatsAppDeliveryModel.created_at.asc(),
+            DocumentWhatsAppDeliveryModel.id.asc(),
+        ).offset(offset).limit(limit)
+    )
+    return DocumentActivityDeliveriesResponse(
+        items=[
+            DocumentActivityDeliveryResponse(
+                delivery_id=row.delivery_id,
+                passenger_name=row.passenger_name,
+                phone_number=row.phone_number,
+                document_filename=row.document_filename,
+                document_type=row.document_type,
+                status=row.status,
+                error_message=row.error_message,
+                status_updated_at=row.status_updated_at,
+            )
+            for row in result.all()
+        ],
+        total=total,
+        offset=offset,
+        limit=limit,
     )
 
 

@@ -31,6 +31,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { createPortal } from "react-dom";
+import { DocumentDeliveryActivity } from "@/features/documents/components/document-delivery-activity";
 import { cn } from "@/lib/utils/cn";
 import {
   type WhatsAppActivityFailure,
@@ -38,6 +39,7 @@ import {
   whatsappActivityApi,
 } from "../api/whatsapp-activity.api";
 import {
+  documentActivityPollInterval,
   isMissingWhatsAppBatchStatus,
   shouldRetryWhatsAppBatchStatus,
   whatsappBatchHttpStatus,
@@ -229,6 +231,13 @@ export function WhatsAppActivityTrackerProvider({
         ) {
           return false;
         }
+        if (activity.kind === "document") {
+          return documentActivityPollInterval(
+            query.state.data?.queued ?? activity.queued,
+            query.state.data?.status_counts,
+            activity.startedAt,
+          );
+        }
         return whatsappBatchPollInterval(
           query.state.data?.queued ?? activity.queued,
           activity.startedAt,
@@ -276,7 +285,8 @@ export function WhatsAppActivityTrackerProvider({
       activities
         .filter(
           (activity) =>
-            activity.total > 0
+            activity.kind !== "document"
+            && activity.total > 0
             && activity.queued === 0
             && activity.failed === 0
             && activity.delivery_unknown === 0,
@@ -360,7 +370,14 @@ export function WhatsAppActivityInline() {
         </span>
       </div>
       <div className="divide-y divide-slate-100">
-        {activities.map((activity) => (
+        {activities.map((activity) => activity.kind === "document" ? (
+          <DocumentDeliveryActivity
+            key={`${activity.kind}:${activity.activity_id}`}
+            activity={activity}
+            variant="inline"
+            onDismiss={dismissActivity}
+          />
+        ) : (
           <WhatsAppActivityRow
             key={`${activity.kind}:${activity.activity_id}`}
             activity={activity}
@@ -577,7 +594,14 @@ function DraggableWhatsAppActivityOverlay({
       onClickCapture={suppressClickAfterDrag}
       aria-label="Movable WhatsApp delivery progress"
     >
-      {activities.map((activity) => (
+      {activities.map((activity) => activity.kind === "document" ? (
+        <DocumentDeliveryActivity
+          key={`${activity.kind}:${activity.activity_id}`}
+          activity={activity}
+          variant="floating"
+          onDismiss={onDismiss}
+        />
+      ) : (
         <WhatsAppActivityRow
           key={`${activity.kind}:${activity.activity_id}`}
           activity={activity}

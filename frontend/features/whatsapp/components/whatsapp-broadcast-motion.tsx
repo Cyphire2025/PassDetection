@@ -6,6 +6,7 @@ import type { WhatsAppMessageType } from "../api/whatsapp.api";
 import styles from "./whatsapp-broadcast-motion.module.css";
 
 export type BroadcastMotionState = "submitting" | "sending" | "complete" | "attention" | "reconnecting";
+type BroadcastMotionMessageType = WhatsAppMessageType | "document";
 
 /** Illustrative dispatch activity. Counts and delivery outcomes belong to the caller. */
 export function WhatsAppBroadcastMotion({
@@ -15,7 +16,7 @@ export function WhatsAppBroadcastMotion({
   startedAt,
   className,
 }: {
-  messageType?: WhatsAppMessageType;
+  messageType?: BroadcastMotionMessageType;
   state?: BroadcastMotionState;
   compact?: boolean;
   startedAt?: number;
@@ -146,7 +147,16 @@ function ChatPacket({ route }: { route: string }) {
   );
 }
 
-function MessageMark({ messageType }: { messageType?: WhatsAppMessageType }) {
+function MessageMark({ messageType }: { messageType?: BroadcastMotionMessageType }) {
+  if (messageType === "document") {
+    return (
+      <g stroke="#284D39" strokeWidth="1.8" strokeLinejoin="round">
+        <path d="M213 81H227L235 89V107H213Z" fill="#CDEB8A" />
+        <path d="M227 81V89H235" />
+        <text x="224" y="102" textAnchor="middle" fontSize="8" fontWeight="700" fill="#284D39" stroke="none">PDF</text>
+      </g>
+    );
+  }
   if (messageType === "passport_link") {
     return <g transform="translate(209 86)" stroke="#284D39" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5L15 2A6 6 0 0 1 23 10L18 15A6 6 0 0 1 10 15M15 12L12 15M9 12L6 15A6 6 0 0 1-2 7L3 2A6 6 0 0 1 11 2" /></g>;
   }

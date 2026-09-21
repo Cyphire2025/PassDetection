@@ -122,6 +122,8 @@ export const API_ENDPOINTS = {
       `/api/v1/whatsapp/activities/${kind}/${batchId}`,
     activityFailures: (kind: string, batchId: string) =>
       `/api/v1/whatsapp/activities/${kind}/${batchId}/failures`,
+    documentActivityDeliveries: (batchId: string) =>
+      `/api/v1/whatsapp/activities/document/${batchId}/deliveries`,
   },
 
   emailIntegrations: {

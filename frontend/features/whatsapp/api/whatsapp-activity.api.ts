@@ -15,6 +15,7 @@ export interface WhatsAppActivitySummary {
   sent: number;
   failed: number;
   delivery_unknown: number;
+  status_counts?: Record<string, number>;
   started_at: string;
   updated_at: string;
 }
@@ -23,6 +24,34 @@ export interface WhatsAppActivityFailure {
   recipient_name: string;
   phone_number: string;
   error_message: string | null;
+}
+
+export type DocumentDeliveryActivityFilter =
+  | "all"
+  | "queued"
+  | "processing"
+  | "sent"
+  | "delivered"
+  | "read"
+  | "failed"
+  | "needs_review";
+
+export interface DocumentDeliveryActivityItem {
+  delivery_id: string;
+  passenger_name: string;
+  phone_number: string;
+  document_filename: string;
+  document_type: string;
+  status: string;
+  error_message: string | null;
+  status_updated_at: string;
+}
+
+export interface DocumentDeliveryActivityPage {
+  items: DocumentDeliveryActivityItem[];
+  total: number;
+  offset: number;
+  limit: number;
 }
 
 export const whatsappActivityApi = {
@@ -46,6 +75,23 @@ export const whatsappActivityApi = {
     const { data } = await apiClient.get<WhatsAppActivityFailure[]>(
       API_ENDPOINTS.whatsapp.activityFailures(kind, batchId),
       { signal },
+    );
+    return data;
+  },
+
+  documentDeliveries: async (
+    batchId: string,
+    params: {
+      status_filter?: DocumentDeliveryActivityFilter;
+      q?: string;
+      offset?: number;
+      limit?: number;
+    },
+    signal?: AbortSignal,
+  ): Promise<DocumentDeliveryActivityPage> => {
+    const { data } = await apiClient.get<DocumentDeliveryActivityPage>(
+      API_ENDPOINTS.whatsapp.documentActivityDeliveries(batchId),
+      { params, signal },
     );
     return data;
   },

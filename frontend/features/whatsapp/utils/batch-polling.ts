@@ -63,3 +63,29 @@ export function whatsappBatchPollInterval(
   if (elapsedMs < THIRTY_MINUTES_MS) return WHATSAPP_BATCH_SLOW_POLL_MS;
   return WHATSAPP_BATCH_MAX_POLL_MS;
 }
+
+/** Track late document receipts for a bounded period after dispatch finishes. */
+export function documentActivityPollInterval(
+  queued: number | null | undefined,
+  statusCounts: Readonly<Record<string, number>> | null | undefined,
+  startedAt: number | null | undefined,
+  now: number = Date.now(),
+): number | false {
+  const queuedInterval = whatsappBatchPollInterval(queued, startedAt, now);
+  if (queuedInterval !== false) return queuedInterval;
+
+  if (
+    startedAt === null
+    || startedAt === undefined
+    || !Number.isFinite(startedAt)
+    || Math.max(0, now - startedAt) >= THIRTY_MINUTES_MS
+  ) {
+    return false;
+  }
+
+  const awaitingReceipt =
+    (statusCounts?.submitted ?? 0) > 0
+    || (statusCounts?.sent ?? 0) > 0
+    || (statusCounts?.delivered ?? 0) > 0;
+  return awaitingReceipt ? WHATSAPP_BATCH_SLOW_POLL_MS : false;
+}

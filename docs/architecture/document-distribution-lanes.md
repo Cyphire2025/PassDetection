@@ -141,6 +141,19 @@ transaction after the item work, including partially successful batches. These
 worker changes require a main-worker image rebuild; they need no schema change
 or database pool increase.
 
+The live document activity card separates accepted requests from delivery and
+read confirmations. Its status tiles open a searched, paginated list of individual
+PDF destinations and errors, preserving separate rows for shared phone numbers.
+The activity summary supplies compact status counts; document details are fetched
+only while expanded, in pages of 50 (the API caps pages at 100), using the same
+agency and group visibility rules. No passenger detail is persisted to browser
+storage. The inline and floating cards share this presentation, and completed
+document activities remain available until dismissed. Queued work retains the
+existing adaptive polling; receipt updates continue every ten seconds for up to
+thirty minutes from the tracked start, with manual refresh available afterwards.
+This activity UI and read-only API update requires backend and frontend deployment,
+with no worker restart or database migration.
+
 ## Lane migration release order
 
 Apply migration `0080_domestic_ticket_lanes` before serving frontend or backend

@@ -172,15 +172,16 @@ it("settles the existing scene during a status-fetch error and resumes it after 
   expect(original).toHaveAttribute("data-state", "sending");
 });
 
-it("restores old stored broadcasts with generic artwork while document and QR rows retain their existing UI", () => {
+it("restores old broadcasts and document artwork while QR keeps its compact progress", () => {
   window.sessionStorage.setItem(WHATSAPP_ACTIVITY_STORAGE_KEY, JSON.stringify([
     { ...activity, messageType: undefined },
     { ...activity, id: "document-a", kind: "document", title: "Visa documents", messageType: undefined },
     { ...activity, id: "qr-a", kind: "qr", title: "QR messages", messageType: undefined },
   ]));
   renderTracker();
-  expect(document.querySelectorAll('[data-whatsapp-broadcast-motion="true"]')).toHaveLength(1);
+  expect(document.querySelectorAll('[data-whatsapp-broadcast-motion="true"]')).toHaveLength(2);
   expect(scene()).toHaveAttribute("data-message-type", "broadcast");
+  expect(document.querySelector('[data-message-type="document"]')).not.toBeNull();
   expect(screen.getAllByRole("progressbar")).toHaveLength(3);
 });
 
