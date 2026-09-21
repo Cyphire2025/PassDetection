@@ -21,12 +21,12 @@ export function welcomeStatusLabel(status: string) {
   if (status === "queued" || status === "processing") return "Welcome in progress";
   if (status === "failed") return "Welcome failed";
   if (status === "delivery_unknown") return "Delivery unconfirmed";
-  if (status === "required") return "Welcome needed";
+  if (status === "required") return "Not yet welcomed";
   return "Blocked";
 }
 
 export function welcomeStatusTone(status: string): "success" | "warning" | "outline" {
   if (status === "delivered" || status === "read") return "success";
-  if (["required", "failed", "delivery_unknown"].includes(status)) return "warning";
+  if (["failed", "delivery_unknown"].includes(status)) return "warning";
   return "outline";
 }

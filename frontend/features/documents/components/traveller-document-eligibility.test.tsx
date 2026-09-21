@@ -6,20 +6,21 @@ import { eligibleWelcomePhones, selectedWelcomePhones } from "./traveller-welcom
 import { documentPreview, welcomeRecipient } from "./traveller-welcome.test-fixtures";
 
 describe("traveller document eligibility", () => {
-  it("drops stale selections and resends when a changed phone needs welcoming", () => {
-    expect(activeDeliverySelection(documentPreview(), ["visa-1"], ["visa-1"]))
+  it("drops stale selections and resends when a changed phone is invalid", () => {
+    const data = documentPreview();
+    Object.assign(data.recipients[0], { phone_number: null, eligible: false, delivery_status: "blocked" });
+    expect(activeDeliverySelection(data, ["visa-1"], ["visa-1"]))
       .toEqual({ documentIds: [], resendDocumentIds: [] });
   });
 
-  it("fails closed if a row is marked eligible but still requires welcome", () => {
+  it("allows an eligible document independently of a legacy welcome flag", () => {
     const data = documentPreview();
-    data.recipients[0].eligible = true;
-    expect(activeDeliverySelection(data, ["visa-1"], [])).toEqual({ documentIds: [], resendDocumentIds: [] });
+    Object.assign(data.recipients[0], { welcome_required: true, welcome_status: "required" });
+    expect(activeDeliverySelection(data, ["visa-1"], [])).toEqual({ documentIds: ["visa-1"], resendDocumentIds: [] });
   });
 
-  it("allows documents after confirmed welcome and preserves explicit resend requirements", () => {
+  it("allows documents without a welcome and preserves explicit resend requirements", () => {
     const data = documentPreview();
-    Object.assign(data.recipients[0], { eligible: true, welcome_required: false, welcome_status: "delivered", delivery_status: "ready" });
     expect(activeDeliverySelection(data, null, []).documentIds).toEqual(["visa-1"]);
     Object.assign(data.recipients[0], { eligible: false, delivery_status: "already_sent", resend_allowed: true });
     expect(activeDeliverySelection(data, ["visa-1"], []).documentIds).toEqual([]);
@@ -37,15 +38,16 @@ describe("traveller document eligibility", () => {
     expect(selectedWelcomePhones(phones, ["stale", "1", "1"])).toEqual(["1"]);
   });
 
-  it("shows submitted destination, disabled document and a direct path to welcome review", () => {
-    const onReviewWelcomes = vi.fn();
-    render(<DocumentDeliveryPreviewDialog preview={documentPreview()} loading={false} loadError={null} selectedDocumentIds={[]} resendDocumentIds={[]} sending={false} sendError={null} messageContent1="Visa attached" messageContent2="Have a good trip" onMessageContent1Change={vi.fn()} onMessageContent2Change={vi.fn()} onToggleDocument={vi.fn()} onToggleResend={vi.fn()} onClose={vi.fn()} onSend={vi.fn()} onReviewWelcomes={onReviewWelcomes} />);
+  it("shows the submitted destination and allows document sending without welcome review", () => {
+    const onSend = vi.fn();
+    render(<DocumentDeliveryPreviewDialog preview={documentPreview()} loading={false} loadError={null} selectedDocumentIds={["visa-1"]} resendDocumentIds={[]} sending={false} sendError={null} messageContent1="Visa attached" messageContent2="Have a good trip" onMessageContent1Change={vi.fn()} onMessageContent2Change={vi.fn()} onToggleDocument={vi.fn()} onToggleResend={vi.fn()} onClose={vi.fn()} onSend={onSend} />);
     expect(screen.getByText("+919900000001")).toBeVisible();
     expect(screen.getByText("Entered for this traveller")).toBeVisible();
-    expect(screen.getByText("Welcome needed")).toBeVisible();
-    expect(screen.getByRole("checkbox", { name: "Send document to Mother" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Send individually to 0" })).toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: "Review traveller welcomes" }));
-    expect(onReviewWelcomes).toHaveBeenCalledOnce();
+    expect(screen.queryByText("Welcome needed")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Review traveller welcomes" })).toBeNull();
+    expect(screen.getByRole("checkbox", { name: "Send document to Mother" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Send individually to 1" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "Send individually to 1" }));
+    expect(onSend).toHaveBeenCalledOnce();
   });
 });

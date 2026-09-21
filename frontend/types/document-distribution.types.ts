@@ -163,6 +163,9 @@ export interface DocumentDeliveryPreview {
   message_content_2: string;
   summary: {
     total_passengers: number;
+    total_group_passengers?: number;
+    excluded_without_document?: number;
+    total_documents?: number;
     ready: number;
     retryable: number;
     already_sent: number;

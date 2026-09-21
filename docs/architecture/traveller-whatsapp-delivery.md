@@ -1,39 +1,43 @@
 # Traveller WhatsApp welcome and document delivery
 
-The submitted traveller phone is the destination for private visas and flight
-tickets. An employee or producer code can still identify the qualifying company
-record, but it never redirects private documents to that record's phone number.
+Private visas and flight tickets use the traveller destination resolver described
+in [Document distribution lanes](document-distribution-lanes.md#whatsapp-destination-contract).
+Submitted contacts take precedence over explicit imported group numbers. A
+linked broadcast fallback requires an unambiguous, strong identity match.
+Welcome messages are optional for document delivery.
 
 ## Operator workflow
 
-1. Import the company list and send the original welcome as usual. Link that
-   opted-in WhatsApp broadcast to the client group.
-2. Each traveller enters their WhatsApp number with their passport submission.
-   If a family deliberately shares one number, enter that number for each person.
-3. Open **Document Distribution** and the group's **Welcome new traveller
-   numbers** review. It loads the saved original welcome from a linked broadcast.
-   If several broadcasts are linked, select the intended source. A source with a
-   usable welcome is selected automatically when no source is specified.
-4. Review the numbers and message, then send the welcome to the remaining numbers.
-   A review can queue up to 1,500 distinct numbers; subsequent reviews expose the
-   remaining numbers. Shared numbers receive one welcome.
-5. Once WhatsApp reports `delivered` or `read`, review and send the saved documents.
-   Sending a welcome never automatically sends a document or passport-link message.
+1. Link an opted-in WhatsApp broadcast to the client group and confirm each
+   traveller's submitted or explicitly imported WhatsApp number.
+2. Upload, assign and save the PDFs in the correct document section.
+3. Open the document delivery preview. Only travellers with assigned PDFs appear;
+   travellers without PDFs are excluded, not counted as blocked recipients.
+4. Review the destination and PDF for each selected row, then send. No prior
+   welcome or welcome-delivery receipt is required. If a family deliberately
+   shares one number, each person still receives their own assigned document.
+
+The separate **Traveller welcomes (optional)** review loads a saved original
+welcome from a linked broadcast.
+If several broadcasts are linked, select the intended source. A source with a
+usable welcome is selected automatically when no source is specified.
+Review the numbers and message, then send the welcome to the remaining numbers.
+A review can queue up to 1,500 distinct numbers; subsequent reviews expose the
+remaining numbers. Shared numbers receive one welcome.
+Sending a welcome never automatically sends a document or passport-link message.
 
 Already welcomed numbers are excluded across all lists in the same agency.
 Numbers with a pending or uncertain welcome are also excluded from another send,
-but remain blocked for documents. Refreshing the review fetches the current state;
+without blocking document delivery. Refreshing the review fetches the current state;
 it does not send anything. A failed welcome may be reviewed and retried.
 
-For a media welcome, the original image reference is reused. If that image must
-be replaced, the review supports uploading a replacement while preserving the
-original template name and text. Legacy text templates retain their exact original
-parameters and cannot be converted to a media template by adding an image.
+For a media welcome, the original image reference is reused. The review supports
+uploading a replacement and shows the selected welcome message before sending.
 
 Missing or invalid traveller numbers are blocked with a correction instruction.
-There is no fallback to a qualifier number, family-head number, or imported match.
-Correct the submitted contact details, refresh the review, welcome the new number
-if needed, and send to the corrected destination.
+An invalid or cleared higher-priority contact cannot fall back to older data.
+Correct the authoritative contact details and refresh the document preview before
+sending to the corrected destination.
 
 ## Enforcement and durable state
 
@@ -42,15 +46,16 @@ if needed, and send to the corrected destination.
 welcomes. It does not add parents or other nominees to the imported company list.
 Original broadcast logs also snapshot the exact normalized destination.
 
-| Welcome state | Another welcome | Later WhatsApp messages |
+| Welcome state | Another welcome | QR, passport links and reminders |
 | --- | --- | --- |
 | No attempt / definitively failed | Review and send allowed | Blocked |
 | Queued / processing / submitted / sent | Suppressed | Blocked |
 | Delivery outcome unknown | Suppressed | Blocked |
 | Delivered / read | Suppressed | Allowed, subject to normal permissions and document checks |
 
-The API and provider workers enforce the prerequisite for private documents, QR
-delivery, passport links, and reminders, including explicit and bulk resend paths.
+The API and provider workers enforce the prerequisite for QR delivery, passport
+links, and reminders, including explicit and bulk resend paths. Documents and
+group invites are exempt from that prerequisite.
 Authentication OTP delivery keeps its separate authentication workflow.
 
 An atomic phone claim prevents two operators, two lists, or repeated requests from
@@ -60,7 +65,8 @@ roster details require a new review. A mixed explicit document selection contain
 blocked rows is rejected before publication.
 
 Before calling the provider, workers revalidate tenant, active group, operational
-roster, source opt-in, exact submitted destination, and welcome state. Rows are
+roster, source opt-in and exact current destination. Document workers do not check
+welcome state; QR workers retain that check. Rows are
 locked across that final validation and provider call so a concurrent contact edit
 cannot redirect an already approved send. Documents retain their passenger binding
 even when several passengers explicitly share the same destination.
@@ -75,13 +81,23 @@ interrupted processing becomes an unknown outcome. Recovery does not send a
 message. An unknown outcome requires reconciliation with provider evidence and
 must not be blindly resent.
 
-## Migration and rollout
+## Current document-only update
+
+Deploy the backend, main worker and frontend together. This change has no
+migration or backfill. It preserves the exact document-to-passenger mapping and
+requires a fresh preview after assignments or destinations change. Accepted and
+uncertain document deliveries remain protected against automatic duplicate sends.
+This update was manually reviewed; tests and builds were not run at the user's
+request. The historical evidence below does not validate the new exemption.
+
+## Historical welcome-ledger migration and rollout
 
 Migration `0093_phone_welcome` adds the ledger, traveller outbox, and immutable
 destination snapshot. It conservatively adopts legacy original-welcome history
 only when the current recipient state and non-null batch match the actual log.
 Edited numbers with ambiguous historical logs are not marked welcomed. Existing
-accepted-but-unconfirmed attempts suppress duplicates without unlocking documents.
+accepted-but-unconfirmed attempts suppress duplicate welcomes without satisfying
+the prerequisite for message types that still require one.
 
 This is a backend, worker, scheduler, and frontend release. Apply the migration
 from the newly built backend image before activating the new code. Pause new
@@ -108,7 +124,7 @@ again. An activation failure stops with its phase and does not automatically
 downgrade the database or purge jobs. The helper stores a private `.env` backup and
 release manifest under `tmp/traveller-whatsapp-release/`.
 
-## Verification evidence
+## Historical welcome-ledger verification evidence
 
 The automated checks cover real authenticated HTTP review/send requests, every
 document lane, existing welcomed qualifier numbers, separate parents' numbers,

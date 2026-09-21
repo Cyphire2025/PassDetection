@@ -146,8 +146,9 @@ class DocumentDeliveryPreviewRecipient(BaseModel):
     broadcast_name: str | None = None
     phone_number: str | None = None
     phone_source: str | None = None
-    welcome_status: str = "required"
-    welcome_required: bool = True
+    # Compatibility fields: document delivery does not require a welcome.
+    welcome_status: str = "not_required"
+    welcome_required: bool = False
     delivery_id: uuid.UUID | None = None
     delivery_status: str
     eligible: bool = False
@@ -158,7 +159,11 @@ class DocumentDeliveryPreviewRecipient(BaseModel):
 
 
 class DocumentDeliveryPreviewSummary(BaseModel):
+    # Delivery counts describe assigned PDFs; unassigned travellers are separate.
     total_passengers: int = 0
+    total_group_passengers: int = 0
+    excluded_without_document: int = 0
+    total_documents: int = 0
     ready: int = 0
     retryable: int = 0
     already_sent: int = 0

@@ -57,8 +57,8 @@ def _require_selected_documents_ready(
     if requested_ids - {row.document_id for row in eligible_rows}:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=("A selected document is blocked. Confirm welcome delivery to each traveller's "
-                    "current number and refresh the preview before sending."),
+            detail=("A selected document is blocked or no longer assigned. Review its saved "
+                    "assignment and WhatsApp number, then refresh the preview before sending."),
         )
 
 

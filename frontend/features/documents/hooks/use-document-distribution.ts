@@ -203,11 +203,7 @@ export function useDocumentDeliveryPreview(
     staleTime: 0,
     refetchOnMount: "always",
     refetchInterval: (query) => {
-      const preview = query.state.data;
-      const waiting = preview?.summary.in_progress || preview?.recipients.some((row) => (
-        ["queued", "processing", "submitted", "sent"].includes(row.welcome_status ?? "")
-      ));
-      return waiting ? 5_000 : false;
+      return query.state.data?.summary.in_progress ? 5_000 : false;
     },
     refetchIntervalInBackground: false,
   });

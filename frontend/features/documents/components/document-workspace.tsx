@@ -756,7 +756,6 @@ export function DocumentWorkspace({
           onMessageContent1Change={setDeliveryMessageContent1}
           onMessageContent2Change={setDeliveryMessageContent2}
           onRefresh={() => void deliveryPreview.refetch()}
-          onReviewWelcomes={() => { setIsSendPreviewOpen(false); setIsWelcomePreviewOpen(true); }}
           onToggleDocument={(documentId) => {
             setDeliveryDocumentIds((current) => {
               const selection = current ?? defaultDeliveryDocumentIds;

@@ -42,7 +42,6 @@ from app.infrastructure.whatsapp.private_delivery_policy import (
     PrivateDeliveryGroupSourceSnapshot,
     lock_private_delivery_group_source_snapshot,
     validate_private_delivery_recipient,
-    validate_private_delivery_welcome,
 )
 from app.infrastructure.whatsapp.receipt_bindings import commit_private_provider_outcome
 
@@ -525,6 +524,7 @@ async def run_document_whatsapp_broadcast(
                             delivery_snapshot.normalized_phone_number
                         ),
                         delivery_source="traveller",
+                        require_welcome=False,
                     )
                 )
                 recipient_allowed = (
@@ -542,14 +542,6 @@ async def run_document_whatsapp_broadcast(
                     if _source_snapshot is not None
                     else bool(validation and validation.allowed)
                 )
-                if recipient_allowed and _source_snapshot is not None:
-                    validation = await validate_private_delivery_welcome(
-                        session,
-                        agency_id=delivery_snapshot.agency_id,
-                        normalized_phone_number=delivery_snapshot.normalized_phone_number,
-                    )
-                    recipient_allowed = validation.allowed
-
                 source_result = await session.execute(
                     _locked_document_source_statement(
                         delivery_snapshot,

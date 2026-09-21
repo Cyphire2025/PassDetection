@@ -21,10 +21,6 @@ from app.infrastructure.database.models import (
     DocumentDistributionBatchModel,
     DocumentWhatsAppDeliveryModel,
 )
-from app.infrastructure.whatsapp.phone_welcome import (
-    welcome_required_reason,
-    welcome_states_for_phones,
-)
 from app.infrastructure.whatsapp.template_settings import configured_template_name
 from app.infrastructure.whatsapp.traveller_destinations import load_traveller_destinations
 from app.presentation.api.v1.routes.document_distribution_shared import (
@@ -78,9 +74,6 @@ async def _build_document_delivery_preview(
     destinations = {row.passenger_id: row for row in await load_traveller_destinations(
         session, agency_id=group.agency_id, group_id=group.id,
     )}
-    phones = {row.phone_number for row in destinations.values() if row.phone_number}
-    welcome_states = await welcome_states_for_phones(session, agency_id=group.agency_id, phones=phones)
-
     documents_result = await session.execute(
         select(DistributedDocumentModel, DocumentDistributionBatchModel.status)
         .join(
@@ -110,6 +103,9 @@ async def _build_document_delivery_preview(
     for document in documents:
         if document.passenger_id:
             documents_by_passenger.setdefault(document.passenger_id, []).append(document)
+    assigned_passengers = [
+        passenger for passenger in passengers if documents_by_passenger.get(passenger.id)
+    ]
 
     document_ids = [document.id for document in documents]
     deliveries_by_document: dict[
@@ -143,44 +139,37 @@ async def _build_document_delivery_preview(
                 ).append(delivery)
 
     preview_rows: list[DocumentDeliveryPreviewRecipient] = []
-    summary = DocumentDeliveryPreviewSummary(total_passengers=len(passengers))
-    for passenger in passengers:
+    summary = DocumentDeliveryPreviewSummary(
+        total_passengers=len(assigned_passengers),
+        total_group_passengers=len(passengers),
+        excluded_without_document=len(passengers) - len(assigned_passengers),
+        total_documents=sum(len(documents_by_passenger[passenger.id]) for passenger in assigned_passengers),
+    )
+    for passenger in assigned_passengers:
         destination = destinations.get(passenger.id)
         phone = destination.phone_number if destination else None
         source = sources_by_id.get(destination.broadcast_group_id) if destination else None
-        welcome_status = welcome_states.get(phone, "required") if phone else "blocked"
-        welcome_reason = welcome_required_reason(welcome_status)
-        passenger_documents = documents_by_passenger.get(passenger.id, [])
+        passenger_documents = documents_by_passenger[passenger.id]
         if not phone:
             summary.missing_phone += 1
-        if not passenger_documents:
-            summary.missing_document += 1
-        candidate_documents: list[DistributedDocumentModel | None] = [*passenger_documents] or [None]
-        for document in candidate_documents:
-            history = deliveries_by_document.get(document.id, []) if document else []
+        for document in passenger_documents:
+            history = deliveries_by_document.get(document.id, [])
             latest = history[0] if history else None
             blocker = None
-            if document is None:
-                blocker = "No saved document is matched to this passenger."
-            elif not phone:
+            if not phone:
                 blocker = destination.reason if destination else "The traveller is no longer on the approved roster."
             elif source is None:
                 blocker = "Link an opted-in WhatsApp broadcast to this group first."
-            elif welcome_reason:
-                blocker = welcome_reason
             if blocker:
                 decision = DocumentDeliveryDecision(status="blocked", eligible=False,
                     resend_allowed=False, reason=blocker)
             else:
-                assert document is not None
                 decision = _document_delivery_decision(
                     saved=document.id in saved_document_ids,
                     match_status=document.match_status,
                     recipient_available=True, delivery_history=history,
                 )
-            if welcome_reason and phone:
-                summary.welcome_required += 1
-            if document is not None and document.id not in saved_document_ids:
+            if document.id not in saved_document_ids:
                 summary.unsaved_document += 1
             if decision.status in {"ready", "retryable", "already_sent"}:
                 setattr(summary, decision.status, getattr(summary, decision.status) + 1)
@@ -191,15 +180,15 @@ async def _build_document_delivery_preview(
             preview_rows.append(DocumentDeliveryPreviewRecipient(
                 passenger_id=passenger.id, passenger_name=passenger.client_name,
                 passport_number=_passport_number(passenger),
-                document_id=document.id if document else None,
-                document_filename=document.original_filename if document else None,
+                document_id=document.id,
+                document_filename=document.original_filename,
                 document_type=batch.document_type,
                 recipient_id=destination.recipient_id if destination else None,
                 broadcast_group_id=source.id if source else None,
                 broadcast_name=source.name if source else None,
                 phone_number=phone, phone_source=destination.phone_source if destination else None,
-                welcome_status=welcome_status,
-                welcome_required=welcome_reason is not None,
+                welcome_status="not_required",
+                welcome_required=False,
                 delivery_id=latest.id if latest else None,
                 delivery_status=decision.status, eligible=decision.eligible,
                 resend_allowed=decision.resend_allowed, reason=decision.reason,
@@ -226,6 +215,8 @@ async def _build_document_delivery_preview(
             configuration_error = "No documents have been uploaded in this document section yet."
         elif not saved_document_ids:
             configuration_error = "Save the uploaded document list before sending documents."
+        elif not assigned_passengers:
+            configuration_error = "Assign documents to current travellers in this group before sending."
         elif not any(document.passenger_id for document in documents if document.id in saved_document_ids):
             configuration_error = "Match the saved documents to travellers before sending."
         elif summary.in_progress and not summary.blocked:
@@ -234,10 +225,6 @@ async def _build_document_delivery_preview(
             configuration_error = (
                 f"{summary.missing_phone} traveller(s) need a valid WhatsApp destination. "
                 "Review their group contact details or linked broadcast matches below."
-            )
-        elif summary.welcome_required:
-            configuration_error = (
-                "Send welcome to the remaining traveller numbers and wait for delivery confirmation first."
             )
         else:
             configuration_error = "No documents are currently ready to send. Review the reason shown beside each traveller."

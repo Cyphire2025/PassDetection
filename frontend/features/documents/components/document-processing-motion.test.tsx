@@ -121,6 +121,7 @@ const twoBatchProgress: DocumentUploadProgress[] = [
 
 const preview: DocumentDeliveryPreview = {
   group_id: "group-test", batch_id: "batch-test", document_type: "visa",
+  preview_token: "a".repeat(64),
   template_name: "documents_v1", template_configured: true, linked_broadcast_count: 1,
   can_send: true, configuration_error: null, message_content_1: "Your document is attached.",
   message_content_2: "Please review it before departure.",

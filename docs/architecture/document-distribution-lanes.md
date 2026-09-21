@@ -100,11 +100,16 @@ recipient or an eligible linked broadcast without a recipient association.
 Every source is scoped to the agency and group; archived broadcasts, removed
 recipients and suppressed recipients are excluded. Shared explicit contacts
 retain every traveller and their individually assigned documents. Welcome
-messages remain deduplicated by phone and require confirmed delivery before
-documents can be sent.
+messages remain an optional, separate action deduplicated by phone. Document
+delivery does not require a welcome message or welcome-delivery confirmation;
+the separate QR delivery policy keeps its existing welcome prerequisite.
 
-The preview reports the actual contact source and linked broadcast, with
-separate missing-number, missing-document and unsaved-document counts. The
+The send preview includes only travellers with assigned PDFs in the selected
+document section. It reports assigned traveller and document totals, while
+travellers without an assigned PDF are counted separately as excluded, not
+blocked. Sending still requires saved, matched documents and valid current
+destinations. The preview reports the actual contact source and linked
+broadcast, with separate missing-number and unsaved-document counts. The
 frontend refreshes on opening and submits a fingerprint of the reviewed
 document identities and destinations. The send route rejects a supplied stale
 fingerprint; its optional request field preserves compatibility with older

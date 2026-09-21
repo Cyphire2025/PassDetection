@@ -27,8 +27,8 @@ export function TravellerWelcomePanel({ groupId, disabled = false, open, onOpenC
         <div className="flex min-w-0 gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700"><MessageCircle className="h-5 w-5" aria-hidden="true" /></div>
           <div>
-            <h2 id="traveller-welcome-heading" className="font-semibold text-slate-950">Welcome travellers before sending documents</h2>
-            <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">Review each traveller’s delivery WhatsApp number from their contact details or the linked broadcast. Send the welcome to new numbers first; numbers already welcomed are skipped automatically.</p>
+            <h2 id="traveller-welcome-heading" className="font-semibold text-slate-950">Traveller welcomes (optional)</h2>
+            <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">Send a separate welcome message if needed. Welcomes are optional and do not affect ticket or visa delivery. Numbers already welcomed are skipped automatically.</p>
           </div>
         </div>
         <Button type="button" variant="outline" className="shrink-0" disabled={disabled || send.isPending || preview.isLoading} onClick={() => { send.reset(); onOpenChange(true); }}>
@@ -37,7 +37,7 @@ export function TravellerWelcomePanel({ groupId, disabled = false, open, onOpenC
       </div>
       {summary && (
         <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <WelcomeCount label="Need welcome" count={summary.needs_welcome} tone="text-amber-800" />
+          <WelcomeCount label="Not welcomed yet" count={summary.needs_welcome} tone="text-slate-800" />
           <WelcomeCount label="Already welcomed" count={summary.already_welcomed} tone="text-emerald-800" />
           <WelcomeCount label="Awaiting delivery" count={summary.in_progress} tone="text-blue-800" />
           <WelcomeCount label="Need attention" count={summary.blocked} tone="text-slate-800" />
@@ -45,7 +45,7 @@ export function TravellerWelcomePanel({ groupId, disabled = false, open, onOpenC
       )}
       {preview.isLoading && <p role="status" className="mt-4 text-sm text-slate-500">Checking traveller numbers and welcome history…</p>}
       {preview.error && <div role="alert" className="mt-4 flex flex-wrap items-center gap-3 text-sm text-red-700"><span>{preview.error.message || "Could not check traveller welcomes."}</span><Button type="button" size="sm" variant="outline" onClick={() => void preview.refetch()} disabled={preview.isFetching}><RefreshCw className="h-4 w-4" />Retry</Button></div>}
-      {summary && <p className="mt-3 text-xs leading-5 text-slate-500">One welcome per WhatsApp number. Documents remain blocked until WhatsApp confirms welcome delivery. Missing or invalid traveller numbers need correction before sending.</p>}
+      {summary && <p className="mt-3 text-xs leading-5 text-slate-500">One welcome per WhatsApp number. Missing or invalid numbers need correction before a welcome can be sent.</p>}
       {feedback && <p role="status" className="mt-3 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800">{feedback}</p>}
       {open && <TravellerWelcomeDialog
         key={sourceBroadcastId ?? "default"}

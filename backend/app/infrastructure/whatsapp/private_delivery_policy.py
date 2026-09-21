@@ -324,6 +324,7 @@ async def validate_private_delivery_recipient(
     recipient_id: uuid.UUID | None,
     normalized_phone_number: str,
     delivery_source: Literal["broadcast", "submission", "traveller"] = "broadcast",
+    require_welcome: bool = True,
 ) -> PrivateDeliveryRecipientValidation:
     """Rebuild the exact current identity mapping immediately before send."""
 
@@ -346,6 +347,8 @@ async def validate_private_delivery_recipient(
             allowed=False,
             reason=PRIVATE_DELIVERY_RECIPIENT_CHANGED,
         )
+    if not require_welcome:
+        return PrivateDeliveryRecipientValidation(allowed=True)
     return await validate_private_delivery_welcome(
         session,
         agency_id=agency_id,

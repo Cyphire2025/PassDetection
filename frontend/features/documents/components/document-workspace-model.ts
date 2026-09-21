@@ -178,7 +178,7 @@ export function activeDeliverySelection(
   const eligibleIds = eligibleDeliveryDocumentIds(preview);
   const allowedIds = new Set(eligibleIds);
   const allowedResends = new Set((preview?.recipients ?? []).flatMap((row) => (
-    row.document_id && row.resend_allowed && !row.welcome_required && row.delivery_status === "already_sent"
+    row.document_id && row.resend_allowed && row.delivery_status === "already_sent"
       ? [row.document_id] : []
   )));
   const resends = resendDocumentIds.filter((id) => allowedResends.has(id));
@@ -258,7 +258,7 @@ export function eligibleDeliveryDocumentIds(
   if (!preview) return [];
   const documentIds: string[] = [];
   for (const recipient of preview.recipients) {
-    if (recipient.eligible && !recipient.welcome_required && recipient.document_id) {
+    if (recipient.eligible && recipient.document_id) {
       documentIds.push(recipient.document_id);
     }
   }

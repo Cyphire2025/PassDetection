@@ -4,7 +4,6 @@ import { Badge, Button } from "@/components/ui";
 import { ProcessingMotion } from "@/components/shared/processing-motion";
 import type { DocumentDeliveryPreview, DocumentDeliveryPreviewRecipient } from "@/types/document-distribution.types";
 import { distributionDocumentLabel } from "../config/document-distribution-lanes";
-import { welcomeStatusLabel, welcomeStatusTone } from "./traveller-welcome-model";
 
 type AbortIncompleteUploadDialogProps = {
   uploadCount: number;
@@ -181,7 +180,6 @@ type DocumentDeliveryPreviewDialogProps = {
   onClose: () => void;
   onSend: () => void;
   onRefresh?: () => void;
-  onReviewWelcomes?: () => void;
 };
 
 export function DocumentDeliveryPreviewDialog({
@@ -202,7 +200,6 @@ export function DocumentDeliveryPreviewDialog({
   onClose,
   onSend,
   onRefresh,
-  onReviewWelcomes,
 }: DocumentDeliveryPreviewDialogProps) {
   const selectedDocumentIdSet = useMemo(
     () => new Set(selectedDocumentIds),
@@ -225,9 +222,13 @@ export function DocumentDeliveryPreviewDialog({
     messageContent1.length <= 600 &&
     messageContent2.length <= 600;
   const recipientSelectionBusy = sending || refreshing;
+  const assignedRecipients = useMemo(
+    () => preview?.recipients.filter((row) => Boolean(row.document_id)) ?? [],
+    [preview?.recipients],
+  );
+  const assignedDocumentCount = preview?.summary.total_documents ?? assignedRecipients.length;
   const deliveryIssues = [
     { label: "Travellers without a number", count: preview?.summary.missing_phone ?? 0 },
-    { label: "Travellers without a document", count: preview?.summary.missing_document ?? 0 },
     { label: "Documents not saved", count: preview?.summary.unsaved_document ?? 0 },
   ].filter((issue) => issue.count > 0);
   return (
@@ -244,7 +245,7 @@ export function DocumentDeliveryPreviewDialog({
               Preview WhatsApp document delivery
             </h2>
             <p className="mt-1 text-sm text-slate-600">
-              Confirm each PDF, its delivery WhatsApp number, and the contact source before queueing individual messages.
+              Review only travellers with assigned PDFs in this section. Confirm each PDF and its delivery WhatsApp number before sending.
             </p>
           </div>
           <button
@@ -274,17 +275,23 @@ export function DocumentDeliveryPreviewDialog({
           ) : preview ? (
             <div className="space-y-5">
               <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-slate-600">
-                <p><span className="font-semibold text-slate-900">{distributionDocumentLabel(preview.document_type)}</span> document delivery</p>
+                <p><span className="font-semibold text-slate-900">{distributionDocumentLabel(preview.document_type)}</span> · {assignedDocumentCount.toLocaleString()} assigned {assignedDocumentCount === 1 ? "document" : "documents"}</p>
                 {refreshing && <p role="status" className="text-blue-700">Refreshing documents and recipient details…</p>}
               </div>
               <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
-                <DeliverySummary label="Passengers" value={preview.summary.total_passengers} />
+                <DeliverySummary label="Assigned travellers" value={preview.summary.total_passengers} />
                 <DeliverySummary label="Ready" value={preview.summary.ready} tone="success" />
                 <DeliverySummary label="Retryable" value={preview.summary.retryable} tone="warning" />
                 <DeliverySummary label="Already sent" value={preview.summary.already_sent} />
                 <DeliverySummary label="In progress" value={preview.summary.in_progress} />
                 <DeliverySummary label="Blocked" value={preview.summary.blocked} tone="danger" />
               </div>
+
+              {Boolean(preview.summary.excluded_without_document) && (
+                <p className="rounded-xl bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-600">
+                  {preview.summary.excluded_without_document?.toLocaleString()} {preview.summary.excluded_without_document === 1 ? "traveller has" : "travellers have"} no assigned PDF in this section and {preview.summary.excluded_without_document === 1 ? "is" : "are"} not included in this send preview.
+                </p>
+              )}
 
               {deliveryIssues.length > 0 && (
                 <dl aria-label="Delivery issues" className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-amber-900">
@@ -307,13 +314,6 @@ export function DocumentDeliveryPreviewDialog({
                 <p role="alert" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
                   Refresh the preview to check the latest document recipients before sending.
                 </p>
-              )}
-
-              {Boolean(preview.summary.welcome_required) && (
-                <div className="flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-sm leading-6 text-amber-900">{preview.summary.welcome_required} document recipients still need confirmed welcome delivery. Their documents cannot be sent yet.</p>
-                  {onReviewWelcomes && <Button type="button" variant="outline" className="shrink-0" disabled={sending} onClick={onReviewWelcomes}>Review traveller welcomes</Button>}
-                </div>
               )}
 
               <div className="grid gap-4 lg:grid-cols-2">
@@ -375,7 +375,7 @@ export function DocumentDeliveryPreviewDialog({
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {preview.recipients.map((row) => {
+                      {assignedRecipients.map((row) => {
                         const resendSelected = Boolean(
                           row.document_id &&
                           resendDocumentIdSet.has(row.document_id),
@@ -383,7 +383,7 @@ export function DocumentDeliveryPreviewDialog({
                         return (
                         <tr key={`${row.passenger_id}:${row.document_id ?? "empty"}`} className={row.eligible || resendSelected ? "bg-white" : "bg-slate-50/60"}>
                           <td className="px-4 py-3">
-                            {row.delivery_status === "already_sent" && row.resend_allowed && !row.welcome_required && row.document_id ? (
+                            {row.delivery_status === "already_sent" && row.resend_allowed && row.document_id ? (
                               <Button
                                 type="button"
                                 size="sm"
@@ -397,7 +397,7 @@ export function DocumentDeliveryPreviewDialog({
                               <input
                                 type="checkbox"
                                 checked={Boolean(row.document_id && selectedDocumentIdSet.has(row.document_id))}
-                                disabled={!row.eligible || row.welcome_required || !row.document_id || recipientSelectionBusy}
+                                disabled={!row.eligible || !row.document_id || recipientSelectionBusy}
                                 onChange={() => row.document_id && onToggleDocument(row.document_id)}
                                 aria-label={`Send document to ${row.passenger_name}`}
                                 className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
@@ -415,7 +415,6 @@ export function DocumentDeliveryPreviewDialog({
                             <div className="font-medium text-slate-800">{row.phone_number || "No valid WhatsApp number"}</div>
                             <div className="mt-1 text-xs text-slate-500">{documentPhoneSourceLabel(row)}</div>
                             {row.broadcast_name && <div className="mt-1 text-xs text-slate-500">Linked broadcast: {row.broadcast_name}</div>}
-                            {row.welcome_status && <div className="mt-2"><Badge variant={welcomeStatusTone(row.welcome_status)}>{welcomeStatusLabel(row.welcome_status)}</Badge></div>}
                           </td>
                           <td className="px-4 py-3">
                             <DeliveryPreviewStatus status={row.delivery_status} />
@@ -429,6 +428,9 @@ export function DocumentDeliveryPreviewDialog({
                         </tr>
                         );
                       })}
+                      {assignedRecipients.length === 0 && (
+                        <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-500">No travellers have an assigned PDF in this section.</td></tr>
+                      )}
                     </tbody>
                   </table>
                 </div>

@@ -168,7 +168,7 @@ async def build_traveller_welcome_preview(
             state = states.get(phone, "required") if phone else "blocked"
             reason = destination.reason
             if state in WELCOME_PENDING:
-                reason = "Waiting for WhatsApp to confirm welcome delivery. Documents remain blocked."
+                reason = "Waiting for WhatsApp to confirm welcome delivery. This does not block document sending."
             elif state == "failed":
                 reason = "The previous welcome failed. Review and retry it."
             elif state in WELCOME_CONFIRMED:
