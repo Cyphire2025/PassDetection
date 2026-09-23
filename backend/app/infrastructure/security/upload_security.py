@@ -82,6 +82,7 @@ class UploadSecurityService:
         declared_content_type: str | None,
         context: UploadSecurityContext,
         max_bytes: int | None = None,
+        max_dimension: int | None = None,
     ) -> ValidatedUpload:
         if not content:
             await self._record(
@@ -119,6 +120,7 @@ class UploadSecurityService:
                 content=content,
                 filename=filename,
                 declared_content_type=declared_content_type,
+                max_dimension=max_dimension,
             )
         except ImageValidationError:
             await self._record(

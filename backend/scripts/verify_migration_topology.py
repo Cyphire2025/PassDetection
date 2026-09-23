@@ -7,7 +7,7 @@ from pathlib import Path
 from alembic.config import Config
 from alembic.script import ScriptDirectory
 
-EXPECTED_HEAD = "0105_whatsapp_phone_overrides"
+EXPECTED_HEAD = "0106_ecr_checker"
 UPLOAD_CONFIGURATION_REVISION = "0090_upload_configuration"
 SECURITY_REVISION = "0089_revoke_legacy_refresh"
 MERGE_REVISION = "0088_merge_my_photos_hardening"
@@ -27,7 +27,11 @@ def main() -> int:
     if heads != (EXPECTED_HEAD,):
         raise RuntimeError(f"Expected one Alembic head {EXPECTED_HEAD!r}; observed {heads!r}")
     head = scripts.get_revision(EXPECTED_HEAD)
-    if head.down_revision != "0103_whatsapp_template_language":
+    if head.down_revision != "0105_whatsapp_phone_overrides":
+        raise RuntimeError("ECR batches must follow WhatsApp phone overrides")
+    if scripts.get_revision("0105_whatsapp_phone_overrides").down_revision != "0104_whatsapp_source_contacts":
+        raise RuntimeError("WhatsApp phone overrides must follow source contacts")
+    if scripts.get_revision("0104_whatsapp_source_contacts").down_revision != "0103_whatsapp_template_language":
         raise RuntimeError("WhatsApp source contacts must follow language snapshots")
     if scripts.get_revision("0103_whatsapp_template_language").down_revision != "0102_public_upload_contact_otp":
         raise RuntimeError("WhatsApp language snapshots must follow public contact OTP")
@@ -73,7 +77,7 @@ def main() -> int:
         )
 
     print(
-        "Alembic topology verified: 0104 follows 0103, 0102, 0101, 0100, 0099, 0098, 0097, 0096, 0095, 0094, 0093, 0092, 0091, 0090, 0089 and the preserved 0088 merge "
+        "Alembic topology verified: 0106 follows 0105, 0104, 0103, 0102, 0101, 0100, 0099, 0098, 0097, 0096, 0095, 0094, 0093, 0092, 0091, 0090, 0089 and the preserved 0088 merge "
         "of the My Photos and enterprise-hardening branches."
     )
     return 0

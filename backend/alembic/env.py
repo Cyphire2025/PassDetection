@@ -14,6 +14,7 @@ from sqlalchemy import engine_from_config, pool
 from alembic import context
 from app.core.config.settings import get_settings
 from app.infrastructure.database import (
+    ecr_models,  # noqa: F401
     email_ai_models,  # noqa: F401
     email_models,  # noqa: F401
     gc_mobile_models,  # noqa: F401

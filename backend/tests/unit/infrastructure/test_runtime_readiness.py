@@ -58,7 +58,7 @@ class _Database:
     def __init__(
         self,
         *,
-        versions: tuple[str, ...] = ("0105_whatsapp_phone_overrides",),
+        versions: tuple[str, ...] = ("0106_ecr_checker",),
         due_count: int = 0,
         blocked_count: int = 0,
         oldest_due_seconds: int = 0,

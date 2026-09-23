@@ -216,8 +216,15 @@ class UploadValidator:
         self._scanner = scanner or self._default_scanner()
 
     def validate(
-        self, *, content: bytes, filename: str | None, declared_content_type: str | None
+        self,
+        *,
+        content: bytes,
+        filename: str | None,
+        declared_content_type: str | None,
+        max_dimension: int | None = None,
     ) -> ValidatedUpload:
+        if max_dimension is not None and max_dimension < 1:
+            raise ValueError("Maximum image dimension must be positive")
         if not content:
             raise ImageValidationError("Uploaded file is empty")
 
@@ -253,7 +260,14 @@ class UploadValidator:
                     # rather than accepting only a plausible header.
                     image.seek(0)
                     image.load()
-                    canonical_image = self._to_rgb(ImageOps.exif_transpose(image))
+                    if max_dimension is not None:
+                        # Apply the optional consumer size bound before EXIF
+                        # orientation and RGB conversion allocate pixel copies.
+                        # Scanning, source pixel limits and full decode above
+                        # still validate the original untrusted image.
+                        image.thumbnail((max_dimension, max_dimension), Image.Resampling.LANCZOS)
+                    with ImageOps.exif_transpose(image) as oriented:
+                        canonical_image = self._to_rgb(oriented)
                     try:
                         canonical_content = self._encode_jpeg(canonical_image)
                     finally:

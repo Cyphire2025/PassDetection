@@ -9,6 +9,7 @@ from kombu import Queue
 from app.core.config.settings import get_settings
 from app.infrastructure.ai_priority import EXTRACTION_QUEUE, VERIFICATION_QUEUE
 from app.infrastructure.celery_async_runtime import celery_async_runtime
+from app.infrastructure.ecr import ECR_BATCH_TASK, ECR_QUEUE, ECR_RECOVERY_TASK, ECR_RETENTION_TASK
 from app.infrastructure.mobile_push import (
     MOBILE_PUSH_COUNTDOWN_TASK,
     MOBILE_PUSH_DISPATCH_TASK,
@@ -82,6 +83,7 @@ celery_app = Celery(
         "app.infrastructure.security.identity_tasks",
         "app.infrastructure.mobile_push.tasks",
         "app.infrastructure.my_photos.tasks",
+        "app.infrastructure.ecr.tasks",
     ],
 )
 
@@ -99,6 +101,7 @@ celery_app.conf.update(
         Queue(MY_PHOTOS_CONTROL_QUEUE, durable=True),
         Queue(MY_PHOTOS_MEDIA_QUEUE, durable=True),
         Queue(MY_PHOTOS_SEARCH_QUEUE, durable=True),
+        Queue(ECR_QUEUE, durable=True),
     ),
     task_routes={
         "passport.process_submission": {"queue": EXTRACTION_QUEUE},
@@ -130,6 +133,9 @@ celery_app.conf.update(
         MY_PHOTOS_INDEX_TASK: {"queue": MY_PHOTOS_INDEX_QUEUE},
         MY_PHOTOS_MEDIA_TASK: {"queue": MY_PHOTOS_MEDIA_QUEUE},
         MY_PHOTOS_RECOVERY_TASK: {"queue": MY_PHOTOS_CONTROL_QUEUE},
+        ECR_BATCH_TASK: {"queue": ECR_QUEUE},
+        ECR_RECOVERY_TASK: {"queue": "passport_ocr"},
+        ECR_RETENTION_TASK: {"queue": "passport_ocr"},
     },
     task_acks_late=True,
     task_reject_on_worker_lost=True,
@@ -141,6 +147,14 @@ celery_app.conf.update(
     worker_max_memory_per_child=WORKER_MAX_MEMORY_PER_CHILD_KIB,
     worker_cancel_long_running_tasks_on_connection_loss=True,
     task_annotations={
+        ECR_BATCH_TASK: {
+            "soft_time_limit": 59 * 60,
+            "time_limit": 60 * 60,
+        },
+        ECR_RETENTION_TASK: {
+            "soft_time_limit": 9 * 60,
+            "time_limit": 10 * 60,
+        },
         # Interactive work should release capacity well before the global
         # poison-job envelope. Durable job rows own retry/dead-letter state.
         "passport.process_submission": {
@@ -248,6 +262,16 @@ celery_app.conf.update(
     timezone="UTC",
     enable_utc=True,
     beat_schedule={
+        "recover-ecr-batches": {
+            "task": ECR_RECOVERY_TASK,
+            "schedule": 60.0,
+            "options": {"queue": "passport_ocr", "expires": 60},
+        },
+        "apply-ecr-image-retention": {
+            "task": ECR_RETENTION_TASK,
+            "schedule": 3_600.0,
+            "options": {"queue": "passport_ocr"},
+        },
         "reconcile-whatsapp-receipts": {
             "task": WHATSAPP_RECEIPT_RECONCILIATION_TASK,
             "schedule": 60.0,

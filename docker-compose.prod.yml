@@ -147,6 +147,13 @@ services:
     environment:
       <<: *production-security-environment
 
+  ecr-worker:
+    mem_limit: ${ECR_WORKER_MEMORY_LIMIT:-1g}
+    cpus: ${ECR_WORKER_CPUS:-1.0}
+    volumes: !reset []
+    environment:
+      <<: *production-security-environment
+
   frontend:
     mem_limit: ${FRONTEND_MEMORY_LIMIT:-768m}
     cpus: ${FRONTEND_CPUS:-1.0}

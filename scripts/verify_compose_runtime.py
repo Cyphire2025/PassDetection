@@ -31,6 +31,7 @@ BACKEND_SERVICES = (
     "extraction-worker",
     "verification-worker",
     "visa-ai-worker",
+    "ecr-worker",
 )
 REDIS_SERVICES = ("redis", "redis-broker", "redis-realtime", "redis-cache")
 INTERNAL_SERVICES = (
@@ -65,7 +66,7 @@ PINNED_STATSD_EXPORTER_IMAGE = (
     "prom/statsd-exporter:v0.29.0"
     "@sha256:632f705804922d50c1c95ba8ff9c8c0cc18d4bbb0cc265dc4f9ae708271c95b3"
 )
-EXPECTED_DATABASE_SCHEMA_REVISION = "0103_whatsapp_template_language"
+EXPECTED_DATABASE_SCHEMA_REVISION = "0106_ecr_checker"
 FRONTEND_ALLOWED_ENVIRONMENT_KEYS = {
     "NEXT_PUBLIC_API_BASE_URL",
     "NEXT_PUBLIC_APP_URL",
@@ -87,6 +88,7 @@ FRONTEND_FORBIDDEN_ENVIRONMENT_KEYS = {
     "WHATSAPP_WEBHOOK_VERIFY_TOKEN",
 }
 WORKER_QUEUE_CONTRACTS = {
+    "ecr-worker": ("ecr@", "ecr_checks"),
     "worker": ("general@", "passport_ocr", "whatsapp"),
     "my-photos-worker": (
         "my-photos@",
@@ -463,6 +465,10 @@ def main() -> int:
         "Bundled PostgreSQL must apply the declared server connection ceiling.",
     )
     capacity_environment = production_backend.get("environment", {})
+    _require(
+        "--concurrency=1" in _command_text(production_services["ecr-worker"]),
+        "ECR must keep one batch process; its eight image lanes share that process budget.",
+    )
     api_claim = int(capacity_environment["WEB_CONCURRENCY"]) * (
         int(capacity_environment["POSTGRES_API_POOL_SIZE"])
         + int(capacity_environment["POSTGRES_API_MAX_OVERFLOW"])
@@ -479,7 +485,8 @@ def main() -> int:
         + int(capacity_environment["GEMINI_EXTRACTION_MAX_CONCURRENCY"])
         + int(capacity_environment["GEMINI_VERIFICATION_MAX_CONCURRENCY"])
         + int(capacity_environment["GEMINI_IMAGE_EDIT_MAX_CONCURRENCY"])
-        + 1
+        + 1  # Scheduler process.
+        + 1  # ECR has one prefork process; its image lanes share that pool.
     )
     total_claim = api_claim + background_processes * (
         int(capacity_environment["POSTGRES_WORKER_POOL_SIZE"])

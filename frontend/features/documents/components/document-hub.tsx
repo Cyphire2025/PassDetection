@@ -4,6 +4,7 @@ import {
   ArrowRight,
   FilePenLine,
   FileStack,
+  ScanText,
   SendToBack,
   UsersRound,
 } from "lucide-react";
@@ -36,6 +37,17 @@ const WORKFLOWS = [
     iconTone: "bg-blue-100 text-blue-700",
     steps: ["Choose a document type", "Choose a group", "Review and distribute"],
   },
+  {
+    title: "ECR Checker",
+    description:
+      "Check passport back-page photos for Emigration Check Required and download a colour-coded Excel report.",
+    href: ROUTES.dashboard.ecrChecker,
+    icon: ScanText,
+    action: "Check passport back pages",
+    accent: "border-amber-200 bg-amber-50/55 text-amber-900",
+    iconTone: "bg-amber-100 text-amber-700",
+    steps: ["Upload back-page images", "Review ECR results", "Download Excel report"],
+  },
 ] as const;
 
 export function DocumentHub() {
@@ -43,7 +55,7 @@ export function DocumentHub() {
     <div className="flex flex-col gap-5">
       <WorkspacePageHeader
         title="Documents"
-        description="Rename supplier PDFs or match and distribute documents to passengers."
+        description="Rename PDFs, distribute passenger documents, or check passport back pages for ECR."
         icon={FileStack}
         accent="cyan"
       />
@@ -59,13 +71,13 @@ export function DocumentHub() {
           </h2>
         </div>
 
-        <div className="grid lg:grid-cols-2">
+        <div className="grid xl:grid-cols-3">
           {WORKFLOWS.map((workflow, index) => {
             const Icon = workflow.icon;
             return (
               <article
                 key={workflow.href}
-                className={index === 0 ? "border-b border-slate-200 p-5 sm:p-6 lg:border-b-0 lg:border-r" : "p-5 sm:p-6"}
+                className={index < WORKFLOWS.length - 1 ? "border-b border-slate-200 p-5 sm:p-6 xl:border-b-0 xl:border-r" : "p-5 sm:p-6"}
               >
                 <div className="flex items-start gap-4">
                   <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${workflow.iconTone}`}>

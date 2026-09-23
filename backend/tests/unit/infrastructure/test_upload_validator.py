@@ -6,7 +6,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from PIL import Image
+from PIL import Image, ImageOps
 
 os.environ.setdefault("APP_SECRET_KEY", "unit-test-secret")
 
@@ -37,6 +37,65 @@ class UploadValidatorTests(unittest.TestCase):
         buffer = io.BytesIO()
         Image.new("RGB", (64, 32), "white").save(buffer, format="PNG")
         return buffer.getvalue()
+
+    def test_optional_size_bound_precedes_orientation_and_rgb_pixel_copies(self) -> None:
+        source = io.BytesIO()
+        with Image.new("RGBA", (1600, 800), (255, 0, 0, 128)) as image:
+            image.save(source, format="PNG")
+        observed_sizes = []
+        original_transpose = ImageOps.exif_transpose
+
+        def inspect_transpose(image):
+            observed_sizes.append(image.size)
+            return original_transpose(image)
+
+        scanner = RecordingScanner()
+        with patch(
+            "app.infrastructure.security.upload_validator.ImageOps.exif_transpose",
+            inspect_transpose,
+        ):
+            result = UploadValidator(scanner=scanner).validate(
+                content=source.getvalue(),
+                filename="back.png",
+                declared_content_type="image/png",
+                max_dimension=400,
+            )
+        self.assertEqual(scanner.calls, 1)
+        self.assertEqual(observed_sizes, [(400, 200)])
+        with Image.open(io.BytesIO(result.content)) as prepared:
+            self.assertEqual(prepared.size, (400, 200))
+            self.assertEqual(prepared.mode, "RGB")
+
+    def test_default_validation_retains_original_image_dimensions(self) -> None:
+        source = io.BytesIO()
+        with Image.new("RGB", (1600, 800), "white") as image:
+            image.save(source, format="JPEG")
+        result = UploadValidator().validate(
+            content=source.getvalue(), filename="back.jpg", declared_content_type="image/jpeg"
+        )
+        with Image.open(io.BytesIO(result.content)) as prepared:
+            self.assertEqual(prepared.size, (1600, 800))
+
+    def test_optional_size_bound_does_not_bypass_original_pixel_limit(self) -> None:
+        validator = UploadValidator()
+        validator._settings = validator._settings.model_copy(update={"upload_max_pixels": 1_000})
+        with self.assertRaises(ImageValidationError):
+            validator.validate(
+                content=self._png(),
+                filename="back.png",
+                declared_content_type="image/png",
+                max_dimension=16,
+            )
+
+    def test_optional_size_bound_still_rejects_truncated_original(self) -> None:
+        source = self._png()
+        with self.assertRaises(ImageValidationError):
+            UploadValidator().validate(
+                content=source[: len(source) // 2],
+                filename="back.png",
+                declared_content_type="image/png",
+                max_dimension=16,
+            )
 
     def test_accepts_real_png_and_sanitizes_filename(self) -> None:
         result = UploadValidator().validate(
@@ -91,9 +150,7 @@ class UploadValidatorTests(unittest.TestCase):
             self.skipTest("pillow-heif is not installed in this host test environment")
 
         source = io.BytesIO()
-        pillow_heif.from_pillow(
-            Image.new("RGB", (80, 40), "white")
-        ).save(source, quality=90)
+        pillow_heif.from_pillow(Image.new("RGB", (80, 40), "white")).save(source, quality=90)
 
         result = UploadValidator().validate(
             content=source.getvalue(),

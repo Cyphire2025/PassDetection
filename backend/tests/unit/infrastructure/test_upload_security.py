@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import hashlib
 import io
 from collections.abc import Callable
 from typing import cast
 
 import pytest
 from fastapi import UploadFile
+from PIL import Image
 from pypdf import PdfWriter
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
@@ -127,6 +129,28 @@ def _service(
         session_factory=factory,
         storage=cast(MinioStorageRepository, storage or _Storage()),
     )
+
+
+async def test_image_size_bound_keeps_security_evidence_bound_to_original_bytes():
+    source = io.BytesIO()
+    with Image.new("RGB", (1200, 600), "white") as image:
+        image.save(source, format="PNG")
+    original = source.getvalue()
+    scanner = _CleanScanner()
+    evidence = _EvidenceStore()
+    prepared = await _service(scanner=scanner, evidence=evidence).validate_image(
+        content=original,
+        filename="back.png",
+        declared_content_type="image/png",
+        context=UploadSecurityContext(ingestion_flow="ecr_checker"),
+        max_dimension=300,
+    )
+    assert scanner.calls == 1
+    assert len(evidence.records) == 1
+    assert evidence.records[0].content_sha256 == hashlib.sha256(original).hexdigest()
+    assert evidence.records[0].scan_status == "clean"
+    with Image.open(io.BytesIO(prepared.content)) as image:
+        assert image.size == (300, 150)
 
 
 @pytest.mark.asyncio

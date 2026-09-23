@@ -36,6 +36,7 @@ export const ROUTES = {
       `/email-integrations/activity/${messageId}`,
     documents: "/documents",
     documentRename: "/documents/rename",
+    ecrChecker: "/documents/ecr-checker",
     documentDistribution: "/documents/distribution",
     documentDistributionVisa: "/documents/distribution/visa",
     documentDistributionVisaGroup: (groupId: string) =>

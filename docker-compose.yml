@@ -57,7 +57,7 @@ x-database-capacity-environment: &database-capacity-environment
   POSTGRES_SERVER_MAX_CONNECTIONS: ${POSTGRES_SERVER_MAX_CONNECTIONS:-100}
   POSTGRES_RESERVED_CONNECTIONS: ${POSTGRES_RESERVED_CONNECTIONS:-10}
   POSTGRES_API_CONNECTION_BUDGET: ${POSTGRES_API_CONNECTION_BUDGET:-80}
-  EXPECTED_DATABASE_SCHEMA_REVISION: ${EXPECTED_DATABASE_SCHEMA_REVISION:-0105_whatsapp_phone_overrides}
+  EXPECTED_DATABASE_SCHEMA_REVISION: ${EXPECTED_DATABASE_SCHEMA_REVISION:-0106_ecr_checker}
   REDIS_DOMAIN_ISOLATION_REQUIRED: ${REDIS_DOMAIN_ISOLATION_REQUIRED:-true}
   REDIS_BROKER_HOST: redis-broker
   REDIS_BROKER_PORT: 6379
@@ -700,6 +700,53 @@ services:
           python -m app.infrastructure.ai_priority.worker_healthcheck
           --destination "visa-ai@$$(hostname)"
           --queue visa-ai-image-edit
+          --timeout "$${PROCESSING_WORKER_PING_TIMEOUT_SECONDS:-1}"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # One batch worker owns bounded asynchronous image lanes. Provider request
+  # pacing is shared through Redis, including across scaled worker containers.
+  ecr-worker:
+    image: passdetection-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: passdetection-ecr-worker
+    restart: unless-stopped
+    stop_grace_period: 125s
+    env_file:
+      - .env
+    environment:
+      <<: *database-capacity-environment
+      POSTGRES_POOL_PROFILE: worker
+      POSTGRES_HOST: db
+      REDIS_HOST: redis
+      S3_ENDPOINT_URL: http://minio:9000
+      S3_PUBLIC_ENDPOINT_URL: ${S3_PUBLIC_ENDPOINT_URL}
+      PROCESSING_BACKEND: celery
+      C_FORCE_ROOT: "1"
+    depends_on: *backend-service-dependencies
+    volumes:
+      - ./backend:/app
+    command: >
+      sh -c "exec celery -A app.infrastructure.processing.celery_app:celery_app
+      worker
+      --hostname=ecr@%h
+      --loglevel=INFO
+      --concurrency=1
+      -Q ecr_checks"
+    networks:
+      - passdetection-net
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          python -m app.infrastructure.ai_priority.worker_healthcheck
+          --destination "ecr@$$(hostname)"
+          --queue ecr_checks
           --timeout "$${PROCESSING_WORKER_PING_TIMEOUT_SECONDS:-1}"
       interval: 30s
       timeout: 10s

@@ -779,7 +779,7 @@ class Settings(BaseSettings):
         pattern=r"^(?:unknown|[0-9a-f]{7,64})$",
     )
     expected_database_schema_revision: str = Field(
-        default="0105_whatsapp_phone_overrides",
+        default="0106_ecr_checker",
         min_length=1,
         max_length=32,
         pattern=r"^[A-Za-z0-9_]+$",
@@ -1030,6 +1030,15 @@ class Settings(BaseSettings):
     google_api_key: SecretStr | None = Field(default=None, repr=False)
     gemini_verification_enabled: bool = True
     gemini_model: str = "gemini-3.5-flash"
+    ecr_gemini_model: str = "gemini-3.5-flash"
+    ecr_gemini_timeout_seconds: float = Field(default=45.0, ge=5, le=120)
+    ecr_gemini_max_attempts: int = Field(default=3, ge=1, le=5)
+    ecr_image_max_bytes: int = Field(default=10 * 1024 * 1024, ge=1024, le=10 * 1024 * 1024)
+    ecr_image_max_pixels: int = Field(default=40_000_000, ge=1_000_000, le=40_000_000)
+    ecr_image_max_dimension: int = Field(default=2000, ge=1200, le=3000)
+    ecr_max_concurrency: int = Field(default=8, ge=1, le=32)
+    ecr_requests_per_minute: int = Field(default=120, ge=1, le=600)
+    ecr_retention_days: int = Field(default=7, ge=1, le=30)
     gemini_fallback_model: str = "gemini-3.1-flash-lite"
     gemini_image_edit_model: str = "gemini-3.1-flash-image"
     gemini_image_edit_fallback_model: str = "gemini-3-pro-image"
@@ -1375,6 +1384,7 @@ class Settings(BaseSettings):
             + self.gemini_extraction_max_concurrency
             + self.gemini_verification_max_concurrency
             + self.gemini_image_edit_max_concurrency
+            + 1  # ECR batch worker; its asynchronous lanes share one pool.
             + 1  # Celery Beat scheduler process.
         )
         worker_per_process = database.worker_pool_size + database.worker_max_overflow

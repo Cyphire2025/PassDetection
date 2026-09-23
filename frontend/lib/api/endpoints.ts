@@ -293,6 +293,15 @@ export const API_ENDPOINTS = {
     zipDownload: (batchId: string) => `/api/v1/document-rename/batches/${batchId}/download.zip`,
   },
 
+  ecrChecker: {
+    batches: "/api/v1/ecr-checker/batches",
+    batch: (batchId: string) => `/api/v1/ecr-checker/batches/${encodeURIComponent(batchId)}`,
+    items: (batchId: string) => `/api/v1/ecr-checker/batches/${encodeURIComponent(batchId)}/items`,
+    start: (batchId: string) => `/api/v1/ecr-checker/batches/${encodeURIComponent(batchId)}/start`,
+    retry: (batchId: string) => `/api/v1/ecr-checker/batches/${encodeURIComponent(batchId)}/retry`,
+    export: (batchId: string) => `/api/v1/ecr-checker/batches/${encodeURIComponent(batchId)}/export.xlsx`,
+  },
+
   tourOperations: {
     architecture: "/api/v1/tour-operations/architecture",
     coordinators: "/api/v1/tour-operations/coordinators",
