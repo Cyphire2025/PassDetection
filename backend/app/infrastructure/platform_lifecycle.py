@@ -139,7 +139,6 @@ async def apply_platform_lifecycle_policies(
             ClientGroupModel.status.in_(("closed", "archived", "deleted")),
             ClientGroupModel.passport_purge_at.is_not(None),
             ClientGroupModel.passport_purge_at <= timestamp,
-            ClientGroupModel.passport_legal_hold.is_(False),
         )
         .order_by(ClientGroupModel.passport_purge_at, PassportSubmissionModel.id)
         .limit(LIFECYCLE_PASSPORT_BATCH_SIZE)

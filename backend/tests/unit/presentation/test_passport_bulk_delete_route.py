@@ -11,7 +11,6 @@ from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import (
     AuthorizationError,
     ConflictError,
-    PassportLegalHoldError,
     StorageError,
 )
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
@@ -388,39 +387,6 @@ async def test_bulk_delete_enforces_submission_delete_permission() -> None:
     assert caught.value.code == "AUTHORIZATION_ERROR"
     assert authorize.await_args.kwargs["delete_scope"] == "submissions"
     session.execute.assert_not_awaited()
-
-
-@pytest.mark.asyncio
-async def test_bulk_delete_legal_hold_wins_before_retry_or_row_mutation() -> None:
-    session = SimpleNamespace(execute=AsyncMock(), commit=AsyncMock())
-    stage_cleanup = AsyncMock()
-
-    with (
-        patch.object(
-            DestructiveMutationPolicy,
-            "require_group",
-            AsyncMock(side_effect=PassportLegalHoldError()),
-        ),
-        patch(
-            'app.presentation.api.v1.routes.passport_routes.bulk_actions.stage_storage_cleanup_jobs',
-            stage_cleanup,
-        ),
-        pytest.raises(PassportLegalHoldError) as caught,
-    ):
-        await bulk_delete_passport_submissions(
-            group_id=uuid.uuid4(),
-            body=BulkDeletePassportSubmissionsRequest(
-                submission_ids=[uuid.uuid4()]
-            ),
-            _csrf=None,
-            current_user=_super_admin(),
-            session=session,
-        )
-
-    assert caught.value.code == "PASSPORT_LEGAL_HOLD_ACTIVE"
-    session.execute.assert_not_awaited()
-    session.commit.assert_not_awaited()
-    stage_cleanup.assert_not_awaited()
 
 
 @pytest.mark.asyncio

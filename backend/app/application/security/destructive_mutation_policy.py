@@ -1,9 +1,8 @@
 """Locked authorization policy for irreversible passport-data mutations.
 
-Destructive routes must acquire the same client-group row lock used by legal
-hold changes before inspecting tenant ownership, authorization, or hold state.
-That shared serialization point prevents a stale domain object from bypassing
-an already committed legal hold.
+Destructive routes lock the current client-group rows before inspecting tenant
+ownership and authorization. Ordered locks serialize competing mutations while
+privacy-safe audit events preserve evidence of attempts and denials.
 """
 
 from __future__ import annotations
@@ -24,7 +23,6 @@ from app.domain.exceptions.exceptions import (
     ConflictError,
     EntityNotFoundError,
     PassDetectionError,
-    PassportLegalHoldError,
 )
 from app.infrastructure.database.session import AsyncSessionFactory
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
@@ -64,7 +62,7 @@ class DestructiveScopedGroupsMutation:
 
 
 class DestructiveMutationPolicy:
-    """Central tenant, role, legal-hold, lock, and attempt-audit boundary."""
+    """Central tenant, role, lock, and attempt-audit boundary."""
 
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
@@ -120,12 +118,6 @@ class DestructiveMutationPolicy:
             )
             await self._session.commit()
             raise
-        if group.passport_legal_hold:
-            await self.block_group(
-                context,
-                user=user,
-                error=PassportLegalHoldError(),
-            )
         return context
 
     async def require_manager_owned_groups(
@@ -198,29 +190,6 @@ class DestructiveMutationPolicy:
             )
             await self._session.commit()
             raise
-        held_count = sum(group.passport_legal_hold for group in groups)
-        if held_count:
-            await self._audit.record(
-                action="destructive_operation_blocked",
-                entity_type="user",
-                entity_id=str(manager_id),
-                agency_id=manager_agency_id,
-                user_id=user.id,
-                actor_email=user.email,
-                metadata={
-                    "operation": action,
-                    "result": "blocked",
-                    "reason_code": "PASSPORT_LEGAL_HOLD_ACTIVE",
-                    "request_fingerprint": fingerprint,
-                    "held_group_count": held_count,
-                },
-                result="blocked",
-            )
-            # Only privacy-safe audit inserts precede this commit. Persisting
-            # them before raising ensures the dependency rollback cannot erase
-            # evidence of a blocked destructive request.
-            await self._session.commit()
-            raise PassportLegalHoldError()
         return context
 
     async def require_scoped_groups(
@@ -287,17 +256,6 @@ class DestructiveMutationPolicy:
             )
             await self._session.commit()
             raise
-        held_count = sum(group.passport_legal_hold for group in groups)
-        if held_count:
-            await self._record_scoped_group_event(
-                context,
-                user=user,
-                result="blocked",
-                reason_code="PASSPORT_LEGAL_HOLD_ACTIVE",
-                held_group_count=held_count,
-            )
-            await self._session.commit()
-            raise PassportLegalHoldError()
         return context
 
     async def block_group(
@@ -354,7 +312,6 @@ class DestructiveMutationPolicy:
         user: User,
         result: Literal["blocked", "denied"],
         reason_code: str,
-        held_group_count: int | None = None,
     ) -> None:
         metadata: dict[str, str | int] = {
             "operation": context.action,
@@ -363,8 +320,6 @@ class DestructiveMutationPolicy:
             "request_fingerprint": context.request_fingerprint,
             "group_count": len(context.groups),
         }
-        if held_group_count is not None:
-            metadata["held_group_count"] = held_group_count
         await self._audit.record(
             action=f"destructive_operation_{result}",
             entity_type="platform" if context.agency_id is None else "agency",

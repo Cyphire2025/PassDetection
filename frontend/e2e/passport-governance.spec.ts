@@ -436,6 +436,70 @@ test("group archival and permanent passport deletion require a verified destruct
   expect(permanentDeleteQuery).toBe("?retain_records=false");
 });
 
+test("permanent deletion shows a conflict after identity verification and succeeds only on a manual retry", async ({ page }) => {
+  await installAdminCookie(page);
+  let deleted = false;
+  const deletionQueries: string[] = [];
+  const verificationBodies: unknown[] = [];
+  const conflictMessage = "Restore all active replacement and rejection decisions before permanently deleting this group.";
+  await page.route("**/api/v1/**", async (route) => {
+    const request = route.request();
+    const url = new URL(request.url());
+    if (url.pathname === "/api/v1/auth/refresh") return json(route, authenticatedResponse());
+    if (url.pathname === "/api/v1/auth/me") return json(route, admin);
+    if (url.pathname === "/api/v1/notifications/feed") {
+      return json(route, { items: [], unread_count: 0, next_cursor: null });
+    }
+    if (url.pathname === "/api/v1/auth/mfa/step-up") {
+      verificationBodies.push(request.postDataJSON());
+      return json(route, authenticatedResponse());
+    }
+    if (url.pathname === "/api/v1/upload-links" && request.method() === "GET") {
+      return json(route, url.searchParams.get("status_filter") === "archived" && !deleted
+        ? [{ ...groupLink, status: "archived", closed_at: "2026-09-24T00:00:00Z" }]
+        : []);
+    }
+    if (url.pathname === `/api/v1/upload-links/${groupLink.id}/permanent` && request.method() === "DELETE") {
+      deletionQueries.push(url.search);
+      if (deletionQueries.length === 1) {
+        return json(route, { error: { code: "STEP_UP_REQUIRED", message: "Confirm your identity before deleting this group." } }, 403);
+      }
+      if (deletionQueries.length === 2) {
+        return json(route, { error: { code: "PASSPORT_ROSTER_DECISION_ACTIVE", message: conflictMessage } }, 409);
+      }
+      deleted = true;
+      await route.fulfill({ status: 204 });
+      return;
+    }
+    return json(route, request.method() === "GET" ? [] : {});
+  });
+
+  await page.goto("/upload-links");
+  const archivedRegion = page.getByRole("region", { name: "Archived groups" });
+  const row = archivedRegion.getByRole("row").filter({ hasText: groupLink.name });
+  await row.getByRole("button", { name: "Delete", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Delete Archived Group" });
+  await dialog.getByRole("button", { name: "Delete passport records" }).click();
+  const stepUp = page.getByRole("dialog", { name: "Confirm this sensitive action" });
+  await expect(stepUp).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Close dialog" })).toBeDisabled();
+  await expect(dialog.getByRole("button", { name: "Cancel", exact: true })).toBeDisabled();
+  await stepUp.getByRole("textbox", { name: "Verification code" }).fill("123456");
+  await stepUp.getByRole("button", { name: "Verify and continue" }).click();
+  await expect(dialog.getByRole("alert")).toContainText(conflictMessage);
+  await expect(stepUp).toHaveCount(0);
+  await expect(dialog.getByRole("button", { name: "Delete passport records" })).toBeEnabled();
+  expect(deletionQueries).toEqual(["?retain_records=false", "?retain_records=false"]);
+  expect(verificationBodies).toEqual([{ code: "123456" }]);
+  expect(deleted).toBe(false);
+
+  await dialog.getByRole("button", { name: "Delete passport records" }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByText("No archived Group Links")).toBeVisible();
+  expect(deletionQueries).toEqual(Array(3).fill("?retain_records=false"));
+  expect(verificationBodies).toHaveLength(1);
+});
+
 test("staff can select, export, open, and manually approve a passport in a rendered browser workflow", async ({ page }) => {
   await installAdminCookie(page);
   await page.addInitScript(() => {
@@ -489,10 +553,6 @@ test("staff can select, export, open, and manually approve a passport in a rende
         group_id: groupLink.id,
         passport_purge_at: "2027-11-08T00:00:00Z",
         passport_retention_days_applied: 365,
-        legal_hold: false,
-        legal_hold_reason: null,
-        legal_hold_set_at: null,
-        legal_hold_set_by_user_id: null,
       });
     }
     if (pathname === `/api/v1/passports/${submission.id}` && request.method() === "GET") {
@@ -553,9 +613,8 @@ test("staff can select, export, open, and manually approve a passport in a rende
   expect(approvalBody).toMatchObject({ expected_extraction_revision: 4 });
 });
 
-test("the group workspace keeps existing retention controls unexposed", async ({ page }) => {
-  // Retention API, audit and MFA behavior remain covered by their focused tests.
-  // This workspace does not mount that optional control; this release preserves it.
+test("the group workspace contains no removed legal-hold controls", async ({ page }) => {
+  // Scheduled retention remains a backend concern; legal-hold controls have been removed.
   await installAdminCookie(page);
   let retentionRequests = 0;
   await page.route("**/api/v1/**", async (route) => {

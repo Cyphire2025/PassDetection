@@ -18,11 +18,9 @@ from app.domain.entities.entities import ClientGroup, User, UserRole
 from app.domain.exceptions.exceptions import (
     AuthorizationError,
     EntityNotFoundError,
-    PassportLegalHoldError,
 )
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
-from app.presentation.api.v1.routes.admin import _load_retention_control_group
 
 
 class _AsyncSessionContext:
@@ -77,41 +75,37 @@ def _group(*, agency_id: uuid.UUID, held: bool = False) -> ClientGroup:
 
 
 @pytest.mark.asyncio
-async def test_locked_policy_tenant_scopes_and_persists_legal_hold_block() -> None:
+@pytest.mark.parametrize("delete_scope", ["group", "submissions"])
+async def test_locked_policy_ignores_legacy_hold_and_preserves_tenant_scope(delete_scope) -> None:
     agency_id = uuid.uuid4()
     group = _group(agency_id=agency_id, held=True)
     user = _agency_admin(agency_id)
     session = SimpleNamespace(commit=AsyncMock())
     load_group = AsyncMock(return_value=group)
-    authorize = AsyncMock(return_value=None)
     audit = AsyncMock(return_value=None)
 
     with (
         patch.object(ClientGroupRepository, "get_by_id_for_update", load_group),
-        patch.object(AuthorizationPolicy, "require_delete_data", authorize),
         patch.object(AuditLogRepository, "record", audit),
-        pytest.raises(PassportLegalHoldError) as caught,
     ):
-        await DestructiveMutationPolicy(session).require_group(
+        context = await DestructiveMutationPolicy(session).require_group(
             user=user,
             group_id=group.id,
             action="passport_submissions_bulk_delete",
             target_ids=[uuid.uuid4()],
+            delete_scope=delete_scope,
         )
 
-    assert caught.value.code == "PASSPORT_LEGAL_HOLD_ACTIVE"
+    assert context.group is group
     load_group.assert_awaited_once_with(
         group.id,
         agency_id=agency_id,
         allow_global_scope=False,
     )
-    authorize.assert_awaited_once()
-    assert authorize.await_args.kwargs["permanent"] is True
-    assert audit.await_count == 2
-    blocked_metadata = audit.await_args_list[1].kwargs["metadata"]
-    assert blocked_metadata["reason_code"] == "PASSPORT_LEGAL_HOLD_ACTIVE"
-    assert "Sensitive legal reason" not in repr(blocked_metadata)
-    session.commit.assert_awaited_once_with()
+    audit.assert_awaited_once()
+    assert audit.await_args.kwargs["action"] == "destructive_operation_attempted"
+    assert "Sensitive legal reason" not in repr(audit.await_args.kwargs["metadata"])
+    session.commit.assert_not_awaited()
 
 
 @pytest.mark.asyncio
@@ -142,8 +136,9 @@ async def test_locked_policy_hides_cross_tenant_group_existence() -> None:
 @pytest.mark.asyncio
 async def test_locked_policy_persists_privacy_safe_denied_attempt() -> None:
     agency_id = uuid.uuid4()
-    group = _group(agency_id=agency_id)
+    group = _group(agency_id=agency_id, held=True)
     user = _agency_admin(agency_id)
+    user.role = UserRole.AGENCY_MANAGER
     session = SimpleNamespace(commit=AsyncMock())
     audit = AsyncMock(return_value=None)
 
@@ -152,11 +147,6 @@ async def test_locked_policy_persists_privacy_safe_denied_attempt() -> None:
             ClientGroupRepository,
             "get_by_id_for_update",
             AsyncMock(return_value=group),
-        ),
-        patch.object(
-            AuthorizationPolicy,
-            "require_delete_data",
-            AsyncMock(side_effect=AuthorizationError()),
         ),
         patch.object(AuditLogRepository, "record", audit),
         pytest.raises(AuthorizationError),
@@ -176,7 +166,7 @@ async def test_locked_policy_persists_privacy_safe_denied_attempt() -> None:
 
 
 @pytest.mark.asyncio
-async def test_manager_owned_delete_blocks_when_any_locked_group_is_held() -> None:
+async def test_manager_owned_delete_ignores_legacy_holds_and_keeps_ordered_scope() -> None:
     agency_id = uuid.uuid4()
     manager_id = uuid.uuid4()
     groups = [
@@ -185,16 +175,13 @@ async def test_manager_owned_delete_blocks_when_any_locked_group_is_held() -> No
     ]
     session = SimpleNamespace(commit=AsyncMock())
     load_groups = AsyncMock(return_value=groups)
-    authorize = AsyncMock(return_value=None)
     audit = AsyncMock(return_value=None)
 
     with (
         patch.object(ClientGroupRepository, "list_owned_for_update", load_groups),
-        patch.object(AuthorizationPolicy, "require_delete_data", authorize),
         patch.object(AuditLogRepository, "record", audit),
-        pytest.raises(PassportLegalHoldError),
     ):
-        await DestructiveMutationPolicy(session).require_manager_owned_groups(
+        context = await DestructiveMutationPolicy(session).require_manager_owned_groups(
             user=_super_admin(),
             manager_id=manager_id,
             manager_agency_id=agency_id,
@@ -205,47 +192,70 @@ async def test_manager_owned_delete_blocks_when_any_locked_group_is_held() -> No
         owner_user_id=manager_id,
         agency_id=agency_id,
     )
-    assert authorize.await_count == 2
-    assert audit.await_count == 2
-    assert audit.await_args_list[1].kwargs["metadata"]["held_group_count"] == 1
-    session.commit.assert_awaited_once_with()
+    assert context.groups == tuple(groups)
+    audit.assert_awaited_once()
+    assert audit.await_args.kwargs["metadata"]["group_count"] == 2
+    session.commit.assert_not_awaited()
 
 
 @pytest.mark.asyncio
-async def test_scoped_purge_checks_holds_from_the_locked_tenant_group_set() -> None:
+@pytest.mark.parametrize("global_scope", [False, True])
+async def test_scoped_purge_ignores_legacy_holds_without_widening_scope(global_scope) -> None:
     agency_id = uuid.uuid4()
     groups = (
         _group(agency_id=agency_id),
         _group(agency_id=agency_id, held=True),
     )
-    user = _agency_admin(agency_id)
+    user = _super_admin() if global_scope else _agency_admin(agency_id)
     session = SimpleNamespace(commit=AsyncMock())
     load_groups = AsyncMock(return_value=list(groups))
-    authorize = AsyncMock(return_value=None)
     audit = AsyncMock(return_value=None)
 
     with (
         patch.object(ClientGroupRepository, "list_scope_for_update", load_groups),
-        patch.object(AuthorizationPolicy, "require_delete_data", authorize),
         patch.object(AuditLogRepository, "record", audit),
-        pytest.raises(PassportLegalHoldError),
     ):
-        await DestructiveMutationPolicy(session).require_scoped_groups(
+        context = await DestructiveMutationPolicy(session).require_scoped_groups(
             user=user,
             action="passport_data_purge",
         )
 
     load_groups.assert_awaited_once_with(
-        agency_id=agency_id,
-        allow_global_scope=False,
+        agency_id=None if global_scope else agency_id,
+        allow_global_scope=global_scope,
     )
-    assert authorize.await_count == 2
-    assert audit.await_count == 2
-    blocked = audit.await_args_list[1].kwargs
-    assert blocked["result"] == "blocked"
-    assert blocked["metadata"]["held_group_count"] == 1
-    assert "Sensitive legal reason" not in repr(blocked["metadata"])
-    session.commit.assert_awaited_once_with()
+    assert context.groups == groups
+    audit.assert_awaited_once()
+    assert audit.await_args.kwargs["metadata"]["group_count"] == 2
+    assert "Sensitive legal reason" not in repr(audit.await_args.kwargs["metadata"])
+    session.commit.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("scope", ["tenant", "manager_owned"])
+async def test_manager_cannot_authorize_administrative_purge(scope: str) -> None:
+    agency_id = uuid.uuid4()
+    user = _agency_admin(agency_id)
+    user.role = UserRole.AGENCY_MANAGER
+    session = SimpleNamespace(commit=AsyncMock())
+    with (
+        patch.object(ClientGroupRepository, "list_scope_for_update", AsyncMock()) as load_scope,
+        patch.object(ClientGroupRepository, "list_owned_for_update", AsyncMock()) as load_owned,
+        patch.object(AuditLogRepository, "record", AsyncMock()) as audit,
+        pytest.raises(AuthorizationError),
+    ):
+        policy = DestructiveMutationPolicy(session)
+        if scope == "tenant":
+            await policy.require_scoped_groups(user=user, action="passport_data_purge")
+        else:
+            await policy.require_manager_owned_groups(
+                user=user, manager_id=user.id, manager_agency_id=agency_id,
+                action="manager_owned_passport_data_delete",
+            )
+    load_scope.assert_not_awaited()
+    load_owned.assert_not_awaited()
+    audit.assert_not_awaited()
+    session.commit.assert_not_awaited()
 
 
 @pytest.mark.asyncio
@@ -330,30 +340,6 @@ async def test_repository_refuses_implicit_global_purge_scope() -> None:
 
     assert loaded == []
     session.execute.assert_not_awaited()
-
-
-@pytest.mark.asyncio
-async def test_hold_activation_and_deletion_serialize_on_same_group_row() -> None:
-    agency_id = uuid.uuid4()
-    user = _agency_admin(agency_id)
-    group_id = uuid.uuid4()
-    model = SimpleNamespace(id=group_id, agency_id=agency_id)
-    result = SimpleNamespace(scalar_one_or_none=lambda: model)
-    hold_session = SimpleNamespace(execute=AsyncMock(return_value=result))
-
-    loaded = await _load_retention_control_group(
-        hold_session,
-        group_id=group_id,
-        current_user=user,
-        lock=True,
-    )
-
-    assert loaded is model
-    hold_statement = hold_session.execute.await_args.args[0]
-    hold_sql = str(hold_statement.compile(dialect=postgresql.dialect()))
-    assert "client_groups.id" in hold_sql
-    assert "client_groups.agency_id" in hold_sql
-    assert "FOR UPDATE" in hold_sql
 
 
 @pytest.mark.asyncio

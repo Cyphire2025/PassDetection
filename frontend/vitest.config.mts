@@ -16,7 +16,6 @@ export default defineConfig({
         "components/ui/modal.tsx",
         "components/layout/mobile-navigation.tsx",
         "features/auth/components/authenticated-content.tsx",
-        "features/passports/components/passport-retention-control.tsx",
         "features/search/components/global-search.tsx",
         "proxy.ts",
       ],

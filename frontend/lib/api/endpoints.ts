@@ -395,8 +395,6 @@ export const API_ENDPOINTS = {
     accountStatus: (accountId: string) => `/api/v1/admin/accounts/${accountId}/status`,
     settings: "/api/v1/admin/settings",
     whatsappTemplates: "/api/v1/admin/whatsapp-templates",
-    passportRetention: (groupId: string) =>
-      `/api/v1/admin/groups/${encodeURIComponent(groupId)}/passport-retention`,
     passportData: "/api/v1/admin/passport-data",
     emailAiRollout: "/api/v1/admin/email-ai-rollout",
   },

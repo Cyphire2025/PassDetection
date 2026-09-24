@@ -116,29 +116,10 @@ class UpdatePlatformSettingsRequest(BaseModel):
         return value
 
 
-class PassportRetentionControlRequest(BaseModel):
-    legal_hold: bool
-    reason: str = Field(..., min_length=3, max_length=500)
-
-    model_config = {"extra": "forbid"}
-
-    @field_validator("reason")
-    @classmethod
-    def normalize_reason(cls, value: str) -> str:
-        normalized = " ".join(value.split())
-        if len(normalized) < 3:
-            raise ValueError("A meaningful retention-control reason is required")
-        return normalized
-
-
 class PassportRetentionControlResponse(BaseModel):
     group_id: uuid.UUID
     passport_purge_at: datetime | None = None
     passport_retention_days_applied: int | None = None
-    legal_hold: bool
-    legal_hold_reason: str | None = None
-    legal_hold_set_at: datetime | None = None
-    legal_hold_set_by_user_id: uuid.UUID | None = None
 
 
 class CreateManagerRequest(BaseModel):

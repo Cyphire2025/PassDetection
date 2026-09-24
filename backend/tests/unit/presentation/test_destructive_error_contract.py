@@ -11,7 +11,6 @@ from starlette.requests import Request
 from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import (
     ConflictError,
-    PassportLegalHoldError,
     StepUpRequiredError,
 )
 from app.presentation.dependencies.auth import require_recent_mfa
@@ -22,7 +21,6 @@ from app.presentation.middleware.error_handler import register_exception_handler
 @pytest.mark.parametrize(
     ("error", "expected_code"),
     [
-        (PassportLegalHoldError(), "PASSPORT_LEGAL_HOLD_ACTIVE"),
         (
             ConflictError(
                 "Archive the group before permanent deletion",

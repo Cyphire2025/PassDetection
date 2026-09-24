@@ -74,7 +74,6 @@ from app.presentation.api.v1.schemas.operations_schemas import (
     DeleteManagerResponse,
     ManagerGroupAccessResponse,
     ManagerResponse,
-    PassportRetentionControlRequest,
     PassportRetentionControlResponse,
     PlatformSettingsResponse,
     PurgePassportDataResponse,
@@ -487,82 +486,6 @@ async def get_group_passport_retention(
         current_user=current_user,
         lock=False,
     )
-    return _passport_retention_response(group)
-
-
-@router.put(
-    "/groups/{group_id}/passport-retention",
-    response_model=PassportRetentionControlResponse,
-    status_code=status.HTTP_200_OK,
-    summary="Place or release a legal hold on group passport data",
-    dependencies=[Depends(require_cookie_csrf), Depends(require_recent_mfa)],
-)
-async def update_group_passport_retention(
-    group_id: uuid.UUID,
-    body: PassportRetentionControlRequest,
-    current_user: User = Depends(
-        require_role([UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN])
-    ),
-    session: AsyncSession = Depends(get_db_session),
-) -> PassportRetentionControlResponse:
-    group = await _load_retention_control_group(
-        session,
-        group_id=group_id,
-        current_user=current_user,
-        lock=True,
-    )
-    now = datetime.now(tz=UTC)
-    previous_hold = group.passport_legal_hold
-    if body.legal_hold:
-        group.passport_legal_hold = True
-        group.passport_legal_hold_reason = body.reason
-        group.passport_legal_hold_set_at = now
-        group.passport_legal_hold_set_by_user_id = current_user.id
-    else:
-        group.passport_legal_hold = False
-        group.passport_legal_hold_reason = None
-        group.passport_legal_hold_set_at = None
-        group.passport_legal_hold_set_by_user_id = None
-
-    policies = PlatformPolicies.from_mapping(
-        (await _load_platform_settings(session)).model_dump(exclude={"updated_at"})
-    )
-    anchor = group.deleted_at or group.closed_at
-    if anchor is not None and (
-        group.passport_purge_at is None
-        or group.passport_retention_days_applied
-        != policies.passport_data_retention_days
-    ):
-        group.passport_retention_days_applied = policies.passport_data_retention_days
-        group.passport_purge_at = anchor + timedelta(
-            days=policies.passport_data_retention_days
-        )
-
-    await AuditLogRepository(session).record(
-        action=(
-            "passport_legal_hold_placed"
-            if body.legal_hold
-            else "passport_legal_hold_released"
-        ),
-        entity_type="client_group",
-        entity_id=str(group.id),
-        agency_id=group.agency_id,
-        user_id=current_user.id,
-        actor_email=current_user.email,
-        metadata={
-            "reason": body.reason,
-            "previous_legal_hold": previous_hold,
-            "passport_purge_at": (
-                group.passport_purge_at.isoformat()
-                if group.passport_purge_at is not None
-                else None
-            ),
-            "passport_retention_days_applied": (
-                group.passport_retention_days_applied
-            ),
-        },
-    )
-    await session.flush()
     return _passport_retention_response(group)
 
 
@@ -1197,10 +1120,6 @@ def _passport_retention_response(
         group_id=group.id,
         passport_purge_at=group.passport_purge_at,
         passport_retention_days_applied=group.passport_retention_days_applied,
-        legal_hold=group.passport_legal_hold,
-        legal_hold_reason=group.passport_legal_hold_reason,
-        legal_hold_set_at=group.passport_legal_hold_set_at,
-        legal_hold_set_by_user_id=group.passport_legal_hold_set_by_user_id,
     )
 
 

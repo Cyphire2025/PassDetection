@@ -454,6 +454,7 @@ class ClientGroup:
     deletion_retained_records: bool = False
     passport_purge_at: datetime | None = None
     passport_retention_days_applied: int | None = None
+    # Legacy persistence only: legal holds no longer affect deletion or retention.
     passport_legal_hold: bool = False
     passport_legal_hold_reason: str | None = None
     passport_legal_hold_set_at: datetime | None = None

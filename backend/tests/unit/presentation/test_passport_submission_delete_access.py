@@ -30,6 +30,7 @@ from app.infrastructure.database.models import (
 )
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.documents.storage_cleanup import StorageCleanupCipher
+from app.presentation.api.v1.routes.client_groups import permanently_delete_client_group
 from app.presentation.api.v1.routes.passport_routes import bulk_actions
 from app.presentation.dependencies.auth import get_current_active_user
 from app.presentation.middleware.error_handler import register_exception_handlers
@@ -274,10 +275,11 @@ async def test_delete_checks_private_qr_delivery_before_passenger_cascade(
     "role", [UserRole.AGENCY_MANAGER, UserRole.AGENCY_ADMIN, UserRole.SUPER_ADMIN]
 )
 @pytest.mark.parametrize("count", [1, 2])
+@pytest.mark.parametrize("legacy_hold", [False, True])
 async def test_manager_and_admins_delete_selected_submissions_with_real_audit_and_tombstones(
-    db_session: AsyncSession, external_effects, role: UserRole, count: int
+    db_session: AsyncSession, external_effects, role: UserRole, count: int, legacy_hold: bool
 ) -> None:
-    case = await _seed(db_session, role=role)
+    case = await _seed(db_session, role=role, held=legacy_hold)
     selected = case.own_ids[:count]
     response = await _post(case, selected)
     assert response.status_code == 200, response.text
@@ -363,7 +365,7 @@ async def test_submission_with_canonical_covers_keeps_delete_role_and_cleanup_co
 async def test_non_delete_roles_are_denied_even_for_owned_or_assigned_groups(
     db_session: AsyncSession, external_effects, role: UserRole, access: str
 ) -> None:
-    case = await _seed(db_session, role=role, access=access)
+    case = await _seed(db_session, role=role, access=access, held=True)
     response = await _post(case, case.own_ids[:2])
     assert response.status_code == 403, response.text
     assert response.json()["error"]["code"] == "AUTHORIZATION_ERROR"
@@ -410,25 +412,10 @@ async def test_manager_mixed_selection_is_all_or_nothing(
     assert blocked.user_id == case.actor.id
 
 
-async def test_manager_submission_delete_respects_legal_hold(
-    db_session: AsyncSession, external_effects
-) -> None:
-    case = await _seed(db_session, held=True)
-    response = await _post(case, case.own_ids)
-    assert response.status_code == 409, response.text
-    assert response.json()["error"]["code"] == "PASSPORT_LEGAL_HOLD_ACTIVE"
-    await _assert_retained(case, external_effects)
-    audits = await _audits(case)
-    assert set(audits) == {"destructive_operation_attempted", "destructive_operation_blocked"}
-    blocked = audits["destructive_operation_blocked"]
-    assert blocked.metadata_json["reason_code"] == "PASSPORT_LEGAL_HOLD_ACTIVE"
-    assert "Confidential legal review" not in str(blocked.metadata_json)
-
-
 async def test_manager_still_cannot_permanently_delete_group_with_default_policy_scope(
     db_session: AsyncSession, external_effects
 ) -> None:
-    case = await _seed(db_session, access="owned")
+    case = await _seed(db_session, access="owned", held=True)
     with pytest.raises(AuthorizationError):
         await DestructiveMutationPolicy(db_session).require_group(
             user=case.actor,
@@ -441,3 +428,48 @@ async def test_manager_still_cannot_permanently_delete_group_with_default_policy
     assert audits["destructive_operation_denied"].metadata_json["operation"] == (
         "client_group_permanent_delete"
     )
+
+
+@pytest.mark.parametrize("retain_records", [False, True])
+async def test_archived_group_delete_ignores_persisted_legacy_hold(
+    db_session: AsyncSession, external_effects, retain_records: bool,
+) -> None:
+    case = await _seed(db_session, role=UserRole.AGENCY_ADMIN, held=True)
+    group = await db_session.get(ClientGroupModel, case.group_id)
+    assert group is not None
+    group.status = "archived"
+    await db_session.commit()
+
+    response = await permanently_delete_client_group(
+        link_id=case.group_id, retain_records=retain_records,
+        current_user=case.actor, session=db_session,
+    )
+
+    assert response["deleted"] is True
+    assert response["retained_records"] is retain_records
+    await db_session.refresh(group)
+    assert group.status == "deleted"
+    assert group.passport_legal_hold is True  # Historical fields remain inert.
+    remaining = set((await db_session.execute(select(PassportSubmissionModel.id))).scalars())
+    assert remaining == (case.all_ids if retain_records else case.all_ids - set(case.own_ids))
+    jobs = (await db_session.execute(select(StorageCleanupJobModel))).scalars().all()
+    assert sum(job.object_count for job in jobs) == (0 if retain_records else len(case.own_ids))
+    audits = await _audits(case)
+    assert "destructive_operation_attempted" in audits
+    assert "destructive_operation_blocked" not in audits
+
+
+@pytest.mark.parametrize("role", [UserRole.AGENCY_ADMIN, UserRole.SUPER_ADMIN])
+async def test_scoped_purge_policy_ignores_persisted_legacy_hold_without_expanding_scope(
+    db_session: AsyncSession, role: UserRole,
+) -> None:
+    case = await _seed(db_session, role=role, held=True)
+    mutation = await DestructiveMutationPolicy(db_session).require_scoped_groups(
+        user=case.actor, action="passport_data_purge",
+    )
+    assert {group.id for group in mutation.groups} == (
+        {case.group_id, case.other_group_id, case.foreign_group_id}
+        if role == UserRole.SUPER_ADMIN else {case.group_id, case.other_group_id}
+    )
+    assert next(group for group in mutation.groups if group.id == case.group_id).passport_legal_hold
+    assert set(await _audits(case)) == {"destructive_operation_attempted"}

@@ -135,8 +135,11 @@ async def test_lifecycle_is_idempotent_after_the_first_retention_page(
 
 
 @pytest.mark.asyncio
-async def test_lifecycle_reschedules_policy_dates_and_never_crosses_legal_hold(
+@pytest.mark.parametrize(("closed_days", "expected_deleted"), [(40, 1), (10, 0)])
+async def test_lifecycle_reschedules_policy_dates_and_ignores_retired_legal_hold(
     db_session: AsyncSession,
+    closed_days: int,
+    expected_deleted: int,
 ) -> None:
     now = datetime.now(tz=UTC)
     agency_id = uuid.uuid4()
@@ -161,7 +164,7 @@ async def test_lifecycle_reschedules_policy_dates_and_never_crosses_legal_hold(
                 status="closed",
                 created_by_user_id=None,
                 created_at=now - timedelta(days=100),
-                closed_at=now - timedelta(days=40),
+                closed_at=now - timedelta(days=closed_days),
                 passport_purge_at=now + timedelta(days=325),
                 passport_retention_days_applied=365,
                 passport_legal_hold=True,
@@ -187,28 +190,29 @@ async def test_lifecycle_reschedules_policy_dates_and_never_crosses_legal_hold(
     )
     await db_session.flush()
 
-    held_result = await apply_platform_lifecycle_policies(db_session, now=now)
+    result = await apply_platform_lifecycle_policies(db_session, now=now)
 
     group = await db_session.get(ClientGroupModel, group_id)
     assert group is not None
-    assert held_result.scheduled_passport_purge_dates == 1
+    assert result.scheduled_passport_purge_dates == 1
     assert group.passport_retention_days_applied == 30
     assert group.passport_purge_at == group.closed_at + timedelta(days=30)
-    assert await db_session.get(PassportSubmissionModel, submission_id) is not None
+    assert group.passport_legal_hold is True
+    assert group.passport_legal_hold_reason == "Active litigation hold"
+    assert result.deleted_passports == expected_deleted
+    assert result.storage_cleanup_jobs == expected_deleted
+    assert result.storage_objects_scheduled == expected_deleted
+    submission = await db_session.get(PassportSubmissionModel, submission_id)
+    assert (submission is None) == bool(expected_deleted)
     assert "held_group_history" in set(
         (await db_session.execute(select(AuditLogModel.action))).scalars()
     )
 
-    group.passport_legal_hold = False
-    group.passport_legal_hold_reason = None
-    group.passport_legal_hold_set_at = None
-    group.passport_legal_hold_set_by_user_id = None
-    await db_session.flush()
+    repeated = await apply_platform_lifecycle_policies(db_session, now=now)
 
-    released_result = await apply_platform_lifecycle_policies(db_session, now=now)
-
-    assert released_result.deleted_passports == 1
-    assert await db_session.get(PassportSubmissionModel, submission_id) is None
+    assert repeated.deleted_passports == 0
+    assert repeated.storage_cleanup_jobs == 0
+    assert group.passport_legal_hold is True
     assert "held_group_history" in set(
         (await db_session.execute(select(AuditLogModel.action))).scalars()
     )

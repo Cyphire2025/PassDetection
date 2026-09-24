@@ -8,8 +8,8 @@ import pytest
 
 from app.application.platform_policies import PlatformPolicies
 from app.application.security.destructive_mutation_policy import DestructiveMutationPolicy
-from app.domain.entities.entities import ClientGroup
-from app.domain.exceptions.exceptions import ConflictError, PassportLegalHoldError
+from app.domain.entities.entities import ClientGroup, UserRole
+from app.domain.exceptions.exceptions import ConflictError
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.client_group_repository import (
     ClientGroupRepository,
@@ -87,7 +87,10 @@ def test_permanent_group_cleanup_includes_every_passport_image_variant() -> None
 
 
 @pytest.mark.asyncio
-async def test_data_removal_deletes_submissions_before_qualifier_rows(source_contact_sync) -> None:
+@pytest.mark.parametrize("legacy_hold", [False, True])
+async def test_data_removal_deletes_submissions_before_qualifier_rows(
+    source_contact_sync, legacy_hold: bool,
+) -> None:
     group = ClientGroup.create(
         name="Delete Group",
         token="delete-group-token",
@@ -96,6 +99,7 @@ async def test_data_removal_deletes_submissions_before_qualifier_rows(source_con
         relation_with_qualifier_enabled=True,
     )
     group.archive()
+    group.passport_legal_hold = legacy_hold
     submission = SimpleNamespace(
         id=uuid.uuid4(),
         image_s3_key="front/original.jpg",
@@ -117,15 +121,16 @@ async def test_data_removal_deletes_submissions_before_qualifier_rows(source_con
         id=uuid.uuid4(),
         agency_id=group.agency_id,
         email="admin@example.com",
+        role=UserRole.AGENCY_ADMIN,
     )
     derived_key = "passport-crops/group/front/1.jpg"
     edit_source_key = "passport-edits/group/photo/1.jpg"
 
     with (
         patch.object(
-            DestructiveMutationPolicy,
-            "require_group",
-            AsyncMock(return_value=_mutation(group)),
+            ClientGroupRepository,
+            "get_by_id_for_update",
+            AsyncMock(return_value=group),
         ),
         patch.object(
             ClientGroupRepository,
@@ -327,51 +332,6 @@ async def test_permanent_group_delete_blocks_active_roster_decisions() -> None:
     assert session.execute.await_count == 1
     audit.assert_awaited_once()
     session.commit.assert_awaited_once_with()
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize("retain_records", [False, True])
-async def test_permanent_group_delete_cannot_bypass_legal_hold(
-    retain_records: bool,
-) -> None:
-    group = ClientGroup.create(
-        name="Held Delete Group",
-        token="held-delete-group-token",
-        agency_id=uuid.uuid4(),
-        created_by_user_id=uuid.uuid4(),
-    )
-    group.archive()
-    group.passport_legal_hold = True
-    group.passport_legal_hold_reason = "Regulatory investigation"
-    group.passport_legal_hold_set_at = group.closed_at
-    session = SimpleNamespace(execute=AsyncMock(), commit=AsyncMock())
-    current_user = SimpleNamespace(
-        id=uuid.uuid4(),
-        agency_id=group.agency_id,
-        email="admin@example.com",
-    )
-
-    with (
-        patch.object(
-            DestructiveMutationPolicy,
-            "require_group",
-            AsyncMock(side_effect=PassportLegalHoldError()),
-        ),
-        patch(
-            "app.presentation.api.v1.routes.client_groups.stage_storage_cleanup_jobs"
-        ) as stage_cleanup,
-        pytest.raises(PassportLegalHoldError) as caught,
-    ):
-        await permanently_delete_client_group(
-            link_id=group.id,
-            retain_records=retain_records,
-            current_user=current_user,  # type: ignore[arg-type]
-            session=session,  # type: ignore[arg-type]
-        )
-
-    assert caught.value.code == "PASSPORT_LEGAL_HOLD_ACTIVE"
-    stage_cleanup.assert_not_called()
-    session.execute.assert_not_awaited()
 
 
 @pytest.mark.asyncio

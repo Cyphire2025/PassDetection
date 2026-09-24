@@ -538,23 +538,6 @@ async def discard_public_upload(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Submitted passports cannot be discarded"
         )
-    if locked_group.passport_legal_hold:
-        await AuditLogRepository(session).record(
-            action="public_passport_draft_discard_blocked",
-            entity_type="passport_submission",
-            entity_id=str(submission.id),
-            agency_id=locked_group.agency_id,
-            result="blocked",
-            metadata={"reason_code": "PASSPORT_LEGAL_HOLD_ACTIVE"},
-        )
-        await session.commit()
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail={
-                "code": "PASSPORT_LEGAL_HOLD_ACTIVE",
-                "message": "This passport draft is retained under a legal hold.",
-            },
-        )
 
     keys = [
         key

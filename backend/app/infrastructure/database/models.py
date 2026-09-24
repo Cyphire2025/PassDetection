@@ -336,6 +336,7 @@ class ClientGroupModel(Base):
         Integer,
         nullable=True,
     )
+    # Retired feature: preserve historical values/schema; no runtime hold policy.
     passport_legal_hold: Mapped[bool] = mapped_column(
         Boolean,
         nullable=False,

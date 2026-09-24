@@ -96,7 +96,13 @@ export function UploadLinkList() {
   const { mutate: archiveLink, isPending: isArchiving } = useDeleteUploadLink();
   const { mutate: restoreLink, isPending: isRestoring } = useRestoreUploadLink();
   const { mutate: renameLink, isPending: isRenaming } = useUpdateUploadLink();
-  const { mutate: permanentlyDeleteLink, isPending: isPermanentlyDeleting } = usePermanentlyDeleteUploadLink();
+  const {
+    mutate: permanentlyDeleteLink,
+    isPending: isPermanentlyDeleting,
+    isError: isPermanentDeleteError,
+    error: permanentDeleteError,
+    reset: resetPermanentDelete,
+  } = usePermanentlyDeleteUploadLink();
   const filteredActiveLinks = useMemo(
     () => filterUploadLinks(activeLinks, deferredQuery),
     [activeLinks, deferredQuery],
@@ -324,6 +330,7 @@ export function UploadLinkList() {
             onRestore={(id) => restoreLink(id)}
             onRename={openGroupEditor}
             onPermanentDelete={(id) => {
+              resetPermanentDelete();
               setDeleteTarget(archivedLinks.find((link) => link.id === id) ?? null);
             }}
             canPermanentlyDelete={canPermanentlyDelete}
@@ -381,6 +388,9 @@ export function UploadLinkList() {
       <GroupDeleteRetentionDialog
         group={deleteTarget}
         isLoading={isPermanentlyDeleting}
+        error={isPermanentDeleteError
+          ? permanentDeleteError?.message || "The group could not be deleted. Please try again."
+          : null}
         onClose={() => setDeleteTarget(null)}
         onKeepData={() => {
           if (!deleteTarget) return;
@@ -717,12 +727,14 @@ function LoadingRows() {
 function GroupDeleteRetentionDialog({
   group,
   isLoading,
+  error,
   onClose,
   onKeepData,
   onDeleteData,
 }: {
   group: UploadLinkResponse | null;
   isLoading: boolean;
+  error: string | null;
   onClose: () => void;
   onKeepData: () => void;
   onDeleteData: () => void;
@@ -743,20 +755,23 @@ function GroupDeleteRetentionDialog({
       role="dialog"
       aria-modal="true"
       aria-labelledby="delete-archived-group-title"
+      aria-describedby="delete-archived-group-description"
+      aria-busy={isLoading}
       onKeyDown={handleDialogKeyDown}
     >
-      <div className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+      <div className="max-h-[calc(100dvh-2rem)] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200">
         <div className="border-b border-slate-100 px-6 py-5">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 id="delete-archived-group-title" className="text-lg font-semibold text-slate-900">Delete Archived Group</h2>
-              <p className="mt-1 text-sm leading-6 text-slate-600">
+              <p id="delete-archived-group-description" className="mt-1 text-sm leading-6 text-slate-600">
                 Choose how passport records for <span className="font-semibold text-slate-900">{group.name}</span> should be handled.
               </p>
             </div>
             <button
               type="button"
               onClick={onClose}
+              disabled={isLoading}
               className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
               aria-label="Close dialog"
             >
@@ -764,6 +779,13 @@ function GroupDeleteRetentionDialog({
             </button>
           </div>
         </div>
+
+        {error && (
+          <div role="alert" className="mx-6 mt-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+            <p className="font-semibold">Could not delete this group</p>
+            <p className="mt-1">{error}</p>
+          </div>
+        )}
 
         <div className="grid gap-4 p-6 md:grid-cols-2">
           <button
@@ -791,7 +813,8 @@ function GroupDeleteRetentionDialog({
           </button>
         </div>
 
-        <div className="flex justify-end border-t border-slate-100 px-6 py-4">
+        <div className="flex items-center justify-end gap-4 border-t border-slate-100 px-6 py-4">
+          {isLoading && <p role="status" className="text-sm text-slate-600">Deleting group…</p>}
           <Button
             type="button"
             variant="secondary"

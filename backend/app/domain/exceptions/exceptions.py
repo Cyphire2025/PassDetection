@@ -128,19 +128,6 @@ class ConflictError(PassDetectionError):
         super().__init__(message, code=code)
 
 
-class PassportLegalHoldError(ConflictError):
-    """Raised when a legal hold blocks passport or group destruction."""
-
-    def __init__(self) -> None:
-        super().__init__(
-            (
-                "Passport data under legal hold cannot be deleted. "
-                "Release the hold through the audited retention control first."
-            ),
-            code="PASSPORT_LEGAL_HOLD_ACTIVE",
-        )
-
-
 # ── File / Image Processing ───────────────────────────────────────────────────
 
 class ImageValidationError(PassDetectionError):

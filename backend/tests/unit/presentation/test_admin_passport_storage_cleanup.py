@@ -9,11 +9,12 @@ import pytest
 from app.application.security.destructive_mutation_policy import DestructiveMutationPolicy
 from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import (
+    AuthorizationError,
     EntityNotFoundError,
-    PassportLegalHoldError,
     StorageError,
 )
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
 from app.infrastructure.repositories.passport_image_crop_repository import (
     PassportImageCropRepository,
 )
@@ -76,7 +77,6 @@ def _agency_admin(agency_id: uuid.UUID) -> User:
 def test_platform_policy_and_passport_purge_mutations_require_csrf_and_step_up() -> None:
     expected = {
         ("/settings", "PUT"),
-        ("/groups/{group_id}/passport-retention", "PUT"),
         ("/managers/{manager_id}", "DELETE"),
         ("/passport-data", "DELETE"),
     }
@@ -158,7 +158,8 @@ def _scoped_purge_mutation(
 
 
 @pytest.mark.asyncio
-async def test_manager_owned_data_deletion_removes_every_passport_object() -> None:
+@pytest.mark.parametrize("legacy_hold", [False, True])
+async def test_manager_owned_data_deletion_removes_every_passport_object(legacy_hold: bool) -> None:
     agency_id = uuid.uuid4()
     manager = SimpleNamespace(
         id=uuid.uuid4(),
@@ -186,15 +187,12 @@ async def test_manager_owned_data_deletion_removes_every_passport_object() -> No
         return SimpleNamespace(completed=True, deleted_count=6)
 
     session.commit = AsyncMock(side_effect=commit)
-    mutation = SimpleNamespace(
-        groups=(SimpleNamespace(id=group_id),),
-        request_fingerprint="manager-delete-fingerprint",
-    )
+    group = SimpleNamespace(id=group_id, agency_id=agency_id, passport_legal_hold=legacy_hold)
     with (
         patch.object(
-            DestructiveMutationPolicy,
-            "require_manager_owned_groups",
-            AsyncMock(return_value=mutation),
+            ClientGroupRepository,
+            "list_owned_for_update",
+            AsyncMock(return_value=[group]),
         ),
         patch.object(
             PassportImageCropRepository,
@@ -589,7 +587,8 @@ async def test_unknown_manager_delete_uses_stable_not_found_error() -> None:
 
 
 @pytest.mark.asyncio
-async def test_global_passport_data_purge_removes_every_passport_object() -> None:
+@pytest.mark.parametrize("legacy_hold", [False, True])
+async def test_global_passport_data_purge_removes_every_passport_object(legacy_hold: bool) -> None:
     group_id = uuid.uuid4()
     submission = _submission_row()
     session = _session_for_global_purge(
@@ -598,13 +597,13 @@ async def test_global_passport_data_purge_removes_every_passport_object() -> Non
     )
     derived_key = "passport-crops/global/photo/1.jpg"
     edit_source_key = "passport-edits/global/photo/1.jpg"
-    mutation = _scoped_purge_mutation(group_id)
+    group = SimpleNamespace(id=group_id, agency_id=uuid.uuid4(), passport_legal_hold=legacy_hold)
 
     with (
         patch.object(
-            DestructiveMutationPolicy,
-            "require_scoped_groups",
-            AsyncMock(return_value=mutation),
+            ClientGroupRepository,
+            "list_scope_for_update",
+            AsyncMock(return_value=[group]),
         ),
         patch.object(
             PassportImageCropRepository,
@@ -809,7 +808,7 @@ async def test_global_purge_commits_rows_and_defers_cleanup_after_storage_failur
 
 
 @pytest.mark.asyncio
-async def test_global_purge_stops_before_deletion_when_a_legal_hold_exists() -> None:
+async def test_global_purge_stops_before_deletion_when_scope_authorization_is_denied() -> None:
     session = SimpleNamespace(
         execute=AsyncMock(
             side_effect=[
@@ -825,16 +824,16 @@ async def test_global_purge_stops_before_deletion_when_a_legal_hold_exists() -> 
         patch.object(
             DestructiveMutationPolicy,
             "require_scoped_groups",
-            AsyncMock(side_effect=PassportLegalHoldError()),
+            AsyncMock(side_effect=AuthorizationError()),
         ),
-        pytest.raises(PassportLegalHoldError) as exc_info,
+        pytest.raises(AuthorizationError) as exc_info,
     ):
         await purge_passport_data(
             current_user=_super_admin(),
             session=session,  # type: ignore[arg-type]
         )
 
-    assert exc_info.value.code == "PASSPORT_LEGAL_HOLD_ACTIVE"
+    assert exc_info.value.code == "AUTHORIZATION_ERROR"
     assert session.execute.await_count == 2
     session.commit.assert_not_awaited()
 

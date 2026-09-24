@@ -385,7 +385,6 @@ class ClientGroupResponse(BaseModel):
     deleted_passport_count: int = 0
     deletion_retained_records: bool = False
     passport_purge_at: datetime | None = None
-    passport_legal_hold: bool = False
 
     model_config = {"from_attributes": True}
 
