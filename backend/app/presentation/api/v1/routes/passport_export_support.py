@@ -149,6 +149,9 @@ def _group_export_details(
 ) -> dict[str, Any]:
     return {
         "name": group.name,
+        "passport_ecr_enabled": bool(
+            (getattr(group, "upload_configuration", None) or {}).get("passport_ecr_enabled", False)
+        ),
         "destination": group.destination,
         "travel_date": group.travel_date.isoformat() if group.travel_date else None,
         "return_date": group.return_date.isoformat() if group.return_date else None,

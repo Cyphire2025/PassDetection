@@ -122,6 +122,30 @@ async def test_review_and_provider_failure_cannot_become_na(ecr_db):
         }
 
 
+async def test_finish_yields_unfinished_batch_without_losing_results_or_allowing_stale_owner(ecr_db):
+    batch, _ = await make_batch(ecr_db, count=2)
+    store = runtime.BatchStore()
+    token = await store.claim(batch.id)
+    first = await store.next_item(batch.id, token)
+    with pytest.raises(RuntimeError, match="active rows"):
+        await store.finish(batch.id, token)
+    await store.save_result(batch.id, token, first.id, EcrClassification("NA", "absent", "test"))
+    assert await store.finish(batch.id, token) is False
+    async with ecr_db() as session:
+        current = await session.get(EcrBatchModel, batch.id)
+        assert current.status == "queued"
+        assert current.lease_token is None and current.lease_expires_at is None
+        assert (await session.get(EcrItemModel, first.id)).result == "NA"
+    with pytest.raises(runtime.LeaseLost):
+        await store.renew(batch.id, token)
+    next_token = await store.claim(batch.id)
+    assert next_token != token
+    second = await store.next_item(batch.id, next_token)
+    assert second.id != first.id
+    await store.save_result(batch.id, next_token, second.id, EcrClassification("ECR", "present", "test"))
+    assert await store.finish(batch.id, next_token) is True
+
+
 async def test_release_requeues_interrupted_rows_and_keeps_completed_results(ecr_db):
     batch, _ = await make_batch(ecr_db, count=2)
     store = runtime.BatchStore()
@@ -215,6 +239,21 @@ async def test_heartbeat_failure_cancels_all_active_provider_lanes(monkeypatch):
     store.save_result.assert_not_awaited()
 
 
+async def test_shared_drain_budget_limits_all_eight_lanes_to_32_items():
+    store, storage = fake_lane_dependencies(100)
+    classifier = SimpleNamespace(
+        classify=AsyncMock(return_value=EcrClassification("NA", "absent", "test"))
+    )
+    await runtime._run_lanes(
+        uuid.uuid4(), uuid.uuid4(), store=store, storage=storage, classifier=classifier,
+        concurrency=8, max_image_bytes=1024,
+    )
+    assert classifier.classify.await_count == 32
+    assert store.save_result.await_count == 32
+    # Queued items remain available for the next task, not preclaimed/stranded.
+    assert await store.next_item(uuid.uuid4(), uuid.uuid4()) is not None
+
+
 async def test_oversized_or_corrupted_storage_never_reaches_gemini():
     store, storage = fake_lane_dependencies(2)
     storage.stat_file.side_effect = [
@@ -274,7 +313,8 @@ def test_ecr_pacing_rejects_nonpositive_requests_per_minute(requests_per_minute)
 def batch_runtime_dependencies(monkeypatch):
     token = uuid.uuid4()
     store = SimpleNamespace(
-        claim=AsyncMock(return_value=token), finish=AsyncMock(), release=AsyncMock()
+        claim=AsyncMock(return_value=token), finish=AsyncMock(return_value=True),
+        release=AsyncMock(), renew=AsyncMock(),
     )
     settings = SimpleNamespace(
         redis=SimpleNamespace(broker_url="redis://unused:6379/0"),
@@ -294,12 +334,14 @@ def batch_runtime_dependencies(monkeypatch):
     dependencies = SimpleNamespace(
         token=token,
         store=store,
+        real_store=runtime.BatchStore(),
         settings=settings,
         client=client,
         classifier=Mock(),
         storage=Mock(),
         lanes=AsyncMock(),
         redis=SimpleNamespace(eval=AsyncMock(return_value=0), aclose=AsyncMock()),
+        dispatch=AsyncMock(),
     )
     dependencies.redis_factory = Mock(return_value=dependencies.redis)
     monkeypatch.setattr(runtime, "get_settings", lambda: settings)
@@ -309,6 +351,7 @@ def batch_runtime_dependencies(monkeypatch):
     monkeypatch.setattr(runtime, "MinioStorageRepository", lambda: dependencies.storage)
     monkeypatch.setattr(runtime, "_run_lanes", dependencies.lanes)
     monkeypatch.setattr(runtime.Redis, "from_url", dependencies.redis_factory)
+    monkeypatch.setattr(runtime, "dispatch_ecr_batch", dependencies.dispatch)
     return dependencies
 
 
@@ -335,6 +378,7 @@ async def test_batch_uses_eight_lanes_and_paces_every_attempt_including_retries(
 
     dependencies.redis_factory.assert_called_once()
     assert dependencies.redis.eval.await_count == 5
+    assert dependencies.store.renew.await_count == 3
     assert all(call.args[-1] == 500 for call in dependencies.redis.eval.await_args_list)
     assert [call.args for call in sleep.await_args_list] == [(0.5,), (0.5,)]
     dependencies.classifier.assert_called_once()
@@ -353,6 +397,7 @@ async def test_batch_uses_eight_lanes_and_paces_every_attempt_including_retries(
     dependencies.client.aclose.assert_awaited_once_with()
     dependencies.store.finish.assert_awaited_once_with(batch_id, dependencies.token)
     dependencies.store.release.assert_not_awaited()
+    dependencies.dispatch.assert_not_awaited()
 
 
 @pytest.mark.parametrize("failure", [RuntimeError("storage unavailable"), asyncio.CancelledError()])
@@ -369,6 +414,84 @@ async def test_batch_failure_releases_lease_and_closes_clients(batch_runtime_dep
     dependencies.redis_factory.assert_called_once()
     dependencies.redis.aclose.assert_awaited_once_with()
     dependencies.client.aclose.assert_awaited_once_with()
+
+
+async def test_batch_continuation_is_published_after_durable_yield_at_queue_tail(
+    batch_runtime_dependencies,
+):
+    dependencies = batch_runtime_dependencies
+    batch_id = uuid.uuid4()
+    queue = deque(["waiting-passport-check"])
+    committed = False
+
+    async def finish(*args):
+        nonlocal committed
+        committed = True
+        return False
+
+    async def dispatch(next_batch):
+        assert committed
+        queue.append(next_batch)
+
+    dependencies.store.finish.side_effect = finish
+    dependencies.dispatch.side_effect = dispatch
+    assert await runtime.process_batch(batch_id) == "continued"
+    assert list(queue) == ["waiting-passport-check", batch_id]
+    dependencies.lanes.assert_awaited_once()
+    dependencies.store.release.assert_not_awaited()
+    dependencies.dispatch.assert_awaited_once_with(batch_id)
+
+
+async def test_failed_continuation_publication_keeps_batch_available_for_recovery(
+    ecr_db, batch_runtime_dependencies, monkeypatch,
+):
+    dependencies = batch_runtime_dependencies
+    batch, _ = await make_batch(ecr_db, count=1)
+    # Use the real store to verify the queue transition remains durable when
+    # the broker fails after the completed drain releases its lease.
+    monkeypatch.setattr(runtime, "BatchStore", lambda: dependencies.real_store)
+    dependencies.dispatch.side_effect = ConnectionError("broker unavailable")
+    monkeypatch.setattr(runtime, "dispatch_ecr_batch", dependencies.dispatch)
+    with pytest.raises(ConnectionError):
+        await runtime.process_batch(batch.id)
+    async with ecr_db() as session:
+        current = await session.get(EcrBatchModel, batch.id)
+        assert current.status == "queued"
+        assert current.lease_token is None and current.lease_expires_at is None
+        current.updated_at = runtime._now() - timedelta(minutes=1)
+        await session.commit()
+    dependencies.dispatch.side_effect = None
+    dependencies.dispatch.reset_mock()
+    assert await runtime.recover_batches() == 1
+    dependencies.dispatch.assert_awaited_once_with(batch.id)
+
+
+async def test_provider_attempt_rechecks_lease_after_waiting_for_admission(
+    batch_runtime_dependencies,
+):
+    dependencies = batch_runtime_dependencies
+    events = []
+
+    async def admission(*args):
+        events.append("admission")
+        return 0
+
+    async def renew(*args):
+        events.append("ownership")
+        raise runtime.LeaseLost("ownership changed while awaiting pacing")
+
+    async def run_lanes(*args, **kwargs):
+        await dependencies.classifier.call_args.kwargs["before_attempt"]()
+        events.append("http_request")
+
+    dependencies.redis.eval.side_effect = admission
+    dependencies.store.renew.side_effect = renew
+    dependencies.lanes.side_effect = run_lanes
+    with pytest.raises(runtime.LeaseLost):
+        await runtime.process_batch(uuid.uuid4())
+    assert events == ["admission", "ownership"]
+    dependencies.store.finish.assert_not_awaited()
+    dependencies.store.release.assert_awaited_once()
 
 
 def test_ecr_jobs_have_isolated_queue_long_envelope_and_recovery_schedule():
@@ -547,7 +670,26 @@ async def test_thousand_image_batch_persists_every_duplicate_filename_with_eight
 
     monkeypatch.setattr(runtime, "GeminiEcrService", FakeClassifier)
     monkeypatch.setattr(runtime, "HEARTBEAT_SECONDS", 0.05)
-    assert await asyncio.wait_for(runtime.process_batch(batch.id), timeout=60) == "completed"
+    dispatch = AsyncMock()
+    monkeypatch.setattr(runtime, "dispatch_ecr_batch", dispatch)
+    drains = 0
+    while True:
+        result = await asyncio.wait_for(runtime.process_batch(batch.id), timeout=60)
+        drains += 1
+        if result == "completed":
+            break
+        assert result == "continued"
+        assert drains < 32
+        async with ecr_db() as session:
+            current = await session.get(EcrBatchModel, batch.id)
+            rows = list((await session.scalars(select(EcrItemModel))).all())
+            assert current.status == "queued"
+            assert current.lease_token is None and current.lease_expires_at is None
+            assert sum(row.status == "completed" for row in rows) == drains * 32
+            assert not any(row.status == "processing" for row in rows)
+    assert drains == 32
+    assert dispatch.await_count == 31
+    assert all(call.args == (batch.id,) for call in dispatch.await_args_list)
     async with ecr_db() as session:
         persisted = list((await session.scalars(select(EcrItemModel))).all())
         finished = await session.get(EcrBatchModel, batch.id)
@@ -564,7 +706,7 @@ async def test_thousand_image_batch_persists_every_duplicate_filename_with_eight
         assert finished.lease_token is None and finished.lease_expires_at is None
     assert peak == 8 and calls == 1000 and active == 0
     assert redis.eval.await_count == 1000
-    redis.aclose.assert_awaited_once_with()
+    assert redis.aclose.await_count == 32
 
 
 async def test_retention_skips_five_hundred_older_batches_with_no_remaining_images(

@@ -23,6 +23,52 @@ function Harness({ initial = {} }: { initial?: Partial<UploadLinkSettingsValue> 
 const readSettings = (): UploadLinkSettingsValue => JSON.parse(screen.getByTestId("settings").textContent || "{}");
 
 describe("upload link settings", () => {
+  it("adds only the address page for ECR, locks it, and clears ECR when Passport is disabled", async () => {
+    const user = userEvent.setup();
+    render(<Harness initial={{ upload_configuration: { ...DEFAULT_UPLOAD_CONFIGURATION, passport_upload_pages: ["cover"] } }} />);
+    expect(screen.getByText(/Pages to request/).closest("details")).toHaveAttribute("open");
+    await user.click(screen.getByRole("switch", { name: "Enable ECR Check" }));
+    expect(readSettings().upload_configuration.passport_upload_pages).toEqual(["cover", "back"]);
+    expect(screen.getByRole("checkbox", { name: /^Address Details Page/ })).toBeDisabled();
+    expect(screen.getByRole("checkbox", { name: /^Personal Details Page/ })).not.toBeChecked();
+    await user.click(screen.getByRole("switch", { name: "Disable Passport" }));
+    expect(readSettings().upload_configuration.passport_ecr_enabled).toBe(false);
+    expect(readSettings().upload_configuration.passport_upload_pages).toEqual(["cover", "back"]);
+  });
+
+  it("adds the address page if device upload is enabled after ECR", async () => {
+    const user = userEvent.setup();
+    render(<Harness initial={{ allow_files_from_device: false, upload_configuration: { ...DEFAULT_UPLOAD_CONFIGURATION, passport_ecr_enabled: true, passport_upload_pages: ["front"] } }} />);
+    await user.click(screen.getByRole("switch", { name: "Enable Passport Document Upload" }));
+    expect(readSettings().upload_configuration.passport_upload_pages).toEqual(["front", "back"]);
+    expect(screen.getByRole("checkbox", { name: /^Address Details Page/ })).toBeDisabled();
+  });
+
+  it("offers ten languages in the requested order, keeps English implicit and preserves disabled selections", async () => {
+    const user = userEvent.setup();
+    render(<Harness />);
+    expect(readSettings().upload_configuration.instruction_languages_enabled).toBe(false);
+    await user.click(screen.getByRole("switch", { name: "Enable Multiple instruction languages" }));
+    const languages = screen.getByRole("group", { name: "Additional instruction languages" });
+    expect(Array.from(languages.querySelectorAll("label")).map((label) => label.textContent?.split(" ")[0])).toEqual(["Marathi", "Hindi", "Telugu", "Kannada", "Gujarati", "Bengali", "Odia", "Malayalam", "Tamil", "Urdu"]);
+    expect(screen.queryByRole("checkbox", { name: /English/ })).not.toBeInTheDocument();
+    expect(getUploadLinkSettingsError(readSettings())).toBe("Select at least one additional instruction language.");
+    await user.click(screen.getByRole("checkbox", { name: /^Urdu/ }));
+    await user.click(screen.getByRole("checkbox", { name: /^Marathi/ }));
+    expect(readSettings().upload_configuration.instruction_languages).toEqual(["mr", "ur"]);
+    await user.click(screen.getByRole("switch", { name: "Disable Multiple instruction languages" }));
+    expect(readSettings().upload_configuration.instruction_languages).toEqual(["mr", "ur"]);
+    expect(getUploadLinkSettingsError(readSettings())).toBeUndefined();
+  });
+
+  it("copies language arrays when opening existing link settings", () => {
+    const source = { ...DEFAULT_UPLOAD_CONFIGURATION, instruction_languages_enabled: true, instruction_languages: ["mr" as const], passport_ecr_enabled: true };
+    const result = getUploadLinkSettings({ upload_configuration: source });
+    expect(result.upload_configuration).toMatchObject(source);
+    result.upload_configuration.instruction_languages.push("hi");
+    expect(source.instruction_languages).toEqual(["mr"]);
+  });
+
   it.each([undefined, null, { passport_enabled: true }])("defaults legacy relationship settings to the existing list for %j", (upload_configuration) => {
     const settings = getUploadLinkSettings({ relation_with_qualifier_enabled: true, upload_configuration });
     expect(settings.upload_configuration.qualifier_relation_list_enabled).toBe(true);
@@ -116,7 +162,7 @@ describe("upload link settings", () => {
   it("defaults to both details pages and preserves cover selections when uploads are switched off", async () => {
     const user = userEvent.setup();
     render(<Harness />);
-    await user.click(screen.getByText(/Pages to request/));
+    expect(screen.getByText(/Pages to request/).closest("details")).toHaveAttribute("open");
     expect(screen.getByRole("checkbox", { name: /^Personal Details Page/ })).toBeChecked();
     expect(screen.getByRole("checkbox", { name: /^Address Details Page/ })).toBeChecked();
     expect(screen.getByRole("checkbox", { name: /^Passport Front Cover/ })).not.toBeChecked();

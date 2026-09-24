@@ -7,7 +7,7 @@ import type {
   DocumentVerificationResult,
 } from "@/types/document-distribution.types";
 
-export type ReviewFilter = "all" | "assigned" | "missing" | "sent" | "not_sent";
+export type ReviewFilter = "all" | "assigned" | "missing" | "sent" | "not_sent" | "multiple_pdfs";
 
 export interface DocumentReviewCounts {
   all: number;
@@ -15,11 +15,13 @@ export interface DocumentReviewCounts {
   missing: number;
   sent: number;
   not_sent: number;
+  multiple_pdfs: number;
 }
 
 export interface DocumentReviewModel {
   rows: DocumentPassengerReviewRow[];
   documentsByPassengerId: ReadonlyMap<string, DistributedDocument[]>;
+  pdfCountsByPassengerId: ReadonlyMap<string, number>;
   counts: DocumentReviewCounts;
   assignmentIssues: DocumentAssignmentIssue[];
   assignedDocumentIds: string[];
@@ -44,7 +46,8 @@ export interface ActiveDocumentSelection {
 const EMPTY_REVIEW_MODEL: DocumentReviewModel = {
   rows: [],
   documentsByPassengerId: new Map(),
-  counts: { all: 0, assigned: 0, missing: 0, sent: 0, not_sent: 0 },
+  pdfCountsByPassengerId: new Map(),
+  counts: { all: 0, assigned: 0, missing: 0, sent: 0, not_sent: 0, multiple_pdfs: 0 },
   assignmentIssues: [],
   assignedDocumentIds: [],
   assignedDocumentIdSet: new Set(),
@@ -71,6 +74,7 @@ export function createDocumentReviewModel(
   if (!review) return EMPTY_REVIEW_MODEL;
 
   const documentsByPassengerId = new Map<string, DistributedDocument[]>();
+  const pdfCountsByPassengerId = new Map<string, number>();
   const assignedDocumentIds: string[] = [];
   const assignedPassengerIds = new Set<string>();
   const sentPassengerIds = new Set<string>();
@@ -79,6 +83,14 @@ export function createDocumentReviewModel(
   for (const row of review.review_rows) {
     const documents = reviewRowDocuments(row);
     documentsByPassengerId.set(row.passenger_id, documents);
+    // The server groups shared physical PDFs by storage identity. Older responses
+    // only expose assignment IDs, so preserve their single-document compatibility.
+    pdfCountsByPassengerId.set(
+      row.passenger_id,
+      row.assigned_pdf_count ?? new Set(documents
+        .filter((document) => !document.match_status || document.match_status === "matched")
+        .map((document) => document.id)).size,
+    );
     if (documents.length === 0) continue;
 
     assignedPassengerIds.add(row.passenger_id);
@@ -117,12 +129,14 @@ export function createDocumentReviewModel(
   return {
     rows: review.review_rows,
     documentsByPassengerId,
+    pdfCountsByPassengerId,
     counts: {
       all: review.review_rows.length,
       assigned: assignedPassengerIds.size,
       missing: review.review_rows.length - assignedPassengerIds.size,
       sent: sentPassengerIds.size,
       not_sent: notSentPassengerIds.size,
+      multiple_pdfs: Array.from(pdfCountsByPassengerId.values()).filter((count) => count > 1).length,
     },
     assignmentIssues,
     assignedDocumentIds,
@@ -153,6 +167,7 @@ export function filterDocumentReviewRows(
     if (filter === "missing") return !model.assignedPassengerIds.has(row.passenger_id);
     if (filter === "sent") return model.sentPassengerIds.has(row.passenger_id);
     if (filter === "not_sent") return model.notSentPassengerIds.has(row.passenger_id);
+    if (filter === "multiple_pdfs") return (model.pdfCountsByPassengerId.get(row.passenger_id) ?? 0) > 1;
     return true;
   });
 }

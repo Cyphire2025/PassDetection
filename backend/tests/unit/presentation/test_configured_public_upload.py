@@ -17,6 +17,7 @@ from app.presentation.api.v1.routes.passport_routes import (
     public_upload,
     submission_contact,
     submission_review,
+    submission_side_effects,
 )
 from app.presentation.api.v1.schemas.passport_schemas import (
     ClientSubmitPassportRequest,
@@ -72,7 +73,8 @@ async def test_details_only_final_submit_commits_without_verification_job(monkey
     monkeypatch.setattr(submission_contact, "PassportSubmissionRepository", lambda _: Mock(get_by_id_for_update=AsyncMock(return_value=existing)))
     monkeypatch.setattr(submission_contact, "require_public_contact_proof", AsyncMock())
     verification_repo = Mock(enqueue=AsyncMock())
-    monkeypatch.setattr(submission_review, "PostSubmissionVerificationJobRepository", lambda _: verification_repo)
+    monkeypatch.setattr(submission_side_effects, "PostSubmissionVerificationJobRepository", lambda _: verification_repo)
+    monkeypatch.setattr(submission_side_effects, "stage_passport_ecr_check", AsyncMock(return_value=False))
     result = SimpleNamespace(
         id=submission_id, image_s3_key="", idempotent_replay=True,
         agency_id=uuid.uuid4(), group_id=uuid.uuid4(),

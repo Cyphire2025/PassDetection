@@ -14,6 +14,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { VisaPhotoSample } from "./visa-photo-sample";
+import { InstructionLanguageSelector } from "./instruction-language-selector";
+import { UPLOAD_INSTRUCTIONS } from "../config/instruction-translations";
+import type { InstructionLanguageControl } from "../hooks/use-instruction-language";
 import { prewarmUploadedVisaPhotoDetector } from "../services/visa-photo-upload-detector";
 import type { VisaPhotoRejectionReason } from "../services/public-flow-telemetry";
 import {
@@ -27,6 +30,7 @@ interface VisaPhotoUploadProps {
   onCapture: (file: File) => void;
   onCancel: () => void;
   onTelemetryReason?: (reason: VisaPhotoRejectionReason) => void;
+  instructions?: InstructionLanguageControl;
 }
 
 type UploadStatus = "idle" | "checking" | "passed" | "failed";
@@ -35,7 +39,9 @@ export function VisaPhotoUpload({
   onCapture,
   onCancel,
   onTelemetryReason = () => undefined,
+  instructions,
 }: VisaPhotoUploadProps) {
+  const language = instructions?.language ?? "en";
   const inputRef = useRef<HTMLInputElement>(null);
   const previewUrlRef = useRef<string | null>(null);
   const validationRunRef = useRef(0);
@@ -127,11 +133,12 @@ export function VisaPhotoUpload({
 
       <main className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:py-8">
         <div className="mx-auto w-full max-w-3xl space-y-4">
+          <div className="flex justify-end"><InstructionLanguageSelector instructions={instructions} /></div>
           <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-amber-950 shadow-sm">
             <div className="flex gap-3">
               <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" aria-hidden="true" />
-              <p className="text-sm leading-6">
-                Upload only a studio-taken photo with a plain white background.
+              <p lang={language} dir={language === "ur" ? "rtl" : "ltr"} className="text-sm leading-6">
+                {UPLOAD_INSTRUCTIONS[language].visaWarning}
               </p>
             </div>
           </div>
@@ -150,7 +157,7 @@ export function VisaPhotoUpload({
           />
 
           <section className="grid items-start gap-5 overflow-hidden rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-[220px_minmax(0,1fr)] sm:p-5">
-            <VisaPhotoSample />
+            <VisaPhotoSample language={language} />
             <div className="min-w-0">
             <div className={`relative mx-auto overflow-hidden rounded-xl bg-slate-50 ${previewUrl ? "h-[300px] w-[220px] max-w-full" : "min-h-[180px] w-full border border-dashed border-slate-200"}`}>
               {previewUrl ? (

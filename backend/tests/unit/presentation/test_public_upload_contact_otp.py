@@ -24,7 +24,11 @@ from app.infrastructure.security.mobile_otp_rate_limiter import (
     OTPRateLimitUnavailable,
 )
 from app.presentation.api.v1.routes.passport_routes import contact_verification as routes
-from app.presentation.api.v1.routes.passport_routes import submission_contact, submission_review
+from app.presentation.api.v1.routes.passport_routes import (
+    submission_contact,
+    submission_review,
+    submission_side_effects,
+)
 from app.presentation.api.v1.schemas.passport_schemas import ClientSubmitPassportRequest
 from app.presentation.api.v1.schemas.public_upload_contact_schemas import (
     PublicContactOTPRequest,
@@ -316,9 +320,9 @@ async def test_final_submit_consumes_proof_atomically_and_failed_commit_preserve
     challenge = await send(rig)
     await verify(rig, challenge.challenge_id)
     monkeypatch.setattr(submission_contact, "PassportSubmissionRepository", lambda _: rig.passports)
-    monkeypatch.setattr(submission_review, "propagate_mobile_passenger_change", AsyncMock())
-    monkeypatch.setattr(submission_review, "AuditLogRepository", lambda _: SimpleNamespace(record=AsyncMock()))
-    monkeypatch.setattr(submission_review, "NotificationRepository", lambda _: SimpleNamespace(create=AsyncMock()))
+    monkeypatch.setattr(submission_side_effects, "propagate_mobile_passenger_change", AsyncMock())
+    monkeypatch.setattr(submission_side_effects, "AuditLogRepository", lambda _: SimpleNamespace(record=AsyncMock()))
+    monkeypatch.setattr(submission_side_effects, "NotificationRepository", lambda _: SimpleNamespace(create=AsyncMock()))
     monkeypatch.setattr(submission_review.PassportSubmissionResponse, "model_validate", lambda value: value)
     result = SimpleNamespace(
         id=rig.submission.id, agency_id=rig.group.agency_id, group_id=rig.group.id,

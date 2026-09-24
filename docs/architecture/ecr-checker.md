@@ -50,8 +50,10 @@ This is phrase detection, not a legal assessment of a traveller's eligibility.
 ## Throughput
 
 The dedicated `ecr-worker` consumes `ecr_checks` with one Celery process and eight
-asynchronous image lanes. It processes one batch at a time; queued images stay in
-private object storage and broker messages contain only the batch ID. An available
+asynchronous image lanes. Each task processes a maximum of 32 images before
+requeuing the remainder, allowing passport-link checks and other batches to share
+the worker. Queued images stay in private object storage and broker messages
+contain only identifiers. An available
 lane claims one image, persists its result, then claims the next. The runtime never
 loads all 1,000 image bodies together. Database connections are held only for short
 transactions during processing.
@@ -121,12 +123,14 @@ Sources: [pricing](https://ai.google.dev/gemini-api/docs/pricing#gemini-3.5-flas
 
 ## Deployment
 
-This release requires migration **0106_ecr_checker** after
-**0105_whatsapp_phone_overrides**. Use the repository's explicit production
+The standalone checker was introduced by **0106_ecr_checker**. The current
+passport-link extension also requires **0107_passport_ecr_checks**. See
+[passport-link ECR and languages](passport-link-ecr-and-languages.md) for its
+workflow and shared queue behavior. Use the repository's explicit production
 Compose layering: `docker-compose.yml` plus `docker-compose.prod.yml` (add the
 APNs overlay only where already configured).
 
-Set `EXPECTED_DATABASE_SCHEMA_REVISION=0106_ecr_checker` in the production
+Set `EXPECTED_DATABASE_SCHEMA_REVISION=0107_passport_ecr_checks` in the production
 environment alongside the ECR settings. Readiness requires an exact revision
 match. Build `backend`, `worker` and `frontend` with the release `APP_REVISION`:
 the API uses a Compose project image while all background workers share the

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import replace
-from datetime import UTC, datetime
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Response, status
 from fastapi.responses import JSONResponse
@@ -34,7 +33,7 @@ from app.application.use_cases.passports.staff_approve_passport_use_case import 
     StaffApprovePassportUseCase,
 )
 from app.core.logging.logger import get_logger
-from app.domain.entities.entities import PassportProcessingStatus, StaffApprovalOutcome, User
+from app.domain.entities.entities import StaffApprovalOutcome, User
 from app.domain.exceptions.exceptions import (
     AuthorizationError,
     ConflictError,
@@ -44,13 +43,10 @@ from app.domain.exceptions.exceptions import (
     StaffApprovalUnavailableError,
     StorageError,
 )
-from app.domain.value_objects.passport_document_classification import requires_manual_staff_review
-from app.infrastructure.database.models import ClientGroupModel, StorageCleanupJobModel
+from app.infrastructure.database.models import ClientGroupModel
 from app.infrastructure.database.session import get_db_session
-from app.infrastructure.documents.storage_cleanup import (
-    process_storage_cleanup_job,
-    stage_storage_cleanup_jobs,
-)
+from app.infrastructure.documents.storage_cleanup import process_storage_cleanup_job
+from app.infrastructure.ecr import dispatch_passport_ecr_checks
 from app.infrastructure.observability.operational_events import (
     OperationalEvent,
     record_operational_event,
@@ -58,7 +54,6 @@ from app.infrastructure.observability.operational_events import (
 from app.infrastructure.processing.dispatcher import queued_job_needs_redelivery
 from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
-from app.infrastructure.repositories.notification_repository import NotificationRepository
 from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
@@ -88,6 +83,7 @@ from .dependencies import (
 from .processing_support import _dispatch_processing_job
 from .response_support import _ensure_submission_qr, _response_from_dto, _response_from_submission
 from .submission_contact import require_verified_submission_contact
+from .submission_side_effects import stage_submission_side_effects
 
 router = APIRouter()
 
@@ -225,10 +221,8 @@ async def client_submit_passport(
     )
 
     result: PassportSubmissionOutputDTO | None = None
-    verification_job = None
     committed = False
     commit_attempted = False
-    cleanup_jobs: tuple[StorageCleanupJobModel, ...] = ()
     try:
         result = await use_case.execute(
             submission_id,
@@ -258,72 +252,28 @@ async def client_submit_passport(
                 answer.model_dump(mode="json") for answer in body.custom_detail_answers
             ],
         )
-        # Proof consumption and submission promotion commit atomically. A failed
-        # save leaves the verified proof usable; successful retries are checked
-        # against the use case's existing exact-replay contract.
-        if not result.idempotent_replay:
-            contact_proof.status = "consumed"
-            contact_proof.consumed_at = datetime.now(UTC)
-            contact_proof.updated_at = contact_proof.consumed_at
-        if (
-            result.image_s3_key
-            and result.status == PassportProcessingStatus.SUBMITTED.value
-            and not requires_manual_staff_review(result.post_submission_verification)
-        ):
-            verification_job = await PostSubmissionVerificationJobRepository(session).enqueue(
-                submission_id=result.id,
-                verification_revision=result.post_submission_verification_revision,
-            )
-        if not result.idempotent_replay:
-            await propagate_mobile_passenger_change(
-                session,
-                agency_id=result.agency_id,
-                group_id=result.group_id,
-                passenger_submission_ids=[result.id],
-                actor_user_id=None,
-                change_kind="documents",
-                sync_broadcast_contacts=True,
-            )
-            await AuditLogRepository(session).record(
-                action="client_passport_submitted",
-                entity_type="passport_submission",
-                entity_id=str(result.id),
-                agency_id=result.agency_id,
-                metadata={
-                    "group_id": str(result.group_id),
-                    "submission_mode": result.submission_mode,
-                    "qualifier_enabled_snapshot": (result.qualifier_enabled_snapshot),
-                },
-            )
-            await NotificationRepository(session).create(
-                agency_id=result.agency_id,
-                type="passport_submitted",
-                title="Client passport submitted",
-                message="A client submitted reviewed passport details.",
-                entity_type="passport_submission",
-                entity_id=str(result.id),
-            )
-        if result.storage_cleanup_keys:
-            cleanup_jobs = stage_storage_cleanup_jobs(
-                session,
-                agency_id=result.agency_id,
-                source="passport_submission_delete",
-                context_id=f"client-submit:{result.group_id}:{result.id}",
-                storage_keys=result.storage_cleanup_keys,
-            )
+        effects = await stage_submission_side_effects(
+            session, result=result, contact_proof=contact_proof
+        )
         # Commit the DB transition before deleting superseded draft objects.
         # A failed commit therefore leaves the original draft keys intact and
         # the traveller can retry safely.
         commit_attempted = True
         await session.commit()
         committed = True
+        if effects.ecr_queued:
+            try:
+                await dispatch_passport_ecr_checks()
+            except Exception:
+                # The durable row is recovered by Beat after broker recovery.
+                logger.warning("passport_ecr_dispatch_deferred", submission_id=str(result.id))
         await _dispatch_committed_verification(
-            verification_job,
+            effects.verification_job,
             result=result,
             session=session,
             background_tasks=background_tasks,
         )
-        for cleanup_job in cleanup_jobs:
+        for cleanup_job in effects.cleanup_jobs:
             try:
                 await process_storage_cleanup_job(cleanup_job.id)
             except Exception as exc:

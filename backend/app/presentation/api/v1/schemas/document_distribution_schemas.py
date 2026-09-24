@@ -93,6 +93,8 @@ class DocumentPassengerReviewRow(BaseModel):
     departure_city: str | None = None
     document: DistributedDocumentResponse | None = None
     documents: list[DistributedDocumentResponse] = Field(default_factory=list)
+    # Distinct stored PDFs with a matched assignment, not ledger/match rows.
+    assigned_pdf_count: int | None = Field(default=None, ge=0)
 
 
 class DocumentBatchResponse(BaseModel):

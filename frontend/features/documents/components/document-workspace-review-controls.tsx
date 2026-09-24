@@ -52,6 +52,7 @@ interface DocumentWorkspaceReviewControlsProps {
 
 const REVIEW_FILTER_OPTIONS: Array<[ReviewFilter, string]> = [
   ["all", "All"],
+  ["multiple_pdfs", "Multiple PDFs"],
   ["assigned", "Assigned"],
   ["missing", "Missing"],
   ["sent", "Sent"],
@@ -212,6 +213,7 @@ export function DocumentWorkspaceReviewControls({
             key={value}
             type="button"
             onClick={() => onReviewFilterChange(value)}
+            aria-pressed={reviewFilter === value}
             className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
               reviewFilter === value
                 ? "border-blue-600 bg-blue-600 text-white"
@@ -253,6 +255,12 @@ export function DocumentWorkspaceReviewControls({
             />
           </label>
         </div>
+        {reviewFilter === "multiple_pdfs" && (
+          <p className="w-full text-xs text-slate-600">
+            Shows passengers with more than one distinct PDF assigned in this document list.
+            Each shared PDF counts once per passenger.
+          </p>
+        )}
         {exportError && (
           <p className="w-full text-right text-xs font-medium text-red-700" role="alert">
             Excel export failed. Please try again.

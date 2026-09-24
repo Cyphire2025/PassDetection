@@ -57,6 +57,7 @@ DocumentAssignmentExportFilter = Literal[
     "missing",
     "sent",
     "not_sent",
+    "multiple_pdfs",
 ]
 _SENT_DOCUMENT_STATUSES = frozenset({"submitted", "sent", "delivered", "read"})
 
@@ -77,6 +78,9 @@ def _document_assignment_export_rows(
         if normalized_search and normalized_search not in row.passenger_name.casefold():
             continue
         documents = row.documents or ([row.document] if row.document is not None else [])
+        pdf_count = row.assigned_pdf_count
+        if pdf_count is None:
+            pdf_count = len({document.id for document in documents if document.match_status == "matched"})
         assigned = bool(documents)
         sent = any(document.delivery_status in _SENT_DOCUMENT_STATUSES for document in documents)
         not_sent = any(
@@ -90,6 +94,8 @@ def _document_assignment_export_rows(
             continue
         if review_filter == "not_sent" and not not_sent:
             continue
+        if review_filter == "multiple_pdfs" and pdf_count <= 1:
+            continue
 
         export_rows.append(
             DocumentAssignmentExportRow(
@@ -97,7 +103,7 @@ def _document_assignment_export_rows(
                 passport_number=row.passport_number or "",
                 departure_city=row.departure_city or "",
                 assignment_status="Assigned" if assigned else "Missing",
-                document_count=len(documents),
+                document_count=pdf_count,
                 document_filenames=_joined_document_values(
                     [document.original_filename for document in documents]
                 ),
@@ -293,6 +299,13 @@ def _passenger_review_rows(
                 departure_city=passenger.departure_city,
                 document=rendered_documents[0] if rendered_documents else None,
                 documents=rendered_documents,
+                assigned_pdf_count=len(
+                    {
+                        str(getattr(document, "storage_key", "") or document.id)
+                        for document in passenger_documents
+                        if document.match_status == "matched"
+                    }
+                ),
             )
         )
 

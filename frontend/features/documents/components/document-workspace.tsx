@@ -743,6 +743,7 @@ export function DocumentWorkspace({
                 <DocumentWorkspaceReviewRows
                   rows={visibleReviewRows}
                   documentsByPassengerId={reviewModel.documentsByPassengerId}
+                  pdfCountsByPassengerId={reviewModel.pdfCountsByPassengerId}
                   activeSelectedAssignedDocumentIdSet={activeSelectedAssignedDocumentIdSet}
                   documentType={documentType}
                   showRowActions={showRowActions}

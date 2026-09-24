@@ -11,8 +11,9 @@ from app.presentation.api.v1.routes.passport_routes import selected_exports
 from app.presentation.api.v1.schemas.passport_schemas import ExportSelectedPassportsRequest
 
 
+@pytest.mark.parametrize("ecr_enabled", [False, True])
 async def test_selected_export_runs_workbook_generation_outside_request_thread(
-    monkeypatch: pytest.MonkeyPatch,
+    monkeypatch: pytest.MonkeyPatch, ecr_enabled: bool,
 ) -> None:
     request_thread = threading.get_ident()
     submission = PassportSubmission.create(
@@ -37,10 +38,18 @@ async def test_selected_export_runs_workbook_generation_outside_request_thread(
         selected_exports.PassportSubmissionRepository, "_to_entity", lambda item: item
     )
     monkeypatch.setattr(selected_exports, "_export_whatsapp_match_rows", AsyncMock(return_value={}))
-    monkeypatch.setattr(selected_exports, "_export_group_details", AsyncMock(return_value={}))
+    group_details = {submission.group_id: {"passport_ecr_enabled": ecr_enabled}}
+    monkeypatch.setattr(selected_exports, "_export_group_details", AsyncMock(return_value=group_details))
+    from app.infrastructure.ecr import passport_runtime
+
+    verdicts = {submission.id: "ECR"}
+    lookup = AsyncMock(return_value=verdicts)
+    monkeypatch.setattr(passport_runtime, "passport_ecr_results", lookup)
     worker_threads: list[int] = []
 
     def export(*_args, **_kwargs):
+        assert _kwargs["ecr_results"] == (verdicts if ecr_enabled else {})
+        assert _kwargs["group_details"] == group_details
         worker_threads.append(threading.get_ident())
         return b"synthetic-workbook"
 
@@ -52,3 +61,10 @@ async def test_selected_export_runs_workbook_generation_outside_request_thread(
     )
     assert response.status_code == 200
     assert worker_threads and worker_threads[0] != request_thread
+    if ecr_enabled:
+        lookup.assert_awaited_once_with(
+            session, [submission.id], agency_id=submission.agency_id,
+            expected_source_keys={submission.id: submission.passport_back_s3_key},
+        )
+    else:
+        lookup.assert_not_awaited()

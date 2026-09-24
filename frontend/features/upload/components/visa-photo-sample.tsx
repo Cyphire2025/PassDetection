@@ -1,4 +1,7 @@
-export function VisaPhotoSample() {
+import type { InstructionLanguage } from "@/features/passports/types/instruction-language";
+import { UPLOAD_INSTRUCTIONS } from "../config/instruction-translations";
+
+export function VisaPhotoSample({ language = "en" }: { language?: InstructionLanguage }) {
   return (
     <figure className="mx-auto w-full max-w-[220px]">
       <h2 className="mb-3 text-sm font-semibold text-slate-800">Photograph sample</h2>
@@ -19,9 +22,9 @@ export function VisaPhotoSample() {
         <text x="208" y="111" textAnchor="middle" transform="rotate(-90 208 111)" fill="#2563eb" fontFamily="sans-serif" fontSize="11" fontWeight="600">70–80%</text>
         <text x="91" y="231" textAnchor="middle" fill="#ffffff" fontFamily="sans-serif" fontSize="11" fontWeight="600" letterSpacing="2">SAMPLE</text>
       </svg>
-      <figcaption className="mt-2 space-y-1 text-xs leading-5 text-slate-500">
-        <p>Face should fill approximately 70–80% of the photograph.</p>
-        <p>Plain white background. Face forward with your full head visible.</p>
+      <figcaption lang={language} dir={language === "ur" ? "rtl" : "ltr"} className="mt-2 space-y-1 text-xs leading-5 text-slate-500">
+        <p>{UPLOAD_INSTRUCTIONS[language].visaFraming}</p>
+        <p>{UPLOAD_INSTRUCTIONS[language].visaBackground}</p>
       </figcaption>
     </figure>
   );

@@ -11,6 +11,32 @@ const validLink = {
   custom_questions: [], custom_details: [], whatsapp_broadcast_group_ids: [],
 };
 
+describe("ECR and instruction language configuration", () => {
+  it("defaults older configurations to disabled features and clones empty language selections", () => {
+    const legacy = Object.fromEntries(Object.entries(DEFAULT_UPLOAD_CONFIGURATION).filter(([key]) => !key.startsWith("instruction_") && key !== "passport_ecr_enabled"));
+    expect(uploadConfigurationSchema.parse(legacy)).toMatchObject({ passport_ecr_enabled: false, instruction_languages_enabled: false, instruction_languages: [] });
+  });
+
+  it("requires Passport and its address page for ECR when device upload is allowed", () => {
+    const config = { ...DEFAULT_UPLOAD_CONFIGURATION, passport_ecr_enabled: true, passport_upload_pages: ["front"] };
+    expect(createUploadLinkSchema.safeParse({ ...validLink, upload_configuration: config }).success).toBe(false);
+    expect(createUploadLinkSchema.safeParse({ ...validLink, allow_files_from_device: false, upload_configuration: config }).success).toBe(true);
+    expect(uploadConfigurationSchema.safeParse({ ...config, passport_enabled: false }).success).toBe(false);
+    expect(createUploadLinkSchema.safeParse({ ...validLink, upload_configuration: { ...config, passport_upload_pages: ["front", "back"] } }).success).toBe(true);
+  });
+
+  it("requires a selected additional language only while the feature is enabled", () => {
+    expect(uploadConfigurationSchema.safeParse({ ...DEFAULT_UPLOAD_CONFIGURATION, instruction_languages_enabled: true }).success).toBe(false);
+    const selected = uploadConfigurationSchema.parse({ ...DEFAULT_UPLOAD_CONFIGURATION, instruction_languages_enabled: true, instruction_languages: ["ur", "hi", "mr"] });
+    expect(selected.instruction_languages).toEqual(["mr", "hi", "ur"]);
+    expect(uploadConfigurationSchema.parse({ ...selected, instruction_languages_enabled: false }).instruction_languages).toEqual(["mr", "hi", "ur"]);
+  });
+
+  it.each([{ instruction_languages: ["en"] }, { instruction_languages: ["fr"] }, { instruction_languages: ["hi", "hi"] }, { instruction_languages: ["MR"] }])("rejects unsupported or duplicate language codes %j", ({ instruction_languages }) => {
+    expect(uploadConfigurationSchema.safeParse({ ...DEFAULT_UPLOAD_CONFIGURATION, instruction_languages }).success).toBe(false);
+  });
+});
+
 describe("import data groups", () => {
   const details = { name: "Final roster", destination: "Dubai", travel_date: "2026-11-01", return_date: "2026-11-08", timezone: "Asia/Kolkata", import_only: true };
 

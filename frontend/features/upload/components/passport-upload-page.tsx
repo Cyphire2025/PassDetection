@@ -8,15 +8,22 @@ import { passportBundleError, passportUploadFileError } from "../services/config
 import { formatFileSize } from "../services/upload-flow-helpers";
 import { PASSPORT_IMAGE_ACCEPT } from "./upload-flow.constants";
 import type { PassportDocumentBundle } from "./upload-flow.types";
+import { InstructionLanguageSelector } from "./instruction-language-selector";
+import type { InstructionLanguageControl } from "../hooks/use-instruction-language";
+import { UPLOAD_INSTRUCTIONS } from "../config/instruction-translations";
 
-export function PassportUploadPage({ bundle, config, onChange, onContinue, onBack, error }: {
+export function PassportUploadPage({ bundle, config, onChange, onContinue, onBack, error, instructions }: {
   bundle: PassportDocumentBundle;
   config: UploadConfiguration;
   onChange: (bundle: PassportDocumentBundle) => void;
   onContinue: () => void;
   onBack: () => void;
   error: string | null;
+  instructions?: InstructionLanguageControl;
 }) {
+  const language = instructions?.language ?? "en";
+  const copy = UPLOAD_INSTRUCTIONS[language];
+  const direction = language === "ur" ? "rtl" : "ltr";
   const [fileError, setFileError] = useState<string | null>(null);
   const selectedPages = PASSPORT_UPLOAD_PAGES.filter((page) => config.passport_upload_pages.includes(page.id));
   const updateFile = (page: PassportUploadPage, file: File | null) => {
@@ -30,15 +37,18 @@ export function PassportUploadPage({ bundle, config, onChange, onContinue, onBac
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-6 sm:py-10">
       <div className="mx-auto max-w-3xl">
-        <Button variant="ghost" onClick={onBack} className="mb-5 -ml-3"><ArrowLeft className="h-4 w-4" />Back to document options</Button>
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+          <Button variant="ghost" onClick={onBack} className="-ml-3"><ArrowLeft className="h-4 w-4" />Back to document options</Button>
+          <InstructionLanguageSelector instructions={instructions} />
+        </div>
         <h1 className="text-2xl font-bold tracking-tight text-slate-900">Upload Passport Pages</h1>
-        <p className="mt-2 text-sm leading-6 text-slate-600">Use the samples to identify each requested page. Include the complete page with clear, readable details. Each image must be 2 MB or smaller.</p>
+        <p lang={language} dir={direction} className="mt-2 text-sm leading-6 text-slate-600">{copy.passportIntro}</p>
         {(fileError || error) && <p role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{fileError || error}</p>}
         <div className="mt-6 space-y-4">
           {selectedPages.map((page, index) => (
             <section key={page.id} aria-labelledby={`passport-upload-${page.id}-heading`} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <h2 id={`passport-upload-${page.id}-heading`} className="text-base font-semibold text-slate-900">{index + 1}. {page.label}</h2>
-              <p className="mt-1 text-sm leading-6 text-slate-500">{page.description}</p>
+              <p lang={language} dir={direction} className="mt-1 text-sm leading-6 text-slate-500">{copy[page.id]}</p>
               <div className="mt-4 grid items-start gap-5 sm:grid-cols-[220px_1fr]">
                 <div><PassportPageSample page={page.id} /><p className="mt-1 text-center text-xs text-slate-400">Illustrative sample only</p></div>
                 <div className="min-w-0 space-y-3">

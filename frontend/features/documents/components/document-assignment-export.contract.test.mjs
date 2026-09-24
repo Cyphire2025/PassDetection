@@ -15,6 +15,8 @@ const streamedDownload = read("../../../lib/api/streamed-download.ts");
 test("every document assignment view exports its active Excel filter", () => {
   assert.match(controls, /Export \{activeFilterLabel\} Excel/);
   assert.match(controls, /\["not_sent", "Not sent"\]/);
+  assert.match(controls, /\["multiple_pdfs", "Multiple PDFs"\]/);
+  assert.match(api, /"multiple_pdfs"/);
   assert.match(controls, /reviewCounts\[reviewFilter\] === 0/);
   assert.match(workspace, /filter: reviewFilter/);
   assert.match(workspace, /search: reviewSearchQuery/);

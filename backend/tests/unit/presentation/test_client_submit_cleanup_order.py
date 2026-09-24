@@ -7,11 +7,22 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from fastapi import BackgroundTasks
 
+from app.presentation.api.v1.routes.passport_routes import (
+    submission_review,
+    submission_side_effects,
+)
 from app.presentation.api.v1.routes.passports import client_submit_passport
 from app.presentation.api.v1.schemas.passport_schemas import (
     ClientSubmitPassportRequest,
     PassportSubmissionResponse,
 )
+
+
+@pytest.fixture(autouse=True)
+def isolate_ecr_staging(monkeypatch):
+    monkeypatch.setattr(
+        submission_side_effects, "stage_passport_ecr_check", AsyncMock(return_value=False)
+    )
 
 
 def _request() -> ClientSubmitPassportRequest:
@@ -40,7 +51,9 @@ def _submitted_result(*, submission_id: uuid.UUID, agency_id: uuid.UUID, group_i
 
 
 @pytest.mark.parametrize("submission_status", ["submitted", "needs_review", "staff_approved"])
-async def test_client_submit_commits_cleanup_tombstone_before_object_worker(submission_status) -> None:
+async def test_client_submit_commits_cleanup_tombstone_before_object_worker(
+    submission_status,
+) -> None:
     submission_id = uuid.uuid4()
     agency_id = uuid.uuid4()
     group_id = uuid.uuid4()
@@ -75,7 +88,7 @@ async def test_client_submit_commits_cleanup_tombstone_before_object_worker(subm
             new=AsyncMock(return_value=SimpleNamespace()),
         ),
         patch(
-            'app.presentation.api.v1.routes.passport_routes.submission_contact.PassportSubmissionRepository',
+            "app.presentation.api.v1.routes.passport_routes.submission_contact.PassportSubmissionRepository",
             return_value=SimpleNamespace(
                 get_by_id_for_update=AsyncMock(
                     return_value=SimpleNamespace(
@@ -86,17 +99,17 @@ async def test_client_submit_commits_cleanup_tombstone_before_object_worker(subm
             ),
         ),
         patch(
-            'app.presentation.api.v1.routes.passport_routes.submission_review.PostSubmissionVerificationJobRepository',
+            "app.presentation.api.v1.routes.passport_routes.submission_side_effects.PostSubmissionVerificationJobRepository",
             return_value=SimpleNamespace(
                 enqueue=enqueue,
             ),
         ),
         patch(
-            'app.presentation.api.v1.routes.passport_routes.submission_review.stage_storage_cleanup_jobs',
+            "app.presentation.api.v1.routes.passport_routes.submission_side_effects.stage_storage_cleanup_jobs",
             side_effect=stage,
         ) as stage_cleanup,
         patch(
-            'app.presentation.api.v1.routes.passport_routes.submission_review.process_storage_cleanup_job',
+            "app.presentation.api.v1.routes.passport_routes.submission_review.process_storage_cleanup_job",
             new=process,
         ),
         patch.object(
@@ -140,7 +153,7 @@ async def test_client_submit_commit_failure_never_runs_object_cleanup() -> None:
             new=AsyncMock(return_value=SimpleNamespace()),
         ),
         patch(
-            'app.presentation.api.v1.routes.passport_routes.submission_contact.PassportSubmissionRepository',
+            "app.presentation.api.v1.routes.passport_routes.submission_contact.PassportSubmissionRepository",
             return_value=SimpleNamespace(
                 get_by_id_for_update=AsyncMock(
                     return_value=SimpleNamespace(
@@ -151,7 +164,7 @@ async def test_client_submit_commit_failure_never_runs_object_cleanup() -> None:
             ),
         ),
         patch(
-            'app.presentation.api.v1.routes.passport_routes.submission_review.PostSubmissionVerificationJobRepository',
+            "app.presentation.api.v1.routes.passport_routes.submission_side_effects.PostSubmissionVerificationJobRepository",
             return_value=SimpleNamespace(
                 enqueue=AsyncMock(
                     return_value=SimpleNamespace(
@@ -162,11 +175,11 @@ async def test_client_submit_commit_failure_never_runs_object_cleanup() -> None:
             ),
         ),
         patch(
-            'app.presentation.api.v1.routes.passport_routes.submission_review.stage_storage_cleanup_jobs',
+            "app.presentation.api.v1.routes.passport_routes.submission_side_effects.stage_storage_cleanup_jobs",
             return_value=(SimpleNamespace(id=uuid.uuid4(), object_count=2),),
         ),
         patch(
-            'app.presentation.api.v1.routes.passport_routes.submission_review.process_storage_cleanup_job',
+            "app.presentation.api.v1.routes.passport_routes.submission_review.process_storage_cleanup_job",
             new=process,
         ),
     ):
@@ -181,3 +194,59 @@ async def test_client_submit_commit_failure_never_runs_object_cleanup() -> None:
             )
 
     process.assert_not_awaited()
+
+
+@pytest.mark.parametrize("failure", [None, "commit", "broker"])
+async def test_ecr_stages_atomically_and_only_dispatches_after_commit(monkeypatch, failure):
+    submission_id = uuid.uuid4()
+    credential = "synthetic-upload-credential-1234567890"
+    result = _submitted_result(
+        submission_id=submission_id, agency_id=uuid.uuid4(), group_id=uuid.uuid4()
+    )
+    result.storage_cleanup_keys = ()
+    events = []
+    session = AsyncMock()
+
+    async def stage(actual_session, actual_id):
+        assert actual_session is session and actual_id == submission_id
+        events.append("stage")
+        return True
+
+    async def commit():
+        events.append("commit")
+        if failure == "commit":
+            raise RuntimeError("commit failed")
+
+    async def dispatch():
+        events.append("dispatch")
+        if failure == "broker":
+            raise RuntimeError("broker unavailable")
+
+    session.commit.side_effect = commit
+    monkeypatch.setattr(submission_side_effects, "stage_passport_ecr_check", stage)
+    monkeypatch.setattr(submission_review, "dispatch_passport_ecr_checks", dispatch)
+    monkeypatch.setattr(submission_review, "require_verified_submission_contact", AsyncMock())
+    monkeypatch.setattr(
+        submission_side_effects,
+        "PostSubmissionVerificationJobRepository",
+        lambda _: SimpleNamespace(
+            enqueue=AsyncMock(return_value=SimpleNamespace(id=uuid.uuid4(), status="completed"))
+        ),
+    )
+    expected = object()
+    monkeypatch.setattr(PassportSubmissionResponse, "model_validate", lambda _: expected)
+    call = client_submit_passport(
+        submission_id=submission_id,
+        body=_request(),
+        background_tasks=BackgroundTasks(),
+        upload_session_id=credential,
+        use_case=SimpleNamespace(execute=AsyncMock(return_value=result)),
+        session=session,
+    )
+    if failure == "commit":
+        with pytest.raises(RuntimeError, match="commit failed"):
+            await call
+        assert events == ["stage", "commit"]
+    else:
+        assert await call is expected
+        assert events == ["stage", "commit", "dispatch"]

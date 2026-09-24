@@ -37,7 +37,8 @@ export type DocumentAssignmentExportFilter =
   | "assigned"
   | "missing"
   | "sent"
-  | "not_sent";
+  | "not_sent"
+  | "multiple_pdfs";
 
 export const documentDistributionApi = {
   listGroups: async (search?: string, signal?: AbortSignal): Promise<DocumentDistributionGroup[]> => {

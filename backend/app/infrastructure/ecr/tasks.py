@@ -20,6 +20,7 @@ from app.infrastructure.processing.celery_app import celery_app
     time_limit=60 * 60,
 )  # type: ignore[untyped-decorator]
 def process_ecr_batch(self: Any, batch_id: str) -> str:
+    """Process one bounded drain; continuation is a new task at the queue tail."""
     try:
         parsed_id = uuid.UUID(batch_id)
     except (TypeError, ValueError):

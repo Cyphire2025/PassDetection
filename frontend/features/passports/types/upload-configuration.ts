@@ -1,3 +1,5 @@
+import type { AdditionalInstructionLanguage } from "./instruction-language";
+
 export type PassportUploadPage = "cover" | "back_cover" | "front" | "back";
 export type RequiredUploadField = "base_city" | "nearest_domestic_airport" | "departure_city"
   | "staff_code" | "agent_employee_code" | "designation" | "agency_dealership_name"
@@ -7,12 +9,15 @@ export interface UploadConfiguration {
   passport_enabled: boolean;
   passport_required: boolean;
   passport_live_scan: boolean;
+  passport_ecr_enabled: boolean;
   passport_upload_pages: PassportUploadPage[];
   visa_photo_required: boolean;
   visa_photo_live_capture: boolean;
   visa_photo_upload: boolean;
   qualifier_relation_list_enabled: boolean;
   qualifier_relation_other_enabled: boolean;
+  instruction_languages_enabled: boolean;
+  instruction_languages: AdditionalInstructionLanguage[];
   required_fields: Partial<Record<RequiredUploadField, boolean>>;
   agent_employee_code_label: string;
   agency_dealership_name_label: string;
@@ -22,12 +27,15 @@ export const DEFAULT_UPLOAD_CONFIGURATION: UploadConfiguration = {
   passport_enabled: true,
   passport_required: true,
   passport_live_scan: true,
+  passport_ecr_enabled: false,
   passport_upload_pages: ["front", "back"],
   visa_photo_required: true,
   visa_photo_live_capture: true,
   visa_photo_upload: true,
   qualifier_relation_list_enabled: true,
   qualifier_relation_other_enabled: false,
+  instruction_languages_enabled: false,
+  instruction_languages: [],
   required_fields: {},
   agent_employee_code_label: "Agent/Employee Code",
   agency_dealership_name_label: "Agency/Dealership Name",

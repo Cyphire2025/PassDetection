@@ -14,6 +14,7 @@ import {
 interface DocumentWorkspaceReviewRowsProps {
   rows: DocumentPassengerReviewRow[];
   documentsByPassengerId: ReadonlyMap<string, DistributedDocument[]>;
+  pdfCountsByPassengerId: ReadonlyMap<string, number>;
   activeSelectedAssignedDocumentIdSet: ReadonlySet<string>;
   documentType: DistributionDocumentType;
   showRowActions: boolean;
@@ -29,6 +30,7 @@ interface DocumentWorkspaceReviewRowsProps {
 export function DocumentWorkspaceReviewRows({
   rows,
   documentsByPassengerId,
+  pdfCountsByPassengerId,
   activeSelectedAssignedDocumentIdSet,
   documentType,
   showRowActions,
@@ -44,6 +46,7 @@ export function DocumentWorkspaceReviewRows({
     <tbody className="divide-y divide-slate-100">
       {rows.map((row) => {
         const documents = documentsByPassengerId.get(row.passenger_id) ?? [];
+        const pdfCount = pdfCountsByPassengerId.get(row.passenger_id) ?? 0;
         const rowDocumentIds = documents.map((document) => document.id);
         const rowAssignmentsSelected =
           rowDocumentIds.length > 0
@@ -78,9 +81,9 @@ export function DocumentWorkspaceReviewRows({
               <div className="mt-1 text-xs text-slate-500">
                 {row.departure_city || "No departure city"}
               </div>
-              {documents.length > 1 && (
+              {pdfCount > 0 && (
                 <Badge variant="outline" className="mt-2 whitespace-nowrap">
-                  {documents.length} saved documents
+                  {pdfCount} {pdfCount === 1 ? "PDF" : "PDFs"} assigned
                 </Badge>
               )}
             </td>

@@ -779,7 +779,7 @@ class Settings(BaseSettings):
         pattern=r"^(?:unknown|[0-9a-f]{7,64})$",
     )
     expected_database_schema_revision: str = Field(
-        default="0106_ecr_checker",
+        default="0107_passport_ecr_checks",
         min_length=1,
         max_length=32,
         pattern=r"^[A-Za-z0-9_]+$",

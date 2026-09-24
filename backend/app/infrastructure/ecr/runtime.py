@@ -27,6 +27,7 @@ from app.infrastructure.storage.minio_repository import MinioStorageRepository
 logger = get_logger(__name__)
 LEASE_SECONDS = 120
 HEARTBEAT_SECONDS = 30
+ITEMS_PER_DRAIN = 32
 RATE_LIMIT_KEY = "ecr:provider-request-spacing:v1"
 
 # Redis TIME avoids worker clock skew. No future reservations are made: a
@@ -208,7 +209,8 @@ class BatchStore:
             )
             await session.commit()
 
-    async def finish(self, batch_id: uuid.UUID, token: uuid.UUID) -> None:
+    async def finish(self, batch_id: uuid.UUID, token: uuid.UUID) -> bool:
+        """Release a finished drain; return true only when the whole batch is done."""
         async with AsyncSessionFactory() as session:
             batch = await self._owned(session, batch_id, token)
             rows = await session.execute(
@@ -217,13 +219,21 @@ class BatchStore:
                 .group_by(EcrItemModel.status)
             )
             counts = {status: count for status, count in rows.all()}
-            if counts.get("processing") or counts.get("queued"):
-                raise RuntimeError("ECR batch still has unfinished rows.")
-            batch.status = "completed_with_errors" if counts.get("failed") else "completed"
+            if counts.get("processing"):
+                raise RuntimeError("ECR drain still has active rows.")
+            completed = not counts.get("queued")
+            batch.status = (
+                "queued"
+                if not completed
+                else "completed_with_errors"
+                if counts.get("failed")
+                else "completed"
+            )
             batch.lease_token = None
             batch.lease_expires_at = None
             batch.updated_at = _now()
             await session.commit()
+            return completed
 
     async def release(self, batch_id: uuid.UUID, token: uuid.UUID) -> None:
         async with AsyncSessionFactory() as session:
@@ -255,9 +265,17 @@ async def _run_lanes(
     classifier: GeminiEcrService,
     concurrency: int,
     max_image_bytes: int,
+    max_items: int = ITEMS_PER_DRAIN,
 ) -> None:
+    # Each next() runs before the lane's first await, so these shared slots cap
+    # claims across all lanes without holding a lock during storage/provider I/O.
+    slots = iter(range(max_items))
+
     async def lane() -> None:
-        while (item := await store.next_item(batch_id, token)) is not None:
+        for _ in slots:
+            item = await store.next_item(batch_id, token)
+            if item is None:
+                return
             if not item.object_key:
                 await store.fail_item(batch_id, token, item.id, "image_expired")
                 continue
@@ -319,9 +337,16 @@ async def process_batch(batch_id: uuid.UUID) -> str:
     )
     try:
         pacer = ProviderPacer(redis, settings.ecr_requests_per_minute)
+
+        async def before_attempt() -> None:
+            await pacer.acquire()
+            # Admission can wait; ownership must still hold when HTTP starts,
+            # including every retry made by the classifier.
+            await store.renew(batch_id, token)
+
         async with httpx.AsyncClient() as client:
             classifier = GeminiEcrService(
-                settings=settings, http_client=client, before_attempt=pacer.acquire
+                settings=settings, http_client=client, before_attempt=before_attempt
             )
             await _run_lanes(
                 batch_id,
@@ -332,8 +357,13 @@ async def process_batch(batch_id: uuid.UUID) -> str:
                 concurrency=settings.ecr_max_concurrency,
                 max_image_bytes=settings.ecr_image_max_bytes,
             )
-        await store.finish(batch_id, token)
-        return "completed"
+        if await store.finish(batch_id, token):
+            return "completed"
+        # Commit the queued state before publishing a fresh FIFO task. This
+        # yields the single ECR worker to passport checks/other waiting batches.
+        # Beat recovery also finds this state if publication or the process fails.
+        await dispatch_ecr_batch(batch_id)
+        return "continued"
     except BaseException:
         # Abrupt process death is recovered by the expiring DB lease. Ordinary
         # failures release promptly so broker/beat retries can resume sooner.

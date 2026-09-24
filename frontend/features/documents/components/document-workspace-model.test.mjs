@@ -71,6 +71,7 @@ test("the review model preserves multi-document and legacy single-document rows"
     missing: 1,
     sent: 2,
     not_sent: 1,
+    multiple_pdfs: 1,
   });
   assert.deepEqual(model.assignedDocumentIds, [
     "document-1",
@@ -82,6 +83,65 @@ test("the review model preserves multi-document and legacy single-document rows"
     ["document-3"],
   );
   assert.equal(model.assignmentIssues[0].reason, "Passport number was missing.");
+});
+
+test("multiple PDFs uses distinct server file counts and keeps same-name people separate", () => {
+  const model = createDocumentReviewModel({
+    review_rows: [
+      {
+        passenger_id: "person-a", passenger_name: "Same Name", assigned_pdf_count: 2,
+        documents: [document("a-1", "not_sent"), document("a-2", "not_sent")],
+      },
+      {
+        passenger_id: "person-b", passenger_name: "Same Name", assigned_pdf_count: 1,
+        // Two assignment rows reference one physical combined PDF on the server.
+        documents: [document("b-1", "not_sent"), document("b-2", "not_sent")],
+      },
+      {
+        passenger_id: "person-c", passenger_name: "Other Name", assigned_pdf_count: 0,
+        documents: [document("unmatched", "not_sent")],
+      },
+    ],
+  });
+  assert.equal(model.counts.multiple_pdfs, 1);
+  assert.equal(model.pdfCountsByPassengerId.get("person-b"), 1);
+  assert.deepEqual(
+    filterDocumentReviewRows(model, "multiple_pdfs", "  SAME ").map((row) => row.passenger_id),
+    ["person-a"],
+  );
+  assert.deepEqual(filterDocumentReviewRows(model, "multiple_pdfs", "other"), []);
+  assert.equal(filterDocumentReviewRows(model, "all", "").length, 3);
+});
+
+test("multiple PDFs refreshes after reassignment and includes people beyond the first hundred", () => {
+  const rows = Array.from({ length: 151 }, (_, index) => ({
+    passenger_id: `person-${index}`, passenger_name: `Person ${index}`,
+    assigned_pdf_count: index === 150 ? 2 : 1,
+    documents: [document(`document-${index}`, "not_sent")],
+  }));
+  const before = createDocumentReviewModel({ review_rows: rows });
+  assert.deepEqual(
+    filterDocumentReviewRows(before, "multiple_pdfs", "").map((row) => row.passenger_id),
+    ["person-150"],
+  );
+  const after = createDocumentReviewModel({ review_rows: rows.map((row, index) => ({
+    ...row, assigned_pdf_count: index === 0 ? 2 : 1,
+  })) });
+  assert.equal(after.counts.multiple_pdfs, 1);
+  assert.deepEqual(
+    filterDocumentReviewRows(after, "multiple_pdfs", "").map((row) => row.passenger_id),
+    ["person-0"],
+  );
+  assert.equal(createDocumentReviewModel(undefined).counts.multiple_pdfs, 0);
+});
+
+test("legacy document lists do not count the same document ID twice", () => {
+  const saved = document("one-pdf", "sent");
+  const model = createDocumentReviewModel({ review_rows: [{
+    passenger_id: "person", passenger_name: "One Person", documents: [saved, saved],
+  }] });
+  assert.equal(model.pdfCountsByPassengerId.get("person"), 1);
+  assert.equal(model.counts.multiple_pdfs, 0);
 });
 
 test("search and delivery filters retain the previous passenger-level semantics", () => {

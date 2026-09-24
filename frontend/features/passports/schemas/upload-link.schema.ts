@@ -1,17 +1,23 @@
 import { z } from "zod";
 import { isSupportedIanaTimeZone } from "../utils/trip-timezone";
 import { DEFAULT_UPLOAD_CONFIGURATION } from "../types/upload-configuration";
+import { INSTRUCTION_LANGUAGE_CODES } from "../types/instruction-language";
 
 export const uploadConfigurationSchema = z.object({
   passport_enabled: z.boolean(),
   passport_required: z.boolean(),
   passport_live_scan: z.boolean(),
+  passport_ecr_enabled: z.boolean().default(false),
   passport_upload_pages: z.array(z.enum(["cover", "back_cover", "front", "back"])).max(4),
   visa_photo_required: z.boolean(),
   visa_photo_live_capture: z.boolean(),
   visa_photo_upload: z.boolean(),
   qualifier_relation_list_enabled: z.boolean().default(true),
   qualifier_relation_other_enabled: z.boolean().default(false),
+  instruction_languages_enabled: z.boolean().default(false),
+  instruction_languages: z.array(z.enum(INSTRUCTION_LANGUAGE_CODES)).max(10).default([])
+    .refine((languages) => new Set(languages).size === languages.length, "Instruction languages must be unique.")
+    .transform((languages) => INSTRUCTION_LANGUAGE_CODES.filter((code) => languages.includes(code))),
   required_fields: z.partialRecord(z.enum([
     "base_city", "nearest_domestic_airport", "departure_city", "staff_code",
     "agent_employee_code", "designation", "agency_dealership_name", "meal_preference",
@@ -19,6 +25,13 @@ export const uploadConfigurationSchema = z.object({
   ]), z.boolean()),
   agent_employee_code_label: z.string().trim().min(1, "Enter a code field label").max(100),
   agency_dealership_name_label: z.string().trim().min(1, "Enter an organisation field label").max(100),
+}).superRefine((configuration, context) => {
+  if (configuration.passport_ecr_enabled && !configuration.passport_enabled) {
+    context.addIssue({ code: "custom", path: ["passport_ecr_enabled"], message: "Enable Passport to use the ECR check." });
+  }
+  if (configuration.instruction_languages_enabled && !configuration.instruction_languages.length) {
+    context.addIssue({ code: "custom", path: ["instruction_languages"], message: "Select at least one additional instruction language." });
+  }
 });
 
 export const customQuestionSchema = z.object({
@@ -80,12 +93,15 @@ export function getImportOnlySettings() {
       passport_enabled: false,
       passport_required: false,
       passport_live_scan: false,
+      passport_ecr_enabled: false,
       passport_upload_pages: [],
       visa_photo_required: false,
       visa_photo_live_capture: false,
       visa_photo_upload: false,
       qualifier_relation_list_enabled: false,
       qualifier_relation_other_enabled: false,
+      instruction_languages_enabled: false,
+      instruction_languages: [],
       required_fields: {},
     },
   };
@@ -134,6 +150,9 @@ const collectionLinkSchema = groupDetailsSchema.extend({
   }
   if (configuration.passport_enabled && data.allow_files_from_device && configuration.passport_upload_pages.length === 0) {
     context.addIssue({ code: "custom", path: ["upload_configuration"], message: "Select at least one passport page to upload." });
+  }
+  if (configuration.passport_ecr_enabled && data.allow_files_from_device && !configuration.passport_upload_pages.includes("back")) {
+    context.addIssue({ code: "custom", path: ["upload_configuration"], message: "Include the Address Details Page for the ECR check." });
   }
   if (data.relation_with_qualifier_enabled && !configuration.qualifier_relation_list_enabled && !configuration.qualifier_relation_other_enabled) {
     context.addIssue({ code: "custom", path: ["upload_configuration"], message: "Enable at least one option for Relation with Qualifier." });

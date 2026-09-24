@@ -4,6 +4,7 @@ import uuid
 from types import SimpleNamespace
 
 from app.presentation.api.v1.routes.document_distribution import (
+    _document_assignment_export_rows,
     _passenger_review_rows,
     _physical_file_accounting,
 )
@@ -108,10 +109,55 @@ def test_review_rows_group_every_saved_document_under_one_submitted_passenger() 
         responses[newest_document_id],
         responses[older_document_id],
     ]
+    assert rows[0].assigned_pdf_count == 2
     assert rows[1].passenger_id == second_passenger_id
     assert rows[1].document is None
     assert rows[1].documents == []
+    assert rows[1].assigned_pdf_count == 0
     assert unmatched == [responses[stale_document_id]]
+
+
+def test_multiple_pdf_count_uses_physical_files_and_passenger_ids_and_updates_after_reassignment() -> None:
+    first = _passenger(passenger_id=uuid.uuid4(), name="Same Name")
+    second = _passenger(passenger_id=uuid.uuid4(), name="Same Name")
+    # The first PDF has two assignment rows for the first person. It still counts once.
+    documents = [
+        _document(document_id=uuid.uuid4(), passenger_id=first.id, storage_key="combined.pdf"),
+        _document(document_id=uuid.uuid4(), passenger_id=first.id, storage_key="combined.pdf"),
+        _document(document_id=uuid.uuid4(), passenger_id=first.id, storage_key="second.pdf"),
+        _document(document_id=uuid.uuid4(), passenger_id=second.id, storage_key="combined.pdf"),
+        _document(document_id=uuid.uuid4(), passenger_id=second.id, status="needs_review"),
+    ]
+    responses = {
+        document.id: _response(document_id=document.id, filename="same-name.pdf", source="manual")
+        for document in documents
+    }
+
+    rows, _, _ = _passenger_review_rows(
+        passengers=[first, second], documents=documents, responses_by_document=responses
+    )
+    assert [(row.passenger_id, row.assigned_pdf_count) for row in rows] == [
+        (first.id, 2), (second.id, 1)
+    ]
+    exported = _document_assignment_export_rows(
+        rows, review_filter="multiple_pdfs", search_query="  SAME "
+    )
+    assert len(exported) == 1
+    assert exported[0].document_count == 2
+    assert _document_assignment_export_rows(
+        rows, review_filter="multiple_pdfs", search_query="not present"
+    ) == []
+
+    documents[2].passenger_id = second.id
+    updated_rows, _, _ = _passenger_review_rows(
+        passengers=[first, second], documents=documents, responses_by_document=responses
+    )
+    assert [(row.passenger_id, row.assigned_pdf_count) for row in updated_rows] == [
+        (first.id, 1), (second.id, 2)
+    ]
+    # The existing review continues to expose every ledger row for its existing actions.
+    assert len(updated_rows[0].documents) == 2
+    assert len(updated_rows[1].documents) == 3
 
 
 def test_physical_file_accounting_distinguishes_files_from_unique_passengers() -> None:

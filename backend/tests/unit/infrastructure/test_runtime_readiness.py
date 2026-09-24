@@ -58,7 +58,7 @@ class _Database:
     def __init__(
         self,
         *,
-        versions: tuple[str, ...] = ("0106_ecr_checker",),
+        versions: tuple[str, ...] = ("0107_passport_ecr_checks",),
         due_count: int = 0,
         blocked_count: int = 0,
         oldest_due_seconds: int = 0,

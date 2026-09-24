@@ -94,6 +94,8 @@ export interface DocumentPassengerReviewRow {
   departure_city: string | null;
   document: DistributedDocument | null;
   documents: DistributedDocument[];
+  /** Distinct matched stored PDFs, including shared PDFs only once per passenger. */
+  assigned_pdf_count?: number | null;
 }
 
 export interface DocumentBatchReview {

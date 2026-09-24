@@ -121,7 +121,7 @@ describe("create upload link", () => {
     await user.click(screen.getByRole("switch", { name: "Enable Visa Photo" }));
     await user.click(screen.getByRole("switch", { name: "Disable Live Photo Capture" }));
     await user.click(screen.getByRole("checkbox", { name: "Make Visa Photo compulsory" }));
-    await user.click(screen.getByText(/Pages to request/));
+    expect(screen.getByText(/Pages to request/).closest("details")).toHaveAttribute("open");
     await user.click(screen.getByRole("checkbox", { name: /^Passport Front Cover/ }));
     await user.click(screen.getByRole("switch", { name: "Enable Agent/Employee Code" }));
     fireEvent.change(screen.getByRole("textbox", { name: "Code field label" }), { target: { value: "Producer Code" } });

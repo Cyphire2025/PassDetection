@@ -229,12 +229,17 @@ for (const viewport of [
     expect(dialogBounds!.x).toBeGreaterThanOrEqual(0);
     expect(dialogBounds!.x + dialogBounds!.width).toBeLessThanOrEqual(viewport.width);
 
-    await createDialog.getByText(/^Pages to request/).click();
+    await expect(createDialog.getByText(/^Pages to request/).locator("..").locator("..")).toHaveAttribute("open", "");
     await expect(createDialog.getByRole("checkbox", { name: /^Personal Details Page/ })).toBeChecked();
     await expect(createDialog.getByRole("checkbox", { name: /^Address Details Page/ })).toBeChecked();
     await expect(createDialog.getByRole("checkbox", { name: /^Passport Front Cover/ })).not.toBeChecked();
     await createDialog.getByRole("checkbox", { name: /^Passport Front Cover/ }).check();
     await createDialog.getByRole("checkbox", { name: /^Passport Back Cover/ }).check();
+    await createDialog.getByRole("switch", { name: "Enable ECR Check", exact: true }).click();
+    await expect(createDialog.getByRole("checkbox", { name: /^Address Details Page/ })).toBeDisabled();
+    await createDialog.getByRole("switch", { name: "Enable Multiple instruction languages", exact: true }).click();
+    await createDialog.getByRole("checkbox", { name: /^Urdu/ }).check();
+    await createDialog.getByRole("checkbox", { name: /^Marathi/ }).check();
     await createDialog.getByRole("checkbox", { name: "Make Passport compulsory", exact: true }).uncheck();
     await createDialog.getByRole("switch", { name: "Enable Base City", exact: true }).click();
     await createDialog.getByRole("checkbox", { name: "Make Base City compulsory", exact: true }).uncheck();
@@ -271,6 +276,9 @@ for (const viewport of [
         passport_enabled: true,
         passport_required: false,
         passport_live_scan: true,
+        passport_ecr_enabled: true,
+        instruction_languages_enabled: true,
+        instruction_languages: ["mr", "ur"],
         passport_upload_pages: ["cover", "back_cover", "front", "back"],
         visa_photo_required: false,
         visa_photo_live_capture: false,
@@ -292,9 +300,12 @@ for (const viewport of [
     await expect(editDialog.getByRole("checkbox", { name: "Make Passport compulsory", exact: true })).not.toBeChecked();
     await expect(editDialog.getByRole("checkbox", { name: "Make Excursion compulsory", exact: true })).not.toBeChecked();
     await expect(editDialog.getByRole("checkbox", { name: "Make Membership Number compulsory", exact: true })).not.toBeChecked();
-    await editDialog.getByText(/^Pages to request/).click();
+    await expect(editDialog.getByText(/^Pages to request/).locator("..").locator("..")).toHaveAttribute("open", "");
     await expect(editDialog.getByRole("checkbox", { name: /^Passport Front Cover/ })).toBeChecked();
     await expect(editDialog.getByRole("checkbox", { name: /^Passport Back Cover/ })).toBeChecked();
+    await expect(editDialog.getByRole("switch", { name: "Disable ECR Check", exact: true })).toBeChecked();
+    await expect(editDialog.getByRole("checkbox", { name: /^Marathi/ })).toBeChecked();
+    await expect(editDialog.getByRole("checkbox", { name: /^Urdu/ })).toBeChecked();
     await editDialog.getByRole("textbox", { name: "Code field label", exact: true }).fill("Advisor Code");
     await editDialog.getByRole("checkbox", { name: "Make Visa Photo compulsory", exact: true }).check();
     await editDialog.getByRole("button", { name: "Save changes", exact: true }).click();
@@ -316,6 +327,8 @@ for (const viewport of [
     await expect(reopened.getByRole("checkbox", { name: "Make Agent/Employee Code compulsory", exact: true })).not.toBeChecked();
     await expect(reopened.getByRole("checkbox", { name: "Make Excursion compulsory", exact: true })).not.toBeChecked();
     await expect(reopened.getByRole("checkbox", { name: "Make Membership Number compulsory", exact: true })).not.toBeChecked();
+    await expect(reopened.getByRole("switch", { name: "Disable ECR Check", exact: true })).toBeChecked();
+    await expect(reopened.getByRole("checkbox", { name: /^Urdu/ })).toBeChecked();
     expect(api.getSavedGroup()?.upload_configuration?.passport_upload_pages).toEqual(["cover", "back_cover", "front", "back"]);
     await reopened.getByRole("button", { name: "Cancel", exact: true }).click();
 

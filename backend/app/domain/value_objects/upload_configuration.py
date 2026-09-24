@@ -5,13 +5,17 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from app.domain.exceptions.exceptions import ValidationError
 
 MAX_PUBLIC_DOCUMENT_BYTES = 2 * 1024 * 1024
 PassportPage = Literal["cover", "back_cover", "front", "back"]
 PASSPORT_PAGE_ORDER: tuple[PassportPage, ...] = ("cover", "back_cover", "front", "back")
+InstructionLanguage = Literal["mr", "hi", "te", "kn", "gu", "bn", "or", "ml", "ta", "ur"]
+INSTRUCTION_LANGUAGE_ORDER: tuple[InstructionLanguage, ...] = (
+    "mr", "hi", "te", "kn", "gu", "bn", "or", "ml", "ta", "ur",
+)
 PASSPORT_PAGE_LABELS = {
     "cover": "Passport front cover",
     "back_cover": "Passport back cover",
@@ -35,6 +39,7 @@ class UploadConfiguration(BaseModel):
     passport_enabled: bool = True
     passport_required: bool = True
     passport_live_scan: bool = True
+    passport_ecr_enabled: bool = False
     passport_upload_pages: list[PassportPage] = Field(
         default_factory=_default_passport_pages, max_length=4,
     )
@@ -43,6 +48,8 @@ class UploadConfiguration(BaseModel):
     visa_photo_upload: bool = True
     qualifier_relation_list_enabled: bool = True
     qualifier_relation_other_enabled: bool = False
+    instruction_languages_enabled: bool = False
+    instruction_languages: list[InstructionLanguage] = Field(default_factory=list, max_length=10)
     required_fields: dict[RequiredField, bool] = Field(default_factory=dict)
     agent_employee_code_label: str = Field(default="Agent/Employee Code", min_length=1, max_length=100)
     agency_dealership_name_label: str = Field(default="Agency/Dealership Name", min_length=1, max_length=100)
@@ -53,6 +60,23 @@ class UploadConfiguration(BaseModel):
         if len(pages) != len(set(pages)):
             raise ValueError("Select each passport page only once.")
         return [page for page in PASSPORT_PAGE_ORDER if page in pages]
+
+    @field_validator("instruction_languages")
+    @classmethod
+    def order_instruction_languages(
+        cls, languages: list[InstructionLanguage],
+    ) -> list[InstructionLanguage]:
+        if len(languages) != len(set(languages)):
+            raise ValueError("Select each instruction language only once.")
+        return [language for language in INSTRUCTION_LANGUAGE_ORDER if language in languages]
+
+    @model_validator(mode="after")
+    def validate_enabled_features(self) -> UploadConfiguration:
+        if self.passport_ecr_enabled and not self.passport_enabled:
+            raise ValueError("Enable passport collection before enabling ECR checking.")
+        if self.instruction_languages_enabled and not self.instruction_languages:
+            raise ValueError("Select at least one additional instruction language.")
+        return self
 
     def required(self, field: RequiredField) -> bool:
         return self.required_fields.get(field, True)
@@ -82,6 +106,11 @@ def validate_capture_configuration(group: Any) -> None:
             raise ValidationError("Enable at least one passport collection method.", field="upload_configuration")
         if group.allow_files_from_device and not config.passport_upload_pages:
             raise ValidationError("Select at least one passport page for upload.", field="upload_configuration")
+        if config.passport_ecr_enabled and group.allow_files_from_device and "back" not in config.passport_upload_pages:
+            raise ValidationError(
+                "Request the passport address details page when ECR checking is enabled.",
+                field="upload_configuration",
+            )
     if group.require_selfie and not (config.visa_photo_live_capture or config.visa_photo_upload):
         raise ValidationError("Enable at least one Visa Photo collection method.", field="upload_configuration")
 

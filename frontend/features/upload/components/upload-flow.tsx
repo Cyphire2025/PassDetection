@@ -23,6 +23,7 @@ import type { PassportSubmission } from "@/types/passport.types";
 import { isUploadFieldRequired, MAX_PASSPORT_UPLOAD_BYTES, type RequiredUploadField } from "@/features/passports/types/upload-configuration";
 import { passportBundleError, getUploadFlowSettings } from "../services/configured-upload";
 import { PassportUploadPage } from "./passport-upload-page";
+import { useInstructionLanguage } from "../hooks/use-instruction-language";
 import { useSubmitClientPassportReview, useUploadPassport } from "../hooks/use-upload";
 import { usePublicFlowTelemetry } from "../hooks/use-public-flow-telemetry";
 import { isContactVerificationError, useUploadContactVerification } from "../hooks/use-upload-contact-verification";
@@ -215,6 +216,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
     passportEnabled, passportRequired, allowFilesFromDevice, askNearestDomesticAirport,
     relationWithQualifierEnabled, enabledCustomQuestions, enabledCustomDetails,
   } = getUploadFlowSettings(group);
+  const instructions = useInstructionLanguage(token, uploadConfig);
   const requiredField = (field: RequiredUploadField) => isUploadFieldRequired(uploadConfig, field);
   const activeFamilyMember = familyMembers[activeFamilyIndex] ?? null;
   const activeVisaSelfie = flowMode === "family" ? activeFamilyMember?.visaSelfie ?? null : visaSelfie;
@@ -1386,7 +1388,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   }
 
   if (step === "PASSPORT_UPLOAD" && passportEnabled && allowFilesFromDevice) {
-    return <PassportUploadPage bundle={documentBundle} config={uploadConfig} onChange={setDocumentBundle} onContinue={handleBundleUpload} onBack={() => setStep("METHOD_SELECT")} error={uploadError} />;
+    return <PassportUploadPage bundle={documentBundle} config={uploadConfig} instructions={instructions} onChange={setDocumentBundle} onContinue={handleBundleUpload} onBack={() => setStep("METHOD_SELECT")} error={uploadError} />;
   }
 
   if (step === "CAMERA") {
@@ -1437,6 +1439,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   if (step === "SELFIE_UPLOAD") {
     return (
       <VisaPhotoUpload
+        instructions={instructions}
         onCapture={(file) => handleSelfieCapture(file, "file")}
         onCancel={() => {
           void reportTelemetry({

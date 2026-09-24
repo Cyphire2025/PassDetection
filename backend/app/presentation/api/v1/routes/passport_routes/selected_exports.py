@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import io
 import uuid
-from typing import Any
+from typing import Any, cast
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
@@ -44,6 +44,7 @@ from .constants import (
     _international_airport_is_enabled,
     _pending_recipient_export_rows,
 )
+from .ecr_export_support import export_passport_ecr_results
 from .export_context import _resolve_export_group_by
 from .response_support import _apply_manager_visibility, _submitted_statuses
 
@@ -85,13 +86,18 @@ async def export_selected_passports(
         )
 
     match_rows_by_group = await _export_whatsapp_match_rows(session, submissions)
+    group_details = await _export_group_details(
+        session, [submission.group_id for submission in submissions],
+    )
+    ecr_results = await export_passport_ecr_results(
+        session, submissions, agency_id=current_user.agency_id, group_details=group_details,
+    )
     content = await asyncio.to_thread(
         PassportExcelExporter().export_group,
         submissions,
         group_name="Selected Passports",
-        group_details=await _export_group_details(
-            session, [submission.group_id for submission in submissions]
-        ),
+        group_details=group_details,
+        ecr_results=ecr_results,
         zone_names=_export_zone_names_from_match_rows(
             submissions,
             match_rows_by_group,
@@ -307,11 +313,17 @@ async def export_selected_groups(
             detail="Combined exports are limited to 1500 rows including pending recipients. Select fewer groups.",
         )
 
+    group_details = {group.id: _group_export_details(group) for group in groups}
+    ecr_results = await export_passport_ecr_results(
+        session, submissions, agency_id=cast(uuid.UUID, current_user.agency_id),
+        group_details=group_details,
+    )
     content = await asyncio.to_thread(
         PassportExcelExporter().export_group,
         submissions,
         group_name="Selected Groups",
-        group_details={group.id: _group_export_details(group) for group in groups},
+        group_details=group_details,
+        ecr_results=ecr_results,
         zone_names=_export_zone_names_from_match_rows(
             submissions,
             match_rows_by_group,

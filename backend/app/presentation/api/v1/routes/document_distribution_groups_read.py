@@ -245,7 +245,7 @@ async def export_document_assignments(
     group_id: uuid.UUID,
     document_type: str,
     review_filter: Annotated[
-        Literal["all", "assigned", "missing", "sent", "not_sent"],
+        Literal["all", "assigned", "missing", "sent", "not_sent", "multiple_pdfs"],
         Query(alias="filter"),
     ] = "all",
     search: Annotated[str, Query(max_length=200)] = "",
@@ -264,6 +264,7 @@ async def export_document_assignments(
         "missing": "Missing",
         "sent": "Sent",
         "not_sent": "Not sent",
+        "multiple_pdfs": "Multiple PDFs",
     }
     rows = _document_assignment_export_rows(
         review.review_rows,

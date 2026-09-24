@@ -54,6 +54,7 @@ from .constants import (
     _select_whatsapp_tracking_export_payload,
     _whatsapp_tracking_export_rows,
 )
+from .ecr_export_support import export_passport_ecr_results
 from .export_context import (
     _current_group_export_submissions,
     _require_new_export_request,
@@ -246,11 +247,16 @@ async def export_whatsapp_tracking_by_group(
             selected_fields,
         )
 
+    group_details = {group.id: _group_export_details(group)}
+    ecr_results = await export_passport_ecr_results(
+        session, selected_submissions, agency_id=current_user.agency_id, group_details=group_details,
+    )
     content = await asyncio.to_thread(
         PassportExcelExporter().export_group,
         selected_submissions,
         group_name=group.name,
-        group_details={group.id: _group_export_details(group)},
+        group_details=group_details,
+        ecr_results=ecr_results,
         zone_names=_export_zone_names_from_match_rows(
             selected_submissions,
             rows_by_group,
@@ -513,11 +519,16 @@ async def export_passports_by_group(
         if resolved_agency_match_field
         else None
     )
+    group_details = {group.id: _group_export_details(group)}
+    ecr_results = await export_passport_ecr_results(
+        session, submissions, agency_id=current_user.agency_id, group_details=group_details,
+    )
     content = await asyncio.to_thread(
         PassportExcelExporter().export_group,
         submissions,
         group_name=group.name,
-        group_details={group.id: _group_export_details(group)},
+        group_details=group_details,
+        ecr_results=ecr_results,
         zone_names=zone_names,
         additional_fields=[
             {"key": str(field["key"]), "label": str(field["label"])} for field in export_fields

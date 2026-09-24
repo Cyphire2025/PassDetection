@@ -9,7 +9,11 @@ import type { PassportDocumentBundle } from "../components/upload-flow.types";
 import type { UploadLinkResponse } from "@/features/passports/api/upload-links.api";
 
 export function resolveUploadConfiguration(value?: Partial<UploadConfiguration> | null): UploadConfiguration {
-  return { ...DEFAULT_UPLOAD_CONFIGURATION, ...value, required_fields: value?.required_fields ?? {} };
+  return { ...DEFAULT_UPLOAD_CONFIGURATION, ...value,
+    passport_upload_pages: [...(value?.passport_upload_pages ?? DEFAULT_UPLOAD_CONFIGURATION.passport_upload_pages)],
+    instruction_languages: [...(value?.instruction_languages ?? [])],
+    required_fields: { ...value?.required_fields },
+  };
 }
 
 /** Keeps legacy link defaults and explicit current settings in one boundary. */

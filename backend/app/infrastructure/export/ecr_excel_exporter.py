@@ -8,6 +8,14 @@ from openpyxl.cell.cell import ILLEGAL_CHARACTERS_RE
 from openpyxl.styles import Font, PatternFill
 
 
+def ecr_result_font(result: str) -> Font:
+    """Keep standalone and passport-group ECR verdict colors identical."""
+    return Font(
+        color="FF0000" if result == "ECR" else "000000" if result == "NA" else "B45309",
+        bold=result == "ECR",
+    )
+
+
 def build_ecr_workbook(rows: Sequence[tuple[str, str]]) -> bytes:
     workbook = Workbook()
     sheet = workbook.active
@@ -22,10 +30,7 @@ def build_ecr_workbook(rows: Sequence[tuple[str, str]]) -> bytes:
         sheet.append([ILLEGAL_CHARACTERS_RE.sub("", filename), result])
         # String cells preserve exact names, including '=' prefixes, without formulas.
         sheet.cell(sheet.max_row, 1).data_type = "s"
-        sheet.cell(sheet.max_row, 2).font = Font(
-            color="FF0000" if result == "ECR" else "000000" if result == "NA" else "B45309",
-            bold=result == "ECR",
-        )
+        sheet.cell(sheet.max_row, 2).font = ecr_result_font(result)
     sheet.freeze_panes = "A2"
     sheet.auto_filter.ref = sheet.dimensions
     sheet.column_dimensions["A"].width = 64

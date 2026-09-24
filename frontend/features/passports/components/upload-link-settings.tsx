@@ -17,6 +17,7 @@ import { normalizeCities, normalizeCity } from "../utils/passport-group-trip";
 import { GroupOptionToggle } from "./group-option-toggle";
 import { CustomQuestionBuilder } from "./custom-question-builder";
 import { CustomDetailBuilder } from "./custom-detail-builder";
+import { INSTRUCTION_LANGUAGE_OPTIONS } from "../types/instruction-language";
 
 export interface UploadLinkSettingsValue {
   require_selfie: boolean;
@@ -58,6 +59,7 @@ export function getUploadLinkSettings(value: Omit<Partial<UploadLinkSettingsValu
       ...DEFAULT_UPLOAD_CONFIGURATION,
       ...configuration,
       passport_upload_pages: [...(configuration?.passport_upload_pages ?? DEFAULT_UPLOAD_CONFIGURATION.passport_upload_pages)],
+      instruction_languages: [...(configuration?.instruction_languages ?? [])],
       required_fields: { ...configuration?.required_fields },
     },
     custom_questions: (value.custom_questions ?? []).map((question) => ({ ...question, required: question.required ?? true })),
@@ -77,6 +79,9 @@ export function getUploadLinkSettingsError(value: UploadLinkSettingsValue): stri
   }
   if (configuration.passport_enabled && value.allow_files_from_device && configuration.passport_upload_pages.length === 0) {
     return "Select at least one passport page to upload.";
+  }
+  if (configuration.passport_ecr_enabled && value.allow_files_from_device && !configuration.passport_upload_pages.includes("back")) {
+    return "Include the Address Details Page for the ECR check.";
   }
   if (value.relation_with_qualifier_enabled && !configuration.qualifier_relation_list_enabled && !configuration.qualifier_relation_other_enabled) {
     return "Enable at least one option for Relation with Qualifier.";
@@ -158,7 +163,7 @@ export function UploadLinkSettings({
           label="Passport"
           description="Collect passport pages using the live scanner or document upload."
           checked={configuration.passport_enabled}
-          onChange={(passport_enabled) => updateConfiguration({ passport_enabled })}
+          onChange={(passport_enabled) => updateConfiguration({ passport_enabled, ...(!passport_enabled ? { passport_ecr_enabled: false } : {}) })}
           required={configuration.passport_required}
           onRequiredChange={(passport_required) => updateConfiguration({ passport_required })}
           disabled={disabled}
@@ -169,9 +174,18 @@ export function UploadLinkSettings({
             <GroupOptionToggle label="Live Passport Scan" description="Scan the personal details and address details pages with the existing live scanner."
               checked={configuration.passport_live_scan} onChange={(passport_live_scan) => updateConfiguration({ passport_live_scan })} disabled={disabled} />
             <GroupOptionToggle label="Passport Document Upload" description="Let travellers upload scanned passport pages. Each file must be 2 MB or smaller."
-              checked={value.allow_files_from_device} onChange={(allow_files_from_device) => onChange({ allow_files_from_device })} disabled={disabled} />
+              checked={value.allow_files_from_device} onChange={(allow_files_from_device) => onChange({ allow_files_from_device,
+                ...(allow_files_from_device && configuration.passport_ecr_enabled && !configuration.passport_upload_pages.includes("back")
+                  ? { upload_configuration: { ...configuration, passport_upload_pages: [...configuration.passport_upload_pages, "back"] } } : {}),
+              })} disabled={disabled} />
+            <GroupOptionToggle label="ECR Check" description="Check the address details page for Emigration Check Required. Document uploads must include this page."
+              checked={configuration.passport_ecr_enabled} disabled={disabled}
+              onChange={(passport_ecr_enabled) => updateConfiguration({ passport_ecr_enabled,
+                ...(passport_ecr_enabled && value.allow_files_from_device && !configuration.passport_upload_pages.includes("back")
+                  ? { passport_upload_pages: [...configuration.passport_upload_pages, "back"] } : {}),
+              })} />
             {value.allow_files_from_device && (
-              <details className="rounded-xl border border-slate-200 bg-white">
+              <details open className="rounded-xl border border-slate-200 bg-white">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-medium text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
                   <span>Pages to request <span className="ml-1 font-normal text-slate-500">({configuration.passport_upload_pages.length} selected)</span></span>
                   <ChevronDown className="h-4 w-4" aria-hidden="true" />
@@ -179,7 +193,7 @@ export function UploadLinkSettings({
                 <div className="space-y-3 border-t border-slate-100 p-4">
                   {PASSPORT_UPLOAD_PAGES.map((page) => (
                     <label key={page.id} className="flex cursor-pointer items-start gap-3 text-sm text-slate-800">
-                      <input type="checkbox" checked={configuration.passport_upload_pages.includes(page.id)} disabled={disabled}
+                      <input type="checkbox" checked={configuration.passport_upload_pages.includes(page.id)} disabled={disabled || (page.id === "back" && configuration.passport_ecr_enabled)}
                         onChange={(event) => updateConfiguration({ passport_upload_pages: PASSPORT_UPLOAD_PAGES.filter((option) => option.id === page.id ? event.target.checked : configuration.passport_upload_pages.includes(option.id)).map((option) => option.id) })}
                         className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 accent-blue-600" />
                       <span><span className="font-medium">{page.label}</span><span className="mt-0.5 block text-xs leading-5 text-slate-500">{page.description}</span></span>
@@ -242,6 +256,24 @@ export function UploadLinkSettings({
       </SettingsSection>
 
       <SettingsSection title="Miscellaneous" number="05">
+        <GroupOptionToggle label="Multiple instruction languages" description="Let travellers read passport upload and visa photograph instructions in selected languages. English is always available."
+          checked={configuration.instruction_languages_enabled} onChange={(instruction_languages_enabled) => updateConfiguration({ instruction_languages_enabled })} disabled={disabled} />
+        {configuration.instruction_languages_enabled && (
+          <fieldset className="rounded-xl border border-slate-200 bg-white p-4">
+            <legend className="px-1 text-xs font-medium text-slate-700">Additional instruction languages</legend>
+            <p className="mb-3 text-xs leading-5 text-slate-500">English is the default. Select the other languages to offer.</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {INSTRUCTION_LANGUAGE_OPTIONS.map((language) => (
+                <label key={language.code} className="flex items-center gap-3 text-sm text-slate-800">
+                  <input type="checkbox" checked={configuration.instruction_languages.includes(language.code)} disabled={disabled}
+                    onChange={(event) => updateConfiguration({ instruction_languages: INSTRUCTION_LANGUAGE_OPTIONS.filter((option) => option.code === language.code ? event.target.checked : configuration.instruction_languages.includes(option.code)).map((option) => option.code) })}
+                    className="h-4 w-4 rounded border-slate-300 accent-blue-600" />
+                  {language.label} <span lang={language.code} dir={language.code === "ur" ? "rtl" : "ltr"} className="text-slate-500">{language.nativeLabel}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        )}
         <GroupOptionToggle label="Meal Preference" description="Let travellers select Vegetarian, Non-Vegetarian or Jain."
           checked={value.meal_preference_enabled} onChange={(meal_preference_enabled) => onChange({ meal_preference_enabled })} disabled={disabled} {...requiredControl("meal_preference")} />
         <GroupOptionToggle label="Relation with Qualifier" description="Ask whether the traveller is the qualifier or someone travelling in their place."

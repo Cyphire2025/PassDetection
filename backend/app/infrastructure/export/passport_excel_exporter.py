@@ -24,6 +24,7 @@ from app.domain.value_objects.personnel_codes import (
     prefixed_agent_employee_code,
     prefixed_staff_code,
 )
+from app.infrastructure.export.ecr_excel_exporter import ecr_result_font
 from app.infrastructure.export.passport_excel_phone_columns import (
     VERIFIED_WHATSAPP_HEADER,
     is_phone_export_field,
@@ -91,6 +92,7 @@ _TRAVELLER_COLUMNS = (
     _ExportColumn(VERIFIED_WHATSAPP_HEADER, 28),
 )
 _COLUMNS = _PREFIX_COLUMNS + _TRAVELLER_COLUMNS
+_ECR_COLUMN = _ExportColumn("ECR", 16)
 _NAME_HISTORY_COLUMNS = (
     _ExportColumn("Old Given Name", 24),
     _ExportColumn("New Surname", 20),
@@ -228,6 +230,7 @@ class PassportExcelExporter:
             [
                 *(column.header for column in _COLUMNS),
                 *(column.header for column in _NAME_HISTORY_COLUMNS),
+                _ECR_COLUMN.header,
             ]
         )
     )
@@ -253,6 +256,7 @@ class PassportExcelExporter:
         | None = None,
         group_by_field: str | None = None,
         pending_rows: list[dict[str, Any]] | None = None,
+        ecr_results: dict[uuid.UUID, str] | None = None,
     ) -> bytes:
         imported_fields = [
             field
@@ -358,6 +362,7 @@ class PassportExcelExporter:
                         additional_values=additional_values,
                         whatsapp_contacts=whatsapp_contacts,
                         previous_names=previous_names,
+                        ecr_results=ecr_results,
                     ),
                 )
             )
@@ -394,6 +399,8 @@ class PassportExcelExporter:
                 cell = worksheet.cell(row=row_index, column=column_index)
                 if column.number_format and isinstance(cell.value, (date, datetime)):
                     cell.number_format = column.number_format
+                if column.header == "ECR" and cell.value:
+                    cell.font = ecr_result_font(str(cell.value))
             previous_group_key = group_key
             has_written_submission = True
 
@@ -561,6 +568,7 @@ class PassportExcelExporter:
             dict[str, str | None],
         ]
         | None,
+        ecr_results: dict[uuid.UUID, str] | None = None,
     ) -> dict[str, Any]:
         fields = submission.confirmed_fields or submission.extracted_fields or {}
         staff_metadata = submission.staff_metadata or {}
@@ -615,6 +623,7 @@ class PassportExcelExporter:
             "DOE": fields.get("date_of_expiry"),
             "Place of Issue": fields.get("place_of_issue"),
             "Nationality": _nationality_display_value(fields.get("nationality")),
+            "ECR": cls._ecr_value(submission.id, details, ecr_results),
             "Upload Email": submission.client_email,
             VERIFIED_WHATSAPP_HEADER: authoritative_submission_phone(submission),
         }
@@ -643,6 +652,20 @@ class PassportExcelExporter:
         return values
 
     @staticmethod
+    def _ecr_value(
+        submission_id: uuid.UUID,
+        details: dict[str, Any],
+        results: dict[uuid.UUID, str] | None,
+    ) -> str | None:
+        if not details.get("passport_ecr_enabled"):
+            return None
+        result = (results or {}).get(submission_id, "PENDING")
+        if result == "NOT_ENABLED":
+            return None
+        # No image or an unresolved classification cannot prove absence.
+        return result if result in {"ECR", "NA", "PENDING", "ERROR", "REVIEW"} else "REVIEW"
+
+    @staticmethod
     def _enabled_traveller_columns(
         group_details: dict[uuid.UUID, dict[str, Any]] | None,
         *,
@@ -669,6 +692,9 @@ class PassportExcelExporter:
                         )
                     )
                 ]
+
+        if group_details and any(details.get("passport_ecr_enabled") for details in group_details.values()):
+            enabled_columns.append(_ECR_COLUMN)
 
         if not include_name_history:
             return enabled_columns

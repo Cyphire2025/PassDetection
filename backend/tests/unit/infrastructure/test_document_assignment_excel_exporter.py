@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from io import BytesIO
 from types import SimpleNamespace
+from uuid import uuid4
 
 from openpyxl import load_workbook
 
@@ -15,6 +16,7 @@ from app.presentation.api.v1.routes.document_distribution_review_support import 
 
 def _document(*, filename: str, delivery_status: str = "pending") -> SimpleNamespace:
     return SimpleNamespace(
+        id=uuid4(),
         original_filename=filename,
         match_status="matched",
         match_confidence=0.94,
@@ -29,6 +31,7 @@ def _review_rows() -> list[SimpleNamespace]:
     return [
         SimpleNamespace(
             passenger_name="Asha Mehta",
+            assigned_pdf_count=None,
             passport_number="P1234567",
             departure_city="Delhi",
             document=_document(filename="asha.pdf", delivery_status="sent"),
@@ -36,6 +39,7 @@ def _review_rows() -> list[SimpleNamespace]:
         ),
         SimpleNamespace(
             passenger_name="Ravi Shah",
+            assigned_pdf_count=None,
             passport_number="R7654321",
             departure_city="Mumbai",
             document=_document(filename="ravi.pdf"),
@@ -43,6 +47,7 @@ def _review_rows() -> list[SimpleNamespace]:
         ),
         SimpleNamespace(
             passenger_name="Maya Singh",
+            assigned_pdf_count=None,
             passport_number=None,
             departure_city=None,
             document=None,
@@ -106,6 +111,7 @@ def test_document_assignment_workbook_neutralizes_formula_values() -> None:
         [
             SimpleNamespace(
                 passenger_name="=HYPERLINK(\"https://example.invalid\")",
+                assigned_pdf_count=None,
                 passport_number=None,
                 departure_city=None,
                 document=None,
