@@ -74,14 +74,16 @@ Original IDs retain the original acceptance criteria. ADD IDs are the separately
 | Low | ADD-14 | Capacity gates could hide tenant tails, missing scans and incomplete queued/processing work. | Locally fixed; negative controls and final strict workload pass |
 | Low | ADD-16 | Operator unit fixtures inherited an unauthorized Linux runner UID. | Locally fixed; all289 cases pass on Windows and actual Linux UID1001 |
 | Low | ADD-18 | Archive tests expected Sent for delivered data and missed subsequent checks. | Locally fixed; desktop and mobile archive journeys pass |
+| Low | ADD-19 | Migration rehearsal and its literal test retained the obsolete0107 destination. | Locally fixed; canonical head and real populated0111 upgrade pass |
+| Low | ADD-20 | Synthetic private-S3 identity ownership prevented the Linux provider from starting. | Locally fixed; private Linux startup/retry, S3 authorization and all163 real-service cases pass |
 
 Within severity, unresolved requirements precede locally closed groups. SCALE-01 would be High before a multi-host HA promise, and SCALE-04 High before an unsupported capacity promise; neither promise is made here.
 
 ## Additional findings and total accounting
 
-The separate [additional findings register](additional-findings-register.md) contains 18 engineering defect groups: six High, five Medium and seven Low. Some were pre-existing; others were introduced and caught during remediation or concern verification tooling. They do not inflate original closure credits. Individual scanner matches are not counted as independent confirmed application exploits.
+The separate [additional findings register](additional-findings-register.md) contains 20 engineering defect groups: six High, five Medium and nine Low. Some were pre-existing; others were introduced and caught during remediation or concern verification tooling. They do not inflate original closure credits. Individual scanner matches are not counted as independent confirmed application exploits.
 
-**44 original groups + 18 separately tracked additional groups = 62 tracked engineering issue groups.** The combined priority table above lists all62 groups once:16High,35Medium and11Low. This excludes the two unnumbered observations below and is not a count of 62 exploitable vulnerabilities. The original closure total remains37. Additional findings retain their own evidence/status and are not all declared release-qualified.
+**44 original groups + 20 separately tracked additional groups = 64 tracked engineering issue groups.** The combined priority table above lists all64 groups once:16High,35Medium and13Low. This excludes the two unnumbered observations below and is not a count of 64 exploitable vulnerabilities. The original closure total remains37. Additional findings retain their own evidence/status and are not all declared release-qualified.
 
 ## Unnumbered observations and nice-to-have work
 
@@ -91,6 +93,6 @@ The separate [additional findings register](additional-findings-register.md) con
 
 ## Evidence and release order
 
-Use [current Medium/Low progress](phase-two-progress-2026-09-27.md) for closure receipts and remaining gates, and the original Desktop category reports for source references and standards. Refresh the 62-group count if another independent additional defect is accepted.
+Use [current Medium/Low progress](phase-two-progress-2026-09-27.md) for closure receipts and remaining gates, and the original Desktop category reports for source references and standards. Refresh the 64-group count if another independent additional defect is accepted.
 
 Local software/browser-engine/capacity and exact image gates passed; retain outstanding physical-device and screen-reader acceptance; commit intended changes; push main; verify CI/signing/protected promotion and retained artifacts; then perform the authorized guarded VPS rollout. Preserve records, uploads, object versions, volumes, backups and unrelated files. No production cleanup or destructive restore is authorized.

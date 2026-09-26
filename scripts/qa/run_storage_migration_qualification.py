@@ -16,6 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
+from qualification_storage_identity import write_qualification_identity
 from storage_identity import storage_identity
 from storage_release import STORAGE_IMAGE
 
@@ -51,14 +52,13 @@ def main() -> None:
             ("object-storage", "8333", "synthetic-admin", "synthetic-admin-secret"),
         )):
             identity = OUTPUT / f"{index}-identities.json"
-            identity.write_text(storage_identity({
+            write_qualification_identity(identity, storage_identity({
                 "S3_BUCKET_NAME": "passdetection-ci-storage",
                 "OBJECT_STORAGE_ADMIN_ACCESS_KEY": access,
                 "OBJECT_STORAGE_ADMIN_SECRET_KEY": secret,
                 "S3_ACCESS_KEY_ID": "synthetic-runtime",
                 "S3_SECRET_ACCESS_KEY": "synthetic-runtime-secret",
-            }), encoding="utf-8")
-            identity.chmod(0o600)
+            }), STORAGE_IMAGE)
             run("docker", "create", "--name", names[index], "--label", LABEL,
                 "--network", PREFIX, "--network-alias", alias,
                 "--mount", f"type=bind,source={identity},target=/run/secrets/s3.json,readonly",
@@ -102,8 +102,11 @@ def main() -> None:
         print("PASS: maintained-provider copy regression, including 1,001 retained versions and failure cases")
     finally:
         for name in reversed(created):
+            logs = subprocess.run(["docker", "logs", name], capture_output=True, text=True, check=False)
+            (OUTPUT / f"{name}.log").write_text(logs.stdout + logs.stderr, encoding="utf-8")
+            (OUTPUT / f"{name}-state.json").write_text(
+                run("docker", "inspect", "--format", "{{json .State}}", name), encoding="utf-8")
             # Only containers newly created above are eligible for cleanup.
-            run("docker", "logs", name)
             run("docker", "rm", "--force", "--volumes", name)
         run("docker", "network", "rm", PREFIX)
 

@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 from pathlib import Path
 from types import ModuleType
 
 import pytest
+from alembic.config import Config
+from alembic.script import ScriptDirectory
 
 BACKEND_ROOT = Path(__file__).resolve().parents[3]
 REPOSITORY_ROOT = BACKEND_ROOT.parent
@@ -74,7 +77,10 @@ def test_rehearsal_contract_is_previous_release_populated_and_evidence_oriented(
     workflow = (REPOSITORY_ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
 
     assert rehearsal.PREVIOUS_RELEASE_REVISION == "0085_platform_retention_controls"
-    assert rehearsal.EXPECTED_HEAD_REVISION == "0107_passport_ecr_checks"
+    manifest = json.loads(
+        (BACKEND_ROOT / "app/core/config/release_manifest.json").read_text(encoding="utf-8")
+    )
+    assert rehearsal.EXPECTED_HEAD_REVISION == manifest["schema_revision"]
     assert "INSERT INTO attendance_records" in source
     assert "INSERT INTO passport_submissions" in source
     assert "INSERT INTO audit_logs" in source
@@ -84,3 +90,24 @@ def test_rehearsal_contract_is_previous_release_populated_and_evidence_oriented(
     assert "backend-migration-rehearsal:" in workflow
     assert "migration-rehearsal-evidence.json" in workflow
     assert "backend-migration-rehearsal" in workflow.split("docker-build:", maxsplit=1)[1]
+
+
+def test_rehearsal_manifest_target_matches_the_single_actual_alembic_head() -> None:
+    rehearsal = _load_script()
+    config = Config(str(BACKEND_ROOT / "alembic.ini"))
+    config.set_main_option("script_location", str(BACKEND_ROOT / "alembic"))
+    migrations = ScriptDirectory.from_config(config)
+
+    assert migrations.get_heads() == [rehearsal.EXPECTED_HEAD_REVISION]
+    assert migrations.get_revision(rehearsal.PREVIOUS_RELEASE_REVISION) is not None
+
+
+@pytest.mark.parametrize("actual_revision", ["0107_passport_ecr_checks", "9999_unreviewed"])
+def test_rehearsal_rejects_stale_or_unreviewed_database_head(
+    monkeypatch: pytest.MonkeyPatch, actual_revision: str
+) -> None:
+    rehearsal = _load_script()
+    monkeypatch.setattr(rehearsal, "_revision", lambda _connection: actual_revision)
+
+    with pytest.raises(AssertionError, match="did not reach the reviewed merge head"):
+        rehearsal._verify_upgraded_database(None)

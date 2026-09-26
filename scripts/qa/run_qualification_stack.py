@@ -17,6 +17,7 @@ import urllib.request
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from qualification_storage_identity import write_qualification_identity
 from storage_identity import storage_identity
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -36,16 +37,24 @@ def run(arguments: list[str], name: str) -> None:
 def start() -> None:
     OUTPUT.mkdir(parents=True, exist_ok=True)
     identity = OUTPUT / "storage-identities.json"
-    identity.write_text(storage_identity({
+    configuration = json.loads(subprocess.check_output([*COMPOSE, "config", "--format", "json"], cwd=ROOT, text=True))
+    write_qualification_identity(identity, storage_identity({
         "S3_BUCKET_NAME": "passdetection-passports",
         "OBJECT_STORAGE_ADMIN_ACCESS_KEY": "qualification-storage-admin",
         "OBJECT_STORAGE_ADMIN_SECRET_KEY": "qualification-storage-admin-secret-937",
         "S3_ACCESS_KEY_ID": "qualification-storage",
         "S3_SECRET_ACCESS_KEY": "qualification-storage-secret-937",
-    }), encoding="utf-8")
-    identity.chmod(0o600)
+    }), configuration["services"]["object-storage"]["image"])
     run([*COMPOSE, "config", "--quiet"], "compose-validation")
-    run([*COMPOSE, "up", "-d", "--wait", "--wait-timeout", "600", "postgres", "redis", "object-storage", "clamav", "statsd", "prometheus"], "dependencies")
+    try:
+        run([*COMPOSE, "up", "-d", "--wait", "--wait-timeout", "600", "postgres", "redis", "object-storage", "clamav", "statsd", "prometheus"], "dependencies")
+    except RuntimeError:
+        # Keep the provider's actual startup error before CI tears fixtures down.
+        with (OUTPUT / "storage-startup.log").open("w", encoding="utf-8") as output:
+            for command in ([*COMPOSE, "ps", "--all", "object-storage"],
+                            [*COMPOSE, "logs", "--no-color", "--tail", "200", "object-storage"]):
+                subprocess.run(command, cwd=ROOT, stdout=output, stderr=subprocess.STDOUT, check=False)
+        raise
     isolated = [*COMPOSE, "run", "--rm", "--no-deps", *ADMIN, "backend"]
     run([*isolated, "python", "/workspace/scripts/qa/qualification_storage_bootstrap.py"], "storage-bootstrap")
     run([*isolated, "alembic", "upgrade", "head"], "migrations")

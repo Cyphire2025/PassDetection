@@ -1,0 +1,111 @@
+{
+  "finding": "ADD-20",
+  "severity": "Low",
+  "scope": "Synthetic CI/QA startup only; production storage code and pinned provider image unchanged",
+  "base_revision": "477d17a5cf1033e5293ad6942b48be6282488eeb",
+  "cause": "The pinned provider entrypoint drops root to its seaweed account (UID 1000). The Linux runner (UID 1001) created a mode 0600 identity file, causing provider exit 255 before S3 readiness.",
+  "image": "chrislusf/seaweedfs:4.47@sha256:ce9e796f1fe6f06968f4c04bdaf8f678dad9c8acdfef3d244133d71bfa6bf882",
+  "before": {
+    "actual_linux_file_uid": 1001,
+    "file_mode": "0600",
+    "provider_exit_code": 255,
+    "stderr": "fail to read /run/secrets/s3.json: permission denied"
+  },
+  "fix": {
+    "synthetic_identity_atomic_write": true,
+    "runner_owned_directory": "Mode 0700 for newly created directories; the CI identity is inside its own runner-owned /tmp subdirectory, not directly in sticky /tmp.",
+    "provider_file": "UID1000:GID1000 mode0600",
+    "root_helper": "Pinned provider image; network none; only the exact staged file is mounted; UID/GID are resolved from the image seaweed account.",
+    "provider_mount": "read-only",
+    "retry_does_not_read_old_identity": true,
+    "startup_diagnostics": "Container state and provider logs retained before teardown"
+  },
+  "actual_s3_security_checks": {
+    "authorized_roundtrip": true,
+    "versioning": "Enabled",
+    "anonymous_denied": true,
+    "wrong_credentials_denied": true,
+    "runtime_permanent_version_delete_denied": true
+  },
+  "actual_linux_retry": {
+    "scope": "Actual Linux UID1001 tempfile/write/rename and exact-file pinned-image root helper; UID1000 private read; existing live provider identity untouched",
+    "runs": [
+      {
+        "iteration": 1,
+        "runner_uid": 1001,
+        "old_provider_file_unreadable": false,
+        "temporary": ".identity-56nr1u6b",
+        "directory_mode": "0o700",
+        "atomic_replace_succeeded": true,
+        "uid": 1000,
+        "gid": 1000,
+        "mode": "0o600",
+        "runner_read_denied": true,
+        "provider_exact_content_read": true
+      },
+      {
+        "iteration": 2,
+        "runner_uid": 1001,
+        "old_provider_file_unreadable": true,
+        "temporary": ".identity-hvozuti8",
+        "directory_mode": "0o700",
+        "atomic_replace_succeeded": true,
+        "uid": 1000,
+        "gid": 1000,
+        "mode": "0o600",
+        "runner_read_denied": true,
+        "provider_exact_content_read": true
+      }
+    ],
+    "result": "PASS"
+  },
+  "validation": {
+    "helper_unit_tests": {
+      "passed": 6,
+      "windows_seconds": 0.014,
+      "linux_uid_1001_seconds": 0.009,
+      "note": "The same six tests passed on both operating systems; these are not twelve unique cases."
+    },
+    "ruff": "PASS",
+    "workflow_yaml_bash_inline_python": "PASS",
+    "real_service_tests": {
+      "collected": 163,
+      "passed": 163,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 450.36,
+      "exit_code": 0,
+      "platform": "Linux Python3.11.16",
+      "output": "outputs/qualification/ci-storage-startup/service-tests.txt",
+      "junit": "outputs/service-integration-qualification/service-ci-storage-fixed.xml"
+    },
+    "whole_operator_suite": {
+      "passed": 295,
+      "seconds": 8.057,
+      "platform": "Windows Python3.11.15",
+      "executor": "Independent parent agent; includes the six new helper tests"
+    }
+  },
+  "limits": [
+    "GitHub hosted runner rerun remains pending; local proof uses actual Linux file ownership and the exact pinned provider.",
+    "The Linux retry receipt exercises actual kernel tempfile/write/chown/rename and read-only bind operations; helper command construction and orchestration have separate unit tests."
+  ],
+  "source_sha256": {
+    ".github/workflows/ci.yml": "fa6539e0553b8dd16ddfa2cd0c9767f47b7de6b56194e1596d6e70cfff3356eb",
+    "scripts/qa/qualification_storage_identity.py": "54bfd7df715d7cf5c2778615d750cc4916e6a66340a908042e348b0675fc68dd",
+    "scripts/qa/run_qualification_stack.py": "a7e1012ec04719b7f50b62c54c2db83ce97fcafde91e07591beb70ab092c2425",
+    "scripts/qa/run_storage_migration_qualification.py": "3af182bb013bb71e328a32f90dfbb00a21af9f315ba45eba71708b29a851de94",
+    "scripts/test_qualification_storage_identity.py": "11edc6afadd3c4b9b33319ca3d949cd76f93ca056656eaa90191ba9c3baeed9a"
+  },
+  "raw_evidence_directory": "outputs/qualification/ci-storage-startup",
+  "production_mutations": false,
+  "fixture_preservation": {
+    "original_worker_id": "3392afb895fb6edd952601257594d7782a24f9467ff39d066968c3fb2f24b8ec",
+    "original_worker_restored_running": true,
+    "original_postgresql_redis_storage_ids_preserved": true,
+    "existing_data_or_volumes_deleted": false,
+    "temporary_worker_stopped": true,
+    "temporary_provider_and_volumes_retained": true,
+    "temporary_provider_stopped": true
+  }
+}

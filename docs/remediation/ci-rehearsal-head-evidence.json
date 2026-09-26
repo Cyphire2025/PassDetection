@@ -1,0 +1,122 @@
+{
+  "alembic_check": "No new upgrade operations detected.",
+  "alembic_current": "0111_roster_revision (head)",
+  "contract_version": 1,
+  "dump": {
+    "bytes": 528009,
+    "retained": false,
+    "sha256": "0ee11c82284e176a79597fd5d308ca4df6e96e89bde77a38ccd91036633c9d5c"
+  },
+  "elapsed_seconds": 39.895,
+  "head_verification": {
+    "backfills": {
+      "closeout_agency": "10000000-0000-0000-0000-000000000001",
+      "closeout_runtime_is_null": true,
+      "identity_token_key_id": "legacy-v1",
+      "legacy_audit_shape": "success:0:true:true",
+      "record_runtime_is_null": true,
+      "session_schedule_version": 1
+    },
+    "new_tables": [
+      "my_photo_galleries",
+      "my_photo_media_assets",
+      "attendance_runtime_registrations",
+      "attendance_scan_batches",
+      "attendance_discard_tombstones",
+      "identity_notification_outbox",
+      "untrusted_upload_scans",
+      "audit_chain_heads"
+    ],
+    "positive_my_photos_gallery_count": 1,
+    "preserved_row_counts": {
+      "agencies": 2,
+      "attendance_closeout_checkpoints": 1,
+      "attendance_records": 1,
+      "attendance_sessions": 1,
+      "audit_logs": 1,
+      "client_groups": 2,
+      "gc_group_access": 2,
+      "identity_action_tokens": 1,
+      "passport_submissions": 1,
+      "rooming_hotels": 1,
+      "user_security_states": 3,
+      "users": 3
+    },
+    "revision": "0111_roster_revision",
+    "verified_constraints": {
+      "audit_append_only": "55000",
+      "cross_tenant_closeout": "fk_attendance_closeout_session_tenant",
+      "my_photos_ready_shape": "ck_my_photo_gallery_ready_shape",
+      "schedule_version": "ck_attendance_sessions_schedule_version"
+    }
+  },
+  "pg_dump_version": "pg_dump (PostgreSQL) 16.14",
+  "pg_restore_version": "pg_restore (PostgreSQL) 16.14",
+  "postgresql_server_major": 16,
+  "production_resilience_proof": false,
+  "restored_0085_snapshot": {
+    "attendance_client_event": "ci-rehearsal-event-1",
+    "closeout_counts": "2:1:1:1",
+    "group_retention_days": 730,
+    "hotel_updated_at": "2026-09-20 23:35:31.468952+00",
+    "passport_number": "CI0000001",
+    "revision": "0085_platform_retention_controls",
+    "row_counts": {
+      "agencies": 2,
+      "attendance_closeout_checkpoints": 1,
+      "attendance_records": 1,
+      "attendance_sessions": 1,
+      "audit_logs": 1,
+      "client_groups": 2,
+      "gc_group_access": 2,
+      "identity_action_tokens": 1,
+      "passport_submissions": 1,
+      "rooming_hotels": 1,
+      "user_security_states": 3,
+      "users": 3
+    }
+  },
+  "restored_pre_upgrade_revision": "0085_platform_retention_controls",
+  "reviewed_head_revision": "0111_roster_revision",
+  "scope": "synthetic CI PostgreSQL restore and forward-upgrade rehearsal",
+  "source_0085_snapshot": {
+    "attendance_client_event": "ci-rehearsal-event-1",
+    "closeout_counts": "2:1:1:1",
+    "group_retention_days": 730,
+    "hotel_updated_at": "2026-09-20 23:35:31.468952+00",
+    "passport_number": "CI0000001",
+    "revision": "0085_platform_retention_controls",
+    "row_counts": {
+      "agencies": 2,
+      "attendance_closeout_checkpoints": 1,
+      "attendance_records": 1,
+      "attendance_sessions": 1,
+      "audit_logs": 1,
+      "client_groups": 2,
+      "gc_group_access": 2,
+      "identity_action_tokens": 1,
+      "passport_submissions": 1,
+      "rooming_hotels": 1,
+      "user_security_states": 3,
+      "users": 3
+    }
+  },
+  "source_revision": "0085_platform_retention_controls",
+  "timings": {
+    "create_restored_database_seconds": 4.172,
+    "create_source_database_seconds": 4.203,
+    "migrate_source_to_0085_seconds": 6.656,
+    "pg_dump_seconds": 0.859,
+    "pg_restore_seconds": 2.609,
+    "seed_previous_release_seconds": 0.031,
+    "upgrade_restored_to_head_seconds": 4.407
+  },
+  "finding": "ADD-19",
+  "result": "passed",
+  "failed_ci_run": 36279572367,
+  "focused_tests": 7,
+  "source_sha256": {
+    "backend\\scripts\\rehearse_postgresql_upgrade.py": "5951689d56c9a7209a61ed0221f5a8ca81ad2de6d1429ce3b27f5ec87385f98b",
+    "backend\\tests\\unit\\infrastructure\\test_postgresql_upgrade_rehearsal.py": "1b090a6c013159754093e568e92fb858b319e4e6d1730adc2e28afa98d18ad41"
+  }
+}

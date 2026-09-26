@@ -323,22 +323,29 @@ jobs:
 
       - name: Start maintained private S3 service
         working-directory: .
+        env:
+          CI_STORAGE_IMAGE: chrislusf/seaweedfs:4.47@sha256:ce9e796f1fe6f06968f4c04bdaf8f678dad9c8acdfef3d244133d71bfa6bf882
         run: |
+          storage_failure() {
+            { docker inspect --format '{{json .State}}' enterprise-object-storage || true; docker logs --tail 200 enterprise-object-storage || true; } > /tmp/passdetection-enterprise-storage.log 2>&1
+            cat /tmp/passdetection-enterprise-storage.log
+          }
+          trap storage_failure ERR
           python - <<'PY'
           import os
           from pathlib import Path
           from scripts.storage_identity import storage_identity
+          from scripts.qa.qualification_storage_identity import write_qualification_identity
 
           environment = dict(os.environ, OBJECT_STORAGE_ADMIN_ACCESS_KEY="ci-storage-administrator",
                              OBJECT_STORAGE_ADMIN_SECRET_KEY="ci-storage-admin-secret")
-          path = Path("/tmp/enterprise-storage-identities.json")
-          path.write_text(storage_identity(environment), encoding="utf-8")
-          path.chmod(0o600)
+          path = Path("/tmp/passdetection-enterprise-storage/identities.json")
+          write_qualification_identity(path, storage_identity(environment), os.environ["CI_STORAGE_IMAGE"])
           PY
           docker run --detach --name enterprise-object-storage \
             --publish 127.0.0.1:9000:9000 \
-            --mount type=bind,source=/tmp/enterprise-storage-identities.json,target=/run/secrets/s3.json,readonly \
-            chrislusf/seaweedfs:4.47@sha256:ce9e796f1fe6f06968f4c04bdaf8f678dad9c8acdfef3d244133d71bfa6bf882 \
+            --mount type=bind,source=/tmp/passdetection-enterprise-storage/identities.json,target=/run/secrets/s3.json,readonly \
+            "$CI_STORAGE_IMAGE" \
             server -dir=/data -ip=127.0.0.1 -ip.bind=127.0.0.1 \
             -filer -filer.exposeDirectoryData=false -master.telemetry=false \
             -volume.max=0 -master.volumeSizeLimitMB=1024 \
@@ -347,6 +354,8 @@ jobs:
             -s3.allowDeleteBucketNotEmpty=false -s3.autoCreateBucket=false
           python - <<'PY'
           import os
+          import json
+          import subprocess
           import time
           import boto3
           from botocore.config import Config
@@ -356,6 +365,9 @@ jobs:
                                 aws_secret_access_key="ci-storage-admin-secret",
                                 config=Config(connect_timeout=2, read_timeout=3, retries={"max_attempts": 1}))
           for attempt in range(60):
+              state = json.loads(subprocess.check_output(["docker", "inspect", "--format", "{{json .State}}", "enterprise-object-storage"], text=True))
+              if not state["Running"]:
+                  raise RuntimeError(f"Private S3 exited before readiness: {state}")
               try:
                   client.list_buckets()
                   break
@@ -479,12 +491,14 @@ jobs:
           PY
           python ../scripts/qa/qualify_database_capacity.py --port 5432 --database passdetection_ci_capacity --output ../outputs/database-capacity-ci.json
 
-      - name: Preserve Celery log on failure
+      - name: Preserve service startup and Celery logs on failure
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: backend-service-integration-celery-${{ github.sha }}
-          path: /tmp/passdetection-enterprise-ci.log
+          path: |
+            /tmp/passdetection-enterprise-ci.log
+            /tmp/passdetection-enterprise-storage.log
           if-no-files-found: ignore
           retention-days: 7
 
@@ -928,7 +942,8 @@ jobs:
             outputs/qualification/recovery-evidence.json
             outputs/qualification/joined-journey-evidence.json
             outputs/qualification/source-evidence.json
-            outputs/storage-migration-ci/qualification.log
+            outputs/storage-migration-ci/*.log
+            outputs/storage-migration-ci/*-state.json
             outputs/storage-migration-ci/migration-evidence.json
             outputs/memory-qualification/**/evidence.json
             outputs/memory-qualification/**/*.log
