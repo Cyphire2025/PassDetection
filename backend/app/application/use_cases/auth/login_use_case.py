@@ -21,7 +21,7 @@ from app.application.dtos.auth_dtos import AuthResponseDTO, LoginInputDTO, UserO
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
 from app.core.security.jwt import create_access_token, create_refresh_token
-from app.core.security.password import verify_password
+from app.core.security.password import run_password_work, verify_password
 from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import AuthenticationError
 from app.domain.repositories.interfaces import IUserRepository
@@ -99,12 +99,12 @@ class LoginUseCase:
         user = await self._user_repo.get_by_email(dto.email)
         if not user:
             # Match the expensive verification work performed for known users.
-            verify_password(dto.password, _DUMMY_PASSWORD_HASH)
+            await run_password_work(verify_password, dto.password, _DUMMY_PASSWORD_HASH)
             await limiter.record_failure(email=dto.email, ip_address=client_ip)
             raise AuthenticationError("Invalid email or password")
 
         # 2. Verify password
-        if not verify_password(dto.password, user.hashed_password):
+        if not await run_password_work(verify_password, dto.password, user.hashed_password):
             logger.warning("login_failed_bad_password", user_id=str(user.id))
             await limiter.record_failure(email=dto.email, ip_address=client_ip)
             raise AuthenticationError("Invalid email or password")
@@ -155,18 +155,8 @@ class LoginUseCase:
         if session_expires_at is not None:
             mfa_deadline = min(mfa_deadline, session_expires_at) if mfa_deadline else session_expires_at
         refresh_token, refresh_expires = create_refresh_token(expires_at=mfa_deadline)
-        access_token, access_expires = create_access_token(
-            user_id=user.id,
-            role=user.role.value,
-            agency_id=user.agency_id,
-            session_version=session_version,
-            authentication_methods=authentication_methods,
-            mfa_authenticated_at=mfa_authenticated_at,
-            session_expires_at=refresh_expires,
-        )
-
         # 6. Persist refresh token
-        await self._token_repo.save(
+        stored = await self._token_repo.save(
             token=refresh_token,
             user_id=user.id,
             expires_at=refresh_expires,
@@ -176,6 +166,12 @@ class LoginUseCase:
             mfa_authenticated_at=mfa_authenticated_at,
         )
 
+        access_token, access_expires = create_access_token(
+            user_id=user.id, role=user.role.value, agency_id=user.agency_id,
+            session_version=session_version, authentication_methods=authentication_methods,
+            mfa_authenticated_at=mfa_authenticated_at, session_expires_at=refresh_expires,
+            session_id=stored.session_id,
+        )
         logger.info("login_success", user_id=str(user.id), role=user.role.value)
 
         # 7. Return response DTO

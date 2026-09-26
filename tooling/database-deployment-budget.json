@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "owner": "repository-maintainer",
+  "external_connections": 0,
+  "maintenance_connections": 3,
+  "rollout_surge": {
+    "backend": 0,
+    "worker": 0,
+    "my-photos-worker": 0,
+    "email-worker": 0,
+    "email-ai-worker": 0,
+    "extraction-worker": 0,
+    "verification-worker": 0,
+    "visa-ai-worker": 0,
+    "ecr-worker": 0,
+    "email-beat": 0
+  }
+}

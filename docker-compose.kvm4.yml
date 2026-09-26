@@ -1,0 +1,113 @@
+# Explicit, measured single-host profile. Apply after production/storage overlays.
+# Requires the guarded current-release lifecycle; do not apply to a live busy stack.
+# This keeps all queue consumers and accepted image limits. One child per queue
+# lowers background parallelism; it does not establish live provider throughput.
+x-kvm4-process-budget: &kvm4-process-budget
+  WEB_CONCURRENCY: "4"
+  WORKER_CONCURRENCY: "1"
+  EMAIL_WORKER_CONCURRENCY: "1"
+  EMAIL_AI_WORKER_CONCURRENCY: "1"
+  MY_PHOTOS_WORKER_CONCURRENCY: "1"
+  GEMINI_EXTRACTION_MAX_CONCURRENCY: "1"
+  GEMINI_VERIFICATION_MAX_CONCURRENCY: "1"
+  GEMINI_IMAGE_EDIT_MAX_CONCURRENCY: "1"
+  POSTGRES_API_POOL_SIZE: "3"
+  POSTGRES_API_MAX_OVERFLOW: "3"
+  POSTGRES_WORKER_POOL_SIZE: "1"
+  POSTGRES_WORKER_MAX_OVERFLOW: "0"
+  POSTGRES_API_CONNECTION_BUDGET: "24"
+  POSTGRES_SERVER_MAX_CONNECTIONS: "100"
+  POSTGRES_RESERVED_CONNECTIONS: "10"
+
+services:
+  backend:
+    mem_limit: 2560m
+    memswap_limit: 2560m
+    cpus: "4.0"
+    environment: *kvm4-process-budget
+  worker:
+    mem_limit: 384m
+    memswap_limit: 384m
+    environment: *kvm4-process-budget
+    command: [sh, -c, "exec celery -A app.infrastructure.processing.celery_app:celery_app worker --hostname=general@%h --loglevel=INFO --concurrency=1 -Q passport_ocr,whatsapp"]
+  email-worker:
+    mem_limit: 384m
+    memswap_limit: 384m
+    environment: *kvm4-process-budget
+    command: [sh, -c, "exec celery -A app.infrastructure.processing.celery_app:celery_app worker --hostname=email@%h --loglevel=INFO --concurrency=1 -Q email_integrations"]
+  email-ai-worker:
+    mem_limit: 384m
+    memswap_limit: 384m
+    environment: *kvm4-process-budget
+    command: [sh, -c, "exec celery -A app.infrastructure.processing.celery_app:celery_app worker --hostname=email-ai@%h --loglevel=INFO --concurrency=1 -Q email_ai"]
+  my-photos-worker:
+    mem_limit: 384m
+    memswap_limit: 384m
+    environment: *kvm4-process-budget
+    command: [sh, -c, "exec celery -A app.infrastructure.processing.celery_app:celery_app worker --hostname=my-photos@%h --loglevel=INFO --concurrency=1 -Q my_photos_control,my_photos_index,my_photos_media,my_photos_search"]
+  extraction-worker:
+    mem_limit: 384m
+    memswap_limit: 384m
+    environment: *kvm4-process-budget
+    command: [sh, -c, "exec celery -A app.infrastructure.processing.celery_app:celery_app worker --hostname=extraction@%h --loglevel=INFO --concurrency=1 -Q interactive-passport-extraction"]
+  verification-worker:
+    mem_limit: 384m
+    memswap_limit: 384m
+    environment: *kvm4-process-budget
+    command: [sh, -c, "exec celery -A app.infrastructure.processing.celery_app:celery_app worker --hostname=verification@%h --loglevel=INFO --concurrency=1 -Q post-submission-ai-verification"]
+  visa-ai-worker:
+    mem_limit: 512m
+    memswap_limit: 512m
+    environment: *kvm4-process-budget
+    command: [sh, -c, "exec celery -A app.infrastructure.processing.celery_app:celery_app worker --hostname=visa-ai@%h --loglevel=INFO --concurrency=1 -Q visa-ai-image-edit"]
+  ecr-worker:
+    mem_limit: 640m
+    memswap_limit: 640m
+    environment: *kvm4-process-budget
+  email-beat:
+    mem_limit: 256m
+    memswap_limit: 256m
+    environment: *kvm4-process-budget
+  database-admin:
+    mem_limit: 512m
+    memswap_limit: 512m
+    environment: *kvm4-process-budget
+  database-migrate:
+    mem_limit: 512m
+    memswap_limit: 512m
+    environment: *kvm4-process-budget
+  db:
+    mem_limit: 1024m
+    memswap_limit: 1024m
+    command: [postgres, -c, max_connections=100]
+  redis:
+    mem_limit: 320m
+    memswap_limit: 320m
+  redis-broker:
+    mem_limit: 1152m
+    memswap_limit: 1152m
+  redis-realtime:
+    mem_limit: 192m
+    memswap_limit: 192m
+  redis-cache:
+    mem_limit: 320m
+    memswap_limit: 320m
+  clamav:
+    mem_limit: 3072m
+    memswap_limit: 3072m
+  minio:
+    mem_limit: 768m
+    memswap_limit: 768m
+  storage-stage:
+    mem_limit: 768m
+    memswap_limit: 768m
+  storage-copy:
+    mem_limit: 256m
+    memswap_limit: 256m
+  frontend:
+    mem_limit: 512m
+    memswap_limit: 512m
+  nginx:
+    mem_limit: 128m
+  metrics-exporter:
+    mem_limit: 128m

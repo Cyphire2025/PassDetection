@@ -1,0 +1,39 @@
+{
+  "result": "passed",
+  "scope": "fresh empty virtual environments; backend dependencies and exact development tools, not all OS prerequisites",
+  "verified_on": "2026-09-27",
+  "windows": {
+    "python": "3.11.15",
+    "bootstrap_exit_code": 0,
+    "command": "backend/.venv311/Scripts/python.exe scripts/bootstrap_backend.py --directory outputs/tooling-bootstrap-final",
+    "runtime_lock_sha256": "5d5c411e4dd9a70a37f8d29b9443badde6b3f98441d36da1d99c13c2bfe1acad",
+    "developer_lock_sha256": "2e7e5dc3c2ac1cf5b4eaa07efd231e70363a932dee1bb3f8492eed529ffb1ef2",
+    "includes_opencv": "4.11.0.86"
+  },
+  "linux": {
+    "python": "3.11.16",
+    "base_image": "python:3.11.16-slim@sha256:e41613d42d4891e4930f79523f93f81bbc7632584ec65e36ab055f41a800b41e",
+    "bootstrap_exit_code": 0,
+    "environment": "fresh ephemeral Docker container /tmp/final-tools",
+    "runtime_lock_sha256": "5d5c411e4dd9a70a37f8d29b9443badde6b3f98441d36da1d99c13c2bfe1acad",
+    "developer_lock_sha256": "2e7e5dc3c2ac1cf5b4eaa07efd231e70363a932dee1bb3f8492eed529ffb1ef2",
+    "includes_opencv": "4.11.0.86"
+  },
+  "tools": {
+    "pip": "26.2.1",
+    "uv": "0.12.0",
+    "pytest": "9.0.3",
+    "pytest-asyncio": "1.4.0",
+    "pytest-cov": "5.0.0",
+    "ruff": "0.16.0",
+    "mypy": "2.3.0",
+    "pip-audit": "2.10.1"
+  },
+  "runtime_and_development_install_require_hashes": true,
+  "node_host_check": {
+    "node": "24.15.0",
+    "npm": "11.12.1",
+    "result": "passed"
+  },
+  "unsupported_python_3_10_3_12_3_13_refusal_tests": "passed"
+}

@@ -7,6 +7,7 @@ import uuid
 
 from app.core.logging.logger import get_logger
 from app.domain.exceptions.exceptions import StorageError
+from app.domain.exceptions.resource_capacity import ImageProcessingBusy
 from app.domain.value_objects.passport_image_crop import (
     PassportImageType,
     passport_image_storage_key,
@@ -148,6 +149,15 @@ async def run_visa_ai_image_job(*, job_id: str, submission_id: str) -> None:
             job_id=str(parsed_job_id),
             submission_id=str(parsed_submission_id),
         )
+    except ImageProcessingBusy as exc:
+        await _delete_generated_best_effort(storage, generated_storage_key)
+        async with AsyncSessionFactory() as session:
+            deferred = await PassportVisaAiImageJobRepository(session).defer_capacity(
+                parsed_job_id, message=exc.message,
+            )
+            await session.commit()
+        if deferred:
+            raise VisaAiImageJobRetryRequested(exc.message) from exc
     except _SourceImageChanged:
         await _delete_generated_best_effort(storage, generated_storage_key)
         await _mark_terminal_failure(

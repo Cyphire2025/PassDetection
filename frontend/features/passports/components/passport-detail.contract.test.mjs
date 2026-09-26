@@ -2,10 +2,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-const source = readFileSync(
-  new URL("./passport-detail.tsx", import.meta.url),
-  "utf8",
-);
+const source = ["passport-detail.tsx", "use-passport-detail-navigation.ts"]
+  .map((name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8")).join("\n");
 const hooksSource = readFileSync(
   new URL("../hooks/use-passports.ts", import.meta.url),
   "utf8",

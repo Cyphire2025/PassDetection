@@ -83,7 +83,7 @@ export function PassportMobileCard({
   passport: PassportSubmission;
   selected: boolean;
   onToggle: () => void;
-  detailHref: string;
+  detailHref: ReturnType<typeof import("../utils/passport-group-navigation").buildPassportDetailNavigationHref>;
   onOpen: () => void;
 }) {
   const cardClassName = selected
@@ -155,7 +155,7 @@ export function PassportMobileCard({
         >
           <ReextractPassportControl passport={passport} />
           <Link
-            href={detailHref as never}
+            href={detailHref}
             className="block"
             onClick={(event) => {
               event.stopPropagation();

@@ -88,7 +88,7 @@ export function GlobalSearch() {
     setIsOpen(false);
     setQuery("");
     setActiveIndex(-1);
-    router.push(href as never);
+    router.push(href);
   };
 
   const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {

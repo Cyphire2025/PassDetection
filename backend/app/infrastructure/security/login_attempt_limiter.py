@@ -6,6 +6,8 @@ import hashlib
 import hmac
 import time
 from collections import defaultdict
+from collections.abc import Awaitable
+from typing import cast
 
 from redis.asyncio import Redis
 
@@ -16,10 +18,35 @@ from app.infrastructure.security.redis_atomic_counter import increment_with_ttl_
 
 logger = get_logger(__name__)
 
+# Fixed windows do not extend when an attacker retries a denied account. This
+# short admission budget is deliberately separate from the existing per-pair
+# failed-password lockout. Successful logins cannot erase the shared budgets.
+_ADMISSION_WINDOW_SECONDS = 60
+_ACCOUNT_ATTEMPTS = 20
+_IP_ATTEMPTS = 120
+_GLOBAL_ATTEMPTS = 1200
+_ADMIT = """
+if redis.call('EXISTS', KEYS[1]) == 1 then return 0 end
+for i = 2, #KEYS do
+  if redis.call('EXISTS', KEYS[i]) == 1 and redis.call('TTL', KEYS[i]) < 0 then
+    redis.call('EXPIRE', KEYS[i], ARGV[1])
+  end
+  if tonumber(redis.call('GET', KEYS[i]) or '0') >= tonumber(ARGV[i]) then return 0 end
+end
+for i = 2, #KEYS do
+  local count = redis.call('INCR', KEYS[i])
+  if count == 1 or redis.call('TTL', KEYS[i]) < 0 then
+    redis.call('EXPIRE', KEYS[i], ARGV[1])
+  end
+end
+return 1
+"""
+
 
 class LoginAttemptLimiter:
     _local_counts: dict[str, tuple[int, float]] = defaultdict(lambda: (0, 0.0))
     _local_locks: dict[str, float] = {}
+    _local_admission: dict[str, tuple[int, float]] = {}
 
     def __init__(self) -> None:
         self._settings = get_settings()
@@ -43,9 +70,16 @@ class LoginAttemptLimiter:
 
     async def check_allowed(self, *, email: str, ip_address: str | None) -> None:
         key = self._key(email, ip_address)
+        budgets = self._admission_keys(email, ip_address)
         if self._redis is not None:
             try:
-                if await self._redis.exists(f"{key}:locked"):
+                allowed = await cast(Awaitable[object], self._redis.eval(
+                    _ADMIT, 4, f"{key}:locked", *budgets,
+                    str(_ADMISSION_WINDOW_SECONDS), str(_ACCOUNT_ATTEMPTS), str(_IP_ATTEMPTS), str(_GLOBAL_ATTEMPTS),
+                ))
+                if isinstance(allowed, bool) or not isinstance(allowed, int) or allowed not in (0, 1):
+                    raise TypeError("Redis admission returned an invalid result")
+                if not allowed:
                     raise AuthenticationError("Too many failed login attempts. Try again later.")
                 return
             except AuthenticationError:
@@ -55,6 +89,18 @@ class LoginAttemptLimiter:
 
         if self._local_locks.get(key, 0) > time.time():
             raise AuthenticationError("Too many failed login attempts. Try again later.")
+        now = time.time()
+        # No await between checking and reserving: the development fallback
+        # has the same admission semantics within one event loop only.
+        self._local_admission = type(self)._local_admission
+        for expired in [k for k, (_, expiry) in self._local_admission.items() if expiry <= now]:
+            self._local_admission.pop(expired, None)
+        for budget, maximum in zip(budgets, (_ACCOUNT_ATTEMPTS, _IP_ATTEMPTS, _GLOBAL_ATTEMPTS), strict=True):
+            if self._local_admission.get(budget, (0, 0))[0] >= maximum:
+                raise AuthenticationError("Too many failed login attempts. Try again later.")
+        for budget in budgets:
+            count, expiry = self._local_admission.get(budget, (0, now + _ADMISSION_WINDOW_SECONDS))
+            self._local_admission[budget] = (count + 1, expiry)
 
     async def record_failure(self, *, email: str, ip_address: str | None) -> None:
         key = self._key(email, ip_address)
@@ -127,3 +173,13 @@ class LoginAttemptLimiter:
             hashlib.sha256,
         ).hexdigest()
         return f"login-attempt:v2:{digest}"
+
+    def _admission_keys(self, email: str, ip_address: str | None) -> tuple[str, str, str]:
+        def key(scope: str, value: str) -> str:
+            digest = hmac.new(self._key_secret, f"login-budget\0{scope}\0{value}".encode(), hashlib.sha256).hexdigest()
+            return f"login-admission:v1:{scope}:{digest}"
+        return (
+            key("account", email.strip().lower()),
+            key("ip", ip_address or "unknown"),
+            key("global", "all"),
+        )

@@ -1,0 +1,45 @@
+{
+  "repository": "Cyphire2025/PassDetection",
+  "reviewer_login": "Cyphire2025",
+  "reviewer_user_id": 226356283,
+  "api_version": "2026-03-10",
+  "requests": [
+    {
+      "method": "PUT",
+      "path": "repos/Cyphire2025/PassDetection/branches/main/protection",
+      "body_file": "tooling/github-protection/branch-main.json",
+      "expected_status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "repos/Cyphire2025/PassDetection/environments/production-artifacts",
+      "body_file": "tooling/github-protection/production-artifacts.json",
+      "expected_status": 200
+    },
+    {
+      "method": "POST",
+      "path": "repos/Cyphire2025/PassDetection/environments/production-artifacts/deployment-branch-policies",
+      "body_file": "tooling/github-protection/production-main-branch.json",
+      "expected_status": 200,
+      "precondition": "Create only if readback has no exact main/branch rule; any additional rule requires independent review instead of deleting it silently."
+    },
+    {
+      "method": "PUT",
+      "path": "repos/Cyphire2025/PassDetection/immutable-releases",
+      "body_file": null,
+      "expected_status": 204
+    }
+  ],
+  "readbacks": {
+    "branch": "repos/Cyphire2025/PassDetection/branches/main/protection",
+    "environment": "repos/Cyphire2025/PassDetection/environments/production-artifacts",
+    "deployment_branches": "repos/Cyphire2025/PassDetection/environments/production-artifacts/deployment-branch-policies?per_page=100",
+    "immutable_releases": "repos/Cyphire2025/PassDetection/immutable-releases"
+  },
+  "constraints": [
+    "No PR or pre-push required checks; ordinary fast-forward main pushes remain allowed.",
+    "Single owner approval is not independent review.",
+    "No production writes, package deletion, personal-token transfer or registry-visibility change is implied.",
+    "Store before/after readbacks. A successful PUT is insufficient if GitHub ignored a requested field."
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "profile": "kvm4",
+  "compose_overlay": "docker-compose.kvm4.yml",
+  "owner": "repository-maintainer",
+  "qualification_status": "qualified",
+  "qualification_scope": "local_exact_application_image_component_pressure_mixed_workload_and_interrupted_persistent_lifecycle",
+  "host_reserve_mib": 2048,
+  "observed_host_physical_mib": 15992,
+  "steady_container_ceiling_mib": 13888,
+  "api_processes": 4,
+  "worker_children_each": 1,
+  "my_photos_provider_requirement": "all_disabled_and_no_pending_jobs_until_separate_enabled_path_qualification",
+  "memory_limits_mib": {
+    "backend": 2560,
+    "worker": 384,
+    "email-worker": 384,
+    "email-ai-worker": 384,
+    "my-photos-worker": 384,
+    "extraction-worker": 384,
+    "verification-worker": 384,
+    "visa-ai-worker": 512,
+    "ecr-worker": 640,
+    "email-beat": 256,
+    "db": 1024,
+    "redis": 320,
+    "redis-broker": 1152,
+    "redis-realtime": 192,
+    "redis-cache": 320,
+    "clamav": 3072,
+    "minio": 768,
+    "frontend": 512,
+    "nginx": 128,
+    "metrics-exporter": 128
+  },
+  "maintenance_limits_mib": {
+    "database-admin": 512,
+    "database-migrate": 512,
+    "storage-stage": 768,
+    "storage-copy": 256
+  },
+  "evidence": {
+    "persistent_service_memory": "docs/remediation/persistent-service-memory-evidence.json",
+    "postgres_memory": "docs/remediation/postgres-memory-evidence.json",
+    "native_image_baseline": "docs/remediation/native-memory-baseline-evidence.json",
+    "api_native_memory": "docs/remediation/api-native-memory-evidence.json",
+    "worker_memory": "docs/remediation/kvm4-worker-memory-evidence.json",
+    "mixed_workload": "docs/remediation/workload-capacity-evidence.json",
+    "persistent_lifecycle": "docs/remediation/persistent-release-evidence.json",
+    "operator_contracts": "docs/remediation/kvm4-tooling-final-evidence.json",
+    "final_image_policy": "docs/remediation/final-image-disposition-evidence.json"
+  },
+  "limitations": [
+    "Single physical host; no host high availability claim",
+    "One child per background consumer preserves queues but reduces parallelism",
+    "External AI latency and capacity are not measured by provider-free synthetic probes",
+    "Qualification used backend image 0066ad357a08c4b207fa93bfa12e6111a90ebcac3514b4edbbdeb31a66db0f67; CI must independently qualify and sign the exact pushed-revision images",
+    "Component pressure and a mixed API workload are measured; a simultaneous whole-host all-service peak and long soak are not established",
+    "Production activation still requires observed host capacity, zero host swap, phased admission and actual running-container readback",
+    "Maintenance requires a durable writer fence; cannot add a helper to the full steady envelope",
+    "Do not prune or delete production data, volumes, versions or backups"
+  ]
+}

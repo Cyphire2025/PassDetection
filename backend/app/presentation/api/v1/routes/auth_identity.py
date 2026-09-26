@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import uuid
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
@@ -30,7 +31,7 @@ from app.core.security.identity_security import (
     verify_totp,
 )
 from app.core.security.jwt import create_access_token
-from app.core.security.password import hash_password, verify_password
+from app.core.security.password import hash_password, run_password_work, verify_password
 from app.domain.entities.entities import User, UserRole
 from app.infrastructure.database.models import UserModel, UserSecurityStateModel
 from app.infrastructure.database.session import get_db_session
@@ -461,6 +462,7 @@ async def step_up_dashboard_session(
         authentication_methods=("pwd", method),
         mfa_authenticated_at=now,
         session_expires_at=_existing_session_deadline(request),
+        session_id=uuid.UUID(request.state.auth_claims["sid"]),
     )
     set_access_cookie(response, access_token=access_token, expires_at=access_expires)
     response.headers["Cache-Control"] = "private, no-store, max-age=0"
@@ -689,7 +691,7 @@ async def _complete_identity_action(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=_IDENTITY_ACTION_FAILURE
         )
-    if verify_password(body.new_password, user.hashed_password):
+    if await run_password_work(verify_password, body.new_password, user.hashed_password):
         await AuditLogRepository(session).record(
             action="auth.identity_action_failed",
             entity_type="identity_action",
@@ -716,7 +718,7 @@ async def _complete_identity_action(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=_IDENTITY_ACTION_FAILURE,
         )
-    user.hashed_password = hash_password(body.new_password)
+    user.hashed_password = await run_password_work(hash_password, body.new_password)
     user.updated_at = now
     state.credential_state = "active"
     state.password_changed_at = now
@@ -797,11 +799,11 @@ async def change_dashboard_password(
             select(UserModel).where(UserModel.id == current_user.id).with_for_update()
         )
     ).scalar_one()
-    if not verify_password(body.current_password, user.hashed_password):
+    if not await run_password_work(verify_password, body.current_password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Current password is incorrect"
         )
-    if verify_password(body.new_password, user.hashed_password):
+    if await run_password_work(verify_password, body.new_password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="The new password must be different from the current password",
@@ -813,7 +815,7 @@ async def change_dashboard_password(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Session is no longer valid"
         )
     now = datetime.now(tz=UTC)
-    user.hashed_password = hash_password(body.new_password)
+    user.hashed_password = await run_password_work(hash_password, body.new_password)
     user.updated_at = now
     state.password_changed_at = now
     state.session_version += 1

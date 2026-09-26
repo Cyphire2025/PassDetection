@@ -16,12 +16,12 @@ import { passportGroupDetailSource as groupWorkspace } from "../../passports/com
 const passengerWorkspace = read("../../passports/components/passport-detail.tsx");
 const groupWhatsApp = read(
   "../../passports/components/group-whatsapp-broadcast-panel.tsx",
-);
+) + read("../../passports/components/group-whatsapp-tracking-table.tsx");
 const groupLinks = read("../../passports/components/upload-link-list.tsx");
 const whatsappRoute = read("../../whatsapp/components/whatsapp-page.tsx");
 const whatsappWorkspace = read(
   "../../whatsapp/components/whatsapp-workspace.tsx",
-);
+) + read("../../whatsapp/components/whatsapp-broadcast-list.tsx");
 const documentHub = read("../../documents/components/document-hub.tsx");
 const documentGroups = read(
   "../../documents/components/document-group-list.tsx",
@@ -130,7 +130,7 @@ test("All Groups covers its linked group, passenger, and WhatsApp workflows", ()
 });
 
 test("large and interaction-heavy routes defer work until it is needed", () => {
-  assert.match(intentLink, /router\.prefetch\(href as never\)/);
+  assert.match(intentLink, /router\.prefetch\(href\)/);
   assert.match(intentLink, /onMouseEnter/);
   assert.match(groupList, /useDeferredValue/);
   assert.match(groupList, /contentVisibility: "auto"/);
@@ -182,7 +182,8 @@ test("operational tables recompose for narrow screens instead of only shrinking"
     assert.match(source, /hidden overflow-x-auto md:block/);
   }
   assert.match(groupLinks, /contentVisibility: "auto"/);
-  assert.match(whatsappWorkspace, /contentVisibility: "auto"/);
+  assert.match(whatsappWorkspace, /const PAGE_SIZE = 20/);
+  assert.match(whatsappWorkspace, /groups\.slice\(offset, offset \+ PAGE_SIZE\)/);
 });
 
 test("dense operational tables expose screen-reader context and scoped columns", () => {

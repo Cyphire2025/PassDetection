@@ -45,9 +45,9 @@ class UploadValidatorTests(unittest.TestCase):
         observed_sizes = []
         original_transpose = ImageOps.exif_transpose
 
-        def inspect_transpose(image):
+        def inspect_transpose(image, **kwargs):
             observed_sizes.append(image.size)
-            return original_transpose(image)
+            return original_transpose(image, **kwargs)
 
         scanner = RecordingScanner()
         with patch(

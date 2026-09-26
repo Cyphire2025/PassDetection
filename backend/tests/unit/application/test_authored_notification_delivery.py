@@ -4,9 +4,9 @@ import uuid
 from datetime import UTC, datetime, timedelta
 
 import pytest
-from fastapi import HTTPException
 from sqlalchemy import func, select
 
+from app.application.mobile.notification_errors import NotificationWorkflowError
 from app.application.mobile.notification_service import dispatch_mobile_push_batch
 from app.core.security.mobile_push_crypto import mobile_push_fernet
 from app.infrastructure.database.gc_mobile_models import (
@@ -75,11 +75,13 @@ async def test_definitive_preview_rejection_never_hides_prior_committed_request(
     actor, _, _, _, _ = await authored_audience(db_session, device=False)
     draft, _, request = await reviewed_draft(db_session, actor)
     invalid = request.model_copy(update={"preview_token": "corrupted.token"})
-    with pytest.raises(HTTPException) as before:
+    with pytest.raises(NotificationWorkflowError) as before:
         await _send(db_session, actor, draft, invalid)
-    assert before.value.detail == "stale_preview"
+    assert before.value.message == "stale_preview"
+    assert before.value.category == "conflict"
     await _send(db_session, actor, draft, request)
     await db_session.commit()
-    with pytest.raises(HTTPException) as after:
+    with pytest.raises(NotificationWorkflowError) as after:
         await _send(db_session, actor, draft, invalid)
-    assert after.value.detail == "idempotency_conflict"
+    assert after.value.message == "idempotency_conflict"
+    assert after.value.category == "conflict"

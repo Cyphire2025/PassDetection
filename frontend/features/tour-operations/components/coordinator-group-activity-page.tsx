@@ -132,7 +132,7 @@ export function CoordinatorGroupActivityPage({ groupId }: { groupId: string }) {
                 void clearSession();
                 return;
               }
-              router.push(ROUTES.auth.coordinatorLogin(`/coordinator/groups/${groupId}`) as never);
+              router.push(ROUTES.auth.coordinatorLogin(`/coordinator/groups/${groupId}`));
             }}
           >
             {isAuthenticated ? "Switch Account" : "Login"}
@@ -145,7 +145,7 @@ export function CoordinatorGroupActivityPage({ groupId }: { groupId: string }) {
   return (
     <CoordinatorFrame>
       <header className="px-4 pb-4 pt-[max(1rem,env(safe-area-inset-top))]">
-        <Link href={ROUTES.coordinator as never} className="mb-3 inline-flex min-h-11 items-center gap-2 rounded-lg pr-3 text-sm font-medium text-slate-600">
+        <Link href={ROUTES.coordinator} className="mb-3 inline-flex min-h-11 items-center gap-2 rounded-lg pr-3 text-sm font-medium text-slate-600">
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Groups
         </Link>
@@ -204,7 +204,7 @@ export function CoordinatorGroupActivityPage({ groupId }: { groupId: string }) {
           variant="secondary"
           className="h-14 w-full text-base"
           leftIcon={<Hotel className="h-5 w-5" aria-hidden="true" />}
-          onClick={() => router.push(`/coordinator/groups/${groupId}/hotel-checkin` as never)}
+          onClick={() => router.push(`/coordinator/groups/${groupId}/hotel-checkin`)}
         >
           Hotel Check-in
         </Button>
@@ -242,7 +242,7 @@ export function CoordinatorGroupActivityPage({ groupId }: { groupId: string }) {
                 <button
                   key={session.id}
                   type="button"
-                  onClick={() => router.push(`/coordinator/groups/${groupId}/scanner?sessionId=${session.id}` as never)}
+                  onClick={() => router.push(`/coordinator/groups/${groupId}/scanner?sessionId=${session.id}`)}
                   className="flex min-h-14 w-full items-center justify-between gap-3 rounded-lg border border-slate-200 px-3 py-3 text-left hover:border-blue-300 hover:text-blue-700"
                 >
                   <span className="min-w-0">
@@ -270,7 +270,7 @@ export function CoordinatorGroupActivityPage({ groupId }: { groupId: string }) {
                   <button
                     type="button"
                     onClick={() => {
-                      router.push(`/coordinator/groups/${groupId}/scanner?sessionId=${session.id}` as never);
+                      router.push(`/coordinator/groups/${groupId}/scanner?sessionId=${session.id}`);
                     }}
                     className="flex min-h-11 w-full items-center justify-between gap-3 text-left hover:text-blue-700"
                   >
@@ -478,7 +478,7 @@ function PassengerList({
       {passengers.map((passenger) => (
         <Link
           key={passenger.passenger_id}
-          href={`/coordinator/groups/${groupId}/passengers/${passenger.passenger_id}` as never}
+          href={`/coordinator/groups/${groupId}/passengers/${passenger.passenger_id}`}
           prefetch={false}
           className="group block min-h-11 rounded-lg border border-white/60 bg-white/80 p-2 transition-colors hover:border-blue-200 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >

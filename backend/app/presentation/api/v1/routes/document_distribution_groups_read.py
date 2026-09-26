@@ -6,7 +6,7 @@ import uuid
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response, StreamingResponse
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -33,6 +33,7 @@ from app.infrastructure.export.document_assignment_excel_exporter import (
     build_document_assignment_workbook,
 )
 from app.infrastructure.repositories.operational_roster import operational_roster_member
+from app.presentation.api.v1.response_contracts import XLSX, binary_responses
 from app.presentation.api.v1.routes.document_distribution_access import (
     document_agency_scope,
     document_scope_available,
@@ -240,7 +241,7 @@ async def get_document_review(
     return review
 
 
-@router.get("/groups/{group_id}/{document_type}/export.xlsx")
+@router.get("/groups/{group_id}/{document_type}/export.xlsx", response_class=Response, responses=binary_responses(XLSX))
 async def export_document_assignments(
     group_id: uuid.UUID,
     document_type: str,

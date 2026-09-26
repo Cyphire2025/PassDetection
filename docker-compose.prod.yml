@@ -36,10 +36,17 @@ x-production-security-environment: &production-security-environment
   OBJECT_STORAGE_ADMIN_ACCESS_KEY: ""
   OBJECT_STORAGE_ADMIN_SECRET_KEY: ""
 
+x-backend-process-isolation: &backend-process-isolation
+  user: "1001:1001"
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  privileged: false
+
 services:
   # One-off maintenance jobs, never started by a normal `up`. The release helper
   # pins both to the exact tested worker image and takes a backup first.
   database-admin:
+    <<: *backend-process-isolation
     profiles: [maintenance]
     image: passdetection-backend
     restart: "no"
@@ -53,6 +60,7 @@ services:
     networks: [passdetection-net]
 
   database-migrate:
+    <<: *backend-process-isolation
     profiles: [maintenance]
     image: passdetection-backend
     restart: "no"
@@ -108,6 +116,7 @@ services:
     ports: !reset []
 
   backend:
+    <<: *backend-process-isolation
     mem_limit: ${BACKEND_MEMORY_LIMIT:-1536m}
     cpus: ${BACKEND_CPUS:-2.0}
     command: null
@@ -131,6 +140,7 @@ services:
           'http://localhost:8000/api/v1/health/ready', timeout=5)
 
   worker:
+    <<: *backend-process-isolation
     mem_limit: ${WORKER_MEMORY_LIMIT:-1g}
     cpus: ${WORKER_CPUS:-1.0}
     # Replace the development source bind; only the push consumer can read this
@@ -147,6 +157,7 @@ services:
       MOBILE_PUSH_FCM_CREDENTIALS_FILE: /run/gc-fcm/service-account.json
 
   email-worker:
+    <<: *backend-process-isolation
     mem_limit: ${EMAIL_WORKER_MEMORY_LIMIT:-1g}
     cpus: ${EMAIL_WORKER_CPUS:-1.0}
     volumes: !reset []
@@ -154,6 +165,7 @@ services:
       <<: *production-security-environment
 
   my-photos-worker:
+    <<: *backend-process-isolation
     mem_limit: ${MY_PHOTOS_WORKER_MEMORY_LIMIT:-1536m}
     cpus: ${MY_PHOTOS_WORKER_CPUS:-2.0}
     volumes: !reset []
@@ -161,6 +173,7 @@ services:
       <<: *production-security-environment
 
   email-ai-worker:
+    <<: *backend-process-isolation
     mem_limit: ${EMAIL_AI_WORKER_MEMORY_LIMIT:-1g}
     cpus: ${EMAIL_AI_WORKER_CPUS:-1.0}
     volumes: !reset []
@@ -168,6 +181,7 @@ services:
       <<: *production-security-environment
 
   email-beat:
+    <<: *backend-process-isolation
     mem_limit: ${SCHEDULER_MEMORY_LIMIT:-384m}
     cpus: ${SCHEDULER_CPUS:-0.5}
     volumes: !reset []
@@ -175,6 +189,7 @@ services:
       <<: *production-security-environment
 
   extraction-worker:
+    <<: *backend-process-isolation
     mem_limit: ${EXTRACTION_WORKER_MEMORY_LIMIT:-2g}
     cpus: ${EXTRACTION_WORKER_CPUS:-2.0}
     volumes: !reset []
@@ -182,6 +197,7 @@ services:
       <<: *production-security-environment
 
   verification-worker:
+    <<: *backend-process-isolation
     mem_limit: ${VERIFICATION_WORKER_MEMORY_LIMIT:-1g}
     cpus: ${VERIFICATION_WORKER_CPUS:-1.0}
     volumes: !reset []
@@ -189,6 +205,7 @@ services:
       <<: *production-security-environment
 
   visa-ai-worker:
+    <<: *backend-process-isolation
     mem_limit: ${VISA_AI_WORKER_MEMORY_LIMIT:-1g}
     cpus: ${VISA_AI_WORKER_CPUS:-1.0}
     volumes: !reset []
@@ -196,6 +213,7 @@ services:
       <<: *production-security-environment
 
   ecr-worker:
+    <<: *backend-process-isolation
     mem_limit: ${ECR_WORKER_MEMORY_LIMIT:-1g}
     cpus: ${ECR_WORKER_CPUS:-1.0}
     volumes: !reset []
@@ -207,6 +225,8 @@ services:
     cpus: ${FRONTEND_CPUS:-1.0}
     build:
       args:
+        APP_REVISION: ${APP_REVISION:-unknown}
+        NEXT_PUBLIC_APP_REVISION: ${APP_REVISION:-unknown}
         NEXT_PUBLIC_API_BASE_URL: ""
         NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
         NEXT_PUBLIC_DEV_APP_URL: ""

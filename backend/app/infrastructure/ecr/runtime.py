@@ -18,6 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
 from app.domain.exceptions.exceptions import StorageError
+from app.domain.exceptions.resource_capacity import ImageProcessingBusy
 from app.infrastructure.ai.gemini_ecr_service import EcrClassification, GeminiEcrService
 from app.infrastructure.database.ecr_models import EcrBatchModel, EcrItemModel
 from app.infrastructure.database.session import AsyncSessionFactory
@@ -296,7 +297,7 @@ async def _run_lanes(
                     await store.fail_item(batch_id, token, item.id, "image_integrity_failed")
                     continue
                 result = await classifier.classify(content, item.content_type)
-            except (LeaseLost, RateLimitUnavailable):
+            except (LeaseLost, RateLimitUnavailable, ImageProcessingBusy):
                 raise
             except StorageError:
                 await store.fail_item(batch_id, token, item.id, "image_unavailable")

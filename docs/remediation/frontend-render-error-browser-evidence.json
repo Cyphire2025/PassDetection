@@ -1,0 +1,58 @@
+{
+  "scope": "actual controlled browser fault, metadata ingestion/dedup/support reference and Docker structured log readback; external retention and alert response not claimed",
+  "frontend_image": "sha256:ae6c26a9316306fa2d437f57eeefbf92fa6afda6bad2e33b6e7f6d5591cc5843",
+  "backend_image": "sha256:e8935a6a80d5a6d1a8689ad1829bbee914acc30ff472253f6d21df86cb829c73",
+  "browsers": [
+    {
+      "browser": "chromium",
+      "metadata": {
+        "route": "/dashboard",
+        "release": "phase2-qualification",
+        "boundary": "route",
+        "error_kind": "TypeError",
+        "event_id": "e84d7fb9-4d72-4885-b329-eef1900f0919",
+        "fingerprint": "ecd98a9b86d477f11faa84c37d3ba56e"
+      },
+      "receipt": {
+        "event_id": "e84d7fb9-4d72-4885-b329-eef1900f0919"
+      },
+      "duplicate_returns_original_id": true,
+      "matching_structured_log_records": 1,
+      "private_marker_absent": true
+    },
+    {
+      "browser": "firefox",
+      "metadata": {
+        "route": "/dashboard",
+        "release": "phase2-qualification",
+        "boundary": "route",
+        "error_kind": "TypeError",
+        "event_id": "72ba6504-d59f-4ba3-8c84-bd7b73ef9f15",
+        "fingerprint": "ecd98a9b86d477f11faa84c37d3ba56e"
+      },
+      "receipt": {
+        "event_id": "e84d7fb9-4d72-4885-b329-eef1900f0919"
+      },
+      "duplicate_returns_original_id": true,
+      "matching_structured_log_records": 1,
+      "private_marker_absent": true
+    },
+    {
+      "browser": "webkit",
+      "metadata": {
+        "route": "/dashboard",
+        "release": "phase2-qualification",
+        "boundary": "route",
+        "error_kind": "TypeError",
+        "event_id": "7267da4c-670b-4ea0-8919-6850da575575",
+        "fingerprint": "ecd98a9b86d477f11faa84c37d3ba56e"
+      },
+      "receipt": {
+        "event_id": "e84d7fb9-4d72-4885-b329-eef1900f0919"
+      },
+      "duplicate_returns_original_id": true,
+      "matching_structured_log_records": 1,
+      "private_marker_absent": true
+    }
+  ]
+}

@@ -16,7 +16,9 @@ test("file selection requires relaxed face presence and background verification"
 });
 
 test("the picker shows only the requested plain studio-photo instruction", () => {
-  assert.match(source, /studio-taken photo with a plain white background/);
+  const translations = readFileSync(new URL("../config/instruction-translations.ts", import.meta.url), "utf8");
+  assert.match(source, /UPLOAD_INSTRUCTIONS\[language\]\.visaWarning/);
+  assert.match(translations, /visaWarning: "Upload only a studio-taken photo with a plain white background\."/);
   assert.doesNotMatch(source, /<strong[\s>]/);
   assert.doesNotMatch(source, /underline/);
   assert.doesNotMatch(source, /another phone or screen|printed or passport-size photograph/);

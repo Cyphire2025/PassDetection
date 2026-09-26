@@ -13,6 +13,7 @@ from app.presentation.dependencies import auth as auth_dependencies
 
 @pytest.mark.asyncio
 async def test_unsafe_cookie_auth_runs_central_csrf_guard(monkeypatch) -> None:
+    monkeypatch.setattr(auth_dependencies, "require_dashboard_session", AsyncMock())
     user_id = uuid.uuid4()
     request = SimpleNamespace(method="POST", cookies={"access_token": "cookie-token"})
     repository = AsyncMock()
@@ -41,6 +42,7 @@ async def test_unsafe_cookie_auth_runs_central_csrf_guard(monkeypatch) -> None:
 
 @pytest.mark.asyncio
 async def test_unsafe_bearer_auth_bypasses_cookie_csrf_guard(monkeypatch) -> None:
+    monkeypatch.setattr(auth_dependencies, "require_dashboard_session", AsyncMock())
     user_id = uuid.uuid4()
     request = SimpleNamespace(method="POST", cookies={})
     repository = AsyncMock()

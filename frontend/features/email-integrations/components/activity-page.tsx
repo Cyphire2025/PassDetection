@@ -59,7 +59,7 @@ export function EmailActivityPage() {
                     <Link
                       href={ROUTES.dashboard.emailIntegrationMessage(
                         item.message_id,
-                      ) as never}
+                      )}
                       className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-blue-700 hover:text-blue-800 hover:underline"
                     >
                       View timeline

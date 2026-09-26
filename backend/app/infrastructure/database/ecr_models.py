@@ -17,6 +17,12 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
+from app.domain.services.ecr_state_policy import (
+    ECR_BATCH_STATES,
+    ECR_ITEM_STATES,
+    ECR_RESULTS,
+    sql_values,
+)
 from app.infrastructure.database.model_base import Base, _utcnow
 
 
@@ -24,6 +30,9 @@ class EcrBatchModel(Base):
     __tablename__ = "ecr_batches"
     __table_args__ = (
         CheckConstraint("expected_count BETWEEN 1 AND 1000", name="ck_ecr_batch_count"),
+        CheckConstraint(
+            f"status IN ({sql_values(ECR_BATCH_STATES)})", name="ck_ecr_batch_status"
+        ),
         Index("ix_ecr_batch_agency_created", "agency_id", "created_at"),
         Index("ix_ecr_batch_recovery", "status", "lease_expires_at"),
     )
@@ -54,6 +63,22 @@ class EcrItemModel(Base):
     __tablename__ = "ecr_items"
     __table_args__ = (
         UniqueConstraint("batch_id", "client_id", name="uq_ecr_item_client"),
+        CheckConstraint(
+            f"status IN ({sql_values(ECR_ITEM_STATES)})", name="ck_ecr_item_status"
+        ),
+        CheckConstraint(
+            f"result IS NULL OR result IN ({sql_values(ECR_RESULTS)})",
+            name="ck_ecr_item_result",
+        ),
+        CheckConstraint(
+            "input_tokens >= 0 AND output_tokens >= 0 AND attempts >= 0",
+            name="ck_ecr_item_counters",
+        ),
+        CheckConstraint(
+            "(status = 'completed' AND result IS NOT NULL) OR "
+            "(status <> 'completed' AND result IS NULL)",
+            name="ck_ecr_item_outcome",
+        ),
         Index("ix_ecr_items_batch_status", "batch_id", "status"),
     )
 

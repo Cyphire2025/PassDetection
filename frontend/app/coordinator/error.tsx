@@ -1,19 +1,17 @@
 "use client";
 
-import { useEffect } from "react";
 import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui";
+import { useRenderErrorReport } from "@/lib/observability/use-render-error-report";
 
 export default function CoordinatorError({
   error,
-  unstable_retry,
+  retry,
 }: {
   error: Error & { digest?: string };
-  unstable_retry: () => void;
+  retry: () => void;
 }) {
-  useEffect(() => {
-    console.error("Coordinator route failed", error);
-  }, [error]);
+  const reference = useRenderErrorReport(error, "route");
 
   return (
     <div data-coordinator-shell className="grid place-items-center bg-slate-100 p-[max(1rem,env(safe-area-inset-top))] text-slate-950">
@@ -25,10 +23,10 @@ export default function CoordinatorError({
         <p className="mt-2 text-sm leading-6 text-slate-600">
           Your saved attendance queue is not removed. Try loading this screen again.
         </p>
-        <Button type="button" className="mt-5 h-12 w-full text-base" onClick={unstable_retry}>
+        <Button type="button" className="mt-5 h-12 w-full text-base" onClick={retry}>
           Try again
         </Button>
-        {error.digest && <p className="mt-3 text-xs text-slate-400">Reference: {error.digest}</p>}
+        {reference && <p className="mt-3 text-xs text-slate-400">Support reference: {reference}</p>}
       </main>
     </div>
   );

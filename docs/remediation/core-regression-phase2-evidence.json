@@ -1,0 +1,76 @@
+{
+  "result": "passed",
+  "recorded_at_utc": "2026-09-26T21:21:11.810909+00:00",
+  "command": "backend/.venv311/Scripts/python.exe -m pytest -o addopts='' -m 'not service_integration' --cov=app --cov-branch --cov-report=xml:../outputs/qualification/phase2-final-coverage.xml --cov-report=term --junitxml=../outputs/qualification/phase2-final-junit.xml -q",
+  "working_directory": "backend",
+  "exit_code": 0,
+  "cases_passed": 4447,
+  "subtests_passed": 141,
+  "service_cases_deselected": 163,
+  "skipped": 0,
+  "failures": 0,
+  "errors": 0,
+  "duration_seconds": 1212.18,
+  "coverage": {
+    "line_percent": 78.58,
+    "branch_percent": 60.9,
+    "module_ratchets_passed": 86,
+    "thresholds_lowered": false
+  },
+  "source_consistency": {
+    "backend_files_hashed_before_and_after": 1373,
+    "line_ending_normalization": "CRLF to LF",
+    "changed_during_run": [],
+    "before_manifest_sha256": "493375d4e19cc235aa487e4337b351dac7c1d2e1f885d5c9ef8b25375c699921"
+  },
+  "additional_checks": {
+    "strict_mypy": "Success: no issues found in 712 source files",
+    "coverage_budget_command": "python scripts/verify_backend_quality_budgets.py --coverage-file ../outputs/qualification/phase2-final-coverage.xml",
+    "tooling_safety_suite": "223 unittest cases passed in6.977seconds; zero failures",
+    "ruff": "All checks passed: app and tests, --no-fix",
+    "migration_topology": "Single reviewed0111head and preserved historical merge verified",
+    "architecture_boundaries": "Passed",
+    "documentation_claims": "7 accountable claims and fingerprints passed",
+    "ci_supply_chain": "Immutable Actions/SBOM policy passed",
+    "compose_runtime": "Production/internal-service and development separation passed"
+  },
+  "artifacts": {
+    "outputs/qualification/phase2-final-coverage.xml": {
+      "sha256": "b4a17f5127dc7151f381ec1c0ac88a7a12f1f11736cd9c4e73715e2e6b794acc"
+    },
+    "outputs/qualification/phase2-final-junit.xml": {
+      "sha256": "28fd2a9c9b4f831ec4e1ff77719b98f372283327920a51dbd8718f85027a04a0"
+    },
+    "outputs/qualification/phase2-final-backend.log": {
+      "sha256": "11606359f3bcc80c5b58f46abef9731b2ccaeecb014bcabd7253287575fe38e8"
+    },
+    "outputs/qualification/phase2-final-mypy.txt": {
+      "sha256": "ac747ae966549915b04b52d1d48e9d23477deafc3f2c923cab9530fc53e1a752"
+    }
+  },
+  "limitations": [
+    "Host CPython3.11.15; production native parser/runtime tests use the separately recorded container Python3.11.16.",
+    "Real-service cases intentionally run in their separate isolated service lane; this receipt does not replace them.",
+    "Passing local tests do not establish GitHub CI, artifact signing, physical browser/accessibility behavior or production deployment."
+  ],
+  "post_run_whitespace_only_cleanup": [
+    {
+      "path": "backend/app/presentation/api/v1/schemas/mobile_schemas.py",
+      "before_sha256_lf": "77cfba629edb3de69f3aab70b2c3e70ed0986edd9b156c5b922ae1a32b49df32",
+      "after_sha256_lf": "5ddbd2072d0f12aaa03a24c05840685ab82a95c89d04253f691b09ca159ccd2b",
+      "ast_unchanged": true
+    },
+    {
+      "path": "backend/tests/integration/test_menu_meal_planner_api.py",
+      "before_sha256_lf": "8f91424bd38a4bc4d1acbc6fefd5680b522020082484422107115f9788aacb90",
+      "after_sha256_lf": "086ab407d22adced7191cb53256fcb79bc1b7f1de432926f63e6d712ca97d73f",
+      "ast_unchanged": true
+    },
+    {
+      "path": "backend/tests/unit/application/test_dashboard_realtime_authorization.py",
+      "before_sha256_lf": "5b1f2d243855fb35c33cdc2f55d3921a5e6aad43b01adf658924f421ccfe967e",
+      "after_sha256_lf": "9b391bb0b017ac0922af42f99eb11f22eecccbc59dc362cef5778392a6c0278b",
+      "ast_unchanged": true
+    }
+  ]
+}

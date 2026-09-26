@@ -8,7 +8,7 @@ import uuid
 from typing import Any, cast
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response, StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -22,6 +22,7 @@ from app.infrastructure.repositories.operational_roster import operational_roste
 from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
+from app.presentation.api.v1.response_contracts import XLSX, binary_responses
 from app.presentation.api.v1.schemas.passport_schemas import (
     ExportSelectedGroupsRequest,
     ExportSelectedPassportsRequest,
@@ -55,7 +56,7 @@ router = APIRouter()
     "/export.xlsx",
     status_code=status.HTTP_200_OK,
     summary="Export selected passport submissions to Excel",
-)
+response_class=Response, responses=binary_responses(XLSX))
 async def export_selected_passports(
     body: ExportSelectedPassportsRequest,
     current_user: User = Depends(get_current_active_user),
@@ -230,7 +231,7 @@ async def _selected_groups_export_context(
     "/groups/export.xlsx",
     status_code=status.HTTP_200_OK,
     summary="Export selected passport groups to Excel",
-)
+response_class=Response, responses=binary_responses(XLSX))
 async def export_selected_groups(
     body: ExportSelectedGroupsRequest,
     current_user: User = Depends(get_current_active_user),

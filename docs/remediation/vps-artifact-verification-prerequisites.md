@@ -1,0 +1,23 @@
+# VPS artifact verification prerequisites
+
+Reviewed 27 September 2026. The coordinator staged the verified official CLI binary; credentials and release activation remain pending. This workstream did not install or transfer credentials.
+
+The coordinator's initial read-only inspection reported Python 3.12.3, Docker Compose 5.3.1 and no gh installation, GH_TOKEN/GITHUB_TOKEN or gh hosts configuration. Subsequently the coordinator staged official gh 2.92.0 at `/opt/globalconnect-release-tools/gh-2.92.0/gh`, verified archive SHA-256 `b57848131bdf0c229cd35e1f2a51aa718199858b2e728410b37e89a428943ec4`, extracted only the regular CLI binary under a private parent directory, and confirmed its version. No system PATH, application configuration, service or business data was changed. Authentication remains absent. Host Python executes standard-library release helpers; supported application runtime remains the verified Python 3.11 container. No desktop personal access token should be copied to this host.
+
+## Official installation and identity verification
+
+Use the [official GitHub CLI Linux installation procedure](https://github.com/cli/cli/blob/trunk/docs/install_linux.md), or a specific official release binary with its exact release checksum. Avoid an old distribution community package: the maintainers identify old2.45/2.46 builds as broken by API changes. The published binary keyring SHA-256 is `6084d5d7bd8e288441e0e94fc6275570895da18e6751f70f057485dc2d1a811b`, with key fingerprints `2C6106201985B60E6C7AC87323F3D4EA75716059` and `7F38BBB59D064DBCB3D84D725612B36462313325` at review. Validate current upstream bytes before a future install; do not treat this dated checksum as perpetual authority. Record gh version and availability of every policy flag before calling production activation.
+
+The verifier must retain exact repository/workflow/source-commit/main-ref/OIDC-issuer/hosted-runner constraints from `tooling/release-trust.json`, plus provenance and SPDX predicates. A successfully downloaded artifact is not verified merely because the repository is public.
+
+## Existing online transport
+
+An actual gh2.92.0 probe with an isolated empty configuration and no authentication variables refuses normal attestation verification before reaching the API, even for this public repository. The [official verify manual](https://cli.github.com/manual/gh_attestation_verify) also distinguishes GitHub attestation lookup from OCI image access. GHCR package visibility is independent from repository visibility, defaults private on first publication, and public images alone support anonymous pull. [Official registry authentication](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry).
+
+A bounded credential option uses the existing owner's account to issue a new expiring VPS-only classic PAT with `read:packages`, no repo/write/delete scope, protected at rest and passed to docker login through stdin. Verify public-repository attestation lookup and both exact immutable OCI references with that credential before stopping any writer. The existing desktop credential is not the deployment credential. The source gate cannot invent registry authorization that does not exist. Owner issuance and scope/readback remain required; none is asserted here.
+
+## Auth-free bundle feasibility, not an implemented fallback
+
+Official [gh2.92 verify source](https://github.com/cli/cli/blob/v2.92.0/pkg/cmd/attestation/verify/verify.go#L230-L231) calls `DisableAuthCheckFlag` for `--bundle`. An actual empty-config/no-token negative with a malformed bundle reaches cryptographic parsing and rejects unsupported media type, whereas the same command without a bundle demands login. Thus local file verification can avoid GitHub API login while retaining all identity flags. This negative does not prove a valid repository signature has been issued.
+
+An OCI subject still requires its manifest bytes from its registry; supplying a local bundle does not grant access to private GHCR. A complete auth-free transport would need CI to publish exact image archives, their signed index and bundles, full SBOMs, signed release inventory, and exact OCI manifest blobs with their provenance/SBOM bundles as immutable release assets. A verifier would validate every signature under the same trust policy and bind archive/config/layer/manifest hashes before docker load. That is a proposed supported offline transport, not an implemented bypass. It requires focused negative tests and a real valid signed artifact test before use. No skip-signature switch is permitted.

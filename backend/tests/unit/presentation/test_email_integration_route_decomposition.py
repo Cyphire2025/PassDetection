@@ -6,7 +6,16 @@ import ast
 import inspect
 
 from app.presentation.api.v1.routes import (
+    email_integration_access,
+    email_integration_activity,
+    email_integration_connections,
+    email_integration_credentials,
+    email_integration_gmail,
+    email_integration_oauth_start,
+    email_integration_outlook,
     email_integration_policy_support,
+    email_integration_review_decisions,
+    email_integration_review_queries,
     email_integration_review_support,
     email_integrations,
 )
@@ -90,11 +99,29 @@ def test_email_integration_route_order_and_names_remain_stable() -> None:
         for route in email_integrations.router.routes
     ]
     assert actual == _EXPECTED_ROUTES
-    assert _decorated_route_names(email_integrations) == [route_name for _, _, route_name in actual]
+    assert _decorated_route_names(email_integrations) == []
+    owners = (
+        email_integration_gmail,
+        email_integration_outlook,
+        email_integration_connections,
+        email_integration_review_queries,
+        email_integration_review_decisions,
+        email_integration_activity,
+    )
+    decorated = [name for module in owners for name in _decorated_route_names(module)]
+    assert sorted(decorated) == sorted(name for _, _, name in actual)
+    for route in email_integrations.router.routes:
+        assert route.endpoint is getattr(email_integrations, route.name)
+        assert sum(route in owner.router.routes for owner in owners) == 1
 
 
 def test_email_integration_support_modules_do_not_register_routes() -> None:
-    for module in _FACADE_NAMES:
+    for module in (
+        *_FACADE_NAMES,
+        email_integration_access,
+        email_integration_oauth_start,
+        email_integration_credentials,
+    ):
         assert _decorated_route_names(module) == []
 
 

@@ -108,6 +108,7 @@ from app.infrastructure.repositories.coordinator_assignment_lifecycle import (
     expired_trip_clause,
 )
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
+from app.presentation.api.v1.response_contracts import binary_responses
 from app.presentation.api.v1.routes.mobile_integrity import get_mobile_integrity_service
 from app.presentation.api.v1.routes.mobile_sync_projection import (
     authorized_mobile_sync_operation,
@@ -1087,17 +1088,17 @@ async def authorize_mobile_document_download(
 @router.get(
     "/trips/{group_id}/documents/{document_id}/content",
     response_class=StreamingResponse,
-)
+responses=binary_responses("application/pdf", "image/*", range_requests=True))
 @router.get(
     "/trips/{group_id}/common-documents/{document_id}/content",
     response_class=StreamingResponse,
     include_in_schema=False,
-)
+responses=binary_responses("application/pdf", "image/*", range_requests=True))
 @router.get(
     "/trips/{group_id}/personal-documents/{document_id}/content",
     response_class=StreamingResponse,
     include_in_schema=False,
-)
+responses=binary_responses("application/pdf", "image/*", range_requests=True))
 async def download_mobile_document_content(
     group_id: uuid.UUID,
     document_id: uuid.UUID,

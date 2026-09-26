@@ -127,3 +127,23 @@ async def test_group_passport_repository_executes_shared_json_search(
         visible_to_user=user,
     )
     assert [result.id for result in results] == [expected.id]
+
+
+@pytest.mark.parametrize("query", ["%_", "\\_", "50%"])
+async def test_literal_search_does_not_turn_wildcards_into_match_all(db_session, query: str) -> None:
+    user, expected = await _seed_search_scope(db_session, "confirmed_fields", "passport_number")
+    expected.client_name = f"Passenger {query} discount"
+    await db_session.flush()
+    results = await global_search(q=query, limit=12, current_user=user, session=db_session)
+    assert [result.id for result in results] == [expected.id]
+    expected.client_name = "Passenger ordinary discount"
+    await db_session.flush()
+    assert await global_search(q=query, limit=12, current_user=user, session=db_session) == []
+
+
+async def test_combined_index_prefilter_cannot_match_across_field_boundaries(db_session) -> None:
+    user, expected = await _seed_search_scope(db_session, "confirmed_fields", "passport_number")
+    expected.client_name = "ending"
+    expected.client_email = "starting@example.test"
+    await db_session.flush()
+    assert await global_search(q="ending\x1fstarting", limit=12, current_user=user, session=db_session) == []

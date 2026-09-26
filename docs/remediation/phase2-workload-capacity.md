@@ -1,0 +1,26 @@
+# Final declared workload qualification — 27 September 2026
+
+The final local candidate **passed every strengthened mixed-workload gate** on immutable image `sha256:0066ad357a08c4b207fa93bfa12e6111a90ebcac3514b4edbbdeb31a66db0f67`. Run `59a7fa2a20bf425ba6162b892094307b` finished at 23:04:44 UTC on 26 September (27 September in the operator's timezone). This satisfies the original SCALE-04 acceptance for the declared synthetic operating envelope. It is not a production VPS SLO, whole-host peak test, sustained soak, or external-provider throughput claim.
+
+The retained machine-readable result is [workload-capacity-evidence.json](workload-capacity-evidence.json). Raw request timestamps, server timing, request IDs, stage windows and 110 resource observations remain in the ignored `outputs/qualification` evidence. All 861 runtime/build input hashes and all three capacity-input hashes were unchanged through this qualification. The previous strict failure remains retained as `outputs/qualification/workload-capacity-third-failed.json`; thresholds were not lowered.
+
+The fixed workload uses ten fresh synthetic tenants, 5,900 passports (one 5,000-passport group and nine 100-passport groups), 20 office actors, ten coordinators, 60 attendance requests and four two-page public uploads per minute. The API has four Gunicorn workers, four CPU quota, a 2,560 MiB memory cap with swap disabled, and per-worker database pool size three plus three overflow connections (24 maximum API connections). General worker/ECR worker/beat limits are 384/640/256 MiB. Other dependencies are separately identified and are not represented as a fully capped KVM4 stack by this workload run.
+
+| Large-tenant operation | Expected p95 / p99 | Unchanged budget p95 / p99 | Recovery p99 |
+| --- | ---: | ---: | ---: |
+| Roster | 377.731 / 448.223 ms | 1,500 / 3,000 ms | 437.383 ms |
+| Search | 52.983 / 56.465 ms | 1,000 / 2,000 ms | 43.141 ms |
+| Statistics | 347.963 / 378.088 ms | 750 / 1,500 ms | 44.138 ms |
+| Notifications | 18.945 / 19.788 ms | 500 / 1,000 ms | 17.492 ms |
+
+Both tenant cohorts passed their operation budgets independently; pooled percentiles cannot conceal a large-tenant miss. The cold phase retained the first requests on fresh group/user/cache keys: all 20 roster requests passed their response contracts, with a maximum of 553.431 ms. Expected load delivered 1,201 office reads in 61 seconds (19.69 per second, above the existing 19-per-second floor), plus all 60 scans and four uploads. All uploads returned 201, and all eight distinct stored objects were read back and verified. Sixty successful scan requests produced exactly 30 durable unique scan records.
+
+The 80-client overload phase produced 2,544 responses: 926 successful reads and 1,618 recognized rate-limit responses with positive Retry-After, with zero contract failures or unexpected 503 responses. Its p95/p99 were 1,500.423/2,518.550 ms against the unchanged 2,000/5,000 ms engineering gates. The maximum was 5,153.860 ms; the configured gate is a percentile gate, not a claim that every response is below five seconds. Recovery delivered all 600 office requests successfully at 19.38 per second and met both cohorts' original latency limits.
+
+The initial queue fixture published 310 deliveries for 100 durable jobs. Three consecutive observations confirmed both durable work and broker queues empty 22.662 seconds after publication, within the five-minute deadline. Maximum sampled pending age was 5.506 seconds against the 900-second limit. Every durable item had exactly one attempt and the expected missing-image terminal outcome. This tests idempotency/recovery with deliberately absent image inputs; it does not measure OCR or Gemini throughput. There was no external AI, email, WhatsApp or push-provider delivery.
+
+Across 110 observations, total PostgreSQL connections peaked at 20, active connections at three, and sampled lock waiters at zero. API cgroup memory peaked at 1,717,710,848 bytes (1,638.14 MiB), below its 2,560 MiB cap. Terminal memory high/max/OOM/kill counters were all zero, the API was healthy, and a direct ClamAV ping returned PONG.
+
+Before this run, guarded activation proved all workers idle and retained the database, Redis, object-storage and TLS container/volume identities and existing synthetic business counts. The offline-signing fixture was also preserved. The exact synthetic ClamAV container was restarted after an earlier overlapping-memory test killed its scanner daemon; its image, ID and definitions mounts were retained, and direct responsiveness was proved before workload execution. No production service or record was changed or deleted.
+
+Earlier investigation did not establish one cause for the preceding roster/search tail misses. Separate repeated maximum-input probes did prove and correct native-heap retention and an unclosed email-PDF stream; the final actual-image API/worker memory receipts document those fixes. The improved final workload result is evidence for the final candidate, not a causal claim that either memory fix alone explains the previous latency samples. See [api-native-memory-evidence.json](api-native-memory-evidence.json), [backend-native-final-image.json](backend-native-final-image.json), and [capacity-tail-diagnosis.json](capacity-tail-diagnosis.json).

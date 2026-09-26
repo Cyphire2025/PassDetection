@@ -49,5 +49,7 @@ test("large recipient derivations are stable across unrelated dialog updates", (
   assert.match(recipientSource, /new Set\(\[/);
   assert.match(recipientSource, /const visibleRosterItems = useMemo\(/);
   assert.match(recipientSource, /filterRecipientRosterItems\(/);
-  assert.match(recipientSource, /const ROSTER_TABS:/);
+  assert.match(recipientSource, /const rosterSearchIndex = useMemo\(/);
+  assert.match(recipientSource, /const searchedRosterItems = useMemo\(/);
+  assert.match(recipientSource, /<DeliveryToolbar/);
 });

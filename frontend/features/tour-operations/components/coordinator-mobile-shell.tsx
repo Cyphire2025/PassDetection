@@ -68,7 +68,7 @@ export function CoordinatorMobileShell() {
                   void clearSession();
                   return;
                 }
-                router.push(ROUTES.auth.coordinatorLogin() as never);
+                router.push(ROUTES.auth.coordinatorLogin());
               }}
             >
               {isAuthenticated ? "Switch Account" : "Login"}
@@ -78,7 +78,7 @@ export function CoordinatorMobileShell() {
                 type="button"
                 variant="secondary"
                 className="h-12 w-full"
-                onClick={() => router.push(ROUTES.dashboard.root as never)}
+                onClick={() => router.push(ROUTES.dashboard.root)}
               >
                 Back to Dashboard
               </Button>
@@ -92,7 +92,7 @@ export function CoordinatorMobileShell() {
   return (
     <CoordinatorFrame>
       <header className="px-4 pb-4 pt-[max(1rem,env(safe-area-inset-top))]">
-        <Link href={ROUTES.dashboard.root as never} className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm">
+        <Link href={ROUTES.dashboard.root} className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm">
           <ArrowLeft className="h-5 w-5" aria-hidden="true" />
           <span className="sr-only">Back to dashboard</span>
         </Link>
@@ -193,7 +193,7 @@ export function CoordinatorHydrationState({ label = "Loading coordinator workspa
 function GroupLink({ group }: { group: TourGroup }) {
   return (
     <Link
-      href={`/coordinator/groups/${group.id}` as never}
+      href={`/coordinator/groups/${group.id}`}
       className="block min-h-16 rounded-lg border border-slate-200 bg-white p-3 text-left transition-colors hover:border-blue-300 hover:bg-blue-50 active:bg-blue-100"
     >
       <div className="flex items-start justify-between gap-3">

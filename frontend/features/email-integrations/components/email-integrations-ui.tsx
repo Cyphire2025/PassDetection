@@ -1,9 +1,10 @@
 "use client";
 
+import { useModalKeyboardBoundary } from "@/components/ui/modal";
+
 import { X } from "lucide-react";
 import {
   type ReactNode,
-  useEffect,
   useId,
   useRef,
 } from "react";
@@ -112,64 +113,13 @@ export function EmailDialog({
   const titleId = useId();
   const descriptionId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
-  const isBusyRef = useRef(isBusy);
-  const onCloseRef = useRef(onClose);
-
-  useEffect(() => {
-    isBusyRef.current = isBusy;
-    onCloseRef.current = onClose;
-  }, [isBusy, onClose]);
-
-  useEffect(() => {
-    const previousFocus = document.activeElement;
-    const dialog = dialogRef.current;
-    dialog?.focus();
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        if (!isBusyRef.current) onCloseRef.current();
-        return;
-      }
-      if (event.key !== "Tab" || !dialog) return;
-
-      const focusable = Array.from(
-        dialog.querySelectorAll<HTMLElement>(
-          'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
-        ),
-      ).filter((element) => !element.hasAttribute("hidden"));
-      if (focusable.length === 0) {
-        event.preventDefault();
-        dialog.focus();
-        return;
-      }
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (
-        event.shiftKey
-        && (
-          document.activeElement === first
-          || document.activeElement === dialog
-        )
-      ) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    }
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      if (previousFocus instanceof HTMLElement) previousFocus.focus();
-    };
-  }, []);
+  const handleDialogKeyDown = useModalKeyboardBoundary({ dialogRef: dialogRef, isOpen: true, canClose: !isBusy, onClose });
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">
       <Card
         ref={dialogRef}
+        onKeyDown={handleDialogKeyDown}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}

@@ -8,7 +8,7 @@ import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, HTTPException, status
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response, StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.entities.entities import User
@@ -39,6 +39,7 @@ from app.infrastructure.repositories.passport_visa_ai_image_repository import (
 )
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.object_streaming import private_object_streaming_response
+from app.presentation.api.v1.response_contracts import binary_responses
 from app.presentation.api.v1.schemas.passport_schemas import (
     PassportImageCropResponse,
     PassportVisaAiImageListResponse,
@@ -101,7 +102,7 @@ async def list_visa_ai_image_library(
     "/{submission_id}/images/visa_photo/ai-library/{generation_id}/image",
     status_code=status.HTTP_200_OK,
     summary="Stream one saved Visa AI image generation",
-)
+response_class=Response, responses=binary_responses("image/jpeg", range_requests=True))
 async def get_visa_ai_library_image(
     submission_id: uuid.UUID,
     generation_id: uuid.UUID,

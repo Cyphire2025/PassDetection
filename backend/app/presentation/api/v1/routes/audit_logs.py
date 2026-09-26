@@ -24,6 +24,7 @@ from app.infrastructure.repositories.audit_log_repository import (
     InvalidAuditCursorError,
     audit_log_result,
 )
+from app.presentation.api.v1.response_contracts import binary_responses
 from app.presentation.api.v1.schemas.audit_log_schemas import (
     AuditLogListItemResponse,
     AuditLogPageResponse,
@@ -169,7 +170,7 @@ async def page_audit_logs(
     response_class=Response,
     status_code=status.HTTP_200_OK,
     summary="Export a bounded authorized audit-ledger time range",
-)
+responses=binary_responses("text/csv"))
 async def export_audit_logs(
     request: Request,
     start_at: datetime = Query(...),

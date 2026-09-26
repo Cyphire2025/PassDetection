@@ -123,7 +123,7 @@ export function RoomingGroupsPage() {
             {visibleGroups.map((group) => (
               <Link
                 key={group.id}
-                href={ROUTES.dashboard.roomingGroup(group.id) as never}
+                href={ROUTES.dashboard.roomingGroup(group.id)}
                 className="group relative min-w-0 bg-white px-5 py-5 transition-colors hover:bg-blue-50/45 focus-visible:z-10"
               >
                 <span className="absolute inset-y-0 left-0 w-1 bg-transparent transition-colors group-hover:bg-blue-600" aria-hidden="true" />

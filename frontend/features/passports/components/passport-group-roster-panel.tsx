@@ -275,7 +275,7 @@ export function PassportGroupRosterPanel({
                                 compact
                               />
                               <Link
-                                href={passportDetailHref(passport.id) as never}
+                                href={passportDetailHref(passport.id)}
                                 onClick={(event) => {
                                   event.stopPropagation();
                                   persistNavigationContext();

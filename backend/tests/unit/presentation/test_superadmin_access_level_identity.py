@@ -33,7 +33,7 @@ async def test_mfa_step_up_keeps_effective_response_but_true_token_identity(
     request = _request()
     now = datetime.now(tz=UTC)
     deadline = int((now + timedelta(hours=1)).timestamp())
-    request.state.auth_claims = {"exp": deadline, "session_exp": deadline}
+    request.state.auth_claims = {"sid": str(uuid.uuid4()), "exp": deadline, "session_exp": deadline}
     monkeypatch.setattr(auth_identity, "MFAStepUpRateLimiter", _StepUpLimiter)
     response = Response()
     result = await auth_identity.step_up_dashboard_session(

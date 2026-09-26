@@ -55,6 +55,7 @@ from app.infrastructure.repositories.passport_submission_repository import (
 )
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.object_streaming import private_object_streaming_response
+from app.presentation.api.v1.response_contracts import binary_responses
 from app.presentation.api.v1.schemas.passport_schemas import (
     PassportSubmissionResponse,
     ReconcilePassportUploadRequest,
@@ -389,7 +390,7 @@ async def scan_again_public_upload(
     "/upload/{token}/{submission_id}/image",
     status_code=status.HTTP_200_OK,
     summary="Stream a public upload passport image through the API",
-)
+response_class=Response, responses=binary_responses("image/*", range_requests=True))
 async def get_public_upload_passport_image(
     token: str,
     submission_id: uuid.UUID,
@@ -430,7 +431,7 @@ async def get_public_upload_passport_image(
     "/upload/{token}/{submission_id}/image/{document_type}",
     status_code=status.HTTP_200_OK,
     summary="Stream one stored public passport document through the API",
-)
+response_class=Response, responses=binary_responses("image/*", range_requests=True))
 async def get_public_upload_passport_document(
     token: str,
     submission_id: uuid.UUID,

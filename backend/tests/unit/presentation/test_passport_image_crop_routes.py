@@ -151,6 +151,7 @@ async def test_effective_stream_uses_view_permission_but_original_editor_uses_co
             return_value=repository,
         ),
         patch('app.presentation.api.v1.routes.passport_routes.image_support.AuthorizationPolicy', return_value=policy),
+        patch('app.presentation.api.v1.routes.passport_routes.image_support.record_sensitive_read', new=AsyncMock()),
     ):
         await _authorized_staff_passport_image(
             submission_id=submission.id,

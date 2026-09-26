@@ -32,7 +32,7 @@ from app.infrastructure.database.models import (
 )
 from app.infrastructure.email import ai_runtime
 from app.presentation.api.v1.routes import email_ai_inbox as email_ai_inbox_routes
-from app.presentation.api.v1.routes import email_integrations as email_integration_routes
+from app.presentation.api.v1.routes import email_integration_connections as email_integration_routes
 from app.presentation.api.v1.routes.email_ai_inbox import (
     _refresh_analysis_attention,
     create_email_ai_feedback,
@@ -202,7 +202,9 @@ async def test_disabling_then_reenabling_mailbox_starts_a_new_consent_epoch(
     monkeypatch,
 ) -> None:
     agency_id = uuid.uuid4()
-    db_session.add(AgencyModel(id=agency_id, name="Synthetic agency", email=f"{agency_id}@example.test"))
+    db_session.add(
+        AgencyModel(id=agency_id, name="Synthetic agency", email=f"{agency_id}@example.test")
+    )
     await db_session.flush()
     owner_id = uuid.uuid4()
     db_session.add(
@@ -336,7 +338,9 @@ async def test_review_options_message_context_is_owner_and_agency_scoped(
     second_agency_id = uuid.uuid4()
     owner_id = uuid.uuid4()
     other_owner_id = uuid.uuid4()
-    await persist_graph(db_session, [
+    await persist_graph(
+        db_session,
+        [
             AgencyModel(
                 id=first_agency_id,
                 name="First Review Agency",
@@ -366,7 +370,8 @@ async def test_review_options_message_context_is_owner_and_agency_scoped(
                 agency_id=first_agency_id,
                 is_active=True,
             ),
-        ])
+        ],
+    )
     await db_session.flush()
     first_connection = EmailConnectionModel(
         agency_id=first_agency_id,
@@ -467,12 +472,8 @@ async def test_review_options_message_context_is_owner_and_agency_scoped(
         current_user=current_user,
         session=db_session,
     )
-    assert [group.id for group in first_context.groups] == [
-        first_group.id
-    ]
-    assert [passenger.id for passenger in first_context.passengers] == [
-        first_passenger.id
-    ]
+    assert [group.id for group in first_context.groups] == [first_group.id]
+    assert [passenger.id for passenger in first_context.passengers] == [first_passenger.id]
 
     with pytest.raises(HTTPException) as cross_agency_group:
         await email_review_options(
@@ -691,8 +692,7 @@ async def test_failed_analysis_retry_is_owner_scoped_bounded_and_audited(
     retry_event = (
         await db_session.execute(
             select(EmailActivityEventModel).where(
-                EmailActivityEventModel.event_type
-                == "ai_analysis_retry_requested",
+                EmailActivityEventModel.event_type == "ai_analysis_retry_requested",
                 EmailActivityEventModel.owner_user_id == owner_id,
             )
         )
@@ -736,12 +736,23 @@ async def test_ai_inbox_is_private_even_within_agency_and_for_super_admin(
     agency_id = uuid.uuid4()
     owner_id = uuid.uuid4()
     hidden_owner_id = uuid.uuid4()
-    await persist_graph(db_session, [
-        AgencyModel(id=agency_id, name="Synthetic agency", email=f"{agency_id}@example.test"),
-        *[UserModel(id=user_id, agency_id=agency_id, email=f"{user_id}@example.test",
-                    full_name="Synthetic owner", hashed_password="unused", role="agency_staff")
-          for user_id in (owner_id, hidden_owner_id)],
-    ])
+    await persist_graph(
+        db_session,
+        [
+            AgencyModel(id=agency_id, name="Synthetic agency", email=f"{agency_id}@example.test"),
+            *[
+                UserModel(
+                    id=user_id,
+                    agency_id=agency_id,
+                    email=f"{user_id}@example.test",
+                    full_name="Synthetic owner",
+                    hashed_password="unused",
+                    role="agency_staff",
+                )
+                for user_id in (owner_id, hidden_owner_id)
+            ],
+        ],
+    )
     connection = EmailConnectionModel(
         agency_id=agency_id,
         owner_user_id=owner_id,
@@ -960,7 +971,9 @@ async def test_deadline_draft_and_feedback_lifecycle_is_owner_scoped_and_revisio
     db_session,
 ) -> None:
     agency_id = uuid.uuid4()
-    db_session.add(AgencyModel(id=agency_id, name="Synthetic agency", email=f"{agency_id}@example.test"))
+    db_session.add(
+        AgencyModel(id=agency_id, name="Synthetic agency", email=f"{agency_id}@example.test")
+    )
     await db_session.flush()
     owner_id = uuid.uuid4()
     other_id = uuid.uuid4()
@@ -1062,9 +1075,7 @@ async def test_deadline_draft_and_feedback_lifecycle_is_owner_scoped_and_revisio
     await db_session.flush()
     original_deadline_updated_at = deadline.updated_at
     if original_deadline_updated_at.tzinfo is None:
-        original_deadline_updated_at = (
-            original_deadline_updated_at.replace(tzinfo=UTC)
-        )
+        original_deadline_updated_at = original_deadline_updated_at.replace(tzinfo=UTC)
 
     analysis.status = "processing"
     with pytest.raises(HTTPException) as unfinished_feedback:
@@ -1119,7 +1130,7 @@ async def test_deadline_draft_and_feedback_lifecycle_is_owner_scoped_and_revisio
             ),
             current_user=owner,
             session=db_session,
-    )
+        )
     assert stale_deadline.value.status_code == 409
     with pytest.raises(HTTPException) as stale_deadline_timestamp:
         await decide_email_deadline(
@@ -1336,20 +1347,22 @@ async def test_deadline_draft_and_feedback_lifecycle_is_owner_scoped_and_revisio
     assert draft.status == "dismissed"
     assert response.analysis_status == "review_required"
     feedback_row = (
-        await db_session.execute(
-            select(EmailAiFeedbackModel)
-            .where(
-                EmailAiFeedbackModel.analysis_id == analysis.id,
-                EmailAiFeedbackModel.field_name == "linked_group",
+        (
+            await db_session.execute(
+                select(EmailAiFeedbackModel)
+                .where(
+                    EmailAiFeedbackModel.analysis_id == analysis.id,
+                    EmailAiFeedbackModel.field_name == "linked_group",
+                )
+                .order_by(EmailAiFeedbackModel.created_at.desc())
             )
-            .order_by(EmailAiFeedbackModel.created_at.desc())
         )
-    ).scalars().first()
+        .scalars()
+        .first()
+    )
     assert feedback_row is not None
     assert feedback_row.original_value.get("group_id") is None
-    assert feedback_row.corrected_value["group_id"] == str(
-        corrected_group.id
-    )
+    assert feedback_row.corrected_value["group_id"] == str(corrected_group.id)
     assert feedback_row.corrected_value["generated_work_invalidated"] is True
 
     with pytest.raises(HTTPException) as stale_correction:
@@ -1374,8 +1387,7 @@ async def test_deadline_draft_and_feedback_lifecycle_is_owner_scoped_and_revisio
     assert stale_correction.value.status_code == 409
 
     long_corrected_summary = (
-        "The supplier needs a corrected response tomorrow. "
-        + "Grounded operational detail " * 30
+        "The supplier needs a corrected response tomorrow. " + "Grounded operational detail " * 30
     ).strip()
     await create_email_ai_feedback(
         analysis_id=analysis.id,
@@ -1397,8 +1409,7 @@ async def test_deadline_draft_and_feedback_lifecycle_is_owner_scoped_and_revisio
                 select(EmailActivityEventModel).where(
                     EmailActivityEventModel.message_id == message.id,
                     EmailActivityEventModel.owner_user_id == owner_id,
-                    EmailActivityEventModel.event_type
-                    == "ai_analysis_corrected",
+                    EmailActivityEventModel.event_type == "ai_analysis_corrected",
                 )
             )
         )
@@ -1406,13 +1417,9 @@ async def test_deadline_draft_and_feedback_lifecycle_is_owner_scoped_and_revisio
         .all()
     )
     summary_event = next(
-        event
-        for event in correction_events
-        if event.details.get("field_name") == "summary"
+        event for event in correction_events if event.details.get("field_name") == "summary"
     )
-    assert summary_event.details["before_value"] == (
-        "A response is requested."
-    )
+    assert summary_event.details["before_value"] == ("A response is requested.")
     assert len(summary_event.details["after_value"]) <= 240
     assert len(summary_event.details["after_value"]) >= 200
     assert summary_event.details["after_value"].endswith("…")
@@ -1422,15 +1429,11 @@ async def test_deadline_draft_and_feedback_lifecycle_is_owner_scoped_and_revisio
         session=db_session,
     )
     summary_detail = next(
-        event.detail
-        for event in message_detail.events
-        if event.id == summary_event.id
+        event.detail for event in message_detail.events if event.id == summary_event.id
     )
     assert summary_detail is not None
     assert "Before: A response is requested." in summary_detail
-    assert "After: The supplier needs a corrected response tomorrow." in (
-        summary_detail
-    )
+    assert "After: The supplier needs a corrected response tomorrow." in (summary_detail)
     assert len(summary_detail) <= 560
     with pytest.raises(HTTPException) as other_activity_detail:
         await email_message_detail(

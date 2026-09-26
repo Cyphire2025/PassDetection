@@ -135,7 +135,7 @@ export function DocumentDeliveryActivity({ activity, variant, onDismiss }: {
         </div>
         <div className="min-w-0 flex-1 py-1">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <Link href={whatsappActivitySourceHref(activity) as never} className="text-sm font-semibold hover:text-blue-700 hover:underline">
+            <Link href={whatsappActivitySourceHref(activity)} className="text-sm font-semibold hover:text-blue-700 hover:underline">
               {activity.title}
             </Link>
             <span className={cn("inline-flex items-center gap-1.5 text-xs font-medium", activity.refresh_error || needsAttention ? "text-amber-700" : "text-blue-700")}>

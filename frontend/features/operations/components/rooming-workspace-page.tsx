@@ -115,7 +115,7 @@ export function RoomingWorkspacePage({ groupId }: { groupId: string }) {
         actions={(
           <div className="flex flex-wrap items-center gap-2">
             <Link
-              href={ROUTES.dashboard.rooming as never}
+              href={ROUTES.dashboard.rooming}
               className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 px-3.5 text-sm font-semibold text-white transition hover:bg-white/15"
             >
               <ArrowLeft className="h-4 w-4" aria-hidden="true" />

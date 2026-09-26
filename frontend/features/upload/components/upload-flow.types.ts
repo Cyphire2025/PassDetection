@@ -13,7 +13,6 @@ export type UploadFlowStep =
   | "SELFIE_UPLOAD"
   | "CAMERA"
   | "PASSPORT_UPLOAD"
-  | "PASSPORT_CROP"
   | "UPLOADING"
   | "REVIEW"
   | "FAMILY_REVIEW"
@@ -55,12 +54,6 @@ export interface PassportDocumentBundle {
   backSource: "camera" | "file" | null;
   frontManuallyCropped: boolean;
   backManuallyCropped: boolean;
-}
-
-export interface PendingPassportCrop {
-  file: File;
-  pageSide: "front" | "back";
-  source: "camera" | "file";
 }
 
 export interface ExtractionWaitResult {

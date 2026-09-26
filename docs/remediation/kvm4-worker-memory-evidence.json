@@ -1,0 +1,477 @@
+{
+  "result": "final_combined_image_all_five_reused_worker_modes_passed",
+  "runtime_isolation": {
+    "network": "none",
+    "uid_gid": "1001:1001",
+    "cap_drop": [
+      "ALL"
+    ],
+    "no_new_privileges": true,
+    "swap": "disabled by memory-swap equal hard cap"
+  },
+  "rows": [
+    {
+      "run": "20260926222747",
+      "image": "sha256:fbafed69ebc7d2da3388b906bcddcdff56b6f03d2242e85846d7a8fe84e487c7",
+      "source_checkout": false,
+      "mode": "baseline",
+      "memory_limit": "384m",
+      "repetitions": 1,
+      "passed": true,
+      "peak_bytes": 149925888,
+      "peak_mib": 142.98,
+      "cgroup_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "exit_codes": [
+        0
+      ],
+      "oom_killed": false,
+      "operations": [
+        {
+          "operation": "loaded worker child"
+        }
+      ],
+      "raw_receipt_sha256": "4ba076d1a859ff3dae9feff6e3491baafb96644822ad42b4a5687cf0e05c073b"
+    },
+    {
+      "run": "20260926222747",
+      "image": "sha256:fbafed69ebc7d2da3388b906bcddcdff56b6f03d2242e85846d7a8fe84e487c7",
+      "source_checkout": false,
+      "mode": "email",
+      "memory_limit": "384m",
+      "repetitions": 1,
+      "passed": true,
+      "peak_bytes": 259198976,
+      "peak_mib": 247.19,
+      "cgroup_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "exit_codes": [
+        0
+      ],
+      "oom_killed": false,
+      "operations": [
+        {
+          "accepted_pages": 100,
+          "accepted_bytes": 25178450
+        }
+      ],
+      "raw_receipt_sha256": "4ba076d1a859ff3dae9feff6e3491baafb96644822ad42b4a5687cf0e05c073b"
+    },
+    {
+      "run": "20260926222747",
+      "image": "sha256:fbafed69ebc7d2da3388b906bcddcdff56b6f03d2242e85846d7a8fe84e487c7",
+      "source_checkout": false,
+      "mode": "gemini-extraction",
+      "memory_limit": "384m",
+      "repetitions": 1,
+      "passed": true,
+      "peak_bytes": 191115264,
+      "peak_mib": 182.26,
+      "cgroup_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "exit_codes": [
+        0
+      ],
+      "oom_killed": false,
+      "operations": [
+        {
+          "retained_source_bytes": 10485760,
+          "http_request_bytes": 13985547,
+          "provider_calls": 0
+        }
+      ],
+      "raw_receipt_sha256": "4ba076d1a859ff3dae9feff6e3491baafb96644822ad42b4a5687cf0e05c073b"
+    },
+    {
+      "run": "20260926222747",
+      "image": "sha256:fbafed69ebc7d2da3388b906bcddcdff56b6f03d2242e85846d7a8fe84e487c7",
+      "source_checkout": false,
+      "mode": "gemini-verification",
+      "memory_limit": "384m",
+      "repetitions": 1,
+      "passed": true,
+      "peak_bytes": 190902272,
+      "peak_mib": 182.06,
+      "cgroup_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "exit_codes": [
+        0
+      ],
+      "oom_killed": false,
+      "operations": [
+        {
+          "retained_source_bytes": 10485760,
+          "http_request_bytes": 13985282,
+          "provider_calls": 0
+        }
+      ],
+      "raw_receipt_sha256": "4ba076d1a859ff3dae9feff6e3491baafb96644822ad42b4a5687cf0e05c073b"
+    },
+    {
+      "run": "20260926223018",
+      "image": "sha256:fbafed69ebc7d2da3388b906bcddcdff56b6f03d2242e85846d7a8fe84e487c7",
+      "source_checkout": false,
+      "mode": "visa-image",
+      "memory_limit": "512m",
+      "repetitions": 1,
+      "passed": true,
+      "peak_bytes": 330612736,
+      "peak_mib": 315.3,
+      "cgroup_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "exit_codes": [
+        0
+      ],
+      "oom_killed": false,
+      "operations": [
+        {
+          "accepted_pixels": 24000000,
+          "result_bytes": 975288
+        }
+      ],
+      "raw_receipt_sha256": "53be6f712dc01ee07e4859ed468d0ddc9e581633013523feb8a0ca7c23d709d0"
+    },
+    {
+      "run": "20260926223040",
+      "image": "sha256:fbafed69ebc7d2da3388b906bcddcdff56b6f03d2242e85846d7a8fe84e487c7",
+      "source_checkout": false,
+      "mode": "ecr-single",
+      "memory_limit": "640m",
+      "repetitions": 1,
+      "passed": true,
+      "peak_bytes": 510111744,
+      "peak_mib": 486.48,
+      "cgroup_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "exit_codes": [
+        0
+      ],
+      "oom_killed": false,
+      "operations": [
+        {
+          "source_pixels_each": 40000000,
+          "simultaneous_decoder_threads": 1
+        }
+      ],
+      "raw_receipt_sha256": "f5b680759282141fca9b951421da1abd9de2f790be2c82c80bf59888f2f10257"
+    },
+    {
+      "run": "20260926223652",
+      "image": "sha256:fbafed69ebc7d2da3388b906bcddcdff56b6f03d2242e85846d7a8fe84e487c7",
+      "source_checkout": false,
+      "mode": "email",
+      "memory_limit": "384m",
+      "repetitions": 10,
+      "passed": false,
+      "peak_bytes": null,
+      "peak_mib": null,
+      "cgroup_events": null,
+      "exit_codes": null,
+      "oom_killed": true,
+      "operations": [],
+      "raw_receipt_sha256": "c2f3ebba1a0f588ecf7658f540ce3f8d65a433a69c5f6db6dd6efeb88e50160b"
+    },
+    {
+      "run": "20260926223652",
+      "image": "sha256:fbafed69ebc7d2da3388b906bcddcdff56b6f03d2242e85846d7a8fe84e487c7",
+      "source_checkout": false,
+      "mode": "gemini-extraction",
+      "memory_limit": "384m",
+      "repetitions": 10,
+      "passed": true,
+      "peak_bytes": 212770816,
+      "peak_mib": 202.91,
+      "cgroup_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "exit_codes": [
+        0
+      ],
+      "oom_killed": false,
+      "operations": [
+        {
+          "retained_source_bytes": 10485760,
+          "http_request_bytes": 13985547,
+          "provider_calls": 0
+        }
+      ],
+      "raw_receipt_sha256": "c2f3ebba1a0f588ecf7658f540ce3f8d65a433a69c5f6db6dd6efeb88e50160b"
+    },
+    {
+      "run": "20260926223652",
+      "image": "sha256:fbafed69ebc7d2da3388b906bcddcdff56b6f03d2242e85846d7a8fe84e487c7",
+      "source_checkout": false,
+      "mode": "gemini-verification",
+      "memory_limit": "384m",
+      "repetitions": 10,
+      "passed": true,
+      "peak_bytes": 205869056,
+      "peak_mib": 196.33,
+      "cgroup_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "exit_codes": [
+        0
+      ],
+      "oom_killed": false,
+      "operations": [
+        {
+          "retained_source_bytes": 10485760,
+          "http_request_bytes": 13985282,
+          "provider_calls": 0
+        }
+      ],
+      "raw_receipt_sha256": "c2f3ebba1a0f588ecf7658f540ce3f8d65a433a69c5f6db6dd6efeb88e50160b"
+    },
+    {
+      "run": "20260926224204",
+      "image": "sha256:1434f23f7456b2dd3594483ff1b24507717ed43e7390c09cae995f9ff2e8c743",
+      "source_checkout": true,
+      "mode": "email",
+      "memory_limit": "384m",
+      "repetitions": 10,
+      "passed": true,
+      "peak_bytes": 281210880,
+      "peak_mib": 268.18,
+      "cgroup_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "exit_codes": [
+        0
+      ],
+      "oom_killed": false,
+      "operations": [
+        {
+          "accepted_pages": 100,
+          "accepted_bytes": 25178450
+        }
+      ],
+      "raw_receipt_sha256": "566b3346c492c26f70dd07aca49bba6a7ef5cd8d6ed21d1d3d8cf1aaaa7ca2f6"
+    },
+    {
+      "run": "20260926224605",
+      "image": "sha256:0066ad357a08c4b207fa93bfa12e6111a90ebcac3514b4edbbdeb31a66db0f67",
+      "source_checkout": false,
+      "mode": "email",
+      "memory_limit": "384m",
+      "repetitions": 10,
+      "passed": true,
+      "peak_bytes": 302927872,
+      "peak_mib": 288.89,
+      "cgroup_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "exit_codes": [
+        0
+      ],
+      "oom_killed": false,
+      "operations": [
+        {
+          "accepted_pages": 100,
+          "accepted_bytes": 25178450
+        }
+      ],
+      "raw_receipt_sha256": "7eda1a3e82bb716c501411a0644fb8577672ca18f48f8956d52ff30a4a67a089"
+    },
+    {
+      "run": "20260926224605",
+      "image": "sha256:0066ad357a08c4b207fa93bfa12e6111a90ebcac3514b4edbbdeb31a66db0f67",
+      "source_checkout": false,
+      "mode": "gemini-extraction",
+      "memory_limit": "384m",
+      "repetitions": 10,
+      "passed": true,
+      "peak_bytes": 246640640,
+      "peak_mib": 235.21,
+      "cgroup_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "exit_codes": [
+        0
+      ],
+      "oom_killed": false,
+      "operations": [
+        {
+          "retained_source_bytes": 10485760,
+          "http_request_bytes": 13985547,
+          "provider_calls": 0
+        }
+      ],
+      "raw_receipt_sha256": "7eda1a3e82bb716c501411a0644fb8577672ca18f48f8956d52ff30a4a67a089"
+    },
+    {
+      "run": "20260926224605",
+      "image": "sha256:0066ad357a08c4b207fa93bfa12e6111a90ebcac3514b4edbbdeb31a66db0f67",
+      "source_checkout": false,
+      "mode": "gemini-verification",
+      "memory_limit": "384m",
+      "repetitions": 10,
+      "passed": true,
+      "peak_bytes": 205729792,
+      "peak_mib": 196.2,
+      "cgroup_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "exit_codes": [
+        0
+      ],
+      "oom_killed": false,
+      "operations": [
+        {
+          "retained_source_bytes": 10485760,
+          "http_request_bytes": 13985282,
+          "provider_calls": 0
+        }
+      ],
+      "raw_receipt_sha256": "7eda1a3e82bb716c501411a0644fb8577672ca18f48f8956d52ff30a4a67a089"
+    },
+    {
+      "run": "20260926224642",
+      "image": "sha256:0066ad357a08c4b207fa93bfa12e6111a90ebcac3514b4edbbdeb31a66db0f67",
+      "source_checkout": false,
+      "mode": "visa-image",
+      "memory_limit": "512m",
+      "repetitions": 10,
+      "passed": true,
+      "peak_bytes": 384282624,
+      "peak_mib": 366.48,
+      "cgroup_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "exit_codes": [
+        0
+      ],
+      "oom_killed": false,
+      "operations": [
+        {
+          "accepted_pixels": 24000000,
+          "result_bytes": 975288
+        }
+      ],
+      "raw_receipt_sha256": "1c5c119e20e40057deb1f1af004abad6106360d9af3c91cf1b4925a71c9f87c1"
+    },
+    {
+      "run": "20260926225351",
+      "image": "sha256:0066ad357a08c4b207fa93bfa12e6111a90ebcac3514b4edbbdeb31a66db0f67",
+      "source_checkout": false,
+      "mode": "ecr-single",
+      "memory_limit": "640m",
+      "repetitions": 10,
+      "passed": true,
+      "peak_bytes": 513454080,
+      "peak_mib": 489.67,
+      "cgroup_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "exit_codes": [
+        0
+      ],
+      "oom_killed": false,
+      "operations": [
+        {
+          "source_pixels_each": 40000000,
+          "simultaneous_decoder_threads": 1
+        }
+      ],
+      "raw_receipt_sha256": "205cd3a518f1c40c444b31a96473af867c67a21cea88ae85fb0ba73bd55fb3e9"
+    }
+  ],
+  "source_sha256": {
+    "scripts/qa/probe_bounded_memory.py": "a60e0dbb914fec2f0ac64e017d76cdeb2cba8213d1790c4dd79aa5fad45a30a5",
+    "scripts/qa/qualify_bounded_memory.py": "39f31c405698c1a1ca5dac4639a8e118dab1bc4ad5fad707b147fe72b99ed663",
+    "backend/app/infrastructure/email/pdf_validator.py": "8252075fd2f3d095aefda15ca99bd8fdb4fb72ae28439e47420dd42e9488f169"
+  },
+  "limitations": [
+    "Actual imported Celery task-module parent and one reused forked child; not a complete live broker/provider worker journey.",
+    "Current production extraction uses Gemini-first worker_runtime with extraction_service=None; optional local OCR paths measured above384MiB are outside this profile.",
+    "Provider calls were not made; actual request serialization retains the accepted10MiB source.",
+    "Ten sequential jobs in the same child exposed an actual unclosed PDF reader/stream OOM; the failed run is retained above.",
+    "All five final modes passed ten jobs on the exact combined0066 image, with no source overlay; previous intermediate candidate/overlay records remain historical evidence.",
+    "API has a separate four-process reused-worker receipt; these isolated probes do not establish simultaneous whole-host throughput or arbitrary workloads.",
+    "No production data, provider account, Docker volume or backup was deleted."
+  ],
+  "qualified_final_image": "sha256:0066ad357a08c4b207fa93bfa12e6111a90ebcac3514b4edbbdeb31a66db0f67",
+  "final_modes": [
+    "email",
+    "gemini-extraction",
+    "gemini-verification",
+    "visa-image",
+    "ecr-single"
+  ]
+}

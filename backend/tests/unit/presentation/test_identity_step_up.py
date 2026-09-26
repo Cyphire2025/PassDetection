@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import uuid
 from datetime import UTC, datetime, timedelta
 
 import pytest
@@ -44,7 +45,7 @@ class _StepUpLimiter:
 
 
 def _request() -> Request:
-    return Request(
+    request = Request(
         {
             "type": "http",
             "method": "POST",
@@ -56,6 +57,9 @@ def _request() -> Request:
             "query_string": b"",
         }
     )
+
+    request.state.auth_claims = {"sid": str(uuid.uuid4())}
+    return request
 
 
 async def _staff_with_mfa(
@@ -189,7 +193,7 @@ async def test_step_up_keeps_existing_session_deadline(
     now = datetime.now(tz=UTC)
     deadline = int((now + timedelta(minutes=1)).timestamp())
     request = _request()
-    request.state.auth_claims = {"exp": deadline, "mfa_at": int((now - timedelta(days=6)).timestamp())}
+    request.state.auth_claims = {"sid": str(uuid.uuid4()), "exp": deadline, "mfa_at": int((now - timedelta(days=6)).timestamp())}
     if not legacy_session:
         request.state.auth_claims["session_exp"] = deadline
     response = Response()

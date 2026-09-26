@@ -1,0 +1,13 @@
+{
+  "result": "passed",
+  "scope": "synthetic PostgreSQL concurrent connection envelope",
+  "api_replicas": 2,
+  "api_processes_per_replica": 4,
+  "api_pool_per_process": 6,
+  "worker_and_beat_connections": 16,
+  "application_connections_held": 64,
+  "observer_connections": 1,
+  "server_max_connections": 100,
+  "elapsed_seconds": 0.313,
+  "throughput_or_failover_proven": false
+}

@@ -25,6 +25,7 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.my_photos.dispatcher import enqueue_media_job, enqueue_search_job
 from app.infrastructure.my_photos.service import MyPhotosService
 from app.infrastructure.my_photos.telemetry import my_photos_metrics
+from app.presentation.api.v1.response_contracts import binary_responses
 from app.presentation.api.v1.schemas.my_photos_schemas import (
     MyPhotosConsentRequest,
     MyPhotosDeleteEnrollmentRequest,
@@ -420,7 +421,7 @@ def _photo_preview_bytes_response(
 @router.get(
     "/trips/{group_id}/my-photos/download-authorizations/{authorization_id}/content",
     response_class=Response,
-)
+responses={**binary_responses("image/*", range_requests=True), 307: {"description": "Short-lived authorized media redirect", "headers": {"Location": {"schema": {"type": "string", "format": "uri"}}}}, 416: {"description": "Unsatisfiable byte range; no body"}})
 async def get_my_photos_download(
     group_id: uuid.UUID,
     authorization_id: uuid.UUID,

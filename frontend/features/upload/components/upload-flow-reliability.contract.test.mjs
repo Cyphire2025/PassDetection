@@ -23,13 +23,10 @@ test("resume state is cleared before leaving the upload step", () => {
   );
 });
 
-test("scan-again requests have a synchronous single-flight guard", () => {
-  assert.match(
-    source,
-    /isScanningAgain \|\| scanAgainInFlightRef\.current/,
-  );
-  assert.match(source, /scanAgainInFlightRef\.current = true;/);
-  assert.match(source, /scanAgainInFlightRef\.current = false;/);
+test("scan-again requests share the synchronous generation guard", () => {
+  assert.match(source, /const pending = begin\("retry"\);\s*if \(!pending\) return;/);
+  assert.match(source, /active\.current = operation;/);
+  assert.match(source, /if \(active\.current !== operation\) return;/);
 });
 
 test("camera cancellation and stable rejection reasons use fixed telemetry events", () => {
@@ -45,12 +42,12 @@ test("single and family submission handlers fail closed on document verification
   const singleStart = source.indexOf("const handleFinalSubmit");
   const familyStart = source.indexOf("const handleFamilySubmit");
   const singleGate = source.indexOf(
-    "passportDocumentVerificationGate(submission)",
+    "validateSingleReview({ submission",
     singleStart,
   );
   const singleSubmit = source.indexOf("await submitClientReview", singleStart);
   const familyGate = source.indexOf(
-    "const blockedVerification = familyMembers.find",
+    "validateFamilyReview({ familyMembers",
     familyStart,
   );
   const familySubmit = source.indexOf("await submitClientReview", familyStart);

@@ -78,7 +78,7 @@ export function TourGroupAssignmentsPage() {
         )}
         actions={(
           <Link
-            href={ROUTES.dashboard.tourOperationsCoordinators as never}
+            href={ROUTES.dashboard.tourOperationsCoordinators}
             className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 px-3.5 text-sm font-semibold text-white transition hover:bg-white/15"
           >
             <UserCog className="h-4 w-4 text-sky-200" aria-hidden="true" />
@@ -245,21 +245,21 @@ function GroupAssignmentRow({
       <div className="flex flex-wrap gap-2 xl:justify-end">
         {PASSENGER_ASSIGNMENT_COMPATIBILITY_UI_ENABLED && (
           <Link
-            href={ROUTES.dashboard.tourOperationsGroup(group.id) as never}
+            href={ROUTES.dashboard.tourOperationsGroup(group.id)}
             className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
           >
             Open group <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         )}
         <Link
-          href={ROUTES.dashboard.tourOperationsGroupAttendance(group.id) as never}
+          href={ROUTES.dashboard.tourOperationsGroupAttendance(group.id)}
           className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 text-sm font-semibold text-blue-800 shadow-sm transition hover:border-blue-300 hover:bg-blue-100"
         >
           <Activity className="h-4 w-4" aria-hidden="true" />
           Attendance
         </Link>
         <Link
-          href={ROUTES.dashboard.tourOperationsGroupQrCodes(group.id) as never}
+          href={ROUTES.dashboard.tourOperationsGroupQrCodes(group.id)}
           className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
         >
           <QrCode className="h-4 w-4" aria-hidden="true" />

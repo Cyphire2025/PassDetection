@@ -34,6 +34,7 @@ from app.infrastructure.export.meal_plan_excel_exporter import (
     MealPlanExportEntry,
 )
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.presentation.api.v1.response_contracts import XLSX, binary_responses
 from app.presentation.api.v1.schemas.menu_schemas import (
     CreateMenuCategoryRequest,
     CreateMenuDishRequest,
@@ -690,7 +691,7 @@ async def update_meal_plan_entry(
 @router.get(
     "/plans/{plan_id}/export.xlsx",
     summary="Export a saved meal plan to Excel",
-)
+response_class=Response, responses=binary_responses(XLSX))
 async def export_meal_plan(
     plan_id: uuid.UUID,
     current_user: User = Depends(require_role(MENU_ROLES)),

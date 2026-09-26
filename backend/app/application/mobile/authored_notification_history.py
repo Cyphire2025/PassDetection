@@ -4,12 +4,18 @@ import base64
 import uuid
 from datetime import datetime
 
-from fastapi import HTTPException
 from sqlalchemy import func, select, tuple_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.elements import ColumnElement
 
+from app.application.dtos.gc_notifications import (
+    NotificationBatchResponse,
+    NotificationDeviceCounts,
+    NotificationRecipientCounts,
+    NotificationRoleCounts,
+)
 from app.application.mobile.authored_notification_preview import provider_readiness
+from app.application.mobile.notification_errors import NotificationWorkflowError
 from app.infrastructure.database.gc_mobile_models import (
     MobileNotificationModel,
     MobilePushDeliveryModel,
@@ -18,12 +24,6 @@ from app.infrastructure.database.gc_notification_models import (
     GCNotificationBatchModel,
     GCNotificationDraftModel,
     GCNotificationRecipientModel,
-)
-from app.presentation.api.v1.schemas.gc_notification_schemas import (
-    NotificationBatchResponse,
-    NotificationDeviceCounts,
-    NotificationRecipientCounts,
-    NotificationRoleCounts,
 )
 
 
@@ -52,7 +52,7 @@ def cursor_filter(
             uuid.UUID(identifier),
         )
     except (ValueError, UnicodeError) as exc:
-        raise HTTPException(422, "Invalid notification cursor") from exc
+        raise NotificationWorkflowError("invalid", "Invalid notification cursor") from exc
 
 
 async def batch_responses(

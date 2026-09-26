@@ -21,6 +21,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    literal_column,
     text,
 )
 from sqlalchemy.dialects.postgresql import UUID
@@ -38,10 +39,14 @@ from app.infrastructure.database import document_models as _document_models
 from app.infrastructure.database import identity_security_models as _identity_security_models
 from app.infrastructure.database import operations_models as _operations_models
 from app.infrastructure.database import whatsapp_receipt_models as _whatsapp_receipt_models
+from app.infrastructure.database.dashboard_session_models import (
+    DashboardSessionModel as DashboardSessionModel,
+)
 from app.infrastructure.database.model_base import JSONB, Base, _utcnow
 from app.infrastructure.database.public_upload_contact_model import (
     PublicUploadContactChallengeModel as PublicUploadContactChallengeModel,
 )
+from app.infrastructure.database.search_index_sql import GROUP_SEARCH_SQL, PASSPORT_SEARCH_SQL
 
 WhatsAppBroadcastGroupModel = _communications_models.WhatsAppBroadcastGroupModel
 WhatsAppBroadcastRecipientModel = _communications_models.WhatsAppBroadcastRecipientModel
@@ -176,10 +181,15 @@ class RefreshTokenModel(Base):
     __table_args__ = (
         UniqueConstraint("token", name="refresh_tokens_token_key"),
         Index("ix_refresh_tokens_token", "token"),
+        ForeignKeyConstraint(
+            ["session_id", "user_id"], ["dashboard_sessions.id", "dashboard_sessions.user_id"],
+            name="fk_refresh_token_session_user", ondelete="CASCADE",
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     token: Mapped[str] = mapped_column(String(128), nullable=False)
+    session_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False, index=True)
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
@@ -206,7 +216,10 @@ class RefreshTokenModel(Base):
 
 class ClientGroupModel(Base):
     __tablename__ = "client_groups"
+    roster_revision: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0, server_default="0")
     __table_args__ = (
+        Index("ix_client_group_search_trgm", literal_column(GROUP_SEARCH_SQL).label("search_text"),
+              postgresql_using="gin", postgresql_ops={"search_text": "gin_trgm_ops"}).ddl_if(dialect="postgresql"),
         UniqueConstraint(
             "id",
             "agency_id",
@@ -356,7 +369,9 @@ class ClientGroupModel(Base):
 
     agency: Mapped[AgencyModel] = relationship("AgencyModel", back_populates="client_groups")
     submissions: Mapped[list[PassportSubmissionModel]] = relationship(
-        "PassportSubmissionModel", back_populates="group"
+        "PassportSubmissionModel", back_populates="group",
+        primaryjoin="and_(ClientGroupModel.id == PassportSubmissionModel.group_id, "
+                    "ClientGroupModel.agency_id == PassportSubmissionModel.agency_id)",
     )
     whatsapp_broadcast_links: Mapped[list[ClientGroupWhatsAppBroadcastLinkModel]] = relationship(
         "ClientGroupWhatsAppBroadcastLinkModel",
@@ -477,6 +492,14 @@ class CoordinatorGroupAssignmentModel(Base):
 class PassportSubmissionModel(Base):
     __tablename__ = "passport_submissions"
     __table_args__ = (
+        Index("ix_passport_search_trgm", literal_column(PASSPORT_SEARCH_SQL).label("search_text"),
+              postgresql_using="gin", postgresql_ops={"search_text": "gin_trgm_ops"}).ddl_if(dialect="postgresql"),
+        ForeignKeyConstraint(
+            ["group_id", "agency_id"],
+            ["client_groups.id", "client_groups.agency_id"],
+            name="fk_passport_submissions_group_agency",
+            ondelete="RESTRICT",
+        ),
         UniqueConstraint(
             "id",
             "agency_id",
@@ -742,7 +765,11 @@ class PassportSubmissionModel(Base):
         nullable=True,
     )
 
-    group: Mapped[ClientGroupModel] = relationship("ClientGroupModel", back_populates="submissions")
+    group: Mapped[ClientGroupModel] = relationship(
+        "ClientGroupModel", back_populates="submissions",
+        primaryjoin="and_(ClientGroupModel.id == PassportSubmissionModel.group_id, "
+                    "ClientGroupModel.agency_id == PassportSubmissionModel.agency_id)",
+    )
 
 
 class PassportExportHistoryModel(Base):

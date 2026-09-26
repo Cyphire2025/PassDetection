@@ -19,7 +19,6 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
 from app.infrastructure.database.models import (
-    Base,
     WhatsAppProviderMessageBindingModel,
     WhatsAppProviderReceiptModel,
 )
@@ -31,6 +30,7 @@ from app.infrastructure.whatsapp.receipt_runtime import (
     reconcile_pending_receipts,
     reconcile_receipt,
 )
+from tests.postgresql_schema import create_isolated_postgresql_tables
 from tests.unit.infrastructure.test_phone_welcome import PHONE, _attempt
 from tests.unit.infrastructure.test_whatsapp_receipt_inbox import (
     ACCOUNT,
@@ -78,7 +78,7 @@ async def pg_factory():
         async with admin.begin() as connection:
             await connection.execute(text(f'CREATE SCHEMA "{schema}"'))
         async with engine.begin() as connection:
-            await connection.run_sync(Base.metadata.create_all)
+            await create_isolated_postgresql_tables(connection, schema)
         yield async_sessionmaker(engine, expire_on_commit=False)
     finally:
         await engine.dispose()

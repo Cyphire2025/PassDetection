@@ -58,6 +58,35 @@ class SubmissionViewResult:
     expiry_alerts: tuple[ExpiryAlert, ...]
 
 
+@dataclass(frozen=True)
+class SubmissionViewIdentity:
+    id: uuid.UUID
+    extraction_revision: int
+    updated_at: datetime
+
+
+@dataclass(frozen=True)
+class PreparedSubmissionView:
+    """Reusable computed index; full document payloads are never retained here."""
+
+    pages: tuple[tuple[SubmissionViewEntry, ...], ...]
+    clusters: tuple[tuple[DuplicateClusterPage, ...], ...]
+    ordered_submission_ids: tuple[uuid.UUID, ...]
+    group_total: int
+    total: int
+    page_size: int
+    cluster_boundaries_preserved: bool
+    expiry_alerts: tuple[ExpiryAlert, ...]
+
+    def page(self, number: int) -> SubmissionViewResult:
+        items = self.pages[number - 1] if 0 < number <= len(self.pages) else ()
+        clusters = self.clusters[number - 1] if 0 < number <= len(self.clusters) else ()
+        return SubmissionViewResult(items=items, ordered_submission_ids=self.ordered_submission_ids,
+            group_total=self.group_total, total=self.total, page=number, page_size=self.page_size,
+            total_pages=len(self.pages), returned_count=len(items), duplicate_clusters=clusters,
+            cluster_boundaries_preserved=self.cluster_boundaries_preserved, expiry_alerts=self.expiry_alerts)
+
+
 def _normalized_tokens(value: Any) -> str:
     text = unicodedata.normalize("NFKC", str(value or "")).casefold()
     return " ".join(token for token in re.split(r"[^\w]+", text) if token)
@@ -372,32 +401,23 @@ def _paginate_blocks(
     return pages
 
 
-def _page_clusters(
-    pages: list[list[SubmissionViewEntry]], page: int,
-) -> tuple[DuplicateClusterPage, ...]:
+def _all_page_clusters(pages: list[list[SubmissionViewEntry]]) -> tuple[tuple[DuplicateClusterPage, ...], ...]:
     bounds: dict[str, list[int]] = {}
-    visible: dict[str, list[SubmissionViewEntry]] = {}
+    visible: list[dict[str, list[SubmissionViewEntry]]] = []
     for number, entries in enumerate(pages, start=1):
+        current: dict[str, list[SubmissionViewEntry]] = {}
         for entry in entries:
             cluster_id = entry.duplicate_cluster_id
-            if cluster_id is None:
-                continue
-            count = bounds.setdefault(cluster_id, [number, number, 0])
-            count[1] = number
-            count[2] += 1
-            if number == page:
-                visible.setdefault(cluster_id, []).append(entry)
-    return tuple(
-        DuplicateClusterPage(
-            cluster_id=cluster_id,
-            total_members=entries[0].duplicate_cluster_size,
-            matching_members=bounds[cluster_id][2],
-            visible_member_ids=tuple(entry.submission.id for entry in entries),
-            first_page=bounds[cluster_id][0],
-            last_page=bounds[cluster_id][1],
-        )
-        for cluster_id, entries in visible.items()
-    )
+            if cluster_id is not None:
+                bound = bounds.setdefault(cluster_id, [number, number, 0])
+                bound[1], bound[2] = number, bound[2] + 1
+                current.setdefault(cluster_id, []).append(entry)
+        visible.append(current)
+    return tuple(tuple(DuplicateClusterPage(
+        cluster_id=cluster_id, total_members=entries[0].duplicate_cluster_size,
+        matching_members=bounds[cluster_id][2], visible_member_ids=tuple(entry.submission.id for entry in entries),
+        first_page=bounds[cluster_id][0], last_page=bounds[cluster_id][1],
+    ) for cluster_id, entries in current.items()) for current in visible)
 
 
 def _add_months(value: date, months: int) -> date:
@@ -459,6 +479,15 @@ def build_submission_view(
     today: date | None = None,
     travel_date: date | None = None,
 ) -> SubmissionViewResult:
+    return prepare_submission_view(submissions, submission_filter=submission_filter,
+        sort_by=sort_by, sort_order=sort_order, search=search, page_size=page_size,
+        today=today, travel_date=travel_date).page(page)
+
+
+def prepare_submission_view(
+    submissions: list[Any], *, submission_filter: str, sort_by: str, sort_order: str,
+    search: str | None, page_size: int, today: date | None = None, travel_date: date | None = None,
+) -> PreparedSubmissionView:
     """Apply full-group identity logic before filters and block pagination."""
 
     blocks = _build_blocks(submissions)
@@ -489,17 +518,13 @@ def build_submission_view(
     )
     total = sum(len(block) for block in blocks)
     pages = _paginate_blocks(blocks, page_size)
-    page_items = pages[page - 1] if page <= len(pages) else []
-    return SubmissionViewResult(
-        items=tuple(page_items),
+    return PreparedSubmissionView(
+        pages=tuple(tuple(entries) for entries in pages),
+        clusters=_all_page_clusters(pages),
         ordered_submission_ids=ordered_submission_ids,
         group_total=len(submissions),
         total=total,
-        page=page,
         page_size=page_size,
-        total_pages=len(pages),
-        returned_count=len(page_items),
-        duplicate_clusters=_page_clusters(pages, page),
         cluster_boundaries_preserved=all(len(block) <= page_size for block in blocks),
         expiry_alerts=_expiry_alerts(
             submissions,

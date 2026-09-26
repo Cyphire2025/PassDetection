@@ -172,7 +172,7 @@ test("saved rejected contacts are loaded in the unified ordered recipient roster
   assert.match(apiSource, /counts:[\s\S]*all: number[\s\S]*rejected: number/);
   assert.match(hooksSource, /useWhatsAppRecipientRoster/);
   assert.match(pageSource, /useWhatsAppRecipientRoster\(group\.id\)/);
-  assert.match(pageSource, /\{ id: "rejected", label: "Rejected" \}/);
+  assert.match(pageSource, /\{ id: "rejected", label: "Rejected imports" \}/);
   assert.match(pageSource, /filterRecipientRosterItems\(/);
   assert.match(pageSource, /item\.kind === "rejected"/);
   assert.match(pageSource, /<RejectedRosterRows/);

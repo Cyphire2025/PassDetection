@@ -73,7 +73,7 @@ async def test_unchanged_summary_returns_304_without_serializing_a_roster() -> N
 
     with (
         patch(
-            "app.presentation.api.v1.routes.tour_operations._get_manageable_group",
+            "app.presentation.api.v1.routes.tour_operations_attendance_dashboard._get_manageable_group",
             new=AsyncMock(return_value=group),
         ),
         patch.object(
@@ -156,7 +156,7 @@ async def test_summary_maps_bounded_coordinator_counts_and_checkpoint_state() ->
 
     with (
         patch(
-            "app.presentation.api.v1.routes.tour_operations._get_manageable_group",
+            "app.presentation.api.v1.routes.tour_operations_attendance_dashboard._get_manageable_group",
             new=AsyncMock(return_value=group),
         ),
         patch.object(
@@ -194,7 +194,7 @@ async def test_changed_missing_snapshot_has_a_stable_typed_conflict() -> None:
 
     with (
         patch(
-            "app.presentation.api.v1.routes.tour_operations._get_manageable_group",
+            "app.presentation.api.v1.routes.tour_operations_attendance_dashboard._get_manageable_group",
             new=AsyncMock(return_value=group),
         ),
         patch.object(
@@ -233,7 +233,7 @@ async def test_out_of_scope_activity_uses_the_same_generic_not_found_response() 
 
     with (
         patch(
-            "app.presentation.api.v1.routes.tour_operations._get_manageable_group",
+            "app.presentation.api.v1.routes.tour_operations_attendance_dashboard._get_manageable_group",
             new=AsyncMock(return_value=group),
         ),
         patch.object(

@@ -26,7 +26,7 @@ export function RouteCapabilityBoundary({ children }: { children: ReactNode }) {
     // to their first authorized route. Unknown routes keep the explicit
     // fail-closed screen so an undeclared capability cannot be hidden.
     if (!user || !capability || canAccess) return;
-    router.replace(returnPath as never);
+    router.replace(returnPath);
   }, [canAccess, capability, returnPath, router, user]);
 
   if (canAccess) return children;
@@ -47,7 +47,7 @@ export function RouteCapabilityBoundary({ children }: { children: ReactNode }) {
             This dashboard route is not registered in the typed capability map and therefore fails closed.
           </p>
         )}
-        <Link href={returnPath as never} className="mt-6 inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700">
+        <Link href={returnPath} className="mt-6 inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700">
           <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Return to an authorized workspace
         </Link>
       </section>

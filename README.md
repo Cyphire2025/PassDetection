@@ -1,8 +1,11 @@
-# Global Connects Dashboard - Enterprise Passport OCR Platform
+# Global Connects Dashboard - Passport OCR Platform
 
 Passport processing platform for travel agencies. Production readiness depends on
 the tested release and deployed controls; see the [current release procedure](docs/PRODUCTION_RELEASE_READINESS.md)
 and [recovery evidence requirements](docs/PRODUCTION_RESILIENCE_AND_DR.md).
+
+
+Engineering assurance is bounded by the [evidence and claim register](docs/ENGINEERING_CLAIMS.md). Start with the [contributor reading order and test map](docs/CONTRIBUTOR_GUIDE.md). Production activation requires the [signed qualified image inventory](docs/IMMUTABLE_RELEASES.md); local builds alone do not establish enterprise readiness.
 
 ## Architecture
 
@@ -120,15 +123,21 @@ Services in hot-reload mode:
 
 ### 6. Local development without Docker
 
-Backend:
+Backend (bootstrap from the repository root; existing target directories and unsupported interpreters are refused):
+
+```powershell
+py -3.11 scripts/bootstrap_backend.py
+cd backend
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload
+```
 
 ```bash
+python3.11 scripts/bootstrap_backend.py
 cd backend
-py -3.11 -m venv .venv
-.venv\Scripts\activate
-python -m pip install --require-hashes -r requirements.lock
-uvicorn app.main:app --reload
+.venv/bin/python -m uvicorn app.main:app --reload
 ```
+
+Bootstrap installs `backend/requirements-dev.lock` with hashes, including runtime and exact test/lint/type/audit tools. It never replaces an existing virtual environment; use `--directory` for a fresh path. `python scripts/bootstrap_backend.py --check` verifies the active interpreter/tool versions. Supported Python is CPython 3.11. `.python-version`, `.node-version` and `tooling/toolchain.json` record the reviewed developer setup; production container pins are separately recorded in the Dockerfiles.
 
 Frontend:
 
@@ -178,13 +187,13 @@ cd frontend && npm run lint
 
 ## Security
 
-- All secrets via environment variables - never hardcoded
+- Runtime secrets are configured outside source defaults; deployment scope and remaining obligations are in the claim register
 - JWT authentication with refresh token rotation
 - Rate limiting at Nginx + application level
 - S3 presigned URLs for secure image access
 - Non-root Docker user in production images
-- SQL injection prevention via SQLAlchemy ORM
-- Input validation on every request with Pydantic and Zod
+- SQLAlchemy parameterization is used in database access; ORM use alone does not prove absence of every injection path
+- Request schemas use Pydantic and frontend forms use Zod where configured; entry-point coverage is established by scoped tests and review
 
 ## Operational Capabilities
 

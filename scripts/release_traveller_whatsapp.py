@@ -343,23 +343,7 @@ class Release:
                 f"All {len(self.node_prefixes)} workers and beat must share the configured worker image"
             )
         self.prepare_recovery(config)
-        build_services = tuple(
-            service for service in ("backend", "worker", "frontend")
-            if service in self.activated_services
-        )
-        self.say(f"Building {', '.join(build_services)}; current containers stay running")
-        self.dc(
-            "build",
-            "--build-arg",
-            f"APP_REVISION={self.revision}",
-            *build_services,
-            timeout=7200,
-            stream=True,
-        )
-        images = {
-            service: self.verify_image(refs[service], backend=service != "frontend")
-            for service in self.activated_services
-        }
+        images = self.prepare_images(config, refs)
         # Recheck Git/environment after a potentially long build before recording it.
         after = self.preflight()
         if self.config_fingerprint(after) != fingerprint:
@@ -380,11 +364,40 @@ class Release:
             "PREPARED: images verified. Pause new uploads and message sends before activate."
         )
 
+    def prepare_images(self, config: dict[str, Any], refs: dict[str, str]) -> dict[str, str]:
+        """Historical releases build locally; the current release can consume promoted images."""
+        build_services = tuple(
+            service for service in ("backend", "worker", "frontend")
+            if service in self.activated_services
+        )
+        self.say(f"Building {', '.join(build_services)}; current containers stay running")
+        self.dc(
+            "build",
+            "--build-arg",
+            f"APP_REVISION={self.revision}",
+            *build_services,
+            timeout=7200,
+            stream=True,
+        )
+        return {
+            service: self.verify_image(refs[service], backend=service != "frontend")
+            for service in self.activated_services
+        }
+
     def prepare_recovery(self, config: dict[str, Any]) -> None:
         """Optional release-specific recovery evidence, before image tags change."""
 
     def before_migration(self, current_schema: str) -> None:
         """Optional release-specific backup gate, before database/environment mutation."""
+
+    def resume_maintenance(self, config: dict[str, Any]) -> None:
+        """Optional durable maintenance recovery after prepared image validation."""
+
+    def begin_maintenance(self, config: dict[str, Any]) -> None:
+        """Optional resource fence before starting any maintenance helper."""
+
+    def complete_activation(self, config: dict[str, Any]) -> None:
+        """Optional final live deployment checks before reporting verification."""
 
     def pinned_services(self, images: dict[str, str]) -> dict[str, dict[str, str]]:
         return {
@@ -518,6 +531,7 @@ class Release:
                 raise ReleaseError(
                     f"{service}: image tag changed after prepare; run prepare again"
                 )
+        self.resume_maintenance(config)
         self.say(
             f"Checking all {len(self.node_prefixes)} workers are empty for active, reserved, and scheduled tasks"
         )
@@ -533,6 +547,7 @@ class Release:
             )
             + "\n",
         )
+        self.begin_maintenance(config)
         current_schema = self.schema()
         if current_schema not in {self.previous_schema, self.expected_schema}:
             raise ReleaseError(
@@ -616,6 +631,7 @@ class Release:
                 raise ReleaseError(f"Public {route} did not return HTTP 200")
         self.verify_containers(self.activated_services, images)
         self.dc("ps", stream=True)
+        self.complete_activation(config)
         worker_count = "seven" if len(self.node_prefixes) == 7 else str(len(self.node_prefixes))
         service_summary = (
             f"backend, frontend, {worker_count} workers and beat."

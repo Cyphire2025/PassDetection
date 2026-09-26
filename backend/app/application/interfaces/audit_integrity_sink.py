@@ -8,6 +8,7 @@ checkpoints to an independently controlled immutable/WORM destination.
 
 from __future__ import annotations
 
+from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Protocol
@@ -26,6 +27,8 @@ class AuditIntegritySink(Protocol):
     """Publish an idempotent chain checkpoint outside the application database."""
 
     async def publish(self, checkpoint: AuditIntegrityCheckpoint) -> None: ...
+
+    def checkpoints(self) -> AsyncIterator[AuditIntegrityCheckpoint]: ...
 
 
 __all__ = ["AuditIntegrityCheckpoint", "AuditIntegritySink"]

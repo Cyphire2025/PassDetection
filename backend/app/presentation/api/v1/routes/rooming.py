@@ -53,6 +53,7 @@ from app.infrastructure.rooming.priority_fields import (
     build_rooming_priority_context,
     is_rooming_roster_field,
 )
+from app.presentation.api.v1.response_contracts import XLSX, binary_responses
 from app.presentation.api.v1.routes.rooming_allocation_support import (
     advance_allocation_revisions as _advance_allocation_revisions,
 )
@@ -847,7 +848,7 @@ async def update_passenger_allocation(
 @router.get(
     "/hotels/{hotel_id}/export.xlsx",
     summary="Download a hotel-ready rooming list workbook",
-)
+response_class=Response, responses=binary_responses(XLSX))
 async def export_hotel_rooming_list(
     hotel_id: uuid.UUID,
     request: Request,
@@ -1228,7 +1229,7 @@ async def update_hotel_checkin(
     return await _checkin_item(session, hotel, assignment, passenger, checkin)
 
 
-@router.get("/hotels/{hotel_id}/check-ins/export.xlsx", summary="Export hotel check-in control sheet")
+@router.get("/hotels/{hotel_id}/check-ins/export.xlsx", summary="Export hotel check-in control sheet", response_class=Response, responses=binary_responses(XLSX))
 async def export_hotel_checkins(
     hotel_id: uuid.UUID,
     request: Request,

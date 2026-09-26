@@ -17,6 +17,7 @@ from app.application.mobile.authored_notification_service import (
     save_notification_draft,
     send_notification,
 )
+from app.application.mobile.notification_errors import NotificationWorkflowError
 from app.infrastructure.database.gc_mobile_models import MobileNotificationModel
 from app.infrastructure.database.gc_notification_models import (
     GCNotificationBatchModel,
@@ -92,8 +93,8 @@ async def test_delete_edit_send_serialize_on_saved_record(pg_factory, first, sec
                     ready.set()
                     await operation(session, second)
                 return "ok"
-            except HTTPException as error:
-                return "missing" if error.status_code == 404 else error.detail
+            except NotificationWorkflowError as error:
+                return "missing" if error.category == "missing" else error.message
 
     async with pg_factory() as holder:
         async with holder.begin():
@@ -162,7 +163,11 @@ async def test_pending_recovery_waits_for_delete_and_recovers_concurrent_committ
                     )
                     return batch.id
             except HTTPException as error:
-                return (error.status_code, error.detail)
+                # This helper calls the HTTP adapter directly; its existing
+                # 410 tombstone response is distinct from application errors.
+                return error.status_code, error.detail
+            except NotificationWorkflowError as error:
+                return ({"missing": 404, "invalid": 422, "conflict": 409}[error.category], error.message)
 
     async with pg_factory() as holder:
         async with holder.begin():

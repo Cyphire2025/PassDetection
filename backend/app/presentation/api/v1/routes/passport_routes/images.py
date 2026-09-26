@@ -36,6 +36,7 @@ from app.infrastructure.repositories.passport_submission_repository import (
 )
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.object_streaming import private_object_streaming_response
+from app.presentation.api.v1.response_contracts import binary_responses
 from app.presentation.api.v1.schemas.passport_schemas import (
     PassportImageCropResetRequest,
     PassportImageCropResponse,
@@ -61,7 +62,7 @@ router = APIRouter()
     "/{submission_id}/images/{image_type}/edit-source",
     status_code=status.HTTP_200_OK,
     summary="Stream the current full-resolution source to an authorized image editor",
-)
+response_class=Response, responses=binary_responses("image/*", range_requests=True))
 async def get_passport_image_edit_source(
     submission_id: uuid.UUID,
     image_type: PassportImageType,
@@ -100,7 +101,7 @@ async def get_passport_image_edit_source(
     "/{submission_id}/images/{image_type}",
     status_code=status.HTTP_200_OK,
     summary="Stream the effective staff view of a passport image",
-)
+response_class=Response, responses=binary_responses("image/*"))
 async def get_passport_image_view(
     submission_id: uuid.UUID,
     image_type: PassportImageType,
@@ -139,7 +140,7 @@ async def get_passport_image_view(
     "/{submission_id}/images/{image_type}/thumbnail",
     status_code=status.HTTP_200_OK,
     summary="Return a bounded authenticated dashboard thumbnail",
-)
+response_class=Response, responses=binary_responses("image/jpeg"))
 async def get_passport_image_thumbnail(
     submission_id: uuid.UUID,
     image_type: PassportImageType,
@@ -203,7 +204,7 @@ async def get_passport_image_thumbnail(
     "/{submission_id}/images/{image_type}/original",
     status_code=status.HTTP_200_OK,
     summary="Stream an immutable original image to an authorized crop editor",
-)
+response_class=Response, responses=binary_responses("image/*", range_requests=True))
 async def get_passport_image_original(
     submission_id: uuid.UUID,
     image_type: PassportImageType,

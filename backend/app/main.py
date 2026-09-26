@@ -36,6 +36,7 @@ from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.infrastructure.verification.dispatcher import (
     post_submission_verification_recovery_loop,
 )
+from app.presentation.api.v1.openapi_contract import install_openapi_contract
 from app.presentation.api.v1.router import api_v1_router
 from app.presentation.middleware.error_handler import register_exception_handlers
 from app.presentation.middleware.metrics import MetricsMiddleware
@@ -122,7 +123,7 @@ def create_application(
         title=settings.app_name,
         version=settings.app_version,
         description=(
-            "Enterprise-grade Passport MRZ Processing Platform with secure upload links, "
+            "Passport MRZ Processing Platform with secure upload links, "
             "passport MRZ extraction, client review, Excel export, analytics, "
             "audit logging, and agency notifications."
         ),
@@ -157,6 +158,7 @@ def create_application(
 
     register_exception_handlers(app)
     app.include_router(api_v1_router, prefix=settings.api_v1_prefix)
+    install_openapi_contract(app, settings)
 
     @app.on_event("startup")
     async def on_startup() -> None:

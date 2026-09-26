@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import uuid
 from unittest.mock import AsyncMock, patch
 
+import bcrypt
 import pytest
 
 from app.application.dtos.auth_dtos import LoginInputDTO
 from app.application.use_cases.auth.login_use_case import LoginUseCase
+from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import AuthenticationError
 
 
@@ -74,3 +77,19 @@ async def test_injected_login_limiter_remains_owned_by_its_caller() -> None:
     await use_case.aclose()
 
     limiter.aclose.assert_not_awaited()
+
+
+@pytest.mark.parametrize("password", ["Aa1" + "x" * 90, "Aa1" + "é" * 40])
+async def test_retained_long_password_authenticates_through_real_login_boundary(password):
+    user = User(id=uuid.uuid4(), email="legacy@example.test", full_name="Legacy fixture",
+                hashed_password=bcrypt.hashpw(password.encode("utf-8")[:72], bcrypt.gensalt(rounds=4)).decode(),
+                role=UserRole.AGENCY_STAFF, agency_id=uuid.uuid4(), credential_state="active")
+    users = AsyncMock()
+    users.get_by_email.return_value = user
+    limiter = AsyncMock()
+    use_case = LoginUseCase(users, AsyncMock(), limiter)
+    assert await use_case.verify_credentials(LoginInputDTO(email=user.email, password=password)) is user
+    with pytest.raises(AuthenticationError, match="Invalid email or password"):
+        await use_case.verify_credentials(LoginInputDTO(email=user.email, password="WrongPrefix1" + password))
+    limiter.record_success.assert_awaited_once()
+    limiter.record_failure.assert_awaited_once()

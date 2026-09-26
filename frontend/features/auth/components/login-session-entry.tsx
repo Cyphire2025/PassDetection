@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Route } from "next";
 import { Loader2, RefreshCw } from "lucide-react";
 import { useAuthStore } from "@/stores/auth.store";
 import { AuthHydrator } from "./auth-hydrator";
@@ -24,7 +23,7 @@ export function LoginSessionEntry({ notice, from }: { notice?: string; from?: st
   const rejected = checked && restorationStatus === "rejected";
 
   useEffect(() => {
-    if (restored) router.replace(destination as Route);
+    if (restored) router.replace(destination);
   }, [destination, restored, router]);
 
   // Stop the hydrator after rejection so focus/retry timers cannot interrupt

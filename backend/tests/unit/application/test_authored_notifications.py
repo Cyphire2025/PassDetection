@@ -4,7 +4,6 @@ import uuid
 from datetime import UTC, datetime, timedelta
 
 import pytest
-from fastapi import HTTPException
 from sqlalchemy import delete, func, select
 
 from app.application.mobile.authored_notification_access import (
@@ -17,6 +16,7 @@ from app.application.mobile.authored_notification_service import (
     save_notification_draft,
     send_notification,
 )
+from app.application.mobile.notification_errors import NotificationWorkflowError
 from app.infrastructure.database.gc_mobile_models import (
     MobileNotificationModel,
     MobilePassengerIdentityModel,
@@ -128,9 +128,9 @@ async def test_audience_change_between_review_and_send_requires_fresh_review(db_
     else:
         accesses[0].is_enabled = False
     await db_session.flush()
-    with pytest.raises(HTTPException) as error:
+    with pytest.raises(NotificationWorkflowError) as error:
         await _send(db_session, actor, draft, request)
-    assert error.value.detail == "audience_changed"
+    assert error.value.message == "audience_changed"
     assert await db_session.scalar(select(func.count()).select_from(MobileNotificationModel)) == 0
 
 
@@ -239,7 +239,7 @@ async def test_selected_paused_trip_is_rejected_instead_of_silently_omitted(db_s
     )
     accesses[0].is_enabled = False
     await db_session.commit()
-    with pytest.raises(HTTPException) as error:
+    with pytest.raises(NotificationWorkflowError) as error:
         await preview_notification(
             db_session,
             agency_id=actor.agency_id,
@@ -247,7 +247,7 @@ async def test_selected_paused_trip_is_rejected_instead_of_silently_omitted(db_s
             draft_id=draft.id,
             revision=draft.revision,
         )
-    assert error.value.detail == "audience_changed"
+    assert error.value.message == "audience_changed"
 
 
 async def test_no_device_can_be_sent_and_legacy_notifications_pass_through_unchanged(db_session):

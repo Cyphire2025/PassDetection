@@ -36,7 +36,11 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
         request: Request,
         call_next: RequestResponseEndpoint,
     ) -> Response:
-        request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
+        try:
+            request_id = str(uuid.UUID(request.headers.get("X-Request-ID", "")))
+        except (ValueError, AttributeError):
+            request_id = str(uuid.uuid4())
+        request.state.request_id = request_id
 
         # Bind to structlog context so all log calls in this request
         # automatically include request_id without manual passing.

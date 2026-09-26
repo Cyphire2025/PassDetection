@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "recorded_date": "2026-09-27",
+  "status": "source_and_native_api_image_qualification_passed",
+  "finding": {
+    "kind": "additional_discovered_availability_defect",
+    "severity": "High",
+    "original_audit_closure_count_increment": 0,
+    "problem": "Independent API processes could simultaneously allocate maximum accepted image transforms beyond the shared container memory budget."
+  },
+  "policy": {
+    "executing_native_image_operations_per_container": 1,
+    "maximum_shared_admitted_operations": 4,
+    "maximum_admission_wait_seconds": 5,
+    "ecr_preparation_slots_before_shared_admission": 2,
+    "ecr_total_admission_deadline_seconds": 5,
+    "http_status": 503,
+    "http_error_code": "IMAGE_PROCESSING_BUSY",
+    "retry_after_seconds": 5,
+    "accepted_image_limits_changed": false,
+    "production_modified_by_this_lane": false
+  },
+  "source_sha256_receipt": "native-image-source-sha256.json",
+  "verification": {
+    "linux_final": {
+      "python": "3.11.16",
+      "image": "passdetection-service-contract-tests:phase2",
+      "network": "none",
+      "source_mount": "read_only_current_backend",
+      "command": "python -m pytest tests/unit/core/test_native_image_admission.py tests/unit/infrastructure/test_ecr_runtime.py tests/unit/infrastructure/test_passport_ecr_runtime.py tests/unit/infrastructure/test_visa_image_capacity_retry.py tests/unit/infrastructure/test_gemini_ecr_service.py -o addopts= --cov=app.core.native_image_admission --cov=app.domain.exceptions.resource_capacity --cov-branch -q",
+      "passed": 128,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 57.62,
+      "exit_code": 0,
+      "local_raw_log": "native-image-linux-qualified.txt",
+      "checks": [
+        "four_processes_share_real_kernel_lock",
+        "forced_holder_death_releases_lock",
+        "forked_parser_does_not_extend_parent_descriptor_lifetime",
+        "thread_contention_and_same_thread_reentrancy",
+        "async_cancellation_retains_native_thread_lock",
+        "unsafe_paths_and_lock_errors_fail_closed",
+        "six_image_entrypoints_block_before_Pillow_decode",
+        "eight_real_ECR_preparations_complete_with_peak_one_decoder",
+        "ECR_capacity_failure_never_becomes_invalid_image_or_terminal_item",
+        "passport_ECR_capacity_failure_refunds_unspent_attempts_and_later_completes",
+        "Visa_capacity_failure_retains_actual_queued_row_and_cannot_reset_completed_work",
+        "structured_HTTP503_no_store_and_Retry_After"
+      ],
+      "precedes_allocator_followup": true
+    },
+    "windows_final_affected_subset": {
+      "python": "3.11.15",
+      "passed": 74,
+      "failed": 0,
+      "skipped": 2,
+      "skip_reason": "Linux_symlink_and_fork_only_checks_passed_in_Linux_run",
+      "seconds": 5.8,
+      "local_raw_log": "native-image-final-regression.txt",
+      "precedes_allocator_followup": true
+    },
+    "frontend_controller": {
+      "node": "24.21.0",
+      "passed": 17,
+      "failed": 0,
+      "seconds": 8.41,
+      "local_raw_log": "native-image-ui-retry-final.txt",
+      "new_regression": "exact_server_capacity_message_visible_same_idempotency_credential_preserved_no_automatic_retry_successful_explicit_retry"
+    },
+    "guard_coverage_linux": {
+      "source": "app/core/native_image_admission.py",
+      "covered_lines": 116,
+      "statements": 133,
+      "line_percent": 87.21804511278195,
+      "covered_branches": 27,
+      "branches": 38,
+      "branch_percent": 71.05263157894737,
+      "new_measured_line_floor": 85,
+      "new_measured_branch_floor": 70,
+      "full_measurement": "native-image-coverage.json",
+      "limits": "Linux measurement excludes Windows locking implementation; fork-child cleanup is independently asserted but child coverage is not merged."
+    },
+    "size_complexity_ratchets": {
+      "all_modules_passed": 87,
+      "new_guard_lines": 194,
+      "new_guard_max_function_complexity": 13,
+      "local_raw_log": "native-image-quality-budget.txt"
+    },
+    "allocator_followup": {
+      "linux_passed": 20,
+      "linux_failed": 0,
+      "linux_skipped": 0,
+      "linux_seconds": 3.81,
+      "windows_passed": 18,
+      "windows_skipped": 2,
+      "windows_seconds": 2.84,
+      "linux_log": "native-heap-reclaim-linux.txt",
+      "windows_log": "native-heap-reclaim-windows.txt",
+      "exact_image_receipt": "api-native-memory-evidence.json",
+      "image": "sha256:0066ad357a08c4b207fa93bfa12e6111a90ebcac3514b4edbbdeb31a66db0f67",
+      "peak_mib": 2300.17578125,
+      "limit_mib": 2560,
+      "worker_pids_preserved": true,
+      "oom_events": 0,
+      "source_overlay": false,
+      "host_oom_kill_counter_before": 6,
+      "host_oom_kill_counter_after": 6,
+      "previous_failed_run_receipt": "api-native-memory-interference-evidence.json"
+    }
+  },
+  "limitations": [
+    "These are focused current-source regressions, not a repeated clean run of the whole repository.",
+    "Exact rebuilt-image native API memory boundary passed; combined warmed-database/full-stack capacity and production activation remain separate gates.",
+    "Provider requests are not proven exactly once; accepted Visa rows remain recoverable under resource pressure.",
+    "Physical camera, real device Safari and screen-reader acceptance remain separate unverified requirements.",
+    "Verbose local text logs include intermediate diagnostics and are not required tracked artifacts; this curated receipt records terminal results."
+  ]
+}

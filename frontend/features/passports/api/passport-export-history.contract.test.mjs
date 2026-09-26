@@ -82,11 +82,13 @@ test("all history checkpoints remain reachable through bounded pagination", () =
   assert.match(dialog, /aria-label="Older download history page"/);
 });
 
-test("the export dialog traps focus and restores document scrolling", () => {
-  assert.match(dialog, /dialogRef\.current\?\.querySelectorAll<HTMLElement>/);
-  assert.match(dialog, /event\.key !== "Tab"/);
-  assert.match(dialog, /document\.body\.style\.overflow = "hidden"/);
-  assert.match(dialog, /document\.body\.style\.overflow = priorOverflow/);
+test("both export dialogs use the shared pending-safe keyboard boundary", () => {
+  for (const source of [dialog, selectedGroupsDialog]) {
+    assert.match(source, /useModalKeyboardBoundary/);
+    assert.match(source, /canClose: !isBusy/);
+    assert.match(source, /onKeyDown=\{handleKeyDown\}/);
+    assert.match(source, /data-dialog-initial-focus/);
+  }
 });
 
 test("Excel export renders server-provided fixed grouping choices", () => {

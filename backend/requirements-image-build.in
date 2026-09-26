@@ -1,0 +1,9 @@
+# Build-only tools for the reviewed OpenCV image-processing variant.
+# None of these build tools is copied into the production virtual environment.
+pip==26.2.1
+setuptools==84.0.0
+wheel==0.48.0
+cmake==3.31.10
+ninja==1.13.0
+scikit-build==0.18.1
+numpy==1.26.4

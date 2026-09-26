@@ -87,7 +87,7 @@ export function DocumentGroupDistributionChooser({ groupId }: { groupId: string 
   );
 }
 
-function DocumentFamilyLink({
+function DocumentFamilyLink<T extends string>({
   href,
   title,
   description,
@@ -95,7 +95,7 @@ function DocumentFamilyLink({
   icon: Icon,
   bordered = false,
 }: {
-  href: string;
+  href: import("next").Route<T>;
   title: string;
   description: string;
   count: number;

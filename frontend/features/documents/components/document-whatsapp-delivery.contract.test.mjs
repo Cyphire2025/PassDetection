@@ -29,7 +29,7 @@ test("saved document lists expose an explicit WhatsApp preview before sending", 
   assert.match(workspaceDialogs, /Each passenger receives only the PDF shown in their row/);
   assert.match(workspace, /deliveryDocumentIds/);
   assert.match(workspaceDialogs, /Successful and uncertain deliveries are excluded automatically/);
-  assert.match(workspaceDialogs, /documents_v1 preview/);
+  assert.match(workspaceDialogs, /preview\.template_name \|\| "Document message"/);
   assert.match(workspaceDialogs, /Editable text 1/);
   assert.match(workspaceDialogs, /Editable text 2/);
   assert.match(workspaceDialogs, /row\.error_message/);
@@ -61,7 +61,8 @@ test("review tables keep one row per submitted passenger and nest saved document
   assert.match(types, /documents: DistributedDocument\[\]/);
   assert.match(workspace, /documentsByPassengerId\.get\(row\.passenger_id\) \?\? \[\]/);
   assert.match(workspace, /<tr key=\{row\.passenger_id\}>/);
-  assert.match(workspace, /\{documents\.length\} saved documents/);
+  assert.match(workspaceReview, /documents\.map/);
+  assert.match(workspaceReview, /document\.id/);
   assert.doesNotMatch(workspace, /<tr key=\{row\.document\?\.id/);
 });
 

@@ -43,7 +43,7 @@ export interface DisplayedWhatsAppActivity extends WhatsAppActivitySummary {
 
 export function whatsappActivityKey(
   activity: Pick<TrackedWhatsAppActivity, "kind" | "id">,
-): string {
+) {
   return `${activity.kind}:${activity.id}`;
 }
 
@@ -210,7 +210,7 @@ export function whatsappActivitySourceHref(
     WhatsAppActivitySummary,
     "kind" | "source_group_id" | "document_type"
   >,
-): string {
+) {
   if (activity.kind === "broadcast") return ROUTES.dashboard.whatsapp;
   if (activity.kind === "qr") {
     return ROUTES.dashboard.tourOperationsGroupQrCodes(

@@ -1,0 +1,2003 @@
+{
+  "result": "diagnosis_complete_no_cause_reproduced",
+  "capacity_acceptance": "failed_two_large_tenant_tail_gates",
+  "run_id": "46be64959caa4d349162bb025cff3159",
+  "runtime_image_id": "sha256:e8935a6a80d5a6d1a8689ad1829bbee914acc30ff472253f6d21df86cb829c73",
+  "failed_capacity_gates": {
+    "expected:large_tenant:roster:p99": {
+      "observed_ms": 3366.874,
+      "budget_ms": 3000
+    },
+    "expected:large_tenant:search:p99": {
+      "observed_ms": 2198.925,
+      "budget_ms": 2000
+    }
+  },
+  "first_process": [
+    {
+      "attempt": 1,
+      "elapsed_ms": 772.325,
+      "loop_max_lag_ms": 36.559,
+      "operation": "roster",
+      "phases": [
+        {
+          "milliseconds": 1.772,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.524
+        },
+        {
+          "milliseconds": 30.212,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 1.747
+        },
+        {
+          "milliseconds": 19.331,
+          "phase": "sql:client_groups:1007c75ceb8c",
+          "thread_cpu_ms": 1.972
+        },
+        {
+          "milliseconds": 20.65,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 3.285
+        },
+        {
+          "milliseconds": 54.857,
+          "phase": "sql:passport_submissions:467fd6fd6172",
+          "thread_cpu_ms": 34.819
+        },
+        {
+          "milliseconds": 87.812,
+          "phase": "projection_total",
+          "thread_cpu_ms": 67.776
+        },
+        {
+          "milliseconds": 89.746,
+          "phase": "duplicate_prepare_cpu",
+          "thread_cpu_ms": 88.93
+        },
+        {
+          "milliseconds": 57.992,
+          "phase": "cache_encode_cpu",
+          "thread_cpu_ms": 54.909
+        },
+        {
+          "milliseconds": 8.519,
+          "phase": "sql:passport_submissions:8ab0cbd7f5ef",
+          "thread_cpu_ms": 1.193
+        },
+        {
+          "milliseconds": 13.552,
+          "phase": "page_hydration",
+          "thread_cpu_ms": 6.224
+        },
+        {
+          "milliseconds": 2.447,
+          "phase": "sql:other:fb2a9dc17968",
+          "thread_cpu_ms": 0.514
+        },
+        {
+          "milliseconds": 0.41,
+          "phase": "sql:client_groups:1007c75ceb8c",
+          "thread_cpu_ms": 0.164
+        },
+        {
+          "milliseconds": 1.021,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 0.774
+        },
+        {
+          "milliseconds": 1.322,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.263
+        },
+        {
+          "milliseconds": 2.059,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.247
+        },
+        {
+          "milliseconds": 0.542,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.304
+        },
+        {
+          "milliseconds": 3.147,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.231
+        },
+        {
+          "milliseconds": 1.553,
+          "phase": "response_model_cpu",
+          "thread_cpu_ms": 1.555
+        },
+        {
+          "milliseconds": 1.636,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 1.643
+        }
+      ],
+      "response_bytes": 295313,
+      "role": "agency_admin",
+      "server_ms": "394.06",
+      "started_at": "2026-09-27T03:26:37.904967+05:30"
+    },
+    {
+      "attempt": 1,
+      "elapsed_ms": 59.587,
+      "loop_max_lag_ms": 2.999,
+      "operation": "search",
+      "phases": [
+        {
+          "milliseconds": 0.525,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.259
+        },
+        {
+          "milliseconds": 0.372,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 0.135
+        },
+        {
+          "milliseconds": 34.838,
+          "phase": "sql:passport_submissions:02be241ca4df",
+          "thread_cpu_ms": 0.952
+        },
+        {
+          "milliseconds": 2.609,
+          "phase": "sql:client_groups:e9daeb4c4d24",
+          "thread_cpu_ms": 0.466
+        },
+        {
+          "milliseconds": 0.321,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.147
+        },
+        {
+          "milliseconds": 0.348,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.262
+        },
+        {
+          "milliseconds": 0.29,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.211
+        },
+        {
+          "milliseconds": 0.549,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.198
+        },
+        {
+          "milliseconds": 0.041,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 0.042
+        }
+      ],
+      "response_bytes": 459,
+      "role": "agency_admin",
+      "server_ms": "57.22",
+      "started_at": "2026-09-27T03:26:38.678215+05:30"
+    },
+    {
+      "attempt": 2,
+      "elapsed_ms": 54.653,
+      "loop_max_lag_ms": 6.194,
+      "operation": "roster",
+      "phases": [
+        {
+          "milliseconds": 0.37,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.2
+        },
+        {
+          "milliseconds": 0.434,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 0.188
+        },
+        {
+          "milliseconds": 0.322,
+          "phase": "sql:client_groups:1007c75ceb8c",
+          "thread_cpu_ms": 0.152
+        },
+        {
+          "milliseconds": 0.809,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 0.638
+        },
+        {
+          "milliseconds": 19.219,
+          "phase": "cache_decode_cpu",
+          "thread_cpu_ms": 19.144
+        },
+        {
+          "milliseconds": 1.547,
+          "phase": "sql:passport_submissions:8ab0cbd7f5ef",
+          "thread_cpu_ms": 0.563
+        },
+        {
+          "milliseconds": 4.341,
+          "phase": "page_hydration",
+          "thread_cpu_ms": 3.357
+        },
+        {
+          "milliseconds": 0.654,
+          "phase": "sql:other:fb2a9dc17968",
+          "thread_cpu_ms": 0.244
+        },
+        {
+          "milliseconds": 0.318,
+          "phase": "sql:client_groups:1007c75ceb8c",
+          "thread_cpu_ms": 0.144
+        },
+        {
+          "milliseconds": 0.814,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 0.638
+        },
+        {
+          "milliseconds": 0.412,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.135
+        },
+        {
+          "milliseconds": 0.348,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.153
+        },
+        {
+          "milliseconds": 0.329,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.282
+        },
+        {
+          "milliseconds": 0.721,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.126
+        },
+        {
+          "milliseconds": 1.622,
+          "phase": "response_model_cpu",
+          "thread_cpu_ms": 1.625
+        },
+        {
+          "milliseconds": 1.919,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 1.921
+        }
+      ],
+      "response_bytes": 293413,
+      "role": "agency_admin",
+      "server_ms": "51.95",
+      "started_at": "2026-09-27T03:26:38.73787+05:30"
+    },
+    {
+      "attempt": 2,
+      "elapsed_ms": 34.57,
+      "loop_max_lag_ms": 1.553,
+      "operation": "search",
+      "phases": [
+        {
+          "milliseconds": 0.809,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.461
+        },
+        {
+          "milliseconds": 0.398,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 0.186
+        },
+        {
+          "milliseconds": 11.785,
+          "phase": "sql:passport_submissions:02be241ca4df",
+          "thread_cpu_ms": 0.353
+        },
+        {
+          "milliseconds": 0.625,
+          "phase": "sql:client_groups:e9daeb4c4d24",
+          "thread_cpu_ms": 0.179
+        },
+        {
+          "milliseconds": 0.554,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.185
+        },
+        {
+          "milliseconds": 0.367,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.306
+        },
+        {
+          "milliseconds": 0.309,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.123
+        },
+        {
+          "milliseconds": 0.638,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.124
+        },
+        {
+          "milliseconds": 0.037,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 0.038
+        }
+      ],
+      "response_bytes": 459,
+      "role": "agency_admin",
+      "server_ms": "32.34",
+      "started_at": "2026-09-27T03:26:38.793235+05:30"
+    },
+    {
+      "attempt": 3,
+      "elapsed_ms": 57.341,
+      "loop_max_lag_ms": 7.623,
+      "operation": "roster",
+      "phases": [
+        {
+          "milliseconds": 0.385,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.222
+        },
+        {
+          "milliseconds": 0.325,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 0.137
+        },
+        {
+          "milliseconds": 0.463,
+          "phase": "sql:client_groups:1007c75ceb8c",
+          "thread_cpu_ms": 0.142
+        },
+        {
+          "milliseconds": 0.837,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 0.515
+        },
+        {
+          "milliseconds": 17.108,
+          "phase": "cache_decode_cpu",
+          "thread_cpu_ms": 16.984
+        },
+        {
+          "milliseconds": 1.808,
+          "phase": "sql:passport_submissions:8ab0cbd7f5ef",
+          "thread_cpu_ms": 0.931
+        },
+        {
+          "milliseconds": 4.658,
+          "phase": "page_hydration",
+          "thread_cpu_ms": 3.78
+        },
+        {
+          "milliseconds": 0.595,
+          "phase": "sql:other:fb2a9dc17968",
+          "thread_cpu_ms": 0.381
+        },
+        {
+          "milliseconds": 0.526,
+          "phase": "sql:client_groups:1007c75ceb8c",
+          "thread_cpu_ms": 0.309
+        },
+        {
+          "milliseconds": 1.169,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 0.951
+        },
+        {
+          "milliseconds": 0.305,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.151
+        },
+        {
+          "milliseconds": 0.342,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.13
+        },
+        {
+          "milliseconds": 0.372,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.161
+        },
+        {
+          "milliseconds": 0.853,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.203
+        },
+        {
+          "milliseconds": 1.697,
+          "phase": "response_model_cpu",
+          "thread_cpu_ms": 1.7
+        },
+        {
+          "milliseconds": 2.209,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 2.211
+        }
+      ],
+      "response_bytes": 293413,
+      "role": "agency_admin",
+      "server_ms": "51.83",
+      "started_at": "2026-09-27T03:26:38.82787+05:30"
+    },
+    {
+      "attempt": 3,
+      "elapsed_ms": 31.351,
+      "loop_max_lag_ms": 0.705,
+      "operation": "search",
+      "phases": [
+        {
+          "milliseconds": 0.588,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.381
+        },
+        {
+          "milliseconds": 0.626,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 0.235
+        },
+        {
+          "milliseconds": 13.696,
+          "phase": "sql:passport_submissions:02be241ca4df",
+          "thread_cpu_ms": 0.353
+        },
+        {
+          "milliseconds": 1.083,
+          "phase": "sql:client_groups:e9daeb4c4d24",
+          "thread_cpu_ms": 0.15
+        },
+        {
+          "milliseconds": 0.319,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.147
+        },
+        {
+          "milliseconds": 0.383,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.166
+        },
+        {
+          "milliseconds": 0.236,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.118
+        },
+        {
+          "milliseconds": 0.438,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.116
+        },
+        {
+          "milliseconds": 0.037,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 0.038
+        }
+      ],
+      "response_bytes": 459,
+      "role": "agency_admin",
+      "server_ms": "28.85",
+      "started_at": "2026-09-27T03:26:38.886072+05:30"
+    },
+    {
+      "attempt": 1,
+      "elapsed_ms": 194.506,
+      "loop_max_lag_ms": 28.531,
+      "operation": "roster",
+      "phases": [
+        {
+          "milliseconds": 0.314,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.202
+        },
+        {
+          "milliseconds": 0.448,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 0.155
+        },
+        {
+          "milliseconds": 1.932,
+          "phase": "sql:client_groups:50350f918249",
+          "thread_cpu_ms": 0.349
+        },
+        {
+          "milliseconds": 3.266,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 1.682
+        },
+        {
+          "milliseconds": 13.305,
+          "phase": "sql:passport_submissions:b08c1566839c",
+          "thread_cpu_ms": 11.461
+        },
+        {
+          "milliseconds": 43.464,
+          "phase": "projection_total",
+          "thread_cpu_ms": 41.637
+        },
+        {
+          "milliseconds": 83.608,
+          "phase": "duplicate_prepare_cpu",
+          "thread_cpu_ms": 82.661
+        },
+        {
+          "milliseconds": 22.233,
+          "phase": "cache_encode_cpu",
+          "thread_cpu_ms": 22.237
+        },
+        {
+          "milliseconds": 4.863,
+          "phase": "sql:passport_submissions:37b74d32d30e",
+          "thread_cpu_ms": 2.615
+        },
+        {
+          "milliseconds": 9.546,
+          "phase": "page_hydration",
+          "thread_cpu_ms": 7.297
+        },
+        {
+          "milliseconds": 0.404,
+          "phase": "sql:other:fb2a9dc17968",
+          "thread_cpu_ms": 0.199
+        },
+        {
+          "milliseconds": 0.694,
+          "phase": "sql:client_groups:50350f918249",
+          "thread_cpu_ms": 0.246
+        },
+        {
+          "milliseconds": 1.494,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 1.045
+        },
+        {
+          "milliseconds": 0.263,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.136
+        },
+        {
+          "milliseconds": 0.193,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.125
+        },
+        {
+          "milliseconds": 0.314,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.131
+        },
+        {
+          "milliseconds": 0.568,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.127
+        },
+        {
+          "milliseconds": 1.801,
+          "phase": "response_model_cpu",
+          "thread_cpu_ms": 1.804
+        },
+        {
+          "milliseconds": 1.197,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 1.199
+        }
+      ],
+      "response_bytes": 295313,
+      "role": "agency_staff",
+      "server_ms": "191.68",
+      "started_at": "2026-09-27T03:26:38.917492+05:30"
+    },
+    {
+      "attempt": 1,
+      "elapsed_ms": 36.975,
+      "loop_max_lag_ms": 6.398,
+      "operation": "search",
+      "phases": [
+        {
+          "milliseconds": 0.431,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.394
+        },
+        {
+          "milliseconds": 0.221,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 0.139
+        },
+        {
+          "milliseconds": 15.146,
+          "phase": "sql:passport_submissions:e01f459fe55f",
+          "thread_cpu_ms": 0.997
+        },
+        {
+          "milliseconds": 1.901,
+          "phase": "sql:client_groups:31bb56ce78d8",
+          "thread_cpu_ms": 0.605
+        },
+        {
+          "milliseconds": 0.314,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.147
+        },
+        {
+          "milliseconds": 0.226,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.152
+        },
+        {
+          "milliseconds": 0.275,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.123
+        },
+        {
+          "milliseconds": 0.601,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.207
+        },
+        {
+          "milliseconds": 0.061,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 0.063
+        }
+      ],
+      "response_bytes": 459,
+      "role": "agency_staff",
+      "server_ms": "34.69",
+      "started_at": "2026-09-27T03:26:39.11277+05:30"
+    },
+    {
+      "attempt": 2,
+      "elapsed_ms": 52.071,
+      "loop_max_lag_ms": 10.553,
+      "operation": "roster",
+      "phases": [
+        {
+          "milliseconds": 0.358,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.23
+        },
+        {
+          "milliseconds": 0.232,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 0.133
+        },
+        {
+          "milliseconds": 0.43,
+          "phase": "sql:client_groups:50350f918249",
+          "thread_cpu_ms": 0.148
+        },
+        {
+          "milliseconds": 1.034,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 0.752
+        },
+        {
+          "milliseconds": 17.439,
+          "phase": "cache_decode_cpu",
+          "thread_cpu_ms": 17.305
+        },
+        {
+          "milliseconds": 1.715,
+          "phase": "sql:passport_submissions:37b74d32d30e",
+          "thread_cpu_ms": 0.583
+        },
+        {
+          "milliseconds": 4.51,
+          "phase": "page_hydration",
+          "thread_cpu_ms": 3.377
+        },
+        {
+          "milliseconds": 0.521,
+          "phase": "sql:other:fb2a9dc17968",
+          "thread_cpu_ms": 0.224
+        },
+        {
+          "milliseconds": 0.557,
+          "phase": "sql:client_groups:50350f918249",
+          "thread_cpu_ms": 0.152
+        },
+        {
+          "milliseconds": 1.241,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 0.835
+        },
+        {
+          "milliseconds": 0.323,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.146
+        },
+        {
+          "milliseconds": 0.197,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.127
+        },
+        {
+          "milliseconds": 0.198,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.126
+        },
+        {
+          "milliseconds": 0.477,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.134
+        },
+        {
+          "milliseconds": 1.666,
+          "phase": "response_model_cpu",
+          "thread_cpu_ms": 1.669
+        },
+        {
+          "milliseconds": 2.001,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 2.004
+        }
+      ],
+      "response_bytes": 293413,
+      "role": "agency_staff",
+      "server_ms": "49.24",
+      "started_at": "2026-09-27T03:26:39.149818+05:30"
+    },
+    {
+      "attempt": 2,
+      "elapsed_ms": 28.855,
+      "loop_max_lag_ms": 2.643,
+      "operation": "search",
+      "phases": [
+        {
+          "milliseconds": 0.322,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.199
+        },
+        {
+          "milliseconds": 0.249,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 0.156
+        },
+        {
+          "milliseconds": 12.735,
+          "phase": "sql:passport_submissions:e01f459fe55f",
+          "thread_cpu_ms": 0.578
+        },
+        {
+          "milliseconds": 1.414,
+          "phase": "sql:client_groups:31bb56ce78d8",
+          "thread_cpu_ms": 0.205
+        },
+        {
+          "milliseconds": 0.314,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.163
+        },
+        {
+          "milliseconds": 0.201,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.135
+        },
+        {
+          "milliseconds": 0.205,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.125
+        },
+        {
+          "milliseconds": 0.577,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.118
+        },
+        {
+          "milliseconds": 0.041,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 0.042
+        }
+      ],
+      "response_bytes": 459,
+      "role": "agency_staff",
+      "server_ms": "26.4",
+      "started_at": "2026-09-27T03:26:39.202606+05:30"
+    },
+    {
+      "attempt": 3,
+      "elapsed_ms": 56.778,
+      "loop_max_lag_ms": 8.94,
+      "operation": "roster",
+      "phases": [
+        {
+          "milliseconds": 0.486,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.234
+        },
+        {
+          "milliseconds": 0.225,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 0.139
+        },
+        {
+          "milliseconds": 0.385,
+          "phase": "sql:client_groups:50350f918249",
+          "thread_cpu_ms": 0.155
+        },
+        {
+          "milliseconds": 0.998,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 0.767
+        },
+        {
+          "milliseconds": 20.953,
+          "phase": "cache_decode_cpu",
+          "thread_cpu_ms": 20.726
+        },
+        {
+          "milliseconds": 1.724,
+          "phase": "sql:passport_submissions:37b74d32d30e",
+          "thread_cpu_ms": 0.622
+        },
+        {
+          "milliseconds": 4.701,
+          "phase": "page_hydration",
+          "thread_cpu_ms": 3.599
+        },
+        {
+          "milliseconds": 0.615,
+          "phase": "sql:other:fb2a9dc17968",
+          "thread_cpu_ms": 0.178
+        },
+        {
+          "milliseconds": 0.765,
+          "phase": "sql:client_groups:50350f918249",
+          "thread_cpu_ms": 0.225
+        },
+        {
+          "milliseconds": 1.434,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 0.891
+        },
+        {
+          "milliseconds": 0.405,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.135
+        },
+        {
+          "milliseconds": 0.232,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.13
+        },
+        {
+          "milliseconds": 0.206,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.12
+        },
+        {
+          "milliseconds": 0.276,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.115
+        },
+        {
+          "milliseconds": 1.644,
+          "phase": "response_model_cpu",
+          "thread_cpu_ms": 1.647
+        },
+        {
+          "milliseconds": 1.957,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 1.96
+        }
+      ],
+      "response_bytes": 293413,
+      "role": "agency_staff",
+      "server_ms": "53.78",
+      "started_at": "2026-09-27T03:26:39.231521+05:30"
+    },
+    {
+      "attempt": 3,
+      "elapsed_ms": 30.006,
+      "loop_max_lag_ms": 0.56,
+      "operation": "search",
+      "phases": [
+        {
+          "milliseconds": 0.369,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.236
+        },
+        {
+          "milliseconds": 0.248,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 0.145
+        },
+        {
+          "milliseconds": 11.695,
+          "phase": "sql:passport_submissions:e01f459fe55f",
+          "thread_cpu_ms": 0.327
+        },
+        {
+          "milliseconds": 1.206,
+          "phase": "sql:client_groups:31bb56ce78d8",
+          "thread_cpu_ms": 0.169
+        },
+        {
+          "milliseconds": 0.465,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.138
+        },
+        {
+          "milliseconds": 0.337,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.172
+        },
+        {
+          "milliseconds": 0.248,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.174
+        },
+        {
+          "milliseconds": 0.689,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.131
+        },
+        {
+          "milliseconds": 0.035,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 0.036
+        }
+      ],
+      "response_bytes": 459,
+      "role": "agency_staff",
+      "server_ms": "27.68",
+      "started_at": "2026-09-27T03:26:39.289023+05:30"
+    }
+  ],
+  "second_process": [
+    {
+      "attempt": 1,
+      "elapsed_ms": 682.496,
+      "loop_max_lag_ms": 24.976,
+      "operation": "roster",
+      "phases": [
+        {
+          "milliseconds": 2.258,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.605
+        },
+        {
+          "milliseconds": 16.325,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 1.533
+        },
+        {
+          "milliseconds": 8.464,
+          "phase": "sql:client_groups:1007c75ceb8c",
+          "thread_cpu_ms": 1.09
+        },
+        {
+          "milliseconds": 9.728,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 2.335
+        },
+        {
+          "milliseconds": 23.892,
+          "phase": "sql:passport_submissions:467fd6fd6172",
+          "thread_cpu_ms": 14.756
+        },
+        {
+          "milliseconds": 49.325,
+          "phase": "projection_total",
+          "thread_cpu_ms": 40.193
+        },
+        {
+          "milliseconds": 82.23,
+          "phase": "duplicate_prepare_cpu",
+          "thread_cpu_ms": 81.334
+        },
+        {
+          "milliseconds": 24.697,
+          "phase": "cache_encode_cpu",
+          "thread_cpu_ms": 24.624
+        },
+        {
+          "milliseconds": 3.874,
+          "phase": "sql:passport_submissions:8ab0cbd7f5ef",
+          "thread_cpu_ms": 1.311
+        },
+        {
+          "milliseconds": 9.545,
+          "phase": "page_hydration",
+          "thread_cpu_ms": 6.979
+        },
+        {
+          "milliseconds": 2.052,
+          "phase": "sql:other:fb2a9dc17968",
+          "thread_cpu_ms": 0.353
+        },
+        {
+          "milliseconds": 0.352,
+          "phase": "sql:client_groups:1007c75ceb8c",
+          "thread_cpu_ms": 0.166
+        },
+        {
+          "milliseconds": 1.106,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 0.918
+        },
+        {
+          "milliseconds": 0.943,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.282
+        },
+        {
+          "milliseconds": 2.036,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.389
+        },
+        {
+          "milliseconds": 0.554,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.276
+        },
+        {
+          "milliseconds": 1.759,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.306
+        },
+        {
+          "milliseconds": 1.781,
+          "phase": "response_model_cpu",
+          "thread_cpu_ms": 1.783
+        },
+        {
+          "milliseconds": 1.175,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 1.177
+        }
+      ],
+      "response_bytes": 295313,
+      "role": "agency_admin",
+      "server_ms": "264.73",
+      "started_at": "2026-09-27T03:29:03.944953+05:30"
+    },
+    {
+      "attempt": 1,
+      "elapsed_ms": 38.167,
+      "loop_max_lag_ms": 4.156,
+      "operation": "search",
+      "phases": [
+        {
+          "milliseconds": 0.491,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.259
+        },
+        {
+          "milliseconds": 0.362,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 0.143
+        },
+        {
+          "milliseconds": 13.11,
+          "phase": "sql:passport_submissions:02be241ca4df",
+          "thread_cpu_ms": 0.759
+        },
+        {
+          "milliseconds": 1.585,
+          "phase": "sql:client_groups:e9daeb4c4d24",
+          "thread_cpu_ms": 0.386
+        },
+        {
+          "milliseconds": 0.398,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.204
+        },
+        {
+          "milliseconds": 0.396,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.178
+        },
+        {
+          "milliseconds": 0.37,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.138
+        },
+        {
+          "milliseconds": 0.333,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.157
+        },
+        {
+          "milliseconds": 0.042,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 0.044
+        }
+      ],
+      "response_bytes": 459,
+      "role": "agency_admin",
+      "server_ms": "35.68",
+      "started_at": "2026-09-27T03:29:04.62827+05:30"
+    },
+    {
+      "attempt": 2,
+      "elapsed_ms": 54.724,
+      "loop_max_lag_ms": 9.892,
+      "operation": "roster",
+      "phases": [
+        {
+          "milliseconds": 1.408,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.759
+        },
+        {
+          "milliseconds": 1.313,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 0.419
+        },
+        {
+          "milliseconds": 0.815,
+          "phase": "sql:client_groups:1007c75ceb8c",
+          "thread_cpu_ms": 0.274
+        },
+        {
+          "milliseconds": 1.777,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 1.232
+        },
+        {
+          "milliseconds": 16.7,
+          "phase": "cache_decode_cpu",
+          "thread_cpu_ms": 16.664
+        },
+        {
+          "milliseconds": 1.299,
+          "phase": "sql:passport_submissions:8ab0cbd7f5ef",
+          "thread_cpu_ms": 0.478
+        },
+        {
+          "milliseconds": 4.136,
+          "phase": "page_hydration",
+          "thread_cpu_ms": 3.316
+        },
+        {
+          "milliseconds": 0.429,
+          "phase": "sql:other:fb2a9dc17968",
+          "thread_cpu_ms": 0.202
+        },
+        {
+          "milliseconds": 0.307,
+          "phase": "sql:client_groups:1007c75ceb8c",
+          "thread_cpu_ms": 0.14
+        },
+        {
+          "milliseconds": 0.781,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 0.613
+        },
+        {
+          "milliseconds": 0.263,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.134
+        },
+        {
+          "milliseconds": 0.224,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.13
+        },
+        {
+          "milliseconds": 0.221,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.124
+        },
+        {
+          "milliseconds": 0.407,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.119
+        },
+        {
+          "milliseconds": 1.514,
+          "phase": "response_model_cpu",
+          "thread_cpu_ms": 1.516
+        },
+        {
+          "milliseconds": 2.004,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 2.006
+        }
+      ],
+      "response_bytes": 293413,
+      "role": "agency_admin",
+      "server_ms": "51.7",
+      "started_at": "2026-09-27T03:29:04.666503+05:30"
+    },
+    {
+      "attempt": 2,
+      "elapsed_ms": 24.848,
+      "loop_max_lag_ms": 1.001,
+      "operation": "search",
+      "phases": [
+        {
+          "milliseconds": 0.523,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.297
+        },
+        {
+          "milliseconds": 0.4,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 0.254
+        },
+        {
+          "milliseconds": 9.712,
+          "phase": "sql:passport_submissions:02be241ca4df",
+          "thread_cpu_ms": 0.298
+        },
+        {
+          "milliseconds": 0.695,
+          "phase": "sql:client_groups:e9daeb4c4d24",
+          "thread_cpu_ms": 0.15
+        },
+        {
+          "milliseconds": 0.383,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.201
+        },
+        {
+          "milliseconds": 0.268,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.154
+        },
+        {
+          "milliseconds": 0.244,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.138
+        },
+        {
+          "milliseconds": 0.45,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.153
+        },
+        {
+          "milliseconds": 0.039,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 0.04
+        }
+      ],
+      "response_bytes": 459,
+      "role": "agency_admin",
+      "server_ms": "22.54",
+      "started_at": "2026-09-27T03:29:04.72208+05:30"
+    },
+    {
+      "attempt": 3,
+      "elapsed_ms": 56.91,
+      "loop_max_lag_ms": 10.04,
+      "operation": "roster",
+      "phases": [
+        {
+          "milliseconds": 0.457,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.247
+        },
+        {
+          "milliseconds": 0.549,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 0.151
+        },
+        {
+          "milliseconds": 0.379,
+          "phase": "sql:client_groups:1007c75ceb8c",
+          "thread_cpu_ms": 0.143
+        },
+        {
+          "milliseconds": 0.887,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 0.648
+        },
+        {
+          "milliseconds": 17.488,
+          "phase": "cache_decode_cpu",
+          "thread_cpu_ms": 17.406
+        },
+        {
+          "milliseconds": 1.552,
+          "phase": "sql:passport_submissions:8ab0cbd7f5ef",
+          "thread_cpu_ms": 0.596
+        },
+        {
+          "milliseconds": 4.217,
+          "phase": "page_hydration",
+          "thread_cpu_ms": 3.262
+        },
+        {
+          "milliseconds": 0.383,
+          "phase": "sql:other:fb2a9dc17968",
+          "thread_cpu_ms": 0.197
+        },
+        {
+          "milliseconds": 0.376,
+          "phase": "sql:client_groups:1007c75ceb8c",
+          "thread_cpu_ms": 0.148
+        },
+        {
+          "milliseconds": 0.892,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 0.662
+        },
+        {
+          "milliseconds": 0.293,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.154
+        },
+        {
+          "milliseconds": 0.223,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.128
+        },
+        {
+          "milliseconds": 0.211,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.125
+        },
+        {
+          "milliseconds": 0.3,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.118
+        },
+        {
+          "milliseconds": 1.552,
+          "phase": "response_model_cpu",
+          "thread_cpu_ms": 1.554
+        },
+        {
+          "milliseconds": 2.128,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 2.131
+        }
+      ],
+      "response_bytes": 293413,
+      "role": "agency_admin",
+      "server_ms": "52.51",
+      "started_at": "2026-09-27T03:29:04.746997+05:30"
+    },
+    {
+      "attempt": 3,
+      "elapsed_ms": 25.022,
+      "loop_max_lag_ms": 0.901,
+      "operation": "search",
+      "phases": [
+        {
+          "milliseconds": 0.426,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.218
+        },
+        {
+          "milliseconds": 0.473,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 0.246
+        },
+        {
+          "milliseconds": 9.534,
+          "phase": "sql:passport_submissions:02be241ca4df",
+          "thread_cpu_ms": 0.277
+        },
+        {
+          "milliseconds": 0.584,
+          "phase": "sql:client_groups:e9daeb4c4d24",
+          "thread_cpu_ms": 0.149
+        },
+        {
+          "milliseconds": 0.462,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.134
+        },
+        {
+          "milliseconds": 0.335,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.129
+        },
+        {
+          "milliseconds": 0.333,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.27
+        },
+        {
+          "milliseconds": 0.341,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.114
+        },
+        {
+          "milliseconds": 0.036,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 0.037
+        }
+      ],
+      "response_bytes": 459,
+      "role": "agency_admin",
+      "server_ms": "22.72",
+      "started_at": "2026-09-27T03:29:04.804745+05:30"
+    },
+    {
+      "attempt": 1,
+      "elapsed_ms": 215.962,
+      "loop_max_lag_ms": 24.37,
+      "operation": "roster",
+      "phases": [
+        {
+          "milliseconds": 0.302,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.193
+        },
+        {
+          "milliseconds": 0.264,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 0.164
+        },
+        {
+          "milliseconds": 1.449,
+          "phase": "sql:client_groups:50350f918249",
+          "thread_cpu_ms": 0.339
+        },
+        {
+          "milliseconds": 2.518,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 1.407
+        },
+        {
+          "milliseconds": 13.941,
+          "phase": "sql:passport_submissions:b08c1566839c",
+          "thread_cpu_ms": 11.458
+        },
+        {
+          "milliseconds": 39.811,
+          "phase": "projection_total",
+          "thread_cpu_ms": 37.352
+        },
+        {
+          "milliseconds": 93.264,
+          "phase": "duplicate_prepare_cpu",
+          "thread_cpu_ms": 92.092
+        },
+        {
+          "milliseconds": 25.782,
+          "phase": "cache_encode_cpu",
+          "thread_cpu_ms": 25.582
+        },
+        {
+          "milliseconds": 5.551,
+          "phase": "sql:passport_submissions:37b74d32d30e",
+          "thread_cpu_ms": 3.066
+        },
+        {
+          "milliseconds": 14.554,
+          "phase": "page_hydration",
+          "thread_cpu_ms": 12.058
+        },
+        {
+          "milliseconds": 1.188,
+          "phase": "sql:other:fb2a9dc17968",
+          "thread_cpu_ms": 0.843
+        },
+        {
+          "milliseconds": 0.857,
+          "phase": "sql:client_groups:50350f918249",
+          "thread_cpu_ms": 0.332
+        },
+        {
+          "milliseconds": 2.43,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 1.899
+        },
+        {
+          "milliseconds": 0.59,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.388
+        },
+        {
+          "milliseconds": 0.43,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.266
+        },
+        {
+          "milliseconds": 0.365,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.252
+        },
+        {
+          "milliseconds": 0.524,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.282
+        },
+        {
+          "milliseconds": 1.874,
+          "phase": "response_model_cpu",
+          "thread_cpu_ms": 1.877
+        },
+        {
+          "milliseconds": 1.334,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 1.337
+        }
+      ],
+      "response_bytes": 295313,
+      "role": "agency_staff",
+      "server_ms": "213.13",
+      "started_at": "2026-09-27T03:29:04.829829+05:30"
+    },
+    {
+      "attempt": 1,
+      "elapsed_ms": 56.071,
+      "loop_max_lag_ms": 8.073,
+      "operation": "search",
+      "phases": [
+        {
+          "milliseconds": 0.757,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.566
+        },
+        {
+          "milliseconds": 0.512,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 0.346
+        },
+        {
+          "milliseconds": 17.893,
+          "phase": "sql:passport_submissions:e01f459fe55f",
+          "thread_cpu_ms": 1.116
+        },
+        {
+          "milliseconds": 1.907,
+          "phase": "sql:client_groups:31bb56ce78d8",
+          "thread_cpu_ms": 0.537
+        },
+        {
+          "milliseconds": 0.791,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.234
+        },
+        {
+          "milliseconds": 0.365,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.246
+        },
+        {
+          "milliseconds": 0.266,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.158
+        },
+        {
+          "milliseconds": 0.558,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.198
+        },
+        {
+          "milliseconds": 0.051,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 0.052
+        }
+      ],
+      "response_bytes": 459,
+      "role": "agency_staff",
+      "server_ms": "51.51",
+      "started_at": "2026-09-27T03:29:05.047225+05:30"
+    },
+    {
+      "attempt": 2,
+      "elapsed_ms": 94.294,
+      "loop_max_lag_ms": 17.301,
+      "operation": "roster",
+      "phases": [
+        {
+          "milliseconds": 0.731,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.496
+        },
+        {
+          "milliseconds": 0.412,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 0.217
+        },
+        {
+          "milliseconds": 0.815,
+          "phase": "sql:client_groups:50350f918249",
+          "thread_cpu_ms": 0.187
+        },
+        {
+          "milliseconds": 1.85,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 1.222
+        },
+        {
+          "milliseconds": 36.98,
+          "phase": "cache_decode_cpu",
+          "thread_cpu_ms": 36.558
+        },
+        {
+          "milliseconds": 2.85,
+          "phase": "sql:passport_submissions:37b74d32d30e",
+          "thread_cpu_ms": 1.009
+        },
+        {
+          "milliseconds": 6.995,
+          "phase": "page_hydration",
+          "thread_cpu_ms": 5.149
+        },
+        {
+          "milliseconds": 0.716,
+          "phase": "sql:other:fb2a9dc17968",
+          "thread_cpu_ms": 0.445
+        },
+        {
+          "milliseconds": 0.794,
+          "phase": "sql:client_groups:50350f918249",
+          "thread_cpu_ms": 0.36
+        },
+        {
+          "milliseconds": 2.143,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 1.704
+        },
+        {
+          "milliseconds": 0.462,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.302
+        },
+        {
+          "milliseconds": 0.483,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.258
+        },
+        {
+          "milliseconds": 0.713,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.452
+        },
+        {
+          "milliseconds": 0.773,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.422
+        },
+        {
+          "milliseconds": 6.981,
+          "phase": "response_model_cpu",
+          "thread_cpu_ms": 6.989
+        },
+        {
+          "milliseconds": 2.584,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 2.59
+        }
+      ],
+      "response_bytes": 293413,
+      "role": "agency_staff",
+      "server_ms": "91.1",
+      "started_at": "2026-09-27T03:29:05.103423+05:30"
+    },
+    {
+      "attempt": 2,
+      "elapsed_ms": 39.493,
+      "loop_max_lag_ms": 0.782,
+      "operation": "search",
+      "phases": [
+        {
+          "milliseconds": 0.432,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.272
+        },
+        {
+          "milliseconds": 0.523,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 0.282
+        },
+        {
+          "milliseconds": 19.096,
+          "phase": "sql:passport_submissions:e01f459fe55f",
+          "thread_cpu_ms": 0.997
+        },
+        {
+          "milliseconds": 1.128,
+          "phase": "sql:client_groups:31bb56ce78d8",
+          "thread_cpu_ms": 0.292
+        },
+        {
+          "milliseconds": 0.64,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.254
+        },
+        {
+          "milliseconds": 0.271,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.165
+        },
+        {
+          "milliseconds": 0.271,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.164
+        },
+        {
+          "milliseconds": 0.616,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.156
+        },
+        {
+          "milliseconds": 0.049,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 0.051
+        }
+      ],
+      "response_bytes": 459,
+      "role": "agency_staff",
+      "server_ms": "37.2",
+      "started_at": "2026-09-27T03:29:05.198817+05:30"
+    },
+    {
+      "attempt": 3,
+      "elapsed_ms": 76.947,
+      "loop_max_lag_ms": 13.015,
+      "operation": "roster",
+      "phases": [
+        {
+          "milliseconds": 0.548,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.337
+        },
+        {
+          "milliseconds": 0.467,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 0.263
+        },
+        {
+          "milliseconds": 0.592,
+          "phase": "sql:client_groups:50350f918249",
+          "thread_cpu_ms": 0.22
+        },
+        {
+          "milliseconds": 1.774,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 1.4
+        },
+        {
+          "milliseconds": 23.248,
+          "phase": "cache_decode_cpu",
+          "thread_cpu_ms": 22.984
+        },
+        {
+          "milliseconds": 2.695,
+          "phase": "sql:passport_submissions:37b74d32d30e",
+          "thread_cpu_ms": 1.422
+        },
+        {
+          "milliseconds": 9.651,
+          "phase": "page_hydration",
+          "thread_cpu_ms": 8.367
+        },
+        {
+          "milliseconds": 1.193,
+          "phase": "sql:other:fb2a9dc17968",
+          "thread_cpu_ms": 0.695
+        },
+        {
+          "milliseconds": 1.458,
+          "phase": "sql:client_groups:50350f918249",
+          "thread_cpu_ms": 0.343
+        },
+        {
+          "milliseconds": 2.663,
+          "phase": "revision_scope",
+          "thread_cpu_ms": 1.541
+        },
+        {
+          "milliseconds": 0.481,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.307
+        },
+        {
+          "milliseconds": 0.517,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.364
+        },
+        {
+          "milliseconds": 0.563,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.363
+        },
+        {
+          "milliseconds": 0.67,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.309
+        },
+        {
+          "milliseconds": 2.523,
+          "phase": "response_model_cpu",
+          "thread_cpu_ms": 2.531
+        },
+        {
+          "milliseconds": 2.164,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 2.168
+        }
+      ],
+      "response_bytes": 293413,
+      "role": "agency_staff",
+      "server_ms": "73.99",
+      "started_at": "2026-09-27T03:29:05.238391+05:30"
+    },
+    {
+      "attempt": 3,
+      "elapsed_ms": 33.676,
+      "loop_max_lag_ms": 1.327,
+      "operation": "search",
+      "phases": [
+        {
+          "milliseconds": 0.532,
+          "phase": "sql:dashboard_sessions:c9216e125e71",
+          "thread_cpu_ms": 0.312
+        },
+        {
+          "milliseconds": 0.26,
+          "phase": "sql:users:bc05758a19d4",
+          "thread_cpu_ms": 0.15
+        },
+        {
+          "milliseconds": 15.113,
+          "phase": "sql:passport_submissions:e01f459fe55f",
+          "thread_cpu_ms": 0.631
+        },
+        {
+          "milliseconds": 1.003,
+          "phase": "sql:client_groups:31bb56ce78d8",
+          "thread_cpu_ms": 0.237
+        },
+        {
+          "milliseconds": 0.408,
+          "phase": "sql:audit_chain_heads:efc88670eb40",
+          "thread_cpu_ms": 0.211
+        },
+        {
+          "milliseconds": 0.32,
+          "phase": "sql:audit_chain_heads:2b5751b40017",
+          "thread_cpu_ms": 0.241
+        },
+        {
+          "milliseconds": 0.236,
+          "phase": "sql:audit_chain_heads:9bef70a6fb18",
+          "thread_cpu_ms": 0.14
+        },
+        {
+          "milliseconds": 0.307,
+          "phase": "sql:audit_logs:b579a3f6ecb3",
+          "thread_cpu_ms": 0.131
+        },
+        {
+          "milliseconds": 0.043,
+          "phase": "response_serialization",
+          "thread_cpu_ms": 0.044
+        }
+      ],
+      "response_bytes": 459,
+      "role": "agency_staff",
+      "server_ms": "30.98",
+      "started_at": "2026-09-27T03:29:05.316223+05:30"
+    }
+  ],
+  "read_only_plan_summary": [
+    {
+      "sql_sha256_prefix": "467fd6fd6172",
+      "jit_setting": "on",
+      "total_cost": 1030.31,
+      "execution_ms": 2.531,
+      "planning_ms": 3.453,
+      "actual_rows": 5000,
+      "jit_present": false
+    },
+    {
+      "sql_sha256_prefix": "467fd6fd6172",
+      "jit_setting": "off",
+      "total_cost": 1030.31,
+      "execution_ms": 1.885,
+      "planning_ms": 0.24,
+      "actual_rows": 5000,
+      "jit_present": false
+    },
+    {
+      "sql_sha256_prefix": "8ab0cbd7f5ef",
+      "jit_setting": "on",
+      "total_cost": 227.45,
+      "execution_ms": 0.325,
+      "planning_ms": 1.655,
+      "actual_rows": 50,
+      "jit_present": false
+    },
+    {
+      "sql_sha256_prefix": "8ab0cbd7f5ef",
+      "jit_setting": "off",
+      "total_cost": 227.45,
+      "execution_ms": 2.973,
+      "planning_ms": 1.029,
+      "actual_rows": 50,
+      "jit_present": false
+    },
+    {
+      "sql_sha256_prefix": "02be241ca4df",
+      "jit_setting": "on",
+      "total_cost": 289.29,
+      "execution_ms": 7.451,
+      "planning_ms": 4.143,
+      "actual_rows": 1,
+      "jit_present": false
+    },
+    {
+      "sql_sha256_prefix": "02be241ca4df",
+      "jit_setting": "off",
+      "total_cost": 289.29,
+      "execution_ms": 9.495,
+      "planning_ms": 2.704,
+      "actual_rows": 1,
+      "jit_present": false
+    },
+    {
+      "sql_sha256_prefix": "b08c1566839c",
+      "jit_setting": "on",
+      "total_cost": 1051.14,
+      "execution_ms": 1.837,
+      "planning_ms": 1.099,
+      "actual_rows": 5000,
+      "jit_present": false
+    },
+    {
+      "sql_sha256_prefix": "b08c1566839c",
+      "jit_setting": "off",
+      "total_cost": 1051.14,
+      "execution_ms": 1.905,
+      "planning_ms": 0.419,
+      "actual_rows": 5000,
+      "jit_present": false
+    },
+    {
+      "sql_sha256_prefix": "37b74d32d30e",
+      "jit_setting": "on",
+      "total_cost": 248.28,
+      "execution_ms": 0.312,
+      "planning_ms": 0.53,
+      "actual_rows": 50,
+      "jit_present": false
+    },
+    {
+      "sql_sha256_prefix": "37b74d32d30e",
+      "jit_setting": "off",
+      "total_cost": 248.28,
+      "execution_ms": 0.298,
+      "planning_ms": 0.53,
+      "actual_rows": 50,
+      "jit_present": false
+    },
+    {
+      "sql_sha256_prefix": "e01f459fe55f",
+      "jit_setting": "on",
+      "total_cost": 223.91,
+      "execution_ms": 7.858,
+      "planning_ms": 4.639,
+      "actual_rows": 1,
+      "jit_present": false
+    },
+    {
+      "sql_sha256_prefix": "e01f459fe55f",
+      "jit_setting": "off",
+      "total_cost": 223.91,
+      "execution_ms": 6.739,
+      "planning_ms": 4.42,
+      "actual_rows": 1,
+      "jit_present": false
+    }
+  ],
+  "roster_revision_before": 21,
+  "roster_revision_after": 21,
+  "findings": [
+    "Preparation and cache serialization already run off the event loop; sequential main-loop lag stayed below37ms.",
+    "The exact projection, page and search plans did not invoke JIT, despite the connection setting being on.",
+    "Uploads target a different synthetic group from the measured large roster, so they do not directly invalidate its revision.",
+    "The failed full run did not retain per-request timestamps, so exact alignment of its two tails with uploads cannot be reconstructed."
+  ],
+  "next_evidence": "The runner now retains safe request timestamps, server timing, request IDs and per-stage outliers for a reviewed-candidate strict repeat.",
+  "scope": "Actual ASGI routes/authentication/audit, retained synthetic5000-row group; first requests retained. Two fresh processes, 12 sequential requests each; no lifetime startup warmup or cache flush.",
+  "limits": [
+    "These are diagnostic probes, not workload acceptance or proof of the failed tail cause.",
+    "The second probe can overlap isolated resource qualification and is not a latency benchmark.",
+    "Read-only EXPLAIN measurements use the retained dataset and do not establish a fresh-distribution or generic-plan guarantee.",
+    "Redis finalizer warnings occur after successful assertions in the short-lived ASGI harness without app lifespan; raw logs retain them."
+  ],
+  "reviewed_script_sha256": "b1bdc833de28069d4b1bff1e1b058bcae0caa82d6888f43f02998635c309fb46",
+  "raw_artifacts": [
+    "outputs/qualification/workload-capacity-third-failed.json",
+    "outputs/qualification/capacity-tail-diagnostic.txt",
+    "outputs/qualification/capacity-tail-diagnostic-plans.txt"
+  ],
+  "production_changed": false,
+  "backend_application_changed": false,
+  "existing_data_deleted": false
+}

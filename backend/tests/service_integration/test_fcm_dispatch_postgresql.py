@@ -37,7 +37,7 @@ from app.infrastructure.database.gc_mobile_models import (
     MobilePushDeliveryModel,
     MobilePushRegistrationModel,
 )
-from app.infrastructure.database.models import Base
+from tests.postgresql_schema import create_isolated_postgresql_tables
 from tests.service_integration.test_announcement_push_guard_postgresql import (
     push_target as push_target,
 )
@@ -90,7 +90,7 @@ async def pg_factory():
             created = True
         async with engine.begin() as connection:
             assert await connection.scalar(text("SELECT current_schema()")) == schema
-            await connection.run_sync(Base.metadata.create_all)
+            await create_isolated_postgresql_tables(connection, schema)
         yield async_sessionmaker(engine, expire_on_commit=False)
     finally:
         await engine.dispose()

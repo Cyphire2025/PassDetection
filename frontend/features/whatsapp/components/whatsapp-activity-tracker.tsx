@@ -731,7 +731,7 @@ function WhatsAppActivityRow({
             activity.kind === "broadcast" && "flex-wrap gap-y-0.5",
           )}>
             <Link
-              href={sourceHref as never}
+              href={sourceHref}
               className="truncate text-sm font-semibold text-slate-950 hover:text-blue-700 hover:underline"
             >
               {activity.title}

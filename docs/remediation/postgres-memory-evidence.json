@@ -1,0 +1,38 @@
+{
+  "status": "passed",
+  "container": "pd-memory-20260926221811697110-postgres",
+  "pinned_image": "postgres:16-alpine@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb",
+  "memory_cap_mib": 1024,
+  "production_changes": false,
+  "image_id": "sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb",
+  "version": "PostgreSQL 16.14 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+  "settings": {
+    "max_connections": "100",
+    "shared_buffers": "128MB",
+    "work_mem": "4MB",
+    "maintenance_work_mem": "64MB",
+    "max_parallel_workers_per_gather": "2"
+  },
+  "held_sessions": 65,
+  "simultaneous_queries": 64,
+  "sort_rows_per_query": 50000,
+  "synthetic_table_rows": 200000,
+  "query_elapsed_seconds": 13.043532599986065,
+  "temp_files": 65,
+  "temp_bytes": 426391936,
+  "cgroup_peak_bytes": 717053952,
+  "cgroup_current_bytes": 323141632,
+  "cgroup_events": {
+    "low": "0",
+    "high": "0",
+    "max": "0",
+    "oom": "0",
+    "oom_kill": "0",
+    "oom_group_kill": "0"
+  },
+  "limitations": [
+    "Synthetic bounded sort pressure, not arbitrary query memory or production throughput",
+    "No automatic cap approval for other PostgreSQL image digests or connection budgets",
+    "Stopped synthetic container and volume retained"
+  ]
+}

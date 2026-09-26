@@ -5,7 +5,7 @@ const SAFE_ENTITY_ID = /^[A-Za-z0-9_-]{1,128}$/;
 
 export function notificationTargetRoute(
   notification: Pick<OperationalNotification, "entity_type" | "entity_id">,
-): string | null {
+) {
   const entityType = notification.entity_type?.toLowerCase() ?? "";
   const entityId = notification.entity_id;
 
@@ -50,7 +50,7 @@ export function notificationTargetRoute(
 export function readNotificationMetadata(
   metadata: Record<string, unknown> | null,
   key: string,
-): string | null {
+) {
   const value = metadata?.[key];
   if (typeof value !== "string") return null;
   const trimmed = value.trim();

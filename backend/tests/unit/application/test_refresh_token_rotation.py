@@ -34,6 +34,7 @@ async def test_refresh_atomically_consumes_token_before_issuing_successor() -> N
     mfa_at = datetime.now(tz=UTC)
     refresh_expires_at = mfa_at + timedelta(days=7)
     stored_token = SimpleNamespace(
+        session_id=uuid.uuid4(),
         user_id=user.id,
         expires_at=refresh_expires_at,
         session_version=1,
@@ -43,8 +44,8 @@ async def test_refresh_atomically_consumes_token_before_issuing_successor() -> N
     user_repository = AsyncMock()
     user_repository.get_by_id.return_value = user
     token_repository = AsyncMock()
-    token_repository.get_valid_token.return_value = stored_token
-    token_repository.consume_valid_token.return_value = stored_token
+    token_repository.claim_for_rotation.return_value = stored_token
+    token_repository.claim_for_rotation.return_value = stored_token
     use_case = RefreshTokenUseCase(user_repository, token_repository)
     expires_at = datetime.now(tz=UTC) + timedelta(minutes=30)
 
@@ -63,9 +64,10 @@ async def test_refresh_atomically_consumes_token_before_issuing_successor() -> N
             client_ip="192.0.2.1",
         )
 
-    token_repository.consume_valid_token.assert_awaited_once_with("old-refresh-token")
+    token_repository.claim_for_rotation.assert_awaited_once_with("old-refresh-token")
     token_repository.revoke.assert_not_awaited()
     token_repository.save.assert_awaited_once_with(
+        session_id=stored_token.session_id,
         token="new-refresh-token",
         user_id=user.id,
         expires_at=refresh_expires_at,
@@ -85,14 +87,15 @@ async def test_refresh_losing_atomic_claim_cannot_issue_successor() -> None:
     user_repository = AsyncMock()
     user_repository.get_by_id.return_value = user
     token_repository = AsyncMock()
-    token_repository.get_valid_token.return_value = SimpleNamespace(
+    token_repository.claim_for_rotation.return_value = SimpleNamespace(
+        session_id=uuid.uuid4(),
         user_id=user.id,
         expires_at=mfa_at + timedelta(days=7),
         session_version=1,
         authentication_methods="pwd,totp",
         mfa_authenticated_at=mfa_at,
     )
-    token_repository.consume_valid_token.return_value = None
+    token_repository.claim_for_rotation.return_value = None
     use_case = RefreshTokenUseCase(user_repository, token_repository)
 
     with (
@@ -118,13 +121,14 @@ async def test_rotation_keeps_original_weekly_deadline_and_mfa_time(days_after_l
     mfa_at = datetime.now(tz=UTC) - timedelta(days=days_after_login)
     deadline = mfa_at + timedelta(days=7)
     stored = SimpleNamespace(
+        session_id=uuid.uuid4(),
         user_id=user.id, expires_at=deadline, session_version=4,
         authentication_methods="pwd,totp", mfa_authenticated_at=mfa_at,
     )
     users, tokens, security = AsyncMock(), AsyncMock(), AsyncMock()
     users.get_by_id.return_value = user
-    tokens.get_valid_token.return_value = stored
-    tokens.consume_valid_token.return_value = stored
+    tokens.claim_for_rotation.return_value = stored
+    tokens.claim_for_rotation.return_value = stored
     security.get_state.return_value = SimpleNamespace(credential_state="active", session_version=4)
 
     result = await RefreshTokenUseCase(users, tokens, security).execute(
@@ -143,7 +147,8 @@ async def test_legacy_sliding_refresh_cannot_extend_week_since_mfa() -> None:
     now = datetime.now(tz=UTC)
     users, tokens = AsyncMock(), AsyncMock()
     users.get_by_id.return_value = user
-    tokens.get_valid_token.return_value = SimpleNamespace(
+    tokens.claim_for_rotation.return_value = SimpleNamespace(
+        session_id=uuid.uuid4(),
         user_id=user.id, expires_at=now + timedelta(days=7), session_version=1,
         authentication_methods="pwd,totp", mfa_authenticated_at=now - timedelta(days=8),
     )
@@ -152,7 +157,6 @@ async def test_legacy_sliding_refresh_cannot_extend_week_since_mfa() -> None:
             RefreshTokenInputDTO(refresh_token="legacy-sliding-token")
         )
     tokens.revoke.assert_awaited_once_with("legacy-sliding-token")
-    tokens.consume_valid_token.assert_not_awaited()
     tokens.save.assert_not_awaited()
 
 
@@ -161,7 +165,8 @@ async def test_weekly_refresh_still_rejects_revoked_security_generation() -> Non
     user = _user()
     users, tokens, security = AsyncMock(), AsyncMock(), AsyncMock()
     users.get_by_id.return_value = user
-    tokens.get_valid_token.return_value = SimpleNamespace(
+    tokens.claim_for_rotation.return_value = SimpleNamespace(
+        session_id=uuid.uuid4(),
         user_id=user.id, expires_at=datetime.now(tz=UTC) + timedelta(days=6),
         session_version=1, authentication_methods="pwd,totp",
         mfa_authenticated_at=datetime.now(tz=UTC),
@@ -172,7 +177,6 @@ async def test_weekly_refresh_still_rejects_revoked_security_generation() -> Non
             RefreshTokenInputDTO(refresh_token="revoked-generation-token")
         )
     tokens.revoke.assert_awaited_once_with("revoked-generation-token")
-    tokens.consume_valid_token.assert_not_awaited()
     tokens.save.assert_not_awaited()
 
 
@@ -182,7 +186,8 @@ async def test_privileged_pre_mfa_refresh_token_is_revoked_during_rollout() -> N
     user_repository = AsyncMock()
     user_repository.get_by_id.return_value = user
     token_repository = AsyncMock()
-    token_repository.get_valid_token.return_value = SimpleNamespace(
+    token_repository.claim_for_rotation.return_value = SimpleNamespace(
+        session_id=uuid.uuid4(),
         user_id=user.id,
         session_version=1,
         authentication_methods="pwd",
@@ -194,5 +199,4 @@ async def test_privileged_pre_mfa_refresh_token_is_revoked_during_rollout() -> N
         await use_case.execute(RefreshTokenInputDTO(refresh_token="pre-mfa-token"))
 
     token_repository.revoke.assert_awaited_once_with("pre-mfa-token")
-    token_repository.consume_valid_token.assert_not_awaited()
     token_repository.save.assert_not_awaited()

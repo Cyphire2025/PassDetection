@@ -33,7 +33,12 @@ from app.core.security.mobile_jwt import (
 from app.core.security.mobile_offline_lease import (
     create_mobile_offline_authorization_lease,
 )
-from app.core.security.password import hash_password, verify_password
+from app.core.security.password import (
+    DUMMY_PASSWORD_HASH,
+    hash_password,
+    run_password_work,
+    verify_password,
+)
 from app.domain.entities.entities import GroupStatus, UserRole
 from app.infrastructure.database.gc_mobile_models import (
     ClientManagerProfileModel,
@@ -547,73 +552,81 @@ async def mobile_credential_login(
     limiter = LoginAttemptLimiter()
     email = str(body.email).lower().strip()
     client_ip = _client_ip(request)
-    await limiter.check_allowed(email=email, ip_address=client_ip)
-    user = (
-        await session.execute(
-            select(UserModel).where(
-                UserModel.email == email,
-                UserModel.role.in_(
-                    (UserRole.CLIENT_MANAGER.value, UserRole.AGENCY_COORDINATOR.value)
-                ),
-                UserModel.deleted_at.is_(None),
-            )
-        )
-    ).scalar_one_or_none()
-    if (
-        user is None
-        or not user.is_active
-        or user.agency_id is None
-        or not verify_password(body.password, user.hashed_password)
-    ):
-        await limiter.record_failure(email=email, ip_address=client_ip)
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password",
-        )
-
-    now = datetime.now(tz=UTC)
-    password_change_required = False
-    principal_type: MobilePrincipalType = "coordinator"
-    if user.role == UserRole.CLIENT_MANAGER.value:
-        profile = (
+    try:
+        await limiter.check_allowed(email=email, ip_address=client_ip)
+        user = (
             await session.execute(
-                select(ClientManagerProfileModel).where(
-                    ClientManagerProfileModel.user_id == user.id,
-                    ClientManagerProfileModel.agency_id == user.agency_id,
-                    ClientManagerProfileModel.status.in_(("invited", "active")),
-                    ClientManagerProfileModel.deleted_at.is_(None),
+                select(UserModel).where(
+                    UserModel.email == email,
+                    UserModel.role.in_(
+                        (UserRole.CLIENT_MANAGER.value, UserRole.AGENCY_COORDINATOR.value)
+                    ),
+                    UserModel.deleted_at.is_(None),
                 )
             )
         ).scalar_one_or_none()
-        if profile is None or not client_manager_profile_allows_password_session(profile):
+        password_valid = await run_password_work(
+            verify_password, body.password,
+            user.hashed_password if user is not None else DUMMY_PASSWORD_HASH,
+        )
+        if (
+            user is None
+            or not user.is_active
+            or user.agency_id is None
+            or not password_valid
+        ):
             await limiter.record_failure(email=email, ip_address=client_ip)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password",
             )
-        _normalize_direct_password_client_manager(profile, now=now)
-        principal_type = "client_manager"
 
-    await limiter.record_success(email=email, ip_address=client_ip)
-    user.last_login_at = now
-    user.updated_at = now
-    tokens = await _issue_user_session(
-        session,
-        user=user,
-        principal_type=principal_type,
-        device=body.device,
-        request=request,
-        password_change_required=password_change_required,
-    )
-    await _audit_mobile_auth(
-        session,
-        request,
-        agency_id=user.agency_id,
-        action="mobile.credential_login",
-        entity_id=user.id,
-        user_id=user.id,
-    )
-    return tokens
+        now = datetime.now(tz=UTC)
+        password_change_required = False
+        principal_type: MobilePrincipalType = "coordinator"
+        if user.role == UserRole.CLIENT_MANAGER.value:
+            profile = (
+                await session.execute(
+                    select(ClientManagerProfileModel).where(
+                        ClientManagerProfileModel.user_id == user.id,
+                        ClientManagerProfileModel.agency_id == user.agency_id,
+                        ClientManagerProfileModel.status.in_(("invited", "active")),
+                        ClientManagerProfileModel.deleted_at.is_(None),
+                    )
+                )
+            ).scalar_one_or_none()
+            if profile is None or not client_manager_profile_allows_password_session(profile):
+                await limiter.record_failure(email=email, ip_address=client_ip)
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid email or password",
+                )
+            _normalize_direct_password_client_manager(profile, now=now)
+            principal_type = "client_manager"
+
+        await limiter.record_success(email=email, ip_address=client_ip)
+        user.last_login_at = now
+        user.updated_at = now
+        tokens = await _issue_user_session(
+            session,
+            user=user,
+            principal_type=principal_type,
+            device=body.device,
+            request=request,
+            password_change_required=password_change_required,
+        )
+        await _audit_mobile_auth(
+            session,
+            request,
+            agency_id=user.agency_id,
+            action="mobile.credential_login",
+            entity_id=user.id,
+            user_id=user.id,
+        )
+        return tokens
+
+    finally:
+        await limiter.aclose()
 
 
 @router.post("/activate", response_model=MobileTokenResponse)
@@ -629,98 +642,102 @@ async def activate_client_manager(
     limiter_key = f"activation:{token_hash}"
     limiter = LoginAttemptLimiter()
     client_ip = _client_ip(request)
-    await limiter.check_allowed(email=limiter_key, ip_address=client_ip)
     try:
-        new_password_hash = hash_password(body.new_password)
-    except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail=str(exc),
-        ) from exc
+        await limiter.check_allowed(email=limiter_key, ip_address=client_ip)
+        try:
+            new_password_hash = await run_password_work(hash_password, body.new_password)
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail=str(exc),
+            ) from exc
 
-    now = datetime.now(tz=UTC)
-    row = (
-        await session.execute(
-            select(ClientManagerProfileModel, UserModel)
-            .join(UserModel, UserModel.id == ClientManagerProfileModel.user_id)
-            .where(
-                ClientManagerProfileModel.invitation_token_hash == token_hash,
-                ClientManagerProfileModel.invitation_expires_at > now,
-                ClientManagerProfileModel.status == "invited",
-                ClientManagerProfileModel.deleted_at.is_(None),
-                UserModel.role == UserRole.CLIENT_MANAGER.value,
-                UserModel.is_active.is_(True),
-                UserModel.deleted_at.is_(None),
-            )
-            # Lock both invitation/profile and account rows until the
-            # one-time activation transition commits.
-            .with_for_update()
-        )
-    ).first()
-    if row is None:
-        await limiter.record_failure(email=limiter_key, ip_address=client_ip)
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Activation link is invalid or expired",
-        )
-
-    profile, user = row
-    if user.agency_id is None or user.agency_id != profile.agency_id:
-        await limiter.record_failure(email=limiter_key, ip_address=client_ip)
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Activation link is invalid or expired",
-        )
-    sessions = list(
-        (
+        now = datetime.now(tz=UTC)
+        row = (
             await session.execute(
-                select(MobileDeviceSessionModel)
+                select(ClientManagerProfileModel, UserModel)
+                .join(UserModel, UserModel.id == ClientManagerProfileModel.user_id)
                 .where(
-                    MobileDeviceSessionModel.agency_id == profile.agency_id,
-                    MobileDeviceSessionModel.user_id == user.id,
-                    MobileDeviceSessionModel.status == "active",
+                    ClientManagerProfileModel.invitation_token_hash == token_hash,
+                    ClientManagerProfileModel.invitation_expires_at > now,
+                    ClientManagerProfileModel.status == "invited",
+                    ClientManagerProfileModel.deleted_at.is_(None),
+                    UserModel.role == UserRole.CLIENT_MANAGER.value,
+                    UserModel.is_active.is_(True),
+                    UserModel.deleted_at.is_(None),
                 )
+                # Lock both invitation/profile and account rows until the
+                # one-time activation transition commits.
                 .with_for_update()
             )
-        ).scalars()
-    )
-    for device_session in sessions:
-        await _revoke_session_family(
-            session,
-            device_session,
-            reason="account_activated",
-            now=now,
+        ).first()
+        if row is None:
+            await limiter.record_failure(email=limiter_key, ip_address=client_ip)
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Activation link is invalid or expired",
+            )
+
+        profile, user = row
+        if user.agency_id is None or user.agency_id != profile.agency_id:
+            await limiter.record_failure(email=limiter_key, ip_address=client_ip)
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Activation link is invalid or expired",
+            )
+        sessions = list(
+            (
+                await session.execute(
+                    select(MobileDeviceSessionModel)
+                    .where(
+                        MobileDeviceSessionModel.agency_id == profile.agency_id,
+                        MobileDeviceSessionModel.user_id == user.id,
+                        MobileDeviceSessionModel.status == "active",
+                    )
+                    .with_for_update()
+                )
+            ).scalars()
         )
-    user.hashed_password = new_password_hash
-    user.updated_at = now
-    profile.status = "active"
-    profile.force_password_change = False
-    profile.invitation_token_hash = None
-    profile.invitation_expires_at = None
-    profile.activated_at = now
-    profile.suspended_at = None
-    profile.access_generation += 1
-    profile.revision += 1
-    profile.updated_at = now
-    await session.flush()
-    tokens = await _issue_user_session(
-        session,
-        user=user,
-        principal_type="client_manager",
-        device=body.device,
-        request=request,
-        password_change_required=False,
-    )
-    await limiter.record_success(email=limiter_key, ip_address=client_ip)
-    await _audit_mobile_auth(
-        session,
-        request,
-        agency_id=profile.agency_id,
-        action="mobile.client_manager_activated",
-        entity_id=profile.id,
-        user_id=user.id,
-    )
-    return tokens
+        for device_session in sessions:
+            await _revoke_session_family(
+                session,
+                device_session,
+                reason="account_activated",
+                now=now,
+            )
+        user.hashed_password = new_password_hash
+        user.updated_at = now
+        profile.status = "active"
+        profile.force_password_change = False
+        profile.invitation_token_hash = None
+        profile.invitation_expires_at = None
+        profile.activated_at = now
+        profile.suspended_at = None
+        profile.access_generation += 1
+        profile.revision += 1
+        profile.updated_at = now
+        await session.flush()
+        tokens = await _issue_user_session(
+            session,
+            user=user,
+            principal_type="client_manager",
+            device=body.device,
+            request=request,
+            password_change_required=False,
+        )
+        await limiter.record_success(email=limiter_key, ip_address=client_ip)
+        await _audit_mobile_auth(
+            session,
+            request,
+            agency_id=profile.agency_id,
+            action="mobile.client_manager_activated",
+            entity_id=profile.id,
+            user_id=user.id,
+        )
+        return tokens
+
+    finally:
+        await limiter.aclose()
 
 
 @router.post("/refresh", response_model=MobileTokenResponse)
@@ -1185,13 +1202,13 @@ async def change_mobile_password(
             .with_for_update()
         )
     ).first()
-    if row is None or not verify_password(body.current_password, row[0].hashed_password):
+    if row is None or not await run_password_work(verify_password, body.current_password, row[0].hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Current password is incorrect"
         )
     user, old_session = row
     try:
-        user.hashed_password = hash_password(body.new_password)
+        user.hashed_password = await run_password_work(hash_password, body.new_password)
     except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)

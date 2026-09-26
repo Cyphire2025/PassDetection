@@ -8,8 +8,8 @@ from httpx import AsyncClient
 from openpyxl import load_workbook
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security.jwt import create_access_token
 from app.infrastructure.database.models import AgencyModel, UserModel
+from tests.dashboard_session_fixtures import issue_dashboard_access
 
 
 @pytest.mark.asyncio
@@ -38,7 +38,7 @@ async def test_menu_library_generates_a_saved_plan_without_repeated_dishes(
         )
     )
     await db_session.commit()
-    access_token, _ = create_access_token(
+    access_token, _ = await issue_dashboard_access(db_session,
         user_id=user_id,
         role="agency_admin",
         agency_id=agency_id,
@@ -247,7 +247,7 @@ async def test_menu_library_generates_a_saved_plan_without_repeated_dishes(
         )
     )
     await db_session.commit()
-    other_token, _ = create_access_token(
+    other_token, _ = await issue_dashboard_access(db_session,
         user_id=other_user_id,
         role="agency_admin",
         agency_id=other_agency_id,
@@ -287,7 +287,7 @@ async def test_menu_generation_refuses_to_repeat_when_dishes_are_insufficient(
         )
     )
     await db_session.commit()
-    access_token, _ = create_access_token(
+    access_token, _ = await issue_dashboard_access(db_session,
         user_id=user_id,
         role="agency_staff",
         agency_id=agency_id,

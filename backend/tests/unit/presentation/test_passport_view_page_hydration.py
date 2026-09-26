@@ -9,6 +9,7 @@ import pytest
 from fastapi import HTTPException
 
 from app.application.dtos.passport_dtos import passport_submission_output_from_entity
+from app.application.use_cases.passports.submission_view import prepare_submission_view
 from app.domain.entities.entities import PassportSubmission, User, UserRole
 from app.infrastructure.repositories.passport_submission_view_repository import (
     PassportSubmissionViewRepository,
@@ -57,7 +58,7 @@ async def test_projection_omits_raw_documents_and_page_query_retains_staff_scope
     assert "passport_submissions.status IN" in str(query)
 
 
-@pytest.mark.parametrize("changed_revision", [False, True, "review_updated"])
+@pytest.mark.parametrize("changed_revision", [False, True, "review_updated", "group_revision"])
 async def test_filtered_page_hydrates_only_visible_rows_and_rejects_revision_race(
     monkeypatch: pytest.MonkeyPatch, changed_revision: bool | str
 ) -> None:
@@ -91,15 +92,20 @@ async def test_filtered_page_hydrates_only_visible_rows_and_rejects_revision_rac
                 for key in selected
             }
         return {
-            key: replace(details[key], extraction_revision=1) if changed_revision else details[key]
+            key: replace(details[key], extraction_revision=1) if changed_revision is True else details[key]
             for key in selected
         }
 
     repository = Mock(
+        revision=AsyncMock(return_value=(1 if changed_revision == "group_revision" else 0, None)),
         projection=AsyncMock(return_value=projections),
         page_details=AsyncMock(side_effect=page_details),
     )
     monkeypatch.setattr(queries, "PassportSubmissionViewRepository", Mock(return_value=repository))
+    index = prepare_submission_view(projections, submission_filter="all", sort_by="name",
+                                    sort_order="asc", search=None, page_size=50)
+    monkeypatch.setattr(queries, "prepared_roster", AsyncMock(return_value=(index, (0, None))))
+    monkeypatch.setattr(queries, "record_sensitive_read", AsyncMock())
     monkeypatch.setattr(
         queries,
         "PassportImageCropRepository",
@@ -159,8 +165,13 @@ async def test_duplicate_payload_is_bounded_and_selection_preserves_all_revision
         return {key: details[key] for key in kwargs["submission_ids"]}
 
     repository = Mock(projection=AsyncMock(return_value=projections),
+                      revision=AsyncMock(return_value=(0, None)),
                       page_details=AsyncMock(side_effect=page_details))
     monkeypatch.setattr(queries, "PassportSubmissionViewRepository", Mock(return_value=repository))
+    index = prepare_submission_view(projections, submission_filter="duplicates", sort_by="name",
+                                    sort_order="asc", search=None, page_size=50)
+    monkeypatch.setattr(queries, "prepared_roster", AsyncMock(return_value=(index, (0, None))))
+    monkeypatch.setattr(queries, "record_sensitive_read", AsyncMock())
     crops = Mock(list_for_submissions=AsyncMock(return_value={}))
     monkeypatch.setattr(queries, "PassportImageCropRepository", Mock(return_value=crops))
     result = Mock()

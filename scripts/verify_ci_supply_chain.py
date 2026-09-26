@@ -79,7 +79,7 @@ def main() -> None:
         errors.append("CI must regenerate and diff-check the backend production lock")
     if "pip install --require-hashes -r requirements.lock" not in combined_workflows:
         errors.append("backend CI tests must install the hash-verified production lock")
-    if "pip-audit -r requirements.lock --require-hashes --disable-pip" not in combined_workflows:
+    if "audit_backend_dependencies.py" not in combined_workflows:
         errors.append("backend dependency audit must consume the reviewed lock without re-resolution")
     if errors:
         raise SystemExit("CI supply-chain policy failed:\n- " + "\n- ".join(errors))

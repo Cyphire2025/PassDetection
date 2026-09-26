@@ -15,7 +15,9 @@ from __future__ import annotations
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException
 
+from app.application.mobile.notification_errors import NotificationWorkflowError
 from app.core.logging.logger import get_logger
 from app.domain.exceptions.exceptions import (
     AuthenticationError,
@@ -36,20 +38,44 @@ from app.domain.exceptions.exceptions import (
     TokenExpiredError,
     ValidationError,
 )
+from app.domain.exceptions.resource_capacity import ImageProcessingBusy
+from app.presentation.middleware.error_response import (
+    HTTP_ERROR_CODES,
+)
+from app.presentation.middleware.error_response import (
+    error_response as _error_response,
+)
 
 logger = get_logger(__name__)
 
-
-def _error_response(code: str, message: str, status_code: int) -> JSONResponse:
-    """Create a standardised error response envelope."""
-    return JSONResponse(
-        status_code=status_code,
-        content={"error": {"code": code, "message": message}},
-    )
-
-
 def register_exception_handlers(app: FastAPI) -> None:
     """Register all exception handlers on the FastAPI application."""
+
+    @app.exception_handler(ImageProcessingBusy)
+    async def image_capacity_handler(request: Request, exc: ImageProcessingBusy) -> JSONResponse:
+        return _error_response(exc.code, exc.message, status.HTTP_503_SERVICE_UNAVAILABLE,
+                               headers={"Retry-After": str(exc.retry_after_seconds)})
+
+    @app.exception_handler(NotificationWorkflowError)
+    async def notification_workflow_handler(
+        request: Request, exc: NotificationWorkflowError,
+    ) -> JSONResponse:
+        return _error_response(exc.code, exc.message,
+                               {"missing": 404, "invalid": 422, "conflict": 409}[exc.category],
+                               detail=exc.message)
+
+    @app.exception_handler(HTTPException)
+    async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+        details = exc.detail if isinstance(exc.detail, dict) else None
+        code = HTTP_ERROR_CODES.get(exc.status_code, f"HTTP_{exc.status_code}")
+        message = exc.detail if isinstance(exc.detail, str) else "Request could not be completed"
+        if details is not None:
+            if isinstance(details.get("code"), str):
+                code = details["code"]
+            if isinstance(details.get("message"), str):
+                message = details["message"]
+        return _error_response(code, message, exc.status_code, detail=exc.detail,
+                               details=details, headers=exc.headers)
 
     @app.exception_handler(TokenExpiredError)
     async def token_expired_handler(request: Request, exc: TokenExpiredError) -> JSONResponse:
@@ -133,13 +159,10 @@ def register_exception_handlers(app: FastAPI) -> None:
     async def pydantic_validation_handler(
         request: Request, exc: RequestValidationError
     ) -> JSONResponse:
-        return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            content={
-                "error": {
-                    "code": "REQUEST_VALIDATION_ERROR",
-                    "message": "Request validation failed",
-                    "details": [
+        return _error_response(
+            "REQUEST_VALIDATION_ERROR", "Request validation failed",
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            details=[
                         {
                             "type": error.get("type"),
                             "loc": error.get("loc"),
@@ -147,15 +170,15 @@ def register_exception_handlers(app: FastAPI) -> None:
                         }
                         for error in exc.errors()
                     ],
-                }
-            },
         )
 
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-        logger.error("unhandled_exception", error_type=type(exc).__name__)
+        request_id = getattr(request.state, "request_id", None)
+        logger.error("unhandled_exception", error_type=type(exc).__name__, request_id=request_id)
         return _error_response(
             "INTERNAL_SERVER_ERROR",
             "An unexpected error occurred. Please try again.",
             status.HTTP_500_INTERNAL_SERVER_ERROR,
+            headers={"X-Request-ID": request_id} if request_id else None,
         )

@@ -24,16 +24,29 @@ x-api-environment: &api-environment
   PROCESSING_BACKEND: celery
   MOBILE_ENABLED: "false"
   MOBILE_OTP_PROVIDER: disabled
+  # Public deterministic test material, exclusively for this synthetic project.
+  # It exercises real offline-lease signing; never use these keys in production.
+  MOBILE_OFFLINE_LEASE_ACTIVE_KID: qualification-offline-v1
+  MOBILE_OFFLINE_LEASE_PRIVATE_KEY_B64: MC4CAQAwBQYDK2VwBCIEIAZB-3x6H4LftJEGR_GVoJ46vlPOJ52oTStTmoJehsFk
+  MOBILE_OFFLINE_LEASE_PUBLIC_KEYS_JSON: '{"qualification-offline-v1":"w3wPb3Y06opi9y_7vep928VA_gVDEldNb1N_Xd6RQy0"}'
   EMAIL_INTEGRATIONS_ENABLED: "false"
   UNTRUSTED_DOCUMENT_INGESTION_ENABLED: "true"
   MALWARE_SCANNER_ENABLED: "true"
   MALWARE_SCANNER_HOST: clamav
+  # Match the supplied production timeout; never bypass document scanning.
+  MALWARE_SCANNER_TIMEOUT_SECONDS: "10.0"
   METRICS_EXPORTER: statsd
   METRICS_STATSD_HOST: statsd
   PYTHONPATH: /app
+x-api-isolation: &api-isolation
+  user: "1001:1001"
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  privileged: false
+
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:16-alpine@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb
     environment:
       POSTGRES_DB: passdetection_ci_browser
       POSTGRES_USER: qualification_admin
@@ -44,7 +57,7 @@ services:
       timeout: 3s
       retries: 40
   redis:
-    image: redis:7-alpine
+    image: redis:7-alpine@sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99
     healthcheck:
       test: [CMD, redis-cli, ping]
       interval: 2s
@@ -71,6 +84,7 @@ services:
       timeout: 5s
       retries: 60
   backend:
+    <<: *api-isolation
     image: passdetection-qualification-backend:local
     environment: *api-environment
     depends_on:
@@ -80,6 +94,7 @@ services:
     volumes:
       - ./scripts/qa:/workspace/scripts/qa:ro
   worker:
+    <<: *api-isolation
     image: passdetection-qualification-backend:local
     environment: *api-environment
     command: [celery, -A, "app.infrastructure.processing.celery_app:celery_app", worker, --pool=prefork, --concurrency=1, "--queues=passport_ocr"]
@@ -88,6 +103,7 @@ services:
       postgres: {condition: service_healthy}
       redis: {condition: service_healthy}
   ecr-worker:
+    <<: *api-isolation
     image: passdetection-qualification-backend:local
     environment: *api-environment
     command: [celery, -A, "app.infrastructure.processing.celery_app:celery_app", worker, --pool=prefork, --concurrency=1, "--queues=ecr_checks"]
@@ -96,6 +112,7 @@ services:
       postgres: {condition: service_healthy}
       redis: {condition: service_healthy}
   scheduler:
+    <<: *api-isolation
     image: passdetection-qualification-backend:local
     environment: *api-environment
     command: [celery, -A, "app.infrastructure.processing.celery_app:celery_app", beat, --schedule=/tmp/qualification-beat]
@@ -107,7 +124,7 @@ services:
     environment:
       API_BASE_URL: http://backend:8000
   nginx:
-    image: nginx:1.30.4-alpine
+    image: nginx:1.30.4-alpine@sha256:97d490c12ba55b4946b01546d1c3ed324e8d41ab1c9fcb2a616aa470620e5b46
     ports: ["127.0.0.1:58443:443"]
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro

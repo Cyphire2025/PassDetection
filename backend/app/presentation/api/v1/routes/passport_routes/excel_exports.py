@@ -8,7 +8,7 @@ import uuid
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response, StreamingResponse
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -27,6 +27,7 @@ from app.infrastructure.repositories.passport_export_history_repository import (
 from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
+from app.presentation.api.v1.response_contracts import XLSX, binary_responses
 from app.presentation.api.v1.schemas.passport_schemas import (
     PassportExportFieldOptionResponse,
     PassportExportFieldOptionsResponse,
@@ -155,7 +156,7 @@ async def get_passport_group_export_fields(
     "/groups/{group_id}/whatsapp-tracking/export.xlsx",
     status_code=status.HTTP_200_OK,
     summary="Export the selected WhatsApp submission tracking view to Excel",
-)
+response_class=Response, responses=binary_responses(XLSX))
 async def export_whatsapp_tracking_by_group(
     group_id: uuid.UUID,
     tracking_status: Literal[
@@ -308,7 +309,7 @@ async def export_whatsapp_tracking_by_group(
     "/groups/{group_id}/export.xlsx",
     status_code=status.HTTP_200_OK,
     summary="Export a client group's passport submissions to Excel",
-)
+response_class=Response, responses=binary_responses(XLSX))
 async def export_passports_by_group(
     group_id: uuid.UUID,
     export_mode: PassportExportMode = Query(default="all", alias="mode"),

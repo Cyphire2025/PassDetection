@@ -15,13 +15,14 @@ from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
+from image_runtime_policy import BACKEND_PROCESSES, reviewed_process_command
 from release_current import CurrentRelease
 from release_manifest import ROOT, load_release_manifest
 from release_reliability import DUMP_COMMAND
-from release_traveller_whatsapp import ReleaseError
+from release_traveller_whatsapp import CONTROL_PROBE, Release, ReleaseError
 from storage_release import STORAGE_IMAGE
 from test_release_reliability import DATABASE_ENV, RecoveryDocker
-from test_release_traveller_whatsapp import NEW_WORKER, REVISION
+from test_release_traveller_whatsapp import NEW_WORKER, OLD_IMAGE, REVISION
 
 MAINTAINED_STORAGE_ID = "sha256:" + "5" * 64
 LEGACY_STORAGE_ID = "sha256:" + "6" * 64
@@ -35,10 +36,17 @@ LEGACY_STORAGE_ENV = {"MINIO_ROOT_USER": "legacy-admin", "MINIO_ROOT_PASSWORD": 
 
 
 class CurrentDocker(RecoveryDocker):
+    def make_container(self, service, image=OLD_IMAGE):
+        value = super().make_container(service, image)
+        value.setdefault("HostConfig", {})["Memory"] = 512 * 1024**2
+        return value
+
     def __init__(self, root):
         super().__init__(root)
-        self.expected_schema = self.schema = load_release_manifest()["schema_revision"]
+        self.expected_schema = load_release_manifest()["schema_revision"]
+        self.schema = load_release_manifest()["previous_schema_revision"]
         self.command_environment = {}
+        self.preserve_release_artifacts = True
         self.fail_provision = False
         self.fail_copy = False
         self.copy_timeout = False
@@ -110,12 +118,38 @@ class CurrentDocker(RecoveryDocker):
             "S3_BUCKET_NAME": values["S3_BUCKET_NAME"],
             "STORAGE_SOURCE_ENDPOINT": "http://minio:9000", "STORAGE_DESTINATION_ENDPOINT": "http://storage-stage:9000",
         }}
+        config["services"]["storage-copy"].update(user="0:0", cap_drop=["ALL"],
+            security_opt=["no-new-privileges:true"], restart="no",
+            command=["python", "scripts/copy_storage_snapshot.py"], volumes=[{
+                "type": "bind", "source": values["OBJECT_STORAGE_MIGRATION_DIRECTORY"],
+                "target": "/evidence", "bind": {"create_host_path": False},
+            }])
         config["volumes"] = {"object_storage_data": {"name": values["OBJECT_STORAGE_DATA_VOLUME"]}}
+        for name in BACKEND_PROCESSES:
+            config["services"][name].update(user="1001:1001", cap_drop=["ALL"],
+                security_opt=["no-new-privileges:true"], privileged=False, volumes=[],
+                command=reviewed_process_command(name))
+        for name, definition in config["services"].items():
+            definition.update(mem_limit=512 * 1024**2, cpus=1)
+            if name in {"database-admin", "database-migrate", "storage-stage", "storage-copy"}:
+                definition.update(profiles=["maintenance"], restart="no")
         return config
 
     def run(self, args, **kwargs):
         args = list(args)
         self.command_environment = kwargs.get("env", {})
+        if args == ["docker", "info", "--format", "{{.MemTotal}}"]:
+            return subprocess.CompletedProcess(args, 0, stdout=str(64 * 1024**3), stderr="")
+        if args == ["docker", "ps", "--quiet"]:
+            return subprocess.CompletedProcess(args, 0, stdout="\n".join(item["Id"] for item in self.containers.values() if item["State"]["Running"]), stderr="")
+        if args[:2] == ["docker", "exec"] and CONTROL_PROBE in args:
+            return super().run(["docker", "compose", "-p", self.project, "exec", "-T", "worker", *args[3:]], **kwargs)
+        if "release-readonly" in args:
+            self.calls.append(args)
+            return subprocess.CompletedProcess(args, 0, stdout=self.schema, stderr="")
+        if args == ["docker", "ps", "--quiet", "--filter", "label=com.docker.compose.service=backend"]:
+            self.calls.append(args)
+            return subprocess.CompletedProcess(args, 0, stdout=self.containers["backend"]["Id"], stderr="")
         if args[:2] == ["docker", "ps"] and any(value.startswith("name=^/") for value in args):
             self.calls.append(args)
             name = next(value[len("name=^"):-1] for value in args if value.startswith("name=^/"))
@@ -123,10 +157,13 @@ class CurrentDocker(RecoveryDocker):
             return subprocess.CompletedProcess(args, 0, stdout="\n".join(matches), stderr="")
         if args[:2] == ["docker", "stop"]:
             self.calls.append(args)
-            assert args[2:4] == ["--time", "30"]
+            assert args[2:4] in (["--time", "30"], ["--time", "180"])
             container = next(value for value in self.containers.values() if value["Id"] == args[-1])
             if not self.copy_stop_failure:
                 container["State"]["Running"] = False
+                container["State"]["ExitCode"] = 137 if container["Config"]["Labels"].get("com.docker.compose.service") == self.unclean_writer else 0
+                if container["Id"].startswith("container-prepared-"):
+                    container["NetworkSettings"] = {"Networks": {}}
             return subprocess.CompletedProcess(args, int(self.copy_stop_failure), stdout="", stderr="")
         if args[:2] == ["docker", "pull"]:
             assert args[-1] == STORAGE_IMAGE
@@ -207,7 +244,17 @@ class CurrentDocker(RecoveryDocker):
                     self.containers["storage-copy"] = container
                     raise subprocess.TimeoutExpired(args, kwargs["timeout"])
                 return subprocess.CompletedProcess(args, int(self.fail_copy), stdout=json.dumps(self.copy_report), stderr="")
-        return super().run(args, **kwargs)
+        result = super().run(args, **kwargs)
+        if args[:2] == ["docker", "compose"]:
+            tail, _ = self.compose_command(args)
+            if tail[:1] == ["up"] and result.returncode == 0:
+                for name in set(tail) & set(self.refs):
+                    if name == self.fail_service:
+                        continue
+                    self.containers[name]["Id"] = f"container-prepared-{name}"
+                    self.containers[name]["State"].update(Running=True, ExitCode=0)
+                    self.containers[name]["NetworkSettings"] = copy.deepcopy(self.containers["db"]["NetworkSettings"])
+        return result
 
 
 class CurrentReleaseTests(unittest.TestCase):
@@ -215,7 +262,7 @@ class CurrentReleaseTests(unittest.TestCase):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         self.root = Path(temporary.name)
-        for name in (".env.example", "docker-compose.yml", "backend/app/core/config/release_manifest.json"):
+        for name in (".env.example", "docker-compose.yml", "backend/app/core/config/release_manifest.json", "tooling/database-deployment-budget.json"):
             target = self.root / name
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / name, target)
@@ -236,6 +283,87 @@ class CurrentReleaseTests(unittest.TestCase):
         capture.__enter__()
         self.addCleanup(capture.__exit__, None, None, None)
         self.release = CurrentRelease(REVISION, self.root)
+        # These cases simulate Docker backup/storage ordering. Cryptographic
+        # artifact negatives are tested independently in test_release_artifacts.
+        promotion = patch.object(self.release, "verify_promoted_release")
+        promotion.start()
+        self.addCleanup(promotion.stop)
+        capacity = patch("release_current.calculate_database_budget", return_value={"errors": []})
+        capacity.start()
+        self.addCleanup(capacity.stop)
+        # These existing tests isolate archive/role/storage ordering. The outer
+        # maintenance lifecycle has its own failure-injection suite, including
+        # the storage finally-path that must leave all writers stopped.
+        self.resource_patches = []
+        for method, value in (("active", False), ("plan", {}), ("begin", None), ("complete", None)):
+            guard = patch.object(self.release.resources, method, return_value=value)
+            guard.start()
+            self.addCleanup(guard.stop)
+            self.resource_patches.append(guard)
+        persistent = patch.object(self.release, "configure_persistent_resources")
+        persistent.start()
+        self.addCleanup(persistent.stop)
+        schema = patch.object(self.release, "schema", side_effect=lambda: Release.schema(self.release))
+        schema.start()
+        self.addCleanup(schema.stop)
+        self.resource_patches.append(schema)
+
+    def enable_resource_lifecycle(self):
+        for guard in self.resource_patches:
+            guard.stop()
+
+    def test_actual_outer_lifecycle_orders_fence_archive_storage_and_migration(self):
+        self.enable_resource_lifecycle()
+        self.release.prepare()
+        self.release.activate()
+        checkpoint = self.release.resources.load()
+        self.assertEqual(checkpoint["phase"], "complete")
+        calls = self.fake.calls
+        first_stop = next(call for call in calls if call[:2] == ["docker", "stop"])
+        self.assertLess(calls.index(first_stop), calls.index(self.fake.commands(DUMP_COMMAND)[0]))
+        storage = json.loads((self.release.directory / "storage-writer-fence.json").read_text())
+        self.assertTrue(storage["writers_left_stopped_for_resource_maintenance"])
+        self.assertFalse(any(call[:2] == ["docker", "start"] for call in calls))
+        self.assertTrue(all(self.fake.containers[name]["State"]["Running"] for name in self.release.activated_services))
+
+    def test_archive_failure_keeps_resource_fence_and_never_activates(self):
+        self.enable_resource_lifecycle()
+        self.release.prepare()
+        self.fake.backup_failure = "decode"
+        with self.assertRaises(ReleaseError):
+            self.release.activate()
+        self.release.resources.assert_stopped()
+        self.assertFalse(self.fake.commands("up"))
+        self.assertFalse(self.fake.commands("scripts/provision_database_roles.py"))
+
+    def test_actual_helper_start_refuses_unrelated_live_host_overcommit(self):
+        self.enable_resource_lifecycle()
+        self.release.prepare()
+        foreign = self.fake.make_container("foreign", LEGACY_STORAGE_ID)
+        foreign["Config"]["Labels"]["com.docker.compose.project"] = "unrelated"
+        foreign["HostConfig"]["Memory"] = 64 * 1024**3
+        self.fake.containers["foreign"] = foreign
+        with self.assertRaisesRegex(ReleaseError, "physical memory"):
+            self.release.activate()
+        self.release.resources.assert_stopped()
+        self.assertFalse(self.fake.commands("scripts/provision_database_roles.py"))
+
+    def test_retry_after_new_backend_and_failed_frontend_preserves_new_network_binding(self):
+        self.enable_resource_lifecycle()
+        self.release.prepare()
+        self.fake.fail_service = "frontend"
+        with self.assertRaises(ReleaseError):
+            self.release.activate()
+        self.assertEqual(self.release.resources.load()["phase"], "activating")
+        backend_id = self.fake.containers["backend"]["Id"]
+        self.assertEqual(backend_id, "container-prepared-backend")
+        self.fake.fail_service = None
+        self.release.activate()
+        checkpoint = self.release.resources.load()
+        self.assertEqual(checkpoint["phase"], "complete")
+        self.assertEqual(checkpoint["current_writers"]["backend"]["Id"], backend_id)
+        self.assertFalse(self.fake.commands("downgrade"))
+        self.assertFalse(any(call[:2] == ["docker", "start"] for call in self.fake.calls))
 
     def test_backup_precedes_role_provision_and_migration_then_all_eight_workers(self):
         self.release.prepare()
@@ -250,6 +378,40 @@ class CurrentReleaseTests(unittest.TestCase):
         self.assertEqual((self.release.directory / f"{REVISION}.env.backup").read_text(), self.original)
         self.assertFalse(any(set(call) & {"down", "prune", "downgrade", "purge"} for call in calls))
 
+    def test_project_discovery_preserves_original_project_and_rejects_redirect(self):
+        self.release.verify_running_project()
+        self.assertEqual(self.release.compose[3], self.fake.project)
+        self.release.env["COMPOSE_PROJECT_NAME"] = "new-empty-project"
+        with self.assertRaisesRegex(ReleaseError, "redirect persistent volumes"):
+            self.release.verify_running_project()
+        self.assertEqual((self.root / ".env").read_text(), self.original)
+
+    def test_privileged_candidate_refused_before_backup_or_activation(self):
+        self.release.prepare()
+        original_config = self.fake.config
+        def unsafe_configuration():
+            config = original_config()
+            config["services"]["worker"]["cap_add"] = ["SYS_ADMIN"]
+            return config
+        self.fake.config = unsafe_configuration
+        self.fake.calls.clear()
+        with self.assertRaisesRegex(ReleaseError, "native-library isolation rejected"):
+            self.release.preflight()
+        self.assertFalse(self.fake.commands("up"))
+        self.assertFalse(self.fake.commands("scripts/provision_database_roles.py"))
+
+    def test_project_discovery_rejects_other_checkout_and_replicas(self):
+        self.fake.containers["backend"]["Config"]["Labels"]["com.docker.compose.project.working_dir"] = str(self.root / "other")
+        with self.assertRaisesRegex(ReleaseError, "Exactly one"):
+            self.release.verify_running_project()
+        self.fake.containers["backend"]["Config"]["Labels"]["com.docker.compose.project.working_dir"] = str(self.root)
+        original_run = self.release.run
+        def duplicate(*args, **kwargs):
+            output = original_run(*args, **kwargs)
+            return output + "\n" + output if args[:2] == ("docker", "ps") and len(args) == 5 else output
+        with patch.object(self.release, "run", side_effect=duplicate), self.assertRaisesRegex(ReleaseError, "replicated"):
+            self.release.verify_running_project()
+
     def test_bad_backup_never_provisions_or_activates(self):
         self.release.prepare()
         self.fake.backup_failure = "decode"
@@ -258,6 +420,25 @@ class CurrentReleaseTests(unittest.TestCase):
         self.assertFalse(self.fake.commands("scripts/provision_database_roles.py"))
         self.assertFalse(self.fake.commands("up"))
         self.assertFalse(self.fake.commands("stop"))
+
+    def test_target_schema_retry_requires_the_preserved_pre_migration_archive(self):
+        self.release.prepare()
+        self.release.activate()
+        original = self.release.backups_path.read_bytes()
+        initial_dumps = len(self.fake.commands(DUMP_COMMAND))
+        # Exercise the archive gate independently of storage's completed cutover.
+        from release_reliability import ReliabilityRelease
+        ReliabilityRelease.before_migration(self.release, self.release.expected_schema)
+        self.assertEqual(self.release.backups_path.read_bytes(), original)
+        self.assertEqual(len(self.fake.commands(DUMP_COMMAND)), initial_dumps)
+
+    def test_target_schema_without_preserved_archive_refuses_retry(self):
+        self.release.prepare()
+        self.fake.schema = self.release.expected_schema
+        with self.assertRaisesRegex(ReleaseError, "pre-migration backup evidence is missing"):
+            self.release.activate()
+        self.assertFalse(self.fake.commands("upgrade"))
+        self.assertFalse(self.fake.commands("up"))
 
     def test_failed_provision_never_migrates_or_restarts(self):
         self.release.prepare()
@@ -347,7 +528,7 @@ class CurrentReleaseTests(unittest.TestCase):
         for service in ("database-admin", "database-migrate"):
             for field in ("POSTGRES_HOST", "POSTGRES_PORT", "POSTGRES_DB", "network"):
                 with self.subTest(service=service, field=field):
-                    def wrong_target():
+                    def wrong_target(field=field, service=service):
                         config = original_config()
                         if field == "network":
                             config["services"][service]["networks"] = {"other-network": None}

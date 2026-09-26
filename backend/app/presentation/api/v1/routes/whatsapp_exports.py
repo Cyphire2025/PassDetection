@@ -44,6 +44,7 @@ from app.infrastructure.repositories.passport_whatsapp_matching_repository impor
     load_unresolved_passport_whatsapp_match_context,
 )
 from app.infrastructure.whatsapp.phone_overrides import load_valid_traveller_phone_overrides
+from app.presentation.api.v1.response_contracts import XLSX, binary_responses
 from app.presentation.api.v1.routes.passport_export_support import (
     _WHATSAPP_EMAIL_IMPORTED_KEYS,
     _export_whatsapp_contacts,
@@ -490,7 +491,7 @@ async def _gather_export_rows(
     return output
 
 
-@router.post("/groups/{group_id}/export", dependencies=[Depends(require_cookie_csrf)])
+@router.post("/groups/{group_id}/export", dependencies=[Depends(require_cookie_csrf)], response_class=Response, responses=binary_responses(XLSX))
 async def export_broadcast_filter(
     group_id: uuid.UUID, body: WhatsAppFilterExportRequest,
     current_user: User = Depends(require_role(WHATSAPP_ROLES)),

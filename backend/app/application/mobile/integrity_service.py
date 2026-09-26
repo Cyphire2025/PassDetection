@@ -10,6 +10,11 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.dtos.mobile_security import (
+    MobileAppAttestRegistrationRequest,
+    MobileIntegrityChallengeRequest,
+    MobileIntegrityProofRequest,
+)
 from app.application.mobile.app_integrity import (
     MobileIntegrityAction,
     MobileIntegrityChallenge,
@@ -32,11 +37,6 @@ from app.infrastructure.security.mobile_integrity_challenges import (
 )
 from app.infrastructure.security.mobile_integrity_providers import (
     MobileIntegrityProviderRegistry,
-)
-from app.presentation.api.v1.schemas.mobile_schemas import (
-    MobileAppAttestRegistrationRequest,
-    MobileIntegrityChallengeRequest,
-    MobileIntegrityProofRequest,
 )
 
 logger = get_logger(__name__)

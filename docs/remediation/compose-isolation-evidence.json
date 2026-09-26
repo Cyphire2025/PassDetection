@@ -1,0 +1,33 @@
+{
+  "result": "passed",
+  "source_volume_names": {
+    "clamav_signatures": "passdetection_clamav_signatures",
+    "minio_data": "passdetection_minio_data",
+    "postgres_data": "passdetection_postgres_data",
+    "redis_broker_data": "passdetection_redis_broker_data",
+    "redis_data": "passdetection_redis_data"
+  },
+  "projects": [
+    {
+      "project": "passdetection-topology-f53729a3a5",
+      "running_containers": 5,
+      "worker_hostnames": [
+        "ee7bba2d0f55",
+        "ced142bf47f4"
+      ],
+      "persistent_volume": "passdetection-topology-f53729a3a5_postgres_data",
+      "recreate_preserved_marker": true
+    },
+    {
+      "project": "passdetection-topology-8be22bafa2",
+      "running_containers": 5,
+      "worker_hostnames": [
+        "3d2c0b54f2fb",
+        "3fc5b222c82b"
+      ],
+      "persistent_volume": "passdetection-topology-8be22bafa2_postgres_data",
+      "recreate_preserved_marker": true
+    }
+  ],
+  "limitation": "Local Compose naming, replica host identity and volume preservation using synthetic Python processes. Application load, replica release draining and multi-host availability are not established."
+}

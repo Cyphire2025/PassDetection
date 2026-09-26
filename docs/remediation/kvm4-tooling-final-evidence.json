@@ -1,0 +1,27 @@
+{
+  "result": "passed",
+  "command": "backend/.venv311/Scripts/python.exe -m unittest discover -s scripts -p test_*.py",
+  "tests": 286,
+  "duration_seconds": 7.371,
+  "failures": 0,
+  "errors": 0,
+  "source_sha256": {
+    "scripts/release_current.py": "3cf6947564401e8937800677d56d11d5ed533bf35489dc3de78cdaef4e942f2c",
+    "scripts/release_resource_fence.py": "1de8c4d88662369deb9321e0f13d4b64a8fa4ebdee4e5a2fa792211a0889649b",
+    "scripts/release_resource_budget.py": "d132cb6cd8ab6a52aaea058bc5c9be17cae986eab30b7e8d68412696e0e334a0",
+    "scripts/release_resource_profile.py": "9ae44f33996dedabe38e62c287219741ed6b3ccdfbfacc6f595413bed4c1c74f",
+    "scripts/release_persistent_resources.py": "87358849954be21effe466b4fd5d2033b38ec02be6c354de5dc77792de4d8ada",
+    "scripts/qa/probe_image_advisory_conditions.py": "c3d11b27685cc8c9e1fadca7cfeb475ab12751991d38e50285034db04061ac4b",
+    ".github/workflows/ci.yml": "504958a30e1b615cbc2f134a558d20e525e562f214e63714c9b38c0425f89373"
+  },
+  "raw_log_sha256": "54fa92e9520ac97b23b616fb4f74f067c00a00469fe2158dcedef8f0d835d75c",
+  "additional_checks": [
+    "CI YAML parsed; exactly one complete pre-stack memory qualification step and one evidence artifact glob",
+    "Scoped Ruff passed for current release, resource profile/fence/budget and bounded-memory runners",
+    "Existing stale-schema negative passed; an isolated CurrentDocker fixture confirmed explicit target process export overrides a stale0107 file during prepare without stop/up/schema-file mutation, guarded activation persists target, and RELEASE_RESOURCE_PROFILE process export selects KVM4 overlay. This supplements286 suite cases and is not a real VPS activation."
+  ],
+  "limits": [
+    "Operator unit tests use simulated Docker boundaries except separately retained actual isolated qualification receipts.",
+    "No production deployment, GitHub artifact issuance or external alert/DR proof is asserted by this receipt."
+  ]
+}

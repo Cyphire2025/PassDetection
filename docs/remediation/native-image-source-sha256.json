@@ -1,0 +1,13 @@
+{
+  "backend/app/core/native_image_admission.py": "8ec758c93c7424730e115d99dcbbdc5f3a0835534465f5380c0c2bbccd633e09",
+  "backend/app/domain/exceptions/resource_capacity.py": "9a53229c7743b441ad96fad173c24c08d2cbc03db0cb86346f4205cf00468413",
+  "backend/app/presentation/middleware/error_handler.py": "2cede8a6e1c132fd775925c65aa7885520ab80a19f8adbf6dd084951467c4b39",
+  "backend/app/infrastructure/security/upload_validator.py": "c66753a732524c97d00f15027d7e1b6671e8264228abfdf44276c6963c55653b",
+  "backend/app/infrastructure/imaging/passport_image_cropper.py": "a180838f516f7c317f18850c3e6f79f6ad923135adc25d090b8f871fbb403fda",
+  "backend/app/infrastructure/ai/gemini_ecr_service.py": "d3730b208be47aab59de0ae07ce242dbc3f271b73edca5a559f6ce838f552608",
+  "backend/app/infrastructure/ai/gemini_visa_image_edit_service.py": "af40f047fa51e066494d2bbbbdf5521af3b7a14a89a768fec21961b523318e4a",
+  "backend/app/infrastructure/ecr/runtime.py": "5b1f07bfd90528c026870530b855a81d7b0f13d5d676852aa7038f6e12a7cd35",
+  "backend/app/infrastructure/ecr/passport_runtime.py": "745ad2bfbec7597ad634e520247fc52e3d41fedec43b9b03413c4d3161f3d25b",
+  "backend/app/infrastructure/visa_ai_image_jobs/runtime.py": "e51006d444179c1346297dd3ab235d5518887b3cc7a22848e5b206a559a5c154",
+  "backend/app/infrastructure/repositories/passport_visa_ai_image_job_repository.py": "eeb00ae30e6c60585dd7330ea406b49e6d6176774b452890e9ba28c91068c960"
+}

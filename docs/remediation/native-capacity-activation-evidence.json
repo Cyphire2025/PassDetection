@@ -1,0 +1,133 @@
+{
+  "result": "passed",
+  "project": "passdetection-qualification",
+  "image_id": "sha256:0066ad357a08c4b207fa93bfa12e6111a90ebcac3514b4edbbdeb31a66db0f67",
+  "idle_before": {
+    "active": 0,
+    "broker": 0,
+    "reserved": 0,
+    "scheduled": 0
+  },
+  "post_replacement_control_counts": {
+    "active": 0,
+    "broker": 0,
+    "reserved": 0,
+    "scheduled": 0
+  },
+  "memory_caps_mib": {
+    "backend": 2560,
+    "worker": 384,
+    "ecr-worker": 640,
+    "scheduler": 256
+  },
+  "business_counts_preserved": {
+    "agencies": 39,
+    "client_groups": 76,
+    "passport_submissions": 17734,
+    "users": 106
+  },
+  "container_inventory": [
+    {
+      "name": "passdetection-qualification-api-peer",
+      "id": "1bd6879aef4a384b8fac267304701bf666484691415764b2745edd49f47be5b5",
+      "image_id": "sha256:c2688994bbc3c5abfddb11f022013564070332ae3b15343f698dc9d74f40c536",
+      "memory_limit_bytes": 0,
+      "running": false
+    },
+    {
+      "name": "passdetection-qualification-backend-1",
+      "id": "2e44955c65d006b31221d5f818f634fc9efc2b856f3e1d7d6fb9799c7f3959ba",
+      "image_id": "sha256:0066ad357a08c4b207fa93bfa12e6111a90ebcac3514b4edbbdeb31a66db0f67",
+      "memory_limit_bytes": 2684354560,
+      "running": true
+    },
+    {
+      "name": "passdetection-qualification-clamav-1",
+      "id": "4504c2d020ae510d20363907f0ef9a7ee6299e1ad4521f50806e24f088ac6a94",
+      "image_id": "sha256:2a682381f314a3ac6ec13eea55b69bd2594887598e5358d938e711a30df850f2",
+      "memory_limit_bytes": 0,
+      "running": true
+    },
+    {
+      "name": "passdetection-qualification-ecr-worker-1",
+      "id": "d9f63ed3fdd96a892352c17d211bfaeb7834d94730ed3de0213ebe9073140d81",
+      "image_id": "sha256:0066ad357a08c4b207fa93bfa12e6111a90ebcac3514b4edbbdeb31a66db0f67",
+      "memory_limit_bytes": 671088640,
+      "running": true
+    },
+    {
+      "name": "passdetection-qualification-frontend-1",
+      "id": "336a654d3e261ac25803fa41ce2f59e5ffffda68ce2736e69f58c273119fdf3f",
+      "image_id": "sha256:ae6c26a9316306fa2d437f57eeefbf92fa6afda6bad2e33b6e7f6d5591cc5843",
+      "memory_limit_bytes": 0,
+      "running": true
+    },
+    {
+      "name": "passdetection-qualification-nginx-1",
+      "id": "ac123b5384770b9835dbb1cee0eae60441f91d3f03340fa4afbc3697a691d502",
+      "image_id": "sha256:97d490c12ba55b4946b01546d1c3ed324e8d41ab1c9fcb2a616aa470620e5b46",
+      "memory_limit_bytes": 0,
+      "running": true
+    },
+    {
+      "name": "passdetection-qualification-object-storage-1",
+      "id": "b9e11e2710f9403626d1a6f1b44a612441087e5ae2776eb35decf88512d679d2",
+      "image_id": "sha256:ce9e796f1fe6f06968f4c04bdaf8f678dad9c8acdfef3d244133d71bfa6bf882",
+      "memory_limit_bytes": 0,
+      "running": true
+    },
+    {
+      "name": "passdetection-qualification-object-storage-data-1",
+      "id": "f9dd8136afd6c70e2a5ea1851f7a418a24e39f54c89bb145fba67df35612a0df",
+      "image_id": "sha256:ce9e796f1fe6f06968f4c04bdaf8f678dad9c8acdfef3d244133d71bfa6bf882",
+      "memory_limit_bytes": 0,
+      "running": true
+    },
+    {
+      "name": "passdetection-qualification-postgres-1",
+      "id": "c1858962a2292197924e8f8bd29f9bf78fb0732ac4b57a16feea6b1fa5d01c9d",
+      "image_id": "sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb",
+      "memory_limit_bytes": 0,
+      "running": true
+    },
+    {
+      "name": "passdetection-qualification-prometheus-1",
+      "id": "c433f62e5db956e0057f2ef1ab76c5484d352c74f1f49e79ed3219da05fb087f",
+      "image_id": "sha256:efd719c99d83b060d9daefdcf00360461adf279f45ef5391f8d111892118753e",
+      "memory_limit_bytes": 0,
+      "running": true
+    },
+    {
+      "name": "passdetection-qualification-redis-1",
+      "id": "c1c92e5022dc28b6d7a82beded84d3006ad1058d4ba105422b61440bdaee5850",
+      "image_id": "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99",
+      "memory_limit_bytes": 0,
+      "running": true
+    },
+    {
+      "name": "passdetection-qualification-scheduler-1",
+      "id": "7b4824fac085e2d72fff68a6408a94462c442842bba0d4ecaff8ef90bdd1b035",
+      "image_id": "sha256:0066ad357a08c4b207fa93bfa12e6111a90ebcac3514b4edbbdeb31a66db0f67",
+      "memory_limit_bytes": 268435456,
+      "running": true
+    },
+    {
+      "name": "passdetection-qualification-statsd-1",
+      "id": "a384706c403a77b36ffd02f647d5cf42ac898094710df65dd27f70639a3472c8",
+      "image_id": "sha256:632f705804922d50c1c95ba8ff9c8c0cc18d4bbb0cc265dc4f9ae708271c95b3",
+      "memory_limit_bytes": 0,
+      "running": true
+    },
+    {
+      "name": "passdetection-qualification-worker-1",
+      "id": "370dcbb6aac289158303ca57dfd88aae68717430ef755c5565f2b72b83466454",
+      "image_id": "sha256:0066ad357a08c4b207fa93bfa12e6111a90ebcac3514b4edbbdeb31a66db0f67",
+      "memory_limit_bytes": 402653184,
+      "running": true
+    }
+  ],
+  "dependency_and_volume_identities_preserved": true,
+  "limit": "Existing idle API peer retained; it is excluded from the measured API capacity claim.",
+  "production_changed": false,
+  "existing_data_deleted": false
+}

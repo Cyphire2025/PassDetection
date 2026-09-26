@@ -15,15 +15,6 @@ from pydantic import BaseModel, EmailStr, Field, field_validator
 
 # ── Request Schemas ───────────────────────────────────────────────────────────
 
-class LoginRequest(BaseModel):
-    """
-    OAuth2 password flow uses form data, not JSON.
-    This schema is used for the JSON variant of the login endpoint.
-    """
-    email: EmailStr
-    password: str = Field(..., min_length=8)
-
-
 class RefreshTokenRequest(BaseModel):
     refresh_token: str | None = Field(default=None, min_length=1)
 

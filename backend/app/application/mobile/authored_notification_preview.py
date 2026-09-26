@@ -7,8 +7,7 @@ import json
 import uuid
 from datetime import datetime
 
-from fastapi import HTTPException
-
+from app.application.mobile.notification_errors import NotificationWorkflowError
 from app.core.config.settings import get_settings
 
 
@@ -67,7 +66,7 @@ def read_preview_token(
             raise ValueError("audience")
         return fingerprint, int(value["expires"])
     except (ValueError, TypeError, KeyError, UnicodeError) as exc:
-        raise HTTPException(409, "stale_preview") from exc
+        raise NotificationWorkflowError("conflict", "stale_preview") from exc
 
 
 def request_fingerprint(

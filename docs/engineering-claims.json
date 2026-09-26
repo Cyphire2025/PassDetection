@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "claims": [
+    {
+      "id": "developer-bootstrap",
+      "status": "verified-local",
+      "owner": "Nipun / repository maintainer",
+      "scope": "Hashed backend developer environment on fresh Windows and Linux virtual environments; hash-verified portable Windows Node24.21/npm11.20 with actual installer package inventory.",
+      "limitation": "Native applications, arbitrary operating systems, native Windows-library advisories and application dependency audits are excluded from the toolchain claim.",
+      "reviewed_on": "2026-09-26",
+      "review_by": "2026-12-25",
+      "evidence": [
+        {
+          "path": "docs/remediation/tooling-bootstrap-evidence.json",
+          "sha256": "04001db4a643c3ef142519a8b2f57b8d5a6852288dc428d64b1a37f69480bc08"
+        },
+        {
+          "path": "docs/remediation/node-toolchain-evidence.json",
+          "sha256": "0f7cd548d086215d18eb57d9040be44d9887b734cbdf9a77956569f08b70da22"
+        }
+      ]
+    },
+    {
+      "id": "connection-capacity",
+      "status": "verified-local",
+      "owner": "Nipun / repository maintainer",
+      "scope": "Actual64 concurrent PostgreSQL application sessions and replica-aware deployment arithmetic.",
+      "limitation": "Does not establish request throughput, failover or production VPS workload capacity.",
+      "reviewed_on": "2026-09-26",
+      "review_by": "2026-12-25",
+      "evidence": [
+        {
+          "path": "docs/remediation/database-capacity-evidence.json",
+          "sha256": "184b070113ca65c06617a4ffd9a67e74f50a6a63e5190a12bdce9c9f5a331ec3"
+        }
+      ]
+    },
+    {
+      "id": "retained-oci-retrieval",
+      "status": "verified-local",
+      "owner": "Nipun / repository maintainer",
+      "scope": "Two synthetic OCI releases saved/loaded and retrieved by immutable digest; config and layer identity survive the local transport, with identity-negative checks.",
+      "limitation": "No second physical Docker engine, GitHub signature issuance or external registry retention is asserted.",
+      "reviewed_on": "2026-09-26",
+      "review_by": "2026-12-25",
+      "evidence": [
+        {
+          "path": "docs/remediation/artifact-retrieval-evidence.json",
+          "sha256": "961e2c54ef4a79c51d12cdc22be34ebc8425c69a5bc9386876ba06fd034afdb2"
+        }
+      ]
+    },
+    {
+      "id": "compose-isolation",
+      "status": "verified-local",
+      "owner": "Nipun / repository maintainer",
+      "scope": "Two local projects with distinct replica names and synthetic data preserved across recreation.",
+      "limitation": "Synthetic processes qualify naming mechanics, not application failover or multi-host availability.",
+      "reviewed_on": "2026-09-26",
+      "review_by": "2026-12-25",
+      "evidence": [
+        {
+          "path": "docs/remediation/compose-isolation-evidence.json",
+          "sha256": "f3a96b4e8498b5a052a3efe1a641fd9aa9326e71c1bb6ce89f17989f54feea31"
+        }
+      ]
+    },
+    {
+      "id": "immutable-promotion",
+      "status": "implemented-unverified-external",
+      "owner": "Nipun / repository maintainer",
+      "scope": "Production activation requires signed repository/workflow/main-commit-bound image inventory, provenance and SBOM.",
+      "limitation": "Remote main/environment/release settings were applied and read back; actual signature issuance, GHCR retention and production promotion remain unverified. One maintainer cannot provide independent approval.",
+      "reviewed_on": "2026-09-26",
+      "review_by": "2026-12-25",
+      "evidence": [
+        {
+          "path": "docs/IMMUTABLE_RELEASES.md",
+          "sha256": "c6587387865d7eb7ab970c3ee8f4e54ddab3a9a5228ddc1fbf71746e2b8edf9f"
+        },
+        {
+          "path": "docs/remediation/github-protection-evidence.json",
+          "sha256": "2032647841aed183a64688a909d3f037928e4c7cb13b1fdaaa59975464981503"
+        }
+      ]
+    },
+    {
+      "id": "enterprise-and-dr",
+      "status": "not-claimed",
+      "owner": "Nipun / repository maintainer",
+      "scope": "Enterprise availability/compliance is not claimed; actual alert delivery and production DR remain deferred.",
+      "limitation": "Code controls and synthetic checks cannot establish external operators, off-host backups or compliance obligations.",
+      "reviewed_on": "2026-09-26",
+      "review_by": "2026-12-25",
+      "evidence": [
+        {
+          "path": "docs/ENGINEERING_CLAIMS.md",
+          "sha256": "f286991dea08a9c44b461d7e0622e316d3b5066ef3de1b3ad6b37f0176f6477c"
+        }
+      ]
+    },
+    {
+      "id": "api-and-database-recovery",
+      "status": "verified-local",
+      "owner": "Nipun / repository maintainer",
+      "scope": "Two real API instances share session/private-upload authority across process restart; controlled PostgreSQL interruption preserves the exact container/mounts, session and private object checksum.",
+      "limitation": "Single local Docker host, synthetic data and bounded interruption; overall readiness returns to its preexisting Gemini-unconfigured503. This is not physical-host failover, zero downtime or a production RTO.",
+      "reviewed_on": "2026-09-26",
+      "review_by": "2026-12-25",
+      "evidence": [
+        {
+          "path": "docs/remediation/api-replica-evidence.json",
+          "sha256": "20241e1adcbfd5d6750f929151377e3f7704548eefc106f71a4b126a7bda9495"
+        },
+        {
+          "path": "docs/remediation/dependency-recovery-evidence.json",
+          "sha256": "1a12777826cfdfefa933fb2adb865f52c7c9c9d11373481de9d41ebff0cd379b"
+        }
+      ]
+    }
+  ]
+}

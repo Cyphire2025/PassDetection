@@ -65,18 +65,6 @@ export function createFamilyMembers(count: number) {
   return Array.from({ length: count }, (_, index) => createFamilyMember(index));
 }
 
-export function resizeFamilyMembers(
-  current: FamilyMember[],
-  count: number,
-) {
-  const next = [...current];
-  while (next.length < count) next.push(createFamilyMember(next.length));
-  return next.slice(0, count).map((member, index) => ({
-    ...member,
-    relation: index === 0 ? "Head" : member.relation,
-  }));
-}
-
 export function emptyDocumentBundle(): PassportDocumentBundle {
   return {
     front: null,

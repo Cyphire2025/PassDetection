@@ -1,0 +1,10 @@
+{
+  "result": "passed",
+  "image_id": "sha256:c2688994bbc3c5abfddb11f022013564070332ae3b15343f698dc9d74f40c536",
+  "actual_api_instances": 2,
+  "accepted_submission_id": "e1b2cfe7-f986-4e40-8f64-8c383df3caf2",
+  "shared_session_and_accepted_upload_survived_origin_stop": true,
+  "logout_on_peer": true,
+  "restarted_origin_rejects_peer_revoked_cookie": true,
+  "limitation": "One local Docker host sharing PostgreSQL/Redis/private S3. Proves API process loss and shared authorization/data, not host failure or cross-region availability."
+}

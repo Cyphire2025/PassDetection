@@ -2,15 +2,20 @@
 
 Baseline: `48395bb7e3f3cae9568dcc31f130651e9aa6f420`.
 
-Read the [current finding status](status.md) for exact closure counts and limits.
+Read the [current phase-two finding status](phase-two-progress-2026-09-27.md)
+for exact closure counts and limits. The [preceding phase ledger](status.md)
+and [26 September reassessment](reassessment.md) are retained historical snapshots.
 This directory records candidate engineering evidence, not a claim that the
 Hostinger VPS has been upgraded. The original independent audit remains in the
 separate Desktop audit directory; its conclusions are not overwritten.
 
-The scope is all ten High finding groups from the independent audit, plus
-closely related Medium and Low fixes. Mobile and the coordinator Android app
-are excluded. Existing production business workflows and persisted data must
-remain intact. No audit finding is closed merely because code was added.
+The preceding phase addressed the ten High groups and related fixes. Current
+work covers 26 dashboard/backend Medium and four Low groups. Native application
+implementation and dependencies are excluded; the owner approved refreshing the
+backend-generated mobile OpenAPI contract only. External alerts, production
+disaster-recovery exercises and independent audit-checkpoint storage/custody are
+explicitly deferred. Existing production business workflows and persisted data
+must remain intact. No audit finding is closed merely because code was added.
 
 Read the [web/performance evidence](frontend-performance.md),
 [storage preservation evidence](storage-verification.md) and
@@ -34,8 +39,9 @@ actual external alert delivery remain unproved. Local qualification
 must use synthetic data and isolated services. Never delete production volumes,
 reset databases, replay uncertain provider deliveries, or downgrade blindly.
 
-The [candidate reassessment](reassessment.md) is **6.8/10, Startup-grade**; it is
-not a rating of the unchanged running VPS or a claim that all ten High findings
-are closed. Push is authorized after completion and verification. Deployment is a separate
-operator step with current backup, schema, image and readiness checks. Re-score
-the result from evidence; neither 7/10 nor 8/10 is a predetermined outcome.
+The historical 26 September candidate was rated **6.8/10, Startup-grade**;
+dated phase-two category reports are being updated separately. Neither rating
+describes the unchanged running VPS. The owner authorized pushing main and then
+deploying after qualification, with strict data preservation. Current backup,
+schema, signed-image, storage and readiness checks remain mandatory. Re-score
+the final result from evidence; no numerical rating is predetermined.

@@ -147,7 +147,7 @@ export function EmailReviewQueuePage() {
                     <Link
                       href={ROUTES.dashboard.emailIntegrationMessage(
                         item.email_message_id,
-                      ) as never}
+                      )}
                       className="shrink-0 text-sm font-medium text-blue-700 hover:text-blue-800 hover:underline"
                     >
                       View source email

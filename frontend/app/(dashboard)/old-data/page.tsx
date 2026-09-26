@@ -79,7 +79,7 @@ export default function OldDataPage() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex justify-end gap-2">
-                          <Link href={`${ROUTES.dashboard.passportGroup(group.id)}?old_data=1` as never}>
+                          <Link href={`${ROUTES.dashboard.passportGroup(group.id)}?old_data=1`}>
                             <Button variant="outline" size="sm" className="gap-2">
                               <Eye className="h-4 w-4" />
                               Open Data

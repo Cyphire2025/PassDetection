@@ -1,5 +1,7 @@
 # Independent audit remediation status — working draft
 
+> Historical phase-one checkpoint below. The [current phase-two register](phase-two-issue-register.md) and [Medium/Low progress](phase-two-progress-2026-09-27.md) supersede its counts and implementation labels. The complete candidate is not yet release-qualified or deployed.
+
 Prepared 26 September 2026 against the locally qualified remediation candidate. Original audit baseline: `48395bb7e3f3cae9568dcc31f130651e9aa6f420`. This is a progress and evidence ledger, **not a completed release approval, production deployment report, or new maturity score**. Maintained storage activation and final release guards have local engineering evidence; the complete core backend regression, real-service case inventory and current-image journeys now have passing evidence. The 132 service cases are covered by an initial run plus explicitly identified targeted repairs, not a clean single-pass result. Production operational evidence remains separate.
 
 The original [consolidated findings register](C:/Users/nipun/Desktop/PassDetection-Independent-Audit-2026-09-26/20-Consolidated-Findings-Register.md) remains unchanged. Its authoritative denominator is **44 formal finding groups: 10 High, 30 Medium and 4 Low**. Shared IDs in one original row count once. There were no independently confirmed Critical findings. Two unnumbered observations are recorded separately below; they do not turn the formal denominator into 46.

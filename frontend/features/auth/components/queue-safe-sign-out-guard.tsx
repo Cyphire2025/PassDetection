@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { AlertTriangle, RotateCw, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui";
+import { useModalKeyboardBoundary } from "@/components/ui/modal";
 import {
   subscribeToQueueSafeSignOutReview,
 } from "@/features/auth/services/queue-safe-sign-out-events";
@@ -33,14 +34,16 @@ export function QueueSafeSignOutGuard() {
     setError(null);
   }), []);
 
-  if (!snapshot) return null;
-
   const close = () => {
     if (busy) return;
     setSnapshot(null);
     setStage("blocked");
     setError(null);
   };
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const handleKeyDown = useModalKeyboardBoundary({ dialogRef, isOpen: Boolean(snapshot), canClose: !busy, onClose: close });
+
+  if (!snapshot) return null;
 
   const syncThenSignOut = async () => {
     setBusy(true);
@@ -97,6 +100,8 @@ export function QueueSafeSignOutGuard() {
 
   return (
     <div
+      ref={dialogRef}
+      onKeyDown={handleKeyDown}
       className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
@@ -148,7 +153,7 @@ export function QueueSafeSignOutGuard() {
         </div>
 
         <div className="flex flex-col-reverse gap-2 border-t border-slate-100 px-6 py-4 sm:flex-row sm:justify-end">
-          <Button type="button" variant="secondary" onClick={stage === "blocked" ? close : () => setStage("blocked")} disabled={busy}>
+          <Button type="button" variant="secondary" data-dialog-initial-focus onClick={stage === "blocked" ? close : () => setStage("blocked")} disabled={busy}>
             {stage === "blocked" ? "Keep working" : "Back"}
           </Button>
           {stage === "blocked" ? (

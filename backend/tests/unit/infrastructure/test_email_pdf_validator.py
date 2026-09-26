@@ -4,7 +4,7 @@ import io
 from types import SimpleNamespace
 
 import pytest
-from pypdf import PdfWriter
+from pypdf import PdfReader, PdfWriter
 
 from app.infrastructure.email.pdf_validator import (
     EmailPdfValidationError,
@@ -150,3 +150,35 @@ def test_pdf_validator_refuses_unscanned_production_processing() -> None:
                 malware_scanner_enabled=False,
             ),
         )
+
+
+@pytest.mark.parametrize("outcome", ["accepted", "page_limit", "parse_error"])
+def test_reader_and_attachment_buffer_release_even_when_reader_cycles_remain(
+    monkeypatch: pytest.MonkeyPatch, outcome: str,
+) -> None:
+    streams: list[io.BytesIO] = []
+    readers: list[PdfReader] = []
+
+    def retained_reader(stream: io.BytesIO, *, strict: bool) -> PdfReader:
+        streams.append(stream)
+        reader = PdfReader(stream, strict=strict)
+        # Retain the actual reader, independently of garbage collection, as its
+        # own page/indirect-reference cycles do in a long-lived worker.
+        readers.append(reader)
+        return reader
+
+    monkeypatch.setattr("app.infrastructure.email.pdf_validator.PdfReader", retained_reader)
+    validator = EmailPdfValidator(  # type: ignore[arg-type]
+        settings=_settings(email_pdf_max_pages=1 if outcome == "page_limit" else 10),
+        scanner=RecordingScanner(),
+    )
+    source = b"%PDF-1.7\ninvalid" if outcome == "parse_error" else _pdf(pages=2)
+    if outcome == "accepted":
+        result = validator.validate(content=source, filename="file.pdf", declared_content_type="application/pdf")
+        assert result.content is source
+        assert result.page_count == 2
+    else:
+        with pytest.raises(EmailPdfValidationError):
+            validator.validate(content=source, filename="file.pdf", declared_content_type="application/pdf")
+    assert len(streams) == 1 and streams[0].closed
+    assert all(not reader.resolved_objects and not reader.flattened_pages for reader in readers)

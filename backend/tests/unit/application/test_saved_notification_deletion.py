@@ -4,7 +4,6 @@ import uuid
 from datetime import UTC, datetime, timedelta
 
 import pytest
-from fastapi import HTTPException
 from sqlalchemy import func, select
 
 from app.application.mobile.authored_notification_access import (
@@ -18,6 +17,7 @@ from app.application.mobile.authored_notification_service import (
     save_notification_draft,
     send_notification,
 )
+from app.application.mobile.notification_errors import NotificationWorkflowError
 from app.application.mobile.notification_service import dispatch_mobile_push_batch
 from app.core.security.mobile_push_crypto import mobile_push_fernet
 from app.infrastructure.database.gc_mobile_models import (
@@ -89,9 +89,9 @@ async def test_delete_retains_history_outbox_grants_and_committed_request_recove
             db_session, **scope, body=request.model_copy(update={"request_id": uuid.uuid4()})
         ),
     ):
-        with pytest.raises(HTTPException) as failure:
+        with pytest.raises(NotificationWorkflowError) as failure:
             await operation
-        assert failure.value.status_code == 404
+        assert failure.value.category == "missing"
     assert await db_session.scalar(select(func.count()).select_from(GCNotificationBatchModel)) == 1
 
 
@@ -106,14 +106,14 @@ async def test_delete_stale_revision_preserves_saved_content(db_session):
             title="New content", body="Changed", audience="all_active_trips", expected_revision=1
         ),
     )
-    with pytest.raises(HTTPException) as failure:
+    with pytest.raises(NotificationWorkflowError) as failure:
         await delete_notification_draft(db_session, **scope, expected_revision=1)
-    assert failure.value.status_code == 409 and failure.value.detail == "draft_conflict"
+    assert failure.value.category == "conflict" and failure.value.message == "draft_conflict"
     assert draft.title == "New content" and draft.deleted_at is None
     await delete_notification_draft(db_session, **scope, expected_revision=2)
-    with pytest.raises(HTTPException) as stale_retry:
+    with pytest.raises(NotificationWorkflowError) as stale_retry:
         await delete_notification_draft(db_session, **scope, expected_revision=1)
-    assert stale_retry.value.status_code == 409
+    assert stale_retry.value.category == "conflict"
 
 
 async def test_saved_removal_does_not_cancel_an_already_queued_send(db_session):

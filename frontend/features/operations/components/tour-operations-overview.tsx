@@ -24,7 +24,7 @@ const workflows = [
   {
     title: "Scanner PWA",
     description: "Open the mobile scanner workflow used by coordinators.",
-    href: "/tour-scanner",
+    href: ROUTES.tourScanner,
     icon: QrCode,
     external: true,
   },
@@ -82,11 +82,11 @@ export function TourOperationsOverview() {
           );
 
           return workflow.external ? (
-            <Link key={workflow.title} href={workflow.href as never} target="_blank" className="block">
+            <Link key={workflow.title} href={workflow.href} target="_blank" className="block">
               {content}
             </Link>
           ) : (
-            <Link key={workflow.title} href={workflow.href as never} className="block">
+            <Link key={workflow.title} href={workflow.href} className="block">
               {content}
             </Link>
           );

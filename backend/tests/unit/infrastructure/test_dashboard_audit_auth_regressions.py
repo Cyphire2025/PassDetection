@@ -52,7 +52,8 @@ async def test_database_digest_cannot_lookup_or_consume_real_refresh_row(db_sess
 async def test_legacy_plaintext_row_is_never_accepted(db_session: AsyncSession) -> None:
     user = await _account(db_session)
     raw = str(uuid.uuid4())
-    db_session.add(RefreshTokenModel(token=raw, user_id=user.id, expires_at=datetime.now(UTC)+timedelta(days=1)))
+    row = await RefreshTokenRepository(db_session).save(raw, user.id, datetime.now(UTC)+timedelta(days=1))
+    row.token = raw  # Deliberately emulate a legacy plaintext stored credential.
     await db_session.flush()
     repository = RefreshTokenRepository(db_session)
     assert await repository.get_valid_token(raw) is None

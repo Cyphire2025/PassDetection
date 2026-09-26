@@ -328,14 +328,14 @@ export function NotificationBell() {
             )}
             <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-1">
               <Link
-                href={ROUTES.dashboard.emailIntegrations as never}
+                href={ROUTES.dashboard.emailIntegrations}
                 className="text-xs font-medium text-slate-600 hover:text-slate-900 hover:underline"
                 onClick={closePanel}
               >
                 Notification settings
               </Link>
               <Link
-                href={ROUTES.dashboard.emailIntegrationsInbox as never}
+                href={ROUTES.dashboard.emailIntegrationsInbox}
                 className="inline-flex items-center gap-1 text-sm font-medium text-blue-700 hover:text-blue-800 hover:underline"
                 onClick={closePanel}
               >
@@ -377,7 +377,7 @@ function NotificationRow({
       <div className="min-w-0 flex-1">
         {target ? (
           <Link
-            href={target as never}
+            href={target}
             className="block rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
             onClick={onOpen}
           >

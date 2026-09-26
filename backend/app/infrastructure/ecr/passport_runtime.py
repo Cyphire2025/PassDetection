@@ -19,6 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
 from app.domain.exceptions.exceptions import StorageError
+from app.domain.exceptions.resource_capacity import ImageProcessingBusy
 from app.infrastructure.ai.gemini_ecr_service import EcrClassification, GeminiEcrService
 from app.infrastructure.database.models import (
     AgencyModel,
@@ -419,7 +420,7 @@ async def _process_one(
     except* StorageError:
         with suppress(PassportEcrStale):
             await _save(claim, EcrClassification("ERROR", "image_unavailable", ""), None)
-    except* (RateLimitUnavailable, SQLAlchemyError):
+    except* (RateLimitUnavailable, SQLAlchemyError, ImageProcessingBusy):
         # Stop the drain safely on infrastructure failure. The finally block
         # refunds the job attempt; admission already committed cannot be reused.
         raise

@@ -13,10 +13,10 @@ from pathlib import Path
 import pytest
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
-from fastapi import HTTPException
 from sqlalchemy import func, select, text
 
 from app.application.mobile.authored_notification_service import send_notification
+from app.application.mobile.notification_errors import NotificationWorkflowError
 from app.infrastructure.database.gc_mobile_models import MobileNotificationModel
 from app.infrastructure.database.gc_notification_models import (
     GCNotificationBatchModel,
@@ -142,8 +142,8 @@ async def test_same_request_id_different_drafts_conflicts_without_duplicate_batc
                         body=body,
                     )
                 return "sent"
-            except HTTPException as error:
-                return error.detail
+            except NotificationWorkflowError as error:
+                return error.message
 
     results = await asyncio.wait_for(
         asyncio.gather(send(first_id, request), send(second_id, second_request)), timeout=20

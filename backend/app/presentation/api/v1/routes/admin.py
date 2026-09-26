@@ -24,7 +24,7 @@ from app.application.security.destructive_mutation_policy import (
     record_destructive_failure,
 )
 from app.core.logging.logger import get_logger
-from app.core.security.password import hash_password
+from app.core.security.password import hash_password, run_password_work
 from app.domain.entities.entities import (
     OFFICE_VISIBLE_PASSPORT_STATUS_VALUES,
     PENDING_REVIEW_PASSPORT_STATUS_VALUES,
@@ -66,6 +66,7 @@ from app.infrastructure.repositories.passport_image_crop_repository import (
     PassportImageCropRepository,
 )
 from app.infrastructure.storage.passport_object_keys import passport_storage_keys
+from app.presentation.api.v1.pagination import PageOffset, PageSize
 from app.presentation.api.v1.schemas.operations_schemas import (
     AdminOverviewResponse,
     AssignManagerGroupsRequest,
@@ -221,13 +222,13 @@ async def get_admin_overview(
 async def list_managers(
     current_user: User = Depends(require_role([UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN])),
     session: AsyncSession = Depends(get_db_session),
-    skip: int = 0,
-    limit: int = 100,
+    skip: PageOffset = 0,
+    limit: PageSize = 100,
 ) -> list[ManagerResponse]:
     stmt = (
         select(UserModel)
         .where(*_manager_scope(current_user))
-        .order_by(UserModel.created_at.desc())
+        .order_by(UserModel.created_at.desc(), UserModel.id.desc())
         .offset(skip)
         .limit(limit)
     )
@@ -320,7 +321,7 @@ async def create_manager(
 
     manager = UserModel(
         email=str(body.email).lower().strip(),
-        hashed_password=hash_password(f"Inv1{secrets.token_urlsafe(32)}"),
+        hashed_password=await run_password_work(hash_password, f"Inv1{secrets.token_urlsafe(32)}"),
         full_name=body.full_name.strip(),
         role=UserRole.AGENCY_MANAGER.value,
         agency_id=current_user.agency_id,
@@ -791,7 +792,7 @@ async def delete_manager(
         )
         manager.is_active = False
         manager.email = f"deleted-{manager.id}@deleted.invalid"
-        manager.hashed_password = hash_password(secrets.token_urlsafe(48))
+        manager.hashed_password = await run_password_work(hash_password, secrets.token_urlsafe(48))
         manager.deleted_at = now
         manager.updated_at = now
     else:

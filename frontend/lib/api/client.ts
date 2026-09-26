@@ -15,6 +15,7 @@ import {
   runCoordinatedRefresh,
 } from "@/features/auth/services/refresh-coordinator";
 import { requestAuthenticationStepUp } from "@/features/auth/services/step-up-coordinator";
+import { refreshWithSingleConflictRetry } from "@/features/auth/services/refresh-attempt";
 import { useAuthStore } from "@/stores/auth.store";
 import type { AuthSession } from "@/types";
 import {
@@ -184,7 +185,7 @@ function getRefreshPromise(observedEpoch: string) {
   refreshPromise = runCoordinatedRefresh(
     observedEpoch,
     async () => {
-      const response = await axios.post<AuthSession>(
+      const response = await refreshWithSingleConflictRetry(() => axios.post<AuthSession>(
         `${apiBaseUrl}/api/v1/auth/refresh`,
         undefined,
         {
@@ -192,7 +193,7 @@ function getRefreshPromise(observedEpoch: string) {
           timeout: 10_000,
           headers: { "Content-Type": "application/json" },
         },
-      );
+      ));
       refreshedSession = response.data;
     },
   )

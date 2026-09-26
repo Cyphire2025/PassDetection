@@ -219,7 +219,8 @@ class FakeDocker:
                 assert pin_path is not None
                 pins = json.loads(pin_path.read_text())["services"]
                 assert pins["backend"]["image"] == NEW_BACKEND
-                assert "--no-deps" in tail and "--rm" in tail
+                assert "--no-deps" in tail
+                assert ("--rm" in tail) is not getattr(self, "preserve_release_artifacts", False)
                 if tail[-1] == "current":
                     output = self.schema + " (head)"
                 elif tail[-2:] == ["upgrade", self.expected_schema]:

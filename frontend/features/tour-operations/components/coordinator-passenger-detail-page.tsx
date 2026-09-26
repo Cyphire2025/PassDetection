@@ -79,7 +79,7 @@ export function CoordinatorPassengerDetailPage({ groupId, passengerId }: { group
               router.push(
                 ROUTES.auth.coordinatorLogin(
                   `/coordinator/groups/${groupId}/passengers/${passengerId}`,
-                ) as never,
+                ),
               );
             }}
           >
@@ -94,7 +94,7 @@ export function CoordinatorPassengerDetailPage({ groupId, passengerId }: { group
     <CoordinatorFrame>
       <header className="px-4 pb-4 pt-[max(1rem,env(safe-area-inset-top))]">
         <Link
-          href={`/coordinator/groups/${groupId}` as never}
+          href={`/coordinator/groups/${groupId}`}
           className="mb-3 inline-flex min-h-11 items-center gap-2 rounded-lg pr-3 text-sm font-medium text-slate-600"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />

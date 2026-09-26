@@ -38,7 +38,7 @@ export function GroupDocumentDeliveryPanel({ groupId }: { groupId: string }) {
             </div>
           </div>
           <Link
-            href={ROUTES.dashboard.documentGroup(groupId) as never}
+            href={ROUTES.dashboard.documentGroup(groupId)}
             className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "shrink-0")}
           >
             <FileText className="h-4 w-4" aria-hidden="true" />

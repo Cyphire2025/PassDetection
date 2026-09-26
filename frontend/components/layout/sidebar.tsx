@@ -35,7 +35,7 @@ import type React from "react";
 
 interface NavItem {
   label: string;
-  href: string;
+  href: import("next").Route;
   icon: React.ComponentType<{ className?: string }>;
   activePrefixes?: string[];
 }
@@ -163,7 +163,7 @@ export function Sidebar({ mobile = false, onNavigate }: SidebarProps) {
                     </p>
                   )}
                 <Link
-                  href={item.href as never}
+                  href={item.href}
                   onClick={onNavigate}
                   className={cn(
                     "relative flex min-h-10 items-center gap-3 rounded-lg px-3 py-2.5",

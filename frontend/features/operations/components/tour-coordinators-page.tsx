@@ -1,6 +1,8 @@
 "use client";
 
-import { FormEvent, useDeferredValue, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useModalKeyboardBoundary } from "@/components/ui/modal";
+
+import { FormEvent, useDeferredValue, useId, useMemo, useRef, useState } from "react";
 import type React from "react";
 import Link from "next/link";
 import { ArrowLeft, CalendarClock, CheckCircle2, Mail, Plus, UserPlus, UsersRound, X } from "lucide-react";
@@ -68,7 +70,7 @@ export function TourCoordinatorsPage() {
         context={<span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-xs font-medium text-slate-200"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-300" aria-hidden="true" />{activeCount} active accounts</span>}
         actions={(
           <>
-            <Link href={ROUTES.dashboard.tourOperationsGroupAssignments as never} className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 px-3.5 text-sm font-semibold text-white transition hover:bg-white/15"><ArrowLeft className="h-4 w-4" aria-hidden="true" />Tour Ops</Link>
+            <Link href={ROUTES.dashboard.tourOperationsGroupAssignments} className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 px-3.5 text-sm font-semibold text-white transition hover:bg-white/15"><ArrowLeft className="h-4 w-4" aria-hidden="true" />Tour Ops</Link>
             <Button type="button" onClick={() => setShowCreateDialog(true)} className="bg-white text-slate-950 hover:bg-sky-50 active:bg-sky-100"><Plus className="h-4 w-4" aria-hidden="true" />Create coordinator</Button>
           </>
         )}
@@ -219,36 +221,11 @@ function CreateCoordinatorDialog({
 }) {
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement | null>(null);
-  const onCloseRef = useRef(onClose);
-  useEffect(() => {
-    onCloseRef.current = onClose;
-  }, [onClose]);
-  useEffect(() => {
-    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !isLoading) {
-        event.preventDefault();
-        onCloseRef.current();
-        return;
-      }
-      if (event.key !== "Tab") return;
-      const controls = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])') ?? []);
-      if (controls.length === 0) return;
-      const first = controls[0];
-      const last = controls[controls.length - 1];
-      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      previousFocus?.focus();
-    };
-  }, [isLoading]);
+  const handleKeyDown = useModalKeyboardBoundary({ dialogRef, isOpen: true, canClose: !isLoading, onClose });
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !isLoading) onClose(); }}>
-      <Card ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={titleId} className="w-full max-w-lg overflow-hidden shadow-2xl">
+      <Card ref={dialogRef} onKeyDown={handleKeyDown} role="dialog" aria-modal="true" aria-labelledby={titleId} className="w-full max-w-lg overflow-hidden shadow-2xl">
         <CardContent className="space-y-5 p-6">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -260,7 +237,7 @@ function CreateCoordinatorDialog({
                 <p className="mt-0.5 text-sm leading-5 text-slate-500">Create a restricted field login for assigned groups only.</p>
               </div>
             </div>
-            <button type="button" className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700" onClick={onClose} aria-label="Close create coordinator dialog">
+            <button type="button" className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700" onClick={onClose} disabled={isLoading} aria-label="Close create coordinator dialog">
               <X className="h-5 w-5" aria-hidden="true" />
               <span className="sr-only">Close</span>
             </button>

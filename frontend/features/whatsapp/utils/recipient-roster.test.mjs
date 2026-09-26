@@ -1,11 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import {
-  filterRecipientRosterItems,
-  recipientHasFailedMessage,
-  recipientHasSentMessage,
-  searchRecipientRosterItems,
-} from "./recipient-roster.ts";
+import { registerHooks } from "node:module";
+// Node's native TS runner does not implement the bundler's extension inference.
+const hooks = registerHooks({
+  resolve(specifier, context, nextResolve) {
+    return nextResolve(specifier === "./recipient-delivery" ? "./recipient-delivery.ts" : specifier, context);
+  },
+});
+const { filterRecipientRosterItems, recipientHasFailedMessage, recipientHasSentMessage, searchRecipientRosterItems } = await import("./recipient-roster.ts");
+hooks.deregister();
 
 function messageStatus({
   messageType,

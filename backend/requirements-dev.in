@@ -1,0 +1,12 @@
+# Regenerate with the exact compiler in tooling/toolchain.json.
+# Runtime versions remain constrained by the reviewed production lock.
+-r requirements.txt
+-c requirements.lock
+pip==26.2.1
+uv==0.12.0
+pytest==9.0.3
+pytest-asyncio==1.4.0
+pytest-cov==5.0.0
+ruff==0.16.0
+mypy==2.3.0
+pip-audit==2.10.1

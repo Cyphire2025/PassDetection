@@ -45,7 +45,7 @@ export function DashboardOverview() {
           accent="lime"
           actions={(
             <Link
-              href={ROUTES.coordinator as never}
+              href={ROUTES.coordinator}
               className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-4 text-sm font-semibold text-[#123f73] shadow-sm transition hover:bg-sky-50 active:bg-sky-100"
             >
               Open My Tour
@@ -68,7 +68,7 @@ export function DashboardOverview() {
           </div>
           <div className="flex items-center border-t border-slate-100 bg-slate-50/70 p-5 md:border-l md:border-t-0">
             <Link
-              href={ROUTES.coordinator as never}
+              href={ROUTES.coordinator}
               className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 md:w-auto"
             >
               My Tour

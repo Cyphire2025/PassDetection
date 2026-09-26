@@ -24,6 +24,7 @@ from app.infrastructure.database.models import (
     UserModel,
     UserSecurityStateModel,
 )
+from tests.dashboard_session_fixtures import issue_dashboard_access
 from tests.persistence import persist_graph
 
 
@@ -41,6 +42,10 @@ def _token(
         session_version=session_version,
     )
     return token
+
+
+async def _session_token(session, user_id, agency_id, *, role, session_version=1):
+    return (await issue_dashboard_access(session, user_id, role, agency_id, session_version=session_version))[0]
 
 
 def test_claim_parser_rejects_non_tenant_dashboard_roles() -> None:
@@ -142,7 +147,7 @@ async def test_staff_snapshot_is_tenant_scoped_and_fenced_by_session_epoch(
     )
     await db_session.flush()
 
-    token = _token(
+    token = await _session_token(db_session,
         user_id,
         agency_id,
         role="agency_staff",
@@ -228,7 +233,7 @@ async def test_coordinator_snapshot_uses_only_live_tenant_assignments(
     )
     await db_session.flush()
 
-    token = _token(user_id, agency_id, role="agency_coordinator")
+    token = await _session_token(db_session, user_id, agency_id, role="agency_coordinator")
     authorization = await load_dashboard_realtime_authorization(
         db_session,
         token,
@@ -302,7 +307,7 @@ async def test_superadmin_access_level_uses_scoped_grants_and_base_identity(
         ]
     )
     await db_session.flush()
-    token = _token(user_id, None, role="super_admin")
+    token = await _session_token(db_session, user_id, None, role="super_admin")
     token_claims = decode_access_token(token)
     settings = get_settings()
     mode_token = jwt.encode(
@@ -361,7 +366,7 @@ async def test_superadmin_without_scoped_access_level_cannot_subscribe(
     with pytest.raises(AuthorizationError, match="not available"):
         await load_dashboard_realtime_authorization(
             db_session,
-            _token(user_id, None, role="super_admin"),
+            await _session_token(db_session, user_id, None, role="super_admin"),
             maximum_trips=10,
             resolve_effective_user=lambda user, _claims: user,
         )

@@ -36,7 +36,7 @@ export function GroupControlCard({
           </div>
           <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap">
             <Link
-              href={ROUTES.dashboard.gcAppGroup(group.id) as never}
+              href={ROUTES.dashboard.gcAppGroup(group.id)}
               className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "col-span-2 justify-center sm:col-span-1")}
             >
               <Settings2 className="h-4 w-4" aria-hidden="true" />

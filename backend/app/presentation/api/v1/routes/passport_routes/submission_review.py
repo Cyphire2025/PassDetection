@@ -57,6 +57,7 @@ from app.infrastructure.repositories.audit_log_repository import AuditLogReposit
 from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
+from app.infrastructure.repositories.sensitive_read_audit import record_sensitive_read
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.infrastructure.verification.dispatcher import PostSubmissionVerificationDispatcher
 from app.infrastructure.verification.job_repository import (
@@ -173,6 +174,8 @@ async def get_passport(
     try:
         result = await use_case.execute(submission_id)
         await AuthorizationPolicy(session).require_view_passport(current_user, result)
+        await record_sensitive_read(session, user=current_user, kind="detail",
+                                    agency_id=result.agency_id, entity_id=result.id)
 
         job = await PassportProcessingJobRepository(session).latest_for_submission(result.id)
         if job is not None and queued_job_needs_redelivery(job):

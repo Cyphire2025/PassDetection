@@ -13,7 +13,6 @@ from app.infrastructure.database.models import (
     AuditLogModel,
     IdentityActionTokenModel,
     IdentityNotificationOutboxModel,
-    RefreshTokenModel,
     UserModel,
     UserSecurityStateModel,
 )
@@ -247,16 +246,11 @@ async def test_password_recovery_consumes_once_revokes_sessions_and_audits(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     user, state = await _create_staff(db_session, email="complete-recovery@example.com")
-    refresh = RefreshTokenModel(
-        token="existing-refresh-token-hash",
-        user_id=user.id,
-        expires_at=datetime.now(tz=UTC) + timedelta(days=1),
-        is_revoked=False,
-        session_version=state.session_version,
-        authentication_methods="pwd",
+    from app.infrastructure.repositories.refresh_token_repository import RefreshTokenRepository
+    refresh = await RefreshTokenRepository(db_session).save(
+        token="existing-refresh-credential", user_id=user.id,
+        expires_at=datetime.now(tz=UTC) + timedelta(days=1), session_version=state.session_version,
     )
-    db_session.add(refresh)
-    await db_session.flush()
     settings = test_settings.model_copy(
         update={
             "password_recovery_delivery_provider": "development",

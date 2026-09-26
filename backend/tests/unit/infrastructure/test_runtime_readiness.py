@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 import pytest
 
+from app.core.config.release_contract import SCHEMA_REVISION
 from app.core.config.settings import Settings
 from app.infrastructure.readiness_executor import ReadinessProbeExecutor
 from app.infrastructure.runtime_readiness import RuntimeReadinessProbe
@@ -58,7 +59,7 @@ class _Database:
     def __init__(
         self,
         *,
-        versions: tuple[str, ...] = ("0107_passport_ecr_checks",),
+        versions: tuple[str, ...] = (SCHEMA_REVISION,),
         due_count: int = 0,
         blocked_count: int = 0,
         oldest_due_seconds: int = 0,
@@ -136,6 +137,7 @@ async def test_ready_snapshot_requires_schema_storage_and_core_dependencies() ->
         (("0087_enterprise_hardening",), "revision_mismatch"),
         (("0089_revoke_legacy_refresh",), "revision_mismatch"),
         (("0090_upload_configuration",), "revision_mismatch"),
+        (("0107_passport_ecr_checks",), "revision_mismatch"),
         (
             ("0086_my_photos_foundation", "0087_enterprise_hardening"),
             "multiple_heads",

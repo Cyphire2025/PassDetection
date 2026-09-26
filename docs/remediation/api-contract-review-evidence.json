@@ -1,0 +1,59 @@
+{
+  "result": "passed",
+  "reviewed_at_utc": "2026-09-26T20:51:27.133966+00:00",
+  "original_finding": "API-04",
+  "conclusion": "The original form/cookie, Bearer-alternative, validation-error and binary-media mismatches are locally corrected. This is a bounded contract review, not proof of every endpoint workflow.",
+  "commands": [
+    {
+      "working_directory": "backend",
+      "command": ".venv311/Scripts/python.exe -m pytest --no-cov -q tests/unit/presentation/test_openapi_response_contract.py tests/unit/presentation/test_api_error_envelope.py",
+      "result": "15 passed",
+      "output": "outputs/tooling-api-contract-review.txt"
+    },
+    {
+      "working_directory": "backend",
+      "command": ".venv311/Scripts/python.exe scripts/export_api_contract.py",
+      "result": "Complete backend API contract matches its reviewed snapshot"
+    },
+    {
+      "working_directory": "backend",
+      "command": ".venv311/Scripts/python.exe scripts/export_mobile_openapi_contract.py",
+      "result": "Mobile OpenAPI contract matches the reviewed snapshot"
+    }
+  ],
+  "acceptance_mapping": {
+    "form_and_response": "Login advertises only application/x-www-form-urlencoded; AuthResponse exposes user/status/expiry and tokens are HttpOnly cookies.",
+    "security": "Dependency traversal marks dashboard HTTPBearer OR DashboardAccessCookie; refresh separately documents HttpOnly refresh cookie OR required body credential; body optionality and precedence match handler. Mobile routes remain on their original dependencies.",
+    "csrf": "Cookie CSRF metadata now explicitly applies when no Bearer header is supplied, matching runtime bypass semantics.",
+    "validation_errors": "Generated FastAPI HTTPValidationError422 is replaced with ApiErrorResponse;15-case lane includes actual ASGI error responses validated by that response model, correlation and legacy/header behavior.",
+    "files": "AST inventory of every registered-style route function using StreamingResponse/FileResponse/private_object_streaming_response found no direct file implementation lacking binary_responses. Representative XLSX/image/CSV and range metadata assertions pass.",
+    "drift": "Complete and existing mobile snapshots checked after regeneration; CI rejects any unreviewed drift, including breaking changes. Intentional changes require manual review of the generated diff."
+  },
+  "limitations": [
+    "No assertion of automated semantic backward-compatibility analysis; snapshot equality detects drift and code review classifies compatibility.",
+    "No new physical mobile-device or native behavior test was performed. The mobile change is a backend-generated approved contract artifact.",
+    "File metadata was checked against route source and schema assertions; this narrow15-case lane does not itself execute every file transport route. Existing joined/service tests supply separate workflow evidence.",
+    "Real GitHub CI execution and production deployment are not asserted."
+  ],
+  "description_only_change": {
+    "auth.py": "Refresh Origin/Referer description now qualifies when no Bearer header is supplied.",
+    "openapi_contract.py": "Same qualification added to access-cookie/refresh-cookie descriptions and both x-cookie-csrf metadata values; no authentication logic changed."
+  },
+  "source_sha256_lf": {
+    "backend/app/presentation/api/v1/openapi_contract.py": "6b8de7606be206c41b476fb0a241a47f977dce8924316246cc0927403739054d",
+    "backend/app/presentation/api/v1/routes/auth.py": "7f723a43089661986f5d1b08f1c97156189c672643a9f89593a7e9f201d99d90",
+    "backend/app/presentation/api/v1/schemas/auth_schemas.py": "9ccc2c610396b475aae8ae2143fd894ab1cb56d9d9b0b5ee736615efafbf9eb8",
+    "backend/app/presentation/dependencies/auth.py": "feb15c9673b2432e7cd2f26b582191315fda7866f7cad586c8bf60ffc3157320",
+    "backend/app/presentation/dependencies/csrf.py": "9e8438622aca2a17b97b91455287712819d10f37a5baed8478a94b5eff0c981b",
+    "backend/app/presentation/api/v1/response_contracts.py": "e824d4e2f811124bead6aca5396880323b37d12c8208ef8d709eeaaef21906be",
+    "backend/app/presentation/middleware/error_handler.py": "df1538e96627cac79e4dbe9c8e7798a37ab9f047beda2ebd7844bf831f67c2a0",
+    "backend/app/presentation/middleware/error_response.py": "c64c7ed350e6860995cc2e0674d6c2e5aa48d2367101935cd7373f8ff406cb32",
+    "backend/tests/unit/presentation/test_openapi_response_contract.py": "6d35a1d64f79e2cc4c036d9cbc6e04aed91f8288d3886aec12266e7865e5b6dc",
+    "backend/tests/unit/presentation/test_api_error_envelope.py": "63ae46f8b9cb517c596b125604dc57ff02287bae60576377ed39a8bc094733d9",
+    "backend/scripts/export_api_contract.py": "b0d5244cf41712ca0f4bdec0296aeaaa488c734d29a5d5df7ddbf0da1616fc8d",
+    "backend/scripts/export_mobile_openapi_contract.py": "4dcd7ebb22c6f0a5281ee85fa3d5d76ea6d80af989a7b72f0e023b800b93a894",
+    "backend/contracts/api.openapi.json": "55a52beeaf1c702dc0da15963f7d92632c8afb27baa44d5730b20321310807a3",
+    "mobile/contracts/mobile-api.openapi.json": "af694800a7abc08e68c7232502f5eea9cedb7ec32e1b686cd5b01f8b777e97e4",
+    "docs/API_CONTRACT.md": "161a05eb4c435fc163e398ebe04b34ca15fe153f3c21abf18c1d3e15bae147d0"
+  }
+}

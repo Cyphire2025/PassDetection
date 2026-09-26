@@ -2,10 +2,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-const panel = readFileSync(
-  new URL("./group-whatsapp-broadcast-panel.tsx", import.meta.url),
-  "utf8",
-);
+const panel = ["group-whatsapp-broadcast-panel.tsx", "group-whatsapp-dialogs.tsx", "group-whatsapp-tracking-table.tsx", "group-whatsapp-tracking-model.ts"]
+  .map((name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8")).join("\n");
 const selector = readFileSync(
   new URL("./whatsapp-broadcast-selector.tsx", import.meta.url),
   "utf8",

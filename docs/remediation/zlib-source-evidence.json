@@ -1,0 +1,36 @@
+{
+  "result": "passed",
+  "advisory": "CVE-2026-85091",
+  "official_inputs": {
+    "zlib_1.3.dfsg+really1.3.1-1.dsc": {
+      "url": "https://deb.debian.org/debian/pool/main/z/zlib/zlib_1.3.dfsg+really1.3.1-1.dsc",
+      "sha256": "ede2791e29c1d3b422f9208bdd7edf040c20445ea1e7453a72037576e64fa197"
+    },
+    "zlib_1.3.dfsg+really1.3.1.orig.tar.gz": {
+      "url": "https://deb.debian.org/debian/pool/main/z/zlib/zlib_1.3.dfsg+really1.3.1.orig.tar.gz",
+      "sha256": "60dd315c07f616887caa029408308a018ace66e3d142726a97db164b3b8f69fb"
+    },
+    "zlib_1.3.dfsg+really1.3.1-1.debian.tar.xz": {
+      "url": "https://deb.debian.org/debian/pool/main/z/zlib/zlib_1.3.dfsg+really1.3.1-1.debian.tar.xz",
+      "sha256": "9ed525955ce9fb0c1b39be8ff98f73450dbfc6305a9a27e6149c8972d38a0a9e"
+    },
+    "zlib1g_1.3.dfsg+really1.3.1-1+b1_amd64.deb": {
+      "url": "https://deb.debian.org/debian/pool/main/z/zlib/zlib1g_1.3.dfsg+really1.3.1-1+b1_amd64.deb",
+      "sha256": "015be740d6236ad114582dea500c1d907f29e16d6db00566ca32fb68d71ac90d"
+    }
+  },
+  "upstream_v1_3_1_byte_identical_gz_files": {
+    "gzwrite.c": "469b1e58932ea11bdda2a153f6655f7b3c13254240fae157181b49ed1bc93b47",
+    "gzguts.h": "716fa648aca1bb06c219d7b97ad4846d8479206143bc39557bfd8283f5783e04",
+    "gzlib.c": "042c2be8ec67ad525a2812e508de7381c6766dde903acf5ae6ac4fa6b541946d",
+    "gzread.c": "72e481aca07b0b85a9783237b85dc67ff3a4c1d19878d0cec69f58d38634867b",
+    "gzclose.c": "35ea6e991a63095f797d8c4cc25817fac7a7155c2ba7dcdbbf648f7871c7ea40"
+  },
+  "debian_patch_series_empty": true,
+  "affected_nonblocking_state_absent": true,
+  "introduced_by": "https://github.com/madler/zlib/commit/81cc0bebedd935daeb81b0b6e475d8786b51af3d",
+  "fixed_by": "https://github.com/madler/zlib/commit/df84af25dc1942490e1d1c899a07619152a46148",
+  "limitation": "This contradicts the broad Debian trixie scanner record only for this exact reviewed upstream source and binary. No conclusion applies to other zlib versions.",
+  "actual_installed_and_official_deb_library_sha256": "85590dd58edf5445e18bc7193e5ebc01ac5841f1ae187e97705a662e90c6421e",
+  "official_deb_extraction_compared_inside_candidate": true
+}

@@ -14,6 +14,6 @@ export default async function FlightTicketGroupPage({
       groupId,
       "international",
       "onward",
-    ) as never,
+    ),
   );
 }

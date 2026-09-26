@@ -1,7 +1,8 @@
 import type { Route } from "next";
+import { parseApplicationRoute } from "@/lib/navigation/application-route";
 
 /** A return URL must remain in the workspace and cannot re-enter restoration. */
-export function safeRestorationDestination(value?: string): string {
+export function safeRestorationDestination(value?: string): Route {
   if (!value || !value.startsWith("/") || value.startsWith("//") || /[\\\x00-\x20]/.test(value)) {
     return "/dashboard";
   }
@@ -9,7 +10,7 @@ export function safeRestorationDestination(value?: string): string {
   if (parsed.origin !== "https://workspace.invalid" || /^\/(?:login|session-restore)(?:\/|$)/.test(parsed.pathname)) {
     return "/dashboard";
   }
-  return `${parsed.pathname}${parsed.search}`;
+  return parseApplicationRoute(`${parsed.pathname}${parsed.search}`) ?? "/dashboard";
 }
 
 export function expiredSessionSignInPath(pathname: string, search: string): Route {
@@ -20,5 +21,5 @@ export function expiredSessionSignInPath(pathname: string, search: string): Rout
       : `${pathname}${search}`;
     params.set("from", safeRestorationDestination(original));
   }
-  return `/login?${params.toString()}` as Route;
+  return `/login?${params.toString()}`;
 }

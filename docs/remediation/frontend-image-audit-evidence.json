@@ -1,0 +1,511 @@
+{
+  "status": "passed_final_application_candidate",
+  "image_id": "sha256:ae6c26a9316306fa2d437f57eeefbf92fa6afda6bad2e33b6e7f6d5591cc5843",
+  "config_sha256": "sha256:b5d3489301e27295407db6148b729f91226b0ea1295d79b482ef80224380cc07",
+  "scanner": "grype 0.119.0",
+  "high_critical_package_matches": 0,
+  "high_critical_distinct_advisory_ids": 0,
+  "remaining_lower_severity": [
+    {
+      "id": "CVE-2025-60876",
+      "severity": "Medium",
+      "package": "busybox",
+      "version": "1.37.0-r31"
+    },
+    {
+      "id": "CVE-2025-60876",
+      "severity": "Medium",
+      "package": "busybox-binsh",
+      "version": "1.37.0-r31"
+    }
+  ],
+  "raw_scan_sha256": "bafcdd4c0081030c9adc30d005e7c38759a585f5339b48eb34ad7c2da47019ba",
+  "runtime_smoke": "docs/remediation/frontend-phase2-runtime-final.txt",
+  "applied_fixes": [
+    "Pinned Node24.21.0/Alpine3.24.2 with OpenSSL3.5.8",
+    "Removed unused runtime npm/yarn/corepack and their vulnerable bundled installer libraries",
+    "Removed unused runtime apk/libapk/system zlib after actual Node/sharp native linkage and image round-trip checks"
+  ],
+  "new_dispositions": [],
+  "limitation": "Final application image after controller/focus corrections and js-yaml4.3.2 dev-only patch. Exact-image advisory gate and constrained runtime smoke passed. Browser/production qualification is separate; no claim of zero unknown vulnerabilities or production deployment.",
+  "scan_database": {
+    "status": {
+      "schemaVersion": "v6.1.9",
+      "from": "https://grype.anchore.io/databases/v6/vulnerability-db_v6.1.9_2026-09-26T00:33:02Z_1790404154.tar.zst?checksum=sha256%3A4389850e3fa0b144dec73a4177ae180e6fb305b2141b69d86f70e14e5ecdae7d",
+      "built": "2026-09-26T06:29:14Z",
+      "path": "/.cache/grype/db/6/vulnerability.db",
+      "valid": true
+    },
+    "providers": {
+      "alma": {
+        "captured": "2026-09-26T00:34:14Z",
+        "input": "xxh64:6f7c7aac4faea548"
+      },
+      "alpine": {
+        "captured": "2026-09-26T00:33:09Z",
+        "input": "xxh64:4d6282b4c9159be2"
+      },
+      "amazon": {
+        "captured": "2026-09-26T00:33:59Z",
+        "input": "xxh64:4f1435b6ea706069"
+      },
+      "arch": {
+        "captured": "2026-09-26T00:33:08Z",
+        "input": "xxh64:7fae43faffe7d3f1"
+      },
+      "bitnami": {
+        "captured": "2026-09-26T00:33:22Z",
+        "input": "xxh64:d581da75e2cf02f8"
+      },
+      "chainguard": {
+        "captured": "2026-09-26T00:33:11Z",
+        "input": "xxh64:4930584a52b85982"
+      },
+      "chainguard-libraries": {
+        "captured": "2026-09-26T00:33:11Z",
+        "input": "xxh64:ae54a064859c6b14"
+      },
+      "debian": {
+        "captured": "2026-09-26T00:33:11Z",
+        "input": "xxh64:d49b48f99162abe9"
+      },
+      "echo": {
+        "captured": "2026-09-26T00:33:31Z",
+        "input": "xxh64:7a5de0f8b226fcca"
+      },
+      "eol": {
+        "captured": "2026-09-26T00:34:54Z",
+        "input": "xxh64:a456a5a587fffff4"
+      },
+      "epss": {
+        "captured": "2026-09-26T00:33:18Z",
+        "input": "xxh64:f47ae077d464a967"
+      },
+      "fedora": {
+        "captured": "2026-09-26T00:33:11Z",
+        "input": "xxh64:a1953010cd1aabe1"
+      },
+      "github": {
+        "captured": "2026-09-26T00:33:08Z",
+        "input": "xxh64:f1d0c6799ad6f843"
+      },
+      "govulndb": {
+        "captured": "2026-09-26T00:33:08Z",
+        "input": "xxh64:a51c93f6c973b85f"
+      },
+      "hummingbird": {
+        "captured": "2026-09-26T00:35:16Z",
+        "input": "xxh64:4c95a300782f04a3"
+      },
+      "kev": {
+        "captured": "2026-09-26T00:33:03Z",
+        "input": "xxh64:5ab90d5b829ffedb"
+      },
+      "mariner": {
+        "captured": "2026-09-26T00:33:12Z",
+        "input": "xxh64:f5bc5c9c631436df"
+      },
+      "minimos": {
+        "captured": "2026-09-26T00:33:06Z",
+        "input": "xxh64:90098e3d995cad20"
+      },
+      "nvd": {
+        "captured": "2026-09-26T00:33:44Z",
+        "input": "xxh64:2625ac06d0f040d3"
+      },
+      "oracle": {
+        "captured": "2026-09-26T00:33:11Z",
+        "input": "xxh64:f8e4412f587f1966"
+      },
+      "photon": {
+        "captured": "2026-09-26T00:33:26Z",
+        "input": "xxh64:b50c067cac2230be"
+      },
+      "rhel": {
+        "captured": "2026-09-26T00:34:09Z",
+        "input": "xxh64:a5b9243db15b36c5"
+      },
+      "secureos": {
+        "captured": "2026-09-26T00:33:05Z",
+        "input": "xxh64:eae47dbd9fcf128e"
+      },
+      "sles": {
+        "captured": "2026-09-26T00:34:41Z",
+        "input": "xxh64:3368be9c2fbc8d4a"
+      },
+      "ubuntu": {
+        "captured": "2026-09-26T00:33:02Z",
+        "input": "xxh64:7730935b8eb92cc0"
+      },
+      "wolfi": {
+        "captured": "2026-09-26T00:33:31Z",
+        "input": "xxh64:d25f61c983297513"
+      }
+    }
+  },
+  "baseline": {
+    "status": "blocked_pending_runtime_patch",
+    "image_id": "sha256:d5b9d2494ac14b050479d435254474fa52a6bcd42e512b873e8f9a9798bf5ebe",
+    "config_sha256": "sha256:d5efe52c8c2774bd951eb233fb31de718ebb6ea27235eea41fc280b3f8902cd7",
+    "scanner": "grype 0.119.0",
+    "package_matches": 31,
+    "distinct_advisory_ids": 22,
+    "findings": [
+      {
+        "id": "CVE-2026-63076",
+        "package": "libcrypto3",
+        "version": "3.5.7-r0",
+        "fix_versions": [
+          "3.5.8-r0"
+        ],
+        "paths": [
+          "/lib/apk/db/installed"
+        ]
+      },
+      {
+        "id": "CVE-2026-63076",
+        "package": "libssl3",
+        "version": "3.5.7-r0",
+        "fix_versions": [
+          "3.5.8-r0"
+        ],
+        "paths": [
+          "/lib/apk/db/installed"
+        ]
+      },
+      {
+        "id": "CVE-2026-18798",
+        "package": "libcrypto3",
+        "version": "3.5.7-r0",
+        "fix_versions": [
+          "3.5.8-r0"
+        ],
+        "paths": [
+          "/lib/apk/db/installed"
+        ]
+      },
+      {
+        "id": "CVE-2026-18798",
+        "package": "libssl3",
+        "version": "3.5.7-r0",
+        "fix_versions": [
+          "3.5.8-r0"
+        ],
+        "paths": [
+          "/lib/apk/db/installed"
+        ]
+      },
+      {
+        "id": "CVE-2026-63073",
+        "package": "libcrypto3",
+        "version": "3.5.7-r0",
+        "fix_versions": [
+          "3.5.8-r0"
+        ],
+        "paths": [
+          "/lib/apk/db/installed"
+        ]
+      },
+      {
+        "id": "CVE-2026-63073",
+        "package": "libssl3",
+        "version": "3.5.7-r0",
+        "fix_versions": [
+          "3.5.8-r0"
+        ],
+        "paths": [
+          "/lib/apk/db/installed"
+        ]
+      },
+      {
+        "id": "CVE-2026-54874",
+        "package": "libcrypto3",
+        "version": "3.5.7-r0",
+        "fix_versions": [
+          "3.5.8-r0"
+        ],
+        "paths": [
+          "/lib/apk/db/installed"
+        ]
+      },
+      {
+        "id": "CVE-2026-54874",
+        "package": "libssl3",
+        "version": "3.5.7-r0",
+        "fix_versions": [
+          "3.5.8-r0"
+        ],
+        "paths": [
+          "/lib/apk/db/installed"
+        ]
+      },
+      {
+        "id": "CVE-2026-14457",
+        "package": "libcrypto3",
+        "version": "3.5.7-r0",
+        "fix_versions": [
+          "3.5.8-r0"
+        ],
+        "paths": [
+          "/lib/apk/db/installed"
+        ]
+      },
+      {
+        "id": "CVE-2026-14457",
+        "package": "libssl3",
+        "version": "3.5.7-r0",
+        "fix_versions": [
+          "3.5.8-r0"
+        ],
+        "paths": [
+          "/lib/apk/db/installed"
+        ]
+      },
+      {
+        "id": "CVE-2026-63072",
+        "package": "libcrypto3",
+        "version": "3.5.7-r0",
+        "fix_versions": [
+          "3.5.8-r0"
+        ],
+        "paths": [
+          "/lib/apk/db/installed"
+        ]
+      },
+      {
+        "id": "CVE-2026-63072",
+        "package": "libssl3",
+        "version": "3.5.7-r0",
+        "fix_versions": [
+          "3.5.8-r0"
+        ],
+        "paths": [
+          "/lib/apk/db/installed"
+        ]
+      },
+      {
+        "id": "GHSA-vxpw-j846-p89q",
+        "package": "undici",
+        "version": "6.26.0",
+        "fix_versions": [
+          "6.27.0"
+        ],
+        "paths": [
+          "/usr/local/lib/node_modules/npm/node_modules/undici/package.json"
+        ]
+      },
+      {
+        "id": "CVE-2026-63075",
+        "package": "libcrypto3",
+        "version": "3.5.7-r0",
+        "fix_versions": [
+          "3.5.8-r0"
+        ],
+        "paths": [
+          "/lib/apk/db/installed"
+        ]
+      },
+      {
+        "id": "CVE-2026-63075",
+        "package": "libssl3",
+        "version": "3.5.7-r0",
+        "fix_versions": [
+          "3.5.8-r0"
+        ],
+        "paths": [
+          "/lib/apk/db/installed"
+        ]
+      },
+      {
+        "id": "GHSA-23hp-3jrh-7fpw",
+        "package": "tar",
+        "version": "7.5.15",
+        "fix_versions": [
+          "7.5.19"
+        ],
+        "paths": [
+          "/usr/local/lib/node_modules/npm/node_modules/tar/package.json"
+        ]
+      },
+      {
+        "id": "CVE-2026-14456",
+        "package": "libcrypto3",
+        "version": "3.5.7-r0",
+        "fix_versions": [
+          "3.5.8-r0"
+        ],
+        "paths": [
+          "/lib/apk/db/installed"
+        ]
+      },
+      {
+        "id": "CVE-2026-14456",
+        "package": "libssl3",
+        "version": "3.5.7-r0",
+        "fix_versions": [
+          "3.5.8-r0"
+        ],
+        "paths": [
+          "/lib/apk/db/installed"
+        ]
+      },
+      {
+        "id": "GHSA-mwp4-54f8-5fhr",
+        "package": "ip-address",
+        "version": "10.2.0",
+        "fix_versions": [
+          "10.3.1"
+        ],
+        "paths": [
+          "/usr/local/lib/node_modules/npm/node_modules/ip-address/package.json"
+        ]
+      },
+      {
+        "id": "GHSA-8x88-c5mf-7j5w",
+        "package": "tar",
+        "version": "7.5.15",
+        "fix_versions": [
+          "7.5.18"
+        ],
+        "paths": [
+          "/usr/local/lib/node_modules/npm/node_modules/tar/package.json"
+        ]
+      },
+      {
+        "id": "GHSA-rgw5-rvv9-x895",
+        "package": "brace-expansion",
+        "version": "5.0.6",
+        "fix_versions": [
+          "5.0.9"
+        ],
+        "paths": [
+          "/usr/local/lib/node_modules/npm/node_modules/brace-expansion/package.json"
+        ]
+      },
+      {
+        "id": "GHSA-mh99-v99m-4gvg",
+        "package": "brace-expansion",
+        "version": "5.0.6",
+        "fix_versions": [
+          "5.0.8"
+        ],
+        "paths": [
+          "/usr/local/lib/node_modules/npm/node_modules/brace-expansion/package.json"
+        ]
+      },
+      {
+        "id": "GHSA-w4pp-8pjf-rmxw",
+        "package": "pacote",
+        "version": "21.5.0",
+        "fix_versions": [
+          "21.5.1"
+        ],
+        "paths": [
+          "/usr/local/lib/node_modules/npm/node_modules/pacote/package.json"
+        ]
+      },
+      {
+        "id": "CVE-2026-85091",
+        "package": "zlib",
+        "version": "1.3.2-r0",
+        "fix_versions": [],
+        "paths": [
+          "/lib/apk/db/installed"
+        ]
+      },
+      {
+        "id": "GHSA-r292-9mhp-454m",
+        "package": "tar",
+        "version": "7.5.15",
+        "fix_versions": [
+          "7.5.21"
+        ],
+        "paths": [
+          "/usr/local/lib/node_modules/npm/node_modules/tar/package.json"
+        ]
+      },
+      {
+        "id": "CVE-2026-56846",
+        "package": "node",
+        "version": "24.18.0",
+        "fix_versions": [
+          "22.23.2",
+          "24.18.1"
+        ],
+        "paths": [
+          "/usr/local/bin/node"
+        ]
+      },
+      {
+        "id": "CVE-2026-56848",
+        "package": "node",
+        "version": "24.18.0",
+        "fix_versions": [
+          "22.23.2",
+          "24.18.1",
+          "26.5.1"
+        ],
+        "paths": [
+          "/usr/local/bin/node"
+        ]
+      },
+      {
+        "id": "GHSA-3jxr-9vmj-r5cp",
+        "package": "brace-expansion",
+        "version": "5.0.6",
+        "fix_versions": [
+          "5.0.7"
+        ],
+        "paths": [
+          "/usr/local/lib/node_modules/npm/node_modules/brace-expansion/package.json"
+        ]
+      },
+      {
+        "id": "CVE-2026-75803",
+        "package": "libcrypto3",
+        "version": "3.5.7-r0",
+        "fix_versions": [
+          "3.5.8-r0"
+        ],
+        "paths": [
+          "/lib/apk/db/installed"
+        ]
+      },
+      {
+        "id": "CVE-2026-75803",
+        "package": "libssl3",
+        "version": "3.5.7-r0",
+        "fix_versions": [
+          "3.5.8-r0"
+        ],
+        "paths": [
+          "/lib/apk/db/installed"
+        ]
+      },
+      {
+        "id": "CVE-2026-58043",
+        "package": "node",
+        "version": "24.18.0",
+        "fix_versions": [
+          "22.23.2",
+          "24.18.1",
+          "26.5.1"
+        ],
+        "paths": [
+          "/usr/local/bin/node"
+        ]
+      }
+    ],
+    "note": "These newly discovered full-image findings are not extra original audit finding groups. No dispositions or suppressions granted; frontend owner is patching runtime image."
+  },
+  "previous_runtime_candidate": {
+    "image_id": "sha256:1f1a57b156c52910a0739d495ed4aafa2b52c6c1c96086aa320b472b71cd2d9e",
+    "config_sha256": "sha256:8d180165bb6f257266a5161ac95611b7efe70dd89a88bb9b473128861734582f",
+    "raw_scan_sha256": "d0f67543ffe4d3facb72e77ed9a6794abc1a874c846dea042fd9a7d71a882669"
+  },
+  "previous_application_candidate": {
+    "image_id": "sha256:a87eb9fc92b4aa1e523a6150b83395d095ea0cf76961d26b01d00e905670baf8",
+    "config_sha256": "sha256:59000f5f3349898a46b35ae7894d90b532346ba749b0af4d223d9706194564eb",
+    "raw_scan_sha256": "821251b155808c5e44fa62abf4c05d18d70525d7e908da0663ca4fc6cc30b56f"
+  }
+}

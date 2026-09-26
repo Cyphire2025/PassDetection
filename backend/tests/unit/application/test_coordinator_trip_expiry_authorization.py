@@ -11,7 +11,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application import dashboard_realtime_authorization
 from app.application.mobile import realtime_authorization
 from app.application.security import authorization_policy, mobile_access_policy
-from app.core.security.jwt import create_access_token
 from app.core.security.mobile_jwt import MobileAccessClaims
 from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import AuthorizationError
@@ -26,6 +25,7 @@ from app.infrastructure.database.models import (
 )
 from app.infrastructure.repositories.coordinator_assignment_lifecycle import expired_trip_clause
 from app.presentation.api.v1.routes import mobile_ops_notification_support, mobile_resources
+from tests.dashboard_session_fixtures import issue_dashboard_access
 
 
 @pytest.fixture
@@ -203,7 +203,7 @@ async def test_mobile_and_realtime_share_trip_expiry_and_keep_current_assignment
         db_session, claims, maximum_trips=20,
     )
     assert mobile_live.trip_ids == expected_ids
-    token, _ = create_access_token(coordinator.id, coordinator.role.value, coordinator.agency_id)
+    token, _ = await issue_dashboard_access(db_session, coordinator.id, coordinator.role.value, coordinator.agency_id)
     dashboard_live = await dashboard_realtime_authorization.load_dashboard_realtime_authorization(
         db_session, token, maximum_trips=20,
     )

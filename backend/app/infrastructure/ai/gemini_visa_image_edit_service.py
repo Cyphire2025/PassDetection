@@ -16,6 +16,7 @@ from PIL import Image
 
 from app.core.config.settings import Settings, get_settings
 from app.core.logging.logger import get_logger
+from app.core.native_image_admission import bounded_native_image
 from app.infrastructure.imaging.passport_image_cropper import (
     PassportImageCropError,
     render_passport_image_crop,
@@ -475,6 +476,7 @@ class GeminiVisaImageEditService:
         return normalized
 
     @staticmethod
+    @bounded_native_image
     def _canonical_image(content: bytes, target_size: tuple[int, int] | None = None) -> bytes:
         rendered = render_passport_image_crop(
             content,

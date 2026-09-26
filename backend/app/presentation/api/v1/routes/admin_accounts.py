@@ -12,7 +12,7 @@ from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.elements import ColumnElement
 
-from app.core.security.password import hash_password
+from app.core.security.password import hash_password, run_password_work
 from app.domain.entities.entities import User, UserRole
 from app.infrastructure.database.email_models import EmailConnectionModel
 from app.infrastructure.database.models import (
@@ -155,7 +155,7 @@ async def create_staff_account(
 
     staff = UserModel(
         email=email,
-        hashed_password=hash_password(f"Inv1{secrets.token_urlsafe(32)}"),
+        hashed_password=await run_password_work(hash_password, f"Inv1{secrets.token_urlsafe(32)}"),
         full_name=body.full_name.strip(),
         role=UserRole.AGENCY_STAFF.value,
         agency_id=current_user.agency_id,
@@ -211,7 +211,7 @@ async def reset_managed_account_password(
     account, agency_name = await _get_manageable_account(session, current_user, account_id)
     del body
     now = datetime.now(tz=UTC)
-    account.hashed_password = hash_password(f"Rst1{secrets.token_urlsafe(32)}")
+    account.hashed_password = await run_password_work(hash_password, f"Rst1{secrets.token_urlsafe(32)}")
     account.updated_at = now
     repository = IdentitySecurityRepository(session)
     security_state = await repository.get_state(account.id, lock=True)
@@ -431,7 +431,7 @@ async def delete_managed_account(
         now = datetime.now(tz=UTC)
         account.is_active = False
         account.email = f"deleted-{account.id}@deleted.invalid"
-        account.hashed_password = hash_password(secrets.token_urlsafe(48))
+        account.hashed_password = await run_password_work(hash_password, secrets.token_urlsafe(48))
         account.deleted_at = now
         account.updated_at = now
         result = "deleted"

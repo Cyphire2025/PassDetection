@@ -32,19 +32,20 @@ test("recipient dialog loads the unified valid and rejected roster endpoint", ()
   assert.match(apiSource, /recipientRoster: async[\s\S]*API_ENDPOINTS\.whatsapp\.recipientRoster/);
   assert.match(hooksSource, /export function useWhatsAppRecipientRoster/);
   assert.match(pageSource, /useWhatsAppRecipientRoster\(group\.id\)/);
-  assert.match(pageSource, /recipientRoster\.items/);
+  assert.match(pageSource, /recipientRoster\?\.items/);
 });
 
-test("recipient dialog exposes active, rejected, unidentified, and replaced tabs with server counts", () => {
+test("recipient dialog exposes message-specific delivery filters and contact attention records with counts", () => {
   assert.match(pageSource, /\{ id: "all", label: "All" \}/);
   assert.match(pageSource, /\{ id: "sent", label: "Sent" \}/);
   assert.match(pageSource, /\{ id: "failed", label: "Failed" \}/);
-  assert.match(pageSource, /\{ id: "rejected", label: "Rejected" \}/);
-  assert.match(pageSource, /id: "unidentified"[\s\S]*label: "Unidentified"/);
-  assert.match(pageSource, /\{ id: "replaced", label: "Replaced" \}/);
-  assert.match(pageSource, /role="tablist"/);
-  assert.match(pageSource, /role="tab"/);
-  assert.match(pageSource, /recipientRoster\?\.counts\[tab\.id\] \?\? 0/);
+  assert.match(pageSource, /\{ id: "rejected", label: "Rejected imports" \}/);
+  assert.match(pageSource, /id: "unidentified"[\s\S]*label: "Unidentified uploads"/);
+  assert.match(pageSource, /\{ id: "replaced", label: "Replaced contacts" \}/);
+  assert.match(pageSource, /aria-label="Recipient delivery filters"/);
+  assert.match(pageSource, /aria-pressed=\{filter === id\}/);
+  assert.match(pageSource, /counts\[id\]\.toLocaleString\(\)/);
+  assert.match(pageSource, /countRecipientRosterItems\(/);
   assert.match(pageSource, /filterRecipientRosterItems\(/);
 });
 
@@ -101,7 +102,7 @@ test("replaced rows stay outside All and can restore the durable group decision"
   assert.match(pageSource, /Restore \/ add back/);
   assert.match(
     pageSource,
-    /cannot[\s\S]*receive further messages unless they are restored/,
+    /future WhatsApp messages again/,
   );
 });
 
@@ -115,7 +116,7 @@ test("unidentified tab explains unmatched uploads and deep-links to resolution w
   );
   assert.match(
     pageSource,
-    /People who uploaded passport details but are not in this WhatsApp broadcast\./,
+    /Unidentified uploads/,
   );
   assert.match(pageSource, /<UnidentifiedRosterRow/);
   assert.match(pageSource, /Review \/ mark replacement/);

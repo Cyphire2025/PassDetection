@@ -12,5 +12,5 @@ interface DocumentGroupPageProps {
 
 export default async function DocumentGroupPage({ params }: DocumentGroupPageProps) {
   const { groupId } = await params;
-  redirect(ROUTES.dashboard.documentGroup(groupId) as never);
+  redirect(ROUTES.dashboard.documentGroup(groupId));
 }

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
 
 from sqlalchemy import select
@@ -15,7 +15,7 @@ from app.application.dtos.passport_dtos import (
     passport_submission_output_from_entity,
 )
 from app.application.security.authorization_policy import AuthorizationPolicy
-from app.domain.entities.entities import OFFICE_VISIBLE_PASSPORT_STATUS_VALUES, User
+from app.domain.entities.entities import OFFICE_VISIBLE_PASSPORT_STATUS_VALUES, User, UserRole
 from app.infrastructure.database.models import ClientGroupModel, PassportSubmissionModel
 from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
@@ -47,12 +47,33 @@ class PassportSubmissionViewRepository:
     Identity clustering must see the authorized group to preserve its cautious
     cross-row evidence rules. The projection contains only the fields used by
     that algorithm; raw OCR, image keys, document metadata and review payloads
-    are loaded only for the requested page. Nothing is cached across requests
-    or users, so visibility and extraction revisions remain current.
+    are loaded only for the requested page. Shared computed indexes are bound
+    to a database revision and principal; authorization is checked on each read.
     """
 
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
+
+    async def revision(self, *, group_id: uuid.UUID, user: User, include_deleted: bool) -> tuple[int, date | None] | None:
+        statement = select(ClientGroupModel.roster_revision, ClientGroupModel.travel_date).where(
+            ClientGroupModel.id == group_id, ClientGroupModel.agency_id == user.agency_id)
+        if not include_deleted:
+            statement = statement.where(ClientGroupModel.status.notin_(["archived", "deleted"]),
+                                         ClientGroupModel.deleted_at.is_(None))
+        if user.role == UserRole.AGENCY_COORDINATOR:
+            # Passenger assignments independently authorize this existing route;
+            # requiring a separate group assignment would hide permitted rows.
+            visible_passport = AuthorizationPolicy.apply_passport_visibility_scope(
+                select(PassportSubmissionModel.id).where(
+                    PassportSubmissionModel.group_id == group_id,
+                    PassportSubmissionModel.status.in_(OFFICE_VISIBLE_PASSPORT_STATUS_VALUES),
+                ), user,
+            ).correlate(None).exists()
+            statement = statement.where(visible_passport)
+        else:
+            statement = AuthorizationPolicy.apply_group_visibility_scope(statement, user)
+        row = (await self._session.execute(statement)).one_or_none()
+        return (row[0], row[1]) if row is not None else None
 
     async def projection(
         self, *, group_id: uuid.UUID, user: User, include_deleted: bool

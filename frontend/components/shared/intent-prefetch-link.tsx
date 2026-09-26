@@ -8,13 +8,14 @@ import {
   type TouchEvent,
 } from "react";
 import Link from "next/link";
+import type { Route } from "next";
 import { useRouter } from "next/navigation";
 
-type IntentPrefetchLinkProps = Omit<
+type IntentPrefetchLinkProps<T extends string> = Omit<
   ComponentProps<typeof Link>,
   "href" | "prefetch"
 > & {
-  href: string;
+  href: Route<T>;
 };
 
 /**
@@ -22,25 +23,25 @@ type IntentPrefetchLinkProps = Omit<
  * after pointer, keyboard, or touch intent so navigation is warmed without
  * flooding the client cache for every row in the viewport.
  */
-export function IntentPrefetchLink({
+export function IntentPrefetchLink<T extends string>({
   href,
   onMouseEnter,
   onFocus,
   onTouchStart,
   ...props
-}: IntentPrefetchLinkProps) {
+}: IntentPrefetchLinkProps<T>) {
   const router = useRouter();
   const hasPrefetched = useRef(false);
   const prefetch = () => {
     if (hasPrefetched.current) return;
     hasPrefetched.current = true;
-    router.prefetch(href as never);
+    router.prefetch(href);
   };
 
   return (
     <Link
       {...props}
-      href={href as never}
+      href={href}
       prefetch={false}
       onMouseEnter={(event: MouseEvent<HTMLAnchorElement>) => {
         prefetch();

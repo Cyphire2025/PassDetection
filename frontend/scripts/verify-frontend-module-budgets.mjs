@@ -9,6 +9,14 @@ const frontendRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 // a bug fix without normalizing continued growth; a cohesive extraction should
 // lower the baseline and ceiling in the same review.
 export const frontendModuleBudgets = Object.freeze([
+  Object.freeze({ path: "components/ui/modal-focus-return.tsx", baselineLines: 32, maximumLines: 40, baselineMaxFunctionComplexity: 4, maximumFunctionComplexity: 6 }),
+  Object.freeze({ path: "features/passports/components/group-whatsapp-dialogs.tsx", baselineLines: 421, maximumLines: 440, baselineMaxFunctionComplexity: 14, maximumFunctionComplexity: 16 }),
+  Object.freeze({ path: "features/passports/components/group-whatsapp-tracking-table.tsx", baselineLines: 417, maximumLines: 440, baselineMaxFunctionComplexity: 37, maximumFunctionComplexity: 39 }),
+  Object.freeze({ path: "features/passports/components/group-whatsapp-tracking-model.ts", baselineLines: 163, maximumLines: 175, baselineMaxFunctionComplexity: 8, maximumFunctionComplexity: 10 }),
+  Object.freeze({ path: "features/passports/components/use-passport-detail-navigation.ts", baselineLines: 116, maximumLines: 130, baselineMaxFunctionComplexity: 24, maximumFunctionComplexity: 26 }),
+  Object.freeze({ path: "features/upload/services/saved-passport-extraction.ts", baselineLines: 72, maximumLines: 90, baselineMaxFunctionComplexity: 17, maximumFunctionComplexity: 19 }),
+  Object.freeze({ path: "lib/observability/render-errors.ts", baselineLines: 64, maximumLines: 80, baselineMaxFunctionComplexity: 4, maximumFunctionComplexity: 6 }),
+  Object.freeze({ path: "components/ui/modal-keyboard-boundary.ts", baselineLines: 119, maximumLines: 135, baselineMaxFunctionComplexity: 15, maximumFunctionComplexity: 17 }),
   Object.freeze({ path: "features/passports/components/passport-group-bindings.tsx", baselineLines: 101, maximumLines: 125, baselineMaxFunctionComplexity: 1, maximumFunctionComplexity: 3 }),
   Object.freeze({ path: "features/passports/components/passport-group-detail.tsx", baselineLines: 22, maximumLines: 50, baselineMaxFunctionComplexity: 1, maximumFunctionComplexity: 3 }),
   Object.freeze({ path: "features/passports/components/passport-group-dialogs.tsx", baselineLines: 314, maximumLines: 325, baselineMaxFunctionComplexity: 10, maximumFunctionComplexity: 12 }),
@@ -30,9 +38,17 @@ export const frontendModuleBudgets = Object.freeze([
   Object.freeze({ path: "features/settings/components/dashboard-settings-page.tsx", baselineLines: 306, maximumLines: 325, baselineMaxFunctionComplexity: 5, maximumFunctionComplexity: 7 }),
   Object.freeze({ path: "features/settings/components/platform-settings-panel.tsx", baselineLines: 642, maximumLines: 675, baselineMaxFunctionComplexity: 24, maximumFunctionComplexity: 26 }),
   Object.freeze({ path: "lib/hooks/use-live-history-feed.ts", baselineLines: 99, maximumLines: 125, baselineMaxFunctionComplexity: 10, maximumFunctionComplexity: 12 }),
-  Object.freeze({ path: "features/upload/components/upload-flow.tsx", baselineLines: 1_986, maximumLines: 2_010, baselineMaxFunctionComplexity: 66, maximumFunctionComplexity: 69 }),
-  Object.freeze({ path: "features/passports/components/group-whatsapp-broadcast-panel.tsx", baselineLines: 1_733, maximumLines: 1_760, baselineMaxFunctionComplexity: 58, maximumFunctionComplexity: 61 }),
-  Object.freeze({ path: "features/passports/components/passport-detail.tsx", baselineLines: 1_577, maximumLines: 1_600, baselineMaxFunctionComplexity: 54, maximumFunctionComplexity: 57 }),
+  Object.freeze({ path: "features/upload/components/upload-flow.tsx", baselineLines: 746, maximumLines: 765, baselineMaxFunctionComplexity: 50, maximumFunctionComplexity: 50 }),
+  Object.freeze({ path: "features/upload/components/upload-review-panels.tsx", baselineLines: 291, maximumLines: 310, baselineMaxFunctionComplexity: 15, maximumFunctionComplexity: 17 }),
+  Object.freeze({ path: "features/upload/hooks/use-upload-documents.ts", baselineLines: 445, maximumLines: 460, baselineMaxFunctionComplexity: 39, maximumFunctionComplexity: 39 }),
+  Object.freeze({ path: "features/upload/hooks/use-upload-submission.ts", baselineLines: 169, maximumLines: 185, baselineMaxFunctionComplexity: 26, maximumFunctionComplexity: 26 }),
+  Object.freeze({ path: "features/upload/hooks/use-upload-operation.ts", baselineLines: 43, maximumLines: 55, baselineMaxFunctionComplexity: 3, maximumFunctionComplexity: 5 }),
+  Object.freeze({ path: "features/upload/hooks/use-upload-family.ts", baselineLines: 23, maximumLines: 35, baselineMaxFunctionComplexity: 2, maximumFunctionComplexity: 4 }),
+  Object.freeze({ path: "features/upload/services/upload-operation-state.ts", baselineLines: 19, maximumLines: 30, baselineMaxFunctionComplexity: 4, maximumFunctionComplexity: 6 }),
+  Object.freeze({ path: "features/upload/services/family-upload-state.ts", baselineLines: 39, maximumLines: 50, baselineMaxFunctionComplexity: 12, maximumFunctionComplexity: 14 }),
+  Object.freeze({ path: "features/upload/services/review-submission-validation.ts", baselineLines: 108, maximumLines: 120, baselineMaxFunctionComplexity: 17, maximumFunctionComplexity: 19 }),
+  Object.freeze({ path: "features/passports/components/group-whatsapp-broadcast-panel.tsx", baselineLines: 691, maximumLines: 715, baselineMaxFunctionComplexity: 59, maximumFunctionComplexity: 59 }),
+  Object.freeze({ path: "features/passports/components/passport-detail.tsx", baselineLines: 1411, maximumLines: 1430, baselineMaxFunctionComplexity: 40, maximumFunctionComplexity: 40 }),
 ]);
 
 export function countPhysicalLines(source) {

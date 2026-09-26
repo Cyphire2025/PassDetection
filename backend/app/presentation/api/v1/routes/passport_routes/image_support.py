@@ -32,6 +32,7 @@ from app.infrastructure.repositories.passport_image_library_repository import (
 from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
+from app.infrastructure.repositories.sensitive_read_audit import record_sensitive_read
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.schemas.passport_schemas import (
     PassportImageCropCoordinates,
@@ -75,6 +76,8 @@ async def _authorized_staff_passport_image(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="The requested image was not uploaded."
         )
+    await record_sensitive_read(session, user=current_user, kind="image",
+                                agency_id=submission.agency_id, entity_id=submission.id)
     return submission, storage_key
 
 

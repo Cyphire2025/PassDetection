@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from PIL import Image, ImageEnhance, ImageOps, UnidentifiedImageError
 
 from app.core.config.settings import get_settings
+from app.core.native_image_admission import bounded_native_image
 from app.domain.value_objects.passport_image_crop import PassportImageCrop
 
 MIN_NORMALIZED_CROP_SIZE = 0.08
@@ -46,6 +47,7 @@ class RenderedPassportThumbnail:
     height: int
 
 
+@bounded_native_image
 def inspect_passport_image(content: bytes, *, rotation_degrees: int = 0) -> tuple[int, int]:
     """Return canonical dimensions after the requested clockwise rotation."""
 
@@ -65,6 +67,7 @@ def inspect_passport_image(content: bytes, *, rotation_degrees: int = 0) -> tupl
         image.close()
 
 
+@bounded_native_image
 def render_passport_image_crop(
     content: bytes,
     *,
@@ -87,13 +90,15 @@ def render_passport_image_crop(
         sharpness=sharpness,
         sharpness_algorithm_version=sharpness_algorithm_version,
     )
-    image = _open_canonical_image(content)
+    image: Image.Image | None = _open_canonical_image(content)
     rotated: Image.Image | None = None
     cropped: Image.Image | None = None
     rgb: Image.Image | None = None
     try:
+        assert image is not None
         if rotation_degrees == 0:
-            rotated = image.copy()
+            rotated = image
+            image = None
         elif rotation_degrees in QUARTER_TURN_ROTATIONS:
             rotated = image.rotate(-rotation_degrees, expand=True)
         else:
@@ -103,6 +108,10 @@ def render_passport_image_crop(
                 expand=True,
                 fillcolor="white",
             )
+        if image is not None:
+            image.close()
+            image = None
+        assert rotated is not None
         source_width, source_height = rotated.size
         left = max(0, min(source_width - 1, math.floor(x * source_width)))
         top = max(0, min(source_height - 1, math.floor(y * source_height)))
@@ -114,8 +123,22 @@ def render_passport_image_crop(
             raise PassportImageCropError(
                 "The crop area is too small. Select a larger part of the image."
             )
-        cropped = rotated.crop((left, top, right, bottom))
-        rgb = _to_rgb(cropped)
+        if (left, top, right, bottom) == (0, 0, source_width, source_height):
+            cropped = rotated
+            rotated = None
+        else:
+            cropped = rotated.crop((left, top, right, bottom))
+            rotated.close()
+            rotated = None
+        assert cropped is not None
+        if cropped.mode == "RGB":
+            rgb = cropped
+            cropped = None
+        else:
+            rgb = _to_rgb(cropped)
+            cropped.close()
+            cropped = None
+        assert rgb is not None
         effective_sharpness = _effective_sharpness(
             sharpness,
             sharpness_algorithm_version=sharpness_algorithm_version,
@@ -148,7 +171,8 @@ def render_passport_image_crop(
             cropped.close()
         if rotated is not None:
             rotated.close()
-        image.close()
+        if image is not None:
+            image.close()
 
 
 def render_saved_passport_image_crop(
@@ -174,6 +198,7 @@ def render_saved_passport_image_crop(
     return rendered
 
 
+@bounded_native_image
 def render_passport_image_thumbnail(
     content: bytes,
     *,
@@ -228,7 +253,8 @@ def _open_canonical_image(content: bytes) -> Image.Image:
                     raise PassportImageCropError("The stored image resolution is too large.")
                 opened.seek(0)
                 opened.load()
-                canonical = ImageOps.exif_transpose(opened).copy()
+                ImageOps.exif_transpose(opened, in_place=True)
+                canonical = opened.copy()
     except PassportImageCropError:
         raise
     except (
@@ -302,11 +328,13 @@ def _effective_sharpness(
 
 def _to_rgb(image: Image.Image) -> Image.Image:
     if image.mode in {"RGBA", "LA"} or (image.mode == "P" and "transparency" in image.info):
-        rgba = image.convert("RGBA")
-        background = Image.new("RGBA", rgba.size, "white")
+        rgba = image if image.mode == "RGBA" else image.convert("RGBA")
         try:
-            return Image.alpha_composite(background, rgba).convert("RGB")
+            with Image.new("RGBA", rgba.size, "white") as background:
+                composited = Image.alpha_composite(background, rgba)
+            with composited:
+                return composited.convert("RGB")
         finally:
-            rgba.close()
-            background.close()
+            if rgba is not image:
+                rgba.close()
     return image.convert("RGB")

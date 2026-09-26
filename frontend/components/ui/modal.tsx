@@ -1,15 +1,14 @@
 "use client";
 
 import {
-  type KeyboardEvent as ReactKeyboardEvent,
-  type RefObject,
-  useEffect,
   useId,
   useRef,
 } from "react";
 import { AlertTriangle, X } from "lucide-react";
 import { Button } from "./button";
 import { Input } from "./input";
+import { useModalKeyboardBoundary } from "./modal-keyboard-boundary";
+export { useModalKeyboardBoundary } from "./modal-keyboard-boundary";
 
 type ConfirmDialogProps = {
   isOpen: boolean;
@@ -71,6 +70,7 @@ export function ConfirmDialog({
             onClick={onClose}
             className="rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
             aria-label="Close dialog"
+            disabled={isLoading}
           >
             <X className="h-5 w-5" />
           </button>
@@ -151,6 +151,7 @@ export function TextInputDialog({
             onClick={onClose}
             className="rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
             aria-label="Close dialog"
+            disabled={isLoading}
           >
             <X className="h-5 w-5" />
           </button>
@@ -174,76 +175,4 @@ export function TextInputDialog({
       </div>
     </div>
   );
-}
-
-const FOCUSABLE_SELECTOR = [
-  "button:not([disabled])",
-  "[href]",
-  "input:not([disabled])",
-  "select:not([disabled])",
-  "textarea:not([disabled])",
-  '[tabindex]:not([tabindex="-1"])',
-].join(",");
-
-export function useModalKeyboardBoundary({
-  dialogRef,
-  isOpen,
-  canClose,
-  onClose,
-}: {
-  dialogRef: RefObject<HTMLDivElement | null>;
-  isOpen: boolean;
-  canClose: boolean;
-  onClose: () => void;
-}) {
-  const restoreFocusRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    restoreFocusRef.current = document.activeElement instanceof HTMLElement
-      ? document.activeElement
-      : null;
-    const dialog = dialogRef.current;
-    const initialFocus = dialog?.querySelector<HTMLElement>("[data-dialog-initial-focus]")
-      ?? dialog?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)
-      ?? dialog;
-    initialFocus?.focus();
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      const restoreTarget = restoreFocusRef.current;
-      if (restoreTarget?.isConnected) restoreTarget.focus();
-      restoreFocusRef.current = null;
-    };
-  }, [dialogRef, isOpen]);
-
-  return (event: ReactKeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "Escape" && canClose) {
-      event.preventDefault();
-      onClose();
-      return;
-    }
-    if (event.key !== "Tab") return;
-
-    const focusable = Array.from(
-      dialogRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR) ?? [],
-    ).filter((element) => element.getAttribute("aria-hidden") !== "true");
-    if (focusable.length === 0) {
-      event.preventDefault();
-      dialogRef.current?.focus();
-      return;
-    }
-
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
-  };
 }

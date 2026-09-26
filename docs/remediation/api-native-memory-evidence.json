@@ -1,0 +1,725 @@
+{
+  "image": "sha256:0066ad357a08c4b207fa93bfa12e6111a90ebcac3514b4edbbdeb31a66db0f67",
+  "container": "2a9c6dc094511cb996d3cae63f07443a4164c68acc67464a34932aac6b9fe0bc",
+  "name": "pd-api-memory-20260926224906",
+  "source_admission_overlay": false,
+  "admission_sha256": "8ec758c93c7424730e115d99dcbbdc5f3a0835534465f5380c0c2bbccd633e09",
+  "memory_limit_bytes": 2684354560,
+  "workers": 4,
+  "cpus": 4,
+  "fixture_sha256": "519ba883bdf05e7805bd7ace83ffe4159901b5a82ca6d56c0a30e4d21083357e",
+  "source_sha256": "617d81899c3d991d01665db618f2817394fcfeedc4a17715fdfe6f31d56dc96c",
+  "limits": [
+    "QA-only endpoint, not production authorization/storage/DB qualification",
+    "Complete real app imported; lifespan and external dependencies disabled",
+    "Network none; client memory is conservatively included in measured cgroup",
+    "Encoded input padded to10MiB; real24MP45degree strongest-sharpness transform",
+    "No production data, volume or service changed; stopped probe retained"
+  ],
+  "status": "passed",
+  "results": {
+    "initial": {
+      "current": 1462280192,
+      "peak": 1462280192,
+      "events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "kernel_oom_kills": 6,
+      "rss_by_pid": {
+        "1": [
+          "Name:\tgunicorn",
+          "VmRSS:\t   65920 kB",
+          "RssAnon:\t   43904 kB"
+        ],
+        "13": [
+          "Name:\tgunicorn",
+          "VmRSS:\t  349500 kB",
+          "RssAnon:\t  321340 kB"
+        ],
+        "14": [
+          "Name:\tgunicorn",
+          "VmRSS:\t  349372 kB",
+          "RssAnon:\t  321468 kB"
+        ],
+        "15": [
+          "Name:\tgunicorn",
+          "VmRSS:\t  348960 kB",
+          "RssAnon:\t  320800 kB"
+        ],
+        "16": [
+          "Name:\tgunicorn",
+          "VmRSS:\t  350756 kB",
+          "RssAnon:\t  322340 kB"
+        ],
+        "159": [
+          "Name:\tpython",
+          "VmRSS:\t   61968 kB",
+          "RssAnon:\t   47632 kB"
+        ]
+      }
+    },
+    "rounds": [
+      {
+        "concurrency": 4,
+        "responses": [
+          {
+            "status": 503,
+            "seconds": 5.056740285999695,
+            "body": {
+              "error": {
+                "code": "IMAGE_PROCESSING_BUSY",
+                "message": "Image processing is busy. Please try again shortly."
+              }
+            }
+          },
+          {
+            "status": 200,
+            "seconds": 5.515210817000479,
+            "body": {
+              "pid": 14,
+              "source_width": 7072,
+              "source_height": 7072,
+              "output_width": 7072,
+              "output_height": 7072,
+              "bytes": 409185,
+              "sha256": "6f631d3176e2431063388c39036ed59428f7f98c411a5d2cc7319c7d6db02667"
+            }
+          },
+          {
+            "status": 503,
+            "seconds": 5.474792883000191,
+            "body": {
+              "error": {
+                "code": "IMAGE_PROCESSING_BUSY",
+                "message": "Image processing is busy. Please try again shortly."
+              }
+            }
+          },
+          {
+            "status": 200,
+            "seconds": 2.864588272997935,
+            "body": {
+              "pid": 13,
+              "source_width": 7072,
+              "source_height": 7072,
+              "output_width": 7072,
+              "output_height": 7072,
+              "bytes": 409185,
+              "sha256": "6f631d3176e2431063388c39036ed59428f7f98c411a5d2cc7319c7d6db02667"
+            }
+          }
+        ],
+        "explicit_retries": [
+          {
+            "status": 200,
+            "seconds": 2.760756919000414,
+            "body": {
+              "pid": 13,
+              "source_width": 7072,
+              "source_height": 7072,
+              "output_width": 7072,
+              "output_height": 7072,
+              "bytes": 409185,
+              "sha256": "6f631d3176e2431063388c39036ed59428f7f98c411a5d2cc7319c7d6db02667"
+            }
+          },
+          {
+            "status": 200,
+            "seconds": 2.6357642359980673,
+            "body": {
+              "pid": 13,
+              "source_width": 7072,
+              "source_height": 7072,
+              "output_width": 7072,
+              "output_height": 7072,
+              "bytes": 409185,
+              "sha256": "6f631d3176e2431063388c39036ed59428f7f98c411a5d2cc7319c7d6db02667"
+            }
+          }
+        ],
+        "memory": {
+          "current": 1491070976,
+          "peak": 2219479040,
+          "events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          },
+          "kernel_oom_kills": 6,
+          "rss_by_pid": {
+            "1": [
+              "Name:\tgunicorn",
+              "VmRSS:\t   65920 kB",
+              "RssAnon:\t   43904 kB"
+            ],
+            "13": [
+              "Name:\tgunicorn",
+              "VmRSS:\t  361468 kB",
+              "RssAnon:\t  332284 kB"
+            ],
+            "14": [
+              "Name:\tgunicorn",
+              "VmRSS:\t  351276 kB",
+              "RssAnon:\t  322348 kB"
+            ],
+            "15": [
+              "Name:\tgunicorn",
+              "VmRSS:\t  348960 kB",
+              "RssAnon:\t  320800 kB"
+            ],
+            "16": [
+              "Name:\tgunicorn",
+              "VmRSS:\t  354216 kB",
+              "RssAnon:\t  325544 kB"
+            ],
+            "159": [
+              "Name:\tpython",
+              "VmRSS:\t   72992 kB",
+              "RssAnon:\t   58144 kB"
+            ]
+          }
+        }
+      },
+      {
+        "concurrency": 8,
+        "responses": [
+          {
+            "status": 503,
+            "seconds": 0.09236809799767798,
+            "body": {
+              "error": {
+                "code": "IMAGE_PROCESSING_BUSY",
+                "message": "Image processing is busy. Please try again shortly."
+              }
+            }
+          },
+          {
+            "status": 200,
+            "seconds": 2.6249991379991116,
+            "body": {
+              "pid": 13,
+              "source_width": 7072,
+              "source_height": 7072,
+              "output_width": 7072,
+              "output_height": 7072,
+              "bytes": 409185,
+              "sha256": "6f631d3176e2431063388c39036ed59428f7f98c411a5d2cc7319c7d6db02667"
+            }
+          },
+          {
+            "status": 200,
+            "seconds": 5.273975320000318,
+            "body": {
+              "pid": 14,
+              "source_width": 7072,
+              "source_height": 7072,
+              "output_width": 7072,
+              "output_height": 7072,
+              "bytes": 409185,
+              "sha256": "6f631d3176e2431063388c39036ed59428f7f98c411a5d2cc7319c7d6db02667"
+            }
+          },
+          {
+            "status": 503,
+            "seconds": 5.22324328600007,
+            "body": {
+              "error": {
+                "code": "IMAGE_PROCESSING_BUSY",
+                "message": "Image processing is busy. Please try again shortly."
+              }
+            }
+          },
+          {
+            "status": 503,
+            "seconds": 0.08259126600023592,
+            "body": {
+              "error": {
+                "code": "IMAGE_PROCESSING_BUSY",
+                "message": "Image processing is busy. Please try again shortly."
+              }
+            }
+          },
+          {
+            "status": 503,
+            "seconds": 0.08478467699751491,
+            "body": {
+              "error": {
+                "code": "IMAGE_PROCESSING_BUSY",
+                "message": "Image processing is busy. Please try again shortly."
+              }
+            }
+          },
+          {
+            "status": 503,
+            "seconds": 5.059096823999425,
+            "body": {
+              "error": {
+                "code": "IMAGE_PROCESSING_BUSY",
+                "message": "Image processing is busy. Please try again shortly."
+              }
+            }
+          },
+          {
+            "status": 503,
+            "seconds": 0.07515691099979449,
+            "body": {
+              "error": {
+                "code": "IMAGE_PROCESSING_BUSY",
+                "message": "Image processing is busy. Please try again shortly."
+              }
+            }
+          }
+        ],
+        "explicit_retries": [
+          {
+            "status": 200,
+            "seconds": 2.6996201319998363,
+            "body": {
+              "pid": 13,
+              "source_width": 7072,
+              "source_height": 7072,
+              "output_width": 7072,
+              "output_height": 7072,
+              "bytes": 409185,
+              "sha256": "6f631d3176e2431063388c39036ed59428f7f98c411a5d2cc7319c7d6db02667"
+            }
+          },
+          {
+            "status": 200,
+            "seconds": 2.6457439879995945,
+            "body": {
+              "pid": 13,
+              "source_width": 7072,
+              "source_height": 7072,
+              "output_width": 7072,
+              "output_height": 7072,
+              "bytes": 409185,
+              "sha256": "6f631d3176e2431063388c39036ed59428f7f98c411a5d2cc7319c7d6db02667"
+            }
+          },
+          {
+            "status": 200,
+            "seconds": 2.638614679002785,
+            "body": {
+              "pid": 14,
+              "source_width": 7072,
+              "source_height": 7072,
+              "output_width": 7072,
+              "output_height": 7072,
+              "bytes": 409185,
+              "sha256": "6f631d3176e2431063388c39036ed59428f7f98c411a5d2cc7319c7d6db02667"
+            }
+          },
+          {
+            "status": 200,
+            "seconds": 2.777243151998846,
+            "body": {
+              "pid": 16,
+              "source_width": 7072,
+              "source_height": 7072,
+              "output_width": 7072,
+              "output_height": 7072,
+              "bytes": 409185,
+              "sha256": "6f631d3176e2431063388c39036ed59428f7f98c411a5d2cc7319c7d6db02667"
+            }
+          },
+          {
+            "status": 200,
+            "seconds": 2.741164557999582,
+            "body": {
+              "pid": 13,
+              "source_width": 7072,
+              "source_height": 7072,
+              "output_width": 7072,
+              "output_height": 7072,
+              "bytes": 409185,
+              "sha256": "6f631d3176e2431063388c39036ed59428f7f98c411a5d2cc7319c7d6db02667"
+            }
+          },
+          {
+            "status": 200,
+            "seconds": 2.601734280000528,
+            "body": {
+              "pid": 13,
+              "source_width": 7072,
+              "source_height": 7072,
+              "output_width": 7072,
+              "output_height": 7072,
+              "bytes": 409185,
+              "sha256": "6f631d3176e2431063388c39036ed59428f7f98c411a5d2cc7319c7d6db02667"
+            }
+          }
+        ],
+        "memory": {
+          "current": 1553580032,
+          "peak": 2369929216,
+          "events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          },
+          "kernel_oom_kills": 6,
+          "rss_by_pid": {
+            "1": [
+              "Name:\tgunicorn",
+              "VmRSS:\t   65920 kB",
+              "RssAnon:\t   43904 kB"
+            ],
+            "13": [
+              "Name:\tgunicorn",
+              "VmRSS:\t  361652 kB",
+              "RssAnon:\t  332468 kB"
+            ],
+            "14": [
+              "Name:\tgunicorn",
+              "VmRSS:\t  362188 kB",
+              "RssAnon:\t  333260 kB"
+            ],
+            "15": [
+              "Name:\tgunicorn",
+              "VmRSS:\t  348960 kB",
+              "RssAnon:\t  320800 kB"
+            ],
+            "16": [
+              "Name:\tgunicorn",
+              "VmRSS:\t  362528 kB",
+              "RssAnon:\t  333088 kB"
+            ],
+            "159": [
+              "Name:\tpython",
+              "VmRSS:\t  110624 kB",
+              "RssAnon:\t   95776 kB"
+            ]
+          }
+        }
+      },
+      {
+        "concurrency": 8,
+        "responses": [
+          {
+            "status": 503,
+            "seconds": 0.1085447790028411,
+            "body": {
+              "error": {
+                "code": "IMAGE_PROCESSING_BUSY",
+                "message": "Image processing is busy. Please try again shortly."
+              }
+            }
+          },
+          {
+            "status": 200,
+            "seconds": 2.7190407419984695,
+            "body": {
+              "pid": 13,
+              "source_width": 7072,
+              "source_height": 7072,
+              "output_width": 7072,
+              "output_height": 7072,
+              "bytes": 409185,
+              "sha256": "6f631d3176e2431063388c39036ed59428f7f98c411a5d2cc7319c7d6db02667"
+            }
+          },
+          {
+            "status": 503,
+            "seconds": 0.11660920100257499,
+            "body": {
+              "error": {
+                "code": "IMAGE_PROCESSING_BUSY",
+                "message": "Image processing is busy. Please try again shortly."
+              }
+            }
+          },
+          {
+            "status": 503,
+            "seconds": 5.455881791000138,
+            "body": {
+              "error": {
+                "code": "IMAGE_PROCESSING_BUSY",
+                "message": "Image processing is busy. Please try again shortly."
+              }
+            }
+          },
+          {
+            "status": 200,
+            "seconds": 5.528531357998872,
+            "body": {
+              "pid": 14,
+              "source_width": 7072,
+              "source_height": 7072,
+              "output_width": 7072,
+              "output_height": 7072,
+              "bytes": 409185,
+              "sha256": "6f631d3176e2431063388c39036ed59428f7f98c411a5d2cc7319c7d6db02667"
+            }
+          },
+          {
+            "status": 503,
+            "seconds": 0.09941175999847474,
+            "body": {
+              "error": {
+                "code": "IMAGE_PROCESSING_BUSY",
+                "message": "Image processing is busy. Please try again shortly."
+              }
+            }
+          },
+          {
+            "status": 503,
+            "seconds": 0.09916210000301362,
+            "body": {
+              "error": {
+                "code": "IMAGE_PROCESSING_BUSY",
+                "message": "Image processing is busy. Please try again shortly."
+              }
+            }
+          },
+          {
+            "status": 503,
+            "seconds": 5.047555666002154,
+            "body": {
+              "error": {
+                "code": "IMAGE_PROCESSING_BUSY",
+                "message": "Image processing is busy. Please try again shortly."
+              }
+            }
+          }
+        ],
+        "explicit_retries": [
+          {
+            "status": 200,
+            "seconds": 2.87366426600056,
+            "body": {
+              "pid": 13,
+              "source_width": 7072,
+              "source_height": 7072,
+              "output_width": 7072,
+              "output_height": 7072,
+              "bytes": 409185,
+              "sha256": "6f631d3176e2431063388c39036ed59428f7f98c411a5d2cc7319c7d6db02667"
+            }
+          },
+          {
+            "status": 200,
+            "seconds": 2.7291752170021937,
+            "body": {
+              "pid": 13,
+              "source_width": 7072,
+              "source_height": 7072,
+              "output_width": 7072,
+              "output_height": 7072,
+              "bytes": 409185,
+              "sha256": "6f631d3176e2431063388c39036ed59428f7f98c411a5d2cc7319c7d6db02667"
+            }
+          },
+          {
+            "status": 200,
+            "seconds": 2.6493304789983085,
+            "body": {
+              "pid": 13,
+              "source_width": 7072,
+              "source_height": 7072,
+              "output_width": 7072,
+              "output_height": 7072,
+              "bytes": 409185,
+              "sha256": "6f631d3176e2431063388c39036ed59428f7f98c411a5d2cc7319c7d6db02667"
+            }
+          },
+          {
+            "status": 200,
+            "seconds": 2.726976742000261,
+            "body": {
+              "pid": 13,
+              "source_width": 7072,
+              "source_height": 7072,
+              "output_width": 7072,
+              "output_height": 7072,
+              "bytes": 409185,
+              "sha256": "6f631d3176e2431063388c39036ed59428f7f98c411a5d2cc7319c7d6db02667"
+            }
+          },
+          {
+            "status": 200,
+            "seconds": 2.8241940240004624,
+            "body": {
+              "pid": 13,
+              "source_width": 7072,
+              "source_height": 7072,
+              "output_width": 7072,
+              "output_height": 7072,
+              "bytes": 409185,
+              "sha256": "6f631d3176e2431063388c39036ed59428f7f98c411a5d2cc7319c7d6db02667"
+            }
+          },
+          {
+            "status": 200,
+            "seconds": 2.7305085099978896,
+            "body": {
+              "pid": 13,
+              "source_width": 7072,
+              "source_height": 7072,
+              "output_width": 7072,
+              "output_height": 7072,
+              "bytes": 409185,
+              "sha256": "6f631d3176e2431063388c39036ed59428f7f98c411a5d2cc7319c7d6db02667"
+            }
+          }
+        ],
+        "memory": {
+          "current": 1603293184,
+          "peak": 2411909120,
+          "events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          },
+          "kernel_oom_kills": 6,
+          "rss_by_pid": {
+            "1": [
+              "Name:\tgunicorn",
+              "VmRSS:\t   65920 kB",
+              "RssAnon:\t   43904 kB"
+            ],
+            "13": [
+              "Name:\tgunicorn",
+              "VmRSS:\t  361252 kB",
+              "RssAnon:\t  332068 kB"
+            ],
+            "14": [
+              "Name:\tgunicorn",
+              "VmRSS:\t  362128 kB",
+              "RssAnon:\t  333200 kB"
+            ],
+            "15": [
+              "Name:\tgunicorn",
+              "VmRSS:\t  348960 kB",
+              "RssAnon:\t  320800 kB"
+            ],
+            "16": [
+              "Name:\tgunicorn",
+              "VmRSS:\t  373024 kB",
+              "RssAnon:\t  343584 kB"
+            ],
+            "159": [
+              "Name:\tpython",
+              "VmRSS:\t  148000 kB",
+              "RssAnon:\t  133152 kB"
+            ]
+          }
+        }
+      }
+    ],
+    "final": {
+      "current": 1603293184,
+      "peak": 2411909120,
+      "events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "kernel_oom_kills": 6,
+      "rss_by_pid": {
+        "1": [
+          "Name:\tgunicorn",
+          "VmRSS:\t   65920 kB",
+          "RssAnon:\t   43904 kB"
+        ],
+        "13": [
+          "Name:\tgunicorn",
+          "VmRSS:\t  361252 kB",
+          "RssAnon:\t  332068 kB"
+        ],
+        "14": [
+          "Name:\tgunicorn",
+          "VmRSS:\t  362128 kB",
+          "RssAnon:\t  333200 kB"
+        ],
+        "15": [
+          "Name:\tgunicorn",
+          "VmRSS:\t  348960 kB",
+          "RssAnon:\t  320800 kB"
+        ],
+        "16": [
+          "Name:\tgunicorn",
+          "VmRSS:\t  373024 kB",
+          "RssAnon:\t  343584 kB"
+        ],
+        "159": [
+          "Name:\tpython",
+          "VmRSS:\t  148000 kB",
+          "RssAnon:\t  133152 kB"
+        ]
+      }
+    }
+  },
+  "worker_processes": "PID                 PPID                COMMAND\n1036465             1036442             /opt/venv/bin/python /opt/venv/bin/gunicorn --chdir /qa --pythonpath /app --workers 4 --bind 0.0.0.0:8000 --worker-class app.infrastructure.bounded_uvicorn_worker.BoundedUvicornWorker --timeout 120 --graceful-timeout 30 api_native_memory_app:app\n1036497             1036465             /opt/venv/bin/python /opt/venv/bin/gunicorn --chdir /qa --pythonpath /app --workers 4 --bind 0.0.0.0:8000 --worker-class app.infrastructure.bounded_uvicorn_worker.BoundedUvicornWorker --timeout 120 --graceful-timeout 30 api_native_memory_app:app\n1036592             1036465             /opt/venv/bin/python /opt/venv/bin/gunicorn --chdir /qa --pythonpath /app --workers 4 --bind 0.0.0.0:8000 --worker-class app.infrastructure.bounded_uvicorn_worker.BoundedUvicornWorker --timeout 120 --graceful-timeout 30 api_native_memory_app:app\n1036595             1036465             /opt/venv/bin/python /opt/venv/bin/gunicorn --chdir /qa --pythonpath /app --workers 4 --bind 0.0.0.0:8000 --worker-class app.infrastructure.bounded_uvicorn_worker.BoundedUvicornWorker --timeout 120 --graceful-timeout 30 api_native_memory_app:app\n1036596             1036465             /opt/venv/bin/python /opt/venv/bin/gunicorn --chdir /qa --pythonpath /app --workers 4 --bind 0.0.0.0:8000 --worker-class app.infrastructure.bounded_uvicorn_worker.BoundedUvicornWorker --timeout 120 --graceful-timeout 30 api_native_memory_app:app\n",
+  "state_before_stop": {
+    "Status": "running",
+    "Running": true,
+    "Paused": false,
+    "Restarting": false,
+    "OOMKilled": false,
+    "Dead": false,
+    "Pid": 1036465,
+    "ExitCode": 0,
+    "Error": "",
+    "StartedAt": "2026-09-26T22:49:07.470691562Z",
+    "FinishedAt": "0001-01-01T00:00:00Z"
+  },
+  "terminal_cgroup": {
+    "memory.current": "1471303680\n",
+    "memory.peak": "2411909120\n",
+    "memory.max": "2684354560\n",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n"
+  },
+  "state_after_stop": {
+    "Status": "exited",
+    "Running": false,
+    "Paused": false,
+    "Restarting": false,
+    "OOMKilled": false,
+    "Dead": false,
+    "Pid": 0,
+    "ExitCode": 0,
+    "Error": "",
+    "StartedAt": "2026-09-26T22:49:07.470691562Z",
+    "FinishedAt": "2026-09-26T22:50:12.370291515Z"
+  },
+  "previous_failure_receipt": "api-native-memory-failure-evidence.json",
+  "previous_interference_receipt": "api-native-memory-interference-evidence.json",
+  "previous_allocator_image_pass": {
+    "image": "sha256:1434f23f7456b2dd3594483ff1b24507717ed43e7390c09cae995f9ff2e8c743",
+    "local_receipt": "outputs/memory-qualification/pd-api-memory-20260926224110/evidence.json",
+    "peak_mib": 2228.34765625,
+    "source_overlay": false,
+    "status": "passed"
+  },
+  "qualification_summary": {
+    "logical_operations_completed": 20,
+    "initial_http_200": 6,
+    "capacity_http_503": 14,
+    "explicit_retries_all_http_200": 14,
+    "worker_pids_preserved": true,
+    "peak_mib": 2300.17578125,
+    "limit_mib": 2560,
+    "host_kernel_oom_kills_before": 6,
+    "host_kernel_oom_kills_after": 6,
+    "terminal_memory_mib": 1403.14453125,
+    "quiet_window": "Root persistent-service fixtures stopped; security image scan and reliability worker probes terminal before this run."
+  }
+}

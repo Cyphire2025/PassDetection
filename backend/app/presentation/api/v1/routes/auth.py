@@ -16,7 +16,6 @@ from collections.abc import AsyncIterator
 from types import SimpleNamespace
 
 from fastapi import APIRouter, Depends, Request, Response, status
-from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -29,7 +28,7 @@ from app.application.use_cases.auth.refresh_token_use_case import RefreshTokenUs
 from app.core.config.settings import get_settings
 from app.core.security.jwt import decode_access_token
 from app.domain.entities.entities import User
-from app.domain.exceptions.exceptions import AuthenticationError
+from app.domain.exceptions.exceptions import AuthenticationError, ConflictError
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.identity_security_repository import IdentitySecurityRepository
 from app.infrastructure.repositories.refresh_token_repository import RefreshTokenRepository
@@ -53,6 +52,7 @@ from app.presentation.dependencies.csrf import (
     require_cookie_csrf,
     require_trusted_request_origin,
 )
+from app.presentation.middleware.error_response import error_response
 from app.presentation.security.access_level import (
     ACCESS_LEVEL_COOKIE,
     access_level_response_values,
@@ -126,8 +126,9 @@ def _get_me_use_case(
     status_code=status.HTTP_200_OK,
     summary="Authenticate with email and password",
     description=(
-        "Supports both JSON body and OAuth2 form data (application/x-www-form-urlencoded). "
-        "Returns access + refresh tokens."
+        "Accepts application/x-www-form-urlencoded username and password. Returns user/session "
+        "metadata or an MFA challenge; tokens are established in HttpOnly cookies after all "
+        "required authentication factors succeed. Tokens are not returned in the JSON body."
     ),
 )
 async def login(
@@ -184,6 +185,15 @@ async def login(
     response_model=AuthResponse,
     status_code=status.HTTP_200_OK,
     summary="Refresh access token",
+    description=(
+        "Rotates the dashboard session using its HttpOnly refresh cookie, with no JSON body "
+        "required. Alternatively, supply refresh_token in the JSON body; a nonempty body "
+        "credential takes precedence over the cookie. The empty OpenAPI security alternative "
+        "represents this body-token mode, not anonymous refresh: missing credentials return 401. "
+        "Cookie-bearing requests require a trusted Origin/Referer when no Bearer header is supplied. Success replaces the "
+        "HttpOnly cookies and returns session/user metadata, never the tokens in the JSON body. "
+        "Concurrent rotation may return 409 REFRESH_IN_PROGRESS with Retry-After: 1."
+    ),
 )
 async def refresh_token(
     request: Request,
@@ -196,29 +206,23 @@ async def refresh_token(
     refresh_cookie = request.cookies.get(get_settings().jwt.refresh_cookie_name)
     refresh_value = body.refresh_token if body and body.refresh_token else refresh_cookie
     if not refresh_value:
-        error_response = JSONResponse(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            content={
-                "error": {
-                    "code": "AUTHENTICATION_ERROR",
-                    "message": "Refresh token missing",
-                }
-            },
-        )
-        clear_auth_cookies(error_response)
-        return error_response
+        failure = error_response("AUTHENTICATION_ERROR", "Refresh token missing", 401)
+        clear_auth_cookies(failure)
+        return failure
     try:
         result = await use_case.execute(
             dto=RefreshTokenInputDTO(refresh_token=refresh_value),
             client_ip=client_ip,
         )
+    except ConflictError as exc:
+        if exc.code != "REFRESH_IN_PROGRESS":
+            raise
+        return error_response(exc.code, exc.message, 409, headers={"Retry-After": "1"},
+                              detail={"code": exc.code, "message": exc.message})
     except AuthenticationError as exc:
-        error_response = JSONResponse(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            content={"error": {"code": exc.code, "message": exc.message}},
-        )
-        clear_auth_cookies(error_response)
-        return error_response
+        failure = error_response(exc.code, exc.message, 401)
+        clear_auth_cookies(failure)
+        return failure
     selected_values = access_level_response_values(
         result.user, request.cookies,
         decode_access_token(result.access_token) if request.cookies.get(ACCESS_LEVEL_COOKIE) else {},
@@ -239,7 +243,7 @@ async def refresh_token(
     "/logout",
     status_code=status.HTTP_204_NO_CONTENT,
     response_class=Response,
-    summary="Invalidate refresh token",
+    summary="Invalidate this sign-in session",
 )
 async def logout(
     request: Request,
@@ -250,8 +254,10 @@ async def logout(
 ) -> Response:
     refresh_cookie = request.cookies.get(get_settings().jwt.refresh_cookie_name)
     refresh_value = body.refresh_token if body and body.refresh_token else refresh_cookie
-    if refresh_value:
-        await use_case.execute(refresh_token=refresh_value)
+    authorization = request.headers.get("authorization", "")
+    access_value = (authorization[7:] if authorization.lower().startswith("bearer ")
+                    else request.cookies.get(get_settings().jwt.access_cookie_name))
+    await use_case.execute(refresh_token=refresh_value, access_token=access_value)
     clear_auth_cookies(response)
     response.status_code = status.HTTP_204_NO_CONTENT
     return response

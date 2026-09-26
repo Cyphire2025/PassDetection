@@ -212,6 +212,12 @@ async def seed() -> None:
             session, namespace=NAMESPACE, agency_id=AGENCY_ID, group_id=GROUP_ID,
             owner_id=MANAGERS["admin"][0], passenger_ids=PASSENGER_IDS,
         )
+        await session.flush()
+        from browser_workflow_fixtures import seed_browser_workflows
+
+        workflow_details = await seed_browser_workflows(
+            session, NAMESPACE, AGENCY_ID, GROUP_ID, PRIMARY_MANAGER_ID, PASSENGER_IDS, observed,
+        )
         await session.commit()
 
     print(
@@ -230,6 +236,7 @@ async def seed() -> None:
                 "session_id": str(SESSION_ID),
                 "passenger_count": len(PASSENGER_IDS),
                 "passenger_ids": [str(value) for value in PASSENGER_IDS],
+                "browser_workflows": workflow_details,
             },
             sort_keys=True,
         )

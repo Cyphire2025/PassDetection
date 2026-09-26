@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "exceptions": [
+    {
+      "advisory": "PYSEC-2026-1325",
+      "aliases": [
+        "CVE-2024-23342",
+        "GHSA-wj6h-64fc-37mp"
+      ],
+      "package": "ecdsa",
+      "owner": "repository-maintainer (Nipun)",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-12-25",
+      "rationale": "Only the reviewed Apple App Attest import closure is used. It does not import jose or ecdsa. Other pyattest verifiers and testutils DO import jose and are not approved. JWT signing uses PyJWT/cryptography. This is a scoped temporary acceptance, not a patched dependency.",
+      "evidence": "docs/remediation/phase2-tooling.md#dependency-exception",
+      "runtime_lock_sha256": "5d5c411e4dd9a70a37f8d29b9443badde6b3f98441d36da1d99c13c2bfe1acad",
+      "versions": {
+        "pyattest": "1.0.5",
+        "python-jose": "3.5.0",
+        "ecdsa": "0.19.2"
+      },
+      "source_sha256": {
+        "pyattest": "a17b1eca43f16f807bbc6585716f1dc4f4fcf0767428697d4cdec6214bf08eed",
+        "python-jose": "a7be317489c146c3ccb94e31ae766915606ca8bf04c3996e56f0199a362c80dd",
+        "ecdsa": "0922bc05140f766ccc85db444d84d92a0d7fb2bfba470ea6ab1a49da911b282b"
+      },
+      "application_entry_modules": [
+        "pyattest.assertion",
+        "pyattest.attestation",
+        "pyattest.configs.apple",
+        "pyattest.exceptions"
+      ]
+    }
+  ]
+}

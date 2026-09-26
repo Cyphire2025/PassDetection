@@ -6,6 +6,7 @@ import { PwaRegistrar } from "@/components/pwa/pwa-registrar";
 import { QueryProvider } from "@/providers/query-provider";
 import { QueueSafeSignOutGuard } from "@/features/auth/components/queue-safe-sign-out-guard";
 import { StepUpDialog } from "@/features/auth/components/step-up-dialog";
+import { ModalFocusTracker } from "@/components/ui/modal-focus-return";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -57,6 +58,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning data-scroll-behavior="smooth">
       <body className="min-h-screen bg-slate-50 font-sans antialiased" suppressHydrationWarning>
+        <ModalFocusTracker />
         <PwaRegistrar />
         <QueryProvider>
         <QueueSafeSignOutGuard />

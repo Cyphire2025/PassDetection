@@ -1,0 +1,240 @@
+{
+  "date": "2026-09-27",
+  "redis": {
+    "created_utc": "2026-09-26T21:59:01.008109+00:00",
+    "mode": "redis",
+    "results": [
+      {
+        "domain": "security",
+        "container": "pd-memory-20260926215901-redis-security",
+        "image": "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99",
+        "maxmemory_mb": 128,
+        "container_limit_mb": 384,
+        "keys": 3072,
+        "fill_used_memory_bytes": 127151192,
+        "aof_rewrite_observed": true,
+        "overwrites_during_rewrite": 2048,
+        "aof_last_cow_size": 2273280,
+        "rewrite_elapsed_seconds": 1.352557899983367,
+        "cgroup": {
+          "peak_bytes": 224452608,
+          "current_bytes": 135790592,
+          "events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          }
+        },
+        "limitations": [
+          "93 percent Redis-accounted fill, not a proof of worst-case allocator fragmentation",
+          "Automatic rewrite scheduling disabled only to explicitly trigger and observe one rewrite",
+          "No production data, authentication or delivery correctness claim"
+        ]
+      },
+      {
+        "domain": "broker",
+        "container": "pd-memory-20260926215901-redis-broker",
+        "image": "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99",
+        "maxmemory_mb": 512,
+        "container_limit_mb": 1536,
+        "keys": 12160,
+        "fill_used_memory_bytes": 500002776,
+        "aof_rewrite_observed": true,
+        "overwrites_during_rewrite": 6272,
+        "aof_last_cow_size": 58437632,
+        "rewrite_elapsed_seconds": 3.2659211000136565,
+        "cgroup": {
+          "peak_bytes": 625737728,
+          "current_bytes": 556273664,
+          "events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          }
+        },
+        "limitations": [
+          "93 percent Redis-accounted fill, not a proof of worst-case allocator fragmentation",
+          "Automatic rewrite scheduling disabled only to explicitly trigger and observe one rewrite",
+          "No production data, authentication or delivery correctness claim"
+        ]
+      },
+      {
+        "domain": "realtime",
+        "container": "pd-memory-20260926215901-redis-realtime",
+        "image": "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99",
+        "maxmemory_mb": 128,
+        "container_limit_mb": 256,
+        "keys": 3072,
+        "fill_used_memory_bytes": 127150520,
+        "aof_rewrite_observed": false,
+        "overwrites_during_rewrite": 0,
+        "aof_last_cow_size": 0,
+        "rewrite_elapsed_seconds": null,
+        "cgroup": {
+          "peak_bytes": 126918656,
+          "current_bytes": 124862464,
+          "events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          }
+        },
+        "limitations": [
+          "93 percent Redis-accounted fill, not a proof of worst-case allocator fragmentation",
+          "Automatic rewrite scheduling disabled only to explicitly trigger and observe one rewrite",
+          "No production data, authentication or delivery correctness claim"
+        ]
+      },
+      {
+        "domain": "cache",
+        "container": "pd-memory-20260926215901-redis-cache",
+        "image": "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99",
+        "maxmemory_mb": 256,
+        "container_limit_mb": 384,
+        "keys": 6080,
+        "fill_used_memory_bytes": 250559320,
+        "aof_rewrite_observed": false,
+        "overwrites_during_rewrite": 0,
+        "aof_last_cow_size": 0,
+        "rewrite_elapsed_seconds": null,
+        "cgroup": {
+          "peak_bytes": 242839552,
+          "current_bytes": 240267264,
+          "events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          }
+        },
+        "limitations": [
+          "93 percent Redis-accounted fill, not a proof of worst-case allocator fragmentation",
+          "Automatic rewrite scheduling disabled only to explicitly trigger and observe one rewrite",
+          "No production data, authentication or delivery correctness claim"
+        ]
+      }
+    ]
+  },
+  "clamav": {
+    "created_utc": "2026-09-26T21:59:49.764242+00:00",
+    "mode": "clamav",
+    "results": [
+      {
+        "container": "pd-memory-20260926215949762661-clamav",
+        "image": "sha256:2a682381f314a3ac6ec13eea55b69bd2594887598e5358d938e711a30df850f2",
+        "version": "ClamAV 1.5.4/28135/Sat Sep 26 06:24:13 2026",
+        "source_service": "4504c2d020ae",
+        "signature_sha256": {
+          "bytecode-339.cvd.sign": "94eb76eff8cf3ab90ec3a67992727e84f9be257f294d72504228e89fa566592f",
+          "bytecode.cvd": "6d4aa01f219e988060fc419f495d07f27e0cdf1a2cccc065971da922c76f7ffb",
+          "daily-28135.cvd.sign": "113a36575236eea7944e55ed967038990cd64adb386ca451230a687a6680b918",
+          "daily.cvd": "3b958fc3917e462089c114424ed9bd1acbf42c6bb8fdc8759804d06ac23e782c",
+          "freshclam.dat": "2043505d31381bb187489283d0d280bb980734c4180b8754292d23a874ece542",
+          "main-63.cvd.sign": "c030a2235e0ac8b53f95bc6f79563c2b3ddfdcf4fd1d722634578a79530898e2",
+          "main.cvd": "0b2182d229f46981ec8f535382222f7c9dfdd656b250ad47988b910a8d302365"
+        },
+        "container_limit_mb": 4096,
+        "before_reload": {
+          "peak_bytes": 1010561024,
+          "current_bytes": 998871040,
+          "events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          }
+        },
+        "after_reload": {
+          "peak_bytes": 2000437248,
+          "current_bytes": 997408768,
+          "events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          }
+        },
+        "reload_seconds": 18.079373799992027,
+        "clean_and_antivirus_self_test_before_after": "pass",
+        "limitations": [
+          "Current feed reload only, not future signature growth or maximum simultaneous scans",
+          "Freshclam download and TestDatabases additional memory not exercised",
+          "Independent daemon; production and shared qualification scanners untouched"
+        ]
+      }
+    ]
+  },
+  "full_vps_profile_qualified": false,
+  "production_changes": false,
+  "clamav_three_engine_stress": {
+    "created_utc": "2026-09-26T22:07:15.730244+00:00",
+    "mode": "clamav",
+    "results": [
+      {
+        "container": "pd-memory-20260926220715729959-clamav",
+        "image": "sha256:2a682381f314a3ac6ec13eea55b69bd2594887598e5358d938e711a30df850f2",
+        "version": "ClamAV 1.5.4/28135/Sat Sep 26 06:24:13 2026",
+        "source_service": "4504c2d020ae",
+        "signature_sha256": {
+          "bytecode-339.cvd.sign": "94eb76eff8cf3ab90ec3a67992727e84f9be257f294d72504228e89fa566592f",
+          "bytecode.cvd": "6d4aa01f219e988060fc419f495d07f27e0cdf1a2cccc065971da922c76f7ffb",
+          "daily-28135.cvd.sign": "113a36575236eea7944e55ed967038990cd64adb386ca451230a687a6680b918",
+          "daily.cvd": "3b958fc3917e462089c114424ed9bd1acbf42c6bb8fdc8759804d06ac23e782c",
+          "freshclam.dat": "2043505d31381bb187489283d0d280bb980734c4180b8754292d23a874ece542",
+          "main-63.cvd.sign": "c030a2235e0ac8b53f95bc6f79563c2b3ddfdcf4fd1d722634578a79530898e2",
+          "main.cvd": "0b2182d229f46981ec8f535382222f7c9dfdd656b250ad47988b910a8d302365"
+        },
+        "container_limit_mb": 3072,
+        "before_reload": {
+          "peak_bytes": 1006927872,
+          "current_bytes": 995155968,
+          "events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          }
+        },
+        "after_reload": {
+          "peak_bytes": 2989891584,
+          "current_bytes": 1004920832,
+          "events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          }
+        },
+        "reload_seconds": 25.863285400002496,
+        "additional_full_engine_loaded": true,
+        "simultaneous_clean_fixture_scans": 10,
+        "clean_and_antivirus_self_test_before_after": "pass",
+        "limitations": [
+          "Current feed only; no guarantee about future signature growth or every hostile document",
+          "Ten simultaneous accepted synthetic-image/PDF requests plus daemon reload and separate complete clamscan engine; actual freshclam download/TestDatabases control path not invoked",
+          "TCP protocol checks used; inherited Docker unix-socket healthcheck is not this standalone probe configuration",
+          "Production and shared qualification scanner untouched"
+        ]
+      }
+    ]
+  }
+}

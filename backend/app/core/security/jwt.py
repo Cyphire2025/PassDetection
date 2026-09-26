@@ -9,7 +9,7 @@ Design:
     The JWT is only used for the access token; refresh tokens are
     looked up in the database so they can be revoked. Browser sessions
     keep a fixed deadline through rotation and sensitive-action step-up.
-  - All token operations are stateless on the access token side.
+  - Dashboard access authorization checks the durable session family.
 """
 
 from __future__ import annotations
@@ -45,6 +45,7 @@ def create_access_token(
     authentication_methods: tuple[str, ...] = ("pwd",),
     mfa_authenticated_at: datetime | None = None,
     session_expires_at: datetime | None = None,
+    session_id: uuid.UUID | None = None,
 ) -> tuple[str, datetime]:
     """
     Create a signed JWT access token.
@@ -71,6 +72,8 @@ def create_access_token(
         "sv":        session_version,
         "amr":       list(authentication_methods),
     }
+    if session_id is not None:
+        payload["sid"] = str(session_id)
     if mfa_authenticated_at is not None:
         payload["mfa_at"] = int(mfa_authenticated_at.timestamp())
     if session_expires_at is not None:

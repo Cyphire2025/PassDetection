@@ -247,7 +247,9 @@ async def test_missing_submission_is_404(rig):
     rig.guard.assert_not_awaited()
 
 
-async def test_get_metadata_is_no_store_and_never_mutates(rig):
+async def test_get_metadata_is_no_store_and_never_mutates(rig, monkeypatch):
+    audit = AsyncMock()
+    monkeypatch.setattr(routes, "record_sensitive_read", audit)
     response = Response()
     details = await routes.get_passport_client_details(
         rig.submission.id, response, rig.user, rig.session
@@ -256,6 +258,7 @@ async def test_get_metadata_is_no_store_and_never_mutates(rig):
     assert details.updated_at == rig.submission.updated_at
     rig.repo.update.assert_not_awaited()
     rig.guard.assert_not_awaited()
+    audit.assert_awaited_once()
 
 
 def test_routes_require_authenticated_staff_and_patch_cookie_csrf():

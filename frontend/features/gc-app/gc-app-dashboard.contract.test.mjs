@@ -229,11 +229,11 @@ test("GC App dashboard does not persist sensitive state or expose personal docum
 test("new dialogs expose accessible dialog semantics and keyboard handling", () => {
   assert.match(dialog, /role="dialog"/);
   assert.match(dialog, /aria-modal="true"/);
-  assert.match(dialog, /event\.key === "Escape"/);
-  assert.match(dialog, /event\.key !== "Tab"/);
+  assert.match(dialog, /useModalKeyboardBoundary/);
+  assert.match(dialog, /onKeyDown=\{handleDialogKeyDown\}/);
   assert.match(dialog, /motion-safe:animate-in/);
-  assert.match(dialog, /const onCloseRef = useRef\(onClose\)/);
-  assert.match(dialog, /\}, \[open\]\);/);
+  assert.match(dialog, /isOpen: open/);
+  assert.match(dialog, /canClose: !closeDisabled/);
 });
 
 test("access switches contain their knobs and expose names and states", () => {

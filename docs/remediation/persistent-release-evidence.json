@@ -1,0 +1,82 @@
+{
+  "status": "passed",
+  "project": "pd-resource-20260926224606116878",
+  "production_changes": false,
+  "database_before": {
+    "identity": {
+      "system_identifier": "7689979119842099234",
+      "database": "passdetection_ci_resource_fixture",
+      "major": 16,
+      "data_directory": "/var/lib/postgresql/data"
+    },
+    "table_count": 3,
+    "sequence_count": 2,
+    "sha256": "88ab44c96e267660bd544f4e2d36a4cf06b375f611f152396017fb5446c26a30"
+  },
+  "database_after": {
+    "identity": {
+      "system_identifier": "7689979119842099234",
+      "database": "passdetection_ci_resource_fixture",
+      "major": 16,
+      "data_directory": "/var/lib/postgresql/data"
+    },
+    "table_count": 3,
+    "sequence_count": 2,
+    "sha256": "88ab44c96e267660bd544f4e2d36a4cf06b375f611f152396017fb5446c26a30"
+  },
+  "redis": {
+    "redis": {
+      "same_container_and_process": true,
+      "keys_queue_lease_retained": true,
+      "memory": {
+        "current": 4866048,
+        "oom": 0,
+        "oom_kill": 0
+      },
+      "cap": 335544320
+    },
+    "redis-broker": {
+      "same_container_and_process": true,
+      "keys_queue_lease_retained": true,
+      "memory": {
+        "current": 4898816,
+        "oom": 0,
+        "oom_kill": 0
+      },
+      "cap": 1207959552
+    },
+    "redis-realtime": {
+      "same_container_and_process": true,
+      "keys_queue_lease_retained": true,
+      "memory": {
+        "current": 5341184,
+        "oom": 0,
+        "oom_kill": 0
+      },
+      "cap": 201326592
+    },
+    "redis-cache": {
+      "same_container_and_process": true,
+      "keys_queue_lease_retained": true,
+      "memory": {
+        "current": 4714496,
+        "oom": 0,
+        "oom_kill": 0
+      },
+      "cap": 335544320
+    }
+  },
+  "interruption_recovery": [
+    "INJECTED process failure after actual Redis update",
+    "INJECTED process failure after actual database replacement"
+  ],
+  "all_persistent_stages_complete": true,
+  "archive_fully_decoded": true,
+  "volumes_and_database_retained": true,
+  "limitations": [
+    "Synthetic local fixtures, not a production disaster-recovery exercise",
+    "Existing-instance PostgreSQL16 minor replacement mechanics exercised; source and target fixture use same pinned16.14 image",
+    "Real application queue drain separately tested; this fixture has an inert writer",
+    "Stopped synthetic containers, volumes and archives retained"
+  ]
+}

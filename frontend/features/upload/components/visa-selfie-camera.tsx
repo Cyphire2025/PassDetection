@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useModalKeyboardBoundary } from "@/components/ui/modal";
 import Image from "next/image";
 import { AlertTriangle, Check, Loader2, RefreshCcw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -882,8 +883,13 @@ export function VisaSelfieCamera({
                       ? "Ready to capture"
                       : "Hold steady while the photo checks finish");
 
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const handleKeyDown = useModalKeyboardBoundary({ dialogRef, isOpen: true, canClose: true, onClose: close });
+
   return (
     <div
+      ref={dialogRef}
+      onKeyDown={handleKeyDown}
       role="dialog"
       aria-modal="true"
       aria-labelledby="visa-photo-camera-title"

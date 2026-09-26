@@ -179,7 +179,7 @@ export function QrScannerProof() {
             </div>
           </div>
 
-          <Link href={ROUTES.coordinator as never} className="block text-center text-sm font-medium text-blue-700">
+          <Link href={ROUTES.coordinator} className="block text-center text-sm font-medium text-blue-700">
             Back to Coordinator
           </Link>
           </section>

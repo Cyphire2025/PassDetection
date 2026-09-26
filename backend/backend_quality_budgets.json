@@ -3,6 +3,14 @@
   "untracked_module_line_threshold": 2000,
   "modules": [
     {
+      "path": "app/core/native_image_admission.py",
+      "baseline_lines": 194,
+      "maximum_lines": 200,
+      "baseline_max_function_complexity": 13,
+      "maximum_function_complexity": 13,
+      "minimum_coverage_percent": 85
+    },
+    {
       "path": "app/presentation/api/v1/routes/passports.py",
       "baseline_lines": 457,
       "maximum_lines": 500,
@@ -44,19 +52,19 @@
     },
     {
       "path": "app/presentation/api/v1/routes/email_integrations.py",
-      "baseline_lines": 2543,
-      "maximum_lines": 2600,
-      "baseline_max_function_complexity": 45,
-      "maximum_function_complexity": 45,
-      "minimum_coverage_percent": 36
+      "baseline_lines": 155,
+      "maximum_lines": 175,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
     },
     {
       "path": "app/presentation/api/v1/routes/tour_operations.py",
-      "baseline_lines": 2523,
-      "maximum_lines": 2578,
-      "baseline_max_function_complexity": 12,
-      "maximum_function_complexity": 12,
-      "minimum_coverage_percent": 56
+      "baseline_lines": 305,
+      "maximum_lines": 325,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 95
     },
     {
       "path": "app/infrastructure/database/gc_mobile_models.py",
@@ -521,6 +529,174 @@
       "baseline_max_function_complexity": 35,
       "maximum_function_complexity": 35,
       "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_access.py",
+      "baseline_lines": 174,
+      "maximum_lines": 175,
+      "baseline_max_function_complexity": 5,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 65
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_activity.py",
+      "baseline_lines": 361,
+      "maximum_lines": 375,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 70
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_connections.py",
+      "baseline_lines": 625,
+      "maximum_lines": 625,
+      "baseline_max_function_complexity": 11,
+      "maximum_function_complexity": 11,
+      "minimum_coverage_percent": 65
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_credentials.py",
+      "baseline_lines": 68,
+      "maximum_lines": 75,
+      "baseline_max_function_complexity": 5,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 100
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_gmail.py",
+      "baseline_lines": 299,
+      "maximum_lines": 300,
+      "baseline_max_function_complexity": 33,
+      "maximum_function_complexity": 33,
+      "minimum_coverage_percent": 85
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_oauth_start.py",
+      "baseline_lines": 122,
+      "maximum_lines": 125,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_outlook.py",
+      "baseline_lines": 328,
+      "maximum_lines": 350,
+      "baseline_max_function_complexity": 32,
+      "maximum_function_complexity": 32,
+      "minimum_coverage_percent": 85
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_review_decisions.py",
+      "baseline_lines": 367,
+      "maximum_lines": 375,
+      "baseline_max_function_complexity": 42,
+      "maximum_function_complexity": 42,
+      "minimum_coverage_percent": 40
+    },
+    {
+      "path": "app/presentation/api/v1/routes/email_integration_review_queries.py",
+      "baseline_lines": 306,
+      "maximum_lines": 325,
+      "baseline_max_function_complexity": 18,
+      "maximum_function_complexity": 18,
+      "minimum_coverage_percent": 70
+    },
+    {
+      "path": "app/infrastructure/email/review_decisions.py",
+      "baseline_lines": 158,
+      "maximum_lines": 175,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/presentation/api/v1/routes/tour_operations_access.py",
+      "baseline_lines": 267,
+      "maximum_lines": 275,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 6,
+      "minimum_coverage_percent": 56
+    },
+    {
+      "path": "app/presentation/api/v1/routes/tour_operations_accounts.py",
+      "baseline_lines": 265,
+      "maximum_lines": 275,
+      "baseline_max_function_complexity": 2,
+      "maximum_function_complexity": 2,
+      "minimum_coverage_percent": 70
+    },
+    {
+      "path": "app/presentation/api/v1/routes/tour_operations_activity_lifecycle.py",
+      "baseline_lines": 210,
+      "maximum_lines": 225,
+      "baseline_max_function_complexity": 9,
+      "maximum_function_complexity": 9,
+      "minimum_coverage_percent": 65
+    },
+    {
+      "path": "app/presentation/api/v1/routes/tour_operations_assignments.py",
+      "baseline_lines": 362,
+      "maximum_lines": 375,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 65
+    },
+    {
+      "path": "app/presentation/api/v1/routes/tour_operations_attendance_closeout.py",
+      "baseline_lines": 308,
+      "maximum_lines": 325,
+      "baseline_max_function_complexity": 8,
+      "maximum_function_complexity": 8,
+      "minimum_coverage_percent": 80
+    },
+    {
+      "path": "app/presentation/api/v1/routes/tour_operations_attendance_dashboard.py",
+      "baseline_lines": 151,
+      "maximum_lines": 175,
+      "baseline_max_function_complexity": 5,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/presentation/api/v1/routes/tour_operations_attendance_scans.py",
+      "baseline_lines": 146,
+      "maximum_lines": 150,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 80
+    },
+    {
+      "path": "app/presentation/api/v1/routes/tour_operations_attendance_sessions.py",
+      "baseline_lines": 243,
+      "maximum_lines": 250,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 6,
+      "minimum_coverage_percent": 75
+    },
+    {
+      "path": "app/presentation/api/v1/routes/tour_operations_attendance_views.py",
+      "baseline_lines": 415,
+      "maximum_lines": 425,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 80
+    },
+    {
+      "path": "app/presentation/api/v1/routes/tour_operations_passenger_views.py",
+      "baseline_lines": 120,
+      "maximum_lines": 125,
+      "baseline_max_function_complexity": 5,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 100
+    },
+    {
+      "path": "app/presentation/api/v1/routes/tour_operations_qr.py",
+      "baseline_lines": 267,
+      "maximum_lines": 275,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 90
     }
   ],
   "coverage_gates": {
@@ -579,6 +755,11 @@
         "path": "app/infrastructure/ecr/readiness.py",
         "minimum_line_percent": 95,
         "minimum_branch_percent": 90
+      },
+      {
+        "path": "app/core/native_image_admission.py",
+        "minimum_line_percent": 85,
+        "minimum_branch_percent": 70
       },
       {
         "path": "app/infrastructure/my_photos/gallery_ingestion.py",

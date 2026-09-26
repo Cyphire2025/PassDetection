@@ -1,0 +1,47 @@
+{
+  "result": "verified_remote_readback",
+  "recorded_at_utc": "2026-09-26T21:31:44.884223+00:00",
+  "repository": "Cyphire2025/PassDetection",
+  "applied_by": "Coordinating agent under the owner-authorized release-hardening scope",
+  "before": {
+    "main_protection": "404 Branch not protected",
+    "environments": [],
+    "immutable_releases": {
+      "enabled": false,
+      "enforced_by_owner": false
+    }
+  },
+  "after": {
+    "main": {
+      "enforce_admins": true,
+      "allow_force_pushes": false,
+      "allow_deletions": false,
+      "lock_branch": false,
+      "required_pull_request_reviews": null,
+      "required_status_checks": null
+    },
+    "production_artifacts": {
+      "required_reviewer": "Cyphire2025",
+      "reviewer_id": 226356283,
+      "prevent_self_review": false,
+      "can_admins_bypass": false,
+      "deployment_branches": [
+        {
+          "name": "main",
+          "type": "branch"
+        }
+      ]
+    },
+    "immutable_releases": {
+      "enabled": true,
+      "enforced_by_owner": false
+    }
+  },
+  "raw_readback_sha256": "05688ef1e7ad486f8bf63982a1878d61a0fd9bc72429c2d3b811ab0e1bb7b780",
+  "limitations": [
+    "Ordinary fast-forward main pushes remain allowed; this is not mandatory independent change review.",
+    "The sole reviewer can approve their own release; no independent separation of duties is claimed.",
+    "Actual CI signing/publication, GHCR access and retention, prior-production-digest retrieval and VPS activation remain separate pending evidence.",
+    "Release immutability covers published release assets and tags; it is not an undeletable GHCR retention policy."
+  ]
+}

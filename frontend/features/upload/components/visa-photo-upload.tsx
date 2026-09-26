@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useModalKeyboardBoundary } from "@/components/ui/modal";
 import { VisaPhotoSample } from "./visa-photo-sample";
 import { InstructionLanguageSelector } from "./instruction-language-selector";
 import { UPLOAD_INSTRUCTIONS } from "../config/instruction-translations";
@@ -50,6 +51,8 @@ export function VisaPhotoUpload({
   const [verifiedFile, setVerifiedFile] = useState<File | null>(null);
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [error, setError] = useState<string | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const handleKeyDown = useModalKeyboardBoundary({ dialogRef, isOpen: true, canClose: true, onClose: onCancel });
 
   const replacePreview = useCallback((file: File) => {
     if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
@@ -106,6 +109,8 @@ export function VisaPhotoUpload({
 
   return (
     <div
+      ref={dialogRef}
+      onKeyDown={handleKeyDown}
       role="dialog"
       aria-modal="true"
       aria-labelledby="visa-photo-upload-title"

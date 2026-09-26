@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { RefreshCw, Send, Trash2, X } from "lucide-react";
 import { Badge, Button } from "@/components/ui";
+import { useModalKeyboardBoundary } from "@/components/ui/modal";
 import { ProcessingMotion } from "@/components/shared/processing-motion";
 import type { DocumentDeliveryPreview, DocumentDeliveryPreviewRecipient } from "@/types/document-distribution.types";
 import { distributionDocumentLabel } from "../config/document-distribution-lanes";
@@ -20,9 +21,14 @@ export function AbortIncompleteUploadDialog({
   onClose,
   onConfirm,
 }: AbortIncompleteUploadDialogProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const handleKeyDown = useModalKeyboardBoundary({ dialogRef, isOpen: true, canClose: !pending, onClose });
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
       <div
+        ref={dialogRef}
+        onKeyDown={handleKeyDown}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby="abort-incomplete-upload-title"
@@ -58,7 +64,7 @@ export function AbortIncompleteUploadDialog({
           )}
         </div>
         <div className="flex justify-end gap-2 border-t border-slate-100 px-6 py-4">
-          <Button type="button" variant="secondary" onClick={onClose} disabled={pending}>
+          <Button type="button" variant="secondary" data-dialog-initial-focus onClick={onClose} disabled={pending}>
             Keep upload
           </Button>
           <Button type="button" variant="danger" onClick={onConfirm} isLoading={pending}>
@@ -90,9 +96,14 @@ export function RemoveAssignmentsDialog({
   onKeepFiles,
   onDeleteFiles,
 }: RemoveAssignmentsDialogProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const handleKeyDown = useModalKeyboardBoundary({ dialogRef, isOpen: true, canClose: !pending, onClose });
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
       <div
+        ref={dialogRef}
+        onKeyDown={handleKeyDown}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby="remove-assignments-title"
@@ -153,7 +164,7 @@ export function RemoveAssignmentsDialog({
         </div>
 
         <div className="flex justify-end border-t border-slate-100 px-6 py-4">
-          <Button type="button" variant="secondary" onClick={onClose} disabled={pending}>
+          <Button type="button" variant="secondary" data-dialog-initial-focus onClick={onClose} disabled={pending}>
             Cancel
           </Button>
         </div>
@@ -201,6 +212,8 @@ export function DocumentDeliveryPreviewDialog({
   onSend,
   onRefresh,
 }: DocumentDeliveryPreviewDialogProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const handleKeyDown = useModalKeyboardBoundary({ dialogRef, isOpen: true, canClose: !sending, onClose });
   const selectedDocumentIdSet = useMemo(
     () => new Set(selectedDocumentIds),
     [selectedDocumentIds],
@@ -234,7 +247,10 @@ export function DocumentDeliveryPreviewDialog({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm"
-      role="dialog"
+      ref={dialogRef}
+        onKeyDown={handleKeyDown}
+        tabIndex={-1}
+        role="dialog"
       aria-modal="true"
       aria-labelledby="document-delivery-preview-title"
     >
@@ -465,7 +481,7 @@ export function DocumentDeliveryPreviewDialog({
                   {refreshing ? "Refreshing" : "Refresh preview"}
                 </Button>
               )}
-              <Button type="button" variant="secondary" onClick={onClose} disabled={sending}>Cancel</Button>
+              <Button type="button" variant="secondary" data-dialog-initial-focus onClick={onClose} disabled={sending}>Cancel</Button>
               <Button
                 type="button"
                 onClick={onSend}

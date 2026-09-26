@@ -1,0 +1,113 @@
+{
+  "status": "initial isolated measurements passed; deployment profile not yet qualified",
+  "image": "sha256:e8935a6a80d5a6d1a8689ad1829bbee914acc30ff472253f6d21df86cb829c73",
+  "memory_limit_each_probe": "2g",
+  "source_sha256": "9fe86ef064eb9f85603e3f2e05c7b411d6e3f1ffdf3d00e621e45f6aa7d70a32",
+  "fixture_manifest": {
+    "ecr-rgba.png": {
+      "bytes": 167776,
+      "sha256": "775bd26df6596c54e05b634c5fd969da3d5119976816899471006e473ecdd3d2"
+    },
+    "email-100-pages.pdf": {
+      "bytes": 25178450,
+      "sha256": "6cf8788e2a83fe3878eafc4bfe2ee397898fb1faff9bafa47cf2c5daf9b32d5d"
+    },
+    "passport-rgb.png": {
+      "bytes": 80243,
+      "sha256": "e90bec20ba1b1f33a30d4a214b552262b0f10009e010e8d9426221a2de3994dd"
+    },
+    "passport-rgba.png": {
+      "bytes": 103133,
+      "sha256": "4d4309489bdca258068a76c067267d35bc3bc0b8f0ecc8ab7dfbf2cf66b7bce4"
+    }
+  },
+  "measurements": [
+    {
+      "mode": "baseline",
+      "passed": true,
+      "peak_mib": 158.68,
+      "oom_events": "0",
+      "children": 1
+    },
+    {
+      "mode": "passport-rgb",
+      "passed": true,
+      "peak_mib": 477.391,
+      "oom_events": "0",
+      "children": 1
+    },
+    {
+      "mode": "passport-rgba",
+      "passed": true,
+      "peak_mib": 682.457,
+      "oom_events": "0",
+      "children": 1
+    },
+    {
+      "mode": "gemini-extraction",
+      "passed": true,
+      "peak_mib": 182.211,
+      "oom_events": "0",
+      "children": 1
+    },
+    {
+      "mode": "gemini-verification",
+      "passed": true,
+      "peak_mib": 182.055,
+      "oom_events": "0",
+      "children": 1
+    },
+    {
+      "mode": "extraction",
+      "passed": true,
+      "peak_mib": 407.949,
+      "oom_events": "0",
+      "children": 1
+    },
+    {
+      "mode": "extraction-full",
+      "passed": true,
+      "peak_mib": 418.703,
+      "oom_events": "0",
+      "children": 1
+    },
+    {
+      "mode": "ecr",
+      "passed": true,
+      "peak_mib": 839.66,
+      "oom_events": "0",
+      "children": 1
+    },
+    {
+      "mode": "email",
+      "passed": true,
+      "peak_mib": 247.875,
+      "oom_events": "0",
+      "children": 1
+    },
+    {
+      "mode": "visa-image",
+      "passed": true,
+      "peak_mib": 568.867,
+      "oom_events": "0",
+      "children": 1
+    },
+    {
+      "mode": "crop",
+      "passed": true,
+      "peak_mib": 1202.488,
+      "oom_events": "0",
+      "children": 1
+    }
+  ],
+  "limitations": [
+    "No external providers, production data or malware scanner exercised",
+    "Not a full-stack or steady-state capacity claim",
+    "Exited synthetic containers retained",
+    "Fully imported Celery parent plus fork child; API Gunicorn baseline differs",
+    "Active extraction is Gemini-first; local OCR modes are separately implemented optional paths",
+    "One pass per workload; no sustained or complete VPS profile approval",
+    "ECR 40 MP bound probes the classifier boundary; normal durable images are canonicalized at upload"
+  ],
+  "source_evidence": "outputs/memory-qualification/20260926215514/evidence.json"
+}

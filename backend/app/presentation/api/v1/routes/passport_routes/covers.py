@@ -7,7 +7,7 @@ import uuid
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, Header, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response, StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
@@ -17,14 +17,16 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
+from app.infrastructure.repositories.sensitive_read_audit import record_sensitive_read
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.object_streaming import private_object_streaming_response
+from app.presentation.api.v1.response_contracts import binary_responses
 from app.presentation.dependencies.auth import get_current_active_user
 
 router = APIRouter()
 
 
-@router.get("/{submission_id}/covers/{cover_type}", summary="View a collected passport cover")
+@router.get("/{submission_id}/covers/{cover_type}", summary="View a collected passport cover", response_class=Response, responses=binary_responses("image/*", range_requests=True))
 async def get_passport_cover(
     submission_id: uuid.UUID,
     cover_type: Literal["cover", "back_cover"],
@@ -42,6 +44,8 @@ async def get_passport_cover(
     key = getattr(submission, f"passport_{cover_type}_s3_key", None)
     if not key:
         raise HTTPException(status_code=404, detail="This passport cover was not uploaded.")
+    await record_sensitive_read(session, user=current_user, kind="cover",
+                                agency_id=submission.agency_id, entity_id=submission.id)
     return await private_object_streaming_response(
         storage=MinioStorageRepository(),
         key=key,

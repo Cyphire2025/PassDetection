@@ -69,6 +69,7 @@ from app.presentation.api.v1.document_chunk_uploads import (
     validate_next_document_chunk,
 )
 from app.presentation.api.v1.document_uploads import read_bounded_document_uploads
+from app.presentation.api.v1.response_contracts import binary_responses
 from app.presentation.api.v1.schemas.document_rename_schemas import (
     DeleteRenameBatchesRequest,
     DeleteRenameBatchesResponse,
@@ -916,7 +917,7 @@ async def analyze_and_rename_documents(
     return await _batch_response(batch, list(all_items_result.scalars().all()))
 
 
-@router.get("/items/{item_id}/download")
+@router.get("/items/{item_id}/download", response_class=Response, responses=binary_responses("application/pdf"))
 async def download_renamed_document(
     item_id: uuid.UUID,
     current_user: User = Depends(get_current_active_user),
@@ -959,7 +960,7 @@ async def download_renamed_document(
     )
 
 
-@router.get("/batches/{batch_id}/download.zip")
+@router.get("/batches/{batch_id}/download.zip", response_class=Response, responses=binary_responses("application/zip"))
 async def download_renamed_zip(
     batch_id: uuid.UUID,
     current_user: User = Depends(get_current_active_user),

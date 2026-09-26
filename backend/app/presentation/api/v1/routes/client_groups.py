@@ -137,6 +137,7 @@ from app.infrastructure.whatsapp.private_delivery_policy import (
     prepare_private_delivery_identity_mutation,
 )
 from app.infrastructure.whatsapp.source_group_sync import sync_group_broadcast_contacts
+from app.presentation.api.v1.pagination import PageOffset, PageSize
 from app.presentation.api.v1.routes import (
     client_group_whatsapp_match_support as _whatsapp_match_support,
 )
@@ -752,8 +753,8 @@ async def _current_unresolved_match_context(
     summary="List upload links for the current user's agency",
 )
 async def list_client_groups(
-    skip: int = 0,
-    limit: int = 50,
+    skip: PageOffset = 0,
+    limit: PageSize = 50,
     status_filter: str | None = None,
     current_user: User = Depends(get_current_active_user),
     use_case: ListClientGroupsUseCase = Depends(_get_list_use_case),

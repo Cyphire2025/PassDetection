@@ -46,7 +46,7 @@ export function EmailIntegrationsShell({
     router.replace(
       (role === "agency_coordinator"
         ? ROUTES.coordinator
-        : ROUTES.dashboard.passports) as never,
+        : ROUTES.dashboard.passports),
     );
   }, [canAccess, hasHydrated, role, router]);
 
@@ -67,7 +67,7 @@ export function EmailIntegrationsShell({
             return (
               <li key={link.href} className="min-w-0">
                 <Link
-                  href={link.href as never}
+                  href={link.href}
                   aria-current={isActive ? "page" : undefined}
                   className={`flex min-h-11 items-center border-b-2 px-2 py-2 text-sm font-medium transition-colors sm:px-1 sm:pb-3 ${
                     isActive

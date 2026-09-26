@@ -421,6 +421,31 @@ async def test_repeated_redis_outage_does_not_exhaust_untouched_images(passport_
     assert set((await labels(passport_db, agency, submissions)).values()) == {"ECR"}
 
 
+async def test_native_capacity_requeues_without_spending_provider_or_job_attempts(passport_db, monkeypatch):
+    agency, _, submissions = await seed(passport_db, count=3)
+    await stage_all(passport_db, submissions)
+    _, _, calls = dependencies(monkeypatch)
+    ready_classifier = runtime.GeminiEcrService
+    blocked_classifier = SimpleNamespace(classify=AsyncMock(side_effect=runtime.ImageProcessingBusy()))
+    monkeypatch.setattr(runtime, "GeminiEcrService", Mock(return_value=blocked_classifier))
+    for _ in range(2):
+        with pytest.raises(ExceptionGroup) as failure:
+            await runtime.process_passport_checks()
+        assert failure.value.subgroup(runtime.ImageProcessingBusy) is not None
+        async with passport_db() as session:
+            rows = list((await session.scalars(select(PassportEcrCheckModel))).all())
+            for row in rows:
+                assert row.status == "queued" and row.result is None
+                assert row.attempts == row.provider_attempts == 0
+                row.next_attempt_at = runtime._now() - timedelta(seconds=1)
+            await session.commit()
+    assert calls.provider == 0
+    monkeypatch.setattr(runtime, "GeminiEcrService", ready_classifier)
+    assert await runtime.process_passport_checks() == 3
+    assert calls.provider == 3
+    assert set((await labels(passport_db, agency, submissions)).values()) == {"ECR"}
+
+
 async def test_poison_classifier_failure_is_terminal_without_harming_neighbors(
     passport_db, monkeypatch
 ):

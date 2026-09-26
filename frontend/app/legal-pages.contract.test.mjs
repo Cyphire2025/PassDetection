@@ -37,7 +37,7 @@ test("OAuth homepage explains both supported read-only mail providers", () => {
   assert.match(home, /https:\/\/tech\.gctravels\.com\/terms/);
   assert.match(home, /available without signing/);
   assert.doesNotMatch(layout, /href="\/"/);
-  assert.match(layout, /href=\{"\/email-automation" as never\}/);
+  assert.match(layout, /href=\{"\/email-automation"\}/);
 });
 
 test("privacy policy discloses Gmail and Outlook access and data controls", () => {

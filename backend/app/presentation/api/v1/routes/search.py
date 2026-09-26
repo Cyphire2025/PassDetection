@@ -9,8 +9,9 @@ from collections.abc import Mapping
 from typing import TypeVar, cast
 
 from fastapi import APIRouter, Depends, Query, status
-from sqlalchemy import func, or_, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import load_only
 from sqlalchemy.sql import Select
 
 from app.application.security.authorization_policy import AuthorizationPolicy
@@ -20,7 +21,13 @@ from app.domain.entities.entities import (
     UserRole,
 )
 from app.infrastructure.database.models import ClientGroupModel, PassportSubmissionModel
+from app.infrastructure.database.search_expressions import (
+    group_search_fields,
+    passport_search_fields,
+    substring_predicate,
+)
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.repositories.sensitive_read_audit import record_sensitive_read
 from app.presentation.api.v1.schemas.search_schemas import GlobalSearchResult
 from app.presentation.dependencies.auth import get_current_active_user
 
@@ -50,7 +57,37 @@ async def global_search(
     passport_results = await _search_passports(session, current_user, query, limit)
     remaining = max(0, limit - len(passport_results))
     group_results = await _search_groups(session, current_user, query, remaining)
+    await record_sensitive_read(session, user=current_user, kind="search",
+                                agency_id=current_user.agency_id, count=len(passport_results))
     return passport_results + group_results
+
+
+def passport_search_statement(current_user: User, query: str, limit: int) -> Select[tuple[PassportSubmissionModel, str, str | None]]:
+    """Use separate indexed candidates for passport and group-name matches.
+
+    A joined OR forces PostgreSQL to inspect wide rows from both tables. Each
+    UNION branch now uses its own trigram predicate, then tenant/owner/lifecycle
+    authorization is applied again before returning any passenger data.
+    """
+    base = (select(PassportSubmissionModel.id)
+            .join(ClientGroupModel, PassportSubmissionModel.group_id == ClientGroupModel.id)
+            .where(PassportSubmissionModel.status.in_(_submitted_statuses())))
+    own = _apply_visibility_scope(base.where(substring_predicate(query, fields=passport_search_fields())), current_user)
+    groups = _apply_visibility_scope(base.where(substring_predicate(query, fields=group_search_fields())), current_user)
+    stmt = (
+        select(PassportSubmissionModel, ClientGroupModel.name.label("group_name"),
+               ClientGroupModel.destination.label("destination"))
+        .options(load_only(PassportSubmissionModel.id, PassportSubmissionModel.group_id,
+                           PassportSubmissionModel.client_name, PassportSubmissionModel.client_email,
+                           PassportSubmissionModel.client_phone, PassportSubmissionModel.status,
+                           PassportSubmissionModel.updated_at, PassportSubmissionModel.confirmed_fields,
+                           PassportSubmissionModel.extracted_fields))
+        .join(ClientGroupModel, PassportSubmissionModel.group_id == ClientGroupModel.id)
+        .where(PassportSubmissionModel.id.in_(own.union(groups)))
+        .order_by(PassportSubmissionModel.updated_at.desc(), PassportSubmissionModel.id.desc())
+        .limit(limit)
+    )
+    return _apply_visibility_scope(stmt, current_user)
 
 
 async def _search_passports(
@@ -59,35 +96,7 @@ async def _search_passports(
     query: str,
     limit: int,
 ) -> list[GlobalSearchResult]:
-    pattern = f"%{query}%"
-    stmt = (
-        select(
-            PassportSubmissionModel,
-            ClientGroupModel.name.label("group_name"),
-            ClientGroupModel.destination.label("destination"),
-        )
-        .join(ClientGroupModel, PassportSubmissionModel.group_id == ClientGroupModel.id)
-        .where(PassportSubmissionModel.status.in_(_submitted_statuses()))
-        .where(
-            or_(
-                func.lower(PassportSubmissionModel.client_name).like(pattern),
-                func.lower(PassportSubmissionModel.client_email).like(pattern),
-                func.lower(PassportSubmissionModel.client_phone).like(pattern),
-                func.lower(PassportSubmissionModel.departure_city).like(pattern),
-                func.lower(ClientGroupModel.name).like(pattern),
-                func.lower(ClientGroupModel.destination).like(pattern),
-                func.lower(PassportSubmissionModel.extracted_fields["passport_number"].as_string()).like(pattern),
-                func.lower(PassportSubmissionModel.confirmed_fields["passport_number"].as_string()).like(pattern),
-                func.lower(PassportSubmissionModel.extracted_fields["surname"].as_string()).like(pattern),
-                func.lower(PassportSubmissionModel.confirmed_fields["surname"].as_string()).like(pattern),
-                func.lower(PassportSubmissionModel.extracted_fields["given_names"].as_string()).like(pattern),
-                func.lower(PassportSubmissionModel.confirmed_fields["given_names"].as_string()).like(pattern),
-            )
-        )
-        .order_by(PassportSubmissionModel.updated_at.desc())
-        .limit(limit)
-    )
-    stmt = _apply_visibility_scope(stmt, current_user)
+    stmt = passport_search_statement(current_user, query, limit)
     result = await session.execute(stmt)
     rows = result.all()
 
@@ -127,16 +136,10 @@ async def _search_groups(
 ) -> list[GlobalSearchResult]:
     if limit <= 0:
         return []
-    pattern = f"%{query}%"
     stmt = (
         select(ClientGroupModel)
-        .where(
-            or_(
-                func.lower(ClientGroupModel.name).like(pattern),
-                func.lower(ClientGroupModel.destination).like(pattern),
-            )
-        )
-        .order_by(ClientGroupModel.created_at.desc())
+        .where(substring_predicate(query, fields=group_search_fields()))
+        .order_by(ClientGroupModel.created_at.desc(), ClientGroupModel.id.desc())
         .limit(limit)
     )
     stmt = _apply_group_visibility_scope(stmt, current_user)

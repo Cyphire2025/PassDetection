@@ -210,6 +210,19 @@ async def test_lanes_process_multiple_images_concurrently_with_strict_bound():
     store.fail_item.assert_not_awaited()
 
 
+async def test_native_image_capacity_stops_drain_without_terminal_item_failure():
+    store, storage = fake_lane_dependencies(1)
+    classifier = SimpleNamespace(classify=AsyncMock(side_effect=runtime.ImageProcessingBusy()))
+    with pytest.raises(ExceptionGroup) as failure:
+        await runtime._run_lanes(
+            uuid.uuid4(), uuid.uuid4(), store=store, storage=storage,
+            classifier=classifier, concurrency=1, max_image_bytes=1024,
+        )
+    assert failure.value.subgroup(runtime.ImageProcessingBusy) is not None
+    store.fail_item.assert_not_awaited()
+    store.save_result.assert_not_awaited()
+
+
 async def test_heartbeat_failure_cancels_all_active_provider_lanes(monkeypatch):
     store, storage = fake_lane_dependencies(8)
     store.renew.side_effect = runtime.LeaseLost("stale")

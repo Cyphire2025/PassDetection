@@ -41,6 +41,7 @@ from app.domain.exceptions.exceptions import (
 )
 from app.domain.repositories.interfaces import IUserRepository
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.repositories.dashboard_session_repository import require_dashboard_session
 from app.infrastructure.repositories.identity_security_repository import role_requires_dashboard_mfa
 from app.infrastructure.repositories.user_repository import UserRepository
 from app.presentation.dependencies.csrf import require_cookie_csrf
@@ -74,6 +75,7 @@ async def get_authenticated_user(
     request: Request,
     credentials: HTTPAuthorizationCredentials | None = Depends(_bearer),
     user_repo: IUserRepository = Depends(get_user_repository),
+    session: AsyncSession = Depends(get_db_session),
 ) -> User:
     """
     Decode the Bearer token and return the corresponding User entity.
@@ -98,6 +100,7 @@ async def get_authenticated_user(
         raise AuthenticationError("Authorization header missing")
 
     payload = decode_access_token(token)
+    await require_dashboard_session(session, payload)
 
     try:
         user_id = uuid.UUID(payload["sub"])
@@ -124,8 +127,9 @@ async def get_current_user(
     request: Request,
     credentials: HTTPAuthorizationCredentials | None = Depends(_bearer),
     user_repo: IUserRepository = Depends(get_user_repository),
+    session: AsyncSession = Depends(get_db_session),
 ) -> User:
-    user = await get_authenticated_user(request, credentials, user_repo)
+    user = await get_authenticated_user(request, credentials, user_repo, session)
     claims = getattr(getattr(request, "state", None), "auth_claims", {})
     return apply_access_level_cookie(user, request.cookies, claims)
 

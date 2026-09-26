@@ -1,0 +1,159 @@
+{
+  "result": "blocked",
+  "scope": "retained phase-one qualified backend image, not rebuilt phase-two candidate",
+  "scanner": "grype",
+  "scanner_version": "0.119.0",
+  "source_image_id": "sha256:de4911587a4cb62b9ba9afee35b849a284fdd77561b6b26148218d861b5e3c9f",
+  "scanned_on": "2026-09-27",
+  "severity_counts": {
+    "Negligible": 135,
+    "High": 123,
+    "Critical": 11,
+    "Low": 18,
+    "Medium": 103,
+    "Unknown": 1
+  },
+  "high_critical_matches": 134,
+  "unique_high_critical_advisories": 88,
+  "packages": [
+    "bsdutils",
+    "ecdsa",
+    "ffmpeg",
+    "jaraco-context",
+    "libacl1",
+    "libarchive13t64",
+    "libblkid1",
+    "libc-bin",
+    "libc6",
+    "libcurl4t64",
+    "libexpat1",
+    "liblastlog2-2",
+    "libmount1",
+    "libncursesw6",
+    "libsmartcols1",
+    "libtesseract5",
+    "libtiff6",
+    "libtinfo6",
+    "libuuid1",
+    "libx11-6",
+    "libx11-data",
+    "libx11-xcb1",
+    "libxml2",
+    "libxrender1",
+    "login",
+    "mount",
+    "ncurses-base",
+    "ncurses-bin",
+    "perl-base",
+    "python",
+    "tesseract-ocr",
+    "util-linux",
+    "wheel",
+    "zlib1g"
+  ],
+  "examples": [
+    {
+      "id": "CVE-2023-49502",
+      "severity": "High",
+      "package": "ffmpeg",
+      "version": "5.1.4",
+      "fix_state": "fixed",
+      "locations": [
+        "/opt/venv/lib/python3.11/site-packages/opencv_python_headless.libs/libavcodec-9aae324f.so.59.37.100",
+        "/opt/venv/lib/python3.11/site-packages/opencv_python_headless.libs/libavformat-3ff1be5b.so.59.27.100",
+        "/opt/venv/lib/python3.11/site-packages/opencv_python_headless.libs/libavutil-a0a0531e.so.57.28.100",
+        "/opt/venv/lib/python3.11/site-packages/opencv_python_headless.libs/libswresample-2ec4394e.so.4.7.100"
+      ]
+    },
+    {
+      "id": "CVE-2024-7055",
+      "severity": "High",
+      "package": "ffmpeg",
+      "version": "5.1.4",
+      "fix_state": "fixed",
+      "locations": [
+        "/opt/venv/lib/python3.11/site-packages/opencv_python_headless.libs/libavcodec-9aae324f.so.59.37.100",
+        "/opt/venv/lib/python3.11/site-packages/opencv_python_headless.libs/libavformat-3ff1be5b.so.59.27.100",
+        "/opt/venv/lib/python3.11/site-packages/opencv_python_headless.libs/libavutil-a0a0531e.so.57.28.100",
+        "/opt/venv/lib/python3.11/site-packages/opencv_python_headless.libs/libswresample-2ec4394e.so.4.7.100"
+      ]
+    },
+    {
+      "id": "CVE-2024-7272",
+      "severity": "High",
+      "package": "ffmpeg",
+      "version": "5.1.4",
+      "fix_state": "fixed",
+      "locations": [
+        "/opt/venv/lib/python3.11/site-packages/opencv_python_headless.libs/libavcodec-9aae324f.so.59.37.100",
+        "/opt/venv/lib/python3.11/site-packages/opencv_python_headless.libs/libavformat-3ff1be5b.so.59.27.100",
+        "/opt/venv/lib/python3.11/site-packages/opencv_python_headless.libs/libavutil-a0a0531e.so.57.28.100",
+        "/opt/venv/lib/python3.11/site-packages/opencv_python_headless.libs/libswresample-2ec4394e.so.4.7.100"
+      ]
+    },
+    {
+      "id": "CVE-2026-8461",
+      "severity": "High",
+      "package": "ffmpeg",
+      "version": "5.1.4",
+      "fix_state": "fixed",
+      "locations": [
+        "/opt/venv/lib/python3.11/site-packages/opencv_python_headless.libs/libavcodec-9aae324f.so.59.37.100",
+        "/opt/venv/lib/python3.11/site-packages/opencv_python_headless.libs/libavformat-3ff1be5b.so.59.27.100",
+        "/opt/venv/lib/python3.11/site-packages/opencv_python_headless.libs/libavutil-a0a0531e.so.57.28.100",
+        "/opt/venv/lib/python3.11/site-packages/opencv_python_headless.libs/libswresample-2ec4394e.so.4.7.100"
+      ]
+    },
+    {
+      "id": "GHSA-wj6h-64fc-37mp",
+      "severity": "High",
+      "package": "ecdsa",
+      "version": "0.19.2",
+      "fix_state": "not-fixed",
+      "locations": [
+        "/opt/venv/lib/python3.11/site-packages/ecdsa-0.19.2.dist-info/METADATA",
+        "/opt/venv/lib/python3.11/site-packages/ecdsa-0.19.2.dist-info/RECORD",
+        "/opt/venv/lib/python3.11/site-packages/ecdsa-0.19.2.dist-info/top_level.txt"
+      ]
+    },
+    {
+      "id": "CVE-2026-19931",
+      "severity": "Critical",
+      "package": "libcurl4t64",
+      "version": "8.14.1-2+deb13u5",
+      "fix_state": "wont-fix",
+      "locations": [
+        "/var/lib/dpkg/status",
+        "/usr/share/doc/libcurl4t64/copyright",
+        "/var/lib/dpkg/info/libcurl4t64:amd64.md5sums"
+      ]
+    },
+    {
+      "id": "CVE-2026-80229",
+      "severity": "High",
+      "package": "libcurl4t64",
+      "version": "8.14.1-2+deb13u5",
+      "fix_state": "wont-fix",
+      "locations": [
+        "/var/lib/dpkg/status",
+        "/usr/share/doc/libcurl4t64/copyright",
+        "/var/lib/dpkg/info/libcurl4t64:amd64.md5sums"
+      ]
+    },
+    {
+      "id": "CVE-2026-11856",
+      "severity": "Critical",
+      "package": "libcurl4t64",
+      "version": "8.14.1-2+deb13u5",
+      "fix_state": "wont-fix",
+      "locations": [
+        "/var/lib/dpkg/status",
+        "/usr/share/doc/libcurl4t64/copyright",
+        "/var/lib/dpkg/info/libcurl4t64:amd64.md5sums"
+      ]
+    }
+  ],
+  "all_matches_exploitability_validated": false,
+  "suppression_added": false,
+  "production_promotion_gate": "blocked until triaged/remediated; no only-fixed bypass"
+}

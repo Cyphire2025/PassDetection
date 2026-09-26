@@ -5,8 +5,12 @@ npm-debug.log*
 .env*
 outputs
 playwright-report
+real-stack-report
+real-stack-results
+blob-report
 test-results
 coverage
+coverage-upload-controller
 *.log
 *.pem
 *.key

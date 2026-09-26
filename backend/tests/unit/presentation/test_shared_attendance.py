@@ -13,7 +13,12 @@ from sqlalchemy.dialects import postgresql
 from app.domain.entities.entities import User, UserRole
 from app.presentation.api.v1.routes import (
     tour_operations,
+    tour_operations_access,
+    tour_operations_attendance_closeout,
     tour_operations_attendance_scan_support,
+    tour_operations_attendance_scans,
+    tour_operations_attendance_sessions,
+    tour_operations_attendance_views,
 )
 from app.presentation.api.v1.schemas.attendance_closeout_schemas import (
     AttendanceCloseoutCheckpointRequest,
@@ -235,7 +240,7 @@ async def test_legacy_coordinator_create_is_forbidden_without_an_activity_write(
     ensure_group = AsyncMock()
     session = SimpleNamespace(execute=AsyncMock(), scalar=AsyncMock(), flush=AsyncMock())
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_sessions,
         "_ensure_group_assigned_to_coordinator",
         ensure_group,
     )
@@ -290,27 +295,31 @@ async def test_web_manager_create_stages_one_durable_realtime_hint(
     notify = AsyncMock()
     audit = SimpleNamespace(record=AsyncMock())
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_sessions,
         "_get_attendance_close_group_scope",
         AsyncMock(return_value=(agency_id, SimpleNamespace(id=group_id))),
     )
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_sessions,
         "_create_canonical_attendance_activity",
         AsyncMock(return_value=(activity, "created")),
     )
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_sessions,
         "_attendance_session_response",
         AsyncMock(return_value=response),
     )
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_sessions,
         "append_attendance_realtime_invalidation",
         notify,
     )
-    monkeypatch.setattr(tour_operations, "AuditLogRepository", lambda _session: audit)
-    monkeypatch.setattr(tour_operations, "trusted_client_ip", lambda _request: "203.0.113.9")
+    monkeypatch.setattr(
+        tour_operations_attendance_sessions, "AuditLogRepository", lambda _session: audit
+    )
+    monkeypatch.setattr(
+        tour_operations_attendance_sessions, "trusted_client_ip", lambda _request: "203.0.113.9"
+    )
 
     result = await tour_operations.create_managed_attendance_session(
         group_id=group_id,
@@ -344,27 +353,31 @@ async def test_web_manager_idempotent_create_does_not_stage_a_false_hint(
     audit = SimpleNamespace(record=AsyncMock())
     notify = AsyncMock()
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_sessions,
         "_get_attendance_close_group_scope",
         AsyncMock(return_value=(agency_id, SimpleNamespace(id=group_id))),
     )
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_sessions,
         "_create_canonical_attendance_activity",
         AsyncMock(return_value=(activity, "existing")),
     )
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_sessions,
         "_attendance_session_response",
         AsyncMock(return_value=response),
     )
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_sessions,
         "append_attendance_realtime_invalidation",
         notify,
     )
-    monkeypatch.setattr(tour_operations, "AuditLogRepository", lambda _session: audit)
-    monkeypatch.setattr(tour_operations, "trusted_client_ip", lambda _request: "203.0.113.9")
+    monkeypatch.setattr(
+        tour_operations_attendance_sessions, "AuditLogRepository", lambda _session: audit
+    )
+    monkeypatch.setattr(
+        tour_operations_attendance_sessions, "trusted_client_ip", lambda _request: "203.0.113.9"
+    )
 
     result = await tour_operations.create_managed_attendance_session(
         group_id=group_id,
@@ -393,8 +406,10 @@ async def test_fresh_web_scan_is_rejected_after_manager_close(
     )
     lookup = AsyncMock(return_value=activity)
     resolve = AsyncMock()
-    monkeypatch.setattr(tour_operations, "_get_coordinator_attendance_session", lookup)
-    monkeypatch.setattr(tour_operations, "_resolve_scannable_passenger", resolve)
+    monkeypatch.setattr(
+        tour_operations_attendance_scans, "_get_coordinator_attendance_session", lookup
+    )
+    monkeypatch.setattr(tour_operations_attendance_scans, "_resolve_scannable_passenger", resolve)
 
     with pytest.raises(HTTPException) as caught:
         await tour_operations.record_my_attendance_scan(
@@ -433,19 +448,21 @@ async def test_pre_close_web_queue_event_can_reconcile_after_manager_close(
     insert = AsyncMock(return_value=None)
     response = SimpleNamespace(status="duplicate")
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_scans,
         "_get_coordinator_attendance_session",
         AsyncMock(return_value=activity),
     )
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_scans,
         "_resolve_scannable_passenger",
         AsyncMock(return_value=(passenger, None, None)),
     )
-    monkeypatch.setattr(tour_operations, "_insert_canonical_attendance_record", insert)
-    monkeypatch.setattr(tour_operations, "_record_qr_audit", AsyncMock())
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_scans, "_insert_canonical_attendance_record", insert
+    )
+    monkeypatch.setattr(tour_operations_attendance_scans, "_record_qr_audit", AsyncMock())
+    monkeypatch.setattr(
+        tour_operations_attendance_scans,
         "_attendance_scan_response",
         AsyncMock(return_value=response),
     )
@@ -543,15 +560,29 @@ async def test_agency_manager_close_uses_scoped_locked_activity_and_audits(
     build_response = AsyncMock(return_value=expected)
     audit = SimpleNamespace(record=AsyncMock())
     notify = AsyncMock()
-    monkeypatch.setattr(tour_operations, "_get_attendance_close_group_scope", close_scope)
-    monkeypatch.setattr(tour_operations, "_get_managed_attendance_session", lookup)
-    monkeypatch.setattr(tour_operations, "_close_shared_attendance_activity", close)
-    monkeypatch.setattr(tour_operations, "_load_attendance_closeout_status", load_closeout)
-    monkeypatch.setattr(tour_operations, "_attendance_session_response", build_response)
-    monkeypatch.setattr(tour_operations, "AuditLogRepository", lambda _session: audit)
-    monkeypatch.setattr(tour_operations, "trusted_client_ip", lambda _request: "203.0.113.11")
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_closeout, "_get_attendance_close_group_scope", close_scope
+    )
+    monkeypatch.setattr(
+        tour_operations_attendance_closeout, "_get_managed_attendance_session", lookup
+    )
+    monkeypatch.setattr(
+        tour_operations_attendance_closeout, "_close_shared_attendance_activity", close
+    )
+    monkeypatch.setattr(
+        tour_operations_attendance_closeout, "_load_attendance_closeout_status", load_closeout
+    )
+    monkeypatch.setattr(
+        tour_operations_attendance_closeout, "_attendance_session_response", build_response
+    )
+    monkeypatch.setattr(
+        tour_operations_attendance_closeout, "AuditLogRepository", lambda _session: audit
+    )
+    monkeypatch.setattr(
+        tour_operations_attendance_closeout, "trusted_client_ip", lambda _request: "203.0.113.11"
+    )
+    monkeypatch.setattr(
+        tour_operations_attendance_closeout,
         "append_attendance_realtime_invalidation",
         notify,
     )
@@ -615,31 +646,33 @@ async def test_idempotent_manager_close_does_not_stage_a_false_hint(
     notify = AsyncMock()
     audit = SimpleNamespace(record=AsyncMock())
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_closeout,
         "_get_attendance_close_group_scope",
         AsyncMock(return_value=(agency_id, SimpleNamespace(id=group_id))),
     )
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_closeout,
         "_get_managed_attendance_session",
         AsyncMock(return_value=activity),
     )
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_closeout,
         "_close_shared_attendance_activity",
         AsyncMock(return_value=False),
     )
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_closeout,
         "_attendance_session_response",
         AsyncMock(return_value=response),
     )
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_closeout,
         "append_attendance_realtime_invalidation",
         notify,
     )
-    monkeypatch.setattr(tour_operations, "AuditLogRepository", lambda _session: audit)
+    monkeypatch.setattr(
+        tour_operations_attendance_closeout, "AuditLogRepository", lambda _session: audit
+    )
 
     result = await tour_operations.complete_managed_attendance_session(
         group_id=group_id,
@@ -668,22 +701,26 @@ async def test_web_manager_close_fails_closed_for_missing_checkpoint(
     close = AsyncMock()
     build_response = AsyncMock()
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_closeout,
         "_get_attendance_close_group_scope",
         AsyncMock(return_value=(agency_id, SimpleNamespace(id=group_id))),
     )
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_closeout,
         "_get_managed_attendance_session",
         AsyncMock(return_value=activity),
     )
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_closeout,
         "_load_attendance_closeout_status",
         AsyncMock(return_value=_closeout_response("missing")),
     )
-    monkeypatch.setattr(tour_operations, "_close_shared_attendance_activity", close)
-    monkeypatch.setattr(tour_operations, "_attendance_session_response", build_response)
+    monkeypatch.setattr(
+        tour_operations_attendance_closeout, "_close_shared_attendance_activity", close
+    )
+    monkeypatch.setattr(
+        tour_operations_attendance_closeout, "_attendance_session_response", build_response
+    )
 
     with pytest.raises(HTTPException) as caught:
         await tour_operations.complete_managed_attendance_session(
@@ -726,34 +763,38 @@ async def test_web_manager_exception_is_bounded_and_durably_audited(
         )
     )
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_closeout,
         "_get_attendance_close_group_scope",
         AsyncMock(return_value=(agency_id, SimpleNamespace(id=group_id))),
     )
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_closeout,
         "_get_managed_attendance_session",
         AsyncMock(return_value=activity),
     )
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_closeout,
         "_load_attendance_closeout_status",
         AsyncMock(return_value=closeout),
     )
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_closeout,
         "_close_shared_attendance_activity",
         AsyncMock(return_value=True),
     )
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_closeout,
         "_attendance_session_response",
         AsyncMock(return_value=response),
     )
-    monkeypatch.setattr(tour_operations, "AuditLogRepository", lambda _session: audit)
-    monkeypatch.setattr(tour_operations, "trusted_client_ip", lambda _request: "203.0.113.12")
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_closeout, "AuditLogRepository", lambda _session: audit
+    )
+    monkeypatch.setattr(
+        tour_operations_attendance_closeout, "trusted_client_ip", lambda _request: "203.0.113.12"
+    )
+    monkeypatch.setattr(
+        tour_operations_attendance_closeout,
         "append_attendance_realtime_invalidation",
         notify,
     )
@@ -807,22 +848,22 @@ async def test_web_coordinator_checkpoint_uses_authenticated_identity_and_shared
     database = SimpleNamespace()
     notify = AsyncMock()
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_closeout,
         "_ensure_group_assigned_to_coordinator",
         ensure_assignment,
     )
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_closeout,
         "_get_coordinator_attendance_session",
         lookup,
     )
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_closeout,
         "AttendanceCloseoutRepository",
         lambda _session: repository,
     )
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_closeout,
         "append_attendance_realtime_invalidation",
         notify,
     )
@@ -874,7 +915,7 @@ async def test_agencyless_super_admin_resolves_target_tenant_before_close(
     database = SimpleNamespace(execute=AsyncMock(return_value=_ScalarResult(group)))
     authorization = SimpleNamespace(require_assign_coordinator=AsyncMock())
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_access,
         "AuthorizationPolicy",
         lambda _session: authorization,
     )
@@ -1036,7 +1077,7 @@ async def test_shared_session_list_hides_alias_rows(
     session = SimpleNamespace(execute=AsyncMock(return_value=_RowsResult([])))
     ensure_group = AsyncMock()
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_sessions,
         "_ensure_group_assigned_to_coordinator",
         ensure_group,
     )
@@ -1175,7 +1216,7 @@ async def test_admin_overview_dedupes_alias_passengers_and_attribution(
     closeout = _closeout_response()
     closeout_repository = SimpleNamespace(statuses=AsyncMock(return_value={canonical_id: closeout}))
     monkeypatch.setattr(
-        tour_operations,
+        tour_operations_attendance_views,
         "AttendanceCloseoutRepository",
         lambda _session: closeout_repository,
     )

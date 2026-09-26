@@ -50,6 +50,7 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.email.pdf_validator import EmailPdfValidationError, EmailPdfValidator
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
+from app.presentation.api.v1.response_contracts import binary_responses
 from app.presentation.api.v1.routes.gc_app_history_support import gc_app_audit_responses
 from app.presentation.api.v1.schemas.announcement_notification_status import (
     AnnouncementNotificationStatusResponse,
@@ -477,7 +478,7 @@ async def reorder_common_documents(
 @router.get(
     "/groups/{group_id}/common-documents/{document_id}/content",
     response_class=StreamingResponse,
-)
+responses=binary_responses("application/pdf"))
 async def preview_common_document_content(
     group_id: uuid.UUID,
     document_id: uuid.UUID,

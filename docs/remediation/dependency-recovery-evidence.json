@@ -1,0 +1,19 @@
+{
+  "result": "passed",
+  "backend_image": "sha256:c2688994bbc3c5abfddb11f022013564070332ae3b15343f698dc9d74f40c536",
+  "database_image": "sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb",
+  "same_database_container_and_mounts": true,
+  "accepted_submission_id": "f1e84189-1294-4b43-b956-9affe3b0f526",
+  "down_verified_seconds_after_stop_request": 16.313,
+  "restored_checks_seconds_after_start_request": 4.078,
+  "controlled_unavailability_window_seconds": 20.938,
+  "liveness_200_database_unavailable_readiness_503": true,
+  "database_unavailable_probe_status": "probe_timeout",
+  "authenticated_and_private_reads_fail_closed": true,
+  "same_session_private_object_checksum_and_readiness_baseline_restored": true,
+  "overall_readiness_status_before_and_after": 503,
+  "preexisting_unavailable_capabilities": [
+    "gemini_processing"
+  ],
+  "limitation": "Functional single-host dependency interruption, including probe and container command overhead. It is not a host-failure recovery, failover, throughput or enterprise uptime claim. No database reset, volume replacement or object deletion occurred."
+}

@@ -10,6 +10,7 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 from fastapi import BackgroundTasks, HTTPException
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from app.application.security.authorization_policy import AuthorizationPolicy
 from app.application.use_cases.client_groups.restore_client_group_use_case import (
@@ -35,7 +36,13 @@ from app.infrastructure.repositories.client_group_repository import ClientGroupR
 from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
-from app.presentation.api.v1.routes import client_groups, search, tour_operations
+from app.presentation.api.v1.routes import (
+    client_groups,
+    search,
+    tour_operations,
+    tour_operations_assignments,
+    tour_operations_attendance_sessions,
+)
 from app.presentation.api.v1.routes.passport_routes import (
     covers,
     excel_exports,
@@ -215,8 +222,12 @@ async def test_missing_or_mismatched_parent_denies_passport_access(db_session, r
     policy = AuthorizationPolicy(db_session)
     missing = SimpleNamespace(id=uuid.uuid4(), group_id=uuid.uuid4(), agency_id=user.agency_id)
     mismatch = PassportSubmissionModel(id=uuid.uuid4(), group_id=foreign_group.id, agency_id=user.agency_id, client_name="Malformed synthetic passport", image_s3_key="unused", status="submitted")
-    db_session.add(mismatch)
-    await db_session.flush()
+    # 0108 now rejects this malformed graph at persistence as well as at the
+    # policy boundary. Preserve the explicit object-policy regression.
+    with pytest.raises(IntegrityError):
+        async with db_session.begin_nested():
+            db_session.add(mismatch)
+            await db_session.flush()
     assert not await policy.can_view_passport(user, missing)
     assert not await policy.can_view_passport(user, mismatch)
     visible = set(await db_session.scalars(policy.apply_passport_visibility_scope(select(PassportSubmissionModel.id), user)))
@@ -258,8 +269,8 @@ async def test_coordinator_group_list_and_known_attendance_session_share_lifecyc
 
     hydrated_groups = AsyncMock(side_effect=lambda _session, groups: groups)
     hydrated_details = AsyncMock(return_value="synthetic-details")
-    monkeypatch.setattr(tour_operations, "_group_responses", hydrated_groups)
-    monkeypatch.setattr(tour_operations, "_attendance_session_details_response", hydrated_details)
+    monkeypatch.setattr(tour_operations_assignments, "_group_responses", hydrated_groups)
+    monkeypatch.setattr(tour_operations_attendance_sessions, "_attendance_session_details_response", hydrated_details)
     groups = await tour_operations.list_my_coordinator_groups(current_user=user, session=db_session)
     allowed_groups = {group.id for relation, lifecycle, group, _, _ in attendance if relation == "assigned" and lifecycle in {"active", "closed"}}
     assert {group.id for group in groups} == allowed_groups

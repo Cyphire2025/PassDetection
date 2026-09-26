@@ -1,5 +1,4 @@
 import Link from "next/link";
-import type { Route } from "next";
 import { Button, Skeleton } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
 import type { WhatsAppBroadcastSourceContacts } from "../api/whatsapp-source-groups.api";
@@ -27,7 +26,7 @@ export function SourceRosterPanel({ data, isLoading, isFetching, error, onRetry,
             {[["Travellers", data.total_contacts], ["Delivery numbers", data.unique_phone_count], ["Need attention", data.needs_attention_count]].map(([label, count]) => <div key={label}><p className="text-xs text-slate-500">{label}</p><p className="mt-1 text-xl font-semibold tabular-nums text-slate-900">{Number(count).toLocaleString()}</p></div>)}
           </div>
           <div className="flex flex-wrap gap-2">
-            {data.sources.map((source) => <Link key={source.id} href={ROUTES.dashboard.passportGroup(source.id) as Route} className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 hover:border-blue-300 hover:text-blue-700">{source.name}{" "}{source.import_only && <span className="ml-2 inline-flex whitespace-nowrap rounded bg-slate-100 px-1.5 py-0.5 text-xs">Import only</span>}</Link>)}
+            {data.sources.map((source) => <Link key={source.id} href={ROUTES.dashboard.passportGroup(source.id)} className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 hover:border-blue-300 hover:text-blue-700">{source.name}{" "}{source.import_only && <span className="ml-2 inline-flex whitespace-nowrap rounded bg-slate-100 px-1.5 py-0.5 text-xs">Import only</span>}</Link>)}
           </div>
           {data.needs_attention_count > 0 && <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">{data.needs_attention_count} traveller {data.needs_attention_count === 1 ? "row needs" : "rows need"} attention. Review the contact status below before delivery. These rows stay visible here.</p>}
           {data.shared_phone_count > 0 && <p className="text-sm text-blue-700">{data.shared_phone_count} additional traveller{data.shared_phone_count === 1 ? " shares" : "s share"} an existing delivery number. Every name is retained.</p>}

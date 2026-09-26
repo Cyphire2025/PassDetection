@@ -36,6 +36,7 @@ from app.presentation.api.v1.routes.email_ai_rollout_admin import (
 from app.presentation.api.v1.routes.email_integrations import (
     router as email_integrations_router,
 )
+from app.presentation.api.v1.routes.frontend_errors import router as frontend_errors_router
 from app.presentation.api.v1.routes.gc_app import router as gc_app_router
 from app.presentation.api.v1.routes.gc_app_content import router as gc_app_content_router
 from app.presentation.api.v1.routes.gc_app_group_removal import (
@@ -71,6 +72,7 @@ from app.presentation.api.v1.routes.whatsapp_activity import (
 )
 
 api_v1_router = APIRouter()
+api_v1_router.include_router(frontend_errors_router, prefix="/observability", tags=["Observability"])
 api_v1_router.include_router(ecr_checker_router, prefix="/ecr-checker", tags=["ECR Checker"])
 api_v1_router.include_router(admin_whatsapp_templates_router, prefix="/admin", tags=["Admin"])
 

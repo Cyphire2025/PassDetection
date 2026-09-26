@@ -1,0 +1,789 @@
+{
+  "schema_version": 1,
+  "scope": "dashboard frontend phase two; local qualification, no production deployment",
+  "unit_tests": {
+    "files": 137,
+    "passed": 902,
+    "failed": 0,
+    "duration_seconds": 186.6,
+    "scope": "Full902-test run before final Safari pointer-trigger fix; focused16-test rerun validates that final change, including2 new cases. No claim of one complete904-test run."
+  },
+  "node_contracts": {
+    "passed": 707,
+    "failed": 0,
+    "skipped": 0
+  },
+  "critical_surface": {
+    "module_count": 25,
+    "coverage": {
+      "lines": {
+        "total": 891,
+        "covered": 865,
+        "skipped": 0,
+        "pct": 97.08
+      },
+      "statements": {
+        "total": 1056,
+        "covered": 989,
+        "skipped": 0,
+        "pct": 93.65
+      },
+      "functions": {
+        "total": 227,
+        "covered": 215,
+        "skipped": 0,
+        "pct": 94.71
+      },
+      "branches": {
+        "total": 907,
+        "covered": 797,
+        "skipped": 0,
+        "pct": 87.87
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "per_file_thresholds": {
+      "lines": 75,
+      "functions": 75,
+      "statements": 74,
+      "branches": 50
+    },
+    "current_declared_module_count": 26,
+    "coverage_scope": "Full run measured25 modules; final new focus-return module measured separately at100% lines/70% branches with unchanged per-file gates."
+  },
+  "type_check": "passed",
+  "eslint": "passed",
+  "module_budget_count": 40,
+  "module_budgets": "passed",
+  "production_image_build": "passed",
+  "real_browser_workflows": "9 of9 unique journeys passed across final-image matrix, corrected contact fixture targets and supported Linux WebKit scanner; no single clean9-test run is claimed.",
+  "physical_device_camera_screenreader_cold_offline": "not qualified",
+  "native_application_changes": false,
+  "coverage_files": {
+    "proxy.ts": {
+      "lines": {
+        "total": 21,
+        "covered": 21,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 5,
+        "covered": 5,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 21,
+        "covered": 21,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 10,
+        "covered": 8,
+        "skipped": 0,
+        "pct": 80
+      }
+    },
+    "components/layout/mobile-navigation.tsx": {
+      "lines": {
+        "total": 34,
+        "covered": 32,
+        "skipped": 0,
+        "pct": 94.11
+      },
+      "functions": {
+        "total": 5,
+        "covered": 5,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 37,
+        "covered": 35,
+        "skipped": 0,
+        "pct": 94.59
+      },
+      "branches": {
+        "total": 20,
+        "covered": 17,
+        "skipped": 0,
+        "pct": 85
+      }
+    },
+    "components/shared/error-boundary.tsx": {
+      "lines": {
+        "total": 14,
+        "covered": 14,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 7,
+        "covered": 7,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 17,
+        "covered": 16,
+        "skipped": 0,
+        "pct": 94.11
+      },
+      "branches": {
+        "total": 10,
+        "covered": 8,
+        "skipped": 0,
+        "pct": 80
+      }
+    },
+    "components/ui/modal-keyboard-boundary.ts": {
+      "lines": {
+        "total": 78,
+        "covered": 76,
+        "skipped": 0,
+        "pct": 97.43
+      },
+      "functions": {
+        "total": 12,
+        "covered": 12,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 99,
+        "covered": 92,
+        "skipped": 0,
+        "pct": 92.92
+      },
+      "branches": {
+        "total": 90,
+        "covered": 80,
+        "skipped": 0,
+        "pct": 88.88
+      }
+    },
+    "components/ui/modal.tsx": {
+      "lines": {
+        "total": 14,
+        "covered": 14,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 3,
+        "covered": 3,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 16,
+        "covered": 16,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 12,
+        "covered": 12,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "features/auth/components/authenticated-content.tsx": {
+      "lines": {
+        "total": 23,
+        "covered": 22,
+        "skipped": 0,
+        "pct": 95.65
+      },
+      "functions": {
+        "total": 7,
+        "covered": 6,
+        "skipped": 0,
+        "pct": 85.71
+      },
+      "statements": {
+        "total": 27,
+        "covered": 26,
+        "skipped": 0,
+        "pct": 96.29
+      },
+      "branches": {
+        "total": 19,
+        "covered": 19,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "features/auth/services/refresh-attempt.ts": {
+      "lines": {
+        "total": 6,
+        "covered": 6,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 2,
+        "covered": 2,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 7,
+        "covered": 7,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 5,
+        "covered": 5,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "features/documents/components/document-manual-review-dialog.tsx": {
+      "lines": {
+        "total": 24,
+        "covered": 24,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 6,
+        "covered": 6,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 25,
+        "covered": 24,
+        "skipped": 0,
+        "pct": 96
+      },
+      "branches": {
+        "total": 34,
+        "covered": 33,
+        "skipped": 0,
+        "pct": 97.05
+      }
+    },
+    "features/passports/components/use-passport-detail-navigation.ts": {
+      "lines": {
+        "total": 32,
+        "covered": 30,
+        "skipped": 0,
+        "pct": 93.75
+      },
+      "functions": {
+        "total": 8,
+        "covered": 8,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 36,
+        "covered": 33,
+        "skipped": 0,
+        "pct": 91.66
+      },
+      "branches": {
+        "total": 63,
+        "covered": 51,
+        "skipped": 0,
+        "pct": 80.95
+      }
+    },
+    "features/search/components/global-search.tsx": {
+      "lines": {
+        "total": 97,
+        "covered": 90,
+        "skipped": 0,
+        "pct": 92.78
+      },
+      "functions": {
+        "total": 23,
+        "covered": 20,
+        "skipped": 0,
+        "pct": 86.95
+      },
+      "statements": {
+        "total": 103,
+        "covered": 93,
+        "skipped": 0,
+        "pct": 90.29
+      },
+      "branches": {
+        "total": 68,
+        "covered": 59,
+        "skipped": 0,
+        "pct": 86.76
+      }
+    },
+    "features/settings/components/appearance-settings.tsx": {
+      "lines": {
+        "total": 15,
+        "covered": 15,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 12,
+        "covered": 12,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 15,
+        "covered": 15,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 6,
+        "covered": 6,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "features/settings/components/dashboard-settings-page.tsx": {
+      "lines": {
+        "total": 18,
+        "covered": 18,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 9,
+        "covered": 9,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 20,
+        "covered": 20,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 26,
+        "covered": 26,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "features/upload/components/upload-review-panels.tsx": {
+      "lines": {
+        "total": 43,
+        "covered": 41,
+        "skipped": 0,
+        "pct": 95.34
+      },
+      "functions": {
+        "total": 33,
+        "covered": 31,
+        "skipped": 0,
+        "pct": 93.93
+      },
+      "statements": {
+        "total": 51,
+        "covered": 49,
+        "skipped": 0,
+        "pct": 96.07
+      },
+      "branches": {
+        "total": 64,
+        "covered": 58,
+        "skipped": 0,
+        "pct": 90.62
+      }
+    },
+    "features/upload/hooks/use-upload-documents.ts": {
+      "lines": {
+        "total": 216,
+        "covered": 209,
+        "skipped": 0,
+        "pct": 96.75
+      },
+      "functions": {
+        "total": 29,
+        "covered": 27,
+        "skipped": 0,
+        "pct": 93.1
+      },
+      "statements": {
+        "total": 254,
+        "covered": 230,
+        "skipped": 0,
+        "pct": 90.55
+      },
+      "branches": {
+        "total": 178,
+        "covered": 141,
+        "skipped": 0,
+        "pct": 79.21
+      }
+    },
+    "features/upload/hooks/use-upload-family.ts": {
+      "lines": {
+        "total": 7,
+        "covered": 7,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 6,
+        "covered": 6,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 12,
+        "covered": 12,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 2,
+        "covered": 2,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "features/upload/hooks/use-upload-operation.ts": {
+      "lines": {
+        "total": 29,
+        "covered": 29,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 8,
+        "covered": 8,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 38,
+        "covered": 38,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 16,
+        "covered": 14,
+        "skipped": 0,
+        "pct": 87.5
+      }
+    },
+    "features/upload/hooks/use-upload-submission.ts": {
+      "lines": {
+        "total": 64,
+        "covered": 62,
+        "skipped": 0,
+        "pct": 96.87
+      },
+      "functions": {
+        "total": 15,
+        "covered": 12,
+        "skipped": 0,
+        "pct": 80
+      },
+      "statements": {
+        "total": 93,
+        "covered": 81,
+        "skipped": 0,
+        "pct": 87.09
+      },
+      "branches": {
+        "total": 91,
+        "covered": 77,
+        "skipped": 0,
+        "pct": 84.61
+      }
+    },
+    "features/upload/services/family-upload-state.ts": {
+      "lines": {
+        "total": 15,
+        "covered": 15,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 5,
+        "covered": 5,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 19,
+        "covered": 18,
+        "skipped": 0,
+        "pct": 94.73
+      },
+      "branches": {
+        "total": 28,
+        "covered": 27,
+        "skipped": 0,
+        "pct": 96.42
+      }
+    },
+    "features/upload/services/passport-capture-transition.ts": {
+      "lines": {
+        "total": 3,
+        "covered": 3,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 1,
+        "covered": 1,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 3,
+        "covered": 3,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 7,
+        "covered": 7,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "features/upload/services/review-submission-validation.ts": {
+      "lines": {
+        "total": 51,
+        "covered": 50,
+        "skipped": 0,
+        "pct": 98.03
+      },
+      "functions": {
+        "total": 13,
+        "covered": 13,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 61,
+        "covered": 60,
+        "skipped": 0,
+        "pct": 98.36
+      },
+      "branches": {
+        "total": 74,
+        "covered": 68,
+        "skipped": 0,
+        "pct": 91.89
+      }
+    },
+    "features/upload/services/saved-passport-extraction.ts": {
+      "lines": {
+        "total": 35,
+        "covered": 35,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 3,
+        "covered": 3,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 38,
+        "covered": 38,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 28,
+        "covered": 26,
+        "skipped": 0,
+        "pct": 92.85
+      }
+    },
+    "features/upload/services/upload-operation-state.ts": {
+      "lines": {
+        "total": 3,
+        "covered": 3,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 1,
+        "covered": 1,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 3,
+        "covered": 3,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 6,
+        "covered": 6,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "lib/navigation/application-route.ts": {
+      "lines": {
+        "total": 11,
+        "covered": 11,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 6,
+        "covered": 6,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 14,
+        "covered": 14,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 19,
+        "covered": 19,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "lib/observability/render-errors.ts": {
+      "lines": {
+        "total": 30,
+        "covered": 30,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 7,
+        "covered": 6,
+        "skipped": 0,
+        "pct": 85.71
+      },
+      "statements": {
+        "total": 38,
+        "covered": 36,
+        "skipped": 0,
+        "pct": 94.73
+      },
+      "branches": {
+        "total": 27,
+        "covered": 24,
+        "skipped": 0,
+        "pct": 88.88
+      }
+    },
+    "lib/utils/coordinator-device-id.ts": {
+      "lines": {
+        "total": 8,
+        "covered": 8,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 1,
+        "covered": 1,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 9,
+        "covered": 9,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 4,
+        "covered": 4,
+        "skipped": 0,
+        "pct": 100
+      }
+    }
+  },
+  "qualification_image": "passdetection-qualification-frontend:local",
+  "image_revision_label": "phase2-qualification",
+  "real_browser_collection": {
+    "projects": [
+      "chromium",
+      "firefox",
+      "webkit"
+    ],
+    "workflows": 3,
+    "collected_tests": 9,
+    "execution": "terminal;9unique cases passed across split runs",
+    "receipt": "frontend-browser-evidence.json"
+  },
+  "toolchain": {
+    "node": "24.21.0",
+    "npm": "11.20.0",
+    "source": "hash-verified portable official Node archive and independently inventoried npm distribution"
+  },
+  "upload_controller": {
+    "focused_tests": 71,
+    "new_measured_modules": 8,
+    "parent_lines": 746,
+    "parent_max_function_complexity": 50,
+    "family_recovery": "in-memory acknowledgement before extraction; durable cross-reload family recovery not claimed"
+  },
+  "previous_application_image_id": "sha256:d5b9d2494ac14b050479d435254474fa52a6bcd42e512b873e8f9a9798bf5ebe",
+  "previous_application_image_config_sha256": "d5efe52c8c2774bd951eb233fb31de718ebb6ea27235eea41fc280b3f8902cd7",
+  "image_id": "sha256:ae6c26a9316306fa2d437f57eeefbf92fa6afda6bad2e33b6e7f6d5591cc5843",
+  "image_config_sha256": "b5d3489301e27295407db6148b729f91226b0ea1295d79b482ef80224380cc07",
+  "runtime_smoke": {
+    "status": "passed",
+    "uid": 1001,
+    "node": "v24.21.0",
+    "openssl": "3.5.8",
+    "zlib": "1.3.2.1-motley-8002e91",
+    "sharp": "0.35.4",
+    "heif": "1.23.2",
+    "http_login": 200,
+    "package_managers_absent": true,
+    "native_image_conversion": "PNG to JPEG, 32x32",
+    "network": "none",
+    "no_new_privileges": true,
+    "capabilities": "none"
+  },
+  "runtime_image_scan": {
+    "status": "passed",
+    "critical": 0,
+    "high": 0,
+    "medium": 2,
+    "receipt": "frontend-image-audit-evidence.json"
+  },
+  "dependency_audit": {
+    "status": "passed",
+    "findings": 0,
+    "scope": "production and development app lock",
+    "targeted_change": "dev-only transitive js-yaml4.3.1 to4.3.2; no production dependency changes",
+    "source": "https://github.com/advisories/GHSA-2883-xcg3-v3hh"
+  },
+  "focus_followup": {
+    "files": 2,
+    "passed": 16,
+    "new_cases": 2,
+    "duration_seconds": 24.25,
+    "lines_pct": 98.19,
+    "branches_pct": 85.45,
+    "functions_pct": 100,
+    "statements_pct": 94.85,
+    "new_module_lines_pct": 100,
+    "new_module_branches_pct": 70
+  }
+}

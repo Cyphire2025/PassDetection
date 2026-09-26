@@ -1,7 +1,6 @@
 "use client";
 
 import { type ReactNode, useEffect } from "react";
-import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button, Skeleton } from "@/components/ui";
@@ -15,7 +14,7 @@ export function GroupWhatsAppTrackingGate({ groupId, children }: { groupId: stri
   const group = groups.data?.find((item) => item.group_id === groupId);
 
   useEffect(() => {
-    if (group?.import_only) router.replace(ROUTES.dashboard.passportGroup(groupId) as never);
+    if (group?.import_only) router.replace(ROUTES.dashboard.passportGroup(groupId));
   }, [group?.import_only, groupId, router]);
 
   if (group?.import_only) return null;
@@ -27,7 +26,7 @@ export function GroupWhatsAppTrackingGate({ groupId, children }: { groupId: stri
           {groups.isError ? "Group details could not be loaded." : "This group is unavailable."}
         </p>
         {groups.isError && <Button type="button" variant="secondary" onClick={() => void groups.refetch()} isLoading={groups.isFetching}>Try again</Button>}
-        <Link href={ROUTES.dashboard.passportGroup(groupId) as Route} className="block text-sm font-medium text-blue-700 hover:underline">Back to group</Link>
+        <Link href={ROUTES.dashboard.passportGroup(groupId)} className="block text-sm font-medium text-blue-700 hover:underline">Back to group</Link>
       </div>
     );
   }

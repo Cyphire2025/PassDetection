@@ -1,0 +1,816 @@
+{
+  "verified_on": "2026-09-27",
+  "candidate_image_id": "sha256:e8935a6a80d5a6d1a8689ad1829bbee914acc30ff472253f6d21df86cb829c73",
+  "candidate_manifest": "sha256:f64218e8f25f983e9e1a49bb4a78ecd7d59d2ac7ec9e4f91d8a5f8d24fd80597",
+  "scanner": {
+    "name": "grype",
+    "version": "0.119.0",
+    "configuration": {
+      "output": [
+        "json"
+      ],
+      "file": "/evidence/tooling-backend-source-final-grype.json",
+      "pretty": false,
+      "distro": "",
+      "add-cpes-if-none": false,
+      "output-template-file": "",
+      "check-for-app-update": true,
+      "only-fixed": false,
+      "only-notfixed": false,
+      "ignore-wontfix": "",
+      "platform": "",
+      "search": {
+        "scope": "squashed",
+        "unindexed-archives": false,
+        "indexed-archives": true
+      },
+      "ignore": [
+        {
+          "vulnerability": "",
+          "include-aliases": false,
+          "reason": "",
+          "namespace": "",
+          "fix-state": "",
+          "package": {
+            "name": "kernel-headers",
+            "version": "",
+            "language": "",
+            "type": "rpm",
+            "location": "",
+            "upstream-name": "kernel"
+          },
+          "vex-status": "",
+          "vex-justification": "",
+          "match-type": "exact-indirect-match"
+        },
+        {
+          "vulnerability": "",
+          "include-aliases": false,
+          "reason": "",
+          "namespace": "",
+          "fix-state": "",
+          "package": {
+            "name": "linux(-.*)?-headers-.*",
+            "version": "",
+            "language": "",
+            "type": "deb",
+            "location": "",
+            "upstream-name": "linux.*"
+          },
+          "vex-status": "",
+          "vex-justification": "",
+          "match-type": "exact-indirect-match"
+        },
+        {
+          "vulnerability": "",
+          "include-aliases": false,
+          "reason": "",
+          "namespace": "",
+          "fix-state": "",
+          "package": {
+            "name": "linux-libc-dev",
+            "version": "",
+            "language": "",
+            "type": "deb",
+            "location": "",
+            "upstream-name": "linux"
+          },
+          "vex-status": "",
+          "vex-justification": "",
+          "match-type": "exact-indirect-match"
+        },
+        {
+          "vulnerability": "",
+          "include-aliases": false,
+          "reason": "",
+          "namespace": "",
+          "fix-state": "",
+          "package": {
+            "name": "linux-kbuild-.*",
+            "version": "",
+            "language": "",
+            "type": "deb",
+            "location": "",
+            "upstream-name": "linux.*"
+          },
+          "vex-status": "",
+          "vex-justification": "",
+          "match-type": "exact-indirect-match"
+        }
+      ],
+      "exclude": [],
+      "externalSources": {
+        "enable": false,
+        "maven": {
+          "searchUpstreamBySha1": true,
+          "baseUrl": "https://search.maven.org/solrsearch/select",
+          "rateLimit": 300000000
+        }
+      },
+      "match": {
+        "java": {
+          "using-cpes": false
+        },
+        "jvm": {
+          "using-cpes": true
+        },
+        "dotnet": {
+          "using-cpes": false
+        },
+        "golang": {
+          "using-cpes": false,
+          "always-use-cpe-for-stdlib": false,
+          "allow-main-module-pseudo-version-comparison": false
+        },
+        "javascript": {
+          "using-cpes": false
+        },
+        "python": {
+          "using-cpes": false
+        },
+        "ruby": {
+          "using-cpes": false
+        },
+        "rust": {
+          "using-cpes": false
+        },
+        "hex": {
+          "using-cpes": false
+        },
+        "stock": {
+          "using-cpes": true
+        },
+        "dpkg": {
+          "using-cpes": false,
+          "missing-epoch-strategy": "zero",
+          "use-cpes-for-eol": false
+        },
+        "rpm": {
+          "using-cpes": false,
+          "missing-epoch-strategy": "auto",
+          "use-cpes-for-eol": false
+        }
+      },
+      "fail-on-severity": "",
+      "registry": {
+        "insecure-skip-tls-verify": false,
+        "insecure-use-http": false,
+        "ca-cert": ""
+      },
+      "show-suppressed": false,
+      "include-matcher-suppressions": false,
+      "by-cve": false,
+      "SortBy": {
+        "sort-by": "risk"
+      },
+      "name": "",
+      "default-image-pull-source": "",
+      "from": null,
+      "vex-documents": [],
+      "vex-add": [],
+      "match-upstream-kernel-headers": false,
+      "fix-channel": {
+        "redhat-eus": {
+          "apply": "auto",
+          "versions": ">= 8.0"
+        },
+        "ubuntu-esm": {
+          "apply": "auto",
+          "versions": ""
+        }
+      },
+      "timestamp": true,
+      "alerts": {
+        "enable-eol-distro-warnings": true
+      },
+      "db": {
+        "cache-dir": "/.cache/grype/db",
+        "update-url": "https://grype.anchore.io/databases",
+        "ca-cert": "",
+        "auto-update": true,
+        "validate-by-hash-on-start": true,
+        "validate-age": true,
+        "max-allowed-built-age": 432000000000000,
+        "require-update-check": false,
+        "update-available-timeout": 30000000000,
+        "update-download-timeout": 300000000000,
+        "max-update-check-frequency": 7200000000000
+      },
+      "exp": {},
+      "dev": {
+        "db": {
+          "debug": false
+        }
+      }
+    },
+    "db": {
+      "status": {
+        "schemaVersion": "v6.1.9",
+        "from": "https://grype.anchore.io/databases/v6/vulnerability-db_v6.1.9_2026-09-26T00:33:02Z_1790404154.tar.zst?checksum=sha256%3A4389850e3fa0b144dec73a4177ae180e6fb305b2141b69d86f70e14e5ecdae7d",
+        "built": "2026-09-26T06:29:14Z",
+        "path": "/.cache/grype/db/6/vulnerability.db",
+        "valid": true
+      },
+      "providers": {
+        "alma": {
+          "captured": "2026-09-26T00:34:14Z",
+          "input": "xxh64:6f7c7aac4faea548"
+        },
+        "alpine": {
+          "captured": "2026-09-26T00:33:09Z",
+          "input": "xxh64:4d6282b4c9159be2"
+        },
+        "amazon": {
+          "captured": "2026-09-26T00:33:59Z",
+          "input": "xxh64:4f1435b6ea706069"
+        },
+        "arch": {
+          "captured": "2026-09-26T00:33:08Z",
+          "input": "xxh64:7fae43faffe7d3f1"
+        },
+        "bitnami": {
+          "captured": "2026-09-26T00:33:22Z",
+          "input": "xxh64:d581da75e2cf02f8"
+        },
+        "chainguard": {
+          "captured": "2026-09-26T00:33:11Z",
+          "input": "xxh64:4930584a52b85982"
+        },
+        "chainguard-libraries": {
+          "captured": "2026-09-26T00:33:11Z",
+          "input": "xxh64:ae54a064859c6b14"
+        },
+        "debian": {
+          "captured": "2026-09-26T00:33:11Z",
+          "input": "xxh64:d49b48f99162abe9"
+        },
+        "echo": {
+          "captured": "2026-09-26T00:33:31Z",
+          "input": "xxh64:7a5de0f8b226fcca"
+        },
+        "eol": {
+          "captured": "2026-09-26T00:34:54Z",
+          "input": "xxh64:a456a5a587fffff4"
+        },
+        "epss": {
+          "captured": "2026-09-26T00:33:18Z",
+          "input": "xxh64:f47ae077d464a967"
+        },
+        "fedora": {
+          "captured": "2026-09-26T00:33:11Z",
+          "input": "xxh64:a1953010cd1aabe1"
+        },
+        "github": {
+          "captured": "2026-09-26T00:33:08Z",
+          "input": "xxh64:f1d0c6799ad6f843"
+        },
+        "govulndb": {
+          "captured": "2026-09-26T00:33:08Z",
+          "input": "xxh64:a51c93f6c973b85f"
+        },
+        "hummingbird": {
+          "captured": "2026-09-26T00:35:16Z",
+          "input": "xxh64:4c95a300782f04a3"
+        },
+        "kev": {
+          "captured": "2026-09-26T00:33:03Z",
+          "input": "xxh64:5ab90d5b829ffedb"
+        },
+        "mariner": {
+          "captured": "2026-09-26T00:33:12Z",
+          "input": "xxh64:f5bc5c9c631436df"
+        },
+        "minimos": {
+          "captured": "2026-09-26T00:33:06Z",
+          "input": "xxh64:90098e3d995cad20"
+        },
+        "nvd": {
+          "captured": "2026-09-26T00:33:44Z",
+          "input": "xxh64:2625ac06d0f040d3"
+        },
+        "oracle": {
+          "captured": "2026-09-26T00:33:11Z",
+          "input": "xxh64:f8e4412f587f1966"
+        },
+        "photon": {
+          "captured": "2026-09-26T00:33:26Z",
+          "input": "xxh64:b50c067cac2230be"
+        },
+        "rhel": {
+          "captured": "2026-09-26T00:34:09Z",
+          "input": "xxh64:a5b9243db15b36c5"
+        },
+        "secureos": {
+          "captured": "2026-09-26T00:33:05Z",
+          "input": "xxh64:eae47dbd9fcf128e"
+        },
+        "sles": {
+          "captured": "2026-09-26T00:34:41Z",
+          "input": "xxh64:3368be9c2fbc8d4a"
+        },
+        "ubuntu": {
+          "captured": "2026-09-26T00:33:02Z",
+          "input": "xxh64:7730935b8eb92cc0"
+        },
+        "wolfi": {
+          "captured": "2026-09-26T00:33:31Z",
+          "input": "xxh64:d25f61c983297513"
+        }
+      }
+    },
+    "timestamp": "2026-09-26T21:36:47.59573448Z"
+  },
+  "package_matches": 56,
+  "advisory_ids": 19,
+  "findings": [
+    {
+      "advisory": "CVE-2025-69720",
+      "packages": [
+        {
+          "name": "libncursesw6",
+          "version": "6.5+20250216-2"
+        },
+        {
+          "name": "libtinfo6",
+          "version": "6.5+20250216-2"
+        },
+        {
+          "name": "ncurses-base",
+          "version": "6.5+20250216-2"
+        },
+        {
+          "name": "ncurses-bin",
+          "version": "6.5+20250216-2"
+        }
+      ],
+      "disposition": "affected_component_absent",
+      "owner": "Nipun / repository maintainer",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "condition": "Affected infocmp analyze_string executable removed; libraries do not provide the infocmp program. Runtime verifies its absence.",
+      "evidence": [
+        "https://security-tracker.debian.org/tracker/CVE-2025-69720",
+        "scripts/qa/probe_image_advisory_conditions.py"
+      ]
+    },
+    {
+      "advisory": "CVE-2026-19499",
+      "packages": [
+        {
+          "name": "libc-bin",
+          "version": "2.41-12+deb13u4"
+        },
+        {
+          "name": "libc6",
+          "version": "2.41-12+deb13u4"
+        }
+      ],
+      "disposition": "affected_code_not_used",
+      "owner": "Nipun / repository maintainer",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "condition": "Every installed native ELF object inspected for undefined imports of strfmon/strfmon_l/ns_printrr/ns_printrrf/fp_nquery: none. Every installed Python source inspected for named calls; application source additionally rejects dynamic native-binding APIs. Not a formal proof against malicious code execution.",
+      "evidence": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-19499",
+        "scripts/qa/probe_image_advisory_conditions.py"
+      ]
+    },
+    {
+      "advisory": "CVE-2026-52490",
+      "packages": [
+        {
+          "name": "libtiff6",
+          "version": "4.7.0-3+deb13u3"
+        }
+      ],
+      "disposition": "affected_component_absent",
+      "owner": "Nipun / repository maintainer",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "condition": "Affected tiffcrop command/options implementation is not installed; runtime checks executable absence. No claim that generic TIFF decoding is unused.",
+      "evidence": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-52490",
+        "scripts/qa/probe_image_advisory_conditions.py"
+      ]
+    },
+    {
+      "advisory": "CVE-2026-5435",
+      "packages": [
+        {
+          "name": "libc-bin",
+          "version": "2.41-12+deb13u4"
+        },
+        {
+          "name": "libc6",
+          "version": "2.41-12+deb13u4"
+        }
+      ],
+      "disposition": "affected_code_not_used",
+      "owner": "Nipun / repository maintainer",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "condition": "Every installed native ELF object inspected for undefined imports of strfmon/strfmon_l/ns_printrr/ns_printrrf/fp_nquery: none. Every installed Python source inspected for named calls; application source additionally rejects dynamic native-binding APIs. Not a formal proof against malicious code execution.",
+      "evidence": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-5435",
+        "scripts/qa/probe_image_advisory_conditions.py"
+      ]
+    },
+    {
+      "advisory": "CVE-2026-54369",
+      "packages": [
+        {
+          "name": "libacl1",
+          "version": "2.3.2-2+b1"
+        }
+      ],
+      "disposition": "mitigated_not_patched",
+      "owner": "Nipun / repository maintainer",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "condition": "Pathname ACL privilege-escalation requires a privileged caller. App UID1001 with no caps/no-new-privileges cannot elevate through SUID; controlled host mounts only. One-off copy runs the fixed Python S3 copier with no ACL APIs and only its protected evidence directory mounted. libacl remains unpatched pending a compatible stable update.",
+      "evidence": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-54369",
+        "scripts/qa/probe_image_advisory_conditions.py"
+      ]
+    },
+    {
+      "advisory": "CVE-2026-54370",
+      "packages": [
+        {
+          "name": "libacl1",
+          "version": "2.3.2-2+b1"
+        }
+      ],
+      "disposition": "affected_component_absent",
+      "owner": "Nipun / repository maintainer",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "condition": "Affected privileged getfacl/setfacl/chacl utilities are not installed; runtime verifies absence. libacl source package name alone does not install those programs.",
+      "evidence": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-54370",
+        "scripts/qa/probe_image_advisory_conditions.py"
+      ]
+    },
+    {
+      "advisory": "CVE-2026-66046",
+      "packages": [
+        {
+          "name": "libexpat1",
+          "version": "2.8.4-2"
+        }
+      ],
+      "disposition": "fixed_by_backport",
+      "owner": "Nipun / repository maintainer",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "condition": "Exact official libexpat1 2.8.4-2 includes the relevant upstream fix; same-version CPython pyexpat linked to it. Both actual XML parser APIs reject malformed UTF-16. Content-pinned build inputs.",
+      "evidence": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-66046",
+        "scripts/qa/probe_image_advisory_conditions.py"
+      ]
+    },
+    {
+      "advisory": "CVE-2026-76642",
+      "packages": [
+        {
+          "name": "bsdutils",
+          "version": "1:2.41.5-0+deb13u1"
+        },
+        {
+          "name": "libblkid1",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "liblastlog2-2",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "libmount1",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "libsmartcols1",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "libuuid1",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "login",
+          "version": "1:4.16.0-2+really2.41.5-0+deb13u1"
+        },
+        {
+          "name": "mount",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "util-linux",
+          "version": "2.41.5-0+deb13u1"
+        }
+      ],
+      "disposition": "mitigated_not_patched",
+      "owner": "Nipun / repository maintainer",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "condition": "Affected mount/umount/nsenter executables removed. App processes forced UID/GID1001, empty effective and bounding caps and no-new-privileges; default confinement and no host namespaces/devices/unreviewed mounts. Libraries remain unpatched; release preflight rejects weakened controls. One-off storage copy separately restricted to its controlled evidence directory and fixed Python command.",
+      "evidence": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-76642",
+        "scripts/qa/probe_image_advisory_conditions.py"
+      ]
+    },
+    {
+      "advisory": "CVE-2026-76956",
+      "packages": [
+        {
+          "name": "libexpat1",
+          "version": "2.8.4-2"
+        }
+      ],
+      "disposition": "fixed_by_backport",
+      "owner": "Nipun / repository maintainer",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "condition": "Exact official libexpat1 2.8.4-2 includes the relevant upstream fix; same-version CPython pyexpat linked to it. Both actual XML parser APIs reject malformed UTF-16. Content-pinned build inputs.",
+      "evidence": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-76956",
+        "scripts/qa/probe_image_advisory_conditions.py"
+      ]
+    },
+    {
+      "advisory": "CVE-2026-76957",
+      "packages": [
+        {
+          "name": "libexpat1",
+          "version": "2.8.4-2"
+        }
+      ],
+      "disposition": "fixed_by_backport",
+      "owner": "Nipun / repository maintainer",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "condition": "Exact official libexpat1 2.8.4-2 includes the relevant upstream fix; same-version CPython pyexpat linked to it. Both actual XML parser APIs reject malformed UTF-16. Content-pinned build inputs.",
+      "evidence": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-76957",
+        "scripts/qa/probe_image_advisory_conditions.py"
+      ]
+    },
+    {
+      "advisory": "CVE-2026-78408",
+      "packages": [
+        {
+          "name": "bsdutils",
+          "version": "1:2.41.5-0+deb13u1"
+        },
+        {
+          "name": "libblkid1",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "liblastlog2-2",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "libmount1",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "libsmartcols1",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "libuuid1",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "login",
+          "version": "1:4.16.0-2+really2.41.5-0+deb13u1"
+        },
+        {
+          "name": "mount",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "util-linux",
+          "version": "2.41.5-0+deb13u1"
+        }
+      ],
+      "disposition": "mitigated_not_patched",
+      "owner": "Nipun / repository maintainer",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "condition": "Affected mount/umount/nsenter executables removed. App processes forced UID/GID1001, empty effective and bounding caps and no-new-privileges; default confinement and no host namespaces/devices/unreviewed mounts. Libraries remain unpatched; release preflight rejects weakened controls. One-off storage copy separately restricted to its controlled evidence directory and fixed Python command.",
+      "evidence": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-78408",
+        "scripts/qa/probe_image_advisory_conditions.py"
+      ]
+    },
+    {
+      "advisory": "CVE-2026-78409",
+      "packages": [
+        {
+          "name": "bsdutils",
+          "version": "1:2.41.5-0+deb13u1"
+        },
+        {
+          "name": "libblkid1",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "liblastlog2-2",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "libmount1",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "libsmartcols1",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "libuuid1",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "login",
+          "version": "1:4.16.0-2+really2.41.5-0+deb13u1"
+        },
+        {
+          "name": "mount",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "util-linux",
+          "version": "2.41.5-0+deb13u1"
+        }
+      ],
+      "disposition": "mitigated_not_patched",
+      "owner": "Nipun / repository maintainer",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "condition": "Affected mount/umount/nsenter executables removed. App processes forced UID/GID1001, empty effective and bounding caps and no-new-privileges; default confinement and no host namespaces/devices/unreviewed mounts. Libraries remain unpatched; release preflight rejects weakened controls. One-off storage copy separately restricted to its controlled evidence directory and fixed Python command.",
+      "evidence": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-78409",
+        "scripts/qa/probe_image_advisory_conditions.py"
+      ]
+    },
+    {
+      "advisory": "CVE-2026-78410",
+      "packages": [
+        {
+          "name": "bsdutils",
+          "version": "1:2.41.5-0+deb13u1"
+        },
+        {
+          "name": "libblkid1",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "liblastlog2-2",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "libmount1",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "libsmartcols1",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "libuuid1",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "login",
+          "version": "1:4.16.0-2+really2.41.5-0+deb13u1"
+        },
+        {
+          "name": "mount",
+          "version": "2.41.5-0+deb13u1"
+        },
+        {
+          "name": "util-linux",
+          "version": "2.41.5-0+deb13u1"
+        }
+      ],
+      "disposition": "mitigated_not_patched",
+      "owner": "Nipun / repository maintainer",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "condition": "Affected mount/umount/nsenter executables removed. App processes forced UID/GID1001, empty effective and bounding caps and no-new-privileges; default confinement and no host namespaces/devices/unreviewed mounts. Libraries remain unpatched; release preflight rejects weakened controls. One-off storage copy separately restricted to its controlled evidence directory and fixed Python command.",
+      "evidence": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-78410",
+        "scripts/qa/probe_image_advisory_conditions.py"
+      ]
+    },
+    {
+      "advisory": "CVE-2026-82049",
+      "packages": [
+        {
+          "name": "python",
+          "version": "3.11.16"
+        }
+      ],
+      "disposition": "fixed_by_backport",
+      "owner": "Nipun / repository maintainer",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "condition": "Exact original Python 3.11.16 tarfile hash patched with upstream realpath hard-link resolution; both data and tar filter adversarial relocation fixtures pass.",
+      "evidence": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-82049",
+        "scripts/qa/probe_image_advisory_conditions.py",
+        "https://github.com/python/cpython/commit/b8f23e307097552eaea2604383a12ab280520d0d",
+        "backend/docker/backport_tarfile_security.py"
+      ]
+    },
+    {
+      "advisory": "CVE-2026-82560",
+      "packages": [
+        {
+          "name": "perl-base",
+          "version": "5.40.1-6+deb13u1"
+        }
+      ],
+      "disposition": "affected_component_absent",
+      "owner": "Nipun / repository maintainer",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "condition": "Affected Pod::Text or Archive::Tar module absent from perl-base; actual Perl imports fail specifically with module-not-found.",
+      "evidence": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-82560",
+        "scripts/qa/probe_image_advisory_conditions.py"
+      ]
+    },
+    {
+      "advisory": "CVE-2026-85091",
+      "packages": [
+        {
+          "name": "zlib1g",
+          "version": "1:1.3.dfsg+really1.3.1-1+b1"
+        }
+      ],
+      "disposition": "incorrect_affected_range",
+      "owner": "Nipun / repository maintainer",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "condition": "Exact installed amd64 library hash equals official Debian binary. All five gz source files equal upstream v1.3.1; empty Debian patch series. Vulnerable gz_vacate/state->again introduced in later commit81cc0be are absent.",
+      "evidence": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-85091",
+        "scripts/qa/probe_image_advisory_conditions.py",
+        "docs/remediation/zlib-source-evidence.json",
+        "https://github.com/madler/zlib/commit/81cc0bebedd935daeb81b0b6e475d8786b51af3d"
+      ]
+    },
+    {
+      "advisory": "CVE-2026-93990",
+      "packages": [
+        {
+          "name": "libexpat1",
+          "version": "2.8.4-2"
+        }
+      ],
+      "disposition": "fixed_by_backport",
+      "owner": "Nipun / repository maintainer",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "condition": "Exact official libexpat1 2.8.4-2 includes the relevant upstream fix; same-version CPython pyexpat linked to it. Both actual XML parser APIs reject malformed UTF-16. Content-pinned build inputs.",
+      "evidence": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-93990",
+        "scripts/qa/probe_image_advisory_conditions.py"
+      ]
+    },
+    {
+      "advisory": "CVE-2026-9538",
+      "packages": [
+        {
+          "name": "perl-base",
+          "version": "5.40.1-6+deb13u1"
+        }
+      ],
+      "disposition": "affected_component_absent",
+      "owner": "Nipun / repository maintainer",
+      "reviewed_on": "2026-09-26",
+      "expires_on": "2026-10-26",
+      "condition": "Affected Pod::Text or Archive::Tar module absent from perl-base; actual Perl imports fail specifically with module-not-found.",
+      "evidence": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-9538",
+        "scripts/qa/probe_image_advisory_conditions.py"
+      ]
+    },
+    {
+      "advisory": "GHSA-wj6h-64fc-37mp",
+      "disposition": "existing_guarded_exception",
+      "policy": "tooling/dependency-exceptions.json"
+    }
+  ],
+  "limitation": "56 package/advisory matches across19 distinct IDs remain visible. Their conditions were tested in the exact candidate; five IDs are mitigated, not patched. This is not a zero-vulnerability or deployed-control claim. External signing/promotion remains a separate gate.",
+  "candidate_config_sha256": "sha256:98569f0ada3f0f948ef71b4bc4e02a0f1f7bd368d6d707d65f26142cb9e13385",
+  "previous_runtime_candidate": {
+    "image_id": "sha256:c2688994bbc3c5abfddb11f022013564070332ae3b15343f698dc9d74f40c536",
+    "manifest": "sha256:41aac4dacac946fca969740f5b4ab04d4d7215617ebb0628daa648c2d8550da5"
+  },
+  "final_scan_raw_sha256": "7b986adb026896cddd245e79a27ae92134b0d092dc315a71dddaba94ce69a53b",
+  "final_disposition_receipt": "docs/remediation/final-image-disposition-evidence.json"
+}

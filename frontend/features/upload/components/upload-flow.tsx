@@ -1,108 +1,61 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import dynamic from "next/dynamic";
-import {
-  ArrowLeft,
-  CheckCircle2,
-  User,
-  Users,
-} from "lucide-react";
-import { useUploadLinkByToken } from "@/features/passports/hooks/use-upload-links";
-import { uploadLinksApi } from "@/features/passports/api/upload-links.api";
-import {
-  cleanPassportReviewFields as cleanReviewFields,
-} from "@/features/passports/utils/passport-review";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { normalizePhoneNumber, PHONE_FORMAT_HELP } from "@/lib/utils/phone-number";
-import { apiErrorStatus } from "@/lib/api/error-status";
-import { UploadLinkErrorScreen } from "./upload-link-error-screen";
-import { ProcessingMotion } from "@/components/shared/processing-motion";
+import { uploadLinksApi } from "@/features/passports/api/upload-links.api";
+import { useUploadLinkByToken } from "@/features/passports/hooks/use-upload-links";
+import { isUploadFieldRequired, type RequiredUploadField } from "@/features/passports/types/upload-configuration";
 import type { PassportSubmission } from "@/types/passport.types";
-import { isUploadFieldRequired, MAX_PASSPORT_UPLOAD_BYTES, type RequiredUploadField } from "@/features/passports/types/upload-configuration";
-import { passportBundleError, getUploadFlowSettings } from "../services/configured-upload";
-import { PassportUploadPage } from "./passport-upload-page";
+import {
+  CheckCircle2,
+  User,
+  Users
+} from "lucide-react";
+import dynamic from "next/dynamic";
+import { useEffect, useRef, useState } from "react";
 import { useInstructionLanguage } from "../hooks/use-instruction-language";
-import { useSubmitClientPassportReview, useUploadPassport } from "../hooks/use-upload";
 import { usePublicFlowTelemetry } from "../hooks/use-public-flow-telemetry";
-import { isContactVerificationError, useUploadContactVerification } from "../hooks/use-upload-contact-verification";
-import { VerifiedContactSummary } from "./upload-contact-verification";
-import { uploadApi } from "../api/upload.api";
-import { normalizePassportFile } from "../services/passport-perspective-correction";
+import { useUploadContactVerification } from "../hooks/use-upload-contact-verification";
+import { useUploadDocuments } from "../hooks/use-upload-documents";
+import { useUploadFamily } from "../hooks/use-upload-family";
+import { useUploadOperation } from "../hooks/use-upload-operation";
+import { useUploadSubmission } from "../hooks/use-upload-submission";
+import { getUploadFlowSettings, passportBundleError } from "../services/configured-upload";
+import { acceptPassportPage } from "../services/passport-capture-transition";
+import {
+  passportDocumentVerificationGate,
+} from "../services/passport-document-verification";
 import {
   buildQualifierSelectionRequest,
   qualifierChoiceKey,
   type QualifierPath,
 } from "../services/relation-qualifier";
+import { runUploadFlowBootstrap } from "../services/upload-flow-bootstrap";
 import {
-  createUploadRecoveryRecord,
-} from "../services/upload-recovery";
-import {
-  passportDocumentVerificationGate,
-} from "../services/passport-document-verification";
-import {
-  canRetryExtractionFor,
-  createFamilyMembers,
   emptyDocumentBundle,
   errorMessage,
-  extractionNoticeFor,
-  getInitialReviewFields,
-  hasMissingRequiredFields,
-  hasValidReviewDates,
-  isExtractionTerminal,
-  isClientSubmissionComplete,
-  mergeMissingReviewFields,
-  passportHolderName,
-  resizeFamilyMembers,
-  sleep,
-  stageLabel,
-  submitErrorMessage,
-  uploadPersistenceErrorMessage,
+  isClientSubmissionComplete
 } from "../services/upload-flow-helpers";
 import {
   clearQualifierSelectionToken,
   createIdempotencyKey,
   readUploadRecoveryRecord,
-  writeQualifierSelectionToken,
-  writeUploadRecoveryRecord,
+  writeQualifierSelectionToken
 } from "../services/upload-flow-session";
-import { runUploadFlowBootstrap } from "../services/upload-flow-bootstrap";
-import {
-  EXTRACTION_POLL_INITIAL_DELAY_MS,
-  EXTRACTION_POLL_WINDOW_MS,
-  isTransientExtractionPollError,
-  nextExtractionPollDelay,
-} from "./extraction-polling";
+import { PassportUploadPage } from "./passport-upload-page";
+import { UploadLinkErrorScreen } from "./upload-link-error-screen";
+import { UploadFamilyReview, UploadSingleReview } from "./upload-review-panels";
+
 import { RelationQualifierStep } from "./relation-qualifier-step";
-import { SavedUploadDocuments } from "./saved-upload-documents";
 import { UploadDocumentOptions } from "./upload-flow-document-options";
 import {
-  FAMILY_RELATIONS,
-  MIN_FAMILY_MEMBERS,
-  MAX_FAMILY_MEMBERS,
-  GENDERS,
-  PASSIVE_PROGRESS_STEPS,
-} from "./upload-flow.constants";
-import {
-  ConfiguredClientFields,
-  CustomDetailFields,
-  CustomQuestionFields,
-  DepartureCitySelect,
   NameInput,
-  SelectInput,
+  SelectInput
 } from "./upload-flow-fields";
 import {
   SavedPassportActions,
   VisaSelfieChoice,
 } from "./upload-flow-passport-picker";
-import {
-  DocumentVerificationBlock,
-  ExtractionNotice,
-  ReviewFields,
-  ReviewLayout,
-  ReviewWarning,
-} from "./upload-flow-review";
 import {
   BackButton,
   CenteredLoader,
@@ -116,20 +69,20 @@ import {
   UploadRecoveryScreen,
   UploadSuccessScreen,
 } from "./upload-flow-status";
+import {
+  FAMILY_RELATIONS,
+  GENDERS,
+  MAX_FAMILY_MEMBERS,
+  MIN_FAMILY_MEMBERS,
+  PASSIVE_PROGRESS_STEPS,
+} from "./upload-flow.constants";
 import type {
   AgentEmployeeType,
-  ExtractionWaitResult,
-  FamilyMember,
   FlowMode,
   PassportDocumentBundle,
-  PendingPassportCrop,
-  UploadFlowStep as Step,
+  UploadFlowStep as Step
 } from "./upload-flow.types";
 
-const PassportManualCrop = dynamic(
-  () => import("./passport-manual-crop").then((module) => module.PassportManualCrop),
-  { loading: () => <CenteredLoader /> },
-);
 const SmartCamera = dynamic(
   () => import("./smart-camera").then((module) => module.SmartCamera),
   { loading: () => <CenteredLoader /> },
@@ -150,8 +103,6 @@ interface UploadFlowProps {
 export function UploadFlow({ token }: UploadFlowProps) {
   const { data: group, isLoading, error, refetch: refetchLink, isFetching: isFetchingLink } = useUploadLinkByToken(token);
   const [linkError, setLinkError] = useState<unknown>(null);
-  const { mutateAsync: uploadPassport } = useUploadPassport();
-  const { mutateAsync: submitClientReview } = useSubmitClientPassportReview();
 
   const [step, setStep] = useState<Step>("BOOTSTRAP");
   const [flowMode, setFlowMode] = useState<FlowMode | null>(null);
@@ -161,7 +112,6 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const [qualifierSelectionToken, setQualifierSelectionToken] = useState<string | null>(null);
   const [persistedQualifierChoice, setPersistedQualifierChoice] = useState<string | null>(null);
   const [isSavingQualifier, setIsSavingQualifier] = useState(false);
-  const [resumeSubmissionId, setResumeSubmissionId] = useState<string | null>(null);
   const [clientName, setClientName] = useState("");
   const [clientEmail, setClientEmail] = useState("");
   const [clientPhone, setClientPhone] = useState("");
@@ -186,38 +136,25 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const [canRetryExtraction, setCanRetryExtraction] = useState(false);
 
   const [familyGroupId] = useState(() => (typeof crypto !== "undefined" ? crypto.randomUUID() : `${Date.now()}`));
-  const [familyCountInput, setFamilyCountInput] = useState(String(MIN_FAMILY_MEMBERS));
-  const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>(() => createFamilyMembers(MIN_FAMILY_MEMBERS));
-  const [activeFamilyIndex, setActiveFamilyIndex] = useState(0);
+  const { familyMembers, activeFamilyIndex, familyCountInput, setActiveFamilyIndex,
+    updateFamilyMember, handleFamilyCountInput, normalizeFamilyCountInput } = useUploadFamily();
 
   const [uploadError, setUploadError] = useState<string | null>(null);
-  const [processingProgress, setProcessingProgress] = useState<number | null>(null);
-  const [processingStage, setProcessingStage] = useState<string>("Uploading securely");
-  const [extractingSubmissionId, setExtractingSubmissionId] = useState<string | null>(null);
-  const [isPreparingFile, setIsPreparingFile] = useState(false);
-  const [isScanningAgain, setIsScanningAgain] = useState(false);
-  const [isReplacingSavedPassport, setIsReplacingSavedPassport] = useState(false);
   const [visaSelfie, setVisaSelfie] = useState<File | null>(null);
   const [visaPhotoSource, setVisaPhotoSource] = useState<"camera" | "file" | null>(null);
   const [passportMethod, setPassportMethod] = useState<"camera" | "file">("camera");
   const [documentBundle, setDocumentBundle] = useState<PassportDocumentBundle>(() => emptyDocumentBundle());
   const [scannerPageSide, setScannerPageSide] = useState<"front" | "back">("front");
-  const [pendingPassportCrop, setPendingPassportCrop] = useState<PendingPassportCrop | null>(null);
-  const mountedRef = useRef(false);
-  const operationInFlightRef = useRef(false);
-  const requestControllerRef = useRef<AbortController | null>(null);
-  const scanAgainInFlightRef = useRef(false);
   const qualifierSaveInFlightRef = useRef(false);
   const initializedGroupTokenRef = useRef<string | null>(null);
-  const resumeSubmissionRef = useRef<PassportSubmission | null>(null);
-  const resumeInFlightRef = useRef<string | null>(null);
+  const flowSettings = getUploadFlowSettings(group);
   const {
-    uploadConfig, groupId, airportEnabled, departureCities,
+    uploadConfig, groupId,
     baseCityEnabled, staffCodeEnabled, agentEmployeeCodeEnabled, designationEnabled,
     agencyDealershipNameEnabled, mealPreferenceEnabled, selfieEnabled, selfieRequired,
     passportEnabled, passportRequired, allowFilesFromDevice, askNearestDomesticAirport,
-    relationWithQualifierEnabled, enabledCustomQuestions, enabledCustomDetails,
-  } = getUploadFlowSettings(group);
+    relationWithQualifierEnabled,
+  } = flowSettings;
   const instructions = useInstructionLanguage(token, uploadConfig);
   const requiredField = (field: RequiredUploadField) => isUploadFieldRequired(uploadConfig, field);
   const activeFamilyMember = familyMembers[activeFamilyIndex] ?? null;
@@ -243,62 +180,6 @@ export function UploadFlow({ token }: UploadFlowProps) {
     reportPublicFlowOnce,
   } = usePublicFlowTelemetry(token, hasActiveProgress);
 
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => {
-      mountedRef.current = false;
-      requestControllerRef.current?.abort();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!groupId || initializedGroupTokenRef.current === token) return;
-    initializedGroupTokenRef.current = token;
-
-    let cancelled = false;
-    void runUploadFlowBootstrap({
-      token,
-      relationWithQualifierEnabled,
-      isCancelled: () => cancelled,
-      reportPublicFlowOnce,
-      actions: {
-        setLinkError,
-        setSingleUploadIdempotencyKey,
-        setSubmission,
-        setClientName,
-        setStep,
-        setReviewFields,
-        setExtractionNotice,
-        setCanRetryExtraction,
-        setProcessingProgress,
-        setProcessingStage,
-        queueSubmissionResume: (savedSubmission) => {
-          resumeSubmissionRef.current = savedSubmission;
-          setResumeSubmissionId(savedSubmission.id);
-        },
-        setFlowMode,
-        setUploadError,
-        setQualifierSelectionToken,
-        setPersistedQualifierChoice,
-        setQualifierPath,
-        setQualifierRelationCode,
-        setQualifierOtherRelation,
-      },
-    });
-
-    return () => {
-      cancelled = true;
-      if (initializedGroupTokenRef.current === token) {
-        initializedGroupTokenRef.current = null;
-      }
-    };
-  }, [
-    groupId,
-    recoveryRetryNonce,
-    relationWithQualifierEnabled,
-    reportPublicFlowOnce,
-    token,
-  ]);
 
   const saveQualifierChoice = async () => {
     if (qualifierSaveInFlightRef.current) return;
@@ -341,7 +222,6 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const selectFamilyMember = (index: number) => {
     setActiveFamilyIndex(index);
     setDocumentBundle(emptyDocumentBundle());
-    setPendingPassportCrop(null);
     setUploadError(null);
   };
 
@@ -351,31 +231,58 @@ export function UploadFlow({ token }: UploadFlowProps) {
     setStep(mode === "single" ? "METHOD_SELECT" : "FAMILY_SETUP");
   };
 
-  const updateFamilyCount = (count: number) => {
-    const safeCount = Math.max(MIN_FAMILY_MEMBERS, Math.min(MAX_FAMILY_MEMBERS, count));
-    setFamilyCountInput(String(safeCount));
-    setFamilyMembers((current) => resizeFamilyMembers(current, safeCount));
-  };
+  const operation = useUploadOperation(token);
+  const documentController = useUploadDocuments({ token, step, flowMode, activeFamilyIndex, familyMembers, updateFamilyMember, clientName, setClientName, submission, setSubmission, setReviewFields, singleUploadIdempotencyKey, setSingleUploadIdempotencyKey, qualifierSelectionToken, activeVisaPhotoSource, setVisaSelfie, setDocumentBundle, selectFamilyMember, setStep, setUploadError, setExtractionNotice, setCanRetryExtraction, operation });
+  const { processUpload, handleBackToUploadMethods, replaceSavedPassport,
+    processingProgress, setProcessingProgress, processingStage, setProcessingStage, extractingSubmissionId,
+    isPreparingFile, isReplacingSavedPassport, resumeSubmissionId, queueSubmissionResume,
+  } = documentController;
 
-  const handleFamilyCountInput = (value: string) => {
-    if (!/^\d*$/.test(value)) return;
-    setFamilyCountInput(value);
-    if (!value) return;
-    const count = Number(value);
-    if (Number.isNaN(count)) return;
-    if (count >= MIN_FAMILY_MEMBERS && count <= MAX_FAMILY_MEMBERS) {
-      setFamilyMembers((current) => resizeFamilyMembers(current, count));
-    }
-  };
+  useEffect(() => {
+    if (!groupId || initializedGroupTokenRef.current === token) return;
+    initializedGroupTokenRef.current = token;
 
-  const normalizeFamilyCountInput = () => {
-    const count = Number(familyCountInput);
-    updateFamilyCount(Number.isNaN(count) ? MIN_FAMILY_MEMBERS : count);
-  };
+    let cancelled = false;
+    void runUploadFlowBootstrap({
+      token,
+      relationWithQualifierEnabled,
+      isCancelled: () => cancelled,
+      reportPublicFlowOnce,
+      actions: {
+        setLinkError,
+        setSingleUploadIdempotencyKey,
+        setSubmission,
+        setClientName,
+        setStep,
+        setReviewFields,
+        setExtractionNotice,
+        setCanRetryExtraction,
+        setProcessingProgress,
+        setProcessingStage,
+        queueSubmissionResume,
+        setFlowMode,
+        setUploadError,
+        setQualifierSelectionToken,
+        setPersistedQualifierChoice,
+        setQualifierPath,
+        setQualifierRelationCode,
+        setQualifierOtherRelation,
+      },
+    });
 
-  const updateFamilyMember = (index: number, patch: Partial<FamilyMember>) => {
-    setFamilyMembers((current) => current.map((member, itemIndex) => itemIndex === index ? { ...member, ...patch } : member));
-  };
+    return () => {
+      cancelled = true;
+      if (initializedGroupTokenRef.current === token) {
+        initializedGroupTokenRef.current = null;
+      }
+    };
+  }, [
+    groupId,
+    recoveryRetryNonce,
+    relationWithQualifierEnabled,
+    reportPublicFlowOnce,
+    token, queueSubmissionResume, setProcessingProgress, setProcessingStage,
+  ]);
 
   const contactVerification = useUploadContactVerification({
     token, step, submission, sessionId: singleUploadIdempotencyKey, name: clientName,
@@ -433,71 +340,20 @@ export function UploadFlow({ token }: UploadFlowProps) {
     await processUpload(null, null, "file", "file", false, activeVisaSelfie);
   };
 
-  const beginPassportCrop = (
+  const acceptPassportCapture = (
     file: File,
     pageSide: "front" | "back",
     source: "camera" | "file",
   ) => {
-    /*
-     * Manual passport cropping is intentionally unwired from upload links.
-     * Keep this activation code available for a future controlled rollout:
-     *
-     * setPendingPassportCrop({ file, pageSide, source });
-     * setUploadError(null);
-     * setStep("PASSPORT_CROP");
-     * return;
-     */
-    setDocumentBundle((current) => ({
-      ...current,
-      [pageSide]: file,
-      [`${pageSide}Source`]: source,
-      [`${pageSide}ManuallyCropped`]: false,
-    }));
+    const transition = acceptPassportPage(documentBundle, file, pageSide, source);
+    setDocumentBundle(transition.bundle);
     setUploadError(null);
-    if (source === "camera" && pageSide === "front" && !documentBundle.back) {
-      setScannerPageSide("back");
-      setStep("CAMERA");
-      return;
-    }
-    setStep("METHOD_SELECT");
+    setScannerPageSide(transition.scannerPageSide);
+    setStep(transition.nextStep);
   };
 
   const handleCameraCapture = (file: File) => {
-    beginPassportCrop(file, scannerPageSide, "camera");
-  };
-
-  const handlePassportCropConfirm = (
-    croppedFile: File,
-    manuallyCropped: boolean,
-  ) => {
-    if (!pendingPassportCrop) return;
-    const { pageSide, source } = pendingPassportCrop;
-    setDocumentBundle((current) => ({
-      ...current,
-      [pageSide]: croppedFile,
-      [`${pageSide}Source`]: source,
-      [`${pageSide}ManuallyCropped`]: manuallyCropped,
-    }));
-    setPendingPassportCrop(null);
-    setUploadError(null);
-    if (source === "camera" && pageSide === "front" && !documentBundle.back) {
-      setScannerPageSide("back");
-      setStep("CAMERA");
-      return;
-    }
-    setStep("METHOD_SELECT");
-  };
-
-  const handlePassportCropCancel = () => {
-    const pending = pendingPassportCrop;
-    setPendingPassportCrop(null);
-    setUploadError(null);
-    if (pending?.source === "camera") {
-      setScannerPageSide(pending.pageSide);
-      setStep("CAMERA");
-      return;
-    }
-    setStep("METHOD_SELECT");
+    acceptPassportCapture(file, scannerPageSide, "camera");
   };
 
   const openPassportScanner = (pageSide: "front" | "back") => {
@@ -512,9 +368,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const handleSelfieCapture = (file: File, source: "camera" | "file") => {
     setUploadError(null);
     if (flowMode === "family") {
-      setFamilyMembers((current) => current.map((member, index) => (
-        index === activeFamilyIndex ? { ...member, visaSelfie: file, visaPhotoSource: source } : member
-      )));
+      updateFamilyMember(activeFamilyIndex, { visaSelfie: file, visaPhotoSource: source });
     } else {
       setVisaSelfie(file);
       setVisaPhotoSource(source);
@@ -522,822 +376,20 @@ export function UploadFlow({ token }: UploadFlowProps) {
     setStep("METHOD_SELECT");
   };
 
-  const processUpload = async (
-    file: File | null,
-    passportBackFile: File | null,
-    acquisitionMode: "camera" | "file",
-    frontSource: "camera" | "file",
-    frontManuallyCropped: boolean,
-    passportPhotoFile?: File | null,
-    passportCoverFile?: File | null,
-    passportBackCoverFile?: File | null,
-  ) => {
-    if (operationInFlightRef.current) return;
-    const uploadName = flowMode === "family"
-      ? activeFamilyMember?.name
-      : (clientName.trim() || (file ? "Passport holder" : ""));
-    if (!uploadName || uploadName.trim().length < 2) {
-      setUploadError("Enter the passenger name before uploading.");
-      return;
-    }
-    const familyIndex = flowMode === "family" ? activeFamilyIndex : null;
-    const uploadIdempotencyKey = familyIndex === null
-      ? singleUploadIdempotencyKey
-      : familyMembers[familyIndex]?.uploadIdempotencyKey;
-    if (!uploadIdempotencyKey) {
-      setUploadError("Could not prepare a safe upload attempt. Please try again.");
-      return;
-    }
-
-    operationInFlightRef.current = true;
-    if (familyIndex === null) {
-      writeUploadRecoveryRecord(
-        token,
-        createUploadRecoveryRecord(uploadIdempotencyKey),
-      );
-    }
-    requestControllerRef.current?.abort();
-    const controller = new AbortController();
-    requestControllerRef.current = controller;
-    const stageTimers: number[] = [];
-    let persisted: PassportSubmission | null = null;
-    try {
-      setUploadError(null);
-      setExtractionNotice(null);
-      setCanRetryExtraction(false);
-      setIsPreparingFile(true);
-      // Live camera files and browser-cropped device files have already passed
-      // exact-final-image validation. Mixed bundles still report
-      // acquisitionMode "file", so keep the chosen manual crop unchanged and
-      // only run legacy perspective correction for an undecodable original.
-      const normalizedFrontFile = !file || frontSource === "camera" || frontManuallyCropped
-        ? file
-        : (await normalizePassportFile(file)).file;
-      const preparedFrontFile = acquisitionMode === "file" && normalizedFrontFile && normalizedFrontFile.size > MAX_PASSPORT_UPLOAD_BYTES
-        ? file
-        : normalizedFrontFile;
-      if (!mountedRef.current || controller.signal.aborted) return;
-      setIsPreparingFile(false);
-      setProcessingProgress(null);
-      setProcessingStage("Validating and saving your passport pages securely.");
-      setStep("UPLOADING");
-      stageTimers.push(window.setTimeout(() => {
-        if (mountedRef.current) {
-          setProcessingStage("Saving is taking a little longer. It is safe to keep this page open.");
-        }
-      }, 3_000));
-      stageTimers.push(window.setTimeout(() => {
-        if (mountedRef.current) {
-          setProcessingStage("Still confirming secure file storage. Please do not submit the same pages again yet.");
-        }
-      }, 15_000));
-      persisted = await uploadPassport({
-        token,
-        client_name: uploadName.trim(),
-        file: preparedFrontFile,
-        passportPhotoFile,
-        passportBackFile,
-        passportCoverFile,
-        passportBackCoverFile,
-        visaPhotoSource: activeVisaPhotoSource,
-        acquisitionMode,
-        uploadIdempotencyKey,
-        qualifierSelectionToken,
-        signal: controller.signal,
-      });
-      stageTimers.forEach((timer) => window.clearTimeout(timer));
-      stageTimers.length = 0;
-      if (!mountedRef.current || controller.signal.aborted) return;
-
-      if (familyIndex === null) {
-        writeUploadRecoveryRecord(
-          token,
-          createUploadRecoveryRecord(uploadIdempotencyKey, persisted.id),
-        );
-      }
-      if (familyIndex === null) setSubmission(persisted);
-      setProcessingProgress(persisted.processing_progress ?? 0.05);
-      setProcessingStage("Passport pages saved. Reading available details for review.");
-      const waitResult = !file || isExtractionTerminal(persisted)
-        ? {
-          submission: persisted,
-          notice: extractionNoticeFor(persisted),
-          retryAllowed: canRetryExtractionFor(persisted),
-        }
-        : await waitForExtraction(
-          persisted,
-          uploadIdempotencyKey,
-          controller.signal,
-          familyIndex === null,
-        );
-      const completed = waitResult.submission;
-      if (!mountedRef.current || controller.signal.aborted) return;
-      setDocumentBundle(emptyDocumentBundle());
-
-      if (familyIndex !== null) {
-        const fields = file ? getInitialReviewFields(completed.extracted_fields) : { given_names: uploadName.trim() };
-        setFamilyMembers((current) => current.map((member, index) => (
-          index === familyIndex
-            ? {
-              ...member,
-              submission: completed,
-              reviewFields: fields,
-              visaSelfie: null,
-              extractionNotice: waitResult.notice,
-              canRetryExtraction: waitResult.retryAllowed,
-            }
-            : member
-        )));
-        const nextIndex = familyMembers.findIndex(
-          (member, index) => index !== familyIndex && !member.submission,
-        );
-        if (nextIndex >= 0) {
-          selectFamilyMember(nextIndex);
-          setStep("METHOD_SELECT");
-        } else {
-          setStep("FAMILY_REVIEW");
-        }
-        return;
-      }
-
-      setSubmission(completed);
-      setExtractionNotice(waitResult.notice);
-      setCanRetryExtraction(waitResult.retryAllowed);
-      setVisaSelfie(null);
-      const fields = file ? getInitialReviewFields(completed.extracted_fields) : { given_names: uploadName.trim() };
-      setReviewFields(fields);
-      setClientName(passportHolderName(fields) || uploadName.trim());
-      setStep("REVIEW");
-    } catch (error: unknown) {
-      if (!mountedRef.current || controller.signal.aborted) return;
-      setIsPreparingFile(false);
-      setProcessingProgress(null);
-      setProcessingStage("Uploading securely");
-      if (persisted) {
-        const notice = "Automatic passport detail extraction failed. Your passport images are saved. Retry automatic reading or enter the details manually.";
-        if (familyIndex !== null) {
-          const fields = getInitialReviewFields(persisted.extracted_fields);
-          setFamilyMembers((current) => current.map((member, index) => (
-            index === familyIndex
-              ? {
-                ...member,
-                submission: persisted,
-                reviewFields: fields,
-                visaSelfie: null,
-                extractionNotice: notice,
-                canRetryExtraction: true,
-              }
-              : member
-          )));
-          setStep("FAMILY_REVIEW");
-        } else {
-          setSubmission(persisted);
-          const fields = getInitialReviewFields(persisted.extracted_fields);
-          setReviewFields(fields);
-          setClientName(passportHolderName(fields));
-          setExtractionNotice(notice);
-          setCanRetryExtraction(true);
-          setStep("REVIEW");
-        }
-      } else {
-        setUploadError(uploadPersistenceErrorMessage(error));
-        setStep("METHOD_SELECT");
-      }
-    } finally {
-      stageTimers.forEach((timer) => window.clearTimeout(timer));
-      if (requestControllerRef.current === controller) {
-        requestControllerRef.current = null;
-      }
-      operationInFlightRef.current = false;
-    }
-  };
-
-  const waitForExtraction = useCallback(async (
-    initial: PassportSubmission,
-    uploadSessionId: string,
-    signal: AbortSignal,
-    updateSingleReview = true,
-  ): Promise<ExtractionWaitResult> => {
-    // Saved-job state drives extraction labels and recovery. The full-screen
-    // artwork stays mounted through preparation, upload and this polling phase.
-    if (mountedRef.current && !signal.aborted) setExtractingSubmissionId(initial.id);
-    try {
-      let current = initial;
-      if (mountedRef.current) {
-        if (updateSingleReview) setSubmission(current);
-        setProcessingProgress(current.processing_progress ?? 0.05);
-        setProcessingStage(stageLabel(current.processing_stage ?? current.processing_job_status ?? "queued"));
-      }
-
-      const deadline = Date.now() + EXTRACTION_POLL_WINDOW_MS;
-      let delayMs = EXTRACTION_POLL_INITIAL_DELAY_MS;
-      let consecutiveNetworkFailures = 0;
-      while (Date.now() < deadline && !signal.aborted) {
-        await sleep(delayMs, signal);
-        try {
-          current = await uploadApi.getUploadStatus(
-            token,
-            current.id,
-            uploadSessionId,
-            signal,
-          );
-          consecutiveNetworkFailures = 0;
-        } catch (pollError: unknown) {
-          if (signal.aborted) throw pollError;
-          if (!isTransientExtractionPollError(pollError)) throw pollError;
-          consecutiveNetworkFailures += 1;
-          if (mountedRef.current) {
-            setProcessingStage("Reconnecting to your saved passport");
-          }
-          delayMs = nextExtractionPollDelay(delayMs, "failure");
-          continue;
-        }
-        if (mountedRef.current) {
-          if (updateSingleReview) setSubmission(current);
-          setProcessingProgress(current.processing_progress ?? null);
-          setProcessingStage(stageLabel(current.processing_stage ?? current.processing_job_status ?? "processing"));
-        }
-
-        if (isExtractionTerminal(current)) {
-          if (mountedRef.current) setProcessingProgress(1);
-          return {
-            submission: current,
-            notice: extractionNoticeFor(current),
-            retryAllowed: canRetryExtractionFor(current),
-          };
-        }
-        delayMs = nextExtractionPollDelay(delayMs, "success");
-      }
-      if (signal.aborted) throw new DOMException("Operation cancelled", "AbortError");
-
-      // Reconcile once without a delay at the boundary. This prevents the UI
-      // from presenting stale empty fields when the worker completed during the
-      // final backoff interval.
-      try {
-        current = await uploadApi.getUploadStatus(
-          token,
-          current.id,
-          uploadSessionId,
-          signal,
-        );
-        if (isExtractionTerminal(current)) {
-          if (mountedRef.current) setProcessingProgress(1);
-          return {
-            submission: current,
-            notice: extractionNoticeFor(current),
-            retryAllowed: canRetryExtractionFor(current),
-          };
-        }
-      } catch {
-        // The durable upload remains safe. The review screen explains that
-        // automatic reading could not yet be confirmed and offers a stored-image
-        // retry without asking the traveller to upload again.
-      }
-
-      return {
-        submission: current,
-        notice: consecutiveNetworkFailures > 0
-          ? "Your passport pages are saved. The connection remained unstable while checking the extracted details, so you can continue manually or retry reading the stored image."
-          : "Your passport pages are saved. Automatic reading is taking longer than expected, so you can enter the details manually now or retry reading the stored image.",
-        retryAllowed: true,
-      };
-    } finally {
-      if (mountedRef.current) {
-        setExtractingSubmissionId((current) => current === initial.id ? null : current);
-      }
-    }
-  }, [token]);
-
-  useEffect(() => {
-    if (
-      !resumeSubmissionId
-      || step !== "UPLOADING"
-      || resumeInFlightRef.current === resumeSubmissionId
-    ) {
-      return;
-    }
-    const savedSubmission = resumeSubmissionRef.current;
-    if (!savedSubmission || savedSubmission.id !== resumeSubmissionId) return;
-    resumeInFlightRef.current = resumeSubmissionId;
-    const controller = new AbortController();
-    requestControllerRef.current?.abort();
-    requestControllerRef.current = controller;
-    const clearResumeState = () => {
-      if (resumeInFlightRef.current !== savedSubmission.id) return;
-      resumeInFlightRef.current = null;
-      resumeSubmissionRef.current = null;
-      setResumeSubmissionId((current) => (
-        current === savedSubmission.id ? null : current
-      ));
-    };
-
-    void waitForExtraction(
-      savedSubmission,
-      singleUploadIdempotencyKey,
-      controller.signal,
-    )
-      .then((result) => {
-        if (!mountedRef.current || controller.signal.aborted) return;
-        setSubmission(result.submission);
-        setReviewFields(getInitialReviewFields(result.submission.extracted_fields));
-        setExtractionNotice(result.notice);
-        setCanRetryExtraction(result.retryAllowed);
-        clearResumeState();
-        setStep("REVIEW");
-      })
-      .catch((resumeError: unknown) => {
-        if (!mountedRef.current || controller.signal.aborted) return;
-        setReviewFields(getInitialReviewFields(savedSubmission.extracted_fields));
-        setExtractionNotice(
-          "Your passport pages are saved. Enter the details manually or retry reading the stored image.",
-        );
-        setCanRetryExtraction(true);
-        setUploadError(errorMessage(
-          resumeError,
-          "The saved upload could not reconnect automatically.",
-        ));
-        clearResumeState();
-        setStep("REVIEW");
-      })
-      .finally(() => {
-        if (requestControllerRef.current === controller) {
-          requestControllerRef.current = null;
-        }
-      });
-
-    return () => {
-      controller.abort();
-      if (requestControllerRef.current === controller) {
-        requestControllerRef.current = null;
-        if (resumeInFlightRef.current === resumeSubmissionId) {
-          resumeInFlightRef.current = null;
-        }
-      }
-    };
-  }, [
-    resumeSubmissionId,
-    singleUploadIdempotencyKey,
-    step,
-    waitForExtraction,
-  ]);
-
   const handleReviewFieldChange = (key: string, value: string) => {
     setReviewFields((current) => ({ ...current, [key]: value }));
   };
 
   const handleFamilyReviewFieldChange = (index: number, key: string, value: string) => {
-    setFamilyMembers((current) => current.map((member, itemIndex) => (
-      itemIndex === index ? { ...member, reviewFields: { ...member.reviewFields, [key]: value } } : member
-    )));
+    updateFamilyMember(index, (member) => ({ reviewFields: { ...member.reviewFields, [key]: value } }));
   };
 
-  const handleScanAgain = async () => {
-    if (!submission || isScanningAgain || scanAgainInFlightRef.current) return;
-    scanAgainInFlightRef.current = true;
-    requestControllerRef.current?.abort();
-    const controller = new AbortController();
-    requestControllerRef.current = controller;
-    try {
-      setUploadError(null);
-      setExtractionNotice("Retrying automatic reading from the passport image that is already saved.");
-      setIsScanningAgain(true);
-      setExtractingSubmissionId(submission.id);
-      const queued = await uploadApi.scanAgain(
-        token,
-        submission.id,
-        singleUploadIdempotencyKey,
-        controller.signal,
-      );
-      const waitResult = isExtractionTerminal(queued)
-        ? {
-          submission: queued,
-          notice: extractionNoticeFor(queued),
-          retryAllowed: canRetryExtractionFor(queued),
-        }
-        : await waitForExtraction(
-          queued,
-          singleUploadIdempotencyKey,
-          controller.signal,
-        );
-      if (!mountedRef.current || controller.signal.aborted) return;
-      setSubmission(waitResult.submission);
-      setExtractionNotice(waitResult.notice);
-      setCanRetryExtraction(waitResult.retryAllowed);
-      setReviewFields((current) => (
-        mergeMissingReviewFields(current, waitResult.submission.extracted_fields)
-      ));
-    } catch (error: unknown) {
-      if (!mountedRef.current || controller.signal.aborted) return;
-      setUploadError(errorMessage(error, "Could not scan the stored passport again. Please try again."));
-    } finally {
-      scanAgainInFlightRef.current = false;
-      if (mountedRef.current) {
-        setIsScanningAgain(false);
-        setExtractingSubmissionId((current) => current === submission.id ? null : current);
-      }
-      if (requestControllerRef.current === controller) {
-        requestControllerRef.current = null;
-      }
-    }
-  };
-
-  const handleFamilyScanAgain = async (index: number) => {
-    const savedSubmission = familyMembers[index]?.submission;
-    if (
-      !savedSubmission
-      || isScanningAgain
-      || scanAgainInFlightRef.current
-    ) return;
-    scanAgainInFlightRef.current = true;
-    requestControllerRef.current?.abort();
-    const controller = new AbortController();
-    requestControllerRef.current = controller;
-    try {
-      setUploadError(null);
-      setIsScanningAgain(true);
-      setExtractingSubmissionId(savedSubmission.id);
-      setFamilyMembers((current) => current.map((member, itemIndex) => (
-        itemIndex === index
-          ? {
-            ...member,
-            extractionNotice: "Retrying automatic reading from the passport image that is already saved.",
-          }
-          : member
-      )));
-      const uploadSessionId = familyMembers[index]?.uploadIdempotencyKey;
-      if (!uploadSessionId) {
-        throw new Error("The secure upload credential is unavailable.");
-      }
-      const queued = await uploadApi.scanAgain(
-        token,
-        savedSubmission.id,
-        uploadSessionId,
-        controller.signal,
-      );
-      const waitResult = isExtractionTerminal(queued)
-        ? {
-          submission: queued,
-          notice: extractionNoticeFor(queued),
-          retryAllowed: canRetryExtractionFor(queued),
-        }
-        : await waitForExtraction(
-          queued,
-          uploadSessionId,
-          controller.signal,
-          false,
-        );
-      if (!mountedRef.current || controller.signal.aborted) return;
-      setFamilyMembers((current) => current.map((member, itemIndex) => (
-        itemIndex === index
-          ? {
-            ...member,
-            submission: waitResult.submission,
-            reviewFields: mergeMissingReviewFields(
-              member.reviewFields,
-              waitResult.submission.extracted_fields,
-            ),
-            extractionNotice: waitResult.notice,
-            canRetryExtraction: waitResult.retryAllowed,
-          }
-          : member
-      )));
-    } catch (error: unknown) {
-      if (!mountedRef.current || controller.signal.aborted) return;
-      setUploadError(errorMessage(error, "Could not scan the stored passport again. Please try again."));
-    } finally {
-      scanAgainInFlightRef.current = false;
-      if (mountedRef.current) {
-        setIsScanningAgain(false);
-        setExtractingSubmissionId((current) => current === savedSubmission.id ? null : current);
-      }
-      if (requestControllerRef.current === controller) {
-        requestControllerRef.current = null;
-      }
-    }
-  };
-
-  const handleBackToUploadMethods = () => {
-    requestControllerRef.current?.abort();
-    setUploadError(null);
-    setProcessingProgress(null);
-    setProcessingStage("Uploading securely");
-    setStep("METHOD_SELECT");
-  };
-
-  const replaceSavedPassport = async (
-    targetFamilyIndex: number | null = flowMode === "family"
-      ? activeFamilyIndex
-      : null,
-  ) => {
-    const savedSubmission = targetFamilyIndex !== null
-      ? familyMembers[targetFamilyIndex]?.submission ?? null
-      : submission;
-    const uploadSessionId = targetFamilyIndex !== null
-      ? familyMembers[targetFamilyIndex]?.uploadIdempotencyKey
-      : singleUploadIdempotencyKey;
-    if (
-      !savedSubmission
-      || !uploadSessionId
-      || operationInFlightRef.current
-    ) return;
-    requestControllerRef.current?.abort();
-    requestControllerRef.current = null;
-    setIsScanningAgain(false);
-    operationInFlightRef.current = true;
-    setIsReplacingSavedPassport(true);
-    try {
-      setUploadError(null);
-      await uploadApi.discardUpload(
-        token,
-        savedSubmission.id,
-        uploadSessionId,
-      );
-      if (!mountedRef.current) return;
-      setDocumentBundle(emptyDocumentBundle());
-      if (targetFamilyIndex !== null) {
-        setFamilyMembers((current) => current.map((member, index) => (
-          index === targetFamilyIndex
-            ? {
-              ...member,
-              submission: null,
-              reviewFields: {},
-              extractionNotice: null,
-              canRetryExtraction: false,
-              uploadIdempotencyKey: createIdempotencyKey(),
-            }
-            : member
-        )));
-        selectFamilyMember(targetFamilyIndex);
-      } else {
-        const replacementIdempotencyKey = createIdempotencyKey();
-        setSubmission(null);
-        setReviewFields({});
-        setExtractionNotice(null);
-        setCanRetryExtraction(false);
-        setSingleUploadIdempotencyKey(replacementIdempotencyKey);
-        writeUploadRecoveryRecord(
-          token,
-          createUploadRecoveryRecord(replacementIdempotencyKey),
-        );
-      }
-      setStep("METHOD_SELECT");
-    } catch (error: unknown) {
-      if (mountedRef.current) {
-        setUploadError(errorMessage(
-          error,
-          "The saved passport could not be replaced safely. It has been preserved; please try again.",
-        ));
-      }
-    } finally {
-      operationInFlightRef.current = false;
-      if (mountedRef.current) setIsReplacingSavedPassport(false);
-    }
-  };
-
-  const handleFinalSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!submission || operationInFlightRef.current) return;
-    const contactProof = contactVerification.getProof(submission.id, singleUploadIdempotencyKey, clientEmail, clientPhone);
-    if (!contactProof) { contactVerification.edit(submission.id); return; }
-    if (clientPhone.trim() && !normalizePhoneNumber(clientPhone)) {
-      setUploadError(PHONE_FORMAT_HELP);
-      return;
-    }
-    const verificationGate = passportDocumentVerificationGate(submission);
-    if (!canReviewSubmission(submission)) {
-      setUploadError(verificationGate.message);
-      return;
-    }
-    if (!requiresPassportReview(submission) && clientName.trim().length < 2) {
-      setUploadError("Please enter your full name before submitting.");
-      return;
-    }
-    if (requiresPassportReview(submission) && hasMissingRequiredFields(reviewFields)) {
-      setUploadError("Please fill all required passport fields before submitting.");
-      return;
-    }
-    if (requiresPassportReview(submission) && !hasValidReviewDates(reviewFields)) {
-      setUploadError("Enter valid passport dates in DD/MM/YYYY format. Check that birth, issue, and expiry are chronological and no entered birth or issue date is in the future.");
-      return;
-    }
-    if (airportEnabled && requiredField("departure_city") && !departureCity) {
-      setUploadError("Please select your nearest international airport before submitting.");
-      return;
-    }
-    if (baseCityEnabled && requiredField("base_city") && !baseCity.trim()) {
-      setUploadError("Please enter your base city before submitting.");
-      return;
-    }
-    if (askNearestDomesticAirport && requiredField("nearest_domestic_airport") && !nearestDomesticAirport.trim()) {
-      setUploadError("Please enter your nearest domestic airport before submitting.");
-      return;
-    }
-    if (staffCodeEnabled && requiredField("staff_code") && !staffCode.trim()) {
-      setUploadError("Please enter your staff code before submitting.");
-      return;
-    }
-    if (agentEmployeeCodeEnabled && requiredField("agent_employee_code") && !agentEmployeeCode.trim()) {
-      setUploadError(`Please enter your ${uploadConfig.agent_employee_code_label.toLowerCase()}.`);
-      return;
-    }
-    if (designationEnabled && requiredField("designation") && !designation.trim()) {
-      setUploadError("Please enter your designation before submitting.");
-      return;
-    }
-    if (agencyDealershipNameEnabled && requiredField("agency_dealership_name") && !agencyDealershipName.trim()) {
-      setUploadError(`Please enter your ${uploadConfig.agency_dealership_name_label.toLowerCase()}.`);
-      return;
-    }
-    if (mealPreferenceEnabled && requiredField("meal_preference") && !mealPreference) {
-      setUploadError("Please select a meal preference before submitting.");
-      return;
-    }
-    if (enabledCustomQuestions.some((question) => question.required !== false && !customAnswers[question.id])) {
-      setUploadError("Please answer every custom question before submitting.");
-      return;
-    }
-    if (enabledCustomDetails.some((detail) => detail.required !== false && !customDetailAnswers[detail.id]?.trim())) {
-      setUploadError("Please complete every custom detail before submitting.");
-      return;
-    }
-
-    requestControllerRef.current?.abort();
-    requestControllerRef.current = null;
-    setIsScanningAgain(false);
-    operationInFlightRef.current = true;
-    try {
-      setUploadError(null);
-      setStep("SUBMITTING");
-      const submitted = await submitClientReview({
-        submissionId: submission.id,
-        uploadSessionId: singleUploadIdempotencyKey,
-        group_token: token,
-        confirmed_fields: cleanReviewFields(reviewFields),
-        client_email: clientEmail,
-        client_phone: clientPhone,
-        phone_verification_id: contactProof.id,
-        departure_city: departureCity || null,
-        base_city: baseCity.trim() || null,
-        nearest_domestic_airport: nearestDomesticAirport.trim() || null,
-        staff_code: staffCode.trim() || null,
-        agent_employee_type: null,
-        agent_employee_code: agentEmployeeCode || null,
-        designation: designation.trim() || null,
-        agency_dealership_name: agencyDealershipName.trim() || null,
-        meal_preference: mealPreference || null,
-        submission_mode: "single",
-        custom_answers: enabledCustomQuestions.filter((question) => customAnswers[question.id]?.trim()).map((question) => ({
-          question_id: question.id,
-          value: customAnswers[question.id],
-        })),
-        custom_detail_answers: enabledCustomDetails.filter((detail) => customDetailAnswers[detail.id]?.trim()).map((detail) => ({
-          detail_id: detail.id,
-          value: customDetailAnswers[detail.id],
-        })),
-      });
-      setSubmission(submitted);
-      setClientName(passportHolderName(reviewFields));
-      setStep("SUCCESS");
-    } catch (error: unknown) {
-      setUploadError(submitErrorMessage(error));
-      if (isContactVerificationError(error)) contactVerification.invalidate(submission.id);
-      setStep("REVIEW");
-      if ([404, 410].includes(apiErrorStatus(error) ?? 0)) {
-        await uploadLinksApi.getByToken(token).catch(setLinkError);
-      }
-    } finally {
-      operationInFlightRef.current = false;
-    }
-  };
-
-  const handleFamilySubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (operationInFlightRef.current) return;
-    const headEmail = familyMembers[0]?.email ?? "";
-    const headPhone = familyMembers[0]?.phone ?? "";
-    const unverified = familyMembers.find((member) => member.submission && !isClientSubmissionComplete(member.submission) && !contactVerification.getProof(member.submission.id, member.uploadIdempotencyKey, member.email, member.phone));
-    if (unverified?.submission) { contactVerification.edit(unverified.submission.id); return; }
-    if ((headPhone.trim() && !normalizePhoneNumber(headPhone))
-      || familyMembers.some((member) => member.phone.trim() && !normalizePhoneNumber(member.phone))) {
-      setUploadError(PHONE_FORMAT_HELP);
-      return;
-    }
-    const blockedVerification = familyMembers.find((member) => (
-      member.submission !== null
-      && !canReviewSubmission(member.submission)
-    ));
-    if (blockedVerification?.submission) {
-      setUploadError(
-        `${blockedVerification.name || "A family member"}: ${
-          passportDocumentVerificationGate(blockedVerification.submission).message
-        }`,
-      );
-      return;
-    }
-    if (airportEnabled && requiredField("departure_city") && !departureCity) {
-      setUploadError("Please select the family nearest international airport before submitting.");
-      return;
-    }
-    if (!headEmail.trim() || !headPhone.trim()) {
-      setUploadError("Head of family email and phone number are required.");
-      return;
-    }
-    const missingUpload = familyMembers.find((member) => !member.submission);
-    if (missingUpload) {
-      setUploadError(`Upload passport for ${missingUpload.name || "every family member"} before submitting.`);
-      return;
-    }
-    const invalidReview = familyMembers.find((member) => (
-      member.submission && requiresPassportReview(member.submission) && (hasMissingRequiredFields(member.reviewFields) || !hasValidReviewDates(member.reviewFields))
-    ));
-    if (invalidReview) {
-      setUploadError(`Fill all passport fields for ${invalidReview.name}.`);
-      return;
-    }
-    const missingConfiguredField = familyMembers.find((member) => (
-      (baseCityEnabled && requiredField("base_city") && !member.baseCity.trim())
-      || (askNearestDomesticAirport && requiredField("nearest_domestic_airport") && !member.nearestDomesticAirport.trim())
-      || (staffCodeEnabled && requiredField("staff_code") && !member.staffCode.trim())
-      || (agentEmployeeCodeEnabled && requiredField("agent_employee_code") && !member.agentEmployeeCode.trim())
-      || (designationEnabled && requiredField("designation") && !member.designation.trim())
-      || (
-        agencyDealershipNameEnabled
-        && requiredField("agency_dealership_name")
-        && !member.agencyDealershipName.trim()
-      )
-      || (mealPreferenceEnabled && requiredField("meal_preference") && !member.mealPreference)
-      || enabledCustomQuestions.some(
-        (question) => question.required !== false && !member.customAnswers[question.id],
-      )
-      || enabledCustomDetails.some(
-        (detail) => detail.required !== false && !member.customDetailAnswers[detail.id]?.trim(),
-      )
-    ));
-    if (missingConfiguredField) {
-      setUploadError(`Complete the required group fields for ${missingConfiguredField.name}.`);
-      return;
-    }
-
-    requestControllerRef.current?.abort();
-    requestControllerRef.current = null;
-    setIsScanningAgain(false);
-    operationInFlightRef.current = true;
-    try {
-      setUploadError(null);
-      setStep("SUBMITTING");
-      for (const [index, member] of familyMembers.entries()) {
-        if (!member.submission || isClientSubmissionComplete(member.submission)) continue;
-        const contactProof = contactVerification.getProof(member.submission.id, member.uploadIdempotencyKey, member.email, member.phone);
-        if (!contactProof) throw { code: "CONTACT_VERIFICATION_REQUIRED", message: "Verify your WhatsApp number again before submitting." };
-        const submitted = await submitClientReview({
-          submissionId: member.submission.id,
-          uploadSessionId: member.uploadIdempotencyKey,
-          group_token: token,
-          confirmed_fields: cleanReviewFields(member.reviewFields),
-          client_email: member.email.trim(),
-          client_phone: member.phone.trim(),
-          phone_verification_id: contactProof.id,
-          departure_city: departureCity || null,
-          base_city: member.baseCity.trim() || null,
-          nearest_domestic_airport: member.nearestDomesticAirport.trim() || null,
-          staff_code: member.staffCode.trim() || null,
-          agent_employee_type: null,
-          agent_employee_code: member.agentEmployeeCode || null,
-          designation: member.designation.trim() || null,
-          agency_dealership_name:
-            member.agencyDealershipName.trim() || null,
-          meal_preference: member.mealPreference || null,
-          submission_mode: "family",
-          family_group_id: familyGroupId,
-          family_member_index: index,
-          family_relation: member.relation,
-          family_gender: member.gender,
-          family_head_name: familyMembers[0]?.name || member.name,
-          family_head_email: headEmail,
-          family_head_phone: headPhone,
-          custom_answers: enabledCustomQuestions.filter((question) => member.customAnswers[question.id]?.trim()).map((question) => ({
-            question_id: question.id,
-            value: member.customAnswers[question.id],
-          })),
-          custom_detail_answers: enabledCustomDetails.filter((detail) => member.customDetailAnswers[detail.id]?.trim()).map((detail) => ({
-            detail_id: detail.id,
-            value: member.customDetailAnswers[detail.id],
-          })),
-        });
-        updateFamilyMember(index, { submission: submitted });
-      }
-      setStep("SUCCESS");
-    } catch (error: unknown) {
-      setUploadError(submitErrorMessage(error));
-      if (isContactVerificationError(error)) familyMembers.forEach((member) => { if (member.submission) contactVerification.invalidate(member.submission.id); });
-      setStep("FAMILY_REVIEW");
-      if ([404, 410].includes(apiErrorStatus(error) ?? 0)) {
-        await uploadLinksApi.getByToken(token).catch(setLinkError);
-      }
-    } finally {
-      operationInFlightRef.current = false;
-    }
-  };
+  const { handleFinalSubmit, handleFamilySubmit } = useUploadSubmission({
+    token, submission, singleUploadIdempotencyKey, familyMembers, familyGroupId, updateFamilyMember,
+    contactVerification, operation, setSubmission, setClientName, setStep, setUploadError, setLinkError,
+    canReviewSubmission, requiresPassportReview, settings: flowSettings,
+    draft: { clientName, clientEmail, clientPhone, reviewFields, departureCity, baseCity, nearestDomesticAirport, staffCode, agentEmployeeCode, designation, agencyDealershipName, mealPreference, customAnswers, customDetailAnswers },
+  });
 
   const retrySavedUploadRecovery = () => {
     initializedGroupTokenRef.current = null;
@@ -1347,7 +399,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
     setRecoveryRetryNonce((current) => current + 1);
   };
 
-  const documentChoices = <UploadDocumentOptions config={uploadConfig} allowFilesFromDevice={allowFilesFromDevice} flowMode={flowMode} clientName={clientName} onClientName={setClientName} passportMethod={passportMethod} bundle={documentBundle} onBundleChange={setDocumentBundle} onScan={openPassportScanner} onFileSelect={(pageSide, file) => beginPassportCrop(file, pageSide, "file")} onUpload={handleBundleUpload} onSkip={continueWithoutPassport} onOpenUpload={() => {
+  const documentChoices = <UploadDocumentOptions config={uploadConfig} allowFilesFromDevice={allowFilesFromDevice} flowMode={flowMode} clientName={clientName} onClientName={setClientName} passportMethod={passportMethod} bundle={documentBundle} onBundleChange={setDocumentBundle} onScan={openPassportScanner} onFileSelect={(pageSide, file) => acceptPassportCapture(file, pageSide, "file")} onUpload={handleBundleUpload} onSkip={continueWithoutPassport} onOpenUpload={() => {
     if (passportMethod !== "file") setDocumentBundle(emptyDocumentBundle());
     setPassportMethod("file");
     setUploadError(null);
@@ -1374,19 +426,6 @@ export function UploadFlow({ token }: UploadFlowProps) {
 
   if (isPreparingFile) {
     return <ProcessingScreen title="Preparing Passport Image" description="Straightening the capture and optimizing it before secure upload." showPassportMotion={Boolean(documentBundle.front)} />;
-  }
-
-  if (step === "PASSPORT_CROP" && pendingPassportCrop) {
-    return (
-      <PassportManualCrop
-        key={`${pendingPassportCrop.pageSide}:${pendingPassportCrop.source}:${pendingPassportCrop.file.name}:${pendingPassportCrop.file.lastModified}`}
-        file={pendingPassportCrop.file}
-        pageSide={pendingPassportCrop.pageSide}
-        source={pendingPassportCrop.source}
-        onConfirm={handlePassportCropConfirm}
-        onCancel={handlePassportCropCancel}
-      />
-    );
   }
 
   if (step === "PASSPORT_UPLOAD" && passportEnabled && allowFilesFromDevice) {
@@ -1478,263 +517,19 @@ export function UploadFlow({ token }: UploadFlowProps) {
   if (contactVerification.page) return contactVerification.page;
 
   if (step === "REVIEW" && submission) {
-    const verificationGate = passportDocumentVerificationGate(submission);
-    const reviewAllowed = canReviewSubmission(submission);
-    const hasPassport = requiresPassportReview(submission);
-    return (
-      <ReviewLayout
-        title={!hasPassport ? "Review Traveller Details" : reviewAllowed
-          ? "Verify Passport Details"
-          : "Passport Verification Required"}
-        description={reviewAllowed
-          ? "Please check every field carefully before submitting."
-          : "The saved upload must be verified before any passport details can be reviewed or submitted."}
-        documents={<SavedUploadDocuments submission={submission} token={token} uploadSessionId={singleUploadIdempotencyKey} />}
-        onBack={() => contactVerification.edit(submission.id)}
-      >
-        {!reviewAllowed && !verificationGate.accepted ? (
-          <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-xl shadow-slate-200/50 sm:p-6">
-            {extractingSubmissionId === submission.id && <ProcessingMotion variant="passport" compact className="mx-auto mb-4" />}
-            <DocumentVerificationBlock
-              gate={verificationGate}
-              onRetry={() => void handleScanAgain()}
-              onReplace={() => void replaceSavedPassport(null)}
-              isRetrying={isScanningAgain}
-              isReplacing={isReplacingSavedPassport}
-            />
-            <ErrorMessage message={uploadError} />
-          </div>
-        ) : (
-          <form onSubmit={handleFinalSubmit} className="rounded-3xl border border-slate-100 bg-white p-5 shadow-xl shadow-slate-200/50 sm:p-6">
-            {extractingSubmissionId === submission.id && <ProcessingMotion variant="passport" compact className="mx-auto mb-4" />}
-            {hasPassport && <ReviewWarning />}
-            <ExtractionNotice message={extractionNotice} />
-            <ErrorMessage message={uploadError} />
-            {canRetryExtraction && (
-              <div className="mb-5 rounded-xl border border-blue-100 bg-blue-50 p-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-sm font-medium text-blue-800">
-                    Automatic reading failed or timed out. Your saved image can be retried without uploading it again.
-                  </p>
-                  <Button type="button" variant="secondary" size="sm" onClick={handleScanAgain} disabled={isScanningAgain}>
-                    {isScanningAgain ? "Reading saved image" : "Retry automatic reading"}
-                  </Button>
-                </div>
-              </div>
-            )}
-            {hasPassport ? <ReviewFields fields={reviewFields} onChange={handleReviewFieldChange} /> : (
-              <label className="block space-y-2 text-sm font-semibold text-slate-700">Full name *<NameInput value={clientName} onChange={(value) => { setClientName(value); handleReviewFieldChange("given_names", value); }} /></label>
-            )}
-            <VerifiedContactSummary email={clientEmail} phone={clientPhone} onEdit={() => contactVerification.edit(submission.id)} />
-            {airportEnabled && <DepartureCitySelect value={departureCity} cities={departureCities} onChange={setDepartureCity} className="mt-4" required={requiredField("departure_city")} />}
-            <ConfiguredClientFields
-              config={uploadConfig}
-              baseCityEnabled={baseCityEnabled}
-              askNearestDomesticAirport={askNearestDomesticAirport}
-              staffCodeEnabled={staffCodeEnabled}
-              agentEmployeeCodeEnabled={agentEmployeeCodeEnabled}
-              designationEnabled={designationEnabled}
-              agencyDealershipNameEnabled={agencyDealershipNameEnabled}
-              mealPreferenceEnabled={mealPreferenceEnabled}
-              baseCity={baseCity}
-              nearestDomesticAirport={nearestDomesticAirport}
-              staffCode={staffCode}
-              agentEmployeeType={agentEmployeeType}
-              agentEmployeeCode={agentEmployeeCode}
-              designation={designation}
-              agencyDealershipName={agencyDealershipName}
-              mealPreference={mealPreference}
-              onBaseCity={setBaseCity}
-              onNearestDomesticAirport={setNearestDomesticAirport}
-              onStaffCode={setStaffCode}
-              onAgentEmployeeType={setAgentEmployeeType}
-              onAgentEmployeeCode={setAgentEmployeeCode}
-              onDesignation={setDesignation}
-              onAgencyDealershipName={setAgencyDealershipName}
-              onMealPreference={setMealPreference}
-            />
-            <CustomQuestionFields
-              questions={enabledCustomQuestions}
-              answers={customAnswers}
-              onChange={(questionId, value) => setCustomAnswers((current) => ({
-                ...current,
-                [questionId]: value,
-              }))}
-            />
-            <CustomDetailFields
-              details={enabledCustomDetails}
-              answers={customDetailAnswers}
-              onChange={(detailId, value) => setCustomDetailAnswers((current) => ({
-                ...current,
-                [detailId]: value,
-              }))}
-            />
-            <Button
-              type="submit"
-              size="lg"
-              disabled={isScanningAgain}
-              className="mt-6 h-12 w-full rounded-xl bg-blue-600 text-base font-semibold shadow-md shadow-blue-600/20 hover:bg-blue-700"
-            >
-              {submission.manual_review_submission_allowed ? "Submit for staff review" : hasPassport ? "Submit Verified Details" : "Submit Traveller Details"}
-            </Button>
-          </form>
-        )}
-      </ReviewLayout>
-    );
+    return <UploadSingleReview token={token} settings={flowSettings} documents={documentController} contactVerification={contactVerification} canReviewSubmission={canReviewSubmission} uploadError={uploadError} departureCity={departureCity} setDepartureCity={setDepartureCity} onSubmit={handleFinalSubmit}
+      submission={submission} singleUploadIdempotencyKey={singleUploadIdempotencyKey}
+      review={{ clientName, clientEmail, clientPhone, reviewFields, departureCity, baseCity, nearestDomesticAirport, staffCode, agentEmployeeCode, designation, agencyDealershipName, mealPreference, customAnswers, customDetailAnswers }}
+      configuredFields={{ config: uploadConfig, baseCityEnabled: baseCityEnabled, askNearestDomesticAirport: askNearestDomesticAirport, staffCodeEnabled: staffCodeEnabled, agentEmployeeCodeEnabled: agentEmployeeCodeEnabled, designationEnabled: designationEnabled, agencyDealershipNameEnabled: agencyDealershipNameEnabled, mealPreferenceEnabled: mealPreferenceEnabled, baseCity: baseCity, nearestDomesticAirport: nearestDomesticAirport, staffCode: staffCode, agentEmployeeType: agentEmployeeType, agentEmployeeCode: agentEmployeeCode, designation: designation, agencyDealershipName: agencyDealershipName, mealPreference: mealPreference, onBaseCity: setBaseCity, onNearestDomesticAirport: setNearestDomesticAirport, onStaffCode: setStaffCode, onAgentEmployeeType: setAgentEmployeeType, onAgentEmployeeCode: setAgentEmployeeCode, onDesignation: setDesignation, onAgencyDealershipName: setAgencyDealershipName, onMealPreference: setMealPreference }}
+      requiresPassportReview={requiresPassportReview} extractionNotice={extractionNotice} canRetryExtraction={canRetryExtraction}
+      setClientName={setClientName} handleReviewFieldChange={handleReviewFieldChange}
+      setCustomAnswers={setCustomAnswers} setCustomDetailAnswers={setCustomDetailAnswers} />;
   }
-
   if (step === "FAMILY_REVIEW") {
-    return (
-      <div className="min-h-screen bg-slate-50 px-3 py-4 font-sans sm:px-4 sm:py-10">
-        <form onSubmit={handleFamilySubmit} className="mx-auto w-full max-w-5xl space-y-4 sm:space-y-5">
-          <button type="button" onClick={() => setStep("METHOD_SELECT")} className="inline-flex items-center gap-2 text-sm font-medium text-slate-600">
-            <ArrowLeft className="h-4 w-4" />
-            Back to uploads
-          </button>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Review Family Details</h1>
-            <p className="mt-2 text-sm leading-6 text-slate-600">Check all family member details together before final submission.</p>
-          </div>
-          <ErrorMessage message={uploadError} />
-          {familyMembers.map((member, index) => {
-            const verificationGate = member.submission
-              ? passportDocumentVerificationGate(member.submission)
-              : null;
-            const reviewAllowed = Boolean(member.submission && canReviewSubmission(member.submission));
-            const hasPassport = Boolean(member.submission?.image_s3_key);
-            return (
-              <fieldset key={member.localId} disabled={Boolean(member.submission && isClientSubmissionComplete(member.submission))} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-xl shadow-slate-200/50 sm:rounded-3xl sm:p-5">
-              <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0">
-                  <h2 className="text-lg font-bold text-slate-900">{member.name}</h2>
-                  <p className="text-sm text-slate-500">{member.relation} • {member.gender}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    selectFamilyMember(index);
-                    setStep("METHOD_SELECT");
-                  }}
-                  className="inline-flex h-9 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 px-3 text-sm font-semibold text-blue-700"
-                >
-                  {member.submission ? "Review document options" : "Continue document step"}
-                </button>
-              </div>
-              {extractingSubmissionId === member.submission?.id && <ProcessingMotion variant="passport" compact className="mx-auto mb-4" />}
-              <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
-                {member.submission ? <SavedUploadDocuments submission={member.submission} token={token} uploadSessionId={member.uploadIdempotencyKey} /> : <p className="text-sm text-slate-500">Complete this member&apos;s document step to continue.</p>}
-                {!verificationGate ? (
-                  <div role="alert" className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-medium leading-6 text-amber-950">
-                    Complete this member&apos;s document step before reviewing their details.
-                  </div>
-                ) : !reviewAllowed && !verificationGate.accepted ? (
-                  <DocumentVerificationBlock
-                    gate={verificationGate}
-                    onRetry={() => void handleFamilyScanAgain(index)}
-                    onReplace={() => void replaceSavedPassport(index)}
-                    isRetrying={isScanningAgain}
-                    isReplacing={isReplacingSavedPassport}
-                  />
-                ) : (
-                  <div>
-                    {hasPassport && <ReviewWarning />}
-                    <ExtractionNotice message={member.extractionNotice} />
-                    {member.canRetryExtraction && (
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        size="sm"
-                        className="mb-4"
-                        onClick={() => handleFamilyScanAgain(index)}
-                        disabled={isScanningAgain}
-                      >
-                        {isScanningAgain ? "Reading saved image" : "Retry reading saved image"}
-                      </Button>
-                    )}
-                    {hasPassport ? <ReviewFields fields={member.reviewFields} onChange={(key, value) => handleFamilyReviewFieldChange(index, key, value)} /> : <label className="block space-y-2 text-sm font-semibold text-slate-700">Full name *<NameInput value={member.name} onChange={(value) => { updateFamilyMember(index, { name: value }); handleFamilyReviewFieldChange(index, "given_names", value); }} /></label>}
-                  </div>
-                )}
-              </div>
-              {reviewAllowed && (
-                <>
-                  <VerifiedContactSummary email={member.email} phone={member.phone} onEdit={() => { if (member.submission) contactVerification.edit(member.submission.id); }} />
-                  <ConfiguredClientFields
-              config={uploadConfig}
-                    baseCityEnabled={baseCityEnabled}
-                    askNearestDomesticAirport={askNearestDomesticAirport}
-                    staffCodeEnabled={staffCodeEnabled}
-                    agentEmployeeCodeEnabled={agentEmployeeCodeEnabled}
-                    designationEnabled={designationEnabled}
-                    agencyDealershipNameEnabled={agencyDealershipNameEnabled}
-                    mealPreferenceEnabled={mealPreferenceEnabled}
-                    baseCity={member.baseCity}
-                    nearestDomesticAirport={member.nearestDomesticAirport}
-                    staffCode={member.staffCode}
-                    agentEmployeeType={member.agentEmployeeType}
-                    agentEmployeeCode={member.agentEmployeeCode}
-                    designation={member.designation}
-                    agencyDealershipName={member.agencyDealershipName}
-                    mealPreference={member.mealPreference}
-                    onBaseCity={(value) => updateFamilyMember(index, { baseCity: value })}
-                    onNearestDomesticAirport={(value) => updateFamilyMember(index, { nearestDomesticAirport: value })}
-                    onStaffCode={(value) => updateFamilyMember(index, { staffCode: value })}
-                    onAgentEmployeeType={(value) => updateFamilyMember(index, { agentEmployeeType: value })}
-                    onAgentEmployeeCode={(value) => updateFamilyMember(index, { agentEmployeeCode: value })}
-                    onDesignation={(value) => updateFamilyMember(index, { designation: value })}
-                    onAgencyDealershipName={(value) => updateFamilyMember(index, { agencyDealershipName: value })}
-                    onMealPreference={(value) => updateFamilyMember(index, { mealPreference: value })}
-                  />
-                  <CustomQuestionFields
-                    questions={enabledCustomQuestions}
-                    answers={member.customAnswers}
-                    onChange={(questionId, value) => updateFamilyMember(index, {
-                      customAnswers: {
-                        ...member.customAnswers,
-                        [questionId]: value,
-                      },
-                    })}
-                  />
-                  <CustomDetailFields
-                    details={enabledCustomDetails}
-                    answers={member.customDetailAnswers}
-                    onChange={(detailId, value) => updateFamilyMember(index, {
-                      customDetailAnswers: {
-                        ...member.customDetailAnswers,
-                        [detailId]: value,
-                      },
-                    })}
-                  />
-                </>
-              )}
-            </fieldset>
-            );
-          })}
-          {!hasBlockedFamilyVerification ? (
-            <>
-              <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-xl shadow-slate-200/50 sm:rounded-3xl sm:p-5">
-                <h2 className="text-lg font-bold text-slate-900">Head of family contact</h2>
-                <p className="mt-1 text-sm leading-6 text-slate-500">The first member’s verified email and WhatsApp number are used as the head of family contact. Tickets and visas are sent to each member’s verified number.</p>
-                {airportEnabled && (
-                  <DepartureCitySelect value={departureCity} cities={departureCities} onChange={setDepartureCity} className="mt-4" required={requiredField("departure_city")} />
-                )}
-              </section>
-              <Button
-                type="submit"
-                size="lg"
-                disabled={isScanningAgain}
-                className="h-12 w-full rounded-xl bg-blue-600 text-base font-semibold shadow-md shadow-blue-600/20 hover:bg-blue-700"
-              >
-                {familyMembers.some((member) => member.submission?.manual_review_submission_allowed) ? "Submit family for staff review" : "Submit Family Details"}
-              </Button>
-            </>
-          ) : (
-            <div role="alert" className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-medium leading-6 text-amber-950">
-              Resolve every passport verification issue above before reviewing contact details or submitting this family.
-            </div>
-          )}
-        </form>
-      </div>
-    );
+    return <UploadFamilyReview token={token} settings={flowSettings} documents={documentController} contactVerification={contactVerification} canReviewSubmission={canReviewSubmission} uploadError={uploadError} departureCity={departureCity} setDepartureCity={setDepartureCity} onSubmit={handleFamilySubmit}
+      familyMembers={familyMembers} hasBlockedFamilyVerification={hasBlockedFamilyVerification}
+      setStep={setStep} selectFamilyMember={selectFamilyMember} updateFamilyMember={updateFamilyMember}
+      handleFamilyReviewFieldChange={handleFamilyReviewFieldChange} />;
   }
 
   if (step === "SUCCESS") {
@@ -1768,36 +563,36 @@ export function UploadFlow({ token }: UploadFlowProps) {
 
           {step === "QUALIFIER_SELECT" && (
             <>
-            <RelationQualifierStep
-              path={qualifierPath}
-              relationCode={qualifierRelationCode}
-              otherRelation={qualifierOtherRelation}
-              listEnabled={uploadConfig.qualifier_relation_list_enabled}
-              otherEnabled={uploadConfig.qualifier_relation_other_enabled}
-              options={group.qualifier_relation_options ?? []}
-              isSaving={isSavingQualifier}
-              onPathChange={(nextPath) => {
-                setQualifierPath(nextPath);
-                if (nextPath === "self") {
-                  setQualifierRelationCode("");
-                  setQualifierOtherRelation("");
-                }
-                setUploadError(null);
-              }}
-              onRelationChange={setQualifierRelationCode}
-              onOtherRelationChange={setQualifierOtherRelation}
-              onContinue={saveQualifierChoice}
-            />
-            {!requiredField("relation_with_qualifier") && <Button type="button" variant="ghost" className="mt-4 h-11 w-full" onClick={() => {
-              clearQualifierSelectionToken(token);
-              setQualifierSelectionToken(null);
-              setPersistedQualifierChoice(null);
-              setQualifierPath(null);
-              setQualifierRelationCode("");
-              setQualifierOtherRelation("");
-              setFlowMode("single");
-              setStep("METHOD_SELECT");
-            }}>Continue without relationship details</Button>}
+              <RelationQualifierStep
+                path={qualifierPath}
+                relationCode={qualifierRelationCode}
+                otherRelation={qualifierOtherRelation}
+                listEnabled={uploadConfig.qualifier_relation_list_enabled}
+                otherEnabled={uploadConfig.qualifier_relation_other_enabled}
+                options={group.qualifier_relation_options ?? []}
+                isSaving={isSavingQualifier}
+                onPathChange={(nextPath) => {
+                  setQualifierPath(nextPath);
+                  if (nextPath === "self") {
+                    setQualifierRelationCode("");
+                    setQualifierOtherRelation("");
+                  }
+                  setUploadError(null);
+                }}
+                onRelationChange={setQualifierRelationCode}
+                onOtherRelationChange={setQualifierOtherRelation}
+                onContinue={saveQualifierChoice}
+              />
+              {!requiredField("relation_with_qualifier") && <Button type="button" variant="ghost" className="mt-4 h-11 w-full" onClick={() => {
+                clearQualifierSelectionToken(token);
+                setQualifierSelectionToken(null);
+                setPersistedQualifierChoice(null);
+                setQualifierPath(null);
+                setQualifierRelationCode("");
+                setQualifierOtherRelation("");
+                setFlowMode("single");
+                setStep("METHOD_SELECT");
+              }}>Continue without relationship details</Button>}
             </>
           )}
 
@@ -1859,17 +654,15 @@ export function UploadFlow({ token }: UploadFlowProps) {
                             key={member.localId}
                             type="button"
                             onClick={() => selectFamilyMember(index)}
-                            className={`flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-3 text-left transition ${
-                              isActive ? "border-blue-300 bg-blue-50" : "border-slate-200 bg-white hover:border-blue-200"
-                            }`}
+                            className={`flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-3 text-left transition ${isActive ? "border-blue-300 bg-blue-50" : "border-slate-200 bg-white hover:border-blue-200"
+                              }`}
                           >
                             <span className="min-w-0">
                               <span className="block truncate text-sm font-bold text-slate-950">{member.name}</span>
                               <span className="block truncate text-xs text-slate-500">{member.relation} • {member.gender}</span>
                             </span>
-                            <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
-                              isUploaded ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-400"
-                            }`}>
+                            <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${isUploaded ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-400"
+                              }`}>
                               {isUploaded ? <CheckCircle2 className="h-4 w-4" /> : index + 1}
                             </span>
                           </button>
@@ -1927,9 +720,9 @@ export function UploadFlow({ token }: UploadFlowProps) {
                     {selfieEnabled && !submission && (
                       <VisaSelfieChoice
                         file={activeVisaSelfie}
-                          allowCamera={uploadConfig.visa_photo_live_capture}
-                          allowUpload={uploadConfig.visa_photo_upload}
-                          required={selfieRequired}
+                        allowCamera={uploadConfig.visa_photo_live_capture}
+                        allowUpload={uploadConfig.visa_photo_upload}
+                        required={selfieRequired}
                         onCameraClick={() => setStep("SELFIE_CAMERA")}
                         onUploadClick={() => setStep("SELFIE_UPLOAD")}
                       />

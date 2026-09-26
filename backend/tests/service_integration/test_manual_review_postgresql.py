@@ -19,11 +19,12 @@ from app.application.use_cases.passports.client_submit_passport_use_case import 
 )
 from app.domain.entities.entities import ClientGroup, PassportSubmission
 from app.domain.value_objects.passport_document_classification import MANUAL_REVIEW_REASON_CODE
-from app.infrastructure.database.models import AgencyModel, Base
+from app.infrastructure.database.models import AgencyModel
 from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
 from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
+from tests.postgresql_schema import create_isolated_postgresql_tables
 
 pytestmark = [
     pytest.mark.service_integration,
@@ -50,7 +51,7 @@ async def manual_review_pg():
         async with admin.begin() as connection:
             await connection.execute(text(f'CREATE SCHEMA "{schema}"'))
         async with engine.begin() as connection:
-            await connection.run_sync(Base.metadata.create_all)
+            await create_isolated_postgresql_tables(connection, schema)
         group = ClientGroup.create(
             name="Manual review integration", token=f"review-{uuid.uuid4().hex}",
             agency_id=uuid.uuid4(), created_by_user_id=uuid.uuid4(),

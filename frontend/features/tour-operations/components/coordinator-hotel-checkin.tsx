@@ -288,7 +288,7 @@ export function CoordinatorHotelCheckin({ groupId }: { groupId: string }) {
                 void clearSession();
                 return;
               }
-              router.push(ROUTES.auth.coordinatorLogin(`/coordinator/groups/${groupId}/hotel-checkin`) as never);
+              router.push(ROUTES.auth.coordinatorLogin(`/coordinator/groups/${groupId}/hotel-checkin`));
             }}
           >
             {isAuthenticated ? "Switch Account" : "Login"}

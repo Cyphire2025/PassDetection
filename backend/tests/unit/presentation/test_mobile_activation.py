@@ -37,6 +37,7 @@ def _request() -> Request:
 @pytest.mark.asyncio
 async def test_invalid_and_expired_activation_tokens_share_generic_failure() -> None:
     limiter = MagicMock()
+    limiter.aclose = AsyncMock()
     limiter.check_allowed = AsyncMock()
     limiter.record_failure = AsyncMock()
     result = MagicMock()

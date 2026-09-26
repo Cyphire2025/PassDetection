@@ -49,7 +49,7 @@ test("recipient details refresh after an accepted resend request", () => {
   assert.ok(end > start);
   assert.match(
     resendHook,
-    /WHATSAPP_QUERY_KEYS\.group\(groupId\)/,
+    /WHATSAPP_QUERY_KEYS\.groups/,
   );
   assert.match(resendHook, /invalidateQueries/);
 });
@@ -149,7 +149,8 @@ test("resend refreshes blocked delivery state and announces success or failure",
     /status\.latest_resend_status === "queued"/,
   );
   assert.match(hooksSource, /\? 2_000\s*: false/);
-  assert.match(pageSource, /await refetchGroup\(\)/);
+  assert.match(pageSource, /refetchGroup\(\)/);
+  assert.match(hooksSource, /queryKey: WHATSAPP_QUERY_KEYS\.groups/);
   assert.match(pageSource, /status\?\.resend_blocked/);
   assert.match(pageSource, /latest === "delivery_unknown"/);
   assert.match(pageSource, /Last resend failed/);

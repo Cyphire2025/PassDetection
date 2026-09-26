@@ -1,0 +1,103 @@
+{
+  "date": "2026-09-27",
+  "frontend_image": "sha256:ae6c26a9316306fa2d437f57eeefbf92fa6afda6bad2e33b6e7f6d5591cc5843",
+  "backend_image": "sha256:e8935a6a80d5a6d1a8689ad1829bbee914acc30ff472253f6d21df86cb829c73",
+  "target": "isolated local TLS qualification stack on Windows; no production execution",
+  "unique_cases": 9,
+  "passed": 9,
+  "unsupported_host_capability": 0,
+  "runs": [
+    {
+      "file": "frontend-phase2-browser-matrix.txt",
+      "passed": 6,
+      "failed": 3,
+      "minutes_rounded": 2.7
+    },
+    {
+      "file": "frontend-phase2-browser-public-retry.txt",
+      "passed": 2,
+      "failed": 0,
+      "seconds": 15.0,
+      "correction": "Unique synthetic contact per saved upload; existing rows and duplicate policy preserved"
+    },
+    {
+      "file": "frontend-linux-webkit-final.txt",
+      "passed": 1,
+      "failed": 0,
+      "case_seconds": 7.1,
+      "run_seconds": 10.7,
+      "platform": "official Linux Playwright1.62.1-noble, pinned amd64 manifest"
+    }
+  ],
+  "matrix": {
+    "chromium": {
+      "authentication_dialog_reporting": "passed",
+      "public_upload_recovery_verified_submission": "passed",
+      "decoded_offline_queue_reconciliation": "passed"
+    },
+    "firefox": {
+      "authentication_dialog_reporting": "passed",
+      "public_upload_recovery_verified_submission": "passed",
+      "decoded_offline_queue_reconciliation": "passed"
+    },
+    "webkit": {
+      "authentication_dialog_reporting": "passed",
+      "public_upload_recovery_verified_submission": "passed",
+      "decoded_offline_queue_reconciliation": "passed on supported Linux Playwright1.62.1 WebKit"
+    }
+  },
+  "webkit_capabilities": {
+    "isSecureContext": true,
+    "navigator.mediaDevices": "undefined",
+    "canvas.captureStream": "undefined",
+    "crypto.subtle": "object",
+    "Ed25519": "NotSupportedError: The operation is not supported.",
+    "signed_manifest_http_status": 200,
+    "offline_capture_failed_closed": true
+  },
+  "test_substitutions": [
+    "Synthetic camera video at getUserMedia only, real decoder/encryptedIndexedDB/API reconciliation",
+    "Synthetic external OTP delivery challenge only, real verify/proof consumption/upload/private object promotion",
+    "Single malformed dashboard read to induce render error; real collector and log readback",
+    "Service workers blocked only in auth/fault and OTP-delivery routing specs; actual service worker remains enabled for scanner/offline spec"
+  ],
+  "visual_review": {
+    "viewport": "390x844",
+    "reviewed": [
+      "Chromium completed public upload",
+      "Chromium encrypted offline pending scan",
+      "Linux WebKit encrypted offline pending scan"
+    ],
+    "horizontal_overflow_checks": "passed for completed workflows"
+  },
+  "remaining_limits": [
+    "Physical cameras and real Safari/iOS/Android hardware",
+    "Screen reader and fullWCAG2.2AA acceptance",
+    "Cold-offlinePWA installation/storage eviction/upgrade matrix",
+    "Windows Playwright WebKit offline scanner is unsupported by that host engine; Linux acceptance is separate from real Safari hardware."
+  ],
+  "render_error_receipt": "frontend-render-error-browser-evidence.json",
+  "final_app_change": "Safari pointer-based modal trigger restoration;16focusedtests passed including2newregressions",
+  "no_data_deletion": true,
+  "native_changes": false,
+  "execution": "All9 unique journeys evidenced across recorded split runs, not one clean9-test invocation.",
+  "linux_webkit": {
+    "execution": {
+      "backend_container": "411378cb9c6c1e9b35e6dbc3db32bb54200f915a2bdd9c9406847933ee52270d",
+      "browser_image": "mcr.microsoft.com/playwright@sha256:c091b21d9fae78c76e85cd4356431e9b018402f172a214fc7d7a5e9a7e29d8ac",
+      "origin": "https://localhost:58443",
+      "tls_forward": "loopback TCP58443 to existing Nginx443; no termination or origin change",
+      "nginx_container": "ac123b5384770b9835dbb1cee0eae60441f91d3f03340fa4afbc3697a691d502",
+      "backend_image": "sha256:e8935a6a80d5a6d1a8689ad1829bbee914acc30ff472253f6d21df86cb829c73",
+      "exit_code": 0,
+      "application_containers_preserved": true
+    },
+    "capabilities": {
+      "secureContext": true,
+      "mediaDevices": true,
+      "canvasCaptureStream": true,
+      "ed25519": true
+    },
+    "prior_attempts": "Two initial synthetic stream starts returned NotAllowedError. Final explicit-camera-retry/source-diagnostic harness completed the entire workflow; no application or cryptographic verification changes."
+  }
+}

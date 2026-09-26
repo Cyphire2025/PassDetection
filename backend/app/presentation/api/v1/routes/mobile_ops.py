@@ -80,6 +80,7 @@ from app.infrastructure.repositories.attendance_runtime_repository import (
 )
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
+from app.presentation.api.v1.response_contracts import binary_responses
 from app.presentation.api.v1.routes.mobile_attendance_action_support import (
     AttendanceReplaySnapshot as _AttendanceReplaySnapshot,
 )
@@ -877,7 +878,7 @@ async def _mobile_operational_passenger_detail(
 @router.get(
     "/manager/groups/{group_id}/passengers/{passenger_id}/documents/{document_type}/preview",
     response_class=StreamingResponse,
-)
+responses=binary_responses("application/pdf", "image/*"))
 async def preview_mobile_manager_passenger_document(
     group_id: uuid.UUID,
     passenger_id: uuid.UUID,

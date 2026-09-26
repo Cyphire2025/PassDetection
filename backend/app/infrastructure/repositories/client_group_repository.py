@@ -308,7 +308,7 @@ class ClientGroupRepository(IClientGroupRepository):
             )
         if visible_to_user:
             stmt = AuthorizationPolicy.apply_group_visibility_scope(stmt, visible_to_user)
-        stmt = stmt.order_by(ClientGroupModel.created_at.desc()).offset(skip).limit(limit)
+        stmt = stmt.order_by(ClientGroupModel.created_at.desc(), ClientGroupModel.id.desc()).offset(skip).limit(limit)
         result = await self._session.execute(stmt)
         return [self._to_entity(m) for m in result.scalars().all()]
 

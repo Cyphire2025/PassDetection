@@ -102,7 +102,7 @@ export function buildPassportGroupHref(
   if (includeDeleted) params.set("old_data", "1");
   const query = params.toString();
   const pathname = ROUTES.dashboard.passportGroup(groupId);
-  return query ? `${pathname}?${query}` : pathname;
+  return query ? `${pathname}?${query}` as const : pathname;
 }
 
 export function buildPassportDetailNavigationHref(
@@ -113,7 +113,7 @@ export function buildPassportDetailNavigationHref(
   params.set("nav_group", navigation.groupId);
   if (navigation.includeDeleted) params.set("nav_old_data", "1");
   if (navigation.token) params.set("nav", navigation.token);
-  return `${ROUTES.dashboard.passportDetail(submissionId)}?${params.toString()}`;
+  return `${ROUTES.dashboard.passportDetail(submissionId)}?${params.toString()}` as const;
 }
 
 export function parsePassportDetailNavigation(

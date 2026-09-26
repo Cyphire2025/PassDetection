@@ -1,0 +1,18 @@
+{
+  "image": "sha256:97d490c12ba55b4946b01546d1c3ed324e8d41ab1c9fcb2a616aa470620e5b46",
+  "checks": [
+    "generated-400-json",
+    "generated-413-json",
+    "generated-414-json",
+    "generated-431-json",
+    "generated-500-json",
+    "generated-502-json",
+    "generated-503-json",
+    "generated-504-json",
+    "client-timeout-408-closes-connection-as-documented",
+    "actual-oversize-413",
+    "actual-upstream-connect-failure-502",
+    "upstream-business-response-preserved"
+  ],
+  "scope": "Isolated local Nginx include behavior; no VPS changes"
+}

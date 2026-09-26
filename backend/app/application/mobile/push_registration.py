@@ -9,6 +9,7 @@ from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.dtos.mobile_security import MobilePushRegistrationRequest
 from app.core.config.settings import get_settings
 from app.core.security.mobile_jwt import MobileAccessClaims, hash_mobile_lookup
 from app.core.security.mobile_push_crypto import mobile_push_fernet
@@ -17,7 +18,6 @@ from app.infrastructure.database.gc_mobile_models import (
     MobileDeviceSessionModel,
     MobilePushRegistrationModel,
 )
-from app.presentation.api.v1.schemas.mobile_schemas import MobilePushRegistrationRequest
 
 APP_BUNDLE_ID = "com.globalconnects.groupcompanion"
 

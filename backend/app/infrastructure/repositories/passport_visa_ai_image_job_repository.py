@@ -186,6 +186,21 @@ class PassportVisaAiImageJobRepository:
         await self._session.flush()
         return can_retry
 
+    async def defer_capacity(self, job_id: uuid.UUID, *, message: str) -> bool:
+        """Keep accepted work queued when the local decoder cannot admit it."""
+        row = await self._locked(job_id)
+        if row is None or row.status != "running":
+            return False
+        row.attempts = max(0, row.attempts - 1)
+        row.status = "queued"
+        row.error_code = "image_processing_busy"
+        row.error_message = message[:320]
+        row.celery_task_id = None
+        row.finished_at = None
+        row.updated_at = _utcnow()
+        await self._session.flush()
+        return True
+
     async def mark_failed(
         self,
         job_id: uuid.UUID,

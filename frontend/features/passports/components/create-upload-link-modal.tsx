@@ -19,6 +19,7 @@ import { useCreateUploadLink } from "../hooks/use-upload-links";
 import { getUploadLinkSettings, getUploadLinkSettingsError, UploadLinkSettings, type UploadLinkSettingsValue } from "./upload-link-settings";
 import { WhatsAppBroadcastSelector } from "./whatsapp-broadcast-selector";
 import { TripTimeZoneField } from "./trip-timezone-field";
+import { useModalKeyboardBoundary } from "@/components/ui/modal";
 import { DEFAULT_TRIP_TIMEZONE } from "../utils/trip-timezone";
 
 interface CreateUploadLinkModalProps {
@@ -102,19 +103,8 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
     onClose();
   }, [isPending, onClose, reset]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !isPending) handleClose();
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [handleClose, isOpen, isPending]);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const handleKeyDown = useModalKeyboardBoundary({ dialogRef, isOpen, canClose: !isPending, onClose: handleClose });
 
   const onSubmit = async (data: CreateUploadLinkFormData) => {
     if (isPending || !tryEnterCreate()) return;
@@ -175,6 +165,9 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
       <div
+        ref={dialogRef}
+        onKeyDown={handleKeyDown}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
@@ -282,7 +275,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                 placeholder="e.g. Summer Europe Tour 2026"
                 {...register("name")}
                 error={errors.name?.message}
-                autoFocus
+                data-dialog-initial-focus
               />
 
               <div className="grid gap-4 sm:grid-cols-2">

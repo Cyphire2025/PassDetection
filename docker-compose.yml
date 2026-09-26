@@ -57,7 +57,7 @@ x-database-capacity-environment: &database-capacity-environment
   POSTGRES_SERVER_MAX_CONNECTIONS: ${POSTGRES_SERVER_MAX_CONNECTIONS:-100}
   POSTGRES_RESERVED_CONNECTIONS: ${POSTGRES_RESERVED_CONNECTIONS:-10}
   POSTGRES_API_CONNECTION_BUDGET: ${POSTGRES_API_CONNECTION_BUDGET:-80}
-  EXPECTED_DATABASE_SCHEMA_REVISION: ${EXPECTED_DATABASE_SCHEMA_REVISION:-0107_passport_ecr_checks}
+  EXPECTED_DATABASE_SCHEMA_REVISION: ${EXPECTED_DATABASE_SCHEMA_REVISION:-0111_roster_revision}
   REDIS_DOMAIN_ISOLATION_REQUIRED: ${REDIS_DOMAIN_ISOLATION_REQUIRED:-true}
   REDIS_BROKER_HOST: redis-broker
   REDIS_BROKER_PORT: 6379
@@ -104,7 +104,6 @@ services:
   # traffic never waits for this diagnostic path.
   metrics-exporter:
     image: prom/statsd-exporter:v0.29.0@sha256:632f705804922d50c1c95ba8ff9c8c0cc18d4bbb0cc265dc4f9ae708271c95b3
-    container_name: passdetection-metrics-exporter
     restart: unless-stopped
     user: "65534:65534"
     command:
@@ -130,8 +129,7 @@ services:
 
   # ── PostgreSQL ──────────────────────────────────────────────────────────────
   db:
-    image: postgres:16-alpine
-    container_name: passdetection-db
+    image: postgres:16-alpine@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb
     restart: unless-stopped
     command:
       - postgres
@@ -156,8 +154,7 @@ services:
 
   # ── Redis ───────────────────────────────────────────────────────────────────
   redis:
-    image: redis:7-alpine
-    container_name: passdetection-redis-security
+    image: redis:7-alpine@sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99
     restart: unless-stopped
     command: >-
       redis-server
@@ -181,8 +178,7 @@ services:
   # Durable Celery broker/result and coordination state. No eviction is
   # permitted; durable database rows remain authoritative for job recovery.
   redis-broker:
-    image: redis:7-alpine
-    container_name: passdetection-redis-broker
+    image: redis:7-alpine@sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99
     restart: unless-stopped
     command: >-
       redis-server
@@ -206,8 +202,7 @@ services:
   # Realtime messages are hints and leases are reconstructable. Keep the
   # domain non-persistent but non-evicting so broker backlog cannot disturb it.
   redis-realtime:
-    image: redis:7-alpine
-    container_name: passdetection-redis-realtime
+    image: redis:7-alpine@sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99
     restart: unless-stopped
     command: >-
       redis-server
@@ -229,8 +224,7 @@ services:
   # Evictable OCR/cache data has an explicit memory ceiling and may never share
   # an instance with authentication counters or durable task delivery.
   redis-cache:
-    image: redis:7-alpine
-    container_name: passdetection-redis-cache
+    image: redis:7-alpine@sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99
     restart: unless-stopped
     command: >-
       redis-server
@@ -256,7 +250,6 @@ services:
   # refuses startup/readiness when scanning is required but ClamAV is absent.
   clamav:
     image: clamav/clamav:1.5_base@sha256:2a682381f314a3ac6ec13eea55b69bd2594887598e5358d938e711a30df850f2
-    container_name: passdetection-clamav
     restart: unless-stopped
     user: clamav
     entrypoint: ["/init-unprivileged"]
@@ -290,7 +283,6 @@ services:
 
   minio:
     image: minio/minio:RELEASE.2025-09-07T16-13-09Z@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
-    container_name: passdetection-minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
@@ -317,7 +309,6 @@ services:
       target: runtime
       args:
         APP_REVISION: ${APP_REVISION:-unknown}
-    container_name: passdetection-backend
     restart: unless-stopped
     ulimits:
       nofile:
@@ -365,7 +356,6 @@ services:
       context: ./backend
       dockerfile: Dockerfile
       target: runtime
-    container_name: passdetection-worker
     restart: unless-stopped
     env_file:
       - .env
@@ -410,7 +400,6 @@ services:
       context: ./backend
       dockerfile: Dockerfile
       target: runtime
-    container_name: passdetection-my-photos-worker
     restart: unless-stopped
     env_file:
       - .env
@@ -541,7 +530,6 @@ services:
       context: ./backend
       dockerfile: Dockerfile
       target: runtime
-    container_name: passdetection-email-beat
     restart: unless-stopped
     env_file:
       - .env
@@ -579,7 +567,6 @@ services:
       context: ./backend
       dockerfile: Dockerfile
       target: runtime
-    container_name: passdetection-extraction-worker
     restart: unless-stopped
     env_file:
       - .env
@@ -623,7 +610,6 @@ services:
       context: ./backend
       dockerfile: Dockerfile
       target: runtime
-    container_name: passdetection-verification-worker
     restart: unless-stopped
     env_file:
       - .env
@@ -668,7 +654,6 @@ services:
       context: ./backend
       dockerfile: Dockerfile
       target: runtime
-    container_name: passdetection-visa-ai-worker
     restart: unless-stopped
     env_file:
       - .env
@@ -714,7 +699,6 @@ services:
       context: ./backend
       dockerfile: Dockerfile
       target: runtime
-    container_name: passdetection-ecr-worker
     restart: unless-stopped
     stop_grace_period: 125s
     env_file:
@@ -760,10 +744,11 @@ services:
       dockerfile: Dockerfile
       target: runtime
       args:
+        APP_REVISION: ${APP_REVISION:-unknown}
+        NEXT_PUBLIC_APP_REVISION: ${APP_REVISION:-unknown}
         NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
         NEXT_PUBLIC_DEV_APP_URL: ${NEXT_PUBLIC_DEV_APP_URL}
         NEXT_PUBLIC_API_BASE_URL: ""
-    container_name: passdetection-frontend
     restart: unless-stopped
     environment:
       NEXT_PUBLIC_API_BASE_URL: ""
@@ -777,8 +762,7 @@ services:
 
   # ── Nginx (Reverse Proxy) ───────────────────────────────────────────────────
   nginx:
-    image: nginx:1.30.4-alpine
-    container_name: passdetection-nginx
+    image: nginx:1.30.4-alpine@sha256:97d490c12ba55b4946b01546d1c3ed324e8d41ab1c9fcb2a616aa470620e5b46
     restart: unless-stopped
     ulimits:
       nofile:

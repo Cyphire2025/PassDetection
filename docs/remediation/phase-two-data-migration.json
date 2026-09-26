@@ -1,0 +1,49 @@
+{
+  "scope": "synthetic local PostgreSQL only",
+  "from": "0107_passport_ecr_checks",
+  "to": "0108_data_invariants",
+  "invalid_upgrade_probes": [
+    "passport_submissions:agency_id:fk_passport_submissions_group_agency",
+    "ecr_batches:status:ck_ecr_batch_status",
+    "ecr_items:status:ck_ecr_item_status",
+    "ecr_items:result:ck_ecr_item_result",
+    "ecr_items:input_tokens:ck_ecr_item_counters",
+    "ecr_items:output_tokens:ck_ecr_item_counters",
+    "ecr_items:attempts:ck_ecr_item_counters",
+    "ecr_items:result:ck_ecr_item_outcome",
+    "ecr_items:status:ck_ecr_item_outcome",
+    "ecr_items:status:ck_ecr_item_outcome"
+  ],
+  "retained_table_digests": {
+    "agencies": {
+      "count": 2,
+      "sha256": "48b4b76e70de0a60d83152cab97236052abbffbbd1b5a5cb2e8f5d2d9572f3d6"
+    },
+    "client_groups": {
+      "count": 1,
+      "sha256": "7617af8841d990253cd4023a70c529ab95e0f387f7ac4b297a3e35fc6bd0abde"
+    },
+    "passport_submissions": {
+      "count": 1,
+      "sha256": "01a5cfb1b12ec8c7ab7a76e30b570b6b4359b3c0b2b496d04a899a38ae800b96"
+    },
+    "ecr_batches": {
+      "count": 1,
+      "sha256": "63e0431f4ab06156c319afe3f8593ff70121159e146953b0364e1e41f9c51548"
+    },
+    "ecr_items": {
+      "count": 1,
+      "sha256": "7757dcf6b59754c9749e93b737bdecbc2562eac2c2f151ae0b71569839385333"
+    }
+  },
+  "validated_constraints": [
+    "ck_ecr_batch_status",
+    "ck_ecr_item_counters",
+    "ck_ecr_item_outcome",
+    "ck_ecr_item_result",
+    "ck_ecr_item_status",
+    "fk_passport_submissions_group_agency"
+  ],
+  "rows_deleted": 0,
+  "production_changed": false
+}

@@ -4,10 +4,8 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import sys
 from collections.abc import Iterator, Mapping
-from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -16,7 +14,6 @@ BACKEND_ROOT = REPOSITORY_ROOT / "backend"
 DEFAULT_OUTPUT = REPOSITORY_ROOT / "mobile" / "contracts" / "mobile-api.openapi.json"
 MOBILE_PATH_PREFIX = "/api/v1/mobile"
 SCHEMA_REF_PREFIX = "#/components/schemas/"
-CANONICAL_PYTHON_VERSION = (3, 11)
 
 
 def _schema_references(value: Any) -> Iterator[str]:
@@ -71,38 +68,17 @@ def canonical_json(contract: Mapping[str, Any]) -> str:
     return json.dumps(contract, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
 
 
-@contextmanager
-def _backend_working_directory() -> Iterator[None]:
-    """Make settings-file discovery independent of the caller's shell directory."""
-
-    original = Path.cwd()
-    os.chdir(BACKEND_ROOT)
-    try:
-        yield
-    finally:
-        os.chdir(original)
-
-
 def application_contract() -> dict[str, Any]:
-    if sys.version_info[:2] != CANONICAL_PYTHON_VERSION:
-        expected = ".".join(str(part) for part in CANONICAL_PYTHON_VERSION)
-        actual = f"{sys.version_info.major}.{sys.version_info.minor}"
-        raise RuntimeError(
-            "Mobile OpenAPI generation must use the repository's canonical "
-            f"Python {expected} runtime; received Python {actual}."
-        )
     # Import lazily so pure contract-selection tests never construct runtime
     # settings, middleware clients, or an application object.
     if str(BACKEND_ROOT) not in sys.path:
         sys.path.insert(0, str(BACKEND_ROOT))
-    # Pydantic resolves the configured `.env` relative to the process working
-    # directory. Pin it to `backend/` so a developer invoking this script from
-    # the repository root cannot accidentally load the private root `.env` and
-    # produce a different API title than CI.
-    with _backend_working_directory():
-        from app.main import create_application
+    from scripts.export_api_contract import application_contract as backend_contract
 
-        return mobile_contract(create_application(initialize_rate_limit_redis=False).openapi())
+    # Both snapshots describe the same deterministic backend application. The
+    # shared factory also enforces the Python version and avoids private .env
+    # settings changing API titles, cookies or other documented contracts.
+    return mobile_contract(backend_contract())
 
 
 def main() -> None:

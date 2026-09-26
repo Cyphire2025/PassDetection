@@ -22,7 +22,7 @@ export default function DashboardWhatsAppPage() {
     router.replace(
       (role === "agency_coordinator"
         ? ROUTES.coordinator
-        : ROUTES.dashboard.passports) as never,
+        : ROUTES.dashboard.passports),
     );
   }, [canAccessWhatsApp, hasHydrated, role, router]);
 

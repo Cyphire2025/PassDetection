@@ -92,18 +92,21 @@ class EmailPdfValidator:
             default=100,
         )
         try:
-            reader = PdfReader(io.BytesIO(content), strict=True)
-            if reader.is_encrypted:
-                raise EmailPdfValidationError("Encrypted email PDFs require manual review")
-            page_count = len(reader.pages)
-            if page_count < 1:
-                raise EmailPdfValidationError("Email PDF contains no readable pages")
-            if page_count > page_limit:
-                raise EmailPdfValidationError("Email PDF exceeds the configured page limit")
-            # Force page-object parsing instead of accepting a plausible header
-            # and cross-reference table alone.
-            for page in reader.pages:
-                _ = page.mediabox
+            # PdfReader/page objects form reference cycles. Close the caller's
+            # stream explicitly so a reused worker cannot retain whole maximum-
+            # size attachments until a later cyclic-GC pass.
+            with io.BytesIO(content) as stream, PdfReader(stream, strict=True) as reader:
+                if reader.is_encrypted:
+                    raise EmailPdfValidationError("Encrypted email PDFs require manual review")
+                page_count = len(reader.pages)
+                if page_count < 1:
+                    raise EmailPdfValidationError("Email PDF contains no readable pages")
+                if page_count > page_limit:
+                    raise EmailPdfValidationError("Email PDF exceeds the configured page limit")
+                # Force page-object parsing instead of accepting a plausible
+                # header and cross-reference table alone.
+                for page in reader.pages:
+                    _ = page.mediabox
         except EmailPdfValidationError:
             raise
         except (PdfReadError, OSError, TypeError, ValueError, IndexError, KeyError):

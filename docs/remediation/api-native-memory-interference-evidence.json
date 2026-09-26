@@ -1,0 +1,95 @@
+{
+  "image": "sha256:0066ad357a08c4b207fa93bfa12e6111a90ebcac3514b4edbbdeb31a66db0f67",
+  "container": "e799c9d6f0479027e00b4582c39deb06985d3ed68d985ab82e3f5bf5f260919c",
+  "name": "pd-api-memory-20260926224524",
+  "source_admission_overlay": false,
+  "admission_sha256": "8ec758c93c7424730e115d99dcbbdc5f3a0835534465f5380c0c2bbccd633e09",
+  "memory_limit_bytes": 2684354560,
+  "workers": 4,
+  "cpus": 4,
+  "fixture_sha256": "519ba883bdf05e7805bd7ace83ffe4159901b5a82ca6d56c0a30e4d21083357e",
+  "source_sha256": "fc621c22aa30a4024bff86b953cd617f8a076d3dd761729bb089bf651e195ed6",
+  "limits": [
+    "QA-only endpoint, not production authorization/storage/DB qualification",
+    "Complete real app imported; lifespan and external dependencies disabled",
+    "Network none; client memory is conservatively included in measured cgroup",
+    "Encoded input padded to10MiB; real24MP45degree strongest-sharpness transform",
+    "No production data, volume or service changed; stopped probe retained"
+  ],
+  "state_before_stop": {
+    "Status": "running",
+    "Running": true,
+    "Paused": false,
+    "Restarting": false,
+    "OOMKilled": true,
+    "Dead": false,
+    "Pid": 1012833,
+    "ExitCode": 0,
+    "Error": "",
+    "StartedAt": "2026-09-26T22:45:25.570640954Z",
+    "FinishedAt": "0001-01-01T00:00:00Z"
+  },
+  "state_after_stop": {
+    "Status": "exited",
+    "Running": false,
+    "Paused": false,
+    "Restarting": false,
+    "OOMKilled": true,
+    "Dead": false,
+    "Pid": 0,
+    "ExitCode": 0,
+    "Error": "",
+    "StartedAt": "2026-09-26T22:45:25.570640954Z",
+    "FinishedAt": "2026-09-26T22:46:35.834449913Z"
+  },
+  "status": "failed_oom_during_overlapping_local_qualifications",
+  "cause_classification": "unresolved_local_vs_host_oom_for_this_run_terminal_cgroup_events_not_captured",
+  "last_successful_sample_peak_bytes": 2267635712,
+  "docker_host_memory_bytes": 7904301056,
+  "overlapping_activity": "Separate persistent-service qualification including an additional ClamAV container overlapped this API probe; this is recorded context, not proof of the exact OOM cause.",
+  "replacement_receipt": "api-native-memory-evidence.json",
+  "last_successful_sample": {
+    "current": 1456291840,
+    "peak": 2267635712,
+    "events": {
+      "low": "0",
+      "high": "0",
+      "max": "0",
+      "oom": "0",
+      "oom_kill": "0",
+      "oom_group_kill": "0"
+    },
+    "rss_by_pid": {
+      "1": [
+        "Name:\tgunicorn",
+        "VmRSS:\t   47000 kB",
+        "RssAnon:\t   43928 kB"
+      ],
+      "13": [
+        "Name:\tgunicorn",
+        "VmRSS:\t  336920 kB",
+        "RssAnon:\t  333080 kB"
+      ],
+      "14": [
+        "Name:\tgunicorn",
+        "VmRSS:\t  326120 kB",
+        "RssAnon:\t  323048 kB"
+      ],
+      "15": [
+        "Name:\tgunicorn",
+        "VmRSS:\t  335656 kB",
+        "RssAnon:\t  332584 kB"
+      ],
+      "16": [
+        "Name:\tgunicorn",
+        "VmRSS:\t  339280 kB",
+        "RssAnon:\t  332368 kB"
+      ],
+      "159": [
+        "Name:\tpython",
+        "VmRSS:\t   92416 kB",
+        "RssAnon:\t   84992 kB"
+      ]
+    }
+  }
+}

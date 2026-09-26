@@ -13,8 +13,10 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from image_runtime_policy import validate_process_isolation
 from release_manifest import load_release_manifest, verify_source_defaults
 from storage_release import STORAGE_IMAGE
+from verify_database_deployment_budget import calculate as database_budget, capacity_markdown
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE_COMPOSE = ROOT / "docker-compose.yml"
@@ -57,7 +59,7 @@ DEVELOPMENT_PUBLISHED_TARGETS = {
     "backend": {8000},
 }
 NGINX_PUBLISHED_TARGETS = {80, 443}
-PINNED_NGINX_IMAGE = "nginx:1.30.4-alpine"
+PINNED_NGINX_IMAGE = "nginx:1.30.4-alpine@sha256:97d490c12ba55b4946b01546d1c3ed324e8d41ab1c9fcb2a616aa470620e5b46"
 PINNED_CLAMAV_IMAGE = (
     "clamav/clamav:1.5_base"
     "@sha256:2a682381f314a3ac6ec13eea55b69bd2594887598e5358d938e711a30df850f2"
@@ -71,7 +73,9 @@ FRONTEND_ALLOWED_ENVIRONMENT_KEYS = {
     "NEXT_PUBLIC_API_BASE_URL",
     "NEXT_PUBLIC_APP_URL",
     "NEXT_PUBLIC_DEV_APP_URL",
+    "NEXT_PUBLIC_APP_REVISION",
 }
+FRONTEND_ALLOWED_BUILD_KEYS = FRONTEND_ALLOWED_ENVIRONMENT_KEYS | {"APP_REVISION"}
 FRONTEND_FORBIDDEN_ENVIRONMENT_KEYS = {
     "APP_SECRET_KEY",
     "GOOGLE_API_KEY",
@@ -204,9 +208,16 @@ def _require(condition: bool, message: str) -> None:
 def main() -> int:
     verify_source_defaults()
     production = _render_compose(BASE_COMPOSE, PROD_COMPOSE, STORAGE_COMPOSE)
+    budget = database_budget(production, json.loads((ROOT / "tooling/database-deployment-budget.json").read_text()))
+    _require(not budget["errors"], "Rendered production database pool budget exceeds capacity")
+    _require(
+        (ROOT / "docs/DATABASE_CONNECTION_CAPACITY.generated.md").read_text(encoding="utf-8") == capacity_markdown(budget),
+        "Generated database capacity table is stale; review the rendered deployment and regenerate it",
+    )
     development = _render_compose(BASE_COMPOSE, DEV_COMPOSE)
 
     production_services = production["services"]
+    validate_process_isolation(production_services, storage_directory=str(ROOT / "tmp/compose-contract"))
     development_services = development["services"]
 
     production_backend = production_services["backend"]
@@ -585,7 +596,7 @@ def main() -> int:
         production_services["frontend"].get("build", {}).get("args", {})
     )
     _require(
-        set(production_frontend_build_args).issubset(FRONTEND_ALLOWED_ENVIRONMENT_KEYS),
+        set(production_frontend_build_args).issubset(FRONTEND_ALLOWED_BUILD_KEYS),
         "Production frontend build may receive only explicitly public variables.",
     )
     _require(

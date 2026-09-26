@@ -6,10 +6,10 @@ Defines the contracts that the Infrastructure layer must implement.
 Rules:
   - Only abstract methods — no implementation details.
   - Methods use Domain entities as arguments and return types.
-  - The Application layer depends ONLY on these interfaces,
-    never on concrete SQLAlchemy repositories.
+  - Pure use cases depend on these ports. The documented transaction-services
+    layer also uses reviewed SQLAlchemy adapters (see architecture boundaries).
 
-This is the Dependency Inversion Principle in action.
+Domain code never imports application, infrastructure or HTTP adapters.
 """
 
 from __future__ import annotations

@@ -41,6 +41,7 @@ class TestLoginUseCase:
     def _make_use_case(self, user: User | None = None):
         user_repo  = AsyncMock()
         token_repo = AsyncMock()
+        token_repo.save.return_value = SimpleNamespace(session_id=uuid.uuid4())
         login_limiter = AsyncMock()
         user_repo.get_by_email.return_value = user
         return LoginUseCase(user_repo, token_repo, login_limiter), user_repo, token_repo
@@ -117,7 +118,7 @@ class TestRefreshTokenUseCase:
     async def test_refresh_raises_when_token_invalid(self) -> None:
         user_repo  = AsyncMock()
         token_repo = AsyncMock()
-        token_repo.get_valid_token.return_value = None  # not found in DB
+        token_repo.claim_for_rotation.return_value = None  # not found in DB
 
         use_case = RefreshTokenUseCase(user_repo, token_repo)
 
@@ -131,7 +132,7 @@ class TestRefreshTokenUseCase:
         user_repo = AsyncMock()
         user_repo.get_by_id.return_value = user
         token_repo = AsyncMock()
-        token_repo.get_valid_token.return_value = SimpleNamespace(user_id=user.id)
+        token_repo.claim_for_rotation.return_value = SimpleNamespace(user_id=user.id)
         use_case = RefreshTokenUseCase(user_repo, token_repo)
 
         with pytest.raises(AuthenticationError, match="cannot access the dashboard"):

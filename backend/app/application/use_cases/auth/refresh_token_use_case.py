@@ -6,8 +6,9 @@ Rotates an expired access token using a valid refresh token.
 Token Rotation Strategy:
   - On every successful refresh, the old refresh token is revoked
     and a NEW refresh token is issued.
-  - This means a stolen refresh token can only be used once before
-    the real user's next refresh invalidates it.
+  - Known consumed-token reuse revokes its durable session family. A request
+    that observed the token before another rotation committed may retry with
+    the current cookie without revoking that family.
   - Rotation preserves the verified sign-in's expiry; it never starts
     another seven-day window.
 """
@@ -51,7 +52,7 @@ class RefreshTokenUseCase:
         client_ip: str | None = None,
     ) -> AuthResponseDTO:
         # 1. Look up the refresh token in DB
-        stored_token = await self._token_repo.get_valid_token(dto.refresh_token)
+        stored_token = await self._token_repo.claim_for_rotation(dto.refresh_token)
         if not stored_token:
             logger.warning("refresh_token_invalid_or_expired")
             raise TokenExpiredError()
@@ -66,10 +67,9 @@ class RefreshTokenUseCase:
             await self._token_repo.revoke(dto.refresh_token)
             raise AuthenticationError("This account cannot access the dashboard")
 
-        # Migration 0084 backfills existing refresh rows with generation 1 and
-        # password-only authentication metadata. Keep the use case compatible
-        # with those legacy rows during a rolling deployment as well as with
-        # lightweight repository adapters that omit the new attributes.
+        # Authentication assurance and account generation remain attached to
+        # the original sign-in. Migration 0109 rejects earlier dashboard
+        # credentials; rotating a new family never upgrades its assurance.
         session_version = int(getattr(stored_token, "session_version", 1) or 1)
         stored_methods = getattr(stored_token, "authentication_methods", "pwd") or "pwd"
         authentication_methods = tuple(
@@ -116,13 +116,6 @@ class RefreshTokenUseCase:
             await self._token_repo.revoke(dto.refresh_token)
             raise TokenExpiredError()
 
-        # 3. Atomically claim the used refresh token. A concurrent request may
-        # have consumed it after the initial lookup while the user was loaded.
-        consumed_token = await self._token_repo.consume_valid_token(dto.refresh_token)
-        if not consumed_token:
-            logger.warning("refresh_token_already_consumed")
-            raise TokenExpiredError()
-
         # 4. Issue new token pair
         access_token, access_expires = create_access_token(
             user_id=user.id,
@@ -132,11 +125,13 @@ class RefreshTokenUseCase:
             authentication_methods=authentication_methods,
             mfa_authenticated_at=mfa_authenticated_at,
             session_expires_at=session_expires,
+            session_id=stored_token.session_id,
         )
         new_refresh_token, refresh_expires = create_refresh_token(expires_at=session_expires)
 
         # 5. Persist new refresh token
         await self._token_repo.save(
+            session_id=stored_token.session_id,
             token=new_refresh_token,
             user_id=user.id,
             expires_at=refresh_expires,

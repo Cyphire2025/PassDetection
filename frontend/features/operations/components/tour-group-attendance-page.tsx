@@ -231,10 +231,10 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
         )}
         actions={(
           <>
-            <Link href={ROUTES.dashboard.tourOperationsGroupAssignments as never} className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 px-3.5 text-sm font-semibold text-white transition hover:bg-white/15">
+            <Link href={ROUTES.dashboard.tourOperationsGroupAssignments} className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 px-3.5 text-sm font-semibold text-white transition hover:bg-white/15">
               <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Groups
             </Link>
-            <Link href={ROUTES.dashboard.tourOperationsGroupQrCodes(groupId) as never} className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-white px-3.5 text-sm font-semibold text-slate-950 transition hover:bg-sky-50">
+            <Link href={ROUTES.dashboard.tourOperationsGroupQrCodes(groupId)} className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-white px-3.5 text-sm font-semibold text-slate-950 transition hover:bg-sky-50">
               <QrCode className="h-4 w-4 text-blue-700" aria-hidden="true" /> QR codes
             </Link>
           </>

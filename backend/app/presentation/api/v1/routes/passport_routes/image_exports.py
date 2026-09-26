@@ -6,7 +6,7 @@ import io
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response, StreamingResponse
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -30,6 +30,7 @@ from app.infrastructure.repositories.passport_image_crop_repository import (
     PassportImageCropRepository,
 )
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
+from app.presentation.api.v1.response_contracts import binary_responses
 from app.presentation.api.v1.schemas.passport_schemas import ExportSelectedPassportImagesRequest
 from app.presentation.dependencies.auth import get_current_active_user
 
@@ -54,7 +55,7 @@ logger = get_logger(__name__)
     "/groups/{group_id}/export-images",
     status_code=status.HTTP_200_OK,
     summary="Export a client group's current cropped passport images as ZIP",
-)
+response_class=Response, responses=binary_responses("application/zip"))
 async def export_passport_images_by_group(
     group_id: uuid.UUID,
     export_mode: PassportExportMode = Query(default="all", alias="mode"),
@@ -184,7 +185,7 @@ async def export_passport_images_by_group(
     "/groups/{group_id}/export-images/selected",
     status_code=status.HTTP_200_OK,
     summary="Export selected current passport images from a client group as ZIP",
-)
+response_class=Response, responses=binary_responses("application/zip"))
 async def export_selected_passport_images_by_group(
     group_id: uuid.UUID,
     body: ExportSelectedPassportImagesRequest,

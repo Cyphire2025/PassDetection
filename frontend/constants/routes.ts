@@ -1,3 +1,5 @@
+import type { Route } from "next";
+
 /**
  * Application Routes
  * ==================
@@ -16,16 +18,16 @@ export const ROUTES = {
 
   auth: {
     login: "/login",
-    coordinatorLogin: (from = "/coordinator") => `/login?from=${encodeURIComponent(from)}`,
+    coordinatorLogin: (from = "/coordinator") => `/login?from=${encodeURIComponent(from)}` as const,
   },
 
   dashboard: {
     root: "/dashboard",
     passports: "/passports",
-    passportGroup: (groupId: string) => `/passports/groups/${groupId}`,
+    passportGroup: (groupId: string) => `/passports/groups/${encodeURIComponent(groupId)}` as const,
     passportGroupWhatsAppTracking: (groupId: string) =>
-      `/passports/groups/${groupId}/whatsapp`,
-    passportDetail: (id: string) => `/passports/${id}`,
+      `/passports/groups/${encodeURIComponent(groupId)}/whatsapp` as const,
+    passportDetail: (id: string) => `/passports/${encodeURIComponent(id)}` as const,
     uploadLinks: "/upload-links",
     whatsapp: "/whatsapp",
     emailIntegrations: "/email-integrations",
@@ -33,39 +35,39 @@ export const ROUTES = {
     emailIntegrationsReview: "/email-integrations/review",
     emailIntegrationsActivity: "/email-integrations/activity",
     emailIntegrationMessage: (messageId: string) =>
-      `/email-integrations/activity/${messageId}`,
+      `/email-integrations/activity/${encodeURIComponent(messageId)}` as const,
     documents: "/documents",
     documentRename: "/documents/rename",
     ecrChecker: "/documents/ecr-checker",
     documentDistribution: "/documents/distribution",
     documentDistributionVisa: "/documents/distribution/visa",
     documentDistributionVisaGroup: (groupId: string) =>
-      `/documents/distribution/visa/${groupId}`,
+      `/documents/distribution/visa/${encodeURIComponent(groupId)}` as const,
     documentDistributionFlightTickets: "/documents/distribution/flight-tickets",
     documentDistributionFlightGroup: (groupId: string) =>
-      `/documents/distribution/flight-tickets/${groupId}`,
+      `/documents/distribution/flight-tickets/${encodeURIComponent(groupId)}` as const,
     documentDistributionFlightLane: (
       groupId: string,
       scope: "international" | "domestic",
       leg: "onward" | "return",
-    ) => `/documents/distribution/flight-tickets/${groupId}/${scope}/${leg}`,
+    ) => `/documents/distribution/flight-tickets/${encodeURIComponent(groupId)}/${scope}/${leg}` as const,
     // Backwards-compatible group entry for notifications and linked workflows.
-    documentGroup: (groupId: string) => `/documents/distribution/${groupId}`,
+    documentGroup: (groupId: string) => `/documents/distribution/${encodeURIComponent(groupId)}` as const,
     tourOperations: "/tour-operations",
     tourOperationsCoordinators: "/tour-operations/coordinators",
     tourOperationsGroupAssignments: "/tour-operations/group-assignments",
-    tourOperationsGroup: (groupId: string) => `/tour-operations/groups/${groupId}`,
-    tourOperationsGroupAttendance: (groupId: string) => `/tour-operations/groups/${groupId}/attendance`,
-    tourOperationsGroupQrCodes: (groupId: string) => `/tour-operations/groups/${groupId}/qr-codes`,
+    tourOperationsGroup: (groupId: string) => `/tour-operations/groups/${encodeURIComponent(groupId)}` as const,
+    tourOperationsGroupAttendance: (groupId: string) => `/tour-operations/groups/${encodeURIComponent(groupId)}/attendance` as const,
+    tourOperationsGroupQrCodes: (groupId: string) => `/tour-operations/groups/${encodeURIComponent(groupId)}/qr-codes` as const,
     tourOperationsScannerProof: "/tour-operations/scanner-proof",
     rooming: "/rooming",
-    roomingGroup: (groupId: string) => `/rooming/${groupId}`,
+    roomingGroup: (groupId: string) => `/rooming/${encodeURIComponent(groupId)}` as const,
     menu: "/menu",
     gcAppRoot: "/gc-app",
     gcAppClientManagerAccounts: "/gc-app/client-manager-accounts",
     gcAppAppControls: "/gc-app/app-controls",
     gcAppNotifications: "/gc-app/notifications",
-    gcAppGroup: (groupId: string) => `/gc-app/app-controls/${groupId}`,
+    gcAppGroup: (groupId: string) => `/gc-app/app-controls/${encodeURIComponent(groupId)}` as const,
     admin: "/admin",
     staff: "/staff",
     analytics: "/analytics",
@@ -75,8 +77,8 @@ export const ROUTES = {
   },
 
   upload: {
-    client: (token: string) => `/upload/${token}`,
+    client: (token: string) => `/upload/${encodeURIComponent(token)}` as const,
   },
 } as const;
 
-export type AppRoute = string;
+export type AppRoute = Route;

@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useRef, useState } from "react";
+import { useModalKeyboardBoundary } from "@/components/ui/modal";
 import {
   AlertCircle,
   BookOpen,
@@ -823,10 +824,12 @@ function GeneratePlanDialog({
   onSubmit: (event: FormEvent) => void;
   onClose: () => void;
 }) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const handleKeyDown = useModalKeyboardBoundary({ dialogRef, isOpen, canClose: !isGenerating, onClose });
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
+    <div ref={dialogRef} onKeyDown={handleKeyDown} className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
       <form
         onSubmit={onSubmit}
         className="max-h-[calc(100vh-2rem)] w-full max-w-xl overflow-y-auto rounded-xl bg-white shadow-2xl"
@@ -854,6 +857,7 @@ function GeneratePlanDialog({
             onClick={onClose}
             className="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
             aria-label="Close generator"
+            disabled={isGenerating}
           >
             <X className="h-5 w-5" />
           </button>
@@ -868,7 +872,7 @@ function GeneratePlanDialog({
                 onChange={(event) => onPlanNameChange(event.target.value)}
                 placeholder="e.g. Singapore Group – October"
                 maxLength={150}
-                autoFocus
+                data-dialog-initial-focus
                 required
               />
             </div>

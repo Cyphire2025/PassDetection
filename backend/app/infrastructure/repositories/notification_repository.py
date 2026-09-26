@@ -83,7 +83,7 @@ class NotificationRepository:
         )
         if unread_only:
             stmt = stmt.where(NotificationModel.is_read.is_(False))
-        stmt = stmt.order_by(NotificationModel.created_at.desc()).offset(skip).limit(limit)
+        stmt = stmt.order_by(NotificationModel.created_at.desc(), NotificationModel.id.desc()).offset(skip).limit(limit)
         result = await self._session.execute(stmt)
         return list(result.scalars().all())
 

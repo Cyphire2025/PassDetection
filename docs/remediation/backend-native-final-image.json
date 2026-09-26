@@ -1,0 +1,28 @@
+{
+  "result": "passed",
+  "created_at": "2026-09-26T23:05:31.015008+00:00",
+  "image_id": "sha256:0066ad357a08c4b207fa93bfa12e6111a90ebcac3514b4edbbdeb31a66db0f67",
+  "image_config_sha256": "sha256:95f4de75c5b5481eb7f12ad27b280d23468f93ad9a8994b37f9cf1b9d76b926a",
+  "static_checks": {
+    "mypy": "714 source files passed",
+    "ruff": "app/tests passed",
+    "openapi_and_architecture": "Previously passed; following changes only native buffer lifetime/reclamation, no route/schema/dependency-boundary changes"
+  },
+  "runtime_source_integrity": {
+    "files": 861,
+    "changed": []
+  },
+  "build_log": "outputs/qualification/backend-reclaimed-workers-final-build.txt",
+  "scan_report": "outputs/qualification/backend-reclaimed-workers-image-audit/backend.grype.json",
+  "policy_receipt": "docs/remediation/final-image-disposition-evidence.json",
+  "api_repeated_memory_receipt": "docs/remediation/api-native-memory-evidence.json",
+  "mixed_capacity_receipt": "docs/remediation/workload-capacity-evidence.json",
+  "production_changed": false,
+  "shared_stack_changed": true,
+  "shared_stack_change": "Only guarded synthetic API/general worker/ECR/beat image/resources; all data/dependency identities retained",
+  "limitations": [
+    "Working-tree local candidate, not a signed GitHub release or production deployment",
+    "Advisory-specific dispositions include mitigated unpatched libraries, not zero vulnerabilities",
+    "Mixed capacity is a declared local envelope, not a whole-host peak test, long soak or external-provider throughput proof"
+  ]
+}

@@ -29,7 +29,7 @@ from app.application.mobile.sync_journal import (
 )
 from app.application.use_cases.whatsapp.contact_normalization import normalize_whatsapp_phone
 from app.core.security.mobile_jwt import hash_mobile_lookup
-from app.core.security.password import hash_password
+from app.core.security.password import hash_password, run_password_work
 from app.domain.entities.entities import GroupStatus, User, UserRole
 from app.infrastructure.database.gc_mobile_models import (
     ClientManagerGroupAssignmentModel,
@@ -1129,7 +1129,7 @@ async def create_client_manager(
     activation_token = secrets.token_urlsafe(32)
     initial_status = "invited"
     try:
-        password_hash = hash_password(temporary_password)
+        password_hash = await run_password_work(hash_password, temporary_password)
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)) from exc
     now = datetime.now(tz=UTC)
@@ -1399,7 +1399,7 @@ async def reset_client_manager_password(
     temporary_password = f"Gc1{secrets.token_urlsafe(32)}"
     activation_token = secrets.token_urlsafe(32)
     try:
-        user.hashed_password = hash_password(temporary_password)
+        user.hashed_password = await run_password_work(hash_password, temporary_password)
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)) from exc
     now = datetime.now(tz=UTC)
@@ -1740,7 +1740,7 @@ async def delete_client_manager(
     profile.updated_at = now
     user.is_active = False
     user.email = f"deleted-{user.id}@deleted.invalid"
-    user.hashed_password = hash_password(f"Gc1{secrets.token_urlsafe(48)}")
+    user.hashed_password = await run_password_work(hash_password, f"Gc1{secrets.token_urlsafe(48)}")
     user.deleted_at = now
     user.updated_at = now
     await _audit(

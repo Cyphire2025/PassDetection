@@ -1,0 +1,85 @@
+{
+  "result": "passed",
+  "verified_at_utc": "2026-09-26T21:11:37.679594+00:00",
+  "scope": "Portable Windows Node and actual npm installer metadata inventory; no global runtime replacement",
+  "node": "24.21.0",
+  "npm": "11.20.0",
+  "node_windows_archive_url": "https://nodejs.org/dist/v24.21.0/node-v24.21.0-win-x64.zip",
+  "node_windows_archive_sha256": "158f7685b44de51f6c0df1d153526cbcd3e1bc739a8dfc607721cef75de9e541",
+  "node_executable_sha256": "ba4e6d110e8c1592a1ecd390f6b05f3da124b13871a5be62b341a07a853c6c32",
+  "npm_registry_integrity": "sha512-dF3EDFwbYN+N5RUip+ZYDe0NeURK5BgqKOcvT1iNtUYhTMTl0FwWhBuXrS7KtXyduqyTMS5aaQaregnHDAxNgw==",
+  "node_release_source": "https://nodejs.org/en/blog/release/v24.21.0",
+  "npm_metadata_source": "https://registry.npmjs.org/npm/11.20.0",
+  "scanner": "grype0.119.0",
+  "inventory_sha256": "5e4151b855333a28cdaa98585d6af5c229e93f03df27a490dc7c424f05f9c983",
+  "scan_sha256": "15761acd10e93a462d3f66dd44f9915de88ebf9dded5caff4648b8f50c509515",
+  "comparison": {
+    "bundled_npm_11_19": {
+      "inventoried_packages": 144,
+      "high_critical_matches": 4,
+      "findings": [
+        {
+          "id": "GHSA-mwp4-54f8-5fhr",
+          "severity": "High",
+          "package": "ip-address",
+          "version": "10.2.0"
+        },
+        {
+          "id": "GHSA-rgw5-rvv9-x895",
+          "severity": "High",
+          "package": "brace-expansion",
+          "version": "5.0.7"
+        },
+        {
+          "id": "GHSA-mh99-v99m-4gvg",
+          "severity": "High",
+          "package": "brace-expansion",
+          "version": "5.0.7"
+        },
+        {
+          "id": "GHSA-r292-9mhp-454m",
+          "severity": "High",
+          "package": "tar",
+          "version": "7.5.19"
+        },
+        {
+          "id": "GHSA-4xrf-jv44-h6hh",
+          "severity": "Medium",
+          "package": "ip-address",
+          "version": "10.2.0"
+        },
+        {
+          "id": "GHSA-22jq-vg5j-6vgg",
+          "severity": "Medium",
+          "package": "ip-address",
+          "version": "10.2.0"
+        },
+        {
+          "id": "GHSA-v3r7-h72x-cjcm",
+          "severity": "Medium",
+          "package": "undici",
+          "version": "6.27.0"
+        },
+        {
+          "id": "GHSA-m8rv-5g2x-5cg5",
+          "severity": "Medium",
+          "package": "undici",
+          "version": "6.27.0"
+        },
+        {
+          "id": "GHSA-8xcm-r25x-g524",
+          "severity": "Medium",
+          "package": "undici",
+          "version": "6.27.0"
+        }
+      ]
+    },
+    "selected_npm_11_20": {
+      "inventoried_packages": 144,
+      "high_critical_matches": 0,
+      "findings": []
+    }
+  },
+  "negative_tests": "2/2 installer inventory tests passed: empty/partial tree and old installed version refused",
+  "limitation": "Initial generic directory scans failed to find known installed-package positives and are not used as clean evidence. The explicit actual package PURL inventory detects four High positives in bundled npm11.19 and none in chosen11.20. This is package advisory checking, not a formal exploit or native Windows-library audit. Frontend application dependency audit/tests are separate."
+}

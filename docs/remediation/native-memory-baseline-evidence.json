@@ -1,0 +1,650 @@
+{
+  "date": "2026-09-27",
+  "finding": "ADD-15",
+  "status": "proven native memory cost and missing shared admission; fix in progress",
+  "image": "sha256:e8935a6a80d5a6d1a8689ad1829bbee914acc30ff472253f6d21df86cb829c73",
+  "source_sha256": "9fe86ef064eb9f85603e3f2e05c7b411d6e3f1ffdf3d00e621e45f6aa7d70a32",
+  "memory_limit": "2g",
+  "children": 1,
+  "workloads": [
+    {
+      "mode": "baseline",
+      "container": "pd-memory-20260926215514-baseline",
+      "returncode": 0,
+      "oom_killed": false,
+      "measurements": {
+        "mode": "baseline",
+        "children": 1,
+        "baseline": {
+          "cgroup_peak_bytes": 161882112,
+          "cgroup_current_bytes": 161681408,
+          "cgroup_events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          },
+          "process_max_rss_kib": 146784
+        },
+        "results": [
+          {
+            "status": "passed",
+            "operation": {
+              "operation": "loaded worker child"
+            },
+            "cgroup_peak_bytes": 166125568,
+            "cgroup_current_bytes": 166125568,
+            "cgroup_events": {
+              "low": "0",
+              "high": "0",
+              "max": "0",
+              "oom": "0",
+              "oom_kill": "0",
+              "oom_group_kill": "0"
+            },
+            "process_max_rss_kib": 125936
+          }
+        ],
+        "exit_codes": [
+          0
+        ],
+        "cgroup_peak_bytes": 166387712,
+        "cgroup_current_bytes": 163504128,
+        "cgroup_events": {
+          "low": "0",
+          "high": "0",
+          "max": "0",
+          "oom": "0",
+          "oom_kill": "0",
+          "oom_group_kill": "0"
+        },
+        "process_max_rss_kib": 148064
+      }
+    },
+    {
+      "mode": "passport-rgb",
+      "container": "pd-memory-20260926215514-passport-rgb",
+      "returncode": 0,
+      "oom_killed": false,
+      "measurements": {
+        "mode": "passport-rgb",
+        "children": 1,
+        "baseline": {
+          "cgroup_peak_bytes": 128352256,
+          "cgroup_current_bytes": 128352256,
+          "cgroup_events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          },
+          "process_max_rss_kib": 150188
+        },
+        "results": [
+          {
+            "status": "passed",
+            "operation": {
+              "accepted_pixels": 24000000,
+              "result_bytes": 1010447
+            },
+            "cgroup_peak_bytes": 500580352,
+            "cgroup_current_bytes": 140591104,
+            "cgroup_events": {
+              "low": "0",
+              "high": "0",
+              "max": "0",
+              "oom": "0",
+              "oom_kill": "0",
+              "oom_group_kill": "0"
+            },
+            "process_max_rss_kib": 480996
+          }
+        ],
+        "exit_codes": [
+          0
+        ],
+        "cgroup_peak_bytes": 500580352,
+        "cgroup_current_bytes": 131448832,
+        "cgroup_events": {
+          "low": "0",
+          "high": "0",
+          "max": "0",
+          "oom": "0",
+          "oom_kill": "0",
+          "oom_group_kill": "0"
+        },
+        "process_max_rss_kib": 151468
+      }
+    },
+    {
+      "mode": "passport-rgba",
+      "container": "pd-memory-20260926215514-passport-rgba",
+      "returncode": 0,
+      "oom_killed": false,
+      "measurements": {
+        "mode": "passport-rgba",
+        "children": 1,
+        "baseline": {
+          "cgroup_peak_bytes": 128880640,
+          "cgroup_current_bytes": 128880640,
+          "cgroup_events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          },
+          "process_max_rss_kib": 149444
+        },
+        "results": [
+          {
+            "status": "passed",
+            "operation": {
+              "accepted_pixels": 24000000,
+              "result_bytes": 860194
+            },
+            "cgroup_peak_bytes": 715608064,
+            "cgroup_current_bytes": 163282944,
+            "cgroup_events": {
+              "low": "0",
+              "high": "0",
+              "max": "0",
+              "oom": "0",
+              "oom_kill": "0",
+              "oom_group_kill": "0"
+            },
+            "process_max_rss_kib": 690648
+          }
+        ],
+        "exit_codes": [
+          0
+        ],
+        "cgroup_peak_bytes": 715608064,
+        "cgroup_current_bytes": 130658304,
+        "cgroup_events": {
+          "low": "0",
+          "high": "0",
+          "max": "0",
+          "oom": "0",
+          "oom_kill": "0",
+          "oom_group_kill": "0"
+        },
+        "process_max_rss_kib": 150724
+      }
+    },
+    {
+      "mode": "gemini-extraction",
+      "container": "pd-memory-20260926215514-gemini-extraction",
+      "returncode": 0,
+      "oom_killed": false,
+      "measurements": {
+        "mode": "gemini-extraction",
+        "children": 1,
+        "baseline": {
+          "cgroup_peak_bytes": 128274432,
+          "cgroup_current_bytes": 128274432,
+          "cgroup_events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          },
+          "process_max_rss_kib": 149936
+        },
+        "results": [
+          {
+            "status": "passed",
+            "operation": {
+              "retained_source_bytes": 10485760,
+              "http_request_bytes": 13985547,
+              "provider_calls": 0
+            },
+            "cgroup_peak_bytes": 191062016,
+            "cgroup_current_bytes": 152862720,
+            "cgroup_events": {
+              "low": "0",
+              "high": "0",
+              "max": "0",
+              "oom": "0",
+              "oom_kill": "0",
+              "oom_group_kill": "0"
+            },
+            "process_max_rss_kib": 177760
+          }
+        ],
+        "exit_codes": [
+          0
+        ],
+        "cgroup_peak_bytes": 191062016,
+        "cgroup_current_bytes": 130277376,
+        "cgroup_events": {
+          "low": "0",
+          "high": "0",
+          "max": "0",
+          "oom": "0",
+          "oom_kill": "0",
+          "oom_group_kill": "0"
+        },
+        "process_max_rss_kib": 151472
+      }
+    },
+    {
+      "mode": "gemini-verification",
+      "container": "pd-memory-20260926215514-gemini-verification",
+      "returncode": 0,
+      "oom_killed": false,
+      "measurements": {
+        "mode": "gemini-verification",
+        "children": 1,
+        "baseline": {
+          "cgroup_peak_bytes": 128552960,
+          "cgroup_current_bytes": 128552960,
+          "cgroup_events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          },
+          "process_max_rss_kib": 149352
+        },
+        "results": [
+          {
+            "status": "passed",
+            "operation": {
+              "retained_source_bytes": 10485760,
+              "http_request_bytes": 13985282,
+              "provider_calls": 0
+            },
+            "cgroup_peak_bytes": 190898176,
+            "cgroup_current_bytes": 152698880,
+            "cgroup_events": {
+              "low": "0",
+              "high": "0",
+              "max": "0",
+              "oom": "0",
+              "oom_kill": "0",
+              "oom_group_kill": "0"
+            },
+            "process_max_rss_kib": 176968
+          }
+        ],
+        "exit_codes": [
+          0
+        ],
+        "cgroup_peak_bytes": 190898176,
+        "cgroup_current_bytes": 130265088,
+        "cgroup_events": {
+          "low": "0",
+          "high": "0",
+          "max": "0",
+          "oom": "0",
+          "oom_kill": "0",
+          "oom_group_kill": "0"
+        },
+        "process_max_rss_kib": 150632
+      }
+    },
+    {
+      "mode": "extraction",
+      "container": "pd-memory-20260926215514-extraction",
+      "returncode": 0,
+      "oom_killed": false,
+      "measurements": {
+        "mode": "extraction",
+        "children": 1,
+        "baseline": {
+          "cgroup_peak_bytes": 128724992,
+          "cgroup_current_bytes": 128724992,
+          "cgroup_events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          },
+          "process_max_rss_kib": 149392
+        },
+        "results": [
+          {
+            "status": "passed",
+            "operation": {
+              "source_pixels": 24000000,
+              "normalized_bytes": 352556,
+              "ocr_variants": 5
+            },
+            "cgroup_peak_bytes": 427765760,
+            "cgroup_current_bytes": 190218240,
+            "cgroup_events": {
+              "low": "0",
+              "high": "0",
+              "max": "0",
+              "oom": "0",
+              "oom_kill": "0",
+              "oom_group_kill": "0"
+            },
+            "process_max_rss_kib": 408520
+          }
+        ],
+        "exit_codes": [
+          0
+        ],
+        "cgroup_peak_bytes": 427765760,
+        "cgroup_current_bytes": 151932928,
+        "cgroup_events": {
+          "low": "0",
+          "high": "0",
+          "max": "0",
+          "oom": "0",
+          "oom_kill": "0",
+          "oom_group_kill": "0"
+        },
+        "process_max_rss_kib": 150672
+      }
+    },
+    {
+      "mode": "extraction-full",
+      "container": "pd-memory-20260926215514-extraction-full",
+      "returncode": 0,
+      "oom_killed": false,
+      "measurements": {
+        "mode": "extraction-full",
+        "children": 1,
+        "baseline": {
+          "cgroup_peak_bytes": 130240512,
+          "cgroup_current_bytes": 130240512,
+          "cgroup_events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          },
+          "process_max_rss_kib": 149816
+        },
+        "results": [
+          {
+            "status": "passed",
+            "operation": {
+              "source_pixels": 24000000,
+              "field_count": 3,
+              "local_timeout_seconds": 10,
+              "external_provider_calls": false
+            },
+            "cgroup_peak_bytes": 439042048,
+            "cgroup_current_bytes": 195162112,
+            "cgroup_events": {
+              "low": "0",
+              "high": "0",
+              "max": "0",
+              "oom": "0",
+              "oom_kill": "0",
+              "oom_group_kill": "0"
+            },
+            "process_max_rss_kib": 412608
+          }
+        ],
+        "exit_codes": [
+          0
+        ],
+        "cgroup_peak_bytes": 439042048,
+        "cgroup_current_bytes": 150257664,
+        "cgroup_events": {
+          "low": "0",
+          "high": "0",
+          "max": "0",
+          "oom": "0",
+          "oom_kill": "0",
+          "oom_group_kill": "0"
+        },
+        "process_max_rss_kib": 151096
+      }
+    },
+    {
+      "mode": "ecr",
+      "container": "pd-memory-20260926215514-ecr",
+      "returncode": 0,
+      "oom_killed": false,
+      "measurements": {
+        "mode": "ecr",
+        "children": 1,
+        "baseline": {
+          "cgroup_peak_bytes": 128692224,
+          "cgroup_current_bytes": 128679936,
+          "cgroup_events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          },
+          "process_max_rss_kib": 149556
+        },
+        "results": [
+          {
+            "status": "passed",
+            "operation": {
+              "source_pixels_each": 40000000,
+              "simultaneous_decoder_threads": 2
+            },
+            "cgroup_peak_bytes": 880447488,
+            "cgroup_current_bytes": 140120064,
+            "cgroup_events": {
+              "low": "0",
+              "high": "0",
+              "max": "0",
+              "oom": "0",
+              "oom_kill": "0",
+              "oom_group_kill": "0"
+            },
+            "process_max_rss_kib": 850188
+          }
+        ],
+        "exit_codes": [
+          0
+        ],
+        "cgroup_peak_bytes": 880447488,
+        "cgroup_current_bytes": 131719168,
+        "cgroup_events": {
+          "low": "0",
+          "high": "0",
+          "max": "0",
+          "oom": "0",
+          "oom_kill": "0",
+          "oom_group_kill": "0"
+        },
+        "process_max_rss_kib": 150836
+      }
+    },
+    {
+      "mode": "email",
+      "container": "pd-memory-20260926215514-email",
+      "returncode": 0,
+      "oom_killed": false,
+      "measurements": {
+        "mode": "email",
+        "children": 1,
+        "baseline": {
+          "cgroup_peak_bytes": 129748992,
+          "cgroup_current_bytes": 129708032,
+          "cgroup_events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          },
+          "process_max_rss_kib": 150080
+        },
+        "results": [
+          {
+            "status": "passed",
+            "operation": {
+              "accepted_pages": 100,
+              "accepted_bytes": 25178450
+            },
+            "cgroup_peak_bytes": 259915776,
+            "cgroup_current_bytes": 161480704,
+            "cgroup_events": {
+              "low": "0",
+              "high": "0",
+              "max": "0",
+              "oom": "0",
+              "oom_kill": "0",
+              "oom_group_kill": "0"
+            },
+            "process_max_rss_kib": 247772
+          }
+        ],
+        "exit_codes": [
+          0
+        ],
+        "cgroup_peak_bytes": 259915776,
+        "cgroup_current_bytes": 131575808,
+        "cgroup_events": {
+          "low": "0",
+          "high": "0",
+          "max": "0",
+          "oom": "0",
+          "oom_kill": "0",
+          "oom_group_kill": "0"
+        },
+        "process_max_rss_kib": 151360
+      }
+    },
+    {
+      "mode": "visa-image",
+      "container": "pd-memory-20260926215514-visa-image",
+      "returncode": 0,
+      "oom_killed": false,
+      "measurements": {
+        "mode": "visa-image",
+        "children": 1,
+        "baseline": {
+          "cgroup_peak_bytes": 128286720,
+          "cgroup_current_bytes": 128286720,
+          "cgroup_events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          },
+          "process_max_rss_kib": 150076
+        },
+        "results": [
+          {
+            "status": "passed",
+            "operation": {
+              "accepted_pixels": 24000000,
+              "result_bytes": 975288
+            },
+            "cgroup_peak_bytes": 596500480,
+            "cgroup_current_bytes": 139640832,
+            "cgroup_events": {
+              "low": "0",
+              "high": "0",
+              "max": "0",
+              "oom": "0",
+              "oom_kill": "0",
+              "oom_group_kill": "0"
+            },
+            "process_max_rss_kib": 573036
+          }
+        ],
+        "exit_codes": [
+          0
+        ],
+        "cgroup_peak_bytes": 596500480,
+        "cgroup_current_bytes": 131194880,
+        "cgroup_events": {
+          "low": "0",
+          "high": "0",
+          "max": "0",
+          "oom": "0",
+          "oom_kill": "0",
+          "oom_group_kill": "0"
+        },
+        "process_max_rss_kib": 151356
+      }
+    },
+    {
+      "mode": "crop",
+      "container": "pd-memory-20260926215514-crop",
+      "returncode": 0,
+      "oom_killed": false,
+      "measurements": {
+        "mode": "crop",
+        "children": 1,
+        "baseline": {
+          "cgroup_peak_bytes": 128323584,
+          "cgroup_current_bytes": 128323584,
+          "cgroup_events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          },
+          "process_max_rss_kib": 149768
+        },
+        "results": [
+          {
+            "status": "passed",
+            "operation": {
+              "source_pixels": 24000000,
+              "output_pixels": 50013184,
+              "result_bytes": 6134597
+            },
+            "cgroup_peak_bytes": 1260900352,
+            "cgroup_current_bytes": 142651392,
+            "cgroup_events": {
+              "low": "0",
+              "high": "0",
+              "max": "0",
+              "oom": "0",
+              "oom_kill": "0",
+              "oom_group_kill": "0"
+            },
+            "process_max_rss_kib": 1198444
+          }
+        ],
+        "exit_codes": [
+          0
+        ],
+        "cgroup_peak_bytes": 1260900352,
+        "cgroup_current_bytes": 133865472,
+        "cgroup_events": {
+          "low": "0",
+          "high": "0",
+          "max": "0",
+          "oom": "0",
+          "oom_kill": "0",
+          "oom_group_kill": "0"
+        },
+        "process_max_rss_kib": 151048
+      }
+    }
+  ],
+  "limitations": [
+    "No external providers, production data or malware scanner exercised",
+    "Not a full-stack or steady-state capacity claim",
+    "Exited synthetic containers retained"
+  ],
+  "production_oom_observed": false,
+  "production_changes": false
+}

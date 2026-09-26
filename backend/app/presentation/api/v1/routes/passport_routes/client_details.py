@@ -31,6 +31,7 @@ from app.infrastructure.repositories.passport_roster_resolution_repository impor
 from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
+from app.infrastructure.repositories.sensitive_read_audit import record_sensitive_read
 from app.infrastructure.whatsapp.private_delivery_policy import (
     PrivateDeliveryMutationBlocked,
     prepare_private_delivery_identity_mutation,
@@ -87,6 +88,8 @@ async def get_passport_client_details(
     session: AsyncSession = Depends(get_db_session),
 ) -> PassportClientDetailsResponse:
     submission, group = await _editable_submission(submission_id, current_user, session, lock=False)
+    await record_sensitive_read(session, user=current_user, kind="client_details",
+                                agency_id=submission.agency_id, entity_id=submission.id)
     response.headers["Cache-Control"] = "no-store"
     return PassportClientDetailsResponse.model_validate(client_details_payload(submission, group))
 

@@ -8,7 +8,7 @@ export default function LegalLayout({ children }: { children: ReactNode }) {
       <header className="border-b border-slate-200">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-5 py-4">
           <Link
-            href={"/email-automation" as never}
+            href={"/email-automation"}
             aria-label="Global Connect Travels Email Automation home"
           >
             <Image
@@ -23,13 +23,13 @@ export default function LegalLayout({ children }: { children: ReactNode }) {
           <nav aria-label="Legal pages" className="flex gap-4 text-sm">
             <Link
               className="text-blue-700 hover:underline"
-              href={"/privacy-policy" as never}
+              href={"/privacy-policy"}
             >
               Privacy
             </Link>
             <Link
               className="text-blue-700 hover:underline"
-              href={"/terms" as never}
+              href={"/terms"}
             >
               Terms
             </Link>

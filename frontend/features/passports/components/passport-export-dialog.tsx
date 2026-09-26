@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { Button } from "@/components/ui";
+import { useModalKeyboardBoundary } from "@/components/ui/modal";
 import { formatDateTime } from "@/lib/utils/format";
 import type {
   PassportGroupExportKind,
@@ -48,10 +49,7 @@ export function PassportExportDialog({
   const titleId = useId();
   const descriptionId = useId();
   const dialogRef = useRef<HTMLElement | null>(null);
-  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const downloadStartedRef = useRef(false);
-  const onCloseRef = useRef(onClose);
-  const busyRef = useRef(false);
   const [mode, setMode] = useState<PassportGroupExportMode>("all");
   const [historyPage, setHistoryPage] = useState(1);
   const [baselineExportId, setBaselineExportId] = useState<string>();
@@ -83,59 +81,7 @@ export function PassportExportDialog({
     setGroupByField(exportFields.data.default_group_by_field ?? "");
   }, [exportFields.data]);
 
-  useEffect(() => {
-    onCloseRef.current = onClose;
-  }, [onClose]);
-
-  useEffect(() => {
-    busyRef.current = isBusy;
-  }, [isBusy]);
-
-  useEffect(() => {
-    const previouslyFocused = document.activeElement instanceof HTMLElement
-      ? document.activeElement
-      : null;
-    const priorOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const focusTimer = window.setTimeout(
-      () => closeButtonRef.current?.focus(),
-      0,
-    );
-    const handleKeyboard = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !busyRef.current) {
-        event.preventDefault();
-        onCloseRef.current();
-        return;
-      }
-      if (event.key !== "Tab") return;
-      const focusable = Array.from(
-        dialogRef.current?.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
-        ) ?? [],
-      ).filter((element) => element.offsetParent !== null);
-      if (focusable.length === 0) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      const active = document.activeElement;
-      if (
-        event.shiftKey
-        && (active === first || !dialogRef.current?.contains(active))
-      ) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && active === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-    document.addEventListener("keydown", handleKeyboard);
-    return () => {
-      window.clearTimeout(focusTimer);
-      document.removeEventListener("keydown", handleKeyboard);
-      document.body.style.overflow = priorOverflow;
-      previouslyFocused?.focus();
-    };
-  }, []);
+  const handleKeyDown = useModalKeyboardBoundary({ dialogRef, isOpen: true, canClose: !isBusy, onClose });
 
   const canDownload = (
     !isBusy
@@ -162,6 +108,7 @@ export function PassportExportDialog({
     >
       <section
         ref={dialogRef}
+        onKeyDown={handleKeyDown}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
@@ -189,7 +136,7 @@ export function PassportExportDialog({
             </div>
           </div>
           <button
-            ref={closeButtonRef}
+            data-dialog-initial-focus
             type="button"
             aria-label="Close export options"
             disabled={isBusy}

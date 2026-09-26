@@ -13,12 +13,13 @@ from sqlalchemy import select
 
 from app.core.config.settings import get_settings
 from app.core.security.access_level import ACCESS_LEVEL_COOKIE, apply_access_level_cookie
-from app.core.security.jwt import create_access_token, decode_access_token
+from app.core.security.jwt import decode_access_token
 from app.domain.entities.entities import UserRole
 from app.domain.exceptions.exceptions import AuthenticationError
 from app.infrastructure.database.models import AgencyModel, ClientGroupModel, UserModel
 from app.infrastructure.repositories.user_repository import UserRepository
 from app.presentation.security.access_level import set_access_level_cookie
+from tests.dashboard_session_fixtures import issue_dashboard_access
 
 
 async def _seed(session, client, *, role=UserRole.SUPER_ADMIN, own_agency=False):
@@ -31,7 +32,7 @@ async def _seed(session, client, *, role=UserRole.SUPER_ADMIN, own_agency=False)
     session.add_all([agency, model])
     await session.flush()
     user = await UserRepository(session).get_by_id(model.id)
-    token, _ = create_access_token(
+    token, _ = await issue_dashboard_access(session,
         user.id, role.value, agency_id=user.agency_id,
         session_expires_at=datetime.now(tz=UTC) + timedelta(days=1),
     )
@@ -269,7 +270,7 @@ async def test_signed_staff_then_manager_modes_enforce_real_submission_delete(
 
     agency, model, user, _ = await _seed(db_session, client)
     now = datetime.now(tz=UTC)
-    token, _ = create_access_token(
+    token, _ = await issue_dashboard_access(db_session,
         user.id, "super_admin", session_version=user.session_version,
         authentication_methods=("pwd", "totp"), mfa_authenticated_at=now,
         session_expires_at=now + timedelta(days=1),

@@ -7,7 +7,6 @@ from datetime import UTC, datetime
 from types import SimpleNamespace
 
 from app.application.use_cases.whatsapp.message_templates import render_message
-from app.core.security.jwt import create_access_token
 from app.infrastructure.database.models import (
     AgencyModel,
     ClientGroupModel,
@@ -21,6 +20,7 @@ from app.infrastructure.database.models import (
     WhatsAppMessageLogModel,
     WhatsAppPhoneWelcomeModel,
 )
+from tests.dashboard_session_fixtures import issue_dashboard_access
 
 QUALIFIER_PHONE = "+919900000001"
 MOTHER_PHONE = "+919900000002"
@@ -79,7 +79,8 @@ async def seed_traveller_delivery(session, client, *, phones=None, document_type
         passengers.append(passenger)
         documents.append(document)
     await session.commit()
-    token, _ = create_access_token(user.id, role, agency_id=user.agency_id)
+    token, _ = await issue_dashboard_access(session, user.id, role, agency_id=user.agency_id)
+    await session.commit()
     client.headers["Authorization"] = "Bearer " + token
     return SimpleNamespace(agency=agency, user=user, group=group, source=source, qualifier=qualifier,
                            batch=batch, passengers=passengers, documents=documents)

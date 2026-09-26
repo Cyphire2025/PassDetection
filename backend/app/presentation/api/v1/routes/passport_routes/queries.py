@@ -2,15 +2,12 @@
 
 from __future__ import annotations
 
-import asyncio
 import uuid
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.security.authorization_policy import AuthorizationPolicy
 from app.application.use_cases.passports.list_passport_group_summaries_use_case import (
     ListPassportGroupSummariesUseCase,
 )
@@ -20,16 +17,17 @@ from app.application.use_cases.passports.list_passport_submissions_by_group_use_
 from app.application.use_cases.passports.list_passport_submissions_use_case import (
     ListPassportSubmissionsUseCase,
 )
-from app.application.use_cases.passports.submission_view import build_submission_view
 from app.domain.entities.entities import User, UserRole
-from app.infrastructure.database.models import ClientGroupModel
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.passports.roster_view_service import prepared_roster
 from app.infrastructure.repositories.passport_image_crop_repository import (
     PassportImageCropRepository,
 )
 from app.infrastructure.repositories.passport_submission_view_repository import (
     PassportSubmissionViewRepository,
 )
+from app.infrastructure.repositories.sensitive_read_audit import record_sensitive_read
+from app.presentation.api.v1.pagination import PageOffset, PageSize
 from app.presentation.api.v1.schemas.passport_schemas import (
     PassportGroupSummaryResponse,
     PassportSubmissionResponse,
@@ -62,8 +60,8 @@ LEGACY_DUPLICATE_MEMBERS_MAX = 20
 async def list_passport_groups(
     current_user: User = Depends(get_current_active_user),
     use_case: ListPassportGroupSummariesUseCase = Depends(_get_list_passport_groups_use_case),
-    skip: int = 0,
-    limit: int = 50,
+    skip: PageOffset = 0,
+    limit: PageSize = 50,
 ) -> list[PassportGroupSummaryResponse]:
     if not current_user.agency_id:
         return []
@@ -91,9 +89,9 @@ async def list_passports_by_group(
     use_case: ListPassportSubmissionsByGroupUseCase = Depends(
         _get_list_passports_by_group_use_case
     ),
-    skip: int = 0,
-    limit: int = 100,
-    search: str | None = None,
+    skip: PageOffset = 0,
+    limit: PageSize = 100,
+    search: str | None = Query(default=None, max_length=200),
     include_deleted: bool = False,
 ) -> list[PassportSubmissionResponse]:
     if not current_user.agency_id:
@@ -113,6 +111,8 @@ async def list_passports_by_group(
         include_deleted_group=include_deleted,
         visible_to_user=None if include_deleted else current_user,
     )
+    await record_sensitive_read(session, user=current_user, kind="group_list",
+                                agency_id=current_user.agency_id, entity_id=group_id, count=len(result))
     crop_rows = await PassportImageCropRepository(session).list_for_submissions(
         [item.id for item in result]
     )
@@ -168,31 +168,17 @@ async def list_passports_by_group_view(
             detail="Only super admins can view old data",
         )
 
-    # Preserve full-group duplicate identity semantics using a narrow projection.
     repository = PassportSubmissionViewRepository(session)
-    all_submissions = await repository.projection(
-        group_id=group_id, user=current_user, include_deleted=include_deleted
-    )
-    travel_date_stmt = select(ClientGroupModel.travel_date).where(ClientGroupModel.id == group_id)
-    if not include_deleted:
-        travel_date_stmt = travel_date_stmt.where(ClientGroupModel.deleted_at.is_(None))
-    travel_date_stmt = AuthorizationPolicy.apply_group_visibility_scope(
-        travel_date_stmt,
-        current_user,
-    )
-    travel_date = (await session.execute(travel_date_stmt)).scalar_one_or_none()
-    view = await asyncio.to_thread(
-        build_submission_view,
-        all_submissions,
+    prepared, revision = await prepared_roster(
+        session, group_id=group_id, user=current_user, include_deleted=include_deleted,
         submission_filter=submission_filter,
         sort_by=sort_by,
         sort_order=sort_order,
         search=search,
-        page=page,
         page_size=page_size,
-        travel_date=travel_date,
     )
-    submissions_by_id = {submission.id: submission for submission in all_submissions}
+    view = prepared.page(page)
+    submissions_by_id = {entry.submission.id: entry.submission for entries in prepared.pages for entry in entries}
     details = await repository.page_details(
         submission_ids=[entry.submission.id for entry in view.items],
         group_id=group_id,
@@ -238,6 +224,10 @@ async def list_passports_by_group_view(
                 }
             )
         )
+    if await repository.revision(group_id=group_id, user=current_user, include_deleted=include_deleted) != revision:
+        raise HTTPException(status_code=409, detail="The passport roster changed while loading. Refresh this page.")
+    await record_sensitive_read(session, user=current_user, kind="group_view",
+                                agency_id=current_user.agency_id, entity_id=group_id, count=len(items))
     return build_view_response(view, items, submissions_by_id)
 
 
@@ -251,10 +241,10 @@ async def list_passports(
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
     use_case: ListPassportSubmissionsUseCase = Depends(_get_list_passports_use_case),
-    skip: int = 0,
-    limit: int = 100,
+    skip: PageOffset = 0,
+    limit: PageSize = 100,
     status_filter: str | None = None,
-    search: str | None = None,
+    search: str | None = Query(default=None, max_length=200),
 ) -> list[PassportSubmissionResponse]:
     if not current_user.agency_id:
         return []
@@ -271,6 +261,8 @@ async def list_passports(
     crop_rows = await PassportImageCropRepository(session).list_for_submissions(
         [item.id for item in result]
     )
+    await record_sensitive_read(session, user=current_user, kind="list",
+                                agency_id=current_user.agency_id, count=len(result))
     return [
         PassportSubmissionResponse.model_validate(
             {**item.__dict__, **_staff_image_urls(item, crop_rows.get(item.id))}

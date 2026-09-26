@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { AlertTriangle, X, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useModalKeyboardBoundary } from "@/components/ui/modal";
 import { usePassportFrameDetection } from "../hooks/use-passport-frame-detection";
 import { useStableTelemetryReason } from "../hooks/use-stable-telemetry-reason";
 import { normalizePassportCanvasCapture } from "../services/passport-perspective-correction";
@@ -371,9 +372,13 @@ export function SmartCamera({
     stopCamera();
     onCancel();
   };
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const handleKeyDown = useModalKeyboardBoundary({ dialogRef, isOpen: true, canClose: true, onClose: close });
 
   return (
     <div
+      ref={dialogRef}
+      onKeyDown={handleKeyDown}
       role="dialog"
       aria-modal="true"
       aria-labelledby="passport-camera-title"

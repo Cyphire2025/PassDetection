@@ -1,0 +1,75 @@
+{
+  "result": "passed",
+  "image_config_sha256": "sha256:95f4de75c5b5481eb7f12ad27b280d23468f93ad9a8994b37f9cf1b9d76b926a",
+  "image_id": "sha256:0066ad357a08c4b207fa93bfa12e6111a90ebcac3514b4edbbdeb31a66db0f67",
+  "scan_sha256": "bbbdb77fa1050dc5ba493fd8d4d7fde2566ff61df91cc8624a6da6bf18595931",
+  "policy_sha256": "74731dfbb2b330ccef29729d8dd1c2c9c5b27e69962ffa1fd0ced7ce822cb52e",
+  "native_conditions": {
+    "result": "passed",
+    "uid": 1001,
+    "capabilities": "none",
+    "no_new_privileges": true,
+    "removed_executables": [
+      "/usr/bin/infocmp",
+      "/usr/bin/mount",
+      "/usr/bin/umount",
+      "/usr/bin/nsenter",
+      "/usr/bin/tiffcrop",
+      "/usr/bin/getfacl",
+      "/usr/bin/setfacl",
+      "/usr/bin/chacl"
+    ],
+    "absent_perl_modules": [
+      "Pod::Text",
+      "Archive::Tar"
+    ],
+    "inspected_native_objects": 1159,
+    "native_inventory_sha256": "d0a6166eb8ee12ae46db3508a91a3097aad1ad90be662eb412d4ebc875b9e1b6",
+    "forbidden_symbol_imports": [],
+    "python_symbol_references": [],
+    "zlib_binary_sha256": "85590dd58edf5445e18bc7193e5ebc01ac5841f1ae187e97705a662e90c6421e",
+    "reviewed_native_callers": [
+      {
+        "file": "/app/app/core/native_image_admission.py",
+        "source_sha256": "8ec758c93c7424730e115d99dcbbdc5f3a0835534465f5380c0c2bbccd633e09",
+        "function_ast_sha256": "398bbab1e1fcaa94ab8cff874b1b6a0b17a432527287da09436fdaa54c2e2275",
+        "library": "current process (ctypes.CDLL(None))",
+        "gnu_presence_check": "getattr(library, 'gnu_get_libc_version')",
+        "call": "malloc_trim(0)",
+        "argument_types": "[ctypes.c_size_t]",
+        "return_type": "ctypes.c_int",
+        "request_controlled_arguments": "none"
+      }
+    ]
+  },
+  "runtime_smoke": {
+    "result": "passed",
+    "opencv": "4.11.0",
+    "numpy": "1.26.4",
+    "ocr_text": "PASSPORT 12345678",
+    "contours": 16,
+    "pdf_render": true,
+    "passporteye_import": true,
+    "runtime_build_tools_absent": true,
+    "ffmpeg_enabled": false,
+    "video_api_present": false,
+    "parser_checks": {
+      "expat": "expat_2.8.4",
+      "utf16_negatives": 4,
+      "tarfile_hardlink_relocation_negatives": 2,
+      "xlsx_round_trip": true,
+      "ocr_url_archive_dependencies_absent": true,
+      "ocr_languages": [
+        "eng",
+        "osd"
+      ],
+      "tesseract": "5.5.3"
+    },
+    "python_dependencies": {
+      "pillow": "12.3.0",
+      "pypdfium2": "5.12.1",
+      "passporteye": "2.2.1"
+    }
+  },
+  "limitation": "Advisory-specific dispositions, including explicitly mitigated unpatched libraries; this is not a zero-vulnerability claim."
+}

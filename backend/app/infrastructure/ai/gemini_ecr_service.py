@@ -15,7 +15,8 @@ import re
 import threading
 import time
 import warnings
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any, Literal
 
@@ -23,6 +24,8 @@ import httpx
 from PIL import Image, ImageOps, UnidentifiedImageError
 
 from app.core.config.settings import Settings, get_settings
+from app.core.native_image_admission import IMAGE_ADMISSION_WAIT_SECONDS, native_image_slot
+from app.domain.exceptions.resource_capacity import ImageProcessingBusy
 from app.infrastructure.ai.gemini_model_capabilities import thinking_level_for_model
 from app.infrastructure.ai_priority.retry import retry_after_delay_seconds
 
@@ -328,6 +331,20 @@ class GeminiEcrService:
         )
 
 
+@contextmanager
+def _image_preparation_slot() -> Iterator[None]:
+    # Existing eight provider lanes wait BEFORE taking a shared memory ticket.
+    # Otherwise their fifth preparation could repeatedly cancel the whole drain.
+    deadline = time.monotonic() + IMAGE_ADMISSION_WAIT_SECONDS
+    if not _IMAGE_PREPARATION_SLOTS.acquire(timeout=IMAGE_ADMISSION_WAIT_SECONDS):
+        raise ImageProcessingBusy()
+    try:
+        with native_image_slot(wait_seconds=max(0.0, deadline - time.monotonic())):
+            yield
+    finally:
+        _IMAGE_PREPARATION_SLOTS.release()
+
+
 def prepare_ecr_image(content: bytes, *, settings: Settings | None = None) -> bytes:
     """Validate and canonicalize scanned image bytes before durable storage.
 
@@ -343,7 +360,7 @@ def prepare_ecr_image(content: bytes, *, settings: Settings | None = None) -> by
         raise EcrImageValidationError("image_too_large")
     max_pixels = int(getattr(active_settings, "ecr_image_max_pixels", 40_000_000))
     max_dimension = int(getattr(active_settings, "ecr_image_max_dimension", 2000))
-    with _IMAGE_PREPARATION_SLOTS:
+    with _image_preparation_slot():
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter("error", Image.DecompressionBombWarning)

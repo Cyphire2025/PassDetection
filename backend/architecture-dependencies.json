@@ -1,0 +1,540 @@
+{
+  "version": 1,
+  "transaction_services": {
+    "app/application/dashboard_realtime_authorization.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current tenant, lifecycle and revocation decisions compose reviewed database scopes and security adapters.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.CoordinatorGroupAssignmentModel",
+        "app.infrastructure.database.models.ManagerGroupAccessModel",
+        "app.infrastructure.database.models.UserModel",
+        "app.infrastructure.database.models.UserSecurityStateModel",
+        "app.infrastructure.repositories.coordinator_assignment_lifecycle",
+        "app.infrastructure.repositories.coordinator_assignment_lifecycle.expired_trip_clause",
+        "app.infrastructure.repositories.dashboard_session_repository",
+        "app.infrastructure.repositories.dashboard_session_repository.require_dashboard_session",
+        "app.infrastructure.repositories.user_repository",
+        "app.infrastructure.repositories.user_repository.UserRepository"
+      ]
+    },
+    "app/application/mobile/announcement_notification_status.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePushDeliveryModel"
+      ]
+    },
+    "app/application/mobile/announcement_push_guard.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.GCAnnouncementModel",
+        "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePushDeliveryModel"
+      ]
+    },
+    "app/application/mobile/authored_notification_access.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.MobileDeviceSessionModel",
+        "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePassengerSessionIdentityModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePushDeliveryModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePushRegistrationModel",
+        "app.infrastructure.database.gc_notification_models",
+        "app.infrastructure.database.gc_notification_models.GCNotificationRecipientGrantModel",
+        "app.infrastructure.database.gc_notification_models.GCNotificationRecipientModel"
+      ]
+    },
+    "app/application/mobile/authored_notification_audience.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.ClientManagerGroupAssignmentModel",
+        "app.infrastructure.database.gc_mobile_models.ClientManagerProfileModel",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePassengerIdentityModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.CoordinatorGroupAssignmentModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.database.models.UserModel",
+        "app.infrastructure.repositories.coordinator_assignment_lifecycle",
+        "app.infrastructure.repositories.coordinator_assignment_lifecycle.expired_trip_clause"
+      ]
+    },
+    "app/application/mobile/authored_notification_history.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePushDeliveryModel",
+        "app.infrastructure.database.gc_notification_models",
+        "app.infrastructure.database.gc_notification_models.GCNotificationBatchModel",
+        "app.infrastructure.database.gc_notification_models.GCNotificationDraftModel",
+        "app.infrastructure.database.gc_notification_models.GCNotificationRecipientModel"
+      ]
+    },
+    "app/application/mobile/authored_notification_service.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+        "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+        "app.infrastructure.database.gc_notification_models",
+        "app.infrastructure.database.gc_notification_models.GCNotificationBatchModel",
+        "app.infrastructure.database.gc_notification_models.GCNotificationDraftModel",
+        "app.infrastructure.database.gc_notification_models.GCNotificationRecipientGrantModel",
+        "app.infrastructure.database.gc_notification_models.GCNotificationRecipientModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository"
+      ]
+    },
+    "app/application/mobile/coordinator_roster_revision.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.AttendanceRecordModel",
+        "app.infrastructure.database.models.PassengerQRTokenModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.database.models.RoomingAssignmentModel",
+        "app.infrastructure.database.models.RoomingHotelModel",
+        "app.infrastructure.database.models.RoomingRoomModel"
+      ]
+    },
+    "app/application/mobile/fcm_dispatch_intents.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePushDeliveryModel"
+      ]
+    },
+    "app/application/mobile/group_app_availability.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel"
+      ]
+    },
+    "app/application/mobile/integrity_service.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.MobileAppAttestKeyModel",
+        "app.infrastructure.database.gc_mobile_models.MobileDeviceSessionModel",
+        "app.infrastructure.security.mobile_integrity_challenges",
+        "app.infrastructure.security.mobile_integrity_challenges.MobileIntegrityChallengeStore",
+        "app.infrastructure.security.mobile_integrity_providers",
+        "app.infrastructure.security.mobile_integrity_providers.MobileIntegrityProviderRegistry"
+      ]
+    },
+    "app/application/mobile/mobile_push_payload.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.MobileNotificationModel"
+      ]
+    },
+    "app/application/mobile/native_push_targets.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePushDeliveryModel"
+      ]
+    },
+    "app/application/mobile/notification_service.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.ClientManagerGroupAssignmentModel",
+        "app.infrastructure.database.gc_mobile_models.ClientManagerProfileModel",
+        "app.infrastructure.database.gc_mobile_models.GCAnnouncementModel",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+        "app.infrastructure.database.gc_mobile_models.MobileDeviceSessionModel",
+        "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePassengerIdentityModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePushDeliveryModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePushRegistrationModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.CoordinatorGroupAssignmentModel",
+        "app.infrastructure.database.models.UserModel",
+        "app.infrastructure.observability.operational_events",
+        "app.infrastructure.observability.operational_events.OperationalEvent",
+        "app.infrastructure.observability.operational_events.record_operational_event"
+      ]
+    },
+    "app/application/mobile/passenger_change_propagation.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePassengerIdentityModel",
+        "app.infrastructure.database.gc_mobile_models.MobileSyncChangeModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupWhatsAppBroadcastLinkModel",
+        "app.infrastructure.whatsapp.source_group_sync",
+        "app.infrastructure.whatsapp.source_group_sync.sync_group_broadcast_contacts"
+      ]
+    },
+    "app/application/mobile/passenger_identity_reconciliation.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+        "app.infrastructure.database.gc_mobile_models.MobileDeviceSessionModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePassengerIdentityModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePassengerSessionIdentityModel",
+        "app.infrastructure.database.gc_mobile_models.MobileRefreshTokenModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.repositories.passport_whatsapp_matching_repository",
+        "app.infrastructure.repositories.passport_whatsapp_matching_repository.TARGETED_MATCH_CLUSTER_LIMIT",
+        "app.infrastructure.repositories.passport_whatsapp_matching_repository.load_targeted_unresolved_passport_whatsapp_match_context",
+        "app.infrastructure.repositories.passport_whatsapp_matching_repository.load_unresolved_passport_whatsapp_match_context"
+      ]
+    },
+    "app/application/mobile/passenger_notification_authority.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+        "app.infrastructure.database.gc_mobile_models.MobileDeviceSessionModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePassengerIdentityModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePassengerSessionIdentityModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.PassportSubmissionModel"
+      ]
+    },
+    "app/application/mobile/passenger_session_authority.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.MobileDeviceSessionModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePassengerIdentityModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePassengerSessionIdentityModel",
+        "app.infrastructure.database.gc_mobile_models.MobileRefreshTokenModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.PassportSubmissionModel"
+      ]
+    },
+    "app/application/mobile/push_provider.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.mobile_push.apns_provider",
+        "app.infrastructure.mobile_push.apns_provider.ApnsMobilePushProvider",
+        "app.infrastructure.mobile_push.fcm_provider",
+        "app.infrastructure.mobile_push.fcm_provider.FcmMobilePushProvider"
+      ]
+    },
+    "app/application/mobile/push_receipt_claims.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePushDeliveryModel"
+      ]
+    },
+    "app/application/mobile/push_registration.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.MobileDeviceSessionModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePushRegistrationModel"
+      ]
+    },
+    "app/application/mobile/realtime_authorization.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current tenant, lifecycle and revocation decisions compose reviewed database scopes and security adapters.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.ClientManagerGroupAssignmentModel",
+        "app.infrastructure.database.gc_mobile_models.ClientManagerProfileModel",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePassengerIdentityModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePassengerSessionIdentityModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.CoordinatorGroupAssignmentModel",
+        "app.infrastructure.repositories.coordinator_assignment_lifecycle",
+        "app.infrastructure.repositories.coordinator_assignment_lifecycle.expired_trip_clause"
+      ]
+    },
+    "app/application/mobile/realtime_hints.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.MobileSyncChangeModel"
+      ]
+    },
+    "app/application/mobile/sync_journal.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable device, notification, visibility and synchronization state shares the caller-owned SQL transaction; provider adapters remain explicit.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+        "app.infrastructure.database.gc_mobile_models.MobileSyncChangeModel"
+      ]
+    },
+    "app/application/security/access_level_actor.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current tenant, lifecycle and revocation decisions compose reviewed database scopes and security adapters.",
+      "imports": [
+        "app.infrastructure.repositories.user_repository",
+        "app.infrastructure.repositories.user_repository.UserRepository"
+      ]
+    },
+    "app/application/security/authorization_policy.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current tenant, lifecycle and revocation decisions compose reviewed database scopes and security adapters.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.AttendanceSessionModel",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.CoordinatorAssignmentModel",
+        "app.infrastructure.database.models.CoordinatorGroupAssignmentModel",
+        "app.infrastructure.database.models.ManagerGroupAccessModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.repositories.coordinator_assignment_lifecycle",
+        "app.infrastructure.repositories.coordinator_assignment_lifecycle.expired_trip_clause"
+      ]
+    },
+    "app/application/security/destructive_mutation_policy.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current tenant, lifecycle and revocation decisions compose reviewed database scopes and security adapters.",
+      "imports": [
+        "app.infrastructure.database.session",
+        "app.infrastructure.database.session.AsyncSessionFactory",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository",
+        "app.infrastructure.repositories.client_group_repository",
+        "app.infrastructure.repositories.client_group_repository.ClientGroupRepository"
+      ]
+    },
+    "app/application/security/mobile_access_policy.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current tenant, lifecycle and revocation decisions compose reviewed database scopes and security adapters.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.ClientManagerGroupAssignmentModel",
+        "app.infrastructure.database.gc_mobile_models.ClientManagerProfileModel",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePassengerIdentityModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.CoordinatorGroupAssignmentModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.repositories.coordinator_assignment_lifecycle",
+        "app.infrastructure.repositories.coordinator_assignment_lifecycle.expired_trip_clause"
+      ]
+    },
+    "app/application/use_cases/attendance_dashboard.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Adapter-specific aggregate queries or conservative document matching are explicit transaction-service dependencies.",
+      "imports": [
+        "app.infrastructure.repositories.attendance_closeout_repository",
+        "app.infrastructure.repositories.attendance_closeout_repository.AttendanceCloseoutCoordinatorStatus",
+        "app.infrastructure.repositories.attendance_closeout_repository.AttendanceCloseoutRepository",
+        "app.infrastructure.repositories.attendance_closeout_repository.AttendanceCloseoutStatus",
+        "app.infrastructure.repositories.attendance_dashboard_repository",
+        "app.infrastructure.repositories.attendance_dashboard_repository.AttendanceActivityAggregate",
+        "app.infrastructure.repositories.attendance_dashboard_repository.AttendanceCoordinatorScanAggregate",
+        "app.infrastructure.repositories.attendance_dashboard_repository.AttendanceDashboardRepository",
+        "app.infrastructure.repositories.attendance_dashboard_repository.AttendanceGroupAggregate",
+        "app.infrastructure.repositories.attendance_dashboard_repository.MAX_ATTENDANCE_SUMMARY_COORDINATORS",
+        "app.infrastructure.repositories.attendance_dashboard_repository.MissingPassengerPage"
+      ]
+    },
+    "app/application/use_cases/auth/login_use_case.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current tenant, lifecycle and revocation decisions compose reviewed database scopes and security adapters.",
+      "imports": [
+        "app.infrastructure.repositories.refresh_token_repository",
+        "app.infrastructure.repositories.refresh_token_repository.RefreshTokenRepository",
+        "app.infrastructure.security.login_attempt_limiter",
+        "app.infrastructure.security.login_attempt_limiter.LoginAttemptLimiter"
+      ]
+    },
+    "app/application/use_cases/auth/logout_all_use_case.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current tenant, lifecycle and revocation decisions compose reviewed database scopes and security adapters.",
+      "imports": [
+        "app.infrastructure.repositories.identity_security_repository",
+        "app.infrastructure.repositories.identity_security_repository.IdentitySecurityRepository",
+        "app.infrastructure.repositories.refresh_token_repository",
+        "app.infrastructure.repositories.refresh_token_repository.RefreshTokenRepository"
+      ]
+    },
+    "app/application/use_cases/auth/logout_use_case.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current tenant, lifecycle and revocation decisions compose reviewed database scopes and security adapters.",
+      "imports": [
+        "app.infrastructure.repositories.refresh_token_repository",
+        "app.infrastructure.repositories.refresh_token_repository.RefreshTokenRepository"
+      ]
+    },
+    "app/application/use_cases/auth/refresh_token_use_case.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current tenant, lifecycle and revocation decisions compose reviewed database scopes and security adapters.",
+      "imports": [
+        "app.infrastructure.repositories.identity_security_repository",
+        "app.infrastructure.repositories.identity_security_repository.IdentitySecurityRepository",
+        "app.infrastructure.repositories.identity_security_repository.role_requires_dashboard_mfa",
+        "app.infrastructure.repositories.refresh_token_repository",
+        "app.infrastructure.repositories.refresh_token_repository.RefreshTokenRepository"
+      ]
+    },
+    "app/application/use_cases/email_integrations/matching.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Adapter-specific aggregate queries or conservative document matching are explicit transaction-service dependencies.",
+      "imports": [
+        "app.infrastructure.documents.document_matcher",
+        "app.infrastructure.documents.document_matcher.ClassifiedDocument",
+        "app.infrastructure.documents.document_matcher.DocumentMatcher",
+        "app.infrastructure.documents.document_matcher.MatchResult"
+      ]
+    },
+    "app/application/use_cases/email_integrations/rollout_policy.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Adapter-specific aggregate queries or conservative document matching are explicit transaction-service dependencies.",
+      "imports": [
+        "app.infrastructure.database.email_ai_models",
+        "app.infrastructure.database.email_ai_models.EmailAiRolloutPolicyModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.AgencyModel"
+      ]
+    },
+    "app/application/use_cases/passports/client_submit_passport_use_case.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Passport and durable extraction/verification job transitions must commit consistently across retry boundaries.",
+      "imports": [
+        "app.infrastructure.processing.job_repository",
+        "app.infrastructure.processing.job_repository.PassportProcessingJobRepository"
+      ]
+    },
+    "app/application/use_cases/passports/process_passport_submission_job_use_case.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Passport and durable extraction/verification job transitions must commit consistently across retry boundaries.",
+      "imports": [
+        "app.infrastructure.observability.operational_events",
+        "app.infrastructure.observability.operational_events.OperationalEvent",
+        "app.infrastructure.observability.operational_events.record_operational_event",
+        "app.infrastructure.processing.job_repository",
+        "app.infrastructure.processing.job_repository.PassportProcessingJobRepository",
+        "app.infrastructure.processing.job_state",
+        "app.infrastructure.processing.job_state.ProcessingJobStatus"
+      ]
+    },
+    "app/application/use_cases/passports/reextract_passport_submission_use_case.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Passport and durable extraction/verification job transitions must commit consistently across retry boundaries.",
+      "imports": [
+        "app.infrastructure.processing.job_repository",
+        "app.infrastructure.processing.job_repository.PassportProcessingJobRepository",
+        "app.infrastructure.processing.job_state",
+        "app.infrastructure.processing.job_state.ProcessingJobStatus"
+      ]
+    },
+    "app/application/use_cases/passports/retry_public_passport_extraction_use_case.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Passport and durable extraction/verification job transitions must commit consistently across retry boundaries.",
+      "imports": [
+        "app.infrastructure.processing.job_repository",
+        "app.infrastructure.processing.job_repository.PassportProcessingJobRepository",
+        "app.infrastructure.processing.job_state",
+        "app.infrastructure.processing.job_state.ProcessingJobStatus"
+      ]
+    },
+    "app/application/use_cases/passports/submit_passport_use_case.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Passport and durable extraction/verification job transitions must commit consistently across retry boundaries.",
+      "imports": [
+        "app.infrastructure.processing.job_repository",
+        "app.infrastructure.processing.job_repository.PassportProcessingJobRepository",
+        "app.infrastructure.processing.job_state",
+        "app.infrastructure.processing.job_state.ProcessingJobStatus"
+      ]
+    },
+    "app/application/use_cases/passports/verify_submitted_passport_use_case.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Passport and durable extraction/verification job transitions must commit consistently across retry boundaries.",
+      "imports": [
+        "app.infrastructure.observability.operational_events",
+        "app.infrastructure.observability.operational_events.OperationalEvent",
+        "app.infrastructure.observability.operational_events.record_operational_event"
+      ]
+    }
+  }
+}

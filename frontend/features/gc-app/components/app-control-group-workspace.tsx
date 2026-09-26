@@ -52,7 +52,7 @@ export function AppControlGroupWorkspace({ groupId }: { groupId: string }) {
     return <div className="space-y-4">
       <PageHeader title={control.data.name} description="Removed from GC App" />
       <GcAlert tone="info" message="This trip was removed from GC App. Its original group, travellers, documents and history are kept. To restore an eligible group, use Add group to GC App in App Controls." />
-      <Link href={ROUTES.dashboard.gcAppAppControls as never} className={buttonVariants({ variant: "secondary" })}>Back to App Controls</Link>
+      <Link href={ROUTES.dashboard.gcAppAppControls} className={buttonVariants({ variant: "secondary" })}>Back to App Controls</Link>
       <Button type="button" variant="secondary" onClick={() => setTab("history")}>View history</Button>
       {tab === "history" && <Card>
         {history.isLoading ? <GcLoadingRows count={3} /> : history.isError ? <GcAlert message="History could not be loaded." /> : <AuditTimeline events={history.data?.items ?? []} />}
@@ -80,7 +80,7 @@ export function AppControlGroupWorkspace({ groupId }: { groupId: string }) {
         title={control.data.name}
         description={`${control.data.destination ?? "Destination not set"} · ${control.data.company?.name ?? "Company/client not assigned"}`}
         actions={(
-          <Link href={ROUTES.dashboard.gcAppAppControls as never} className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}>
+          <Link href={ROUTES.dashboard.gcAppAppControls} className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}>
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             Back to App Controls
           </Link>

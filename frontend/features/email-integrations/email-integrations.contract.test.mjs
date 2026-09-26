@@ -360,5 +360,6 @@ test("nested email pages avoid duplicate main landmarks and dialog traps reverse
   for (const source of [connections, review, inbox, activity, message]) {
     assert.doesNotMatch(source, /<\/?main\b/);
   }
-  assert.match(dialog, /document\.activeElement === dialog/);
+  assert.match(dialog, /useModalKeyboardBoundary/);
+  assert.match(dialog, /onKeyDown=\{handleDialogKeyDown\}/);
 });

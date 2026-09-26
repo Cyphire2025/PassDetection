@@ -43,7 +43,7 @@ test("WhatsApp navigation and group integration use the shared access policies",
   assert.ok(whatsappNav);
   assert.match(sidebar, /canAccessApplicationPath\(user, item\.href\)/);
   assert.match(createLinkModal, /\{!importOnly && canAccessWhatsApp && \(\s*<WhatsAppBroadcastSelector/);
-  assert.match(groupDetail, /\{canAccessWhatsApp && \(\s*<GroupWhatsAppBroadcastPanel/);
+  assert.match(groupDetail, /\{canAccessWhatsApp && !groupDetails\.import_only && \(\s*<GroupWhatsAppBroadcastPanel/);
 });
 
 test("direct WhatsApp routes redirect roles without broadcast access", () => {

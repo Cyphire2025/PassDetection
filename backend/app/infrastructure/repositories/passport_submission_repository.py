@@ -37,6 +37,10 @@ from app.infrastructure.database.models import (
     ManagerGroupAccessModel,
     PassportSubmissionModel,
 )
+from app.infrastructure.database.search_expressions import (
+    passport_search_fields,
+    substring_predicate,
+)
 from app.infrastructure.repositories.operational_roster import operational_roster_member
 
 logger = get_logger(__name__)
@@ -499,7 +503,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 )
             )
         stmt = self._apply_search(stmt, search)
-        stmt = stmt.order_by(PassportSubmissionModel.created_at.desc()).offset(skip).limit(limit)
+        stmt = stmt.order_by(PassportSubmissionModel.created_at.desc(), PassportSubmissionModel.id.desc()).offset(skip).limit(limit)
 
         result = await self._session.execute(stmt)
         return [self._to_entity(m) for m in result.scalars().all()]
@@ -535,7 +539,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         if visible_to_user:
             stmt = AuthorizationPolicy.apply_passport_visibility_scope(stmt, visible_to_user)
         stmt = self._apply_search(stmt, search)
-        stmt = stmt.order_by(PassportSubmissionModel.created_at.desc())
+        stmt = stmt.order_by(PassportSubmissionModel.created_at.desc(), PassportSubmissionModel.id.desc())
         if skip:
             stmt = stmt.offset(skip)
         if limit is not None:
@@ -546,19 +550,10 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
     def _apply_search(self, stmt, search: str | None):  # type: ignore[no-untyped-def]
         if not search or not search.strip():
             return stmt
-        query = f"%{search.strip().lower()}%"
-        return stmt.where(
-            or_(
-                func.lower(PassportSubmissionModel.client_name).like(query),
-                func.lower(PassportSubmissionModel.client_email).like(query),
-                func.lower(PassportSubmissionModel.client_phone).like(query),
-                func.lower(PassportSubmissionModel.departure_city).like(query),
-                func.lower(PassportSubmissionModel.extracted_fields["passport_number"].as_string()).like(query),
-                func.lower(PassportSubmissionModel.confirmed_fields["passport_number"].as_string()).like(query),
-                func.lower(PassportSubmissionModel.extracted_fields["surname"].as_string()).like(query),
-                func.lower(PassportSubmissionModel.confirmed_fields["surname"].as_string()).like(query),
-            )
-        )
+        return stmt.where(substring_predicate(
+            search.strip(), fields=passport_search_fields(include_given_names=False),
+            indexed_fields=passport_search_fields(),
+        ))
 
     async def list_group_summaries_by_agency(
         self,
@@ -677,7 +672,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 ClientGroupModel.agency_dealership_name_enabled,
                 ClientGroupModel.created_at,
             )
-            .order_by(func.coalesce(func.max(PassportSubmissionModel.updated_at), ClientGroupModel.created_at).desc())
+            .order_by(func.coalesce(func.max(PassportSubmissionModel.updated_at), ClientGroupModel.created_at).desc(), ClientGroupModel.id.desc())
             .offset(skip)
             .limit(limit)
         )

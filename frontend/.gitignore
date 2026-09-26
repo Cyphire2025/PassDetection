@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/coverage-upload-controller/
 /playwright-report
 /test-results
 /real-stack-results

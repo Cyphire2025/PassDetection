@@ -15,6 +15,7 @@ from typing import Any, Protocol
 from PIL import Image, ImageOps, UnidentifiedImageError
 
 from app.core.config.settings import get_settings
+from app.core.native_image_admission import bounded_native_image
 from app.domain.exceptions.exceptions import ImageValidationError
 
 _SAFE_FILENAME = re.compile(r"[^A-Za-z0-9._-]+")
@@ -215,6 +216,7 @@ class UploadValidator:
         self._settings = get_settings()
         self._scanner = scanner or self._default_scanner()
 
+    @bounded_native_image
     def validate(
         self,
         *,
@@ -266,8 +268,11 @@ class UploadValidator:
                         # Scanning, source pixel limits and full decode above
                         # still validate the original untrusted image.
                         image.thumbnail((max_dimension, max_dimension), Image.Resampling.LANCZOS)
-                    with ImageOps.exif_transpose(image) as oriented:
-                        canonical_image = self._to_rgb(oriented)
+                    # The decoded source is private to this call. Orient it in
+                    # place so a maximum-size scan does not keep an additional
+                    # full-resolution copy alive during alpha compositing.
+                    ImageOps.exif_transpose(image, in_place=True)
+                    canonical_image = self._to_rgb(image)
                     try:
                         canonical_content = self._encode_jpeg(canonical_image)
                     finally:
@@ -293,12 +298,17 @@ class UploadValidator:
     @staticmethod
     def _to_rgb(image: Image.Image) -> Image.Image:
         if image.mode in {"RGBA", "LA"} or (image.mode == "P" and "transparency" in image.info):
-            rgba = image.convert("RGBA")
-            background = Image.new("RGBA", rgba.size, "white")
-            composited = Image.alpha_composite(background, rgba).convert("RGB")
-            rgba.close()
-            background.close()
-            return composited
+            rgba = image if image.mode == "RGBA" else image.convert("RGBA")
+            try:
+                with Image.new("RGBA", rgba.size, "white") as background:
+                    composited = Image.alpha_composite(background, rgba)
+                # Keep the exact alpha-composite rounding, but release the
+                # white canvas before allocating the RGB output.
+                with composited:
+                    return composited.convert("RGB")
+            finally:
+                if rgba is not image:
+                    rgba.close()
         return image.convert("RGB")
 
     @staticmethod

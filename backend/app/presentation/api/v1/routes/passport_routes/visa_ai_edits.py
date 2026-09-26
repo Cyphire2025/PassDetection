@@ -42,6 +42,7 @@ from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
+from app.presentation.api.v1.response_contracts import binary_responses
 from app.presentation.api.v1.schemas.passport_schemas import (
     PassportImageCropCoordinates,
     PassportImageCropResponse,
@@ -67,7 +68,7 @@ router = APIRouter()
     "/{submission_id}/images/visa_photo/ai-preview",
     status_code=status.HTTP_200_OK,
     summary="Generate an identity-preserving Visa photo edit preview",
-)
+response_class=Response, responses=binary_responses("image/*"))
 async def preview_visa_ai_image_edit(
     submission_id: uuid.UUID,
     body: PassportVisaAiPreviewRequest,

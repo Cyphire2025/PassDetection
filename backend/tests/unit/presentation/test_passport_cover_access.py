@@ -28,7 +28,7 @@ async def test_cover_access_checks_staff_visibility_before_reading_storage(monke
 
 @pytest.mark.asyncio
 async def test_cover_access_streams_authoritative_key_with_range_header(monkeypatch):
-    row = SimpleNamespace(id=uuid.uuid4(), passport_back_cover_s3_key="private/back-cover.jpg")
+    row = SimpleNamespace(id=uuid.uuid4(), agency_id=uuid.uuid4(), passport_back_cover_s3_key="private/back-cover.jpg")
     repo = AsyncMock()
     repo.get_by_id.return_value = row
     policy = AsyncMock()
@@ -37,6 +37,8 @@ async def test_cover_access_streams_authoritative_key_with_range_header(monkeypa
     monkeypatch.setattr(covers, "AuthorizationPolicy", lambda _session: policy)
     monkeypatch.setattr(covers, "MinioStorageRepository", MagicMock())
     monkeypatch.setattr(covers, "private_object_streaming_response", stream)
+    audit = AsyncMock()
+    monkeypatch.setattr(covers, "record_sensitive_read", audit)
     assert (
         await covers.get_passport_cover(
             row.id, "back_cover", range_header="bytes=0-99", current_user=object(), session=object()
@@ -46,3 +48,4 @@ async def test_cover_access_streams_authoritative_key_with_range_header(monkeypa
     assert stream.await_args.kwargs["key"] == "private/back-cover.jpg"
     assert stream.await_args.kwargs["range_header"] == "bytes=0-99"
     policy.require_view_passport.assert_awaited_once()
+    audit.assert_awaited_once()

@@ -279,8 +279,8 @@ def _preparation_probe(monkeypatch, expected_starts):
     lock = threading.Lock()
     counts = {"started": 0, "opened": 0, "active": 0, "peak": 0}
     release = threading.Event()
-    first_two = threading.Event()
-    third_opened = threading.Event()
+    first_opened = threading.Event()
+    second_opened = threading.Event()
     all_started = threading.Event()
 
     @contextmanager
@@ -290,10 +290,10 @@ def _preparation_probe(monkeypatch, expected_starts):
                 counts["opened"] += 1
                 counts["active"] += 1
                 counts["peak"] = max(counts["peak"], counts["active"])
+                if counts["opened"] == 1:
+                    first_opened.set()
                 if counts["opened"] == 2:
-                    first_two.set()
-                if counts["opened"] == 3:
-                    third_opened.set()
+                    second_opened.set()
             try:
                 assert release.wait(5), "Test did not release image preparation"
                 yield image
@@ -313,26 +313,26 @@ def _preparation_probe(monkeypatch, expected_starts):
         prepare=prepare,
         counts=counts,
         release=release,
-        first_two=first_two,
-        third_opened=third_opened,
+        first_opened=first_opened,
+        second_opened=second_opened,
         all_started=all_started,
     )
 
 
-def test_eight_preparation_threads_keep_at_most_two_decoder_contexts_open(monkeypatch) -> None:
+def test_eight_preparation_threads_complete_with_one_shared_decoder_context(monkeypatch) -> None:
     probe = _preparation_probe(monkeypatch, 8)
     with ThreadPoolExecutor(max_workers=8) as pool:
         futures = [pool.submit(probe.prepare) for _ in range(8)]
         try:
             assert probe.all_started.wait(5)
-            assert probe.first_two.wait(5)
-            assert not probe.third_opened.wait(0.1)
-            assert probe.counts["active"] == 2
+            assert probe.first_opened.wait(5)
+            assert not probe.second_opened.wait(0.1)
+            assert probe.counts["active"] == 1
         finally:
             probe.release.set()
         results = [future.result(timeout=5) for future in futures]
     assert len(results) == 8 and all(content.startswith(b"\xff\xd8") for content in results)
-    assert probe.counts["peak"] == 2
+    assert probe.counts["peak"] == 1
     assert probe.counts["active"] == 0
 
 
@@ -343,24 +343,24 @@ async def test_cancelled_awaiter_keeps_its_preparation_slot_until_thread_finishe
     loop = asyncio.get_running_loop()
     with ThreadPoolExecutor(max_workers=3) as pool:
         first = loop.run_in_executor(pool, probe.prepare)
+        assert await asyncio.to_thread(probe.first_opened.wait, 5)
         second = loop.run_in_executor(pool, probe.prepare)
         third = None
         try:
-            assert await asyncio.to_thread(probe.first_two.wait, 5)
             first.cancel()
             with pytest.raises(asyncio.CancelledError):
                 await first
             third = loop.run_in_executor(pool, probe.prepare)
             assert await asyncio.to_thread(probe.all_started.wait, 5)
-            assert not await asyncio.to_thread(probe.third_opened.wait, 0.1)
-            assert probe.counts["active"] == 2
+            assert not await asyncio.to_thread(probe.second_opened.wait, 0.1)
+            assert probe.counts["active"] == 1
         finally:
             probe.release.set()
             await asyncio.gather(
                 second, *([third] if third is not None else []), return_exceptions=True
             )
     assert probe.counts["opened"] == 3
-    assert probe.counts["peak"] == 2
+    assert probe.counts["peak"] == 1
     assert probe.counts["active"] == 0
 
 

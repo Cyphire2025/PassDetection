@@ -1,0 +1,25 @@
+{
+  "result": "passed",
+  "registry_image": "registry:3@sha256:852b3e4d378c426dda6b318fe9d9bfe8e92a0eccb9926671ec3d3ea17a196696",
+  "releases": [
+    {
+      "reference": "127.0.0.1:56173/synthetic@sha256:b6baa9ff0feb74beae6f395dfa51ab3fd41b0519dc2c7bcec8b6d5fb51a1533c",
+      "image_id": "sha256:cc91ed5664c0613308945b7d8afb792b06381d8473d3da45ac185b84f2794dce",
+      "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "reference": "127.0.0.1:56173/synthetic@sha256:4554cc63c6e9685227982a8bdaf75fd7d7a7c4b226f40f7b544f1043654aa7b7",
+      "image_id": "sha256:0c1b9d6276a1a745bf69b4bbfde5a47b70aa5a1e81ace505615f63044c4b5de5",
+      "revision": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    }
+  ],
+  "assertions": [
+    "previous release retrieved after successor publication",
+    "digest and config readback",
+    "archive save/load preserves hashed config and filesystem layers",
+    "registry config verified independently of Docker local index/config ID",
+    "wrong config rejected",
+    "wrong source revision rejected"
+  ],
+  "limitation": "Synthetic local OCI transport only; real registry metadata is read inside the fixture namespace to bridge Docker Desktop loopback. Both local store-ID shapes also have unit tests; no second physical Docker engine was provisioned. GitHub OIDC issuance, signature verification and registry retention are separate external gates."
+}

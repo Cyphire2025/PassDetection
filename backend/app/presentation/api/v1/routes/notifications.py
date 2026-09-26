@@ -14,6 +14,7 @@ from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import EntityNotFoundError
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.notification_repository import NotificationRepository
+from app.presentation.api.v1.pagination import PageOffset, PageSize
 from app.presentation.api.v1.schemas.operations_schemas import (
     NotificationFeedResponse,
     NotificationReadAllResponse,
@@ -60,8 +61,8 @@ async def list_notifications(
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
     unread_only: bool = False,
-    skip: int = 0,
-    limit: int = 50,
+    skip: PageOffset = 0,
+    limit: PageSize = 50,
 ) -> list[NotificationResponse]:
     if not current_user.agency_id:
         return []

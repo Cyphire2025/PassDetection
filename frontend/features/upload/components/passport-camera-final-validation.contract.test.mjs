@@ -10,6 +10,10 @@ const uploadFlowSource = readFileSync(
   new URL("./upload-flow.tsx", import.meta.url),
   "utf8",
 );
+const uploadDocumentSource = readFileSync(
+  new URL("../hooks/use-upload-documents.ts", import.meta.url),
+  "utf8",
+);
 const liveHookSource = readFileSync(
   new URL("../hooks/use-passport-frame-detection.ts", import.meta.url),
   "utf8",
@@ -55,7 +59,7 @@ test("passport preview separates pass, confirmed borderline, and hard failure", 
 
 test("camera and manually cropped front pages are not perspective-corrected again", () => {
   assert.match(
-    uploadFlowSource,
+    uploadDocumentSource,
     /frontSource === "camera" \|\| frontManuallyCropped\s*\?\s*file\s*:\s*\(await normalizePassportFile\(file\)\)\.file/,
   );
   assert.match(uploadFlowSource, /documentBundle\.frontSource \?\? "file"/);

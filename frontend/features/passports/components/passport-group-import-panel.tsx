@@ -140,7 +140,7 @@ export function PassportGroupImportPanel({
                 {expiryAlerts.map((passport) => (
                   <Link
                     key={passport.submission_id}
-                    href={passportDetailHref(passport.submission_id) as never}
+                    href={passportDetailHref(passport.submission_id)}
                     onClick={persistNavigationContext}
                     className="rounded-lg border border-red-200 bg-white p-3 hover:bg-red-50"
                   >

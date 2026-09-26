@@ -92,8 +92,12 @@ class StorageWriterFence:
         if len(writers) != len(services):
             raise ReleaseError("Storage writer inventory is incomplete")
         identities = []
+        outer = getattr(release, "resources", None)
+        already_fenced = outer is not None and outer.active()
+        if already_fenced:
+            outer.assert_stopped()
         for service, container in zip(services, writers, strict=True):
-            if not container.get("State", {}).get("Running"):
+            if not already_fenced and not container.get("State", {}).get("Running"):
                 raise ReleaseError(f"{service}: writer was not running before the fence")
             identities.append(_identity(container, service, project, release.root))
             shared_service_networks(container, source, "minio")
@@ -249,6 +253,18 @@ class StorageWriterFence:
             if (len(identities) != len(expected_services)
                     or {item["service"] for item in identities} != expected_services):
                 raise ReleaseError("Writer checkpoint is incomplete; no writers restarted")
+            outer = getattr(self.release, "resources", None)
+            if outer is not None and outer.active():
+                outer.assert_stopped()
+                for expected in [*identities, record["nginx"]]:
+                    current = self._current(expected["service"], record)
+                    assert current is not None
+                    if _identity(current, expected["service"], record["project"], self.release.root) != expected:
+                        raise ReleaseError("Storage process identity changed during outer maintenance")
+                record["phase"], record["restored_against"] = "complete", provider
+                record["writers_left_stopped_for_resource_maintenance"] = True
+                self._save(record)
+                return
             stopped = []
             provider_container = self._current("minio", record)
             assert provider_container is not None

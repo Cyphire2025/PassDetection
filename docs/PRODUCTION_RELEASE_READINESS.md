@@ -19,8 +19,12 @@ The second bounded search found local application PostgreSQL archives, the newes
 returned dated 21 September. Their contents were not inspected or restored; this
 does not prove integrity, object/Redis coverage, off-host protection or PITR.
 The running application revision remains the original audit baseline. Direct
-schema/effective-grant/WAL checks are still pending. No configuration or data was
-changed by the inspection.
+schema/effective-grant/WAL checks were pending at that snapshot. A second
+read-only inspection on 27 September confirmed live schema
+`0107_passport_ecr_checks` and the runtime role's superuser, CREATEDB and
+CREATEROLE privileges. The local restricted-role fix has therefore not reached
+production. WAL/PITR qualification remains deferred. No configuration or data
+was changed by either inspection.
 
 The owner's signed-in Hostinger account then confirmed weekly automatic backups
 stored off-server: available backups dated **23 September, 17:37 (64.22 GB)** and
@@ -34,14 +38,18 @@ RTO**. See the [read-only inspection record](C:/Users/nipun/Desktop/PassDetectio
 ## Release contract and recorded identities
 
 [release_manifest.json](../backend/app/core/config/release_manifest.json) declares
-schema `0107_passport_ecr_checks` and all **eight** worker services/nodes:
+target schema `0111_roster_revision`, reviewed previous schema
+`0107_passport_ecr_checks`, and all **eight** worker services/nodes:
 `worker`/`general`, `email-worker`/`email`, `email-ai-worker`/`email-ai`,
 `extraction-worker`/`extraction`, `verification-worker`/`verification`,
 `visa-ai-worker`/`visa-ai`, `my-photos-worker`/`my-photos`, and `ecr-worker`/`ecr`.
 `email-beat` is the scheduler, not a ninth worker. Settings, runtime checks,
 Compose mirrors, CI and `scripts/release_current.py` use or validate this contract.
-The current manifest accepts an existing `0107` database. An older database needs
-its own reviewed upgrade rehearsal; stop on an unknown/missing revision.
+The current manifest accepts the reviewed `0107` baseline or current `0111`
+head. Any other database revision needs its own reviewed upgrade rehearsal;
+stop on an unknown/missing revision. Migration `0109` invalidates existing
+dashboard sessions, requiring a fresh sign-in; it preserves business records,
+passwords and MFA enrollment.
 
 Record the release/recovery owners, full pushed main revision, exact running and
 candidate image IDs, existing Compose project/checkout, schema, named volumes,
@@ -169,7 +177,7 @@ probe. Keep trusted certificates and their external expiry monitoring current.
 
 | Gate | Required production evidence | Current boundary |
 | --- | --- | --- |
-| Runtime authority | Actual effective DB grants and provider identity, private-file reads, denied administrative operations, rotation owner | Code/local adversarial tests pass; VPS state is unknown |
+| Runtime authority | Actual effective DB grants and provider identity, private-file reads, denied administrative operations, rotation owner | Code/local adversarial tests pass; live old runtime role is confirmed privileged and requires the guarded rollout |
 | Maintained storage lifecycle | Qualified release on the intended host, patch owner/cadence, historical-object checks after cutover | Maintained provider and copy qualified locally; no live cutover claimed |
 | Resource capacity | Exact host envelope, workload throughput/latency/backlog bounds, restart/fork/OOM measurements | Local arithmetic and synthetic journeys are not capacity proof |
 | Database recovery | Encrypted off-host backup plus WAL/PITR to an operator-selected timestamp, independent retention and restricted restore credentials | Weekly off-server Hostinger backups confirmed; local current-schema restore and row digests pass. Provider-backup restore consistency, deletion protection and PITR remain unproved |

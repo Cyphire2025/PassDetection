@@ -13,7 +13,11 @@ from sqlalchemy import update
 from app.core.config.settings import Settings
 from app.infrastructure.database.models import UserModel, UserSecurityStateModel
 from app.infrastructure.repositories.identity_security_repository import IdentitySecurityRepository
-from app.presentation.api.v1.routes import email_integrations
+from app.presentation.api.v1.routes import (
+    email_integration_gmail,
+    email_integration_outlook,
+    email_integrations,
+)
 from app.presentation.security.email_oauth_binding import (
     OAuthBindingSnapshot,
     oauth_cookie_name,
@@ -101,6 +105,9 @@ async def test_logout_all_increment_refreshes_previously_loaded_security_state(d
 async def test_callback_revalidates_after_exchange_before_writing_any_mailbox_grant(
     monkeypatch: pytest.MonkeyPatch, provider_name: str
 ) -> None:
+    route_module = (
+        email_integration_gmail if provider_name == "gmail" else email_integration_outlook
+    )
     events = []
     user_id = uuid.uuid4()
     state = SimpleNamespace(
@@ -136,31 +143,29 @@ async def test_callback_revalidates_after_exchange_before_writing_any_mailbox_gr
         decrypt=Mock(return_value="synthetic-verifier"), encrypt=Mock(return_value=Mock())
     )
     monkeypatch.setattr(
-        email_integrations,
+        route_module,
         "GmailEmailProvider" if provider_name == "gmail" else "OutlookEmailProvider",
         Mock(return_value=provider),
     )
     monkeypatch.setattr(
-        email_integrations, "EmailTokenCipher", Mock(from_settings=Mock(return_value=cipher))
+        route_module, "EmailTokenCipher", Mock(from_settings=Mock(return_value=cipher))
     )
     monkeypatch.setattr(
-        email_integrations, "get_settings", lambda: SimpleNamespace(email_integrations_enabled=True)
+        route_module, "get_settings", lambda: SimpleNamespace(email_integrations_enabled=True)
     )
-    monkeypatch.setattr(email_integrations, "_provider_configured", lambda *_: True)
+    monkeypatch.setattr(route_module, "_provider_configured", lambda *_: True)
     monkeypatch.setattr(
-        email_integrations,
+        route_module,
         "_oauth_return_url",
         lambda *_: "https://dashboard.example.test/settings?oauth=failed",
     )
-    monkeypatch.setattr(
-        email_integrations, "verify_oauth_browser_binding", AsyncMock(return_value=True)
-    )
+    monkeypatch.setattr(route_module, "verify_oauth_browser_binding", AsyncMock(return_value=True))
 
     async def revalidate(*args, **kwargs):
         events.append("final_authorization")
         return False
 
-    monkeypatch.setattr(email_integrations, "revalidate_oauth_actor_for_persistence", revalidate)
+    monkeypatch.setattr(route_module, "revalidate_oauth_actor_for_persistence", revalidate)
     callback = getattr(email_integrations, f"{provider_name}_oauth_callback")
     response = await callback(
         request=Request({"type": "http", "headers": []}),

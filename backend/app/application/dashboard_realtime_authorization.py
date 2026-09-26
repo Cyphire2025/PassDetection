@@ -24,6 +24,7 @@ from app.infrastructure.database.models import (
 from app.infrastructure.repositories.coordinator_assignment_lifecycle import (
     expired_trip_clause,
 )
+from app.infrastructure.repositories.dashboard_session_repository import require_dashboard_session
 from app.infrastructure.repositories.user_repository import UserRepository
 
 DASHBOARD_REALTIME_ROLES = frozenset(
@@ -108,6 +109,7 @@ async def load_dashboard_realtime_authorization(
     """
 
     payload = decode_access_token(token)
+    await require_dashboard_session(session, payload)
     claims = _parse_dashboard_realtime_claims(
         payload, allow_superadmin=resolve_effective_user is not None
     )

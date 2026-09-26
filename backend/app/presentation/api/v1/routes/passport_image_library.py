@@ -18,7 +18,7 @@ from fastapi import (
     UploadFile,
     status,
 )
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response, StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mobile.passenger_change_propagation import (
@@ -53,6 +53,7 @@ from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
+from app.presentation.api.v1.response_contracts import binary_responses
 from app.presentation.api.v1.routes.passports import (
     _authorized_staff_passport_image,
     _crop_response,
@@ -178,7 +179,7 @@ async def list_passport_image_library(
     "/{submission_id}/images/{image_type}/library/{item_id}/image",
     status_code=status.HTTP_200_OK,
     summary="Stream one authorized passport image-library item",
-)
+response_class=Response, responses=binary_responses("image/*"))
 async def get_passport_image_library_item(
     submission_id: uuid.UUID,
     image_type: PassportImageType,

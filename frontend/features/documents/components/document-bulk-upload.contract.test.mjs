@@ -387,7 +387,7 @@ test("new selection and save remain blocked until incomplete uploads are resolve
   );
   assert.match(
     workspaceDialogs,
-    /Completed and saved document lists are not changed\./,
+    /Other completed and saved document lists stay unchanged\./,
   );
 });
 

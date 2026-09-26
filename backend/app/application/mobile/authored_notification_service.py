@@ -6,10 +6,17 @@ import hashlib
 import uuid
 from datetime import UTC, datetime, timedelta
 
-from fastapi import HTTPException
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.dtos.gc_notifications import (
+    NotificationDraftInput,
+    NotificationDraftResponse,
+    NotificationDraftUpdate,
+    NotificationPreviewResponse,
+    NotificationRoleCounts,
+    NotificationSendRequest,
+)
 from app.application.mobile.authored_notification_access import registrations_for_grants
 from app.application.mobile.authored_notification_audience import (
     NotificationAudienceSnapshot,
@@ -21,6 +28,7 @@ from app.application.mobile.authored_notification_preview import (
     read_preview_token,
     request_fingerprint,
 )
+from app.application.mobile.notification_errors import NotificationWorkflowError
 from app.infrastructure.database.gc_mobile_models import GCGroupAccessModel, MobileNotificationModel
 from app.infrastructure.database.gc_notification_models import (
     GCNotificationBatchModel,
@@ -30,14 +38,6 @@ from app.infrastructure.database.gc_notification_models import (
 )
 from app.infrastructure.database.models import ClientGroupModel
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
-from app.presentation.api.v1.schemas.gc_notification_schemas import (
-    NotificationDraftInput,
-    NotificationDraftResponse,
-    NotificationDraftUpdate,
-    NotificationPreviewResponse,
-    NotificationRoleCounts,
-    NotificationSendRequest,
-)
 
 
 async def require_draft(
@@ -59,7 +59,7 @@ async def require_draft(
         statement = statement.with_for_update()
     result = (await session.execute(statement)).scalar_one_or_none()
     if result is None or (result.deleted_at is not None and not include_deleted):
-        raise HTTPException(404, "Notification draft not found")
+        raise NotificationWorkflowError("missing", "Notification draft not found")
     return result
 
 
@@ -81,7 +81,7 @@ async def _selected_labels(
         ).all()
     }
     if len(rows) != len(group_ids):
-        raise HTTPException(422, "Selected groups are unavailable")
+        raise NotificationWorkflowError("invalid", "Selected groups are unavailable")
     return [rows[group_id] for group_id in group_ids]
 
 
@@ -130,7 +130,7 @@ async def save_notification_draft(
             not isinstance(body, NotificationDraftUpdate)
             or body.expected_revision != draft.revision
         ):
-            raise HTTPException(409, "draft_conflict")
+            raise NotificationWorkflowError("conflict", "draft_conflict")
         draft.revision += 1
         draft.status = "draft"
     draft.title, draft.body, draft.audience = body.title, body.body, body.audience
@@ -164,10 +164,10 @@ async def delete_notification_draft(
     if draft.deleted_at is not None:
         # A lost successful response can be safely retried with its original revision.
         if expected_revision != draft.revision - 1:
-            raise HTTPException(409, "draft_conflict")
+            raise NotificationWorkflowError("conflict", "draft_conflict")
         return
     if expected_revision != draft.revision:
-        raise HTTPException(409, "draft_conflict")
+        raise NotificationWorkflowError("conflict", "draft_conflict")
     current = now or datetime.now(UTC)
     draft.deleted_at, draft.deleted_by_user_id = current, actor_id
     draft.updated_at, draft.updated_by_user_id = current, actor_id
@@ -195,7 +195,7 @@ async def _audience(
         session, agency_id=draft.agency_id, group_ids=selected, now=now
     )
     if selected is not None and {item[0] for item in audience.groups} != set(selected):
-        raise HTTPException(409, "audience_changed")
+        raise NotificationWorkflowError("conflict", "audience_changed")
     return audience
 
 
@@ -211,7 +211,7 @@ async def preview_notification(
     current = now or datetime.now(UTC)
     draft = await require_draft(session, agency_id=agency_id, draft_id=draft_id)
     if draft.revision != revision:
-        raise HTTPException(409, "draft_conflict")
+        raise NotificationWorkflowError("conflict", "draft_conflict")
     audience = await _audience(session, draft, current)
     devices: dict[str, set[uuid.UUID]] = {}
     for provider in ("fcm", "apns"):
@@ -289,11 +289,11 @@ async def send_notification(
             draft_id=draft_id,
             revision=body.expected_revision,
         )
-    except HTTPException as exc:
+    except NotificationWorkflowError as exc:
         if existing is not None:
             # A definitive pre-send rejection must never hide a prior committed
             # batch from recovery, even if the retry token was corrupted.
-            raise HTTPException(409, "idempotency_conflict") from exc
+            raise NotificationWorkflowError("conflict", "idempotency_conflict") from exc
         raise
     fingerprint = request_fingerprint(
         draft_id=draft_id,
@@ -303,13 +303,13 @@ async def send_notification(
     )
     if existing is not None:
         if existing.request_fingerprint != fingerprint:
-            raise HTTPException(409, "idempotency_conflict")
+            raise NotificationWorkflowError("conflict", "idempotency_conflict")
         return existing
     if expiry <= current.timestamp():
-        raise HTTPException(409, "stale_preview")
+        raise NotificationWorkflowError("conflict", "stale_preview")
     draft = await require_draft(session, agency_id=agency_id, draft_id=draft_id, lock=True)
     if draft.revision != body.expected_revision:
-        raise HTTPException(409, "draft_conflict")
+        raise NotificationWorkflowError("conflict", "draft_conflict")
     access_query = select(GCGroupAccessModel.id).where(GCGroupAccessModel.agency_id == agency_id)
     if draft.audience == "selected_groups":
         access_query = access_query.where(
@@ -318,12 +318,12 @@ async def send_notification(
     await session.execute(access_query.order_by(GCGroupAccessModel.id).with_for_update())
     current = max(current, datetime.now(UTC))
     if expiry <= current.timestamp():
-        raise HTTPException(409, "stale_preview")
+        raise NotificationWorkflowError("conflict", "stale_preview")
     audience = await _audience(session, draft, current)
     if audience.fingerprint != audience_hash:
-        raise HTTPException(409, "audience_changed")
+        raise NotificationWorkflowError("conflict", "audience_changed")
     if not audience.grants:
-        raise HTTPException(409, "no_eligible_recipients")
+        raise NotificationWorkflowError("conflict", "no_eligible_recipients")
     batch = GCNotificationBatchModel(
         id=uuid.uuid4(),
         agency_id=agency_id,

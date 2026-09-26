@@ -38,6 +38,7 @@ from app.infrastructure.security.upload_validator import (
     MalwareScannerUnavailableError,
 )
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
+from app.presentation.api.v1.response_contracts import XLSX, binary_responses
 from app.presentation.api.v1.schemas.ecr_schemas import (
     CreateEcrBatch,
     EcrBatchResponse,
@@ -523,7 +524,7 @@ async def retry_ecr_batch(
     return await _response(session, batch)
 
 
-@router.get("/batches/{batch_id}/export.xlsx")
+@router.get("/batches/{batch_id}/export.xlsx", response_class=Response, responses=binary_responses(XLSX))
 async def export_ecr_batch(
     batch_id: uuid.UUID, current_user: UserDep, session: SessionDep
 ) -> Response:

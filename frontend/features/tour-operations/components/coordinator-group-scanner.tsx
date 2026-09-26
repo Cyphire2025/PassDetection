@@ -348,7 +348,7 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
       queryClient.invalidateQueries({ queryKey: [...QUERY_KEYS.operations.tourGroupPassengers(groupId), "mine"] }),
       queryClient.invalidateQueries({ queryKey: [...QUERY_KEYS.operations.tourGroups, "mine"] }),
     ]);
-    router.replace(`/coordinator/groups/${groupId}` as never);
+    router.replace(`/coordinator/groups/${groupId}`);
   };
 
   const switchCamera = () => {
@@ -383,7 +383,7 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
               const scannerPath = sessionId
                 ? `/coordinator/groups/${groupId}/scanner?sessionId=${encodeURIComponent(sessionId)}`
                 : `/coordinator/groups/${groupId}/scanner`;
-              router.push(ROUTES.auth.coordinatorLogin(scannerPath) as never);
+              router.push(ROUTES.auth.coordinatorLogin(scannerPath));
             }}
           >
             {isAuthenticated ? "Switch Account" : "Login"}
@@ -401,7 +401,7 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
       <div className="mx-auto flex h-full w-full max-w-lg flex-col overflow-hidden">
         <header className="shrink-0 bg-slate-950 px-4 pb-2 pt-[max(0.65rem,env(safe-area-inset-top))]">
           <div className="mb-2 flex items-center justify-between gap-3">
-            <Link href={`/coordinator/groups/${groupId}` as never} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white">
+            <Link href={`/coordinator/groups/${groupId}`} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white">
               <ArrowLeft className="h-5 w-5" aria-hidden="true" />
               <span className="sr-only">Back</span>
             </Link>
@@ -652,7 +652,7 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
                 onClick={async () => {
                   stopScanner();
                   await queryClient.invalidateQueries({ queryKey: [...QUERY_KEYS.operations.tourGroupPassengers(groupId), "sessions"] });
-                  router.replace(`/coordinator/groups/${groupId}` as never);
+                  router.replace(`/coordinator/groups/${groupId}`);
                 }}
                 className="h-12 w-full text-base"
               >

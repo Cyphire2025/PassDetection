@@ -106,7 +106,7 @@ export function EmailOperationalInboxPage() {
             </p>
           </div>
           <Link
-            href={ROUTES.dashboard.emailIntegrations as never}
+            href={ROUTES.dashboard.emailIntegrations}
             className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
           >
             <Mail className="h-4 w-4" aria-hidden="true" />
@@ -398,7 +398,7 @@ function OperationalInboxCard({ item }: { item: EmailOperationalInboxItem }) {
               href={
                 ROUTES.dashboard.emailIntegrationMessage(
                   item.message_id,
-                ) as never
+                )
               }
               className="inline-flex h-9 items-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
             >
@@ -407,7 +407,7 @@ function OperationalInboxCard({ item }: { item: EmailOperationalInboxItem }) {
             </Link>
             {item.group_id && (
               <Link
-                href={ROUTES.dashboard.passportGroup(item.group_id) as never}
+                href={ROUTES.dashboard.passportGroup(item.group_id)}
                 className="inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-blue-700 hover:bg-blue-50"
               >
                 Open group

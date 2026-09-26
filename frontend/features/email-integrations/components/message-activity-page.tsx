@@ -37,7 +37,7 @@ export function EmailMessageActivityPage({ messageId }: { messageId: string }) {
     return (
       <div className="space-y-4">
         <Link
-          href={ROUTES.dashboard.emailIntegrationsActivity as never}
+          href={ROUTES.dashboard.emailIntegrationsActivity}
           className="inline-flex items-center gap-1 text-sm font-medium text-blue-700 hover:underline"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
@@ -57,7 +57,7 @@ export function EmailMessageActivityPage({ messageId }: { messageId: string }) {
     <div className="space-y-6">
       <div>
         <Link
-          href={ROUTES.dashboard.emailIntegrationsActivity as never}
+          href={ROUTES.dashboard.emailIntegrationsActivity}
           className="inline-flex items-center gap-1 text-sm font-medium text-blue-700 hover:underline"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />

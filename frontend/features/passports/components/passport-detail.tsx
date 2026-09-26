@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { CompactPassportImage, PassportCoverPreview } from "./compact-passport-image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
 import { Activity, AlertCircle, ArrowLeft, CheckCircle2, ChevronLeft, ChevronRight, ExternalLink, FileCheck2, Gauge, History, Loader2, Pencil, QrCode, RotateCcw, Save, Upload } from "lucide-react";
 import { IntentPrefetchLink } from "@/components/shared/intent-prefetch-link";
 import {
@@ -34,7 +33,6 @@ import type {
 import { selectUser, useAuthStore } from "@/stores/auth.store";
 import {
   useConfirmPassportSubmission,
-  useGroupSubmissionsView,
   usePassportSubmission,
   useReextractPassportSubmission,
   useRetryPassportAiVerification,
@@ -65,19 +63,15 @@ import {
   validatePassportLibraryImage,
 } from "../utils/passport-image-library";
 import {
-  buildPassportDetailNavigationHref,
   buildPassportGroupHref,
-  isPassportNavigationKeyboardTarget,
-  parsePassportDetailNavigation,
-  readPassportNavigationContext,
-  type PassportDetailNavigationState,
-  type StoredPassportNavigationContext,
 } from "../utils/passport-group-navigation";
 
 const PassportImageCropEditor = dynamic(
   () => import("./passport-image-crop-editor").then((module) => module.PassportImageCropEditor),
   { loading: () => null },
 );
+
+import { usePassportDetailNavigation } from "./use-passport-detail-navigation";
 
 interface PassportDetailProps {
   id: string;
@@ -92,11 +86,6 @@ interface ReextractFeedback {
 const REVIEW_FIELDS = PASSPORT_REVIEW_FIELDS;
 
 export function PassportDetail({ id, navigationQuery = "" }: PassportDetailProps) {
-  const router = useRouter();
-  const navigationFromUrl = useMemo(
-    () => parsePassportDetailNavigation(new URLSearchParams(navigationQuery)),
-    [navigationQuery],
-  );
   const { data, isLoading, error, refetch } = usePassportSubmission(id);
   const confirmMutation = useConfirmPassportSubmission(id);
   const staffApproveMutation = useStaffApprovePassportSubmission(id);
@@ -119,108 +108,7 @@ export function PassportDetail({ id, navigationQuery = "" }: PassportDetailProps
     Partial<Record<PassportImageType, string>>
   >({});
   const reextractInFlightRef = useRef(false);
-  const [storedNavigation, setStoredNavigation] =
-    useState<StoredPassportNavigationContext | null>(null);
-  const navigationGroupMatches = Boolean(
-    data
-    && navigationFromUrl
-    && data.group_id === navigationFromUrl.groupId,
-  );
-  const {
-    data: fallbackNavigationView,
-  } = useGroupSubmissionsView(
-    navigationFromUrl?.groupId ?? "",
-    {
-      ...(navigationFromUrl?.viewState.search
-        ? { search: navigationFromUrl.viewState.search }
-        : {}),
-      include_deleted: navigationFromUrl?.includeDeleted ?? false,
-      submission_filter:
-        navigationFromUrl?.viewState.submissionFilter ?? "all",
-      sort_by: navigationFromUrl?.viewState.sortBy ?? "name",
-      sort_order: navigationFromUrl?.viewState.sortOrder ?? "asc",
-      page: 1,
-      page_size: 1,
-    },
-    navigationGroupMatches,
-  );
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      if (!navigationFromUrl || !currentUser?.id || !navigationGroupMatches) {
-        setStoredNavigation(null);
-        return;
-      }
-      setStoredNavigation(
-        readPassportNavigationContext({
-          token: navigationFromUrl.token,
-          userId: currentUser.id,
-          groupId: navigationFromUrl.groupId,
-        }),
-      );
-    }, 0);
-    return () => window.clearTimeout(timer);
-  }, [
-    currentUser?.id,
-    navigationFromUrl,
-    navigationGroupMatches,
-  ]);
-
-  const validStoredNavigation =
-    storedNavigation
-    && storedNavigation.userId === currentUser?.id
-    && storedNavigation.groupId === data?.group_id
-      ? storedNavigation
-      : null;
-  const activeNavigation: PassportDetailNavigationState | null =
-    validStoredNavigation ?? (navigationGroupMatches ? navigationFromUrl : null);
-  const orderedSubmissionIds = validStoredNavigation?.orderedSubmissionIds
-    ?? fallbackNavigationView?.ordered_submission_ids
-    ?? [];
-  const navigationIndex = data
-    ? orderedSubmissionIds.indexOf(data.id)
-    : -1;
-  const previousSubmissionId = navigationIndex > 0
-    ? orderedSubmissionIds[navigationIndex - 1]
-    : null;
-  const nextSubmissionId =
-    navigationIndex >= 0 && navigationIndex < orderedSubmissionIds.length - 1
-      ? orderedSubmissionIds[navigationIndex + 1]
-      : null;
-  const previousHref =
-    previousSubmissionId && activeNavigation
-      ? buildPassportDetailNavigationHref(previousSubmissionId, activeNavigation)
-      : null;
-  const nextHref =
-    nextSubmissionId && activeNavigation
-      ? buildPassportDetailNavigationHref(nextSubmissionId, activeNavigation)
-      : null;
-
-  useEffect(() => {
-    const handleArrowNavigation = (event: KeyboardEvent) => {
-      if (
-        event.defaultPrevented
-        || event.altKey
-        || event.ctrlKey
-        || event.metaKey
-        || event.shiftKey
-        || cropEditor
-        || isPassportNavigationKeyboardTarget(event.target)
-      ) {
-        return;
-      }
-      const destination = event.key === "ArrowLeft"
-        ? previousHref
-        : event.key === "ArrowRight"
-          ? nextHref
-          : null;
-      if (!destination) return;
-      event.preventDefault();
-      router.push(destination as never);
-    };
-    window.addEventListener("keydown", handleArrowNavigation);
-    return () => window.removeEventListener("keydown", handleArrowNavigation);
-  }, [cropEditor, nextHref, previousHref, router]);
+  const { activeNavigation, orderedSubmissionIds, navigationIndex, previousHref, nextHref } = usePassportDetailNavigation(data, navigationQuery, currentUser?.id, Boolean(cropEditor));
 
   if (isLoading) {
     return (
@@ -541,7 +429,7 @@ export function PassportDetail({ id, navigationQuery = "" }: PassportDetailProps
                   )}
                 </div>
               </div>
-              <Link href={ROUTES.dashboard.tourOperationsGroupQrCodes(data.group_id) as never}>
+              <Link href={ROUTES.dashboard.tourOperationsGroupQrCodes(data.group_id)}>
                 <Button variant="secondary" className="w-full sm:w-auto">Manage QR</Button>
               </Link>
             </CardContent>

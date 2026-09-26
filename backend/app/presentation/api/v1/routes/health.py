@@ -39,6 +39,7 @@ from app.infrastructure.runtime_readiness import (
     runtime_capability_readiness,
 )
 from app.presentation.dependencies.auth import require_role
+from app.presentation.middleware.error_response import ApiErrorResponse
 
 router = APIRouter()
 logger = get_logger(__name__)
@@ -117,6 +118,7 @@ async def liveness(
         "required Celery queue consumers are ready."
     ),
     status_code=status.HTTP_200_OK,
+    responses={503: {"model": ApiErrorResponse, "description": "Dependencies degraded; checks and capabilities are retained alongside the error"}},
 )
 async def readiness(
     db: AsyncSession = Depends(get_db_session),
@@ -257,6 +259,7 @@ async def readiness(
             "capabilities": capabilities,
             "version": settings.app_version,
             "revision": settings.app_revision,
+            **({"error": {"code": "SERVICE_UNAVAILABLE", "message": "Required dependencies are unavailable"}} if not overall_healthy else {}),
         },
     )
 
@@ -270,6 +273,7 @@ async def readiness(
     ),
     status_code=status.HTTP_200_OK,
     dependencies=[Depends(require_role([UserRole.SUPER_ADMIN]))],
+    responses={503: {"model": ApiErrorResponse, "description": "Dependencies degraded; diagnostic fields are retained alongside the error"}},
 )
 async def diagnostics(
     db: AsyncSession = Depends(get_db_session),
@@ -303,6 +307,7 @@ async def diagnostics(
             "processing_backend": settings.processing_backend,
             "metrics": operational_metrics,
             "checks": checks,
+            **({"error": {"code": "SERVICE_UNAVAILABLE", "message": "Required dependencies are unavailable"}} if http_status == 503 else {}),
         },
     )
 

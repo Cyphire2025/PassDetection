@@ -44,7 +44,7 @@ export function GcAppShell({ children }: { children: ReactNode }) {
     router.replace(
       (user.role === "agency_coordinator"
         ? ROUTES.coordinator
-        : ROUTES.dashboard.passports) as never,
+        : ROUTES.dashboard.passports),
     );
   }, [canAccess, hasHydrated, router, user]);
 
@@ -66,7 +66,7 @@ export function GcAppShell({ children }: { children: ReactNode }) {
             return (
               <li key={link.href} className={`min-w-0 ${link.href === ROUTES.dashboard.gcAppClientManagerAccounts ? "col-span-2 sm:col-span-1" : ""}`}>
                 <Link
-                  href={link.href as never}
+                  href={link.href}
                   aria-current={isActive ? "page" : undefined}
                   className={`flex h-full min-h-12 items-center gap-2 rounded-xl px-3 py-2 text-sm transition-all motion-reduce:transition-none sm:gap-3 sm:px-4 ${
                     isActive

@@ -154,7 +154,7 @@ export function canAccessApplicationPath(
   return ROLE_CAPABILITIES[user.role].includes(capability);
 }
 
-export function firstAuthorizedPath(user: User): string {
+export function firstAuthorizedPath(user: User) {
   if (user.role === "agency_coordinator") return ROUTES.coordinator;
   if (OFFICE_ROLES.includes(user.role)) {
     if (canAccessApplicationPath(user, ROUTES.dashboard.root)) {

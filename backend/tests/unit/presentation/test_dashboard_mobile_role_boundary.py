@@ -14,6 +14,7 @@ from app.presentation.dependencies import auth as auth_dependencies
 
 @pytest.mark.asyncio
 async def test_dashboard_dependency_rejects_client_manager(monkeypatch) -> None:
+    monkeypatch.setattr(auth_dependencies, "require_dashboard_session", AsyncMock())
     user_id = uuid.uuid4()
     user = User.create(
         email="client@example.com",

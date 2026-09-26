@@ -812,6 +812,7 @@ async def test_credential_login_rejects_inactive_account_without_issuing_session
     session = MagicMock()
     session.execute = AsyncMock(return_value=result)
     limiter = MagicMock()
+    limiter.aclose = AsyncMock()
     limiter.check_allowed = AsyncMock()
     limiter.record_failure = AsyncMock()
 
@@ -867,6 +868,7 @@ async def test_credential_login_rejects_invitation_account_until_token_activatio
     session = MagicMock()
     session.execute = AsyncMock(side_effect=[user_result, profile_result])
     limiter = MagicMock()
+    limiter.aclose = AsyncMock()
     limiter.check_allowed = AsyncMock()
     limiter.record_failure = AsyncMock()
     limiter.record_success = AsyncMock()
@@ -935,6 +937,7 @@ async def test_credential_login_repairs_legacy_direct_password_account() -> None
     session = MagicMock()
     session.execute = AsyncMock(side_effect=[user_result, profile_result])
     limiter = MagicMock()
+    limiter.aclose = AsyncMock()
     limiter.check_allowed = AsyncMock()
     limiter.record_failure = AsyncMock()
     limiter.record_success = AsyncMock()
