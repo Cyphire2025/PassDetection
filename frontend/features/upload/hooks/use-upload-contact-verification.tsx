@@ -37,16 +37,29 @@ export function useUploadContactVerification(props: Props) {
   const [editing, setEditing] = useState<string | null>(null);
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
-    const nextExpiry = Math.min(...Object.values(proofs).map((proof) => proof.expiresAt).filter((expiresAt) => expiresAt > Date.now()));
+    // Keep deadlines newer than the last rendered clock tick, even if they
+    // passed before this effect runs; a zero-delay tick must still render expiry.
+    const nextExpiry = Math.min(...Object.values(proofs).map((proof) => proof.expiresAt).filter((expiresAt) => expiresAt > now));
     if (!Number.isFinite(nextExpiry)) return;
-    const timer = window.setTimeout(() => setNow(Date.now()), Math.max(0, nextExpiry - Date.now()));
+    let timer: number;
+    const expire = () => {
+      const observedNow = Date.now();
+      if (observedNow < nextExpiry) {
+        // A timer may wake early more than once without the clock advancing.
+        // Rearm directly: setting the same state value would skip the effect.
+        timer = window.setTimeout(expire, nextExpiry - observedNow);
+      } else {
+        setNow(observedNow);
+      }
+    };
+    timer = window.setTimeout(expire, Math.max(0, nextExpiry - Date.now()));
     return () => window.clearTimeout(timer);
   }, [proofs, now]);
 
-  const getProof = (submissionId: string | undefined, sessionId: string, email: string, phone: string): ContactVerification | null => {
+  const getProof = (submissionId: string | undefined, sessionId: string, email: string, phone: string, checkedAt = now): ContactVerification | null => {
     if (!submissionId || !validContactEmail(email)) return null;
     const proof = proofs[submissionId];
-    return proof && proof.sessionId === sessionId && proof.email === email.trim() && proof.phone === normalizePhoneNumber(phone) && proof.expiresAt > now ? proof : null;
+    return proof && proof.sessionId === sessionId && proof.email === email.trim() && proof.phone === normalizePhoneNumber(phone) && proof.expiresAt > checkedAt ? proof : null;
   };
   const invalidate = (submissionId: string) => setProofs((current) => {
     const next = { ...current };
@@ -80,5 +93,11 @@ export function useUploadContactVerification(props: Props) {
     }}
     onBack={props.onBack}
   /> : null;
-  return { page, getProof, edit: setEditing, invalidate };
+  return {
+    page,
+    // Submission handlers must check the current clock even when a background
+    // tab has delayed its timer. Rendering uses the state snapshot above.
+    getProof: (submissionId: string | undefined, sessionId: string, email: string, phone: string) => getProof(submissionId, sessionId, email, phone, Date.now()),
+    edit: setEditing, invalidate,
+  };
 }

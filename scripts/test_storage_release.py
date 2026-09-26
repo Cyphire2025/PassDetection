@@ -10,8 +10,12 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import os
+import stat
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
 
 import test_release_current as current_tests
 from release_reliability import DUMP_COMMAND
@@ -27,6 +31,38 @@ from test_release_current import (
 class StorageReleaseTests(unittest.TestCase):
     def setUp(self):
         current_tests.CurrentReleaseTests.setUp(self)
+
+    def assert_identity_read_only(self, path):
+        mode = stat.S_IMODE(path.stat().st_mode)
+        if os.name == "posix":
+            self.assertEqual(mode, 0o400)
+        else:
+            self.assertEqual(mode & stat.S_IWRITE, 0)
+
+    def test_root_operator_assigns_provider_ownership_and_real_readonly_mode(self):
+        # Only privileged chown is simulated; chmod and file contents are real.
+        chown = Mock()
+        with patch("storage_release.os", SimpleNamespace(name="posix", geteuid=lambda: 0, chown=chown)):
+            self.release.prepare()
+        identity = Path(self.fake.environment()["OBJECT_STORAGE_IDENTITY_FILE"])
+        chown.assert_called_once_with(identity, 1000, 1000)
+        self.assert_identity_read_only(identity)
+
+    def test_provider_operator_requires_no_chown_and_sets_real_readonly_mode(self):
+        # Deliberately no chown attribute: that call would fail this branch.
+        with patch("storage_release.os", SimpleNamespace(name="posix", geteuid=lambda: 1000)):
+            self.release.prepare()
+        identity = Path(self.fake.environment()["OBJECT_STORAGE_IDENTITY_FILE"])
+        self.assert_identity_read_only(identity)
+
+    def test_unrelated_operator_uid_is_rejected_before_any_service_change(self):
+        with (
+            patch("storage_release.os", SimpleNamespace(name="posix", geteuid=lambda: 1001)),
+            self.assertRaisesRegex(ReleaseError, "requires root or the provider UID 1000"),
+        ):
+            self.release.prepare()
+        self.assertFalse(self.fake.commands("stop"))
+        self.assertFalse(self.fake.commands("up"))
 
     def operations(self, verb, service):
         return [call for call in self.fake.calls if call[:2] == ["docker", "compose"]
@@ -130,7 +166,10 @@ class StorageReleaseTests(unittest.TestCase):
         self.release.prepare()
         identity = Path(self.fake.environment()["OBJECT_STORAGE_IDENTITY_FILE"])
         original = identity.read_text()
+        # Model deliberate owner tampering, not a root runner bypass of 0400.
+        identity.chmod(0o600)
         identity.write_text(original.replace("existing-app", "other-app"))
+        identity.chmod(0o400)
         with self.assertRaises(ReleaseError):
             self.release.activate()
         self.assertFalse(self.fake.commands(DUMP_COMMAND))

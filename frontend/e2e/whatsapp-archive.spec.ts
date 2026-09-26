@@ -89,7 +89,7 @@ for (const viewport of [{ name: "desktop", width: 1440, height: 1080 }, { name: 
     await expect(recipients.getByText(/This broadcast is archived and read-only/)).toBeVisible();
     await expect(recipients.getByRole("button", { name: "Add recipients", exact: true })).toHaveCount(0);
     await expect(recipients.getByRole("checkbox", { name: "Select Passenger A" })).toBeDisabled();
-    await expect(recipients.getByText("Sent", { exact: true })).toBeVisible();
+    await expect(recipients.getByText("Delivered", { exact: true })).toBeVisible();
     await recipients.getByRole("searchbox", { name: "Search current recipients" }).fill("missing passenger");
     await expect(recipients.getByText(/No recipients match/)).toBeVisible();
     await recipients.getByRole("searchbox", { name: "Search current recipients" }).fill("");

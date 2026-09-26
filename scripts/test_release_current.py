@@ -259,6 +259,12 @@ class CurrentDocker(RecoveryDocker):
 
 class CurrentReleaseTests(unittest.TestCase):
     def setUp(self):
+        # Docker/operator identity is simulated. Model the permitted provider
+        # owner explicitly instead of inheriting the test runner's POSIX UID.
+        # File creation and chmod remain real, including on non-root CI hosts.
+        operator_uid = patch("storage_release.os.geteuid", return_value=1000, create=True)
+        operator_uid.start()
+        self.addCleanup(operator_uid.stop)
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         self.root = Path(temporary.name)

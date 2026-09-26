@@ -1,0 +1,22 @@
+{
+  "result": "passed",
+  "scope": "CI operator fixture portability; production guard unchanged",
+  "source_revision": "5be49da13a807ca0c82aa52098a0da9603ce4957 plus reviewed test-only correction",
+  "original_ci_run": 36278735902,
+  "original_failure": "30 unit fixture errors inherited CI euid1001; provider identity requires root or uid1000",
+  "cases": 289,
+  "windows_seconds": 7.725,
+  "linux_seconds": 3.78,
+  "linux_effective_uid": 1001,
+  "linux_image": "sha256:0066ad357a08c4b207fa93bfa12e6111a90ebcac3514b4edbbdeb31a66db0f67",
+  "production_source_changed": false,
+  "controls": [
+    "root assigns1000:1000",
+    "provider uid1000 preserves0400 withoutchown",
+    "other uid1001 refused without service changes"
+  ],
+  "files": {
+    "scripts/test_release_current.py": "08591b169e3a56a809ee5cbaddd82a4793dd4e0e18ace024174f9bf69cf82262",
+    "scripts/test_storage_release.py": "3844c63f293d54187f8110036c6ad1e161effd50e70f48a6ff3e885c6c94b6f0"
+  }
+}

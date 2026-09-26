@@ -1,0 +1,117 @@
+{
+  "date": "2026-09-27",
+  "failed_ci_run": 36278735902,
+  "source_commit": "5be49da13a807ca0c82aa52098a0da9603ce4957",
+  "status": "focused_fixes_verified_locally_awaiting_fresh_ci",
+  "findings": [
+    {
+      "id": "ADD-17",
+      "severity": "Medium",
+      "kind": "pre_existing_frontend_clock_race",
+      "introduced_commit": "b87e5e6",
+      "present_at_original_audit_commit": "48395bb",
+      "failed_job": 108506389380,
+      "ci_baseline_result": {
+        "passed": 904,
+        "failed": 1
+      },
+      "cause": "Timer selection used current wall time while proof acceptance used the last state clock tick; an early callback followed by an effect after expiry could remove the only expiry wakeup. A delayed browser timer also left submission-time proof checks stale.",
+      "fix": "Select pending deadlines relative to the rendered clock state; rearm timer callbacks directly until the actual clock reaches expiry, including repeated identical clock observations; check current time separately in submission event handlers. Keep rendering pure, clean up the latest timer, preserve exact expiry duration and backend proof enforcement.",
+      "pre_fix_deterministic_tests": {
+        "passed": 1,
+        "failed": 3
+      },
+      "post_fix_deterministic_tests": {
+        "passed": 5,
+        "failed": 0
+      },
+      "boundaries": [
+        "Valid immediately before exact expiry, invalid at expiry",
+        "Timer callback before expiry and effect after expiry still schedules the missing wakeup",
+        "Submission-time check rejects expiry while browser timer is delayed",
+        "Proof state update rendered after expiry returns to verification",
+        "Repeated early callbacks at the same observed millisecond rearm directly without relying on React state changes"
+      ]
+    },
+    {
+      "id": "ADD-18",
+      "severity": "Low",
+      "kind": "stale_browser_expectation",
+      "failed_job": 108506389399,
+      "ci_baseline_result": {
+        "passed": 88,
+        "failed": 2
+      },
+      "cause": "Synthetic recipient fixture says delivered; existing DeliveryBadge correctly renders Delivered but the browser assertion expected Sent.",
+      "fix": "Change only the exact expected text to Delivered; preserve all archive, read-only, search, restoration and unexpected-mutation checks."
+    }
+  ],
+  "verification": {
+    "toolchain": {
+      "node": "24.21.0",
+      "npm": "11.20.0"
+    },
+    "upload_feature_tests": {
+      "files": 22,
+      "passed": 172,
+      "failed": 0,
+      "seconds": 30.19,
+      "exit_code": 0,
+      "local_log": "outputs/qualification/ci-proof-expiry-affected.txt",
+      "precedes_final_repeated_early_callback_refinement": true
+    },
+    "changed_hook_coverage": {
+      "lines": [
+        38,
+        38
+      ],
+      "statements": [
+        49,
+        49
+      ],
+      "branches": [
+        38,
+        38
+      ],
+      "functions": [
+        18,
+        18
+      ],
+      "scope": "Explicit focused coverage include; not a whole-app or new permanent CI floor claim"
+    },
+    "archive_browsers": {
+      "engine": "Chromium",
+      "viewports": [
+        "1440x1080",
+        "390x844"
+      ],
+      "passed": 2,
+      "failed": 0,
+      "seconds": 32.5,
+      "exit_code": 0,
+      "local_log": "outputs/qualification/ci-whatsapp-archive-corrected.txt",
+      "scope": "Existing mocked-API browser journeys; no physical-device claim"
+    },
+    "eslint_changed_files": "passed",
+    "typescript_no_emit": "passed",
+    "git_diff_check": "passed",
+    "final_changed_hook_and_configured_flow": {
+      "files": 2,
+      "passed": 18,
+      "failed": 0,
+      "seconds": 17.66,
+      "exit_code": 0,
+      "local_log": "outputs/qualification/ci-proof-expiry-final-boundaries.txt"
+    }
+  },
+  "source_sha256": {
+    "frontend/features/upload/hooks/use-upload-contact-verification.tsx": "d2b16b1d5261947ab37c81b4ea7c1731c0fd8303ded2bc6cbd6b01af5addc3ad",
+    "frontend/features/upload/hooks/use-upload-contact-verification.test.tsx": "111466ee5deab01f089813fd56e54215616dfe752005444ea7c92a4a5ee2a4d3",
+    "frontend/e2e/whatsapp-archive.spec.ts": "57388dd0b3830472fb6918e849068b1d13edd36d0ff7fba44327dd8f1d3ea438"
+  },
+  "limits": [
+    "Fresh complete CI has not yet run on these corrections.",
+    "Only frontend runtime needs a new qualified image; backend app and native applications unchanged.",
+    "No production configuration, image, data, storage or service was changed; no commit/push by this lane."
+  ]
+}
