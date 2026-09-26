@@ -309,7 +309,12 @@ export function PassportGroupRosterPanel({
             {submissionsView.total.toLocaleString()} matching submissions
             {submissionsView.cluster_boundaries_preserved
               ? " · duplicate sets stay together"
-              : ""}
+              : " · large duplicate sets continue across pages"}
+            {submissionsView.duplicate_clusters?.filter((cluster) => cluster.first_page !== cluster.last_page).map((cluster) => (
+              <span key={cluster.cluster_id} className="block text-xs text-amber-900">
+                Duplicate set: {cluster.visible_member_ids.length} of {cluster.matching_members} matching members on this page · pages {cluster.first_page}–{cluster.last_page}
+              </span>
+            ))}
           </p>
           <div className="flex items-center gap-3">
             <Button

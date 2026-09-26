@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 from typing import Any
 
-from sqlalchemy import or_, select
+from sqlalchemy import and_, false, or_, select, true
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.elements import ColumnElement
 
@@ -31,51 +31,117 @@ class AuthorizationPolicy:
         self._session = session
 
     @staticmethod
+    def can_access_retained_data(user: User) -> bool:
+        """Only the platform role may inspect retained deleted records."""
+        return user.role == UserRole.SUPER_ADMIN
+
+    @staticmethod
+    def _visible_group_statuses(role: UserRole) -> tuple[str, ...]:
+        # Archive administration is an established office-admin/manager workflow.
+        # Staff and coordinators do not inherit that historical-data capability.
+        if role in {UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER}:
+            return (GroupStatus.ACTIVE.value, GroupStatus.CLOSED.value, GroupStatus.ARCHIVED.value)
+        if role in {UserRole.AGENCY_STAFF, UserRole.AGENCY_COORDINATOR}:
+            return (GroupStatus.ACTIVE.value, GroupStatus.CLOSED.value)
+        return ()
+
+    @staticmethod
+    def _group_lifecycle_filter(role: UserRole) -> ColumnElement[bool]:
+        return and_(
+            ClientGroupModel.deleted_at.is_(None),
+            ClientGroupModel.status.in_(AuthorizationPolicy._visible_group_statuses(role)),
+        )
+
+    @staticmethod
+    def _group_visibility_boundary(user: User) -> ColumnElement[bool]:
+        """Tenant and lifecycle boundary, also used by parent-passport lookups."""
+        if AuthorizationPolicy.can_access_retained_data(user):
+            return true()
+        if not user.agency_id:
+            return false()
+        return and_(
+            ClientGroupModel.agency_id == user.agency_id,
+            AuthorizationPolicy._group_lifecycle_filter(user.role),
+        )
+
+    @staticmethod
+    def _group_within_visibility_boundary(user: User, group: Any) -> bool:
+        if AuthorizationPolicy.can_access_retained_data(user):
+            return True
+        return bool(
+            user.agency_id
+            and group.agency_id == user.agency_id
+            and group.deleted_at is None
+            and group.status in AuthorizationPolicy._visible_group_statuses(user.role)
+        )
+
+    @staticmethod
     def staff_group_visibility_filter(user: User) -> ColumnElement[bool]:
         """Limit staff to groups they created or were explicitly assigned."""
 
-        return (ClientGroupModel.created_by_user_id == user.id) | ClientGroupModel.id.in_(
-            select(ManagerGroupAccessModel.group_id).where(ManagerGroupAccessModel.manager_id == user.id)
+        return and_(
+            AuthorizationPolicy._group_visibility_boundary(user),
+            or_(
+                ClientGroupModel.created_by_user_id == user.id,
+                ClientGroupModel.id.in_(
+                    select(ManagerGroupAccessModel.group_id).where(ManagerGroupAccessModel.manager_id == user.id)
+                ),
+            ),
         )
 
     @staticmethod
     def staff_passport_visibility_filter(user: User) -> ColumnElement[bool]:
         """Scope staff passports by group id without an unjoined group table."""
 
-        owned_group_ids = select(ClientGroupModel.id).where(
-            ClientGroupModel.created_by_user_id == user.id
+        visible_group_ids = select(ClientGroupModel.id).where(
+            AuthorizationPolicy.staff_group_visibility_filter(user)
+        ).correlate(None)
+        return and_(
+            PassportSubmissionModel.agency_id == user.agency_id,
+            PassportSubmissionModel.group_id.in_(visible_group_ids),
         )
-        assigned_group_ids = select(ManagerGroupAccessModel.group_id).where(
-            ManagerGroupAccessModel.manager_id == user.id
+
+    @staticmethod
+    def coordinator_group_visibility_filter(
+        coordinator_id: uuid.UUID, *, agency_id: uuid.UUID | None = None,
+    ) -> ColumnElement[bool]:
+        """Shared boundary for coordinator groups and their attendance sessions."""
+        assignment = select(CoordinatorGroupAssignmentModel.id).where(
+            CoordinatorGroupAssignmentModel.group_id == ClientGroupModel.id,
+            CoordinatorGroupAssignmentModel.agency_id == ClientGroupModel.agency_id,
+            CoordinatorGroupAssignmentModel.coordinator_user_id == coordinator_id,
+            CoordinatorGroupAssignmentModel.active.is_(True),
+        ).correlate(ClientGroupModel).exists()
+        return and_(
+            ClientGroupModel.agency_id == agency_id if agency_id is not None else true(),
+            AuthorizationPolicy._group_lifecycle_filter(UserRole.AGENCY_COORDINATOR),
+            ~expired_trip_clause(),
+            assignment,
         )
-        return PassportSubmissionModel.group_id.in_(
-            owned_group_ids
-        ) | PassportSubmissionModel.group_id.in_(assigned_group_ids)
 
     @staticmethod
     def apply_group_visibility_scope(stmt, user: User):  # type: ignore[no-untyped-def]
-        if user.role == UserRole.SUPER_ADMIN:
-            return stmt
-        stmt = stmt.where(ClientGroupModel.agency_id == user.agency_id)
+        stmt = stmt.where(AuthorizationPolicy._group_visibility_boundary(user))
         if user.role == UserRole.AGENCY_STAFF:
             stmt = stmt.where(AuthorizationPolicy.staff_group_visibility_filter(user))
         elif user.role == UserRole.AGENCY_COORDINATOR:
             stmt = stmt.where(
-                ~expired_trip_clause(),
-                ClientGroupModel.id.in_(
-                    select(CoordinatorGroupAssignmentModel.group_id).where(
-                        CoordinatorGroupAssignmentModel.coordinator_user_id == user.id,
-                        CoordinatorGroupAssignmentModel.active.is_(True),
-                    )
-                )
+                AuthorizationPolicy.coordinator_group_visibility_filter(user.id, agency_id=user.agency_id)
             )
         return stmt
 
     @staticmethod
     def apply_passport_visibility_scope(stmt, user: User):  # type: ignore[no-untyped-def]
-        if user.role == UserRole.SUPER_ADMIN:
-            return stmt
-        stmt = stmt.where(PassportSubmissionModel.agency_id == user.agency_id)
+        # Explicit correlation keeps this correct both with and without an
+        # outer ClientGroup join (search joins one; several list callers do not).
+        parent_group = select(ClientGroupModel.id).where(
+            ClientGroupModel.id == PassportSubmissionModel.group_id,
+            ClientGroupModel.agency_id == PassportSubmissionModel.agency_id,
+            AuthorizationPolicy._group_visibility_boundary(user),
+        ).correlate(PassportSubmissionModel).exists()
+        stmt = stmt.where(parent_group)
+        if not AuthorizationPolicy.can_access_retained_data(user):
+            stmt = stmt.where(PassportSubmissionModel.agency_id == user.agency_id)
         if user.role == UserRole.AGENCY_STAFF:
             stmt = stmt.where(
                 AuthorizationPolicy.staff_passport_visibility_filter(user)
@@ -98,10 +164,10 @@ class AuthorizationPolicy:
         return stmt
 
     async def can_view_group(self, user: User, group: Any) -> bool:
+        if not self._group_within_visibility_boundary(user, group):
+            return False
         if user.role == UserRole.SUPER_ADMIN:
             return True
-        if not user.agency_id or group.agency_id != user.agency_id:
-            return False
         if user.role == UserRole.AGENCY_ADMIN:
             return True
         if user.role == UserRole.AGENCY_MANAGER:
@@ -113,10 +179,10 @@ class AuthorizationPolicy:
         return False
 
     async def can_manage_group(self, user: User, group: Any) -> bool:
+        if not self._group_within_visibility_boundary(user, group):
+            return False
         if user.role == UserRole.SUPER_ADMIN:
             return True
-        if not user.agency_id or group.agency_id != user.agency_id:
-            return False
         if user.role == UserRole.AGENCY_ADMIN:
             return True
         if user.role == UserRole.AGENCY_MANAGER:
@@ -126,10 +192,21 @@ class AuthorizationPolicy:
         return False
 
     async def can_view_passport(self, user: User, passport: Any) -> bool:
+        if not self.can_access_retained_data(user) and (
+            not user.agency_id or passport.agency_id != user.agency_id
+        ):
+            return False
+        parent = await self._session.execute(
+            select(ClientGroupModel.id).where(
+                ClientGroupModel.id == passport.group_id,
+                ClientGroupModel.agency_id == passport.agency_id,
+                self._group_visibility_boundary(user),
+            )
+        )
+        if parent.scalar_one_or_none() is None:
+            return False
         if user.role == UserRole.SUPER_ADMIN:
             return True
-        if not user.agency_id or passport.agency_id != user.agency_id:
-            return False
         if user.role == UserRole.AGENCY_ADMIN:
             return True
         if user.role == UserRole.AGENCY_MANAGER:
@@ -173,10 +250,10 @@ class AuthorizationPolicy:
         if not user.agency_id or group.agency_id != user.agency_id:
             return False
         if permanent:
+            # Deliberately separate from content visibility: an authorized
+            # retry of permanent deletion must keep its idempotent response.
             return user.role in {UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN}
-        if user.role == UserRole.AGENCY_ADMIN:
-            return True
-        if user.role == UserRole.AGENCY_MANAGER:
+        if user.role in {UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER}:
             return await self.can_manage_group(user, group)
         return False
 
@@ -237,9 +314,7 @@ class AuthorizationPolicy:
             )
             .where(
                 ClientGroupModel.id == group_id,
-                ClientGroupModel.status.notin_(
-                    [GroupStatus.ARCHIVED.value, GroupStatus.DELETED.value]
-                ),
+                self._group_lifecycle_filter(UserRole.AGENCY_STAFF),
                 or_(
                     ClientGroupModel.created_by_user_id == staff_id,
                     ManagerGroupAccessModel.manager_id == staff_id,
@@ -251,16 +326,10 @@ class AuthorizationPolicy:
 
     async def coordinator_has_group(self, coordinator_id: uuid.UUID, group_id: uuid.UUID) -> bool:
         result = await self._session.execute(
-            select(CoordinatorGroupAssignmentModel.id)
-            .join(
-                ClientGroupModel,
-                ClientGroupModel.id == CoordinatorGroupAssignmentModel.group_id,
-            )
+            select(ClientGroupModel.id)
             .where(
-                CoordinatorGroupAssignmentModel.group_id == group_id,
-                CoordinatorGroupAssignmentModel.coordinator_user_id == coordinator_id,
-                CoordinatorGroupAssignmentModel.active.is_(True),
-                ~expired_trip_clause(),
+                ClientGroupModel.id == group_id,
+                self.coordinator_group_visibility_filter(coordinator_id),
             )
             .limit(1)
         )
@@ -285,6 +354,7 @@ class AuthorizationPolicy:
                 CoordinatorAssignmentModel.passenger_id == passenger_id,
                 CoordinatorAssignmentModel.coordinator_user_id == coordinator_id,
                 CoordinatorAssignmentModel.active.is_(True),
+                self._group_lifecycle_filter(UserRole.AGENCY_COORDINATOR),
                 ~expired_trip_clause(),
             )
             .limit(1)

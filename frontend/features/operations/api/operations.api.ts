@@ -1,3 +1,4 @@
+import { getCoordinatorDeviceId } from "@/lib/utils/coordinator-device-id";
 import apiClient from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { downloadStreamedResponse } from "@/lib/api/streamed-download";
@@ -915,7 +916,7 @@ export const operationsApi = {
     const { data } = await apiClient.get<HotelCheckinDashboard>(API_ENDPOINTS.rooming.checkins(hotelId)); return data;
   },
   scanHotelCheckin: async (hotelId: string, qr_payload: string, client_event_id?: string): Promise<HotelCheckinScanResponse> => {
-    const { data } = await apiClient.post<HotelCheckinScanResponse>(API_ENDPOINTS.rooming.checkinScan(hotelId), { qr_payload, client_event_id, device_id: getDeviceId() }); return data;
+    const { data } = await apiClient.post<HotelCheckinScanResponse>(API_ENDPOINTS.rooming.checkinScan(hotelId), { qr_payload, client_event_id, device_id: typeof window === "undefined" ? undefined : getCoordinatorDeviceId() }); return data;
   },
   updateHotelCheckin: async (checkinId: string, body: { key_issued?: boolean; welcome_letter_issued?: boolean; remarks?: string }): Promise<HotelCheckinPassenger> => {
     const { data } = await apiClient.patch<HotelCheckinPassenger>(API_ENDPOINTS.rooming.checkin(checkinId), body); return data;
@@ -1206,13 +1207,3 @@ export const operationsApi = {
     return data;
   },
 };
-
-function getDeviceId(): string | undefined {
-  if (typeof window === "undefined") return undefined;
-  const key = "passdetection-coordinator-device-id";
-  const existing = window.localStorage.getItem(key);
-  if (existing) return existing;
-  const next = crypto.randomUUID();
-  window.localStorage.setItem(key, next);
-  return next;
-}

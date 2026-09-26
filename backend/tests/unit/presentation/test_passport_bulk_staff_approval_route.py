@@ -10,6 +10,7 @@ from fastapi import HTTPException, Response
 from pydantic import ValidationError
 
 from app.application.security.authorization_policy import AuthorizationPolicy
+from app.application.use_cases.passports.submission_view import build_submission_view
 from app.domain.entities.entities import GroupStatus, User, UserRole
 from app.infrastructure.database.models import PassportSubmissionModel, UserModel
 from app.infrastructure.observability.operational_events import OperationalEvent
@@ -91,6 +92,51 @@ def _submission(
         created_at=now,
         updated_at=now,
     )
+
+
+@pytest.mark.asyncio
+async def test_large_duplicate_selection_approves_each_selected_source_row() -> None:
+    group_id, agency_id = uuid.uuid4(), uuid.uuid4()
+    models = [
+        _submission(group_id=group_id, agency_id=agency_id, status="confirmed")
+        for _ in range(303)
+    ]
+    for model in models:
+        model.confirmed_fields = {"passport_number": "P123", "place_of_issue": "Chennai"}
+    view = build_submission_view(
+        models, submission_filter="duplicates", sort_by="name", sort_order="asc",
+        search=None, page=2, page_size=50,
+    )
+    assert len(view.items) == 50
+    assert len(view.ordered_submission_ids) == 303
+    by_id = {model.id: model for model in models}
+    body = BulkStaffApprovePassportSubmissionsRequest(submissions=[
+        {"submission_id": submission_id,
+         "expected_extraction_revision": by_id[submission_id].extraction_revision}
+        for submission_id in view.ordered_submission_ids
+    ])
+    session = SimpleNamespace(
+        execute=AsyncMock(return_value=_ScalarResult(models)), add_all=Mock(),
+        flush=AsyncMock(), commit=AsyncMock(), rollback=AsyncMock(),
+    )
+    with (
+        patch.object(ClientGroupRepository, "get_by_id", AsyncMock(
+            return_value=SimpleNamespace(id=group_id, agency_id=agency_id))),
+        patch.object(AuthorizationPolicy, "can_view_group", AsyncMock(return_value=True)),
+        patch("app.presentation.api.v1.routes.passport_routes.bulk_actions.ensure_approved_passenger_qrs",
+              AsyncMock(return_value=[])),
+        patch("app.presentation.api.v1.routes.passport_routes.bulk_actions.record_operational_event"),
+    ):
+        response = await bulk_staff_approve_passport_submissions(
+            group_id=group_id, body=body, response=Response(), _csrf=None,
+            current_user=_user(), session=session,
+        )
+    assert response.requested_count == response.approved_count == 303
+    assert response.skipped_count == 0
+    assert all(model.status == "staff_approved" for model in models)
+    assert all(model.extraction_revision == 5 for model in models)
+    assert len(session.add_all.call_args.args[0]) == 303
+    session.commit.assert_awaited_once()
 
 
 @pytest.mark.asyncio

@@ -12,7 +12,7 @@ Design:
 from __future__ import annotations
 
 from collections.abc import AsyncGenerator
-from typing import Protocol, cast
+from typing import Any, Protocol, cast
 
 from sqlalchemy import event
 from sqlalchemy.exc import TimeoutError as SQLAlchemyTimeoutError
@@ -24,6 +24,7 @@ from sqlalchemy.ext.asyncio import (
 
 from app.core.config.settings import DatabaseSettings, get_settings
 from app.core.logging.logger import get_logger
+from app.infrastructure.database.role_policy import RUNTIME_ROLE_QUERY, require_runtime_role
 from app.infrastructure.observability.metrics import metrics
 
 logger = get_logger(__name__)
@@ -55,6 +56,18 @@ engine = create_async_engine(
     pool_recycle=_database_settings.pool_recycle_seconds,
     connect_args={"server_settings": _postgres_server_settings(_database_settings)},
 )
+
+
+@event.listens_for(engine.sync_engine, "connect")
+def _require_restricted_runtime_identity(connection: Any, _record: Any) -> None:
+    if _settings.app_env not in {"staging", "production"}:
+        return
+    cursor = connection.cursor()
+    try:
+        cursor.execute(RUNTIME_ROLE_QUERY)
+        require_runtime_role(cursor.fetchone())
+    finally:
+        cursor.close()
 
 
 class _QueuePoolMetrics(Protocol):

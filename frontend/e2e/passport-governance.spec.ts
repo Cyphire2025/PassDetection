@@ -613,6 +613,80 @@ test("staff can select, export, open, and manually approve a passport in a rende
   expect(approvalBody).toMatchObject({ expected_extraction_revision: 4 });
 });
 
+test("large duplicate sets continue across pages and bulk approval retains every selected revision", async ({ page }) => {
+  await installAdminCookie(page);
+  const records = Array.from({ length: 303 }, (_, index) => ({
+    ...submission,
+    id: `duplicate-${index}`,
+    client_name: `Traveller ${String(index).padStart(3, "0")}`,
+    extraction_revision: index,
+    duplicate_cluster_id: "dup_test",
+    duplicate_cluster_size: 303,
+    duplicate_cluster_member_ids: [],
+    duplicate_cluster_member_ids_complete: false,
+  }));
+  let approvalBody: unknown = null;
+  await page.route("**/api/v1/**", async (route) => {
+    const request = route.request();
+    const url = new URL(request.url());
+    const path = url.pathname;
+    if (path === "/api/v1/auth/refresh") return json(route, authenticatedResponse());
+    if (path === "/api/v1/auth/me") return json(route, admin);
+    if (path === "/api/v1/notifications/feed") return json(route, { items: [], unread_count: 0, next_cursor: null });
+    if (path === "/api/v1/passports/groups") return json(route, [{ ...groupSummary, total_passports: 303 }]);
+    if (path === `/api/v1/passports/groups/${groupLink.id}/submissions-view`) {
+      const pageNumber = Number(url.searchParams.get("page") ?? 1);
+      const items = records.slice((pageNumber - 1) * 50, pageNumber * 50);
+      return json(route, {
+        items, ordered_submission_ids: records.map((row) => row.id),
+        ordered_selection_snapshot: records.map((row) => ({ submission_id: row.id, extraction_revision: row.extraction_revision })),
+        group_total: 303, total: 303, page: pageNumber, page_size: 50, total_pages: 7,
+        returned_count: items.length, cluster_boundaries_preserved: false,
+        duplicate_metadata_version: 2,
+        duplicate_clusters: [{ cluster_id: "dup_test", total_members: 303, matching_members: 303,
+          visible_member_ids: items.map((row) => row.id), first_page: 1, last_page: 7 }],
+        expiry_alerts: [],
+      });
+    }
+    if (path === `/api/v1/passports/groups/${groupLink.id}/bulk-staff-approve`) {
+      approvalBody = request.postDataJSON();
+      return json(route, { requested_count: 303, approved_count: 303,
+        already_approved_count: 0, skipped_count: 0, skipped_submissions: [] });
+    }
+    if (path === `/api/v1/upload-links/${groupLink.id}/whatsapp-links`) {
+      return json(route, { client_group_id: groupLink.id, broadcasts: [], broadcast_count: 0, recipient_count: 0, can_manage: true });
+    }
+    if (path.endsWith("/whatsapp-deliveries/tracking")) {
+      return json(route, { group_id: groupLink.id, poll_after_seconds: null, deliveries: [],
+        counts: { total: 0, queued: 0, sent: 0, delivered: 0, read: 0, failed: 0, delivery_unknown: 0 } });
+    }
+    return json(route, request.method() === "GET" ? [] : {});
+  });
+  await page.goto(`/passports/groups/${groupLink.id}`);
+  await expect(page.getByText("Duplicate set: 50 of 303 matching members on this page · pages 1–7")).toBeVisible();
+  await expect(page.getByRole("checkbox", { name: /^Select Traveller/ })).toHaveCount(50);
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(page.getByText("Page 2 of 7", { exact: true })).toBeVisible();
+  await expect(page.getByRole("checkbox", { name: "Select Traveller 050", exact: true })).toBeVisible();
+  await expect(page.getByRole("checkbox", { name: "Select Traveller 000", exact: true })).toHaveCount(0);
+  await page.getByRole("combobox", { name: "Select submissions", exact: true }).selectOption("all");
+  await page.getByRole("button", { name: "Open bulk actions for 303 selected submissions" }).click();
+  await page.getByRole("button", { name: "Staff approve all selected (303)", exact: true }).click();
+  await page.getByRole("button", { name: "Approve 303 selected", exact: true }).click();
+  await expect(page.getByText("Staff approved 303 submissions.", { exact: true })).toBeVisible();
+  expect(approvalBody).toEqual({ submissions: records.map((row) => ({
+    submission_id: row.id, expected_extraction_revision: row.extraction_revision,
+  })) });
+  for (let next = 3; next <= 7; next += 1) {
+    await page.getByRole("button", { name: "Next", exact: true }).click();
+    await expect(page.getByText(`Page ${next} of 7`, { exact: true })).toBeVisible();
+  }
+  await expect(page.getByRole("checkbox", { name: /^Select Traveller/ })).toHaveCount(3);
+  await expect(page.getByRole("button", { name: "Next", exact: true })).toBeDisabled();
+  await page.getByRole("button", { name: "Previous", exact: true }).click();
+  await expect(page.getByText("Page 6 of 7", { exact: true })).toBeVisible();
+});
+
 test("the group workspace contains no removed legal-hold controls", async ({ page }) => {
   // Scheduled retention remains a backend concern; legal-hold controls have been removed.
   await installAdminCookie(page);

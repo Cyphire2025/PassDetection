@@ -9,13 +9,13 @@ const mocks = vi.hoisted(() => ({
   group: {} as Record<string, unknown>,
   resume: null as PassportSubmission | null,
   upload: vi.fn(), submit: vi.fn(), getStatus: vi.fn(), scanAgain: vi.fn(),
-  normalize: vi.fn(), report: vi.fn(), reportOnce: vi.fn(),
+  normalize: vi.fn(), report: vi.fn(), reportOnce: vi.fn(), requestOtp: vi.fn(), verifyOtp: vi.fn(),
 }));
 
 vi.mock("@/features/passports/hooks/use-upload-links", () => ({ useUploadLinkByToken: () => ({ data: mocks.group, isLoading: false, error: null }) }));
 vi.mock("../hooks/use-upload", () => ({ useUploadPassport: () => ({ mutateAsync: mocks.upload }), useSubmitClientPassportReview: () => ({ mutateAsync: mocks.submit }) }));
 vi.mock("../hooks/use-public-flow-telemetry", () => ({ usePublicFlowTelemetry: () => ({ report: mocks.report, reportPublicFlowOnce: mocks.reportOnce }) }));
-vi.mock("../api/upload.api", () => ({ uploadApi: { getUploadStatus: mocks.getStatus, scanAgain: mocks.scanAgain } }));
+vi.mock("../api/upload.api", () => ({ uploadApi: { getUploadStatus: mocks.getStatus, scanAgain: mocks.scanAgain, requestContactOtp: mocks.requestOtp, verifyContactOtp: mocks.verifyOtp } }));
 vi.mock("../services/passport-perspective-correction", () => ({ normalizePassportFile: mocks.normalize }));
 vi.mock("./protected-upload-document-image", () => ({ ProtectedUploadDocumentImage: ({ alt }: { alt: string }) => <span>{alt}</span> }));
 // Integration tests observe when the decorative component mounts; its artwork
@@ -77,7 +77,19 @@ beforeEach(() => {
   mocks.normalize.mockImplementation(async (file: File) => ({ file }));
   mocks.upload.mockResolvedValue(saved());
   mocks.submit.mockResolvedValue({ status: "submitted" });
+  mocks.requestOtp.mockResolvedValue({ challenge_id: "challenge-1", expires_in_seconds: 300, resend_after_seconds: 60 });
+  mocks.verifyOtp.mockResolvedValue({ phone_verification_id: "verified-contact", phone_number: "+919999999999", expires_in_seconds: 3600 });
 });
+
+async function verifyContact(email = "asha@example.com") {
+  await screen.findByRole("heading", { name: "Verify your WhatsApp number" });
+  expect(screen.queryByTestId("processing-motion")).not.toBeInTheDocument();
+  fireEvent.change(screen.getByLabelText("Email"), { target: { value: email } });
+  fireEvent.change(screen.getByLabelText("WhatsApp active number"), { target: { value: "9999999999" } });
+  await userEvent.click(screen.getByRole("button", { name: "Send OTP" }));
+  fireEvent.change(await screen.findByLabelText("WhatsApp verification code"), { target: { value: "123456" } });
+  await userEvent.click(screen.getByRole("button", { name: "Verify OTP and continue" }));
+}
 
 async function choosePassport() {
   await userEvent.click(screen.getByRole("button", { name: "Upload passport images" }));
@@ -119,10 +131,9 @@ describe("passport extraction motion lifecycle", () => {
     expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "32");
     await waitFor(() => expect(mocks.getStatus).toHaveBeenCalledOnce());
     await act(async () => extraction.resolve(completed()));
+    await verifyContact();
     expect(screen.getByRole("heading", { name: "Verify Passport Details" })).toBeInTheDocument();
     expect(screen.queryByTestId("processing-motion")).not.toBeInTheDocument();
-    await userEvent.type(screen.getByLabelText("Email"), "asha@example.com");
-    await userEvent.type(screen.getByLabelText("WhatsApp active number"), "9999999999");
     fireEvent.submit(screen.getByRole("button", { name: "Submit Verified Details" }).closest("form")!);
     expect(screen.getByRole("heading", { name: "Submitting Reviewed Details" })).toBeInTheDocument();
     expect(screen.queryByTestId("processing-motion")).not.toBeInTheDocument();
@@ -140,6 +151,7 @@ describe("passport extraction motion lifecycle", () => {
     expect(mocks.getStatus).not.toHaveBeenCalled();
     mocks.upload.mockResolvedValue(completed());
     await choosePassport();
+    await verifyContact();
     expect(await screen.findByRole("heading", { name: "Verify Passport Details" })).toBeInTheDocument();
     expect(screen.queryByTestId("processing-motion")).not.toBeInTheDocument();
     expect(mocks.getStatus).not.toHaveBeenCalled();
@@ -152,6 +164,7 @@ describe("passport extraction motion lifecycle", () => {
     mocks.scanAgain.mockReturnValue(queued.promise);
     mocks.getStatus.mockReturnValue(extraction.promise);
     await startSingle();
+    await verifyContact();
     await userEvent.click(await screen.findByRole("button", { name: "Retry verification on saved image" }));
     const animation = screen.getByTestId("processing-motion");
     expect(animation).toHaveAttribute("data-compact", "true");
@@ -170,6 +183,7 @@ describe("passport extraction motion lifecycle", () => {
     const queued = deferred<PassportSubmission>();
     mocks.scanAgain.mockReturnValue(queued.promise);
     await startSingle();
+    await verifyContact();
     await userEvent.click(await screen.findByRole("button", { name: "Retry verification on saved image" }));
     expect(screen.getByTestId("processing-motion")).toBeInTheDocument();
     await act(async () => queued.reject(new Error("Retry unavailable")));
@@ -186,6 +200,7 @@ describe("passport extraction motion lifecycle", () => {
     expect(await screen.findByTestId("processing-motion")).toHaveAttribute("data-compact", "false");
     await waitFor(() => expect(mocks.getStatus).toHaveBeenCalledOnce());
     await act(async () => extraction.resolve(saved({ status: "failed", extraction_status: "extraction_failed" })));
+    await verifyContact();
     expect(screen.queryByTestId("processing-motion")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Retry verification on saved image" })).toBeEnabled();
     expect(mocks.upload).not.toHaveBeenCalled();
@@ -210,10 +225,12 @@ describe("passport extraction motion lifecycle", () => {
     await choosePassport();
     await screen.findByRole("button", { name: "Upload passport images" });
     await choosePassport();
+    await verifyContact();
+    await verifyContact("rahul@example.com");
     await screen.findByRole("heading", { name: "Review Family Details" });
     await userEvent.click(screen.getByRole("button", { name: "Retry verification on saved image" }));
     const animation = await screen.findByTestId("processing-motion");
-    const activeMember = animation.closest("section")!;
+    const activeMember = animation.closest("fieldset")!;
     expect(within(activeMember).getByText(/Rahul Example/)).toBeInTheDocument();
     expect(screen.getAllByTestId("processing-motion")).toHaveLength(1);
     expect(mocks.getStatus).not.toHaveBeenCalled();

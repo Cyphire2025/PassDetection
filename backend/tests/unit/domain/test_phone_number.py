@@ -1,6 +1,9 @@
 """Collection and WhatsApp consumers share one unambiguous representation."""
 
+import uuid
+
 import pytest
+from pydantic import ValidationError
 
 from app.application.use_cases.whatsapp.contact_normalization import normalize_whatsapp_phone
 from app.domain.value_objects.phone_number import normalize_phone_number, phone_numbers_equal
@@ -37,15 +40,19 @@ def test_replay_comparison_handles_legacy_format_without_equating_invalid_and_ab
 
 
 def test_public_schema_normalizes_both_contacts_and_preserves_optional_blank():
+    required = {
+        "group_token": "public-group-token", "confirmed_fields": {"given_names": "AMAN"},
+        "client_email": "synthetic@example.com", "phone_verification_id": uuid.uuid4(),
+    }
     request = ClientSubmitPassportRequest(
-        group_token="public-group-token", confirmed_fields={"given_names": "AMAN"},
+        **required,
         client_phone="9876543210", family_head_phone="0091 98765 43211",
     )
     assert request.client_phone == "+919876543210"
     assert request.family_head_phone == "+919876543211"
     blank = ClientSubmitPassportRequest(
-        group_token="public-group-token", confirmed_fields={"given_names": "AMAN"},
-        client_phone="", family_head_phone="  ",
+        **required, client_phone="9876543210", family_head_phone="  ",
     )
-    assert blank.client_phone is None
     assert blank.family_head_phone is None
+    with pytest.raises(ValidationError):
+        ClientSubmitPassportRequest(**required, client_phone="", family_head_phone="  ")

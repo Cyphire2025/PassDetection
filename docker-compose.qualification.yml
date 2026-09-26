@@ -1,0 +1,130 @@
+# Disposable qualification only. Never combine with production Compose files.
+# No .env inclusion, existing volumes, credentials, provider sends, or host DB ports.
+name: passdetection-qualification
+x-api-environment: &api-environment
+  APP_ENV: production
+  APP_REVISION: unknown
+  APP_SECRET_KEY: qualification-only-synthetic-secret-937-503-281
+  POSTGRES_HOST: postgres
+  POSTGRES_DB: passdetection_ci_browser
+  POSTGRES_USER: qualification_runtime
+  POSTGRES_PASSWORD: qualification-runtime-937
+  POSTGRES_API_POOL_SIZE: 2
+  POSTGRES_API_MAX_OVERFLOW: 0
+  WEB_CONCURRENCY: 1
+  REDIS_HOST: redis
+  REDIS_PASSWORD: ""
+  S3_ENDPOINT_URL: http://minio:9000
+  S3_PUBLIC_ENDPOINT_URL: https://localhost:58443
+  S3_ACCESS_KEY_ID: qualification-storage
+  S3_SECRET_ACCESS_KEY: qualification-storage-secret-937
+  S3_BUCKET_NAME: passdetection-passports
+  JWT_COOKIE_SECURE: "true"
+  ALLOWED_ORIGINS: '["https://localhost:58443"]'
+  PROCESSING_BACKEND: celery
+  MOBILE_ENABLED: "false"
+  MOBILE_OTP_PROVIDER: disabled
+  EMAIL_INTEGRATIONS_ENABLED: "false"
+  UNTRUSTED_DOCUMENT_INGESTION_ENABLED: "true"
+  MALWARE_SCANNER_ENABLED: "true"
+  MALWARE_SCANNER_HOST: clamav
+  METRICS_EXPORTER: statsd
+  METRICS_STATSD_HOST: statsd
+  PYTHONPATH: /app
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: passdetection_ci_browser
+      POSTGRES_USER: qualification_admin
+      POSTGRES_PASSWORD: qualification-admin-937
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U qualification_admin -d passdetection_ci_browser"]
+      interval: 2s
+      timeout: 3s
+      retries: 40
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+  object-storage-data:
+    image: chrislusf/seaweedfs:4.47@sha256:ce9e796f1fe6f06968f4c04bdaf8f678dad9c8acdfef3d244133d71bfa6bf882
+    command: [server, -dir=/data, -ip=object-storage-data, -ip.bind=0.0.0.0, -filer, -filer.exposeDirectoryData=false, -master.telemetry=false, -volume.max=0, -master.volumeSizeLimitMB=1024]
+    networks: [storage-internal]
+  object-storage:
+    image: chrislusf/seaweedfs:4.47@sha256:ce9e796f1fe6f06968f4c04bdaf8f678dad9c8acdfef3d244133d71bfa6bf882
+    command: [s3, -port=9000, -filer=object-storage-data:8888, -config=/run/secrets/s3.json, -iam.config=/run/secrets/s3.json, -iam=false, -port.iceberg=0, -port.lance=0, -allowDeleteBucketNotEmpty=false, -autoCreateBucket=false]
+    volumes:
+      - ./outputs/qualification/storage-identities.json:/run/secrets/s3.json:ro
+    depends_on: [object-storage-data]
+    networks:
+      storage-internal: {}
+      default: {aliases: [minio]}
+  clamav:
+    image: clamav/clamav:1.5_base@sha256:2a682381f314a3ac6ec13eea55b69bd2594887598e5358d938e711a30df850f2
+    healthcheck:
+      test: [CMD, clamdcheck.sh]
+      interval: 10s
+      timeout: 5s
+      retries: 60
+  backend:
+    image: passdetection-qualification-backend:local
+    environment: *api-environment
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+      clamav: {condition: service_healthy}
+    volumes:
+      - ./scripts/qa:/workspace/scripts/qa:ro
+  worker:
+    image: passdetection-qualification-backend:local
+    environment: *api-environment
+    command: [celery, -A, "app.infrastructure.processing.celery_app:celery_app", worker, --pool=prefork, --concurrency=1, "--queues=passport_ocr"]
+    healthcheck: {disable: true}
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+  ecr-worker:
+    image: passdetection-qualification-backend:local
+    environment: *api-environment
+    command: [celery, -A, "app.infrastructure.processing.celery_app:celery_app", worker, --pool=prefork, --concurrency=1, "--queues=ecr_checks"]
+    healthcheck: {disable: true}
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+  scheduler:
+    image: passdetection-qualification-backend:local
+    environment: *api-environment
+    command: [celery, -A, "app.infrastructure.processing.celery_app:celery_app", beat, --schedule=/tmp/qualification-beat]
+    healthcheck: {disable: true}
+    depends_on:
+      redis: {condition: service_healthy}
+  frontend:
+    image: passdetection-qualification-frontend:local
+    environment:
+      API_BASE_URL: http://backend:8000
+  nginx:
+    image: nginx:1.30.4-alpine
+    ports: ["127.0.0.1:58443:443"]
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./outputs/qualification/certs:/etc/nginx/certs:ro
+    depends_on: [backend, frontend, object-storage]
+  statsd:
+    image: prom/statsd-exporter:v0.29.0@sha256:632f705804922d50c1c95ba8ff9c8c0cc18d4bbb0cc265dc4f9ae708271c95b3
+    command: ["--statsd.mapping-config=/etc/statsd/mapping.yml"]
+    volumes:
+      - ./monitoring/statsd_mapping.yml:/etc/statsd/mapping.yml:ro
+  prometheus:
+    image: prom/prometheus:v3.15.0@sha256:efd719c99d83b060d9daefdcf00360461adf279f45ef5391f8d111892118753e
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus", "--storage.tsdb.retention.time=1d"]
+    volumes:
+      - ./monitoring/qualification-prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+    depends_on: [statsd]
+networks:
+  storage-internal: {internal: true}

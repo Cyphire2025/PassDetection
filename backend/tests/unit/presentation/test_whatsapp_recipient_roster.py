@@ -277,9 +277,16 @@ async def test_recipient_roster_merges_rows_and_reports_delivery_counts(monkeypa
             replaced_result,
             states_result,
             resend_result,
+            linked_client_groups_result,  # Phone welcome history.
+            linked_client_groups_result,  # Group-invite destination history.
+            linked_client_groups_result,  # Passport-link destination history.
             linked_client_groups_result,
         ]
     )
+
+    merged_result = MagicMock()
+    merged_result.all.return_value = []
+    session.scalars = AsyncMock(return_value=merged_result)
 
     response = await get_broadcast_recipient_roster(
         group_id=group_id,
@@ -435,7 +442,7 @@ async def test_broadcast_list_exposes_total_roster_without_changing_send_count()
         updated_at=now,
     )
     result = MagicMock()
-    result.all.return_value = [(group, 162, 3)]
+    result.all.return_value = [(group, 162, 3, False, 0)]
     session = MagicMock()
     session.execute = AsyncMock(return_value=result)
 

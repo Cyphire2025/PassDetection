@@ -86,6 +86,15 @@ export interface PassportExpiryAlert {
 }
 
 export interface PassportGroupSubmissionsView {
+  duplicate_metadata_version?: 2;
+  duplicate_clusters?: {
+    cluster_id: string;
+    total_members: number;
+    matching_members: number;
+    visible_member_ids: string[];
+    first_page: number;
+    last_page: number;
+  }[];
   items: PassportSubmission[];
   ordered_submission_ids: string[];
   ordered_selection_snapshot: PassportSubmissionSelectionSnapshot[];

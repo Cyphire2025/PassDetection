@@ -1,5 +1,7 @@
 "use client";
 
+import { getCoordinatorDeviceId } from "@/lib/utils/coordinator-device-id";
+
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -237,7 +239,7 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
         qrPayload: latestScan.text,
         clientEventId: latestScan.id,
         scannedAt: latestScan.scannedAt,
-        deviceId: getDeviceId(),
+        deviceId: getCoordinatorDeviceId(),
     };
 
     scanPipelineRef.current = scanPipelineRef.current
@@ -681,21 +683,6 @@ function Metric({ label, value }: { label: string; value: number }) {
       <p className="text-xl font-bold text-slate-950">{value}</p>
     </div>
   );
-}
-
-function getDeviceId() {
-  const key = "passdetection-coordinator-device-id";
-  try {
-    const existing = window.localStorage.getItem(key);
-    if (existing) return existing;
-    const next = typeof crypto.randomUUID === "function"
-      ? crypto.randomUUID()
-      : `device-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    window.localStorage.setItem(key, next);
-    return next;
-  } catch {
-    return `device-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  }
 }
 
 function offlineAuthorizationMessage(code: BrowserOfflineAuthorizationError["code"]) {

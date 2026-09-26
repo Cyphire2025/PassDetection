@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import delete, select
@@ -28,11 +27,16 @@ from app.presentation.api.v1.document_chunk_uploads import (
     acquire_document_upload_advisory_lock,
     acquire_document_upload_scope_advisory_lock,
 )
+from app.presentation.api.v1.routes.document_distribution_abort_cleanup import (
+    complete_abort_storage_cleanup as complete_abort_storage_cleanup,
+)
+from app.presentation.api.v1.routes.document_distribution_partial_upload import (
+    retain_partial_replacement_upload as retain_partial_replacement_upload,
+)
 from app.presentation.api.v1.routes.document_distribution_scope import (
     _get_authorized_group,
     _lock_active_document_scope,
 )
-from app.presentation.api.v1.routes.document_distribution_shared import logger
 from app.presentation.api.v1.schemas.document_distribution_schemas import (
     AbortDocumentUploadResponse,
 )
@@ -166,55 +170,10 @@ async def abort_incomplete_distribution_upload(
         .limit(1)
     )
     if replacement_audit_id is not None:
-        # Earlier chunks atomically replaced their originals. Discarding those
-        # committed new copies would lose both versions; finish the partial
-        # upload as a reviewable draft instead, without requiring stale receipts.
-        batch.status = "draft"
-        batch.uploaded_count = len(documents)
-        batch.matched_count = sum(document.match_status == "matched" for document in documents)
-        batch.rejected_count = sum(receipt.rejected_count for receipt in receipts)
-        batch.saved_at = None
-        batch.updated_at = datetime.now(tz=UTC)
-        remaining_processing_upload_ids = list((await session.scalars(
-            select(DocumentDistributionBatchModel.id)
-            .where(
-                DocumentDistributionBatchModel.agency_id == group.agency_id,
-                DocumentDistributionBatchModel.group_id == group_id,
-                DocumentDistributionBatchModel.document_type == document_type,
-                DocumentDistributionBatchModel.status == "processing",
-                DocumentDistributionBatchModel.id != batch_id,
-            )
-            .order_by(DocumentDistributionBatchModel.id)
-            .with_for_update()
-        )).all())
-        await AuditLogRepository(session).record(
-            action="document_distribution_partial_replacements_retained",
-            entity_type="document_distribution_batch",
-            entity_id=str(batch_id),
-            agency_id=group.agency_id,
-            user_id=actor.id,
-            actor_email=actor.email,
-            metadata={
-                "group_id": str(group_id),
-                "document_type": document_type,
-                "retained_document_count": len(documents),
-                "retained_chunk_count": len(receipts),
-            },
-        )
-        try:
-            await session.commit()
-        except Exception:
-            await session.rollback()
-            raise
-        return AbortDocumentUploadResponse(
-            batch_id=batch_id,
-            status="partial_retained",
-            retained_document_count=len(documents),
-            deleted_document_count=0,
-            deleted_chunk_count=0,
-            deleted_storage_object_count=0,
-            storage_cleanup_pending=False,
-            remaining_processing_upload_ids=remaining_processing_upload_ids,
+        return await retain_partial_replacement_upload(
+            session, batch=batch, documents=documents, receipts=receipts, actor=actor,
+            group_id=group_id, agency_id=group.agency_id, document_type=document_type,
+            audit=AuditLogRepository(session),
         )
 
     candidate_storage_keys = sorted({document.storage_key for document in documents})
@@ -310,23 +269,10 @@ async def abort_incomplete_distribution_upload(
         await session.rollback()
         raise
 
-    storage_cleanup_pending = False
-    for cleanup_job in cleanup_jobs:
-        try:
-            cleanup_result = await process_storage_cleanup_job(cleanup_job.id)
-            if cleanup_result is None or not cleanup_result.completed:
-                storage_cleanup_pending = True
-        except Exception as exc:
-            storage_cleanup_pending = True
-            logger.warning(
-                "document_distribution_abort_cleanup_deferred",
-                batch_id=str(batch_id),
-                group_id=str(group_id),
-                document_type=document_type,
-                cleanup_job_id=str(cleanup_job.id),
-                object_count=cleanup_job.object_count,
-                error_type=type(exc).__name__,
-            )
+    storage_cleanup_pending = await complete_abort_storage_cleanup(
+        cleanup_jobs, batch_id=batch_id, group_id=group_id, document_type=document_type,
+        process_job=process_storage_cleanup_job,
+    )
 
     return AbortDocumentUploadResponse(
         batch_id=batch_id,

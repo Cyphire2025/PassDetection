@@ -19,6 +19,10 @@ from app.infrastructure.database.models import (
     WhatsAppMessageLogModel,
     WhatsAppRecipientMessageStateModel,
 )
+from app.infrastructure.whatsapp.template_settings import (
+    TEMPLATE_SETTINGS_MEMO,
+    TemplateSettingsSnapshot,
+)
 from app.infrastructure.whatsapp.worker_runtime import (
     _load_sendable_recipient,
     _resolve_log_template_snapshot,
@@ -53,6 +57,16 @@ from app.presentation.api.v1.routes.whatsapp import (
     router as whatsapp_router,
 )
 from tests.route_dependencies import set_route_dependency
+
+
+@pytest.fixture(autouse=True)
+def template_environment(monkeypatch):
+    # Mocked route sessions carry the empty request snapshot; resolve its ENV
+    # fallback through the same settings object configured by each test.
+    from app.infrastructure.whatsapp import template_settings
+    from app.presentation.api.v1.routes import whatsapp_scope
+    monkeypatch.setattr(template_settings, "environment_template_name",
+                        lambda slot, **kwargs: whatsapp_scope._configured_template_name(slot))
 
 
 def test_delivery_ledger_schema_is_generic_and_unique_per_recipient_type() -> None:
@@ -142,6 +156,7 @@ async def test_eligibility_counts_failed_as_retryable_and_active_claim_as_skippe
         (recipient_ids[3], "delivery_unknown"),
     ]
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.execute.return_value = result
 
     eligible, already_sent, in_progress, uncertain = await _recipient_delivery_counts(
@@ -277,6 +292,7 @@ async def test_worker_acceptance_makes_inflight_provider_success_authoritative()
         message_type="future_template_type",
     )
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
 
     await _set_message_state(
         session,
@@ -304,6 +320,7 @@ async def test_worker_failure_releases_ledger_claim_for_safe_retry() -> None:
         message_type="welcome",
     )
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
 
     await _set_message_state(
         session,
@@ -367,6 +384,7 @@ async def test_worker_success_exits_retry_loop_and_remains_submitted(
     claimed_log_result.scalar_one.return_value = log
 
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.execute.side_effect = [
         logs_result,
         group_result,
@@ -442,6 +460,7 @@ async def test_worker_guard_rejects_removed_recipient_before_provider_call() -> 
     recipient_result = MagicMock()
     recipient_result.scalar_one_or_none.return_value = recipient
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.execute.return_value = recipient_result
 
     sendable, reason = await _load_sendable_recipient(
@@ -483,6 +502,7 @@ async def test_worker_guard_requires_current_processing_batch(monkeypatch) -> No
     group_result = MagicMock()
     group_result.scalar_one_or_none.return_value = SimpleNamespace(id=uuid.uuid4())
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     active_replacement_result = MagicMock()
     active_replacement_result.scalar_one_or_none.return_value = None
     session.execute.side_effect = [
@@ -527,6 +547,7 @@ async def test_worker_guard_rejects_later_same_phone_replacement_row() -> None:
     replacement_result = MagicMock()
     replacement_result.scalar_one_or_none.return_value = uuid.uuid4()
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.execute.side_effect = [
         group_result,
         recipient_result,
@@ -726,8 +747,11 @@ async def test_batch_status_reports_ambiguous_outcomes_separately_from_failures(
         ),
     ]
     result = MagicMock()
-    result.all.return_value = rows
+    result.all.return_value = [SimpleNamespace(
+        **vars(log), recipient_id=recipient.id, normalized_phone_number=recipient.normalized_phone_number,
+    ) for log, recipient in rows]
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.execute.return_value = result
 
     response = await get_broadcast_batch_status(
@@ -1490,6 +1514,7 @@ def test_worker_prefers_frozen_template_snapshot_over_current_group_values() -> 
 @pytest.mark.asyncio
 async def test_explicit_resend_never_mutates_baseline_delivery_ledger() -> None:
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     log = SimpleNamespace(
         is_explicit_resend=True,
         recipient_id=uuid.uuid4(),
@@ -1530,6 +1555,7 @@ async def test_explicit_resend_worker_guard_uses_log_claim_not_baseline_state(mo
     active_replacement_result = MagicMock()
     active_replacement_result.scalar_one_or_none.return_value = None
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.execute.side_effect = [
         group_result,
         recipient_result,
@@ -1624,6 +1650,7 @@ async def test_resend_endpoint_queues_one_edited_message_with_current_template(
         return result
 
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.add = MagicMock()
     session.execute.side_effect = [
         scalar_result(group),
@@ -1715,6 +1742,7 @@ async def test_resend_endpoint_blocks_delivery_unknown_explicit_attempt() -> Non
         return result
 
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.execute.side_effect = [
         scalar_result(group),
         scalar_result(recipient),
@@ -1758,6 +1786,7 @@ async def test_resend_endpoint_rejects_removed_or_missing_recipient() -> None:
     recipient_result = MagicMock()
     recipient_result.scalar_one_or_none.return_value = None
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.execute.side_effect = [group_result, recipient_result]
     current_user = SimpleNamespace(
         role=UserRole.SUPER_ADMIN,
@@ -1830,6 +1859,7 @@ async def test_resend_queue_failure_does_not_release_baseline_sent_state(
         return result
 
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.add = MagicMock()
     session.execute.side_effect = [
         scalar_result(group),
@@ -1971,6 +2001,7 @@ async def test_mark_failed_skips_baseline_ledger_for_explicit_resend(
     logs_result = MagicMock()
     logs_result.scalars.return_value.all.return_value = [log]
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.execute.return_value = logs_result
 
     class AsyncContext:
@@ -2007,6 +2038,7 @@ async def test_group_delete_blocks_processing_explicit_resend() -> None:
     active_replacement_result = MagicMock()
     active_replacement_result.scalar_one_or_none.return_value = None
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.execute.side_effect = [
         group_result,
         active_replacement_result,
@@ -2037,6 +2069,7 @@ async def test_group_delete_blocks_active_passport_replacement() -> None:
     active_replacement_result = MagicMock()
     active_replacement_result.scalar_one_or_none.return_value = uuid.uuid4()
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.execute.side_effect = [
         group_result,
         active_replacement_result,

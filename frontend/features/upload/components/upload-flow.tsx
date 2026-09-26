@@ -79,6 +79,8 @@ import { SavedUploadDocuments } from "./saved-upload-documents";
 import { UploadDocumentOptions } from "./upload-flow-document-options";
 import {
   FAMILY_RELATIONS,
+  MIN_FAMILY_MEMBERS,
+  MAX_FAMILY_MEMBERS,
   GENDERS,
   PASSIVE_PROGRESS_STEPS,
 } from "./upload-flow.constants";
@@ -184,8 +186,8 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const [canRetryExtraction, setCanRetryExtraction] = useState(false);
 
   const [familyGroupId] = useState(() => (typeof crypto !== "undefined" ? crypto.randomUUID() : `${Date.now()}`));
-  const [familyCountInput, setFamilyCountInput] = useState("2");
-  const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>(() => createFamilyMembers(2));
+  const [familyCountInput, setFamilyCountInput] = useState(String(MIN_FAMILY_MEMBERS));
+  const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>(() => createFamilyMembers(MIN_FAMILY_MEMBERS));
   const [activeFamilyIndex, setActiveFamilyIndex] = useState(0);
 
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -350,7 +352,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   };
 
   const updateFamilyCount = (count: number) => {
-    const safeCount = Math.max(2, Math.min(20, count));
+    const safeCount = Math.max(MIN_FAMILY_MEMBERS, Math.min(MAX_FAMILY_MEMBERS, count));
     setFamilyCountInput(String(safeCount));
     setFamilyMembers((current) => resizeFamilyMembers(current, safeCount));
   };
@@ -361,14 +363,14 @@ export function UploadFlow({ token }: UploadFlowProps) {
     if (!value) return;
     const count = Number(value);
     if (Number.isNaN(count)) return;
-    if (count >= 2 && count <= 20) {
+    if (count >= MIN_FAMILY_MEMBERS && count <= MAX_FAMILY_MEMBERS) {
       setFamilyMembers((current) => resizeFamilyMembers(current, count));
     }
   };
 
   const normalizeFamilyCountInput = () => {
     const count = Number(familyCountInput);
-    updateFamilyCount(Number.isNaN(count) ? 2 : count);
+    updateFamilyCount(Number.isNaN(count) ? MIN_FAMILY_MEMBERS : count);
   };
 
   const updateFamilyMember = (index: number, patch: Partial<FamilyMember>) => {
@@ -1809,8 +1811,8 @@ export function UploadFlow({ token }: UploadFlowProps) {
                   <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">How many people?</span>
                   <Input
                     type="number"
-                    min={2}
-                    max={20}
+                    min={MIN_FAMILY_MEMBERS}
+                    max={MAX_FAMILY_MEMBERS}
                     value={familyCountInput}
                     onChange={(event) => handleFamilyCountInput(event.target.value)}
                     onBlur={normalizeFamilyCountInput}

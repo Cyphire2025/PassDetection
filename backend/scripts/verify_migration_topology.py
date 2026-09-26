@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from alembic.config import Config
 from alembic.script import ScriptDirectory
 
-EXPECTED_HEAD = "0107_passport_ecr_checks"
+EXPECTED_HEAD = json.loads(
+    (Path(__file__).resolve().parents[1] / "app/core/config/release_manifest.json")
+    .read_text(encoding="utf-8")
+)["schema_revision"]
 UPLOAD_CONFIGURATION_REVISION = "0090_upload_configuration"
 SECURITY_REVISION = "0089_revoke_legacy_refresh"
 MERGE_REVISION = "0088_merge_my_photos_hardening"

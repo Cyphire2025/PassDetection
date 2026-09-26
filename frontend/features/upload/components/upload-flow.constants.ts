@@ -1,3 +1,6 @@
+export const MIN_FAMILY_MEMBERS = 2;
+export const MAX_FAMILY_MEMBERS = 20;
+
 export const REVIEW_FIELDS = [
   "surname",
   "given_names",

@@ -34,6 +34,16 @@ class ExpiryAlert:
 
 
 @dataclass(frozen=True)
+class DuplicateClusterPage:
+    cluster_id: str
+    total_members: int
+    matching_members: int
+    visible_member_ids: tuple[uuid.UUID, ...]
+    first_page: int
+    last_page: int
+
+
+@dataclass(frozen=True)
 class SubmissionViewResult:
     items: tuple[SubmissionViewEntry, ...]
     ordered_submission_ids: tuple[uuid.UUID, ...]
@@ -43,6 +53,8 @@ class SubmissionViewResult:
     page_size: int
     total_pages: int
     returned_count: int
+    duplicate_clusters: tuple[DuplicateClusterPage, ...]
+    cluster_boundaries_preserved: bool
     expiry_alerts: tuple[ExpiryAlert, ...]
 
 
@@ -348,13 +360,44 @@ def _paginate_blocks(
         if current and len(current) + len(block) > page_size:
             pages.append(current)
             current = []
-        current.extend(block)
-        if len(current) >= page_size:
-            pages.append(current)
-            current = []
+        # Normal sets remain together. Oversized sets continue onto bounded
+        # pages; retaining every row must never disable the hydration limit.
+        for offset in range(0, len(block), page_size):
+            current.extend(block[offset:offset + page_size])
+            if len(current) == page_size:
+                pages.append(current)
+                current = []
     if current:
         pages.append(current)
     return pages
+
+
+def _page_clusters(
+    pages: list[list[SubmissionViewEntry]], page: int,
+) -> tuple[DuplicateClusterPage, ...]:
+    bounds: dict[str, list[int]] = {}
+    visible: dict[str, list[SubmissionViewEntry]] = {}
+    for number, entries in enumerate(pages, start=1):
+        for entry in entries:
+            cluster_id = entry.duplicate_cluster_id
+            if cluster_id is None:
+                continue
+            count = bounds.setdefault(cluster_id, [number, number, 0])
+            count[1] = number
+            count[2] += 1
+            if number == page:
+                visible.setdefault(cluster_id, []).append(entry)
+    return tuple(
+        DuplicateClusterPage(
+            cluster_id=cluster_id,
+            total_members=entries[0].duplicate_cluster_size,
+            matching_members=bounds[cluster_id][2],
+            visible_member_ids=tuple(entry.submission.id for entry in entries),
+            first_page=bounds[cluster_id][0],
+            last_page=bounds[cluster_id][1],
+        )
+        for cluster_id, entries in visible.items()
+    )
 
 
 def _add_months(value: date, months: int) -> date:
@@ -456,6 +499,8 @@ def build_submission_view(
         page_size=page_size,
         total_pages=len(pages),
         returned_count=len(page_items),
+        duplicate_clusters=_page_clusters(pages, page),
+        cluster_boundaries_preserved=all(len(block) <= page_size for block in blocks),
         expiry_alerts=_expiry_alerts(
             submissions,
             today=today or datetime.now(tz=UTC).date(),

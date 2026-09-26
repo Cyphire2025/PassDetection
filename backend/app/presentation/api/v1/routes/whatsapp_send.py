@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 from typing import Literal, cast
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import and_, or_, select, update
+from sqlalchemy import select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -38,6 +38,9 @@ from app.presentation.api.v1.routes.whatsapp_archive_policy import require_activ
 from app.presentation.api.v1.routes.whatsapp_phone_welcome import (
     claim_broadcast_welcome_phones,
     enforce_broadcast_welcome_prerequisite,
+)
+from app.presentation.api.v1.routes.whatsapp_recipient_claims import (
+    claim_broadcast_recipient_rows as claim_broadcast_recipient_rows,
 )
 from app.presentation.api.v1.routes.whatsapp_reminder_audience import (
     resolve_reminder_audience,
@@ -298,52 +301,12 @@ async def send_broadcast_message(
         else await message_phone_blocking_statuses(session, recipients, message_type=message_type)
         if message_type == "passport_link" else {}
     )
-    claim_values = [
-        {
-            "id": uuid.uuid4(),
-            "broadcast_group_id": group.id,
-            "recipient_id": recipient.id,
-            "agency_id": recipient.agency_id,
-            "message_type": message_type,
-            "status": "queued",
-            "batch_id": batch_id,
-            "submitted_at": None,
-            "status_updated_at": now,
-            "created_at": now,
-            "updated_at": now,
-        }
-        for recipient in recipients
-        if recipient.id not in active_explicit_reminder_ids
-        and recipient.id not in invite_blocks
-    ]
-    claimed_recipient_ids: set[uuid.UUID] = set()
-    if claim_values:
-        claim_insert = pg_insert(WhatsAppRecipientMessageStateModel).values(claim_values)
-        claim_statement = (
-            claim_insert.on_conflict_do_update(
-                constraint="uq_whatsapp_recipient_message_state",
-                set_={
-                    "status": "queued",
-                    "batch_id": batch_id,
-                    "submitted_at": None,
-                    "status_updated_at": now,
-                    "updated_at": now,
-                    **({"provider_status_at": None} if message_type == "reminder" else {}),
-                },
-                where=or_(
-                    ~WhatsAppRecipientMessageStateModel.status.in_(suppressed_statuses),
-                    and_(
-                        message_type != "group_invite",
-                        WhatsAppRecipientMessageStateModel.status == "queued",
-                        WhatsAppRecipientMessageStateModel.status_updated_at < stale_cutoff,
-                    ),
-                ),
-            )
-            .returning(WhatsAppRecipientMessageStateModel.recipient_id)
-            .execution_options(synchronize_session=False)
-        )
-        claimed_result = await session.execute(claim_statement)
-        claimed_recipient_ids = set(claimed_result.scalars().all())
+    claimed_recipient_ids = await claim_broadcast_recipient_rows(
+        session, group_id=group.id, recipients=recipients, message_type=message_type,
+        batch_id=batch_id, now=now, stale_cutoff=stale_cutoff,
+        active_explicit_reminder_ids=active_explicit_reminder_ids, invite_blocks=invite_blocks,
+        suppressed_statuses=suppressed_statuses, insert_factory=pg_insert,
+    )
     claimed_recipients = [
         recipient for recipient in recipients if recipient.id in claimed_recipient_ids
     ]

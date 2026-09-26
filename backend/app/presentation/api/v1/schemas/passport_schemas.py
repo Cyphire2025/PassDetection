@@ -548,7 +548,13 @@ class PassportSubmissionResponse(BaseModel):
 class PassportSubmissionViewItemResponse(PassportSubmissionResponse):
     duplicate_cluster_id: str | None = None
     duplicate_cluster_size: int = Field(default=1, ge=1)
-    duplicate_cluster_member_ids: list[uuid.UUID] = Field(default_factory=list)
+    duplicate_cluster_member_ids: list[uuid.UUID] = Field(
+        default_factory=list,
+        description="Legacy complete membership for small sets; otherwise empty. See duplicate_clusters.",
+    )
+    duplicate_cluster_member_ids_complete: bool = Field(
+        default=True, description="False means membership is omitted, not that the set has no members.",
+    )
     verification_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
 
 
@@ -570,6 +576,17 @@ class PassportExpiryAlertResponse(BaseModel):
     status: Literal["expired", "near_expiry"]
 
 
+class PassportDuplicateClusterPageResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", from_attributes=True)
+
+    cluster_id: str
+    total_members: int = Field(ge=2)
+    matching_members: int = Field(ge=1)
+    visible_member_ids: list[uuid.UUID] = Field(description="Set members hydrated on this page only.")
+    first_page: int = Field(ge=1, description="First matching page under the current filters and sort.")
+    last_page: int = Field(ge=1, description="Last matching page; navigate through this page to see all matches.")
+
+
 class PassportSubmissionsViewResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -585,6 +602,10 @@ class PassportSubmissionsViewResponse(BaseModel):
     total_pages: int = Field(ge=0)
     returned_count: int = Field(ge=0)
     cluster_boundaries_preserved: bool = True
+    duplicate_metadata_version: Literal[2] = Field(
+        default=2, description="Bounded rows with normalized duplicate membership and page continuations.",
+    )
+    duplicate_clusters: list[PassportDuplicateClusterPageResponse] = Field(default_factory=list)
     expiry_alerts: list[PassportExpiryAlertResponse] = Field(default_factory=list)
 
 

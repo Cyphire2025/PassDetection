@@ -14,6 +14,7 @@ import pytest
 from sqlalchemy import select
 
 from app.infrastructure.database.models import (
+    AgencyModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
     WhatsAppMessageLogModel,
@@ -30,7 +31,10 @@ from app.infrastructure.whatsapp.publication import (
 async def _seed_batch(session, statuses):
     agency_id, group_id, batch_id = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
     now = datetime.now(tz=UTC)
+    session.add(AgencyModel(id=agency_id, name="Synthetic retry", email=f"{agency_id}@example.test"))
+    await session.flush()
     session.add(WhatsAppBroadcastGroupModel(id=group_id, agency_id=agency_id, name="Test trip"))
+    await session.flush()
     log_ids = []
     for index, status in enumerate(statuses):
         recipient_id, log_id = uuid.uuid4(), uuid.uuid4()
@@ -43,6 +47,7 @@ async def _seed_batch(session, statuses):
                 normalized_phone_number=f"+9198765432{index:02}",
             )
         )
+        await session.flush()
         session.add(
             WhatsAppMessageLogModel(
                 id=log_id,

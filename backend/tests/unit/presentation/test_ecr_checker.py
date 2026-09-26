@@ -56,6 +56,7 @@ async def _seed_user(session, user):
                 is_active=True,
             )
         )
+        await session.flush()
         session.add(UserSecurityStateModel(user_id=user.id, session_version=user.session_version))
     await session.commit()
 

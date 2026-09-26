@@ -63,6 +63,7 @@ from app.presentation.api.v1.schemas.email_integration_schemas import (
     EmailAiConnectionSettingsRequest,
     ResolveEmailReviewRequest,
 )
+from tests.persistence import persist_graph
 
 
 def _user(
@@ -117,6 +118,7 @@ async def test_connection_opt_in_reports_rollout_policy_as_inactive(
             is_active=True,
         )
     )
+    await db_session.flush()
     db_session.add(
         UserModel(
             id=owner_id,
@@ -128,6 +130,7 @@ async def test_connection_opt_in_reports_rollout_policy_as_inactive(
             is_active=True,
         )
     )
+    await db_session.flush()
     connection = EmailConnectionModel(
         agency_id=agency_id,
         owner_user_id=owner_id,
@@ -199,6 +202,8 @@ async def test_disabling_then_reenabling_mailbox_starts_a_new_consent_epoch(
     monkeypatch,
 ) -> None:
     agency_id = uuid.uuid4()
+    db_session.add(AgencyModel(id=agency_id, name="Synthetic agency", email=f"{agency_id}@example.test"))
+    await db_session.flush()
     owner_id = uuid.uuid4()
     db_session.add(
         UserModel(
@@ -211,6 +216,7 @@ async def test_disabling_then_reenabling_mailbox_starts_a_new_consent_epoch(
             is_active=True,
         )
     )
+    await db_session.flush()
     connection = EmailConnectionModel(
         agency_id=agency_id,
         owner_user_id=owner_id,
@@ -330,8 +336,7 @@ async def test_review_options_message_context_is_owner_and_agency_scoped(
     second_agency_id = uuid.uuid4()
     owner_id = uuid.uuid4()
     other_owner_id = uuid.uuid4()
-    db_session.add_all(
-        [
+    await persist_graph(db_session, [
             AgencyModel(
                 id=first_agency_id,
                 name="First Review Agency",
@@ -361,8 +366,7 @@ async def test_review_options_message_context_is_owner_and_agency_scoped(
                 agency_id=first_agency_id,
                 is_active=True,
             ),
-        ]
-    )
+        ])
     await db_session.flush()
     first_connection = EmailConnectionModel(
         agency_id=first_agency_id,
@@ -388,9 +392,7 @@ async def test_review_options_message_context_is_owner_and_agency_scoped(
         email_address="review-other@example.test",
         created_by_user_id=other_owner_id,
     )
-    db_session.add_all(
-        [first_connection, second_connection, other_connection]
-    )
+    await persist_graph(db_session, [first_connection, second_connection, other_connection])
     await db_session.flush()
     first_message = EmailMessageModel(
         agency_id=first_agency_id,
@@ -410,7 +412,7 @@ async def test_review_options_message_context_is_owner_and_agency_scoped(
         subject="Other owner's review",
         received_at=datetime.now(tz=UTC),
     )
-    db_session.add_all([first_message, other_message])
+    await persist_graph(db_session, [first_message, other_message])
     await db_session.flush()
     first_group = ClientGroupModel(
         agency_id=first_agency_id,
@@ -426,7 +428,7 @@ async def test_review_options_message_context_is_owner_and_agency_scoped(
         status="active",
         created_by_user_id=owner_id,
     )
-    db_session.add_all([first_group, second_group])
+    await persist_graph(db_session, [first_group, second_group])
     await db_session.flush()
     first_passenger = PassportSubmissionModel(
         group_id=first_group.id,
@@ -440,7 +442,7 @@ async def test_review_options_message_context_is_owner_and_agency_scoped(
         client_name="Second Context Passenger",
         image_s3_key="tests/second-context.jpg",
     )
-    db_session.add_all([first_passenger, second_passenger])
+    await persist_graph(db_session, [first_passenger, second_passenger])
     await db_session.flush()
     current_user = _user(
         owner_id,
@@ -507,6 +509,7 @@ async def test_failed_analysis_retry_is_owner_scoped_bounded_and_audited(
             is_active=True,
         )
     )
+    await db_session.flush()
     for user_id, email in (
         (owner_id, "retry-owner@example.test"),
         (other_id, "retry-other@example.test"),
@@ -522,6 +525,7 @@ async def test_failed_analysis_retry_is_owner_scoped_bounded_and_audited(
                 is_active=True,
             )
         )
+        await db_session.flush()
     connection = EmailConnectionModel(
         agency_id=agency_id,
         owner_user_id=owner_id,
@@ -593,7 +597,7 @@ async def test_failed_analysis_retry_is_owner_scoped_bounded_and_audited(
         dedupe_key=f"email-ai:{analysis.id}:other-owner",
         is_read=False,
     )
-    db_session.add_all([old_notification, other_notification])
+    await persist_graph(db_session, [old_notification, other_notification])
     await db_session.flush()
     owner = _user(
         owner_id,
@@ -731,6 +735,13 @@ async def test_ai_inbox_is_private_even_within_agency_and_for_super_admin(
 ) -> None:
     agency_id = uuid.uuid4()
     owner_id = uuid.uuid4()
+    hidden_owner_id = uuid.uuid4()
+    await persist_graph(db_session, [
+        AgencyModel(id=agency_id, name="Synthetic agency", email=f"{agency_id}@example.test"),
+        *[UserModel(id=user_id, agency_id=agency_id, email=f"{user_id}@example.test",
+                    full_name="Synthetic owner", hashed_password="unused", role="agency_staff")
+          for user_id in (owner_id, hidden_owner_id)],
+    ])
     connection = EmailConnectionModel(
         agency_id=agency_id,
         owner_user_id=owner_id,
@@ -746,7 +757,7 @@ async def test_ai_inbox_is_private_even_within_agency_and_for_super_admin(
         name="Private Group",
         token=f"private-{uuid.uuid4().hex}",
         status="active",
-        created_by_user_id=uuid.uuid4(),
+        created_by_user_id=hidden_owner_id,
     )
     db_session.add(hidden_group)
     await db_session.flush()
@@ -949,6 +960,8 @@ async def test_deadline_draft_and_feedback_lifecycle_is_owner_scoped_and_revisio
     db_session,
 ) -> None:
     agency_id = uuid.uuid4()
+    db_session.add(AgencyModel(id=agency_id, name="Synthetic agency", email=f"{agency_id}@example.test"))
+    await db_session.flush()
     owner_id = uuid.uuid4()
     other_id = uuid.uuid4()
     for user_id, email in (
@@ -966,6 +979,7 @@ async def test_deadline_draft_and_feedback_lifecycle_is_owner_scoped_and_revisio
                 is_active=True,
             )
         )
+        await db_session.flush()
     connection = EmailConnectionModel(
         agency_id=agency_id,
         owner_user_id=owner_id,
@@ -1032,7 +1046,7 @@ async def test_deadline_draft_and_feedback_lifecycle_is_owner_scoped_and_revisio
         body_text="Thank you. We will confirm shortly.",
         status="prepared",
     )
-    db_session.add_all([deadline, draft])
+    await persist_graph(db_session, [deadline, draft])
     await db_session.flush()
     owner = _user(
         owner_id,
@@ -1502,7 +1516,7 @@ async def test_deadline_draft_and_feedback_lifecycle_is_owner_scoped_and_revisio
         client_name="Ravi Sharma",
         image_s3_key="tests/ravi.jpg",
     )
-    db_session.add_all([other_group, passenger, other_passenger])
+    await persist_graph(db_session, [other_group, passenger, other_passenger])
     await db_session.flush()
     with pytest.raises(HTTPException) as cross_group_passengers:
         await create_email_ai_feedback(
@@ -1604,6 +1618,7 @@ async def test_marking_message_unrelated_revokes_an_inflight_ai_claim(
             is_active=True,
         )
     )
+    await db_session.flush()
     db_session.add(
         UserModel(
             id=owner_id,
@@ -1615,6 +1630,7 @@ async def test_marking_message_unrelated_revokes_an_inflight_ai_claim(
             is_active=True,
         )
     )
+    await db_session.flush()
     enabled_at = datetime.now(tz=UTC) - timedelta(minutes=10)
     connection = EmailConnectionModel(
         agency_id=agency_id,
@@ -1667,7 +1683,7 @@ async def test_marking_message_unrelated_revokes_an_inflight_ai_claim(
         lease_token=lease_token,
         lease_expires_at=datetime.now(tz=UTC) + timedelta(minutes=2),
     )
-    db_session.add_all([review, analysis])
+    await persist_graph(db_session, [review, analysis])
     await db_session.flush()
     claim = ai_runtime.EmailAiClaim(
         analysis_id=analysis.id,

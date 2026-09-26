@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "bucket": "passdetection-ci-migration-5d0735bc925e44cda5b1366f6fc6694f",
+  "source_endpoint": "http://storage-source:9000",
+  "destination_endpoint": "http://object-storage:8333",
+  "source_digest": "159d3af23452adc4fde8538a623dace83ae5f890aec3ea21d1d03f1b8668f1de",
+  "versions_including_delete_markers": 7,
+  "bytes": 87,
+  "every_copied_body_sha256_verified": true,
+  "source_deleted": false,
+  "preserved_original_version_ids_in_journal": true,
+  "synthetic": true,
+  "source_provider": "SeaweedFS 4.47",
+  "repeat_idempotent": true,
+  "source_change_rejected": true,
+  "unexpected_destination_rejected": true,
+  "current_delete_state_preserved": true,
+  "qualification_complete": true,
+  "qualification_cases": {
+    "metadata_and_tags": {
+      "source_metadata_only_change": {
+        "rejected": true,
+        "body_unchanged": true,
+        "source_original_version_preserved": true,
+        "same_version_mutation": false,
+        "reason": "Source changed since the snapshot; pause all writers before migration"
+      },
+      "source_tags_only_change": {
+        "rejected": true,
+        "body_unchanged": true,
+        "source_original_version_preserved": true,
+        "same_version_mutation": true,
+        "reason": "Source changed since the snapshot; pause all writers before migration"
+      },
+      "destination_metadata_only_change": {
+        "rejected": true,
+        "body_unchanged": true,
+        "source_original_version_preserved": true,
+        "same_version_mutation": false,
+        "reason": "Destination contains unjournaled or missing versions; no existing object was overwritten"
+      },
+      "destination_tags_only_change": {
+        "rejected": true,
+        "body_unchanged": true,
+        "source_original_version_preserved": true,
+        "same_version_mutation": true,
+        "reason": "Previously copied object metadata/tags changed"
+      }
+    },
+    "during_copy_integrity": {
+      "source_during_copy_rejected": "Source changed during copy; cutover is forbidden",
+      "destination_final_tag_tamper_rejected": "Destination current version/deletion state differs from the source"
+    },
+    "overlapping_processes": {
+      "different_processes": true,
+      "same_evidence_directory": true,
+      "different_journals": true,
+      "contender_rejected_before_target_write": true,
+      "owner_completed": true,
+      "reason": "Another copy owns this destination's migration lock"
+    },
+    "successful_put_lost_response": {
+      "actual_put_succeeded": true,
+      "response_loss_simulated": true,
+      "journal_has_no_confirmed_copy": true,
+      "retry_rejected": true,
+      "source_preserved": true,
+      "destination_orphan_preserved": true,
+      "automatic_crash_recovery_proven": false,
+      "recovery_requirement": "Use a fresh isolated destination snapshot, or manually review and reconcile the uncertain write. Do not delete source data.",
+      "reason": "Destination contains unjournaled or missing versions; no existing object was overwritten"
+    },
+    "insufficient_capacity": {
+      "rejected": true,
+      "reason": "Insufficient verified target disk headroom for retained versions, temporary copy and reserve",
+      "destination_writes": 0,
+      "source_inventory_unchanged": true,
+      "source_original_version_preserved": true
+    },
+    "paginated_history": {
+      "source_pages": 2,
+      "destination_pages": 2,
+      "versions": 1001,
+      "version_id_marker_exercised": true,
+      "all_bodies_sha256_verified": true,
+      "source_inventory_unchanged": true
+    }
+  }
+}

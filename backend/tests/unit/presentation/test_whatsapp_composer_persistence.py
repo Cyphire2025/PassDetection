@@ -10,6 +10,10 @@ import pytest
 from fastapi import HTTPException, Request
 
 from app.domain.entities.entities import UserRole
+from app.infrastructure.whatsapp.template_settings import (
+    TEMPLATE_SETTINGS_MEMO,
+    TemplateSettingsSnapshot,
+)
 from app.presentation.api.v1.routes.whatsapp import (
     WhatsAppPreviewRequest,
     WhatsAppResendRequest,
@@ -26,6 +30,16 @@ from app.presentation.api.v1.routes.whatsapp import (
     send_broadcast_message,
 )
 from tests.route_dependencies import set_route_dependency
+
+
+@pytest.fixture(autouse=True)
+def template_environment(monkeypatch):
+    # Mocked route sessions carry the empty request snapshot; resolve its ENV
+    # fallback through the same settings object configured by each test.
+    from app.infrastructure.whatsapp import template_settings
+    from app.presentation.api.v1.routes import whatsapp_scope
+    monkeypatch.setattr(template_settings, "environment_template_name",
+                        lambda slot, **kwargs: whatsapp_scope._configured_template_name(slot))
 
 
 def test_custom_recipient_selection_is_optional_and_group_scoped() -> None:
@@ -210,6 +224,7 @@ async def test_group_snapshot_is_successful_non_resend_and_authored_ordered() ->
     result = MagicMock()
     result.scalars.return_value.all.return_value = [_passport_log()]
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.execute.return_value = result
 
     snapshot = await _latest_composer_snapshot(
@@ -241,6 +256,7 @@ async def test_group_preview_reuses_latest_group_snapshot_not_preview_recipient(
     group_result = MagicMock()
     group_result.scalar_one_or_none.return_value = group
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.execute.return_value = group_result
     latest_snapshot = AsyncMock(return_value=_composer_snapshot_from_log(_passport_log()))
     set_route_dependency(
@@ -315,6 +331,7 @@ async def test_resend_preview_is_scoped_to_one_recipient_and_latest_recipient_co
         status="submitted",
     )
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.execute.side_effect = [group_result, state_result]
     recipient = SimpleNamespace(id=recipient_id, name="Aarav")
     latest_snapshot = AsyncMock(
@@ -383,6 +400,7 @@ async def test_failed_message_preview_reuses_saved_content_for_one_person_retry(
     state_result = MagicMock()
     state_result.scalar_one_or_none.return_value = SimpleNamespace(status="failed")
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.execute.side_effect = [group_result, state_result]
     latest_snapshot = AsyncMock(return_value=_composer_snapshot_from_log(_passport_log()))
     set_route_dependency(
@@ -441,6 +459,7 @@ async def test_fresh_passport_send_rejects_missing_image_header(
         recipient_opt_in_confirmed_at=datetime.now(tz=UTC),
     )
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.execute.return_value = group_result
     set_route_dependency(
         monkeypatch,
@@ -500,6 +519,7 @@ async def test_missing_passport_link_stays_null_while_preview_renders_placeholde
         name="Vietnam",
     )
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.execute.return_value = group_result
     set_route_dependency(
         monkeypatch,
@@ -561,6 +581,7 @@ async def test_old_passport_snapshot_prefills_current_image_template_resend(
     )
     recipient = SimpleNamespace(
         id=recipient_id,
+        broadcast_group_id=group_id,
         agency_id=agency_id,
         name="Aarav",
         normalized_phone_number="+919876543210",
@@ -580,6 +601,7 @@ async def test_old_passport_snapshot_prefills_current_image_template_resend(
         SimpleNamespace(name="Travel desk", phone_number="+919876543211")
     ]
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.add = MagicMock()
     session.execute.side_effect = [
         scalar_result(group),
@@ -588,6 +610,7 @@ async def test_old_passport_snapshot_prefills_current_image_template_resend(
         MagicMock(),
         MagicMock(),
         scalar_result(None),
+        MagicMock(),  # No blocking historical passport-link destination.
         scalar_result(source_log),
         support_result,
     ]

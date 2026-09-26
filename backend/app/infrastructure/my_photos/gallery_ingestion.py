@@ -1346,6 +1346,7 @@ class GalleryManifestRegistrationService:
                 "A manifest asset identity or sort rank already exists.",
             )
 
+        pending_variants: list[MyPhotoAssetVariantModel] = []
         for verified in verified_assets:
             item = verified.asset
             asset_id = uuid.uuid4()
@@ -1376,7 +1377,7 @@ class GalleryManifestRegistrationService:
             )
             for declared in item.variants:
                 provider = verified.variants[declared.kind]
-                self._session.add(
+                pending_variants.append(
                     MyPhotoAssetVariantModel(
                         id=uuid.uuid4(),
                         media_asset_id=asset_id,
@@ -1394,6 +1395,12 @@ class GalleryManifestRegistrationService:
                         expires_at=manifest.availability_ends_at,
                     )
                 )
+        # These models intentionally have no ORM relationship. Flush the entire
+        # bounded parent batch once before its variants so PostgreSQL's foreign
+        # keys never depend on incidental mapper ordering. The outer transaction
+        # still commits the manifest atomically.
+        await self._session.flush()
+        self._session.add_all(pending_variants)
         self._session.add(
             MyPhotoGalleryManifestBatchModel(
                 id=uuid.uuid4(),

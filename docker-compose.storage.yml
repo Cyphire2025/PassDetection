@@ -1,0 +1,51 @@
+# Maintained S3 provider. Start alongside the existing provider and copy/verify
+# data before switching endpoints. This file never mounts the MinIO data volume.
+name: passdetection-storage
+services:
+  object-storage-data:
+    image: chrislusf/seaweedfs:4.47@sha256:ce9e796f1fe6f06968f4c04bdaf8f678dad9c8acdfef3d244133d71bfa6bf882
+    restart: unless-stopped
+    mem_limit: ${OBJECT_STORAGE_DATA_MEMORY_LIMIT:-1g}
+    cpus: ${OBJECT_STORAGE_DATA_CPUS:-1.0}
+    command:
+      - server
+      - -dir=/data
+      - -ip=object-storage-data
+      - -ip.bind=0.0.0.0
+      - -filer
+      - -filer.exposeDirectoryData=false
+      - -master.telemetry=false
+      - -volume.max=0
+      - -master.volumeSizeLimitMB=1024
+    volumes: [object_storage_data:/data]
+    networks: [storage-internal]
+  object-storage:
+    image: chrislusf/seaweedfs:4.47@sha256:ce9e796f1fe6f06968f4c04bdaf8f678dad9c8acdfef3d244133d71bfa6bf882
+    restart: unless-stopped
+    mem_limit: ${OBJECT_STORAGE_GATEWAY_MEMORY_LIMIT:-512m}
+    cpus: ${OBJECT_STORAGE_GATEWAY_CPUS:-1.0}
+    command:
+      - s3
+      - -filer=object-storage-data:8888
+      - -config=/run/secrets/s3.json
+      - -iam.config=/run/secrets/s3.json
+      - -iam=false
+      - -port.iceberg=0
+      - -port.lance=0
+      - -allowDeleteBucketNotEmpty=false
+      - -autoCreateBucket=false
+    volumes:
+      - type: bind
+        source: ${OBJECT_STORAGE_CONFIG_FILE:?Generate the protected storage identity file first}
+        target: /run/secrets/s3.json
+        read_only: true
+        bind: {create_host_path: false}
+    depends_on: [object-storage-data]
+    networks: [storage-internal, application]
+networks:
+  storage-internal: {internal: true}
+  application:
+    external: true
+    name: ${OBJECT_STORAGE_APPLICATION_NETWORK:?Set the existing application network explicitly}
+volumes:
+  object_storage_data:

@@ -1,4 +1,4 @@
-"""Actual PostgreSQL HTTP -> welcome worker -> signed receipt -> document worker."""
+"""Actual PostgreSQL HTTP document delivery plus optional welcome/receipt history."""
 
 from __future__ import annotations
 
@@ -43,7 +43,7 @@ PREFIX = "/api/v1/document-distribution"
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("document_type", ["visa", "flight_ticket"])
-async def test_real_http_receipt_unlocks_only_actual_traveller_documents(test_settings, monkeypatch, document_type):
+async def test_real_http_delivers_only_actual_traveller_documents_without_waiting_for_welcome(test_settings, monkeypatch, document_type):
     url = URL.create("postgresql+asyncpg", username=os.environ["POSTGRES_USER"],
         password=os.environ["POSTGRES_PASSWORD"], host=os.environ["POSTGRES_HOST"],
         port=int(os.environ["POSTGRES_PORT"]), database=os.environ["POSTGRES_DB"])
@@ -61,6 +61,7 @@ async def test_real_http_receipt_unlocks_only_actual_traveller_documents(test_se
     monkeypatch.setattr(settings, "whatsapp_access_token", "synthetic-provider-token")
     monkeypatch.setattr(settings, "whatsapp_phone_number_id", "synthetic-sender")
     monkeypatch.setattr(settings, "whatsapp_document_template_name", "document-template")
+    monkeypatch.setattr(settings, "whatsapp_welcome_template_name", "welcome_template")
     monkeypatch.setattr(settings, "whatsapp_app_secret", "synthetic-webhook-secret")
     monkeypatch.setattr(traveller_welcome, "publish_whatsapp_task", AsyncMock())
     monkeypatch.setattr(document_distribution_delivery, "publish_whatsapp_task", AsyncMock())
@@ -104,7 +105,11 @@ async def test_real_http_receipt_unlocks_only_actual_traveller_documents(test_se
             body = {"document_ids": [str(row.id) for row in context.documents],
                     "message_content_1": "Your travel document", "message_content_2": "Safe travels"}
             document_url = f"{PREFIX}/batches/{context.batch.id}/whatsapp-send"
-            assert (await client.post(document_url, json=body)).status_code == 409
+            # Document delivery is independent of optional welcome receipts.
+            sent = await client.post(document_url, json=body)
+            assert sent.status_code == 202, sent.text
+            await document_delivery_runtime.run_document_whatsapp_broadcast(send_batch_id=sent.json()["send_batch_id"])
+            assert sorted(documents) == sorted([MOTHER_PHONE, FATHER_PHONE])
             receipts = json.dumps({"entry": [{"changes": [{"value": {
                 "metadata": {"phone_number_id": settings.whatsapp_phone_number_id}, "statuses": [
                 {"id": provider_id, "status": "delivered", "timestamp": str(int(datetime.now(tz=UTC).timestamp()))}
@@ -115,8 +120,8 @@ async def test_real_http_receipt_unlocks_only_actual_traveller_documents(test_se
                 headers={"Content-Type": "application/json", "X-Hub-Signature-256": "sha256=" + signature})
             assert webhook.status_code == 200, webhook.text
             assert (await client.get(preview_url)).json()["summary"]["already_welcomed"] == 2
-            sent = await client.post(document_url, json=body)
-            assert sent.status_code == 202, sent.text
+            # Reprocessing the same durable batch after the signed welcome
+            # receipt must not send a traveller's document a second time.
             await document_delivery_runtime.run_document_whatsapp_broadcast(send_batch_id=sent.json()["send_batch_id"])
             assert sorted(documents) == sorted([MOTHER_PHONE, FATHER_PHONE])
             assert QUALIFIER_PHONE not in documents

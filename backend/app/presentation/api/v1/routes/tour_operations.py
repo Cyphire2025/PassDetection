@@ -55,7 +55,6 @@ from app.infrastructure.repositories.attendance_dashboard_repository import (
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.coordinator_assignment_lifecycle import (
     current_trip_clause,
-    expired_trip_clause,
 )
 from app.infrastructure.repositories.operational_roster import operational_roster_member
 from app.presentation.api.v1.routes.tour_operations_attendance_batch_support import (
@@ -912,24 +911,11 @@ async def list_my_coordinator_groups(
     session: AsyncSession = Depends(get_db_session),
 ) -> list[TourOperationsGroupResponse]:
     agency_id = _require_agency(current_user)
-    group_ids_result = await session.execute(
-        select(CoordinatorGroupAssignmentModel.group_id)
-        .join(ClientGroupModel, ClientGroupModel.id == CoordinatorGroupAssignmentModel.group_id)
-        .where(
-            CoordinatorGroupAssignmentModel.agency_id == agency_id,
-            CoordinatorGroupAssignmentModel.coordinator_user_id == current_user.id,
-            CoordinatorGroupAssignmentModel.active.is_(True),
-            ~expired_trip_clause(),
-        )
-        .distinct()
-    )
-    group_ids = list(group_ids_result.scalars().all())
-    if not group_ids:
-        return []
-
     groups_result = await session.execute(
         select(ClientGroupModel)
-        .where(ClientGroupModel.id.in_(group_ids), ClientGroupModel.agency_id == agency_id)
+        .where(AuthorizationPolicy.coordinator_group_visibility_filter(
+            current_user.id, agency_id=agency_id,
+        ))
         .order_by(ClientGroupModel.created_at.desc())
     )
     return await _group_responses(session, list(groups_result.scalars().all()))
@@ -2066,19 +2052,14 @@ async def _get_coordinator_attendance_session(
             requested_session,
             requested_session.canonical_session_id == canonical_session.id,
         )
-        .join(
-            CoordinatorGroupAssignmentModel,
-            CoordinatorGroupAssignmentModel.group_id == canonical_session.group_id,
-        )
         .join(ClientGroupModel, ClientGroupModel.id == canonical_session.group_id)
         .where(
             requested_session.id == session_id,
             requested_session.agency_id == agency_id,
             canonical_session.agency_id == agency_id,
-            CoordinatorGroupAssignmentModel.agency_id == agency_id,
-            CoordinatorGroupAssignmentModel.coordinator_user_id == coordinator_id,
-            CoordinatorGroupAssignmentModel.active.is_(True),
-            ~expired_trip_clause(),
+            AuthorizationPolicy.coordinator_group_visibility_filter(
+                coordinator_id, agency_id=agency_id,
+            ),
         )
     )
     if lock_for_scan:

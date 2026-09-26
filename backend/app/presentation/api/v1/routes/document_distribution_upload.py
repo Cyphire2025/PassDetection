@@ -11,7 +11,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config.settings import get_settings
 from app.domain.entities.entities import User
-from app.domain.value_objects.travel_document_taxonomy import DOCUMENT_TYPES
 from app.infrastructure.database.models import (
     DistributedDocumentModel,
     DocumentDistributionBatchModel,
@@ -93,6 +92,12 @@ from app.presentation.api.v1.routes.document_distribution_storage import (
     _remember_request_staging_keys,
     _with_staging_cleanup,
 )
+from app.presentation.api.v1.routes.document_distribution_upload_inputs import (
+    validate_staging_receipt_batch as validate_staging_receipt_batch,
+)
+from app.presentation.api.v1.routes.document_distribution_upload_inputs import (
+    validated_distribution_upload_inputs as validated_distribution_upload_inputs,
+)
 from app.presentation.api.v1.schemas.document_distribution_schemas import (
     DocumentBatchResponse,
     RejectedDocumentResponse,
@@ -126,22 +131,9 @@ async def upload_documents(
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> DocumentBatchResponse:
-    if document_type not in DOCUMENT_TYPES:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported document type"
-        )
-    if (upload_id is None) != (chunk_id is None):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Document verification session metadata is incomplete",
-        )
-    uploaded_files = files or []
-    receipt_tokens = [token for token in (staging_receipts or []) if token]
-    if (not uploaded_files and not receipt_tokens) or (uploaded_files and receipt_tokens):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Upload PDFs or verified staging receipts, but not both",
-        )
+    uploaded_files, receipt_tokens = validated_distribution_upload_inputs(
+        document_type, upload_id, chunk_id, files, staging_receipts,
+    )
     incoming_file_count = len(receipt_tokens) if receipt_tokens else len(uploaded_files)
     chunk_metadata = resolve_document_chunk_metadata(
         upload_id=upload_id,
@@ -157,15 +149,7 @@ async def upload_documents(
             detail="Verified staging receipts require an upload session",
         )
     if receipt_tokens:
-        try:
-            validate_verification_receipt_token_batch(receipt_tokens)
-        except VerificationReceiptBatchTooLargeError as exc:
-            raise HTTPException(status_code=413, detail=str(exc)) from exc
-        except VerificationReceiptError as exc:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=str(exc),
-            ) from exc
+        validate_staging_receipt_batch(receipt_tokens, validate_verification_receipt_token_batch)
     authorized_group = await _get_authorized_group(
         group_id,
         current_user=current_user,

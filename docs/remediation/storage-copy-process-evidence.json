@@ -1,0 +1,8 @@
+{
+  "synthetic": true,
+  "detached_process_outlived_client": true,
+  "verified_exact_process_stopped": true,
+  "auto_removed_after_stop": true,
+  "network": "none",
+  "source_or_target_data_used": false
+}

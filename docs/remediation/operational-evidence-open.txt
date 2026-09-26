@@ -1,0 +1,25 @@
+Operational evidence gate OPEN:
+- Synthetic CI/local evidence cannot close the operational gate
+- Named independent evidence reviewer required
+- reviewed_at: timezone-aware receipt timestamp required
+- Application failure domain must be identified
+- monitoring: independently identified off-host failure domain required
+- monitoring: path and SHA-256 required
+- recovery: independently identified off-host failure domain required
+- recovery: path and SHA-256 required
+- Distinct named primary and backup responders required
+- External HTTPS probe URL without credentials required
+- monitoring.metrics_retention_days must meet the documented 30-day initial minimum
+- monitoring.event_retention_days must meet the documented 90-day initial minimum
+- monitoring.injected_at: timezone-aware receipt timestamp required
+- monitoring.received_at: timezone-aware receipt timestamp required
+- monitoring.acknowledged_at: timezone-aware receipt timestamp required
+- recovery.completed_at: timezone-aware receipt timestamp required
+- recovery.encrypted_off_host_backup: actual successful drill evidence required
+- recovery.backup_deletion_protected: actual successful drill evidence required
+- recovery.pitr_verified: actual successful drill evidence required
+- recovery.database_object_checksums_reconciled: actual successful drill evidence required
+- recovery.restored_application_verified: actual successful drill evidence required
+- recovery.redis_domains_reconciled: actual successful drill evidence required
+- recovery.rpo_seconds: measured result must meet an explicit approved objective
+- recovery.rto_seconds: measured result must meet an explicit approved objective

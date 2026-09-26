@@ -27,6 +27,7 @@ from app.core.security.mobile_push_crypto import mobile_push_fernet
 from app.infrastructure.database.gc_mobile_models import (
     ClientManagerGroupAssignmentModel,
     ClientManagerProfileModel,
+    ClientOrganizationModel,
     GCAnnouncementModel,
     GCGroupAccessModel,
     MobileDeviceSessionModel,
@@ -37,12 +38,27 @@ from app.infrastructure.database.gc_mobile_models import (
     MobilePushRegistrationModel,
 )
 from app.infrastructure.database.models import (
+    AgencyModel,
     ClientGroupModel,
     CoordinatorGroupAssignmentModel,
     PassportSubmissionModel,
     UserModel,
 )
 from app.presentation.api.v1.routes.mobile_ops import list_mobile_notifications
+from tests.persistence import persist_graph
+
+
+async def _persist_notification_records(session, records):
+    """Create the declared synthetic access scopes before their children."""
+    parents = []
+    for access in (row for row in records if isinstance(row, GCGroupAccessModel)):
+        if not any(isinstance(row, AgencyModel) and row.id == access.agency_id for row in parents) and await session.get(AgencyModel, access.agency_id) is None:
+            parents.append(AgencyModel(id=access.agency_id, name="Synthetic agency", email=f"{access.agency_id}@example.test"))
+        if access.client_organization_id and not any(isinstance(row, ClientOrganizationModel) and row.id == access.client_organization_id for row in parents) and await session.get(ClientOrganizationModel, access.client_organization_id) is None:
+            parents.append(ClientOrganizationModel(id=access.client_organization_id, agency_id=access.agency_id, name="Synthetic company", normalized_name="synthetic company"))
+        if not any(isinstance(row, ClientGroupModel) and row.id == access.group_id for row in records) and await session.get(ClientGroupModel, access.group_id) is None:
+            parents.append(_group(access))
+    await persist_graph(session, [*parents, *records])
 
 
 def _access(*, enabled: bool = True) -> GCGroupAccessModel:
@@ -180,7 +196,7 @@ async def _persist_push_target(
     # The shared delivery fixture exercises transport reliability. Announcements
     # are now in-app only; source-guard tests explicitly request the legacy type.
     notification.notification_type = notification_type
-    db_session.add_all(
+    await _persist_notification_records(db_session,
         [
             group,
             access,
@@ -275,7 +291,7 @@ async def test_trip_countdown_scheduler_is_push_only_deduplicated_and_reschedula
         status="claimed",
         claimed_at=now,
     )
-    db_session.add_all([group, access, passenger, _submission(passenger)])
+    await _persist_notification_records(db_session, [group, access, passenger, _submission(passenger)])
     await db_session.flush()
 
     first = await schedule_trip_countdown_notifications(
@@ -349,7 +365,7 @@ async def test_trip_countdown_scheduler_does_not_catch_up_a_passed_window(
         status="claimed",
         claimed_at=now,
     )
-    db_session.add_all([group, access, passenger, _submission(passenger)])
+    await _persist_notification_records(db_session, [group, access, passenger, _submission(passenger)])
     await db_session.flush()
 
     counts = await schedule_trip_countdown_notifications(
@@ -401,6 +417,13 @@ async def test_announcement_producer_targets_only_explicit_role_grants(
         phone_lookup_hash="2" * 64,
         status="eligible",
     )
+    unrelated_access = GCGroupAccessModel(
+        id=unrelated_passenger.gc_group_access_id,
+        agency_id=access.agency_id,
+        group_id=unrelated_passenger.group_id,
+        client_organization_id=access.client_organization_id,
+        is_enabled=True,
+    )
     manager_user = UserModel(
         id=uuid.uuid4(),
         agency_id=access.agency_id,
@@ -444,9 +467,10 @@ async def test_announcement_producer_targets_only_explicit_role_grants(
         coordinator_user_id=coordinator_user.id,
         active=True,
     )
-    db_session.add_all(
+    await _persist_notification_records(db_session,
         [
             access,
+            unrelated_access,
             announcement,
             passenger,
             _submission(passenger),
@@ -539,7 +563,7 @@ async def test_announcement_cancellation_removes_all_delivery_states_from_feed(
         )
         for index in range(3)
     ]
-    db_session.add_all([access, announcement, *passengers, *[_submission(item) for item in passengers]])
+    await _persist_notification_records(db_session, [access, announcement, *passengers, *[_submission(item) for item in passengers]])
     await db_session.flush()
     counts = await enqueue_announcement_notifications(
         db_session,
@@ -590,7 +614,7 @@ async def test_notification_feed_hides_an_already_orphaned_announcement(
         phone_lookup_hash=uuid.uuid4().hex * 2,
         status="eligible",
     )
-    db_session.add_all([group, access, announcement, passenger, _submission(passenger)])
+    await _persist_notification_records(db_session, [group, access, announcement, passenger, _submission(passenger)])
     await db_session.flush()
     await enqueue_announcement_notifications(
         db_session,
@@ -694,7 +718,7 @@ async def test_dispatch_uses_encrypted_token_and_marks_ticket_sent(
         expires_at=None,
     )
     notification.notification_type = "personal_document_changed"
-    db_session.add_all(
+    await _persist_notification_records(db_session,
         [
             group,
             access,
@@ -1008,9 +1032,12 @@ async def test_receipt_reconciliation_fails_closed_on_tenant_scope_mismatch(
 ) -> None:
     now = datetime.now(tz=UTC)
     registration, notification = await _persist_push_target(db_session, now=now)
+    other_agency = AgencyModel(id=uuid.uuid4(), name="Other tenant", email=f"{uuid.uuid4()}@example.test")
+    db_session.add(other_agency)
+    await db_session.flush()
     delivery = MobilePushDeliveryModel(
         id=uuid.uuid4(),
-        agency_id=uuid.uuid4(),
+        agency_id=other_agency.id,
         notification_id=notification.id,
         registration_id=registration.id,
         provider="expo",
@@ -1192,7 +1219,7 @@ async def test_passenger_notification_producer_pages_beyond_250(
         )
         for index in range(251)
     ]
-    db_session.add_all([access, announcement, *identities, *[_submission(item) for item in identities]])
+    await _persist_notification_records(db_session, [access, announcement, *identities, *[_submission(item) for item in identities]])
     await db_session.flush()
 
     counts = await enqueue_announcement_notifications(

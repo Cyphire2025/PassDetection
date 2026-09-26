@@ -100,8 +100,12 @@ async def test_authorized_correction_commits_audit_profile_refresh_and_private_g
         "propagate",
         "commit",
     ]
-    statement = rig.session.execute.await_args.args[0]
-    assert "FOR UPDATE" in str(statement.compile(dialect=postgresql.dialect()))
+    locked_statements = [
+        call.args[0] for call in rig.session.execute.await_args_list
+        if "FOR UPDATE" in str(call.args[0].compile(dialect=postgresql.dialect()))
+    ]
+    assert len(locked_statements) == 1
+    statement = locked_statements[0]
     assert statement.get_execution_options()["populate_existing"] is True
     rig.guard.assert_awaited_once()
     assert rig.guard.await_args.kwargs["group_id"] == rig.submission.group_id

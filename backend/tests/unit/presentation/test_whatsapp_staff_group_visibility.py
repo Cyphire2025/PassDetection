@@ -18,6 +18,7 @@ from app.infrastructure.database.models import (
     ClientGroupWhatsAppBroadcastLinkModel,
     ManagerGroupAccessModel,
     PassportSubmissionModel,
+    UserModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
 )
@@ -29,7 +30,7 @@ from app.presentation.dependencies.auth import get_current_active_user
 @pytest.fixture
 async def staff_broadcast(db_session: AsyncSession):
     now = datetime.now(tz=UTC)
-    agency_id, staff_id = uuid.uuid4(), uuid.uuid4()
+    agency_id, staff_id, other_staff_id = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
     staff = User(
         id=staff_id,
         agency_id=agency_id,
@@ -47,12 +48,14 @@ async def staff_broadcast(db_session: AsyncSession):
         created_at=now,
         updated_at=now,
     )
-    db_session.add_all(
-        [
-            AgencyModel(id=agency_id, name="Agency", email="agency@example.test"),
-            broadcast,
-        ]
-    )
+    db_session.add(AgencyModel(id=agency_id, name="Agency", email="agency@example.test"))
+    await db_session.flush()
+    db_session.add_all([
+        UserModel(id=staff_id, agency_id=agency_id, email="staff@example.test", full_name="Staff", hashed_password="unused", role="agency_staff"),
+        UserModel(id=other_staff_id, agency_id=agency_id, email="other@example.test", full_name="Other staff", hashed_password="unused", role="agency_staff"),
+        broadcast,
+    ])
+    await db_session.flush()
     for index, name in enumerate(("Submitted passenger", "Missing passenger")):
         db_session.add(
             WhatsAppBroadcastRecipientModel(
@@ -73,14 +76,15 @@ async def staff_broadcast(db_session: AsyncSession):
             token=str(uuid.uuid4()),
             name=access,
             status="archived" if access == "archived" else "active",
-            created_by_user_id=staff_id if access in {"owned", "archived"} else uuid.uuid4(),
+            created_by_user_id=staff_id if access in {"owned", "archived"} else other_staff_id,
             departure_cities=[],
             created_at=now,
         )
         groups[access] = group
+        db_session.add(group)
+        await db_session.flush()
         db_session.add_all(
             [
-                group,
                 ClientGroupWhatsAppBroadcastLinkModel(
                     id=uuid.uuid4(),
                     agency_id=agency_id,

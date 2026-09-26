@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import uuid
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock
@@ -13,7 +14,6 @@ from app.domain.entities.entities import UserRole
 from app.infrastructure.documents.document_matcher import (
     ClassifiedDocument,
     MatchResult,
-    UnsupportedDocumentBatchFormatError,
 )
 from app.infrastructure.documents.verification_staging import (
     StagedDocumentReceipt,
@@ -313,25 +313,24 @@ async def test_verify_unsupported_batch_never_references_upload_cleanup_guard(
         lambda *_args, **_kwargs: SimpleNamespace(),
     )
 
-    def unsupported(*_args: object, **_kwargs: object) -> object:
-        raise UnsupportedDocumentBatchFormatError("Unsupported common document format")
+    def classify_rejected(*_args: object, **kwargs: object) -> object:
+        # Verification deliberately keeps unsupported files available for
+        # manual review instead of rejecting the entire multipart batch.
+        assert kwargs["reject_common_unsupported_format"] is False
+        return [replace(_classification("unknown.pdf"), accepted=False,
+                        reason="Unsupported common document format")]
 
     set_route_dependency(
-        monkeypatch, document_distribution, "classify_documents_bounded", unsupported
+        monkeypatch, document_distribution, "classify_documents_bounded", classify_rejected
     )
     stage = AsyncMock()
     set_route_dependency(monkeypatch, document_distribution, "stage_verified_documents", stage)
-
-    with pytest.raises(HTTPException) as exc_info:
-        await document_distribution.verify_documents(
-            group_id=group_id,
-            document_type="visa",
-            files=[],
-            current_user=user,
-            session=session,
-        )
-
-    assert exc_info.value.status_code == 422
+    response = await document_distribution.verify_documents(
+        group_id=group_id, document_type="visa", files=[], current_user=user, session=session,
+    )
+    assert response.accepted_count == 0
+    assert response.rejected_count == 1
+    assert response.files[0].accepted is False
     stage.assert_not_awaited()
 
 

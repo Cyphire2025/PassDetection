@@ -13,18 +13,21 @@ from sqlalchemy.orm import aliased
 from app.infrastructure.database.models import (
     AgencyModel,
     AttendanceRecordModel,
+    AttendanceSessionModel,
     AuditLogModel,
     ClientGroupModel,
     CoordinatorAssignmentModel,
     CoordinatorGroupAssignmentModel,
     PassportSubmissionModel,
     StorageCleanupJobModel,
+    UserModel,
 )
 from app.infrastructure.repositories.coordinator_assignment_lifecycle import (
     current_trip_clause,
     expire_coordinator_assignments,
     expired_trip_clause,
 )
+from tests.persistence import persist_graph
 from tests.sqlite_trip_timezone import register_sqlite_trip_timezone
 
 NOW = datetime(2026, 9, 5, 19, tzinfo=UTC)  # 6 September in Kolkata, 5th in LA.
@@ -33,7 +36,12 @@ NOW = datetime(2026, 9, 5, 19, tzinfo=UTC)  # 6 September in Kolkata, 5th in LA.
 async def seed_groups(session: AsyncSession) -> tuple[list[ClientGroupModel], list[uuid.UUID]]:
     await register_sqlite_trip_timezone(session)
     agency_id, coordinator_id = uuid.uuid4(), uuid.uuid4()
-    session.add(AgencyModel(id=agency_id, name="Expiry test", email="expiry@example.com"))
+    records = [
+        AgencyModel(id=agency_id, name="Expiry test", email="expiry@example.com"),
+        UserModel(id=coordinator_id, agency_id=agency_id, email="coordinator@example.test",
+                  full_name="Test Coordinator", hashed_password="unused-test-hash",
+                  role="agency_coordinator"),
+    ]
     cases = [
         ("ended", date(2026, 9, 1), date(2026, 9, 5), "Asia/Kolkata"),
         ("fallback-ended", date(2026, 9, 5), None, "Asia/Kolkata"),
@@ -59,9 +67,19 @@ async def seed_groups(session: AsyncSession) -> tuple[list[ClientGroupModel], li
             passport_legal_hold_set_at=NOW - timedelta(days=1),
         )
         submission_id = uuid.uuid4()
-        session.add_all(
+        attendance_session_id = uuid.uuid4()
+        records.extend(
             [
                 group,
+                AttendanceSessionModel(
+                    id=attendance_session_id,
+                    canonical_session_id=attendance_session_id,
+                    agency_id=agency_id,
+                    group_id=group.id,
+                    name="Test attendance",
+                    normalized_name="test attendance",
+                    created_by_user_id=coordinator_id,
+                ),
                 PassportSubmissionModel(
                     id=submission_id,
                     agency_id=agency_id,
@@ -87,7 +105,7 @@ async def seed_groups(session: AsyncSession) -> tuple[list[ClientGroupModel], li
                 AttendanceRecordModel(
                     id=uuid.uuid4(),
                     agency_id=agency_id,
-                    session_id=uuid.uuid4(),
+                    session_id=attendance_session_id,
                     passenger_id=submission_id,
                     coordinator_user_id=coordinator_id,
                     scanned_at=NOW - timedelta(days=1),
@@ -97,7 +115,7 @@ async def seed_groups(session: AsyncSession) -> tuple[list[ClientGroupModel], li
         )
         groups.append(group)
         submission_ids.append(submission_id)
-    await session.flush()
+    await persist_graph(session, records)
     return groups, submission_ids
 
 
@@ -138,8 +156,12 @@ async def test_expiry_is_bounded_idempotent_and_preserves_every_history_row(
         active=False,
         unassigned_at=old_unassigned,
     )
-    db_session.add(historic)
-    await db_session.flush()
+    await persist_graph(db_session, [
+        UserModel(id=historic.coordinator_user_id, agency_id=historic.agency_id,
+                  email="historic-coordinator@example.test", full_name="Historic Coordinator",
+                  hashed_password="unused-test-hash", role="agency_coordinator"),
+        historic,
+    ])
     first = await expire_coordinator_assignments(db_session, now=NOW, batch_size=1)
     assert first.as_dict() == {"groups": 1, "group_assignments": 1, "passenger_assignments": 1}
     second = await expire_coordinator_assignments(db_session, now=NOW, batch_size=1)

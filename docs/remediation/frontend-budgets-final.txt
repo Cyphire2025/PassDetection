@@ -1,0 +1,29 @@
+
+> frontend@0.1.0 maintainability:check
+> node scripts/verify-frontend-module-budgets.mjs
+
+Frontend size and complexity budgets passed (24 high-risk modules checked).
+features/passports/components/passport-group-bindings.tsx: 93 lines; max function complexity 1.
+features/passports/components/passport-group-detail.tsx: 22 lines; max function complexity 1.
+features/passports/components/passport-group-dialogs.tsx: 316 lines; max function complexity 10.
+features/passports/components/passport-group-header-panel.tsx: 301 lines; max function complexity 21.
+features/passports/components/passport-group-import-panel.tsx: 171 lines; max function complexity 7.
+features/passports/components/passport-group-model.tsx: 587 lines; max function complexity 26.
+features/passports/components/passport-group-overview-panel.tsx: 337 lines; max function complexity 43.
+features/passports/components/passport-group-roster-panel.tsx: 347 lines; max function complexity 17.
+features/passports/components/passport-group-selection-toolbar.tsx: 350 lines; max function complexity 18.
+features/passports/components/use-passport-group-controller.tsx: 704 lines; max function complexity 22.
+features/email-integrations/components/message-activity-model.ts: 172 lines; max function complexity 9.
+features/email-integrations/components/message-activity-page.tsx: 315 lines; max function complexity 21.
+features/email-integrations/components/message-deadline-decisions.tsx: 141 lines; max function complexity 10.
+features/email-integrations/components/message-draft-editor.tsx: 260 lines; max function complexity 16.
+features/email-integrations/components/message-intelligence-brief.tsx: 384 lines; max function complexity 23.
+features/email-integrations/components/message-intelligence-feedback.tsx: 518 lines; max function complexity 45.
+features/email-integrations/components/message-proposal-decisions.tsx: 143 lines; max function complexity 8.
+features/email-integrations/components/use-message-feedback-controller.ts: 276 lines; max function complexity 8.
+features/settings/components/dashboard-settings-page.tsx: 167 lines; max function complexity 6.
+features/settings/components/platform-settings-panel.tsx: 641 lines; max function complexity 25.
+lib/hooks/use-live-history-feed.ts: 124 lines; max function complexity 10.
+features/upload/components/upload-flow.tsx: 1953 lines; max function complexity 69.
+features/passports/components/group-whatsapp-broadcast-panel.tsx: 1729 lines; max function complexity 59.
+features/passports/components/passport-detail.tsx: 1523 lines; max function complexity 54.

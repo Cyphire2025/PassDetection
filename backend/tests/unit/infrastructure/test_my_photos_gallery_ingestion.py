@@ -35,6 +35,7 @@ from app.infrastructure.my_photos.gallery_ingestion import (
     GalleryManifestRequest,
     GalleryManifestVariant,
 )
+from tests.persistence import persist_graph
 
 NOW = datetime(2026, 8, 27, 12, 0, tzinfo=UTC)
 
@@ -203,7 +204,7 @@ async def _scope(db_session: AsyncSession) -> tuple[uuid.UUID, uuid.UUID, User]:
     agency_id = uuid.uuid4()
     group_id = uuid.uuid4()
     actor_id = uuid.uuid4()
-    db_session.add_all(
+    await persist_graph(db_session,
         [
             AgencyModel(
                 id=agency_id,

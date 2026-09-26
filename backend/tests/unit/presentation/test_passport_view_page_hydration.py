@@ -130,3 +130,67 @@ async def test_filtered_page_hydrates_only_visible_rows_and_rejects_revision_rac
         assert response.returned_count == 50
         assert [row.id for row in response.items] == [row.id for row in projections[50:100]]
         assert len(response.ordered_selection_snapshot) == 120
+
+
+@pytest.mark.parametrize("count", [3, 303, 603])
+async def test_duplicate_payload_is_bounded_and_selection_preserves_all_revisions(
+    monkeypatch: pytest.MonkeyPatch, count: int,
+) -> None:
+    user, group_id = _user(), uuid.uuid4()
+    details = {}
+    projections = []
+    for index in range(count):
+        passenger = PassportSubmission.create(
+            group_id=group_id, agency_id=user.agency_id, client_name=f"Traveller {index:03}",
+            client_email=None, image_s3_key="synthetic/front.jpg",
+        )
+        dto = replace(
+            passport_submission_output_from_entity(passenger), status="submitted",
+            extraction_revision=index,
+            confirmed_fields={"passport_number": "P123", "place_of_issue": "Chennai"},
+        )
+        details[dto.id] = dto
+        projections.append(PassportViewProjection(
+            **{key: getattr(dto, key) for key in PassportViewProjection.__dataclass_fields__}
+        ))
+
+    async def page_details(**kwargs):
+        assert len(kwargs["submission_ids"]) <= 50
+        return {key: details[key] for key in kwargs["submission_ids"]}
+
+    repository = Mock(projection=AsyncMock(return_value=projections),
+                      page_details=AsyncMock(side_effect=page_details))
+    monkeypatch.setattr(queries, "PassportSubmissionViewRepository", Mock(return_value=repository))
+    crops = Mock(list_for_submissions=AsyncMock(return_value={}))
+    monkeypatch.setattr(queries, "PassportImageCropRepository", Mock(return_value=crops))
+    result = Mock()
+    result.scalar_one_or_none.return_value = None
+    seen = []
+    serialized_sizes = []
+    for page in range(1, (count + 49) // 50 + 1):
+        response = await queries.list_passports_by_group_view(
+            group_id=group_id, submission_filter="duplicates", sort_by="name", sort_order="asc",
+            page=page, page_size=50, search=None, include_deleted=False,
+            current_user=user, session=Mock(execute=AsyncMock(return_value=result)),
+        )
+        assert len(crops.list_for_submissions.call_args.args[0]) <= 50
+        seen.extend(item.id for item in response.items)
+        assert response.total == count
+        assert len(response.items) <= 50
+        assert {row.submission_id: row.extraction_revision
+                for row in response.ordered_selection_snapshot} == {
+                    row.id: row.extraction_revision for row in projections
+                }
+        assert set(response.ordered_submission_ids) == set(details)
+        cluster, = response.duplicate_clusters
+        assert cluster.visible_member_ids == [item.id for item in response.items]
+        for item in response.items:
+            assert item.duplicate_cluster_size == count
+            assert item.duplicate_cluster_member_ids_complete == (count <= 20)
+            assert len(item.duplicate_cluster_member_ids) == (count if count <= 20 else 0)
+        serialized_sizes.append(len(response.model_dump_json()))
+    assert len(seen) == len(set(seen)) == count
+    assert set(seen) == set(details)
+    # Full selection metadata is linear in group size, details in page size.
+    # This rejects the old 303*303 UUID membership amplification (>3 MB).
+    assert max(serialized_sizes) < 250_000

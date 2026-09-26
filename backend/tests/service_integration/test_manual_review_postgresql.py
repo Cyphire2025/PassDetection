@@ -119,7 +119,7 @@ async def test_manual_submission_serializes_against_late_extraction_and_duplicat
             PassportSubmissionRepository(session), ClientGroupRepository(session), storage, policies,
         ).execute(
             submission.id, group_token=group.token, confirmed_fields={"given_names": "AMAN", "passport_number": "P1234567"},
-            client_email=None, client_phone="9876543210",
+            client_email="aman@example.test", client_phone="9876543210",
         )
         await session.commit()
         return result
@@ -143,9 +143,15 @@ async def test_manual_submission_serializes_against_late_extraction_and_duplicat
             return result
 
     first = asyncio.create_task(first_submission())
+    reached_storage = asyncio.create_task(entered.wait())
     second = None
     try:
-        await asyncio.wait_for(entered.wait(), timeout=5)
+        done, _ = await asyncio.wait(
+            (first, reached_storage), timeout=5, return_when=asyncio.FIRST_COMPLETED,
+        )
+        if first in done:
+            first.result()  # Surface validation/setup failures instead of a misleading timeout.
+        assert reached_storage in done, "Submission did not reach the controlled storage boundary"
         second = asyncio.create_task(competing_operation())
         await asyncio.wait_for(contender_started.wait(), timeout=5)
         await _wait_blocked(factory, contender_pid[0])
@@ -164,6 +170,7 @@ async def test_manual_submission_serializes_against_late_extraction_and_duplicat
             assert saved.status.value == "needs_review"
             assert saved.confirmed_fields["given_names"] == "AMAN"
             assert saved.client_phone == "+919876543210"
+            assert saved.client_email == "aman@example.test"
             assert saved.post_submission_verification["reason_code"] == MANUAL_REVIEW_REASON_CODE
             assert await repository.apply_post_submission_verification(
                 submission_id=saved.id, expected_revision=saved.post_submission_verification_revision,
@@ -172,10 +179,10 @@ async def test_manual_submission_serializes_against_late_extraction_and_duplicat
             await session.commit()
     finally:
         release.set()
-        for task in (first, second):
+        for task in (first, second, reached_storage):
             if task is not None and not task.done():
                 task.cancel()
-        await asyncio.gather(*(task for task in (first, second) if task is not None), return_exceptions=True)
+        await asyncio.gather(*(task for task in (first, second, reached_storage) if task is not None), return_exceptions=True)
 
 
 @pytest.mark.parametrize("legacy_phone", ["9876543210", "919876543210", "00919876543210", "+919876543210"])

@@ -27,6 +27,7 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.whatsapp.worker_runtime import _load_sendable_recipient
 from app.presentation.api.v1.routes import whatsapp
 from app.presentation.dependencies.auth import get_current_active_user
+from tests.persistence import persist_graph
 
 
 async def _fixture(session: AsyncSession):
@@ -69,7 +70,7 @@ async def _fixture(session: AsyncSession):
         message_type="welcome",
         status="delivered",
     )
-    session.add_all(
+    await persist_graph(session,
         [
             AgencyModel(id=agency_id, name="Agency", email="agency@example.test"),
             AgencyModel(id=other_agency_id, name="Other", email="other@example.test"),

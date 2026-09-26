@@ -1,0 +1,6 @@
+
+> frontend@0.1.0 type-check
+> next typegen && tsc --noEmit
+
+Generating route types...
+✓ Types generated successfully

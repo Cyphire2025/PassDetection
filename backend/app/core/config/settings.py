@@ -20,8 +20,10 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from pydantic import Field, SecretStr, computed_field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sqlalchemy.engine import URL
 
 from app.core.config.mobile_settings import MobileSettings as MobileSettings
+from app.core.config.release_contract import SCHEMA_REVISION
 from app.core.security.mobile_offline_lease import (
     validate_mobile_offline_lease_signing_configuration,
 )
@@ -154,15 +156,25 @@ class DatabaseSettings(BaseSettings):
     @property
     def async_url(self) -> str:
         """Async DSN used by SQLAlchemy + asyncpg at runtime."""
-        return f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.db}"
+        return self._connection_url("postgresql+asyncpg")
 
     @computed_field  # type: ignore[prop-decorator]  # Pydantic computed property
     @property
     def sync_url(self) -> str:
         """Sync DSN used by Alembic migrations."""
-        return (
-            f"postgresql+psycopg2://{self.user}:{self.password}@{self.host}:{self.port}/{self.db}"
-        )
+        return self._connection_url("postgresql+psycopg2")
+
+    def _connection_url(self, driver: str) -> str:
+        # Construct components before rendering: generated secrets may contain
+        # delimiters such as @, /, %, or Unicode. Never log this rendered URL.
+        return URL.create(
+            driver,
+            username=self.user,
+            password=self.password,
+            host=self.host,
+            port=self.port,
+            database=self.db,
+        ).render_as_string(hide_password=False)
 
 
 class RedisSettings(BaseSettings):
@@ -779,7 +791,7 @@ class Settings(BaseSettings):
         pattern=r"^(?:unknown|[0-9a-f]{7,64})$",
     )
     expected_database_schema_revision: str = Field(
-        default="0107_passport_ecr_checks",
+        default=SCHEMA_REVISION,
         min_length=1,
         max_length=32,
         pattern=r"^[A-Za-z0-9_]+$",

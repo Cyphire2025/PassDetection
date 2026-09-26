@@ -1,0 +1,288 @@
+{
+  "scope": "Local frontend unit tests and explicitly selected source coverage; no whole-frontend percentage",
+  "test_files_passed": 118,
+  "tests_passed": 789,
+  "duration_seconds": 173.5,
+  "max_workers": 2,
+  "test_timeout_ms": 5000,
+  "coverage_target_count": 9,
+  "coverage_total": {
+    "lines": {
+      "total": 289,
+      "covered": 275,
+      "skipped": 0,
+      "pct": 95.15
+    },
+    "statements": {
+      "total": 311,
+      "covered": 292,
+      "skipped": 0,
+      "pct": 93.89
+    },
+    "functions": {
+      "total": 76,
+      "covered": 71,
+      "skipped": 0,
+      "pct": 93.42
+    },
+    "branches": {
+      "total": 226,
+      "covered": 204,
+      "skipped": 0,
+      "pct": 90.26
+    },
+    "branchesTrue": {
+      "total": 0,
+      "covered": 0,
+      "skipped": 0,
+      "pct": 100
+    }
+  },
+  "files": {
+    "proxy.ts": {
+      "lines": {
+        "total": 21,
+        "covered": 21,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 5,
+        "covered": 5,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 21,
+        "covered": 21,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 10,
+        "covered": 8,
+        "skipped": 0,
+        "pct": 80
+      }
+    },
+    "components/layout/mobile-navigation.tsx": {
+      "lines": {
+        "total": 34,
+        "covered": 32,
+        "skipped": 0,
+        "pct": 94.11
+      },
+      "functions": {
+        "total": 5,
+        "covered": 5,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 37,
+        "covered": 35,
+        "skipped": 0,
+        "pct": 94.59
+      },
+      "branches": {
+        "total": 20,
+        "covered": 17,
+        "skipped": 0,
+        "pct": 85
+      }
+    },
+    "components/ui/modal.tsx": {
+      "lines": {
+        "total": 49,
+        "covered": 45,
+        "skipped": 0,
+        "pct": 91.83
+      },
+      "functions": {
+        "total": 8,
+        "covered": 7,
+        "skipped": 0,
+        "pct": 87.5
+      },
+      "statements": {
+        "total": 54,
+        "covered": 49,
+        "skipped": 0,
+        "pct": 90.74
+      },
+      "branches": {
+        "total": 39,
+        "covered": 32,
+        "skipped": 0,
+        "pct": 82.05
+      }
+    },
+    "features/auth/components/authenticated-content.tsx": {
+      "lines": {
+        "total": 23,
+        "covered": 22,
+        "skipped": 0,
+        "pct": 95.65
+      },
+      "functions": {
+        "total": 7,
+        "covered": 6,
+        "skipped": 0,
+        "pct": 85.71
+      },
+      "statements": {
+        "total": 27,
+        "covered": 26,
+        "skipped": 0,
+        "pct": 96.29
+      },
+      "branches": {
+        "total": 19,
+        "covered": 19,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "features/documents/components/document-manual-review-dialog.tsx": {
+      "lines": {
+        "total": 24,
+        "covered": 24,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 6,
+        "covered": 6,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 25,
+        "covered": 24,
+        "skipped": 0,
+        "pct": 96
+      },
+      "branches": {
+        "total": 34,
+        "covered": 33,
+        "skipped": 0,
+        "pct": 97.05
+      }
+    },
+    "features/search/components/global-search.tsx": {
+      "lines": {
+        "total": 97,
+        "covered": 90,
+        "skipped": 0,
+        "pct": 92.78
+      },
+      "functions": {
+        "total": 23,
+        "covered": 20,
+        "skipped": 0,
+        "pct": 86.95
+      },
+      "statements": {
+        "total": 103,
+        "covered": 93,
+        "skipped": 0,
+        "pct": 90.29
+      },
+      "branches": {
+        "total": 68,
+        "covered": 59,
+        "skipped": 0,
+        "pct": 86.76
+      }
+    },
+    "features/settings/components/appearance-settings.tsx": {
+      "lines": {
+        "total": 15,
+        "covered": 15,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 12,
+        "covered": 12,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 15,
+        "covered": 15,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 6,
+        "covered": 6,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "features/settings/components/dashboard-settings-page.tsx": {
+      "lines": {
+        "total": 18,
+        "covered": 18,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 9,
+        "covered": 9,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 20,
+        "covered": 20,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 26,
+        "covered": 26,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "lib/utils/coordinator-device-id.ts": {
+      "lines": {
+        "total": 8,
+        "covered": 8,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 1,
+        "covered": 1,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 9,
+        "covered": 9,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 4,
+        "covered": 4,
+        "skipped": 0,
+        "pct": 100
+      }
+    }
+  },
+  "unchanged_per_file_thresholds": {
+    "statements": 74,
+    "branches": 50,
+    "functions": 75,
+    "lines": 75
+  },
+  "lint": "pass",
+  "typegen_and_typescript": "pass",
+  "unchanged_module_ratchets": 24,
+  "native_sources_modified": false,
+  "production_deployment": false
+}

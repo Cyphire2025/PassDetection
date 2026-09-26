@@ -12,12 +12,28 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.value_objects.passport_image_crop import PassportImageType
 from app.domain.value_objects.passport_image_library import PassportImageLibrarySource
+from app.infrastructure.database.models import (
+    AgencyModel,
+    ClientGroupModel,
+    PassportSubmissionModel,
+)
 from app.infrastructure.repositories.passport_image_library_repository import (
     PassportImageLibraryRepository,
 )
 from app.infrastructure.repositories.passport_visa_ai_image_repository import (
     PassportVisaAiImageRepository,
 )
+from tests.persistence import persist_graph
+
+
+async def _persist_submission(session, submission_id):
+    agency_id, group_id = uuid.uuid4(), uuid.uuid4()
+    await persist_graph(session, [
+        AgencyModel(id=agency_id, name="Synthetic agency", email=f"{agency_id}@example.test"),
+        ClientGroupModel(id=group_id, agency_id=agency_id, name="Synthetic group", token=f"group-{group_id}"),
+        PassportSubmissionModel(id=submission_id, agency_id=agency_id, group_id=group_id,
+                                client_name="Synthetic passenger", image_s3_key="original/front.jpg"),
+    ])
 
 
 def _load_migration():
@@ -62,6 +78,7 @@ def test_common_library_migration_follows_concurrent_head_and_is_additive() -> N
 async def test_ensure_original_is_idempotent(db_session: AsyncSession) -> None:
     repository = PassportImageLibraryRepository(db_session)
     submission_id = uuid.uuid4()
+    await _persist_submission(db_session, submission_id)
 
     first, first_created = await repository.ensure_original(
         submission_id=submission_id,
@@ -87,6 +104,7 @@ async def test_legacy_visa_ai_create_is_mirrored_into_common_library(
     db_session: AsyncSession,
 ) -> None:
     submission_id = uuid.uuid4()
+    await _persist_submission(db_session, submission_id)
     generated_key = f"passport-ai-library/{submission_id}/generated.jpg"
 
     legacy = await PassportVisaAiImageRepository(db_session).create(

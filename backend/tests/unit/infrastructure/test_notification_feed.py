@@ -5,9 +5,19 @@ import uuid
 import pytest
 
 from app.domain.exceptions.exceptions import EntityNotFoundError
+from app.infrastructure.database.models import AgencyModel, UserModel
 from app.infrastructure.repositories.notification_repository import (
     NotificationRepository,
 )
+from tests.persistence import persist_graph
+
+
+async def _persist_recipients(session, agency_id, *user_ids):
+    agency = AgencyModel(id=agency_id, name="Synthetic agency", email=f"{agency_id}@example.test")
+    users = [UserModel(id=user_id, agency_id=agency_id, email=f"{user_id}@example.test",
+                       hashed_password="unused", full_name="Synthetic owner", role="agency_staff")
+             for user_id in user_ids]
+    await persist_graph(session, [agency, *users])
 
 
 @pytest.mark.asyncio
@@ -18,6 +28,7 @@ async def test_direct_feed_is_user_scoped_and_legacy_broadcasts_are_excluded(
     agency_id = uuid.uuid4()
     owner_id = uuid.uuid4()
     other_user_id = uuid.uuid4()
+    await _persist_recipients(db_session, agency_id, owner_id, other_user_id)
 
     direct = await repository.create(
         agency_id=agency_id,
@@ -63,6 +74,7 @@ async def test_direct_feed_uses_stable_cursor_and_server_unread_count(db_session
     repository = NotificationRepository(db_session)
     agency_id = uuid.uuid4()
     owner_id = uuid.uuid4()
+    await _persist_recipients(db_session, agency_id, owner_id)
     created = []
     for index in range(3):
         created.append(
@@ -108,6 +120,7 @@ async def test_dedupe_and_mark_all_apply_only_to_direct_owner_rows(db_session) -
     agency_id = uuid.uuid4()
     owner_id = uuid.uuid4()
     other_user_id = uuid.uuid4()
+    await _persist_recipients(db_session, agency_id, owner_id, other_user_id)
 
     first = await repository.create(
         agency_id=agency_id,
@@ -174,8 +187,10 @@ async def test_direct_notification_can_be_read_without_an_agency_bypass(
 ) -> None:
     repository = NotificationRepository(db_session)
     owner_id = uuid.uuid4()
+    agency_id = uuid.uuid4()
+    await _persist_recipients(db_session, agency_id, owner_id)
     notification = await repository.create(
-        agency_id=uuid.uuid4(),
+        agency_id=agency_id,
         user_id=owner_id,
         type="email_ai_attention",
         title="Owner only",
@@ -199,6 +214,8 @@ async def test_direct_feed_and_read_actions_reject_a_users_former_agency(
     current_agency_id = uuid.uuid4()
     former_agency_id = uuid.uuid4()
     owner_id = uuid.uuid4()
+    await _persist_recipients(db_session, current_agency_id, owner_id)
+    await _persist_recipients(db_session, former_agency_id)
     current = await repository.create(
         agency_id=current_agency_id,
         user_id=owner_id,

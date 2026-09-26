@@ -24,6 +24,7 @@ from app.infrastructure.database.models import (
     UserModel,
     UserSecurityStateModel,
 )
+from tests.persistence import persist_graph
 
 
 def _token(
@@ -66,7 +67,7 @@ async def test_staff_snapshot_is_tenant_scoped_and_fenced_by_session_epoch(
     hidden_id = uuid.uuid4()
     archived_id = uuid.uuid4()
     other_tenant_id = uuid.uuid4()
-    db_session.add_all(
+    await persist_graph(db_session,
         [
             AgencyModel(
                 id=agency_id,
@@ -177,7 +178,7 @@ async def test_coordinator_snapshot_uses_only_live_tenant_assignments(
     user_id = uuid.uuid4()
     assigned_id = uuid.uuid4()
     unassigned_id = uuid.uuid4()
-    db_session.add_all(
+    await persist_graph(db_session,
         [
             AgencyModel(
                 id=agency_id,
@@ -209,7 +210,7 @@ async def test_coordinator_snapshot_uses_only_live_tenant_assignments(
         ]
     )
     await db_session.flush()
-    db_session.add_all(
+    await persist_graph(db_session,
         [
             CoordinatorGroupAssignmentModel(
                 agency_id=agency_id,
@@ -268,7 +269,7 @@ async def test_superadmin_access_level_uses_scoped_grants_and_base_identity(
         role="super_admin",
         agency_id=None,
     )
-    db_session.add_all(
+    await persist_graph(db_session,
         [
             AgencyModel(id=key, name="Agency", email=f"{key}@example.test")
             for key in (agency_id, other_agency_id)
@@ -287,7 +288,7 @@ async def test_superadmin_access_level_uses_scoped_grants_and_base_identity(
         ]
     )
     await db_session.flush()
-    db_session.add_all(
+    await persist_graph(db_session,
         [
             ManagerGroupAccessModel(
                 manager_id=user_id, group_id=groups["staff"], agency_id=agency_id

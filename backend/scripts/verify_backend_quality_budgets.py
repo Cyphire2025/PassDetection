@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import ast
 import json
+import math
 import sys
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
@@ -159,6 +160,49 @@ def load_coverage_percentages(path: Path) -> dict[str, float]:
     return result
 
 
+def evaluate_coverage_gates(budget_file: Path, coverage_file: Path) -> list[str]:
+    """Require measured branches and protect high-risk behavior, not just imports."""
+    document = json.loads(budget_file.read_text(encoding="utf-8"))
+    gates = document.get("coverage_gates")
+    if gates is None:
+        return []
+    root = ET.parse(coverage_file).getroot()
+    if int(root.attrib.get("branches-valid", "0")) <= 0:
+        return ["Branch coverage was not measured; run pytest with --cov-branch"]
+    modules = {}
+    for element in root.findall(".//class"):
+        raw_path = _normalized_relative_path(element.attrib["filename"])
+        path = raw_path if raw_path.startswith("app/") else f"app/{raw_path}"
+        if path in modules:
+            raise ValueError(f"Coverage report contains duplicate module: {path}")
+        modules[path] = element
+    violations: list[str] = []
+
+    def check(label: str, element: ET.Element, floors: dict[str, Any]) -> None:
+        for metric in ("line", "branch"):
+            minimum = float(floors[f"minimum_{metric}_percent"])
+            observed = float(element.attrib[f"{metric}-rate"]) * 100
+            if not math.isfinite(minimum) or not 0 < minimum <= 100:
+                raise ValueError(f"{label}: invalid {metric} coverage floor")
+            if not math.isfinite(observed) or not 0 <= observed <= 100:
+                raise ValueError(f"{label}: invalid measured {metric} coverage")
+            if observed + 1e-9 < minimum:
+                violations.append(f"{label}: {metric} coverage {observed:.2f}% is below reviewed floor {minimum:.2f}%")
+
+    check("Repository", root, gates["global"])
+    seen: set[str] = set()
+    for gate in gates["critical_modules"]:
+        path = _normalized_relative_path(gate["path"])
+        if path in seen:
+            raise ValueError(f"Duplicate critical coverage gate: {path}")
+        seen.add(path)
+        if path not in modules:
+            violations.append(f"{path}: critical module is missing from coverage report")
+        else:
+            check(path, modules[path], gate)
+    return violations
+
+
 def evaluate_budgets(
     *,
     backend_root: Path,
@@ -246,6 +290,8 @@ def main(argv: list[str] | None = None) -> int:
             budgets=budgets,
             coverage_percentages=coverage,
         )
+        if args.coverage_file is not None:
+            violations.extend(evaluate_coverage_gates(args.budget_file, args.coverage_file))
     except (OSError, ValueError, KeyError, json.JSONDecodeError, ET.ParseError) as exc:
         print(f"Backend quality budget configuration error: {exc}", file=sys.stderr)
         return 2

@@ -49,7 +49,9 @@ def preview_fixture(bulk_resend_fixture, monkeypatch):
         preview_route, "active_replacement_phone_numbers_for_broadcast", fixture.replaced
     )
     monkeypatch.setattr(
-        composer, "_configured_template_name", lambda message_type: f"current-{message_type}"
+        composer, "load_template_settings", AsyncMock(return_value=SimpleNamespace(
+            overrides={}, name=lambda message_type: f"current-{message_type}",
+        ))
     )
     return fixture
 
@@ -330,6 +332,9 @@ async def test_preview_delivery_reads_do_not_lock_or_change_stale_logs(preview_f
         result(rows=list(fixture.states.values())),
         result(rows=[queued, processing]),
         result(rows=list(fixture.sources.values())),
+        result(rows=fixture.recipients),
+        result(rows=[]),
+        result(rows=[]),
     ]
     _, active, _ = await support.selection_delivery_maps(
         session, group_id=fixture.group.id, body=fixture.body, lock_states=False
@@ -457,8 +462,9 @@ async def test_old_invite_previews_keep_body_and_count_missing_images_then_upgra
     fixture = preview_fixture
     fixture.body = fixture.body.model_copy(update={"message_type": "group_invite"})
     for index, person in enumerate(fixture.recipients):
+        fixture.states[person.id].status = "failed"
         fixture.sources[person.id] = source(
-            person, "group_invite", template_name="whatsapp_group_invite_v1",
+            person, "group_invite", status="failed", template_name="whatsapp_group_invite_v1",
             template_parameter_values=[f"Trip invite {index}", f"https://chat.whatsapp.com/Invite{index}"],
             header_parameter_values=["old-selected-image"] if mixed and index == 0 else [],
         )

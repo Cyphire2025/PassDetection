@@ -26,6 +26,12 @@ from app.infrastructure.whatsapp.publication import (
 from app.presentation.api.v1.routes.document_distribution_delivery_preview import (
     _build_document_delivery_preview,
 )
+from app.presentation.api.v1.routes.document_distribution_delivery_selection import (
+    _require_selected_documents_ready as _require_selected_documents_ready,
+)
+from app.presentation.api.v1.routes.document_distribution_delivery_selection import (
+    select_document_delivery_rows as select_document_delivery_rows,
+)
 from app.presentation.api.v1.routes.document_distribution_queries import _latest_document_batch
 from app.presentation.api.v1.routes.document_distribution_scope import (
     _get_authorized_group,
@@ -37,7 +43,6 @@ from app.presentation.api.v1.routes.document_distribution_shared import (
     _document_delivery_poll_after_seconds,
 )
 from app.presentation.api.v1.schemas.document_distribution_schemas import (
-    DocumentDeliveryPreviewRecipient,
     DocumentDeliveryPreviewResponse,
     DocumentDeliveryTrackingCounts,
     DocumentDeliveryTrackingResponse,
@@ -51,15 +56,6 @@ from app.presentation.dependencies.csrf import require_cookie_csrf
 router = APIRouter()
 
 
-def _require_selected_documents_ready(
-    requested_ids: set[uuid.UUID], eligible_rows: list[DocumentDeliveryPreviewRecipient],
-) -> None:
-    if requested_ids - {row.document_id for row in eligible_rows}:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=("A selected document is blocked or no longer assigned. Review its saved "
-                    "assignment and WhatsApp number, then refresh the preview before sending."),
-        )
 
 
 @router.get(
@@ -217,37 +213,7 @@ async def send_document_whatsapp_broadcast(
             detail=preview.configuration_error or "Documents are not ready to send",
         )
 
-    requested_ids = (
-        set(payload.document_ids)
-        if payload.document_ids is not None
-        else {row.document_id for row in preview.recipients if row.document_id and row.eligible}
-    )
-    resend_ids = set(payload.resend_document_ids)
-    if not resend_ids.issubset(requested_ids):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Every resend document must also be selected for sending",
-        )
-    resendable_ids = {
-        row.document_id for row in preview.recipients if row.document_id and row.resend_allowed
-    }
-    invalid_resend_ids = resend_ids - resendable_ids
-    if invalid_resend_ids:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=("A selected resend is not eligible. Refresh the preview before trying again."),
-        )
-    eligible_rows = [
-        row
-        for row in preview.recipients
-        if row.document_id in requested_ids and (row.eligible or row.document_id in resend_ids)
-    ]
-    _require_selected_documents_ready(requested_ids, eligible_rows)
-    if not eligible_rows:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Select at least one new or safely retryable document",
-        )
+    requested_ids, resend_ids, eligible_rows = select_document_delivery_rows(payload, preview)
 
     send_batch_id = uuid.uuid4()
     now = datetime.now(tz=UTC)

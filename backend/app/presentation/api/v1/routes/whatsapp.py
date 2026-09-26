@@ -106,21 +106,15 @@ from app.presentation.api.v1.routes.whatsapp_batch_status import (
 from app.presentation.api.v1.routes.whatsapp_batch_status import (
     get_broadcast_batch_summary as get_broadcast_batch_summary,
 )
-from app.presentation.api.v1.routes.whatsapp_batch_status import router as _batch_status_router
 from app.presentation.api.v1.routes.whatsapp_bulk_resend import (
     resend_selected_recipient_messages as resend_selected_recipient_messages,
 )
-from app.presentation.api.v1.routes.whatsapp_bulk_resend import router as _bulk_resend_router
 from app.presentation.api.v1.routes.whatsapp_bulk_resend_preview import (
     preview_selected_recipient_messages as preview_selected_recipient_messages,
-)
-from app.presentation.api.v1.routes.whatsapp_bulk_resend_preview import (
-    router as _bulk_resend_preview_router,
 )
 from app.presentation.api.v1.routes.whatsapp_composer import (
     preview_broadcast_message as preview_broadcast_message,
 )
-from app.presentation.api.v1.routes.whatsapp_composer import router as _composer_router
 from app.presentation.api.v1.routes.whatsapp_composer import (
     upload_welcome_media as upload_welcome_media,
 )
@@ -139,25 +133,21 @@ from app.presentation.api.v1.routes.whatsapp_contact_import import (
 from app.presentation.api.v1.routes.whatsapp_contact_import import (
     preview_excel_contacts as preview_excel_contacts,
 )
-from app.presentation.api.v1.routes.whatsapp_contact_import import router as _contact_import_router
-from app.presentation.api.v1.routes.whatsapp_exports import router as _exports_router
+from app.presentation.api.v1.routes.whatsapp_exports import (
+    export_broadcast_filter as export_broadcast_filter,
+)
 from app.presentation.api.v1.routes.whatsapp_groups_archive import (
     archive_broadcast_group as archive_broadcast_group,
 )
 from app.presentation.api.v1.routes.whatsapp_groups_archive import (
     restore_broadcast_group as restore_broadcast_group,
 )
-from app.presentation.api.v1.routes.whatsapp_groups_archive import (
-    router as _groups_archive_router,
-)
 from app.presentation.api.v1.routes.whatsapp_groups_delete import (
     delete_broadcast_group as delete_broadcast_group,
 )
-from app.presentation.api.v1.routes.whatsapp_groups_delete import router as _groups_delete_router
 from app.presentation.api.v1.routes.whatsapp_groups_manage import (
     create_broadcast_group as create_broadcast_group,
 )
-from app.presentation.api.v1.routes.whatsapp_groups_manage import router as _groups_manage_router
 from app.presentation.api.v1.routes.whatsapp_groups_manage import (
     update_broadcast_group as update_broadcast_group,
 )
@@ -167,7 +157,6 @@ from app.presentation.api.v1.routes.whatsapp_groups_read import (
 from app.presentation.api.v1.routes.whatsapp_groups_read import (
     list_broadcast_groups as list_broadcast_groups,
 )
-from app.presentation.api.v1.routes.whatsapp_groups_read import router as _groups_read_router
 from app.presentation.api.v1.routes.whatsapp_recipient_roster import (
     _unidentified_submission_details as _unidentified_submission_details,
 )
@@ -177,16 +166,12 @@ from app.presentation.api.v1.routes.whatsapp_recipient_roster import (
 from app.presentation.api.v1.routes.whatsapp_recipient_roster import (
     get_broadcast_recipient_roster as get_broadcast_recipient_roster,
 )
-from app.presentation.api.v1.routes.whatsapp_recipient_roster import (
-    router as _recipient_roster_router,
-)
 from app.presentation.api.v1.routes.whatsapp_recipients import (
     add_broadcast_recipients as add_broadcast_recipients,
 )
 from app.presentation.api.v1.routes.whatsapp_recipients import (
     remove_broadcast_recipient as remove_broadcast_recipient,
 )
-from app.presentation.api.v1.routes.whatsapp_recipients import router as _recipients_router
 from app.presentation.api.v1.routes.whatsapp_recipients import (
     update_broadcast_recipient_phone as update_broadcast_recipient_phone,
 )
@@ -196,13 +181,10 @@ from app.presentation.api.v1.routes.whatsapp_rejected_contacts import (
 from app.presentation.api.v1.routes.whatsapp_rejected_contacts import (
     resolve_broadcast_rejected_contact as resolve_broadcast_rejected_contact,
 )
-from app.presentation.api.v1.routes.whatsapp_rejected_contacts import (
-    router as _rejected_contacts_router,
-)
 from app.presentation.api.v1.routes.whatsapp_resend import (
     resend_recipient_message as resend_recipient_message,
 )
-from app.presentation.api.v1.routes.whatsapp_resend import router as _resend_router
+from app.presentation.api.v1.routes.whatsapp_router import router as router
 from app.presentation.api.v1.routes.whatsapp_scope import (
     _configured_template_name as _configured_template_name,
 )
@@ -218,7 +200,6 @@ from app.presentation.api.v1.routes.whatsapp_scope import (
 from app.presentation.api.v1.routes.whatsapp_scope import (
     _release_auth_transaction as _release_auth_transaction,
 )
-from app.presentation.api.v1.routes.whatsapp_send import router as _send_router
 from app.presentation.api.v1.routes.whatsapp_send import (
     send_broadcast_message as send_broadcast_message,
 )
@@ -273,7 +254,9 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
 from app.presentation.api.v1.routes.whatsapp_shared import (
     MAX_WHATSAPP_WELCOME_IMAGE_BYTES as MAX_WHATSAPP_WELCOME_IMAGE_BYTES,
 )
-from app.presentation.api.v1.routes.whatsapp_shared import PHONE_RE as PHONE_RE
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    PHONE_RE as PHONE_RE,
+)
 from app.presentation.api.v1.routes.whatsapp_shared import (
     WHATSAPP_ACCEPTED_STATUS_RANK as WHATSAPP_ACCEPTED_STATUS_RANK,
 )
@@ -286,7 +269,9 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
 from app.presentation.api.v1.routes.whatsapp_shared import (
     WHATSAPP_IN_PROGRESS_STATUSES as WHATSAPP_IN_PROGRESS_STATUSES,
 )
-from app.presentation.api.v1.routes.whatsapp_shared import WHATSAPP_ROLES as WHATSAPP_ROLES
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    WHATSAPP_ROLES as WHATSAPP_ROLES,
+)
 from app.presentation.api.v1.routes.whatsapp_shared import (
     WHATSAPP_ROSTER_SOURCE_FIELDS as WHATSAPP_ROSTER_SOURCE_FIELDS,
 )
@@ -311,21 +296,27 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
 from app.presentation.api.v1.routes.whatsapp_shared import (
     _add_rejected_contact_models as _add_rejected_contact_models,
 )
-from app.presentation.api.v1.routes.whatsapp_shared import _agency_filter as _agency_filter
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _agency_filter as _agency_filter,
+)
 from app.presentation.api.v1.routes.whatsapp_shared import (
     _apply_provider_status_to_delivery_state as _apply_provider_status_to_delivery_state,
 )
 from app.presentation.api.v1.routes.whatsapp_shared import (
     _apply_provider_status_to_message_log as _apply_provider_status_to_message_log,
 )
-from app.presentation.api.v1.routes.whatsapp_shared import _as_message_type as _as_message_type
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _as_message_type as _as_message_type,
+)
 from app.presentation.api.v1.routes.whatsapp_shared import (
     _bounded_excel_raw_value as _bounded_excel_raw_value,
 )
 from app.presentation.api.v1.routes.whatsapp_shared import (
     _broadcast_batch_summary_statement as _broadcast_batch_summary_statement,
 )
-from app.presentation.api.v1.routes.whatsapp_shared import _clean_name as _clean_name
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _clean_name as _clean_name,
+)
 from app.presentation.api.v1.routes.whatsapp_shared import (
     _clean_required_name as _clean_required_name,
 )
@@ -335,11 +326,15 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
 from app.presentation.api.v1.routes.whatsapp_shared import (
     _decode_legacy_template_snapshot as _decode_legacy_template_snapshot,
 )
-from app.presentation.api.v1.routes.whatsapp_shared import _excel_cell_text as _excel_cell_text
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _excel_cell_text as _excel_cell_text,
+)
 from app.presentation.api.v1.routes.whatsapp_shared import (
     _excel_contact_preview_response as _excel_contact_preview_response,
 )
-from app.presentation.api.v1.routes.whatsapp_shared import _excel_field_key as _excel_field_key
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _excel_field_key as _excel_field_key,
+)
 from app.presentation.api.v1.routes.whatsapp_shared import (
     _excel_fields_from_row as _excel_fields_from_row,
 )
@@ -361,8 +356,12 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
 from app.presentation.api.v1.routes.whatsapp_shared import (
     _find_excel_contact_header as _find_excel_contact_header,
 )
-from app.presentation.api.v1.routes.whatsapp_shared import _group_detail as _group_detail
-from app.presentation.api.v1.routes.whatsapp_shared import _group_recipients as _group_recipients
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _group_detail as _group_detail,
+)
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _group_recipients as _group_recipients,
+)
 from app.presentation.api.v1.routes.whatsapp_shared import (
     _is_excel_name_header as _is_excel_name_header,
 )
@@ -387,14 +386,18 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
 from app.presentation.api.v1.routes.whatsapp_shared import (
     _merge_recipient_inputs as _merge_recipient_inputs,
 )
-from app.presentation.api.v1.routes.whatsapp_shared import _message_values as _message_values
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _message_values as _message_values,
+)
 from app.presentation.api.v1.routes.whatsapp_shared import (
     _new_roster_display_orders as _new_roster_display_orders,
 )
 from app.presentation.api.v1.routes.whatsapp_shared import (
     _next_roster_display_order as _next_roster_display_order,
 )
-from app.presentation.api.v1.routes.whatsapp_shared import _normalize_phone as _normalize_phone
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _normalize_phone as _normalize_phone,
+)
 from app.presentation.api.v1.routes.whatsapp_shared import (
     _normalized_recipient_inputs as _normalized_recipient_inputs,
 )
@@ -410,7 +413,9 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
 from app.presentation.api.v1.routes.whatsapp_shared import (
     _parse_support_contacts as _parse_support_contacts,
 )
-from app.presentation.api.v1.routes.whatsapp_shared import _positive_int as _positive_int
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    _positive_int as _positive_int,
+)
 from app.presentation.api.v1.routes.whatsapp_shared import (
     _provider_status_state_predicates as _provider_status_state_predicates,
 )
@@ -483,7 +488,9 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
 from app.presentation.api.v1.routes.whatsapp_shared import (
     _WhatsAppExcelContactParseResult as _WhatsAppExcelContactParseResult,
 )
-from app.presentation.api.v1.routes.whatsapp_shared import logger as logger
+from app.presentation.api.v1.routes.whatsapp_shared import (
+    logger as logger,
+)
 from app.presentation.api.v1.routes.whatsapp_source_groups import (
     create_broadcast_from_source_group as create_broadcast_from_source_group,
 )
@@ -496,14 +503,12 @@ from app.presentation.api.v1.routes.whatsapp_source_groups import (
 from app.presentation.api.v1.routes.whatsapp_source_groups import (
     preview_source_group as preview_source_group,
 )
-from app.presentation.api.v1.routes.whatsapp_source_groups import router as _source_groups_router
 from app.presentation.api.v1.routes.whatsapp_webhook import (
     _verify_meta_signature as _verify_meta_signature,
 )
 from app.presentation.api.v1.routes.whatsapp_webhook import (
     receive_whatsapp_webhook as receive_whatsapp_webhook,
 )
-from app.presentation.api.v1.routes.whatsapp_webhook import router as _webhook_router
 from app.presentation.api.v1.routes.whatsapp_webhook import (
     verify_whatsapp_webhook as verify_whatsapp_webhook,
 )
@@ -542,22 +547,3 @@ from app.presentation.api.v1.schemas.whatsapp_schemas import (
 from app.presentation.dependencies.auth import WHATSAPP_BROADCAST_ROLES, require_role
 from app.presentation.dependencies.csrf import require_cookie_csrf
 from app.presentation.security.client_ip import trusted_client_ip
-
-router = APIRouter()
-router.include_router(_webhook_router)
-router.include_router(_contact_import_router)
-router.include_router(_source_groups_router)
-router.include_router(_groups_read_router)
-router.include_router(_recipient_roster_router)
-router.include_router(_exports_router)
-router.include_router(_rejected_contacts_router)
-router.include_router(_composer_router)
-router.include_router(_groups_manage_router)
-router.include_router(_recipients_router)
-router.include_router(_resend_router)
-router.include_router(_bulk_resend_router)
-router.include_router(_bulk_resend_preview_router)
-router.include_router(_groups_delete_router)
-router.include_router(_groups_archive_router)
-router.include_router(_send_router)
-router.include_router(_batch_status_router)

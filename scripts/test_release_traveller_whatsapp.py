@@ -73,6 +73,11 @@ class FakeDocker:
             "Id": f"container-{service}",
             "Image": image,
             "State": {"Running": True},
+            "NetworkSettings": {"Networks": {
+                f"{self.project}_passdetection-net": {
+                    "NetworkID": "network-existing-project", "Aliases": [service],
+                },
+            }},
             "Config": {
                 "Hostname": f"host-{service}",
                 "Env": [
@@ -124,6 +129,18 @@ class FakeDocker:
             self.images[reference] = value
             self.images[image_id] = value
 
+    @staticmethod
+    def compose_command(args):
+        tail = list(args[4:])  # docker compose -p <existing-project>
+        pin_path = None
+        while tail[:1] and tail[0] in {"-f", "--profile"}:
+            if tail[0] == "-f":
+                path = Path(tail[1])
+                if path.name.endswith(".compose.json"):
+                    pin_path = path
+            tail = tail[2:]
+        return tail, pin_path
+
     def run(self, args, **kwargs):
         args = list(args)
         self.calls.append(args)
@@ -141,22 +158,30 @@ class FakeDocker:
                 output = self.untracked
             elif args[1] != "merge-base":
                 raise AssertionError(f"Unexpected Git command: {args}")
+        elif args[:2] == ["docker", "ps"]:
+            assert "--quiet" in args
+            project_filter = f"label={PROJECT_LABEL}={self.project}"
+            assert project_filter in args
+            service_filters = [item for item in args if item.startswith(f"label={SERVICE_LABEL}=")]
+            assert len(service_filters) == 1
+            service = service_filters[0].split("=", 2)[2]
+            container = self.containers.get(service)
+            if (
+                container and (container["State"]["Running"] or "--all" in args)
+                and container["Config"]["Labels"].get(PROJECT_LABEL) == self.project
+                and container["Config"]["Labels"].get(SERVICE_LABEL) == service
+            ):
+                output = container["Id"]
         elif args[:2] == ["docker", "inspect"]:
             identifier = args[-1]
-            service = (
-                "backend"
-                if identifier == "passdetection-backend"
-                else identifier.removeprefix("container-")
+            container = self.containers["backend"] if identifier == "passdetection-backend" else next(
+                value for value in self.containers.values() if value["Id"] == identifier
             )
-            output = json.dumps([self.containers[service]])
+            output = json.dumps([container])
         elif args[:3] == ["docker", "image", "inspect"]:
             output = json.dumps([self.images[args[-1]]])
         elif args[:2] == ["docker", "compose"]:
-            tail = args[8:]
-            pin_path = None
-            if tail[:1] == ["-f"]:
-                pin_path = Path(tail[1])
-                tail = tail[2:]
+            tail, pin_path = self.compose_command(args)
             if tail[:1] == ["config"]:
                 output = (
                     "\n".join(set(self.refs.values()) | {"nginx:known"})
@@ -212,7 +237,11 @@ class FakeDocker:
                     if service == self.fail_service:
                         continue  # Compose returning success cannot substitute for image verification.
                     self.containers[service]["Image"] = pins[service]["image"]
-                    self.containers[service]["Config"]["Env"] = [
+                    retained_environment = [
+                        value for value in self.containers[service]["Config"]["Env"]
+                        if not value.startswith(("APP_REVISION=", "EXPECTED_DATABASE_SCHEMA_REVISION="))
+                    ]
+                    self.containers[service]["Config"]["Env"] = [*retained_environment,
                         f"APP_REVISION={REVISION}",
                         f"EXPECTED_DATABASE_SCHEMA_REVISION={self.expected_schema}",
                     ]
@@ -306,6 +335,30 @@ class ReleaseTests(unittest.TestCase):
         self.redirect.__enter__()
         self.addCleanup(self.redirect.__exit__, None, None, None)
         self.release = Release(REVISION, self.root)
+
+    def test_initial_database_inspection_never_renders_candidate_compose(self) -> None:
+        from release_reliability import ReliabilityRelease
+
+        self.fake.containers["db"] = self.fake.make_container("db")
+        self.fake.containers["db"]["Config"]["Env"].append("POSTGRES_DB=existing-data")
+        self.fake.containers["backend"]["Config"]["Env"].extend([
+            "POSTGRES_HOST=db", "POSTGRES_PORT=5432", "POSTGRES_DB=existing-data",
+        ])
+        release = ReliabilityRelease(
+            REVISION, self.root, expected_schema=SCHEMA, previous_schema=PREVIOUS_SCHEMA,
+        )
+        # Old installations do not have the new DB/storage identity variables.
+        # Even `compose ps` would interpolate candidate required expressions.
+        self.assertNotIn("POSTGRES_RUNTIME_", self.original_env)
+        with patch.object(release, "dc", side_effect=AssertionError("Compose must not render")):
+            live = release.verify_running_project()
+        self.assertEqual(live["Id"], "container-backend")
+        self.assertEqual((self.root / ".env").read_text(), self.original_env)
+        discovery = [call for call in self.fake.calls if call[:2] == ["docker", "ps"]]
+        self.assertEqual(len(discovery), 1)
+        self.assertIn(f"label={PROJECT_LABEL}={self.fake.project}", discovery[0])
+        self.assertIn(f"label={SERVICE_LABEL}=db", discovery[0])
+        self.assertFalse(any(call[:2] == ["docker", "compose"] for call in self.fake.calls))
 
     def test_complete_release_pins_images_migrates_and_activates_workers_before_web(
         self,

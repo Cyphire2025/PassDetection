@@ -33,6 +33,7 @@ from app.infrastructure.imports.passport_excel_importer import PassportExcelImpo
 from app.infrastructure.whatsapp.private_delivery_policy import PrivateDeliveryMutationBlocked
 from app.presentation.api.v1.routes import whatsapp_source_groups as routes
 from app.presentation.dependencies.auth import get_current_active_user
+from tests.persistence import persist_graph
 
 
 def _submission(**overrides):
@@ -199,34 +200,38 @@ async def source_api(db_session, monkeypatch):
         id=user_id, agency_id=agency_id, email="staff@test.example", hashed_password="unused",
         full_name="Staff", role=UserRole.AGENCY_STAFF,
     )
-    db_session.add_all([
+    await persist_graph(db_session, [
         AgencyModel(id=agency_id, name="Agency", email="agency@test.example"),
         AgencyModel(id=other_agency_id, name="Other", email="other@test.example"),
         UserModel(id=user_id, agency_id=agency_id, email=user.email, hashed_password="unused",
                   full_name="Staff", role=user.role.value, is_active=True),
     ])
+    other_creator_id = uuid.uuid4()
+    await persist_graph(db_session, [UserModel(id=other_creator_id, agency_id=agency_id, email="other-creator@example.test", hashed_password="unused", full_name="Other creator", role=UserRole.AGENCY_STAFF.value)])
     groups = {}
+    records = []
     for kind in ("owned", "assigned", "hidden", "archived", "deleted", "cross-agency"):
         group_id = uuid.uuid4()
         groups[kind] = group_id
-        db_session.add(ClientGroupModel(
+        records.append(ClientGroupModel(
             id=group_id, agency_id=other_agency_id if kind == "cross-agency" else agency_id,
             token=str(uuid.uuid4()), name=kind, import_only=True,
             status="archived" if kind == "archived" else "active",
             deleted_at=now if kind == "deleted" else None,
-            created_by_user_id=user_id if kind != "hidden" and kind != "assigned" else uuid.uuid4(),
+            created_by_user_id=user_id if kind != "hidden" and kind != "assigned" else other_creator_id,
         ))
         if kind == "assigned":
-            db_session.add(ManagerGroupAccessModel(
+            records.append(ManagerGroupAccessModel(
                 id=uuid.uuid4(), agency_id=agency_id, manager_id=user_id, group_id=group_id,
             ))
     submission_id = uuid.uuid4()
-    db_session.add(PassportSubmissionModel(
+    records.append(PassportSubmissionModel(
         id=submission_id, agency_id=agency_id, group_id=groups["owned"], client_name="Uploader",
         client_phone="9123456789", client_reviewed_at=now, status="submitted",
         image_s3_key="excel-imports/test", confirmed_fields={"given_names": "Ada", "surname": "Lovelace"},
         staff_metadata={"verified_whatsapp_numbers": "9876543210"},
     ))
+    await persist_graph(db_session, records)
     await db_session.commit()
     app = FastAPI()
     app.include_router(routes.router, prefix="/whatsapp")
@@ -265,7 +270,7 @@ async def _body(client, group_id):
 async def test_creation_uses_server_roster_and_appends_existing_link(source_api):
     client, session, groups, agency_id, _ = source_api
     existing_id = uuid.uuid4()
-    session.add_all([
+    await persist_graph(session, [
         WhatsAppBroadcastGroupModel(id=existing_id, agency_id=agency_id, name="Existing", organizing_company_name=""),
         ClientGroupWhatsAppBroadcastLinkModel(
             agency_id=agency_id, client_group_id=groups["owned"], broadcast_group_id=existing_id,
@@ -343,7 +348,7 @@ async def test_preview_excludes_drafts_and_rejected_operational_passengers(sourc
 async def test_create_rechecks_actor_deactivation(source_api):
     client, session, groups, _, _ = source_api
     body = await _body(client, groups["owned"])
-    user = (await session.execute(select(UserModel))).scalar_one()
+    user = (await session.execute(select(UserModel).where(UserModel.email == "staff@test.example"))).scalar_one()
     user.is_active = False
     await session.commit()
     response = await client.post("/whatsapp/groups/from-client-group", json=body)
@@ -378,7 +383,7 @@ async def test_import_persistence_staff_approval_then_source_preview_retains_leg
     from app.presentation.api.v1.routes.passport_routes import excel_import
 
     client, session, groups, _, _ = source_api
-    actor_model = (await session.execute(select(UserModel))).scalar_one()
+    actor_model = (await session.execute(select(UserModel).where(UserModel.email == "staff@test.example"))).scalar_one()
     actor = UserRepository._to_entity(actor_model)
     workbook = Workbook()
     workbook.active.append(["SURNAME", "GIVEN NAME", "Passport Number", "Upload Email", "Upload Phone"])

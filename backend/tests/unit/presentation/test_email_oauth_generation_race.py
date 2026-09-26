@@ -20,6 +20,7 @@ from app.presentation.security.email_oauth_binding import (
     revalidate_oauth_actor_for_persistence,
     start_oauth_browser_binding,
 )
+from tests.persistence import persist_graph
 
 
 @pytest.mark.parametrize("provider", ["gmail", "outlook"])
@@ -35,7 +36,7 @@ async def test_final_authorization_observes_generation_changed_after_initial_con
         is_active=True,
     )
     state = UserSecurityStateModel(user_id=user.id, credential_state="active", session_version=3)
-    db_session.add_all([user, state])
+    await persist_graph(db_session, [user, state])
     await db_session.flush()
     response = Response()
     digest = start_oauth_browser_binding(
@@ -83,7 +84,7 @@ async def test_logout_all_increment_refreshes_previously_loaded_security_state(d
         is_active=True,
     )
     state = UserSecurityStateModel(user_id=user.id, credential_state="active", session_version=3)
-    db_session.add_all([user, state])
+    await persist_graph(db_session, [user, state])
     await db_session.flush()
     await db_session.execute(
         update(UserSecurityStateModel)

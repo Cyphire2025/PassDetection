@@ -11,7 +11,10 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.use_cases.whatsapp.message_templates import render_message, validate_template_parameters
+from app.application.use_cases.whatsapp.message_templates import (
+    render_message,
+    validate_template_parameters,
+)
 from app.core.config.settings import get_settings
 from app.infrastructure.database.models import (
     ClientGroupModel,

@@ -32,6 +32,7 @@ from app.infrastructure.repositories.passport_whatsapp_matching_repository impor
 )
 from app.presentation.api.v1.routes.whatsapp_contact_import import _parse_excel_contact_bytes
 from app.presentation.api.v1.routes.whatsapp_reminder_audience import resolve_reminder_audience
+from tests.persistence import persist_graph
 
 NOW = datetime(2026, 9, 10, 12, tzinfo=UTC)
 
@@ -131,7 +132,7 @@ async def test_imported_producer_code_identifies_and_excludes_from_reminders(
         created_at=NOW,
         updated_at=NOW,
     )
-    db_session.add_all([agency, group, broadcast, link, *recipients, submission])
+    await persist_graph(db_session, [agency, group, broadcast, link, *recipients, submission])
     if traveller_count == 2:
         db_session.add(
             PassportSubmissionModel(

@@ -8,6 +8,7 @@ import inspect
 from app.presentation.api.v1.routes import (
     document_distribution,
     document_distribution_delivery_support,
+    document_distribution_manual_verification,
     document_distribution_review_support,
     traveller_welcome,
 )
@@ -23,6 +24,7 @@ _EXPECTED_ROUTES = [
         "export_document_assignments",
     ),
     (("POST",), "/groups/{group_id}/{document_type}/verify", "verify_documents"),
+    (("POST",), "/groups/{group_id}/{document_type}/manual-verify", "manually_verify_document"),
     (("POST",), "/groups/{group_id}/{document_type}/upload", "upload_documents"),
     (
         ("POST",),
@@ -121,7 +123,9 @@ def test_document_distribution_route_order_and_names_remain_stable() -> None:
     assert actual == _EXPECTED_ROUTES
     assert _decorated_route_names(document_distribution) == []
     for route in document_distribution.router.routes:
-        if route.name in {"preview_traveller_welcomes", "send_traveller_welcomes"}:
+        if route.name == "manually_verify_document":
+            assert route.endpoint is document_distribution_manual_verification.manually_verify_document
+        elif route.name in {"preview_traveller_welcomes", "send_traveller_welcomes"}:
             assert route.endpoint is getattr(traveller_welcome, route.name)
             assert inspect.unwrap(route.endpoint).__module__ == traveller_welcome.__name__
         else:

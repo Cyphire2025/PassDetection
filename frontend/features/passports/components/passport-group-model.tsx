@@ -66,7 +66,7 @@ export function DuplicateClusterHeader({
       <span className="text-xs font-medium text-amber-900">
         Part of a possible duplicate set with {count} submissions
         {searchActive
-          ? " · all set members are shown when one matches your search"
+          ? " · search includes this set; status filters still apply"
           : ""}
       </span>
     </div>

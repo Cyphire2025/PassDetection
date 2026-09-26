@@ -42,6 +42,9 @@ from app.presentation.api.v1.routes.document_distribution_shared import (
     _document_match_roster_snapshot,
     logger,
 )
+from app.presentation.api.v1.routes.document_distribution_verification_feedback import (
+    verification_rejection_reason as verification_rejection_reason,
+)
 from app.presentation.api.v1.schemas.document_distribution_schemas import (
     VerifiedDocumentResponse,
     VerifyDocumentBatchResponse,
@@ -236,12 +239,8 @@ async def verify_documents(
         feedback_match = primary_match or (candidate_matches[0] if candidate_matches else None)
         primary_passenger = matched_passengers[0] if matched_passengers else None
         is_uploadable = classification.accepted and bool(matches)
-        rejection_reason = (
-            feedback_match.reason
-            if classification.accepted and not is_uploadable and feedback_match
-            else "No passenger match found"
-            if classification.accepted and not is_uploadable
-            else classification.reason
+        rejection_reason = verification_rejection_reason(
+            classification, is_uploadable=is_uploadable, feedback_match=feedback_match,
         )
         verified.append(
             VerifiedDocumentResponse(

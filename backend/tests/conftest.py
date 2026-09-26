@@ -16,6 +16,7 @@ from collections import defaultdict
 
 import pytest
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import event, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 # Deterministic Ed25519 fixture material used only by the isolated test process.
@@ -71,11 +72,23 @@ async def db_session() -> AsyncSession:
     """
     Create a fresh in-memory SQLite database for each test.
 
-    All tables are created before the test and dropped after.
+    All tables are created before the test. Disposing the in-memory engine
+    removes the database afterwards, without disabling referential integrity.
     """
     engine = create_async_engine(TEST_DATABASE_URL, echo=False)
 
+    @event.listens_for(engine.sync_engine, "connect")
+    def enable_foreign_keys(connection: object, _record: object) -> None:
+        # SQLite silently ignores this PRAGMA inside a transaction. Register
+        # it on connection creation, before create_all or session autobegin.
+        cursor = connection.cursor()
+        try:
+            cursor.execute("PRAGMA foreign_keys=ON")
+        finally:
+            cursor.close()
+
     async with engine.begin() as conn:
+        assert await conn.scalar(text("PRAGMA foreign_keys")) == 1
         await conn.run_sync(Base.metadata.create_all)
 
     session_factory = async_sessionmaker(engine, expire_on_commit=False)
@@ -87,9 +100,6 @@ async def db_session() -> AsyncSession:
         # session so they can deliberately open their own outer transaction.
         await session.rollback()
         yield session
-
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
 
     await engine.dispose()
 

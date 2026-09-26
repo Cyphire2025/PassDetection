@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "environment": "production",
+  "synthetic": null,
+  "reviewed_by": null,
+  "reviewed_at": null,
+  "application_failure_domain": null,
+  "monitoring": {
+    "external_failure_domain": null,
+    "primary_responder": null,
+    "backup_responder": null,
+    "external_probe_url": null,
+    "metrics_retention_days": null,
+    "event_retention_days": null,
+    "injected_at": null,
+    "received_at": null,
+    "acknowledged_at": null,
+    "receipt": {"path": null, "sha256": null}
+  },
+  "recovery": {
+    "external_failure_domain": null,
+    "completed_at": null,
+    "encrypted_off_host_backup": null,
+    "backup_deletion_protected": null,
+    "pitr_verified": null,
+    "database_object_checksums_reconciled": null,
+    "restored_application_verified": null,
+    "redis_domains_reconciled": null,
+    "rpo_seconds": null,
+    "rto_seconds": null,
+    "approved_rpo_seconds": null,
+    "approved_rto_seconds": null,
+    "receipt": {"path": null, "sha256": null}
+  }
+}

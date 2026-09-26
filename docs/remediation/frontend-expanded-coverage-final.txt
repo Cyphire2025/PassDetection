@@ -1,0 +1,39 @@
+
+> frontend@0.1.0 test:unit:coverage
+> vitest run --coverage
+
+
+ RUN  v4.1.11 C:/Users/nipun/Desktop/PassDetection/frontend
+      Coverage enabled with v8
+
+
+ Test Files  118 passed (118)
+      Tests  789 passed (789)
+   Start at  22:53:48
+   Duration  173.50s (transform 4.82s, setup 41.43s, import 23.86s, tests 112.52s, environment 128.21s)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   93.89 |    90.26 |   93.42 |   95.15 |
+ frontend          |     100 |       80 |     100 |     100 |
+  proxy.ts         |     100 |       80 |     100 |     100 | 45-48
+ ...ponents/layout |   94.59 |       85 |     100 |   94.11 |
+  ...avigation.tsx |   94.59 |       85 |     100 |   94.11 | 57-58
+ .../components/ui |   90.74 |    82.05 |    87.5 |   91.83 |
+  modal.tsx        |   90.74 |    82.05 |    87.5 |   91.83 | 162,234-236
+ ...uth/components |   96.29 |      100 |   85.71 |   95.65 |
+  ...d-content.tsx |   96.29 |      100 |   85.71 |   95.65 | 50
+ ...nts/components |      96 |    97.05 |     100 |     100 |
+  ...ew-dialog.tsx |      96 |    97.05 |     100 |     100 | 138
+ ...rch/components |   90.29 |    86.76 |   86.95 |   92.78 |
+  ...al-search.tsx |   90.29 |    86.76 |   86.95 |   92.78 | ...08-111,239-240
+-------------------|---------|----------|---------|---------|-------------------
+
+=============================== Coverage summary ===============================
+Statements   : 93.89% ( 292/311 )
+Branches     : 90.26% ( 204/226 )
+Functions    : 93.42% ( 71/76 )
+Lines        : 95.15% ( 275/289 )
+================================================================================

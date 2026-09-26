@@ -60,8 +60,10 @@ jobs:
       - name: Verify CI supply-chain policy
         run: python ../scripts/verify_ci_supply_chain.py
 
-      - name: Verify deployment resource preflight behavior
-        run: python -m unittest discover -s ../scripts -p test_verify_deployment_resource_budget.py
+      - name: Verify release, storage, identity, resource and evidence safety contracts
+        run: |
+          python ../scripts/release_manifest.py
+          python -m unittest discover -s ../scripts -p 'test_*.py'
 
   backend-dependency-audit:
     name: Backend — Dependency Audit
@@ -194,7 +196,7 @@ jobs:
         run: mypy app
 
       - name: Run tests
-        run: pytest --cov=app --cov-report=xml
+        run: pytest --cov=app --cov-branch --cov-report=xml
 
       - name: Enforce critical-module coverage floors
         run: >-
@@ -214,7 +216,7 @@ jobs:
   # Focused production-semantics lane. Fast SQLite tests remain the primary
   # feedback loop; this proves boundaries SQLite and mocks cannot represent.
   backend-service-integration:
-    name: Backend - PostgreSQL, Redis, MinIO & Celery
+    name: Backend - PostgreSQL, Redis, Private S3 & Celery
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: backend-static-checks
@@ -261,6 +263,7 @@ jobs:
       POSTGRES_PASSWORD: test_password
       FCM_TEST_POSTGRES_DB: passdetection_ci_fcm
       FCM_TEST_KEEP_SCHEMA: "1"
+      REALTIME_TEST_REDIS_URL: redis://gc-realtime-startup-test-ci:6379/15
       REDIS_HOST: localhost
       REDIS_PORT: 6379
       REDIS_PASSWORD: ""
@@ -287,28 +290,58 @@ jobs:
           pip install --require-hashes -r requirements.lock
           pip install pytest==9.0.3 pytest-asyncio==1.4.0 pytest-cov==5.0.0
 
-      - name: Start pinned MinIO service
+      - name: Name the disposable Redis target for guarded realtime tests
+        run: |
+          echo '127.0.0.1 gc-realtime-startup-test-ci' | sudo tee -a /etc/hosts
+          python - <<'PY'
+          import socket
+          assert socket.gethostbyname("gc-realtime-startup-test-ci") == "127.0.0.1"
+          PY
+
+      - name: Start maintained private S3 service
         working-directory: .
         run: |
-          docker run --detach --name enterprise-minio \
-            --publish 9000:9000 \
-            --env MINIO_ROOT_USER="$S3_ACCESS_KEY_ID" \
-            --env MINIO_ROOT_PASSWORD="$S3_SECRET_ACCESS_KEY" \
-            quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e \
-            server /data
           python - <<'PY'
-          import time
-          import urllib.request
+          import os
+          from pathlib import Path
+          from scripts.storage_identity import storage_identity
 
-          for attempt in range(30):
+          environment = dict(os.environ, OBJECT_STORAGE_ADMIN_ACCESS_KEY="ci-storage-administrator",
+                             OBJECT_STORAGE_ADMIN_SECRET_KEY="ci-storage-admin-secret")
+          path = Path("/tmp/enterprise-storage-identities.json")
+          path.write_text(storage_identity(environment), encoding="utf-8")
+          path.chmod(0o600)
+          PY
+          docker run --detach --name enterprise-object-storage \
+            --publish 127.0.0.1:9000:9000 \
+            --mount type=bind,source=/tmp/enterprise-storage-identities.json,target=/run/secrets/s3.json,readonly \
+            chrislusf/seaweedfs:4.47@sha256:ce9e796f1fe6f06968f4c04bdaf8f678dad9c8acdfef3d244133d71bfa6bf882 \
+            server -dir=/data -ip=127.0.0.1 -ip.bind=127.0.0.1 \
+            -filer -filer.exposeDirectoryData=false -master.telemetry=false \
+            -volume.max=0 -master.volumeSizeLimitMB=1024 \
+            -s3 -s3.ip.bind=0.0.0.0 -s3.port=9000 -s3.config=/run/secrets/s3.json -s3.iam.config=/run/secrets/s3.json \
+            -s3.iam=false -s3.port.iceberg=0 -s3.port.lance=0 \
+            -s3.allowDeleteBucketNotEmpty=false -s3.autoCreateBucket=false
+          python - <<'PY'
+          import os
+          import time
+          import boto3
+          from botocore.config import Config
+
+          client = boto3.client("s3", endpoint_url=os.environ["S3_ENDPOINT_URL"],
+                                aws_access_key_id="ci-storage-administrator",
+                                aws_secret_access_key="ci-storage-admin-secret",
+                                config=Config(connect_timeout=2, read_timeout=3, retries={"max_attempts": 1}))
+          for attempt in range(60):
               try:
-                  with urllib.request.urlopen("http://localhost:9000/minio/health/live", timeout=1) as response:
-                      if response.status == 200:
-                          break
+                  client.list_buckets()
+                  break
               except Exception:
-                  if attempt == 29:
+                  if attempt == 59:
                       raise
                   time.sleep(1)
+          client.create_bucket(Bucket=os.environ["S3_BUCKET_NAME"])
+          client.put_bucket_versioning(Bucket=os.environ["S3_BUCKET_NAME"], VersioningConfiguration={"Status": "Enabled"})
           PY
 
       - name: Apply real PostgreSQL migrations
@@ -367,9 +400,46 @@ jobs:
           PY
 
       - name: Run focused real-service contracts
-        run: >-
-          pytest -o addopts='' -m service_integration
-          tests/service_integration
+        run: |
+          pytest -o addopts='' -m service_integration --junitxml=service-integration.xml tests/service_integration
+          python - <<'PY'
+          import xml.etree.ElementTree as ET
+          cases = list(ET.parse("service-integration.xml").getroot().iter("testcase"))
+          assert cases, "The real-service lane collected no tests"
+          skipped = [case.attrib.get("name") for case in cases if case.find("skipped") is not None]
+          assert not skipped, f"Real-service prerequisites must be configured; skipped tests: {skipped}"
+          print(f"All {len(cases)} real-service tests executed without skips")
+          PY
+
+      - name: Qualify separate database identities and protected privileges
+        env:
+          POSTGRES_RUNTIME_USER: ci_roles_runtime
+          POSTGRES_RUNTIME_PASSWORD: "ci-runtime:密碼/@%?#[]-2026-qualification!"
+          POSTGRES_MIGRATION_USER: ci_roles_migrator
+          POSTGRES_MIGRATION_PASSWORD: ci-migrator-2026-qualification-password
+        run: |
+          python - <<'PY'
+          import asyncio
+          import os
+          import asyncpg
+
+          async def main():
+              connection = await asyncpg.connect(
+                  host=os.environ["POSTGRES_HOST"], port=int(os.environ["POSTGRES_PORT"]),
+                  user=os.environ["POSTGRES_USER"], password=os.environ["POSTGRES_PASSWORD"],
+                  database=os.environ["POSTGRES_DB"],
+              )
+              try:
+                  # Deliberately fail if this disposable target already exists.
+                  await connection.execute('CREATE DATABASE passdetection_ci_roles')
+              finally:
+                  await connection.close()
+
+          asyncio.run(main())
+          PY
+          export POSTGRES_DB=passdetection_ci_roles
+          alembic upgrade head
+          python scripts/qualify_database_roles.py
 
       - name: Preserve Celery log on failure
         if: failure()
@@ -592,7 +662,12 @@ jobs:
         with:
           context: ./backend
           push: false
-          tags: passdetection-backend:ci
+          load: true
+          tags: |
+            passdetection-backend:ci
+            passdetection-qualification-backend:local
+          build-args: |
+            APP_REVISION=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -601,6 +676,78 @@ jobs:
         with:
           context: ./frontend
           push: false
-          tags: passdetection-frontend:ci
+          load: true
+          tags: |
+            passdetection-frontend:ci
+            passdetection-qualification-frontend:local
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Set up qualification Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.11"
+
+      - name: Set up qualification Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Prepare isolated production-image stack
+        run: |
+          pip install cryptography==50.0.0
+          python scripts/qa/prepare_qualification_certificate.py
+          python scripts/qa/run_qualification_stack.py start
+
+      - name: Qualify real TLS cookies, MFA, CSRF and sessions in three engines
+        working-directory: frontend
+        env:
+          RUN_REAL_STACK: "1"
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium firefox webkit
+          npx playwright test --config=playwright.real-stack.config.ts
+
+      - name: Validate operational alert firing and recovery
+        run: >-
+          docker run --rm --entrypoint /bin/promtool
+          --mount type=bind,source=${{ github.workspace }}/monitoring,target=/work,readonly
+          -w /work
+          prom/prometheus:v3.15.0@sha256:efd719c99d83b060d9daefdcf00360461adf279f45ef5391f8d111892118753e
+          test rules alerts.test.yml
+
+      - name: Qualify private uploads, audit persistence and worker recovery
+        run: python scripts/qa/qualify_joined_journeys.py
+
+      - name: Restore current synthetic schema and a versioned object
+        run: python scripts/qa/qualify_synthetic_recovery.py
+
+      - name: Qualify versioned storage migration and failure guards
+        run: python scripts/qa/run_storage_migration_qualification.py
+
+      - name: Capture isolated runtime evidence
+        if: ${{ always() }}
+        run: python scripts/qa/run_qualification_stack.py evidence
+
+      - name: Preserve joined-system qualification evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: production-image-qualification-${{ github.sha }}
+          path: |
+            outputs/qualification/*.log
+            outputs/qualification/recovery-evidence.json
+            outputs/qualification/joined-journey-evidence.json
+            outputs/qualification/source-evidence.json
+            outputs/storage-migration-ci/qualification.log
+            outputs/storage-migration-ci/migration-evidence.json
+            frontend/real-stack-report
+            frontend/real-stack-results
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Remove only disposable qualification services and volumes
+        if: ${{ always() }}
+        run: python scripts/qa/run_qualification_stack.py stop

@@ -4,6 +4,8 @@ import uuid
 from datetime import UTC, date, datetime
 from types import SimpleNamespace
 
+import pytest
+
 from app.application.use_cases.passports.submission_view import (
     build_submission_view,
 )
@@ -58,6 +60,53 @@ def _passport_fields(
         "nationality": nationality,
         "date_of_expiry": expiry,
     }
+
+
+@pytest.mark.parametrize("page_size", [1, 50, 100, 200])
+def test_oversized_duplicate_cluster_continues_without_losing_any_rows(page_size: int) -> None:
+    submissions = [
+        _submission(name=f"Traveller {index:03}", confirmed=_passport_fields("P123", "Chennai"))
+        for index in range(303)
+    ]
+    seen = []
+    expected = {row.id for row in submissions}
+    for page in range(1, (303 + page_size - 1) // page_size + 1):
+        view = build_submission_view(
+            submissions, submission_filter="duplicates", sort_by="name", sort_order="asc",
+            search=None, page=page, page_size=page_size,
+        )
+        seen.extend(entry.submission.id for entry in view.items)
+        assert 0 < view.returned_count <= page_size
+        assert view.total == view.group_total == 303
+        assert set(view.ordered_submission_ids) == expected
+        assert not view.cluster_boundaries_preserved
+        cluster, = view.duplicate_clusters
+        assert cluster.total_members == cluster.matching_members == 303
+        assert cluster.first_page == 1
+        assert cluster.last_page == view.total_pages
+        assert cluster.visible_member_ids == tuple(entry.submission.id for entry in view.items)
+    assert len(seen) == len(set(seen)) == 303
+    assert set(seen) == expected
+
+
+def test_continuation_metadata_keeps_filtered_member_count_separate_from_identity() -> None:
+    submissions = [
+        _submission(
+            name=f"Traveller {index:03}", confirmed=_passport_fields("P123", "Chennai"),
+            status="ai_approved" if index < 230 else "needs_review",
+        ) for index in range(303)
+    ]
+    view = build_submission_view(
+        submissions, submission_filter="ai_approved", sort_by="name", sort_order="asc",
+        search="Traveller 302", page=5, page_size=50,
+    )
+    assert view.total == 230
+    assert view.returned_count == 30
+    cluster, = view.duplicate_clusters
+    assert cluster.total_members == 303
+    assert cluster.matching_members == 230
+    assert cluster.last_page == 5
+    assert all(entry.submission.status == "ai_approved" for entry in view.items)
 
 
 def test_place_case_and_surname_empty_form_one_duplicate_cluster() -> None:

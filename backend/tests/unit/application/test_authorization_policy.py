@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 from types import SimpleNamespace
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 
 import pytest
 from sqlalchemy import select
@@ -26,7 +26,14 @@ def _user(role: UserRole, agency_id: uuid.UUID | None = None) -> User:
 
 
 def _group(agency_id: uuid.UUID, *, created_by_user_id: uuid.UUID | None = None):
-    return SimpleNamespace(id=uuid.uuid4(), agency_id=agency_id, created_by_user_id=created_by_user_id)
+    return SimpleNamespace(
+        id=uuid.uuid4(), agency_id=agency_id, created_by_user_id=created_by_user_id,
+        status="active", deleted_at=None,
+    )
+
+
+def _session_with_parent():
+    return SimpleNamespace(execute=AsyncMock(return_value=Mock(scalar_one_or_none=Mock(return_value=uuid.uuid4()))))
 
 
 def _passport(agency_id: uuid.UUID, group_id: uuid.UUID):
@@ -68,7 +75,7 @@ async def test_manager_can_view_every_group_in_own_agency() -> None:
 
 @pytest.mark.asyncio
 async def test_manager_can_access_every_passport_in_own_agency() -> None:
-    policy = AuthorizationPolicy(AsyncMock())
+    policy = AuthorizationPolicy(_session_with_parent())
     agency_id = uuid.uuid4()
     manager = _user(UserRole.AGENCY_MANAGER, agency_id)
     passport = _passport(agency_id, uuid.uuid4())
@@ -85,7 +92,7 @@ async def test_manager_can_access_every_passport_in_own_agency() -> None:
 
 @pytest.mark.asyncio
 async def test_staff_direct_group_and_passport_access_respects_assignment() -> None:
-    policy = AuthorizationPolicy(AsyncMock())
+    policy = AuthorizationPolicy(_session_with_parent())
     agency_id = uuid.uuid4()
     staff = _user(UserRole.AGENCY_STAFF, agency_id)
     assigned_group = _group(agency_id, created_by_user_id=uuid.uuid4())
@@ -121,7 +128,8 @@ async def test_removed_group_is_not_accessible_through_an_old_assignment() -> No
             compile_kwargs={"literal_binds": True},
         )
     )
-    assert "client_groups.status NOT IN ('archived', 'deleted')" in sql
+    assert "client_groups.status IN ('active', 'closed')" in sql
+    assert "client_groups.deleted_at IS NULL" in sql
 
 
 def test_manager_passport_query_scope_is_the_whole_agency() -> None:
@@ -144,6 +152,9 @@ def test_manager_passport_query_scope_is_the_whole_agency() -> None:
     ]
     assert "passport_submissions.agency_id" in sql
     assert "passport_submissions.group_id IN" not in sql
+    assert "EXISTS (SELECT client_groups.id" in sql
+    assert "client_groups.agency_id = passport_submissions.agency_id" in sql
+    assert "client_groups.deleted_at IS NULL" in sql
     assert "manager_group_access.manager_id" not in sql
 
 
@@ -201,7 +212,7 @@ async def test_manager_can_manage_every_group_in_own_agency() -> None:
 
 @pytest.mark.asyncio
 async def test_coordinator_can_view_assigned_group_and_passenger_only() -> None:
-    policy = AuthorizationPolicy(AsyncMock())
+    policy = AuthorizationPolicy(_session_with_parent())
     agency_id = uuid.uuid4()
     coordinator = _user(UserRole.AGENCY_COORDINATOR, agency_id)
     group = _group(agency_id)

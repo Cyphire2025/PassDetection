@@ -21,6 +21,10 @@ from app.application.use_cases.whatsapp.message_templates import (
     validate_template_parameters,
 )
 from app.domain.entities.entities import UserRole
+from app.infrastructure.whatsapp.template_settings import (
+    TEMPLATE_SETTINGS_MEMO,
+    TemplateSettingsSnapshot,
+)
 from app.presentation.api.v1.routes import whatsapp_composer as preview_route
 from app.presentation.api.v1.routes import whatsapp_resend as resend_route
 from app.presentation.api.v1.routes import whatsapp_scope, whatsapp_send
@@ -51,6 +55,16 @@ bulk_fixture = bulk_test_support.fixture
 LINK = "https://chat.whatsapp.com/SyntheticInviteToken123?mode=ac_t"
 EDITED_LINK = "https://chat.whatsapp.com/EditedInviteToken456?mode=ac_t"
 CONTENT = "Please join the trip group for important updates."
+
+
+@pytest.fixture(autouse=True)
+def template_environment(monkeypatch):
+    # Mocked route sessions carry the empty request snapshot; resolve its ENV
+    # fallback through the same settings object configured by each test.
+    from app.infrastructure.whatsapp import template_settings
+    from app.presentation.api.v1.routes import whatsapp_scope
+    monkeypatch.setattr(template_settings, "environment_template_name",
+                        lambda slot, **kwargs: whatsapp_scope._configured_template_name(slot))
 
 
 def rendered(content=CONTENT, link=LINK):
@@ -159,6 +173,7 @@ def rig(monkeypatch):
     settings = SimpleNamespace(whatsapp_access_token="synthetic-token", whatsapp_phone_number_id="synthetic-provider", whatsapp_group_invite_template_name="whatsapp_group_invite_v1", whatsapp_group_invite_template_language="en", whatsapp_template_language="en_US")
     user = SimpleNamespace(id=uuid.uuid4(), agency_id=group.agency_id, role=UserRole.AGENCY_ADMIN, email="staff@example.com")
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.add = MagicMock()
     publish = AsyncMock()
     prerequisite = AsyncMock(wraps=enforce_broadcast_welcome_prerequisite)
@@ -172,6 +187,8 @@ def rig(monkeypatch):
         monkeypatch.setattr(module, "enforce_broadcast_welcome_prerequisite", prerequisite)
         monkeypatch.setattr(module, "publish_whatsapp_task", publish)
     monkeypatch.setattr(whatsapp_scope, "get_settings", lambda: settings)
+    for module in (whatsapp_send, resend_route):
+        monkeypatch.setattr(module, "group_invite_blocking_statuses", AsyncMock(return_value={}))
     monkeypatch.setattr(preview_route, "_recipient_delivery_counts", AsyncMock(return_value=(1, 0, 0, 0)))
     monkeypatch.setattr(preview_route, "welcome_preview_values", AsyncMock(wraps=welcome_preview_values))
     monkeypatch.setattr(resend_route, "active_replacement_resolution_id_for_recipient", AsyncMock(return_value=None))
@@ -236,9 +253,9 @@ async def test_send_freezes_valid_invite_before_queue_and_keeps_existing_gates(r
     assert rig.prerequisite.await_args.kwargs["message_type"] == "group_invite"
 
 
-@pytest.mark.parametrize("prior_status", ["failed", "delivered"])
+@pytest.mark.parametrize("prior_status", ["failed"])
 async def test_single_retry_and_explicit_resend_use_saved_invite_and_edited_link(rig, prior_status):
-    source = saved_log(header_parameter_values=[])
+    source = saved_log(status="failed", header_parameter_values=[])
     rig.settings.whatsapp_group_invite_template_language = "en_US"
     state = SimpleNamespace(status=prior_status)
     rig.session.execute.side_effect = [db_result(rig.group), db_result(rig.recipient), db_result(state), db_result(), db_result(), db_result(), db_result(source)]
@@ -272,7 +289,8 @@ async def test_bulk_retry_preserves_each_saved_invite_and_applies_only_explicit_
     })
     for index, person in enumerate(fixture.recipients):
         content, link = f"Saved invitation {index}", f"https://chat.whatsapp.com/PersonalInvite{index}"
-        fixture.sources[person.id] = saved_log(template_parameter_values=[content, link], rendered_message=rendered(content, link))
+        fixture.states[person.id].status = "failed"
+        fixture.sources[person.id] = saved_log(status="failed", template_parameter_values=[content, link], rendered_message=rendered(content, link))
     result = await bulk_test_support.invoke(fixture)
     assert result.queued == len(fixture.recipients)
     logs = {call.args[0].recipient_id: call.args[0] for call in fixture.session.add.call_args_list}
@@ -292,7 +310,7 @@ async def test_bulk_retry_preserves_each_saved_invite_and_applies_only_explicit_
 async def test_single_old_text_invite_requires_image_before_resend(rig):
     source = saved_log(header_parameter_values=[])
     rig.session.execute.side_effect = [
-        db_result(rig.group), db_result(rig.recipient), db_result(SimpleNamespace(status="delivered")),
+        db_result(rig.group), db_result(rig.recipient), db_result(SimpleNamespace(status="failed")),
         db_result(), db_result(), db_result(), db_result(source),
     ]
     with pytest.raises(HTTPException, match="required Group Invite image") as exc:
@@ -311,7 +329,8 @@ async def test_bulk_old_text_invites_require_photo_and_never_publish_malformed_r
     fixture = bulk_fixture
     fixture.body = fixture.body.model_copy(update={"message_type": "group_invite"})
     for index, person in enumerate(fixture.recipients):
-        fixture.sources[person.id] = saved_log(
+        fixture.states[person.id].status = "failed"
+        fixture.sources[person.id] = saved_log(status="failed",
             header_parameter_values=["existing-invite-image"] if mixed and index == 0 else [],
         )
     with pytest.raises(HTTPException, match="required Group Invite image") as exc:
@@ -320,3 +339,16 @@ async def test_bulk_old_text_invites_require_photo_and_never_publish_malformed_r
     fixture.publish.assert_not_awaited()
     fixture.session.commit.assert_not_awaited()
     fixture.session.rollback.assert_awaited_once()
+
+
+async def test_successful_invite_history_blocks_explicit_resend(rig, monkeypatch):
+    monkeypatch.setattr(resend_route, "group_invite_blocking_statuses", AsyncMock(return_value={rig.recipient.id: "delivered"}))
+    rig.session.execute.side_effect = [db_result(rig.group), db_result(rig.recipient)]
+    with pytest.raises(HTTPException, match="already been submitted or delivered") as exc:
+        await resend_route.resend_recipient_message(
+            rig.group.id, rig.recipient.id, WhatsAppResendRequest(message_type="group_invite"),
+            Request({"type": "http", "client": ("127.0.0.1", 1234)}), current_user=rig.user, session=rig.session,
+        )
+    assert exc.value.status_code == 409
+    rig.session.add.assert_not_called()
+    rig.publish.assert_not_awaited()

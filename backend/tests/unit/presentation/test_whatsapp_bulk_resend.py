@@ -15,6 +15,10 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy.exc import IntegrityError
 
 from app.domain.entities.entities import UserRole
+from app.infrastructure.whatsapp.template_settings import (
+    TEMPLATE_SETTINGS_MEMO,
+    TemplateSettingsSnapshot,
+)
 from app.presentation.api.v1.routes import whatsapp_bulk_resend as route
 from app.presentation.api.v1.routes import whatsapp_bulk_resend_support as support
 from app.presentation.api.v1.schemas.whatsapp_schemas import (
@@ -56,6 +60,8 @@ def source(recipient, message_type="welcome", **overrides):
 
 @pytest.fixture
 def fixture(monkeypatch):
+    from app.infrastructure.whatsapp import template_settings
+    monkeypatch.setattr(template_settings, "environment_template_name", lambda slot, **kwargs: f"{slot}_approved")
     group = SimpleNamespace(
         id=uuid.uuid4(),
         agency_id=uuid.uuid4(),
@@ -78,6 +84,7 @@ def fixture(monkeypatch):
     }
     sources = {recipient.id: source(recipient) for recipient in recipients}
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.add = MagicMock()
     session.execute.side_effect = [result(group), result(), result(rows=recipients)]
     audit = AsyncMock()
@@ -479,6 +486,7 @@ async def test_broker_failure_compensates_only_unclaimed_rows_and_returns_same_b
 @pytest.mark.asyncio
 async def test_selection_maps_bound_history_and_do_not_reuse_other_groups(fixture):
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.execute.side_effect = [result(rows=list(fixture.states.values())), result(), result()]
     await support.selection_delivery_maps(session, group_id=fixture.group.id, body=fixture.body)
     compiled = [
@@ -498,6 +506,7 @@ async def test_selection_maps_bound_history_and_do_not_reuse_other_groups(fixtur
 @pytest.mark.asyncio
 async def test_stale_processing_is_unknown_and_never_released_for_resend(fixture):
     session = AsyncMock()
+    session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     await support.expire_stale_explicit_claims(
         session, group_id=fixture.group.id, body=fixture.body
     )

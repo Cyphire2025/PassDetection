@@ -27,6 +27,7 @@ from app.infrastructure.database.models import AgencyModel, UserModel
 from app.infrastructure.database.session import get_db_session
 from app.presentation.api.v1.routes import mobile_ops
 from app.presentation.middleware.error_handler import register_exception_handlers
+from tests.persistence import persist_graph
 
 
 @pytest.fixture(autouse=True)
@@ -50,6 +51,7 @@ async def _device(db_session, *, agency_id=None, platform="android"):
                 email=f"{agency_id.hex}@example.invalid",
             )
         )
+    await db_session.flush()
     user_id = uuid.uuid4()
     user = UserModel(
         id=user_id,
@@ -79,7 +81,7 @@ async def _device(db_session, *, agency_id=None, platform="android"):
         last_seen_at=now,
         expires_at=now + timedelta(days=1),
     )
-    db_session.add_all([user, device])
+    await persist_graph(db_session, [user, device])
     await db_session.flush()
     claims = MobileAccessClaims(
         principal_id=user_id,
@@ -168,7 +170,7 @@ async def test_fcm_revokes_same_session_expo_and_fcm_only_and_encrypts_token(db_
         _registration(other_agency, "expo"),
         _registration(other_agency, "fcm"),
     ]
-    db_session.add_all(replaced + preserved)
+    await persist_graph(db_session, replaced + preserved)
     await db_session.flush()
     preserved_before = {row.id: _snapshot(row) for row in preserved}
     replaced_before = {row.id: _snapshot(row) for row in replaced}
@@ -219,7 +221,7 @@ async def test_same_token_registration_reactivates_existing_row_without_duplicat
     existing.last_failure_at = datetime.now(tz=UTC)
     existing.last_failure_code = "DeviceNotRegistered"
     previous_expo = _registration(device, "expo")
-    db_session.add_all([existing, previous_expo])
+    await persist_graph(db_session, [existing, previous_expo])
     await db_session.flush()
     for _ in range(2):
         response = await _request(db_session, claims, installation, token=token)
@@ -242,7 +244,7 @@ async def test_token_bound_to_another_installation_cannot_be_taken_over(db_sessi
     token = "synthetic-fcm-token-held-by-another-installation"
     previous_expo = _registration(device, "expo")
     existing = _registration(other, "fcm", token=token)
-    db_session.add_all([previous_expo, existing])
+    await persist_graph(db_session, [previous_expo, existing])
     await db_session.flush()
     before = [_snapshot(previous_expo), _snapshot(existing)]
     response = await _request(db_session, claims, installation, token=token)

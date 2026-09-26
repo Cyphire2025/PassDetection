@@ -39,6 +39,9 @@ from app.presentation.api.v1.routes.whatsapp_phone_welcome import (
     claim_resend_welcome_or_reject,
     enforce_broadcast_welcome_prerequisite,
 )
+from app.presentation.api.v1.routes.whatsapp_resend_payload import (
+    resend_task_payload as resend_task_payload,
+)
 from app.presentation.api.v1.routes.whatsapp_shared import (
     WHATSAPP_ACCEPTED_STATUSES,
     WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES,
@@ -407,17 +410,7 @@ async def resend_recipient_message(
     try:
         await publish_whatsapp_task(
             process_whatsapp_broadcast,
-            payload={
-                "batch_id": str(batch_id),
-                "message_type": message_type,
-                "message_content": (
-                    parameters[2] if message_type == "passport_link" else parameters[0]
-                ),
-                "passport_intro": parameters[0] if message_type == "passport_link" else None,
-                "passport_link": parameters[1] if message_type == "passport_link" else None,
-                "group_invite_link": parameters[1] if message_type == "group_invite" else None,
-                "header_image_id": (header_parameters[0] if header_parameters else None),
-            },
+            payload=resend_task_payload(batch_id, message_type, parameters, header_parameters),
         )
     except Exception as exc:  # noqa: BLE001 - broker failure is surfaced and persisted.
         logger.error(

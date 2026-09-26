@@ -10,19 +10,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.entities.entities import User
 from app.infrastructure.database.models import (
-    ClientGroupModel,
-    ClientGroupWhatsAppBroadcastLinkModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
-    WhatsAppBroadcastRejectedContactModel,
-    WhatsAppBroadcastSourceContactModel,
 )
 from app.infrastructure.database.session import get_db_session
+from app.presentation.api.v1.routes.whatsapp_group_list_query import (
+    broadcast_group_count_projections as broadcast_group_count_projections,
+)
+from app.presentation.api.v1.routes.whatsapp_group_list_response import (
+    broadcast_group_list_response as broadcast_group_list_response,
+)
 from app.presentation.api.v1.routes.whatsapp_shared import (
     WHATSAPP_ROLES,
     _agency_filter,
     _group_detail,
-    _matching_field_options,
 )
 from app.presentation.api.v1.schemas.whatsapp_schemas import (
     WhatsAppBroadcastGroupDetailResponse,
@@ -39,29 +40,7 @@ async def list_broadcast_groups(
     session: AsyncSession = Depends(get_db_session),
     archived: bool = False,
 ) -> list[WhatsAppBroadcastGroupResponse]:
-    rejected_contact_count = (
-        select(func.count(WhatsAppBroadcastRejectedContactModel.id))
-        .where(
-            WhatsAppBroadcastRejectedContactModel.broadcast_group_id
-            == WhatsAppBroadcastGroupModel.id,
-        )
-        .correlate(WhatsAppBroadcastGroupModel)
-        .scalar_subquery()
-    )
-    import_only_source = select(ClientGroupWhatsAppBroadcastLinkModel.id).join(
-        ClientGroupModel,
-        ClientGroupModel.id == ClientGroupWhatsAppBroadcastLinkModel.client_group_id,
-    ).where(
-        ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id == WhatsAppBroadcastGroupModel.id,
-        ClientGroupWhatsAppBroadcastLinkModel.agency_id == WhatsAppBroadcastGroupModel.agency_id,
-        ClientGroupModel.agency_id == WhatsAppBroadcastGroupModel.agency_id,
-        ClientGroupModel.import_only.is_(True),
-        ClientGroupModel.deleted_at.is_(None),
-    ).exists()
-    source_contact_count = select(func.count(WhatsAppBroadcastSourceContactModel.id)).where(
-        WhatsAppBroadcastSourceContactModel.broadcast_group_id == WhatsAppBroadcastGroupModel.id,
-        WhatsAppBroadcastSourceContactModel.agency_id == WhatsAppBroadcastGroupModel.agency_id,
-    ).correlate(WhatsAppBroadcastGroupModel).scalar_subquery()
+    rejected_contact_count, import_only_source, source_contact_count = broadcast_group_count_projections()
     result = await session.execute(
         select(
             WhatsAppBroadcastGroupModel,
@@ -86,26 +65,8 @@ async def list_broadcast_groups(
         .group_by(WhatsAppBroadcastGroupModel.id)
         .order_by(WhatsAppBroadcastGroupModel.created_at.desc())
     )
-    return [
-        WhatsAppBroadcastGroupResponse(
-            id=group.id,
-            name=group.name,
-            organizing_company_name=group.organizing_company_name,
-            archived_at=group.archived_at,
-            is_archived=group.archived_at is not None,
-            has_import_only_source=bool(has_import_only_source),
-            source_contact_count=int(source_count or 0),
-            recipient_count=int(recipient_count or 0),
-            total_contact_count=(int(recipient_count or 0) + int(rejected_count or 0)),
-            recipient_opt_in_confirmed=group.recipient_opt_in_confirmed_at is not None,
-            available_matching_fields=_matching_field_options(
-                getattr(group, "imported_field_keys", [])
-            ),
-            created_at=group.created_at,
-            updated_at=group.updated_at,
-        )
-        for group, recipient_count, rejected_count, has_import_only_source, source_count in result.all()
-    ]
+    return [broadcast_group_list_response(*row) for row in result.all()]
+
 
 
 @router.get("/groups/{group_id}", response_model=WhatsAppBroadcastGroupDetailResponse)

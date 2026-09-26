@@ -1,266 +1,186 @@
-# Production release, storage identity, and resource preflight
+# Production release readiness
 
-This is the operator procedure for audit findings **S07, O02, and O03** in
-`outputs/dashboard-audit-2026-09-05.md`. It complements
-[the disaster-recovery runbook](PRODUCTION_RESILIENCE_AND_DR.md). The policy and
-offline checks in this repository do not provision an identity, deploy a release,
-or establish that production backups, load handling, or recovery work.
+This is the current operator gate for the existing PassDetection installation.
+Use [Current release and storage cutover](CURRENT_RELEASE_AND_STORAGE.md) for the
+short prepare/activate commands and interruption recovery. The historical
+September 5 policy rehearsal remains useful evidence, but its two-file MinIO
+rollout commands are superseded by the current three-file release path.
 
-## 1. Prepare the release record
+The current code and maintained storage provider were qualified locally with
+synthetic data. **The Hostinger KVM 4 VPS has not been deployed or migrated in
+this work.** Repository tests do not prove that its external backups, retention,
+alerts, runtime grants or capacity satisfy production requirements.
 
-Name the release owner and rollback owner. Record the candidate source revision,
-reviewed image digests, Compose files, host/VM memory available to Docker, current
-database revision, previous image digests, and the backup/restore evidence link.
-Use a protected local release directory for environment files and rendered
-Compose output; these can contain credentials. Keep them out of Git, CI artifacts,
-screenshots, and support messages.
+An operator-run read-only SSH inventory on 26 September observed approximately
+15 GiB RAM, no swap, 125 GiB free on a 193 GiB root filesystem, the existing
+checkout at `/opt/GlobalConnectsDashboard`, and the expected application services
+including legacy MinIO running. This establishes basic host inventory only.
+The second bounded search found local application PostgreSQL archives, the newest
+returned dated 21 September. Their contents were not inspected or restored; this
+does not prove integrity, object/Redis coverage, off-host protection or PITR.
+The running application revision remains the original audit baseline. Direct
+schema/effective-grant/WAL checks are still pending. No configuration or data was
+changed by the inspection.
 
-Production uses both `docker-compose.yml` and `docker-compose.prod.yml`. The base
-file alone has development behavior. The override requires separate
-`MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD` and restores the production API command,
-private network bindings, readiness checks, and service resource ceilings.
+The owner's signed-in Hostinger account then confirmed weekly automatic backups
+stored off-server: available backups dated **23 September, 17:37 (64.22 GB)** and
+**16 September, 15:34 (31.73 GB)** show **Malaysia**, with matching successful
+creation records; this VPS is in **India — Mumbai 2**. The displayed timezone was
+not established. This confirms backup existence, not an application-consistent
+restore, deletion protection, PITR or measured RPO/RTO. No backup was restored,
+created, deleted or rescheduled. The provider's **1h 54m estimate is not a measured
+RTO**. See the [read-only inspection record](C:/Users/nipun/Desktop/PassDetection-Independent-Audit-2026-09-26/24-VPS-Read-Only-Inspection.md).
 
-Before upgrading, resolve the MinIO maintenance decision. The currently pinned
-MinIO community image is a 2025 release. The official community repository is
-marked archived as of 25 April 2026. A pinned digest gives reproducibility; it does
-not establish ongoing security maintenance. Record a maintained distribution or
-managed S3 service, compatibility rehearsal, patch owner, and update cadence.
-No storage migration is performed by this work. See the
-[upstream repository status](https://github.com/minio/minio).
+## Release contract and recorded identities
 
-## 2. Provision the application storage identity before application rollout
+[release_manifest.json](../backend/app/core/config/release_manifest.json) declares
+schema `0107_passport_ecr_checks` and all **eight** worker services/nodes:
+`worker`/`general`, `email-worker`/`email`, `email-ai-worker`/`email-ai`,
+`extraction-worker`/`extraction`, `verification-worker`/`verification`,
+`visa-ai-worker`/`visa-ai`, `my-photos-worker`/`my-photos`, and `ecr-worker`/`ecr`.
+`email-beat` is the scheduler, not a ninth worker. Settings, runtime checks,
+Compose mirrors, CI and `scripts/release_current.py` use or validate this contract.
+The current manifest accepts an existing `0107` database. An older database needs
+its own reviewed upgrade rehearsal; stop on an unknown/missing revision.
 
-| Credential | Owner and purpose | Application access |
-| --- | --- | --- |
-| `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD` | Storage administrator; bucket provisioning, policy management, recovery | Never use as `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` |
-| `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` | Dedicated application user with the policy below | Only the configured application bucket |
-| Backup writer / restore administrator | Separate off-host account and recovery process | Never supplied to the API or workers |
+Record the release/recovery owners, full pushed main revision, exact running and
+candidate image IDs, existing Compose project/checkout, schema, named volumes,
+backup evidence and maintenance window. Keep `.env`, rendered configurations,
+identity files and `tmp/current-release/` private and available after a restart.
+These files can contain credentials or sensitive object keys. They do not belong
+in Git, CI artifacts, screenshots or support messages.
 
-For an existing installation, first use its currently authorized administrator
-to provision and test the new application user. Keep the existing storage bucket
-and volume intact. Set `MINIO_ROOT_*` to the actual administrator identity before
-introducing the production override, and set `S3_*` to the new application user.
-Do not rotate the administrator blindly while simultaneously changing application
-credentials. Rotate it in a controlled follow-up after the application identity
-has been verified and the recovery access path has been recorded.
+The current helper selects `docker-compose.yml`, `docker-compose.prod.yml` and
+`docker-compose.storage-production.yml`, with profile `maintenance`; APNs adds
+its reviewed overlay only when enabled. The base file alone is development
+configuration. The two-file base/production path retains legacy MinIO for
+transitional compatibility and is **not the current deployment procedure**.
+Starting the three-file override directly also bypasses the required copy and
+writer fence. Use the release helper; see the dedicated procedure above.
 
-For a new installation, start and initialize the storage service privately first,
-then create the bucket and user before starting the API or workers. The
-application's startup path can create a missing bucket when credentials allow it;
-this production policy intentionally does not allow `s3:CreateBucket`. A missing
-or unauthorized bucket is a provisioning error, not a reason to grant root access.
+## Database and storage authority
 
-The [application policy template](../deploy/minio/app-policy.template.json) grants
-only bucket location/listing and object read/write/delete within one explicit
-bucket. The repository uses these for bucket readiness, bounded listing,
-upload/download, metadata/range reads, signed GETs, same-bucket copies, and
-retention-aware deletion. `CopyObject` uses source `GetObject` and destination
-`PutObject`; `HeadBucket` uses `ListBucket`. See the
-[S3 API permission mapping](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-with-s3-policy-actions.html).
+| Identity | Required boundary |
+| --- | --- |
+| PostgreSQL bootstrap owner | Existing database, maintenance/provisioning only; never passed to API or workers |
+| PostgreSQL migration identity | Separate role for reviewed Alembic DDL; not runtime authority |
+| PostgreSQL runtime identity | Explicit application privileges; no role escalation, schema DDL, audit mutation or ownership bypass |
+| Existing MinIO administrator (`MINIO_ROOT_*`) | Source enumeration/reads for the migration; preserve the actual current credentials |
+| Maintained-provider administrator (`OBJECT_STORAGE_ADMIN_*`) | Separate provisioning/recovery authority; never runtime S3 credentials |
+| Application S3 identity (`S3_*`) | Existing application bucket only; ordinary object operations, no bucket/IAM administration or permanent version deletion |
+| Off-host backup/restore identities | Independent account/retention boundary; not supplied to API or workers |
 
-The template grants no bucket administration, all-bucket listing, object-version
-deletion, governance bypass, policy changes, or backup-bucket access. Keep backups
-outside the application bucket: every key in that bucket must remain readable,
-writable, and deletable by the application for existing workflows. Future
-multipart/object-lock/KMS changes need an explicit policy review. Separate AWS
-My Photos provider credentials also need their own reviewed policy; this MinIO
-template does not grant Rekognition or other AWS provider permissions.
+`prepare` adds missing independent credentials and captures the original private
+configuration. It does not rotate the existing source administrator blindly.
+`activate` verifies a fresh PostgreSQL archive, provisions role boundaries, and
+copies source objects to a separate named destination. The source is read only
+from the copy client's perspective. Unsupported bucket protections, multiple
+source buckets, unrecorded destination objects, source changes, metadata/tag
+changes, identity mismatch and inadequate disk capacity prevent activation.
 
-The following example runs in Bash on an authorized administration host from the
-release checkout. `storage-admin` is an already configured, protected `mc` alias
-to the intended private MinIO endpoint. Use a compatible, verified `mc` binary.
-Inspect the target endpoint before making changes. Do not use `mc --json` when
-creating users because user-creation JSON can contain the new secret.
+The reviewed replacement is digest-pinned SeaweedFS 4.47. Its production shape
+keeps master/volume/filer HTTP and gRPC ports on container loopback and exposes
+only authenticated S3 to the application network, at the existing `minio:9000`
+name. A protected read-only identity file binds runtime privileges; the cutover
+proof binds the verified target volume/provider. No original MinIO volume is
+mounted into the replacement. The historical [MinIO policy template](../deploy/minio/app-policy.template.json)
+remains a legacy reference; it is not the maintained provider's identity format.
+Use [storage_identity.py](../scripts/storage_identity.py) through the helper.
 
-```bash
-umask 077
-export APPLICATION_BUCKET='passdetection-passports' # Exact S3_BUCKET_NAME
-export RELEASE_PREFLIGHT_DIR="$(mktemp -d)"
-python - <<'PY'
-import json, os, re
-from pathlib import Path
-bucket = os.environ["APPLICATION_BUCKET"]
-if not re.fullmatch(r"[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]", bucket) or ".." in bucket:
-    raise SystemExit("Use the existing application bucket's valid literal name")
-template = Path("deploy/minio/app-policy.template.json").read_text()
-policy = json.loads(template.replace("__APPLICATION_BUCKET__", bucket))
-Path(os.environ["RELEASE_PREFLIGHT_DIR"], "app-policy.json").write_text(
-    json.dumps(policy, indent=2) + "\n"
-)
-PY
-mc mb --ignore-existing "storage-admin/$APPLICATION_BUCKET"
-mc admin policy create storage-admin passdetection-app "$RELEASE_PREFLIGHT_DIR/app-policy.json"
-mc admin user add storage-admin passdetection-app
-# Enter the new independent secret at the hidden terminal prompt and store it securely.
-mc admin policy attach storage-admin passdetection-app --user passdetection-app
-mc admin user info storage-admin passdetection-app
-```
+Local evidence includes actual application-adapter operations, denied anonymous,
+cross-bucket, admin and permanent-version deletion, 1,001 paginated historical
+versions, source preservation, tamper rejection and fault boundaries. It does
+not establish deployed identities. See [storage verification](remediation/storage-verification.md)
+and the [database qualification](../backend/scripts/qualify_database_roles.py).
+Credential rotation remains a separate reviewed procedure after the cutover.
 
-The placeholder `__APPLICATION_BUCKET__` is replaced locally; it is not a MinIO
-environment variable. The two resulting resource ARNs must name exactly the
-intended bucket and its objects. The app user must have no additional broad
-policies or group memberships. The
-[MinIO multi-user guide](https://github.com/minio/minio/blob/master/docs/multi-user/README.md)
-documents policy creation/attachment; the
-[client user-creation implementation](https://github.com/minio/mc/blob/master/cmd/admin-user-add.go)
-documents the interactive secret prompt and JSON output behavior.
+## Capacity, downtime and consistency gates
 
-Before changing production application credentials, verify the policy in an
-isolated storage rehearsal using disposable fixtures. As the application user,
-prove an application-bucket fixture can be uploaded, listed, read, copied,
-metadata-checked, and deleted. Prove another administrator-created fixture bucket
-cannot be listed/read/written/deleted, and administrator/policy APIs are denied.
-Perform destructive negative tests only against disposable fixtures, never real
-backups. Retain operation names, expected/actual results, and timestamps without
-secrets or passenger data. Then set the application's `S3_*` credentials, verify
-readiness and representative existing objects, and retain the last scoped user
-until the rollback window closes. This repository has not run that production
-identity rehearsal.
+Pause ingress for new uploads and sends, and stop any independent/manual writers.
+The `--traffic-paused` flag is an operator assertion, not an automatic ingress
+barrier. Exact worker active/reserved/scheduled snapshots must be empty. The
+helper journals and stops the backend, all eight workers and beat during object
+inventory, copy, full read-back verification and provider handoff. **Expect
+service downtime proportional to retained object history.** This is a single-VPS
+maintenance operation, not near-zero-downtime deployment or high availability.
 
-A local rehearsal on 5 September 2026 exercised this exact template against the
-isolated Docker QA MinIO image, using a disposable user, policy, and two synthetic
-fixture buckets. All 21 recorded assertions passed: permitted application-bucket
-operations succeeded, six cross-bucket operations returned HTTP 403, and server,
-policy, and user administration returned `AccessDenied`. The `mc admin info`
-command returned exit code zero despite its explicit `AccessDenied` response;
-check the structured response as well as the process status. The temporary user,
-policy, both buckets, containers, and private environment file were removed;
-independent administrator `HeadBucket` checks confirmed HTTP 404 for both buckets.
-Redacted local evidence is in
-`outputs/dashboard-qa/service-integration/minio-policy-results.json` and
-`minio-policy-cleanup.json`. This verifies the template on the local pinned image;
-production identity provisioning, credential cutover, representative-object
-checks, and backup isolation remain release-operator steps.
+Destination free-space preflight requires at least 1.25 times all retained body
+bytes, plus the largest body, plus 2 GiB. Preserve source space, backup archives
+and evidence as well. Do not delete historical versions to fit the target.
+Physical disk pressure elsewhere can invalidate earlier headroom; monitor it
+through the window. Never run staging and stable storage processes concurrently
+on their shared replacement volume.
 
-## 3. Check the actual host resource envelope
-
-Render the exact release configuration with real deployment overrides. Do this
-on the release host from its checkout, where `.env` is the protected runtime file.
-`--no-env-resolution` avoids expanding service env files; interpolated values can
-still contain secrets. It is not a redaction option. The
-[Compose configuration reference](https://docs.docker.com/reference/cli/docker/compose/config/)
-describes the rendered JSON and output options.
+After `prepare` has populated protected storage configuration, render the exact
+model privately for host-resource and manifest checks (Linux Bash):
 
 ```bash
 umask 077
-export RELEASE_PREFLIGHT_DIR="$(mktemp -d)"
+release_preflight_dir="$(mktemp -d)" &&
 docker compose --env-file .env -f docker-compose.yml -f docker-compose.prod.yml \
-  config --format json --no-env-resolution --output "$RELEASE_PREFLIGHT_DIR/compose.json"
-python scripts/verify_deployment_resource_budget.py "$RELEASE_PREFLIGHT_DIR/compose.json" \
-  --host-memory-gib 24 --reserve-gib 2
-python -m unittest discover -s scripts -p test_verify_deployment_resource_budget.py
+  -f docker-compose.storage-production.yml --profile maintenance \
+  config --format json --no-env-resolution --output "$release_preflight_dir/compose.json" &&
+python3 scripts/release_manifest.py --rendered-config "$release_preflight_dir/compose.json" &&
+python3 scripts/verify_deployment_resource_budget.py "$release_preflight_dir/compose.json" \
+  --host-memory-gib <actual-memory-available-to-docker> --reserve-gib <measured-host-reserve>
 ```
 
-Replace `24` with memory actually available to Docker, not installed laptop RAM;
-replace `2` with a measured allowance for the host OS, runtime, agents, and other
-resident processes. Retain the summarized checker output and settings inventory,
-not the secret-bearing rendered file. Stop the release if rendering or checking
-returns nonzero. Never use `--no-interpolate` or `--no-normalize` for this check.
+Use actual numeric measured values for the placeholders and include the APNs
+file if enabled. `--no-env-resolution` is not redaction: interpolated fields can
+still contain secrets. Keep the rendered file private. This checker counts all
+rendered profile services conservatively; concurrent copy/staging and normal
+application phases still need their own capacity review. Stop on a failed check.
+The September 5 total of 20.875 GiB described an older two-file topology and must
+not be used as the current envelope or proof that this VPS is adequately sized.
 
-As measured from `.env.example` with both Compose files on 5 September 2026,
-default container ceilings sum to **20.875 GiB**. A 2 GiB host reserve gives a
-22.875 GiB arithmetic minimum. A 16 GiB Docker host fails this envelope; 24 GiB
-passes the arithmetic with only 1.125 GiB beyond that reserve. This is not a
-24 GiB production sizing guarantee. Re-render after any concurrency, replica,
-service, or memory change. Larger available memory is useful only alongside CPU,
-storage IOPS/space, database connections, and measured latency/queue performance.
+Arithmetic is only a preflight. Measure representative PDF/image/OCR workloads,
+ClamAV reload, queue age, CPU, RSS/OOM, disk latency and PostgreSQL connections.
+Include replica/surge overlap, worker child processes and Redis persistence
+fork overhead. Redis `maxmemory` is a dataset limit, not total RSS; do not change
+durable/security Redis to cache eviction to hide capacity failures. Mixed-load
+latency/backlog limits and restart behavior remain required operating evidence.
 
-The checker rejects absent/invalid ceilings, invalid host values, unbounded
-replica configurations, and host memory overcommit. It counts explicit `scale`
-and `deploy.replicas`, including profile services present in the model. Its
-Celery check uses the maximum declared concurrency or autoscale count and a
-conservative initial floor of 256 MiB per parent plus 128 MiB per child. That
-floor is a configuration guard, not measured OCR/process capacity. API workers
-selected by image CMD, shell wrapper commands, CLI `up --scale` overrides,
-rolling-update overlap, non-Compose processes, CPU overcommit, database pools,
-disk capacity, and task-specific peak RSS need separate validation. Represent
-replica changes in the rendered configuration before using the result.
+## Recovery and reopening traffic
 
-Keep extraction concurrency at the reviewed value until a representative load
-run measures RSS and p95/p99 latency for mixed scanned PDFs, image-heavy documents,
-native PDFs, malformed inputs, and simultaneous uploads. Include ClamAV signature
-reload, OCR child processes, PostgreSQL maintenance, and worker retry/recovery.
-Record queue age, rejection rate, container OOM events, disk latency, and database
-connection saturation. Tune one bound at a time and repeat the workload.
+Follow the checkpoint recovery instructions in [the current procedure](CURRENT_RELEASE_AND_STORAGE.md).
+Rerunning the same command checks pending writer recovery before requiring a
+running backend. Changed writer identities, unknown providers and ambiguous
+handoff fail closed. A failed Nginx test/reload leaves the checkpoint pending.
+Keep the original source and partial target intact. A lost PUT response does not
+permit deleting the uncertain target version or treating the copy as complete.
 
-Redis `maxmemory` controls dataset pressure; it is not a container RSS ceiling.
-Persistence/replication buffers can sit outside that accounting, and copy-on-write
-fork overhead must be measured during persistence activity. `noeviction` rejects
-new writes at pressure, so alert on failed writes as well as memory. Preserve
-the security, broker, realtime, and cache domain separation. Do not switch a
-durable/security domain to cache eviction to hide pressure. See the
-[Redis memory-accounting guidance](https://redis.io/docs/latest/develop/reference/eviction/).
+Once the target receives new writes, the old MinIO volume is historical and
+must not be reactivated as an automatic rollback. The helper does not downgrade,
+restore over live tables, delete volumes, purge queues or replay uncertain sends.
+Choose a reviewed compatible application-only rollback or isolate/reconcile data
+with the [DR runbook](PRODUCTION_RESILIENCE_AND_DR.md). Preserve authentication
+fixes and delivery ledgers; legacy revoked refresh credentials must remain
+revoked. Never use `docker compose down -v` as recovery.
 
-## 4. Rehearse the forward migration and rollback decision
+Require the helper's final `RELEASE VERIFIED` result, actual schema, exact
+application image IDs, all eight worker replies, backend readiness and public
+HTTPS checks. Inspect existing private objects, a new upload, login and backlog
+before reopening traffic. Record outage duration and any recovery decision.
+The helper's public probe currently targets `https://tech.gctravels.com`; a
+separate installation/domain requires reviewed configuration, not bypassing the
+probe. Keep trusted certificates and their external expiry monitoring current.
 
-The current candidate's reviewed schema head is `0093_phone_welcome`,
-which follows `0092_whatsapp_matching_fields`, `0091_qualifier_other_relation`, `0090_upload_configuration`, then
-`0089_revoke_legacy_refresh`, and descends from
-`0088_merge_my_photos_hardening`. Preserve the merge topology described in the
-DR runbook. Verify the exact checkout's migration head and
-`EXPECTED_DATABASE_SCHEMA_REVISION` together before release. Record migration
-duration and readiness results on a restored, isolated database before scheduling
-the production window.
+## Operational evidence still required
 
-The `0090` migration adds nullable upload-link configuration and passport cover
-storage keys. Existing links retain their collection defaults. Apply this
-schema before starting application code that reads those columns.
-
-The `0091` migration allows the explicitly enabled Other relationship method and
-extends the saved relationship label limit from 80 to 100 characters. It preserves
-existing answers and group configuration. Apply it with the newly built backend
-image before recreating application and worker containers. Its downgrade refuses
-to run while Other answers or labels longer than 80 characters exist, preventing
-truncation or recategorization.
-
-The `0092` migration stores the safe spreadsheet-heading catalog on each WhatsApp
-broadcast and the selected OR-matching fields on each upload-group link. It
-backfills headings from existing recipient and rejected-contact imports while
-leaving existing links on the legacy matcher until an operator explicitly saves
-field choices. The subsequent `0093` migration adds a phone-scoped welcome ledger,
-traveller welcome outbox, and frozen destination snapshots for original welcomes.
-Apply the full chain before serving this dashboard version, and set any explicit
-`EXPECTED_DATABASE_SCHEMA_REVISION` override to `0093_phone_welcome`;
-an old environment override takes precedence over the source defaults.
-
-The `0089` migration revokes unknown/legacy refresh credentials. Current keyed
-hash rows remain valid; affected historical sessions must sign in again. Its
-downgrade intentionally does not revive revoked tokens. Reverting to code that
-accepts legacy tokens is not an acceptable rollback. Keep a reviewed image that
-understands the deployed schema and preserves the authentication fix; if none is
-available, pause traffic and fix forward with the release owner.
-
-For the controlled production release, capture a recoverable database/object
-checkpoint and retain old image digests and protected configuration versions.
-Quiesce incoming writes/schedulers and allow workers to finish or record their
-in-flight work before a change that needs a consistent recovery boundary. Do not
-purge broker queues, reset delivery statuses, or rerun ambiguous provider sends.
-Apply the reviewed migration once, start the candidate, and inspect readiness,
-error rate, login, private-object access, and queue age before reopening traffic.
-
-If acceptance fails, contain new writes and worker dispatch first. Use the
-pre-reviewed compatible application image/configuration rollback when the schema
-allows it. If data recovery is required, follow the isolated restore/reconciliation
-procedure in the DR runbook; do not issue a blind Alembic downgrade or overwrite
-the only live volume. Preserve logs and delivery ledgers. Reconcile unknown send
-outcomes with provider evidence before retrying. Record the decision, observed
-data loss, elapsed recovery time, and who authorized reopening. Never use
-`docker compose down -v` as a rollback step.
-
-## 5. External evidence required before production readiness is claimed
-
-| Gate | Required retained evidence | Current evidence boundary |
+| Gate | Required production evidence | Current boundary |
 | --- | --- | --- |
-| Separate storage identities | Effective user/group policy, app fixture checks, denied cross-bucket/admin checks, working private-object access, rotation/recovery owner | Template and configuration contract exist; deployed identity and policy are unverified |
-| Supported storage lifecycle | Maintained provider/distribution, compatibility test, patch/update owner and cadence | Current community upstream archive requires a deployment decision |
-| Resource capacity | Exact rendered envelope; real host/VM limits; representative load and restart/fork measurements; OOM/latency/queue graphs | Offline arithmetic and regression tests are local evidence only |
-| Database recovery | Encrypted off-host base backups plus WAL/PITR, retention policy, restricted restore credentials, isolated restore at requested timestamps | Not established by named Docker volumes or logical CI fixtures |
-| Object recovery | Off-host versions/inventory/checksums, encryption/key separation, app denied backup deletion, isolated object/DB-reference reconciliation | Not established by a local MinIO volume or this policy template |
-| Durable/security Redis recovery | Broker/ledger reconciliation, security state fail-closed/reauth policy, tested persistence/failover, cache/realtime rebuild | Runtime configuration does not prove recovery under an outage |
-| Monitoring and response | External HTTPS uptime/readiness probe, expiring-certificate alert, backup-age/failure alert, queue/DB/storage/OOM alerts, named recipient and tested delivery | Local health checks and metric exporter availability do not prove external notification |
-| Audit durability | Restricted export to an independent retention boundary, integrity verification and documented retention/legal-hold access | Application audit records alone do not establish off-host immutable retention |
-| Rollback and restore drill | Candidate/previous image digest inventory, reviewed schema compatibility, restored fixture checks, RPO/RTO measurements, owner sign-off | No production deployment, rollback, or off-host restore was performed in this work |
+| Runtime authority | Actual effective DB grants and provider identity, private-file reads, denied administrative operations, rotation owner | Code/local adversarial tests pass; VPS state is unknown |
+| Maintained storage lifecycle | Qualified release on the intended host, patch owner/cadence, historical-object checks after cutover | Maintained provider and copy qualified locally; no live cutover claimed |
+| Resource capacity | Exact host envelope, workload throughput/latency/backlog bounds, restart/fork/OOM measurements | Local arithmetic and synthetic journeys are not capacity proof |
+| Database recovery | Encrypted off-host backup plus WAL/PITR to an operator-selected timestamp, independent retention and restricted restore credentials | Weekly off-server Hostinger backups confirmed; local current-schema restore and row digests pass. Provider-backup restore consistency, deletion protection and PITR remain unproved |
+| Object recovery | Off-host versions/inventory/checksums, independent deletion protection and DB-reference reconciliation | Weekly off-server VPS backups exist; object coverage/consistency and independent protection require a restore drill. Local retained versions and restore pass |
+| Redis-domain recovery | Durable-broker and delivery-ledger reconciliation, security reauthentication policy, persistence/failover drill | Runtime configuration and worker replay alone are insufficient |
+| Monitoring/response | Off-host collection and retention, approved SLOs, named primary/backup responders, received/acknowledged fault alerts | Real local Prometheus firing/recovery is proved; external routing/receipts are unknown |
+| Audit durability | Restricted independent retention, integrity verification, access/legal-hold policy | Local audit records and runtime mutation denial do not prove independent retention |
+| Restore/rollback | Reviewed candidate/previous image inventory, schema compatibility, representative RPO/RTO and reopening approval | No production rollback, PITR or off-host restore performed |
 
-Store the runbook and recovery access instructions somewhere reachable during a
-primary-host outage. Assign each row to a named owner and an evidence location;
-an empty or expired evidence row remains an open operational gate.
+Assign each row an owner and evidence location with an expiry/retest date. Keep
+recovery access instructions outside the primary host. Validate the resulting
+private evidence package with [verify_operational_evidence.py](../scripts/verify_operational_evidence.py);
+passing the validator checks its declared fields, not the truth of external
+claims. An unverified or expired row remains an open operational gate.

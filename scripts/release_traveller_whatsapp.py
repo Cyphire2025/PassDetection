@@ -76,14 +76,16 @@ def updated_environment(text: str, revision: str, expected_schema: str = SCHEMA)
     return "\n".join(lines) + "\n"
 
 
-def validate_worker_probe(payload: Any, nodes: set[str], *, idle: bool) -> None:
+def validate_worker_probe(
+    payload: Any, nodes: set[str], *, idle: bool, expected_count: int = 7
+) -> None:
     methods = ("active", "reserved", "scheduled") if idle else ("ping",)
     if not isinstance(payload, dict) or set(payload) != set(methods):
         raise ReleaseError("Worker inspection is incomplete; no activation is allowed")
     for method in methods:
         replies = payload[method]
-        if not isinstance(replies, dict) or set(replies) != nodes or len(nodes) != 7:
-            raise ReleaseError(f"{method}: all seven exact worker nodes must reply")
+        if not isinstance(replies, dict) or set(replies) != nodes or len(nodes) != expected_count:
+            raise ReleaseError(f"{method}: all {expected_count} exact worker nodes must reply")
         for node, tasks in replies.items():
             if idle and (not isinstance(tasks, list) or tasks):
                 raise ReleaseError(
@@ -114,6 +116,7 @@ class Release:
         previous_schema: str = PREVIOUS_SCHEMA, directory_name: str = "traveller-whatsapp-release",
         include_frontend: bool = True,
         preserve_release_artifacts: bool = False,
+        worker_nodes: dict[str, str] | None = None,
     ) -> None:
         if not re.fullmatch(r"[0-9a-f]{40}", revision):
             raise ReleaseError(
@@ -128,9 +131,11 @@ class Release:
         self.expected_schema = expected_schema
         self.previous_schema = previous_schema
         self.preserve_release_artifacts = preserve_release_artifacts
-        self.activated_services = tuple(
-            service for service in ACTIVATED if include_frontend or service != "frontend"
-        )
+        self.node_prefixes = dict(NODE_PREFIXES if worker_nodes is None else worker_nodes)
+        self.schema_service = "backend"
+        self.migration_service = "backend"
+        self.workers = (*self.node_prefixes, "email-beat")
+        self.activated_services = (*self.workers, "backend", *(("frontend",) if include_frontend else ()))
         self.env = dict(
             os.environ, APP_REVISION=revision, EXPECTED_DATABASE_SCHEMA_REVISION=expected_schema
         )
@@ -184,7 +189,7 @@ class Release:
         self.phase = phase
         print(phase, flush=True)
 
-    def preflight(self) -> dict[str, Any]:
+    def verify_checkout(self) -> None:
         if self.run("git", "rev-parse", "HEAD") != self.revision:
             raise ReleaseError(
                 "Checkout does not match --revision; pull the intended commit first"
@@ -204,8 +209,9 @@ class Release:
             raise ReleaseError(
                 "Untracked application files can affect the build; preserve/review them before release"
             )
-        if not (self.root / ".env").is_file():
-            raise ReleaseError("The existing production .env is missing")
+
+    def verify_running_project(self) -> dict[str, Any]:
+        """Identify the existing project without rendering or changing .env."""
         current = self.inspect("passdetection-backend")
         labels = current.get("Config", {}).get("Labels") or {}
         project = labels.get(PROJECT_LABEL)
@@ -232,8 +238,15 @@ class Release:
             "-f",
             "docker-compose.prod.yml",
         ]
+        return current
+
+    def preflight(self) -> dict[str, Any]:
+        self.verify_checkout()
+        if not (self.root / ".env").is_file():
+            raise ReleaseError("The existing production .env is missing")
+        self.verify_running_project()
         config = json.loads(self.dc("config", "--format", "json"))
-        if config.get("name") != project or not {*self.activated_services, "nginx"} <= set(
+        if config.get("name") != self.compose[3] or not {*self.activated_services, "nginx"} <= set(
             config.get("services", {})
         ):
             raise ReleaseError(
@@ -251,7 +264,7 @@ class Release:
                 "APP_REVISION": self.revision,
                 "EXPECTED_DATABASE_SCHEMA_REVISION": self.expected_schema,
             }.items():
-                if key in environment or service in (*WORKERS, "backend"):
+                if key in environment or service in (*self.workers, "backend"):
                     environment[key] = value
         value = (
             json.dumps(resolved, sort_keys=True, separators=(",", ":"))
@@ -325,9 +338,9 @@ class Release:
             service: image_reference(config, references, service)
             for service in self.activated_services
         }
-        if any(refs[service] != refs["worker"] for service in WORKERS):
+        if any(refs[service] != refs["worker"] for service in self.workers):
             raise ReleaseError(
-                "All seven workers and beat must share the configured worker image"
+                f"All {len(self.node_prefixes)} workers and beat must share the configured worker image"
             )
         self.prepare_recovery(config)
         build_services = tuple(
@@ -373,8 +386,20 @@ class Release:
     def before_migration(self, current_schema: str) -> None:
         """Optional release-specific backup gate, before database/environment mutation."""
 
+    def pinned_services(self, images: dict[str, str]) -> dict[str, dict[str, str]]:
+        return {
+            service: {"image": images[service], "pull_policy": "never"}
+            for service in self.activated_services
+        }
+
     def container(self, service: str) -> dict[str, Any]:
-        ids = self.dc("ps", "--quiet", service).split()
+        # Inspect the existing deployment without rendering candidate Compose:
+        # its required cutover credentials may not exist in the old .env yet.
+        ids = self.run(
+            "docker", "ps", "--quiet",
+            "--filter", f"label={PROJECT_LABEL}={self.compose[3]}",
+            "--filter", f"label={SERVICE_LABEL}={service}",
+        ).split()
         if len(ids) != 1:
             raise ReleaseError(f"{service}: expected exactly one running container")
         container = self.inspect(ids[0])
@@ -391,7 +416,7 @@ class Release:
 
     def worker_probe(self, *, idle: bool) -> None:
         nodes = set()
-        for service, prefix in NODE_PREFIXES.items():
+        for service, prefix in self.node_prefixes.items():
             hostname = self.container(service).get("Config", {}).get("Hostname")
             if not isinstance(hostname, str) or not hostname:
                 raise ReleaseError(f"{service}: worker hostname is missing")
@@ -414,7 +439,9 @@ class Release:
         ]
         if len(payloads) != 1:
             raise ReleaseError("Worker probe did not return one complete result")
-        validate_worker_probe(json.loads(payloads[0]), nodes, idle=idle)
+        validate_worker_probe(
+            json.loads(payloads[0]), nodes, idle=idle, expected_count=len(self.node_prefixes)
+        )
 
     def verify_containers(
         self, services: tuple[str, ...], images: dict[str, str]
@@ -444,7 +471,7 @@ class Release:
             "run",
             *(() if self.preserve_release_artifacts else ("--rm",)),
             "--no-deps",
-            "backend",
+            self.schema_service,
             "alembic",
             "current",
             pinned=True,
@@ -492,7 +519,7 @@ class Release:
                     f"{service}: image tag changed after prepare; run prepare again"
                 )
         self.say(
-            "Checking all seven workers are empty for active, reserved, and scheduled tasks"
+            f"Checking all {len(self.node_prefixes)} workers are empty for active, reserved, and scheduled tasks"
         )
         self.worker_probe(idle=True)
         self.container("email-beat")
@@ -500,10 +527,7 @@ class Release:
             self.pin_path,
             json.dumps(
                 {
-                    "services": {
-                        service: {"image": images[service], "pull_policy": "never"}
-                        for service in self.activated_services
-                    }
+                    "services": self.pinned_services(images)
                 },
                 indent=2,
             )
@@ -526,7 +550,7 @@ class Release:
             "run",
             *(() if self.preserve_release_artifacts else ("--rm",)),
             "--no-deps",
-            "backend",
+            self.migration_service,
             "alembic",
             "upgrade",
             self.expected_schema,
@@ -549,9 +573,9 @@ class Release:
             "--wait-timeout",
             "180",
         )
-        self.say("Activating all seven workers and beat before the web services")
-        self.dc(*options, *WORKERS, pinned=True, timeout=720, stream=True)
-        self.verify_containers(WORKERS, images)
+        self.say(f"Activating all {len(self.node_prefixes)} workers and beat before the web services")
+        self.dc(*options, *self.workers, pinned=True, timeout=720, stream=True)
+        self.verify_containers(self.workers, images)
         for attempt in range(6):
             try:
                 self.worker_probe(idle=False)
@@ -592,10 +616,11 @@ class Release:
                 raise ReleaseError(f"Public {route} did not return HTTP 200")
         self.verify_containers(self.activated_services, images)
         self.dc("ps", stream=True)
+        worker_count = "seven" if len(self.node_prefixes) == 7 else str(len(self.node_prefixes))
         service_summary = (
-            "backend, frontend, seven workers and beat."
+            f"backend, frontend, {worker_count} workers and beat."
             if "frontend" in self.activated_services
-            else "backend, seven workers and beat; frontend unchanged."
+            else f"backend, {worker_count} workers and beat; frontend unchanged."
         )
         self.say(
             f"RELEASE VERIFIED: {self.revision}; schema {self.expected_schema}; {service_summary}"

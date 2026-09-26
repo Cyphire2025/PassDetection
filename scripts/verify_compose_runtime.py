@@ -13,10 +13,14 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from release_manifest import load_release_manifest, verify_source_defaults
+from storage_release import STORAGE_IMAGE
+
 ROOT = Path(__file__).resolve().parents[1]
 BASE_COMPOSE = ROOT / "docker-compose.yml"
 DEV_COMPOSE = ROOT / "docker-compose.dev.yml"
 PROD_COMPOSE = ROOT / "docker-compose.prod.yml"
+STORAGE_COMPOSE = ROOT / "docker-compose.storage-production.yml"
 BACKEND_DOCKERFILE = ROOT / "backend" / "Dockerfile"
 GUNICORN_CONFIG = ROOT / "backend" / "gunicorn.conf.py"
 BACKEND_DOCKERIGNORE = ROOT / "backend" / ".dockerignore"
@@ -54,10 +58,6 @@ DEVELOPMENT_PUBLISHED_TARGETS = {
 }
 NGINX_PUBLISHED_TARGETS = {80, 443}
 PINNED_NGINX_IMAGE = "nginx:1.30.4-alpine"
-PINNED_MINIO_IMAGE = (
-    "minio/minio:RELEASE.2025-09-07T16-13-09Z"
-    "@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e"
-)
 PINNED_CLAMAV_IMAGE = (
     "clamav/clamav:1.5_base"
     "@sha256:2a682381f314a3ac6ec13eea55b69bd2594887598e5358d938e711a30df850f2"
@@ -66,7 +66,7 @@ PINNED_STATSD_EXPORTER_IMAGE = (
     "prom/statsd-exporter:v0.29.0"
     "@sha256:632f705804922d50c1c95ba8ff9c8c0cc18d4bbb0cc265dc4f9ae708271c95b3"
 )
-EXPECTED_DATABASE_SCHEMA_REVISION = "0107_passport_ecr_checks"
+EXPECTED_DATABASE_SCHEMA_REVISION = load_release_manifest()["schema_revision"]
 FRONTEND_ALLOWED_ENVIRONMENT_KEYS = {
     "NEXT_PUBLIC_API_BASE_URL",
     "NEXT_PUBLIC_APP_URL",
@@ -121,7 +121,7 @@ WORKER_QUEUE_CONTRACTS = {
 
 
 def _render_compose(*files: Path) -> dict[str, Any]:
-    command = ["docker", "compose"]
+    command = ["docker", "compose", "--profile", "maintenance"]
     for file in files:
         command.extend(("-f", str(file)))
     command.extend(("config", "--format", "json", "--no-env-resolution"))
@@ -137,7 +137,18 @@ def _render_compose(*files: Path) -> dict[str, Any]:
                 # Render-only fixtures. Never start services using these values.
                 "MINIO_ROOT_USER": "compose-contract-storage-admin",
                 "MINIO_ROOT_PASSWORD": "compose-contract-storage-admin-secret",
+                "POSTGRES_RUNTIME_USER": "compose-contract-runtime",
+                "POSTGRES_RUNTIME_PASSWORD": "compose-contract-runtime-secret",
+                "POSTGRES_MIGRATION_USER": "compose-contract-migrator",
+                "POSTGRES_MIGRATION_PASSWORD": "compose-contract-migrator-secret",
                 "EXPECTED_DATABASE_SCHEMA_REVISION": EXPECTED_DATABASE_SCHEMA_REVISION,
+                "S3_BUCKET_NAME": "compose-contract-passports",
+                "OBJECT_STORAGE_ADMIN_ACCESS_KEY": "compose-contract-object-admin",
+                "OBJECT_STORAGE_ADMIN_SECRET_KEY": "compose-contract-object-admin-secret",
+                "OBJECT_STORAGE_IDENTITY_FILE": str(ROOT / "tmp/compose-contract/identities.json"),
+                "OBJECT_STORAGE_CUTOVER_PROOF": str(ROOT / "tmp/compose-contract/cutover.json"),
+                "OBJECT_STORAGE_MIGRATION_DIRECTORY": str(ROOT / "tmp/compose-contract"),
+                "OBJECT_STORAGE_DATA_VOLUME": "compose-contract-new-object-data",
             },
         )
     except FileNotFoundError as exc:
@@ -191,7 +202,8 @@ def _require(condition: bool, message: str) -> None:
 
 
 def main() -> int:
-    production = _render_compose(BASE_COMPOSE, PROD_COMPOSE)
+    verify_source_defaults()
+    production = _render_compose(BASE_COMPOSE, PROD_COMPOSE, STORAGE_COMPOSE)
     development = _render_compose(BASE_COMPOSE, DEV_COMPOSE)
 
     production_services = production["services"]
@@ -225,9 +237,20 @@ def main() -> int:
         "Production Nginx must use the reviewed stable image pin.",
     )
     _require(
-        production_services["minio"].get("image") == PINNED_MINIO_IMAGE,
-        "Production MinIO must use the reviewed immutable release digest.",
+        production_services["minio"].get("image") == STORAGE_IMAGE,
+        "Current production storage must use the maintained immutable provider digest.",
     )
+    storage = production_services["minio"]
+    _require(storage.get("user") == "1000:1000" and storage.get("cap_drop") == ["ALL"],
+             "Maintained storage must run without root or Linux capabilities.")
+    _require(storage.get("environment", {}) == {}, "Provider administrator credentials belong in the protected identity file.")
+    _require("-ip.bind=127.0.0.1" in _command_text(storage) and "-s3.ip.bind=0.0.0.0" in _command_text(storage),
+             "Only authenticated S3 may bind the application network.")
+    _require("minio_data" not in {value.get("source") for value in storage.get("volumes", [])},
+             "SeaweedFS must never open the original MinIO data volume.")
+    _require("maintenance" in production_services["storage-stage"].get("profiles", [])
+             and "maintenance" in production_services["storage-copy"].get("profiles", []),
+             "Copy/staging services must not run during ordinary application startup.")
     clamav = production_services["clamav"]
     _require(
         clamav.get("image") == PINNED_CLAMAV_IMAGE,
@@ -374,6 +397,14 @@ def main() -> int:
                 f"Production {service_name} must share {redis_key} with the API.",
             )
     backend_environment = production_backend.get("environment", {})
+    database_environment = production_services["db"].get("environment", {})
+    for service in BACKEND_SERVICES:
+        environment = production_services[service].get("environment", {})
+        _require(environment.get("POSTGRES_USER") != database_environment.get("POSTGRES_USER"),
+                 f"{service}: runtime and bootstrap database identities must differ.")
+        _require(not environment.get("POSTGRES_MIGRATION_PASSWORD")
+                 and not environment.get("POSTGRES_RUNTIME_PASSWORD"),
+                 f"{service}: extra database credential variables must be cleared.")
     _require(
         backend_environment.get("EXPECTED_DATABASE_SCHEMA_REVISION")
         == EXPECTED_DATABASE_SCHEMA_REVISION,
@@ -429,9 +460,10 @@ def main() -> int:
     for service_name in REDIS_SERVICES:
         _require("--maxmemory " in _command_text(production_services[service_name]),
                  f"{service_name} must bound data memory below the container ceiling.")
-    storage_admin = production_services["minio"]["environment"]
-    _require(storage_admin["MINIO_ROOT_USER"] != backend_environment.get("S3_ACCESS_KEY_ID"),
-             "Application storage identity must differ from the MinIO administrator.")
+    for name in BACKEND_SERVICES:
+        _require(all(production_services[name].get("environment", {}).get(key) == "" for key in (
+            "MINIO_ROOT_USER", "MINIO_ROOT_PASSWORD", "OBJECT_STORAGE_ADMIN_ACCESS_KEY", "OBJECT_STORAGE_ADMIN_SECRET_KEY",
+        )), "Long-running application services must not inherit storage administrator credentials.")
     broker_command = _command_text(production_services["redis-broker"])
     realtime_command = _command_text(production_services["redis-realtime"])
     cache_command = _command_text(production_services["redis-cache"])

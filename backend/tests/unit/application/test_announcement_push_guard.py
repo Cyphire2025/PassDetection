@@ -7,6 +7,7 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mobile.announcement_push_guard import (
@@ -101,14 +102,12 @@ async def test_a_published_source_from_a_different_scope_cannot_authorize_push(
     now = datetime.now(UTC)
     _, notification = await _persist_push_target(db_session, now=now, notification_type="group_announcement")
     source = await db_session.scalar(select(GCAnnouncementModel))
-    # Isolated SQLite permits a deliberately corrupted historical scope. The
-    # PostgreSQL tests separately exercise real constraints and row locks.
+    # The shared fixture enforces the same declared foreign keys. An orphan
+    # scope must be rejected before it can become an authorization input.
     setattr(source, scope_field, uuid.uuid4())
-    await db_session.flush()
-    provider = RecordingProvider()
-    assert await _legacy_guard_then_dispatch(db_session, provider=provider, limit=100, now=now) == 0
-    assert provider.calls == 0
-    assert notification.status == "cancelled"
+    with pytest.raises(IntegrityError):
+        await db_session.flush()
+    await db_session.rollback()
 
 
 @pytest.mark.parametrize("payload_problem", ["event", "trip", "route", "dedupe", "malformed_event"])

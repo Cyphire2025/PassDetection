@@ -15,9 +15,16 @@ from sqlalchemy.dialects import postgresql
 
 from app.application.mobile.otp_provider import OTPDeliveryError
 from app.domain.entities.entities import ClientGroup, PassportProcessingStatus, PassportSubmission
-from app.infrastructure.database.models import PassportSubmissionModel
+from app.infrastructure.database.models import (
+    AgencyModel,
+    ClientGroupModel,
+    PassportSubmissionModel,
+)
 from app.infrastructure.database.public_upload_contact_model import (
     PublicUploadContactChallengeModel,
+)
+from app.infrastructure.repositories.passport_submission_repository import (
+    PassportSubmissionRepository,
 )
 from app.infrastructure.security.mobile_otp_rate_limiter import (
     OTPRateLimitExceeded,
@@ -34,6 +41,7 @@ from app.presentation.api.v1.schemas.public_upload_contact_schemas import (
     PublicContactOTPRequest,
     PublicContactOTPVerifyRequest,
 )
+from tests.persistence import persist_graph
 
 
 @pytest.fixture
@@ -42,6 +50,12 @@ async def rig(db_session, monkeypatch):
     group = ClientGroup.create("OTP group", "synthetic-public-link", uuid.uuid4(), uuid.uuid4())
     submission = PassportSubmission.create(group.id, group.agency_id, "Traveller", None, "front.jpg")
     submission.upload_idempotency_key = credential
+    await persist_graph(db_session, [
+        AgencyModel(id=group.agency_id, name="Synthetic agency", email=f"{group.agency_id}@example.test"),
+        ClientGroupModel(id=group.id, agency_id=group.agency_id, name=group.name, token=group.token),
+        PassportSubmissionRepository._to_model(submission),
+    ])
+    await db_session.commit()
     groups = SimpleNamespace(get_by_token=AsyncMock(return_value=group))
     passports = SimpleNamespace(get_by_id_for_update=AsyncMock(return_value=submission))
     monkeypatch.setattr(routes, "ClientGroupRepository", lambda _: groups)
@@ -412,18 +426,25 @@ async def test_later_family_members_use_persisted_consumed_head_proof(rig, chang
     # Completed head receipts remain valid across a partial family retry.
     head_proof.proof_expires_at = datetime.now(UTC) - timedelta(hours=1)
     family_id = uuid.uuid4()
-    head = PassportSubmissionModel(
-        id=rig.submission.id, group_id=rig.group.id, agency_id=rig.group.agency_id,
-        image_s3_key="head.jpg", client_name="Family Head", client_email=rig.email,
-        client_phone=rig.phone, submission_mode="family", family_member_index=0,
-        family_group_id=family_id, status="needs_review",
-    )
+    head = await rig.session.get(PassportSubmissionModel, rig.submission.id)
+    head.image_s3_key = "head.jpg"
+    head.client_name = "Family Head"
+    head.client_email = rig.email
+    head.client_phone = rig.phone
+    head.submission_mode = "family"
+    head.family_member_index = 0
+    head.family_group_id = family_id
+    head.status = "needs_review"
     if change == "not_submitted":
         head.status = "processing"
     elif change == "wrong_family":
         head.family_group_id = uuid.uuid4()
     elif change == "wrong_group":
-        head.group_id = uuid.uuid4()
+        other_group_id = uuid.uuid4()
+        rig.session.add(ClientGroupModel(id=other_group_id, agency_id=rig.group.agency_id,
+                                         name="Other family group", token=f"other-{other_group_id}"))
+        await rig.session.flush()
+        head.group_id = other_group_id
     elif change == "changed_head":
         head.client_phone = "+919876543211"
     rig.session.add(head)

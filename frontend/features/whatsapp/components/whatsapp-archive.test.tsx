@@ -82,7 +82,11 @@ describe("WhatsApp archive workspace", () => {
     expect(screen.getByText("Traveller C")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Delivery numbers/ })).toHaveTextContent("1");
     fireEvent.click(screen.getByRole("button", { name: /Delivery numbers/ }));
-    expect(screen.queryByText("Traveller B")).not.toBeInTheDocument();
+    // The delivery row retains all travellers behind the shared-number disclosure.
+    expect(screen.getByText("Traveller B")).not.toBeVisible();
+    fireEvent.click(screen.getByText("2 travellers · shared number"));
+    expect(screen.getByText("Traveller B")).toBeVisible();
+    expect(screen.getAllByRole("checkbox", { name: /^Select Passenger A$/ })).toHaveLength(1);
     expect(screen.getByRole("button", { name: /Delivery numbers/ })).toHaveAttribute("aria-current", "page");
     roster.mockRestore();
   });
@@ -108,8 +112,8 @@ describe("WhatsApp archive workspace", () => {
   it("loads active and archived lists separately and searches both", async () => {
     renderWorkspace();
     await openActions("September travellers");
-    expect(whatsappApi.groups).toHaveBeenCalledWith(false);
-    expect(whatsappApi.groups).toHaveBeenCalledWith(true);
+    expect(whatsappApi.groups).toHaveBeenCalledWith(false, expect.any(AbortSignal));
+    expect(whatsappApi.groups).toHaveBeenCalledWith(true, expect.any(AbortSignal));
     expect(screen.getByRole("button", { name: "Archive Broadcast" })).toBeEnabled();
     expect(screen.queryByRole("button", { name: "Delete Broadcast" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Archived broadcasts" }));

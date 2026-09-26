@@ -1,0 +1,129 @@
+{
+  "finished_at": "2026-09-26T17:39:15.897741+00:00",
+  "synthetic": true,
+  "application": {
+    "synthetic": true,
+    "checks": [
+      "production_tls_password_and_mfa_authentication",
+      "real_clamav_scanned_cover_upload_and_postgresql_persistence",
+      "private_document_rejects_anonymous_and_wrong_upload_capability",
+      "real_contact_proof_consumption_and_final_document_promotion",
+      "authenticated_private_object_checksum_and_durable_audit_trail",
+      "authenticated_other_tenant_manager_cannot_read_private_document"
+    ],
+    "object_sha256": "be805d6c7b57ad65ae00597d9fcb37a87017a651852c35b7a092bdda47aa4c08",
+    "external_otp_delivery_tested": false,
+    "external_ai_invoked": false
+  },
+  "ecr_fault": {
+    "before": {
+      "required": true,
+      "available": true,
+      "traffic_gate": false,
+      "status": "available",
+      "worker_available": true,
+      "backlog": {
+        "pending_count": 0,
+        "failed_count": 2,
+        "retry_count": 0,
+        "oldest_pending_seconds": 0
+      }
+    },
+    "during": {
+      "required": true,
+      "available": false,
+      "traffic_gate": false,
+      "status": "queue_not_consumed",
+      "worker_available": false,
+      "backlog": {
+        "pending_count": 1,
+        "failed_count": 2,
+        "retry_count": 0,
+        "oldest_pending_seconds": 1816
+      }
+    },
+    "after": {
+      "required": true,
+      "available": true,
+      "traffic_gate": false,
+      "status": "available",
+      "worker_available": true,
+      "backlog": {
+        "pending_count": 0,
+        "failed_count": 3,
+        "retry_count": 0,
+        "oldest_pending_seconds": 0
+      }
+    },
+    "other_configured_capabilities_available": true
+  },
+  "worker": {
+    "synthetic": true,
+    "queued_while_worker_down": true,
+    "task_succeeded": true,
+    "object_deleted": true,
+    "exactly_one_completion_audit": true,
+    "tombstone_completed": true
+  },
+  "ecr_durable_result": {
+    "durable_ecr_result": "image_expired",
+    "item_attempts": 1,
+    "duplicate_deliveries_completed": true,
+    "external_ai_invoked": false
+  },
+  "alert_firing": {
+    "synthetic": true,
+    "collector": "real Prometheus",
+    "state": "firing",
+    "alerts": [
+      "PassDetectionEcrBacklog",
+      "PassDetectionEcrUnavailable"
+    ],
+    "elapsed_seconds": 300.25,
+    "actual_production_thresholds": true,
+    "human_notification_tested": false
+  },
+  "alert_resolution": {
+    "synthetic": true,
+    "collector": "real Prometheus",
+    "state": "resolved",
+    "alerts": [
+      "PassDetectionEcrBacklog",
+      "PassDetectionEcrUnavailable"
+    ],
+    "elapsed_seconds": 10.12,
+    "actual_production_thresholds": true,
+    "human_notification_tested": false
+  },
+  "production_fault_injected": false,
+  "external_ai_readiness_available": false,
+  "command": "python scripts/qa/qualify_joined_journeys.py",
+  "browser_sessions": {
+    "command": "RUN_REAL_STACK=1 npx playwright test --config=playwright.real-stack.config.ts",
+    "engines": [
+      "Chromium",
+      "Firefox",
+      "WebKit"
+    ],
+    "passed": 3,
+    "failed": 0,
+    "duration_seconds": 40.9,
+    "real_tls_mfa_csrf_sessions": true,
+    "api_response_interception": false,
+    "injected_authentication_cookies": false,
+    "synthetic_certificate_exception": "Self-signed short-lived localhost certificate only",
+    "log_sha256": "90592b1a75923e5960912b240055546716232af163d65a29cda1a41323aed1af"
+  },
+  "image_ids": {
+    "passdetection-qualification-backend:local": "sha256:9bbfeda101d308dea3962ba405f830864bec4b92801e2c711cec15c948df9f96",
+    "passdetection-qualification-frontend:local": "sha256:50c10ac62b1d1333c4c635b053e664b87ae1388486698eb674c2207345c648f1"
+  },
+  "working_tree_evidence": {
+    "git_head": "48395bb7e3f3cae9568dcc31f130651e9aa6f420",
+    "scope": "working tree source at evidence capture; image IDs retained separately",
+    "source_sha256": "6837c8203739876d101e27f0adbca9ef24f57f4d08ad2380f73b99ab95471736"
+  },
+  "signed_build_attestation": false,
+  "source_artifact_sha256": "ce0d0cfb812ce0175f985d47aa9fd09312f5bd202fb9ae017aa751491ccb83b8",
+  "evidence_note": "Curated local synthetic execution. No customer data, credentials, session tokens or storage object identifiers. External AI/OTP delivery and human alert receipts are explicitly excluded."
+}

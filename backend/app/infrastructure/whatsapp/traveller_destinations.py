@@ -232,18 +232,18 @@ async def load_traveller_destinations(
             if not is_private_delivery_match(row) or row.submission_ids[0] not in fallback_ids:
                 continue
             for recipient_id in row.recipient_ids:
-                recipient = recipients_by_id.get(recipient_id)
-                if recipient is not None:
-                    matched_recipients[row.submission_ids[0]].append(recipient)
+                matched_recipient = recipients_by_id.get(recipient_id)
+                if matched_recipient is not None:
+                    matched_recipients[row.submission_ids[0]].append(matched_recipient)
     resolved: list[TravellerDestination] = []
     for destination in own_destinations:
         selected: WhatsAppBroadcastRecipientModel | None = None
         explicit_overrides = overrides_by_passenger.get(destination.passenger_id, [])
         if explicit_overrides:
             override_candidates = [
-                recipient for override in explicit_overrides
-                if (recipient := recipients_by_id.get(override.recipient_id)) is not None
-                and recipient.broadcast_group_id == override.broadcast_group_id
+                override_recipient for override in explicit_overrides
+                if (override_recipient := recipients_by_id.get(override.recipient_id)) is not None
+                and override_recipient.broadcast_group_id == override.broadcast_group_id
             ]
             override_phones = {
                 normalize_whatsapp_phone(recipient.normalized_phone_number)

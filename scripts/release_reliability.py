@@ -47,12 +47,14 @@ class ReliabilityRelease(Release):
         directory_name: str = "reliability-release",
         include_frontend: bool = True,
         preserve_release_artifacts: bool = False,
+        worker_nodes: dict[str, str] | None = None,
     ) -> None:
         super().__init__(
             revision, root, expected_schema=expected_schema, previous_schema=previous_schema,
             directory_name=directory_name,
             include_frontend=include_frontend,
             preserve_release_artifacts=preserve_release_artifacts,
+            worker_nodes=worker_nodes,
         )
         self.previous_images_path = self.directory / f"{revision}.previous-images.json"
         self.backups_path = self.directory / f"{revision}.database-backups.json"
@@ -115,24 +117,73 @@ class ReliabilityRelease(Release):
             "automatic_rollback_allowed": False,
         }, indent=2) + "\n", exclusive=True)
 
+    def verify_running_project(self) -> dict[str, Any]:
+        current = super().verify_running_project()
+        self._verify_live_database_target(current, self.container(DATABASE_SERVICE))
+        return current
+
+    @staticmethod
+    def _verify_live_database_target(
+        backend: dict[str, Any], postgres: dict[str, Any],
+    ) -> set[str]:
+        """Bind the live application's endpoint to the inspected backup service.
+
+        Role names may intentionally change during cutover. Endpoint/database
+        names and Docker network identity must not be inferred from the new .env.
+        """
+        live = dict(item.split("=", 1) for item in backend["Config"].get("Env", []) if "=" in item)
+        database = dict(item.split("=", 1) for item in postgres["Config"].get("Env", []) if "=" in item)
+        if (
+            live.get("POSTGRES_HOST") != DATABASE_SERVICE
+            or live.get("POSTGRES_PORT") != "5432"
+            or not database.get("POSTGRES_DB")
+            or live.get("POSTGRES_DB") != database["POSTGRES_DB"]
+        ):
+            raise ReleaseError("Live backend database identity/settings do not match the existing db PostgreSQL service")
+        extra_hosts = backend.get("HostConfig", {}).get("ExtraHosts") or []
+        if any(re.split(r"[:=]", str(host), maxsplit=1)[0] == DATABASE_SERVICE for host in extra_hosts):
+            raise ReleaseError("Live backend overrides the db hostname; review the existing database target")
+        backend_networks = backend.get("NetworkSettings", {}).get("Networks", {})
+        database_networks = postgres.get("NetworkSettings", {}).get("Networks", {})
+        if not isinstance(backend_networks, dict) or not isinstance(database_networks, dict):
+            raise ReleaseError("Cannot verify the live backend/database network identity")
+        shared = {
+            name for name, endpoint in backend_networks.items()
+            if isinstance(endpoint, dict) and endpoint.get("NetworkID")
+            and isinstance(database_networks.get(name), dict)
+            and endpoint["NetworkID"] == database_networks[name].get("NetworkID")
+            and DATABASE_SERVICE in (database_networks[name].get("Aliases") or [])
+        }
+        if not shared:
+            raise ReleaseError("Live backend and db do not share a verified network with the db alias")
+        return shared
+
     def _database_container(self, config: dict[str, Any]) -> dict[str, Any]:
         if DATABASE_SERVICE not in config["services"]:
             raise ReleaseError("The existing db PostgreSQL Compose service is required for backup")
-        target = config["services"]["backend"].get("environment", {})
-        if (
-            target.get("POSTGRES_HOST") != DATABASE_SERVICE
-            or str(target.get("POSTGRES_PORT", "5432")) != "5432"
-        ):
-            raise ReleaseError("The prepared backend must target the existing db PostgreSQL service")
         postgres = self.container(DATABASE_SERVICE)
+        shared_networks = self._verify_live_database_target(self.container("backend"), postgres)
         current = dict(
             item.split("=", 1) for item in postgres["Config"].get("Env", []) if "=" in item
         )
-        if any(
-            not target.get(key) or target[key] != current.get(key)
-            for key in ("POSTGRES_DB", "POSTGRES_USER", "POSTGRES_PASSWORD")
-        ):
-            raise ReleaseError("The backup database identity/settings do not match the prepared backend")
+        services = config["services"]
+        for service in ("backend", "database-admin", "database-migrate"):
+            if service not in services:
+                continue  # Historical helpers did not split maintenance identities.
+            target = services[service].get("environment", {})
+            if target.get("POSTGRES_HOST") != DATABASE_SERVICE or str(target.get("POSTGRES_PORT")) != "5432":
+                raise ReleaseError(f"The prepared {service} must target the existing db PostgreSQL service")
+            if not target.get("POSTGRES_DB") or target["POSTGRES_DB"] != current.get("POSTGRES_DB"):
+                raise ReleaseError(f"The backup database identity/settings do not match the prepared {service}")
+            configured_networks = services[service].get("networks", {})
+            database_networks = services[DATABASE_SERVICE].get("networks", {})
+            definitions = config.get("networks", {})
+            if not any(
+                name in database_networks
+                and definitions.get(name, {}).get("name") in shared_networks
+                for name in configured_networks
+            ):
+                raise ReleaseError(f"The prepared {service} does not use the existing database network")
         return postgres
 
     def _validate_backup_record(self, record: Any) -> Path:

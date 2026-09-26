@@ -62,6 +62,11 @@ MANAGERS = {
         "enterprise.browser.webkit@example.test",
         "KRSXG5DSNFXGOIDB",
     ),
+    "firefox": (
+        uuid.uuid5(NAMESPACE, "manager-firefox"),
+        "enterprise.browser.firefox@example.test",
+        "GEZDGNBVGY3TQOJQ",
+    ),
     "mobile": (
         uuid.uuid5(NAMESPACE, "manager-mobile"),
         "enterprise.browser.mobile@example.test",

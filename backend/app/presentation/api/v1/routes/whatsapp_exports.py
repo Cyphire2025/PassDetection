@@ -37,11 +37,13 @@ from app.infrastructure.export.whatsapp_filter_excel_exporter import (
     build_whatsapp_filter_workbook,
 )
 from app.infrastructure.repositories.operational_roster import operational_roster_member
-from app.infrastructure.whatsapp.phone_overrides import load_valid_traveller_phone_overrides
-from app.infrastructure.repositories.passport_submission_repository import PassportSubmissionRepository
+from app.infrastructure.repositories.passport_submission_repository import (
+    PassportSubmissionRepository,
+)
 from app.infrastructure.repositories.passport_whatsapp_matching_repository import (
     load_unresolved_passport_whatsapp_match_context,
 )
+from app.infrastructure.whatsapp.phone_overrides import load_valid_traveller_phone_overrides
 from app.presentation.api.v1.routes.passport_export_support import (
     _WHATSAPP_EMAIL_IMPORTED_KEYS,
     _export_whatsapp_contacts,
@@ -50,8 +52,8 @@ from app.presentation.api.v1.routes.passport_export_support import (
     _imported_zone_name,
     _normalized_imported_field_key,
 )
-from app.presentation.api.v1.routes.whatsapp_recipient_roster import get_broadcast_recipient_roster
 from app.presentation.api.v1.routes.whatsapp_merged_contacts import merged_contacts_by_recipient
+from app.presentation.api.v1.routes.whatsapp_recipient_roster import get_broadcast_recipient_roster
 from app.presentation.api.v1.routes.whatsapp_shared import (
     WHATSAPP_ROLES,
     _agency_filter,
@@ -393,19 +395,19 @@ async def _gather_export_rows(
         }
         imported_fields: dict[str, Any] = {}
         source_keys: list[_SourceKey] = []
-        recipient_id: uuid.UUID | None = None
+        delivery_recipient_id: uuid.UUID | None = None
         if item.kind == "source_contact":
             assert item.source_group_id is not None
             key = (item.source_group_id, item.id)
             source = source_by_key[key]
             source_keys = [key]
-            recipient_id = source.recipient_id
+            delivery_recipient_id = source.recipient_id
             values.update({"Source contact name": source.name, "Source phone": source.raw_phone_number,
                            "Source normalized phone": source.normalized_phone_number, "Source issue": source.issue})
         else:
             roster_row = roster_by_id[(item.kind, item.id)]
             if roster_row.recipient is not None:
-                recipient_id = item.id
+                delivery_recipient_id = item.id
             elif roster_row.rejected_contact is not None:
                 rejected = roster_row.rejected_contact
                 imported_fields = dict(rejected.imported_fields)
@@ -415,7 +417,7 @@ async def _gather_export_rows(
                                "Import row": rejected.row_number})
             elif roster_row.replaced_recipient is not None:
                 replacement = roster_row.replaced_recipient
-                recipient_id = item.id
+                delivery_recipient_id = item.id
                 imported_fields = dict(replacement.imported_fields)
                 values.update({"Broadcast contact name": replacement.name, "Broadcast phone": replacement.phone_number,
                                "Broadcast normalized phone": replacement.normalized_phone_number,
@@ -425,7 +427,7 @@ async def _gather_export_rows(
                 upload = roster_row.unidentified_upload
                 assert upload is not None
                 source_keys = [(upload.client_group_id, upload.submission_id)]
-        recipient = recipients.get(recipient_id) if recipient_id else None
+        recipient = recipients.get(delivery_recipient_id) if delivery_recipient_id else None
         if recipient is not None:
             values.setdefault("Broadcast contact name", recipient.name)
             values.setdefault("Broadcast phone", recipient.phone_number)
@@ -446,8 +448,8 @@ async def _gather_export_rows(
             output.append(WhatsAppExportRow(values=values, broadcast_fields=imported_fields))
         # A manual contact merged into a shared phone remains its own export row.
         # Keep that person's imported data separate from the primary contact.
-        if item.kind == "recipient" and recipient_id:
-            for contact in merged_contacts.get(recipient_id, []):
+        if item.kind == "recipient" and delivery_recipient_id:
+            for contact in merged_contacts.get(delivery_recipient_id, []):
                 alias_fields = dict(contact.imported_fields)
                 output.append(WhatsAppExportRow(values={
                     **values,
@@ -459,7 +461,7 @@ async def _gather_export_rows(
         for key in source_keys:
             group = groups[key[0]]
             submission = entities[key]
-            source = source_by_key.get(key)
+            matched_source = source_by_key.get(key)
             source_values = {**values, "Source import only": group.import_only}
             if key in matched_source_keys:
                 source_values["WhatsApp Email"] = source_contacts.get(submission.id, {}).get("email")
@@ -468,9 +470,9 @@ async def _gather_export_rows(
                 source_values["Zone Name"] = " ".join(
                     str((submission.staff_metadata or {}).get("zone_name") or "").split()
                 ) or None
-            if source is not None:
-                source_values.update({"Source contact name": source.name, "Source phone": source.raw_phone_number,
-                                      "Source normalized phone": source.normalized_phone_number, "Source issue": source.issue})
+            if matched_source is not None:
+                source_values.update({"Source contact name": matched_source.name, "Source phone": matched_source.raw_phone_number,
+                                      "Source normalized phone": matched_source.normalized_phone_number, "Source issue": matched_source.issue})
             else:
                 fields = submission.confirmed_fields or submission.extracted_fields or {}
                 source_values.update({

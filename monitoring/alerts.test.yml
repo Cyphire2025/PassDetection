@@ -1,0 +1,79 @@
+rule_files: [alerts.yml]
+evaluation_interval: 1m
+tests:
+  - interval: 1m
+    input_series:
+      - series: 'up{job="passdetection"}'
+        values: '1+0x70'
+    alert_rule_test:
+      - eval_time: 2m
+        alertname: PassDetectionProbeFailed
+        exp_alerts:
+          - exp_labels: {job: passdetection-https, severity: critical, owner: platform-oncall}
+            exp_annotations:
+              summary: "PassDetection HTTPS probe is failing"
+              runbook: "docs/OPERATIONS_MONITORING.md#http-and-dependencies"
+      - eval_time: 60m
+        alertname: PassDetectionRecoveryEvidenceStale
+        exp_alerts:
+          - exp_labels: {severity: warning, owner: recovery-owner}
+            exp_annotations:
+              summary: "Verified recovery evidence is missing or older than 35 days"
+              runbook: "docs/PRODUCTION_RESILIENCE_AND_DR.md"
+  - interval: 1m
+    input_series:
+      - series: 'up{job="passdetection"}'
+        values: '1+0x10'
+    alert_rule_test:
+      - eval_time: 2m
+        alertname: PassDetectionEcrUnavailable
+        exp_alerts:
+          - exp_labels: {severity: warning, owner: platform-oncall}
+            exp_annotations:
+              summary: "ECR consumer or durable backlog query is unavailable"
+              runbook: "docs/OPERATIONS_MONITORING.md#ecr-queue"
+  - interval: 1m
+    input_series:
+      - series: 'up{job="passdetection"}'
+        values: '1+0x10'
+      - series: 'passdetection_ecr_worker_available'
+        values: '1 0 0 0 1 1 1 1 1 1 1'
+      - series: 'passdetection_ecr_backlog_probe_available'
+        values: '1+0x10'
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: PassDetectionEcrUnavailable
+        exp_alerts:
+          - exp_labels: {severity: warning, owner: platform-oncall}
+            exp_annotations:
+              summary: "ECR consumer or durable backlog query is unavailable"
+              runbook: "docs/OPERATIONS_MONITORING.md#ecr-queue"
+      - eval_time: 5m
+        alertname: PassDetectionEcrUnavailable
+        exp_alerts: []
+  - interval: 1m
+    input_series:
+      - series: 'up{job="passdetection"}'
+        values: '1+0x10'
+      - series: 'passdetection_ecr_oldest_pending_seconds'
+        values: '901+60x10'
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: PassDetectionEcrBacklog
+        exp_alerts:
+          - exp_labels: {severity: warning, owner: platform-oncall}
+            exp_annotations:
+              summary: "An ECR job has been pending for more than 15 minutes"
+              runbook: "docs/OPERATIONS_MONITORING.md#ecr-queue"
+  - interval: 1m
+    input_series:
+      - series: 'up{job="passdetection"}'
+        values: '0+0x10'
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: PassDetectionMonitoringMissing
+        exp_alerts:
+          - exp_labels: {job: passdetection, severity: critical, owner: platform-oncall}
+            exp_annotations:
+              summary: "PassDetection metrics collection is unavailable"
+              runbook: "docs/OPERATIONS_MONITORING.md#collector-and-retention"

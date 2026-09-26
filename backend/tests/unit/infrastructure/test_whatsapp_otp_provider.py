@@ -12,6 +12,14 @@ from app.application.mobile.otp_provider import (
 )
 from app.infrastructure.whatsapp import otp_provider
 from app.infrastructure.whatsapp.cloud_api_provider import WhatsAppCloudApiError
+from app.infrastructure.whatsapp.template_settings import TemplateSettingsSnapshot
+
+
+@pytest.fixture(autouse=True)
+def isolated_template_configuration(monkeypatch):
+    """Adapter unit tests use a local snapshot; no accidental live DB lookup."""
+    monkeypatch.setattr(otp_provider, "AsyncSessionFactory", AsyncMock)
+    monkeypatch.setattr(otp_provider, "load_template_settings", AsyncMock(return_value=TemplateSettingsSnapshot(0, None, {})))
 
 
 def _settings(provider: str = "whatsapp") -> SimpleNamespace:

@@ -38,7 +38,8 @@ def configured_provider(monkeypatch):
     settings = get_settings()
     monkeypatch.setattr(settings, "whatsapp_access_token", "synthetic-access-token")
     monkeypatch.setattr(settings, "whatsapp_phone_number_id", "synthetic-sender")
-    monkeypatch.setattr(settings, "whatsapp_document_template_name", "document-template")
+    monkeypatch.setattr(settings, "whatsapp_document_template_name", "document_template")
+    monkeypatch.setattr(settings, "whatsapp_welcome_template_name", "welcome_template")
     monkeypatch.setattr(traveller_welcome, "publish_whatsapp_task", AsyncMock())
     monkeypatch.setattr(document_distribution_delivery, "publish_whatsapp_task", AsyncMock())
 
@@ -66,13 +67,12 @@ async def send_documents(client, context):
 @pytest.mark.asyncio
 @pytest.mark.parametrize("document_type", ["visa", "flight_ticket", "flight_ticket_arrival",
     "flight_ticket_domestic", "flight_ticket_domestic_arrival"])
-async def test_parents_receive_documents_only_after_their_own_welcomes(db_session, client, document_type):
+async def test_parents_receive_own_documents_independently_of_welcome_delivery(db_session, client, document_type):
     context = await seed_traveller_delivery(db_session, client, document_type=document_type)
     preview = await welcome_preview(client, context)
     assert preview["summary"]["needs_welcome"] == 2
     assert {row["phone_number"] for row in preview["recipients"]} == {MOTHER_PHONE, FATHER_PHONE}
     assert all(WELCOME_TEXT in row["rendered_message"] for row in preview["recipients"])
-    assert (await send_documents(client, context)).status_code == 409
     queued = await send_welcome(client, context, preview)
     assert queued.status_code == 202, queued.text
     assert queued.json()["queued_count"] == 2
@@ -85,7 +85,6 @@ async def test_parents_receive_documents_only_after_their_own_welcomes(db_sessio
         await sync_phone_welcome(db_session, agency_id=context.agency.id,
             phone=attempt.normalized_phone_number, attempt_id=attempt.id, status="sent")
     await db_session.commit()
-    assert (await send_documents(client, context)).status_code == 409
     for attempt in attempts:
         await sync_phone_welcome(db_session, agency_id=context.agency.id,
             phone=attempt.normalized_phone_number, attempt_id=attempt.id, status="delivered")
@@ -160,8 +159,12 @@ async def test_original_legacy_text_welcome_retains_its_exact_parameters(db_sess
     assert all(row.header_parameter_values == [] for row in attempts)
     assert all(row.template_parameter_values == log.template_parameter_values for row in attempts)
     replacement = await welcome_preview(client, context, header_image_id="replacement-image")
+    assert replacement["template_configured"] is True
+    assert replacement["configuration_error"] is None
+    # The legacy content can be upgraded, but the pending welcomes cannot be
+    # queued again merely by changing their template header.
     assert replacement["can_send"] is False
-    assert "Legacy text" in replacement["configuration_error"]
+    assert replacement["summary"]["in_progress"] == 2
 
 
 @pytest.mark.asyncio
@@ -185,12 +188,12 @@ async def test_default_source_uses_linked_broadcast_with_a_reusable_welcome(db_s
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("welcome_status", ["queued", "processing", "submitted", "sent", "failed", "delivery_unknown"])
-async def test_every_unconfirmed_welcome_state_blocks_direct_document_send(db_session, client, welcome_status):
+async def test_every_unconfirmed_welcome_state_allows_direct_document_send(db_session, client, welcome_status):
     context = await seed_traveller_delivery(db_session, client, phones=[MOTHER_PHONE])
     db_session.add(WhatsAppPhoneWelcomeModel(id=uuid.uuid4(), agency_id=context.agency.id,
         normalized_phone_number=MOTHER_PHONE, status=welcome_status,
         attempt_id=uuid.uuid4(), attempt_kind="traveller"))
     await db_session.commit()
     response = await send_documents(client, context)
-    assert response.status_code == 409
-    assert await db_session.scalar(select(func.count()).select_from(DocumentWhatsAppDeliveryModel)) == 0
+    assert response.status_code == 202, response.text
+    assert await db_session.scalar(select(func.count()).select_from(DocumentWhatsAppDeliveryModel)) == 1

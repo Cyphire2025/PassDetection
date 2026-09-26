@@ -1,0 +1,66 @@
+groups:
+  - name: passdetection-service
+    rules:
+      - alert: PassDetectionProbeFailed
+        expr: probe_success{job="passdetection-https"} == 0 or absent(probe_success{job="passdetection-https"})
+        for: 2m
+        labels: {severity: critical, owner: platform-oncall}
+        annotations:
+          summary: "PassDetection HTTPS probe is failing"
+          runbook: "docs/OPERATIONS_MONITORING.md#http-and-dependencies"
+      - alert: PassDetectionMonitoringMissing
+        expr: absent(up{job="passdetection"}) or up{job="passdetection"} == 0
+        for: 5m
+        labels: {severity: critical, owner: platform-oncall}
+        annotations:
+          summary: "PassDetection metrics collection is unavailable"
+          runbook: "docs/OPERATIONS_MONITORING.md#collector-and-retention"
+      - alert: PassDetectionHighErrorRate
+        expr: sum(rate(passdetection_http_requests_total{status_code=~"5.."}[5m])) / clamp_min(sum(rate(passdetection_http_requests_total[5m])), 0.001) > 0.02 and sum(rate(passdetection_http_requests_total[5m])) > 0.1
+        for: 5m
+        labels: {severity: critical, owner: platform-oncall}
+        annotations:
+          summary: "HTTP server errors exceed 2 percent for 5 minutes"
+          runbook: "docs/OPERATIONS_MONITORING.md#http-and-dependencies"
+      - alert: PassDetectionHighLatency
+        expr: histogram_quantile(0.95, sum by (le) (rate(passdetection_http_request_duration_ms_bucket[5m]))) > 2000
+        for: 10m
+        labels: {severity: warning, owner: platform-oncall}
+        annotations:
+          summary: "HTTP p95 exceeds 2 seconds for 10 minutes"
+          runbook: "docs/OPERATIONS_MONITORING.md#http-and-dependencies"
+      - alert: PassDetectionEcrUnavailable
+        expr: passdetection_ecr_worker_available == 0 or passdetection_ecr_backlog_probe_available == 0 or absent(passdetection_ecr_worker_available) or absent(passdetection_ecr_backlog_probe_available)
+        for: 2m
+        labels: {severity: warning, owner: platform-oncall}
+        annotations:
+          summary: "ECR consumer or durable backlog query is unavailable"
+          runbook: "docs/OPERATIONS_MONITORING.md#ecr-queue"
+      - alert: PassDetectionEcrBacklog
+        expr: passdetection_ecr_oldest_pending_seconds > 900
+        for: 5m
+        labels: {severity: warning, owner: platform-oncall}
+        annotations:
+          summary: "An ECR job has been pending for more than 15 minutes"
+          runbook: "docs/OPERATIONS_MONITORING.md#ecr-queue"
+      - alert: PassDetectionCertificateExpiring
+        expr: probe_ssl_earliest_cert_expiry{job="passdetection-https"} - time() < 14 * 86400
+        for: 30m
+        labels: {severity: warning, owner: platform-oncall}
+        annotations:
+          summary: "The HTTPS certificate expires within 14 days"
+          runbook: "docs/OPERATIONS_MONITORING.md#http-and-dependencies"
+      - alert: PassDetectionDiskPressure
+        expr: node_filesystem_avail_bytes{fstype!~"tmpfs|overlay|squashfs"} / node_filesystem_size_bytes < 0.15
+        for: 10m
+        labels: {severity: critical, owner: platform-oncall}
+        annotations:
+          summary: "Host filesystem has less than 15 percent free space"
+          runbook: "docs/OPERATIONS_MONITORING.md#disk-pressure"
+      - alert: PassDetectionRecoveryEvidenceStale
+        expr: time() - passdetection_last_successful_restore_timestamp_seconds > 35 * 86400 or absent(passdetection_last_successful_restore_timestamp_seconds)
+        for: 1h
+        labels: {severity: warning, owner: recovery-owner}
+        annotations:
+          summary: "Verified recovery evidence is missing or older than 35 days"
+          runbook: "docs/PRODUCTION_RESILIENCE_AND_DR.md"

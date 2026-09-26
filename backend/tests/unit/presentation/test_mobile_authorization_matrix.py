@@ -46,6 +46,7 @@ from app.presentation.dependencies.mobile_auth import (
     get_current_mobile_claims,
     require_unrestricted_mobile_claims,
 )
+from tests.persistence import persist_graph
 
 RouteKey = tuple[str, str]
 
@@ -376,8 +377,7 @@ async def test_access_policy_and_realtime_deny_cross_scope_and_lifecycle_rows(
     other_agency_id = uuid.uuid4()
     principal_id = uuid.uuid4()
     other_principal_id = uuid.uuid4()
-    db_session.add_all(
-        [
+    await persist_graph(db_session, [
             AgencyModel(
                 id=agency_id,
                 name="Authorization matrix agency",
@@ -404,8 +404,7 @@ async def test_access_policy_and_realtime_deny_cross_scope_and_lifecycle_rows(
                 role="agency_coordinator",
                 agency_id=agency_id,
             ),
-        ]
-    )
+        ])
     await db_session.flush()
 
     group_specs = {
@@ -551,7 +550,7 @@ async def test_live_dependency_rechecks_session_and_staff_account_state(
         user.role = "agency_staff"
     else:  # pragma: no cover - guarded by the parameter table
         raise AssertionError(scenario)
-    db_session.add_all([agency, user, device_session])
+    await persist_graph(db_session, [agency, user, device_session])
     await db_session.flush()
 
     claims = _claims(

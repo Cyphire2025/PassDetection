@@ -13,18 +13,7 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from app.core.config.settings import get_settings
-from app.infrastructure.database import (
-    ecr_models,  # noqa: F401
-    email_ai_models,  # noqa: F401
-    email_models,  # noqa: F401
-    gc_mobile_models,  # noqa: F401
-    gc_notification_models,  # noqa: F401
-    menu_models,  # noqa: F401
-    my_photos_models,  # noqa: F401
-    passport_ecr_models,  # noqa: F401
-    passport_image_library_model,  # noqa: F401
-)
-from app.infrastructure.database.models import Base
+from app.infrastructure.database.model_registry import Base
 
 settings = get_settings()
 
@@ -32,7 +21,8 @@ settings = get_settings()
 config = context.config
 
 # Override the sqlalchemy.url from the app settings (no hardcoding)
-config.set_main_option("sqlalchemy.url", settings.database.sync_url)
+# ConfigParser interprets percent signs; preserve URL-encoded credentials.
+config.set_main_option("sqlalchemy.url", settings.database.sync_url.replace("%", "%%"))
 
 # Interpret the config file for Python logging
 if config.config_file_name is not None:

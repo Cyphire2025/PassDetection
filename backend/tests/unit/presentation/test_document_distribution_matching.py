@@ -421,12 +421,13 @@ def _configure_preview_provider(monkeypatch):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("welcomed", [False, True])
-async def test_private_document_preview_allows_shared_submitted_phone_only_after_welcome(
+async def test_private_document_preview_allows_shared_submitted_phone_without_welcome_prerequisite(
     db_session, monkeypatch, welcomed,
 ) -> None:
     context = await _seed_private_delivery_context(db_session, passenger_count=2)
     for passenger in context["passengers"]:
         passenger.client_phone = PHONE
+        passenger.client_reviewed_at = datetime.now(UTC)
     state = (await db_session.scalars(select(WhatsAppPhoneWelcomeModel))).one()
     state.status = "delivered" if welcomed else "queued"
     batch = await _saved_preview_documents(db_session, context)
@@ -440,13 +441,11 @@ async def test_private_document_preview_allows_shared_submitted_phone_only_after
     assert {row.passenger_id for row in preview.recipients} == {
         passenger.id for passenger in context["passengers"]
     }
-    assert all(row.recipient_id is None for row in preview.recipients)
+    assert all(row.recipient_id == context["recipient"].id for row in preview.recipients)
     assert all(row.phone_number == PHONE and row.phone_source == "submission" for row in preview.recipients)
-    assert all(row.eligible is welcomed for row in preview.recipients)
-    assert preview.summary.ready == (2 if welcomed else 0)
-    assert preview.summary.blocked == (0 if welcomed else 2)
-    if not welcomed:
-        assert all("welcome" in row.reason.lower() for row in preview.recipients)
+    assert all(row.eligible for row in preview.recipients)
+    assert preview.summary.ready == 2
+    assert preview.summary.blocked == 0
 
 
 @pytest.mark.asyncio
@@ -457,6 +456,7 @@ async def test_private_document_preview_never_routes_qualifier_match_to_original
     context = await _seed_private_delivery_context(db_session)
     passenger = context["passengers"][0]
     passenger.client_phone = submitted_phone
+    passenger.client_reviewed_at = datetime.now(UTC)
     passenger.custom_answers = [{"label": "Producer Code", "value": "PR-42"}]
     context["recipient"].imported_fields = {"Producer Code": "PR-42"}
     context["link"].matching_field_keys = ["producer_code"]
@@ -467,12 +467,15 @@ async def test_private_document_preview_never_routes_qualifier_match_to_original
         db_session, group=context["group"], batch=batch, passengers=[passenger],
     )
 
-    assert preview.summary.blocked == 1 and preview.summary.ready == 0
+    assert preview.summary.blocked == (0 if submitted_phone else 1)
+    assert preview.summary.ready == (1 if submitted_phone else 0)
     row = preview.recipients[0]
-    assert not row.eligible and row.recipient_id is None
+    assert row.eligible is bool(submitted_phone)
+    assert row.recipient_id is None
     assert row.phone_number != PHONE  # The qualifier received welcome, but is not travelling.
     assert row.phone_number == (submitted_phone or None)
-    assert ("welcome" in row.reason.lower()) if submitted_phone else ("valid WhatsApp number" in row.reason)
+    if not submitted_phone:
+        assert "valid WhatsApp number" in row.reason
 
 
 @pytest.mark.asyncio

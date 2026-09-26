@@ -4,8 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import uuid
-from datetime import date
-from typing import Literal, cast
+from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
@@ -32,24 +31,26 @@ from app.infrastructure.repositories.passport_submission_view_repository import 
     PassportSubmissionViewRepository,
 )
 from app.presentation.api.v1.schemas.passport_schemas import (
-    PassportExpiryAlertResponse,
     PassportGroupSummaryResponse,
     PassportSubmissionResponse,
-    PassportSubmissionSelectionSnapshotResponse,
     PassportSubmissionsViewResponse,
     PassportSubmissionViewItemResponse,
 )
 from app.presentation.dependencies.auth import get_current_active_user
 
-from .constants import PASSPORT_BULK_SELECTION_MAX
 from .dependencies import (
     _get_list_passport_groups_use_case,
     _get_list_passports_by_group_use_case,
     _get_list_passports_use_case,
 )
 from .response_support import _owner_scope_for, _staff_image_urls
+from .submission_view_response import build_view_response
 
 router = APIRouter()
+
+# Preserve the historical convenience field for small sets without copying
+# arbitrarily large membership lists into every hydrated submission.
+LEGACY_DUPLICATE_MEMBERS_MAX = 20
 
 
 @router.get(
@@ -225,41 +226,19 @@ async def list_passports_by_group_view(
                     **base.model_dump(),
                     "duplicate_cluster_id": (entry.duplicate_cluster_id),
                     "duplicate_cluster_size": (entry.duplicate_cluster_size),
-                    "duplicate_cluster_member_ids": list(entry.duplicate_cluster_member_ids),
+                    "duplicate_cluster_member_ids": (
+                        list(entry.duplicate_cluster_member_ids)
+                        if entry.duplicate_cluster_size <= LEGACY_DUPLICATE_MEMBERS_MAX
+                        else []
+                    ),
+                    "duplicate_cluster_member_ids_complete": (
+                        entry.duplicate_cluster_size <= LEGACY_DUPLICATE_MEMBERS_MAX
+                    ),
                     "verification_confidence": (entry.verification_confidence),
                 }
             )
         )
-    ordered_selection_ids = list(view.ordered_submission_ids[:PASSPORT_BULK_SELECTION_MAX])
-    return PassportSubmissionsViewResponse(
-        items=items,
-        ordered_submission_ids=ordered_selection_ids,
-        ordered_selection_snapshot=[
-            PassportSubmissionSelectionSnapshotResponse(
-                submission_id=submission_id,
-                extraction_revision=submissions_by_id[submission_id].extraction_revision,
-            )
-            for submission_id in ordered_selection_ids
-        ],
-        group_total=view.group_total,
-        total=view.total,
-        page=view.page,
-        page_size=view.page_size,
-        total_pages=view.total_pages,
-        returned_count=view.returned_count,
-        cluster_boundaries_preserved=True,
-        expiry_alerts=[
-            PassportExpiryAlertResponse(
-                submission_id=alert.submission_id,
-                client_name=alert.client_name,
-                client_email=alert.client_email,
-                passport_number=alert.passport_number,
-                date_of_expiry=date.fromisoformat(alert.date_of_expiry),
-                status=cast(Literal["expired", "near_expiry"], alert.status),
-            )
-            for alert in view.expiry_alerts
-        ],
-    )
+    return build_view_response(view, items, submissions_by_id)
 
 
 @router.get(

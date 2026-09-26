@@ -20,6 +20,7 @@ from app.infrastructure.database.gc_mobile_models import (
     MobileSyncChangeModel,
 )
 from app.infrastructure.database.models import PassportSubmissionModel
+from tests.persistence import persist_mobile_access_graph
 
 
 @pytest.mark.asyncio
@@ -173,8 +174,7 @@ async def test_targeted_coordinator_change_carries_authoritative_roster_proof(
         client_manager_access_enabled=False,
         coordinator_access_enabled=True,
     )
-    db_session.add(access)
-    await db_session.flush()
+    await persist_mobile_access_graph(db_session, access)
     revision = AsyncMock(return_value=4242)
     monkeypatch.setattr(propagation_module, "coordinator_roster_revision", revision)
     passenger_id = uuid.uuid4()
@@ -239,8 +239,7 @@ async def test_document_availability_and_revocation_are_incremental_and_idempote
         status="needs_review",
         client_reviewed_at=datetime.now(UTC) if submitted_contact else None,
     )
-    db_session.add_all([access, identity, submission])
-    await db_session.flush()
+    await persist_mobile_access_graph(db_session, access, [identity, submission])
     initial_manifest_version = access.manifest_version
 
     available = await propagate_mobile_passenger_change(
@@ -340,8 +339,7 @@ async def test_document_only_change_never_reconciles_identity_bindings(
         client_manager_access_enabled=False,
         coordinator_access_enabled=False,
     )
-    db_session.add(access)
-    await db_session.flush()
+    await persist_mobile_access_graph(db_session, access)
     targeted = AsyncMock()
     full = AsyncMock()
     monkeypatch.setattr(

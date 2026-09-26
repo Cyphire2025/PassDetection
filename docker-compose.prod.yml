@@ -6,7 +6,9 @@
 # deployed containers execute the baked image and are reachable only through
 # the private Compose network. Nginx remains the public entry point.
 #
-# docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# Existing installations: use scripts/release_current.py prepare/activate.
+# It provisions restricted identities and adds the reviewed storage override
+# after verifying a separate copy. A bare Compose up bypasses these release gates.
 
 x-production-security-environment: &production-security-environment
   APP_ENV: production
@@ -21,8 +23,54 @@ x-production-security-environment: &production-security-environment
   METRICS_STATSD_HOST: metrics-exporter
   METRICS_STATSD_PORT: "9125"
   METRICS_NAMESPACE: passdetection
+  # Bootstrap and migration credentials never enter long-running processes.
+  POSTGRES_USER: ${POSTGRES_RUNTIME_USER:?Prepare the restricted database identity before deployment}
+  POSTGRES_PASSWORD: ${POSTGRES_RUNTIME_PASSWORD:?Prepare the restricted database identity before deployment}
+  POSTGRES_RUNTIME_USER: ""
+  POSTGRES_RUNTIME_PASSWORD: ""
+  POSTGRES_MIGRATION_USER: ""
+  POSTGRES_MIGRATION_PASSWORD: ""
+  # env_file otherwise leaks these administrator identities to API/workers.
+  MINIO_ROOT_USER: ""
+  MINIO_ROOT_PASSWORD: ""
+  OBJECT_STORAGE_ADMIN_ACCESS_KEY: ""
+  OBJECT_STORAGE_ADMIN_SECRET_KEY: ""
 
 services:
+  # One-off maintenance jobs, never started by a normal `up`. The release helper
+  # pins both to the exact tested worker image and takes a backup first.
+  database-admin:
+    profiles: [maintenance]
+    image: passdetection-backend
+    restart: "no"
+    mem_limit: 512m
+    cpus: "1.0"
+    env_file: [.env]
+    environment:
+      APP_ENV: development
+      POSTGRES_HOST: db
+    command: [python, scripts/provision_database_roles.py]
+    networks: [passdetection-net]
+
+  database-migrate:
+    profiles: [maintenance]
+    image: passdetection-backend
+    restart: "no"
+    mem_limit: 512m
+    cpus: "1.0"
+    env_file: [.env]
+    environment:
+      APP_ENV: development
+      POSTGRES_HOST: db
+      POSTGRES_USER: ${POSTGRES_MIGRATION_USER:?Prepare the migration identity before deployment}
+      POSTGRES_PASSWORD: ${POSTGRES_MIGRATION_PASSWORD:?Prepare the migration identity before deployment}
+      POSTGRES_RUNTIME_USER: ""
+      POSTGRES_RUNTIME_PASSWORD: ""
+      POSTGRES_MIGRATION_USER: ""
+      POSTGRES_MIGRATION_PASSWORD: ""
+    command: [alembic, upgrade, head]
+    networks: [passdetection-net]
+
   metrics-exporter:
     ports: !reset []
 

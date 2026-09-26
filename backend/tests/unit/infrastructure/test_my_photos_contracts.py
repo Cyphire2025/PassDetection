@@ -447,21 +447,24 @@ def test_authenticated_preview_bytes_are_no_store_and_use_content_derived_extens
 
 
 @pytest.mark.parametrize(
-    "malformed",
+    "field,value",
     [
-        replace(_delivery_result(), provider_authorization_reference="https://public.example/a"),
-        replace(_delivery_result(), expected_size_bytes=122),
-        replace(_delivery_result(), checksum_sha256="b" * 64),
-        replace(_delivery_result(), content_type="image/jpeg"),
-        replace(
-            _delivery_result(),
-            expires_at=datetime.now(tz=UTC) + timedelta(seconds=600),
-        ),
+        ("provider_authorization_reference", "https://public.example/a"),
+        ("expected_size_bytes", 122),
+        ("checksum_sha256", "b" * 64),
+        ("content_type", "image/jpeg"),
+        ("expires_at", 600),
     ],
 )
 def test_delivery_provider_results_fail_closed_when_malformed(
-    malformed: DeliveryAuthorization,
+    field: str, value: object,
 ) -> None:
+    # Construct clock-sensitive authorizations when the test executes, not at
+    # collection: after five minutes a collection-time +600s expiry becomes
+    # valid under the +300s ceiling and makes this security assertion flaky.
+    if field == "expires_at":
+        value = datetime.now(tz=UTC) + timedelta(seconds=int(value))
+    malformed = replace(_delivery_result(), **{field: value})
     with pytest.raises(ValueError):
         _validated_delivery_authorization(
             malformed,

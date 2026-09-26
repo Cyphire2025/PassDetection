@@ -26,6 +26,7 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastSourceContactModel as Contact,
 )
 from app.infrastructure.whatsapp import source_group_sync as sync
+from tests.persistence import persist_graph
 
 
 @pytest.fixture
@@ -35,7 +36,7 @@ async def roster(db_session):
         id=group_id, agency_id=agency_id, token=str(uuid.uuid4()), name="Trip",
         status="active", import_only=True,
     )
-    db_session.add_all([
+    await persist_graph(db_session, [
         AgencyModel(id=agency_id, name="Agency", email="agency@example.test"), group,
         WhatsAppBroadcastGroupModel(id=broadcast_id, agency_id=agency_id, name="Broadcast"),
         Link(agency_id=agency_id, client_group_id=group_id, broadcast_group_id=broadcast_id),
@@ -65,7 +66,7 @@ async def run(roster, **kwargs):
 @pytest.mark.asyncio
 async def test_shared_invalid_and_missing_numbers_are_kept_and_idempotent(roster):
     session, agency_id, group, _ = roster
-    session.add_all([
+    await persist_graph(session, [
         passenger(agency_id, group.id), passenger(agency_id, group.id, name="Grace"),
         passenger(agency_id, group.id, phone="bad", name="Invalid"),
         passenger(agency_id, group.id, phone="", name="Missing"),
@@ -95,7 +96,7 @@ async def test_manual_contact_ownership_and_multiple_sources_survive_unlink(rost
         id=uuid.uuid4(), agency_id=agency_id, name="Second", token=str(uuid.uuid4()),
         status="active", import_only=True,
     )
-    session.add_all([
+    await persist_graph(session, [
         manual, second, passenger(agency_id, group.id),
         passenger(agency_id, group.id, phone="9123456789"),
         passenger(agency_id, second.id, phone="9123456789"),

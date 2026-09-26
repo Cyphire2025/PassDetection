@@ -34,6 +34,9 @@ from app.infrastructure.whatsapp.group_invite_policy import (
 )
 from app.infrastructure.whatsapp.template_settings import configured_template_name
 from app.presentation.api.v1.routes.whatsapp_archive_policy import require_active_broadcast
+from app.presentation.api.v1.routes.whatsapp_preview_recipient import (
+    select_preview_recipient as select_preview_recipient,
+)
 from app.presentation.api.v1.routes.whatsapp_reminder_audience import (
     resolve_reminder_audience,
 )
@@ -229,19 +232,7 @@ async def preview_broadcast_message(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="A resend preview can only target its selected recipient",
         )
-    recipient = recipients[0]
-    selected_recipient_id = body.resend_recipient_id or body.recipient_id
-    if selected_recipient_id:
-        selected = next(
-            (item for item in recipients if item.id == selected_recipient_id),
-            None,
-        )
-        if not selected:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Preview recipient not found in this WhatsApp list",
-            )
-        recipient = selected
+    recipient = select_preview_recipient(recipients, body.resend_recipient_id or body.recipient_id)
 
     snapshot: _WhatsAppComposerSnapshot | None = None
     content_source: Literal["default", "latest_group", "latest_recipient"] = "default"

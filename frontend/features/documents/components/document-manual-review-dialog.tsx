@@ -132,11 +132,16 @@ export function DocumentManualReviewDialog({
 }
 
 function DocumentManualReviewFile({ item }: { item: DocumentManualReviewItem }) {
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const previewLinkRef = useRef<HTMLAnchorElement>(null);
   useEffect(() => {
+    const link = previewLinkRef.current;
+    if (!link) return;
     const url = URL.createObjectURL(item.file.slice(0, item.file.size, "application/pdf"));
-    setPreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
+    link.href = url;
+    return () => {
+      link.removeAttribute("href");
+      URL.revokeObjectURL(url);
+    };
   }, [item.file]);
 
   return (
@@ -145,9 +150,8 @@ function DocumentManualReviewFile({ item }: { item: DocumentManualReviewItem }) 
         <p className="break-words text-sm font-semibold text-slate-900">{item.file.name}</p>
         <p className="mt-1 text-xs text-slate-600">{item.reason}</p>
       </div>
-      {previewUrl ? (
         <a
-          href={previewUrl}
+          ref={previewLinkRef}
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`Preview ${item.file.name} in a new tab`}
@@ -156,7 +160,6 @@ function DocumentManualReviewFile({ item }: { item: DocumentManualReviewItem }) 
           <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
           Preview PDF
         </a>
-      ) : <span className="text-xs text-slate-500">Preparing preview…</span>}
     </li>
   );
 }

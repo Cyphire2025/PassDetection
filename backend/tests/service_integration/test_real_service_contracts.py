@@ -334,7 +334,6 @@ def test_real_minio_private_object_round_trip() -> None:
         assert key in {item["Key"] for item in listing.get("Contents", [])}
     finally:
         client.delete_object(Bucket=bucket, Key=key)
-        _delete_bucket_if_empty(client, bucket)
 
 
 @pytest.mark.asyncio
@@ -410,7 +409,6 @@ async def test_real_postgresql_minio_deletion_tombstone_is_audited_and_idempoten
             await session.commit()
     finally:
         client.delete_object(Bucket=bucket, Key=object_key)
-        _delete_bucket_if_empty(client, bucket)
         await engine.dispose()
 
 
@@ -1149,17 +1147,6 @@ def test_real_celery_worker_executes_idempotent_database_task() -> None:
 
 
 def _ensure_bucket(client: object, bucket: str) -> None:
-    try:
-        client.create_bucket(Bucket=bucket)  # type: ignore[attr-defined]
-    except ClientError as exc:
-        if exc.response["Error"]["Code"] not in {
-            "BucketAlreadyOwnedByYou",
-            "BucketAlreadyExists",
-        }:
-            raise
-
-
-def _delete_bucket_if_empty(client: object, bucket: str) -> None:
-    listing = client.list_objects_v2(Bucket=bucket)  # type: ignore[attr-defined]
-    if not listing.get("Contents"):
-        client.delete_bucket(Bucket=bucket)  # type: ignore[attr-defined]
+    # The isolated service owner creates the bucket. Runtime credentials must
+    # exercise production-equivalent object scope, without bucket admin powers.
+    client.head_bucket(Bucket=bucket)  # type: ignore[attr-defined]

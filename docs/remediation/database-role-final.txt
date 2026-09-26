@@ -1,0 +1,3 @@
+Database roles provisioned and authenticated; application data preserved
+Database roles provisioned and authenticated; application data preserved
+PASS: 18 PostgreSQL role/row-preservation/DSN assertions; idempotent provisioning verified

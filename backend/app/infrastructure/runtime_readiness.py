@@ -21,6 +21,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config.settings import Settings
 from app.infrastructure.ai_priority.worker_readiness import celery_queue_readiness
+from app.infrastructure.ecr import ECR_QUEUE
+from app.infrastructure.ecr.readiness import ecr_backlog, ecr_capability
 from app.infrastructure.my_photos import (
     MY_PHOTOS_CONTROL_QUEUE,
     MY_PHOTOS_INDEX_QUEUE,
@@ -63,6 +65,7 @@ class _BlockingSnapshot:
     scheduler_ready: bool
     my_photos_ready: bool
     my_photos_required: bool
+    ecr_worker: tuple[str, bool] = ("probe_failed", False)
 
 
 @dataclass(frozen=True, slots=True)
@@ -99,6 +102,7 @@ class RuntimeReadinessProbe:
         schema_status, schema_ready = await _schema_readiness(db, settings)
         cleanup = await _cleanup_backlog(db)
         blocking = await self._blocking_snapshot(settings)
+        ecr = await ecr_backlog(db)
 
         cleanup_ready = (
             cleanup.blocked_count == 0
@@ -129,6 +133,7 @@ class RuntimeReadinessProbe:
             )
         )
         capabilities = {
+            "ecr_checks": ecr_capability(blocking.ecr_worker, ecr),
             "request_protection": _capability(
                 required=_security_redis_required(settings),
                 available=blocking.security_ready,
@@ -273,12 +278,13 @@ async def _cleanup_backlog(db: AsyncSession) -> _CleanupBacklog:
 
 
 async def _refresh_blocking_capabilities(settings: Settings) -> _BlockingSnapshot:
-    storage_result, scanner_result, runtime_result, provider_result, security_result = await asyncio.gather(
+    storage_result, scanner_result, runtime_result, provider_result, security_result, ecr_result = await asyncio.gather(
         readiness_probe_executor.run("object_storage", _probe_object_storage, timeout_seconds=BLOCKING_PROBE_TIMEOUT_SECONDS, configuration=settings),
         readiness_probe_executor.run("malware_scanner", lambda: _probe_malware_scanner(settings), timeout_seconds=BLOCKING_PROBE_TIMEOUT_SECONDS, configuration=settings),
         readiness_probe_executor.run("worker_scheduler", lambda: _probe_worker_and_scheduler(settings), timeout_seconds=BLOCKING_PROBE_TIMEOUT_SECONDS, configuration=settings),
         readiness_probe_executor.run("my_photos", lambda: _probe_my_photos(settings), timeout_seconds=BLOCKING_PROBE_TIMEOUT_SECONDS, configuration=settings),
         readiness_probe_executor.run("security_redis", lambda: _probe_security_redis(settings), timeout_seconds=BLOCKING_PROBE_TIMEOUT_SECONDS, configuration=settings),
+        readiness_probe_executor.run("ecr_worker", lambda: _probe_ecr_worker(settings), timeout_seconds=BLOCKING_PROBE_TIMEOUT_SECONDS, configuration=settings),
         return_exceptions=True,
     )
 
@@ -311,6 +317,7 @@ async def _refresh_blocking_capabilities(settings: Settings) -> _BlockingSnapsho
             "general_processing_worker": worker_status,
             "platform_scheduler": scheduler_status,
             "my_photos": my_photos_status,
+            "ecr_worker": _probe_result(ecr_result, failure_status="probe_failed")[0],
         },
         object_storage_ready=storage_ready,
         security_ready=security_ready,
@@ -319,7 +326,14 @@ async def _refresh_blocking_capabilities(settings: Settings) -> _BlockingSnapsho
         scheduler_ready=scheduler_ready,
         my_photos_ready=my_photos_ready,
         my_photos_required=my_photos_required,
+        ecr_worker=_probe_result(ecr_result, failure_status="probe_failed"),
     )
+
+
+def _probe_ecr_worker(settings: Settings) -> tuple[str, bool]:
+    if settings.processing_backend != "celery":
+        return "worker_backend_not_celery", False
+    return celery_queue_readiness(ECR_QUEUE, settings)
 
 
 def _security_redis_required(settings: Settings) -> bool:

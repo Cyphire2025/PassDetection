@@ -205,6 +205,7 @@ export interface PassportSubmission extends TimestampedEntity {
   duplicate_cluster_id?: string | null;
   duplicate_cluster_size?: number;
   duplicate_cluster_member_ids?: string[];
+  duplicate_cluster_member_ids_complete?: boolean;
   duplicate_match_basis?: string | null;
   verification_confidence?: number | null;
   overall_confidence: number | null;

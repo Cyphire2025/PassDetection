@@ -1,0 +1,37 @@
+{
+  "scope": "Same synthetic negative insert helper on SQLite and actual Alembic-migrated PostgreSQL; no production database touched",
+  "sqlite": {
+    "passed": 3,
+    "duration_seconds": 1.15,
+    "runtime": "CPython 3.11.15",
+    "foreign_keys_pragma": true
+  },
+  "postgresql": {
+    "passed": 3,
+    "database": "passdetection_ci_services",
+    "version": "PostgreSQL16",
+    "schema_revision": "0107_passport_ecr_checks",
+    "runtime": "CPython 3.11.16 (Linux container)",
+    "whole_service_lane": "132 unique cases evidenced across initial run and targeted repairs; see reliability-regression-evidence.json"
+  },
+  "cases": [
+    "missing_connection",
+    "wrong_agency",
+    "wrong_owner"
+  ],
+  "boundary": "email_messages(connection_id,agency_id,owner_user_id) -> email_connections(id,agency_id,owner_user_id)",
+  "assertions": [
+    "Valid control inserted and remains after each failed insert",
+    "Existing wrong agency and existing same-agency wrong owner cannot cross parent scope",
+    "Missing connection rejected",
+    "Actual IntegrityError with SQLite FOREIGNKEY / PostgreSQL23503; wrong owner identifies named composite FK",
+    "Invalid row absent after nested rollback"
+  ],
+  "test_only": true,
+  "schema_modified": false,
+  "postgres_test_rows_committed": false,
+  "limits": [
+    "Does not add the missing passport tenant composite constraint from DATA-02",
+    "Does not prove every entity has equivalent constraints"
+  ]
+}

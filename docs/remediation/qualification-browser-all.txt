@@ -1,0 +1,14 @@
+
+Running 3 tests using 1 worker
+
+(node:1548) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › e2e-real-stack\authentication.spec.ts:23:5 › real TLS login, MFA, persistence, CSRF, refresh, deep links and logout (3.9s)
+(node:39748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 2 [firefox] › e2e-real-stack\authentication.spec.ts:23:5 › real TLS login, MFA, persistence, CSRF, refresh, deep links and logout (5.6s)
+(node:42700) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 3 [webkit] › e2e-real-stack\authentication.spec.ts:23:5 › real TLS login, MFA, persistence, CSRF, refresh, deep links and logout (16.0s)
+
+  3 passed (28.9s)

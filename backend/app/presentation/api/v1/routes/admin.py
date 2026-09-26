@@ -439,7 +439,7 @@ async def update_platform_settings(
         entity_id=PLATFORM_SETTINGS_KEY,
         metadata=dict(value),
     )
-    return PlatformSettingsResponse(**row.value, updated_at=row.updated_at)
+    return PlatformSettingsResponse.model_validate({**row.value, "updated_at": row.updated_at})
 
 
 def _same_platform_settings_revision(current: datetime, expected: datetime) -> bool:

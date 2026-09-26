@@ -217,6 +217,7 @@ async def test_abort_processing_upload_is_scoped_transactional_and_cleans_after_
     ]
     session = MagicMock()
     session.execute = AsyncMock(side_effect=execute_results)
+    session.scalar = AsyncMock(return_value=None)
     session.rollback = AsyncMock()
     events: list[str] = []
 

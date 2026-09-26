@@ -4,6 +4,16 @@ defaults:
     buckets: [1, 2.5, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 15000]
 
 mappings:
+  - match: "passdetection.ecr.*"
+    match_metric_type: gauge
+    name: "passdetection_ecr_${1}"
+    ttl: 5m
+
+  - match: "passdetection.database.pool.*"
+    match_metric_type: gauge
+    name: "passdetection_database_pool_${1}"
+    ttl: 5m
+
   - match: "passdetection.http.requests.total.*.*.*"
     match_metric_type: counter
     name: "passdetection_http_requests_total"

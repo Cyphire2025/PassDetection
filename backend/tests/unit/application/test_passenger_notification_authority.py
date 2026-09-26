@@ -5,6 +5,7 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from app.application.mobile.notification_service import (
     dispatch_mobile_push_batch,
@@ -28,6 +29,7 @@ from tests.unit.application.test_fcm_dispatch_intents import FcmProvider, _targe
 from tests.unit.application.test_mobile_notification_service import (
     _access,
     _announcement,
+    _persist_notification_records,
     _submission,
 )
 
@@ -52,7 +54,7 @@ async def _change_authority(session, reason):
 
 
 @pytest.mark.parametrize(
-    "reason", ["phone_changed", "unreviewed", "imported", "removed", "wrong_group", "wrong_agency"]
+    "reason", ["phone_changed", "unreviewed", "imported", "removed"]
 )
 async def test_dispatch_cancels_obsolete_passenger_authority_without_provider_calls(
     db_session, reason
@@ -62,7 +64,23 @@ async def test_dispatch_cancels_obsolete_passenger_authority_without_provider_ca
     await _change_authority(db_session, reason)
     provider = FcmProvider()
     assert await dispatch_mobile_push_batch(db_session, provider=provider, limit=20, now=now) == 0
-    assert provider.calls == [] and notification.status == "cancelled"
+    assert provider.calls == []
+    if reason == "removed":
+        # Deleting the source cascades through its scoped identity and queued
+        # notification. An old identity-map object is not the persisted state.
+        assert await db_session.scalar(select(MobileNotificationModel.id).where(
+            MobileNotificationModel.id == notification.id
+        )) is None
+    else:
+        assert notification.status == "cancelled"
+
+
+@pytest.mark.parametrize("reason", ["wrong_group", "wrong_agency"])
+async def test_database_rejects_cross_scope_passenger_identity(db_session, reason):
+    await _target(db_session, datetime.now(UTC))
+    with pytest.raises(IntegrityError, match="FOREIGN KEY constraint failed"):
+        await _change_authority(db_session, reason)
+    await db_session.rollback()
 
 
 @pytest.mark.parametrize("reason", ["phone_changed", "unreviewed", "imported"])
@@ -160,8 +178,7 @@ async def test_recipient_pagination_continues_past_a_page_with_no_authoritative_
     submissions = [_submission(identity) for identity in identities]
     for submission in submissions[:2]:
         submission.client_reviewed_at = None
-    db_session.add_all([access, announcement, *identities, *submissions])
-    await db_session.flush()
+    await _persist_notification_records(db_session, [access, announcement, *identities, *submissions])
     counts = await enqueue_announcement_notifications(
         db_session, access=access, announcement=announcement
     )

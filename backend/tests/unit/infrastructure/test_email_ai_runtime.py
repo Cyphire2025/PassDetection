@@ -456,6 +456,8 @@ async def test_disabled_rollout_rows_cannot_starve_later_enabled_owner(
     monkeypatch,
 ) -> None:
     agency_id = uuid.uuid4()
+    db_session.add(AgencyModel(id=agency_id, name="Synthetic agency", email=f"{agency_id}@example.test"))
+    await db_session.flush()
     base_time = datetime(2026, 7, 30, 8, 0, tzinfo=UTC)
     disabled_owner_ids: list[uuid.UUID] = []
     for index in range(50):
@@ -472,6 +474,7 @@ async def test_disabled_rollout_rows_cannot_starve_later_enabled_owner(
                 is_active=True,
             )
         )
+        await db_session.flush()
         connection = EmailConnectionModel(
             agency_id=agency_id,
             owner_user_id=owner_id,
@@ -521,6 +524,7 @@ async def test_disabled_rollout_rows_cannot_starve_later_enabled_owner(
             is_active=True,
         )
     )
+    await db_session.flush()
     enabled_connection = EmailConnectionModel(
         agency_id=agency_id,
         owner_user_id=enabled_owner_id,
@@ -581,6 +585,8 @@ async def test_opt_in_watermark_and_per_owner_batching_prioritize_new_mail_fairl
     monkeypatch,
 ) -> None:
     agency_id = uuid.uuid4()
+    db_session.add(AgencyModel(id=agency_id, name="Synthetic agency", email=f"{agency_id}@example.test"))
+    await db_session.flush()
     watermark = datetime(2026, 7, 30, 8, 0, tzinfo=UTC)
     owner_ids = [uuid.uuid4(), uuid.uuid4()]
     connections = []
@@ -596,6 +602,7 @@ async def test_opt_in_watermark_and_per_owner_batching_prioritize_new_mail_fairl
                 is_active=True,
             )
         )
+        await db_session.flush()
         connection = EmailConnectionModel(
             agency_id=agency_id,
             owner_user_id=owner_id,
@@ -709,6 +716,8 @@ async def test_seeding_pairs_newest_mail_with_starved_oldest_backlog(
     monkeypatch,
 ) -> None:
     agency_id = uuid.uuid4()
+    db_session.add(AgencyModel(id=agency_id, name="Synthetic agency", email=f"{agency_id}@example.test"))
+    await db_session.flush()
     owner_id = uuid.uuid4()
     now = datetime.now(tz=UTC)
     db_session.add(
@@ -722,6 +731,7 @@ async def test_seeding_pairs_newest_mail_with_starved_oldest_backlog(
             is_active=True,
         )
     )
+    await db_session.flush()
     connection = EmailConnectionModel(
         agency_id=agency_id,
         owner_user_id=owner_id,
@@ -792,6 +802,8 @@ async def test_starved_work_outranks_fresh_mail_under_global_saturation(
     monkeypatch,
 ) -> None:
     agency_id = uuid.uuid4()
+    db_session.add(AgencyModel(id=agency_id, name="Synthetic agency", email=f"{agency_id}@example.test"))
+    await db_session.flush()
     now = datetime.now(tz=UTC)
     for index in range(3):
         owner_id = uuid.uuid4()
@@ -806,6 +818,7 @@ async def test_starved_work_outranks_fresh_mail_under_global_saturation(
                 is_active=True,
             )
         )
+        await db_session.flush()
         connection = EmailConnectionModel(
             agency_id=agency_id,
             owner_user_id=owner_id,
@@ -885,6 +898,8 @@ async def test_seeding_distinguishes_body_processing_failure_from_ai_exclusions(
     monkeypatch,
 ) -> None:
     agency_id = uuid.uuid4()
+    db_session.add(AgencyModel(id=agency_id, name="Synthetic agency", email=f"{agency_id}@example.test"))
+    await db_session.flush()
     owner_id = uuid.uuid4()
     now = datetime.now(tz=UTC)
     db_session.add(
@@ -898,6 +913,7 @@ async def test_seeding_distinguishes_body_processing_failure_from_ai_exclusions(
             is_active=True,
         )
     )
+    await db_session.flush()
     connection = EmailConnectionModel(
         agency_id=agency_id,
         owner_user_id=owner_id,
@@ -1051,6 +1067,7 @@ async def test_claim_persists_auditable_proposal_draft_and_owner_notification(
         is_active=True,
     )
     db_session.add(owner)
+    await db_session.flush()
     connection = EmailConnectionModel(
         agency_id=agency_id,
         owner_user_id=owner_id,
@@ -1658,6 +1675,7 @@ async def test_irrelevant_email_persists_no_operational_notification(
             is_active=True,
         )
     )
+    await db_session.flush()
     await db_session.flush()
     analysis = SimpleNamespace(
         id=uuid.uuid4(),

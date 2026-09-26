@@ -45,9 +45,9 @@ describe("agency and phone welcome gates in the original WhatsApp workspace", ()
     const failed = { ...recipient, message_statuses: [state("group_invite", "failed")] };
     const delivered = { ...recipient, message_statuses: [state("group_invite", "delivered", true)] };
     expect(canRetryOrResendRecipient(failed, "group_invite", "retry")).toBe(true);
-    expect(canRetryOrResendRecipient(delivered, "group_invite", "resend")).toBe(true);
+    expect(canRetryOrResendRecipient(delivered, "group_invite", "resend")).toBe(false);
     expect(getBulkResendEligibility(failed, "group_invite")).toBe("eligible");
-    expect(getBulkResendEligibility(delivered, "group_invite")).toBe("eligible");
+    expect(getBulkResendEligibility(delivered, "group_invite")).toBe("blocked");
   });
 
   it.each(["queued", "processing", "delivery_unknown"])("preserves group invite %s exclusions without a welcome", (deliveryStatus) => {

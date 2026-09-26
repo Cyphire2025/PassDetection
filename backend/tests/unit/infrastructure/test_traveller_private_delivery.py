@@ -23,6 +23,7 @@ from app.infrastructure.whatsapp.private_delivery_policy import (
     lock_private_delivery_group_source_snapshot,
     validate_private_delivery_recipient,
 )
+from tests.persistence import persist_graph
 from tests.unit.infrastructure.test_private_delivery_policy import (
     NOW,
     PHONE,
@@ -207,7 +208,7 @@ async def test_worker_requires_welcome_only_for_qr_before_provider(
         delivery = _document_delivery(context, status="queued")
         delivery.document_batch_id = batch.id
         delivery.distributed_document_id = document.id
-        db_session.add_all([batch, document])
+        await persist_graph(db_session, [batch, document])
         runtime = document_delivery_runtime
         runner = runtime.run_document_whatsapp_broadcast
         monkeypatch.setattr(runtime, "MinioStorageRepository", lambda: SimpleNamespace(

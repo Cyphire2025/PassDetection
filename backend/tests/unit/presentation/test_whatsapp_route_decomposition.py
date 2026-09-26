@@ -24,6 +24,7 @@ _EXPECTED_ROUTES = [
     (("GET",), "/groups", "list_broadcast_groups"),
     (("GET",), "/groups/{group_id}", "get_broadcast_group"),
     (("GET",), "/groups/{group_id}/recipient-roster", "get_broadcast_recipient_roster"),
+    (("POST",), "/groups/{group_id}/export", "export_broadcast_filter"),
     (("GET",), "/groups/{group_id}/rejected-contacts", "list_broadcast_rejected_contacts"),
     (
         ("POST",),

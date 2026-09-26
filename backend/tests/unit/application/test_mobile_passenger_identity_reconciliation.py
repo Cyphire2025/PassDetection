@@ -27,9 +27,20 @@ from app.infrastructure.database.gc_mobile_models import (
     MobilePassengerIdentityModel,
     MobileSyncChangeModel,
 )
+from app.infrastructure.database.models import PassportSubmissionModel
 from app.infrastructure.repositories.passport_whatsapp_matching_repository import (
     TargetedPassportWhatsAppMatchContext,
 )
+from tests.persistence import persist_mobile_access_graph
+
+
+async def _persist_identities(session, access, identities):
+    submissions = [PassportSubmissionModel(
+        id=identity.passenger_submission_id, agency_id=access.agency_id, group_id=access.group_id,
+        client_name="Synthetic passenger", client_phone=identity.normalized_phone_number,
+        image_s3_key="synthetic/passport.jpg", status="submitted",
+    ) for identity in identities]
+    await persist_mobile_access_graph(session, access, [*submissions, *identities])
 
 
 def _submission(
@@ -366,8 +377,7 @@ async def test_targeted_shared_phone_change_updates_all_peers_together(
         _identity(access=access, passenger_id=first.id, phone=phone),
         _identity(access=access, passenger_id=second.id, phone=phone),
     ]
-    db_session.add_all([access, *identities])
-    await db_session.flush()
+    await _persist_identities(db_session, access, identities)
     context = _target_context(
         submissions=(first, second),
         rows=(_row(first, second, status="multiple_submissions", phone=phone),),
@@ -439,8 +449,7 @@ async def test_targeted_phone_change_closes_old_and_new_phone_clusters(
         passenger_id=submission.id,
         phone=old_phone,
     )
-    db_session.add_all([access, identity])
-    await db_session.flush()
+    await _persist_identities(db_session, access, [identity])
     context = _target_context(
         submissions=(submission,),
         rows=(_row(submission, phone=new_phone),),
@@ -491,8 +500,7 @@ async def test_targeted_deleted_submission_revokes_only_affected_identity(
             phone="+919800000012",
         ),
     ]
-    db_session.add_all([access, *identities])
-    await db_session.flush()
+    await _persist_identities(db_session, access, identities)
     context = _target_context(
         submissions=(),
         rows=(),
@@ -560,8 +568,7 @@ async def test_full_reconcile_migrates_claimed_roster_binding_then_revokes_remov
     identity.status = "claimed"
     identity.claimed_at = datetime.now(UTC)
     identity.last_verified_at = datetime.now(UTC)
-    db_session.add_all([access, identity])
-    await db_session.flush()
+    await _persist_identities(db_session, access, [identity])
     loader = AsyncMock(return_value=({}, [], [passenger], [_row(passenger, phone="+919800000001")]))
     monkeypatch.setattr(reconciliation_module, "load_unresolved_passport_whatsapp_match_context", loader)
     revoke = AsyncMock()

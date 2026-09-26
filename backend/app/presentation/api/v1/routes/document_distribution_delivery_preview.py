@@ -148,7 +148,10 @@ async def _build_document_delivery_preview(
     for passenger in assigned_passengers:
         destination = destinations.get(passenger.id)
         phone = destination.phone_number if destination else None
-        source = sources_by_id.get(destination.broadcast_group_id) if destination else None
+        source = (
+            sources_by_id.get(destination.broadcast_group_id)
+            if destination and destination.broadcast_group_id is not None else None
+        )
         passenger_documents = documents_by_passenger[passenger.id]
         if not phone:
             summary.missing_phone += 1

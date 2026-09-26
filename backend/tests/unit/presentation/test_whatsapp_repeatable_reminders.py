@@ -16,6 +16,7 @@ from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 
 from app.domain.entities.entities import UserRole
 from app.infrastructure.database.models import (
+    AgencyModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
     WhatsAppMessageLogModel,
@@ -33,6 +34,7 @@ from app.presentation.api.v1.schemas.whatsapp_schemas import (
     WhatsAppPreviewRequest,
     WhatsAppSendRequest,
 )
+from tests.persistence import persist_graph
 
 
 class SQLiteDeliveryClaim:
@@ -87,7 +89,7 @@ async def broadcast(db_session, monkeypatch, test_settings):
         name="Reminder test group",
         recipient_opt_in_confirmed_at=datetime.now(tz=UTC),
     )
-    db_session.add(group)
+    records = [AgencyModel(id=group.agency_id, name="Reminder agency", email="reminders@example.test"), group]
     recipients = []
     statuses = [
         "submitted",
@@ -109,9 +111,9 @@ async def broadcast(db_session, monkeypatch, test_settings):
             phone_number=f"+9198765432{index:02}",
             normalized_phone_number=f"+9198765432{index:02}",
         )
-        db_session.add(recipient)
+        records.append(recipient)
         recipients.append(recipient)
-        db_session.add(WhatsAppPhoneWelcomeModel(
+        records.append(WhatsAppPhoneWelcomeModel(
             agency_id=group.agency_id, normalized_phone_number=recipient.normalized_phone_number,
             status="delivered", attempt_id=uuid.uuid4(), attempt_kind="broadcast",
         ))
@@ -122,7 +124,7 @@ async def broadcast(db_session, monkeypatch, test_settings):
         ):
             if previous_status is None:
                 continue
-            db_session.add(
+            records.append(
                 WhatsAppRecipientMessageStateModel(
                     id=uuid.uuid4(),
                     broadcast_group_id=group.id,
@@ -135,7 +137,7 @@ async def broadcast(db_session, monkeypatch, test_settings):
                     provider_status_at=datetime.now(tz=UTC),
                 )
             )
-    db_session.add(
+    records.append(
         WhatsAppBroadcastRecipientModel(
             id=uuid.uuid4(),
             broadcast_group_id=group.id,
@@ -146,6 +148,7 @@ async def broadcast(db_session, monkeypatch, test_settings):
             removed_at=datetime.now(tz=UTC),
         )
     )
+    await persist_graph(db_session, records)
     await db_session.commit()
     return SimpleNamespace(
         group=group,

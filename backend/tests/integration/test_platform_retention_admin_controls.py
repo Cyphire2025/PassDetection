@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.domain.entities.entities import User, UserRole
 from app.infrastructure.database.models import AgencyModel, ClientGroupModel, UserModel
 from app.presentation.api.v1.routes.admin import get_group_passport_retention, router
+from tests.persistence import persist_graph
 
 
 def _agency_admin(*, user_id: uuid.UUID, agency_id: uuid.UUID) -> User:
@@ -45,7 +46,7 @@ async def test_retention_schedule_is_tenant_scoped_without_exposing_retired_hold
         passport_legal_hold_set_at=now - timedelta(days=2),
         passport_legal_hold_set_by_user_id=user_id,
     )
-    db_session.add_all([
+    await persist_graph(db_session, [
         AgencyModel(id=agency_id, name="Retention Agency", email=f"{agency_id}@example.com"),
         UserModel(
             id=user_id, email="retention-admin@example.com", hashed_password="hash",
@@ -54,7 +55,6 @@ async def test_retention_schedule_is_tenant_scoped_without_exposing_retired_hold
         ),
         group,
     ])
-    await db_session.flush()
 
     inspected = await get_group_passport_retention(
         group_id=group_id,

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import sys
 from pathlib import Path
 
@@ -87,3 +88,51 @@ def test_load_coverage_normalizes_app_source_root(tmp_path: Path) -> None:
     assert quality.load_coverage_percentages(coverage) == {
         "app/presentation/api.py": pytest.approx(81.25)
     }
+
+
+def _coverage_gate_files(tmp_path: Path, *, measured_branches: int = 10) -> tuple[Path, Path]:
+    budget = tmp_path / "budgets.json"
+    budget.write_text(json.dumps({"coverage_gates": {
+        "global": {"minimum_line_percent": 70, "minimum_branch_percent": 60},
+        "critical_modules": [{"path": "app/security.py", "minimum_line_percent": 90, "minimum_branch_percent": 85}],
+    }}), encoding="utf-8")
+    coverage = tmp_path / "coverage.xml"
+    coverage.write_text(
+        f'<coverage line-rate="0.80" branch-rate="0.70" branches-valid="{measured_branches}">'
+        '<packages><package><classes><class filename="security.py" line-rate="0.99" branch-rate="0.80"/>'
+        '</classes></package></packages></coverage>', encoding="utf-8",
+    )
+    return budget, coverage
+
+
+def test_critical_branch_regression_fails_even_when_lines_and_global_coverage_pass(tmp_path: Path) -> None:
+    budget, coverage = _coverage_gate_files(tmp_path)
+    assert quality.evaluate_coverage_gates(budget, coverage) == [
+        "app/security.py: branch coverage 80.00% is below reviewed floor 85.00%"
+    ]
+
+
+def test_statement_only_report_cannot_satisfy_branch_gate(tmp_path: Path) -> None:
+    budget, coverage = _coverage_gate_files(tmp_path, measured_branches=0)
+    assert quality.evaluate_coverage_gates(budget, coverage) == [
+        "Branch coverage was not measured; run pytest with --cov-branch"
+    ]
+
+
+def test_global_regression_and_missing_critical_module_fail(tmp_path: Path) -> None:
+    budget, coverage = _coverage_gate_files(tmp_path)
+    coverage.write_text('<coverage line-rate="0.69" branch-rate="0.59" branches-valid="10"/>', encoding="utf-8")
+    violations = quality.evaluate_coverage_gates(budget, coverage)
+    assert len(violations) == 3
+    assert any("Repository: line coverage" in value for value in violations)
+    assert any("Repository: branch coverage" in value for value in violations)
+    assert any("critical module is missing" in value for value in violations)
+
+
+def test_nonfinite_coverage_floor_is_rejected(tmp_path: Path) -> None:
+    budget, coverage = _coverage_gate_files(tmp_path)
+    document = json.loads(budget.read_text(encoding="utf-8"))
+    document["coverage_gates"]["global"]["minimum_line_percent"] = "nan"
+    budget.write_text(json.dumps(document), encoding="utf-8")
+    with pytest.raises(ValueError, match="invalid line coverage floor"):
+        quality.evaluate_coverage_gates(budget, coverage)

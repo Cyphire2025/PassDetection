@@ -23,6 +23,7 @@ from app.infrastructure.database.models import (
     ClientGroupModel,
     ManagerGroupAccessModel,
     NotificationModel,
+    PassengerQRTokenModel,
     PassengerQrWhatsAppDeliveryModel,
     PassportSubmissionModel,
     StorageCleanupJobModel,
@@ -248,6 +249,11 @@ async def test_delete_checks_private_qr_delivery_before_passenger_cascade(
         normalized_phone_number="+919876543221", template_name="synthetic_qr",
         template_parameter_values=[], status=delivery_status,
     )
+    db_session.add(PassengerQRTokenModel(
+        id=delivery.qr_token_id, agency_id=group.agency_id, passenger_id=passenger_id,
+        token_hash=uuid.uuid4().hex, expires_at=datetime.now(tz=UTC),
+    ))
+    await db_session.flush()
     db_session.add(delivery)
     await db_session.commit()
     delivery_id = delivery.id

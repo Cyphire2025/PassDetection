@@ -6,6 +6,9 @@ export default defineConfig({
   resolve: { tsconfigPaths: true },
   test: {
     environment: "jsdom",
+    // Each jsdom worker loads the application graph; bound concurrency on CI
+    // and large-core developer hosts to avoid starving timed user workflows.
+    maxWorkers: 2,
     setupFiles: ["./vitest.setup.ts"],
     include: ["**/*.test.{ts,tsx}"],
     exclude: ["e2e/**", "node_modules/**", ".next/**"],
@@ -17,6 +20,10 @@ export default defineConfig({
         "components/layout/mobile-navigation.tsx",
         "features/auth/components/authenticated-content.tsx",
         "features/search/components/global-search.tsx",
+        "features/documents/components/document-manual-review-dialog.tsx",
+        "features/settings/components/dashboard-settings-page.tsx",
+        "features/settings/components/appearance-settings.tsx",
+        "lib/utils/coordinator-device-id.ts",
         "proxy.ts",
       ],
       thresholds: {

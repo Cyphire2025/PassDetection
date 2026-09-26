@@ -142,8 +142,8 @@ describe("group invite composer", () => {
     expect(onSend).toHaveBeenLastCalledWith(expect.objectContaining({ bulkDraft: { messageContent: null, groupInviteLink: "https://chat.whatsapp.com/Replacement123", headerImageId: null } }));
   });
 
-  it("allows a single resend without welcome and never revives a removed photo without explicit reset", async () => {
-    mocks.detail.recipients[0].message_statuses = [{ message_type: "group_invite", status: "delivered", already_sent: true, latest_resend_status: null, resend_blocked: false, submitted_at: null, status_updated_at: "2026-09-21" }];
+  it("allows resending a failed invite without welcome and never revives a removed photo without explicit reset", async () => {
+    mocks.detail.recipients[0].message_statuses = [{ message_type: "group_invite", status: "failed", already_sent: false, latest_resend_status: null, resend_blocked: false, submitted_at: null, status_updated_at: "2026-09-21" }];
     const { onSend, container } = mount({ targetRecipient: { recipientId: "A", recipientName: "Delegate A", phoneNumber: "+919999999999", messageType: "group_invite", action: "resend" } });
     await waitFor(() => expect(screen.getByRole("button", { name: "Resend to Delegate A" })).toBeEnabled());
     expect(screen.queryByText(/welcome/i)).not.toBeInTheDocument();
@@ -167,6 +167,15 @@ describe("group invite composer", () => {
     expect(screen.queryByText(/welcome/i)).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Retry to Delegate A" }));
     await waitFor(() => expect(onSend).toHaveBeenCalledTimes(1));
+  });
+
+  it("blocks resending an already delivered invitation even when preview returns a saved photo", async () => {
+    mocks.detail.recipients[0].message_statuses = [{ message_type: "group_invite", status: "delivered", already_sent: true, latest_resend_status: null, resend_blocked: false, submitted_at: null, status_updated_at: "2026-09-21" }];
+    const { onSend, container } = mount({ targetRecipient: { recipientId: "A", recipientName: "Delegate A", phoneNumber: "+919999999999", messageType: "group_invite", action: "resend" } });
+    await screen.findByDisplayValue(link);
+    expect(screen.getByRole("button", { name: "Resend to Delegate A" })).toBeDisabled();
+    fireEvent.submit(container.querySelector("form")!);
+    expect(onSend).not.toHaveBeenCalled();
   });
 
   it("keeps a blocked single resend unavailable even without the welcome prerequisite", async () => {

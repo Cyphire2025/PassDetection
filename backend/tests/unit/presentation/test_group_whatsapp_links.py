@@ -42,6 +42,7 @@ from app.presentation.api.v1.schemas.client_group_schemas import (
     ReplaceWhatsAppBroadcastLinksRequest,
     UpdateClientGroupRequest,
 )
+from tests.persistence import persist_graph
 
 NOW = datetime(2026, 7, 20, 12, tzinfo=UTC)
 
@@ -288,7 +289,7 @@ async def _seed(db_session: AsyncSession) -> dict[str, object]:
     other_agency_id = uuid.uuid4()
     creator_id = uuid.uuid4()
     viewer_id = uuid.uuid4()
-    db_session.add_all(
+    await persist_graph(db_session,
         [
             AgencyModel(
                 id=agency_id,
@@ -364,7 +365,7 @@ async def _seed(db_session: AsyncSession) -> dict[str, object]:
         created_at=NOW,
         updated_at=NOW,
     )
-    db_session.add_all(
+    await persist_graph(db_session,
         [
             group,
             first_broadcast,

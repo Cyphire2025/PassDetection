@@ -60,7 +60,16 @@ def test_whatsapp_route_reexports_reviewed_schema_contracts() -> None:
         if name in {"WhatsAppBroadcastGroupResponse", "WhatsAppBroadcastGroupDetailResponse"}:
             for field in ("archived_at", "is_archived", "has_import_only_source", "source_contact_count"):
                 schema["properties"].pop(field)
-        linked_group = schema.get("$defs", {}).get("WhatsAppLinkedClientGroupResponse")
+        # Merged-contact provenance is an additive field introduced after the
+        # reviewed baseline. Keep the baseline hash and assert the addition below.
+        if name == "WhatsAppRecipientResponse":
+            schema["properties"].pop("merged_contacts")
+        definitions = schema.get("$defs", {})
+        definitions.pop("WhatsAppMergedContactResponse", None)
+        recipient = definitions.get("WhatsAppRecipientResponse")
+        if recipient is not None:
+            recipient["properties"].pop("merged_contacts")
+        linked_group = definitions.get("WhatsAppLinkedClientGroupResponse")
         if linked_group is not None:
             linked_group["properties"].pop("import_only")
         if name in {"WhatsAppSendRequest", "WhatsAppResendRequest", "WhatsAppPreviewRequest"}:
@@ -132,3 +141,13 @@ def test_bulk_preview_missing_image_count_defaults_to_zero_and_cannot_be_negativ
     assert WhatsAppBulkResendPreviewResponse.model_json_schema()["properties"]["missing_header_image_count"] == {
         "default": 0, "minimum": 0, "title": "Missing Header Image Count", "type": "integer",
     }
+
+
+def test_merged_contacts_are_additive_response_contracts() -> None:
+    field = whatsapp.WhatsAppRecipientResponse.model_fields["merged_contacts"]
+    assert field.default_factory is list
+    schema = whatsapp.WhatsAppRecipientResponse.model_json_schema()
+    assert schema["properties"]["merged_contacts"]["items"]["$ref"] == "#/$defs/WhatsAppMergedContactResponse"
+    merged = schema["$defs"]["WhatsAppMergedContactResponse"]
+    assert merged["required"] == ["id", "name"]
+    assert set(merged["properties"]) == {"id", "name", "imported_fields"}

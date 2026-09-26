@@ -66,6 +66,7 @@ async def seed_traveller_delivery(session, client, *, phones=None, document_type
         passenger = PassportSubmissionModel(id=uuid.uuid4(), agency_id=agency.id, group_id=group.id,
             client_name=f"Parent {index + 1}", client_phone=phone, family_head_phone=QUALIFIER_PHONE,
             image_s3_key=f"{agency.id}/{group.id}/{uuid.uuid4()}.jpg", status="confirmed",
+            client_reviewed_at=now,
             confirmed_fields={"passport_number": f"P{index}000001"},
             staff_metadata={"employee_code": "EMP001"})
         session.add(passenger)

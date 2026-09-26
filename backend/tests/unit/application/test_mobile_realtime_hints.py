@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import uuid
-from types import SimpleNamespace
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mobile.realtime_hints import register_mobile_realtime_publisher
 from app.application.mobile.sync_journal import append_mobile_sync_change
+from app.infrastructure.database.gc_mobile_models import GCGroupAccessModel
+from tests.persistence import persist_mobile_access_graph
 
 
 @pytest.mark.asyncio
@@ -16,12 +17,14 @@ async def test_realtime_hint_is_published_only_after_commit_without_journal_payl
 ) -> None:
     captured = []
     unregister = register_mobile_realtime_publisher(captured.append)
-    access = SimpleNamespace(
+    access = GCGroupAccessModel(
         id=uuid.uuid4(),
         agency_id=uuid.uuid4(),
         group_id=uuid.uuid4(),
         access_generation=3,
     )
+    await persist_mobile_access_graph(db_session, access)
+    await db_session.commit()
     try:
         await append_mobile_sync_change(
             db_session,
@@ -57,12 +60,14 @@ async def test_realtime_hint_is_published_only_after_commit_without_journal_payl
 async def test_rollback_never_publishes_realtime_hint(db_session: AsyncSession) -> None:
     captured = []
     unregister = register_mobile_realtime_publisher(captured.append)
-    access = SimpleNamespace(
+    access = GCGroupAccessModel(
         id=uuid.uuid4(),
         agency_id=uuid.uuid4(),
         group_id=uuid.uuid4(),
         access_generation=1,
     )
+    await persist_mobile_access_graph(db_session, access)
+    await db_session.commit()
     try:
         await append_mobile_sync_change(
             db_session,
@@ -85,12 +90,14 @@ async def test_one_transaction_coalesces_trip_to_highest_cursor(
 ) -> None:
     captured = []
     unregister = register_mobile_realtime_publisher(captured.append)
-    access = SimpleNamespace(
+    access = GCGroupAccessModel(
         id=uuid.uuid4(),
         agency_id=uuid.uuid4(),
         group_id=uuid.uuid4(),
         access_generation=1,
     )
+    await persist_mobile_access_graph(db_session, access)
+    await db_session.commit()
     try:
         first = await append_mobile_sync_change(
             db_session,
@@ -126,12 +133,14 @@ async def test_savepoint_commit_does_not_publish_before_outer_commit(
 ) -> None:
     captured = []
     unregister = register_mobile_realtime_publisher(captured.append)
-    access = SimpleNamespace(
+    access = GCGroupAccessModel(
         id=uuid.uuid4(),
         agency_id=uuid.uuid4(),
         group_id=uuid.uuid4(),
         access_generation=1,
     )
+    await persist_mobile_access_graph(db_session, access)
+    await db_session.commit()
     try:
         outer = await db_session.begin()
         savepoint = await db_session.begin_nested()
@@ -160,12 +169,14 @@ async def test_savepoint_rollback_preserves_parent_hint_and_discards_child(
 ) -> None:
     captured = []
     unregister = register_mobile_realtime_publisher(captured.append)
-    access = SimpleNamespace(
+    access = GCGroupAccessModel(
         id=uuid.uuid4(),
         agency_id=uuid.uuid4(),
         group_id=uuid.uuid4(),
         access_generation=1,
     )
+    await persist_mobile_access_graph(db_session, access)
+    await db_session.commit()
     try:
         outer = await db_session.begin()
         parent = await append_mobile_sync_change(

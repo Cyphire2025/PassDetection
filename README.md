@@ -1,10 +1,14 @@
 # Global Connects Dashboard - Enterprise Passport OCR Platform
 
-Enterprise-grade passport processing platform for travel agencies.
+Passport processing platform for travel agencies. Production readiness depends on
+the tested release and deployed controls; see the [current release procedure](docs/PRODUCTION_RELEASE_READINESS.md)
+and [recovery evidence requirements](docs/PRODUCTION_RESILIENCE_AND_DR.md).
 
 ## Architecture
 
-Clean Architecture (Hexagonal) with strict layer boundaries:
+Layered architecture organized around domain entities, application workflows,
+infrastructure adapters and presentation. Some application modules still import
+infrastructure or presentation code; strict dependency inversion is a work in progress.
 
 ```text
 backend/
@@ -48,7 +52,7 @@ frontend/
 
 - Docker Desktop
 - Node.js 24+
-- Python 3.11+
+- Python 3.11 (the supported backend line is `>=3.11,<3.12`)
 
 ### 1. Copy environment file
 
@@ -120,8 +124,9 @@ Backend:
 
 ```bash
 cd backend
-python -m venv .venv && .venv\Scripts\activate
-pip install -r requirements.txt
+py -3.11 -m venv .venv
+.venv\Scripts\activate
+python -m pip install --require-hashes -r requirements.lock
 uvicorn app.main:app --reload
 ```
 
@@ -129,7 +134,7 @@ Frontend:
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 
@@ -195,34 +200,42 @@ cd frontend && npm run lint
 
 ## Production Deployment Notes
 
-1. Set strong values for every secret in `.env`; never reuse local defaults.
-2. Always apply `docker-compose.prod.yml` after the development base file. It
-   removes backend source bind mounts and restores the built runtime image's
-   Gunicorn command. It also forces `APP_ENV=production` and
-   `APP_DEBUG=false` for backend workers, forces durable Celery dispatch, and
-   keeps the shared Redis public-upload limiter fail-closed; the frontend
-   receives only the explicitly listed `NEXT_PUBLIC_*` values, never the
-   server `.env`.
-   Production also clears the development URL at both build time and runtime:
+Use the [current release and storage procedure](docs/CURRENT_RELEASE_AND_STORAGE.md)
+for the existing single-VPS installation, with the
+[production readiness gates](docs/PRODUCTION_RELEASE_READINESS.md). The current
+[manifest](backend/app/core/config/release_manifest.json) requires database
+`0107_passport_ecr_checks`, **eight workers** and the separate `email-beat`
+scheduler. An older database needs a separately reviewed upgrade; historical
+release helpers are not the current deployment procedure.
 
-   ```bash
-   docker compose -f docker-compose.yml -f docker-compose.prod.yml config --quiet
-   python scripts/verify_compose_runtime.py
-   docker compose -f docker-compose.yml -f docker-compose.prod.yml build
-   ```
+`scripts/release_current.py` prepares and activates the exact pushed revision
+using `docker-compose.yml`, `docker-compose.prod.yml` and
+`docker-compose.storage-production.yml`, with the `maintenance` profile and
+optional APNs overlay when configured. It retains old application images,
+verifies a fresh database archive, provisions separate database identities and
+copies legacy object versions to a **different named volume** before switching
+the stable `minio:9000` endpoint to the maintained provider. Plain Compose `up`
+is not a substitute: the two-file legacy path can select the old provider, and
+the three-file path alone does not perform the verified copy.
 
-3. Run migrations before serving traffic:
+Plan a maintenance window. Pause new uploads and message sends before activation;
+the helper then fences the backend, all eight workers and beat during storage
+copy and verification. Expected downtime grows with retained object history.
+The old storage volume remains intact, but it is no longer authoritative after
+new writes reach the replacement. Never use `down -v`, delete volumes, or switch
+back to that stale source as rollback. Interrupted writer fencing has a protected
+checkpoint and recovery checks when the same release command is rerun.
 
-   ```bash
-   docker compose -f docker-compose.yml -f docker-compose.prod.yml run --rm backend alembic upgrade head
-   ```
+Keep `.env`, release evidence and identity files private. Use independent strong
+secrets, trusted Nginx TLS certificates and explicit production CORS origins.
+The production override removes development bind mounts/hot reload, fails
+closed for the public-upload limiter, and passes only listed `NEXT_PUBLIC_*`
+values to the frontend. Keep interactive API documentation development-only.
 
-   Do not deploy with `docker-compose.yml` alone; that file intentionally
-   retains the local backend bind mount and Uvicorn hot reload.
-4. Provision a trusted certificate and private key at the configured Nginx
-   certificate paths before startup. Port 80 serves only `/nginx-health` and
-   redirects every application request to HTTPS; if TLS terminates at an
-   upstream load balancer, connect it to Nginx over TLS as well.
-5. Point object storage to durable S3-compatible storage and verify bucket lifecycle policies.
-6. Configure `SENTRY_DSN`, production CORS origins, and database backup/restore procedures.
-7. Keep `/openapi.json` available for generated clients and CI contract checks; expose `/docs` only in non-production environments.
+The maintained-provider adapter, version-preserving copy, restricted identities,
+real HTTPS journeys and recovery paths have local synthetic qualification.
+**This repository work has not deployed or migrated the Hostinger KVM 4 VPS.**
+Weekly off-server Hostinger backups are confirmed by the owner's account records.
+Their restore consistency, PITR, deletion protection, representative capacity,
+external alert receipts and production RPO/RTO remain operator evidence gates; see the
+[remediation evidence index](docs/remediation/README.md).

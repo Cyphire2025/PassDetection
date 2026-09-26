@@ -44,12 +44,20 @@ class RecoveryDocker(FakeDocker):
         self.containers["db"]["Config"]["Env"].extend(
             f"{key}={value}" for key, value in DATABASE_ENV.items()
         )
+        self.containers["backend"]["Config"]["Env"].extend(
+            f"{key}={value}" for key, value in {
+                **DATABASE_ENV, "POSTGRES_HOST": "db", "POSTGRES_PORT": "5432",
+            }.items()
+        )
         self.backup_failure = None
 
     def config(self):
         result = super().config()
         result["services"]["db"] = {"image": "postgres:known", "environment": dict(DATABASE_ENV)}
-        result["services"]["backend"]["environment"].update(DATABASE_ENV, POSTGRES_HOST="db")
+        result["services"]["backend"]["environment"].update(DATABASE_ENV, POSTGRES_HOST="db", POSTGRES_PORT="5432")
+        result["networks"] = {"passdetection-net": {"name": f"{self.project}_passdetection-net"}}
+        for name in ("backend", "db"):
+            result["services"][name]["networks"] = {"passdetection-net": None}
         return result
 
     def run(self, args, **kwargs):
@@ -224,6 +232,48 @@ class ReliabilityReleaseTests(unittest.TestCase):
         with self.assertRaisesRegex(ReleaseError, "existing db PostgreSQL service"):
             self.release.prepare()
         self.assertFalse(self.fake.commands("build"))
+
+    def test_changed_live_target_stops_activation_before_backup_or_environment_changes(self):
+        self.release.prepare()
+        self.fake.containers["backend"]["Config"]["Env"].append("POSTGRES_HOST=other-production-db")
+        with self.assertRaisesRegex(ReleaseError, "Live backend database identity"):
+            self.release.activate()
+        self.assertEqual((self.root / ".env").read_text(), self.original_env)
+        self.assertFalse(self.fake.commands(DUMP_COMMAND))
+        self.assertFalse(self.fake.commands("upgrade"))
+        self.assertFalse(self.fake.commands("up"))
+
+    def test_backup_rechecks_live_target_after_initial_activation_preflight(self):
+        self.release.prepare()
+        original_schema = self.release.schema
+
+        def changed_after_schema_read():
+            schema = original_schema()
+            self.fake.containers["backend"]["Config"]["Env"].append("POSTGRES_DB=another-database")
+            return schema
+
+        self.release.schema = changed_after_schema_read
+        with self.assertRaisesRegex(ReleaseError, "Live backend database identity"):
+            self.release.activate()
+        self.assertEqual((self.root / ".env").read_text(), self.original_env)
+        self.assertFalse(self.fake.commands(DUMP_COMMAND))
+        self.assertFalse(self.fake.commands("upgrade"))
+        self.assertFalse(self.fake.commands("up"))
+
+    def test_backup_requires_database_alias_on_exact_shared_network(self):
+        network = f"{self.fake.project}_passdetection-net"
+        self.fake.containers["db"]["NetworkSettings"]["Networks"][network]["Aliases"] = ["different-db"]
+        with self.assertRaisesRegex(ReleaseError, "verified network with the db alias"):
+            self.release.prepare()
+        self.assertFalse(self.fake.commands("build"))
+        self.assertFalse(self.fake.commands(DUMP_COMMAND))
+
+    def test_candidate_network_cannot_repoint_same_database_name(self):
+        self.release.verify_running_project()
+        config = self.fake.config()
+        config["networks"]["passdetection-net"]["name"] = "another-project_passdetection-net"
+        with self.assertRaisesRegex(ReleaseError, "existing database network"):
+            self.release._database_container(config)
 
 
 if __name__ == "__main__":

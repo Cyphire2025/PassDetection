@@ -1,0 +1,75 @@
+{
+  "date": "2026-09-26",
+  "scope": "Synthetic isolated real-service contracts; split-run evidence, not one all-green full run",
+  "docker_project": "passdetection-service-contract-qualification",
+  "postgresql": "16; passdetection_ci_services plus separate passdetection_ci_fcm and passdetection_ci_roles",
+  "schema": "0107_passport_ecr_checks",
+  "alembic_check": "No new upgrade operations detected",
+  "storage": "SeaweedFS 4.47 at reviewed immutable digest, scoped application credentials, versioned synthetic bucket",
+  "queue": "Dedicated Redis 7 and actual Celery prefork worker consuming enterprise-ci",
+  "python_full_lane": "3.11.16 Linux",
+  "pytest": "9.0.3",
+  "pytest_asyncio": "1.4.0",
+  "pytest_cov": "5.0.0; coverage disabled for this separate contract lane",
+  "initial_full_run": {
+    "collected": 132,
+    "passed": 127,
+    "failed": 4,
+    "skipped": 1,
+    "duration_seconds": 533.37,
+    "failures": [
+      "manual review concurrency: extraction",
+      "manual review concurrency: duplicate submission",
+      "traveller document HTTP: visa",
+      "traveller document HTTP: flight ticket"
+    ],
+    "skip": "Explicit REALTIME_TEST_REDIS_URL had not yet been supplied",
+    "raw_evidence": "outputs/service-integration-qualification/service-tests-first.txt"
+  },
+  "subsequent_passing_runs": [
+    {
+      "family": "manual review PostgreSQL",
+      "passed": 6,
+      "duration_seconds": 112.85,
+      "runtime": "Host CPython 3.11.15 against dedicated PostgreSQL",
+      "new_unique_passing_cases": 2,
+      "overlap_with_initial_passing_cases": 4,
+      "change": "Supply the already-required email and surface first-task errors instead of obscuring them as event timeouts",
+      "evidence": "docs/remediation/manual-review-postgresql-final.txt"
+    },
+    {
+      "family": "traveller document HTTP PostgreSQL",
+      "passed": 2,
+      "duration_seconds": 6.10,
+      "runtime": "Fully wired Linux qualification container with fresh Linux bytecode/cache paths",
+      "new_unique_passing_cases": 2,
+      "change": "Match approved template fixture and existing optional-welcome behavior; retain signed receipt, exact recipients and duplicate suppression assertions",
+      "raw_evidence": "outputs/service-integration-qualification/traveller-document-final.txt"
+    },
+    {
+      "family": "real Redis simultaneous startup and global capacity",
+      "passed": 1,
+      "duration_seconds": 0.28,
+      "new_unique_passing_cases": 1,
+      "change": "Explicit dedicated gc-realtime-startup-test-service-contract hostname, port 6379 and database 15; safety guard unchanged",
+      "raw_evidence": "outputs/service-integration-qualification/realtime-startup.txt"
+    }
+  ],
+  "final_unique_cases_with_passing_evidence": 132,
+  "remaining_failed_cases": 0,
+  "remaining_skipped_cases": 0,
+  "single_all_green_full_run": false,
+  "database_role_qualification": {
+    "assertions_passed": 18,
+    "fresh_database": "passdetection_ci_roles",
+    "idempotent_provisioning": true,
+    "row_preservation": true,
+    "reserved_character_and_unicode_password_sync_async_dsn": true,
+    "evidence": "docs/remediation/database-role-final.txt"
+  },
+  "native_application_sources_modified": false,
+  "production_data_used": false,
+  "production_deployment": false,
+  "off_host_recovery_proved": false,
+  "human_alert_receipt_proved": false
+}

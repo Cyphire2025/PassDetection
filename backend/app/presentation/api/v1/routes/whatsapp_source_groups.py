@@ -36,12 +36,12 @@ from app.infrastructure.repositories.passport_roster_resolution_repository impor
     lock_linked_whatsapp_broadcast_groups,
     suppress_active_replacement_recipients,
 )
+from app.infrastructure.whatsapp.phone_overrides import load_valid_traveller_phone_overrides
 from app.infrastructure.whatsapp.private_delivery_policy import (
     PrivateDeliveryMutationBlocked,
     prepare_private_delivery_identity_mutation,
 )
 from app.infrastructure.whatsapp.source_group_sync import sync_group_broadcast_contacts
-from app.infrastructure.whatsapp.phone_overrides import load_valid_traveller_phone_overrides
 from app.presentation.api.v1.routes.whatsapp_contact_support import (
     _clean_required_name,
     _normalize_phone,

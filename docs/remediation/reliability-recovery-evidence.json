@@ -1,0 +1,34 @@
+{
+  "finished_at": "2026-09-26T17:32:52.843559+00:00",
+  "scope": "isolated synthetic local restore",
+  "schema_revision": "0107_passport_ecr_checks",
+  "table_count_and_hashes": {
+    "agencies": "4:8211c2d2b62824a21fb2accc913050f4",
+    "users": "8:bd6b6583eb123e3e46c144f4e208cfe4",
+    "client_groups": "8:877573d4134564e35dcfa32d8079dc89",
+    "passport_submissions": "10:9997e7a3801a47b48fee06e0c3e6e706",
+    "audit_logs": "63:1d4e973abe7c0a81534537f018094968",
+    "refresh_tokens": "51:7c752b910e0c9993e75ca82173a27498",
+    "public_upload_contact_challenges": "7:be8821c36a8c05b8efabe1f978f15496",
+    "ecr_batches": "2:10cb2b6bfdd8086490a4fb58443079b4",
+    "ecr_items": "2:3480e38d7c91e967b9b9b9aa21a7240e",
+    "storage_cleanup_jobs": "0:d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "duration_seconds": 20.813,
+  "object_version_recovery": true,
+  "production_resilience_proof": false,
+  "restored_application_object_reconciliation": true,
+  "off_host_backup_proof": false,
+  "pitr_proof": false,
+  "representative_rpo_rto_proof": false,
+  "restore_target": "new separate synthetic database; existing databases were not overwritten",
+  "application_object_reconciliation": {
+    "restored_database_application_read": true,
+    "object_references_checked": 14,
+    "known_rendering_placeholders_excluded": 3,
+    "production_data_reconciliation": false
+  },
+  "source_artifact_sha256": "ada38ad7d79a85f7eb2c07665d238451630cd3aa0ad61de8b5135df154ccb49e",
+  "command": "python scripts/qa/qualify_synthetic_recovery.py",
+  "evidence_note": "Curated from the actual local execution; no customer records, identities, storage credentials or production claims."
+}
