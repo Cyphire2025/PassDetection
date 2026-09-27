@@ -1,0 +1,31 @@
+{
+  "title": "Where Should Your Team Go Next?",
+  "subtitle": "Reconnect. Exchange ideas. Explore together.",
+  "duration": 26,
+  "storyboard": [
+    {
+      "time": "00–05.5",
+      "scene": "A rotating illustrated compass becomes an ocean globe, which opens into a miniature beach retreat with moving surf and palms.",
+      "copy": "Space to reconnect."
+    },
+    {
+      "time": "05.5–11",
+      "scene": "The island rotates into an illuminated city miniature; buildings assemble around a conference venue as a tram passes.",
+      "copy": "A place for big ideas."
+    },
+    {
+      "time": "11–16.5",
+      "scene": "The skyline becomes dimensional mountain ridges, a winding trail and a small team walking towards a sunrise.",
+      "copy": "Room to explore."
+    },
+    {
+      "time": "16.5–22",
+      "scene": "The three original miniatures orbit into a triangular destination selector, connected by the animated compass.",
+      "copy": "Where will your team go next?"
+    },
+    {
+      "time": "22–26",
+      "scene": "Shared branded closing card supplied by renderer."
+    }
+  ]
+}

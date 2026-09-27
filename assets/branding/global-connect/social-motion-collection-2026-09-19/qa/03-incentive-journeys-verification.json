@@ -1,0 +1,31 @@
+{
+  "file": "03-incentive-journeys.mp4",
+  "checks": {
+    "duration_26s": true,
+    "1080x1920": true,
+    "30fps": true,
+    "780_frames": true,
+    "h264_yuv420p": true,
+    "aac_48khz_stereo": true,
+    "full_decode_without_errors": true,
+    "no_blank_sampled_frames": true,
+    "visible_motion": true,
+    "audible_soundtrack": true,
+    "audio_not_clipped": true
+  },
+  "passed": true,
+  "bytes": 3486501,
+  "sha256": "063778d1d7d6390a0e95867320677fa8998009e7c37793134748796bcf2753a1",
+  "duration_seconds": 26.0,
+  "resolution": [
+    1080,
+    1920
+  ],
+  "fps": 30,
+  "frames": 780,
+  "audio_sample_rate": 48000,
+  "audio_channels": 2,
+  "sampled_motion_mean_pixel_change": 3.184591054916382,
+  "audio_rms": 0.165397509932518,
+  "audio_peak": 0.8434967994689941
+}

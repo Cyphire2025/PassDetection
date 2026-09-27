@@ -1,0 +1,31 @@
+{
+  "title": "Many Cities. One Experience.",
+  "subtitle": "Different departure cities. One shared experience.",
+  "duration": 26,
+  "storyboard": [
+    {
+      "time": "00–05.5",
+      "scene": "Three miniature departure terminals appear on an illustrative route diagram; ribbons extend towards one shared destination.",
+      "copy": "Many cities. One experience."
+    },
+    {
+      "time": "05.5–11",
+      "scene": "Aircraft follow curved routes into a destination hub, drawing luminous trails behind them.",
+      "copy": "Different departures. A shared destination."
+    },
+    {
+      "time": "11–16.5",
+      "scene": "A dimensional hotel rises behind a curved road; animated coaches arrive and guests enter through a welcoming reception.",
+      "copy": "Every arrival. A warm welcome."
+    },
+    {
+      "time": "16.5–22",
+      "scene": "The roof lifts into an open gala scene with spotlights, guests, tables and an animated stage.",
+      "copy": "Together. For the big moment."
+    },
+    {
+      "time": "22–26",
+      "scene": "Shared branded closing card supplied by renderer."
+    }
+  ]
+}

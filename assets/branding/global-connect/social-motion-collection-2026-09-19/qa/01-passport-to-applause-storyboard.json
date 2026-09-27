@@ -1,0 +1,32 @@
+{
+  "title": "From Passport to Applause",
+  "subtitle": "One connected journey, from the first plan to the big moment.",
+  "duration": 26,
+  "storyboard": [
+    {
+      "time": "0–5.5",
+      "visual": "An original passport cover opens into a departing ticket.",
+      "copy": "From passport to applause."
+    },
+    {
+      "time": "5.5–11",
+      "visual": "Aircraft circles a dimensional latitude-longitude globe.",
+      "copy": "Bring people closer."
+    },
+    {
+      "time": "11–16.5",
+      "visual": "A layered hotel assembles; small guests approach the entrance.",
+      "copy": "Arrive with everything connected."
+    },
+    {
+      "time": "16.5–22",
+      "visual": "Conference stage and seated audience assemble into a celebration.",
+      "copy": "Make room for remarkable."
+    },
+    {
+      "time": "22–26",
+      "visual": "Original logo lockup and animated orbit closing card.",
+      "copy": "Make your next journey remarkable."
+    }
+  ]
+}

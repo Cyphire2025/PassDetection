@@ -1,0 +1,250 @@
+[
+  {
+    "file": "01-passport-to-applause.mp4",
+    "checks": {
+      "duration_26s": true,
+      "1080x1920": true,
+      "30fps": true,
+      "780_frames": true,
+      "h264_yuv420p": true,
+      "aac_48khz_stereo": true,
+      "full_decode_without_errors": true,
+      "no_blank_sampled_frames": true,
+      "visible_motion": true,
+      "audible_soundtrack": true,
+      "audio_not_clipped": true
+    },
+    "passed": true,
+    "bytes": 4385234,
+    "sha256": "c327640d8c877280ff28201fb0cba6c2bd71f19fd7584e02a9228eb593920dd3",
+    "duration_seconds": 26.0,
+    "resolution": [
+      1080,
+      1920
+    ],
+    "fps": 30,
+    "frames": 780,
+    "audio_sample_rate": 48000,
+    "audio_channels": 2,
+    "sampled_motion_mean_pixel_change": 3.13405179977417,
+    "audio_rms": 0.1719544678926468,
+    "audio_peak": 0.9507005214691162
+  },
+  {
+    "file": "02-journey-behind-the-journey.mp4",
+    "checks": {
+      "duration_26s": true,
+      "1080x1920": true,
+      "30fps": true,
+      "780_frames": true,
+      "h264_yuv420p": true,
+      "aac_48khz_stereo": true,
+      "full_decode_without_errors": true,
+      "no_blank_sampled_frames": true,
+      "visible_motion": true,
+      "audible_soundtrack": true,
+      "audio_not_clipped": true
+    },
+    "passed": true,
+    "bytes": 3511249,
+    "sha256": "936f16010b7b11d336c111cc50f8f2d9f844bc2856682febd59bf8d4eca76b7d",
+    "duration_seconds": 26.0,
+    "resolution": [
+      1080,
+      1920
+    ],
+    "fps": 30,
+    "frames": 780,
+    "audio_sample_rate": 48000,
+    "audio_channels": 2,
+    "sampled_motion_mean_pixel_change": 3.756465196609497,
+    "audio_rms": 0.16673684120178223,
+    "audio_peak": 0.9703432321548462
+  },
+  {
+    "file": "03-incentive-journeys.mp4",
+    "checks": {
+      "duration_26s": true,
+      "1080x1920": true,
+      "30fps": true,
+      "780_frames": true,
+      "h264_yuv420p": true,
+      "aac_48khz_stereo": true,
+      "full_decode_without_errors": true,
+      "no_blank_sampled_frames": true,
+      "visible_motion": true,
+      "audible_soundtrack": true,
+      "audio_not_clipped": true
+    },
+    "passed": true,
+    "bytes": 3486501,
+    "sha256": "063778d1d7d6390a0e95867320677fa8998009e7c37793134748796bcf2753a1",
+    "duration_seconds": 26.0,
+    "resolution": [
+      1080,
+      1920
+    ],
+    "fps": 30,
+    "frames": 780,
+    "audio_sample_rate": 48000,
+    "audio_channels": 2,
+    "sampled_motion_mean_pixel_change": 3.184591054916382,
+    "audio_rms": 0.165397509932518,
+    "audio_peak": 0.8434967994689941
+  },
+  {
+    "file": "04-many-cities.mp4",
+    "checks": {
+      "duration_26s": true,
+      "1080x1920": true,
+      "30fps": true,
+      "780_frames": true,
+      "h264_yuv420p": true,
+      "aac_48khz_stereo": true,
+      "full_decode_without_errors": true,
+      "no_blank_sampled_frames": true,
+      "visible_motion": true,
+      "audible_soundtrack": true,
+      "audio_not_clipped": true
+    },
+    "passed": true,
+    "bytes": 3666463,
+    "sha256": "040909a71c7962fe9c2946da3648cb490453ed8478309db4002df33a44c63c92",
+    "duration_seconds": 26.0,
+    "resolution": [
+      1080,
+      1920
+    ],
+    "fps": 30,
+    "frames": 780,
+    "audio_sample_rate": 48000,
+    "audio_channels": 2,
+    "sampled_motion_mean_pixel_change": 2.66255259513855,
+    "audio_rms": 0.16916677355766296,
+    "audio_peak": 0.8868686556816101
+  },
+  {
+    "file": "05-trip-in-your-pocket.mp4",
+    "checks": {
+      "duration_26s": true,
+      "1080x1920": true,
+      "30fps": true,
+      "780_frames": true,
+      "h264_yuv420p": true,
+      "aac_48khz_stereo": true,
+      "full_decode_without_errors": true,
+      "no_blank_sampled_frames": true,
+      "visible_motion": true,
+      "audible_soundtrack": true,
+      "audio_not_clipped": true
+    },
+    "passed": true,
+    "bytes": 4313063,
+    "sha256": "f62b60273bb3ec19357ecceef97f5e83380c6c77a955eada26a17cc229035688",
+    "duration_seconds": 26.0,
+    "resolution": [
+      1080,
+      1920
+    ],
+    "fps": 30,
+    "frames": 780,
+    "audio_sample_rate": 48000,
+    "audio_channels": 2,
+    "sampled_motion_mean_pixel_change": 3.2692086696624756,
+    "audio_rms": 0.16741624474525452,
+    "audio_peak": 0.8548622131347656
+  },
+  {
+    "file": "06-venue-to-big-moment.mp4",
+    "checks": {
+      "duration_26s": true,
+      "1080x1920": true,
+      "30fps": true,
+      "780_frames": true,
+      "h264_yuv420p": true,
+      "aac_48khz_stereo": true,
+      "full_decode_without_errors": true,
+      "no_blank_sampled_frames": true,
+      "visible_motion": true,
+      "audible_soundtrack": true,
+      "audio_not_clipped": true
+    },
+    "passed": true,
+    "bytes": 2655552,
+    "sha256": "36132f7ca1625e3ba3591a22eaa44d74b1d29f72031c2b0f1108ad3d69650db2",
+    "duration_seconds": 26.0,
+    "resolution": [
+      1080,
+      1920
+    ],
+    "fps": 30,
+    "frames": 780,
+    "audio_sample_rate": 48000,
+    "audio_channels": 2,
+    "sampled_motion_mean_pixel_change": 1.6121491193771362,
+    "audio_rms": 0.1703849583864212,
+    "audio_peak": 0.8340607285499573
+  },
+  {
+    "file": "07-next-destination.mp4",
+    "checks": {
+      "duration_26s": true,
+      "1080x1920": true,
+      "30fps": true,
+      "780_frames": true,
+      "h264_yuv420p": true,
+      "aac_48khz_stereo": true,
+      "full_decode_without_errors": true,
+      "no_blank_sampled_frames": true,
+      "visible_motion": true,
+      "audible_soundtrack": true,
+      "audio_not_clipped": true
+    },
+    "passed": true,
+    "bytes": 4138411,
+    "sha256": "678040acbfa61ae25161cdc1b4f66afa06fd6f5c357748d56584e018b531d300",
+    "duration_seconds": 26.0,
+    "resolution": [
+      1080,
+      1920
+    ],
+    "fps": 30,
+    "frames": 780,
+    "audio_sample_rate": 48000,
+    "audio_channels": 2,
+    "sampled_motion_mean_pixel_change": 2.652095317840576,
+    "audio_rms": 0.1670089066028595,
+    "audio_peak": 0.8596936464309692
+  },
+  {
+    "file": "08-so-many-moments.mp4",
+    "checks": {
+      "duration_26s": true,
+      "1080x1920": true,
+      "30fps": true,
+      "780_frames": true,
+      "h264_yuv420p": true,
+      "aac_48khz_stereo": true,
+      "full_decode_without_errors": true,
+      "no_blank_sampled_frames": true,
+      "visible_motion": true,
+      "audible_soundtrack": true,
+      "audio_not_clipped": true
+    },
+    "passed": true,
+    "bytes": 4709491,
+    "sha256": "d3ee64f0f40e45f44299aa93df59ec6ea1b61b1782504111cdaf1be60fb4cb34",
+    "duration_seconds": 26.0,
+    "resolution": [
+      1080,
+      1920
+    ],
+    "fps": 30,
+    "frames": 780,
+    "audio_sample_rate": 48000,
+    "audio_channels": 2,
+    "sampled_motion_mean_pixel_change": 6.276136875152588,
+    "audio_rms": 0.16973412036895752,
+    "audio_peak": 0.8730220794677734
+  }
+]

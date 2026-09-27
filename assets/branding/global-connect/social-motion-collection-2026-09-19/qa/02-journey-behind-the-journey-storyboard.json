@@ -1,0 +1,32 @@
+{
+  "title": "The Journey Behind the Journey",
+  "subtitle": "The care and coordination behind a shared experience.",
+  "duration": 26,
+  "storyboard": [
+    {
+      "time": "0–5.5",
+      "visual": "An illustrated gala stage and audience show the finished experience.",
+      "copy": "It feels effortless."
+    },
+    {
+      "time": "5.5–11",
+      "visual": "The experience separates into moving flight, room, transfer and update systems.",
+      "copy": "Look a little closer."
+    },
+    {
+      "time": "11–16.5",
+      "visual": "Personal care checklist activates beside illustrated people.",
+      "copy": "Every detail. Every person."
+    },
+    {
+      "time": "16.5–22",
+      "visual": "Six coordinated services orbit the central journey.",
+      "copy": "All together. All connected."
+    },
+    {
+      "time": "22–26",
+      "visual": "Company logo and original animated closing card.",
+      "copy": "Make your next journey remarkable."
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+[
+  {
+    "file": "01-passport-to-applause.wav",
+    "duration": 26,
+    "sample_rate": 48000,
+    "original_synthesis": true,
+    "seed": 73692
+  },
+  {
+    "file": "02-journey-behind-the-journey.wav",
+    "duration": 26,
+    "sample_rate": 48000,
+    "original_synthesis": true,
+    "seed": 74565
+  },
+  {
+    "file": "03-incentive-journeys.wav",
+    "duration": 26,
+    "sample_rate": 48000,
+    "original_synthesis": true,
+    "seed": 75438
+  },
+  {
+    "file": "04-many-cities.wav",
+    "duration": 26,
+    "sample_rate": 48000,
+    "original_synthesis": true,
+    "seed": 76311
+  },
+  {
+    "file": "05-trip-in-your-pocket.wav",
+    "duration": 26,
+    "sample_rate": 48000,
+    "original_synthesis": true,
+    "seed": 77184
+  },
+  {
+    "file": "06-venue-to-big-moment.wav",
+    "duration": 26,
+    "sample_rate": 48000,
+    "original_synthesis": true,
+    "seed": 78057
+  },
+  {
+    "file": "07-next-destination.wav",
+    "duration": 26,
+    "sample_rate": 48000,
+    "original_synthesis": true,
+    "seed": 78930
+  },
+  {
+    "file": "08-so-many-moments.wav",
+    "duration": 26,
+    "sample_rate": 48000,
+    "original_synthesis": true,
+    "seed": 79803
+  }
+]

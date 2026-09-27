@@ -1,0 +1,31 @@
+{
+  "file": "04-many-cities.mp4",
+  "checks": {
+    "duration_26s": true,
+    "1080x1920": true,
+    "30fps": true,
+    "780_frames": true,
+    "h264_yuv420p": true,
+    "aac_48khz_stereo": true,
+    "full_decode_without_errors": true,
+    "no_blank_sampled_frames": true,
+    "visible_motion": true,
+    "audible_soundtrack": true,
+    "audio_not_clipped": true
+  },
+  "passed": true,
+  "bytes": 3666463,
+  "sha256": "040909a71c7962fe9c2946da3648cb490453ed8478309db4002df33a44c63c92",
+  "duration_seconds": 26.0,
+  "resolution": [
+    1080,
+    1920
+  ],
+  "fps": 30,
+  "frames": 780,
+  "audio_sample_rate": 48000,
+  "audio_channels": 2,
+  "sampled_motion_mean_pixel_change": 2.66255259513855,
+  "audio_rms": 0.16916677355766296,
+  "audio_peak": 0.8868686556816101
+}

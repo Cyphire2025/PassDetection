@@ -1,0 +1,32 @@
+{
+  "title": "Your Trip, in Your Pocket",
+  "subtitle": "Every useful detail. Beautifully within reach.",
+  "duration": 26,
+  "storyboard": [
+    {
+      "start": 0,
+      "end": 5.5,
+      "scene": "A tangible midnight-blue phone rises into view. The itinerary unfolds as a gently travelling route links three useful moments."
+    },
+    {
+      "start": 5.5,
+      "end": 11,
+      "scene": "The itinerary becomes a document wallet. Original boarding-pass and hotel-voucher cards slide forward; a travelling highlight draws attention to the selected card."
+    },
+    {
+      "start": 11,
+      "end": 16.5,
+      "scene": "A useful coach update arrives as a floating notification and expands into a readable meeting-point card."
+    },
+    {
+      "start": 16.5,
+      "end": 22,
+      "scene": "The screen becomes a four-image album of completely original vector travel illustrations. Tiles appear and gather into one shared memory collection."
+    },
+    {
+      "start": 22,
+      "end": 26,
+      "scene": "Shared Global Connect Travels brand end card."
+    }
+  ]
+}

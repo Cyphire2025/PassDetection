@@ -1,0 +1,37 @@
+{
+  "title": "One Trip. So Many Moments.",
+  "subtitle": "The places we discover. The moments we share.",
+  "duration": 26,
+  "storyboard": [
+    {
+      "start": 0,
+      "end": 5.5,
+      "scene": "An original illustrated arrival postcard swings onto a travelling route. A tiny plane crosses a warm sky above an imagined destination."
+    },
+    {
+      "start": 5.5,
+      "end": 11,
+      "scene": "The arrival postcard slides into the collection as an original coastal landscape opens. Waves, clouds, palms and a little boat keep moving."
+    },
+    {
+      "start": 11,
+      "end": 16.5,
+      "scene": "A third postcard celebrates togetherness: three illustrated travellers gather at an outdoor table, with lifting cups and colourful pennants."
+    },
+    {
+      "start": 16.5,
+      "end": 19.7,
+      "scene": "A gala postcard arrives with a rising stage, soft moving beams, sparkling lights and guests."
+    },
+    {
+      "start": 19.7,
+      "end": 22,
+      "scene": "The four original illustrations float into an open travel album; a continuous route connects its pages. Caption identifies the journey as imagined."
+    },
+    {
+      "start": 22,
+      "end": 26,
+      "scene": "Shared Global Connect Travels brand end card."
+    }
+  ]
+}
