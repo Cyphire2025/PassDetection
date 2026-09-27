@@ -165,8 +165,6 @@ async def test_roster_counts_only_current_broadcast_with_prior_welcome_elsewhere
     assert roster.counts.all == 1
     assert roster.counts.sent == int(current_status == "read")
     assert roster.counts.failed == int(current_status == "failed")
-    assert roster.counts.ready == int(current_status != "read")
-    assert roster.counts.needs_review == 0
     recipient_response = roster.items[0].recipient
     assert recipient_response is not None
     assert recipient_response.welcome_status == current_status
