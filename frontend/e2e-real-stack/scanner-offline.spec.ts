@@ -5,7 +5,7 @@ test("decoded camera QR is durably queued offline then reconciled once by the re
   test.setTimeout(100_000);
   const seed = browserSeed(); const fixture = seed.browser_workflows[info.project.name];
   await page.setViewportSize({ width: 390, height: 844 });
-  await installCameraFrames(page, fixture.qr_payload);
+  const ensureCameraFrames = await installCameraFrames(page, fixture.qr_payload);
   await page.goto("/login?from=%2Fcoordinator");
   await page.getByLabel("Email address").fill(fixture.email);
   await page.locator("#login-password").fill(fixture.password);
@@ -14,6 +14,10 @@ test("decoded camera QR is durably queued offline then reconciled once by the re
   await expect(page).toHaveURL(/\/coordinator$/);
   await renewal;
   await page.goto(`/coordinator/groups/${seed.group_id}/scanner?sessionId=${fixture.session_id}`);
+  // Verify installation in this document too: the failed WebKit trace had
+  // reached the scanner without the early-navigation camera fixture.
+  await ensureCameraFrames();
+  expect(await page.evaluate(() => Object.hasOwn(navigator.mediaDevices, "getUserMedia"))).toBe(true);
   await expect(page.getByText(`Browser ${info.project.name} activity`, { exact: true })).toBeVisible();
   await expect(page.getByText(/Verifying signed offline roster|Signed offline readiness is unavailable/)).toHaveCount(0, { timeout: 30_000 });
   // WebKit can require a user gesture before playing a synthetic canvas stream.

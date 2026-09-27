@@ -36,9 +36,10 @@ export async function installSyntheticOtpDelivery(page: Page): Promise<void> {
 }
 
 /** Synthetic video frames at getUserMedia only: real video, ZXing decoder and queue remain in use. */
-export async function installCameraFrames(page: Page, payload: string): Promise<void> {
+export async function installCameraFrames(page: Page, payload: string): Promise<() => Promise<void>> {
   const qr = await QRCode.toDataURL(payload, { width: 480, margin: 4, errorCorrectionLevel: "M" });
-  await page.addInitScript(({ qr }) => {
+  const install = ({ qr }: { qr: string }) => {
+    if (Object.hasOwn(navigator.mediaDevices, "getUserMedia") && Object.hasOwn(window, "qualificationCameraFrame")) return;
     const canvas = document.createElement("canvas"); canvas.width = 640; canvas.height = 480;
     const context = canvas.getContext("2d")!;
     const image = new Image(); image.src = qr;
@@ -60,7 +61,9 @@ export async function installCameraFrames(page: Page, payload: string): Promise<
       }
     } });
     Object.defineProperty(navigator.mediaDevices, "enumerateDevices", { value: async () => [] });
-  }, { qr });
+  };
+  await page.addInitScript(install, { qr });
+  return async () => { await page.evaluate(install, { qr }); };
 }
 
 export async function cameraFrame(page: Page, visible: boolean): Promise<void> {
