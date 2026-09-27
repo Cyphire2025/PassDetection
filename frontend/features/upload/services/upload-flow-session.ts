@@ -13,6 +13,14 @@ const PERMANENT_QUALIFIER_ERROR_STATUSES = new Set([
   410,
   422,
 ]);
+
+export function activeUploadSessionId(
+  mode: "single" | "family" | null,
+  singleSessionId: string,
+  familyMember: { uploadIdempotencyKey: string } | null,
+): string | undefined {
+  return mode === "family" ? familyMember?.uploadIdempotencyKey : singleSessionId;
+}
 const MISSING_SUBMISSION_STATUSES = new Set([404, 410]);
 
 function uploadRecoveryStorageKey(groupToken: string) {

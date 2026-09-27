@@ -386,6 +386,7 @@ from .passport_routes.visa_ai_support import _visa_ai_job_response as _visa_ai_j
 from .passport_routes.visa_ai_support import _visa_ai_library_response as _visa_ai_library_response
 
 _ROUTE_ORDER = (
+    "prepare_public_upload_file",
     "upload_passport",
     "reconcile_passport_upload",
     "get_upload_passport_status",

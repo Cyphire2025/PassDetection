@@ -286,6 +286,8 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 self._settings.public_upload_bootstrap_aggregate_rate_limit_per_minute,
                 self._settings.public_upload_session_rate_limit_per_minute,
                 self._settings.public_upload_aggregate_rate_limit_per_minute,
+                self._settings.public_upload_prepare_session_rate_limit_per_minute,
+                self._settings.public_upload_prepare_aggregate_rate_limit_per_minute,
                 self._settings.public_upload_followup_session_rate_limit_per_minute,
                 self._settings.public_upload_followup_aggregate_rate_limit_per_minute,
             )
@@ -309,6 +311,11 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             if client_submit_match
             else None
         )
+        is_prepare_file = bool(upload_match and submission_id == "prepare-file")
+        if is_prepare_file:
+            # File preparation happens before a submission UUID exists. Give
+            # previews their own budget so replacements cannot exhaust submit.
+            submission_id = None
         is_initial_upload = bool(
             upload_match
             and submission_id is None
@@ -363,18 +370,23 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 None,
             )
 
-        if is_initial_upload or is_upload_followup or is_client_submit:
+        if is_prepare_file or is_initial_upload or is_upload_followup or is_client_submit:
             session_id, session_error = self._upload_session_id(
                 request,
                 submission_id=submission_id,
-                require_header=is_upload_followup or is_client_submit,
+                require_header=is_prepare_file or is_upload_followup or is_client_submit,
             )
             if session_error is not None:
                 return (), True, session_error
             if session_id is None:
                 return (), True, "UPLOAD_SESSION_ID_REQUIRED"
 
-            if is_initial_upload:
+            if is_prepare_file:
+                session_limit = self._settings.public_upload_prepare_session_rate_limit_per_minute
+                aggregate_limit = self._settings.public_upload_prepare_aggregate_rate_limit_per_minute
+                session_scope = "public-upload-prepare-session"
+                aggregate_scope = "public-upload-prepare-aggregate"
+            elif is_initial_upload:
                 session_limit = self._settings.public_upload_session_rate_limit_per_minute
                 aggregate_limit = (
                     self._settings.public_upload_aggregate_rate_limit_per_minute

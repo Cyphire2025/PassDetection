@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="600" viewBox="0 0 880 600" role="img" aria-labelledby="title description">
+  <title id="title">Indian passport personal details page — illustrative sample</title>
+  <desc id="description">A fictional Indian passport-style identity page with a portrait placeholder, Hindi and English headings, personal details, and sample machine-readable lines. Not a valid travel document.</desc>
+  <defs>
+    <linearGradient id="paper" x2="1" y2="1">
+      <stop stop-color="#edf1df"/>
+      <stop offset=".5" stop-color="#fff5dc"/>
+      <stop offset="1" stop-color="#e2eeeb"/>
+    </linearGradient>
+    <pattern id="waves" width="64" height="32" patternUnits="userSpaceOnUse">
+      <path d="M-16 16Q0 0 16 16T48 16T80 16M-16 32Q0 16 16 32T48 32T80 32" fill="none" stroke="#578c8c" stroke-width="1" opacity=".11"/>
+    </pattern>
+    <clipPath id="page"><rect x="18" y="18" width="844" height="564" rx="14"/></clipPath>
+  </defs>
+  <rect x="12" y="22" width="856" height="566" rx="18" fill="#23394c" opacity=".12"/>
+  <rect x="18" y="18" width="844" height="564" rx="14" fill="url(#paper)" stroke="#a9b9b6" stroke-width="2"/>
+  <g clip-path="url(#page)">
+    <path d="M18 18h38v564H18Z" fill="#82a6a4" opacity=".23"/>
+    <rect x="18" y="18" width="844" height="564" fill="url(#waves)"/>
+    <g fill="none" stroke="#79aaa0" opacity=".16">
+      <ellipse cx="705" cy="303" rx="154" ry="214"/>
+      <ellipse cx="705" cy="303" rx="137" ry="195"/>
+      <ellipse cx="705" cy="303" rx="120" ry="176"/>
+      <path d="M705 116v374M568 303h274M606 166l198 274M606 440l198-274"/>
+    </g>
+    <g font-family="'Nirmala UI', 'Noto Sans Devanagari', Arial, sans-serif" fill="#254d68">
+      <text x="68" y="58" font-size="24">पासपोर्ट</text>
+      <text x="68" y="92" font-size="31" font-weight="700" letter-spacing="3">PASSPORT</text>
+      <text x="836" y="57" text-anchor="end" font-size="28">भारत गणराज्य</text>
+      <text x="836" y="92" text-anchor="end" font-size="29" font-weight="700" letter-spacing="2">REPUBLIC OF INDIA</text>
+      <path d="M68 108h768" stroke="#678b9c" stroke-width="2"/>
+      <g font-size="18" fill="#536b73">
+        <text x="284" y="139">Type / प्रकार</text>
+        <text x="410" y="139">Country code / देश कोड</text>
+        <text x="657" y="139">Passport No. / पासपोर्ट नं.</text>
+      </g>
+      <g font-size="27" font-weight="600" fill="#253c47">
+        <text x="284" y="171">P</text>
+        <text x="410" y="171">IND</text>
+        <text x="657" y="171">SAMPLE</text>
+      </g>
+      <rect x="68" y="130" width="180" height="226" rx="3" fill="#d9e2e2" stroke="#a5b9bc"/>
+      <path d="M73 351v-30c17-41 46-58 85-58s69 17 85 58v30" fill="#73899c"/>
+      <path d="M144 244h28v36l-14 21-14-21Z" fill="#bccbd1"/>
+      <ellipse cx="158" cy="210" rx="47" ry="58" fill="#adbec7"/>
+      <path d="M111 207v-14c0-34 18-52 47-52s47 18 47 52v13l-14-25c-24 11-44 8-63-3Z" fill="#5c7588"/>
+      <text x="158" y="383" text-anchor="middle" font-size="18" letter-spacing="3">PHOTO SAMPLE</text>
+      <g font-size="18" fill="#536b73">
+        <text x="284" y="208">Surname / उपनाम</text>
+        <text x="284" y="278">Given name(s) / दिया गया नाम</text>
+        <text x="284" y="348">Nationality / राष्ट्रीयता</text>
+        <text x="556" y="348">Sex / लिंग</text>
+        <text x="662" y="348">Date of birth</text>
+        <text x="284" y="416">Place of birth / जन्म स्थान</text>
+        <text x="578" y="416">Place of issue / जारी करने का स्थान</text>
+      </g>
+      <g font-size="27" font-weight="600" fill="#253c47">
+        <text x="284" y="241">SAMPLE</text>
+        <text x="284" y="311">PERSON</text>
+        <text x="284" y="381">INDIAN</text>
+        <text x="556" y="381">—</text>
+        <text x="662" y="381" font-size="23">DD MM YYYY</text>
+        <text x="284" y="449" font-size="24">SAMPLE CITY</text>
+        <text x="578" y="449" font-size="24">SAMPLE CITY</text>
+      </g>
+      <text x="155" y="421" text-anchor="middle" font-size="17" fill="#536b73">Holder's signature</text>
+      <path d="M82 448h144" stroke="#93a7aa"/>
+      <text x="460" y="318" text-anchor="middle" transform="rotate(-17 460 318)" font-size="110" font-weight="800" letter-spacing="14" fill="#975d4f" opacity=".21">SAMPLE</text>
+    </g>
+    <path d="M56 471h806v87H56Z" fill="#f5f0dc" opacity=".96"/>
+    <g font-family="'Courier New', monospace" font-size="25" fill="#365051" letter-spacing="1">
+      <text x="72" y="507">P&lt;IND&lt;SAMPLE&lt;&lt;PERSON&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</text>
+      <text x="72" y="540">NOT&lt;A&lt;VALID&lt;TRAVEL&lt;DOCUMENT&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</text>
+    </g>
+    <text x="450" y="574" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" letter-spacing="3" fill="#6c6758">ILLUSTRATIVE SAMPLE · NOT VALID FOR TRAVEL</text>
+  </g>
+</svg>

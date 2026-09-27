@@ -8,6 +8,10 @@ const mocks = vi.hoisted(() => ({
   group: {} as Record<string, unknown>,
   upload: vi.fn(), submit: vi.fn(), getStatus: vi.fn(), report: vi.fn(), reportOnce: vi.fn(), requestOtp: vi.fn(), verifyOtp: vi.fn(),
 }));
+vi.mock("../services/public-upload-file", async (importOriginal) => ({
+  ...await importOriginal<typeof import("../services/public-upload-file")>(),
+  preparePublicUploadFile: vi.fn(async (file: File) => new File([file], `${file.name}.jpg`, { type: "image/jpeg" })),
+}));
 vi.mock("@/features/passports/hooks/use-upload-links", () => ({ useUploadLinkByToken: () => ({ data: mocks.group, isLoading: false, error: null }) }));
 vi.mock("../hooks/use-upload", () => ({ useUploadPassport: () => ({ mutateAsync: mocks.upload }), useSubmitClientPassportReview: () => ({ mutateAsync: mocks.submit }) }));
 vi.mock("../hooks/use-public-flow-telemetry", () => ({ usePublicFlowTelemetry: () => ({ report: mocks.report, reportPublicFlowOnce: mocks.reportOnce }) }));

@@ -9,6 +9,7 @@ from app.presentation.api.v1.routes import (
 )
 
 _ROUTE_SIGNATURES = (
+    (("POST",), "/upload/{token}/prepare-file", "prepare_public_upload_file"),
     (("POST",), "/upload/{token}", "upload_passport"),
     (("PUT",), "/upload/{token}", "reconcile_passport_upload"),
     (("GET",), "/upload/{token}/{submission_id}/status", "get_upload_passport_status"),

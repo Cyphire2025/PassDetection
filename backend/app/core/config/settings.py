@@ -974,6 +974,12 @@ class Settings(BaseSettings):
         le=100_000,
     )
     public_upload_session_rate_limit_per_minute: int = Field(default=6, ge=1, le=1_000)
+    public_upload_prepare_session_rate_limit_per_minute: int = Field(
+        default=30, ge=1, le=1_000,
+    )
+    public_upload_prepare_aggregate_rate_limit_per_minute: int = Field(
+        default=600, ge=100, le=100_000,
+    )
     public_upload_aggregate_rate_limit_per_minute: int = Field(
         default=180,
         ge=100,

@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { DEFAULT_UPLOAD_CONFIGURATION } from "../features/passports/types/upload-configuration";
 import { UPLOAD_INSTRUCTIONS } from "../features/upload/config/instruction-translations";
+import { VISA_PHOTO_GUIDELINES, VISA_PHOTO_GUIDELINE_IDS } from "../features/upload/config/visa-photo-guidelines";
 
 const token = "instruction-language-test-link";
 
@@ -50,10 +51,19 @@ for (const viewport of [{ name: "desktop", width: 1440, height: 1000 }, { name: 
     await page.getByRole("button", { name: "Upload studio photo", exact: true }).click();
     await expect(selector).toHaveValue("mr");
     await expect(page.getByText(UPLOAD_INSTRUCTIONS.mr.visaWarning, { exact: true })).toBeVisible();
-    await expect(page.getByText(UPLOAD_INSTRUCTIONS.mr.visaFraming, { exact: true })).toBeVisible();
+    for (const id of VISA_PHOTO_GUIDELINE_IDS) {
+      await expect(page.getByText(VISA_PHOTO_GUIDELINES.mr.items[id].description, { exact: true })).toBeVisible();
+    }
     await selector.selectOption("ur");
     await expect(page.getByText(UPLOAD_INSTRUCTIONS.ur.visaWarning, { exact: true })).toHaveAttribute("dir", "rtl");
-    await expect(page.getByText(UPLOAD_INSTRUCTIONS.ur.visaFraming, { exact: true }).locator("..")).toHaveAttribute("dir", "rtl");
+    const guidelines = page.getByRole("region", { name: VISA_PHOTO_GUIDELINES.ur.heading });
+    await expect(guidelines).toHaveAttribute("dir", "rtl");
+    await expect(guidelines.getByRole("listitem")).toHaveCount(6);
+    const guidelineBounds = await guidelines.boundingBox();
+    const uploadBounds = await page.getByRole("button", { name: "Choose studio photo", exact: true }).boundingBox();
+    expect(guidelineBounds).not.toBeNull();
+    expect(uploadBounds).not.toBeNull();
+    expect(guidelineBounds!.y + guidelineBounds!.height).toBeLessThanOrEqual(uploadBounds!.y);
     await expect(page.getByRole("heading", { name: "Upload Studio Visa Photo", exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "Choose studio photo", exact: true })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

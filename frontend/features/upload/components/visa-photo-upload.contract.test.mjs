@@ -7,12 +7,12 @@ const source = readFileSync(
   "utf8",
 );
 
-test("file selection requires relaxed face presence and background verification", () => {
-  assert.match(source, /verifyUploadedVisaPhoto\(file\)/);
-  assert.match(source, /result\.validation\.outcome !== "pass"/);
-  assert.match(source, /setVerifiedFile\(result\.file\)/);
-  assert.match(source, /verifiedFile && \(/);
-  assert.match(source, /onCapture\(verifiedFile\)/);
+test("file selection prepares a preview without photo quality checks", () => {
+  assert.match(source, /preparePublicUploadFile\(file/);
+  assert.match(source, /setPreparedFile\(previewFile\)/);
+  assert.match(source, /preparedFile && \(/);
+  assert.match(source, /onCapture\(preparedFile\)/);
+  assert.doesNotMatch(source, /verifyUploadedVisaPhoto|prewarmUploadedVisaPhotoDetector|visa-photo-upload-validation/);
 });
 
 test("the picker shows only the requested plain studio-photo instruction", () => {
@@ -24,17 +24,17 @@ test("the picker shows only the requested plain studio-photo instruction", () =>
   assert.doesNotMatch(source, /another phone or screen|printed or passport-size photograph/);
 });
 
-test("checking is announced and raw detector failures are not displayed", () => {
+test("preview preparation is announced without claiming photo verification", () => {
   assert.match(source, /role="status"/);
-  assert.match(source, /Verifying Visa Photo/);
-  assert.match(source, /face and a white or off-white background/);
+  assert.match(source, /Preparing photo preview/);
+  assert.match(source, /Preview your uploaded photo or PDF/);
   assert.doesNotMatch(source, /face, framing, lighting, sharpness/);
-  assert.match(source, /quality_model_unavailable/);
+  assert.doesNotMatch(source, /checks passed|Verifying Visa Photo|quality_model_unavailable/);
   assert.doesNotMatch(source, /invoker\(|Out of bounds memory access/);
 });
 
 test("object URLs are replaced and revoked across retry and unmount", () => {
   assert.match(source, /URL\.revokeObjectURL\(previewUrlRef\.current\)/);
   assert.match(source, /URL\.createObjectURL\(file\)/);
-  assert.match(source, /validationRunRef\.current \+= 1/);
+  assert.match(source, /preparationRunRef\.current \+= 1/);
 });

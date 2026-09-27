@@ -224,6 +224,7 @@ class UploadValidator:
         filename: str | None,
         declared_content_type: str | None,
         max_dimension: int | None = None,
+        allowed_source_formats: frozenset[str] | None = None,
     ) -> ValidatedUpload:
         if max_dimension is not None and max_dimension < 1:
             raise ValueError("Maximum image dimension must be positive")
@@ -247,8 +248,11 @@ class UploadValidator:
                 warnings.simplefilter("error", Image.DecompressionBombWarning)
                 with Image.open(io.BytesIO(content)) as image:
                     image_format = (image.format or "").upper()
-                    if image_format not in _SUPPORTED_SOURCE_FORMATS:
-                        raise ImageValidationError(_SUPPORTED_FORMAT_MESSAGE)
+                    if image_format not in (allowed_source_formats or _SUPPORTED_SOURCE_FORMATS):
+                        raise ImageValidationError(
+                            "Unsupported file format. Please upload a JPEG/JPG, PNG, HEIC/HEIF, AVIF, or single-page PDF."
+                            if allowed_source_formats is not None else _SUPPORTED_FORMAT_MESSAGE
+                        )
 
                     width, height = image.size
                     if width <= 0 or height <= 0:
@@ -323,7 +327,8 @@ class UploadValidator:
         )
         return output.getvalue()
 
-    def _safe_filename(self, filename: str | None, extension: str) -> str:
+    @staticmethod
+    def _safe_filename(filename: str | None, extension: str) -> str:
         original = Path(filename or "passport").name
         stem = Path(original).stem or "passport"
         stem = _SAFE_FILENAME.sub("-", stem).strip(".-_") or "passport"

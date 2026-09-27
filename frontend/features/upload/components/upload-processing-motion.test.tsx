@@ -9,9 +9,13 @@ const mocks = vi.hoisted(() => ({
   group: {} as Record<string, unknown>,
   resume: null as PassportSubmission | null,
   upload: vi.fn(), submit: vi.fn(), getStatus: vi.fn(), scanAgain: vi.fn(),
-  normalize: vi.fn(), report: vi.fn(), reportOnce: vi.fn(), requestOtp: vi.fn(), verifyOtp: vi.fn(),
+  prepare: vi.fn(), normalize: vi.fn(), report: vi.fn(), reportOnce: vi.fn(), requestOtp: vi.fn(), verifyOtp: vi.fn(),
 }));
 
+vi.mock("../services/public-upload-file", async (importOriginal) => ({
+  ...await importOriginal<typeof import("../services/public-upload-file")>(),
+  preparePublicUploadFile: mocks.prepare,
+}));
 vi.mock("@/features/passports/hooks/use-upload-links", () => ({ useUploadLinkByToken: () => ({ data: mocks.group, isLoading: false, error: null }) }));
 vi.mock("../hooks/use-upload", () => ({ useUploadPassport: () => ({ mutateAsync: mocks.upload }), useSubmitClientPassportReview: () => ({ mutateAsync: mocks.submit }) }));
 vi.mock("../hooks/use-public-flow-telemetry", () => ({ usePublicFlowTelemetry: () => ({ report: mocks.report, reportPublicFlowOnce: mocks.reportOnce }) }));
@@ -74,6 +78,7 @@ beforeEach(() => {
     upload_configuration: { ...DEFAULT_UPLOAD_CONFIGURATION, passport_live_scan: false, passport_upload_pages: ["front"], required_fields: {} },
   };
   vi.stubGlobal("URL", Object.assign(URL, { createObjectURL: vi.fn(() => "blob:test-passport"), revokeObjectURL: vi.fn() }));
+  mocks.prepare.mockImplementation(async (file: File) => new File(["prepared JPEG"], `${file.name}.jpg`, { type: "image/jpeg" }));
   mocks.normalize.mockImplementation(async (file: File) => ({ file }));
   mocks.upload.mockResolvedValue(saved());
   mocks.submit.mockResolvedValue({ status: "submitted" });
@@ -95,6 +100,7 @@ async function choosePassport() {
   await userEvent.click(screen.getByRole("button", { name: "Upload passport images" }));
   const passport = new File(["synthetic passport"], "passport.jpg", { type: "image/jpeg" });
   fireEvent.change(screen.getByLabelText("Upload Personal Details Page"), { target: { files: [passport] } });
+  await waitFor(() => expect(screen.getByRole("button", { name: "Save passport pages and continue" })).toBeEnabled());
   await userEvent.click(screen.getByRole("button", { name: "Save passport pages and continue" }));
   return passport;
 }

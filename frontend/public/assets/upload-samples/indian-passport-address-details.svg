@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="600" viewBox="0 0 880 600" role="img" aria-labelledby="title description">
+  <title id="title">Indian passport address and family details page — illustrative sample</title>
+  <desc id="description">A fictional Indian passport-style last page showing parents, spouse, address, old passport particulars and file number. All entries are placeholders and this is not a valid travel document.</desc>
+  <defs>
+    <linearGradient id="paper" x2="1" y2="1">
+      <stop stop-color="#edf1df"/>
+      <stop offset=".5" stop-color="#fff5dc"/>
+      <stop offset="1" stop-color="#e2eeeb"/>
+    </linearGradient>
+    <pattern id="waves" width="64" height="32" patternUnits="userSpaceOnUse">
+      <path d="M-16 16Q0 0 16 16T48 16T80 16M-16 32Q0 16 16 32T48 32T80 32" fill="none" stroke="#578c8c" stroke-width="1" opacity=".11"/>
+    </pattern>
+    <clipPath id="page"><rect x="18" y="18" width="844" height="564" rx="14"/></clipPath>
+  </defs>
+  <rect x="12" y="22" width="856" height="566" rx="18" fill="#23394c" opacity=".12"/>
+  <rect x="18" y="18" width="844" height="564" rx="14" fill="url(#paper)" stroke="#a9b9b6" stroke-width="2"/>
+  <g clip-path="url(#page)">
+    <path d="M824 18h38v564h-38Z" fill="#82a6a4" opacity=".23"/>
+    <rect x="18" y="18" width="844" height="564" fill="url(#waves)"/>
+    <g fill="none" stroke="#79aaa0" opacity=".16">
+      <ellipse cx="703" cy="303" rx="154" ry="214"/>
+      <ellipse cx="703" cy="303" rx="137" ry="195"/>
+      <ellipse cx="703" cy="303" rx="120" ry="176"/>
+      <path d="M703 116v374M566 303h274M604 166l198 274M604 440l198-274"/>
+    </g>
+    <g font-family="'Nirmala UI', 'Noto Sans Devanagari', Arial, sans-serif">
+      <text x="66" y="58" font-size="24" fill="#254d68">पता एवं अन्य विवरण</text>
+      <text x="66" y="92" font-size="28" font-weight="700" fill="#254d68" letter-spacing="1.4">ADDRESS &amp; OTHER PARTICULARS</text>
+      <text x="803" y="61" text-anchor="end" font-size="25" font-weight="700" letter-spacing="3" fill="#254d68">IND</text>
+      <path d="M66 108h736" stroke="#678b9c" stroke-width="2"/>
+      <g font-size="18" fill="#536b73">
+        <text x="66" y="142">Name of father / legal guardian · पिता / कानूनी अभिभावक का नाम</text>
+        <text x="66" y="214">Name of mother · माता का नाम</text>
+        <text x="66" y="286">Name of spouse · पति या पत्नी का नाम</text>
+        <text x="66" y="358">Address · पता</text>
+        <text x="66" y="466">Old passport number, date and place of issue</text>
+        <text x="66" y="535">File No. / फाइल नं.</text>
+      </g>
+      <g font-size="27" font-weight="600" fill="#253c47">
+        <text x="66" y="177">SAMPLE FATHER</text>
+        <text x="66" y="249">SAMPLE MOTHER</text>
+        <text x="66" y="321">SAMPLE SPOUSE</text>
+        <text x="66" y="393">123 SAMPLE STREET</text>
+        <text x="66" y="425">SAMPLE CITY, INDIA — 000000</text>
+        <text x="66" y="501" font-size="24">NOT APPLICABLE — SAMPLE ONLY</text>
+        <text x="309" y="535" font-size="24" letter-spacing="2">SAMPLE ONLY</text>
+      </g>
+      <g stroke="#7e9998" opacity=".25">
+        <path d="M66 189h736M66 261h736M66 333h736M66 441h736M66 513h736"/>
+      </g>
+      <text x="455" y="318" text-anchor="middle" transform="rotate(-17 455 318)" font-size="110" font-weight="800" letter-spacing="14" fill="#975d4f" opacity=".21">SAMPLE</text>
+      <text x="440" y="574" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" letter-spacing="3" fill="#6c6758">ILLUSTRATIVE SAMPLE · NOT VALID FOR TRAVEL</text>
+    </g>
+  </g>
+</svg>

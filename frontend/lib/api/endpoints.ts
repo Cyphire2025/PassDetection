@@ -234,6 +234,7 @@ export const API_ENDPOINTS = {
     visaAiJob: (id: string, jobId: string) =>
       `/api/v1/passports/${id}/images/visa_photo/ai-jobs/${jobId}`,
     upload: (token: string) => `/api/v1/passports/upload/${token}`,
+    prepareUploadFile: (token: string) => `/api/v1/passports/upload/${encodeURIComponent(token)}/prepare-file`,
     reconcileUpload: (token: string) => `/api/v1/passports/upload/${token}`,
     uploadStatus: (token: string, id: string) => `/api/v1/passports/upload/${token}/${id}/status`,
     uploadImage: (token: string, id: string) => `/api/v1/passports/upload/${token}/${id}/image`,

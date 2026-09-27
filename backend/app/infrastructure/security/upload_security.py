@@ -83,6 +83,7 @@ class UploadSecurityService:
         context: UploadSecurityContext,
         max_bytes: int | None = None,
         max_dimension: int | None = None,
+        allowed_source_formats: frozenset[str] | None = None,
     ) -> ValidatedUpload:
         if not content:
             await self._record(
@@ -121,6 +122,7 @@ class UploadSecurityService:
                 filename=filename,
                 declared_content_type=declared_content_type,
                 max_dimension=max_dimension,
+                allowed_source_formats=allowed_source_formats,
             )
         except ImageValidationError:
             await self._record(
@@ -140,6 +142,62 @@ class UploadSecurityService:
             disposition="accepted",
         )
         return validated
+
+    async def validate_public_file(
+        self,
+        *,
+        content: bytes,
+        filename: str | None,
+        declared_content_type: str | None,
+        context: UploadSecurityContext,
+    ) -> ValidatedUpload:
+        """Normalize public device uploads without widening other image consumers."""
+        from pathlib import Path
+
+        from app.infrastructure.security.public_upload_pdf import (
+            MAX_PUBLIC_PDF_BYTES,
+            render_single_page_pdf_isolated,
+        )
+
+        is_pdf = (
+            content.startswith(b"%PDF-")
+            or declared_content_type == "application/pdf"
+            or Path(filename or "").suffix.lower() == ".pdf"
+        )
+        if not is_pdf:
+            return await self.validate_image(
+                content=content,
+                filename=filename,
+                declared_content_type=declared_content_type,
+                context=context,
+                allowed_source_formats=frozenset({"JPEG", "PNG", "HEIC", "HEIF", "AVIF"}),
+            )
+        if len(content) > MAX_PUBLIC_PDF_BYTES:
+            raise ImageValidationError("PDF files must be 2 MB or smaller.")
+        digest = await self._scan_original(
+            content=content, declared_media_type=declared_content_type, context=context,
+        )
+        try:
+            DigestBoundScanner(digest).scan(content)
+            normalized = await asyncio.to_thread(render_single_page_pdf_isolated, content)
+        except ImageValidationError:
+            await self._record(
+                content=content, declared_media_type=declared_content_type, context=context,
+                scan_status="malformed", disposition="rejected", error_code="PDF_VALIDATION_FAILED",
+            )
+            raise
+        await self._record(
+            content=content, declared_media_type=declared_content_type, context=context,
+            scan_status="clean", disposition="accepted",
+        )
+        return ValidatedUpload(
+            content=normalized.content,
+            content_type="image/jpeg",
+            filename=UploadValidator._safe_filename(filename, ".jpg"),
+            width=normalized.width,
+            height=normalized.height,
+            format="JPEG",
+        )
 
     async def validate_document(
         self,

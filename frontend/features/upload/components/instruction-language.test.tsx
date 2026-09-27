@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DEFAULT_UPLOAD_CONFIGURATION, type UploadConfiguration } from "@/features/passports/types/upload-configuration";
 import { INSTRUCTION_LANGUAGE_CODES } from "@/features/passports/types/instruction-language";
@@ -7,10 +7,8 @@ import { PassportUploadPage } from "./passport-upload-page";
 import { VisaPhotoUpload } from "./visa-photo-upload";
 import { useInstructionLanguage, availableInstructionLanguages } from "../hooks/use-instruction-language";
 import { UPLOAD_INSTRUCTIONS } from "../config/instruction-translations";
+import { VISA_PHOTO_GUIDELINES, VISA_PHOTO_GUIDELINE_IDS } from "../config/visa-photo-guidelines";
 import { emptyDocumentBundle } from "../services/upload-flow-helpers";
-
-vi.mock("../services/visa-photo-upload-detector", () => ({ prewarmUploadedVisaPhotoDetector: vi.fn(async () => undefined) }));
-vi.mock("../services/visa-photo-upload-validation", () => ({ VISA_PHOTO_UPLOAD_ACCEPT: "image/jpeg", verifyUploadedVisaPhoto: vi.fn(), uploadedVisaPhotoFailureMessage: vi.fn(), visaPhotoUploadRejectionReason: vi.fn() }));
 
 const config: UploadConfiguration = { ...DEFAULT_UPLOAD_CONFIGURATION, instruction_languages_enabled: true, instruction_languages: ["mr", "hi", "ur"], passport_upload_pages: ["cover", "back_cover", "front", "back"] };
 
@@ -39,8 +37,12 @@ describe("configured instruction translations", () => {
     fireEvent.click(screen.getByRole("button", { name: "Switch step" }));
     expect(screen.getByRole("combobox")).toHaveValue("mr");
     expect(screen.getByText(UPLOAD_INSTRUCTIONS.mr.visaWarning)).toBeInTheDocument();
-    expect(screen.getByText(UPLOAD_INSTRUCTIONS.mr.visaFraming)).toBeInTheDocument();
-    expect(screen.getByText(UPLOAD_INSTRUCTIONS.mr.visaBackground)).toBeInTheDocument();
+    const guidelines = screen.getByRole("region", { name: VISA_PHOTO_GUIDELINES.mr.heading });
+    expect(guidelines).toHaveAttribute("lang", "mr");
+    for (const id of VISA_PHOTO_GUIDELINE_IDS) {
+      expect(within(guidelines).getByRole("heading", { name: VISA_PHOTO_GUIDELINES.mr.items[id].title })).toBeInTheDocument();
+      expect(within(guidelines).getByText(VISA_PHOTO_GUIDELINES.mr.items[id].description)).toBeInTheDocument();
+    }
     expect(screen.getByRole("heading", { name: "Upload Studio Visa Photo" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Photograph sample" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Choose studio photo" })).toBeInTheDocument();
@@ -68,7 +70,7 @@ describe("configured instruction translations", () => {
     expect(screen.getByRole("heading", { name: "Upload Passport Pages" }).closest('[dir="rtl"]')).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Switch step" }));
     expect(screen.getByText(UPLOAD_INSTRUCTIONS.ur.visaWarning)).toHaveAttribute("dir", "rtl");
-    expect(screen.getByText(UPLOAD_INSTRUCTIONS.ur.visaFraming).closest("figcaption")).toHaveAttribute("dir", "rtl");
+    expect(screen.getByRole("region", { name: VISA_PHOTO_GUIDELINES.ur.heading })).toHaveAttribute("dir", "rtl");
     expect(screen.getByRole("heading", { name: "Upload Studio Visa Photo" }).closest('[dir="rtl"]')).toBeNull();
   });
 
@@ -102,6 +104,28 @@ describe("configured instruction translations", () => {
       expect(translated[key]).not.toBe(UPLOAD_INSTRUCTIONS.en[key]);
     }
     expect(translated.passportIntro).toContain("2 MB");
-    expect(translated.visaFraming).toContain("70–80%");
+  });
+
+  it.each(["en", ...INSTRUCTION_LANGUAGE_CODES] as const)("switches all six guideline headings and descriptions to %s", (language) => {
+    render(<Harness configuration={{ ...config, instruction_languages: [...INSTRUCTION_LANGUAGE_CODES] }} />);
+    fireEvent.click(screen.getByRole("button", { name: "Switch step" }));
+    fireEvent.change(screen.getByRole("combobox"), { target: { value: language } });
+    const copy = VISA_PHOTO_GUIDELINES[language];
+    const guidelines = screen.getByRole("region", { name: copy.heading });
+    expect(guidelines).toHaveAttribute("lang", language);
+    expect(guidelines).toHaveAttribute("dir", language === "ur" ? "rtl" : "ltr");
+    expect(within(guidelines).getAllByRole("listitem")).toHaveLength(6);
+    const uploadButton = screen.getByRole("button", { name: "Choose studio photo" });
+    expect(guidelines.compareDocumentPosition(uploadButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    for (const id of VISA_PHOTO_GUIDELINE_IDS) {
+      expect(within(guidelines).getByRole("heading", { name: copy.items[id].title })).toBeInTheDocument();
+      expect(within(guidelines).getByText(copy.items[id].description)).toBeInTheDocument();
+      if (language !== "en") {
+        expect(copy.items[id].title).not.toBe(VISA_PHOTO_GUIDELINES.en.items[id].title);
+        expect(copy.items[id].description).not.toBe(VISA_PHOTO_GUIDELINES.en.items[id].description);
+      }
+    }
+    expect(screen.queryByText("Face should fill approximately 70–80% of the photograph.")).not.toBeInTheDocument();
+    expect(screen.queryByText("Plain white background. Face forward with your full head visible.")).not.toBeInTheDocument();
   });
 });

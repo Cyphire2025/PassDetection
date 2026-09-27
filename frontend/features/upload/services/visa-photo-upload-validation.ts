@@ -7,22 +7,7 @@ import {
 import type { VisaPhotoRejectionReason } from "./public-flow-telemetry";
 import { CAMERA_QUALITY_POLICY } from "./camera-quality-policy";
 
-export const VISA_PHOTO_UPLOAD_ACCEPT = [
-  ".jpg",
-  ".jpeg",
-  ".png",
-  ".webp",
-  ".heic",
-  ".heif",
-  ".avif",
-  "image/jpeg",
-  "image/jpg",
-  "image/png",
-  "image/webp",
-  "image/heic",
-  "image/heif",
-  "image/avif",
-].join(",");
+export { PUBLIC_UPLOAD_ACCEPT as VISA_PHOTO_UPLOAD_ACCEPT } from "./public-upload-file";
 
 export const VISA_PHOTO_UPLOAD_MAX_BYTES = 10 * 1024 * 1024;
 export const VISA_PHOTO_UPLOAD_MAX_PIXELS = 24_000_000;
@@ -35,12 +20,11 @@ const ALLOWED_MIME_TYPES = new Set([
   "image/jpeg",
   "image/jpg",
   "image/png",
-  "image/webp",
   "image/heic",
   "image/heif",
   "image/avif",
 ]);
-const ALLOWED_FILE_EXTENSION = /\.(?:jpe?g|png|webp|hei[cf]|avif)$/i;
+const ALLOWED_FILE_EXTENSION = /\.(?:jpe?g|png|hei[cf]|avif)$/i;
 
 export interface VisaPhotoCropBounds {
   left: number;
@@ -256,7 +240,7 @@ function validateSourceFile(file: File): void {
   const hasAllowedType = ALLOWED_MIME_TYPES.has(file.type.toLowerCase());
   const hasAllowedExtension = ALLOWED_FILE_EXTENSION.test(file.name);
   if (!hasAllowedType && !hasAllowedExtension) {
-    throw new Error("Choose a JPEG, PNG, WebP, HEIC/HEIF, or AVIF studio photo.");
+    throw new Error("Choose a JPEG, PNG, HEIC/HEIF, or AVIF studio photo. PDFs must be prepared before photo verification.");
   }
 }
 
@@ -291,7 +275,7 @@ function decodeVisaPhoto(blob: Blob): Promise<{
     });
     image.onerror = () => {
       URL.revokeObjectURL(objectUrl);
-      reject(new Error("This browser could not read the selected Visa Photo. Choose a JPEG, PNG, or WebP file."));
+      reject(new Error("This browser could not read the selected Visa Photo. Choose a JPEG or PNG file."));
     };
     image.src = objectUrl;
   });

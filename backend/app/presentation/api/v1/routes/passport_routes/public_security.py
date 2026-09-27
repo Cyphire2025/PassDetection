@@ -75,6 +75,7 @@ def _require_upload_size(
 
 async def _validated_upload_file(
     file: UploadFile, *, label: str, max_size_bytes: int | None = None,
+    public_device_file: bool = False,
 ) -> ValidatedUpload:
     limit = get_settings().upload_max_file_size_bytes
     if max_size_bytes is not None:
@@ -84,7 +85,9 @@ async def _validated_upload_file(
     content = await _read_upload_content(file, label=label, limit=limit)
     _require_upload_size(content, label=label, limit=limit, max_size_bytes=max_size_bytes)
     try:
-        return await UploadSecurityService().validate_image(
+        service = UploadSecurityService()
+        validate = service.validate_public_file if public_device_file else service.validate_image
+        return await validate(
             content=content,
             filename=filename,
             declared_content_type=content_type,

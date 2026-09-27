@@ -403,7 +403,7 @@ function PassportPageCaptureControl({
 
       {allowFilesFromDevice && (
         <p id={`${inputId}-formats`} className="mt-3 text-xs leading-5 text-slate-400">
-          JPG, PNG, WebP, HEIC/HEIF, AVIF, BMP, or TIFF
+          JPG/JPEG, PNG, HEIC/HEIF, AVIF or PDF · Maximum 2 MB · PDFs: 1 page only
         </p>
       )}
     </section>

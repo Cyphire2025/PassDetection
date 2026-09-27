@@ -37,6 +37,7 @@ import {
   isClientSubmissionComplete
 } from "../services/upload-flow-helpers";
 import {
+  activeUploadSessionId,
   clearQualifierSelectionToken,
   createIdempotencyKey,
   readUploadRecoveryRecord,
@@ -429,7 +430,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   }
 
   if (step === "PASSPORT_UPLOAD" && passportEnabled && allowFilesFromDevice) {
-    return <PassportUploadPage bundle={documentBundle} config={uploadConfig} instructions={instructions} onChange={setDocumentBundle} onContinue={handleBundleUpload} onBack={() => setStep("METHOD_SELECT")} error={uploadError} />;
+    return <PassportUploadPage token={token} uploadSessionId={activeUploadSessionId(flowMode, singleUploadIdempotencyKey, activeFamilyMember)} bundle={documentBundle} config={uploadConfig} instructions={instructions} onChange={setDocumentBundle} onContinue={handleBundleUpload} onBack={() => setStep("METHOD_SELECT")} error={uploadError} />;
   }
 
   if (step === "CAMERA") {
@@ -480,6 +481,8 @@ export function UploadFlow({ token }: UploadFlowProps) {
   if (step === "SELFIE_UPLOAD") {
     return (
       <VisaPhotoUpload
+        token={token}
+        uploadSessionId={activeUploadSessionId(flowMode, singleUploadIdempotencyKey, activeFamilyMember)}
         instructions={instructions}
         onCapture={(file) => handleSelfieCapture(file, "file")}
         onCancel={() => {
@@ -488,12 +491,6 @@ export function UploadFlow({ token }: UploadFlowProps) {
             reason: "upload_abandoned",
           });
           setStep("METHOD_SELECT");
-        }}
-        onTelemetryReason={(reason) => {
-          void reportTelemetry({
-            event: "visa_photo_rejection",
-            reason,
-          });
         }}
       />
     );

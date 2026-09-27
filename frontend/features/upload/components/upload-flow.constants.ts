@@ -37,24 +37,5 @@ export const PASSIVE_PROGRESS_STEPS: ReadonlySet<UploadFlowStep> = new Set([
   "MODE_SELECT",
 ]);
 
-export const PASSPORT_IMAGE_ACCEPT = [
-  ".jpg",
-  ".jpeg",
-  ".png",
-  ".webp",
-  ".heic",
-  ".heif",
-  ".avif",
-  ".bmp",
-  ".tif",
-  ".tiff",
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/heic",
-  "image/heif",
-  "image/avif",
-  "image/bmp",
-  "image/tiff",
-].join(",");
+export { PUBLIC_UPLOAD_ACCEPT as PASSPORT_IMAGE_ACCEPT } from "../services/public-upload-file";
 import type { UploadFlowStep } from "./upload-flow.types";

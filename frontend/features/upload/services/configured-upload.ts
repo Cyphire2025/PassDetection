@@ -1,12 +1,12 @@
 import {
   DEFAULT_UPLOAD_CONFIGURATION,
-  MAX_PASSPORT_UPLOAD_BYTES,
   PASSPORT_UPLOAD_PAGES,
   type PassportUploadPage,
   type UploadConfiguration,
 } from "@/features/passports/types/upload-configuration";
 import type { PassportDocumentBundle } from "../components/upload-flow.types";
 import type { UploadLinkResponse } from "@/features/passports/api/upload-links.api";
+import { publicUploadFileError } from "./public-upload-file";
 
 export function resolveUploadConfiguration(value?: Partial<UploadConfiguration> | null): UploadConfiguration {
   return { ...DEFAULT_UPLOAD_CONFIGURATION, ...value,
@@ -47,13 +47,7 @@ export function getUploadFlowSettings(group?: UploadLinkResponse) {
 }
 
 export function passportUploadFileError(file: File): string | null {
-  if (file.size > MAX_PASSPORT_UPLOAD_BYTES) return "Each passport image must be 2 MB or smaller. Please choose a smaller file.";
-  if (!file.size) return "This file is empty. Please choose a passport image.";
-  if (!/^image\/(jpeg|png|webp|heic|heif|avif|bmp|tiff)$/i.test(file.type)
-    && !/\.(jpe?g|png|webp|heic|heif|avif|bmp|tiff?)$/i.test(file.name)) {
-    return "Choose a passport image in JPG, PNG, WebP, HEIC, HEIF, AVIF, BMP or TIFF format.";
-  }
-  return null;
+  return publicUploadFileError(file, "passport");
 }
 
 export function passportBundleError(

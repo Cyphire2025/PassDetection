@@ -56,7 +56,8 @@ async def validate_public_upload_documents(
         validated[name] = await validator(
             upload,
             label=PASSPORT_PAGE_LABELS.get(name, "Visa Photo"),
-            max_size_bytes=MAX_PUBLIC_DOCUMENT_BYTES if source == "file" else None,
+            max_size_bytes=MAX_PUBLIC_DOCUMENT_BYTES if source == "file" and name != "photo" else None,
+            public_device_file=source != "camera",
         )
     front = validated.get("front")
     return {
