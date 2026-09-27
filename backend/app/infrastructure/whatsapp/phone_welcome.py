@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 from collections.abc import Collection
 from datetime import UTC, datetime
-from typing import Literal
+from typing import Literal, cast
 
 from sqlalchemy import select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
@@ -152,7 +152,10 @@ async def assert_phone_welcome_claim(
                           model.status.in_({"queued", "processing"})]
             if model is WhatsAppMessageLogModel:
                 predicates.append(model.message_type == "welcome")
-            row = (await session.execute(select(model).where(*predicates))).scalar_one_or_none()
+            row = cast(
+                WhatsAppMessageLogModel | WhatsAppPhoneWelcomeAttemptModel | None,
+                (await session.execute(select(model).where(*predicates))).scalar_one_or_none(),
+            )
             if row is not None:
                 states = await broadcast_welcome_states(session, agency_id=agency_id,
                     broadcast_group_id=broadcast_group_id, phones=[phone],
