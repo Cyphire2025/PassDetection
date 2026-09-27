@@ -104,6 +104,24 @@ class ProcessIsolationTests(unittest.TestCase):
                              "bind": {"create_host_path": False}}]}
         self.services["storage-copy"] = safe
         validate_process_isolation(self.services)
+        # docker compose config --format json retains false in v5.5.1 but
+        # v2.38.2 (compose-go v2.7.1) omits it while retaining the bind object.
+        for rendered_bind in ({"create_host_path": False}, {}):
+            with self.subTest(rendered_bind=rendered_bind):
+                rendered = copy.deepcopy(safe)
+                rendered["volumes"][0]["bind"] = rendered_bind
+                self.services["storage-copy"] = rendered
+                validate_process_isolation(self.services)
+        for rendered_bind in (
+            {"create_host_path": True},  # Includes normalized short-form binds.
+            {"create_host_path": "false"}, {"create_host_path": 0},
+            {"create_host_path": None}, None, False, [], "false",
+        ):
+            with self.subTest(rendered_bind=rendered_bind), self.assertRaises(ValueError):
+                rendered = copy.deepcopy(safe)
+                rendered["volumes"][0]["bind"] = rendered_bind
+                self.services["storage-copy"] = rendered
+                validate_process_isolation(self.services)
         for mutation in ({"cap_add": ["DAC_OVERRIDE"]}, {"command": ["sh"]}, {"entrypoint": ["sh"]},
                          {"restart": "always"}, {"security_opt": []}, {"privileged": True},
                          {"device_cgroup_rules": ["a *:* rwm"]},
@@ -112,7 +130,9 @@ class ProcessIsolationTests(unittest.TestCase):
                          {"secrets": [{"source": "unreviewed", "target": "/usr/local/lib/python3.11/sitecustomize.py"}]},
                          {"environment": {"PYTHONPATH": "/evidence"}},
                          {"environment": {"LD_PRELOAD": "/evidence/unreviewed.so"}},
-                         {"volumes": []}, {"volumes": [{"type": "bind", "source": "/", "target": "/evidence",
+                         {"volumes": []}, {"volumes": safe["volumes"] * 2},
+                         {"volumes": [{"type": "bind", "source": "/protected/release", "target": "/evidence"}]},
+                         {"volumes": [{"type": "bind", "source": "/", "target": "/evidence",
                                                        "bind": {"create_host_path": False}}]}):
             with self.subTest(mutation=mutation), self.assertRaises(ValueError):
                 self.services["storage-copy"] = {**safe, **mutation}

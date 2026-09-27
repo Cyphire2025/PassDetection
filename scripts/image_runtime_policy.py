@@ -97,9 +97,13 @@ def validate_process_isolation(services: dict, *, storage_directory: str | None 
                 or copy.get("entrypoint") or copy.get("restart") != "no"):
             raise ValueError("storage-copy must retain the exact confined one-off maintenance contract")
         mounts = copy.get("volumes", [])
+        # Compose v2 omits false JSON fields, rendering an explicit
+        # create_host_path:false as bind:{}. Require that bind object; short
+        # syntax renders create_host_path:true and must still be rejected.
         if (len(mounts) != 1 or mounts[0].get("type") != "bind"
                 or mounts[0].get("target") != "/evidence"
-                or mounts[0].get("bind", {}).get("create_host_path") is not False):
+                or not isinstance(mounts[0].get("bind"), dict)
+                or mounts[0]["bind"].get("create_host_path", False) is not False):
             raise ValueError("storage-copy may only mount the existing protected evidence directory")
         expected = storage_directory or services["database-admin"].get("environment", {}).get("OBJECT_STORAGE_MIGRATION_DIRECTORY")
         if not expected:
