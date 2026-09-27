@@ -111,6 +111,9 @@ async def prepare_public_upload_file(
             validate_visa_photo_source(group, photo=file, source="file")
     except PassDetectionError as exc:
         raise HTTPException(status_code=400, detail=exc.message) from exc
+    # The capability lookup is read-only. Return its connection before the
+    # security service opens a separate transaction to persist scan evidence.
+    await session.rollback()
     prepared = await _validated_upload_file(
         file,
         label="passport page" if purpose == "passport" else "Visa Photo",

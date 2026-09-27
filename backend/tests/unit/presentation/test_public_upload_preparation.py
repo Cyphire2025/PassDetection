@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import io
 import uuid
 from pathlib import Path
@@ -8,6 +9,9 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 from fastapi import FastAPI, HTTPException, UploadFile
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.pool import AsyncAdaptedQueuePool
 from starlette.requests import Request
 
 from app.domain.entities.entities import ClientGroup, GroupStatus
@@ -29,6 +33,49 @@ def _group(**kwargs):
 
 def _file(name="synthetic.pdf"):
     return UploadFile(file=io.BytesIO(b"synthetic"), filename=name)
+
+
+async def test_parallel_previews_leave_connections_for_security_evidence(monkeypatch, tmp_path):
+    """Two capability lookups must not starve independent security writes."""
+    engine = create_async_engine(
+        f"sqlite+aiosqlite:///{tmp_path / 'preview-pool.db'}",
+        poolclass=AsyncAdaptedQueuePool, pool_size=2, max_overflow=0, pool_timeout=0.2,
+    )
+    sessions = async_sessionmaker(engine)
+    lookups = asyncio.Barrier(2)
+
+    async def lookup(session):
+        await session.execute(text("SELECT 1"))
+        await lookups.wait()
+        return _group()
+
+    async def validate(*_args, **_kwargs):
+        async with sessions() as evidence:
+            await evidence.execute(text("INSERT INTO scan_evidence DEFAULT VALUES"))
+            await evidence.commit()
+        return ValidatedUpload(b"jpeg", "image/jpeg", "page.jpg", 120, 160, "JPEG")
+
+    monkeypatch.setattr(public_upload, "ClientGroupRepository", lambda session: Mock(
+        get_by_token=lambda _token: lookup(session),
+    ))
+    monkeypatch.setattr(public_upload, "_validated_upload_file", validate)
+
+    async def prepare():
+        async with sessions() as session:
+            return await public_upload.prepare_public_upload_file(
+                token="synthetic-link", file=_file(), purpose="passport",
+                upload_session_id="a" * 40, session=session,
+            )
+
+    try:
+        async with engine.begin() as connection:
+            await connection.execute(text("CREATE TABLE scan_evidence (id INTEGER PRIMARY KEY)"))
+        results = await asyncio.gather(prepare(), prepare(), return_exceptions=True)
+        assert all(not isinstance(result, BaseException) and result.status_code == 200 for result in results), results
+        async with sessions() as session:
+            assert await session.scalar(text("SELECT count(*) FROM scan_evidence")) == 2
+    finally:
+        await engine.dispose()
 
 
 @pytest.mark.parametrize("state", [GroupStatus.CLOSED, GroupStatus.ARCHIVED, GroupStatus.DELETED, None])
