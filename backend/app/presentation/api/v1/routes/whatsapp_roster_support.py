@@ -41,7 +41,10 @@ from app.presentation.api.v1.routes.whatsapp_delivery_support import (
 )
 from app.presentation.api.v1.routes.whatsapp_group_visibility import staff_linked_group_filters
 from app.presentation.api.v1.routes.whatsapp_merged_contacts import merged_contacts_by_recipient
-from app.presentation.api.v1.routes.whatsapp_welcome_view import overlay_phone_welcome_states
+from app.presentation.api.v1.routes.whatsapp_welcome_view import (
+    overlay_broadcast_traveller_welcomes,
+    phone_welcome_statuses_by_recipient,
+)
 from app.presentation.api.v1.schemas.whatsapp_schemas import (
     WhatsAppBroadcastGroupDetailResponse,
     WhatsAppLinkedClientGroupResponse,
@@ -69,11 +72,12 @@ async def _recipient_delivery_state_maps(
 ) -> tuple[
     dict[uuid.UUID, list[WhatsAppRecipientMessageStateModel]],
     dict[uuid.UUID, dict[str, str]],
+    dict[uuid.UUID, str | None],
 ]:
     states_by_recipient: dict[uuid.UUID, list[WhatsAppRecipientMessageStateModel]] = {}
     resend_statuses_by_recipient: dict[uuid.UUID, dict[str, str]] = {}
     if not recipients:
-        return states_by_recipient, resend_statuses_by_recipient
+        return states_by_recipient, resend_statuses_by_recipient, {}
 
     recipient_ids = [recipient.id for recipient in recipients]
     states_result = await session.execute(
@@ -136,7 +140,8 @@ async def _recipient_delivery_state_maps(
             {},
         )
         recipient_statuses.setdefault(resend_log.message_type, resend_log.status)
-    await overlay_phone_welcome_states(session, recipients, states_by_recipient)
+    phone_welcome_statuses = await phone_welcome_statuses_by_recipient(session, recipients)
+    await overlay_broadcast_traveller_welcomes(session, recipients, states_by_recipient)
     for message_type in ("group_invite", "passport_link"):
         phone_blocks = await message_phone_blocking_statuses(
             session, recipients, message_type=message_type,
@@ -155,7 +160,7 @@ async def _recipient_delivery_state_maps(
                 submitted_at=previous.submitted_at if previous else None,
                 status_updated_at=previous.status_updated_at if previous else datetime.now(tz=UTC),
             ))
-    return states_by_recipient, resend_statuses_by_recipient
+    return states_by_recipient, resend_statuses_by_recipient, phone_welcome_statuses
 
 
 async def _group_detail(
@@ -165,7 +170,7 @@ async def _group_detail(
     merged_contacts = await merged_contacts_by_recipient(
         session, agency_id=group.agency_id, broadcast_group_id=group.id,
     )
-    states_by_recipient, resend_statuses_by_recipient = await _recipient_delivery_state_maps(
+    states_by_recipient, resend_statuses_by_recipient, phone_welcome_statuses = await _recipient_delivery_state_maps(
         session, recipients
     )
     support_contacts = await _support_contacts_for_group(session, group.id)
@@ -221,6 +226,7 @@ async def _group_detail(
                 states_by_recipient.get(recipient.id, []),
                 resend_statuses_by_recipient.get(recipient.id, {}),
                 merged_contacts=merged_contacts.get(recipient.id, []),
+                phone_welcome_statuses=phone_welcome_statuses,
             )
             for recipient in recipients
         ],

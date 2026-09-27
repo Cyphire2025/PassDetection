@@ -86,7 +86,10 @@ def test_excel_source_order_preserves_accepted_and_rejected_interleaving() -> No
 
 @pytest.mark.asyncio
 async def test_recipient_roster_merges_rows_and_reports_delivery_counts(monkeypatch) -> None:
-    monkeypatch.setattr("app.presentation.api.v1.routes.whatsapp_roster_support.overlay_phone_welcome_states", AsyncMock())
+    monkeypatch.setattr(
+        "app.presentation.api.v1.routes.whatsapp_roster_support.phone_welcome_statuses_by_recipient",
+        AsyncMock(return_value={}),
+    )
 
     group_id = uuid.uuid4()
     agency_id = uuid.uuid4()
@@ -277,7 +280,7 @@ async def test_recipient_roster_merges_rows_and_reports_delivery_counts(monkeypa
             replaced_result,
             states_result,
             resend_result,
-            linked_client_groups_result,  # Phone welcome history.
+            linked_client_groups_result,  # Broadcast-scoped traveller welcome history.
             linked_client_groups_result,  # Group-invite destination history.
             linked_client_groups_result,  # Passport-link destination history.
             linked_client_groups_result,

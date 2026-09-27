@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import uuid
+from datetime import UTC
 
-from sqlalchemy import select
+from sqlalchemy import func, select, tuple_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.use_cases.whatsapp.welcome_policy import requires_prior_welcome
 from app.infrastructure.database.models import (
     WhatsAppBroadcastRecipientModel,
+    WhatsAppPhoneWelcomeAttemptModel,
     WhatsAppPhoneWelcomeModel,
     WhatsAppRecipientMessageStateModel,
 )
@@ -20,14 +22,64 @@ from app.infrastructure.whatsapp.phone_welcome import (
 )
 
 
-async def overlay_phone_welcome_states(
+async def overlay_broadcast_traveller_welcomes(
     session: AsyncSession,
     recipients: list[WhatsAppBroadcastRecipientModel],
     states_by_recipient: dict[uuid.UUID, list[WhatsAppRecipientMessageStateModel]],
 ) -> None:
-    """Project immutable phone history without changing recipient-specific rows."""
+    """Include actual traveller sends belonging to this broadcast and destination."""
     if not recipients:
         return
+    attempt = WhatsAppPhoneWelcomeAttemptModel
+    keys = {
+        (recipient.agency_id, recipient.broadcast_group_id, recipient.normalized_phone_number)
+        for recipient in recipients
+    }
+    ranked = select(
+        attempt.id, attempt.agency_id, attempt.broadcast_group_id,
+        attempt.normalized_phone_number, attempt.status, attempt.status_updated_at,
+        attempt.created_at,
+        func.row_number().over(
+            partition_by=(attempt.agency_id, attempt.broadcast_group_id, attempt.normalized_phone_number),
+            order_by=(attempt.created_at.desc(), attempt.id.desc()),
+        ).label("attempt_order"),
+    ).where(tuple_(
+        attempt.agency_id, attempt.broadcast_group_id, attempt.normalized_phone_number,
+    ).in_(keys)).subquery()
+    rows = (await session.execute(select(ranked).where(ranked.c.attempt_order == 1))).all()
+    by_destination = {
+        (row.agency_id, row.broadcast_group_id, row.normalized_phone_number): row
+        for row in rows
+    }
+    for recipient in recipients:
+        row = by_destination.get((
+            recipient.agency_id, recipient.broadcast_group_id, recipient.normalized_phone_number,
+        ))
+        if row is None:
+            continue
+        states = states_by_recipient.setdefault(recipient.id, [])
+        previous = next((state for state in states if state.message_type == "welcome"), None)
+        accepted_rank = {"submitted": 1, "sent": 2, "delivered": 3, "read": 4}
+        if previous is not None and (
+            (accepted_rank.get(previous.status, 0), previous.status_updated_at.replace(tzinfo=UTC))
+            >= (accepted_rank.get(row.status, 0), row.status_updated_at.replace(tzinfo=UTC))
+        ):
+            continue
+        states[:] = [state for state in states if state.message_type != "welcome"]
+        states.append(WhatsAppRecipientMessageStateModel(
+            id=row.id, recipient_id=recipient.id, agency_id=recipient.agency_id,
+            broadcast_group_id=recipient.broadcast_group_id, message_type="welcome",
+            status=row.status, status_updated_at=row.status_updated_at,
+        ))
+
+
+async def phone_welcome_statuses_by_recipient(
+    session: AsyncSession,
+    recipients: list[WhatsAppBroadcastRecipientModel],
+) -> dict[uuid.UUID, str | None]:
+    """Read global welcome prerequisites separately from broadcast delivery."""
+    if not recipients:
+        return {}
     rows = (
         (
             await session.execute(
@@ -45,27 +97,15 @@ async def overlay_phone_welcome_states(
         .all()
     )
     by_phone = {(row.agency_id, row.normalized_phone_number): row for row in rows}
-    for recipient in recipients:
-        states = [
-            state
-            for state in states_by_recipient.get(recipient.id, [])
-            if state.message_type != "welcome"
-        ]
-        row = by_phone.get((recipient.agency_id, recipient.normalized_phone_number))
-        if row is not None:
-            states.append(
-                WhatsAppRecipientMessageStateModel(
-                    id=row.id,
-                    recipient_id=recipient.id,
-                    broadcast_group_id=recipient.broadcast_group_id,
-                    agency_id=recipient.agency_id,
-                    message_type="welcome",
-                    status=row.status,
-                    submitted_at=row.delivered_at,
-                    status_updated_at=row.status_updated_at,
-                )
-            )
-        states_by_recipient[recipient.id] = states
+    return {
+        recipient.id: (
+            row.status
+            if (row := by_phone.get((recipient.agency_id, recipient.normalized_phone_number)))
+            is not None
+            else None
+        )
+        for recipient in recipients
+    }
 
 
 async def welcome_preview_values(

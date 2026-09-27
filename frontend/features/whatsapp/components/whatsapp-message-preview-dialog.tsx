@@ -1181,9 +1181,7 @@ function StandardMessagePreviewDialog({
               <div className="mt-2 space-y-1 text-xs text-slate-500">
                 {!targetRecipient && !bulkMode && messageType !== "reminder" && preview.already_sent_count > 0 && (
                   <p className="font-medium text-emerald-700">
-                    {preview.already_sent_count} previous recipient
-                    {preview.already_sent_count === 1 ? "" : "s"} will be
-                    skipped automatically.
+                    {messageType === "welcome" ? <>{preview.already_sent_count} recipient{preview.already_sent_count === 1 ? "" : "s"} with an earlier welcome will be skipped automatically. This includes earlier broadcasts.</> : <>{preview.already_sent_count} previous recipient{preview.already_sent_count === 1 ? "" : "s"} will be skipped automatically.</>}
                   </p>
                 )}
                 {!targetRecipient && !bulkMode && preview.in_progress_count > 0 && (
@@ -1235,8 +1233,9 @@ function StandardMessagePreviewDialog({
           eligibleRecipientCount === 0 &&
           preview.already_sent_count === preview.recipient_count && (
             <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
-              This message has already been sent successfully to every recipient
-              in this broadcast. No duplicate messages will be sent.
+              {messageType === "welcome"
+                ? "Every selected number already has an earlier welcome, including welcomes from other broadcasts. No duplicate welcomes will be sent."
+                : "This message has already been sent successfully to every recipient in this broadcast. No duplicate messages will be sent."}
             </div>
           )}
         {!targetRecipient &&
@@ -1262,7 +1261,7 @@ function StandardMessagePreviewDialog({
             <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-700">
               {messageType === "reminder" ? (
                 <>A reminder is still being sent to {preview.in_progress_count} recipient{preview.in_progress_count === 1 ? "" : "s"}. Wait for it to finish, then open Send Reminder again to review and send your next message.</>
-              ) : <>No new deliveries can be queued: {preview.already_sent_count}{" "}
+              ) : messageType === "welcome" ? <>No new welcomes can be queued: {preview.already_sent_count} numbers already have an earlier welcome and {preview.in_progress_count} are currently in progress. This includes earlier broadcasts.</> : <>No new deliveries can be queued: {preview.already_sent_count}{" "}
               already sent and {preview.in_progress_count} currently in
               progress.</>}
             </div>

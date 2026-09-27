@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 
 import pytest
@@ -11,7 +11,9 @@ from fastapi import HTTPException
 from sqlalchemy import select
 
 from app.application.use_cases.whatsapp.welcome_policy import requires_prior_welcome
+from app.domain.entities.entities import UserRole
 from app.infrastructure.database.models import (
+    WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
     WhatsAppPhoneWelcomeModel,
     WhatsAppRecipientMessageStateModel,
@@ -26,12 +28,14 @@ from app.presentation.api.v1.routes.whatsapp_contact_support import _recipient_r
 from app.presentation.api.v1.routes.whatsapp_phone_welcome import (
     enforce_broadcast_welcome_prerequisite,
 )
+from app.presentation.api.v1.routes.whatsapp_recipient_roster import get_broadcast_recipient_roster
+from app.presentation.api.v1.routes.whatsapp_roster_support import _recipient_delivery_state_maps
 from app.presentation.api.v1.routes.whatsapp_welcome_view import (
-    overlay_phone_welcome_states,
+    phone_welcome_statuses_by_recipient,
     welcome_preview_values,
     welcome_resend_skip_reason,
 )
-from tests.unit.infrastructure.test_phone_welcome import PHONE, _agency
+from tests.unit.infrastructure.test_phone_welcome import PHONE, _agency, _attempt
 
 
 @pytest.mark.parametrize(
@@ -47,7 +51,7 @@ from tests.unit.infrastructure.test_phone_welcome import PHONE, _agency
         "failed",
     ],
 )
-async def test_existing_roster_and_preview_project_welcome_from_another_list_or_traveller(
+async def test_other_list_welcome_only_affects_prerequisites_and_duplicate_protection(
     db_session, status
 ):
     agency = await _agency(db_session)
@@ -67,12 +71,12 @@ async def test_existing_roster_and_preview_project_welcome_from_another_list_or_
         phone_number=PHONE,
         normalized_phone_number=PHONE,
     )
-    states = {}
-    await overlay_phone_welcome_states(db_session, [recipient], states)
-    response = _recipient_response(recipient, states[recipient.id])
+    phone_statuses = await phone_welcome_statuses_by_recipient(db_session, [recipient])
+    response = _recipient_response(recipient, [], phone_welcome_statuses=phone_statuses)
     assert response.welcome_status == status
     assert response.welcome_delivered == (status in {"delivered", "read"})
-    assert response.message_statuses[0].resend_blocked == (status != "failed")
+    assert response.message_statuses == []
+    assert response.sent_message_types == []
     preview = await welcome_preview_values(
         db_session, agency_id=agency, recipients=[recipient], message_type="welcome"
     )
@@ -106,9 +110,8 @@ async def test_same_phone_in_other_tenant_does_not_project_welcome(db_session):
         phone_number=PHONE,
         normalized_phone_number=PHONE,
     )
-    states = {}
-    await overlay_phone_welcome_states(db_session, [recipient], states)
-    response = _recipient_response(recipient, states[recipient.id])
+    phone_statuses = await phone_welcome_statuses_by_recipient(db_session, [recipient])
+    response = _recipient_response(recipient, [], phone_welcome_statuses=phone_statuses)
     assert response.welcome_status is None
     assert not response.welcome_delivered
     preview = await welcome_preview_values(
@@ -116,6 +119,125 @@ async def test_same_phone_in_other_tenant_does_not_project_welcome(db_session):
     )
     assert preview["welcome_required_count"] == 1
     assert preview["eligible_recipient_count"] == 0
+
+
+@pytest.mark.parametrize("current_status", [None, "failed", "read"])
+async def test_roster_counts_only_current_broadcast_with_prior_welcome_elsewhere(
+    db_session, current_status
+):
+    agency = await _agency(db_session)
+    groups = [
+        WhatsAppBroadcastGroupModel(id=uuid.uuid4(), agency_id=agency, name=name)
+        for name in ("Earlier broadcast", "Current broadcast")
+    ]
+    db_session.add_all(groups)
+    await db_session.flush()
+    recipients = [
+        WhatsAppBroadcastRecipientModel(
+            id=uuid.uuid4(), agency_id=agency, broadcast_group_id=group.id,
+            name="Traveller", phone_number=PHONE, normalized_phone_number=PHONE,
+        )
+        for group in groups
+    ]
+    db_session.add_all(recipients)
+    await db_session.flush()
+    for recipient, delivery_status in zip(recipients, ("read", current_status), strict=True):
+        if delivery_status is not None:
+            db_session.add(WhatsAppRecipientMessageStateModel(
+                recipient_id=recipient.id, agency_id=agency,
+                broadcast_group_id=recipient.broadcast_group_id,
+                message_type="welcome", status=delivery_status,
+            ))
+    await claim_phone_welcome(
+        db_session, agency_id=agency, phone=PHONE,
+        attempt_id=(attempt := uuid.uuid4()), attempt_kind="broadcast",
+    )
+    await sync_phone_welcome(
+        db_session, agency_id=agency, phone=PHONE, attempt_id=attempt, status="read",
+    )
+    await db_session.commit()
+
+    roster = await get_broadcast_recipient_roster(
+        groups[1].id,
+        current_user=SimpleNamespace(role=UserRole.AGENCY_ADMIN, agency_id=agency),
+        session=db_session,
+    )
+    assert roster.counts.all == 1
+    assert roster.counts.sent == int(current_status == "read")
+    assert roster.counts.failed == int(current_status == "failed")
+    recipient_response = roster.items[0].recipient
+    assert recipient_response is not None
+    assert recipient_response.welcome_status == "read"
+    assert recipient_response.welcome_delivered
+    assert recipient_response.sent_message_types == (["welcome"] if current_status == "read" else [])
+    assert [state.status for state in recipient_response.message_statuses] == (
+        [current_status] if current_status is not None else []
+    )
+    if current_status is not None:
+        assert recipient_response.message_statuses[0].resend_blocked
+    # Viewing another list must neither erase history nor permit duplicate welcomes.
+    assert await claim_phone_welcome(
+        db_session, agency_id=agency, phone=PHONE,
+        attempt_id=uuid.uuid4(), attempt_kind="broadcast",
+    ) == "read"
+
+
+@pytest.mark.parametrize("same_broadcast", [True, False])
+async def test_actual_traveller_welcome_only_projects_into_its_own_broadcast(
+    db_session, same_broadcast
+):
+    attempt, _ = await _attempt(db_session)
+    attempt.status = "read"
+    await sync_phone_welcome(
+        db_session, agency_id=attempt.agency_id, phone=PHONE,
+        attempt_id=attempt.id, status="read",
+    )
+    broadcast_id = attempt.broadcast_group_id if same_broadcast else uuid.uuid4()
+    if not same_broadcast:
+        db_session.add(WhatsAppBroadcastGroupModel(
+            id=broadcast_id, agency_id=attempt.agency_id, name="Another broadcast",
+        ))
+        await db_session.flush()
+    recipient = WhatsAppBroadcastRecipientModel(
+        id=uuid.uuid4(), agency_id=attempt.agency_id, broadcast_group_id=broadcast_id,
+        name="Traveller", phone_number=PHONE, normalized_phone_number=PHONE,
+    )
+    db_session.add(recipient)
+    await db_session.flush()
+    if same_broadcast:
+        db_session.add(WhatsAppRecipientMessageStateModel(
+            recipient_id=recipient.id, agency_id=attempt.agency_id,
+            broadcast_group_id=broadcast_id, message_type="welcome", status="failed",
+            status_updated_at=datetime.now(UTC) + timedelta(days=1),
+        ))
+    await db_session.commit()
+    states, resends, global_statuses = await _recipient_delivery_state_maps(db_session, [recipient])
+    response = _recipient_response(
+        recipient, states.get(recipient.id, []), resends.get(recipient.id, {}),
+        phone_welcome_statuses=global_statuses,
+    )
+    assert response.welcome_delivered
+    assert response.sent_message_types == (["welcome"] if same_broadcast else [])
+    assert [state.status for state in response.message_statuses] == (["read"] if same_broadcast else [])
+
+
+def test_changed_phone_prerequisite_does_not_reuse_old_recipient_delivery():
+    recipient = WhatsAppBroadcastRecipientModel(
+        id=uuid.uuid4(), agency_id=uuid.uuid4(), broadcast_group_id=uuid.uuid4(),
+        name="Traveller", phone_number="+919876543299",
+        normalized_phone_number="+919876543299",
+    )
+    response = _recipient_response(
+        recipient,
+        [WhatsAppRecipientMessageStateModel(
+            message_type="welcome", status="read", status_updated_at=datetime.now(UTC),
+        )],
+        phone_welcome_statuses={recipient.id: None},
+    )
+    assert response.message_statuses[0].status == "read"
+    assert response.welcome_status is None
+    assert not response.welcome_delivered
+    assert response.welcome_required_reason is not None
 
 
 @pytest.mark.parametrize("status", [None, "failed", "queued", "processing", "submitted", "sent", "delivery_unknown", "delivered", "read"])

@@ -5,12 +5,20 @@ import { ActiveRecipientRow } from "./whatsapp-active-recipient-row";
 
 const status = (messageType: string, delivered: boolean) => ({ message_type: messageType, status: delivered ? "delivered" : "failed", already_sent: delivered, latest_resend_status: null, resend_blocked: false, submitted_at: null, status_updated_at: "2026-09-12T00:00:00Z" });
 
-function renderRow(delivered: boolean, messageTypes = ["welcome", "passport_link"]) {
-  const recipient: WhatsAppRecipient = { id: "contact", name: "Alex", phone_number: "+919900000001", normalized_phone_number: "+919900000001", imported_fields: {}, welcome_status: delivered ? "delivered" : "required", welcome_delivered: delivered, welcome_required_reason: delivered ? null : "Welcome must arrive before passport links.", message_statuses: [status("welcome", delivered), status("passport_link", false), status("group_invite", false)] };
+function renderRow(delivered: boolean, messageTypes = ["welcome", "passport_link"], overrides: Partial<WhatsAppRecipient> = {}) {
+  const recipient: WhatsAppRecipient = { id: "contact", name: "Alex", phone_number: "+919900000001", normalized_phone_number: "+919900000001", imported_fields: {}, welcome_status: delivered ? "delivered" : "required", welcome_delivered: delivered, welcome_required_reason: delivered ? null : "Welcome must arrive before passport links.", message_statuses: [status("welcome", delivered), status("passport_link", false), status("group_invite", false)], ...overrides };
   const onResend = vi.fn();
   render(<table><tbody><ActiveRecipientRow recipient={recipient} serialNumber={1} messageTypes={messageTypes} selected={false} selectionDisabled={false} onSelect={vi.fn()} editing={false} editedPhone="" onPhoneChange={vi.fn()} onEdit={vi.fn()} onCancelEdit={vi.fn()} onSavePhone={vi.fn()} phoneSaving={false} resendPending={false} onResend={onResend} removeDisabled={false} onRemove={vi.fn()} /></tbody></table>);
   return onResend;
 }
+
+it("shows no local delivery when this number was welcomed outside the broadcast", () => {
+  renderRow(true, ["welcome"], { welcome_status: "read", message_statuses: [] });
+  expect(screen.getByText("Not sent")).toBeInTheDocument();
+  expect(screen.queryByText("Read")).not.toBeInTheDocument();
+  expect(screen.getByText("This number received a welcome outside this broadcast. Another welcome cannot be sent.")).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: /(?:Retry|Resend) Welcome message/, hidden: true })).not.toBeInTheDocument();
+});
 
 it("disables original welcome resend after phone-level delivery while allowing a passport retry", () => {
   const onResend = renderRow(true);

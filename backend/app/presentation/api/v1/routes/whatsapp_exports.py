@@ -380,8 +380,8 @@ async def _gather_export_rows(
         for item in body.items
     ):
         raise _stale_rows()
-    states, resends = await _recipient_delivery_state_maps(session, recipient_models)
-    recipients = {row.id: _recipient_response(row, states.get(row.id, []), resends.get(row.id, {})) for row in recipient_models}
+    states, resends, phone_welcome_statuses = await _recipient_delivery_state_maps(session, recipient_models)
+    recipients = {row.id: _recipient_response(row, states.get(row.id, []), resends.get(row.id, {}), phone_welcome_statuses=phone_welcome_statuses) for row in recipient_models}
     merged_contacts = await merged_contacts_by_recipient(
         session, agency_id=broadcast.agency_id, broadcast_group_id=broadcast.id,
     )

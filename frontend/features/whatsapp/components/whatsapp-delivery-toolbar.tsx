@@ -55,7 +55,7 @@ export function DeliveryToolbar({ messageTypes, messageType, onMessageTypeChange
         </select>
       </label>
       <div className="text-xs leading-5 text-slate-500">
-        <p>Filters and delivery statuses below apply to <strong className="font-semibold text-slate-700">{formatMessageType(messageType).toLowerCase()}</strong> only.</p>
+        <p>Filters and delivery statuses below apply to <strong className="font-semibold text-slate-700">{formatMessageType(messageType).toLowerCase()}</strong> in this broadcast only.</p>
         {messageType === "group_invite" && <p className="mt-1">Previously sent invites are excluded from retries, including when the template changes.</p>}
       </div>
     </div>

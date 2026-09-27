@@ -230,7 +230,7 @@ async def get_broadcast_recipient_roster(
         )
     )
     replaced_rows = list(replaced_result.all())
-    states_by_recipient, resend_statuses_by_recipient = await _recipient_delivery_state_maps(
+    states_by_recipient, resend_statuses_by_recipient, phone_welcome_statuses = await _recipient_delivery_state_maps(
         session, recipients
     )
     merged_contacts = await merged_contacts_by_recipient(
@@ -294,6 +294,7 @@ async def get_broadcast_recipient_roster(
                         states_by_recipient.get(recipient.id, []),
                         resend_statuses_by_recipient.get(recipient.id, {}),
                         merged_contacts=merged_contacts.get(recipient.id, []),
+                        phone_welcome_statuses=phone_welcome_statuses,
                     ),
                 )
             )

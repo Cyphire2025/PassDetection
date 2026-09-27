@@ -27,6 +27,11 @@ export function welcomeDeliveryBlockReason(recipient: RecipientDeliveryState, me
   if (messageType === "welcome") {
     const status = getMessageStatus(recipient, "welcome");
     if (recipient.welcome_delivered || WELCOME_NO_REPEAT_STATUSES.has(recipient.welcome_status ?? status?.status ?? "") || status?.already_sent || WELCOME_NO_REPEAT_STATUSES.has(status?.latest_resend_status ?? "")) {
+      if (!status || status.status === "not_sent") {
+        return recipient.welcome_delivered
+          ? "This number received a welcome outside this broadcast. Another welcome cannot be sent."
+          : "A welcome for this number is already sent or pending outside this broadcast. Another welcome cannot be sent.";
+      }
       return "This number has already received a welcome or its welcome delivery is still pending. Another welcome cannot be sent.";
     }
     return null;
