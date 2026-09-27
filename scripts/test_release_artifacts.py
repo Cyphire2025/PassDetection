@@ -147,6 +147,48 @@ class ArtifactTrustTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 validate_local_config(image, restored)
 
+    def test_legacy_inspect_defaults_preserve_sparse_oci_configuration(self):
+        sparse = {"Env": ["PATH=/usr/bin"], "WorkingDir": "/",
+                  "Labels": {"org.opencontainers.image.revision": REVISION}}
+        # Docker API 1.48 expands these absent fields when reading the exact
+        # same scratch image; Docker 29's current API leaves them absent.
+        expanded = {**sparse, "AttachStderr": False, "AttachStdin": False,
+                    "AttachStdout": False, "OpenStdin": False, "StdinOnce": False,
+                    "Tty": False, "Domainname": "", "Hostname": "", "Image": "",
+                    "User": "", "Cmd": None, "Entrypoint": None,
+                    "OnBuild": None, "Volumes": None}
+        for archived, inspected in ((sparse, expanded), (expanded, sparse)):
+            config = {"config": archived, "rootfs": {"diff_ids": ["sha256:a"]},
+                      "architecture": "amd64", "os": "linux"}
+            image = {"Config": inspected, "RootFS": {"Layers": ["sha256:a"]},
+                     "Architecture": "amd64", "Os": "linux"}
+            original = copy.deepcopy((config, image))
+            validate_local_config(image, config)
+            self.assertEqual((config, image), original)
+        validate_local_config(
+            {**image, "Config": {**sparse, "Cmd": [], "Entrypoint": [], "OnBuild": [], "Volumes": {}}},
+            {**config, "config": sparse},
+        )
+
+    def test_inspect_normalization_rejects_nondefault_and_unknown_fields(self):
+        config = {"config": {"Labels": {"org.opencontainers.image.revision": REVISION}},
+                  "rootfs": {"diff_ids": ["sha256:a"]}, "architecture": "amd64", "os": "linux"}
+        image = {"Config": config["config"], "RootFS": {"Layers": ["sha256:a"]},
+                 "Architecture": "amd64", "Os": "linux"}
+        changes = (
+            {"User": "root"}, {"Cmd": ["changed"]}, {"Entrypoint": ["changed"]},
+            {"OnBuild": ["RUN changed"]}, {"Volumes": {"/changed": {}}},
+            {"Tty": True}, {"AttachStdin": True}, {"Hostname": "changed"},
+            {"Domainname": "changed"}, {"Image": "changed"},
+            {"Labels": {"org.opencontainers.image.revision": "b" * 40}},
+            {"Env": ["INJECTED=1"]}, {"WorkingDir": "/changed"},
+            {"UnknownFutureField": None}, {"UnknownFutureField": False},
+            {"AttachStdin": 0}, {"User": False},
+        )
+        for change in changes:
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                validate_local_config({**image, "Config": {**image["Config"], **change}}, config)
+
     def test_expired_or_changed_signed_policy_cannot_activate(self):
         with (patch("release_artifacts.dependency_policy_fingerprint", side_effect=ValueError("expired")),
               self.assertRaisesRegex(ValueError, "expired")):

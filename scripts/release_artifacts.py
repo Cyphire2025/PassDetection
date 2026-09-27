@@ -139,8 +139,33 @@ def archive_config(archive: Path, reference: str) -> tuple[str, dict]:
         return "sha256:" + hashlib.sha256(raw).hexdigest(), json.loads(raw)
 
 
+def _normalized_container_config(config: dict) -> dict:
+    """Ignore only default fields expanded by Docker's legacy inspect API.
+
+    API 1.48 decodes sparse OCI config into container.Config and serializes
+    these zero values. The archive's original config bytes and digest remain
+    unchanged; nondefault values and unknown fields must still compare exactly.
+    """
+    if not isinstance(config, dict):
+        raise ValueError("Local image config differs from qualified archive bytes")
+    defaults = {
+        "AttachStderr": False, "AttachStdin": False, "AttachStdout": False,
+        "OpenStdin": False, "StdinOnce": False, "Tty": False,
+        "Domainname": "", "Hostname": "", "Image": "", "User": "",
+        "Cmd": [], "Entrypoint": [], "OnBuild": [], "Volumes": {},
+    }
+    normalized = dict(config)
+    for key, default in defaults.items():
+        if key not in normalized:
+            continue
+        value = normalized[key]
+        if value is None or (type(value) is type(default) and value == default):
+            del normalized[key]
+    return normalized
+
+
 def validate_local_config(image: dict, config: dict) -> None:
-    if (image.get("Config") != config.get("config")
+    if (_normalized_container_config(image.get("Config")) != _normalized_container_config(config.get("config"))
             or image.get("RootFS", {}).get("Layers") != config.get("rootfs", {}).get("diff_ids")
             or image.get("Architecture") != config.get("architecture") or image.get("Os") != config.get("os")):
         raise ValueError("Local image config differs from qualified archive bytes")

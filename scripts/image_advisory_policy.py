@@ -26,16 +26,15 @@ CHECKED_DISPOSITIONS = {
 
 
 def validate_report_identity(report: dict, inspected: dict) -> str:
+    from release_artifacts import validate_local_config
+
     target = report["source"]["target"]
     raw = base64.b64decode(target["config"], validate=True)
     identifier = "sha256:" + hashlib.sha256(raw).hexdigest()
     config = json.loads(raw)
-    if identifier != target["imageID"] or config["config"] != inspected["Config"]:
+    if identifier != target["imageID"]:
         raise ValueError("Scanner and executed image configuration differ")
-    if config["rootfs"]["diff_ids"] != inspected["RootFS"]["Layers"]:
-        raise ValueError("Scanner and executed image filesystem layers differ")
-    if config["architecture"] != inspected["Architecture"] or config["os"] != inspected["Os"]:
-        raise ValueError("Scanner and executed image platform differ")
+    validate_local_config(inspected, config)
     return identifier
 
 

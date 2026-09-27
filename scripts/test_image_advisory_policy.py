@@ -26,6 +26,23 @@ class ImageAdvisoryTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_report_identity(report, inspected)
 
+    def test_scanner_identity_accepts_legacy_inspect_defaults_without_changing_digest(self):
+        config = {"config": {"User": "appuser", "Labels": {"revision": "qualified"}},
+                  "rootfs": {"diff_ids": ["sha256:one"]}, "architecture": "amd64", "os": "linux"}
+        raw = json.dumps(config).encode()
+        identifier = "sha256:" + hashlib.sha256(raw).hexdigest()
+        report = {"source": {"target": {"config": base64.b64encode(raw).decode(), "imageID": identifier}}}
+        inspected = {"Config": {**config["config"], "AttachStdin": False, "Hostname": "",
+                                "Cmd": None, "Entrypoint": None, "OnBuild": None, "Volumes": None},
+                     "RootFS": {"Layers": ["sha256:one"]}, "Architecture": "amd64", "Os": "linux"}
+        self.assertEqual(validate_report_identity(report, inspected), identifier)
+        for change in ({"User": "root"}, {"Entrypoint": ["changed"]}, {"UnknownField": None}):
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                validate_report_identity(report, {**inspected, "Config": {**inspected["Config"], **change}})
+        report["source"]["target"]["imageID"] = "sha256:" + "0" * 64
+        with self.assertRaises(ValueError):
+            validate_report_identity(report, inspected)
+
     def test_review_expiry_owner_and_exact_versions(self):
         policy = json.loads((Path(__file__).resolve().parents[1] / "tooling/image-advisory-dispositions.json").read_text())
         accepted = validate_policy(policy, dt.date(2026, 9, 27))
