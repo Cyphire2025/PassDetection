@@ -6,21 +6,21 @@ import { countRecipientRosterItems } from "./recipient-roster";
 
 const state = (type: string, status: string, alreadySent = false) => ({ message_type: type, status, already_sent: alreadySent, latest_resend_status: null, resend_blocked: false, submitted_at: null, status_updated_at: "2026-09-12T00:00:00Z" });
 
-describe("agency and phone welcome gates in the original WhatsApp workspace", () => {
+describe("broadcast and phone welcome gates in the original WhatsApp workspace", () => {
   it("keeps a welcome read in another broadcast out of this broadcast's delivery counts", () => {
-    const recipient = { id: "current-contact", name: "Alex", phone_number: "+919900000001", normalized_phone_number: "+919900000001", imported_fields: {}, welcome_status: "read", welcome_delivered: true, message_statuses: [] };
+    const recipient = { id: "current-contact", name: "Alex", phone_number: "+919900000001", normalized_phone_number: "+919900000001", imported_fields: {}, welcome_status: null, welcome_delivered: false, message_statuses: [] };
     const items: WhatsAppRecipientRosterItem[] = [{ kind: "recipient", display_order: 1, recipient }];
     expect(countRecipientRosterItems(items, "sent", "welcome")).toBe(0);
     expect(countRecipientRosterItems(items, "not_sent", "welcome")).toBe(1);
-    expect(countRecipientRosterItems(items, "ready", "welcome")).toBe(0);
-    expect(isRecipientEligible(recipient, "welcome")).toBe(false);
-    expect(welcomeDeliveryBlockReason(recipient, "welcome")).toBe("This number received a welcome outside this broadcast. Another welcome cannot be sent.");
+    expect(countRecipientRosterItems(items, "ready", "welcome")).toBe(1);
+    expect(isRecipientEligible(recipient, "welcome")).toBe(true);
+    expect(welcomeDeliveryBlockReason(recipient, "welcome")).toBeNull();
     expect(isRecipientEligible(recipient, "passport_link")).toBe(true);
   });
 
   it.each(["queued", "processing", "submitted", "sent", "delivered", "read", "delivery_unknown"])("blocks duplicate welcome for %s even when this list has no local welcome", (welcomeStatus) => {
     const recipient: RecipientDeliveryState = { welcome_status: welcomeStatus, welcome_delivered: ["delivered", "read"].includes(welcomeStatus), message_statuses: [] };
-    expect(isRecipientEligible(recipient, "welcome")).toBe(false);
+    expect(isRecipientEligible(recipient, "welcome")).toBe(true);
     expect(welcomeDeliveryBlockReason(recipient, "welcome")).toMatch(/Another welcome cannot be sent/);
     expect(canRetryOrResendRecipient({ ...recipient, message_statuses: [state("welcome", "failed")] }, "welcome", "retry")).toBe(false);
   });

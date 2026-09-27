@@ -1234,7 +1234,7 @@ function StandardMessagePreviewDialog({
           preview.already_sent_count === preview.recipient_count && (
             <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
               {messageType === "welcome"
-                ? "Every selected number already has an earlier welcome, including welcomes from other broadcasts. No duplicate welcomes will be sent."
+                ? "Every selected number already has a welcome in this broadcast. No duplicate welcomes will be sent here."
                 : "This message has already been sent successfully to every recipient in this broadcast. No duplicate messages will be sent."}
             </div>
           )}

@@ -13,10 +13,10 @@ function renderRow(delivered: boolean, messageTypes = ["welcome", "passport_link
 }
 
 it("shows no local delivery when this number was welcomed outside the broadcast", () => {
-  renderRow(true, ["welcome"], { welcome_status: "read", message_statuses: [] });
+  renderRow(false, ["welcome"], { welcome_status: null, message_statuses: [] });
   expect(screen.getByText("Not sent")).toBeInTheDocument();
   expect(screen.queryByText("Read")).not.toBeInTheDocument();
-  expect(screen.getByText("This number received a welcome outside this broadcast. Another welcome cannot be sent.")).toBeInTheDocument();
+  expect(screen.queryByText(/Another welcome cannot be sent/)).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /(?:Retry|Resend) Welcome message/, hidden: true })).not.toBeInTheDocument();
 });
 
