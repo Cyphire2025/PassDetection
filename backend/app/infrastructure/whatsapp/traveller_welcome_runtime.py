@@ -239,7 +239,7 @@ async def _run_attempt(attempt_id: uuid.UUID, client: httpx.AsyncClient) -> None
                 session,
                 agency_id=current.agency_id,
                 phone=current.normalized_phone_number,
-                attempt_id=current.id,
+                attempt_id=current.id, broadcast_group_id=current.broadcast_group_id,
             )
             current_source = (
                 current.agency_id,

@@ -103,7 +103,7 @@ async def preview_selected_recipient_messages(
     snapshots: dict[uuid.UUID, SavedResendSnapshot] = {}
     reasons: list[str] = []
     phone_states = (
-        await welcome_states_for_phones(session, agency_id=group.agency_id,
+        await welcome_states_for_phones(session, agency_id=group.agency_id, broadcast_group_id=group.id,
             phones=[recipient.normalized_phone_number for recipient in recipients])
         if body.message_type == "welcome" or requires_prior_welcome(body.message_type) else {}
     )

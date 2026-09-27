@@ -90,6 +90,7 @@ async def send_traveller_welcomes(
         claim = await claim_phone_welcome(
             session, agency_id=group.agency_id, phone=phone, attempt_id=attempt_id,
             attempt_kind="traveller",
+            broadcast_group_id=preview.source_broadcast_id, batch_id=batch_id,
         )
         if claim != "claimed":
             continue

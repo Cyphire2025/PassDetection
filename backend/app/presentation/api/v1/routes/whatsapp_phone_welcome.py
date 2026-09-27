@@ -21,7 +21,6 @@ from app.infrastructure.whatsapp.phone_welcome import (
     WELCOME_REQUIRED,
     claim_phone_welcome,
     sync_failed_broadcast_welcomes,
-    welcome_states_for_phones,
 )
 
 
@@ -34,15 +33,11 @@ async def enforce_broadcast_welcome_prerequisite(
 ) -> None:
     if not requires_prior_welcome(message_type):
         return
-    states = await welcome_states_for_phones(
-        session,
-        agency_id=agency_id,
-        phones=[recipient.normalized_phone_number for recipient in recipients],
+    from app.presentation.api.v1.routes.whatsapp_welcome_view import (
+        phone_welcome_statuses_by_recipient,
     )
-    if any(
-        states.get(recipient.normalized_phone_number) not in WELCOME_DELIVERED_STATUSES
-        for recipient in recipients
-    ):
+    states = await phone_welcome_statuses_by_recipient(session, list(recipients))
+    if any(states.get(recipient.id) not in WELCOME_DELIVERED_STATUSES for recipient in recipients):
         raise HTTPException(status_code=409, detail=WELCOME_REQUIRED)
 
 
@@ -72,6 +67,7 @@ async def claim_broadcast_welcome_phones(
             phone=recipient.normalized_phone_number,
             attempt_id=log_id,
             attempt_kind="broadcast",
+            broadcast_group_id=recipient.broadcast_group_id, batch_id=batch_id,
         )
         if status == "claimed":
             log_ids[recipient.id] = log_id
@@ -105,6 +101,7 @@ async def claim_resend_welcome_or_reject(
         phone=log.normalized_phone_number,
         attempt_id=log.id,
         attempt_kind="broadcast",
+        broadcast_group_id=log.broadcast_group_id, batch_id=log.batch_id,
     )
     if status != "claimed":
         raise HTTPException(

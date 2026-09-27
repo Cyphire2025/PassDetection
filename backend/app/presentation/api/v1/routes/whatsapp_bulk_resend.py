@@ -163,7 +163,7 @@ async def resend_selected_recipient_messages(
     if requires_prior_welcome(body.message_type):
         welcome_states = await welcome_states_for_phones(
             session,
-            agency_id=group.agency_id,
+            agency_id=group.agency_id, broadcast_group_id=group.id,
             phones=[recipient.normalized_phone_number for recipient in recipients],
         )
         if any(
@@ -226,6 +226,7 @@ async def resend_selected_recipient_messages(
                             phone=recipient.normalized_phone_number,
                             attempt_id=log.id,
                             attempt_kind="broadcast",
+                            broadcast_group_id=group.id, batch_id=batch_id,
                         )
                         if phone_status != "claimed":
                             reason = (

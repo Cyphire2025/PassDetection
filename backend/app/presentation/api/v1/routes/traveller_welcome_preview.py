@@ -149,7 +149,8 @@ async def build_traveller_welcome_preview(
         session, agency_id=group.agency_id, group_id=group.id, lock=lock,
     )
     phones = {row.phone_number for row in destinations if row.phone_number}
-    states = await welcome_states_for_phones(session, agency_id=group.agency_id, phones=phones)
+    states = (await welcome_states_for_phones(session, agency_id=group.agency_id, phones=phones,
+        broadcast_group_id=selected.id) if selected else {})
     settings = get_settings()
     configured = bool(content and settings.whatsapp_access_token and settings.whatsapp_phone_number_id)
     error = None

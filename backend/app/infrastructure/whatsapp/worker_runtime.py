@@ -192,11 +192,12 @@ async def _load_sendable_recipient(
             session,
             agency_id=log.agency_id,
             phone=frozen_phone,
-            attempt_id=log.id,
+            attempt_id=log.id, broadcast_group_id=log.broadcast_group_id,
         ):
             return None, "This number already has a welcome or another welcome is in progress."
     elif requires_prior_welcome(log.message_type) and not await require_welcome_delivered(
         session, agency_id=log.agency_id, phone=frozen_phone,
+        broadcast_group_id=log.broadcast_group_id,
     ):
         return None, WELCOME_REQUIRED
     if getattr(log, "is_explicit_resend", False):

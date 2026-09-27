@@ -12,7 +12,6 @@ from app.application.use_cases.whatsapp.welcome_policy import requires_prior_wel
 from app.infrastructure.database.models import (
     WhatsAppBroadcastRecipientModel,
     WhatsAppPhoneWelcomeAttemptModel,
-    WhatsAppPhoneWelcomeModel,
     WhatsAppRecipientMessageStateModel,
 )
 from app.infrastructure.whatsapp.phone_welcome import (
@@ -77,35 +76,17 @@ async def phone_welcome_statuses_by_recipient(
     session: AsyncSession,
     recipients: list[WhatsAppBroadcastRecipientModel],
 ) -> dict[uuid.UUID, str | None]:
-    """Read global welcome prerequisites separately from broadcast delivery."""
-    if not recipients:
-        return {}
-    rows = (
-        (
-            await session.execute(
-                select(WhatsAppPhoneWelcomeModel).where(
-                    WhatsAppPhoneWelcomeModel.agency_id.in_(
-                        {recipient.agency_id for recipient in recipients}
-                    ),
-                    WhatsAppPhoneWelcomeModel.normalized_phone_number.in_(
-                        {recipient.normalized_phone_number for recipient in recipients}
-                    ),
-                )
-            )
-        )
-        .scalars()
-        .all()
-    )
-    by_phone = {(row.agency_id, row.normalized_phone_number): row for row in rows}
-    return {
-        recipient.id: (
-            row.status
-            if (row := by_phone.get((recipient.agency_id, recipient.normalized_phone_number)))
-            is not None
-            else None
-        )
-        for recipient in recipients
-    }
+    """Read welcome eligibility from this broadcast, including traveller sends."""
+    result: dict[uuid.UUID, str | None] = {}
+    scopes = {(row.agency_id, row.broadcast_group_id) for row in recipients}
+    for agency_id, broadcast_id in scopes:
+        scoped = [row for row in recipients
+                  if (row.agency_id, row.broadcast_group_id) == (agency_id, broadcast_id)]
+        states = await welcome_states_for_phones(session, agency_id=agency_id,
+            broadcast_group_id=broadcast_id,
+            phones=[row.normalized_phone_number for row in scoped])
+        result.update({row.id: states.get(row.normalized_phone_number) for row in scoped})
+    return result
 
 
 async def welcome_preview_values(
@@ -120,12 +101,8 @@ async def welcome_preview_values(
         return {"welcome_required_count": 0, "welcome_required_reason": None}
     if selected_recipient_id is not None:
         recipients = [recipient for recipient in recipients if recipient.id == selected_recipient_id]
-    states = await welcome_states_for_phones(
-        session,
-        agency_id=agency_id,
-        phones=[recipient.normalized_phone_number for recipient in recipients],
-    )
-    current = [states.get(recipient.normalized_phone_number) for recipient in recipients]
+    states = await phone_welcome_statuses_by_recipient(session, recipients)
+    current = [states.get(recipient.id) for recipient in recipients]
     if message_type == "welcome":
         accepted = sum(status in {"submitted", "sent", "delivered", "read"} for status in current)
         pending = sum(status in {"queued", "processing"} for status in current)

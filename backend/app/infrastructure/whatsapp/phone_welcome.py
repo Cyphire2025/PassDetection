@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.use_cases.whatsapp.contact_normalization import normalize_whatsapp_phone
 from app.infrastructure.database.models import (
+    WhatsAppBroadcastGroupModel,
     WhatsAppMessageLogModel,
     WhatsAppPhoneWelcomeAttemptModel,
     WhatsAppPhoneWelcomeModel,
@@ -42,8 +43,13 @@ def welcome_required_reason(status: str | None) -> str | None:
 
 
 async def welcome_states_for_phones(
-    session: AsyncSession, *, agency_id: uuid.UUID, phones: Collection[str]
+    session: AsyncSession, *, agency_id: uuid.UUID, phones: Collection[str],
+    broadcast_group_id: uuid.UUID | None = None,
 ) -> dict[str, str]:
+    if broadcast_group_id is not None:
+        from app.infrastructure.whatsapp.broadcast_welcome import broadcast_welcome_states
+        return await broadcast_welcome_states(session, agency_id=agency_id,
+            broadcast_group_id=broadcast_group_id, phones=phones)
     canonical = sorted({phone for phone in phones if normalize_whatsapp_phone(phone) == phone})
     if not canonical:
         return {}
@@ -59,9 +65,11 @@ async def welcome_states_for_phones(
 
 
 async def require_welcome_delivered(
-    session: AsyncSession, *, agency_id: uuid.UUID, phone: str
+    session: AsyncSession, *, agency_id: uuid.UUID, phone: str,
+    broadcast_group_id: uuid.UUID | None = None,
 ) -> bool:
-    states = await welcome_states_for_phones(session, agency_id=agency_id, phones=[phone])
+    states = await welcome_states_for_phones(session, agency_id=agency_id, phones=[phone],
+        broadcast_group_id=broadcast_group_id)
     return states.get(phone) in WELCOME_DELIVERED_STATUSES
 
 
@@ -72,6 +80,8 @@ async def claim_phone_welcome(
     phone: str,
     attempt_id: uuid.UUID,
     attempt_kind: Literal["broadcast", "traveller"],
+    broadcast_group_id: uuid.UUID | None = None,
+    batch_id: uuid.UUID | None = None,
 ) -> str:
     """Return claimed, or the existing blocking status; caller commits the intent.
 
@@ -81,6 +91,20 @@ async def claim_phone_welcome(
     """
     if normalize_whatsapp_phone(phone) != phone:
         raise ValueError("A canonical WhatsApp destination is required")
+    if broadcast_group_id is not None:
+        from app.infrastructure.whatsapp.broadcast_welcome import broadcast_welcome_states
+        # Serialize broadcast and traveller queues sharing this broadcast.
+        group = (await session.execute(select(WhatsAppBroadcastGroupModel.id).where(
+            WhatsAppBroadcastGroupModel.id == broadcast_group_id,
+            WhatsAppBroadcastGroupModel.agency_id == agency_id,
+        ).with_for_update())).scalar_one_or_none()
+        if group is None:
+            raise ValueError("Welcome broadcast is unavailable")
+        scoped = await broadcast_welcome_states(session, agency_id=agency_id,
+            broadcast_group_id=broadcast_group_id, phones=[phone],
+            exclude_attempt_id=attempt_id, exclude_batch_id=batch_id)
+        if scoped.get(phone) in WELCOME_BLOCKING_STATUSES:
+            return scoped[phone]
     now = datetime.now(tz=UTC)
     insert = sqlite_insert if session.get_bind().dialect.name == "sqlite" else pg_insert
     statement = insert(WhatsAppPhoneWelcomeModel).values(
@@ -109,13 +133,32 @@ async def claim_phone_welcome(
     result = await session.execute(claim_statement.execution_options(synchronize_session=False))
     if result.scalar_one_or_none() is not None:
         return "claimed"
+    if broadcast_group_id is not None:
+        return "claimed"  # Global history is a projection, not a cross-broadcast lock.
     states = await welcome_states_for_phones(session, agency_id=agency_id, phones=[phone])
     return states.get(phone, "delivery_unknown")
 
 
 async def assert_phone_welcome_claim(
-    session: AsyncSession, *, agency_id: uuid.UUID, phone: str, attempt_id: uuid.UUID
+    session: AsyncSession, *, agency_id: uuid.UUID, phone: str, attempt_id: uuid.UUID,
+    broadcast_group_id: uuid.UUID | None = None,
 ) -> bool:
+    if broadcast_group_id is not None:
+        from app.infrastructure.whatsapp.broadcast_welcome import broadcast_welcome_states
+        for model in (WhatsAppMessageLogModel, WhatsAppPhoneWelcomeAttemptModel):
+            predicates = [model.id == attempt_id, model.agency_id == agency_id,
+                          model.broadcast_group_id == broadcast_group_id,
+                          model.normalized_phone_number == phone,
+                          model.status.in_({"queued", "processing"})]
+            if model is WhatsAppMessageLogModel:
+                predicates.append(model.message_type == "welcome")
+            row = (await session.execute(select(model).where(*predicates))).scalar_one_or_none()
+            if row is not None:
+                states = await broadcast_welcome_states(session, agency_id=agency_id,
+                    broadcast_group_id=broadcast_group_id, phones=[phone],
+                    exclude_attempt_id=attempt_id, exclude_batch_id=row.batch_id)
+                return states.get(phone) not in WELCOME_BLOCKING_STATUSES
+        return False
     result = await session.execute(
         select(WhatsAppPhoneWelcomeModel.id).where(
             WhatsAppPhoneWelcomeModel.agency_id == agency_id,

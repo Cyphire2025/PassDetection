@@ -51,7 +51,7 @@ from tests.unit.infrastructure.test_phone_welcome import PHONE, _agency, _attemp
         "failed",
     ],
 )
-async def test_other_list_welcome_only_affects_prerequisites_and_duplicate_protection(
+async def test_other_list_welcome_does_not_affect_this_broadcast(
     db_session, status
 ):
     agency = await _agency(db_session)
@@ -73,18 +73,18 @@ async def test_other_list_welcome_only_affects_prerequisites_and_duplicate_prote
     )
     phone_statuses = await phone_welcome_statuses_by_recipient(db_session, [recipient])
     response = _recipient_response(recipient, [], phone_welcome_statuses=phone_statuses)
-    assert response.welcome_status == status
-    assert response.welcome_delivered == (status in {"delivered", "read"})
+    assert response.welcome_status is None
+    assert not response.welcome_delivered
     assert response.message_statuses == []
     assert response.sent_message_types == []
     preview = await welcome_preview_values(
         db_session, agency_id=agency, recipients=[recipient], message_type="welcome"
     )
-    assert preview["eligible_recipient_count"] == int(status == "failed")
+    assert preview["eligible_recipient_count"] == 1
     next_message = await welcome_preview_values(
         db_session, agency_id=agency, recipients=[recipient], message_type="passport_link"
     )
-    assert next_message["welcome_required_count"] == int(status not in {"delivered", "read"})
+    assert next_message["welcome_required_count"] == 1
     assert (
         welcome_resend_skip_reason("welcome", status) is None
         if status == "failed"
@@ -165,16 +165,18 @@ async def test_roster_counts_only_current_broadcast_with_prior_welcome_elsewhere
     assert roster.counts.all == 1
     assert roster.counts.sent == int(current_status == "read")
     assert roster.counts.failed == int(current_status == "failed")
+    assert roster.counts.ready == int(current_status != "read")
+    assert roster.counts.needs_review == 0
     recipient_response = roster.items[0].recipient
     assert recipient_response is not None
-    assert recipient_response.welcome_status == "read"
-    assert recipient_response.welcome_delivered
+    assert recipient_response.welcome_status == current_status
+    assert recipient_response.welcome_delivered == (current_status == "read")
     assert recipient_response.sent_message_types == (["welcome"] if current_status == "read" else [])
     assert [state.status for state in recipient_response.message_statuses] == (
         [current_status] if current_status is not None else []
     )
     if current_status is not None:
-        assert recipient_response.message_statuses[0].resend_blocked
+        assert recipient_response.message_statuses[0].resend_blocked == (current_status == "read")
     # Viewing another list must neither erase history nor permit duplicate welcomes.
     assert await claim_phone_welcome(
         db_session, agency_id=agency, phone=PHONE,
@@ -216,7 +218,7 @@ async def test_actual_traveller_welcome_only_projects_into_its_own_broadcast(
         recipient, states.get(recipient.id, []), resends.get(recipient.id, {}),
         phone_welcome_statuses=global_statuses,
     )
-    assert response.welcome_delivered
+    assert response.welcome_delivered == same_broadcast
     assert response.sent_message_types == (["welcome"] if same_broadcast else [])
     assert [state.status for state in response.message_statuses] == (["read"] if same_broadcast else [])
 
@@ -270,16 +272,11 @@ async def test_invite_exemption_never_unlocks_other_message_types_or_mutates_wel
     welcomed = status in {"delivered", "read"}
     for message_type in ("passport_link", "reminder"):
         assert requires_prior_welcome(message_type)
-        if welcomed:
+        with pytest.raises(HTTPException) as exc:
             await enforce_broadcast_welcome_prerequisite(
                 db_session, agency_id=agency, message_type=message_type, recipients=[recipient],
             )
-        else:
-            with pytest.raises(HTTPException) as exc:
-                await enforce_broadcast_welcome_prerequisite(
-                    db_session, agency_id=agency, message_type=message_type, recipients=[recipient],
-                )
-            assert exc.value.status_code == 409
+        assert exc.value.status_code == 409
         assert (welcome_resend_skip_reason(message_type, status) is None) == welcomed
     private = await validate_private_delivery_welcome(
         db_session, agency_id=agency, normalized_phone_number=PHONE,
