@@ -15,12 +15,12 @@ describe("broadcast and phone welcome gates in the original WhatsApp workspace",
     expect(countRecipientRosterItems(items, "ready", "welcome")).toBe(1);
     expect(isRecipientEligible(recipient, "welcome")).toBe(true);
     expect(welcomeDeliveryBlockReason(recipient, "welcome")).toBeNull();
-    expect(isRecipientEligible(recipient, "passport_link")).toBe(true);
+    expect(isRecipientEligible(recipient, "passport_link")).toBe(false);
   });
 
-  it.each(["queued", "processing", "submitted", "sent", "delivered", "read", "delivery_unknown"])("blocks duplicate welcome for %s even when this list has no local welcome", (welcomeStatus) => {
+  it.each(["queued", "processing", "submitted", "sent", "delivered", "read", "delivery_unknown"])("blocks duplicate welcome for %s from a direct send in the same broadcast", (welcomeStatus) => {
     const recipient: RecipientDeliveryState = { welcome_status: welcomeStatus, welcome_delivered: ["delivered", "read"].includes(welcomeStatus), message_statuses: [] };
-    expect(isRecipientEligible(recipient, "welcome")).toBe(true);
+    expect(isRecipientEligible(recipient, "welcome")).toBe(false);
     expect(welcomeDeliveryBlockReason(recipient, "welcome")).toMatch(/Another welcome cannot be sent/);
     expect(canRetryOrResendRecipient({ ...recipient, message_statuses: [state("welcome", "failed")] }, "welcome", "retry")).toBe(false);
   });
