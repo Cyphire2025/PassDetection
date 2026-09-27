@@ -676,8 +676,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install the reviewed Chromium runtime
-        run: npx playwright install --with-deps chromium
+      - name: Install the reviewed Chromium and WebKit runtimes
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Verify synthetic camera lifecycle before expensive image builds
+        run: npx playwright test --config=playwright.fixtures.config.ts
 
       - name: Run rendered authentication, authorization, recovery, and workspace journeys
         run: npm run test:e2e
@@ -690,6 +693,7 @@ jobs:
           path: |
             frontend/playwright-report
             frontend/test-results
+            frontend/fixture-results
           if-no-files-found: ignore
           retention-days: 14
 

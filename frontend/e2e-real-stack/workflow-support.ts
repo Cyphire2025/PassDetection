@@ -40,6 +40,10 @@ export async function installCameraFrames(page: Page, payload: string): Promise<
   const qr = await QRCode.toDataURL(payload, { width: 480, margin: 4, errorCorrectionLevel: "M" });
   const install = ({ qr }: { qr: string }) => {
     if (Object.hasOwn(navigator.mediaDevices, "getUserMedia") && Object.hasOwn(window, "qualificationCameraFrame")) return;
+    // Keep the native wrapper reachable. WebKit can collect a wrapper with
+    // expando overrides even while its underlying MediaDevices stays alive.
+    const mediaDevices = navigator.mediaDevices;
+    Object.defineProperty(window, "qualificationMediaDevices", { value: mediaDevices });
     const canvas = document.createElement("canvas"); canvas.width = 640; canvas.height = 480;
     const context = canvas.getContext("2d")!;
     const image = new Image(); image.src = qr;
@@ -50,7 +54,7 @@ export async function installCameraFrames(page: Page, payload: string): Promise<
       if (showQr && image.complete) context.drawImage(image, 80, 0, 480, 480);
     };
     draw(); window.setInterval(draw, 50);
-    Object.defineProperty(navigator.mediaDevices, "getUserMedia", { value: async () => {
+    Object.defineProperty(mediaDevices, "getUserMedia", { value: async () => {
       try {
         const stream = canvas.captureStream(20);
         Object.defineProperty(window, "qualificationCameraSource", { configurable: true, value: { tracks: stream.getTracks().map((track) => ({ kind: track.kind, readyState: track.readyState })) } });
@@ -60,7 +64,7 @@ export async function installCameraFrames(page: Page, payload: string): Promise<
         throw error;
       }
     } });
-    Object.defineProperty(navigator.mediaDevices, "enumerateDevices", { value: async () => [] });
+    Object.defineProperty(mediaDevices, "enumerateDevices", { value: async () => [] });
   };
   await page.addInitScript(install, { qr });
   return async () => { await page.evaluate(install, { qr }); };
