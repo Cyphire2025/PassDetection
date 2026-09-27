@@ -33,6 +33,9 @@ def render_single_page_pdf_isolated(content: bytes) -> ValidatedUpload:
         raise ImageValidationError(_PDF_ERRORS[4])
     if len(content) > MAX_PUBLIC_PDF_BYTES:
         raise ImageValidationError("PDF files must be 2 MB or smaller.")
+    creation_flags = 0
+    if sys.platform == "win32":
+        creation_flags = subprocess.CREATE_NO_WINDOW
     try:
         result = subprocess.run(
             [sys.executable, "-m", "app.infrastructure.security.public_upload_pdf"],
@@ -42,7 +45,7 @@ def render_single_page_pdf_isolated(content: bytes) -> ValidatedUpload:
             timeout=PDF_RENDER_TIMEOUT_SECONDS,
             check=False,
             cwd=Path(__file__).resolve().parents[3],
-            creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
+            creationflags=creation_flags,
         )
     except subprocess.TimeoutExpired as exc:
         raise ImageValidationError("The PDF took too long to read. Please use a simpler single-page PDF or an image.") from exc
