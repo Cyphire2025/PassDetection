@@ -17,6 +17,9 @@ from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from app.domain.entities.entities import UserRole
 from app.infrastructure.database.models import (
     AgencyModel,
+    ClientGroupModel,
+    ClientGroupWhatsAppBroadcastLinkModel,
+    PassportSubmissionModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
     WhatsAppMessageLogModel,
@@ -187,6 +190,94 @@ async def test_reminder_preview_includes_prior_outcomes_and_excludes_only_active
     assert preview.uncertain_recipient_count == 0
     assert preview.in_progress_count == 2
     assert preview.message_content
+    assert set(preview.audience_recipient_ids) == {recipient.id for recipient in broadcast.recipients}
+
+
+async def test_selected_not_submitted_reminder_rechecks_matching_without_widening(
+    db_session,
+    broadcast,
+):
+    upload_group = ClientGroupModel(
+        id=uuid.uuid4(), agency_id=broadcast.group.agency_id,
+        name="Selected reminder uploads", token=str(uuid.uuid4()), status="active",
+    )
+    link = ClientGroupWhatsAppBroadcastLinkModel(
+        id=uuid.uuid4(), agency_id=broadcast.group.agency_id,
+        client_group_id=upload_group.id, broadcast_group_id=broadcast.group.id,
+        matching_field_keys=["name", "phone_number"],
+    )
+    await persist_graph(db_session, [upload_group, link])
+    selected = broadcast.recipients[:2]
+    selected_ids = [recipient.id for recipient in selected]
+    fields = dict(message_type="reminder", audience="not_submitted",
+                  audience_client_group_id=upload_group.id, recipient_ids=selected_ids)
+    preview = await preview_broadcast_message(
+        group_id=broadcast.group.id, body=WhatsAppPreviewRequest(**fields),
+        current_user=broadcast.user, session=db_session,
+    )
+    assert set(preview.audience_recipient_ids) == {recipient.id for recipient in broadcast.recipients}
+    assert preview.audience_recipient_count == preview.eligible_recipient_count == 2
+
+    # A selected person submits after preview. Send must remove them without
+    # replacing them with an unselected person from the remaining audience.
+    db_session.add(PassportSubmissionModel(
+        id=uuid.uuid4(), agency_id=broadcast.group.agency_id, group_id=upload_group.id,
+        client_name=selected[0].name, client_phone=selected[0].normalized_phone_number,
+        image_s3_key="synthetic/selected-reminder.jpg", status="submitted",
+    ))
+    await db_session.flush()
+    refreshed = await preview_broadcast_message(
+        group_id=broadcast.group.id, body=WhatsAppPreviewRequest(**fields),
+        current_user=broadcast.user, session=db_session,
+    )
+    assert set(refreshed.audience_recipient_ids) == {
+        recipient.id for recipient in broadcast.recipients if recipient.id != selected[0].id
+    }
+    assert refreshed.excluded_submitted_count == 1
+    response = await whatsapp_send.send_broadcast_message(
+        group_id=broadcast.group.id,
+        body=WhatsAppSendRequest(**fields, message_content="Selected missing submissions only."),
+        current_user=broadcast.user, session=db_session,
+    )
+    assert response.queued == 1
+    logs = list((await db_session.execute(select(WhatsAppMessageLogModel).where(
+        WhatsAppMessageLogModel.batch_id == response.batch_id,
+    ))).scalars())
+    assert [log.recipient_id for log in logs] == [selected[1].id]
+    assert broadcast.publication.await_count == 1
+
+    db_session.add(PassportSubmissionModel(
+        id=uuid.uuid4(), agency_id=broadcast.group.agency_id, group_id=upload_group.id,
+        client_name=selected[1].name, client_phone=selected[1].normalized_phone_number,
+        image_s3_key="synthetic/second-selected-reminder.jpg", status="submitted",
+    ))
+    await db_session.flush()
+    for endpoint, model in ((preview_broadcast_message, WhatsAppPreviewRequest),
+                            (whatsapp_send.send_broadcast_message, WhatsAppSendRequest)):
+        with pytest.raises(HTTPException) as error:
+            await endpoint(group_id=broadcast.group.id, body=model(**fields),
+                           current_user=broadcast.user, session=db_session)
+        assert error.value.status_code == 409
+    assert broadcast.publication.await_count == 1
+
+
+@pytest.mark.parametrize("selected", [[], [uuid.UUID(int=1)]], ids=["empty", "foreign"])
+@pytest.mark.parametrize("operation", ["preview", "send"])
+@pytest.mark.parametrize("audience", ["all", "not_submitted"])
+async def test_explicit_recipient_selection_cannot_fall_back_to_everyone(
+    db_session, broadcast, selected, operation, audience,
+):
+    model = WhatsAppPreviewRequest if operation == "preview" else WhatsAppSendRequest
+    endpoint = preview_broadcast_message if operation == "preview" else whatsapp_send.send_broadcast_message
+    with pytest.raises(HTTPException) as error:
+        await endpoint(
+            group_id=broadcast.group.id,
+            body=model(message_type="reminder", recipient_ids=selected, audience=audience),
+            current_user=broadcast.user, session=db_session,
+        )
+    assert error.value.status_code == (400 if not selected else 404)
+    assert broadcast.publication.await_count == 0
+    assert not list((await db_session.execute(select(WhatsAppMessageLogModel))).scalars())
 
 
 @pytest.mark.parametrize("message_type", ["welcome", "passport_link"])

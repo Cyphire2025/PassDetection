@@ -57,6 +57,8 @@ def test_whatsapp_route_reexports_reviewed_schema_contracts() -> None:
     # Remove only these explicit additions and keep both runtime hashes intact;
     # every extension removed here is separately checked below.
     for name, schema in schemas:
+        if name == "WhatsAppPreviewResponse":
+            schema["properties"].pop("audience_recipient_ids")
         if name in {"WhatsAppBroadcastGroupResponse", "WhatsAppBroadcastGroupDetailResponse"}:
             for field in ("archived_at", "is_archived", "has_import_only_source", "source_contact_count"):
                 schema["properties"].pop(field)
@@ -96,6 +98,16 @@ def test_archive_fields_are_additive_response_contracts() -> None:
     for model in (whatsapp.WhatsAppBroadcastGroupResponse, whatsapp.WhatsAppBroadcastGroupDetailResponse):
         assert model.model_fields["archived_at"].default is None
         assert model.model_fields["is_archived"].default is False
+
+
+def test_preview_audience_recipient_ids_are_an_additive_response_contract() -> None:
+    field = whatsapp.WhatsAppPreviewResponse.model_fields["audience_recipient_ids"]
+    assert field.default_factory is list
+    assert whatsapp.WhatsAppPreviewResponse.model_json_schema()["properties"]["audience_recipient_ids"] == {
+        "description": "Full authorized audience before explicit recipient selection and delivery-status filtering.",
+        "items": {"format": "uuid", "type": "string"},
+        "title": "Audience Recipient Ids", "type": "array",
+    }
 
 
 def test_phone_welcome_fields_are_additive_response_contracts() -> None:

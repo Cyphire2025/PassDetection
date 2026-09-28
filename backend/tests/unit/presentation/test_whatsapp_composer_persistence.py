@@ -161,13 +161,16 @@ def test_reminder_audience_survives_composer_snapshot_merge() -> None:
     assert merged.message_content == "Saved reminder"
 
 
-def test_not_submitted_audience_rejects_explicit_recipient_ids() -> None:
-    with pytest.raises(ValueError, match="explicit recipients"):
-        WhatsAppSendRequest(
-            message_type="reminder",
-            audience="not_submitted",
-            recipient_ids=[uuid.uuid4()],
-        )
+@pytest.mark.parametrize("model", [WhatsAppSendRequest, WhatsAppPreviewRequest])
+def test_not_submitted_audience_retains_explicit_recipient_ids(model) -> None:
+    selected = [uuid.uuid4()]
+    request = model(
+        message_type="reminder",
+        audience="not_submitted",
+        recipient_ids=selected,
+    )
+    assert request.recipient_ids == selected
+    assert request.audience == "not_submitted"
 
 
 def test_non_reminder_rejects_targeted_audience() -> None:

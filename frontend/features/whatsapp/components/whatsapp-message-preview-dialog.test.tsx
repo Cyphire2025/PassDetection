@@ -447,7 +447,8 @@ it("preserves custom recipients across searches and sends only the selected supp
     ).toBeEnabled(),
   );
 
-  await user.click(screen.getByRole("radio", { name: "Custom select" }));
+  await user.click(screen.getByRole("button", { name: "Clear" }));
+  await user.click(screen.getByRole("checkbox", { name: /Passenger A/ }));
   expect(screen.getByRole("checkbox", { name: /Passenger A/ })).toBeChecked();
   const search = screen.getByRole("searchbox", {
     name: "Search recipients by name or phone",
@@ -663,4 +664,79 @@ it("revokes a one-person retry when the recipient's latest delivery is no longer
   );
   fireEvent.submit(container.querySelector("form")!);
   expect(onSend).not.toHaveBeenCalled();
+});
+
+
+it.each(["welcome", "passport_link", "reminder"] as const)("selects recipients directly and supports Clear/Select all for %s", async (messageType) => {
+  const blocked = { ...recipient("c"), message_statuses: [{ message_type: messageType, status: "processing", already_sent: false, latest_resend_status: null, resend_blocked: true, submitted_at: null, status_updated_at: "2026-09-28" }] };
+  mocks.detail = { ...mocks.detail, recipient_count: 3, recipients: [recipient("a"), recipient("b"), blocked], support_contacts: [{ id: "support-a", name: "Travel desk", phone_number: "+918888888888", normalized_phone_number: "+918888888888" }] };
+  const original = mocks.preview.getMockImplementation()!;
+  mocks.preview.mockImplementation((request, callbacks) => original(request, { ...callbacks, onSuccess: (data: Record<string, unknown>) => callbacks.onSuccess({ ...data, header_image_id: "saved-header", eligible_recipient_count: request.draft.recipient_ids?.length ?? 2 }) }));
+  const { container, onSend } = renderDialog({ messageType });
+  await waitFor(() => expect(screen.getByRole("button", { name: "Send individually to 2" })).toBeEnabled());
+  expect(screen.getByRole("checkbox", { name: /Passenger A/ })).toBeChecked();
+  expect(screen.queryByRole("checkbox", { name: /Passenger C/ })).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("checkbox", { name: /Passenger A/ }));
+  expect(screen.getByRole("button", { name: "Send individually to 1" })).toBeDisabled();
+  fireEvent.submit(container.querySelector("form")!);
+  expect(onSend).not.toHaveBeenCalled();
+  await waitFor(() => expect(screen.getByRole("button", { name: "Send individually to 1" })).toBeEnabled());
+  expect(mocks.preview).toHaveBeenLastCalledWith(expect.objectContaining({ draft: expect.objectContaining({ message_type: messageType, recipient_ids: ["recipient-b"] }) }), expect.any(Object));
+  fireEvent.click(screen.getByRole("button", { name: "Send individually to 1" }));
+  await waitFor(() => expect(onSend).toHaveBeenCalledWith(expect.objectContaining({ recipientIds: ["recipient-b"] })));
+  fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+  expect(screen.getByRole("button", { name: "Send individually to 0" })).toBeDisabled();
+  fireEvent.submit(container.querySelector("form")!);
+  expect(onSend).toHaveBeenCalledTimes(1);
+  fireEvent.change(screen.getByRole("searchbox", { name: "Search recipients by name or phone" }), { target: { value: "Passenger B" } });
+  fireEvent.click(screen.getByRole("button", { name: "Select all" }));
+  await waitFor(() => expect(screen.getByRole("button", { name: "Send individually to 2" })).toBeEnabled());
+  fireEvent.change(screen.getByRole("searchbox", { name: "Search recipients by name or phone" }), { target: { value: "" } });
+  expect(screen.getByRole("checkbox", { name: /Passenger A/ })).toBeChecked();
+  expect(screen.getByRole("checkbox", { name: /Passenger B/ })).toBeChecked();
+  fireEvent.click(screen.getByRole("button", { name: "Send individually to 2" }));
+  await waitFor(() => expect(onSend).toHaveBeenLastCalledWith(expect.objectContaining({ recipientIds: null })));
+});
+
+it("keeps unselected not-submitted recipients available and preserves the audience in preview and send", async () => {
+  mocks.detail = { ...mocks.detail, recipient_count: 3, recipients: [recipient("a"), recipient("b"), recipient("c")], linked_client_groups: [{ id: "passport-group", name: "Passport group", status: "active" }] };
+  const original = mocks.preview.getMockImplementation()!;
+  mocks.preview.mockImplementation((request, callbacks) => original(request, { ...callbacks, onSuccess: (data: Record<string, unknown>) => callbacks.onSuccess({
+    ...data, audience: request.draft.audience, audience_client_group_id: request.draft.audience_client_group_id,
+    audience_recipient_ids: ["recipient-a", "recipient-b"], audience_recipient_count: 2,
+    excluded_submitted_count: 1, excluded_needs_review_count: 0,
+    eligible_recipient_count: request.draft.recipient_ids?.length ?? 2,
+  }) }));
+  const { container, onSend } = renderDialog();
+  await waitFor(() => expect(screen.getByRole("button", { name: "Send individually to 2" })).toBeEnabled());
+  fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+  fireEvent.click(screen.getByRole("checkbox", { name: /Passenger C/ }));
+  await waitFor(() => expect(mocks.preview).toHaveBeenLastCalledWith(expect.objectContaining({ draft: expect.objectContaining({ recipient_ids: ["recipient-c"] }) }), expect.any(Object)));
+  fireEvent.click(screen.getByRole("radio", { name: /Only people who haven't submitted/ }));
+  await waitFor(() => expect(screen.getByRole("button", { name: "Send to 2 not submitted" })).toBeEnabled());
+  expect(mocks.preview).toHaveBeenLastCalledWith(expect.objectContaining({ draft: expect.objectContaining({ recipient_ids: null, audience: "not_submitted" }) }), expect.any(Object));
+  expect(screen.queryByRole("checkbox", { name: /Passenger C/ })).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("checkbox", { name: /Passenger B/ }));
+  expect(screen.getByRole("button", { name: /Send to 1 not submitted|Checking not-submitted audience/ })).toBeDisabled();
+  fireEvent.submit(container.querySelector("form")!);
+  expect(onSend).not.toHaveBeenCalled();
+  await waitFor(() => expect(screen.getByRole("button", { name: "Send to 1 not submitted" })).toBeEnabled());
+  expect(screen.getByRole("checkbox", { name: /Passenger B/ })).not.toBeChecked();
+  expect(mocks.preview).toHaveBeenLastCalledWith(expect.objectContaining({ draft: expect.objectContaining({ recipient_ids: ["recipient-a"], audience: "not_submitted", audience_client_group_id: "passport-group" }) }), expect.any(Object));
+  fireEvent.click(screen.getByRole("button", { name: "Send to 1 not submitted" }));
+  await waitFor(() => expect(onSend).toHaveBeenCalledWith(expect.objectContaining({ recipientIds: ["recipient-a"], reminderAudience: "not_submitted", reminderAudienceClientGroupId: "passport-group" })));
+  fireEvent.click(screen.getByRole("checkbox", { name: /Passenger B/ }));
+  await waitFor(() => expect(screen.getByRole("button", { name: "Send to 2 not submitted" })).toBeEnabled());
+  fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+  await waitFor(() => expect(mocks.preview).toHaveBeenLastCalledWith(expect.objectContaining({ draft: expect.objectContaining({ recipient_ids: [] }) }), expect.any(Object)));
+  expect(screen.getByRole("checkbox", { name: /Passenger A/ })).not.toBeChecked();
+  expect(screen.getByRole("checkbox", { name: /Passenger B/ })).not.toBeChecked();
+  expect(screen.getByRole("button", { name: "Send to 0 not submitted" })).toBeDisabled();
+  fireEvent.click(screen.getByRole("button", { name: "Select all" }));
+  await waitFor(() => expect(screen.getByRole("button", { name: "Send to 2 not submitted" })).toBeEnabled());
+  expect(screen.getByRole("checkbox", { name: /Passenger A/ })).toBeChecked();
+  expect(screen.getByRole("checkbox", { name: /Passenger B/ })).toBeChecked();
+  expect(screen.queryByRole("checkbox", { name: /Passenger C/ })).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Send to 2 not submitted" }));
+  await waitFor(() => expect(onSend).toHaveBeenLastCalledWith(expect.objectContaining({ recipientIds: null, reminderAudience: "not_submitted", reminderAudienceClientGroupId: "passport-group" })));
 });

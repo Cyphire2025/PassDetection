@@ -221,6 +221,7 @@ async def preview_broadcast_message(
         audience=body.audience,
         audience_client_group_id=body.audience_client_group_id,
         current_user=current_user,
+        roster_recipients=all_recipients,
     )
     recipients = list(audience_resolution.recipients)
     if (
@@ -337,6 +338,7 @@ async def preview_broadcast_message(
         audience=cast(Literal["all", "not_submitted"], audience_resolution.audience),
         audience_client_group_id=audience_resolution.client_group_id,
         audience_recipient_count=len(recipients),
+        audience_recipient_ids=list(audience_resolution.selectable_recipient_ids),
         excluded_submitted_count=audience_resolution.excluded_submitted_count,
         excluded_needs_review_count=(audience_resolution.excluded_needs_review_count),
         eligible_recipient_count=eligible_count,

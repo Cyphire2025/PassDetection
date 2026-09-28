@@ -248,8 +248,6 @@ class WhatsAppSendRequest(BaseModel):
             raise ValueError("A targeted audience is available only for reminders")
         if self.audience == "all" and self.audience_client_group_id is not None:
             raise ValueError("Choose an upload group only for the not-submitted reminder audience")
-        if self.audience == "not_submitted" and self.recipient_ids is not None:
-            raise ValueError("Choose either explicit recipients or the not-submitted audience")
         return self
 
 
@@ -314,6 +312,10 @@ class WhatsAppPreviewResponse(BaseModel):
     audience: Literal["all", "not_submitted"] = "all"
     audience_client_group_id: uuid.UUID | None = None
     audience_recipient_count: int = Field(default=0, ge=0)
+    audience_recipient_ids: list[uuid.UUID] = Field(
+        default_factory=list,
+        description="Full authorized audience before explicit recipient selection and delivery-status filtering.",
+    )
     excluded_submitted_count: int = Field(default=0, ge=0)
     excluded_needs_review_count: int = Field(default=0, ge=0)
     eligible_recipient_count: int

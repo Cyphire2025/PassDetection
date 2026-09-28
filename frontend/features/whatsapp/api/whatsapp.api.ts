@@ -194,6 +194,8 @@ export interface WhatsAppPreviewResponse {
   audience?: WhatsAppReminderAudience;
   audience_client_group_id?: string | null;
   audience_recipient_count?: number;
+  /** Full server-resolved audience before the optional explicit selection. */
+  audience_recipient_ids?: string[];
   excluded_submitted_count?: number;
   excluded_needs_review_count?: number;
   eligible_recipient_count: number;

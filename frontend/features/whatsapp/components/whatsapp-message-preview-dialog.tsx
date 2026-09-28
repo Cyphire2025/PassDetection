@@ -44,6 +44,7 @@ import { WhatsAppBroadcastMotion } from "./whatsapp-broadcast-motion";
 import { RecipientBulkComposerAudience } from "./whatsapp-bulk-composer-audience";
 import { ReminderAudienceSelector } from "./whatsapp-reminder-audience";
 import { GroupInvitePreviewDialog } from "./whatsapp-group-invite-dialog";
+import { PreviewRecipientPicker } from "./whatsapp-preview-recipient-picker";
 
 const MAX_WELCOME_IMAGE_BYTES = 5 * 1024 * 1024;
 const WELCOME_IMAGE_TYPES = new Set(["image/jpeg", "image/png"]);
@@ -117,7 +118,6 @@ function StandardMessagePreviewDialog({
   const [previewRecipientId, setPreviewRecipientId] = useState<string | null>(
     targetRecipient?.recipientId ?? null,
   );
-  const [recipientSearch, setRecipientSearch] = useState("");
   const [recipientSelectionMode, setRecipientSelectionMode] = useState<
     "all" | "custom"
   >("all");
@@ -321,7 +321,6 @@ function StandardMessagePreviewDialog({
             resend_recipient_id: targetRecipient?.recipientId ?? null,
             header_image_id: headerImageId,
             recipient_ids:
-              messageType === "passport_link" &&
               !targetRecipient &&
               recipientSelectionMode === "custom"
                 ? selectedRecipientIds
@@ -448,7 +447,6 @@ function StandardMessagePreviewDialog({
   );
   const selectedEligibleRecipients = useMemo(
     () =>
-      messageType === "passport_link" &&
       !targetRecipient &&
       recipientSelectionMode === "custom"
         ? eligibleRecipients.filter((recipient) =>
@@ -457,7 +455,6 @@ function StandardMessagePreviewDialog({
         : eligibleRecipients,
     [
       eligibleRecipients,
-      messageType,
       recipientSelectionMode,
       selectedRecipientIdSet,
       targetRecipient,
@@ -467,6 +464,15 @@ function StandardMessagePreviewDialog({
     && !targetRecipient
     && !bulkMode
     && reminderAudience === "not_submitted";
+  const selectableAudienceIds = usesNotSubmittedAudience
+    && preview?.audience === "not_submitted"
+    && preview.audience_client_group_id === resolvedReminderAudienceClientGroupId
+      ? preview.audience_recipient_ids
+      : undefined;
+  const selectableAudienceIdSet = new Set(selectableAudienceIds);
+  const selectableRecipients = usesNotSubmittedAudience
+    ? eligibleRecipients.filter((recipient) => selectableAudienceIdSet.has(recipient.id))
+    : eligibleRecipients;
   const currentPreviewEligibleCount = previewIsCurrent
     ? preview?.eligible_recipient_count
     : undefined;
@@ -481,7 +487,7 @@ function StandardMessagePreviewDialog({
     : targetRecipient
     ? 1
     : recipientSelectionMode === "custom"
-      ? selectedEligibleRecipients.length
+      ? currentPreviewEligibleCount ?? selectedEligibleRecipients.length
       : usesNotSubmittedAudience
         ? currentPreviewEligibleCount ?? 0
         : (currentPreviewEligibleCount ??
@@ -522,6 +528,7 @@ function StandardMessagePreviewDialog({
       (messageType !== "passport_link" ||
         (bulkMode && selectedSupportContactIds === null) || resolvedSupportContactIds.length > 0) &&
       resolvedMessageContent &&
+      (bulkMode || targetRecipient || recipientSelectionMode !== "custom" || selectedEligibleRecipients.length > 0) &&
       eligibleRecipientCount > 0 &&
       reminderAudienceSelectionReady &&
       reminderAudienceConfirmed &&
@@ -608,7 +615,6 @@ function StandardMessagePreviewDialog({
       return;
     }
     if (
-      messageType === "passport_link" &&
       !targetRecipient &&
       !bulkMode &&
       recipientSelectionMode === "custom" &&
@@ -624,7 +630,6 @@ function StandardMessagePreviewDialog({
         headerImage,
         headerImageId,
         recipientIds:
-          messageType === "passport_link" &&
           !targetRecipient &&
           recipientSelectionMode === "custom"
             ? selectedRecipientIds
@@ -669,6 +674,51 @@ function StandardMessagePreviewDialog({
         <fieldset disabled={isArchived} className="contents">
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
         <div className="min-w-0 space-y-5">
+          {messageType === "reminder" && !targetRecipient && !bulkMode && (
+            <ReminderAudienceSelector
+              audience={reminderAudience}
+              audienceClientGroupId={resolvedReminderAudienceClientGroupId}
+              linkedClientGroups={linkedClientGroups}
+              eligibleRecipientCount={eligibleRecipientCount}
+              audienceRecipientCount={audienceRecipientCount}
+              excludedSubmittedCount={excludedSubmittedCount}
+              excludedNeedsReviewCount={excludedNeedsReviewCount}
+              isLoadingGroups={isLoadingDetail}
+              isPreviewCurrent={previewIsCurrent}
+              disabled={submissionPending}
+              onAudienceChange={(audience) => {
+                setReminderAudience(audience);
+                setRecipientSelectionMode("all");
+                setSelectedRecipientIds([]);
+                setReminderAudienceClientGroupId(
+                  audience === "not_submitted" && linkedClientGroups.length === 1
+                    ? linkedClientGroups[0]?.id ?? null
+                    : null,
+                );
+                setPreviewRecipientId(null);
+                setError(null);
+              }}
+              onClientGroupChange={(clientGroupId) => {
+                setReminderAudienceClientGroupId(clientGroupId || null);
+                setRecipientSelectionMode("all");
+                setSelectedRecipientIds([]);
+                setPreviewRecipientId(null);
+                setError(null);
+              }}
+            />
+          )}
+            {detail && !targetRecipient && !bulkMode && (
+              <PreviewRecipientPicker
+                recipients={selectableRecipients}
+                disabled={submissionPending || (usesNotSubmittedAudience && selectableAudienceIds === undefined)}
+                selectedIds={recipientSelectionMode === "all" ? null : selectedRecipientIds}
+                onChange={(ids) => {
+                  setRecipientSelectionMode(ids === null ? "all" : "custom");
+                  setSelectedRecipientIds(ids ?? []);
+                  setPreviewRecipientId(ids?.[0] ?? null);
+                }}
+              />
+            )}
         <MessageComposerSection title="Message content" description={messageType === "reminder" ? "Review and edit the reminder your recipients will receive." : "Prepare the image and wording your recipients will receive."}>
         <div className="flex gap-2.5 rounded-lg bg-blue-50/70 px-3 py-3 text-xs leading-5 text-slate-600">
           <Info className="mt-0.5 h-4 w-4 shrink-0" />
@@ -882,35 +932,6 @@ function StandardMessagePreviewDialog({
             </div>
         </MessageComposerSection>
         <MessageComposerSection title="Delivery settings" description="Confirm who will receive this message.">
-          {messageType === "reminder" && !targetRecipient && !bulkMode && (
-            <ReminderAudienceSelector
-              audience={reminderAudience}
-              audienceClientGroupId={resolvedReminderAudienceClientGroupId}
-              linkedClientGroups={linkedClientGroups}
-              eligibleRecipientCount={eligibleRecipientCount}
-              audienceRecipientCount={audienceRecipientCount}
-              excludedSubmittedCount={excludedSubmittedCount}
-              excludedNeedsReviewCount={excludedNeedsReviewCount}
-              isLoadingGroups={isLoadingDetail}
-              isPreviewCurrent={previewIsCurrent}
-              disabled={submissionPending}
-              onAudienceChange={(audience) => {
-                setReminderAudience(audience);
-                setReminderAudienceClientGroupId(
-                  audience === "not_submitted" && linkedClientGroups.length === 1
-                    ? linkedClientGroups[0]?.id ?? null
-                    : null,
-                );
-                setPreviewRecipientId(null);
-                setError(null);
-              }}
-              onClientGroupChange={(clientGroupId) => {
-                setReminderAudienceClientGroupId(clientGroupId || null);
-                setPreviewRecipientId(null);
-                setError(null);
-              }}
-            />
-          )}
           {bulkRecipients && messageType !== "reminder" ? <RecipientBulkComposerAudience recipients={bulkRecipients} messageType={messageType} hiddenCount={hiddenSelectedCount} preview={bulkPreview} /> : <div className="flex items-center gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500"><UsersRound className="h-5 w-5" aria-hidden="true" /></span>
             <div className="min-w-0">
@@ -932,156 +953,6 @@ function StandardMessagePreviewDialog({
               </p>
             </div>
           </div>}
-            {messageType === "passport_link" && detail && !targetRecipient && !bulkMode && (
-              <fieldset className="min-w-0 rounded-lg border border-slate-200 p-3">
-                <legend className="px-1 text-sm font-medium text-slate-700">
-                  Recipients for this send
-                </legend>
-                <div className="mt-1 flex flex-wrap gap-4 text-sm text-slate-700">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="recipient-selection-mode"
-                      checked={recipientSelectionMode === "all"}
-                      onChange={() => setRecipientSelectionMode("all")}
-                    />
-                    All unsent recipients
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="recipient-selection-mode"
-                      checked={recipientSelectionMode === "custom"}
-                      onChange={() => {
-                        const firstEligibleId = eligibleRecipients[0]?.id;
-                        setRecipientSelectionMode("custom");
-                        setSelectedRecipientIds((current) =>
-                          current.length > 0
-                            ? current
-                            : firstEligibleId
-                              ? [firstEligibleId]
-                              : [],
-                        );
-                        if (firstEligibleId)
-                          setPreviewRecipientId(firstEligibleId);
-                      }}
-                    />
-                    Custom select
-                  </label>
-                </div>
-                {recipientSelectionMode === "custom" && (
-                  <details
-                    className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3"
-                    open
-                  >
-                    <summary className="cursor-pointer text-sm font-semibold text-slate-800">
-                      {selectedEligibleRecipients.length} recipient
-                      {selectedEligibleRecipients.length === 1 ? "" : "s"}{" "}
-                      selected
-                    </summary>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        className="text-xs font-semibold text-blue-700 hover:text-blue-800"
-                        onClick={() => {
-                          const ids = Array.from(
-                            new Set([
-                              ...selectedRecipientIds,
-                              ...eligibleRecipients
-                                .filter((recipient) =>
-                                  `${recipient.name} ${recipient.normalized_phone_number}`
-                                    .toLowerCase()
-                                    .includes(
-                                      recipientSearch.trim().toLowerCase(),
-                                    ),
-                                )
-                                .map((recipient) => recipient.id),
-                            ]),
-                          );
-                          setSelectedRecipientIds(ids);
-                          setPreviewRecipientId(ids[0] ?? null);
-                        }}
-                      >
-                        Select matching
-                      </button>
-                      <button
-                        type="button"
-                        className="text-xs font-semibold text-slate-600 hover:text-slate-800"
-                        onClick={() => {
-                          setSelectedRecipientIds([]);
-                          setPreviewRecipientId(null);
-                        }}
-                      >
-                        Clear
-                      </button>
-                    </div>
-                    <Input
-                      type="search"
-                      label="Search recipients by name or phone"
-                      value={recipientSearch}
-                      onChange={(event) =>
-                        setRecipientSearch(event.target.value)
-                      }
-                      placeholder="Name or phone number"
-                      className="mt-3"
-                    />
-                    <p className="mt-2 text-xs text-slate-500">
-                      Selections stay selected when you search. Clear removes
-                      all selections.
-                    </p>
-                    <div className="mt-2 max-h-52 space-y-1 overflow-y-auto pr-1">
-                      {eligibleRecipients
-                        .filter((recipient) =>
-                          `${recipient.name} ${recipient.normalized_phone_number}`
-                            .toLowerCase()
-                            .includes(recipientSearch.trim().toLowerCase()),
-                        )
-                        .map((recipient) => (
-                          <label
-                            key={recipient.id}
-                            className="flex items-start gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-white"
-                          >
-                            <input
-                              type="checkbox"
-                              className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                              checked={selectedRecipientIdSet.has(recipient.id)}
-                              onChange={(event) => {
-                                const checked = event.target.checked;
-                                const nextIds = checked
-                                  ? Array.from(
-                                      new Set([
-                                        ...selectedRecipientIds,
-                                        recipient.id,
-                                      ]),
-                                    )
-                                  : selectedRecipientIds.filter(
-                                      (id) => id !== recipient.id,
-                                    );
-                                setSelectedRecipientIds(nextIds);
-                                if (checked) {
-                                  setPreviewRecipientId(recipient.id);
-                                } else if (
-                                  previewRecipientId === recipient.id
-                                ) {
-                                  setPreviewRecipientId(nextIds[0] ?? null);
-                                }
-                              }}
-                            />
-                            <span className="min-w-0">
-                              <span className="block break-words font-medium text-slate-800">
-                                {recipient.name || "Unnamed recipient"}
-                              </span>
-                              <span className="block break-all text-xs text-slate-500">
-                                {recipient.normalized_phone_number}
-                              </span>
-                            </span>
-                          </label>
-                        ))}
-                    </div>
-                  </details>
-                )}
-              </fieldset>
-            )}
             {messageType === "passport_link" && detail && (
               <details className="rounded-xl border border-slate-200 p-3" open>
                 <summary className="cursor-pointer text-sm font-medium text-slate-700">

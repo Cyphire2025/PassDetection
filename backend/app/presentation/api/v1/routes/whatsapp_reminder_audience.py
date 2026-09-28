@@ -30,6 +30,7 @@ class ReminderAudienceResolution:
     source_recipient_count: int
     excluded_submitted_count: int = 0
     excluded_needs_review_count: int = 0
+    selectable_recipient_ids: tuple[uuid.UUID, ...] = ()
 
 
 async def resolve_reminder_audience(
@@ -40,6 +41,7 @@ async def resolve_reminder_audience(
     audience: str,
     audience_client_group_id: uuid.UUID | None,
     current_user: User,
+    roster_recipients: list[WhatsAppBroadcastRecipientModel] | None = None,
 ) -> ReminderAudienceResolution:
     """Resolve one reminder scope without taking locks after the broadcast lock.
 
@@ -47,15 +49,19 @@ async def resolve_reminder_audience(
     upload group. The final set is then intersected with this broadcast's live
     recipients, so the same person cannot receive a reminder merely because
     their equivalent row in another linked list carried the successful match.
+    Preview may also supply its full authorized roster to keep unselected
+    audience members available in the picker without widening send recipients.
     """
 
     source_count = len(recipients)
+    roster = recipients if roster_recipients is None else roster_recipients
     if audience == "all":
         return ReminderAudienceResolution(
             recipients=tuple(recipients),
             audience="all",
             client_group_id=None,
             source_recipient_count=source_count,
+            selectable_recipient_ids=tuple(recipient.id for recipient in roster),
         )
 
     linked_statement = (
@@ -167,4 +173,7 @@ async def resolve_reminder_audience(
         source_recipient_count=source_count,
         excluded_submitted_count=len(submitted_ids),
         excluded_needs_review_count=len(review_ids),
+        selectable_recipient_ids=tuple(
+            recipient.id for recipient in roster if recipient.id in not_submitted_recipient_ids
+        ),
     )

@@ -230,7 +230,7 @@ test("rejected rows retain imported fields and expose inline correction controls
 });
 
 test("passport-link sends custom recipients with one selected support contact", () => {
-  assert.match(pageSource, /Custom select/);
+  assert.match(pageSource, /PreviewRecipientPicker/);
   assert.match(pageSource, /Support contacts included/);
   assert.match(pageSource, /name="passport-link-support-contact"/);
   assert.match(pageSource, /setSelectedSupportContactIds\(\[contact\.id\]\)/);

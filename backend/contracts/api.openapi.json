@@ -28196,6 +28196,15 @@
             "title": "Audience Recipient Count",
             "type": "integer"
           },
+          "audience_recipient_ids": {
+            "description": "Full authorized audience before explicit recipient selection and delivery-status filtering.",
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Audience Recipient Ids",
+            "type": "array"
+          },
           "content_source": {
             "enum": [
               "default",
@@ -29147,6 +29156,15 @@
             "minimum": 0.0,
             "title": "Audience Recipient Count",
             "type": "integer"
+          },
+          "audience_recipient_ids": {
+            "description": "Full authorized audience before explicit recipient selection and delivery-status filtering.",
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Audience Recipient Ids",
+            "type": "array"
           },
           "content_source": {
             "enum": [

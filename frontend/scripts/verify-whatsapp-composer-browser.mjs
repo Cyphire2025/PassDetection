@@ -48,7 +48,7 @@ const longLink = `https://travel.example.test/upload/${"sample-long-passport-lin
 const scenarios = [
   { type: "welcome", action: "Send Welcome Message", title: "Preview Welcome Message", editor: "Welcome trip message" },
   { type: "passport_link", action: "Send Passport Link", title: "Preview Passport Link Message", editor: "Passport instructions" },
-  { type: "reminder", action: "Send Reminder", title: "Preview Reminder", editor: "Reminder paragraph" },
+  { type: "reminder", action: "Send Reminder", title: "Edit Reminder", editor: "Reminder paragraph" },
 ];
 const viewports = [
   { name: "desktop", width: 1440, height: 1000 },
@@ -130,7 +130,7 @@ async function verifyCase(browser, viewport, scenario) {
       return json({ error: { code: "LOCAL_TEST_SEND_BLOCKED", message: "Message sending is blocked by this local browser check." } }, 403);
     }
     if (url.pathname === "/api/v1/auth/me") return json(user);
-    if (url.pathname === "/api/v1/auth/refresh") return json({ status: "authenticated", user, token_type: "bearer", access_token_expires_at: "2099-01-01T00:00:00Z" });
+    if (url.pathname === "/api/v1/auth/refresh") return json({ status: "authenticated", user, token_type: "bearer", access_token_expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString() });
     if (url.pathname === "/api/v1/notifications/feed") return json({ items: [], unread_count: 0, next_cursor: null });
     if (url.pathname === "/api/v1/whatsapp/groups") return json([group]);
     if (url.pathname === `/api/v1/whatsapp/groups/${group.id}`) return json(scenarioDetail);
@@ -157,7 +157,18 @@ async function verifyCase(browser, viewport, scenario) {
       await page.getByRole("button", { name: "Recipient List", exact: true }).click();
       await page.getByLabel(`Actions for ${recipients[0].name}`, { exact: true }).click();
     }
-    await page.getByRole("button", { name: scenario.action, exact: true }).click();
+    const messageAction = page.getByRole("button", { name: scenario.action, exact: true });
+    if (scenario.targetAction === "resend" && scenario.type === "welcome") {
+      await expect(messageAction).toBeDisabled();
+      const screenshot = join(output, `${caseName}-blocked.png`);
+      await page.screenshot({ path: screenshot, animations: "disabled" });
+      assert.deepEqual(errors, [], "No browser runtime errors");
+      assert.deepEqual(blocked, [], "No outgoing messages or external requests attempted");
+      Object.assign(result, { status: "passed", duplicateWelcomeBlocked: true, screenshot, requests });
+      console.log(`PASS ${caseName} (same-broadcast duplicate blocked)`);
+      return result;
+    }
+    await messageAction.click();
     const dialog = page.getByRole("dialog", { name: scenario.title, exact: true });
     await expect(dialog).toBeVisible();
     const editor = dialog.getByLabel(scenario.editor, { exact: true });
@@ -181,12 +192,24 @@ async function verifyCase(browser, viewport, scenario) {
     result.editedPreviewBlocksStaleSend = true;
     if (scenario.type === "passport_link") {
       await expect(dialog.getByRole("textbox", { name: "Passport upload link", exact: true })).toHaveValue(longLink);
-      await dialog.getByRole("radio", { name: "Custom select", exact: true }).check();
-      await expect(send).toHaveText(/1/);
+    }
+    if (!scenario.targetAction) {
+      const picker = dialog.getByRole("group", { name: "Recipients for this send", exact: true });
+      await picker.getByRole("button", { name: "Clear", exact: true }).click();
+      await expect(send).toBeDisabled();
+      await picker.getByRole("checkbox", { name: `${recipients[1].name} ${recipients[1].normalized_phone_number}`, exact: true }).check();
+      await expect(send).toHaveAccessibleName("Send individually to 1");
       await expect(send).toBeEnabled();
-      await dialog.getByRole("radio", { name: "All unsent recipients", exact: true }).check();
-      await expect(send).toHaveText(/3/);
+      const search = picker.getByRole("searchbox", { name: "Search recipients by name or phone", exact: true });
+      await search.fill(recipients[2].name);
+      await picker.getByRole("checkbox", { name: `${recipients[2].name} ${recipients[2].normalized_phone_number}`, exact: true }).check();
+      await expect(send).toHaveAccessibleName("Send individually to 2");
       await expect(send).toBeEnabled();
+      await picker.getByRole("button", { name: "Select all", exact: true }).click();
+      await expect(send).toHaveAccessibleName("Send individually to 3");
+      await expect(send).toBeEnabled();
+      await search.fill("");
+      await expect(picker.getByRole("checkbox")).toHaveCount(3);
       result.recipientSelectionVerified = true;
     }
     const preview = dialog.getByTestId("whatsapp-message-preview");

@@ -94,9 +94,8 @@ describe("group invite composer", () => {
     await screen.findByDisplayValue(link);
     fireEvent.change(screen.getByLabelText("Preview recipient"), { target: { value: "B" } });
     await waitFor(() => expect(mocks.preview).toHaveBeenLastCalledWith(expect.objectContaining({ draft: expect.objectContaining({ recipient_id: "B" }) }), expect.any(Object)));
-    fireEvent.click(screen.getByLabelText("Choose recipients"));
-    fireEvent.click(screen.getByRole("checkbox", { name: /Delegate A/ }));
-    await waitFor(() => expect(mocks.preview).toHaveBeenLastCalledWith(expect.objectContaining({ draft: expect.objectContaining({ recipient_id: null, recipient_ids: ["A"] }) }), expect.any(Object)));
+    fireEvent.click(screen.getByRole("checkbox", { name: /Delegate B/ }));
+    await waitFor(() => expect(mocks.preview).toHaveBeenLastCalledWith(expect.objectContaining({ draft: expect.objectContaining({ recipient_id: "A", recipient_ids: ["A"] }) }), expect.any(Object)));
     await waitFor(() => expect(screen.getByRole("button", { name: "Send individually to 1" })).toBeEnabled());
     fireEvent.click(screen.getByRole("button", { name: "Send individually to 1" }));
     expect(onSend).toHaveBeenCalledWith(expect.objectContaining({ recipientIds: ["A"] }));
@@ -273,4 +272,26 @@ describe("group invite composer", () => {
     await waitFor(() => expect(onSend).toHaveBeenCalledTimes(2));
     expect(onSend).toHaveBeenLastCalledWith(expect.objectContaining({ headerImage: replacement }));
   });
+});
+
+
+it("clears and selects every eligible invitation recipient even while searching", async () => {
+  const { container, onSend } = mount();
+  await waitFor(() => expect(screen.getByRole("button", { name: "Send individually to 2" })).toBeEnabled());
+  fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+  expect(screen.getByRole("checkbox", { name: /Delegate A/ })).not.toBeChecked();
+  expect(screen.getByRole("button", { name: /Send individually/ })).toBeDisabled();
+  fireEvent.submit(container.querySelector("form")!);
+  expect(onSend).not.toHaveBeenCalled();
+  fireEvent.change(screen.getByRole("searchbox", { name: "Search recipients by name or phone" }), { target: { value: "Delegate A" } });
+  fireEvent.click(screen.getByRole("checkbox", { name: /Delegate A/ }));
+  await waitFor(() => expect(screen.getByRole("button", { name: "Send individually to 1" })).toBeEnabled());
+  fireEvent.click(screen.getByRole("button", { name: "Send individually to 1" }));
+  await waitFor(() => expect(onSend).toHaveBeenCalledWith(expect.objectContaining({ recipientIds: ["A"] })));
+  fireEvent.click(screen.getByRole("button", { name: "Select all" }));
+  await waitFor(() => expect(screen.getByRole("button", { name: "Send individually to 2" })).toBeEnabled());
+  fireEvent.change(screen.getByRole("searchbox", { name: "Search recipients by name or phone" }), { target: { value: "" } });
+  expect(screen.getByRole("checkbox", { name: /Delegate B/ })).toBeChecked();
+  fireEvent.click(screen.getByRole("button", { name: "Send individually to 2" }));
+  await waitFor(() => expect(onSend).toHaveBeenLastCalledWith(expect.objectContaining({ recipientIds: null })));
 });

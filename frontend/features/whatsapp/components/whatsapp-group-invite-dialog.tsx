@@ -11,6 +11,7 @@ import { DialogFrame, ErrorBanner, readErrorMessage } from "./whatsapp-dialog-ui
 import { MessageComposerSection, MessageDeliveryPreview } from "./whatsapp-message-composer-ui";
 import { RecipientBulkComposerAudience } from "./whatsapp-bulk-composer-audience";
 import { GroupInvitePhotoPicker, useGroupInviteImage } from "./whatsapp-group-invite-image";
+import { PreviewRecipientPicker } from "./whatsapp-preview-recipient-picker";
 import type { MessagePreviewDialogProps, MessagePreviewSendPayload } from "./whatsapp-message-preview-dialog";
 
 export function GroupInvitePreviewDialog({ group, targetRecipient, bulkRecipients, hiddenSelectedCount = 0, isSending, onClose, onSend }: MessagePreviewDialogProps) {
@@ -21,7 +22,6 @@ export function GroupInvitePreviewDialog({ group, targetRecipient, bulkRecipient
   const [groupInviteLink, setGroupInviteLink] = useState<string | null>(null);
   const [selectionMode, setSelectionMode] = useState<"all" | "custom">("all");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [search, setSearch] = useState("");
   const [previewRecipientId, setPreviewRecipientId] = useState<string | null>(null);
   const [preview, setPreview] = useState<WhatsAppPreviewResponse | null>(null);
   const image = useGroupInviteImage(preview?.header_image_id ?? null);
@@ -35,7 +35,6 @@ export function GroupInvitePreviewDialog({ group, targetRecipient, bulkRecipient
   const sendingRef = useRef(false);
   const contentId = useId();
   const linkId = useId();
-  const searchId = useId();
   const bulkMode = bulkRecipients !== undefined;
   const bulkIds = useMemo(() => bulkRecipients?.map((recipient) => recipient.id) ?? null, [bulkRecipients]);
   const archived = Boolean(group.is_archived || detail?.is_archived);
@@ -124,7 +123,6 @@ export function GroupInvitePreviewDialog({ group, targetRecipient, bulkRecipient
       ...(bulkMode ? { bulkDraft: { messageContent: messageContent === null ? null : resolvedContent, groupInviteLink: groupInviteLink === null ? null : resolvedLink, headerImageId: null } } : {}),
     });
   };
-  const filteredRecipients = eligibleRecipients.filter((recipient) => `${recipient.name} ${recipient.normalized_phone_number}`.toLowerCase().includes(search.trim().toLowerCase()));
   const recipientOptions = bulkMode ? (bulkRecipients ?? []).filter((recipient) => bulkEligibleIds.includes(recipient.id))
     : selectionMode === "custom" ? eligibleRecipients.filter((recipient) => selectedIds.includes(recipient.id)) : eligibleRecipients;
 
@@ -135,6 +133,16 @@ export function GroupInvitePreviewDialog({ group, targetRecipient, bulkRecipient
           {archived && <ErrorBanner message="This broadcast is archived. Restore it before editing or sending messages." />}
           <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
             <div className="min-w-0 space-y-5">
+              <MessageComposerSection title="Recipients" description="Each person receives the invitation as a private WhatsApp message.">
+                {bulkRecipients ? <RecipientBulkComposerAudience recipients={bulkRecipients} messageType="group_invite" hiddenCount={hiddenSelectedCount} preview={previewCurrent ? bulkPreview : null} /> : targetRecipient ? <p className="text-sm text-slate-700">{targetRecipient.recipientName} · {targetRecipient.phoneNumber}</p> : <>
+                  <PreviewRecipientPicker recipients={eligibleRecipients} selectedIds={selectionMode === "all" ? null : selectedIds} onChange={(ids) => {
+                    setSelectionMode(ids === null ? "all" : "custom");
+                    setSelectedIds(ids ?? []);
+                    setPreviewRecipientId(ids?.[0] ?? null);
+                  }} />
+                  <p className="text-xs leading-5 text-slate-500">Previous successful invites, sends in progress, and unknown delivery outcomes are skipped.</p>
+                </>}
+              </MessageComposerSection>
               <GroupInvitePhotoPicker image={image} savedImageId={preview?.header_image_id ?? null} bulkMode={bulkMode} />
               <MessageComposerSection title="Group invitation" description="Edit the invitation and group link. The greeting and sign-off stay exactly as shown in the preview.">
                 <div className="space-y-2">
@@ -150,27 +158,6 @@ export function GroupInvitePreviewDialog({ group, targetRecipient, bulkRecipient
                   {bulkMode && groupInviteLink !== null && <button type="button" className="text-xs font-semibold text-blue-700 underline" onClick={() => setGroupInviteLink(null)}>Keep each recipient’s saved group link</button>}
                 </div>
                 {bulkMode && <p className="rounded-lg bg-blue-50 p-3 text-xs leading-5 text-blue-800">Unchanged fields keep each recipient’s saved photo, invitation, and group link. A replacement photo or other edits apply to every selected recipient.</p>}
-              </MessageComposerSection>
-              <MessageComposerSection title="Recipients" description="Each person receives the invitation as a private WhatsApp message.">
-                {bulkRecipients ? <RecipientBulkComposerAudience recipients={bulkRecipients} messageType="group_invite" hiddenCount={hiddenSelectedCount} preview={previewCurrent ? bulkPreview : null} /> : targetRecipient ? <p className="text-sm text-slate-700">{targetRecipient.recipientName} · {targetRecipient.phoneNumber}</p> : <>
-                  <div className="flex flex-wrap gap-4 text-sm text-slate-700">
-                    <label className="flex items-center gap-2"><input type="radio" name={`invite-audience-${contentId}`} checked={selectionMode === "all"} onChange={() => setSelectionMode("all")} />All eligible recipients</label>
-                    <label className="flex items-center gap-2"><input type="radio" name={`invite-audience-${contentId}`} checked={selectionMode === "custom"} onChange={() => setSelectionMode("custom")} />Choose recipients</label>
-                  </div>
-                  {selectionMode === "custom" && <div className="space-y-3">
-                    <label htmlFor={searchId} className="text-xs font-semibold text-slate-600">Search recipients</label>
-                    <Input id={searchId} value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Name or phone number" />
-                    <p className="text-xs text-slate-500">{selectedIds.length} selected. Selected recipients remain included when you search.</p>
-                    <div className="max-h-64 divide-y divide-slate-100 overflow-y-auto rounded-xl border border-slate-200">
-                      {filteredRecipients.map((recipient) => <label key={recipient.id} className="flex cursor-pointer items-start gap-3 p-3 text-sm">
-                        <input type="checkbox" checked={selectedIds.includes(recipient.id)} onChange={(event) => { const checked = event.target.checked; setSelectedIds((current) => checked ? [...current, recipient.id] : current.filter((id) => id !== recipient.id)); }} className="mt-1 h-4 w-4" />
-                        <span><span className="block font-medium text-slate-800">{recipient.name || "Guest"}</span><span className="text-xs text-slate-500">{recipient.normalized_phone_number}</span></span>
-                      </label>)}
-                      {!filteredRecipients.length && <p className="p-3 text-sm text-slate-500">No eligible recipients match this search.</p>}
-                    </div>
-                  </div>}
-                  <p className="text-xs leading-5 text-slate-500">Previous successful invites, sends in progress, and unknown delivery outcomes are skipped.</p>
-                </>}
               </MessageComposerSection>
             </div>
             <aside className="min-w-0 space-y-3 lg:sticky lg:top-0">
