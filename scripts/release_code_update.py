@@ -125,6 +125,38 @@ class CodeUpdate(ReliabilityRelease):
         self.write_private(self.receipt_path, json.dumps(self.record, indent=2) + "\n")
         self.say(f"Code update: {phase}")
 
+    def runtime_pins(self, images: dict[str, str], revision: str) -> dict[str, dict[str, Any]]:
+        """Bind application identity without rewriting the serving .env file.
+
+        Compose's parent environment only supplies interpolation values. The
+        production env_file still overrides image ENV, so image-only pins would
+        launch the candidate with the previous release's APP_REVISION. Explicit
+        service environment wins over env_file for both promotion and recovery.
+        Frontend identity is baked into its verified image and browser bundle.
+        """
+        services: dict[str, dict[str, Any]] = {
+            name: dict(value) for name, value in self.pinned_services(images).items()
+        }
+        for name, definition in services.items():
+            if name != "frontend":
+                definition["environment"] = {
+                    "APP_REVISION": revision,
+                    "EXPECTED_DATABASE_SCHEMA_REVISION": self.expected_schema,
+                }
+        return services
+
+    def verify_runtime_pin(self, path: Path, images: dict[str, str], revision: str) -> None:
+        """Prove the rendered launch identity before pausing any live consumer."""
+        rendered = json.loads(self.run(*self.compose, "-f", str(path), "config", "--format", "json"))
+        for name in self.activated_services:
+            service = rendered["services"][name]
+            if service.get("image") != images[name] or service.get("pull_policy") != "never":
+                raise ReleaseError(f"{name}: rendered runtime image does not match its immutable pin")
+            if name != "frontend":
+                env = service.get("environment", {})
+                if env.get("APP_REVISION") != revision or env.get("EXPECTED_DATABASE_SCHEMA_REVISION") != self.expected_schema:
+                    raise ReleaseError(f"{name}: rendered runtime revision/schema does not match its release pin")
+
     def optional_existing(self, service: str) -> dict | None:
         ids = self.run("docker", "ps", "-aq", "--filter", f"label={PROJECT_LABEL}={self.compose[3]}",
                        "--filter", f"label={SERVICE_LABEL}={service}",
@@ -292,8 +324,11 @@ class CodeUpdate(ReliabilityRelease):
         web_configuration(nginx_path.read_text(), {"backend": "127.0.0.1", "frontend": "127.0.0.1"})
         self.write_private(self.original_nginx, nginx_path.read_text())
         self.write_private(self.original_env, (self.root / ".env").read_text())
-        self.write_private(self.recovery_pin, json.dumps({"services": self.pinned_services({name: item["image"] for name, item in self.record["original"].items()})}))
-        self.write_private(self.pin_path, json.dumps({"services": self.pinned_services(self.record["images"])}))
+        previous_images = {name: item["image"] for name, item in self.record["original"].items()}
+        self.write_private(self.recovery_pin, json.dumps({"services": self.runtime_pins(previous_images, old_revision)}))
+        self.write_private(self.pin_path, json.dumps({"services": self.runtime_pins(self.record["images"], self.revision)}))
+        self.verify_runtime_pin(self.recovery_pin, previous_images, old_revision)
+        self.verify_runtime_pin(self.pin_path, self.record["images"], self.revision)
         self.record["original_env_sha256"] = hashlib.sha256(self.original_env.read_bytes()).hexdigest()
         self.record["original_nginx_sha256"] = hashlib.sha256(self.original_nginx.read_bytes()).hexdigest()
         self.probe(self.container("backend")["Id"], "backend", old_revision, full=True)

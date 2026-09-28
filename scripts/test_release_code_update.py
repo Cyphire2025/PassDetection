@@ -2,6 +2,9 @@
 from __future__ import annotations
 
 import json
+import os
+import shutil
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -203,6 +206,61 @@ class SafetyContracts(unittest.TestCase):
         self.assertEqual(task_contract(old), task_contract(old.replace("return 1", "return 2")))
         self.assertNotEqual(task_contract(old), task_contract(old.replace("identifier: str", "identifier: str, force=False")))
         self.assertNotEqual(task_contract(old), task_contract(old.replace("queue='jobs'", "queue='other'")))
+
+    @unittest.skipUnless(shutil.which("docker"), "Docker Compose CLI is required to verify env_file precedence")
+    def test_compose_pins_candidate_and_recovery_identity_over_unchanged_env_file(self) -> None:
+        """Exercise the actual Compose renderer; no Docker daemon is needed.
+
+        Reproduce the failed deployment first: setting the caller's revision
+        does not replace APP_REVISION read from a service's production env_file.
+        Then prove both overlays replace it for every backend process while the
+        original file and unrelated production settings remain unchanged.
+        """
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            release = CodeUpdate(REVISION, root, root / "signed.json")
+            environment_file = root / "production.env"
+            original = f"APP_REVISION={PREVIOUS}\nEXPECTED_DATABASE_SCHEMA_REVISION={release.expected_schema}\nPRESERVED_SETTING=synthetic-retained\n"
+            environment_file.write_text(original)
+            base = root / "compose.json"
+            base.write_text(json.dumps({"services": {
+                name: {"image": "synthetic-application:previous", "env_file": [str(environment_file)]}
+                for name in release.activated_services if name != "frontend"
+            }}))
+            caller = dict(os.environ, APP_REVISION=REVISION,
+                          EXPECTED_DATABASE_SCHEMA_REVISION=release.expected_schema)
+            release.compose = ["docker", "compose", "-p", "code-update-revision-test", "-f", str(base)]
+
+            def render(overlay: Path | None = None) -> dict:
+                command = ["docker", "compose", "-p", "code-update-revision-test", "-f", str(base)]
+                if overlay is not None:
+                    command.extend(["-f", str(overlay)])
+                command.extend(["config", "--format", "json"])
+                result = subprocess.run(command, cwd=root, env=caller, check=True,
+                                        capture_output=True, text=True, timeout=30)
+                return json.loads(result.stdout)["services"]
+
+            self.assertEqual(render()["backend"]["environment"]["APP_REVISION"], PREVIOUS)
+            for revision, label in ((REVISION, "candidate"), (PREVIOUS, "recovery")):
+                images = {name: "sha256:" + ("c" if label == "candidate" else "d") * 64
+                          for name in release.activated_services}
+                overlay = root / f"{label}.json"
+                overlay.write_text(json.dumps({"services": release.runtime_pins(images, revision)}))
+                release.verify_runtime_pin(overlay, images, revision)
+                rendered = render(overlay)
+                for name in release.activated_services:
+                    self.assertEqual(rendered[name]["image"], images[name])
+                    self.assertEqual(rendered[name]["pull_policy"], "never")
+                    if name != "frontend":
+                        self.assertEqual(rendered[name]["environment"]["APP_REVISION"], revision)
+                        self.assertEqual(rendered[name]["environment"]["EXPECTED_DATABASE_SCHEMA_REVISION"], release.expected_schema)
+                        self.assertEqual(rendered[name]["environment"]["PRESERVED_SETTING"], "synthetic-retained")
+                self.assertEqual(environment_file.read_text(), original)
+                if label == "candidate":
+                    stale = root / "stale-image-only.json"
+                    stale.write_text(json.dumps({"services": release.pinned_services(images)}))
+                    with self.assertRaisesRegex(ReleaseError, "runtime revision/schema"):
+                        release.verify_runtime_pin(stale, images, REVISION)
 
     def test_early_failure_never_recreates_running_workers_or_web(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
