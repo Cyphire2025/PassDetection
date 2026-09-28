@@ -93,6 +93,8 @@ class FixtureRelease(CodeUpdate):
         self.fixture_nginx = nginx
         self.fixture_original = original
         self.failed_config_checks = 0
+        self.drain_scan_observed = threading.Event()
+        self.observed_drain_thread: int | None = None
         self.original_nginx = root / "original-nginx.conf"
         self.original_nginx.write_text(NGINX, encoding="utf-8")
         self.record = {"phase": "qualification", "nginx_bindings": {},
@@ -117,6 +119,12 @@ class FixtureRelease(CodeUpdate):
 
     def save(self, phase: str) -> None:
         self.record["phase"] = phase
+
+    def nginx_workers(self) -> set[str]:
+        workers = super().nginx_workers()
+        if threading.get_ident() == self.observed_drain_thread:
+            self.drain_scan_observed.set()
+        return workers
 
 
 def request(origin: str, route: str, headers_received: threading.Event | None = None) -> dict:
@@ -150,13 +158,16 @@ def switch_with_held_request(release: FixtureRelease, origin: str, old: str, new
             release.route({"backend": new, "frontend": new})
             wait_serving(origin, expected_new)
             started = threading.Event()
+            release.drain_scan_observed.clear()
 
             def drain() -> None:
+                release.observed_drain_thread = threading.get_ident()
                 started.set()
                 release.drain_upstreams({"backend": old, "frontend": old})
 
             draining = executor.submit(drain)
             assert started.wait(5)
+            assert release.drain_scan_observed.wait(10), "Drain did not inspect actual Nginx workers"
             try:
                 draining.result(timeout=0.75)
             except concurrent.futures.TimeoutError:
