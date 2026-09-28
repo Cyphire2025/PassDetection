@@ -719,10 +719,7 @@ jobs:
         uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
       - name: Verify Compose runtime separation
-        run: |
-          cp .env.example .env
-          trap 'rm -f .env' EXIT
-          python scripts/verify_compose_runtime.py
+        run: python scripts/verify_compose_runtime.py
 
       - name: Validate k6 harness syntax
         run: |
@@ -831,6 +828,12 @@ jobs:
         run: |
           NGINX_IMAGE=$(docker image inspect --format '{{.Id}}' nginx:1.30.4-alpine@sha256:97d490c12ba55b4946b01546d1c3ed324e8d41ab1c9fcb2a616aa470620e5b46)
           python scripts/qa/qualify_proxy_errors.py --image "$NGINX_IMAGE"
+
+      - name: Qualify serving release switches with in-flight requests and failed proxy configuration
+        run: |
+          NGINX_IMAGE=$(docker image inspect --format '{{.Id}}' nginx:1.30.4-alpine@sha256:97d490c12ba55b4946b01546d1c3ed324e8d41ab1c9fcb2a616aa470620e5b46)
+          BACKEND_IMAGE=$(docker image inspect --format '{{.Id}}' passdetection-backend:ci)
+          python scripts/qa/qualify_code_update_nginx.py --image "$NGINX_IMAGE" --python-image "$BACKEND_IMAGE"
 
       - name: Restore current synthetic schema and a versioned object
         run: python scripts/qa/qualify_synthetic_recovery.py
@@ -946,6 +949,7 @@ jobs:
             outputs/qualification/recovery-evidence.json
             outputs/qualification/joined-journey-evidence.json
             outputs/qualification/source-evidence.json
+            outputs/qualification/code-update-nginx-evidence.json
             outputs/storage-migration-ci/*.log
             outputs/storage-migration-ci/*-state.json
             outputs/storage-migration-ci/migration-evidence.json
@@ -1042,3 +1046,39 @@ jobs:
           --notes "Qualified immutable images and signed full-image inventory. No deployment was performed."
           outputs/promoted/release-artifacts.json
           outputs/promoted/backend.spdx.json outputs/promoted/frontend.spdx.json
+
+  deploy-qualified-vps:
+    name: Deploy signed release to production VPS
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    needs: publish-qualified-artifacts
+    runs-on: ubuntu-latest
+    environment: production-vps
+    timeout-minutes: 50
+    concurrency:
+      group: production-vps
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    steps:
+      - name: Activate the exact qualified revision with retained recovery
+        env:
+          SOURCE_REVISION: ${{ github.sha }}
+          VPS_DEPLOY_KEY: ${{ secrets.VPS_DEPLOY_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+          VPS_HOST: ${{ vars.VPS_HOST }}
+        run: |
+          set -euo pipefail
+          test -n "$VPS_DEPLOY_KEY"
+          test -n "$VPS_KNOWN_HOSTS"
+          test -n "$VPS_HOST"
+          test "${#SOURCE_REVISION}" = 40
+          umask 077
+          KEY_FILE=$(mktemp)
+          HOSTS_FILE=$(mktemp)
+          trap 'rm -f "$KEY_FILE" "$HOSTS_FILE"' EXIT
+          printf '%s\n' "$VPS_DEPLOY_KEY" > "$KEY_FILE"
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > "$HOSTS_FILE"
+          ssh -i "$KEY_FILE" -o IdentitiesOnly=yes -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOSTS_FILE" \
+            -o ConnectTimeout=15 -o ServerAliveInterval=20 -o ServerAliveCountMax=6 \
+            "root@$VPS_HOST" "deploy-qualified:$SOURCE_REVISION"

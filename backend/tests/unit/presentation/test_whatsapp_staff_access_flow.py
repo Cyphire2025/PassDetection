@@ -96,6 +96,18 @@ async def test_staff_can_manage_and_track_broadcasts_only_in_their_agency(
             delivered_at=datetime.now(tz=UTC),
         ))
         await db_session.commit()
+        # A welcome in the global projection does not establish delivery for
+        # this broadcast, whose message content may differ from earlier trips.
+        preview = await client.post(f"{path}/preview", json={"message_type": "reminder"})
+        assert preview.status_code == 200, preview.text
+        assert preview.json()["eligible_recipient_count"] == 0
+        assert preview.json()["welcome_required_count"] == 1
+        db_session.add(WhatsAppMessageLogModel(
+            id=uuid.uuid4(), agency_id=agency_id,
+            broadcast_group_id=uuid.UUID(group_id), recipient_id=uuid.UUID(recipient_id),
+            normalized_phone_number="+919876543210", message_type="welcome", status="delivered",
+        ))
+        await db_session.commit()
         preview = await client.post(f"{path}/preview", json={"message_type": "reminder"})
         assert preview.status_code == 200, preview.text
         assert preview.json()["eligible_recipient_count"] == 1

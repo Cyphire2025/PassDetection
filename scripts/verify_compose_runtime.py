@@ -10,6 +10,7 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -125,7 +126,21 @@ WORKER_QUEUE_CONTRACTS = {
 
 
 def _render_compose(*files: Path) -> dict[str, Any]:
-    command = ["docker", "compose", "--profile", "maintenance"]
+    # Compose still checks required service env_file paths when rendering with
+    # --no-env-resolution. Use an isolated project directory so a clean checkout
+    # works and an operator's real .env is never loaded by this source check.
+    with tempfile.TemporaryDirectory(prefix="passdetection-compose-contract-") as directory:
+        fixture = Path(directory) / ".env"
+        fixture.write_bytes((ROOT / ".env.example").read_bytes())
+        return _render_compose_fixture(files, fixture)
+
+
+def _render_compose_fixture(files: tuple[Path, ...], fixture: Path) -> dict[str, Any]:
+    command = [
+        "docker", "compose", "--profile", "maintenance",
+        "--project-name", "passdetection-compose-contract",
+        "--project-directory", str(fixture.parent), "--env-file", str(fixture),
+    ]
     for file in files:
         command.extend(("-f", str(file)))
     command.extend(("config", "--format", "json", "--no-env-resolution"))

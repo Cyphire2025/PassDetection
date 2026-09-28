@@ -15,9 +15,17 @@ from app.infrastructure.database.models import (
     AgencyModel,
     PassportRosterResolutionModel,
     PassportSubmissionModel,
+    WhatsAppBroadcastGroupModel,
+    WhatsAppBroadcastRecipientModel,
+    WhatsAppMessageLogModel,
+    WhatsAppPhoneWelcomeAttemptModel,
     WhatsAppPhoneWelcomeModel,
+    WhatsAppRecipientMessageStateModel,
 )
-from app.infrastructure.whatsapp.phone_welcome import claim_phone_welcome
+from app.infrastructure.whatsapp.phone_welcome import (
+    assert_phone_welcome_claim,
+    claim_phone_welcome,
+)
 from app.infrastructure.whatsapp.private_delivery_policy import (
     lock_private_delivery_group_source_snapshot,
     validate_private_delivery_recipient,
@@ -183,6 +191,128 @@ async def test_simultaneous_traveller_and_broadcast_welcomes_claim_phone_once(
                 WhatsAppPhoneWelcomeModel.agency_id == agency_id,
                 WhatsAppPhoneWelcomeModel.normalized_phone_number == phone,
             )) == 1
+    finally:
+        if task and not task.done():
+            task.cancel()
+            await asyncio.gather(task, return_exceptions=True)
+
+
+def _add_scoped_welcome_intent(session, context, *, kind, broadcast_id, recipient_id,
+                               attempt_id, batch_id):
+    fields = dict(id=attempt_id, batch_id=batch_id, agency_id=context["agency"].id,
+                  broadcast_group_id=broadcast_id, normalized_phone_number=PHONE, status="queued")
+    if kind == "broadcast":
+        session.add(WhatsAppMessageLogModel(
+            **fields, recipient_id=recipient_id, message_type="welcome",
+        ))
+        session.add(WhatsAppRecipientMessageStateModel(
+            agency_id=context["agency"].id, broadcast_group_id=broadcast_id,
+            recipient_id=recipient_id, message_type="welcome", status="queued", batch_id=batch_id,
+        ))
+    else:
+        session.add(WhatsAppPhoneWelcomeAttemptModel(
+            **fields, group_id=context["group"].id,
+            passenger_ids=[str(context["passengers"][0].id)], template_name="reviewed_welcome",
+            rendered_message="Welcome to this trip", header_parameter_values=[],
+            template_parameter_values=["Welcome to this trip"],
+        ))
+
+
+@pytest.mark.parametrize("first_kind", ["broadcast", "traveller"])
+@pytest.mark.parametrize("same_broadcast", [True, False])
+async def test_concurrent_scoped_welcome_claims_preserve_broadcast_boundary(
+    traveller_pg_context, first_kind, same_broadcast,
+):
+    factory, context = traveller_pg_context
+    agency_id = context["agency"].id
+    first_broadcast_id = context["broadcast"].id
+    second_broadcast_id = first_broadcast_id
+    second_recipient_id = context["recipient"].id
+    if not same_broadcast:
+        second_broadcast_id, second_recipient_id = uuid.uuid4(), uuid.uuid4()
+        async with factory() as setup:
+            setup.add(WhatsAppBroadcastGroupModel(
+                id=second_broadcast_id, agency_id=agency_id, name="Another trip",
+            ))
+            await setup.flush()
+            setup.add(WhatsAppBroadcastRecipientModel(
+                id=second_recipient_id, agency_id=agency_id, broadcast_group_id=second_broadcast_id,
+                name="Same traveller", phone_number=PHONE, normalized_phone_number=PHONE,
+            ))
+            await setup.commit()
+
+    first_id, second_id, first_batch, second_batch = (uuid.uuid4() for _ in range(4))
+    second_kind = "traveller" if first_kind == "broadcast" else "broadcast"
+    started = asyncio.Event()
+    contender_pid = []
+
+    async def competing_claim():
+        async with factory() as contender:
+            contender_pid.append(await contender.scalar(text("SELECT pg_backend_pid()")))
+            started.set()
+            outcome = await claim_phone_welcome(
+                contender, agency_id=agency_id, phone=PHONE, attempt_id=second_id,
+                attempt_kind=second_kind, broadcast_group_id=second_broadcast_id,
+                batch_id=second_batch,
+            )
+            if outcome == "claimed":
+                _add_scoped_welcome_intent(
+                    contender, context, kind=second_kind, broadcast_id=second_broadcast_id,
+                    recipient_id=second_recipient_id, attempt_id=second_id, batch_id=second_batch,
+                )
+            await contender.commit()
+            return outcome
+
+    task = None
+    try:
+        async with factory() as first:
+            # The fixture's global projection is already delivered. It must
+            # neither suppress either new broadcast nor authorize duplicates.
+            assert await claim_phone_welcome(
+                first, agency_id=agency_id, phone=PHONE, attempt_id=first_id,
+                attempt_kind=first_kind, broadcast_group_id=first_broadcast_id,
+                batch_id=first_batch,
+            ) == "claimed"
+            task = asyncio.create_task(competing_claim())
+            await asyncio.wait_for(started.wait(), timeout=3)
+            await _wait_until_postgres_reports_blocked(factory, contender_pid[0])
+            if same_broadcast:
+                async with factory() as observer:
+                    blocked_query = await observer.scalar(text(
+                        "SELECT query FROM pg_stat_activity WHERE pid = :pid"
+                    ), {"pid": contender_pid[0]})
+                    assert "whatsapp_broadcast_groups" in blocked_query
+            assert not task.done()
+            # Persist the authoritative intent while the broadcast lock is
+            # still held, exactly as each producer does before queue publish.
+            _add_scoped_welcome_intent(
+                first, context, kind=first_kind, broadcast_id=first_broadcast_id,
+                recipient_id=context["recipient"].id, attempt_id=first_id, batch_id=first_batch,
+            )
+            await first.commit()
+        assert await asyncio.wait_for(task, timeout=3) == (
+            "queued" if same_broadcast else "claimed"
+        )
+        async with factory() as verification:
+            durable_intents = sum([
+                await verification.scalar(select(func.count()).select_from(model).where(
+                    model.agency_id == agency_id,
+                )) for model in (WhatsAppMessageLogModel, WhatsAppPhoneWelcomeAttemptModel)
+            ])
+            assert durable_intents == (1 if same_broadcast else 2)
+            assert await assert_phone_welcome_claim(
+                verification, agency_id=agency_id, phone=PHONE, attempt_id=first_id,
+                broadcast_group_id=first_broadcast_id,
+            )
+            if not same_broadcast:
+                assert await assert_phone_welcome_claim(
+                    verification, agency_id=agency_id, phone=PHONE, attempt_id=second_id,
+                    broadcast_group_id=second_broadcast_id,
+                )
+            assert await verification.scalar(select(WhatsAppPhoneWelcomeModel.status).where(
+                WhatsAppPhoneWelcomeModel.agency_id == agency_id,
+                WhatsAppPhoneWelcomeModel.normalized_phone_number == PHONE,
+            )) == "delivered"
     finally:
         if task and not task.done():
             task.cancel()
