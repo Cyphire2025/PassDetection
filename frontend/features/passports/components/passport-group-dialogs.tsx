@@ -23,7 +23,7 @@ export function PassportGroupDialogs({
   imageEditor,
   canEditImages,
   setImageEditor,
-  setImageRevision,
+  setImageRevisions,
   refetchSubmissions,
   exportDialogKind,
   exportImagesMutation,
@@ -54,7 +54,7 @@ export function PassportGroupDialogs({
   | "imageEditor"
   | "canEditImages"
   | "setImageEditor"
-  | "setImageRevision"
+  | "setImageRevisions"
   | "refetchSubmissions"
   | "exportDialogKind"
   | "exportImagesMutation"
@@ -128,7 +128,14 @@ export function PassportGroupDialogs({
           returnFocusTarget={imageEditor.returnFocusTarget}
           onClose={() => setImageEditor(null)}
           onSaved={() => {
-            setImageRevision((current) => current + 1);
+            const { submissionId, imageType } = imageEditor;
+            setImageRevisions((current) => ({
+              ...current,
+              [submissionId]: {
+                ...current[submissionId],
+                [imageType]: (current[submissionId]?.[imageType] ?? 0) + 1,
+              },
+            }));
             void refetchSubmissions();
           }}
         />

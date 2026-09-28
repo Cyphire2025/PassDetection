@@ -1,4 +1,5 @@
 "use client";
+import { DocumentThumbnailCacheProvider } from "./document-thumbnail-cache-provider";
 import { PassportGroupDialogs } from "./passport-group-dialogs";
 import { PassportGroupHeaderPanel } from "./passport-group-header-panel";
 import { PassportGroupImportPanel } from "./passport-group-import-panel";
@@ -10,13 +11,15 @@ import { usePassportGroupController } from "./use-passport-group-controller";
 export function PassportGroupDetail({ groupId }: { groupId: string }) {
   const controller = usePassportGroupController({ groupId });
   return (
-    <div className="flex flex-col gap-5">
-      <PassportGroupHeaderPanel {...controller} />
-      <PassportGroupOverviewPanel {...controller} />
-      <PassportGroupImportPanel {...controller} />
-      <PassportGroupSelectionToolbar {...controller} />
-      <PassportGroupRosterPanel {...controller} />
-      <PassportGroupDialogs {...controller} />
-    </div>
+    <DocumentThumbnailCacheProvider key={`${groupId}:${controller.page}`}>
+      <div className="flex flex-col gap-5">
+        <PassportGroupHeaderPanel {...controller} />
+        <PassportGroupOverviewPanel {...controller} />
+        <PassportGroupImportPanel {...controller} />
+        <PassportGroupSelectionToolbar {...controller} />
+        <PassportGroupRosterPanel {...controller} />
+        <PassportGroupDialogs {...controller} />
+      </div>
+    </DocumentThumbnailCacheProvider>
   );
 }

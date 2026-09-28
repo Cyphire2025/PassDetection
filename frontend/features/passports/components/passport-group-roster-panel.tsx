@@ -35,7 +35,7 @@ export function PassportGroupRosterPanel({
   filteredPassports,
   canEditImages,
   includeDeleted,
-  imageRevision,
+  imageRevisions,
   setImageEditor,
   debouncedSearch,
   selectedPassportIdSet,
@@ -61,7 +61,7 @@ export function PassportGroupRosterPanel({
   | "filteredPassports"
   | "canEditImages"
   | "includeDeleted"
-  | "imageRevision"
+  | "imageRevisions"
   | "setImageEditor"
   | "debouncedSearch"
   | "selectedPassportIdSet"
@@ -111,7 +111,7 @@ export function PassportGroupRosterPanel({
         <PassportDocumentMatrix
           passports={filteredPassports}
           canEdit={canEditImages && !includeDeleted}
-          revision={imageRevision}
+          revisions={imageRevisions}
           onEdit={(submissionId, imageType, label, returnFocusTarget) => {
             setImageEditor({
               submissionId,

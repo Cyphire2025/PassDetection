@@ -6,6 +6,7 @@ import { getPassportTextField as getStringField } from "@/lib/utils/passport-fie
 import type { PassportSubmission } from "@/types/passport.types";
 import type { PassportDocumentImportPreview, PassportImageType } from "../api/passports.api";
 import { matchPreviewFiles } from "../utils/passport-document-import";
+import type { PassportImageRevisions } from "../utils/passport-image-revisions";
 import { DocumentCell } from "./passport-document-cell";
 
 export function PassportDocumentMatrix({
@@ -13,14 +14,14 @@ export function PassportDocumentMatrix({
   preview,
   files = [],
   canEdit = false,
-  revision = 0,
+  revisions = {},
   onEdit,
 }: {
   passports: PassportSubmission[];
   preview?: PassportDocumentImportPreview;
   files?: File[];
   canEdit?: boolean;
-  revision?: number;
+  revisions?: PassportImageRevisions;
   onEdit?: (
     submissionId: string,
     imageType: PassportImageType,
@@ -104,7 +105,7 @@ export function PassportDocumentMatrix({
                           : undefined
                       }
                       filename={previewDocs?.photo?.filename}
-                      revision={revision}
+                      revision={revisions[passport.id]?.visa_photo ?? 0}
                       canEdit={canEdit}
                       onEdit={(trigger) =>
                         onEdit?.(
@@ -124,7 +125,7 @@ export function PassportDocumentMatrix({
                           : undefined
                       }
                       filename={previewDocs?.front?.filename}
-                      revision={revision}
+                      revision={revisions[passport.id]?.passport_front ?? 0}
                       canEdit={canEdit}
                       onEdit={(trigger) =>
                         onEdit?.(
@@ -144,7 +145,7 @@ export function PassportDocumentMatrix({
                           : undefined
                       }
                       filename={previewDocs?.back?.filename}
-                      revision={revision}
+                      revision={revisions[passport.id]?.passport_back ?? 0}
                       canEdit={canEdit}
                       onEdit={(trigger) =>
                         onEdit?.(
@@ -158,14 +159,14 @@ export function PassportDocumentMatrix({
                     <DocumentCell
                       label="Passport Front Cover"
                       url={passport.passport_cover_url}
-                      revision={revision}
+                      revision={revisions[passport.id]?.passport_cover ?? 0}
                       canEdit={canEdit}
                       onEdit={(trigger) => onEdit?.(passport.id, "passport_cover", "Passport Front Cover", trigger)}
                     />
                     <DocumentCell
                       label="Passport Back Cover"
                       url={passport.passport_back_cover_url}
-                      revision={revision}
+                      revision={revisions[passport.id]?.passport_back_cover ?? 0}
                       canEdit={canEdit}
                       onEdit={(trigger) => onEdit?.(passport.id, "passport_back_cover", "Passport Back Cover", trigger)}
                     />

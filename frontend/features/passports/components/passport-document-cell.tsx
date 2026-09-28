@@ -8,6 +8,7 @@ import {
   isManagedDocumentThumbnail,
 } from "../services/document-thumbnail-scheduler";
 import { fetchDocumentThumbnail } from "../services/document-thumbnail-loader";
+import { useDocumentThumbnailCache } from "./document-thumbnail-cache-provider";
 
 export function DocumentCell({
   label,
@@ -59,13 +60,14 @@ export function DocumentCell({
 }
 
 export function DeferredDocumentThumbnail({ url, label }: { url: string; label: string }) {
+  const cache = useDocumentThumbnailCache();
+  const thumbnailUrl = documentThumbnailUrl(url);
   const frameRef = useRef<HTMLDivElement | null>(null);
   const releaseSlotRef = useRef<(() => void) | null>(null);
-  const [shouldLoad, setShouldLoad] = useState(false);
-  const [loadUrl, setLoadUrl] = useState<string | null>(null);
+  const [shouldLoad, setShouldLoad] = useState(() => Boolean(cache?.peek(thumbnailUrl)));
+  const [loadUrl, setLoadUrl] = useState<string | null>(() => cache?.peek(thumbnailUrl) ?? null);
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [failed, setFailed] = useState(false);
-  const thumbnailUrl = documentThumbnailUrl(url);
 
   useEffect(() => {
     const frame = frameRef.current;
@@ -95,6 +97,11 @@ export function DeferredDocumentThumbnail({ url, label }: { url: string; label: 
 
     const load = async () => {
       if (isManagedDocumentThumbnail(thumbnailUrl)) {
+        if (cache) {
+          const cachedUrl = await cache.load(thumbnailUrl);
+          if (!disposed) setLoadUrl(cachedUrl);
+          return;
+        }
         const image = await fetchDocumentThumbnail(thumbnailUrl, controller.signal);
         if (disposed) return;
         objectUrl = URL.createObjectURL(image);
@@ -122,7 +129,7 @@ export function DeferredDocumentThumbnail({ url, label }: { url: string; label: 
       releaseSlotRef.current = null;
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
-  }, [failed, loadAttempt, shouldLoad, thumbnailUrl]);
+  }, [cache, failed, loadAttempt, shouldLoad, thumbnailUrl]);
 
   const releaseSlot = () => {
     releaseSlotRef.current?.();
@@ -131,6 +138,7 @@ export function DeferredDocumentThumbnail({ url, label }: { url: string; label: 
 
   const handleLoadError = () => {
     releaseSlot();
+    cache?.invalidate(thumbnailUrl);
     setLoadUrl(null);
     setFailed(true);
   };

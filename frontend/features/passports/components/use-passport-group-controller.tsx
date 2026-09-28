@@ -42,6 +42,7 @@ import {
   type PassportGroupViewState,
 } from "../utils/passport-group-navigation";
 import { canEditPassportImages } from "../utils/passport-image-crop-permissions";
+import type { PassportImageRevisions } from "../utils/passport-image-revisions";
 import { DEFAULT_TRIP_TIMEZONE } from "../utils/trip-timezone";
 import {
   MAX_BULK_SELECTION,
@@ -100,7 +101,7 @@ export function usePassportGroupController({ groupId }: { groupId: string }) {
     navigationContextKey.groupId === groupId
       ? navigationContextKey.token
       : null;
-  const [imageRevision, setImageRevision] = useState(0);
+  const [imageRevisions, setImageRevisions] = useState<PassportImageRevisions>({});
   const [imageEditor, setImageEditor] = useState<{
     submissionId: string;
     imageType: PassportImageType;
@@ -628,7 +629,7 @@ export function usePassportGroupController({ groupId }: { groupId: string }) {
     handleSelectedPassportDownload,
     handleSelectionPreset,
     imageEditor,
-    imageRevision,
+    imageRevisions,
     importInputRef,
     importMessage,
     importMutation,
@@ -666,7 +667,7 @@ export function usePassportGroupController({ groupId }: { groupId: string }) {
     setDebouncedSearch,
     setExportDialogKind,
     setImageEditor,
-    setImageRevision,
+    setImageRevisions,
     setImportMessage,
     setIsActionsMenuOpen,
     setIsBulkActionsMenuOpen,
