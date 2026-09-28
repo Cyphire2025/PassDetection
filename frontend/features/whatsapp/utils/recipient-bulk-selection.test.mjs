@@ -17,8 +17,8 @@ function recipient(overrides = {}) {
   };
 }
 
-test("welcome retries include failed attempts while previously sent welcomes stay blocked", () => {
-  assert.equal(getBulkResendEligibility(recipient(), "welcome"), "blocked");
+test("explicit welcome resends include successful and failed attempts", () => {
+  assert.equal(getBulkResendEligibility(recipient(), "welcome"), "eligible");
   assert.equal(getBulkResendEligibility(recipient({status: "failed", already_sent: false}), "welcome"), "eligible");
 });
 
@@ -49,7 +49,7 @@ test("review totals account for every selected recipient without mutating input"
   ];
   const before = structuredClone(selected);
   assert.deepEqual(summarizeBulkResend(selected, "welcome"), {
-    selected: 6, eligible: 1, noSavedMessage: 1, inProgress: 1, deliveryUnknown: 1, blocked: 2,
+    selected: 6, eligible: 2, noSavedMessage: 1, inProgress: 1, deliveryUnknown: 1, blocked: 1,
   });
   assert.deepEqual(selected, before);
   assert.deepEqual(summarizeBulkResend([], "passport_link"), {

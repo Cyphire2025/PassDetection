@@ -23,7 +23,7 @@ export function getBulkResendEligibility(
   if (statuses.some((value) => value === "queued" || value === "processing")) return "in_progress";
   if (state.resend_blocked) return "blocked";
   if (messageType === "group_invite" && groupInviteDeliveryBlockReason(recipient)) return "blocked";
-  if (welcomeDeliveryBlockReason(recipient, messageType)) return "blocked";
+  if (welcomeDeliveryBlockReason(recipient, messageType, state.already_sent)) return "blocked";
   if (state.already_sent || statuses.includes("failed")) return "eligible";
   return "no_saved_message";
 }

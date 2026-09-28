@@ -2,7 +2,7 @@
 
 import type { WhatsAppBulkResendPreviewResponse, WhatsAppRecipient } from "../api/whatsapp.api";
 import { getBulkResendEligibility, summarizeBulkResend } from "../utils/recipient-bulk-selection";
-import { groupInviteDeliveryBlockReason, welcomeDeliveryBlockReason } from "../utils/recipient-delivery";
+import { groupInviteDeliveryBlockReason, hasAlreadySentMessage, welcomeDeliveryBlockReason } from "../utils/recipient-delivery";
 
 const ELIGIBILITY_LABELS = {
   eligible: "Ready to resend",
@@ -13,7 +13,7 @@ const ELIGIBILITY_LABELS = {
 } as const;
 
 const RESEND_DESCRIPTION = {
-  welcome: "Only failed welcome attempts can be retried. Numbers already welcomed or awaiting delivery are skipped.",
+  welcome: "This will resend the welcome to the selected people, including those who already received it. Failed attempts can also be retried. In-progress or uncertain sends are skipped.",
   passport_link: "This will send another message, including to people who already received it, after confirmed welcome delivery.",
   group_invite: "Only unsuccessful group invitations can be retried. Numbers already sent an invite, awaiting delivery, or needing delivery review are skipped, even after a template change.",
 } as const;
@@ -25,7 +25,7 @@ export function RecipientBulkComposerAudience({ recipients, messageType, hiddenC
   preview: WhatsAppBulkResendPreviewResponse | null;
 }) {
   const estimate = summarizeBulkResend(recipients, messageType);
-  const locallyAllowedIds = new Set(recipients.filter((recipient) => !welcomeDeliveryBlockReason(recipient, messageType) && (messageType !== "group_invite" || !groupInviteDeliveryBlockReason(recipient))).map((recipient) => recipient.id));
+  const locallyAllowedIds = new Set(recipients.filter((recipient) => !welcomeDeliveryBlockReason(recipient, messageType, hasAlreadySentMessage(recipient, messageType)) && (messageType !== "group_invite" || !groupInviteDeliveryBlockReason(recipient))).map((recipient) => recipient.id));
   const readyIds = preview ? new Set(preview.eligible_recipient_ids.filter((id) => locallyAllowedIds.has(id))) : null;
   const readyCount = readyIds?.size ?? estimate.eligible;
   return (
@@ -43,7 +43,7 @@ export function RecipientBulkComposerAudience({ recipients, messageType, hiddenC
           {recipients.map((recipient) => {
             const estimated = getBulkResendEligibility(recipient, messageType);
             const ready = readyIds ? readyIds.has(recipient.id) : estimated === "eligible";
-            const blockReason = messageType === "group_invite" ? groupInviteDeliveryBlockReason(recipient) : welcomeDeliveryBlockReason(recipient, messageType);
+            const blockReason = messageType === "group_invite" ? groupInviteDeliveryBlockReason(recipient) : welcomeDeliveryBlockReason(recipient, messageType, hasAlreadySentMessage(recipient, messageType));
             return <li key={recipient.id} className="flex items-center justify-between gap-3 px-3 py-2.5"><div className="min-w-0"><p className="truncate text-xs font-medium text-slate-800">{recipient.name || "Unnamed recipient"}</p><p className="mt-0.5 text-[11px] tabular-nums text-slate-500">{recipient.normalized_phone_number}</p>{!ready && blockReason && <p className="mt-1 text-[11px] leading-4 text-amber-700">{blockReason}</p>}</div><span className={`shrink-0 text-[11px] ${ready ? "text-blue-700" : "text-slate-500"}`}>{ready ? "Ready to resend" : estimated === "eligible" ? "Unavailable saved message" : ELIGIBILITY_LABELS[estimated]}</span></li>;
           })}
         </ul>

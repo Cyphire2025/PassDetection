@@ -31,6 +31,7 @@ async def broadcast_welcome_states(
     session: AsyncSession, *, agency_id: uuid.UUID, broadcast_group_id: uuid.UUID,
     phones: Collection[str], exclude_attempt_id: uuid.UUID | None = None,
     exclude_batch_id: uuid.UUID | None = None,
+    active_only: bool = False,
 ) -> dict[str, str]:
     """Preserve all history; another broadcast never suppresses this welcome.
 
@@ -55,6 +56,11 @@ async def broadcast_welcome_states(
     if exclude_attempt_id is not None:
         logs = logs.where(Log.id != exclude_attempt_id)
         attempts = attempts.where(Attempt.id != exclude_attempt_id)
+    if active_only:
+        active = {"queued", "processing", "delivery_unknown"}
+        logs = logs.where(Log.status.in_(active))
+        attempts = attempts.where(Attempt.status.in_(active))
+        states = states.where(State.status.in_(active))
     if exclude_batch_id is not None:
         states = states.where(or_(State.batch_id.is_(None), State.batch_id != exclude_batch_id,
                                   State.status.not_in({"queued", "processing"})))

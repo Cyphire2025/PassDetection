@@ -102,6 +102,7 @@ async def claim_resend_welcome_or_reject(
         attempt_id=log.id,
         attempt_kind="broadcast",
         broadcast_group_id=log.broadcast_group_id, batch_id=log.batch_id,
+        explicit_resend=log.is_explicit_resend,
     )
     if status != "claimed":
         raise HTTPException(

@@ -82,6 +82,7 @@ async def claim_phone_welcome(
     attempt_kind: Literal["broadcast", "traveller"],
     broadcast_group_id: uuid.UUID | None = None,
     batch_id: uuid.UUID | None = None,
+    explicit_resend: bool = False,
 ) -> str:
     """Return claimed, or the existing blocking status; caller commits the intent.
 
@@ -91,6 +92,8 @@ async def claim_phone_welcome(
     """
     if normalize_whatsapp_phone(phone) != phone:
         raise ValueError("A canonical WhatsApp destination is required")
+    if explicit_resend and (broadcast_group_id is None or attempt_kind != "broadcast"):
+        raise ValueError("Explicit welcome resends require a broadcast")
     if broadcast_group_id is not None:
         from app.infrastructure.whatsapp.broadcast_welcome import broadcast_welcome_states
         # Serialize broadcast and traveller queues sharing this broadcast.
@@ -102,7 +105,8 @@ async def claim_phone_welcome(
             raise ValueError("Welcome broadcast is unavailable")
         scoped = await broadcast_welcome_states(session, agency_id=agency_id,
             broadcast_group_id=broadcast_group_id, phones=[phone],
-            exclude_attempt_id=attempt_id, exclude_batch_id=batch_id)
+            exclude_attempt_id=attempt_id, exclude_batch_id=batch_id,
+            active_only=explicit_resend)
         if scoped.get(phone) in WELCOME_BLOCKING_STATUSES:
             return scoped[phone]
     now = datetime.now(tz=UTC)
@@ -159,7 +163,8 @@ async def assert_phone_welcome_claim(
             if row is not None:
                 states = await broadcast_welcome_states(session, agency_id=agency_id,
                     broadcast_group_id=broadcast_group_id, phones=[phone],
-                    exclude_attempt_id=attempt_id, exclude_batch_id=row.batch_id)
+                    exclude_attempt_id=attempt_id, exclude_batch_id=row.batch_id,
+                    active_only=isinstance(row, WhatsAppMessageLogModel) and row.is_explicit_resend)
                 return states.get(phone) not in WELCOME_BLOCKING_STATUSES
         return False
     result = await session.execute(

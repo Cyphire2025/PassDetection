@@ -18,6 +18,7 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.passport_roster_resolution_repository import (
     active_replacement_phone_numbers_for_broadcast,
 )
+from app.infrastructure.whatsapp.broadcast_welcome import broadcast_welcome_states
 from app.infrastructure.whatsapp.phone_welcome import WELCOME_REQUIRED, welcome_states_for_phones
 from app.presentation.api.v1.routes.whatsapp_archive_policy import require_active_broadcast
 from app.presentation.api.v1.routes.whatsapp_bulk_resend_composer import (
@@ -107,6 +108,10 @@ async def preview_selected_recipient_messages(
             phones=[recipient.normalized_phone_number for recipient in recipients])
         if body.message_type == "welcome" or requires_prior_welcome(body.message_type) else {}
     )
+    active_welcomes = await broadcast_welcome_states(
+        session, agency_id=group.agency_id, broadcast_group_id=group.id,
+        phones=[recipient.normalized_phone_number for recipient in recipients], active_only=True,
+    ) if body.message_type == "welcome" else {}
     for recipient_id in body.recipient_ids:
         recipient = by_id[recipient_id]
         reason = recipient_skip_reason(
@@ -116,8 +121,13 @@ async def preview_selected_recipient_messages(
             active_statuses=active_statuses.get(recipient.id, set()),
             replaced_phones=replaced,
         )
+        explicit_welcome_resend = body.message_type == "welcome" and (
+            states.get(recipient.id) is not None
+            and states[recipient.id].status in WHATSAPP_ACCEPTED_STATUSES
+        )
         reason = reason or welcome_resend_skip_reason(
-            body.message_type, phone_states.get(recipient.normalized_phone_number),
+            body.message_type, (active_welcomes if explicit_welcome_resend else phone_states)
+            .get(recipient.normalized_phone_number),
         )
         if reason is None:
             source = sources.get(recipient.id)

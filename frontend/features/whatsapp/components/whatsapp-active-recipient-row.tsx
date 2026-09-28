@@ -44,7 +44,7 @@ export function ActiveRecipientRow({
     const canRetry = status?.status === "failed" || (messageType === "group_invite" && status?.latest_resend_status === "failed");
     if (!canRetry && !hasAlreadySentMessage(recipient, messageType)) return [];
     const action = canRetry ? "retry" as const : "resend" as const;
-    return [{ messageType, status, action, allowed: canRetryOrResendRecipient(recipient, messageType, action), reason: welcomeDeliveryBlockReason(recipient, messageType) }];
+    return [{ messageType, status, action, allowed: canRetryOrResendRecipient(recipient, messageType, action), reason: welcomeDeliveryBlockReason(recipient, messageType, action === "resend") }];
   });
   const closeMenu = () => { if (menuRef.current) menuRef.current.open = false; };
   useEffect(() => {
@@ -76,7 +76,11 @@ export function ActiveRecipientRow({
   }, [menuPosition]);
 
   return (
-    <tr className={`transition-colors ${selected ? "bg-blue-50/70" : "hover:bg-slate-50/70"}`}>
+    <tr className={`transition-colors ${selectionDisabled ? "" : "cursor-pointer"} ${selected ? "bg-blue-50/70" : "hover:bg-slate-50/70"}`} onClick={(event) => {
+      if (selectionDisabled || editing || !(event.target instanceof Element)
+        || event.target.closest("button, input, a, details, select, textarea, label")) return;
+      onSelect(!selected);
+    }}>
       <td className="w-12 px-4 py-4 text-center">
         <RecipientSelectionCheckbox checked={selected} disabled={selectionDisabled} label={`Select ${name}`} onChange={onSelect} />
       </td>

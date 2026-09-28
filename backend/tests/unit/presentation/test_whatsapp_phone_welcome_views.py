@@ -174,7 +174,7 @@ async def test_roster_counts_only_current_broadcast_with_prior_welcome_elsewhere
         [current_status] if current_status is not None else []
     )
     if current_status is not None:
-        assert recipient_response.message_statuses[0].resend_blocked == (current_status == "read")
+        assert not recipient_response.message_statuses[0].resend_blocked
     # Viewing another list must neither erase history nor permit duplicate welcomes.
     assert await claim_phone_welcome(
         db_session, agency_id=agency, phone=PHONE,

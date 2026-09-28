@@ -90,7 +90,7 @@ export function DeliverySelectionBar({ selectedCount, hiddenCount, messageType, 
     </div>
     <div className="flex items-center gap-3">
       {selectedCount > 0 && <button type="button" disabled={disabled} onClick={onClear} className="text-xs font-semibold text-slate-500 hover:text-slate-900 disabled:opacity-50">Clear selection</button>}
-      {resendType && <Button type="button" disabled={!selectedCount || disabled} onClick={() => onReview(resendType)} className="gap-2"><RotateCw aria-hidden="true" className="h-4 w-4" />{messageType === "passport_link" ? "Review resend" : "Review retry"}</Button>}
+      {resendType && <Button type="button" disabled={!selectedCount || disabled} onClick={() => onReview(resendType)} className="gap-2"><RotateCw aria-hidden="true" className="h-4 w-4" />{messageType === "welcome" ? "Resend welcome message" : messageType === "passport_link" ? "Review resend" : "Review retry"}</Button>}
     </div>
   </section>;
 }

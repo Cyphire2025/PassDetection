@@ -22,10 +22,15 @@ export function groupInviteDeliveryBlockReason(recipient: RecipientDeliveryState
   return null;
 }
 
-export function welcomeDeliveryBlockReason(recipient: RecipientDeliveryState, messageType: string): string | null {
+export function welcomeDeliveryBlockReason(recipient: RecipientDeliveryState, messageType: string, explicitResend = false): string | null {
   if (messageType === "group_invite") return null;
   if (messageType === "welcome") {
     const status = getMessageStatus(recipient, "welcome");
+    if (explicitResend) {
+      return [recipient.welcome_status, status?.status, status?.latest_resend_status].some(
+        (value) => ["queued", "processing", "delivery_unknown"].includes(value ?? ""),
+      ) ? "A welcome is in progress or its delivery needs review before resending." : null;
+    }
     if (recipient.welcome_delivered || WELCOME_NO_REPEAT_STATUSES.has(recipient.welcome_status ?? status?.status ?? "") || status?.already_sent || WELCOME_NO_REPEAT_STATUSES.has(status?.latest_resend_status ?? "")) {
       return "This number already has a welcome sent or pending in this broadcast. Another welcome cannot be sent here.";
     }
@@ -40,7 +45,7 @@ export function welcomeDeliveryBlockReason(recipient: RecipientDeliveryState, me
 }
 
 export function canRetryOrResendRecipient(recipient: RecipientDeliveryState, messageType: string, action: "retry" | "resend") {
-  if (welcomeDeliveryBlockReason(recipient, messageType)) return false;
+  if (welcomeDeliveryBlockReason(recipient, messageType, action === "resend")) return false;
   if (messageType === "group_invite" && groupInviteDeliveryBlockReason(recipient)) return false;
   const status = getMessageStatus(recipient, messageType);
   if (status?.resend_blocked) return false;

@@ -96,12 +96,20 @@ async def welcome_preview_values(
     recipients: list[WhatsAppBroadcastRecipientModel],
     message_type: str,
     selected_recipient_id: uuid.UUID | None = None,
+    explicit_resend: bool = False,
 ) -> dict[str, object]:
     if message_type != "welcome" and not requires_prior_welcome(message_type):
         return {"welcome_required_count": 0, "welcome_required_reason": None}
     if selected_recipient_id is not None:
         recipients = [recipient for recipient in recipients if recipient.id == selected_recipient_id]
     states = await phone_welcome_statuses_by_recipient(session, recipients)
+    if message_type == "welcome" and explicit_resend and selected_recipient_id is not None:
+        from app.infrastructure.whatsapp.broadcast_welcome import broadcast_welcome_states
+        active = await broadcast_welcome_states(
+            session, agency_id=agency_id, broadcast_group_id=recipients[0].broadcast_group_id,
+            phones=[row.normalized_phone_number for row in recipients], active_only=True,
+        ) if recipients else {}
+        states = {row.id: active.get(row.normalized_phone_number) for row in recipients}
     current = [states.get(recipient.id) for recipient in recipients]
     if message_type == "welcome":
         accepted = sum(status in {"submitted", "sent", "delivered", "read"} for status in current)

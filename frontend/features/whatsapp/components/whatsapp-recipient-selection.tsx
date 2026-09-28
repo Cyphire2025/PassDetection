@@ -18,7 +18,7 @@ export function RecipientWorkspaceNavigation({
     <nav aria-label="Broadcast workspace" className="flex shrink-0 gap-1 overflow-x-auto border-b border-slate-200 bg-white px-4 sm:px-7">
       {([
         ["travellers", "Travellers", sourceContactCount ?? null],
-        ["recipients", sourceContactCount === undefined ? "Recipients" : "Delivery numbers", recipientCount],
+        ["recipients", "Recipient list", recipientCount],
         ["add", "Add recipients", pendingCount || null],
         ["details", "Broadcast details", null],
       ] as const).filter(([id]) => (!readOnly || id !== "add") && (id !== "travellers" || sourceContactCount !== undefined)).map(([id, label, count]) => (

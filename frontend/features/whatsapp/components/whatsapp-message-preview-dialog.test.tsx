@@ -161,6 +161,21 @@ it("does not enable bulk welcome resend for a delivered number even if a stale p
   expect(onSend).not.toHaveBeenCalled();
 });
 
+it("reviews and resends saved successful welcomes only for the selected recipients", async () => {
+  const recipients = setupBulkPreview().map((item) => ({
+    ...item, welcome_status: "delivered", welcome_delivered: true,
+    message_statuses: item.message_statuses.map((status) => status.message_type === "welcome"
+      && item.id !== "recipient-c" ? { ...status, status: "delivered", already_sent: true } : status),
+  }));
+  mocks.detail = { ...mocks.detail, recipients };
+  const { onSend } = renderDialog({ messageType: "welcome", bulkRecipients: recipients });
+  const send = await screen.findByRole("button", { name: "Resend to 2 selected" });
+  await waitFor(() => expect(send).toBeEnabled());
+  fireEvent.click(send);
+  await waitFor(() => expect(onSend).toHaveBeenCalledOnce());
+  expect(onSend.mock.calls[0][0].recipientIds).toEqual(recipients.map((item) => item.id));
+});
+
 function recipient(suffix: string): WhatsAppRecipient {
   return {
     id: `recipient-${suffix}`,

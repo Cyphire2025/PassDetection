@@ -124,7 +124,7 @@ export function RecipientListDialog({
   const resendRecipientMessage = useResendWhatsAppRecipientMessage();
   const bulkResend = useResendWhatsAppRecipientsMessage();
   const [selectedSection, setSection] = useState<RecipientWorkspaceSection | null>(null);
-  const defaultSection = sourceContactCount === undefined ? "recipients" : "travellers";
+  const defaultSection = "recipients";
   const section = isArchived && selectedSection === "add" ? "recipients" : selectedSection ?? defaultSection;
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [bulkMessageType, setBulkMessageType] = useState<"welcome" | "passport_link" | "group_invite" | null>(null);
@@ -878,12 +878,12 @@ export function RecipientListDialog({
               </div>
 
               {!isArchived && <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2.5">
-                <span className="text-xs text-slate-500">{selectedRecipients.length ? `${selectedRecipients.length.toLocaleString()} selected across the broadcast` : "Choose people using the checkboxes"}</span>
+                <span className="text-xs text-slate-500">{selectedRecipients.length ? `${selectedRecipients.length.toLocaleString()} selected across the broadcast` : "Click a person or checkbox to select them"}</span>
                 <button type="button" disabled={!visibleRecipientIds.length || selectionLocked} onClick={() => toggleRecipients(visibleRecipientIds, !allVisibleSelected)} className="text-xs font-semibold text-blue-700 hover:underline disabled:opacity-40">{allVisibleSelected ? "Deselect matching" : `Select all matching (${visibleRecipientIds.length.toLocaleString()})`}</button>
               </div>}
               <details className="mt-3 text-xs text-slate-500">
                 <summary className="cursor-pointer hover:text-slate-800">About these delivery filters</summary>
-                <p className="mt-2 max-w-3xl leading-relaxed">Every delivery filter uses the selected message type within this broadcast. Sent includes messages accepted by WhatsApp; only Delivered or Read confirms receipt. Ready includes eligible first sends and failed attempts. A welcome in another broadcast does not affect this broadcast. Each number can receive one welcome per broadcast. Needs review includes uncertain delivery or a welcome requirement that blocks sending. A failed later resend can appear under Failed while the original remains Sent. Shared numbers represent multiple travellers receiving one copy. Contact records lists rejected imports, replaced people and unidentified uploads separately.</p>
+                <p className="mt-2 max-w-3xl leading-relaxed">Every delivery filter uses the selected message type within this broadcast. Sent includes messages accepted by WhatsApp; only Delivered or Read confirms receipt. Ready includes eligible first sends and failed attempts. A welcome in another broadcast does not affect this broadcast. Select recipients and review a resend to send their welcome again. Needs review includes uncertain delivery or a welcome requirement that blocks sending. A failed later resend can appear under Failed while the original remains Sent. Shared numbers represent multiple travellers receiving one copy. Contact records lists rejected imports, replaced people and unidentified uploads separately.</p>
               </details>
               {recipientError && <div className="mt-3"><ErrorBanner message={recipientError} /></div>}
               {displayedResendError && (

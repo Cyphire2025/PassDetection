@@ -29,6 +29,7 @@ import {
 } from "../hooks/use-whatsapp";
 import {
   canRetryOrResendRecipient,
+  hasAlreadySentMessage,
   isRecipientEligible,
   welcomeDeliveryBlockReason,
 } from "../utils/recipient-delivery";
@@ -479,13 +480,14 @@ function StandardMessagePreviewDialog({
   const bulkWelcomeBlockedIds = useMemo(() => {
     const currentRecipients = new Map(detail?.recipients.map((recipient) => [recipient.id, recipient]));
     return new Set((bulkRecipients ?? []).filter((recipient) =>
-      welcomeDeliveryBlockReason(currentRecipients.get(recipient.id) ?? recipient, messageType),
+      welcomeDeliveryBlockReason(currentRecipients.get(recipient.id) ?? recipient, messageType,
+        hasAlreadySentMessage(currentRecipients.get(recipient.id) ?? recipient, messageType)),
     ).map((recipient) => recipient.id));
   }, [bulkRecipients, detail?.recipients, messageType]);
   const eligibleRecipientCount = bulkMode
     ? (bulkPreview?.eligible_recipient_ids.filter((id) => !bulkWelcomeBlockedIds.has(id)).length ?? 0)
     : targetRecipient
-    ? 1
+    ? currentPreviewEligibleCount ?? 1
     : recipientSelectionMode === "custom"
       ? currentPreviewEligibleCount ?? selectedEligibleRecipients.length
       : usesNotSubmittedAudience
@@ -518,7 +520,7 @@ function StandardMessagePreviewDialog({
     ? (bulkMode ? bulkPreview : preview)?.welcome_required_reason
       || `${previewWelcomeRequiredCount} selected numbers need confirmed welcome delivery before other messages can be sent.`
     : targetRecipientDetail
-      ? welcomeDeliveryBlockReason(targetRecipientDetail, messageType)
+      ? welcomeDeliveryBlockReason(targetRecipientDetail, messageType, targetRecipient?.action === "resend")
       : null;
   const canSend = Boolean(
     previewIsCurrent &&

@@ -54,3 +54,43 @@ async def test_worker_uses_own_broadcast_even_if_global_claim_belongs_elsewhere(
     assert await claim_phone_welcome(db_session, agency_id=previous.agency_id,
         phone=PHONE, attempt_id=uuid.uuid4(), attempt_kind="broadcast",
         broadcast_group_id=other.id, batch_id=uuid.uuid4()) == "processing"
+
+
+@pytest.mark.parametrize("active_status", ["queued", "processing", "delivery_unknown"])
+async def test_explicit_resend_allows_accepted_history_but_blocks_another_attempt(db_session, active_status):
+    from app.infrastructure.database.models import (
+        WhatsAppBroadcastRecipientModel,
+        WhatsAppMessageLogModel,
+    )
+
+    previous, _ = await _attempt(db_session)
+    previous.status = "read"
+    recipient = WhatsAppBroadcastRecipientModel(
+        id=uuid.uuid4(), agency_id=previous.agency_id,
+        broadcast_group_id=previous.broadcast_group_id, name="Selected person",
+        phone_number=PHONE, normalized_phone_number=PHONE,
+    )
+    db_session.add(recipient)
+    await db_session.flush()
+    batch_id, attempt_id = uuid.uuid4(), uuid.uuid4()
+    kwargs = dict(agency_id=previous.agency_id, phone=PHONE, attempt_id=attempt_id,
+                  attempt_kind="broadcast", broadcast_group_id=previous.broadcast_group_id,
+                  batch_id=batch_id)
+    assert await claim_phone_welcome(db_session, **kwargs) == "read"
+    assert await claim_phone_welcome(db_session, **kwargs, explicit_resend=True) == "claimed"
+    resend = WhatsAppMessageLogModel(
+        id=attempt_id, batch_id=batch_id, recipient_id=recipient.id,
+        agency_id=previous.agency_id, broadcast_group_id=previous.broadcast_group_id,
+        normalized_phone_number=PHONE, message_type="welcome", status="queued",
+        is_explicit_resend=True,
+    )
+    db_session.add(resend)
+    await db_session.flush()
+    assert await assert_phone_welcome_claim(db_session, agency_id=previous.agency_id,
+        phone=PHONE, attempt_id=attempt_id, broadcast_group_id=previous.broadcast_group_id)
+    resend.status = active_status
+    await db_session.flush()
+    assert await claim_phone_welcome(db_session, agency_id=previous.agency_id,
+        phone=PHONE, attempt_id=uuid.uuid4(), attempt_kind="broadcast",
+        broadcast_group_id=previous.broadcast_group_id, batch_id=uuid.uuid4(),
+        explicit_resend=True) == active_status

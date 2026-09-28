@@ -36,6 +36,7 @@ def preview_fixture(bulk_resend_fixture, monkeypatch):
     async def welcomed_phones(*args, **kwargs):
         return {recipient.normalized_phone_number: "delivered" for recipient in fixture.recipients} if fixture.body.message_type != "welcome" else {}
     monkeypatch.setattr(preview_route, "welcome_states_for_phones", welcomed_phones)
+    monkeypatch.setattr(preview_route, "broadcast_welcome_states", AsyncMock(return_value={}))
 
     for recipient in fixture.recipients:
         recipient.name = f"Passenger {recipient.id}"
@@ -70,6 +71,25 @@ async def preview(fixture, **changes):
     )
     assert response.headers["Cache-Control"] == "private, no-store"
     return value
+
+
+async def test_welcome_resend_preview_accepts_saved_delivery_and_skips_active_phone(preview_fixture, monkeypatch):
+    fixture = preview_fixture
+    fixture.body = fixture.body.model_copy(update={"message_type": "welcome"})
+    fixture.sources.update({person.id: source(person) for person in fixture.recipients})
+    monkeypatch.setattr(preview_route, "welcome_states_for_phones", AsyncMock(return_value={
+        person.normalized_phone_number: "read" for person in fixture.recipients
+    }))
+    monkeypatch.setattr(preview_route, "broadcast_welcome_states", AsyncMock(return_value={
+        fixture.recipients[0].normalized_phone_number: "processing",
+        fixture.recipients[1].normalized_phone_number: "delivery_unknown",
+    }))
+    shown = await preview(fixture)
+    assert shown.eligible_recipient_count == 8
+    assert shown.skipped_in_progress == 1
+    assert shown.skipped_delivery_unknown == 1
+    assert shown.eligible_recipient_ids == [person.id for person in fixture.recipients[2:]]
+    fixture.publish.assert_not_awaited()
 
 
 @pytest.mark.asyncio

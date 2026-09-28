@@ -356,5 +356,7 @@ async def preview_broadcast_message(
     values = await welcome_preview_values(
         session, agency_id=group.agency_id, message_type=message_type,
         recipients=recipients, selected_recipient_id=body.resend_recipient_id,
+        explicit_resend=bool(body.resend_recipient_id and target_state
+            and target_state.status in WHATSAPP_ACCEPTED_STATUSES),
     )
     return preview_response.model_copy(update=values)

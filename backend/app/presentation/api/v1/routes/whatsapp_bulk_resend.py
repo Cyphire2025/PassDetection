@@ -227,6 +227,7 @@ async def resend_selected_recipient_messages(
                             attempt_id=log.id,
                             attempt_kind="broadcast",
                             broadcast_group_id=group.id, batch_id=batch_id,
+                            explicit_resend=log.is_explicit_resend,
                         )
                         if phone_status != "claimed":
                             reason = (
