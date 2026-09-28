@@ -38,14 +38,14 @@ RTO**. See the [read-only inspection record](C:/Users/nipun/Desktop/PassDetectio
 ## Release contract and recorded identities
 
 [release_manifest.json](../backend/app/core/config/release_manifest.json) declares
-target schema `0111_roster_revision`, reviewed previous schema
-`0107_passport_ecr_checks`, and all **eight** worker services/nodes:
+target schema `0112_passport_cover_edits`, reviewed previous schema
+`0111_roster_revision`, and all **eight** worker services/nodes:
 `worker`/`general`, `email-worker`/`email`, `email-ai-worker`/`email-ai`,
 `extraction-worker`/`extraction`, `verification-worker`/`verification`,
 `visa-ai-worker`/`visa-ai`, `my-photos-worker`/`my-photos`, and `ecr-worker`/`ecr`.
 `email-beat` is the scheduler, not a ninth worker. Settings, runtime checks,
 Compose mirrors, CI and `scripts/release_current.py` use or validate this contract.
-The current manifest accepts the reviewed `0107` baseline or current `0111`
+The current manifest accepts the reviewed `0111` baseline or current `0112`
 head. Any other database revision needs its own reviewed upgrade rehearsal;
 stop on an unknown/missing revision. Migration `0109` invalidates existing
 dashboard sessions, requiring a fresh sign-in; it preserves business records,

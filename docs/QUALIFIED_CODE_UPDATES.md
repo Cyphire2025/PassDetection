@@ -8,7 +8,7 @@ publication jobs and verifies image signatures, source revision and the current
 dependency policy. A failed or superseded CI revision cannot activate.
 
 This path is for the existing KVM4 deployment after schema
-`0111_roster_revision` and the SeaweedFS migration are complete. The historical
+`0112_passport_cover_edits` and the SeaweedFS migration are complete. The historical
 `release_current.py` migration procedure is not the code-update entrypoint.
 
 ## Deployment configuration

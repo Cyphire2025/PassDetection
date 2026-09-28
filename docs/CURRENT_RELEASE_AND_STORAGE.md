@@ -7,11 +7,13 @@ qualification used synthetic data; the Hostinger KVM 4 VPS has not been deployed
 or migrated by this work.
 
 The source of truth is [release_manifest.json](../backend/app/core/config/release_manifest.json):
-target schema `0111_roster_revision`, upgrading the reviewed
-`0107_passport_ecr_checks` baseline; workers `worker`, `email-worker`,
+target schema `0112_passport_cover_edits`, upgrading the reviewed
+`0111_roster_revision` baseline; workers `worker`, `email-worker`,
 `email-ai-worker`, `extraction-worker`, `verification-worker`, `visa-ai-worker`,
 `my-photos-worker`, `ecr-worker`; plus the `email-beat` scheduler. The current
-manifest accepts the reviewed `0107` baseline or its current `0111` head.
+manifest accepts the reviewed `0111` baseline or its current `0112` head.
+Migration `0112` only expands the two passport-image type constraints to accept
+cover images; it does not rewrite or delete retained records.
 Stop if the actual schema is outside that contract; do not improvise a
 historical helper or skip a failed migration. Migration `0109` requires existing
 dashboard users to sign in again; it preserves users, passwords, MFA enrollment
@@ -41,13 +43,13 @@ explicitly and export the target schema from the reviewed release contract:
 ```bash
 umask 077
 export PATH="/opt/globalconnect-release-tools/gh-2.92.0:$PATH"
-export EXPECTED_DATABASE_SCHEMA_REVISION=0111_roster_revision RELEASE_RESOURCE_PROFILE=kvm4
+export EXPECTED_DATABASE_SCHEMA_REVISION=0112_passport_cover_edits RELEASE_RESOURCE_PROFILE=kvm4
 python3 scripts/release_artifacts.py retrieve --revision <full-40-character-commit-sha> --directory tmp/qualified-<full-40-character-commit-sha> &&
 export RELEASE_ARTIFACT_MANIFEST="$PWD/tmp/qualified-<full-40-character-commit-sha>/release-artifacts.json" &&
 python3 scripts/release_current.py prepare --revision <full-40-character-commit-sha>
 ```
 
-The `0111_roster_revision` value must equal the `schema_revision` in the exact
+The `0112_passport_cover_edits` value must equal the `schema_revision` in the exact
 reviewed checkout's release manifest. An older `.env` schema value is deliberately
 rejected unless the operator explicitly supplies this target process environment.
 Docker Compose process variables take precedence over `.env`; exporting them
