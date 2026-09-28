@@ -156,6 +156,9 @@ async def login(
         session=session,
     )
     if challenge is not None:
+        # Request-scoped dependency cleanup runs after HTTP response delivery.
+        # The next request must already be able to read this challenge.
+        await session.commit()
         clear_auth_cookies(response)
         response.headers["Cache-Control"] = "private, no-store, max-age=0"
         response.headers["Pragma"] = "no-cache"
@@ -168,6 +171,7 @@ async def login(
         session_version=security_state.session_version if security_state else 1,
         authentication_methods=("pwd",),
     )
+    await session.commit()
     set_auth_cookies(
         response, access_token=result.access_token, refresh_token=result.refresh_token,
         access_token_expires_at=result.access_token_expires_at,
@@ -201,6 +205,7 @@ async def refresh_token(
     _cookie_csrf: None = Depends(require_cookie_csrf),
     body: RefreshTokenRequest | None = None,
     use_case: RefreshTokenUseCase = Depends(_get_refresh_use_case),
+    session: AsyncSession = Depends(get_db_session),
 ) -> AuthResponse | Response:
     client_ip = trusted_client_ip(request)
     refresh_cookie = request.cookies.get(get_settings().jwt.refresh_cookie_name)
@@ -220,6 +225,8 @@ async def refresh_token(
         return error_response(exc.code, exc.message, 409, headers={"Retry-After": "1"},
                               detail={"code": exc.code, "message": exc.message})
     except AuthenticationError as exc:
+        # A rejected replay can revoke a session family and record its audit.
+        await session.commit()
         failure = error_response(exc.code, exc.message, 401)
         clear_auth_cookies(failure)
         return failure
@@ -227,6 +234,7 @@ async def refresh_token(
         result.user, request.cookies,
         decode_access_token(result.access_token) if request.cookies.get(ACCESS_LEVEL_COOKIE) else {},
     )
+    await session.commit()
     set_auth_cookies(
         response, access_token=result.access_token, refresh_token=result.refresh_token,
         access_token_expires_at=result.access_token_expires_at,

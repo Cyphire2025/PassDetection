@@ -351,6 +351,9 @@ async def verify_dashboard_mfa(
         ip_address=trusted_client_ip(request),
         metadata={"method": method},
     )
+    # Publish cookies only after factor consumption, session, and audit are
+    # durable together; request-scoped dependency teardown follows the response.
+    await session.commit()
     if recovery_codes:
         return MFAEnrollmentResult(**auth_response.model_dump(), recovery_codes=recovery_codes)
     return auth_response
@@ -496,13 +499,15 @@ async def activate_dashboard_account(
     response: Response,
     session: AsyncSession = Depends(get_db_session),
 ) -> AuthResponse | AuthChallengeResponse | IdentityActionCompletedResponse:
-    return await _complete_identity_action(
+    result = await _complete_identity_action(
         body=body,
         request=request,
         response=response,
         session=session,
         purpose="activation",
     )
+    await session.commit()
+    return result
 
 
 @router.post(
@@ -618,13 +623,15 @@ async def complete_password_recovery(
     response: Response,
     session: AsyncSession = Depends(get_db_session),
 ) -> AuthResponse | AuthChallengeResponse | IdentityActionCompletedResponse:
-    return await _complete_identity_action(
+    result = await _complete_identity_action(
         body=body,
         request=request,
         response=response,
         session=session,
         purpose="password_recovery",
     )
+    await session.commit()
+    return result
 
 
 async def _complete_identity_action(
@@ -900,6 +907,7 @@ async def regenerate_mfa_recovery_codes(
         ip_address=trusted_client_ip(request),
         metadata={"sessions_revoked": True, "current_session_rotated": True},
     )
+    await session.commit()
     response.headers["Cache-Control"] = "private, no-store, max-age=0"
     response.headers["Pragma"] = "no-cache"
     return MFARecoveryCodesResponse(recovery_codes=codes)
