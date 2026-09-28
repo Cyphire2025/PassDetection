@@ -1023,7 +1023,8 @@ class PassportImageCropModel(Base):
             "submission_id", "image_type", name="uq_passport_image_crops_submission_type"
         ),
         CheckConstraint(
-            "image_type IN ('visa_photo', 'passport_front', 'passport_back')",
+            "image_type IN ('visa_photo', 'passport_front', 'passport_back', "
+            "'passport_cover', 'passport_back_cover')",
             name="ck_passport_image_crops_type",
         ),
         CheckConstraint(

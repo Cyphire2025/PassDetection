@@ -35,6 +35,7 @@ import {
   useRestoreWhatsAppReplacedRecipient,
   useUpdateWhatsAppGroup,
   useUpdateWhatsAppRecipientPhone,
+  useUpdateWhatsAppRecipientDetails,
   useWhatsAppGroup,
   useWhatsAppRecipientRoster,
 } from "../hooks/use-whatsapp";
@@ -119,6 +120,7 @@ export function RecipientListDialog({
   const addRecipientsMutation = useAddWhatsAppRecipients();
   const deleteRecipient = useDeleteWhatsAppRecipient();
   const updateRecipientPhone = useUpdateWhatsAppRecipientPhone();
+  const updateRecipientDetails = useUpdateWhatsAppRecipientDetails();
   const resolveRejectedContact = useResolveWhatsAppRejectedContact();
   const restoreReplacedRecipient = useRestoreWhatsAppReplacedRecipient();
   const resendRecipientMessage = useResendWhatsAppRecipientMessage();
@@ -467,7 +469,7 @@ export function RecipientListDialog({
   const allVisibleSelected = visibleRecipientIds.length > 0 && visibleSelectedCount === visibleRecipientIds.length;
   const someVisibleSelected = visibleSelectedCount > 0;
   const hiddenSelectedCount = selectedRecipients.length - visibleSelectedCount;
-  const selectionLocked = isArchived || bulkResend.isPending || Boolean(bulkMessageType);
+  const selectionLocked = isArchived || bulkResend.isPending || updateRecipientDetails.isPending || Boolean(bulkMessageType);
   const clearSelection = () => {
     setSelectedIds(new Set());
     bulkRequestRef.current = null;
@@ -607,6 +609,7 @@ export function RecipientListDialog({
             || addRecipientsMutation.isPending
             || deleteRecipient.isPending
             || updateRecipientPhone.isPending
+            || updateRecipientDetails.isPending
             || resolveRejectedContact.isPending
             || restoreReplacedRecipient.isPending
             || resendRecipientMessage.isPending
@@ -1064,6 +1067,11 @@ export function RecipientListDialog({
                               serialNumber={serialNumber}
                               messageTypes={[selectedMessageType]}
                               sharedContactNames={sourceNamesByPhone.get(recipient.normalized_phone_number)}
+                              onSaveDetails={async (details) => {
+                                await updateRecipientDetails.mutateAsync({ groupId: group.id, recipientId: recipient.id, details });
+                                clearSelection();
+                                setSuccessMessage("Imported details saved. Refresh any open document preview before sending.");
+                              }}
                               selected={selectedIds.has(recipient.id)}
                               selectionDisabled={selectionLocked}
                               onSelect={(checked) => toggleRecipients([recipient.id], checked)}

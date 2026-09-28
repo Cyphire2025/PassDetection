@@ -114,6 +114,7 @@ class WhatsAppRecipientResponse(BaseModel):
     phone_number: str
     normalized_phone_number: str
     imported_fields: dict[str, str] = Field(default_factory=dict)
+    is_source_managed: bool = False
     merged_contacts: list[WhatsAppMergedContactResponse] = Field(default_factory=list)
     sent_message_types: list[str] = Field(default_factory=list)
     message_statuses: list["WhatsAppRecipientMessageStatusResponse"] = Field(default_factory=list)

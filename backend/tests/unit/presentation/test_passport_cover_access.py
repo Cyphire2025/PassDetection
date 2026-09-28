@@ -6,7 +6,21 @@ import pytest
 from fastapi import HTTPException
 
 from app.domain.exceptions.exceptions import AuthorizationError
+from app.domain.value_objects.passport_image_crop import PassportImageType
 from app.presentation.api.v1.routes.passport_routes import covers
+from app.presentation.api.v1.routes.passport_routes.response_support import _staff_image_urls
+
+
+@pytest.mark.parametrize("image_type,field", [
+    (PassportImageType.PASSPORT_COVER, "passport_cover"),
+    (PassportImageType.PASSPORT_BACK_COVER, "passport_back_cover"),
+])
+def test_staff_cover_urls_use_current_edit_revision(image_type, field):
+    submission = SimpleNamespace(id=uuid.uuid4(), **{f"{field}_s3_key": "original/cover.jpg"})
+    urls = _staff_image_urls(submission, {image_type: SimpleNamespace(revision=7)})
+    assert urls[f"{field}_url"] == f"/api/v1/passports/{submission.id}/images/{image_type.value}?crop_revision=7"
+    setattr(submission, f"{field}_s3_key", None)
+    assert _staff_image_urls(submission)[f"{field}_url"] is None
 
 
 @pytest.mark.asyncio

@@ -1,14 +1,14 @@
 # Explicit, measured single-host profile. Apply after production/storage overlays.
 # Requires the guarded current-release lifecycle; do not apply to a live busy stack.
-# This keeps all queue consumers and accepted image limits. One child per queue
-# lowers background parallelism; it does not establish live provider throughput.
+# This keeps all queue consumers and accepted image limits. Extraction has two
+# children; other queues retain one. This does not establish provider throughput.
 x-kvm4-process-budget: &kvm4-process-budget
   WEB_CONCURRENCY: "4"
   WORKER_CONCURRENCY: "1"
   EMAIL_WORKER_CONCURRENCY: "1"
   EMAIL_AI_WORKER_CONCURRENCY: "1"
   MY_PHOTOS_WORKER_CONCURRENCY: "1"
-  GEMINI_EXTRACTION_MAX_CONCURRENCY: "1"
+  GEMINI_EXTRACTION_MAX_CONCURRENCY: "2"
   GEMINI_VERIFICATION_MAX_CONCURRENCY: "1"
   GEMINI_IMAGE_EDIT_MAX_CONCURRENCY: "1"
   POSTGRES_API_POOL_SIZE: "3"
@@ -46,10 +46,10 @@ services:
     environment: *kvm4-process-budget
     command: [sh, -c, "exec celery -A app.infrastructure.processing.celery_app:celery_app worker --hostname=my-photos@%h --loglevel=INFO --concurrency=1 -Q my_photos_control,my_photos_index,my_photos_media,my_photos_search"]
   extraction-worker:
-    mem_limit: 384m
-    memswap_limit: 384m
+    mem_limit: 512m
+    memswap_limit: 512m
     environment: *kvm4-process-budget
-    command: [sh, -c, "exec celery -A app.infrastructure.processing.celery_app:celery_app worker --hostname=extraction@%h --loglevel=INFO --concurrency=1 -Q interactive-passport-extraction"]
+    command: [sh, -c, "exec celery -A app.infrastructure.processing.celery_app:celery_app worker --hostname=extraction@%h --loglevel=INFO --concurrency=2 -Q interactive-passport-extraction"]
   verification-worker:
     mem_limit: 384m
     memswap_limit: 384m
@@ -77,8 +77,8 @@ services:
     memswap_limit: 512m
     environment: *kvm4-process-budget
   db:
-    mem_limit: 1024m
-    memswap_limit: 1024m
+    mem_limit: 896m
+    memswap_limit: 896m
     command: [postgres, -c, max_connections=100]
   redis:
     mem_limit: 320m

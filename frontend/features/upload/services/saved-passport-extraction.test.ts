@@ -14,6 +14,24 @@ function context() {
 }
 
 describe("saved passport extraction controller", () => {
+  it("opens saved busy uploads for manual entry immediately without polling", async () => {
+    const options = context();
+    const busy = { ...ready, extraction_status: "extraction_failed", processing_stage: "extraction_busy", manual_review_submission_allowed: true } as PassportSubmission;
+    const fetchStatus = vi.fn();
+    const result = await pollSavedPassport({ ...options, initial: busy, fetchStatus });
+    expect(result.notice).toContain("Extraction is busy");
+    expect(result.notice).toContain("AI verification");
+    expect(result.retryAllowed).toBe(true);
+    expect(options.wait).not.toHaveBeenCalled();
+    expect(fetchStatus).not.toHaveBeenCalled();
+  });
+  it("explains that manually completed failed extractions still receive AI verification", async () => {
+    const options = context();
+    const failed = { ...ready, extraction_status: "extraction_failed", manual_review_submission_allowed: true } as PassportSubmission;
+    const result = await pollSavedPassport({ ...options, initial: failed, fetchStatus: vi.fn() });
+    expect(result.notice).toContain("AI verification will check them");
+    expect(result.notice).not.toContain("staff approve");
+  });
   it("recovers from a transient connection failure without reuploading or losing fields", async () => {
     const options = context();
     const fetchStatus = vi.fn().mockRejectedValueOnce({ code: "HTTP_503" }).mockResolvedValueOnce(ready);

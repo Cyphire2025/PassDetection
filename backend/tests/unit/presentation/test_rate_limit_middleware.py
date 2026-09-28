@@ -644,6 +644,33 @@ class PublicUploadRateLimitTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(response.headers["X-RateLimit-Policy"], "dashboard-media")
         self.assertEqual(response.headers["X-RateLimit-Burst-Capacity"], "60")
         self.assertEqual(response.headers["X-RateLimit-Burst-Remaining"], "59")
+        self.assertEqual(response.headers["X-RateLimit-Refill-Per-Second"], "30")
+        self.assertGreater(int(response.headers["X-RateLimit-Reset-After"]), 0)
+
+    async def test_covers_and_editor_sources_share_only_the_media_budget(self) -> None:
+        self.settings.dashboard_rate_limit_per_minute = 1
+        base = "/api/v1/passports/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa/"
+        paths = [
+            "images/passport_cover", "images/passport_back_cover",
+            "images/passport_cover/thumbnail", "images/passport_back_cover/thumbnail",
+            "images/passport_cover/original", "images/passport_back_cover/edit-source",
+            "covers/cover", "covers/back_cover",
+        ]
+        with patch(
+            "app.presentation.middleware.rate_limit.decode_access_token",
+            return_value={"sub": "44444444-4444-4444-8444-444444444444"},
+        ):
+            for path in paths:
+                with self.subTest(path=path):
+                    response = await self.middleware.dispatch(
+                        _request(path=base + path, method="GET", access_token="valid"), _ok
+                    )
+                    self.assertEqual(response.status_code, 200)
+                    self.assertEqual(response.headers["X-RateLimit-Policy"], "dashboard-media")
+            response = await self.middleware.dispatch(
+                _request(path=base + "images/passport_cover/crop", method="PUT", access_token="valid"), _ok
+            )
+            self.assertEqual(response.headers["X-RateLimit-Policy"], "dashboard-user")
 
     async def test_invalid_access_token_uses_untrusted_ip_fallback(self) -> None:
         with patch(
@@ -829,7 +856,8 @@ class PublicUploadProxyContractTests(unittest.TestCase):
             nginx_site,
         )
         self.assertIn(
-            "images/(?:visa_photo|passport_front|passport_back)(?:/(?:original|thumbnail))?",
+            "images/(?:visa_photo|passport_front|passport_back|passport_cover|passport_back_cover)"
+            "(?:/(?:original|thumbnail|edit-source))?|covers/(?:cover|back_cover)",
             nginx_site,
         )
         self.assertIn(

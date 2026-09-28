@@ -58,6 +58,7 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
         async def dispatch(result, **_kwargs):  # type: ignore[no-untyped-def]
             self.assertIs(result, response_snapshot)
             events.append("dispatch_commit")
+            return result
 
         async def response(  # type: ignore[no-untyped-def]
             result,
@@ -92,7 +93,7 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
                 side_effect=snapshot,
             ),
             patch(
-                'app.presentation.api.v1.routes.passport_routes.public_upload._dispatch_processing_job',
+                'app.presentation.api.v1.routes.passport_routes.public_upload.dispatch_public_extraction',
                 new=dispatch,
             ),
             patch(

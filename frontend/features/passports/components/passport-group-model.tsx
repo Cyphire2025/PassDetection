@@ -12,14 +12,11 @@ import type {
 } from "@/types/passport.types";
 import { Eye, Loader2, RotateCcw } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
-import type {
-  PassportDocumentImportPreview,
-  PassportImageType,
-} from "../api/passports.api";
+import { useRef, useState } from "react";
 import { useReextractPassportSubmission } from "../hooks/use-passports";
-import { matchPreviewFiles } from "../utils/passport-document-import";
-import { DocumentCell } from "./passport-document-cell";
+import { getReextractFeedback, needsReextraction } from "../utils/passport-reextract";
+export { needsReextraction } from "../utils/passport-reextract";
+export { PassportDocumentMatrix, getPersonnelCode } from "./passport-document-matrix";
 
 export function isDuplicatePassport(passport: PassportSubmission) {
   return Boolean(
@@ -186,22 +183,11 @@ export function ReextractPassportControl({
     message: string;
   } | null>(null);
   const reextractInFlightRef = useRef(false);
-  const isProcessing = passport.extraction_status === "processing";
+  const isProcessing = passport.extraction_status === "processing"
+    || (passport.status === "submitted" && feedback !== null);
   const backgroundFinished = feedback?.tone === "warning" && !isProcessing;
-  const backgroundFailed =
-    backgroundFinished &&
-    (passport.extraction_status === "extraction_failed" ||
-      passport.status === "failed");
-  const backgroundConflictCount = getExtractionConflictCount(passport);
   const effectiveFeedback = backgroundFinished
-    ? {
-        tone: backgroundFailed ? ("error" as const) : ("success" as const),
-        message: backgroundFailed
-          ? "Automatic extraction failed. You can retry safely."
-          : backgroundConflictCount > 0
-            ? `Finished with ${backgroundConflictCount} ${backgroundConflictCount === 1 ? "difference" : "differences"} to review.`
-            : "Extraction finished. Open the passport to review the results.",
-      }
+    ? getReextractFeedback(passport)
     : feedback;
 
   const handleReextract = async (
@@ -228,14 +214,7 @@ export function ReextractPassportControl({
         });
         return;
       }
-      const conflictCount = getExtractionConflictCount(result.submission);
-      setFeedback({
-        tone: "success",
-        message:
-          conflictCount > 0
-            ? `Finished with ${conflictCount} ${conflictCount === 1 ? "difference" : "differences"} to review.`
-            : "Extraction finished. Open the passport to review the results.",
-      });
+      setFeedback(getReextractFeedback(result.submission));
     } catch (error) {
       setFeedback({
         tone: "error",
@@ -257,11 +236,11 @@ export function ReextractPassportControl({
       className={compact ? "max-w-52 text-right" : "w-full"}
       onClick={(event) => event.stopPropagation()}
     >
-      <Button
+      {(needsReextraction(passport) || isProcessing || reextractMutation.isPending) && <Button
         variant="secondary"
         size={compact ? "sm" : "md"}
         className={compact ? "gap-2" : "w-full gap-2"}
-        disabled={reextractMutation.isPending || isProcessing}
+        disabled={reextractMutation.isPending || isProcessing || !needsReextraction(passport)}
         onClick={(event) => void handleReextract(event)}
         aria-busy={reextractMutation.isPending || isProcessing}
       >
@@ -277,7 +256,7 @@ export function ReextractPassportControl({
             : effectiveFeedback?.tone === "error"
               ? "Try again"
               : "Re-extract"}
-      </Button>
+      </Button>}
       {effectiveFeedback && (
         <p
           className={`mt-1.5 text-xs leading-4 ${
@@ -293,167 +272,6 @@ export function ReextractPassportControl({
         </p>
       )}
     </div>
-  );
-}
-
-export function PassportDocumentMatrix({
-  passports,
-  preview,
-  files = [],
-  canEdit = false,
-  revision = 0,
-  onEdit,
-}: {
-  passports: PassportSubmission[];
-  preview?: PassportDocumentImportPreview;
-  files?: File[];
-  canEdit?: boolean;
-  revision?: number;
-  onEdit?: (
-    submissionId: string,
-    imageType: PassportImageType,
-    label: string,
-    returnFocusTarget: HTMLButtonElement,
-  ) => void;
-}) {
-  const matchedFiles = useMemo(
-    () => matchPreviewFiles(preview?.accepted_documents ?? [], files),
-    [files, preview?.accepted_documents],
-  );
-  const previewByPassenger = useMemo(() => {
-    const map = new Map<
-      string,
-      Partial<
-        Record<
-          "photo" | "front" | "back",
-          PassportDocumentImportPreview["accepted_documents"][number]
-        >
-      >
-    >();
-    preview?.accepted_documents.forEach((item) => {
-      if (!item.passenger_id || !item.document_type) return;
-      const current = map.get(item.passenger_id) ?? {};
-      current[item.document_type] = item;
-      map.set(item.passenger_id, current);
-    });
-    return map;
-  }, [preview]);
-
-  return (
-    <Card>
-      <CardContent className="p-0">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[860px] text-left text-sm">
-            <caption className="sr-only">
-              Current passenger document assignments
-            </caption>
-            <thead>
-              <tr className="border-b border-slate-100 text-xs uppercase tracking-wide text-slate-400">
-                <th scope="col" className="px-5 py-4">
-                  Person
-                </th>
-                <th scope="col" className="px-5 py-4">
-                  Passport pic
-                </th>
-                <th scope="col" className="px-5 py-4">
-                  Passport front
-                </th>
-                <th scope="col" className="px-5 py-4">
-                  Passport back
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {passports.map((passport) => {
-                const previewDocs = previewByPassenger.get(passport.id);
-                return (
-                  <tr key={passport.id} className="align-top">
-                    <td className="px-5 py-4">
-                      <div className="font-semibold text-slate-900">
-                        {passport.client_name}
-                      </div>
-                      <div className="mt-1 text-xs text-slate-500">
-                        {getPersonnelCode(passport) ||
-                          "No staff or Agent/Employee code"}
-                      </div>
-                    </td>
-                    <DocumentCell
-                      label="Visa Photo"
-                      url={passport.passport_photo_url}
-                      file={
-                        previewDocs?.photo
-                          ? matchedFiles.get(previewDocs.photo)
-                          : undefined
-                      }
-                      filename={previewDocs?.photo?.filename}
-                      revision={revision}
-                      canEdit={canEdit}
-                      onEdit={(trigger) =>
-                        onEdit?.(
-                          passport.id,
-                          "visa_photo",
-                          "Visa Photo",
-                          trigger,
-                        )
-                      }
-                    />
-                    <DocumentCell
-                      label="Passport front"
-                      url={passport.image_url}
-                      file={
-                        previewDocs?.front
-                          ? matchedFiles.get(previewDocs.front)
-                          : undefined
-                      }
-                      filename={previewDocs?.front?.filename}
-                      revision={revision}
-                      canEdit={canEdit}
-                      onEdit={(trigger) =>
-                        onEdit?.(
-                          passport.id,
-                          "passport_front",
-                          "Passport front",
-                          trigger,
-                        )
-                      }
-                    />
-                    <DocumentCell
-                      label="Passport back"
-                      url={passport.passport_back_url}
-                      file={
-                        previewDocs?.back
-                          ? matchedFiles.get(previewDocs.back)
-                          : undefined
-                      }
-                      filename={previewDocs?.back?.filename}
-                      revision={revision}
-                      canEdit={canEdit}
-                      onEdit={(trigger) =>
-                        onEdit?.(
-                          passport.id,
-                          "passport_back",
-                          "Passport back",
-                          trigger,
-                        )
-                      }
-                    />
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-export function needsReextraction(passport: PassportSubmission) {
-  if (!hasRealPassportFront(passport)) return false;
-  return (
-    passport.status === "failed" ||
-    !getStringField(passport.extracted_fields, "passport_number") ||
-    (passport.overall_confidence ?? 0) <= 0.2
   );
 }
 
@@ -501,27 +319,6 @@ export function getStringField(
   return typeof value === "string" ? value : "";
 }
 
-export function getPersonnelCode(passport: PassportSubmission) {
-  const fields = passport.confirmed_fields ?? passport.extracted_fields;
-  const agentEmployeeType = getStringField(
-    fields,
-    "agent_employee_type",
-  ).toLowerCase();
-  const agentEmployeeCode = getStringField(fields, "agent_employee_code");
-  if (agentEmployeeCode && agentEmployeeType === "agent")
-    return `AGT_${agentEmployeeCode}`;
-  if (agentEmployeeCode && agentEmployeeType === "employee")
-    return `EMP_${agentEmployeeCode}`;
-  if (agentEmployeeCode) return agentEmployeeCode;
-  const metadataCode =
-    passport.staff_metadata?.staff_code ?? passport.staff_metadata?.staffcode;
-  const fieldCode = getStringField(fields, "staff_code");
-  const value = metadataCode || fieldCode;
-  if (!value) return "";
-  const normalized = String(value).trim().toUpperCase();
-  const prefixed = normalized.match(/^STF[_\-\s]+(.+)$/);
-  return prefixed ? `STF_${prefixed[1]}` : `STF_${normalized}`;
-}
 
 export function createExportRequestId() {
   if (

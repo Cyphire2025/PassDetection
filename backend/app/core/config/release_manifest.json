@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "schema_revision": "0111_roster_revision",
-  "previous_schema_revision": "0107_passport_ecr_checks",
+  "schema_revision": "0112_passport_cover_edits",
+  "previous_schema_revision": "0111_roster_revision",
   "worker_nodes": {
     "worker": "general",
     "email-worker": "email",

@@ -20,7 +20,7 @@ UNCHANGED_SWAP_SERVICES = frozenset({"nginx", "metrics-exporter"})
 EXPECTED_ENV = {
     "WEB_CONCURRENCY": "4", "WORKER_CONCURRENCY": "1", "EMAIL_WORKER_CONCURRENCY": "1",
     "EMAIL_AI_WORKER_CONCURRENCY": "1", "MY_PHOTOS_WORKER_CONCURRENCY": "1",
-    "GEMINI_EXTRACTION_MAX_CONCURRENCY": "1", "GEMINI_VERIFICATION_MAX_CONCURRENCY": "1",
+    "GEMINI_EXTRACTION_MAX_CONCURRENCY": "2", "GEMINI_VERIFICATION_MAX_CONCURRENCY": "1",
     "GEMINI_IMAGE_EDIT_MAX_CONCURRENCY": "1", "POSTGRES_API_POOL_SIZE": "3",
     "POSTGRES_API_MAX_OVERFLOW": "3", "POSTGRES_WORKER_POOL_SIZE": "1",
     "POSTGRES_WORKER_MAX_OVERFLOW": "0", "POSTGRES_API_CONNECTION_BUDGET": "24",
@@ -32,7 +32,8 @@ def validate_profile(config: dict[str, Any], metadata: dict[str, Any], *, activa
                      my_photos_jobs: int, live_backend_environment: dict[str, str]) -> None:
     if (metadata.get("schema_version") != 1 or metadata.get("profile") != "kvm4"
             or metadata.get("host_reserve_mib") != 2048 or metadata.get("api_processes") != 4
-            or metadata.get("worker_children_each") != 1):
+            or metadata.get("worker_children_each") != 1
+            or metadata.get("extraction_worker_children") != 2):
         raise ValueError("KVM4 profile metadata changed outside the reviewed contract")
     if activation and metadata.get("qualification_status") != "qualified":
         raise ValueError("KVM4 activation requires completed actual-image and lifecycle qualification")
@@ -76,8 +77,9 @@ def validate_profile(config: dict[str, Any], metadata: dict[str, Any], *, activa
             if not re.fullmatch(r"[0-9]+", value) or int(value) > maximum:
                 raise ValueError(f"{name}: {key} exceeds the measured input envelope")
     for name in WORKER_COMMANDS:
-        if services[name].get("command") != reviewed_process_command(name, concurrency=1):
-            raise ValueError(f"{name}: must retain its reviewed queues with exactly one child")
+        children = 2 if name == "extraction-worker" else 1
+        if services[name].get("command") != reviewed_process_command(name, concurrency=children):
+            raise ValueError(f"{name}: must retain its reviewed queues with exactly {children} children")
     if services["db"].get("command") != ["postgres", "-c", "max_connections=100"]:
         raise ValueError("PostgreSQL settings differ from the qualified connection/query memory envelope")
     for name, maximum_mib in {"redis": 128, "redis-broker": 512, "redis-realtime": 128, "redis-cache": 256}.items():

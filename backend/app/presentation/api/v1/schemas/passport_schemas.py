@@ -14,7 +14,9 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, mo
 from app.domain.value_objects.phone_number import normalize_phone_number
 from app.domain.value_objects.trip_timezone import DEFAULT_TRIP_TIMEZONE
 
-PassportImageTypeValue = Literal["visa_photo", "passport_front", "passport_back"]
+PassportImageTypeValue = Literal[
+    "visa_photo", "passport_front", "passport_back", "passport_cover", "passport_back_cover"
+]
 
 
 class PassportImageCropCoordinates(BaseModel):

@@ -943,12 +943,12 @@ class Settings(BaseSettings):
     # many authorized images without consuming the staff member's dashboard
     # action allowance, while still retaining a bounded abuse guard.
     dashboard_media_rate_limit_per_minute: int = Field(
-        default=30_000,
+        default=50_000,
         ge=0,
         le=100_000,
     )
-    dashboard_media_rate_limit_per_second: int = Field(default=30, ge=0, le=10_000)
-    dashboard_media_rate_limit_burst: int = Field(default=60, ge=0, le=100_000)
+    dashboard_media_rate_limit_per_second: int = Field(default=50, ge=0, le=10_000)
+    dashboard_media_rate_limit_burst: int = Field(default=100, ge=0, le=100_000)
     # Per Gunicorn worker. The cache contains only metadata-stripped dashboard
     # thumbnails and never changes the original files or database rows.
     dashboard_thumbnail_max_dimension: int = Field(default=320, ge=128, le=1_024)
@@ -1087,7 +1087,9 @@ class Settings(BaseSettings):
     )
     gemini_timeout_seconds: float = Field(default=30.0, ge=1.0, le=60.0)
     gemini_max_retries: int = Field(default=1, ge=0, le=1)
-    gemini_max_output_tokens: int = Field(default=512, ge=128, le=1024)
+    # Extraction applies a 4096-token floor for reasoning plus complete JSON;
+    # this shared override may raise that bounded budget when needed.
+    gemini_max_output_tokens: int = Field(default=512, ge=128, le=8192)
     gemini_extraction_max_concurrency: int = Field(default=4, ge=1, le=64)
     gemini_verification_max_concurrency: int = Field(default=1, ge=1, le=64)
     gemini_extraction_timeout_ms: int = Field(

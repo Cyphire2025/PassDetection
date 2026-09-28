@@ -31,7 +31,8 @@ class ProfileTests(unittest.TestCase):
         for name in ("nginx", "metrics-exporter"):
             self.config["services"][name].pop("memswap_limit")
         for name in WORKER_COMMANDS:
-            self.config["services"][name]["command"] = reviewed_process_command(name)
+            children = 2 if name == "extraction-worker" else 1
+            self.config["services"][name]["command"] = reviewed_process_command(name, concurrency=children)
         self.config["services"]["db"]["command"] = ["postgres", "-c", "max_connections=100"]
         for name, maximum in {"redis": 128, "redis-broker": 512, "redis-realtime": 128, "redis-cache": 256}.items():
             self.config["services"][name]["command"] = ["redis-server", "--maxmemory", f"{maximum}mb", "--maxmemory-policy",
@@ -43,6 +44,25 @@ class ProfileTests(unittest.TestCase):
 
     def test_exact_qualified_profile_passes(self):
         self.verify()
+
+    def test_extraction_two_children_and_shared_admission_cannot_drift(self):
+        original = copy.deepcopy(self.config)
+        for children in (1, 3, 4):
+            with self.subTest(children=children):
+                self.config = copy.deepcopy(original)
+                self.config["services"]["extraction-worker"]["command"] = reviewed_process_command("extraction-worker", concurrency=children)
+                with self.assertRaisesRegex(ValueError, "exactly 2 children"):
+                    self.verify()
+        self.config = copy.deepcopy(original)
+        self.config["services"]["backend"]["environment"]["GEMINI_EXTRACTION_MAX_CONCURRENCY"] = "1"
+        with self.assertRaisesRegex(ValueError, "concurrency differs"):
+            self.verify()
+
+    def test_worker_memory_reallocation_keeps_host_envelope(self):
+        self.assertEqual(self.metadata["memory_limits_mib"]["extraction-worker"], 512)
+        self.assertEqual(self.metadata["memory_limits_mib"]["db"], 896)
+        self.assertEqual(sum(self.metadata["memory_limits_mib"].values()), 13888)
+        self.assertLessEqual(13888 + self.metadata["host_reserve_mib"], self.metadata["observed_host_physical_mib"])
 
     def test_candidate_can_prepare_but_never_activate(self):
         self.metadata["qualification_status"] = "candidate_pending_final_application_and_lifecycle_checks"

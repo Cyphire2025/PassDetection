@@ -1,0 +1,125 @@
+{
+  "status": "bounded_resource_delta_passed",
+  "measured_at_utc": "2026-09-28T19:51:22Z",
+  "profile": "kvm4",
+  "production_data_accessed": false,
+  "production_resource_caps_changed_by_probes": false,
+  "live_worker_pause": {
+    "services": [
+      "worker",
+      "ecr-worker"
+    ],
+    "freed_declared_mib": 1024,
+    "consumer_drain_and_empty_task_readback": "performed_by_release_operator_before_probes"
+  },
+  "budget": {
+    "observed_host_physical_mib": 15992,
+    "host_reserve_mib": 2048,
+    "old_steady_container_ceiling_mib": 13888,
+    "new_steady_container_ceiling_mib": 13888,
+    "extraction_old_mib": 384,
+    "extraction_new_mib": 512,
+    "postgres_old_mib": 1024,
+    "postgres_new_mib": 896
+  },
+  "extraction": {
+    "image": "sha256:a4db6d631fd0f36001ba03368ecf04182a156f7bcf778540346161b2e3445960",
+    "source_checkout": true,
+    "source_manifest_sha256": "5164f063cd86dade4d0cc2900e173adc1cbb59f97151d3f22c73f409ee7ff022",
+    "later_changed_source_files": [
+      "backend/app/presentation/api/v1/routes/whatsapp_composer.py"
+    ],
+    "memory_limit_mib": 512,
+    "children": 2,
+    "repetitions_per_child": 10,
+    "mode": "gemini-extraction",
+    "container": "pd-memory-20260928195122-gemini-extraction",
+    "returncode": 0,
+    "oom_killed": false,
+    "peak_bytes": 280043520,
+    "peak_mib": 267.07,
+    "exit_codes": [
+      0,
+      0
+    ],
+    "cgroup_events": {
+      "low": "0",
+      "high": "0",
+      "max": "0",
+      "oom": "0",
+      "oom_kill": "0",
+      "oom_group_kill": "0"
+    },
+    "operation": {
+      "retained_source_bytes": 10485760,
+      "http_request_bytes": 13985549,
+      "provider_calls": 0
+    },
+    "raw_receipt_sha256": "ca06173723e30c0d06cbcb7741158b1116072f7bfcba414462808ee0958e14fe",
+    "raw_receipt_relative_path": "outputs/resource-profile-20260929/extraction-evidence.json",
+    "runtime_isolation": {
+      "network": "none",
+      "uid_gid": "1001:1001",
+      "cap_drop": [
+        "ALL"
+      ],
+      "no_new_privileges": true,
+      "swap": "memory-swap equal hard cap"
+    }
+  },
+  "postgres": {
+    "status": "passed",
+    "container": "pd-memory-20260928195156637181-postgres",
+    "pinned_image": "postgres:16-alpine@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb",
+    "memory_cap_mib": 896,
+    "production_changes": false,
+    "image_id": "sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb",
+    "version": "PostgreSQL 16.14 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+    "settings": {
+      "max_connections": "100",
+      "shared_buffers": "128MB",
+      "work_mem": "4MB",
+      "maintenance_work_mem": "64MB",
+      "max_parallel_workers_per_gather": "2"
+    },
+    "held_sessions": 65,
+    "simultaneous_queries": 64,
+    "sort_rows_per_query": 50000,
+    "synthetic_table_rows": 200000,
+    "query_elapsed_seconds": 10.563697823992698,
+    "temp_files": 65,
+    "temp_bytes": 426391936,
+    "cgroup_peak_bytes": 772804608,
+    "cgroup_current_bytes": 311623680,
+    "cgroup_events": {
+      "low": "0",
+      "high": "0",
+      "max": "0",
+      "oom": "0",
+      "oom_kill": "0",
+      "oom_group_kill": "0"
+    },
+    "limitations": [
+      "Synthetic bounded sort pressure, not arbitrary query memory or production throughput",
+      "No automatic cap approval for other PostgreSQL image digests or connection budgets",
+      "Stopped synthetic container and volume retained"
+    ],
+    "raw_receipt_sha256": "be668d449d6951838c49ad831b3e4671571183fc2773e9735134aee2d16bed39",
+    "raw_receipt_relative_path": "outputs/resource-profile-20260929/postgres-evidence.json"
+  },
+  "source_sha256": {
+    "scripts/qa/probe_bounded_memory.py": "a60e0dbb914fec2f0ac64e017d76cdeb2cba8213d1790c4dd79aa5fad45a30a5",
+    "scripts/qa/qualify_bounded_memory.py": "39f31c405698c1a1ca5dac4639a8e118dab1bc4ad5fad707b147fe72b99ed663",
+    "scripts/qa/qualify_postgres_memory.py": "458dc3b4166d8df2b220fd2d977007f6108aa266aa9614c27c735e57e9b8c5c4"
+  },
+  "limitations": [
+    "Probe-script hashes identify the executed snapshot. PostgreSQL probe import ordering and equivalent nested context-manager formatting were cleaned up after measurement.",
+    "Extraction used the installed immutable application image with candidate Python sources mounted read-only; final release image was not built or qualified by this probe.",
+    "The source manifest records the measured snapshot; unrelated source edits after staging are listed explicitly.",
+    "Provider calls were not made; extraction capacity and latency depend on live Gemini quotas and response behavior.",
+    "Two children reused ten jobs each, not a complete live broker/storage/provider worker journey or long soak.",
+    "PostgreSQL ran isolated synthetic bounded sorts; this does not establish arbitrary SQL or production query throughput.",
+    "Existing historical API, persistent-service and lifecycle evidence is retained; this delta is not a new simultaneous whole-host peak test.",
+    "Exited synthetic containers and the synthetic PostgreSQL volume were retained; no production data, volumes, versions or backups were deleted."
+  ]
+}

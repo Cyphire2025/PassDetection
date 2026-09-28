@@ -1,4 +1,4 @@
-"""Public outage fallback stays pending a real, revision-fenced staff decision."""
+"""Public outage fallback still receives independent, revision-fenced AI verification."""
 
 from __future__ import annotations
 
@@ -82,7 +82,7 @@ async def _submit(group, submission, use_case, **changes):
 
 
 @pytest.mark.parametrize("provider_status", sorted(PASSPORT_PROVIDER_FAILURE_STATUSES))
-async def test_current_provider_failure_submits_for_staff_review(provider_status):
+async def test_current_provider_failure_submits_for_ai_verification(provider_status):
     group, submission, use_case, passports, storage = _draft(provider_status)
     previous_revision = submission.extraction_revision
     draft = PassportSubmissionResponse.model_validate(passport_submission_output_from_entity(submission))
@@ -91,13 +91,15 @@ async def test_current_provider_failure_submits_for_staff_review(provider_status
 
     result = await _submit(group, submission, use_case)
 
-    assert result.status == "needs_review"
+    assert result.status == "submitted"
     assert result.status not in OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
     assert result.client_phone == "+919876543210"
     assert result.extraction_revision == previous_revision + 1
     assert result.post_submission_verification_revision == 1
     assert result.post_submission_verified_at is None
-    assert result.post_submission_verification["reason_code"] == MANUAL_REVIEW_REASON_CODE
+    assert result.post_submission_verification is None
+    assert result.error_message is None
+    assert result.extracted_fields["ai_verification"]["status"] == provider_status
     assert not result.manual_review_submission_allowed
     assert result.image_s3_key.startswith(str(group.agency_id))
     assert len(result.storage_cleanup_keys) == 2
@@ -139,7 +141,7 @@ async def test_replay_preserves_pending_review_and_promoted_images_once():
     first = await _submit(group, submission, use_case)
     replay = await _submit(group, submission, use_case, client_phone="0091-98765-43210")
     assert replay.idempotent_replay
-    assert replay.status == "needs_review"
+    assert replay.status == "submitted"
     assert replay.extraction_revision == first.extraction_revision
     assert replay.post_submission_verification_revision == first.post_submission_verification_revision
     assert storage.upload_file.await_count == 2
@@ -163,28 +165,31 @@ async def test_legacy_outage_needs_matching_terminal_server_job(job_status):
     assert response["manual_review_submission_allowed"] == (job_status == "dead_letter")
     if job_status == "dead_letter":
         result = await _submit(group, submission, use_case)
-        assert result.status == "needs_review"
+        assert result.status == "submitted"
         assert submission.extracted_fields["ai_verification"]["outcome_kind"] == "provider_failure"
     else:
         with pytest.raises(ValidationError):
             await _submit(group, submission, use_case)
 
 
-async def test_late_ai_cannot_replace_review_and_staff_approval_is_revision_fenced():
+async def test_manual_submission_accepts_current_ai_result_but_rejects_late_extraction():
     group, submission, use_case, _, _ = _draft()
     old_extraction_revision = submission.extraction_revision
     await _submit(group, submission, use_case)
     assert not submission.mark_review_required(
         {"given_names": "WRONG"}, 1.0, expected_revision=old_extraction_revision,
     )
-    assert not submission.apply_post_submission_verification(
+    assert submission.apply_post_submission_verification(
         expected_revision=submission.post_submission_verification_revision,
-        decision="ai_approved", verification={"verification_status": "ai_approved"},
+        decision="needs_review", verification={
+            "verification_status": "needs_review", "provider_status": "verified",
+            "incorrect_fields": ["given_names"],
+        },
     )
-    with pytest.raises(ValidationError, match="requires staff approval"):
+    with pytest.raises(ValidationError, match="received an AI review result"):
         submission.request_post_submission_verification_retry()
     submission.update_reviewed_fields({"given_names": "AMAN REVIEWED"})
-    assert submission.post_submission_verification["reason_code"] == MANUAL_REVIEW_REASON_CODE
+    assert submission.post_submission_verification["provider_status"] == "verified"
     reviewer = uuid.uuid4()
     revision = submission.extraction_revision
     outcome = submission.staff_approve_verification(
@@ -196,6 +201,28 @@ async def test_late_ai_cannot_replace_review_and_staff_approval_is_revision_fenc
     assert submission.staff_approve_verification(
         reviewer_id=reviewer, reviewer_name="Reviewer", expected_extraction_revision=revision,
     ) == StaffApprovalOutcome.ALREADY_APPROVED
+
+
+async def test_legacy_manual_submission_can_request_ai_verification():
+    group, submission, use_case, _, _ = _draft()
+    await _submit(group, submission, use_case)
+    submission.status = PassportProcessingStatus.NEEDS_REVIEW
+    submission.post_submission_verification = {
+        "provider_status": "manual_review_required",
+        "reason_code": MANUAL_REVIEW_REASON_CODE,
+    }
+    previous_revision = submission.post_submission_verification_revision
+    submitted_fields = dict(submission.confirmed_fields)
+
+    assert submission.request_post_submission_verification_retry() == previous_revision + 1
+    assert submission.status == PassportProcessingStatus.SUBMITTED
+    assert submission.confirmed_fields == submitted_fields
+    assert submission.post_submission_verification is None
+    assert submission.apply_post_submission_verification(
+        expected_revision=submission.post_submission_verification_revision,
+        decision="ai_approved",
+        verification={"verification_status": "ai_approved", "provider_status": "verified"},
+    )
 
 
 def test_public_request_cannot_assert_manual_review_eligibility():

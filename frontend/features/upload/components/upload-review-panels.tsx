@@ -121,7 +121,7 @@ export function UploadSingleReview({ token, settings, documents, contactVerifica
             disabled={isScanningAgain}
             className="mt-6 h-12 w-full rounded-xl bg-blue-600 text-base font-semibold shadow-md shadow-blue-600/20 hover:bg-blue-700"
           >
-            {submission.manual_review_submission_allowed ? "Submit for staff review" : hasPassport ? "Submit Verified Details" : "Submit Traveller Details"}
+            {submission.manual_review_submission_allowed ? "Submit for AI verification" : hasPassport ? "Submit Verified Details" : "Submit Traveller Details"}
           </Button>
         </form>
       )}
@@ -277,7 +277,7 @@ export function UploadFamilyReview({ token, settings, documents, contactVerifica
               disabled={isScanningAgain}
               className="h-12 w-full rounded-xl bg-blue-600 text-base font-semibold shadow-md shadow-blue-600/20 hover:bg-blue-700"
             >
-              {familyMembers.some((member) => member.submission?.manual_review_submission_allowed) ? "Submit family for staff review" : "Submit Family Details"}
+              {familyMembers.some((member) => member.submission?.manual_review_submission_allowed) ? "Submit family for AI verification" : "Submit Family Details"}
             </Button>
           </>
         ) : (

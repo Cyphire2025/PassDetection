@@ -1,10 +1,10 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { CompactPassportImage, PassportCoverPreview } from "./compact-passport-image";
+import { PassportImagePreview } from "./passport-image-preview";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { Activity, AlertCircle, ArrowLeft, CheckCircle2, ChevronLeft, ChevronRight, ExternalLink, FileCheck2, Gauge, History, Loader2, Pencil, QrCode, RotateCcw, Save, Upload } from "lucide-react";
+import { Activity, AlertCircle, ArrowLeft, CheckCircle2, ChevronLeft, ChevronRight, FileCheck2, Gauge, History, Loader2, QrCode, RotateCcw, Save } from "lucide-react";
 import { IntentPrefetchLink } from "@/components/shared/intent-prefetch-link";
 import {
   WorkspaceErrorNotice,
@@ -56,10 +56,10 @@ import {
   type StaffApprovalFeedback,
 } from "../utils/passport-review";
 import { passportsApi, type PassportImageType } from "../api/passports.api";
+import { getReextractFeedback, needsReextraction } from "../utils/passport-reextract";
 import { canEditPassportImages } from "../utils/passport-image-crop-permissions";
 import { ClientProvidedFieldsCard } from "./client-provided-fields-card";
 import {
-  PASSPORT_LIBRARY_IMAGE_ACCEPT,
   validatePassportLibraryImage,
 } from "../utils/passport-image-library";
 import {
@@ -161,7 +161,7 @@ export function PassportDetail({ id, navigationQuery = "" }: PassportDetailProps
       if (result.outcome === "timed_out") {
         setReextractFeedback({
           tone: "warning",
-          message: "Extraction is still running. This page will keep refreshing automatically.",
+          message: "Extraction or AI verification is still running. This page will keep refreshing automatically.",
         });
         return;
       }
@@ -173,13 +173,7 @@ export function PassportDetail({ id, navigationQuery = "" }: PassportDetailProps
         });
         return;
       }
-      const conflictCount = getExtractionConflicts(result.submission).length;
-      setReextractFeedback({
-        tone: "success",
-        message: conflictCount > 0
-          ? `Re-extraction finished with ${conflictCount} ${conflictCount === 1 ? "difference" : "differences"} for you to review below.`
-          : "Re-extraction finished. Matching manual values were kept and empty fields were filled where possible.",
-      });
+      setReextractFeedback(getReextractFeedback(result.submission));
     } catch (reextractError) {
       setReextractFeedback({
         tone: "error",
@@ -372,8 +366,38 @@ export function PassportDetail({ id, navigationQuery = "" }: PassportDetailProps
               onChange={(file) => void handleManualImageChange("visa_photo", file)}
               onCrop={(returnFocusTarget) => setCropEditor({ imageType: "visa_photo", label: "Visa Photo", returnFocusTarget })}
             />
-            <PassportCoverPreview url={data.passport_cover_url} label="Passport Front Cover" clientName={data.client_name} />
-            <PassportCoverPreview url={data.passport_back_cover_url} label="Passport Back Cover" clientName={data.client_name} />
+            {data.passport_cover_url && (
+              <PassportImagePreview
+                label="Passport Front Cover"
+                imageType="passport_cover"
+                url={data.passport_cover_url}
+                clientName={data.client_name}
+                revision={imageRevision}
+                canCrop={canCropPassportImages}
+                canChange={canCropPassportImages && Boolean(data.passport_cover_url)}
+                changeDisabled={changingImageType !== null}
+                isChanging={changingImageType === "passport_cover"}
+                changeError={imageChangeErrors.passport_cover}
+                onChange={(file) => void handleManualImageChange("passport_cover", file)}
+                onCrop={(returnFocusTarget) => setCropEditor({ imageType: "passport_cover", label: "Passport Front Cover", returnFocusTarget })}
+              />
+            )}
+            {data.passport_back_cover_url && (
+              <PassportImagePreview
+                label="Passport Back Cover"
+                imageType="passport_back_cover"
+                url={data.passport_back_cover_url}
+                clientName={data.client_name}
+                revision={imageRevision}
+                canCrop={canCropPassportImages}
+                canChange={canCropPassportImages && Boolean(data.passport_back_cover_url)}
+                changeDisabled={changingImageType !== null}
+                isChanging={changingImageType === "passport_back_cover"}
+                changeError={imageChangeErrors.passport_back_cover}
+                onChange={(file) => void handleManualImageChange("passport_back_cover", file)}
+                onCrop={(returnFocusTarget) => setCropEditor({ imageType: "passport_back_cover", label: "Passport Back Cover", returnFocusTarget })}
+              />
+            )}
             <PassportImagePreview
               label="Passport front"
               imageType="passport_front"
@@ -472,7 +496,7 @@ export function PassportDetail({ id, navigationQuery = "" }: PassportDetailProps
             onReextract={() => void handleReextract()}
           />
 
-          {data.error_message && (
+          {data.error_message && !["submitted", "ai_approved", "staff_approved", "confirmed"].includes(data.status) && (
             <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
               <div className="flex items-start gap-2">
                 <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -496,119 +520,6 @@ export function PassportDetail({ id, navigationQuery = "" }: PassportDetailProps
         />
       )}
     </div>
-  );
-}
-
-function PassportImagePreview({
-  label,
-  imageType,
-  url,
-  clientName,
-  revision,
-  canCrop,
-  canChange,
-  changeDisabled,
-  isChanging,
-  changeError,
-  onChange,
-  onCrop,
-}: {
-  label: string;
-  imageType: PassportImageType;
-  url?: string | null;
-  clientName: string;
-  revision: number;
-  canCrop: boolean;
-  canChange: boolean;
-  changeDisabled: boolean;
-  isChanging: boolean;
-  changeError?: string;
-  onChange: (file: File) => void;
-  onCrop: (trigger: HTMLButtonElement) => void;
-}) {
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const effectiveUrl = url ? appendCacheRevision(url, revision) : null;
-  return (
-    <section>
-      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-slate-700">{label}</h3>
-        {(effectiveUrl || canChange) && (
-          <div className="flex items-center gap-2">
-            {effectiveUrl && (
-              <a
-                href={effectiveUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-              >
-                <ExternalLink className="h-3.5 w-3.5" /> Open
-              </a>
-            )}
-            {canChange && (
-              <>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept={PASSPORT_LIBRARY_IMAGE_ACCEPT}
-                  aria-label={`Choose a replacement ${label} image`}
-                  className="sr-only"
-                  disabled={changeDisabled}
-                  onChange={(event) => {
-                    const selected = event.currentTarget.files?.[0];
-                    event.currentTarget.value = "";
-                    if (selected) onChange(selected);
-                  }}
-                />
-                <button
-                  type="button"
-                  disabled={changeDisabled}
-                  aria-busy={isChanging}
-                  onClick={() => fileInputRef.current?.click()}
-                  className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-blue-700 shadow-sm hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {isChanging ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
-                  ) : (
-                    <Upload className="h-3.5 w-3.5" aria-hidden="true" />
-                  )}
-                  {isChanging ? "Changing…" : "Change"}
-                </button>
-              </>
-            )}
-            {effectiveUrl && canCrop && (
-              <button
-                type="button"
-                onClick={(event) => onCrop(event.currentTarget)}
-                data-image-type={imageType}
-                className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-blue-700 shadow-sm hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-              >
-                <Pencil className="h-3.5 w-3.5" /> Edit
-              </button>
-            )}
-          </div>
-        )}
-      </div>
-      {changeError && (
-        <p role="alert" className="mb-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
-          {changeError}
-        </p>
-      )}
-      {effectiveUrl ? (
-        <a
-          href={effectiveUrl}
-          target="_blank"
-          rel="noreferrer"
-          aria-label={`Open ${label} for ${clientName} in a new tab`}
-          className="inline-block max-w-full overflow-hidden rounded-xl bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-        >
-          <CompactPassportImage src={effectiveUrl} alt={`${label} for ${clientName}`} />
-        </a>
-      ) : (
-        <div className="flex min-h-32 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 text-sm text-slate-400">
-          Not uploaded
-        </div>
-      )}
-    </section>
   );
 }
 
@@ -636,20 +547,6 @@ function qrStatusVariant(status?: string): "default" | "success" | "warning" | "
   return "outline";
 }
 
-function needsReextraction(passport: {
-  image_s3_key?: string | null;
-  status: string;
-  extracted_fields: ExtractedPassportFields | null;
-  overall_confidence: number | null;
-}) {
-  if (!passport.image_s3_key || passport.image_s3_key.startsWith("excel-imports/")) return false;
-  return (
-    passport.status === "failed" ||
-    !getStringField(passport.extracted_fields ?? {}, "passport_number") ||
-    (passport.overall_confidence ?? 0) <= 0.2
-  );
-}
-
 interface ReviewFieldsCardProps {
   passport: PassportSubmission;
   sourceFields: ExtractedPassportFields;
@@ -672,12 +569,6 @@ interface ReviewFieldsCardProps {
   onRetryAiVerification: () => Promise<unknown>;
   reviewerLabel: string | null;
   onReextract: () => void;
-}
-
-function appendCacheRevision(url: string, revision: number) {
-  if (revision === 0) return url;
-  const separator = url.includes("?") ? "&" : "?";
-  return `${url}${separator}ui_crop_revision=${revision}`;
 }
 
 function ReviewFieldsCard({
@@ -1051,19 +942,11 @@ function ReextractStatus({
   feedback: ReextractFeedback | null;
   isReextracting: boolean;
 }) {
-  const isProcessing = isReextracting || passport.extraction_status === "processing";
+  const isProcessing = isReextracting || passport.extraction_status === "processing"
+    || (passport.status === "submitted" && feedback !== null);
   const backgroundFinished = feedback?.tone === "warning" && !isProcessing;
-  const backgroundFailed = backgroundFinished
-    && (passport.extraction_status === "extraction_failed" || passport.status === "failed");
   const effectiveFeedback = backgroundFinished
-    ? {
-      tone: backgroundFailed ? "error" as const : "success" as const,
-      message: backgroundFailed
-        ? passport.error_message || "Automatic extraction failed. You can retry the saved image."
-        : getExtractionConflicts(passport).length > 0
-          ? "Extraction finished with differences for you to review below."
-          : "Extraction finished and the latest details are ready to review.",
-    }
+    ? getReextractFeedback(passport)
     : feedback;
   if (!effectiveFeedback && !isProcessing) return null;
 
@@ -1077,7 +960,9 @@ function ReextractStatus({
     error: "border-red-200 bg-red-50 text-red-900",
   }[tone];
   const message = isProcessing
-    ? processingStageLabel(passport.processing_stage ?? passport.processing_job_status)
+    ? passport.status === "submitted"
+      ? "AI verification is queued or running for all passport fields."
+      : processingStageLabel(passport.processing_stage ?? passport.processing_job_status)
     : effectiveFeedback?.message;
 
   return (
@@ -1269,11 +1154,6 @@ function getWorkflowStatusMessage(status: PassportSubmission["status"]) {
     submitted: "AI verification is running. This page refreshes automatically until a final decision is ready.",
   };
   return messages[status] ?? null;
-}
-
-function getStringField(fields: ExtractedPassportFields, key: string) {
-  const value = fields[key];
-  return typeof value === "string" ? value : "";
 }
 
 function getExtractionConflicts(passport: PassportSubmission): PassportExtractionConflict[] {

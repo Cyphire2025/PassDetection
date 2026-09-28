@@ -143,6 +143,7 @@ type ReviewerSource = Pick<
 >;
 
 const RETRYABLE_AI_PROVIDER_STATUSES = new Set([
+  "manual_review_required",
   "network_error",
   "provider_unavailable",
   "rate_limited",

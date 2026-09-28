@@ -14,6 +14,11 @@ post-submission AI verification.
   arrives. It can finish, while new verification remains blocked.
 - Extraction and verification have independent global concurrency ceilings.
 - Celery delivery deferrals do not consume provider retry attempts.
+- Public uploads reserve capacity for one active batch plus one waiting batch:
+  at configured extraction concurrency `N`, at most `2N` public extraction
+  reservations may be waiting, dispatched or active. The next upload keeps its
+  saved images and immediately offers manual entry with verification after
+  submission. Replaying an existing upload does not consume another slot.
 
 The database job rows remain the durable business-workflow ledger. Redis owns
 only short-lived scheduling state, and Celery owns durable queue delivery.
@@ -54,21 +59,27 @@ warnings include only workload class and exception type.
 | Condition | Extraction | Verification |
 | --- | --- | --- |
 | Redis healthy, capacity available | Admit | Admit only after priority and quiet-period gates |
-| Redis healthy, capacity full | Keep waiting and defer | Keep waiting and defer |
+| Redis healthy, active capacity full | Admit one waiting batch; further public uploads offer manual entry | Keep waiting and defer |
 | Extraction waiting/dispatching/active | Continue/admit within its limit | Defer |
 | Verification already active when extraction arrives | Extraction can proceed | Active verification may finish |
 | Worker crash | Lease expires and capacity recovers | Lease expires and capacity recovers |
-| Redis unavailable before admission | Conservative fail-open | Fail closed and defer |
+| Redis unavailable before admission | New public uploads offer manual entry; existing worker deliveries fail open | Fail closed and defer |
 | Redis unavailable after admission | Current work may finish; lease expires if release fails | Current work may finish; lease expires if release fails |
 
-Extraction fail-open is intentional availability behavior. It can temporarily
+Worker extraction fail-open is intentional availability behavior. It can temporarily
 exceed the global extraction ceiling during a Redis outage, but does not create
 a process-local counter that could be mistaken for globally correct state.
+
+Public admission has a one-second scheduler deadline after image persistence.
+Capacity rejection does not wait for a worker or provider, and polling resumes
+directly in the manual-entry form. Network upload and storage latency are not
+included in this admission deadline. A slow Redis reservation is released when
+it eventually returns, so a timed-out public request does not strand a slot.
 
 ## Configuration
 
 ```dotenv
-GEMINI_EXTRACTION_MAX_CONCURRENCY=32
+GEMINI_EXTRACTION_MAX_CONCURRENCY=4
 GEMINI_VERIFICATION_MAX_CONCURRENCY=1
 GEMINI_EXTRACTION_TIMEOUT_MS=30000
 GEMINI_EXTRACTION_QUIET_PERIOD_MS=2000
@@ -109,12 +120,25 @@ deadline; otherwise the attempt terminates conservatively. Logs and metrics
 record only the bounded delay, status class, workload, model, attempt, and
 duration, never response bodies, prompts, API keys, or traveller fields.
 
-The extraction value of `32` is a burst-capable staging baseline, not a
-production certification and not evidence that 100-user latency has been met.
-It avoids an artificial 2/5/10-request bottleneck while remaining below the
-visible project RPM allowance. The local OCR, database pool, VPS CPU/memory,
-actual model, and upstream concurrent-call behavior still require the specified
-production-like 100-user test.
+The base extraction default is `4`; deployment profiles may override it. Public
+admission derives its waiting batch from the effective value rather than this
+example. The KVM4 profile uses `2`, allowing two active extractions plus two
+waiting uploads. The extraction worker has two children and a 512 MiB memory
+ceiling. The isolated resource-delta probe ran two reused children with ten
+maximum-byte serialization jobs each; it peaked at 267.07 MiB without memory
+limit or OOM events. This is a provider-free component measurement, not live
+provider capacity or final-release image qualification.
+
+The profile reallocates 128 MiB from PostgreSQL (1024 to 896 MiB) to extraction
+(384 to 512 MiB). A separate isolated PostgreSQL probe held 65 sessions and ran
+64 concurrent bounded sorts at the new limit, peaking at 737 MiB without memory
+limit or OOM events. Total steady container ceilings remain 13888 MiB, plus the
+unchanged 2048 MiB host reserve. The production database volume and data are not
+recreated or changed by a cap adjustment. See the recorded scope and limitations
+in `docs/remediation/kvm4-two-extraction-memory-evidence.json`.
+
+Any further increase requires measured worker peak memory, container-limit and
+provider headroom; host idle memory alone is insufficient.
 
 Production readiness returns 503 until all of the following are true:
 

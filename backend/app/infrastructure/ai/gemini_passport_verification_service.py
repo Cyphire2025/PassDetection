@@ -95,6 +95,7 @@ _DOCUMENT_REASON_CODES: Final[set[str]] = {
 _MAX_GEMINI_SECONDS: Final[float] = 30.0
 _MAX_PROVIDER_RESPONSE_BYTES: Final[int] = 64_000
 _MAX_FIELD_VALUE_CHARS: Final[int] = 160
+_MIN_EXTRACTION_OUTPUT_TOKENS: Final[int] = 4096
 
 _RESPONSE_SCHEMA: Final[dict[str, Any]] = {
     "type": "OBJECT",
@@ -506,6 +507,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
                         2,
                     ),
                     retry_after_ms=retry_after_ms,
+                    **self._safe_response_metadata(response),
                 )
                 last_status, transient = self._response_failure(response.status_code)
                 if last_status is None:
@@ -604,16 +606,28 @@ class GeminiPassportVerificationService(IPassportVerificationService):
     ) -> str | None:
         """Reject syntactically successful responses that contain no usable data."""
 
+        validation_stage = "response_size"
         try:
             if len(response.content) > _MAX_PROVIDER_RESPONSE_BYTES:
                 raise ValueError("Gemini response exceeded the bounded response size")
+            validation_stage = "response_schema"
             provider_result = self._extract_provider_json(response.json())
+            validation_stage = "document_classification"
             if self._classification_status(provider_result) is not None:
                 # A confident document/quality rejection is a meaningful result,
                 # not an extraction-provider failure.
                 return None
+            validation_stage = "field_values"
             merged, *_ = self._merge(original, provider_result)
-        except (KeyError, TypeError, ValueError, json.JSONDecodeError):
+        except (KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
+            logger.warning(
+                "gemini_passport_verification_invalid_response",
+                validation_stage=validation_stage,
+                parse_reason=("invalid_json" if isinstance(exc, json.JSONDecodeError)
+                              else "invalid_structure"),
+                error_type=type(exc).__name__,
+                **self._safe_response_metadata(response),
+            )
             return "invalid_response"
 
         if not any(
@@ -622,6 +636,39 @@ class GeminiPassportVerificationService(IPassportVerificationService):
         ):
             return "empty_extraction"
         return None
+
+    @staticmethod
+    def _safe_response_metadata(response: httpx.Response) -> dict[str, str | int]:
+        """Log only bounded enums/counts, never passport text or thought content."""
+        if len(response.content) > _MAX_PROVIDER_RESPONSE_BYTES:
+            return {"response_diagnostic": "response_too_large"}
+        try:
+            payload = response.json()
+        except ValueError:
+            return {"response_diagnostic": "invalid_json"}
+        if not isinstance(payload, dict):
+            return {"response_diagnostic": "invalid_envelope"}
+        metadata: dict[str, str | int] = {}
+        candidates = payload.get("candidates")
+        if isinstance(candidates, list) and candidates and isinstance(candidates[0], dict):
+            finish = candidates[0].get("finishReason")
+            metadata["finish_reason"] = (
+                finish if isinstance(finish, str) and finish in {
+                    "STOP", "MAX_TOKENS", "SAFETY", "RECITATION", "OTHER",
+                    "BLOCKLIST", "PROHIBITED_CONTENT", "SPII", "MALFORMED_FUNCTION_CALL",
+                } else "missing_or_unknown"
+            )
+        usage = payload.get("usageMetadata")
+        if isinstance(usage, dict):
+            for key, name in (
+                ("candidatesTokenCount", "output_tokens"),
+                ("thoughtsTokenCount", "thinking_tokens"),
+                ("totalTokenCount", "total_tokens"),
+            ):
+                count = usage.get(key)
+                if type(count) is int and 0 <= count <= 10_000_000:
+                    metadata[name] = count
+        return metadata
 
     def _request_payload(
         self,
@@ -660,7 +707,11 @@ class GeminiPassportVerificationService(IPassportVerificationService):
             "generationConfig": {
                 "responseMimeType": "application/json",
                 "responseSchema": _RESPONSE_SCHEMA,
-                "maxOutputTokens": self._settings.gemini_max_output_tokens,
+                # Gemini includes reasoning in this cap. Legacy deployments
+                # configured 512, which can truncate the nine-field result.
+                "maxOutputTokens": max(
+                    _MIN_EXTRACTION_OUTPUT_TOKENS, self._settings.gemini_max_output_tokens,
+                ),
                 "thinkingConfig": {
                     "thinkingLevel": thinking_level_for_passport_extraction(
                         self._settings.gemini_model
@@ -680,6 +731,8 @@ class GeminiPassportVerificationService(IPassportVerificationService):
             or not isinstance(candidates[0], dict)
         ):
             raise ValueError("Unexpected Gemini candidates")
+        if candidates[0].get("finishReason") not in {None, "STOP"}:
+            raise ValueError("Gemini response did not finish normally")
         content = candidates[0]["content"]
         if not isinstance(content, dict):
             raise ValueError("Unexpected Gemini content")

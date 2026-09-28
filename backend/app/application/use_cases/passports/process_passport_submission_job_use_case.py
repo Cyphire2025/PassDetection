@@ -37,7 +37,7 @@ logger = get_logger(__name__)
 PUBLIC_EXTRACTION_FAILURE = (
     "Automatic passport detail extraction failed after trying the available AI models. "
     "Your passport images are saved. Retry automatic reading. "
-    "If manual submission is available, staff must review and approve the details."
+    "If manual submission is available, enter the details for AI verification after submission."
 )
 PUBLIC_DOCUMENT_VERIFICATION_UNAVAILABLE = PUBLIC_EXTRACTION_FAILURE
 MAX_FIRST_PASS_SECONDS = 45.0
@@ -376,6 +376,7 @@ class ProcessPassportSubmissionJobUseCase:
                 submission_id,
                 job.extraction_revision,
                 retry_allowed=not extraction_started,
+                provider_failure=extraction_started,
             )
         except StorageError as exc:
             logger.warning(
@@ -402,6 +403,7 @@ class ProcessPassportSubmissionJobUseCase:
                 submission_id,
                 job.extraction_revision,
                 retry_allowed=False,
+                provider_failure=extraction_started,
             )
         except Exception as exc:
             logger.error(
@@ -415,6 +417,7 @@ class ProcessPassportSubmissionJobUseCase:
                 submission_id,
                 job.extraction_revision,
                 retry_allowed=False,
+                provider_failure=extraction_started,
             )
 
     async def _handle_failure(
@@ -424,6 +427,7 @@ class ProcessPassportSubmissionJobUseCase:
         extraction_revision: int,
         *,
         retry_allowed: bool = True,
+        provider_failure: bool = False,
     ) -> None:
         latest = await self._job_repo.get(job_id)
         if retry_allowed and self._allow_retry and latest and latest.attempts < latest.max_attempts:
@@ -437,6 +441,12 @@ class ProcessPassportSubmissionJobUseCase:
             submission_id=submission_id,
             expected_revision=extraction_revision,
             public_message=PUBLIC_EXTRACTION_FAILURE,
+            diagnostics={"ai_verification": {
+                "status": "unavailable", "available": False,
+                "outcome_kind": "provider_failure",
+                "extraction_revision": extraction_revision,
+                "reason_code": "extraction_unavailable",
+            }} if provider_failure else None,
         )
         if not applied:
             await self._job_repo.mark_cancelled(job_id, "Superseded by newer passport changes")

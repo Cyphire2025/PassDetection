@@ -15,6 +15,7 @@ from app.domain.exceptions.exceptions import AuthorizationError
 from app.domain.value_objects.passport_image_crop import (
     PassportImageCrop,
     PassportImageType,
+    passport_image_storage_key,
 )
 from app.domain.value_objects.passport_visa_ai_image import PassportVisaAiImage
 from app.infrastructure.ai.gemini_visa_image_edit_service import (
@@ -56,6 +57,8 @@ def _submission(*, front_key: str = "original/front.jpg") -> SimpleNamespace:
         image_s3_key=front_key,
         passport_photo_s3_key="original/photo.jpg",
         passport_back_s3_key="original/back.jpg",
+        passport_cover_s3_key="original/cover.jpg",
+        passport_back_cover_s3_key="original/back-cover.jpg",
     )
 
 
@@ -79,7 +82,8 @@ def test_visa_ai_uses_the_current_effective_crop_as_its_input() -> None:
 
 
 @pytest.mark.asyncio
-async def test_thumbnail_is_private_bounded_and_cached_after_authorization() -> None:
+@pytest.mark.parametrize("image_type", list(PassportImageType))
+async def test_thumbnail_is_private_bounded_and_cached_after_authorization(image_type: PassportImageType) -> None:
     submission = _submission()
     storage = MagicMock()
     storage.get_file = AsyncMock(return_value=_jpeg())
@@ -91,7 +95,7 @@ async def test_thumbnail_is_private_bounded_and_cached_after_authorization() -> 
     with (
         patch(
             'app.presentation.api.v1.routes.passport_routes.images._authorized_staff_passport_image',
-            new=AsyncMock(return_value=(submission, submission.image_s3_key)),
+            new=AsyncMock(return_value=(submission, passport_image_storage_key(submission, image_type))),
         ) as authorize,
         patch(
             'app.presentation.api.v1.routes.passport_routes.images.MinioStorageRepository',
@@ -112,14 +116,14 @@ async def test_thumbnail_is_private_bounded_and_cached_after_authorization() -> 
     ):
         first = await get_passport_image_thumbnail(
             submission_id=submission.id,
-            image_type=PassportImageType.PASSPORT_FRONT,
+            image_type=image_type,
             crop_revision=None,
             current_user=current_user,  # type: ignore[arg-type]
             session=MagicMock(),
         )
         second = await get_passport_image_thumbnail(
             submission_id=submission.id,
-            image_type=PassportImageType.PASSPORT_FRONT,
+            image_type=image_type,
             crop_revision=1,
             current_user=current_user,  # type: ignore[arg-type]
             session=MagicMock(),
@@ -135,7 +139,8 @@ async def test_thumbnail_is_private_bounded_and_cached_after_authorization() -> 
 
 
 @pytest.mark.asyncio
-async def test_effective_stream_uses_view_permission_but_original_editor_uses_confirm_permission() -> (
+@pytest.mark.parametrize("image_type", list(PassportImageType))
+async def test_effective_stream_uses_view_permission_but_original_editor_uses_confirm_permission(image_type: PassportImageType) -> (
     None
 ):
     submission = _submission()
@@ -155,7 +160,7 @@ async def test_effective_stream_uses_view_permission_but_original_editor_uses_co
     ):
         await _authorized_staff_passport_image(
             submission_id=submission.id,
-            image_type=PassportImageType.PASSPORT_FRONT,
+            image_type=image_type,
             current_user=SimpleNamespace(),  # type: ignore[arg-type]
             session=MagicMock(),
             require_editor=False,
@@ -166,7 +171,7 @@ async def test_effective_stream_uses_view_permission_but_original_editor_uses_co
         policy.require_view_passport.reset_mock()
         await _authorized_staff_passport_image(
             submission_id=submission.id,
-            image_type=PassportImageType.PASSPORT_FRONT,
+            image_type=image_type,
             current_user=SimpleNamespace(),  # type: ignore[arg-type]
             session=MagicMock(),
             require_editor=True,
@@ -176,7 +181,8 @@ async def test_effective_stream_uses_view_permission_but_original_editor_uses_co
 
 
 @pytest.mark.asyncio
-async def test_object_scope_denial_is_returned_as_forbidden() -> None:
+@pytest.mark.parametrize("image_type", list(PassportImageType))
+async def test_object_scope_denial_is_returned_as_forbidden(image_type: PassportImageType) -> None:
     submission = _submission()
     repository = MagicMock()
     repository.get_by_id = AsyncMock(return_value=submission)
@@ -193,7 +199,7 @@ async def test_object_scope_denial_is_returned_as_forbidden() -> None:
     ):
         await _authorized_staff_passport_image(
             submission_id=submission.id,
-            image_type=PassportImageType.PASSPORT_FRONT,
+            image_type=image_type,
             current_user=SimpleNamespace(),  # type: ignore[arg-type]
             session=MagicMock(),
             require_editor=False,

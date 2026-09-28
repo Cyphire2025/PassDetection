@@ -45,8 +45,9 @@ _PUBLIC_UPLOAD_BOOTSTRAP_PATH_RE = re.compile(
     r"(?:/(?:qualifier-selection|telemetry))?/?$"
 )
 _DASHBOARD_MEDIA_PATH_RE = re.compile(
-    r"^/api/v1/passports/[^/]+/images/"
-    r"(?:visa_photo|passport_front|passport_back)(?:/(?:original|thumbnail))?/?$"
+    r"^/api/v1/passports/[^/]+/(?:images/"
+    r"(?:visa_photo|passport_front|passport_back|passport_cover|passport_back_cover)"
+    r"(?:/(?:original|thumbnail|edit-source))?|covers/(?:cover|back_cover))/?$"
 )
 _RATE_LIMIT_METRIC_REASONS = {
     "APP_RATE_LIMITED": "app_api",
@@ -260,6 +261,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 max(0, tightest_guard.limit - tightest_count)
             )
             response.headers["X-RateLimit-Policy"] = tightest_guard.scope
+            response.headers["X-RateLimit-Reset-After"] = str(retry_after)
         elif burst_results:
             tightest_guard, remaining = min(burst_results, key=lambda item: item[1])
             response.headers["X-RateLimit-Limit"] = str(tightest_guard.burst_capacity)
@@ -271,6 +273,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 burst_guard.burst_capacity
             )
             response.headers["X-RateLimit-Burst-Remaining"] = str(burst_remaining)
+            response.headers["X-RateLimit-Refill-Per-Second"] = str(
+                burst_guard.burst_rate_per_second
+            )
         return response
 
     def _has_enabled_policy(self) -> bool:

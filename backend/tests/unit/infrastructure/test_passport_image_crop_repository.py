@@ -35,7 +35,8 @@ class _MemorySession:
 
 
 @pytest.mark.asyncio
-async def test_revision_is_monotonic_across_reset_and_recrop() -> None:
+@pytest.mark.parametrize("image_type", list(PassportImageType))
+async def test_revision_is_monotonic_across_reset_and_recrop(image_type: PassportImageType) -> None:
     session = _MemorySession()
     repository = PassportImageCropRepository(session)  # type: ignore[arg-type]
     submission_id = uuid.uuid4()
@@ -43,7 +44,7 @@ async def test_revision_is_monotonic_across_reset_and_recrop() -> None:
 
     first, previous, previous_edit = await repository.upsert(
         submission_id=submission_id,
-        image_type=PassportImageType.PASSPORT_FRONT,
+        image_type=image_type,
         source_storage_key="original/front-v1.jpg",
         edit_source_storage_key=None,
         derived_storage_key="derived/front-r1.jpg",
@@ -66,7 +67,7 @@ async def test_revision_is_monotonic_across_reset_and_recrop() -> None:
 
     reset, removed, removed_edit = await repository.reset(
         submission_id=submission_id,
-        image_type=PassportImageType.PASSPORT_FRONT,
+        image_type=image_type,
         updated_by_user_id=user_id,
         expected_revision=1,
     )
@@ -81,7 +82,7 @@ async def test_revision_is_monotonic_across_reset_and_recrop() -> None:
     # ABA revision window.
     repeated, removed_again, removed_edit_again = await repository.reset(
         submission_id=submission_id,
-        image_type=PassportImageType.PASSPORT_FRONT,
+        image_type=image_type,
         updated_by_user_id=user_id,
         expected_revision=2,
     )
@@ -93,7 +94,7 @@ async def test_revision_is_monotonic_across_reset_and_recrop() -> None:
     with pytest.raises(PassportImageCropRevisionConflict) as stale:
         await repository.upsert(
             submission_id=submission_id,
-            image_type=PassportImageType.PASSPORT_FRONT,
+            image_type=image_type,
             source_storage_key="original/front-v1.jpg",
             edit_source_storage_key=None,
             derived_storage_key="derived/stale.jpg",
@@ -112,7 +113,7 @@ async def test_revision_is_monotonic_across_reset_and_recrop() -> None:
 
     third, _, _ = await repository.upsert(
         submission_id=submission_id,
-        image_type=PassportImageType.PASSPORT_FRONT,
+        image_type=image_type,
         source_storage_key="original/front-v2.jpg",
         edit_source_storage_key=None,
         derived_storage_key="derived/front-r3.jpg",

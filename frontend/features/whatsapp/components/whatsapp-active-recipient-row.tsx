@@ -2,17 +2,18 @@
 
 import { MoreHorizontal, Pencil, RotateCw, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import type { WhatsAppRecipient } from "../api/whatsapp.api";
+import type { WhatsAppRecipient, WhatsAppRecipientDetailsEdit } from "../api/whatsapp.api";
 import { formatMessageType, isWhatsAppMessageType } from "../utils/message-types";
 import { canRetryOrResendRecipient, getMessageStatus, groupInviteDeliveryBlockReason, hasAlreadySentMessage, welcomeDeliveryBlockReason } from "../utils/recipient-delivery";
 import type { RecipientResendTarget } from "./whatsapp-workspace.types";
-import { DeliveryBadge, importedFieldLabel, visibleImportedFieldEntries } from "./whatsapp-recipient-roster-rows";
+import { DeliveryBadge } from "./whatsapp-recipient-roster-rows";
+import { RecipientImportedDetails } from "./whatsapp-recipient-imported-details";
 import { RecipientSelectionCheckbox } from "./whatsapp-recipient-selection";
 
 export function ActiveRecipientRow({
   recipient, serialNumber, messageTypes, selected, selectionDisabled, onSelect,
   editing, editedPhone, onPhoneChange, onEdit, onCancelEdit, onSavePhone,
-  phoneSaving, resendPending, onResend, removeDisabled, onRemove, sharedContactNames,
+  phoneSaving, resendPending, onResend, removeDisabled, onRemove, sharedContactNames, onSaveDetails,
 }: {
   recipient: WhatsAppRecipient;
   serialNumber: number;
@@ -32,11 +33,11 @@ export function ActiveRecipientRow({
   removeDisabled: boolean;
   onRemove: () => void;
   sharedContactNames?: string[];
+  onSaveDetails?: (details: WhatsAppRecipientDetailsEdit) => Promise<void>;
 }) {
   const menuRef = useRef<HTMLDetailsElement>(null);
   const [menuPosition, setMenuPosition] = useState<{ top: number; right: number } | null>(null);
   const name = recipient.name || "Unnamed recipient";
-  const importedEntries = visibleImportedFieldEntries(recipient.imported_fields);
   const resendActions = messageTypes.flatMap((messageType) => {
     if (!isWhatsAppMessageType(messageType)) return [];
     const status = getMessageStatus(recipient, messageType);
@@ -91,22 +92,9 @@ export function ActiveRecipientRow({
           <summary className="cursor-pointer text-xs font-medium text-blue-700">{sharedContactNames.length} travellers · shared number</summary>
           <ol className="mt-2 space-y-1 border-l-2 border-blue-100 pl-3 text-xs text-slate-600">{sharedContactNames.map((contactName, index) => <li key={`${index}-${contactName}`}>{contactName}{index === 0 && <span className="ml-1 text-[10px] text-blue-600">First source contact</span>}</li>)}</ol>
         </details>}
-        {importedEntries.length > 0 && (
-          <details className="mt-1">
-            <summary className="cursor-pointer text-xs text-slate-500 hover:text-blue-700">{importedEntries.length} imported {importedEntries.length === 1 ? "detail" : "details"}</summary>
-            <dl className="mt-2 grid min-w-56 gap-2 rounded-lg border border-slate-200 bg-white p-3">
-              {importedEntries.map(([key, value]) => <div key={key} className="min-w-0"><dt className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">{importedFieldLabel(key)}</dt><dd className="break-words text-xs text-slate-700">{value}</dd></div>)}
-            </dl>
-          </details>
-        )}
+        <RecipientImportedDetails name={recipient.name} importedFields={recipient.imported_fields} sourceManaged={recipient.is_source_managed} disabled={selectionDisabled || editing} onSave={onSaveDetails} />
         {(recipient.merged_contacts ?? []).map((contact) => (
-          <details key={contact.id} className="mt-1">
-            <summary className="cursor-pointer text-xs text-slate-500 hover:text-blue-700">{contact.name || "Unnamed contact"} · saved contact details</summary>
-            <dl className="mt-2 grid gap-2 rounded-lg border border-slate-200 bg-white p-3">
-              {visibleImportedFieldEntries(contact.imported_fields).map(([key, value]) => <div key={key}><dt className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">{importedFieldLabel(key)}</dt><dd className="break-words text-xs text-slate-700">{value}</dd></div>)}
-              {Object.keys(contact.imported_fields).length === 0 && <div className="text-xs text-slate-500">No additional imported details.</div>}
-            </dl>
-          </details>
+          <RecipientImportedDetails key={contact.id} name={contact.name} importedFields={contact.imported_fields} mergedContactId={contact.id} disabled={selectionDisabled || editing} onSave={onSaveDetails} />
         ))}
       </td>
       <td className="px-4 py-4 text-slate-600">

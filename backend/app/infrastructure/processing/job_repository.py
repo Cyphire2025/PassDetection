@@ -89,6 +89,31 @@ class PassportProcessingJobRepository:
         model = await self._get_model(job_id)
         return self._to_entity(model) if model else None
 
+    async def mark_busy_if_unstarted(
+        self, job_id: uuid.UUID, message: str,
+    ) -> PassportProcessingJob | None:
+        """Offer manual entry without cancelling a concurrently started worker."""
+
+        result = await self._session.execute(
+            select(PassportProcessingJobModel)
+            .where(PassportProcessingJobModel.id == job_id)
+            .with_for_update()
+            .execution_options(populate_existing=True)
+        )
+        model = result.scalar_one_or_none()
+        if (
+            model is None or model.status != ProcessingJobStatus.QUEUED.value
+            or model.attempts != 0
+        ):
+            return None
+        model.status = ProcessingJobStatus.DEAD_LETTER.value
+        model.current_stage = "extraction_busy"
+        model.error_message = message
+        model.finished_at = _utcnow()
+        model.updated_at = _utcnow()
+        await self._session.flush()
+        return self._to_entity(model)
+
     async def set_task_id(self, job_id: uuid.UUID, task_id: str | None) -> None:
         model = await self._require_model(job_id)
         model.celery_task_id = task_id

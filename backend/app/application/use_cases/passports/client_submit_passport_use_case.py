@@ -151,7 +151,7 @@ class ClientSubmitPassportUseCase:
                     processing_job_revision=latest_job.extraction_revision,
                     processing_job_status=latest_job.status.value,
                 )
-        require_staff_review = submission.manual_review_submission_allowed
+        allow_manual_submission = submission.manual_review_submission_allowed
         if (
             has_passport_front
             and
@@ -159,11 +159,12 @@ class ClientSubmitPassportUseCase:
             and not is_accepted_passport_information_page(
                 passport_document_classification(submission.extracted_fields)
             )
-            and not require_staff_review
+            and not allow_manual_submission
         ):
             # The browser cannot bypass the final server-side document gate by
             # manually entering plausible passport fields. Only a trusted
-            # current-revision provider failure permits pending staff review.
+            # current-revision provider failure permits manual entry followed
+            # by independent post-submission image verification.
             raise ValidationError(
                 PUBLIC_DOCUMENT_CLASSIFICATION_REQUIRED,
                 field="file",
@@ -460,7 +461,7 @@ class ClientSubmitPassportUseCase:
                 family_broadcast_to_member=bool(normalized_email or normalized_phone),
                 custom_answers=normalized_custom_answers,
                 custom_detail_answers=normalized_custom_detail_answers,
-                require_staff_review=require_staff_review,
+                allow_manual_submission=allow_manual_submission,
             )
             if not has_passport_front:
                 submission.mark_no_passport_verification_required()

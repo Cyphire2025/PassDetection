@@ -13,6 +13,7 @@ const passportGroupDetailFiles = [
   "./passport-group-roster-panel.tsx",
   "./passport-group-dialogs.tsx",
 
+  "./passport-document-matrix.tsx",
   "./passport-document-cell.tsx",
   "./passport-document-import-dialog.tsx",
   "./passport-trip-details-dialog.tsx",

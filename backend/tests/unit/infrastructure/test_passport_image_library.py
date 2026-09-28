@@ -75,20 +75,21 @@ def test_common_library_migration_follows_concurrent_head_and_is_additive() -> N
 
 
 @pytest.mark.asyncio
-async def test_ensure_original_is_idempotent(db_session: AsyncSession) -> None:
+@pytest.mark.parametrize("image_type", list(PassportImageType))
+async def test_ensure_original_is_idempotent(db_session: AsyncSession, image_type: PassportImageType) -> None:
     repository = PassportImageLibraryRepository(db_session)
     submission_id = uuid.uuid4()
     await _persist_submission(db_session, submission_id)
 
     first, first_created = await repository.ensure_original(
         submission_id=submission_id,
-        image_type=PassportImageType.PASSPORT_FRONT,
+        image_type=image_type,
         storage_key="original/front.jpg",
         created_at=None,
     )
     second, second_created = await repository.ensure_original(
         submission_id=submission_id,
-        image_type=PassportImageType.PASSPORT_FRONT,
+        image_type=image_type,
         storage_key="original/front.jpg",
         created_at=None,
     )

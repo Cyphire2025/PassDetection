@@ -105,6 +105,8 @@ def _staff_image_urls(
         PassportImageType.PASSPORT_FRONT: "image_url",
         PassportImageType.VISA_PHOTO: "passport_photo_url",
         PassportImageType.PASSPORT_BACK: "passport_back_url",
+        PassportImageType.PASSPORT_COVER: "passport_cover_url",
+        PassportImageType.PASSPORT_BACK_COVER: "passport_back_cover_url",
     }
     for image_type, response_field in response_fields.items():
         source_key = passport_image_storage_key(submission, image_type)
@@ -119,18 +121,6 @@ def _staff_image_urls(
             getattr(submission, "id"),
             image_type,
             revision=crop.revision if crop else 0,
-        )
-    result.update(_staff_cover_urls(submission))
-    return result
-
-
-def _staff_cover_urls(submission: object) -> dict[str, str | None]:
-    result: dict[str, str | None] = {}
-    for kind in ("cover", "back_cover"):
-        key = getattr(submission, f"passport_{kind}_s3_key", None)
-        result[f"passport_{kind}_url"] = (
-            f"{get_settings().api_v1_prefix}/passports/{getattr(submission, 'id')}/covers/{kind}"
-            if key else None
         )
     return result
 

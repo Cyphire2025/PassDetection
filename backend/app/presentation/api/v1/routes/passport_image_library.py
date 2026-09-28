@@ -359,7 +359,7 @@ async def upload_passport_image_library_item(
             reextract_result = await ReextractPassportSubmissionUseCase(
                 passport_repo=submission_repository,
                 processing_job_repo=PassportProcessingJobRepository(session),
-            ).execute(submission.id)
+            ).execute(submission.id, source_image_replaced=True)
         await AuditLogRepository(session).record(
             action="passport_image_manually_replaced",
             entity_type="passport_submission",
@@ -570,7 +570,7 @@ async def use_passport_image_library_item(
             reextract_result = await ReextractPassportSubmissionUseCase(
                 passport_repo=submission_repository,
                 processing_job_repo=PassportProcessingJobRepository(session),
-            ).execute(submission.id)
+            ).execute(submission.id, source_image_replaced=True)
         await AuditLogRepository(session).record(
             action="passport_image_library_item_selected",
             entity_type="passport_submission",

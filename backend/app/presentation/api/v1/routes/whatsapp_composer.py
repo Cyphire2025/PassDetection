@@ -37,9 +37,7 @@ from app.presentation.api.v1.routes.whatsapp_archive_policy import require_activ
 from app.presentation.api.v1.routes.whatsapp_preview_recipient import (
     select_preview_recipient as select_preview_recipient,
 )
-from app.presentation.api.v1.routes.whatsapp_reminder_audience import (
-    resolve_reminder_audience,
-)
+from app.presentation.api.v1.routes.whatsapp_reminder_audience import resolve_reminder_audience
 from app.presentation.api.v1.routes.whatsapp_shared import (
     MAX_WHATSAPP_WELCOME_IMAGE_BYTES,
     WHATSAPP_ACCEPTED_STATUSES,

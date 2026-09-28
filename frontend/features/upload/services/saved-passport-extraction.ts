@@ -24,6 +24,7 @@ function terminalResult(submission: PassportSubmission): ExtractionWaitResult {
 export async function pollSavedPassport({ initial, signal, fetchStatus, onProgress, now = Date.now, wait = sleep }: PollOptions): Promise<ExtractionWaitResult> {
   assertActive(signal);
   let current = initial;
+  if (isExtractionTerminal(current)) return terminalResult(current);
   onProgress(current, current.processing_progress ?? 0.05, stageLabel(current.processing_stage ?? current.processing_job_status ?? "queued"));
   const deadline = now() + EXTRACTION_POLL_WINDOW_MS;
   let delayMs = EXTRACTION_POLL_INITIAL_DELAY_MS;

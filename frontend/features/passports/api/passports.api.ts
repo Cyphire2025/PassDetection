@@ -1,8 +1,10 @@
 import apiClient from "@/lib/api/client";
+import { getReextractOutcome } from "../utils/passport-reextract";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { downloadStreamedResponse } from "@/lib/api/streamed-download";
 import type {
   PassportGroupSummary,
+  PassportImageType,
   PassportSubmission,
   StaffApprovalRequest,
   StaffApprovalResult,
@@ -272,7 +274,7 @@ export interface PassportGroupExportCompletion {
   completed_at: string;
 }
 
-export type PassportImageType = "visa_photo" | "passport_front" | "passport_back";
+export type { PassportImageType } from "@/types/passport.types";
 
 export interface PassportImageCropRect {
   x: number;
@@ -952,23 +954,6 @@ export const passportsApi = {
     });
   },
 };
-
-function getReextractOutcome(submission: PassportSubmission): PassportReextractOutcome | null {
-  if (
-    submission.status === "failed"
-    || submission.extraction_status === "extraction_failed"
-    || ["failed", "dead_letter", "cancelled"].includes(submission.processing_job_status ?? "")
-  ) {
-    return "failed";
-  }
-  if (
-    ["extraction_complete", "extraction_partial", "ready_for_review"].includes(submission.extraction_status)
-    || submission.processing_job_status === "succeeded"
-  ) {
-    return "completed";
-  }
-  return null;
-}
 
 function wait(delayMs: number) {
   return new Promise<void>((resolve) => {

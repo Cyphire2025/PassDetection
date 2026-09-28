@@ -33,12 +33,14 @@ from app.domain.value_objects.custom_questions import (
 )
 from app.domain.value_objects.import_group import import_group_settings
 from app.domain.value_objects.passport_document_classification import (
-    MANUAL_REVIEW_REASON_CODE,
     classification_outcome,
     manual_review_submission_allowed,
     requires_manual_staff_review,
 )
-from app.domain.value_objects.passport_fields import reconcile_confirmed_with_extraction
+from app.domain.value_objects.passport_fields import (
+    REVIEWABLE_PASSPORT_FIELDS,
+    reconcile_confirmed_with_extraction,
+)
 from app.domain.value_objects.qualifier_relations import normalize_qualifier_choice
 from app.domain.value_objects.trip_timezone import (
     DEFAULT_TRIP_TIMEZONE,
@@ -942,7 +944,7 @@ class PassportSubmission:
         self.updated_at = _utcnow()
         return self.extraction_revision
 
-    def ensure_reextract_allowed(self) -> None:
+    def ensure_reextract_allowed(self, *, source_image_replaced: bool = False) -> None:
         """Prevent extraction from mutating a pending or canonical approved row."""
 
         if self.status in {
@@ -954,6 +956,22 @@ class PassportSubmission:
                 "Re-extraction is unavailable while this passport is submitted or approved.",
                 field="status",
             )
+        if self.status == PassportProcessingStatus.NEEDS_REVIEW and not source_image_replaced:
+            verification = self.post_submission_verification or {}
+            raw_incorrect = verification.get("incorrect_fields")
+            incorrect_fields = {
+                field for field in (raw_incorrect if isinstance(raw_incorrect, list) else [])
+                if isinstance(field, str) and field in REVIEWABLE_PASSPORT_FIELDS
+            }
+            if (
+                verification.get("provider_status") != "verified"
+                or verification.get("stale_after_staff_edit") is True
+                or len(incorrect_fields) <= 3
+            ):
+                raise ValidationError(
+                    "Re-extraction requires completed AI verification with more than three incorrect fields.",
+                    field="post_submission_verification",
+                )
 
     def mark_review_required(
         self,
@@ -1033,6 +1051,14 @@ class PassportSubmission:
         }
         self.mrz_raw = mrz_raw
         self.error_message = None
+        if self.status == PassportProcessingStatus.NEEDS_REVIEW and self.confirmed_fields:
+            # Re-reading the image must also compare every submitted field again.
+            # Keep the traveller's values and fresh extraction conflicts available
+            # for review; never treat an extraction result as approval by itself.
+            self.post_submission_verification_revision += 1
+            self.post_submission_verification = None
+            self.post_submission_verified_at = None
+            self.status = PassportProcessingStatus.SUBMITTED
         self.updated_at = _utcnow()
         return True
 
@@ -1146,16 +1172,16 @@ class PassportSubmission:
         nearest_domestic_airport: str | None = None,
         custom_answers: list[CustomAnswerSnapshot] | None = None,
         custom_detail_answers: list[CustomDetailAnswerSnapshot] | None = None,
-        require_staff_review: bool = False,
+        allow_manual_submission: bool = False,
     ) -> None:
         if self.status.value in OFFICE_VISIBLE_PASSPORT_STATUS_VALUES:
             raise ValidationError(
                 "Passport details were already submitted.",
                 field="status",
             )
-        if require_staff_review and not self.manual_review_submission_allowed:
+        if allow_manual_submission and not self.manual_review_submission_allowed:
             raise ValidationError(
-                "This passport is not eligible for manual submission for staff review.",
+                "This passport is not eligible for manual submission for AI verification.",
                 field="file",
             )
         # Invalidate any extraction job that started before this correction.
@@ -1204,21 +1230,10 @@ class PassportSubmission:
         self.verification_reviewed_at = None
         self.client_reviewed_at = _utcnow()
         self.updated_at = _utcnow()
-        if require_staff_review:
-            self.status = PassportProcessingStatus.NEEDS_REVIEW
-            self.post_submission_verification = {
-                "verification_status": "needs_review",
-                "confidence": 0.0,
-                "explanation": (
-                    "Automatic passport reading was unavailable. Staff must review "
-                    "the saved images and submitted details."
-                ),
-                "provider_status": "manual_review_required",
-                "reason_code": MANUAL_REVIEW_REASON_CODE,
-                "incorrect_fields": [],
-                "suspicious_fields": [],
-                "fields": [],
-            }
+        # A trusted first-pass provider failure allows manual entry; it must not
+        # skip the independent image-based verification of the submitted values.
+        # Keep the original failure diagnostics in extracted_fields for audit.
+        self.error_message = None
 
     def apply_post_submission_verification(
         self,
@@ -1245,17 +1260,13 @@ class PassportSubmission:
         self.status = PassportProcessingStatus(decision)
         self.post_submission_verification = dict(verification)
         self.post_submission_verified_at = now
+        self.error_message = None
         self.updated_at = now
         return True
 
     def request_post_submission_verification_retry(self) -> int:
-        """Requeue only a prior decision caused by a temporary AI provider failure."""
+        """Retry a provider failure or verify a legacy manual fallback submission."""
 
-        if requires_manual_staff_review(self.post_submission_verification):
-            raise ValidationError(
-                "This manual submission requires staff approval after reviewing the saved images.",
-                field="post_submission_verification",
-            )
         if self.status != PassportProcessingStatus.NEEDS_REVIEW:
             raise ValidationError(
                 "AI verification can only be retried after a temporary provider failure.",
@@ -1267,7 +1278,10 @@ class PassportSubmission:
             if isinstance(verification, dict)
             else ""
         )
-        if provider_status not in RETRYABLE_POST_SUBMISSION_PROVIDER_STATUSES:
+        if (
+            provider_status not in RETRYABLE_POST_SUBMISSION_PROVIDER_STATUSES
+            and not requires_manual_staff_review(verification)
+        ):
             raise ValidationError(
                 "This passport received an AI review result and cannot be re-verified automatically.",
                 field="post_submission_verification",

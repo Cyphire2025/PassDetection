@@ -9,17 +9,21 @@ from enum import StrEnum
 
 
 class PassportImageType(StrEnum):
-    """Staff-facing names for the three supported submission images."""
+    """Staff-facing names for all supported submission images."""
 
     VISA_PHOTO = "visa_photo"
     PASSPORT_FRONT = "passport_front"
     PASSPORT_BACK = "passport_back"
+    PASSPORT_COVER = "passport_cover"
+    PASSPORT_BACK_COVER = "passport_back_cover"
 
 
 PASSPORT_IMAGE_STORAGE_ATTRIBUTES: dict[PassportImageType, str] = {
     PassportImageType.VISA_PHOTO: "passport_photo_s3_key",
     PassportImageType.PASSPORT_FRONT: "image_s3_key",
     PassportImageType.PASSPORT_BACK: "passport_back_s3_key",
+    PassportImageType.PASSPORT_COVER: "passport_cover_s3_key",
+    PassportImageType.PASSPORT_BACK_COVER: "passport_back_cover_s3_key",
 }
 
 

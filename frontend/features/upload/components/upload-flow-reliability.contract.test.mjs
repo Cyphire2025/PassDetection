@@ -117,14 +117,14 @@ test("loading, failure, processing, and completion states are announced", () => 
   );
 });
 
-test("extraction recovery distinguishes staff-review eligibility from unverified images", () => {
+test("manual extraction recovery submits saved images for AI verification", () => {
   const failureNotice =
     "Automatic passport detail extraction failed. Your passport images are saved. Retry automatic reading or enter the details manually.";
 
   assert.ok(source.includes(failureNotice), "response-loss recovery preserves the saved images");
   assert.match(
     source,
-    /if \(submission\.manual_review_submission_allowed\) \{\s*return "Automatic reading is unavailable\. Enter the details and submit them for staff review\. Your passport will remain unverified until staff approve it\.";/,
+    /if \(submission\.manual_review_submission_allowed\) \{[\s\S]*?AI verification will check them against your saved passport images/,
   );
   assert.match(
     source,

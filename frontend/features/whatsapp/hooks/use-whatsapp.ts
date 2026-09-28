@@ -283,6 +283,21 @@ export function useUpdateWhatsAppRecipientPhone() {
   });
 }
 
+export function useUpdateWhatsAppRecipientDetails() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: whatsappApi.updateRecipientDetails,
+    retry: false,
+    onSuccess: async (group) => {
+      queryClient.setQueryData(WHATSAPP_QUERY_KEYS.group(group.id), group);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups }),
+        queryClient.invalidateQueries({ queryKey: ["document-distribution"] }),
+      ]);
+    },
+  });
+}
+
 export function useResendWhatsAppRecipientMessage() {
   const queryClient = useQueryClient();
   return useMutation({

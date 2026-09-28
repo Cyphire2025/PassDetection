@@ -1120,6 +1120,7 @@ def _recipient_response(
         phone_number=model.phone_number,
         normalized_phone_number=model.normalized_phone_number,
         imported_fields=dict(getattr(model, "imported_fields", {}) or {}),
+        is_source_managed=bool(getattr(model, "is_source_managed", False)),
         merged_contacts=merged_contacts or [],
         welcome_status=welcome_status,
         welcome_delivered=welcome_reason is None,

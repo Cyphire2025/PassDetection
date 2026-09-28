@@ -29,7 +29,9 @@ class ReextractPassportSubmissionUseCase:
         self._passport_repo = passport_repo
         self._processing_job_repo = processing_job_repo
 
-    async def execute(self, submission_id: uuid.UUID) -> PassportSubmissionOutputDTO:
+    async def execute(
+        self, submission_id: uuid.UUID, *, source_image_replaced: bool = False,
+    ) -> PassportSubmissionOutputDTO:
         submission = await self._passport_repo.get_by_id_for_update(submission_id)
         if not submission:
             raise EntityNotFoundError("PassportSubmission", submission_id)
@@ -38,7 +40,10 @@ class ReextractPassportSubmissionUseCase:
                 "Upload a passport front image before running re-extraction.",
                 field="image_s3_key",
             )
-        submission.ensure_reextract_allowed()
+        # Replacing the source is an authenticated document mutation and must
+        # re-read the new image regardless of the old image's verification.
+        # The public reextract route never accepts this internal override.
+        submission.ensure_reextract_allowed(source_image_replaced=source_image_replaced)
 
         active_job = await self._processing_job_repo.active_for_submission(
             submission.id,

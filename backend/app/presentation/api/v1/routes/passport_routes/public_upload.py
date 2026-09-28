@@ -72,7 +72,7 @@ from .dependencies import (
     _get_retry_public_extraction_use_case,
     _get_submit_passport_use_case,
 )
-from .processing_support import _dispatch_processing_job
+from .public_processing_support import dispatch_public_extraction
 from .public_security import _require_public_upload_credential, _validated_upload_file
 from .public_upload_documents import validate_public_upload_documents
 from .response_support import _response_from_dto
@@ -214,7 +214,7 @@ async def upload_passport(
             )
         try:
             if result.processing_job_id:
-                await _dispatch_processing_job(
+                result = await dispatch_public_extraction(
                     result,
                     session=session,
                     background_tasks=background_tasks,
@@ -366,7 +366,7 @@ async def get_upload_passport_status(
     # raise MissingGreenlet, turning an otherwise healthy status poll into 500.
     response_result = passport_submission_output_from_entity(submission, job=job)
     if job is not None and queued_job_needs_redelivery(job):
-        await _dispatch_processing_job(
+        response_result = await dispatch_public_extraction(
             response_result,
             session=session,
             background_tasks=background_tasks,
@@ -420,7 +420,7 @@ async def scan_again_public_upload(
                 detail="No passport personal details page was collected for this submission.",
             )
         result = await use_case.execute(token=token, submission_id=submission_id)
-        await _dispatch_processing_job(
+        result = await dispatch_public_extraction(
             result,
             session=session,
             background_tasks=background_tasks,

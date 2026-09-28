@@ -5,6 +5,13 @@
 
 import type { TimestampedEntity } from "./api.types";
 
+export type PassportImageType =
+  | "visa_photo"
+  | "passport_front"
+  | "passport_back"
+  | "passport_cover"
+  | "passport_back_cover";
+
 export type PassportStatus =
   | "pending_upload"
   | "uploaded"

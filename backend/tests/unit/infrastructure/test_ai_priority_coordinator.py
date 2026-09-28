@@ -5,6 +5,7 @@ from __future__ import annotations
 import threading
 import unittest
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import replace
 
 from app.infrastructure.ai_priority.config import AiPriorityConfig
 from app.infrastructure.ai_priority.coordinator import AiPriorityCoordinator
@@ -100,6 +101,16 @@ class _AtomicMemoryStore:
             self._cleanup(now_ms)
             if operation == "snapshot":
                 return self._result("snapshot", 0)
+            if operation == "reserve_public_extraction":
+                state, current_generation = self._state.get(job_key, (None, 0))
+                if state in self._EXTRACTION_STATES:
+                    return self._result("existing_reservation", current_generation)
+                if sum(self._count(s) for s in self._EXTRACTION_STATES) >= max_concurrency:
+                    return self._result("deferred_capacity", 0)
+                registered = self._register(
+                    job_key, workload="extraction", now_ms=now_ms, lease_ms=lease_ms,
+                )
+                return self._result("reserved", registered.generation)
             if operation == "register_extraction":
                 return self._register(
                     job_key,
@@ -151,6 +162,11 @@ class _AtomicMemoryStore:
                     lease_ms=lease_ms,
                 )
             if operation.startswith("release_"):
+                if operation == "release_public_extraction":
+                    state, current_generation = self._state.get(job_key, (None, 0))
+                    if state and current_generation == generation and state != "ew":
+                        return self._result("reservation_in_use", current_generation)
+                    operation = "release_extraction"
                 workload = operation.removeprefix("release_")
                 return self._release(
                     job_key,
@@ -410,6 +426,102 @@ class AiPriorityCoordinatorTests(unittest.TestCase):
             metrics_sink=_NoopMetrics(),  # type: ignore[arg-type]
             clock_ms=self.clock,
         )
+
+    def test_public_capacity_allows_active_and_one_waiting_batch_only(self) -> None:
+        for concurrency in (1, 2, 4, 10):
+            with self.subTest(concurrency=concurrency):
+                self.store = _AtomicMemoryStore()
+                coordinator = AiPriorityCoordinator(
+                    store=self.store, config=AiPriorityConfig(extraction_max_concurrency=concurrency),
+                    metrics_sink=_NoopMetrics(), clock_ms=self.clock,
+                )
+                for index in range(concurrency):
+                    self.assertTrue(coordinator.try_start_extraction(f"active-{index}").admitted)
+                for index in range(concurrency):
+                    decision = coordinator.reserve_public_extraction(f"waiting-{index}")
+                    self.assertTrue(decision.admitted)
+                    self.assertTrue(coordinator.mark_extraction_dispatched(decision.lease))
+                overflow = coordinator.reserve_public_extraction("overflow")
+                self.assertFalse(overflow.admitted)
+                self.assertEqual(overflow.reason, "deferred_capacity")
+                self.assertEqual(overflow.counts.extraction_pending_or_active, concurrency * 2)
+                self.assertEqual(overflow.counts.extraction_active, concurrency)
+                replay = coordinator.reserve_public_extraction("waiting-0")
+                self.assertTrue(replay.admitted)
+                self.assertEqual(replay.counts.extraction_pending_or_active, concurrency * 2)
+
+    def test_two_active_and_two_waiting_drain_before_verification(self) -> None:
+        self.config = replace(self.config, extraction_max_concurrency=2)
+        coordinator = self._coordinator()
+        for index in range(4):
+            self.assertTrue(coordinator.reserve_public_extraction(f"upload-{index}").admitted)
+        first = coordinator.try_start_extraction("upload-0")
+        second = coordinator.try_start_extraction("upload-1")
+        self.assertTrue(first.admitted)
+        self.assertTrue(second.admitted)
+        self.assertEqual(coordinator.snapshot().extraction_active, 2)
+        self.assertEqual(coordinator.snapshot().extraction_waiting, 2)
+        self.assertFalse(coordinator.reserve_public_extraction("overflow").admitted)
+        self.assertFalse(coordinator.try_start_extraction("upload-2").admitted)
+        self.assertEqual(
+            coordinator.try_start_verification("verify").reason,
+            "deferred_extraction_priority",
+        )
+        coordinator.release(first.lease)
+        third = coordinator.try_start_extraction("upload-2")
+        self.assertTrue(third.admitted)
+        self.assertEqual(coordinator.snapshot().extraction_active, 2)
+        coordinator.release(second.lease)
+        fourth = coordinator.try_start_extraction("upload-3")
+        self.assertTrue(fourth.admitted)
+        coordinator.release(third.lease)
+        coordinator.release(fourth.lease)
+        self.clock.advance(101)
+        self.assertTrue(coordinator.try_start_verification("verify").admitted)
+
+    def test_simultaneous_uploads_cannot_overfill_reserved_batches(self) -> None:
+        with ThreadPoolExecutor(max_workers=12) as pool:
+            decisions = list(pool.map(
+                lambda index: self._coordinator().reserve_public_extraction(f"burst-{index}"),
+                range(40),
+            ))
+        self.assertEqual(sum(item.admitted for item in decisions), 8)
+        self.assertEqual(self.coordinator.snapshot().extraction_pending_or_active, 8)
+
+    def test_new_extraction_keeps_queued_verification_waiting_until_demand_drains(self) -> None:
+        first = self.coordinator.reserve_public_extraction("first")
+        verification = self.coordinator.try_start_verification("verification")
+        self.assertEqual(verification.reason, "deferred_extraction_priority")
+        for index in range(10):
+            fresh = self.coordinator.reserve_public_extraction(f"fresh-{index}")
+            self.coordinator.release(first.lease)
+            self.clock.advance(101)
+            self.assertEqual(
+                self.coordinator.try_start_verification("verification").reason,
+                "deferred_extraction_priority",
+            )
+            first = fresh
+        self.coordinator.release(first.lease)
+        self.clock.advance(101)
+        self.assertTrue(self.coordinator.try_start_verification("verification").admitted)
+
+    def test_unavailable_admission_offers_manual_fallback_without_provider_work(self) -> None:
+        self.store = _AtomicMemoryStore(fail=True)
+        result = self._coordinator().reserve_public_extraction("public-upload")
+        self.assertFalse(result.admitted)
+        self.assertEqual(result.reason, "admission_unavailable")
+
+    def test_late_public_cleanup_never_releases_an_adopted_worker_reservation(self) -> None:
+        waiting = self.coordinator.reserve_public_extraction("abandoned")
+        self.assertTrue(self.coordinator.release_public_reservation(waiting.lease))
+        self.assertEqual(self.coordinator.snapshot().extraction_pending_or_active, 0)
+        adopted = self.coordinator.reserve_public_extraction("adopted")
+        self.coordinator.mark_extraction_dispatched(adopted.lease)
+        self.assertTrue(self.coordinator.release_public_reservation(adopted.lease))
+        self.assertEqual(self.coordinator.snapshot().extraction_dispatching, 1)
+        self.assertTrue(self.coordinator.try_start_extraction("adopted").admitted)
+        self.assertTrue(self.coordinator.release_public_reservation(adopted.lease))
+        self.assertEqual(self.coordinator.snapshot().extraction_active, 1)
 
     def test_waiting_dispatching_and_active_extraction_each_block_verification(
         self,

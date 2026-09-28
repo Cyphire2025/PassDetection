@@ -9,6 +9,8 @@
  *   apiClient.get(API_ENDPOINTS.passports.list)
  */
 
+import type { PassportImageType } from "@/types/passport.types";
+
 export const API_ENDPOINTS = {
   health: {
     live: "/api/v1/health/live",
@@ -105,6 +107,8 @@ export const API_ENDPOINTS = {
       `/api/v1/whatsapp/groups/${groupId}/rejected-contacts/${rejectedContactId}/resolve`,
     recipient: (groupId: string, recipientId: string) =>
       `/api/v1/whatsapp/groups/${groupId}/recipients/${recipientId}`,
+    recipientDetails: (groupId: string, recipientId: string) =>
+      `/api/v1/whatsapp/groups/${groupId}/recipients/${recipientId}/details`,
     resendRecipientMessage: (groupId: string, recipientId: string) =>
       `/api/v1/whatsapp/groups/${groupId}/recipients/${recipientId}/resend`,
     resendRecipientsMessage: (groupId: string) =>
@@ -200,23 +204,23 @@ export const API_ENDPOINTS = {
     detail: (id: string) => `/api/v1/passports/${id}`,
     imageCrop: (
       id: string,
-      imageType: "visa_photo" | "passport_front" | "passport_back",
+      imageType: PassportImageType,
     ) => `/api/v1/passports/${id}/images/${imageType}/crop`,
     currentImage: (
       id: string,
-      imageType: "visa_photo" | "passport_front" | "passport_back",
+      imageType: PassportImageType,
     ) => `/api/v1/passports/${id}/images/${imageType}`,
     originalImage: (
       id: string,
-      imageType: "visa_photo" | "passport_front" | "passport_back",
+      imageType: PassportImageType,
     ) => `/api/v1/passports/${id}/images/${imageType}/original`,
     imageLibrary: (
       id: string,
-      imageType: "visa_photo" | "passport_front" | "passport_back",
+      imageType: PassportImageType,
     ) => `/api/v1/passports/${id}/images/${imageType}/library`,
     imageLibraryUse: (
       id: string,
-      imageType: "visa_photo" | "passport_front" | "passport_back",
+      imageType: PassportImageType,
       itemId: string,
     ) => `/api/v1/passports/${id}/images/${imageType}/library/${itemId}/use`,
     visaAiPreview: (id: string) =>

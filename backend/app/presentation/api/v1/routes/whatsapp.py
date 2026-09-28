@@ -157,6 +157,9 @@ from app.presentation.api.v1.routes.whatsapp_groups_read import (
 from app.presentation.api.v1.routes.whatsapp_groups_read import (
     list_broadcast_groups as list_broadcast_groups,
 )
+from app.presentation.api.v1.routes.whatsapp_recipient_details import (
+    update_broadcast_recipient_details as update_broadcast_recipient_details,
+)
 from app.presentation.api.v1.routes.whatsapp_recipient_roster import (
     _unidentified_submission_details as _unidentified_submission_details,
 )

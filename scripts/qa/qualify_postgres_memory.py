@@ -6,6 +6,7 @@ This is neither a business throughput claim nor a bound on arbitrary SQL.
 """
 from __future__ import annotations
 
+import argparse
 import concurrent.futures
 import json
 import subprocess
@@ -26,18 +27,21 @@ def command(*args: str) -> str:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--memory-mib", type=int, choices=range(768, 4097), default=1024)
+    args = parser.parse_args()
     run = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S%f")
     name = f"pd-memory-{run}-postgres"
     output = ROOT / "outputs" / "postgres-memory-qualification" / run
     output.mkdir(parents=True)
-    command("docker", "run", "-d", "--name", name, "--memory", "1024m", "--memory-swap", "1024m",
+    command("docker", "run", "-d", "--name", name, "--memory", f"{args.memory_mib}m", "--memory-swap", f"{args.memory_mib}m",
             "--cpus", "1", "--pids-limit", "256", "-p", "127.0.0.1::5432",
             "-e", f"POSTGRES_DB={DATABASE}", "-e", f"POSTGRES_PASSWORD={PASSWORD}",
             "--mount", f"type=volume,src={name}-data,dst=/var/lib/postgresql/data",
             IMAGE, "postgres", "-c", "max_connections=100")
     connections = []
     receipt: dict = {"status": "failed", "container": name, "pinned_image": IMAGE,
-                     "memory_cap_mib": 1024, "production_changes": False}
+                     "memory_cap_mib": args.memory_mib, "production_changes": False}
     try:
         state = json.loads(command("docker", "inspect", name))[0]
         bindings = state["NetworkSettings"]["Ports"]["5432/tcp"]
@@ -55,27 +59,25 @@ def main() -> None:
                 if time.monotonic() >= deadline:
                     raise RuntimeError("Synthetic PostgreSQL did not start") from None
                 time.sleep(0.25)
-        with observer:
-            with observer.cursor() as cursor:
-                cursor.execute("SELECT current_database(), version()")
-                database, version = cursor.fetchone()
-                assert database == DATABASE
-                cursor.execute("CREATE TABLE synthetic_roster AS SELECT i AS id, repeat(md5(i::text),4) AS payload FROM generate_series(1,200000) i")
-                cursor.execute("ANALYZE synthetic_roster")
-                parameters = {}
-                for setting in ("max_connections", "shared_buffers", "work_mem", "maintenance_work_mem", "max_parallel_workers_per_gather"):
-                    cursor.execute("SELECT current_setting(%s)", (setting,))
-                    parameters[setting] = cursor.fetchone()[0]
-                assert parameters["max_connections"] == "100"
+        with observer, observer.cursor() as cursor:
+            cursor.execute("SELECT current_database(), version()")
+            database, version = cursor.fetchone()
+            assert database == DATABASE
+            cursor.execute("CREATE TABLE synthetic_roster AS SELECT i AS id, repeat(md5(i::text),4) AS payload FROM generate_series(1,200000) i")
+            cursor.execute("ANALYZE synthetic_roster")
+            parameters = {}
+            for setting in ("max_connections", "shared_buffers", "work_mem", "maintenance_work_mem", "max_parallel_workers_per_gather"):
+                cursor.execute("SELECT current_setting(%s)", (setting,))
+                parameters[setting] = cursor.fetchone()[0]
+            assert parameters["max_connections"] == "100"
         with concurrent.futures.ThreadPoolExecutor(max_workers=16) as pool:
             connections = list(pool.map(lambda _: psycopg2.connect(**options), range(64)))
         started = time.monotonic()
 
         def sort(connection):
-            with connection:
-                with connection.cursor() as cursor:
-                    cursor.execute("SELECT count(*) FROM (SELECT payload FROM synthetic_roster WHERE id <= 50000 ORDER BY payload DESC) ordered")
-                    assert cursor.fetchone()[0] == 50000
+            with connection, connection.cursor() as cursor:
+                cursor.execute("SELECT count(*) FROM (SELECT payload FROM synthetic_roster WHERE id <= 50000 ORDER BY payload DESC) ordered")
+                assert cursor.fetchone()[0] == 50000
             return "passed"
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=64) as pool:

@@ -18,7 +18,6 @@ from app.application.use_cases.passports.client_submit_passport_use_case import 
     ClientSubmitPassportUseCase,
 )
 from app.domain.entities.entities import ClientGroup, PassportSubmission
-from app.domain.value_objects.passport_document_classification import MANUAL_REVIEW_REASON_CODE
 from app.infrastructure.database.models import AgencyModel
 from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
 from app.infrastructure.repositories.passport_submission_repository import (
@@ -158,25 +157,25 @@ async def test_manual_submission_serializes_against_late_extraction_and_duplicat
         await _wait_blocked(factory, contender_pid[0])
         release.set()
         first_result, second_result = await asyncio.wait_for(asyncio.gather(first, second), timeout=8)
-        assert first_result.status == "needs_review"
+        assert first_result.status == "submitted"
         if contender == "extraction":
             assert second_result is None
         else:
             assert second_result.idempotent_replay
-            assert second_result.status == "needs_review"
+            assert second_result.status == "submitted"
         assert storage.upload_file.await_count == 2
         async with factory() as session:
             repository = PassportSubmissionRepository(session)
             saved = await repository.get_by_id(submission.id)
-            assert saved.status.value == "needs_review"
+            assert saved.status.value == "submitted"
             assert saved.confirmed_fields["given_names"] == "AMAN"
             assert saved.client_phone == "+919876543210"
             assert saved.client_email == "aman@example.test"
-            assert saved.post_submission_verification["reason_code"] == MANUAL_REVIEW_REASON_CODE
+            assert saved.post_submission_verification is None
             assert await repository.apply_post_submission_verification(
                 submission_id=saved.id, expected_revision=saved.post_submission_verification_revision,
                 decision="ai_approved", verification={"verification_status": "ai_approved"},
-            ) is None
+            ) is not None
             await session.commit()
     finally:
         release.set()

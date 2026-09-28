@@ -14,6 +14,9 @@ from app.presentation.api.v1.routes.whatsapp_groups_archive import router as _gr
 from app.presentation.api.v1.routes.whatsapp_groups_delete import router as _groups_delete_router
 from app.presentation.api.v1.routes.whatsapp_groups_manage import router as _groups_manage_router
 from app.presentation.api.v1.routes.whatsapp_groups_read import router as _groups_read_router
+from app.presentation.api.v1.routes.whatsapp_recipient_details import (
+    router as _recipient_details_router,
+)
 from app.presentation.api.v1.routes.whatsapp_recipient_roster import (
     router as _recipient_roster_router,
 )
@@ -37,6 +40,7 @@ router.include_router(_rejected_contacts_router)
 router.include_router(_composer_router)
 router.include_router(_groups_manage_router)
 router.include_router(_recipients_router)
+router.include_router(_recipient_details_router)
 router.include_router(_resend_router)
 router.include_router(_bulk_resend_router)
 router.include_router(_bulk_resend_preview_router)

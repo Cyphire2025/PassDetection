@@ -56,7 +56,7 @@ warnings log only exception types.
 | Nginx | Authenticated dashboard route lane | n/a | 300/second, burst 600 (excess is briefly queued) |
 | Nginx | Authenticated passport/Visa previews | n/a | 500/second, burst 1000 (excess is briefly queued) |
 | App/Redis | Authenticated dashboard actions | 5000/minute plus 50/second, burst 150, per verified account | n/a |
-| App/Redis | Authenticated passport/Visa previews | 30000/minute plus 30/second, burst 60, per verified account | n/a |
+| App/Redis | Authenticated passport/Visa previews | 50000/minute plus 50/second, burst 100, per verified account | n/a |
 | App/Redis | Other unauthenticated `/api/` traffic | n/a | 60/minute |
 
 The per-session check runs before the aggregate app check so one misbehaving
@@ -86,9 +86,9 @@ action allowance:
 DASHBOARD_RATE_LIMIT_PER_MINUTE=5000
 DASHBOARD_RATE_LIMIT_PER_SECOND=50
 DASHBOARD_RATE_LIMIT_BURST=150
-DASHBOARD_MEDIA_RATE_LIMIT_PER_MINUTE=30000
-DASHBOARD_MEDIA_RATE_LIMIT_PER_SECOND=30
-DASHBOARD_MEDIA_RATE_LIMIT_BURST=60
+DASHBOARD_MEDIA_RATE_LIMIT_PER_MINUTE=50000
+DASHBOARD_MEDIA_RATE_LIMIT_PER_SECOND=50
+DASHBOARD_MEDIA_RATE_LIMIT_BURST=100
 DASHBOARD_THUMBNAIL_MAX_DIMENSION=320
 DASHBOARD_THUMBNAIL_CACHE_MAX_BYTES=16777216
 DASHBOARD_RATE_LIMIT_REQUIRE_REDIS=true
@@ -105,6 +105,20 @@ The browser still requests each protected image independently so authorization
 and object-level agency access can be enforced per document. DOCS view requests
 a metadata-stripped 320-pixel thumbnail only after it is close to the viewport,
 and a browser-wide scheduler permits at most six simultaneous preview loads.
+All five image types, including both booklet covers, use this media lane;
+legacy cover URLs also retain the same allowance. The defaults grow from
+30 to 50 requests/second and from 60 to 100 burst capacity for the five-image
+roster. Existing explicit environment overrides still take precedence.
+
+The scheduler starts conservatively, then adapts its request spacing to the
+server's `X-RateLimit-Refill-Per-Second` and minute-budget headers, leaving
+20% headroom for other image actions. A 429 or 503 pauses the shared queue for
+`Retry-After` before retrying (up to five retries per preview). Exhausting the
+minute budget pauses until `X-RateLimit-Reset-After`. Additional passengers add
+queued work instead of an unbounded burst. A failed preview offers a manual
+retry. Protected images are fetched with same-origin cookies into temporary
+blob URLs, which are revoked on unmount; full-size Open links remain authorized
+server URLs.
 Each backend worker deduplicates concurrent renders of the same effective crop
 and retains at most 16 MiB of thumbnail bytes in a private in-memory LRU. The
 original stored object and database rows are never modified. Preview responses

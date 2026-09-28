@@ -47,6 +47,11 @@ _EXPECTED_ROUTES = [
         "remove_broadcast_recipient",
     ),
     (
+        ("PATCH",),
+        "/groups/{group_id}/recipients/{recipient_id}/details",
+        "update_broadcast_recipient_details",
+    ),
+    (
         ("POST",),
         "/groups/{group_id}/recipients/{recipient_id}/resend",
         "resend_recipient_message",

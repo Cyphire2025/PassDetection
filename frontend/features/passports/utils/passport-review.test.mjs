@@ -126,8 +126,9 @@ test("maps staff approval outcomes and typed failures to actionable UI states", 
   );
 });
 
-test("allows AI retry only for temporary provider failures", () => {
+test("allows AI retry for temporary provider failures and legacy manual fallback", () => {
   for (const providerStatus of [
+    "manual_review_required",
     "network_error",
     "provider_unavailable",
     "rate_limited",

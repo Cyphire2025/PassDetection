@@ -42,6 +42,7 @@ from app.infrastructure.database.search_expressions import (
     substring_predicate,
 )
 from app.infrastructure.repositories.operational_roster import operational_roster_member
+from app.infrastructure.verification.job_repository import PostSubmissionVerificationJobRepository
 
 logger = get_logger(__name__)
 
@@ -346,6 +347,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         if model is None:
             return None
         submission = self._to_entity(model)
+        previous_verification_revision = submission.post_submission_verification_revision
         if not submission.mark_review_required(
             extracted_fields=extracted_fields,
             confidence=confidence,
@@ -356,6 +358,16 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         ):
             return None
         self._apply_extraction_fields(model, submission)
+        if submission.post_submission_verification_revision != previous_verification_revision:
+            # Persist the result and verification outbox together so a worker
+            # restart cannot strand a re-extracted passport with an old verdict.
+            model.post_submission_verification_revision = submission.post_submission_verification_revision
+            model.post_submission_verification = submission.post_submission_verification
+            model.post_submission_verified_at = submission.post_submission_verified_at
+            await PostSubmissionVerificationJobRepository(self._session).enqueue(
+                submission_id=submission.id,
+                verification_revision=submission.post_submission_verification_revision,
+            )
         await self._session.flush()
         return submission
 
@@ -419,6 +431,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         model.status = submission.status.value
         model.post_submission_verification = submission.post_submission_verification
         model.post_submission_verified_at = submission.post_submission_verified_at
+        model.error_message = submission.error_message
         model.updated_at = submission.updated_at
         await self._session.flush()
         return submission

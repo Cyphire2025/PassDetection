@@ -91,6 +91,44 @@ class AiPriorityCoordinator:
         self._metrics.record_queued(lease, now_ms=self._clock_ms())
         return lease
 
+    def reserve_public_extraction(self, job_reference: str) -> AdmissionDecision:
+        """Reserve capacity for active work plus one waiting batch of uploads."""
+
+        workload = AiWorkload.EXTRACTION
+        started = time.perf_counter()
+        self._metrics.record_request(workload)
+        job_key = self._job_key(workload, job_reference)
+        try:
+            result = self._mutate(
+                operation="reserve_public_extraction",
+                job_key=job_key,
+                generation=0,
+                lease_ms=self.config.waiting_lease_ms,
+                max_concurrency=self.config.extraction_max_concurrency * 2,
+            )
+        except Exception as exc:
+            self._record_store_failure(workload, exc)
+            result = StoreMutation(
+                code="admission_unavailable", generation=0, counts=QueueCounts(),
+            )
+        decision = self._decision(
+            workload=workload,
+            lease=PriorityLease(
+                workload=workload, job_key=job_key, generation=result.generation,
+                lease_ms=self.config.waiting_lease_ms,
+            ),
+            result=result,
+        )
+        # Reservation is queued demand, not a started provider call.
+        self._metrics.record_counts(result.counts)
+        self._metrics.record_admission(
+            workload=workload, status=decision.status, reason=decision.reason,
+            duration_ms=self._elapsed_ms(started),
+        )
+        if decision.admitted:
+            self._metrics.record_queued(decision.lease, now_ms=self._clock_ms())
+        return decision
+
     def mark_extraction_dispatched(self, lease: PriorityLease) -> bool:
         if not lease.redis_available:
             return True
@@ -109,6 +147,21 @@ class AiPriorityCoordinator:
             return True
         self._metrics.record_counts(result.counts)
         return result.code not in {"stale", "missing", "invalid_operation"}
+
+    def release_public_reservation(self, lease: PriorityLease) -> bool:
+        """Release an abandoned waiting reservation, never an adopted delivery."""
+
+        try:
+            result = self._mutate(
+                operation="release_public_extraction", job_key=lease.job_key,
+                generation=lease.generation, lease_ms=lease.lease_ms,
+                max_concurrency=self.config.extraction_max_concurrency,
+            )
+        except Exception as exc:
+            self._record_store_failure(AiWorkload.EXTRACTION, exc)
+            return False
+        self._metrics.record_counts(result.counts)
+        return result.code in {"released", "released_idempotent", "reservation_in_use"}
 
     def try_start_extraction(self, job_reference: str) -> AdmissionDecision:
         workload = AiWorkload.EXTRACTION
@@ -331,7 +384,7 @@ class AiPriorityCoordinator:
         lease: PriorityLease,
         result: StoreMutation,
     ) -> AdmissionDecision:
-        if result.code == "admitted":
+        if result.code in {"admitted", "reserved", "existing_reservation"}:
             status = AdmissionStatus.ADMITTED
         elif result.code == "duplicate_active":
             status = AdmissionStatus.DUPLICATE

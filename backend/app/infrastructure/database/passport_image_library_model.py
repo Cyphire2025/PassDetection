@@ -16,7 +16,8 @@ class PassportImageLibraryItemModel(Base):
     __tablename__ = "passport_image_library_items"
     __table_args__ = (
         CheckConstraint(
-            "image_type IN ('visa_photo', 'passport_front', 'passport_back')",
+            "image_type IN ('visa_photo', 'passport_front', 'passport_back', "
+            "'passport_cover', 'passport_back_cover')",
             name="ck_passport_image_library_items_type",
         ),
         CheckConstraint(

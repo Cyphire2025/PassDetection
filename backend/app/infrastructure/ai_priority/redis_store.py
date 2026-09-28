@@ -103,6 +103,24 @@ if operation == "snapshot" then
   return result("snapshot", 0, 0)
 end
 
+if operation == "reserve_public_extraction" then
+  local state, generation = current()
+  if state == "ew" or state == "ed" or state == "ea" then
+    return result("existing_reservation", generation, 0)
+  end
+  local reserved = redis.call("ZCARD", extraction_waiting_key)
+    + redis.call("ZCARD", extraction_dispatching_key)
+    + redis.call("ZCARD", extraction_active_key)
+  if reserved >= max_concurrency then
+    return result("deferred_capacity", 0, quiet_period_ms)
+  end
+  local new_generation = redis.call("INCR", generation_key)
+  set_state("ew", new_generation)
+  redis.call("ZADD", extraction_waiting_key, now_ms + lease_ms, member)
+  redis.call("SET", last_extraction_activity_key, now_ms)
+  return result("reserved", new_generation, 0)
+end
+
 if operation == "register_extraction" then
   local state, generation = current()
   if state == "ew" then
@@ -186,13 +204,16 @@ if operation == "heartbeat_extraction" then
   return result("missing", generation, 0)
 end
 
-if operation == "release_extraction" then
+if operation == "release_extraction" or operation == "release_public_extraction" then
   local state, generation = current()
   if not state then
     return result("released_idempotent", requested_generation, 0)
   end
   if generation ~= requested_generation then
     return result("stale", generation, 0)
+  end
+  if operation == "release_public_extraction" and state ~= "ew" then
+    return result("reservation_in_use", generation, 0)
   end
   redis.call("ZREM", extraction_waiting_key, member)
   redis.call("ZREM", extraction_dispatching_key, member)

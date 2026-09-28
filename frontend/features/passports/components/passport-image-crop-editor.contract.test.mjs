@@ -11,10 +11,8 @@ const workspace = readFileSync(
   "utf8",
 );
 const editor = `${controller}\n${workspace}`;
-const detail = readFileSync(
-  new URL("./passport-detail.tsx", import.meta.url),
-  "utf8",
-);
+const detail = ["passport-detail.tsx", "passport-image-preview.tsx"]
+  .map((file) => readFileSync(new URL(`./${file}`, import.meta.url), "utf8")).join("\n");
 const api = readFileSync(
   new URL("../api/passports.api.ts", import.meta.url),
   "utf8",
@@ -32,8 +30,8 @@ const permissions = readFileSync(
   "utf8",
 );
 
-test("all three passport images expose separate Change, Edit, and effective open-new-tab actions", () => {
-  for (const imageType of ["visa_photo", "passport_front", "passport_back"]) {
+test("all five passport images expose separate Change, Edit, and effective open-new-tab actions", () => {
+  for (const imageType of ["visa_photo", "passport_front", "passport_back", "passport_cover", "passport_back_cover"]) {
     assert.match(detail, new RegExp(`imageType="${imageType}"`));
   }
   assert.match(detail, /appendCacheRevision/);

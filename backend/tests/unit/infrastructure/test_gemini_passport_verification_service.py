@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import unittest
+from unittest.mock import patch
 
 import httpx
 
@@ -123,8 +124,8 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
         assert isinstance(body, dict)
         config = body["generationConfig"]
         self.assertEqual(config["responseMimeType"], "application/json")
-        self.assertEqual(config["thinkingConfig"], {"thinkingLevel": "medium"})
-        self.assertLessEqual(config["maxOutputTokens"], 512)
+        self.assertEqual(config["thinkingConfig"], {"thinkingLevel": "minimal"})
+        self.assertEqual(config["maxOutputTokens"], 4096)
         field_schema = config["responseSchema"]["properties"]["f"]
         self.assertEqual(field_schema["minItems"], len(_ALL_FIELD_CODES))
         self.assertEqual(field_schema["maxItems"], len(_ALL_FIELD_CODES))
@@ -185,7 +186,7 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(client.payload_ids), 2)
         self.assertEqual(len(set(client.payload_ids)), 1)
 
-    async def test_passport_extraction_uses_medium_thinking_for_both_models(self) -> None:
+    async def test_passport_extraction_uses_compatible_low_latency_thinking_per_model(self) -> None:
         requests: list[tuple[str, str]] = []
 
         async def handler(request: httpx.Request) -> httpx.Response:
@@ -213,10 +214,63 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
             requests,
             [
                 ("gemini-3.6-flash", "medium"),
-                ("gemini-3.1-flash-lite", "medium"),
+                ("gemini-3.1-flash-lite", "minimal"),
             ],
         )
         self.assertEqual(result.metadata["status"], "enhanced")
+
+    def test_output_budget_has_safe_floor_for_legacy_override_and_accepts_larger_budget(self) -> None:
+        for configured, expected in ((512, 4096), (1024, 4096), (8192, 8192)):
+            with self.subTest(configured=configured):
+                service = GeminiPassportVerificationService(settings=_settings(
+                    gemini_max_output_tokens=configured,
+                ))
+                payload = service._request_payload(b"image", "image/jpeg", {})
+                self.assertEqual(payload["generationConfig"]["maxOutputTokens"], expected)
+
+    async def test_truncated_response_falls_back_even_if_partial_json_looks_valid(self) -> None:
+        requests = []
+
+        async def handler(request: httpx.Request) -> httpx.Response:
+            requests.append(request)
+            response = _extracted_passport_response("P1234567")
+            if len(requests) > 1:
+                return response
+            payload = response.json()
+            payload["candidates"][0]["finishReason"] = "MAX_TOKENS"
+            payload["usageMetadata"] = {
+                "thoughtsTokenCount": 410, "candidatesTokenCount": 102, "totalTokenCount": 2500,
+            }
+            return httpx.Response(200, json=payload)
+
+        with patch("app.infrastructure.ai.gemini_passport_verification_service.logger") as logged:
+            async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+                result = await GeminiPassportVerificationService(
+                    settings=_settings(), http_client=client,
+                ).verify(b"image", content_type="image/jpeg", extracted_fields={})
+
+        self.assertEqual(result.metadata["attempts"], 2)
+        self.assertEqual(result.metadata["status"], "enhanced")
+        diagnostics = next(
+            call.kwargs for call in logged.warning.call_args_list
+            if call.args[0] == "gemini_passport_verification_invalid_response"
+        )
+        self.assertEqual(diagnostics["finish_reason"], "MAX_TOKENS")
+        self.assertEqual(diagnostics["thinking_tokens"], 410)
+        self.assertEqual(diagnostics["output_tokens"], 102)
+        self.assertNotIn("P1234567", str(logged.mock_calls))
+
+    def test_response_diagnostics_never_log_untrusted_text_or_unknown_finish_reason(self) -> None:
+        response = httpx.Response(200, json={
+            "candidates": [{"finishReason": "PRIVATE PASSPORT NAME", "content": {
+                "parts": [{"text": "PRIVATE PASSPORT NUMBER"}],
+            }}],
+            "usageMetadata": {"thoughtsTokenCount": "PRIVATE", "candidatesTokenCount": True},
+        })
+        self.assertEqual(
+            GeminiPassportVerificationService._safe_response_metadata(response),
+            {"finish_reason": "missing_or_unknown"},
+        )
 
     async def test_empty_existing_fields_still_issue_direct_image_extraction_task(
         self,

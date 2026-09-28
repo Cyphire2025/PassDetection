@@ -188,7 +188,10 @@ export function isExtractionTerminal(submission: PassportSubmission) {
 
 export function extractionNoticeFor(submission: PassportSubmission) {
   if (submission.manual_review_submission_allowed) {
-    return "Automatic reading is unavailable. Enter the details and submit them for staff review. Your passport will remain unverified until staff approve it.";
+    if (submission.processing_stage === "extraction_busy") {
+      return "Extraction is busy. Your passport images are saved. Fill in the details manually; AI verification will check them after you submit.";
+    }
+    return "Automatic reading is unavailable. Enter the details manually and submit them. AI verification will check them against your saved passport images.";
   }
   if (submission.extraction_status === "extraction_failed" || submission.status === "failed") {
     return "Automatic passport reading failed. Your saved images are safe. Retry reading or replace the image if it could not be verified as the correct passport page.";
@@ -228,8 +231,8 @@ export function sleep(delayMs: number, signal: AbortSignal) {
 }
 
 const PROCESSING_STAGE_LABELS: Readonly<Record<string, string>> = {
-  queued: "Your passport verification is queued and will begin shortly.",
-  retry_queued: "Your verification is queued safely while we handle higher traffic.",
+  queued: "Your passport extraction is queued and will begin shortly.",
+  retry_queued: "Your extraction is queued safely while we handle higher traffic.",
   starting: "Starting secure passport processing.",
   downloading_image: "Preparing the passport image for extraction.",
   extracting_passport_fields: "Extracting passport details from the passport image.",

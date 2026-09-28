@@ -7,7 +7,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from app.domain.value_objects.passport_image_crop import PassportImageType
+from app.domain.value_objects.passport_image_crop import (
+    PassportImageType,
+    passport_image_storage_key,
+)
 from app.domain.value_objects.passport_image_library import (
     PassportImageLibraryItem,
     PassportImageLibrarySource,
@@ -35,6 +38,8 @@ def _submission() -> SimpleNamespace:
         image_s3_key="original/front.jpg",
         passport_photo_s3_key="original/visa.jpg",
         passport_back_s3_key="original/back.jpg",
+        passport_cover_s3_key="original/cover.jpg",
+        passport_back_cover_s3_key="original/back-cover.jpg",
         created_at=datetime.now(tz=UTC),
     )
 
@@ -152,8 +157,10 @@ async def test_library_lists_original_manual_and_ai_with_current_item() -> None:
 
 
 @pytest.mark.asyncio
-async def test_manual_upload_is_saved_to_library_and_immediately_made_current() -> None:
+@pytest.mark.parametrize("image_type", [PassportImageType.PASSPORT_FRONT, PassportImageType.PASSPORT_COVER, PassportImageType.PASSPORT_BACK_COVER])
+async def test_manual_upload_is_saved_to_library_and_immediately_made_current(image_type: PassportImageType) -> None:
     submission = _submission()
+    source_key = passport_image_storage_key(submission, image_type)
     submission.thumbnail_s3_key = "original/front-thumbnail.jpg"
     submission.promote_image = MagicMock(
         side_effect=lambda key: setattr(submission, "image_s3_key", key)
@@ -179,9 +186,9 @@ async def test_manual_upload_is_saved_to_library_and_immediately_made_current() 
         return_value=(
             _item(
                 submission.id,
-                image_type=PassportImageType.PASSPORT_FRONT,
+                image_type=image_type,
                 source=PassportImageLibrarySource.ORIGINAL,
-                storage_key=submission.image_s3_key,
+                storage_key=source_key,
             ),
             False,
         )
@@ -189,7 +196,7 @@ async def test_manual_upload_is_saved_to_library_and_immediately_made_current() 
     library_repository.create_manual = AsyncMock(
         side_effect=lambda **kwargs: _item(
             submission.id,
-            image_type=PassportImageType.PASSPORT_FRONT,
+            image_type=image_type,
             source=PassportImageLibrarySource.MANUAL,
             storage_key=kwargs["storage_key"],
         )
@@ -220,7 +227,7 @@ async def test_manual_upload_is_saved_to_library_and_immediately_made_current() 
         patch(
             "app.presentation.api.v1.routes.passport_image_library."
             "_authorized_staff_passport_image",
-            new=AsyncMock(return_value=(submission, submission.image_s3_key)),
+            new=AsyncMock(return_value=(submission, source_key)),
         ),
         patch(
             "app.presentation.api.v1.routes.passport_image_library."
@@ -278,7 +285,7 @@ async def test_manual_upload_is_saved_to_library_and_immediately_made_current() 
     ):
         response = await upload_passport_image_library_item(
             submission_id=submission.id,
-            image_type=PassportImageType.PASSPORT_FRONT,
+            image_type=image_type,
             background_tasks=MagicMock(),
             image=MagicMock(),
             expected_revision=1,
@@ -294,15 +301,28 @@ async def test_manual_upload_is_saved_to_library_and_immediately_made_current() 
     assert first_upload.args[2] == validated.content_type
     library_repository.create_manual.assert_awaited_once()
     upsert = crop_repository.upsert.await_args.kwargs
-    assert upsert["edit_source_storage_key"] is None
-    assert upsert["source_storage_key"].startswith("passport-image-library/")
     assert upsert["expected_revision"] == 1
-    submission.promote_image.assert_called_once_with(upsert["source_storage_key"])
-    submission.update_reviewed_fields.assert_called_once_with({})
-    submission_repository.update.assert_awaited_once_with(submission)
-    reextract_use_case.execute.assert_awaited_once_with(submission.id)
-    dispatch_processing_job.assert_awaited_once()
-    propagate_mobile_change.assert_awaited_once()
+    assert upsert["image_type"] is image_type
+    if image_type is PassportImageType.PASSPORT_FRONT:
+        assert upsert["edit_source_storage_key"] is None
+        assert upsert["source_storage_key"].startswith("passport-image-library/")
+        submission.promote_image.assert_called_once_with(upsert["source_storage_key"])
+        submission.update_reviewed_fields.assert_called_once_with({})
+        submission_repository.update.assert_awaited_once_with(submission)
+        reextract_use_case.execute.assert_awaited_once_with(submission.id, source_image_replaced=True)
+        dispatch_processing_job.assert_awaited_once()
+        propagate_mobile_change.assert_awaited_once()
+    else:
+        assert upsert["edit_source_storage_key"] == first_upload.args[1]
+        assert upsert["source_storage_key"] == source_key
+        assert passport_image_storage_key(submission, image_type) == source_key
+        assert submission.image_s3_key == "original/front.jpg"
+        submission.promote_image.assert_not_called()
+        submission.update_reviewed_fields.assert_not_called()
+        submission_repository.update.assert_not_awaited()
+        reextract_use_case.execute.assert_not_awaited()
+        dispatch_processing_job.assert_not_awaited()
+        propagate_mobile_change.assert_not_awaited()
     assert response.source == "manual"
     assert response.is_current is True
     session.commit.assert_awaited_once()
@@ -310,12 +330,13 @@ async def test_manual_upload_is_saved_to_library_and_immediately_made_current() 
 
 
 @pytest.mark.asyncio
-async def test_use_library_item_is_scoped_and_updates_current_edit_source() -> None:
+@pytest.mark.parametrize("image_type", [PassportImageType.PASSPORT_BACK, PassportImageType.PASSPORT_COVER, PassportImageType.PASSPORT_BACK_COVER])
+async def test_use_library_item_is_scoped_and_updates_current_edit_source(image_type: PassportImageType) -> None:
     submission = _submission()
     current_user = SimpleNamespace(id=uuid.uuid4(), email="staff@example.com")
     manual_item = _item(
         submission.id,
-        image_type=PassportImageType.PASSPORT_BACK,
+        image_type=image_type,
         source=PassportImageLibrarySource.MANUAL,
         storage_key="passport-image-library/back-manual.jpg",
     )
@@ -348,7 +369,7 @@ async def test_use_library_item_is_scoped_and_updates_current_edit_source() -> N
         patch(
             "app.presentation.api.v1.routes.passport_image_library."
             "_authorized_staff_passport_image",
-            new=AsyncMock(return_value=(submission, submission.passport_back_s3_key)),
+            new=AsyncMock(return_value=(submission, passport_image_storage_key(submission, image_type))),
         ),
         patch(
             "app.presentation.api.v1.routes.passport_image_library."
@@ -386,7 +407,7 @@ async def test_use_library_item_is_scoped_and_updates_current_edit_source() -> N
     ):
         response = await use_passport_image_library_item(
             submission_id=submission.id,
-            image_type=PassportImageType.PASSPORT_BACK,
+            image_type=image_type,
             item_id=manual_item.id,
             body=PassportVisaAiImageUseRequest(
                 x=0,
@@ -404,7 +425,7 @@ async def test_use_library_item_is_scoped_and_updates_current_edit_source() -> N
 
     library_repository.get_for_image.assert_awaited_once_with(
         submission_id=submission.id,
-        image_type=PassportImageType.PASSPORT_BACK,
+        image_type=image_type,
         item_id=manual_item.id,
     )
     assert crop_repository.upsert.await_args.kwargs["edit_source_storage_key"] == (
@@ -544,7 +565,7 @@ async def test_selecting_passport_front_makes_it_authoritative_and_reextracts() 
     submission.promote_image.assert_called_once_with(manual_item.storage_key)
     submission.update_reviewed_fields.assert_called_once_with({})
     submission_repository.update.assert_awaited_once_with(submission)
-    reextract_use_case.execute.assert_awaited_once_with(submission.id)
+    reextract_use_case.execute.assert_awaited_once_with(submission.id, source_image_replaced=True)
     dispatch_processing_job.assert_awaited_once()
     propagate_mobile_change.assert_awaited_once()
     assert response is expected_response

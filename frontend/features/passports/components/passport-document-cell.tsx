@@ -1,11 +1,13 @@
 "use client";
 
-import { Loader2, Pencil } from "lucide-react";
+import { Loader2, Pencil, RotateCcw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
   acquireDocumentThumbnailSlot,
   documentThumbnailUrl,
+  isManagedDocumentThumbnail,
 } from "../services/document-thumbnail-scheduler";
+import { fetchDocumentThumbnail } from "../services/document-thumbnail-loader";
 
 export function DocumentCell({
   label,
@@ -32,15 +34,7 @@ export function DocumentCell({
           {file ? (
             <LocalDocumentThumbnail file={file} label={label} />
           ) : effectiveUrl ? (
-            <a
-              href={effectiveUrl}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={`Open ${label} in a new tab`}
-              className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-            >
-              <DeferredDocumentThumbnail key={effectiveUrl} url={effectiveUrl} label={label} />
-            </a>
+            <DeferredDocumentThumbnail key={effectiveUrl} url={effectiveUrl} label={label} />
           ) : null}
           <div className="flex max-w-44 items-center justify-between gap-2">
             <div className="min-w-0 truncate text-xs text-slate-500">{filename ?? "Saved document"}</div>
@@ -67,7 +61,6 @@ export function DocumentCell({
 export function DeferredDocumentThumbnail({ url, label }: { url: string; label: string }) {
   const frameRef = useRef<HTMLDivElement | null>(null);
   const releaseSlotRef = useRef<(() => void) | null>(null);
-  const retryTimerRef = useRef<number | null>(null);
   const [shouldLoad, setShouldLoad] = useState(false);
   const [loadUrl, setLoadUrl] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
@@ -98,34 +91,36 @@ export function DeferredDocumentThumbnail({ url, label }: { url: string; label: 
     if (!shouldLoad || failed) return;
     const controller = new AbortController();
     let disposed = false;
+    let objectUrl: string | null = null;
 
-    void acquireDocumentThumbnailSlot(controller.signal)
-      .then((release) => {
-        if (disposed) {
-          release();
-          return;
-        }
+    const load = async () => {
+      if (isManagedDocumentThumbnail(thumbnailUrl)) {
+        const image = await fetchDocumentThumbnail(thumbnailUrl, controller.signal);
+        if (disposed) return;
+        objectUrl = URL.createObjectURL(image);
+        setLoadUrl(objectUrl);
+      } else {
+        const release = await acquireDocumentThumbnailSlot(controller.signal);
+        if (disposed) return release();
         releaseSlotRef.current = release;
         setLoadUrl(thumbnailUrl);
-      })
-      .catch((error: unknown) => {
-        if (
-          !disposed
-          && (!(error instanceof Error) || error.name !== "AbortError")
-        ) {
-          setFailed(true);
-        }
-      });
+      }
+    };
+    void load().catch((error: unknown) => {
+      if (
+        !disposed
+        && (!(error instanceof Error) || error.name !== "AbortError")
+      ) {
+        setFailed(true);
+      }
+    });
 
     return () => {
       disposed = true;
       controller.abort();
       releaseSlotRef.current?.();
       releaseSlotRef.current = null;
-      if (retryTimerRef.current !== null) {
-        window.clearTimeout(retryTimerRef.current);
-        retryTimerRef.current = null;
-      }
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
   }, [failed, loadAttempt, shouldLoad, thumbnailUrl]);
 
@@ -137,13 +132,6 @@ export function DeferredDocumentThumbnail({ url, label }: { url: string; label: 
   const handleLoadError = () => {
     releaseSlot();
     setLoadUrl(null);
-    if (loadAttempt === 0) {
-      retryTimerRef.current = window.setTimeout(() => {
-        retryTimerRef.current = null;
-        setLoadAttempt(1);
-      }, 1_000);
-      return;
-    }
     setFailed(true);
   };
 
@@ -154,8 +142,14 @@ export function DeferredDocumentThumbnail({ url, label }: { url: string; label: 
       aria-live="polite"
     >
       {loadUrl ? (
-        <>
-          {/* Keep this browser-side so the HttpOnly authentication cookie is attached. */}
+        <a
+          href={url}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={`Open ${label} in a new tab`}
+          className="block h-full w-full rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+        >
+          {/* Protected thumbnails are fetched with the same-origin session cookie. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={loadUrl}
@@ -167,11 +161,21 @@ export function DeferredDocumentThumbnail({ url, label }: { url: string; label: 
             onError={handleLoadError}
             className="h-full w-full rounded-lg object-contain"
           />
-        </>
+        </a>
       ) : failed ? (
-        <span className="px-2 text-center text-xs text-slate-400">
-          Preview unavailable
-        </span>
+        <button
+          type="button"
+          aria-label={`Retry ${label} preview`}
+          className="flex items-center gap-1 rounded px-2 py-1 text-xs text-blue-700 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            setFailed(false);
+            setLoadAttempt((attempt) => attempt + 1);
+          }}
+        >
+          <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" /> Retry preview
+        </button>
       ) : shouldLoad ? (
         <Loader2 className="h-4 w-4 animate-spin text-slate-400" aria-label="Loading preview" />
       ) : (

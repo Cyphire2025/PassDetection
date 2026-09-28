@@ -544,6 +544,24 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
         )
         self.passport_repo.apply_extraction_failure.assert_not_awaited()
 
+    async def test_provider_timeout_preserves_trusted_manual_submission_eligibility(self) -> None:
+        self.storage_repo.get_file.return_value = b"saved-passport-front"
+        self.passport_repo.apply_extraction_failure.return_value = self.submission
+        with patch(
+            "app.application.use_cases.passports.process_passport_submission_job_use_case.verify_passport_fields",
+            new=AsyncMock(side_effect=TimeoutError),
+        ):
+            await self._use_case().execute(
+                submission_id=self.submission_id, job_id=self.job_id,
+            )
+        failure = self.passport_repo.apply_extraction_failure.await_args.kwargs
+        self.assertEqual(failure["diagnostics"]["ai_verification"], {
+            "status": "unavailable", "available": False,
+            "outcome_kind": "provider_failure", "extraction_revision": self.revision,
+            "reason_code": "extraction_unavailable",
+        })
+        self.job_repo.mark_retryable_failure.assert_not_awaited()
+
     async def test_terminal_ocr_failure_keeps_submission_reviewable(self) -> None:
         self.storage_repo.get_file.side_effect = StorageError("provider detail")
         self.passport_repo.apply_extraction_failure.return_value = self.submission
@@ -557,6 +575,7 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
             submission_id=self.submission_id,
             expected_revision=self.revision,
             public_message=PUBLIC_EXTRACTION_FAILURE,
+            diagnostics=None,
         )
         self.job_repo.mark_dead_letter.assert_awaited_once_with(
             self.job_id,

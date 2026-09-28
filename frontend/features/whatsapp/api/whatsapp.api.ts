@@ -11,6 +11,14 @@ export interface WhatsAppRecipientInput {
   imported_fields?: Record<string, string>;
 }
 
+export interface WhatsAppRecipientDetailsEdit {
+  merged_contact_id: string | null;
+  expected_name: string | null;
+  expected_imported_fields: Record<string, string>;
+  name: string;
+  imported_fields: Record<string, string>;
+}
+
 export interface WhatsAppSupportContactInput {
   name: string;
   phone_number: string;
@@ -22,6 +30,7 @@ export interface WhatsAppRecipient {
   phone_number: string;
   normalized_phone_number: string;
   imported_fields: Record<string, string>;
+  is_source_managed?: boolean;
   merged_contacts?: { id: string; name: string | null; imported_fields: Record<string, string> }[];
   message_statuses: WhatsAppRecipientMessageStatus[];
   welcome_status?: string | null;
@@ -546,6 +555,17 @@ export const whatsappApi = {
     const { data } = await apiClient.patch<WhatsAppBroadcastGroupDetail>(
       API_ENDPOINTS.whatsapp.recipient(groupId, recipientId),
       { phone_number: phoneNumber },
+    );
+    return data;
+  },
+
+  updateRecipientDetails: async ({ groupId, recipientId, details }: {
+    groupId: string;
+    recipientId: string;
+    details: WhatsAppRecipientDetailsEdit;
+  }): Promise<WhatsAppBroadcastGroupDetail> => {
+    const { data } = await apiClient.patch<WhatsAppBroadcastGroupDetail>(
+      API_ENDPOINTS.whatsapp.recipientDetails(groupId, recipientId), details,
     );
     return data;
   },
