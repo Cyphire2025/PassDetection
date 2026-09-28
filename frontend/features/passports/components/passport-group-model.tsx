@@ -1,3 +1,4 @@
+import { DocumentFollowUpBadge } from "./passport-document-follow-up";
 import { Badge, Button, Card, CardContent } from "@/components/ui";
 import { PASSPORT_STATUS_COLORS, PASSPORT_STATUS_LABELS } from "@/constants";
 import { formatConfidence, formatDateTime } from "@/lib/utils/format";
@@ -105,6 +106,7 @@ export function PassportMobileCard({
               <h3 className="text-base font-semibold text-slate-900">
                 {passport.client_name}
               </h3>
+              <DocumentFollowUpBadge flagged={passport.document_follow_up} />
               <p className="mt-1 break-all text-xs text-slate-500">
                 {passport.client_email ?? "No email provided"}
               </p>

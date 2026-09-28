@@ -139,6 +139,7 @@ async def list_passports_by_group_view(
         "needs_review",
         "staff_approved",
         "duplicates",
+        "document_follow_up",
     ] = "all",
     sort_by: Literal["name", "updated_at", "verification_confidence"] = "name",
     sort_order: Literal["asc", "desc"] = "asc",

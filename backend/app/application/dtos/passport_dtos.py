@@ -50,6 +50,7 @@ class PassportSubmissionOutputDTO:
     passport_back_cover_s3_key: str | None = None
     passport_back_s3_key: str | None = None
     staff_metadata: dict[str, Any] | None = None
+    document_follow_up: bool = False
     custom_answers: list[dict[str, str]] | None = None
     custom_detail_answers: list[dict[str, str]] | None = None
     acquisition_mode: str = "file"
@@ -131,6 +132,7 @@ def passport_submission_output_from_entity(
         passport_back_cover_s3_key=getattr(submission, "passport_back_cover_s3_key", None),
         passport_back_s3_key=submission.passport_back_s3_key,
         staff_metadata=submission.staff_metadata,
+        document_follow_up=getattr(submission, "document_follow_up", False),
         custom_answers=list(submission.custom_answers or []),
         custom_detail_answers=list(submission.custom_detail_answers or []),
         acquisition_mode=submission.acquisition_mode,

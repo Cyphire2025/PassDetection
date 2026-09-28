@@ -212,6 +212,18 @@ class ExportSelectedPassportImagesRequest(BaseModel):
     submission_ids: list[uuid.UUID] = Field(..., min_length=1, max_length=500)
 
 
+class BulkDocumentFollowUpRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    submission_ids: list[uuid.UUID] = Field(min_length=1, max_length=1500)
+    flagged: bool
+
+
+class BulkDocumentFollowUpResponse(BaseModel):
+    updated_count: int = Field(ge=0)
+    flagged: bool
+
+
 class BulkDeletePassportSubmissionsRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -496,6 +508,7 @@ class PassportSubmissionResponse(BaseModel):
     passport_back_cover_s3_key: str | None = None
     passport_back_s3_key: str | None = None
     staff_metadata: dict[str, str] | None = None
+    document_follow_up: bool = False
     custom_answers: list[dict[str, str]] = Field(default_factory=list)
     custom_detail_answers: list[dict[str, str]] = Field(default_factory=list)
     acquisition_mode: Literal["camera", "file"] = "file"
@@ -598,6 +611,7 @@ class PassportSubmissionsViewResponse(BaseModel):
         default_factory=list
     )
     group_total: int = Field(ge=0)
+    document_follow_up_count: int = Field(default=0, ge=0)
     total: int = Field(ge=0)
     page: int = Field(ge=1)
     page_size: int = Field(ge=1)

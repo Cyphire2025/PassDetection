@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import json
 import uuid
+import zlib
 from unittest.mock import AsyncMock
 
 import pytest
@@ -16,6 +18,7 @@ def prepared():
                         confirmed=_passport_fields("PRIVATE123", "Chennai")) for index in range(303)]
     for index, row in enumerate(rows):
         row.extraction_revision = index
+        row.document_follow_up = index < 10
     return prepare_submission_view(rows, submission_filter="all", sort_by="name", sort_order="asc", search=None, page_size=50)
 
 
@@ -29,10 +32,12 @@ def test_encrypted_roundtrip_preserves_full_cluster_pagination_and_selection_rev
     assert decoded.ordered_submission_ids == index.ordered_submission_ids
     assert decoded.clusters == index.clusters
     assert decoded.expiry_alerts == index.expiry_alerts
+    assert decoded.document_follow_up_count == index.document_follow_up_count == 10
     for number, page in enumerate(index.pages, start=1):
         cached = decoded.page(number)
         assert len(cached.items) == len(page) <= 50
         assert cached.duplicate_clusters == index.page(number).duplicate_clusters
+        assert cached.document_follow_up_count == 10
         for original, restored in zip(page, cached.items, strict=True):
             assert (original.submission.id, original.submission.extraction_revision, original.submission.updated_at) == (
                 restored.submission.id, restored.submission.extraction_revision, restored.submission.updated_at)
@@ -49,6 +54,15 @@ async def test_missing_tampered_and_unavailable_cache_fall_back_without_returnin
         redis.get.return_value = response
         assert await cache.get("synthetic-identity") is None
     redis.get.side_effect = ConnectionError("synthetic unavailable")
+    assert await cache.get("synthetic-identity") is None
+
+
+async def test_legacy_cached_roster_without_flag_count_is_recomputed():
+    redis = AsyncMock()
+    cache = RosterCache(redis, secret="synthetic-key-only")
+    redis.get.return_value = cache.cipher.encrypt(zlib.compress(json.dumps(
+        {"v": 1, "identity": "synthetic-identity"}
+    ).encode()))
     assert await cache.get("synthetic-identity") is None
 
 

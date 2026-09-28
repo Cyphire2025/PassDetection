@@ -1,4 +1,5 @@
 "use client";
+import { DocumentFollowUpBadge } from "./passport-document-follow-up";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button, Card, CardContent, Skeleton } from "@/components/ui";
 import { formatConfidence, formatDateTime } from "@/lib/utils/format";
@@ -211,6 +212,7 @@ export function PassportGroupRosterPanel({
                                 <div className="font-semibold text-slate-900">
                                   {passport.client_name}
                                 </div>
+                                <DocumentFollowUpBadge flagged={passport.document_follow_up} />
                                 <div className="mt-1 break-all text-xs text-slate-500">
                                   {passport.client_email ?? "No email provided"}
                                 </div>

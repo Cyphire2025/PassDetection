@@ -26,6 +26,7 @@ vi.mock("../hooks/use-passports", () => ({
   usePassportGroups: () => ({ data: [] }),
   useBulkDeletePassportSubmissions: () => idleMutation,
   useBulkStaffApprovePassportSubmissions: () => idleMutation,
+  useBulkDocumentFollowUp: () => idleMutation,
   useExportPassportGroup: () => idleMutation,
   useExportPassportGroupImages: () => idleMutation,
   useExportSelectedPassportImages: () => idleMutation,

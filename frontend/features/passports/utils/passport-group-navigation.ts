@@ -47,6 +47,7 @@ const SUBMISSION_FILTERS = new Set<PassportGroupSubmissionFilter>([
   "needs_review",
   "staff_approved",
   "duplicates",
+  "document_follow_up",
 ]);
 const SORT_FIELDS = new Set<PassportGroupSubmissionSort>([
   "name",

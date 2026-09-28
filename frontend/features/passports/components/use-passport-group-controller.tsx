@@ -49,6 +49,7 @@ import {
   MAX_SELECTED_IMAGE_DOWNLOAD,
 } from "./passport-group-bindings";
 import { mutationErrorMessage } from "./passport-group-model";
+import { usePassportDocumentFollowUp } from "./use-passport-document-follow-up";
 import type { TripDetailsForm } from "./passport-trip-details-dialog";
 export function usePassportGroupController({ groupId }: { groupId: string }) {
   const searchParams = useSearchParams();
@@ -117,6 +118,7 @@ export function usePassportGroupController({ groupId }: { groupId: string }) {
     isLoading,
     error,
     isFetching,
+    isPlaceholderData,
     refetch: refetchSubmissions,
   } = useGroupSubmissionsView(groupId, {
     ...(debouncedSearch ? { search: debouncedSearch } : {}),
@@ -595,7 +597,16 @@ export function usePassportGroupController({ groupId }: { groupId: string }) {
     );
   };
 
+  const documentFollowUp = usePassportDocumentFollowUp({
+    groupId, selectedPassports, submissionFilter, setSubmissionFilter, setPage,
+    canManage: canBulkStaffApprove, includeDeleted, groupStatus: groupDetails?.group_status,
+    flaggedCount: submissionsView?.document_follow_up_count,
+    viewStatus: { isLoading, isFetching, isPlaceholderData, error },
+    setFeedback: setBulkDeleteFeedback, closeMenu: () => setIsBulkActionsMenuOpen(false),
+  });
+
   return {
+    documentFollowUp,
     actionsMenuButtonRef,
     actionsMenuPopupRef,
     actionsMenuPosition,

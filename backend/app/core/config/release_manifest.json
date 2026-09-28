@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "schema_revision": "0112_passport_cover_edits",
-  "previous_schema_revision": "0111_roster_revision",
+  "schema_revision": "0113_document_follow_up",
+  "previous_schema_revision": "0112_passport_cover_edits",
   "worker_nodes": {
     "worker": "general",
     "email-worker": "email",

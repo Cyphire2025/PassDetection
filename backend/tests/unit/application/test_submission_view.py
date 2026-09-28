@@ -62,6 +62,18 @@ def _passport_fields(
     }
 
 
+def test_document_follow_up_filter_only_returns_flagged_duplicate_members():
+    first = _submission(name="Flagged", confirmed=_passport_fields("P123", "Chennai"))
+    second = _submission(name="Unflagged", confirmed=_passport_fields("P123", "Chennai"))
+    first.document_follow_up, second.document_follow_up = True, False
+    view = build_submission_view([first, second], submission_filter="document_follow_up",
+        sort_by="name", sort_order="asc", search=None, page=1, page_size=50)
+    assert view.ordered_submission_ids == (first.id,)
+    assert view.document_follow_up_count == 1 and view.group_total == 2 and view.total == 1
+    assert view.items[0].duplicate_cluster_size == 2
+    assert view.duplicate_clusters[0].matching_members == 1
+
+
 @pytest.mark.parametrize("page_size", [1, 50, 100, 200])
 def test_oversized_duplicate_cluster_continues_without_losing_any_rows(page_size: int) -> None:
     submissions = [

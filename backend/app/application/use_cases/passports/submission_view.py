@@ -56,6 +56,7 @@ class SubmissionViewResult:
     duplicate_clusters: tuple[DuplicateClusterPage, ...]
     cluster_boundaries_preserved: bool
     expiry_alerts: tuple[ExpiryAlert, ...]
+    document_follow_up_count: int = 0
 
 
 @dataclass(frozen=True)
@@ -77,6 +78,7 @@ class PreparedSubmissionView:
     page_size: int
     cluster_boundaries_preserved: bool
     expiry_alerts: tuple[ExpiryAlert, ...]
+    document_follow_up_count: int = 0
 
     def page(self, number: int) -> SubmissionViewResult:
         items = self.pages[number - 1] if 0 < number <= len(self.pages) else ()
@@ -84,7 +86,8 @@ class PreparedSubmissionView:
         return SubmissionViewResult(items=items, ordered_submission_ids=self.ordered_submission_ids,
             group_total=self.group_total, total=self.total, page=number, page_size=self.page_size,
             total_pages=len(self.pages), returned_count=len(items), duplicate_clusters=clusters,
-            cluster_boundaries_preserved=self.cluster_boundaries_preserved, expiry_alerts=self.expiry_alerts)
+            cluster_boundaries_preserved=self.cluster_boundaries_preserved, expiry_alerts=self.expiry_alerts,
+            document_follow_up_count=self.document_follow_up_count)
 
 
 def _normalized_tokens(value: Any) -> str:
@@ -318,6 +321,8 @@ def _matches_search(entry: SubmissionViewEntry, search: str) -> bool:
 def _status_matches(entry: SubmissionViewEntry, submission_filter: str) -> bool:
     if submission_filter == "all":
         return True
+    if submission_filter == "document_follow_up":
+        return bool(getattr(entry.submission, "document_follow_up", False))
     status_map = {
         "pending_ai": "submitted",
         "ai_approved": "ai_approved",
@@ -523,6 +528,7 @@ def prepare_submission_view(
         clusters=_all_page_clusters(pages),
         ordered_submission_ids=ordered_submission_ids,
         group_total=len(submissions),
+        document_follow_up_count=sum(bool(getattr(row, "document_follow_up", False)) for row in submissions),
         total=total,
         page_size=page_size,
         cluster_boundaries_preserved=all(len(block) <= page_size for block in blocks),

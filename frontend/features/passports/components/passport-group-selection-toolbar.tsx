@@ -17,8 +17,10 @@ import {
   MAX_BULK_SELECTION,
   MAX_SELECTED_IMAGE_DOWNLOAD,
 } from "./passport-group-bindings";
+import { DocumentFollowUpActions } from "./passport-document-follow-up";
 import type { PassportGroupController } from "./use-passport-group-controller";
 export function PassportGroupSelectionToolbar({
+  documentFollowUp,
   search,
   setSearch,
   setPage,
@@ -60,6 +62,7 @@ export function PassportGroupSelectionToolbar({
   setViewMode,
 }: Pick<
   PassportGroupController,
+  | "documentFollowUp"
   | "search"
   | "setSearch"
   | "setPage"
@@ -160,6 +163,9 @@ export function PassportGroupSelectionToolbar({
           <option value="needs_review">Needs Review</option>
           <option value="staff_approved">Staff Approved</option>
           <option value="duplicates">Duplicates</option>
+          {(submissionsView?.document_follow_up_count ?? 0) > 0 && (
+            <option value="document_follow_up">Flagged for follow-up</option>
+          )}
         </select>
         <label className="sr-only" htmlFor="group-submission-sort-order">
           Sort direction
@@ -260,6 +266,7 @@ export function PassportGroupSelectionToolbar({
                   aria-label="Bulk submission actions"
                   className="absolute right-0 top-11 z-40 w-64 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-xl"
                 >
+                  <DocumentFollowUpActions followUp={documentFollowUp} selectedCount={selectedPassports.length} />
                   {canBulkStaffApprove && !includeDeleted && (
                     <button
                       type="button"

@@ -195,6 +195,15 @@ export function useGroupSubmissionsView(
   });
 }
 
+export function useBulkDocumentFollowUp(groupId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (request: { submission_ids: string[]; flagged: boolean }) =>
+      passportsApi.bulkDocumentFollowUp(groupId, request),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.passports.all }),
+  });
+}
+
 export function useBulkDeletePassportSubmissions(groupId: string) {
   const queryClient = useQueryClient();
 

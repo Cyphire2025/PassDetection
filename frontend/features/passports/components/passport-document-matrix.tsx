@@ -1,4 +1,5 @@
 "use client";
+import { DocumentFollowUpBadge } from "./passport-document-follow-up";
 
 import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui";
@@ -91,6 +92,7 @@ export function PassportDocumentMatrix({
                       <div className="font-semibold text-slate-900">
                         {passport.client_name}
                       </div>
+                      <DocumentFollowUpBadge flagged={passport.document_follow_up} />
                       <div className="mt-1 text-xs text-slate-500">
                         {getPersonnelCode(passport) ||
                           "No staff or Agent/Employee code"}

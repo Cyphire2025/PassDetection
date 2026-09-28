@@ -31,7 +31,9 @@ def main() -> int:
     if heads != (EXPECTED_HEAD,):
         raise RuntimeError(f"Expected one Alembic head {EXPECTED_HEAD!r}; observed {heads!r}")
     head = scripts.get_revision(EXPECTED_HEAD)
-    if head.down_revision != "0111_roster_revision":
+    if head.down_revision != "0112_passport_cover_edits":
+        raise RuntimeError("Document follow-up must follow passport cover edits")
+    if scripts.get_revision("0112_passport_cover_edits").down_revision != "0111_roster_revision":
         raise RuntimeError("Passport cover edits must follow roster revisions")
     if scripts.get_revision("0111_roster_revision").down_revision != "0110_search_indexes":
         raise RuntimeError("Roster revisions must follow search indexes")
@@ -93,7 +95,7 @@ def main() -> int:
         )
 
     print(
-        "Alembic topology verified: 0112 follows 0111, 0110, 0109, 0108, 0107, 0106, 0105, 0104, 0103, 0102, 0101, 0100, 0099, 0098, 0097, 0096, 0095, 0094, 0093, 0092, 0091, 0090, 0089 and the preserved 0088 merge "
+        "Alembic topology verified: 0113 follows 0112, 0111, 0110, 0109, 0108, 0107, 0106, 0105, 0104, 0103, 0102, 0101, 0100, 0099, 0098, 0097, 0096, 0095, 0094, 0093, 0092, 0091, 0090, 0089 and the preserved 0088 merge "
         "of the My Photos and enterprise-hardening branches."
     )
     return 0

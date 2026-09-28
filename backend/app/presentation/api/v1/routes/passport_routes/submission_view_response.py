@@ -38,6 +38,7 @@ def build_view_response(
             for submission_id in ordered_selection_ids
         ],
         group_total=view.group_total,
+        document_follow_up_count=view.document_follow_up_count,
         total=view.total,
         page=view.page,
         page_size=view.page_size,

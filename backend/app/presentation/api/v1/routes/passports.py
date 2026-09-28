@@ -17,6 +17,7 @@ from .passport_routes import (
     client_details,
     contact_verification,
     covers,
+    document_follow_up,
     document_import,
     excel_exports,
     excel_import,
@@ -399,6 +400,7 @@ _ROUTE_ORDER = (
     "list_passports_by_group_view",
     "bulk_delete_passport_submissions",
     "bulk_staff_approve_passport_submissions",
+    "bulk_document_follow_up",
     "list_passports",
     "list_passport_group_export_history",
     "get_passport_group_export_history_detail",
@@ -447,6 +449,7 @@ _ROUTE_ORDER = (
 router = APIRouter()
 for _module in (
     bulk_actions,
+    document_follow_up,
     client_details,
     contact_verification,
     covers,

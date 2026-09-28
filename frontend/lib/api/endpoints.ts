@@ -197,6 +197,8 @@ export const API_ENDPOINTS = {
     groupImport: (groupId: string) => `/api/v1/passports/groups/${groupId}/import.xlsx`,
     passportDocumentPreview: (groupId: string) => `/api/v1/passports/groups/${groupId}/import-passports/preview`,
     passportDocumentSave: (groupId: string) => `/api/v1/passports/groups/${groupId}/import-passports/save`,
+    bulkDocumentFollowUp: (groupId: string) =>
+      `/api/v1/passports/groups/${groupId}/bulk-document-follow-up`,
     bulkDelete: (groupId: string) => `/api/v1/passports/groups/${groupId}/bulk-delete`,
     bulkStaffApprove: (groupId: string) =>
       `/api/v1/passports/groups/${groupId}/bulk-staff-approve`,

@@ -656,6 +656,9 @@ class PassportSubmissionModel(Base):
     # Excel-derived organisational attributes (staff code, zone, designation,
     # etc.) are kept separately from passport OCR fields.
     staff_metadata: Mapped[dict[str, str] | None] = mapped_column(JSONB, nullable=True)
+    document_follow_up: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
     custom_answers: Mapped[list[CustomAnswerSnapshot]] = mapped_column(
         JSONB, nullable=False, default=list, server_default="[]"
     )

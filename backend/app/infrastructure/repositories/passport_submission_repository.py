@@ -90,6 +90,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             extraction_status=PassportExtractionStatus(model.extraction_status),
             extraction_revision=model.extraction_revision,
             staff_metadata=model.staff_metadata,
+            document_follow_up=bool(model.document_follow_up),
             custom_answers=list(model.custom_answers or []),
             custom_detail_answers=list(model.custom_detail_answers or []),
             status=PassportProcessingStatus(model.status),
@@ -151,6 +152,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             extraction_status=entity.extraction_status.value,
             extraction_revision=entity.extraction_revision,
             staff_metadata=entity.staff_metadata,
+            document_follow_up=entity.document_follow_up,
             custom_answers=entity.custom_answers,
             custom_detail_answers=entity.custom_detail_answers,
             status=entity.status.value,
@@ -297,6 +299,8 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         model.extraction_status = submission.extraction_status.value
         model.extraction_revision = submission.extraction_revision
         model.staff_metadata = submission.staff_metadata
+        # Follow-up flags have a dedicated locked mutation. A stale extraction
+        # or verification snapshot must never overwrite an office flag change.
         model.custom_answers = submission.custom_answers
         model.custom_detail_answers = submission.custom_detail_answers
         model.status = submission.status.value

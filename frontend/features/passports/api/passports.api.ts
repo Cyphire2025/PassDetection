@@ -61,7 +61,8 @@ export type PassportGroupSubmissionFilter =
   | "ai_approved"
   | "needs_review"
   | "staff_approved"
-  | "duplicates";
+  | "duplicates"
+  | "document_follow_up";
 
 export type PassportGroupSubmissionSort =
   | "name"
@@ -101,6 +102,7 @@ export interface PassportGroupSubmissionsView {
   ordered_submission_ids: string[];
   ordered_selection_snapshot: PassportSubmissionSelectionSnapshot[];
   group_total: number;
+  document_follow_up_count?: number;
   total: number;
   page: number;
   page_size: number;
@@ -903,6 +905,16 @@ export const passportsApi = {
       data: { submission_ids: submissionIds },
       suggestedFilename: passportImageDownloadFilename(groupName ?? groupId),
     });
+  },
+
+  bulkDocumentFollowUp: async (
+    groupId: string,
+    request: { submission_ids: string[]; flagged: boolean },
+  ): Promise<{ updated_count: number; flagged: boolean }> => {
+    const { data } = await apiClient.post<{ updated_count: number; flagged: boolean }>(
+      API_ENDPOINTS.passports.bulkDocumentFollowUp(groupId), request,
+    );
+    return data;
   },
 
   bulkDelete: async (

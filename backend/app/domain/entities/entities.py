@@ -817,6 +817,7 @@ class PassportSubmission:
     error_message: str | None
     passport_cover_s3_key: str | None = None
     passport_back_cover_s3_key: str | None = None
+    document_follow_up: bool = False
     custom_answers: list[CustomAnswerSnapshot] = field(default_factory=list)
     custom_detail_answers: list[CustomDetailAnswerSnapshot] = field(default_factory=list)
     qualifier_enabled_snapshot: bool = False

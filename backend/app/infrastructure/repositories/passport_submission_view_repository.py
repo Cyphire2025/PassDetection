@@ -39,6 +39,7 @@ class PassportViewProjection:
     status: str
     updated_at: datetime
     extraction_revision: int
+    document_follow_up: bool = False
 
 
 class PassportSubmissionViewRepository:
