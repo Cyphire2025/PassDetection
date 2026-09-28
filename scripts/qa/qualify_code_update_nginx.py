@@ -62,6 +62,9 @@ http {
     access_log off;
     client_body_temp_path /tmp/client_temp;
     proxy_temp_path /tmp/proxy_temp;
+    fastcgi_temp_path /tmp/fastcgi_temp;
+    uwsgi_temp_path /tmp/uwsgi_temp;
+    scgi_temp_path /tmp/scgi_temp;
     upstream backend { server backend:8000; }
     upstream frontend { server frontend:3000; }
     server {
@@ -83,6 +86,44 @@ def docker(*args: str) -> str:
     result = subprocess.run(["docker", *args], check=True, capture_output=True,
                             text=True, timeout=90)
     return result.stdout.strip()
+
+
+def published_port(name: str, container_port: str = "8080/tcp") -> str:
+    """Inspect startup explicitly instead of assuming a detached start survived."""
+    for _ in range(50):
+        details = json.loads(docker("inspect", name))[0]
+        state = details["State"]
+        if state["Status"] in {"exited", "dead"}:
+            raise RuntimeError(f"Synthetic service exited before readiness: exit={state['ExitCode']}")
+        bindings = details["NetworkSettings"].get("Ports", {}).get(container_port)
+        if state.get("Running") and bindings:
+            return bindings[0]["HostPort"]
+        time.sleep(0.1)
+    raise RuntimeError("Synthetic service never established a published port")
+
+
+def failure_diagnostics(names: list[str]) -> list[dict]:
+    """Retain bounded logs/state from these credential-free synthetic fixtures."""
+    records = []
+    for name in names:
+        entry = {"name": name}
+        try:
+            details = json.loads(docker("inspect", name))[0]
+            entry["state"] = {key: details["State"].get(key)
+                              for key in ("Status", "Running", "ExitCode", "OOMKilled", "Error")}
+            logs = subprocess.run(["docker", "logs", "--tail", "80", name],
+                                  check=False, capture_output=True, text=True, timeout=15)
+            entry["logs"] = (logs.stdout + logs.stderr)[-16000:]
+        except (OSError, ValueError, subprocess.SubprocessError) as error:
+            entry["diagnostics_error"] = type(error).__name__
+        records.append(entry)
+    return records
+
+
+def write_evidence(path: Path, report: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps(report, indent=2), flush=True)
 
 
 class FixtureRelease(CodeUpdate):
@@ -177,9 +218,10 @@ def switch_with_held_request(release: FixtureRelease, origin: str, old: str, new
             assert not held.done(), "The route switch interrupted the held HTTP response"
         finally:
             # Release this exact synthetic request even when qualification fails.
-            docker("exec", old, "python", "-c",
-                   "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/release/"
-                   + token + "',timeout=5).read()")
+            # A host-side request avoids a second interpreter inside the small
+            # fixture's memory limit. Its control port is loopback-only.
+            control = "http://127.0.0.1:" + published_port(old, "8000/tcp")
+            request(control, "/release/" + token)
         result = held.result(timeout=10)
         assert result == {"release": expected_old, "port": 8000}
         draining.result(timeout=12)
@@ -221,6 +263,7 @@ def main() -> int:
             for name in ("old", "new"):
                 aliases = ("--network-alias", "backend", "--network-alias", "frontend") if name == "old" else ()
                 docker("create", "--name", names[name], "--network", network, *aliases, *caps,
+                       "--publish", "127.0.0.1::8000",
                        "--mount", f"type=bind,source={server},target=/tmp/fixture.py,readonly",
                        "--entrypoint", "python", images["python"], "-u", "/tmp/fixture.py", name)
                 created.append(names[name])
@@ -231,8 +274,8 @@ def main() -> int:
                    "--entrypoint", "nginx", images["nginx"], "-g", "daemon off;")
             created.append(names["nginx"])
             docker("start", names["nginx"])
+            port = published_port(names["nginx"])
             details = {name: json.loads(docker("inspect", value))[0] for name, value in names.items()}
-            port = details["nginx"]["NetworkSettings"]["Ports"]["8080/tcp"][0]["HostPort"]
             origin = "http://127.0.0.1:" + port
             release = FixtureRelease(root, details["nginx"]["Id"], details["old"]["Id"])
             old, new = details["old"]["Id"], details["new"]["Id"]
@@ -252,12 +295,18 @@ def main() -> int:
             assert release.failed_config_checks == 1, "Qualification did not reach a failing real nginx -t"
             assert config.read_text() == valid, "Failed configuration did not restore original file"
             wait_serving(origin, "old")
-            report = {"schema_version": 1, "images": images, "switches": checks,
+            report = {"schema_version": 1, "result": "passed", "images": images, "switches": checks,
                       "failed_nginx_config_preserved_original": True,
-                      "production_changes": False, "synthetic_max_memory_bytes": 3 * 64 * 1024**2}
-            args.evidence.parent.mkdir(parents=True, exist_ok=True)
-            args.evidence.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-            print(json.dumps(report, indent=2), flush=True)
+                      "production_changes": False,
+                      "synthetic_max_memory_bytes": 3 * 64 * 1024**2}
+            write_evidence(args.evidence, report)
+        except BaseException as error:
+            write_evidence(args.evidence, {
+                "schema_version": 1, "result": "failed", "images": images,
+                "error": f"{type(error).__name__}: {error}"[:2000],
+                "containers": failure_diagnostics(created), "production_changes": False,
+            })
+            raise
         finally:
             for name in reversed(created):
                 docker("rm", "--force", name)
