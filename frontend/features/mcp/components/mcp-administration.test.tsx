@@ -94,7 +94,7 @@ it("shows versioned connector setup without claiming unpublished installation or
   expect(setup).toHaveTextContent("Windows connector 0.2.0");
   expect(setup).toHaveTextContent("This deployment has not approved the desktop connector’s callback");
   expect(setup).toHaveTextContent("A hosted installer is not published here");
-  expect(setup).toHaveTextContent("Real Codex sign-in and production access remain unqualified");
+  expect(setup).toHaveTextContent("Full workflow qualification remains in progress");
   expect(setup).toHaveTextContent("PDF upload stages a file for a later workflow");
   expect(setup).toHaveTextContent("Local file tools use exact files and a download folder selected in the connector startup arguments");
   expect(setup).toHaveTextContent("Automatic handoff of new Codex attachments remains unqualified");

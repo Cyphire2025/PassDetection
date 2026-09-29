@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { mcpApi, type McpArtifact, type McpOperation } from "../api/mcp.api";
 import { McpFiles, McpToolInventory, McpWorkflows } from "./mcp-work-results";
@@ -88,4 +88,48 @@ it("keeps unavailable workflow data distinct from an empty list", async () => {
   mount(<McpWorkflows />);
   expect(await screen.findByRole("alert")).toHaveTextContent("Workflow data unavailable");
   expect(screen.queryByText("No saved workflows on this page.")).not.toBeInTheDocument();
+});
+
+it.each([
+  { operation: "confirm_whatsapp_message", status: "queued", stage: "queued", complete: false },
+  { operation: "confirm_whatsapp_reminder", status: "running", stage: "dispatching", complete: false },
+  { operation: "confirm_whatsapp_reminder", status: "failed", stage: "dispatch_cancelled", complete: true },
+  { operation: "confirm_whatsapp_message", status: "unknown", stage: "dispatch_cancelled_unknown", complete: false },
+  { operation: "confirm_whatsapp_message", status: "failed", stage: "dispatch_complete", complete: true },
+  { operation: "confirm_gc_push", status: "unknown", stage: "provider_outcome_unknown", complete: false },
+  { operation: "confirm_gc_push", status: "succeeded", stage: "dispatch_complete", complete: true },
+] as const)("shows $operation $status/$stage as a workflow observation, not delivery", async (example) => {
+  const row: McpOperation = { ...operation, operation: example.operation, status: example.status,
+    stage: example.stage, workflow_id: "00000000-0000-4000-8000-000000000123",
+    connection_id: "00000000-0000-4000-8000-000000000456", revision: 4,
+    completed_at: example.complete ? "2026-09-29T12:02:00Z" : null };
+  vi.mocked(mcpApi.operations).mockResolvedValue({ items: [row], next_offset: null });
+  mount(<McpWorkflows />);
+  const card = await screen.findByRole("article", { name: `Workflow ${row.id}` });
+  expect(within(card).getByLabelText(`Operation status: ${example.status}`)).toHaveTextContent(
+    example.status === "unknown" ? "Outcome uncertain" : example.status);
+  expect(within(card).getByLabelText("Workflow stage")).toHaveTextContent(`Stage: ${example.stage.replaceAll("_", " ")}`);
+  expect(within(card).getByText("Workflow ID")).toBeVisible();
+  expect(within(card).getByText(row.workflow_id)).toBeVisible();
+  expect(within(card).getByText("Owning connection ID")).toBeVisible();
+  expect(within(card).getByText(row.connection_id)).toBeVisible();
+  expect(within(card).getByText(/Revision 4/)).toBeVisible();
+  expect(within(card).getByText(/Dispatch completion does not confirm delivery/)).toBeVisible();
+  expect(within(card).queryByText(/Operation completed/)).toBe(example.complete
+    ? within(card).getByText(/Operation completed/) : null);
+  expect(within(card).queryByText("delivered", { exact: true })).not.toBeInTheDocument();
+  expect(within(card).queryByText("sent", { exact: true })).not.toBeInTheDocument();
+  expect(within(card).queryByRole("progressbar")).toBe(example.status === "queued" || example.status === "running"
+    ? within(card).getByRole("progressbar") : null);
+});
+
+it("preserves a non-communication completion stage without inventing job or delivery facts", async () => {
+  vi.mocked(mcpApi.operations).mockResolvedValue({ items: [{ ...operation, operation: "ingest_passport_pdf",
+    status: "succeeded", stage: "draft_for_review", completed_at: "2026-09-29T12:02:00Z" }], next_offset: null });
+  mount(<McpWorkflows />);
+  expect(await screen.findByLabelText("Workflow stage")).toHaveTextContent("Stage: draft for review");
+  expect(screen.getByText(operation.workflow_id)).toBeVisible();
+  expect(screen.queryByText(/Dispatch completion/)).not.toBeInTheDocument();
+  expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+  expect(screen.queryByText("delivered", { exact: true })).not.toBeInTheDocument();
 });

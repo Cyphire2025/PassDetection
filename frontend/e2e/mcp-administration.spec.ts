@@ -31,7 +31,18 @@ async function setup(page: Page, role = "super_admin") {
         approved_clients: { [oauth.client_id]: [callback] }, environment: "qualification", revision: "fixture-revision", observed_at: "2026-09-29T12:00:00Z", qualification: "in_progress" });
       if (path.endsWith("/connections")) return json(route, { items: [grant], next_offset: null });
       if (path.endsWith("/activity")) return json(route, { items: [{ id: "audit-a", action: "mcp.authorized", result: "success", entity_id: "grant-a", created_at: "2026-09-29T00:00:00Z" }], next_offset: null });
-      if (path.endsWith("/operations")) return json(route, { items: [{ id: "operation-a", operation: "create_group", status: "unknown", progress: 0.4, stage: "Checking outcome", created_entities: [{ entity_type: "client_group", entity_id: "group-a", path: "/passports/groups/00000000-0000-4000-8000-000000000001" }], updated_at: "2026-09-29T12:00:00Z" }], next_offset: null });
+      if (path.endsWith("/operations")) return json(route, { items: [
+        { id: "operation-a", operation: "confirm_whatsapp_message", status: "unknown", progress: 1, stage: "dispatch_cancelled_unknown",
+          workflow_id: "00000000-0000-4000-8000-000000000123", connection_id: "00000000-0000-4000-8000-000000000456", revision: 4,
+          created_entities: [{ entity_type: "client_group", entity_id: "group-a", path: "/passports/groups/00000000-0000-4000-8000-000000000001" }],
+          created_at: "2026-09-29T11:00:00Z", updated_at: "2026-09-29T12:00:00Z", completed_at: null },
+        { id: "operation-b", operation: "confirm_gc_push", status: "succeeded", progress: 1, stage: "dispatch_complete",
+          workflow_id: "00000000-0000-4000-8000-000000000124", connection_id: "00000000-0000-4000-8000-000000000456", revision: 2,
+          created_entities: [], created_at: "2026-09-29T11:00:00Z", updated_at: "2026-09-29T12:00:00Z", completed_at: "2026-09-29T12:00:00Z" },
+        { id: "operation-c", operation: "confirm_whatsapp_reminder", status: "failed", progress: 1, stage: "dispatch_cancelled",
+          workflow_id: "00000000-0000-4000-8000-000000000125", connection_id: "00000000-0000-4000-8000-000000000456", revision: 3,
+          created_entities: [], created_at: "2026-09-29T11:00:00Z", updated_at: "2026-09-29T12:00:00Z", completed_at: "2026-09-29T12:00:00Z" },
+      ], next_offset: null });
       if (path.endsWith("/artifacts")) return json(route, { items: [
         { id: "artifact-a", filename: "Passengers.xlsx", direction: "export", byte_size: 1024, status: "available", expires_at: "2026-09-29T13:00:00Z" },
         { id: "media-ready", filename: "Header.png", kind: "whatsapp_header", direction: "upload", byte_size: 256, status: "ready", expires_at: "2026-09-29T13:00:00Z" },
@@ -83,6 +94,22 @@ for (const width of [1440, 768, 390]) {
     await page.getByRole("button", { name: "Workflows", exact: true }).click();
     await expect(page.getByText("Outcome uncertain", { exact: true })).toBeVisible();
     await expect(page.getByRole("link", { name: "Open group" })).toHaveAttribute("href", "/passports/groups/00000000-0000-4000-8000-000000000001");
+    const uncertain = page.getByRole("article", { name: "Workflow operation-a", exact: true });
+    await expect(uncertain.getByLabel("Workflow stage")).toHaveText("Stage: dispatch cancelled unknown");
+    await expect(uncertain.getByText("Workflow ID", { exact: true })).toBeVisible();
+    await expect(uncertain.getByText("00000000-0000-4000-8000-000000000123", { exact: true })).toBeVisible();
+    await expect(uncertain.getByText("Owning connection ID", { exact: true })).toBeVisible();
+    await expect(uncertain.getByText(/Operation completed/)).toHaveCount(0);
+    await expect(page.getByRole("article", { name: "Workflow operation-b", exact: true }).getByLabel("Workflow stage")).toHaveText("Stage: dispatch complete");
+    await expect(page.getByRole("article", { name: "Workflow operation-c", exact: true }).getByLabel("Workflow stage")).toHaveText("Stage: dispatch cancelled");
+    await expect(page.getByText("delivered", { exact: true })).toHaveCount(0);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)).toBe(false);
+    const workflowsScreenshot = testInfo.outputPath(`mcp-workflows-${width}.png`);
+    await page.screenshot({ path: workflowsScreenshot, fullPage: true, animations: "disabled" });
+    await testInfo.attach(`MCP workflow outcomes ${width}px`, { path: workflowsScreenshot, contentType: "image/png" });
+    const workflowCardScreenshot = testInfo.outputPath(`mcp-workflow-card-${width}.png`);
+    await uncertain.screenshot({ path: workflowCardScreenshot, animations: "disabled" });
+    await testInfo.attach(`MCP uncertain workflow ${width}px`, { path: workflowCardScreenshot, contentType: "image/png" });
     await page.getByRole("button", { name: "Files", exact: true }).click();
     await expect(page.getByText("Passengers.xlsx", { exact: true })).toBeVisible();
     await expect(page.getByText("available", { exact: true })).toBeVisible();
@@ -107,7 +134,7 @@ for (const width of [1440, 768, 390]) {
     const connector = page.getByRole("region", { name: "Windows connector setup" });
     await connector.getByText("Show PowerShell installation commands", { exact: true }).click();
     await expect(connector).toContainText("Windows connector 0.2.0");
-    await expect(connector).toContainText("Real Codex sign-in and production access remain unqualified");
+    await expect(connector).toContainText("Full workflow qualification remains in progress");
     await expect(connector).not.toContainText("This deployment has not approved");
     await connector.scrollIntoViewIfNeeded();
     expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)).toBe(false);

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Badge } from "@/components/ui";
 import { formatDateTime } from "@/lib/utils/format";
-import { MCP_CAPABILITIES, type McpArtifact, type McpCapability } from "../api/mcp.api";
+import { MCP_CAPABILITIES, type McpArtifact, type McpCapability, type McpOperation } from "../api/mcp.api";
 import { useMcpArtifacts, useMcpInventory, useMcpOperations } from "../hooks/use-mcp";
 import { McpError, McpPagination } from "./mcp-shared";
 
@@ -38,15 +38,31 @@ export function McpWorkflows() {
     <McpError error={query.error} onRetry={() => void query.refetch()} />
     {query.isPending ? <p role="status" className="text-sm text-slate-500">Loading workflows…</p> : null}
     {query.data?.items.length === 0 ? <p className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">No saved workflows on this page.</p> : null}
-    {query.data?.items.map((item) => <article key={item.id} className="space-y-3 rounded-xl border border-slate-200 p-4">
-      <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="break-all text-sm font-semibold text-slate-900">{item.operation.replaceAll("_", " ")}</h3><Badge variant={item.status === "succeeded" ? "success" : "outline"}>{item.status === "unknown" ? "Outcome uncertain" : item.status}</Badge></div>
-      {item.status === "running" || item.status === "queued" ? <div><progress aria-label="Workflow progress" className="h-2 w-full" max={1} value={Number.isFinite(item.progress) ? Math.max(0, Math.min(1, item.progress)) : 0} /><p className="mt-1 text-xs text-slate-500">{item.stage}</p></div> : null}
-      <p className="break-all text-xs text-slate-500">Operation <code>{item.id}</code></p>
-      <p className="text-xs text-slate-500">Updated {formatDateTime(item.updated_at)}</p>
-      {item.created_entities.length ? <ul className="flex flex-wrap gap-3">{item.created_entities.map((entity) => <li key={`${entity.entity_type}:${entity.entity_id}`} className="break-all text-sm">{groupLink(entity.path) ? <Link href={{ pathname: entity.path }} className="font-medium text-blue-700 hover:underline">Open group</Link> : <span className="text-slate-600">{entity.entity_type}: {entity.entity_id}</span>}</li>)}</ul> : null}
-    </article>)}
+    {query.data?.items.map((item) => <WorkflowCard key={item.id} item={item} />)}
     <McpPagination offset={offset} nextOffset={query.data?.next_offset ?? null} onChange={setOffset} disabled={query.isFetching} label="Workflow pages" />
   </section>;
+}
+
+function WorkflowCard({ item }: { item: McpOperation }) {
+  const communication = item.operation.startsWith("confirm_whatsapp_") || item.operation === "confirm_gc_push"
+    || item.stage.startsWith("dispatch") || item.stage === "provider_outcome_unknown";
+  return <article aria-label={`Workflow ${item.id}`} className="space-y-3 rounded-xl border border-slate-200 p-4">
+    <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="break-all text-sm font-semibold text-slate-900">{item.operation.replaceAll("_", " ")}</h3>
+      <Badge aria-label={`Operation status: ${item.status}`} variant={item.status === "succeeded" ? "success" : "outline"}>{item.status === "unknown" ? "Outcome uncertain" : item.status}</Badge></div>
+    {item.status === "running" || item.status === "queued" ? <progress aria-label="Workflow progress" className="h-2 w-full" max={1} value={Number.isFinite(item.progress) ? Math.max(0, Math.min(1, item.progress)) : 0} /> : null}
+    <p aria-label="Workflow stage" className="break-words text-sm text-slate-700"><span className="font-medium">Stage: </span>{item.stage.replaceAll("_", " ") || "Not reported"}</p>
+    {communication ? <p className="text-xs leading-5 text-slate-500">Dispatch completion does not confirm delivery. Inspect message receipts for sent, delivered, failed or uncertain outcomes.</p> : null}
+    <dl className="grid gap-3 text-xs sm:grid-cols-3">
+      {([ ["Operation ID", item.id], ["Workflow ID", item.workflow_id], ["Owning connection ID", item.connection_id] ] as const).map(([label, value]) => <div key={label} className="min-w-0">
+        <dt className="text-slate-500">{label}</dt><dd className="mt-1 break-all text-slate-700"><code>{value}</code></dd>
+      </div>)}
+    </dl>
+    <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-slate-500">
+      <p>Updated {formatDateTime(item.updated_at)} · Revision {item.revision}</p>
+      {item.completed_at ? <p>Operation completed {formatDateTime(item.completed_at)}</p> : null}
+    </div>
+    {item.created_entities.length ? <ul className="flex flex-wrap gap-3">{item.created_entities.map((entity) => <li key={`${entity.entity_type}:${entity.entity_id}`} className="break-all text-sm">{groupLink(entity.path) ? <Link href={{ pathname: entity.path }} className="font-medium text-blue-700 hover:underline">Open group</Link> : <span className="text-slate-600">{entity.entity_type}: {entity.entity_id}</span>}</li>)}</ul> : null}
+  </article>;
 }
 
 export function McpFiles() {

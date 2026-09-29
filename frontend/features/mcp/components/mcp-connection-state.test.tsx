@@ -51,7 +51,7 @@ it.each(["expired", "revoked"] as const)("retains %s connection metadata without
   expect(within(card).getByText("Authorization expires")).toBeVisible();
   expect(within(card).getByText("Never", { exact: true })).toBeVisible();
   expect(within(card).queryByRole("button", { name: "Edit access" })).not.toBeInTheDocument();
-  expect(within(card).queryByRole("button", { name: "Revoke", exact: true })).not.toBeInTheDocument();
+  expect(within(card).queryByRole("button", { name: "Revoke" })).not.toBeInTheDocument();
   expect(mcpApi.revoke).not.toHaveBeenCalled();
 });
 
@@ -61,7 +61,7 @@ it.each([
 ])("does not claim revocation or retry after $code", async (error) => {
   vi.mocked(mcpApi.revoke).mockRejectedValue(error);
   renderPage();
-  fireEvent.click(await screen.findByRole("button", { name: "Revoke", exact: true }));
+  fireEvent.click(await screen.findByRole("button", { name: "Revoke" }));
   fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Revoke connection" }));
   expect(await screen.findByRole("alert")).toHaveTextContent(error.message);
   expect(within(screen.getByRole("article", { name: connection.name })).getByText("active", { exact: true })).toBeVisible();
@@ -76,11 +76,11 @@ it("refetches durable state after successful revocation and keeps the retained c
     return { revoked: true };
   });
   renderPage();
-  fireEvent.click(await screen.findByRole("button", { name: "Revoke", exact: true }));
+  fireEvent.click(await screen.findByRole("button", { name: "Revoke" }));
   fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Revoke connection" }));
   await waitFor(() => expect(within(screen.getByRole("article", { name: connection.name })).getByText("revoked", { exact: true })).toBeVisible());
   expect(mcpApi.connections).toHaveBeenCalledTimes(2);
-  expect(screen.queryByRole("button", { name: "Revoke", exact: true })).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Revoke" })).not.toBeInTheDocument();
 });
 
 it("removes cached management content immediately when the active actor loses the superadmin role", async () => {

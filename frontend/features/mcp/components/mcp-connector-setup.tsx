@@ -49,6 +49,6 @@ export function McpConnectorSetup({ overview }: { overview: McpOverview }) {
       <PowerShellCommand>{`${command} forget`}</PowerShellCommand>
       <p className="mt-2 text-xs leading-5 text-slate-500">Clearing the local credential does not revoke the server connection. If a write or send is interrupted, check its existing record before repeating it.</p>
     </details>
-    <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-900">Real Codex sign-in and production access remain unqualified. Local file tools use exact files and a download folder selected in the connector startup arguments described in its README. PDF upload stages a file for a later workflow. Automatic handoff of new Codex attachments remains unqualified.</p>
+    <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-900">Full workflow qualification remains in progress. Local file tools use exact files and a download folder selected in the connector startup arguments described in its README. PDF upload stages a file for a later workflow. Automatic handoff of new Codex attachments remains unqualified.</p>
   </section>;
 }
