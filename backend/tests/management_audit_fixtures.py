@@ -21,14 +21,17 @@ def forbid_global_management_audit_database(monkeypatch):
 
 
 @pytest.fixture
-async def management_audit_session_factory(tmp_path):
+async def management_audit_session_factory(tmp_path_factory):
     """Only audit tables; never share the business engine, connection or session.
 
     Audit actor/scope UUID columns intentionally have no foreign keys in the
     real models. This fixture proves local transaction isolation, not PostgreSQL
     locking or production authorization/foreign-key behavior.
     """
-    engine = create_async_engine(f"sqlite+aiosqlite:///{tmp_path / 'management-audit.sqlite'}")
+    # A consumer can use its whole tmp_path as a sealed diagnostic root. Keep
+    # this supporting database in a separate fixture-owned directory.
+    audit_directory = tmp_path_factory.mktemp("management-audit")
+    engine = create_async_engine(f"sqlite+aiosqlite:///{audit_directory / 'management-audit.sqlite'}")
 
     @event.listens_for(engine.sync_engine, "connect")
     def foreign_keys(connection, _record):

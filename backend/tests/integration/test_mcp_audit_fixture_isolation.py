@@ -38,6 +38,16 @@ async def test_shared_client_denial_has_independent_audit_and_preserves_rollback
     }
 
 
+async def test_audit_database_preserves_callers_sealed_temporary_root(
+    client, management_audit_session_factory, tmp_path
+):
+    response = await client.get("/api/v1/admin/mcp")
+    assert response.status_code == 401
+    assert list(tmp_path.iterdir()) == []
+    async with management_audit_session_factory() as audit:
+        assert await audit.scalar(select(func.count()).select_from(AuditLogModel)) == 1
+
+
 async def test_old_mcp_fixture_denial_does_not_commit_pending_business_data(mcp_fixture):
     client, business, _, user, _, dashboard = mcp_fixture
     await business.commit()
