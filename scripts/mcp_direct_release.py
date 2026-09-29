@@ -48,10 +48,12 @@ def inspect(identifier: str) -> dict:
 
 def bound_original(original: dict) -> dict:
     current = inspect(original["Id"])
-    if current["Image"] != original["Image"] or any(
+    # Docker's mount-point map is serialized in an unspecified array order.
+    # Retain every field and duplicate while comparing its canonical multiset.
+    if (current["Image"] != original["Image"] or any(
         fingerprint(current[key]) != fingerprint(original[key])
-        for key in ("Config", "HostConfig", "Mounts")
-    ):
+        for key in ("Config", "HostConfig")
+    ) or sorted(map(fingerprint, current["Mounts"])) != sorted(map(fingerprint, original["Mounts"]))):
         raise BuildError("original_container_configuration_changed")
     return current
 
