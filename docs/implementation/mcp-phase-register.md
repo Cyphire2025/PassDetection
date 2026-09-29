@@ -49,7 +49,7 @@ evidence, including real Codex and production qualification where specified.
 | Phase 8: qualification and rollout | Corrected minimum backend and first actual-client delivery verified; full gate open | Backend cd0e538f/schema0122 are live; frontend/workers remain efea4e4a. All20 services running, public200, zero new application restarts/OOM and all prior containers/images retained. First real Codex Excel delivery passes; clean broad backend rerun5822pass/3Linux-only skips/294service exclusions/162subtests passed after a test-only ordering correction.67 direct-helper tests and36 capacity-harness tests pass; combined-load workload remains unrun. Full workflow/security/recovery/capacity gates remain open. |
 | WhatsApp delivery state | Locally tested; release gate open | Exact receipt states, bounded reconciliation and revision cache refresh; delegated React/contract/lint/type checks recorded below. Provider/production evidence outstanding. |
 | Passport-link recipient selection | Locally tested; release gate open | Shared visible/send selection with async/reopen/audience-identity regression tests; final joined release verification outstanding. |
-| Compact group overview | Local UI gate passed; integrated release gate open |16 focused React, 24 existing contracts, lint/budget checks and 5 responsive browser tests passed again after final extraction. MCP UI owner subsequently reports full-project TypeScript passing after scaffolding settled. |
+| Compact group overview | Targeted live responsive verification passed |16 focused React, 24 existing contracts and 5 responsive local browser tests passed, with joined TypeScript/lint/budgets. Production readback on the EF frontend verified three cards in one desktop row, tablet wrapping, mobile stacking, no horizontal overflow at1440/768/390px, and working trip-detail expansion/collapse. Scope is one active group with the signed-in superadmin; no provider/send qualification is implied. |
 
 ## Phase acceptance register
 
@@ -496,3 +496,15 @@ All eight phase gates remain open. The overnight authorization preserves MFA,
 existing credentials, the original SSH expiry and all retained resources, and
 allows no additional customer messages. No fresh-factor live roundtrip is
 claimed for the durable dashboard MFA fix while the user is asleep.
+
+The existing authenticated production browser separately showed the exact saved
+operation as `succeeded` and its 14,863-byte file as `delivered`, without another
+MFA prompt. The active group overview passed responsive checks at1440,768 and390
+pixels: overview heights210,431 and653 pixels, with three columns, two-plus-one,
+and a single column respectively; no horizontal overflow was observed. Trip
+details expanded and collapsed, the viewport was restored, and the temporary
+group tab was closed. Safe receipt:
+`outputs/mcp-live-browser-readback-20260929.json`. The archived export group is
+outside the active website listing; layout verification used the active group
+reached through All Groups. No source/passenger contents were retained in this
+receipt, and no messages or business updates were submitted.

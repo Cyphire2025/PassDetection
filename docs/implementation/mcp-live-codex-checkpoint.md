@@ -110,6 +110,16 @@ probes used a nonexistent overview suffix and an unapproved callback port,
 returning404 and `invalid_client`; those probe mistakes are retained separately.
 This does not establish live expired/revoked/demoted-user negative cases.
 
+The existing authenticated browser also showed operation
+`13ffbc2f-34b1-434b-b432-3513e74cd8c7` as `succeeded` and the14,863-byte generated
+file as `delivered`. It required no additional MFA prompt. The same read-only
+verification checked the deployed compact group overview at1440,768 and390px:
+cards aligned in three columns, wrapped two-plus-one, then stacked; no horizontal
+overflow occurred, and trip details expanded/collapsed. The viewport was restored
+and the temporary group tab closed. The safe browser receipt is
+`outputs/mcp-live-browser-readback-20260929.json`. This is targeted live status
+and layout evidence, not a new credential, provider send or full workflow test.
+
 ## Diagnosed failure and qualified correction
 
 A bounded operator diagnosis inside the existing backend container revalidated
