@@ -27,6 +27,17 @@ def options():
 
 
 class CloneTests(unittest.TestCase):
+    def test_original_null_entrypoint_explicitly_clears_candidate_image_entrypoint(self):
+        for entrypoint in (None, [], ["/original-entrypoint"]):
+            source = original()
+            source["Config"]["Entrypoint"] = entrypoint
+            source["Config"]["Cmd"] = ["sh", "-c", "exec worker"]
+            before = copy.deepcopy(source)
+            payload = clone_payload(source, **options())
+            self.assertEqual(payload["Entrypoint"], entrypoint or [])
+            self.assertEqual(payload["Cmd"], ["sh", "-c", "exec worker"])
+            self.assertEqual(source, before)
+
     def test_preserves_original_security_resources_mounts_and_does_not_mutate(self):
         source = original()
         before = copy.deepcopy(source)
@@ -67,9 +78,8 @@ class CloneTests(unittest.TestCase):
     def test_timeout_never_escalates_to_kill_and_proxy_uses_quit(self):
         for service, expected in (("backend", "TERM"), ("nginx", "QUIT")):
             client = object.__new__(LocalDocker)
-            with patch.object(client, "inspect", return_value=original(service)), patch.object(client, "request") as request, patch("mcp_direct_containers.time.monotonic", side_effect=[0, 2]):
-                with self.assertRaisesRegex(ContainerError, "still_draining"):
-                    client.graceful_stop("a" * 64, timeout=1)
+            with patch.object(client, "inspect", return_value=original(service)), patch.object(client, "request") as request, patch("mcp_direct_containers.time.monotonic", side_effect=[0, 2]), self.assertRaisesRegex(ContainerError, "still_draining"):
+                client.graceful_stop("a" * 64, timeout=1)
             request.assert_called_once_with("POST", "/containers/" + "a" * 64 + "/kill?signal=" + expected)
 
 

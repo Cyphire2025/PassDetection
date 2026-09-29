@@ -64,6 +64,9 @@ def clone_payload(original: dict, *, name: str, image_id: str, environment: dict
            or not isinstance(value, str) or "\0" in value for key, value in environment.items()):
         raise ContainerError("invalid_environment")
     config.update(Image=image_id, Env=[f"{key}={value}" for key, value in sorted(environment.items())], Hostname=name)
+    # Docker create treats null as "inherit from image". An original without
+    # an entrypoint must explicitly clear any candidate image build entrypoint.
+    config["Entrypoint"] = config.get("Entrypoint") or []
     config["Labels"] = {**(config.get("Labels") or {}), "com.docker.compose.project": new_project,
                         "com.docker.compose.project.working_dir": source_root,
                         "com.docker.compose.oneoff": "False", "com.docker.compose.service": service,
