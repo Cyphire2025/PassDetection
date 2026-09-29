@@ -29,6 +29,7 @@ from app.presentation.mcp.broadcast_link_tools import register_broadcast_link_to
 from app.presentation.mcp.client_detail_tools import register_client_detail_tools
 from app.presentation.mcp.contact_import_tools import register_contact_import_tools
 from app.presentation.mcp.content_read_tools import register_content_read_tools
+from app.presentation.mcp.dashboard_tools import register_dashboard_tools
 from app.presentation.mcp.diagnostic_tools import register_diagnostic_tools
 from app.presentation.mcp.document_export_tools import register_document_assignment_export_tools
 from app.presentation.mcp.document_read_tools import register_document_read_tools
@@ -136,6 +137,7 @@ def install_mcp(app: FastAPI, settings: Settings) -> None:
         )
 
     register_group_tools(server, app, settings)
+    register_dashboard_tools(server, app, settings)
     register_diagnostic_tools(server, app, settings)
     register_broadcast_link_tools(server, app, settings)
     register_gc_push_tools(app, server, settings)

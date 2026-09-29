@@ -31,6 +31,12 @@ from app.domain.repositories.interfaces import (
     IPassportSubmissionRepository,
     PassportSubmissionGroupSummary,
 )
+from app.domain.value_objects.dashboard_summary import (
+    RECENT_DASHBOARD_LIMIT,
+    RECENT_DASHBOARD_TEXT_LIMIT,
+    DashboardProjectionLimitError,
+    DashboardRecentSubmission,
+)
 from app.domain.value_objects.phone_number import normalize_phone_number, phone_storage_variants
 from app.infrastructure.database.models import (
     ClientGroupModel,
@@ -501,7 +507,24 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         created_by_user_id: uuid.UUID | None = None,
         visible_to_user: User | None = None,
     ) -> list[PassportSubmission]:
-        stmt = select(PassportSubmissionModel).where(
+        stmt = self._agency_scope(
+            select(PassportSubmissionModel), agency_id, status_filter=status_filter,
+            exclude_archived_groups=exclude_archived_groups,
+            created_by_user_id=created_by_user_id, visible_to_user=visible_to_user,
+        )
+        stmt = self._apply_search(stmt, search)
+        stmt = stmt.order_by(PassportSubmissionModel.created_at.desc(), PassportSubmissionModel.id.desc()).offset(skip).limit(limit)
+
+        result = await self._session.execute(stmt)
+        return [self._to_entity(m) for m in result.scalars().all()]
+
+    def _agency_scope(
+        self, stmt: Any, agency_id: uuid.UUID, *, status_filter: str | None,
+        exclude_archived_groups: bool, created_by_user_id: uuid.UUID | None,
+        visible_to_user: User | None,
+    ) -> Any:
+        """One canonical scope for full lists, counts and the bounded preview."""
+        stmt = stmt.where(
             PassportSubmissionModel.agency_id == agency_id,
             PassportSubmissionModel.status.in_(self._office_visible_statuses()),
         )
@@ -519,11 +542,30 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                     self._status_filter_values(status_filter)
                 )
             )
-        stmt = self._apply_search(stmt, search)
-        stmt = stmt.order_by(PassportSubmissionModel.created_at.desc(), PassportSubmissionModel.id.desc()).offset(skip).limit(limit)
+        return stmt
 
-        result = await self._session.execute(stmt)
-        return [self._to_entity(m) for m in result.scalars().all()]
+    async def list_recent_dashboard_submissions(
+        self, agency_id: uuid.UUID, *, created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
+    ) -> list[DashboardRecentSubmission]:
+        model = PassportSubmissionModel
+        # The extra character detects invalid retained data without loading an
+        # unbounded value. No JSON, document key or other ORM column is selected.
+        bound = RECENT_DASHBOARD_TEXT_LIMIT + 1
+        stmt = self._agency_scope(select(
+            model.id, func.substr(model.client_name, 1, bound).label("client_name"),
+            func.substr(model.client_email, 1, bound).label("client_email"),
+            model.status, model.created_at, model.overall_confidence,
+        ), agency_id, status_filter=PassportProcessingStatus.CLIENT_SUBMITTED.value,
+            exclude_archived_groups=True, created_by_user_id=created_by_user_id,
+            visible_to_user=visible_to_user,
+        ).order_by(model.created_at.desc(), model.id.desc()).limit(RECENT_DASHBOARD_LIMIT)
+        rows = (await self._session.execute(stmt)).mappings().all()
+        if any(len(row["client_name"]) > RECENT_DASHBOARD_TEXT_LIMIT
+               or len(row["client_email"] or "") > RECENT_DASHBOARD_TEXT_LIMIT for row in rows):
+            raise DashboardProjectionLimitError("Dashboard preview exceeds its field bounds")
+        return [DashboardRecentSubmission(**{**row, "status": PassportProcessingStatus(row["status"])})
+                for row in rows]
 
     async def list_by_group(
         self,
@@ -812,24 +854,11 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         created_by_user_id: uuid.UUID | None = None,
         visible_to_user: User | None = None,
     ) -> int:
-        stmt = select(func.count()).select_from(PassportSubmissionModel).where(
-            PassportSubmissionModel.agency_id == agency_id,
-            PassportSubmissionModel.status.in_(self._office_visible_statuses()),
+        stmt = self._agency_scope(
+            select(func.count()).select_from(PassportSubmissionModel), agency_id,
+            status_filter=status_filter, exclude_archived_groups=exclude_archived_groups,
+            created_by_user_id=created_by_user_id, visible_to_user=visible_to_user,
         )
-        if exclude_archived_groups or created_by_user_id or visible_to_user:
-            stmt = stmt.join(ClientGroupModel, PassportSubmissionModel.group_id == ClientGroupModel.id)
-        if exclude_archived_groups:
-            stmt = stmt.where(ClientGroupModel.status.notin_(["archived", "deleted"]))
-        if created_by_user_id:
-            stmt = self._apply_manager_group_scope(stmt, created_by_user_id)
-        if visible_to_user:
-            stmt = AuthorizationPolicy.apply_passport_visibility_scope(stmt, visible_to_user)
-        if status_filter:
-            stmt = stmt.where(
-                PassportSubmissionModel.status.in_(
-                    self._status_filter_values(status_filter)
-                )
-            )
 
         result = await self._session.execute(stmt)
         total = int(result.scalar_one())

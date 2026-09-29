@@ -245,6 +245,17 @@
         "app.infrastructure.repositories.mcp_content_read_repository.MCPContentReadRepository"
       ]
     },
+    "app/application/mcp/dashboard_reads.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current actor's agency summary composes canonical database aggregates and a fixed bounded recent projection, without business mutations, history or artifacts.",
+      "imports": [
+        "app.infrastructure.repositories.client_group_repository",
+        "app.infrastructure.repositories.client_group_repository.ClientGroupRepository",
+        "app.infrastructure.repositories.passport_submission_repository",
+        "app.infrastructure.repositories.passport_submission_repository.PassportSubmissionRepository"
+      ]
+    },
     "app/application/mcp/diagnostics.py": {
       "owner": "repository maintainers",
       "review_by": "2026-12-31",

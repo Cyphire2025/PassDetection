@@ -71,7 +71,7 @@ class TestGetDashboardStatsUseCase:
         }.get(status_filter, 0)
 
         link_repo.count_active_by_agency.return_value = 2
-        sub_repo.list_by_agency.return_value = [
+        sub_repo.list_recent_dashboard_submissions.return_value = [
             _make_submission(PassportProcessingStatus.REVIEW_REQUIRED),
             _make_submission(PassportProcessingStatus.CONFIRMED),
         ]
@@ -110,12 +110,8 @@ class TestGetDashboardStatsUseCase:
             created_by_user_id=None,
             visible_to_user=None,
         )
-        sub_repo.list_by_agency.assert_called_once_with(
+        sub_repo.list_recent_dashboard_submissions.assert_called_once_with(
             agency_id,
-            skip=0,
-            limit=5,
-            status_filter=PassportProcessingStatus.CLIENT_SUBMITTED.value,
-            exclude_archived_groups=True,
             created_by_user_id=None,
             visible_to_user=None,
         )

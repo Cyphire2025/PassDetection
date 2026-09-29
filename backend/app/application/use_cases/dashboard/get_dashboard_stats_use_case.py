@@ -2,7 +2,7 @@
 Get Dashboard Stats Use Case
 ============================
 Fetches dashboard stats (totals, status breakdown, active links, recent activity)
-for an agency or overall for super admin.
+for the current actor's agency, preserving its visibility policy.
 """
 
 from __future__ import annotations
@@ -68,12 +68,8 @@ class GetDashboardStatsUseCase:
         )
 
         # Recent Activity should only show passports clients actually submitted after review.
-        recent_list = await self._submission_repo.list_by_agency(
+        recent_list = await self._submission_repo.list_recent_dashboard_submissions(
             agency_id,
-            skip=0,
-            limit=5,
-            status_filter=PassportProcessingStatus.CLIENT_SUBMITTED.value,
-            exclude_archived_groups=True,
             created_by_user_id=created_by_user_id,
             visible_to_user=visible_to_user,
         )

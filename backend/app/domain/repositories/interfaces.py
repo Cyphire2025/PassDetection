@@ -31,6 +31,7 @@ from app.domain.value_objects.custom_questions import (
     CustomDetailDefinition,
     CustomQuestionDefinition,
 )
+from app.domain.value_objects.dashboard_summary import DashboardRecentSubmission
 from app.domain.value_objects.trip_timezone import DEFAULT_TRIP_TIMEZONE
 
 
@@ -253,6 +254,15 @@ class IPassportSubmissionRepository(ABC):
         created_by_user_id: uuid.UUID | None = None,
         visible_to_user: User | None = None,
     ) -> list[PassportSubmission]: ...
+
+    @abstractmethod
+    async def list_recent_dashboard_submissions(
+        self,
+        agency_id: uuid.UUID,
+        *,
+        created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
+    ) -> list[DashboardRecentSubmission]: ...
 
     @abstractmethod
     async def list_by_group(
