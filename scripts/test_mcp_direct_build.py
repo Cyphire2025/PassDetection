@@ -1,7 +1,7 @@
 """Capacity and dependency invariants for the explicitly authorized direct lane."""
 import unittest
 
-from mcp_direct_build import BuildError, GIB, admit_builder, dependency_delta
+from mcp_direct_build import BuildError, GIB, admit_builder, contract_digest, dependency_delta
 
 
 def locked(name, version, marker=""):
@@ -9,6 +9,10 @@ def locked(name, version, marker=""):
 
 
 class DirectBuildTests(unittest.TestCase):
+    def test_contract_newlines_do_not_hide_or_invent_semantic_drift(self):
+        self.assertEqual(contract_digest(b'{\n "version":"1"\n}\n'), contract_digest(b'{\r\n "version":"1"\r\n}\r\n'))
+        self.assertNotEqual(contract_digest(b'{"version":"1"}'), contract_digest(b'{"version":"2"}'))
+
     def test_delta_retains_markers_hashes_and_only_new_or_changed_versions(self):
         old = locked("same", "1") + locked("changed", "1")
         new = locked("same", "1") + locked("changed", "2") + locked("added", "3", "; sys_platform == 'linux'")

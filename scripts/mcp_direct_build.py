@@ -23,6 +23,12 @@ class BuildError(ValueError):
     pass
 
 
+def contract_digest(source: bytes) -> str:
+    """Compare canonical OpenAPI JSON, independent of checkout line endings."""
+    canonical = json.dumps(json.loads(source), ensure_ascii=False, sort_keys=True, indent=2) + "\n"
+    return hashlib.sha256(canonical.encode()).hexdigest()
+
+
 def command(*args: str, timeout: int = 60) -> str:
     result = subprocess.run(args, capture_output=True, text=True, timeout=timeout)
     if result.returncode:
@@ -125,7 +131,7 @@ class RetainedBuild:
         with lock.open("x", encoding="utf-8", newline="\n") as stream:
             stream.write(dependency_delta(previous_lock.read_text(),
                                          (self.source / "backend/requirements.lock").read_text()))
-        contract_sha = hashlib.sha256((self.source / "backend/contracts/api.openapi.json").read_bytes()).hexdigest()
+        contract_sha = contract_digest((self.source / "backend/contracts/api.openapi.json").read_bytes())
         verification = (
             "import hashlib,json,mcp,pydantic; "
             "from scripts.export_api_contract import application_contract; "
