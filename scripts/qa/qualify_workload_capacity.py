@@ -22,8 +22,15 @@ from datetime import UTC, datetime
 import httpx
 from capacity_container_events import capture as capture_container_events
 from capacity_container_events import gates as container_event_gates
-from mcp_capacity import MCP_BUDGETS_MS, paced_reads, verified_export
+from mcp_capacity import MCP_BUDGETS_MS, paced_reads, serialized_exports
 from mcp_capacity import gates as mcp_gates
+from mcp_capacity_profile import (
+    EXPORT_FAMILIES,
+    EXPORT_SCHEDULING,
+    SOURCE_BYTES,
+    SOURCE_ROWS,
+    require_minimum_profile,
+)
 from PIL import Image
 from run_qualification_stack import COMPOSE, OUTPUT, ROOT
 
@@ -487,6 +494,13 @@ def inspect_backend() -> dict:
             "Backend container does not belong to the isolated qualification project"
         )
     env = dict(item.split("=", 1) for item in backend["Config"]["Env"] if "=" in item)
+    require_minimum_profile(
+        enabled=env.get("MCP_ENABLED", "").lower() == "true",
+        capabilities=json.loads(env.get("MCP_ENABLED_CAPABILITIES", "[]")),
+        families=json.loads(env.get("MCP_EXPORT_FAMILIES", "[]")),
+        rows=int(env.get("MCP_EXPORT_SOURCE_ROW_LIMIT", "0")),
+        byte_limit=int(env.get("MCP_EXPORT_SOURCE_BYTE_LIMIT", "0")),
+    )
     if (
         env.get("POSTGRES_DB") != "passdetection_ci_browser"
         or env.get("WEB_CONCURRENCY") != "4"
@@ -558,7 +572,7 @@ async def main() -> int:
                 scans(client, samples["expected"], seed, EXPECTED_SECONDS),
                 uploads(client, samples["expected"], seed, covers),
                 *(paced_reads(client, samples["expected"], actor, EXPECTED_SECONDS) for actor in seed["mcp_actors"]),
-                *(verified_export(client, samples["expected"], actor, run_id, "expected") for actor in seed["mcp_actors"]),
+                serialized_exports(client, samples["expected"], seed["mcp_actors"], run_id, "expected"),
             )
             end_stage(windows, "expected", samples["expected"])
             overload_started = time.monotonic()
@@ -584,7 +598,7 @@ async def main() -> int:
                     for index, actor in enumerate(seed["actors"])
                 ),
                 *(paced_reads(client, samples["recovery"], actor, RECOVERY_SECONDS) for actor in seed["mcp_actors"]),
-                *(verified_export(client, samples["recovery"], actor, run_id, "recovery") for actor in seed["mcp_actors"]),
+                serialized_exports(client, samples["recovery"], seed["mcp_actors"], run_id, "recovery"),
             )
             recovery_elapsed = time.monotonic() - recovery_started
             end_stage(windows, "recovery", samples["recovery"])
@@ -678,7 +692,12 @@ async def main() -> int:
             "queued_retry_burst": queued,
             "mcp_reads_per_second_target": 2,
             "mcp_minimum_reads_per_second_per_actor": 0.9,
-            "mcp_verified_group_exports_per_stage": 2,
+            "mcp_verified_exports_per_stage": 2,
+            "mcp_export_families": list(EXPORT_FAMILIES),
+            "mcp_export_source_row_limit": SOURCE_ROWS,
+            "mcp_export_source_byte_limit": SOURCE_BYTES,
+            "mcp_export_scheduling": EXPORT_SCHEDULING,
+            "mcp_export_rows_per_cohort": SOURCE_ROWS,
         },
         "resource_samples": metrics,
         "durable_verification": jobs,
@@ -691,6 +710,7 @@ async def main() -> int:
             "Worker burst measures durable missing-image rejection/recovery, not OCR throughput",
             "MCP sign-in is fixture-issued; real Codex, browser/MFA and OS-vault qualification remains separate",
             "MCP read/export traffic shares the website workload; this is a combined envelope, not an isolated causal overhead estimate",
+            "Two MCP export journeys are serialized; planned waiting is included in unchanged export latency budgets, not concurrent-export acceptance",
         ],
         "production_changed": False,
         "existing_data_deleted": False,

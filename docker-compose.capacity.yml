@@ -13,6 +13,9 @@ services:
       MCP_PUBLIC_ORIGIN: "https://localhost:58443"
       MCP_FRONTEND_ORIGIN: "https://localhost:58443"
       MCP_ENABLED_CAPABILITIES: '["mcp:read","mcp:export"]'
+      MCP_EXPORT_FAMILIES: '["passport_excel"]'
+      MCP_EXPORT_SOURCE_ROW_LIMIT: "100"
+      MCP_EXPORT_SOURCE_BYTE_LIMIT: "1048576"
   worker:
     mem_limit: 384m
     memswap_limit: 384m

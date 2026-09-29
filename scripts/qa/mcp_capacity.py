@@ -16,6 +16,7 @@ from collections import Counter
 from datetime import UTC, datetime
 
 import httpx
+from mcp_capacity_profile import EXPORT_SCHEDULING, SOURCE_ROWS
 from openpyxl import load_workbook
 
 MCP_BUDGETS_MS = {
@@ -115,10 +116,14 @@ def verify_workbook(data: io.BytesIO, actor: dict) -> int:
         workbook.close()
 
 
-async def verified_export(client: httpx.AsyncClient, samples: list, actor: dict, run_id: str, stage: str) -> None:
+async def verified_export(client: httpx.AsyncClient, samples: list, actor: dict, run_id: str, stage: str) -> dict:
     started, at = time.perf_counter(), datetime.now(UTC).isoformat()
     valid, size, workbook_rows = False, 0, 0
     try:
+        if (type(actor["export_size"]) is not int or not 0 < actor["export_size"] <= SOURCE_ROWS
+                or (actor["group_size"] > SOURCE_ROWS
+                    and len(actor["export_submission_ids"]) != actor["export_size"])):
+            raise ValueError("Export exceeds the minimum deployed source envelope")
         selection = {"agency_id": actor["agency_id"], "group_ids": [actor["group_id"]]}
         if actor["export_submission_ids"]:
             selection.update(selection="selected_passports", submission_ids=actor["export_submission_ids"])
@@ -158,11 +163,32 @@ async def verified_export(client: httpx.AsyncClient, samples: list, actor: dict,
         valid = bool(metadata.get("delivered_at")) and metadata.get("sha256") == digest.hexdigest()
     except (httpx.HTTPError, ValueError, KeyError, TypeError, OSError):
         pass
-    samples.append({
+    sample = {
         "operation": "mcp_export", "started_at": at, "finished_at": datetime.now(UTC).isoformat(),
         "status": 200 if valid else 0, "milliseconds": (time.perf_counter() - started) * 1000,
         "valid": valid, "bytes": size, "rows": workbook_rows, "cohort": actor["cohort"],
-    })
+    }
+    samples.append(sample)
+    return sample
+
+
+async def serialized_exports(client, samples, actors, run_id, stage):
+    """One export journey at a time; planned wait still counts in latency gates.
+
+    Website and MCP read traffic remain concurrent. Busy/error responses fail the
+    sample; this lane does not silently retry, mint new keys, or claim contention
+    qualification. Application admission and cancellation have separate tests.
+    """
+    started, at = time.perf_counter(), datetime.now(UTC).isoformat()
+    for order, actor in enumerate(actors):
+        wait_ms = (time.perf_counter() - started) * 1000
+        sample = await verified_export(client, samples, actor, run_id, stage)
+        sample.update(
+            export_scheduling=EXPORT_SCHEDULING, export_order=order,
+            execution_started_at=sample["started_at"], started_at=at,
+            serialization_wait_ms=wait_ms,
+            milliseconds=sample["milliseconds"] + wait_ms,
+        )
 
 
 def gates(samples: dict, windows: dict, metrics: list[dict]) -> list[str]:
@@ -177,6 +203,14 @@ def gates(samples: dict, windows: dict, metrics: list[dict]) -> list[str]:
                 selected = [r for r in rows if r["cohort"] == cohort and r["operation"] == operation]
                 if not selected or any(not r["valid"] for r in selected):
                     failures.append(f"{stage}:{cohort}:{operation}:missing_or_invalid")
+                if operation == "mcp_export" and (
+                    len(selected) != 1 or any(
+                        r.get("rows") != SOURCE_ROWS
+                        or r.get("export_scheduling") != EXPORT_SCHEDULING
+                        for r in selected
+                    )
+                ):
+                    failures.append(f"{stage}:{cohort}:mcp_export:wrong_profile_or_schedule")
                 values = sorted(r["milliseconds"] for r in selected)
                 if values:
                     import math

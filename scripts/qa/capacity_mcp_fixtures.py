@@ -3,20 +3,25 @@
 import uuid
 from datetime import UTC, datetime
 
-from qualification_application_journey import isolated
-from sqlalchemy import update
-
 from app.application.mcp.authorization import MCPAuthorizationService
 from app.application.mcp.credentials import pkce_challenge
 from app.core.config.settings import get_settings
 from app.infrastructure.database.mcp_models import MCPControlModel
 from app.infrastructure.database.models import UserModel, UserSecurityStateModel
 from app.infrastructure.database.session import AsyncSessionFactory
+from mcp_capacity_profile import export_selection, require_minimum_profile
+from qualification_application_journey import isolated
+from sqlalchemy import update
 
 
 async def seed_mcp(run_id: str, groups: list[dict], password_hash: str) -> list[dict]:
     isolated()
     settings = get_settings()
+    require_minimum_profile(
+        enabled=settings.mcp.enabled, capabilities=settings.mcp.enabled_capabilities,
+        families=settings.mcp.export_families, rows=settings.mcp.export_source_row_limit,
+        byte_limit=settings.mcp.export_source_byte_limit,
+    )
     if (not settings.mcp.enabled or settings.mcp.public_origin != "https://localhost:58443"
             or settings.mcp.frontend_origin != "https://localhost:58443"
             or set(settings.mcp.enabled_capabilities) != {"mcp:read", "mcp:export"}):
@@ -44,9 +49,7 @@ async def seed_mcp(run_id: str, groups: list[dict], password_hash: str) -> list[
             token = await auth.exchange_code(code=code, verifier=verifier, **fields)
             actors.append({"token": token["access_token"], "group_id": group["group_id"],
                            "agency_id": group["agency_id"], "group_size": group["group_size"],
-                           "tenant": group["tenant"], "export_size": min(group["group_size"], 1500),
-                           "export_submission_ids": [str(uuid.uuid5(uuid.UUID(run_id), f"passenger-{group['tenant']}-{row}"))
-                                                     for row in range(1500)] if group["group_size"] > 1500 else [],
+                           "tenant": group["tenant"], **export_selection(run_id, group),
                            "cohort": "mcp_large_group" if index == 0 else "mcp_small_group"})
         await db.commit()
     return actors

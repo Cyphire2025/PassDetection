@@ -4,6 +4,7 @@ import unittest
 from datetime import UTC, datetime, timedelta
 
 import httpx
+from mcp_capacity_profile import EXPORT_SCHEDULING, SOURCE_ROWS
 from qualify_workload_capacity import (
     API_MEMORY_BYTES,
     gates,
@@ -95,9 +96,13 @@ class WorkloadGateTests(unittest.TestCase):
             sample("upload", cohort="public_upload", status=201) for _ in range(4)
         ]
         for stage, seconds in (("expected", 60), ("recovery", 30)):
-            for cohort in ("mcp_large_group", "mcp_small_group"):
+            for order, cohort in enumerate(("mcp_large_group", "mcp_small_group")):
                 self.samples[stage] += [sample("mcp_roster" if index % 2 else "mcp_groups", cohort=cohort) for index in range(seconds)]
-                self.samples[stage].append(sample("mcp_export", cohort=cohort))
+                self.samples[stage].append({
+                    **sample("mcp_export", cohort=cohort),
+                    "rows": SOURCE_ROWS, "export_scheduling": EXPORT_SCHEDULING,
+                    "export_order": order,
+                })
         self.windows = {
             name: {
                 "started_at": instant(start),
@@ -193,6 +198,17 @@ class WorkloadGateTests(unittest.TestCase):
         row = next(row for row in self.samples["expected"] if row["operation"] == "mcp_export" and row["cohort"] == "mcp_large_group")
         row["milliseconds"] = 30001
         self.assertIn("expected:mcp_large_group:mcp_export:latency_budget", self.failures())
+
+    def test_export_profile_schedule_and_duplicate_samples_cannot_claim_minimum_envelope(self):
+        original = next(row for row in self.samples["expected"] if row["operation"] == "mcp_export")
+        for update in ({"rows": 1500}, {"rows": 99}, {"export_scheduling": "parallel"}):
+            with self.subTest(update=update):
+                before = original.copy()
+                original.update(update)
+                self.assertIn("expected:mcp_large_group:mcp_export:wrong_profile_or_schedule", self.failures())
+                original.update(before)
+        self.samples["expected"].append(original.copy())
+        self.assertIn("expected:mcp_large_group:mcp_export:wrong_profile_or_schedule", self.failures())
 
     def test_missing_or_incremented_oom_evidence_fails(self):
         self.metrics[4]["backend_memory_events"]["oom"] = 1
