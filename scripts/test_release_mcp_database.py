@@ -6,6 +6,7 @@ import copy
 import importlib.util
 import json
 import os
+import shlex
 import tempfile
 import unittest
 from pathlib import Path
@@ -66,6 +67,13 @@ class DatabaseReleaseTests(unittest.TestCase):
         return ""
 
     def test_verified_backup_is_exclusive_bound_and_decoded_before_migration_plan(self):
+        # Named /dev/stdout causes pg_dump to fsync Docker's non-seekable pipe.
+        # Its default stdout mode delegates durability to backup() on the host.
+        dump_arguments = shlex.split(DUMP_COMMAND.split("exec pg_dump ", 1)[1])
+        self.assertFalse(
+            any(value == "-f" or value.startswith("--file") for value in dump_arguments)
+        )
+        self.assertIn("--format=custom", dump_arguments)
         backup = self.release.backup()
         archive = self.release.verify_backup(backup)
         self.assertEqual(archive.read_bytes(), b"PGDMPsynthetic-retained-archive")

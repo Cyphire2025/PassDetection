@@ -29,7 +29,9 @@ DUMP_COMMAND = (
     'set -eu; export PGPASSWORD="$POSTGRES_PASSWORD"; '
     'export PGOPTIONS="-c lock_timeout=5000 -c statement_timeout=120000"; '
     'exec pg_dump --username="$POSTGRES_USER" --dbname="$POSTGRES_DB" '
-    "--format=custom --lock-wait-timeout=5000 --file=/dev/stdout"
+    # No --file: pg_dump treats an explicit /dev/stdout as a named file and
+    # attempts fsync on Docker's pipe. The host owns the exclusive file/fsync.
+    "--format=custom --lock-wait-timeout=5000"
 )
 
 

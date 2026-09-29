@@ -73,7 +73,7 @@ def _originals_ready(activation) -> None:
 
 
 def _compare_recovery(before: dict, after: dict) -> list[str]:
-    """Only explicitly recovered app cgroups may reset; infra/backend never may."""
+    """Only explicitly recovered app cgroups may reset; infrastructure never may."""
     try:
         if (
             set(before["containers"]) != SERVICES
@@ -88,7 +88,7 @@ def _compare_recovery(before: dict, after: dict) -> list[str]:
             previous = {"containers": {service: first}}
             current = {"containers": {service: last}}
             if (
-                service in INFRASTRUCTURE | {"backend"}
+                service in INFRASTRUCTURE
                 or first["started_at"] == last["started_at"]
             ):
                 compare(previous, current)
@@ -140,6 +140,22 @@ def bind_retry_baseline(activation, snapshot_path: Path) -> dict:
     previous, previous_hash = _read(directory / "oom-stage.private.json")
     current = capture(activation.originals, inspect=bound_original)
     restarted = _compare_recovery(previous, current)
+    recovery_receipts = {}
+    for service in restarted:
+        row = current["containers"][service]
+        paths = list(directory.glob(f"oom-original-start-{row['id']}-*.json"))
+        legacy = directory / f"oom-start-{row['id']}.json"
+        if legacy.exists():
+            paths.append(legacy)
+        for path in paths:
+            evidence, digest = _read(path)
+            saved = evidence.get("containers", {}).get(service, {})
+            if saved.get("id") == row["id"] and saved.get("started_at") == row["started_at"]:
+                compare(evidence, {"containers": {service: row}})
+                recovery_receipts[service] = {"filename": path.name, "sha256": digest}
+                break
+        else:
+            raise BuildError("retry_recovered_start_receipt_unavailable")
     _originals_ready(activation)
     overlay = _overlay_sources()
     current["retry"] = {
@@ -147,6 +163,7 @@ def bind_retry_baseline(activation, snapshot_path: Path) -> dict:
         "schema": SOURCE_SCHEMA,
         "previous_stage_sha256": previous_hash,
         "recovered_services": restarted,
+        "recovery_receipts": recovery_receipts,
         "operator_modules": overlay,
     }
     private_json(snapshot_path, current)

@@ -53,6 +53,10 @@ class RetryTests(unittest.TestCase):
                 oom_killed=False,
                 events={"oom": 0, "oom_kill": 0},
             )
+            row = self.current["containers"][service]
+            (self.directory / f"oom-original-start-{row['id']}-test.json").write_text(
+                json.dumps({"containers": {service: row}})
+            )
         self.stage_path = self.directory / "oom-stage.private.json"
         self.stage_path.write_text(json.dumps(self.stage))
         self.original_bytes = self.stage_path.read_bytes()
@@ -112,6 +116,17 @@ class RetryTests(unittest.TestCase):
         self.current["containers"]["backend"]["events"]["oom"] = 1
         with self.assertRaises(BuildError):
             bind_retry_baseline(self.activation, self.path)
+
+    def test_backend_recovery_requires_its_exact_retained_start_evidence(self):
+        row = self.current["containers"]["backend"]
+        row["started_at"] = "recovered-backend"
+        with self.assertRaisesRegex(BuildError, "start_receipt_unavailable"):
+            bind_retry_baseline(self.activation, self.path)
+        (self.directory / f"oom-original-start-{row['id']}-later.json").write_text(
+            json.dumps({"containers": {"backend": row}})
+        )
+        result = bind_retry_baseline(self.activation, self.path)
+        self.assertIn("backend", result["retry"]["recovery_receipts"])
 
     def test_target_schema_or_unexpected_running_helper_blocks_before_capture(self):
         self.activation.schema.return_value = "0122_mcp_gc_push"
