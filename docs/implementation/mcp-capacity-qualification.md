@@ -119,3 +119,32 @@ limits do not themselves measure total heap, native allocations or whole-host
 headroom. Other export families are outside this minimum capacity profile.
 Combined native workload/RSS qualification remains required. No actual workload
 receipt or qualification status was changed by the harness corrections.
+
+## Exact-profile PostgreSQL component evidence
+
+On 30 September 2026, five tests in
+`backend/tests/service_integration/test_mcp_source_admission_postgresql.py` passed
+in 4.38 seconds against the existing isolated PostgreSQL 16.15 service. They
+retained a UUID-owned schema with 5,000 and 100 synthetic passports. Selecting
+100 from the large group and exporting the complete small group loaded only the
+selected 100 passport ORM identities and matched the canonical website workbook's
+complete row multiset, including duplicate passport numbers. Selecting 101 or the
+whole 5,000-record group failed before passport ORM loading. Two Unicode JSON
+values, each individually below 1 MiB but cumulatively above it in UTF-8 bytes,
+also failed before ORM loading despite their lower character count.
+
+The successful JUnit receipt is
+`outputs/mcp-pg-source-admission-20260929-second.xml`; schema
+`mcp_source_cb0012a5cee94446b78a50139ec96145` remains retained. The initial fixture
+attempt failed because its search path hid the existing `pg_trgm` extension; its
+failure receipt is retained too. The final fixture uses schema translation for
+all ORM tables and includes `public` solely to resolve existing extensions.
+This qualifies PostgreSQL admission and workbook parity, not migration roles,
+real object storage, HTTP/proxy performance, total memory or combined capacity.
+
+A new read-only local environment check found Docker Desktop installed but no
+running Linux engine or Docker processes; its named pipe was absent. WSL listed
+only the stopped `docker-desktop` distribution. No alternative installed Linux
+VM tool was found in the checked command paths or standard install locations.
+Nothing was started or changed. A retention-compatible full workload therefore
+still lacks an admitted, running Linux environment with verified native cgroups.
