@@ -12,6 +12,10 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
+from app.application.use_cases.passports.excel_export_options import (
+    ExcelOptionsSupport,
+    project_excel_export_options,
+)
 from app.application.use_cases.passports.prepare_group_excel import ExcelPreparationError
 from app.application.use_cases.passports.prepare_selected_excel import (
     SelectedExcelSupport,
@@ -33,8 +37,6 @@ from app.presentation.api.v1.response_contracts import XLSX, binary_responses
 from app.presentation.api.v1.schemas.passport_schemas import (
     ExportSelectedGroupsRequest,
     ExportSelectedPassportsRequest,
-    PassportExportFieldOptionResponse,
-    PassportExportGroupingOptionResponse,
     PassportSelectedGroupsExportFieldOptionsResponse,
 )
 from app.presentation.dependencies.auth import get_current_active_user
@@ -53,6 +55,7 @@ from .constants import (
     _pending_recipient_export_rows,
 )
 from .ecr_export_support import export_passport_ecr_results
+from .excel_exports import export_options_support
 from .export_context import _resolve_export_group_by
 from .response_support import _apply_manager_visibility, _submitted_statuses
 
@@ -144,38 +147,16 @@ async def get_selected_groups_export_fields(
         submissions,
         groups=groups,
     )
-    catalog = _combined_export_field_catalog(
-        groups,
-        match_rows_by_group,
-        submissions,
+    base = export_options_support()
+    options = project_excel_export_options(
+        groups=groups, submissions=submissions, rows_by_group=match_rows_by_group,
+        selection="selected_groups",
+        support=ExcelOptionsSupport(base.group_catalog, _combined_export_field_catalog,
+                                    base.agency_match_catalog, _international_airport_is_enabled),
     )
-    default_selected = [str(field["key"]) for field in catalog if field["selected_by_default"]]
     return PassportSelectedGroupsExportFieldOptionsResponse(
         group_ids=[group.id for group in groups],
-        fields=[PassportExportFieldOptionResponse.model_validate(field) for field in catalog],
-        grouping_fields=[
-            *(
-                [
-                    PassportExportGroupingOptionResponse(
-                        key="international_airport",
-                        label="International Airport",
-                        fixed=True,
-                    )
-                ]
-                if any(_international_airport_is_enabled(group) for group in groups)
-                else []
-            ),
-            *[
-                PassportExportGroupingOptionResponse(
-                    key=str(field["key"]),
-                    label=str(field["label"]),
-                    fixed=False,
-                )
-                for field in catalog
-            ],
-        ],
-        default_selected_fields=default_selected,
-        default_group_by_field=("zone_name" if "zone_name" in default_selected else None),
+        **options.model_dump(exclude={"agency_match_enabled", "agency_match_fields"}),
     )
 
 

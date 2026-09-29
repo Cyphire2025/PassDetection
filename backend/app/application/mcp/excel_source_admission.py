@@ -27,6 +27,7 @@ async def admit_excel_sources(
     group_ids: list[uuid.UUID],
     submission_ids: list[uuid.UUID] | None,
     baseline_export_id: uuid.UUID | None,
+    include_workbook_sources: bool = True,
 ) -> None:
     """Caller owns group UPDATE locks and already charged their complete columns.
 
@@ -34,6 +35,7 @@ Groups -> broadcasts -> links -> recipients -> passports -> resolutions/ECR.
 NOWAIT avoids cycles with existing delivery and roster writers. Removed/draft
 rows count conservatively: an update cannot add an unmeasured row to a helper's
 later status-filtered read. Operational resolution JSON stays database-side.
+Catalog-only discovery skips agency/ECR workbook inputs and supplies no history baseline.
 """
     links = ClientGroupWhatsAppBroadcastLinkModel
     linked = select(links.broadcast_group_id).where(
@@ -64,7 +66,7 @@ later status-filtered read. Operational resolution JSON stays database-side.
         PassportRosterResolutionModel.agency_id == agency_id,
         PassportRosterResolutionModel.client_group_id.in_(group_ids),
     )
-    if passports:
+    if passports and include_workbook_sources:
         await budget.retain(AgencyModel, AgencyModel.id == agency_id)
         await budget.retain(
             PassportEcrCheckModel, PassportEcrCheckModel.submission_id.in_(passports)

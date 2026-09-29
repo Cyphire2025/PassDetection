@@ -32,6 +32,7 @@ from app.presentation.mcp.content_read_tools import register_content_read_tools
 from app.presentation.mcp.diagnostic_tools import register_diagnostic_tools
 from app.presentation.mcp.document_export_tools import register_document_assignment_export_tools
 from app.presentation.mcp.document_read_tools import register_document_read_tools
+from app.presentation.mcp.excel_options_tools import register_excel_options_tools
 from app.presentation.mcp.export_tools import register_export_tools
 from app.presentation.mcp.gc_push_tools import register_gc_push_tools
 from app.presentation.mcp.group_change_tools import register_group_change_tools
@@ -147,6 +148,7 @@ def install_mcp(app: FastAPI, settings: Settings) -> None:
     register_operations_read_tools(server, app, settings)
     register_content_read_tools(server, app, settings)
     if "passport_excel" in settings.mcp.export_families:
+        register_excel_options_tools(server, app, settings)
         register_export_tools(server, app, settings)
     register_whatsapp_intent_tools(app, server, settings)
     register_whatsapp_message_tools(app, server, settings)

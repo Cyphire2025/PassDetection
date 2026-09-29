@@ -12,6 +12,10 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
+from app.application.use_cases.passports.excel_export_options import (
+    ExcelOptionsSupport,
+    project_excel_export_options,
+)
 from app.application.use_cases.passports.prepare_group_excel import (
     ExcelPreparationError,
     ExcelPreparationSupport,
@@ -36,9 +40,7 @@ from app.infrastructure.repositories.passport_submission_repository import (
 )
 from app.presentation.api.v1.response_contracts import XLSX, binary_responses
 from app.presentation.api.v1.schemas.passport_schemas import (
-    PassportExportFieldOptionResponse,
     PassportExportFieldOptionsResponse,
-    PassportExportGroupingOptionResponse,
 )
 from app.presentation.dependencies.auth import get_current_active_user
 
@@ -47,6 +49,7 @@ from .constants import (
     _AgencyExportMatches,
     _apply_agency_export_matches,
     _apply_pending_export_fields,
+    _combined_export_field_catalog,
     _export_additional_values,
     _export_agency_match_field_catalog,
     _export_agency_matches,
@@ -72,6 +75,14 @@ from .export_context import (
 from .response_support import _owner_scope_for
 
 router = APIRouter()
+
+
+def export_options_support() -> ExcelOptionsSupport:
+    return ExcelOptionsSupport(
+        _export_field_catalog, _combined_export_field_catalog,
+        _export_agency_match_field_catalog, _international_airport_is_enabled,
+    )
+
 
 def group_excel_support() -> ExcelPreparationSupport:
     """Code-owned dependencies shared with MCP; never supplied by a request."""
@@ -142,48 +153,11 @@ async def get_passport_group_export_fields(
         submissions,
         groups=[group],
     )
-    catalog = _export_field_catalog(
-        group,
-        rows_by_group.get(group.id, []),
-        submissions,
+    options = project_excel_export_options(
+        groups=[group], submissions=submissions, rows_by_group=rows_by_group,
+        selection="group", support=export_options_support(),
     )
-    agency_match_catalog = _export_agency_match_field_catalog(
-        group,
-        rows_by_group.get(group.id, []),
-    )
-    default_selected = [str(field["key"]) for field in catalog if field["selected_by_default"]]
-    return PassportExportFieldOptionsResponse(
-        group_id=group.id,
-        fields=[PassportExportFieldOptionResponse.model_validate(field) for field in catalog],
-        agency_match_enabled=group.agency_dealership_name_enabled,
-        agency_match_fields=[
-            PassportExportFieldOptionResponse.model_validate(field)
-            for field in agency_match_catalog
-        ],
-        grouping_fields=[
-            *(
-                [
-                    PassportExportGroupingOptionResponse(
-                        key="international_airport",
-                        label="International Airport",
-                        fixed=True,
-                    )
-                ]
-                if _international_airport_is_enabled(group)
-                else []
-            ),
-            *[
-                PassportExportGroupingOptionResponse(
-                    key=str(field["key"]),
-                    label=str(field["label"]),
-                    fixed=False,
-                )
-                for field in catalog
-            ],
-        ],
-        default_selected_fields=default_selected,
-        default_group_by_field=("zone_name" if "zone_name" in default_selected else None),
-    )
+    return PassportExportFieldOptionsResponse(group_id=group.id, **options.model_dump())
 
 
 def tracking_excel_support() -> TrackingExcelSupport:

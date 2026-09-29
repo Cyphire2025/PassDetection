@@ -17,7 +17,7 @@ async def test_passport_only_deployment_omits_other_export_tools_and_operations(
     app = FastAPI()
     install_mcp(app, settings)
     names = {tool.name for tool in await app.state.mcp_server.list_tools()}
-    assert {"inspect_excel_export", "prepare_excel_export", "resume_excel_export"} <= names
+    assert {"inspect_excel_export_options", "inspect_excel_export", "prepare_excel_export", "resume_excel_export"} <= names
     for suffix in ("image_export", "tracking_export", "rooming_export", "document_assignment_export"):
         assert not {f"{action}_{suffix}" for action in ("inspect", "prepare", "resume")} & names
         assert f"prepare_{suffix}" not in app.state.mcp_operations
@@ -30,6 +30,9 @@ async def test_no_export_families_registers_no_export_preparation(test_settings)
     app = FastAPI()
     install_mcp(app, settings)
     assert not any(name.endswith("_export") for name in app.state.mcp_operations)
+    assert "inspect_excel_export_options" not in {
+        tool.name for tool in await app.state.mcp_server.list_tools()
+    }
 
 
 @pytest.mark.parametrize("overrides", [

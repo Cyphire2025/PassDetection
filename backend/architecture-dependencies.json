@@ -20,6 +20,19 @@
         "app.infrastructure.repositories.user_repository.UserRepository"
       ]
     },
+    "app/application/mcp/excel_options.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current export authority and exact group scope precede source admission; selected-group catalog discovery reads only bounded canonical operational roster rows for the shared pure website projection, without workbook generation, storage, operation/history records or business mutations.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.repositories.operational_roster",
+        "app.infrastructure.repositories.operational_roster.operational_roster_member",
+        "app.infrastructure.repositories.passport_submission_repository",
+        "app.infrastructure.repositories.passport_submission_repository.PassportSubmissionRepository"
+      ]
+    },
     "app/application/mcp/access_changes.py": {
       "owner": "repository maintainers",
       "review_by": "2026-12-31",
