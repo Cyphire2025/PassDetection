@@ -376,3 +376,55 @@ dashboard JWT-derived rate limits are not proof of per-connection enforcement.
 | 2026-09-30 | Release-first user steering (root relay) |User authorized a minimum stable direct VPS deployment before CI, followed by completion of the remaining eight-phase work. |Keep all existing production resources/files/data and fixed SSH-key expiry. Direct release execution still needs its concrete backup, writer fence, exact migration, resource/admission and recovery checks; no full-phase completion is inferred from minimum deployment. |
 | 2026-09-30 | GC announcement additive drafts/revisions (delegated owner) |21 integration/SDK/website regressions,5 PostgreSQL append/concurrency/website-push races plus1 identity-refresh group-first regression;3-source mypy/Ruff/budgets pass. |Append-only draft/version creation with shared website policy; first-publication development deferred under release-first steering. No production/provider claim; evidence in mcp-gc-announcement-checkpoint.md. |
 | 2026-09-30 | Direct-release database and retained cutover components (coordinator/root) |9 database unit tests and1 actual PostgreSQL16.15 archive/hash/lock-failure/upgrade/retry proof pass17.20s;27 direct container/build/activation/cgroup mocked tests pass. Scoped Ruff clean. |Fresh source-bound backup, exact0113-to0122 chain under existing migration owner, no automatic downgrade or deletion. Explicit source-only recovery, whole-host admission and cgroup comparisons added; live direct deployment and full eight-phase gates remain open. See `mcp-additive-release-contract.md`. |
+
+## Live minimum-release checkpoint — 2026-09-30
+
+This appended checkpoint updates the earlier pre-deployment observations; it does
+not mark any of the eight phase acceptance gates complete. The root operator
+reported successful retained receipt
+`journal/0248-direct-release-live-verified.json` under
+`/opt/GlobalConnectsDashboard/tmp/mcp-direct-efea4e4ac199b65fbf4f3b76a1ed59c4c963bd7e`.
+Its exact observation time is `2026-09-29T20:52:25.162046+00:00`
+(30 September 2026, 02:22:25 IST).
+
+- Live application source is
+  `efea4e4ac199b65fbf4f3b76a1ed59c4c963bd7e`. All nine migrations from
+  `0113_document_follow_up` through `0122_mcp_gc_push` were verified after the
+  writer fence and a validated full PostgreSQL custom archive. Archive validation
+  does not establish a production restore rehearsal.
+- All 12 replacement application services are healthy, with zero restarts and
+  zero new OOM events in the verified startup window. Public liveness, readiness
+  and OAuth protected-resource metadata returned HTTP 200 from the VPS and
+  Windows. The email heartbeat arrived on its normal 60-second schedule. This
+  does not establish sustained or combined-load capacity.
+- Active bindings are retained in `images-runtimefix.json` and
+  `candidates-forward1.private.json`. The project label remains
+  `mcp-direct-efea4e4ac199-runtimefix`; active names use its `-fwd1-<service>`
+  suffix, while network aliases remain `-<service>`. Full secret-free mapping is
+  recorded in `mcp-direct-release-checkpoint.md`.
+- The original project's 12 application containers are stopped and retained;
+  its eight infrastructure services remain in place. Original source revision
+  `a18d236f15bd96ea326fe436cdcc28af60ec17b0`, images, files, business data, failed
+  candidates, helpers and backups remain retained. The failed earlier runtimefix
+  worker has restart disabled. New backend-based containers explicitly clear the
+  image entrypoint to preserve the original intended service command.
+- MAIN/operator revision `e92f086e03e73593b8dc05919fed064f13b02a31` contains the
+  subsequent operator corrections; deployed application source remains the exact
+  `efea4e4a` revision. Latest reported checks are 53 direct-helper tests and a
+  focused 6-case container suite, each passing; these counts are not summed into
+  a distinct combined total.
+- Live Administration / MCP is visible to the signed-in superadmin. Runtime
+  capability admission is only `mcp:read` and `mcp:export`, with only
+  `passport_excel`, at most 100 source rows per family and 1 MiB cumulative
+  database-measured source text. At this checkpoint the database control remains
+  disabled pending human recent-MFA verification. Browser OAuth, connector
+  authorization, real Codex calls and verified live export remain unqualified.
+
+The retained original checkout and application containers expect schema 0113.
+Do not use normal Compose activation from that checkout or restart those old
+application clients against the now-upgraded schema 0122. It can introduce
+incompatible or duplicate writers and recreate retained containers. Maintenance
+must use the exact active bindings above; recovery after migration requires a
+qualified forward repair. The earlier guarded source-schema recovery is no
+longer applicable. All eight phases remain open, including remaining workflow
+coverage, real Codex/file delivery and combined-load qualification.
