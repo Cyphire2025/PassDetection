@@ -74,9 +74,16 @@ def clean_stop(container: dict, original: dict | None = None) -> None:
     # The observed original proxy retains an old OOMKilled flag. Preserve that
     # evidence; only a newly set flag is a stop failure. New clones stay strict.
     prior_oom = original is not None and original["State"].get("OOMKilled") is True
+    # The retained Node standalone server exits with 128 + SIGTERM after the
+    # proxy has drained. This is expected for that stateless frontend only.
+    frontend_term = (
+        container.get("Config", {}).get("Labels", {}).get("com.docker.compose.service") == "frontend"
+        and container["Config"].get("Cmd") == ["node", "server.js"]
+        and state.get("ExitCode") == 143
+    )
     if (
         state["Running"]
-        or state.get("ExitCode") != 0
+        or (state.get("ExitCode") != 0 and not frontend_term)
         or (state.get("OOMKilled") and not prior_oom)
         or (
             original is not None
@@ -321,12 +328,20 @@ class DirectActivation:
         )
         self.client.start(candidate["Id"])
         snapshot = capture_memory({service: candidate}, inspect=bound_original)
+        # Recovery may start the same retained original more than once. Keep
+        # every start receipt; candidate verification still binds its first run.
+        original = any(row["Id"] == candidate["Id"] for row in self.originals.values())
+        receipt = (
+            f"oom-original-start-{candidate['Id']}-{uuid.uuid4().hex}.json"
+            if original else f"oom-start-{candidate['Id']}.json"
+        )
         private_json(
-            self.state.directory / f"oom-start-{candidate['Id']}.json", snapshot
+            self.state.directory / receipt, snapshot
         )
         require_zero(snapshot)
         self.state.event(
-            "candidate-started", service=service, container_id=candidate["Id"]
+            "original-started" if original else "candidate-started",
+            service=service, container_id=candidate["Id"], memory_receipt=receipt,
         )
 
     def migrate(self) -> None:
@@ -550,7 +565,11 @@ class DirectActivation:
             "/api/v1/health/ready",
             "/.well-known/oauth-protected-resource/mcp",
         ):
-            with urllib.request.urlopen(ORIGIN + path, timeout=25) as response:
+            request = urllib.request.Request(
+                ORIGIN + path,
+                headers={"User-Agent": "Mozilla/5.0 GlobalConnectsRelease/1.0", "Cache-Control": "no-cache"},
+            )
+            with urllib.request.urlopen(request, timeout=25) as response:
                 payload = json.loads(response.read(131072))
                 if response.status != 200:
                     raise BuildError("public_readiness_failed")

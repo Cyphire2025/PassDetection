@@ -259,7 +259,9 @@ class ActivationTests(unittest.TestCase):
             )
         visited = []
 
-        def response(url, **kwargs):
+        def response(request, **kwargs):
+            self.assertTrue(request.get_header("User-agent").startswith("Mozilla/5.0"))
+            url = request.full_url
             visited.append(url)
             payload = (
                 {"revision": self.state.revision}
@@ -283,6 +285,14 @@ class ActivationTests(unittest.TestCase):
         self.deployment.database_command.return_value = "t"
         with self.assertRaisesRegex(BuildError, "control_not_disabled"):
             DirectActivation.verify(self.deployment)
+
+    def test_repeat_original_recovery_preserves_each_memory_receipt(self):
+        self.command.side_effect = ["", str(16 * GIB), "", str(16 * GIB)]
+        for _ in range(2):
+            DirectActivation.start(self.deployment, self.originals["frontend"], "frontend")
+        receipts = list(self.state.directory.glob("oom-original-start-*.json"))
+        self.assertEqual(len(receipts), 2)
+        self.assertEqual(self.deployment.client.start.call_count, 2)
 
     def test_stage_requires_running_originals_before_credentials_or_creates(self):
         with tempfile.TemporaryDirectory() as directory:
