@@ -21,6 +21,7 @@ from app.core.security.identity_security import (
 from app.core.security.jwt import decode_access_token
 from app.core.security.password import hash_password
 from app.infrastructure.database.models import AuditLogModel, UserModel, UserSecurityStateModel
+from app.infrastructure.repositories.refresh_token_repository import RefreshTokenRepository
 from app.infrastructure.repositories.user_repository import UserRepository
 from app.infrastructure.security.mfa_step_up_rate_limiter import MFAStepUpLocked
 from app.presentation.api.v1.routes import auth_identity
@@ -59,6 +60,23 @@ def _request() -> Request:
     )
 
     request.state.auth_claims = {"sid": str(uuid.uuid4())}
+    return request
+
+
+async def _session_request(session: AsyncSession, user: UserModel) -> Request:
+    now = datetime.now(tz=UTC)
+    credential = await RefreshTokenRepository(session).save(
+        token=f"step-up-{uuid.uuid4()}", user_id=user.id,
+        expires_at=now + timedelta(days=1), session_version=2,
+        authentication_methods=("pwd", "totp"),
+        mfa_authenticated_at=now - timedelta(hours=1),
+    )
+    request = _request()
+    request.state.auth_claims = {
+        "sid": str(credential.session_id), "sv": 2, "sub": str(user.id),
+        "exp": int((now + timedelta(minutes=30)).timestamp()),
+        "session_exp": int(credential.expires_at.timestamp()),
+    }
     return request
 
 
@@ -119,7 +137,7 @@ async def test_failed_step_up_is_audited_with_generic_bounded_error(
     with pytest.raises(HTTPException) as exc_info:
         await auth_identity.step_up_dashboard_session(
             body=MFAStepUpRequest(code=invalid_code),
-            request=_request(),
+            request=await _session_request(db_session, user),
             response=Response(),
             current_user=current_user,
             session=db_session,
@@ -163,7 +181,7 @@ async def test_successful_step_up_lazily_reencrypts_legacy_mfa_secret(
 
     result = await auth_identity.step_up_dashboard_session(
         body=MFAStepUpRequest(code=totp_code(secret, counter=counter)),
-        request=_request(),
+        request=await _session_request(db_session, user),
         response=Response(),
         current_user=current_user,
         session=db_session,
@@ -192,8 +210,9 @@ async def test_step_up_keeps_existing_session_deadline(
     monkeypatch.setattr(auth_identity, "MFAStepUpRateLimiter", _StepUpLimiter)
     now = datetime.now(tz=UTC)
     deadline = int((now + timedelta(minutes=1)).timestamp())
-    request = _request()
-    request.state.auth_claims = {"sid": str(uuid.uuid4()), "exp": deadline, "mfa_at": int((now - timedelta(days=6)).timestamp())}
+    request = await _session_request(db_session, user)
+    request.state.auth_claims.pop("session_exp")
+    request.state.auth_claims.update({"exp": deadline, "mfa_at": int((now - timedelta(days=6)).timestamp())})
     if not legacy_session:
         request.state.auth_claims["session_exp"] = deadline
     response = Response()

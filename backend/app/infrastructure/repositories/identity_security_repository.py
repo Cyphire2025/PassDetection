@@ -63,6 +63,11 @@ class IdentitySecurityRepository:
     ) -> UserSecurityStateModel | None:
         statement = select(UserSecurityStateModel).where(UserSecurityStateModel.user_id == user_id)
         if lock:
+            # Factor verification/regeneration may later update the account or
+            # its families. Match rotation/revocation before locking factor state.
+            await self._session.scalar(select(UserModel.id).where(
+                UserModel.id == user_id,
+            ).with_for_update())
             # Locking does not refresh an object already in SQLAlchemy's
             # identity map. A concurrent generation change must be observed
             # before a caller increments or authorizes against locked state.
@@ -262,6 +267,9 @@ class IdentitySecurityRepository:
         now: datetime | None = None,
     ) -> tuple[DashboardAuthChallengeModel, str]:
         active_now = now or datetime.now(tz=UTC)
+        await self._session.scalar(select(UserModel.id).where(
+            UserModel.id == user_id,
+        ).with_for_update())
         await self._session.execute(
             update(DashboardAuthChallengeModel)
             .where(
@@ -299,8 +307,18 @@ class IdentitySecurityRepository:
         raw_token: str,
         now: datetime | None = None,
     ) -> DashboardAuthChallengeModel | None:
-        active_now = now or datetime.now(tz=UTC)
         token_hash = hash_identity_value(raw_token, purpose="dashboard-auth-challenge")
+        user_id = await self._session.scalar(select(DashboardAuthChallengeModel.user_id).where(
+            DashboardAuthChallengeModel.challenge_token_hash == token_hash,
+            DashboardAuthChallengeModel.status == "pending",
+        ))
+        if user_id is None:
+            return None
+        # Do not hold a challenge while waiting for the account: a simultaneous
+        # new challenge or MFA reset locks the account before cancelling it.
+        await self._session.scalar(select(UserModel.id).where(
+            UserModel.id == user_id,
+        ).with_for_update())
         challenge = (
             await self._session.execute(
                 select(DashboardAuthChallengeModel)
@@ -308,9 +326,12 @@ class IdentitySecurityRepository:
                     DashboardAuthChallengeModel.challenge_token_hash == token_hash,
                     DashboardAuthChallengeModel.status == "pending",
                 )
-                .with_for_update()
+                .with_for_update().execution_options(populate_existing=True)
             )
         ).scalar_one_or_none()
+        # Account contention must not preserve an earlier challenge-expiry
+        # decision. An explicit clock remains available to deterministic tests.
+        active_now = now or datetime.now(tz=UTC)
         if challenge is not None and _as_utc(challenge.expires_at) <= _as_utc(active_now):
             challenge.status = "expired"
             challenge.updated_at = active_now

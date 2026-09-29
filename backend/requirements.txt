@@ -49,8 +49,8 @@ httpx[http2]==0.27.0      # APNs requires HTTP/2
 google-auth==2.56.3       # Application Default Credentials for Play Integrity REST verification
 
 # ── Storage ───────────────────────────────────────────────────────────────────
-boto3==1.34.131          # S3-compatible (AWS, MinIO, etc.)
-botocore==1.34.131
+boto3==1.35.2            # First SDK model supporting create-only PutObject IfNoneMatch.
+botocore==1.35.2
 
 # ── Image Processing ──────────────────────────────────────────────────────────
 opencv-python-headless==4.11.0.86

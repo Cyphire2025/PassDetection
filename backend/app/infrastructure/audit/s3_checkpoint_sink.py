@@ -39,8 +39,8 @@ class S3AuditIntegritySink:
         self.private_key = private_key
         if private_key is not None and key_id(private_key.public_key()) not in self.keys:
             raise ValueError("Signing key must belong to the verification key ring")
-        # The pinned botocore predates the IfNoneMatch model parameter. Inject
-        # the supported S3 header before signing, on this dedicated client only.
+        # Enforce create-only writes before signing, on this dedicated client
+        # only, including callers that omit the optional SDK model parameter.
         client.meta.events.register("before-sign.s3.PutObject", self._conditional_create)
 
     @staticmethod

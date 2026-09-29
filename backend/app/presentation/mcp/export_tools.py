@@ -23,10 +23,13 @@ from app.application.mcp.exports import (
 from app.application.mcp.operations import MCPOperationError, MCPOperationService
 from app.application.use_cases.passports.prepare_group_excel import ExcelPreparationError
 from app.core.config.settings import Settings
+from app.core.logging.logger import get_logger
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository, AuditResult
 from app.presentation.api.v1.routes.passport_routes.excel_exports import group_excel_support
 from app.presentation.api.v1.routes.passport_routes.selected_exports import selected_excel_support
 from app.presentation.mcp.invocation import invoke_operation, mark_invocation_audited
+
+logger = get_logger(__name__)
 
 
 def excel_support() -> MCPExcelSupport:
@@ -88,7 +91,17 @@ async def _invoke_export(
                     "error": "export_busy",
                     "message": "Export sources or generation capacity are busy. Resume the same operation ID later; keep its original retry key.",
                 }
-        except Exception:
+        except Exception as exc:
+            cause = exc.__cause__ or (None if exc.__suppress_context__ else exc.__context__)
+            # Exception text/tracebacks can contain storage keys, signed URLs,
+            # credentials or source records. Keep diagnostics to types and IDs.
+            logger.error(
+                "mcp_excel_export_failed",
+                operation_id=str(operation_id) if operation_id else None,
+                tool_name=name,
+                error_type=type(exc).__name__,
+                cause_type=type(cause).__name__ if cause is not None else None,
+            )
             await session.rollback()
             outcome = "failed"
             result = {

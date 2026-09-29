@@ -47,6 +47,7 @@ def weekly_clock(monkeypatch: pytest.MonkeyPatch) -> SessionClock:
         "app.core.security.jwt",
         "app.application.use_cases.auth.refresh_token_use_case",
         "app.infrastructure.repositories.refresh_token_repository",
+        "app.infrastructure.repositories.dashboard_step_up_repository",
         "app.infrastructure.repositories.identity_security_repository",
         "app.presentation.api.v1.routes.auth_identity",
         "app.presentation.dependencies.auth",

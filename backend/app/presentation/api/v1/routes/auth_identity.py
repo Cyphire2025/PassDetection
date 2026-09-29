@@ -37,6 +37,7 @@ from app.infrastructure.database.models import UserModel, UserSecurityStateModel
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.observability.metrics import metrics
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.infrastructure.repositories.dashboard_step_up_repository import lock_step_up_session
 from app.infrastructure.repositories.identity_security_repository import (
     IdentitySecurityRepository,
     role_requires_dashboard_mfa,
@@ -267,11 +268,10 @@ async def verify_dashboard_mfa(
     session: AsyncSession = Depends(get_db_session),
 ) -> MFAEnrollmentResult | AuthResponse:
     repository = IdentitySecurityRepository(session)
-    now = datetime.now(tz=UTC)
     challenge = await repository.get_pending_auth_challenge(
         raw_token=body.challenge_token,
-        now=now,
     )
+    now = datetime.now(tz=UTC)
     if challenge is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=_MFA_CHALLENGE_FAILURE)
     if challenge.request_ip_hash != _request_hash(
@@ -403,7 +403,17 @@ async def step_up_dashboard_session(
         ) from None
 
     repository = IdentitySecurityRepository(session)
-    state = await repository.get_state(current_user.id, lock=True)
+    try:
+        stepped_session = await lock_step_up_session(
+            session, user_id=current_user.id,
+            session_id=uuid.UUID(request.state.auth_claims["sid"]),
+            session_version=request.state.auth_claims["sv"],
+            deadline=_existing_session_deadline(request),
+        )
+    except Exception:
+        await limiter.close()
+        raise
+    state = stepped_session.state
     now = datetime.now(tz=UTC)
     if state is None or state.mfa_secret_ciphertext is None or state.mfa_enabled_at is None:
         await limiter.close()
@@ -452,9 +462,11 @@ async def step_up_dashboard_session(
             detail="Verification code is invalid",
         )
     await limiter.clear(user_id=current_user.id, ip_address=client_ip)
+    await limiter.close()
     state.mfa_secret_ciphertext = reencrypt_mfa_secret_if_needed(state.mfa_secret_ciphertext)
     state.mfa_last_counter = counter if counter is not None else state.mfa_last_counter
     state.updated_at = now
+    stepped_session.record_assurance(method=method, now=now)
     # A fresh factor authorizes this action; it must not extend the browser's
     # sign-in deadline. Legacy access tokens retain their existing expiry.
     access_token, access_expires = create_access_token(
@@ -464,11 +476,9 @@ async def step_up_dashboard_session(
         session_version=state.session_version,
         authentication_methods=("pwd", method),
         mfa_authenticated_at=now,
-        session_expires_at=_existing_session_deadline(request),
+        session_expires_at=stepped_session.deadline,
         session_id=uuid.UUID(request.state.auth_claims["sid"]),
     )
-    set_access_cookie(response, access_token=access_token, expires_at=access_expires)
-    response.headers["Cache-Control"] = "private, no-store, max-age=0"
     await AuditLogRepository(session).record(
         action="auth.step_up_completed",
         entity_type="user_account",
@@ -479,6 +489,11 @@ async def step_up_dashboard_session(
         ip_address=client_ip,
         metadata={"method": method},
     )
+    # Factor consumption, refresh assurance and audit must be durable before
+    # the response can publish a cookie asserting that verification succeeded.
+    await session.commit()
+    set_access_cookie(response, access_token=access_token, expires_at=access_expires)
+    response.headers["Cache-Control"] = "private, no-store, max-age=0"
     values = dict(vars(current_user))
     values["mfa_required"] = state.mfa_required
     values["mfa_enabled"] = state.mfa_enabled_at is not None

@@ -16,7 +16,11 @@ from app.domain.entities.entities import UserRole
 from app.infrastructure.repositories.user_repository import UserRepository
 from app.presentation.api.v1.routes import auth_identity
 from app.presentation.api.v1.schemas.auth_schemas import MFAStepUpRequest
-from tests.unit.presentation.test_identity_step_up import _request, _staff_with_mfa, _StepUpLimiter
+from tests.unit.presentation.test_identity_step_up import (
+    _session_request,
+    _staff_with_mfa,
+    _StepUpLimiter,
+)
 
 
 @pytest.mark.asyncio
@@ -30,10 +34,10 @@ async def test_mfa_step_up_keeps_effective_response_but_true_token_identity(
     await db_session.flush()
     user = await UserRepository(db_session).get_by_id(model.id)
     user = apply_access_level(user, role=role, agency_id=uuid.uuid4(), agency_name="Office")
-    request = _request()
+    request = await _session_request(db_session, model)
     now = datetime.now(tz=UTC)
     deadline = int((now + timedelta(hours=1)).timestamp())
-    request.state.auth_claims = {"sid": str(uuid.uuid4()), "exp": deadline, "session_exp": deadline}
+    request.state.auth_claims.update({"exp": deadline, "session_exp": deadline})
     monkeypatch.setattr(auth_identity, "MFAStepUpRateLimiter", _StepUpLimiter)
     response = Response()
     result = await auth_identity.step_up_dashboard_session(
