@@ -46,7 +46,7 @@ evidence, including real Codex and production qualification where specified.
 | Phase 5: safe business changes | Operation foundation and initial group creation locally tested; broad gate open | Agent reports72 SQLite tests (34 operations,24 group/SDK,14 existing website policy) and9 real PostgreSQL races including six concurrent create requests producing one group. Other business adapters and recovery/production evidence remain open. |
 | Phase 6: conversational communications | Exact reminder lifecycle locally tested; broad gate open |170 affected integration/web/worker/receipt tests and6 PostgreSQL lifecycle races pass. New contact-workbook import has126 tests and3 PostgreSQL races passing; it creates a new broadcast without sending. Real provider, complete Excel-to-send scenario and other communication families remain outstanding. |
 | Phase 7: remaining domains | Office/tour/GC and additive group-access/link operations locally tested; broad gate open | Office65 regressions plus6 PostgreSQL races; tour/GC31 final focused tests,128 earlier combined regressions and6 PostgreSQL races pass. Broader tour/GC lifecycle, retained room allocation, versioned plan regeneration and all other permitted workflows remain open. |
-| Phase 8: qualification and rollout | Not verified | Root reports18 capacity-harness/negative tests passing; actual container benchmark is unrun. Full CI/release, capacity, real Codex and controlled production verification remain outstanding. |
+| Phase 8: qualification and rollout | Minimum deployment verified; full gate open | Application efea4e4a and schema0122 are live with retained resources, public200 and zero replacement restarts/OOM counters. Frozen broad backend5805pass/3Linux-only skips/285service exclusions and67 direct-helper tests pass. Combined-load capacity, real Codex/file delivery, full workflow coverage and the remaining qualification gates remain outstanding. See the current direct-release checkpoint. |
 | WhatsApp delivery state | Locally tested; release gate open | Exact receipt states, bounded reconciliation and revision cache refresh; delegated React/contract/lint/type checks recorded below. Provider/production evidence outstanding. |
 | Passport-link recipient selection | Locally tested; release gate open | Shared visible/send selection with async/reopen/audience-identity regression tests; final joined release verification outstanding. |
 | Compact group overview | Local UI gate passed; integrated release gate open |16 focused React, 24 existing contracts, lint/budget checks and 5 responsive browser tests passed again after final extraction. MCP UI owner subsequently reports full-project TypeScript passing after scaffolding settled. |
@@ -428,3 +428,33 @@ must use the exact active bindings above; recovery after migration requires a
 qualified forward repair. The earlier guarded source-schema recovery is no
 longer applicable. All eight phases remain open, including remaining workflow
 coverage, real Codex/file delivery and combined-load qualification.
+
+### Post-cutover qualification follow-up — 2026-09-30
+
+At `2026-09-29T21:12:50.298841+00:00`, all 12 replacement application containers
+and eight original infrastructure services were running. All ten configured
+application Docker health checks were healthy; frontend and Nginx have no Docker
+health check and passed their public HTTP checks. API liveness, full readiness,
+OAuth resource metadata and the MCP page returned HTTP 200. Replacement cgroup
+OOM counters and restart counts remained zero after approximately 20 minutes.
+This is an observation window, not representative combined-load qualification.
+
+The final frozen broad Windows backend regression reports **5,805 passed,
+3 skipped, 285 deselected, 162 subtests passed**, exit zero in 737.98 seconds.
+All three skips require Linux fork/path behavior; the deselected tests belong to
+the separately run service-integration lane. Backend source is unchanged from
+the deployed `efea4e4a` revision. Retained log/JUnit artifacts are
+`outputs/backend-regression-20260929T2107Z.log` and its `.xml` sibling. This
+closes the earlier aggregate regression gap after the eleven targeted fixes.
+
+Operator commit `82d503c5` additionally has 67 passing joined direct-helper tests.
+Future builds commit explicit runtime image configuration and verify the result,
+with a bounded 120-second commit timeout and no automatic uncertain retry. Those
+Docker tests are mocked, and no new application build/deployment is implied.
+
+Connector 0.2.0 is installed independently of the worktree under
+`%LOCALAPPDATA%/GlobalConnects/mcp-connector/0.2.0` with hash-checked dependencies
+and the recorded wheel checksum. Its native vault is accessible and has no
+authorization yet. The signed-in website is displaying the real recent-MFA
+dialog; human verification, OAuth, Codex configuration and the actual live
+read/export proof remain pending. No phase is marked complete by this follow-up.

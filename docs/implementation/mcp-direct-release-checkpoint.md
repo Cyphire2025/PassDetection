@@ -4,11 +4,20 @@ The minimum direct release is live and verified. Retained journal receipt
 `journal/0248-direct-release-live-verified.json` records application revision
 `efea4e4ac199b65fbf4f3b76a1ed59c4c963bd7e` on schema
 `0122_mcp_gc_push`, observed at `2026-09-29T20:52:25.162046+00:00`
-(30 September 2026, 02:22:25 IST). All 12 active replacement application services are healthy,
+(30 September 2026, 02:22:25 IST). All 12 active replacement application services are running,
 with zero restarts and zero new OOM events during the verified startup window.
 Public liveness, readiness and OAuth protected-resource metadata returned HTTP
 200 from both the VPS and Windows. This is startup and readiness evidence, not
 combined-load or real Codex qualification. All eight phase gates remain open.
+
+A read-only follow-up at `2026-09-29T21:12:50.298841+00:00` recorded the same
+12 application containers plus eight original infrastructure services running.
+All ten configured application Docker health checks passed. Frontend and Nginx
+have no Docker health check; their public MCP page, API liveness, full readiness
+and OAuth resource metadata returned HTTP 200. All replacement cgroup OOM
+counters and restart counts remained zero. This approximately 20-minute
+post-cutover observation is retained locally in
+`outputs/mcp-live-post-startup-20260929.json`; it is not a mixed-workload test.
 
 The user authorized pushing the stable checkpoint to main and deploying on the
 existing VPS before hosted CI, then continuing the accepted eight-phase plan.
@@ -96,9 +105,16 @@ old-schema clients now; any recovery requires a qualified forward repair.
 
 Local evidence at this source checkpoint:
 
-- Broad backend run: 5,729 passed, 11 failed, 3 skipped, 275 deselected; all eleven
-  failures were subsequently fixed and their affected tests passed. A second
-  whole-backend run is not claimed.
+- Final broad backend run: 5,805 passed, 3 skipped, 285 service-integration tests
+  deselected, and 162 subtests passed in 737.98 seconds, with exit code zero.
+  Command: `python -m pytest -q -o addopts='' -m 'not service_integration'`.
+  All three skips require Linux fork/path semantics unavailable on Windows.
+  The frozen backend tree is identical to application revision `efea4e4a`;
+  subsequent changes are operator helpers and documentation. The complete log
+  and JUnit report are retained locally as
+  `outputs/backend-regression-20260929T2107Z.log` and its `.xml` sibling. This
+  supersedes the earlier broad run with eleven subsequently fixed failures;
+  it does not replace the excluded real-service or production qualification.
 - Frontend: 1,093 Vitest tests and 714 contract tests passed, with TypeScript and
   module budgets passing.
 - Final passport export/source admission/envelope/architecture check: 24 passed;
