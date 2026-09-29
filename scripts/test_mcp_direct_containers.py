@@ -1,9 +1,14 @@
 """Retention and isolation invariants before a clone reaches the Docker socket."""
 import copy
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
-from mcp_direct_containers import ContainerError, LocalDocker, clone_payload
+from mcp_direct_containers import (
+    ContainerError,
+    LocalDocker,
+    UnixConnection,
+    clone_payload,
+)
 
 
 def original(service="backend"):
@@ -81,6 +86,52 @@ class CloneTests(unittest.TestCase):
             with patch.object(client, "inspect", return_value=original(service)), patch.object(client, "request") as request, patch("mcp_direct_containers.time.monotonic", side_effect=[0, 2]), self.assertRaisesRegex(ContainerError, "still_draining"):
                 client.graceful_stop("a" * 64, timeout=1)
             request.assert_called_once_with("POST", "/containers/" + "a" * 64 + "/kill?signal=" + expected)
+
+
+class DockerRequestTests(unittest.TestCase):
+    def test_default_control_timeout_is_15_seconds_and_commit_can_select_120(self):
+        client = object.__new__(LocalDocker)
+        for arguments, expected in (({}, 15), ({"timeout": 120}, 120)):
+            with self.subTest(timeout=expected), patch("mcp_direct_containers.UnixConnection") as factory:
+                connection = factory.return_value
+                connection.getresponse.return_value.status = 201
+                connection.getresponse.return_value.read.return_value = b'{"Id":"retained"}'
+                self.assertEqual(client.request("POST", "/commit", {}, **arguments), {"Id": "retained"})
+                factory.assert_called_once_with(timeout=expected)
+                connection.request.assert_called_once()
+                connection.close.assert_called_once()
+
+    def test_timeout_is_a_bounded_integer_before_opening_socket(self):
+        client = object.__new__(LocalDocker)
+        with patch("mcp_direct_containers.UnixConnection") as factory:
+            for timeout in (None, True, False, 0, -1, 121, 120.0, "120", float("inf")):
+                with self.subTest(timeout=timeout), self.assertRaisesRegex(ContainerError, "invalid_docker_request_timeout"):
+                    client.request("POST", "/commit", {}, timeout=timeout)
+            factory.assert_not_called()
+
+    def test_selected_timeout_reaches_unix_socket(self):
+        with patch("mcp_direct_containers.socket.socket") as factory, patch("mcp_direct_containers.socket.AF_UNIX", 1, create=True):
+            connection = UnixConnection(timeout=120)
+            connection.connect()
+            self.assertEqual(connection.timeout, 120)
+            factory.return_value.settimeout.assert_called_once_with(120)
+            factory.return_value.connect.assert_called_once_with("/var/run/docker.sock")
+            connection.close()
+
+    def test_uncertain_request_timeout_closes_without_retry_or_raw_error(self):
+        client = object.__new__(LocalDocker)
+        for stage in ("request", "getresponse", "read"):
+            with self.subTest(stage=stage), patch("mcp_direct_containers.UnixConnection") as factory:
+                connection = factory.return_value
+                response = Mock(status=201)
+                connection.getresponse.return_value = response
+                target = response.read if stage == "read" else getattr(connection, stage)
+                target.side_effect = TimeoutError("private daemon details")
+                with self.assertRaisesRegex(ContainerError, "^docker_request_failed$"):
+                    client.request("POST", "/commit", {}, timeout=120)
+                factory.assert_called_once_with(timeout=120)
+                connection.request.assert_called_once()
+                connection.close.assert_called_once()
 
 
 if __name__ == "__main__":

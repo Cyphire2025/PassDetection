@@ -91,8 +91,8 @@ def clone_payload(original: dict, *, name: str, image_id: str, environment: dict
 
 
 class UnixConnection(http.client.HTTPConnection):
-    def __init__(self):
-        super().__init__("localhost", timeout=15)
+    def __init__(self, *, timeout: int = 15):
+        super().__init__("localhost", timeout=timeout)
 
     def connect(self):
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -105,8 +105,10 @@ class LocalDocker:
         if sys.platform != "linux" or os.environ.get("DOCKER_HOST") or os.environ.get("DOCKER_CONTEXT"):
             raise ContainerError("local_linux_docker_required")
 
-    def request(self, method: str, path: str, payload: dict | None = None):
-        connection = UnixConnection()
+    def request(self, method: str, path: str, payload: dict | None = None, *, timeout: int = 15):
+        if type(timeout) is not int or not 1 <= timeout <= 120:
+            raise ContainerError("invalid_docker_request_timeout")
+        connection = UnixConnection(timeout=timeout)
         try:
             body = json.dumps(payload).encode() if payload is not None else None
             connection.request(method, "/v1.45" + path, body, {"Content-Type": "application/json"})

@@ -48,7 +48,7 @@ the live database. The archive is decoded and hashed; it is not claimed as a
 production restore rehearsal. Target-schema recovery is forward repair only.
 
 The live application source remains the exact `efea4e4a` revision above. Operator
-corrections are separately retained and journaled; the current MAIN/operator
+corrections are separately retained and journaled; the operator revision at cutover
 revision is `e92f086e03e73593b8dc05919fed064f13b02a31`. These later operator changes
 do not imply a rebuild or a change to the deployed application source.
 
@@ -109,10 +109,23 @@ Local evidence at this source checkpoint:
 - Database helper: 9 focused tests plus a real PostgreSQL backup/decode/hash,
   five-second lock failure/transaction rollback, successful retry, retained row,
   disabled control and target retry proof passed.
-- Latest operator checks: 53 direct-helper tests passed; the focused container
-  suite reports 6 passing cases. These suite counts are not added into a distinct
-  combined total. They cover the retained deployment corrections, including
-  explicit entrypoint clearing and strict container identity checks.
+- Post-cutover operator checks: 67 joined direct-helper tests passed, including
+  15 build tests and 10 container tests. Future builds now commit explicit runtime
+  configuration through the Docker API and inspect the returned image's command,
+  cleared entrypoint, runtime user, work directory, revision, health check and
+  stop signal before accepting it. Commit requests have a bounded 120-second
+  timeout; ordinary control calls retain 15 seconds. An uncertain commit is not
+  retried automatically. These new checks mock Docker and do not claim another
+  live build or deployment.
+
+The checksum-verified connector 0.2.0 wheel is also installed into a dedicated
+Windows environment at `%LOCALAPPDATA%/GlobalConnects/mcp-connector/0.2.0`, backed
+by CPython 3.11.15 independently of the managed checkout. Its pinned runtime
+dependencies were installed with required hashes, the executable reports 0.2.0,
+and access to its Windows Credential Manager entry succeeds. The entry is still
+empty pending browser authorization; no Codex connection or live file transfer
+is implied. The wheel SHA-256 is
+`9ddb16aa489e6cfd3e403f0778955c76f6c8bb050f81e3724368efec06518214`.
 
 The production build, bounded ownership repair, backup validation, migration and
 public readiness have now succeeded. Browser authorization, real Codex use,

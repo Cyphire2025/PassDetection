@@ -6,12 +6,16 @@ runtime images and every new builder remain available for inspection/recovery.
 """
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import re
 import subprocess
 from collections.abc import Callable
 from pathlib import Path
+from urllib.parse import urlencode
+
+from mcp_direct_containers import LocalDocker
 
 GIB = 1024**3
 IMAGE = re.compile(r"sha256:[a-f0-9]{64}")
@@ -71,12 +75,13 @@ def admit_builder(running: list[dict], host_bytes: int, builder_bytes: int) -> N
 
 class RetainedBuild:
     def __init__(self, source: Path, output: Path, revision: str,
-                 *, run: Callable[..., str] = command):
+                 *, run: Callable[..., str] = command, client=None):
         if not REVISION.fullmatch(revision) or source.resolve() != source or not source.is_dir():
             raise BuildError("invalid_build_source")
         if output.resolve() != output or not output.is_dir() or output.is_symlink():
             raise BuildError("invalid_build_output")
         self.source, self.output, self.revision, self.run = source, output, revision, run
+        self.client = client
 
     def capacity(self, maximum: int) -> None:
         identifiers = self.run("docker", "ps", "-q", "--no-trunc").split()
@@ -126,6 +131,57 @@ class RetainedBuild:
         return {"container_id": identifier, "exit_code": 0, "oom_killed": False,
                 "log_sha256": hashlib.sha256(log_path.read_bytes()).hexdigest()}
 
+    def commit_runtime(self, identifier: str, family: str) -> str:
+        """Commit explicit runtime Config, then reject inherited builder commands."""
+        commands = {
+            "backend": ["gunicorn", "--config", "gunicorn.conf.py", "app.main:app"],
+            "frontend": ["node", "server.js"],
+        }
+        if not re.fullmatch(r"[a-f0-9]{64}", identifier) or family not in commands:
+            raise BuildError("invalid_runtime_commit_binding")
+        containers = json.loads(self.run("docker", "inspect", identifier))
+        if (not isinstance(containers, list) or len(containers) != 1
+                or containers[0].get("Id") != identifier):
+            raise BuildError("runtime_commit_container_changed")
+        container = containers[0]
+        state = container.get("State", {})
+        if (state.get("Running") is not False or state.get("ExitCode") != 0
+                or state.get("OOMKilled") is not False or state.get("Dead") is True
+                or not isinstance(container.get("Config"), dict)):
+            raise BuildError("runtime_commit_requires_successful_stopped_builder")
+        config = copy.deepcopy(container["Config"])
+        config.update(User="1001:1001", WorkingDir="/app", Entrypoint=[], Cmd=commands[family])
+        environment = (
+            {"APP_REVISION": self.revision, "EXPECTED_DATABASE_SCHEMA_REVISION": "0122_mcp_gc_push"}
+            if family == "backend" else {"NEXT_PUBLIC_APP_REVISION": self.revision}
+        )
+        config["Env"] = [entry for entry in (config.get("Env") or [])
+                         if entry.split("=", 1)[0] not in environment]
+        config["Env"].extend(f"{key}={value}" for key, value in sorted(environment.items()))
+        config["Labels"] = {**(config.get("Labels") or {}), "org.opencontainers.image.revision": self.revision}
+        # The changes parser can turn ENTRYPOINT [] into nil, which Docker merges
+        # with the builder entrypoint. An explicit empty JSON array and no changes
+        # retain the intended cleared entrypoint through Docker's merge step.
+        client = self.client if self.client is not None else LocalDocker()
+        # A commit can finish after a lost response; never retry it automatically.
+        result = client.request("POST", "/commit?" + urlencode({"container": identifier, "pause": "false"}),
+                                config, timeout=120)
+        image = result.get("Id") if isinstance(result, dict) else None
+        if not isinstance(image, str) or not IMAGE.fullmatch(image):
+            raise BuildError("invalid_built_image_identity")
+        images = json.loads(self.run("docker", "image", "inspect", image))
+        if (not isinstance(images, list) or len(images) != 1 or images[0].get("Id") != image
+                or not isinstance(images[0].get("Config"), dict)):
+            raise BuildError("committed_runtime_image_changed")
+        actual = images[0]["Config"]
+        # Stored image JSON may normalize a cleared [] entrypoint to null. Both
+        # are inert; a missing field or any nonempty inherited command is rejected.
+        if ("Entrypoint" not in actual or actual["Entrypoint"] not in ([], None)
+                or any(actual.get(key) != config.get(key) for key in
+                       ("Cmd", "User", "WorkingDir", "Env", "Labels", "Healthcheck", "StopSignal"))):
+            raise BuildError("committed_runtime_config_mismatch")
+        return image
+
     def backend(self, base_image: str, previous_lock: Path) -> dict:
         if not IMAGE.fullmatch(base_image):
             raise BuildError("immutable_backend_base_required")
@@ -161,13 +217,7 @@ class RetainedBuild:
             self.run("docker", "cp", str(self.source / "backend" / filename), f"{identifier}:/app/{filename}")
         self.run("docker", "cp", str(lock), f"{identifier}:/app/mcp-delta.lock")
         result = self.execute(identifier, "backend", GIB)
-        image = self.run("docker", "commit", "--change", "USER 1001:1001",
-            "--change", 'ENTRYPOINT []', "--change", 'CMD ["gunicorn","--config","gunicorn.conf.py","app.main:app"]',
-            "--change", f"ENV APP_REVISION={self.revision}",
-            "--change", "ENV EXPECTED_DATABASE_SCHEMA_REVISION=0122_mcp_gc_push",
-            "--change", f"LABEL org.opencontainers.image.revision={self.revision}", identifier)
-        if not IMAGE.fullmatch(image):
-            raise BuildError("invalid_built_image_identity")
+        image = self.commit_runtime(identifier, "backend")
         return {**result, "image_id": image, "base_image_id": base_image,
                 "verified_api_contract_sha256": contract_sha,
                 "dependency_delta_sha256": hashlib.sha256(lock.read_bytes()).hexdigest()}
@@ -204,11 +254,6 @@ class RetainedBuild:
             self.run("docker", "cp", f"{identifier}:{source}", str(staging), timeout=180)
             self.run("docker", "cp", str(staging) + "/.", f"{runtime}:{destination}", timeout=180)
         runtime_result = self.execute(runtime, "frontend-runtime", GIB // 4)
-        image = self.run("docker", "commit", "--change", "USER 1001:1001",
-                        "--change", 'ENTRYPOINT []', "--change", 'CMD ["node","server.js"]',
-                        "--change", f"ENV NEXT_PUBLIC_APP_REVISION={self.revision}",
-                        "--change", f"LABEL org.opencontainers.image.revision={self.revision}", runtime)
-        if not IMAGE.fullmatch(image):
-            raise BuildError("invalid_built_image_identity")
+        image = self.commit_runtime(runtime, "frontend")
         return {**result, "runtime_container_id": runtime, "runtime_preparation": runtime_result,
                 "image_id": image, "base_image_id": base_image}
