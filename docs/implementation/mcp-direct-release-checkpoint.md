@@ -1,5 +1,21 @@
 # Direct VPS release checkpoint
 
+For subsequent live OAuth, actual Codex reads, successful saved-export recovery,
+and the deployed backend correction, see
+[the live Codex checkpoint](mcp-live-codex-checkpoint.md). The initial disabled
+control state below is historical; the user has since completed MFA, enabled
+MCP and authorized the named desktop connection.
+
+**Current runtime:** backend/proxy were advanced to application
+`cd0e538f3e967074606b6cc523203f691aea555d` on29 September2026, with schema0122,
+existing grants/limits and all resources retained. Frontend/workers/scheduler
+remain at `efea4e4a`. A22:12UTC observation verified all20 running services,
+all10 configured application health checks and public200 responses. Actual
+Codex resumed the original saved operation and verified delivery of its
+14,863-byte Excel workbook. The linked checkpoint carries exact bindings,
+checksums and limitations. The rest of this document records the initial
+schema-changing rollout and must not be mistaken for the current backend map.
+
 The minimum direct release is live and verified. Retained journal receipt
 `journal/0248-direct-release-live-verified.json` records application revision
 `efea4e4ac199b65fbf4f3b76a1ed59c4c963bd7e` on schema
@@ -34,10 +50,10 @@ values before full ORM reads. These are input limits, not a measured heap or
 combined production-load capacity claim. The database control starts disabled;
 an authenticated active superadmin must explicitly enable and authorize the
 connection through the Administration flow. The live MCP Administration page is
-visible to the signed-in superadmin. At this checkpoint the database control is
-still disabled, pending the user's recent-MFA verification. Browser OAuth,
-connector sign-in, a real Codex call and a verified live export have not yet
-completed.
+visible to the signed-in superadmin. At the initial deployment checkpoint the
+database control was disabled. The later user-authorized control change, OAuth
+sign-in, successful real Codex reads and export failure diagnosis are recorded in
+the linked live Codex checkpoint, including subsequent verified delivery.
 
 `scripts/mcp_direct_release.py` implements explicit prepare, build, stage,
 activate, verify, and guarded source-schema recovery phases. Builds derive from
@@ -56,12 +72,12 @@ owner. The full archive was validated and all nine migrations were verified on
 the live database. The archive is decoded and hashed; it is not claimed as a
 production restore rehearsal. Target-schema recovery is forward repair only.
 
-The live application source remains the exact `efea4e4a` revision above. Operator
+The initial rollout's application source was the exact `efea4e4a` revision above. Operator
 corrections are separately retained and journaled; the operator revision at cutover
 revision is `e92f086e03e73593b8dc05919fed064f13b02a31`. These later operator changes
 do not imply a rebuild or a change to the deployed application source.
 
-The authoritative retained release root is
+The authoritative retained initial-release root is
 `/opt/GlobalConnectsDashboard/tmp/mcp-direct-efea4e4ac199b65fbf4f3b76a1ed59c4c963bd7e`.
 The following paths are relative to that root. Private receipts contain exact
 container/image bindings and must not be copied into public diagnostics.
@@ -138,13 +154,14 @@ The checksum-verified connector 0.2.0 wheel is also installed into a dedicated
 Windows environment at `%LOCALAPPDATA%/GlobalConnects/mcp-connector/0.2.0`, backed
 by CPython 3.11.15 independently of the managed checkout. Its pinned runtime
 dependencies were installed with required hashes, the executable reports 0.2.0,
-and access to its Windows Credential Manager entry succeeds. The entry is still
-empty pending browser authorization; no Codex connection or live file transfer
-is implied. The wheel SHA-256 is
+and access to its Windows Credential Manager entry succeeds. At that initial
+checkpoint the credential entry was still empty; the subsequent authorized
+connection and live transfer are recorded in the linked live Codex checkpoint.
+The wheel SHA-256 is
 `9ddb16aa489e6cfd3e403f0778955c76f6c8bb050f81e3724368efec06518214`.
 
 The production build, bounded ownership repair, backup validation, migration and
-public readiness have now succeeded. Browser authorization, real Codex use,
-verified live export, the remaining allowed workflow coverage and combined
-production-load qualification remain outstanding. This checkpoint does not
-complete the full plan.
+public readiness succeeded. The subsequent checkpoint adds browser authorization,
+actual Codex use and the first verified live Excel delivery. The remaining allowed
+workflow coverage and combined production-load qualification remain outstanding.
+This checkpoint does not complete the full plan.

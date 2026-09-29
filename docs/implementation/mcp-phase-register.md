@@ -40,13 +40,13 @@ evidence, including real Codex and production qualification where specified.
 | Workstream | Status | Evidence / remaining gate |
 | --- | --- | --- |
 | Phase 1: inventory and baseline | Static inventory and initial live baseline recorded; gate open | Reviewed machine-readable source/API/UI matrix, drift checker and 12 behavioral tests; adapter effect reviews remain explicit implementation obligations. Read-only live snapshot records schema0113, source revision and resources; runtime privilege/readiness follow-up passes; logs, complete configuration and measured MCP capacity evidence remain open. |
-| Phase 2: auth, connections, administration | HTTP/UI/connector foundations locally tested; gate open | Latest root MCP HTTP29/29; UI40/40 and5 browser cases; connector27 tests/build including actual local TCP OAuth/MCP exchange. Initial OAuth/operation PostgreSQL races now pass on disposable PostgreSQL16.15; production TLS/configuration, complete controls and real Codex evidence remain outstanding. |
+| Phase 2: auth, connections, administration | Real OAuth and Codex connection demonstrated; full gate open | User completed MFA/control enablement and named-connection authorization; Windows vault connector and actual Codex reads/export passed on production. Durable assurance correction passes nine PostgreSQL races and focused HTTP tests; complete controls, denied management auditing and remaining live negative cases remain open. See the live Codex checkpoint. |
 | Phase 3: reads and diagnostics | Initial group, passport, WhatsApp, document/job, office and diagnostic reads locally tested; broad gate open | Group12, website-roster4, diagnostic21 and WhatsApp8 relational tests; WhatsApp2 actual SDK/ASGI tests plus34 existing receipt/batch regressions pass; document/job reads add6 relational/SDK tests and office reads add9 covering tour, rooming, menu and directory metadata. GC/email adds6 relational/SDK tests with shared policy/history logic. Optional sealed diagnostic collector/reader is locally tested and disabled by default; live log collection, remaining domains and production equality remain open. |
-| Phase 4: transfers and exports | Artifact/connector and initial XLSX family locally tested; broad gate open | Connector55 tests with startup-approved local file tools and fresh authority preflight; artifact19 tests. Passport XLSX has49 focused plus148 regression tests,5 PostgreSQL races and1 TCP delivery case. PDF ingestion adds98 shared/focused tests,4 PostgreSQL races and1 TCP case. Image ZIP adds85 focused regressions,3 PostgreSQL races and1 actual TCP verified-delivery case. Live storage/scanner/proxy/TTL, real Codex, all file families and capacity remain open. |
+| Phase 4: transfers and exports | First production Codex Excel recovery/delivery verified; broad gate open | Actual Codex resumed the saved operation on cd0e538f, checksum-verified14,863-byte local XLSX, and received server delivery acknowledgment; independent ZIP/openpyxl parsing passed. Earlier artifact/Excel/PDF/image ZIP local and PostgreSQL evidence remains valid within its scope. Other file families, scanner/TTL/revocation/recovery variants, complete source parity and combined-load capacity remain open. |
 | Phase 5: safe business changes | Operation foundation and initial group creation locally tested; broad gate open | Agent reports72 SQLite tests (34 operations,24 group/SDK,14 existing website policy) and9 real PostgreSQL races including six concurrent create requests producing one group. Other business adapters and recovery/production evidence remain open. |
 | Phase 6: conversational communications | Exact reminder lifecycle locally tested; broad gate open |170 affected integration/web/worker/receipt tests and6 PostgreSQL lifecycle races pass. New contact-workbook import has126 tests and3 PostgreSQL races passing; it creates a new broadcast without sending. Real provider, complete Excel-to-send scenario and other communication families remain outstanding. |
 | Phase 7: remaining domains | Office/tour/GC and additive group-access/link operations locally tested; broad gate open | Office65 regressions plus6 PostgreSQL races; tour/GC31 final focused tests,128 earlier combined regressions and6 PostgreSQL races pass. Broader tour/GC lifecycle, retained room allocation, versioned plan regeneration and all other permitted workflows remain open. |
-| Phase 8: qualification and rollout | Minimum deployment verified; full gate open | Application efea4e4a and schema0122 are live with retained resources, public200 and zero replacement restarts/OOM counters. Frozen broad backend5805pass/3Linux-only skips/285service exclusions and67 direct-helper tests pass. Combined-load capacity, real Codex/file delivery, full workflow coverage and the remaining qualification gates remain outstanding. See the current direct-release checkpoint. |
+| Phase 8: qualification and rollout | Corrected minimum backend and first actual-client delivery verified; full gate open | Backend cd0e538f/schema0122 are live; frontend/workers remain efea4e4a. All20 services running, public200, zero new application restarts/OOM and all prior containers/images retained. First real Codex Excel delivery passes; clean broad backend rerun5822pass/3Linux-only skips/294service exclusions/162subtests passed after a test-only ordering correction.67 direct-helper tests and36 capacity-harness tests pass; combined-load workload remains unrun. Full workflow/security/recovery/capacity gates remain open. |
 | WhatsApp delivery state | Locally tested; release gate open | Exact receipt states, bounded reconciliation and revision cache refresh; delegated React/contract/lint/type checks recorded below. Provider/production evidence outstanding. |
 | Passport-link recipient selection | Locally tested; release gate open | Shared visible/send selection with async/reopen/audience-identity regression tests; final joined release verification outstanding. |
 | Compact group overview | Local UI gate passed; integrated release gate open |16 focused React, 24 existing contracts, lint/budget checks and 5 responsive browser tests passed again after final extraction. MCP UI owner subsequently reports full-project TypeScript passing after scaffolding settled. |
@@ -458,3 +458,41 @@ and the recorded wheel checksum. Its native vault is accessible and has no
 authorization yet. The signed-in website is displaying the real recent-MFA
 dialog; human verification, OAuth, Codex configuration and the actual live
 read/export proof remain pending. No phase is marked complete by this follow-up.
+
+
+### Actual Codex recovery and forward backend — 2026-09-30
+
+This supersedes the prior pending-authorization and EF backend state above.
+The user completed recent MFA, enabled MCP and authorized the named desktop
+connection; the installed connector stores its credential in Windows Credential
+Manager. Actual Codex first demonstrated production reads, then retained a queued
+Excel export after the deployed storage SDK rejected its conditional-write
+parameter. The source correction is pushed to main through45dded23 and deployed
+as exact backend revisioncd0e538f, retaining schema0122, frontend/workersEF,
+read/export-only controls,100-row/1MiB limits and all prior resources.
+
+At22:12:26UTC on29 September, all20 services and ten configured application health
+checks passed, public routes returned200, and all prior containers/images were
+verified retained. Actual Codex run4 resumed the original operation
+13ffbc2f-34b1-434b-b432-3513e74cd8c7 without a new key. Download checksum and server
+delivery acknowledgment passed; independent ZIP CRC and openpyxl parsing passed
+for the14,863-byte workbook. Exact hash, immutable runtime bindings, private safe
+evidence paths and limitations are in[mcp-live-codex-checkpoint.md](mcp-live-codex-checkpoint.md).
+This proves the first saved Excel recovery/delivery case, not full export parity
+or phase acceptance.
+
+The storage SDK/MFA correction has81 focused SDK/storage/export tests, eight safe
+diagnostic tests and nine real PostgreSQL authority races passing. The initial
+full backend run had5,821 passes and one test-ordering failure; that test now uses
+exact token identities and its six-test file passes. The clean full rerun then
+passed5,822 tests,3 Linux-only skips,294 service-integration deselections and162
+subtests in863.68 seconds. Fifteen additional local HTTP authority tests and six
+mocked-API UI connection-state tests pass separately, outside that aggregate. The capacity harness now matches the current minimum export profile;
+36 focused tests pass, with serialized export waiting included in unchanged
+latency limits. No combined workload has run, and the existing disposable Docker
+stack helper remains incompatible with production retention requirements.
+
+All eight phase gates remain open. The overnight authorization preserves MFA,
+existing credentials, the original SSH expiry and all retained resources, and
+allows no additional customer messages. No fresh-factor live roundtrip is
+claimed for the durable dashboard MFA fix while the user is asleep.
