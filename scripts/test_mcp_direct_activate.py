@@ -6,7 +6,7 @@ import copy
 import json
 import tempfile
 import unittest
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from unittest.mock import Mock, patch
 
 from mcp_direct_activate import ORIGIN, TARGET, WRITERS, DirectActivation, clean_stop
@@ -293,6 +293,40 @@ class ActivationTests(unittest.TestCase):
         receipts = list(self.state.directory.glob("oom-original-start-*.json"))
         self.assertEqual(len(receipts), 2)
         self.assertEqual(self.deployment.client.start.call_count, 2)
+
+    def test_migration_cannot_run_before_memory_admission_releases_unique_gate(self):
+        helper = copy.deepcopy(self.candidate_rows["backend"])
+        self.deployment.images = {"backend": {"image_id": helper["Image"]}}
+        self.state.source = PurePosixPath("/opt/GlobalConnectsDashboard/tmp/mcp-direct-" + "d" * 40 + "/source")
+        (self.state.directory / "migration-credentials.private.json").write_text(
+            json.dumps({"POSTGRES_USER": "owner", "POSTGRES_PASSWORD": "test"})
+        )
+        self.deployment.fence = Mock()
+        self.deployment.client.request.return_value = {"Id": helper["Id"]}
+        backup = {"filename": "new.pgdump", "bytes": 1, "sha256": "f" * 64}
+        request = {"image_id": helper["Image"], "environment": {},
+                   "arguments": ["python", "scripts/apply_mcp_additive_upgrade.py"],
+                   "timeout": 30, "proof": "f" * 64}
+        def run(*arguments, **kwargs):
+            if arguments[:2] == ("docker", "exec"):
+                self.assertTrue(self.deployment.start.called)
+                self.assertTrue(arguments[-1].startswith("/tmp/mcp-migration-"))
+                self.events.append(("gate",))
+                return ""
+            if arguments[:2] == ("docker", "wait"):
+                self.assertIn(("gate",), self.events)
+                return "0"
+            raise AssertionError(arguments)
+        self.command.side_effect = run
+        with patch("mcp_direct_activate.MCPDatabaseRelease") as database, patch(
+            "mcp_direct_activate.inspect", return_value=helper
+        ):
+            database.return_value.backup.return_value = backup
+            database.return_value.migration_request.return_value = request
+            DirectActivation.migrate(self.deployment)
+        payload = self.deployment.client.request.call_args.args[2]
+        self.assertEqual(payload["Cmd"][-2:], request["arguments"])
+        self.assertIn("os.execvp", payload["Cmd"][3])
 
     def test_stage_requires_running_originals_before_credentials_or_creates(self):
         with tempfile.TemporaryDirectory() as directory:

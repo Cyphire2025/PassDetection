@@ -1,7 +1,18 @@
 """Capacity and dependency invariants for the explicitly authorized direct lane."""
+import ast
+import tempfile
 import unittest
+from pathlib import Path
+from unittest.mock import Mock
 
-from mcp_direct_build import BuildError, GIB, admit_builder, contract_digest, dependency_delta
+from mcp_direct_build import (
+    GIB,
+    BuildError,
+    RetainedBuild,
+    admit_builder,
+    contract_digest,
+    dependency_delta,
+)
 
 
 def locked(name, version, marker=""):
@@ -9,6 +20,30 @@ def locked(name, version, marker=""):
 
 
 class DirectBuildTests(unittest.TestCase):
+    def test_backend_builder_has_only_chown_capability_and_repairs_owner_before_commit(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            backend = root / "backend"
+            (backend / "contracts").mkdir(parents=True)
+            (backend / "contracts/api.openapi.json").write_text('{}')
+            previous = root / "previous.lock"
+            previous.write_text(locked("same", "1"))
+            (backend / "requirements.lock").write_text(locked("same", "1"))
+            run = Mock(side_effect=["", "", str(16 * GIB), "a" * 64])
+            builder = RetainedBuild(root, root, "e" * 40, run=run)
+            builder.create("backend", "sha256:" + "a" * 64, GIB, "/python", [], {})
+            create_args = run.call_args.args
+            self.assertEqual(create_args[create_args.index("--cap-drop") + 1], "ALL")
+            self.assertEqual(create_args[create_args.index("--cap-add") + 1], "CHOWN")
+            builder.create = Mock(return_value="a" * 64)
+            builder.execute = Mock(return_value={"container_id": "a" * 64})
+            builder.run = Mock(return_value="sha256:" + "b" * 64)
+            builder.backend("sha256:" + "a" * 64, previous)
+            code = builder.create.call_args.args[4][1]
+            final_call = ast.parse(code).body[-1].value
+            self.assertEqual(ast.literal_eval(final_call.args[0]), ["/bin/chown", "-R", "1001:1001", "/app"])
+            self.assertEqual(builder.run.call_args.args[:2], ("docker", "commit"))
+
     def test_contract_newlines_do_not_hide_or_invent_semantic_drift(self):
         self.assertEqual(contract_digest(b'{\n "version":"1"\n}\n'), contract_digest(b'{\r\n "version":"1"\r\n}\r\n'))
         self.assertNotEqual(contract_digest(b'{"version":"1"}'), contract_digest(b'{"version":"2"}'))

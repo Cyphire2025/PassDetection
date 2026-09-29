@@ -10,8 +10,8 @@ import hashlib
 import json
 import re
 import subprocess
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
 GIB = 1024**3
 IMAGE = re.compile(r"sha256:[a-f0-9]{64}")
@@ -30,7 +30,7 @@ def contract_digest(source: bytes) -> str:
 
 
 def command(*args: str, timeout: int = 60) -> str:
-    result = subprocess.run(args, capture_output=True, text=True, timeout=timeout)
+    result = subprocess.run(args, capture_output=True, text=True, timeout=timeout, check=False)
     if result.returncode:
         raise BuildError("direct_build_command_failed")
     return (result.stdout + (result.stderr if args[:2] == ("docker", "logs") else "")).strip()
@@ -39,7 +39,7 @@ def command(*args: str, timeout: int = 60) -> str:
 def dependency_delta(previous: str, current: str) -> str:
     """Preserve hash/marker blocks and prohibit removing an installed requirement."""
     def packages(content: str) -> dict[str, str]:
-        blocks = re.split(r"(?=^[a-zA-Z0-9_.-]+==)", content, flags=re.M)[1:]
+        blocks = re.split(r"(?=^[a-zA-Z0-9_.-]+==)", content, flags=re.MULTILINE)[1:]
         result = {}
         for block in blocks:
             name = block.split("==", 1)[0]
@@ -99,6 +99,8 @@ class RetainedBuild:
                 "--security-opt", "no-new-privileges", "--cap-drop", "ALL", "--user", "0:0",
                 "--workdir", "/app", "--entrypoint", entrypoint,
                 "--label", f"globalconnects.direct_revision={self.revision}"]
+        if family == "backend":
+            args.extend(["--cap-add", "CHOWN"])
         for key, value in sorted(environment.items()):
             args.extend(["--env", f"{key}={value}"])
         identifier = self.run(*args, image, *arguments)
@@ -146,7 +148,10 @@ class RetainedBuild:
             "subprocess.run([sys.executable,'-m','pip','install','--no-deps','--require-hashes',"
             "'--only-binary=:all:','--target','/opt/mcp-deps','-r','/app/mcp-delta.lock'],check=True); "
             "subprocess.run(['/opt/venv/bin/python','-m','pip','check'],check=True); "
-            f"subprocess.run(['/opt/venv/bin/python','-c',{verification!r}],check=True)"
+            f"subprocess.run(['/opt/venv/bin/python','-c',{verification!r}],check=True); "
+            # docker cp preserves archive ownership/mode; restore the normal
+            # runtime owner before committing an image that runs as UID 1001.
+            "subprocess.run(['/bin/chown','-R','1001:1001','/app'],check=True)"
         )
         identifier = self.create("backend", base_image, GIB, "/usr/local/bin/python",
                                  ["-c", build_code], {"PYTHONPATH": "/opt/mcp-deps:/app"})

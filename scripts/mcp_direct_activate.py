@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import time
 import urllib.error
@@ -94,11 +95,14 @@ def clean_stop(container: dict, original: dict | None = None) -> None:
 
 
 class DirectActivation:
-    def __init__(self, state: DirectState):
+    def __init__(self, state: DirectState, *, image_receipt: str = "images.json", project_suffix: str = ""):
+        if not re.fullmatch(r"images(?:-[a-z0-9-]{1,40})?\.json", image_receipt) or not re.fullmatch(r"(?:-[a-z0-9]{1,16})?", project_suffix):
+            raise BuildError("invalid_retained_attempt_binding")
         self.state, self.client = state, LocalDocker()
         self.baseline = state.load_baseline()
         self.originals = self.baseline["containers"]
-        self.images = json.loads((state.directory / "images.json").read_text())
+        self.images = json.loads((state.directory / image_receipt).read_text())
+        self.candidate_receipt = "candidates.private.json"
         if self.images.get("revision") != state.revision:
             raise BuildError("image_receipt_revision_changed")
         for service in ("backend", "frontend"):
@@ -114,7 +118,7 @@ class DirectActivation:
                 != state.revision
             ):
                 raise BuildError("candidate_image_identity_changed")
-        self.project = f"mcp-direct-{state.revision[:12]}"
+        self.project = f"mcp-direct-{state.revision[:12]}{project_suffix}"
 
     def aliases(self, service: str) -> dict[str, str]:
         return {
@@ -157,13 +161,15 @@ class DirectActivation:
             )
         return snapshot
 
-    def stage(self) -> None:
-        if (self.state.directory / "candidates.private.json").exists():
+    def stage(self, *, candidate_receipt: str = "candidates.private.json") -> None:
+        if not re.fullmatch(r"candidates(?:-[a-z0-9-]{1,40})?\.private\.json", candidate_receipt):
+            raise BuildError("invalid_retained_candidate_receipt")
+        if (self.state.directory / candidate_receipt).exists():
             raise BuildError("candidate_stage_already_retained")
         for original in self.originals.values():
             if not bound_original(original)["State"]["Running"]:
                 raise BuildError("stage_requires_original_services_running")
-        self.memory_checkpoint("stage", self.originals, first=True)
+        self.memory_checkpoint("stage", self.originals, first=not hasattr(self, "_retry_baseline_path"))
         # Resolve existing maintenance credentials without changing roles or .env.
         resolved = json.loads(
             command(
@@ -192,11 +198,14 @@ class DirectActivation:
             not isinstance(value, str) or not value for value in credentials.values()
         ):
             raise BuildError("existing_migration_credentials_unavailable")
-        private_json(
-            self.state.directory / "migration-credentials.private.json", credentials
-        )
-        proxy = self.state.directory / "runtime-nginx"
-        proxy.mkdir(mode=0o700)
+        credential_path = self.state.directory / "migration-credentials.private.json"
+        if credential_path.exists():
+            if credential_path.is_symlink() or json.loads(credential_path.read_text()) != credentials:
+                raise BuildError("retained_migration_credentials_changed")
+        else:
+            private_json(credential_path, credentials)
+        proxy = self.state.directory / "runtime-nginx" / self.project
+        proxy.mkdir(mode=0o700, parents=True)
         for relative in ("nginx.conf", "conf.d"):
             source = self.state.source / "nginx" / relative
             paths = [source] if source.is_file() else sorted(source.rglob("*"))
@@ -248,13 +257,14 @@ class DirectActivation:
             self.state.event(
                 "candidate-container-retained", service=service, container_id=identifier
             )
-        private_json(self.state.directory / "candidates.private.json", candidates)
+        private_json(self.state.directory / candidate_receipt, candidates)
+        self.candidate_receipt = candidate_receipt
         self.state.verify_retention(self.baseline)
         self.state.event("candidate-stage-complete")
 
     def candidates(self) -> dict:
         rows = json.loads(
-            (self.state.directory / "candidates.private.json").read_text()
+            (self.state.directory / self.candidate_receipt).read_text()
         )
         if set(rows) != WRITERS:
             raise BuildError("candidate_service_inventory_changed")
@@ -388,8 +398,20 @@ class DirectActivation:
                 key: self.project + "-migration" for key in self.aliases("backend")
             },
         )
+        # Keep a short-lived helper alive until its exact cgroup is admitted.
+        # The upgrade cannot begin before the operator creates this unique gate.
+        gate = "/tmp/mcp-migration-" + uuid.uuid4().hex
+        barrier = (
+            "import os,signal,sys,time; "
+            "signal.signal(signal.SIGTERM,lambda *_:sys.exit(0)); "
+            "deadline=time.monotonic()+120\n"
+            "while not os.path.exists(sys.argv[1]):\n"
+            " if time.monotonic()>deadline:sys.exit(3)\n"
+            " time.sleep(0.1)\n"
+            "os.execvp(sys.argv[2],sys.argv[2:])"
+        )
         payload.update(
-            Cmd=list(request["arguments"]),
+            Cmd=["python", "-B", "-c", barrier, gate, *request["arguments"]],
             Entrypoint=[],
             Healthcheck={"Test": ["NONE"]},
         )
@@ -406,7 +428,15 @@ class DirectActivation:
             "migration-helper-retained", container_id=helper, proof=request["proof"]
         )
         self.fence()
-        self.start(inspect(helper), "database-migration")
+        try:
+            self.start(inspect(helper), "database-migration")
+        except Exception:
+            # No gate exists yet, so this helper cannot have run database work.
+            stopped = self.client.graceful_stop(helper, timeout=30)
+            if stopped["State"]["Running"]:
+                raise BuildError("migration_admission_helper_still_running")
+            raise
+        command("docker", "exec", helper, "python", "-B", "-c", "import sys;open(sys.argv[1],'x').close()", gate)
         code = command("docker", "wait", helper, timeout=request["timeout"])
         current = inspect(helper)
         if code != "0":
