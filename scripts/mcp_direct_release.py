@@ -46,14 +46,24 @@ def inspect(identifier: str) -> dict:
     return rows[0]
 
 
+def _bound_host_config(value: dict) -> dict:
+    # Observed Docker cgroup-v2 first-start normalization: explicit false is
+    # returned as null. Both leave OOM killing enabled; true is never accepted.
+    if "OomKillDisable" not in value:
+        return value
+    if value["OomKillDisable"] is not False and value["OomKillDisable"] is not None:
+        raise BuildError("original_container_configuration_changed")
+    return {**value, "OomKillDisable": False}
+
+
 def bound_original(original: dict) -> dict:
     current = inspect(original["Id"])
     # Docker's mount-point map is serialized in an unspecified array order.
     # Retain every field and duplicate while comparing its canonical multiset.
-    if (current["Image"] != original["Image"] or any(
-        fingerprint(current[key]) != fingerprint(original[key])
-        for key in ("Config", "HostConfig")
-    ) or sorted(map(fingerprint, current["Mounts"])) != sorted(map(fingerprint, original["Mounts"]))):
+    if (current["Image"] != original["Image"]
+        or fingerprint(current["Config"]) != fingerprint(original["Config"])
+        or fingerprint(_bound_host_config(current["HostConfig"])) != fingerprint(_bound_host_config(original["HostConfig"]))
+        or sorted(map(fingerprint, current["Mounts"])) != sorted(map(fingerprint, original["Mounts"]))):
         raise BuildError("original_container_configuration_changed")
     return current
 

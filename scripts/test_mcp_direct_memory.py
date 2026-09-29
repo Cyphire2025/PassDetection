@@ -28,6 +28,19 @@ def snapshot():
 
 
 class DirectMemoryTests(unittest.TestCase):
+    def test_static_binding_error_is_preserved_instead_of_masked_as_missing_cgroup(self):
+        failure = BuildError("original_container_configuration_changed")
+        with (
+            patch("mcp_direct_memory.sys.platform", "linux"),
+            patch.dict("os.environ", {}, clear=True),
+            patch("mcp_direct_memory.command", return_value="unix:///var/run/docker.sock"),
+            self.assertRaises(BuildError) as raised,
+        ):
+            def inspect(_row):
+                raise failure
+            capture({"backend": {}}, inspect=inspect)
+        self.assertIs(raised.exception, failure)
+
     def test_unchanged_historical_events_are_preserved(self):
         first, last = snapshot(), snapshot()
         last["containers"]["nginx"]["events"]["max"] += 1

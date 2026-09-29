@@ -46,6 +46,8 @@ def capture(
                 "events": parse_events(bounded_read(directory / "memory.events")),
             }
         return {"at": datetime.now(UTC).isoformat(), "containers": result}
+    except BuildError:
+        raise
     except (OSError, ValueError, KeyError, TypeError):
         raise BuildError("bound_cgroup_evidence_unavailable") from None
 

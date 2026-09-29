@@ -422,7 +422,7 @@ class DirectActivation:
             RestartPolicy={"Name": "no", "MaximumRetryCount": 0},
         )
         helper = self.client.request(
-            "POST", "/containers/create?name=" + self.project + "-migration", payload
+            "POST", "/containers/create?name=" + self.project + "-migration-" + uuid.uuid4().hex[:12], payload
         )["Id"]
         self.state.event(
             "migration-helper-retained", container_id=helper, proof=request["proof"]
