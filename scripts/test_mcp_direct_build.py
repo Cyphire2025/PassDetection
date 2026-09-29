@@ -163,15 +163,20 @@ class RuntimeCommitTests(unittest.TestCase):
                 self.assertEqual(self.container, before)
                 self.assertEqual(self.run.call_args.args, ("docker", "image", "inspect", self.image))
 
-    def test_docker_null_serialization_of_cleared_entrypoint_is_inert(self):
-        self.image_mutations = {"Entrypoint": None}
-        self.assertEqual(self.builder.commit_runtime(self.identifier, "backend"), self.image)
-        self.assertEqual(self.client.request.call_args.args[2]["Entrypoint"], [])
+    def test_docker_empty_null_or_omitted_entrypoint_preserves_explicit_commit_clear(self):
+        for family in ("backend", "frontend"):
+            for representation in ("empty", "null", "omitted"):
+                with self.subTest(family=family, representation=representation):
+                    self.remove_entrypoint = representation == "omitted"
+                    self.image_mutations = {"Entrypoint": None if representation == "null" else []}
+                    self.assertEqual(self.builder.commit_runtime(self.identifier, family), self.image)
+                    self.assertEqual(self.client.request.call_args.args[2]["Entrypoint"], [])
 
     def test_inherited_commands_identity_or_revision_mismatch_reject_committed_image(self):
         cases = (
             {"Entrypoint": ["/usr/local/bin/python"]}, {"Entrypoint": ["/bin/sh"]},
-            {"Entrypoint": ""}, {"Cmd": ["-c", "build()"]}, {"User": "0:0"},
+            {"Entrypoint": ""}, {"Entrypoint": [""]}, {"Entrypoint": {}},
+            {"Entrypoint": False}, {"Cmd": ["-c", "build()"]}, {"User": "0:0"},
             {"WorkingDir": "/builder"}, {"Env": ["APP_REVISION=old"]},
             {"Labels": {"org.opencontainers.image.revision": "f" * 40}},
             {"Healthcheck": {"Test": ["NONE"]}}, {"Healthcheck": None},
@@ -184,10 +189,13 @@ class RuntimeCommitTests(unittest.TestCase):
         self.assertFalse(any(call.args[:2] in {("docker", "rm"), ("docker", "rmi"), ("docker", "stop")}
                              for call in self.run.call_args_list))
 
-    def test_missing_entrypoint_does_not_bypass_postcommit_assertion(self):
+    def test_omitted_entrypoint_does_not_bypass_other_runtime_checks(self):
         self.remove_entrypoint = True
-        with self.assertRaisesRegex(BuildError, "committed_runtime_config_mismatch"):
-            self.builder.commit_runtime(self.identifier, "backend")
+        for mutation in ({"Cmd": ["-c", "build()"]}, {"User": "0:0"},
+                         {"Env": ["APP_REVISION=old"]}, {"Healthcheck": None}):
+            with self.subTest(mutation=mutation), self.assertRaisesRegex(BuildError, "committed_runtime_config_mismatch"):
+                self.image_mutations = mutation
+                self.builder.commit_runtime(self.identifier, "backend")
 
     def test_restarted_failed_or_oom_builder_is_never_committed(self):
         for state in ({"Running": True}, {"ExitCode": 2}, {"OOMKilled": True}, {"Dead": True}):

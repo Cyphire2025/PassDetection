@@ -174,9 +174,11 @@ class RetainedBuild:
                 or not isinstance(images[0].get("Config"), dict)):
             raise BuildError("committed_runtime_image_changed")
         actual = images[0]["Config"]
-        # Stored image JSON may normalize a cleared [] entrypoint to null. Both
-        # are inert; a missing field or any nonempty inherited command is rejected.
-        if ("Entrypoint" not in actual or actual["Entrypoint"] not in ([], None)
+        # Image inspect may omit an unset entrypoint or serialize it as null/[]
+        # (Docker Engine API version history). The commit body above explicitly
+        # clears it; retain exact checks for all other runtime fields and reject
+        # every nonempty or malformed entrypoint representation.
+        if (actual.get("Entrypoint") not in ([], None)
                 or any(actual.get(key) != config.get(key) for key in
                        ("Cmd", "User", "WorkingDir", "Env", "Labels", "Healthcheck", "StopSignal"))):
             raise BuildError("committed_runtime_config_mismatch")
