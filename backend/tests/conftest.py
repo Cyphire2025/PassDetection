@@ -39,6 +39,12 @@ from app.core.config.settings import Settings  # noqa: E402
 from app.infrastructure.database.models import Base  # noqa: E402
 from app.infrastructure.database.session import get_db_session  # noqa: E402
 from app.main import create_application  # noqa: E402
+from tests.management_audit_fixtures import (  # noqa: E402
+    forbid_global_management_audit_database as forbid_global_management_audit_database,
+)
+from tests.management_audit_fixtures import (  # noqa: E402
+    management_audit_session_factory as management_audit_session_factory,
+)
 from tests.sqlite_trip_timezone import register_sqlite_trip_timezone  # noqa: E402
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
@@ -105,7 +111,11 @@ async def db_session() -> AsyncSession:
 
 
 @pytest.fixture
-async def client(db_session: AsyncSession, test_settings: Settings) -> AsyncClient:
+async def client(
+    db_session: AsyncSession,
+    test_settings: Settings,
+    management_audit_session_factory: async_sessionmaker[AsyncSession],
+) -> AsyncClient:
     """
     Create an HTTPX async test client for the FastAPI application.
 
@@ -120,6 +130,7 @@ async def client(db_session: AsyncSession, test_settings: Settings) -> AsyncClie
         yield db_session
 
     app.dependency_overrides[get_db_session] = override_db
+    app.state.mcp_management_audit_session_factory = management_audit_session_factory
 
     async with AsyncClient(
         transport=ASGITransport(app=app),

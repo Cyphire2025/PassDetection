@@ -368,7 +368,9 @@ async def test_multi_device_batch_boundary_eventually_attempts_every_device_once
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("device_unavailable", ["revoked_registration", "expired_session"])
+@pytest.mark.parametrize("device_unavailable", [
+    "revoked_registration", "expired_session", "expired_session_delayed_creation",
+])
 async def test_unavailable_device_retry_cannot_keep_an_accepted_parent_due_forever(
     db_session, device_unavailable
 ):
@@ -386,17 +388,23 @@ async def test_unavailable_device_retry_cannot_keep_an_accepted_parent_due_forev
         )
     ).one()
     registration = await db_session.get(MobilePushRegistrationModel, retry.registration_id)
+    retry_at = now + timedelta(seconds=2)
     if device_unavailable == "revoked_registration":
         registration.status = "revoked"
         registration.notifications_authorized = False
         registration.revoked_at = now
     else:
         device = await db_session.get(MobileDeviceSessionModel, registration.session_id)
-        device.expires_at = now + timedelta(seconds=1)
+        if device_unavailable == "expired_session_delayed_creation":
+            # Model setup completing after the test's initial decision clock,
+            # without sleeping or depending on suite/machine load.
+            device.created_at = now + timedelta(seconds=3)
+        device.expires_at = max(now, device.created_at.replace(tzinfo=UTC)) + timedelta(seconds=1)
+        retry_at = device.expires_at + timedelta(seconds=1)
     await db_session.commit()
     assert (
         await dispatch_mobile_push_batch(
-            db_session, provider=provider, limit=1, now=now + timedelta(seconds=2)
+            db_session, provider=provider, limit=1, now=retry_at
         )
         == 0
     )

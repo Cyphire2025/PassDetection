@@ -42,7 +42,7 @@ RESOURCE = "http://localhost:8000/mcp"
 
 
 @pytest.fixture
-async def mcp_fixture(db_session, test_settings):
+async def mcp_fixture(db_session, test_settings, management_audit_session_factory):
     settings = test_settings.model_copy(update={"mcp": MCPSettings(enabled=True)})
     now = datetime.now(UTC)
     user = UserModel(
@@ -75,6 +75,7 @@ async def mcp_fixture(db_session, test_settings):
 
     app.dependency_overrides[get_db_session] = session_override
     app.state.mcp_session_factory = session_factory
+    app.state.mcp_management_audit_session_factory = management_audit_session_factory
     dashboard, _ = await issue_dashboard_access(
         db_session,
         user.id,
