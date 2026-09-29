@@ -194,7 +194,7 @@ test("saved rejected contacts can be corrected into unsent recipients", () => {
   assert.match(pageSource, /added to the valid recipient list as Not sent/);
 });
 
-test("shared activity polling replaces repeated full-roster refreshes", () => {
+test("receipt-aware polling refreshes rosters and invalidates caches only on activity revisions", () => {
   const rosterHookStart = hooksSource.indexOf(
     "export function useWhatsAppRecipientRoster",
   );
@@ -206,9 +206,10 @@ test("shared activity polling replaces repeated full-roster refreshes", () => {
 
   assert.doesNotMatch(rosterHook, /status\.status === "queued"/);
   assert.doesNotMatch(rosterHook, /status\.status === "processing"/);
-  assert.match(rosterHook, /status\.latest_resend_status === "queued"/);
+  assert.match(rosterHook, /whatsappRecipientPollInterval/);
   assert.match(pageSource, /sourceGroupId: messageTarget\.group\.id/);
-  assert.match(activityTrackerSource, /refreshedTerminalActivitiesRef/);
+  assert.match(activityTrackerSource, /refreshedActivityRevisionsRef/);
+  assert.match(activityTrackerSource, /broadcastsToRefresh\.has\(query\.queryKey\[2\]\)/);
   assert.match(
     activityTrackerSource,
     /queryKey: \["whatsapp", "groups"\]/,

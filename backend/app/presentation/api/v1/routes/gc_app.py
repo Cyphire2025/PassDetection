@@ -735,6 +735,7 @@ async def refresh_mobile_passenger_identities(
     session: AsyncSession = Depends(get_db_session),
 ) -> PassengerIdentityReconciliationResponse:
     tenant_id = _tenant_id(current_user, agency_id)
+    await _get_group(session, tenant_id, group_id, lock=True)
     access = await _get_group_access(session, tenant_id, group_id, lock=True)
     if not access.is_enabled or not access.passenger_access_enabled:
         raise HTTPException(

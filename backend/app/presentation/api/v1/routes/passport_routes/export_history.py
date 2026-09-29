@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
+from app.application.use_cases.passports.complete_export_delivery import (
+    ExportDeliveryConflict,
+    complete_export_delivery,
+)
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import User
 from app.domain.exceptions.exceptions import AuthorizationError
@@ -294,79 +297,22 @@ async def complete_passport_group_export_history(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Prepared download was not found",
         )
-    if history.status == "completed":
-        if history.completed_at is None:
-            logger.error(
-                "passport_export_history_completed_without_timestamp",
-                history_id=str(history.id),
-            )
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="This prepared download failed its integrity check.",
-            )
-        return PassportExportHistoryCompletionResponse(
-            history_id=history.id,
-            group_id=history.group_id,
-            export_kind=_validated_export_kind(history.export_kind),
-            status="completed",
-            completed_at=history.completed_at,
-        )
-    if history.status != "prepared" or history.completed_at is not None:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="This prepared download is in an invalid state.",
-        )
-
     try:
-        snapshot_ids = _validated_export_history_ids(
-            history,
-            field_name="snapshot_submission_ids",
+        changed = await complete_export_delivery(
+            history=history,
+            actor=current_user,
+            agency_id=current_user.agency_id,
+            audit=AuditLogRepository(session),
         )
-        exported_ids = _validated_export_history_ids(
-            history,
-            field_name="exported_submission_ids",
-        )
-        _validated_export_history_people(history)
-        if not exported_ids.issubset(snapshot_ids):
-            raise ValueError("Export payload is outside its cumulative checkpoint.")
-    except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="This prepared download failed its integrity check.",
-        )
-
-    completed_at = datetime.now(tz=UTC)
-    history.status = "completed"
-    history.completed_at = completed_at
-    artifact_metadata = dict(history.artifact_metadata or {})
-    await AuditLogRepository(session).record(
-        action=(
-            "passport_group_images_exported"
-            if history.export_kind == "passport_images"
-            else "passport_group_exported"
-        ),
-        entity_type="client_group",
-        entity_id=str(group_id),
-        agency_id=current_user.agency_id,
-        user_id=current_user.id,
-        actor_email=current_user.email,
-        metadata={
-            **artifact_metadata,
-            "export_history_id": str(history.id),
-            "export_mode": history.export_mode,
-            "baseline_export_id": (
-                str(history.baseline_export_id) if history.baseline_export_id else None
-            ),
-            "total_available_count": history.total_available_count,
-            "submission_count": history.exported_count,
-            "pending_recipient_count": history.pending_recipient_count,
-        },
-    )
-    await session.commit()
+    except ExportDeliveryConflict as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from None
+    if changed:
+        await session.commit()
+    assert history.completed_at is not None
     return PassportExportHistoryCompletionResponse(
         history_id=history.id,
         group_id=history.group_id,
         export_kind=_validated_export_kind(history.export_kind),
         status="completed",
-        completed_at=completed_at,
+        completed_at=history.completed_at,
     )

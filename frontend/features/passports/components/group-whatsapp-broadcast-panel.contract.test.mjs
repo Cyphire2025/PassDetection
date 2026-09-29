@@ -4,6 +4,7 @@ import test from "node:test";
 
 const panel = ["group-whatsapp-broadcast-panel.tsx", "group-whatsapp-dialogs.tsx", "group-whatsapp-tracking-table.tsx", "group-whatsapp-tracking-model.ts"]
   .map((name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8")).join("\n");
+const summary = readFileSync(new URL("./group-whatsapp-summary.tsx", import.meta.url), "utf8");
 const selector = readFileSync(
   new URL("./whatsapp-broadcast-selector.tsx", import.meta.url),
   "utf8",
@@ -156,7 +157,9 @@ test("the group page stays compact and opens full tracking on a dedicated route"
   assert.match(panel, /WhatsApp broadcasts/);
   assert.match(panel, /links\?\.broadcasts\.map/);
   assert.match(panel, /\{broadcast\.name\}/);
-  assert.match(panel, /View tracking/);
+  assert.match(panel, /<GroupWhatsAppSummary[\s\S]*?groupId=\{groupId\}/);
+  assert.match(summary, /\{hasLinkedBroadcasts && \([\s\S]*?<Link href=\{ROUTES\.dashboard\.passportGroupWhatsAppTracking\(groupId\)\}/);
+  assert.match(summary, /<Link[\s\S]*?>\s*View tracking/);
   assert.match(
     routes,
     /passportGroupWhatsAppTracking:[\s\S]*?\/whatsapp/,

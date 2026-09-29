@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools==84.0.0", "wheel==0.48.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "global-connects-mcp-connector"
+version = "0.2.0"
+description = "Global Connects desktop MCP connector with Windows vault authentication"
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+dependencies = ["mcp==2.2.0", "httpx2==2.13.1", "pywin32==312; sys_platform == 'win32'"]
+
+[project.scripts]
+gc-mcp = "gc_mcp_connector.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]

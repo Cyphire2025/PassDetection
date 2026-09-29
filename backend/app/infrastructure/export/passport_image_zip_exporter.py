@@ -20,6 +20,7 @@ from app.domain.value_objects.personnel_codes import (
     prefixed_agent_employee_code,
     prefixed_staff_code,
 )
+from app.infrastructure.documents.storage_transfers import run_bounded_storage_operations
 from app.infrastructure.imaging.passport_image_cropper import render_saved_passport_image_crop
 
 _UNSAFE_COMPONENT = re.compile(r"[\\/:*?\"<>|\x00-\x1f\x7f]+")
@@ -272,7 +273,7 @@ class PassportImageZipExporter:
 
             spool.seek(0)
             return cast(BinaryIO, spool), entry_count, total_bytes
-        except Exception:
+        except BaseException:
             spool.close()
             raise
 
@@ -306,11 +307,9 @@ class PassportImageZipExporter:
             except StorageError:
                 render_source_key = crop.edit_source_storage_key or spec.storage_key
                 original = await storage.get_file(render_source_key)
-                rendered = await asyncio.to_thread(
-                    render_saved_passport_image_crop,
-                    original,
-                    crop,
-                )
+                rendered = (await run_bounded_storage_operations([
+                    lambda: asyncio.to_thread(render_saved_passport_image_crop, original, crop),
+                ], concurrency=1))[0]
                 content = rendered.content
                 extension = rendered.extension
         else:

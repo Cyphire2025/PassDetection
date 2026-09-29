@@ -3,6 +3,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { WhatsAppBroadcastGroupDetail, WhatsAppMessageDraft, WhatsAppPreviewResponse, WhatsAppRecipient } from "../api/whatsapp.api";
 import { MessagePreviewDialog } from "./whatsapp-message-preview-dialog";
+import { UncertainWhatsAppSendError } from "../utils/normal-send-storage";
 
 const mocks = vi.hoisted(() => ({ detail: {} as WhatsAppBroadcastGroupDetail, preview: vi.fn(), bulkPreview: vi.fn() }));
 vi.mock("../hooks/use-whatsapp", () => ({
@@ -55,6 +56,21 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("group invite composer", () => {
+  it("offers an explicit separate-send choice after an unconfirmed changed invitation without queueing on that choice", async () => {
+    const startNew = vi.fn();
+    const onSend = vi.fn().mockRejectedValueOnce(new UncertainWhatsAppSendError(startNew)).mockResolvedValue(undefined);
+    mount({ onSend });
+    const send = await screen.findByRole("button", { name: "Send individually to 2" });
+    await waitFor(() => expect(send).toBeEnabled());
+    fireEvent.click(send);
+    const choice = await screen.findByRole("button", { name: "I checked delivery history — start a separate send" });
+    expect(screen.getByText(/does not cancel it and may deliver another message/)).toBeVisible();
+    fireEvent.click(choice);
+    expect(startNew).toHaveBeenCalledExactlyOnceWith();
+    expect(onSend).toHaveBeenCalledTimes(1);
+    fireEvent.click(send);
+    await waitFor(() => expect(onSend).toHaveBeenCalledTimes(2));
+  });
   it("sends a first invitation without welcome delivery while requiring a photo and valid message", async () => {
     mocks.preview.mockImplementation(({ draft }, callbacks) => callbacks.onSuccess({ ...preview(draft), header_image_id: null }));
     const { onSend } = mount();

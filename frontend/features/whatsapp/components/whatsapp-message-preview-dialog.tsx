@@ -46,6 +46,7 @@ import { RecipientBulkComposerAudience } from "./whatsapp-bulk-composer-audience
 import { ReminderAudienceSelector } from "./whatsapp-reminder-audience";
 import { GroupInvitePreviewDialog } from "./whatsapp-group-invite-dialog";
 import { PreviewRecipientPicker } from "./whatsapp-preview-recipient-picker";
+import { useNormalSendRecovery } from "./whatsapp-send-recovery";
 
 const MAX_WELCOME_IMAGE_BYTES = 5 * 1024 * 1024;
 const WELCOME_IMAGE_TYPES = new Set(["image/jpeg", "image/png"]);
@@ -78,7 +79,11 @@ export interface MessagePreviewDialogProps {
 export function MessagePreviewDialog(props: MessagePreviewDialogProps) {
   return props.messageType === "group_invite"
     ? <GroupInvitePreviewDialog {...props} />
-    : <StandardMessagePreviewDialog {...props} messageType={props.messageType} />;
+    : <StandardMessagePreviewDialog
+        key={`${props.group.id}:${props.messageType}:${props.targetRecipient?.recipientId ?? "audience"}:${props.targetRecipient?.action ?? "send"}`}
+        {...props}
+        messageType={props.messageType}
+      />;
 }
 
 function StandardMessagePreviewDialog({
@@ -138,6 +143,7 @@ function StandardMessagePreviewDialog({
   const [preview, setPreview] = useState<WhatsAppPreviewResponse | null>(null);
   const [bulkPreview, setBulkPreview] = useState<WhatsAppBulkResendPreviewResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const normalSendRecovery = useNormalSendRecovery(setError);
   const [submissionStartedAt, setSubmissionStartedAt] = useState<number | null>(null);
   const [bulkRecovery, setBulkRecovery] = useState<{ draftKey: string; payload: MessagePreviewSendPayload } | null>(null);
   const submissionPending = submissionStartedAt !== null || isSending;
@@ -181,6 +187,27 @@ function StandardMessagePreviewDialog({
         })
       : null
   ), [detail]);
+  const eligibleRecipients = useMemo(
+    () => detail?.recipients.filter((recipient) => isRecipientEligible(recipient, messageType)) ?? [],
+    [detail?.recipients, messageType],
+  );
+  // "All" in the picker means every eligible recipient, not every row in the
+  // roster. Freeze that same audience for both preview and dispatch. Otherwise
+  // an unwelcomed row outside the picker can veto the entire initial preview.
+  const effectiveRecipientIds = useMemo(() => {
+    if (targetRecipient || bulkMode) return null;
+    // This audience is resolved from live passport submissions by the server.
+    if (messageType === "reminder" && reminderAudience === "not_submitted"
+      && recipientSelectionMode === "all") return null;
+    const selected = new Set(selectedRecipientIds);
+    return eligibleRecipients
+      .filter((recipient) => recipientSelectionMode === "all" || selected.has(recipient.id))
+      .map((recipient) => recipient.id);
+  }, [targetRecipient, bulkMode, messageType, reminderAudience, eligibleRecipients, selectedRecipientIds, recipientSelectionMode]);
+  const effectivePreviewRecipientId = !targetRecipient && !bulkMode && effectiveRecipientIds !== null
+    ? (previewRecipientId && effectiveRecipientIds.includes(previewRecipientId)
+      ? previewRecipientId : effectiveRecipientIds[0] ?? null)
+    : previewRecipientId;
   const selectedActiveReminderGroupId = reminderAudienceClientGroupId
     && linkedClientGroups.some((clientGroup) => (
       clientGroup.id === reminderAudienceClientGroupId
@@ -259,6 +286,8 @@ function StandardMessagePreviewDialog({
     previewRecipientId,
     recipientSelectionMode,
     selectedRecipientIds,
+    effectiveRecipientIds,
+    effectivePreviewRecipientId,
     reminderAudience,
     reminderAudienceClientGroupId: resolvedReminderAudienceClientGroupId,
     supportContactIds: bulkMode ? selectedSupportContactIds : resolvedSupportContactIds,
@@ -273,7 +302,7 @@ function StandardMessagePreviewDialog({
   useEffect(() => {
     const sequence = ++previewSequence.current;
     const controller = new AbortController();
-    if (!reminderAudienceSelectionReady) {
+    if (!detail || !reminderAudienceSelectionReady) {
       return () => controller.abort();
     }
     const timeout = window.setTimeout(() => {
@@ -318,14 +347,10 @@ function StandardMessagePreviewDialog({
             passport_link:
               messageType === "passport_link" ? passportLink : null,
             message_content: messageContent,
-            recipient_id: targetRecipient ? null : previewRecipientId,
+            recipient_id: targetRecipient ? null : effectivePreviewRecipientId,
             resend_recipient_id: targetRecipient?.recipientId ?? null,
             header_image_id: headerImageId,
-            recipient_ids:
-              !targetRecipient &&
-              recipientSelectionMode === "custom"
-                ? selectedRecipientIds
-                : null,
+            recipient_ids: effectiveRecipientIds,
             support_contact_ids:
               messageType === "passport_link" && detail
                 ? resolvedSupportContactIds
@@ -396,6 +421,8 @@ function StandardMessagePreviewDialog({
     previewRecipientId,
     recipientSelectionMode,
     selectedRecipientIds,
+    effectiveRecipientIds,
+    effectivePreviewRecipientId,
     reminderAudience,
     resolvedReminderAudienceClientGroupId,
     reminderAudienceSelectionReady,
@@ -435,13 +462,6 @@ function StandardMessagePreviewDialog({
     Boolean(
       targetRecipientDetail && canRetryOrResendRecipient(targetRecipientDetail, messageType, targetRecipient.action),
     );
-  const eligibleRecipients = useMemo(
-    () =>
-      detail?.recipients.filter((recipient) =>
-        isRecipientEligible(recipient, messageType),
-      ) ?? [],
-    [detail?.recipients, messageType],
-  );
   const selectedRecipientIdSet = useMemo(
     () => new Set(selectedRecipientIds),
     [selectedRecipientIds],
@@ -551,6 +571,7 @@ function StandardMessagePreviewDialog({
       await onSend(payload);
       setBulkRecovery(null);
     } catch (sendError) {
+      normalSendRecovery.capture(sendError);
       if (bulkMode) setBulkRecovery({ draftKey: bulkDraftKey, payload });
       setError(readErrorMessage(sendError, "WhatsApp could not submit this broadcast."));
     } finally {
@@ -631,11 +652,7 @@ function StandardMessagePreviewDialog({
         messageContent: resolvedMessageContent,
         headerImage,
         headerImageId,
-        recipientIds:
-          !targetRecipient &&
-          recipientSelectionMode === "custom"
-            ? selectedRecipientIds
-            : null,
+        recipientIds: effectiveRecipientIds,
         supportContactIds:
           messageType === "passport_link" ? resolvedSupportContactIds : null,
         ...(messageType === "reminder" ? {
@@ -1039,7 +1056,7 @@ function StandardMessagePreviewDialog({
                     ? (bulkRecipients ?? []).filter((recipient) => bulkPreview?.eligible_recipient_ids.includes(recipient.id))
                     : recipientSelectionMode === "custom"
                     ? selectedEligibleRecipients
-                    : detail.recipients
+                    : eligibleRecipients
                   ).map((recipient) => (
                     <option key={recipient.id} value={recipient.id}>
                       {recipient.name || "Guest"} -{" "}
@@ -1146,6 +1163,7 @@ function StandardMessagePreviewDialog({
           </p>
         )}
         {error && <ErrorBanner message={error} />}
+        {normalSendRecovery.notice}
         {canRecoverBulkRequest && <p role="status" className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">The last resend has not been confirmed. Check that same request safely, even if recipient statuses have changed. Editing the message starts a different request.</p>}
         {error && !previewIsCurrent && (
           <Button

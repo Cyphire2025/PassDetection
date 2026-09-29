@@ -20,6 +20,10 @@ from collections import Counter, defaultdict
 from datetime import UTC, datetime
 
 import httpx
+from capacity_container_events import capture as capture_container_events
+from capacity_container_events import gates as container_event_gates
+from mcp_capacity import MCP_BUDGETS_MS, paced_reads, verified_export
+from mcp_capacity import gates as mcp_gates
 from PIL import Image
 from run_qualification_stack import COMPOSE, OUTPUT, ROOT
 
@@ -35,6 +39,7 @@ FIXTURES = [
 # Set before measurements. The short lane is an operating-envelope check, not
 # a long-running soak or external-AI throughput qualification.
 BUDGETS_MS = {
+    **MCP_BUDGETS_MS,
     "stats": (750, 1500),
     "notifications": (500, 1000),
     "search": (1000, 2000),
@@ -394,6 +399,7 @@ def gates(
         or job_verification.get("distinct_readable_upload_objects") != 8
     ):
         failures.append("uploaded_records_and_objects_not_verified")
+    failures.extend(mcp_gates(samples, windows, metrics))
     return failures
 
 
@@ -487,6 +493,10 @@ def inspect_backend() -> dict:
         or env.get("POSTGRES_API_POOL_SIZE") != "3"
         or env.get("POSTGRES_API_MAX_OVERFLOW") != "3"
         or env.get("MALWARE_SCANNER_TIMEOUT_SECONDS") != "10.0"
+        or env.get("MCP_ENABLED", "").lower() != "true"
+        or env.get("MCP_PUBLIC_ORIGIN") != ORIGIN
+        or env.get("MCP_FRONTEND_ORIGIN") != ORIGIN
+        or set(json.loads(env.get("MCP_ENABLED_CAPABILITIES", "[]"))) != {"mcp:read", "mcp:export"}
         or backend["HostConfig"]["Memory"] != API_MEMORY_BYTES
         or backend["HostConfig"]["MemorySwap"] != API_MEMORY_BYTES
         or backend["HostConfig"]["NanoCpus"] != 4 * 10**9
@@ -501,6 +511,7 @@ async def main() -> int:
     run_id = uuid.uuid4().hex
     OUTPUT.mkdir(parents=True, exist_ok=True)
     backend = await asyncio.to_thread(inspect_backend)
+    container_events_before = await asyncio.to_thread(capture_container_events, ROOT)
     seed = await asyncio.to_thread(fixture, "seed", run_id)
     samples = {name: [] for name in ("cold", "expected", "overload", "recovery")}
     windows = {}
@@ -546,6 +557,8 @@ async def main() -> int:
                 ),
                 scans(client, samples["expected"], seed, EXPECTED_SECONDS),
                 uploads(client, samples["expected"], seed, covers),
+                *(paced_reads(client, samples["expected"], actor, EXPECTED_SECONDS) for actor in seed["mcp_actors"]),
+                *(verified_export(client, samples["expected"], actor, run_id, "expected") for actor in seed["mcp_actors"]),
             )
             end_stage(windows, "expected", samples["expected"])
             overload_started = time.monotonic()
@@ -569,7 +582,9 @@ async def main() -> int:
                         client, samples["recovery"], actor, RECOVERY_SECONDS, index
                     )
                     for index, actor in enumerate(seed["actors"])
-                )
+                ),
+                *(paced_reads(client, samples["recovery"], actor, RECOVERY_SECONDS) for actor in seed["mcp_actors"]),
+                *(verified_export(client, samples["recovery"], actor, run_id, "recovery") for actor in seed["mcp_actors"]),
             )
             recovery_elapsed = time.monotonic() - recovery_started
             end_stage(windows, "recovery", samples["recovery"])
@@ -603,7 +618,13 @@ async def main() -> int:
                     json.dumps({"stage": stage, **observation}, sort_keys=True) + "\n"
                 )
     failed = gates(stages, metrics, jobs, samples, windows, queues_published_at)
+    try:
+        container_events_after = await asyncio.to_thread(capture_container_events, ROOT)
+    except (OSError, ValueError, KeyError, subprocess.SubprocessError):
+        container_events_after = None
+    failed.extend(container_event_gates(container_events_before, container_events_after))
     receipt = {
+        "container_events": {"before": container_events_before, "after": container_events_after},
         "result": "failed" if failed else "passed",
         "failed_gates": failed,
         "finished_at": datetime.now(UTC).isoformat(),
@@ -655,6 +676,9 @@ async def main() -> int:
             "overload_seconds": round(overload_elapsed, 3),
             "recovery_seconds": round(recovery_elapsed, 3),
             "queued_retry_burst": queued,
+            "mcp_reads_per_second_target": 2,
+            "mcp_minimum_reads_per_second_per_actor": 0.9,
+            "mcp_verified_group_exports_per_stage": 2,
         },
         "resource_samples": metrics,
         "durable_verification": jobs,
@@ -665,11 +689,13 @@ async def main() -> int:
             "Session fixture bypasses login; real password/MFA is qualified by the separate browser lane",
             "External AI, WhatsApp/SMTP delivery and push-provider capacity are not measured",
             "Worker burst measures durable missing-image rejection/recovery, not OCR throughput",
+            "MCP sign-in is fixture-issued; real Codex, browser/MFA and OS-vault qualification remains separate",
+            "MCP read/export traffic shares the website workload; this is a combined envelope, not an isolated causal overhead estimate",
         ],
         "production_changed": False,
         "existing_data_deleted": False,
     }
-    destination = ROOT / "docs/remediation/workload-capacity-evidence.json"
+    destination = ROOT / "docs/implementation/mcp-workload-capacity-evidence.json"
     destination.write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
     print(
         json.dumps(

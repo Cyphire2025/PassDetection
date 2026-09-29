@@ -31,6 +31,22 @@ from app.infrastructure.whatsapp.worker_runtime import (
 logger = get_task_logger(__name__)
 
 
+@celery_app.task(name="mcp.publish_whatsapp_intents", queue="whatsapp")  # type: ignore[untyped-decorator]
+def publish_mcp_whatsapp_intents() -> int:
+    """Periodic durable publication recovery; no direct provider retry."""
+    from app.infrastructure.whatsapp.mcp_publication import run_mcp_whatsapp_publication
+
+    return celery_async_runtime.run(run_mcp_whatsapp_publication(limit=20))
+
+
+@celery_app.task(name="whatsapp.publish_send_intents", queue="whatsapp")  # type: ignore[untyped-decorator]
+def publish_whatsapp_send_intents() -> int:
+    """Recover durable website publication using the same saved batch identity."""
+    from app.infrastructure.whatsapp.web_publication import run_whatsapp_send_publication
+
+    return celery_async_runtime.run(run_whatsapp_send_publication(limit=20))
+
+
 class _BoundTaskRequest(Protocol):
     retries: int
 

@@ -11,6 +11,7 @@ import { MessagePreviewDialog } from "./whatsapp-message-preview-dialog";
 const mocks = vi.hoisted(() => ({
   preview: vi.fn(),
   bulkPreview: vi.fn(),
+  detailAvailable: true,
   detail: {
     id: "group-a",
     name: "Office team",
@@ -29,7 +30,7 @@ const mocks = vi.hoisted(() => ({
   } as unknown as WhatsAppBroadcastGroupDetail,
 }));
 vi.mock("../hooks/use-whatsapp", () => ({
-  useWhatsAppGroup: () => ({ data: mocks.detail, isLoading: false }),
+  useWhatsAppGroup: () => ({ data: mocks.detailAvailable ? mocks.detail : undefined, isLoading: !mocks.detailAvailable }),
   usePreviewWhatsAppMessage: () => ({
     mutate: mocks.preview,
     isPending: false,
@@ -62,6 +63,7 @@ vi.mock("./whatsapp-broadcast-motion", () => ({
 }));
 
 beforeEach(() => {
+  mocks.detailAvailable = true;
   mocks.bulkPreview.mockReset();
   mocks.detail = {
     ...mocks.detail,
@@ -520,6 +522,60 @@ it("keeps a passport link unsendable when no support contact is configured", asy
   expect(screen.queryByTestId("broadcast-motion")).not.toBeInTheDocument();
 });
 
+it.each([false, true])("opens passport-link preview with its exact eligible selection without a manual toggle (async detail: %s)", async (delayedDetail) => {
+  const eligible = [recipient("a"), recipient("b")].map((item) => ({ ...item, welcome_status: "delivered", welcome_delivered: true }));
+  const ineligible = { ...recipient("c"), welcome_status: "required", welcome_delivered: false };
+  mocks.detail = { ...mocks.detail, recipients: [ineligible, ...eligible], recipient_count: 3,
+    support_contacts: [{ id: "support-a", name: "Travel desk", phone_number: "+918888888888", normalized_phone_number: "+918888888888" }] };
+  const original = mocks.preview.getMockImplementation()!;
+  mocks.preview.mockImplementation((request, callbacks) => original(request, {
+    ...callbacks, onSuccess: (data: Record<string, unknown>) => {
+      const includesUnwelcomed = !request.draft.recipient_ids || request.draft.recipient_ids.includes("recipient-c");
+      callbacks.onSuccess({ ...data, header_image_id: "saved-header",
+        eligible_recipient_count: includesUnwelcomed ? 0 : request.draft.recipient_ids.length,
+        welcome_required_count: includesUnwelcomed ? 1 : 0 });
+    },
+  }));
+  mocks.detailAvailable = !delayedDetail;
+  const props = { group: mocks.detail, messageType: "passport_link" as const, isSending: false, onClose: vi.fn(), onSend: vi.fn().mockResolvedValue(undefined) };
+  const { rerender, unmount } = render(<MessagePreviewDialog {...props} />);
+  if (delayedDetail) {
+    expect(mocks.preview).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: /Send individually/ })).toBeDisabled();
+    mocks.detailAvailable = true;
+    rerender(<MessagePreviewDialog {...props} />);
+  }
+  const send = await screen.findByRole("button", { name: "Send individually to 2" });
+  await waitFor(() => expect(send).toBeEnabled());
+  expect(screen.getByText("2 of 2 eligible recipients selected")).toBeVisible();
+  expect(screen.getByRole("checkbox", { name: /Passenger A/ })).toBeChecked();
+  expect(screen.queryByRole("checkbox", { name: /Passenger C/ })).not.toBeInTheDocument();
+  expect(mocks.preview).toHaveBeenLastCalledWith(expect.objectContaining({ draft: expect.objectContaining({ recipient_id: "recipient-a", recipient_ids: ["recipient-a", "recipient-b"] }) }), expect.any(Object));
+  fireEvent.click(send);
+  await waitFor(() => expect(props.onSend).toHaveBeenCalledWith(expect.objectContaining({ recipientIds: ["recipient-a", "recipient-b"] })));
+  unmount();
+  render(<MessagePreviewDialog {...props} />);
+  await waitFor(() => expect(screen.getByRole("button", { name: "Send individually to 2" })).toBeEnabled());
+});
+
+it("cannot reuse an old preview or custom selection after switching broadcasts", async () => {
+  const onSend = vi.fn().mockResolvedValue(undefined);
+  const props = { group: mocks.detail, messageType: "reminder" as const, isSending: false, onClose: vi.fn(), onSend };
+  const { rerender, container } = render(<MessagePreviewDialog {...props} />);
+  await waitFor(() => expect(screen.getByRole("button", { name: "Send individually to 1" })).toBeEnabled());
+  fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+  const oldPreview = mocks.preview.mock.calls.at(-1)!;
+  mocks.detail = { ...mocks.detail, id: "group-b", name: "Other broadcast", recipients: [recipient("b")] };
+  rerender(<MessagePreviewDialog {...props} group={mocks.detail} />);
+  expect(screen.getByRole("checkbox", { name: /Passenger B/ })).toBeChecked();
+  expect(screen.getByRole("button", { name: "Send individually to 1" })).toBeDisabled();
+  act(() => oldPreview[1].onSuccess({ message_content: "Obsolete content", eligible_recipient_count: 99 }));
+  fireEvent.submit(container.querySelector("form")!);
+  expect(onSend).not.toHaveBeenCalled();
+  await waitFor(() => expect(screen.getByRole("button", { name: "Send individually to 1" })).toBeEnabled());
+  expect(mocks.preview).toHaveBeenLastCalledWith(expect.objectContaining({ groupId: "group-b", draft: expect.objectContaining({ recipient_ids: ["recipient-b"] }) }), expect.any(Object));
+});
+
 it.each(["welcome", "passport_link", "reminder"] as const)(
   "starts %s motion immediately on a validated send and keeps it through pending updates",
   async (messageType) => {
@@ -710,7 +766,7 @@ it.each(["welcome", "passport_link", "reminder"] as const)("selects recipients d
   expect(screen.getByRole("checkbox", { name: /Passenger A/ })).toBeChecked();
   expect(screen.getByRole("checkbox", { name: /Passenger B/ })).toBeChecked();
   fireEvent.click(screen.getByRole("button", { name: "Send individually to 2" }));
-  await waitFor(() => expect(onSend).toHaveBeenLastCalledWith(expect.objectContaining({ recipientIds: null })));
+  await waitFor(() => expect(onSend).toHaveBeenLastCalledWith(expect.objectContaining({ recipientIds: ["recipient-a", "recipient-b"] })));
 });
 
 it("keeps unselected not-submitted recipients available and preserves the audience in preview and send", async () => {
@@ -720,10 +776,12 @@ it("keeps unselected not-submitted recipients available and preserves the audien
     ...data, audience: request.draft.audience, audience_client_group_id: request.draft.audience_client_group_id,
     audience_recipient_ids: ["recipient-a", "recipient-b"], audience_recipient_count: 2,
     excluded_submitted_count: 1, excluded_needs_review_count: 0,
-    eligible_recipient_count: request.draft.recipient_ids?.length ?? 2,
+    eligible_recipient_count: request.draft.audience === "not_submitted"
+      ? request.draft.recipient_ids?.filter((id: string) => id !== "recipient-c").length ?? 2
+      : request.draft.recipient_ids?.length ?? 3,
   }) }));
   const { container, onSend } = renderDialog();
-  await waitFor(() => expect(screen.getByRole("button", { name: "Send individually to 2" })).toBeEnabled());
+  await waitFor(() => expect(screen.getByRole("button", { name: "Send individually to 3" })).toBeEnabled());
   fireEvent.click(screen.getByRole("button", { name: "Clear" }));
   fireEvent.click(screen.getByRole("checkbox", { name: /Passenger C/ }));
   await waitFor(() => expect(mocks.preview).toHaveBeenLastCalledWith(expect.objectContaining({ draft: expect.objectContaining({ recipient_ids: ["recipient-c"] }) }), expect.any(Object)));

@@ -283,6 +283,8 @@ class CodeUpdate(ReliabilityRelease):
         if self.schema() != self.expected_schema:
             raise ReleaseError("Code-only deployment requires the already-current database schema")
         manifest = verify_manifest(self.artifact, self.revision, pull=True, enforce_current_policy=True)
+        from release_mcp_contract import require_same_schema_artifact
+        require_same_schema_artifact(manifest)
         if manifest["schema"] != self.expected_schema:
             raise ReleaseError("Signed artifact schema differs from the live schema")
         self.run("git", "fetch", "origin", "main", timeout=180)

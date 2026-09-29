@@ -37,9 +37,17 @@ async def run_bounded_storage_operations(
         # Drain every claimed write before the caller deletes all claimed keys.
         # Cancelling ``asyncio.to_thread`` cannot stop its underlying boto call
         # and can otherwise race cleanup, creating an orphan after deletion.
-        await batch
+        while not batch.done():
+            try:
+                await asyncio.shield(batch)
+            except asyncio.CancelledError:
+                # A second disconnect/deadline cancellation must not abandon
+                # native workers or release their caller's admission lease.
+                continue
         raise
-    first_error = next((outcome for outcome in outcomes if isinstance(outcome, BaseException)), None)
+    first_error = next(
+        (outcome for outcome in outcomes if isinstance(outcome, BaseException)), None
+    )
     if first_error is not None:
         raise first_error
     return [outcome for outcome in outcomes if not isinstance(outcome, BaseException)]
@@ -54,5 +62,10 @@ async def finish_cleanup_despite_cancellation(cleanup: Awaitable[None]) -> None:
     except asyncio.CancelledError:
         # The caller remains cancelled, but a second await ensures its owned
         # sensitive objects are not abandoned before cancellation propagates.
-        await cleanup_task
+        while not cleanup_task.done():
+            try:
+                await asyncio.shield(cleanup_task)
+            except asyncio.CancelledError:
+                continue
+        cleanup_task.result()
         raise

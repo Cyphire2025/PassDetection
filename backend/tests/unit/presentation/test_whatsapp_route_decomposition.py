@@ -11,6 +11,7 @@ from app.presentation.api.v1.routes import (
     whatsapp_contact_support,
     whatsapp_delivery_support,
     whatsapp_roster_support,
+    whatsapp_send,
 )
 
 _EXPECTED_ROUTES = [
@@ -180,7 +181,14 @@ def test_whatsapp_route_order_and_names_remain_stable() -> None:
     assert actual == _EXPECTED_ROUTES
     assert _decorated_route_names(whatsapp) == []
     for route in whatsapp.router.routes:
-        assert route.endpoint is getattr(whatsapp, route.name)
+        if route.name == "send_broadcast_message":
+            # HTTP now requires a durable business key; the legacy direct helper
+            # remains callable with its original signature for internal callers.
+            assert whatsapp.send_broadcast_message is whatsapp_send.send_broadcast_message
+            assert route.endpoint.__module__ == whatsapp.__name__ + "_send_intents"
+            assert inspect.getclosurevars(route.endpoint).nonlocals["queue"] is whatsapp_send.queue_broadcast_message
+        else:
+            assert route.endpoint is getattr(whatsapp, route.name)
         assert route.endpoint.__module__.startswith(whatsapp.__name__ + "_")
 
 

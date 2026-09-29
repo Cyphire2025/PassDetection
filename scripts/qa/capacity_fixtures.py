@@ -19,6 +19,12 @@ import uuid
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+from capacity_mcp_fixtures import seed_mcp
+from PIL import Image
+from qualification_application_journey import isolated
+from sqlalchemy import func, select, text
+from upload_configuration_http_smoke import REQUIRED_FIELD_NAMES
+
 from app.application.use_cases.auth.login_use_case import LoginUseCase
 from app.core.config.settings import get_settings
 from app.core.security.password import hash_password
@@ -44,10 +50,6 @@ from app.infrastructure.repositories.refresh_token_repository import (
 )
 from app.infrastructure.repositories.user_repository import UserRepository
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
-from PIL import Image
-from qualification_application_journey import isolated
-from sqlalchemy import func, select, text
-from upload_configuration_http_smoke import REQUIRED_FIELD_NAMES
 
 TENANTS = 10
 SMALL_GROUP = 100
@@ -257,12 +259,14 @@ async def seed(run_id: str) -> dict:
                 }
             )
         await db.commit()
+    mcp_actors = await seed_mcp(run_id, groups, password_hash)
     return {
         "run_id": run_id,
         "created_at": observed.isoformat(),
         "actors": actors,
         "coordinators": coordinators,
         "groups": groups,
+        "mcp_actors": mcp_actors,
         "dataset": {
             "tenants": TENANTS,
             "office_actors": len(actors),
@@ -275,6 +279,7 @@ async def seed(run_id: str) -> dict:
             "duplicate_cluster_per_group": 50,
             "direct_notification_rows": 2000,
             "external_notification_fanout": 0,
+            "mcp_superadmin_actors": len(mcp_actors),
         },
     }
 
@@ -384,6 +389,11 @@ async def observe(run_id: str, seconds: int) -> None:
                         if oldest
                         else 0,
                         "backend_cgroup_memory_bytes": int(memory_file.read_text()),
+                        "backend_memory_events": {
+                            name: int(value) for name, value in (
+                                line.split() for line in Path("/sys/fs/cgroup/memory.events").read_text().splitlines()
+                            )
+                        },
                     }
                 ),
                 flush=True,

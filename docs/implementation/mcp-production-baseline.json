@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-09-29T18:23:17.263842+00:00",
+  "observation_scope": "Read-only local/repository evidence and authenticated existing VPS snapshot; no production mutation",
+  "source_revision": "a18d236f15bd96ea326fe436cdcc28af60ec17b0",
+  "source_branch": "codex/mcp-application-workflows",
+  "live_production": {
+    "status": "read_only_snapshot_observed",
+    "evidence": "outputs/mcp-vps-baseline-20260929T1823Z.json",
+    "observed_at": "2026-09-29T18:23:17.263842+00:00",
+    "revision": "a18d236f15bd96ea326fe436cdcc28af60ec17b0",
+    "schema": "0113_document_follow_up",
+    "host_memory": {
+      "MemTotal_bytes": 16769044480,
+      "MemAvailable_bytes": 9468706816,
+      "SwapTotal_bytes": 0,
+      "SwapFree_bytes": 0
+    },
+    "database": {
+      "schema": "0113_document_follow_up",
+      "max_connections": 100,
+      "total_connections": 25,
+      "database_connections": 20,
+      "has_mcp_control": false,
+      "mcp_emergency_enabled": null
+    },
+    "container_count": 236,
+    "project_container_count": 64,
+    "unrelated_container_count": 172,
+    "backend": {
+      "id": "eed17e29f3e67d4861d01a353002e91c11d0bf850475d3d9023b68076098d200",
+      "service": "backend",
+      "image_id": "sha256:7297ac5ff3115c0bcea460cf14312241324a9b8c759573f520751aaebf34d633",
+      "running": true,
+      "oom_killed": false,
+      "memory_limit_bytes": 2684354560,
+      "swap_limit_bytes": 2684354560,
+      "nano_cpus": 4000000000,
+      "usage": {
+        "CPUPerc": "0.94%",
+        "MemUsage": "2.16GiB / 2.5GiB",
+        "MemPerc": "86.42%",
+        "PIDs": "98"
+      },
+      "configuration": {
+        "WEB_CONCURRENCY": 4,
+        "POSTGRES_API_POOL_SIZE": 3,
+        "POSTGRES_API_MAX_OVERFLOW": 3,
+        "POSTGRES_WORKER_POOL_SIZE": 1,
+        "POSTGRES_WORKER_MAX_OVERFLOW": 0,
+        "POSTGRES_SERVER_MAX_CONNECTIONS": 100,
+        "POSTGRES_RESERVED_CONNECTIONS": 10,
+        "revision": "a18d236f15bd96ea326fe436cdcc28af60ec17b0",
+        "configured_schema": "0113_document_follow_up",
+        "mcp_deployment_enabled": null,
+        "mcp_enabled_capabilities": null
+      }
+    },
+    "mcp_overhead_mib": null,
+    "qualification": "Point-in-time observation only. MCP absent. Host free RAM is not backend cgroup headroom; no combined-workload/load or rollout qualification.",
+    "runtime_checks": {
+      "evidence": "outputs/mcp-vps-runtime-20260929T1828Z.json",
+      "scope": "read-only current backend checks",
+      "memory.current": 2329972736,
+      "memory.max": 2684354560,
+      "memory.peak": 2691198976,
+      "memory.events": {
+        "low": 0,
+        "high": 0,
+        "max": 53533,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      },
+      "pids.current": 99,
+      "readiness": {
+        "http_status": 200,
+        "ready": true,
+        "database_ok": true,
+        "capabilities": {
+          "request_protection": {
+            "available": true,
+            "required": true
+          },
+          "object_storage": {
+            "available": true,
+            "required": true
+          },
+          "document_ingestion": {
+            "available": true,
+            "required": true
+          },
+          "database_schema": {
+            "available": true,
+            "required": true
+          },
+          "mobile_realtime": {
+            "available": true,
+            "required": true
+          }
+        }
+      },
+      "restricted_runtime_role": {
+        "verified": true,
+        "seven_privilege_guards": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    "latest_resource_snapshot": {
+      "evidence": "outputs/mcp-vps-baseline-20260929T1833Z.json",
+      "observed_at": "2026-09-29T18:32:06.989848+00:00",
+      "host_running_container_count": 20,
+      "unrelated_running_container_count": 0,
+      "host_running_memory_limit_bytes": 14562623488,
+      "host_running_unbounded_memory_count": 0,
+      "project_running": 20,
+      "project_stopped": 44,
+      "declared_budget_headroom_after_2gib_reserve_bytes": 58937344
+    },
+    "nginx_cgroup_baseline": {
+      "evidence": "outputs/mcp-vps-nginx-20260929T1833Z.json",
+      "service": "nginx",
+      "state": {
+        "Running": true,
+        "OOMKilled": true,
+        "StartedAt": "2026-09-27T22:09:41.649565061Z",
+        "FinishedAt": "2026-09-27T22:09:41.426000822Z",
+        "ExitCode": 0
+      },
+      "restart_count": 0,
+      "memory.current": 80986112,
+      "memory.max": 134217728,
+      "memory.peak": 137547776,
+      "memory.events": {
+        "low": 0,
+        "high": 0,
+        "max": 44342,
+        "oom": 151,
+        "oom_kill": 3,
+        "oom_group_kill": 0
+      },
+      "qualification": "Pre-existing production OOM history; individual event timestamps unknown. Candidate must show zero NEW OOM/kill counter increments, not zero absolute baseline counters."
+    },
+    "default_grant_checks": {
+      "at": "2026-09-29T19:02:45.226782+00:00",
+      "scope": "read-only existing runtime catalog query",
+      "checks": {
+        "runtime_separate_from_migration_owner": true,
+        "schema_owned_by_migration_identity": true,
+        "database_owned_by_migration_identity": true,
+        "all_public_tables_migration_owned": true,
+        "default_new_table_dml": true,
+        "default_new_sequence_access": true,
+        "source_schema": "0113_document_follow_up"
+      },
+      "evidence": "outputs/mcp-vps-default-grants-20260929T190241Z.json"
+    }
+  },
+  "local_execution": {
+    "python": "CPython 3.11.15 verified from primary backend/.venv311/Scripts/python.exe",
+    "primary_default_venv": "Known broken; not used",
+    "docker_linux_engine": "unavailable",
+    "docker_probe": "docker info --format '{{.ServerVersion}}'",
+    "docker_probe_result": "dockerDesktopLinuxEngine named pipe not found",
+    "ssh_client": "available",
+    "default_ssh_configuration": "No config or private identity file found; known_hosts only",
+    "github_cli_on_path": false,
+    "container_mutations": false
+  },
+  "repository_configuration": {
+    "release_manifest": "backend/app/core/config/release_manifest.json",
+    "baseline_schema": "0113_document_follow_up",
+    "baseline_previous_schema": "0112_passport_cover_edits",
+    "profile": "tooling/deployment-profiles/kvm4.json",
+    "compose_overlay": "docker-compose.kvm4.yml",
+    "profile_qualification_status": "qualified",
+    "profile_scope": "Historical exact-image component/lifecycle evidence plus isolated source-overlay extraction/PostgreSQL resource delta; not new MCP qualification",
+    "observed_host_physical_mib_from_retained_profile": 15992,
+    "host_reserve_mib": 2048,
+    "steady_container_ceiling_mib": 13888,
+    "api_processes": 4,
+    "api_pool_size_each": 3,
+    "api_pool_overflow_each": 3,
+    "api_connection_budget": 24,
+    "postgres_max_connections": 100,
+    "postgres_reserved_connections": 10,
+    "worker_children_each": 1,
+    "extraction_worker_children": 2,
+    "worker_nodes": 8,
+    "resource_limits_are_not_measured_usage": true
+  },
+  "retained_evidence": [
+    {
+      "source": "docs/remediation/workload-capacity-evidence.json",
+      "finished_at": "2026-09-26T23:04:44.143389+00:00",
+      "source_revision": "6033b9f3db2598c167600685d8fab4229de4368c",
+      "image_id": "sha256:0066ad357a08c4b207fa93bfa12e6111a90ebcac3514b4edbbdeb31a66db0f67",
+      "result": "passed",
+      "scope": "Synthetic qualification; 5900 passports, largest group 5000, external notification fanout zero. MCP is absent from this workload."
+    },
+    {
+      "source": "docs/remediation/vps-memory-capacity-assessment.md",
+      "dated": "2026-09-27",
+      "scope": "Historical reported read-only production inspection: 15992 MiB physical, 9312 MiB available, no swap, then-running limits 23.375 GiB. Not a current measurement."
+    },
+    {
+      "source": "docs/PRODUCTION_RELEASE_READINESS.md",
+      "scope": "Historical read-only inspection mentions schema0107 and legacy runtime grants; later qualified-code-update guide assumes schema0113/storage cutover. Resolve this dated-document discrepancy against current authenticated live state before release."
+    }
+  ],
+  "release_contract": {
+    "same_schema_update_guide": "docs/QUALIFIED_CODE_UPDATES.md",
+    "same_schema_helper": "scripts/release_code_update.py",
+    "same_schema_helper_migrates": false,
+    "migration_required": true,
+    "required_evidence": [
+      "Review a migration-aware release procedure against the actual serving schema and storage configuration",
+      "Populated PostgreSQL upgrade rehearsal, restricted runtime grants, backup verification and compatible recovery",
+      "Exact-revision signed image qualification and existing protected release approval",
+      "Combined website/MCP workloads with actual memory, latency, pool, backlog and failure-recovery evidence",
+      "Reads/exports first, then tested creation/uploads/communications, retaining emergency disable"
+    ],
+    "deferred_container_cleanup": "Hostinger64 containers are outside this task; no stop/delete/prune actions"
+  },
+  "unpublished_candidate": {
+    "source_release_schema": "0113_document_follow_up",
+    "current_source_schema": "0122_mcp_gc_push",
+    "source_of_target": "backend/app/core/config/release_manifest.json",
+    "last_reported_local_postgresql_upgrade_proof": "0122_mcp_gc_push",
+    "qualification": "Current source target and disposable local proof are separate; neither observes production. Final chain and images require fresh qualification.",
+    "local_migrator_identity_proof": "tests/service_integration/test_mcp_migration_roles_postgresql.py passed under migration identity without subsequent GRANT; target0122, runtime restricted DML/default grants and retained old rows checked"
+  }
+}

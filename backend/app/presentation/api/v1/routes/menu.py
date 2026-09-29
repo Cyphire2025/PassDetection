@@ -14,6 +14,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql.elements import ColumnElement
 
+from app.application.use_cases.menu.create_menu import (
+    MenuCreationSupport,
+    create_category,
+    create_dish,
+    create_plan,
+)
 from app.application.use_cases.menu.meal_plan_generator import (
     InsufficientCategoryDishesError,
     MealSlotAssignment,
@@ -125,34 +131,7 @@ async def create_menu_category(
     _csrf: None = Depends(require_cookie_csrf),
 ) -> MenuCategoryResponse:
     agency_id = _agency_scope(current_user)
-    normalized_name = _normalized_name(body.name)
-    await _ensure_category_name_available(
-        session,
-        agency_id=agency_id,
-        normalized_name=normalized_name,
-    )
-
-    sort_order = (
-        int(
-            (
-                await session.execute(
-                    select(func.coalesce(func.max(MenuCategoryModel.sort_order), -1)).where(
-                        _category_scope(MenuCategoryModel, agency_id)
-                    )
-                )
-            ).scalar_one()
-        )
-        + 1
-    )
-    category = MenuCategoryModel(
-        agency_id=agency_id,
-        name=body.name,
-        normalized_name=normalized_name,
-        sort_order=sort_order,
-        created_by_user_id=current_user.id,
-    )
-    session.add(category)
-    await session.flush()
+    category = await create_category(session, support=menu_creation_support(), agency_id=agency_id, actor_id=current_user.id, body=body)
     await _audit(
         session,
         current_user,
@@ -271,42 +250,7 @@ async def create_menu_dish(
     _csrf: None = Depends(require_cookie_csrf),
 ) -> MenuDishResponse:
     agency_id = _agency_scope(current_user)
-    category = await _get_category(session, category_id, agency_id, lock=True)
-    _require_current_revision(
-        actual=category.updated_at,
-        expected=body.expected_category_updated_at,
-        resource="menu category",
-    )
-    normalized_name = _normalized_name(body.name)
-    await _ensure_dish_name_available(
-        session,
-        category_id=category.id,
-        normalized_name=normalized_name,
-    )
-    sort_order = (
-        int(
-            (
-                await session.execute(
-                    select(func.coalesce(func.max(MenuDishModel.sort_order), -1)).where(
-                        MenuDishModel.category_id == category.id
-                    )
-                )
-            ).scalar_one()
-        )
-        + 1
-    )
-    dish = MenuDishModel(
-        category_id=category.id,
-        name=body.name,
-        normalized_name=normalized_name,
-        notes=body.notes,
-        is_active=True,
-        sort_order=sort_order,
-        created_by_user_id=current_user.id,
-    )
-    session.add(dish)
-    category.updated_at = _utcnow()
-    await session.flush()
+    dish, category = await create_dish(session, support=menu_creation_support(), agency_id=agency_id, actor_id=current_user.id, body=body, category_id=category_id)
     await _audit(
         session,
         current_user,
@@ -432,37 +376,7 @@ async def generate_meal_plan(
     _csrf: None = Depends(require_cookie_csrf),
 ) -> MealPlanResponse:
     agency_id = _agency_scope(current_user)
-    planner_categories = await _planner_categories(
-        session,
-        agency_id=agency_id,
-        category_ids=body.category_ids,
-        lock=True,
-    )
-    _require_current_category_revisions(
-        planner_categories,
-        body.expected_category_revisions,
-    )
-    seed = secrets.randbelow(2**63 - 1)
-    assignments = _generate_or_422(
-        planner_categories,
-        trip_days=body.trip_days,
-        seed=seed,
-    )
-    selected_category_ids = [str(category.id) for category in planner_categories]
-    plan = MealPlanModel(
-        agency_id=agency_id,
-        name=body.name,
-        trip_days=body.trip_days,
-        start_date=body.start_date,
-        selected_category_ids=selected_category_ids,
-        generation_seed=seed,
-        created_by_user_id=current_user.id,
-    )
-    session.add(plan)
-    await session.flush()
-    entries = _meal_plan_entries(plan.id, assignments)
-    session.add_all(entries)
-    await session.flush()
+    plan, entries = await create_plan(session, support=menu_creation_support(), agency_id=agency_id, actor_id=current_user.id, body=body)
     await _audit(
         session,
         current_user,
@@ -1228,4 +1142,21 @@ async def _audit(
         entity_id=str(entity_id),
         ip_address=trusted_client_ip(request),
         metadata=dict(metadata),
+    )
+
+
+def menu_creation_support() -> MenuCreationSupport:
+    """Fixed website rules for the shared additive creation use cases."""
+    return MenuCreationSupport(
+        _normalized_name=_normalized_name,
+        _ensure_category_name_available=_ensure_category_name_available,
+        _category_scope=_category_scope,
+        _get_category=_get_category,
+        _require_current_revision=_require_current_revision,
+        _ensure_dish_name_available=_ensure_dish_name_available,
+        _utcnow=_utcnow,
+        _planner_categories=_planner_categories,
+        _require_current_category_revisions=_require_current_category_revisions,
+        _generate_or_422=_generate_or_422,
+        _meal_plan_entries=_meal_plan_entries,
     )

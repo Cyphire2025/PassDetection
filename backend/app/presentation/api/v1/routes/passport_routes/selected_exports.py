@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-import asyncio
 import io
 import uuid
-from typing import Any, cast
+from typing import cast
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import Response, StreamingResponse
@@ -13,10 +12,18 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
+from app.application.use_cases.passports.prepare_group_excel import ExcelPreparationError
+from app.application.use_cases.passports.prepare_selected_excel import (
+    SelectedExcelSupport,
+    prepare_selected_groups_excel,
+    prepare_selected_passports_excel,
+)
 from app.domain.entities.entities import ClientGroup, PassportSubmission, User, UserRole
 from app.infrastructure.database.models import ClientGroupModel, PassportSubmissionModel
 from app.infrastructure.database.session import get_db_session
-from app.infrastructure.export.passport_excel_exporter import PassportExcelExporter
+from app.infrastructure.export.passport_excel_exporter import (
+    PassportExcelExporter as PassportExcelExporter,
+)
 from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
 from app.infrastructure.repositories.operational_roster import operational_roster_member
 from app.infrastructure.repositories.passport_submission_repository import (
@@ -50,6 +57,24 @@ from .export_context import _resolve_export_group_by
 from .response_support import _apply_manager_visibility, _submitted_statuses
 
 router = APIRouter()
+
+def selected_excel_support() -> SelectedExcelSupport:
+    """Fixed dependencies; request data can only select validated export options."""
+    return SelectedExcelSupport(
+        _export_group_details=_export_group_details,
+        _export_whatsapp_match_rows=_export_whatsapp_match_rows,
+        _combined_export_field_catalog=_combined_export_field_catalog,
+        _resolve_export_group_by=_resolve_export_group_by,
+        _international_airport_is_enabled=_international_airport_is_enabled,
+        _pending_recipient_export_rows=_pending_recipient_export_rows,
+        _apply_pending_export_fields=_apply_pending_export_fields,
+        _group_export_details=_group_export_details,
+        export_passport_ecr_results=export_passport_ecr_results,
+        _export_zone_names_from_match_rows=_export_zone_names_from_match_rows,
+        _export_additional_values=_export_additional_values,
+        _export_whatsapp_contacts=_export_whatsapp_contacts,
+    )
+
 
 
 @router.post(
@@ -86,28 +111,11 @@ async def export_selected_passports(
             status_code=status.HTTP_404_NOT_FOUND, detail="No exportable passport submissions found"
         )
 
-    match_rows_by_group = await _export_whatsapp_match_rows(session, submissions)
-    group_details = await _export_group_details(
-        session, [submission.group_id for submission in submissions],
+    prepared = await prepare_selected_passports_excel(
+        session, support=selected_excel_support(), submissions=submissions,
+        agency_id=current_user.agency_id,
     )
-    ecr_results = await export_passport_ecr_results(
-        session, submissions, agency_id=current_user.agency_id, group_details=group_details,
-    )
-    content = await asyncio.to_thread(
-        PassportExcelExporter().export_group,
-        submissions,
-        group_name="Selected Passports",
-        group_details=group_details,
-        ecr_results=ecr_results,
-        zone_names=_export_zone_names_from_match_rows(
-            submissions,
-            match_rows_by_group,
-        ),
-        whatsapp_contacts=_export_whatsapp_contacts(
-            submissions,
-            match_rows_by_group,
-        ),
-    )
+    content = await prepared.render()
     return StreamingResponse(
         io.BytesIO(content),
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -243,107 +251,15 @@ async def export_selected_groups(
         session=session,
     )
 
-    match_rows_by_group = await _export_whatsapp_match_rows(
-        session,
-        submissions,
-        groups=groups,
-    )
-    catalog = _combined_export_field_catalog(
-        groups,
-        match_rows_by_group,
-        submissions,
-    )
-    catalog_by_key = {str(field["key"]): field for field in catalog}
-    submitted_field_keys = list(dict.fromkeys(body.supplemental_fields))
-    unknown_fields = [key for key in submitted_field_keys if key not in catalog_by_key]
-    if unknown_fields:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=("One or more selected Excel fields are unavailable for the selected groups."),
+    try:
+        prepared = await prepare_selected_groups_excel(
+            session, support=selected_excel_support(), groups=groups, submissions=submissions,
+            agency_id=cast(uuid.UUID, current_user.agency_id),
+            supplemental_fields=body.supplemental_fields, group_by_field=body.group_by_field,
         )
-    submitted_field_key_set = set(submitted_field_keys)
-    selected_fields = [field for field in catalog if str(field["key"]) in submitted_field_key_set]
-    requested_field_keys = [str(field["key"]) for field in selected_fields]
-    resolved_group_by = _resolve_export_group_by(
-        body.group_by_field,
-        requested_field_keys,
-    )
-    airport_enabled = any(_international_airport_is_enabled(group) for group in groups)
-    if resolved_group_by == "international_airport" and not airport_enabled:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=(
-                "International Airport grouping is available only when at "
-                "least one selected group asks travellers for that field."
-            ),
-        )
-    if (
-        resolved_group_by
-        and resolved_group_by != "international_airport"
-        and resolved_group_by not in requested_field_keys
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=(
-                "The grouping field must be International Airport or an included WhatsApp field."
-            ),
-        )
-
-    pending_rows: list[dict[str, Any]] = []
-    for group in groups:
-        group_pending_rows = _pending_recipient_export_rows(
-            group=group,
-            rows=match_rows_by_group.get(group.id, []),
-        )
-        if group_pending_rows:
-            _apply_pending_export_fields(
-                group_pending_rows,
-                match_rows_by_group.get(group.id, []),
-                selected_fields,
-            )
-            pending_rows.extend(group_pending_rows)
-    if not submissions and not pending_rows:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No exportable passport submissions or pending recipients found",
-        )
-
-    if len(submissions) + len(pending_rows) > PASSPORT_COMBINED_EXPORT_MAX_ROWS:
-        raise HTTPException(
-            status_code=413,
-            detail="Combined exports are limited to 1500 rows including pending recipients. Select fewer groups.",
-        )
-
-    group_details = {group.id: _group_export_details(group) for group in groups}
-    ecr_results = await export_passport_ecr_results(
-        session, submissions, agency_id=cast(uuid.UUID, current_user.agency_id),
-        group_details=group_details,
-    )
-    content = await asyncio.to_thread(
-        PassportExcelExporter().export_group,
-        submissions,
-        group_name="Selected Groups",
-        group_details=group_details,
-        ecr_results=ecr_results,
-        zone_names=_export_zone_names_from_match_rows(
-            submissions,
-            match_rows_by_group,
-        ),
-        additional_fields=[
-            {"key": str(field["key"]), "label": str(field["label"])} for field in selected_fields
-        ],
-        additional_values=_export_additional_values(
-            submissions,
-            match_rows_by_group,
-            selected_fields,
-        ),
-        whatsapp_contacts=_export_whatsapp_contacts(
-            submissions,
-            match_rows_by_group,
-        ),
-        group_by_field=resolved_group_by,
-        pending_rows=pending_rows,
-    )
+    except ExcelPreparationError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
+    content = await prepared.render()
     return StreamingResponse(
         io.BytesIO(content),
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

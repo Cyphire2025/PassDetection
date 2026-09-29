@@ -4,15 +4,12 @@ from __future__ import annotations
 
 import hashlib
 import json
-import math
 import re
 import uuid
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from datetime import datetime
-from io import BytesIO
 from typing import Any, Literal, cast
-from zipfile import ZipFile
 
 from fastapi import HTTPException, status
 from sqlalchemy import func, select, union_all
@@ -21,6 +18,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.use_cases.whatsapp.contact_normalization import (
     clean_whatsapp_name,
     normalize_whatsapp_phone,
+)
+from app.application.use_cases.whatsapp.spreadsheet_values import (
+    excel_cell_text,
+    validate_excel_archive,
 )
 from app.application.use_cases.whatsapp.welcome_policy import requires_prior_welcome
 from app.infrastructure.database.models import (
@@ -51,6 +52,7 @@ from app.presentation.api.v1.schemas.whatsapp_schemas import (
     WhatsAppSupportContactResponse,
 )
 
+_excel_cell_text = excel_cell_text
 PHONE_RE = re.compile(r"(?:\+|00)?\d[\d\s().-]{7,}\d")
 MAX_WHATSAPP_EXCEL_UNCOMPRESSED_BYTES = 50 * 1024 * 1024
 MAX_WHATSAPP_EXCEL_ARCHIVE_MEMBERS = 2_000
@@ -124,40 +126,16 @@ def _clean_required_name(value: Any, field_label: str) -> str:
 
 
 def _validate_excel_archive(payload: bytes) -> None:
-    with ZipFile(BytesIO(payload)) as archive:
-        members = archive.infolist()
-        if len(members) > MAX_WHATSAPP_EXCEL_ARCHIVE_MEMBERS:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="The Excel contact file contains too many archive entries",
-            )
-        total_uncompressed = sum(member.file_size for member in members)
-        if total_uncompressed > MAX_WHATSAPP_EXCEL_UNCOMPRESSED_BYTES:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="The Excel contact file expands beyond the allowed size",
-            )
-        for member in members:
-            if (
-                member.file_size > WHATSAPP_UPLOAD_READ_CHUNK_BYTES
-                and member.compress_size > 0
-                and member.file_size / member.compress_size > MAX_WHATSAPP_EXCEL_COMPRESSION_RATIO
-            ):
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="The Excel contact file has an unsafe compression ratio",
-                )
-
-
-def _excel_cell_text(value: Any) -> str:
-    if value is None or isinstance(value, bool):
-        return ""
-    if isinstance(value, float):
-        if not math.isfinite(value):
-            return ""
-        if value.is_integer():
-            return str(int(value))
-    return str(value).strip()
+    try:
+        validate_excel_archive(
+            payload,
+            max_members=MAX_WHATSAPP_EXCEL_ARCHIVE_MEMBERS,
+            max_uncompressed_bytes=MAX_WHATSAPP_EXCEL_UNCOMPRESSED_BYTES,
+            max_compression_ratio=MAX_WHATSAPP_EXCEL_COMPRESSION_RATIO,
+            ratio_threshold_bytes=WHATSAPP_UPLOAD_READ_CHUNK_BYTES,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
 
 def _excel_header_label(value: Any) -> str:
@@ -1110,9 +1088,12 @@ def _recipient_response(
     welcome_status = (
         phone_welcome_statuses.get(model.id)
         if phone_welcome_statuses is not None
-        else next((state.status for state in ordered_states if state.message_type == "welcome"), None)
+        else next(
+            (state.status for state in ordered_states if state.message_type == "welcome"), None
+        )
     )
     from app.infrastructure.whatsapp.phone_welcome import welcome_required_reason
+
     welcome_reason = welcome_required_reason(welcome_status)
     return WhatsAppRecipientResponse(
         id=model.id,
@@ -1137,12 +1118,23 @@ def _recipient_response(
                 already_sent=state.status in WHATSAPP_ACCEPTED_STATUSES,
                 send_suppressed=state.status in WHATSAPP_SUPPRESSED_STATUSES,
                 latest_resend_status=latest_resend_statuses.get(state.message_type),
-                resend_blocked=(latest_resend_statuses.get(state.message_type)
+                resend_blocked=(
+                    latest_resend_statuses.get(state.message_type)
                     in WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES
-                    or (state.message_type == "welcome" and welcome_status in WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES)
-                    or (state.message_type == "welcome" and state.status in WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES)
-                    or (state.message_type == "group_invite" and state.status in WHATSAPP_SUPPRESSED_STATUSES)
-                    or (requires_prior_welcome(state.message_type) and welcome_reason is not None)),
+                    or (
+                        state.message_type == "welcome"
+                        and welcome_status in WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES
+                    )
+                    or (
+                        state.message_type == "welcome"
+                        and state.status in WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES
+                    )
+                    or (
+                        state.message_type == "group_invite"
+                        and state.status in WHATSAPP_SUPPRESSED_STATUSES
+                    )
+                    or (requires_prior_welcome(state.message_type) and welcome_reason is not None)
+                ),
                 submitted_at=state.submitted_at,
                 status_updated_at=state.status_updated_at,
             )

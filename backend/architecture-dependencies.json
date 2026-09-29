@@ -20,6 +20,695 @@
         "app.infrastructure.repositories.user_repository.UserRepository"
       ]
     },
+    "app/application/mcp/access_changes.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Recent MFA and current active agency/account/group locks authorize insert-only group-access additions; exact assignment revisions and retained receipt bindings use reviewed transaction adapters.",
+      "imports": [
+        "app.infrastructure.database.mcp_models",
+        "app.infrastructure.database.mcp_models.MCPGrantModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.ManagerGroupAccessModel",
+        "app.infrastructure.database.models.UserModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository"
+      ]
+    },
+    "app/application/mcp/additive_mobile.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Locked current mobile access and identities feed the shared pure binding planner; preflight forbids all retained binding/session/status changes before the canonical insert-only application.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePassengerIdentityModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.PassportSubmissionModel"
+      ]
+    },
+    "app/application/mcp/announcement_changes.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current active agency and group/access revision locks authorize append-only announcement drafts and versions; durable receipt reads recheck exact ownership through reviewed models and audit adapters.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.GCAnnouncementModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository"
+      ]
+    },
+    "app/application/mcp/artifacts.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Private immutable transfer storage, exact current grant and every group association, verified delivery history, and claimed PDF receipt recovery use explicit infrastructure adapters.",
+      "imports": [
+        "app.infrastructure.database.mcp_artifact_models",
+        "app.infrastructure.database.mcp_artifact_models.MCPArtifactAccessModel",
+        "app.infrastructure.database.mcp_artifact_models.MCPArtifactModel",
+        "app.infrastructure.database.mcp_operation_models",
+        "app.infrastructure.database.mcp_operation_models.MCPOperationModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.DocumentDistributionBatchModel",
+        "app.infrastructure.database.models.PassportExportHistoryModel",
+        "app.infrastructure.documents.storage_transfers",
+        "app.infrastructure.documents.storage_transfers.run_bounded_storage_operations",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository",
+        "app.infrastructure.repositories.passport_export_history_repository",
+        "app.infrastructure.repositories.passport_export_history_repository.PassportExportHistoryRepository",
+        "app.infrastructure.repositories.user_repository",
+        "app.infrastructure.repositories.user_repository.UserRepository",
+        "app.infrastructure.security.upload_security",
+        "app.infrastructure.security.upload_security.UploadSecurityContext",
+        "app.infrastructure.security.upload_security.UploadSecurityService",
+        "app.infrastructure.storage.mcp_artifact_storage",
+        "app.infrastructure.storage.mcp_artifact_storage.MCPArtifactStorage"
+      ]
+    },
+    "app/application/mcp/authorization.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "OAuth grant/code/token and live identity locks use the caller-owned transaction; hashes and capability checks are isolated from HTTP and credential-vault presentation.",
+      "imports": [
+        "app.infrastructure.database.mcp_models",
+        "app.infrastructure.database.mcp_models.MCPAuthorizationCodeModel",
+        "app.infrastructure.database.mcp_models.MCPControlModel",
+        "app.infrastructure.database.mcp_models.MCPGrantModel",
+        "app.infrastructure.database.mcp_models.MCPTokenModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.UserModel",
+        "app.infrastructure.database.models.UserSecurityStateModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository"
+      ]
+    },
+    "app/application/mcp/broadcast_link_changes.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Revision-fenced insert-only link/contact/mobile transaction uses the canonical private-delivery guard without cancellation and writes one retained receipt/audit.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupWhatsAppBroadcastLinkModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository",
+        "app.infrastructure.whatsapp.private_delivery_policy",
+        "app.infrastructure.whatsapp.private_delivery_policy.PrivateDeliveryMutationBlocked",
+        "app.infrastructure.whatsapp.private_delivery_policy.prepare_private_delivery_identity_mutation"
+      ]
+    },
+    "app/application/mcp/broadcast_link_plan.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Pure bounded planning instantiates only missing contact and recipient rows; retained collisions, overrides, replacement effects and recipient-limit overflow fail before persistence.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.WhatsAppBroadcastRecipientModel",
+        "app.infrastructure.database.models.WhatsAppBroadcastSourceContactModel"
+      ]
+    },
+    "app/application/mcp/broadcast_link_source.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Exact current actor, agency, group and broadcast row locks bind a bounded canonical source/contact/mobile snapshot for additive link changes.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.ClientGroupWhatsAppBroadcastLinkModel",
+        "app.infrastructure.database.models.PassportRosterResolutionModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.database.models.WhatsAppBroadcastGroupModel",
+        "app.infrastructure.database.models.WhatsAppBroadcastRecipientModel",
+        "app.infrastructure.database.models.WhatsAppBroadcastSourceContactModel",
+        "app.infrastructure.database.models.WhatsAppTravellerPhoneOverrideModel",
+        "app.infrastructure.repositories.operational_roster",
+        "app.infrastructure.repositories.operational_roster.operational_roster_member"
+      ]
+    },
+    "app/application/mcp/change_context.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Code-owned additive operations lock current active agency and group scope and recheck live actor policy inside the caller transaction.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.AgencyModel",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.UserModel",
+        "app.infrastructure.repositories.user_repository",
+        "app.infrastructure.repositories.user_repository.UserRepository"
+      ]
+    },
+    "app/application/mcp/client_detail_changes.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Reviewed sparse changes reuse website correction and private-delivery policies within the durable operation transaction; clearing fields and cancellation of pending private delivery are prohibited.",
+      "imports": [
+        "app.infrastructure.repositories.user_repository",
+        "app.infrastructure.repositories.user_repository.UserRepository",
+        "app.infrastructure.whatsapp.private_delivery_policy",
+        "app.infrastructure.whatsapp.private_delivery_policy.PrivateDeliveryMutationBlocked"
+      ]
+    },
+    "app/application/mcp/client_detail_revisions.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Append-only reviewed before/after client fields are retained in the same caller-owned business transaction; source images, OCR and unrelated status fields are excluded.",
+      "imports": [
+        "app.infrastructure.database.mcp_record_revision_models",
+        "app.infrastructure.database.mcp_record_revision_models.MCPRecordRevisionModel"
+      ]
+    },
+    "app/application/mcp/contact_broadcasts.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "A reviewed immutable contact snapshot is consumed once into a new broadcast through fixed shared creation callbacks, with live upload/change authority and receipt scope checked inside the durable operation transaction.",
+      "imports": [
+        "app.infrastructure.database.mcp_contact_import_models",
+        "app.infrastructure.database.mcp_contact_import_models.MCPContactImportUploadModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.WhatsAppBroadcastGroupModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository"
+      ]
+    },
+    "app/application/mcp/contact_uploads.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Bounded immutable agency-scoped workbook staging reuses malware and private storage adapters, rechecks current upload grant and agency before persistence, and audits only fixed metadata.",
+      "imports": [
+        "app.infrastructure.database.mcp_contact_import_models",
+        "app.infrastructure.database.mcp_contact_import_models.MCPContactImportUploadModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.AgencyModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository",
+        "app.infrastructure.security.contact_spreadsheet_security",
+        "app.infrastructure.security.contact_spreadsheet_security.ContactSpreadsheetSecurity",
+        "app.infrastructure.security.contact_spreadsheet_security.MAX_BYTES",
+        "app.infrastructure.security.contact_spreadsheet_security.XLSX_MEDIA",
+        "app.infrastructure.security.upload_security",
+        "app.infrastructure.security.upload_security.UploadSecurityContext",
+        "app.infrastructure.storage.mcp_artifact_storage",
+        "app.infrastructure.storage.mcp_artifact_storage.MCPArtifactStorage"
+      ]
+    },
+    "app/application/mcp/content_reads.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Bounded GC and notification observations reuse application availability and receipt projections; personal email reads preserve immutable mailbox ownership, omit credentials and audit explicit text selection.",
+      "imports": [
+        "app.infrastructure.database.email_models",
+        "app.infrastructure.database.email_models.EmailConnectionModel",
+        "app.infrastructure.database.email_models.EmailMessageModel",
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+        "app.infrastructure.database.gc_mobile_models.GCItineraryVersionModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository",
+        "app.infrastructure.repositories.mcp_content_read_repository",
+        "app.infrastructure.repositories.mcp_content_read_repository.MCPContentReadRepository"
+      ]
+    },
+    "app/application/mcp/diagnostics.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Bounded retained diagnostic projections compose fixed read repositories and mounted allowlisted log tails; arbitrary paths, queries, exception bodies and credentials cannot cross the adapter.",
+      "imports": [
+        "app.infrastructure.observability.mcp_log_reader",
+        "app.infrastructure.observability.mcp_log_reader.LOG_SOURCES",
+        "app.infrastructure.observability.mcp_log_reader.MountedMCPLogReader",
+        "app.infrastructure.repositories.mcp_diagnostic_repository",
+        "app.infrastructure.repositories.mcp_diagnostic_repository.MCPDiagnosticRepository",
+        "app.infrastructure.repositories.user_repository",
+        "app.infrastructure.repositories.user_repository.UserRepository"
+      ]
+    },
+    "app/application/mcp/document_export_source.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Group-first locks and bounded exact-tenant document/passenger projections freeze canonical review sources; only bounded delivery status fields are read and no storage URL is generated.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.DistributedDocumentModel",
+        "app.infrastructure.database.models.DocumentWhatsAppDeliveryModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.documents.distribution_capacity",
+        "app.infrastructure.documents.distribution_capacity.MAX_DISTRIBUTION_ASSIGNMENT_ROWS_PER_SCOPE"
+      ]
+    },
+    "app/application/mcp/document_export_workbook.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "The shared canonical document workbook builder receives pure review rows with cell/serialized/output bounds; native generation is drained on cancellation while admission remains held.",
+      "imports": [
+        "app.infrastructure.documents.storage_transfers",
+        "app.infrastructure.documents.storage_transfers.run_bounded_storage_operations",
+        "app.infrastructure.export.document_assignment_excel_exporter",
+        "app.infrastructure.export.document_assignment_excel_exporter._excel_text",
+        "app.infrastructure.export.document_assignment_excel_exporter.build_document_assignment_workbook",
+        "app.infrastructure.export.workbook_capacity",
+        "app.infrastructure.export.workbook_capacity.WorkbookCapacityError"
+      ]
+    },
+    "app/application/mcp/document_exports.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable operation and group-owned artifact adapters preserve document source authority and snapshot revisions through preparation and verified download; no document assignment or delivery state is mutated.",
+      "imports": [
+        "app.infrastructure.database.mcp_operation_models",
+        "app.infrastructure.database.mcp_operation_models.MCPOperationModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.export.workbook_capacity",
+        "app.infrastructure.export.workbook_capacity.WorkbookCapacityError"
+      ]
+    },
+    "app/application/mcp/document_reads.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Bounded document/job metadata uses the same tenant, taxonomy, approval-provenance and operational-roster predicates as the application; no storage URLs or raw processing errors are returned.",
+      "imports": [
+        "app.infrastructure.documents.document_approval_provenance",
+        "app.infrastructure.documents.document_approval_provenance.has_manual_document_type_approval",
+        "app.infrastructure.processing.job_state",
+        "app.infrastructure.processing.job_state.ProcessingJobStatus",
+        "app.infrastructure.repositories.client_group_repository",
+        "app.infrastructure.repositories.client_group_repository.ClientGroupRepository",
+        "app.infrastructure.repositories.mcp_document_read_repository",
+        "app.infrastructure.repositories.mcp_document_read_repository.MCPDocumentReadRepository",
+        "app.infrastructure.repositories.sensitive_read_audit",
+        "app.infrastructure.repositories.sensitive_read_audit.record_sensitive_read",
+        "app.infrastructure.repositories.user_repository",
+        "app.infrastructure.repositories.user_repository.UserRepository"
+      ]
+    },
+    "app/application/mcp/excel_source_admission.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Database-side byte and scalar-ID admission locks every retained canonical Excel source family before complete ORM values can enter the API process.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.AgencyModel",
+        "app.infrastructure.database.models.ClientGroupWhatsAppBroadcastLinkModel",
+        "app.infrastructure.database.models.PassportExportHistoryModel",
+        "app.infrastructure.database.models.PassportRosterResolutionModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.database.models.WhatsAppBroadcastGroupModel",
+        "app.infrastructure.database.models.WhatsAppBroadcastRecipientModel",
+        "app.infrastructure.database.passport_ecr_models",
+        "app.infrastructure.database.passport_ecr_models.PassportEcrCheckModel"
+      ]
+    },
+    "app/application/mcp/exports.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Committed database-only preparation and exact current grant/group revisions use reviewed repositories; shared container admission precedes materialization and optional bounded workbook generation/delivery preserves existing history.",
+      "imports": [
+        "app.infrastructure.database.mcp_operation_models",
+        "app.infrastructure.database.mcp_operation_models.MCPOperationModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.export.workbook_capacity",
+        "app.infrastructure.export.workbook_capacity.WorkbookCapacityError",
+        "app.infrastructure.repositories.client_group_repository",
+        "app.infrastructure.repositories.client_group_repository.ClientGroupRepository",
+        "app.infrastructure.repositories.operational_roster",
+        "app.infrastructure.repositories.operational_roster.operational_roster_member",
+        "app.infrastructure.repositories.passport_export_history_repository",
+        "app.infrastructure.repositories.passport_export_history_repository.PassportExportHistoryRepository",
+        "app.infrastructure.repositories.passport_submission_repository",
+        "app.infrastructure.repositories.passport_submission_repository.PassportSubmissionRepository"
+      ]
+    },
+    "app/application/mcp/gc_push_drafts.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current live agency authority wraps the shared flush-only authored-draft creator in durable idempotency; no prior draft, notification, recipient or device rows are changed.",
+      "imports": [
+        "app.infrastructure.database.gc_notification_models",
+        "app.infrastructure.database.gc_notification_models.GCNotificationDraftModel"
+      ]
+    },
+    "app/application/mcp/gc_push_intents.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current agency/original-grant and exact draft/source revision authorize a shared authored notification enqueue, atomically binding durable MCP dispatch origins with unchanged replay receipts.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePushDeliveryModel",
+        "app.infrastructure.database.gc_notification_models",
+        "app.infrastructure.database.gc_notification_models.GCNotificationRecipientModel",
+        "app.infrastructure.database.mcp_gc_push_models",
+        "app.infrastructure.database.mcp_gc_push_models.MCPGCPushOriginModel",
+        "app.infrastructure.database.mcp_gc_push_models.MCPGCPushPlanModel"
+      ]
+    },
+    "app/application/mcp/gc_push_progress.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Read canonical retained batch/device receipts and update only mutable operation observations with nonwaiting locks; accepted, delivered, failed and unknown stay distinct.",
+      "imports": [
+        "app.infrastructure.database.gc_notification_models",
+        "app.infrastructure.database.gc_notification_models.GCNotificationBatchModel",
+        "app.infrastructure.database.mcp_gc_push_models",
+        "app.infrastructure.database.mcp_gc_push_models.MCPGCPushOriginModel",
+        "app.infrastructure.database.mcp_operation_models",
+        "app.infrastructure.database.mcp_operation_models.MCPOperationModel"
+      ]
+    },
+    "app/application/mcp/gc_push_snapshots.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Bounded exact agency draft, selected groups, recipient grants and device registrations form a hash-bound privacy-safe communication preview using canonical authored audience policies.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePassengerIdentityModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePushRegistrationModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.AgencyModel",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.database.models.UserModel"
+      ]
+    },
+    "app/application/mcp/group_changes.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Group creation uses the established use case and platform policy in the durable caller-owned transaction; no membership replacement, source import or outbound messaging occurs.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.AgencyModel",
+        "app.infrastructure.database.models.UserModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository",
+        "app.infrastructure.repositories.client_group_repository",
+        "app.infrastructure.repositories.client_group_repository.ClientGroupRepository",
+        "app.infrastructure.repositories.platform_policy_repository",
+        "app.infrastructure.repositories.platform_policy_repository.PlatformPolicyRepository"
+      ]
+    },
+    "app/application/mcp/group_reads.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current identity and bounded tenant/group discovery reuse repository projections with signed keysets and distinct roster counts in the caller-owned read transaction.",
+      "imports": [
+        "app.infrastructure.repositories.mcp_group_read_repository",
+        "app.infrastructure.repositories.mcp_group_read_repository.MCPGroupReadRepository",
+        "app.infrastructure.repositories.user_repository",
+        "app.infrastructure.repositories.user_repository.UserRepository"
+      ]
+    },
+    "app/application/mcp/image_exports.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Revision-fenced immutable current-image ZIP generation uses canonical rendering, bounded and cancellation-drained storage, protected artifacts, and verified-delivery history.",
+      "imports": [
+        "app.infrastructure.database.mcp_operation_models",
+        "app.infrastructure.database.mcp_operation_models.MCPOperationModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.PassportImageCropModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.documents.storage_transfers",
+        "app.infrastructure.documents.storage_transfers.run_bounded_storage_operations",
+        "app.infrastructure.export.passport_image_zip_exporter",
+        "app.infrastructure.export.passport_image_zip_exporter.PassportImageZipExporter",
+        "app.infrastructure.export.passport_image_zip_exporter.safe_download_filename",
+        "app.infrastructure.repositories.client_group_repository",
+        "app.infrastructure.repositories.client_group_repository.ClientGroupRepository",
+        "app.infrastructure.repositories.passport_export_history_repository",
+        "app.infrastructure.repositories.passport_export_history_repository.PassportExportHistoryRepository",
+        "app.infrastructure.storage.mcp_image_export_storage",
+        "app.infrastructure.storage.mcp_image_export_storage.MAX_IMAGE_ARCHIVE_BYTES",
+        "app.infrastructure.storage.mcp_image_export_storage.MAX_IMAGE_SOURCE_BYTES",
+        "app.infrastructure.storage.mcp_image_export_storage.MCPImageExportStorage",
+        "app.infrastructure.storage.minio_repository",
+        "app.infrastructure.storage.minio_repository.MinioStorageRepository"
+      ]
+    },
+    "app/application/mcp/itinerary_changes.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Revision-fenced creation persists a retained itinerary draft with current scope checks and business audit; no publication or notification side effect.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.GCItineraryVersionModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository"
+      ]
+    },
+    "app/application/mcp/office_changes.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Shared menu and rooming creation uses current scope through change_context and writes business audit within the durable operation transaction.",
+      "imports": [
+        "app.infrastructure.database.menu_models",
+        "app.infrastructure.database.menu_models.MealPlanModel",
+        "app.infrastructure.database.menu_models.MenuCategoryModel",
+        "app.infrastructure.database.menu_models.MenuDishModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.RoomingHotelModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository"
+      ]
+    },
+    "app/application/mcp/operations.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Durable idempotency and exact saved receipts require database uniqueness, row locks and caller-owned commit; registered callbacks may flush but cannot commit or dispatch providers.",
+      "imports": [
+        "app.infrastructure.database.mcp_models",
+        "app.infrastructure.database.mcp_models.MCPTokenModel",
+        "app.infrastructure.database.mcp_operation_models",
+        "app.infrastructure.database.mcp_operation_models.MCPOperationModel"
+      ]
+    },
+    "app/application/mcp/operations_reads.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Bounded retained tour, rooming, menu and organization projections share established group policy and roster predicates; reading historical assignments does not create physical attendance evidence.",
+      "imports": [
+        "app.infrastructure.database.menu_models",
+        "app.infrastructure.database.menu_models.MealPlanModel",
+        "app.infrastructure.database.menu_models.MenuCategoryModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.AttendanceSessionModel",
+        "app.infrastructure.database.models.RoomingHotelModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository",
+        "app.infrastructure.repositories.mcp_operations_read_repository",
+        "app.infrastructure.repositories.mcp_operations_read_repository.MCPOperationsReadRepository"
+      ]
+    },
+    "app/application/mcp/pdf_ingestion.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "DB-only ingestion claims precede bounded canonical scanning/parsing and private copying; final scope/revision and operation locks precede draft persistence, with current-authority replay and compensation only of newly copied objects.",
+      "imports": [
+        "app.infrastructure.database.mcp_artifact_models",
+        "app.infrastructure.database.mcp_artifact_models.MCPArtifactModel",
+        "app.infrastructure.database.mcp_operation_models",
+        "app.infrastructure.database.mcp_operation_models.MCPOperationModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.AgencyModel",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.DocumentDistributionBatchModel",
+        "app.infrastructure.database.models.DocumentUploadChunkModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.documents.distribution_ingestion",
+        "app.infrastructure.documents.distribution_ingestion.TravelDocumentFile",
+        "app.infrastructure.documents.distribution_ingestion.TravelDocumentIngestionResult",
+        "app.infrastructure.documents.distribution_ingestion.TravelDocumentIngestionService",
+        "app.infrastructure.documents.document_matcher",
+        "app.infrastructure.documents.document_matcher.DocumentMatcher",
+        "app.infrastructure.documents.document_matcher.PassengerIdentifier",
+        "app.infrastructure.documents.pdf_parser_sandbox",
+        "app.infrastructure.documents.pdf_parser_sandbox.bounded_pdf_batch_timeout_seconds",
+        "app.infrastructure.documents.storage_transfers",
+        "app.infrastructure.documents.storage_transfers.finish_cleanup_despite_cancellation",
+        "app.infrastructure.documents.storage_transfers.run_bounded_storage_operations",
+        "app.infrastructure.documents.verification_staging",
+        "app.infrastructure.documents.verification_staging.verification_scope_fingerprints",
+        "app.infrastructure.security.upload_security",
+        "app.infrastructure.security.upload_security.UploadSecurityContext",
+        "app.infrastructure.security.upload_security.UploadSecurityService",
+        "app.infrastructure.storage.minio_repository",
+        "app.infrastructure.storage.minio_repository.MinioStorageRepository"
+      ]
+    },
+    "app/application/mcp/read_context.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Shared current-actor, group and agency authorization composes bounded repository reads in the caller-owned transaction; signed paging uses a creation cutoff and explicitly does not promise a mutable snapshot.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.AgencyModel",
+        "app.infrastructure.database.models.UserModel",
+        "app.infrastructure.repositories.client_group_repository",
+        "app.infrastructure.repositories.client_group_repository.ClientGroupRepository",
+        "app.infrastructure.repositories.user_repository",
+        "app.infrastructure.repositories.user_repository.UserRepository"
+      ]
+    },
+    "app/application/mcp/rooming_export_source.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Bounded exact group/hotel/roster/room/check-in and optional linked priority source locks preserve complete revisions without mutating physical-event or allocation evidence.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.ClientGroupWhatsAppBroadcastLinkModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.database.models.RoomingAssignmentModel",
+        "app.infrastructure.database.models.RoomingCheckinModel",
+        "app.infrastructure.database.models.RoomingHotelModel",
+        "app.infrastructure.database.models.RoomingHotelPassengerModel",
+        "app.infrastructure.database.models.RoomingPassengerPreferenceModel",
+        "app.infrastructure.database.models.RoomingRoomModel",
+        "app.infrastructure.database.models.WhatsAppBroadcastGroupModel",
+        "app.infrastructure.database.models.WhatsAppBroadcastRecipientModel"
+      ]
+    },
+    "app/application/mcp/rooming_exports.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current export authority and exact hotel/group scope fence durable queued operations and protected historical workbook delivery through reviewed transaction adapters.",
+      "imports": [
+        "app.infrastructure.database.mcp_operation_models",
+        "app.infrastructure.database.mcp_operation_models.MCPOperationModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.RoomingHotelModel"
+      ]
+    },
+    "app/application/mcp/roster_reads.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "The MCP projection reuses the website prepared-roster service, office visibility and sensitive-read audit in the caller-owned transaction; cursor revision changes require restart.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.passports.roster_view_service",
+        "app.infrastructure.passports.roster_view_service.prepared_roster",
+        "app.infrastructure.repositories.passport_submission_view_repository",
+        "app.infrastructure.repositories.passport_submission_view_repository.PassportSubmissionViewRepository",
+        "app.infrastructure.repositories.sensitive_read_audit",
+        "app.infrastructure.repositories.sensitive_read_audit.record_sensitive_read",
+        "app.infrastructure.repositories.user_repository",
+        "app.infrastructure.repositories.user_repository.UserRepository"
+      ]
+    },
+    "app/application/mcp/tour_changes.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Add-only coordinator memberships and canonical attendance preparation use locked current scope and audit; existing histories and scan records remain retained.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.AttendanceSessionModel",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.CoordinatorGroupAssignmentModel",
+        "app.infrastructure.database.models.UserModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository"
+      ]
+    },
+    "app/application/mcp/tracking_export_source.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Bounded group/broadcast/source row locks preserve the canonical tracking inputs and serialize current revisions without mutating tracking or message data.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupWhatsAppBroadcastLinkModel",
+        "app.infrastructure.database.models.PassportRosterResolutionModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.database.models.WhatsAppBroadcastGroupModel",
+        "app.infrastructure.database.models.WhatsAppBroadcastRecipientModel",
+        "app.infrastructure.repositories.passport_submission_repository",
+        "app.infrastructure.repositories.passport_submission_repository.PassportSubmissionRepository"
+      ]
+    },
+    "app/application/mcp/tracking_exports.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current export grant, exact original group and linked selection, durable queued operation locks, and protected immutable workbook delivery use reviewed transaction adapters.",
+      "imports": [
+        "app.infrastructure.database.mcp_operation_models",
+        "app.infrastructure.database.mcp_operation_models.MCPOperationModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.repositories.client_group_repository",
+        "app.infrastructure.repositories.client_group_repository.ClientGroupRepository"
+      ]
+    },
+    "app/application/mcp/whatsapp_intents.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Exact communication plans and retained progress observations share the durable transaction; evidence refresh never calls a provider.",
+      "imports": [
+        "app.infrastructure.database.mcp_communication_models",
+        "app.infrastructure.database.mcp_communication_models.MCPWhatsAppOutboxModel",
+        "app.infrastructure.database.mcp_communication_models.MCPWhatsAppPlanModel",
+        "app.infrastructure.whatsapp.mcp_progress",
+        "app.infrastructure.whatsapp.mcp_progress.refresh_mcp_dispatch_progress",
+        "app.infrastructure.whatsapp.publication",
+        "app.infrastructure.whatsapp.publication.fail_unclaimed_broadcast_rows"
+      ]
+    },
+    "app/application/mcp/whatsapp_media_access.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Grant-specific header locators recheck live dual capabilities and tenant/broadcast scope, lock upload attempts before observation, and allow explicit ready-only same-actor recovery without provider reupload.",
+      "imports": [
+        "app.infrastructure.database.mcp_whatsapp_media_models",
+        "app.infrastructure.database.mcp_whatsapp_media_models.MCPWhatsAppHeaderAccessModel",
+        "app.infrastructure.database.mcp_whatsapp_media_models.MCPWhatsAppHeaderMediaModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.AgencyModel",
+        "app.infrastructure.database.models.WhatsAppBroadcastGroupModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository"
+      ]
+    },
+    "app/application/mcp/whatsapp_media_uploads.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Bounded scanned original/normalized image staging persists an idempotent upload claim before the provider call; original authority and row locks preserve the receipt, and ambiguous outcomes never repeat the upload automatically.",
+      "imports": [
+        "app.infrastructure.database.mcp_whatsapp_media_models",
+        "app.infrastructure.database.mcp_whatsapp_media_models.MCPWhatsAppHeaderAccessModel",
+        "app.infrastructure.database.mcp_whatsapp_media_models.MCPWhatsAppHeaderMediaModel",
+        "app.infrastructure.documents.storage_transfers",
+        "app.infrastructure.documents.storage_transfers.run_bounded_storage_operations",
+        "app.infrastructure.security.upload_security",
+        "app.infrastructure.security.upload_security.UploadSecurityContext",
+        "app.infrastructure.security.upload_security.UploadSecurityService",
+        "app.infrastructure.storage.mcp_artifact_storage",
+        "app.infrastructure.storage.mcp_artifact_storage.MCPArtifactStorage",
+        "app.infrastructure.whatsapp.cloud_api_provider",
+        "app.infrastructure.whatsapp.cloud_api_provider.WhatsAppCloudApiError",
+        "app.infrastructure.whatsapp.cloud_api_provider.upload_whatsapp_image"
+      ]
+    },
+    "app/application/mcp/whatsapp_reads.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Bounded scoped audience and batch projections reuse durable WhatsApp records and exact delivery-state rules; contact details require explicit selection and sensitive-read audit.",
+      "imports": [
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository",
+        "app.infrastructure.repositories.mcp_whatsapp_read_repository",
+        "app.infrastructure.repositories.mcp_whatsapp_read_repository.MCPWhatsAppReadRepository",
+        "app.infrastructure.repositories.user_repository",
+        "app.infrastructure.repositories.user_repository.UserRepository"
+      ]
+    },
     "app/application/mobile/announcement_notification_status.py": {
       "owner": "repository maintainers",
       "review_by": "2026-12-31",
@@ -156,6 +845,27 @@
         "app.infrastructure.security.mobile_integrity_challenges.MobileIntegrityChallengeStore",
         "app.infrastructure.security.mobile_integrity_providers",
         "app.infrastructure.security.mobile_integrity_providers.MobileIntegrityProviderRegistry"
+      ]
+    },
+    "app/application/mobile/mcp_push_guard.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Native sender retains original authority, exact plan and frozen device guards through bounded provider handoff after durable claim commit; one origin per wave and denied unsent attempts preserve accepted or unknown history.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+        "app.infrastructure.database.gc_mobile_models.MobileDeviceSessionModel",
+        "app.infrastructure.database.gc_mobile_models.MobileNotificationModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePushDeliveryModel",
+        "app.infrastructure.database.gc_mobile_models.MobilePushRegistrationModel",
+        "app.infrastructure.database.gc_notification_models",
+        "app.infrastructure.database.gc_notification_models.GCNotificationRecipientModel",
+        "app.infrastructure.database.mcp_gc_push_models",
+        "app.infrastructure.database.mcp_gc_push_models.MCPGCPushOriginModel",
+        "app.infrastructure.database.mcp_gc_push_models.MCPGCPushPlanModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.AgencyModel",
+        "app.infrastructure.database.models.ClientGroupModel"
       ]
     },
     "app/application/mobile/mobile_push_payload.py": {
@@ -448,6 +1158,17 @@
         "app.infrastructure.repositories.refresh_token_repository.RefreshTokenRepository"
       ]
     },
+    "app/application/use_cases/client_groups/group_access.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Canonical assignable and owned-group predicates are shared by website and MCP; bounded missing assignment insertion only flushes within the caller-owned transaction.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.ManagerGroupAccessModel",
+        "app.infrastructure.database.models.UserModel"
+      ]
+    },
     "app/application/use_cases/email_integrations/matching.py": {
       "owner": "repository maintainers",
       "review_by": "2026-12-31",
@@ -470,6 +1191,59 @@
         "app.infrastructure.database.models.AgencyModel"
       ]
     },
+    "app/application/use_cases/gc_app/create_announcement.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Shared flush-only announcement insertion appends a version and advances its access revision without changing, retiring or deleting any prior version; callers retain transaction and authorization ownership.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.GCAnnouncementModel",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel"
+      ]
+    },
+    "app/application/use_cases/gc_app/create_itinerary.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Shared flush-only itinerary version construction uses the caller-held scope/revision lock and retains every earlier version.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+        "app.infrastructure.database.gc_mobile_models.GCItineraryDayModel",
+        "app.infrastructure.database.gc_mobile_models.GCItineraryItemModel",
+        "app.infrastructure.database.gc_mobile_models.GCItineraryVersionModel"
+      ]
+    },
+    "app/application/use_cases/menu/create_menu.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Shared flush-only category, dish and new meal-plan insertion preserves every existing plan and requires source category revisions.",
+      "imports": [
+        "app.infrastructure.database.menu_models",
+        "app.infrastructure.database.menu_models.MealPlanEntryModel",
+        "app.infrastructure.database.menu_models.MealPlanModel",
+        "app.infrastructure.database.menu_models.MenuCategoryModel",
+        "app.infrastructure.database.menu_models.MenuDishModel"
+      ]
+    },
+    "app/application/use_cases/passports/client_details_transaction.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Shared website/MCP flush-only correction composes authorization, revision, roster locks, private-delivery protection, audit and mobile propagation in the caller transaction with explicit cancellation policy.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository",
+        "app.infrastructure.repositories.client_group_repository",
+        "app.infrastructure.repositories.client_group_repository.ClientGroupRepository",
+        "app.infrastructure.repositories.passport_roster_resolution_repository",
+        "app.infrastructure.repositories.passport_roster_resolution_repository.lock_linked_whatsapp_broadcast_groups",
+        "app.infrastructure.repositories.passport_submission_repository",
+        "app.infrastructure.repositories.passport_submission_repository.PassportSubmissionRepository",
+        "app.infrastructure.whatsapp.private_delivery_policy",
+        "app.infrastructure.whatsapp.private_delivery_policy.prepare_private_delivery_identity_mutation"
+      ]
+    },
     "app/application/use_cases/passports/client_submit_passport_use_case.py": {
       "owner": "repository maintainers",
       "review_by": "2026-12-31",
@@ -477,6 +1251,43 @@
       "imports": [
         "app.infrastructure.processing.job_repository",
         "app.infrastructure.processing.job_repository.PassportProcessingJobRepository"
+      ]
+    },
+    "app/application/use_cases/passports/complete_export_delivery.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Shared web/MCP receipt completion validates the retained exact export checkpoint and advances history only in the caller-owned transaction after delivery evidence.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.PassportExportHistoryModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository",
+        "app.infrastructure.repositories.passport_export_history_repository",
+        "app.infrastructure.repositories.passport_export_history_repository.validated_export_people_snapshot"
+      ]
+    },
+    "app/application/use_cases/passports/prepare_group_excel.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Shared web/MCP group preparation freezes render inputs using fixed application dependencies and the established exporter; no history or storage mutations occur during preparation.",
+      "imports": [
+        "app.infrastructure.documents.storage_transfers",
+        "app.infrastructure.documents.storage_transfers.run_bounded_storage_operations",
+        "app.infrastructure.export.passport_excel_exporter",
+        "app.infrastructure.export.passport_excel_exporter.PassportExcelExporter",
+        "app.infrastructure.repositories.passport_export_history_repository",
+        "app.infrastructure.repositories.passport_export_history_repository.PassportExportMode"
+      ]
+    },
+    "app/application/use_cases/passports/prepare_image_export.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Shared database-only image selection and naming snapshot uses the canonical ZIP exporter and existing history mode type through explicit adapters.",
+      "imports": [
+        "app.infrastructure.export.passport_image_zip_exporter",
+        "app.infrastructure.export.passport_image_zip_exporter.PassportImageZipExporter",
+        "app.infrastructure.repositories.passport_export_history_repository",
+        "app.infrastructure.repositories.passport_export_history_repository.PassportExportMode"
       ]
     },
     "app/application/use_cases/passports/process_passport_submission_job_use_case.py": {
@@ -534,6 +1345,33 @@
         "app.infrastructure.observability.operational_events",
         "app.infrastructure.observability.operational_events.OperationalEvent",
         "app.infrastructure.observability.operational_events.record_operational_event"
+      ]
+    },
+    "app/application/use_cases/rooming/create_hotel.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Shared flush-only hotel insertion has no room deletion, selection replacement or allocation effects.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.RoomingHotelModel"
+      ]
+    },
+    "app/application/use_cases/rooming/prepare_excel.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Shared canonical rooming and check-in workbook preparation reads current allocation inputs and detaches exporter arguments; the bounded native renderer drains before cancellation releases capacity.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.database.models.RoomingAssignmentModel",
+        "app.infrastructure.database.models.RoomingHotelModel",
+        "app.infrastructure.database.models.RoomingHotelPassengerModel",
+        "app.infrastructure.database.models.RoomingRoomModel",
+        "app.infrastructure.documents.storage_transfers",
+        "app.infrastructure.documents.storage_transfers.run_bounded_storage_operations",
+        "app.infrastructure.export.rooming_excel_exporter",
+        "app.infrastructure.export.rooming_excel_exporter.RoomingExcelExporter"
       ]
     }
   }

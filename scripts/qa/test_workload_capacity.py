@@ -26,6 +26,7 @@ def observation(seconds, *, pending=0, queues=None):
         "database_connections": 30,
         "database_max_connections": 100,
         "backend_cgroup_memory_bytes": 1024**3,
+        "backend_memory_events": {"oom": 0, "oom_kill": 0},
     }
 
 
@@ -93,6 +94,10 @@ class WorkloadGateTests(unittest.TestCase):
         self.samples["expected"] += [
             sample("upload", cohort="public_upload", status=201) for _ in range(4)
         ]
+        for stage, seconds in (("expected", 60), ("recovery", 30)):
+            for cohort in ("mcp_large_group", "mcp_small_group"):
+                self.samples[stage] += [sample("mcp_roster" if index % 2 else "mcp_groups", cohort=cohort) for index in range(seconds)]
+                self.samples[stage].append(sample("mcp_export", cohort=cohort))
         self.windows = {
             name: {
                 "started_at": instant(start),
@@ -179,6 +184,21 @@ class WorkloadGateTests(unittest.TestCase):
     def test_candidate_api_memory_ceiling_is_not_the_earlier_larger_cap(self):
         self.metrics[4]["backend_cgroup_memory_bytes"] = API_MEMORY_BYTES + 1
         self.assertIn("backend_memory_budget", self.failures())
+
+    def test_website_success_cannot_hide_missing_mcp_workload(self):
+        self.samples["expected"] = [row for row in self.samples["expected"] if not row["operation"].startswith("mcp_")]
+        self.assertIn("expected:mcp_large_group:mcp_roster:missing_or_invalid", self.failures())
+
+    def test_mcp_large_export_latency_is_not_hidden_by_small_group(self):
+        row = next(row for row in self.samples["expected"] if row["operation"] == "mcp_export" and row["cohort"] == "mcp_large_group")
+        row["milliseconds"] = 30001
+        self.assertIn("expected:mcp_large_group:mcp_export:latency_budget", self.failures())
+
+    def test_missing_or_incremented_oom_evidence_fails(self):
+        self.metrics[4]["backend_memory_events"]["oom"] = 1
+        self.assertIn("mcp:oom_event_during_workload", self.failures())
+        del self.metrics[4]["backend_memory_events"]
+        self.assertIn("mcp:missing_oom_evidence", self.failures())
 
 
 class BackpressureContractTests(unittest.IsolatedAsyncioTestCase):

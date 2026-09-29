@@ -8,15 +8,21 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from app.application.dtos.whatsapp_contact_dtos import (
+    WhatsAppContactRejectionCode as WhatsAppContactRejectionCode,
+)
+from app.application.dtos.whatsapp_contact_dtos import (
+    WhatsAppRecipientInput as WhatsAppRecipientInput,
+)
+from app.application.dtos.whatsapp_contact_dtos import (
+    WhatsAppRejectedContactInput as WhatsAppRejectedContactInput,
+)
+from app.application.dtos.whatsapp_contact_dtos import (
+    WhatsAppSupportContactInput as WhatsAppSupportContactInput,
+)
 from app.application.use_cases.whatsapp.recipient_capacity import (
     MAX_WHATSAPP_RECIPIENTS,
 )
-
-
-class WhatsAppRecipientInput(BaseModel):
-    name: str | None = None
-    phone_number: str = Field(min_length=6, max_length=64)
-    imported_fields: dict[str, str] = Field(default_factory=dict)
 
 
 class WhatsAppMatchingFieldOption(BaseModel):
@@ -30,14 +36,6 @@ class WhatsAppContactPreviewRecipient(BaseModel):
     name: str = Field(min_length=1, max_length=100)
     phone_number: str = Field(min_length=9, max_length=16)
     imported_fields: dict[str, str] = Field(default_factory=dict)
-
-
-WhatsAppContactRejectionCode = Literal[
-    "missing_phone",
-    "invalid_phone",
-    "missing_name",
-    "duplicate_phone",
-]
 
 
 class WhatsAppContactPreviewRejectedRow(BaseModel):
@@ -59,16 +57,6 @@ class WhatsAppContactPreviewResponse(BaseModel):
     rejected_rows_truncated: bool
     omitted_rejected_count: int
     available_matching_fields: list[WhatsAppMatchingFieldOption] = Field(default_factory=list)
-
-
-class WhatsAppRejectedContactInput(BaseModel):
-    source_file_name: str = Field(min_length=1, max_length=255)
-    sheet_name: str = Field(min_length=1, max_length=31)
-    row_number: int = Field(ge=1, le=1_048_576)
-    raw_name: str | None = Field(default=None, max_length=256)
-    raw_phone_number: str | None = Field(default=None, max_length=64)
-    imported_fields: dict[str, str] = Field(default_factory=dict)
-    reason_code: WhatsAppContactRejectionCode
 
 
 class WhatsAppRejectedContactResponse(BaseModel):
@@ -95,11 +83,6 @@ class WhatsAppRejectedContactResolveRequest(BaseModel):
     name: str = Field(min_length=1, max_length=100)
     phone_number: str = Field(min_length=1, max_length=64)
     recipient_opt_in_confirmed: bool
-
-
-class WhatsAppSupportContactInput(BaseModel):
-    name: str = Field(min_length=1, max_length=100)
-    phone_number: str = Field(min_length=6, max_length=64)
 
 
 class WhatsAppMergedContactResponse(BaseModel):

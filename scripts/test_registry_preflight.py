@@ -228,6 +228,7 @@ class PromotionFlowTests(unittest.TestCase):
             "revision": REVISION,
             "dependency_policy_sha256": "reviewed",
             "images": {},
+            "deployment": artifacts.source_contract(artifacts.ROOT),
         }
         for name in artifacts.IMAGES:
             config = {
@@ -316,7 +317,7 @@ class PromotionFlowTests(unittest.TestCase):
                 "release_artifacts.registry_tag_exists", return_value=exists
             ) as preflight,
         ):
-            result = artifacts.promote(self.directory, REVISION, "0111_roster_revision")
+            result = artifacts.promote(self.directory, REVISION, self.qualified["deployment"]["target_schema"])
         self.assertEqual(preflight.call_count, 2)
         return result
 
@@ -369,9 +370,9 @@ class PromotionFlowTests(unittest.TestCase):
                 "release_artifacts.registry_tag_exists",
                 side_effect=ValueError("authorization denied"),
             ),
-            self.assertRaises(ValueError),
+            self.assertRaisesRegex(ValueError, "authorization denied"),
         ):
-            artifacts.promote(self.directory, REVISION, "0111_roster_revision")
+            artifacts.promote(self.directory, REVISION, self.qualified["deployment"]["target_schema"])
         self.assertFalse(
             any(
                 command[:2] in {("docker", "push"), ("docker", "tag")}

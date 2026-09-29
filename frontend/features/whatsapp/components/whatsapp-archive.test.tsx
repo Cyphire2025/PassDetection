@@ -76,18 +76,19 @@ describe("WhatsApp archive workspace", () => {
       ],
     });
     renderWorkspace(records[0]);
-    expect(await screen.findByRole("button", { name: /Travellers/ })).toHaveAttribute("aria-current", "page");
+    fireEvent.click(await screen.findByRole("button", { name: /Travellers/ }));
+    expect(screen.getByRole("button", { name: /Travellers/ })).toHaveAttribute("aria-current", "page");
     expect(await screen.findByText("Traveller A")).toBeInTheDocument();
     expect(screen.getByText("Traveller B")).toBeInTheDocument();
     expect(screen.getByText("Traveller C")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Delivery numbers/ })).toHaveTextContent("1");
-    fireEvent.click(screen.getByRole("button", { name: /Delivery numbers/ }));
+    expect(screen.getByRole("button", { name: /Recipient list/ })).toHaveTextContent("1");
+    fireEvent.click(screen.getByRole("button", { name: /Recipient list/ }));
     // The delivery row retains all travellers behind the shared-number disclosure.
     expect(screen.getByText("Traveller B")).not.toBeVisible();
     fireEvent.click(screen.getByText("2 travellers · shared number"));
     expect(screen.getByText("Traveller B")).toBeVisible();
     expect(screen.getAllByRole("checkbox", { name: /^Select Passenger A$/ })).toHaveLength(1);
-    expect(screen.getByRole("button", { name: /Delivery numbers/ })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("button", { name: /Recipient list/ })).toHaveAttribute("aria-current", "page");
     roster.mockRestore();
   });
   it("starts collapsed and retains the chosen expansion while searching", async () => {

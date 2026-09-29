@@ -1,4 +1,5 @@
 import apiClient from "@/lib/api/client";
+import type { WhatsAppSendIntent } from "../utils/normal-send-intent";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import type {
   RecipientImportPreview,
@@ -687,6 +688,7 @@ export const whatsappApi = {
   uploadWelcomeImage,
 
   sendWelcome: async (
+    intent: WhatsAppSendIntent,
     groupId: string,
     messageContent: string,
     image: File | null,
@@ -694,18 +696,18 @@ export const whatsappApi = {
     recipientIds: string[] | null = null,
   ): Promise<WhatsAppSendResponse> => {
     const resolvedHeaderImageId = image
-      ? (await uploadWelcomeImage(groupId, image)).media_id
+      ? await intent.resolveImage(async () => (await uploadWelcomeImage(groupId, image)).media_id)
       : headerImageId;
-    const { data } = await apiClient.post<WhatsAppSendResponse>(API_ENDPOINTS.whatsapp.send(groupId), {
+    return postNormalSend(intent, groupId, {
       message_type: "welcome",
       message_content: messageContent,
       header_image_id: resolvedHeaderImageId,
       recipient_ids: recipientIds,
     });
-    return data;
   },
 
   sendPassportLink: async (
+    intent: WhatsAppSendIntent,
     groupId: string,
     passportIntro: string,
     passportLink: string,
@@ -716,9 +718,9 @@ export const whatsappApi = {
     supportContactIds: string[] | null = null,
   ): Promise<WhatsAppSendResponse> => {
     const resolvedHeaderImageId = image
-      ? (await uploadWelcomeImage(groupId, image)).media_id
+      ? await intent.resolveImage(async () => (await uploadWelcomeImage(groupId, image)).media_id)
       : headerImageId;
-    const { data } = await apiClient.post<WhatsAppSendResponse>(API_ENDPOINTS.whatsapp.send(groupId), {
+    return postNormalSend(intent, groupId, {
       message_type: "passport_link",
       passport_intro: passportIntro,
       passport_link: passportLink,
@@ -727,18 +729,17 @@ export const whatsappApi = {
       recipient_ids: recipientIds,
       support_contact_ids: supportContactIds,
     });
-    return data;
   },
 
   sendReminder: async (
+    intent: WhatsAppSendIntent,
     groupId: string,
     messageContent: string,
     recipientIds: string[] | null = null,
     audience: WhatsAppReminderAudience = "all",
     audienceClientGroupId: string | null = null,
   ): Promise<WhatsAppSendResponse> => {
-    const { data } = await apiClient.post<WhatsAppSendResponse>(
-      API_ENDPOINTS.whatsapp.send(groupId),
+    return postNormalSend(intent, groupId,
       {
         message_type: "reminder",
         message_content: messageContent,
@@ -747,10 +748,10 @@ export const whatsappApi = {
         audience_client_group_id: audienceClientGroupId,
       },
     );
-    return data;
   },
 
-  sendGroupInvite: async ({ groupId, messageContent, groupInviteLink, recipientIds, image, headerImageId }: {
+  sendGroupInvite: async ({ intent, groupId, messageContent, groupInviteLink, recipientIds, image, headerImageId }: {
+    intent: WhatsAppSendIntent;
     groupId: string;
     messageContent: string;
     groupInviteLink: string;
@@ -759,14 +760,13 @@ export const whatsappApi = {
     headerImageId: string | null;
   }): Promise<WhatsAppSendResponse> => {
     const resolvedHeaderImageId = image
-      ? (await uploadWelcomeImage(groupId, image)).media_id
+      ? await intent.resolveImage(async () => (await uploadWelcomeImage(groupId, image)).media_id)
       : headerImageId;
-    const { data } = await apiClient.post<WhatsAppSendResponse>(API_ENDPOINTS.whatsapp.send(groupId), {
+    return postNormalSend(intent, groupId, {
       message_type: "group_invite", message_content: messageContent,
       group_invite_link: groupInviteLink, recipient_ids: recipientIds,
       header_image_id: resolvedHeaderImageId,
     });
-    return data;
   },
 
   batchStatus: async (batchId: string): Promise<WhatsAppSendResponse> => {
@@ -784,3 +784,12 @@ export const whatsappApi = {
     return data;
   },
 };
+
+
+async function postNormalSend(intent: WhatsAppSendIntent, groupId: string, payload: Record<string, unknown>): Promise<WhatsAppSendResponse> {
+  await intent.bind(groupId, payload);
+  const { data } = await apiClient.post<WhatsAppSendResponse>(API_ENDPOINTS.whatsapp.send(groupId), payload, {
+    headers: { "Idempotency-Key": intent.key },
+  });
+  return data;
+}

@@ -12,6 +12,7 @@ import { MessageComposerSection, MessageDeliveryPreview } from "./whatsapp-messa
 import { RecipientBulkComposerAudience } from "./whatsapp-bulk-composer-audience";
 import { GroupInvitePhotoPicker, useGroupInviteImage } from "./whatsapp-group-invite-image";
 import { PreviewRecipientPicker } from "./whatsapp-preview-recipient-picker";
+import { useNormalSendRecovery } from "./whatsapp-send-recovery";
 import type { MessagePreviewDialogProps, MessagePreviewSendPayload } from "./whatsapp-message-preview-dialog";
 
 export function GroupInvitePreviewDialog({ group, targetRecipient, bulkRecipients, hiddenSelectedCount = 0, isSending, onClose, onSend }: MessagePreviewDialogProps) {
@@ -29,6 +30,7 @@ export function GroupInvitePreviewDialog({ group, targetRecipient, bulkRecipient
   const [checkedKey, setCheckedKey] = useState<string | null>(null);
   const [retryNonce, setRetryNonce] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const normalSendRecovery = useNormalSendRecovery(setError);
   const [submitting, setSubmitting] = useState(false);
   const [recovery, setRecovery] = useState<{ key: string; payload: MessagePreviewSendPayload } | null>(null);
   const requestSequence = useRef(0);
@@ -107,6 +109,7 @@ export function GroupInvitePreviewDialog({ group, targetRecipient, bulkRecipient
       await onSend(payload);
       setRecovery(null);
     } catch (cause) {
+      normalSendRecovery.capture(cause);
       if (bulkMode) setRecovery({ key: draftKey, payload });
       setError(readErrorMessage(cause, "The group invite could not be submitted."));
     } finally {
@@ -174,6 +177,7 @@ export function GroupInvitePreviewDialog({ group, targetRecipient, bulkRecipient
             {needsReplacementPhoto && <ErrorBanner message={`${missingPhotoCount} selected recipient${missingPhotoCount === 1 ? " has" : "s have"} no saved invitation photo. Choose a replacement photo before resending.`} />}
             {!previewCurrent && !error && <p role="status" className="text-sm text-slate-500">Updating message preview. Sending will be available after this version has been checked.</p>}
             {error && <ErrorBanner message={error} />}
+            {normalSendRecovery.notice}
             {error && !previewCurrent && <Button type="button" variant="secondary" onClick={() => { setError(null); setRetryNonce((value) => value + 1); }}>Retry preview</Button>}
             {recoverable && <p role="status" className="text-sm text-amber-800">The last resend has not been confirmed. Check the same request safely without sending it twice.</p>}
           </div>

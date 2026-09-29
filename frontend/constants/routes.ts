@@ -69,6 +69,8 @@ export const ROUTES = {
     gcAppNotifications: "/gc-app/notifications",
     gcAppGroup: (groupId: string) => `/gc-app/app-controls/${encodeURIComponent(groupId)}` as const,
     admin: "/admin",
+    mcp: "/admin/mcp",
+    mcpConnect: "/admin/mcp/connect",
     staff: "/staff",
     analytics: "/analytics",
     auditLogs: "/audit-logs",

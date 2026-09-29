@@ -27,6 +27,17 @@ function user(
 }
 
 describe("typed route capability map", () => {
+  it("reserves MCP management and consent deep links for active superadmins", () => {
+    for (const path of [ROUTES.dashboard.mcp, ROUTES.dashboard.mcpConnect]) {
+      expect(resolveRouteCapability(path)).toBe("mcp.manage");
+      expect(canAccessApplicationPath(user("super_admin"), path)).toBe(true);
+      for (const role of ["agency_admin", "agency_manager", "agency_staff", "agency_coordinator"] as const) {
+        expect(canAccessApplicationPath(user(role), path)).toBe(false);
+      }
+      expect(canAccessApplicationPath(user("super_admin", { is_active: false }), path)).toBe(false);
+      expect(canAccessApplicationPath(null, path)).toBe(false);
+    }
+  });
   it("uses the most-specific policy for coordinator administration deep links", () => {
     const deepLink = `${ROUTES.dashboard.tourOperationsCoordinators}/new`;
 

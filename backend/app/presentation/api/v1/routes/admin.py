@@ -23,6 +23,10 @@ from app.application.security.destructive_mutation_policy import (
     DestructiveOwnedGroupsMutation,
     record_destructive_failure,
 )
+from app.application.use_cases.client_groups.group_access import (
+    assignable_group_predicates,
+    explicit_access_group_ids,
+)
 from app.core.logging.logger import get_logger
 from app.core.security.password import hash_password, run_password_work
 from app.domain.entities.entities import (
@@ -542,7 +546,7 @@ async def assign_staff_groups(
     current_user: User = Depends(require_role([UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER])),
     session: AsyncSession = Depends(get_db_session),
 ) -> ManagerResponse:
-    staff_result = await session.execute(select(UserModel).where(UserModel.id == staff_id, *_staff_scope(current_user)))
+    staff_result = await session.execute(select(UserModel).where(UserModel.id == staff_id, *_staff_scope(current_user)).with_for_update().execution_options(populate_existing=True))
     staff = staff_result.scalar_one_or_none()
     if not staff:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Staff account was not found")
@@ -554,15 +558,15 @@ async def assign_staff_groups(
         groups_result = await session.execute(
             select(ClientGroupModel).where(
                 ClientGroupModel.id.in_(group_ids),
-                ClientGroupModel.agency_id == staff.agency_id,
-                ClientGroupModel.status.notin_(REMOVED_GROUP_STATUSES),
+                *assignable_group_predicates(staff.agency_id),
             )
         )
         valid_groups = list(groups_result.scalars().all())
         valid_group_ids = {group.id for group in valid_groups}
         if valid_group_ids != set(group_ids):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="One or more groups are not assignable to this staff member")
-        group_ids = [group_id for group_id in group_ids if not any(group.id == group_id and group.created_by_user_id == staff.id for group in valid_groups)]
+        explicit_ids = set(explicit_access_group_ids(valid_groups, staff.id))
+        group_ids = [group_id for group_id in group_ids if group_id in explicit_ids]
 
     await session.execute(delete(ManagerGroupAccessModel).where(ManagerGroupAccessModel.manager_id == staff.id))
     for group_id in group_ids:
@@ -590,7 +594,7 @@ async def assign_manager_groups(
     current_user: User = Depends(require_role([UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN])),
     session: AsyncSession = Depends(get_db_session),
 ) -> ManagerResponse:
-    manager_result = await session.execute(select(UserModel).where(UserModel.id == manager_id, *_manager_scope(current_user)))
+    manager_result = await session.execute(select(UserModel).where(UserModel.id == manager_id, *_manager_scope(current_user)).with_for_update().execution_options(populate_existing=True))
     manager = manager_result.scalar_one_or_none()
     if not manager:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Manager was not found")
@@ -602,15 +606,15 @@ async def assign_manager_groups(
         groups_result = await session.execute(
             select(ClientGroupModel).where(
                 ClientGroupModel.id.in_(group_ids),
-                ClientGroupModel.agency_id == manager.agency_id,
-                ClientGroupModel.status.notin_(REMOVED_GROUP_STATUSES),
+                *assignable_group_predicates(manager.agency_id),
             )
         )
         valid_groups = list(groups_result.scalars().all())
         valid_group_ids = {group.id for group in valid_groups}
         if valid_group_ids != set(group_ids):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="One or more groups are not assignable to this manager")
-        group_ids = [group_id for group_id in group_ids if not any(group.id == group_id and group.created_by_user_id == manager.id for group in valid_groups)]
+        explicit_ids = set(explicit_access_group_ids(valid_groups, manager.id))
+        group_ids = [group_id for group_id in group_ids if group_id in explicit_ids]
 
     await session.execute(delete(ManagerGroupAccessModel).where(ManagerGroupAccessModel.manager_id == manager.id))
     for group_id in group_ids:

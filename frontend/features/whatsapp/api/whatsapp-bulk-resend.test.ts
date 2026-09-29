@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const { post } = vi.hoisted(() => ({ post: vi.fn() }));
 vi.mock("@/lib/api/client", () => ({ default: { post } }));
 import { whatsappApi } from "./whatsapp.api";
+import { WhatsAppSendIntent } from "../utils/normal-send-intent";
 
 describe("selected recipient resend API", () => {
   beforeEach(() => post.mockReset());
@@ -154,6 +155,7 @@ describe("recipient import and reminder audience API contracts", () => {
   it("sends the reviewed not-submitted audience against one explicit linked group", async () => {
     post.mockResolvedValue({ data: { queued: 2 } });
     await whatsappApi.sendReminder(
+      new WhatsAppSendIntent("reviewed-reminder-request-1"),
       "broadcast-a",
       "Please submit your passport details today.",
       null,
@@ -170,6 +172,7 @@ describe("recipient import and reminder audience API contracts", () => {
         audience: "not_submitted",
         audience_client_group_id: "client-group-a",
       },
+      { headers: { "Idempotency-Key": "reviewed-reminder-request-1" } },
     );
   });
 });

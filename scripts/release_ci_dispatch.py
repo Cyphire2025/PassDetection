@@ -28,6 +28,7 @@ REQUIRED_JOBS = frozenset({
     "Backend - PostgreSQL, Redis, Private S3 & Celery",
     "Backend - Populated PostgreSQL Restore & Upgrade", "Frontend — Lint & Type Check",
     "Frontend - Browser Journeys", "Docker — Build Verification",
+    "MCP Connector — Windows Tests & Wheel",
     "Promote qualified image digests and signed inventory",
 })
 

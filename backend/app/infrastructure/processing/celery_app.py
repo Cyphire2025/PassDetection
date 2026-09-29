@@ -61,6 +61,8 @@ WHATSAPP_QR_BROADCAST_TASK = "whatsapp.process_qr_broadcast"
 WHATSAPP_TRAVELLER_WELCOME_TASK = "whatsapp.process_traveller_welcome_broadcast"
 WHATSAPP_WELCOME_RECOVERY_TASK = "whatsapp.recover_stale_welcomes"
 WHATSAPP_RECEIPT_RECONCILIATION_TASK = "whatsapp.reconcile_receipts"
+MCP_WHATSAPP_PUBLICATION_TASK = "mcp.publish_whatsapp_intents"
+WHATSAPP_SEND_PUBLICATION_TASK = "whatsapp.publish_send_intents"
 
 # A task-specific provider timeout remains the first line of defence. These
 # worker envelopes are the final process-level circuit breaker for bugs,
@@ -134,6 +136,8 @@ celery_app.conf.update(
         WHATSAPP_TRAVELLER_WELCOME_TASK: {"queue": "whatsapp"},
         WHATSAPP_WELCOME_RECOVERY_TASK: {"queue": "whatsapp"},
         WHATSAPP_RECEIPT_RECONCILIATION_TASK: {"queue": "whatsapp"},
+        MCP_WHATSAPP_PUBLICATION_TASK: {"queue": "whatsapp"},
+        WHATSAPP_SEND_PUBLICATION_TASK: {"queue": "whatsapp"},
         MOBILE_PUSH_COUNTDOWN_TASK: {"queue": "passport_ocr"},
         MOBILE_PUSH_DISPATCH_TASK: {"queue": "passport_ocr"},
         MOBILE_PUSH_RECEIPT_TASK: {"queue": "passport_ocr"},
@@ -274,6 +278,16 @@ celery_app.conf.update(
     timezone="UTC",
     enable_utc=True,
     beat_schedule={
+        "publish-whatsapp-send-intents": {
+            "task": WHATSAPP_SEND_PUBLICATION_TASK,
+            "schedule": 60.0,
+            "options": {"queue": "whatsapp", "expires": 60},
+        },
+        "publish-mcp-whatsapp-intents": {
+            "task": MCP_WHATSAPP_PUBLICATION_TASK,
+            "schedule": 60.0,
+            "options": {"queue": "whatsapp", "expires": 60},
+        },
         "recover-passport-ecr-checks": {
             "task": PASSPORT_ECR_RECOVERY_TASK,
             "schedule": 60.0,

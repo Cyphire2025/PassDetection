@@ -37,7 +37,7 @@ def configure_logging() -> None:
     # even in debug builds. Application delivery logs use bounded identifiers.
     for noisy in (
         "uvicorn.access", "sqlalchemy.engine", "boto3", "botocore",
-        "httpx", "httpcore", "hpack",
+        "httpx", "httpcore", "httpx2", "httpcore2", "hpack",
     ):
         logging.getLogger(noisy).setLevel(logging.WARNING)
 

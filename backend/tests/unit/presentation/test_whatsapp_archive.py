@@ -18,6 +18,7 @@ from app.domain.entities.entities import User, UserRole
 from app.infrastructure.database.models import (
     AgencyModel,
     UserModel,
+    UserSecurityStateModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
     WhatsAppMessageLogModel,
@@ -82,6 +83,7 @@ async def _fixture(session: AsyncSession):
                 hashed_password="unused",
                 role=actor.role.value,
             ),
+            UserSecurityStateModel(user_id=actor.id, session_version=actor.session_version, credential_state="active"),
             group,
             other,
             recipient,
@@ -181,7 +183,8 @@ async def test_archived_lists_reject_send_resend_and_roster_edits(db_session):
         assert (await client.post(f"{path}/archive")).status_code == 200
         await db_session.commit()
         responses = [
-            await client.post(f"{path}/send", json={"message_type": "welcome"}),
+            await client.post(f"{path}/send", json={"message_type": "welcome"},
+                headers={"Idempotency-Key": "archive-boundary-send-001"}),
             await client.post(
                 f"{path}/recipients/{recipient.id}/resend", json={"message_type": "welcome"}
             ),
@@ -212,7 +215,10 @@ async def test_archived_lists_reject_send_resend_and_roster_edits(db_session):
 
 
 @pytest.mark.asyncio
-async def test_worker_rechecks_archive_before_loading_or_sending_recipient():
+async def test_worker_rechecks_archive_before_loading_or_sending_recipient(monkeypatch):
+    # This test isolates archive policy after the separately tested MCP origin gate.
+    origin_guard = AsyncMock(return_value=None)
+    monkeypatch.setattr("app.infrastructure.whatsapp.worker_runtime.authorize_mcp_batch_dispatch", origin_guard)
     result = SimpleNamespace(
         scalar_one_or_none=lambda: SimpleNamespace(archived_at=datetime.now(tz=UTC))
     )
@@ -225,3 +231,4 @@ async def test_worker_rechecks_archive_before_loading_or_sending_recipient():
     assert recipient is None
     assert "archived" in reason
     assert session.execute.await_count == 1
+    origin_guard.assert_awaited_once()

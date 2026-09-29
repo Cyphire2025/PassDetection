@@ -22,6 +22,7 @@ from pydantic import Field, SecretStr, computed_field, field_validator, model_va
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine import URL
 
+from app.core.config.mcp import MCPSettings
 from app.core.config.mobile_settings import MobileSettings as MobileSettings
 from app.core.config.release_contract import SCHEMA_REVISION
 from app.core.security.mobile_offline_lease import (
@@ -799,6 +800,7 @@ class Settings(BaseSettings):
     app_name: str = "Global Connects Dashboard"
 
     api_v1_prefix: str = "/api/v1"
+    mcp: MCPSettings = Field(default_factory=MCPSettings)
     backend_port: int = 8000
     # These counts are consumed by runtime commands and by the PostgreSQL
     # deployment-budget validator. Raising concurrency therefore cannot
@@ -1573,6 +1575,19 @@ class Settings(BaseSettings):
                 "EMAIL_AI_LEASE_SECONDS must cover two bounded analysis "
                 "attempts plus a 30-second safety margin"
             )
+        return self
+
+    @model_validator(mode="after")
+    def validate_mcp_deployment(self) -> Self:
+        if self.mcp.enabled and self.app_env != "development":
+            if "enabled_capabilities" not in self.mcp.model_fields_set:
+                raise ValueError("Enabled MCP requires explicit rollout capabilities in staging/production")
+            if any(urlsplit(origin).scheme != "https" for origin in (
+                self.mcp.public_origin, self.mcp.frontend_origin,
+            )):
+                raise ValueError("Enabled MCP in staging/production requires HTTPS origins")
+            if self.mcp.frontend_origin not in self.allowed_origins:
+                raise ValueError("MCP frontend origin must be an approved dashboard origin")
         return self
 
     @property

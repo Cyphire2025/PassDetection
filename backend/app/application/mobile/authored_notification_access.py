@@ -14,6 +14,7 @@ from app.application.mobile.authored_notification_audience import (
     AudienceGrant,
     collect_notification_audience,
 )
+from app.application.mobile.notification_errors import NotificationWorkflowError
 from app.core.config.settings import get_settings
 from app.infrastructure.database.gc_mobile_models import (
     MobileDeviceSessionModel,
@@ -102,6 +103,9 @@ async def retain_authorized_authored_notifications(
 ) -> list[MobileNotificationModel]:
     result = [item for item in notifications if item.notification_type != "gc_alert"]
     authored = [item for item in notifications if item.notification_type == "gc_alert"]
+    from app.application.mobile.mcp_push_guard import block_unsent, origins
+
+    mcp_origins = await origins(session, authored)
     for agency_id in {item.agency_id for item in authored}:
         scoped = [item for item in authored if item.agency_id == agency_id]
         grants = await current_authored_grants(
@@ -122,6 +126,9 @@ async def retain_authorized_authored_notifications(
             )
             if allowed and item.notification_type == "gc_alert":
                 result.append(item)
+                continue
+            if item.id in mcp_origins:
+                await block_unsent(session, item, now=now)
                 continue
             item.status = "cancelled"
             item.failure_code = "recipient_access_revoked"
@@ -149,6 +156,7 @@ async def registrations_for_grants(
     provider_name: str,
     now: datetime,
     target_keys: dict[tuple[str, ...], set[str]] | None = None,
+    max_source_rows: int | None = None,
 ) -> dict[str, list[MobilePushRegistrationModel]]:
     """Each registration must have a current exact original principal/session grant."""
     if not grants:
@@ -169,48 +177,50 @@ async def registrations_for_grants(
             )
             .exists()
         )
-        rows = (
-            await session.execute(
-                select(MobilePushRegistrationModel, MobileDeviceSessionModel)
-                .options(undefer(MobilePushRegistrationModel.token_ciphertext))
-                .join(
-                    MobileDeviceSessionModel,
-                    and_(
-                        MobileDeviceSessionModel.id == MobilePushRegistrationModel.session_id,
-                        MobileDeviceSessionModel.agency_id == MobilePushRegistrationModel.agency_id,
-                    ),
-                )
-                .where(
-                    MobilePushRegistrationModel.agency_id == agency_id,
-                    MobilePushRegistrationModel.provider == provider_name,
-                    MobilePushRegistrationModel.platform
-                    == ("ios" if provider_name == "apns" else "android"),
-                    MobilePushRegistrationModel.environment
-                    == ("production" if get_settings().is_production else "development"),
-                    MobilePushRegistrationModel.app_bundle_id
-                    == "com.globalconnects.groupcompanion",
-                    MobilePushRegistrationModel.status == "active",
-                    MobilePushRegistrationModel.notifications_authorized.is_(True),
-                    MobileDeviceSessionModel.status == "active",
-                    MobileDeviceSessionModel.revoked_at.is_(None),
-                    MobileDeviceSessionModel.expires_at > now,
-                    or_(
-                        and_(MobileDeviceSessionModel.subject_role == "passenger", binding_exists),
-                        and_(
-                            MobileDeviceSessionModel.subject_role.in_(
-                                ("client_manager", "coordinator")
-                            ),
-                            MobileDeviceSessionModel.user_id.in_(page),
-                        ),
-                    ),
-                )
-                .order_by(
-                    MobilePushRegistrationModel.last_registered_at.desc(),
-                    MobilePushRegistrationModel.id,
-                )
-                .execution_options(populate_existing=True)
+        statement = (
+            select(MobilePushRegistrationModel, MobileDeviceSessionModel)
+            .options(undefer(MobilePushRegistrationModel.token_ciphertext))
+            .join(
+                MobileDeviceSessionModel,
+                and_(
+                    MobileDeviceSessionModel.id == MobilePushRegistrationModel.session_id,
+                    MobileDeviceSessionModel.agency_id == MobilePushRegistrationModel.agency_id,
+                ),
             )
-        ).all()
+            .where(
+                MobilePushRegistrationModel.agency_id == agency_id,
+                MobilePushRegistrationModel.provider == provider_name,
+                MobilePushRegistrationModel.platform
+                == ("ios" if provider_name == "apns" else "android"),
+                MobilePushRegistrationModel.environment
+                == ("production" if get_settings().is_production else "development"),
+                MobilePushRegistrationModel.app_bundle_id == "com.globalconnects.groupcompanion",
+                MobilePushRegistrationModel.status == "active",
+                MobilePushRegistrationModel.notifications_authorized.is_(True),
+                MobileDeviceSessionModel.status == "active",
+                MobileDeviceSessionModel.revoked_at.is_(None),
+                MobileDeviceSessionModel.expires_at > now,
+                or_(
+                    and_(MobileDeviceSessionModel.subject_role == "passenger", binding_exists),
+                    and_(
+                        MobileDeviceSessionModel.subject_role.in_(
+                            ("client_manager", "coordinator")
+                        ),
+                        MobileDeviceSessionModel.user_id.in_(page),
+                    ),
+                ),
+            )
+            .order_by(
+                MobilePushRegistrationModel.last_registered_at.desc(),
+                MobilePushRegistrationModel.id,
+            )
+            .execution_options(populate_existing=True)
+        )
+        if max_source_rows is not None:
+            statement = statement.limit(max_source_rows + 1)
+        rows = (await session.execute(statement)).all()
+        if max_source_rows is not None and len(rows) > max_source_rows:
+            raise NotificationWorkflowError("invalid", "audience_limit_exceeded")
         bindings = await _session_bindings(session, agency_id, [device.id for _, device in rows])
         for registration, device in rows:
             if provider_name == "apns" and registration.apns_environment not in {
@@ -314,7 +324,10 @@ async def load_authored_recipient_registrations(
                 result[authored_notification_recipient_key(item)] = registrations.get(
                     str(item.authored_recipient_id), []
                 )
-    return await _exclude_rotated_installation_attempts(session, notifications, result)
+    from app.application.mobile.mcp_push_guard import frozen_registrations
+
+    result = await _exclude_rotated_installation_attempts(session, notifications, result)
+    return await frozen_registrations(session, notifications, result)
 
 
 async def _exclude_rotated_installation_attempts(

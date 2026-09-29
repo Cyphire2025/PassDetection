@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import io
 import uuid
 from typing import Literal
@@ -13,10 +12,18 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
+from app.application.use_cases.passports.prepare_group_excel import (
+    ExcelPreparationError,
+    ExcelPreparationSupport,
+    prepare_group_excel,
+)
+from app.application.use_cases.passports.prepare_tracking_excel import (
+    TrackingExcelSupport,
+    prepare_tracking_excel,
+)
 from app.domain.entities.entities import User
 from app.domain.exceptions.exceptions import AuthorizationError
 from app.infrastructure.database.session import get_db_session
-from app.infrastructure.export.passport_excel_exporter import PassportExcelExporter
 from app.infrastructure.export.passport_image_zip_exporter import PassportImageZipExporter
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
@@ -65,6 +72,33 @@ from .export_context import (
 from .response_support import _owner_scope_for
 
 router = APIRouter()
+
+def group_excel_support() -> ExcelPreparationSupport:
+    """Code-owned dependencies shared with MCP; never supplied by a request."""
+    return ExcelPreparationSupport(
+        _current_group_export_submissions=_current_group_export_submissions,
+        _resolve_group_export_payload=_resolve_group_export_payload,
+        _owner_scope_for=_owner_scope_for,
+        _export_whatsapp_match_rows=_export_whatsapp_match_rows,
+        _export_field_catalog=_export_field_catalog,
+        _export_agency_match_field_catalog=_export_agency_match_field_catalog,
+        _agency_match_export_field=_agency_match_export_field,
+        _resolve_export_group_by=_resolve_export_group_by,
+        _international_airport_is_enabled=_international_airport_is_enabled,
+        _export_agency_matches=_export_agency_matches,
+        _AgencyExportMatches=_AgencyExportMatches,
+        _export_effective_whatsapp_matches=_export_effective_whatsapp_matches,
+        _pending_recipient_export_rows=_pending_recipient_export_rows,
+        _apply_pending_export_fields=_apply_pending_export_fields,
+        _export_additional_values=_export_additional_values,
+        _export_whatsapp_contacts=_export_whatsapp_contacts,
+        _export_zone_names_from_match_rows=_export_zone_names_from_match_rows,
+        _apply_agency_export_matches=_apply_agency_export_matches,
+        _group_export_details=_group_export_details,
+        export_passport_ecr_results=export_passport_ecr_results,
+        _export_people_snapshot=_export_people_snapshot,
+    )
+
 
 
 @router.get(
@@ -152,6 +186,13 @@ async def get_passport_group_export_fields(
     )
 
 
+def tracking_excel_support() -> TrackingExcelSupport:
+    return TrackingExcelSupport(
+        group_excel_support(), _whatsapp_tracking_export_rows,
+        _select_whatsapp_tracking_export_payload,
+    )
+
+
 @router.get(
     "/groups/{group_id}/whatsapp-tracking/export.xlsx",
     status_code=status.HTTP_200_OK,
@@ -210,73 +251,18 @@ async def export_whatsapp_tracking_by_group(
             ),
         )
 
-    linked_broadcasts, tracking_rows = await _whatsapp_tracking_export_rows(
-        session,
-        group=group,
-        submissions=submissions,
-    )
-    if not linked_broadcasts:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Link at least one WhatsApp broadcast before exporting tracking.",
+    try:
+        prepared = await prepare_tracking_excel(
+            session,
+            support=tracking_excel_support(),
+            group=group,
+            submissions=submissions,
+            tracking_status=tracking_status,
+            broadcast_id=broadcast_id,
         )
-    if broadcast_id is not None and broadcast_id not in linked_broadcasts:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="The selected WhatsApp broadcast is not linked to this client group.",
-        )
-
-    selected_submissions, selected_rows = _select_whatsapp_tracking_export_payload(
-        submissions,
-        tracking_rows,
-        tracking_status=tracking_status,
-        broadcast_id=broadcast_id,
-    )
-    rows_by_group = {group.id: selected_rows}
-    catalog = _export_field_catalog(group, selected_rows, selected_submissions)
-    selected_fields = [field for field in catalog if field["selected_by_default"]]
-    selected_field_keys = [str(field["key"]) for field in selected_fields]
-    resolved_group_by = _resolve_export_group_by(None, selected_field_keys)
-    pending_rows = _pending_recipient_export_rows(
-        group=group,
-        rows=selected_rows,
-    )
-    if pending_rows:
-        _apply_pending_export_fields(
-            pending_rows,
-            selected_rows,
-            selected_fields,
-        )
-
-    group_details = {group.id: _group_export_details(group)}
-    ecr_results = await export_passport_ecr_results(
-        session, selected_submissions, agency_id=current_user.agency_id, group_details=group_details,
-    )
-    content = await asyncio.to_thread(
-        PassportExcelExporter().export_group,
-        selected_submissions,
-        group_name=group.name,
-        group_details=group_details,
-        ecr_results=ecr_results,
-        zone_names=_export_zone_names_from_match_rows(
-            selected_submissions,
-            rows_by_group,
-        ),
-        additional_fields=[
-            {"key": str(field["key"]), "label": str(field["label"])} for field in selected_fields
-        ],
-        additional_values=_export_additional_values(
-            selected_submissions,
-            rows_by_group,
-            selected_fields,
-        ),
-        whatsapp_contacts=_export_whatsapp_contacts(
-            selected_submissions,
-            rows_by_group,
-        ),
-        group_by_field=resolved_group_by,
-        pending_rows=pending_rows,
-    )
+    except ExcelPreparationError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
+    content = await prepared.render()
     await AuditLogRepository(session).record(
         action="passport_whatsapp_tracking_exported",
         entity_type="client_group",
@@ -287,8 +273,8 @@ async def export_whatsapp_tracking_by_group(
         metadata={
             "tracking_status": tracking_status,
             "broadcast_id": str(broadcast_id) if broadcast_id else None,
-            "submission_count": len(selected_submissions),
-            "pending_recipient_count": len(pending_rows),
+            "submission_count": len(prepared.submissions),
+            "pending_recipient_count": len(prepared.render_arguments["pending_rows"]),
             "workbook_bytes": len(content),
         },
     )
@@ -337,231 +323,33 @@ async def export_passports_by_group(
     except AuthorizationError as exc:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)
 
-    current_submissions = await _current_group_export_submissions(
-        session,
-        group_id=group_id,
-        agency_id=current_user.agency_id,
-        current_user=current_user,
-    )
     resolved_request_id = request_id or uuid.uuid4()
     await _require_new_export_request(
-        session,
-        group_id=group_id,
-        agency_id=current_user.agency_id,
-        export_kind="passport_excel",
-        request_id=resolved_request_id,
+        session, group_id=group_id, agency_id=current_user.agency_id,
+        export_kind="passport_excel", request_id=resolved_request_id,
         created_by_user_id=_owner_scope_for(current_user),
     )
-    submissions, baseline = await _resolve_group_export_payload(
-        session,
-        group_id=group_id,
-        agency_id=current_user.agency_id,
-        export_kind="passport_excel",
-        export_mode=export_mode,
-        baseline_export_id=baseline_export_id,
-        submissions=current_submissions,
-        created_by_user_id=_owner_scope_for(current_user),
-    )
-    match_rows_by_group = await _export_whatsapp_match_rows(
-        session,
-        current_submissions,
-        groups=[group],
-    )
-    catalog = _export_field_catalog(
-        group,
-        match_rows_by_group.get(group.id, []),
-        current_submissions,
-    )
-    catalog_by_key = {str(field["key"]): field for field in catalog}
-    requested_field_keys = (
-        list(dict.fromkeys(key.strip() for key in supplemental_fields.split(",") if key.strip()))
-        if supplemental_fields is not None
-        else [str(field["key"]) for field in catalog if field["selected_by_default"]]
-    )
-    unknown_fields = [key for key in requested_field_keys if key not in catalog_by_key]
-    if unknown_fields:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="One or more selected Excel fields are unavailable for this group.",
+    try:
+        prepared = await prepare_group_excel(
+            session, support=group_excel_support(), current_user=current_user,
+            agency_id=current_user.agency_id, group=group, export_mode=export_mode,
+            baseline_export_id=baseline_export_id, supplemental_fields=supplemental_fields,
+            group_by_field=group_by_field, agency_match_field=agency_match_field,
         )
-    resolved_agency_match_field = (
-        agency_match_field.strip() if agency_match_field and agency_match_field.strip() else None
-    )
-    agency_match_option: dict[str, str | bool] | None = None
-    if resolved_agency_match_field:
-        if not group.agency_dealership_name_enabled:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=(
-                    "Agency matching is available only when Agency/Dealership "
-                    "Name is enabled for the group."
-                ),
-            )
-        agency_match_catalog = _export_agency_match_field_catalog(
-            group,
-            match_rows_by_group.get(group.id, []),
-        )
-        agency_match_options = {str(field["key"]): field for field in agency_match_catalog}
-        agency_match_option = agency_match_options.get(resolved_agency_match_field)
-        if agency_match_option is None:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=(
-                    "The selected agency matching field is unavailable for "
-                    "this group's linked WhatsApp spreadsheets."
-                ),
-            )
-        # The matching field is automatic and must never be duplicated in the
-        # user-selected supplemental field list.
-        requested_field_keys = [
-            key for key in requested_field_keys if key != resolved_agency_match_field
-        ]
-    selected_fields = [catalog_by_key[key] for key in requested_field_keys]
-    export_fields = (
-        [_agency_match_export_field(agency_match_option), *selected_fields]
-        if agency_match_option is not None
-        else selected_fields
-    )
-    resolved_group_by = _resolve_export_group_by(
-        group_by_field,
-        requested_field_keys,
-    )
-    if resolved_group_by == resolved_agency_match_field:
-        resolved_group_by = None
-    if resolved_group_by == "international_airport" and not _international_airport_is_enabled(
-        group
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=(
-                "International Airport grouping is available only when the "
-                "group asks travellers for that field."
-            ),
-        )
-    if (
-        resolved_group_by
-        and resolved_group_by != "international_airport"
-        and resolved_group_by not in requested_field_keys
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=(
-                "The grouping field must be International Airport or an included WhatsApp field."
-            ),
-        )
-    agency_matches = (
-        _export_agency_matches(
-            submissions,
-            match_rows_by_group,
-            resolved_agency_match_field,
-        )
-        if resolved_agency_match_field
-        else _AgencyExportMatches({}, frozenset())
-    )
-    effective_matches = (
-        _export_effective_whatsapp_matches(
-            agency_matches,
-            match_rows_by_group,
-        )
-        if resolved_agency_match_field
-        else agency_matches
-    )
-    pending_rows = (
-        _pending_recipient_export_rows(
-            group=group,
-            rows=match_rows_by_group.get(group.id, []),
-            excluded_recipient_ids=effective_matches.matched_recipient_ids,
-            include_name_history=bool(resolved_agency_match_field),
-        )
-        if export_mode == "all"
-        else []
-    )
-    if pending_rows:
-        _apply_pending_export_fields(
-            pending_rows,
-            match_rows_by_group.get(group.id, []),
-            export_fields,
-            excluded_recipient_ids=effective_matches.matched_recipient_ids,
-        )
-    additional_values: dict[uuid.UUID, dict[str, str | None]]
-    whatsapp_contacts: dict[uuid.UUID, dict[str, str | None]]
-    zone_names: dict[uuid.UUID, str]
-    if resolved_agency_match_field:
-        # Each submission receives one coherent WhatsApp row: prefer the
-        # selected agency match, then fall back to its existing identity match.
-        additional_values = {submission.id: {} for submission in submissions}
-        whatsapp_contacts = {
-            submission.id: {"email": None, "phone": None} for submission in submissions
-        }
-        zone_names = {submission.id: "" for submission in submissions}
-    else:
-        additional_values = _export_additional_values(
-            submissions,
-            match_rows_by_group,
-            selected_fields,
-        )
-        whatsapp_contacts = _export_whatsapp_contacts(
-            submissions,
-            match_rows_by_group,
-        )
-        zone_names = _export_zone_names_from_match_rows(
-            submissions,
-            match_rows_by_group,
-        )
-    previous_names = (
-        _apply_agency_export_matches(
-            effective_matches,
-            selected_fields,
-            resolved_agency_match_field,
-            additional_values=additional_values,
-            whatsapp_contacts=whatsapp_contacts,
-            zone_names=zone_names,
-        )
-        if resolved_agency_match_field
-        else None
-    )
-    group_details = {group.id: _group_export_details(group)}
-    ecr_results = await export_passport_ecr_results(
-        session, submissions, agency_id=current_user.agency_id, group_details=group_details,
-    )
-    content = await asyncio.to_thread(
-        PassportExcelExporter().export_group,
-        submissions,
-        group_name=group.name,
-        group_details=group_details,
-        ecr_results=ecr_results,
-        zone_names=zone_names,
-        additional_fields=[
-            {"key": str(field["key"]), "label": str(field["label"])} for field in export_fields
-        ],
-        additional_values=additional_values,
-        whatsapp_contacts=whatsapp_contacts,
-        previous_names=previous_names,
-        group_by_field=resolved_group_by,
-        pending_rows=pending_rows,
-    )
+    except ExcelPreparationError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
+    content = await prepared.render()
     try:
         async with session.begin_nested():
             history = await PassportExportHistoryRepository(session).record(
-                group_id=group_id,
-                agency_id=current_user.agency_id,
-                export_kind="passport_excel",
-                export_mode=export_mode,
-                request_id=resolved_request_id,
-                baseline_export_id=baseline.id if baseline else None,
-                snapshot_submission_ids=[submission.id for submission in current_submissions],
-                exported_submission_ids=[submission.id for submission in submissions],
-                exported_people_snapshot=_export_people_snapshot(submissions),
-                pending_recipient_count=len(pending_rows),
-                artifact_metadata={
-                    "workbook_bytes": len(content),
-                    "supplemental_fields": requested_field_keys,
-                    "group_by_field": resolved_group_by,
-                    "agency_match_field": resolved_agency_match_field,
-                    "agency_matched_submission_count": len(agency_matches.rows_by_submission),
+                **{
+                    **prepared.history_fields,
+                    "artifact_metadata": {
+                        **prepared.history_fields["artifact_metadata"],
+                        "workbook_bytes": len(content),
+                    },
                 },
-                created_by_user_id=current_user.id,
-                actor_email=current_user.email,
+                request_id=resolved_request_id,
             )
     except IntegrityError as exc:
         raise HTTPException(

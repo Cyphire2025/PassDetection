@@ -10,7 +10,7 @@ async function json(route: Route, body: unknown, status = 200) {
   await route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
 }
 
-async function mockInviteApi(page: Page) {
+async function mockInviteApi(page: Page, loseFirstSend = false) {
   const staff = { id: "invite-staff", email: "invite@example.test", full_name: "Invite Test Staff", role: "agency_staff", agency_id: "invite-agency", is_active: true, capabilities: [] };
   const group: WhatsAppBroadcastGroupDetail = {
     id: "invite-broadcast", name: "September delegates", is_archived: false, archived_at: null,
@@ -26,6 +26,7 @@ async function mockInviteApi(page: Page) {
   };
   const previews: WhatsAppMessageDraft[] = [];
   const sends: WhatsAppMessageDraft[] = [];
+  const sendKeys: string[] = [];
   const uploads: string[] = [];
   const unexpectedMutations: string[] = [];
   await page.context().addCookies([{ name: "access_token", value: "e2e-session", domain: "127.0.0.1", path: "/", httpOnly: true, sameSite: "Lax" }]);
@@ -59,6 +60,8 @@ async function mockInviteApi(page: Page) {
     if (path === "/api/v1/whatsapp/groups/invite-broadcast/send" && request.method() === "POST") {
       const body = request.postDataJSON() as WhatsAppMessageDraft;
       sends.push(body);
+      sendKeys.push(request.headers()["idempotency-key"]);
+      if (loseFirstSend && sends.length === 1) return route.abort("failed");
       return json(route, { batch_id: "invite-batch", queued: body.recipient_ids?.length ?? 2, sent: 0, failed: 0, delivery_unknown: 0, skipped_already_sent: 0, skipped_in_progress: 0, skipped_delivery_unknown: 0, results: [] });
     }
     if (path === "/api/v1/whatsapp/activities/broadcast/invite-batch") return json(route, {
@@ -69,7 +72,7 @@ async function mockInviteApi(page: Page) {
     unexpectedMutations.push(`${request.method()} ${path}`);
     return json(route, { detail: "Unexpected API request in isolated invite test." }, 400);
   });
-  return { previews, sends, uploads, unexpectedMutations };
+  return { previews, sends, sendKeys, uploads, unexpectedMutations };
 }
 
 for (const viewport of [{ name: "desktop", width: 1440, height: 1080 }, { name: "mobile", width: 390, height: 844 }]) {
@@ -120,6 +123,7 @@ for (const viewport of [{ name: "desktop", width: 1440, height: 1080 }, { name: 
     await sendButton.click();
     await expect(dialog).toHaveCount(0);
     expect(api.sends).toHaveLength(1);
+    expect(api.sendKeys[0]).toMatch(/^[0-9a-f-]{36}$/);
     expect(api.sends[0]).toMatchObject({ message_type: "group_invite", message_content: "Join our September delegates group for the final travel schedule.", group_invite_link: inviteLink, header_image_id: "uploaded-invite-photo" });
     expect(api.uploads).toHaveLength(1);
     expect(api.uploads[0]).toContain("multipart/form-data");
@@ -128,3 +132,36 @@ for (const viewport of [{ name: "desktop", width: 1440, height: 1080 }, { name: 
     expect(pageErrors).toEqual([]);
   });
 }
+
+test("a lost group-invite receipt survives page reload with the same key, body and uploaded image", async ({ page }) => {
+  test.setTimeout(90_000);
+  const api = await mockInviteApi(page, true);
+  const imageBytes = await sharp({ create: { width: 64, height: 64, channels: 3, background: { r: 30, g: 140, b: 170 } } }).png().toBuffer();
+  const openReviewedInvite = async () => {
+    await page.getByRole("button", { name: "Open actions for September delegates" }).filter({ visible: true }).click();
+    await page.getByRole("button", { name: "Send group invite", exact: true }).click();
+    const dialog = page.getByRole("dialog", { name: "Send Group Invite" });
+    await dialog.getByRole("textbox", { name: "Invitation message", exact: true }).fill(inviteMessage);
+    await dialog.getByRole("textbox", { name: "WhatsApp group invite link", exact: true }).fill(inviteLink);
+    await dialog.locator('input[type="file"]').setInputFiles({ name: "invite.png", mimeType: "image/png", buffer: imageBytes });
+    const send = dialog.getByRole("button", { name: /^Send individually to/ });
+    await expect(send).toBeEnabled();
+    return { dialog, send };
+  };
+  await page.goto("/whatsapp");
+  const first = await openReviewedInvite();
+  await first.send.click();
+  await expect.poll(() => api.sends.length).toBe(1);
+  await expect(first.dialog.getByRole("alert")).toBeVisible();
+  await expect(first.send).toBeEnabled();
+  await page.reload();
+  const recovered = await openReviewedInvite();
+  await recovered.send.click();
+  await expect(recovered.dialog).toHaveCount(0);
+  expect(api.sends).toHaveLength(2);
+  expect(api.sends[1]).toEqual(api.sends[0]);
+  expect(api.sendKeys[0]).toMatch(/^[0-9a-f-]{36}$/);
+  expect(api.sendKeys[1]).toBe(api.sendKeys[0]);
+  expect(api.uploads).toHaveLength(1);
+  expect(api.unexpectedMutations).toEqual([]);
+});

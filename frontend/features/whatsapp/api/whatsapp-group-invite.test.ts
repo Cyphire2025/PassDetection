@@ -2,24 +2,27 @@ import { beforeEach, expect, it, vi } from "vitest";
 const { post } = vi.hoisted(() => ({ post: vi.fn() }));
 vi.mock("@/lib/api/client", () => ({ default: { post } }));
 import { whatsappApi } from "./whatsapp.api";
+import { WhatsAppSendIntent } from "../utils/normal-send-intent";
 beforeEach(() => { post.mockReset(); post.mockResolvedValue({ data: { queued: 1 } }); });
 const link = "https://chat.whatsapp.com/Invite123?mode=ac_t";
+const requestKey = "reviewed-invitation-request-1";
+const newIntent = () => new WhatsAppSendIntent(requestKey);
 
 it("sends the reviewed invitation image and audience", async () => {
-  await whatsappApi.sendGroupInvite({ groupId: "group", messageContent: "Join us.", groupInviteLink: link, recipientIds: ["A"], image: null, headerImageId: "invite-image" });
-  expect(post).toHaveBeenCalledExactlyOnceWith("/api/v1/whatsapp/groups/group/send", { message_type: "group_invite", message_content: "Join us.", group_invite_link: link, recipient_ids: ["A"], header_image_id: "invite-image" });
+  await whatsappApi.sendGroupInvite({ intent: newIntent(), groupId: "group", messageContent: "Join us.", groupInviteLink: link, recipientIds: ["A"], image: null, headerImageId: "invite-image" });
+  expect(post).toHaveBeenCalledExactlyOnceWith("/api/v1/whatsapp/groups/group/send", { message_type: "group_invite", message_content: "Join us.", group_invite_link: link, recipient_ids: ["A"], header_image_id: "invite-image" }, { headers: { "Idempotency-Key": requestKey } });
 });
 it("uploads a new invitation image before sending", async () => {
   post.mockResolvedValueOnce({ data: { media_id: "uploaded-image" } });
   const image = new File(["image bytes"], "invite.png", { type: "image/png" });
-  await whatsappApi.sendGroupInvite({ groupId: "group", messageContent: "Join us.", groupInviteLink: link, recipientIds: ["A"], image, headerImageId: "old-image" });
+  await whatsappApi.sendGroupInvite({ intent: newIntent(), groupId: "group", messageContent: "Join us.", groupInviteLink: link, recipientIds: ["A"], image, headerImageId: "old-image" });
   expect(post.mock.calls[0][0]).toBe("/api/v1/whatsapp/groups/group/welcome-media");
   expect((post.mock.calls[0][1] as FormData).get("image")).toBe(image);
   expect(post.mock.calls[1][1]).toMatchObject({ header_image_id: "uploaded-image", recipient_ids: ["A"] });
 });
 it("does not queue an invite when image upload fails", async () => {
   post.mockRejectedValueOnce(new Error("Upload failed"));
-  await expect(whatsappApi.sendGroupInvite({ groupId: "group", messageContent: "Join us.", groupInviteLink: link, recipientIds: ["A"], image: new File(["image"], "invite.png"), headerImageId: null })).rejects.toThrow("Upload failed");
+  await expect(whatsappApi.sendGroupInvite({ intent: newIntent(), groupId: "group", messageContent: "Join us.", groupInviteLink: link, recipientIds: ["A"], image: new File(["image"], "invite.png"), headerImageId: null })).rejects.toThrow("Upload failed");
   expect(post).toHaveBeenCalledTimes(1);
 });
 it("retries one invite with a replacement image and no unrelated passport fields", async () => {

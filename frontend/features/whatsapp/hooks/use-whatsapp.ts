@@ -1,3 +1,4 @@
+import { useNormalWhatsAppSend } from "./use-normal-send";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
   WhatsAppBroadcastGroupDetail,
@@ -13,6 +14,7 @@ import {
   shouldRetryWhatsAppBatchStatus,
   whatsappBatchHttpStatus,
   whatsappBatchPollInterval,
+  whatsappRecipientPollInterval,
 } from "../utils/batch-polling";
 
 export const WHATSAPP_QUERY_KEYS = {
@@ -71,20 +73,9 @@ export function useWhatsAppGroup(groupId: string | null) {
     queryFn: ({ signal }) => whatsappApi.group(groupId as string, signal),
     enabled: Boolean(groupId),
     refetchOnMount: "always",
-    refetchInterval: (query) => (
-      query.state.data?.recipients.some((recipient) =>
-        recipient.message_statuses.some(
-          (status) =>
-            status.resend_blocked
-            && (
-              status.latest_resend_status === "queued"
-              || status.latest_resend_status === "processing"
-            ),
-        ),
-      )
-        ? 2_000
-        : false
-    ),
+    refetchInterval: (query) => whatsappRecipientPollInterval(query.state.data?.recipients ?? []),
+    refetchOnWindowFocus: "always",
+    refetchOnReconnect: "always",
   });
 }
 
@@ -95,22 +86,11 @@ export function useWhatsAppRecipientRoster(groupId: string | null) {
       : ["whatsapp", "groups", "none", "recipient-roster"],
     queryFn: ({ signal }) => whatsappApi.recipientRoster(groupId as string, signal),
     enabled: Boolean(groupId),
-    refetchInterval: (query) => (
-      query.state.data?.items.some(
-        (item) =>
-          item.kind === "recipient"
-          && item.recipient.message_statuses.some(
-            (status) =>
-              status.resend_blocked
-              && (
-                status.latest_resend_status === "queued"
-                || status.latest_resend_status === "processing"
-              ),
-          ),
-      )
-        ? 2_000
-        : false
+    refetchInterval: (query) => whatsappRecipientPollInterval(
+      query.state.data?.items.flatMap((item) => item.kind === "recipient" ? [item.recipient] : []) ?? [],
     ),
+    refetchOnWindowFocus: "always",
+    refetchOnReconnect: "always",
   });
 }
 
@@ -384,9 +364,7 @@ export function usePreviewWhatsAppMessage() {
 }
 
 export function useSendWhatsAppWelcome() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({
+  return useNormalWhatsAppSend("welcome", ({
       groupId,
       messageContent,
       image,
@@ -398,23 +376,18 @@ export function useSendWhatsAppWelcome() {
       image: File | null;
       headerImageId: string | null;
       recipientIds: string[] | null;
-    }) => whatsappApi.sendWelcome(
+    }, intent) => whatsappApi.sendWelcome(
+      intent,
       groupId,
       messageContent,
       image,
       headerImageId,
       recipientIds,
-    ),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
-    },
-  });
+    ));
 }
 
 export function useSendWhatsAppReminder() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({
+  return useNormalWhatsAppSend("reminder", ({
       groupId,
       messageContent,
       recipientIds,
@@ -426,23 +399,18 @@ export function useSendWhatsAppReminder() {
       recipientIds: string[] | null;
       audience: WhatsAppReminderAudience;
       audienceClientGroupId: string | null;
-    }) => whatsappApi.sendReminder(
+    }, intent) => whatsappApi.sendReminder(
+      intent,
       groupId,
       messageContent,
       recipientIds,
       audience,
       audienceClientGroupId,
-    ),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
-    },
-  });
+    ));
 }
 
 export function useSendWhatsAppPassportLink() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({
+  return useNormalWhatsAppSend("passport_link", ({
       groupId,
       passportIntro,
       passportLink,
@@ -460,7 +428,8 @@ export function useSendWhatsAppPassportLink() {
       headerImageId: string | null;
       recipientIds: string[] | null;
       supportContactIds: string[] | null;
-    }) => whatsappApi.sendPassportLink(
+    }, intent) => whatsappApi.sendPassportLink(
+      intent,
       groupId,
       passportIntro,
       passportLink,
@@ -469,20 +438,10 @@ export function useSendWhatsAppPassportLink() {
       headerImageId,
       recipientIds,
       supportContactIds,
-    ),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
-    },
-  });
+    ));
 }
 
 export function useSendWhatsAppGroupInvite() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: whatsappApi.sendGroupInvite,
-    retry: false,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
-    },
-  });
+  return useNormalWhatsAppSend("group_invite", (variables: Omit<Parameters<typeof whatsappApi.sendGroupInvite>[0], "intent">, intent) =>
+    whatsappApi.sendGroupInvite({ ...variables, intent }));
 }

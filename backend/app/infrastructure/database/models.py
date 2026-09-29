@@ -460,6 +460,7 @@ class CoordinatorGroupAssignmentModel(Base):
             "coordinator_user_id",
             unique=True,
             postgresql_where=text("active = true"),
+            sqlite_where=text("active = true"),
         ),
     )
 

@@ -6,7 +6,7 @@ export const GroupWhatsAppBroadcastPanel = dynamic(
     import("./group-whatsapp-broadcast-panel").then(
       (module) => module.GroupWhatsAppBroadcastPanel,
     ),
-  { loading: () => <Skeleton className="h-56 w-full rounded-xl" /> },
+  { loading: () => <Skeleton className="h-52 w-full rounded-xl" /> },
 );
 
 export const GroupDocumentDeliveryPanel = dynamic(
@@ -14,7 +14,7 @@ export const GroupDocumentDeliveryPanel = dynamic(
     import("./group-document-delivery-panel").then(
       (module) => module.GroupDocumentDeliveryPanel,
     ),
-  { loading: () => <Skeleton className="h-44 w-full rounded-xl" /> },
+  { loading: () => <Skeleton className="h-52 w-full rounded-xl" /> },
 );
 
 export const PassportImageCropEditor = dynamic(

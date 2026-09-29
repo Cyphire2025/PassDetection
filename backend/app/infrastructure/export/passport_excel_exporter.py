@@ -29,6 +29,10 @@ from app.infrastructure.export.passport_excel_phone_columns import (
     VERIFIED_WHATSAPP_HEADER,
     is_phone_export_field,
 )
+from app.infrastructure.export.workbook_capacity import (
+    bounded_workbook_bytes,
+    require_workbook_capacity,
+)
 
 
 @dataclass(frozen=True)
@@ -257,6 +261,9 @@ class PassportExcelExporter:
         group_by_field: str | None = None,
         pending_rows: list[dict[str, Any]] | None = None,
         ecr_results: dict[uuid.UUID, str] | None = None,
+        maximum_cells: int | None = None,
+        maximum_columns: int | None = None,
+        maximum_output_bytes: int | None = None,
     ) -> bytes:
         imported_fields = [
             field
@@ -324,6 +331,12 @@ class PassportExcelExporter:
             "International Airport"
             if group_by_field == "international_airport"
             else label_by_key.get(group_by_field or "")
+        )
+        # Up to two separator rows per source row, plus the four-row header.
+        # Check before openpyxl allocates cells or styles; never truncate output.
+        require_workbook_capacity(
+            rows=4 + 3 * (len(submissions) + len(pending_rows or [])),
+            columns=len(headers), maximum_cells=maximum_cells, maximum_columns=maximum_columns,
         )
         workbook = Workbook()
         worksheet = workbook.active
@@ -430,6 +443,8 @@ class PassportExcelExporter:
             column_letter = worksheet.cell(row=header_row, column=index).column_letter
             worksheet.column_dimensions[column_letter].width = column.width
 
+        if maximum_output_bytes is not None:
+            return bounded_workbook_bytes(workbook, maximum_output_bytes)
         buffer = io.BytesIO()
         workbook.save(buffer)
         return buffer.getvalue()

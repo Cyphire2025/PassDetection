@@ -12,6 +12,18 @@
 import type { PassportImageType } from "@/types/passport.types";
 
 export const API_ENDPOINTS = {
+  mcp: {
+    overview: "/api/v1/admin/mcp",
+    connections: "/api/v1/admin/mcp/connections",
+    connection: (id: string) => `/api/v1/admin/mcp/connections/${encodeURIComponent(id)}`,
+    revoke: (id: string) => `/api/v1/admin/mcp/connections/${encodeURIComponent(id)}/revoke`,
+    activity: "/api/v1/admin/mcp/activity",
+    inventory: "/api/v1/admin/mcp/inventory",
+    operations: "/api/v1/admin/mcp/operations",
+    artifacts: "/api/v1/admin/mcp/artifacts",
+    control: "/api/v1/admin/mcp/control",
+    authorize: "/api/v1/admin/mcp/authorize",
+  },
   health: {
     live: "/api/v1/health/live",
     ready: "/api/v1/health/ready",

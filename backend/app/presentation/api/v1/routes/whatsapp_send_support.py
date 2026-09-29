@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.infrastructure.database.models import (
@@ -19,6 +19,7 @@ from app.presentation.api.v1.routes.whatsapp_composer_support import _message_va
 from app.presentation.api.v1.routes.whatsapp_delivery_support import (
     WHATSAPP_ACCEPTED_STATUSES,
     WHATSAPP_IN_PROGRESS_STATUSES,
+    WHATSAPP_SUPPRESSED_STATUSES,
     WHATSAPP_UNCERTAIN_STATUSES,
 )
 from app.presentation.api.v1.schemas.whatsapp_schemas import WhatsAppSendRequest, WhatsAppSendResult
@@ -43,7 +44,11 @@ async def unclaimed_delivery_counts(
     return (
         sum(delivery_status in WHATSAPP_ACCEPTED_STATUSES for delivery_status in statuses),
         sum(delivery_status in WHATSAPP_IN_PROGRESS_STATUSES for delivery_status in statuses),
-        sum(delivery_status in WHATSAPP_UNCERTAIN_STATUSES for delivery_status in statuses),
+        sum(
+            delivery_status
+            not in (WHATSAPP_ACCEPTED_STATUSES | WHATSAPP_IN_PROGRESS_STATUSES | {"failed"})
+            for delivery_status in statuses
+        ),
     )
 
 
@@ -99,3 +104,78 @@ def add_frozen_broadcast_logs(
             )
         )
     return results
+
+
+def broadcast_suppression_statuses(
+    message_type: str, suppress_unknown_reminders: bool
+) -> frozenset[str]:
+    """Web reminders are deliberate repeats; MCP conservatively blocks unknown outcomes."""
+    if message_type != "reminder":
+        return WHATSAPP_SUPPRESSED_STATUSES
+    return WHATSAPP_IN_PROGRESS_STATUSES | (
+        WHATSAPP_UNCERTAIN_STATUSES if suppress_unknown_reminders else frozenset()
+    )
+
+
+async def release_stale_broadcast_claims(
+    session: AsyncSession,
+    *,
+    group_id: uuid.UUID,
+    message_type: str,
+    now: datetime,
+    stale_cutoff: datetime,
+) -> None:
+    # Other message types may reclaim a queued task that has not contacted Meta.
+    # An invite remains blocked while any queued attempt still exists. A stale
+    # processing task may have submitted bytes before a worker interruption,
+    # so it becomes delivery_unknown. Automatic retry remains suppressed;
+    # a deliberate new reminder is a separate attempt and may replace it.
+    await session.execute(
+        update(WhatsAppMessageLogModel)
+        .where(
+            WhatsAppMessageLogModel.broadcast_group_id == group_id,
+            WhatsAppMessageLogModel.message_type == message_type,
+            WhatsAppMessageLogModel.status == "queued",
+            WhatsAppMessageLogModel.message_type != "group_invite",
+            WhatsAppMessageLogModel.status_updated_at < stale_cutoff,
+        )
+        .values(
+            status="failed",
+            status_updated_at=now,
+            error_message="Delivery claim expired before provider submission",
+        )
+        .execution_options(synchronize_session=False)
+    )
+    await session.execute(
+        update(WhatsAppMessageLogModel)
+        .where(
+            WhatsAppMessageLogModel.broadcast_group_id == group_id,
+            WhatsAppMessageLogModel.message_type == message_type,
+            WhatsAppMessageLogModel.status == "processing",
+            WhatsAppMessageLogModel.status_updated_at < stale_cutoff,
+        )
+        .values(
+            status="delivery_unknown",
+            status_updated_at=now,
+            error_message=(
+                "Delivery outcome is unknown after a worker interruption; "
+                "automatic resend is suppressed"
+            ),
+        )
+        .execution_options(synchronize_session=False)
+    )
+    await session.execute(
+        update(WhatsAppRecipientMessageStateModel)
+        .where(
+            WhatsAppRecipientMessageStateModel.broadcast_group_id == group_id,
+            WhatsAppRecipientMessageStateModel.message_type == message_type,
+            WhatsAppRecipientMessageStateModel.status == "processing",
+            WhatsAppRecipientMessageStateModel.status_updated_at < stale_cutoff,
+        )
+        .values(
+            status="delivery_unknown",
+            status_updated_at=now,
+            updated_at=now,
+        )
+        .execution_options(synchronize_session=False)
+    )

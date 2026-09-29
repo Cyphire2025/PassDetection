@@ -3,37 +3,43 @@
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from typing import Any
 
 from fastapi import HTTPException, status
 from sqlalchemy import and_, func, or_, select
 
 from app.domain.entities.entities import User, UserRole
+from app.domain.whatsapp_delivery_status import (
+    WHATSAPP_ACCEPTED_STATUS_RANK as WHATSAPP_ACCEPTED_STATUS_RANK,
+)
+from app.domain.whatsapp_delivery_status import (
+    WHATSAPP_ACCEPTED_STATUSES as WHATSAPP_ACCEPTED_STATUSES,
+)
+from app.domain.whatsapp_delivery_status import (
+    WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES as WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES,
+)
+from app.domain.whatsapp_delivery_status import (
+    WHATSAPP_IN_PROGRESS_STATUSES as WHATSAPP_IN_PROGRESS_STATUSES,
+)
+from app.domain.whatsapp_delivery_status import (
+    WHATSAPP_STALE_CLAIM_AGE as WHATSAPP_STALE_CLAIM_AGE,
+)
+from app.domain.whatsapp_delivery_status import (
+    WHATSAPP_SUPPRESSED_STATUSES as WHATSAPP_SUPPRESSED_STATUSES,
+)
+from app.domain.whatsapp_delivery_status import (
+    WHATSAPP_UNCERTAIN_STATUSES as WHATSAPP_UNCERTAIN_STATUSES,
+)
+from app.domain.whatsapp_delivery_status import (
+    WHATSAPP_WEBHOOK_STATUSES as WHATSAPP_WEBHOOK_STATUSES,
+)
 from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
     WhatsAppMessageLogModel,
     WhatsAppRecipientMessageStateModel,
 )
-
-WHATSAPP_ACCEPTED_STATUSES = frozenset({"submitted", "sent", "delivered", "read"})
-WHATSAPP_ACCEPTED_STATUS_RANK = {
-    "submitted": 0,
-    "sent": 1,
-    "delivered": 2,
-    "read": 3,
-}
-WHATSAPP_WEBHOOK_STATUSES = frozenset({"sent", "delivered", "read", "failed"})
-WHATSAPP_IN_PROGRESS_STATUSES = frozenset({"queued", "processing"})
-WHATSAPP_UNCERTAIN_STATUSES = frozenset({"delivery_unknown"})
-WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES = (
-    WHATSAPP_IN_PROGRESS_STATUSES | WHATSAPP_UNCERTAIN_STATUSES
-)
-WHATSAPP_SUPPRESSED_STATUSES = (
-    WHATSAPP_ACCEPTED_STATUSES | WHATSAPP_IN_PROGRESS_STATUSES | WHATSAPP_UNCERTAIN_STATUSES
-)
-WHATSAPP_STALE_CLAIM_AGE = timedelta(minutes=30)
 
 
 def _iter_webhook_values(payload: dict[str, Any]) -> list[dict[str, Any]]:

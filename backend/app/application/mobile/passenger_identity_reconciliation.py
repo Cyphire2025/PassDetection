@@ -106,9 +106,7 @@ def plan_passenger_identities(
         if (agency_id is None or submission.agency_id == agency_id)
         and (group_id is None or submission.group_id == group_id)
     }
-    provisional: list[
-        tuple[uuid.UUID, str, tuple[str, str] | None]
-    ] = []
+    provisional: list[tuple[uuid.UUID, str, tuple[str, str] | None]] = []
     skipped_ambiguous = 0
 
     for submission_id in sorted(by_id, key=str):
@@ -170,12 +168,10 @@ async def reconcile_passenger_identities(
 ) -> PassengerIdentityReconciliationResult:
     """Apply a tenant/group-scoped identity plan and revoke stale sessions."""
 
-    _linked, _recipients, submissions, rows = (
-        await load_unresolved_passport_whatsapp_match_context(
-            session,
-            group_id=access.group_id,
-            agency_id=access.agency_id,
-        )
+    _linked, _recipients, submissions, rows = await load_unresolved_passport_whatsapp_match_context(
+        session,
+        group_id=access.group_id,
+        agency_id=access.agency_id,
     )
     plan = plan_passenger_identities(
         rows,
@@ -251,9 +247,7 @@ async def _reconcile_passenger_identities_targeted(
         ]
         if seed_phones:
             identity_conditions.append(
-                MobilePassengerIdentityModel.normalized_phone_number.in_(
-                    tuple(seed_phones)
-                )
+                MobilePassengerIdentityModel.normalized_phone_number.in_(tuple(seed_phones))
             )
         related_identities = list(
             (
@@ -352,6 +346,28 @@ async def _reconcile_passenger_identities_targeted(
     )
 
 
+def passenger_identity_binding_changed(
+    identity: MobilePassengerIdentityModel,
+    candidate: PassengerIdentityCandidate,
+) -> bool:
+    """Pure canonical comparison; additive callers validate before any persistence."""
+    secondary_hash = (
+        hash_mobile_secondary_factor(identity.id, candidate.secondary_factor_value or "")
+        if candidate.secondary_factor_type is not None
+        else None
+    )
+    return any(
+        (
+            identity.normalized_phone_number != candidate.normalized_phone,
+            identity.secondary_factor_type != candidate.secondary_factor_type,
+            identity.secondary_factor_hash != secondary_hash,
+            identity.is_shared_number != candidate.is_shared_number,
+            identity.requires_secondary_verification != candidate.requires_secondary_verification,
+            identity.status == "revoked",
+        )
+    )
+
+
 async def _apply_passenger_identity_plan(
     session: AsyncSession,
     *,
@@ -384,9 +400,7 @@ async def _apply_passenger_identity_plan(
                 ),
                 status="eligible",
                 is_shared_number=candidate.is_shared_number,
-                requires_secondary_verification=(
-                    candidate.requires_secondary_verification
-                ),
+                requires_secondary_verification=(candidate.requires_secondary_verification),
                 secondary_factor_type=candidate.secondary_factor_type,
                 secondary_factor_hash=(
                     hash_mobile_secondary_factor(
@@ -410,23 +424,11 @@ async def _apply_passenger_identity_plan(
             continue
 
         secondary_hash = (
-            hash_mobile_secondary_factor(
-                identity.id, candidate.secondary_factor_value or ""
-            )
+            hash_mobile_secondary_factor(identity.id, candidate.secondary_factor_value or "")
             if candidate.secondary_factor_type is not None
             else None
         )
-        binding_changed = any(
-            (
-                identity.normalized_phone_number != candidate.normalized_phone,
-                identity.secondary_factor_type != candidate.secondary_factor_type,
-                identity.secondary_factor_hash != secondary_hash,
-                identity.is_shared_number != candidate.is_shared_number,
-                identity.requires_secondary_verification
-                != candidate.requires_secondary_verification,
-                identity.status == "revoked",
-            )
-        )
+        binding_changed = passenger_identity_binding_changed(identity, candidate)
         if not binding_changed:
             unchanged += 1
             continue
@@ -438,9 +440,7 @@ async def _apply_passenger_identity_plan(
             candidate.normalized_phone, purpose="passenger-phone"
         )
         identity.is_shared_number = candidate.is_shared_number
-        identity.requires_secondary_verification = (
-            candidate.requires_secondary_verification
-        )
+        identity.requires_secondary_verification = candidate.requires_secondary_verification
         identity.secondary_factor_type = candidate.secondary_factor_type
         identity.secondary_factor_hash = secondary_hash
         identity.status = "eligible"
@@ -533,9 +533,7 @@ async def _revoke_passenger_identity_sessions(
     reason: str,
 ) -> None:
     now = datetime.now(tz=UTC)
-    authorized_session_ids = select(
-        MobilePassengerSessionIdentityModel.session_id
-    ).where(
+    authorized_session_ids = select(MobilePassengerSessionIdentityModel.session_id).where(
         MobilePassengerSessionIdentityModel.agency_id == agency_id,
         MobilePassengerSessionIdentityModel.passenger_identity_id == identity_id,
     )

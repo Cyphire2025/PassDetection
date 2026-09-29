@@ -31,7 +31,25 @@ def main() -> int:
     if heads != (EXPECTED_HEAD,):
         raise RuntimeError(f"Expected one Alembic head {EXPECTED_HEAD!r}; observed {heads!r}")
     head = scripts.get_revision(EXPECTED_HEAD)
-    if head.down_revision != "0112_passport_cover_edits":
+    if head.down_revision != "0121_whatsapp_send_intents":
+        raise RuntimeError("MCP GC push plans must follow website send intents")
+    if scripts.get_revision("0121_whatsapp_send_intents").down_revision != "0120_mcp_whatsapp_media":
+        raise RuntimeError("WhatsApp send intents must follow retained MCP media")
+    if scripts.get_revision("0120_mcp_whatsapp_media").down_revision != "0119_mcp_contact_imports":
+        raise RuntimeError("MCP WhatsApp media must follow MCP contact imports")
+    if scripts.get_revision("0119_mcp_contact_imports").down_revision != "0118_mcp_pdf_ingestion":
+        raise RuntimeError("MCP contact imports must follow MCP PDF ingestion")
+    if scripts.get_revision("0118_mcp_pdf_ingestion").down_revision != "0117_mcp_dispatch_origin":
+        raise RuntimeError("MCP PDF ingestion must follow retained dispatch origins")
+    if scripts.get_revision("0117_mcp_dispatch_origin").down_revision != "0116_mcp_communications":
+        raise RuntimeError("MCP dispatch origins must follow MCP communications")
+    if scripts.get_revision("0116_mcp_communications").down_revision != "0115_mcp_workflows":
+        raise RuntimeError("MCP communications must follow MCP workflows")
+    if scripts.get_revision("0115_mcp_workflows").down_revision != "0114_mcp_connections":
+        raise RuntimeError("MCP workflows must follow MCP connections")
+    if scripts.get_revision("0114_mcp_connections").down_revision != "0113_document_follow_up":
+        raise RuntimeError("MCP connections must follow document follow-up")
+    if scripts.get_revision("0113_document_follow_up").down_revision != "0112_passport_cover_edits":
         raise RuntimeError("Document follow-up must follow passport cover edits")
     if scripts.get_revision("0112_passport_cover_edits").down_revision != "0111_roster_revision":
         raise RuntimeError("Passport cover edits must follow roster revisions")
@@ -95,7 +113,7 @@ def main() -> int:
         )
 
     print(
-        "Alembic topology verified: 0113 follows 0112, 0111, 0110, 0109, 0108, 0107, 0106, 0105, 0104, 0103, 0102, 0101, 0100, 0099, 0098, 0097, 0096, 0095, 0094, 0093, 0092, 0091, 0090, 0089 and the preserved 0088 merge "
+        "Alembic topology verified: 0122 follows 0121, 0120, 0119, 0118, 0117, 0116, 0115, 0114, 0113, 0112, 0111, 0110, 0109, 0108, 0107, 0106, 0105, 0104, 0103, 0102, 0101, 0100, 0099, 0098, 0097, 0096, 0095, 0094, 0093, 0092, 0091, 0090, 0089 and the preserved 0088 merge "
         "of the My Photos and enterprise-hardening branches."
     )
     return 0

@@ -51,9 +51,11 @@ test("frontend uses dedicated preview, send, and tracking contracts", () => {
 
 test("group details include compact document delivery management", () => {
   assert.match(groupPage, /GroupDocumentDeliveryPanel groupId=\{groupId\}/);
-  assert.match(panel, /Document delivery tracking/);
+  assert.match(panel, /<h2[^>]*>Document deliveries<\/h2>/);
   assert.match(panel, /Manage deliveries/);
-  assert.match(panel, /Visa and International or Domestic Onward\/Return ticket WhatsApp delivery status/);
+  assert.match(panel, /href=\{ROUTES\.dashboard\.documentGroup\(groupId\)\}/);
+  assert.match(panel, /distributionDocumentLabel\(delivery\.document_type\)/);
+  assert.match(panel, /<details[\s\S]*?<summary[\s\S]*?Recent delivery updates/);
   assert.match(panel, /No document broadcasts sent yet/);
 });
 

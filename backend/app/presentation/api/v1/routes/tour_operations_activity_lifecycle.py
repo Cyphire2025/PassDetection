@@ -14,6 +14,12 @@ from app.core.config.settings import get_settings
 from app.domain.entities.entities import GroupStatus
 from app.domain.value_objects.attendance_activity import normalize_attendance_activity_name
 from app.infrastructure.database.models import AttendanceSessionModel, ClientGroupModel
+from app.presentation.api.v1.routes.tour_operations_activity_resolution import (
+    _apply_initial_attendance_schedule as _apply_initial_attendance_schedule,
+)
+from app.presentation.api.v1.routes.tour_operations_activity_resolution import (
+    _finish_activity_creation,
+)
 
 
 async def _canonical_attendance_activity_admission(
@@ -94,6 +100,7 @@ async def _create_canonical_attendance_activity(
     scheduled_starts_at: datetime | None = None,
     scheduled_ends_at: datetime | None = None,
     schedule_timezone: str | None = None,
+    allow_existing_changes: bool = True,
 ) -> tuple[AttendanceSessionModel, str]:
     """Create or resolve one manager-owned stable UUID for an open activity."""
 
@@ -155,56 +162,6 @@ async def _create_canonical_attendance_activity(
             detail="The shared attendance activity changed while it was being created. Try again.",
         )
 
-    if attendance_session.status == "draft":
-        attendance_session.status = "active"
-        attendance_session.started_at = attendance_session.started_at or now
-        attendance_session.updated_at = now
-        _apply_initial_attendance_schedule(
-            attendance_session,
-            scheduled_starts_at=scheduled_starts_at,
-            scheduled_ends_at=scheduled_ends_at,
-            schedule_timezone=schedule_timezone,
-        )
-        await session.flush()
-        return attendance_session, "activated_existing"
-    schedule_changed = _apply_initial_attendance_schedule(
-        attendance_session,
-        scheduled_starts_at=scheduled_starts_at,
-        scheduled_ends_at=scheduled_ends_at,
-        schedule_timezone=schedule_timezone,
-    )
-    if schedule_changed:
-        attendance_session.updated_at = now
-        await session.flush()
-    return attendance_session, "created" if inserted_id is not None else "existing"
-
-
-def _apply_initial_attendance_schedule(
-    attendance_session: AttendanceSessionModel,
-    *,
-    scheduled_starts_at: datetime | None,
-    scheduled_ends_at: datetime | None,
-    schedule_timezone: str | None,
-) -> bool:
-    if scheduled_starts_at is None:
-        return False
-    existing = (
-        attendance_session.scheduled_starts_at,
-        attendance_session.scheduled_ends_at,
-        attendance_session.schedule_timezone,
-    )
-    requested = (scheduled_starts_at, scheduled_ends_at, schedule_timezone)
-    if all(value is None for value in existing):
-        attendance_session.scheduled_starts_at = scheduled_starts_at
-        attendance_session.scheduled_ends_at = scheduled_ends_at
-        attendance_session.schedule_timezone = schedule_timezone
-        return True
-    if existing != requested:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail={
-                "code": "ATTENDANCE_SCHEDULE_CONFLICT",
-                "message": "The existing attendance activity has a different schedule.",
-            },
-        )
-    return False
+    return await _finish_activity_creation(session, attendance_session, inserted_id=inserted_id,
+        now=now, allow_existing_changes=allow_existing_changes, scheduled_starts_at=scheduled_starts_at,
+        scheduled_ends_at=scheduled_ends_at, schedule_timezone=schedule_timezone)

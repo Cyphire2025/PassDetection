@@ -7,7 +7,7 @@ import { PassportGroupOverviewPanel } from "./passport-group-overview-panel";
 import { TripDetailsDialog, type TripDetailsForm } from "./passport-trip-details-dialog";
 
 vi.mock("./passport-group-bindings", () => ({
-  GroupDocumentDeliveryPanel: () => null,
+  GroupDocumentDeliveryPanel: () => <section aria-label="Document deliveries">Document tracking</section>,
   GroupWhatsAppBroadcastPanel: () => <section aria-label="WhatsApp broadcasts">Broadcast tracking</section>,
 }));
 
@@ -46,6 +46,33 @@ function OverviewEditorHarness({ source, onSave }: { source: PassportGroupSummar
 }
 
 describe("trip settings summary and editor", () => {
+  it("discloses trip settings without hiding the destination or tracking actions", () => {
+    function Harness() {
+      const [expanded, setExpanded] = useState(false);
+      return <PassportGroupOverviewPanel {...overviewProps(group)} canAccessWhatsApp isTripDetailsExpanded={expanded} setIsTripDetailsExpanded={setExpanded} />;
+    }
+    render(<Harness />);
+    expect(screen.getByText("Dubai")).toBeInTheDocument();
+    expect(screen.getByText("01/11/2026 – 08/11/2026")).toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Destination and trip details" })).not.toBeInTheDocument();
+    const toggle = screen.getByRole("button", { name: "Show details" });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    fireEvent.click(toggle);
+    expect(screen.getByRole("region", { name: "Destination and trip details" })).toHaveAttribute("id", toggle.getAttribute("aria-controls"));
+    expect(screen.getByRole("region", { name: "WhatsApp broadcasts" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Hide details" }));
+    expect(screen.queryByRole("region", { name: "Destination and trip details" })).not.toBeInTheDocument();
+  });
+
+  it("preserves tracking visibility boundaries", () => {
+    const { rerender } = render(<PassportGroupOverviewPanel {...overviewProps(group)} />);
+    expect(screen.queryByRole("region", { name: "WhatsApp broadcasts" })).not.toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Document deliveries" })).toBeInTheDocument();
+    rerender(<PassportGroupOverviewPanel {...overviewProps(group)} canAccessWhatsApp includeDeleted />);
+    expect(screen.queryByRole("region", { name: "WhatsApp broadcasts" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Document deliveries" })).not.toBeInTheDocument();
+  });
+
   it("hides the entire broadcast section for import-only groups", () => {
     render(<PassportGroupOverviewPanel {...overviewProps({ ...group, import_only: true })} canAccessWhatsApp />);
     expect(screen.queryByRole("region", { name: "WhatsApp broadcasts" })).not.toBeInTheDocument();

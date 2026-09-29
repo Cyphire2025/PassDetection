@@ -11,6 +11,11 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
+from app.application.use_cases.passports.prepare_image_export import (
+    ImagePreparationError,
+    ImagePreparationSupport,
+    prepare_image_export,
+)
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import User
 from app.domain.exceptions.exceptions import AuthorizationError, StorageError
@@ -51,6 +56,13 @@ router = APIRouter()
 logger = get_logger(__name__)
 
 
+def image_export_support() -> ImagePreparationSupport:
+    return ImagePreparationSupport(
+        _current_group_export_submissions, _resolve_group_export_payload,
+        _owner_scope_for, PassportImageCropRepository, _export_zone_names, _export_people_snapshot,
+    )
+
+
 @router.get(
     "/groups/{group_id}/export-images",
     status_code=status.HTTP_200_OK,
@@ -79,47 +91,23 @@ async def export_passport_images_by_group(
     except AuthorizationError as exc:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)
 
-    current_submissions = await _current_group_export_submissions(
-        session,
-        group_id=group_id,
-        agency_id=current_user.agency_id,
-        current_user=current_user,
-    )
     resolved_request_id = request_id or uuid.uuid4()
     await _require_new_export_request(
-        session,
-        group_id=group_id,
-        agency_id=current_user.agency_id,
-        export_kind="passport_images",
-        request_id=resolved_request_id,
+        session, group_id=group_id, agency_id=current_user.agency_id,
+        export_kind="passport_images", request_id=resolved_request_id,
         created_by_user_id=_owner_scope_for(current_user),
     )
-    submissions, baseline = await _resolve_group_export_payload(
-        session,
-        group_id=group_id,
-        agency_id=current_user.agency_id,
-        export_kind="passport_images",
-        export_mode=export_mode,
-        baseline_export_id=baseline_export_id,
-        submissions=current_submissions,
-        created_by_user_id=_owner_scope_for(current_user),
-    )
-    crop_metadata = await PassportImageCropRepository(session).list_for_submissions(
-        [submission.id for submission in submissions]
-    )
-    zone_names = await _export_zone_names(session, current_submissions)
     try:
-        spool, image_count, uncompressed_bytes = await PassportImageZipExporter().export_group(
-            submissions,
-            group_name=group.name,
-            require_both_pages=getattr(group, "upload_configuration", None) is None,
-            staff_code_enabled=group.staff_code_enabled,
-            agent_employee_code_enabled=group.agent_employee_code_enabled,
-            storage=MinioStorageRepository(),
-            crop_metadata=crop_metadata,
-            zone_names=zone_names,
-            namespace_submissions=current_submissions,
+        prepared = await prepare_image_export(
+            session, support=image_export_support(), current_user=current_user,
+            agency_id=current_user.agency_id, group=group, export_mode=export_mode,
+            baseline_export_id=baseline_export_id,
         )
+        spool, image_count, uncompressed_bytes = await prepared.render(
+            storage=MinioStorageRepository(), exporter=PassportImageZipExporter(),
+        )
+    except ImagePreparationError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
     except MissingPassportImagesError as exc:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc))
     except PassportImageExportLimitError as exc:
@@ -136,22 +124,13 @@ async def export_passport_images_by_group(
     try:
         async with session.begin_nested():
             history = await PassportExportHistoryRepository(session).record(
-                group_id=group_id,
-                agency_id=current_user.agency_id,
-                export_kind="passport_images",
-                export_mode=export_mode,
+                **prepared.history_fields,
                 request_id=resolved_request_id,
-                baseline_export_id=baseline.id if baseline else None,
-                snapshot_submission_ids=[submission.id for submission in current_submissions],
-                exported_submission_ids=[submission.id for submission in submissions],
-                exported_people_snapshot=_export_people_snapshot(submissions),
                 artifact_metadata={
                     "image_count": image_count,
                     "uncompressed_bytes": uncompressed_bytes,
                     "archive_bytes": archive_size,
                 },
-                created_by_user_id=current_user.id,
-                actor_email=current_user.email,
             )
     except IntegrityError as exc:
         spool.close()
@@ -212,36 +191,18 @@ async def export_selected_passport_images_by_group(
             detail=exc.message,
         )
 
-    current_submissions = await _current_group_export_submissions(
-        session,
-        group_id=group_id,
-        agency_id=current_user.agency_id,
-        current_user=current_user,
-    )
-    current_by_id = {submission.id: submission for submission in current_submissions}
-    requested_ids = list(dict.fromkeys(body.submission_ids))
-    if any(submission_id not in current_by_id for submission_id in requested_ids):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=("One or more selected passport submissions were not found in this group."),
-        )
-    selected_submissions = [current_by_id[submission_id] for submission_id in requested_ids]
-
-    crop_metadata = await PassportImageCropRepository(session).list_for_submissions(requested_ids)
-    zone_names = await _export_zone_names(session, current_submissions)
     try:
-        spool, image_count, uncompressed_bytes = await PassportImageZipExporter().export_group(
-            selected_submissions,
-            group_name=group.name,
-            require_both_pages=getattr(group, "upload_configuration", None) is None,
-            staff_code_enabled=group.staff_code_enabled,
-            agent_employee_code_enabled=group.agent_employee_code_enabled,
-            storage=MinioStorageRepository(),
-            crop_metadata=crop_metadata,
-            zone_names=zone_names,
-            namespace_submissions=current_submissions,
-            max_uncompressed_bytes=SELECTED_PASSPORT_IMAGE_EXPORT_MAX_BYTES,
+        prepared = await prepare_image_export(
+            session, support=image_export_support(), current_user=current_user,
+            agency_id=current_user.agency_id, group=group,
+            selected_submission_ids=body.submission_ids,
+            selected_maximum_bytes=SELECTED_PASSPORT_IMAGE_EXPORT_MAX_BYTES,
         )
+        spool, image_count, uncompressed_bytes = await prepared.render(
+            storage=MinioStorageRepository(), exporter=PassportImageZipExporter(),
+        )
+    except ImagePreparationError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
     except MissingPassportImagesError as exc:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -266,7 +227,7 @@ async def export_selected_passport_images_by_group(
         group_id=str(group_id),
         agency_id=str(current_user.agency_id),
         actor_user_id=str(current_user.id),
-        submission_count=len(selected_submissions),
+        submission_count=len(prepared.submissions),
         image_count=image_count,
         uncompressed_bytes=uncompressed_bytes,
         archive_bytes=archive_size,

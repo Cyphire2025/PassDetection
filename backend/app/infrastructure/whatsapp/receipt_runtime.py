@@ -24,6 +24,7 @@ from app.infrastructure.database.models import (
 from app.infrastructure.database.session import AsyncSessionFactory
 from app.infrastructure.observability.metrics import metrics
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.infrastructure.whatsapp.mcp_progress import refresh_mcp_dispatch_progress
 from app.infrastructure.whatsapp.phone_welcome import sync_phone_welcome, sync_welcome_from_log
 from app.infrastructure.whatsapp.receipt_bindings import (
     SOURCE_MODELS,
@@ -176,6 +177,8 @@ async def _apply_to_source(
                     state, provider_status=status, provider_status_at=timestamp, now=now
                 )
         await sync_welcome_from_log(session, source)
+        if source.batch_id is not None:
+            await refresh_mcp_dispatch_progress(session, batch_id=source.batch_id)
     elif isinstance(source, WhatsAppPhoneWelcomeAttemptModel):
         from app.infrastructure.whatsapp.traveller_welcome_runtime import (
             apply_traveller_welcome_provider_status,

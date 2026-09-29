@@ -5,8 +5,7 @@ from __future__ import annotations
 import asyncio
 import uuid
 
-from fastapi import HTTPException, status
-from sqlalchemy import and_, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.use_cases.whatsapp.group_submission_matching import (
@@ -36,11 +35,13 @@ from app.infrastructure.repositories.passport_whatsapp_matching_repository impor
 from app.presentation.api.v1.routes.document_distribution_match_policy import (
     source_matching_fields_by_broadcast as _source_matching_fields_by_broadcast,
 )
-from app.presentation.api.v1.routes.document_distribution_match_policy import (
-    source_with_matching_fields as _source_with_matching_fields,
+from app.presentation.api.v1.routes.document_distribution_match_source import (
+    _read_linked_document_match_source as _read_linked_document_match_source,
+)
+from app.presentation.api.v1.routes.document_distribution_match_source import (
+    _source_with_matching_fields as _source_with_matching_fields,
 )
 from app.presentation.api.v1.routes.document_distribution_shared import (
-    _linked_document_match_source_from_models,
     _LinkedDocumentMatchSource,
 )
 
@@ -99,148 +100,6 @@ async def _linked_whatsapp_recipients(
         linked_broadcasts,
         matching_fields_by_broadcast,
         list(recipient_result.scalars().all()),
-    )
-
-
-async def _read_linked_document_match_source(
-    session: AsyncSession,
-    *,
-    group: ClientGroupModel,
-    lock: bool,
-) -> _LinkedDocumentMatchSource:
-    """Read matching evidence coherently, optionally under stable write locks.
-
-    The locked path is called only after the client-group row is locked.  It
-    then follows the shared order group -> broadcasts -> links -> recipients;
-    the caller locks passengers last.  Parent locks also serialize child-row
-    inserts through their foreign keys, preventing recipient/link phantoms.
-    """
-
-    if not lock:
-        result = await session.execute(
-            select(
-                ClientGroupWhatsAppBroadcastLinkModel,
-                WhatsAppBroadcastGroupModel,
-                WhatsAppBroadcastRecipientModel,
-            )
-            .select_from(ClientGroupWhatsAppBroadcastLinkModel)
-            .join(
-                WhatsAppBroadcastGroupModel,
-                WhatsAppBroadcastGroupModel.id
-                == ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
-            )
-            .outerjoin(
-                WhatsAppBroadcastRecipientModel,
-                and_(
-                    WhatsAppBroadcastRecipientModel.broadcast_group_id
-                    == WhatsAppBroadcastGroupModel.id,
-                    WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
-                    WhatsAppBroadcastRecipientModel.removed_at.is_(None),
-                ),
-            )
-            .where(
-                ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group.id,
-                ClientGroupWhatsAppBroadcastLinkModel.agency_id == group.agency_id,
-                WhatsAppBroadcastGroupModel.agency_id == group.agency_id,
-            )
-            .order_by(
-                WhatsAppBroadcastGroupModel.id,
-                ClientGroupWhatsAppBroadcastLinkModel.id,
-                WhatsAppBroadcastRecipientModel.id,
-            )
-        )
-        links_by_id: dict[uuid.UUID, ClientGroupWhatsAppBroadcastLinkModel] = {}
-        broadcasts_by_id: dict[uuid.UUID, WhatsAppBroadcastGroupModel] = {}
-        recipients_by_id: dict[uuid.UUID, WhatsAppBroadcastRecipientModel] = {}
-        for link, broadcast, recipient in result.all():
-            links_by_id[link.id] = link
-            broadcasts_by_id[broadcast.id] = broadcast
-            if recipient is not None:
-                recipients_by_id[recipient.id] = recipient
-        links = list(links_by_id.values())
-        return _source_with_matching_fields(
-            _linked_document_match_source_from_models(
-                group=group,
-                links=links,
-                broadcasts=list(broadcasts_by_id.values()),
-                recipients=list(recipients_by_id.values()),
-            ),
-            links,
-        )
-
-    linked_id_result = await session.execute(
-        select(ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id)
-        .where(
-            ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group.id,
-            ClientGroupWhatsAppBroadcastLinkModel.agency_id == group.agency_id,
-        )
-        .order_by(ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id)
-    )
-    linked_ids = sorted(set(linked_id_result.scalars().all()), key=str)
-    broadcasts: list[WhatsAppBroadcastGroupModel] = []
-    if linked_ids:
-        broadcast_result = await session.execute(
-            select(WhatsAppBroadcastGroupModel)
-            .where(
-                WhatsAppBroadcastGroupModel.id.in_(linked_ids),
-                WhatsAppBroadcastGroupModel.agency_id == group.agency_id,
-            )
-            .order_by(WhatsAppBroadcastGroupModel.id)
-            .with_for_update()
-            .execution_options(populate_existing=True)
-        )
-        broadcasts = list(broadcast_result.scalars().all())
-        if {broadcast.id for broadcast in broadcasts} != set(linked_ids):
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=(
-                    "A linked WhatsApp list changed while the PDFs were being "
-                    "processed. Review and upload them again."
-                ),
-            )
-
-    link_result = await session.execute(
-        select(ClientGroupWhatsAppBroadcastLinkModel)
-        .where(
-            ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group.id,
-            ClientGroupWhatsAppBroadcastLinkModel.agency_id == group.agency_id,
-        )
-        .order_by(ClientGroupWhatsAppBroadcastLinkModel.id)
-        .with_for_update()
-        .execution_options(populate_existing=True)
-    )
-    links = list(link_result.scalars().all())
-    if {link.broadcast_group_id for link in links} != set(linked_ids):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=(
-                "The linked WhatsApp lists changed while the PDFs were being "
-                "processed. Review and upload them again."
-            ),
-        )
-
-    recipients: list[WhatsAppBroadcastRecipientModel] = []
-    if linked_ids:
-        recipient_result = await session.execute(
-            select(WhatsAppBroadcastRecipientModel)
-            .where(
-                WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
-                WhatsAppBroadcastRecipientModel.broadcast_group_id.in_(linked_ids),
-                WhatsAppBroadcastRecipientModel.removed_at.is_(None),
-            )
-            .order_by(WhatsAppBroadcastRecipientModel.id)
-            .with_for_update()
-            .execution_options(populate_existing=True)
-        )
-        recipients = list(recipient_result.scalars().all())
-    return _source_with_matching_fields(
-        _linked_document_match_source_from_models(
-            group=group,
-            links=links,
-            broadcasts=broadcasts,
-            recipients=recipients,
-        ),
-        links,
     )
 
 

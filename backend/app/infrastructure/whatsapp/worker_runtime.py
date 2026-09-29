@@ -40,6 +40,8 @@ from app.infrastructure.whatsapp.group_invite_policy import (
     message_phone_blocking_statuses,
     passport_link_block_message,
 )
+from app.infrastructure.whatsapp.mcp_dispatch import authorize_mcp_batch_dispatch
+from app.infrastructure.whatsapp.mcp_progress import refresh_mcp_dispatch_progress
 from app.infrastructure.whatsapp.phone_welcome import (
     WELCOME_REQUIRED,
     assert_phone_welcome_claim,
@@ -47,6 +49,7 @@ from app.infrastructure.whatsapp.phone_welcome import (
     sync_welcome_from_log,
 )
 from app.infrastructure.whatsapp.receipt_bindings import bind_source_provider_message
+from app.infrastructure.whatsapp.worker_recovery import lock_interrupted_broadcast_log
 
 MAX_PROVIDER_ATTEMPTS = 3
 WHATSAPP_BATCH_HEARTBEAT_INTERVAL = timedelta(minutes=5)
@@ -137,6 +140,7 @@ async def _set_message_state(
         .values(**values)
         .execution_options(synchronize_session=False)
     )
+    await refresh_mcp_dispatch_progress(session, batch_id=expected_batch_id)
 
 
 async def _load_sendable_recipient(
@@ -145,6 +149,9 @@ async def _load_sendable_recipient(
     log: WhatsAppMessageLogModel,
     expected_batch_id: uuid.UUID,
 ) -> tuple[WhatsAppBroadcastRecipientModel | None, str | None]:
+    mcp_error = await authorize_mcp_batch_dispatch(session, log=log, settings=get_settings())
+    if mcp_error:
+        return None, mcp_error
     group_result = await session.execute(
         select(WhatsAppBroadcastGroupModel)
         .where(WhatsAppBroadcastGroupModel.id == log.broadcast_group_id)
@@ -355,12 +362,7 @@ async def run_whatsapp_broadcast(
                 claimed_id = claim_result.scalar_one_or_none()
                 if not claimed_id:
                     await session.rollback()
-                    current_log_result = await session.execute(
-                        select(WhatsAppMessageLogModel)
-                        .where(WhatsAppMessageLogModel.id == log_id)
-                        .with_for_update()
-                    )
-                    current_log = current_log_result.scalar_one_or_none()
+                    current_log = await lock_interrupted_broadcast_log(session, log_id, settings)
                     if current_log and current_log.status == "processing":
                         now = datetime.now(tz=UTC)
                         current_log.status = "delivery_unknown"

@@ -1,7 +1,8 @@
 {
   "version": 1,
-  "schema_revision": "0113_document_follow_up",
-  "previous_schema_revision": "0112_passport_cover_edits",
+  "deployment_kind": "mcp_additive_v1",
+  "schema_revision": "0122_mcp_gc_push",
+  "previous_schema_revision": "0113_document_follow_up",
   "worker_nodes": {
     "worker": "general",
     "email-worker": "email",

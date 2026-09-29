@@ -43,8 +43,11 @@ _MODEL_NAMES = [
     "WhatsAppWebhookAck",
 ]
 _SCHEMA_SHA256_BY_PYDANTIC = {
-    # Repository-pinned production and CI runtime.
+    # Earlier production/CI runtime, retained as a compatibility reference.
     "2.7.4": "7f1bdd988f80973e0506b5e938f4d302086c34ce6069173da20a431329a07299",
+    # Current requirements.txt pin. The 29 schemas match the pre-extraction HEAD
+    # classes exactly under this runtime; only Pydantic's rendering hash differs.
+    "2.12.5": "3e9b1824cc2c152bcc288978979f995f52cf95943aec0cbc6b62ac630f8da82c",
     # Python 3.13-compatible Windows development runtime.
     "2.13.4": "75c75c634bbde6846c3e95bc38cf96b7bdbe1d45a44c42c8c7250112adce13e3",
 }

@@ -18,6 +18,11 @@ from collections.abc import Callable
 from pathlib import Path
 
 from registry_preflight import registry_tag_exists
+from release_mcp_contract import (
+    require_source_contract,
+    source_contract,
+    validate_contract,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 TRUST = ROOT / "tooling/release-trust.json"
@@ -88,6 +93,8 @@ def validate_manifest(manifest: dict, revision: str, policy: dict) -> None:
             raise ValueError("Release image is outside the reviewed registry namespace")
     if not re.fullmatch(r"\d{4}_[a-z0-9_]+", manifest.get("schema", "")):
         raise ValueError("Release schema is missing")
+    if "deployment" in manifest:
+        validate_contract(manifest["deployment"], manifest["schema"])
 
 
 def verify_manifest(path: Path, revision: str, *, pull: bool = False, enforce_current_policy: bool = False) -> dict:
@@ -100,6 +107,7 @@ def verify_manifest(path: Path, revision: str, *, pull: bool = False, enforce_cu
     validate_manifest(manifest, revision, policy)
     if enforce_current_policy:
         require_current_dependency_policy(manifest)
+        require_source_contract(manifest, ROOT)
     for entry in manifest["images"].values():
         reference = entry["reference"]
         run(*verification_command(f"oci://{reference}", revision, policy))
@@ -199,6 +207,9 @@ def export_images(directory: Path, revision: str) -> None:
     directory.mkdir(parents=True, exist_ok=True)
     manifest = {"version": 1, "revision": revision, "images": {},
                 "dependency_policy_sha256": dependency_policy_fingerprint(enforce_expiry=True)}
+    deployment = source_contract(ROOT)
+    if deployment is not None:
+        manifest["deployment"] = deployment
     for name in IMAGES:
         reference = f"passdetection-{name}:ci"
         image = json.loads(run("docker", "image", "inspect", reference))[0]
@@ -232,9 +243,13 @@ def promote(directory: Path, revision: str, schema: str) -> dict:
     if qualified.get("revision") != revision or set(qualified.get("images", {})) != set(IMAGES):
         raise ValueError("Qualified archive index is incomplete or from a different commit")
     require_current_dependency_policy(qualified)
+    require_source_contract(qualified, ROOT)
     result = {"version": 1, "revision": revision, "schema": schema,
               "repository": policy["repository"], "ci_run_id": os.environ.get("GITHUB_RUN_ID"), "images": {},
               "dependency_policy_sha256": qualified["dependency_policy_sha256"]}
+    if "deployment" in qualified:
+        validate_contract(qualified["deployment"], schema)
+        result["deployment"] = qualified["deployment"]
     for name in IMAGES:
         archive = directory / f"{name}.tar"
         entry = qualified["images"][name]

@@ -9,6 +9,7 @@ before rechecking current authorization and calling the provider.
 from __future__ import annotations
 
 import hmac
+import uuid
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 
@@ -18,6 +19,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mobile.announcement_push_guard import (
     retain_dispatchable_announcement_notifications,
+)
+from app.application.mobile.mcp_push_guard import (
+    BLOCKED,
+    lock_original_authority,
+    recheck_handoff_clock,
 )
 from app.application.mobile.mobile_push_payload import (
     validated_public_payload as _validated_public_payload,
@@ -133,6 +139,8 @@ async def send_with_durable_fcm_intents(
     # No HTTP request is made if this durable commit fails.
     await session.commit()
 
+    denied_origins = await lock_original_authority(session, notifications)
+
     # Refresh every parent the caller may project, including those without a
     # selected device. Waiting here follows the normal parent-first lock order.
     current_parents = list(
@@ -149,6 +157,7 @@ async def send_with_durable_fcm_intents(
         item
         for item in current_parents
         if item.status in {"queued", "sent"}
+        and item.id not in denied_origins
         and item.notification_type != "group_announcement"
         and _is_due(item, recheck_now)
     ]
@@ -230,11 +239,40 @@ async def send_with_durable_fcm_intents(
                     registration_id=message.registration_id,
                     notification_id=message.notification_id,
                     accepted=False,
-                    retryable=bool(parent is not None and parent.status in {"queued", "sent"}),
-                    error_code="source_recheck_deferred",
+                    retryable=bool(
+                        parent is not None
+                        and parent.id not in denied_origins
+                        and parent.status in {"queued", "sent"}
+                    ),
+                    error_code=BLOCKED
+                    if parent is not None and parent.id in denied_origins
+                    else "source_recheck_deferred",
                     requires_receipt=False,
                 )
             )
+    clock_denied = await recheck_handoff_clock(
+        session,
+        [
+            item
+            for item in current_parents
+            if str(item.id) in {message.notification_id for message in sendable}
+        ],
+    )
+    for message in sendable:
+        if uuid.UUID(message.notification_id) in clock_denied:
+            skipped.append(
+                MobilePushTicket(
+                    registration_id=message.registration_id,
+                    notification_id=message.notification_id,
+                    accepted=False,
+                    retryable=False,
+                    error_code=BLOCKED,
+                    requires_receipt=False,
+                )
+            )
+    sendable = [
+        message for message in sendable if uuid.UUID(message.notification_id) not in clock_denied
+    ]
     if sendable and session.get_bind().dialect.name == "postgresql":
         # One bounded concurrent HTTP wave may take up to 30 seconds. This local
         # transaction deadline leaves result-commit time without changing the

@@ -43,7 +43,8 @@ import {
   isMissingWhatsAppBatchStatus,
   shouldRetryWhatsAppBatchStatus,
   whatsappBatchHttpStatus,
-  whatsappBatchPollInterval,
+  whatsappActivityPollInterval,
+  whatsappAwaitingReceiptCount,
 } from "../utils/batch-polling";
 import {
   type DisplayedWhatsAppActivity,
@@ -122,7 +123,7 @@ export function WhatsAppActivityTrackerProvider({
     TrackedWhatsAppActivity[]
   >(readInitialTrackedActivities);
   const completionTimersRef = useRef(new Map<string, number>());
-  const refreshedTerminalActivitiesRef = useRef(new Set<string>());
+  const refreshedActivityRevisionsRef = useRef(new Map<string, string>());
 
   useEffect(() => {
     if (!storageReady) return;
@@ -145,7 +146,7 @@ export function WhatsAppActivityTrackerProvider({
         window.clearTimeout(completionTimer);
         completionTimersRef.current.delete(key);
       }
-      refreshedTerminalActivitiesRef.current.delete(key);
+      refreshedActivityRevisionsRef.current.delete(key);
       setTrackedActivities((current) => [
         activity,
         ...current.filter((candidate) => whatsappActivityKey(candidate) !== key),
@@ -157,6 +158,7 @@ export function WhatsAppActivityTrackerProvider({
   const dismissActivity = useCallback(
     (activityId: string, kind: TrackedWhatsAppActivity["kind"]) => {
       const key = `${kind}:${activityId}`;
+      refreshedActivityRevisionsRef.current.delete(key);
       const completionTimer = completionTimersRef.current.get(key);
       if (completionTimer !== undefined) {
         window.clearTimeout(completionTimer);
@@ -238,13 +240,17 @@ export function WhatsAppActivityTrackerProvider({
             activity.startedAt,
           );
         }
-        return whatsappBatchPollInterval(
+        return whatsappActivityPollInterval(
           query.state.data?.queued ?? activity.queued,
-          activity.startedAt,
+          query.state.data?.status_counts,
+          query.state.data ? Date.parse(query.state.data.updated_at) : activity.startedAt,
+          query.state.data?.sent ?? activity.sent,
+          query.state.data?.delivery_unknown ?? activity.deliveryUnknown,
         );
       },
       refetchIntervalInBackground: false,
       refetchOnWindowFocus: "always" as const,
+      refetchOnReconnect: "always" as const,
     })),
     [storageReady, trackedActivities],
   );
@@ -256,24 +262,39 @@ export function WhatsAppActivityTrackerProvider({
   });
 
   useEffect(() => {
-    let refreshBroadcasts = false;
+    const broadcastsToRefresh = new Set<string>();
     let refreshDocuments = false;
     const qrGroupsToRefresh = new Set<string>();
     for (const activity of activities) {
-      if (activity.total <= 0 || activity.queued > 0) continue;
+      if (activity.total <= 0) continue;
       const key = `${activity.kind}:${activity.activity_id}`;
-      if (refreshedTerminalActivitiesRef.current.has(key)) continue;
-      refreshedTerminalActivitiesRef.current.add(key);
+      const revision = JSON.stringify([
+        activity.queued, activity.sent, activity.failed, activity.delivery_unknown,
+        activity.status_counts, activity.updated_at,
+      ]);
+      if (refreshedActivityRevisionsRef.current.get(key) === revision) continue;
+      refreshedActivityRevisionsRef.current.set(key, revision);
 
       if (activity.kind === "broadcast") {
-        refreshBroadcasts = true;
+        broadcastsToRefresh.add(activity.source_group_id);
       } else if (activity.kind === "document") {
         refreshDocuments = true;
       } else {
         qrGroupsToRefresh.add(activity.source_group_id);
       }
+      if (activity.failed > 0) {
+        void queryClient.invalidateQueries({
+          queryKey: ["whatsapp", "activities", activity.kind, activity.activity_id, "failures"],
+        });
+      }
     }
-    if (refreshBroadcasts) void queryClient.invalidateQueries({ queryKey: ["whatsapp", "groups"] });
+    if (broadcastsToRefresh.size > 0) {
+      void queryClient.invalidateQueries({
+        queryKey: ["whatsapp", "groups"],
+        predicate: (query) => typeof query.queryKey[2] !== "string"
+          || broadcastsToRefresh.has(query.queryKey[2]),
+      });
+    }
     if (refreshDocuments) void queryClient.invalidateQueries({ queryKey: ["document-distribution"] });
     for (const groupId of qrGroupsToRefresh) {
       void queryClient.invalidateQueries({ queryKey: ["operations", "tour-operations", "groups", groupId] });
@@ -289,7 +310,10 @@ export function WhatsAppActivityTrackerProvider({
             && activity.total > 0
             && activity.queued === 0
             && activity.failed === 0
-            && activity.delivery_unknown === 0,
+            && activity.delivery_unknown === 0
+            && !activity.refresh_error
+            && Boolean(activity.status_counts)
+            && (activity.status_counts?.delivered ?? 0) + (activity.status_counts?.read ?? 0) === activity.total,
         )
         .map((activity) => `${activity.kind}:${activity.activity_id}`),
     );
@@ -640,6 +664,19 @@ function WhatsAppActivityRow({
         : false,
   });
   const isRunning = activity.queued > 0;
+  const awaitingReceipt = whatsappAwaitingReceiptCount(activity.status_counts, activity.sent);
+  const delivered = (activity.status_counts?.delivered ?? 0) + (activity.status_counts?.read ?? 0);
+  const isAwaitingReceipt = awaitingReceipt > 0;
+  const needsAttention = activity.failed > 0 || activity.delivery_unknown > 0;
+  const outcomeLabel = activity.status_counts
+    ? `${delivered.toLocaleString()} delivered of ${activity.total.toLocaleString()}`
+    : `${activity.sent.toLocaleString()} accepted of ${activity.total.toLocaleString()}`;
+  const pendingStatusLabel = [
+    activity.queued > 0 ? `${activity.queued.toLocaleString()} queued` : null,
+    (activity.status_counts?.submitted ?? 0) > 0 ? `${activity.status_counts!.submitted.toLocaleString()} accepted` : null,
+    (activity.status_counts?.sent ?? 0) > 0 ? `${activity.status_counts!.sent.toLocaleString()} sent` : null,
+    isAwaitingReceipt ? `${awaitingReceipt.toLocaleString()} awaiting delivery confirmation` : null,
+  ].filter(Boolean).join(" · ");
   const completedCount = Math.max(
     0,
     activity.total - activity.queued,
@@ -670,7 +707,7 @@ function WhatsAppActivityRow({
             )
           : "bg-white px-4 py-3",
       )}
-      aria-label={`${activity.title}: ${activity.sent} sent of ${activity.total}`}
+      aria-label={`${activity.title}: ${outcomeLabel}`}
     >
       <div
         className={cn(
@@ -696,11 +733,13 @@ function WhatsAppActivityRow({
                   ? "reconnecting"
                   : isRunning
                     ? "sending"
-                    : activity.failed > 0 || activity.delivery_unknown > 0
+                    : needsAttention
                       ? "attention"
-                      : activity.total > 0
-                        ? "complete"
-                        : "reconnecting"
+                      : isAwaitingReceipt
+                        ? "sending"
+                        : activity.total > 0 && delivered === activity.total
+                          ? "complete"
+                          : "reconnecting"
               }
             />
           </div>
@@ -708,14 +747,14 @@ function WhatsAppActivityRow({
           <span
             className={cn(
               "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
-              isRunning
+              isRunning || isAwaitingReceipt
                 ? "bg-blue-100 text-blue-700"
                 : activity.failed > 0 || activity.delivery_unknown > 0
                   ? "bg-amber-100 text-amber-700"
                   : "bg-emerald-100 text-emerald-700",
             )}
           >
-            {isRunning ? (
+            {isRunning || isAwaitingReceipt ? (
               <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
             ) : activity.failed > 0 || activity.delivery_unknown > 0 ? (
               <AlertTriangle className="h-4 w-4" aria-hidden="true" />
@@ -753,9 +792,14 @@ function WhatsAppActivityRow({
             <span className="truncate">{activity.context_label}</span>
             <span aria-hidden="true">{"\u00b7"}</span>
             <span className="shrink-0 font-semibold tabular-nums text-slate-700">
-              {activity.sent.toLocaleString()} sent of {activity.total.toLocaleString()}
+              {outcomeLabel}
             </span>
           </div>
+          {pendingStatusLabel ? (
+            <p className="mt-1 text-[11px] leading-4 text-slate-600" aria-live="polite" aria-atomic="true">
+              {pendingStatusLabel}
+            </p>
+          ) : null}
           <div
             className={cn(
               "mt-1.5 h-1.5 overflow-hidden rounded-full",
@@ -766,13 +810,14 @@ function WhatsAppActivityRow({
             aria-valuemin={0}
             aria-valuemax={activity.total}
             aria-valuenow={completedCount}
+            aria-valuetext={`${completedCount} processed of ${activity.total}. ${outcomeLabel}. ${activity.failed} failed. ${activity.delivery_unknown} unknown.`}
           >
             <div
               className={cn(
                 "h-full rounded-full transition-[width] duration-500 ease-out",
                 activity.failed > 0 || activity.delivery_unknown > 0
                   ? "bg-amber-500"
-                  : isRunning
+                  : isRunning || isAwaitingReceipt
                     ? "bg-blue-600"
                     : "bg-emerald-500",
               )}

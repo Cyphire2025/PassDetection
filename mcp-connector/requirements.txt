@@ -1,0 +1,4 @@
+# Runtime only. Install the hash-verified requirements.lock before this package.
+mcp==2.2.0
+httpx2==2.13.1
+pywin32==312; sys_platform == "win32"

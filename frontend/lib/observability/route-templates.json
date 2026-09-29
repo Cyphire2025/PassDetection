@@ -2,6 +2,8 @@
   "/",
   "/activate",
   "/admin",
+  "/admin/mcp",
+  "/admin/mcp/connect",
   "/analytics",
   "/audit-logs",
   "/coordinator",

@@ -10,6 +10,8 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
+from app.infrastructure.export.workbook_capacity import bounded_workbook_bytes
+
 _HEADER_FILL = PatternFill("solid", fgColor="123F73")
 _HEADER_FONT = Font(color="FFFFFF", bold=True)
 _DANGEROUS_FORMULA_PREFIXES = ("=", "+", "-", "@")
@@ -43,6 +45,7 @@ def build_document_assignment_workbook(
     filter_label: str,
     search_query: str,
     rows: Sequence[DocumentAssignmentExportRow],
+    maximum_output_bytes: int | None = None,
 ) -> BytesIO:
     workbook = Workbook()
     sheet = workbook.active
@@ -135,6 +138,8 @@ def build_document_assignment_workbook(
     for column, width in widths.items():
         sheet.column_dimensions[column].width = width
 
+    if maximum_output_bytes is not None:
+        return BytesIO(bounded_workbook_bytes(workbook, maximum_output_bytes))
     output = BytesIO()
     workbook.save(output)
     output.seek(0)

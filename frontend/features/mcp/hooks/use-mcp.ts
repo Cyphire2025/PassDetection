@@ -1,0 +1,42 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { mcpApi } from "../api/mcp.api";
+
+const keys = { root: ["mcp-admin"] as const, overview: ["mcp-admin", "overview"] as const };
+export function useMcpRefresh() {
+  const client = useQueryClient();
+  return () => client.invalidateQueries({ queryKey: keys.root });
+}
+export function useMcpOverview() {
+  return useQuery({ queryKey: keys.overview, queryFn: ({ signal }) => mcpApi.overview(signal), refetchOnWindowFocus: "always" });
+}
+export function useMcpConnections(offset: number) {
+  return useQuery({ queryKey: [...keys.root, "connections", offset], queryFn: ({ signal }) => mcpApi.connections(offset, signal) });
+}
+export function useMcpActivity(offset: number, search: string) {
+  return useQuery({ queryKey: [...keys.root, "activity", offset, search], queryFn: ({ signal }) => mcpApi.activity(offset, search, signal) });
+}
+export function useMcpInventory() {
+  return useQuery({ queryKey: [...keys.root, "inventory"], queryFn: ({ signal }) => mcpApi.inventory(signal) });
+}
+export function useMcpOperations(offset: number) {
+  return useQuery({ queryKey: [...keys.root, "operations", offset], queryFn: ({ signal }) => mcpApi.operations(offset, signal),
+    refetchInterval: (query) => query.state.data?.items.some((item) => ["queued", "running", "unknown"].includes(item.status)) ? 5000 : false });
+}
+export function useMcpArtifacts(offset: number) {
+  return useQuery({ queryKey: [...keys.root, "artifacts", offset], queryFn: ({ signal }) => mcpApi.artifacts(offset, signal) });
+}
+export function useMcpControl() {
+  const client = useQueryClient();
+  return useMutation({ mutationFn: mcpApi.control, retry: false, onSuccess: () => client.invalidateQueries({ queryKey: keys.root }) });
+}
+export function useMcpRevoke() {
+  const client = useQueryClient();
+  return useMutation({ mutationFn: mcpApi.revoke, retry: false, onSuccess: () => client.invalidateQueries({ queryKey: keys.root }) });
+}
+export function useMcpUpdateConnection() {
+  const client = useQueryClient();
+  return useMutation({ mutationFn: mcpApi.updateConnection, retry: false, onSuccess: () => client.invalidateQueries({ queryKey: keys.root }) });
+}
+export function useMcpAuthorize() {
+  return useMutation({ mutationFn: mcpApi.authorize, retry: false });
+}

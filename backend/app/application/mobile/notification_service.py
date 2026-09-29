@@ -27,6 +27,7 @@ from app.application.mobile.fcm_dispatch_intents import (
     recover_interrupted_fcm_intents,
     send_with_durable_fcm_intents,
 )
+from app.application.mobile.mcp_push_guard import observe_push, one_origin_wave
 from app.application.mobile.mobile_push_payload import (
     validated_public_payload as _validated_public_payload,
 )
@@ -593,6 +594,7 @@ async def dispatch_mobile_push_batch(
     )
     if not notifications:
         return 0
+    notifications = await one_origin_wave(session, notifications, now=current, provider=provider.name)
     notifications = await retain_dispatchable_announcement_notifications(
         session,
         notifications=notifications,
@@ -1112,6 +1114,7 @@ async def _refresh_notification_delivery_states(
             )
         )
         notification.updated_at = now
+    await observe_push(session, notifications)
 
 
 def _bounded_backoff_seconds(
@@ -1973,8 +1976,6 @@ def _notification_recipient_key(
     if principal_id is None:
         raise ValueError("Notification recipient was malformed")
     return (notification.recipient_type, principal_id, notification.agency_id)
-
-
 
 
 def _announcement_dedupe_key(announcement_id: uuid.UUID) -> str:

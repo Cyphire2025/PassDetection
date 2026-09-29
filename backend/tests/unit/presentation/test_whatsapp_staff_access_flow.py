@@ -15,6 +15,7 @@ from app.domain.entities.entities import User, UserRole
 from app.infrastructure.database.models import (
     AgencyModel,
     UserModel,
+    UserSecurityStateModel,
     WhatsAppMessageLogModel,
     WhatsAppPhoneWelcomeModel,
 )
@@ -50,6 +51,8 @@ async def test_staff_can_manage_and_track_broadcasts_only_in_their_agency(
             ),
         ]
     )
+    await db_session.flush()
+    db_session.add(UserSecurityStateModel(user_id=staff.id, session_version=staff.session_version, credential_state="active"))
     await db_session.commit()
 
     app = FastAPI()
@@ -144,6 +147,9 @@ async def test_staff_can_manage_and_track_broadcasts_only_in_their_agency(
         assert failures.json()[0]["recipient_name"] == "Passenger"
 
         staff.agency_id = other_agency_id
+        # Model a fresh authenticated request after an actual reassignment.
+        (await db_session.get(UserModel, staff.id)).agency_id = other_agency_id
+        await db_session.flush()
         assert (await client.get("/whatsapp/groups")).json() == []
         assert (await client.get("/upload-links/whatsapp-broadcast-options")).json() == []
         for read_path in [path, *tracking_paths]:
@@ -151,7 +157,8 @@ async def test_staff_can_manage_and_track_broadcasts_only_in_their_agency(
         assert (await client.get(failures_path)).json() == []
         assert (await client.patch(path, data={"name": "Forbidden"})).status_code == 404
         for action in ("preview", "send"):
-            rejected = await client.post(f"{path}/{action}", json={"message_type": "reminder"})
+            rejected = await client.post(f"{path}/{action}", json={"message_type": "reminder"},
+                headers={"Idempotency-Key": "staff-tenant-boundary-001"})
             assert rejected.status_code == 404, rejected.text
         assert (await client.delete(path)).status_code == 404
 

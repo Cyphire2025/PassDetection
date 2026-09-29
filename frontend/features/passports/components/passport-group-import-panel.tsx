@@ -104,21 +104,21 @@ export function PassportGroupImportPanel({
               aria-expanded={isExpiryAlertsExpanded}
               aria-controls={expiryAlertsRegionId}
               onClick={() => setIsExpiryAlertsExpanded((current) => !current)}
-              className="flex w-full items-center justify-between gap-3 rounded-xl p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+              className="flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex min-w-0 items-center gap-3">
                 <AlertTriangle
-                  className="h-5 w-5 text-red-700"
+                  className="h-4 w-4 shrink-0 text-red-700"
                   aria-hidden="true"
                 />
                 <div>
-                  <h2 className="text-base font-semibold text-red-950">
+                  <h2 className="text-sm font-semibold text-red-950">
                     Passport Expiry Alerts
                   </h2>
-                  <p className="text-sm text-red-800">
+                  <p className="mt-0.5 text-xs leading-5 text-red-800">
                     {groupDetails?.travel_date
-                      ? `Expired passports, or passports expiring within 6 months of the Travel/Departure date (${formatPassportDateForUi(groupDetails.travel_date)}).`
-                      : "Expired passports, or passports expiring within the next 6 months."}
+                      ? `Expired or expiring within 6 months of departure (${formatPassportDateForUi(groupDetails.travel_date)}).`
+                      : "Expired or expiring within the next 6 months."}
                   </p>
                 </div>
               </div>
@@ -135,21 +135,23 @@ export function PassportGroupImportPanel({
             {isExpiryAlertsExpanded && (
               <div
                 id={expiryAlertsRegionId}
-                className="grid gap-3 border-t border-red-200 px-5 pb-5 pt-4 md:grid-cols-2"
+                role="region"
+                aria-label="Passports with expiry alerts"
+                className="grid max-h-80 gap-3 overflow-y-auto overscroll-contain border-t border-red-200 p-4 md:grid-cols-2"
               >
                 {expiryAlerts.map((passport) => (
                   <Link
                     key={passport.submission_id}
                     href={passportDetailHref(passport.submission_id)}
                     onClick={persistNavigationContext}
-                    className="rounded-lg border border-red-200 bg-white p-3 hover:bg-red-50"
+                    className="min-w-0 rounded-lg border border-red-200 bg-white p-3 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                   >
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <div className="font-semibold text-slate-900">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="break-words text-sm font-semibold text-slate-900">
                           {passport.client_name}
                         </div>
-                        <div className="text-xs text-slate-500">
+                        <div className="break-words text-xs text-slate-500">
                           {passport.passport_number ||
                             "Passport number not extracted"}
                         </div>

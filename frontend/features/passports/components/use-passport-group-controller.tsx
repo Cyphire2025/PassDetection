@@ -111,7 +111,7 @@ export function usePassportGroupController({ groupId }: { groupId: string }) {
   } | null>(null);
   const [isTripDetailsExpanded, setIsTripDetailsExpanded] = useState(false);
   const tripDetailsRegionId = useId();
-  const [isExpiryAlertsExpanded, setIsExpiryAlertsExpanded] = useState(true);
+  const [isExpiryAlertsExpanded, setIsExpiryAlertsExpanded] = useState(false);
   const expiryAlertsRegionId = useId();
   const {
     data: submissionsView,

@@ -10,10 +10,12 @@
           "details": {
             "anyOf": [
               {
+                "additionalProperties": true,
                 "type": "object"
               },
               {
                 "items": {
+                  "additionalProperties": true,
                   "type": "object"
                 },
                 "type": "array"
@@ -754,9 +756,6 @@
           "source": {
             "const": "qr",
             "default": "qr",
-            "enum": [
-              "qr"
-            ],
             "title": "Source",
             "type": "string"
           }
@@ -2749,18 +2748,12 @@
           "attribution": {
             "const": "© OpenStreetMap contributors",
             "default": "© OpenStreetMap contributors",
-            "enum": [
-              "© OpenStreetMap contributors"
-            ],
             "title": "Attribution",
             "type": "string"
           },
           "attribution_url": {
             "const": "https://www.openstreetmap.org/copyright",
             "default": "https://www.openstreetmap.org/copyright",
-            "enum": [
-              "https://www.openstreetmap.org/copyright"
-            ],
             "title": "Attribution Url",
             "type": "string"
           },
@@ -3298,6 +3291,7 @@
             "type": "string"
           },
           "payload": {
+            "additionalProperties": true,
             "title": "Payload",
             "type": "object"
           },
@@ -3623,9 +3617,6 @@
           "scope": {
             "const": "personal",
             "default": "personal",
-            "enum": [
-              "personal"
-            ],
             "title": "Scope",
             "type": "string"
           },
@@ -4134,6 +4125,7 @@
             "type": "string"
           },
           "payload": {
+            "additionalProperties": true,
             "title": "Payload",
             "type": "object"
           },
@@ -4410,9 +4402,6 @@
           "strategy": {
             "const": "full_rebase",
             "default": "full_rebase",
-            "enum": [
-              "full_rebase"
-            ],
             "title": "Strategy",
             "type": "string"
           },
@@ -4476,9 +4465,6 @@
           "token_type": {
             "const": "bearer",
             "default": "bearer",
-            "enum": [
-              "bearer"
-            ],
             "title": "Token Type",
             "type": "string"
           }
@@ -4748,9 +4734,6 @@
         "properties": {
           "accepted": {
             "const": true,
-            "enum": [
-              true
-            ],
             "title": "Accepted",
             "type": "boolean"
           },
@@ -4894,17 +4877,11 @@
           },
           "enrollment_status": {
             "const": "deleted",
-            "enum": [
-              "deleted"
-            ],
             "title": "Enrollment Status",
             "type": "string"
           },
           "local_downloads_affected": {
             "const": false,
-            "enum": [
-              false
-            ],
             "title": "Local Downloads Affected",
             "type": "boolean"
           },
@@ -5649,9 +5626,6 @@
           },
           "status": {
             "const": "created",
-            "enum": [
-              "created"
-            ],
             "title": "Status",
             "type": "string"
           }
@@ -16060,13 +16034,8 @@
           "content": {
             "application/json": {
               "schema": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/AttendanceCloseRequest"
-                  }
-                ],
-                "default": {},
-                "title": "Body"
+                "$ref": "#/components/schemas/AttendanceCloseRequest",
+                "default": {}
               }
             }
           }
@@ -18556,9 +18525,6 @@
               "anyOf": [
                 {
                   "const": "gc_alert",
-                  "enum": [
-                    "gc_alert"
-                  ],
                   "type": "string"
                 },
                 {

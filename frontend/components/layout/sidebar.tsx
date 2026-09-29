@@ -21,6 +21,7 @@ import {
   Link2,
   Mail,
   MessageCircle,
+  Plug,
   SendToBack,
   Settings,
   Shield,
@@ -80,6 +81,7 @@ const NAV_ITEMS: NavItem[] = [
     activePrefixes: [ROUTES.dashboard.gcAppRoot],
   },
   { label: "Manager", href: ROUTES.dashboard.admin, icon: Shield },
+  { label: "MCP", href: ROUTES.dashboard.mcp, icon: Plug },
   { label: "Staff", href: ROUTES.dashboard.staff, icon: UserCog },
   { label: "Analytics", href: ROUTES.dashboard.analytics, icon: BarChart3 },
   {
@@ -137,7 +139,7 @@ export function Sidebar({ mobile = false, onNavigate }: SidebarProps) {
         <ul className="flex flex-col gap-1 px-2" role="list">
           {visibleItems.map((item) => {
             const activePrefixes = item.activePrefixes ?? [item.href];
-            const isActive = activePrefixes.some(
+            const isActive = item.href === ROUTES.dashboard.admin ? pathname === item.href : activePrefixes.some(
               (prefix) =>
                 pathname === prefix || pathname.startsWith(prefix + "/"),
             );

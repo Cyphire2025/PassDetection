@@ -20,7 +20,6 @@ from app.core.config.settings import get_settings
 from app.domain.entities.entities import User
 from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
-    WhatsAppMessageLogModel,
     WhatsAppRecipientMessageStateModel,
 )
 from app.infrastructure.database.session import get_db_session
@@ -48,15 +47,16 @@ from app.presentation.api.v1.routes.whatsapp_reminder_audience import (
 from app.presentation.api.v1.routes.whatsapp_roster_support import (
     _active_explicit_reminder_recipient_ids,
 )
+from app.presentation.api.v1.routes.whatsapp_send_intents import register_send_http_route
 from app.presentation.api.v1.routes.whatsapp_send_support import (
     add_frozen_broadcast_logs,
+    broadcast_suppression_statuses,
+    release_stale_broadcast_claims,
     unclaimed_delivery_counts,
 )
 from app.presentation.api.v1.routes.whatsapp_shared import (
-    WHATSAPP_IN_PROGRESS_STATUSES,
     WHATSAPP_ROLES,
     WHATSAPP_STALE_CLAIM_AGE,
-    WHATSAPP_SUPPRESSED_STATUSES,
     _agency_filter,
     _as_message_type,
     _group_recipients,
@@ -77,22 +77,63 @@ from app.presentation.api.v1.schemas.whatsapp_schemas import (
     WhatsAppSendResponse,
 )
 from app.presentation.dependencies.auth import require_role
-from app.presentation.dependencies.csrf import require_cookie_csrf
 
 router = APIRouter()
 
 
-@router.post(
-    "/groups/{group_id}/send",
-    response_model=WhatsAppSendResponse,
-    dependencies=[Depends(require_cookie_csrf)],
-)
 async def send_broadcast_message(
     group_id: uuid.UUID,
     body: WhatsAppSendRequest,
     current_user: User = Depends(require_role(WHATSAPP_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> WhatsAppSendResponse:
+    response, payload = await queue_broadcast_message(
+        group_id,
+        body,
+        current_user=current_user,
+        session=session,
+    )
+    await session.commit()
+    if response.batch_id is None:
+        return response
+    from app.infrastructure.whatsapp.tasks import process_whatsapp_broadcast
+
+    try:
+        await publish_whatsapp_task(process_whatsapp_broadcast, payload=payload)
+    except Exception as exc:
+        logger.error(
+            "whatsapp_worker_queue_unavailable",
+            extra={
+                "batch_id": str(response.batch_id),
+                "error_type": type(exc).__name__,
+            },
+        )
+        await fail_unclaimed_broadcast_rows(
+            session,
+            batch_id=response.batch_id,
+            error_message="WHATSAPP_QUEUE_UNAVAILABLE: WhatsApp delivery queue is temporarily unavailable",
+        )
+        await session.commit()
+        raise HTTPException(
+            status_code=503, detail="WhatsApp delivery queue is unavailable"
+        ) from exc
+    return response
+
+
+async def queue_broadcast_message(
+    group_id: uuid.UUID,
+    body: WhatsAppSendRequest,
+    *,
+    current_user: User,
+    session: AsyncSession,
+    freeze_template_language: bool = False,
+    suppress_unknown_reminders: bool = False,
+) -> tuple[WhatsAppSendResponse, dict[str, object]]:
+    """Shared flush-only queue boundary; callers own commit and broker publication.
+
+    A savepoint which is explicitly rolled back can project the exact website
+    claims without persisting them. This function never invokes a provider.
+    """
     result = await session.execute(
         select(WhatsAppBroadcastGroupModel)
         .where(
@@ -213,67 +254,27 @@ async def send_broadcast_message(
     batch_id = uuid.uuid4()
     now = datetime.now(tz=UTC)
     stale_cutoff = now - WHATSAPP_STALE_CLAIM_AGE
-    # Each deliberate reminder is a new broadcast. Prior outcomes belong to
-    # that earlier attempt; only a reminder currently being sent blocks it.
-    suppressed_statuses = (
-        WHATSAPP_IN_PROGRESS_STATUSES
-        if message_type == "reminder"
-        else WHATSAPP_SUPPRESSED_STATUSES
-    )
-
-    # Other message types may reclaim a queued task that has not contacted Meta.
-    # An invite remains blocked while any queued attempt still exists. A stale
-    # processing task may have submitted bytes before a worker interruption,
-    # so it becomes delivery_unknown. Automatic retry remains suppressed;
-    # a deliberate new reminder is a separate attempt and may replace it.
-    await session.execute(
-        update(WhatsAppMessageLogModel)
-        .where(
-            WhatsAppMessageLogModel.broadcast_group_id == group.id,
-            WhatsAppMessageLogModel.message_type == message_type,
-            WhatsAppMessageLogModel.status == "queued",
-            WhatsAppMessageLogModel.message_type != "group_invite",
-            WhatsAppMessageLogModel.status_updated_at < stale_cutoff,
+    suppressed_statuses = broadcast_suppression_statuses(message_type, suppress_unknown_reminders)
+    if suppress_unknown_reminders:
+        recorded_states = await session.scalars(
+            select(WhatsAppRecipientMessageStateModel.status)
+            .where(
+                WhatsAppRecipientMessageStateModel.recipient_id.in_(
+                    [recipient.id for recipient in recipients]
+                ),
+                WhatsAppRecipientMessageStateModel.message_type == message_type,
+            )
+            .distinct()
         )
-        .values(
-            status="failed",
-            status_updated_at=now,
-            error_message="Delivery claim expired before provider submission",
-        )
-        .execution_options(synchronize_session=False)
-    )
-    await session.execute(
-        update(WhatsAppMessageLogModel)
-        .where(
-            WhatsAppMessageLogModel.broadcast_group_id == group.id,
-            WhatsAppMessageLogModel.message_type == message_type,
-            WhatsAppMessageLogModel.status == "processing",
-            WhatsAppMessageLogModel.status_updated_at < stale_cutoff,
-        )
-        .values(
-            status="delivery_unknown",
-            status_updated_at=now,
-            error_message=(
-                "Delivery outcome is unknown after a worker interruption; "
-                "automatic resend is suppressed"
-            ),
-        )
-        .execution_options(synchronize_session=False)
-    )
-    await session.execute(
-        update(WhatsAppRecipientMessageStateModel)
-        .where(
-            WhatsAppRecipientMessageStateModel.broadcast_group_id == group.id,
-            WhatsAppRecipientMessageStateModel.message_type == message_type,
-            WhatsAppRecipientMessageStateModel.status == "processing",
-            WhatsAppRecipientMessageStateModel.status_updated_at < stale_cutoff,
-        )
-        .values(
-            status="delivery_unknown",
-            status_updated_at=now,
-            updated_at=now,
-        )
-        .execution_options(synchronize_session=False)
+        suppressed_statuses |= frozenset(recorded_states.all()) - {
+            "submitted",
+            "sent",
+            "delivered",
+            "read",
+            "failed",
+        }
+    await release_stale_broadcast_claims(
+        session, group_id=group.id, message_type=message_type, now=now, stale_cutoff=stale_cutoff
     )
 
     active_explicit_reminder_ids = (
@@ -299,13 +300,21 @@ async def send_broadcast_message(
         await group_invite_blocking_statuses(session, recipients)
         if message_type == "group_invite"
         else await message_phone_blocking_statuses(session, recipients, message_type=message_type)
-        if message_type == "passport_link" else {}
+        if message_type == "passport_link"
+        else {}
     )
     claimed_recipient_ids = await claim_broadcast_recipient_rows(
-        session, group_id=group.id, recipients=recipients, message_type=message_type,
-        batch_id=batch_id, now=now, stale_cutoff=stale_cutoff,
-        active_explicit_reminder_ids=active_explicit_reminder_ids, invite_blocks=invite_blocks,
-        suppressed_statuses=suppressed_statuses, insert_factory=pg_insert,
+        session,
+        group_id=group.id,
+        recipients=recipients,
+        message_type=message_type,
+        batch_id=batch_id,
+        now=now,
+        stale_cutoff=stale_cutoff,
+        active_explicit_reminder_ids=active_explicit_reminder_ids,
+        invite_blocks=invite_blocks,
+        suppressed_statuses=suppressed_statuses,
+        insert_factory=pg_insert,
     )
     claimed_recipients = [
         recipient for recipient in recipients if recipient.id in claimed_recipient_ids
@@ -350,7 +359,6 @@ async def send_broadcast_message(
     skipped_delivery_unknown += phone_skipped_unknown
 
     if not claimed_recipients:
-        await session.commit()
         return WhatsAppSendResponse(
             batch_id=None,
             audience=cast(Literal["all", "not_submitted"], audience_resolution.audience),
@@ -366,7 +374,7 @@ async def send_broadcast_message(
             skipped_in_progress=skipped_in_progress,
             skipped_delivery_unknown=skipped_delivery_unknown,
             results=[],
-        )
+        ), {}
 
     results = add_frozen_broadcast_logs(
         session,
@@ -377,45 +385,14 @@ async def send_broadcast_message(
         batch_id=batch_id,
         now=now,
         template_name=template_name,
-        template_language=_snapshot_template_language(settings, message_type),
+        template_language=(
+            _snapshot_template_language(settings, message_type)
+            or (settings.whatsapp_template_language if freeze_template_language else None)
+        ),
         log_ids=welcome_log_ids,
     )
-    await session.commit()
 
-    from app.infrastructure.whatsapp.tasks import process_whatsapp_broadcast
-
-    try:
-        await publish_whatsapp_task(
-            process_whatsapp_broadcast,
-            payload={
-                "batch_id": str(batch_id),
-                "message_type": message_type,
-                "message_content": message_content,
-                "passport_intro": passport_intro,
-                "passport_link": passport_link,
-                "group_invite_link": resolved_body.group_invite_link,
-                "header_image_id": resolved_body.header_image_id,
-            },
-        )
-    except Exception as exc:  # noqa: BLE001 - convert broker failures into a visible batch failure.
-        logger.error(
-            "whatsapp_worker_queue_unavailable",
-            extra={
-                "batch_id": str(batch_id),
-                "error_type": type(exc).__name__,
-            },
-        )
-        error_message = (
-            "WHATSAPP_QUEUE_UNAVAILABLE: WhatsApp delivery queue is temporarily unavailable"
-        )
-        await fail_unclaimed_broadcast_rows(session, batch_id=batch_id, error_message=error_message)
-        await session.commit()
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="WhatsApp delivery queue is unavailable",
-        ) from exc
-
-    return WhatsAppSendResponse(
+    response = WhatsAppSendResponse(
         batch_id=batch_id,
         audience=cast(Literal["all", "not_submitted"], audience_resolution.audience),
         audience_client_group_id=audience_resolution.client_group_id,
@@ -431,3 +408,15 @@ async def send_broadcast_message(
         skipped_delivery_unknown=skipped_delivery_unknown,
         results=results,
     )
+    return response, {
+        "batch_id": str(batch_id),
+        "message_type": message_type,
+        "message_content": message_content,
+        "passport_intro": passport_intro,
+        "passport_link": passport_link,
+        "group_invite_link": resolved_body.group_invite_link,
+        "header_image_id": resolved_body.header_image_id,
+    }
+
+
+register_send_http_route(router, queue_broadcast_message)

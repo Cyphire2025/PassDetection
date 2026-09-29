@@ -65,8 +65,12 @@ def template_environment(monkeypatch):
     # fallback through the same settings object configured by each test.
     from app.infrastructure.whatsapp import template_settings
     from app.presentation.api.v1.routes import whatsapp_scope
-    monkeypatch.setattr(template_settings, "environment_template_name",
-                        lambda slot, **kwargs: whatsapp_scope._configured_template_name(slot))
+
+    monkeypatch.setattr(
+        template_settings,
+        "environment_template_name",
+        lambda slot, **kwargs: whatsapp_scope._configured_template_name(slot),
+    )
 
 
 def test_delivery_ledger_schema_is_generic_and_unique_per_recipient_type() -> None:
@@ -142,6 +146,19 @@ def test_recipient_checklist_only_marks_provider_accepted_states_as_sent() -> No
         "passport_link": False,
         "welcome": True,
     }
+
+
+@pytest.fixture(autouse=True)
+def isolate_mcp_batch_hooks(monkeypatch):
+    # This unit lane tests the existing delivery ledger using minimal sessions.
+    # Real SQL MCP origin/progress checks are covered by MCP integration lanes.
+    monkeypatch.setattr(
+        "app.infrastructure.whatsapp.worker_runtime.authorize_mcp_batch_dispatch",
+        AsyncMock(return_value=None),
+    )
+    monkeypatch.setattr(
+        "app.infrastructure.whatsapp.worker_runtime.refresh_mcp_dispatch_progress", AsyncMock()
+    )
 
 
 @pytest.mark.asyncio
@@ -747,9 +764,14 @@ async def test_batch_status_reports_ambiguous_outcomes_separately_from_failures(
         ),
     ]
     result = MagicMock()
-    result.all.return_value = [SimpleNamespace(
-        **vars(log), recipient_id=recipient.id, normalized_phone_number=recipient.normalized_phone_number,
-    ) for log, recipient in rows]
+    result.all.return_value = [
+        SimpleNamespace(
+            **vars(log),
+            recipient_id=recipient.id,
+            normalized_phone_number=recipient.normalized_phone_number,
+        )
+        for log, recipient in rows
+    ]
     session = AsyncMock()
     session.info = {TEMPLATE_SETTINGS_MEMO: TemplateSettingsSnapshot(0, None, {})}
     session.execute.return_value = result

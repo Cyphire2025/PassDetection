@@ -13,7 +13,7 @@
       "expires_on": "2026-12-25",
       "rationale": "Only the reviewed Apple App Attest import closure is used. It does not import jose or ecdsa. Other pyattest verifiers and testutils DO import jose and are not approved. JWT signing uses PyJWT/cryptography. This is a scoped temporary acceptance, not a patched dependency.",
       "evidence": "docs/remediation/phase2-tooling.md#dependency-exception",
-      "runtime_lock_sha256": "5d5c411e4dd9a70a37f8d29b9443badde6b3f98441d36da1d99c13c2bfe1acad",
+      "runtime_lock_sha256": "12b8af84c5b7ffe4d3e624b2d2ebf96079b8ce464ce74f80800dd7ea4bbc68d9",
       "versions": {
         "pyattest": "1.0.5",
         "python-jose": "3.5.0",

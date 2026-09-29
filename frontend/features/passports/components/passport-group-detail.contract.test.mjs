@@ -153,7 +153,7 @@ test("full-group exports stay enabled when the current page is empty", () => {
 });
 
 test("expiry alerts are collapsible through an accessible disclosure control", () => {
-  assert.match(source, /const \[isExpiryAlertsExpanded, setIsExpiryAlertsExpanded\] = useState\(true\)/);
+  assert.match(source, /const \[isExpiryAlertsExpanded, setIsExpiryAlertsExpanded\] = useState\(false\)/);
   assert.match(source, /aria-expanded=\{isExpiryAlertsExpanded\}/);
   assert.match(source, /aria-controls=\{expiryAlertsRegionId\}/);
   assert.match(source, /id=\{expiryAlertsRegionId\}/);
@@ -162,7 +162,7 @@ test("expiry alerts are collapsible through an accessible disclosure control", (
 });
 
 test("expiry guidance uses the group Travel/Departure date", () => {
-  assert.match(source, /within 6 months of the Travel\/Departure date/);
+  assert.match(source, /within 6 months of departure/);
   assert.match(source, /formatPassportDateForUi\(groupDetails\.travel_date\)/);
   assert.match(source, /label="Travel\/Departure Date"/);
 });

@@ -1,0 +1,13 @@
+# Optional operator opt-in only. Provision an existing dedicated directory first.
+# No Docker socket, host logs, command execution, or writable mount enters the API.
+services:
+  backend:
+    environment:
+      MCP_DIAGNOSTIC_LOG_ROOT: /var/lib/passdetection/mcp-diagnostics
+    volumes:
+      - type: bind
+        source: ${MCP_DIAGNOSTIC_HOST_ROOT:?Set the existing dedicated derived-log directory}
+        target: /var/lib/passdetection/mcp-diagnostics
+        read_only: true
+        bind:
+          create_host_path: false

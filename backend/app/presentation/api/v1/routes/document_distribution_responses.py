@@ -34,12 +34,12 @@ from app.presentation.api.v1.schemas.document_distribution_schemas import (
 )
 
 
-async def _document_response(
+def _document_response_snapshot(
     document: DistributedDocumentModel,
-    storage: MinioStorageRepository,
     *,
     source: str,
     deliveries: list[DocumentWhatsAppDeliveryModel],
+    url: str | None = None,
 ) -> DistributedDocumentResponse:
     ordered_deliveries = sorted(
         deliveries,
@@ -78,6 +78,21 @@ async def _document_response(
         sent_to=latest_accepted.phone_number if latest_accepted else None,
         last_sent_at=latest_accepted.status_updated_at if latest_accepted else None,
         can_resend=latest_accepted is not None and not in_progress,
+        url=url,
+    )
+
+
+async def _document_response(
+    document: DistributedDocumentModel,
+    storage: MinioStorageRepository,
+    *,
+    source: str,
+    deliveries: list[DocumentWhatsAppDeliveryModel],
+) -> DistributedDocumentResponse:
+    return _document_response_snapshot(
+        document,
+        source=source,
+        deliveries=deliveries,
         url=await storage.get_presigned_url(document.storage_key),
     )
 

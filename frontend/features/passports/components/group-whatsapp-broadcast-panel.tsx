@@ -1,15 +1,13 @@
 "use client";
 
-import { AlertCircle, ArrowLeft, CheckCircle2, ChevronRight, CircleHelp, Download, Link2, Loader2, MessageCircle, UserRoundCheck, UserRoundX, Users } from "lucide-react";
-import Link from "next/link";
+import { AlertCircle, ArrowLeft, CheckCircle2, CircleHelp, Download, Link2, Loader2, MessageCircle, UserRoundCheck, UserRoundX, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { IntentPrefetchLink } from "@/components/shared/intent-prefetch-link";
 import { isDownloadCancelled } from "@/lib/api/download-destination";
 import { WorkspacePageHeader } from "@/components/shared/workspace-ui";
-import { Button, buttonVariants, Card, CardContent, ConfirmDialog, Skeleton } from "@/components/ui";
+import { Button, Card, CardContent, ConfirmDialog, Skeleton } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
-import { cn } from "@/lib/utils/cn";
 import { canAccessWhatsAppBroadcasts } from "@/lib/utils/role-access";
 import { selectHasHydrated, selectUserRole, useAuthStore } from "@/stores/auth.store";
 import type { GroupWhatsAppMatch } from "../api/upload-links.api";
@@ -20,6 +18,8 @@ import { GroupWhatsAppTrackingGate } from "./group-whatsapp-tracking-gate";
 import { MATCH_FILTERS, type MatchFilter, rowPrimaryName, createRosterRequestId } from "./group-whatsapp-tracking-model";
 import { TrackingStat, BroadcastMatchTable } from "./group-whatsapp-tracking-table";
 import { ReplacementDialog, ManageBroadcastsDialog } from "./group-whatsapp-dialogs";
+
+import { GroupWhatsAppSummary } from "./group-whatsapp-summary";
 
 interface GroupWhatsAppBroadcastPanelProps {
   groupId: string;
@@ -162,88 +162,19 @@ function GroupWhatsAppBroadcastWorkspace({
   }, [broadcastFilter, links?.broadcasts]);
 
   if (linksLoading) {
-    return <Skeleton className="h-44 w-full rounded-2xl" />;
+    return <Skeleton className="h-52 w-full rounded-xl" />;
   }
 
   if (mode === "summary") {
     return (
       <>
-        <Card>
-          <CardContent className="space-y-4 p-5">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
-                  <MessageCircle className="h-5 w-5" aria-hidden="true" />
-                </span>
-                <div>
-                  <h2 className="text-base font-semibold text-slate-900">
-                    WhatsApp broadcasts
-                  </h2>
-                  <p className="mt-1 text-sm text-slate-600">
-                    Link recipient lists and open tracking when you need the full comparison.
-                  </p>
-                </div>
-              </div>
-              {canManage && (
-                <Button
-                  type="button"
-                  variant={hasLinkedBroadcasts ? "secondary" : "primary"}
-                  size="sm"
-                  onClick={() => setIsManaging(true)}
-                >
-                  <Link2 className="h-4 w-4" aria-hidden="true" />
-                  {hasLinkedBroadcasts ? "Manage broadcasts" : "Link broadcasts"}
-                </Button>
-              )}
-            </div>
-
-            {linksError ? (
-              <div
-                role="alert"
-                className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-              >
-                Linked WhatsApp broadcasts could not be loaded.
-              </div>
-            ) : !hasLinkedBroadcasts ? (
-              <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-5 py-7 text-center">
-                <div className="font-medium text-slate-800">
-                  No WhatsApp broadcasts linked
-                </div>
-                <p className="mt-1 text-sm text-slate-500">
-                  Link one or more existing broadcasts to track submissions.
-                </p>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-4 rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex min-w-0 flex-wrap gap-2">
-                  {links?.broadcasts.map((broadcast) => (
-                    <span
-                      key={broadcast.id}
-                      className="inline-flex max-w-full flex-col rounded-xl border border-emerald-200 bg-white px-3 py-1.5 text-emerald-900"
-                    >
-                      <span className="truncate text-sm font-semibold">{broadcast.name}</span>
-                      <span className="truncate text-[11px] font-medium text-emerald-700">
-                        {broadcastMatchingSummary(broadcast)}
-                      </span>
-                    </span>
-                  ))}
-                </div>
-                <Link
-                  href={
-                    ROUTES.dashboard.passportGroupWhatsAppTracking(groupId)
-                  }
-                  className={cn(
-                    buttonVariants({ size: "sm" }),
-                    "shrink-0",
-                  )}
-                >
-                  View tracking
-                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <GroupWhatsAppSummary
+          groupId={groupId}
+          links={links}
+          hasError={Boolean(linksError)}
+          canManage={canManage}
+          onManage={() => setIsManaging(true)}
+        />
 
         {isManaging && (
           <ManageBroadcastsDialog

@@ -14,6 +14,8 @@ _UUID_SEGMENT = re.compile(
     r"/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}"
     r"-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}(?=/|$)"
 )
+_MCP_ARTIFACT_SEGMENT = re.compile(r"^(/mcp/artifacts/)(?!(?:uploads|authority)(?:/|$))[^/]+")
+_MCP_MEDIA_SEGMENT = re.compile(r"^(/mcp/whatsapp-media/)(?!(?:uploads|authority)(?:/|$))[^/]+")
 
 
 def safe_request_path(request: Request, *, prefer_route_template: bool = False) -> str:
@@ -26,6 +28,8 @@ def safe_request_path(request: Request, *, prefer_route_template: bool = False) 
             return route_path
 
     path = request.url.path
+    path = _MCP_ARTIFACT_SEGMENT.sub(r"\1{artifact}", path)
+    path = _MCP_MEDIA_SEGMENT.sub(r"\1{media}", path)
     for pattern in _PUBLIC_TOKEN_SEGMENTS:
         path = pattern.sub(r"\1{token}", path)
     return _UUID_SEGMENT.sub("/{id}", path)

@@ -9,7 +9,6 @@ import uuid
 from collections import defaultdict
 from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime
-from types import SimpleNamespace
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from fastapi.responses import StreamingResponse
@@ -24,6 +23,13 @@ from app.application.use_cases.rooming.auto_allocator import (
     normalize_priority_value,
     normalize_rooming_gender,
     room_plan_fingerprint,
+)
+from app.application.use_cases.rooming.create_hotel import create_hotel
+from app.application.use_cases.rooming.prepare_excel import (
+    RoomingExcelSupport,
+    RoomingPreparationError,
+    prepare_checkins,
+    prepare_rooming_list,
 )
 from app.domain.entities.entities import (
     OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES,
@@ -43,7 +49,6 @@ from app.infrastructure.database.models import (
     RoomingRoomModel,
 )
 from app.infrastructure.database.session import get_db_session
-from app.infrastructure.export.rooming_excel_exporter import RoomingExcelExporter
 from app.infrastructure.observability import metrics
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.operational_roster import operational_roster_member
@@ -221,17 +226,7 @@ async def create_rooming_hotel(
     session: AsyncSession = Depends(get_db_session),
 ) -> RoomingHotelResponse:
     group = await _get_rooming_group(session, group_id, current_user)
-    hotel = RoomingHotelModel(
-        agency_id=group.agency_id,
-        group_id=group.id,
-        hotel_name=body.hotel_name.strip(),
-        city=body.city.strip() if body.city else None,
-        check_in_date=body.check_in_date,
-        check_out_date=body.check_out_date,
-        created_by_user_id=current_user.id,
-    )
-    session.add(hotel)
-    await session.flush()
+    hotel = await create_hotel(session, agency_id=group.agency_id, group_id=group.id, actor_id=current_user.id, body=body)
     await _audit(session, current_user, request, "rooming.hotel_created", hotel, {"group_id": str(group.id)})
     return RoomingHotelResponse(
         id=hotel.id,
@@ -845,6 +840,14 @@ async def update_passenger_allocation(
     )
 
 
+def rooming_excel_support() -> RoomingExcelSupport:
+    return RoomingExcelSupport(
+        _require_current_allocation, _eligible_group_passengers, _room_number_sort_key,
+        build_rooming_priority_context, _stored_room_plan_matches, _export_filename,
+        _checkin_dashboard,
+    )
+
+
 @router.get(
     "/hotels/{hotel_id}/export.xlsx",
     summary="Download a hotel-ready rooming list workbook",
@@ -856,195 +859,25 @@ async def export_hotel_rooming_list(
     session: AsyncSession = Depends(get_db_session),
 ) -> StreamingResponse:
     hotel, group = await _get_rooming_hotel(session, hotel_id, current_user)
-    await _require_current_allocation(session, hotel)
-    rooms_result = await session.execute(
-        select(RoomingRoomModel).where(RoomingRoomModel.hotel_id == hotel.id)
-    )
-    rooms = sorted(rooms_result.scalars().all(), key=lambda room: (room.sort_order, _room_number_sort_key(room.room_number)))
-    assignments_result = await session.execute(
-        select(RoomingAssignmentModel).where(RoomingAssignmentModel.hotel_id == hotel.id).order_by(RoomingAssignmentModel.position.asc())
-    )
-    assignments_by_room: dict[uuid.UUID, list[RoomingAssignmentModel]] = defaultdict(list)
-    passenger_ids: set[uuid.UUID] = set()
-    for assignment in assignments_result.scalars().all():
-        assignments_by_room[assignment.room_id].append(assignment)
-        passenger_ids.add(assignment.passenger_id)
-    passenger_result = await session.execute(select(PassportSubmissionModel).where(PassportSubmissionModel.id.in_(passenger_ids))) if passenger_ids else None
-    passengers = list(passenger_result.scalars().all()) if passenger_result else []
-    all_passengers = await _eligible_group_passengers(
-        session,
-        group,
-        lock_for_allocation=True,
-    )
-    priority_context = await build_rooming_priority_context(
-        session,
-        group=group,
-        passengers=all_passengers,
-        required_fields=list(hotel.allocation_priority_fields or []),
-        requested_keys=[
-            field["key"] for field in (hotel.allocation_priority_fields or [])
-        ],
-        lock_inputs=True,
-    )
-    memberships = list(
-        (
-            await session.execute(
-                select(RoomingHotelPassengerModel).where(
-                    RoomingHotelPassengerModel.hotel_id == hotel.id
-                )
-            )
+    try:
+        prepared = await prepare_rooming_list(
+            session, support=rooming_excel_support(), hotel=hotel, group=group,
         )
-        .scalars()
-        .all()
-    )
-    priority_fields = list(hotel.allocation_priority_fields or [])
-    if hotel.allocation_fingerprint != "0" * 64:
-        allocation_passenger_by_id = {
-            passenger.id: passenger for passenger in all_passengers
-        }
-        candidates: list[RoomingAllocationCandidate] = []
-        for membership in memberships:
-            passenger = allocation_passenger_by_id.get(membership.passenger_id)
-            if passenger is None:
-                raise HTTPException(
-                    status_code=status.HTTP_409_CONFLICT,
-                    detail=(
-                        "The selected passenger data changed. Run auto room "
-                        "allocation again before exporting."
-                    ),
-                )
-            passport_fields = (
-                passenger.confirmed_fields or passenger.extracted_fields or {}
-            )
-            gender = normalize_rooming_gender(passport_fields.get("sex"))
-            if gender is None:
-                raise HTTPException(
-                    status_code=status.HTTP_409_CONFLICT,
-                    detail=(
-                        "A selected passenger no longer has Gender set to Male "
-                        "or Female. Correct it and run auto room allocation again."
-                    ),
-                )
-            passenger_values = priority_context.values_by_passenger.get(
-                passenger.id,
-                {},
-            )
-            candidates.append(
-                RoomingAllocationCandidate(
-                    passenger_id=passenger.id,
-                    gender=gender,
-                    is_vip=membership.is_vip,
-                    priority_values=tuple(
-                        normalize_priority_value(
-                            passenger_values.get(field["key"])
-                        )
-                        for field in priority_fields
-                    ),
-                    stable_order=(
-                        passenger.created_at,
-                        passenger.family_member_index or 0,
-                        passenger.client_name.casefold(),
-                    ),
-                )
-            )
-        expected_plan = build_room_plan(
-            candidates,
-            priority_count=len(priority_fields),
-        )
-        expected_fingerprint = room_plan_fingerprint(
-            expected_plan,
-            priority_fields,
-            candidates=candidates,
-        )
-        if (
-            expected_fingerprint != hotel.allocation_fingerprint
-            or not await _stored_room_plan_matches(
-                session,
-                hotel.id,
-                expected_plan,
-            )
-        ):
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=(
-                    "Passenger grouping inputs changed after room allocation. "
-                    "Run auto room allocation again before exporting."
-                ),
-            )
-    export_group = SimpleNamespace(
-        name=group.name,
-        staff_code_enabled=group.staff_code_enabled,
-        agent_employee_code_enabled=group.agent_employee_code_enabled,
-        travel_date=group.travel_date,
-    )
-    export_hotel = SimpleNamespace(
-        hotel_name=hotel.hotel_name,
-        city=hotel.city,
-        check_in_date=hotel.check_in_date,
-        check_out_date=hotel.check_out_date,
-    )
-    export_rooms = [
-        (
-            SimpleNamespace(
-                room_number=room.room_number,
-                room_type=room.room_type,
-            ),
-            [
-                SimpleNamespace(passenger_id=assignment.passenger_id)
-                for assignment in assignments_by_room.get(room.id, [])
-            ],
-        )
-        for room in rooms
-    ]
-    export_passenger_by_id = {
-        passenger.id: SimpleNamespace(
-            id=passenger.id,
-            confirmed_fields=dict(passenger.confirmed_fields or {}),
-            extracted_fields=dict(passenger.extracted_fields or {}),
-            staff_metadata=dict(passenger.staff_metadata or {}),
-        )
-        for passenger in passengers
-    }
-    export_scope = (
-        hotel.allocation_revision,
-        hotel.allocation_fingerprint,
-        hotel.hotel_name,
-        hotel.city,
-        hotel.check_in_date,
-        hotel.check_out_date,
-        group.name,
-        group.staff_code_enabled,
-        group.agent_employee_code_enabled,
-        group.travel_date,
-    )
-    audit_priority_fields = [field.get("key") for field in priority_fields]
-    filename = _export_filename(hotel.hotel_name)
-    export_vip_passenger_ids = {
-        membership.passenger_id for membership in memberships if membership.is_vip
-    }
+    except RoomingPreparationError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
+    export_scope = prepared.scope
+    filename = prepared.filename
     # All workbook inputs above are detached immutable projections. Release the
     # shared allocation/roster locks before CPU-heavy XLSX generation, then
     # reauthorize and revalidate the export scope before returning the bytes.
     await session.rollback()
     export_started = time.perf_counter()
-    content = await asyncio.to_thread(
-        RoomingExcelExporter().export_hotel,
-        group=export_group,
-        hotel=export_hotel,
-        rooms=export_rooms,
-        passenger_by_id=export_passenger_by_id,
-        vip_passenger_ids=export_vip_passenger_ids,
-        priority_fields=[dict(field) for field in priority_fields],
-        priority_values={
-            passenger_id: dict(values)
-            for passenger_id, values in priority_context.values_by_passenger.items()
-        },
-    )
+    content = await asyncio.to_thread(prepared.render_sync)
     metrics.observe(
         "rooming.export.generation_duration_ms",
         (time.perf_counter() - export_started) * 1_000,
     )
-    metrics.observe("rooming.export.passenger_count", len(passengers))
+    metrics.observe("rooming.export.passenger_count", prepared.passenger_count)
     current_hotel, current_group = await _get_rooming_hotel(
         session,
         hotel_id,
@@ -1076,8 +909,8 @@ async def export_hotel_rooming_list(
         current_hotel,
         {
             "allocation_revision": current_hotel.allocation_revision,
-            "passenger_count": len(passengers),
-            "priority_fields": audit_priority_fields,
+            "passenger_count": prepared.passenger_count,
+            "priority_fields": prepared.priority_fields,
         },
     )
     return StreamingResponse(
@@ -1237,47 +1070,24 @@ async def export_hotel_checkins(
     session: AsyncSession = Depends(get_db_session),
 ) -> StreamingResponse:
     hotel, group = await _get_rooming_hotel(session, hotel_id, current_user)
-    await _require_current_allocation(session, hotel)
-    dashboard = await _checkin_dashboard(session, hotel, group)
-    export_passengers = [
-        SimpleNamespace(
-            room_number=item.room_number,
-            room_type=item.room_type,
-            passenger_name=item.passenger_name,
-            checked_in=item.checked_in,
-            key_issued=item.key_issued,
-            welcome_letter_issued=item.welcome_letter_issued,
-            remarks=item.remarks,
-            is_vip=item.is_vip,
+    try:
+        prepared = await prepare_checkins(
+            session, support=rooming_excel_support(), hotel=hotel, group=group,
         )
-        for item in dashboard.passengers
-    ]
-    export_scope = (
-        hotel.allocation_revision,
-        hotel.allocation_fingerprint,
-        hotel.hotel_name,
-        group.name,
-    )
-    export_group_name = group.name
-    export_hotel_name = hotel.hotel_name
-    export_filename = (
-        f"hotel_checkins_{_export_filename(hotel.hotel_name).removeprefix('rooming_list_')}"
-    )
+    except RoomingPreparationError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
+    export_scope = prepared.scope
+    export_filename = prepared.filename
     await session.rollback()
     export_started = time.perf_counter()
-    content = await asyncio.to_thread(
-        RoomingExcelExporter().export_checkins,
-        group_name=export_group_name,
-        hotel_name=export_hotel_name,
-        passengers=export_passengers,
-    )
+    content = await asyncio.to_thread(prepared.render_sync)
     metrics.observe(
         "rooming.checkin_export.generation_duration_ms",
         (time.perf_counter() - export_started) * 1_000,
     )
     metrics.observe(
         "rooming.checkin_export.passenger_count",
-        len(dashboard.passengers),
+        prepared.passenger_count,
     )
     current_hotel, current_group = await _get_rooming_hotel(
         session,

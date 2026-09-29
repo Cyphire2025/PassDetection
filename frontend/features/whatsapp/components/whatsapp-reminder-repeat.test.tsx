@@ -9,6 +9,7 @@ import type {
 } from "../api/whatsapp.api";
 import { MessagePreviewDialog } from "./whatsapp-message-preview-dialog";
 import { WhatsAppPage } from "./whatsapp-workspace";
+import { UncertainWhatsAppSendError } from "../utils/normal-send-storage";
 
 const mocks = vi.hoisted(() => ({
   detail: {} as WhatsAppBroadcastGroupDetail,
@@ -169,6 +170,25 @@ async function openReminder(user: ReturnType<typeof userEvent.setup>, surface = 
   return { dialog, send, paragraph: within(dialog).getByLabelText("Reminder paragraph") };
 }
 
+it("requires a separate explicit choice for a changed unconfirmed normal send without submitting from that choice", async () => {
+  const user = userEvent.setup();
+  const startNew = vi.fn();
+  mocks.sendReminder.mockRejectedValueOnce(new UncertainWhatsAppSendError(startNew));
+  render(<WhatsAppPage />);
+  const { dialog, send } = await openReminder(user);
+  await user.click(send);
+  const choice = await within(dialog).findByRole("button", { name: "I checked delivery history — start a separate send" });
+  expect(within(dialog).getByText(/earlier send may already be queued or delivered/)).toBeVisible();
+  expect(startNew).not.toHaveBeenCalled();
+  expect(mocks.sendReminder).toHaveBeenCalledTimes(1);
+  await user.click(choice);
+  expect(startNew).toHaveBeenCalledExactlyOnceWith();
+  expect(mocks.sendReminder).toHaveBeenCalledTimes(1);
+  await user.click(send);
+  await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+  expect(mocks.sendReminder).toHaveBeenCalledTimes(2);
+});
+
 it("opens the editor before every reminder and supports cancel, edit, send, reopen and another send to everyone", async () => {
   const user = userEvent.setup();
   render(<WhatsAppPage />);
@@ -202,7 +222,7 @@ it("opens the editor before every reminder and supports cancel, edit, send, reop
     expect(mocks.sendReminder).toHaveBeenNthCalledWith(index + 1, {
       groupId: "reminder-group",
       messageContent: wording,
-      recipientIds: null,
+      recipientIds: ["recipient-0", "recipient-1", "recipient-2"],
       audience: "all",
       audienceClientGroupId: null,
     });
@@ -391,12 +411,13 @@ it("keeps earlier terminal reminders in the audience and preview list while usin
   expect(within(dialog).queryByText(/will be skipped automatically/)).not.toBeInTheDocument();
   expect(within(dialog).queryByText(/unknown delivery outcome and require review/)).not.toBeInTheDocument();
   const picker = within(dialog).getByLabelText("Preview recipient") as HTMLSelectElement;
-  expect(Array.from(picker.options, (option) => option.value)).toEqual(mocks.detail.recipients.map((item) => item.id));
+  const eligibleIds = mocks.detail.recipients.slice(0, 6).map((item) => item.id);
+  expect(Array.from(picker.options, (option) => option.value)).toEqual(eligibleIds);
   await user.selectOptions(picker, "recipient-4");
   await waitFor(() => expect(send).toBeEnabled());
   expect(within(dialog).getByTestId("whatsapp-message-preview")).toHaveTextContent("Dear Example delivery_unknown");
   await user.click(send);
-  expect(mocks.sendReminder).toHaveBeenCalledWith(expect.objectContaining({ recipientIds: null }));
+  expect(mocks.sendReminder).toHaveBeenCalledWith(expect.objectContaining({ recipientIds: eligibleIds }));
 });
 
 it("does not allow another reminder while every recipient has an active delivery", async () => {

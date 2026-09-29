@@ -12,6 +12,11 @@ from sqlalchemy.sql.elements import ColumnElement
 
 from app.application.interfaces.email_provider import EmailProvider
 from app.application.security.authorization_policy import AuthorizationPolicy
+from app.application.security.email_scope import (
+    EmailScopeError,
+    email_agency_scope,
+    email_owner_filters,
+)
 from app.core.config.settings import Settings
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import User, UserRole
@@ -46,14 +51,10 @@ def _provider_instance(provider: str, settings: Settings) -> EmailProvider:
 
 
 def _agency_scope(user: User) -> uuid.UUID | None:
-    if user.role == UserRole.SUPER_ADMIN:
-        return None
-    if user.agency_id is None:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Your account is not assigned to the organization.",
-        )
-    return user.agency_id
+    try:
+        return email_agency_scope(user)
+    except EmailScopeError as exc:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc)) from exc
 
 
 def _email_owner_filters(
@@ -63,10 +64,8 @@ def _email_owner_filters(
 ) -> tuple[ColumnElement[bool], ...]:
     """Return the immutable personal mailbox boundary for an authenticated user."""
 
-    filters = [owner_column == user.id]
-    if user.role != UserRole.SUPER_ADMIN:
-        filters.append(agency_column == _agency_scope(user))
-    return tuple(filters)
+    _agency_scope(user)  # Preserve the website's HTTP error contract.
+    return email_owner_filters(owner_column, agency_column, user)
 
 
 def _group_role_visibility_filter(user: User) -> ColumnElement[bool]:

@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { DEFAULT_TRIP_TIMEZONE } from "../utils/trip-timezone";
+import { formatPassportDateForUi } from "@/lib/utils/passport-date";
 import { getImportOnlySettings } from "../schemas/upload-link.schema";
 import { DEFAULT_UPLOAD_CONFIGURATION, isUploadFieldRequired, type RequiredUploadField, type UploadConfiguration } from "../types/upload-configuration";
 import {
@@ -108,24 +109,31 @@ export function PassportGroupOverviewPanel({
         )}
       </WorkspaceSummaryStrip>
       {groupDetails && (
-        <>
-          <Card>
-            <CardContent className="p-5">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <section aria-label="Group overview" className="space-y-3">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,17rem),1fr))] items-stretch gap-3">
+          <Card className="h-full min-w-0">
+            <CardContent className="flex h-full min-h-52 flex-col gap-3 p-4">
+              <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-                    <CalendarDays className="h-5 w-5" />
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                    <CalendarDays className="h-4 w-4" aria-hidden="true" />
                   </span>
                   <div>
-                    <h2 className="text-base font-semibold text-slate-900">
-                      Destination / Trip Details
+                    <h2 className="text-sm font-semibold text-slate-900">
+                      Trip details
                     </h2>
-                    <p className="text-sm text-slate-500">
-                      Used for search, filters, and exports.
-                    </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-base font-semibold text-slate-900" title={groupDetails.destination || undefined}>{groupDetails.destination || "Destination not set"}</p>
+                <p className="mt-1 text-sm text-slate-600">
+                  {formatPassportDateForUi(groupDetails.travel_date) || "Departure not set"}
+                  {groupDetails.return_date && ` – ${formatPassportDateForUi(groupDetails.return_date)}`}
+                </p>
+                <p className="mt-1 truncate text-xs text-slate-500">{groupDetails.timezone || DEFAULT_TRIP_TIMEZONE}</p>
+              </div>
+                <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3">
                   <Button
                     type="button"
                     variant="ghost"
@@ -184,17 +192,27 @@ export function PassportGroupOverviewPanel({
                       setIsEditingTrip(true);
                     }}
                   >
-                    <Pencil className="h-4 w-4" />
+                    <Pencil className="h-4 w-4" aria-hidden="true" />
                     Edit
                   </Button>
                 </div>
-              </div>
-              {isTripDetailsExpanded && (
+            </CardContent>
+          </Card>
+          {!includeDeleted && !error && (
+            <>
+              {canAccessWhatsApp && !groupDetails.import_only && (
+                <GroupWhatsAppBroadcastPanel groupId={groupId} />
+              )}
+              <GroupDocumentDeliveryPanel groupId={groupId} />
+            </>
+          )}
+          </div>
+          {isTripDetailsExpanded && (
                 <div
                   id={tripDetailsRegionId}
                   role="region"
                   aria-label="Destination and trip details"
-                  className="mt-4 grid gap-3 text-sm sm:grid-cols-3"
+                  className="grid gap-4 rounded-xl border border-slate-200 bg-white p-4 text-sm sm:grid-cols-2 lg:grid-cols-3"
                 >
                   <InfoPair
                     label="Destination"
@@ -284,17 +302,7 @@ export function PassportGroupOverviewPanel({
                   </>}
                 </div>
               )}
-            </CardContent>
-          </Card>
-        </>
-      )}
-      {!includeDeleted && groupDetails && !error && (
-        <>
-          {canAccessWhatsApp && !groupDetails.import_only && (
-            <GroupWhatsAppBroadcastPanel groupId={groupId} />
-          )}
-          <GroupDocumentDeliveryPanel groupId={groupId} />
-        </>
+        </section>
       )}
       {importMessage && (
         <div

@@ -21,7 +21,7 @@ test("dashboard owns one durable cross-route WhatsApp activity provider", () => 
   assert.match(tracker, /window\.sessionStorage\.getItem/);
   assert.match(tracker, /parseLegacyWhatsAppBatch/);
   assert.match(tracker, /useQueries\(\{/);
-  assert.match(tracker, /whatsappBatchPollInterval/);
+  assert.match(tracker, /whatsappActivityPollInterval/);
   assert.match(tracker, /refetchIntervalInBackground: false/);
   assert.match(tracker, /refetchOnWindowFocus: "always"/);
   assert.match(trackingUtils, /passdetection:whatsapp:tracked-activities:v1/);

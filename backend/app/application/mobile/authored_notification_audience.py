@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import load_only
 
 from app.application.mobile.group_app_availability import availability_filter
+from app.application.mobile.notification_errors import NotificationWorkflowError
 from app.application.mobile.passenger_notification_authority import _SUBMISSION_FIELDS
 from app.application.mobile.passenger_phone_authority import submitted_phone_matches_identity
 from app.core.security.mobile_jwt import hash_mobile_lookup
@@ -98,6 +99,7 @@ async def collect_notification_audience(
     group_ids: list[uuid.UUID] | None,
     now: datetime,
     principal_ids: set[uuid.UUID] | None = None,
+    max_source_rows: int | None = None,
 ) -> NotificationAudienceSnapshot:
     """Read current authority in bounded group pages; never reconcile or commit."""
     statement = (
@@ -127,8 +129,14 @@ async def collect_notification_audience(
             break
         accesses = {access.id: access for _, _, access in rows}
         groups.extend((group_id, name) for group_id, name, _ in rows)
-        grants.extend(await _passenger_grants(session, agency_id, accesses, principal_ids))
-        grants.extend(await _staff_grants(session, agency_id, accesses, principal_ids, now))
+        grants.extend(
+            await _passenger_grants(session, agency_id, accesses, principal_ids, max_source_rows)
+        )
+        grants.extend(
+            await _staff_grants(session, agency_id, accesses, principal_ids, now, max_source_rows)
+        )
+        if max_source_rows is not None and len(grants) > max_source_rows:
+            raise NotificationWorkflowError("invalid", "audience_limit_exceeded")
         cursor = rows[-1][0]
     return NotificationAudienceSnapshot(
         tuple(groups), tuple(sorted(grants, key=lambda item: item.signature()))
@@ -140,6 +148,7 @@ async def _passenger_grants(
     agency_id: uuid.UUID,
     accesses: dict[uuid.UUID, GCGroupAccessModel],
     principal_ids: set[uuid.UUID] | None,
+    max_source_rows: int | None = None,
 ) -> list[AudienceGrant]:
     enabled = [item.id for item in accesses.values() if item.passenger_access_enabled]
     if not enabled:
@@ -163,8 +172,14 @@ async def _passenger_grants(
     if principal_ids is not None:
         statement = statement.where(MobilePassengerIdentityModel.id.in_(principal_ids))
     result: list[AudienceGrant] = []
+    if max_source_rows is not None:
+        statement = statement.limit(max_source_rows + 1)
+    scanned = 0
     rows = await session.stream(statement.execution_options(yield_per=250))
     async for identity, submission in rows:
+        scanned += 1
+        if max_source_rows is not None and scanned > max_source_rows:
+            raise NotificationWorkflowError("invalid", "audience_limit_exceeded")
         access = accesses[identity.gc_group_access_id]
         if identity.group_id == access.group_id and submitted_phone_matches_identity(
             identity, submission
@@ -190,6 +205,7 @@ async def _staff_grants(
     accesses: dict[uuid.UUID, GCGroupAccessModel],
     principal_ids: set[uuid.UUID] | None,
     now: datetime,
+    max_source_rows: int | None = None,
 ) -> list[AudienceGrant]:
     result: list[AudienceGrant] = []
     common = (
@@ -249,8 +265,12 @@ async def _staff_grants(
     ):
         if principal_ids is not None:
             statement = statement.where(UserModel.id.in_(principal_ids))
+        if max_source_rows is not None:
+            statement = statement.limit(max_source_rows + 1)
         rows = await session.stream(statement.execution_options(yield_per=250))
         async for principal_id, access_id in rows:
+            if max_source_rows is not None and len(result) >= max_source_rows:
+                raise NotificationWorkflowError("invalid", "audience_limit_exceeded")
             access = accesses[access_id]
             result.append(
                 AudienceGrant(

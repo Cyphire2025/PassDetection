@@ -11,7 +11,10 @@ class NativeAllocatorPolicyTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.source = (Path(__file__).resolve().parents[1] /
-                      "backend/app/core/native_image_admission.py").read_bytes()
+                      "backend/app/core/native_image_admission.py").read_bytes().replace(b"\r\n", b"\n")
+        # The qualified Linux image receives Git's LF source bytes. Windows
+        # checkout conversion must not change this test fixture; the production
+        # checker still requires the exact complete source and function hashes.
 
     def test_exact_qualified_call_is_explained_and_bound(self):
         result = policy.reviewed_allocator_source(policy.REVIEWED_PATH, self.source)

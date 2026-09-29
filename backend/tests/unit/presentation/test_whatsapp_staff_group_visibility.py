@@ -19,6 +19,7 @@ from app.infrastructure.database.models import (
     ManagerGroupAccessModel,
     PassportSubmissionModel,
     UserModel,
+    UserSecurityStateModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
 )
@@ -56,6 +57,7 @@ async def staff_broadcast(db_session: AsyncSession):
         broadcast,
     ])
     await db_session.flush()
+    db_session.add(UserSecurityStateModel(user_id=staff_id, session_version=staff.session_version, credential_state="active"))
     for index, name in enumerate(("Submitted passenger", "Missing passenger")):
         db_session.add(
             WhatsAppBroadcastRecipientModel(
@@ -190,6 +192,7 @@ async def test_staff_reminder_requires_explicit_accessible_group(staff_broadcast
     # silently removed from the decision about which group supplies matching.
     ambiguous = await context.client.post(
         path,
+        headers={"Idempotency-Key": "staff-ambiguous-group-001"},
         json={
             "message_type": "reminder",
             "audience": "not_submitted",
@@ -198,6 +201,7 @@ async def test_staff_reminder_requires_explicit_accessible_group(staff_broadcast
     assert ambiguous.status_code == 409, ambiguous.text
     forbidden = await context.client.post(
         path,
+        headers={"Idempotency-Key": "staff-forbidden-group-001"},
         json={
             "message_type": "reminder",
             "audience": "not_submitted",

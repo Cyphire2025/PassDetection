@@ -15,6 +15,7 @@ export type ApplicationCapability =
   | "menu.workspace.view"
   | "gc_app.manage"
   | "accounts.admin.manage"
+  | "mcp.manage"
   | "accounts.staff.manage"
   | "analytics.view"
   | "audit_ledger.view"
@@ -52,6 +53,7 @@ const ROLE_CAPABILITIES: Record<UserRole, readonly ApplicationCapability[]> = {
     "rooming.workspace.view",
     "menu.workspace.view",
     "accounts.admin.manage",
+    "mcp.manage",
     "accounts.staff.manage",
     "analytics.view",
     "audit_ledger.view",
@@ -114,6 +116,7 @@ export const ROUTE_CAPABILITY_POLICIES: readonly RouteCapabilityPolicy[] = [
   { prefix: ROUTES.dashboard.rooming, capability: "rooming.workspace.view" },
   { prefix: ROUTES.dashboard.menu, capability: "menu.workspace.view" },
   { prefix: ROUTES.dashboard.gcAppRoot, capability: "gc_app.manage" },
+  { prefix: ROUTES.dashboard.mcp, capability: "mcp.manage" },
   { prefix: ROUTES.dashboard.admin, capability: "accounts.admin.manage" },
   { prefix: ROUTES.dashboard.staff, capability: "accounts.staff.manage" },
   { prefix: ROUTES.dashboard.analytics, capability: "analytics.view" },

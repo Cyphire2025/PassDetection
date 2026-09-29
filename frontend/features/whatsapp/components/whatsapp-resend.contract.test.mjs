@@ -143,12 +143,8 @@ test("opening the resend editor replaces the recipient-list modal instead of sta
 });
 
 test("resend refreshes blocked delivery state and announces success or failure", () => {
-  assert.match(hooksSource, /status\.resend_blocked/);
-  assert.match(
-    hooksSource,
-    /status\.latest_resend_status === "queued"/,
-  );
-  assert.match(hooksSource, /\? 2_000\s*: false/);
+  assert.match(hooksSource, /whatsappRecipientPollInterval/);
+  assert.match(hooksSource, /refetchOnReconnect: "always"/);
   assert.match(pageSource, /refetchGroup\(\)/);
   assert.match(hooksSource, /queryKey: WHATSAPP_QUERY_KEYS\.groups/);
   assert.match(pageSource, /status\?\.resend_blocked/);

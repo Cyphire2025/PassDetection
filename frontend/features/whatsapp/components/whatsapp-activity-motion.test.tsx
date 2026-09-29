@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { ROUTES } from "@/constants/routes";
 import type { WhatsAppActivitySummary } from "../api/whatsapp-activity.api";
@@ -59,7 +59,9 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  cleanup();
   clients.splice(0).forEach((client) => client.clear());
+  vi.useRealTimers();
   vi.unstubAllGlobals();
 });
 
@@ -108,19 +110,22 @@ it("starts from the registered batch immediately and keeps the same scene throug
   expect(original).not.toBeNull();
   expect(original).toHaveAttribute("data-state", "sending");
   expect(original).toHaveAttribute("data-message-type", "passport_link");
-  expect(screen.getByText("0 sent of 16")).toBeVisible();
+  expect(screen.getByText("0 accepted of 16")).toBeVisible();
   expect(parseTrackedWhatsAppActivities(window.sessionStorage.getItem(WHATSAPP_ACTIVITY_STORAGE_KEY))[0])
     .toMatchObject({ messageType: "passport_link", startedAt: activity.startedAt });
 
   await update(client, { sent: 8, queued: 8 });
   expect(scene()).toBe(original);
-  expect(screen.getByText("8 sent of 16")).toBeVisible();
+  expect(screen.getByText("8 accepted of 16")).toBeVisible();
   await update(client, { sent: 8, queued: 8 });
   expect(scene()).toBe(original);
   await update(client, { sent: 16, queued: 0 });
   expect(scene()).toBe(original);
+  expect(original).toHaveAttribute("data-state", "sending");
+  expect(screen.getByText("16 awaiting delivery confirmation")).toBeVisible();
+  await update(client, { sent: 16, queued: 0, status_counts: { delivered: 15, read: 1 } });
   expect(original).toHaveAttribute("data-state", "complete");
-  expect(screen.queryByText(/delivered|read by/i)).not.toBeInTheDocument();
+  expect(screen.getByText("16 delivered of 16")).toBeVisible();
 });
 
 it("carries the same broadcast into the floating tracker and back, preserving counts and actionable failures", async () => {
@@ -132,14 +137,14 @@ it("carries the same broadcast into the floating tracker and back, preserving co
   const floatingScene = scene();
   expect(floating).toContainElement(floatingScene as HTMLElement);
   expect(floatingScene).toHaveAttribute("data-message-type", "passport_link");
-  expect(screen.getByText("8 sent of 16")).toBeVisible();
+  expect(screen.getByText("8 accepted of 16")).toBeVisible();
   await update(client, { sent: 12, queued: 4 });
   expect(scene()).toBe(floatingScene);
 
   navigate(ROUTES.dashboard.whatsapp);
   expect(screen.queryByLabelText("Movable WhatsApp delivery progress")).not.toBeInTheDocument();
   expect(screen.getByLabelText("Live WhatsApp delivery progress")).toContainElement(scene() as HTMLElement);
-  expect(screen.getByText("12 sent of 16")).toBeVisible();
+  expect(screen.getByText("12 accepted of 16")).toBeVisible();
   navigate("/dashboard/another-page");
   const terminalScene = scene();
   await update(client, { sent: 14, queued: 0, failed: 1, delivery_unknown: 1 });
@@ -166,10 +171,52 @@ it("settles the existing scene during a status-fetch error and resumes it after 
   await waitFor(() => expect(original).toHaveAttribute("data-state", "reconnecting"));
   expect(scene()).toBe(original);
   expect(screen.getByText("Reconnecting")).toBeVisible();
-  expect(screen.getByText("8 sent of 16")).toBeVisible();
+  expect(screen.getByText("8 accepted of 16")).toBeVisible();
   await update(client, { sent: 9, queued: 7 });
   expect(scene()).toBe(original);
   expect(original).toHaveAttribute("data-state", "sending");
+});
+
+it("reconciles delayed failures after dispatch, refreshes broadcast caches, and never dismisses accepted messages as delivered", async () => {
+  vi.useFakeTimers();
+  let response: WhatsAppActivitySummary = { ...initialWhatsAppActivitySummary(activity),
+    total: 10, queued: 0, sent: 10, status_counts: { submitted: 10 }, updated_at: new Date().toISOString() };
+  mocks.summary.mockImplementation(async () => response);
+  const { client } = renderTracker();
+  const invalidate = vi.spyOn(client, "invalidateQueries");
+  const tick = async (ms: number) => { await act(async () => { await vi.advanceTimersByTimeAsync(ms); }); };
+  fireEvent.click(screen.getByRole("button", { name: "Register broadcast" }));
+  await tick(1);
+  expect(screen.getByText("0 delivered of 10")).toBeVisible();
+  expect(screen.getByText(/10 accepted · 10 awaiting delivery confirmation/)).toBeVisible();
+  const refreshesAfterAcceptance = invalidate.mock.calls.length;
+  await tick(14_000);
+  expect(screen.getByText("0 delivered of 10")).toBeVisible();
+  expect(mocks.summary.mock.calls.length).toBeGreaterThan(2);
+  expect(invalidate.mock.calls.length).toBe(refreshesAfterAcceptance);
+
+  response = { ...response, sent: 9, failed: 1, status_counts: { sent: 9, failed: 1 } };
+  await tick(2_001);
+  expect(screen.getByRole("button", { name: "Show 1 failed recipients" })).toBeVisible();
+  expect(scene()).toHaveAttribute("data-state", "attention");
+  const refresh = invalidate.mock.calls.findLast(([filters]) => filters?.queryKey?.[1] === "groups")![0]!;
+  const predicate = refresh.predicate!;
+  const cachedQuery = (key: readonly unknown[]) => client.getQueryCache().build(client, { queryKey: key });
+  const list = cachedQuery(["whatsapp", "groups", { archived: false }]);
+  const current = cachedQuery(["whatsapp", "groups", "group-a", "recipient-roster"]);
+  const unrelated = cachedQuery(["whatsapp", "groups", "group-b"]);
+  expect(predicate(list)).toBe(true);
+  expect(predicate(current)).toBe(true);
+  expect(predicate(unrelated)).toBe(false);
+
+  response = { ...response, sent: 7, failed: 3, status_counts: { delivered: 7, failed: 3 } };
+  await tick(2_001);
+  expect(screen.getByText("7 delivered of 10")).toBeVisible();
+  expect(screen.getByRole("button", { name: "Show 3 failed recipients" })).toBeVisible();
+  const callsAfterReceipts = mocks.summary.mock.calls.length;
+  await tick(30_000);
+  expect(mocks.summary.mock.calls.length).toBe(callsAfterReceipts);
+  expect(screen.getByText("7 delivered of 10")).toBeVisible();
 });
 
 it("restores old broadcasts and document artwork while QR keeps its compact progress", () => {

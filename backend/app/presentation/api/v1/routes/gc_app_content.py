@@ -34,6 +34,11 @@ from app.application.mobile.notification_service import (
     enqueue_announcement_notifications,
 )
 from app.application.mobile.sync_journal import append_mobile_sync_change
+from app.application.use_cases.gc_app.create_announcement import (
+    AnnouncementContent,
+    create_announcement_version,
+)
+from app.application.use_cases.gc_app.create_itinerary import create_itinerary_version
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import GroupStatus, User, UserRole
@@ -140,76 +145,8 @@ async def create_itinerary_draft(
     )
     _require_publishable_group(group)
     _require_access_revision(access, body.expected_access_revision)
-    max_version = int(
-        (
-            await session.execute(
-                select(func.coalesce(func.max(GCItineraryVersionModel.version), 0)).where(
-                    GCItineraryVersionModel.gc_group_access_id == access.id
-                )
-            )
-        ).scalar_one()
-    )
-    now = datetime.now(tz=UTC)
-    checksum = _json_checksum(body.model_dump(mode="json", by_alias=True))
-    itinerary = GCItineraryVersionModel(
-        id=uuid.uuid4(),
-        agency_id=access.agency_id,
-        group_id=group_id,
-        gc_group_access_id=access.id,
-        version=max_version + 1,
-        revision=1,
-        status="draft",
-        title=body.title,
-        content_checksum=checksum,
-        created_by_user_id=current_user.id,
-        created_at=now,
-        updated_at=now,
-    )
-    session.add(itinerary)
-    await session.flush()
-    for day_index, day in enumerate(body.days):
-        day_model = GCItineraryDayModel(
-            id=uuid.uuid4(),
-            agency_id=access.agency_id,
-            group_id=group_id,
-            gc_group_access_id=access.id,
-            itinerary_version_id=itinerary.id,
-            day_number=day.day_number,
-            trip_date=day.trip_date,
-            title=day.title or f"Day {day.day_number}",
-            sort_order=day_index,
-            created_at=now,
-            updated_at=now,
-        )
-        session.add(day_model)
-        await session.flush()
-        for item_index, item in enumerate(day.items):
-            session.add(
-                GCItineraryItemModel(
-                    id=uuid.uuid4(),
-                    agency_id=access.agency_id,
-                    group_id=group_id,
-                    gc_group_access_id=access.id,
-                    itinerary_version_id=itinerary.id,
-                    itinerary_day_id=day_model.id,
-                    item_type="activity",
-                    title=item.title,
-                    description=item.description,
-                    starts_at=item.starts_at,
-                    ends_at=item.ends_at,
-                    location_name=item.location_name,
-                    latitude=item.latitude,
-                    longitude=item.longitude,
-                    sort_order=item.sort_order if item.sort_order else item_index,
-                    public_metadata={},
-                    created_at=now,
-                    updated_at=now,
-                )
-            )
-    access.revision += 1
-    access.updated_by_user_id = current_user.id
-    access.updated_at = now
-    await session.flush()
+    itinerary = await create_itinerary_version(session, access=access, group_id=group_id,
+        actor_id=current_user.id, body=body, checksum=_json_checksum(body.model_dump(mode="json", by_alias=True)))
     await _content_audit(
         session,
         request,
@@ -1421,34 +1358,9 @@ async def _create_announcement_version(
     version: int,
 ) -> AnnouncementResponse:
     _validate_window(body.available_from, body.available_until)
-    now = datetime.now(tz=UTC)
-    announcement = GCAnnouncementModel(
-        id=uuid.uuid4(),
-        agency_id=access.agency_id,
-        group_id=access.group_id,
-        gc_group_access_id=access.id,
-        logical_announcement_id=logical_id,
-        version=version,
-        category="emergency" if body.priority == "emergency" else "general",
-        priority="high" if body.priority == "important" else body.priority,
-        title=body.title,
-        body=body.message,
-        status="draft",
-        passenger_visible=False,
-        client_manager_visible=False,
-        coordinator_visible=False,
-        offline_available=True,
-        availability_starts_at=body.available_from,
-        availability_expires_at=body.available_until,
-        created_by_user_id=current_user.id,
-        created_at=now,
-        updated_at=now,
-    )
-    session.add(announcement)
-    access.revision += 1
-    access.updated_by_user_id = current_user.id
-    access.updated_at = now
-    await session.flush()
+    announcement = await create_announcement_version(session, access=access, actor_id=current_user.id,
+        content=AnnouncementContent(body.title, body.message, body.priority, body.available_from, body.available_until),
+        logical_id=logical_id, version=version)
     await _content_audit(
         session,
         request,
@@ -1520,6 +1432,19 @@ async def _admin_access_context(
                 detail="Agency scope mismatch",
             )
         tenant_id = current_user.agency_id
+    if lock:
+        # Explicit group -> access order matches source/dispatch transactions;
+        # a joined FOR UPDATE leaves acquisition order to the query plan.
+        group = await session.scalar(select(ClientGroupModel).where(
+            ClientGroupModel.id == group_id, ClientGroupModel.agency_id == tenant_id,
+        ).with_for_update().execution_options(populate_existing=True))
+        access = await session.scalar(select(GCGroupAccessModel).where(
+            GCGroupAccessModel.group_id == group_id, GCGroupAccessModel.agency_id == tenant_id,
+            GCGroupAccessModel.removed_at.is_(None),
+        ).with_for_update().execution_options(populate_existing=True)) if group is not None else None
+        if access is None or group is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="GC App group not found")
+        return access, group
     stmt = (
         select(GCGroupAccessModel, ClientGroupModel)
         .join(ClientGroupModel, ClientGroupModel.id == GCGroupAccessModel.group_id)
@@ -1529,10 +1454,6 @@ async def _admin_access_context(
             GCGroupAccessModel.agency_id == ClientGroupModel.agency_id,
         )
     )
-    if lock:
-        # Without an ``OF`` list PostgreSQL locks every selected base table,
-        # preserving the existing access-and-group mutation boundary.
-        stmt = stmt.where(GCGroupAccessModel.removed_at.is_(None)).with_for_update()
     row = (await session.execute(stmt)).first()
     if row is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="GC App group not found")
