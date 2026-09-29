@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import uuid
 from datetime import UTC, datetime, timedelta
+from types import SimpleNamespace
 
 import pytest
 from httpx import AsyncClient
@@ -8,6 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config.settings import Settings
+from app.core.security.identity_security import identity_action_token_hash_candidates
 from app.core.security.password import hash_password, verify_password
 from app.infrastructure.database.models import (
     AuditLogModel,
@@ -16,7 +19,9 @@ from app.infrastructure.database.models import (
     UserModel,
     UserSecurityStateModel,
 )
+from app.infrastructure.repositories import identity_security_repository
 from app.infrastructure.repositories.identity_security_repository import IdentitySecurityRepository
+from app.infrastructure.security import identity_notifications
 from app.infrastructure.security.identity_recovery_rate_limiter import (
     IdentityRecoveryRateLimited,
 )
@@ -186,15 +191,40 @@ async def test_replacement_invalidates_old_token_and_terminalizes_old_delivery(
     )
     _install_recovery_settings(monkeypatch, settings)
 
+    # Timestamp ties and random UUID order do not identify issuance order.
+    # Force the newer token/outbox to sort first so that association assertions
+    # cannot accidentally depend on timestamp or primary-key ordering again.
+    issued_at = datetime.now(tz=UTC).replace(microsecond=0)
+
+    class TiedDateTime(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return issued_at.astimezone(tz) if tz else issued_at.replace(tzinfo=None)
+
+    for module, identifiers in (
+        (identity_security_repository, (
+            uuid.UUID("ffffffff-ffff-4fff-8fff-fffffffffff2"),
+            uuid.UUID("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1"),
+        )),
+        (identity_notifications, (
+            uuid.UUID("eeeeeeee-eeee-4eee-8eee-eeeeeeeeeee4"),
+            uuid.UUID("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb3"),
+        )),
+    ):
+        monkeypatch.setattr(module, "datetime", TiedDateTime)
+        monkeypatch.setattr(module, "uuid", SimpleNamespace(UUID=uuid.UUID, uuid4=iter(identifiers).__next__))
+
     first_response = await client.post(
         "/api/v1/auth/password/recovery/request",
         json={"email": user.email},
     )
+    assert first_response.status_code == 202
     first_raw = first_response.json()["development_recovery_token"]
     second_response = await client.post(
         "/api/v1/auth/password/recovery/request",
         json={"email": user.email},
     )
+    assert second_response.status_code == 202
     second_raw = second_response.json()["development_recovery_token"]
 
     assert isinstance(first_raw, str) and isinstance(second_raw, str)
@@ -204,33 +234,48 @@ async def test_replacement_invalidates_old_token_and_terminalizes_old_delivery(
             await db_session.execute(
                 select(IdentityActionTokenModel)
                 .where(IdentityActionTokenModel.user_id == user.id)
-                .order_by(IdentityActionTokenModel.created_at, IdentityActionTokenModel.id)
             )
         )
         .scalars()
         .all()
     )
     assert len(tokens) == 2
-    assert tokens[0].invalidated_at is not None
-    assert tokens[1].invalidated_at is None
+    tokens_by_hash = {(row.token_key_id, row.token_hash): row for row in tokens}
+
+    def issued_token(raw: str) -> IdentityActionTokenModel:
+        matches = [tokens_by_hash[key] for key in identity_action_token_hash_candidates(
+            raw, purpose="password_recovery",
+        ) if key in tokens_by_hash]
+        assert len(matches) == 1
+        return matches[0]
+
+    first_token, second_token = issued_token(first_raw), issued_token(second_raw)
+    assert first_token.created_at == second_token.created_at
+    assert first_token.id > second_token.id
+    assert first_token.invalidated_at is not None
+    assert second_token.invalidated_at is None
     outboxes = (
         (
             await db_session.execute(
                 select(IdentityNotificationOutboxModel)
                 .where(IdentityNotificationOutboxModel.user_id == user.id)
-                .order_by(
-                    IdentityNotificationOutboxModel.created_at,
-                    IdentityNotificationOutboxModel.id,
-                )
             )
         )
         .scalars()
         .all()
     )
-    assert [(row.status, row.last_error_code) for row in outboxes] == [
-        ("dead_letter", "superseded"),
-        ("pending", None),
-    ]
+    assert len(outboxes) == 2
+    outboxes_by_token = {row.action_token_id: row for row in outboxes}
+    assert set(outboxes_by_token) == {first_token.id, second_token.id}
+    first_outbox = outboxes_by_token[first_token.id]
+    second_outbox = outboxes_by_token[second_token.id]
+    assert first_outbox.created_at == second_outbox.created_at
+    assert first_outbox.id > second_outbox.id
+    assert (first_outbox.status, first_outbox.last_error_code) == ("dead_letter", "superseded")
+    assert (second_outbox.status, second_outbox.last_error_code) == ("pending", None)
+    repository = IdentitySecurityRepository(db_session)
+    assert await repository.get_valid_action_token(raw_token=first_raw, purpose="password_recovery") is None
+    assert await repository.get_valid_action_token(raw_token=second_raw, purpose="password_recovery") is second_token
     rejected = await client.post(
         "/api/v1/auth/password/recovery/complete",
         json={"token": first_raw, "new_password": "ReplacementPassword9!"},
