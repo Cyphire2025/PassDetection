@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import DateTime, Uuid, case, literal, null, select, union_all
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.selectable import Subquery
 
 from app.infrastructure.database.mcp_artifact_models import MCPArtifactModel as Artifact
 from app.infrastructure.database.mcp_contact_import_models import (
@@ -16,11 +17,12 @@ from app.infrastructure.database.mcp_whatsapp_media_models import (
 )
 from app.infrastructure.database.session import get_db_session
 from app.presentation.dependencies.mcp import require_mcp_management
+from app.presentation.mcp.management_audit import MCPManagementAuditRoute
 
-router = APIRouter(dependencies=[Depends(require_mcp_management)])
+router = APIRouter(dependencies=[Depends(require_mcp_management)], route_class=MCPManagementAuditRoute)
 
 
-def file_projection(now: datetime):
+def file_projection(now: datetime) -> Subquery:
     # Each branch selects only management-safe metadata. Locators, provider IDs,
     # source cells and private object keys never reach this projection.
     artifacts = select(

@@ -32,8 +32,9 @@ from app.presentation.dependencies.auth import require_recent_mfa
 from app.presentation.dependencies.csrf import require_cookie_csrf
 from app.presentation.dependencies.mcp import require_mcp_management
 from app.presentation.mcp.inventory import deployed_inventory
+from app.presentation.mcp.management_audit import MCPManagementAuditRoute
 
-router = APIRouter(dependencies=[Depends(require_mcp_management)])
+router = APIRouter(dependencies=[Depends(require_mcp_management)], route_class=MCPManagementAuditRoute)
 router.include_router(files_router)
 _mutations = [Depends(require_cookie_csrf), Depends(require_recent_mfa)]
 

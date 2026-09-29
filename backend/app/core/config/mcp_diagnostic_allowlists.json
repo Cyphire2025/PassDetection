@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
   "log_events": [
+    "mcp_management_audit_unavailable",
     "admin_passport_purge_storage_cleanup_deferred",
     "agency_created",
     "ai_approved_passenger_qr_deferred",
@@ -355,6 +356,7 @@
     "mcp.control_changed",
     "mcp.directory.contact_read",
     "mcp.management_denied",
+    "mcp.management_rejected",
     "mcp.revoked",
     "mcp.token_denied",
     "mcp.tool.cancel_whatsapp_intent",
