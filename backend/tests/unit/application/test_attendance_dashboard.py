@@ -17,6 +17,7 @@ from app.infrastructure.repositories.attendance_closeout_repository import (
     AttendanceCloseoutCoordinatorStatus,
     AttendanceCloseoutRepository,
     AttendanceCloseoutStatus,
+    classify_attendance_closeout,
 )
 from app.infrastructure.repositories.attendance_dashboard_repository import (
     AttendanceActivityAggregate,
@@ -176,6 +177,37 @@ def _closeout_status() -> AttendanceCloseoutStatus:
         oldest_pending_age_seconds=None,
         coordinators=(coordinator,),
     )
+
+
+@pytest.mark.asyncio
+async def test_empty_activity_uses_its_timestamp_without_inventing_roster_or_scan_evidence() -> None:
+    aggregate = _aggregate(present_count=0, record_count=0, roster_count=0)
+    aggregate = replace(
+        aggregate,
+        roster=AttendanceRosterAggregate(0, None, None),
+        activities=(replace(aggregate.activities[0], latest_record_created_at=None),),
+    )
+    repository = _DashboardRepositoryStub([aggregate])
+    closeout = _CloseoutRepositoryStub(
+        classify_attendance_closeout([], activity_valid_after=NOW, now=NOW)
+    )
+    service = AttendanceDashboardService(repository, closeout)
+    result = await service.summary(agency_id=AGENCY_ID, group_id=GROUP_ID, group_name="Empty")
+    activity = result.activities[0]
+    assert activity.last_canonical_update_at == aggregate.activities[0].updated_at
+    assert activity.present_count == activity.missing_count == activity.exception_count == 0
+    assert not activity.closeout.ready and activity.coordinators == ()
+    assert len(activity.revision) == len(result.revision) == 32
+    missing = await service.missing_passengers(
+        agency_id=AGENCY_ID,
+        group_id=GROUP_ID,
+        canonical_session_id=SESSION_ID,
+        expected_revision=activity.revision,
+        cursor=None,
+        limit=50,
+        search=None,
+    )
+    assert missing.page == MissingPassengerPage((), False, None)
 
 
 @pytest.mark.asyncio

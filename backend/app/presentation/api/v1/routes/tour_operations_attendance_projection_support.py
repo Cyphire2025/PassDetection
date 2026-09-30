@@ -17,6 +17,10 @@ from app.application.use_cases.attendance_dashboard import (
     AttendanceGroupDashboardSummary,
     AttendanceMissingDashboardPage,
 )
+from app.application.use_cases.attendance_projection import (
+    attendance_missing_data,
+    attendance_summary_data,
+)
 from app.infrastructure.database.models import AttendanceSessionModel
 from app.infrastructure.repositories.attendance_closeout_repository import (
     AttendanceCloseoutCounts,
@@ -27,11 +31,7 @@ from app.presentation.api.v1.schemas.attendance_closeout_schemas import (
     AttendanceCloseoutStatusResponse,
 )
 from app.presentation.api.v1.schemas.tour_operations_schemas import (
-    AttendanceActivitySummaryResponse,
-    AttendanceCoordinatorActivitySummaryResponse,
-    AttendanceMissingPassengerItem,
     AttendanceMissingPassengersPageResponse,
-    AttendanceSummaryCloseout,
     GroupAttendanceSummaryResponse,
 )
 
@@ -169,56 +169,7 @@ def attendance_summary_cache_headers(revision: str) -> tuple[str, dict[str, str]
 def attendance_summary_response(
     projection: AttendanceGroupDashboardSummary,
 ) -> GroupAttendanceSummaryResponse:
-    return GroupAttendanceSummaryResponse(
-        group_id=projection.group_id,
-        group_name=projection.group_name,
-        revision=projection.revision,
-        sessions=[
-            AttendanceActivitySummaryResponse(
-                id=activity.session_id,
-                name=activity.name,
-                status=activity.status,
-                revision=activity.revision,
-                present_count=activity.present_count,
-                missing_count=activity.missing_count,
-                exception_count=activity.exception_count,
-                closeout=AttendanceSummaryCloseout(
-                    ready=activity.closeout.ready,
-                    active_participant_count=activity.closeout.active_participant_count,
-                    ready_participant_count=activity.closeout.ready_participant_count,
-                    blocked_participant_count=activity.closeout.blocked_participant_count,
-                    missing_participant_count=activity.closeout.missing_participant_count,
-                    stale_participant_count=activity.closeout.stale_participant_count,
-                    unresolved_count=activity.closeout.unresolved_count,
-                ),
-                coordinator_count=activity.coordinator_count,
-                coordinators_truncated=activity.coordinators_truncated,
-                coordinators=[
-                    AttendanceCoordinatorActivitySummaryResponse(
-                        coordinator_id=coordinator.coordinator_id,
-                        coordinator_name=coordinator.coordinator_name,
-                        assigned_count=coordinator.assigned_count,
-                        scanned_count=coordinator.scanned_count,
-                        checkpoint_state=coordinator.checkpoint_state,
-                        checkpoint_reported_at=coordinator.checkpoint_reported_at,
-                        pending_count=coordinator.pending_count,
-                        sending_count=coordinator.sending_count,
-                        retryable_count=coordinator.retryable_count,
-                        needs_review_count=coordinator.needs_review_count,
-                        unreviewed_rejected_count=coordinator.unreviewed_rejected_count,
-                        oldest_pending_age_seconds=coordinator.oldest_pending_age_seconds,
-                        runtime_count=coordinator.runtime_count,
-                        active_runtime_count=coordinator.active_runtime_count,
-                    )
-                    for coordinator in activity.coordinators
-                ],
-                last_canonical_update_at=activity.last_canonical_update_at,
-                started_at=activity.started_at,
-                completed_at=activity.completed_at,
-            )
-            for activity in projection.activities
-        ],
-    )
+    return GroupAttendanceSummaryResponse(**attendance_summary_data(projection))
 
 
 def attendance_missing_passengers_response(
@@ -226,20 +177,7 @@ def attendance_missing_passengers_response(
     *,
     page_size: int,
 ) -> AttendanceMissingPassengersPageResponse:
-    return AttendanceMissingPassengersPageResponse(
-        session_id=projection.session_id,
-        revision=projection.revision,
-        items=[
-            AttendanceMissingPassengerItem(
-                passenger_id=item.passenger_id,
-                display_name=item.display_name,
-            )
-            for item in projection.page.items
-        ],
-        has_more=projection.page.has_more,
-        next_cursor=projection.page.next_cursor,
-        page_size=page_size,
-    )
+    return AttendanceMissingPassengersPageResponse(**attendance_missing_data(projection, page_size=page_size))
 
 
 def attendance_snapshot_changed_response() -> JSONResponse:

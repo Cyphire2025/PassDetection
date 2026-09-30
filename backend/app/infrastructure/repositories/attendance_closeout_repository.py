@@ -11,6 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.domain.value_objects.attendance_read_limits import AttendanceReadLimits
 from app.infrastructure.database.models import (
     AttendanceCloseoutCheckpointModel,
     AttendanceRuntimeRegistrationModel,
@@ -18,6 +19,10 @@ from app.infrastructure.database.models import (
     AttendanceSessionRuntimeParticipantModel,
     CoordinatorGroupAssignmentModel,
     UserModel,
+)
+from app.infrastructure.repositories.attendance_projection_reads import (
+    bounded_attendance_text,
+    load_attendance_rows,
 )
 
 ATTENDANCE_CLOSEOUT_CHECKPOINT_TTL_SECONDS = 120
@@ -192,8 +197,11 @@ def classify_attendance_closeout(
 
 
 class AttendanceCloseoutRepository:
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(
+        self, session: AsyncSession, *, read_limits: AttendanceReadLimits | None = None
+    ) -> None:
         self._session = session
+        self._read_limits = read_limits
 
     async def publish(
         self,
@@ -294,35 +302,45 @@ class AttendanceCloseoutRepository:
     ) -> dict[uuid.UUID, AttendanceCloseoutStatus]:
         if not activity_valid_after:
             return {}
-        assignment_rows = (
-            await self._session.execute(
-                select(
-                    CoordinatorGroupAssignmentModel.coordinator_user_id,
-                    UserModel.full_name,
-                    CoordinatorGroupAssignmentModel.assigned_at,
-                )
-                .join(
-                    UserModel,
-                    UserModel.id == CoordinatorGroupAssignmentModel.coordinator_user_id,
-                )
-                .where(
-                    CoordinatorGroupAssignmentModel.agency_id == agency_id,
-                    CoordinatorGroupAssignmentModel.group_id == group_id,
-                    CoordinatorGroupAssignmentModel.active.is_(True),
-                )
-                .order_by(CoordinatorGroupAssignmentModel.coordinator_user_id)
+        assignment_rows = await load_attendance_rows(
+            self._session,
+            select(
+                CoordinatorGroupAssignmentModel.coordinator_user_id,
+                bounded_attendance_text(UserModel.full_name, 255, self._read_limits),
+                CoordinatorGroupAssignmentModel.assigned_at,
             )
-        ).all()
+            .join(UserModel, UserModel.id == CoordinatorGroupAssignmentModel.coordinator_user_id)
+            .where(
+                CoordinatorGroupAssignmentModel.agency_id == agency_id,
+                CoordinatorGroupAssignmentModel.group_id == group_id,
+                CoordinatorGroupAssignmentModel.active.is_(True),
+            )
+            .order_by(CoordinatorGroupAssignmentModel.coordinator_user_id),
+            limits=self._read_limits,
+            text_limits=(("full_name", 255),),
+        )
         assignment_by_coordinator = {row.coordinator_user_id: row for row in assignment_rows}
-        checkpoints = list(
-            (
-                await self._session.execute(
-                    select(AttendanceCloseoutCheckpointModel).where(
-                        AttendanceCloseoutCheckpointModel.agency_id == agency_id,
-                        AttendanceCloseoutCheckpointModel.session_id.in_(activity_valid_after),
-                    )
-                )
-            ).scalars()
+        checkpoint_model = AttendanceCloseoutCheckpointModel
+        checkpoints = await load_attendance_rows(
+            self._session,
+            select(checkpoint_model).where(
+                checkpoint_model.agency_id == agency_id,
+                checkpoint_model.session_id.in_(activity_valid_after),
+            ),
+            limits=self._read_limits,
+            scalar=True,
+            projection=(
+                checkpoint_model.session_id,
+                checkpoint_model.coordinator_user_id,
+                checkpoint_model.runtime_registration_id,
+                checkpoint_model.reported_at,
+                checkpoint_model.pending_count,
+                checkpoint_model.sending_count,
+                checkpoint_model.retryable_count,
+                checkpoint_model.needs_review_count,
+                checkpoint_model.unreviewed_rejected_count,
+                checkpoint_model.oldest_pending_age_seconds,
+            ),
         )
         checkpoint_by_runtime = {
             (
@@ -337,47 +355,53 @@ class AttendanceCloseoutRepository:
             for checkpoint in checkpoints
             if checkpoint.runtime_registration_id is not None
         }
+        runtime_model = AttendanceRuntimeRegistrationModel
         runtimes = (
-            list(
-                (
-                    await self._session.execute(
-                        select(AttendanceRuntimeRegistrationModel).where(
-                            AttendanceRuntimeRegistrationModel.id.in_(runtime_ids),
-                            AttendanceRuntimeRegistrationModel.agency_id == agency_id,
-                        )
-                    )
-                ).scalars()
+            await load_attendance_rows(
+                self._session,
+                select(runtime_model).where(
+                    runtime_model.id.in_(runtime_ids), runtime_model.agency_id == agency_id
+                ),
+                limits=self._read_limits,
+                scalar=True,
+                projection=(runtime_model.id, runtime_model.runtime_kind, runtime_model.status),
             )
             if runtime_ids
             else []
         )
         runtime_by_id = {runtime.id: runtime for runtime in runtimes}
-        participant_rows = (
-            await self._session.execute(
-                select(
-                    AttendanceSessionRuntimeParticipantModel.session_id,
-                    AttendanceSessionRuntimeParticipantModel.coordinator_user_id,
-                    AttendanceSessionRuntimeParticipantModel.first_participated_at,
-                    AttendanceSessionRuntimeParticipantModel.runtime_registration_id,
-                    AttendanceRuntimeRegistrationModel.runtime_kind,
-                    AttendanceRuntimeRegistrationModel.status.label("runtime_status"),
-                    UserModel.full_name,
-                )
-                .join(
-                    AttendanceRuntimeRegistrationModel,
-                    AttendanceRuntimeRegistrationModel.id
-                    == AttendanceSessionRuntimeParticipantModel.runtime_registration_id,
-                )
-                .join(
-                    UserModel,
-                    UserModel.id == AttendanceSessionRuntimeParticipantModel.coordinator_user_id,
-                )
-                .where(
-                    AttendanceSessionRuntimeParticipantModel.agency_id == agency_id,
-                    AttendanceSessionRuntimeParticipantModel.session_id.in_(activity_valid_after),
-                )
+        participant_rows = await load_attendance_rows(
+            self._session,
+            select(
+                AttendanceSessionRuntimeParticipantModel.session_id,
+                AttendanceSessionRuntimeParticipantModel.coordinator_user_id,
+                AttendanceSessionRuntimeParticipantModel.first_participated_at,
+                AttendanceSessionRuntimeParticipantModel.runtime_registration_id,
+                AttendanceRuntimeRegistrationModel.runtime_kind,
+                AttendanceRuntimeRegistrationModel.status.label("runtime_status"),
+                bounded_attendance_text(UserModel.full_name, 255, self._read_limits),
             )
-        ).all()
+            .join(
+                AttendanceRuntimeRegistrationModel,
+                AttendanceRuntimeRegistrationModel.id
+                == AttendanceSessionRuntimeParticipantModel.runtime_registration_id,
+            )
+            .join(
+                UserModel,
+                UserModel.id == AttendanceSessionRuntimeParticipantModel.coordinator_user_id,
+            )
+            .where(
+                AttendanceSessionRuntimeParticipantModel.agency_id == agency_id,
+                AttendanceSessionRuntimeParticipantModel.session_id.in_(activity_valid_after),
+            ),
+            limits=self._read_limits,
+            text_limits=(("full_name", 255),),
+        )
+        if self._read_limits:
+            self._read_limits.require_work(
+                len(activity_valid_after),
+                len(assignment_rows) + len(checkpoints) + len(participant_rows),
+            )
 
         current = now or datetime.now(tz=UTC)
         result: dict[uuid.UUID, AttendanceCloseoutStatus] = {}

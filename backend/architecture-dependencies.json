@@ -1,6 +1,21 @@
 {
   "version": 1,
   "transaction_services": {
+    "app/application/mcp/attendance_reads.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current grant and identity locks plus an exact own-agency group lock preserve the canonical office attendance policy. Bounded scalar repositories feed shared attendance summary and optimistic missing-page projections, with source and derived-work admission before classification. No scanner, browser runtime, queue acknowledgement, closeout mutation or physical-event authority is exposed.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.repositories.attendance_closeout_repository",
+        "app.infrastructure.repositories.attendance_closeout_repository.AttendanceCloseoutRepository",
+        "app.infrastructure.repositories.attendance_dashboard_repository",
+        "app.infrastructure.repositories.attendance_dashboard_repository.AttendanceDashboardRepository",
+        "app.infrastructure.repositories.user_repository",
+        "app.infrastructure.repositories.user_repository.UserRepository"
+      ]
+    },
     "app/application/mcp/rename_reads.py": {
       "owner": "repository maintainers",
       "review_by": "2026-12-31",

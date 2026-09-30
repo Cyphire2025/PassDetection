@@ -25,6 +25,7 @@ from app.infrastructure.database.session import AsyncSessionFactory
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.presentation.mcp.access_change_tools import register_access_change_tools
 from app.presentation.mcp.announcement_tools import register_announcement_tools
+from app.presentation.mcp.attendance_read_tools import register_attendance_read_tools
 from app.presentation.mcp.broadcast_link_tools import register_broadcast_link_tools
 from app.presentation.mcp.client_detail_tools import register_client_detail_tools
 from app.presentation.mcp.contact_import_tools import register_contact_import_tools
@@ -142,6 +143,7 @@ def install_mcp(app: FastAPI, settings: Settings) -> None:
 
     register_group_tools(server, app, settings)
     register_dashboard_tools(server, app, settings)
+    register_attendance_read_tools(server, app, settings)
     register_notification_tools(server, app, settings)
     register_ecr_read_tools(server, app, settings)
     register_rename_read_tools(server, app, settings)

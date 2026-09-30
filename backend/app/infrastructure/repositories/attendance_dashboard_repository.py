@@ -19,10 +19,15 @@ from sqlalchemy.orm import aliased
 from app.domain.entities.entities import (
     OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES,
 )
+from app.domain.value_objects.attendance_read_limits import AttendanceReadLimits
 from app.infrastructure.database.models import (
     AttendanceRecordModel,
     AttendanceSessionModel,
     PassportSubmissionModel,
+)
+from app.infrastructure.repositories.attendance_projection_reads import (
+    bounded_attendance_text,
+    load_attendance_rows,
 )
 from app.infrastructure.repositories.operational_roster import operational_roster_member
 
@@ -79,8 +84,11 @@ class MissingPassengerPage:
 class AttendanceDashboardRepository:
     """Read-only, tenant-scoped dashboard queries with fixed query count."""
 
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(
+        self, session: AsyncSession, *, read_limits: AttendanceReadLimits | None = None
+    ) -> None:
         self._session = session
+        self._read_limits = read_limits
 
     async def group_aggregate(
         self,
@@ -88,19 +96,30 @@ class AttendanceDashboardRepository:
         agency_id: uuid.UUID,
         group_id: uuid.UUID,
     ) -> AttendanceGroupAggregate:
-        sessions_result = await self._session.execute(
-            select(AttendanceSessionModel)
+        model = AttendanceSessionModel
+        sessions = await load_attendance_rows(
+            self._session,
+            select(model)
             .where(
-                AttendanceSessionModel.agency_id == agency_id,
-                AttendanceSessionModel.group_id == group_id,
-                AttendanceSessionModel.id == AttendanceSessionModel.canonical_session_id,
+                model.agency_id == agency_id,
+                model.group_id == group_id,
+                model.id == model.canonical_session_id,
             )
-            .order_by(
-                AttendanceSessionModel.created_at.desc(),
-                AttendanceSessionModel.id.desc(),
-            )
+            .order_by(model.created_at.desc(), model.id.desc()),
+            limits=self._read_limits,
+            scalar=True,
+            activity_rows=True,
+            projection=(
+                model.id,
+                bounded_attendance_text(model.name, 160, self._read_limits),
+                model.status,
+                model.created_at,
+                model.started_at,
+                model.completed_at,
+                model.updated_at,
+            ),
+            text_limits=(("name", 160),),
         )
-        sessions = tuple(sessions_result.scalars().all())
 
         roster_row = (
             await self._session.execute(
@@ -294,7 +313,9 @@ class AttendanceDashboardRepository:
         )
         statement = select(
             PassportSubmissionModel.id.label("passenger_id"),
-            PassportSubmissionModel.client_name.label("display_name"),
+            bounded_attendance_text(
+                PassportSubmissionModel.client_name, 255, self._read_limits
+            ).label("display_name"),
         ).where(
             PassportSubmissionModel.agency_id == agency_id,
             PassportSubmissionModel.group_id == group_id,
@@ -316,6 +337,11 @@ class AttendanceDashboardRepository:
                 statement.order_by(PassportSubmissionModel.id.asc()).limit(limit + 1)
             )
         ).all()
+        if self._read_limits:
+            from app.domain.value_objects.attendance_read_limits import AttendanceReadLimitError
+
+            if any(len(row.display_name) > 255 for row in rows):
+                raise AttendanceReadLimitError()
         has_more = len(rows) > limit
         visible_rows = rows[:limit]
         items = tuple(

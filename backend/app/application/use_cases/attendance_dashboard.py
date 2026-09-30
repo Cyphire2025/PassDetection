@@ -276,15 +276,13 @@ def _dashboard_activity(
         unresolved_count=closeout.unresolved_count,
     )
     last_update = max(
-        _utc(activity.updated_at),
-        *(
-            _utc(value)
-            for value in (
-                group.roster.latest_updated_at,
-                activity.latest_record_created_at,
-            )
-            if value is not None
-        ),
+        _utc(value)
+        for value in (
+            activity.updated_at,
+            group.roster.latest_updated_at,
+            activity.latest_record_created_at,
+        )
+        if value is not None
     )
     coordinator_statuses: dict[uuid.UUID, list[AttendanceCloseoutCoordinatorStatus]] = {}
     for item in closeout.coordinators:
