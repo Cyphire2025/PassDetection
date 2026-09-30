@@ -184,6 +184,9 @@ async def invoke_operation(
             outcome = "blocked"
             diagnostic = "business_input"
             messages = {
+                "invalid_notification_acknowledgement": "Select exactly one notification ID from your personal feed.",
+                "notification_unavailable": "The notification is no longer available in your personal feed.",
+                "notification_busy": "The notification is being updated. Retry the same notification and idempotency key.",
                 "idempotency_conflict": "This retry key belongs to different input. Inspect the earlier operation before continuing.",
                 "invalid_idempotency_key": "Provide a stable retry key of 16 to 256 characters.",
                 "operation_receipt_unavailable": "The saved receipt is unavailable. Diagnose this operation before retrying.",

@@ -10,6 +10,7 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.use_cases.notifications.scope import direct_notification_agency
 from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import EntityNotFoundError
 from app.infrastructure.database.session import get_db_session
@@ -27,9 +28,7 @@ router = APIRouter()
 
 
 def _direct_notification_agency(user: User) -> uuid.UUID | None:
-    if user.role == UserRole.SUPER_ADMIN:
-        return None
-    return user.agency_id
+    return direct_notification_agency(user)
 
 
 def _to_response(notification) -> NotificationResponse:  # type: ignore[no-untyped-def]

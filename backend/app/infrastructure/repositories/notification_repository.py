@@ -11,11 +11,16 @@ import json
 import uuid
 from datetime import UTC, datetime
 
-from sqlalchemy import and_, func, or_, select, update
+from sqlalchemy import and_, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.exceptions.exceptions import EntityNotFoundError
 from app.infrastructure.database.models import NotificationModel
+from app.infrastructure.repositories.notification_feed_queries import (
+    direct_feed_query,
+    direct_predicates,
+    direct_unread_count,
+)
 
 
 class NotificationRepository:
@@ -103,44 +108,13 @@ class NotificationRepository:
         read bit cannot represent per-user state.
         """
 
-        predicates = [NotificationModel.user_id == user_id]
-        if agency_id is not None:
-            predicates.append(NotificationModel.agency_id == agency_id)
-        if unread_only:
-            predicates.append(NotificationModel.is_read.is_(False))
-        if priority is not None:
-            predicates.append(NotificationModel.priority == priority)
-        if cursor is not None:
-            cursor_time, cursor_id = _decode_cursor(cursor)
-            predicates.append(
-                or_(
-                    NotificationModel.created_at < cursor_time,
-                    and_(
-                        NotificationModel.created_at == cursor_time,
-                        NotificationModel.id < cursor_id,
-                    ),
-                )
-            )
-        result = await self._session.execute(
-            select(NotificationModel)
-            .where(*predicates)
-            .order_by(NotificationModel.created_at.desc(), NotificationModel.id.desc())
-            .limit(limit + 1)
-        )
+        result = await self._session.execute(direct_feed_query(
+            user_id=user_id, agency_id=agency_id, unread_only=unread_only,
+            priority=priority, after=_decode_cursor(cursor) if cursor is not None else None, limit=limit))
         rows = list(result.scalars().all())
         has_more = len(rows) > limit
         items = rows[:limit]
-        count_result = await self._session.execute(
-            select(func.count(NotificationModel.id)).where(
-                NotificationModel.user_id == user_id,
-                *(
-                    [NotificationModel.agency_id == agency_id]
-                    if agency_id is not None
-                    else []
-                ),
-                NotificationModel.is_read.is_(False),
-            )
-        )
+        count_result = await self._session.execute(direct_unread_count(user_id, agency_id))
         unread_count = int(count_result.scalar_one())
         next_cursor = (
             _encode_cursor(items[-1].created_at, items[-1].id)
@@ -148,6 +122,30 @@ class NotificationRepository:
             else None
         )
         return items, unread_count, next_cursor
+
+    async def acknowledge_direct_read(
+        self, *, notification_id: uuid.UUID, user_id: uuid.UUID, agency_id: uuid.UUID | None,
+    ) -> tuple[uuid.UUID, datetime | None, bool]:
+        """Monotonic acknowledgement; preserve any existing first-read timestamp.
+
+        Only the personally targeted row is locked. Content and metadata are
+        never hydrated; caller owns the transaction and durable receipt.
+        """
+        row = (await self._session.execute(select(
+            NotificationModel.agency_id, NotificationModel.is_read, NotificationModel.read_at,
+        ).where(NotificationModel.id == notification_id, *direct_predicates(user_id, agency_id))
+            .with_for_update(nowait=True))).one_or_none()
+        if row is None:
+            raise EntityNotFoundError("Notification", str(notification_id))
+        if row.is_read:
+            return row.agency_id, row.read_at, False
+        read_at = row.read_at or datetime.now(tz=UTC)
+        await self._session.execute(update(NotificationModel).where(
+            NotificationModel.id == notification_id, *direct_predicates(user_id, agency_id),
+            NotificationModel.is_read.is_(False),
+        ).values(is_read=True, read_at=read_at).execution_options(synchronize_session=False))
+        await self._session.flush()
+        return row.agency_id, read_at, True
 
     async def mark_all_direct_read(
         self,

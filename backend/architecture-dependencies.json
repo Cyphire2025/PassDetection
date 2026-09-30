@@ -1,6 +1,31 @@
 {
   "version": 1,
   "transaction_services": {
+    "app/application/mcp/notification_changes.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "The durable operation boundary locks current authority before one exact personally targeted notification; the NOWAIT scalar acknowledgement only advances unread to read and preserves the first read timestamp. Current recipient ownership fences retained receipts, and a fixed business audit records the monotonic change without content, dispatch or other inbox effects.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.NotificationModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository",
+        "app.infrastructure.repositories.notification_feed_queries",
+        "app.infrastructure.repositories.notification_feed_queries.direct_predicates",
+        "app.infrastructure.repositories.notification_repository",
+        "app.infrastructure.repositories.notification_repository.NotificationRepository"
+      ]
+    },
+    "app/application/mcp/notification_reads.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current active superadmin identity scopes the shared website personal-recipient query; bounded scalar text and three typed metadata fields are projected before materialization, with signed pagination and independent unread counts. The read cannot acknowledge, create, dispatch or mutate a notification.",
+      "imports": [
+        "app.infrastructure.repositories.notification_projection_repository",
+        "app.infrastructure.repositories.notification_projection_repository.NotificationProjectionLimitError",
+        "app.infrastructure.repositories.notification_projection_repository.NotificationProjectionRepository"
+      ]
+    },
     "app/application/dashboard_realtime_authorization.py": {
       "owner": "repository maintainers",
       "review_by": "2026-12-31",

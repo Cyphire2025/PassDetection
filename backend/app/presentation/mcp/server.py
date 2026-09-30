@@ -40,6 +40,7 @@ from app.presentation.mcp.group_change_tools import register_group_change_tools
 from app.presentation.mcp.group_tools import register_group_tools
 from app.presentation.mcp.image_export_tools import register_image_export_tools
 from app.presentation.mcp.invocation import InvocationAuditMiddleware, invoke_read
+from app.presentation.mcp.notification_tools import register_notification_tools
 from app.presentation.mcp.office_change_tools import register_office_change_tools
 from app.presentation.mcp.operation_tools import register_operation_tools
 from app.presentation.mcp.operations_read_tools import register_operations_read_tools
@@ -138,6 +139,7 @@ def install_mcp(app: FastAPI, settings: Settings) -> None:
 
     register_group_tools(server, app, settings)
     register_dashboard_tools(server, app, settings)
+    register_notification_tools(server, app, settings)
     register_diagnostic_tools(server, app, settings)
     register_broadcast_link_tools(server, app, settings)
     register_gc_push_tools(app, server, settings)
