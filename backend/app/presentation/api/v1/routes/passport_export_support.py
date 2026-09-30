@@ -7,7 +7,7 @@ import uuid
 from collections.abc import Mapping
 from dataclasses import dataclass
 from difflib import SequenceMatcher
-from typing import Any, Literal, cast
+from typing import Any, Literal
 
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,10 +22,10 @@ from app.application.use_cases.whatsapp.group_submission_matching import (
 )
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import ClientGroup, PassportSubmission
+from app.domain.value_objects import passport_export_history as history_values
 from app.infrastructure.database.models import (
     ClientGroupModel,
     ClientGroupWhatsAppBroadcastLinkModel,
-    PassportExportHistoryModel,
     PassportRosterResolutionModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
@@ -36,10 +36,7 @@ from app.infrastructure.export.passport_excel_exporter import (
 )
 from app.infrastructure.export.passport_excel_phone_columns import is_phone_export_field
 from app.infrastructure.repositories.passport_export_history_repository import (
-    PassportExportKind,
-    PassportExportMode,
     PassportExportPersonSnapshot,
-    validated_export_people_snapshot,
 )
 from app.infrastructure.repositories.passport_whatsapp_matching_repository import (
     matching_field_keys_from_storage,
@@ -49,54 +46,10 @@ from app.infrastructure.repositories.passport_whatsapp_matching_repository impor
 
 logger = get_logger(__name__)
 
-
-def _validated_export_history_ids(
-    history: PassportExportHistoryModel,
-    *,
-    field_name: Literal[
-        "snapshot_submission_ids",
-        "exported_submission_ids",
-    ],
-) -> set[uuid.UUID]:
-    """Validate a persisted export snapshot before using it for a retry."""
-
-    raw_ids = list(getattr(history, field_name) or [])
-    parsed_ids: list[uuid.UUID] = []
-    for value in raw_ids:
-        try:
-            parsed_ids.append(uuid.UUID(str(value)))
-        except (TypeError, ValueError, AttributeError):
-            logger.warning(
-                "passport_export_history_invalid_submission_id",
-                history_id=str(history.id),
-                field_name=field_name,
-                value=str(value),
-            )
-            raise ValueError("The export history entry contains an invalid ID.")
-    expected_count = (
-        history.total_available_count
-        if field_name == "snapshot_submission_ids"
-        else history.exported_count
-    )
-    if len(parsed_ids) != expected_count or len(set(parsed_ids)) != expected_count:
-        raise ValueError("The export history entry failed its integrity check.")
-    return set(parsed_ids)
-
-
-def _validated_export_kind(value: str) -> PassportExportKind:
-    """Narrow a persisted export kind after validating database integrity."""
-
-    if value not in {"passport_images", "passport_excel"}:
-        raise ValueError("The export history entry contains an invalid export kind.")
-    return cast(PassportExportKind, value)
-
-
-def _validated_export_mode(value: str) -> PassportExportMode:
-    """Narrow a persisted export mode after validating database integrity."""
-
-    if value not in {"all", "incremental"}:
-        raise ValueError("The export history entry contains an invalid export mode.")
-    return cast(PassportExportMode, value)
+_validated_export_history_ids = history_values.validated_export_history_ids
+_validated_export_history_people = history_values.validated_export_history_people
+_validated_export_kind = history_values.validated_export_kind
+_validated_export_mode = history_values.validated_export_mode
 
 
 def _export_people_snapshot(
@@ -118,22 +71,6 @@ def _export_people_snapshot(
             }
         )
     return people
-
-
-def _validated_export_history_people(
-    history: PassportExportHistoryModel,
-) -> list[PassportExportPersonSnapshot]:
-    _validated_export_history_ids(
-        history,
-        field_name="exported_submission_ids",
-    )
-    ordered_ids = [
-        uuid.UUID(str(value)) for value in (history.exported_submission_ids or [])
-    ]
-    return validated_export_people_snapshot(
-        history.exported_people_snapshot,
-        exported_submission_ids=ordered_ids,
-    )
 
 
 def _international_airport_is_enabled(

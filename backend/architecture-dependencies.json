@@ -1,6 +1,23 @@
 {
   "version": 1,
   "transaction_services": {
+    "app/application/mcp/export_history_reads.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current grant and exact authorized group locks precede bounded scalar roster and completed checkpoint reads; selected checkpoint bytes are admitted under SHARE locks before JSON hydration, with shared pure website projections and explicit personal-detail read auditing. No artifact, delivery, recovery or completion authority is exposed.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.PassportExportHistoryModel",
+        "app.infrastructure.repositories.mcp_export_history_read_repository",
+        "app.infrastructure.repositories.mcp_export_history_read_repository.HistorySourceLimit",
+        "app.infrastructure.repositories.mcp_export_history_read_repository.MAX_CHECKPOINT_PEOPLE",
+        "app.infrastructure.repositories.mcp_export_history_read_repository.MCPExportHistoryReadRepository",
+        "app.infrastructure.repositories.sensitive_read_audit",
+        "app.infrastructure.repositories.sensitive_read_audit.record_sensitive_read",
+        "app.infrastructure.repositories.user_repository",
+        "app.infrastructure.repositories.user_repository.UserRepository"
+      ]
+    },
     "app/application/mcp/notification_changes.py": {
       "owner": "repository maintainers",
       "review_by": "2026-12-31",

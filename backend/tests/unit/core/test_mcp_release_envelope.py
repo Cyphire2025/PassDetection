@@ -33,6 +33,9 @@ async def test_no_export_families_registers_no_export_preparation(test_settings)
     assert "inspect_excel_export_options" not in {
         tool.name for tool in await app.state.mcp_server.list_tools()
     }
+    assert {"list_group_export_history", "get_group_export_history"} <= {
+        tool.name for tool in await app.state.mcp_server.list_tools()
+    }
 
 
 @pytest.mark.parametrize("overrides", [

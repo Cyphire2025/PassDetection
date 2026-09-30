@@ -11,7 +11,7 @@ import uuid
 from collections.abc import Sequence
 from typing import Any, Literal
 
-from sqlalchemy import and_, case, delete, func, or_, select
+from sqlalchemy import Select, and_, case, delete, func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -567,19 +567,11 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         return [DashboardRecentSubmission(**{**row, "status": PassportProcessingStatus(row["status"])})
                 for row in rows]
 
-    async def list_by_group(
-        self,
-        agency_id: uuid.UUID,
-        group_id: uuid.UUID,
-        *,
-        skip: int = 0,
-        limit: int | None = 50,
-        search: str | None = None,
-        exclude_archived_groups: bool = False,
-        created_by_user_id: uuid.UUID | None = None,
-        visible_to_user: User | None = None,
-        operational_only: bool = False,
-    ) -> list[PassportSubmission]:
+    def _group_scope(
+        self, agency_id: uuid.UUID, group_id: uuid.UUID, *,
+        exclude_archived_groups: bool = False, created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None, operational_only: bool = False,
+    ) -> Select[tuple[PassportSubmissionModel]]:
         stmt = (
             select(PassportSubmissionModel)
             .join(ClientGroupModel, PassportSubmissionModel.group_id == ClientGroupModel.id)
@@ -597,6 +589,26 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             stmt = self._apply_manager_group_scope(stmt, created_by_user_id)
         if visible_to_user:
             stmt = AuthorizationPolicy.apply_passport_visibility_scope(stmt, visible_to_user)
+        return stmt
+
+    async def list_by_group(
+        self,
+        agency_id: uuid.UUID,
+        group_id: uuid.UUID,
+        *,
+        skip: int = 0,
+        limit: int | None = 50,
+        search: str | None = None,
+        exclude_archived_groups: bool = False,
+        created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
+        operational_only: bool = False,
+    ) -> list[PassportSubmission]:
+        stmt = self._group_scope(
+            agency_id, group_id, exclude_archived_groups=exclude_archived_groups,
+            created_by_user_id=created_by_user_id, visible_to_user=visible_to_user,
+            operational_only=operational_only,
+        )
         stmt = self._apply_search(stmt, search)
         stmt = stmt.order_by(PassportSubmissionModel.created_at.desc(), PassportSubmissionModel.id.desc())
         if skip:

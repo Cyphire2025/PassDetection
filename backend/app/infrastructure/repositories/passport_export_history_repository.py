@@ -4,56 +4,23 @@ from __future__ import annotations
 
 import uuid
 from datetime import UTC, datetime
-from typing import Literal
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.infrastructure.database.models import PassportExportHistoryModel
-
-PassportExportKind = Literal["passport_images", "passport_excel"]
-PassportExportMode = Literal["all", "incremental"]
-PassportExportPersonSnapshot = dict[str, str | None]
-
-_PERSON_SNAPSHOT_FIELDS = (
-    "client_name",
-    "client_phone",
-    "client_email",
-    "passport_number",
+from app.domain.value_objects.passport_export_history import (
+    PassportExportKind as PassportExportKind,
 )
-
-
-def validated_export_people_snapshot(
-    values: object,
-    *,
-    exported_submission_ids: list[uuid.UUID],
-) -> list[PassportExportPersonSnapshot]:
-    """Return a canonical immutable snapshot aligned to the payload order."""
-
-    if not isinstance(values, list) or len(values) != len(exported_submission_ids):
-        raise ValueError("Export person details do not match the payload count.")
-    canonical: list[PassportExportPersonSnapshot] = []
-    for expected_id, raw in zip(exported_submission_ids, values, strict=True):
-        if not isinstance(raw, dict):
-            raise ValueError("Export person details contain an invalid record.")
-        try:
-            submission_id = uuid.UUID(str(raw.get("submission_id")))
-        except (TypeError, ValueError, AttributeError):
-            raise ValueError("Export person details contain an invalid submission ID.")
-        if submission_id != expected_id:
-            raise ValueError("Export person details are not aligned to the payload.")
-        item: PassportExportPersonSnapshot = {
-            "submission_id": str(submission_id),
-        }
-        for field_name in _PERSON_SNAPSHOT_FIELDS:
-            value = raw.get(field_name)
-            if value is not None and not isinstance(value, str):
-                raise ValueError(
-                    f"Export person details contain an invalid {field_name}."
-                )
-            item[field_name] = value
-        canonical.append(item)
-    return canonical
+from app.domain.value_objects.passport_export_history import (
+    PassportExportMode as PassportExportMode,
+)
+from app.domain.value_objects.passport_export_history import (
+    PassportExportPersonSnapshot as PassportExportPersonSnapshot,
+)
+from app.domain.value_objects.passport_export_history import (
+    validated_export_people_snapshot as validated_export_people_snapshot,
+)
+from app.infrastructure.database.models import PassportExportHistoryModel
 
 
 class PassportExportHistoryRepository:

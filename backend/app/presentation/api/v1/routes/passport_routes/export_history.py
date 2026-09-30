@@ -13,6 +13,10 @@ from app.application.use_cases.passports.complete_export_delivery import (
     ExportDeliveryConflict,
     complete_export_delivery,
 )
+from app.application.use_cases.passports.export_history_projection import (
+    project_history_item,
+    project_history_people,
+)
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import User
 from app.domain.exceptions.exceptions import AuthorizationError
@@ -38,7 +42,6 @@ from .constants import (
     _validated_export_history_ids,
     _validated_export_history_people,
     _validated_export_kind,
-    _validated_export_mode,
 )
 from .export_context import _current_group_export_submissions
 from .response_support import _owner_scope_for
@@ -123,20 +126,9 @@ async def list_passport_group_export_history(
             compatible = False
             new_submission_count = 0
         history_items.append(
-            PassportExportHistoryItemResponse(
-                id=item.id,
-                export_kind=_validated_export_kind(item.export_kind),
-                export_mode=_validated_export_mode(item.export_mode),
-                baseline_export_id=item.baseline_export_id,
-                total_available_count=item.total_available_count,
-                exported_count=item.exported_count,
-                pending_recipient_count=item.pending_recipient_count,
-                new_submission_count=new_submission_count,
-                compatible=compatible,
-                actor_email=item.actor_email,
-                created_at=item.created_at,
-                completed_at=item.completed_at,
-            )
+            PassportExportHistoryItemResponse.model_validate(project_history_item(
+                item, compatible=compatible, new_submission_count=new_submission_count,
+            ).model_dump())
         )
     return PassportExportHistoryListResponse(
         group_id=group_id,
@@ -225,19 +217,8 @@ async def get_passport_group_export_history_detail(
         )
         available_ids = set(result.scalars().all())
 
-    items: list[PassportExportHistorySubmissionResponse] = []
-    for person in page_people:
-        submission_id = uuid.UUID(str(person["submission_id"]))
-        items.append(
-            PassportExportHistorySubmissionResponse(
-                submission_id=submission_id,
-                record_available=submission_id in available_ids,
-                client_name=person["client_name"],
-                client_phone=person["client_phone"],
-                client_email=person["client_email"],
-                passport_number=person["passport_number"],
-            )
-        )
+    items = [PassportExportHistorySubmissionResponse.model_validate(item.model_dump())
+             for item in project_history_people(page_people, available_ids)]
     return PassportExportHistoryDetailResponse(
         history_id=history.id,
         group_id=group_id,
