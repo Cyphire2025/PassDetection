@@ -6,6 +6,7 @@ import { Badge, Button, Input } from "@/components/ui";
 import { formatDateTime } from "@/lib/utils/format";
 import { MCP_CAPABILITIES, type McpOverview } from "../api/mcp.api";
 import { useMcpActivity, useMcpConnections } from "../hooks/use-mcp";
+import { effectiveMcpCapabilities, isMcpReadOnlyMode } from "../utils/read-only";
 import { McpConnectionCard } from "./mcp-connection-card";
 import { McpConnectorSetup } from "./mcp-connector-setup";
 import { McpError, McpPagination } from "./mcp-shared";
@@ -13,25 +14,29 @@ import { McpFiles, McpToolInventory, McpWorkflows } from "./mcp-work-results";
 
 export type McpAdvancedTab = "connections" | "activity" | "workflows" | "files" | "tools" | "setup";
 
-export function McpAdvanced({ overview, tab, onTabChange }: {
-  overview: McpOverview; tab: McpAdvancedTab; onTabChange: (tab: McpAdvancedTab) => void;
+export function McpAdvanced({ overview, tab, onTabChange, unavailable = false }: {
+  overview: McpOverview; tab: McpAdvancedTab; onTabChange: (tab: McpAdvancedTab) => void; unavailable?: boolean;
 }) {
+  const readOnly = isMcpReadOnlyMode(overview);
+  const selectedTab = readOnly && (tab === "files" || tab === "workflows") ? "connections" : tab;
+  const tabs = ([["connections", "Connections"], ["activity", "Activity"], ["workflows", "Workflows"], ["files", "Files"], ["tools", "Tools"], ["setup", "Connection setup"]] as const)
+    .filter(([key]) => !readOnly || (key !== "files" && key !== "workflows"));
   return <div id="codex-advanced-content" tabIndex={-1} className="space-y-5 border-t border-slate-200 pt-5">
     <div className="rounded-lg bg-slate-50 p-4 text-xs leading-5 text-slate-600">
       <p>Environment: {overview.environment} · Checked {formatDateTime(overview.observed_at)}</p>
       <p className="break-all">Release revision: {overview.revision ?? "Not reported"}</p>
-      {overview.qualification !== "qualified" ? <p className="mt-2">Release qualification is in progress. A registered tool does not confirm that every workflow is available or fully qualified.</p> : null}
+      {overview.qualification !== "qualified" ? <p className="mt-2">Release qualification is in progress. A registered tool does not confirm that every {readOnly ? "read" : "workflow"} is available or fully qualified.</p> : null}
     </div>
     <nav aria-label="MCP administration sections" className="flex flex-wrap gap-1 border-b border-slate-200">
-      {([["connections", "Connections"], ["activity", "Activity"], ["workflows", "Workflows"], ["files", "Files"], ["tools", "Tools"], ["setup", "Connection setup"]] as const).map(([key, label]) =>
-        <button key={key} type="button" aria-current={tab === key ? "page" : undefined} onClick={() => onTabChange(key)}
-          className={`border-b-2 px-3 py-2 text-sm font-medium ${tab === key ? "border-blue-600 text-blue-700" : "border-transparent text-slate-500 hover:text-slate-900"}`}>{label}</button>)}
+      {tabs.map(([key, label]) =>
+        <button key={key} type="button" aria-current={selectedTab === key ? "page" : undefined} onClick={() => onTabChange(key)}
+          className={`border-b-2 px-3 py-2 text-sm font-medium ${selectedTab === key ? "border-blue-600 text-blue-700" : "border-transparent text-slate-500 hover:text-slate-900"}`}>{label}</button>)}
     </nav>
-    {tab === "connections" ? <Connections /> : tab === "activity" ? <Activity /> : tab === "workflows" ? <McpWorkflows /> : tab === "files" ? <McpFiles /> : tab === "tools" ? <McpToolInventory /> : <Setup overview={overview} />}
+    {selectedTab === "connections" ? <Connections readOnly={readOnly} unavailable={unavailable} /> : selectedTab === "activity" ? <Activity /> : selectedTab === "workflows" ? <McpWorkflows /> : selectedTab === "files" ? <McpFiles /> : selectedTab === "tools" ? <McpToolInventory readOnly={readOnly} /> : <Setup overview={overview} />}
   </div>;
 }
 
-function Connections() {
+function Connections({ readOnly, unavailable }: { readOnly: boolean; unavailable: boolean }) {
   const [offset, setOffset] = useState(0);
   const query = useMcpConnections(offset);
   return <section aria-label="MCP connections" className="space-y-4">
@@ -39,7 +44,7 @@ function Connections() {
     <McpError error={query.error} onRetry={() => void query.refetch()} />
     {query.isPending ? <p role="status" className="text-sm text-slate-500">Loading connections…</p> : null}
     {query.data?.items.length === 0 ? <p className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">No connections on this page. Start sign-in from an approved MCP client to create one.</p> : null}
-    {query.data?.items.map((connection) => <McpConnectionCard key={connection.id} connection={connection} advanced />)}
+    {query.data?.items.map((connection) => <McpConnectionCard key={connection.id} connection={connection} advanced readOnly={readOnly} unavailable={unavailable || query.isError} />)}
     <McpPagination offset={offset} nextOffset={query.data?.next_offset ?? null} onChange={setOffset} disabled={query.isFetching} label="Connection pages" />
   </section>;
 }
@@ -63,6 +68,7 @@ function Activity() {
 }
 
 function Setup({ overview }: { overview: McpOverview }) {
+  const readOnly = isMcpReadOnlyMode(overview);
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState<unknown>(null);
   const copyEndpoint = async () => {
@@ -80,8 +86,8 @@ function Setup({ overview }: { overview: McpOverview }) {
       <p className="text-xs leading-5 text-slate-500">Access tokens last 15 minutes. Authorization lasts up to seven days. Revoke a connection to require a fresh sign-in.</p>
     </div>
     <div className="rounded-xl border border-slate-200 p-5"><h2 className="text-base font-semibold text-slate-900">Permission categories</h2>
-      <p className="mt-1 text-xs leading-5 text-slate-500">Connections only receive the permissions you select. Workflow availability is qualified separately.</p>
-      <dl className="mt-4 divide-y divide-slate-100">{overview.capabilities.map((capability) => <div key={capability} className="py-3"><dt className="text-sm font-medium text-slate-900">{MCP_CAPABILITIES[capability]?.label ?? capability}</dt><dd className="mt-1 text-xs leading-5 text-slate-500">{MCP_CAPABILITIES[capability]?.description}</dd></div>)}</dl>
+      <p className="mt-1 text-xs leading-5 text-slate-500">{readOnly ? "This deployment only permits reads. The saved section settings apply to every connection." : "Connections only receive the permissions you select. Workflow availability is qualified separately."}</p>
+      <dl className="mt-4 divide-y divide-slate-100">{effectiveMcpCapabilities(overview).map((capability) => <div key={capability} className="py-3"><dt className="text-sm font-medium text-slate-900">{MCP_CAPABILITIES[capability]?.label ?? capability}</dt><dd className="mt-1 text-xs leading-5 text-slate-500">{MCP_CAPABILITIES[capability]?.description}</dd></div>)}</dl>
       <p className="mt-4 rounded-lg bg-slate-50 p-3 text-xs leading-5 text-slate-600">MCP cannot delete or remove application data, control the server, or change its own connection permissions.</p>
     </div>
     <McpConnectorSetup overview={overview} />

@@ -12,7 +12,7 @@ vi.mock("../api/mcp.api", async (original) => {
   const actual = await original<typeof import("../api/mcp.api")>();
   return { ...actual, mcpApi: { ...actual.mcpApi, overview: vi.fn(), connections: vi.fn(), inventory: vi.fn(), activity: vi.fn(), control: vi.fn(), revoke: vi.fn(), updateConnection: vi.fn(), authorize: vi.fn() } };
 });
-const overview: McpOverview = { enabled: true, deployment_enabled: true, emergency_disabled: false,
+const overview: McpOverview = { read_only_mode: false, enabled: true, deployment_enabled: true, emergency_disabled: false,
   resource: "https://app.example.test/mcp", capabilities: ["mcp:read", "mcp:export", "mcp:communicate"],
   approved_clients: { desktop: ["http://127.0.0.1:8765/callback"] }, environment: "qualification", revision: "abc", observed_at: "2026-09-29T00:00:00Z", qualification: "in_progress" };
 const connection: McpConnection = { id: "grant-a", user_id: "admin-a", name: "Office desktop", client_id: "global-connects-desktop", capabilities: ["mcp:read", "mcp:export"],
@@ -97,7 +97,7 @@ it("restarts paginated activity at the first page when a search changes", async 
 it("shows versioned connector setup without claiming unpublished installation or file tools", async () => {
   renderPage(); fireEvent.click(await screen.findByRole("button", { name: "Advanced" })); fireEvent.click(screen.getByRole("button", { name: "Connection setup" }));
   const setup = screen.getByRole("region", { name: "Windows connector setup" });
-  expect(setup).toHaveTextContent("Windows connector 0.2.0");
+  expect(setup).toHaveTextContent("Windows connector 0.2.4");
   expect(setup).toHaveTextContent("This deployment has not approved the desktop connector’s callback");
   expect(setup).toHaveTextContent("A hosted installer is not published here");
   expect(setup).toHaveTextContent("Full workflow qualification remains in progress");

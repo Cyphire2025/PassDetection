@@ -34,7 +34,7 @@ async function setup(page: Page, role = "super_admin", requireStepUp = false) {
       requests.push({ method, path, body: request.postData() ? request.postDataJSON() : null });
       if (role !== "super_admin") return json(route, { detail: "Superadmin required" }, 403);
       if (!verified && method !== "GET") return json(route, { error: { code: "STEP_UP_REQUIRED", message: "Confirm your identity before changing MCP access." } }, 403);
-      if (path === "/api/v1/admin/mcp") return json(route, { enabled, deployment_enabled: true, emergency_disabled: !enabled, resource,
+      if (path === "/api/v1/admin/mcp") return json(route, { read_only_mode: false, enabled, deployment_enabled: true, emergency_disabled: !enabled, resource,
         capabilities: ["mcp:read", "mcp:export", "mcp:upload", "mcp:change", "mcp:communicate", "mcp:diagnose"],
         approved_clients: { [oauth.client_id]: [callback] }, environment: "qualification", revision: "fixture-revision", observed_at: "2026-09-29T12:00:00Z", qualification: "in_progress" });
       if (path.endsWith("/connections")) return json(route, { items: [grant], next_offset: null });
@@ -156,7 +156,7 @@ for (const width of [1440, 650, 390]) {
     await expect(page.getByText(resource, { exact: true })).toBeVisible();
     const connector = page.getByRole("region", { name: "Windows connector setup" });
     await connector.getByText("Show PowerShell installation commands", { exact: true }).click();
-    await expect(connector).toContainText("Windows connector 0.2.0");
+    await expect(connector).toContainText("Windows connector 0.2.4");
     await expect(connector).toContainText("Full workflow qualification remains in progress");
     await expect(connector).not.toContainText("This deployment has not approved");
     await connector.scrollIntoViewIfNeeded();

@@ -21,6 +21,23 @@ export interface McpOverview {
   revision: string | null;
   observed_at: string;
   qualification: string;
+  read_only_mode?: boolean;
+  effective_capabilities?: McpCapability[];
+}
+export interface McpReadSection {
+  id: string; label: string; supported: boolean; tool_names: string[];
+  coverage_description?: string;
+  metadata_only?: boolean;
+  tool_requirements?: { name: string; required_sections: string[] }[];
+}
+export interface McpReadAccess {
+  read_only_mode: boolean; effective_capabilities: McpCapability[];
+  allowed_read_sections: string[]; revision: number; sections: McpReadSection[];
+  connection_metadata_tools: string[]; environment: string;
+  backend_revision: string | null; observed_at: string;
+}
+export interface McpReadAccessUpdate {
+  allowed_read_sections: string[]; expected_revision: number;
 }
 export interface McpConnection {
   id: string;
@@ -59,7 +76,8 @@ export interface McpArtifact {
 }
 export interface McpInventory {
   tool_count: number; environment: string; revision: string | null; qualification: string;
-  tools: { name: string; description: string | null; capability: string; deployment_available: boolean; read_only: boolean; qualification: string }[];
+  tools: { name: string; description: string | null; capability: string; deployment_available: boolean; read_only: boolean; qualification: string;
+    required_read_sections?: string[]; section_access_allowed?: boolean }[];
   file_transports: { name: string; capability: string; required_capabilities?: string[]; business_ingestion?: boolean }[];
 }
 export interface McpConsentRequest {
@@ -75,6 +93,8 @@ export interface McpConsentRequest {
 }
 export const mcpApi = {
   overview: async (signal?: AbortSignal) => (await apiClient.get<McpOverview>(API_ENDPOINTS.mcp.overview, { signal })).data,
+  readAccess: async (signal?: AbortSignal) => (await apiClient.get<McpReadAccess>(API_ENDPOINTS.mcp.readAccess, { signal })).data,
+  updateReadAccess: async (update: McpReadAccessUpdate) => (await apiClient.put<McpReadAccess>(API_ENDPOINTS.mcp.readAccess, update)).data,
   connections: async (offset: number, signal?: AbortSignal) => (await apiClient.get<McpPage<McpConnection>>(API_ENDPOINTS.mcp.connections, { params: { offset, limit: 25 }, signal })).data,
   activity: async (offset: number, search: string, signal?: AbortSignal) => (await apiClient.get<McpPage<McpActivity>>(API_ENDPOINTS.mcp.activity, { params: { offset, limit: 25, search }, signal })).data,
   inventory: async (signal?: AbortSignal) => (await apiClient.get<McpInventory>(API_ENDPOINTS.mcp.inventory, { signal })).data,

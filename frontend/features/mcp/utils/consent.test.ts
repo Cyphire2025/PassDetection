@@ -3,6 +3,7 @@ import type { McpOverview } from "../api/mcp.api";
 import { parseMcpAuthorization, validatedMcpRedirect } from "./consent";
 
 const overview: McpOverview = {
+  read_only_mode: false,
   enabled: true, deployment_enabled: true, emergency_disabled: false,
   resource: "https://app.example.test/mcp", capabilities: ["mcp:read", "mcp:export"],
   approved_clients: { desktop: ["http://127.0.0.1:8765/callback"] },

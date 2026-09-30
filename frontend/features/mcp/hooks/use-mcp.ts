@@ -9,6 +9,22 @@ export function useMcpRefresh() {
 export function useMcpOverview() {
   return useQuery({ queryKey: keys.overview, queryFn: ({ signal }) => mcpApi.overview(signal), refetchOnWindowFocus: "always" });
 }
+export function useMcpReadAccess(enabled = true) {
+  return useQuery({ queryKey: [...keys.root, "read-access"], queryFn: ({ signal }) => mcpApi.readAccess(signal),
+    refetchOnWindowFocus: "always", retry: false, enabled });
+}
+export function useMcpUpdateReadAccess() {
+  const client = useQueryClient();
+  return useMutation({ mutationFn: mcpApi.updateReadAccess, retry: false,
+    onMutate: () => client.cancelQueries({ queryKey: [...keys.root, "read-access"] }),
+    onSuccess: (confirmed) => {
+      client.setQueryData([...keys.root, "read-access"], confirmed);
+      return Promise.all([
+        client.invalidateQueries({ queryKey: keys.overview }),
+        client.invalidateQueries({ queryKey: [...keys.root, "inventory"] }),
+      ]);
+    } });
+}
 export function useMcpConnections(offset: number) {
   return useQuery({ queryKey: [...keys.root, "connections", offset], queryFn: ({ signal }) => mcpApi.connections(offset, signal) });
 }

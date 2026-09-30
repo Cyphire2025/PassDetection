@@ -1,4 +1,5 @@
 import type { McpCapability, McpConnection, McpInventory, McpOverview } from "../api/mcp.api";
+import { effectiveMcpCapabilities } from "../utils/read-only";
 
 export const CODEX_CLIENT_ID = "global-connects-desktop";
 export const CODEX_CALLBACK = "http://127.0.0.1:8765/callback";
@@ -7,7 +8,7 @@ export function accessStatus(overview: McpOverview, connections: McpConnection[]
   if (uncertain) return { title: "Access status unavailable", description: "Refresh the status before relying on this saved authorization.", authorized: false };
   if (!overview.deployment_enabled) return { title: "Not available", description: "Codex access is not enabled for this website. Contact your administrator for setup.", authorized: false };
   if (!overview.enabled || overview.emergency_disabled) return { title: "Access paused", description: "All Codex connections are paused. Your saved connections and application data are retained.", authorized: false };
-  if (connections.some((connection) => connection.status === "active" && connection.capabilities.some((capability) => overview.capabilities.includes(capability)))) return { title: "Codex is authorized", description: "A saved connection has access for your account. This does not tell us whether Codex is open or online.", authorized: true };
+  if (connections.some((connection) => connection.status === "active" && connection.capabilities.some((capability) => effectiveMcpCapabilities(overview).includes(capability)))) return { title: "Codex is authorized", description: "A saved connection has access for your account. This does not tell us whether Codex is open or online.", authorized: true };
   if (partial) return { title: "More connections to check", description: "There is no usable Codex authorization on this page. Check the other connection pages before signing in again.", authorized: false };
   if (connections.some((connection) => connection.status === "active")) return { title: "No available permissions", description: "Your saved connection has no permissions enabled on this website. Review its access in Advanced or sign in again.", authorized: false };
   return { title: "Sign-in needed", description: "Connect Codex to this account, then return here to check its access.", authorized: false };

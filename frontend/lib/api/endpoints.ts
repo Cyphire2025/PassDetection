@@ -14,6 +14,7 @@ import type { PassportImageType } from "@/types/passport.types";
 export const API_ENDPOINTS = {
   mcp: {
     overview: "/api/v1/admin/mcp",
+    readAccess: "/api/v1/mcp/read-access",
     connections: "/api/v1/admin/mcp/connections",
     connection: (id: string) => `/api/v1/admin/mcp/connections/${encodeURIComponent(id)}`,
     revoke: (id: string) => `/api/v1/admin/mcp/connections/${encodeURIComponent(id)}/revoke`,

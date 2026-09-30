@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui";
 import { formatDateTime } from "@/lib/utils/format";
 import { MCP_CAPABILITIES, type McpArtifact, type McpCapability, type McpOperation } from "../api/mcp.api";
-import { useMcpArtifacts, useMcpInventory, useMcpOperations } from "../hooks/use-mcp";
+import { useMcpArtifacts, useMcpInventory, useMcpOperations, useMcpReadAccess } from "../hooks/use-mcp";
 import { McpError, McpPagination } from "./mcp-shared";
 
 function capabilityLabel(value: string) {
@@ -82,18 +82,23 @@ export function McpFiles() {
   </section>;
 }
 
-export function McpToolInventory() {
+export function McpToolInventory({ readOnly = false }: { readOnly?: boolean }) {
   const query = useMcpInventory();
+  const access = useMcpReadAccess(readOnly);
+  const approved = new Set(access.data?.read_only_mode === true && !access.isError
+    ? [...access.data.sections.flatMap((section) => section.tool_names), ...access.data.connection_metadata_tools] : []);
+  const tools = query.data?.tools.filter((tool) => !readOnly || (tool.capability === "mcp:read" && tool.read_only && approved.has(tool.name))) ?? [];
   return <section aria-label="Deployed MCP tools" className="space-y-4">
     <div><h2 className="text-base font-semibold text-slate-900">Available tools</h2><p className="mt-1 text-sm text-slate-500">Tools registered in this release. Connection permissions and the emergency switch also control access.</p></div>
     <McpError error={query.error} onRetry={() => void query.refetch()} />
+    {readOnly ? <McpError error={access.error} onRetry={() => void access.refetch()} /> : null}
     {query.isPending ? <p role="status" className="text-sm text-slate-500">Loading tool inventory…</p> : null}
-    {query.data ? <p className="text-xs text-slate-500">{query.data.tool_count} tools · {query.data.environment} · {query.data.qualification === "qualified" ? "Qualified release" : "Qualification in progress"}</p> : null}
-    <div className="grid gap-3 md:grid-cols-2">{query.data?.tools.map((tool) => <article key={tool.name} className="rounded-xl border border-slate-200 p-4">
+    {query.data ? <p className="text-xs text-slate-500">{readOnly ? tools.length : query.data.tool_count} tools · {query.data.environment} · {query.data.qualification === "qualified" ? "Qualified release" : "Qualification in progress"}</p> : null}
+    <div className="grid gap-3 md:grid-cols-2">{tools.map((tool) => <article key={tool.name} className="rounded-xl border border-slate-200 p-4">
       <div className="flex flex-wrap items-start justify-between gap-2"><h3 className="break-all text-sm font-semibold text-slate-900">{tool.name.replaceAll("_", " ")}</h3><Badge variant={tool.deployment_available ? "outline" : "secondary"}>{tool.deployment_available ? "Enabled in deployment" : "Disabled in deployment"}</Badge></div>
       <p className="mt-2 text-xs text-slate-500">{capabilityLabel(tool.capability)}{tool.read_only ? " · Read only" : ""}</p>
       {tool.description ? <p className="mt-2 text-sm leading-6 text-slate-600">{tool.description.split("\n")[0]}</p> : null}
     </article>)}</div>
-    {query.data?.file_transports.length ? <div className="rounded-xl bg-slate-50 p-4"><h3 className="text-sm font-semibold text-slate-900">Protected file transfers</h3><ul className="mt-2 space-y-2 text-sm text-slate-600">{query.data.file_transports.map((item) => <li key={item.name}>{item.name.replaceAll("_", " ")} · {(item.required_capabilities ?? [item.capability]).map(capabilityLabel).join(" + ")}</li>)}</ul></div> : null}
+    {!readOnly && query.data?.file_transports.length ? <div className="rounded-xl bg-slate-50 p-4"><h3 className="text-sm font-semibold text-slate-900">Protected file transfers</h3><ul className="mt-2 space-y-2 text-sm text-slate-600">{query.data.file_transports.map((item) => <li key={item.name}>{item.name.replaceAll("_", " ")} · {(item.required_capabilities ?? [item.capability]).map(capabilityLabel).join(" + ")}</li>)}</ul></div> : null}
   </section>;
 }

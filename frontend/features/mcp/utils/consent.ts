@@ -1,4 +1,5 @@
 import { MCP_CAPABILITIES, type McpCapability, type McpConsentRequest, type McpOverview } from "../api/mcp.api";
+import { effectiveMcpCapabilities } from "./read-only";
 
 export type McpAuthorizationParameters = Record<string, string | string[] | undefined>;
 export type McpAuthorizationRequest = Omit<McpConsentRequest, "name">;
@@ -15,7 +16,7 @@ export function parseMcpAuthorization(parameters: McpAuthorizationParameters, ov
     || !Object.hasOwn(overview.approved_clients, value.client_id)
     || !overview.approved_clients[value.client_id]?.includes(value.redirect_uri)) return null;
   const scopes = [...new Set(value.scope.trim().split(/\s+/))];
-  if (!scopes.length || scopes.some((scope) => !Object.hasOwn(MCP_CAPABILITIES, scope) || !overview.capabilities.includes(scope as McpCapability))) return null;
+  if (!scopes.length || scopes.some((scope) => !Object.hasOwn(MCP_CAPABILITIES, scope) || !effectiveMcpCapabilities(overview).includes(scope as McpCapability))) return null;
   try {
     const redirect = new URL(value.redirect_uri);
     if (redirect.username || redirect.password || redirect.hash || redirect.search

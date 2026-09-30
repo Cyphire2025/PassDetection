@@ -12,6 +12,7 @@ vi.mock("../api/mcp.api", async (original) => {
 });
 
 const overview: McpOverview = {
+  read_only_mode: false,
   enabled: true, deployment_enabled: true, emergency_disabled: false,
   resource: "https://app.example.test/mcp", capabilities: ["mcp:read"], approved_clients: {},
   environment: "qualification", revision: "fixture", observed_at: "2026-09-30T00:00:00Z", qualification: "in_progress",
