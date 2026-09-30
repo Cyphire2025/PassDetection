@@ -8,7 +8,7 @@ import { MCP_CAPABILITIES, type McpCapability, type McpConnection } from "../api
 import { useMcpRevoke, useMcpUpdateConnection } from "../hooks/use-mcp";
 import { McpCapabilityPicker, McpError } from "./mcp-shared";
 
-export function McpConnectionCard({ connection }: { connection: McpConnection }) {
+export function McpConnectionCard({ connection, advanced = false }: { connection: McpConnection; advanced?: boolean }) {
   const [editing, setEditing] = useState(false);
   const [revoking, setRevoking] = useState(false);
   const revoke = useMcpRevoke();
@@ -17,23 +17,23 @@ export function McpConnectionCard({ connection }: { connection: McpConnection })
     <div className="flex flex-wrap items-start justify-between gap-3">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2"><h3 className="break-words text-sm font-semibold text-slate-950">{connection.name}</h3>
-          <Badge variant={active ? "success" : "outline"}>{connection.status}</Badge></div>
-        <p className="mt-1 break-all text-xs text-slate-500">{connection.client_id}</p>
+          <Badge variant={active ? "success" : "outline"}>{active ? "Authorized" : connection.status === "expired" ? "Sign-in expired" : "Disconnected"}</Badge></div>
+        {advanced ? <p className="mt-1 break-all text-xs text-slate-500">{connection.client_id} · {connection.id}</p> : null}
       </div>
       {active ? <div className="flex gap-1">
-        <Button variant="ghost" size="sm" aria-expanded={editing} onClick={() => setEditing(!editing)}>Edit access</Button>
-        <Button variant="ghost" size="sm" className="text-red-700 hover:text-red-800" onClick={() => { revoke.reset(); setRevoking(true); }}>Revoke</Button>
+        {advanced ? <Button variant="ghost" size="sm" aria-expanded={editing} onClick={() => setEditing(!editing)}>Edit access</Button> : null}
+        <Button variant="ghost" size="sm" className="text-red-700 hover:text-red-800" onClick={() => { revoke.reset(); setRevoking(true); }}>Disconnect</Button>
       </div> : null}
     </div>
     <dl className="mt-4 grid gap-x-6 gap-y-3 text-xs sm:grid-cols-3">
-      {[ ["Created", formatDateTime(connection.created_at)], ["Last used", connection.last_used_at ? formatDateTime(connection.last_used_at) : "Never"],
-        ["Authorization expires", formatDateTime(connection.expires_at)] ].map(([label, value]) => <div key={label}><dt className="text-slate-500">{label}</dt><dd className="mt-1 text-slate-800">{value}</dd></div>)}
+      {[ ...(advanced ? [["Created", formatDateTime(connection.created_at)]] : []), ["Last used", connection.last_used_at ? formatDateTime(connection.last_used_at) : "Not used yet"],
+        ["Sign in again by", formatDateTime(connection.expires_at)] ].map(([label, value]) => <div key={label}><dt className="text-slate-500">{label}</dt><dd className="mt-1 text-slate-800">{value}</dd></div>)}
     </dl>
-    <div className="mt-4 flex flex-wrap gap-1.5">{connection.capabilities.map((scope) => <Badge key={scope} variant="outline">{MCP_CAPABILITIES[scope]?.label ?? scope}</Badge>)}</div>
+    <div className="mt-4 flex flex-wrap gap-1.5">{connection.capabilities.map((scope) => <Badge key={scope} variant="outline">{MCP_CAPABILITIES[scope]?.label ?? (advanced ? scope : "Additional permission")}</Badge>)}</div>
     {editing && active ? <ConnectionEditor key={`${connection.id}:${connection.name}:${connection.capabilities.join(",")}`} connection={connection} onDone={() => setEditing(false)} /> : null}
     <McpError error={revoke.error} />
-    <ConfirmDialog isOpen={revoking} title={`Revoke ${connection.name}?`} description="This connection will immediately lose access. Reconnecting requires another superadmin sign-in."
-      confirmLabel="Revoke connection" variant="danger" isLoading={revoke.isPending} onClose={() => setRevoking(false)}
+    <ConfirmDialog isOpen={revoking} title={`Disconnect ${connection.name}?`} description="This saved connection will immediately lose access. To use it again, sign in and approve access again. Your application records are retained."
+      confirmLabel="Disconnect connection" variant="danger" isLoading={revoke.isPending} onClose={() => setRevoking(false)}
       onConfirm={() => revoke.mutate(connection.id, { onSuccess: () => setRevoking(false), onError: () => setRevoking(false) })} />
   </article>;
 }

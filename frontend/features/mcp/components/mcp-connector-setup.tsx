@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { Badge } from "@/components/ui";
 import type { McpOverview } from "../api/mcp.api";
 
@@ -15,11 +18,13 @@ function PowerShellCommand({ children }: { children: string }) {
 }
 
 export function McpConnectorSetup({ overview }: { overview: McpOverview }) {
+  const [reports, setReports] = useState(false);
   let origin: string | null = null;
   try { origin = new URL(overview.resource).origin; } catch { /* The endpoint is displayed by the parent for diagnosis. */ }
   const approved = overview.approved_clients[CONNECTOR_CLIENT]?.includes(CONNECTOR_CALLBACK) && origin;
   const quotedOrigin = origin ? `'${origin.replaceAll("'", "''")}'` : "'<application-origin>'";
   const command = `.venv/Scripts/gc-mcp.exe --origin ${quotedOrigin}`;
+  const requestReports = reports && overview.capabilities.includes("mcp:read") && overview.capabilities.includes("mcp:export");
   return <section aria-label="Windows connector setup" className="space-y-4 rounded-xl border border-slate-200 p-5 lg:col-span-2">
     <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="text-base font-semibold text-slate-900">Windows connector 0.2.0</h2><Badge variant="warning">Client qualification in progress</Badge></div>
     <p className="text-sm leading-6 text-slate-600">Use the local connector to expose deployed application tools to Codex over stdio. This release supports Windows with CPython 3.11 and stores its authorization in Windows Credential Manager.</p>
@@ -31,8 +36,13 @@ export function McpConnectorSetup({ overview }: { overview: McpOverview }) {
         <p className="mt-2 text-xs text-slate-500">The version command must report 0.2.0. Keep this environment separate from the application server.</p>
       </li>
       <li><h3 className="font-medium text-slate-900">2. Sign in from the connector</h3>
-        <p className="mt-1 text-xs leading-5 text-slate-500">This command opens browser sign-in for read access. Review the named connection and selected permissions after superadmin sign-in and MFA.</p>
-        <PowerShellCommand>{`${command} sign-in --scopes mcp:read`}</PowerShellCommand>
+        <p className="mt-1 text-xs leading-5 text-slate-500">Choose the access to request. This only changes the command below; permissions are granted after you run it, sign in and explicitly approve them in your browser.</p>
+        <fieldset className="mt-3 space-y-2 text-sm"><legend className="mb-2 font-medium text-slate-700">What should Codex help with?</legend>
+          <label className="flex items-start gap-2"><input type="radio" name="codex-setup-access" checked={!requestReports} onChange={() => setReports(false)} className="mt-1" /><span>Look up information</span></label>
+          {overview.capabilities.includes("mcp:read") && overview.capabilities.includes("mcp:export") ? <label className="flex items-start gap-2"><input type="radio" name="codex-setup-access" checked={requestReports} onChange={() => setReports(true)} className="mt-1" /><span>Look up information and download reports</span></label> : null}
+        </fieldset>
+        <PowerShellCommand>{`${command} sign-in --scopes mcp:read${requestReports ? " mcp:export" : ""}`}</PowerShellCommand>
+        <p className="mt-2 text-xs leading-5 text-slate-500">Review the connection name and selected permissions after superadmin sign-in and MFA. Report availability still depends on this website’s enabled features.</p>
       </li>
       <li><h3 className="font-medium text-slate-900">3. Add the local MCP server in Codex</h3>
         <dl className="mt-2 grid gap-3 rounded-lg bg-slate-50 p-3 text-xs sm:grid-cols-[auto_1fr]">
@@ -42,10 +52,11 @@ export function McpConnectorSetup({ overview }: { overview: McpOverview }) {
           <dt className="font-medium text-slate-500">Secret environment variables</dt><dd>None</dd>
         </dl>
         <p className="mt-2 text-xs leading-5 text-slate-500">Review these fields in your installed Codex client. The connector does not edit Codex configuration.</p>
+        {requestReports ? <p className="mt-2 text-xs leading-5 text-slate-500">To save reports, also add <code>--download-directory</code> and the absolute path to an existing folder you choose to the server arguments. The connector creates new files there and does not overwrite existing files.</p> : null}
       </li>
     </ol>
     <details className="text-sm"><summary className="cursor-pointer font-medium text-slate-700">Revocation and sign-in recovery</summary>
-      <p className="mt-2 text-xs leading-5 text-slate-500">Revoke the named connection from the Connections tab to stop server access. If local authorization expires or refresh fails, run sign-in again. To clear only this connector’s saved Windows credential:</p>
+      <p className="mt-2 text-xs leading-5 text-slate-500">Disconnect the named connection on this page to stop server access. If local authorization expires or refresh fails, run sign-in again. To clear only this connector’s saved Windows credential:</p>
       <PowerShellCommand>{`${command} forget`}</PowerShellCommand>
       <p className="mt-2 text-xs leading-5 text-slate-500">Clearing the local credential does not revoke the server connection. If a write or send is interrupted, check its existing record before repeating it.</p>
     </details>
