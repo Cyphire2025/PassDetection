@@ -10,7 +10,7 @@ import { MCP_CAPABILITIES, type McpCapability } from "../api/mcp.api";
 export function McpAccessBoundary({ children }: { children: ReactNode }) {
   const user = useAuthStore(selectUser);
   return canAccessApplicationPath(user, ROUTES.dashboard.mcp) ? children
-    : <p role="alert" className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-700">MCP administration requires an active superadmin account.</p>;
+    : <p role="alert" className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-700">Codex access requires an active superadmin account.</p>;
 }
 export function mcpErrorMessage(error: unknown) {
   return typeof error === "object" && error !== null && "message" in error && typeof error.message === "string"
@@ -28,7 +28,7 @@ export function McpCapabilityPicker({ available, selected, onChange, disabled = 
   onChange: (capabilities: McpCapability[]) => void; disabled?: boolean;
 }) {
   return <fieldset disabled={disabled} className="space-y-2">
-    <legend className="mb-2 text-sm font-semibold text-slate-900">Connection permissions</legend>
+    <legend className="mb-2 text-sm font-semibold text-slate-900">What this connection can do</legend>
     {available.map((capability) => <label key={capability} className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 p-3 text-sm has-checked:border-blue-300 has-checked:bg-blue-50/40">
       <input type="checkbox" className="mt-0.5 h-4 w-4 rounded border-slate-300 accent-blue-600" checked={selected.includes(capability)}
         onChange={(event) => onChange(event.target.checked ? [...selected, capability] : selected.filter((item) => item !== capability))} />
