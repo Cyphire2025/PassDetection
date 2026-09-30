@@ -6,10 +6,16 @@ and the deployed backend correction, see
 control state below is historical; the user has since completed MFA, enabled
 MCP and authorized the named desktop connection.
 
-**Current runtime:** backend/proxy were advanced to application
+The later [management release checkpoint](mcp-management-release-checkpoint.md)
+records backend/frontend `1d77c9dd`, retained workers/scheduler,
+durable denial audit, browser acceptance and actual saved Codex readback.
+The subsequent [Excel options/dashboard release](mcp-options-dashboard-release-checkpoint.md)
+records current backend `27afeb4c` and preserved frontend `1d77c9dd`.
+
+**Earlier backend correction:** backend/proxy were advanced to application
 `cd0e538f3e967074606b6cc523203f691aea555d` on29 September2026, with schema0122,
 existing grants/limits and all resources retained. Frontend/workers/scheduler
-remain at `efea4e4a`. A22:12UTC observation verified all20 running services,
+remained at `efea4e4a`. A22:12UTC observation verified all20 running services,
 all10 configured application health checks and public200 responses. Actual
 Codex resumed the original saved operation and verified delivery of its
 14,863-byte Excel workbook. The linked checkpoint carries exact bindings,

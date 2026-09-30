@@ -93,6 +93,18 @@ rows remain applicable to their associated export workflows.
   implementation objects and adds one classified tool, without modifying
   existing surface contracts or the separate dashboard contract checkpoint.
 
-No provider, live Codex, VPS, production storage or combined-load/capacity claim
-is made by this local checkpoint. The coverage status remains
-`implemented_unverified` pending the broader acceptance gates.
+The frozen options revision `60fa04916529b2a2d5c613b990a834314517a658`
+subsequently passed the full backend regression: **5,904 passed, three skipped,
+313 deselected and 162 subtests passed**, in 990.55 seconds, exit zero. The
+three platform skips and separately selected service-integration lane remain
+explicit; the 14 PostgreSQL cases above are independent evidence. This qualified
+slice was pushed directly to `main` with hosted CI skipped. A later integration
+with the dashboard read has its own aggregate qualification gate.
+
+The integrated `27afeb4c` revision subsequently passed 5,921 tests and was
+deployed through the reviewed backend-only release. Three actual Codex calls
+verified both option modes and unchanged limits against that production revision;
+see the [release checkpoint](mcp-options-dashboard-release-checkpoint.md) for exact
+runtime, audit and client evidence. No workbook or new business record was
+created. Provider and combined-load/capacity evidence remain separate. Coverage
+stays `implemented_unverified` pending the broader acceptance gates.

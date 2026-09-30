@@ -84,7 +84,19 @@ The PostgreSQL lane retains its schema identifier in the JUnit receipt
 3.11 environment and the dashboard checkout's `backend` as the explicit working
 directory; the imported `app` path was checked before execution.
 
-Remaining acceptance includes integration with the other isolated changes, a
-fresh aggregate regression, any operator review/deployment, real Codex invocation
-against the deployed revision, and combined Linux/VPS resource qualification.
-No production behavior, memory envelope or phase completion is claimed here.
+The dashboard was subsequently integrated with Excel option discovery at
+`27afeb4ce0bb427eb4a87eb0913f92f36f2b3e59`. The combined focused run passed
+56 cases; inventory checking reported 1,495 surfaces and 70 tools, with the
+architecture contract and all 87 budgets passing. The full combined regression
+then passed **5,921 tests, three skips, 318 deselected and 162 subtests** in
+998.28 seconds, exit zero. The skip and separate service-integration boundaries
+remain explicit. The qualified revision was pushed directly to `main` with
+hosted CI skipped.
+
+The reviewed backend-only deployment subsequently succeeded. Two actual Codex
+calls against `27afeb4c` passed deterministic tool-event and schema validation;
+the resulting four current-user counts and five-row preview size matched the
+authenticated website at an adjacent observation. The
+[release checkpoint](mcp-options-dashboard-release-checkpoint.md) records exact
+bindings, runtime/audit evidence and safe receipts. Other role/data variants,
+combined Linux/VPS resource qualification and the complete phase remain open.

@@ -1,6 +1,13 @@
 # Live Codex connection and export qualification
 
-## Current state — 29 September 2026, 22:22 UTC
+The later [management release checkpoint](mcp-management-release-checkpoint.md)
+records backend/frontend `1d77c9dd` and a successful two-call actual Codex
+readback of this same succeeded operation. The first delivery below occurred on
+`cd0e538f`; the later readback did not create, resume or download another export.
+The subsequent [Excel options/dashboard release](mcp-options-dashboard-release-checkpoint.md)
+records current backend `27afeb4c` and additional actual-client read evidence.
+
+## First delivery snapshot — 29 September 2026, 22:22 UTC
 
 The active superadmin completed MFA and enabled MCP in Administration, then
 authorized the named `Nipun’s Codex desktop` connection. The connector completed
@@ -17,9 +24,10 @@ Independent local ZIP integrity and openpyxl parsing also passed. This closes
 the first actual-client Excel recovery/delivery example; it does not close any
 complete phase or establish source-row parity for every export family.
 
-The correction and its test/operator follow-ups are pushed to main through
-`45dded23`. The public backend uses the exact `cd0e538f` application source;
-frontend, workers and scheduler retain `efea4e4a`. Schema0122 and existing MCP
+The correction and its test/operator follow-ups were pushed to main through
+`45dded23`. At this snapshot the public backend used the exact `cd0e538f`
+application source; frontend, workers and scheduler retained `efea4e4a`.
+Schema0122 and existing MCP
 controls, grant and resource limits were preserved. All prior containers and
 images remain retained. The clean broad backend rerun passed: **5,822 passed,
 3 skipped, 294 service-integration deselected and 162 subtests passed** in
