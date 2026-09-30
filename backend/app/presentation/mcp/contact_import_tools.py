@@ -96,10 +96,15 @@ def register_contact_import_tools(app: FastAPI, server: MCPServer, settings: Set
     async def preview_contact_broadcast(draft: ContactBroadcastDraft) -> dict[str, Any]:
         """Preview a new broadcast using exact agency, support contacts, opt-in and column mappings.
 
-        Ask for missing agency/name/company/support details and resolve ambiguous
-        columns. Only selected sheets participate; all exclusions and rejected rows
-        are reported. Duplicate phone rows retain their source/reason and merge
-        extra fields using website rules. Show counts, support contacts and row
+        Reuse the resolved agency, list name, organizing company and one to three
+        support contacts (each has a name and phone number); ask only for missing
+        or ambiguous values. Resolve clear workbook headers from the inspection;
+        ask about ambiguous sheets/columns rather than repeating every field.
+        Do not infer recipient opt-in from a request to send. Only selected sheets
+        participate. Explain accepted counts, blank rows, excluded sheets and each
+        rejection reason with its source sheet/row. Duplicate phone rows retain
+        their source/reason and merge extra fields using website rules.
+        Show counts, support contacts and row
         failures before creation. No existing broadcast is changed and no messages
         are sent. More than 500 rejected rows blocks creation without dropping rows.
         """

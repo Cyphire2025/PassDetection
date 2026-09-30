@@ -243,6 +243,10 @@ def register_whatsapp_message_tools(app: FastAPI, server: MCPServer, settings: S
         """Queue only the unchanged saved template plan authorized by the user.
 
         Supply its exact reviewed hash. No content, image or audience overrides.
+        Reuse prior explicit send authorization when it covers this exact content,
+        selected template/image, audience and exclusions; no separate dashboard
+        approval is required. Ask only for unresolved choices or missing authority.
+        A request merely to prepare a message is not send authorization.
         Reuse this key after uncertain responses. Original authority is checked
         at dispatch. Queue acknowledgement is not delivery; inspect fresh intent
         receipts. cancel_whatsapp_intent stops only work not yet submitted.
