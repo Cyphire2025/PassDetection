@@ -1,6 +1,17 @@
 {
   "version": 1,
   "transaction_services": {
+    "app/application/mcp/analytics_reads.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current grant and identity locks fence canonical Superadmin analytics under a bounded deadline. Shared scalar website queries preserve role scope, rolling lower cutoff, confidence buckets and database date semantics; database-side day-group admission and complete response limits expose no source documents, account identifiers, provider actions or business mutations.",
+      "imports": [
+        "app.infrastructure.repositories.passport_analytics_repository",
+        "app.infrastructure.repositories.passport_analytics_repository.PassportAnalyticsRepository",
+        "app.infrastructure.repositories.user_repository",
+        "app.infrastructure.repositories.user_repository.UserRepository"
+      ]
+    },
     "app/application/mcp/email_overview_reads.py": {
       "owner": "repository maintainers",
       "review_by": "2026-12-31",
