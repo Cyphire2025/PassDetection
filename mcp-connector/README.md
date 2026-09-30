@@ -1,4 +1,12 @@
-# Global Connects desktop MCP connector 0.2.3
+# Global Connects desktop MCP connector 0.2.4
+
+The minimum read-only release uses `serve --read-only`. It exposes only remote
+tools explicitly marked with `mcp:read` and a true read-only annotation, and
+rechecks the current remote catalog before every direct tool call. All local
+file tools are unavailable, including calls made without discovery. File
+selections and download folders cannot be combined with this mode. The backend
+independently enforces read-only capability and section permissions; this local
+mode does not replace that server enforcement.
 
 This Windows connector exposes the application's deployed MCP tools over local stdio. Its remote endpoint is the configured application's `/mcp`; browser authorization uses the existing superadmin login and MFA flow. It does not read or write Codex's credential storage or configuration.
 

@@ -72,6 +72,11 @@ async def run(args: argparse.Namespace) -> None:
             )
             print(json.dumps(result.as_dict()))
         else:
+            if args.read_only:
+                if args.allow_file or args.download_directory:
+                    raise ConnectorError("Read-only mode does not accept file transfer selections.")
+                await RemoteProxy(config, authorization, read_only=True).serve()
+                return
             selected = LocalFileTools(
                 config,
                 authorization,
@@ -93,6 +98,11 @@ def main() -> None:
     )
     sign_in.add_argument("--scopes", nargs="+", choices=sorted(SCOPES), default=["mcp:read"])
     serve = commands.add_parser("serve", help="Run the local stdio MCP connection")
+    serve.add_argument(
+        "--read-only",
+        action="store_true",
+        help="Expose only remote read tools and disable all local file transfers",
+    )
     serve.add_argument(
         "--allow-file",
         action="append",

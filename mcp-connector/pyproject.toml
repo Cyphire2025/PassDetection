@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "global-connects-mcp-connector"
-version = "0.2.3"
+version = "0.2.4"
 description = "Global Connects desktop MCP connector with Windows vault authentication"
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
