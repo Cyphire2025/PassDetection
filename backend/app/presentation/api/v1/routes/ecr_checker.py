@@ -14,7 +14,7 @@ from weakref import WeakKeyDictionary
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from fastapi.responses import Response
-from sqlalchemy import case, func, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.elements import ColumnElement
 
@@ -25,13 +25,19 @@ from app.application.security.access_level_actor import (
 )
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
-from app.domain.entities.entities import User, UserRole
-from app.domain.exceptions.exceptions import ImageValidationError
+from app.domain.entities.entities import User
+from app.domain.exceptions.exceptions import AuthorizationError, ImageValidationError
 from app.infrastructure.ai.gemini_ecr_service import EcrImageValidationError, prepare_ecr_image
 from app.infrastructure.database.ecr_models import EcrBatchModel, EcrItemModel
 from app.infrastructure.database.models import AgencyModel, UserModel, UserSecurityStateModel
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.export.ecr_excel_exporter import build_ecr_workbook
+from app.infrastructure.repositories.ecr_read_repository import (
+    ECR_ALLOWED_ROLES,
+    ECR_COUNT_FIELDS,
+    ecr_item_counts,
+    ecr_scope,
+)
 from app.infrastructure.security.upload_security import UploadSecurityContext, UploadSecurityService
 from app.infrastructure.security.upload_validator import (
     DocumentIngestionDisabledError,
@@ -53,12 +59,7 @@ logger = get_logger(__name__)
 UserDep = Annotated[User, Depends(get_current_active_user)]
 SessionDep = Annotated[AsyncSession, Depends(get_db_session)]
 _MUTATION = [Depends(require_cookie_csrf)]
-_ALLOWED_ROLES = {
-    UserRole.SUPER_ADMIN,
-    UserRole.AGENCY_ADMIN,
-    UserRole.AGENCY_MANAGER,
-    UserRole.AGENCY_STAFF,
-}
+_ALLOWED_ROLES = ECR_ALLOWED_ROLES
 _UPLOAD_GATES: WeakKeyDictionary[asyncio.AbstractEventLoop, asyncio.Semaphore] = WeakKeyDictionary()
 
 
@@ -94,17 +95,10 @@ async def _run_admitted_upload(
 
 
 def _scope(user: User) -> list[ColumnElement[bool]]:
-    if not user.agency_id or user.role not in _ALLOWED_ROLES:
-        raise HTTPException(403, "Insufficient permissions")
-    filters = [
-        EcrBatchModel.agency_id == user.agency_id,
-        select(AgencyModel.id)
-        .where(AgencyModel.id == user.agency_id, AgencyModel.is_active.is_(True))
-        .exists(),
-    ]
-    if user.role == UserRole.AGENCY_STAFF:
-        filters.append(EcrBatchModel.created_by_user_id == user.id)
-    return filters
+    try:
+        return ecr_scope(user)
+    except AuthorizationError as exc:
+        raise HTTPException(403, "Insufficient permissions") from exc
 
 
 async def _lock_active_actor(session: AsyncSession, user: User) -> User:
@@ -222,30 +216,7 @@ async def list_ecr_batches(current_user: UserDep, session: SessionDep) -> list[E
     )
     if not batches:
         return []
-    counts = {
-        row["batch_id"]: row
-        for row in (
-            await session.execute(
-                select(
-                    EcrItemModel.batch_id,
-                    func.count().label("total_count"),
-                    func.sum(
-                        case((EcrItemModel.status.in_(["completed", "failed"]), 1), else_=0)
-                    ).label("processed_count"),
-                    func.sum(case((EcrItemModel.result == "ECR", 1), else_=0)).label("ecr_count"),
-                    func.sum(case((EcrItemModel.result == "NA", 1), else_=0)).label("na_count"),
-                    func.sum(case((EcrItemModel.result == "NEEDS_REVIEW", 1), else_=0)).label(
-                        "review_count"
-                    ),
-                    func.sum(case((EcrItemModel.status == "failed", 1), else_=0)).label(
-                        "failed_count"
-                    ),
-                )
-                .where(EcrItemModel.batch_id.in_([batch.id for batch in batches]))
-                .group_by(EcrItemModel.batch_id)
-            )
-        ).mappings()
-    }
+    counts = await ecr_item_counts(session, [batch.id for batch in batches])
     return [
         EcrBatchSummary(
             batch_id=batch.id,
@@ -255,14 +226,7 @@ async def list_ecr_batches(current_user: UserDep, session: SessionDep) -> list[E
             created_at=batch.created_at,
             **{
                 name: int(counts.get(batch.id, {}).get(name, 0))
-                for name in (
-                    "total_count",
-                    "processed_count",
-                    "ecr_count",
-                    "na_count",
-                    "review_count",
-                    "failed_count",
-                )
+                for name in ECR_COUNT_FIELDS
             },
         )
         for batch in batches

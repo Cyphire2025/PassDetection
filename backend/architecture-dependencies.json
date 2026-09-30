@@ -1,6 +1,19 @@
 {
   "version": 1,
   "transaction_services": {
+    "app/application/mcp/ecr_reads.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current grant and actor authority plus the active own-agency lock scope bounded scalar standalone ECR metadata. The shared website tenant predicates and database-side item counters preserve canonical visibility and result semantics; signed pagination, text bounds and a read deadline expose no storage locators, file bytes, processing leases, provider calls or business mutations.",
+      "imports": [
+        "app.infrastructure.repositories.ecr_read_repository",
+        "app.infrastructure.repositories.ecr_read_repository.ECRReadRepository",
+        "app.infrastructure.repositories.ecr_read_repository.ECR_COUNT_FIELDS",
+        "app.infrastructure.repositories.ecr_read_repository.ecr_item_counts",
+        "app.infrastructure.repositories.user_repository",
+        "app.infrastructure.repositories.user_repository.UserRepository"
+      ]
+    },
     "app/application/mcp/export_history_reads.py": {
       "owner": "repository maintainers",
       "review_by": "2026-12-31",

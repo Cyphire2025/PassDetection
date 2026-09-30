@@ -33,6 +33,7 @@ from app.presentation.mcp.dashboard_tools import register_dashboard_tools
 from app.presentation.mcp.diagnostic_tools import register_diagnostic_tools
 from app.presentation.mcp.document_export_tools import register_document_assignment_export_tools
 from app.presentation.mcp.document_read_tools import register_document_read_tools
+from app.presentation.mcp.ecr_read_tools import register_ecr_read_tools
 from app.presentation.mcp.excel_options_tools import register_excel_options_tools
 from app.presentation.mcp.export_history_tools import register_export_history_tools
 from app.presentation.mcp.export_tools import register_export_tools
@@ -141,6 +142,7 @@ def install_mcp(app: FastAPI, settings: Settings) -> None:
     register_group_tools(server, app, settings)
     register_dashboard_tools(server, app, settings)
     register_notification_tools(server, app, settings)
+    register_ecr_read_tools(server, app, settings)
     register_diagnostic_tools(server, app, settings)
     register_broadcast_link_tools(server, app, settings)
     register_gc_push_tools(app, server, settings)
