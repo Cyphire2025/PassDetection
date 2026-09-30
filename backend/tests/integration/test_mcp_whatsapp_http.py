@@ -10,6 +10,7 @@ from app.infrastructure.database.models import (
     AgencyModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
+    WhatsAppBroadcastSupportContactModel,
     WhatsAppMessageLogModel,
 )
 from app.presentation.mcp.whatsapp_read_tools import register_whatsapp_read_tools
@@ -52,6 +53,37 @@ async def test_whatsapp_http_envelope_exact_receipt_and_contact_opt_in(mcp_fixtu
     bad = await call_mcp(client, tokens["access_token"], name="list_whatsapp_audience",
         arguments={"broadcast_id": str(group.id), "kind": "arbitrary_sql"})
     assert bad.json()["result"].get("isError") is True
+
+
+@pytest.mark.asyncio
+async def test_whatsapp_http_discovers_saved_support_ids_with_explicit_phone_opt_in(mcp_fixture):
+    client, session, settings, _, _, _ = mcp_fixture
+    agency = AgencyModel(id=uuid.uuid4(), name="Fixture support agency", email="support@example.test")
+    session.add(agency)
+    await session.flush()
+    group = WhatsAppBroadcastGroupModel(id=uuid.uuid4(), agency_id=agency.id, name="Fixture support")
+    session.add(group)
+    await session.flush()
+    contact = WhatsAppBroadcastSupportContactModel(
+        id=uuid.uuid4(), agency_id=agency.id, broadcast_group_id=group.id,
+        name="Help desk", phone_number="+919876543299", normalized_phone_number="919876543299",
+    )
+    session.add(contact)
+    await session.flush()
+    _, tokens = await connect(mcp_fixture, scopes=["mcp:read"])
+    arguments = {"broadcast_id": str(group.id), "agency_id": str(agency.id), "kind": "support_contacts"}
+    response = await call_mcp(client, tokens["access_token"], name="list_whatsapp_audience", arguments=arguments)
+    result = response.json()["result"]["structuredContent"]
+    assert result["items"][0]["id"] == str(contact.id)
+    assert result["items"][0]["name"] == "Help desk"
+    assert "919876543299" not in response.text
+    assert result["send_eligibility_evaluated"] is False and result["content_trust"] == "untrusted_business_data"
+    details = await call_mcp(client, tokens["access_token"], name="list_whatsapp_audience",
+                            arguments=arguments | {"include_contact_details": True})
+    assert details.json()["result"]["structuredContent"]["items"][0]["normalized_phone_number"] == "919876543299"
+    _, no_read = await connect(mcp_fixture, scopes=["mcp:diagnose"])
+    denied = await call_mcp(client, no_read["access_token"], name="list_whatsapp_audience", arguments=arguments)
+    assert denied.json()["result"]["structuredContent"]["error"] == "access_denied"
 
 
 @pytest.mark.asyncio

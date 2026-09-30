@@ -22,6 +22,7 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastRecipientModel,
     WhatsAppBroadcastRejectedContactModel,
     WhatsAppBroadcastSourceContactModel,
+    WhatsAppBroadcastSupportContactModel,
     WhatsAppMessageLogModel,
 )
 
@@ -115,6 +116,81 @@ async def test_audience_contacts_are_opt_in_audited_and_never_send_eligibility(w
     assert active.normalized_phone_number not in json.dumps(audit.metadata_json)
     with pytest.raises(ValueError, match="agency"):
         await service.list_audience(user_id=actor.id, broadcast_id=lists[0].id, agency_id=second.id)
+
+
+@pytest.mark.asyncio
+async def test_saved_support_contacts_are_bounded_scoped_and_not_message_recipients(whatsapp_reads):
+    session, actor, first, second, lists, service = whatsapp_reads
+    created = datetime.now(UTC) - timedelta(minutes=1)
+    contacts = [WhatsAppBroadcastSupportContactModel(
+        id=uuid.uuid4(), broadcast_group_id=lists[0].id, agency_id=first.id,
+        name="Shared support name", phone_number=f"+9198765432{index:02}",
+        normalized_phone_number=f"9198765432{index:02}", sort_order=index,
+        created_at=created,
+    ) for index in range(3)]
+    # Even a corrupt cross-agency row must not leak through the broadcast filter.
+    session.add_all([*contacts, WhatsAppBroadcastSupportContactModel(
+        id=uuid.uuid4(), broadcast_group_id=lists[0].id, agency_id=second.id,
+        name="Other agency private support", phone_number="+919999999999",
+        normalized_phone_number="919999999999",
+    )])
+    await session.flush()
+    page = await service.list_audience(user_id=actor.id, broadcast_id=lists[0].id,
+        agency_id=first.id, kind="support_contacts", page_size=1)
+    first_cursor, rows = page["next_cursor"], []
+    while True:
+        assert page["audience_kind"] == "support_contacts"
+        assert page["send_eligibility_evaluated"] is False
+        assert "not message recipients" in page["notice"]
+        rows.extend(page["items"])
+        if not page["has_more"]:
+            assert page["completeness"] == "complete"
+            break
+        assert page["completeness"] == "partial" and len(page["items"]) == 1
+        page = await service.list_audience(user_id=actor.id, broadcast_id=lists[0].id,
+            agency_id=first.id, kind="support_contacts", page_size=1, cursor=page["next_cursor"])
+    assert {row["id"] for row in rows} == {str(contact.id) for contact in contacts}
+    assert len(rows) == 3
+    assert all(set(row) == {"id", "created_at", "name", "sort_order"} for row in rows)
+    assert "9198765432" not in json.dumps(rows) and "Other agency" not in json.dumps(rows)
+    for changes in ({"kind": "recipients"}, {"include_contact_details": True}):
+        args = dict(user_id=actor.id, broadcast_id=lists[0].id, agency_id=first.id,
+                    kind="support_contacts", page_size=1, cursor=first_cursor)
+        with pytest.raises(ValueError):
+            await service.list_audience(**(args | changes))
+    empty = await service.list_audience(user_id=actor.id, broadcast_id=lists[1].id,
+                                       kind="support_contacts")
+    assert empty["items"] == [] and empty["completeness"] == "complete"
+    assert not (await service.list_audience(user_id=actor.id, broadcast_id=lists[0].id))["items"]
+
+
+@pytest.mark.asyncio
+async def test_support_phone_opt_in_is_audited_and_current_authority_is_required(whatsapp_reads):
+    session, actor, first, second, lists, service = whatsapp_reads
+    contact = WhatsAppBroadcastSupportContactModel(
+        id=uuid.uuid4(), broadcast_group_id=lists[0].id, agency_id=first.id,
+        name="Help desk", phone_number="+919876543299", normalized_phone_number="919876543299",
+    )
+    session.add(contact)
+    await session.flush()
+    detailed = await service.list_audience(user_id=actor.id, broadcast_id=lists[0].id,
+                                         kind="support_contacts", include_contact_details=True)
+    assert detailed["items"][0]["normalized_phone_number"] == contact.normalized_phone_number
+    audit = (await session.execute(select(AuditLogModel).where(
+        AuditLogModel.action == "mcp.whatsapp.contact_read"))).scalar_one()
+    assert audit.metadata_json == {"authorized_result_count": 1}
+    assert contact.normalized_phone_number not in json.dumps(audit.metadata_json)
+    with pytest.raises(ValueError, match="agency"):
+        await service.list_audience(user_id=actor.id, broadcast_id=lists[0].id,
+                                   agency_id=second.id, kind="support_contacts")
+    with pytest.raises(ValueError, match="removed"):
+        await service.list_audience(user_id=actor.id, broadcast_id=lists[0].id,
+                                   kind="support_contacts", include_removed=True)
+    actor.role = "agency_admin"
+    await session.flush()
+    with pytest.raises(MCPAuthError):
+        await service.list_audience(user_id=actor.id, broadcast_id=lists[0].id,
+                                   kind="support_contacts")
 
 
 @pytest.mark.asyncio

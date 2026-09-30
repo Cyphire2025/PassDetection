@@ -21,7 +21,7 @@ COUNT_DEFINITIONS = {
     "source_traveller_rows": "Source traveller rows; several travellers may share one recipient and some have no usable recipient.",
     "rejected_contact_rows": "Retained rejected import rows; not active WhatsApp recipients.",
 }
-AUDIENCE_KINDS = frozenset({"recipients", "source_contacts", "rejected_contacts"})
+AUDIENCE_KINDS = frozenset({"recipients", "source_contacts", "rejected_contacts", "support_contacts"})
 
 
 def _json_row(row: dict[str, Any]) -> dict[str, Any]:
@@ -99,6 +99,12 @@ class MCPWhatsAppReadService:
         result = self._page(rows, state, page_size)
         result.update(broadcast=_json_row(group), audience_kind=kind, send_eligibility_evaluated=False,
                       notice="Persisted audience rows are not a prepared sending audience. Sending must re-evaluate matching, suppression, consent, templates and current delivery history.")
+        if kind == "support_contacts":
+            result["notice"] = (
+                "These are saved support contacts, not message recipients. Use the exact saved "
+                "contact ID when choosing support for a passport-link preview. Resolve duplicate "
+                "names using explicit contact details; this read does not authorize sending."
+            )
         if include_contact_details:
             await self._audit_contacts(user_id, group, len(result["items"]))
         return result

@@ -21,6 +21,7 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastRecipientModel,
     WhatsAppBroadcastRejectedContactModel,
     WhatsAppBroadcastSourceContactModel,
+    WhatsAppBroadcastSupportContactModel,
     WhatsAppMessageLogModel,
 )
 
@@ -93,6 +94,12 @@ class MCPWhatsAppReadRepository:
             if include_contact_details:
                 fields.extend([source.normalized_phone_number, func.substr(source.raw_phone_number, 1, 64).label("raw_phone_number")])
             model = source
+        elif kind == "support_contacts":
+            support = WhatsAppBroadcastSupportContactModel
+            fields = [support.id, support.created_at, support.name, support.sort_order]
+            if include_contact_details:
+                fields.append(support.normalized_phone_number)
+            model = support
         else:
             rejected = WhatsAppBroadcastRejectedContactModel
             fields = [rejected.id, rejected.created_at, rejected.raw_name.label("name"), rejected.reason_code, rejected.row_number]

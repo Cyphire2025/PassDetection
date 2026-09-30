@@ -45,14 +45,17 @@ def register_whatsapp_read_tools(server: MCPServer, app: FastAPI, settings: Sett
 
     @server.tool(annotations=annotations, meta={"capability": "mcp:read"})
     async def list_whatsapp_audience(
-        broadcast_id: UUID, kind: Literal["recipients", "source_contacts", "rejected_contacts"] = "recipients",
+        broadcast_id: UUID, kind: Literal["recipients", "source_contacts", "rejected_contacts", "support_contacts"] = "recipients",
         agency_id: UUID | None = None, include_removed: bool = False,
         include_contact_details: bool = False, page_size: Annotated[int, Field(ge=1, le=100)] = 50,
         cursor: Annotated[str | None, Field(max_length=2048)] = None,
     ) -> dict[str, Any]:
-        """Read a broadcast's persisted recipients, source travellers or rejected import rows.
+        """Read a broadcast's recipients, source travellers, rejected rows or saved support contacts.
 
-        These three rosters are distinct. Phone numbers require contact-detail
+        These lists are distinct. Support contacts expose saved IDs and names so
+        passport-link previews can select the intended contact without asking for
+        an internal ID. Resolve duplicate names using explicit contact details.
+        Support contacts are not message recipients. Phone numbers require contact-detail
         opt-in. Removed rows apply only to recipients. This read does not prepare
         or authorize a sending audience; consent, suppression, matching, template
         and receipt rules must be evaluated again at preparation and dispatch.
