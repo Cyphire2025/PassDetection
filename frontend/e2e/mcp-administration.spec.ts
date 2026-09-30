@@ -5,10 +5,12 @@ const callback = "http://127.0.0.1:8765/callback";
 const oauth = { client_id: "global-connects-desktop", redirect_uri: callback, resource,
   state: "opaque state & symbols / = unicode ✓", code_challenge: "x".repeat(43), code_challenge_method: "S256", response_type: "code", scope: "mcp:read mcp:export" };
 
-async function setup(page: Page, role = "super_admin") {
+async function setup(page: Page, role = "super_admin", requireStepUp = false) {
   const errors: string[] = [];
   const requests: Array<{ method: string; path: string; body: unknown }> = [];
   let enabled = true;
+  let verified = !requireStepUp;
+  const verifications: unknown[] = [];
   let grant = { id: "grant-a", user_id: "mcp-test-admin", client_id: oauth.client_id, name: "Office desktop", capabilities: ["mcp:read", "mcp:export"],
     created_at: "2026-09-29T00:00:00Z", expires_at: "2026-10-06T00:00:00Z", last_used_at: "2026-09-29T12:00:00Z", revoked_at: null as string | null, status: "active" };
   const user = { id: "mcp-test-admin", email: "mcp@example.test", full_name: "MCP Test Administrator", role, agency_id: null, is_active: true,
@@ -22,10 +24,16 @@ async function setup(page: Page, role = "super_admin") {
     const method = request.method();
     if (path === "/api/v1/auth/refresh") return json(route, { status: "authenticated", user, token_type: "bearer", access_token_expires_at: "2099-01-01T00:00:00Z" });
     if (path === "/api/v1/auth/me") return json(route, user);
+    if (path === "/api/v1/auth/mfa/step-up" && method === "POST") {
+      verifications.push(request.postDataJSON());
+      verified = true;
+      return json(route, { verified: true });
+    }
     if (path === "/api/v1/notifications/feed") return json(route, { items: [], unread_count: 0, next_cursor: null });
     if (path.startsWith("/api/v1/admin/mcp")) {
       requests.push({ method, path, body: request.postData() ? request.postDataJSON() : null });
       if (role !== "super_admin") return json(route, { detail: "Superadmin required" }, 403);
+      if (!verified && method !== "GET") return json(route, { error: { code: "STEP_UP_REQUIRED", message: "Confirm your identity before changing MCP access." } }, 403);
       if (path === "/api/v1/admin/mcp") return json(route, { enabled, deployment_enabled: true, emergency_disabled: !enabled, resource,
         capabilities: ["mcp:read", "mcp:export", "mcp:upload", "mcp:change", "mcp:communicate", "mcp:diagnose"],
         approved_clients: { [oauth.client_id]: [callback] }, environment: "qualification", revision: "fixture-revision", observed_at: "2026-09-29T12:00:00Z", qualification: "in_progress" });
@@ -50,10 +58,11 @@ async function setup(page: Page, role = "super_admin") {
         { id: "contacts", filename: "Contacts.xlsx", kind: "contact_workbook", direction: "upload", byte_size: 800, status: "imported", expires_at: "2026-09-29T13:00:00Z" },
         { id: "source-pdf", filename: "Documents.pdf", kind: "artifact", direction: "upload", byte_size: 950, status: "ingested", expires_at: "2026-09-29T13:00:00Z" },
       ], next_offset: null });
-      if (path.endsWith("/inventory")) return json(route, { tool_count: 2, environment: "qualification", qualification: "in_progress", tools: [
-        { name: "list_groups", description: "Find groups.", capability: "mcp:read", read_only: true, deployment_available: true },
+      if (path.endsWith("/inventory")) return json(route, { tool_count: 7, environment: "qualification", qualification: "in_progress", tools: [
+        ...["list_groups", "list_group_passports", "inspect_excel_export_options"].map((name) => ({ name, description: "Look up saved information.", capability: "mcp:read", read_only: true, deployment_available: true })),
+        ...["inspect_excel_export", "prepare_excel_export", "resume_excel_export"].map((name) => ({ name, description: "Prepare a passport report.", capability: "mcp:export", read_only: false, deployment_available: true })),
         { name: "create_group", description: "Create a group.", capability: "mcp:change", read_only: false, deployment_available: false },
-      ], file_transports: [{ name: "upload_pdf", capability: "mcp:upload" }, { name: "prepare_whatsapp_header_image", capability: "mcp:upload", required_capabilities: ["mcp:upload", "mcp:communicate"] }] });
+      ], file_transports: [{ name: "download_prepared_artifact", capability: "mcp:export" }, { name: "acknowledge_verified_delivery", capability: "mcp:export" }, { name: "upload_pdf", capability: "mcp:upload" }, { name: "prepare_whatsapp_header_image", capability: "mcp:upload", required_capabilities: ["mcp:upload", "mcp:communicate"] }] });
       if (path.endsWith("/control") && method === "PUT") { enabled = request.postDataJSON().enabled; return json(route, { enabled }); }
       if (path.endsWith("/revoke") && method === "POST") { grant = { ...grant, status: "revoked", revoked_at: "2026-09-29T12:00:00Z" }; return json(route, { revoked: true }); }
       if (path.endsWith("/grant-a") && method === "PATCH") { grant = { ...grant, ...request.postDataJSON() }; return json(route, grant); }
@@ -63,32 +72,46 @@ async function setup(page: Page, role = "super_admin") {
     if (method === "GET") return json(route, []);
     return json(route, { detail: "Unexpected mutation outside MCP fixture" }, 400);
   });
-  return { errors, requests };
+  return { errors, requests, verifications };
 }
 
-for (const width of [1440, 768, 390]) {
+for (const width of [1440, 650, 390]) {
   test(`superadmin reviews, narrows, disables and revokes MCP at ${width}px`, async ({ page }, testInfo) => {
     const state = await setup(page);
     await page.setViewportSize({ width, height: 1000 });
     await page.goto("/admin/mcp");
-    await expect(page.getByRole("heading", { name: "MCP", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Codex access", exact: true })).toBeVisible();
     await expect(page.getByRole("article", { name: "Office desktop" })).toBeVisible();
-    await expect(page.getByText(/Release qualification is in progress/)).toBeVisible();
+    await expect(page.getByRole("article", { name: "Download reports" }).getByRole("button", { name: "Copy example" })).toBeEnabled();
+    await expect(page.getByRole("button", { name: "Advanced", exact: true })).toHaveAttribute("aria-expanded", "false");
+    await expect(page.getByText(/Release qualification is in progress/)).toHaveCount(0);
     const screenshot = testInfo.outputPath(`mcp-connections-${width}.png`);
     await page.screenshot({ path: screenshot, fullPage: true, animations: "disabled" });
     await testInfo.attach(`MCP connections ${width}px`, { path: screenshot, contentType: "image/png" });
     expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)).toBe(false);
-    await page.getByRole("button", { name: "Edit access" }).click();
+    const examplesScreenshot = testInfo.outputPath(`mcp-examples-${width}.png`);
+    await page.getByRole("region", { name: "What Codex can help with" }).screenshot({ path: examplesScreenshot, animations: "disabled" });
+    await testInfo.attach(`MCP examples ${width}px`, { path: examplesScreenshot, contentType: "image/png" });
+    await page.getByRole("button", { name: "How to connect" }).click();
+    const guideScreenshot = testInfo.outputPath(`mcp-guide-${width}.png`);
+    await page.getByRole("region", { name: "Codex connection status" }).screenshot({ path: guideScreenshot, animations: "disabled" });
+    await testInfo.attach(`MCP connection guide ${width}px`, { path: guideScreenshot, contentType: "image/png" });
+    expect(state.requests.filter((item) => item.method !== "GET")).toEqual([]);
+    await page.getByRole("button", { name: "Advanced", exact: true }).click();
+    await expect(page.getByText(/Release qualification is in progress/)).toBeVisible();
+    const connections = page.getByRole("region", { name: "MCP connections", exact: true });
+    await connections.getByRole("button", { name: "Edit access" }).click();
     await page.getByRole("textbox", { name: "Connection name" }).fill("Travel laptop");
-    await page.getByRole("checkbox", { name: /Exports/ }).uncheck();
-    await expect(page.getByRole("checkbox", { name: /Communications/ })).toHaveCount(0);
+    await page.getByRole("checkbox", { name: /Download reports/ }).uncheck();
+    await expect(page.getByRole("checkbox", { name: /Send messages/ })).toHaveCount(0);
     await page.getByRole("button", { name: "Save access" }).click();
-    await expect(page.getByRole("article", { name: "Travel laptop" })).toBeVisible();
-    await page.getByRole("button", { name: "Disable MCP access" }).click();
-    await expect(page.getByRole("button", { name: "Enable MCP access" })).toBeVisible();
-    await page.getByRole("button", { name: "Revoke", exact: true }).click();
-    await page.getByRole("dialog").getByRole("button", { name: "Revoke connection" }).click();
-    await expect(page.getByRole("article", { name: "Travel laptop" })).toContainText("revoked");
+    await expect(connections.getByRole("article", { name: "Travel laptop" })).toBeVisible();
+    await page.getByRole("button", { name: "Pause access", exact: true }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Pause access", exact: true }).click();
+    await expect(page.getByRole("button", { name: "Resume access", exact: true })).toBeVisible();
+    await connections.getByRole("button", { name: "Disconnect", exact: true }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Disconnect connection" }).click();
+    await expect(connections.getByRole("article", { name: "Travel laptop" })).toContainText("Disconnected");
     await page.getByRole("button", { name: "Activity", exact: true }).click();
     await expect(page.getByText("mcp.authorized", { exact: true })).toBeVisible();
     await page.getByRole("button", { name: "Workflows", exact: true }).click();
@@ -151,7 +174,7 @@ test("a non-superadmin direct URL never mounts MCP requests", async ({ page }) =
   await page.goto("/admin/mcp");
   await expect.poll(async () => new URL(page.url()).pathname === "/passports"
     || await page.getByRole("heading", { name: "This workspace is not available to your current role" }).isVisible()).toBe(true);
-  await expect(page.getByRole("link", { name: "MCP", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Codex access", exact: true })).toHaveCount(0);
   expect(state.requests).toEqual([]);
 });
 
@@ -160,18 +183,19 @@ test("consent binds the chosen authority and returns opaque OAuth state to the a
   await page.setViewportSize({ width: 390, height: 844 });
   await page.route(`${callback}?**`, (route) => route.fulfill({ status: 200, contentType: "text/html", body: "<h1>Connection received by client</h1>" }));
   await page.goto(`/admin/mcp/connect?${new URLSearchParams(oauth)}`);
-  await expect(page.getByRole("heading", { name: "Connect to Global Connects" })).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Connection name" })).toHaveValue("My Codex connection");
+  expect(state.requests.filter((item) => item.path.endsWith("/authorize"))).toHaveLength(0);
   await page.getByRole("textbox", { name: "Connection name" }).fill("Nipun’s desktop");
-  await page.getByRole("checkbox", { name: /Exports/ }).uncheck();
+  await page.getByRole("checkbox", { name: /Download reports/ }).uncheck();
   const screenshot = testInfo.outputPath("mcp-consent-mobile.png");
   await page.screenshot({ path: screenshot, fullPage: true, animations: "disabled" });
   await testInfo.attach("MCP consent mobile", { path: screenshot, contentType: "image/png" });
   expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)).toBe(false);
-  await page.getByRole("button", { name: "Authorize connection" }).scrollIntoViewIfNeeded();
+  await page.getByRole("button", { name: "Connect Codex", exact: true }).scrollIntoViewIfNeeded();
   const footerScreenshot = testInfo.outputPath("mcp-consent-mobile-footer.png");
   await page.screenshot({ path: footerScreenshot, animations: "disabled" });
   await testInfo.attach("MCP consent mobile controls", { path: footerScreenshot, contentType: "image/png" });
-  await page.getByRole("button", { name: "Authorize connection" }).click();
+  await page.getByRole("button", { name: "Connect Codex", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Connection received by client" })).toBeVisible();
   expect(new URL(page.url()).searchParams.get("state")).toBe(oauth.state);
   const authorization = state.requests.filter((item) => item.path.endsWith("/authorize"));
@@ -179,3 +203,47 @@ test("consent binds the chosen authority and returns opaque OAuth state to the a
   expect(authorization[0].body).toMatchObject({ name: "Nipun’s desktop", scopes: ["mcp:read"], state: oauth.state });
   expect(state.errors).toEqual([]);
 });
+
+for (const action of ["pause", "disconnect"] as const) {
+  test(`${action} keeps confirmation and real MFA before the original request retries once`, async ({ page }) => {
+    const state = await setup(page, "super_admin", true);
+    await page.goto("/admin/mcp");
+    const trigger = action === "pause" ? "Pause access" : "Disconnect";
+    const confirm = action === "pause" ? "Pause access" : "Disconnect connection";
+    const suffix = action === "pause" ? "/control" : "/revoke";
+    await page.getByRole("button", { name: trigger, exact: true }).click();
+    expect(state.requests.filter((item) => item.path.endsWith(suffix))).toHaveLength(0);
+    await page.getByRole("dialog").getByRole("button", { name: confirm, exact: true }).click();
+    const identity = page.getByRole("dialog", { name: "Confirm this sensitive action" });
+    await expect(identity).toBeVisible();
+    expect(state.requests.filter((item) => item.path.endsWith(suffix))).toHaveLength(1);
+    await expect(page.getByText("Codex is authorized", { exact: true })).toBeVisible();
+    await identity.getByRole("textbox", { name: "Verification code" }).fill("123456");
+    await identity.getByRole("button", { name: "Verify and continue" }).click();
+    await expect(identity).toHaveCount(0);
+    if (action === "pause") await expect(page.getByText("Access paused", { exact: true }).first()).toBeVisible();
+    else await expect(page.getByRole("article", { name: "Office desktop" })).toContainText("Disconnected");
+    expect(state.verifications).toEqual([{ code: "123456" }]);
+    const attempts = state.requests.filter((item) => item.path.endsWith(suffix));
+    expect(attempts).toHaveLength(2);
+    expect(attempts[1]).toEqual(attempts[0]);
+    expect(state.errors).toEqual([]);
+  });
+
+  test(`cancelling ${action} identity confirmation preserves access with no retry`, async ({ page }) => {
+    const state = await setup(page, "super_admin", true);
+    await page.goto("/admin/mcp");
+    const trigger = action === "pause" ? "Pause access" : "Disconnect";
+    const confirm = action === "pause" ? "Pause access" : "Disconnect connection";
+    const suffix = action === "pause" ? "/control" : "/revoke";
+    await page.getByRole("button", { name: trigger, exact: true }).click();
+    await page.getByRole("dialog").getByRole("button", { name: confirm, exact: true }).click();
+    const identity = page.getByRole("dialog", { name: "Confirm this sensitive action" });
+    await identity.getByRole("button", { name: "Cancel identity confirmation" }).click();
+    await expect(page.getByRole("region", { name: "Codex connection status" }).getByRole("alert")).toContainText("Identity confirmation was cancelled.");
+    await expect(page.getByText("Codex is authorized", { exact: true })).toBeVisible();
+    expect(state.requests.filter((item) => item.path.endsWith(suffix))).toHaveLength(1);
+    expect(state.verifications).toEqual([]);
+    expect(state.errors).toEqual([]);
+  });
+}

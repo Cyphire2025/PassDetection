@@ -8,7 +8,7 @@ import { McpAdminPage } from "./mcp-admin-page";
 
 vi.mock("../api/mcp.api", async (original) => {
   const actual = await original<typeof import("../api/mcp.api")>();
-  return { ...actual, mcpApi: { ...actual.mcpApi, overview: vi.fn(), connections: vi.fn(), revoke: vi.fn() } };
+  return { ...actual, mcpApi: { ...actual.mcpApi, overview: vi.fn(), connections: vi.fn(), inventory: vi.fn(), revoke: vi.fn() } };
 });
 
 const overview: McpOverview = {
@@ -17,7 +17,7 @@ const overview: McpOverview = {
   environment: "qualification", revision: "fixture", observed_at: "2026-09-30T00:00:00Z", qualification: "in_progress",
 };
 const connection: McpConnection = {
-  id: "grant-state", user_id: "admin-state", client_id: "desktop", name: "Retained desktop",
+  id: "grant-state", user_id: "admin-state", client_id: "global-connects-desktop", name: "Retained desktop",
   capabilities: ["mcp:read"], created_at: "2026-09-23T00:00:00Z", expires_at: "2026-09-30T00:00:00Z",
   last_used_at: null, revoked_at: null, status: "active",
 };
@@ -35,6 +35,7 @@ beforeEach(() => {
   useAuthStore.setState({ user: actor });
   vi.mocked(mcpApi.overview).mockResolvedValue(overview);
   vi.mocked(mcpApi.connections).mockResolvedValue({ items: [connection], next_offset: null });
+  vi.mocked(mcpApi.inventory).mockResolvedValue({ tools: [], file_transports: [], tool_count: 0, environment: overview.environment, revision: overview.revision, qualification: "in_progress" });
 });
 afterEach(() => {
   cleanup();
@@ -47,11 +48,11 @@ it.each(["expired", "revoked"] as const)("retains %s connection metadata without
     revoked_at: status === "revoked" ? "2026-09-29T00:00:00Z" : null }], next_offset: null });
   renderPage();
   const card = await screen.findByRole("article", { name: connection.name });
-  expect(within(card).getByText(status, { exact: true })).toBeVisible();
-  expect(within(card).getByText("Authorization expires")).toBeVisible();
-  expect(within(card).getByText("Never", { exact: true })).toBeVisible();
+  expect(within(card).getByText(status === "expired" ? "Sign-in expired" : "Disconnected", { exact: true })).toBeVisible();
+  expect(within(card).getByText("Sign in again by")).toBeVisible();
+  expect(within(card).getByText("Not used yet", { exact: true })).toBeVisible();
   expect(within(card).queryByRole("button", { name: "Edit access" })).not.toBeInTheDocument();
-  expect(within(card).queryByRole("button", { name: "Revoke" })).not.toBeInTheDocument();
+  expect(within(card).queryByRole("button", { name: "Disconnect" })).not.toBeInTheDocument();
   expect(mcpApi.revoke).not.toHaveBeenCalled();
 });
 
@@ -61,10 +62,10 @@ it.each([
 ])("does not claim revocation or retry after $code", async (error) => {
   vi.mocked(mcpApi.revoke).mockRejectedValue(error);
   renderPage();
-  fireEvent.click(await screen.findByRole("button", { name: "Revoke" }));
-  fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Revoke connection" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Disconnect" }));
+  fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Disconnect connection" }));
   expect(await screen.findByRole("alert")).toHaveTextContent(error.message);
-  expect(within(screen.getByRole("article", { name: connection.name })).getByText("active", { exact: true })).toBeVisible();
+  expect(within(screen.getByRole("article", { name: connection.name })).getByText("Authorized", { exact: true })).toBeVisible();
   expect(mcpApi.revoke).toHaveBeenCalledTimes(1);
   expect(mcpApi.connections).toHaveBeenCalledTimes(1);
 });
@@ -76,11 +77,11 @@ it("refetches durable state after successful revocation and keeps the retained c
     return { revoked: true };
   });
   renderPage();
-  fireEvent.click(await screen.findByRole("button", { name: "Revoke" }));
-  fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Revoke connection" }));
-  await waitFor(() => expect(within(screen.getByRole("article", { name: connection.name })).getByText("revoked", { exact: true })).toBeVisible());
+  fireEvent.click(await screen.findByRole("button", { name: "Disconnect" }));
+  fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Disconnect connection" }));
+  await waitFor(() => expect(within(screen.getByRole("article", { name: connection.name })).getByText("Disconnected", { exact: true })).toBeVisible());
   expect(mcpApi.connections).toHaveBeenCalledTimes(2);
-  expect(screen.queryByRole("button", { name: "Revoke" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Disconnect" })).not.toBeInTheDocument();
 });
 
 it("removes cached management content immediately when the active actor loses the superadmin role", async () => {
