@@ -12822,6 +12822,31 @@
         "title": "MCPContactUpload",
         "type": "object"
       },
+      "MCPContactWorkbookFailure": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "enum": [
+              "contact_workbook_formulas_unsupported",
+              "contact_workbook_active_content_unsupported",
+              "contact_workbook_invalid_package",
+              "contact_workbook_capacity_exceeded"
+            ],
+            "title": "Code",
+            "type": "string"
+          },
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          }
+        },
+        "required": [
+          "detail",
+          "code"
+        ],
+        "title": "MCPContactWorkbookFailure",
+        "type": "object"
+      },
       "MCPContactWorksheet": {
         "additionalProperties": false,
         "properties": {
@@ -179713,6 +179738,9 @@
                 "schema": {
                   "anyOf": [
                     {
+                      "$ref": "#/components/schemas/MCPContactWorkbookFailure"
+                    },
+                    {
                       "$ref": "#/components/schemas/MCPTransferFailure"
                     },
                     {
@@ -179723,7 +179751,7 @@
                 }
               }
             },
-            "description": "REQUEST_VALIDATION_ERROR",
+            "description": "Invalid upload or rejected workbook; workbook codes provide fixed corrective guidance.",
             "headers": {
               "X-Request-ID": {
                 "description": "Request correlation identifier; never an authentication credential",

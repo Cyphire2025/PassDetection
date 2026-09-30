@@ -28,6 +28,7 @@ from app.application.mcp.contact_mapping import ContactColumnMapping, map_contac
 from app.application.mcp.contact_uploads import MCPContactUploadService
 from app.application.mcp.credentials import MCPAuthError
 from app.application.mcp.operations import MCPOperationError, MCPOperationService
+from app.domain.contact_workbook import CONTACT_WORKBOOK_GUIDANCE, ContactWorkbookValidationError
 from app.infrastructure.database.mcp_contact_import_models import MCPContactImportUploadModel
 from app.infrastructure.database.mcp_models import MCPGrantModel
 from app.infrastructure.database.mcp_operation_models import MCPOperationModel
@@ -321,8 +322,10 @@ async def test_expired_or_lost_authority_never_leaks_source_or_saved_record(cont
 async def test_malware_or_unavailable_scanner_leaves_no_staged_source(contact_import, failure):
     f = contact_import
     f.scanner.error = failure
-    response = await upload(f)
+    response = await upload(f, workbook([["=PRIVATE_FORMULA(1)", "9876543210"]]))
     assert response.status_code in {422, 503}
+    assert "code" not in response.json()
+    assert "fixture scan error" not in response.text and "PRIVATE_FORMULA" not in response.text
     assert await total(f, MCPContactImportUploadModel) == 0 and not f.storage.objects
 
 
@@ -344,9 +347,21 @@ async def test_http_transport_rejects_wrong_checksum_size_media_or_credential(
 
 
 @pytest.mark.parametrize(
-    "kind", ["formula", "external", "macro", "doctype", "wide", "long", "rows", "zip_bomb"]
+    "kind,code",
+    [
+        ("formula", "contact_workbook_formulas_unsupported"),
+        ("external", "contact_workbook_active_content_unsupported"),
+        ("macro", "contact_workbook_active_content_unsupported"),
+        ("doctype", "contact_workbook_active_content_unsupported"),
+        ("wide", "contact_workbook_capacity_exceeded"),
+        ("long", "contact_workbook_capacity_exceeded"),
+        ("rows", "contact_workbook_capacity_exceeded"),
+        ("zip_bomb", "contact_workbook_capacity_exceeded"),
+        ("not_zip", "contact_workbook_invalid_package"),
+        ("bad_xml", "contact_workbook_invalid_package"),
+    ],
 )
-async def test_active_or_excessive_workbooks_fail_before_staging(contact_import, kind):
+async def test_active_or_excessive_workbooks_fail_before_staging(contact_import, kind, code):
     content = workbook()
     if kind == "formula":
         content = workbook([["Name", "Phone"], ["=SUM(1,2)", "9876543210"]])
@@ -374,10 +389,31 @@ async def test_active_or_excessive_workbooks_fail_before_staging(contact_import,
         content = workbook([["x", str(index)] for index in range(2001)])
     if kind == "zip_bomb":
         content = rewrite_archive(content, "xl/worksheets/sheet1.xml", b"x" * (3 * 1024 * 1024))
+    if kind == "not_zip":
+        content = b"private-filename-cell-provider-secret-not-a-zip"
+    if kind == "bad_xml":
+        content = rewrite_archive(content, "xl/workbook.xml", b"<private-malformed-secret")
     response = await upload(contact_import, content)
     assert response.status_code == 422, response.text
+    assert response.json() == {"code": code, "detail": CONTACT_WORKBOOK_GUIDANCE[code]}
+    assert response.headers["cache-control"] == "no-store"
+    assert contact_import.scanner.calls == 1
     assert await total(contact_import, MCPContactImportUploadModel) == 0
     assert contact_import.evidence.records[-1].scan_status == "malformed"
+    assert contact_import.evidence.records[-1].error_code == "XLSX_VALIDATION_FAILED"
+    for model in (MCPOperationModel, WhatsAppBroadcastGroupModel, WhatsAppMessageLogModel):
+        assert await total(contact_import, model) == 0
+    audit = (
+        await contact_import.session.scalars(
+            select(AuditLogModel).where(AuditLogModel.action == "mcp.artifact_request_failed")
+        )
+    ).all()
+    assert len(audit) == 1
+    assert audit[0].metadata_json == {
+        "grant_id": str(contact_import.principal.grant_id),
+        "status": 422,
+    }
+    assert not contact_import.storage.objects
 
 
 def test_more_than_500_failed_rows_are_not_silently_truncated():
@@ -426,8 +462,9 @@ def test_total_workbook_cell_and_text_budgets_fail_without_truncation(boundary):
         if boundary == "cell_count"
         else [[uuid.uuid4().hex * 32 for _ in range(64)] for _ in range(34)]
     )
-    with pytest.raises(ValueError, match="Workbook (cell|text|snapshot) limit"):
+    with pytest.raises(ContactWorkbookValidationError) as captured:
         snapshot_workbook(workbook(rows))
+    assert captured.value.code == "contact_workbook_capacity_exceeded"
 
 
 async def test_parser_cancellation_drains_thread_before_releasing_request(
@@ -562,3 +599,44 @@ async def test_real_sdk_preview_create_replay_and_sensitive_read_audit(contact_i
     assert await total(f, WhatsAppMessageLogModel) == 0
     actions = list((await f.session.scalars(select(AuditLogModel.action))).all())
     assert "mcp.contact_upload_inspected" in actions and "mcp.contact_upload_previewed" in actions
+
+
+async def test_parser_exception_is_sanitized_and_corrected_copy_can_be_staged(
+    contact_import, monkeypatch
+):
+    import app.infrastructure.security.contact_spreadsheet_security as security_module
+
+    def failed_parser(_content):
+        raise ValueError("PRIVATE filename-cell-provider-token=synthetic-do-not-echo")
+
+    with monkeypatch.context() as local:
+        local.setattr(security_module, "snapshot_workbook", failed_parser)
+        rejected = await upload(contact_import)
+    code = "contact_workbook_invalid_package"
+    assert rejected.status_code == 422
+    assert rejected.json() == {"code": code, "detail": CONTACT_WORKBOOK_GUIDANCE[code]}
+    assert await total(contact_import, MCPContactImportUploadModel) == 0
+    accepted = await upload(contact_import)
+    assert accepted.status_code == 201
+    assert accepted.json()["business_import"] == "not_started"
+    assert await total(contact_import, MCPContactImportUploadModel) == 1
+    assert await total(contact_import, WhatsAppBroadcastGroupModel) == 0
+    assert await total(contact_import, WhatsAppMessageLogModel) == 0
+
+
+@pytest.mark.parametrize("boundary", ["members", "expanded", "ratio"])
+def test_shared_archive_capacity_is_typed_without_changing_website_errors(boundary):
+    from app.application.use_cases.whatsapp.spreadsheet_values import (
+        SpreadsheetArchiveCapacityError,
+        validate_excel_archive,
+    )
+
+    limits = {
+        "members": {"max_members": 1},
+        "expanded": {"max_uncompressed_bytes": 1},
+        "ratio": {"max_compression_ratio": 1, "ratio_threshold_bytes": 1},
+    }
+    with pytest.raises(SpreadsheetArchiveCapacityError) as captured:
+        validate_excel_archive(workbook(), **limits[boundary])
+    assert isinstance(captured.value, ValueError)
+    assert str(captured.value).startswith("The Excel contact file")

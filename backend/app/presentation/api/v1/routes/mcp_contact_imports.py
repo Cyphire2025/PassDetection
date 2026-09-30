@@ -15,7 +15,7 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.security.contact_spreadsheet_security import XLSX_MEDIA
 from app.presentation.api.v1.routes.mcp_artifacts import _PRIVATE, _failure, _principal
 from app.presentation.api.v1.schemas.mcp_transfer_schemas import (
-    TRANSFER_ERRORS,
+    CONTACT_UPLOAD_ERRORS,
     MCPContactUpload,
     upload_contract,
 )
@@ -27,7 +27,7 @@ router = APIRouter(prefix="/mcp/contact-imports", tags=["MCP contact imports"])
     "/uploads",
     status_code=201,
     response_model=MCPContactUpload,
-    responses=TRANSFER_ERRORS,
+    responses=CONTACT_UPLOAD_ERRORS,
     openapi_extra=upload_contract(XLSX_MEDIA, maximum=5 * 1024 * 1024),
 )
 async def upload_contacts(

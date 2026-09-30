@@ -8,6 +8,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.domain.contact_workbook import ContactWorkbookErrorCode
 from app.presentation.middleware.error_response import HTTP_ERROR_CODES, ApiErrorResponse
 
 Digest = Annotated[str, Field(pattern=r"^[a-f0-9]{64}$")]
@@ -20,6 +21,10 @@ class TransferModel(BaseModel):
 
 class MCPTransferFailure(TransferModel):
     detail: str
+
+
+class MCPContactWorkbookFailure(MCPTransferFailure):
+    code: ContactWorkbookErrorCode
 
 
 class MCPFileAuthority(TransferModel):
@@ -115,6 +120,14 @@ class DeliveryAcknowledgement(TransferModel):
 TRANSFER_ERRORS: dict[int | str, dict[str, Any]] = {
     code: {"description": description, "model": MCPTransferFailure | ApiErrorResponse}
     for code, description in {**HTTP_ERROR_CODES, 416: "Partial downloads are unsupported"}.items()
+}
+
+CONTACT_UPLOAD_ERRORS: dict[int | str, dict[str, Any]] = {
+    **TRANSFER_ERRORS,
+    422: {
+        "description": "Invalid upload or rejected workbook; workbook codes provide fixed corrective guidance.",
+        "model": MCPContactWorkbookFailure | MCPTransferFailure | ApiErrorResponse,
+    },
 }
 
 

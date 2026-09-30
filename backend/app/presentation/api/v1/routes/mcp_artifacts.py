@@ -19,6 +19,7 @@ from app.application.mcp.artifacts import ArtifactError, MCPArtifactService, tra
 from app.application.mcp.authorization import MCPAuthorizationService, MCPPrincipal
 from app.application.mcp.credentials import MCPAuthError
 from app.application.use_cases.passports.complete_export_delivery import ExportDeliveryConflict
+from app.domain.contact_workbook import ContactWorkbookValidationError
 from app.domain.exceptions.exceptions import ImageValidationError, StorageError
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
@@ -106,6 +107,8 @@ async def _failure(session: AsyncSession, principal: MCPPrincipal, exc: Exceptio
         code, message = 503, "Document security scanning is unavailable"
     elif isinstance(exc, ImageValidationError):
         code, message = 422, "Upload failed document validation or security scanning"
+    elif isinstance(exc, ContactWorkbookValidationError):
+        code, message = 422, str(exc)
     elif isinstance(exc, TimeoutError):
         code, message = 408, "Transfer timed out"
     elif isinstance(exc, (ValidationError, json.JSONDecodeError, UnicodeDecodeError)):
@@ -122,7 +125,8 @@ async def _failure(session: AsyncSession, principal: MCPPrincipal, exc: Exceptio
         metadata={"grant_id": str(principal.grant_id), "status": code},
     )
     await session.commit()
-    return JSONResponse({"detail": message}, status_code=code, headers=_PRIVATE)
+    payload = exc.payload() if isinstance(exc, ContactWorkbookValidationError) else {"detail": message}
+    return JSONResponse(payload, status_code=code, headers=_PRIVATE)
 
 
 @router.get("/authority", response_model=MCPFileAuthority, responses=TRANSFER_ERRORS)

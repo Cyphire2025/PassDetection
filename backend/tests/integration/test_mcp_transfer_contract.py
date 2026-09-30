@@ -6,6 +6,7 @@ import pytest
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 
+from app.domain.contact_workbook import CONTACT_WORKBOOK_GUIDANCE
 from app.presentation.api.v1.routes import mcp_artifacts, mcp_contact_imports, mcp_whatsapp_media
 from app.presentation.api.v1.schemas.mcp_transfer_schemas import (
     XLSX_MEDIA,
@@ -35,6 +36,23 @@ def test_every_transfer_operation_documents_only_required_bearer_security():
         for operation in path.values():
             assert operation["security"] == [{"HTTPBearer": []}]
             assert operation["responses"]["401"]["content"]["application/json"]["schema"]["anyOf"]
+
+
+def test_only_contact_upload_documents_fixed_workbook_rejections():
+    contract = transport_app().openapi()
+    model = contract["components"]["schemas"]["MCPContactWorkbookFailure"]
+    assert set(model["properties"]["code"]["enum"]) == set(CONTACT_WORKBOOK_GUIDANCE)
+    assert set(model["required"]) == {"code", "detail"}
+    assert model["additionalProperties"] is False
+    for path, operations in contract["paths"].items():
+        for operation in operations.values():
+            alternatives = operation["responses"]["422"]["content"]["application/json"]["schema"][
+                "anyOf"
+            ]
+            supported = {part["$ref"].rsplit("/", 1)[-1] for part in alternatives}
+            assert ("MCPContactWorkbookFailure" in supported) == (
+                path == "/mcp/contact-imports/uploads"
+            )
 
 
 @pytest.mark.parametrize(

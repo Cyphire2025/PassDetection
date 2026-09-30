@@ -13,6 +13,7 @@ import httpx2
 
 from .auth import Authorization
 from .config import Config, ConnectorError
+from .contact_errors import workbook_response_error
 from .files import FileReceipt, provided_file_chunks, save_verified_download
 
 _HANDLE = re.compile(r"gcmcp_artifact_[A-Za-z0-9_-]{64}\Z")
@@ -106,6 +107,14 @@ class ArtifactClient:
                 if response.status_code != expected_status:
                     if response.status_code in {401, 403}:
                         self.authorization.tokens = None
+                    if (
+                        response.status_code == 422
+                        and method == "POST"
+                        and url == f"{self.config.origin}/mcp/contact-imports/uploads"
+                    ):
+                        error = await workbook_response_error(response)
+                        if error is not None:
+                            raise error
                     raise _RequestError(response.status_code)
                 body = bytearray()
                 async for part in response.aiter_bytes():

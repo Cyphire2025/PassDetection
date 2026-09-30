@@ -8,6 +8,10 @@ from typing import Any
 from zipfile import ZipFile
 
 
+class SpreadsheetArchiveCapacityError(ValueError):
+    """A structural ZIP budget failed, preserving existing ValueError callers."""
+
+
 def excel_cell_text(value: Any) -> str:
     if value is None or isinstance(value, bool):
         return ""
@@ -30,13 +34,19 @@ def validate_excel_archive(
     with ZipFile(BytesIO(payload)) as archive:
         members = archive.infolist()
         if len(members) > max_members:
-            raise ValueError("The Excel contact file contains too many archive entries")
+            raise SpreadsheetArchiveCapacityError(
+                "The Excel contact file contains too many archive entries"
+            )
         if sum(member.file_size for member in members) > max_uncompressed_bytes:
-            raise ValueError("The Excel contact file expands beyond the allowed size")
+            raise SpreadsheetArchiveCapacityError(
+                "The Excel contact file expands beyond the allowed size"
+            )
         for member in members:
             if (
                 member.file_size > ratio_threshold_bytes
                 and member.compress_size > 0
                 and member.file_size / member.compress_size > max_compression_ratio
             ):
-                raise ValueError("The Excel contact file has an unsafe compression ratio")
+                raise SpreadsheetArchiveCapacityError(
+                    "The Excel contact file has an unsafe compression ratio"
+                )
