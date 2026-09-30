@@ -1,6 +1,17 @@
-# Global Connects desktop MCP connector 0.2.2
+# Global Connects desktop MCP connector 0.2.3
 
 This Windows connector exposes the application's deployed MCP tools over local stdio. Its remote endpoint is the configured application's `/mcp`; browser authorization uses the existing superadmin login and MFA flow. It does not read or write Codex's credential storage or configuration.
+
+Version 0.2.3 handles cancellation during refresh rotation. When the outcome is
+uncertain, it clears the refresh credential synchronously before releasing the
+rotation locks, propagates cancellation, and requires fresh browser sign-in.
+The surviving connector blocks the exact uncertain credential even if native
+vault deletion fails. A new credential saved by a separate successful sign-in
+can recover that connector. If deletion fails, this fence exists only in the
+surviving process: stop other connector processes, repair vault access, and
+complete fresh sign-in before resuming them. A successor already saved after a
+successful refresh is retained when a later cancellation is propagated; the
+cancelled request is never dispatched automatically.
 
 Version 0.2.2 releases the local callback listener when browser sign-in is
 cancelled, including when a callback has already arrived. Cancellation prevents
@@ -125,7 +136,7 @@ From `mcp-connector/`, using the existing worktree test runtime:
 ../backend/.venv311/Scripts/python.exe -m ruff format --check .
 ```
 
-Tests use fake credentials and fixture data. They do not open the browser, write real vault secrets, modify Codex, contact production, or send messages. The loopback callback and uvicorn tests bind ephemeral local test ports; the production browser callback always uses the fixed approved port. The TCP fixture uses the application's real OAuth router, MCP adapter, authorization service and models; it does not run the entire production startup stack, a PostgreSQL migration, or a real browser/MFA login. Those remain separate release gates.
+Tests use fake credentials and fixture data. Native Windows tests generate unique qualification targets, assert that the synthetic credential target is absent before writing, and remove only their own test entry afterward. They do not access the configured connection's credential. Tests do not open the browser, modify Codex, contact production, or send messages. The loopback callback and uvicorn tests bind ephemeral local test ports; the production browser callback always uses the fixed approved port. The TCP fixture uses the application's real OAuth router, MCP adapter, authorization service and models; it does not run the entire production startup stack, a PostgreSQL migration, or a real browser/MFA login. Those remain separate release gates.
 
 Design references: [MCP authorization specification](https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization) and [Windows Credential Manager credential writes](https://learn.microsoft.com/en-us/windows/win32/api/wincred/nf-wincred-credwritew). SDK usage was checked against the installed 2.2.0 Python source, including its `httpx2` transport and constructor-based low-level server handlers.
 
