@@ -97,9 +97,32 @@ was performed for this local slice.
 The user authorized a fresh one-month VPS credential through the access chat.
 Strict noninteractive SSH was independently rechecked at 13:37 UTC. Its stated
 authorization expires on **30 October 2026 at 13:17:27 UTC / 18:47:27 IST**.
-The original twelve-hour credential remains expired. A subsequent read-only
-retention refresh encountered an inventory/reference-count discrepancy; preserve
-the failure evidence and resolve it before treating release admission as ready.
+The original twelve-hour credential remains expired. Read-only observations at
+13:47–13:49 UTC verified 301 unique retained containers, zero missing containers,
+184 listed images and the same exact 33-image historical gap. All 20 services are
+running and all 18 configured Docker healthchecks are healthy. Public backend
+live/ready responses remain at `1f4177cb`; the same retained frontend and its
+served compiled revision asset remain at `1d77c9dd`.
+
+Reference inspection separately found one old stopped/created container with an
+empty image field and two stopped migration containers referencing an unavailable
+image. All three IDs already occur in the previous inventory; that unavailable
+image was not among its 216 recorded images. The timing/cause is unproven.
+Frozen v2 would reject these conditions. Initial failed observations and fresh
+safe receipts are retained. A separate v3 proposal is being prepared locally;
+its additional reference allowance is not approved and no remote phase is run.
+
+The latest human instruction sets the phase order to **2 → 1 → 6 → 4 → 5 → 3 →
+7 → 8**, then push and direct VPS deployment without the CI pipeline. It approves
+the exact previously reviewed 33-image exception only, preserves every current
+resource, forbids broadening the allowance and requires stopping deployment on
+any additional missing resource or failed strict check. That approval does not
+cover the three reference anomalies. Phase implementation and local acceptance
+continue in the new order; open gates must be reported honestly.
+
+The new source has a fresh full backend regression running independently of
+release preparation. It has not yet passed at this checkpoint; the prior full
+backend evidence does not qualify this new business source.
 
 Remaining gates include actual Codex conversational behavior, explicit selected
 file handoff, controlled provider qualification, full PostgreSQL/concurrency and

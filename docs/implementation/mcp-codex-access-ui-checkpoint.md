@@ -91,3 +91,34 @@ The complete eight-phase goal remains active. Original business creation,
 editing, upload and Excel-to-message workflows remain required V1 work as
 recorded in `mcp-v1-product-plan.md`. This UI checkpoint completes no broad
 phase or remaining business acceptance gate.
+
+## Resumed observation at 13:47–13:49 UTC
+
+The user resumed the same goal and separately enabled one-month VPS access,
+expiring on 30 October 2026 at 18:47:27 IST. Strict noninteractive SSH was verified
+without reading or printing the private key. The original twelve-hour credential
+remains expired.
+
+Read-only inspection confirms the same backend and frontend revisions, 20
+running services, all 18 configured Docker healthchecks healthy, zero missing
+containers and the unchanged exact 33-image gap. It also identified three older
+retained stopped containers: one has an empty image reference and two migration
+containers reference an unavailable image absent from the previous recorded
+image inventory. Their membership in the previous container inventory is proven;
+the cause and timing of their incomplete image references remain unproven.
+
+Frozen v2 rejects these reference conditions and remains unexecuted. A separate
+v3 proposal is being prepared locally with exact anomaly bindings and preserved
+worker recovery. Its additional reference allowance remains unapproved. Fresh
+safe receipts are `outputs/retained-reference-readonly-20260930T134703Z-82fff967.json`
+and `outputs/retained-reference-detail-readonly-20260930T134858Z-4c0b0574.json`.
+
+The latest human instruction approves the original exact-33-image exception
+only, requires retaining every present resource and stopping deployment on other
+missing resources or failed strict checks, and sets phase order
+**2 → 1 → 6 → 4 → 5 → 3 → 7 → 8**, then push and direct VPS deployment without CI.
+It does not approve the three extra reference conditions. Release remains held.
+
+See `mcp-business-v1-journey-checkpoint.md` for the essential business slice. The
+UI candidate stays exactly `020ddacc` with the same qualified frontend tree.
+No broad phase is complete.
