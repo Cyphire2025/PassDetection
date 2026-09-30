@@ -44,6 +44,10 @@ async def queue_snapshot(
                 suppress_unknown_reminders=True,
             )
         except HTTPException as exc:
+            if exc.status_code == 503:
+                # Do not misrepresent server/provider setup as missing user input.
+                # The public message is code-owned; raw exception details stay private.
+                raise MCPOperationError("whatsapp_service_unavailable") from exc
             raise MCPInputError(
                 "whatsapp_preparation_blocked",
                 "The existing WhatsApp sending rules blocked this audience or message. Review opt-in, welcome delivery, linked audience, template and provider configuration in the application.",

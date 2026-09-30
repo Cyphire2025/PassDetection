@@ -197,6 +197,7 @@ async def invoke_operation(
                 "whatsapp_plan_hash_mismatch": "The preview hash does not match this saved plan. Inspect the exact plan before confirming.",
                 "whatsapp_plan_expired_or_closed": "This plan has expired or is closed. Inspect its status before preparing a new message.",
                 "whatsapp_plan_changed": "The audience, message or eligibility changed. Prepare and review a new exact preview before sending.",
+                "whatsapp_service_unavailable": "WhatsApp service setup is unavailable. This is not missing recipient or message information. This attempt queued no messages; retain its retry key and ask an administrator to check the service setup.",
                 "whatsapp_plan_audience_unavailable": "The selected audience is unavailable. Inspect the current broadcast and choose eligible recipients.",
                 "invalid_contact_broadcast": "Review broadcast details, support contacts and opt-in.",
                 "invalid_contact_mapping": "Choose existing worksheets and distinct one-based phone/name columns.",
