@@ -270,6 +270,11 @@ async def browser_code(oauth: OAuthClient, attempt: AuthorizationAttempt, scopes
             return result
         raise ConnectorError("Browser sign-in timed out; run sign-in again.")
     finally:
-        await anyio.to_thread.run_sync(server.shutdown)
-        server.server_close()
-        thread.join(timeout=2)
+        # A cancelled caller must still release its exclusive loopback listener.
+        with anyio.CancelScope(shield=True):
+            await anyio.to_thread.run_sync(server.shutdown)
+            server.server_close()
+            thread.join(timeout=2)
+        # Cleanup may finish a queued callback while cancellation is pending;
+        # honour that cancellation before the consumer can exchange its code.
+        await anyio.lowlevel.checkpoint_if_cancelled()
