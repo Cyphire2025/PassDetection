@@ -33,7 +33,7 @@ async def ready_plan_media(
     if (
         not isinstance(header, dict)
         or "mcp:upload" not in grant.capabilities
-        or "mcp:upload" not in settings.mcp.enabled_capabilities
+        or "mcp:upload" not in settings.mcp.effective_capabilities
     ):
         return False
     if header.get("access_grant_id") != str(grant.id):

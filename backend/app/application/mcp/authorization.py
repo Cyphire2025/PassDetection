@@ -70,7 +70,7 @@ class MCPAuthorizationService:
         validate_resource(self.settings.mcp, resource)
 
     def require_capability(self, grant: MCPGrantModel, capability: str) -> None:
-        if capability not in grant.capabilities or capability not in self.settings.mcp.enabled_capabilities:
+        if capability not in grant.capabilities or capability not in self.settings.mcp.effective_capabilities:
             raise MCPAuthError("insufficient_scope", 403)
 
     async def require_identity(
@@ -145,7 +145,7 @@ class MCPAuthorizationService:
             capabilities = validate_capabilities(scopes)
         except ValueError as exc:
             raise MCPAuthError("invalid_scope") from exc
-        if set(capabilities) - set(self.settings.mcp.enabled_capabilities):
+        if set(capabilities) - set(self.settings.mcp.effective_capabilities):
             raise MCPAuthError("invalid_scope")
         await self.require_identity(user_id, security_version)
         grant = MCPGrantModel(
@@ -275,7 +275,7 @@ class MCPAuthorizationService:
             "refresh_token": refresh,
             "token_type": "Bearer",
             "expires_in": max(0, int((expires - now).total_seconds())),
-            "scope": " ".join(capability for capability in grant.capabilities if capability in self.settings.mcp.enabled_capabilities),
+            "scope": " ".join(capability for capability in grant.capabilities if capability in self.settings.mcp.effective_capabilities),
         }
 
     async def verify_access(self, token: str, capability: str | None = None) -> MCPPrincipal:
@@ -300,7 +300,7 @@ class MCPAuthorizationService:
             grant.id,
             grant.user_id,
             grant.client_id,
-            tuple(value for value in grant.capabilities if value in self.settings.mcp.enabled_capabilities),
+            tuple(value for value in grant.capabilities if value in self.settings.mcp.effective_capabilities),
             utc(token_row.expires_at),
             grant.resource,
         )

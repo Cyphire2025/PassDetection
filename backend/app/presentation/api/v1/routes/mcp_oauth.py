@@ -35,7 +35,7 @@ async def metadata(request: Request) -> dict[str, object]:
         "grant_types_supported": ["authorization_code", "refresh_token"],
         "code_challenge_methods_supported": ["S256"],
         "token_endpoint_auth_methods_supported": ["none"],
-        "scopes_supported": _settings(request).mcp.enabled_capabilities,
+        "scopes_supported": _settings(request).mcp.effective_capabilities,
     }
 
 
@@ -53,7 +53,7 @@ async def authorization_start(request: Request) -> RedirectResponse | JSONRespon
             or params.get("code_challenge_method") != "S256"
             or not PKCE_CHALLENGE.fullmatch(params.get("code_challenge", ""))
             or not 16 <= len(params.get("state", "")) <= 512
-            or not set(params.get("scope", "").split()) <= set(settings.mcp.enabled_capabilities)
+            or not set(params.get("scope", "").split()) <= set(settings.mcp.effective_capabilities)
             or not params.get("scope", "").strip()
         ):
             raise MCPAuthError("invalid_request")

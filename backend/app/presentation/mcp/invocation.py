@@ -22,8 +22,10 @@ from app.application.mcp.operations import (
     MCPOperationError,
     MCPOperationService,
 )
+from app.application.mcp.read_access import require_read_sections
 from app.core.config.settings import Settings
 from app.domain.mcp_policy import MCPToolPolicy
+from app.domain.mcp_read_sections import READ_TOOL_SECTIONS
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository, AuditResult
 
 _audited: ContextVar[bool] = ContextVar("mcp_invocation_audited", default=False)
@@ -105,12 +107,20 @@ async def invoke_read(
         try:
             if token is None:
                 raise MCPAuthError("invalid_token", 401)
-            principal = await MCPAuthorizationService(session, settings).verify_access(
+            authorization = MCPAuthorizationService(session, settings)
+            if settings.mcp.read_only_mode:
+                # Hold the global control lock before token/grant writes, through
+                # the read and audit commit. Pause and section saves serialize
+                # against in-flight reads using the worker's control-first order.
+                await authorization.require_enabled(lock=True)
+            principal = await authorization.verify_access(
                 token.token,
                 policy.capability.value,
             )
+            if settings.mcp.read_only_mode:
+                await require_read_sections(session, policy.name)
             result = await operation(session, principal)
-        except MCPAuthError:
+        except MCPAuthError as exc:
             await session.rollback()
             outcome = "denied"
             diagnostic = "authorization_denied"
@@ -118,6 +128,11 @@ async def invoke_read(
                 "error": "access_denied",
                 "message": "The connection no longer authorizes this operation.",
             }
+            if settings.mcp.read_only_mode and policy.name in READ_TOOL_SECTIONS:
+                result["required_sections"] = sorted(READ_TOOL_SECTIONS[policy.name])
+                if exc.error == "read_section_denied":
+                    diagnostic = "read_section_denied"
+                    result["message"] = "MCP reading is disabled for one or more sections needed by this tool. Review Codex access."
         except MCPInputError as exc:
             await session.rollback()
             outcome = "blocked"

@@ -7,6 +7,7 @@ import importlib.util
 import json
 import os
 import shlex
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -21,6 +22,17 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class DatabaseReleaseTests(unittest.TestCase):
     def setUp(self):
+        legacy = tempfile.TemporaryDirectory()
+        self.addCleanup(legacy.cleanup)
+        self.legacy_root = Path(legacy.name)
+        relative = "backend/app/core/config/release_manifest.json"
+        (self.legacy_root / relative).parent.mkdir(parents=True)
+        (self.legacy_root / relative).write_text(json.dumps({"deployment_kind": "mcp_additive_v1",
+            "previous_schema_revision": SOURCE, "schema_revision": CHAIN[-1]}))
+        for revision in CHAIN:
+            relative = f"backend/alembic/versions/{revision}.py"
+            (self.legacy_root / relative).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / relative, self.legacy_root / relative)
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         self.directory = Path(temporary.name).resolve()
@@ -31,7 +43,7 @@ class DatabaseReleaseTests(unittest.TestCase):
         self.schema, self.fenced, self.fence_checks = SOURCE, True, 0
         self.commands, self.failure = [], None
         self.release = MCPDatabaseRelease(
-            ROOT,
+            self.legacy_root,
             self.directory,
             self.bindings,
             database_command=self.command,
@@ -85,7 +97,7 @@ class DatabaseReleaseTests(unittest.TestCase):
         self.assertFalse(request["automatic_downgrade"])
         self.assertIn("lock_timeout=5000", request["environment"]["PGOPTIONS"])
         self.assertIn("statement_timeout=120000", request["environment"]["PGOPTIONS"])
-        self.assertEqual(json.loads(request["arguments"][-1]), source_contract(ROOT))
+        self.assertEqual(json.loads(request["arguments"][-1]), source_contract(self.legacy_root))
         self.assertFalse(request["already_at_target"])
         if os.name == "posix":
             self.assertEqual(archive.stat().st_mode & 0o777, 0o600)
@@ -181,7 +193,7 @@ class DatabaseReleaseTests(unittest.TestCase):
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        contract = source_contract(ROOT)
+        contract = source_contract(self.legacy_root)
         module.verify_sources(ROOT / "backend", contract)
         for mutation in ("hash", "order", "parent", "enable", "cleanup", "unknown"):
             changed = copy.deepcopy(contract)

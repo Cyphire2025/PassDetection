@@ -20,6 +20,7 @@ class MCPSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="MCP_", env_file=".env", extra="ignore")
 
     enabled: bool = False
+    read_only_mode: bool = False
     enabled_capabilities: list[str] = Field(default_factory=lambda: sorted(CAPABILITIES))
     export_families: list[str] = Field(default_factory=lambda: sorted(EXPORT_FAMILIES))
     export_source_row_limit: int = Field(default=1500, ge=1, le=1500)
@@ -92,3 +93,10 @@ class MCPSettings(BaseSettings):
     @property
     def resource(self) -> str:
         return f"{self.public_origin}/mcp"
+
+    @property
+    def effective_capabilities(self) -> list[str]:
+        """Deployment authority is a ceiling; dashboard controls cannot widen it."""
+        if self.read_only_mode:
+            return ["mcp:read"] if "mcp:read" in self.enabled_capabilities else []
+        return self.enabled_capabilities

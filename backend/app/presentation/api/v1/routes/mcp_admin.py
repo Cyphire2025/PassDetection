@@ -14,9 +14,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mcp.authorization import MCPAuthorizationService
 from app.application.mcp.credentials import MCPAuthError, utc
+from app.application.mcp.read_access import current_read_access
 from app.core.config.settings import Settings
 from app.domain.entities.entities import User
 from app.domain.mcp_policy import CAPABILITIES
+from app.domain.mcp_read_sections import read_section_catalog
 from app.infrastructure.database.mcp_models import MCPControlModel, MCPGrantModel
 from app.infrastructure.database.mcp_operation_models import MCPOperationModel
 from app.infrastructure.database.models import AuditLogModel
@@ -43,13 +45,14 @@ def _settings(request: Request) -> Settings:
     return cast(Settings, request.app.state.settings)
 
 
-def connection_payload(grant: MCPGrantModel) -> dict[str, object]:
+def connection_payload(grant: MCPGrantModel, settings: Settings | None = None) -> dict[str, object]:
     return {
         "id": str(grant.id),
         "user_id": str(grant.user_id),
         "client_id": grant.client_id,
         "name": grant.name,
         "capabilities": grant.capabilities,
+        "effective_capabilities": sorted(set(grant.capabilities) & set(settings.mcp.effective_capabilities)) if settings else grant.capabilities,
         "created_at": grant.created_at,
         "expires_at": grant.expires_at,
         "last_used_at": grant.last_used_at,
@@ -68,13 +71,19 @@ async def overview(
 ) -> dict[str, object]:
     settings = _settings(request)
     enabled = await session.scalar(select(MCPControlModel.enabled).where(MCPControlModel.id == 1))
+    allowed, read_revision = await current_read_access(session)
     return {
         "enabled": enabled is True and settings.mcp.enabled,
         "deployment_enabled": settings.mcp.enabled,
         "emergency_disabled": enabled is not True,
         "resource": settings.mcp.resource,
-        "capabilities": settings.mcp.enabled_capabilities,
-        "defined_capabilities": sorted(CAPABILITIES),
+        "capabilities": settings.mcp.effective_capabilities,
+        "effective_capabilities": settings.mcp.effective_capabilities,
+        "defined_capabilities": ["mcp:read"] if settings.mcp.read_only_mode else sorted(CAPABILITIES),
+        "read_only_mode": settings.mcp.read_only_mode,
+        "allowed_read_sections": allowed,
+        "read_access_revision": read_revision,
+        "read_section_coverage": read_section_catalog(),
         "approved_clients": settings.mcp.approved_clients,
         "environment": settings.app_env,
         "revision": settings.app_revision,
@@ -85,6 +94,7 @@ async def overview(
 
 @router.get("/connections")
 async def connections(
+    request: Request,
     offset: int = Query(default=0, ge=0),
     limit: int = Query(default=50, ge=1, le=100),
     session: AsyncSession = Depends(get_db_session),
@@ -103,7 +113,7 @@ async def connections(
         ).all()
     )
     return {
-        "items": [connection_payload(row) for row in rows[:limit]],
+        "items": [connection_payload(row, _settings(request)) for row in rows[:limit]],
         "next_offset": offset + limit if len(rows) > limit else None,
     }
 
@@ -193,6 +203,7 @@ async def revoke(
 async def update_connection(
     connection_id: uuid.UUID,
     body: MCPConnectionUpdate,
+    request: Request,
     user: User = Depends(require_mcp_management),
     session: AsyncSession = Depends(get_db_session),
 ) -> dict[str, object]:
@@ -202,6 +213,8 @@ async def update_connection(
     if row is None:
         raise HTTPException(404, "Connection not found")
     # A reconnect is necessary for expanded authority. Narrowing applies immediately.
+    if set(body.capabilities) - set(_settings(request).mcp.effective_capabilities):
+        raise HTTPException(409, "The deployment does not allow these capabilities")
     if set(body.capabilities) - set(row.capabilities):
         raise HTTPException(409, "Reconnect to authorize additional capabilities")
     row.name, row.capabilities = body.name, body.capabilities
@@ -213,7 +226,7 @@ async def update_connection(
         metadata={"capabilities": body.capabilities},
     )
     await session.commit()
-    return connection_payload(row)
+    return connection_payload(row, _settings(request))
 
 
 @router.get("/activity")
@@ -257,9 +270,12 @@ async def inventory(request: Request) -> dict[str, object]:
 
 @router.get("/operations")
 async def operations(
+    request: Request,
     offset: int = Query(default=0, ge=0), limit: int = Query(default=50, ge=1, le=100),
     session: AsyncSession = Depends(get_db_session),
 ) -> dict[str, object]:
+    if _settings(request).mcp.read_only_mode:
+        raise HTTPException(403, "MCP workflow controls are unavailable in this read-only deployment")
     rows = list((await session.scalars(select(MCPOperationModel)
         .order_by(MCPOperationModel.created_at.desc(), MCPOperationModel.id.desc())
         .offset(offset).limit(limit + 1))).all())

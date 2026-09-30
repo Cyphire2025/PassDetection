@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "deployment_kind": "mcp_additive_v1",
-  "schema_revision": "0122_mcp_gc_push",
-  "previous_schema_revision": "0113_document_follow_up",
+  "deployment_kind": "mcp_read_only_v1",
+  "schema_revision": "0123_mcp_read_sections",
+  "previous_schema_revision": "0122_mcp_gc_push",
   "worker_nodes": {
     "worker": "general",
     "email-worker": "email",

@@ -21,13 +21,24 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class MCPReleaseContractTests(unittest.TestCase):
     def setUp(self):
-        self.contract = source_contract(ROOT)
+        self.directory = tempfile.TemporaryDirectory()
+        self.addCleanup(self.directory.cleanup)
+        self.root = Path(self.directory.name)
+        relative = "backend/app/core/config/release_manifest.json"
+        (self.root / relative).parent.mkdir(parents=True)
+        (self.root / relative).write_text(json.dumps({"deployment_kind": "mcp_additive_v1",
+            "previous_schema_revision": SOURCE, "schema_revision": CHAIN[-1]}))
+        for revision in CHAIN:
+            relative = f"backend/alembic/versions/{revision}.py"
+            (self.root / relative).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / relative, self.root / relative)
+        self.contract = source_contract(self.root)
 
     def test_candidate_binds_every_migration_source_and_disabled_forward_recovery(self):
         validate_contract(self.contract, CHAIN[-1])
         self.assertEqual([entry["revision"] for entry in self.contract["migrations"]], list(CHAIN))
         self.assertEqual(self.contract["source_schema"], SOURCE)
-        require_source_contract({"deployment": self.contract}, ROOT)
+        require_source_contract({"deployment": self.contract}, self.root)
         with self.assertRaisesRegex(ValueError, "same-schema recovery is prohibited"):
             require_same_schema_artifact({"deployment": self.contract})
         require_same_schema_artifact({"schema": SOURCE})
@@ -37,7 +48,7 @@ class MCPReleaseContractTests(unittest.TestCase):
             if deployment:
                 deployment["migrations"][0]["sha256"] = "0" * 64
             with self.subTest(deployment=bool(deployment)), self.assertRaises(ValueError):
-                require_source_contract({"deployment": deployment}, ROOT)
+                require_source_contract({"deployment": deployment}, self.root)
 
     def test_signed_retention_policy_cannot_allow_recreation_cleanup_or_omission(self):
         for key in self.contract["retention"]:
@@ -72,7 +83,7 @@ class MCPReleaseContractTests(unittest.TestCase):
             root = Path(directory)
             for relative in ["backend/app/core/config/release_manifest.json", *[entry["path"] for entry in self.contract["migrations"]]]:
                 (root / relative).parent.mkdir(parents=True, exist_ok=True)
-                shutil.copyfile(ROOT / relative, root / relative)
+                shutil.copyfile(self.root / relative, root / relative)
             self.assertEqual(source_contract(root), self.contract)
             path = root / self.contract["migrations"][0]["path"]
             original = path.read_text()

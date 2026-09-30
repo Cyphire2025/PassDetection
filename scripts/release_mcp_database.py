@@ -20,7 +20,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, BinaryIO, Protocol
 
-from release_mcp_contract import CHAIN, SOURCE, source_contract, validate_contract
+from release_mcp_contract import source_contract, validate_contract
 from release_reliability import file_sha256
 from release_traveller_whatsapp import ReleaseError
 
@@ -103,7 +103,11 @@ class MCPDatabaseRelease:
         self.contract = source_contract(root)
         if self.contract is None:
             raise ReleaseError("The exact additive source contract is required")
-        validate_contract(self.contract, CHAIN[-1])
+        self.source_schema = self.contract["source_schema"]
+        self.target_schema = self.contract["target_schema"]
+        validate_contract(self.contract, self.target_schema)
+        self.migration_script = ("scripts/apply_mcp_read_only_upgrade.py"
+            if self.contract["kind"] == "mcp_read_only_v1" else "scripts/apply_mcp_additive_upgrade.py")
         self.contract_sha256 = digest_json(self.contract)
 
     def checkpoint(self, allowed_schemas: set[str]) -> str:
@@ -145,7 +149,7 @@ class MCPDatabaseRelease:
         return result
 
     def backup(self) -> dict[str, Any]:
-        self.checkpoint({SOURCE})
+        self.checkpoint({self.source_schema})
         name = f"{self.bindings.revision}.{uuid.uuid4().hex}.pgdump"
         path = self.directory / name
         flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0)
@@ -154,7 +158,7 @@ class MCPDatabaseRelease:
             self.command(("sh", "-c", DUMP_COMMAND), timeout=1800, stdout_file=output)
             output.flush()
             os.fsync(output.fileno())
-        self.checkpoint({SOURCE})
+        self.checkpoint({self.source_schema})
         digest = file_sha256(path)
         with path.open("rb") as source:
             toc = self.command(("pg_restore", "--list"), timeout=180, stdin_file=source)
@@ -169,7 +173,7 @@ class MCPDatabaseRelease:
         record = {
             "version": 1,
             "filename": name,
-            "schema": SOURCE,
+            "schema": self.source_schema,
             "bytes": path.stat().st_size,
             "sha256": digest,
             "created_at": datetime.now(UTC).isoformat(),
@@ -179,7 +183,7 @@ class MCPDatabaseRelease:
             "contract_sha256": self.contract_sha256,
         }
         self.verify_backup(record)
-        self.checkpoint({SOURCE})
+        self.checkpoint({self.source_schema})
         self.write_receipt(name + ".json", record)
         return record
 
@@ -189,7 +193,7 @@ class MCPDatabaseRelease:
             not isinstance(name, str)
             or not re.fullmatch(r"[a-f0-9]{40}\.[a-f0-9]{32}\.pgdump", name)
             or not name.startswith(self.bindings.revision + ".")
-            or record.get("schema") != SOURCE
+            or record.get("schema") != self.source_schema
             or type(record.get("version")) is not int
             or record["version"] != 1
             or record.get("bindings") != asdict(self.bindings)
@@ -233,7 +237,7 @@ class MCPDatabaseRelease:
         return path
 
     def migration_request(self, backup: dict[str, Any]) -> dict[str, Any]:
-        current = self.checkpoint({SOURCE, CHAIN[-1]})
+        current = self.checkpoint({self.source_schema, self.target_schema})
         self.verify_backup(backup)
         receipt = self.directory / (backup["filename"] + ".json")
         try:
@@ -253,14 +257,14 @@ class MCPDatabaseRelease:
             "bindings": asdict(self.bindings),
             "contract_sha256": self.contract_sha256,
             "backup_sha256": backup["sha256"],
-            "backup_schema": SOURCE,
+            "backup_schema": self.source_schema,
         }
         return {
-            "already_at_target": current == CHAIN[-1],
+            "already_at_target": current == self.target_schema,
             "image_id": self.bindings.image_id,
             "arguments": (
                 "python",
-                "scripts/apply_mcp_additive_upgrade.py",
+                self.migration_script,
                 "--contract-json",
                 json.dumps(self.contract, sort_keys=True, separators=(",", ":")),
             ),
@@ -276,4 +280,4 @@ class MCPDatabaseRelease:
 
     def verify_target(self, backup: dict[str, Any]) -> None:
         self.verify_backup(backup)
-        self.checkpoint({CHAIN[-1]})
+        self.checkpoint({self.target_schema})

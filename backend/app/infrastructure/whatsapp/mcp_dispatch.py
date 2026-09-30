@@ -56,7 +56,7 @@ async def authorize_mcp_batch_dispatch(
     if (
         grant.user_id != identity.user_id
         or "mcp:communicate" not in grant.capabilities
-        or "mcp:communicate" not in settings.mcp.enabled_capabilities
+        or "mcp:communicate" not in settings.mcp.effective_capabilities
     ):
         return BLOCKED
     plan = await session.scalar(

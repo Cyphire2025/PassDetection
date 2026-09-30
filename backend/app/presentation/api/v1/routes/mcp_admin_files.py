@@ -2,7 +2,7 @@
 
 from datetime import UTC, datetime
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy import DateTime, Uuid, case, literal, null, select, union_all
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.selectable import Subquery
@@ -63,9 +63,12 @@ def file_projection(now: datetime) -> Subquery:
 
 @router.get("/artifacts")
 async def artifacts(
+    request: Request,
     offset: int = Query(default=0, ge=0), limit: int = Query(default=50, ge=1, le=100),
     session: AsyncSession = Depends(get_db_session),
 ) -> dict[str, object]:
+    if request.app.state.settings.mcp.read_only_mode:
+        raise HTTPException(403, "MCP file controls are unavailable in this read-only deployment")
     projection = file_projection(datetime.now(UTC))
     rows = (await session.execute(select(projection)
         .order_by(projection.c.created_at.desc(), projection.c.id.desc(), projection.c.kind)

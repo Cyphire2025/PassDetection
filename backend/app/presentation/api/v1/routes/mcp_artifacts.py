@@ -54,6 +54,8 @@ async def _principal(
         headers = request.headers.getlist("authorization")
         if len(headers) != 1 or not headers[0].startswith("Bearer "):
             raise MCPAuthError("invalid_token", 401)
+        if request.app.state.settings.mcp.read_only_mode:
+            raise MCPAuthError("insufficient_scope", 403)
         # Dashboard JWTs cannot satisfy verify_access's dedicated token format.
         principal = await MCPAuthorizationService(
             session, request.app.state.settings
@@ -140,7 +142,7 @@ async def file_authority(
     try:
         authorization = MCPAuthorizationService(session, request.app.state.settings)
         grant = await authorization.require_grant(principal.grant_id)
-        available = sorted(set(grant.capabilities) & set(request.app.state.settings.mcp.enabled_capabilities)
+        available = sorted(set(grant.capabilities) & set(request.app.state.settings.mcp.effective_capabilities)
                            & {"mcp:upload", "mcp:export"})
         if not available or capability is not None and capability not in available:
             raise MCPAuthError("insufficient_scope", 403)

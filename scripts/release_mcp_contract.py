@@ -29,6 +29,9 @@ RETENTION = {
 
 def source_contract(root: Path) -> dict | None:
     manifest = json.loads((root / "backend/app/core/config/release_manifest.json").read_text("utf-8"))
+    if manifest.get("deployment_kind") == "mcp_read_only_v1":
+        from release_mcp_read_only_contract import source_contract as read_only_contract
+        return read_only_contract(root)
     if "deployment_kind" not in manifest:
         return None  # Historical releases keep their existing contract.
     if (manifest["deployment_kind"] != KIND or manifest["previous_schema_revision"] != SOURCE
@@ -63,6 +66,12 @@ def source_contract(root: Path) -> dict | None:
 
 def validate_contract(contract: dict, schema: str) -> None:
     """Validate signed metadata without treating it as a deployment permission."""
+    if isinstance(contract, dict) and contract.get("kind") == "mcp_read_only_v1":
+        from release_mcp_read_only_contract import (
+            validate_contract as validate_read_only,
+        )
+        validate_read_only(contract, schema)
+        return
     if not isinstance(contract, dict) or set(contract) != {
         "version", "kind", "source_schema", "target_schema", "migrations", "initial_mcp_enabled",
         "initial_allowed_capabilities", "recovery", "automatic_downgrade", "retention",

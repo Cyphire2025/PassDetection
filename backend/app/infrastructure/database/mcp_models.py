@@ -14,10 +14,15 @@ from app.infrastructure.database.model_base import JSONB, Base, _utcnow
 
 class MCPControlModel(Base):
     __tablename__ = "mcp_control"
-    __table_args__ = (CheckConstraint("id = 1", name="ck_mcp_control_singleton"),)
+    __table_args__ = (
+        CheckConstraint("id = 1", name="ck_mcp_control_singleton"),
+        CheckConstraint("read_access_revision >= 1", name="ck_mcp_control_read_access_revision"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, default=1)
     enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    allowed_read_sections: Mapped[list[str]] = mapped_column(JSONB, nullable=False, default=list)
+    read_access_revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
 

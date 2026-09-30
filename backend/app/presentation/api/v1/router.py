@@ -45,6 +45,7 @@ from app.presentation.api.v1.routes.gc_app_group_removal import (
 from app.presentation.api.v1.routes.gc_notifications import router as gc_notifications_router
 from app.presentation.api.v1.routes.health import router as health_router
 from app.presentation.api.v1.routes.mcp_admin import router as mcp_admin_router
+from app.presentation.api.v1.routes.mcp_read_access import router as mcp_read_access_router
 from app.presentation.api.v1.routes.menu import router as menu_router
 from app.presentation.api.v1.routes.mobile_associations import (
     router as mobile_associations_router,
@@ -73,6 +74,7 @@ from app.presentation.api.v1.routes.whatsapp_activity import (
 )
 
 api_v1_router = APIRouter()
+api_v1_router.include_router(mcp_read_access_router, prefix="/mcp", tags=["MCP Read Access"])
 api_v1_router.include_router(mcp_admin_router, prefix="/admin/mcp", tags=["MCP Administration"])
 api_v1_router.include_router(frontend_errors_router, prefix="/observability", tags=["Observability"])
 api_v1_router.include_router(ecr_checker_router, prefix="/ecr-checker", tags=["ECR Checker"])

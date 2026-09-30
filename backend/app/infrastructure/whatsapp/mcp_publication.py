@@ -49,6 +49,9 @@ async def _block_orphaned_publication(session: AsyncSession, outbox_id: uuid.UUI
 
 async def _reserve_publication(outbox_id: uuid.UUID) -> dict[str, Any] | None:
     settings = get_settings()
+    if settings.mcp.read_only_mode:
+        # Preserve queued MCP plans without publication or workflow-progress writes.
+        return None
     async with AsyncSessionFactory() as session:
         # Resolve without locking, then use the same authority -> plan -> outbox
         # order as the worker and cancellation path. Missing authority blocks.
@@ -65,9 +68,11 @@ async def _reserve_publication(outbox_id: uuid.UUID) -> dict[str, Any] | None:
         authorized = False
         if plan.original_grant_id is not None and plan.user_id is not None:
             try:
-                grant = await MCPAuthorizationService(session, settings).require_grant(
+                authority = MCPAuthorizationService(session, settings)
+                grant = await authority.require_grant(
                     plan.original_grant_id, lock=True
                 )
+                authority.require_capability(grant, "mcp:communicate")
                 authorized = (
                     grant.user_id == plan.user_id and "mcp:communicate" in grant.capabilities
                 )
