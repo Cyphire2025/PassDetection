@@ -515,3 +515,24 @@ group tab was closed. Safe receipt:
 outside the active website listing; layout verification used the active group
 reached through All Groups. No source/passenger contents were retained in this
 receipt, and no messages or business updates were submitted.
+
+## Essential business V1 local checkpoint — 30 September 2026
+
+After the user-requested pause, the user resumed the same goal with the simpler
+beginner-facing MCP V1 direction retained. The workbook-to-welcome journey now
+has joined local HTTP/SDK/worker/reconciliation evidence. The bounded support
+read resolves the saved-contact ID handoff, connector initialization carries
+missing-detail/explicit-intent guidance, workbook rejections give fixed safe
+corrections, and service setup failures no longer masquerade as missing input.
+Root qualification: 147 combined backend cases, one additional support-selection
+SDK case and 126 connector cases passed, with strict scoped types, architecture,
+budgets and API/inventory checks. Connector 0.2.1 is built and qualified in a
+separate candidate runtime; the active installation is not replaced.
+
+Detailed scope, receipts and remaining gates are in
+[mcp-business-v1-journey-checkpoint.md](mcp-business-v1-journey-checkpoint.md).
+All eight broad phase gates remain open. No live message, grant widening,
+production release or cleanup was performed for this slice. One-month VPS
+access was explicitly renewed through the access chat, independently checked by
+root, and expires on 30 October at 18:47:27 IST; this does not approve the pending
+historical-image exception.

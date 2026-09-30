@@ -1,0 +1,109 @@
+# Essential MCP business V1 checkpoint — 30 September 2026
+
+The resumed work keeps the beginner-facing product direction: ask only for
+missing or ambiguous business details, show useful choices, and keep internal
+identifiers and protocol confirmation steps out of routine user decisions.
+Creation, editing, uploads and Excel-to-message remain essential V1 work. This
+checkpoint qualifies a bounded local slice; all eight broad phase gates remain
+open and the live read/export profile is not widened.
+
+## Joined workbook-to-welcome evidence
+
+The local journey uses actual ASGI upload endpoints, MCP HTTP/SDK calls,
+application services, durable operations, queue publication, worker execution
+and receipt reconciliation. Scanner, storage, broker and provider boundaries are
+synthetic; SQLite uses the existing named-conflict test adapter.
+
+The journey retains the original workbook and every rejected row, uses explicit
+sheet/column mappings, merges duplicate-phone fields through established rules,
+and creates exactly one broadcast without sending. Reconnects preserve the
+original creation, preparation and confirmation keys and immutable receipts.
+Changing a payload under its key conflicts; a wrong plan hash queues nothing.
+
+The exact welcome preview contains only the explicitly selected recipients,
+content, template and owned header image. Lost broker acknowledgement and worker
+replay do not repeat provider attempts. One provider-accepted, one unknown and
+one failed result remain distinct. Only subsequently recorded sent/delivered
+events establish those states; unknown delivery is never silently resent.
+
+A 101-contact workbook remains intact. A 101-recipient message selection is
+rejected; explicitly choosing 100 prepares exactly those 100 without silently
+including or sending to the remainder. Missing required import/message fields
+create no guessed broadcast or plan.
+
+## Resolved composition and usability defects
+
+- The existing `list_whatsapp_audience` read now accepts `support_contacts`.
+  It returns saved IDs/names with bounded, actor/filter-bound keyset pagination.
+  Phone numbers stay hidden until explicit contact-detail disclosure, which is
+  audited without copying phones into audit metadata. Agency mismatch and
+  current role loss remain denied. Support contacts are not message recipients.
+- The actual import journey discovers its created support contact through that
+  public tool. A separate SDK test starts with an already linked broadcast and
+  distinguishes two same-name contacts by the explicitly requested phone. Only
+  the tool-returned ID enters the passport-link draft; its exact preview contains
+  the chosen contact and queues nothing. This is not proof of creating/linking
+  an upload group after a new broadcast import.
+- Connector initialization now publishes the missing-detail and explicit-intent
+  guidance. A complete send request can proceed through required exact-hash
+  confirmation without a redundant dashboard approval. Preparation alone never
+  authorizes sending; recipient opt-in remains a separate required fact.
+- Canonical WhatsApp setup HTTP 503 failures return the fixed non-input
+  `whatsapp_service_unavailable` error. Same-key recovery remains possible;
+  confirmation-time failure preserves the prepared plan and queues nothing.
+  Raw provider details do not enter responses, audit metadata or captured logs.
+- Contact workbook failures have four fixed correction codes for formulas,
+  active content, invalid packages and capacity. Guidance preserves the original
+  file. The connector reconstructs trusted local guidance only for the exact
+  contact-upload POST/422 response, with a bounded body and no automatic retry.
+  Scanning, authority, checksum, size and fail-closed behavior remain in place.
+
+## Root qualification and connector candidate
+
+- Final combined backend focus: **147 passed in 123.17 seconds**. This includes
+  journey, read/HTTP, imports, message/reminder intents, media, configuration,
+  initialization contracts and transfer schemas.
+- Added support-selection SDK composition case: **1 passed in 1.53 seconds**.
+  It adds a test only; the production application tree equals the preceding run.
+- Final combined connector suite: **126 passed in 55.82 seconds**.
+- Scoped Ruff and strict mypy passed for **15 production modules**. Architecture
+  boundaries, all **87 backend module budgets**, reviewed backend/mobile API
+  contracts and the inventory check passed. The inventory remains 1,510 surfaces
+  and 85 tools; only the reviewed audience and contact-upload fingerprints change.
+- Connector **0.2.1** was built with the existing pinned build tools in a separate
+  offline environment, installed with the hash-locked runtime into a fresh
+  candidate environment, and passed CLI version/help and installed-wheel SDK
+  initialization in legacy and automatic modes. All 14 packaged Python modules
+  match their source bytes; no application, vault or provider call was made.
+
+The 35,516-byte wheel has SHA256
+`d7c8fe2b54a27541d9632580ce237550a8f84b85627e351aeb1454c73c250195`.
+It is retained at
+`outputs/mcp-connector-021-20260930/global_connects_mcp_connector-0.2.1-py3-none-any.whl`.
+The existing active desktop installation has not been replaced by this candidate.
+Root receipts are `outputs/mcp-business-v1-joined-root-20260930.xml`,
+`outputs/mcp-support-selection-root-20260930.xml`,
+`outputs/mcp-connector-021-root-20260930.xml` and
+`outputs/mcp-connector-021-installed-wheel-20260930.json`.
+
+## Production and remaining acceptance
+
+The tested UI release remains pinned at `020ddacc`; its frontend tree is unchanged
+by this business slice. The historical-image exception is still a separate
+pending decision. Access renewal does not approve that exception or enable
+business permissions. No release phase, customer send, grant widening or cleanup
+was performed for this local slice.
+
+The user authorized a fresh one-month VPS credential through the access chat.
+Strict noninteractive SSH was independently rechecked at 13:37 UTC. Its stated
+authorization expires on **30 October 2026 at 13:17:27 UTC / 18:47:27 IST**.
+The original twelve-hour credential remains expired. A subsequent read-only
+retention refresh encountered an inventory/reference-count discrepancy; preserve
+the failure evidence and resolve it before treating release admission as ready.
+
+Remaining gates include actual Codex conversational behavior, explicit selected
+file handoff, controlled provider qualification, full PostgreSQL/concurrency and
+combined workload evidence, new-import-to-linked-group composition, other
+required business workflows, and a qualified backend rollout before permissions
+or examples are enabled. Static guidance, synthetic receipts and source counts
+do not close those gates.
