@@ -30,17 +30,13 @@ from app.application.use_cases.client_groups.group_access import (
 from app.core.logging.logger import get_logger
 from app.core.security.password import hash_password, run_password_work
 from app.domain.entities.entities import (
-    OFFICE_VISIBLE_PASSPORT_STATUS_VALUES,
-    PENDING_REVIEW_PASSPORT_STATUS_VALUES,
     GroupStatus,
-    PassportProcessingStatus,
     User,
     UserRole,
 )
 from app.domain.exceptions.exceptions import EntityNotFoundError
 from app.infrastructure.database.email_models import EmailConnectionModel
 from app.infrastructure.database.models import (
-    AgencyModel,
     AuditLogModel,
     ClientGroupModel,
     ManagerGroupAccessModel,
@@ -64,6 +60,7 @@ from app.infrastructure.documents.storage_cleanup import (
     process_storage_cleanup_job,
     stage_storage_cleanup_jobs,
 )
+from app.infrastructure.repositories.admin_overview_repository import AdminOverviewRepository
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.identity_security_repository import IdentitySecurityRepository
 from app.infrastructure.repositories.passport_image_crop_repository import (
@@ -156,65 +153,8 @@ async def get_admin_overview(
     current_user: User = Depends(require_role([UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN])),
     session: AsyncSession = Depends(get_db_session),
 ) -> AdminOverviewResponse:
-    agency_filter = [] if current_user.role == UserRole.SUPER_ADMIN else [AgencyModel.id == current_user.agency_id]
-    user_filter = [] if current_user.role == UserRole.SUPER_ADMIN else [UserModel.agency_id == current_user.agency_id]
-    group_filter = [] if current_user.role == UserRole.SUPER_ADMIN else [ClientGroupModel.agency_id == current_user.agency_id]
-    passport_scope_filter = []
-    if current_user.role != UserRole.SUPER_ADMIN:
-        passport_scope_filter.append(PassportSubmissionModel.agency_id == current_user.agency_id)
-
-    agencies = await _count(session, select(func.count()).select_from(AgencyModel).where(*agency_filter))
-    users = await _count(session, select(func.count()).select_from(UserModel).where(*user_filter))
-    groups = await _count(session, select(func.count()).select_from(ClientGroupModel).where(*group_filter))
-    passports = await _count(
-        session,
-        select(func.count()).select_from(PassportSubmissionModel).where(
-            *passport_scope_filter,
-            PassportSubmissionModel.status.in_(OFFICE_VISIBLE_PASSPORT_STATUS_VALUES),
-        ),
-    )
-    pending = await _count(
-        session,
-        select(func.count()).select_from(PassportSubmissionModel).join(
-            ClientGroupModel,
-            PassportSubmissionModel.group_id == ClientGroupModel.id,
-        ).where(
-            *passport_scope_filter,
-            PassportSubmissionModel.status.in_(PENDING_REVIEW_PASSPORT_STATUS_VALUES),
-            ClientGroupModel.status.notin_(["archived", "deleted"]),
-        ),
-    )
-    submitted = await _count(
-        session,
-        select(func.count()).select_from(PassportSubmissionModel).join(
-            ClientGroupModel,
-            PassportSubmissionModel.group_id == ClientGroupModel.id,
-        ).where(
-            *passport_scope_filter,
-            PassportSubmissionModel.status.in_(OFFICE_VISIBLE_PASSPORT_STATUS_VALUES),
-            ClientGroupModel.status.notin_(["archived", "deleted"]),
-        ),
-    )
-    failed = await _count(
-        session,
-        select(func.count()).select_from(PassportSubmissionModel).join(
-            ClientGroupModel,
-            PassportSubmissionModel.group_id == ClientGroupModel.id,
-        ).where(
-            *passport_scope_filter,
-            PassportSubmissionModel.status == PassportProcessingStatus.FAILED.value,
-            ClientGroupModel.status.notin_(["archived", "deleted"]),
-        ),
-    )
-    return AdminOverviewResponse(
-        agencies=agencies,
-        users=users,
-        client_groups=groups,
-        passport_submissions=passports,
-        pending_review=pending,
-        client_submitted=submitted,
-        failed=failed,
-    )
+    counts = await AdminOverviewRepository(session).overview(role=current_user.role, agency_id=current_user.agency_id)
+    return AdminOverviewResponse(**counts)
 
 
 @router.get(
@@ -1042,11 +982,6 @@ async def purge_passport_data(
     response.deleted_storage_objects = deleted_storage_objects
     response.storage_cleanup_deferred = cleanup_deferred
     return response
-
-
-async def _count(session: AsyncSession, stmt) -> int:  # type: ignore[no-untyped-def]
-    result = await session.execute(stmt)
-    return int(result.scalar_one())
 
 
 async def _previous_manager_delete_result(

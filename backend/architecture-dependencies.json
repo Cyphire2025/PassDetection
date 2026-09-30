@@ -1,6 +1,15 @@
 {
   "version": 1,
   "transaction_services": {
+    "app/application/mcp/admin_overview_reads.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "The current active Superadmin grant and identity are locked before seven bounded scalar administrative count queries. A shared website repository preserves global and agency lifecycle predicates; the MCP deadline, integer and complete response bounds expose no account/source records, settings, credentials, provider actions or business mutations.",
+      "imports": [
+        "app.infrastructure.repositories.admin_overview_repository",
+        "app.infrastructure.repositories.admin_overview_repository.AdminOverviewRepository"
+      ]
+    },
     "app/application/mcp/analytics_reads.py": {
       "owner": "repository maintainers",
       "review_by": "2026-12-31",

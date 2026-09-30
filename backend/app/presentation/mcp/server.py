@@ -24,6 +24,7 @@ from app.domain.mcp_policy import MCPCapability, MCPToolPolicy
 from app.infrastructure.database.session import AsyncSessionFactory
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.presentation.mcp.access_change_tools import register_access_change_tools
+from app.presentation.mcp.admin_overview_read_tools import register_admin_overview_read_tools
 from app.presentation.mcp.analytics_read_tools import register_analytics_read_tools
 from app.presentation.mcp.announcement_tools import register_announcement_tools
 from app.presentation.mcp.attendance_read_tools import register_attendance_read_tools
@@ -151,6 +152,7 @@ def install_mcp(app: FastAPI, settings: Settings) -> None:
     register_ecr_read_tools(server, app, settings)
     register_rename_read_tools(server, app, settings)
     register_email_overview_read_tools(server, app, settings)
+    register_admin_overview_read_tools(server, app, settings)
     register_diagnostic_tools(server, app, settings)
     register_broadcast_link_tools(server, app, settings)
     register_gc_push_tools(app, server, settings)
