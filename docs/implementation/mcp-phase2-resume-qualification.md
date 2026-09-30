@@ -45,30 +45,55 @@ mutation, Codex configuration or production activation occurred for this package
 | P2.1 SDK/transport | Pinned SDK, local HTTP/TCP/lifespan/host tests; actual deployed Codex calls. | Production host/origin matrix and multiprocess quota evidence. |
 | P2.2 OAuth/MFA/CSRF | Actual user MFA/consent/PKCE and local binding/stale-factor/CSRF tests. | Fresh-factor dashboard refresh after the durable assurance fix; simple UI deployment/readback. |
 | P2.3 credentials | Local HTTP and actual PostgreSQL code/refresh/revoke races; Windows vault/mutex tests. | Production valid expired/revoked credentials and permanent0.2.2 client acceptance. Do not replay a working consumed refresh credential as a harmless probe. |
-| P2.4 binding/callback/quota | Existing handler Host/state/replay tests plus consumer lifecycle fix. | Prepared synthetic production probe, live valid-code binding/reuse, quota and authenticated transport cases. |
+| P2.4 binding/callback/quota | Existing handler Host/state/replay tests, consumer lifecycle fix and12 deployed synthetic denial cases. | Live valid-code binding/reuse, quota and authenticated transport cases. |
 | P2.5 current authority | Local actor/security-version/expiry/revoke/MFA/emergency/narrowing operation and dispatch fences. | Controlled live cases under an explicitly approved isolated identity/grant; do not mutate current working authority for qualification. |
 | P2.6 Administration | Earlier live pages; new simple UI49 component/9 browser fixture cases. | New UI live readback and controlled pause/disconnect/narrowing. These remain manual Administration actions. |
-| P2.7 private durable audits | Local denial/rollback/privacy and one verified production management denial. | Broader token-denial window and other live branches; assigned chain fields are not recomputed-chain proof. |
+| P2.7 private durable audits | Local denial/rollback/privacy, earlier management denial and exact five-row deployed token-denial window. | Other live branches and complete audit failure/recovery acceptance; assigned chain fields are not recomputed-chain proof. |
 | P2.8 actual Codex/HTTP | Saved Codex bounded reads/Excel delivery and four earlier public negatives. | Deployed valid expired/revoked/non-Superadmin/role-loss cases. Grant binding occurs at connection status; later business payloads do not echo it. |
 
 ## Prepared probe and release boundary
 
 The frozen credential-free HTTP helper contains twelve synthetic denial cases,
 fifteen fixed-origin requests with liveness/metadata bracketing and five expected
-normal security-audit writes. Root mocks pass15 tests plus73 subtests. It has
-**not been executed in production** at this checkpoint.
+normal security-audit writes. Root HTTP mocks pass15 tests plus73 subtests;
+the repaired audit/runner suite passes29 tests plus268 subtests.
 
 Review found three executable audit-helper gaps: discarded failure exit status,
 no explicit schema0122 assertion and no consumption of the successful full HTTP
-receipt. Separate v2 files/tests/manifest are being completed locally, preserving
-v1 bytes. Root must review exact code/source/runtime binding, read-only SQL,
-window limits, complete HTTP receipt and failure behavior before execution.
-Unissued synthetic credentials cannot close real expiry/revocation/role/MFA,
+receipt. Separate frozen v2 files fix these gaps and preserve v1 bytes. Root
+verified all new/preserved file hashes and eight qualified archive source pins,
+then executed the one-shot runner once at **17:20:39–17:21:01UTC**.
+
+All12 cases returned the exact expected400 JSON errors, no-store and no cookie
+or redirect. The retained31-event HTTP lifecycle proves15 requests and no retry.
+Independent short READ ONLY observations bracket global audit sequences97–102:
+exactly five token denials, with reason counts1 unsupported grant/2 invalid
+grant/2 invalid request, all fixed privacy predicates true and no authorization,
+token issuance or refresh-reuse event in the window. Schema0122, exact1f image,
+six runtime application source hashes, read/export profile and retained backend
+identity/configuration bindings passed before and after. No business/provider,
+grant/control/role/MFA or container action occurred. Normal rejected requests
+created their five security audits; new helper/receipt files are retained.
+
+Root downloaded the three hash-bound receipts and verified their complete
+HTTP/source/schema/audit binding locally without rerunning any remote operation.
+An initial local retention postcheck used `schema` rather than `expected_schema`;
+the local-only finalizer corrected that field name. The original single probe
+already passed, and both the failed postcheck source and corrected evidence are
+retained. Combined receipt: `outputs/phase2-synthetic-v2-live-20260930.json`.
+Run ID: `b7c48e7a5acf48e1a586445ee33fb2a4`.
+
+Attribution remains bounded to the observation window; an indistinguishable
+concurrent denial cannot be mathematically distinguished. Assigned chain fields
+are checked, without independent recomputation. HTTPv1 verifies fixed metadata
+through its pinned code/preflight event, but records no raw metadata or health
+version value. Unissued values do not close real expiry/revocation/role/MFA,
 valid-code/refresh/reuse, controls, quotas or authenticated Host/Origin gates.
 
-Last production observations were13:47–13:49UTC: backend1f4177cb,
+The earlier full runtime observations were13:47–13:49UTC: backend1f4177cb,
 frontend1d77c9dd, schema0122,20 services running and18 configured healthchecks
-healthy. These are dated observations. Authorized month SSH access expires
+healthy. The17:21 probe adds exact backend/schema/profile/denial evidence, not a
+fresh20-service inventory or combined-load test. Authorized month SSH access expires
 30 October13:17:27UTC.
 
 The exact original33 missing-image allowance is approved. Three stopped

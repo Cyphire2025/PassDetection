@@ -399,6 +399,11 @@ regenerate, overwrite or widen an old acceptance record automatically.
 - [Live Codex checkpoint](mcp-live-codex-checkpoint.md) and
   [export history contract](mcp-export-history-checkpoint.md): verified delivery
   versus generation, retained history semantics, file expiry and parity limits.
+- [Resumed Phase2 qualification](mcp-phase2-resume-qualification.md): callback
+  cancellation fix and the17:21UTC credential-free production denial run. All12
+  synthetic cases and five expected private audit rows passed; real valid
+  expired/revoked/role-loss, new UI and broader authority gates remain open.
+  This does not replace the dated full-service health inventory above.
 - Candidate receipt: `outputs/mcp-connector-022-candidate-20260930.json`;
   isolated installed qualification:
   `outputs/mcp-connector-022-installed-qualification-20260930.json`. The candidate
