@@ -2,9 +2,10 @@
 
 Locally qualified on 2026-09-30. Two metadata read tools implement six existing
 website surface representations. The ledger remains `implemented_unverified`:
-component tests do not establish deployed acceptance, completion of Phase 3,
-or combined production capacity. Integration and the next combined full backend
-regression remain pending at this checkpoint.
+component tests do not establish completion of Phase 3 or combined production
+capacity. The [later release checkpoint](mcp-read-observations-release-checkpoint.md)
+records the integrated backend regression and a selected empty-list observation
+on deployed `1f4177cb`; populated detail qualification remains open.
 
 `list_document_rename_batches` and `get_document_rename_batch` require current
 `mcp:read` authority and an active Superadmin. The current grant and identity are
@@ -117,5 +118,11 @@ Ignored receipts are `outputs/mcp-rename-focused.xml`,
 The existing Python 3.11 environment executes
 with this isolated checkout's backend as its explicit working directory. The
 production read/export profile, grants, schema and control settings are unchanged.
-Real deployed Codex invocation, full combined regression and same-host capacity
-qualification remain separate gates.
+The later release passed the combined 6,132-test backend regression. Actual saved
+Codex completed connection status and the own-agency batch list; the result was
+empty with no further page, matching the website's “No rename batches yet.”
+state. No detail call, extracted-identifier opt-in, sensitive-read audit or file
+access was performed. This proves the observed empty list only; populated detail,
+filename ordering, generated-file availability and same-host capacity remain
+unqualified. The [release checkpoint](mcp-read-observations-release-checkpoint.md)
+records the accepted safe receipts and named-status binding limitation.

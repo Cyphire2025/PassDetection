@@ -4,9 +4,10 @@ Local implementation checkpoint, 2026-09-30. `get_group_attendance_summary` and
 `list_missing_attendance_passengers` provide the canonical office summary and
 missing-passenger family through `mcp:read`. Exactly six existing source, OpenAPI
 and frontend rows plus two tools are `implemented_unverified`, Phase 3. The
-combined backend aggregate after integration, deployment, actual Codex readback
-and combined capacity qualification remain pending for this slice. The remaining
-attendance workflows and all eight goal phases remain open.
+[later release checkpoint](mcp-read-observations-release-checkpoint.md) records
+the passing integrated backend aggregate and selected deployed Codex/website
+observations on `1f4177cb`. Combined capacity, remaining attendance workflows and
+all eight goal phases remain open.
 
 The [MCP service](../../backend/app/application/mcp/attendance_reads.py) requires
 a current active Superadmin grant with `mcp:read`, then uses only the connected
@@ -140,5 +141,14 @@ attendance surfaces are not promoted by this slice.
 Ignored receipts are `outputs/mcp-attendance-focused-final.xml`,
 `outputs/mcp-attendance-final-integration.xml`,
 `outputs/mcp-attendance-reads-postgresql.xml` and
-`outputs/mcp-attendance-reads-postgresql-2.xml`. Root integration owns the combined
-full regression and any deployment/readback; none is asserted by this checkpoint.
+`outputs/mcp-attendance-reads-postgresql-2.xml`.
+
+The later release passed the combined 6,132-test backend regression and a
+three-call saved-Codex readback. It observed three activities, with four present
+and 31 missing in the selected session, and returned the first five missing rows
+with more pages indicated. The website summary matched and its keyboard-opened
+dialog loaded all 31 rows. Automated pointer clicks had no visible effect; the
+cause remains unknown. This is selected live read evidence, not full MCP
+enumeration, physical-presence evidence or permission to close an activity. See
+the [release checkpoint](mcp-read-observations-release-checkpoint.md) for the
+hash-bound safe receipts and complete limitations.

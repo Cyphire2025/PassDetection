@@ -4,9 +4,11 @@ This finite Phase 3 slice provides `get_email_integration_status()` and
 `get_my_email_integration_summary()`, both without business-scope arguments.
 It complements existing `list_email_records` pages: readiness flags and the
 seven website counts cannot be reconstructed exactly from those retained record
-projections. The ledger remains `implemented_unverified` pending combined
-regression and deployed acceptance. This is not completion of email workflows,
-provider qualification or combined production capacity.
+projections. The ledger remains `implemented_unverified`; the
+[later release checkpoint](mcp-read-observations-release-checkpoint.md) records
+the integrated backend regression and selected deployed observations on
+`1f4177cb`. This is not completion of email workflows, provider qualification or
+combined production capacity.
 
 The shared neutral readiness projector preserves the six website booleans:
 `enabled`, `sync_enabled`, `attachment_processing_enabled`,
@@ -116,5 +118,14 @@ Ignored receipts are `outputs/mcp-email-overview-service.xml` and
 `outputs/mcp-email-overview-postgresql.xml`. Tests use the existing Python 3.11 runtime
 with this isolated checkout's backend as the working directory. No production
 grants, control settings, schema, providers, services or data were changed.
-Full combined regression, deployed Codex invocation and same-host capacity
-qualification remain separate pending gates.
+The later release passed the combined 6,132-test backend regression. A separate
+immutable v2 saved-Codex runner completed exactly three calls in 133.281 seconds:
+connection status, email readiness and personal summary. All six readiness flags
+and both provider configuration-presence flags were true; all seven personal
+counts were zero and matched the earlier loaded authenticated website. These are
+separate live observations, not an atomic snapshot or provider/delivery-health
+proof. The original 82.235-second incomplete two-call attempt remains retained
+with `missing_call`; its cause was not established. See the
+[release checkpoint](mcp-read-observations-release-checkpoint.md) for the safe
+acceptance/hash bindings and precise limitations. Same-host capacity and the
+broader phase gates remain open.
