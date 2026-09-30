@@ -1,6 +1,12 @@
-# Global Connects desktop MCP connector 0.2.1
+# Global Connects desktop MCP connector 0.2.2
 
 This Windows connector exposes the application's deployed MCP tools over local stdio. Its remote endpoint is the configured application's `/mcp`; browser authorization uses the existing superadmin login and MFA flow. It does not read or write Codex's credential storage or configuration.
+
+Version 0.2.2 releases the local callback listener when browser sign-in is
+cancelled, including when a callback has already arrived. Cancellation prevents
+token exchange after cleanup. The existing five-minute sign-in deadline,
+callback validation, requested permissions and credential storage policy remain
+unchanged.
 
 Version 0.2.1 publishes guidance to ask only for missing details and preserve an
 already explicit send request through the required exact-plan confirmation. It
