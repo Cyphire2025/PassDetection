@@ -17,6 +17,7 @@ from app.application.security.email_scope import (
     email_agency_scope,
     email_owner_filters,
 )
+from app.application.use_cases.email_integrations import overview
 from app.core.config.settings import Settings
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import User, UserRole
@@ -35,8 +36,8 @@ EMAIL_INTEGRATION_ROLES = [
     UserRole.AGENCY_STAFF,
 ]
 _current_email_user = require_role(EMAIL_INTEGRATION_ROLES)
-_ACTIVE_CONNECTION_STATUSES = {"active", "failing", "paused"}
-_ACTIVE_REVIEW_STATUSES = {"open", "deferred"}
+_ACTIVE_CONNECTION_STATUSES = overview.ACTIVE_CONNECTION_STATUSES
+_ACTIVE_REVIEW_STATUSES = overview.ACTIVE_REVIEW_STATUSES
 
 
 def _provider_instance(provider: str, settings: Settings) -> EmailProvider:

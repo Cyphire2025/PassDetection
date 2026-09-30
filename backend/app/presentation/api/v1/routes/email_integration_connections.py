@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.use_cases.email_integrations.overview import email_readiness
 from app.application.use_cases.email_integrations.rollout_policy import (
     email_ai_disabled_policy_exists,
     email_ai_policy_allows,
@@ -30,7 +31,6 @@ from app.presentation.api.v1.schemas.email_integration_schemas import (
     EmailConnectionActionResponse,
     EmailConnectionResponse,
     EmailIntegrationStatusResponse,
-    EmailProviderAvailabilityResponse,
     RemoveEmailConnectionRequest,
     RemoveEmailConnectionResponse,
 )
@@ -64,28 +64,7 @@ async def email_integration_status(
     current_user: User = Depends(_current_email_user),
 ) -> EmailIntegrationStatusResponse:
     del current_user
-    settings = get_settings()
-    ai_ready = settings.email_ai_runtime_ready
-    return EmailIntegrationStatusResponse(
-        enabled=settings.email_integrations_enabled,
-        sync_enabled=settings.email_sync_enabled,
-        attachment_processing_enabled=settings.email_attachment_processing_enabled,
-        auto_actions_enabled=settings.email_auto_actions_enabled,
-        ai_enabled=ai_ready,
-        ai_notifications_enabled=settings.email_ai_notifications_ready,
-        providers=[
-            EmailProviderAvailabilityResponse(
-                provider="gmail",
-                label="Gmail",
-                configured=_provider_configured(settings, "gmail"),
-            ),
-            EmailProviderAvailabilityResponse(
-                provider="outlook",
-                label="Microsoft Outlook",
-                configured=_provider_configured(settings, "outlook"),
-            ),
-        ],
-    )
+    return EmailIntegrationStatusResponse(**email_readiness(get_settings()))
 
 
 @router.get("/connections", response_model=list[EmailConnectionResponse])

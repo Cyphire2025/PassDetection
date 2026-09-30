@@ -1,6 +1,17 @@
 {
   "version": 1,
   "transaction_services": {
+    "app/application/mcp/email_overview_reads.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current grant and identity locks fence configuration readiness and seven canonical personal-owner scalar mailbox counts within a bounded read deadline. Shared website readiness and summary semantics expose fixed booleans and counts only, without hydrating mailbox content, credential fields or match evidence, contacting providers, dispatching jobs or changing business records.",
+      "imports": [
+        "app.infrastructure.repositories.email_summary_repository",
+        "app.infrastructure.repositories.email_summary_repository.EmailSummaryRepository",
+        "app.infrastructure.repositories.user_repository",
+        "app.infrastructure.repositories.user_repository.UserRepository"
+      ]
+    },
     "app/application/mcp/attendance_reads.py": {
       "owner": "repository maintainers",
       "review_by": "2026-12-31",

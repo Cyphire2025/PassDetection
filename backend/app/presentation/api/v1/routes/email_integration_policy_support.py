@@ -6,26 +6,13 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from fastapi import HTTPException, status
 
+from app.application.use_cases.email_integrations.overview import provider_configured, secret_is_set
 from app.core.config.settings import Settings
 from app.infrastructure.database.email_models import EmailConnectionModel
 
 
 def _provider_configured(settings: Settings, provider: str = "gmail") -> bool:
-    if provider == "gmail":
-        credentials_ready = bool(
-            getattr(settings, "gmail_oauth_client_id", None)
-            and _secret_is_set(getattr(settings, "gmail_oauth_client_secret", None))
-            and getattr(settings, "gmail_oauth_redirect_uri", None)
-        )
-    elif provider == "outlook":
-        credentials_ready = bool(
-            getattr(settings, "outlook_oauth_client_id", None)
-            and _secret_is_set(getattr(settings, "outlook_oauth_client_secret", None))
-            and getattr(settings, "outlook_oauth_redirect_uri", None)
-        )
-    else:
-        return False
-    return credentials_ready and _secret_is_set(settings.email_token_encryption_key)
+    return provider_configured(settings, provider)
 
 
 def _provider_scopes(provider: str) -> list[str]:
@@ -41,11 +28,7 @@ def _provider_scopes(provider: str) -> list[str]:
 
 
 def _secret_is_set(value: object) -> bool:
-    getter = getattr(value, "get_secret_value", None)
-    if callable(getter):
-        secret = getter()
-        return isinstance(secret, str) and bool(secret.strip())
-    return isinstance(value, str) and bool(value.strip())
+    return secret_is_set(value)
 
 
 def _require_feature(settings: Settings) -> None:

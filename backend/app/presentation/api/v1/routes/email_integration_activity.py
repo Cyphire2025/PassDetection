@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql import Select
 
+from app.application.use_cases.email_integrations.overview import email_summary_day_start
 from app.domain.entities.entities import User
 from app.infrastructure.database.email_models import (
     EmailActivityEventModel,
@@ -17,10 +16,10 @@ from app.infrastructure.database.email_models import (
     EmailArtifactModel,
     EmailConnectionModel,
     EmailMessageModel,
-    EmailReviewItemModel,
 )
 from app.infrastructure.database.models import ClientGroupModel
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.repositories.email_summary_repository import EmailSummaryRepository
 from app.presentation.api.v1.routes import email_integration_review_support as _review_support
 from app.presentation.api.v1.schemas.email_integration_schemas import (
     EmailActivityEventResponse,
@@ -31,8 +30,7 @@ from app.presentation.api.v1.schemas.email_integration_schemas import (
 )
 
 from .email_integration_access import (
-    _ACTIVE_CONNECTION_STATUSES,
-    _ACTIVE_REVIEW_STATUSES,
+    _agency_scope,
     _current_email_user,
     _email_owner_filters,
     _group_role_visibility_filter,
@@ -52,89 +50,9 @@ async def email_integration_summary(
     current_user: User = Depends(_current_email_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> EmailIntegrationSummaryResponse:
-    today = datetime.now(tz=UTC).replace(hour=0, minute=0, second=0, microsecond=0)
-
-    async def count(stmt: Select[tuple[int]]) -> int:
-        return int(await session.scalar(stmt) or 0)
-
-    return EmailIntegrationSummaryResponse(
-        connected_accounts=await count(
-            select(func.count(EmailConnectionModel.id)).where(
-                *_email_owner_filters(
-                    EmailConnectionModel.owner_user_id,
-                    EmailConnectionModel.agency_id,
-                    current_user,
-                ),
-                EmailConnectionModel.status.in_(_ACTIVE_CONNECTION_STATUSES),
-            )
-        ),
-        relevant_emails_today=await count(
-            select(func.count(EmailMessageModel.id)).where(
-                *_email_owner_filters(
-                    EmailMessageModel.owner_user_id,
-                    EmailMessageModel.agency_id,
-                    current_user,
-                ),
-                EmailMessageModel.relevance_status == "relevant",
-                EmailMessageModel.received_at >= today,
-            )
-        ),
-        documents_retrieved_today=await count(
-            select(func.count(EmailArtifactModel.id)).where(
-                *_email_owner_filters(
-                    EmailArtifactModel.owner_user_id,
-                    EmailArtifactModel.agency_id,
-                    current_user,
-                ),
-                EmailArtifactModel.retrieved_at >= today,
-            )
-        ),
-        automatically_matched_today=await count(
-            select(func.count(EmailArtifactDocumentModel.id)).where(
-                *_email_owner_filters(
-                    EmailArtifactDocumentModel.owner_user_id,
-                    EmailArtifactDocumentModel.agency_id,
-                    current_user,
-                ),
-                EmailArtifactDocumentModel.created_at >= today,
-                EmailArtifactDocumentModel.match_evidence["human_confirmed"]
-                .as_boolean()
-                .is_(False),
-            )
-        ),
-        revisions_detected_today=await count(
-            select(func.count(EmailReviewItemModel.id)).where(
-                *_email_owner_filters(
-                    EmailReviewItemModel.owner_user_id,
-                    EmailReviewItemModel.agency_id,
-                    current_user,
-                ),
-                EmailReviewItemModel.review_type == "possible_revision",
-                EmailReviewItemModel.created_at >= today,
-            )
-        ),
-        pending_review=await count(
-            select(func.count(EmailReviewItemModel.id)).where(
-                *_email_owner_filters(
-                    EmailReviewItemModel.owner_user_id,
-                    EmailReviewItemModel.agency_id,
-                    current_user,
-                ),
-                EmailReviewItemModel.status.in_(_ACTIVE_REVIEW_STATUSES),
-            )
-        ),
-        retrieval_failures_today=await count(
-            select(func.count(EmailArtifactModel.id)).where(
-                *_email_owner_filters(
-                    EmailArtifactModel.owner_user_id,
-                    EmailArtifactModel.agency_id,
-                    current_user,
-                ),
-                EmailArtifactModel.retrieval_status == "failed",
-                EmailArtifactModel.last_error_at >= today,
-            )
-        ),
-    )
+    _agency_scope(current_user)  # Preserve the website's missing-agency HTTP contract.
+    counts = await EmailSummaryRepository(session).summary(current_user, today=email_summary_day_start())
+    return EmailIntegrationSummaryResponse(**counts)
 
 
 @router.get("/activity", response_model=list[EmailActivityItemResponse])
