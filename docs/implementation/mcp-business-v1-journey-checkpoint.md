@@ -89,8 +89,9 @@ Root receipts are `outputs/mcp-business-v1-joined-root-20260930.xml`,
 ## Production and remaining acceptance
 
 The tested UI release remains pinned at `020ddacc`; its frontend tree is unchanged
-by this business slice. The historical-image exception is still a separate
-pending decision. Access renewal does not approve that exception or enable
+by this business slice. The exact original33 missing-image exception is approved;
+three separately discovered historical container-reference anomalies remain a
+pending decision. Access renewal does not approve those anomalies or enable
 business permissions. No release phase, customer send, grant widening or cleanup
 was performed for this local slice.
 
@@ -109,8 +110,12 @@ empty image field and two stopped migration containers referencing an unavailabl
 image. All three IDs already occur in the previous inventory; that unavailable
 image was not among its 216 recorded images. The timing/cause is unproven.
 Frozen v2 would reject these conditions. Initial failed observations and fresh
-safe receipts are retained. A separate v3 proposal is being prepared locally;
-its additional reference allowance is not approved and no remote phase is run.
+safe receipts are retained. A separate v3 proposal is frozen locally, with317
+root mocked tests passing and independent code review. Its additional reference
+allowance is not approved and no remote phase is run. Root verifies all19
+manifest hashes; normalized AST changes are limited to the two retention methods
+and two added pure functions. Worker recovery and release phase bodies remain
+unchanged from v2.
 
 The latest human instruction sets the phase order to **2 → 1 → 6 → 4 → 5 → 3 →
 7 → 8**, then push and direct VPS deployment without the CI pipeline. It approves
@@ -120,9 +125,27 @@ any additional missing resource or failed strict check. That approval does not
 cover the three reference anomalies. Phase implementation and local acceptance
 continue in the new order; open gates must be reported honestly.
 
-The new source has a fresh full backend regression running independently of
-release preparation. It has not yet passed at this checkpoint; the prior full
-backend evidence does not qualify this new business source.
+The new source now has successful full backend regression independent of
+release preparation: **6,248 passed,3 platform skips,509 service-integration
+cases deselected and162 passing subtests**, in1,381.12 seconds, exit0. The
+qualified application tree is `e1a8d0f33a31b01643b975bc71c4cb100618ac9f`;
+subsequent connector/documentation changes do not change that backend tree.
+Root receipt: `outputs/mcp-business-v1-full-backend-root-20260930.xml`.
+
+The callback follow-up reproduces an AnyIO cancellation listener leak. Shielded
+shutdown/close/join and a cancellation checkpoint release the socket and prevent
+exchange of a queued callback under pending cancellation. The300-second deadline
+is unchanged. Root connector regression passes136 cases in36.70 seconds.
+
+Connector0.2.2 is a separate35,923-byte candidate, SHA256
+`d47969e3e789cfa70483082414b56b6e68a4f4bc6e9bf596cd0a658d6da7ccad`.
+All14 modules match its tested owner checkout, wheel and installed runtime.
+MAIN canonical Git source and parsed Python code match, with physical CRLF/LF
+differences recorded. CLI/SDK legacy+auto initialization pass, and a separate
+qualification environment passes28 installed callback/auth cases. Runtime
+dependencies remain hash-locked; test/build packages stay in separate environments.
+Active0.2.0 and prior0.2.1 artifacts remain preserved. Root retained bindings:
+`outputs/mcp-connector-022-root-retained-20260930.json`.
 
 Remaining gates include actual Codex conversational behavior, explicit selected
 file handoff, controlled provider qualification, full PostgreSQL/concurrency and

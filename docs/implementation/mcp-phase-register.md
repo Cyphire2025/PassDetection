@@ -11,6 +11,11 @@ evidence, including real Codex and production qualification where specified.
 - User objective: complete the eight-phase, superadmin-only MCP integration on
   the existing VPS, plus the WhatsApp delivery/selection defects and compact
   responsive group overview. Work incrementally and report each completed phase.
+- Latest user-directed order: **2 → 1 → 6 → 4 → 5 → 3 → 7 → 8**. Finish
+  implementation and applicable acceptance before claiming phase completion;
+  carry unresolved deployed gates explicitly. Then push and use the direct VPS
+  path without CI. Preserve every current resource. The exact original33 missing
+  image IDs are approved; three historical container-reference anomalies are not.
 - Team: root implements/integrates MCP; coordinator tracks coverage and checks
   evidence; delegated owners implement WhatsApp and group-layout work separately.
 - MCP boundaries: no record/file/member removal, archive, purge, destructive
@@ -40,11 +45,11 @@ evidence, including real Codex and production qualification where specified.
 | Workstream | Status | Evidence / remaining gate |
 | --- | --- | --- |
 | Phase 1: inventory and baseline | Static inventory and initial live baseline recorded; gate open | Reviewed machine-readable source/API/UI matrix, drift checker and 12 behavioral tests; adapter effect reviews remain explicit implementation obligations. Read-only live snapshot records schema0113, source revision and resources; runtime privilege/readiness follow-up passes; logs, complete configuration and measured MCP capacity evidence remain open. |
-| Phase 2: auth, connections, administration | Real OAuth, Codex and one durable management denial demonstrated; full gate open | User completed MFA/control enablement and named-connection authorization. Production1d77 retains one independently verified anonymous401 denial audit, and the authenticated workflow/setup UI and actual saved Codex readback passed. Durable assurance correction passes nine PostgreSQL races and focused HTTP tests. Complete controls and remaining expired/revoked/demoted/MFA live cases stay open; see the management release and live Codex checkpoints. |
+| Phase 2: auth, connections, administration | Real OAuth/Codex and local callback lifecycle qualified; full gate open | Earlier named-connection/MFA and durable denial evidence remains retained. New consumer tests reproduce and fix cancellation leaking the callback listener; cleanup prevents queued-callback exchange under pending cancellation. Root connector136 tests pass; isolated0.2.2 wheel passes28 installed consumer cases. Simplified UI deployment, fresh-factor dashboard refresh and valid expired/revoked/demoted/MFA/controls/transport live cases remain open. The broader synthetic denial/audit probe remains prepared only; see the Phase2 resume checkpoint. |
 | Phase 3: reads and diagnostics | Selected attendance, empty rename-list and email observations qualified live; broad gate open | Earlier dashboard, personal notification and ECR live evidence remains retained. On1f4177cb, saved Codex verified the attendance summary and first missing page, an empty own-agency rename list, and configuration-only email readiness plus seven personal counts. Selected website summaries matched; attendance keyboard opening worked but automated pointer opening did not, and populated rename detail was not exercised. No full dataset or atomic cross-interface equality is claimed. Notification acknowledgement remains disabled. Remaining domains, live log collection and broad production equality remain open. |
 | Phase 4: transfers and exports | First Codex Excel delivery, options and one history example verified; broad gate open | Actual Codex resumed the saved operation on cd0e538f and checksum-verified the14,863-byte XLSX plus server acknowledgement; independent ZIP/openpyxl parsing passed. Group/selected-group option reads passed on27afeb4c. On ee648457, actual Codex verified the first completed passport Excel history entry and five detail rows with personal details disabled. This does not link that history to the prior operation, enumerate all history or prove file availability. Other file families, scanner/TTL/revocation/recovery, complete source parity and combined capacity remain open. |
 | Phase 5: safe business changes | Operation foundation and initial group creation locally tested; broad gate open | Agent reports72 SQLite tests (34 operations,24 group/SDK,14 existing website policy) and9 real PostgreSQL races including six concurrent create requests producing one group. Other business adapters and recovery/production evidence remain open. |
-| Phase 6: conversational communications | Exact reminder lifecycle locally tested; broad gate open |170 affected integration/web/worker/receipt tests and6 PostgreSQL lifecycle races pass. New contact-workbook import has126 tests and3 PostgreSQL races passing; it creates a new broadcast without sending. Real provider, complete Excel-to-send scenario and other communication families remain outstanding. |
+| Phase 6: conversational communications | Excel-to-welcome composition and exact reminders locally tested; broad gate open | Joined HTTP/SDK/worker/reconciliation tests cover explicit mappings, retained rejects, support-contact discovery, exact recipients/content/header/hash, same-key reconnect/conflict, broker acknowledgement loss and partial/unknown outcomes. Root147 affected backend cases plus1 support-selection SDK case pass. Earlier reminder/import PostgreSQL evidence remains retained. Actual Codex composition, new-import-to-linked-group handoff, controlled provider evidence and other communication families remain outstanding. |
 | Phase 7: remaining domains | Office/tour/GC and additive group-access/link operations locally tested; broad gate open | Office65 regressions plus6 PostgreSQL races; tour/GC31 final focused tests,128 earlier combined regressions and6 PostgreSQL races pass. Broader tour/GC lifecycle, retained room allocation, versioned plan regeneration and all other permitted workflows remain open. |
 | Phase 8: qualification and rollout | Read-observations backend deployed and observed through saved Codex; full gate open | Backend1f4177cb/frontend1d77c9dd/schema0122 are live; workers remain efea4e4a. Independent01:29:35UTC probe verifies all20 services, public200, zero new application OOM/restarts, continuous frontend and retained prior/intermediate resources. The179-case operator passed all four actual phases. Combined regression6132pass retains three skips/438 separate service exclusions and162subtests. Attendance, empty rename-list and email-v2 readbacks passed exact revision/schema validation; all three status events independently match the named grant, while later business payloads do not echo it. The initial incomplete email attempt remains retained. Selected website observations match within the documented pointer/detail/non-atomic limits. See the read-observations release checkpoint; all eight broad gates, including workflow/security/recovery and combined Linux-load/capacity, remain open. |
 | WhatsApp delivery state | Locally tested; release gate open | Exact receipt states, bounded reconciliation and revision cache refresh; delegated React/contract/lint/type checks recorded below. Provider/production evidence outstanding. |
@@ -525,9 +530,13 @@ read resolves the saved-contact ID handoff, connector initialization carries
 missing-detail/explicit-intent guidance, workbook rejections give fixed safe
 corrections, and service setup failures no longer masquerade as missing input.
 Root qualification: 147 combined backend cases, one additional support-selection
-SDK case and 126 connector cases passed, with strict scoped types, architecture,
-budgets and API/inventory checks. Connector 0.2.1 is built and qualified in a
-separate candidate runtime; the active installation is not replaced.
+SDK case and initially126 connector cases passed, with strict scoped types,
+architecture, budgets and API/inventory checks. After the callback fix, root
+connector regression passes136 cases. Fresh full backend regression passes
+**6,248 cases plus162 subtests**, with3 platform skips and509 separately marked
+service-integration cases deselected. These exclusions and broader live gates
+remain explicit. Retained0.2.1 and separate0.2.2 candidates do not replace the
+active0.2.0 installation; the0.2.2 wheel passes28 installed callback/auth cases.
 
 Detailed scope, receipts and remaining gates are in
 [mcp-business-v1-journey-checkpoint.md](mcp-business-v1-journey-checkpoint.md).
@@ -535,4 +544,9 @@ All eight broad phase gates remain open. No live message, grant widening,
 production release or cleanup was performed for this slice. One-month VPS
 access was explicitly renewed through the access chat, independently checked by
 root, and expires on 30 October at 18:47:27 IST; this does not approve the pending
-historical-image exception.
+three-container historical-reference exception. The exact original33-image
+exception is approved. Frozen v3 proposal code passes317 root mocks and an
+independent review; no remote phase is authorized for the three extra anomalies.
+
+Phase2 local results and remaining deployed acceptance are recorded in
+[mcp-phase2-resume-qualification.md](mcp-phase2-resume-qualification.md).
