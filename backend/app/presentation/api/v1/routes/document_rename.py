@@ -24,6 +24,11 @@ from app.application.security.access_level_actor import (
     actual_user_role,
     refresh_access_level_actor,
 )
+from app.application.use_cases.document_rename.read_scope import (
+    DocumentRenameScopeError,
+    download_metadata_eligible,
+    rename_agency,
+)
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import User, UserRole
 from app.domain.value_objects.travel_document_taxonomy import (
@@ -56,6 +61,11 @@ from app.infrastructure.documents.storage_transfers import (
     run_bounded_storage_operations,
 )
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.infrastructure.repositories.document_rename_queries import (
+    rename_batch_filters,
+    rename_batches_query,
+    rename_items_query,
+)
 from app.infrastructure.security.upload_security import UploadSecurityContext
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.document_chunk_uploads import (
@@ -88,11 +98,12 @@ _RENAME_ARCHIVE_ADMISSION = threading.BoundedSemaphore(value=1)
 
 
 def _ensure_allowed(current_user: User) -> uuid.UUID:
-    if not current_user.agency_id or current_user.role == UserRole.AGENCY_COORDINATOR:
+    try:
+        return rename_agency(current_user)
+    except DocumentRenameScopeError as exc:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
-        )
-    return current_user.agency_id
+        ) from exc
 
 
 async def _lock_active_rename_actor(
@@ -143,10 +154,7 @@ def _batch_filters_for_identity(
     role: UserRole | str,
     agency_id: uuid.UUID,
 ) -> list[ColumnElement[bool]]:
-    filters = [DocumentRenameBatchModel.agency_id == agency_id]
-    if _role_value(role) == UserRole.AGENCY_STAFF.value:
-        filters.append(DocumentRenameBatchModel.created_by_user_id == user_id)
-    return filters
+    return rename_batch_filters(user_id=user_id, role=role, agency_id=agency_id)
 
 
 def _batch_filters(
@@ -264,11 +272,7 @@ async def _cleanup_owned_rename_storage(
 
 
 def _item_response(item: DocumentRenameItemModel) -> RenameDocumentItemResponse:
-    downloadable = (
-        item.detected_type in SUPPORTED_TRAVEL_DOCUMENT_TYPES
-        and item.status != "rejected"
-        and bool(item.storage_key)
-    )
+    downloadable = download_metadata_eligible(item.detected_type, item.status, bool(item.storage_key))
     return RenameDocumentItemResponse(
         id=item.id,
         original_filename=item.original_filename,
@@ -322,8 +326,7 @@ async def list_rename_batches(
 ) -> list[RenameDocumentBatchSummaryResponse]:
     agency_id = _ensure_allowed(current_user)
     result = await session.execute(
-        select(DocumentRenameBatchModel)
-        .where(*_batch_filters(current_user, agency_id))
+        rename_batches_query(user_id=current_user.id, role=current_user.role, agency_id=agency_id)
         .order_by(DocumentRenameBatchModel.created_at.desc())
         .limit(100)
     )
@@ -444,9 +447,8 @@ async def get_rename_batch(
 ) -> RenameDocumentBatchResponse:
     agency_id = _ensure_allowed(current_user)
     batch_result = await session.execute(
-        select(DocumentRenameBatchModel).where(
+        rename_batches_query(user_id=current_user.id, role=current_user.role, agency_id=agency_id).where(
             DocumentRenameBatchModel.id == batch_id,
-            *_batch_filters(current_user, agency_id),
         )
     )
     batch = batch_result.scalar_one_or_none()
@@ -455,12 +457,7 @@ async def get_rename_batch(
             status_code=status.HTTP_404_NOT_FOUND, detail="Rename batch was not found"
         )
     items_result = await session.execute(
-        select(DocumentRenameItemModel)
-        .where(
-            DocumentRenameItemModel.batch_id == batch.id,
-            DocumentRenameItemModel.agency_id == agency_id,
-        )
-        .order_by(DocumentRenameItemModel.renamed_filename.asc())
+        rename_items_query(batch.id, agency_id)
     )
     return await _batch_response(batch, list(items_result.scalars().all()))
 
