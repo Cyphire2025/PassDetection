@@ -61,7 +61,13 @@ async def test_retention_schedule_is_tenant_scoped_without_exposing_retired_hold
         current_user=_agency_admin(user_id=user_id, agency_id=agency_id),
         session=db_session,
     )
-    assert inspected.model_dump() == {
+    actual = inspected.model_dump()
+    # SQLite loads TIMESTAMPTZ scalars without tzinfo, unlike the cached object
+    # and PostgreSQL. Compare the stored UTC instant rather than identity-map
+    # representation; the response still exposes exactly the original fields.
+    assert inspected.passport_purge_at is not None
+    actual["passport_purge_at"] = inspected.passport_purge_at.replace(tzinfo=UTC)
+    assert actual == {
         "group_id": group_id,
         "passport_purge_at": group.passport_purge_at,
         "passport_retention_days_applied": 365,

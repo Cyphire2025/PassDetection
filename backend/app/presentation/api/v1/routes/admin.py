@@ -66,6 +66,9 @@ from app.infrastructure.repositories.identity_security_repository import Identit
 from app.infrastructure.repositories.passport_image_crop_repository import (
     PassportImageCropRepository,
 )
+from app.infrastructure.repositories.passport_retention_repository import (
+    PassportRetentionRepository,
+)
 from app.infrastructure.storage.passport_object_keys import passport_storage_keys
 from app.presentation.api.v1.pagination import PageOffset, PageSize
 from app.presentation.api.v1.schemas.operations_schemas import (
@@ -425,13 +428,15 @@ async def get_group_passport_retention(
     ),
     session: AsyncSession = Depends(get_db_session),
 ) -> PassportRetentionControlResponse:
-    group = await _load_retention_control_group(
-        session,
-        group_id=group_id,
-        current_user=current_user,
-        lock=False,
+    schedule = await PassportRetentionRepository(session).get_schedule(
+        group_id=group_id, role=current_user.role, agency_id=current_user.agency_id,
     )
-    return _passport_retention_response(group)
+    if schedule is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Client group was not found",
+        )
+    return PassportRetentionControlResponse(**schedule.project())
 
 
 @router.get(
@@ -1026,41 +1031,6 @@ async def _load_platform_settings(session: AsyncSession) -> PlatformSettingsResp
     if not row:
         return PlatformSettingsResponse(**DEFAULT_PLATFORM_SETTINGS)
     return PlatformSettingsResponse(**{**DEFAULT_PLATFORM_SETTINGS, **row.value}, updated_at=row.updated_at)
-
-
-async def _load_retention_control_group(
-    session: AsyncSession,
-    *,
-    group_id: uuid.UUID,
-    current_user: User,
-    lock: bool,
-) -> ClientGroupModel:
-    statement = select(ClientGroupModel).where(ClientGroupModel.id == group_id)
-    if current_user.role != UserRole.SUPER_ADMIN:
-        statement = statement.where(
-            ClientGroupModel.agency_id == current_user.agency_id
-        )
-    if lock:
-        statement = statement.with_for_update()
-    result = await session.execute(statement)
-    group = result.scalar_one_or_none()
-    if group is None:
-        # Keep cross-tenant existence confidential.
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Client group was not found",
-        )
-    return group
-
-
-def _passport_retention_response(
-    group: ClientGroupModel,
-) -> PassportRetentionControlResponse:
-    return PassportRetentionControlResponse(
-        group_id=group.id,
-        passport_purge_at=group.passport_purge_at,
-        passport_retention_days_applied=group.passport_retention_days_applied,
-    )
 
 
 def _group_response(group: ClientGroupModel) -> ManagerGroupAccessResponse:

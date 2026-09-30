@@ -1,6 +1,15 @@
 {
   "version": 1,
   "transaction_services": {
+    "app/application/mcp/retention_reads.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Fresh grant and identity locks plus an explicit group share lock bound one scalar observation of the stored passport-retention schedule under current website access policy. The shared projection preserves retained and cross-agency Superadmin visibility without hydrating private group fields, inspecting files, scheduling cleanup or granting retention mutation authority.",
+      "imports": [
+        "app.infrastructure.repositories.passport_retention_repository",
+        "app.infrastructure.repositories.passport_retention_repository.PassportRetentionRepository"
+      ]
+    },
     "app/application/mcp/admin_overview_reads.py": {
       "owner": "repository maintainers",
       "review_by": "2026-12-31",

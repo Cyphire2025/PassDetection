@@ -53,6 +53,7 @@ from app.presentation.mcp.operations_read_tools import register_operations_read_
 from app.presentation.mcp.pdf_ingestion_tools import register_pdf_ingestion_tools
 from app.presentation.mcp.rate_limit import MCPConnectionRateLimit
 from app.presentation.mcp.rename_read_tools import register_rename_read_tools
+from app.presentation.mcp.retention_read_tools import register_retention_read_tools
 from app.presentation.mcp.rooming_export_tools import register_rooming_export_tools
 from app.presentation.mcp.tour_change_tools import register_tour_change_tools
 from app.presentation.mcp.tracking_export_tools import register_tracking_export_tools
@@ -151,6 +152,7 @@ def install_mcp(app: FastAPI, settings: Settings) -> None:
     register_notification_tools(server, app, settings)
     register_ecr_read_tools(server, app, settings)
     register_rename_read_tools(server, app, settings)
+    register_retention_read_tools(server, app, settings)
     register_email_overview_read_tools(server, app, settings)
     register_admin_overview_read_tools(server, app, settings)
     register_diagnostic_tools(server, app, settings)
