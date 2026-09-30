@@ -44,6 +44,17 @@ create no guessed broadcast or plan.
   the tool-returned ID enters the passport-link draft; its exact preview contains
   the chosen contact and queues nothing. This is not proof of creating/linking
   an upload group after a new broadcast import.
+- A later root SDK journey now supplies that local handoff: a new workbook
+  import creates one broadcast, `create_group` creates one ordinary collection
+  group, and the inspected additive adapter adds exactly one link. It adds no
+  recipients or mobile identities. Two imported same-name support contacts are
+  resolved by the explicitly supplied phone; only that tool-returned ID and one
+  exact named recipient enter the passport-link draft. Preparation blocks before
+  welcome delivery and after provider submission; a matching delivered welcome
+  receipt then permits the exact preview. Reconnecting replays the original
+  import/group/link/preparation receipts without recreating or sending. A wrong
+  passport plan hash queues nothing. Only the synthetic welcome is dispatched;
+  no passport-link message or customer/provider request is sent.
 - Connector initialization now publishes the missing-detail and explicit-intent
   guidance. A complete send request can proceed through required exact-hash
   confirmation without a redundant dashboard approval. Preparation alone never
@@ -87,6 +98,17 @@ Root receipts are `outputs/mcp-business-v1-joined-root-20260930.xml`,
 `outputs/mcp-connector-021-installed-wheel-20260930.json`.
 
 ## Production and remaining acceptance
+
+The joined handoff and its affected creation/link/message regressions pass
+**82 tests in46.46 seconds**, with scoped Ruff/format checks passing. Receipt:
+`outputs/mcp-excel-group-link-combined-root-confirmed-20260930.xml`. The first
+combined run retained81 passing cases and one failure in the new test's random
+row-order assumption. The final test deliberately places the other recipient
+first and resolves the requested name rather than relying on a page position.
+This adds test evidence only; backend application source is unchanged. The
+earlier full6,248-test result does not include this new case. Real Codex execution
+of the same handoff, production permissions and controlled delivery evidence
+remain open.
 
 The tested UI release remains pinned at `020ddacc`; its frontend tree is unchanged
 by this business slice. The exact original33 missing-image exception is approved;
