@@ -5,6 +5,11 @@ based on `60fa04916529b2a2d5c613b990a834314517a658`. This finite slice adds
 `list_group_export_history` and `get_group_export_history`. Local qualification
 does not establish deployment, real Codex acceptance or Phase 4 closure.
 
+The later [integrated release checkpoint](mcp-read-expansion-release-checkpoint.md)
+records the 6,029-test combined regression, deployment of `ee648457` and actual
+Codex acceptance of one history/detail page. Full enumeration, linkage to the
+earlier delivered operation, file availability and the broad phase gates remain open.
+
 ## Contract and authority
 
 Both tools require a current active superadmin connection with `mcp:read`, an

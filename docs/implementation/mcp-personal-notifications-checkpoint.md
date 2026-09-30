@@ -5,6 +5,11 @@ existing website surface representations. The ledger remains
 `implemented_unverified`: local component evidence is not deployed acceptance,
 completion of Phases 3/7, or combined production capacity qualification.
 
+The later [integrated release checkpoint](mcp-read-expansion-release-checkpoint.md)
+records the 6,029-test combined regression, deployment of `ee648457` and actual
+Codex acceptance of a five-row personal read with the website's zero-unread
+badge. Acknowledgements remain disabled in production; none occurred in that proof.
+
 `list_my_notifications` requires current `mcp:read` authority and an active
 Superadmin. It has no user or agency override. The website and MCP share the
 mandatory personal `user_id` predicate, optional canonical agency filter,

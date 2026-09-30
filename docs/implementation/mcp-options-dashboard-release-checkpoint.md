@@ -1,7 +1,8 @@
 # Excel options and dashboard backend release
 
-Backend `27afeb4ce0bb427eb4a87eb0913f92f36f2b3e59` is live. Its backend-only
-cutover completed on 2026-09-29 UTC; independent verification passed at
+Historical release checkpoint: backend `27afeb4ce0bb427eb4a87eb0913f92f36f2b3e59`
+was replaced by the later [read expansion release](mcp-read-expansion-release-checkpoint.md).
+Its backend-only cutover completed on 2026-09-29 UTC; independent verification passed at
 **23:57:02 UTC**. The frontend remained continuously on
 `1d77c9ddb16439e62d29f85067377f23070552b6`, and workers/scheduler retain
 `efea4e4a`. Schema `0122_mcp_gc_push`, the named connection, read/export-only

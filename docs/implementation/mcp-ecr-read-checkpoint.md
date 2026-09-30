@@ -3,9 +3,11 @@
 Local implementation checkpoint, 2026-09-30. `list_ecr_batches` and
 `get_ecr_batch` provide the standalone ECR checker list/detail family through
 `mcp:read`. The six existing frontend, source and OpenAPI ledger rows and two new
-tools are `implemented_unverified`, Phase 3. The combined full backend aggregate,
-deployment, actual Codex readback and combined capacity qualification remain
-pending for this slice. Other ECR workflows and the eight-phase goal remain open.
+tools are `implemented_unverified`, Phase 3. The later
+[integrated release checkpoint](mcp-read-expansion-release-checkpoint.md) records
+the 6,029-test combined regression, deployment of `ee648457` and actual Codex
+acceptance of one list/detail page with matching website counters. Combined
+capacity qualification, other ECR workflows and the eight-phase goal remain open.
 
 The [shared repository](../../backend/app/infrastructure/repositories/ecr_read_repository.py)
 extracts the exact website role/agency/staff predicates and six SQL item counters.
