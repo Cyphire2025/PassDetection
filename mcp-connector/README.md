@@ -1,6 +1,14 @@
-# Global Connects desktop MCP connector 0.2.0
+# Global Connects desktop MCP connector 0.2.1
 
 This Windows connector exposes the application's deployed MCP tools over local stdio. Its remote endpoint is the configured application's `/mcp`; browser authorization uses the existing superadmin login and MFA flow. It does not read or write Codex's credential storage or configuration.
+
+Version 0.2.1 publishes guidance to ask only for missing details and preserve an
+already explicit send request through the required exact-plan confirmation. It
+also explains supported contact-workbook rejection codes using fixed local
+corrections. A request merely to prepare a message still does not authorize
+sending, and recipient opt-in remains a separate required fact. Available tools
+and permissions continue to come from the deployed application and current
+connection. Installing this version does not enable uploads or communications.
 
 **Qualification status:** local mocked HTTP/vault, real loopback callback, Windows kernel mutex, and SDK protocol tests are available in `tests/`. An actual TCP test runs the backend OAuth/MCP adapters under uvicorn against a disposable SQLite database: metadata discovery, PKCE exchange, connection-status tool execution, refresh rotation, and revocation pass through the connector and official SDK. Real Codex sign-in, native vault sign-in, production access isolation, and production file transfers have not been qualified. Only deployed remote tools appear. This package does not make the eight-phase integration complete.
 
