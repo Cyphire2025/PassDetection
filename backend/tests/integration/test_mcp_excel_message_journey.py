@@ -19,6 +19,7 @@ from app.infrastructure.database.mcp_communication_models import (
 from app.infrastructure.database.mcp_contact_import_models import MCPContactImportUploadModel
 from app.infrastructure.database.mcp_operation_models import MCPOperationModel
 from app.infrastructure.database.models import (
+    AuditLogModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
     WhatsAppBroadcastRejectedContactModel,
@@ -111,13 +112,39 @@ async def test_excel_to_message_reconnect_and_receipts_never_duplicate_or_infer_
         assert len(recipients) == 3 and len(rejected) == 4
         assert len({row["id"] for row in recipients}) == 3
         assert all("phone_number" not in row for row in recipients)
+        support = await all_audience(sdk, broadcast_id, kind="support_contacts")
+        assert len(support) == 1 and support[0]["name"] == "Help desk"
+        support_id = uuid.UUID(support[0]["id"])
+        assert "phone_number" not in support[0] and "normalized_phone_number" not in support[0]
+        details = await tool(
+            sdk,
+            "list_whatsapp_audience",
+            {
+                "broadcast_id": broadcast_id,
+                "agency_id": f.agency_id,
+                "kind": "support_contacts",
+                "include_contact_details": True,
+            },
+        )
+        assert details["items"][0]["id"] == str(support_id)
+        assert details["items"][0]["normalized_phone_number"] == "+919876543299"
+        assert details["send_eligibility_evaluated"] is False
+        assert details["content_trust"] == "untrusted_business_data"
+        contact_audit = await f.session.scalar(
+            select(AuditLogModel).where(AuditLogModel.action == "mcp.whatsapp.contact_read")
+        )
+        assert contact_audit.metadata_json == {"authorized_result_count": 1}
+        assert await count(f, WhatsAppMessageLogModel) == await count(f, MCPWhatsAppPlanModel) == 0
+        await f.session.commit()
         f.provider.assert_not_awaited()
+        f.publication.assert_not_awaited()
 
     # New SDK session models a lost create response/reconnect: same business key,
     # same result, fresh audit, no second broadcast and no re-uploaded workbook.
     async with f.sdk() as sdk:
         replay = await tool(sdk, "create_contact_broadcast", create_request)
         assert replay["receipt"] == created["receipt"] and replay["audit_id"] != created["audit_id"]
+        assert await all_audience(sdk, broadcast_id, kind="support_contacts") == support
         conflicting = await sdk.call_tool(
             "create_contact_broadcast",
             {
@@ -235,6 +262,10 @@ async def test_excel_to_message_reconnect_and_receipts_never_duplicate_or_infer_
     assert await count(f, WhatsAppBroadcastRecipientModel) == 3
     assert await count(f, WhatsAppBroadcastRejectedContactModel) == 4
     assert await count(f, WhatsAppBroadcastSupportContactModel) == 1
+    saved_support = await f.session.get(WhatsAppBroadcastSupportContactModel, support_id)
+    assert (
+        saved_support.name == "Help desk" and str(saved_support.broadcast_group_id) == broadcast_id
+    )
     assert await count(f, WhatsAppMessageLogModel) == 3
     assert await count(f, MCPWhatsAppPlanModel) == await count(f, MCPWhatsAppOutboxModel) == 1
     assert await count(f, MCPOperationModel) == 3
