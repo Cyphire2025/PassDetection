@@ -78,7 +78,7 @@ async def test_sdk_lists_only_explicit_observations_and_metadata_has_effective_a
     client, session, _, _, _, dashboard, tokens, app = readonly_mcp
     tools = await app.state.mcp_server.list_tools()
     assert {tool.name for tool in tools} == set(READ_TOOL_SECTIONS)
-    assert len(tools) == 34
+    assert len(tools) == 35
     assert all(tool.annotations.read_only_hint and tool.meta["capability"] == "mcp:read" for tool in tools)
     # This reaches the real SDK tools/list handler with a legacy broad bearer.
     listing = await client.post("/mcp", headers={
@@ -203,6 +203,56 @@ async def test_dashboard_catalog_and_dynamic_authority_via_real_sdk_http(readonl
     assert attempts[-1].metadata_json["failure_category"] == "read_section_denied"
 
 
+async def test_phone_comparison_sdk_read_and_section_denial(readonly_mcp):
+    import uuid
+
+    from app.infrastructure.database.models import (
+        AgencyModel,
+        ClientGroupWhatsAppBroadcastLinkModel,
+        WhatsAppBroadcastGroupModel,
+    )
+
+    client, session, _, _, _, _, tokens, _ = readonly_mcp
+    agency = AgencyModel(id=uuid.uuid4(), name="Comparison", email="compare@example.test")
+    session.add(agency)
+    await session.flush()
+    group = ClientGroupModel(id=uuid.uuid4(), agency_id=agency.id, name="Comparison", token="private")
+    broadcast = WhatsAppBroadcastGroupModel(id=uuid.uuid4(), agency_id=agency.id, name="Comparison")
+    session.add_all([group, broadcast])
+    await session.flush()
+    session.add(ClientGroupWhatsAppBroadcastLinkModel(id=uuid.uuid4(), agency_id=agency.id,
+        client_group_id=group.id, broadcast_group_id=broadcast.id))
+    await session.commit()
+    await save_sections(readonly_mcp, ["all_groups", "whatsapp"])
+    args = {"group_id": str(group.id)}
+    result = tool_result(await call_mcp(client, tokens["access_token"], name="list_submission_phone_differences", arguments=args))
+    assert result["items"] == [] and result["counts"]["compared_match_pairs"] == 0
+    assert result["completeness"] == "complete" and result["read_access_revision"] == 2
+    await save_sections(readonly_mcp, ["all_groups"], revision=2)
+    denied = tool_result(await call_mcp(client, tokens["access_token"], name="list_submission_phone_differences", arguments=args))
+    assert denied["error"] == "access_denied" and "whatsapp" in denied["required_sections"]
+
+
+async def test_phone_comparison_rejects_deferred_business_write(readonly_mcp, monkeypatch):
+    from app.infrastructure.database.models import UserModel
+    from app.presentation.mcp import phone_difference_read_tools
+
+    client, session, _, user, _, _, tokens, _ = readonly_mcp
+    await save_sections(readonly_mcp, ["all_groups", "whatsapp"])
+    user_id, original = user.id, user.full_name
+
+    async def regressed(self, *, user_id, **kwargs):
+        row = await self.session.get(UserModel, user_id)
+        row.full_name = "Forbidden business edit"
+        return {"items": []}
+
+    monkeypatch.setattr(phone_difference_read_tools.MCPPhoneDifferenceReadService, "read", regressed)
+    result = tool_result(await call_mcp(client, tokens["access_token"], name="list_submission_phone_differences",
+        arguments={"group_id": str(user_id)}))
+    assert result["error"] == "operation_failed"
+    assert await session.scalar(select(UserModel.full_name).where(UserModel.id == user_id)) == original
+
+
 async def test_dashboard_dispatch_cannot_inject_authority_or_select_arbitrary_code(readonly_mcp):
     client, _, _, _, _, _, tokens, _ = readonly_mcp
     await save_sections(readonly_mcp, sorted(SUPPORTED_READ_SECTIONS))
@@ -234,7 +284,7 @@ async def test_dashboard_rejects_unflushed_business_changes_before_outer_commit(
     assert await session.scalar(select(UserModel.full_name).where(UserModel.id == user_id)) == original
 
 
-@pytest.mark.parametrize("name", ["get_dashboard_summary", "get_admin_overview", "get_passport_analytics_summary", "list_organization_directory", "list_gc_app_records", "list_whatsapp_broadcasts"])
+@pytest.mark.parametrize("name", ["get_dashboard_summary", "get_admin_overview", "get_passport_analytics_summary", "list_organization_directory", "list_gc_app_records", "list_whatsapp_broadcasts", "list_submission_phone_differences"])
 async def test_shared_summary_cannot_bypass_a_deselected_dependency(readonly_mcp, name):
     client, _, _, _, _, _, tokens, app = readonly_mcp
     # Call the audited real wrapper with a callback sentinel, independent of input schema.

@@ -27,6 +27,7 @@ READ_TOOL_SECTIONS: dict[str, frozenset[str]] = {
     "get_my_email_integration_summary": frozenset({"operations_inbox"}),
     "get_admin_overview": frozenset({"manager", "staff", "all_groups", "old_data"}),
     "list_whatsapp_broadcasts": frozenset({"whatsapp", "all_groups"}),
+    "list_submission_phone_differences": frozenset({"whatsapp", "all_groups"}),
     "list_whatsapp_audience": frozenset({"whatsapp", "all_groups"}),
     "get_whatsapp_batch": frozenset({"whatsapp"}),
     "list_group_documents": frozenset({"documents", "all_groups", "old_data"}),

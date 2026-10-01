@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import re
 import uuid
 from collections.abc import Mapping, Sequence
@@ -316,7 +317,7 @@ async def load_current_whatsapp_match_rows(
         for submission in submission_models
         if submission.id not in excluded_submission_ids
     ]
-    rows, _ = compare_group_submissions(comparison_recipients, comparison_submissions)
+    rows, _ = await asyncio.to_thread(compare_group_submissions, comparison_recipients, comparison_submissions)
     return (
         include_active_resolution_rows(
             rows,
