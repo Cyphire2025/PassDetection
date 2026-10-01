@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import UTC, datetime
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import and_, or_, select
@@ -46,6 +47,8 @@ _passport_number_hint = _review_support._passport_number_hint
 @router.get("/reviews", response_model=list[EmailReviewItemResponse])
 async def list_email_reviews(
     review_status: str = Query(default="open", alias="status"),
+    offset: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=250)] = 250,
     current_user: User = Depends(_current_email_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> list[EmailReviewItemResponse]:
@@ -134,7 +137,7 @@ async def list_email_reviews(
         )
     elif review_status != "all":
         stmt = stmt.where(EmailReviewItemModel.status == review_status)
-    result = await session.execute(stmt.order_by(EmailReviewItemModel.created_at.desc()).limit(250))
+    result = await session.execute(stmt.order_by(EmailReviewItemModel.created_at.desc(), EmailReviewItemModel.id.desc()).offset(offset).limit(limit))
     responses: list[EmailReviewItemResponse] = []
     for review, message, artifact, group_name, passenger_name in result.all():
         responses.append(
@@ -180,6 +183,8 @@ async def list_email_reviews(
 async def email_review_options(
     group_id: uuid.UUID | None = None,
     message_id: uuid.UUID | None = None,
+    passenger_offset: Annotated[int, Query(ge=0)] = 0,
+    passenger_limit: Annotated[int, Query(ge=1, le=5000)] = 5000,
     current_user: User = Depends(_current_email_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> EmailReviewOptionsResponse:
@@ -281,7 +286,7 @@ async def email_review_options(
                 current_user,
             )
         passengers_result = await session.execute(
-            passengers_stmt.order_by(PassportSubmissionModel.client_name.asc()).limit(5_000)
+            passengers_stmt.order_by(PassportSubmissionModel.client_name.asc(), PassportSubmissionModel.id.asc()).offset(passenger_offset).limit(passenger_limit)
         )
         passengers = list(passengers_result.scalars().all())
     return EmailReviewOptionsResponse(

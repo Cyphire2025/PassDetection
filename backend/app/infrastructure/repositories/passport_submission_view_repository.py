@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from typing import Any
 
 from sqlalchemy import select
@@ -40,6 +40,7 @@ class PassportViewProjection:
     updated_at: datetime
     extraction_revision: int
     document_follow_up: bool = False
+    staff_metadata: dict[str, Any] | None = None
 
 
 class PassportSubmissionViewRepository:
@@ -96,7 +97,11 @@ class PassportSubmissionViewRepository:
             )
         statement = AuthorizationPolicy.apply_passport_visibility_scope(statement, user)
         result = await self._session.execute(statement)
-        return [PassportViewProjection(**row) for row in result.mappings()]
+        # SQLite drops timezone information; the stored convention is UTC.
+        # Match the detail DTO's normalization so revision fences compare the
+        # same instant on cached and freshly computed pages in every store.
+        return [PassportViewProjection(**{**row, "updated_at": row["updated_at"].replace(tzinfo=UTC)
+            if row["updated_at"].tzinfo is None else row["updated_at"]}) for row in result.mappings()]
 
     async def page_details(
         self,

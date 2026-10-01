@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mcp.credentials import MCPAuthError
 from app.application.security.authorization_policy import AuthorizationPolicy
+from app.application.use_cases.passports.client_details_fields import saved_field_value
 from app.domain.entities.entities import UserRole
 from app.infrastructure.database.models import ClientGroupModel
 from app.infrastructure.passports.roster_view_service import prepared_roster
@@ -91,7 +92,8 @@ class MCPRosterReadService:
             self.session, group_id=group_id, user=scoped_actor, include_deleted=False,
             submission_filter=submission_filter, sort_by="name", sort_order="asc",
             search=search, page_size=page_size)
-        current_revision = await PassportSubmissionViewRepository(self.session).revision(
+        repository = PassportSubmissionViewRepository(self.session)
+        current_revision = await repository.revision(
             group_id=group_id, user=scoped_actor, include_deleted=False)
         if revision != current_revision:
             raise ValueError("The roster changed while reading; restart the query")
@@ -105,19 +107,39 @@ class MCPRosterReadService:
             raise ValueError("The roster changed since the previous page; restart the query")
         page_number = continuation["page"] if continuation else 1
         page = prepared.page(page_number)
+        details = await repository.page_details(
+            submission_ids=[entry.submission.id for entry in page.items],
+            group_id=group_id, user=scoped_actor, include_deleted=False,
+        )
+        alerts = {alert.submission_id: alert for alert in prepared.expiry_alerts}
         items = []
         for entry in page.items:
-            row = entry.submission
+            row = details.get(entry.submission.id)
+            if (row is None or row.extraction_revision != entry.submission.extraction_revision
+                    or row.updated_at != entry.submission.updated_at):
+                raise ValueError("The roster changed while loading page details; restart the query")
+            alert = alerts.get(row.id)
+            confirmed, extracted = row.confirmed_fields or {}, row.extracted_fields or {}
+            staff_code, staff_code_source = saved_field_value(row, "staff_code")
             item = {"submission_id": str(row.id), "client_name": row.client_name,
                     "status": row.status, "extraction_revision": row.extraction_revision,
                     "updated_at": row.updated_at.isoformat(),
                     "document_follow_up": row.document_follow_up,
                     "duplicate_cluster_id": entry.duplicate_cluster_id,
                     "duplicate_cluster_size": entry.duplicate_cluster_size,
-                    "verification_confidence": entry.verification_confidence}
+                    "verification_confidence": entry.verification_confidence,
+                    "staff_code": staff_code,
+                    "staff_code_source": staff_code_source,
+                    "departure_city": row.departure_city,
+                    "nearest_domestic_airport": row.nearest_domestic_airport,
+                    "date_of_expiry": confirmed.get("date_of_expiry")
+                        if "date_of_expiry" in confirmed else extracted.get("date_of_expiry"),
+                    "passport_expiry_alert": alert.status if alert else None}
             if include_contact_details:
                 item.update(client_email=row.client_email, client_phone=row.client_phone)
             items.append(item)
+        if await repository.revision(group_id=group_id, user=scoped_actor, include_deleted=False) != revision:
+            raise ValueError("The roster changed while loading page details; restart the query")
         has_more = page_number < page.total_pages
         next_cursor = self._encode({"v": 1, "binding": binding, "fingerprint": fingerprint,
             "page": page_number + 1, "expires": continuation["expires"] if continuation else

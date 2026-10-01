@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import uuid
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -59,6 +60,8 @@ async def email_integration_summary(
 async def email_activity(
     current_user: User = Depends(_current_email_user),
     session: AsyncSession = Depends(get_db_session),
+    offset: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=200)] = 200,
 ) -> list[EmailActivityItemResponse]:
     result = await session.execute(
         select(
@@ -88,8 +91,9 @@ async def email_activity(
                 current_user,
             )
         )
-        .order_by(EmailMessageModel.received_at.desc())
-        .limit(200)
+        .order_by(EmailMessageModel.received_at.desc(), EmailMessageModel.id.desc())
+        .offset(offset)
+        .limit(limit)
     )
     rows = result.all()
     message_ids = [message.id for message, _, _ in rows]

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import importlib
+import inspect
 import os
 import sys
 import uuid
@@ -60,6 +61,22 @@ CASES = [
     )
 ]
 
+CASES += [("dashboard_detail_reads", "detail_fixture", name) for name in (
+    "full_passport_fields_and_canonical_expiry_without_business_changes",
+    "roster_hydrates_real_identity_only_cache_and_retains_revision_fence",
+    "whatsapp_dashboard_unidentified_and_imported_fields_are_canonical",
+    "staff_code_search_matches_saved_editor_precedence_and_explicit_clear",
+    "all_stored_whatsapp_imports_removed_contacts_and_provenance_are_paged",
+    "qr_and_welcome_observation_never_issues_tokens_or_recovers_delivery",
+    "document_review_and_delivery_eligibility_are_pure_without_storage",
+    "image_library_and_ai_job_reads_do_not_ensure_original_or_dispatch",
+    "all_delivery_kinds_preserve_saved_statuses_content_and_tenant_scope",
+    "complete_delivery_history_passes_one_hundred_rows_and_filters",
+    "common_document_native_pages_reach_beyond_previous_two_hundred_cap",
+    "owner_email_review_pages_reach_beyond_previous_two_hundred_fifty_cap",
+    "qr_root_cursor_ignores_query_clock_and_reaches_every_field",
+)]
+
 
 @pytest_asyncio.fixture(scope="module", loop_scope="module")
 async def postgres_reads():
@@ -90,13 +107,15 @@ async def postgres_reads():
 
 
 @pytest.mark.parametrize("module_name,fixture_name,case_name", CASES, ids=[case[2] for case in CASES])
-async def test_postgresql_read_parity(postgres_reads, module_name, fixture_name, case_name):
+async def test_postgresql_read_parity(postgres_reads, module_name, fixture_name, case_name, test_settings, monkeypatch):
     module = importlib.import_module(f"tests.integration.test_mcp_{module_name}")
     async with postgres_reads.connect() as connection:
         transaction = await connection.begin()
-        async with AsyncSession(connection, expire_on_commit=False) as session:
+        async with AsyncSession(connection, expire_on_commit=False, join_transaction_mode="create_savepoint") as session:
             try:
-                fixture = await getattr(module, fixture_name).__wrapped__(session)
-                await getattr(module, f"test_{case_name}")(fixture)
+                factory = getattr(module, fixture_name).__wrapped__
+                fixture = await factory(session, **({"test_settings": test_settings} if "test_settings" in inspect.signature(factory).parameters else {}))
+                test = getattr(module, f"test_{case_name}")
+                await test(fixture, **({"monkeypatch": monkeypatch} if "monkeypatch" in inspect.signature(test).parameters else {}))
             finally:
                 await transaction.rollback()

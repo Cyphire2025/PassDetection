@@ -225,6 +225,7 @@ async def _target_rows(
     agency_id: uuid.UUID | None = None,
     target_id: uuid.UUID | None = None,
     requesting_user_id: uuid.UUID | None = None,
+    offset: int = 0,
 ) -> list[_RolloutTargetRow]:
     if scope_type == "agency":
         agency_statement = select(
@@ -245,7 +246,7 @@ async def _target_rows(
             )
         agency_rows = (
             await session.execute(
-                agency_statement.order_by(AgencyModel.name.asc()).limit(limit)
+                agency_statement.order_by(AgencyModel.name.asc(), AgencyModel.id.asc()).offset(offset).limit(limit)
             )
         ).tuples()
         return [
@@ -287,7 +288,7 @@ async def _target_rows(
                 user_statement.order_by(
                     UserModel.full_name.asc(),
                     UserModel.id.asc(),
-                ).limit(limit)
+                ).offset(offset).limit(limit)
             )
         ).tuples()
         targets: list[_RolloutTargetRow] = []
@@ -347,7 +348,7 @@ async def _target_rows(
             connection_statement.order_by(
                 EmailConnectionModel.email_address.asc(),
                 EmailConnectionModel.id.asc(),
-            ).limit(limit)
+            ).offset(offset).limit(limit)
         )
     ).tuples()
     return [

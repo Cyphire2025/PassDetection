@@ -129,7 +129,7 @@ async def invoke_read(
                 "message": "The connection no longer authorizes this operation.",
             }
             if settings.mcp.read_only_mode and policy.name in READ_TOOL_SECTIONS:
-                result["required_sections"] = sorted(READ_TOOL_SECTIONS[policy.name])
+                result["required_sections"] = getattr(exc, "required_sections", sorted(READ_TOOL_SECTIONS[policy.name]))
                 if exc.error == "read_section_denied":
                     diagnostic = "read_section_denied"
                     result["message"] = "MCP reading is disabled for one or more sections needed by this tool. Review Codex access."

@@ -8,6 +8,12 @@ from app.domain.mcp_read_sections import READ_TOOL_SECTIONS, validate_read_secti
 from app.infrastructure.database.mcp_models import MCPControlModel
 
 
+class MCPReadSectionDenied(MCPAuthError):
+    def __init__(self, required: frozenset[str]):
+        super().__init__("read_section_denied", 403)
+        self.required_sections = sorted(required)
+
+
 async def current_read_access(session: AsyncSession, *, lock: bool = False) -> tuple[list[str], int]:
     statement = select(MCPControlModel.allowed_read_sections, MCPControlModel.read_access_revision).where(MCPControlModel.id == 1)
     if lock:
@@ -30,4 +36,4 @@ async def require_read_sections(session: AsyncSession, name: str) -> None:
         return  # Explicit connection metadata has no business section.
     allowed, _ = await current_read_access(session, lock=True)
     if required - set(allowed):
-        raise MCPAuthError("read_section_denied", 403)
+        raise MCPReadSectionDenied(required)

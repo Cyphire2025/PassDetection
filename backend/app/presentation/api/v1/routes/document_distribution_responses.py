@@ -107,8 +107,9 @@ async def _batch_response(
     batch: DocumentDistributionBatchModel | None,
     documents: list[DistributedDocumentModel],
     rejected_documents: list[RejectedDocumentResponse] | None = None,
+    include_file_urls: bool = True,
 ) -> DocumentBatchResponse:
-    storage = MinioStorageRepository()
+    storage = MinioStorageRepository() if include_file_urls else None
     batches_result = await session.execute(
         select(DocumentDistributionBatchModel)
         .where(
@@ -158,6 +159,12 @@ async def _batch_response(
     async def render_document(
         document: DistributedDocumentModel,
     ) -> DistributedDocumentResponse:
+        if storage is None:
+            return _document_response_snapshot(
+                document,
+                source="email" if document.id in email_document_ids else "manual",
+                deliveries=deliveries_by_document.get(document.id, []),
+            )
         async with presign_slots:
             return await _document_response(
                 document,

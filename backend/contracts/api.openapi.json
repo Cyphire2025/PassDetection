@@ -59814,6 +59814,31 @@
     "/api/v1/email-integrations/activity": {
       "get": {
         "operationId": "email_activity_api_v1_email_integrations_activity_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 200,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -66348,6 +66373,29 @@
               ],
               "title": "Message Id"
             }
+          },
+          {
+            "in": "query",
+            "name": "passenger_offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Passenger Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "passenger_limit",
+            "required": false,
+            "schema": {
+              "default": 5000,
+              "maximum": 5000,
+              "minimum": 1,
+              "title": "Passenger Limit",
+              "type": "integer"
+            }
           }
         ],
         "responses": {
@@ -66684,6 +66732,29 @@
               "default": "open",
               "title": "Status",
               "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 250,
+              "maximum": 250,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
             }
           }
         ],
@@ -79118,6 +79189,29 @@
                 }
               ],
               "title": "Agency Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 200,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
             }
           }
         ],

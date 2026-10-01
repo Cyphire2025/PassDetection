@@ -43,7 +43,8 @@ def qr_status(
     current_time = now or datetime.now(tz=UTC)
     if token.revoked_at is not None:
         return "revoked"
-    if token.expires_at <= current_time:
+    expires_at = token.expires_at if token.expires_at.tzinfo else token.expires_at.replace(tzinfo=UTC)
+    if expires_at <= current_time:
         return "expired"
     return "active" if token.is_active else "inactive"
 

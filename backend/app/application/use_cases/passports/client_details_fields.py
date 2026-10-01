@@ -34,6 +34,23 @@ class ClientDetailField:
     max_length: int = 120
 
 
+def saved_field_value(submission: PassportSubmission, key: str) -> tuple[str | None, str | None]:
+    """Resolve saved fields exactly as the client-detail editor, with provenance.
+
+    Presence, rather than truthiness, preserves deliberately cleared reviewed
+    values. Historical imported labels use the same canonical key matching.
+    """
+    canonical = normalize_matching_field_key(key)
+    for name in ("confirmed_fields", "extracted_fields", "staff_metadata"):
+        source = getattr(submission, name, None) or {}
+        matches = [raw for raw in source if normalize_matching_field_key(raw) == canonical]
+        if matches:
+            raw = matches[-1]
+            value = source[raw]
+            return str(value) if value is not None else None, f"{name}.{raw}"
+    return None, None
+
+
 def scalar_value(submission: PassportSubmission, key: str) -> str | None:
     if key == "client_phone" and not has_public_collection_contact(submission):
         raw_phone, has_explicit_column = raw_explicit_imported_broadcast_phone(
@@ -44,21 +61,7 @@ def scalar_value(submission: PassportSubmission, key: str) -> str | None:
     if key in DIRECT_FIELDS:
         value = getattr(submission, key)
     else:
-        # An explicitly cleared confirmed value must not revive a legacy value.
-        sources = (
-            submission.confirmed_fields,
-            submission.extracted_fields,
-            submission.staff_metadata,
-        )
-        canonical = normalize_matching_field_key(key)
-        value = None
-        for source in sources:
-            matches = [
-                raw for raw in (source or {}) if normalize_matching_field_key(raw) == canonical
-            ]
-            if matches and source is not None:
-                value = source[matches[-1]]
-                break
+        value, _ = saved_field_value(submission, key)
     return str(value) if value is not None else None
 
 

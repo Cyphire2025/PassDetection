@@ -310,6 +310,7 @@ def _matches_search(entry: SubmissionViewEntry, search: str) -> bool:
     ]
     values.extend((submission.confirmed_fields or {}).values())
     values.extend((submission.extracted_fields or {}).values())
+    values.extend((getattr(submission, "staff_metadata", None) or {}).values())
     needle = _normalized_tokens(search)
     return any(
         needle in _normalized_tokens(value)

@@ -78,7 +78,7 @@ async def test_sdk_lists_only_explicit_observations_and_metadata_has_effective_a
     client, session, _, _, _, dashboard, tokens, app = readonly_mcp
     tools = await app.state.mcp_server.list_tools()
     assert {tool.name for tool in tools} == set(READ_TOOL_SECTIONS)
-    assert len(tools) == 31
+    assert len(tools) == 34
     assert all(tool.annotations.read_only_hint and tool.meta["capability"] == "mcp:read" for tool in tools)
     # This reaches the real SDK tools/list handler with a legacy broad bearer.
     listing = await client.post("/mcp", headers={
@@ -180,6 +180,60 @@ async def test_current_section_denial_reenable_and_dependency_revocation_precede
     assert audits[-1].metadata_json["failure_category"] == "read_section_denied"
 
 
+async def test_dashboard_catalog_and_dynamic_authority_via_real_sdk_http(readonly_mcp):
+    client, session, _, _, _, _, tokens, _ = readonly_mcp
+    token = tokens["access_token"]
+    catalog = tool_result(await call_mcp(client, token, name="list_dashboard_read_views",
+        arguments={"view": "platform_settings"}))
+    assert catalog["views"][0]["required_sections"] == ["settings"]
+    assert catalog["views"][0]["enabled"] is False
+    denied = tool_result(await call_mcp(client, token, name="read_dashboard_view",
+        arguments={"view": "platform_settings"}))
+    assert denied["error"] == "access_denied" and denied["required_sections"] == ["settings"]
+    assert (await save_sections(readonly_mcp, ["settings"])).status_code == 200
+    result = tool_result(await call_mcp(client, token, name="read_dashboard_view",
+        arguments={"view": "platform_settings"}))
+    assert result["view"] == "platform_settings" and result["source"] == "reviewed_dashboard_read"
+    assert result["read_access_revision"] == 2
+    tracking = tool_result(await call_mcp(client, token, name="read_dashboard_view",
+        arguments={"view": "whatsapp_tracking", "parameters": {"group_id": "not-a-uuid"}}))
+    assert tracking["error"] == "access_denied" and tracking["required_sections"] == ["all_groups", "whatsapp"]
+    attempts = list(await session.scalars(select(AuditLogModel).where(AuditLogModel.action == "mcp.tool.read_dashboard_view")))
+    assert [row.result for row in attempts] == ["denied", "success", "denied"]
+    assert attempts[-1].metadata_json["failure_category"] == "read_section_denied"
+
+
+async def test_dashboard_dispatch_cannot_inject_authority_or_select_arbitrary_code(readonly_mcp):
+    client, _, _, _, _, _, tokens, _ = readonly_mcp
+    await save_sections(readonly_mcp, sorted(SUPPORTED_READ_SECTIONS))
+    for view, parameters in (("os.system", {}), ("platform_settings", {"current_user": {"role": "super_admin"}}),
+        ("platform_settings", {"session": "spoof"}), ("platform_settings", {"sql": "DELETE FROM users"})):
+        result = tool_result(await call_mcp(client, tokens["access_token"], name="read_dashboard_view",
+            arguments={"view": view, "parameters": parameters}))
+        assert result["error"] in {"unknown_dashboard_view", "invalid_dashboard_read"}
+
+
+async def test_dashboard_rejects_unflushed_business_changes_before_outer_commit(readonly_mcp, monkeypatch):
+    client, session, _, user, _, _, tokens, _ = readonly_mcp
+    await save_sections(readonly_mcp, ["settings"])
+    from app.infrastructure.database.models import UserModel
+    from app.presentation.mcp import dashboard_read_tools
+
+    user_id = user.id
+    original = user.full_name
+
+    async def regressed(current_user, session):
+        row = await session.get(UserModel, current_user.id)
+        row.full_name = "Tampered deferred write"
+        return {"result": "read"}
+
+    monkeypatch.setattr(dashboard_read_tools, "dashboard_handler", lambda _: regressed)
+    result = tool_result(await call_mcp(client, tokens["access_token"], name="read_dashboard_view",
+        arguments={"view": "platform_settings"}))
+    assert result["error"] == "operation_failed"
+    assert await session.scalar(select(UserModel.full_name).where(UserModel.id == user_id)) == original
+
+
 @pytest.mark.parametrize("name", ["get_dashboard_summary", "get_admin_overview", "get_passport_analytics_summary", "list_organization_directory", "list_gc_app_records", "list_whatsapp_broadcasts"])
 async def test_shared_summary_cannot_bypass_a_deselected_dependency(readonly_mcp, name):
     client, _, _, _, _, _, tokens, app = readonly_mcp
@@ -270,12 +324,13 @@ async def test_management_revision_validation_and_deployment_ceiling(readonly_mc
     assert initial.status_code == 200 and initial.json()["revision"] == 1
     catalog = {row["id"]: row for row in initial.json()["sections"]}
     assert {key for key, value in catalog.items() if value["supported"]} == SUPPORTED_READ_SECTIONS
-    assert all(not catalog[key]["supported"] for key in ["my_tour", "codex_access", "audit_logs", "settings"])
+    assert all(catalog[key]["supported"] for key in ["my_tour", "audit_logs", "settings"])
+    assert not catalog["codex_access"]["supported"]
     assert catalog["codex_access"]["metadata_only"] is True
     assert (await save_sections(readonly_mcp, sorted(SUPPORTED_READ_SECTIONS))).status_code == 200
     stale = await save_sections(readonly_mcp, [], revision=1)
     assert stale.status_code == 409
-    assert (await save_sections(readonly_mcp, ["audit_logs"], revision=2)).status_code == 422
+    assert (await save_sections(readonly_mcp, ["codex_access"], revision=2)).status_code == 422
     extra = await client.put("/api/v1/mcp/read-access", headers=headers,
                              json={"allowed_read_sections": [], "expected_revision": 2, "read_only_mode": False})
     assert extra.status_code == 422 and settings.mcp.read_only_mode is True

@@ -183,6 +183,7 @@ async def _load_document_review(
     *,
     current_user: User,
     session: AsyncSession,
+    include_file_urls: bool = True,
 ) -> tuple[ClientGroupModel, DocumentBatchResponse]:
     if document_type not in DOCUMENT_TYPES:
         raise HTTPException(
@@ -221,6 +222,7 @@ async def _load_document_review(
             passengers=passengers,
             batch=batch,
             documents=documents,
+            include_file_urls=include_file_urls,
         ),
     )
 

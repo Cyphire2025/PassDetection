@@ -9,7 +9,7 @@ import uuid
 from contextlib import aclosing
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
-from typing import AsyncGenerator, AsyncIterator, Literal, cast
+from typing import Annotated, AsyncGenerator, AsyncIterator, Literal, cast
 from urllib.parse import quote
 
 from fastapi import (
@@ -289,6 +289,8 @@ async def unpublish_itinerary(
 async def list_common_documents(
     group_id: uuid.UUID,
     agency_id: uuid.UUID | None = None,
+    offset: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=200)] = 200,
     current_user: User = Depends(require_role(GC_CONTENT_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> list[CommonDocumentResponse]:
@@ -308,7 +310,8 @@ async def list_common_documents(
                     GCCommonDocumentModel.logical_document_id.asc(),
                     GCCommonDocumentModel.version.desc(),
                 )
-                .limit(200)
+                .offset(offset)
+                .limit(limit)
             )
         ).scalars()
     )

@@ -48,6 +48,9 @@ async def group_passenger_qr_codes(
     session: AsyncSession,
     agency_id: uuid.UUID,
     group: ClientGroupModel,
+    *,
+    issue_missing: bool = True,
+    include_payload: bool = True,
 ) -> GroupPassengerQrCodesResponse:
     result = await session.execute(
         select(PassportSubmissionModel)
@@ -66,7 +69,8 @@ async def group_passenger_qr_codes(
     if passenger_ids:
         token_result = await session.execute(
             select(PassengerQRTokenModel)
-            .where(PassengerQRTokenModel.passenger_id.in_(passenger_ids))
+            .where(PassengerQRTokenModel.passenger_id.in_(passenger_ids),
+                   PassengerQRTokenModel.agency_id == agency_id)
             .order_by(
                 PassengerQRTokenModel.passenger_id,
                 PassengerQRTokenModel.token_version.desc(),
@@ -77,7 +81,7 @@ async def group_passenger_qr_codes(
             token_by_passenger.setdefault(token.passenger_id, token)
 
     for (passenger,) in passenger_rows:
-        if passenger.id in token_by_passenger:
+        if passenger.id in token_by_passenger or not issue_missing:
             continue
         token, _payload = await issue_passenger_qr(
             session,
@@ -113,7 +117,7 @@ async def group_passenger_qr_codes(
                     passenger_token.expires_at if passenger_token else None
                 ),
                 qr_revoked_at=passenger_token.revoked_at if passenger_token else None,
-                qr_payload=passenger_token.qr_payload if passenger_token and status_value in {"active", "inactive"} else None,
+                qr_payload=passenger_token.qr_payload if include_payload and passenger_token and status_value in {"active", "inactive"} else None,
             )
         )
 

@@ -43,7 +43,8 @@ async def prepared_roster(
         return await compute(), revision
     cache = RosterCache()
     identity = cache.identity(group_id=group_id, user_id=user.id, agency_id=user.agency_id,
-        role=user.role.value, include_deleted=include_deleted, revision=revision[0], **options)
+        role=user.role.value, include_deleted=include_deleted, revision=revision[0],
+        search_fields_version=2, **options)
     token = None
     try:
         found = await cache.get(identity)
