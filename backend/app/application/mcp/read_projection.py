@@ -76,6 +76,10 @@ class ReadProjection:
     def _json(value: Any) -> str:
         return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False)
 
+    @classmethod
+    def _size(cls, value: Any) -> int:
+        return len(cls._json(value).encode("utf-8"))
+
     def _cursor(self, state: dict[str, Any]) -> str:
         body = base64.urlsafe_b64encode(self._json(state).encode()).decode().rstrip("=")
         signature = hmac.new(self.secret, b"mcp-dashboard-projection-v1\0" + body.encode(), hashlib.sha256).hexdigest()
@@ -127,7 +131,7 @@ class ReadProjection:
         references: list[dict[str, Any]] = []
 
         def bounded(child: Any, path: list[str | int], budget: int) -> Any:
-            if len(self._json(child)) <= budget:
+            if self._size(child) <= budget:
                 return child
             reference = {"data_path": path, "kind": "object" if isinstance(child, dict)
                          else "array" if isinstance(child, list) else "text",
@@ -137,7 +141,7 @@ class ReadProjection:
 
         if isinstance(node, (list, dict)):
             keys = sorted(node) if isinstance(node, dict) else list(range(len(node)))
-            window = min(page_size, max(1, MAX_DATA_CHARS // (len(self._json(data_path)) + 650)))
+            window = min(page_size, max(1, MAX_DATA_CHARS // (self._size(data_path) + 650)))
             chosen = keys[offset:offset + window]
             budget = max(240, MAX_DATA_CHARS // max(1, len(chosen)) - 300)
             # Count reference paths and their duplicate navigation metadata,
@@ -147,15 +151,18 @@ class ReadProjection:
                 references.clear()
                 values = [(key, bounded(node[key], [*data_path, key], budget)) for key in chosen]
                 data = dict(values) if isinstance(node, dict) else [child for _, child in values]
-                if len(self._json([data, references])) <= 36000 or len(chosen) <= 1:
+                if self._size([data, references]) <= 36000 or len(chosen) <= 1:
                     break
                 chosen = chosen[:max(1, len(chosen) // 2)]
             total, following = len(keys), offset + len(chosen)
             kind = "object_fields" if isinstance(node, dict) else "array_items"
         elif isinstance(node, str):
             # Every long text remains readable through signed continuation.
-            total, following = len(node), min(len(node), offset + MAX_DATA_CHARS)
-            data, kind = node[offset:following], "text_characters"
+            total = len(node)
+            data = node[offset:offset + MAX_DATA_CHARS]
+            while self._size(data) > MAX_DATA_CHARS:
+                data = data[:max(1, len(data) // 2)]
+            following, kind = offset + len(data), "text_characters"
         else:
             data, total, following, kind = node, 1, 1, "scalar"
         more = following < total
@@ -163,7 +170,7 @@ class ReadProjection:
             "offset": following, "expires": expires}) if more else None
         withheld_page = []
         for path in withheld[:100]:
-            if len(self._json([*withheld_page, path])) > 8000:
+            if self._size([*withheld_page, path]) > 8000:
                 break
             withheld_page.append(path)
         return {"data": data, "data_path": data_path, "pagination_unit": kind,

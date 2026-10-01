@@ -545,3 +545,19 @@ async def test_owner_email_review_pages_reach_beyond_previous_two_hundred_fifty_
             break
         offset = next_offset
     assert seen == {str(row.id) for row in reviews}
+
+
+@pytest.mark.parametrize("text_value", ["🌏" * 40000, "\n\\\"" * 40000], ids=["unicode", "escaped-text"])
+def test_long_imported_text_bounds_encoded_bytes_and_retains_every_character(text_value):
+    projection = ReadProjection("secret")
+    args = dict(binding={"actor": "one"}, data_path=["imported_fields", "Original column"], page_size=10)
+    value = {"imported_fields": {"Original column": text_value}}
+    result = projection.page(value, **args)
+    pieces = []
+    while True:
+        assert len(json.dumps(result, ensure_ascii=False).encode("utf-8")) < 64000
+        pieces.append(result["data"])
+        if not result["has_more"]:
+            break
+        result = projection.page(value, **args, cursor=result["next_cursor"])
+    assert "".join(pieces) == text_value
