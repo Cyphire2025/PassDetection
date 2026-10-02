@@ -54,10 +54,10 @@ async function setup(page: Page) {
     }
     if (path === "/api/v1/admin/mcp") return json(route, { read_only_mode: true, effective_capabilities: ["mcp:read"], enabled: true,
       deployment_enabled: true, emergency_disabled: false, resource, capabilities: ["mcp:read", "mcp:export", "mcp:change", "mcp:communicate", "mcp:upload"],
-      approved_clients: { "global-connects-desktop": ["http://127.0.0.1:8765/callback"] }, environment: "isolated-browser-fixture",
+      approved_clients: {}, direct_clients: { "https://chatgpt.com/oauth/codex/client.json": ["http://127.0.0.1/callback"] }, environment: "isolated-browser-fixture",
       revision: "fixture-revision", observed_at: "2026-10-01T00:00:00Z", qualification: "in_progress" });
     if (path === "/api/v1/admin/mcp/connections") return json(route, { items: [{ id: "retained-broad-grant", user_id: user.id,
-      client_id: "global-connects-desktop", name: "Office desktop", capabilities: ["mcp:read", "mcp:export", "mcp:change", "mcp:communicate", "mcp:upload"],
+      client_id: "https://chatgpt.com/oauth/codex/client.json", name: "Office desktop", device_platform: "Windows", enabled: true, capabilities: ["mcp:read", "mcp:export", "mcp:change", "mcp:communicate", "mcp:upload"],
       created_at: "2026-10-01T00:00:00Z", expires_at: "2099-01-01T00:00:00Z", last_used_at: null, revoked_at: null, status: "active" }], next_offset: null });
     if (path === "/api/v1/admin/mcp/inventory") return json(route, { tool_count: 3, environment: "isolated-browser-fixture", revision: "fixture-revision", qualification: "in_progress",
       tools: [{ name: "list_groups", description: "Stored group observations", capability: "mcp:read", read_only: true, deployment_available: true,
@@ -105,11 +105,11 @@ for (const width of [1440, 390]) {
     await expect(tools.getByRole("heading", { name: "inspect excel export options", exact: true })).toHaveCount(0);
     await expect(tools.getByRole("heading", { name: "create group", exact: true })).toHaveCount(0);
     await page.getByRole("button", { name: "Connection setup", exact: true }).click();
-    const connector = page.getByRole("region", { name: "Windows connector setup" });
-    await expect(connector).toContainText("Windows connector 0.2.4");
-    await expect(connector).toContainText("checks the current read tool catalog before each call");
-    await expect(connector.getByText("--read-only", { exact: true })).toBeVisible();
-    await expect(connector.getByText("--download-directory", { exact: true })).toHaveCount(0);
+    const direct = page.getByRole("region", { name: "Advanced direct MCP setup" });
+    await expect(direct).toContainText("Streamable HTTP");
+    await expect(direct.getByText(resource, { exact: true })).toBeVisible();
+    await expect(direct).not.toContainText("PowerShell");
+    await expect(direct).not.toContainText("gc-mcp.exe");
     expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)).toBe(false);
     const screenshot = testInfo.outputPath(`mcp-readonly-${width}.png`);
     await page.screenshot({ path: screenshot, fullPage: true, animations: "disabled" });

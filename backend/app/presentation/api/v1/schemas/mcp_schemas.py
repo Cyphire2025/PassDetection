@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.domain.mcp_policy import validate_capabilities
@@ -18,6 +20,7 @@ class MCPConsentRequest(BaseModel):
     response_type: str = Field(default="code", pattern=r"^code$")
     scopes: list[str] = Field(min_length=1, max_length=6)
     name: str = Field(min_length=1, max_length=120)
+    device_platform: Literal["Windows", "macOS", "Other"] | None = None
 
     @field_validator("scopes")
     @classmethod
@@ -28,6 +31,11 @@ class MCPConsentRequest(BaseModel):
 class MCPControlRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     enabled: bool
+
+
+class MCPConnectionAccessRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    enabled: bool = Field(strict=True)
 
 
 class MCPConnectionUpdate(BaseModel):

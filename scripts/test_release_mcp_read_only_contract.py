@@ -1,6 +1,7 @@
 import copy
 import importlib.util
 import json
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -20,13 +21,28 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class ReadOnlyContractTests(unittest.TestCase):
     def setUp(self):
-        self.contract = source_contract(ROOT)
+        # Keep the historical release guard qualified against its original
+        # source, independently of the current release manifest.
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        manifest = self.root / "backend/app/core/config/release_manifest.json"
+        manifest.parent.mkdir(parents=True)
+        manifest.write_text(json.dumps({
+            "deployment_kind": "mcp_read_only_v1",
+            "previous_schema_revision": SOURCE,
+            "schema_revision": TARGET,
+        }), encoding="utf-8")
+        migration = self.root / f"backend/alembic/versions/{TARGET}.py"
+        migration.parent.mkdir(parents=True)
+        shutil.copyfile(ROOT / f"backend/alembic/versions/{TARGET}.py", migration)
+        self.contract = source_contract(self.root)
 
     def test_current_source_binds_one_additive_migration_and_denies_same_schema_executor(
         self,
     ):
         validate_contract(self.contract, TARGET)
-        require_source_contract({"deployment": self.contract}, ROOT)
+        require_source_contract({"deployment": self.contract}, self.root)
         self.assertEqual(self.contract["source_schema"], SOURCE)
         self.assertEqual(len(self.contract["migrations"]), 1)
         with self.assertRaises(ValueError):
@@ -58,7 +74,7 @@ class ReadOnlyContractTests(unittest.TestCase):
             else:
                 changed["run_command"] = "arbitrary shell"
             with self.subTest(field=field), self.assertRaises(ValueError):
-                require_source_contract({"deployment": changed}, ROOT)
+                require_source_contract({"deployment": changed}, self.root)
 
     def test_wrong_schema_and_migration_path_are_rejected(self):
         with self.assertRaises(ValueError):
@@ -90,7 +106,7 @@ class ReadOnlyContractTests(unittest.TestCase):
                 )
 
             release = MCPDatabaseRelease(
-                ROOT,
+                self.root,
                 directory,
                 ReleaseBindings("a" * 40, "sha256:" + "b" * 64, "c" * 64, "d" * 64),
                 database_command=command,
@@ -122,7 +138,7 @@ class ReadOnlyContractTests(unittest.TestCase):
                 raise ReleaseError("writers_are_not_fenced")
 
             release = MCPDatabaseRelease(
-                ROOT,
+                self.root,
                 directory,
                 ReleaseBindings("a" * 40, "sha256:" + "b" * 64, "c" * 64, "d" * 64),
                 database_command=lambda *args, **kwargs: commands.append(args),
@@ -141,7 +157,7 @@ class ReadOnlyContractTests(unittest.TestCase):
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        module.verify_sources(ROOT / "backend", self.contract)
+        module.verify_sources(self.root / "backend", self.contract)
         for field in ("capability", "hash", "path", "enable", "unknown"):
             changed = copy.deepcopy(self.contract)
             if field == "capability":
@@ -155,7 +171,7 @@ class ReadOnlyContractTests(unittest.TestCase):
             if field == "unknown":
                 changed["run_command"] = "arbitrary"
             with self.subTest(field=field), self.assertRaises(ValueError):
-                module.verify_sources(ROOT / "backend", changed)
+                module.verify_sources(self.root / "backend", changed)
 
 
 if __name__ == "__main__":

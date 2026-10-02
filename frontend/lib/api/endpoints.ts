@@ -17,6 +17,7 @@ export const API_ENDPOINTS = {
     readAccess: "/api/v1/mcp/read-access",
     connections: "/api/v1/admin/mcp/connections",
     connection: (id: string) => `/api/v1/admin/mcp/connections/${encodeURIComponent(id)}`,
+    connectionAccess: (id: string) => `/api/v1/admin/mcp/connections/${encodeURIComponent(id)}/access`,
     revoke: (id: string) => `/api/v1/admin/mcp/connections/${encodeURIComponent(id)}/revoke`,
     activity: "/api/v1/admin/mcp/activity",
     inventory: "/api/v1/admin/mcp/inventory",

@@ -29,6 +29,11 @@ RETENTION = {
 
 def source_contract(root: Path) -> dict | None:
     manifest = json.loads((root / "backend/app/core/config/release_manifest.json").read_text("utf-8"))
+    if manifest.get("deployment_kind") == "mcp_direct_devices_v1":
+        from release_mcp_direct_devices_contract import (
+            source_contract as direct_devices_contract,
+        )
+        return direct_devices_contract(root)
     if manifest.get("deployment_kind") == "mcp_read_only_v1":
         from release_mcp_read_only_contract import source_contract as read_only_contract
         return read_only_contract(root)
@@ -66,6 +71,12 @@ def source_contract(root: Path) -> dict | None:
 
 def validate_contract(contract: dict, schema: str) -> None:
     """Validate signed metadata without treating it as a deployment permission."""
+    if isinstance(contract, dict) and contract.get("kind") == "mcp_direct_devices_v1":
+        from release_mcp_direct_devices_contract import (
+            validate_contract as validate_direct_devices,
+        )
+        validate_direct_devices(contract, schema)
+        return
     if isinstance(contract, dict) and contract.get("kind") == "mcp_read_only_v1":
         from release_mcp_read_only_contract import (
             validate_contract as validate_read_only,

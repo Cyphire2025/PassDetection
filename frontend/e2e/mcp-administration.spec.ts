@@ -1,8 +1,8 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
 
 const resource = "https://app.example.test/mcp";
-const callback = "http://127.0.0.1:8765/callback";
-const oauth = { client_id: "global-connects-desktop", redirect_uri: callback, resource,
+const callback = "http://127.0.0.1:49153/callback";
+const oauth = { client_id: "https://chatgpt.com/oauth/codex/client.json", redirect_uri: callback, resource,
   state: "opaque state & symbols / = unicode ✓", code_challenge: "x".repeat(43), code_challenge_method: "S256", response_type: "code", scope: "mcp:read mcp:export" };
 
 async function setup(page: Page, role = "super_admin", requireStepUp = false) {
@@ -12,7 +12,8 @@ async function setup(page: Page, role = "super_admin", requireStepUp = false) {
   let verified = !requireStepUp;
   const verifications: unknown[] = [];
   let grant = { id: "grant-a", user_id: "mcp-test-admin", client_id: oauth.client_id, name: "Office desktop", capabilities: ["mcp:read", "mcp:export"],
-    created_at: "2026-09-29T00:00:00Z", expires_at: "2026-10-06T00:00:00Z", last_used_at: "2026-09-29T12:00:00Z", revoked_at: null as string | null, status: "active" };
+    device_platform: "Windows", enabled: true, created_at: "2026-09-29T00:00:00Z", expires_at: "2026-10-06T00:00:00Z", last_used_at: "2026-09-29T12:00:00Z", revoked_at: null as string | null, status: "active" };
+  const mac = { ...grant, id: "grant-b", user_id: "other-admin", name: "My MacBook", device_platform: "macOS" };
   const user = { id: "mcp-test-admin", email: "mcp@example.test", full_name: "MCP Test Administrator", role, agency_id: null, is_active: true,
     last_login_at: null, created_at: "2026-09-29T00:00:00Z", updated_at: "2026-09-29T00:00:00Z", capabilities: role === "super_admin" ? ["mcp.manage"] : [] };
   page.on("pageerror", (error) => errors.push(error.message));
@@ -36,8 +37,9 @@ async function setup(page: Page, role = "super_admin", requireStepUp = false) {
       if (!verified && method !== "GET") return json(route, { error: { code: "STEP_UP_REQUIRED", message: "Confirm your identity before changing MCP access." } }, 403);
       if (path === "/api/v1/admin/mcp") return json(route, { read_only_mode: false, enabled, deployment_enabled: true, emergency_disabled: !enabled, resource,
         capabilities: ["mcp:read", "mcp:export", "mcp:upload", "mcp:change", "mcp:communicate", "mcp:diagnose"],
-        approved_clients: { [oauth.client_id]: [callback] }, environment: "qualification", revision: "fixture-revision", observed_at: "2026-09-29T12:00:00Z", qualification: "in_progress" });
-      if (path.endsWith("/connections")) return json(route, { items: [grant], next_offset: null });
+        approved_clients: {}, direct_clients: { [oauth.client_id]: ["http://127.0.0.1/callback"], "https://chatgpt.com/oauth/client.json": ["https://chatgpt.com/connector_platform_oauth_redirect"] },
+        client_names: { [oauth.client_id]: "Codex", "https://chatgpt.com/oauth/client.json": "ChatGPT" }, environment: "qualification", revision: "fixture-revision", observed_at: "2026-09-29T12:00:00Z", qualification: "in_progress" });
+      if (path.endsWith("/connections")) return json(route, { items: [grant, mac], next_offset: null });
       if (path.endsWith("/activity")) return json(route, { items: [{ id: "audit-a", action: "mcp.authorized", result: "success", entity_id: "grant-a", created_at: "2026-09-29T00:00:00Z" }], next_offset: null });
       if (path.endsWith("/operations")) return json(route, { items: [
         { id: "operation-a", operation: "confirm_whatsapp_message", status: "unknown", progress: 1, stage: "dispatch_cancelled_unknown",
@@ -64,9 +66,10 @@ async function setup(page: Page, role = "super_admin", requireStepUp = false) {
         { name: "create_group", description: "Create a group.", capability: "mcp:change", read_only: false, deployment_available: false },
       ], file_transports: [{ name: "download_prepared_artifact", capability: "mcp:export" }, { name: "acknowledge_verified_delivery", capability: "mcp:export" }, { name: "upload_pdf", capability: "mcp:upload" }, { name: "prepare_whatsapp_header_image", capability: "mcp:upload", required_capabilities: ["mcp:upload", "mcp:communicate"] }] });
       if (path.endsWith("/control") && method === "PUT") { enabled = request.postDataJSON().enabled; return json(route, { enabled }); }
+      if (path.endsWith("/grant-a/access") && method === "PATCH") { const allowed = request.postDataJSON().enabled; grant = { ...grant, enabled: allowed, status: allowed ? "active" : "disabled" }; return json(route, grant); }
       if (path.endsWith("/revoke") && method === "POST") { grant = { ...grant, status: "revoked", revoked_at: "2026-09-29T12:00:00Z" }; return json(route, { revoked: true }); }
       if (path.endsWith("/grant-a") && method === "PATCH") { grant = { ...grant, ...request.postDataJSON() }; return json(route, grant); }
-      if (path.endsWith("/authorize") && method === "POST") return json(route, { redirect_url: `${callback}?${new URLSearchParams({ code: "fixture-one-use-code", state: request.postDataJSON().state })}` });
+      if (path.endsWith("/authorize") && method === "POST") return json(route, { redirect_url: `${callback}?${new URLSearchParams({ code: "fixture-one-use-code", state: request.postDataJSON().state, iss: new URL(resource).origin })}` });
       return json(route, { detail: "Unsupported MCP fixture request" }, 400);
     }
     if (method === "GET") return json(route, []);
@@ -100,7 +103,7 @@ for (const width of [1440, 650, 390]) {
     await page.getByRole("button", { name: "Advanced", exact: true }).click();
     await expect(page.getByText(/Release qualification is in progress/)).toBeVisible();
     const connections = page.getByRole("region", { name: "MCP connections", exact: true });
-    await connections.getByRole("button", { name: "Edit access" }).click();
+    await connections.getByRole("article", { name: "Office desktop" }).getByRole("button", { name: "Edit access" }).click();
     await page.getByRole("textbox", { name: "Connection name" }).fill("Travel laptop");
     await page.getByRole("checkbox", { name: /Download reports/ }).uncheck();
     await expect(page.getByRole("checkbox", { name: /Send messages/ })).toHaveCount(0);
@@ -109,7 +112,7 @@ for (const width of [1440, 650, 390]) {
     await page.getByRole("button", { name: "Pause access", exact: true }).click();
     await page.getByRole("dialog").getByRole("button", { name: "Pause access", exact: true }).click();
     await expect(page.getByRole("button", { name: "Resume access", exact: true })).toBeVisible();
-    await connections.getByRole("button", { name: "Disconnect", exact: true }).click();
+    await connections.getByRole("article", { name: "Travel laptop" }).getByRole("button", { name: "Disconnect", exact: true }).click();
     await page.getByRole("dialog").getByRole("button", { name: "Disconnect connection" }).click();
     await expect(connections.getByRole("article", { name: "Travel laptop" })).toContainText("Disconnected");
     await page.getByRole("button", { name: "Activity", exact: true }).click();
@@ -153,17 +156,17 @@ for (const width of [1440, 650, 390]) {
     await page.screenshot({ path: toolsScreenshot, fullPage: true, animations: "disabled" });
     await testInfo.attach(`MCP tools ${width}px`, { path: toolsScreenshot, contentType: "image/png" });
     await page.getByRole("button", { name: "Connection setup", exact: true }).click();
-    await expect(page.getByText(resource, { exact: true })).toBeVisible();
-    const connector = page.getByRole("region", { name: "Windows connector setup" });
-    await connector.getByText("Show PowerShell installation commands", { exact: true }).click();
-    await expect(connector).toContainText("Windows connector 0.2.4");
-    await expect(connector).toContainText("Full workflow qualification remains in progress");
-    await expect(connector).not.toContainText("This deployment has not approved");
-    await connector.scrollIntoViewIfNeeded();
+    const direct = page.getByRole("region", { name: "Advanced direct MCP setup" });
+    await expect(direct.getByText(resource, { exact: true })).toBeVisible();
+    await expect(direct).toContainText("Streamable HTTP");
+    await expect(direct).toContainText("HeadersLeave empty");
+    await expect(direct).not.toContainText("Direct app sign-in has not been enabled");
+    await expect(direct).not.toContainText("PowerShell");
+    await direct.scrollIntoViewIfNeeded();
     expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)).toBe(false);
     const setupScreenshot = testInfo.outputPath(`mcp-setup-${width}.png`);
     await page.screenshot({ path: setupScreenshot, animations: "disabled" });
-    await testInfo.attach(`MCP connector setup ${width}px`, { path: setupScreenshot, contentType: "image/png" });
+    await testInfo.attach(`MCP direct setup ${width}px`, { path: setupScreenshot, contentType: "image/png" });
     expect(state.requests.filter((item) => item.method === "PATCH")[0].body).toEqual({ name: "Travel laptop", capabilities: ["mcp:read"] });
     expect(state.errors).toEqual([]);
   });
@@ -178,14 +181,55 @@ test("a non-superadmin direct URL never mounts MCP requests", async ({ page }) =
   expect(state.requests).toEqual([]);
 });
 
+for (const width of [1440, 390]) {
+  test(`native URL setup and independent device enable disable at ${width}px`, async ({ page }, testInfo) => {
+    const state = await setup(page);
+    await page.setViewportSize({ width, height: 1000 });
+    await page.goto("/admin/mcp");
+    const devices = page.getByRole("region", { name: "MCP devices", exact: true });
+    const windows = devices.getByRole("article", { name: "Office desktop" });
+    const mac = devices.getByRole("article", { name: "My MacBook" });
+    await expect(windows.getByRole("button", { name: "Disable", exact: true })).toBeEnabled();
+    await expect(mac.getByRole("button", { name: "Disable", exact: true })).toBeEnabled();
+    await expect(page.getByRole("button", { name: "Advanced", exact: true })).toHaveAttribute("aria-expanded", "false");
+    await expect(page.getByText(resource, { exact: true })).toBeVisible();
+    await expect(devices).toContainText("one account connection across several devices");
+    await windows.getByRole("button", { name: "Disable", exact: true }).click();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect(windows.getByRole("button", { name: "Enable", exact: true })).toBeEnabled();
+    await expect(windows.getByText("Disabled", { exact: true })).toBeVisible();
+    await expect(mac.getByRole("button", { name: "Disable", exact: true })).toBeEnabled();
+    const deviceScreenshot = testInfo.outputPath(`mcp-independent-devices-${width}.png`);
+    await devices.screenshot({ path: deviceScreenshot, animations: "disabled" });
+    await testInfo.attach(`Independent device controls at ${width}px`, { path: deviceScreenshot, contentType: "image/png" });
+    await windows.getByRole("button", { name: "Enable", exact: true }).click();
+    await expect(windows.getByRole("button", { name: "Disable", exact: true })).toBeEnabled();
+    expect(state.requests.filter((item) => item.path.endsWith("/access"))).toEqual([
+      { method: "PATCH", path: "/api/v1/admin/mcp/connections/grant-a/access", body: { enabled: false } },
+      { method: "PATCH", path: "/api/v1/admin/mcp/connections/grant-a/access", body: { enabled: true } },
+    ]);
+    await page.getByRole("button", { name: "How to connect", exact: true }).click();
+    const direct = page.getByRole("region", { name: "Direct MCP setup", exact: true });
+    await expect(direct).toContainText("Streamable HTTP");
+    await expect(direct).toContainText("Bearer token env varLeave empty");
+    await expect(direct).not.toContainText("PowerShell");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)).toBe(false);
+    const setupScreenshot = testInfo.outputPath(`mcp-native-url-setup-${width}.png`);
+    await direct.screenshot({ path: setupScreenshot, animations: "disabled" });
+    await testInfo.attach(`Native URL setup at ${width}px`, { path: setupScreenshot, contentType: "image/png" });
+    expect(state.errors).toEqual([]);
+  });
+}
+
 test("consent binds the chosen authority and returns opaque OAuth state to the approved client", async ({ page }, testInfo) => {
   const state = await setup(page);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.route(`${callback}?**`, (route) => route.fulfill({ status: 200, contentType: "text/html", body: "<h1>Connection received by client</h1>" }));
   await page.goto(`/admin/mcp/connect?${new URLSearchParams(oauth)}`);
-  await expect(page.getByRole("textbox", { name: "Connection name" })).toHaveValue("My Codex connection");
+  await expect(page.getByRole("textbox", { name: "Connection name" })).toHaveValue("");
   expect(state.requests.filter((item) => item.path.endsWith("/authorize"))).toHaveLength(0);
   await page.getByRole("textbox", { name: "Connection name" }).fill("Nipun’s desktop");
+  await page.getByRole("combobox", { name: "Device platform" }).selectOption("Windows");
   await page.getByRole("checkbox", { name: /Download reports/ }).uncheck();
   const screenshot = testInfo.outputPath("mcp-consent-mobile.png");
   await page.screenshot({ path: screenshot, fullPage: true, animations: "disabled" });
@@ -200,7 +244,8 @@ test("consent binds the chosen authority and returns opaque OAuth state to the a
   expect(new URL(page.url()).searchParams.get("state")).toBe(oauth.state);
   const authorization = state.requests.filter((item) => item.path.endsWith("/authorize"));
   expect(authorization).toHaveLength(1);
-  expect(authorization[0].body).toMatchObject({ name: "Nipun’s desktop", scopes: ["mcp:read"], state: oauth.state });
+  expect(authorization[0].body).toMatchObject({ name: "Nipun’s desktop", device_platform: "Windows", scopes: ["mcp:read"], state: oauth.state });
+  expect(new URL(page.url()).searchParams.get("iss")).toBe(new URL(resource).origin);
   expect(state.errors).toEqual([]);
 });
 
@@ -211,7 +256,9 @@ for (const action of ["pause", "disconnect"] as const) {
     const trigger = action === "pause" ? "Pause access" : "Disconnect";
     const confirm = action === "pause" ? "Pause access" : "Disconnect connection";
     const suffix = action === "pause" ? "/control" : "/revoke";
-    await page.getByRole("button", { name: trigger, exact: true }).click();
+    if (action === "disconnect") await page.getByRole("button", { name: "Advanced", exact: true }).click();
+    const target = action === "pause" ? page : page.getByRole("region", { name: "MCP connections", exact: true }).getByRole("article", { name: "Office desktop" });
+    await target.getByRole("button", { name: trigger, exact: true }).click();
     expect(state.requests.filter((item) => item.path.endsWith(suffix))).toHaveLength(0);
     await page.getByRole("dialog").getByRole("button", { name: confirm, exact: true }).click();
     const identity = page.getByRole("dialog", { name: "Confirm this sensitive action" });
@@ -222,7 +269,7 @@ for (const action of ["pause", "disconnect"] as const) {
     await identity.getByRole("button", { name: "Verify and continue" }).click();
     await expect(identity).toHaveCount(0);
     if (action === "pause") await expect(page.getByText("Access paused", { exact: true }).first()).toBeVisible();
-    else await expect(page.getByRole("article", { name: "Office desktop" })).toContainText("Disconnected");
+    else await expect(page.getByRole("region", { name: "MCP connections", exact: true }).getByRole("article", { name: "Office desktop" })).toContainText("Disconnected");
     expect(state.verifications).toEqual([{ code: "123456" }]);
     const attempts = state.requests.filter((item) => item.path.endsWith(suffix));
     expect(attempts).toHaveLength(2);
@@ -236,11 +283,14 @@ for (const action of ["pause", "disconnect"] as const) {
     const trigger = action === "pause" ? "Pause access" : "Disconnect";
     const confirm = action === "pause" ? "Pause access" : "Disconnect connection";
     const suffix = action === "pause" ? "/control" : "/revoke";
-    await page.getByRole("button", { name: trigger, exact: true }).click();
+    if (action === "disconnect") await page.getByRole("button", { name: "Advanced", exact: true }).click();
+    const target = action === "pause" ? page : page.getByRole("region", { name: "MCP connections", exact: true }).getByRole("article", { name: "Office desktop" });
+    await target.getByRole("button", { name: trigger, exact: true }).click();
     await page.getByRole("dialog").getByRole("button", { name: confirm, exact: true }).click();
     const identity = page.getByRole("dialog", { name: "Confirm this sensitive action" });
     await identity.getByRole("button", { name: "Cancel identity confirmation" }).click();
-    await expect(page.getByRole("region", { name: "Codex connection status" }).getByRole("alert")).toContainText("Identity confirmation was cancelled.");
+    const errorTarget = action === "pause" ? page.getByRole("region", { name: "Codex connection status", exact: true }) : target;
+    await expect(errorTarget.getByRole("alert")).toContainText("Identity confirmation was cancelled.");
     await expect(page.getByText("Codex is authorized", { exact: true })).toBeVisible();
     expect(state.requests.filter((item) => item.path.endsWith(suffix))).toHaveLength(1);
     expect(state.verifications).toEqual([]);

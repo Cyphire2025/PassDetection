@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "deployment_kind": "mcp_read_only_v1",
-  "schema_revision": "0123_mcp_read_sections",
-  "previous_schema_revision": "0122_mcp_gc_push",
+  "deployment_kind": "mcp_direct_devices_v1",
+  "schema_revision": "0124_mcp_device_access",
+  "previous_schema_revision": "0123_mcp_read_sections",
   "worker_nodes": {
     "worker": "general",
     "email-worker": "email",

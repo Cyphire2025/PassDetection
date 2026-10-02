@@ -26,7 +26,7 @@ export function useMcpUpdateReadAccess() {
     } });
 }
 export function useMcpConnections(offset: number) {
-  return useQuery({ queryKey: [...keys.root, "connections", offset], queryFn: ({ signal }) => mcpApi.connections(offset, signal) });
+  return useQuery({ queryKey: [...keys.root, "connections", offset], queryFn: ({ signal }) => mcpApi.connections(offset, signal), staleTime: 15_000 });
 }
 export function useMcpActivity(offset: number, search: string) {
   return useQuery({ queryKey: [...keys.root, "activity", offset, search], queryFn: ({ signal }) => mcpApi.activity(offset, search, signal) });
@@ -52,6 +52,11 @@ export function useMcpRevoke() {
 export function useMcpUpdateConnection() {
   const client = useQueryClient();
   return useMutation({ mutationFn: mcpApi.updateConnection, retry: false, onSuccess: () => client.invalidateQueries({ queryKey: keys.root }) });
+}
+export function useMcpSetConnectionAccess() {
+  const client = useQueryClient();
+  return useMutation({ mutationFn: mcpApi.setConnectionAccess, retry: false,
+    onSuccess: () => client.invalidateQueries({ queryKey: keys.root }) });
 }
 export function useMcpAuthorize() {
   return useMutation({ mutationFn: mcpApi.authorize, retry: false });

@@ -196,22 +196,18 @@ it.each([null, 25])("keeps unavailable permissions distinct from incomplete disc
   expect(mcpApi.authorize).not.toHaveBeenCalled();
 });
 
-it("opens actionable setup from the guide and changes requested command scopes without granting access", async () => {
+it("opens direct URL setup without granting access or requiring a local installation", async () => {
   renderPage();
   fireEvent.click(await screen.findByRole("button", { name: "How to connect" }));
   fireEvent.click(screen.getByRole("button", { name: "Open setup instructions" }));
   expect(screen.getByRole("button", { name: "Advanced" })).toHaveAttribute("aria-expanded", "true");
   expect(document.getElementById("codex-advanced-content")).toHaveFocus();
-  const setup = screen.getByRole("region", { name: "Windows connector setup" });
-  const read = within(setup).getByRole("radio", { name: "Look up information" });
-  expect(read).toBeChecked();
-  expect(within(setup).getByText(/sign-in --scopes mcp:read$/)).toBeVisible();
-  fireEvent.click(within(setup).getByRole("radio", { name: "Look up information and download reports" }));
-  expect(within(setup).getByText(/sign-in --scopes mcp:read mcp:export$/)).toBeVisible();
-  expect(within(setup).getByText("--download-directory")).toBeVisible();
-  fireEvent.click(read);
-  expect(within(setup).getByText(/sign-in --scopes mcp:read$/)).toBeVisible();
-  expect(within(setup).queryByText("--download-directory")).not.toBeInTheDocument();
+  const setup = screen.getByRole("region", { name: "Direct MCP setup" });
+  expect(setup).toHaveTextContent("Streamable HTTP");
+  expect(setup).toHaveTextContent(overview.resource);
+  expect(setup).toHaveTextContent("Bearer token env varLeave empty");
+  expect(setup).toHaveTextContent("Windows or macOS");
+  expect(setup).not.toHaveTextContent("PowerShell");
   for (const method of [mcpApi.authorize, mcpApi.updateConnection, mcpApi.control, mcpApi.revoke]) expect(method).not.toHaveBeenCalled();
 });
 
@@ -238,7 +234,7 @@ it("starts the unconnected guide without automatically granting or changing acce
   vi.mocked(mcpApi.connections).mockResolvedValue({ items: [], next_offset: null });
   renderPage();
   fireEvent.click(await screen.findByRole("button", { name: "Connect Codex" }));
-  expect(screen.getByText("Connect Codex in three steps")).toBeVisible();
+  expect(screen.getByText("Connect ChatGPT or Codex in three steps")).toBeVisible();
   expect(screen.getByRole("button", { name: "Open setup instructions" })).toBeVisible();
   expect(screen.getByRole("button", { name: "Advanced" })).toHaveAttribute("aria-expanded", "false");
   for (const method of [mcpApi.authorize, mcpApi.updateConnection, mcpApi.control, mcpApi.revoke]) expect(method).not.toHaveBeenCalled();

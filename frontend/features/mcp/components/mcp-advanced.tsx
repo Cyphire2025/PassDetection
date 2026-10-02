@@ -8,7 +8,7 @@ import { MCP_CAPABILITIES, type McpOverview } from "../api/mcp.api";
 import { useMcpActivity, useMcpConnections } from "../hooks/use-mcp";
 import { effectiveMcpCapabilities, isMcpReadOnlyMode } from "../utils/read-only";
 import { McpConnectionCard } from "./mcp-connection-card";
-import { McpConnectorSetup } from "./mcp-connector-setup";
+import { McpDirectSetup } from "./mcp-direct-setup";
 import { McpError, McpPagination } from "./mcp-shared";
 import { McpFiles, McpToolInventory, McpWorkflows } from "./mcp-work-results";
 
@@ -82,7 +82,7 @@ function Setup({ overview }: { overview: McpOverview }) {
       <div className="rounded-lg bg-slate-50 p-3"><p className="text-xs font-medium text-slate-500">Streamable HTTP endpoint</p><code className="mt-2 block break-all text-xs text-slate-800">{overview.resource}</code></div>
       <Button variant="secondary" onClick={() => void copyEndpoint()}><Copy className="h-4 w-4" aria-hidden="true" />{copied ? "Endpoint copied" : "Copy endpoint"}</Button>
       <McpError error={copyError} />
-      <details className="text-sm"><summary className="cursor-pointer font-medium text-slate-700">Approved clients</summary><ul className="mt-3 space-y-2">{Object.entries(overview.approved_clients).map(([id, redirects]) => <li key={id} className="break-all text-xs text-slate-500"><strong className="text-slate-700">{id}</strong>{redirects.map((redirect) => <p key={redirect} className="mt-1">{redirect}</p>)}</li>)}</ul></details>
+      <details className="text-sm"><summary className="cursor-pointer font-medium text-slate-700">Approved clients</summary><ul className="mt-3 space-y-2">{Object.entries({ ...overview.approved_clients, ...overview.direct_clients }).map(([id, redirects]) => <li key={id} className="break-all text-xs text-slate-500"><strong className="text-slate-700">{overview.client_names?.[id] ?? id}</strong>{redirects.map((redirect) => <p key={redirect} className="mt-1">{redirect}</p>)}</li>)}</ul></details>
       <p className="text-xs leading-5 text-slate-500">Access tokens last 15 minutes. Authorization lasts up to seven days. Revoke a connection to require a fresh sign-in.</p>
     </div>
     <div className="rounded-xl border border-slate-200 p-5"><h2 className="text-base font-semibold text-slate-900">Permission categories</h2>
@@ -90,6 +90,6 @@ function Setup({ overview }: { overview: McpOverview }) {
       <dl className="mt-4 divide-y divide-slate-100">{effectiveMcpCapabilities(overview).map((capability) => <div key={capability} className="py-3"><dt className="text-sm font-medium text-slate-900">{MCP_CAPABILITIES[capability]?.label ?? capability}</dt><dd className="mt-1 text-xs leading-5 text-slate-500">{MCP_CAPABILITIES[capability]?.description}</dd></div>)}</dl>
       <p className="mt-4 rounded-lg bg-slate-50 p-3 text-xs leading-5 text-slate-600">MCP cannot delete or remove application data, control the server, or change its own connection permissions.</p>
     </div>
-    <McpConnectorSetup overview={overview} />
+    <McpDirectSetup overview={overview} label="Advanced direct MCP setup" />
   </section>;
 }

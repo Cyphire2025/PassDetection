@@ -5,25 +5,30 @@ import { Badge, Button, Input } from "@/components/ui";
 import { ConfirmDialog } from "@/components/ui/modal";
 import { formatDateTime } from "@/lib/utils/format";
 import { MCP_CAPABILITIES, type McpCapability, type McpConnection } from "../api/mcp.api";
-import { useMcpRevoke, useMcpUpdateConnection } from "../hooks/use-mcp";
+import { useMcpRevoke, useMcpSetConnectionAccess, useMcpUpdateConnection } from "../hooks/use-mcp";
 import { McpCapabilityPicker, McpError } from "./mcp-shared";
 
 export function McpConnectionCard({ connection, advanced = false, readOnly = true, unavailable = false }: { connection: McpConnection; advanced?: boolean; readOnly?: boolean; unavailable?: boolean }) {
   const [editing, setEditing] = useState(false);
   const [revoking, setRevoking] = useState(false);
   const revoke = useMcpRevoke();
-  const active = connection.status === "active";
+  const access = useMcpSetConnectionAccess();
+  const active = connection.status === "active" && connection.enabled !== false;
+  const retained = connection.status === "active" || connection.status === "disabled";
   const capabilities = connection.capabilities.filter((scope) => !readOnly || scope === "mcp:read");
   return <article aria-label={connection.name} className="rounded-xl border border-slate-200 p-4">
     <div className="flex flex-wrap items-start justify-between gap-3">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2"><h3 className="break-words text-sm font-semibold text-slate-950">{connection.name}</h3>
-          <Badge variant={active ? "success" : "outline"}>{active ? "Authorized" : connection.status === "expired" ? "Sign-in expired" : "Disconnected"}</Badge></div>
+          <Badge variant={active ? "success" : "outline"}>{active ? "Authorized" : retained ? "Disabled" : connection.status === "expired" ? "Sign-in expired" : "Disconnected"}</Badge></div>
+        <p className="mt-1 text-xs text-slate-500">{connection.device_platform ?? "Platform not specified"}</p>
         {advanced ? <p className="mt-1 break-all text-xs text-slate-500">{connection.client_id} · {connection.id}</p> : null}
       </div>
-      {active ? <div className="flex gap-1">
-        {advanced ? <Button variant="ghost" size="sm" disabled={unavailable} aria-expanded={editing} onClick={() => setEditing(!editing)}>Edit access</Button> : null}
-        <Button variant="ghost" size="sm" className="text-red-700 hover:text-red-800" onClick={() => { revoke.reset(); setRevoking(true); }}>Disconnect</Button>
+      {retained ? <div className="flex flex-wrap gap-1">
+        {!advanced ? <Button variant={active ? "secondary" : "primary"} size="sm" disabled={unavailable} isLoading={access.isPending}
+          onClick={() => { access.reset(); access.mutate({ id: connection.id, enabled: !active }); }}>{active ? "Disable" : "Enable"}</Button> : null}
+        {advanced ? <><Button variant="ghost" size="sm" disabled={unavailable} aria-expanded={editing} onClick={() => setEditing(!editing)}>Edit access</Button>
+          <Button variant="ghost" size="sm" disabled={unavailable} className="text-red-700 hover:text-red-800" onClick={() => { revoke.reset(); setRevoking(true); }}>Disconnect</Button></> : null}
       </div> : null}
     </div>
     <dl className="mt-4 grid gap-x-6 gap-y-3 text-xs sm:grid-cols-3">
@@ -32,7 +37,8 @@ export function McpConnectionCard({ connection, advanced = false, readOnly = tru
     </dl>
     <div className="mt-4 flex flex-wrap gap-1.5">{capabilities.map((scope) => <Badge key={scope} variant="outline">{MCP_CAPABILITIES[scope]?.label ?? (advanced ? scope : "Additional permission")}</Badge>)}</div>
     {readOnly && !capabilities.length ? <p className="mt-3 text-xs text-slate-600">This saved connection has no read permission. Sign in again to request read access.</p> : null}
-    {editing && active ? <ConnectionEditor key={`${connection.id}:${connection.name}:${capabilities.join(",")}:${readOnly}`} connection={connection} available={capabilities} unavailable={unavailable} readOnly={readOnly} onDone={() => setEditing(false)} /> : null}
+    {editing && retained ? <ConnectionEditor key={`${connection.id}:${connection.name}:${capabilities.join(",")}:${readOnly}`} connection={connection} available={capabilities} unavailable={unavailable} readOnly={readOnly} onDone={() => setEditing(false)} /> : null}
+    <McpError error={access.error} />
     <McpError error={revoke.error} />
     <ConfirmDialog isOpen={revoking} title={`Disconnect ${connection.name}?`} description="This saved connection will immediately lose access. To use it again, sign in and approve access again. Your application records are retained."
       confirmLabel="Disconnect connection" variant="danger" isLoading={revoke.isPending} onClose={() => setRevoking(false)}

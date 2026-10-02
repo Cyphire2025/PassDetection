@@ -13,6 +13,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mcp.authorization import MCPAuthorizationService
+from app.application.mcp.client_policy import DIRECT_CLIENT_NAMES, DIRECT_CLIENT_REDIRECTS
 from app.application.mcp.credentials import MCPAuthError, utc
 from app.application.mcp.read_access import current_read_access
 from app.core.config.settings import Settings
@@ -26,6 +27,7 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.presentation.api.v1.routes.mcp_admin_files import router as files_router
 from app.presentation.api.v1.schemas.mcp_schemas import (
+    MCPConnectionAccessRequest,
     MCPConnectionUpdate,
     MCPConsentRequest,
     MCPControlRequest,
@@ -51,6 +53,8 @@ def connection_payload(grant: MCPGrantModel, settings: Settings | None = None) -
         "user_id": str(grant.user_id),
         "client_id": grant.client_id,
         "name": grant.name,
+        "enabled": grant.enabled,
+        "device_platform": grant.device_platform,
         "capabilities": grant.capabilities,
         "effective_capabilities": sorted(set(grant.capabilities) & set(settings.mcp.effective_capabilities)) if settings else grant.capabilities,
         "created_at": grant.created_at,
@@ -61,6 +65,8 @@ def connection_payload(grant: MCPGrantModel, settings: Settings | None = None) -
         if grant.revoked_at
         else "expired"
         if utc(grant.expires_at) <= datetime.now(UTC)
+        else "disabled"
+        if not grant.enabled
         else "active",
     }
 
@@ -85,6 +91,8 @@ async def overview(
         "read_access_revision": read_revision,
         "read_section_coverage": read_section_catalog(),
         "approved_clients": settings.mcp.approved_clients,
+        "direct_clients": DIRECT_CLIENT_REDIRECTS,
+        "client_names": DIRECT_CLIENT_NAMES,
         "environment": settings.app_env,
         "revision": settings.app_revision,
         "observed_at": datetime.now(UTC),
@@ -138,6 +146,7 @@ async def authorize(
             challenge=body.code_challenge,
             scopes=body.scopes,
             name=body.name,
+            device_platform=body.device_platform,
         )
     except MCPAuthError as exc:
         return JSONResponse(
@@ -146,7 +155,7 @@ async def authorize(
     # Persist before exposing a code, including for transports which finalize dependencies late.
     await session.commit()
     return JSONResponse(
-        {"redirect_url": body.redirect_uri + "?" + urlencode({"code": code, "state": body.state})},
+        {"redirect_url": body.redirect_uri + "?" + urlencode({"code": code, "state": body.state, "iss": _settings(request).mcp.public_origin})},
         headers={"Cache-Control": "no-store", "Pragma": "no-cache"},
     )
 
@@ -197,6 +206,35 @@ async def revoke(
         )
     await session.commit()
     return {"revoked": True}
+
+
+@router.patch("/connections/{connection_id}/access", dependencies=_mutations)
+async def set_connection_access(
+    connection_id: uuid.UUID,
+    body: MCPConnectionAccessRequest,
+    request: Request,
+    user: User = Depends(require_mcp_management),
+    session: AsyncSession = Depends(get_db_session),
+) -> dict[str, object]:
+    # Exchange, refresh and application operations serialize on the same row.
+    row = await session.scalar(
+        select(MCPGrantModel).where(MCPGrantModel.id == connection_id).with_for_update()
+    )
+    if row is None:
+        raise HTTPException(404, "Connection not found")
+    if body.enabled and (row.revoked_at is not None or utc(row.expires_at) <= datetime.now(UTC)):
+        raise HTTPException(409, "Reconnect to enable an expired or revoked connection")
+    if row.enabled != body.enabled:
+        row.enabled = body.enabled
+        await AuditLogRepository(session).record(
+            action="mcp.connection_access_changed",
+            entity_type="mcp_connection",
+            entity_id=str(row.id),
+            user_id=user.id,
+            metadata={"enabled": body.enabled},
+        )
+    await session.commit()
+    return connection_payload(row, _settings(request))
 
 
 @router.patch("/connections/{connection_id}", dependencies=_mutations)

@@ -35,6 +35,7 @@ _OPERATIONS = {
     "control": "control",
     "revoke": "revoke",
     "update_connection": "update_connection",
+    "set_connection_access": "connection_access",
     "activity": "activity",
     "inventory": "inventory",
     "operations": "operations",

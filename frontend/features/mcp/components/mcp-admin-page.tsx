@@ -9,6 +9,7 @@ import { isMcpReadOnlyMode } from "../utils/read-only";
 import { McpAccessHome } from "./mcp-access-home";
 import { McpAdvanced, type McpAdvancedTab } from "./mcp-advanced";
 import { McpAccessBoundary, McpError } from "./mcp-shared";
+import { McpDevices } from "./mcp-devices";
 
 export function McpAdminPage() {
   return <McpAccessBoundary><McpAdminWorkspace /></McpAccessBoundary>;
@@ -33,7 +34,9 @@ function McpAdminWorkspace() {
     <McpError error={overview.error} onRetry={() => void overview.refetch()} />
     {overview.isPending ? <p role="status" className="text-sm text-slate-500">Checking access…</p> : null}
     {overview.data ? <>
-      <McpAccessHome overview={overview.data} overviewUnavailable={overview.isError} onSetup={() => { setTab("setup"); setAdvanced(true); setSetupRequest((value) => value + 1); }} />
+      <McpAccessHome overview={overview.data} overviewUnavailable={overview.isError} onSetup={() => { setTab("setup"); setAdvanced(true); setSetupRequest((value) => value + 1); }}>
+        <McpDevices overview={overview.data} unavailable={overview.isError || overview.isFetching} />
+      </McpAccessHome>
       <section aria-label="Advanced Codex settings" className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
         <button type="button" aria-expanded={advanced} aria-controls="codex-advanced-content" onClick={() => setAdvanced(!advanced)}
           className="flex w-full items-center justify-between gap-3 text-left text-sm font-semibold text-slate-800">

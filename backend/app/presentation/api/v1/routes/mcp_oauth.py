@@ -10,7 +10,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mcp.authorization import MCPAuthorizationService
-from app.application.mcp.client_policy import validate_client, validate_resource
+from app.application.mcp.client_policy import validate_authorization_client, validate_resource
 from app.application.mcp.credentials import PKCE_CHALLENGE, MCPAuthError
 from app.core.config.settings import Settings
 from app.infrastructure.database.session import get_db_session
@@ -29,6 +29,8 @@ async def metadata(request: Request) -> dict[str, object]:
     origin = _settings(request).mcp.public_origin
     return {
         "issuer": origin,
+        "authorization_response_iss_parameter_supported": True,
+        "client_id_metadata_document_supported": True,
         "authorization_endpoint": f"{origin}/oauth/mcp/authorize",
         "token_endpoint": f"{origin}/oauth/mcp/token",
         "response_types_supported": ["code"],
@@ -46,7 +48,7 @@ async def authorization_start(request: Request) -> RedirectResponse | JSONRespon
     try:
         if len(params.multi_items()) != len(params) or len(str(params)) > 4096:
             raise MCPAuthError("invalid_request")
-        validate_client(settings.mcp, params.get("client_id", ""), params.get("redirect_uri", ""))
+        await validate_authorization_client(settings.mcp, params.get("client_id", ""), params.get("redirect_uri", ""))
         validate_resource(settings.mcp, params.get("resource", ""))
         if (
             params.get("response_type") != "code"

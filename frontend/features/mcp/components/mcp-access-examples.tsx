@@ -33,7 +33,7 @@ export function McpAccessExamples({ overview, connections, uncertain }: {
         <p className="mt-3 text-sm leading-6 text-slate-600">{example.description}</p>
         {available ? <>
           <p className="mt-4 flex-1 rounded-lg bg-slate-50 p-3 text-sm leading-6 text-slate-700">“{example.prompt}”</p>
-          {example.key === "export" ? <p className="mt-2 text-xs leading-5 text-slate-500">Saving to your computer needs a download folder chosen in the local connector setup.</p> : null}
+          {example.key === "export" ? <p className="mt-2 text-xs leading-5 text-slate-500">Saving a report depends on your app’s download support. A prepared report is not the same as a file saved on your device.</p> : null}
           <div className="mt-4"><Button variant="secondary" size="sm" disabled={!ready} onClick={() => void copy(example.key, example.prompt)}><Copy className="h-4 w-4" aria-hidden="true" />{copied === example.key ? "Example copied" : "Copy example"}</Button></div>
         </> : <p className="mt-4 text-xs leading-5 text-slate-500">{inventory.isPending ? "Checking which workflows this website supports…" : "This example is unavailable until its required features can be confirmed."}</p>}
       </article>;

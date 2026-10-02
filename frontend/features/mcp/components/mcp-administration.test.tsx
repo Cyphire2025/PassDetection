@@ -71,6 +71,7 @@ it("disables access through the server and confirms revocation of a named connec
   fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Pause access" }));
   await waitFor(() => expect(mcpApi.control).toHaveBeenCalledWith(false, expect.anything()));
   await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+  fireEvent.click(screen.getByRole("button", { name: "Advanced" }));
   fireEvent.click(await screen.findByRole("button", { name: "Disconnect" }));
   expect(mcpApi.revoke).not.toHaveBeenCalled();
   fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Disconnect connection" }));
@@ -94,29 +95,26 @@ it("restarts paginated activity at the first page when a search changes", async 
   fireEvent.change(screen.getByRole("searchbox"), { target: { value: "mcp.revoked" } });
   await waitFor(() => expect(mcpApi.activity).toHaveBeenLastCalledWith(0, "mcp.revoked", expect.any(AbortSignal)));
 });
-it("shows versioned connector setup without claiming unpublished installation or file tools", async () => {
+it("shows native remote MCP setup and an unavailable direct sign-in honestly", async () => {
   renderPage(); fireEvent.click(await screen.findByRole("button", { name: "Advanced" })); fireEvent.click(screen.getByRole("button", { name: "Connection setup" }));
-  const setup = screen.getByRole("region", { name: "Windows connector setup" });
-  expect(setup).toHaveTextContent("Windows connector 0.2.4");
-  expect(setup).toHaveTextContent("This deployment has not approved the desktop connector’s callback");
-  expect(setup).toHaveTextContent("A hosted installer is not published here");
-  expect(setup).toHaveTextContent("Full workflow qualification remains in progress");
-  expect(setup).toHaveTextContent("PDF upload stages a file for a later workflow");
-  expect(setup).toHaveTextContent("Local file tools use exact files and a download folder selected in the connector startup arguments");
-  expect(setup).toHaveTextContent("Automatic handoff of new Codex attachments remains unqualified");
-  expect(setup).toHaveTextContent("--origin 'https://app.example.test' sign-in --scopes mcp:read");
-  expect(setup).toHaveTextContent("--require-hashes -r requirements.lock");
-  expect(setup).toHaveTextContent("Secret environment variablesNone");
+  const setup = screen.getByRole("region", { name: "Advanced direct MCP setup" });
+  expect(setup).toHaveTextContent("Add Global Connects on Windows or macOS");
+  expect(setup).toHaveTextContent("Direct app sign-in has not been enabled");
+  expect(setup).toHaveTextContent("Streamable HTTP");
+  expect(setup).toHaveTextContent("HeadersLeave empty");
+  expect(setup).not.toHaveTextContent("PowerShell");
+  expect(setup).not.toHaveTextContent("gc-mcp.exe");
 });
 it("authorizes the reviewed name and selected scopes once, then returns only to the verified client", async () => {
   let complete!: (value: { redirect_url: string }) => void;
   vi.mocked(mcpApi.authorize).mockImplementation(() => new Promise((resolve) => { complete = resolve; }));
   const { container } = renderPage(<McpConsentPage parameters={parameters} />);
   fireEvent.change(await screen.findByRole("textbox", { name: "Connection name" }), { target: { value: "Nipun’s desktop" } });
+  fireEvent.change(screen.getByRole("combobox", { name: "Device platform" }), { target: { value: "Windows" } });
   fireEvent.click(screen.getByRole("checkbox", { name: /Download reports/ }));
   fireEvent.submit(container.querySelector("form")!); fireEvent.submit(container.querySelector("form")!);
   await waitFor(() => expect(mcpApi.authorize).toHaveBeenCalledOnce());
-  expect(mcpApi.authorize).toHaveBeenCalledWith(expect.objectContaining({ name: "Nipun’s desktop", scopes: ["mcp:read"], state: parameters.state }), expect.anything());
+  expect(mcpApi.authorize).toHaveBeenCalledWith(expect.objectContaining({ name: "Nipun’s desktop", device_platform: "Windows", scopes: ["mcp:read"], state: parameters.state }), expect.anything());
   const redirect = `${parameters.redirect_uri}?code=one-use&state=${parameters.state}`;
   await act(async () => complete({ redirect_url: redirect }));
   expect(mcpClientNavigation.assign).toHaveBeenCalledWith(redirect);
@@ -128,17 +126,24 @@ it("blocks unverified requests and does not follow an unexpected callback destin
   vi.mocked(mcpApi.authorize).mockResolvedValue({ redirect_url: "https://untrusted.test/callback?code=secret" });
   renderPage(<McpConsentPage parameters={parameters} />);
   fireEvent.change(await screen.findByRole("textbox", { name: "Connection name" }), { target: { value: "Desktop" } });
+  fireEvent.change(screen.getByRole("combobox", { name: "Device platform" }), { target: { value: "Other" } });
   fireEvent.click(screen.getByRole("button", { name: "Connect app" }));
   expect(await screen.findByRole("alert")).toHaveTextContent("callback could not be verified");
   expect(mcpClientNavigation.assign).not.toHaveBeenCalled();
 });
 
-it("offers the known Codex connection name without authorizing or adding unrequested access", async () => {
+it("requires a recognizable Codex connection name without authorizing or adding unrequested access", async () => {
   const requested = { ...parameters, client_id: "global-connects-desktop", scope: "mcp:read" };
   vi.mocked(mcpApi.overview).mockResolvedValue({ ...overview,
     approved_clients: { "global-connects-desktop": [parameters.redirect_uri] } });
   renderPage(<McpConsentPage parameters={requested} />);
-  expect(await screen.findByRole("textbox", { name: "Connection name" })).toHaveValue("My Codex connection");
+  expect(await screen.findByRole("textbox", { name: "Connection name" })).toHaveValue("");
+  expect(screen.getByRole("combobox", { name: "Device platform" })).toBeVisible();
+  expect(screen.getByRole("button", { name: "Connect Codex" })).toBeDisabled();
+  fireEvent.change(screen.getByRole("textbox", { name: "Connection name" }), { target: { value: "Office Windows" } });
+  expect(screen.getByRole("button", { name: "Connect Codex" })).toBeDisabled();
+  fireEvent.change(screen.getByRole("combobox", { name: "Device platform" }), { target: { value: "Windows" } });
+  expect(screen.getByRole("button", { name: "Connect Codex" })).toBeEnabled();
   expect(screen.getAllByRole("checkbox")).toHaveLength(1);
   expect(screen.getByRole("checkbox")).toBeChecked();
   expect(mcpApi.authorize).not.toHaveBeenCalled();
@@ -162,6 +167,7 @@ it("shows an authorization failure without broadening or automatically retrying 
   vi.mocked(mcpApi.authorize).mockRejectedValue({ code: "STEP_UP_CANCELLED", message: "Identity confirmation was cancelled." });
   renderPage(<McpConsentPage parameters={{ ...parameters, scope: "mcp:read" }} />);
   fireEvent.change(await screen.findByRole("textbox", { name: "Connection name" }), { target: { value: "My laptop" } });
+  fireEvent.change(screen.getByRole("combobox", { name: "Device platform" }), { target: { value: "macOS" } });
   fireEvent.click(screen.getByRole("button", { name: "Connect app" }));
   expect(await screen.findByRole("alert")).toHaveTextContent("Identity confirmation was cancelled.");
   expect(mcpApi.authorize).toHaveBeenCalledTimes(1);

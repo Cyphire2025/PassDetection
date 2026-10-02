@@ -106,8 +106,13 @@ class MCPDatabaseRelease:
         self.source_schema = self.contract["source_schema"]
         self.target_schema = self.contract["target_schema"]
         validate_contract(self.contract, self.target_schema)
-        self.migration_script = ("scripts/apply_mcp_read_only_upgrade.py"
-            if self.contract["kind"] == "mcp_read_only_v1" else "scripts/apply_mcp_additive_upgrade.py")
+        migration_helpers = {
+            "mcp_read_only_v1": "scripts/apply_mcp_read_only_upgrade.py",
+            "mcp_additive_v1": "scripts/apply_mcp_additive_upgrade.py",
+        }
+        if self.contract["kind"] not in migration_helpers:
+            raise ReleaseError("This release kind requires a separately qualified migration executor")
+        self.migration_script = migration_helpers[self.contract["kind"]]
         self.contract_sha256 = digest_json(self.contract)
 
     def checkpoint(self, allowed_schemas: set[str]) -> str:

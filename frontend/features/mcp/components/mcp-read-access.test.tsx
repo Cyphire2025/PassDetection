@@ -88,9 +88,9 @@ it("hides write/export/file/workflow controls despite a retained broad grant and
   expect(screen.queryByRole("button", { name: "Files" })).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "Workflows" })).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "Connection setup" }));
-  const setup = screen.getByRole("region", { name: "Windows connector setup" });
-  expect(within(setup).getByText("--read-only", { exact: true })).toBeVisible();
-  expect(within(setup).getByText(/sign-in --scopes mcp:read$/)).toBeVisible();
+  const setup = screen.getByRole("region", { name: "Advanced direct MCP setup" });
+  expect(within(setup).getByText("Streamable HTTP", { exact: true })).toBeVisible();
+  expect(setup).toHaveTextContent(overview.resource);
   expect(within(setup).queryByRole("radio")).not.toBeInTheDocument();
   expect(within(setup).queryByText("--download-directory")).not.toBeInTheDocument();
   expect(mcpApi.operations).not.toHaveBeenCalled(); expect(mcpApi.artifacts).not.toHaveBeenCalled();

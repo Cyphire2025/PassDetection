@@ -14,7 +14,11 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.mcp.client_policy import validate_client, validate_resource
+from app.application.mcp.client_policy import (
+    validate_authorization_client,
+    validate_client,
+    validate_resource,
+)
 from app.application.mcp.credentials import (
     PKCE_CHALLENGE,
     MCPAuthError,
@@ -114,6 +118,10 @@ class MCPAuthorizationService:
             or utc(grant.expires_at) <= datetime.now(UTC)
         ):
             raise MCPAuthError()
+        if grant.enabled is not True:
+            # Keep issued credentials and their consumption state intact so the
+            # administrator can resume this connection without affecting others.
+            raise MCPAuthError("access_denied", 403)
         self.validate_client(grant.client_id)
         self.validate_resource(grant.resource)
         await self.require_identity(grant.user_id, grant.security_version, lock=lock)
@@ -131,14 +139,16 @@ class MCPAuthorizationService:
         challenge: str,
         scopes: list[str],
         name: str,
+        device_platform: str | None = None,
     ) -> str:
         await self.require_enabled()
-        self.validate_client(client_id, redirect_uri)
+        await validate_authorization_client(self.settings.mcp, client_id, redirect_uri)
         self.validate_resource(resource)
         now = datetime.now(UTC)
         if (
             not PKCE_CHALLENGE.fullmatch(challenge)
             or not -60 <= (now - utc(mfa_at)).total_seconds() <= 600
+            or device_platform not in {None, "Windows", "macOS", "Other"}
         ):
             raise MCPAuthError("invalid_request")
         try:
@@ -154,6 +164,8 @@ class MCPAuthorizationService:
             security_version=security_version,
             client_id=client_id,
             name=name,
+            enabled=True,
+            device_platform=device_platform,
             resource=resource,
             capabilities=capabilities,
             mfa_at=mfa_at,
@@ -185,7 +197,7 @@ class MCPAuthorizationService:
         redirect_uri: str,
         resource: str,
     ) -> dict[str, str | int]:
-        self.validate_client(client_id, redirect_uri)
+        await validate_authorization_client(self.settings.mcp, client_id, redirect_uri)
         self.validate_resource(resource)
         code_row = await self.session.scalar(
             select(MCPAuthorizationCodeModel).where(

@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Index, Integer, String
+from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Index, Integer, String, true
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -31,6 +31,10 @@ class MCPGrantModel(Base):
     __table_args__ = (
         CheckConstraint("security_version >= 1", name="ck_mcp_grant_security_version"),
         CheckConstraint("expires_at > created_at", name="ck_mcp_grant_expiry"),
+        CheckConstraint(
+            "device_platform IS NULL OR device_platform IN ('Windows', 'macOS', 'Other')",
+            name="ck_mcp_grant_device_platform",
+        ),
         Index("ix_mcp_grants_user_created", "user_id", "created_at"),
     )
 
@@ -38,6 +42,8 @@ class MCPGrantModel(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT"))
     client_id: Mapped[str] = mapped_column(String(200))
     name: Mapped[str] = mapped_column(String(120))
+    enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, server_default=true())
+    device_platform: Mapped[str | None] = mapped_column(String(16), nullable=True)
     resource: Mapped[str] = mapped_column(String(512))
     capabilities: Mapped[list[str]] = mapped_column(JSONB)
     security_version: Mapped[int] = mapped_column(Integer)

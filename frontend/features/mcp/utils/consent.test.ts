@@ -39,3 +39,43 @@ it("allows only a single matching state/code callback to the verified destinatio
     expect(() => validatedMcpRedirect(value, request)).toThrow();
   }
 });
+
+const directOverview: McpOverview = { ...overview, approved_clients: {}, direct_clients: {
+  "https://chatgpt.com/oauth/codex/client.json": ["http://127.0.0.1/callback"],
+  "https://chatgpt.com/oauth/client.json": ["https://chatgpt.com/connector_platform_oauth_redirect"],
+} };
+it.each([49153, 63000])("accepts the published Codex loopback callback on native port %s", (port) => {
+  expect(parseMcpAuthorization({ ...parameters, client_id: "https://chatgpt.com/oauth/codex/client.json",
+    redirect_uri: `http://127.0.0.1:${port}/callback` }, directOverview)).not.toBeNull();
+});
+it.each([
+  "http://localhost:49153/callback", "http://127.0.0.2:49153/callback", "http://127.0.0.1:49153/other",
+  "http://127.0.0.1:49153/callback?forward=evil", "http://user@127.0.0.1:49153/callback", "https://127.0.0.1:49153/callback",
+])("rejects unpublished native callback authority %s", (redirect_uri) => {
+  expect(parseMcpAuthorization({ ...parameters, client_id: "https://chatgpt.com/oauth/codex/client.json", redirect_uri }, directOverview)).toBeNull();
+});
+it("requires exact HTTPS ChatGPT callback and does not permit port substitution", () => {
+  const client_id = "https://chatgpt.com/oauth/client.json";
+  const redirect_uri = "https://chatgpt.com/connector_platform_oauth_redirect";
+  expect(parseMcpAuthorization({ ...parameters, client_id, redirect_uri }, directOverview)).not.toBeNull();
+  for (const target of [redirect_uri.replace("chatgpt.com", "chatgpt.com.evil.test"), redirect_uri.replace("chatgpt.com", "chatgpt.com:444"), `${redirect_uri}/other`]) {
+    expect(parseMcpAuthorization({ ...parameters, client_id, redirect_uri: target }, directOverview)).toBeNull();
+  }
+});
+it("does not substitute the port of a fixed legacy callback", () => {
+  expect(parseMcpAuthorization({ ...parameters, redirect_uri: "http://127.0.0.1:49153/callback" }, overview)).toBeNull();
+});
+it("validates a single issuer in the callback without letting it expand the return destination", () => {
+  const request = parseMcpAuthorization(parameters, overview)!;
+  const valid = `${request.redirect_uri}?${new URLSearchParams({ code: "one-use", state: request.state, iss: new URL(request.resource).origin })}`;
+  expect(validatedMcpRedirect(valid, request)).toBe(valid);
+  for (const bad of [valid.replace("app.example.test", "evil.test"), `${valid}&iss=https%3A%2F%2Fapp.example.test`, `${valid}&next=https://evil.test`]) {
+    expect(() => validatedMcpRedirect(bad, request)).toThrow();
+  }
+});
+it("requires issuer identification for native app callbacks while accepting the matching origin", () => {
+  const request = parseMcpAuthorization({ ...parameters, client_id: "https://chatgpt.com/oauth/codex/client.json", redirect_uri: "http://127.0.0.1:49153/callback" }, directOverview)!;
+  const withoutIssuer = `${request.redirect_uri}?${new URLSearchParams({ code: "one-use", state: request.state })}`;
+  expect(() => validatedMcpRedirect(withoutIssuer, request)).toThrow();
+  expect(validatedMcpRedirect(`${withoutIssuer}&${new URLSearchParams({ iss: new URL(request.resource).origin })}`, request)).toContain("iss=");
+});

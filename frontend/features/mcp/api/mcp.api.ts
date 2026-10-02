@@ -17,6 +17,8 @@ export interface McpOverview {
   resource: string;
   capabilities: McpCapability[];
   approved_clients: Record<string, string[]>;
+  direct_clients?: Record<string, string[]>;
+  client_names?: Record<string, string>;
   environment: string;
   revision: string | null;
   observed_at: string;
@@ -49,8 +51,11 @@ export interface McpConnection {
   expires_at: string;
   last_used_at: string | null;
   revoked_at: string | null;
-  status: "active" | "expired" | "revoked";
+  status: "active" | "disabled" | "expired" | "revoked";
+  enabled?: boolean;
+  device_platform?: McpDevicePlatform | null;
 }
+export type McpDevicePlatform = "Windows" | "macOS" | "Other";
 export interface McpActivity {
   id: string;
   action: string;
@@ -90,6 +95,7 @@ export interface McpConsentRequest {
   response_type: "code";
   scopes: McpCapability[];
   name: string;
+  device_platform?: McpDevicePlatform;
 }
 export const mcpApi = {
   overview: async (signal?: AbortSignal) => (await apiClient.get<McpOverview>(API_ENDPOINTS.mcp.overview, { signal })).data,
@@ -103,5 +109,6 @@ export const mcpApi = {
   control: async (enabled: boolean) => (await apiClient.put<{ enabled: boolean }>(API_ENDPOINTS.mcp.control, { enabled })).data,
   revoke: async (id: string) => (await apiClient.post<{ revoked: boolean }>(API_ENDPOINTS.mcp.revoke(id))).data,
   updateConnection: async ({ id, ...update }: { id: string; name: string; capabilities: McpCapability[] }) => (await apiClient.patch<McpConnection>(API_ENDPOINTS.mcp.connection(id), update)).data,
+  setConnectionAccess: async ({ id, enabled }: { id: string; enabled: boolean }) => (await apiClient.patch<McpConnection>(API_ENDPOINTS.mcp.connectionAccess(id), { enabled })).data,
   authorize: async (request: McpConsentRequest) => (await apiClient.post<{ redirect_url: string }>(API_ENDPOINTS.mcp.authorize, request)).data,
 };
