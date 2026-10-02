@@ -66,8 +66,15 @@ it.each([
 });
 
 it.each(["expired", "finalized"] as const)("shows terminal %s state without finalizing again", async (status) => {
-  vi.mocked(mcpRequestApi.status).mockResolvedValue({ ...request, status }); renderWaiting();
+  vi.mocked(mcpRequestApi.status).mockResolvedValue({ ...request, status, approved_capabilities: status === "finalized" ? ["mcp:read"] : null }); renderWaiting();
   expect(await screen.findByRole("heading", { name: status === "expired" ? "This request has expired" : "Connection completed" })).toBeVisible();
+  expect(mcpRequestApi.finalize).not.toHaveBeenCalled();
+});
+it("keeps a finalized rejection declined instead of claiming the app connected", async () => {
+  vi.mocked(mcpRequestApi.status).mockResolvedValue({ ...request, status: "finalized", approved_capabilities: null }); renderWaiting();
+  expect(await screen.findByRole("heading", { name: "Access request declined" })).toBeVisible();
+  expect(screen.getByText(/Your administrator declined this connection/)).toBeVisible();
+  expect(screen.queryByRole("heading", { name: "Connection completed" })).not.toBeInTheDocument();
   expect(mcpRequestApi.finalize).not.toHaveBeenCalled();
 });
 

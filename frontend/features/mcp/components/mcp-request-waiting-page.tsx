@@ -39,17 +39,19 @@ function WaitingRequest({ id }: { id: string }) {
     }).catch(() => { setFinishError("Your request could not be returned to the app. Start Authenticate again from your app to try a new request."); setFinishing(false); });
   }, [id, status, query.isError, query.isFetching]);
   const ended = query.error instanceof McpRequestError && (query.error.status === 404 || query.error.status === 409);
+  const declined = status === "rejected" || (status === "finalized" && !request?.approved_capabilities?.length);
+  const successful = status === "approved" || (status === "finalized" && !declined);
   const title = ended ? "This request is no longer available" : status === "expired" ? "This request has expired"
-    : status === "rejected" ? "Access request declined" : status === "finalized" ? "Connection completed"
+    : declined ? "Access request declined" : status === "finalized" ? "Connection completed"
     : status === "approved" ? "Your access request was approved" : "Waiting for administrator approval";
-  const Icon = status === "approved" || status === "finalized" ? CheckCircle2 : ended || status === "expired" || status === "rejected" ? XCircle : Clock3;
+  const Icon = successful ? CheckCircle2 : ended || status === "expired" || declined ? XCircle : Clock3;
   return <section aria-label="MCP access request" className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-    <div className={`mb-5 flex h-12 w-12 items-center justify-center rounded-xl ${status === "approved" || status === "finalized" ? "bg-green-50 text-green-700" : "bg-blue-50 text-blue-700"}`}><Icon className="h-6 w-6" aria-hidden="true" /></div>
+    <div className={`mb-5 flex h-12 w-12 items-center justify-center rounded-xl ${successful ? "bg-green-50 text-green-700" : "bg-blue-50 text-blue-700"}`}><Icon className="h-6 w-6" aria-hidden="true" /></div>
     <h1 className="text-2xl font-semibold tracking-tight text-slate-950">{title}</h1>
     <div aria-live="polite" className="mt-3 text-sm leading-6 text-slate-600">
       {ended ? <p>Start Authenticate again from your app to create a new access request.</p> : query.isPending ? <p>Checking your access request…</p> : query.isError ? <p>Your request status is temporarily unavailable.</p> : status === "pending" ? <p>Your access request is awaiting administrator approval. You can use Global Connects once an administrator approves this connection.</p>
         : status === "approved" ? <p>{finishing ? "Returning you to your app to finish connecting…" : "Your administrator approved this connection."}</p>
-        : status === "rejected" ? <p>Your administrator declined this connection. Contact them if you need access.</p>
+        : declined ? <p>Your administrator declined this connection. Contact them if you need access.</p>
         : status === "finalized" ? <p>This request has already returned to your app. You can close this tab.</p>
         : <p>Start Authenticate again from your app to create a new access request.</p>}
     </div>

@@ -81,3 +81,15 @@ it("never treats cached pending requests as current after a failed refresh", asy
   await waitFor(() => expect(screen.getByRole("button", { name: "Approve" })).toBeDisabled());
   expect(screen.getByRole("button", { name: "Reject" })).toBeDisabled();
 });
+it.each([
+  { connection_id: "grant-a", label: "Connected", success: true },
+  { connection_id: null, label: "Rejected", success: false },
+])("shows a finalized request as $label only according to the grant outcome", async ({ connection_id, label, success }) => {
+  vi.mocked(mcpApi.requests).mockResolvedValue({ items: [{ ...request, status: "finalized", connection_id }], next_offset: null });
+  renderRequests();
+  const badge = await within(await screen.findByRole("region", { name: "Recent request decisions" })).findByText(label, { exact: true });
+  expect(badge).toBeVisible();
+  if (success) expect(badge).toHaveClass("text-green-700");
+  else { expect(badge).not.toHaveClass("text-green-700"); expect(screen.queryByText("Connected", { exact: true })).not.toBeInTheDocument(); }
+  expect(mcpApi.approveRequest).not.toHaveBeenCalled(); expect(mcpApi.rejectRequest).not.toHaveBeenCalled();
+});
