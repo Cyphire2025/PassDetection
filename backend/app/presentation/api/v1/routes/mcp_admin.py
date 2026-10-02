@@ -9,7 +9,7 @@ from urllib.parse import urlencode
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mcp.authorization import MCPAuthorizationService
@@ -120,6 +120,13 @@ async def connections(
         (
             await session.scalars(
                 select(MCPGrantModel)
+                # Explicitly removed entries retain their grant and workflow
+                # provenance. Other revoked entries remain in the Devices list.
+                .where(or_(
+                    MCPGrantModel.revoked_at.is_(None),
+                    MCPGrantModel.revocation_reason.is_(None),
+                    MCPGrantModel.revocation_reason != "administrator_removed",
+                ))
                 .order_by(
                     MCPGrantModel.created_at.desc(),
                     MCPGrantModel.id.desc(),

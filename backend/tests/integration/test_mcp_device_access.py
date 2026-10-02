@@ -261,3 +261,96 @@ async def test_disabled_operation_connection_blocks_new_work_replay_and_inspecti
     grants[0].enabled = True
     await session.flush()
     assert await execute(operations_fixture) == receipt
+
+
+async def test_devices_hide_only_explicitly_removed_revoked_grants(mcp_fixture):
+    client, session, _, user, _, dashboard = mcp_fixture
+    now = datetime.now(UTC)
+    cases = (
+        ("removed", True, "administrator_removed", True, False),
+        ("normally disconnected", True, "administrator_revoked", True, True),
+        ("revoked without reason", True, None, True, True),
+        ("refresh reuse", True, "refresh_reuse", True, True),
+        ("active without reason", False, None, True, True),
+        ("active with reserved marker", False, "administrator_removed", True, True),
+        ("disabled with reserved marker", False, "administrator_removed", False, True),
+        ("different marker", True, "administrator_removed_extra", True, True),
+    )
+    grants = []
+    expected = set()
+    for name, revoked, reason, enabled, visible in cases:
+        grant = MCPGrantModel(
+            id=uuid.uuid4(), user_id=user.id, client_id=CLIENT, name=name,
+            resource=RESOURCE, capabilities=["mcp:read"], security_version=1,
+            mfa_at=now, created_at=now - timedelta(minutes=1),
+            expires_at=now + timedelta(days=1), enabled=enabled,
+            revoked_at=now if revoked else None, revocation_reason=reason,
+        )
+        grants.append(grant)
+        if visible:
+            expected.add(str(grant.id))
+    session.add_all(grants)
+    await session.commit()
+    response = await client.get(
+        "/api/v1/admin/mcp/connections", headers={"Authorization": f"Bearer {dashboard}"}
+    )
+    assert response.status_code == 200, response.text
+    items = response.json()["items"]
+    assert {row["id"] for row in items} == expected
+    assert response.json()["next_offset"] is None
+    assert all("revocation_reason" not in row for row in items)
+    assert await session.scalar(select(func.count()).select_from(MCPGrantModel)) == len(cases)
+    await session.refresh(grants[0])
+    assert grants[0].revoked_at is not None and grants[0].revocation_reason == "administrator_removed"
+
+
+async def test_removed_device_filter_precedes_pagination_and_preserves_revoked_credentials(mcp_fixture):
+    client, session, settings, user, _, dashboard = mcp_fixture
+    _, tokens = await connect(mcp_fixture)
+    removed = await session.scalar(select(MCPGrantModel))
+    now = datetime.now(UTC)
+    removed.revoked_at, removed.revocation_reason = now, "administrator_removed"
+    removed.created_at = now
+    visible = []
+    for index in range(3):
+        grant = MCPGrantModel(
+            id=uuid.uuid4(), user_id=user.id, client_id=CLIENT, name=f"Visible connection {index}",
+            resource=RESOURCE, capabilities=["mcp:read"], security_version=1,
+            mfa_at=now, created_at=now - timedelta(minutes=index + 1),
+            expires_at=now + timedelta(days=1), enabled=True,
+        )
+        session.add(grant)
+        visible.append(grant)
+    await session.commit()
+    auth_rows_before = [
+        await session.scalar(select(func.count()).select_from(model))
+        for model in (MCPGrantModel, MCPTokenModel, MCPAuthorizationCodeModel)
+    ]
+    headers = {"Authorization": f"Bearer {dashboard}"}
+    first = await client.get("/api/v1/admin/mcp/connections?limit=2", headers=headers)
+    assert first.status_code == 200, first.text
+    assert [row["id"] for row in first.json()["items"]] == [str(row.id) for row in visible[:2]]
+    assert first.json()["next_offset"] == 2
+    second = await client.get("/api/v1/admin/mcp/connections?limit=2&offset=2", headers=headers)
+    assert [row["id"] for row in second.json()["items"]] == [str(visible[2].id)]
+    assert second.json()["next_offset"] is None
+    assert [
+        await session.scalar(select(func.count()).select_from(model))
+        for model in (MCPGrantModel, MCPTokenModel, MCPAuthorizationCodeModel)
+    ] == auth_rows_before
+    with pytest.raises(MCPAuthError) as denied:
+        await MCPAuthorizationService(session, settings).verify_access(tokens["access_token"])
+    assert denied.value.error == "invalid_grant"
+    refresh = await client.post("/oauth/mcp/token", data={
+        "grant_type": "refresh_token", "client_id": CLIENT, "resource": RESOURCE,
+        "refresh_token": tokens["refresh_token"],
+    })
+    assert refresh.status_code == 400 and refresh.json()["error"] == "invalid_grant"
+    refresh_row = await session.get(
+        MCPTokenModel, MCPAuthorizationService(session, settings).digest(tokens["refresh_token"])
+    )
+    assert refresh_row.consumed_at is None
+    assert (await set_access(mcp_fixture, removed.id, True)).status_code == 409
+    assert (await client.post(f"/api/v1/admin/mcp/connections/{removed.id}/revoke", headers=headers)).status_code == 200
+    await session.refresh(removed)
+    assert removed.revocation_reason == "administrator_removed"
