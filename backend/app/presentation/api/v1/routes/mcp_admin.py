@@ -14,13 +14,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mcp.authorization import MCPAuthorizationService
 from app.application.mcp.client_policy import DIRECT_CLIENT_NAMES, DIRECT_CLIENT_REDIRECTS
+from app.application.mcp.connection_requests import (
+    MCPConnectionRequestService,
+    admin_request_payload,
+)
 from app.application.mcp.credentials import MCPAuthError, utc
 from app.application.mcp.read_access import current_read_access
 from app.core.config.settings import Settings
 from app.domain.entities.entities import User
 from app.domain.mcp_policy import CAPABILITIES
 from app.domain.mcp_read_sections import read_section_catalog
-from app.infrastructure.database.mcp_models import MCPControlModel, MCPGrantModel
+from app.infrastructure.database.mcp_models import (
+    MCPConnectionRequestModel,
+    MCPControlModel,
+    MCPGrantModel,
+)
 from app.infrastructure.database.mcp_operation_models import MCPOperationModel
 from app.infrastructure.database.models import AuditLogModel
 from app.infrastructure.database.session import get_db_session
@@ -31,6 +39,7 @@ from app.presentation.api.v1.schemas.mcp_schemas import (
     MCPConnectionUpdate,
     MCPConsentRequest,
     MCPControlRequest,
+    MCPRequestApproval,
 )
 from app.presentation.dependencies.auth import require_recent_mfa
 from app.presentation.dependencies.csrf import require_cookie_csrf
@@ -124,6 +133,48 @@ async def connections(
         "items": [connection_payload(row, _settings(request)) for row in rows[:limit]],
         "next_offset": offset + limit if len(rows) > limit else None,
     }
+
+
+@router.get("/connection-requests")
+async def connection_requests(offset: int = Query(default=0, ge=0), limit: int = Query(default=50, ge=1, le=100),
+                              session: AsyncSession = Depends(get_db_session)) -> dict[str, object]:
+    from datetime import timedelta
+
+    rows = list((await session.scalars(select(MCPConnectionRequestModel).where(
+        MCPConnectionRequestModel.created_at > datetime.now(UTC) - timedelta(hours=1)
+    ).order_by(MCPConnectionRequestModel.created_at.desc(), MCPConnectionRequestModel.id.desc())
+       .offset(offset).limit(limit + 1))).all())
+    return {"items": [admin_request_payload(row) for row in rows[:limit]],
+            "next_offset": offset + limit if len(rows) > limit else None}
+
+
+@router.post("/connection-requests/{request_id}/approve", dependencies=_mutations)
+async def approve_connection_request(request_id: uuid.UUID, body: MCPRequestApproval, request: Request,
+                                     user: User = Depends(require_mcp_management),
+                                     session: AsyncSession = Depends(get_db_session)) -> dict[str, object]:
+    try:
+        row = await MCPConnectionRequestService(session, _settings(request)).decide(request_id, approved=True,
+            user_id=user.id, security_version=user.session_version,
+            mfa_at=datetime.fromtimestamp(request.state.auth_claims["mfa_at"], UTC), name=body.name,
+            platform=body.device_platform, capabilities=body.capabilities)
+    except MCPAuthError as exc:
+        raise HTTPException(exc.status_code, exc.error) from exc
+    await session.commit()
+    return admin_request_payload(row)
+
+
+@router.post("/connection-requests/{request_id}/reject", dependencies=_mutations)
+async def reject_connection_request(request_id: uuid.UUID, request: Request,
+                                    user: User = Depends(require_mcp_management),
+                                    session: AsyncSession = Depends(get_db_session)) -> dict[str, object]:
+    try:
+        row = await MCPConnectionRequestService(session, _settings(request)).decide(request_id, approved=False,
+            user_id=user.id, security_version=user.session_version,
+            mfa_at=datetime.fromtimestamp(request.state.auth_claims["mfa_at"], UTC))
+    except MCPAuthError as exc:
+        raise HTTPException(exc.status_code, exc.error) from exc
+    await session.commit()
+    return admin_request_payload(row)
 
 
 @router.post("/authorize", dependencies=_mutations)

@@ -4,7 +4,6 @@ import { useState, type FormEvent } from "react";
 import { Badge, Button } from "@/components/ui";
 import type { McpConnection, McpOverview, McpReadAccess } from "../api/mcp.api";
 import { useMcpReadAccess, useMcpUpdateReadAccess } from "../hooks/use-mcp";
-import { McpReadExamples } from "./mcp-read-examples";
 import { McpError } from "./mcp-shared";
 
 function validReadAccess(value: McpReadAccess) {
@@ -17,7 +16,7 @@ function sameSections(left: string[], right: string[]) {
   return left.length === right.length && left.every((id) => right.includes(id));
 }
 
-export function McpReadAccessPanel({ overview, connections, uncertain, overviewUnavailable }: {
+export function McpReadAccessPanel({ overviewUnavailable }: {
   overview: McpOverview; connections: McpConnection[]; uncertain: boolean; overviewUnavailable: boolean;
 }) {
   const query = useMcpReadAccess();
@@ -32,8 +31,6 @@ export function McpReadAccessPanel({ overview, connections, uncertain, overviewU
       {valid && query.data ? <ReadAccessEditor data={query.data} unavailable={query.isError || query.isFetching || overviewUnavailable}
         reload={async () => { const result = await query.refetch(); return result.isError ? null : result.data ?? null; }} /> : null}
     </section>
-    <McpReadExamples overview={overview} connections={connections} access={valid ? query.data : undefined}
-      uncertain={uncertain || query.isError || query.isFetching} />
   </>;
 }
 
@@ -72,19 +69,20 @@ function ReadAccessEditor({ data, unavailable, reload }: {
   return <form onSubmit={submit} className="space-y-4">
     {stale || conflict ? <p role="alert" className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">Read settings changed elsewhere. Reload the saved settings and review them before saving again. Your unsaved choices have not been applied.</p> : null}
     {unavailable ? <p role="status" className="text-sm text-slate-600">Checking the current policy failed or is still in progress. Saving is unavailable until it can be confirmed.</p> : null}
-    <fieldset disabled={blocked} className="grid gap-3 md:grid-cols-2">
+    <fieldset disabled={blocked} className="divide-y divide-slate-100 rounded-xl border border-slate-200">
       <legend className="sr-only">Sidebar sections</legend>
-      {data.sections.map((section) => <div key={section.id} className="rounded-lg border border-slate-200 p-4">
-        {section.supported ? <label className="flex cursor-pointer items-start gap-3">
-          <input type="checkbox" aria-label={`Allow ${section.label}`} aria-describedby={`read-coverage-${section.id}`} className="mt-1 h-4 w-4 accent-blue-600"
+      {data.sections.map((section) => <div key={section.id} className="relative px-4 py-4 sm:px-5">
+        {section.supported ? <label className="flex cursor-pointer items-center justify-between gap-4">
+          <span className="text-sm font-medium text-slate-950">{section.label}</span>
+          <input type="checkbox" role="switch" aria-label={`Allow ${section.label}`} aria-describedby={`read-coverage-${section.id}`} className="peer sr-only"
             checked={draft.allowed.includes(section.id)} onChange={(event) => {
               const checked = event.target.checked;
               setDraft((current) => ({ ...current, allowed: checked ? [...current.allowed, section.id] : current.allowed.filter((id) => id !== section.id) }));
               setSavedRevision(null);
             }} />
-          <span className="text-sm font-medium text-slate-950">{section.label}</span>
+          <span aria-hidden="true" className="relative h-6 w-11 shrink-0 rounded-full bg-slate-200 transition-colors after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow-sm after:transition-transform peer-checked:bg-blue-600 peer-checked:after:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-600 peer-focus-visible:ring-offset-2 peer-disabled:opacity-50" />
         </label> : <div className="flex flex-wrap items-center gap-2"><h3 className="text-sm font-medium text-slate-950">{section.label}</h3><Badge variant="outline">{section.metadata_only ? "Connection metadata" : "Not available yet"}</Badge></div>}
-        <p id={`read-coverage-${section.id}`} className="mt-2 text-xs leading-5 text-slate-600">{section.coverage_description ?? "Only the listed read tools are covered. Additional page features are not available through Codex."}</p>
+        <p id={`read-coverage-${section.id}`} className="mt-1 max-w-3xl pr-12 text-xs leading-5 text-slate-500">{section.coverage_description ?? "Only the listed read tools are covered. Additional page features are not available through Codex."}</p>
         {section.supported && section.tool_requirements?.length ? <details className="mt-2 text-xs text-slate-500"><summary className="cursor-pointer">Required sections for these reads</summary>
           <ul className="mt-2 space-y-1">{section.tool_requirements.map((tool) => <li key={tool.name}>{tool.name.replaceAll("_", " ")}: {tool.required_sections.map((id) => data.sections.find((item) => item.id === id)?.label ?? id).join(", ")}</li>)}</ul>
         </details> : null}

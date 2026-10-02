@@ -70,8 +70,8 @@ async def test_native_discovery_consent_exchange_and_mcp(mcp_fixture, client_id,
     })
     assert start.status_code == 303, start.text
     location = urlsplit(start.headers["location"])
-    assert location.path == "/admin/mcp/connect"
-    assert parse_qs(location.query)["redirect_uri"] == [redirect]
+    assert location.path == "/mcp/connect"
+    assert set(parse_qs(location.query)) == {"request_id"}
     response = await client.post("/api/v1/admin/mcp/authorize", json=body,
                                  headers={"Authorization": f"Bearer {dashboard}"})
     assert response.status_code == 200, response.text

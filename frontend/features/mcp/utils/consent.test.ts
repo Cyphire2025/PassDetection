@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import type { McpOverview } from "../api/mcp.api";
-import { parseMcpAuthorization, validatedMcpRedirect } from "./consent";
+import { parseMcpAuthorization, validatedMcpRedirect, validatedMcpRequestCallback } from "./consent";
 
 const overview: McpOverview = {
   read_only_mode: false,
@@ -78,4 +78,19 @@ it("requires issuer identification for native app callbacks while accepting the 
   const withoutIssuer = `${request.redirect_uri}?${new URLSearchParams({ code: "one-use", state: request.state })}`;
   expect(() => validatedMcpRedirect(withoutIssuer, request)).toThrow();
   expect(validatedMcpRedirect(`${withoutIssuer}&${new URLSearchParams({ iss: new URL(request.resource).origin })}`, request)).toContain("iss=");
+});
+
+it("validates rejection callbacks with exact native state and issuer without accepting a success code", () => {
+  const context = { client_id: "https://chatgpt.com/oauth/codex/client.json", redirect_uri: "http://127.0.0.1:50123/callback", resource: overview.resource, state: parameters.state };
+  const redirect_url = `${context.redirect_uri}?${new URLSearchParams({ error: "access_denied", state: context.state, iss: "https://app.example.test" })}`;
+  expect(validatedMcpRequestCallback({ ...context, redirect_url }, true)).toBe(redirect_url);
+  for (const bad of [`${redirect_url}&code=secret`, `${redirect_url}&error=access_denied`, redirect_url.replace("access_denied", "other"), redirect_url.replace("app.example.test", "evil.test")]) {
+    expect(() => validatedMcpRequestCallback({ ...context, redirect_url: bad }, true)).toThrow();
+  }
+  expect(() => validatedMcpRequestCallback({ ...context, redirect_url }, false)).toThrow();
+});
+it("checks native callback context independently of a self-matching response URL", () => {
+  const context = { client_id: "https://chatgpt.com/oauth/codex/client.json", redirect_uri: "http://127.0.0.2:50123/callback", resource: overview.resource, state: parameters.state };
+  const redirect_url = `${context.redirect_uri}?${new URLSearchParams({ code: "one-use", state: context.state, iss: "https://app.example.test" })}`;
+  expect(() => validatedMcpRequestCallback({ ...context, redirect_url }, false)).toThrow();
 });

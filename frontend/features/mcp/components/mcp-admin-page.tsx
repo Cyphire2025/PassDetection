@@ -1,50 +1,46 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { ChevronDown, Plug, RefreshCw } from "lucide-react";
+import Link from "next/link";
+import { Cable, ListFilter, Monitor, Plug, RefreshCw, Settings2 } from "lucide-react";
 import { WorkspacePageHeader } from "@/components/shared/workspace-ui";
 import { Button } from "@/components/ui";
 import { useMcpOverview, useMcpRefresh } from "../hooks/use-mcp";
-import { isMcpReadOnlyMode } from "../utils/read-only";
-import { McpAccessHome } from "./mcp-access-home";
-import { McpAdvanced, type McpAdvancedTab } from "./mcp-advanced";
 import { McpAccessBoundary, McpError } from "./mcp-shared";
 import { McpDevices } from "./mcp-devices";
+import { McpSettings } from "./mcp-settings";
+import { McpAccessHome } from "./mcp-access-home";
+import { McpRequests } from "./mcp-requests";
 
-export function McpAdminPage() {
-  return <McpAccessBoundary><McpAdminWorkspace /></McpAccessBoundary>;
+export type McpAdminSection = "devices" | "requests" | "settings" | "setup";
+const SECTIONS = [
+  { id: "devices", label: "Devices", href: "/admin/mcp", icon: Monitor },
+  { id: "requests", label: "Requests", href: "/admin/mcp/requests", icon: ListFilter },
+  { id: "settings", label: "Settings", href: "/admin/mcp/settings", icon: Settings2 },
+  { id: "setup", label: "Connection setup", href: "/admin/mcp/setup", icon: Cable },
+] as const;
+
+export function McpAdminPage({ section = "devices" }: { section?: McpAdminSection }) {
+  return <McpAccessBoundary><McpAdminWorkspace section={section} /></McpAccessBoundary>;
 }
 
-function McpAdminWorkspace() {
+function McpAdminWorkspace({ section }: { section: McpAdminSection }) {
   const overview = useMcpOverview();
   const refresh = useMcpRefresh();
-  const [advanced, setAdvanced] = useState(false);
-  const [tab, setTab] = useState<McpAdvancedTab>("connections");
-  const [setupRequest, setSetupRequest] = useState(0);
-  const readOnly = isMcpReadOnlyMode(overview.data ?? {});
-  useEffect(() => {
-    if (!setupRequest) return;
-    const content = document.getElementById("codex-advanced-content");
-    content?.focus();
-    content?.scrollIntoView?.({ block: "start", behavior: "smooth" });
-  }, [setupRequest]);
+  const unavailable = overview.isError || overview.isFetching;
   return <div className="space-y-6">
-    <WorkspacePageHeader icon={Plug} title="Codex access" description={readOnly ? "Choose which parts of Global Connects Codex can read." : "Look up your work and prepare passport Excel reports from Codex."}
+    <WorkspacePageHeader icon={Plug} title="MCP access" description="Manage approved devices, review requests, and choose what ChatGPT and Codex can access."
       actions={<Button variant="secondary" isLoading={overview.isFetching} onClick={() => void refresh()}><RefreshCw className="h-4 w-4" aria-hidden="true" />Refresh status</Button>} />
+    <nav aria-label="MCP pages" className="grid grid-cols-2 gap-1 rounded-xl border border-slate-200 bg-white p-1.5 sm:flex">
+      {SECTIONS.map(({ id, label, href, icon: Icon }) => <Link key={id} href={href} aria-current={section === id ? "page" : undefined}
+        className={`flex min-h-11 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors sm:justify-start sm:px-5 ${section === id ? "bg-blue-50 text-blue-800 ring-1 ring-inset ring-blue-100" : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"}`}>
+        <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />{label}
+      </Link>)}
+    </nav>
     <McpError error={overview.error} onRetry={() => void overview.refetch()} />
     {overview.isPending ? <p role="status" className="text-sm text-slate-500">Checking access…</p> : null}
-    {overview.data ? <>
-      <McpAccessHome overview={overview.data} overviewUnavailable={overview.isError} onSetup={() => { setTab("setup"); setAdvanced(true); setSetupRequest((value) => value + 1); }}>
-        <McpDevices overview={overview.data} unavailable={overview.isError || overview.isFetching} />
-      </McpAccessHome>
-      <section aria-label="Advanced Codex settings" className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
-        <button type="button" aria-expanded={advanced} aria-controls="codex-advanced-content" onClick={() => setAdvanced(!advanced)}
-          className="flex w-full items-center justify-between gap-3 text-left text-sm font-semibold text-slate-800">
-          Advanced<ChevronDown aria-hidden="true" className={`h-4 w-4 transition-transform ${advanced ? "rotate-180" : ""}`} />
-        </button>
-        <p className="mt-1 text-xs leading-5 text-slate-500">{readOnly ? "Connections, setup instructions, read tools and access activity." : "Setup instructions, all connections, saved work and technical details."}</p>
-        {advanced ? <McpAdvanced overview={overview.data} tab={tab} onTabChange={setTab} unavailable={overview.isError || overview.isFetching} /> : null}
-      </section>
-    </> : null}
+    {overview.data ? section === "devices" ? <McpDevices overview={overview.data} unavailable={unavailable} />
+      : section === "requests" ? <McpRequests overview={overview.data} unavailable={unavailable} />
+      : section === "settings" ? <McpSettings overview={overview.data} unavailable={unavailable} />
+      : <McpAccessHome overview={overview.data} overviewUnavailable={unavailable} /> : null}
   </div>;
 }

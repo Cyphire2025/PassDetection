@@ -18,9 +18,9 @@ export function accessStatus(overview: McpOverview, connections: McpConnection[]
   if (!overview.enabled || overview.emergency_disabled) return { title: "Access paused", description: "All Codex connections are paused. Your saved connections and application data are retained.", authorized: false };
   if (connections.some((connection) => connectionHasAccess(connection) && connection.capabilities.some((capability) => effectiveMcpCapabilities(overview).includes(capability)))) return { title: "Codex is authorized", description: "A saved connection has access for your account. This does not tell us whether the app is open or online.", authorized: true };
   if (partial) return { title: "More connections to check", description: "There is no usable Codex authorization on this page. Check the other connection pages before signing in again.", authorized: false };
-  if (connections.some(connectionHasAccess)) return { title: "No available permissions", description: "Your saved connection has no permissions enabled on this website. Review its access in Advanced or sign in again.", authorized: false };
+  if (connections.some(connectionHasAccess)) return { title: "No available permissions", description: "Review this device’s permissions in Devices and the saved read policy in Settings.", authorized: false };
   if (connections.some((connection) => connection.status === "disabled" || (connection.status === "active" && connection.enabled === false))) return { title: "Your connections are disabled", description: "Enable a saved connection in Devices to allow access again.", authorized: false };
-  return { title: "Sign-in needed", description: "Connect Codex to this account, then return here to check its access.", authorized: false };
+  return { title: "Approval needed", description: "Click Authenticate in your MCP app and ask an administrator to approve the matching request.", authorized: false };
 }
 
 export const BUSINESS_EXAMPLES = [

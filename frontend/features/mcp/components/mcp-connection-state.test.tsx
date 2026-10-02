@@ -63,11 +63,11 @@ it.each([
 ])("does not claim revocation or retry after $code", async (error) => {
   vi.mocked(mcpApi.revoke).mockRejectedValue(error);
   renderPage();
-  fireEvent.click(await screen.findByRole("button", { name: "Advanced" }));
-  fireEvent.click(await screen.findByRole("button", { name: "Disconnect" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Manage" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Disconnect permanently" }));
   fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Disconnect connection" }));
   expect(await screen.findByRole("alert")).toHaveTextContent(error.message);
-  expect(within(screen.getByRole("region", { name: "MCP connections" })).getByText("Authorized", { exact: true })).toBeVisible();
+  expect(within(screen.getByRole("region", { name: "MCP devices" })).getByText("Authorized", { exact: true })).toBeVisible();
   expect(mcpApi.revoke).toHaveBeenCalledTimes(1);
   expect(mcpApi.connections).toHaveBeenCalledTimes(1);
 });
@@ -79,12 +79,12 @@ it("refetches durable state after successful revocation and keeps the retained c
     return { revoked: true };
   });
   renderPage();
-  fireEvent.click(await screen.findByRole("button", { name: "Advanced" }));
-  fireEvent.click(await screen.findByRole("button", { name: "Disconnect" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Manage" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Disconnect permanently" }));
   fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Disconnect connection" }));
-  await waitFor(() => expect(within(screen.getByRole("region", { name: "MCP connections" })).getByText("Disconnected", { exact: true })).toBeVisible());
+  await waitFor(() => expect(within(screen.getByRole("region", { name: "MCP devices" })).getByText("Disconnected", { exact: true })).toBeVisible());
   expect(mcpApi.connections).toHaveBeenCalledTimes(2);
-  expect(screen.queryByRole("button", { name: "Disconnect" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Disconnect permanently" })).not.toBeInTheDocument();
 });
 
 it("removes cached management content immediately when the active actor loses the superadmin role", async () => {

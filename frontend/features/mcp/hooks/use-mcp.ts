@@ -61,3 +61,15 @@ export function useMcpSetConnectionAccess() {
 export function useMcpAuthorize() {
   return useMutation({ mutationFn: mcpApi.authorize, retry: false });
 }
+export function useMcpRequests(offset: number) {
+  return useQuery({ queryKey: [...keys.root, "requests", offset], queryFn: ({ signal }) => mcpApi.requests(offset, signal),
+    retry: false, refetchInterval: 5000, refetchOnWindowFocus: "always" });
+}
+export function useMcpApproveRequest() {
+  const client = useQueryClient();
+  return useMutation({ mutationFn: mcpApi.approveRequest, retry: false, onSuccess: () => client.invalidateQueries({ queryKey: keys.root }) });
+}
+export function useMcpRejectRequest() {
+  const client = useQueryClient();
+  return useMutation({ mutationFn: mcpApi.rejectRequest, retry: false, onSuccess: () => client.invalidateQueries({ queryKey: keys.root }) });
+}

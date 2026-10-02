@@ -56,31 +56,46 @@ it("denies an inactive superadmin before loading connection data", () => {
   setUser("super_admin", false); renderPage();
   expect(mcpApi.connections).not.toHaveBeenCalled(); expect(mcpApi.overview).not.toHaveBeenCalled();
 });
-it("shows real qualification state and keeps deployment-disabled access unavailable", async () => {
+it("keeps a deployment-disabled service unavailable without showing release internals", async () => {
   vi.mocked(mcpApi.overview).mockResolvedValue({ ...overview, enabled: false, deployment_enabled: false });
-  renderPage();
-  fireEvent.click(await screen.findByRole("button", { name: "Advanced" }));
-  expect(await screen.findByText(/Release qualification is in progress/)).toBeVisible();
-  expect(screen.queryByRole("button", { name: "Resume access" })).not.toBeInTheDocument();
-  expect(within(screen.getByRole("region", { name: "MCP connections" })).getByRole("article", { name: "Office desktop" })).toBeVisible();
+  renderPage(<McpAdminPage section="settings" />);
+  expect(await screen.findByRole("switch", { name: "Allow MCP access" })).toBeDisabled();
+  expect(screen.queryByText(/Release qualification/)).not.toBeInTheDocument();
+  expect(screen.queryByText(overview.revision!)).not.toBeInTheDocument();
 });
-it("disables access through the server and confirms revocation of a named connection", async () => {
-  renderPage();
-  fireEvent.click(await screen.findByRole("button", { name: "Pause access" }));
+it("pauses then resumes even when the paused overview sets emergency_disabled", async () => {
+  let current = overview;
+  vi.mocked(mcpApi.overview).mockImplementation(async () => current);
+  vi.mocked(mcpApi.control).mockImplementation(async (enabled) => {
+    current = { ...overview, enabled, emergency_disabled: !enabled };
+    return { enabled };
+  });
+  renderPage(<McpAdminPage section="settings" />);
+  fireEvent.click(await screen.findByRole("switch", { name: "Allow MCP access" }));
   expect(mcpApi.control).not.toHaveBeenCalled();
   fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Pause access" }));
-  await waitFor(() => expect(mcpApi.control).toHaveBeenCalledWith(false, expect.anything()));
-  await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
-  fireEvent.click(screen.getByRole("button", { name: "Advanced" }));
-  fireEvent.click(await screen.findByRole("button", { name: "Disconnect" }));
-  expect(mcpApi.revoke).not.toHaveBeenCalled();
-  fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Disconnect connection" }));
-  await waitFor(() => expect(mcpApi.revoke).toHaveBeenCalledWith("grant-a", expect.anything()));
+  await waitFor(() => expect(screen.getByRole("switch", { name: "Allow MCP access" })).not.toBeChecked());
+  expect(screen.getByRole("switch", { name: "Allow MCP access" })).toBeEnabled();
+  fireEvent.click(screen.getByRole("switch", { name: "Allow MCP access" }));
+  fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Resume access" }));
+  await waitFor(() => expect(screen.getByRole("switch", { name: "Allow MCP access" })).toBeChecked());
+  expect(mcpApi.control).toHaveBeenNthCalledWith(1, false, expect.anything());
+  expect(mcpApi.control).toHaveBeenNthCalledWith(2, true, expect.anything());
 });
-it("renames a connection and only allows narrowing its existing permissions", async () => {
-  renderPage();
-  fireEvent.click(await screen.findByRole("button", { name: "Advanced" }));
-  fireEvent.click(await screen.findByRole("button", { name: "Edit access" }));
+it("cancels a pause without a server request and keeps saved state after MFA cancellation", async () => {
+  vi.mocked(mcpApi.control).mockRejectedValue({ code: "STEP_UP_CANCELLED", message: "Identity confirmation was cancelled." });
+  renderPage(<McpAdminPage section="settings" />);
+  fireEvent.click(await screen.findByRole("switch", { name: "Allow MCP access" }));
+  fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Cancel" }));
+  expect(mcpApi.control).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("switch", { name: "Allow MCP access" }));
+  fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Pause access" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent("Identity confirmation was cancelled.");
+  expect(screen.getByRole("switch", { name: "Allow MCP access" })).toBeChecked();
+  expect(mcpApi.control).toHaveBeenCalledOnce();
+});
+it("renames a device and only allows narrowing its existing permissions", async () => {
+  renderPage(); fireEvent.click(await screen.findByRole("button", { name: "Manage" }));
   fireEvent.change(screen.getByRole("textbox", { name: "Connection name" }), { target: { value: "Travel laptop" } });
   expect(screen.queryByRole("checkbox", { name: /Send messages/ })).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole("checkbox", { name: /Download reports/ }));
@@ -89,21 +104,11 @@ it("renames a connection and only allows narrowing its existing permissions", as
 });
 it("restarts paginated activity at the first page when a search changes", async () => {
   vi.mocked(mcpApi.activity).mockImplementation(async (offset) => ({ items: [{ id: String(offset), action: "mcp.revoked", result: "success", entity_id: "grant-a", created_at: connection.created_at }], next_offset: offset === 0 ? 25 : null }));
-  renderPage(); fireEvent.click(await screen.findByRole("button", { name: "Advanced" })); fireEvent.click(screen.getByRole("button", { name: "Activity" }));
+  renderPage(<McpAdminPage section="settings" />);
   fireEvent.click(await screen.findByRole("button", { name: "Next" }));
   await waitFor(() => expect(mcpApi.activity).toHaveBeenCalledWith(25, "", expect.any(AbortSignal)));
   fireEvent.change(screen.getByRole("searchbox"), { target: { value: "mcp.revoked" } });
   await waitFor(() => expect(mcpApi.activity).toHaveBeenLastCalledWith(0, "mcp.revoked", expect.any(AbortSignal)));
-});
-it("shows native remote MCP setup and an unavailable direct sign-in honestly", async () => {
-  renderPage(); fireEvent.click(await screen.findByRole("button", { name: "Advanced" })); fireEvent.click(screen.getByRole("button", { name: "Connection setup" }));
-  const setup = screen.getByRole("region", { name: "Advanced direct MCP setup" });
-  expect(setup).toHaveTextContent("Add Global Connects on Windows or macOS");
-  expect(setup).toHaveTextContent("Direct app sign-in has not been enabled");
-  expect(setup).toHaveTextContent("Streamable HTTP");
-  expect(setup).toHaveTextContent("HeadersLeave empty");
-  expect(setup).not.toHaveTextContent("PowerShell");
-  expect(setup).not.toHaveTextContent("gc-mcp.exe");
 });
 it("authorizes the reviewed name and selected scopes once, then returns only to the verified client", async () => {
   let complete!: (value: { redirect_url: string }) => void;

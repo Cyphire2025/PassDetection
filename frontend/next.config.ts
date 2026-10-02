@@ -69,6 +69,7 @@ const nextConfig: NextConfig = {
         source: "/api/:path*",
         destination: `${apiBase}/api/:path*`,
       },
+      { source: "/oauth/mcp/:path*", destination: `${apiBase}/oauth/mcp/:path*` },
     ];
   },
 
@@ -110,6 +111,7 @@ const nextConfig: NextConfig = {
           { key: "Service-Worker-Allowed", value: "/" },
         ],
       },
+      { source: "/mcp/connect", headers: [{ key: "Referrer-Policy", value: "no-referrer" }] },
     ];
   },
 };

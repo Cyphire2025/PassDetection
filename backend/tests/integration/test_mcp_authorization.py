@@ -19,6 +19,7 @@ from app.application.mcp.credentials import MCPAuthError, pkce_challenge
 from app.core.config.mcp import MCPSettings
 from app.infrastructure.database.mcp_models import (
     MCPAuthorizationCodeModel,
+    MCPConnectionRequestModel,
     MCPControlModel,
     MCPGrantModel,
     MCPTokenModel,
@@ -436,13 +437,15 @@ async def test_tool_denial_is_audited_without_raw_arguments(mcp_fixture):
 
 @pytest.mark.asyncio
 async def test_authorize_redirect_policy_and_opaque_state_round_trip(mcp_fixture):
-    client, _, _, _, _, dashboard = mcp_fixture
+    client, session, _, _, _, dashboard = mcp_fixture
     fields = {**consent(), "state": "opaque+/" * 4}
     params = {key: value for key, value in fields.items() if key not in {"scopes", "name"}}
     params.update(scope="mcp:read", code_challenge_method="S256", response_type="code")
     page = await client.get("/oauth/mcp/authorize", params=params)
     assert page.status_code == 303
-    assert parse_qs(urlsplit(page.headers["location"]).query)["state"] == [fields["state"]]
+    request_id = parse_qs(urlsplit(page.headers["location"]).query)["request_id"][0]
+    pending = await session.get(MCPConnectionRequestModel, uuid.UUID(request_id))
+    assert pending.oauth_state == fields["state"]
     malicious = await client.get(
         "/oauth/mcp/authorize", params={**params, "redirect_uri": "https://evil.example/callback"}
     )

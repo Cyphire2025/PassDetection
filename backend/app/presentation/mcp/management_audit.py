@@ -36,6 +36,9 @@ _OPERATIONS = {
     "revoke": "revoke",
     "update_connection": "update_connection",
     "set_connection_access": "connection_access",
+    "connection_requests": "connection_requests",
+    "approve_connection_request": "request_approve",
+    "reject_connection_request": "request_reject",
     "activity": "activity",
     "inventory": "inventory",
     "operations": "operations",
@@ -83,13 +86,14 @@ async def _persist(scope: Scope, operation: str, status: int, reason: str) -> No
     claims = state.get("auth_claims", {})
     actor = _identifier(claims.get("sub")) if isinstance(claims, dict) else None
     connection = _identifier(scope.get("path_params", {}).get("connection_id"))
+    approval_request = _identifier(scope.get("path_params", {}).get("request_id")) if operation in {"request_approve", "request_reject"} else None
     result: AuditResult = "failed" if status >= 500 else "denied" if status in {401, 403} else "blocked"
     factory = getattr(scope["app"].state, "mcp_management_audit_session_factory", AsyncSessionFactory)
     async with factory() as session:
         await AuditLogRepository(session).record(
             action="mcp.management_rejected",
-            entity_type="mcp_control" if operation in {"control", "read_access"} else "mcp_connection",
-            entity_id=str(connection) if connection else None,
+            entity_type="mcp_connection_request" if approval_request else "mcp_control" if operation in {"control", "read_access"} else "mcp_connection",
+            entity_id=str(approval_request or connection) if approval_request or connection else None,
             user_id=actor,
             result=result,
             metadata={"operation": operation, "reason": reason, "http_status": status},

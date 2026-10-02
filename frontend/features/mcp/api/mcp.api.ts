@@ -56,6 +56,19 @@ export interface McpConnection {
   device_platform?: McpDevicePlatform | null;
 }
 export type McpDevicePlatform = "Windows" | "macOS" | "Other";
+export type McpRequestStatus = "pending" | "approved" | "rejected" | "expired" | "finalized";
+export interface McpConnectionRequest {
+  id: string; name: string; device_platform: McpDevicePlatform; client_name: string;
+  comparison_code: string; status: McpRequestStatus; requested_capabilities: McpCapability[];
+  approved_capabilities?: McpCapability[] | null; created_at: string; expires_at: string;
+  decided_at?: string | null; connection_id?: string | null;
+}
+export interface McpRequestApproval {
+  name: string; device_platform: McpDevicePlatform; capabilities: McpCapability[];
+}
+export interface McpRequestCallback {
+  redirect_url: string; client_id: string; redirect_uri: string; resource: string; state: string;
+}
 export interface McpActivity {
   id: string;
   action: string;
@@ -110,5 +123,8 @@ export const mcpApi = {
   revoke: async (id: string) => (await apiClient.post<{ revoked: boolean }>(API_ENDPOINTS.mcp.revoke(id))).data,
   updateConnection: async ({ id, ...update }: { id: string; name: string; capabilities: McpCapability[] }) => (await apiClient.patch<McpConnection>(API_ENDPOINTS.mcp.connection(id), update)).data,
   setConnectionAccess: async ({ id, enabled }: { id: string; enabled: boolean }) => (await apiClient.patch<McpConnection>(API_ENDPOINTS.mcp.connectionAccess(id), { enabled })).data,
+  requests: async (offset: number, signal?: AbortSignal) => (await apiClient.get<McpPage<McpConnectionRequest>>(API_ENDPOINTS.mcp.requests, { params: { offset, limit: 25 }, signal })).data,
+  approveRequest: async ({ id, ...approval }: McpRequestApproval & { id: string }) => (await apiClient.post<McpConnectionRequest>(API_ENDPOINTS.mcp.approveRequest(id), approval)).data,
+  rejectRequest: async (id: string) => (await apiClient.post<McpConnectionRequest>(API_ENDPOINTS.mcp.rejectRequest(id), {})).data,
   authorize: async (request: McpConsentRequest) => (await apiClient.post<{ redirect_url: string }>(API_ENDPOINTS.mcp.authorize, request)).data,
 };

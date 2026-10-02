@@ -83,6 +83,15 @@ export function proxy(request: NextRequest): NextResponse {
   const accessToken = request.cookies.get("access_token")?.value;
   const isAuthenticated = Boolean(accessToken);
 
+  if (pathname === "/admin/mcp/connect") {
+    const target = new URL("/mcp/connect", request.url);
+    const requestId = request.nextUrl.searchParams.get("request_id");
+    if (requestId) target.searchParams.set("request_id", requestId);
+    const response = NextResponse.redirect(target);
+    response.headers.set("Referrer-Policy", "no-referrer");
+    return withContentSecurityPolicy(response, contentSecurityPolicy);
+  }
+
   const isProtected = PROTECTED_PREFIXES.some((prefix) =>
     matchesRouteBoundary(pathname, prefix)
   );

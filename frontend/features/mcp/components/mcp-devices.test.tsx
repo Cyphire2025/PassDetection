@@ -35,7 +35,7 @@ it("lists separate authorizations including another administrator without claimi
   expect(windows).toHaveTextContent("Windows"); expect(mac).toHaveTextContent("macOS");
   expect(within(windows).getByRole("button", { name: "Disable" })).toBeEnabled();
   expect(within(mac).getByRole("button", { name: "Disable" })).toBeEnabled();
-  expect(screen.getByRole("region", { name: "MCP devices" })).toHaveTextContent("cannot prove which physical computer");
+  expect(screen.getByRole("region", { name: "MCP devices" })).toHaveTextContent("Names and platforms are labels");
   expect(screen.queryByRole("button", { name: "Disconnect" })).not.toBeInTheDocument();
   expect(mcpApi.setConnectionAccess).not.toHaveBeenCalled();
 });

@@ -19,8 +19,8 @@ export function McpDirectSetup({ overview, label = "Direct MCP setup" }: { overv
     </dl>
     <ol className="space-y-3 text-sm leading-6 text-slate-600">
       <li><strong className="text-slate-900">1. Save the MCP.</strong> Use your app’s native sign-in or connect action to open Global Connects in your browser.</li>
-      <li><strong className="text-slate-900">2. Approve your connection.</strong> Sign in, name the entry, choose Windows, macOS or Other, and review its permissions.</li>
-      <li><strong className="text-slate-900">3. Review Devices.</strong> Refresh this dashboard. Each separate authorization has its own Enable and Disable button. Disconnect permanently from Advanced if needed.</li>
+      <li><strong className="text-slate-900">2. Request access.</strong> Click Authenticate in your app. A browser tab opens automatically with your pending request and a comparison code. Keep it open while your administrator approves the matching request.</li>
+      <li><strong className="text-slate-900">3. Finish connecting.</strong> Approval returns you to your app automatically. The approved connection appears in Devices with its own Enable and Disable button.</li>
     </ol>
     <p className="text-xs leading-5 text-slate-500">Support for file attachments and downloads depends on the client and enabled tools.</p>
   </section>;

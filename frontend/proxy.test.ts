@@ -18,6 +18,19 @@ describe("dashboard proxy boundary", () => {
     expect(response.status).toBe(200);
   });
 
+  it("keeps the anonymous MCP waiting page outside the dashboard login boundary", () => {
+    const response = proxy(new NextRequest("https://dashboard.example/mcp/connect?request_id=eaf5b697-d6ca-4a86-bf09-3b9780139fb1"));
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+  });
+
+  it("redirects the legacy waiting URL publicly while dropping old OAuth query parameters", () => {
+    const response = proxy(new NextRequest("https://dashboard.example/admin/mcp/connect?request_id=eaf5b697-d6ca-4a86-bf09-3b9780139fb1&state=private-state&redirect_uri=http://127.0.0.1:5555/callback"));
+    const target = new URL(response.headers.get("location")!);
+    expect(target.pathname).toBe("/mcp/connect");
+    expect([...target.searchParams.keys()]).toEqual(["request_id"]);
+  });
+
   it("keeps an authenticated request and attaches a request-specific CSP", () => {
     const request = new NextRequest("https://dashboard.example/documents", {
       headers: { cookie: "access_token=test-session" },

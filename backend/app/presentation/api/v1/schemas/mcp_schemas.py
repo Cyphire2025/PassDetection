@@ -47,3 +47,35 @@ class MCPConnectionUpdate(BaseModel):
     @classmethod
     def valid_scopes(cls, values: list[str]) -> list[str]:
         return validate_capabilities(values)
+
+
+class MCPRequestLabels(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    name: str = Field(min_length=1, max_length=120)
+    device_platform: Literal["Windows", "macOS", "Other"]
+
+    @field_validator("name")
+    @classmethod
+    def nonblank_name(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("Device name is required")
+        return value.strip()
+
+
+class MCPRequestApproval(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    name: str | None = Field(default=None, min_length=1, max_length=120)
+    device_platform: Literal["Windows", "macOS", "Other"] | None = None
+    capabilities: list[str] | None = Field(default=None, min_length=1, max_length=6)
+
+    @field_validator("name")
+    @classmethod
+    def nonblank_name(cls, value: str | None) -> str | None:
+        if value is not None and not value.strip():
+            raise ValueError("Device name is required")
+        return value.strip() if value is not None else None
+
+    @field_validator("capabilities")
+    @classmethod
+    def valid_capabilities(cls, values: list[str] | None) -> list[str] | None:
+        return validate_capabilities(values) if values is not None else None

@@ -28,9 +28,12 @@ def load_helper():
 
 
 def contract():
-    return runpy.run_path(str(ROOT / "scripts/release_mcp_direct_devices_contract.py"))[
-        "source_contract"
-    ](ROOT)
+    module = runpy.run_path(str(ROOT / "scripts/release_mcp_direct_devices_contract.py"))
+    relative = module["PATH"]
+    return {**copy.deepcopy(module["POLICY"]), "migrations": [{
+        "revision": module["TARGET"], "parent": module["SOURCE"], "path": relative,
+        "sha256": hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(),
+    }]}
 
 
 def test_exact_source_contract_is_accepted():

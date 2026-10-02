@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import asyncio
 import copy
+import hashlib
 import json
 import os
 import runpy
+import shutil
 import sys
 import uuid
 from datetime import UTC, datetime, timedelta
@@ -30,7 +32,7 @@ TARGET = "0124_mcp_device_access"
 
 
 @pytest.mark.parametrize("control_enabled", [True, False])
-async def test_exact_helper_upgrade_rejection_lock_retry_and_target_retry(control_enabled):
+async def test_exact_helper_upgrade_rejection_lock_retry_and_target_retry(control_enabled, tmp_path):
     host = os.environ.get("POSTGRES_HOST", "localhost")
     source = os.environ["POSTGRES_DB"]
     if host not in {"localhost", "127.0.0.1", "postgres", "db"} or (
@@ -54,13 +56,26 @@ async def test_exact_helper_upgrade_rejection_lock_retry_and_target_retry(contro
         "POSTGRES_PASSWORD": password, "MCP_READ_ONLY_MODE": "true", "MCP_ENABLED": "false",
         "MCP_ENABLED_CAPABILITIES": '["mcp:read"]', "MCP_RELEASE_PROOF_SHA256": "a" * 64,
     }
-    contract = runpy.run_path(str(ROOT / "scripts/release_mcp_direct_devices_contract.py"))[
-        "source_contract"
-    ](ROOT)
+    # Retain qualification of the frozen 0124 helper against its own original
+    # migration head instead of widening it to the repository's newer release.
+    historical = tmp_path / "historical-backend"
+    (historical / "scripts").mkdir(parents=True)
+    shutil.copyfile(BACKEND / "scripts/apply_mcp_direct_devices_upgrade.py",
+                    historical / "scripts/apply_mcp_direct_devices_upgrade.py")
+    shutil.copyfile(BACKEND / "alembic.ini", historical / "alembic.ini")
+    shutil.copytree(BACKEND / "alembic", historical / "alembic", ignore=lambda _path, names: [
+        name for name in names if name[:4].isdigit() and int(name[:4]) > 124
+    ])
+    environment["PYTHONPATH"] = str(BACKEND)
+    definition = runpy.run_path(str(ROOT / "scripts/release_mcp_direct_devices_contract.py"))
+    contract = {**copy.deepcopy(definition["POLICY"]), "migrations": [{
+        "revision": TARGET, "parent": SOURCE, "path": definition["PATH"],
+        "sha256": hashlib.sha256((ROOT / definition["PATH"]).read_bytes()).hexdigest(),
+    }]}
 
-    async def process(arguments, *, env=None):
+    async def process(arguments, *, env=None, cwd=BACKEND):
         child = await asyncio.create_subprocess_exec(
-            sys.executable, *arguments, cwd=BACKEND, env=environment if env is None else env,
+            sys.executable, *arguments, cwd=cwd, env=environment if env is None else env,
             stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT,
         )
         output, _ = await asyncio.wait_for(child.communicate(), 90)
@@ -70,7 +85,7 @@ async def test_exact_helper_upgrade_rejection_lock_retry_and_target_retry(contro
         return await process([
             "scripts/apply_mcp_direct_devices_upgrade.py", "--contract-json",
             json.dumps(contract if value is None else value),
-        ], env=env)
+        ], env=env, cwd=historical)
 
     async def schema():
         async with engine.connect() as connection:

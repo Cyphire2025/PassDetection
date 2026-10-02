@@ -31,10 +31,27 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class DirectDeviceContractTests(unittest.TestCase):
     def setUp(self):
-        self.contract = source_contract(ROOT)
+        # Historical guard remains pinned to its original reviewed release.
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        manifest = {**load_release_manifest(), "deployment_kind": KIND,
+                    "previous_schema_revision": SOURCE, "schema_revision": TARGET}
+        path = self.root / "backend/app/core/config/release_manifest.json"
+        path.parent.mkdir(parents=True)
+        path.write_text(json.dumps(manifest), "utf-8")
+        migration = self.root / PATH
+        migration.parent.mkdir(parents=True)
+        shutil.copyfile(ROOT / PATH, migration)
+        for filename in (".env.example", "docker-compose.yml"):
+            source = (ROOT / filename).read_text("utf-8")
+            (self.root / filename).write_text(
+                source.replace(load_release_manifest()["schema_revision"], TARGET), "utf-8"
+            )
+        self.contract = source_contract(self.root)
 
     def test_current_manifest_and_defaults_bind_exact_one_migration(self):
-        manifest = load_release_manifest()
+        manifest = load_release_manifest(self.root / "backend/app/core/config/release_manifest.json")
         self.assertEqual((manifest["deployment_kind"], manifest["previous_schema_revision"],
                           manifest["schema_revision"]), (KIND, SOURCE, TARGET))
         self.assertEqual(manifest["worker_nodes"], {
@@ -42,9 +59,9 @@ class DirectDeviceContractTests(unittest.TestCase):
             "extraction-worker": "extraction", "verification-worker": "verification",
             "visa-ai-worker": "visa-ai", "my-photos-worker": "my-photos", "ecr-worker": "ecr",
         })
-        verify_source_defaults()
+        verify_source_defaults(self.root)
         validate_contract(self.contract, TARGET)
-        require_source_contract({"deployment": self.contract}, ROOT)
+        require_source_contract({"deployment": self.contract}, self.root)
         self.assertEqual(self.contract["migrations"], [{
             "revision": TARGET, "parent": SOURCE, "path": PATH,
             "sha256": hashlib.sha256((ROOT / PATH).read_bytes()).hexdigest(),
@@ -79,7 +96,7 @@ class DirectDeviceContractTests(unittest.TestCase):
             changed = copy.deepcopy(self.contract)
             changed["migrations"][0][field] = value
             with self.subTest(field=field), self.assertRaises(ValueError):
-                require_source_contract({"deployment": changed}, ROOT)
+                require_source_contract({"deployment": changed}, self.root)
 
     def test_changed_manifest_or_migration_identity_cannot_generate_contract(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -89,7 +106,9 @@ class DirectDeviceContractTests(unittest.TestCase):
             migration = root / PATH
             migration.parent.mkdir(parents=True)
             shutil.copyfile(ROOT / PATH, migration)
-            original_manifest = load_release_manifest()
+            original_manifest = load_release_manifest(
+                self.root / "backend/app/core/config/release_manifest.json"
+            )
             for key, value in (("previous_schema_revision", "0122_mcp_gc_push"),
                                ("schema_revision", SOURCE), ("deployment_kind", "unknown")):
                 manifest_path.write_text(json.dumps({**original_manifest, key: value}), "utf-8")
@@ -122,7 +141,7 @@ class DirectDeviceContractTests(unittest.TestCase):
             commands, fences, reads = [], [], []
             with self.assertRaisesRegex(ReleaseError, "separately qualified migration executor"):
                 MCPDatabaseRelease(
-                    ROOT, Path(temporary).resolve(),
+                    self.root, Path(temporary).resolve(),
                     ReleaseBindings("a" * 40, "sha256:" + "b" * 64, "c" * 64, "d" * 64),
                     database_command=lambda *args, **kwargs: commands.append(args),
                     verify_fence=lambda: fences.append(True),
