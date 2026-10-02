@@ -11,6 +11,9 @@ async function setup(page: Page, role = "super_admin", requireStepUp = false) {
   let enabled = true;
   let verified = !requireStepUp;
   const verifications: unknown[] = [];
+  const deleted = new Set<string>();
+  let deletionFailures = 0;
+  let deletionWait: Promise<void> | null = null;
   let grant = { id: "grant-a", user_id: "mcp-test-admin", client_id: oauth.client_id, name: "Office desktop", capabilities: ["mcp:read", "mcp:export"],
     device_platform: "Windows", enabled: true, created_at: "2026-09-29T00:00:00Z", expires_at: "2099-10-06T00:00:00Z", last_used_at: "2026-09-29T12:00:00Z", revoked_at: null as string | null, status: "active" };
   const connectionRequests = [
@@ -50,7 +53,7 @@ async function setup(page: Page, role = "super_admin", requireStepUp = false) {
         Object.assign(item, body, { status: path.endsWith("/approve") ? "approved" : "rejected", decided_at: "2026-10-02T12:03:00Z" });
         return json(route, item);
       }
-      if (path.endsWith("/connections")) return json(route, { items: [grant, mac], next_offset: null });
+      if (path.endsWith("/connections")) return json(route, { items: [grant, mac].filter((item) => !deleted.has(item.id)), next_offset: null });
       if (path.endsWith("/activity")) return json(route, { items: [{ id: "audit-a", action: "mcp.authorized", result: "success", entity_id: "grant-a", created_at: "2026-09-29T00:00:00Z" }], next_offset: null });
       if (path.endsWith("/operations")) return json(route, { items: [
         { id: "operation-a", operation: "confirm_whatsapp_message", status: "unknown", progress: 1, stage: "dispatch_cancelled_unknown",
@@ -78,7 +81,12 @@ async function setup(page: Page, role = "super_admin", requireStepUp = false) {
       ], file_transports: [{ name: "download_prepared_artifact", capability: "mcp:export" }, { name: "acknowledge_verified_delivery", capability: "mcp:export" }, { name: "upload_pdf", capability: "mcp:upload" }, { name: "prepare_whatsapp_header_image", capability: "mcp:upload", required_capabilities: ["mcp:upload", "mcp:communicate"] }] });
       if (path.endsWith("/control") && method === "PUT") { enabled = request.postDataJSON().enabled; return json(route, { enabled }); }
       if (path.endsWith("/grant-a/access") && method === "PATCH") { const allowed = request.postDataJSON().enabled; grant = { ...grant, enabled: allowed, status: allowed ? "active" : "disabled" }; return json(route, grant); }
-      if (path.endsWith("/revoke") && method === "POST") { grant = { ...grant, status: "revoked", revoked_at: "2026-09-29T12:00:00Z" }; return json(route, { revoked: true }); }
+      if (/\/connections\/(grant-a|grant-b)$/.test(path) && method === "DELETE") {
+        if (deletionFailures > 0) { deletionFailures -= 1; return json(route, { detail: "Deletion could not be saved." }, 503); }
+        if (deletionWait) await deletionWait;
+        deleted.add(path.split("/").at(-1)!);
+        return json(route, { deleted: true });
+      }
       if (path.endsWith("/grant-a") && method === "PATCH") { grant = { ...grant, ...request.postDataJSON() }; return json(route, grant); }
       if (path.endsWith("/authorize") && method === "POST") return json(route, { redirect_url: `${callback}?${new URLSearchParams({ code: "fixture-one-use-code", state: request.postDataJSON().state, iss: new URL(resource).origin })}` });
       return json(route, { detail: "Unsupported MCP fixture request" }, 400);
@@ -86,7 +94,15 @@ async function setup(page: Page, role = "super_admin", requireStepUp = false) {
     if (method === "GET") return json(route, []);
     return json(route, { detail: "Unexpected mutation outside MCP fixture" }, 400);
   });
-  return { errors, requests, verifications };
+  return { errors, requests, verifications,
+    disconnectFirst: () => { grant = { ...grant, enabled: false, status: "revoked", revoked_at: "2026-10-02T12:00:00Z" }; },
+    failNextDelete: () => { deletionFailures += 1; },
+    holdDelete: () => {
+      let release!: () => void;
+      deletionWait = new Promise<void>((resolve) => { release = resolve; });
+      return () => { release(); deletionWait = null; };
+    },
+  };
 }
 
 for (const width of [1440, 650, 390]) {
@@ -121,6 +137,99 @@ for (const width of [1440, 650, 390]) {
     await expect(direct).toContainText(resource);
     await expect(direct).toContainText("administrator");
     expect(state.requests.filter((item) => item.path.endsWith("/access"))).toHaveLength(2);
+    expect(state.errors).toEqual([]);
+  });
+}
+
+for (const width of [1440, 390]) {
+  test(`Delete removes active and disconnected connections at ${width}px after confirmation`, async ({ page }, testInfo) => {
+    const state = await setup(page); state.disconnectFirst();
+    await page.setViewportSize({ width, height: 900 }); await page.goto("/admin/mcp");
+    const disconnected = page.getByRole("article", { name: "Office desktop" });
+    const active = page.getByRole("article", { name: "My MacBook" });
+    await expect(disconnected).toContainText("Disconnected");
+    await expect(disconnected.getByRole("button", { name: "Enable", exact: true })).toHaveCount(0);
+    await disconnected.getByRole("button", { name: "Delete", exact: true }).click();
+    const dialog = page.getByRole("dialog", { name: "Delete Office desktop?" });
+    await expect(dialog).toContainText("removes the connection from Devices and stops its MCP access");
+    await expect(dialog.getByRole("button", { name: "Cancel", exact: true })).toBeFocused();
+    await page.keyboard.press("Escape"); await expect(dialog).toHaveCount(0);
+    expect(state.requests.filter((item) => item.method === "DELETE")).toHaveLength(0);
+    await expect(disconnected).toBeVisible();
+    await disconnected.getByRole("button", { name: "Delete", exact: true }).click();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
+    const screenshot = testInfo.outputPath(`mcp-delete-confirmation-${width}.png`);
+    await page.screenshot({ path: screenshot, fullPage: true, animations: "disabled" });
+    await testInfo.attach(`Delete confirmation ${width}px`, { path: screenshot, contentType: "image/png" });
+    await dialog.getByRole("button", { name: "Delete connection", exact: true }).click();
+    await expect(disconnected).toHaveCount(0); await expect(active).toBeVisible();
+    await active.getByRole("button", { name: "Manage", exact: true }).click();
+    await expect(active.getByRole("button", { name: "Disconnect permanently", exact: true })).toHaveCount(0);
+    await active.getByRole("button", { name: "Delete connection", exact: true }).click();
+    await page.getByRole("dialog", { name: "Delete My MacBook?" }).getByRole("button", { name: "Delete connection", exact: true }).click();
+    await expect(active).toHaveCount(0); await expect(page.getByText(/No approved devices yet/)).toBeVisible();
+    expect(state.requests.filter((item) => item.method === "DELETE").map((item) => [item.path, item.body])).toEqual([
+      ["/api/v1/admin/mcp/connections/grant-a", null], ["/api/v1/admin/mcp/connections/grant-b", null],
+    ]);
+    expect(state.requests.filter((item) => item.path.endsWith("/revoke"))).toHaveLength(0);
+    expect(state.errors).toEqual([]);
+  });
+}
+
+test("failed Delete keeps the row and only retries after a new confirmed attempt", async ({ page }) => {
+  const state = await setup(page); state.failNextDelete();
+  await page.setViewportSize({ width: 390, height: 900 }); await page.goto("/admin/mcp");
+  const row = page.getByRole("article", { name: "Office desktop" });
+  await row.getByRole("button", { name: "Delete", exact: true }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Delete connection", exact: true }).click();
+  await expect(row.getByRole("alert")).toContainText("Deletion could not be saved.");
+  await expect(row.getByRole("button", { name: "Disable", exact: true })).toBeEnabled();
+  expect(state.requests.filter((item) => item.method === "DELETE")).toHaveLength(1);
+  await row.getByRole("button", { name: "Delete", exact: true }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Delete connection", exact: true }).click();
+  await expect(row).toHaveCount(0);
+  expect(state.requests.filter((item) => item.method === "DELETE")).toHaveLength(2);
+  expect(state.errors).toEqual([]);
+});
+
+test("pending Delete keeps the row and disables duplicate and competing actions", async ({ page }) => {
+  const state = await setup(page); const release = state.holdDelete();
+  try {
+    await page.setViewportSize({ width: 390, height: 900 }); await page.goto("/admin/mcp");
+    const row = page.getByRole("article", { name: "Office desktop" });
+    await row.getByRole("button", { name: "Delete", exact: true }).click();
+    const dialog = page.getByRole("dialog"); await dialog.getByRole("button", { name: "Delete connection", exact: true }).click();
+    await expect(dialog.getByRole("button", { name: "Delete connection", exact: true })).toBeDisabled();
+    await expect(dialog.getByRole("button", { name: "Cancel", exact: true })).toBeDisabled();
+    await expect(row).toBeVisible();
+    for (const name of ["Delete", "Disable", "Manage"]) await expect(row.getByRole("button", { name, exact: true })).toBeDisabled();
+    await page.keyboard.press("Enter");
+    expect(state.requests.filter((item) => item.method === "DELETE")).toHaveLength(1);
+    release(); await expect(row).toHaveCount(0);
+    expect(state.requests.filter((item) => item.method === "DELETE")).toHaveLength(1);
+    expect(state.errors).toEqual([]);
+  } finally { release(); }
+});
+
+for (const cancel of [false, true]) {
+  test(`Delete MFA ${cancel ? "cancellation preserves the row" : "replays once after verification"}`, async ({ page }) => {
+    const state = await setup(page, "super_admin", true);
+    await page.setViewportSize({ width: 390, height: 900 }); await page.goto("/admin/mcp");
+    const row = page.getByRole("article", { name: "Office desktop" });
+    await row.getByRole("button", { name: "Delete", exact: true }).click();
+    await page.getByRole("dialog", { name: "Delete Office desktop?" }).getByRole("button", { name: "Delete connection", exact: true }).click();
+    const identity = page.getByRole("dialog", { name: "Confirm this sensitive action" }); await expect(identity).toBeVisible();
+    expect(state.requests.filter((item) => item.method === "DELETE")).toHaveLength(1);
+    if (cancel) {
+      await identity.getByRole("button", { name: "Cancel identity confirmation" }).click();
+      await expect(row).toBeVisible(); await expect(row.getByRole("alert")).toContainText("Identity confirmation was cancelled.");
+      expect(state.verifications).toEqual([]); expect(state.requests.filter((item) => item.method === "DELETE")).toHaveLength(1);
+    } else {
+      await identity.getByRole("textbox", { name: "Verification code" }).fill("123456");
+      await identity.getByRole("button", { name: "Verify and continue" }).click(); await expect(row).toHaveCount(0);
+      expect(state.verifications).toEqual([{ code: "123456" }]); expect(state.requests.filter((item) => item.method === "DELETE")).toHaveLength(2);
+    }
+    expect(state.requests.filter((item) => item.path.endsWith("/revoke"))).toHaveLength(0);
     expect(state.errors).toEqual([]);
   });
 }

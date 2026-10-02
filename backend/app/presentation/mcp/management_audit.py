@@ -34,6 +34,7 @@ _OPERATIONS = {
     "authorize": "authorize",
     "control": "control",
     "revoke": "revoke",
+    "delete_connection": "delete_connection",
     "update_connection": "update_connection",
     "set_connection_access": "connection_access",
     "connection_requests": "connection_requests",

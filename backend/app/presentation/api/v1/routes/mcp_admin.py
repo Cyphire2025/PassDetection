@@ -295,6 +295,36 @@ async def set_connection_access(
     return connection_payload(row, _settings(request))
 
 
+@router.delete("/connections/{connection_id}", dependencies=_mutations)
+async def delete_connection(
+    connection_id: uuid.UUID,
+    user: User = Depends(require_mcp_management),
+    session: AsyncSession = Depends(get_db_session),
+) -> dict[str, bool]:
+    row = await session.scalar(
+        select(MCPGrantModel).where(MCPGrantModel.id == connection_id)
+        .execution_options(populate_existing=True).with_for_update()
+    )
+    if row is None:
+        raise HTTPException(404, "Connection not found")
+    if row.revoked_at is None or row.revocation_reason != "administrator_removed":
+        previous_reason, revoked_now = row.revocation_reason, row.revoked_at is None
+        if revoked_now:
+            row.revoked_at = datetime.now(UTC)
+        # Keep the grant and every linked workflow or credential row. The
+        # Devices query hides this marker only when authority is also revoked.
+        row.revocation_reason = "administrator_removed"
+        await AuditLogRepository(session).record(
+            action="mcp.connection_removed",
+            entity_type="mcp_connection",
+            entity_id=str(row.id),
+            user_id=user.id,
+            metadata={"previous_revocation_reason": previous_reason, "revoked_now": revoked_now},
+        )
+    await session.commit()
+    return {"deleted": True}
+
+
 @router.patch("/connections/{connection_id}", dependencies=_mutations)
 async def update_connection(
     connection_id: uuid.UUID,

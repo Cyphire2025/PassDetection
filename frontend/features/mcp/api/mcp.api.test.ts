@@ -2,7 +2,7 @@ import { expect, it, vi } from "vitest";
 import apiClient from "@/lib/api/client";
 import { mcpApi } from "./mcp.api";
 
-vi.mock("@/lib/api/client", () => ({ default: { patch: vi.fn(), post: vi.fn(), get: vi.fn() } }));
+vi.mock("@/lib/api/client", () => ({ default: { patch: vi.fn(), post: vi.fn(), get: vi.fn(), delete: vi.fn() } }));
 it("sends the isolated enable/disable update to the encoded connection endpoint", async () => {
   vi.mocked(apiClient.patch).mockResolvedValue({ data: { id: "a/b", enabled: false, status: "disabled" } });
   const result = await mcpApi.setConnectionAccess({ id: "a/b", enabled: false });
@@ -19,4 +19,14 @@ it("rejects a request without sending an OAuth callback or requester credential"
   vi.mocked(apiClient.post).mockResolvedValue({ data: { id: "request/a", status: "rejected" } });
   await mcpApi.rejectRequest("request/a");
   expect(apiClient.post).toHaveBeenCalledWith("/api/v1/admin/mcp/connection-requests/request%2Fa/reject", {});
+});
+it("deletes the encoded connection through dashboard MFA handling without a body or revoke call", async () => {
+  vi.mocked(apiClient.delete).mockResolvedValue({ data: { deleted: true } });
+  const result = await mcpApi.deleteConnection("grant/a");
+  expect(apiClient.delete).toHaveBeenCalledWith("/api/v1/admin/mcp/connections/grant%2Fa");
+  expect(result).toEqual({ deleted: true });
+});
+it("requires an explicit confirmed deletion before changing cached device state", async () => {
+  vi.mocked(apiClient.delete).mockResolvedValue({ data: { deleted: false } });
+  await expect(mcpApi.deleteConnection("grant/a")).rejects.toThrow("could not be deleted");
 });

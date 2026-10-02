@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { mcpApi } from "../api/mcp.api";
+import { mcpApi, type McpConnection, type McpPage } from "../api/mcp.api";
 
 const keys = { root: ["mcp-admin"] as const, overview: ["mcp-admin", "overview"] as const };
 export function useMcpRefresh() {
@@ -48,6 +48,15 @@ export function useMcpControl() {
 export function useMcpRevoke() {
   const client = useQueryClient();
   return useMutation({ mutationFn: mcpApi.revoke, retry: false, onSuccess: () => client.invalidateQueries({ queryKey: keys.root }) });
+}
+export function useMcpDeleteConnection() {
+  const client = useQueryClient();
+  return useMutation({ mutationFn: mcpApi.deleteConnection, retry: false,
+    onSuccess: (_, id) => {
+      client.setQueriesData<McpPage<McpConnection>>({ queryKey: [...keys.root, "connections"] }, (page) => page
+        ? { ...page, items: page.items.filter((connection) => connection.id !== id) } : page);
+      return client.invalidateQueries({ queryKey: keys.root });
+    } });
 }
 export function useMcpUpdateConnection() {
   const client = useQueryClient();

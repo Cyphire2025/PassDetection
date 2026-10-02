@@ -5,14 +5,16 @@ import { Badge, Button, Input } from "@/components/ui";
 import { ConfirmDialog } from "@/components/ui/modal";
 import { formatDateTime } from "@/lib/utils/format";
 import { MCP_CAPABILITIES, type McpCapability, type McpConnection } from "../api/mcp.api";
-import { useMcpRevoke, useMcpSetConnectionAccess, useMcpUpdateConnection } from "../hooks/use-mcp";
+import { useMcpDeleteConnection, useMcpSetConnectionAccess, useMcpUpdateConnection } from "../hooks/use-mcp";
 import { McpCapabilityPicker, McpError } from "./mcp-shared";
 
 export function McpConnectionCard({ connection, advanced = false, readOnly = true, unavailable = false }: { connection: McpConnection; advanced?: boolean; readOnly?: boolean; unavailable?: boolean }) {
   const [editing, setEditing] = useState(false);
-  const [revoking, setRevoking] = useState(false);
-  const revoke = useMcpRevoke();
+  const [deleting, setDeleting] = useState(false);
+  const deletion = useMcpDeleteConnection();
   const access = useMcpSetConnectionAccess();
+  const busy = access.isPending || deletion.isPending;
+  const openDelete = () => { deletion.reset(); setDeleting(true); };
   const active = connection.status === "active" && connection.enabled !== false;
   const retained = connection.status === "active" || connection.status === "disabled";
   const capabilities = connection.capabilities.filter((scope) => !readOnly || scope === "mcp:read");
@@ -26,12 +28,12 @@ export function McpConnectionCard({ connection, advanced = false, readOnly = tru
       </div>
       <div className="text-xs"><p className="text-slate-500 lg:sr-only">Last used</p><p className="mt-1 text-slate-700">{connection.last_used_at ? formatDateTime(connection.last_used_at) : "Not used yet"}</p></div>
       <div className="text-xs"><p className="text-slate-500 lg:sr-only">Sign in again by</p><p className="mt-1 text-slate-700">{formatDateTime(connection.expires_at)}</p></div>
-      {retained ? <div className="flex min-w-28 flex-wrap items-center gap-1 lg:justify-end">
-        {!advanced ? <Button variant={active ? "secondary" : "primary"} size="sm" disabled={unavailable || access.isPending} isLoading={access.isPending}
+      <div className="flex min-w-28 flex-wrap items-center gap-1 lg:justify-end">
+        {retained && !advanced ? <Button variant={active ? "secondary" : "primary"} size="sm" disabled={unavailable || busy} isLoading={access.isPending}
           onClick={() => { access.reset(); access.mutate({ id: connection.id, enabled: !active }); }}>{active ? "Disable" : "Enable"}</Button> : null}
-        <Button variant="ghost" size="sm" disabled={unavailable || access.isPending} aria-expanded={editing} onClick={() => setEditing(!editing)}>{advanced ? "Edit access" : "Manage"}</Button>
-        {advanced ? <Button variant="ghost" size="sm" disabled={unavailable} className="text-red-700 hover:text-red-800" onClick={() => { revoke.reset(); setRevoking(true); }}>Disconnect</Button> : null}
-      </div> : null}
+        {retained ? <Button variant="ghost" size="sm" disabled={unavailable || busy} aria-expanded={editing} onClick={() => setEditing(!editing)}>{advanced ? "Edit access" : "Manage"}</Button> : null}
+        <Button variant="ghost" size="sm" disabled={unavailable || busy} className="text-red-700 hover:text-red-800" aria-haspopup="dialog" onClick={openDelete}>Delete</Button>
+      </div>
     </div>
     {advanced ? <dl className="mt-4 grid gap-x-6 gap-y-3 text-xs sm:grid-cols-3">
       {[ ...(advanced ? [["Created", formatDateTime(connection.created_at)]] : []), ["Last used", connection.last_used_at ? formatDateTime(connection.last_used_at) : "Not used yet"],
@@ -39,13 +41,13 @@ export function McpConnectionCard({ connection, advanced = false, readOnly = tru
     </dl> : null}
     {advanced ? <div className="mt-4 flex flex-wrap gap-1.5">{capabilities.map((scope) => <Badge key={scope} variant="outline">{MCP_CAPABILITIES[scope]?.label ?? scope}</Badge>)}</div> : null}
     {readOnly && !capabilities.length ? <p className="mt-3 text-xs text-slate-600">This saved connection has no read permission. Sign in again to request read access.</p> : null}
-    {editing && retained ? <ConnectionEditor key={`${connection.id}:${connection.name}:${capabilities.join(",")}:${readOnly}`} connection={connection} available={capabilities} unavailable={unavailable} readOnly={readOnly} onDone={() => setEditing(false)} /> : null}
-    {editing && retained && !advanced ? <div className="mt-4 border-t border-slate-100 pt-4"><Button variant="ghost" size="sm" disabled={unavailable} className="text-red-700 hover:text-red-800" onClick={() => { revoke.reset(); setRevoking(true); }}>Disconnect permanently</Button><p className="mt-1 text-xs text-slate-500">A disconnected device must request approval again.</p></div> : null}
+    {editing && retained ? <ConnectionEditor key={`${connection.id}:${connection.name}:${capabilities.join(",")}:${readOnly}`} connection={connection} available={capabilities} unavailable={unavailable || busy} readOnly={readOnly} onDone={() => setEditing(false)} /> : null}
+    {editing && retained && !advanced ? <div className="mt-4 border-t border-slate-100 pt-4"><Button variant="ghost" size="sm" disabled={unavailable || busy} className="text-red-700 hover:text-red-800" aria-haspopup="dialog" onClick={openDelete}>Delete connection</Button><p className="mt-1 text-xs text-slate-500">Remove this connection from Devices. Using it again requires a new approval.</p></div> : null}
     <McpError error={access.error} />
-    <McpError error={revoke.error} />
-    <ConfirmDialog isOpen={revoking} title={`Disconnect ${connection.name}?`} description="This saved connection will immediately lose access. To use it again, sign in and approve access again. Your application records are retained."
-      confirmLabel="Disconnect connection" variant="danger" isLoading={revoke.isPending} onClose={() => setRevoking(false)}
-      onConfirm={() => revoke.mutate(connection.id, { onSuccess: () => setRevoking(false), onError: () => setRevoking(false) })} />
+    <McpError error={deletion.error} />
+    <ConfirmDialog isOpen={deleting} title={`Delete ${connection.name}?`} description="This removes the connection from Devices and stops its MCP access. Using it again requires a new connection request and administrator approval. Your application records are retained."
+      confirmLabel="Delete connection" variant="danger" isLoading={deletion.isPending} onClose={() => setDeleting(false)}
+      onConfirm={() => { if (!unavailable && !busy) deletion.mutate(connection.id, { onSuccess: () => setDeleting(false), onError: () => setDeleting(false) }); }} />
   </article>;
 }
 

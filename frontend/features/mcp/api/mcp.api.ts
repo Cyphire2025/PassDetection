@@ -121,6 +121,11 @@ export const mcpApi = {
   artifacts: async (offset: number, signal?: AbortSignal) => (await apiClient.get<McpPage<McpArtifact>>(API_ENDPOINTS.mcp.artifacts, { params: { offset, limit: 25 }, signal })).data,
   control: async (enabled: boolean) => (await apiClient.put<{ enabled: boolean }>(API_ENDPOINTS.mcp.control, { enabled })).data,
   revoke: async (id: string) => (await apiClient.post<{ revoked: boolean }>(API_ENDPOINTS.mcp.revoke(id))).data,
+  deleteConnection: async (id: string) => {
+    const { data } = await apiClient.delete<{ deleted: true }>(API_ENDPOINTS.mcp.connection(id));
+    if (data.deleted !== true) throw new Error("The connection could not be deleted. Refresh status and try again.");
+    return data;
+  },
   updateConnection: async ({ id, ...update }: { id: string; name: string; capabilities: McpCapability[] }) => (await apiClient.patch<McpConnection>(API_ENDPOINTS.mcp.connection(id), update)).data,
   setConnectionAccess: async ({ id, enabled }: { id: string; enabled: boolean }) => (await apiClient.patch<McpConnection>(API_ENDPOINTS.mcp.connectionAccess(id), { enabled })).data,
   requests: async (offset: number, signal?: AbortSignal) => (await apiClient.get<McpPage<McpConnectionRequest>>(API_ENDPOINTS.mcp.requests, { params: { offset, limit: 25 }, signal })).data,
