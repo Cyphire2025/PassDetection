@@ -55,6 +55,11 @@ MAX_EXPORT_BYTES = 512 * 1024 * 1024
 _HANDLE = re.compile(r"gcmcp_artifact_[A-Za-z0-9_-]{64}\Z")
 _DIGEST = re.compile(r"[a-f0-9]{64}\Z")
 _PURPOSES = {
+    "travel_tracker_excel": (
+        "export",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        ".xlsx",
+    ),
     "group_document_pdf": ("upload", "application/pdf", ".pdf"),
     "passport_excel": (
         "export",
@@ -460,6 +465,11 @@ class MCPArtifactService:
         if row is None or utc(row.expires_at) <= datetime.now(UTC):
             raise ArtifactError("Artifact was not found", 404)
         await self._authority(principal, f"mcp:{row.direction}", lock=lock)
+        if row.purpose == "travel_tracker_excel":
+            await require_tool_access(
+                self.session, self.settings, principal.grant_id,
+                "prepare_travel_tracker_export", "mcp:export", lock=lock,
+            )
         if lock:
             row = await self.session.scalar(stmt.with_for_update())
             if row is None or utc(row.expires_at) <= datetime.now(UTC):

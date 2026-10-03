@@ -26,7 +26,12 @@ from app.infrastructure.database.mcp_models import MCPControlModel
 from app.infrastructure.database.mcp_native_transfer_models import MCPNativeTransferModel
 from app.infrastructure.database.models import AgencyModel, ClientGroupModel
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
-from app.infrastructure.security.contact_spreadsheet_security import MAX_BYTES, XLSX_MEDIA
+from app.infrastructure.security.contact_spreadsheet_security import (
+    MAX_BYTES,
+    XLSX_MEDIA,
+    ContactSpreadsheetSecurity,
+)
+from app.infrastructure.storage.mcp_artifact_storage import MCPArtifactStorage
 
 TOKEN = re.compile(r"gcmcp_transfer_[A-Za-z0-9_-]{64}\Z")
 TTL = timedelta(minutes=10)
@@ -44,6 +49,7 @@ _EXPORT_TOOLS = {
     "rooming_list_excel": "prepare_rooming_export",
     "rooming_checkins_excel": "prepare_rooming_export",
     "document_assignments_excel": "prepare_document_assignment_export",
+    "travel_tracker_excel": "prepare_travel_tracker_export",
 }
 
 
@@ -54,8 +60,8 @@ class MCPNativeTransferService:
         settings: Settings,
         *,
         artifacts: MCPArtifactService | None = None,
-        contact_storage=None,
-        contact_security=None,
+        contact_storage: MCPArtifactStorage | None = None,
+        contact_security: ContactSpreadsheetSecurity | None = None,
     ):
         self.session, self.settings = session, settings
         self.auth = MCPAuthorizationService(session, settings)
@@ -105,11 +111,11 @@ class MCPNativeTransferService:
                 or row.kind not in {"upload_pdf", "upload_workbook"}
             ):
                 raise MCPAuthError("access_denied", 403)
-            source = await self.session.get(
-                MCPArtifactModel if row.kind == "upload_pdf" else MCPContactImportUploadModel,
-                row.artifact_id if row.kind == "upload_pdf" else row.workbook_id,
-                populate_existing=True,
-            )
+            source: MCPArtifactModel | MCPContactImportUploadModel | None
+            if row.kind == "upload_pdf":
+                source = await self.session.get(MCPArtifactModel, row.artifact_id, populate_existing=True)
+            else:
+                source = await self.session.get(MCPContactImportUploadModel, row.workbook_id, populate_existing=True)
             if source is None:
                 raise ArtifactError("Transfer source is unavailable", 404)
             expiry = utc(source.expires_at)

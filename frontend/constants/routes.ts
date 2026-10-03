@@ -37,6 +37,8 @@ export const ROUTES = {
     emailIntegrationMessage: (messageId: string) =>
       `/email-integrations/activity/${encodeURIComponent(messageId)}` as const,
     documents: "/documents",
+    travelTracker: "/documents/tracker",
+    travelTrackerGroup: (groupId: string) => `/documents/tracker/${encodeURIComponent(groupId)}` as const,
     documentRename: "/documents/rename",
     ecrChecker: "/documents/ecr-checker",
     documentDistribution: "/documents/distribution",

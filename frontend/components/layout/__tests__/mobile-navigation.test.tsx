@@ -86,6 +86,24 @@ describe("MobileNavigation", () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
+  it("groups documents under operations and coordinator, GC App and MCP controls under administration", () => {
+    useAuthStore.setState({ user: { ...adminUser, role: "super_admin", agency_id: null } });
+    render(<Sidebar />);
+    const items = screen.getAllByRole("listitem");
+    let section = "";
+    const sections = new Map<string, string>();
+    for (const item of items) {
+      const heading = item.querySelector("p");
+      if (heading) section = heading.textContent ?? "";
+      const link = item.querySelector("a");
+      if (link) sections.set(link.textContent ?? "", section);
+    }
+    expect(sections.get("Documents")).toBe("Operations");
+    expect(sections.get("Coordinators")).toBe("Administration");
+    expect(sections.get("GC App")).toBe("Administration");
+    expect(sections.get("MCP")).toBe("Administration");
+  });
+
   it("cycles keyboard focus within the modal boundary", async () => {
     render(<MobileNavigation open onClose={vi.fn()} />);
     const close = screen.getByRole("button", { name: "Close navigation" });

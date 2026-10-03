@@ -84,6 +84,10 @@ def test_rehearsal_contract_is_previous_release_populated_and_evidence_oriented(
     assert "INSERT INTO attendance_records" in source
     assert "INSERT INTO passport_submissions" in source
     assert "INSERT INTO audit_logs" in source
+    assert "fk_travel_tracker_passenger_scope" in source
+    assert "INSERT INTO travel_tracker" in source
+    assert '"default_unmarked": True' in source
+    assert '"independent_visa_mark": True' in source
     assert "--format=custom" in source
     assert "--single-transaction" in source
     assert "production_resilience_proof" in source

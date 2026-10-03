@@ -37,6 +37,10 @@ def source_contract(root: Path) -> dict | None:
     manifest = json.loads(
         (root / "backend/app/core/config/release_manifest.json").read_text("utf-8")
     )
+    if manifest.get("deployment_kind") == "travel_tracker_additive_v1":
+        from release_travel_tracker_contract import source_contract as tracker_contract
+
+        return tracker_contract(root)
     if manifest.get("deployment_kind") == "mcp_dashboard_write_v1":
         from release_mcp_dashboard_write_contract import (
             source_contract as dashboard_write_contract,
@@ -123,6 +127,11 @@ def source_contract(root: Path) -> dict | None:
 
 def validate_contract(contract: dict, schema: str) -> None:
     """Validate signed metadata without treating it as a deployment permission."""
+    if isinstance(contract, dict) and contract.get("kind") == "travel_tracker_additive_v1":
+        from release_travel_tracker_contract import validate_contract as validate_tracker
+
+        validate_tracker(contract, schema)
+        return
     if isinstance(contract, dict) and contract.get("kind") == "mcp_dashboard_write_v1":
         from release_mcp_dashboard_write_contract import (
             validate_contract as validate_dashboard_write,

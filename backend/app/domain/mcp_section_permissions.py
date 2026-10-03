@@ -7,6 +7,9 @@ WRITE_CAPABILITIES = frozenset({"mcp:change", "mcp:upload", "mcp:export", "mcp:c
 # Every required section is checked. Adding an adapter here does not enable it:
 # deployment scope, global tool allowlist and device policy must all allow it.
 WRITE_TOOL_SECTIONS: dict[str, frozenset[str]] = {
+    "set_travel_tracker_status": frozenset({"documents", "all_groups"}),
+    "preview_travel_tracker_workbook": frozenset({"documents", "all_groups", "group_excel_imports"}),
+    "apply_travel_tracker_workbook": frozenset({"documents", "all_groups", "group_excel_imports"}),
     "create_group": frozenset({"group_links"}),
     "configure_group_link": frozenset({"group_links"}),
     "create_whatsapp_broadcast": frozenset({"whatsapp_broadcasts"}),
@@ -76,6 +79,7 @@ for family, sections in {
     "tracking": {"exports"},
     "rooming": {"exports"},
     "document_assignment": {"exports"},
+    "travel_tracker": {"documents", "all_groups", "exports"},
 }.items():
     for action in ("inspect", "prepare", "resume", "generate"):
         WRITE_TOOL_SECTIONS[f"{action}_{family}_export"] = frozenset(sections)

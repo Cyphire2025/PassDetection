@@ -7,6 +7,8 @@ from pathlib import Path
 
 import pytest
 
+from tests.release_source_fixtures import dashboard_write_source
+
 ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT / "scripts"))
 
@@ -14,6 +16,13 @@ from release_mcp_dashboard_write_contract import source_contract, validate_contr
 
 from scripts import mcp_dashboard_write_schema as schema  # noqa: E402
 from scripts.release_mcp_dashboard_write import POLICY, verify_sources  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def historical_release_source(tmp_path, monkeypatch):
+    """Qualify the original exact contract rather than the current release manifest."""
+    pinned = dashboard_write_source(ROOT, tmp_path)
+    monkeypatch.setattr(sys.modules[__name__], "ROOT", pinned)
 
 
 def test_exact_contract_and_image_helper_policy_match():

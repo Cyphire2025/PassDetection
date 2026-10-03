@@ -4,6 +4,7 @@ import {
   ArrowRight,
   FilePenLine,
   FileStack,
+  Plane,
   ScanText,
   SendToBack,
   UsersRound,
@@ -48,6 +49,17 @@ const WORKFLOWS = [
     iconTone: "bg-amber-100 text-amber-700",
     steps: ["Upload back-page images", "Review ECR results", "Download Excel report"],
   },
+  {
+    title: "Visa / Flight Tracker",
+    description:
+      "Track visa applications and flight bookings for your full group roster, with quick marking and Excel updates.",
+    href: ROUTES.dashboard.travelTracker,
+    icon: Plane,
+    action: "Open visa / flight tracker",
+    accent: "border-emerald-200 bg-emerald-50/55 text-emerald-900",
+    iconTone: "bg-emerald-100 text-emerald-700",
+    steps: ["Choose a group", "Mark progress in seconds", "Export or update with Excel"],
+  },
 ] as const;
 
 export function DocumentHub() {
@@ -55,7 +67,7 @@ export function DocumentHub() {
     <div className="flex flex-col gap-5">
       <WorkspacePageHeader
         title="Documents"
-        description="Rename PDFs, distribute passenger documents, or check passport back pages for ECR."
+        description="Prepare and distribute documents, check ECR, and track visa applications and flight bookings."
         icon={FileStack}
         accent="cyan"
       />
@@ -71,13 +83,13 @@ export function DocumentHub() {
           </h2>
         </div>
 
-        <div className="grid xl:grid-cols-3">
+        <div className="grid md:grid-cols-2">
           {WORKFLOWS.map((workflow, index) => {
             const Icon = workflow.icon;
             return (
               <article
                 key={workflow.href}
-                className={index < WORKFLOWS.length - 1 ? "border-b border-slate-200 p-5 sm:p-6 xl:border-b-0 xl:border-r" : "p-5 sm:p-6"}
+                className={`p-5 sm:p-6 border-slate-200 ${index < WORKFLOWS.length - 1 ? "border-b" : ""} ${index % 2 === 0 ? "md:border-r" : ""} ${index >= 2 ? "md:border-b-0" : ""}`}
               >
                 <div className="flex items-start gap-4">
                   <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${workflow.iconTone}`}>

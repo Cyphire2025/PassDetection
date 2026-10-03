@@ -47,6 +47,9 @@ from app.infrastructure.database.public_upload_contact_model import (
     PublicUploadContactChallengeModel as PublicUploadContactChallengeModel,
 )
 from app.infrastructure.database.search_index_sql import GROUP_SEARCH_SQL, PASSPORT_SEARCH_SQL
+from app.infrastructure.database.travel_tracker_model import (
+    TravelTrackerModel as TravelTrackerModel,
+)
 
 WhatsAppBroadcastGroupModel = _communications_models.WhatsAppBroadcastGroupModel
 WhatsAppBroadcastRecipientModel = _communications_models.WhatsAppBroadcastRecipientModel

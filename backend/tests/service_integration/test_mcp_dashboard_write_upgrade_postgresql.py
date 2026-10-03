@@ -13,6 +13,8 @@ from sqlalchemy import URL, text
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.pool import NullPool
 
+from tests.release_source_fixtures import dashboard_write_source
+
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "scripts"))
 from release_mcp_dashboard_write_contract import source_contract  # noqa: E402
@@ -25,14 +27,16 @@ pytestmark = [
 ]
 
 
-async def test_additive_helper_preserves_all_rows_refuses_held_writer_and_exact_schema_drift():
+async def test_additive_helper_preserves_all_rows_refuses_held_writer_and_exact_schema_drift(
+    tmp_path,
+):
     host, port, parent = (
         os.environ["POSTGRES_HOST"],
         int(os.environ["POSTGRES_PORT"]),
         os.environ["POSTGRES_DB"],
     )
-    if (host, port, parent) != ("127.0.0.1", 55436, "postgres"):
-        pytest.fail("Retained isolated loopback cluster required")
+    if host not in {"127.0.0.1", "localhost"} or parent not in {"postgres", "test_db"}:
+        pytest.fail("Explicit service-integration loopback cluster required")
     name = "passdetection_ci_mixed_" + uuid.uuid4().hex[:12]
     url = URL.create(
         "postgresql+asyncpg",
@@ -65,8 +69,9 @@ async def test_additive_helper_preserves_all_rows_refuses_held_writer_and_exact_
         "MCP_EXPORT_SOURCE_BYTE_LIMIT": "1048576",
         "MCP_RELEASE_PROOF_SHA256": "d" * 64,
     }
-    backend = ROOT / "backend"
-    contract = source_contract(ROOT)
+    pinned = dashboard_write_source(ROOT, tmp_path / "pinned-source", executable=True)
+    backend = pinned / "backend"
+    contract = source_contract(pinned)
 
     async def command(arguments):
         process = await asyncio.create_subprocess_exec(
@@ -94,7 +99,10 @@ async def test_additive_helper_preserves_all_rows_refuses_held_writer_and_exact_
         await connection.execute(text(f'CREATE DATABASE "{name}"'))
     try:
         async with engine.begin() as connection:
-            await connection.execute(text('ALTER SCHEMA public OWNER TO postgres'))
+            owner = connection.dialect.identifier_preparer.quote_identifier(
+                os.environ["POSTGRES_USER"]
+            )
+            await connection.execute(text(f"ALTER SCHEMA public OWNER TO {owner}"))
         code, _, error = await command(["-m", "alembic", "upgrade", "0125_mcp_connection_requests"])
         assert code == 0, error[-1500:]
         now, user, agency, grant, request = (
@@ -118,7 +126,9 @@ async def test_additive_helper_preserves_all_rows_refuses_held_writer_and_exact_
                 {"user": user, "now": now},
             )
             await connection.execute(
-                text("INSERT INTO agencies(id,name,email,is_active,created_at,updated_at) VALUES(:id,'Historical agency',:email,true,:now,:now)"),
+                text(
+                    "INSERT INTO agencies(id,name,email,is_active,created_at,updated_at) VALUES(:id,'Historical agency',:email,true,:now,:now)"
+                ),
                 {"id": agency, "email": f"agency-{agency}@example.test", "now": now},
             )
             await connection.execute(

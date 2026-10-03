@@ -107,6 +107,7 @@ class MCPDatabaseRelease:
         self.target_schema = self.contract["target_schema"]
         validate_contract(self.contract, self.target_schema)
         migration_helpers = {
+            "travel_tracker_additive_v1": "scripts/release_travel_tracker_upgrade.py",
             "mcp_read_only_v1": "scripts/apply_mcp_read_only_upgrade.py",
             "mcp_additive_v1": "scripts/apply_mcp_additive_upgrade.py",
         }

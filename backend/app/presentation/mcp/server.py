@@ -75,6 +75,7 @@ from app.presentation.mcp.rooming_export_tools import register_rooming_export_to
 from app.presentation.mcp.tour_change_tools import register_tour_change_tools
 from app.presentation.mcp.tour_evidence_tools import register_tour_evidence_tools
 from app.presentation.mcp.tracking_export_tools import register_tracking_export_tools
+from app.presentation.mcp.travel_tracker_tools import register_travel_tracker_tools
 from app.presentation.mcp.whatsapp_intent_tools import register_whatsapp_intent_tools
 from app.presentation.mcp.whatsapp_message_tools import register_whatsapp_message_tools
 from app.presentation.mcp.whatsapp_read_tools import register_whatsapp_read_tools
@@ -254,6 +255,7 @@ def install_mcp(app: FastAPI, settings: Settings) -> None:
         )
 
     register_group_tools(server, app, settings)
+    register_travel_tracker_tools(server, app, settings)
     register_dashboard_tools(server, app, settings)
     register_dashboard_read_tools(server, app, settings)
     register_delivery_read_tools(server, app, settings)

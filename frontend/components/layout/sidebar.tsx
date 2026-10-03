@@ -38,6 +38,7 @@ interface NavItem {
   label: string;
   href: import("next").Route;
   icon: React.ComponentType<{ className?: string }>;
+  section: "Workspace" | "Communication" | "Operations" | "Administration";
   activePrefixes?: string[];
 }
 
@@ -47,50 +48,55 @@ interface SidebarProps {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard", href: ROUTES.dashboard.root, icon: LayoutDashboard },
-  { label: "My Tour", href: ROUTES.coordinator, icon: CalendarCheck },
-  { label: "All Groups", href: ROUTES.dashboard.passports, icon: FileText },
-  { label: "Group Links", href: ROUTES.dashboard.uploadLinks, icon: Link2 },
-  { label: "WhatsApp", href: ROUTES.dashboard.whatsapp, icon: MessageCircle },
+  { label: "Dashboard", href: ROUTES.dashboard.root, icon: LayoutDashboard, section: "Workspace" },
+  { label: "My Tour", href: ROUTES.coordinator, icon: CalendarCheck, section: "Workspace" },
+  { label: "All Groups", href: ROUTES.dashboard.passports, icon: FileText, section: "Workspace" },
+  { label: "Group Links", href: ROUTES.dashboard.uploadLinks, icon: Link2, section: "Workspace" },
+  { label: "WhatsApp", href: ROUTES.dashboard.whatsapp, icon: MessageCircle, section: "Communication" },
   {
     label: "Operations Inbox",
     href: ROUTES.dashboard.emailIntegrationsInbox,
     icon: Mail,
+    section: "Communication",
   },
-  { label: "Documents", href: ROUTES.dashboard.documents, icon: SendToBack },
-  {
-    label: "Coordinators",
-    href: ROUTES.dashboard.tourOperationsCoordinators,
-    icon: UserCheck,
-  },
-  { label: "Rooming Lists", href: ROUTES.dashboard.rooming, icon: BedDouble },
-  { label: "Menu", href: ROUTES.dashboard.menu, icon: UtensilsCrossed },
+  { label: "Documents", href: ROUTES.dashboard.documents, icon: SendToBack, section: "Operations" },
+  { label: "Rooming Lists", href: ROUTES.dashboard.rooming, icon: BedDouble, section: "Operations" },
+  { label: "Menu", href: ROUTES.dashboard.menu, icon: UtensilsCrossed, section: "Operations" },
   {
     label: "Tour Ops",
     href: ROUTES.dashboard.tourOperationsGroupAssignments,
     icon: CalendarCheck,
+    section: "Operations",
     activePrefixes: [
       ROUTES.dashboard.tourOperationsGroupAssignments,
       "/tour-operations/groups",
     ],
   },
+  { label: "Manager", href: ROUTES.dashboard.admin, icon: Shield, section: "Administration" },
+  { label: "MCP", href: ROUTES.dashboard.mcp, icon: Plug, section: "Administration" },
+  {
+    label: "Coordinators",
+    href: ROUTES.dashboard.tourOperationsCoordinators,
+    icon: UserCheck,
+    section: "Administration",
+  },
   {
     label: "GC App",
     href: ROUTES.dashboard.gcAppAppControls,
     icon: Smartphone,
+    section: "Administration",
     activePrefixes: [ROUTES.dashboard.gcAppRoot],
   },
-  { label: "Manager", href: ROUTES.dashboard.admin, icon: Shield },
-  { label: "MCP", href: ROUTES.dashboard.mcp, icon: Plug },
-  { label: "Staff", href: ROUTES.dashboard.staff, icon: UserCog },
-  { label: "Analytics", href: ROUTES.dashboard.analytics, icon: BarChart3 },
+  { label: "Staff", href: ROUTES.dashboard.staff, icon: UserCog, section: "Administration" },
+  { label: "Analytics", href: ROUTES.dashboard.analytics, icon: BarChart3, section: "Administration" },
   {
     label: "Audit Logs",
     href: ROUTES.dashboard.auditLogs,
     icon: ClipboardList,
+    section: "Administration",
   },
-  { label: "Old Data", href: ROUTES.dashboard.oldData, icon: Database },
-  { label: "Settings", href: ROUTES.dashboard.settings, icon: Settings },
+  { label: "Old Data", href: ROUTES.dashboard.oldData, icon: Database, section: "Administration" },
+  { label: "Settings", href: ROUTES.dashboard.settings, icon: Settings, section: "Administration" },
 ];
 
 export function Sidebar({ mobile = false, onNavigate }: SidebarProps) {
@@ -137,7 +143,7 @@ export function Sidebar({ mobile = false, onNavigate }: SidebarProps) {
       {/* Nav Items */}
       <nav className="dashboard-sidebar-scroll min-h-0 flex-1 overflow-y-auto px-1 py-3">
         <ul className="flex flex-col gap-1 px-2" role="list">
-          {visibleItems.map((item) => {
+          {visibleItems.map((item, index) => {
             const activePrefixes = item.activePrefixes ?? [item.href];
             const isActive = item.href === ROUTES.dashboard.admin ? pathname === item.href : activePrefixes.some(
               (prefix) =>
@@ -147,21 +153,9 @@ export function Sidebar({ mobile = false, onNavigate }: SidebarProps) {
 
             return (
               <li key={item.href}>
-                {!isCollapsed &&
-                  [
-                    "/dashboard",
-                    "/whatsapp",
-                    "/tour-operations/coordinators",
-                    "/admin",
-                  ].includes(item.href) && (
+                {!isCollapsed && visibleItems[index - 1]?.section !== item.section && (
                     <p className="mb-2 mt-5 px-3 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-                      {item.href === "/dashboard"
-                        ? "Workspace"
-                        : item.href === "/whatsapp"
-                          ? "Communication"
-                          : item.href === "/admin"
-                            ? "Administration"
-                            : "Operations"}
+                      {item.section}
                     </p>
                   )}
                 <Link

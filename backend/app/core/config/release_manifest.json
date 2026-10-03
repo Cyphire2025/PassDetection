@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "deployment_kind": "mcp_dashboard_write_v1",
-  "schema_revision": "0128_mcp_document_delivery",
-  "previous_schema_revision": "0125_mcp_connection_requests",
+  "deployment_kind": "travel_tracker_additive_v1",
+  "schema_revision": "0129_travel_tracker",
+  "previous_schema_revision": "0128_mcp_document_delivery",
   "worker_nodes": {
     "worker": "general",
     "email-worker": "email",

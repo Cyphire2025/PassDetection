@@ -1663,8 +1663,11 @@
         "app.infrastructure.repositories.audit_log_repository",
         "app.infrastructure.repositories.audit_log_repository.AuditLogRepository",
         "app.infrastructure.security.contact_spreadsheet_security",
+        "app.infrastructure.security.contact_spreadsheet_security.ContactSpreadsheetSecurity",
         "app.infrastructure.security.contact_spreadsheet_security.MAX_BYTES",
-        "app.infrastructure.security.contact_spreadsheet_security.XLSX_MEDIA"
+        "app.infrastructure.security.contact_spreadsheet_security.XLSX_MEDIA",
+        "app.infrastructure.storage.mcp_artifact_storage",
+        "app.infrastructure.storage.mcp_artifact_storage.MCPArtifactStorage"
       ]
     },
     "app/application/mcp/permissions.py": {
@@ -1752,6 +1755,29 @@
         "app.infrastructure.database.models.PassportSubmissionModel",
         "app.infrastructure.database.models.WhatsAppBroadcastRecipientModel",
         "app.infrastructure.database.models.WhatsAppBroadcastSourceContactModel"
+      ]
+    },
+    "app/application/mcp/travel_tracker.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Canonical OAuth and global/device section fences authorize bounded main-roster observations and metadata-only visa/flight updates. The reused tracker service participates in the caller-owned receipt/audit transaction without an inner commit. Exact native group-workbook bindings and unique matching prevent cross-group or ambiguous updates; database-side source admission and group/passenger locks bound immutable private exports, with current permissions rechecked at retry and download. No passenger creation/removal, provider action or send is exposed.",
+      "imports": [
+        "app.infrastructure.database.mcp_operation_models",
+        "app.infrastructure.database.mcp_operation_models.MCPOperationModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.database.travel_tracker_model",
+        "app.infrastructure.database.travel_tracker_model.TravelTrackerModel",
+        "app.infrastructure.repositories.sensitive_read_audit",
+        "app.infrastructure.repositories.sensitive_read_audit.record_sensitive_read",
+        "app.infrastructure.travel_tracker.service",
+        "app.infrastructure.travel_tracker.service.TravelTrackerService",
+        "app.infrastructure.travel_tracker.spreadsheets",
+        "app.infrastructure.travel_tracker.spreadsheets.MAX_EXPORT_ROWS",
+        "app.infrastructure.travel_tracker.spreadsheets.TrackerSpreadsheetError",
+        "app.infrastructure.travel_tracker.spreadsheets.match_rows",
+        "app.infrastructure.travel_tracker.spreadsheets.read_rows"
       ]
     }
   }

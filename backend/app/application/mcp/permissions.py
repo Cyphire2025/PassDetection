@@ -1,6 +1,7 @@
 """Live global/device permissions, serialized before any business effects."""
 
 from datetime import UTC, datetime
+from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -71,7 +72,7 @@ async def require_permission_capability(session: AsyncSession, settings: Setting
             raise MCPAuthError("write_access_denied", 403)
 
 
-async def current_device_read_access(session: AsyncSession, grant_id, *, lock: bool = False) -> tuple[list[str], int]:
+async def current_device_read_access(session: AsyncSession, grant_id: UUID, *, lock: bool = False) -> tuple[list[str], int]:
     control = await current_permission_control(session, lock=lock)
     grant = await session.scalar(select(MCPGrantModel).where(MCPGrantModel.id == grant_id)
                                 .execution_options(populate_existing=True))
@@ -88,7 +89,7 @@ async def current_device_read_access(session: AsyncSession, grant_id, *, lock: b
     return sorted(allowed), control.read_access_revision
 
 
-async def require_tool_access(session: AsyncSession, settings: Settings, grant_id, name: str,
+async def require_tool_access(session: AsyncSession, settings: Settings, grant_id: UUID, name: str,
                               capability: str, *, lock: bool = True, required_sections: frozenset[str] | None = None) -> None:
     """Use code-owned adapter names, including preparation, retries and file handoff.
 

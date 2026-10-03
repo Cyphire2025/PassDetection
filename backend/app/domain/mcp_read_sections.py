@@ -31,6 +31,8 @@ READ_TOOL_SECTIONS: dict[str, frozenset[str]] = {
     "list_whatsapp_audience": frozenset({"whatsapp", "all_groups"}),
     "get_whatsapp_batch": frozenset({"whatsapp"}),
     "list_group_documents": frozenset({"documents", "all_groups", "old_data"}),
+    "list_travel_tracker_groups": frozenset({"documents", "all_groups"}),
+    "get_travel_tracker_roster": frozenset({"documents", "all_groups"}),
     "list_group_document_batches": frozenset({"documents", "all_groups", "old_data"}),
     "list_group_processing_jobs": frozenset({"all_groups", "old_data"}),
     "list_tour_records": frozenset({"tour_ops", "coordinators", "all_groups", "old_data"}),

@@ -68,12 +68,14 @@ from app.presentation.api.v1.routes.tour_operations import router as tour_operat
 from app.presentation.api.v1.routes.tour_operations_qr_delivery import (
     router as tour_operations_qr_delivery_router,
 )
+from app.presentation.api.v1.routes.travel_tracker import router as travel_tracker_router
 from app.presentation.api.v1.routes.whatsapp import router as whatsapp_router
 from app.presentation.api.v1.routes.whatsapp_activity import (
     router as whatsapp_activity_router,
 )
 
 api_v1_router = APIRouter()
+api_v1_router.include_router(travel_tracker_router, prefix="/travel-tracker", tags=["Travel Tracker"])
 api_v1_router.include_router(mcp_read_access_router, prefix="/mcp", tags=["MCP Read Access"])
 api_v1_router.include_router(mcp_admin_router, prefix="/admin/mcp", tags=["MCP Administration"])
 api_v1_router.include_router(frontend_errors_router, prefix="/observability", tags=["Observability"])

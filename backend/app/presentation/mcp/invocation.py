@@ -17,6 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.mcp.authorization import MCPAuthorizationService, MCPPrincipal
 from app.application.mcp.credentials import MCPAuthError
 from app.application.mcp.export_capacity import ExportCapacityBusy
+from app.application.mcp.input_errors import MCPInputError as MCPInputError
 from app.application.mcp.operations import (
     MCPDatabaseOperation,
     MCPOperationError,
@@ -46,14 +47,6 @@ def failure_category(error: Exception) -> str:
     if isinstance(error, OSError):
         return "io_error"
     return "operation_failed"
-
-
-class MCPInputError(ValueError):
-    """Only raise with code-owned public messages, never provider/database text."""
-
-    def __init__(self, code: str, message: str):
-        self.code, self.message = code, message
-        super().__init__(message)
 
 
 class InvocationAuditMiddleware:

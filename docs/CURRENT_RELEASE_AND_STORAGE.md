@@ -1,4 +1,12 @@
-# Current release and storage cutover
+# Historical storage cutover procedure
+
+The current visa/flight tracker release is the reviewed additive contract
+`travel_tracker_additive_v1`: `0128_mcp_document_delivery → 0129_travel_tracker`.
+Use its writer-fenced retained migration executor and the deployment checks in
+[TRAVEL_TRACKER.md](TRAVEL_TRACKER.md). It preserves the existing database and
+storage volumes, all MCP permissions/settings/grants/requests, and historical
+business data. The procedure below records the earlier `0112 → 0113` storage
+cutover and is not the deployment path for the tracker release.
 
 This procedure upgrades the existing single-VPS Compose installation. It is not
 a bootstrap command for an empty host. Use the exact reviewed, pushed main commit

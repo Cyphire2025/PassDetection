@@ -21,6 +21,7 @@ from app.infrastructure.database import (  # noqa: F401
     my_photos_models,
     passport_ecr_models,
     passport_image_library_model,
+    travel_tracker_model,
     whatsapp_send_intent_models,
 )
 from app.infrastructure.database.model_base import Base as Base

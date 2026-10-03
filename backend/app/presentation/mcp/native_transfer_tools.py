@@ -1,5 +1,6 @@
 """Create and inspect limited native handoffs without persisting their credentials."""
 
+from collections.abc import Awaitable, Callable
 from typing import Annotated, Any
 from uuid import UUID
 
@@ -12,15 +13,19 @@ from pydantic import Field
 from app.application.mcp.artifacts import ArtifactError
 from app.application.mcp.credentials import MCPAuthError
 from app.application.mcp.native_transfer_dto import MCPNativeUploadRequest
+from app.application.mcp.native_transfers import MCPNativeTransferService
 from app.core.config.settings import Settings
-from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.infrastructure.repositories.audit_log_repository import AuditLogRepository, AuditResult
 from app.presentation.api.v1.routes.mcp_native_transfers import native_service
-from app.presentation.mcp.invocation import mark_invocation_audited
+from app.presentation.mcp.invocation import MCPInputError, mark_invocation_audited
 
 
-async def invoke_native_transfer(app: FastAPI, *, name: str, callback) -> dict[str, Any]:
+async def invoke_native_transfer(
+    app: FastAPI, *, name: str,
+    callback: Callable[[MCPNativeTransferService, str], Awaitable[dict[str, Any]]],
+) -> dict[str, Any]:
     token = get_access_token()
-    outcome = "success"
+    outcome: AuditResult = "success"
     async with app.state.mcp_session_factory() as session:
         try:
             if token is None:
@@ -34,6 +39,12 @@ async def invoke_native_transfer(app: FastAPI, *, name: str, callback) -> dict[s
                     "error": "access_denied",
                     "message": "This connection no longer allows the prepared file lane.",
                 },
+            )
+        except MCPInputError as error:
+            await session.rollback()
+            outcome, result = (
+                "blocked",
+                {"error": error.code, "message": error.message, "requires_input": True},
             )
         except ArtifactError as error:
             await session.rollback()

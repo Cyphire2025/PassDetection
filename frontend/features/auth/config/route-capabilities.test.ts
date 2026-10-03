@@ -75,6 +75,17 @@ describe("typed route capability map", () => {
     expect(canAccessApplicationPath(user(role), `${ROUTES.dashboard.whatsapp}/broadcast-1`)).toBe(true);
   });
 
+  it("makes the tracker available to office users while preserving superadmin MCP access", () => {
+    for (const role of ["super_admin", "agency_admin", "agency_manager", "agency_staff"] as const) {
+      expect(canAccessApplicationPath(user(role), ROUTES.dashboard.travelTrackerGroup("group-1"))).toBe(true);
+      expect(canAccessApplicationPath(user(role), ROUTES.dashboard.mcp)).toBe(
+        role === "super_admin",
+      );
+    }
+    expect(canAccessApplicationPath(user("agency_coordinator"), ROUTES.dashboard.travelTracker)).toBe(false);
+    expect(canAccessApplicationPath(user("agency_admin", { is_active: false }), ROUTES.dashboard.mcp)).toBe(false);
+  });
+
   it("keeps WhatsApp management unavailable to coordinators and inactive staff", () => {
     for (const path of [ROUTES.dashboard.whatsapp, ROUTES.dashboard.passportGroupWhatsAppTracking("group-1")]) {
       expect(canAccessApplicationPath(user("agency_coordinator"), path)).toBe(false);

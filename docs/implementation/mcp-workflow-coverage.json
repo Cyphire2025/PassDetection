@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reviewed_at": "2026-09-30",
+  "reviewed_at": "2026-10-04",
   "scope": "Source route declarations, committed HTTP operations, frontend API/direct-transport callables, browser pages and routing registries. Surfaces are not unique tool counts.",
   "truth_contract": "All allowed workflows begin planned; only retained executable adapter and evidence may change implementation state. The ledger is never a runtime permission allowlist.",
   "owners": {
@@ -7382,6 +7382,146 @@
     },
     {
       "surface": {
+        "id": "frontend:frontend/features/travel-tracker/api.ts:export",
+        "kind": "frontend_callable",
+        "source": "frontend/features/travel-tracker/api.ts",
+        "handler": "export"
+      },
+      "workflow": "documents.travel_tracker.export",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [
+        "live_superadmin_authorization",
+        "current_device_section_permissions",
+        "bounded_selection",
+        "business_transaction_idempotency",
+        "current_entity_receipt_authorization",
+        "verified_artifact_delivery"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "evidence": [
+          "docs/architecture/travel-tracker-mcp.md",
+          "backend/tests/integration/test_mcp_travel_tracker.py"
+        ]
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/travel-tracker/api.ts:groups",
+        "kind": "frontend_callable",
+        "source": "frontend/features/travel-tracker/api.ts",
+        "handler": "groups"
+      },
+      "workflow": "documents.travel_tracker.groups",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [
+        "live_superadmin_authorization",
+        "current_device_section_permissions",
+        "bounded_selection",
+        "business_transaction_idempotency",
+        "current_entity_receipt_authorization",
+        "verified_artifact_delivery"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "evidence": [
+          "docs/architecture/travel-tracker-mcp.md",
+          "backend/tests/integration/test_mcp_travel_tracker.py"
+        ]
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/travel-tracker/api.ts:mark",
+        "kind": "frontend_callable",
+        "source": "frontend/features/travel-tracker/api.ts",
+        "handler": "mark"
+      },
+      "workflow": "documents.travel_tracker.mark",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [
+        "live_superadmin_authorization",
+        "current_device_section_permissions",
+        "bounded_selection",
+        "business_transaction_idempotency",
+        "current_entity_receipt_authorization",
+        "verified_artifact_delivery"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "evidence": [
+          "docs/architecture/travel-tracker-mcp.md",
+          "backend/tests/integration/test_mcp_travel_tracker.py"
+        ]
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/travel-tracker/api.ts:preview",
+        "kind": "frontend_callable",
+        "source": "frontend/features/travel-tracker/api.ts",
+        "handler": "preview"
+      },
+      "workflow": "documents.travel_tracker.preview",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [
+        "live_superadmin_authorization",
+        "current_device_section_permissions",
+        "bounded_selection",
+        "business_transaction_idempotency",
+        "current_entity_receipt_authorization",
+        "verified_artifact_delivery"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "evidence": [
+          "docs/architecture/travel-tracker-mcp.md",
+          "backend/tests/integration/test_mcp_travel_tracker.py"
+        ]
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/travel-tracker/api.ts:roster",
+        "kind": "frontend_callable",
+        "source": "frontend/features/travel-tracker/api.ts",
+        "handler": "roster"
+      },
+      "workflow": "documents.travel_tracker.roster",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [
+        "live_superadmin_authorization",
+        "current_device_section_permissions",
+        "bounded_selection",
+        "business_transaction_idempotency",
+        "current_entity_receipt_authorization",
+        "verified_artifact_delivery"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "evidence": [
+          "docs/architecture/travel-tracker-mcp.md",
+          "backend/tests/integration/test_mcp_travel_tracker.py"
+        ]
+      }
+    },
+    {
+      "surface": {
         "id": "frontend:frontend/features/upload/api/upload.api.ts:discardUpload",
         "kind": "frontend_callable",
         "source": "frontend/features/upload/api/upload.api.ts",
@@ -11991,6 +12131,238 @@
         "adapter": "backend/app/presentation/mcp/tracking_export_tools.py",
         "evidence": [
           "docs/implementation/mcp-tracking-exports.md"
+        ]
+      }
+    },
+    {
+      "surface": {
+        "id": "mcp_tool:backend/app/presentation/mcp/travel_tracker_tools.py:apply_travel_tracker_workbook",
+        "kind": "mcp_tool",
+        "source": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "handler": "apply_travel_tracker_workbook",
+        "contract_sha256": "b6ed162051befcec8477af2d734688621289e00481f1822a298450f329fc4347"
+      },
+      "workflow": "documents.travel_tracker.apply_travel_tracker_workbook",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [
+        "live_superadmin_authorization",
+        "current_device_section_permissions",
+        "bounded_selection",
+        "business_transaction_idempotency",
+        "current_entity_receipt_authorization",
+        "verified_artifact_delivery"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "evidence": [
+          "docs/architecture/travel-tracker-mcp.md",
+          "backend/tests/integration/test_mcp_travel_tracker.py"
+        ]
+      }
+    },
+    {
+      "surface": {
+        "id": "mcp_tool:backend/app/presentation/mcp/travel_tracker_tools.py:get_travel_tracker_roster",
+        "kind": "mcp_tool",
+        "source": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "handler": "get_travel_tracker_roster",
+        "contract_sha256": "a38383ffe72e82fbf55b24f79cda0c7b69d5adfd2b2fefc8822558660fa76f82"
+      },
+      "workflow": "documents.travel_tracker.get_travel_tracker_roster",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [
+        "live_superadmin_authorization",
+        "current_device_section_permissions",
+        "bounded_selection",
+        "business_transaction_idempotency",
+        "current_entity_receipt_authorization",
+        "verified_artifact_delivery"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "evidence": [
+          "docs/architecture/travel-tracker-mcp.md",
+          "backend/tests/integration/test_mcp_travel_tracker.py"
+        ]
+      }
+    },
+    {
+      "surface": {
+        "id": "mcp_tool:backend/app/presentation/mcp/travel_tracker_tools.py:inspect_travel_tracker_export",
+        "kind": "mcp_tool",
+        "source": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "handler": "inspect_travel_tracker_export",
+        "contract_sha256": "0dc9bf6939bd5d60556d93ef838aac783339174fcec80d28772c11c367eef309"
+      },
+      "workflow": "documents.travel_tracker.inspect_travel_tracker_export",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [
+        "live_superadmin_authorization",
+        "current_device_section_permissions",
+        "bounded_selection",
+        "business_transaction_idempotency",
+        "current_entity_receipt_authorization",
+        "verified_artifact_delivery"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "evidence": [
+          "docs/architecture/travel-tracker-mcp.md",
+          "backend/tests/integration/test_mcp_travel_tracker.py"
+        ]
+      }
+    },
+    {
+      "surface": {
+        "id": "mcp_tool:backend/app/presentation/mcp/travel_tracker_tools.py:list_travel_tracker_groups",
+        "kind": "mcp_tool",
+        "source": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "handler": "list_travel_tracker_groups",
+        "contract_sha256": "944963c1ef46e48c99e096a4fb60d5492101e3894e4271d4c884fa9fe253fc71"
+      },
+      "workflow": "documents.travel_tracker.list_travel_tracker_groups",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [
+        "live_superadmin_authorization",
+        "current_device_section_permissions",
+        "bounded_selection",
+        "business_transaction_idempotency",
+        "current_entity_receipt_authorization",
+        "verified_artifact_delivery"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "evidence": [
+          "docs/architecture/travel-tracker-mcp.md",
+          "backend/tests/integration/test_mcp_travel_tracker.py"
+        ]
+      }
+    },
+    {
+      "surface": {
+        "id": "mcp_tool:backend/app/presentation/mcp/travel_tracker_tools.py:prepare_travel_tracker_export",
+        "kind": "mcp_tool",
+        "source": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "handler": "prepare_travel_tracker_export",
+        "contract_sha256": "b80935eda0ade9b7eb839140a7eb1531df54a7f3da9b98a4371091c760b70e52"
+      },
+      "workflow": "documents.travel_tracker.prepare_travel_tracker_export",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [
+        "live_superadmin_authorization",
+        "current_device_section_permissions",
+        "bounded_selection",
+        "business_transaction_idempotency",
+        "current_entity_receipt_authorization",
+        "verified_artifact_delivery"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "evidence": [
+          "docs/architecture/travel-tracker-mcp.md",
+          "backend/tests/integration/test_mcp_travel_tracker.py"
+        ]
+      }
+    },
+    {
+      "surface": {
+        "id": "mcp_tool:backend/app/presentation/mcp/travel_tracker_tools.py:preview_travel_tracker_workbook",
+        "kind": "mcp_tool",
+        "source": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "handler": "preview_travel_tracker_workbook",
+        "contract_sha256": "5e2e68b2ed102766d7b65716262dd4eaa2cc6166417acbd0acfddf1bd4ce6478"
+      },
+      "workflow": "documents.travel_tracker.preview_travel_tracker_workbook",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [
+        "live_superadmin_authorization",
+        "current_device_section_permissions",
+        "bounded_selection",
+        "business_transaction_idempotency",
+        "current_entity_receipt_authorization",
+        "verified_artifact_delivery"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "evidence": [
+          "docs/architecture/travel-tracker-mcp.md",
+          "backend/tests/integration/test_mcp_travel_tracker.py"
+        ]
+      }
+    },
+    {
+      "surface": {
+        "id": "mcp_tool:backend/app/presentation/mcp/travel_tracker_tools.py:resume_travel_tracker_export",
+        "kind": "mcp_tool",
+        "source": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "handler": "resume_travel_tracker_export",
+        "contract_sha256": "f1a89b17a5324cd3c48a913daa2734676a87418b2ee2bd1b4f676fbf77ba97d7"
+      },
+      "workflow": "documents.travel_tracker.resume_travel_tracker_export",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [
+        "live_superadmin_authorization",
+        "current_device_section_permissions",
+        "bounded_selection",
+        "business_transaction_idempotency",
+        "current_entity_receipt_authorization",
+        "verified_artifact_delivery"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "evidence": [
+          "docs/architecture/travel-tracker-mcp.md",
+          "backend/tests/integration/test_mcp_travel_tracker.py"
+        ]
+      }
+    },
+    {
+      "surface": {
+        "id": "mcp_tool:backend/app/presentation/mcp/travel_tracker_tools.py:set_travel_tracker_status",
+        "kind": "mcp_tool",
+        "source": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "handler": "set_travel_tracker_status",
+        "contract_sha256": "f8ad7c93a2db4beaab630322a4a46762b100b9ceb52e22ed0bdf205bdc49f93a"
+      },
+      "workflow": "documents.travel_tracker.set_travel_tracker_status",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [
+        "live_superadmin_authorization",
+        "current_device_section_permissions",
+        "bounded_selection",
+        "business_transaction_idempotency",
+        "current_entity_receipt_authorization",
+        "verified_artifact_delivery"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "evidence": [
+          "docs/architecture/travel-tracker-mcp.md",
+          "backend/tests/integration/test_mcp_travel_tracker.py"
         ]
       }
     },
@@ -17028,6 +17400,108 @@
     },
     {
       "surface": {
+        "id": "openapi:GET:/api/v1/travel-tracker/groups",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/travel-tracker/groups",
+        "operation_id": "list_tracker_groups_api_v1_travel_tracker_groups_get",
+        "tags": [
+          "Travel Tracker"
+        ],
+        "summary": "List Tracker Groups"
+      },
+      "workflow": "documents.travel_tracker.openapi_operation",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [
+        "live_superadmin_authorization",
+        "current_device_section_permissions",
+        "bounded_selection",
+        "business_transaction_idempotency",
+        "current_entity_receipt_authorization",
+        "verified_artifact_delivery"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "evidence": [
+          "docs/architecture/travel-tracker-mcp.md",
+          "backend/tests/integration/test_mcp_travel_tracker.py"
+        ]
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/travel-tracker/groups/{group_id}",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/travel-tracker/groups/{group_id}",
+        "operation_id": "tracker_workspace_api_v1_travel_tracker_groups__group_id__get",
+        "tags": [
+          "Travel Tracker"
+        ],
+        "summary": "Tracker Workspace"
+      },
+      "workflow": "documents.travel_tracker.openapi_operation",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [
+        "live_superadmin_authorization",
+        "current_device_section_permissions",
+        "bounded_selection",
+        "business_transaction_idempotency",
+        "current_entity_receipt_authorization",
+        "verified_artifact_delivery"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "evidence": [
+          "docs/architecture/travel-tracker-mcp.md",
+          "backend/tests/integration/test_mcp_travel_tracker.py"
+        ]
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/travel-tracker/groups/{group_id}/export",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/travel-tracker/groups/{group_id}/export",
+        "operation_id": "export_tracker_passengers_api_v1_travel_tracker_groups__group_id__export_get",
+        "tags": [
+          "Travel Tracker"
+        ],
+        "summary": "Export Tracker Passengers"
+      },
+      "workflow": "documents.travel_tracker.openapi_operation",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [
+        "live_superadmin_authorization",
+        "current_device_section_permissions",
+        "bounded_selection",
+        "business_transaction_idempotency",
+        "current_entity_receipt_authorization",
+        "verified_artifact_delivery"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "evidence": [
+          "docs/architecture/travel-tracker-mcp.md",
+          "backend/tests/integration/test_mcp_travel_tracker.py"
+        ]
+      }
+    },
+    {
+      "surface": {
         "id": "openapi:GET:/api/v1/upload-links",
         "kind": "openapi_operation",
         "source": "backend/contracts/api.openapi.json",
@@ -18236,6 +18710,40 @@
         "evidence": []
       },
       "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "openapi:PATCH:/api/v1/travel-tracker/groups/{group_id}/marks",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "PATCH",
+        "path": "/api/v1/travel-tracker/groups/{group_id}/marks",
+        "operation_id": "mark_tracker_passengers_api_v1_travel_tracker_groups__group_id__marks_patch",
+        "tags": [
+          "Travel Tracker"
+        ],
+        "summary": "Mark Tracker Passengers"
+      },
+      "workflow": "documents.travel_tracker.openapi_operation",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [
+        "live_superadmin_authorization",
+        "current_device_section_permissions",
+        "bounded_selection",
+        "business_transaction_idempotency",
+        "current_entity_receipt_authorization",
+        "verified_artifact_delivery"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "evidence": [
+          "docs/architecture/travel-tracker-mcp.md",
+          "backend/tests/integration/test_mcp_travel_tracker.py"
+        ]
+      }
     },
     {
       "surface": {
@@ -22404,6 +22912,40 @@
     },
     {
       "surface": {
+        "id": "openapi:POST:/api/v1/travel-tracker/groups/{group_id}/import/preview",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/travel-tracker/groups/{group_id}/import/preview",
+        "operation_id": "preview_tracker_import_api_v1_travel_tracker_groups__group_id__import_preview_post",
+        "tags": [
+          "Travel Tracker"
+        ],
+        "summary": "Preview Tracker Import"
+      },
+      "workflow": "documents.travel_tracker.openapi_operation",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [
+        "live_superadmin_authorization",
+        "current_device_section_permissions",
+        "bounded_selection",
+        "business_transaction_idempotency",
+        "current_entity_receipt_authorization",
+        "verified_artifact_delivery"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "evidence": [
+          "docs/architecture/travel-tracker-mcp.md",
+          "backend/tests/integration/test_mcp_travel_tracker.py"
+        ]
+      }
+    },
+    {
+      "surface": {
         "id": "openapi:POST:/api/v1/upload-links",
         "kind": "openapi_operation",
         "source": "backend/contracts/api.openapi.json",
@@ -24624,6 +25166,40 @@
     },
     {
       "surface": {
+        "id": "page:frontend/app/(dashboard)/documents/tracker/[groupId]/page.tsx",
+        "kind": "frontend_page",
+        "source": "frontend/app/(dashboard)/documents/tracker/[groupId]/page.tsx"
+      },
+      "workflow": "documents.travel_tracker.frontend_page",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "page:frontend/app/(dashboard)/documents/tracker/page.tsx",
+        "kind": "frontend_page",
+        "source": "frontend/app/(dashboard)/documents/tracker/page.tsx"
+      },
+      "workflow": "documents.travel_tracker.frontend_page",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "page:frontend/app/(dashboard)/email-integrations/activity/[messageId]/page.tsx",
         "kind": "frontend_page",
         "source": "frontend/app/(dashboard)/email-integrations/activity/[messageId]/page.tsx"
@@ -25407,7 +25983,7 @@
         "id": "registration:backend/app/presentation/api/v1/router.py",
         "kind": "route_registration",
         "source": "backend/app/presentation/api/v1/router.py",
-        "contract_sha256": "cb40ffac1eadb88413e4f101cf68ac65184aee15dab2e8d702d25aa30253c551"
+        "contract_sha256": "2636bb23929b5b704f5abc6939f8dc0ee1153532551755c9a851f0e196597f88"
       },
       "workflow": "application.route-registration",
       "disposition": "internal_dependency",
@@ -27015,6 +27591,24 @@
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/travel_tracker.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/travel_tracker.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "documents.travel_tracker.route_registration",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",
@@ -38625,6 +39219,171 @@
         "evidence": []
       },
       "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/travel_tracker.py:export_tracker_passengers:GET:/groups/{group_id}/export",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/travel_tracker.py",
+        "handler": "export_tracker_passengers",
+        "method": "GET",
+        "local_path": "/groups/{group_id}/export",
+        "contract_sha256": "4cf73e90fcfe72dd84862bc16c05b185ad027d1a8efa31fb546045efad1a0fee",
+        "summary": "export tracker passengers",
+        "schema_visible": true
+      },
+      "workflow": "documents.travel_tracker.export_tracker_passengers",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [
+        "live_superadmin_authorization",
+        "current_device_section_permissions",
+        "bounded_selection",
+        "business_transaction_idempotency",
+        "current_entity_receipt_authorization",
+        "verified_artifact_delivery"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "evidence": [
+          "docs/architecture/travel-tracker-mcp.md",
+          "backend/tests/integration/test_mcp_travel_tracker.py"
+        ]
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/travel_tracker.py:list_tracker_groups:GET:/groups",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/travel_tracker.py",
+        "handler": "list_tracker_groups",
+        "method": "GET",
+        "local_path": "/groups",
+        "contract_sha256": "7d9c7d96b51c240898d0bd387bcc039d385fb1adc1c2db5ab8c9f30935def5e5",
+        "summary": "list tracker groups",
+        "schema_visible": true
+      },
+      "workflow": "documents.travel_tracker.list_tracker_groups",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [
+        "live_superadmin_authorization",
+        "current_device_section_permissions",
+        "bounded_selection",
+        "business_transaction_idempotency",
+        "current_entity_receipt_authorization",
+        "verified_artifact_delivery"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "evidence": [
+          "docs/architecture/travel-tracker-mcp.md",
+          "backend/tests/integration/test_mcp_travel_tracker.py"
+        ]
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/travel_tracker.py:mark_tracker_passengers:PATCH:/groups/{group_id}/marks",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/travel_tracker.py",
+        "handler": "mark_tracker_passengers",
+        "method": "PATCH",
+        "local_path": "/groups/{group_id}/marks",
+        "contract_sha256": "f9a472cb27f4f3eb30a8c3794b930bf06eea3ad2ed290e5e238092cecce5bc28",
+        "summary": "mark tracker passengers",
+        "schema_visible": true
+      },
+      "workflow": "documents.travel_tracker.mark_tracker_passengers",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [
+        "live_superadmin_authorization",
+        "current_device_section_permissions",
+        "bounded_selection",
+        "business_transaction_idempotency",
+        "current_entity_receipt_authorization",
+        "verified_artifact_delivery"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "evidence": [
+          "docs/architecture/travel-tracker-mcp.md",
+          "backend/tests/integration/test_mcp_travel_tracker.py"
+        ]
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/travel_tracker.py:preview_tracker_import:POST:/groups/{group_id}/import/preview",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/travel_tracker.py",
+        "handler": "preview_tracker_import",
+        "method": "POST",
+        "local_path": "/groups/{group_id}/import/preview",
+        "contract_sha256": "9d8dd882d5d7e991a8f4a35e0bd240ac8c6b5e265f27837ab24baa442c6d3a7a",
+        "summary": "preview tracker import",
+        "schema_visible": true
+      },
+      "workflow": "documents.travel_tracker.preview_tracker_import",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [
+        "live_superadmin_authorization",
+        "current_device_section_permissions",
+        "bounded_selection",
+        "business_transaction_idempotency",
+        "current_entity_receipt_authorization",
+        "verified_artifact_delivery"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "evidence": [
+          "docs/architecture/travel-tracker-mcp.md",
+          "backend/tests/integration/test_mcp_travel_tracker.py"
+        ]
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/travel_tracker.py:tracker_workspace:GET:/groups/{group_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/travel_tracker.py",
+        "handler": "tracker_workspace",
+        "method": "GET",
+        "local_path": "/groups/{group_id}",
+        "contract_sha256": "ecde4211f399f9297059f1dc598fcedadcfd7e1ccd4d7efb61572a9f5e1fc8ba",
+        "summary": "tracker workspace",
+        "schema_visible": true
+      },
+      "workflow": "documents.travel_tracker.tracker_workspace",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [
+        "live_superadmin_authorization",
+        "current_device_section_permissions",
+        "bounded_selection",
+        "business_transaction_idempotency",
+        "current_entity_receipt_authorization",
+        "verified_artifact_delivery"
+      ],
+      "implementation": {
+        "status": "implemented_unverified",
+        "adapter": "backend/app/presentation/mcp/travel_tracker_tools.py",
+        "evidence": [
+          "docs/architecture/travel-tracker-mcp.md",
+          "backend/tests/integration/test_mcp_travel_tracker.py"
+        ]
+      }
     },
     {
       "surface": {

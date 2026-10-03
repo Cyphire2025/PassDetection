@@ -28,8 +28,9 @@ PREVIOUS_RELEASE_REVISION = "0085_platform_retention_controls"
 # The populated fixture deliberately remains at 0085; its destination follows
 # the same reviewed contract as deployment and the migration topology check.
 EXPECTED_HEAD_REVISION = json.loads(
-    (Path(__file__).resolve().parents[1] / "app/core/config/release_manifest.json")
-    .read_text(encoding="utf-8")
+    (Path(__file__).resolve().parents[1] / "app/core/config/release_manifest.json").read_text(
+        encoding="utf-8"
+    )
 )["schema_revision"]
 SAFE_DATABASE_NAME = re.compile(r"^passdetection_ci_[a-z0-9_]+$")
 PROTECTED_DATABASE_NAMES = frozenset({"postgres", "template0", "template1"})
@@ -506,6 +507,7 @@ def _verify_upgraded_database(connection: Connection) -> dict[str, Any]:
         "identity_notification_outbox",
         "untrusted_upload_scans",
         "audit_chain_heads",
+        "travel_tracker",
     )
     for table_name in new_tables:
         if _scalar(connection, "SELECT to_regclass(%s) IS NOT NULL", (table_name,)) is not True:
@@ -529,6 +531,15 @@ def _verify_upgraded_database(connection: Connection) -> dict[str, Any]:
     connection.commit()
 
     constraints = {
+        "cross_tenant_travel_tracker": _assert_constraint_rejected(
+            connection,
+            statement="""
+                INSERT INTO travel_tracker (passenger_id, agency_id, group_id)
+                VALUES (%s, %s, %s)
+            """,
+            parameters=(IDS["passenger_a"], IDS["agency_b"], IDS["group_b"]),
+            expected_constraint="fk_travel_tracker_passenger_scope",
+        ),
         "schedule_version": _assert_constraint_rejected(
             connection,
             statement="UPDATE attendance_sessions SET schedule_version = 0 WHERE id = %s",
@@ -574,6 +585,29 @@ def _verify_upgraded_database(connection: Connection) -> dict[str, Any]:
             expected_sqlstate="55000",
         ),
     }
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "INSERT INTO travel_tracker (passenger_id, agency_id, group_id) VALUES (%s, %s, %s)",
+            (IDS["passenger_a"], IDS["agency_a"], IDS["group_a"]),
+        )
+        cursor.execute(
+            "SELECT visa_applied, flight_booked FROM travel_tracker WHERE passenger_id = %s",
+            (IDS["passenger_a"],),
+        )
+        if cursor.fetchone() != (False, False):
+            raise AssertionError(
+                "New tracker rows must default to unmarked visa and flight statuses"
+            )
+        cursor.execute(
+            "UPDATE travel_tracker SET visa_applied = true, visa_updated_by = %s, visa_updated_at = now() WHERE passenger_id = %s",
+            (IDS["admin_a"], IDS["passenger_a"]),
+        )
+        cursor.execute(
+            "SELECT visa_applied, flight_booked, visa_updated_by::text, visa_updated_at IS NOT NULL FROM travel_tracker WHERE passenger_id = %s",
+            (IDS["passenger_a"],),
+        )
+        if cursor.fetchone() != (True, False, IDS["admin_a"], True):
+            raise AssertionError("Tracker visa attribution or independent flight state failed")
     connection.commit()
 
     return {
@@ -582,6 +616,11 @@ def _verify_upgraded_database(connection: Connection) -> dict[str, Any]:
         "backfills": backfills,
         "new_tables": list(new_tables),
         "verified_constraints": constraints,
+        "travel_tracker": {
+            "default_unmarked": True,
+            "independent_visa_mark": True,
+            "actor_attributed": True,
+        },
         "positive_my_photos_gallery_count": int(
             _scalar(connection, "SELECT count(*) FROM my_photo_galleries")
         ),
