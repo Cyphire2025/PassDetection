@@ -105,6 +105,7 @@ it("renames a device and only allows narrowing its existing permissions", async 
 it("restarts paginated activity at the first page when a search changes", async () => {
   vi.mocked(mcpApi.activity).mockImplementation(async (offset) => ({ items: [{ id: String(offset), action: "mcp.revoked", result: "success", entity_id: "grant-a", created_at: connection.created_at }], next_offset: offset === 0 ? 25 : null }));
   renderPage(<McpAdminPage section="settings" />);
+  fireEvent.click(await screen.findByRole("button", { name: "Activity" }));
   fireEvent.click(await screen.findByRole("button", { name: "Next" }));
   await waitFor(() => expect(mcpApi.activity).toHaveBeenCalledWith(25, "", expect.any(AbortSignal)));
   fireEvent.change(screen.getByRole("searchbox"), { target: { value: "mcp.revoked" } });

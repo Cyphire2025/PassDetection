@@ -15,7 +15,7 @@ export function McpRequestPermissions({ readEnabled, writeEnabled, writeSections
   const blocked = disabled || query.isFetching || query.isError || !data;
   const sections = data ? deviceWriteSections(data) : [];
   return <section aria-label="New connection allowances" className="space-y-4 rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-    <div><h4 className="text-sm font-semibold text-slate-950">Connection allowances</h4><p className="mt-1 text-xs leading-5 text-slate-500">New connections start with write access off. Review the allowances before approving.</p></div>
+    <div><h4 className="text-sm font-semibold text-slate-950">Connection allowances</h4><p className="mt-1 text-xs leading-5 text-slate-500">Choose Read and Write access for this connection. New connections start with Write off.</p></div>
     <McpError error={query.error} onRetry={() => void query.refetch()} />
     {query.isPending ? <p role="status" className="text-sm text-slate-500">Checking saved section settings…</p> : null}
     <McpPermissionSwitch label="Allow read access" description="Use the read sections allowed in Settings." checked={readEnabled && readScope} disabled={blocked || !readScope} onChange={onRead} />

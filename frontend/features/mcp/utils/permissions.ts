@@ -50,9 +50,9 @@ export function writeToolsForSections(data: McpPermissions, sections: readonly s
 
 export function deviceWriteSections(data: McpPermissions) {
   return data.section_catalog.map((section) => ({ ...section,
-    write_supported: section.write_supported && data.allowed_write_sections.includes(section.id),
+    write_allowed_by_settings: data.allowed_write_sections.includes(section.id),
     write_description: section.write_supported && !data.allowed_write_sections.includes(section.id)
-      ? "Disabled in Write settings. Enable this section there before allowing it on this device." : section.write_description }));
+      ? "This action is turned off in global Write settings. Enable it there before allowing it on this device." : section.write_description }));
 }
 
 export function permissionUpdate(data: McpPermissions): McpPermissionUpdate {

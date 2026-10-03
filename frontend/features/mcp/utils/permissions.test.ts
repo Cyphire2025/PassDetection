@@ -49,5 +49,7 @@ it("does not present retained scopes as enabled device allowances", () => {
 it("distinguishes unsupported actions from a supported section that an administrator can enable", () => {
   const sections = deviceWriteSections(permissionFixture());
   expect(sections.find((section) => section.id === "profile")).toMatchObject({ write_supported: false, write_description: "No available write actions." });
-  expect(sections.find((section) => section.id === "menu")).toMatchObject({ write_supported: false, write_description: expect.stringContaining("Disabled in Write settings") });
+  expect(sections.find((section) => section.id === "menu")).toMatchObject({ write_supported: true, write_allowed_by_settings: false,
+    write_description: expect.stringContaining("turned off in global Write settings") });
+  expect(sections.find((section) => section.id === "all_groups")).toMatchObject({ write_supported: true, write_allowed_by_settings: true });
 });

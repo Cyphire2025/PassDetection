@@ -10,9 +10,14 @@ const supported = [
 ];
 const requirements = [{ name: "list_groups", required_sections: ["all_groups", "whatsapp", "old_data"] }];
 
+async function selectSettings(page: Page, name: string) {
+  await page.getByRole("navigation", { name: "MCP settings", exact: true }).getByRole("button", { name, exact: true }).click();
+}
+
 async function setup(page: Page) {
   const errors: string[] = [];
   const mutations: Array<{ path: string; body: unknown }> = [];
+  const reads: string[] = [];
   let allowed = ["all_groups"];
   let revision = 4;
   let conflict = false;
@@ -37,6 +42,7 @@ async function setup(page: Page) {
     const request = route.request();
     const path = new URL(request.url()).pathname;
     const method = request.method();
+    if (method === "GET") reads.push(path);
     if (path === "/api/v1/auth/refresh") return json(route, { status: "authenticated", user, token_type: "bearer", access_token_expires_at: "2099-01-01T00:00:00Z" });
     if (path === "/api/v1/auth/me") return json(route, user);
     if (path === "/api/v1/notifications/feed") return json(route, { items: [], unread_count: 0, next_cursor: null });
@@ -69,7 +75,7 @@ async function setup(page: Page) {
     mutations.push({ path, body: request.postData() ? request.postDataJSON() : null });
     return json(route, { detail: "Unexpected mutation in isolated read-only test." }, 400);
   });
-  return { errors, mutations, conflictNextSave: () => { conflict = true; } };
+  return { errors, mutations, reads, conflictNextSave: () => { conflict = true; } };
 }
 
 for (const width of [1440, 390]) {
@@ -77,17 +83,28 @@ for (const width of [1440, 390]) {
     const state = await setup(page);
     await page.setViewportSize({ width, height: 1000 });
     await page.goto("/admin/mcp/settings");
+    const sidebar = page.getByRole("navigation", { name: "MCP settings", exact: true });
+    await expect(sidebar.getByRole("button")).toHaveCount(4);
+    for (const name of ["Write access", "Files", "Workflows"]) await expect(sidebar.getByRole("button", { name, exact: true })).toHaveCount(0);
+    await selectSettings(page, "Read access");
     const settings = page.getByRole("region", { name: "Sidebar read access" });
     await expect(settings.getByRole("switch")).toHaveCount(15);
     await expect(settings.getByRole("switch", { name: "Allow Settings" })).toHaveCount(0);
     await expect(settings.getByRole("switch", { name: "Allow My Tour" })).toHaveCount(0);
     await expect(settings.getByRole("switch", { name: "Allow Audit Logs" })).toHaveCount(0);
     await expect(settings.getByRole("switch", { name: "Allow Codex access" })).toHaveCount(0);
-    await expect(settings.getByText("Connection metadata", { exact: true })).toBeVisible();
+    await expect(settings.getByText("Not available", { exact: true })).toHaveCount(0);
+    await expect(settings.locator("label")).toHaveCount(15);
     await settings.locator("label").getByText("WhatsApp", { exact: true }).click();
     await expect(settings.getByRole("switch", { name: "Allow WhatsApp" })).toBeChecked();
     await settings.locator("label").getByText("Old Data", { exact: true }).click();
     await expect(settings.getByRole("switch", { name: "Allow Old Data" })).toBeChecked();
+    await selectSettings(page, "General");
+    await expect(settings).not.toBeVisible();
+    await selectSettings(page, "Read access");
+    await expect(settings.getByRole("switch", { name: "Allow WhatsApp" })).toBeChecked();
+    await expect(settings.getByRole("switch", { name: "Allow Old Data" })).toBeChecked();
+    expect(state.reads.filter((path) => /\/(activity|inventory|operations|artifacts)$/.test(path))).toEqual([]);
     expect(state.mutations).toEqual([]);
     await settings.getByRole("button", { name: "Save read access" }).click();
     await expect(settings.getByText("Read access saved and confirmed.")).toBeVisible();
@@ -97,11 +114,13 @@ for (const width of [1440, 390]) {
     await testInfo.attach(`Saved read sections at ${width}px`, { path: sectionScreenshot, contentType: "image/png" });
     await expect(page.getByRole("button", { name: "Files", exact: true })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Workflows", exact: true })).toHaveCount(0);
-    await page.getByRole("button", { name: "Tools", exact: true }).click();
+    await selectSettings(page, "Tools");
     const tools = page.getByRole("region", { name: "Deployed MCP tools" });
     await expect(tools.getByRole("heading", { name: "list groups", exact: true })).toBeVisible();
     await expect(tools.getByRole("heading", { name: "inspect excel export options", exact: true })).toHaveCount(0);
     await expect(tools.getByRole("heading", { name: "create group", exact: true })).toHaveCount(0);
+    expect(state.reads.filter((path) => path.endsWith("/inventory"))).toHaveLength(1);
+    await selectSettings(page, "Read access");
     state.conflictNextSave();
     await settings.locator("label").getByText("Menu", { exact: true }).click();
     await expect(settings.getByRole("switch", { name: "Allow Menu" })).toBeChecked();
@@ -113,6 +132,7 @@ for (const width of [1440, 390]) {
     await expect(settings.getByRole("switch", { name: "Allow Menu" })).not.toBeChecked();
     await expect(settings.getByRole("switch", { name: "Allow All Groups" })).not.toBeChecked();
     expect(state.mutations).toHaveLength(2);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
     expect(state.errors).toEqual([]);
   });
 }

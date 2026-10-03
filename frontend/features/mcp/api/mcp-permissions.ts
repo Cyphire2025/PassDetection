@@ -7,6 +7,7 @@ export interface McpPermissionSection {
   write_description: string;
   read_tool_names: string[];
   write_tool_names: string[];
+  write_allowed_by_settings?: boolean;
 }
 
 export interface McpPermissions {

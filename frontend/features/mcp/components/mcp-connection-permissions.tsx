@@ -71,7 +71,7 @@ export function McpConnectionPermissions({ connection, readOnly, unavailable, up
         <McpPermissionSwitch label="Allow write access" checked={draft.write_enabled} disabled={blocked || !writeAvailable}
           description="Permit only the write sections selected below, limited by Settings and this connection’s approved permissions."
           onChange={(write_enabled) => { setDraft((current) => ({ ...current, write_enabled, allowed_write_sections: write_enabled && !current.allowed_write_sections.length ? [...(data?.allowed_write_sections ?? [])] : current.allowed_write_sections })); setSaved(null); }} />
-        {!writeScope ? <p className="text-xs leading-5 text-slate-600">This connection was approved without write permissions. Add a new connection request and approve the required actions to allow writes.</p>
+        {!writeScope ? <p className="text-xs leading-5 text-slate-600">This connection was approved without write permissions. Changing global Settings cannot add Write permissions to its saved approval.</p>
           : !writeAvailable ? <p className="text-xs leading-5 text-slate-600">Write actions are unavailable on this deployment.</p> : null}
         {data && writeAvailable ? <McpPermissionSections mode="write" sections={writeSections} selected={draft.allowed_write_sections} disabled={blocked}
           onChange={(allowed_write_sections) => { setDraft((current) => ({ ...current, allowed_write_sections: [...allowed_write_sections].sort() })); setSaved(null); }} /> : null}

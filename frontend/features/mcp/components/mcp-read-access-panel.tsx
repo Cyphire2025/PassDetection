@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Badge, Button } from "@/components/ui";
+import { Button } from "@/components/ui";
 import type { McpConnection, McpOverview, McpReadAccess } from "../api/mcp.api";
 import { useMcpReadAccess, useMcpUpdateReadAccess } from "../hooks/use-mcp";
+import { mcpSectionDescription } from "../utils/section-copy";
 import { McpError } from "./mcp-shared";
 
 function validReadAccess(value: McpReadAccess) {
@@ -24,7 +25,7 @@ export function McpReadAccessPanel({ overviewUnavailable }: {
   return <>
     <section aria-label="Sidebar read access" className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
       <div><h2 className="text-base font-semibold text-slate-950">Read settings</h2>
-        <p className="mt-2 text-sm leading-6 text-slate-600">Allow or deny the available reads for each sidebar section. These settings apply to all MCP connections. Your normal website access stays the same.</p></div>
+        <p className="mt-2 text-sm leading-6 text-slate-600">Choose which saved information approved MCP connections can look up.</p></div>
       <McpError error={query.error} onRetry={() => void query.refetch()} />
       {query.isPending ? <p role="status" className="text-sm text-slate-500">Checking saved read settings…</p> : null}
       {query.data && !valid ? <p role="alert" className="text-sm text-amber-800">Current read-only settings could not be verified. Refresh status before changing access.</p> : null}
@@ -71,8 +72,12 @@ function ReadAccessEditor({ data, unavailable, reload }: {
     {unavailable ? <p role="status" className="text-sm text-slate-600">Checking the current policy failed or is still in progress. Saving is unavailable until it can be confirmed.</p> : null}
     <fieldset disabled={blocked} className="divide-y divide-slate-100 rounded-xl border border-slate-200">
       <legend className="sr-only">Sidebar sections</legend>
-      {data.sections.map((section) => <div key={section.id} className="relative px-4 py-4 sm:px-5">
-        {section.supported ? <label className="flex cursor-pointer items-center justify-between gap-4">
+      {data.sections.filter((section) => section.supported).map((section) => {
+        const dependencies = [...new Set(section.tool_requirements?.flatMap((tool) => tool.required_sections) ?? [])]
+          .filter((id) => id !== section.id)
+          .map((id) => data.sections.find((item) => item.id === id)?.label ?? id);
+        return <div key={section.id} className="relative px-4 py-4 sm:px-5">
+        <label className="flex cursor-pointer items-center justify-between gap-4">
           <span className="text-sm font-medium text-slate-950">{section.label}</span>
           <input type="checkbox" role="switch" aria-label={`Allow ${section.label}`} aria-describedby={`read-coverage-${section.id}`} className="peer sr-only"
             checked={draft.allowed.includes(section.id)} onChange={(event) => {
@@ -81,12 +86,11 @@ function ReadAccessEditor({ data, unavailable, reload }: {
               setSavedRevision(null);
             }} />
           <span aria-hidden="true" className="relative h-6 w-11 shrink-0 rounded-full bg-slate-200 transition-colors after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow-sm after:transition-transform peer-checked:bg-blue-600 peer-checked:after:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-600 peer-focus-visible:ring-offset-2 peer-disabled:opacity-50" />
-        </label> : <div className="flex flex-wrap items-center gap-2"><h3 className="text-sm font-medium text-slate-950">{section.label}</h3><Badge variant="outline">{section.metadata_only ? "Connection metadata" : "Not available yet"}</Badge></div>}
-        <p id={`read-coverage-${section.id}`} className="mt-1 max-w-3xl pr-12 text-xs leading-5 text-slate-500">{section.coverage_description ?? "Only the listed read tools are covered. Additional page features are not available through Codex."}</p>
-        {section.supported && section.tool_requirements?.length ? <details className="mt-2 text-xs text-slate-500"><summary className="cursor-pointer">Required sections for these reads</summary>
-          <ul className="mt-2 space-y-1">{section.tool_requirements.map((tool) => <li key={tool.name}>{tool.name.replaceAll("_", " ")}: {tool.required_sections.map((id) => data.sections.find((item) => item.id === id)?.label ?? id).join(", ")}</li>)}</ul>
-        </details> : null}
-      </div>)}
+        </label>
+        <p id={`read-coverage-${section.id}`} className="mt-1 max-w-3xl pr-12 text-xs leading-5 text-slate-500">{mcpSectionDescription("read", section.id, section.coverage_description)}</p>
+        {dependencies.length ? <p className="mt-2 text-xs leading-5 text-slate-500">Some lookups also require: {dependencies.join(", ")}.</p> : null}
+      </div>;
+      })}
     </fieldset>
     <p className="text-xs leading-5 text-slate-500">A read that includes information from several sections requires all of those sections. Connection status is available independently of business section permissions.</p>
     <McpError error={update.error} />

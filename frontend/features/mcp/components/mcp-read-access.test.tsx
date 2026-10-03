@@ -52,6 +52,7 @@ function renderPage(component = <McpAdminPage section="settings" />) {
   return client;
 }
 async function settings() {
+  fireEvent.click(await screen.findByRole("button", { name: "Read access" }));
   await screen.findByRole("switch", { name: "Allow All Groups" });
   return screen.getByRole("region", { name: "Sidebar read access" });
 }
@@ -67,20 +68,22 @@ beforeEach(() => {
 });
 afterEach(() => { cleanup(); clients.splice(0).forEach((client) => client.clear()); useAuthStore.setState({ user: null }); });
 
-it("shows explicit coverage, supported checkboxes, metadata-only status and no unsupported toggle", async () => {
+it("shows plain descriptions and only configured Read options", async () => {
   renderPage(); const region = await settings();
-  expect(within(region).getByText(access.sections[0].coverage_description!)).toBeVisible();
+  expect(within(region).getByText(/Find groups and passengers, review passport details/)).toBeVisible();
+  expect(within(region).getByText("Some lookups also require: WhatsApp, Old Data.")).toBeVisible();
   expect(within(region).getByRole("switch", { name: "Allow All Groups" })).toBeChecked();
   expect(within(region).getByRole("switch", { name: "Allow WhatsApp" })).not.toBeChecked();
-  expect(within(region).getByText("Not available yet")).toBeVisible();
+  expect(within(region).queryByText("Not available yet")).not.toBeInTheDocument();
   expect(within(region).queryByRole("switch", { name: "Allow Settings" })).not.toBeInTheDocument();
-  expect(within(region).getByText("Connection metadata", { exact: true })).toBeVisible();
+  expect(within(region).queryByText("Connection metadata", { exact: true })).not.toBeInTheDocument();
   expect(within(region).queryByRole("switch", { name: "Allow Codex access" })).not.toBeInTheDocument();
   expect(mcpApi.updateReadAccess).not.toHaveBeenCalled();
 });
 
 it("hides write/export/file/workflow controls despite a retained broad grant and backend inventory", async () => {
   renderPage(); await settings();
+  fireEvent.click(screen.getByRole("button", { name: "General" }));
   expect(screen.getByText("Read only", { exact: true })).toBeVisible();
   expect(screen.getByRole("switch", { name: "Allow MCP access" })).toBeChecked();
   expect(screen.queryByRole("button", { name: "Advanced" })).not.toBeInTheDocument();
@@ -151,7 +154,8 @@ it("does not retry a server revision conflict before reloading the actual policy
 
 it("fails closed on a read-settings fetch failure", async () => {
   vi.mocked(mcpApi.readAccess).mockRejectedValue(new Error("Read settings unavailable."));
-  renderPage(); const region = await screen.findByRole("region", { name: "Sidebar read access" });
+  renderPage(); fireEvent.click(await screen.findByRole("button", { name: "Read access" }));
+  const region = await screen.findByRole("region", { name: "Sidebar read access" });
   expect(await within(region).findByRole("alert")).toHaveTextContent("Read settings unavailable.");
   expect(within(region).queryByRole("switch")).not.toBeInTheDocument();
   expect(mcpApi.updateReadAccess).not.toHaveBeenCalled();

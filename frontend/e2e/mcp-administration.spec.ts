@@ -6,6 +6,10 @@ const callback = "http://127.0.0.1:49153/callback";
 const oauth = { client_id: "https://chatgpt.com/oauth/codex/client.json", redirect_uri: callback, resource,
   state: "opaque state & symbols / = unicode ✓", code_challenge: "x".repeat(43), code_challenge_method: "S256", response_type: "code", scope: "mcp:read mcp:export" };
 
+async function selectSettings(page: Page, name: string) {
+  await page.getByRole("navigation", { name: "MCP settings", exact: true }).getByRole("button", { name, exact: true }).click();
+}
+
 async function setup(page: Page, role = "super_admin", requireStepUp = false) {
   const errors: string[] = [];
   const requests: Array<{ method: string; path: string; body: unknown }> = [];
@@ -179,17 +183,34 @@ for (const width of [1440, 390]) {
     await expect(page.getByRole("link", { name: "MCP", exact: true })).toBeVisible();
     if (width < 768) await page.getByRole("link", { name: "MCP", exact: true }).click();
     if (width < 768) await page.getByRole("navigation", { name: "MCP pages" }).getByRole("link", { name: "Settings", exact: true }).click();
+    const sidebar = page.getByRole("navigation", { name: "MCP settings", exact: true });
+    await expect(sidebar.getByRole("button")).toHaveCount(7);
+    await selectSettings(page, "Read access");
     const read = page.getByRole("region", { name: "Read settings", exact: true });
     const write = page.getByRole("region", { name: "Write settings", exact: true });
     await expect(read.getByRole("switch", { name: "Read Menu", exact: true })).toBeChecked();
+    await expect(read.getByRole("switch", { name: "Read Profile", exact: true })).toHaveCount(0);
+    await expect(read.getByRole("switch", { name: "Read Exports", exact: true })).toHaveCount(0);
+    await read.getByRole("switch", { name: "Read Menu", exact: true }).uncheck();
+    await selectSettings(page, "Write access");
+    await expect(read).not.toBeVisible();
     await expect(write.getByRole("switch", { name: "Allow write access", exact: true })).not.toBeChecked();
     await expect(write.getByRole("switch", { name: "Write Profile", exact: true })).toHaveCount(0);
+    await expect(write.getByText("Not available", { exact: true })).toHaveCount(0);
     await write.getByRole("switch", { name: "Allow write access", exact: true }).check();
-    await write.getByRole("switch", { name: "Write Group links", exact: true }).check();
+    await write.getByRole("switch", { name: /Write Group [Ll]inks/, exact: true }).check();
+    await selectSettings(page, "General");
+    await expect(write).not.toBeVisible();
+    await expect(page.getByRole("switch", { name: "Allow MCP access", exact: true })).toBeVisible();
+    await selectSettings(page, "Read access");
+    await expect(read.getByRole("switch", { name: "Read Menu", exact: true })).not.toBeChecked();
+    await selectSettings(page, "Write access");
+    await expect(write.getByRole("switch", { name: "Allow write access", exact: true })).toBeChecked();
+    await expect(write.getByRole("switch", { name: /Write Group [Ll]inks/, exact: true })).toBeChecked();
     const release = state.holdPermissionSave();
     try {
       await page.getByRole("button", { name: "Save permissions", exact: true }).click();
-      await expect(read.getByRole("switch", { name: "Read Menu", exact: true })).toBeDisabled();
+      await expect(write.getByRole("switch", { name: /Write Group [Ll]inks/, exact: true })).toBeDisabled();
       await expect(page.getByRole("button", { name: "Save permissions", exact: true })).toBeDisabled();
       await expect(page.getByText("Permissions saved and confirmed.", { exact: true })).toHaveCount(0);
       expect(state.requests.filter((item) => item.method === "PUT")).toHaveLength(1);
@@ -197,7 +218,7 @@ for (const width of [1440, 390]) {
       await expect(page.getByText("Permissions saved and confirmed.", { exact: true })).toBeVisible();
     } finally { release(); }
     expect(state.requests.find((item) => item.method === "PUT")?.body).toEqual({ expected_revision: 7, read_enabled: true, write_enabled: true,
-      allowed_read_sections: ["all_groups", "menu"], allowed_write_sections: ["all_groups", "exports", "group_links"],
+      allowed_read_sections: ["all_groups"], allowed_write_sections: ["all_groups", "exports", "group_links"],
       allowed_write_tools: ["configure_group_link", "create_group", "create_native_upload", "prepare_excel_export"] });
     expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
     await page.getByRole("heading", { name: "Settings", exact: true }).scrollIntoViewIfNeeded();
@@ -211,8 +232,11 @@ for (const width of [1440, 390]) {
     await expect(editor.getByRole("switch", { name: "Allow read access", exact: true })).toBeChecked();
     await editor.getByRole("switch", { name: "Allow read access", exact: true }).uncheck();
     await editor.getByRole("switch", { name: "Allow write access", exact: true }).check();
-    await editor.getByRole("switch", { name: "Write All groups", exact: true }).uncheck();
-    await editor.getByRole("switch", { name: "Write Group links", exact: true }).uncheck();
+    await editor.getByRole("switch", { name: /Write All [Gg]roups/, exact: true }).uncheck();
+    await editor.getByRole("switch", { name: /Write Group [Ll]inks/, exact: true }).uncheck();
+    await expect(editor.getByRole("switch", { name: "Write Menu", exact: true })).toBeDisabled();
+    await expect(editor.getByText("Off in Settings", { exact: true })).toBeVisible();
+    await expect(editor.getByText("Not available", { exact: true })).toHaveCount(0);
     const finish = state.holdPermissionSave();
     try {
       await editor.getByRole("button", { name: "Save access", exact: true }).click();
@@ -236,19 +260,21 @@ for (const width of [1440, 390]) {
   test(`conflicting global edits and old read-only grant write denial at ${width}px`, async ({ page }) => {
     const state = await setup(page); state.conflictNextPermissionSave(); state.makeFirstReadOnly();
     await page.setViewportSize({ width, height: 950 }); await page.goto("/admin/mcp/settings");
+    await selectSettings(page, "Write access");
     await page.getByRole("switch", { name: "Allow write access", exact: true }).check();
     await page.getByRole("button", { name: "Save permissions", exact: true }).click();
     await expect(page.getByRole("alert").filter({ hasText: "Reload the saved settings" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Save permissions", exact: true })).toBeDisabled();
     expect(state.requests.filter((item) => item.method === "PUT")).toHaveLength(1);
     await page.getByRole("button", { name: "Reload saved settings", exact: true }).click();
-    await expect(page.getByRole("switch", { name: "Read Menu", exact: true })).not.toBeChecked();
     await expect(page.getByRole("switch", { name: "Allow write access", exact: true })).not.toBeChecked();
+    await selectSettings(page, "Read access");
+    await expect(page.getByRole("switch", { name: "Read Menu", exact: true })).not.toBeChecked();
     await page.getByRole("navigation", { name: "MCP pages" }).getByRole("link", { name: "Devices", exact: true }).click();
     const row = page.getByRole("article", { name: "Office desktop", exact: true });
     await row.getByRole("button", { name: "Manage", exact: true }).click();
     await expect(row.getByRole("switch", { name: "Allow write access", exact: true })).toBeDisabled();
-    await expect(row).toContainText("approved without write permissions");
+    await expect(row).toContainText(/approved without write permissions/i);
     await expect(row.getByRole("switch", { name: "Allow read access", exact: true })).toBeEnabled();
     await row.getByRole("switch", { name: "Allow read access", exact: true }).uncheck();
     await row.getByRole("button", { name: "Save access", exact: true }).click();
@@ -259,12 +285,44 @@ for (const width of [1440, 390]) {
   });
 }
 
+for (const width of [1440, 390]) {
+  test(`settings monitoring loads only the selected page at ${width}px`, async ({ page }, testInfo) => {
+    const state = await setup(page);
+    await page.setViewportSize({ width, height: 950 });
+    await page.goto("/admin/mcp/settings");
+    await expect(page.getByRole("region", { name: "MCP service settings", exact: true })).toBeVisible();
+    const monitoringReads = () => state.requests.filter((item) => item.method === "GET" && /\/(activity|inventory|operations|artifacts)$/.test(item.path));
+    expect(monitoringReads()).toEqual([]);
+    const views = [
+      ["Activity", "MCP activity history", "/activity"],
+      ["Tools", "Deployed MCP tools", "/inventory"],
+      ["Workflows", "Saved MCP workflows", "/operations"],
+      ["Files", "MCP file transfers", "/artifacts"],
+    ] as const;
+    for (const [label, region, path] of views) {
+      await selectSettings(page, label);
+      await expect(page.getByRole("region", { name: region, exact: true })).toBeVisible();
+      await expect.poll(() => monitoringReads().filter((item) => item.path.endsWith(path)).length).toBe(1);
+      expect(monitoringReads().map((item) => item.path.split("/").at(-1))).toEqual(views.slice(0, views.findIndex((item) => item[0] === label) + 1).map((item) => item[2].slice(1)));
+      expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
+    }
+    await expect(page.getByRole("heading", { name: "Documents.pdf", exact: true })).toBeVisible();
+    await expect(page.getByText("Document draft created", { exact: true })).toBeVisible();
+    const screenshot = testInfo.outputPath(`mcp-settings-files-${width}.png`);
+    await page.screenshot({ path: screenshot, fullPage: true, animations: "disabled" });
+    await testInfo.attach(`Settings file monitoring ${width}px`, { path: screenshot, contentType: "image/png" });
+    expect(state.requests.filter((item) => item.method !== "GET")).toEqual([]);
+    expect(state.errors).toEqual([]);
+  });
+}
+
 for (const device of [false, true]) {
   test(`${device ? "device" : "global"} permission MFA cancellation retains choices and replay applies the same reviewed policy`, async ({ page }) => {
     const state = await setup(page, "super_admin", true);
     await page.setViewportSize({ width: 390, height: 950 });
     await page.goto(device ? "/admin/mcp" : "/admin/mcp/settings");
     if (device) await page.getByRole("article", { name: "Office desktop", exact: true }).getByRole("button", { name: "Manage", exact: true }).click();
+    else await selectSettings(page, "Write access");
     const area = device ? page.getByRole("region", { name: "Device permission settings", exact: true }) : page.getByRole("region", { name: "MCP permission settings", exact: true });
     await area.getByRole("switch", { name: "Allow write access", exact: true }).check();
     const save = area.getByRole("button", { name: device ? "Save access" : "Save permissions", exact: true });
