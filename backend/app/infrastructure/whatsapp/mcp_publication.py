@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mcp.authorization import MCPAuthorizationService
 from app.application.mcp.credentials import MCPAuthError
+from app.application.mcp.permissions import require_tool_access
 from app.core.config.settings import get_settings
 from app.infrastructure.database.mcp_communication_models import (
     MCPWhatsAppOutboxModel,
@@ -73,6 +74,8 @@ async def _reserve_publication(outbox_id: uuid.UUID) -> dict[str, Any] | None:
                     plan.original_grant_id, lock=True
                 )
                 authority.require_capability(grant, "mcp:communicate")
+                family = "reminder" if plan.snapshot["worker_payload"].get("message_type") == "reminder" else "message"
+                await require_tool_access(session, settings, grant.id, f"confirm_whatsapp_{family}", "mcp:communicate", lock=False)
                 authorized = (
                     grant.user_id == plan.user_id and "mcp:communicate" in grant.capabilities
                 )

@@ -10,7 +10,7 @@ import { MCP_CAPABILITIES, type McpCapability } from "../api/mcp.api";
 export function McpAccessBoundary({ children }: { children: ReactNode }) {
   const user = useAuthStore(selectUser);
   return canAccessApplicationPath(user, ROUTES.dashboard.mcp) ? children
-    : <p role="alert" className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-700">Codex access requires an active superadmin account.</p>;
+    : <p role="alert" className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-700">MCP requires an active superadmin account.</p>;
 }
 export function mcpErrorMessage(error: unknown) {
   return typeof error === "object" && error !== null && "message" in error && typeof error.message === "string"

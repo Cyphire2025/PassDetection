@@ -70,6 +70,7 @@ const nextConfig: NextConfig = {
         destination: `${apiBase}/api/:path*`,
       },
       { source: "/oauth/mcp/:path*", destination: `${apiBase}/oauth/mcp/:path*` },
+      { source: "/mcp/native-transfers/:path*", destination: `${apiBase}/mcp/native-transfers/:path*` },
     ];
   },
 
@@ -112,6 +113,7 @@ const nextConfig: NextConfig = {
         ],
       },
       { source: "/mcp/connect", headers: [{ key: "Referrer-Policy", value: "no-referrer" }] },
+      { source: "/mcp/file-transfer/:path*", headers: [{ key: "Referrer-Policy", value: "no-referrer" }] },
     ];
   },
 };

@@ -47,6 +47,15 @@ READ_TOOL_SECTIONS: dict[str, frozenset[str]] = {
     # union before resolving identity or loading any business data.
     "read_dashboard_view": frozenset(),
     "list_delivery_records": frozenset({"whatsapp", "documents", "tour_ops", "all_groups", "old_data"}),
+    "inspect_client_details": frozenset({"all_groups"}),
+    "inspect_group_access": frozenset({"all_groups", "staff", "manager"}),
+    "inspect_group_broadcast_addition": frozenset({"all_groups", "group_links", "whatsapp"}),
+    "get_gc_announcement_change_context": frozenset({"all_groups", "gc_app"}),
+    "inspect_gc_push": frozenset({"all_groups", "gc_app"}),
+    "inspect_whatsapp_intent": frozenset({"all_groups", "whatsapp"}),
+    "list_my_notifications": frozenset({"gc_app"}),
+    "get_passenger_qr": frozenset({"tour_ops", "all_groups"}),
+    "list_attendance_activity_records": frozenset({"tour_ops", "all_groups"}),
 }
 
 SECTION_DESCRIPTIONS: tuple[tuple[str, str, str], ...] = (

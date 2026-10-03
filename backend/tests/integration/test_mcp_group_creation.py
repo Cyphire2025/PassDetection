@@ -30,6 +30,7 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
 )
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.presentation.api.v1.schemas.client_group_schemas import CreateClientGroupRequest
 from app.presentation.mcp.group_change_tools import (
     MCPCreateGroupRequest,
     register_group_change_tools,
@@ -67,6 +68,7 @@ async def group_creation_fixture(operations_fixture):
         "return_date": "2026-10-18",
         "timezone": "Asia/Tokyo",
         "import_only": False,
+        "collection_settings_confirmed": True,
     }
     definition = group_creation_operation(validate_group_creation)
     service = MCPOperationService(session, settings, [definition])
@@ -145,7 +147,7 @@ async def test_changed_retry_input_conflicts_without_overwriting_and_same_name_c
         {"name": "x" * 101},
         {"destination": ""},
         {"import_only": "true"},
-        {"whatsapp_broadcast_group_ids": []},
+        {"whatsapp_broadcast_group_ids": [str(uuid.uuid4())]},
         {"status": "archived"},
         {"token": "injected"},
     ],
@@ -239,17 +241,10 @@ async def test_business_audit_failure_rolls_back_creation_and_retry_key(
 def test_tool_input_schema_exposes_only_reviewed_creation_fields():
     schema = MCPCreateGroupRequest.model_json_schema()
     assert schema["additionalProperties"] is False
-    assert set(schema["properties"]) == {
+    assert set(schema["properties"]) == set(CreateClientGroupRequest.model_fields) | {
         "agency_id",
         "owner_user_id",
-        "name",
-        "destination",
-        "travel_date",
-        "return_date",
-        "timezone",
-        "import_only",
-        "package_name",
-        "notes",
+        "collection_settings_confirmed",
     }
     assert {
         "agency_id",
@@ -258,6 +253,7 @@ def test_tool_input_schema_exposes_only_reviewed_creation_fields():
         "destination",
         "travel_date",
         "return_date",
+        "collection_settings_confirmed",
     } <= set(schema["required"])
 
 

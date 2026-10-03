@@ -16,7 +16,7 @@ from app.application.mcp.read_projection import ReadProjection, scrub_read
 from app.application.mcp.roster_reads import MCPRosterReadService
 from app.domain.mcp_dashboard_reads import DASHBOARD_READS
 from app.domain.mcp_read_sections import SUPPORTED_READ_SECTIONS
-from app.infrastructure.database.mcp_models import MCPControlModel
+from app.infrastructure.database.mcp_models import MCPControlModel, MCPGrantModel
 from app.infrastructure.database.models import (
     AgencyModel,
     AuditLogModel,
@@ -69,6 +69,12 @@ async def detail_fixture(db_session, test_settings):
     await db_session.flush()
     principal = MCPPrincipal(uuid.uuid4(), user.id, "codex-desktop", ("mcp:read",),
         datetime.now(UTC) + timedelta(hours=1), "https://example.test/mcp")
+    db_session.add(MCPGrantModel(id=principal.grant_id, user_id=user.id,
+        name="Approved detail reader",
+        client_id=principal.client_id, resource=principal.resource, capabilities=["mcp:read"],
+        security_version=1, mfa_at=datetime.now(UTC), expires_at=principal.expires_at,
+        read_enabled=True, write_enabled=False))
+    await db_session.flush()
     return db_session, test_settings, user, agency, other, group, passport, principal, control
 
 

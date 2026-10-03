@@ -34,6 +34,15 @@ async def save_batch(
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> SaveDocumentBatchResponse:
+    result = await save_document_lane(batch_id=batch_id, current_user=current_user, session=session)
+    await session.commit()
+    return result
+
+
+async def save_document_lane(
+    *, batch_id: uuid.UUID, current_user: User, session: AsyncSession,
+) -> SaveDocumentBatchResponse:
+    """Shared flush-only save; its caller owns the atomic business transaction."""
     batch = await _get_visible_document_batch(
         session,
         batch_id=batch_id,
@@ -79,5 +88,5 @@ async def save_batch(
             "saved_batch_count": len(saved_batches),
         },
     )
-    await session.commit()
+    await session.flush()
     return SaveDocumentBatchResponse(batch_id=batch.id, status=batch.status, saved_at=now)

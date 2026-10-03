@@ -234,18 +234,21 @@ def register_whatsapp_message_tools(app: FastAPI, server: MCPServer, settings: S
             payload=draft.model_dump(mode="json"),
         )
 
-    @server.tool(meta={"capability": "mcp:communicate"}, annotations=annotations)
+    @server.tool(meta={"capability": "mcp:communicate"}, annotations=ToolAnnotations(
+        read_only_hint=False, destructive_hint=True, idempotent_hint=True, open_world_hint=True))
     async def confirm_whatsapp_message(
         plan_id: uuid.UUID,
         plan_hash: Annotated[str, Field(pattern="^[0-9a-f]{64}$")],
+        user_confirmed: Literal[True],
         idempotency_key: Annotated[str, Field(min_length=16, max_length=256)],
     ) -> dict[str, Any]:
         """Queue only the unchanged saved template plan authorized by the user.
 
         Supply its exact reviewed hash. No content, image or audience overrides.
-        Reuse prior explicit send authorization when it covers this exact content,
-        selected template/image, audience and exclusions; no separate dashboard
-        approval is required. Ask only for unresolved choices or missing authority.
+        Present the exact content, selected template/image, audience and exclusions,
+        then ask the user for final confirmation. Set user_confirmed only after
+        that final approval. Earlier instructions to create, prepare or send do
+        not replace confirmation after presenting the exact prepared preview.
         A request merely to prepare a message is not send authorization.
         Reuse this key after uncertain responses. Original authority is checked
         at dispatch. Queue acknowledgement is not delivery; inspect fresh intent
@@ -256,5 +259,5 @@ def register_whatsapp_message_tools(app: FastAPI, server: MCPServer, settings: S
             settings,
             confirm,
             idempotency_key=idempotency_key,
-            payload={"plan_id": str(plan_id), "plan_hash": plan_hash},
+            payload={"plan_id": str(plan_id), "plan_hash": plan_hash, "user_confirmed": user_confirmed},
         )

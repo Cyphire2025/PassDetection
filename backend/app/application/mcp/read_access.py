@@ -28,12 +28,17 @@ async def current_read_access(session: AsyncSession, *, lock: bool = False) -> t
     return values, row[1]
 
 
-async def require_read_sections(session: AsyncSession, name: str) -> None:
+async def require_read_sections(session: AsyncSession, name: str, *, grant_id=None) -> None:
     required = READ_TOOL_SECTIONS.get(name)
     if required is None:
         raise MCPAuthError("unsupported_read_tool", 403)
     if not required:
         return  # Explicit connection metadata has no business section.
-    allowed, _ = await current_read_access(session, lock=True)
+    if grant_id is not None:
+        from app.application.mcp.permissions import current_device_read_access
+
+        allowed, _ = await current_device_read_access(session, grant_id, lock=True)
+    else:
+        allowed, _ = await current_read_access(session, lock=True)
     if required - set(allowed):
         raise MCPReadSectionDenied(required)

@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mcp.authorization import MCPAuthorizationService
 from app.application.mcp.credentials import MCPAuthError
+from app.application.mcp.permissions import require_tool_access
 from app.core.config.settings import Settings
 from app.infrastructure.database.mcp_communication_models import (
     MCPWhatsAppOutboxModel,
@@ -40,7 +41,7 @@ async def authorize_mcp_batch_dispatch(
         return BLOCKED
     identity = (
         await session.execute(
-            select(MCPWhatsAppPlanModel.original_grant_id, MCPWhatsAppPlanModel.user_id).where(
+            select(MCPWhatsAppPlanModel.original_grant_id, MCPWhatsAppPlanModel.user_id, MCPWhatsAppPlanModel.snapshot).where(
                 MCPWhatsAppPlanModel.id == binding.plan_id
             )
         )
@@ -51,6 +52,8 @@ async def authorize_mcp_batch_dispatch(
         grant = await MCPAuthorizationService(session, settings).require_grant(
             identity.original_grant_id, lock=True
         )
+        family = "reminder" if identity.snapshot["worker_payload"].get("message_type") == "reminder" else "message"
+        await require_tool_access(session, settings, grant.id, f"confirm_whatsapp_{family}", "mcp:communicate", lock=False)
     except MCPAuthError:
         return BLOCKED
     if (

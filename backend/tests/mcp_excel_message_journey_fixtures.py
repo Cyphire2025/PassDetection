@@ -14,6 +14,8 @@ import pytest
 from mcp import Client
 from mcp.client.streamable_http import streamable_http_client
 
+from app.domain.mcp_section_permissions import WRITE_TOOL_SECTIONS
+from app.infrastructure.database.mcp_models import MCPControlModel
 from app.infrastructure.database.models import AgencyModel
 from app.infrastructure.security.contact_spreadsheet_security import (
     XLSX_MEDIA,
@@ -43,8 +45,18 @@ async def excel_message_journey(mcp_fixture, monkeypatch):
     settings.whatsapp_phone_number_id = "synthetic-journey-sender"
     settings.whatsapp_welcome_template_name = "welcome_v1"
     settings.malware_quarantine_enabled = False
+    sections = ["group_links", "whatsapp_broadcasts"]
+    control = await session.get(MCPControlModel, 1)
+    control.write_enabled = True
+    control.allowed_write_sections = sections
+    control.allowed_write_tools = sorted(
+        name for name, required in WRITE_TOOL_SECTIONS.items() if required <= set(sections)
+    )
+    await session.commit()
     _, tokens = await connect(
-        mcp_fixture, scopes=["mcp:read", "mcp:upload", "mcp:change", "mcp:communicate"]
+        mcp_fixture,
+        scopes=["mcp:read", "mcp:upload", "mcp:change", "mcp:communicate"],
+        permissions={"write_enabled": True, "allowed_write_sections": sections},
     )
     token = tokens["access_token"]
     storage, scanner, evidence = Storage(), Scanner(), Evidence()

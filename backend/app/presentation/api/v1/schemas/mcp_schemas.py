@@ -7,9 +7,10 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.domain.mcp_policy import validate_capabilities
+from app.presentation.api.v1.schemas.mcp_permission_schemas import MCPDevicePermissionValues
 
 
-class MCPConsentRequest(BaseModel):
+class MCPConsentRequest(MCPDevicePermissionValues):
     model_config = ConfigDict(extra="forbid")
     client_id: str = Field(min_length=1, max_length=200)
     redirect_uri: str = Field(min_length=1, max_length=1024)
@@ -62,7 +63,7 @@ class MCPRequestLabels(BaseModel):
         return value.strip()
 
 
-class MCPRequestApproval(BaseModel):
+class MCPRequestApproval(MCPDevicePermissionValues):
     model_config = ConfigDict(extra="forbid")
     name: str | None = Field(default=None, min_length=1, max_length=120)
     device_platform: Literal["Windows", "macOS", "Other"] | None = None

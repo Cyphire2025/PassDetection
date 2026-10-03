@@ -30,9 +30,16 @@ def main() -> int:
     heads = tuple(scripts.get_heads())
     if heads != (EXPECTED_HEAD,):
         raise RuntimeError(f"Expected one Alembic head {EXPECTED_HEAD!r}; observed {heads!r}")
-    head = scripts.get_revision(EXPECTED_HEAD)
-    if head.down_revision != "0123_mcp_read_sections":
-        raise RuntimeError("MCP device access must follow retained read section authority")
+    chain = (
+        ("0128_mcp_document_delivery", "0127_mcp_native_transfers"),
+        ("0127_mcp_native_transfers", "0126_mcp_section_permissions"),
+        ("0126_mcp_section_permissions", "0125_mcp_connection_requests"),
+        ("0125_mcp_connection_requests", "0124_mcp_device_access"),
+        ("0124_mcp_device_access", "0123_mcp_read_sections"),
+    )
+    for revision, parent in chain:
+        if scripts.get_revision(revision).down_revision != parent:
+            raise RuntimeError(f"Reviewed MCP additive ancestry changed at {revision}")
     if scripts.get_revision("0123_mcp_read_sections").down_revision != "0122_mcp_gc_push":
         raise RuntimeError("MCP read sections must follow MCP GC push plans")
     if scripts.get_revision("0122_mcp_gc_push").down_revision != "0121_whatsapp_send_intents":

@@ -5,7 +5,8 @@ import { Badge, Button, Input } from "@/components/ui";
 import { ConfirmDialog } from "@/components/ui/modal";
 import { formatDateTime } from "@/lib/utils/format";
 import { MCP_CAPABILITIES, type McpCapability, type McpConnection } from "../api/mcp.api";
-import { useMcpDeleteConnection, useMcpSetConnectionAccess, useMcpUpdateConnection } from "../hooks/use-mcp";
+import { useMcpDeleteConnection, useMcpSetConnectionAccess, useMcpUpdateConnection, useMcpUpdateConnectionPermissions } from "../hooks/use-mcp";
+import { McpConnectionPermissions } from "./mcp-connection-permissions";
 import { McpCapabilityPicker, McpError } from "./mcp-shared";
 
 export function McpConnectionCard({ connection, advanced = false, readOnly = true, unavailable = false }: { connection: McpConnection; advanced?: boolean; readOnly?: boolean; unavailable?: boolean }) {
@@ -13,7 +14,9 @@ export function McpConnectionCard({ connection, advanced = false, readOnly = tru
   const [deleting, setDeleting] = useState(false);
   const deletion = useMcpDeleteConnection();
   const access = useMcpSetConnectionAccess();
-  const busy = access.isPending || deletion.isPending;
+  const permissions = useMcpUpdateConnectionPermissions();
+  const rename = useMcpUpdateConnection();
+  const busy = access.isPending || deletion.isPending || permissions.isPending || rename.isPending;
   const openDelete = () => { deletion.reset(); setDeleting(true); };
   const active = connection.status === "active" && connection.enabled !== false;
   const retained = connection.status === "active" || connection.status === "disabled";
@@ -24,6 +27,7 @@ export function McpConnectionCard({ connection, advanced = false, readOnly = tru
         <div className="flex flex-wrap items-center gap-2"><h3 className="break-words text-sm font-semibold text-slate-950">{connection.name}</h3>
           <Badge variant={active ? "success" : "outline"}>{active ? "Authorized" : retained ? "Disabled" : connection.status === "expired" ? "Sign-in expired" : "Disconnected"}</Badge></div>
         <p className="mt-1 text-xs text-slate-500">{connection.device_platform ?? "Platform not specified"}</p>
+        {connection.permission_revision !== undefined ? <p className="mt-1 text-xs text-slate-500">Read {connection.read_enabled ? "allowed" : "off"} · Write {connection.write_enabled ? "allowed" : "off"}</p> : null}
         {advanced ? <p className="mt-1 break-all text-xs text-slate-500">{connection.client_id} · {connection.id}</p> : null}
       </div>
       <div className="text-xs"><p className="text-slate-500 lg:sr-only">Last used</p><p className="mt-1 text-slate-700">{connection.last_used_at ? formatDateTime(connection.last_used_at) : "Not used yet"}</p></div>
@@ -41,7 +45,10 @@ export function McpConnectionCard({ connection, advanced = false, readOnly = tru
     </dl> : null}
     {advanced ? <div className="mt-4 flex flex-wrap gap-1.5">{capabilities.map((scope) => <Badge key={scope} variant="outline">{MCP_CAPABILITIES[scope]?.label ?? scope}</Badge>)}</div> : null}
     {readOnly && !capabilities.length ? <p className="mt-3 text-xs text-slate-600">This saved connection has no read permission. Sign in again to request read access.</p> : null}
-    {editing && retained ? <ConnectionEditor key={`${connection.id}:${connection.name}:${capabilities.join(",")}:${readOnly}`} connection={connection} available={capabilities} unavailable={unavailable || busy} readOnly={readOnly} onDone={() => setEditing(false)} /> : null}
+    {editing && retained ? connection.permission_revision !== undefined
+      ? <McpConnectionPermissions key={connection.id} connection={connection} readOnly={readOnly} unavailable={unavailable || access.isPending || deletion.isPending}
+        update={permissions} rename={rename} onDone={() => setEditing(false)} />
+      : <ConnectionEditor key={`${connection.id}:${connection.name}:${capabilities.join(",")}:${readOnly}`} connection={connection} available={capabilities} unavailable={unavailable || busy} readOnly={readOnly} onDone={() => setEditing(false)} /> : null}
     {editing && retained && !advanced ? <div className="mt-4 border-t border-slate-100 pt-4"><Button variant="ghost" size="sm" disabled={unavailable || busy} className="text-red-700 hover:text-red-800" aria-haspopup="dialog" onClick={openDelete}>Delete connection</Button><p className="mt-1 text-xs text-slate-500">Remove this connection from Devices. Using it again requires a new approval.</p></div> : null}
     <McpError error={access.error} />
     <McpError error={deletion.error} />

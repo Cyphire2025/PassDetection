@@ -29,6 +29,9 @@ logger = get_logger(__name__)
 _OPERATIONS = {
     "get_read_access": "read_access",
     "set_read_access": "read_access",
+    "get_permissions": "permissions",
+    "set_permissions": "permissions",
+    "set_connection_permissions": "connection_permissions",
     "overview": "overview",
     "connections": "connections",
     "authorize": "authorize",
@@ -93,7 +96,7 @@ async def _persist(scope: Scope, operation: str, status: int, reason: str) -> No
     async with factory() as session:
         await AuditLogRepository(session).record(
             action="mcp.management_rejected",
-            entity_type="mcp_connection_request" if approval_request else "mcp_control" if operation in {"control", "read_access"} else "mcp_connection",
+            entity_type="mcp_connection_request" if approval_request else "mcp_control" if operation in {"control", "read_access", "permissions"} else "mcp_connection",
             entity_id=str(approval_request or connection) if approval_request or connection else None,
             user_id=actor,
             result=result,

@@ -79,6 +79,7 @@ async def test_new_import_group_link_requires_delivered_welcome_for_exact_passpo
             "return_date": "2026-10-18",
             "timezone": "Asia/Tokyo",
             "import_only": False,
+            "collection_settings_confirmed": True,
         },
         "idempotency_key": "journey-create-collection-group-001",
     }
@@ -184,6 +185,7 @@ async def test_new_import_group_link_requires_delivered_welcome_for_exact_passpo
         welcome_confirmation = {
             "plan_id": welcome_data["plan_id"],
             "plan_hash": welcome_data["plan_hash"],
+            "user_confirmed": True,
             "idempotency_key": "journey-confirm-before-passport-001",
         }
         await tool(sdk, "confirm_whatsapp_message", welcome_confirmation)
@@ -248,6 +250,7 @@ async def test_new_import_group_link_requires_delivered_welcome_for_exact_passpo
             {
                 "plan_id": data["plan_id"],
                 "plan_hash": "0" * 64,
+                "user_confirmed": True,
                 "idempotency_key": "journey-wrong-linked-plan-hash-001",
             },
         )

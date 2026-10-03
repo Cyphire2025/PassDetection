@@ -152,6 +152,7 @@ async def test_sdk_text_to_saved_preview_to_confirmed_queue(push_fixture, monkey
             {
                 "plan_id": plan["plan_id"],
                 "plan_hash": plan["plan_hash"],
+                "user_confirmed": True,
                 "idempotency_key": "sdk-confirm-created-001",
             },
         )

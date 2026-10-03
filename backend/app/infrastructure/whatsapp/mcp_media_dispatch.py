@@ -9,7 +9,8 @@ from urllib.parse import quote
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.mcp.credentials import credential_hash, utc
+from app.application.mcp.credentials import MCPAuthError, credential_hash, utc
+from app.application.mcp.permissions import require_tool_access
 from app.core.config.settings import Settings
 from app.infrastructure.database.mcp_communication_models import MCPWhatsAppPlanModel
 from app.infrastructure.database.mcp_models import MCPGrantModel
@@ -28,6 +29,10 @@ from app.infrastructure.database.models import (
 async def ready_plan_media(
     session: AsyncSession, plan: MCPWhatsAppPlanModel, grant: MCPGrantModel, settings: Settings
 ) -> bool:
+    try:
+        await require_tool_access(session, settings, grant.id, "upload_whatsapp_header", "mcp:upload", lock=False)
+    except MCPAuthError:
+        return False
     snapshot = plan.snapshot
     header = snapshot.get("header_media")
     if (

@@ -17,6 +17,7 @@ from sqlalchemy import func, select
 from app.application.mcp.authorization import MCPAuthorizationService
 from app.application.mcp.credentials import MCPAuthError, pkce_challenge
 from app.core.config.mcp import MCPSettings
+from app.domain.mcp_read_sections import SUPPORTED_READ_SECTIONS
 from app.infrastructure.database.mcp_models import (
     MCPAuthorizationCodeModel,
     MCPConnectionRequestModel,
@@ -63,7 +64,10 @@ async def mcp_fixture(db_session, test_settings, management_audit_session_factor
         mfa_secret_ciphertext="encrypted-fixture",
         mfa_enabled_at=now,
     )
-    db_session.add_all([security, MCPControlModel(id=1, enabled=True)])
+    db_session.add_all([
+        security,
+        MCPControlModel(id=1, enabled=True, allowed_read_sections=sorted(SUPPORTED_READ_SECTIONS)),
+    ])
     await db_session.flush()
     app = create_application(settings, initialize_rate_limit_redis=False)
 
@@ -118,11 +122,12 @@ def consent():
     }
 
 
-async def connect(fixture, *, scopes=None):
+async def connect(fixture, *, scopes=None, permissions=None):
     client, _, _, _, _, dashboard = fixture
     response = await client.post(
         "/api/v1/admin/mcp/authorize",
-        json={**consent(), **({"scopes": scopes} if scopes is not None else {})},
+        json={**consent(), **({"scopes": scopes, "read_enabled": "mcp:read" in scopes} if scopes is not None else {}),
+              **(permissions or {})},
         headers={"Authorization": f"Bearer {dashboard}"},
     )
     assert response.status_code == 200, response.text
@@ -141,6 +146,17 @@ async def connect(fixture, *, scopes=None):
     assert exchange.status_code == 200, exchange.text
     assert exchange.headers["cache-control"] == "no-store"
     return code, exchange.json()
+
+
+async def enable_group_fixture_policy(fixture, *, write=False):
+    """Explicit test authority; production/default connection permissions stay denied."""
+    control = await fixture[1].get(MCPControlModel, 1)
+    control.allowed_read_sections = ["all_groups", "old_data", "whatsapp"]
+    if write:
+        control.write_enabled = True
+        control.allowed_write_sections = ["group_links"]
+        control.allowed_write_tools = ["create_group"]
+    await fixture[1].commit()
 
 
 async def call_mcp(client, token=None, *, host=None, name="connection_status", arguments=None):
@@ -510,6 +526,7 @@ async def test_unknown_tool_audit_does_not_trust_payload(mcp_fixture):
 
 @pytest.mark.asyncio
 async def test_group_tools_http_pagination_ambiguity_and_observation(mcp_fixture):
+    await enable_group_fixture_policy(mcp_fixture)
     client, session, settings, _, _, _ = mcp_fixture
     first = AgencyModel(id=uuid.uuid4(), name="First", email="first@example.test")
     second = AgencyModel(id=uuid.uuid4(), name="Second", email="second@example.test")
@@ -547,6 +564,7 @@ async def test_group_tools_http_pagination_ambiguity_and_observation(mcp_fixture
 
 @pytest.mark.asyncio
 async def test_group_query_errors_are_actionable_and_scopes_rechecked(mcp_fixture):
+    await enable_group_fixture_policy(mcp_fixture)
     client, session, _, _, _, dashboard = mcp_fixture
     _, tokens = await connect(mcp_fixture)
     invalid = await call_mcp(client, tokens["access_token"], name="resolve_group")
@@ -572,7 +590,7 @@ async def test_diagnostics_uses_separate_scope_and_distinguishes_missing_collect
     _, read_tokens = await connect(mcp_fixture)
     denied = await call_mcp(client, read_tokens["access_token"], name="inspect_diagnostics")
     assert denied.json()["result"]["structuredContent"]["error"] == "access_denied"
-    _, diagnose_tokens = await connect(mcp_fixture, scopes=["mcp:diagnose"])
+    _, diagnose_tokens = await connect(mcp_fixture, scopes=["mcp:read", "mcp:diagnose"])
     result = await call_mcp(client, diagnose_tokens["access_token"], name="inspect_diagnostics",
                             arguments={"sources": ["api", "audit"]})
     content = result.json()["result"]["structuredContent"]
@@ -584,6 +602,7 @@ async def test_diagnostics_uses_separate_scope_and_distinguishes_missing_collect
 
 @pytest.mark.asyncio
 async def test_create_group_http_replay_across_connections_and_conflict(mcp_fixture):
+    await enable_group_fixture_policy(mcp_fixture, write=True)
     client, session, _, _, _, _ = mcp_fixture
     agency = AgencyModel(id=uuid.uuid4(), name="Creation", email="creation@example.test")
     session.add(agency)
@@ -593,13 +612,15 @@ async def test_create_group_http_replay_across_connections_and_conflict(mcp_fixt
     session.add(owner)
     await session.flush()
     agency_id, owner_id = str(agency.id), str(owner.id)
-    _, first = await connect(mcp_fixture, scopes=["mcp:read", "mcp:change"])
-    _, second = await connect(mcp_fixture, scopes=["mcp:change"])
+    permissions = {"write_enabled": True, "allowed_write_sections": ["group_links"]}
+    _, first = await connect(mcp_fixture, scopes=["mcp:read", "mcp:change"], permissions=permissions)
+    _, second = await connect(mcp_fixture, scopes=["mcp:change"], permissions=permissions)
     payload = {"agency_id": agency_id, "owner_user_id": owner_id, "name": "Autumn trip",
                "destination": "Japan", "travel_date": "2026-10-10", "return_date": "2026-10-15",
-               "timezone": "Asia/Tokyo", "import_only": True}
+               "timezone": "Asia/Tokyo", "import_only": True, "collection_settings_confirmed": True}
     args = {"group": payload, "idempotency_key": "http-group-create-stable-key"}
     created = await call_mcp(client, first["access_token"], name="create_group", arguments=args)
+    assert "structuredContent" in created.json().get("result", {}), created.json()
     original = created.json()["result"]["structuredContent"]
     assert original["receipt"]["status"] == "succeeded", original
     repeated = await call_mcp(client, second["access_token"], name="create_group", arguments=args)
@@ -672,6 +693,7 @@ async def test_administration_inventory_and_saved_work_are_superadmin_only(mcp_f
 
 @pytest.mark.asyncio
 async def test_failed_tool_can_be_correlated_without_retaining_exception_contents(mcp_fixture, monkeypatch):
+    await enable_group_fixture_policy(mcp_fixture)
     from unittest.mock import AsyncMock
 
     from app.application.mcp.group_reads import MCPGroupReadService

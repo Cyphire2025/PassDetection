@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.mcp.artifacts import ArtifactError
 from app.application.mcp.authorization import MCPAuthorizationService, MCPPrincipal
 from app.application.mcp.credentials import MCPAuthError, credential_hash, utc
+from app.application.mcp.permissions import require_tool_access
 from app.core.config.settings import Settings
 from app.infrastructure.database.mcp_whatsapp_media_models import (
     MCPWhatsAppHeaderAccessModel,
@@ -42,6 +43,10 @@ class MCPWhatsAppMediaAccess:
             raise MCPAuthError("invalid_token", 401)
         for capability in ("mcp:upload", "mcp:communicate"):
             self.authorization.require_capability(grant, capability)
+            await require_tool_access(
+                self.session, self.settings, grant.id, "upload_whatsapp_header", capability,
+                lock=lock,
+            )
 
     async def scope(
         self, agency_id: uuid.UUID, broadcast_id: uuid.UUID, *, lock: bool = False

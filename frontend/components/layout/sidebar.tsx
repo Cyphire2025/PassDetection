@@ -81,7 +81,7 @@ const NAV_ITEMS: NavItem[] = [
     activePrefixes: [ROUTES.dashboard.gcAppRoot],
   },
   { label: "Manager", href: ROUTES.dashboard.admin, icon: Shield },
-  { label: "Codex access", href: ROUTES.dashboard.mcp, icon: Plug },
+  { label: "MCP", href: ROUTES.dashboard.mcp, icon: Plug },
   { label: "Staff", href: ROUTES.dashboard.staff, icon: UserCog },
   { label: "Analytics", href: ROUTES.dashboard.analytics, icon: BarChart3 },
   {

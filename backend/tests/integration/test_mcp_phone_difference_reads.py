@@ -19,6 +19,7 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
 )
+from app.presentation.mcp.phone_difference_read_tools import phone_difference_support
 from tests.integration.test_mcp_dashboard_detail_reads import detail_fixture as detail_fixture
 
 
@@ -105,7 +106,7 @@ async def seed(fixture, count=2):
 async def test_bulk_comparison_returns_only_nine_differences_without_field_references(detail_fixture):
     broadcast, submissions, recipients = await seed(detail_fixture, 666)
     session, _, user, agency, _, group, _, _, _ = detail_fixture
-    service = MCPPhoneDifferenceReadService(session, cursor_secret="fixture-secret")
+    service = MCPPhoneDifferenceReadService(session, cursor_secret="fixture-secret", support=phone_difference_support())
     before = [item.client_phone for item in submissions]
     result = await service.read(user_id=user.id, group_id=group.id, broadcast_id=broadcast.id)
     assert result["total"] == 9 and len(result["items"]) == 9, result["counts"]
@@ -122,7 +123,7 @@ async def test_bulk_comparison_returns_only_nine_differences_without_field_refer
 async def test_continuation_is_complete_and_rejects_changed_matching_inputs(detail_fixture):
     broadcast, submissions, _ = await seed(detail_fixture)
     session, _, user, _, _, group, _, _, _ = detail_fixture
-    service = MCPPhoneDifferenceReadService(session, cursor_secret="fixture-secret")
+    service = MCPPhoneDifferenceReadService(session, cursor_secret="fixture-secret", support=phone_difference_support())
     first = await service.read(user_id=user.id, group_id=group.id, page_size=1)
     assert len(first["items"]) == 1 and first["has_more"] is True
     second = await service.read(user_id=user.id, group_id=group.id, page_size=1,
@@ -140,7 +141,7 @@ async def test_continuation_is_complete_and_rejects_changed_matching_inputs(deta
 async def test_unlinked_broadcast_agency_and_live_role_are_checked(detail_fixture):
     broadcast, _, _ = await seed(detail_fixture)
     session, _, user, agency, other, group, _, _, _ = detail_fixture
-    service = MCPPhoneDifferenceReadService(session, cursor_secret="fixture-secret")
+    service = MCPPhoneDifferenceReadService(session, cursor_secret="fixture-secret", support=phone_difference_support())
     with pytest.raises(ValueError, match="linked"):
         await service.read(user_id=user.id, group_id=group.id, broadcast_id=uuid.uuid4())
     with pytest.raises(ValueError, match="scope"):

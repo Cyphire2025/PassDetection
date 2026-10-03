@@ -310,7 +310,7 @@ class MCPExcelExportService:
 
     async def _generate(self, *, access_token: str, operation_id: uuid.UUID) -> dict[str, Any]:
         operations = MCPOperationService(self.session, self.settings)
-        principal = await operations._authorize(access_token, "mcp:export")
+        principal = await operations._authorize(access_token, "mcp:export", tool_name="generate_excel_export")
         row = await self.session.scalar(
             select(MCPOperationModel)
             .where(

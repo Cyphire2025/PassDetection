@@ -37,6 +37,12 @@ from app.infrastructure.whatsapp.cloud_api_provider import (
     send_whatsapp_document_template,
     upload_whatsapp_document,
 )
+from app.infrastructure.whatsapp.mcp_document_dispatch import (
+    approved_document_source,
+    authorize_mcp_document_dispatch,
+    upload_mcp_document_media,
+)
+from app.infrastructure.whatsapp.mcp_document_progress import refresh_document_dispatch_progress
 from app.infrastructure.whatsapp.private_delivery_policy import (
     PRIVATE_DELIVERY_RECIPIENT_CHANGED,
     validate_private_delivery_recipient,
@@ -470,7 +476,17 @@ async def run_document_whatsapp_broadcast(
 
             media_id: str | None = None
             upload_failed = False
-            for attempt in range(MAX_PROVIDER_ATTEMPTS):
+            async with database_gate, AsyncSessionFactory() as session:
+                mcp_upload, media_id, mcp_error = await upload_mcp_document_media(
+                    session, delivery=delivery, document=document, content=content,
+                    client=client, settings=settings, upload=upload_whatsapp_document,
+                )
+                await session.rollback()
+            if mcp_error:
+                await _mark_delivery(delivery_id, send_batch_id=parsed_batch_id,
+                                     database_gate=database_gate, status="failed", error_message=mcp_error)
+                continue
+            for attempt in range(0 if mcp_upload else MAX_PROVIDER_ATTEMPTS):
                 try:
                     async with asyncio.timeout(PROVIDER_ATTEMPT_DEADLINE_SECONDS):
                         media_id = await upload_whatsapp_document(
@@ -533,6 +549,18 @@ async def run_document_whatsapp_broadcast(
                 )
                 delivery_snapshot = snapshot_result.scalar_one_or_none()
                 if not delivery_snapshot:
+                    continue
+                authority_error, mcp_plan = await authorize_mcp_document_dispatch(
+                    session, delivery=delivery_snapshot, settings=settings,
+                )
+                if authority_error:
+                    now = datetime.now(tz=UTC)
+                    await session.execute(update(DocumentWhatsAppDeliveryModel).where(
+                        DocumentWhatsAppDeliveryModel.id == delivery_id,
+                        DocumentWhatsAppDeliveryModel.send_batch_id == parsed_batch_id,
+                        DocumentWhatsAppDeliveryModel.status == "processing",
+                    ).values(status="failed", error_message=authority_error, status_updated_at=now, updated_at=now))
+                    await session.commit()
                     continue
                 queued_identity = (
                     delivery_snapshot.agency_id,
@@ -597,6 +625,7 @@ async def run_document_whatsapp_broadcast(
                     or not validation.allowed
                     or current_identity != queued_identity
                     or source_row[0].storage_key != document.storage_key
+                    or not approved_document_source(mcp_plan, source_row[0], source_row[1])
                 ):
                     now = datetime.now(tz=UTC)
                     locked_delivery.status = "failed"
@@ -629,7 +658,8 @@ async def run_document_whatsapp_broadcast(
                         group_name=group.name,
                     )
                 )
-                for attempt in range(MAX_PROVIDER_ATTEMPTS):
+                provider_attempts = 1 if mcp_plan is not None else MAX_PROVIDER_ATTEMPTS
+                for attempt in range(provider_attempts):
                     try:
                         async with asyncio.timeout(PROVIDER_ATTEMPT_DEADLINE_SECONDS):
                             provider_id = await send_whatsapp_document_template(
@@ -646,7 +676,7 @@ async def run_document_whatsapp_broadcast(
                             locked_delivery.status = "delivery_unknown"
                             locked_delivery.error_message = exc.persistence_message
                             break
-                        if exc.transient and attempt + 1 < MAX_PROVIDER_ATTEMPTS:
+                        if exc.transient and attempt + 1 < provider_attempts:
                             await asyncio.sleep(2**attempt)
                             continue
                         locked_delivery.status = "failed"
@@ -673,6 +703,8 @@ async def run_document_whatsapp_broadcast(
                 locked_delivery.provider_media_id = media_id
                 locked_delivery.status_updated_at = now
                 locked_delivery.updated_at = now
+                if mcp_plan is not None:
+                    await refresh_document_dispatch_progress(session, parsed_batch_id)
                 await commit_private_provider_outcome(
                     session, locked_delivery,
                     provider_phone_number_id=settings.whatsapp_phone_number_id,

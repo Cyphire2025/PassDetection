@@ -30,6 +30,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mcp.authorization import MCPAuthorizationService, MCPPrincipal
 from app.application.mcp.credentials import MCPAuthError, utc
+from app.application.mcp.permissions import require_tool_access
 from app.core.config.settings import Settings
 from app.domain.mcp_policy import MCPCapability, MCPToolPolicy
 from app.infrastructure.database.mcp_models import MCPTokenModel
@@ -140,6 +141,9 @@ class MCPDatabaseOperation:
     mutate: Callable[[MCPDatabaseContext, dict[str, Any]], Awaitable[MCPDatabaseResult]]
     # Reviewed, read-only entity access check; never effects or history writes.
     authorize_receipt: Callable[[MCPDatabaseContext, dict[str, Any]], Awaitable[None]] | None = None
+    # Reviewed resolver receives canonical input on execute and retained data on
+    # inspect. The resulting exact section must fit the code-owned tool envelope.
+    permission_sections: Callable[[dict[str, Any]], frozenset[str]] | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -202,7 +206,8 @@ class MCPOperationService:
         if self.session.sync_session.get_transaction() is not transaction:
             raise MCPOperationError("callback_changed_transaction")
 
-    async def _authorize(self, access_token: str, capability: str | None = None) -> MCPPrincipal:
+    async def _authorize(self, access_token: str, capability: str | None = None, *, tool_name: str | None = None,
+                         required_sections: frozenset[str] | None = None) -> MCPPrincipal:
         # Resolve the grant without verify_access's last-used write. The common
         # barrier must acquire control -> grant -> identity before any write.
         if not access_token.startswith("gcmcp_access_") or len(access_token) > 128:
@@ -221,6 +226,9 @@ class MCPOperationService:
         principal = await self.authorization.verify_access(access_token, capability)
         if grant.user_id != principal.user_id:
             raise MCPAuthError("invalid_token", 401)
+        if capability is not None:
+            await require_tool_access(self.session, self.authorization.settings, grant.id, tool_name or "", capability,
+                                      lock=False, required_sections=required_sections)
         return principal
 
     async def execute(
@@ -246,7 +254,8 @@ class MCPOperationService:
         )
         key_hash = _digest("mcp-operation-v1\0" + idempotency_key)
         capability = definition.policy.capability.value
-        principal = await self._authorize(access_token, capability)
+        sections = definition.permission_sections(canonical) if definition.permission_sections else None
+        principal = await self._authorize(access_token, capability, tool_name=operation_name, required_sections=sections)
         operation_id, now = uuid.uuid4(), datetime.now(UTC)
         dialect = self.session.get_bind().dialect.name
         insert = (
@@ -360,6 +369,9 @@ class MCPOperationService:
         if row is None:
             raise MCPOperationError("operation_not_found")
         definition = self._definition(row.operation_name)
+        sections = definition.permission_sections(_json_copy((row.initial_result or {}).get("data", {}))) if definition.permission_sections else None
+        await require_tool_access(self.session, self.authorization.settings, principal.grant_id,
+                                  row.operation_name, row.capability, lock=False, required_sections=sections)
         await self.authorization.verify_access(access_token, row.capability)
         await self.authorization.verify_access(access_token, definition.policy.capability.value)
         await self._check_receipt_access(definition, principal, row)

@@ -22,11 +22,13 @@ from app.application.mcp.operations import (
     MCPOperationError,
     MCPOperationService,
 )
+from app.application.mcp.permissions import require_tool_access
 from app.application.mcp.read_access import require_read_sections
 from app.core.config.settings import Settings
 from app.domain.mcp_policy import MCPToolPolicy
 from app.domain.mcp_read_sections import READ_TOOL_SECTIONS
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository, AuditResult
+from app.presentation.mcp.dashboard_write_errors import DASHBOARD_WRITE_ERRORS
 
 _audited: ContextVar[bool] = ContextVar("mcp_invocation_audited", default=False)
 
@@ -108,17 +110,18 @@ async def invoke_read(
             if token is None:
                 raise MCPAuthError("invalid_token", 401)
             authorization = MCPAuthorizationService(session, settings)
-            if settings.mcp.read_only_mode:
-                # Hold the global control lock before token/grant writes, through
-                # the read and audit commit. Pause and section saves serialize
-                # against in-flight reads using the worker's control-first order.
-                await authorization.require_enabled(lock=True)
+            # Read rules remain authoritative when effect adapters are deployed.
+            await authorization.require_enabled(lock=True)
             principal = await authorization.verify_access(
                 token.token,
                 policy.capability.value,
             )
-            if settings.mcp.read_only_mode:
-                await require_read_sections(session, policy.name)
+            if policy.capability.value == "mcp:read":
+                await require_read_sections(session, policy.name, grant_id=principal.grant_id)
+            else:
+                await require_tool_access(
+                    session, settings, principal.grant_id, policy.name, policy.capability.value
+                )
             result = await operation(session, principal)
         except MCPAuthError as exc:
             await session.rollback()
@@ -128,16 +131,33 @@ async def invoke_read(
                 "error": "access_denied",
                 "message": "The connection no longer authorizes this operation.",
             }
-            if settings.mcp.read_only_mode and policy.name in READ_TOOL_SECTIONS:
-                result["required_sections"] = getattr(exc, "required_sections", sorted(READ_TOOL_SECTIONS[policy.name]))
+            if policy.name in READ_TOOL_SECTIONS:
+                result["required_sections"] = getattr(
+                    exc, "required_sections", sorted(READ_TOOL_SECTIONS[policy.name])
+                )
                 if exc.error == "read_section_denied":
                     diagnostic = "read_section_denied"
-                    result["message"] = "MCP reading is disabled for one or more sections needed by this tool. Review Codex access."
+                    result["message"] = (
+                        "MCP reading is disabled for one or more sections needed by this tool. Review MCP settings."
+                    )
         except MCPInputError as exc:
             await session.rollback()
             outcome = "blocked"
             diagnostic = "business_input"
             result = {"error": exc.code, "message": exc.message, "requires_input": True}
+        except MCPOperationError as exc:
+            await session.rollback()
+            outcome = "blocked"
+            diagnostic = "business_input"
+            code = exc.code if exc.code in DASHBOARD_WRITE_ERRORS else "workflow_unavailable"
+            result = {
+                "error": code,
+                "message": DASHBOARD_WRITE_ERRORS.get(
+                    code,
+                    "Inspect the current resource and documented workflow before continuing. No business change was applied.",
+                ),
+                "requires_input": True,
+            }
         except Exception as exc:
             # Do not return database/provider exceptions, args, credentials or document contents.
             await session.rollback()
@@ -149,8 +169,11 @@ async def invoke_read(
             }
         else:
             outcome = "success"
-        result.update(environment=settings.app_env, revision=settings.app_revision,
-                      observed_at=datetime.now(UTC).isoformat())
+        result.update(
+            environment=settings.app_env,
+            revision=settings.app_revision,
+            observed_at=datetime.now(UTC).isoformat(),
+        )
         result.setdefault("completeness", "unavailable" if outcome != "success" else "complete")
         audit = await AuditLogRepository(session).record(
             action=f"mcp.tool.{policy.name}",
@@ -167,8 +190,12 @@ async def invoke_read(
 
 
 async def invoke_operation(
-    app: FastAPI, settings: Settings, definition: MCPDatabaseOperation,
-    *, idempotency_key: str, payload: dict[str, Any],
+    app: FastAPI,
+    settings: Settings,
+    definition: MCPDatabaseOperation,
+    *,
+    idempotency_key: str,
+    payload: dict[str, Any],
 ) -> dict[str, Any]:
     """Commit one explicitly registered business operation and its invocation audit.
 
@@ -185,15 +212,21 @@ async def invoke_operation(
             if token is None:
                 raise MCPAuthError("invalid_token", 401)
             receipt = await MCPOperationService(session, settings, [definition]).execute(
-                access_token=token.token, operation_name=definition.policy.name,
-                idempotency_key=idempotency_key, payload=payload)
+                access_token=token.token,
+                operation_name=definition.policy.name,
+                idempotency_key=idempotency_key,
+                payload=payload,
+            )
             result: dict[str, Any] = {"receipt": receipt, "completeness": "complete"}
             outcome = "success"
         except MCPAuthError:
             await session.rollback()
             outcome = "denied"
             diagnostic = "authorization_denied"
-            result = {"error": "access_denied", "message": "The connection no longer authorizes this operation."}
+            result = {
+                "error": "access_denied",
+                "message": "The connection no longer authorizes this operation.",
+            }
         except MCPOperationError as exc:
             await session.rollback()
             outcome = "blocked"
@@ -229,8 +262,13 @@ async def invoke_operation(
                 "gc_push_plan_changed": "The draft, audience or device targets changed. Prepare and review a fresh exact preview before confirming.",
                 "gc_push_audience_unavailable": "Choose 1 to 10 active groups, 1 to 100 people and no more than 300 eligible device targets under current policy.",
             }
-            result = {"error": exc.code if exc.code in messages else "operation_blocked",
-                      "message": messages.get(exc.code, "The operation could not be applied. Use its audit ID for diagnosis.")}
+            messages.update(DASHBOARD_WRITE_ERRORS)
+            result = {
+                "error": exc.code if exc.code in messages else "operation_blocked",
+                "message": messages.get(
+                    exc.code, "The operation could not be applied. Use its audit ID for diagnosis."
+                ),
+            }
         except ExportCapacityBusy:
             await session.rollback()
             outcome = "blocked"
@@ -248,18 +286,30 @@ async def invoke_operation(
             await session.rollback()
             outcome = "failed"
             diagnostic = failure_category(exc)
-            result = {"error": "operation_failed", "message": "The operation failed. Use its audit ID for diagnosis."}
+            result = {
+                "error": "operation_failed",
+                "message": "The operation failed. Use its audit ID for diagnosis.",
+            }
         claims = token.claims if token and token.claims else {}
         audit = await AuditLogRepository(session).record(
-            action=f"mcp.tool.{definition.policy.name}", entity_type="mcp_operation",
+            action=f"mcp.tool.{definition.policy.name}",
+            entity_type="mcp_operation",
             entity_id=receipt["operation_id"] if receipt else None,
             user_id=UUID(token.subject) if token and token.subject else None,
             result=outcome,
-            metadata={"capability": definition.policy.capability.value, "connection_id": claims.get("grant_id"),
-                      "failure_category": diagnostic})
+            metadata={
+                "capability": definition.policy.capability.value,
+                "connection_id": claims.get("grant_id"),
+                "failure_category": diagnostic,
+            },
+        )
         await session.commit()
         _audited.set(True)
-        result.update(audit_id=str(audit.id), environment=settings.app_env,
-                      revision=settings.app_revision, observed_at=datetime.now(UTC).isoformat())
+        result.update(
+            audit_id=str(audit.id),
+            environment=settings.app_env,
+            revision=settings.app_revision,
+            observed_at=datetime.now(UTC).isoformat(),
+        )
         result.setdefault("completeness", "unavailable")
         return result

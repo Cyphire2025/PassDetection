@@ -21,6 +21,10 @@ from tests.mcp_notification_fixtures import seed_notifications
 @pytest.fixture
 async def notifications(mcp_fixture):
     data = await seed_notifications(mcp_fixture[1], mcp_fixture[3].id)
+    control = await mcp_fixture[1].get(MCPControlModel, 1)
+    control.write_enabled = True
+    control.allowed_write_sections = ["gc_app"]
+    control.allowed_write_tools = ["acknowledge_my_notification"]
     await mcp_fixture[1].commit()
     return mcp_fixture, data
 
@@ -32,14 +36,29 @@ def body(response):
 
 async def test_oauth_read_then_explicit_ack_and_response_loss_replay(notifications):
     f, data = notifications
-    _, tokens = await connect(f, scopes=["mcp:read", "mcp:change"])
+    _, tokens = await connect(
+        f,
+        scopes=["mcp:read", "mcp:change"],
+        permissions={
+            "write_enabled": True,
+            "allowed_write_sections": ["gc_app"],
+        },
+    )
     feed = body(await call_mcp(f[0], tokens["access_token"], name="list_my_notifications"))
     assert len(feed["items"]) == 3 and feed["unread_count"] == 2
     assert {"observed_at", "audit_id", "environment", "revision"} <= feed.keys()
     assert await f[1].scalar(select(func.count()).select_from(MCPOperationModel)) == 0
     args = {"notification_id": str(data.rows[0].id), "idempotency_key": "http-personal-ack-001"}
-    ack = body(await call_mcp(f[0], tokens["access_token"], name="acknowledge_my_notification", arguments=args))
-    replay = body(await call_mcp(f[0], tokens["access_token"], name="acknowledge_my_notification", arguments=args))
+    ack = body(
+        await call_mcp(
+            f[0], tokens["access_token"], name="acknowledge_my_notification", arguments=args
+        )
+    )
+    replay = body(
+        await call_mcp(
+            f[0], tokens["access_token"], name="acknowledge_my_notification", arguments=args
+        )
+    )
     assert ack["receipt"] == replay["receipt"] and ack["audit_id"] != replay["audit_id"]
     assert ack["receipt"]["data"]["changed"] is True
     after = body(await call_mcp(f[0], tokens["access_token"], name="list_my_notifications"))
@@ -51,18 +70,32 @@ async def test_read_grant_cannot_ack_and_error_does_not_expose_contents(notifica
     f, data = notifications
     identifier = data.rows[0].id
     _, tokens = await connect(f, scopes=["mcp:read"])
-    result = body(await call_mcp(f[0], tokens["access_token"], name="acknowledge_my_notification",
-        arguments={"notification_id": str(identifier), "idempotency_key": "denied-personal-ack-001"}))
+    result = body(
+        await call_mcp(
+            f[0],
+            tokens["access_token"],
+            name="acknowledge_my_notification",
+            arguments={
+                "notification_id": str(identifier),
+                "idempotency_key": "denied-personal-ack-001",
+            },
+        )
+    )
     assert result["completeness"] == "unavailable" and "receipt" not in result
     assert await f[1].scalar(select(func.count()).select_from(MCPOperationModel)) == 0
-    assert not await f[1].scalar(select(NotificationModel.is_read).where(NotificationModel.id == identifier))
+    assert not await f[1].scalar(
+        select(NotificationModel.is_read).where(NotificationModel.id == identifier)
+    )
 
 
 async def test_limit_error_is_static_audited_and_has_no_partial_page(notifications):
     f, data = notifications
     _, tokens = await connect(f, scopes=["mcp:read"])
-    await f[1].execute(update(NotificationModel).where(NotificationModel.id == data.rows[2].id)
-        .values(message="SECRET-OVERSIZE" * 500))
+    await f[1].execute(
+        update(NotificationModel)
+        .where(NotificationModel.id == data.rows[2].id)
+        .values(message="SECRET-OVERSIZE" * 500)
+    )
     await f[1].commit()
     result = body(await call_mcp(f[0], tokens["access_token"], name="list_my_notifications"))
     assert result["error"] == "notification_limit" and result["completeness"] == "unavailable"
@@ -73,15 +106,34 @@ async def test_limit_error_is_static_audited_and_has_no_partial_page(notificatio
 
 async def test_foreign_ack_is_static_and_leaves_no_operation(notifications):
     f, data = notifications
-    _, tokens = await connect(f, scopes=["mcp:change"])
-    result = body(await call_mcp(f[0], tokens["access_token"], name="acknowledge_my_notification",
-        arguments={"notification_id": str(data.rows[3].id), "idempotency_key": "foreign-personal-ack-001"}))
+    _, tokens = await connect(
+        f,
+        scopes=["mcp:change"],
+        permissions={
+            "write_enabled": True,
+            "allowed_write_sections": ["gc_app"],
+        },
+    )
+    result = body(
+        await call_mcp(
+            f[0],
+            tokens["access_token"],
+            name="acknowledge_my_notification",
+            arguments={
+                "notification_id": str(data.rows[3].id),
+                "idempotency_key": "foreign-personal-ack-001",
+            },
+        )
+    )
     assert result["error"] == "notification_unavailable" and result["completeness"] == "unavailable"
     assert "receipt" not in result and "Synthetic notification" not in json.dumps(result)
     assert await f[1].scalar(select(func.count()).select_from(MCPOperationModel)) == 0
 
 
-@pytest.mark.parametrize("restriction", ["revoked", "capability", "deployment", "role", "inactive", "deleted", "session", "control"])
+@pytest.mark.parametrize(
+    "restriction",
+    ["revoked", "capability", "deployment", "role", "inactive", "deleted", "session", "control"],
+)
 async def test_current_authority_denies_before_projection(notifications, monkeypatch, restriction):
     f, _ = notifications
     _, tokens = await connect(f, scopes=["mcp:read"])
@@ -103,8 +155,10 @@ async def test_current_authority_denies_before_projection(notifications, monkeyp
     else:
         (await f[1].get(MCPControlModel, 1)).enabled = False
     await f[1].commit()
+
     async def forbidden(*args, **kwargs):
         raise AssertionError("Unauthorized notification source read")
+
     monkeypatch.setattr(NotificationProjectionRepository, "page", forbidden)
     response = await call_mcp(f[0], tokens["access_token"], name="list_my_notifications")
     if response.status_code != 401:

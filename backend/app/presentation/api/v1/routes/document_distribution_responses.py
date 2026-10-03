@@ -13,13 +13,15 @@ from app.infrastructure.database.email_models import EmailArtifactDocumentModel
 from app.infrastructure.database.models import (
     DistributedDocumentModel,
     DocumentDistributionBatchModel,
-    DocumentUploadChunkModel,
     DocumentWhatsAppDeliveryModel,
 )
 from app.infrastructure.documents.document_approval_provenance import (
     has_manual_document_type_approval,
 )
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
+from app.presentation.api.v1.routes.document_distribution_rejections import (
+    retained_batch_rejections,
+)
 from app.presentation.api.v1.routes.document_distribution_shared import (
     DOCUMENT_DELIVERY_ACCEPTED_STATUSES,
     DOCUMENT_DELIVERY_IN_PROGRESS_STATUSES,
@@ -191,37 +193,8 @@ async def _batch_response(
         and getattr(response_batch, "rejected_count", 0) > 0
         and not rejected_documents
     ):
-        receipts_result = await session.execute(
-            select(DocumentUploadChunkModel.rejected_documents)
-            .where(
-                DocumentUploadChunkModel.upload_id == response_batch.id,
-                DocumentUploadChunkModel.agency_id == agency_id,
-                DocumentUploadChunkModel.workflow == "distribution",
-                DocumentUploadChunkModel.group_id == group_id,
-                DocumentUploadChunkModel.document_type == document_type,
-            )
-            .order_by(DocumentUploadChunkModel.chunk_index.asc())
-        )
-        for chunk_rejections in receipts_result.scalars().all():
-            for item in chunk_rejections if isinstance(chunk_rejections, list) else []:
-                if not isinstance(item, dict):
-                    continue
-                filename = item.get("filename")
-                detected_type = item.get("detected_type")
-                reason = item.get("reason")
-                if not isinstance(filename, str):
-                    continue
-                if not isinstance(detected_type, str):
-                    continue
-                if not isinstance(reason, str):
-                    continue
-                persisted_rejections.append(
-                    RejectedDocumentResponse(
-                        filename=filename,
-                        detected_type=detected_type,
-                        reason=reason,
-                    )
-                )
+        persisted_rejections = await retained_batch_rejections(session, upload_id=response_batch.id,
+            agency_id=agency_id, group_id=group_id, document_type=document_type)
     responses_by_document = {
         document.id: response
         for document, response in zip(response_documents, rendered_documents, strict=True)

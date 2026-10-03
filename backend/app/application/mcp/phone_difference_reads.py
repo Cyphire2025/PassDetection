@@ -3,7 +3,8 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import asdict
+from collections.abc import Awaitable, Callable
+from dataclasses import asdict, dataclass
 from typing import Any
 from uuid import UUID
 
@@ -94,21 +95,23 @@ def difference_page(items, *, offset, page_size):
     return chosen, following if following < len(items) else None
 
 
+@dataclass(frozen=True)
+class PhoneDifferenceSupport:
+    """Reviewed canonical matching functions injected at the presentation boundary."""
+
+    linked_names: Callable[..., Awaitable[Any]]
+    matching_fields: Callable[..., Awaitable[Any]]
+    load_rows: Callable[..., Awaitable[Any]]
+
+
 class MCPPhoneDifferenceReadService(MCPReadContext):
-    def __init__(self, session: AsyncSession, *, cursor_secret: str):
+    def __init__(self, session: AsyncSession, *, cursor_secret: str, support: PhoneDifferenceSupport):
         super().__init__(session, cursor_secret=cursor_secret, namespace="mcp-phone-differences-v1")
+        self.support = support
 
     async def read(self, *, user_id: UUID, group_id: UUID, broadcast_id: UUID | None = None,
         agency_id: UUID | None = None, offset: int = 0, page_size: int = 50,
         snapshot_revision: str | None = None) -> dict[str, Any]:
-        from app.presentation.api.v1.routes.client_group_whatsapp_match_support import (
-            load_current_whatsapp_match_rows,
-        )
-        from app.presentation.api.v1.routes.client_groups import (
-            _linked_broadcast_matching_fields_for_group,
-            _linked_broadcast_names_for_group,
-        )
-
         if type(offset) is not int or not 0 <= offset <= 100000:
             raise ValueError("Comparison offset must be between 0 and 100000")
         actor = await self._actor(user_id, page_size)
@@ -116,15 +119,15 @@ class MCPPhoneDifferenceReadService(MCPReadContext):
         group = await self._group(actor, group_id, agency_id, include_deleted=False)
         if group.status == "archived":
             raise ValueError("Choose an active client group")
-        linked = await _linked_broadcast_names_for_group(self.session, group_id=group.id, agency_id=group.agency_id)
+        linked = await self.support.linked_names(self.session, group_id=group.id, agency_id=group.agency_id)
         if broadcast_id is None:
             if len(linked) != 1:
                 raise ValueError("Choose one linked broadcast explicitly when there is not exactly one")
             broadcast_id = next(iter(linked))
         if broadcast_id not in linked:
             raise ValueError("The broadcast is not linked to this client group")
-        fields = await _linked_broadcast_matching_fields_for_group(self.session, group_id=group.id, agency_id=group.agency_id)
-        rows, submissions = await load_current_whatsapp_match_rows(self.session, group=group,
+        fields = await self.support.matching_fields(self.session, group_id=group.id, agency_id=group.agency_id)
+        rows, submissions = await self.support.load_rows(self.session, group=group,
             linked_broadcasts=linked, matching_fields_by_broadcast=fields)
         recipient_rows = list((await self.session.scalars(select(WhatsAppBroadcastRecipientModel).where(
             WhatsAppBroadcastRecipientModel.broadcast_group_id == broadcast_id,

@@ -25,6 +25,29 @@ export function useMcpUpdateReadAccess() {
       ]);
     } });
 }
+export function useMcpPermissions(enabled = true) {
+  return useQuery({ queryKey: [...keys.root, "permissions"], queryFn: ({ signal }) => mcpApi.permissions(signal),
+    refetchOnWindowFocus: "always", retry: false, enabled });
+}
+export function useMcpUpdatePermissions() {
+  const client = useQueryClient();
+  return useMutation({ mutationFn: mcpApi.updatePermissions, retry: false,
+    onMutate: () => client.cancelQueries({ queryKey: [...keys.root, "permissions"] }),
+    onSuccess: (confirmed) => {
+      client.setQueryData([...keys.root, "permissions"], confirmed);
+      return Promise.all([
+        client.invalidateQueries({ queryKey: keys.overview }),
+        client.invalidateQueries({ queryKey: [...keys.root, "read-access"] }),
+        client.invalidateQueries({ queryKey: [...keys.root, "inventory"] }),
+        client.invalidateQueries({ queryKey: [...keys.root, "connections"] }),
+      ]);
+    } });
+}
+export function useMcpUpdateConnectionPermissions() {
+  const client = useQueryClient();
+  return useMutation({ mutationFn: mcpApi.updateConnectionPermissions, retry: false,
+    onSuccess: () => client.invalidateQueries({ queryKey: keys.root }) });
+}
 export function useMcpConnections(offset: number) {
   return useQuery({ queryKey: [...keys.root, "connections", offset], queryFn: ({ signal }) => mcpApi.connections(offset, signal), staleTime: 15_000 });
 }

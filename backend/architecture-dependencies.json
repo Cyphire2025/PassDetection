@@ -1520,6 +1520,239 @@
         "app.infrastructure.export.rooming_excel_exporter",
         "app.infrastructure.export.rooming_excel_exporter.RoomingExcelExporter"
       ]
+    },
+    "app/application/mcp/account_creation.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current active Superadmin, explicit active agency and role-specific saved device/global sections fence an invited account creation in the receipt transaction. Shared canonical account repositories initialize invitation credentials without exposing passwords, reset tokens or security authority. Replay rechecks the resulting account and exact selected role; invitation completion uses the existing website flow.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.ClientManagerGroupAssignmentModel",
+        "app.infrastructure.database.gc_mobile_models.ClientManagerProfileModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.UserModel",
+        "app.infrastructure.database.models.UserSecurityStateModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository",
+        "app.infrastructure.repositories.identity_security_repository",
+        "app.infrastructure.repositories.identity_security_repository.IdentitySecurityRepository"
+      ]
+    },
+    "app/application/mcp/connection_requests.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Browser-bound expiring authorization requests preserve exact OAuth resource, client redirect and PKCE constraints. Current recent-MFA Superadmin decisions and optimistic request revisions persist separate read/write choices. Polling never authenticates a dashboard user or grants requested scopes without the administrator's saved approval; public responses and audits omit credentials.",
+      "imports": [
+        "app.infrastructure.database.mcp_models",
+        "app.infrastructure.database.mcp_models.MCPAuthorizationCodeModel",
+        "app.infrastructure.database.mcp_models.MCPConnectionRequestModel",
+        "app.infrastructure.database.mcp_models.MCPControlModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository"
+      ]
+    },
+    "app/application/mcp/delivery_reads.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Read-only live current actor and agency/group visibility gates query bounded existing delivery history using code-owned families. Signed scoped continuation, complete response bounds and shared canonical status projections preserve accepted, sent, delivered and unknown distinctions without source retrieval, token generation, recovery, queue publication or sends.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.DocumentWhatsAppDeliveryModel",
+        "app.infrastructure.database.models.PassengerQrWhatsAppDeliveryModel",
+        "app.infrastructure.database.models.WhatsAppBroadcastGroupModel",
+        "app.infrastructure.database.models.WhatsAppMessageLogModel",
+        "app.infrastructure.database.models.WhatsAppPhoneWelcomeAttemptModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository",
+        "app.infrastructure.repositories.mcp_read_page",
+        "app.infrastructure.repositories.mcp_read_page.read_page"
+      ]
+    },
+    "app/application/mcp/group_workbook_import.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "The original staged workbook and completed native ticket are bound to original grant, user/security version, active explicit agency/group, SHA-256 and current roster revision. A bounded parsed checkpoint feeds canonical identity resolution, deduplication, quota and mobile propagation under fresh authority locks. The import, original-source consumption, retained audit and stable receipt commit atomically; retries cannot consume or merge twice.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.mobile_group_capacity",
+        "app.infrastructure.mobile_group_capacity.SqlAlchemyGroupPassengerCapacityGuard",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository"
+      ]
+    },
+    "app/application/mcp/group_workbook_plan.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "An exact completed native workbook source and current active Superadmin group policy fence bounded canonical preview queries. The preview hashes the full admitted roster and parsed immutable checkpoint, counts exact create/update/duplicate outcomes and rejects ambiguity rather than guessing. No storage/provider I/O or business mutation occurs within this preview transaction.",
+      "imports": [
+        "app.infrastructure.database.mcp_contact_import_models",
+        "app.infrastructure.database.mcp_contact_import_models.MCPContactImportUploadModel",
+        "app.infrastructure.database.mcp_models",
+        "app.infrastructure.database.mcp_models.MCPGrantModel",
+        "app.infrastructure.database.mcp_native_transfer_models",
+        "app.infrastructure.database.mcp_native_transfer_models.MCPNativeTransferModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.imports.passport_excel_importer",
+        "app.infrastructure.imports.passport_excel_importer.ImportedPassportRow"
+      ]
+    },
+    "app/application/mcp/group_workbook_source.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Private original workbook retrieval is admitted by source and native-ticket scope, fixed byte size and SHA-256. Storage and bounded off-thread canonical parsing release all database locks; fresh current authority, source binding and roster revision are checked again before retaining a code-owned checkpoint. Literal source cells stay intact and are never treated as authorization.",
+      "imports": [
+        "app.infrastructure.documents.storage_transfers",
+        "app.infrastructure.documents.storage_transfers.run_bounded_storage_operations",
+        "app.infrastructure.imports.passport_excel_importer",
+        "app.infrastructure.imports.passport_excel_importer.PassportExcelImporter",
+        "app.infrastructure.security.contact_spreadsheet_security",
+        "app.infrastructure.security.contact_spreadsheet_security.MAX_BYTES",
+        "app.infrastructure.storage.mcp_artifact_storage",
+        "app.infrastructure.storage.mcp_artifact_storage.MCPArtifactStorage"
+      ]
+    },
+    "app/application/mcp/native_source_bindings.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Completed native PDF sources retain the exact original source/ticket association, current identity/security version, agency/group/document lane, filename/MIME, bytes and SHA-256. Handoff expiry does not shorten staged-source expiry. Native retargeting is denied during inspect, claim and execution; legacy protected source authority remains independently enforced.",
+      "imports": [
+        "app.infrastructure.database.mcp_artifact_models",
+        "app.infrastructure.database.mcp_artifact_models.MCPArtifactModel",
+        "app.infrastructure.database.mcp_models",
+        "app.infrastructure.database.mcp_models.MCPGrantModel",
+        "app.infrastructure.database.mcp_native_transfer_models",
+        "app.infrastructure.database.mcp_native_transfer_models.MCPNativeTransferModel"
+      ]
+    },
+    "app/application/mcp/native_transfer_runtime.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Short-lived digest-only native tickets stream bounded original XLSX/PDF or existing export bytes through one claimed lease. Exact original grant/user/security version, current device/global section/tool gates, source associations and metadata are checked before and after scanning/streaming. Duplicate claims fail closed, canceled work drains before releasing admission, and saved-copy acknowledgment requires verified complete transfer metadata.",
+      "imports": [
+        "app.infrastructure.database.mcp_artifact_models",
+        "app.infrastructure.database.mcp_artifact_models.MCPArtifactModel",
+        "app.infrastructure.database.mcp_contact_import_models",
+        "app.infrastructure.database.mcp_contact_import_models.MCPContactImportUploadModel",
+        "app.infrastructure.database.mcp_models",
+        "app.infrastructure.database.mcp_models.MCPControlModel",
+        "app.infrastructure.database.mcp_models.MCPGrantModel",
+        "app.infrastructure.database.mcp_native_transfer_models",
+        "app.infrastructure.database.mcp_native_transfer_models.MCPNativeTransferModel"
+      ]
+    },
+    "app/application/mcp/native_transfers.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Code-owned native ticket purposes bind one original grant, explicit active agency/group/document lane, exact file metadata and stable retry key. Random ticket identity derives a limited HMAC bearer that is never stored in plaintext, audits or receipts. Ticket creation requires current OAuth/device/section authority; private upload originals and export association checks remain independent of browser login.",
+      "imports": [
+        "app.infrastructure.database.mcp_artifact_models",
+        "app.infrastructure.database.mcp_artifact_models.MCPArtifactModel",
+        "app.infrastructure.database.mcp_contact_import_models",
+        "app.infrastructure.database.mcp_contact_import_models.MCPContactImportUploadModel",
+        "app.infrastructure.database.mcp_models",
+        "app.infrastructure.database.mcp_models.MCPControlModel",
+        "app.infrastructure.database.mcp_native_transfer_models",
+        "app.infrastructure.database.mcp_native_transfer_models.MCPNativeTransferModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.AgencyModel",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository",
+        "app.infrastructure.security.contact_spreadsheet_security",
+        "app.infrastructure.security.contact_spreadsheet_security.MAX_BYTES",
+        "app.infrastructure.security.contact_spreadsheet_security.XLSX_MEDIA"
+      ]
+    },
+    "app/application/mcp/permissions.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Fresh global control and grant policy enforce independent Read and Write, exact code-owned tool/section requirements and the unchanged OAuth ceiling. Optimistic policy revisions serialize concurrent saves; existing grants cannot acquire write scopes through a checkbox. Current policy gates apply again to preparation, receipts, file handoff and worker provider barriers.",
+      "imports": [
+        "app.infrastructure.database.mcp_models",
+        "app.infrastructure.database.mcp_models.MCPControlModel",
+        "app.infrastructure.database.mcp_models.MCPGrantModel"
+      ]
+    },
+    "app/application/mcp/phone_difference_reads.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current live read actor and exact visible active group precede canonical matching callbacks injected by the presentation adapter. Bounded complete UTF-8 comparison pages, exact linked-broadcast and roster predicates, signed restart fences and sensitive-read auditing expose only existing high-confidence matches; no identity guesses, updates, uploads or sends occur.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.WhatsAppBroadcastRecipientModel",
+        "app.infrastructure.repositories.sensitive_read_audit",
+        "app.infrastructure.repositories.sensitive_read_audit.record_sensitive_read"
+      ]
+    },
+    "app/application/mcp/read_access.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current database control and per-device inherited or narrowed section selections are checked independently of bearer claims. Every reviewed read adapter or dynamically selected dashboard view requires its full saved section union before loading business data; unknown tools and malformed policy fail closed. The infrastructure edge reads policy only and does not confer mutation authority.",
+      "imports": [
+        "app.infrastructure.database.mcp_models",
+        "app.infrastructure.database.mcp_models.MCPControlModel"
+      ]
+    },
+    "app/application/mcp/tour_evidence_reads.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current active Superadmin, exact own-agency group visibility and saved Tour Ops/GC read sections fence existing QR and attendance evidence. The canonical PNG QR is returned only as bounded image content, without text credentials or token generation; signed pagination exposes recorded scan events and excludes nonoperational people. No attendance event, invitation or delivery is fabricated.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.AttendanceRecordModel",
+        "app.infrastructure.database.models.AttendanceSessionModel",
+        "app.infrastructure.database.models.PassengerQRTokenModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.qr.approved_passenger_qr_issuer",
+        "app.infrastructure.qr.approved_passenger_qr_issuer.qr_status",
+        "app.infrastructure.qr.qr_image_renderer",
+        "app.infrastructure.qr.qr_image_renderer.render_attendance_qr_png",
+        "app.infrastructure.repositories.operational_roster",
+        "app.infrastructure.repositories.operational_roster.operational_roster_member"
+      ]
+    },
+    "app/application/mcp/document_delivery.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "An explicit saved group, batch and document selection produces a bounded immutable delivery plan without publication. Confirmation requires exact content hash and final user approval, fresh original and current grant permissions, source/audience/template revisions and a current canonical queue projection injected by presentation. One retained outbox and stable receipt commit atomically; provider submission independently repeats original authority fences and never automatically retries an uncertain send.",
+      "imports": [
+        "app.infrastructure.database.mcp_document_delivery_models",
+        "app.infrastructure.database.mcp_document_delivery_models.MCPDocumentDeliveryOutboxModel",
+        "app.infrastructure.database.mcp_document_delivery_models.MCPDocumentDeliveryPlanModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.AgencyModel",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.DocumentDistributionBatchModel",
+        "app.infrastructure.repositories.user_repository",
+        "app.infrastructure.repositories.user_repository.UserRepository"
+      ]
+    },
+    "app/application/mcp/document_delivery_sources.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "A saved document model is projected to exact tenant/group/batch/person IDs, assignment and update revision, filename and media type. A digest of its private immutable object reference binds metadata only, without claiming byte integrity or disclosing the storage key. No storage I/O, authorization or mutation occurs in this pure projection.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.DistributedDocumentModel"
+      ]
+    },
+    "app/application/mcp/document_delivery_capacity.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Scalar counts admit canonical document delivery snapshots only within fixed group/batch/document/recipient-history bounds before full source/audience hydration. Counts confer no permission, retrieve no source bytes, expose no credentials and perform no business or provider effects.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupWhatsAppBroadcastLinkModel",
+        "app.infrastructure.database.models.DistributedDocumentModel",
+        "app.infrastructure.database.models.DocumentWhatsAppDeliveryModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.database.models.WhatsAppBroadcastRecipientModel",
+        "app.infrastructure.database.models.WhatsAppBroadcastSourceContactModel"
+      ]
     }
   }
 }

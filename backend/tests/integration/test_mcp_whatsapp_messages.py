@@ -191,7 +191,7 @@ async def confirm(f, preview, connection=0):
         access_token=f.tokens[connection],
         operation_name="confirm_whatsapp_message",
         idempotency_key="confirm-template-intent-001",
-        payload={"plan_id": preview["data"]["plan_id"], "plan_hash": preview["data"]["plan_hash"]},
+        payload={"plan_id": preview["data"]["plan_id"], "plan_hash": preview["data"]["plan_hash"], "user_confirmed": True},
     )
 
 

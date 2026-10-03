@@ -71,6 +71,7 @@ async def confirm(fixture, prepared, *, connection=0, key="confirm-gc-push-001",
         payload={
             "plan_id": prepared["data"]["plan_id"],
             "plan_hash": plan_hash or prepared["data"]["plan_hash"],
+            "user_confirmed": True,
         },
     )
 
@@ -321,6 +322,7 @@ async def test_sdk_preparation_confirmation_and_receipt_read_use_real_wrappers(
             {
                 "plan_id": plan["plan_id"],
                 "plan_hash": plan["plan_hash"],
+                "user_confirmed": True,
                 "idempotency_key": "sdk-confirm-gc-001",
             },
         )
@@ -329,6 +331,7 @@ async def test_sdk_preparation_confirmation_and_receipt_read_use_real_wrappers(
     inspected = (
         await server.call_tool("inspect_gc_push", {"plan_id": plan["plan_id"]})
     ).structured_content
+    assert "receipts" in inspected, inspected
     assert inspected["receipts"]["device_delivery_counts"]["retry"] == 1
     assert inspected["receipts"]["device_delivery_counts"]["delivered"] == 0
     assert inspected["preview"] == plan["preview"]

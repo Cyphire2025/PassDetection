@@ -29,6 +29,7 @@ from app.application.mcp.credentials import (
 )
 from app.core.config.settings import Settings
 from app.domain.mcp_policy import validate_capabilities
+from app.domain.mcp_section_permissions import WRITE_CAPABILITIES
 from app.infrastructure.database.mcp_models import (
     MCPAuthorizationCodeModel,
     MCPControlModel,
@@ -76,6 +77,10 @@ class MCPAuthorizationService:
     def require_capability(self, grant: MCPGrantModel, capability: str) -> None:
         if capability not in grant.capabilities or capability not in self.settings.mcp.effective_capabilities:
             raise MCPAuthError("insufficient_scope", 403)
+        if capability == "mcp:read" and grant.read_enabled is not True:
+            raise MCPAuthError("read_access_denied", 403)
+        if capability in WRITE_CAPABILITIES and grant.write_enabled is not True:
+            raise MCPAuthError("write_access_denied", 403)
 
     async def require_identity(
         self, user_id: uuid.UUID, security_version: int, *, lock: bool = False
@@ -140,6 +145,10 @@ class MCPAuthorizationService:
         scopes: list[str],
         name: str,
         device_platform: str | None = None,
+        read_enabled: bool = True,
+        write_enabled: bool = False,
+        allowed_read_sections: list[str] | None = None,
+        allowed_write_sections: list[str] | None = None,
     ) -> str:
         await self.require_enabled()
         await validate_authorization_client(self.settings.mcp, client_id, redirect_uri)
@@ -157,6 +166,11 @@ class MCPAuthorizationService:
             raise MCPAuthError("invalid_scope") from exc
         if set(capabilities) - set(self.settings.mcp.effective_capabilities):
             raise MCPAuthError("invalid_scope")
+        from app.application.mcp.permissions import validate_device_permissions
+
+        validate_device_permissions(self.settings, capabilities, read_enabled=read_enabled,
+            write_enabled=write_enabled, allowed_read_sections=allowed_read_sections,
+            allowed_write_sections=allowed_write_sections or [])
         await self.require_identity(user_id, security_version)
         grant = MCPGrantModel(
             id=uuid.uuid4(),
@@ -165,6 +179,10 @@ class MCPAuthorizationService:
             client_id=client_id,
             name=name,
             enabled=True,
+            read_enabled=read_enabled,
+            write_enabled=write_enabled,
+            allowed_read_sections=allowed_read_sections,
+            allowed_write_sections=allowed_write_sections or [],
             device_platform=device_platform,
             resource=resource,
             capabilities=capabilities,
@@ -302,9 +320,12 @@ class MCPAuthorizationService:
         now = datetime.now(UTC)
         if token_row is None or utc(token_row.expires_at) <= now:
             raise MCPAuthError("invalid_token", 401)
-        grant = await self.require_grant(token_row.grant_id)
+        grant = await self.require_grant(token_row.grant_id, lock=True)
         if capability is not None:
             self.require_capability(grant, capability)
+            from app.application.mcp.permissions import require_permission_capability
+
+            await require_permission_capability(self.session, self.settings, grant, capability, lock=False)
         if grant.last_used_at is None or (now - utc(grant.last_used_at)).total_seconds() >= 60:
             grant.last_used_at = now
             await self.session.flush()

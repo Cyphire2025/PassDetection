@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hmac
 import uuid
+from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
 from typing import Annotated
 
@@ -134,18 +135,21 @@ async def _lock_retry_document_deliveries(
     }
 
 
-@router.post(
-    "/batches/{batch_id}/whatsapp-send",
-    response_model=SendDocumentBroadcastResponse,
-    status_code=status.HTTP_202_ACCEPTED,
-    dependencies=[Depends(require_cookie_csrf)],
-)
-async def send_document_whatsapp_broadcast(
+async def queue_document_whatsapp_broadcast(
     batch_id: uuid.UUID,
     payload: SendDocumentBroadcastRequest,
-    current_user: User = Depends(get_current_active_user),
-    session: AsyncSession = Depends(get_db_session),
+    *,
+    current_user: User,
+    session: AsyncSession,
+    before_queue: Callable[..., Awaitable[None]] | None = None,
+    identity_already_locked: bool = False,
 ) -> SendDocumentBroadcastResponse:
+    """Canonical, flush-only queue rules; caller owns commit and publication.
+
+    A reviewed MCP guard can compare the exact preview and sources while the
+    same actor/group/ledger/document locks protect the eventual queue writes.
+    No broker, provider, or storage I/O occurs in this helper.
+    """
     message_content_1 = payload.message_content_1.strip()
     message_content_2 = payload.message_content_2.strip()
     if not message_content_1 or not message_content_2:
@@ -170,6 +174,7 @@ async def send_document_whatsapp_broadcast(
     )
     _, group = await _lock_active_document_scope(
         session, current_user=current_user, group_id=group.id, agency_id=group.agency_id,
+        identity_already_locked=identity_already_locked,
     )
     # Serialize the whole group/type ledger, not just the caller's possibly
     # stale batch id. This closes the race where two clients could otherwise
@@ -225,11 +230,14 @@ async def send_document_whatsapp_broadcast(
             ),
             DistributedDocumentModel.group_id == batch.group_id,
             DistributedDocumentModel.agency_id == batch.agency_id,
-        )
+        ).order_by(DistributedDocumentModel.id).with_for_update()
+        .execution_options(populate_existing=True)
     )
     selected_documents = {
         document.id: document for document in selected_document_result.scalars().all()
     }
+    if before_queue is not None:
+        await before_queue(batch, group, preview, eligible_rows, selected_documents)
     retry_delivery_document_ids = {
         row.delivery_id: row.document_id
         for row in eligible_rows
@@ -342,6 +350,37 @@ async def send_document_whatsapp_broadcast(
             ],
         },
     )
+    await session.flush()
+    attempted_count = (
+        len(requested_ids) if payload.document_ids is not None else len(preview.recipients)
+    )
+    return SendDocumentBroadcastResponse(
+        send_batch_id=send_batch_id,
+        queued_count=queued_count,
+        skipped_count=max(0, attempted_count - queued_count),
+        message=(
+            f"Queued {queued_count} document{'' if queued_count == 1 else 's'} "
+            "for individual WhatsApp delivery."
+        ),
+    )
+
+
+@router.post(
+    "/batches/{batch_id}/whatsapp-send",
+    response_model=SendDocumentBroadcastResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+    dependencies=[Depends(require_cookie_csrf)],
+)
+async def send_document_whatsapp_broadcast(
+    batch_id: uuid.UUID,
+    payload: SendDocumentBroadcastRequest,
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> SendDocumentBroadcastResponse:
+    response = await queue_document_whatsapp_broadcast(
+        batch_id, payload, current_user=current_user, session=session,
+    )
+    send_batch_id = response.send_batch_id
     await session.commit()
 
     from app.infrastructure.whatsapp.tasks import (
@@ -375,18 +414,7 @@ async def send_document_whatsapp_broadcast(
             detail="The WhatsApp worker queue is temporarily unavailable",
         ) from exc
 
-    attempted_count = (
-        len(requested_ids) if payload.document_ids is not None else len(preview.recipients)
-    )
-    return SendDocumentBroadcastResponse(
-        send_batch_id=send_batch_id,
-        queued_count=queued_count,
-        skipped_count=max(0, attempted_count - queued_count),
-        message=(
-            f"Queued {queued_count} document{'' if queued_count == 1 else 's'} "
-            "for individual WhatsApp delivery."
-        ),
-    )
+    return response
 
 
 @router.get(

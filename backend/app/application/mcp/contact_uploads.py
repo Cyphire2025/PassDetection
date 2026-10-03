@@ -18,6 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.mcp.artifacts import ArtifactError, _filename, _spool, transfer_slot
 from app.application.mcp.authorization import MCPAuthorizationService, MCPPrincipal
 from app.application.mcp.credentials import MCPAuthError, credential_hash, utc
+from app.application.mcp.permissions import require_tool_access
 from app.core.config.settings import Settings
 from app.infrastructure.database.mcp_contact_import_models import MCPContactImportUploadModel
 from app.infrastructure.database.models import AgencyModel
@@ -41,10 +42,14 @@ class MCPContactUploadService:
         *,
         storage: MCPArtifactStorage | None = None,
         security: ContactSpreadsheetSecurity | None = None,
+        purpose: str = "contact_broadcast",
     ):
         self.session, self.settings = session, settings
         self.storage, self.security = storage, security
         self.auth = MCPAuthorizationService(session, settings)
+        if purpose not in {"contact_broadcast", "group_workbook"}:
+            raise ValueError("Unsupported workbook purpose")
+        self.purpose = purpose
 
     async def authority(self, principal: MCPPrincipal, *, lock: bool = False) -> None:
         grant = await self.auth.require_grant(principal.grant_id, lock=lock)
@@ -56,6 +61,11 @@ class MCPContactUploadService:
         ):
             raise MCPAuthError("invalid_token", 401)
         self.auth.require_capability(grant, "mcp:upload")
+        await require_tool_access(
+            self.session, self.settings, grant.id,
+            "upload_group_workbook" if self.purpose == "group_workbook" else "upload_contact_workbook",
+            "mcp:upload", lock=lock,
+        )
 
     async def agency(self, agency_id: uuid.UUID, *, lock: bool = False) -> None:
         stmt = select(AgencyModel).where(AgencyModel.id == agency_id)

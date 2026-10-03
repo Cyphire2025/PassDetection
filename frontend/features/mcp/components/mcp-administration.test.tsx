@@ -75,7 +75,7 @@ it("pauses then resumes even when the paused overview sets emergency_disabled", 
   expect(mcpApi.control).not.toHaveBeenCalled();
   fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Pause access" }));
   await waitFor(() => expect(screen.getByRole("switch", { name: "Allow MCP access" })).not.toBeChecked());
-  expect(screen.getByRole("switch", { name: "Allow MCP access" })).toBeEnabled();
+  await waitFor(() => expect(screen.getByRole("switch", { name: "Allow MCP access" })).toBeEnabled());
   fireEvent.click(screen.getByRole("switch", { name: "Allow MCP access" }));
   fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Resume access" }));
   await waitFor(() => expect(screen.getByRole("switch", { name: "Allow MCP access" })).toBeChecked());

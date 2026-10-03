@@ -137,6 +137,7 @@ async def test_configuration_failure_at_confirmation_preserves_exact_plan_and_re
     confirmation = {
         "plan_id": preview["plan_id"],
         "plan_hash": preview["plan_hash"],
+        "user_confirmed": True,
         "idempotency_key": "configuration-confirm-same-intent-001",
     }
     broken = fixture.settings.model_copy(update={"whatsapp_access_token": ""})

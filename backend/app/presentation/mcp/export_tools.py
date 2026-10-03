@@ -57,7 +57,7 @@ async def _invoke_export(
             service = MCPExcelExportService(session, settings, excel_support(), artifacts=artifacts)
             if request is not None:
                 principal = await MCPOperationService(session, settings)._authorize(
-                    token.token, "mcp:export"
+                    token.token, "mcp:export", tool_name=name
                 )
                 result = await service.inspect(principal, request)
             else:

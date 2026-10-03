@@ -34,9 +34,13 @@ logger = get_task_logger(__name__)
 @celery_app.task(name="mcp.publish_whatsapp_intents", queue="whatsapp")  # type: ignore[untyped-decorator]
 def publish_mcp_whatsapp_intents() -> int:
     """Periodic durable publication recovery; no direct provider retry."""
+    from app.infrastructure.whatsapp.mcp_document_publication import run_mcp_document_publication
     from app.infrastructure.whatsapp.mcp_publication import run_mcp_whatsapp_publication
 
-    return celery_async_runtime.run(run_mcp_whatsapp_publication(limit=20))
+    async def publish_all() -> int:
+        return await run_mcp_whatsapp_publication(limit=20) + await run_mcp_document_publication(limit=20)
+
+    return celery_async_runtime.run(publish_all())
 
 
 @celery_app.task(name="whatsapp.publish_send_intents", queue="whatsapp")  # type: ignore[untyped-decorator]

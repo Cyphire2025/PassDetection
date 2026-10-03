@@ -20,6 +20,7 @@ from app.application.mcp.operations import (
     MCPDatabaseResult,
     MCPOperationError,
 )
+from app.application.mcp.permissions import require_tool_access
 from app.application.mcp.whatsapp_media_access import MCPWhatsAppMediaAccess
 from app.core.config.settings import Settings
 from app.domain.mcp_policy import MCPCapability, MCPToolPolicy
@@ -117,7 +118,7 @@ def whatsapp_intent_operations(
         )
 
     async def confirm(context: MCPDatabaseContext, payload: dict[str, Any]) -> MCPDatabaseResult:
-        if set(payload) != {"plan_id", "plan_hash"}:
+        if set(payload) != {"plan_id", "plan_hash", "user_confirmed"} or payload.get("user_confirmed") is not True:
             raise MCPOperationError("invalid_whatsapp_plan")
         plan = await owned_plan(context, uuid.UUID(payload["plan_id"]), lock=True)
         if (plan.snapshot["worker_payload"]["message_type"] == "reminder") != (
@@ -143,6 +144,7 @@ def whatsapp_intent_operations(
         original = await MCPAuthorizationService(context.session, settings).require_grant(
             plan.original_grant_id, lock=False
         )
+        await require_tool_access(context.session, settings, original.id, f"confirm_whatsapp_{family}", "mcp:communicate", lock=False)
         if (
             original.user_id != context.principal.user_id
             or "mcp:communicate" not in original.capabilities

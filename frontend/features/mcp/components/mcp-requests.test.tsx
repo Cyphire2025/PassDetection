@@ -3,10 +3,11 @@ import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testi
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { mcpApi, type McpConnectionRequest, type McpOverview } from "../api/mcp.api";
 import { McpRequests } from "./mcp-requests";
+import { permissionFixture } from "../utils/permissions.test-fixture";
 
 vi.mock("../api/mcp.api", async (original) => {
   const actual = await original<typeof import("../api/mcp.api")>();
-  return { ...actual, mcpApi: { ...actual.mcpApi, requests: vi.fn(), approveRequest: vi.fn(), rejectRequest: vi.fn() } };
+  return { ...actual, mcpApi: { ...actual.mcpApi, requests: vi.fn(), approveRequest: vi.fn(), rejectRequest: vi.fn(), permissions: vi.fn() } };
 });
 const overview: McpOverview = { enabled: true, deployment_enabled: true, emergency_disabled: false, read_only_mode: true,
   resource: "https://app.example.test/mcp", capabilities: ["mcp:read", "mcp:export"], effective_capabilities: ["mcp:read"], approved_clients: {},
@@ -21,7 +22,7 @@ function renderRequests(value = overview) {
   const view = render(<QueryClientProvider client={client}><McpRequests overview={value} unavailable={false} /></QueryClientProvider>);
   return { client, ...view };
 }
-beforeEach(() => { vi.clearAllMocks(); vi.mocked(mcpApi.requests).mockResolvedValue({ items: [request], next_offset: null }); });
+beforeEach(() => { vi.clearAllMocks(); vi.mocked(mcpApi.requests).mockResolvedValue({ items: [request], next_offset: null }); vi.mocked(mcpApi.permissions).mockResolvedValue(permissionFixture()); });
 afterEach(() => { cleanup(); clients.splice(0).forEach((client) => client.clear()); });
 
 it("shows the matching code and reviews only currently permitted requested scopes", async () => {
@@ -92,4 +93,38 @@ it.each([
   if (success) expect(badge).toHaveClass("text-green-700");
   else { expect(badge).not.toHaveClass("text-green-700"); expect(screen.queryByText("Connected", { exact: true })).not.toBeInTheDocument(); }
   expect(mcpApi.approveRequest).not.toHaveBeenCalled(); expect(mcpApi.rejectRequest).not.toHaveBeenCalled();
+});
+
+it("deliberately approves a newly requested write-capable envelope with write access initially off", async () => {
+  vi.mocked(mcpApi.approveRequest).mockResolvedValue({ ...request, status: "approved" });
+  renderRequests({ ...overview, read_only_mode: false, effective_capabilities: ["mcp:read", "mcp:export"], permission_controls_available: true });
+  fireEvent.click(within(await screen.findByRole("article", { name: request.name })).getByRole("button", { name: "Approve" }));
+  await waitFor(() => expect(screen.getByRole("button", { name: "Approve connection" })).toBeEnabled());
+  expect(screen.getByRole("switch", { name: "Allow read access" })).toBeChecked();
+  expect(screen.getByRole("switch", { name: "Allow write access" })).not.toBeChecked();
+  fireEvent.click(screen.getByRole("button", { name: "Approve connection" }));
+  await waitFor(() => expect(mcpApi.approveRequest).toHaveBeenCalledWith(expect.objectContaining({ capabilities: ["mcp:read", "mcp:export"],
+    read_enabled: true, write_enabled: false, allowed_read_sections: null, allowed_write_sections: [] }), expect.anything()));
+});
+
+it("allows deliberate narrower write approval without granting scopes absent from the request", async () => {
+  vi.mocked(mcpApi.approveRequest).mockResolvedValue({ ...request, status: "approved" });
+  renderRequests({ ...overview, read_only_mode: false, effective_capabilities: ["mcp:read", "mcp:export", "mcp:change"], permission_controls_available: true });
+  fireEvent.click(within(await screen.findByRole("article", { name: request.name })).getByRole("button", { name: "Approve" }));
+  await waitFor(() => expect(screen.getByRole("switch", { name: "Allow write access" })).toBeEnabled());
+  expect(screen.queryByRole("checkbox", { name: /Make changes/ })).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("switch", { name: "Allow write access" }));
+  fireEvent.click(screen.getByRole("switch", { name: "Write All groups" }));
+  fireEvent.click(screen.getByRole("button", { name: "Approve connection" }));
+  await waitFor(() => expect(mcpApi.approveRequest).toHaveBeenCalledWith(expect.objectContaining({ capabilities: ["mcp:read", "mcp:export"],
+    read_enabled: true, write_enabled: true, allowed_read_sections: null, allowed_write_sections: ["exports"] }), expect.anything()));
+});
+
+it("does not submit review defaults until current global permission settings can be checked", async () => {
+  vi.mocked(mcpApi.permissions).mockRejectedValue(new Error("Section settings unavailable."));
+  renderRequests({ ...overview, permission_controls_available: true });
+  fireEvent.click(within(await screen.findByRole("article", { name: request.name })).getByRole("button", { name: "Approve" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent("Section settings unavailable");
+  expect(screen.getByRole("button", { name: "Approve connection" })).toBeDisabled();
+  expect(mcpApi.approveRequest).not.toHaveBeenCalled();
 });

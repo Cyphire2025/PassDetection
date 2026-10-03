@@ -19,6 +19,7 @@ from app.application.mcp.artifacts import ArtifactError, MCPArtifactService, tra
 from app.application.mcp.authorization import MCPAuthorizationService
 from app.application.mcp.credentials import pkce_challenge
 from app.core.config.mcp import MCPSettings
+from app.domain.mcp_section_permissions import SUPPORTED_WRITE_SECTIONS, WRITE_TOOL_SECTIONS
 from app.infrastructure.database.mcp_artifact_models import MCPArtifactModel
 from app.infrastructure.database.mcp_models import MCPControlModel, MCPGrantModel
 from app.infrastructure.database.models import (
@@ -107,9 +108,14 @@ async def test_local_file_preflight_requires_current_file_authority_without_read
     token, principal = await artifacts.connect(["mcp:upload"])
     headers = {"Authorization": f"Bearer {token}"}
     result = await artifacts.client.get("/mcp/artifacts/authority", headers=headers)
-    assert result.status_code == 200 and result.json() == {"authorized": True, "capabilities": ["mcp:upload"]}
+    assert result.status_code == 200 and result.json() == {
+        "authorized": True,
+        "capabilities": ["mcp:upload"],
+    }
     assert result.headers["cache-control"] == "no-store"
-    denied = await artifacts.client.get("/mcp/artifacts/authority?capability=mcp:export", headers=headers)
+    denied = await artifacts.client.get(
+        "/mcp/artifacts/authority?capability=mcp:export", headers=headers
+    )
     assert denied.status_code == 403
     grant = await artifacts.session.get(MCPGrantModel, principal.grant_id)
     grant.revoked_at = datetime.now(UTC)
@@ -149,7 +155,13 @@ async def artifacts(db_session, test_settings):
     db_session.add_all(
         [
             group,
-            MCPControlModel(id=1, enabled=True),
+            MCPControlModel(
+                id=1,
+                enabled=True,
+                write_enabled=True,
+                allowed_write_sections=sorted(SUPPORTED_WRITE_SECTIONS),
+                allowed_write_tools=sorted(WRITE_TOOL_SECTIONS),
+            ),
             UserSecurityStateModel(
                 user_id=actor.id,
                 session_version=1,
@@ -164,6 +176,7 @@ async def artifacts(db_session, test_settings):
     verifier = "v" * 64
 
     async def connect(scopes=None):
+        selected = scopes or ["mcp:read", "mcp:upload", "mcp:export"]
         code = await auth.authorize(
             user_id=actor.id,
             security_version=1,
@@ -172,8 +185,11 @@ async def artifacts(db_session, test_settings):
             redirect_uri="http://127.0.0.1:8765/callback",
             resource="http://localhost:8000/mcp",
             challenge=pkce_challenge(verifier),
-            scopes=scopes or ["mcp:read", "mcp:upload", "mcp:export"],
+            scopes=selected,
             name="Artifacts fixture",
+            read_enabled="mcp:read" in selected,
+            write_enabled=bool(set(selected) & {"mcp:change", "mcp:upload", "mcp:export", "mcp:communicate"}),
+            allowed_write_sections=sorted(SUPPORTED_WRITE_SECTIONS),
         )
         tokens = await auth.exchange_code(
             code=code,

@@ -5,7 +5,17 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Index, Integer, String, true
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    false,
+    true,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -21,7 +31,11 @@ class MCPControlModel(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, default=1)
     enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    read_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, server_default=true())
+    write_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default=false())
     allowed_read_sections: Mapped[list[str]] = mapped_column(JSONB, nullable=False, default=list)
+    allowed_write_sections: Mapped[list[str]] = mapped_column(JSONB, nullable=False, default=list, server_default="[]")
+    allowed_write_tools: Mapped[list[str]] = mapped_column(JSONB, nullable=False, default=list, server_default="[]")
     read_access_revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
@@ -31,6 +45,7 @@ class MCPGrantModel(Base):
     __table_args__ = (
         CheckConstraint("security_version >= 1", name="ck_mcp_grant_security_version"),
         CheckConstraint("expires_at > created_at", name="ck_mcp_grant_expiry"),
+        CheckConstraint("permission_revision >= 1", name="ck_mcp_grant_permission_revision"),
         CheckConstraint(
             "device_platform IS NULL OR device_platform IN ('Windows', 'macOS', 'Other')",
             name="ck_mcp_grant_device_platform",
@@ -43,6 +58,11 @@ class MCPGrantModel(Base):
     client_id: Mapped[str] = mapped_column(String(200))
     name: Mapped[str] = mapped_column(String(120))
     enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, server_default=true())
+    read_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, server_default=true())
+    write_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default=false())
+    allowed_read_sections: Mapped[list[str] | None] = mapped_column(JSONB, nullable=True)
+    allowed_write_sections: Mapped[list[str]] = mapped_column(JSONB, nullable=False, default=list, server_default="[]")
+    permission_revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1, server_default="1")
     device_platform: Mapped[str | None] = mapped_column(String(16), nullable=True)
     resource: Mapped[str] = mapped_column(String(512))
     capabilities: Mapped[list[str]] = mapped_column(JSONB)
@@ -105,6 +125,10 @@ class MCPConnectionRequestModel(Base):
     code_challenge: Mapped[str] = mapped_column(String(43))
     requested_capabilities: Mapped[list[str]] = mapped_column(JSONB)
     approved_capabilities: Mapped[list[str] | None] = mapped_column(JSONB, nullable=True)
+    read_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, server_default=true())
+    write_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default=false())
+    allowed_read_sections: Mapped[list[str] | None] = mapped_column(JSONB, nullable=True)
+    allowed_write_sections: Mapped[list[str]] = mapped_column(JSONB, nullable=False, default=list, server_default="[]")
     name: Mapped[str] = mapped_column(String(120))
     device_platform: Mapped[str] = mapped_column(String(16))
     status: Mapped[str] = mapped_column(String(16), default="pending")

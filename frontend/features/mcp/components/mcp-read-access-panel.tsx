@@ -23,7 +23,7 @@ export function McpReadAccessPanel({ overviewUnavailable }: {
   const valid = query.data && validReadAccess(query.data);
   return <>
     <section aria-label="Sidebar read access" className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
-      <div><h2 className="text-base font-semibold text-slate-950">What Codex can read</h2>
+      <div><h2 className="text-base font-semibold text-slate-950">Read settings</h2>
         <p className="mt-2 text-sm leading-6 text-slate-600">Allow or deny the available reads for each sidebar section. These settings apply to all MCP connections. Your normal website access stays the same.</p></div>
       <McpError error={query.error} onRetry={() => void query.refetch()} />
       {query.isPending ? <p role="status" className="text-sm text-slate-500">Checking saved read settings…</p> : null}

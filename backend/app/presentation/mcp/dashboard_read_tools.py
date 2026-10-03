@@ -20,7 +20,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mcp.authorization import MCPPrincipal
 from app.application.mcp.credentials import MCPAuthError
-from app.application.mcp.read_access import MCPReadSectionDenied, current_read_access
+from app.application.mcp.permissions import current_device_read_access
+from app.application.mcp.read_access import MCPReadSectionDenied
 from app.application.mcp.read_context import MCPReadContext
 from app.application.mcp.read_projection import ReadProjection
 from app.core.config.settings import Settings
@@ -104,7 +105,7 @@ async def read_dashboard(app: FastAPI, settings: Settings, session: AsyncSession
     definition = DASHBOARD_READS.get(view)
     if definition is None:
         raise MCPInputError("unknown_dashboard_view", "Choose a view from list_dashboard_read_views")
-    allowed, revision = await current_read_access(session, lock=True)
+    allowed, revision = await current_device_read_access(session, principal.grant_id, lock=True)
     if definition.sections - set(allowed):
         # The generic tool has no static business domain; every selected view
         # separately enforces its complete live section union before loading.
@@ -212,7 +213,7 @@ def register_dashboard_read_tools(server: MCPServer, app: FastAPI, settings: Set
         not business read authority; each chosen view independently rechecks it.
         """
         async def read(session: AsyncSession, _principal: MCPPrincipal):
-            allowed, revision = await current_read_access(session)
+            allowed, revision = await current_device_read_access(session, _principal.grant_id)
             selected = [(name, definition) for name, definition in sorted(DASHBOARD_READS.items())
                 if (section is None or section in definition.sections) and (view is None or view == name)]
             if view is not None and view not in DASHBOARD_READS:

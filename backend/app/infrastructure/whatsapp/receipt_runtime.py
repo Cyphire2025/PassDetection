@@ -213,6 +213,11 @@ async def _apply_to_source(
             provider_status_at=timestamp,
             now=now,
         )
+        from app.infrastructure.whatsapp.mcp_document_progress import (
+            refresh_document_dispatch_progress,
+        )
+
+        await refresh_document_dispatch_progress(session, source.send_batch_id)
         if not released and source.status in ACCEPTED_STATUSES and source.passenger_id is not None:
             await propagate_mobile_passenger_change(
                 session,

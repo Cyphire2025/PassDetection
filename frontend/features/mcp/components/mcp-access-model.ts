@@ -1,5 +1,6 @@
 import type { McpCapability, McpConnection, McpInventory, McpOverview } from "../api/mcp.api";
 import { effectiveMcpCapabilities } from "../utils/read-only";
+import { MCP_WRITE_CAPABILITIES } from "../utils/permissions";
 
 export const CODEX_CLIENT_ID = "global-connects-desktop";
 export const CODEX_CALLBACK = "http://127.0.0.1:8765/callback";
@@ -11,14 +12,20 @@ export function isGlobalConnectsClient(clientId: string) {
 export function connectionHasAccess(connection: McpConnection) {
   return connection.status === "active" && connection.enabled !== false;
 }
+function allowsCapability(connection: McpConnection, capability: McpCapability) {
+  if (!connection.capabilities.includes(capability)) return false;
+  if (capability === "mcp:read") return connection.read_enabled !== false;
+  if (MCP_WRITE_CAPABILITIES.includes(capability)) return connection.write_enabled !== false;
+  return true;
+}
 
 export function accessStatus(overview: McpOverview, connections: McpConnection[], uncertain: boolean, partial: boolean) {
   if (uncertain) return { title: "Access status unavailable", description: "Refresh the status before relying on this saved authorization.", authorized: false };
-  if (!overview.deployment_enabled) return { title: "Not available", description: "Codex access is not enabled for this website. Contact your administrator for setup.", authorized: false };
+  if (!overview.deployment_enabled) return { title: "Not available", description: "MCP access is not enabled for this website. Contact your administrator for setup.", authorized: false };
   if (!overview.enabled || overview.emergency_disabled) return { title: "Access paused", description: "All Codex connections are paused. Your saved connections and application data are retained.", authorized: false };
-  if (connections.some((connection) => connectionHasAccess(connection) && connection.capabilities.some((capability) => effectiveMcpCapabilities(overview).includes(capability)))) return { title: "Codex is authorized", description: "A saved connection has access for your account. This does not tell us whether the app is open or online.", authorized: true };
+  if (connections.some((connection) => connectionHasAccess(connection) && effectiveMcpCapabilities(overview).some((capability) => allowsCapability(connection, capability)))) return { title: "Codex is authorized", description: "A saved connection is approved for your account. Its allowances and the section settings determine which actions it may use. This does not tell us whether the app is open or online.", authorized: true };
   if (partial) return { title: "More connections to check", description: "There is no usable Codex authorization on this page. Check the other connection pages before signing in again.", authorized: false };
-  if (connections.some(connectionHasAccess)) return { title: "No available permissions", description: "Review this device’s permissions in Devices and the saved read policy in Settings.", authorized: false };
+  if (connections.some(connectionHasAccess)) return { title: "No available permissions", description: "Review this device’s allowances in Devices and the saved read and write settings.", authorized: false };
   if (connections.some((connection) => connection.status === "disabled" || (connection.status === "active" && connection.enabled === false))) return { title: "Your connections are disabled", description: "Enable a saved connection in Devices to allow access again.", authorized: false };
   return { title: "Approval needed", description: "Click Authenticate in your MCP app and ask an administrator to approve the matching request.", authorized: false };
 }
@@ -42,5 +49,5 @@ export function exampleAvailable(overview: McpOverview, inventory: McpInventory 
 }
 
 export function hasPermission(connections: McpConnection[], capabilities: McpCapability[]) {
-  return connections.some((connection) => connectionHasAccess(connection) && capabilities.every((capability) => connection.capabilities.includes(capability)));
+  return connections.some((connection) => connectionHasAccess(connection) && capabilities.every((capability) => allowsCapability(connection, capability)));
 }

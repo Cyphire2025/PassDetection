@@ -26,7 +26,7 @@ function ConsentRequest({ parameters }: { parameters: McpAuthorizationParameters
       <h1 className="text-lg font-semibold text-slate-950">Connection request could not be verified</h1><p className="mt-2 text-sm text-slate-700">Return to the app you are connecting and start sign-in again. No access has been granted.</p>
     </div> : null}
     {overview.data && request ? <ConsentForm key={JSON.stringify(request)} request={request} overview={overview.data} unavailable={overview.isError || overview.isFetching} /> : null}
-    <Link href={ROUTES.dashboard.mcp} className="inline-block text-sm font-medium text-blue-700 hover:underline">Return to Codex access</Link>
+    <Link href={ROUTES.dashboard.mcp} className="inline-block text-sm font-medium text-blue-700 hover:underline">Return to MCP</Link>
   </div>;
 }
 
@@ -67,10 +67,10 @@ function ConsentForm({ request, overview, unavailable }: { request: McpAuthoriza
     <div className="flex items-start gap-3"><span className="rounded-xl border border-slate-200 p-3 text-slate-600"><Plug className="h-5 w-5" aria-hidden="true" /></span><div>
       <h1 className="text-xl font-semibold tracking-tight text-slate-950">{appName === "app" ? "Connect an approved app" : `Connect ${appName}`}</h1><p className="mt-1 text-sm text-slate-500">Choose how it can help you in Global Connects.</p>
     </div></div>
-    <p className="mt-5 text-sm leading-6 text-slate-600">Name this connection so you can recognize it in Devices, then review its permissions. Access lasts up to seven days. Enable or disable it from the Codex access page at any time.</p>
-    {isMcpReadOnlyMode(overview) ? <p className="mt-4 rounded-lg bg-blue-50 p-3 text-sm text-blue-950">This is a read-only connection. Only the sidebar sections allowed on the Codex access page can be read. Saved section settings apply to every connection.</p> : null}
+    <p className="mt-5 text-sm leading-6 text-slate-600">Name this connection so you can recognize it in Devices, then review its permissions. Access lasts up to seven days. Enable or disable it from the MCP page at any time.</p>
+    {isMcpReadOnlyMode(overview) ? <p className="mt-4 rounded-lg bg-blue-50 p-3 text-sm text-blue-950">This is a read-only connection. Only the sidebar sections allowed on the MCP page can be read. Saved section settings apply to every connection.</p> : null}
     {!overview.enabled ? <p role="alert" className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">{overview.deployment_enabled
-      ? "Access is paused. Resume it on the Codex access page before connecting."
+      ? "Access is paused. Resume it on the MCP page before connecting."
       : "Connections are not available on this site yet."}</p> : null}
     <fieldset disabled={pending || !overview.enabled || unavailable} className="mt-5 space-y-5">
       <Input label="Connection name" placeholder="For example, Office Windows or My MacBook" value={name} required maxLength={120} autoComplete="off" onChange={(event) => setName(event.target.value)} />

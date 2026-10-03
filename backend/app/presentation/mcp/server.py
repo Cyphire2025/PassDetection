@@ -19,10 +19,10 @@ from starlette.middleware import Middleware
 
 from app.application.mcp.authorization import MCPAuthorizationService, MCPPrincipal
 from app.application.mcp.credentials import MCPAuthError
-from app.application.mcp.read_access import current_read_access
 from app.core.config.settings import Settings
 from app.domain.mcp_policy import MCPCapability, MCPToolPolicy
 from app.domain.mcp_read_sections import READ_TOOL_SECTIONS, read_section_catalog
+from app.domain.mcp_section_permissions import WRITE_TOOL_SECTIONS
 from app.infrastructure.database.session import AsyncSessionFactory
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.presentation.mcp.access_change_tools import register_access_change_tools
@@ -31,13 +31,19 @@ from app.presentation.mcp.analytics_read_tools import register_analytics_read_to
 from app.presentation.mcp.announcement_tools import register_announcement_tools
 from app.presentation.mcp.attendance_read_tools import register_attendance_read_tools
 from app.presentation.mcp.broadcast_link_tools import register_broadcast_link_tools
+from app.presentation.mcp.broadcast_write_tools import register_broadcast_write_tools
+from app.presentation.mcp.business_admin_tools import register_business_admin_tools
 from app.presentation.mcp.client_detail_tools import register_client_detail_tools
 from app.presentation.mcp.contact_import_tools import register_contact_import_tools
 from app.presentation.mcp.content_read_tools import register_content_read_tools
+from app.presentation.mcp.dashboard_edit_tools import register_dashboard_edit_tools
 from app.presentation.mcp.dashboard_read_tools import register_dashboard_read_tools
 from app.presentation.mcp.dashboard_tools import register_dashboard_tools
+from app.presentation.mcp.dashboard_workflow_tools import register_dashboard_workflow_tools
 from app.presentation.mcp.delivery_read_tools import register_delivery_read_tools
-from app.presentation.mcp.diagnostic_tools import register_diagnostic_tools
+from app.presentation.mcp.diagnostic_tools import DIAGNOSTIC_TOOL_NAMES, register_diagnostic_tools
+from app.presentation.mcp.document_assignment_tools import register_document_assignment_tools
+from app.presentation.mcp.document_delivery_tools import register_document_delivery_tools
 from app.presentation.mcp.document_export_tools import register_document_assignment_export_tools
 from app.presentation.mcp.document_read_tools import register_document_read_tools
 from app.presentation.mcp.ecr_read_tools import register_ecr_read_tools
@@ -48,19 +54,26 @@ from app.presentation.mcp.export_tools import register_export_tools
 from app.presentation.mcp.gc_push_tools import register_gc_push_tools
 from app.presentation.mcp.group_change_tools import register_group_change_tools
 from app.presentation.mcp.group_tools import register_group_tools
+from app.presentation.mcp.group_workbook_tools import register_group_workbook_tools
 from app.presentation.mcp.image_export_tools import register_image_export_tools
 from app.presentation.mcp.invocation import InvocationAuditMiddleware, invoke_read
+from app.presentation.mcp.native_transfer_tools import register_native_transfer_tools
 from app.presentation.mcp.notification_tools import register_notification_tools
 from app.presentation.mcp.office_change_tools import register_office_change_tools
 from app.presentation.mcp.operation_tools import register_operation_tools
 from app.presentation.mcp.operations_read_tools import register_operations_read_tools
 from app.presentation.mcp.pdf_ingestion_tools import register_pdf_ingestion_tools
+from app.presentation.mcp.permission_listing import (
+    PermissionListingMiddleware,
+    tool_access_snapshot,
+)
 from app.presentation.mcp.phone_difference_read_tools import register_phone_difference_read_tools
 from app.presentation.mcp.rate_limit import MCPConnectionRateLimit
 from app.presentation.mcp.rename_read_tools import register_rename_read_tools
 from app.presentation.mcp.retention_read_tools import register_retention_read_tools
 from app.presentation.mcp.rooming_export_tools import register_rooming_export_tools
 from app.presentation.mcp.tour_change_tools import register_tour_change_tools
+from app.presentation.mcp.tour_evidence_tools import register_tour_evidence_tools
 from app.presentation.mcp.tracking_export_tools import register_tracking_export_tools
 from app.presentation.mcp.whatsapp_intent_tools import register_whatsapp_intent_tools
 from app.presentation.mcp.whatsapp_message_tools import register_whatsapp_message_tools
@@ -118,10 +131,30 @@ class ObservationalMCPServer(MCPServer):
         return reviewed
 
 
+class ReviewedMCPServer(MCPServer):
+    """Mixed releases expose only code-owned observational or effect adapters."""
+
+    def tool(self, *args, **kwargs):
+        register = super().tool(*args, **kwargs)
+
+        def reviewed(function):
+            name = kwargs.get("name") or (args[0] if args else None) or function.__name__
+            capability = (kwargs.get("meta") or {}).get("capability")
+            if (name in READ_TOOL_SECTIONS and capability == "mcp:read"
+                    or name in WRITE_TOOL_SECTIONS and capability in {"mcp:change", "mcp:upload", "mcp:export", "mcp:communicate"}
+                    or name in DIAGNOSTIC_TOOL_NAMES and capability == "mcp:diagnose"
+                    and kwargs.get("annotations") is not None and kwargs["annotations"].read_only_hint is True
+                    or name == "inspect_operation" and capability == "original_operation_capability"):
+                return register(function)
+            return function
+
+        return reviewed
+
+
 def install_mcp(app: FastAPI, settings: Settings) -> None:
     app.state.mcp_session_factory = AsyncSessionFactory
     app.state.mcp_operations = {}
-    server_class = ObservationalMCPServer if settings.mcp.read_only_mode else MCPServer
+    server_class = ObservationalMCPServer if settings.mcp.read_only_mode else ReviewedMCPServer
     server = server_class(
         "Global Connects",
         version="0.1.0",
@@ -144,16 +177,25 @@ def install_mcp(app: FastAPI, settings: Settings) -> None:
             "Ask only for missing or ambiguous details; reuse the user's existing choices and explicit intent. "
             "Resolve names and identifiers with authorized tools instead of asking the user for internal IDs. "
             "For sending, inspect the exact prepared content, template/image, audience and exclusions. "
-            "When prior explicit user direction unambiguously covers that resolved plan, summarize it and use "
-            "the required exact-hash confirmation tool without asking for a second approval or a dashboard visit. "
-            "Otherwise ask only for the unresolved choice or missing send authorization. A preparation-only "
-            "request never authorizes sending. Recipient opt-in is a separate fact and must not be inferred "
+            "Ask what content the user wants sent. Present the exact prepared message, selected recipients, "
+            "attachments and exclusions, then ask for final confirmation before every outgoing send. "
+            "Use the exact-hash confirmation tool only after that final approval. Creating a broadcast, "
+            "importing people, uploading or matching documents never authorizes sending. "
+            "Ask for the user's collection settings and custom questions before creating a group link. "
+            "Read and write permissions apply independently to each device and section at every step. "
+            "Recipient opt-in is a separate fact and must not be inferred "
             "from a request to send. Preserve original retry keys and reconcile uncertain outcomes before retrying. "
             "No deletion, archival, removal, destructive replacement or server control is available. "
             "Capability availability is release-specific; do not claim unsupported workflows succeeded."
+            " Discover current typed write schemas with list_dashboard_write_workflows and revisions "
+            "with inspect_dashboard_write. To use a provided Excel/PDF, prepare one create_native_upload "
+            "per exact source file, transfer it through the returned limited browser handoff or HTTP "
+            "content endpoint, then inspect and import/ingest the staged source. Never invent local "
+            "file paths, fetch arbitrary URLs or ask the user to install a connector. Deliver generated "
+            "exports with create_native_download and acknowledge only verified saved bytes."
         ),
         token_verifier=ConnectionTokenVerifier(app, settings),
-        middleware=[InvocationAuditMiddleware(app)],
+        middleware=[InvocationAuditMiddleware(app), PermissionListingMiddleware(app, settings)],
         auth=AuthSettings(
             issuer_url=AnyHttpUrl(settings.mcp.public_origin),
             resource_server_url=AnyHttpUrl(settings.mcp.resource),
@@ -172,24 +214,36 @@ def install_mcp(app: FastAPI, settings: Settings) -> None:
         """Inspect this connection's current authority, environment and qualification status."""
 
         async def read_status(_session: AsyncSession, principal: MCPPrincipal) -> dict[str, object]:
-            allowed, read_revision = await current_read_access(_session)
+            grant = await MCPAuthorizationService(_session, settings).require_grant(principal.grant_id)
+            access = await tool_access_snapshot(_session, settings, grant=grant)
+            tools = access.filter_tools(await server.list_tools())
+            export_available = "exports" in access.write_sections and any((tool.meta or {}).get("capability") == "mcp:export" for tool in tools)
             return {
                 "connection_id": str(principal.grant_id),
                 "capabilities": list(principal.capabilities),
-                "effective_capabilities": list(principal.capabilities),
+                "effective_capabilities": access.available_capabilities(tools),
                 "read_only_mode": settings.mcp.read_only_mode,
-                "allowed_read_sections": allowed,
-                "read_access_revision": read_revision,
+                "read_enabled": access.read_enabled,
+                "write_enabled": access.write_enabled,
+                "global_read_enabled": access.global_read_enabled,
+                "global_write_enabled": access.global_write_enabled,
+                "device_read_enabled": access.device_read_enabled,
+                "device_write_enabled": access.device_write_enabled,
+                "allowed_read_sections": sorted(access.read_sections),
+                "allowed_write_sections": sorted(access.write_sections),
+                "allowed_write_tools": sorted(tool.name for tool in tools if (tool.meta or {}).get("capability") in {"mcp:change", "mcp:upload", "mcp:export", "mcp:communicate", "original_operation_capability"}),
+                "read_access_revision": access.read_access_revision,
+                "device_permission_revision": access.device_permission_revision,
                 "read_section_coverage": read_section_catalog(),
                 "environment": settings.app_env,
                 "revision": settings.app_revision,
                 "observed_at": datetime.now(UTC).isoformat(),
                 "completeness": "complete",
                 "qualification": "in_progress",
-                "export_families": [] if settings.mcp.read_only_mode else list(settings.mcp.export_families),
-                "export_source_row_limit": 0 if settings.mcp.read_only_mode else settings.mcp.export_source_row_limit,
-                "export_source_byte_limit": 0 if settings.mcp.read_only_mode else settings.mcp.export_source_byte_limit,
-                "implemented_tools": [tool.name for tool in await server.list_tools()],
+                "export_families": list(settings.mcp.export_families) if export_available else [],
+                "export_source_row_limit": settings.mcp.export_source_row_limit if export_available else 0,
+                "export_source_byte_limit": settings.mcp.export_source_byte_limit if export_available else 0,
+                "implemented_tools": [tool.name for tool in tools],
             }
 
         return await invoke_read(
@@ -230,6 +284,15 @@ def install_mcp(app: FastAPI, settings: Settings) -> None:
     register_whatsapp_intent_tools(app, server, settings)
     register_whatsapp_message_tools(app, server, settings)
     register_office_change_tools(server, app, settings)
+    register_dashboard_edit_tools(server, app, settings)
+    register_broadcast_write_tools(server, app, settings)
+    register_business_admin_tools(server, app, settings)
+    register_tour_evidence_tools(server, app, settings)
+    register_dashboard_workflow_tools(server, app, settings)
+    register_document_assignment_tools(server, app, settings)
+    register_document_delivery_tools(server, app, settings)
+    register_group_workbook_tools(server, app, settings)
+    register_native_transfer_tools(server, app, settings)
     register_contact_import_tools(app, server, settings)
     register_pdf_ingestion_tools(server, app, settings)
     register_tour_change_tools(server, app, settings)

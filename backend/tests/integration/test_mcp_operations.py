@@ -21,6 +21,8 @@ from app.application.mcp.operations import (
 )
 from app.core.config.mcp import MCPSettings
 from app.domain.mcp_policy import MCPCapability, MCPToolPolicy
+from app.domain.mcp_read_sections import SUPPORTED_READ_SECTIONS
+from app.domain.mcp_section_permissions import SUPPORTED_WRITE_SECTIONS, WRITE_TOOL_SECTIONS
 from app.infrastructure.database.mcp_models import MCPControlModel, MCPGrantModel, MCPTokenModel
 from app.infrastructure.database.mcp_operation_models import MCPOperationModel
 from app.infrastructure.database.models import AgencyModel, UserModel, UserSecurityStateModel
@@ -59,6 +61,8 @@ async def seed_identity(session, settings, *, email="operation-admin@example.tes
             name=f"Fixture {index}",
             resource=settings.mcp.resource,
             capabilities=["mcp:change"],
+            write_enabled=True,
+            allowed_write_sections=sorted(SUPPORTED_WRITE_SECTIONS),
             security_version=1,
             mfa_at=now,
             created_at=now,
@@ -83,9 +87,18 @@ async def seed_identity(session, settings, *, email="operation-admin@example.tes
 
 
 @pytest.fixture
-async def operations_fixture(db_session, test_settings):
+async def operations_fixture(db_session, test_settings, monkeypatch):
     settings = test_settings.model_copy(update={"mcp": MCPSettings(enabled=True)})
-    db_session.add(MCPControlModel(id=1, enabled=True))
+    # Synthetic callbacks require explicit reviewed test policies, exactly as
+    # real adapters require code-owned mappings and live dashboard allowance.
+    names = ("test.create_agency", "test.other_operation")
+    for name in names:
+        monkeypatch.setitem(WRITE_TOOL_SECTIONS, name, frozenset({"all_groups"}))
+    # This explicit synthetic baseline permits reviewed child adapters. Individual
+    # denial fixtures save narrower policies; production defaults remain write off.
+    db_session.add(MCPControlModel(id=1, enabled=True, write_enabled=True,
+                                  allowed_read_sections=sorted(SUPPORTED_READ_SECTIONS),
+                                  allowed_write_sections=sorted(SUPPORTED_WRITE_SECTIONS), allowed_write_tools=sorted(WRITE_TOOL_SECTIONS)))
     user, grants, tokens = await seed_identity(db_session, settings)
     await db_session.commit()
     # sqlite's legacy driver does not BEGIN on SELECT. Force a real outer

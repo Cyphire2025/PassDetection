@@ -30,6 +30,11 @@ from tests.integration.test_mcp_authorization import mcp_fixture as mcp_fixture
 @pytest.fixture
 async def readonly_mcp(mcp_fixture):
     old_client, session, settings, user, security, dashboard = mcp_fixture
+    # This suite exercises the explicit empty read policy, independently of
+    # the shared fixture's fully allowed observation baseline.
+    control = await session.get(MCPControlModel, 1)
+    control.allowed_read_sections = []
+    await session.flush()
     # An actual formerly authorized broad grant survives this deployment.
     _, tokens = await connect(mcp_fixture, scopes=sorted(CAPABILITIES))
     settings.mcp.read_only_mode = True
@@ -78,14 +83,16 @@ async def test_sdk_lists_only_explicit_observations_and_metadata_has_effective_a
     client, session, _, _, _, dashboard, tokens, app = readonly_mcp
     tools = await app.state.mcp_server.list_tools()
     assert {tool.name for tool in tools} == set(READ_TOOL_SECTIONS)
-    assert len(tools) == 35
+    assert len(tools) == 44
     assert all(tool.annotations.read_only_hint and tool.meta["capability"] == "mcp:read" for tool in tools)
     # This reaches the real SDK tools/list handler with a legacy broad bearer.
     listing = await client.post("/mcp", headers={
         "Authorization": f"Bearer {tokens['access_token']}", "Accept": "application/json, text/event-stream",
         "MCP-Protocol-Version": "2025-11-25",
     }, json={"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}})
-    assert {row["name"] for row in listing.json()["result"]["tools"]} == set(READ_TOOL_SECTIONS)
+    assert {row["name"] for row in listing.json()["result"]["tools"]} == {
+        name for name, required in READ_TOOL_SECTIONS.items() if not required
+    }
     status = tool_result(await call_mcp(client, tokens["access_token"]))
     assert status["read_only_mode"] is True and status["capabilities"] == ["mcp:read"]
     assert status["allowed_read_sections"] == [] and status["export_families"] == []
@@ -159,7 +166,7 @@ async def test_current_section_denial_reenable_and_dependency_revocation_precede
     service = AsyncMock(return_value={"items": [], "has_more": False, "next_cursor": None})
     monkeypatch.setattr(MCPGroupReadService, "list_groups", service)
     denied = tool_result(await call_mcp(client, tokens["access_token"], name="list_groups"))
-    assert denied["error"] == "access_denied" and "Review Codex access" in denied["message"]
+    assert denied["error"] == "access_denied" and "Review MCP settings" in denied["message"]
     assert denied["required_sections"] == ["all_groups", "old_data", "whatsapp"]
     service.assert_not_awaited()
     needed = sorted(READ_TOOL_SECTIONS["list_groups"])

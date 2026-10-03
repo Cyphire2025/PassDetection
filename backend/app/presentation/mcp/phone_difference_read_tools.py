@@ -9,12 +9,30 @@ from pydantic import Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mcp.authorization import MCPPrincipal
-from app.application.mcp.phone_difference_reads import MCPPhoneDifferenceReadService
+from app.application.mcp.phone_difference_reads import (
+    MCPPhoneDifferenceReadService,
+    PhoneDifferenceSupport,
+)
 from app.application.mcp.read_access import current_read_access
 from app.core.config.settings import Settings
 from app.domain.mcp_policy import MCPCapability, MCPToolPolicy
+from app.presentation.api.v1.routes.client_group_whatsapp_match_support import (
+    load_current_whatsapp_match_rows,
+)
+from app.presentation.api.v1.routes.client_groups import (
+    _linked_broadcast_matching_fields_for_group,
+    _linked_broadcast_names_for_group,
+)
 from app.presentation.mcp.invocation import MCPInputError, invoke_read
 from app.presentation.mcp.observational_session import observational_session
+
+
+def phone_difference_support() -> PhoneDifferenceSupport:
+    return PhoneDifferenceSupport(
+        linked_names=_linked_broadcast_names_for_group,
+        matching_fields=_linked_broadcast_matching_fields_for_group,
+        load_rows=load_current_whatsapp_match_rows,
+    )
 
 
 def register_phone_difference_read_tools(server: MCPServer, app: FastAPI, settings: Settings):
@@ -42,7 +60,8 @@ def register_phone_difference_read_tools(server: MCPServer, app: FastAPI, settin
             _, revision = await current_read_access(session, lock=True)
             try:
                 async with observational_session(session):
-                    result = await MCPPhoneDifferenceReadService(session, cursor_secret=settings.app_secret_key).read(
+                    result = await MCPPhoneDifferenceReadService(session, cursor_secret=settings.app_secret_key,
+                                                                 support=phone_difference_support()).read(
                         user_id=principal.user_id, group_id=group_id, broadcast_id=broadcast_id,
                         agency_id=agency_id, offset=offset, page_size=page_size, snapshot_revision=snapshot_revision)
                 result["read_access_revision"] = revision

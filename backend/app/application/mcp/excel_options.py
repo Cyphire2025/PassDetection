@@ -59,7 +59,9 @@ class MCPExcelOptionsService:
         self._exports = MCPExcelExportService(session, settings, support)
 
     @admitted_export
-    async def inspect(self, principal: MCPPrincipal, request: ExcelExportOptionsRequest) -> dict[str, Any]:
+    async def inspect(
+        self, principal: MCPPrincipal, request: ExcelExportOptionsRequest
+    ) -> dict[str, Any]:
         try:
             return await self._inspect_options(principal, request)
         except DBAPIError as exc:
@@ -68,22 +70,37 @@ class MCPExcelOptionsService:
             raise
 
     async def _inspect_options(
-        self, principal: MCPPrincipal, request: ExcelExportOptionsRequest,
+        self,
+        principal: MCPPrincipal,
+        request: ExcelExportOptionsRequest,
     ) -> dict[str, Any]:
         if "passport_excel" not in self.settings.mcp.export_families:
             raise ArtifactError("Excel options are unavailable in this deployment", 404)
-        await self._exports.artifacts._authority(principal, "mcp:export", lock=True)
+        await self._exports.artifacts._authority(
+            principal,
+            "mcp:export",
+            lock=True,
+            tool_name="inspect_excel_export_options",
+        )
         budget = ExportSourceBudget(self.session, self.settings)
         actor, groups = await self._exports._scope(
-            principal, ExcelExportRequest(**request.model_dump()), budget,
+            principal,
+            ExcelExportRequest(**request.model_dump()),
+            budget,
         )
         await admit_excel_sources(
-            budget, agency_id=request.agency_id, group_ids=request.group_ids,
-            submission_ids=None, baseline_export_id=None, include_workbook_sources=False,
+            budget,
+            agency_id=request.agency_id,
+            group_ids=request.group_ids,
+            submission_ids=None,
+            baseline_export_id=None,
+            include_workbook_sources=False,
         )
         if request.selection == "group":
             submissions = await self.support.group._current_group_export_submissions(
-                self.session, group_id=request.group_ids[0], agency_id=request.agency_id,
+                self.session,
+                group_id=request.group_ids[0],
+                agency_id=request.agency_id,
                 current_user=actor,
             )
         else:
@@ -93,18 +110,28 @@ class MCPExcelOptionsService:
                     PassportSubmissionModel.group_id.in_(request.group_ids),
                     PassportSubmissionModel.status.in_(OFFICE_VISIBLE_PASSPORT_STATUS_VALUES),
                     operational_roster_member(),
-                ), actor,
+                ),
+                actor,
             )
-            rows = (await self.session.scalars(statement.order_by(PassportSubmissionModel.id)
-                    .limit(budget.row_limit + 1).execution_options(populate_existing=True))).all()
+            rows = (
+                await self.session.scalars(
+                    statement.order_by(PassportSubmissionModel.id)
+                    .limit(budget.row_limit + 1)
+                    .execution_options(populate_existing=True)
+                )
+            ).all()
             if len(rows) > budget.row_limit:
                 raise ArtifactError("Export sources exceed the configured row limit", 413)
             submissions = [PassportSubmissionRepository._to_entity(row) for row in rows]
         rows_by_group = await self.support.group._export_whatsapp_match_rows(
-            self.session, submissions, groups=groups,
+            self.session,
+            submissions,
+            groups=groups,
         )
         options = project_excel_export_options(
-            groups=groups, submissions=submissions, rows_by_group=rows_by_group,
+            groups=groups,
+            submissions=submissions,
+            rows_by_group=rows_by_group,
             selection=request.selection,
             support=ExcelOptionsSupport(
                 self.support.group._export_field_catalog,
@@ -116,7 +143,8 @@ class MCPExcelOptionsService:
         if len(options.fields) > MAX_FIELDS or len(options.agency_match_fields) > MAX_FIELDS:
             raise ArtifactError("Excel options exceed the field limit", 413)
         result = {
-            **request.model_dump(mode="json"), **options.model_dump(mode="json"),
+            **request.model_dump(mode="json"),
+            **options.model_dump(mode="json"),
             "agency_match_supported": request.selection == "group",
             "maximum_source_rows_per_family": budget.row_limit,
             "maximum_source_bytes": self.settings.mcp.export_source_byte_limit,

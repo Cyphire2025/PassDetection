@@ -15,9 +15,11 @@ export const API_ENDPOINTS = {
   mcp: {
     overview: "/api/v1/admin/mcp",
     readAccess: "/api/v1/mcp/read-access",
+    permissions: "/api/v1/admin/mcp/permissions",
     connections: "/api/v1/admin/mcp/connections",
     connection: (id: string) => `/api/v1/admin/mcp/connections/${encodeURIComponent(id)}`,
     connectionAccess: (id: string) => `/api/v1/admin/mcp/connections/${encodeURIComponent(id)}/access`,
+    connectionPermissions: (id: string) => `/api/v1/admin/mcp/connections/${encodeURIComponent(id)}/permissions`,
     requests: "/api/v1/admin/mcp/connection-requests",
     approveRequest: (id: string) => `/api/v1/admin/mcp/connection-requests/${encodeURIComponent(id)}/approve`,
     rejectRequest: (id: string) => `/api/v1/admin/mcp/connection-requests/${encodeURIComponent(id)}/reject`,

@@ -25,6 +25,7 @@ from app.application.mcp.operations import (
     MCPDatabaseResult,
     MCPOperationError,
 )
+from app.application.mcp.permissions import require_tool_access
 from app.application.mobile.authored_notification_preview import create_preview_token
 from app.application.mobile.authored_notification_service import send_notification
 from app.application.mobile.notification_errors import NotificationWorkflowError
@@ -138,7 +139,7 @@ def gc_push_operations(settings: Settings) -> tuple[MCPDatabaseOperation, ...]:
         )
 
     async def confirm(context: MCPDatabaseContext, payload: dict[str, Any]) -> MCPDatabaseResult:
-        if set(payload) != {"plan_id", "plan_hash"}:
+        if set(payload) != {"plan_id", "plan_hash", "user_confirmed"} or payload.get("user_confirmed") is not True:
             raise MCPOperationError("invalid_gc_push_plan")
         plan = await owned_plan(context, uuid.UUID(payload["plan_id"]), lock=True)
         if payload["plan_hash"] != plan.snapshot_hash:
@@ -152,6 +153,7 @@ def gc_push_operations(settings: Settings) -> tuple[MCPDatabaseOperation, ...]:
         auth = MCPAuthorizationService(context.session, settings)
         original = await auth.require_grant(plan.original_grant_id)
         auth.require_capability(original, MCPCapability.COMMUNICATE.value)
+        await require_tool_access(context.session, settings, original.id, "confirm_gc_push", "mcp:communicate", lock=False)
         if original.user_id != context.principal.user_id:
             raise MCPAuthError("access_denied", 403)
         snapshot = await collect_snapshot(

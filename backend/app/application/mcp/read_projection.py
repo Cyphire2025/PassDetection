@@ -11,7 +11,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 from urllib.parse import parse_qs, urlsplit
 
-from fastapi.encoders import jsonable_encoder
+from pydantic_core import to_jsonable_python
 
 MAX_DATA_CHARS = 24000
 SECRET_FIELDS = frozenset({
@@ -63,7 +63,7 @@ def scrub_read(value: Any) -> tuple[Any, list[list[str | int]]]:
             node = re.sub(r'https?://[^\s<>"\x27]+', url_value, node)
         return node
 
-    return scrub(jsonable_encoder(value), []), withheld
+    return scrub(to_jsonable_python(value), []), withheld
 
 
 class ReadProjection:

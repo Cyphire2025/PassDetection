@@ -1,4 +1,5 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
+import { permissionFixture } from "../features/mcp/utils/permissions.test-fixture";
 
 const resource = "https://app.example.test/mcp";
 const callback = "http://127.0.0.1:49153/callback";
@@ -14,8 +15,13 @@ async function setup(page: Page, role = "super_admin", requireStepUp = false) {
   const deleted = new Set<string>();
   let deletionFailures = 0;
   let deletionWait: Promise<void> | null = null;
+  let policy = permissionFixture();
+  let permissionConflict = false;
+  let permissionWait: Promise<void> | null = null;
   let grant = { id: "grant-a", user_id: "mcp-test-admin", client_id: oauth.client_id, name: "Office desktop", capabilities: ["mcp:read", "mcp:export"],
-    device_platform: "Windows", enabled: true, created_at: "2026-09-29T00:00:00Z", expires_at: "2099-10-06T00:00:00Z", last_used_at: "2026-09-29T12:00:00Z", revoked_at: null as string | null, status: "active" };
+    device_platform: "Windows", enabled: true, read_enabled: true, write_enabled: false, allowed_read_sections: null as string[] | null,
+    allowed_write_sections: [] as string[], permission_revision: 3,
+    created_at: "2026-09-29T00:00:00Z", expires_at: "2099-10-06T00:00:00Z", last_used_at: "2026-09-29T12:00:00Z", revoked_at: null as string | null, status: "active" };
   const connectionRequests = [
     { id: "00000000-0000-4000-8000-000000000011", name: "New Codex connection", client_name: "Codex", device_platform: "macOS", comparison_code: "ABCD-1234", requested_capabilities: ["mcp:read"], status: "pending", created_at: "2026-10-02T12:00:00Z", expires_at: "2099-10-02T12:10:00Z", decided_at: null as string | null },
     { id: "00000000-0000-4000-8000-000000000012", name: "Unknown connection", client_name: "Codex", device_platform: "Other", comparison_code: "EFGH-5678", requested_capabilities: ["mcp:read"], status: "pending", created_at: "2026-10-02T12:00:00Z", expires_at: "2099-10-02T12:10:00Z", decided_at: null as string | null },
@@ -42,10 +48,19 @@ async function setup(page: Page, role = "super_admin", requireStepUp = false) {
       requests.push({ method, path, body: request.postData() ? request.postDataJSON() : null });
       if (role !== "super_admin") return json(route, { detail: "Superadmin required" }, 403);
       if (!verified && method !== "GET") return json(route, { error: { code: "STEP_UP_REQUIRED", message: "Confirm your identity before changing MCP access." } }, 403);
-      if (path === "/api/v1/admin/mcp") return json(route, { read_only_mode: false, enabled, deployment_enabled: true, emergency_disabled: !enabled, resource,
+      if (path === "/api/v1/admin/mcp") return json(route, { read_only_mode: false, permission_controls_available: true, enabled, deployment_enabled: true, emergency_disabled: !enabled, resource,
         capabilities: ["mcp:read", "mcp:export", "mcp:upload", "mcp:change", "mcp:communicate", "mcp:diagnose"],
         approved_clients: {}, direct_clients: { [oauth.client_id]: ["http://127.0.0.1/callback"], "https://chatgpt.com/oauth/client.json": ["https://chatgpt.com/connector_platform_oauth_redirect"] },
         client_names: { [oauth.client_id]: "Codex", "https://chatgpt.com/oauth/client.json": "ChatGPT" }, environment: "qualification", revision: "fixture-revision", observed_at: "2026-09-29T12:00:00Z", qualification: "in_progress" });
+      if (path === "/api/v1/admin/mcp/permissions") {
+        if (method === "GET") return json(route, policy);
+        const body = request.postDataJSON();
+        if (permissionConflict) { permissionConflict = false; policy = { ...policy, permission_revision: policy.permission_revision + 1, allowed_read_sections: ["all_groups"] }; return json(route, { detail: "Permissions changed elsewhere." }, 409); }
+        if (body.expected_revision !== policy.permission_revision) return json(route, { detail: "Permissions changed elsewhere." }, 409);
+        if (permissionWait) await permissionWait;
+        policy = { ...policy, ...body, permission_revision: policy.permission_revision + 1 };
+        return json(route, policy);
+      }
       if (path.endsWith("/connection-requests")) return json(route, { items: connectionRequests, next_offset: null });
       if (/\/connection-requests\/[^/]+\/(approve|reject)$/.test(path) && method === "POST") {
         const item = connectionRequests.find((item) => path.includes(item.id))!;
@@ -81,6 +96,13 @@ async function setup(page: Page, role = "super_admin", requireStepUp = false) {
       ], file_transports: [{ name: "download_prepared_artifact", capability: "mcp:export" }, { name: "acknowledge_verified_delivery", capability: "mcp:export" }, { name: "upload_pdf", capability: "mcp:upload" }, { name: "prepare_whatsapp_header_image", capability: "mcp:upload", required_capabilities: ["mcp:upload", "mcp:communicate"] }] });
       if (path.endsWith("/control") && method === "PUT") { enabled = request.postDataJSON().enabled; return json(route, { enabled }); }
       if (path.endsWith("/grant-a/access") && method === "PATCH") { const allowed = request.postDataJSON().enabled; grant = { ...grant, enabled: allowed, status: allowed ? "active" : "disabled" }; return json(route, grant); }
+      if (path.endsWith("/grant-a/permissions") && method === "PUT") {
+        const body = request.postDataJSON();
+        if (body.expected_revision !== grant.permission_revision) return json(route, { detail: "Connection permissions changed." }, 409);
+        if (permissionWait) await permissionWait;
+        grant = { ...grant, ...body, permission_revision: grant.permission_revision + 1 };
+        return json(route, grant);
+      }
       if (/\/connections\/(grant-a|grant-b)$/.test(path) && method === "DELETE") {
         if (deletionFailures > 0) { deletionFailures -= 1; return json(route, { detail: "Deletion could not be saved." }, 503); }
         if (deletionWait) await deletionWait;
@@ -95,6 +117,13 @@ async function setup(page: Page, role = "super_admin", requireStepUp = false) {
     return json(route, { detail: "Unexpected mutation outside MCP fixture" }, 400);
   });
   return { errors, requests, verifications,
+    conflictNextPermissionSave: () => { permissionConflict = true; },
+    makeFirstReadOnly: () => { grant = { ...grant, capabilities: ["mcp:read"] }; },
+    holdPermissionSave: () => {
+      let release!: () => void;
+      permissionWait = new Promise<void>((resolve) => { release = resolve; });
+      return () => { release(); permissionWait = null; };
+    },
     disconnectFirst: () => { grant = { ...grant, enabled: false, status: "revoked", revoked_at: "2026-10-02T12:00:00Z" }; },
     failNextDelete: () => { deletionFailures += 1; },
     holdDelete: () => {
@@ -137,6 +166,123 @@ for (const width of [1440, 650, 390]) {
     await expect(direct).toContainText(resource);
     await expect(direct).toContainText("administrator");
     expect(state.requests.filter((item) => item.path.endsWith("/access"))).toHaveLength(2);
+    expect(state.errors).toEqual([]);
+  });
+}
+
+for (const width of [1440, 390]) {
+  test(`mixed permission settings and independent device allowances save at ${width}px`, async ({ page }, testInfo) => {
+    const state = await setup(page);
+    await page.setViewportSize({ width, height: 950 });
+    await page.goto("/admin/mcp/settings");
+    if (width < 768) await page.getByRole("button", { name: "Open navigation", exact: true }).click();
+    await expect(page.getByRole("link", { name: "MCP", exact: true })).toBeVisible();
+    if (width < 768) await page.getByRole("link", { name: "MCP", exact: true }).click();
+    if (width < 768) await page.getByRole("navigation", { name: "MCP pages" }).getByRole("link", { name: "Settings", exact: true }).click();
+    const read = page.getByRole("region", { name: "Read settings", exact: true });
+    const write = page.getByRole("region", { name: "Write settings", exact: true });
+    await expect(read.getByRole("switch", { name: "Read Menu", exact: true })).toBeChecked();
+    await expect(write.getByRole("switch", { name: "Allow write access", exact: true })).not.toBeChecked();
+    await expect(write.getByRole("switch", { name: "Write Profile", exact: true })).toHaveCount(0);
+    await write.getByRole("switch", { name: "Allow write access", exact: true }).check();
+    await write.getByRole("switch", { name: "Write Group links", exact: true }).check();
+    const release = state.holdPermissionSave();
+    try {
+      await page.getByRole("button", { name: "Save permissions", exact: true }).click();
+      await expect(read.getByRole("switch", { name: "Read Menu", exact: true })).toBeDisabled();
+      await expect(page.getByRole("button", { name: "Save permissions", exact: true })).toBeDisabled();
+      await expect(page.getByText("Permissions saved and confirmed.", { exact: true })).toHaveCount(0);
+      expect(state.requests.filter((item) => item.method === "PUT")).toHaveLength(1);
+      release();
+      await expect(page.getByText("Permissions saved and confirmed.", { exact: true })).toBeVisible();
+    } finally { release(); }
+    expect(state.requests.find((item) => item.method === "PUT")?.body).toEqual({ expected_revision: 7, read_enabled: true, write_enabled: true,
+      allowed_read_sections: ["all_groups", "menu"], allowed_write_sections: ["all_groups", "exports", "group_links"],
+      allowed_write_tools: ["configure_group_link", "create_group", "create_native_upload", "prepare_excel_export"] });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
+    await page.getByRole("heading", { name: "Settings", exact: true }).scrollIntoViewIfNeeded();
+    const settingsScreenshot = testInfo.outputPath(`mcp-read-write-settings-${width}.png`);
+    await page.screenshot({ path: settingsScreenshot, fullPage: true, animations: "disabled" });
+    await testInfo.attach(`Read and write settings ${width}px`, { path: settingsScreenshot, contentType: "image/png" });
+    await page.getByRole("navigation", { name: "MCP pages" }).getByRole("link", { name: "Devices", exact: true }).click();
+    const row = page.getByRole("article", { name: "Office desktop", exact: true });
+    await row.getByRole("button", { name: "Manage", exact: true }).click();
+    const editor = row.getByRole("region", { name: "Device permission settings", exact: true });
+    await expect(editor.getByRole("switch", { name: "Allow read access", exact: true })).toBeChecked();
+    await editor.getByRole("switch", { name: "Allow read access", exact: true }).uncheck();
+    await editor.getByRole("switch", { name: "Allow write access", exact: true }).check();
+    await editor.getByRole("switch", { name: "Write All groups", exact: true }).uncheck();
+    await editor.getByRole("switch", { name: "Write Group links", exact: true }).uncheck();
+    const finish = state.holdPermissionSave();
+    try {
+      await editor.getByRole("button", { name: "Save access", exact: true }).click();
+      for (const name of ["Delete", "Manage", "Disable"]) await expect(row.getByRole("button", { name, exact: true })).toBeDisabled();
+      await expect(row.getByText("Read allowed · Write off", { exact: true })).toBeVisible();
+      finish(); await expect(row.getByText("Read off · Write allowed", { exact: true })).toBeVisible();
+      await expect(editor.getByText("Device permissions saved and confirmed.", { exact: true })).toBeVisible();
+    } finally { finish(); }
+    expect(state.requests.filter((item) => item.path.endsWith("/grant-a/permissions") && item.method === "PUT").map((item) => item.body)).toEqual([
+      { expected_revision: 3, read_enabled: false, write_enabled: true, allowed_read_sections: null, allowed_write_sections: ["exports"] },
+    ]);
+    expect(state.requests.filter((item) => item.method === "PATCH" || item.method === "DELETE")).toHaveLength(0);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
+    await editor.getByRole("heading", { name: "Read allowance", exact: true }).scrollIntoViewIfNeeded();
+    const deviceScreenshot = testInfo.outputPath(`mcp-device-read-write-${width}.png`);
+    await page.screenshot({ path: deviceScreenshot, fullPage: true, animations: "disabled" });
+    await testInfo.attach(`Device read and write allowance ${width}px`, { path: deviceScreenshot, contentType: "image/png" });
+    expect(state.errors).toEqual([]);
+  });
+
+  test(`conflicting global edits and old read-only grant write denial at ${width}px`, async ({ page }) => {
+    const state = await setup(page); state.conflictNextPermissionSave(); state.makeFirstReadOnly();
+    await page.setViewportSize({ width, height: 950 }); await page.goto("/admin/mcp/settings");
+    await page.getByRole("switch", { name: "Allow write access", exact: true }).check();
+    await page.getByRole("button", { name: "Save permissions", exact: true }).click();
+    await expect(page.getByRole("alert").filter({ hasText: "Reload the saved settings" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Save permissions", exact: true })).toBeDisabled();
+    expect(state.requests.filter((item) => item.method === "PUT")).toHaveLength(1);
+    await page.getByRole("button", { name: "Reload saved settings", exact: true }).click();
+    await expect(page.getByRole("switch", { name: "Read Menu", exact: true })).not.toBeChecked();
+    await expect(page.getByRole("switch", { name: "Allow write access", exact: true })).not.toBeChecked();
+    await page.getByRole("navigation", { name: "MCP pages" }).getByRole("link", { name: "Devices", exact: true }).click();
+    const row = page.getByRole("article", { name: "Office desktop", exact: true });
+    await row.getByRole("button", { name: "Manage", exact: true }).click();
+    await expect(row.getByRole("switch", { name: "Allow write access", exact: true })).toBeDisabled();
+    await expect(row).toContainText("approved without write permissions");
+    await expect(row.getByRole("switch", { name: "Allow read access", exact: true })).toBeEnabled();
+    await row.getByRole("switch", { name: "Allow read access", exact: true }).uncheck();
+    await row.getByRole("button", { name: "Save access", exact: true }).click();
+    await expect(row.getByText("Read off · Write off", { exact: true })).toBeVisible();
+    expect(state.requests.filter((item) => item.path.endsWith("/grant-a/permissions") && item.method === "PUT")[0]?.body).toEqual({ expected_revision: 3,
+      read_enabled: false, write_enabled: false, allowed_read_sections: null, allowed_write_sections: [] });
+    expect(state.errors).toEqual([]);
+  });
+}
+
+for (const device of [false, true]) {
+  test(`${device ? "device" : "global"} permission MFA cancellation retains choices and replay applies the same reviewed policy`, async ({ page }) => {
+    const state = await setup(page, "super_admin", true);
+    await page.setViewportSize({ width: 390, height: 950 });
+    await page.goto(device ? "/admin/mcp" : "/admin/mcp/settings");
+    if (device) await page.getByRole("article", { name: "Office desktop", exact: true }).getByRole("button", { name: "Manage", exact: true }).click();
+    const area = device ? page.getByRole("region", { name: "Device permission settings", exact: true }) : page.getByRole("region", { name: "MCP permission settings", exact: true });
+    await area.getByRole("switch", { name: "Allow write access", exact: true }).check();
+    const save = area.getByRole("button", { name: device ? "Save access" : "Save permissions", exact: true });
+    await save.click();
+    const identity = page.getByRole("dialog", { name: "Confirm this sensitive action" }); await expect(identity).toBeVisible();
+    await expect(save).toBeDisabled();
+    await identity.getByRole("button", { name: "Cancel identity confirmation", exact: true }).click();
+    await expect(area.getByRole("alert")).toContainText("Identity confirmation was cancelled.");
+    await expect(area.getByRole("switch", { name: "Allow write access", exact: true })).toBeChecked();
+    await expect(area.getByText(/saved and confirmed/)).toHaveCount(0);
+    expect(state.requests.filter((item) => item.method === "PUT")).toHaveLength(1);
+    await save.click(); await expect(identity).toBeVisible();
+    await identity.getByRole("textbox", { name: "Verification code", exact: true }).fill("123456");
+    await identity.getByRole("button", { name: "Verify and continue", exact: true }).click();
+    await expect(area.getByText(device ? "Device permissions saved and confirmed." : "Permissions saved and confirmed.", { exact: true })).toBeVisible();
+    const saves = state.requests.filter((item) => item.method === "PUT");
+    expect(saves).toHaveLength(3); expect(saves[0].body).toEqual(saves[1].body); expect(saves[1].body).toEqual(saves[2].body);
+    expect(state.verifications).toEqual([{ code: "123456" }]);
     expect(state.errors).toEqual([]);
   });
 }

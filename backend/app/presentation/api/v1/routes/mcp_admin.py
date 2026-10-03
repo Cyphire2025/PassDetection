@@ -24,6 +24,7 @@ from app.core.config.settings import Settings
 from app.domain.entities.entities import User
 from app.domain.mcp_policy import CAPABILITIES
 from app.domain.mcp_read_sections import read_section_catalog
+from app.domain.mcp_section_permissions import WRITE_CAPABILITIES
 from app.infrastructure.database.mcp_models import (
     MCPConnectionRequestModel,
     MCPControlModel,
@@ -34,6 +35,7 @@ from app.infrastructure.database.models import AuditLogModel
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.presentation.api.v1.routes.mcp_admin_files import router as files_router
+from app.presentation.api.v1.routes.mcp_permissions import router as permissions_router
 from app.presentation.api.v1.schemas.mcp_schemas import (
     MCPConnectionAccessRequest,
     MCPConnectionUpdate,
@@ -49,6 +51,7 @@ from app.presentation.mcp.management_audit import MCPManagementAuditRoute
 
 router = APIRouter(dependencies=[Depends(require_mcp_management)], route_class=MCPManagementAuditRoute)
 router.include_router(files_router)
+router.include_router(permissions_router)
 _mutations = [Depends(require_cookie_csrf), Depends(require_recent_mfa)]
 
 
@@ -57,15 +60,25 @@ def _settings(request: Request) -> Settings:
 
 
 def connection_payload(grant: MCPGrantModel, settings: Settings | None = None) -> dict[str, object]:
+    effective = set(grant.capabilities) & set(settings.mcp.effective_capabilities) if settings else set(grant.capabilities)
+    if grant.read_enabled is not True:
+        effective.discard("mcp:read")
+    if grant.write_enabled is not True:
+        effective.difference_update(WRITE_CAPABILITIES)
     return {
         "id": str(grant.id),
         "user_id": str(grant.user_id),
         "client_id": grant.client_id,
         "name": grant.name,
         "enabled": grant.enabled,
+        "read_enabled": grant.read_enabled,
+        "write_enabled": grant.write_enabled,
+        "allowed_read_sections": grant.allowed_read_sections,
+        "allowed_write_sections": grant.allowed_write_sections,
+        "permission_revision": grant.permission_revision,
         "device_platform": grant.device_platform,
         "capabilities": grant.capabilities,
-        "effective_capabilities": sorted(set(grant.capabilities) & set(settings.mcp.effective_capabilities)) if settings else grant.capabilities,
+        "effective_capabilities": sorted(effective),
         "created_at": grant.created_at,
         "expires_at": grant.expires_at,
         "last_used_at": grant.last_used_at,
@@ -96,6 +109,7 @@ async def overview(
         "effective_capabilities": settings.mcp.effective_capabilities,
         "defined_capabilities": ["mcp:read"] if settings.mcp.read_only_mode else sorted(CAPABILITIES),
         "read_only_mode": settings.mcp.read_only_mode,
+        "permission_controls_available": True,
         "allowed_read_sections": allowed,
         "read_access_revision": read_revision,
         "read_section_coverage": read_section_catalog(),
@@ -163,7 +177,9 @@ async def approve_connection_request(request_id: uuid.UUID, body: MCPRequestAppr
         row = await MCPConnectionRequestService(session, _settings(request)).decide(request_id, approved=True,
             user_id=user.id, security_version=user.session_version,
             mfa_at=datetime.fromtimestamp(request.state.auth_claims["mfa_at"], UTC), name=body.name,
-            platform=body.device_platform, capabilities=body.capabilities)
+            platform=body.device_platform, capabilities=body.capabilities,
+            read_enabled=body.read_enabled, write_enabled=body.write_enabled,
+            allowed_read_sections=body.allowed_read_sections, allowed_write_sections=body.allowed_write_sections)
     except MCPAuthError as exc:
         raise HTTPException(exc.status_code, exc.error) from exc
     await session.commit()
@@ -205,6 +221,10 @@ async def authorize(
             scopes=body.scopes,
             name=body.name,
             device_platform=body.device_platform,
+            read_enabled=body.read_enabled,
+            write_enabled=body.write_enabled,
+            allowed_read_sections=body.allowed_read_sections,
+            allowed_write_sections=body.allowed_write_sections,
         )
     except MCPAuthError as exc:
         return JSONResponse(

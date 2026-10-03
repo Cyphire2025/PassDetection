@@ -104,6 +104,7 @@ async def _lock_active_document_scope(
     current_user: User,
     group_id: uuid.UUID,
     agency_id: uuid.UUID,
+    identity_already_locked: bool = False,
 ) -> tuple[UserModel | User, ClientGroupModel]:
     """Re-fetch and lock the active actor, agency, and group before DB writes."""
 
@@ -125,7 +126,8 @@ async def _lock_active_document_scope(
             ClientGroupModel.id == group_id,
             ClientGroupModel.agency_id == agency_id,
         )
-        .with_for_update()
+        # Preserve MCP's verified shared identity barrier; lock only business rows then.
+        .with_for_update(of=[AgencyModel, ClientGroupModel] if identity_already_locked else None)
         .execution_options(populate_existing=True)
     )
     row = result.one_or_none()

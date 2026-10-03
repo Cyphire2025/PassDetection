@@ -186,6 +186,7 @@ async def test_excel_to_message_reconnect_and_receipts_never_duplicate_or_infer_
         confirm_request = {
             "plan_id": plan_data["plan_id"],
             "plan_hash": plan_data["plan_hash"],
+            "user_confirmed": True,
             "idempotency_key": "journey-confirm-welcome-001",
         }
         wrong = await sdk.call_tool(

@@ -19,6 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.mcp.authorization import MCPAuthorizationService
 from app.application.mcp.credentials import MCPAuthError
 from app.application.mcp.gc_push_snapshots import device_snapshot, digest
+from app.application.mcp.permissions import require_tool_access
 from app.core.config.settings import get_settings
 from app.infrastructure.database.gc_mobile_models import (
     GCGroupAccessModel,
@@ -200,6 +201,7 @@ async def lock_original_authority(
     try:
         grant = await auth.require_grant(identity.original_grant_id, lock=True)
         auth.require_capability(grant, "mcp:communicate")
+        await require_tool_access(session, settings, grant.id, "confirm_gc_push", "mcp:communicate", lock=False)
     except MCPAuthError:
         return denied
     plan = await session.scalar(
@@ -295,6 +297,7 @@ async def recheck_handoff_clock(
             try:
                 grant = await auth.require_grant(plan.original_grant_id)
                 auth.require_capability(grant, "mcp:communicate")
+                await require_tool_access(session, get_settings(), grant.id, "confirm_gc_push", "mcp:communicate", lock=False)
                 valid = grant.user_id == plan.user_id
             except MCPAuthError:
                 pass

@@ -1,5 +1,7 @@
 import apiClient from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
+import type { McpConnectionPermissionUpdate, McpPermissionUpdate, McpPermissions } from "./mcp-permissions";
+export type { McpConnectionPermissionUpdate, McpPermissionSection, McpPermissionUpdate, McpPermissions } from "./mcp-permissions";
 
 export const MCP_CAPABILITIES = {
   "mcp:read": { label: "Look up information", description: "Find groups, check passenger details and see recorded activity." },
@@ -25,6 +27,7 @@ export interface McpOverview {
   qualification: string;
   read_only_mode?: boolean;
   effective_capabilities?: McpCapability[];
+  permission_controls_available?: boolean;
 }
 export interface McpReadSection {
   id: string; label: string; supported: boolean; tool_names: string[];
@@ -54,6 +57,11 @@ export interface McpConnection {
   status: "active" | "disabled" | "expired" | "revoked";
   enabled?: boolean;
   device_platform?: McpDevicePlatform | null;
+  read_enabled?: boolean;
+  write_enabled?: boolean;
+  allowed_read_sections?: string[] | null;
+  allowed_write_sections?: string[];
+  permission_revision?: number;
 }
 export type McpDevicePlatform = "Windows" | "macOS" | "Other";
 export type McpRequestStatus = "pending" | "approved" | "rejected" | "expired" | "finalized";
@@ -65,6 +73,8 @@ export interface McpConnectionRequest {
 }
 export interface McpRequestApproval {
   name: string; device_platform: McpDevicePlatform; capabilities: McpCapability[];
+  read_enabled?: boolean; write_enabled?: boolean;
+  allowed_read_sections?: string[] | null; allowed_write_sections?: string[];
 }
 export interface McpRequestCallback {
   redirect_url: string; client_id: string; redirect_uri: string; resource: string; state: string;
@@ -114,6 +124,9 @@ export const mcpApi = {
   overview: async (signal?: AbortSignal) => (await apiClient.get<McpOverview>(API_ENDPOINTS.mcp.overview, { signal })).data,
   readAccess: async (signal?: AbortSignal) => (await apiClient.get<McpReadAccess>(API_ENDPOINTS.mcp.readAccess, { signal })).data,
   updateReadAccess: async (update: McpReadAccessUpdate) => (await apiClient.put<McpReadAccess>(API_ENDPOINTS.mcp.readAccess, update)).data,
+  permissions: async (signal?: AbortSignal) => (await apiClient.get<McpPermissions>(API_ENDPOINTS.mcp.permissions, { signal })).data,
+  updatePermissions: async (update: McpPermissionUpdate) => (await apiClient.put<McpPermissions>(API_ENDPOINTS.mcp.permissions, update)).data,
+  updateConnectionPermissions: async ({ id, ...update }: McpConnectionPermissionUpdate) => (await apiClient.put<McpConnection>(API_ENDPOINTS.mcp.connectionPermissions(id), update)).data,
   connections: async (offset: number, signal?: AbortSignal) => (await apiClient.get<McpPage<McpConnection>>(API_ENDPOINTS.mcp.connections, { params: { offset, limit: 25 }, signal })).data,
   activity: async (offset: number, search: string, signal?: AbortSignal) => (await apiClient.get<McpPage<McpActivity>>(API_ENDPOINTS.mcp.activity, { params: { offset, limit: 25, search }, signal })).data,
   inventory: async (signal?: AbortSignal) => (await apiClient.get<McpInventory>(API_ENDPOINTS.mcp.inventory, { signal })).data,

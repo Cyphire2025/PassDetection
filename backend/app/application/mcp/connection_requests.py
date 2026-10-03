@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.mcp.authorization import MCPAuthorizationService
 from app.application.mcp.client_policy import DIRECT_CLIENT_NAMES, validate_authorization_client
 from app.application.mcp.credentials import PKCE_CHALLENGE, MCPAuthError, new_credential, utc
+from app.application.mcp.permissions import validate_device_permissions
 from app.core.config.settings import Settings
 from app.domain.mcp_policy import validate_capabilities
 from app.infrastructure.database.mcp_models import (
@@ -213,6 +214,10 @@ class MCPConnectionRequestService:
         name: str | None = None,
         platform: str | None = None,
         capabilities: list[str] | None = None,
+        read_enabled: bool = True,
+        write_enabled: bool = False,
+        allowed_read_sections: list[str] | None = None,
+        allowed_write_sections: list[str] | None = None,
     ) -> MCPConnectionRequestModel:
         if approved:
             await self.auth.require_enabled(lock=True)
@@ -242,6 +247,11 @@ class MCPConnectionRequestService:
             await validate_authorization_client(self.settings.mcp, row.client_id, row.redirect_uri)
             self.auth.validate_resource(row.resource)
             row.approved_capabilities = selected
+            validate_device_permissions(self.settings, selected, read_enabled=read_enabled,
+                write_enabled=write_enabled, allowed_read_sections=allowed_read_sections,
+                allowed_write_sections=allowed_write_sections or [])
+            row.read_enabled, row.write_enabled = read_enabled, write_enabled
+            row.allowed_read_sections, row.allowed_write_sections = allowed_read_sections, allowed_write_sections or []
             if name is not None:
                 row.name = name
             if platform is not None:
@@ -317,6 +327,10 @@ class MCPConnectionRequestService:
                 scopes=row.approved_capabilities,
                 name=row.name,
                 device_platform=row.device_platform,
+                read_enabled=row.read_enabled,
+                write_enabled=row.write_enabled,
+                allowed_read_sections=row.allowed_read_sections,
+                allowed_write_sections=row.allowed_write_sections,
             )
             row.grant_id = await self.session.scalar(
                 select(MCPAuthorizationCodeModel.grant_id).where(

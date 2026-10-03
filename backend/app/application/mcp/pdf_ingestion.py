@@ -25,6 +25,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.mcp.artifacts import CHUNK_BYTES, ArtifactError, MCPArtifactService
 from app.application.mcp.authorization import MCPPrincipal
 from app.application.mcp.credentials import utc
+from app.application.mcp.native_source_bindings import require_native_pdf_source
 from app.application.mcp.operations import (
     MCPCreatedEntity,
     MCPDatabaseContext,
@@ -241,6 +242,14 @@ class MCPPDFIngestionService:
     async def inspect(self, principal: MCPPrincipal, request: PDFIngestRequest) -> dict[str, Any]:
         row = await self.artifacts.get(principal, request.artifact_id)
         self._request_source(request, row)
+        await require_native_pdf_source(
+            self.session,
+            principal,
+            row,
+            agency_id=request.agency_id,
+            group_id=request.group_id,
+            document_type=request.document_type,
+        )
         snapshot = await self._snapshot(
             principal,
             agency_id=row.agency_id,
@@ -303,6 +312,14 @@ class MCPPDFIngestionService:
         # The temporary bytes may expire; retained business rows do not. Every
         # retained association still needs current authority before result replay.
         await self.artifacts._associations(principal, source)
+        await require_native_pdf_source(
+            self.session,
+            principal,
+            source,
+            agency_id=receipt.agency_id,
+            group_id=receipt.group_id,
+            document_type=receipt.document_type,
+        )
         batch = await self.session.scalar(
             select(DocumentDistributionBatchModel)
             .where(
@@ -368,7 +385,9 @@ class MCPPDFIngestionService:
         self, access_token: str, operation_id: uuid.UUID, explicit_resume: bool
     ) -> dict[str, Any]:
         operations = MCPOperationService(self.session, self.settings)
-        principal = await operations._authorize(access_token, "mcp:upload")
+        principal = await operations._authorize(
+            access_token, "mcp:upload", tool_name="ingest_document_pdf"
+        )
         operation = await self._operation(principal, operation_id)
         assert operation.initial_result is not None
         receipt = PDFIngestReceipt.model_validate(operation.initial_result["data"])
@@ -383,6 +402,15 @@ class MCPPDFIngestionService:
             artifact_id=receipt.artifact_uuid,
             operation_id=operation_id,
             explicit_resume=explicit_resume,
+        )
+        await require_native_pdf_source(
+            self.session,
+            principal,
+            source,
+            agency_id=receipt.agency_id,
+            group_id=receipt.group_id,
+            document_type=receipt.document_type,
+            lock=True,
         )
         if source.sha256 != receipt.source_sha256 or source.byte_size != receipt.source_size:
             raise ArtifactError("Staged PDF integrity metadata changed")
@@ -435,7 +463,9 @@ class MCPPDFIngestionService:
         )
 
         async def authorize_persistence() -> tuple[uuid.UUID, str]:
-            current = await operations._authorize(access_token, "mcp:upload")
+            current = await operations._authorize(
+                access_token, "mcp:upload", tool_name="ingest_document_pdf"
+            )
             current_operation = await self._operation(current, operation_id)
             if current_operation.status == "succeeded":
                 raise _AlreadyIngested()
@@ -443,11 +473,20 @@ class MCPPDFIngestionService:
                 raise MCPOperationError("ingestion_not_resumable")
             if PDFIngestReceipt.model_validate(current_operation.initial_result["data"]) != receipt:
                 raise MCPOperationError("operation_receipt_unavailable")
-            await self.artifacts.ingestion_source(
+            current_source = await self.artifacts.ingestion_source(
                 current,
                 artifact_id=receipt.artifact_uuid,
                 operation_id=operation_id,
                 explicit_resume=explicit_resume,
+            )
+            await require_native_pdf_source(
+                self.session,
+                current,
+                current_source,
+                agency_id=receipt.agency_id,
+                group_id=receipt.group_id,
+                document_type=receipt.document_type,
+                lock=True,
             )
             locked = await self._snapshot(
                 current,
@@ -551,7 +590,9 @@ class MCPPDFIngestionService:
             await self.session.flush()
             return await self._completed(principal, locked_operation, receipt)
         except _AlreadyIngested:
-            current = await operations._authorize(access_token, "mcp:upload")
+            current = await operations._authorize(
+                access_token, "mcp:upload", tool_name="ingest_document_pdf"
+            )
             completed = await self._operation(current, operation_id)
             return await self._completed(current, completed, receipt)
         except BaseException:
@@ -581,6 +622,15 @@ def pdf_ingestion_operation(
         service = MCPPDFIngestionService(context.session, settings, support)
         row = await service.artifacts.get(context.principal, command.upload.artifact_id, lock=True)
         service._request_source(command.upload, row)
+        await require_native_pdf_source(
+            context.session,
+            context.principal,
+            row,
+            agency_id=command.upload.agency_id,
+            group_id=command.upload.group_id,
+            document_type=command.upload.document_type,
+            lock=True,
+        )
         if row.ingestion_operation_id is not None:
             raise MCPOperationError("artifact_already_claimed")
         receipt = PDFIngestReceipt(
@@ -613,6 +663,20 @@ def pdf_ingestion_operation(
             receipt.agency_id,
             receipt.group_id,
             "upload",
+        )
+        source = await context.session.get(
+            MCPArtifactModel, receipt.artifact_uuid, populate_existing=True
+        )
+        if source is None:
+            raise ArtifactError("Staged PDF association is unavailable", 404)
+        await require_native_pdf_source(
+            context.session,
+            context.principal,
+            source,
+            agency_id=receipt.agency_id,
+            group_id=receipt.group_id,
+            document_type=receipt.document_type,
+            lock=True,
         )
 
     return MCPDatabaseOperation(INGEST_PDF_POLICY, mutate, authorize)

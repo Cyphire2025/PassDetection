@@ -132,7 +132,7 @@ async def _invoke_pdf(
             )
             if request is not None:
                 principal = await MCPOperationService(session, settings)._authorize(
-                    token.token, "mcp:upload"
+                    token.token, "mcp:upload", tool_name=name
                 )
                 result = await service.inspect(principal, request)
             else:

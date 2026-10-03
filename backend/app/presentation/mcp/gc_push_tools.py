@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
 from fastapi import FastAPI
 from mcp.server import MCPServer
@@ -71,15 +71,19 @@ def register_gc_push_tools(app: FastAPI, server: MCPServer, settings: Settings) 
             payload=draft.model_dump(mode="json"),
         )
 
-    @server.tool(meta={"capability": "mcp:communicate"}, annotations=mutation)
+    @server.tool(meta={"capability": "mcp:communicate"}, annotations=ToolAnnotations(
+        read_only_hint=False, destructive_hint=True, idempotent_hint=True, open_world_hint=True))
     async def confirm_gc_push(
         plan_id: uuid.UUID,
         plan_hash: Annotated[str, Field(pattern="^[0-9a-f]{64}$")],
+        user_confirmed: Literal[True],
         idempotency_key: Annotated[str, Field(min_length=16, max_length=256)],
     ) -> dict[str, Any]:
         """Queue the exact saved push plan authorized by the user's instruction.
 
-        Supply the reviewed hash without audience/content overrides. Reuse the
+        Show the exact preview and ask for final user approval first. Set
+        user_confirmed only after that approval. Supply the reviewed hash
+        without audience/content overrides. Reuse the
         key after an uncertain response. Native handoff checks original current
         authority; accepted is not delivered, and unknown attempts are not resent.
         """
@@ -88,7 +92,7 @@ def register_gc_push_tools(app: FastAPI, server: MCPServer, settings: Settings) 
             settings,
             confirm,
             idempotency_key=idempotency_key,
-            payload={"plan_id": str(plan_id), "plan_hash": plan_hash},
+            payload={"plan_id": str(plan_id), "plan_hash": plan_hash, "user_confirmed": user_confirmed},
         )
 
     @server.tool(

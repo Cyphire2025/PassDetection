@@ -40,6 +40,7 @@ from app.presentation.api.v1.openapi_contract import install_openapi_contract
 from app.presentation.api.v1.router import api_v1_router
 from app.presentation.api.v1.routes.mcp_artifacts import router as mcp_artifact_router
 from app.presentation.api.v1.routes.mcp_contact_imports import router as mcp_contact_import_router
+from app.presentation.api.v1.routes.mcp_native_transfers import router as mcp_native_transfer_router
 from app.presentation.api.v1.routes.mcp_oauth import router as mcp_oauth_router
 from app.presentation.api.v1.routes.mcp_whatsapp_media import router as mcp_whatsapp_media_router
 from app.presentation.mcp.server import install_mcp
@@ -166,6 +167,7 @@ def create_application(
     app.include_router(mcp_oauth_router)
     app.include_router(mcp_artifact_router)
     app.include_router(mcp_contact_import_router)
+    app.include_router(mcp_native_transfer_router)
     app.include_router(mcp_whatsapp_media_router)
     app.include_router(api_v1_router, prefix=settings.api_v1_prefix)
     install_openapi_contract(app, settings)

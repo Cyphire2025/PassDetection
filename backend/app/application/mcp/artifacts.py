@@ -25,6 +25,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mcp.authorization import MCPAuthorizationService, MCPPrincipal
 from app.application.mcp.credentials import MCPAuthError, credential_hash, utc
+from app.application.mcp.permissions import require_tool_access
 from app.application.security.authorization_policy import AuthorizationPolicy
 from app.application.use_cases.passports.complete_export_delivery import (
     complete_export_delivery,
@@ -62,16 +63,24 @@ _PURPOSES = {
     ),
     "passport_images": ("export", "application/zip", ".zip"),
     "whatsapp_tracking_excel": (
-        "export", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx",
+        "export",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        ".xlsx",
     ),
     "rooming_list_excel": (
-        "export", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx",
+        "export",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        ".xlsx",
     ),
     "document_assignments_excel": (
-        "export", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx",
+        "export",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        ".xlsx",
     ),
     "rooming_checkins_excel": (
-        "export", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx",
+        "export",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        ".xlsx",
     ),
 }
 # Shared by all service instances in one process; reject saturation immediately.
@@ -196,7 +205,12 @@ class MCPArtifactService:
             raise ArtifactError("Artifact associations are unavailable", 404)
 
     async def _authority(
-        self, principal: MCPPrincipal, capability: str, *, lock: bool = False
+        self,
+        principal: MCPPrincipal,
+        capability: str,
+        *,
+        lock: bool = False,
+        tool_name: str | None = None,
     ) -> None:
         if utc(principal.expires_at) <= datetime.now(UTC):
             raise MCPAuthError("invalid_token", 401)
@@ -208,6 +222,15 @@ class MCPArtifactService:
         ):
             raise MCPAuthError("invalid_token", 401)
         self.auth.require_capability(grant, capability)
+        await require_tool_access(
+            self.session,
+            self.settings,
+            grant.id,
+            tool_name
+            or ("upload_document_pdf" if capability == "mcp:upload" else "download_export"),
+            capability,
+            lock=lock,
+        )
 
     async def _group(
         self, principal: MCPPrincipal, agency_id: uuid.UUID, group_id: uuid.UUID, direction: str
@@ -492,18 +515,27 @@ class MCPArtifactService:
         return self.metadata(row, handle)
 
     async def ingestion_source(
-        self, principal: MCPPrincipal, *, artifact_id: uuid.UUID, operation_id: uuid.UUID,
+        self,
+        principal: MCPPrincipal,
+        *,
+        artifact_id: uuid.UUID,
+        operation_id: uuid.UUID,
         explicit_resume: bool,
     ) -> MCPArtifactModel:
         """Code-only source access for a previously claimed ingestion receipt."""
         await self._authority(principal, "mcp:upload", lock=True)
-        row = await self.session.scalar(select(MCPArtifactModel).where(
-            MCPArtifactModel.id == artifact_id,
-            MCPArtifactModel.user_id == principal.user_id,
-            MCPArtifactModel.direction == "upload",
-            MCPArtifactModel.purpose == "group_document_pdf",
-            MCPArtifactModel.ingestion_operation_id == operation_id,
-        ).with_for_update().execution_options(populate_existing=True))
+        row = await self.session.scalar(
+            select(MCPArtifactModel)
+            .where(
+                MCPArtifactModel.id == artifact_id,
+                MCPArtifactModel.user_id == principal.user_id,
+                MCPArtifactModel.direction == "upload",
+                MCPArtifactModel.purpose == "group_document_pdf",
+                MCPArtifactModel.ingestion_operation_id == operation_id,
+            )
+            .with_for_update()
+            .execution_options(populate_existing=True)
+        )
         if row is None or utc(row.expires_at) <= datetime.now(UTC):
             raise ArtifactError("Ingestion source is unavailable or expired", 404)
         await self._associations(principal, row)
@@ -513,12 +545,17 @@ class MCPArtifactService:
         if access is None:
             if not explicit_resume:
                 raise ArtifactError("Ingestion source was not found", 404)
-            self.session.add(MCPArtifactAccessModel(
-                artifact_id=row.id, grant_id=principal.grant_id, handle_version=1,
-                handle_hash=credential_hash(
-                    self._handle(row.id, principal.user_id, principal.grant_id), self.settings.app_secret_key
-                ),
-            ))
+            self.session.add(
+                MCPArtifactAccessModel(
+                    artifact_id=row.id,
+                    grant_id=principal.grant_id,
+                    handle_version=1,
+                    handle_hash=credential_hash(
+                        self._handle(row.id, principal.user_id, principal.grant_id),
+                        self.settings.app_secret_key,
+                    ),
+                )
+            )
             await self.audit("ingestion_access_recovered", row, grant_id=principal.grant_id)
             await self.session.flush()
         return row
@@ -529,16 +566,21 @@ class MCPArtifactService:
             return result
         operation = await self.session.get(MCPOperationModel, row.ingestion_operation_id)
         result["business_ingestion"] = "unavailable"
-        if (operation is not None and operation.user_id == row.user_id
-                and operation.operation_name == "ingest_document_pdf"):
+        if (
+            operation is not None
+            and operation.user_id == row.user_id
+            and operation.operation_name == "ingest_document_pdf"
+        ):
             if operation.status in {"queued", "running", "failed", "unknown"}:
                 result["business_ingestion"] = operation.status
             elif operation.status == "succeeded":
-                batch = await self.session.scalar(select(DocumentDistributionBatchModel).where(
-                    DocumentDistributionBatchModel.id == operation.id,
-                    DocumentDistributionBatchModel.agency_id == row.agency_id,
-                    DocumentDistributionBatchModel.group_id == row.group_id,
-                ))
+                batch = await self.session.scalar(
+                    select(DocumentDistributionBatchModel).where(
+                        DocumentDistributionBatchModel.id == operation.id,
+                        DocumentDistributionBatchModel.agency_id == row.agency_id,
+                        DocumentDistributionBatchModel.group_id == row.group_id,
+                    )
+                )
                 if batch is not None:
                     result["business_ingestion"] = "ingested"
         return result
@@ -560,10 +602,12 @@ class MCPArtifactService:
             "content_path": f"/mcp/artifacts/{handle}/content",
             "delivery_ack_required": row.direction == "export",
             "delivered_at": utc(row.delivered_at).isoformat() if row.delivered_at else None,
-            "business_ingestion": (
-                "claimed" if row.ingestion_operation_id else "not_started"
-            ) if row.direction == "upload" else None,
-            "ingestion_operation_id": str(row.ingestion_operation_id) if row.ingestion_operation_id else None,
+            "business_ingestion": ("claimed" if row.ingestion_operation_id else "not_started")
+            if row.direction == "upload"
+            else None,
+            "ingestion_operation_id": str(row.ingestion_operation_id)
+            if row.ingestion_operation_id
+            else None,
         }
 
     async def validate_storage(self, row: MCPArtifactModel) -> None:

@@ -98,10 +98,24 @@ async def confirm(fixture, prepared, *, connection=0, key=None):
     return await invoke(
         fixture,
         "confirm_whatsapp_reminder",
-        {"plan_id": prepared["data"]["plan_id"], "plan_hash": prepared["data"]["plan_hash"]},
+        {"plan_id": prepared["data"]["plan_id"], "plan_hash": prepared["data"]["plan_hash"], "user_confirmed": True},
         connection=connection,
         key=key,
     )
+
+
+@pytest.mark.parametrize("confirmation", [None, False, 0])
+async def test_final_confirmation_is_required_before_queued_effects(intent_fixture, confirmation):
+    prepared = await prepare(intent_fixture)
+    payload = {"plan_id": prepared["data"]["plan_id"], "plan_hash": prepared["data"]["plan_hash"]}
+    if confirmation is not None:
+        payload["user_confirmed"] = confirmation
+    with pytest.raises(MCPOperationError, match="invalid_whatsapp_plan"):
+        await invoke(intent_fixture, "confirm_whatsapp_reminder", payload)
+    session = intent_fixture[0][0]
+    assert await session.scalar(select(func.count()).select_from(MCPWhatsAppOutboxModel)) == 0
+    assert await session.scalar(select(func.count()).select_from(WhatsAppMessageLogModel)) == 0
+    intent_fixture[4].assert_not_awaited()
 
 
 async def count(session, model):
@@ -475,6 +489,7 @@ async def test_sdk_plan_confirmation_and_fresh_inspection_are_audited_without_se
             {
                 "plan_id": preview["plan_id"],
                 "plan_hash": preview["plan_hash"],
+                "user_confirmed": True,
                 "idempotency_key": "sdk-confirm-reminder-001",
             },
         )
@@ -483,6 +498,7 @@ async def test_sdk_plan_confirmation_and_fresh_inspection_are_audited_without_se
     inspection = (
         await server.call_tool("inspect_whatsapp_intent", {"plan_id": preview["plan_id"]})
     ).structured_content
+    assert "receipts" in inspection, inspection
     assert inspection["receipts"]["status_counts"]["queued"] == 6
     assert inspection["receipts"]["confirmed_delivery_count"] == 0
     assert inspection["preview"] == preview["preview"]

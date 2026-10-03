@@ -65,7 +65,7 @@ class MCPCreateRoomingHotel(CreateRoomingHotelRequest):
     group_id: UUID
 
 
-_MODELS: dict[
+OFFICE_TOOL_MODELS: dict[
     str,
     type[MCPCreateMenuCategory]
     | type[MCPCreateMenuDish]
@@ -83,7 +83,7 @@ def validate_office_creation(
     kind: OfficeCreationKind, payload: dict[str, Any]
 ) -> OfficeCreationCommand:
     try:
-        body = _MODELS[kind].model_validate(payload)
+        body = OFFICE_TOOL_MODELS[kind].model_validate(payload)
     except ValidationError as exc:
         raise MCPInputError(
             "invalid_office_creation",

@@ -2,36 +2,44 @@
 
 from __future__ import annotations
 
-from datetime import date
-from typing import Annotated, Any
+from copy import deepcopy
+from typing import Annotated, Any, Literal
 from uuid import UUID
 
 from fastapi import FastAPI
 from mcp.server import MCPServer
 from mcp.types import ToolAnnotations
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import ConfigDict, Field, ValidationError, create_model
 
 from app.application.dtos.client_group_dtos import CreateClientGroupInputDTO
 from app.application.mcp.group_changes import MCPGroupCreationCommand, group_creation_operation
 from app.core.config.settings import Settings
-from app.domain.value_objects.trip_timezone import DEFAULT_TRIP_TIMEZONE
 from app.presentation.api.v1.schemas.client_group_schemas import CreateClientGroupRequest
 from app.presentation.mcp.invocation import MCPInputError, invoke_operation
 
+# Keep the canonical field types without executing its cross-field validators
+# in the SDK. Canonical validation runs inside the audited operation boundary,
+# where failures return static messages instead of echoing submitted values.
+GroupCreationFields = create_model(
+    "GroupCreationFields",
+    __config__=ConfigDict(extra="forbid", str_strip_whitespace=True),
+    **{
+        name: (field.annotation, deepcopy(field))
+        for name, field in CreateClientGroupRequest.model_fields.items()
+    },
+)
 
-class MCPCreateGroupRequest(BaseModel):
+
+class MCPCreateGroupRequest(GroupCreationFields):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
     agency_id: UUID
     owner_user_id: UUID
-    name: str = Field(min_length=1, max_length=100)
-    destination: str = Field(min_length=1, max_length=255)
-    travel_date: date
-    return_date: date
-    timezone: str = Field(default=DEFAULT_TRIP_TIMEZONE, min_length=1, max_length=64)
-    import_only: bool = Field(default=False, strict=True)
-    package_name: str | None = Field(default=None, max_length=255)
-    notes: str | None = Field(default=None, max_length=2000)
+    collection_settings_confirmed: Literal[True] = Field(
+        description="The user has chosen the collection fields, upload methods and custom questions. Ask before using defaults; do not enable every field automatically."
+    )
+    whatsapp_broadcast_group_ids: list[UUID] = Field(default_factory=list, max_length=0)
+    matching_fields_by_broadcast: None = None
 
 
 def validate_group_creation(payload: dict[str, Any]) -> MCPGroupCreationCommand:
@@ -39,7 +47,7 @@ def validate_group_creation(payload: dict[str, Any]) -> MCPGroupCreationCommand:
         request = MCPCreateGroupRequest.model_validate(payload)
         shared = CreateClientGroupRequest.model_validate(
             request.model_dump(
-                exclude={"agency_id", "owner_user_id"},
+                exclude={"agency_id", "owner_user_id", "collection_settings_confirmed"},
             )
         )
     except ValidationError as exc:
@@ -78,7 +86,9 @@ def register_group_change_tools(server: MCPServer, app: FastAPI, settings: Setti
     ) -> dict[str, Any]:
         """Create one new group for an explicit agency and eligible owner using website rules.
 
-        Ask for missing or ambiguous agency/owner IDs and travel details. Group
+        Ask for missing or ambiguous agency/owner IDs, travel details, collection
+        fields, accepted upload methods and custom questions. Explain the chosen
+        options and obtain the user's choices before creation. Group
         names are not unique; this never edits or replaces an existing group.
         Reuse one stable idempotency key when retrying the same requested creation,
         including across connections. Changed details require a new intended

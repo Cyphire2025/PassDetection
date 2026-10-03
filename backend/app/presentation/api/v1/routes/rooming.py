@@ -361,9 +361,10 @@ async def update_hotel_passenger_selection(
                 "moved_count": len(moved_ids),
                 "selected_count": len(target_ids),
                 "requested_passenger_count": len(body.passenger_ids),
-                "allocation_revisions": _current_allocation_revisions(
-                    affected_hotels
-                ),
+                "allocation_revisions": {
+                    str(identifier): revision
+                    for identifier, revision in _current_allocation_revisions(affected_hotels).items()
+                },
             },
         )
         return await _allocation_mutation_response(
@@ -448,9 +449,10 @@ async def update_hotel_vip_status(
                 "is_vip": body.is_vip,
                 "changed_count": len(changed),
                 "requested_passenger_count": len(body.passenger_ids),
-                "allocation_revisions": _current_allocation_revisions(
-                    affected_hotels
-                ),
+                "allocation_revisions": {
+                    str(identifier): revision
+                    for identifier, revision in _current_allocation_revisions(affected_hotels).items()
+                },
             },
         )
         return await _allocation_mutation_response(
