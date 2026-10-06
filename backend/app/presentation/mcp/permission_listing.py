@@ -3,9 +3,11 @@
 from dataclasses import dataclass
 from typing import Any
 
+from fastapi import FastAPI
 from mcp.server.auth.middleware.auth_context import get_access_token
 from mcp.server.context import CallNext, HandlerResult, ServerRequestContext
 from mcp.types import ListToolsResult, Tool
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mcp.authorization import MCPAuthorizationService
@@ -132,7 +134,7 @@ class ToolAccessSnapshot:
                 capabilities.add("mcp:upload")
             if "exports" in choices:
                 capabilities.add("mcp:export")
-        return sorted(capabilities)
+        return sorted(value for value in capabilities if isinstance(value, str))
 
 
 async def tool_access_snapshot(
@@ -209,7 +211,7 @@ async def tool_access_snapshot(
 
 
 class PermissionListingMiddleware:
-    def __init__(self, app, settings):
+    def __init__(self, app: FastAPI, settings: Settings) -> None:
         self.app, self.settings = app, settings
 
     async def __call__(
@@ -241,8 +243,11 @@ class PermissionListingMiddleware:
                 tools = []
         if isinstance(result, ListToolsResult):
             return result.model_copy(update={"tools": tools})
+        envelope = result.model_dump(mode="json", by_alias=True) if isinstance(result, BaseModel) else result
+        if not isinstance(envelope, dict):
+            raise TypeError("Unexpected tool-list result envelope")
         return {
-            **result,
+            **envelope,
             "tools": [
                 tool.model_dump(mode="json", by_alias=True, exclude_none=True) for tool in tools
             ],

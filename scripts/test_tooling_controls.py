@@ -16,12 +16,16 @@ class DependencyExceptionTests(unittest.TestCase):
     def setUp(self):
         self.policy = {"schema_version": 1, "exceptions": [{
             "advisory": "PYSEC-2026-1325", "package": "ecdsa", "owner": "maintainer",
+            "aliases": ["CVE-2024-23342", "GHSA-wj6h-64fc-37mp"],
             "rationale": "Apple verifier only", "evidence": "review.md",
             "reviewed_on": "2026-09-26", "expires_on": "2026-12-25",
             "runtime_lock_sha256": hashlib.sha256(b"locked").hexdigest(),
             "versions": {"pyattest": "1"}, "source_sha256": {"pyattest": "reviewed"},
             "application_entry_modules": ["pyattest.apple"],
         }]}
+        self.policy["exceptions"].append({**copy.deepcopy(self.policy["exceptions"][0]),
+            "advisory": "CVE-2026-85394", "package": "python-jose",
+            "aliases": ["GHSA-3qf3-8w2g-rqmx"]})
         self.args = {"today": dt.date(2026, 9, 27), "lock": b"locked",
             "sources": {"app.py": "from pyattest.apple import Config"},
             "verifier_sources": {"pyattest": "", "pyattest.apple": "from pyattest.shared import verify",
@@ -30,6 +34,16 @@ class DependencyExceptionTests(unittest.TestCase):
 
     def test_reviewed_apple_path_passes(self):
         self.assertEqual(review_errors(self.policy, **self.args), [])
+
+    def test_unknown_advisory_alias_or_removed_review_is_rejected(self):
+        for key, value in (("advisory", "unknown"), ("package", "pyjwt"),
+                           ("aliases", ["GHSA-unreviewed"])):
+            policy = copy.deepcopy(self.policy)
+            policy["exceptions"][1][key] = value
+            with self.subTest(key=key):
+                self.assertTrue(review_errors(policy, **self.args))
+        self.policy["exceptions"].pop()
+        self.assertTrue(review_errors(self.policy, **self.args))
 
     def test_expiry_owner_lock_and_package_changes_each_fail(self):
         for key, value in (("expires_on", "2026-09-27"), ("owner", ""),

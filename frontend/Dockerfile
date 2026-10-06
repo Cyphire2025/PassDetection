@@ -3,7 +3,11 @@ FROM node:24-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b533
 WORKDIR /app
 # The Node distribution's bundled npm has separate dependency advisories.
 # Keep both install and build tooling aligned with tooling/toolchain.json.
-RUN npm install --global npm@11.20.0 && npm cache clean --force
+COPY scripts/patch-npm-toolchain.mjs ./scripts/patch-npm-toolchain.mjs
+COPY tooling/npm-security ./tooling/npm-security
+RUN npm install --global npm@11.20.0 && \
+    node scripts/patch-npm-toolchain.mjs /usr/local/lib/node_modules/npm && \
+    npm cache clean --force
 
 # Install dependencies
 FROM base AS deps

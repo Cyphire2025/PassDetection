@@ -57,7 +57,7 @@ async def notification_postgres(test_settings, record_testsuite_property):
             await create_isolated_postgresql_tables(connection, schema)
         async with sessions() as session:
             session.add(MCPControlModel(id=1, enabled=True))
-            actor, grants, tokens = await seed_identity(session, settings)
+            actor, grants, tokens = await seed_identity(session, settings, enable_write_policy=True)
             data = await seed_notifications(session, actor.id)
             for index in range(150):
                 session.add(NotificationModel(id=uuid.UUID(f"bbbbbbbb-0000-0000-0000-{index:012x}"),

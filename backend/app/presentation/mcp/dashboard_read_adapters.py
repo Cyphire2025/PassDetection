@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Literal
+from typing import Any, Literal
 from uuid import UUID
 
 from fastapi import HTTPException, Query
@@ -38,7 +38,11 @@ from app.infrastructure.repositories.passport_submission_repository import (
 )
 from app.infrastructure.repositories.sensitive_read_audit import record_sensitive_read
 from app.presentation.api.v1.schemas.client_group_schemas import ClientGroupResponse
-from app.presentation.api.v1.schemas.passport_schemas import PassportSubmissionResponse
+from app.presentation.api.v1.schemas.document_distribution_schemas import DocumentBatchResponse
+from app.presentation.api.v1.schemas.passport_schemas import (
+    PassportSubmissionResponse,
+    PassportVisaAiImageJobResponse,
+)
 
 
 async def group_details(group_id: UUID, current_user: User, session: AsyncSession) -> ClientGroupResponse:
@@ -63,7 +67,7 @@ async def passport_details(submission_id: UUID, current_user: User, session: Asy
         PassengerQRTokenModel.passenger_id == submission.id,
         PassengerQRTokenModel.agency_id == submission.agency_id,
     ).order_by(PassengerQRTokenModel.token_version.desc(), PassengerQRTokenModel.created_at.desc()).limit(1))
-    qr_status = {"status": "not_generated"}
+    qr_status: dict[str, Any] = {"status": "not_generated"}
     if token is not None:
         qr_status = {"status": "revoked" if token.revoked_at else "expired" if utc(token.expires_at) <= datetime.now(UTC)
                      else "active" if token.is_active else "inactive", "token_version": token.token_version,
@@ -71,7 +75,7 @@ async def passport_details(submission_id: UUID, current_user: User, session: Asy
     return PassportSubmissionResponse.model_validate({**dto.__dict__, "qr_status": qr_status})
 
 
-async def document_review(group_id: UUID, document_type: str, current_user: User, session: AsyncSession):
+async def document_review(group_id: UUID, document_type: str, current_user: User, session: AsyncSession) -> DocumentBatchResponse:
     from app.presentation.api.v1.routes.document_distribution_groups_read import (
         _load_document_review,
     )
@@ -82,7 +86,7 @@ async def document_review(group_id: UUID, document_type: str, current_user: User
 
 
 async def delivery_record(kind: Literal["document", "qr", "broadcast", "welcome"], record_id: UUID,
-    current_user: User, session: AsyncSession, agency_id: UUID | None = None):
+    current_user: User, session: AsyncSession, agency_id: UUID | None = None) -> dict[str, Any]:
     model = DELIVERY_MODELS[kind][0]
     statement = select(model).where(model.id == record_id)
     if agency_id is not None:
@@ -94,11 +98,11 @@ async def delivery_record(kind: Literal["document", "qr", "broadcast", "welcome"
     return {column.name: getattr(row, column.name) for column in model.__table__.columns}
 
 
-def stored_columns(row):
+def stored_columns(row: Any) -> dict[str, Any]:
     return {column.name: getattr(row, column.name) for column in row.__table__.columns}
 
 
-async def _broadcast(group_id: UUID, current_user: User, session: AsyncSession):
+async def _broadcast(group_id: UUID, current_user: User, session: AsyncSession) -> WhatsAppBroadcastGroupModel:
     row = await session.scalar(select(WhatsAppBroadcastGroupModel).where(
         WhatsAppBroadcastGroupModel.id == group_id,
         WhatsAppBroadcastGroupModel.agency_id == current_user.agency_id))
@@ -107,7 +111,7 @@ async def _broadcast(group_id: UUID, current_user: User, session: AsyncSession):
     return row
 
 
-BROADCAST_RECORD_MODELS = {
+BROADCAST_RECORD_MODELS: dict[str, Any] = {
     "recipients": WhatsAppBroadcastRecipientModel,
     "rejected_contacts": WhatsAppBroadcastRejectedContactModel,
     "source_contacts": WhatsAppBroadcastSourceContactModel,
@@ -119,9 +123,9 @@ BROADCAST_RECORD_MODELS = {
 BroadcastRecordKind = Literal["recipients", "rejected_contacts", "source_contacts", "support_contacts", "group_links", "phone_overrides", "message_states"]
 
 
-async def whatsapp_broadcast_stored(group_id: UUID, current_user: User, session: AsyncSession):
+async def whatsapp_broadcast_stored(group_id: UUID, current_user: User, session: AsyncSession) -> dict[str, Any]:
     broadcast = await _broadcast(group_id, current_user, session)
-    counts = {}
+    counts: dict[str, int | None] = {}
     for kind, model in BROADCAST_RECORD_MODELS.items():
         counts[kind] = await session.scalar(select(func.count()).select_from(model).where(
             model.broadcast_group_id == group_id, model.agency_id == broadcast.agency_id))
@@ -138,7 +142,7 @@ async def whatsapp_broadcast_records(group_id: UUID, kind: BroadcastRecordKind,
     record_id: UUID | None = None, q: str | None = Query(None, min_length=1, max_length=200),
     imported_field: str | None = Query(None, min_length=1, max_length=255),
     imported_value: str | None = Query(None, max_length=1000),
-    include_removed: bool = True):
+    include_removed: bool = True) -> dict[str, Any]:
     broadcast = await _broadcast(group_id, current_user, session)
     model = BROADCAST_RECORD_MODELS[kind]
     filters = [model.broadcast_group_id == group_id, model.agency_id == broadcast.agency_id]
@@ -170,15 +174,18 @@ async def whatsapp_broadcast_records(group_id: UUID, kind: BroadcastRecordKind,
         "consistency": "live_records_in_created_order; restart after audience edits"}
 
 
-async def _client_group(group_id: UUID, current_user: User, session: AsyncSession):
+async def _client_group(group_id: UUID, current_user: User, session: AsyncSession) -> ClientGroupModel:
     entity = await ClientGroupRepository(session).get_by_id(group_id)
     if entity is None:
         raise HTTPException(404, "Group not found")
     await AuthorizationPolicy(session).require_view_group(current_user, entity)
-    return await session.get(ClientGroupModel, group_id)
+    row = await session.get(ClientGroupModel, group_id)
+    if row is None:
+        raise HTTPException(404, "Group not found")
+    return row
 
 
-async def group_qr_metadata(group_id: UUID, current_user: User, session: AsyncSession):
+async def group_qr_metadata(group_id: UUID, current_user: User, session: AsyncSession) -> dict[str, Any]:
     from app.presentation.api.v1.routes.tour_operations_qr_helpers import group_passenger_qr_codes
 
     group = await _client_group(group_id, current_user, session)
@@ -189,7 +196,7 @@ async def group_qr_metadata(group_id: UUID, current_user: User, session: AsyncSe
     return result.model_dump(exclude={"generated_at"})
 
 
-async def qr_delivery_eligibility(group_id: UUID, current_user: User, session: AsyncSession):
+async def qr_delivery_eligibility(group_id: UUID, current_user: User, session: AsyncSession) -> dict[str, Any]:
     from app.presentation.api.v1.routes.tour_operations_qr_delivery import _build_preview
 
     group = await _client_group(group_id, current_user, session)
@@ -198,7 +205,7 @@ async def qr_delivery_eligibility(group_id: UUID, current_user: User, session: A
 
 
 async def welcome_delivery_eligibility(group_id: UUID, current_user: User, session: AsyncSession,
-    source_broadcast_id: UUID | None = None):
+    source_broadcast_id: UUID | None = None) -> dict[str, Any]:
     from app.presentation.api.v1.routes.traveller_welcome_preview import (
         build_traveller_welcome_preview,
     )
@@ -210,7 +217,7 @@ async def welcome_delivery_eligibility(group_id: UUID, current_user: User, sessi
 
 
 async def document_delivery_eligibility(group_id: UUID, document_type: str,
-    current_user: User, session: AsyncSession):
+    current_user: User, session: AsyncSession) -> dict[str, Any]:
     from app.presentation.api.v1.routes.document_distribution_delivery import (
         preview_document_whatsapp_broadcast,
     )
@@ -221,7 +228,7 @@ async def document_delivery_eligibility(group_id: UUID, document_type: str,
 
 
 async def email_activity(current_user: User, session: AsyncSession,
-    offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)):
+    offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)) -> dict[str, Any]:
     from app.presentation.api.v1.routes.email_integration_activity import (
         email_activity as canonical_activity,
     )
@@ -233,7 +240,7 @@ async def email_activity(current_user: User, session: AsyncSession,
 
 async def email_ai_rollout(scope_type: Literal["agency", "user", "connection"],
     current_user: User, session: AsyncSession, search: str | None = Query(None, max_length=120),
-    offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)):
+    offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)) -> dict[str, Any]:
     from app.core.config.settings import get_settings
     from app.presentation.api.v1.routes.email_ai_rollout_admin import (
         _load_policy_map,
@@ -257,7 +264,7 @@ async def email_ai_rollout(scope_type: Literal["agency", "user", "connection"],
 
 
 async def passport_image_metadata(submission_id: UUID, image_type: PassportImageType,
-    current_user: User, session: AsyncSession):
+    current_user: User, session: AsyncSession) -> dict[str, Any]:
     from app.infrastructure.repositories.passport_image_crop_repository import (
         PassportImageCropRepository,
     )
@@ -281,7 +288,7 @@ async def passport_image_metadata(submission_id: UUID, image_type: PassportImage
 
 
 async def _stored_ai_job(submission_id: UUID, current_user: User, session: AsyncSession,
-    job_id: UUID | None = None):
+    job_id: UUID | None = None) -> PassportVisaAiImageJobResponse | None:
     from app.infrastructure.repositories.passport_image_crop_repository import (
         PassportImageCropRepository,
     )
@@ -308,17 +315,17 @@ async def _stored_ai_job(submission_id: UUID, current_user: User, session: Async
         current_storage_key=effective.edit_source_storage_key if effective else None, session=session)
 
 
-async def passport_active_ai_image_job(submission_id: UUID, current_user: User, session: AsyncSession):
+async def passport_active_ai_image_job(submission_id: UUID, current_user: User, session: AsyncSession) -> PassportVisaAiImageJobResponse | None:
     return await _stored_ai_job(submission_id, current_user, session)
 
 
-async def passport_ai_image_job(submission_id: UUID, job_id: UUID, current_user: User, session: AsyncSession):
+async def passport_ai_image_job(submission_id: UUID, job_id: UUID, current_user: User, session: AsyncSession) -> PassportVisaAiImageJobResponse | None:
     return await _stored_ai_job(submission_id, current_user, session, job_id)
 
 
 async def delivery_receipts(kind: Literal["document", "qr", "broadcast", "welcome"], record_id: UUID,
     current_user: User, session: AsyncSession, agency_id: UUID | None = None,
-    offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)):
+    offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)) -> dict[str, Any]:
     model = DELIVERY_MODELS[kind][0]
     query = select(model).where(model.id == record_id)
     if agency_id is not None:
@@ -346,7 +353,7 @@ async def delivery_receipts(kind: Literal["document", "qr", "broadcast", "welcom
 
 
 async def gc_common_documents(group_id: UUID, current_user: User, session: AsyncSession,
-    agency_id: UUID | None = None, offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)):
+    agency_id: UUID | None = None, offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)) -> dict[str, Any]:
     from app.presentation.api.v1.routes.gc_app_content import list_common_documents
 
     rows = await list_common_documents(group_id, agency_id=agency_id, offset=offset,
@@ -356,7 +363,7 @@ async def gc_common_documents(group_id: UUID, current_user: User, session: Async
 
 
 async def email_reviews(current_user: User, session: AsyncSession,
-    review_status: str = Query("open"), offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)):
+    review_status: str = Query("open"), offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)) -> dict[str, Any]:
     from app.presentation.api.v1.routes.email_integration_review_queries import list_email_reviews
 
     rows = await list_email_reviews(review_status=review_status, offset=offset, limit=limit + 1,
@@ -367,7 +374,7 @@ async def email_reviews(current_user: User, session: AsyncSession,
 
 async def email_review_options(current_user: User, session: AsyncSession,
     group_id: UUID | None = None, message_id: UUID | None = None,
-    offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)):
+    offset: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=100)) -> dict[str, Any]:
     from app.presentation.api.v1.routes.email_integration_review_queries import (
         email_review_options as website,
     )

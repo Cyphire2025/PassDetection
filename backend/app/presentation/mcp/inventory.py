@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from fastapi import FastAPI
+from mcp.types import Tool
 
 from app.core.config.settings import Settings
 from app.domain.mcp_read_sections import READ_TOOL_SECTIONS, read_section_catalog
@@ -24,7 +25,7 @@ async def deployed_inventory(app: FastAPI, settings: Settings) -> dict[str, Any]
     available_names = {tool.name for tool in available}
     deployment_scopes = set(settings.mcp.effective_capabilities)
 
-    def deployed(tool) -> bool:
+    def deployed(tool: Tool) -> bool:
         capability = (tool.meta or {}).get("capability")
         if tool.name == "inspect_native_transfer":
             return settings.mcp.enabled and bool(deployment_scopes & {"mcp:upload", "mcp:export"})

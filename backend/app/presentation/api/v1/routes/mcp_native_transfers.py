@@ -3,7 +3,7 @@
 import json
 import uuid
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, FastAPI, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -39,7 +39,7 @@ PRIVATE = {
 }
 
 
-def native_service(app, session: AsyncSession) -> MCPNativeTransferService:
+def native_service(app: FastAPI, session: AsyncSession) -> MCPNativeTransferService:
     return MCPNativeTransferService(
         session,
         app.state.settings,

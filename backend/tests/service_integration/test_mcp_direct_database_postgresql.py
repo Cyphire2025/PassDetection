@@ -95,7 +95,7 @@ def test_direct_backup_decode_exact_upgrade_and_retry_retain_source_data():
             (str(identifier),),
         )
     directory = ROOT / "outputs" / ("mcp-direct-database-" + suffix)
-    directory.mkdir(mode=0o700)
+    directory.mkdir(mode=0o700, parents=True)
 
     def executable(name):
         local = ROOT / "outputs/mcp-postgresql-16.15/pgsql/bin" / (name + ".exe")

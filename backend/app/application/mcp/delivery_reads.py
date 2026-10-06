@@ -24,7 +24,8 @@ from app.infrastructure.repositories.audit_log_repository import AuditLogReposit
 from app.infrastructure.repositories.mcp_read_page import read_page
 
 # Server-owned projections. Never accept arbitrary tables or caller-selected SQL.
-DELIVERY_MODELS = {
+# Each reviewed table has a different set of optional projection columns.
+DELIVERY_MODELS: dict[str, tuple[Any, str, str | None]] = {
     "document": (DocumentWhatsAppDeliveryModel, "send_batch_id", "passenger_id"),
     "qr": (PassengerQrWhatsAppDeliveryModel, "send_batch_id", "passenger_id"),
     "broadcast": (WhatsAppMessageLogModel, "batch_id", None),

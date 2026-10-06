@@ -157,6 +157,14 @@ async def test_device_upgrade_preserves_authority_and_serializes_pause_before_re
                 async with engine.begin() as connection:
                     await connection.execute(text(f"UPDATE mcp_grants SET {change}"))
         assert await snapshot() == before
+        # Verify the historical revision's rollback boundary before advancing
+        # to the complete schema required by the current runtime models.
+        code, output = await migrate("downgrade", SOURCE)
+        assert code != 0 and "Retain connection access decisions" in output
+        async with engine.connect() as connection:
+            assert await connection.scalar(text("SELECT version_num FROM alembic_version")) == TARGET
+        code, output = await migrate("upgrade", "head")
+        assert code == 0, output[-4000:]
         # Exercise the granted credentials only inside this disposable test DB.
         async with engine.begin() as connection:
             await connection.execute(text("UPDATE mcp_control SET enabled=true WHERE id=1"))
@@ -206,10 +214,6 @@ async def test_device_upgrade_preserves_authority_and_serializes_pause_before_re
             assert pair["refresh_token"] != refresh[0]
             assert (await session.get(MCPGrantModel, grants[0])).revoked_at is None
             await session.commit()
-        code, output = await migrate("downgrade", SOURCE)
-        assert code != 0 and "Retain connection access decisions" in output
-        async with engine.connect() as connection:
-            assert await connection.scalar(text("SELECT version_num FROM alembic_version")) == TARGET
     finally:
         await engine.dispose()
         async with admin.connect() as connection:

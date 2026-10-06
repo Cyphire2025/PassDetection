@@ -17,6 +17,7 @@ const SESSION_REFRESH_FALLBACK_MS = 20 * 60_000;
 const SESSION_REFRESH_SAFETY_WINDOW_MS = 2 * 60_000;
 const SESSION_REFRESH_MINIMUM_DELAY_MS = 30_000;
 const SESSION_REFRESH_RETRY_DELAY_MS = 30_000;
+const MAX_BROWSER_TIMEOUT_MS = 2_147_483_647;
 
 function accessContextChanged(user: User) {
   const current = useAuthStore.getState().user;
@@ -47,11 +48,16 @@ export function AuthHydrator() {
       const now = Date.now();
       const parsedExpiry = expiresAt ? Date.parse(expiresAt) : Number.NaN;
       const dueAt = Number.isFinite(parsedExpiry)
-        ? Math.max(
-            now + SESSION_REFRESH_MINIMUM_DELAY_MS,
-            parsedExpiry - SESSION_REFRESH_SAFETY_WINDOW_MS,
+        ? Math.min(
+            now + MAX_BROWSER_TIMEOUT_MS,
+            Math.max(
+              now + SESSION_REFRESH_MINIMUM_DELAY_MS,
+              parsedExpiry - SESSION_REFRESH_SAFETY_WINDOW_MS,
+            ),
           )
         : now + fallbackDelay;
+      // Browsers overflow delays above the signed 32-bit limit into immediate
+      // timers. A far-future expiry must never create a refresh/socket storm.
       renewalDueAtRef.current = dueAt;
       renewalTimerRef.current = window.setTimeout(() => {
         void renewSessionRef.current?.();

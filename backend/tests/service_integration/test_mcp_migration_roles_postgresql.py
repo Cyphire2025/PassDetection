@@ -63,13 +63,21 @@ async def test_existing_default_privileges_cover_mcp_upgrade_and_protected_rows(
     try:
         async with admin.connect() as connection:
             await connection.execute(text(f'CREATE DATABASE "{name}"'))
-        await command("-m", "alembic", "upgrade", "head")
-        # The existing role qualifier requires the current full model inventory.
-        # Provision it first; then return this otherwise empty MCP schema to the
-        # exact source revision while retaining the configured roles/defaults.
-        await command("scripts/qualify_database_roles.py")
-        await command("-m", "alembic", "downgrade", "0113_document_follow_up",
-                      migration_identity=True)
+        await command("-m", "alembic", "upgrade", "0113_document_follow_up")
+        # Build a genuine old-schema fixture with its pre-existing role policy.
+        # Current production provisioning correctly insists on the current full
+        # inventory; neither it nor irreversible later migrations are weakened.
+        from tests.postgresql_schema import seed_legacy_mcp_role_policy
+
+        legacy = create_async_engine(url.set(database=name), poolclass=NullPool)
+        try:
+            async with legacy.begin() as connection:
+                await seed_legacy_mcp_role_policy(connection, database=name,
+                    runtime=runtime, migrator=migrator,
+                    runtime_password=environment["POSTGRES_RUNTIME_PASSWORD"],
+                    migration_password=environment["POSTGRES_MIGRATION_PASSWORD"])
+        finally:
+            await legacy.dispose()
         async with runtime_engine.connect() as connection:
             before = (await connection.execute(text(
                 "SELECT row_to_json(a) FROM (SELECT * FROM agencies ORDER BY id) a"

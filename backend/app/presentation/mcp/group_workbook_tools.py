@@ -9,8 +9,10 @@ from fastapi import FastAPI, HTTPException
 from mcp.server import MCPServer
 from mcp.types import ToolAnnotations
 from pydantic import Field
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mcp.artifacts import ArtifactError
+from app.application.mcp.authorization import MCPPrincipal
 from app.application.mcp.group_workbook_import import group_workbook_definition
 from app.application.mcp.group_workbook_plan import (
     GroupWorkbookDraft,
@@ -67,7 +69,7 @@ def register_group_workbook_tools(server: MCPServer, app: FastAPI, settings: Set
         attendance scans, approval decisions or provider sends are inferred.
         """
 
-        async def preview(session, principal):
+        async def preview(session: AsyncSession, principal: MCPPrincipal) -> dict[str, Any]:
             try:
                 return await prepare_group_workbook(
                     MCPDatabaseContext(session, principal, uuid.uuid4()),

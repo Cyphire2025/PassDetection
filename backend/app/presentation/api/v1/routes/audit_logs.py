@@ -54,7 +54,7 @@ async def list_audit_logs(
     skip: int = Query(default=0, ge=0, le=1_000_000),
     limit: int = Query(default=100, ge=1, le=AUDIT_PAGE_MAX_SIZE),
 ) -> list[AuditLogResponse]:
-    agency_id = None if current_user.role == UserRole.SUPER_ADMIN else current_user.agency_id
+    agency_id = _audit_scope(current_user, None)
     repository = AuditLogRepository(session)
     logs = await repository.list_by_agency(agency_id, skip=skip, limit=limit)
     response = [
@@ -233,6 +233,11 @@ def _audit_scope(
     current_user: User,
     requested_agency_id: uuid.UUID | None,
 ) -> uuid.UUID | None:
+    if current_user.role not in AUDIT_ROLES:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Audit scope is unavailable",
+        )
     if current_user.role == UserRole.SUPER_ADMIN:
         return requested_agency_id
     if current_user.agency_id is None:

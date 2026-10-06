@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Annotated, Any, Literal
+from typing import TYPE_CHECKING, Annotated, Any, Literal
 from uuid import UUID
 
 from fastapi import FastAPI
@@ -20,14 +20,17 @@ from app.presentation.mcp.invocation import MCPInputError, invoke_operation
 # Keep the canonical field types without executing its cross-field validators
 # in the SDK. Canonical validation runs inside the audited operation boundary,
 # where failures return static messages instead of echoing submitted values.
-GroupCreationFields = create_model(
-    "GroupCreationFields",
-    __config__=ConfigDict(extra="forbid", str_strip_whitespace=True),
-    **{
-        name: (field.annotation, deepcopy(field))
-        for name, field in CreateClientGroupRequest.model_fields.items()
-    },
-)
+if TYPE_CHECKING:
+    GroupCreationFields = CreateClientGroupRequest
+else:
+    GroupCreationFields = create_model(
+        "GroupCreationFields",
+        __config__=ConfigDict(extra="forbid", str_strip_whitespace=True),
+        **dict[str, Any]({
+            name: (field.annotation, deepcopy(field))
+            for name, field in CreateClientGroupRequest.model_fields.items()
+        }),
+    )
 
 
 class MCPCreateGroupRequest(GroupCreationFields):

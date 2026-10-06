@@ -229,6 +229,7 @@ class RetainedBuild:
             raise BuildError("invalid_frontend_build_binding")
         script = (
             "npm install --prefix /opt/mcp-buildtools npm@11.20.0 && "
+            "node scripts/patch-npm-toolchain.mjs /opt/mcp-buildtools/node_modules/npm && "
             "node /opt/mcp-buildtools/node_modules/npm/bin/npm-cli.js ci && "
             "node /opt/mcp-buildtools/node_modules/npm/bin/npm-cli.js run build"
         )

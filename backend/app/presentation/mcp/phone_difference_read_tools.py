@@ -35,7 +35,7 @@ def phone_difference_support() -> PhoneDifferenceSupport:
     )
 
 
-def register_phone_difference_read_tools(server: MCPServer, app: FastAPI, settings: Settings):
+def register_phone_difference_read_tools(server: MCPServer, app: FastAPI, settings: Settings) -> None:
     @server.tool(meta={"capability": "mcp:read"},
         annotations=ToolAnnotations(read_only_hint=True, destructive_hint=False, open_world_hint=False))
     async def list_submission_phone_differences(group_id: UUID, broadcast_id: UUID | None = None,
@@ -56,7 +56,7 @@ def register_phone_difference_read_tools(server: MCPServer, app: FastAPI, settin
         export: an agent may create a local workbook from the returned data.
         No customer record edits, file downloads or messages are performed.
         """
-        async def read(session: AsyncSession, principal: MCPPrincipal):
+        async def read(session: AsyncSession, principal: MCPPrincipal) -> dict[str, Any]:
             _, revision = await current_read_access(session, lock=True)
             try:
                 async with observational_session(session):

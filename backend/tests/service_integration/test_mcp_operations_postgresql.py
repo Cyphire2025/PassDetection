@@ -14,6 +14,7 @@ from app.application.mcp.authorization import MCPAuthorizationService
 from app.application.mcp.credentials import MCPAuthError
 from app.application.mcp.group_changes import CREATE_GROUP_POLICY, group_creation_operation
 from app.application.mcp.operations import MCPOperationError, MCPOperationService
+from app.domain.mcp_section_permissions import WRITE_TOOL_SECTIONS
 from app.infrastructure.database.mcp_models import MCPControlModel, MCPGrantModel
 from app.infrastructure.database.mcp_operation_models import MCPOperationModel
 from app.infrastructure.database.models import (
@@ -36,7 +37,9 @@ pytestmark = [
 
 
 @pytest.fixture
-async def operation_sessions(mcp_sessions):
+async def operation_sessions(mcp_sessions, monkeypatch):
+    for name in ("test.create_agency", "test.other_operation"):
+        monkeypatch.setitem(WRITE_TOOL_SECTIONS, name, frozenset({"all_groups"}))
     # The shared fixture enforces local/CI host and database-name guards. This
     # lane does not create/drop schemas, truncate tables, or touch business data.
     sessions, settings = mcp_sessions
@@ -48,7 +51,7 @@ async def operation_sessions(mcp_sessions):
         assert control is not None
         control.enabled = True
         user, grants, tokens = await seed_identity(
-            session, settings, email=f"operations-{uuid.uuid4()}@example.test"
+            session, settings, enable_write_policy=True, email=f"operations-{uuid.uuid4()}@example.test"
         )
         user_id, grant_ids = user.id, [grant.id for grant in grants]
         await session.commit()
@@ -220,6 +223,7 @@ async def test_actual_group_creation_replays_one_group_and_business_audit(operat
         "agency_id": str(agency_id),
         "owner_user_id": str(owner_id),
         "name": "Isolated PG group",
+        "collection_settings_confirmed": True,
         "destination": "Japan",
         "travel_date": "2026-10-10",
         "return_date": "2026-10-18",

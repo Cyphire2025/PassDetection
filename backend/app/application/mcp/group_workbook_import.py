@@ -52,8 +52,11 @@ def group_workbook_definition(
         if row.consumed_operation_id is not None:
             raise MCPOperationError("group_workbook_already_used")
         await require_native_source(context, row, draft.group_id)
+        checkpoint = row.workbook_snapshot.get(CHECKPOINT_KEY)
+        if not isinstance(checkpoint, dict):
+            raise MCPOperationError("group_workbook_source_changed")
         actor, group, resolved, preview = await import_preview(
-            context, draft, row.workbook_snapshot.get(CHECKPOINT_KEY), support=support, mutate=True
+            context, draft, checkpoint, support=support, mutate=True
         )
         if not hmac.compare_digest(draft.preview_sha256, preview["preview_sha256"]):
             raise MCPOperationError("group_workbook_preview_changed")

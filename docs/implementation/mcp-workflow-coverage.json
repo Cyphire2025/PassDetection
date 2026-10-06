@@ -28306,14 +28306,14 @@
         "handler": "update_platform_settings",
         "method": "PUT",
         "local_path": "/settings",
-        "contract_sha256": "1fbc47a7f6cb669cef4c00c20b80d7180fa2f87be46714ba953aa71ca1c0c339",
+        "contract_sha256": "e2951424a35ab7011ffa73b393c80ecd891971d27a6d3026605977de6cc0eccb",
         "summary": "Update editable platform settings",
         "schema_visible": true
       },
       "workflow": "admin.update-platform-settings",
       "disposition": "implement",
       "phase": 7,
-      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool. Global policy mutation requires the effective super-admin role; agency administrators retain read access only (security review 2026-10-06).",
       "adapter_requirements": [
         "no_removal_effect_audit",
         "business_transaction_idempotency",

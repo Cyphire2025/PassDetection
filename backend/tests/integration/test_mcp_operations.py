@@ -31,7 +31,7 @@ POLICY = MCPToolPolicy("test.create_agency", MCPCapability.CHANGE, frozenset({"c
 KEY = "stable-business-key-001"
 
 
-async def seed_identity(session, settings, *, email="operation-admin@example.test"):
+async def seed_identity(session, settings, *, email="operation-admin@example.test", enable_write_policy=False):
     now = datetime.now(UTC)
     user = UserModel(
         id=uuid.uuid4(),
@@ -52,6 +52,17 @@ async def seed_identity(session, settings, *, email="operation-admin@example.tes
             mfa_secret_ciphertext="fixture",
         )
     )
+    if enable_write_policy:
+        # This opt-in belongs only to synthetic write scenarios. The deployed
+        # schema and ordinary authorization fixtures remain default-denied.
+        await session.flush()
+        control = await session.get(MCPControlModel, 1)
+        assert control is not None, "Seed the global test control before a write scenario"
+        control.read_enabled = True
+        control.write_enabled = True
+        control.allowed_read_sections = sorted(SUPPORTED_READ_SECTIONS)
+        control.allowed_write_sections = sorted(SUPPORTED_WRITE_SECTIONS)
+        control.allowed_write_tools = sorted(WRITE_TOOL_SECTIONS)
     grants, tokens = [], []
     for index in range(2):
         grant = MCPGrantModel(
