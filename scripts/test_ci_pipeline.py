@@ -93,23 +93,110 @@ class GateTests(unittest.TestCase):
     def test_new_push_cannot_hide_a_failed_or_unqualified_predecessor(self):
         repository = "Cyphire2025/PassDetection"
         run = {"id": 4, "head_sha": SOURCE, "workflow_id": 2,
-               "path": ".github/workflows/ci.yml", "event": "push",
+               "path": ".github/workflows/ci.yml", "event": "push", "head_branch": "main",
                "repository": {"full_name": repository}, "status": "completed",
-               "conclusion": "success", "run_attempt": 1}
-        gate = {"name": "Required CI checks", "status": "completed", "conclusion": "success"}
+               "conclusion": "success", "run_attempt": 1,
+               "created_at": "2026-10-01T00:00:00Z", "updated_at": "2026-10-01T01:00:00Z"}
+        gate = {"id": 40, "run_id": 4, "run_attempt": 1, "head_sha": SOURCE,
+                "name": "Required CI checks", "status": "completed", "conclusion": "success",
+                "completed_at": "2026-10-01T00:50:00Z"}
 
         def api(_):
             return {"workflow_runs": [run]} if "/workflows/" in _ else {"total_count": 1, "jobs": [gate]}
 
-        self.assertTrue(qualified_push_base(api, repository, 2, SOURCE))
-        for field, value in (("conclusion", "failure"), ("status", "in_progress"),
+        self.assertTrue(qualified_push_base(api, repository, 2, SOURCE, "main"))
+        for field, value in (("status", "in_progress"), ("head_branch", "develop"),
                              ("head_sha", "f" * 40), ("event", "pull_request")):
             original = run[field]
             run[field] = value
-            self.assertFalse(qualified_push_base(api, repository, 2, SOURCE))
+            self.assertFalse(qualified_push_base(api, repository, 2, SOURCE, "main"))
             run[field] = original
         gate["conclusion"] = "skipped"
-        self.assertFalse(qualified_push_base(api, repository, 2, SOURCE))
+        self.assertFalse(qualified_push_base(api, repository, 2, SOURCE, "main"))
+
+
+class PushBaselineTests(unittest.TestCase):
+    def setUp(self):
+        self.repository = "Cyphire2025/PassDetection"
+        self.run = {"id": 4, "head_sha": SOURCE, "workflow_id": 2,
+                    "path": ".github/workflows/ci.yml", "event": "workflow_dispatch", "head_branch": "main",
+                    "repository": {"full_name": self.repository}, "status": "completed",
+                    "conclusion": "success", "run_attempt": 1,
+                    "created_at": "2026-10-01T00:00:00Z", "updated_at": "2026-10-01T01:00:00Z"}
+        self.gate = {"id": 40, "run_id": 4, "run_attempt": 1, "head_sha": SOURCE,
+                     "name": "Required CI checks", "status": "completed", "conclusion": "success",
+                     "completed_at": "2026-10-01T00:50:00Z"}
+        self.runs, self.jobs = [self.run], {4: [self.gate]}
+        self.paths = []
+
+    def api(self, path):
+        self.paths.append(path)
+        if "/workflows/" in path:
+            return {"workflow_runs": self.runs}
+        identifier = int(path.split("/runs/")[1].split("/")[0])
+        return {"total_count": len(self.jobs[identifier]), "jobs": self.jobs[identifier]}
+
+    def qualified(self):
+        return qualified_push_base(self.api, self.repository, 2, SOURCE, "main")
+
+    def other(self, *, updated="2026-10-01T00:55:00Z", gates=True, conclusion="failure"):
+        run = {**self.run, "id": 5, "event": "push", "conclusion": conclusion, "updated_at": updated}
+        job = {**self.gate, "id": 50, "run_id": 5, "conclusion": conclusion, "completed_at": updated}
+        self.runs.append(run)
+        self.jobs[5] = [job] if gates else []
+        return run, job
+
+    def test_successful_manual_full_or_check_only_release_is_valid_baseline(self):
+        self.assertTrue(self.qualified())
+        self.assertNotIn("event=push", self.paths[0])
+        self.assertNotIn("status=success", self.paths[0])
+        self.assertIn("status=completed", self.paths[0])
+
+    def test_newer_failed_or_cancelled_gate_cannot_hide_behind_old_success(self):
+        for conclusion in ("failure", "cancelled", "skipped", "timed_out"):
+            with self.subTest(conclusion=conclusion):
+                self.runs = [self.run]
+                self.other(conclusion=conclusion)
+                self.assertFalse(self.qualified())
+                self.runs.reverse()
+                self.assertFalse(self.qualified())
+
+    def test_early_cancelled_duplicate_push_is_superseded_by_later_full_gate(self):
+        self.other(updated="2026-10-01T00:20:00Z", gates=False, conclusion="cancelled")
+        self.assertTrue(self.qualified())
+
+    def test_later_missing_incomplete_or_ambiguous_gate_requires_fresh_checks(self):
+        _, job = self.other(gates=False, conclusion="cancelled")
+        self.assertFalse(self.qualified())
+        self.jobs[5] = [{**job, "status": "in_progress", "completed_at": None}]
+        self.assertFalse(self.qualified())
+        self.jobs[5] = [job, job]
+        self.assertFalse(self.qualified())
+
+    def test_later_successful_full_resolves_an_earlier_failed_push(self):
+        self.other(updated="2026-10-01T00:20:00Z")
+        self.assertTrue(self.qualified())
+        self.runs.reverse()
+        self.assertTrue(self.qualified())
+
+    def test_gate_identity_and_attempt_are_bound_to_its_run(self):
+        for key, value in (("run_id", 99), ("run_attempt", 2), ("head_sha", "f" * 40), ("id", True)):
+            with self.subTest(key=key):
+                self.jobs[4] = [{**self.gate, key: value}]
+                self.assertFalse(self.qualified())
+
+    def test_later_deployment_status_cannot_reorder_actual_qualification(self):
+        self.run["conclusion"] = "failure"  # CI passed; a later publication step failed.
+        self.assertTrue(self.qualified())
+        self.other(updated="2026-10-01T00:55:00Z")
+        self.run["updated_at"] = "2026-10-01T02:00:00Z"
+        self.assertFalse(self.qualified())
+
+    def test_equal_time_negative_gate_wins_and_unknown_dates_are_refused(self):
+        other, _ = self.other(updated=self.gate["completed_at"])
+        self.assertFalse(self.qualified())
+        other["updated_at"] = None
+        self.assertFalse(self.qualified())
 
 
 class ProvenanceTests(unittest.TestCase):
