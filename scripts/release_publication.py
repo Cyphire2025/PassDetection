@@ -12,6 +12,7 @@ import re
 import subprocess
 import tempfile
 from pathlib import Path
+from urllib.parse import urlencode
 
 from release_artifacts import (
     REVISION,
@@ -53,23 +54,55 @@ class GitHub:
         self.repository = repository
         self.prefix = f"repos/{repository}/"
 
-    def metadata(self, endpoint: str) -> dict | None:
+    def request(self, endpoint: str, *, method: str = "GET", payload: dict | None = None,
+                upload: Path | None = None) -> dict | None:
+        command = ["gh", "api", "--hostname", "github.com", "--include"]
+        command.append(endpoint if endpoint == "graphql" or endpoint.startswith("https://uploads.github.com/")
+                       else self.prefix + endpoint)
+        if method != "GET":
+            command.extend(["--method", method])
+        if upload is not None:
+            command.extend(["--header", "Content-Type: application/octet-stream", "--input", str(upload)])
+        elif payload is not None:
+            command.extend(["--header", "Content-Type: application/json", "--input", "-"])
         result = subprocess.run(
-            ["gh", "api", "--hostname", "github.com", "--include", self.prefix + endpoint],
-            capture_output=True, text=True, encoding="utf-8", timeout=60, check=False,
+            command, input=json.dumps(payload) if payload is not None else None,
+            capture_output=True, text=True, encoding="utf-8", timeout=120, check=False,
         )
         headers, separator, body = result.stdout.replace("\r\n", "\n").partition("\n\n")
         status = re.match(r"HTTP/\S+ (\d{3})(?:\s|$)", headers)
         if not separator or status is None:
             raise ValueError("Cannot establish GitHub release state")
-        if status[1] == "404":
+        if status[1] == "404" and method == "GET":
             return None
-        if result.returncode or status[1] != "200":
-            raise ValueError("GitHub release lookup failed; publication stopped")
+        expected_status = "201" if method == "POST" and endpoint != "graphql" else "200"
+        if result.returncode or status[1] != expected_status:
+            raise ValueError("GitHub release operation failed; publication stopped without cleanup")
         value = json.loads(body)
         if not isinstance(value, dict):
             raise TypeError("Invalid GitHub release metadata")
         return value
+
+    def metadata(self, endpoint: str) -> dict | None:
+        return self.request(endpoint)
+
+    def require_no_pending_release(self, tag: str) -> None:
+        # REST's releases/tags endpoint only finds published releases. GitHub CLI
+        # also uses this GraphQL lookup to find drafts by their pending tag.
+        owner, name = self.repository.split("/", 1)
+        response = self.request("graphql", method="POST", payload={
+            "query": "query ReleasePublicationPendingTag($owner: String!, $name: String!, $tag: String!) {"
+                     " repository(owner: $owner, name: $name) {"
+                     " release(tagName: $tag) { databaseId isDraft tagName } } }",
+            "variables": {"owner": owner, "name": name, "tag": tag},
+        })
+        data = response.get("data") if response is not None else None
+        repository = data.get("repository") if isinstance(data, dict) else None
+        if (response is None or response.get("errors") or not isinstance(repository, dict)
+                or "release" not in repository):
+            raise ValueError("Cannot establish pending release state; publication stopped")
+        if repository["release"] is not None:
+            raise ValueError("A release already uses this pending tag; retained without resuming or replacing it")
 
     def require_tag(self, tag: str, revision: str, *, allow_missing: bool = False) -> None:
         reference = self.metadata("git/ref/tags/" + tag)
@@ -91,8 +124,8 @@ class GitHub:
             target = annotated.get("object", {})
         raise ValueError("Release tag does not resolve to the selected commit")
 
-    def verify_assets(self, release: dict, tag: str, assets: dict[str, Path]) -> None:
-        if release.get("tag_name") != tag or release.get("draft") is not False:
+    def verify_assets(self, release: dict, tag: str, assets: dict[str, Path], *, draft: bool = False) -> None:
+        if release.get("tag_name") != tag or release.get("draft") is not draft:
             raise ValueError("Existing release identity or publication state differs")
         entries = release.get("assets")
         if (not isinstance(entries, list) or len(entries) != len(assets)
@@ -115,10 +148,39 @@ class GitHub:
                 if result.returncode or asset_digest(downloaded) != expected:
                     raise ValueError("Existing release asset bytes differ; retained assets were not changed")
 
-    def create(self, tag: str, revision: str, assets: dict[str, Path]) -> None:
-        run("gh", "release", "create", tag, "--repo", self.repository, "--target", revision,
-            "--title", f"Qualified artifacts {revision}", "--notes", NOTES,
-            *(str(path) for path in assets.values()))
+    @staticmethod
+    def require_created_draft(release: dict | None, identifier: int, tag: str, revision: str) -> None:
+        if (release is None or release.get("id") != identifier or release.get("tag_name") != tag
+                or release.get("draft") is not True or release.get("target_commitish") != revision):
+            raise ValueError("New release draft identity differs; partial state was retained")
+
+    def create(self, tag: str, revision: str, assets: dict[str, Path]) -> int:
+        # gh release create automatically DELETEs its draft on upload/publish errors.
+        # Explicit API operations preserve every partial upload and ambiguous outcome.
+        created = self.request("releases", method="POST", payload={
+            "tag_name": tag, "target_commitish": revision, "draft": True,
+            "name": f"Qualified artifacts {revision}", "body": NOTES,
+        })
+        identifier = created.get("id") if created is not None else None
+        if type(identifier) is not int or identifier <= 0:
+            raise ValueError("New release draft ID is unknown; publication stopped without cleanup")
+        self.require_created_draft(created, identifier, tag, revision)
+        if created.get("assets") != []:
+            raise ValueError("New release draft already contains assets; retained without changes")
+        self.require_tag(tag, revision, allow_missing=True)
+        for name, path in assets.items():
+            endpoint = f"https://uploads.github.com/{self.prefix}releases/{identifier}/assets?{urlencode({'name': name})}"
+            self.request(endpoint, method="POST", upload=path)
+        retained = self.metadata(f"releases/{identifier}")
+        self.require_created_draft(retained, identifier, tag, revision)
+        self.verify_assets(retained, tag, assets, draft=True)
+        # GitHub may create the tag only when this draft is published. An existing
+        # tag must match; otherwise the draft's exact target_commitish binds it.
+        self.require_tag(tag, revision, allow_missing=True)
+        published = self.request(f"releases/{identifier}", method="PATCH", payload={"draft": False})
+        if published is None or published.get("id") != identifier or published.get("draft") is not False:
+            raise ValueError("Publication response is ambiguous; release state was retained")
+        return identifier
 
 
 def publish(images: Path, connector: Path, revision: str) -> str:
@@ -135,9 +197,10 @@ def publish(images: Path, connector: Path, revision: str) -> str:
         return "reused"
     # If creation/upload has an unknown or partial outcome, retain it and stop.
     # Never retry with --clobber, delete assets, or move a previously created tag.
-    github.create(tag, revision, assets)
+    github.require_no_pending_release(tag)
+    identifier = github.create(tag, revision, assets)
     created = github.metadata("releases/tags/" + tag)
-    if created is None:
+    if created is None or created.get("id") != identifier:
         raise ValueError("Created release could not be read back")
     github.require_tag(tag, revision)
     github.verify_assets(created, tag, assets)
