@@ -17,6 +17,10 @@ import urllib.request
 SHA = re.compile(r"[0-9a-f]{40}")
 FINGERPRINT = re.compile(r"[0-9a-f]{64}")
 MAX_AGE = dt.timedelta(hours=24)
+RUN_CONCLUSIONS = frozenset({
+    "success", "failure", "cancelled", "timed_out", "action_required",
+    "stale", "neutral", "startup_failure",
+})
 
 
 class EvidenceUnavailable(ValueError):
@@ -87,7 +91,6 @@ def _same_run_scope(run, context, now):
             and isinstance(run.get("head_sha"), str) and SHA.fullmatch(run["head_sha"])
             and _positive_id(run.get("run_attempt"))
             and run.get("status") == "completed"
-            and run.get("conclusion") in {"success", "failure"}
             and _fresh(run.get("created_at"), now) is not None)
 
 
@@ -169,6 +172,12 @@ def discover_reuse(context, fingerprints, job_names, *, api, fingerprint_at, anc
                 continue
             if not matching:
                 continue
+            # The overall run may be cancelled after one real check failed.
+            # Inspect its authoritative jobs too, so it cannot expose an older
+            # success by disappearing from consideration. Unknown conclusions
+            # cannot safely authorize falling back to older matching evidence.
+            if run.get("conclusion") not in RUN_CONCLUSIONS:
+                return {}
             document = api(f"{prefix}/runs/{run['id']}/attempts/{run['run_attempt']}/jobs?per_page=100")
             jobs = document.get("jobs")
             if (not isinstance(jobs, list) or type(document.get("total_count")) is not int

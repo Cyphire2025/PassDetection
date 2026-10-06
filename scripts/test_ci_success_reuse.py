@@ -63,7 +63,7 @@ class ReuseTests(unittest.TestCase):
                  "event": "push", "head_branch": "main", "head_sha": "main",
                  "repository": {"id": 23, "full_name": "Cyphire2025/PassDetection"},
                  "head_repository": {"id": 23}, "run_attempt": 0,
-                 "status": "in_progress", "conclusion": "cancelled"}
+                 "status": "in_progress", "conclusion": "unknown"}
         for key, value in cases.items():
             with self.subTest(key=key):
                 self.runs = [{**self.run, key: value}]
@@ -138,6 +138,28 @@ class ReuseTests(unittest.TestCase):
             self.api.side_effect = lambda path: ({"workflow_runs": self.runs} if "/workflows/" in path else
                 {"total_count": 1, "jobs": [failure if "/101/" in path else self.job]})
             self.assertEqual(self.discover(), {})
+
+    def test_cancelled_or_other_completed_run_still_exposes_newer_job_failure(self):
+        for conclusion in ("cancelled", "timed_out", "action_required", "stale", "neutral", "startup_failure"):
+            for result in ("failure", "cancelled"):
+                with self.subTest(run_conclusion=conclusion, job_conclusion=result):
+                    other = {**self.run, "id": 101, "conclusion": conclusion}
+                    failure = {**self.job, "id": 111, "run_id": 101, "conclusion": result,
+                               "completed_at": "2026-10-07T00:40:00Z"}
+                    self.runs = [other, self.run]
+                    self.api.side_effect = lambda path, failure=failure: ({"workflow_runs": self.runs} if "/workflows/" in path else
+                        {"total_count": 1, "jobs": [failure if "/101/" in path else self.job]})
+                    self.assertEqual(self.discover(), {})
+
+    def test_unknown_completed_run_conclusion_cannot_reveal_an_older_success(self):
+        for conclusion in (None, "unexpected"):
+            with self.subTest(conclusion=conclusion):
+                self.runs = [self.run, {**self.run, "id": 101, "conclusion": conclusion}]
+                self.assertEqual(self.discover(), {})
+
+    def test_successful_job_before_unrelated_run_cancellation_remains_actual_evidence(self):
+        self.run["conclusion"] = "cancelled"
+        self.assertEqual(self.discover()["backend-test"]["job_id"], self.job["id"])
 
     def test_skipped_reuse_does_not_extend_the_original_success_timestamp(self):
         other = {**self.run, "id": 101}
