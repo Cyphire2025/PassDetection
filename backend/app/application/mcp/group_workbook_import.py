@@ -54,7 +54,7 @@ def group_workbook_definition(
         await require_native_source(context, row, draft.group_id)
         checkpoint = row.workbook_snapshot.get(CHECKPOINT_KEY)
         if not isinstance(checkpoint, dict):
-            raise MCPOperationError("group_workbook_source_changed")
+            raise MCPOperationError("group_workbook_preview_required")
         actor, group, resolved, preview = await import_preview(
             context, draft, checkpoint, support=support, mutate=True
         )

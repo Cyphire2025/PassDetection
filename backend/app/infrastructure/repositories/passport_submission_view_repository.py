@@ -48,8 +48,9 @@ class PassportSubmissionViewRepository:
 
     Identity clustering must see the authorized group to preserve its cautious
     cross-row evidence rules. The projection contains only the fields used by
-    that algorithm; raw OCR, image keys, document metadata and review payloads
-    are loaded only for the requested page. Shared computed indexes are bound
+    that algorithm; staff metadata is fetched only when searching its custom
+    fields. Raw OCR, image keys and other detail payloads are loaded only for
+    the requested page. Shared computed indexes are bound
     to a database revision and principal; authorization is checked on each read.
     """
 
@@ -78,9 +79,13 @@ class PassportSubmissionViewRepository:
         return (row[0], row[1]) if row is not None else None
 
     async def projection(
-        self, *, group_id: uuid.UUID, user: User, include_deleted: bool
+        self, *, group_id: uuid.UUID, user: User, include_deleted: bool,
+        include_search_metadata: bool = False,
     ) -> list[PassportViewProjection]:
-        fields = tuple(PassportViewProjection.__dataclass_fields__)
+        fields = tuple(
+            name for name in PassportViewProjection.__dataclass_fields__
+            if name != "staff_metadata" or include_search_metadata
+        )
         statement = (
             select(*(getattr(PassportSubmissionModel, name) for name in fields))
             .join(ClientGroupModel, ClientGroupModel.id == PassportSubmissionModel.group_id)

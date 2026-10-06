@@ -221,12 +221,6 @@ async def test_worker_requires_welcome_only_for_qr_before_provider(
         delivery = _qr_delivery(context, status="queued")
         runtime = qr_delivery_runtime
         runner = runtime.run_qr_whatsapp_broadcast
-        # SQLite drops timezone metadata on reload; use an equally naive clock
-        # only for this fixture while retaining the real token-expiry logic.
-        production_qr_status = runtime.qr_status
-        monkeypatch.setattr(runtime, "qr_status", lambda token: production_qr_status(
-            token, now=datetime.now(tz=UTC).replace(tzinfo=token.expires_at.tzinfo),
-        ))
         monkeypatch.setattr(runtime, "upload_whatsapp_image", AsyncMock(return_value="media"))
         monkeypatch.setattr(runtime, "render_attendance_qr_png", lambda *_: b"fixture-image")
         send = AsyncMock(return_value="wamid.qr")
