@@ -14,6 +14,8 @@ import psycopg2
 import pytest
 from psycopg2 import sql
 
+from tests.release_source_fixtures import mcp_additive_source
+
 pytestmark = [
     pytest.mark.service_integration,
     pytest.mark.skipif(
@@ -24,7 +26,7 @@ ROOT = Path(__file__).resolve().parents[3]
 BACKEND = ROOT / "backend"
 
 
-def test_direct_backup_decode_exact_upgrade_and_retry_retain_source_data():
+def test_direct_backup_decode_exact_upgrade_and_retry_retain_source_data(tmp_path):
     host, original = os.environ.get("POSTGRES_HOST", "localhost"), os.environ["POSTGRES_DB"]
     if host not in {"127.0.0.1", "localhost", "db", "postgres"} or not (
         original == "test_db" or original.startswith("passdetection_ci_")
@@ -34,6 +36,8 @@ def test_direct_backup_decode_exact_upgrade_and_retry_retain_source_data():
     from release_mcp_contract import CHAIN, SOURCE
     from release_mcp_database import DUMP_COMMAND, MCPDatabaseRelease, ReleaseBindings
 
+    historical = mcp_additive_source(ROOT, tmp_path / "historical-release")
+    historical_backend = historical / "backend"
     suffix = uuid.uuid4().hex[:12]
     database, owner = "passdetection_ci_mcp_direct_" + suffix, "mcp_direct_" + suffix
     password = "synthetic-direct-" + suffix
@@ -45,6 +49,7 @@ def test_direct_backup_decode_exact_upgrade_and_retry_retain_source_data():
         "PGPASSWORD": password,
         "APP_SECRET_KEY": "isolated-direct-release-check-not-production",
         "PYTHONUTF8": "1",
+        "PYTHONPATH": str(historical_backend),
     }
     admin = psycopg2.connect(
         host=host,
@@ -78,7 +83,7 @@ def test_direct_backup_decode_exact_upgrade_and_retry_retain_source_data():
     def command(arguments, *, timeout=120, env=None):
         result = subprocess.run(
             [sys.executable, *arguments],
-            cwd=BACKEND,
+            cwd=historical_backend,
             env=env or environment,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
@@ -156,7 +161,7 @@ def test_direct_backup_decode_exact_upgrade_and_retry_retain_source_data():
             return cursor.fetchone()[0]
 
     release = MCPDatabaseRelease(
-        ROOT,
+        historical,
         directory.resolve(),
         ReleaseBindings("a" * 40, "sha256:" + "b" * 64, "c" * 64, "d" * 64),
         database_command=database_command,
@@ -175,7 +180,7 @@ def test_direct_backup_decode_exact_upgrade_and_retry_retain_source_data():
                 "--contract-json",
                 json.dumps(broken),
             ],
-            cwd=BACKEND,
+            cwd=historical_backend,
             env={**environment, **request["environment"]},
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -191,7 +196,7 @@ def test_direct_backup_decode_exact_upgrade_and_retry_retain_source_data():
         try:
             blocked = subprocess.run(
                 [sys.executable, *list(request["arguments"])[1:]],
-                cwd=BACKEND,
+                cwd=historical_backend,
                 env={**environment, **request["environment"]},
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,

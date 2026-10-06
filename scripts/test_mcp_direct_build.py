@@ -10,6 +10,7 @@ from urllib.parse import parse_qs, urlsplit
 
 from mcp_direct_build import (
     GIB,
+    NODE_IMAGE,
     BuildError,
     RetainedBuild,
     admit_builder,
@@ -24,6 +25,14 @@ def locked(name, version, marker=""):
 
 
 class DirectBuildTests(unittest.TestCase):
+    def test_only_reviewed_build_schema_identities_are_allowed(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            self.assertEqual(RetainedBuild(root, root, "a" * 40).schema_revision, "0122_mcp_gc_push")
+            self.assertEqual(RetainedBuild(root, root, "a" * 40, schema_revision="0129_travel_tracker").schema_revision, "0129_travel_tracker")
+            with self.assertRaisesRegex(BuildError, "unreviewed_build_schema"):
+                RetainedBuild(root, root, "a" * 40, schema_revision="0130_unreviewed")
+
     def test_backend_builder_has_only_chown_capability_and_repairs_owner_before_commit(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary).resolve()
@@ -58,6 +67,8 @@ class DirectBuildTests(unittest.TestCase):
             builder.execute = Mock(return_value={"exit_code": 0})
             builder.commit_runtime = Mock(return_value="sha256:" + "c" * 64)
             result = builder.frontend("sha256:" + "d" * 64, "https://tech.gctravels.com")
+            self.assertEqual(builder.create.call_args.args[1], NODE_IMAGE)
+            self.assertRegex(NODE_IMAGE, r'^node:24-alpine@sha256:[a-f0-9]{64}$')
             builder.commit_runtime.assert_called_once_with("b" * 64, "frontend")
             self.assertEqual(result["image_id"], "sha256:" + "c" * 64)
 
@@ -171,6 +182,14 @@ class RuntimeCommitTests(unittest.TestCase):
                     self.image_mutations = {"Entrypoint": None if representation == "null" else []}
                     self.assertEqual(self.builder.commit_runtime(self.identifier, family), self.image)
                     self.assertEqual(self.client.request.call_args.args[2]["Entrypoint"], [])
+
+    def test_same_schema_fast_image_records_the_actual_schema(self):
+        builder = RetainedBuild(self.root, self.root, "e" * 40, run=self.run,
+                                client=self.client, schema_revision="0129_travel_tracker")
+        builder.commit_runtime(self.identifier, "backend")
+        environment = self.client.request.call_args.args[2]["Env"]
+        self.assertIn("EXPECTED_DATABASE_SCHEMA_REVISION=0129_travel_tracker", environment)
+        self.assertNotIn("EXPECTED_DATABASE_SCHEMA_REVISION=0122_mcp_gc_push", environment)
 
     def test_inherited_commands_identity_or_revision_mismatch_reject_committed_image(self):
         cases = (

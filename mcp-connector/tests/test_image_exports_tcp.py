@@ -16,7 +16,12 @@ from gc_mcp_connector.proxy import RemoteProxy
 
 
 async def test_image_zip_inspect_generate_retry_verified_local_delivery_over_tcp(backend_tcp, tmp_path):
-    from app.infrastructure.database.models import AgencyModel, ClientGroupModel, PassportExportHistoryModel, PassportSubmissionModel
+    from app.infrastructure.database.models import (
+        AgencyModel,
+        ClientGroupModel,
+        PassportExportHistoryModel,
+        PassportSubmissionModel,
+    )
     from app.presentation.mcp.image_export_tools import register_image_export_tools
     from tests.integration.test_mcp_artifacts import Storage
     from tests.integration.test_mcp_image_exports import Images, png

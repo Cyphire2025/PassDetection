@@ -20,7 +20,7 @@ from mcp_direct_containers import LocalDocker
 GIB = 1024**3
 IMAGE = re.compile(r"sha256:[a-f0-9]{64}")
 REVISION = re.compile(r"[a-f0-9]{40}")
-NODE_IMAGE = "sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1"
+NODE_IMAGE = "node:24-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1"
 
 
 class BuildError(ValueError):
@@ -75,13 +75,17 @@ def admit_builder(running: list[dict], host_bytes: int, builder_bytes: int) -> N
 
 class RetainedBuild:
     def __init__(self, source: Path, output: Path, revision: str,
-                 *, run: Callable[..., str] = command, client=None):
+                 *, run: Callable[..., str] = command, client=None,
+                 schema_revision: str = "0122_mcp_gc_push"):
         if not REVISION.fullmatch(revision) or source.resolve() != source or not source.is_dir():
             raise BuildError("invalid_build_source")
         if output.resolve() != output or not output.is_dir() or output.is_symlink():
             raise BuildError("invalid_build_output")
+        if schema_revision not in {"0122_mcp_gc_push", "0129_travel_tracker"}:
+            raise BuildError("unreviewed_build_schema")
         self.source, self.output, self.revision, self.run = source, output, revision, run
         self.client = client
+        self.schema_revision = schema_revision
 
     def capacity(self, maximum: int) -> None:
         identifiers = self.run("docker", "ps", "-q", "--no-trunc").split()
@@ -152,7 +156,7 @@ class RetainedBuild:
         config = copy.deepcopy(container["Config"])
         config.update(User="1001:1001", WorkingDir="/app", Entrypoint=[], Cmd=commands[family])
         environment = (
-            {"APP_REVISION": self.revision, "EXPECTED_DATABASE_SCHEMA_REVISION": "0122_mcp_gc_push"}
+            {"APP_REVISION": self.revision, "EXPECTED_DATABASE_SCHEMA_REVISION": self.schema_revision}
             if family == "backend" else {"NEXT_PUBLIC_APP_REVISION": self.revision}
         )
         config["Env"] = [entry for entry in (config.get("Env") or [])

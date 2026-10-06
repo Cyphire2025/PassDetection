@@ -40,6 +40,7 @@ class DispatchTests(unittest.TestCase):
                 "path": ".github/workflows/ci.yml", "repository": {"full_name": REPOSITORY}}
         jobs = [{"name": name, "conclusion": "success"} for name in REQUIRED_JOBS]
         self.assertEqual(qualified_run([good], SHA, lambda _: jobs), 7)
+        self.assertEqual(qualified_run([{**good, "event": "workflow_dispatch"}], SHA, lambda _: jobs), 7)
         for field, value in (("head_sha", "b" * 40), ("head_branch", "develop"),
                              ("event", "pull_request"), ("path", ".github/workflows/other.yml"),
                              ("repository", {"full_name": "untrusted/fork"})):

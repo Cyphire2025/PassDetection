@@ -189,7 +189,7 @@ class CodeUpdate(ReliabilityRelease):
         matches = [item for item in matches if Path(item["Config"]["Labels"].get(
             "com.docker.compose.project.working_dir", "")).resolve() == self.root]
         if len(matches) != 1:
-            raise ReleaseError("Exactly one live backend in the intended root is required")
+            raise ReleaseError("Exactly one live backend in the intended Compose root is required; retained clones require release_retained_update.py")
         labels = matches[0]["Config"]["Labels"]
         files = [str(Path(value).resolve()) for value in labels["com.docker.compose.project.config_files"].split(",")]
         required = {str(self.root / name) for name in ("docker-compose.yml", "docker-compose.prod.yml", "docker-compose.storage-production.yml", "docker-compose.kvm4.yml", "tmp/current-release/storage-go-memory.json")}
