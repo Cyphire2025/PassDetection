@@ -11,6 +11,12 @@ images after all required jobs pass. `deployment_mode: none` runs checks without
 production promotion. The actual workflow display name can change; the file is
 `.github/workflows/ci.yml`.
 
+To retry a failed promotion or deployment, use **Re-run failed jobs** on that
+same workflow run. Publication can reuse an existing release only when its tag
+and every retained artifact match exactly. A fresh Full run for an already
+released commit may produce a different run inventory or build output and will
+be refused; existing release artifacts are never overwritten.
+
 Use **Fast** for small code-only changes when the shorter path is appropriate.
 It builds on the VPS, checks the API contract and application startup, takes a
 database backup, and checks health after cutover. It does **not** qualify the

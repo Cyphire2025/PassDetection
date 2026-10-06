@@ -1162,13 +1162,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           SOURCE_REVISION: ${{ github.sha }}
         run: >-
-          gh release create "release-$SOURCE_REVISION" --target "$SOURCE_REVISION"
-          --title "Qualified artifacts $SOURCE_REVISION"
-          --notes "Qualified immutable images, Windows connector and signed inventories. No deployment was performed. Interactive Codex sign-in remains a separate acceptance gate."
-          outputs/promoted/release-artifacts.json
-          outputs/promoted/backend.spdx.json outputs/promoted/frontend.spdx.json
-          outputs/connector/connector-artifacts.json outputs/connector/*.whl
-          outputs/connector/connector-requirements.lock outputs/connector/connector-README.md
+          python scripts/release_publication.py --revision "$SOURCE_REVISION"
+          --images outputs/promoted --connector outputs/connector
 
   deploy-qualified-vps:
     name: Deploy signed release to production VPS
