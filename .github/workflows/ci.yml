@@ -1048,6 +1048,7 @@ jobs:
           path: |
             outputs/promoted/*.spdx.json
             outputs/promoted/*.grype.json
+            outputs/promoted/*-advisory-conditions.json
           if-no-files-found: warn
           retention-days: 30
 

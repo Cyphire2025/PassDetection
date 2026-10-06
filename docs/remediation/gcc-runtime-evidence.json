@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-06T18:15:38.413084+00:00",
+  "scope": "Independent source/package review for exact Debian trixie amd64 GCC runtime packages 14.2.0-19; not an assertion that all third-party native consumers are unaffected.",
+  "package_manifest": "scripts/qa/gcc_runtime_manifest.json",
+  "aligned_new": {
+    "cve": "CVE-2026-95619",
+    "upstream_fix_url": "https://github.com/gcc-mirror/gcc/commit/59d235ffa5a69231eb42e5290d52dc8c90d28b7a",
+    "upstream_14_2_source_url": "https://raw.githubusercontent.com/gcc-mirror/gcc/releases/gcc-14.2.0/libstdc++-v3/libsupc++/new_opa.cc",
+    "vendor_analysis_url": "https://bugzilla.redhat.com/show_bug.cgi?id=2537811",
+    "configuration_package_url": "https://deb.debian.org/debian/pool/main/g/gcc-14/libstdc++-14-dev_14.2.0-19_amd64.deb",
+    "configuration_package_sha256": "4b962fac5f1af0bd8b1b3f97e0f47b9d8e9a79e88802143f00ebfbd78ad87a7b",
+    "configuration_sha256_source_url": "https://packages.debian.org/trixie/amd64/libstdc++-14-dev/download",
+    "configuration_header": "/usr/include/x86_64-linux-gnu/c++/14/bits/c++config.h",
+    "configuration_excerpt": [
+      "#define _GLIBCXX_HAVE_ALIGNED_ALLOC 1",
+      "#define _GLIBCXX_HAVE_POSIX_MEMALIGN 1"
+    ],
+    "source_reason": "GCC14.2 chooses POSIX_MEMALIGN before ALIGNED_ALLOC and compiles out the vulnerable size-rounding expression when POSIX_MEMALIGN is enabled.",
+    "official_runtime_library": "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33",
+    "official_runtime_library_sha256": "972bb2a18b71140dab0240f8a1f68ab3fb1d56bcd4c4f824a91b70888faf5a00",
+    "independent_comparison": "Official Debian payload library SHA256 equals parent-reported actual runtime library SHA256 exactly.",
+    "remaining_verification": "Release CI must run the bounded aligned-new behavior probe against the actual candidate image and require the exact package/library identities.",
+    "runtime_verification": {
+      "result": "passed",
+      "boundary_cases": 18,
+      "normal_controls": 2,
+      "library_sha256": "972bb2a18b71140dab0240f8a1f68ab3fb1d56bcd4c4f824a91b70888faf5a00",
+      "conditions": "Disposable nonroot read-only, no network, 1 CPU, 128 MiB container; exact candidate image repeats this check in CI."
+    }
+  },
+  "pbds_binary_heap": {
+    "cve": "CVE-2026-102010",
+    "upstream_fix_url": "https://github.com/gcc-mirror/gcc/commit/aaa8351f4d2e636f9680a1f0a8ebc2f0a60611e6",
+    "affected_header": "/usr/include/c++/14/ext/pb_ds/detail/binary_heap_/erase_fn_imps.hpp",
+    "actual_development_package_observation": "The exact14.2.0-19 developer package erase_if body lacks the m_a_entries assignment after deallocating old storage; this header is vulnerable.",
+    "affected_consumer": "A binary instantiating __gnu_pbds::priority_queue with binary_heap_tag and invoking erase_if; generic std::priority_queue alone is not the affected GNU extension.",
+    "minimal_remediation_if_instantiated": "Backport upstream m_a_entries = new_entries after deallocation in the build header and rebuild each affected native consumer. Replacing runtime libstdc++ alone cannot replace already-instantiated template code.",
+    "runtime_package_scope": "The four exact Grype-matched runtime package payloads contain runtime libraries/metadata, not this template header. Manifest pinning may support this package-specific disposition only.",
+    "limitations": [
+      "No full-image or all-native-dependencies unaffected claim follows from runtime header/compiler absence.",
+      "Absence of exported __gnu_pbds symbols is not sufficient because templates can be inlined.",
+      "A compiler used only in a builder can still embed vulnerable header code into a shipped shared object."
+    ],
+    "additional_source_reviews": [
+      {
+        "component": "Tesseract",
+        "archive_sha256": "21dbaff9867d937c156d0b898e90b726aa339129cfebd7e1365cd5fee5046d67",
+        "archive_url": "https://codeload.github.com/tesseract-ocr/tesseract/tar.gz/db0ec62f81b0737fbbe184d8fea40af5738f8eef",
+        "archive_members": 772,
+        "pbds_token_hits": []
+      },
+      {
+        "component": "OpenCV custom restricted build",
+        "archive": "https://files.pythonhosted.org/packages/36/2f/5b2b3ba52c864848885ba988f24b7f105052f68da9ab0e693cc7c25b0b30/opencv-python-headless-4.11.0.86.tar.gz",
+        "sha256": "996eb282ca4b43ec6a3972414de0e2331f5d9cda2b41091a49739c19fb843798",
+        "files": 9273,
+        "excluded_files_over_10mb": [
+          "opencv-python-headless-4.11.0.86/opencv/data/vec_files/trainingfaces_24-24.vec"
+        ],
+        "pbds_token_hits": []
+      }
+    ],
+    "additional_source_review_method": "Scanned every regular source archive member below 10 MB for __gnu_pbds, ext/pb_ds and binary_heap_tag; OpenCV excludes only its binary trainingfaces_24-24.vec dataset. These supplemental checks are not proof about every third-party binary wheel."
+  },
+  "runtime_manifest_conditions": {
+    "identity": "Exact dpkg package versions/status and owned paths; official payload hashes and symlink targets; immutable scanned-image identity enforced by image_advisory_policy.",
+    "slim_metadata": "Missing documentation/GDB printer metadata and lintian override files are permitted; existing files must match official hashes. Runtime libraries are mandatory.",
+    "observed_slim_rule": "/etc/dpkg/dpkg.cfg.d/docker contains path-exclude /usr/share/lintian/overrides/*; absent libgcc-s1 lintian override was verified in the retained image.",
+    "scope_guard": "Executable policy restricts both advisories to four package/version tuples each; a JSON-only extension to a new package/version is rejected."
+  },
+  "complete_guard_verification": {
+    "result": "passed",
+    "official_package_paths_verified": 48,
+    "aligned_new_boundary_cases": 18,
+    "aligned_new_normal_controls": 2,
+    "pbds_development_component": "absent",
+    "library_sha256": "972bb2a18b71140dab0240f8a1f68ab3fb1d56bcd4c4f824a91b70888faf5a00",
+    "guard_source_sha256": "362edde9e69abddd9a46d064394ac127045d7c5094a07375ec8a32bf54920a85",
+    "manifest_sha256": "70725493f2d53b2ad91a52bfddaca7cd8e2355a2030517e8791f2f853bea4d07",
+    "conditions": "Parent-run disposable nonroot read-only container from a retained image, no network or production mounts, 1 CPU and128 MiB; no stderr/OOM. The final release candidate must independently rerun the guard after scanner-to-image identity validation in CI.",
+    "independent_review": "Official four-package manifest and code scope independently reviewed;14 focused tests independently passed."
+  }
+}

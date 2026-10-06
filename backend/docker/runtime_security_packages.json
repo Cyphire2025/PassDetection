@@ -1,0 +1,6 @@
+{
+  "libpcre2-8-0": "10.46-1~deb13u3",
+  "libssl3t64": "3.5.7-1~deb13u3",
+  "openssl": "3.5.7-1~deb13u3",
+  "openssl-provider-legacy": "3.5.7-1~deb13u3"
+}

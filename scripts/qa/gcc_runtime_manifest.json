@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-06T18:14:40.255246+00:00",
+  "package_index_url": "https://deb.debian.org/debian/dists/trixie/main/binary-amd64/Packages.xz",
+  "package_index_sha256": "7778d3e3f303b7ddb8ce0fe7c8d57473a076c6bf2e8f241f75421d2396352498",
+  "packages": [
+    {
+      "name": "gcc-14-base",
+      "version": "14.2.0-19",
+      "archive_url": "https://deb.debian.org/debian/pool/main/g/gcc-14/gcc-14-base_14.2.0-19_amd64.deb",
+      "archive_sha256": "5b6825de4263824b78c4c51f6476414f3b4e89c2ab63e81dc8b9b5501e867cf6",
+      "archive_size": 49432,
+      "paths": {
+        "/": {
+          "type": "directory"
+        },
+        "/usr": {
+          "type": "directory"
+        },
+        "/usr/share": {
+          "type": "directory"
+        },
+        "/usr/share/doc": {
+          "type": "directory"
+        },
+        "/usr/share/doc/gcc-14-base": {
+          "type": "directory"
+        },
+        "/usr/share/doc/gcc-14-base/README.Debian.amd64.gz": {
+          "type": "file",
+          "sha256": "5296d3b2adbab4b6dcc733d125a93eb1122f9c7905f24d1b2cab5e89c49a5510"
+        },
+        "/usr/share/doc/gcc-14-base/TODO.Debian": {
+          "type": "file",
+          "sha256": "aba726eeeafd7ae426552559759c83ee93249d0d9c4e3e19f146fde6d2cde448"
+        },
+        "/usr/share/doc/gcc-14-base/changelog.Debian.gz": {
+          "type": "file",
+          "sha256": "96566a2df70b85708bd8edf8a41c5dc87eca402199f2480df23abe4be4a92757"
+        },
+        "/usr/share/doc/gcc-14-base/copyright": {
+          "type": "file",
+          "sha256": "20390f8a6f3b1e4d7cb45dd8652dabb259bbef688cbad839bcdb0b9ba7252f79"
+        }
+      }
+    },
+    {
+      "name": "libgcc-s1",
+      "version": "14.2.0-19",
+      "archive_url": "https://deb.debian.org/debian/pool/main/g/gcc-14/libgcc-s1_14.2.0-19_amd64.deb",
+      "archive_sha256": "3c71917b490d1a17aed43196a2787a256ecf060526cdb20216a74bedc061b150",
+      "archive_size": 72772,
+      "paths": {
+        "/": {
+          "type": "directory"
+        },
+        "/usr": {
+          "type": "directory"
+        },
+        "/usr/lib": {
+          "type": "directory"
+        },
+        "/usr/lib/x86_64-linux-gnu": {
+          "type": "directory"
+        },
+        "/usr/lib/x86_64-linux-gnu/libgcc_s.so.1": {
+          "type": "file",
+          "sha256": "30c61ab012a4241bed033725a09b61f5fdd3bb7df95ee852d0b096520524c7af"
+        },
+        "/usr/share": {
+          "type": "directory"
+        },
+        "/usr/share/doc": {
+          "type": "directory"
+        },
+        "/usr/share/doc/libgcc-s1": {
+          "type": "symlink",
+          "target": "gcc-14-base"
+        },
+        "/usr/share/lintian": {
+          "type": "directory"
+        },
+        "/usr/share/lintian/overrides": {
+          "type": "directory"
+        },
+        "/usr/share/lintian/overrides/libgcc-s1": {
+          "type": "file",
+          "sha256": "eed87afa7d83880a25ae5a41ba9d98d89a1fc2e2e3bba0f4d5c3cdda21a457a4"
+        }
+      }
+    },
+    {
+      "name": "libgomp1",
+      "version": "14.2.0-19",
+      "archive_url": "https://deb.debian.org/debian/pool/main/g/gcc-14/libgomp1_14.2.0-19_amd64.deb",
+      "archive_sha256": "72b7a1a33c48f3195efeb044111b34ae684b1e640bb6495c832443b798601cd5",
+      "archive_size": 137148,
+      "paths": {
+        "/": {
+          "type": "directory"
+        },
+        "/usr": {
+          "type": "directory"
+        },
+        "/usr/lib": {
+          "type": "directory"
+        },
+        "/usr/lib/x86_64-linux-gnu": {
+          "type": "directory"
+        },
+        "/usr/lib/x86_64-linux-gnu/libgomp.so.1": {
+          "type": "symlink",
+          "target": "libgomp.so.1.0.0"
+        },
+        "/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0": {
+          "type": "file",
+          "sha256": "6456b504ac347bd50c419667440b691f6966ad8aff5309d2f06c977fe2f9debe"
+        },
+        "/usr/share": {
+          "type": "directory"
+        },
+        "/usr/share/doc": {
+          "type": "directory"
+        },
+        "/usr/share/doc/libgomp1": {
+          "type": "symlink",
+          "target": "gcc-14-base"
+        }
+      }
+    },
+    {
+      "name": "libstdc++6",
+      "version": "14.2.0-19",
+      "archive_url": "https://deb.debian.org/debian/pool/main/g/gcc-14/libstdc++6_14.2.0-19_amd64.deb",
+      "archive_sha256": "ab1fa05837aa7a92aae748fd07a18a35f7d18bb4a71c4724fe2bbf0e32089de0",
+      "archive_size": 713628,
+      "paths": {
+        "/": {
+          "type": "directory"
+        },
+        "/usr": {
+          "type": "directory"
+        },
+        "/usr/lib": {
+          "type": "directory"
+        },
+        "/usr/lib/x86_64-linux-gnu": {
+          "type": "directory"
+        },
+        "/usr/lib/x86_64-linux-gnu/libstdc++.so.6": {
+          "type": "symlink",
+          "target": "libstdc++.so.6.0.33"
+        },
+        "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33": {
+          "type": "file",
+          "sha256": "972bb2a18b71140dab0240f8a1f68ab3fb1d56bcd4c4f824a91b70888faf5a00"
+        },
+        "/usr/share": {
+          "type": "directory"
+        },
+        "/usr/share/doc": {
+          "type": "directory"
+        },
+        "/usr/share/doc/libstdc++6": {
+          "type": "symlink",
+          "target": "gcc-14-base"
+        },
+        "/usr/share/gcc": {
+          "type": "directory"
+        },
+        "/usr/share/gcc/python": {
+          "type": "directory"
+        },
+        "/usr/share/gcc/python/libstdcxx": {
+          "type": "directory"
+        },
+        "/usr/share/gcc/python/libstdcxx/__init__.py": {
+          "type": "file",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        },
+        "/usr/share/gcc/python/libstdcxx/v6": {
+          "type": "directory"
+        },
+        "/usr/share/gcc/python/libstdcxx/v6/__init__.py": {
+          "type": "file",
+          "sha256": "88b4b04c123fd76e303ad47a8b74034552a28e0c65eac77685afeb738037337a"
+        },
+        "/usr/share/gcc/python/libstdcxx/v6/printers.py": {
+          "type": "file",
+          "sha256": "96a9c8547fe0e7291fc0dbe8c481f84c95b03c0dba4780d18d21a70b91d2df5b"
+        },
+        "/usr/share/gcc/python/libstdcxx/v6/xmethods.py": {
+          "type": "file",
+          "sha256": "75e4daa102d918a9b2b1f6ccd0a11881e9f079d7da074e56f0fd3c1937b5fb6b"
+        },
+        "/usr/share/gdb": {
+          "type": "directory"
+        },
+        "/usr/share/gdb/auto-load": {
+          "type": "directory"
+        },
+        "/usr/share/gdb/auto-load/usr": {
+          "type": "directory"
+        },
+        "/usr/share/gdb/auto-load/usr/lib": {
+          "type": "directory"
+        },
+        "/usr/share/gdb/auto-load/usr/lib/x86_64-linux-gnu": {
+          "type": "directory"
+        },
+        "/usr/share/gdb/auto-load/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33-gdb.py": {
+          "type": "file",
+          "sha256": "b2318ddd294072437b66997e58395ef33f822c37b060abbc3e61a7caa67c9724"
+        }
+      }
+    }
+  ]
+}
