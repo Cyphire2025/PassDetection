@@ -24,6 +24,7 @@ TOOLS = Path("/opt/globalconnect-release-tools")
 GH = TOOLS / "gh-2.92.0/gh"
 REVISION = re.compile(r"[0-9a-f]{40}")
 REQUIRED_JOBS = frozenset({
+    "Required CI checks",
     "Backend — Lint & Compile Check", "Backend — Dependency Audit", "Backend — Tests",
     "Backend - PostgreSQL, Redis, Private S3 & Celery",
     "Backend - Populated PostgreSQL Restore & Upgrade", "Frontend — Lint & Type Check",
