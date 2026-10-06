@@ -40,6 +40,7 @@ from app.core.config.settings import Settings  # noqa: E402
 from app.infrastructure.database.models import Base  # noqa: E402
 from app.infrastructure.database.session import get_db_session  # noqa: E402
 from app.main import create_application  # noqa: E402
+from tests import sqlite_uuid  # noqa: E402, F401 -- register test-only SQLite UUID DDL
 from tests.management_audit_fixtures import (  # noqa: E402
     forbid_global_management_audit_database as forbid_global_management_audit_database,
 )
