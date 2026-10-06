@@ -6,6 +6,8 @@ Full releases do not use it. Missing Git/API evidence means run the check afresh
 from __future__ import annotations
 
 import datetime as dt
+import hashlib
+import io
 import json
 import os
 import re
@@ -13,6 +15,7 @@ import subprocess
 import urllib.error
 import urllib.parse
 import urllib.request
+import zipfile
 
 SHA = re.compile(r"[0-9a-f]{40}")
 FINGERPRINT = re.compile(r"[0-9a-f]{64}")
@@ -30,6 +33,17 @@ class EvidenceUnavailable(ValueError):
 class _NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, request, response, code, message, headers, new_url):
         raise EvidenceUnavailable("GitHub evidence redirect refused")
+
+
+class _ArtifactRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, request, response, code, message, headers, new_url):
+        destination = urllib.parse.urlsplit(new_url)
+        if destination.scheme != "https" or destination.username or destination.password or destination.port not in {None, 443}:
+            raise EvidenceUnavailable("Unsafe artifact redirect refused")
+        result = super().redirect_request(request, response, code, message, headers, new_url)
+        if result is not None and destination.hostname != "api.github.com":
+            result.remove_header("Authorization")
+        return result
 
 
 class GitHubAPI:
@@ -59,6 +73,23 @@ class GitHubAPI:
             return document
         except (OSError, ValueError, urllib.error.URLError):
             raise EvidenceUnavailable("GitHub evidence unavailable; run checks afresh") from None
+
+    def download_artifact(self, artifact_id: int) -> bytes:
+        if not _positive_id(artifact_id):
+            raise EvidenceUnavailable("Invalid artifact identity")
+        headers = {"Accept": "application/vnd.github+json", "User-Agent": "PassDetection-CI-evidence"}
+        if self.token:
+            headers["Authorization"] = f"Bearer {self.token}"
+        request = urllib.request.Request(
+            f"https://api.github.com{self.prefix}artifacts/{artifact_id}/zip", headers=headers)
+        try:
+            with urllib.request.build_opener(_ArtifactRedirect()).open(request, timeout=15) as response:
+                payload = response.read(1_000_001)
+            if len(payload) > 1_000_000:
+                raise EvidenceUnavailable("Provenance archive exceeded its bound")
+            return payload
+        except (OSError, ValueError, urllib.error.URLError):
+            raise EvidenceUnavailable("GitHub artifact unavailable; run checks afresh") from None
 
 
 def _positive_id(value) -> bool:
@@ -94,21 +125,79 @@ def _same_run_scope(run, context, now):
             and _fresh(run.get("created_at"), now) is not None)
 
 
-def _same_pr(run, current):
-    rows = run.get("pull_requests")
-    if not isinstance(rows, list) or len(rows) != 1 or not isinstance(rows[0], dict):
-        return False
-    prior = rows[0]
-    return (prior.get("number") == current["number"]
-            and prior.get("head", {}).get("sha") == run["head_sha"]
-            and prior.get("head", {}).get("ref") == current["head_ref"]
-            and prior.get("head", {}).get("repo", {}).get("id") == current["head_repo_id"]
-            and prior.get("base", {}).get("sha") == current["base_sha"]
-            and prior.get("base", {}).get("ref") == current["base_ref"]
-            and prior.get("base", {}).get("repo", {}).get("id") == current["head_repo_id"])
+def load_provenance(run, jobs, context, *, api):
+    """Read an immutable planner artifact; mutable PR associations are not history.
+
+    Its upload must be wholly within the successful planner job. Every producer
+    job depends on that completed planner, so later test code cannot impersonate
+    the artifact's producer by uploading another receipt with the same name.
+    """
+    planners = [job for job in jobs if job.get("name") == "Plan affected checks"]
+    if len(planners) != 1:
+        return None
+    planner = planners[0]
+    started, completed = _date(planner.get("started_at")), _date(planner.get("completed_at"))
+    if (planner.get("status") != "completed" or planner.get("conclusion") != "success"
+            or planner.get("run_id") != run["id"] or planner.get("run_attempt") != run["run_attempt"]
+            or planner.get("head_sha") != run["head_sha"] or started is None or completed is None or started > completed):
+        return None
+    document = api(f"/repos/{context['repository']}/actions/runs/{run['id']}/artifacts?per_page=100")
+    rows = document.get("artifacts")
+    if (not isinstance(rows, list) or type(document.get("total_count")) is not int
+            or document["total_count"] != len(rows) or len(rows) > 100):
+        return None
+    name = f"ci-provenance-{run['id']}-{run['run_attempt']}"
+    matches = [row for row in rows if isinstance(row, dict) and row.get("name") == name]
+    if len(matches) != 1:
+        return None
+    artifact = matches[0]
+    created, updated = _date(artifact.get("created_at")), _date(artifact.get("updated_at"))
+    binding = artifact.get("workflow_run", {})
+    if (artifact.get("expired") is not False or not _positive_id(artifact.get("id"))
+            # REST timestamps are rounded to seconds. Exclude the completion
+            # second, when a dependent producer may already have started.
+            or created is None or updated is None or not started <= created <= updated < completed
+            or binding.get("id") != run["id"] or binding.get("head_sha") != run["head_sha"]
+            or binding.get("repository_id") != context["repository_id"]
+            or binding.get("head_repository_id") != context["repository_id"]
+            or binding.get("head_branch") != context["head_branch"]
+            or not isinstance(artifact.get("digest"), str)
+            or not re.fullmatch(r"sha256:[0-9a-f]{64}", artifact["digest"])):
+        return None
+    payload = api.download_artifact(artifact["id"])
+    if (not isinstance(payload, bytes) or len(payload) > 1_000_000
+            or "sha256:" + hashlib.sha256(payload).hexdigest() != artifact["digest"]):
+        return None
+    try:
+        with zipfile.ZipFile(io.BytesIO(payload)) as archive:
+            files = archive.infolist()
+            if len(files) != 1 or files[0].filename != "ci-provenance.json" or not 0 < files[0].file_size <= 65_536:
+                return None
+            receipt = json.loads(archive.read(files[0]))
+    except (OSError, ValueError, zipfile.BadZipFile, RuntimeError):
+        return None
+    expected = {"schema_version": 1, "run_id": run["id"], "run_attempt": run["run_attempt"],
+                "repository": context["repository"], "repository_id": context["repository_id"],
+                "workflow_id": context["workflow_id"], "event": context["event"],
+                "head_branch": context["head_branch"], "head_sha": run["head_sha"]}
+    if (not isinstance(receipt, dict) or any(receipt.get(key) != value for key, value in expected.items())
+            or any(not isinstance(receipt.get(key), str) or not SHA.fullmatch(receipt[key])
+                   for key in ("source_sha", "tree_sha"))):
+        return None
+    if context["event"] == "pull_request":
+        if receipt.get("pull_request") != context["pull_request"]:
+            return None
+        associations = run.get("pull_requests")
+        if (not isinstance(associations, list) or len(associations) != 1
+                or associations[0].get("number") != receipt["pull_request"]["number"]):
+            return None
+    elif receipt["source_sha"] != run["head_sha"]:
+        return None
+    return receipt
 
 
-def discover_reuse(context, fingerprints, job_names, *, api, fingerprint_at, ancestor, tree_at, now=None):
+def discover_reuse(context, fingerprints, job_names, *, api, fingerprint_at, ancestor, tree_at,
+                   now=None, provenance_loader=load_provenance):
     """Return job-id keyed proof for eligible checks; adapters never execute prior code.
 
     ``fingerprint_at(revision, job_id)`` hashes reviewed Git inputs; ``ancestor``
@@ -163,7 +252,7 @@ def discover_reuse(context, fingerprints, job_names, *, api, fingerprint_at, anc
             revision = run["head_sha"]
             try:
                 if context["event"] == "pull_request":
-                    if not _same_pr(run, pr) or not ancestor(pr["base_sha"], revision):
+                    if not ancestor(pr["base_sha"], revision):
                         continue
                 elif not ancestor(revision, context["head_sha"]):
                     continue
@@ -172,16 +261,24 @@ def discover_reuse(context, fingerprints, job_names, *, api, fingerprint_at, anc
                 continue
             if not matching:
                 continue
+            document = api(f"{prefix}/runs/{run['id']}/attempts/{run['run_attempt']}/jobs?per_page=100")
+            jobs = document.get("jobs")
+            if (not isinstance(jobs, list) or type(document.get("total_count")) is not int
+                    or document["total_count"] != len(jobs) or len(jobs) > 100):
+                return {}
+            receipt = provenance_loader(run, jobs, context, api=api)
+            if receipt is None:
+                return {}
+            try:
+                if tree_at(revision) != receipt["tree_sha"]:
+                    return {}
+            except (OSError, ValueError, RuntimeError, subprocess.SubprocessError):
+                return {}
             # The overall run may be cancelled after one real check failed.
             # Inspect its authoritative jobs too, so it cannot expose an older
             # success by disappearing from consideration. Unknown conclusions
             # cannot safely authorize falling back to older matching evidence.
             if run.get("conclusion") not in RUN_CONCLUSIONS:
-                return {}
-            document = api(f"{prefix}/runs/{run['id']}/attempts/{run['run_attempt']}/jobs?per_page=100")
-            jobs = document.get("jobs")
-            if (not isinstance(jobs, list) or type(document.get("total_count")) is not int
-                    or document["total_count"] != len(jobs) or len(jobs) > 100):
                 return {}
             for identifier in matching:
                 observations = [job for job in jobs if isinstance(job, dict) and job.get("name") == job_names[identifier]]
@@ -198,7 +295,7 @@ def discover_reuse(context, fingerprints, job_names, *, api, fingerprint_at, anc
                         or (latest[identifier][0] == stamp and latest[identifier][1] is None)):
                     continue
                 evidence = {"run_id": run["id"], "job_id": job["id"], "completed_at": job["completed_at"],
-                            "source_revision": revision, "fingerprint": fingerprints[identifier],
+                            "source_revision": receipt["source_sha"], "fingerprint": fingerprints[identifier],
                             "url": f"https://github.com/{context['repository']}/actions/runs/{run['id']}/job/{job['id']}"}
                 latest[identifier] = (stamp, evidence if job.get("conclusion") == "success" else None)
         return {job: row[1] for job, row in latest.items() if row[1] is not None}

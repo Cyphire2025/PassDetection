@@ -1,11 +1,21 @@
 """Cross-commit CI evidence must retain source, time, scope and success boundaries."""
-import copy
 import datetime as dt
+import hashlib
+import io
+import json
 import subprocess
 import unittest
+import urllib.request
+import zipfile
 from unittest.mock import Mock
 
-from ci_success_reuse import EvidenceUnavailable, GitHubAPI, discover_reuse
+from ci_success_reuse import (
+    EvidenceUnavailable,
+    GitHubAPI,
+    _ArtifactRedirect,
+    discover_reuse,
+    load_provenance,
+)
 
 NOW = dt.datetime(2026, 10, 7, 1, tzinfo=dt.timezone.utc)
 HEAD, PRIOR, BASE, MERGE = (letter * 40 for letter in "abcd")
@@ -38,6 +48,7 @@ class ReuseTests(unittest.TestCase):
         self.fingerprint = Mock(return_value=FINGERPRINT)
         self.ancestor = Mock(return_value=True)
         self.tree = Mock(return_value="f" * 40)
+        self.provenance = Mock(return_value={"tree_sha": "f" * 40, "source_sha": PRIOR})
 
     def response(self, path):
         if "/workflows/" in path:
@@ -47,7 +58,7 @@ class ReuseTests(unittest.TestCase):
     def discover(self):
         return discover_reuse(self.context, {"backend-test": FINGERPRINT}, NAMES, api=self.api,
                               fingerprint_at=self.fingerprint, ancestor=self.ancestor,
-                              tree_at=self.tree, now=NOW)
+                              tree_at=self.tree, now=NOW, provenance_loader=self.provenance)
 
     def test_actual_success_survives_an_unrelated_failed_job_in_the_run(self):
         proof = self.discover()["backend-test"]
@@ -69,19 +80,19 @@ class ReuseTests(unittest.TestCase):
                 self.runs = [{**self.run, key: value}]
                 self.assertEqual(self.discover(), {})
 
-    def test_pr_identity_and_merge_base_are_not_inferred_from_current_ref(self):
-        for field, value in (("number", 99), ("base.sha", HEAD), ("base.ref", "develop"),
-                             ("base.repo.id", 23), ("head.repo.id", 23),
-                             ("head.sha", HEAD), ("head.ref", "codex/other")):
-            with self.subTest(field=field):
-                changed = copy.deepcopy(self.run)
-                target = changed["pull_requests"][0]
-                pieces = field.split(".")
-                for piece in pieces[:-1]:
-                    target = target[piece]
-                target[pieces[-1]] = value
-                self.runs = [changed]
-                self.assertEqual(self.discover(), {})
+    def test_unavailable_immutable_provenance_requires_fresh_execution(self):
+        self.provenance.return_value = None
+        self.assertEqual(self.discover(), {})
+
+    def test_missing_newer_provenance_cannot_expose_an_older_success(self):
+        other = {**self.run, "id": 101}
+        self.runs = [self.run, other]
+        self.provenance.side_effect = [{"tree_sha": "f" * 40, "source_sha": PRIOR}, None]
+        self.assertEqual(self.discover(), {})
+
+    def test_tested_merge_tree_must_equal_prior_head_tree_before_hashing_head(self):
+        self.provenance.return_value = {"tree_sha": "e" * 40, "source_sha": MERGE}
+        self.assertEqual(self.discover(), {})
 
     def test_unavailable_or_divergent_git_tree_runs_checks_afresh(self):
         self.tree.side_effect = ["merge", "head"]
@@ -198,6 +209,124 @@ class ReuseTests(unittest.TestCase):
             with self.subTest(endpoint=endpoint), self.assertRaises(EvidenceUnavailable) as caught:
                 client(endpoint)
             self.assertNotIn("test-secret", str(caught.exception))
+
+    def test_artifact_redirect_drops_authorization_outside_github_api(self):
+        request = urllib.request.Request("https://api.github.com/repos/Cyphire2025/PassDetection/actions/artifacts/77/zip",
+                                         headers={"Authorization": "Bearer test-secret"})
+        redirect = _ArtifactRedirect()
+        external = redirect.redirect_request(request, None, 302, "Found", {}, "https://example.test/signed.zip")
+        self.assertIsNone(external.get_header("Authorization"))
+        for destination in ("http://example.test/file", "https://user:password@example.test/file", "https://example.test:444/file"):
+            with self.subTest(destination=destination), self.assertRaises(EvidenceUnavailable):
+                redirect.redirect_request(request, None, 302, "Found", {}, destination)
+
+
+class ProvenanceTests(unittest.TestCase):
+    def setUp(self):
+        self.context = {"repository": "Cyphire2025/PassDetection", "repository_id": 22,
+                        "workflow_id": 33, "event": "pull_request", "head_branch": "codex/fix",
+                        "pull_request": {"number": 15, "base_sha": BASE, "base_ref": "main",
+                                         "head_ref": "codex/fix", "head_repo_id": 22}}
+        self.run = {"id": 100, "run_attempt": 1, "head_sha": PRIOR, "pull_requests": [{"number": 15}]}
+        self.planner = {"id": 99, "run_id": 100, "run_attempt": 1, "head_sha": PRIOR,
+                        "name": "Plan affected checks", "status": "completed", "conclusion": "success",
+                        "started_at": "2026-10-07T00:00:00Z", "completed_at": "2026-10-07T00:02:00Z"}
+        self.receipt = {**self.context, "schema_version": 1, "run_id": 100, "run_attempt": 1,
+                        "head_sha": PRIOR, "source_sha": MERGE, "tree_sha": "f" * 40}
+        self.artifact = {"id": 77, "name": "ci-provenance-100-1", "expired": False,
+                         "created_at": "2026-10-07T00:01:00Z", "updated_at": "2026-10-07T00:01:00Z",
+                         "workflow_run": {"id": 100, "repository_id": 22, "head_repository_id": 22,
+                                          "head_branch": "codex/fix", "head_sha": PRIOR}}
+        self.api = Mock()
+        self.api.return_value = {"total_count": 1, "artifacts": [self.artifact]}
+        self.package()
+
+    def package(self, *, filename="ci-provenance.json", additional=False):
+        stream = io.BytesIO()
+        with zipfile.ZipFile(stream, "w", zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr(filename, json.dumps(self.receipt))
+            if additional:
+                archive.writestr("extra.json", "{}")
+        payload = stream.getvalue()
+        self.api.download_artifact.return_value = payload
+        self.artifact["digest"] = "sha256:" + hashlib.sha256(payload).hexdigest()
+
+    def load(self):
+        return load_provenance(self.run, [self.planner], self.context, api=self.api)
+
+    def test_actual_immutable_receipt_binds_tested_merge_source(self):
+        self.assertEqual(self.load()["source_sha"], MERGE)
+        self.api.download_artifact.assert_called_once_with(77)
+
+    def test_mutable_pr_association_head_and_base_cannot_overrule_saved_receipt(self):
+        self.run["pull_requests"][0].update(head={"sha": HEAD}, base={"sha": HEAD})
+        self.assertEqual(self.load()["head_sha"], PRIOR)
+        self.receipt["pull_request"] = {**self.context["pull_request"], "base_sha": HEAD}
+        self.package()
+        self.assertIsNone(self.load())
+
+    def test_later_job_upload_cannot_impersonate_planner_evidence(self):
+        for field, value in (("created_at", "2026-10-06T23:59:59Z"),
+                             ("updated_at", "2026-10-07T00:02:00Z"),
+                             ("updated_at", "2026-10-07T00:02:01Z")):
+            with self.subTest(field=field):
+                original = self.artifact[field]
+                self.artifact[field] = value
+                self.assertIsNone(self.load())
+                self.artifact[field] = original
+        self.api.download_artifact.assert_not_called()
+
+    def test_wrong_run_attempt_repository_or_source_is_not_provenance(self):
+        for field, value in (("id", 101), ("repository_id", 23), ("head_repository_id", 23),
+                             ("head_branch", "other"), ("head_sha", HEAD)):
+            with self.subTest(field=field):
+                original = self.artifact["workflow_run"][field]
+                self.artifact["workflow_run"][field] = value
+                self.assertIsNone(self.load())
+                self.artifact["workflow_run"][field] = original
+        for field, value in (("run_id", 101), ("run_attempt", 2), ("workflow_id", 34),
+                             ("head_sha", HEAD), ("tree_sha", "branch"), ("source_sha", "main")):
+            with self.subTest(field=field):
+                original = self.receipt[field]
+                self.receipt[field] = value
+                self.package()
+                self.assertIsNone(self.load())
+                self.receipt[field] = original
+
+    def test_only_one_successful_planner_and_unique_unexpired_artifact(self):
+        self.assertIsNone(load_provenance(self.run, [self.planner, self.planner], self.context, api=self.api))
+        self.planner["conclusion"] = "failure"
+        self.assertIsNone(self.load())
+        self.planner["conclusion"] = "success"
+        self.artifact["expired"] = True
+        self.assertIsNone(self.load())
+        self.artifact["expired"] = False
+        self.api.return_value = {"total_count": 2, "artifacts": [self.artifact, self.artifact]}
+        self.assertIsNone(self.load())
+
+    def test_digest_mismatch_or_extra_zip_payload_is_rejected(self):
+        self.artifact["digest"] = "sha256:" + "0" * 64
+        self.assertIsNone(self.load())
+        self.package(additional=True)
+        self.assertIsNone(self.load())
+        self.package(filename="../ci-provenance.json")
+        self.assertIsNone(self.load())
+        self.receipt["padding"] = "a" * 65_536
+        self.package()
+        self.assertIsNone(self.load())
+
+    def test_missing_old_planner_artifact_is_fresh_execution(self):
+        self.api.return_value = {"total_count": 0, "artifacts": []}
+        self.assertIsNone(self.load())
+        self.assertIsNone(load_provenance(self.run, [], self.context, api=self.api))
+
+    def test_push_receipt_source_must_be_its_immutable_head(self):
+        self.context["event"] = self.receipt["event"] = "push"
+        self.package()
+        self.assertIsNone(self.load())
+        self.receipt["source_sha"] = PRIOR
+        self.package()
+        self.assertIsNotNone(self.load())
 
 
 if __name__ == "__main__":
