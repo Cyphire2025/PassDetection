@@ -477,6 +477,70 @@
         "https://security-tracker.debian.org/tracker/CVE-2026-9538",
         "scripts/qa/probe_image_advisory_conditions.py"
       ]
+    },
+    {
+      "advisory": "CVE-2026-95619",
+      "packages": [
+        {
+          "name": "gcc-14-base",
+          "version": "14.2.0-19"
+        },
+        {
+          "name": "libgcc-s1",
+          "version": "14.2.0-19"
+        },
+        {
+          "name": "libgomp1",
+          "version": "14.2.0-19"
+        },
+        {
+          "name": "libstdc++6",
+          "version": "14.2.0-19"
+        }
+      ],
+      "disposition": "incorrect_affected_range",
+      "owner": "Nipun / repository maintainer",
+      "reviewed_on": "2026-10-06",
+      "expires_on": "2026-11-05",
+      "condition": "Exact official Debian amd64 package files and libstdc++ SHA256 required. GCC14.2 POSIX_MEMALIGN build excludes vulnerable size rounding; actual library must reject all18 upstream boundary cases and pass both normal allocation controls.",
+      "evidence": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-95619",
+        "docs/remediation/gcc-runtime-evidence.json",
+        "scripts/qa/gcc_runtime_manifest.json",
+        "scripts/qa/gcc_runtime_policy.py"
+      ]
+    },
+    {
+      "advisory": "CVE-2026-102010",
+      "packages": [
+        {
+          "name": "gcc-14-base",
+          "version": "14.2.0-19"
+        },
+        {
+          "name": "libgcc-s1",
+          "version": "14.2.0-19"
+        },
+        {
+          "name": "libgomp1",
+          "version": "14.2.0-19"
+        },
+        {
+          "name": "libstdc++6",
+          "version": "14.2.0-19"
+        }
+      ],
+      "disposition": "affected_component_absent",
+      "owner": "Nipun / repository maintainer",
+      "reviewed_on": "2026-10-06",
+      "expires_on": "2026-11-05",
+      "condition": "Scoped only to four exact Debian runtime package payloads, which contain no affected PBDS template. Verify official package ownership/content, reject compiler or PBDS development headers. Does not prove absence of inlined PBDS code in all independently built third-party native consumers.",
+      "evidence": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-102010",
+        "docs/remediation/gcc-runtime-evidence.json",
+        "scripts/qa/gcc_runtime_manifest.json",
+        "scripts/qa/gcc_runtime_policy.py"
+      ]
     }
   ]
 }

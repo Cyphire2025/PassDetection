@@ -5,6 +5,8 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
+import yaml
+
 import release_ci_dispatch as dispatch
 from release_ci_dispatch import REPOSITORY, REQUIRED_JOBS, qualified_run, requested_revision
 
@@ -12,6 +14,12 @@ SHA = "a" * 40
 
 
 class DispatchTests(unittest.TestCase):
+    def test_required_gate_names_match_the_checked_in_workflow_exactly(self):
+        path = Path(__file__).resolve().parents[1] / '.github/workflows/ci.yml'
+        workflow = yaml.safe_load(path.read_text(encoding='utf-8'))
+        names = {job.get('name', identifier) for identifier, job in workflow['jobs'].items()}
+        self.assertEqual(REQUIRED_JOBS - names, set())
+
     @unittest.skipUnless(os.name == "posix", "The VPS uses Linux flock")
     def test_surviving_deployment_excludes_another_dispatch_and_releases_lock(self):
         with tempfile.TemporaryDirectory() as directory, patch.object(dispatch, "ROOT", Path(directory)):
@@ -40,6 +48,7 @@ class DispatchTests(unittest.TestCase):
                 "path": ".github/workflows/ci.yml", "repository": {"full_name": REPOSITORY}}
         jobs = [{"name": name, "conclusion": "success"} for name in REQUIRED_JOBS]
         self.assertEqual(qualified_run([good], SHA, lambda _: jobs), 7)
+        self.assertEqual(qualified_run([{**good, "event": "workflow_dispatch"}], SHA, lambda _: jobs), 7)
         for field, value in (("head_sha", "b" * 40), ("head_branch", "develop"),
                              ("event", "pull_request"), ("path", ".github/workflows/other.yml"),
                              ("repository", {"full_name": "untrusted/fork"})):

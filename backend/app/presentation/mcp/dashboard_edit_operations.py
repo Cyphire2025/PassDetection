@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from typing import Any
+from typing import Any, cast
 from uuid import UUID
 
 from fastapi import HTTPException
@@ -18,6 +18,7 @@ from app.application.mcp.operations import (
     MCPDatabaseResult,
     MCPOperationError,
 )
+from app.domain.entities.entities import User
 from app.domain.mcp_policy import MCPCapability, MCPToolPolicy
 from app.infrastructure.database.menu_models import (
     MealPlanEntryModel,
@@ -35,7 +36,20 @@ from app.infrastructure.database.models import (
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.presentation.api.v1.routes import client_groups, menu, rooming
 from app.presentation.api.v1.schemas.client_group_schemas import UpdateClientGroupRequest
-from app.presentation.mcp.dashboard_edit_models import EDIT_MODELS, GROUP_CONFIGURATION_FIELDS
+from app.presentation.mcp.dashboard_edit_models import (
+    EDIT_MODELS,
+    GROUP_CONFIGURATION_FIELDS,
+    DashboardEdit,
+    GroupLinkEdit,
+    HotelAllocation,
+    HotelEdit,
+    HotelSelection,
+    HotelVip,
+    MealEntryEdit,
+    MealPlanEdit,
+    MenuCategoryEdit,
+    MenuDishEdit,
+)
 from app.presentation.mcp.dashboard_write_support import (
     MAX_RESULT_BYTES,
     PRIVATE_FIELDS,
@@ -46,7 +60,7 @@ from app.presentation.mcp.dashboard_write_support import (
     scoped_actor,
 )
 
-TARGETS = {
+TARGETS: dict[str, tuple[Any, str]] = {
     "configure_group_link": (ClientGroupModel, "group_id"),
     "update_menu_category": (MenuCategoryModel, "category_id"),
     "update_menu_dish": (MenuDishModel, "dish_id"),
@@ -59,7 +73,7 @@ TARGETS = {
 }
 
 
-def validate_edit(name: str, payload: dict[str, Any]) -> BaseModel:
+def validate_edit(name: str, payload: dict[str, Any]) -> DashboardEdit:
     try:
         return EDIT_MODELS[name].model_validate(payload)
     except ValidationError as exc:
@@ -69,16 +83,16 @@ def validate_edit(name: str, payload: dict[str, Any]) -> BaseModel:
 def row_snapshot(row: Any) -> dict[str, Any]:
     # Only statically reviewed tables reach this helper. No relationship loading,
     # file content, upload credentials or temporary URLs enter retained history.
-    return safe_result(
+    return cast(dict[str, Any], safe_result(
         {
             column.key: getattr(row, column.key)
             for column in row.__table__.columns
             if column.key not in PRIVATE_FIELDS
         }
-    )
+    ))
 
 
-def preserve_unspecified_edit(name: str, body: BaseModel, row: Any) -> BaseModel:
+def preserve_unspecified_edit(name: str, body: DashboardEdit, row: Any) -> DashboardEdit:
     fields = {
         "configure_group_link": GROUP_CONFIGURATION_FIELDS,
         "update_menu_dish": ("notes", "is_active"),
@@ -99,17 +113,17 @@ def preserve_unspecified_edit(name: str, body: BaseModel, row: Any) -> BaseModel
         raise MCPOperationError("invalid_dashboard_edit") from exc
 
 
-async def target_row(context: MCPDatabaseContext, name: str, body: BaseModel, *, lock: bool):
+async def target_row(context: MCPDatabaseContext, name: str, body: BaseModel, *, lock: bool) -> Any:
     model, key = TARGETS[name]
     query = select(model).where(model.id == getattr(body, key))
     if model is MenuDishModel:
-        query = query.join(MenuCategoryModel).where(MenuCategoryModel.agency_id == body.agency_id)
+        query = query.join(MenuCategoryModel).where(MenuCategoryModel.agency_id == getattr(body, "agency_id"))
     else:
-        query = query.where(model.agency_id == body.agency_id)
+        query = query.where(model.agency_id == getattr(body, "agency_id"))
     if model is ClientGroupModel:
         query = query.where(model.deleted_at.is_(None), model.status != "deleted")
     if model is RoomingHotelModel:
-        query = query.where(model.group_id == body.group_id)
+        query = query.where(model.group_id == getattr(body, "group_id"))
     if lock:
         query = query.with_for_update().execution_options(populate_existing=True)
     row = await context.session.scalar(query)
@@ -118,9 +132,10 @@ async def target_row(context: MCPDatabaseContext, name: str, body: BaseModel, *,
     return row
 
 
-async def before_state(context: MCPDatabaseContext, name: str, body: BaseModel, row: Any):
+async def before_state(context: MCPDatabaseContext, name: str, body: DashboardEdit, row: Any) -> dict[str, Any]:
     history: dict[str, Any] = {"target": row_snapshot(row)}
     if isinstance(row, RoomingHotelModel):
+        assert isinstance(body, (HotelEdit, HotelSelection, HotelVip, HotelAllocation))
         # Group lock precedes hotel locks, matching canonical allocation order.
         for model, key in (
             (RoomingHotelModel, "hotels"),
@@ -131,7 +146,7 @@ async def before_state(context: MCPDatabaseContext, name: str, body: BaseModel, 
                     await context.session.scalars(
                         select(model)
                         .where(
-                            model.group_id == body.group_id,
+                            model.group_id == getattr(body, "group_id"),
                             model.agency_id == body.agency_id,
                         )
                         .order_by(model.id)
@@ -144,13 +159,13 @@ async def before_state(context: MCPDatabaseContext, name: str, body: BaseModel, 
                 raise MCPOperationError("workflow_history_limit")
             history[key] = [row_snapshot(item) for item in rows]
         hotel_ids = [UUID(item["id"]) for item in history["hotels"]]
-        for model, key in ((RoomingRoomModel, "rooms"), (RoomingAssignmentModel, "assignments")):
+        for child_model, key in ((RoomingRoomModel, "rooms"), (RoomingAssignmentModel, "assignments")):
             rows = list(
                 (
                     await context.session.scalars(
-                        select(model)
-                        .where(model.hotel_id.in_(hotel_ids))
-                        .order_by(model.id)
+                        select(child_model)
+                        .where(child_model.hotel_id.in_(hotel_ids))
+                        .order_by(child_model.id)
                         .limit(1001)
                         .with_for_update()
                     )
@@ -179,32 +194,26 @@ async def before_state(context: MCPDatabaseContext, name: str, body: BaseModel, 
     return history
 
 
-async def canonical_edit(context: MCPDatabaseContext, name: str, body: BaseModel, actor):
-    common = {"current_user": actor, "session": context.session, "request": audit_request()}
-    if name == "configure_group_link":
-        return await client_groups.update_client_group(
-            link_id=body.group_id,
-            request=body,
-            current_user=actor,
-            session=context.session,
-        )
-    if name == "update_menu_category":
+async def canonical_edit(context: MCPDatabaseContext, name: str, body: DashboardEdit, actor: User) -> BaseModel:
+    common: dict[str, Any] = {"current_user": actor, "session": context.session, "request": audit_request()}
+    if isinstance(body, GroupLinkEdit):
+        canonical = UpdateClientGroupRequest.model_validate(body.model_dump(exclude={"agency_id", "group_id", "expected_configuration_revision", "collection_settings_confirmed"}))
+        return await client_groups.update_client_group(link_id=body.group_id, request=canonical, current_user=actor, session=context.session)
+    if isinstance(body, MenuCategoryEdit):
         return await menu.update_menu_category(category_id=body.category_id, body=body, **common)
-    if name == "update_menu_dish":
+    if isinstance(body, MenuDishEdit):
         return await menu.update_menu_dish(dish_id=body.dish_id, body=body, **common)
-    if name == "update_meal_plan":
+    if isinstance(body, MealPlanEdit):
         return await menu.update_meal_plan(plan_id=body.plan_id, body=body, **common)
-    if name == "update_meal_plan_entry":
-        return await menu.update_meal_plan_entry(
-            plan_id=body.plan_id, entry_id=body.entry_id, body=body, **common
-        )
-    handlers = {
-        "configure_rooming_hotel": rooming.update_rooming_hotel,
-        "select_rooming_passengers": rooming.update_hotel_passenger_selection,
-        "set_rooming_vip": rooming.update_hotel_vip_status,
-        "allocate_rooming_rooms": rooming.auto_allocate_hotel_rooms,
-    }
-    return await handlers[name](hotel_id=body.hotel_id, body=body, **common)
+    if isinstance(body, MealEntryEdit):
+        return await menu.update_meal_plan_entry(plan_id=body.plan_id, entry_id=body.entry_id, body=body, **common)
+    if isinstance(body, HotelEdit):
+        return await rooming.update_rooming_hotel(hotel_id=body.hotel_id, body=body, **common)
+    if isinstance(body, HotelSelection):
+        return await rooming.update_hotel_passenger_selection(hotel_id=body.hotel_id, body=body, **common)
+    if isinstance(body, HotelVip):
+        return await rooming.update_hotel_vip_status(hotel_id=body.hotel_id, body=body, **common)
+    return await rooming.auto_allocate_hotel_rooms(hotel_id=body.hotel_id, body=body, **common)
 
 
 def dashboard_edit_operation(name: str) -> MCPDatabaseOperation:
@@ -214,16 +223,16 @@ def dashboard_edit_operation(name: str) -> MCPDatabaseOperation:
     async def mutate(context: MCPDatabaseContext, payload: dict[str, Any]) -> MCPDatabaseResult:
         body = validate_edit(name, payload)
         actor = await scoped_actor(context, body.agency_id)
-        if hasattr(body, "group_id"):
+        if isinstance(body, (GroupLinkEdit, HotelEdit, HotelSelection, HotelVip, HotelAllocation)):
             await require_change_group(
                 context, actor, body.group_id, body.agency_id, exclusive=True
             )
-        if name == "configure_group_link":
+        if isinstance(body, GroupLinkEdit):
             await lock_group_revision(
                 context, body.agency_id, body.group_id, body.expected_configuration_revision
             )
         row = await target_row(context, name, body, lock=True)
-        if name == "configure_rooming_hotel" and utc(row.updated_at) != utc(
+        if isinstance(body, HotelEdit) and utc(row.updated_at) != utc(
             body.expected_updated_at
         ):
             raise MCPOperationError("workflow_revision_changed")
@@ -260,7 +269,7 @@ def dashboard_edit_operation(name: str) -> MCPDatabaseOperation:
             {
                 "agency_id": str(body.agency_id) if body.agency_id else None,
                 "target_id": str(row.id),
-                "group_id": str(body.group_id) if hasattr(body, "group_id") else None,
+                "group_id": str(getattr(body, "group_id")) if hasattr(body, "group_id") else None,
                 "workflow": name,
                 "business_audit_id": str(audit.id),
                 "result": result,
@@ -278,6 +287,8 @@ def dashboard_edit_operation(name: str) -> MCPDatabaseOperation:
         else:
             query = query.where(model.agency_id == agency_id)
         if data["group_id"]:
+            if agency_id is None:
+                raise MCPOperationError("workflow_receipt_unavailable")
             await require_change_group(context, actor, UUID(data["group_id"]), agency_id)
             if model is RoomingHotelModel:
                 query = query.where(model.group_id == UUID(data["group_id"]))

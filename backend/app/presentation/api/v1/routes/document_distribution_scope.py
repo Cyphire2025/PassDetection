@@ -127,7 +127,7 @@ async def _lock_active_document_scope(
             ClientGroupModel.agency_id == agency_id,
         )
         # Preserve MCP's verified shared identity barrier; lock only business rows then.
-        .with_for_update(of=[AgencyModel, ClientGroupModel] if identity_already_locked else None)
+        .with_for_update(of=[AgencyModel.id, ClientGroupModel.id] if identity_already_locked else None)
         .execution_options(populate_existing=True)
     )
     row = result.one_or_none()

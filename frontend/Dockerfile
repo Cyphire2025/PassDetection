@@ -3,7 +3,11 @@ FROM node:24-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b533
 WORKDIR /app
 # The Node distribution's bundled npm has separate dependency advisories.
 # Keep both install and build tooling aligned with tooling/toolchain.json.
-RUN npm install --global npm@11.20.0 && npm cache clean --force
+COPY scripts/patch-npm-toolchain.mjs ./scripts/patch-npm-toolchain.mjs
+COPY tooling/npm-security ./tooling/npm-security
+RUN npm install --global npm@11.20.0 && \
+    node scripts/patch-npm-toolchain.mjs /usr/local/lib/node_modules/npm && \
+    npm cache clean --force
 
 # Install dependencies
 FROM base AS deps
@@ -46,11 +50,16 @@ RUN addgroup --system --gid 1001 nodejs && \
     apk add --no-network ca-certificates-bundle && \
     apk del apk-tools zlib && \
     rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack /opt/yarn-v1.22.22 && \
+    rm -rf /app/tooling/npm-security /app/scripts/patch-npm-toolchain.mjs && \
     rm -f /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack /usr/local/bin/yarn /usr/local/bin/yarnpkg
 
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Verify the final filesystem, including files copied by standalone tracing.
+RUN test -f /app/server.js && test -d /app/.next/static && \
+    test ! -e /app/tooling/npm-security && test ! -e /app/scripts/patch-npm-toolchain.mjs
 
 USER nextjs
 EXPOSE 3000

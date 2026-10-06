@@ -67,9 +67,11 @@ export function PlatformSettingsPanel({
 
   const isLoading = loadState === "loading";
   const isAuthorityReady = loadState === "ready" && user !== null;
+  const isSuperAdmin = user?.role === "super_admin";
+  const canEditPolicies = isAuthorityReady && isSuperAdmin;
   const canPurge =
     isAuthorityReady &&
-    (user.role === "super_admin" || user.role === "agency_admin");
+    (isSuperAdmin || user.role === "agency_admin");
   const isConfirmed = confirmation === DELETE_CONFIRMATION;
 
   useEffect(() => {
@@ -106,7 +108,7 @@ export function PlatformSettingsPanel({
   };
 
   const handleSave = async () => {
-    if (loadState !== "ready" || isSaving) return;
+    if (!canEditPolicies || isSaving) return;
     setIsSaving(true);
     setSaveError(null);
     setSaveMessage(null);
@@ -203,7 +205,7 @@ export function PlatformSettingsPanel({
               type="button"
               onClick={handleSave}
               isLoading={isSaving}
-              disabled={loadState !== "ready"}
+              disabled={!canEditPolicies}
               leftIcon={<Save className="h-4 w-4" />}
             >
               Save policies
@@ -251,6 +253,9 @@ export function PlatformSettingsPanel({
                 </div>
               ) : (
                 <div className="space-y-6">
+                  <p hidden={isSuperAdmin} className="text-sm text-slate-500">
+                    Only a super administrator can change these platform-wide policies.
+                  </p>
                   {loadState === "conflict" && (
                     <div
                       role="alert"
@@ -268,7 +273,7 @@ export function PlatformSettingsPanel({
                     </div>
                   )}
                   <fieldset
-                    disabled={loadState !== "ready" || isSaving}
+                    disabled={!canEditPolicies || isSaving}
                     className="space-y-6 disabled:opacity-75"
                   >
                     <SettingsSection

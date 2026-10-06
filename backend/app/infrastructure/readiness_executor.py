@@ -24,7 +24,10 @@ class ReadinessProbeExecutor:
     dedicated worker count; the executor cannot grow an unbounded work queue.
     """
 
-    def __init__(self, *, max_workers: int = 8) -> None:
+    # A cold /health/ready request runs three top-level dependency probes plus
+    # six runtime capability probes. Admit the complete fanout even when none
+    # of the network operations has finished; otherwise ECR is rejected last.
+    def __init__(self, *, max_workers: int = 9) -> None:
         self._capacity = max_workers
         self._pool = ThreadPoolExecutor(max_workers=max_workers, thread_name_prefix="readiness")
         self._lock = threading.Lock()

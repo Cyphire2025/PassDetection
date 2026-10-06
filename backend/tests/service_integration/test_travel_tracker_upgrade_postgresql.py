@@ -26,7 +26,9 @@ pytestmark = [
 
 async def test_tracker_helper_preserves_authority_and_refuses_schema_or_grant_drift():
     host, parent = os.environ["POSTGRES_HOST"], os.environ["POSTGRES_DB"]
-    if host not in {"localhost", "127.0.0.1"} or parent not in {"postgres", "test_db"}:
+    if host not in {"localhost", "127.0.0.1"} or parent not in {
+        "postgres", "test_db", "passdetection_ci_services",
+    }:
         pytest.fail("Explicit service-integration loopback cluster required")
     name = "passdetection_ci_tracker_" + uuid.uuid4().hex[:12]
     url = URL.create(

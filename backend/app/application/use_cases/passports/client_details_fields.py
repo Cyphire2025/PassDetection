@@ -6,6 +6,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any, Literal
 
+from app.application.dtos.passport_dtos import PassportSubmissionOutputDTO
 from app.application.use_cases.whatsapp.group_submission_matching import (
     normalize_matching_field_key,
 )
@@ -34,7 +35,7 @@ class ClientDetailField:
     max_length: int = 120
 
 
-def saved_field_value(submission: PassportSubmission, key: str) -> tuple[str | None, str | None]:
+def saved_field_value(submission: PassportSubmission | PassportSubmissionOutputDTO, key: str) -> tuple[str | None, str | None]:
     """Resolve saved fields exactly as the client-detail editor, with provenance.
 
     Presence, rather than truthiness, preserves deliberately cleared reviewed

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import uuid
 from typing import Annotated, Literal
 
@@ -260,6 +261,7 @@ async def export_document_assignments(
         document_type,
         current_user=current_user,
         session=session,
+        include_file_urls=False,
     )
     filter_labels = {
         "all": "All",
@@ -274,7 +276,8 @@ async def export_document_assignments(
         review_filter=review_filter,
         search_query=search,
     )
-    workbook = build_document_assignment_workbook(
+    workbook = await asyncio.to_thread(
+        build_document_assignment_workbook,
         group_name=group.name,
         document_label=document_type_label(document_type),
         filter_label=filter_labels[review_filter],

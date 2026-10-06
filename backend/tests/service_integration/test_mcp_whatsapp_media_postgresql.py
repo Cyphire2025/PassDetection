@@ -302,6 +302,7 @@ async def test_scanned_owned_image_exact_welcome_plan_and_worker_send_use_one_re
             payload={
                 "plan_id": prepared["data"]["plan_id"],
                 "plan_hash": prepared["data"]["plan_hash"],
+                "user_confirmed": True,
             },
         )
         await session.commit()

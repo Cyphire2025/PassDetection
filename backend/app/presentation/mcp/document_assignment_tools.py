@@ -11,7 +11,8 @@ from fastapi import FastAPI, HTTPException
 from mcp.server import MCPServer
 from mcp.types import ToolAnnotations
 from pydantic import BaseModel, ConfigDict, Field
-from sqlalchemy import select
+from sqlalchemy import Select, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mcp.authorization import MCPPrincipal
 from app.application.mcp.change_context import require_change_group
@@ -23,6 +24,7 @@ from app.application.mcp.operations import (
 )
 from app.application.mcp.pdf_ingestion import DocumentLane
 from app.core.config.settings import Settings
+from app.domain.entities.entities import User
 from app.domain.mcp_policy import MCPCapability, MCPToolPolicy
 from app.infrastructure.database.models import (
     DistributedDocumentModel,
@@ -45,10 +47,10 @@ class DocumentAssignmentSave(DocumentAssignmentSelection):
     assignments_reviewed: Literal[True] = Field(description="User reviewed classified files, passenger matches and unresolved files. Saving does not send any document.")
 
 
-async def assignment_snapshot(context: MCPDatabaseContext, selection: DocumentAssignmentSelection, *, lock: bool):
+async def assignment_snapshot(context: MCPDatabaseContext, selection: DocumentAssignmentSelection, *, lock: bool) -> tuple[User, list[DocumentDistributionBatchModel], list[DistributedDocumentModel], dict[str, Any], str]:
     actor = await scoped_actor(context, selection.agency_id)
     await require_change_group(context, actor, selection.group_id, selection.agency_id, exclusive=lock)
-    queries = [select(model).where(model.agency_id == selection.agency_id,
+    queries: list[Select[Any]] = [select(model).where(model.agency_id == selection.agency_id,
         model.group_id == selection.group_id, model.document_type == selection.document_type).order_by(model.id).limit(1001)
         for model in (DocumentDistributionBatchModel, DistributedDocumentModel)]
     if lock:
@@ -68,7 +70,7 @@ async def assignment_snapshot(context: MCPDatabaseContext, selection: DocumentAs
 
 
 def document_assignment_operation() -> MCPDatabaseOperation:
-    async def mutate(context: MCPDatabaseContext, payload: dict[str, Any]):
+    async def mutate(context: MCPDatabaseContext, payload: dict[str, Any]) -> MCPDatabaseResult:
         selection = DocumentAssignmentSave.model_validate(payload)
         actor, batches, documents, _, revision = await assignment_snapshot(context, selection, lock=True)
         if revision != selection.inspected_revision:
@@ -86,7 +88,7 @@ def document_assignment_operation() -> MCPDatabaseOperation:
             "assigned_count": sum(row.passenger_id is not None for row in documents), "status": "saved", "documents_sent": 0,
             "notice": "The reviewed lane is saved. Unresolved files remain unassigned; no messages or documents were sent."})
 
-    async def authorize(context: MCPDatabaseContext, receipt: dict[str, Any]):
+    async def authorize(context: MCPDatabaseContext, receipt: dict[str, Any]) -> None:
         data = receipt["data"]
         actor = await scoped_actor(context, UUID(data["agency_id"]))
         await require_change_group(context, actor, UUID(data["group_id"]), UUID(data["agency_id"]))
@@ -101,13 +103,13 @@ def document_assignment_operation() -> MCPDatabaseOperation:
     return MCPDatabaseOperation(MCPToolPolicy("save_document_assignments", MCPCapability.CHANGE, frozenset({"save_reviewed_assignments"})), mutate, authorize)
 
 
-def register_document_assignment_tools(server: MCPServer, app: FastAPI, settings: Settings):
+def register_document_assignment_tools(server: MCPServer, app: FastAPI, settings: Settings) -> None:
     definition = document_assignment_operation()
     app.state.mcp_operations[definition.policy.name] = definition
     @server.tool(meta={"capability": "mcp:change"}, annotations=ToolAnnotations(read_only_hint=True, destructive_hint=False, open_world_hint=False))
     async def inspect_document_assignments(selection: DocumentAssignmentSelection) -> dict[str, Any]:
         """Review the complete bounded document lane before saving, including classifications, passenger matches and unresolved files. Never force a match or infer manual approval. No messages/documents are sent."""
-        async def read(session, principal: MCPPrincipal):
+        async def read(session: AsyncSession, principal: MCPPrincipal) -> dict[str, Any]:
             _, batches, documents, snapshot, revision = await assignment_snapshot(MCPDatabaseContext(session, principal, UUID(int=0)), selection, lock=False)
             return {"preview": snapshot, "inspected_revision": revision, "processing": any(row.status == "processing" for row in batches),
                 "unassigned_count": sum(row.passenger_id is None for row in documents), "confirmation_required": True, "documents_sent": 0}

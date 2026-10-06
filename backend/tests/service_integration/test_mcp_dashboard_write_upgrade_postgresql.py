@@ -35,7 +35,9 @@ async def test_additive_helper_preserves_all_rows_refuses_held_writer_and_exact_
         int(os.environ["POSTGRES_PORT"]),
         os.environ["POSTGRES_DB"],
     )
-    if host not in {"127.0.0.1", "localhost"} or parent not in {"postgres", "test_db"}:
+    if host not in {"127.0.0.1", "localhost"} or parent not in {
+        "postgres", "test_db", "passdetection_ci_services",
+    }:
         pytest.fail("Explicit service-integration loopback cluster required")
     name = "passdetection_ci_mixed_" + uuid.uuid4().hex[:12]
     url = URL.create(

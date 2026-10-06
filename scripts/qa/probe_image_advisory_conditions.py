@@ -14,6 +14,7 @@ import struct
 import subprocess
 from pathlib import Path
 
+from gcc_runtime_policy import probe_gcc_runtime
 from native_allocator_policy import reviewed_allocator_source
 
 FORBIDDEN_SYMBOLS = {"strfmon", "strfmon_l", "ns_printrr", "ns_printrrf", "fp_nquery"}
@@ -44,6 +45,7 @@ def imported_symbols(data: bytes) -> set[str]:
 
 
 def main() -> None:
+    gcc_conditions = probe_gcc_runtime()
     absent = ["/usr/bin/infocmp", "/usr/bin/mount", "/usr/bin/umount", "/usr/bin/nsenter", "/usr/bin/tiffcrop",
               "/usr/bin/getfacl", "/usr/bin/setfacl", "/usr/bin/chacl"]
     for filename in absent:
@@ -106,6 +108,7 @@ def main() -> None:
         "inspected_native_objects": len(native), "native_inventory_sha256": hashlib.sha256(json.dumps(native, sort_keys=True).encode()).hexdigest(),
         "forbidden_symbol_imports": [], "python_symbol_references": [], "zlib_binary_sha256": zlib_sha,
         "reviewed_native_callers": reviewed_native_callers,
+        "gcc_runtime_conditions": gcc_conditions,
         "native_inventory": native}))
 
 

@@ -16,7 +16,7 @@ from app.domain.mcp_policy import MCPCapability, MCPToolPolicy
 from app.presentation.mcp.invocation import MCPInputError, invoke_read
 
 
-def register_delivery_read_tools(server: MCPServer, app: FastAPI, settings: Settings):
+def register_delivery_read_tools(server: MCPServer, app: FastAPI, settings: Settings) -> None:
     @server.tool(meta={"capability": "mcp:read"},
         annotations=ToolAnnotations(read_only_hint=True, destructive_hint=False, open_world_hint=False))
     async def list_delivery_records(kind: Literal["document", "qr", "broadcast", "welcome"],
@@ -36,7 +36,7 @@ def register_delivery_read_tools(server: MCPServer, app: FastAPI, settings: Sett
         attempts, not unique passengers, and statuses never authorize a resend.
         Use each detail_reference with read_dashboard_view for full saved fields.
         """
-        async def read(session: AsyncSession, principal: MCPPrincipal):
+        async def read(session: AsyncSession, principal: MCPPrincipal) -> dict[str, Any]:
             try:
                 return await MCPDeliveryReadService(session, cursor_secret=settings.app_secret_key).list_records(
                     user_id=principal.user_id, kind=kind, agency_id=agency_id, group_id=group_id,

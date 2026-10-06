@@ -63,7 +63,7 @@ async def test_actual_http_duplicate_delete_and_refresh_are_serialized(test_sett
             "-m",
             "alembic",
             "upgrade",
-            "0125_mcp_connection_requests",
+            "head",
             cwd=backend,
             env={**os.environ, "POSTGRES_DB": name},
             stdout=asyncio.subprocess.PIPE,

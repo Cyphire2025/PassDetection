@@ -1,22 +1,73 @@
-name: CI — PassDetection Platform
+name: CI/CD — PassDetection Platform
 
 on:
   push:
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      deployment_mode:
+        description: "Full deploy promotes tested images to the VPS; none runs checks only"
+        required: true
+        default: full
+        type: choice
+        options:
+          - full
+          - none
+      expected_revision:
+        description: "Optional exact commit selected by the release operator"
+        required: false
+        type: string
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
 
 jobs:
+  plan:
+    name: Plan affected checks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      plan: ${{ steps.select.outputs.plan }}
+      backend-static-checks: ${{ steps.select.outputs['backend-static-checks'] }}
+      backend-dependency-audit: ${{ steps.select.outputs['backend-dependency-audit'] }}
+      backend-test: ${{ steps.select.outputs['backend-test'] }}
+      backend-service-integration: ${{ steps.select.outputs['backend-service-integration'] }}
+      backend-migration-rehearsal: ${{ steps.select.outputs['backend-migration-rehearsal'] }}
+      frontend-lint: ${{ steps.select.outputs['frontend-lint'] }}
+      frontend-browser: ${{ steps.select.outputs['frontend-browser'] }}
+      connector-windows: ${{ steps.select.outputs['connector-windows'] }}
+      docker-build: ${{ steps.select.outputs['docker-build'] }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+      - name: Select affected checks and verify reusable successes
+        id: select
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/ci_pipeline.py plan
+      - name: Preserve immutable inputs for this run
+        if: ${{ steps.select.outputs.provenance == 'true' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ci-provenance-${{ github.run_id }}-${{ github.run_attempt }}
+          path: outputs/ci-provenance/ci-provenance.json
+          if-no-files-found: error
+          retention-days: 2
+
   # ── Backend: Lint & Compile Check ───────────────────────────────────────────
   backend-static-checks:
     name: Backend — Lint & Compile Check
+    needs: plan
+    if: ${{ needs.plan.outputs['backend-static-checks'] == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -25,12 +76,26 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
+      - name: Bind a manually selected release to its exact revision
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          EXPECTED_REVISION: ${{ inputs.expected_revision }}
+          SOURCE_REVISION: ${{ github.sha }}
+        run: |
+          if [ -n "$EXPECTED_REVISION" ] && [ "$EXPECTED_REVISION" != "$SOURCE_REVISION" ]; then
+            echo "The selected commit is no longer the dispatched main revision. Select again."
+            exit 1
+          fi
+
       - name: Set up Python 3.11
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: "3.11.15"
           cache: "pip"
-          cache-dependency-path: backend/requirements.lock
+          cache-dependency-path: |
+            backend/requirements.lock
+            backend/requirements-dev.lock
+            backend/requirements-image-build.lock
 
       - name: Install dependencies
         run: |
@@ -82,8 +147,9 @@ jobs:
 
   connector-windows:
     name: MCP Connector — Windows Tests & Wheel
+    needs: plan
+    if: ${{ needs.plan.outputs['connector-windows'] == 'true' }}
     runs-on: windows-latest
-    needs: backend-static-checks
     timeout-minutes: 20
     permissions:
       contents: read
@@ -91,13 +157,18 @@ jobs:
       attestations: write
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+      # CPython 3.11 security releases have no official Windows installer.
+      # Use the same pinned managed build as the supported Windows developer setup.
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
         with:
+          version: "0.12.0"
           python-version: "3.11.15"
-          cache: pip
-          cache-dependency-path: |
-            backend/requirements-dev.lock
-            mcp-connector/requirements.lock
+          enable-cache: true
+      - name: Create the pinned Windows Python environment
+        run: |
+          uv venv --python 3.11.15 --seed .venv
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          "$env:GITHUB_WORKSPACE\.venv\Scripts" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       - name: Install hash-locked test and package dependencies
         run: |
           python -m pip install --require-hashes -r backend/requirements-dev.lock
@@ -134,7 +205,7 @@ jobs:
           SOURCE_REVISION: ${{ github.sha }}
         run: python scripts/release_connector.py package --revision $env:SOURCE_REVISION --directory outputs/connector
       - name: Attest connector inventory on main
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.deployment_mode == 'full' && github.ref == 'refs/heads/main' }}
         uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
         with:
           subject-path: outputs/connector/connector-artifacts.json
@@ -148,6 +219,8 @@ jobs:
 
   backend-dependency-audit:
     name: Backend — Dependency Audit
+    needs: plan
+    if: ${{ needs.plan.outputs['backend-dependency-audit'] == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -161,7 +234,10 @@ jobs:
         with:
           python-version: "3.11.15"
           cache: "pip"
-          cache-dependency-path: backend/requirements.lock
+          cache-dependency-path: |
+            backend/requirements.lock
+            backend/requirements-dev.lock
+            backend/requirements-image-build.lock
 
       - name: Install dependency auditor
         run: |
@@ -182,16 +258,19 @@ jobs:
           retention-days: 30
 
   # ── Backend: Tests ──────────────────────────────────────────────────────────
-  backend-test:
-    name: Backend — Tests
+  backend-test-shards:
+    name: Backend tests — shard ${{ matrix.shard }}/4
+    needs: plan
+    if: ${{ needs.plan.outputs['backend-test'] == 'true' }}
     runs-on: ubuntu-latest
-    # The complete suite includes coverage over 2,000+ tests and can exceed
-    # 30 minutes on a cold GitHub-hosted runner.
-    timeout-minutes: 60
-    needs: backend-static-checks
+    # Partition every collected item exactly once; aggregate coverage below.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    timeout-minutes: 35
     permissions:
       contents: read
-      id-token: write
 
     services:
       postgres:
@@ -245,7 +324,10 @@ jobs:
         with:
           python-version: "3.11.15"
           cache: "pip"
-          cache-dependency-path: backend/requirements.lock
+          cache-dependency-path: |
+            backend/requirements.lock
+            backend/requirements-dev.lock
+            backend/requirements-image-build.lock
 
       - name: Install dependencies
         run: |
@@ -259,28 +341,82 @@ jobs:
           alembic check
 
       - name: Verify complete reviewed backend OpenAPI contract
+        if: ${{ matrix.shard == 1 }}
         run: python scripts/export_api_contract.py
 
       - name: Verify backend-to-mobile OpenAPI contract
+        if: ${{ matrix.shard == 1 }}
         run: python scripts/export_mobile_openapi_contract.py
 
       - name: Enforce strict backend typing
+        if: ${{ matrix.shard == 1 }}
         run: mypy app
 
       - name: Run tests
-        run: pytest --cov=app --cov-branch --cov-report=xml
-
-      - name: Enforce critical-module coverage floors
+        env:
+          PYTHONUNBUFFERED: "1"
         run: >-
-          python scripts/verify_backend_quality_budgets.py
-          --coverage-file coverage.xml
+          python -m pytest -n 4 --dist loadfile --max-worker-restart=0
+          -p tests.ci_sharding --ci-shard-index ${{ matrix.shard }} --ci-shard-count 4
+          --ci-shard-report ci-shard-${{ matrix.shard }}.json
+          -o faulthandler_timeout=120 --durations=25
+          --cov=app --cov-branch --cov-report=xml
 
-      - name: Upload coverage report
+      - name: Retain each successful shard's coverage and collection proof
+        run: python -c "from pathlib import Path; Path('.coverage').rename('.coverage.shard-${{ matrix.shard }}')"
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: backend-coverage-${{ matrix.shard }}-${{ github.sha }}
+          path: |
+            backend/.coverage.shard-${{ matrix.shard }}
+            backend/ci-shard-${{ matrix.shard }}.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+
+  backend-test:
+    name: Backend — Tests
+    needs: [plan, backend-test-shards]
+    if: ${{ always() && needs.plan.result == 'success' && needs.plan.outputs['backend-test'] == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Require every test shard to pass
+        if: ${{ needs.backend-test-shards.result != 'success' }}
+        working-directory: .
+        run: exit 1
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.11.15"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.lock
+            backend/requirements-dev.lock
+      - name: Install locked coverage tools
+        run: python -m pip install --require-hashes -r requirements-dev.lock
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: backend-coverage-*-${{ github.sha }}
+          path: backend/.ci-coverage
+          merge-multiple: true
+      - name: Verify complete test partition and combine all coverage
+        run: |
+          python ../scripts/ci_pipeline.py verify-shards --directory .ci-coverage --count 4
+          python -m coverage combine .ci-coverage
+          python -m coverage xml
+      - name: Enforce unchanged global and critical-module coverage floors
+        run: python scripts/verify_backend_quality_budgets.py --coverage-file coverage.xml
+      - name: Upload combined coverage report
         uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
         with:
           use_oidc: true
-          # Coverage reporting is diagnostic; an unenrolled/unavailable external
-          # Codecov repository must not hide successful tests or skip Docker builds.
           fail_ci_if_error: false
           files: backend/coverage.xml
           flags: backend
@@ -289,9 +425,10 @@ jobs:
   # feedback loop; this proves boundaries SQLite and mocks cannot represent.
   backend-service-integration:
     name: Backend - PostgreSQL, Redis, Private S3 & Celery
+    needs: plan
+    if: ${{ needs.plan.outputs['backend-service-integration'] == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: backend-static-checks
     permissions:
       contents: read
 
@@ -301,11 +438,11 @@ jobs:
         env:
           POSTGRES_USER: test_user
           POSTGRES_PASSWORD: test_password
-          POSTGRES_DB: test_db
+          POSTGRES_DB: passdetection_ci_services
         ports:
           - 5432:5432
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U test_user -d passdetection_ci_services"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
@@ -333,7 +470,7 @@ jobs:
       APP_SECRET_KEY: ci-service-integration-key-not-for-production
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
-      POSTGRES_DB: test_db
+      POSTGRES_DB: passdetection_ci_services
       POSTGRES_USER: test_user
       POSTGRES_PASSWORD: test_password
       FCM_TEST_POSTGRES_DB: passdetection_ci_fcm
@@ -358,7 +495,10 @@ jobs:
         with:
           python-version: "3.11.15"
           cache: "pip"
-          cache-dependency-path: backend/requirements.lock
+          cache-dependency-path: |
+            backend/requirements.lock
+            backend/requirements-dev.lock
+            backend/requirements-image-build.lock
 
       - name: Install dependencies
         run: |
@@ -580,9 +720,10 @@ jobs:
   # it is not evidence of production HA, PITR, or regional failover.
   backend-migration-rehearsal:
     name: Backend - Populated PostgreSQL Restore & Upgrade
+    needs: plan
+    if: ${{ needs.plan.outputs['backend-migration-rehearsal'] == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: backend-static-checks
     permissions:
       contents: read
 
@@ -629,7 +770,10 @@ jobs:
         with:
           python-version: "3.11.15"
           cache: "pip"
-          cache-dependency-path: backend/requirements.lock
+          cache-dependency-path: |
+            backend/requirements.lock
+            backend/requirements-dev.lock
+            backend/requirements-image-build.lock
 
       - name: Install locked backend and matching PostgreSQL 16 clients
         run: |
@@ -655,6 +799,8 @@ jobs:
   # ── Frontend: Lint & Type Check ─────────────────────────────────────────────
   frontend-lint:
     name: Frontend — Lint & Type Check
+    needs: plan
+    if: ${{ needs.plan.outputs['frontend-lint'] == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -673,6 +819,7 @@ jobs:
       - name: Enforce dashboard developer toolchain
         run: |
           npm install --global npm@11.20.0
+          node scripts/patch-npm-toolchain.mjs "$(npm root --global)/npm"
           python ../scripts/check_node_toolchain.py
 
       - name: Install dependencies
@@ -703,7 +850,7 @@ jobs:
       - name: Node contract and regression tests
         run: >-
           find . -type f -name '*.test.mjs'
-          -not -path './node_modules/*'
+          -not -path '*/node_modules/*'
           -not -path './.next/*'
           -print0 | sort -z | xargs -0 node --test --test-reporter=dot
 
@@ -726,6 +873,8 @@ jobs:
   # traces and screenshots without obscuring lint or unit-test feedback.
   frontend-browser:
     name: Frontend - Browser Journeys
+    needs: plan
+    if: ${{ needs.plan.outputs['frontend-browser'] == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -744,6 +893,7 @@ jobs:
       - name: Enforce dashboard developer toolchain
         run: |
           npm install --global npm@11.20.0
+          node scripts/patch-npm-toolchain.mjs "$(npm root --global)/npm"
           python ../scripts/check_node_toolchain.py
 
       - name: Install dependencies
@@ -776,15 +926,9 @@ jobs:
       id-token: write
       attestations: write
     name: Docker — Build Verification
+    needs: plan
+    if: ${{ needs.plan.outputs['docker-build'] == 'true' }}
     runs-on: ubuntu-latest
-    needs:
-      - backend-dependency-audit
-      - backend-test
-      - backend-service-integration
-      - backend-migration-rehearsal
-      - frontend-lint
-      - frontend-browser
-      - connector-windows
 
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
@@ -818,8 +962,8 @@ jobs:
             passdetection-qualification-backend:local
           build-args: |
             APP_REVISION=${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,scope=backend,mode=max
 
       - name: Build frontend image
         uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
@@ -833,8 +977,8 @@ jobs:
           build-args: |
             APP_REVISION=${{ github.sha }}
             NEXT_PUBLIC_APP_REVISION=${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,scope=frontend,mode=max
 
       - name: Set up qualification Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
@@ -851,7 +995,66 @@ jobs:
       - name: Enforce maintained qualification installer
         run: |
           npm install --global npm@11.20.0
+          node frontend/scripts/patch-npm-toolchain.mjs "$(npm root --global)/npm"
           python scripts/check_node_toolchain.py
+
+      - name: Prepare full-image evidence directory
+        run: |
+          python -m pip install --require-hashes -r backend/requirements-dev.lock
+          mkdir -p outputs/promoted
+
+      - name: Inventory complete backend image including OS packages
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          image: passdetection-backend:ci
+          format: spdx-json
+          output-file: outputs/promoted/backend.spdx.json
+          upload-artifact: false
+          syft-version: v1.52.0
+
+      - name: Scan complete backend image
+        uses: anchore/scan-action@e1165082ffb1fe366ebaf02d8526e7c4989ea9d2 # v7.4.0
+        with:
+          image: passdetection-backend:ci
+          grype-version: v0.119.0
+          output-format: json
+          output-file: outputs/promoted/backend.grype.json
+          # Collection is separate from policy evaluation. The next required step
+          # rejects unknown matches; reviewed exact matches require live byte,
+          # parser, native-symbol, expiry and deployment-isolation checks.
+          fail-build: false
+          only-fixed: false
+
+      - name: Enforce backend whole-image vulnerability policy
+        run: >-
+          python scripts/audit_backend_dependencies.py
+          --image-report outputs/promoted/backend.grype.json --image passdetection-backend:ci
+          --image-receipt outputs/promoted/backend-advisory-conditions.json
+
+      - name: Inventory complete frontend image including OS packages
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          image: passdetection-frontend:ci
+          format: spdx-json
+          output-file: outputs/promoted/frontend.spdx.json
+          upload-artifact: false
+          syft-version: v1.52.0
+
+      - name: Scan complete frontend image
+        uses: anchore/scan-action@e1165082ffb1fe366ebaf02d8526e7c4989ea9d2 # v7.4.0
+        with:
+          sbom: outputs/promoted/frontend.spdx.json
+          grype-version: v0.119.0
+          output-format: json
+          output-file: outputs/promoted/frontend.grype.json
+          # Collection is separate from policy evaluation. The next required step
+          # rejects every high/critical match except the guarded exact exception.
+          fail-build: false
+          only-fixed: false
+
+      - name: Enforce frontend whole-image vulnerability policy
+        run: python scripts/audit_backend_dependencies.py --image-report outputs/promoted/frontend.grype.json
+
 
       - name: Qualify bounded native and reused-worker memory before starting other services
         run: |
@@ -863,7 +1066,6 @@ jobs:
 
       - name: Prepare isolated production-image stack
         run: |
-          python -m pip install --require-hashes -r backend/requirements-dev.lock
           python scripts/qa/prepare_qualification_certificate.py
           python scripts/qa/run_qualification_stack.py start
 
@@ -921,75 +1123,20 @@ jobs:
       - name: Qualify parallel project and replica naming with preserved synthetic data
         run: python scripts/qa/qualify_compose_project_isolation.py
 
-      - name: Prepare full-image evidence directory
-        run: mkdir -p outputs/promoted
-
-      - name: Inventory complete backend image including OS packages
-        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
-        with:
-          image: passdetection-backend:ci
-          format: spdx-json
-          output-file: outputs/promoted/backend.spdx.json
-          upload-artifact: false
-          syft-version: v1.52.0
-
-      - name: Scan complete backend image
-        uses: anchore/scan-action@e1165082ffb1fe366ebaf02d8526e7c4989ea9d2 # v7.4.0
-        with:
-          image: passdetection-backend:ci
-          grype-version: v0.119.0
-          output-format: json
-          output-file: outputs/promoted/backend.grype.json
-          # Collection is separate from policy evaluation. The next required step
-          # rejects unknown matches; reviewed exact matches require live byte,
-          # parser, native-symbol, expiry and deployment-isolation checks.
-          fail-build: false
-          only-fixed: false
-
-      - name: Enforce backend whole-image vulnerability policy
-        run: >-
-          python scripts/audit_backend_dependencies.py
-          --image-report outputs/promoted/backend.grype.json --image passdetection-backend:ci
-          --image-receipt outputs/promoted/backend-advisory-conditions.json
-
-      - name: Inventory complete frontend image including OS packages
-        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
-        with:
-          image: passdetection-frontend:ci
-          format: spdx-json
-          output-file: outputs/promoted/frontend.spdx.json
-          upload-artifact: false
-          syft-version: v1.52.0
-
-      - name: Scan complete frontend image
-        uses: anchore/scan-action@e1165082ffb1fe366ebaf02d8526e7c4989ea9d2 # v7.4.0
-        with:
-          sbom: outputs/promoted/frontend.spdx.json
-          grype-version: v0.119.0
-          output-format: json
-          output-file: outputs/promoted/frontend.grype.json
-          # Collection is separate from policy evaluation. The next required step
-          # rejects every high/critical match except the guarded exact exception.
-          fail-build: false
-          only-fixed: false
-
-      - name: Enforce frontend whole-image vulnerability policy
-        run: python scripts/audit_backend_dependencies.py --image-report outputs/promoted/frontend.grype.json
-
       - name: Export the exact qualified images without rebuilding
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.deployment_mode == 'full' && github.ref == 'refs/heads/main' }}
         env:
           SOURCE_REVISION: ${{ github.sha }}
         run: python scripts/release_artifacts.py export --revision "$SOURCE_REVISION" --directory outputs/promoted
 
       - name: Sign qualified archive and full-image SBOM checksums
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.deployment_mode == 'full' && github.ref == 'refs/heads/main' }}
         uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
         with:
           subject-path: outputs/promoted/qualified-images.json
 
       - name: Retain exact qualified image archives for promotion
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.deployment_mode == 'full' && github.ref == 'refs/heads/main' }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: qualified-images-${{ github.sha }}
@@ -1010,6 +1157,7 @@ jobs:
           path: |
             outputs/promoted/*.spdx.json
             outputs/promoted/*.grype.json
+            outputs/promoted/*-advisory-conditions.json
           if-no-files-found: warn
           retention-days: 30
 
@@ -1038,10 +1186,34 @@ jobs:
         if: ${{ always() }}
         run: python scripts/qa/run_qualification_stack.py stop
 
+  required-checks:
+    name: Required CI checks
+    if: ${{ always() }}
+    needs:
+      - plan
+      - backend-static-checks
+      - backend-dependency-audit
+      - backend-test
+      - backend-service-integration
+      - backend-migration-rehearsal
+      - frontend-lint
+      - frontend-browser
+      - connector-windows
+      - docker-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+      - name: Reject failed, missing, cancelled or unverified skipped checks
+        env:
+          CI_NEEDS: ${{ toJSON(needs) }}
+        run: python scripts/ci_pipeline.py gate
+
   publish-qualified-artifacts:
     name: Promote qualified image digests and signed inventory
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-    needs: docker-build
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.deployment_mode == 'full' && github.ref == 'refs/heads/main' }}
+    needs: [required-checks, docker-build, connector-windows]
     runs-on: ubuntu-latest
     environment: production-artifacts
     concurrency:
@@ -1124,17 +1296,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           SOURCE_REVISION: ${{ github.sha }}
         run: >-
-          gh release create "release-$SOURCE_REVISION" --target "$SOURCE_REVISION"
-          --title "Qualified artifacts $SOURCE_REVISION"
-          --notes "Qualified immutable images, Windows connector and signed inventories. No deployment was performed. Interactive Codex sign-in remains a separate acceptance gate."
-          outputs/promoted/release-artifacts.json
-          outputs/promoted/backend.spdx.json outputs/promoted/frontend.spdx.json
-          outputs/connector/connector-artifacts.json outputs/connector/*.whl
-          outputs/connector/connector-requirements.lock outputs/connector/connector-README.md
+          python scripts/release_publication.py --revision "$SOURCE_REVISION"
+          --images outputs/promoted --connector outputs/connector
 
   deploy-qualified-vps:
     name: Deploy signed release to production VPS
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.deployment_mode == 'full' && github.ref == 'refs/heads/main' }}
     needs: publish-qualified-artifacts
     runs-on: ubuntu-latest
     environment: production-vps

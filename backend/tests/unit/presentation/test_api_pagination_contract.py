@@ -13,7 +13,8 @@ from app.presentation.api.v1.routes.passport_routes import queries
 from app.presentation.dependencies.auth import get_current_active_user
 from app.presentation.middleware.error_handler import register_exception_handlers
 
-ENDPOINTS = ("/passports", "/passports/groups", f"/passports/groups/{uuid.uuid4()}",
+# Collection identifiers must match across isolated parallel pytest workers.
+ENDPOINTS = ("/passports", "/passports/groups", "/passports/groups/11111111-2222-4333-8444-555555555555",
              "/upload-links", "/admin/managers", "/notifications")
 
 

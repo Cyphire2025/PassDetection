@@ -455,19 +455,26 @@ async def test_capacity_guard_and_missing_preparation_fail_before_updates(
     group_workbook, monkeypatch
 ):
     f = group_workbook
+    capacity_guard = AsyncMock(side_effect=BusinessValidationError("quota", field="group_capacity"))
+    monkeypatch.setattr(SqlAlchemyGroupPassengerCapacityGuard, "assert_available", capacity_guard)
     with pytest.raises(MCPOperationError, match="group_workbook_preview_required"):
         await apply(f, {"preview_sha256": "f" * 64})
+    capacity_guard.assert_not_awaited()
+    assert f.storage.calls == 0
+    assert (await f.session.get(PassportSubmissionModel, f.passenger_id)).client_name == "Original existing"
+    assert await f.session.scalar(select(func.count()).select_from(MCPOperationModel)) == 0
+    assert (await f.session.get(MCPContactImportUploadModel, f.upload_id)).consumed_operation_id is None
     value = await preview(f)
-    monkeypatch.setattr(
-        SqlAlchemyGroupPassengerCapacityGuard,
-        "assert_available",
-        AsyncMock(side_effect=BusinessValidationError("quota", field="group_capacity")),
-    )
     with pytest.raises(MCPOperationError, match="group_workbook_group_capacity"):
         await apply(f, value)
+    capacity_guard.assert_awaited_once_with(
+        agency_id=f.agency_id, group_id=f.group_id, additional_passengers=1
+    )
     passenger = await f.session.get(PassportSubmissionModel, f.passenger_id)
     assert passenger.client_name == "Original existing"
+    assert await f.session.scalar(select(func.count()).select_from(PassportSubmissionModel)) == 1
     assert await f.session.scalar(select(func.count()).select_from(MCPOperationModel)) == 0
+    assert (await f.session.get(MCPContactImportUploadModel, f.upload_id)).consumed_operation_id is None
 
 
 async def test_actual_sdk_preview_and_import_commit_safe_metadata_without_file_bytes(

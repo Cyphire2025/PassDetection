@@ -81,7 +81,7 @@ async def retained_cohorts(test_settings, record_testsuite_property):
             await connection.run_sync(Base.metadata.create_all)
         async with sessions() as session:
             session.add(MCPControlModel(id=1, enabled=True))
-            user, grants, tokens = await seed_identity(session, settings)
+            user, grants, tokens = await seed_identity(session, settings, enable_write_policy=True)
             for grant in grants:
                 grant.capabilities = ["mcp:read", "mcp:export"]
             agency = AgencyModel(id=uuid.uuid4(), name="Source admission fixture", email=f"{schema}@example.test")

@@ -81,10 +81,12 @@ ENV APP_REVISION="${APP_REVISION}"
 
 # Headless OpenCV does not link the GUI/X11 stack. Keep only libraries needed
 # by PostgreSQL and the OCR CLI; full-image qualification verifies imports/OCR.
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq5 \
-    libgomp1 \
-    libleptonica6 \
+# Explicitly replace vulnerable packages inherited from the pinned base: merely
+# installing other libraries does not upgrade them (Debian DSA-6530/DSA-6531).
+COPY docker/runtime_security_packages.json docker/verify_runtime_security_packages.py /usr/local/share/passdetection/
+RUN apt-get update && \
+    python -c "import json, subprocess; pins=json.load(open('/usr/local/share/passdetection/runtime_security_packages.json')); subprocess.run(['apt-get', 'install', '-y', '--no-install-recommends', 'libpq5', 'libgomp1', 'libleptonica6', *(name+'='+version for name, version in pins.items())], check=True)" && \
+    python /usr/local/share/passdetection/verify_runtime_security_packages.py \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=tesseract-build /opt/tesseract /opt/tesseract

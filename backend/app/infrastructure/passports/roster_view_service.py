@@ -34,7 +34,10 @@ async def prepared_roster(
         return prepare_submission_view([], **options), None
 
     async def compute() -> PreparedSubmissionView:
-        rows = await repository.projection(group_id=group_id, user=user, include_deleted=include_deleted)
+        rows = await repository.projection(
+            group_id=group_id, user=user, include_deleted=include_deleted,
+            include_search_metadata=bool((search or "").strip()),
+        )
         return await asyncio.to_thread(prepare_submission_view, rows, **options)
 
     # SQLite does not run the PostgreSQL invalidation triggers. Do not make

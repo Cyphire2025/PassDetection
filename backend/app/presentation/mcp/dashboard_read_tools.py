@@ -5,8 +5,9 @@ from __future__ import annotations
 import importlib
 import inspect
 import json
+from collections.abc import Awaitable, Callable
 from dataclasses import replace
-from typing import Annotated, Any, get_type_hints
+from typing import Annotated, Any, cast, get_type_hints
 from uuid import UUID
 
 from fastapi import FastAPI, HTTPException, Request, Response
@@ -40,12 +41,51 @@ from app.presentation.mcp.observational_session import observational_session
 INJECTED = frozenset({"current_user", "session", "request", "response", "use_case"})
 
 
-def dashboard_handler(definition: DashboardRead):
+def dashboard_handler(definition: DashboardRead) -> Callable[..., Awaitable[Any]]:
     if definition.handler.startswith("@"):
         module = importlib.import_module("app.presentation.mcp.dashboard_read_adapters")
-        return getattr(module, definition.handler[1:])
+        return cast(Callable[..., Awaitable[Any]], getattr(module, definition.handler[1:]))
     module_name, name = definition.handler.rsplit(".", 1)
-    return getattr(importlib.import_module("app.presentation.api.v1.routes." + module_name), name)
+    modules = {
+        "admin": lambda: importlib.import_module("app.presentation.api.v1.routes.admin"),
+        "admin_accounts": lambda: importlib.import_module("app.presentation.api.v1.routes.admin_accounts"),
+        "admin_whatsapp_templates": lambda: importlib.import_module("app.presentation.api.v1.routes.admin_whatsapp_templates"),
+        "audit_logs": lambda: importlib.import_module("app.presentation.api.v1.routes.audit_logs"),
+        "client_groups": lambda: importlib.import_module("app.presentation.api.v1.routes.client_groups"),
+        "document_distribution_delivery": lambda: importlib.import_module("app.presentation.api.v1.routes.document_distribution_delivery"),
+        "document_distribution_groups_read": lambda: importlib.import_module("app.presentation.api.v1.routes.document_distribution_groups_read"),
+        "document_rename": lambda: importlib.import_module("app.presentation.api.v1.routes.document_rename"),
+        "ecr_checker": lambda: importlib.import_module("app.presentation.api.v1.routes.ecr_checker"),
+        "email_ai_inbox": lambda: importlib.import_module("app.presentation.api.v1.routes.email_ai_inbox"),
+        "email_integration_activity": lambda: importlib.import_module("app.presentation.api.v1.routes.email_integration_activity"),
+        "email_integration_connections": lambda: importlib.import_module("app.presentation.api.v1.routes.email_integration_connections"),
+        "gc_app": lambda: importlib.import_module("app.presentation.api.v1.routes.gc_app"),
+        "gc_app_content": lambda: importlib.import_module("app.presentation.api.v1.routes.gc_app_content"),
+        "gc_notifications": lambda: importlib.import_module("app.presentation.api.v1.routes.gc_notifications"),
+        "menu": lambda: importlib.import_module("app.presentation.api.v1.routes.menu"),
+        "notifications": lambda: importlib.import_module("app.presentation.api.v1.routes.notifications"),
+        "passport_routes.client_details": lambda: importlib.import_module("app.presentation.api.v1.routes.passport_routes.client_details"),
+        "passport_routes.excel_exports": lambda: importlib.import_module("app.presentation.api.v1.routes.passport_routes.excel_exports"),
+        "passport_routes.images": lambda: importlib.import_module("app.presentation.api.v1.routes.passport_routes.images"),
+        "passport_routes.queries": lambda: importlib.import_module("app.presentation.api.v1.routes.passport_routes.queries"),
+        "passport_routes.visa_ai_library": lambda: importlib.import_module("app.presentation.api.v1.routes.passport_routes.visa_ai_library"),
+        "rooming": lambda: importlib.import_module("app.presentation.api.v1.routes.rooming"),
+        "search": lambda: importlib.import_module("app.presentation.api.v1.routes.search"),
+        "tour_operations_accounts": lambda: importlib.import_module("app.presentation.api.v1.routes.tour_operations_accounts"),
+        "tour_operations_assignments": lambda: importlib.import_module("app.presentation.api.v1.routes.tour_operations_assignments"),
+        "tour_operations_attendance_closeout": lambda: importlib.import_module("app.presentation.api.v1.routes.tour_operations_attendance_closeout"),
+        "tour_operations_attendance_dashboard": lambda: importlib.import_module("app.presentation.api.v1.routes.tour_operations_attendance_dashboard"),
+        "tour_operations_attendance_sessions": lambda: importlib.import_module("app.presentation.api.v1.routes.tour_operations_attendance_sessions"),
+        "whatsapp_activity": lambda: importlib.import_module("app.presentation.api.v1.routes.whatsapp_activity"),
+        "whatsapp_batch_status": lambda: importlib.import_module("app.presentation.api.v1.routes.whatsapp_batch_status"),
+        "whatsapp_groups_read": lambda: importlib.import_module("app.presentation.api.v1.routes.whatsapp_groups_read"),
+        "whatsapp_recipient_roster": lambda: importlib.import_module("app.presentation.api.v1.routes.whatsapp_recipient_roster"),
+        "whatsapp_source_groups": lambda: importlib.import_module("app.presentation.api.v1.routes.whatsapp_source_groups"),
+    }
+    load_module = modules.get(module_name)
+    if load_module is None:
+        raise ValueError("Unreviewed dashboard module")
+    return cast(Callable[..., Awaitable[Any]], getattr(load_module(), name))
 
 
 def dashboard_parameters(definition: DashboardRead) -> dict[str, Any]:
@@ -160,7 +200,7 @@ async def read_dashboard(app: FastAPI, settings: Settings, session: AsyncSession
         if isinstance(value, Response):
             if value.status_code >= 400:
                 raise ValueError("The website rejected this dashboard query; review its documented parameters")
-            value = json.loads(value.body)
+            value = json.loads(bytes(value.body))
         result = ReadProjection(settings.app_secret_key).page(value,
             binding={"actor": str(principal.user_id), "view": view, "parameters": parameters,
                 "agency_id": str(selected_agency), "read_access_revision": revision},
@@ -212,7 +252,7 @@ def register_dashboard_read_tools(server: MCPServer, app: FastAPI, settings: Set
         rooming remarks, custom answers, settings and audit history. Metadata is
         not business read authority; each chosen view independently rechecks it.
         """
-        async def read(session: AsyncSession, _principal: MCPPrincipal):
+        async def read(session: AsyncSession, _principal: MCPPrincipal) -> dict[str, Any]:
             allowed, revision = await current_device_read_access(session, _principal.grant_id)
             selected = [(name, definition) for name, definition in sorted(DASHBOARD_READS.items())
                 if (section is None or section in definition.sections) and (view is None or view == name)]
@@ -252,7 +292,7 @@ def register_dashboard_read_tools(server: MCPServer, app: FastAPI, settings: Set
         kind is unidentified (unmatched passport uploads, not active recipients).
         No file capabilities, preparation, provider refresh or business writes.
         """
-        async def read(session: AsyncSession, principal: MCPPrincipal):
+        async def read(session: AsyncSession, principal: MCPPrincipal) -> dict[str, Any]:
             return await read_dashboard(app, settings, session, principal, view=view,
                 parameters=parameters or {}, agency_id=agency_id, data_path=data_path or [],
                 page_size=page_size, cursor=cursor)

@@ -340,9 +340,14 @@ async def get_platform_settings(
 )
 async def update_platform_settings(
     body: UpdatePlatformSettingsRequest,
-    current_user: User = Depends(require_role([UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN])),
+    current_user: User = Depends(require_role([UserRole.SUPER_ADMIN])),
     session: AsyncSession = Depends(get_db_session),
 ) -> PlatformSettingsResponse:
+    if current_user.role != UserRole.SUPER_ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only platform administrators can update global settings",
+        )
     result = await session.execute(
         select(PlatformSettingModel)
         .where(PlatformSettingModel.key == PLATFORM_SETTINGS_KEY)

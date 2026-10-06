@@ -9,6 +9,7 @@ import anyio
 from sqlalchemy import select
 
 from app.application.mcp.artifacts import ArtifactError
+from app.application.mcp.authorization import MCPPrincipal
 from app.application.mcp.credentials import credential_hash, utc
 from app.application.mcp.native_transfers import MCPNativeTransferService
 from app.infrastructure.database.mcp_artifact_models import MCPArtifactModel
@@ -56,6 +57,7 @@ async def upload_content(
     )
     await service.audit(row, "upload_started")
     await service.session.commit()
+    source: MCPArtifactModel | MCPContactImportUploadModel | None
     try:
         if kind == "upload_pdf":
             if group is None:
@@ -101,7 +103,7 @@ async def upload_content(
             raise ArtifactError("The upload lease is no longer current", 409)
         if (source.byte_size, source.sha256, source.agency_id) != (size, sha, agency):
             raise ArtifactError("The staged source does not match its prepared ticket", 409)
-        if kind == "upload_pdf":
+        if isinstance(source, MCPArtifactModel):
             if (
                 source.group_id != group
                 or source.grant_id != principal.grant_id
@@ -151,7 +153,7 @@ async def upload_content(
         raise
 
 
-async def prepare_download(service: MCPNativeTransferService, identifier: uuid.UUID, secret: str):
+async def prepare_download(service: MCPNativeTransferService, identifier: uuid.UUID, secret: str) -> tuple[MCPNativeTransferModel, MCPPrincipal, MCPArtifactModel]:
     row, principal = await service.limited(
         identifier, secret, name="read_native_artifact", lock=True
     )
@@ -165,7 +167,7 @@ async def prepare_download(service: MCPNativeTransferService, identifier: uuid.U
 
 
 async def download_content(
-    service: MCPNativeTransferService, identifier: uuid.UUID, secret: str, principal, artifact
+    service: MCPNativeTransferService, identifier: uuid.UUID, secret: str, principal: MCPPrincipal, artifact: MCPArtifactModel
 ) -> AsyncIterator[bytes]:
     handle = service.artifacts._handle(artifact.id, principal.user_id, principal.grant_id)
     try:

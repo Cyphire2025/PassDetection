@@ -11,7 +11,9 @@ from fastapi import FastAPI
 from mcp.server import MCPServer
 from mcp.types import CallToolResult, ImageContent, TextContent, ToolAnnotations
 from pydantic import Field
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.mcp.authorization import MCPPrincipal
 from app.application.mcp.tour_evidence_reads import MCPTourEvidenceReadService
 from app.core.config.settings import Settings
 from app.domain.mcp_policy import MCPCapability, MCPToolPolicy
@@ -33,7 +35,7 @@ def register_tour_evidence_tools(server: MCPServer, app: FastAPI, settings: Sett
     )
 
     async def dispatch(name: str, parameters: dict[str, Any]) -> dict[str, Any]:
-        async def read(session, principal):
+        async def read(session: AsyncSession, principal: MCPPrincipal) -> dict[str, Any]:
             service = MCPTourEvidenceReadService(session, settings)
             try:
                 async with asyncio.timeout(5):
