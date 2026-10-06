@@ -50,11 +50,16 @@ RUN addgroup --system --gid 1001 nodejs && \
     apk add --no-network ca-certificates-bundle && \
     apk del apk-tools zlib && \
     rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack /opt/yarn-v1.22.22 && \
+    rm -rf /app/tooling/npm-security /app/scripts/patch-npm-toolchain.mjs && \
     rm -f /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack /usr/local/bin/yarn /usr/local/bin/yarnpkg
 
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Verify the final filesystem, including files copied by standalone tracing.
+RUN test -f /app/server.js && test -d /app/.next/static && \
+    test ! -e /app/tooling/npm-security && test ! -e /app/scripts/patch-npm-toolchain.mjs
 
 USER nextjs
 EXPOSE 3000
