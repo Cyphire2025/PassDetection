@@ -37,6 +37,8 @@ JOB_NAMES = {
     "docker-build": "Docker — Build Verification",
 }
 
+PROVENANCE_PATH = ROOT / "outputs" / "ci-provenance" / "ci-provenance.json"
+
 
 def git(*arguments: str) -> str:
     return subprocess.check_output(
@@ -222,7 +224,31 @@ def qualified_push_base(api, repository: str, workflow_id: int, revision: str) -
     return False
 
 
+def run_provenance(context: dict, run: dict, payload: dict, tree: str) -> dict:
+    """Bind the checkout to immutable event inputs, never the API's live PR object."""
+    if (not SHA.fullmatch(tree)
+            or run.get("id") != context["run_id"]
+            or run.get("run_attempt") != context["run_attempt"]
+            or run.get("event") != context["event"]
+            or run.get("path") != ".github/workflows/ci.yml"
+            or run.get("repository", {}).get("id") != context["repository_id"]
+            or run.get("repository", {}).get("full_name") != context["repository"]
+            or type(context["workflow_id"]) is not int
+            or not SHA.fullmatch(context["head_sha"])
+            or not SHA.fullmatch(context["source_sha"])):
+        raise ValueError("Run identity cannot be bound to the checked-out inputs")
+    if context["event"] == "pull_request":
+        if (payload["pull_request"]["head"]["sha"] != context["head_sha"]
+                or context["pull_request"]["head_ref"] != context["head_branch"]):
+            raise ValueError("Run head differs from its original pull request event")
+    elif context["event"] != "push" or context["source_sha"] != context["head_sha"]:
+        raise ValueError("Only exact automatic push or pull request inputs are reusable")
+    return {"schema_version": 1, "tree_sha": tree,
+            **{key: value for key, value in context.items() if key != "workflow_path"}}
+
+
 def make_plan() -> dict:
+    PROVENANCE_PATH.unlink(missing_ok=True)
     event = os.environ["GITHUB_EVENT_NAME"]
     source = os.environ["GITHUB_SHA"]
     if not SHA.fullmatch(source) or git("rev-parse", "HEAD") != source:
@@ -259,6 +285,7 @@ def make_plan() -> dict:
                 "workflow_id": run["workflow_id"], "workflow_path": ".github/workflows/ci.yml",
                 "event": event, "head_branch": run["head_branch"], "head_sha": run["head_sha"],
                 "source_sha": source, "run_id": run_id,
+                "run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
             }
             if event == "pull_request":
                 pr = payload["pull_request"]
@@ -267,6 +294,9 @@ def make_plan() -> dict:
                     "base_ref": pr["base"]["ref"], "head_ref": pr["head"]["ref"],
                     "head_repo_id": pr["head"]["repo"]["id"],
                 }
+            receipt = run_provenance(context, run, payload, git("rev-parse", source + "^{tree}"))
+            PROVENANCE_PATH.parent.mkdir(parents=True, exist_ok=True)
+            PROVENANCE_PATH.write_text(json.dumps(receipt, sort_keys=True) + "\n", encoding="utf-8")
             eligible = {job: current[job] for job in REUSABLE_JOBS}
             reuse = discover_reuse(
                 context, eligible, JOB_NAMES, api=api, fingerprint_at=inputs_at,
@@ -291,6 +321,7 @@ def main() -> None:
     if args.action == "plan":
         plan = make_plan()
         with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as stream:
+            stream.write(f"provenance={'true' if PROVENANCE_PATH.is_file() else 'false'}\n")
             stream.write("plan=" + json.dumps(plan, separators=(",", ":")) + "\n")
             stream.writelines(f"{job}={'true' if value['state'] == 'run' else 'false'}\n"
                               for job, value in plan["jobs"].items())

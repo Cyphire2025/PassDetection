@@ -18,7 +18,10 @@ browser journeys and connector tests may be reused when their complete tracked
 inputs are identical. This includes tests, dependencies, shared configuration,
 CI rules and known cross-component consumers. Evidence comes from GitHub's
 actual successful job records, with the original run link and completion time;
-it expires after 24 hours. A newer matching-input failure blocks reuse. Missing
+an immutable, hash-verified planner artifact binds each result to its original
+checkout and PR base. GitHub's current PR association is not historical proof.
+Runs created before this evidence was recorded must execute fresh. Evidence
+expires after 24 hours. A newer matching-input failure blocks reuse. Missing
 history, changed PR bases or ambiguous evidence cause fresh checks. Reused jobs
 are visibly skipped and identified as reused in the summary; they are not
 described as new test executions.

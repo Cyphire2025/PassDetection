@@ -16,6 +16,7 @@ from ci_pipeline import (
     collection_digest,
     decide,
     qualified_push_base,
+    run_provenance,
     validate_gate,
     verify_shards,
 )
@@ -109,6 +110,50 @@ class GateTests(unittest.TestCase):
             run[field] = original
         gate["conclusion"] = "skipped"
         self.assertFalse(qualified_push_base(api, repository, 2, SOURCE))
+
+
+class ProvenanceTests(unittest.TestCase):
+    def setUp(self):
+        self.context = {"repository": "Cyphire2025/PassDetection", "repository_id": 10,
+                        "workflow_id": 20, "workflow_path": ".github/workflows/ci.yml",
+                        "event": "pull_request", "head_branch": "codex/repair",
+                        "head_sha": "b" * 40, "source_sha": SOURCE,
+                        "run_id": 30, "run_attempt": 1,
+                        "pull_request": {"number": 15, "base_sha": "c" * 40,
+                                         "base_ref": "main", "head_ref": "codex/repair",
+                                         "head_repo_id": 10}}
+        self.run = {"id": 30, "run_attempt": 1, "event": "pull_request",
+                    "path": ".github/workflows/ci.yml",
+                    "repository": {"id": 10, "full_name": "Cyphire2025/PassDetection"}}
+        self.payload = {"pull_request": {"head": {"sha": "b" * 40}}}
+
+    def test_records_tested_checkout_and_original_event_not_mutable_pr_association(self):
+        self.run["pull_requests"] = [{"head": {"sha": "f" * 40}}]
+        receipt = run_provenance(self.context, self.run, self.payload, "d" * 40)
+        self.assertEqual(receipt["source_sha"], SOURCE)
+        self.assertEqual(receipt["head_sha"], "b" * 40)
+        self.assertEqual(receipt["tree_sha"], "d" * 40)
+        self.assertEqual(receipt["pull_request"]["base_sha"], "c" * 40)
+        self.assertNotIn("workflow_path", receipt)
+
+    def test_refuses_other_run_attempt_event_or_repository(self):
+        for key, value in (("id", 31), ("run_attempt", 2), ("event", "workflow_dispatch"),
+                           ("repository", {"id": 11, "full_name": "someone/fork"}),
+                           ("path", ".github/workflows/untrusted.yml")):
+            run = {**self.run, key: value}
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                run_provenance(self.context, run, self.payload, "d" * 40)
+
+    def test_refuses_mismatched_event_head_or_push_checkout(self):
+        self.payload["pull_request"]["head"]["sha"] = "e" * 40
+        with self.assertRaises(ValueError):
+            run_provenance(self.context, self.run, self.payload, "d" * 40)
+        self.context["event"] = self.run["event"] = "push"
+        del self.context["pull_request"]
+        with self.assertRaises(ValueError):
+            run_provenance(self.context, self.run, {}, "d" * 40)
+        self.context["source_sha"] = self.context["head_sha"]
+        self.assertEqual(run_provenance(self.context, self.run, {}, "d" * 40)["event"], "push")
 
 
 class ShardUnionTests(unittest.TestCase):

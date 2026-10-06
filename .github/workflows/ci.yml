@@ -54,6 +54,14 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: python scripts/ci_pipeline.py plan
+      - name: Preserve immutable inputs for this run
+        if: ${{ steps.select.outputs.provenance == 'true' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ci-provenance-${{ github.run_id }}-${{ github.run_attempt }}
+          path: outputs/ci-provenance/ci-provenance.json
+          if-no-files-found: error
+          retention-days: 2
 
   # ── Backend: Lint & Compile Check ───────────────────────────────────────────
   backend-static-checks:
@@ -348,7 +356,7 @@ jobs:
         env:
           PYTHONUNBUFFERED: "1"
         run: >-
-          pytest -n 4 --dist loadfile --max-worker-restart=0
+          python -m pytest -n 4 --dist loadfile --max-worker-restart=0
           -p tests.ci_sharding --ci-shard-index ${{ matrix.shard }} --ci-shard-count 4
           --ci-shard-report ci-shard-${{ matrix.shard }}.json
           -o faulthandler_timeout=120 --durations=25
