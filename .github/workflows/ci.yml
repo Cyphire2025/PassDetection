@@ -215,8 +215,8 @@ jobs:
   backend-test:
     name: Backend â€” Tests
     runs-on: ubuntu-latest
-    # The complete suite includes coverage over 2,000+ tests and can exceed
-    # 30 minutes on a cold GitHub-hosted runner.
+    # Keep all 6,900+ tests and combine coverage from four isolated processes.
+    # File scheduling preserves module fixtures; real-service tests run below.
     timeout-minutes: 60
     needs: backend-static-checks
     permissions:
@@ -298,7 +298,12 @@ jobs:
         run: mypy app
 
       - name: Run tests
-        run: pytest --cov=app --cov-branch --cov-report=xml
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: >-
+          pytest -n 4 --dist loadfile --max-worker-restart=0
+          -o faulthandler_timeout=120 --durations=25
+          --cov=app --cov-branch --cov-report=xml
 
       - name: Enforce critical-module coverage floors
         run: >-

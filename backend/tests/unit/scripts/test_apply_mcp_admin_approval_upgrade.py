@@ -28,9 +28,14 @@ def load_helper():
 
 
 def contract():
-    return runpy.run_path(str(ROOT / "scripts/release_mcp_admin_approval_contract.py"))[
-        "source_contract"
-    ](ROOT)
+    # This helper qualifies the frozen 0124→0125 contract, independently of the
+    # current deployment manifest. Its migration bytes remain immutable.
+    module = runpy.run_path(str(ROOT / "scripts/release_mcp_admin_approval_contract.py"))
+    relative = module["PATH"]
+    return {**copy.deepcopy(module["POLICY"]), "migrations": [{
+        "revision": module["TARGET"], "parent": module["SOURCE"], "path": relative,
+        "sha256": hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(),
+    }]}
 
 
 def test_exact_source_contract_is_accepted():

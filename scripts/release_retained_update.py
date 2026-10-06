@@ -19,18 +19,19 @@ import subprocess
 import sys
 import time
 import uuid
+from collections.abc import Callable
 
 sys.dont_write_bytecode = True
 
 from mcp_direct_activate import clean_stop
-from mcp_direct_build import GIB, RetainedBuild, command, contract_digest
+from mcp_direct_build import GIB, BuildError, RetainedBuild, command, contract_digest
 from mcp_direct_containers import LocalDocker, clone_payload
 from mcp_direct_release import bound_original, require_idle
 from mcp_direct_state import APPLICATION, INFRASTRUCTURE, WORKERS, fingerprint, private_json
 from release_artifacts import verify_manifest
 from release_code_update import COMPATIBILITY_PATHS, environment, task_contract, validate_readiness
 from release_manifest import load_release_manifest
-from release_traveller_whatsapp import release_lock
+from release_traveller_whatsapp import ReleaseError, release_lock
 
 ROOT = Path('/opt/GlobalConnectsDashboard')
 SCHEMA = '0129_travel_tracker'
@@ -53,6 +54,25 @@ ROUTE_ALLOWLIST = 'backend/app/core/config/frontend_route_templates.json'
 def require(condition: bool, reason: str) -> None:
     if not condition:
         raise ValueError(reason)
+
+
+def wait_full_readiness(probe: Callable[[], dict], revision: str) -> None:
+    """Allow bounded worker warmup; every accepted sample uses all release gates."""
+    consecutive = 0
+    for attempt in range(12):
+        try:
+            payload = probe()
+            # A reachable wrong release is a binding failure, not warmup.
+            require(payload.get('revision') == revision, 'readiness_revision_mismatch')
+            validate_readiness(payload, revision, full=True)
+            consecutive += 1
+            if consecutive == 2:
+                return
+        except (BuildError, ReleaseError, OSError, subprocess.SubprocessError, json.JSONDecodeError):
+            consecutive = 0
+        if attempt < 11:
+            time.sleep(5)
+    raise ValueError('full_readiness_did_not_stabilize')
 
 
 def select_live(rows: list[dict], root: Path = ROOT) -> dict[str, dict]:
@@ -273,15 +293,15 @@ class RetainedUpdate:
         self.wait_health(rows)
         backend = rows['backend']['Id']
         code = "import json,urllib.request; print(json.dumps(json.load(urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/ready',timeout=20))))"
-        validate_readiness(json.loads(command('docker', 'exec', backend, 'python', '-c', code)), revision, full=True)
+        wait_full_readiness(lambda: json.loads(command('docker', 'exec', backend, 'python', '-c', code)), revision)
         frontend = "Promise.all(['/login','/assets/upload-samples/visa-photo.png'].map(async p=>{let r=await fetch('http://127.0.0.1:3000'+p);if(r.status!==200)throw Error('probe')})).catch(()=>process.exit(1))"
         command('docker', 'exec', rows['frontend']['Id'], 'node', '-e', frontend)
         require(environment(bound_original(rows['frontend'])).get('NEXT_PUBLIC_APP_REVISION') == revision,
                 'frontend_runtime_revision_changed')
         if public:
-            payload = json.loads(command('curl', '--fail', '--silent', '--show-error', '--max-time', '30',
-                                         ORIGIN + '/api/v1/health/ready'))
-            validate_readiness(payload, revision, full=True)
+            wait_full_readiness(lambda: json.loads(command(
+                'curl', '--fail', '--silent', '--show-error', '--max-time', '30',
+                ORIGIN + '/api/v1/health/ready')), revision)
             # Bind served browser bytes, not just the container environment.
             script = """
 const fs=require('fs'),path=require('path'),crypto=require('crypto');
@@ -411,6 +431,7 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
             self.proof(candidates, self.revision, public=True)
             require({row['Id'] for row in self.rows()} == {row['Id'] for row in candidates.values()}
                     | {live[name]['Id'] for name in INFRASTRUCTURE}, 'unexpected_running_container')
+            self.retention()
             self.event('complete', all_prior_resources_retained=True, automatic_downgrade=False)
         except BaseException:
             try: self.recover()

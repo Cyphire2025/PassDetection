@@ -6,13 +6,15 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from release_retained_update import (
     ACTIVE, APPLICATION, INFRASTRUCTURE, ROOT, SCHEMA, SERVICES, WORKERS,
     ROUTE_ALLOWLIST, RetainedUpdate, forbidden_changes, proxy_configuration, runtime_environment,
-    select_live, validate_route_allowlist,
+    select_live, validate_route_allowlist, wait_full_readiness,
 )
+from release_code_update import CORE_CAPABILITIES
+from mcp_direct_build import BuildError
 from release_deploy import current_main_revision, deployment_command
 
 SHA = 'a' * 40
@@ -37,6 +39,34 @@ def live_rows():
 
 
 class Contracts(unittest.TestCase):
+    def test_readiness_waits_for_two_consecutive_complete_samples(self):
+        ready = {'revision': SHA, 'status': 'ready', 'checks': {'database': 'ok'},
+                 'capabilities': {name: {'required': True, 'available': True}
+                                  for name in CORE_CAPABILITIES | {'ecr_checks'}}}
+        starting = copy.deepcopy(ready)
+        starting['capabilities']['ecr_checks']['available'] = False
+        probe = Mock(side_effect=[BuildError('direct_build_command_failed'), starting, ready, starting, ready, ready])
+        with patch('release_retained_update.time.sleep') as sleep:
+            wait_full_readiness(probe, SHA)
+        self.assertEqual(probe.call_count, 6)
+        self.assertEqual(sleep.call_count, 5)
+
+    def test_readiness_never_accepts_permanent_missing_required_capability(self):
+        payload = {'revision': SHA, 'status': 'ready', 'checks': {'database': 'ok'},
+                   'capabilities': {name: {'required': True, 'available': name != 'ecr_checks'}
+                                    for name in CORE_CAPABILITIES | {'ecr_checks'}}}
+        probe = Mock(return_value=payload)
+        with patch('release_retained_update.time.sleep'), self.assertRaisesRegex(ValueError, 'did_not_stabilize'):
+            wait_full_readiness(probe, SHA)
+        self.assertEqual(probe.call_count, 12)
+
+    def test_readiness_wrong_revision_fails_immediately(self):
+        probe = Mock(return_value={'revision': NEXT})
+        with patch('release_retained_update.time.sleep') as sleep, self.assertRaisesRegex(ValueError, 'revision_mismatch'):
+            wait_full_readiness(probe, SHA)
+        self.assertEqual(probe.call_count, 1)
+        sleep.assert_not_called()
+
     def test_current_main_lookup_requires_one_exact_branch_identity(self):
         with patch('release_deploy.subprocess.check_output', return_value=SHA + '\trefs/heads/main\n'):
             self.assertEqual(current_main_revision(), SHA)
