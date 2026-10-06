@@ -266,33 +266,48 @@ def discover_reuse(context, fingerprints, job_names, *, api, fingerprint_at, anc
             if (not isinstance(jobs, list) or type(document.get("total_count")) is not int
                     or document["total_count"] != len(jobs) or len(jobs) > 100):
                 return {}
-            receipt = provenance_loader(run, jobs, context, api=api)
-            if receipt is None:
-                return {}
-            try:
-                if tree_at(revision) != receipt["tree_sha"]:
-                    return {}
-            except (OSError, ValueError, RuntimeError, subprocess.SubprocessError):
-                return {}
             # The overall run may be cancelled after one real check failed.
             # Inspect its authoritative jobs too, so it cannot expose an older
             # success by disappearing from consideration. Unknown conclusions
             # cannot safely authorize falling back to older matching evidence.
             if run.get("conclusion") not in RUN_CONCLUSIONS:
                 return {}
+            pending = {}
             for identifier in matching:
                 observations = [job for job in jobs if isinstance(job, dict) and job.get("name") == job_names[identifier]]
-                if len(observations) != 1:
+                if not observations:
                     continue
+                if len(observations) != 1:
+                    return {}
                 job = observations[0]
-                stamp = _fresh(job.get("completed_at"), now)
-                if (job.get("status") != "completed" or job.get("conclusion") == "skipped" or stamp is None
-                        or stamp < _date(run["created_at"])
+                if (job.get("status") != "completed"
                         or not _positive_id(job.get("id")) or job.get("run_id") != run["id"]
                         or job.get("run_attempt") != run["run_attempt"] or job.get("head_sha") != revision):
+                    return {}
+                if job.get("conclusion") == "skipped":
                     continue
+                stamp = _fresh(job.get("completed_at"), now)
+                if stamp is None or stamp < _date(run["created_at"]):
+                    # Without a trusted ordering, a possible newer failure must
+                    # not disappear behind an older successful observation.
+                    return {}
                 if identifier in latest and (latest[identifier][0] > stamp
                         or (latest[identifier][0] == stamp and latest[identifier][1] is None)):
+                    continue
+                pending[identifier] = (stamp, job)
+            if not pending:
+                continue
+            receipt = provenance_loader(run, jobs, context, api=api)
+            try:
+                proven = receipt is not None and tree_at(revision) == receipt["tree_sha"]
+            except (KeyError, TypeError, OSError, ValueError, RuntimeError, subprocess.SubprocessError):
+                proven = False
+            for identifier, (stamp, job) in pending.items():
+                if not proven:
+                    # Missing/invalid evidence blocks this observation only.
+                    # A strictly newer proven pass can supersede it, regardless
+                    # of API listing order; an equal-time blocker always wins.
+                    latest[identifier] = (stamp, None)
                     continue
                 evidence = {"run_id": run["id"], "job_id": job["id"], "completed_at": job["completed_at"],
                             "source_revision": receipt["source_sha"], "fingerprint": fingerprints[identifier],

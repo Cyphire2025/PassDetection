@@ -150,6 +150,92 @@ class ReuseTests(unittest.TestCase):
                 {"total_count": 1, "jobs": [failure if "/101/" in path else self.job]})
             self.assertEqual(self.discover(), {})
 
+    def test_older_ambiguous_receipt_cannot_poison_newer_proven_success(self):
+        other = {**self.run, "id": 101}
+        old_job = {**self.job, "id": 111, "run_id": 101,
+                   "completed_at": "2026-10-07T00:20:00Z"}
+        invalid_receipts = (None, {"tree_sha": "e" * 40, "source_sha": PRIOR})
+        for invalid in invalid_receipts:
+            for result in ("success", "failure", "cancelled"):
+                for runs in ([other, self.run], [self.run, other]):
+                    with self.subTest(receipt=invalid, result=result, order=[x["id"] for x in runs]):
+                        self.runs = runs
+                        observation = {**old_job, "conclusion": result}
+                        self.api.side_effect = lambda path, observation=observation: (
+                            {"workflow_runs": self.runs} if "/workflows/" in path else
+                            {"total_count": 1, "jobs": [observation if "/101/" in path else self.job]})
+                        self.provenance.side_effect = lambda run, jobs, context, api, invalid=invalid: (
+                            invalid if run["id"] == 101 else {"tree_sha": "f" * 40, "source_sha": PRIOR})
+                        self.assertEqual(self.discover()["backend-test"]["job_id"], self.job["id"])
+
+    def test_superseded_old_receipt_is_not_downloaded(self):
+        other = {**self.run, "id": 101}
+        self.runs = [self.run, other]
+        old_job = {**self.job, "id": 111, "run_id": 101,
+                   "completed_at": "2026-10-07T00:20:00Z"}
+        self.api.side_effect = lambda path: ({"workflow_runs": self.runs} if "/workflows/" in path else
+            {"total_count": 1, "jobs": [old_job if "/101/" in path else self.job]})
+        self.assertIn("backend-test", self.discover())
+        self.assertEqual([call.args[0]["id"] for call in self.provenance.call_args_list], [100])
+
+    def test_newer_or_equal_ambiguous_receipt_blocks_older_success_in_any_order(self):
+        other = {**self.run, "id": 101}
+        for stamp in (self.job["completed_at"], "2026-10-07T00:40:00Z"):
+            for invalid in (None, {"tree_sha": "e" * 40, "source_sha": PRIOR}):
+                for result in ("success", "failure", "cancelled"):
+                    for runs in ([other, self.run], [self.run, other]):
+                        with self.subTest(stamp=stamp, receipt=invalid, result=result,
+                                          order=[x["id"] for x in runs]):
+                            self.runs = runs
+                            job = {**self.job, "id": 111, "run_id": 101,
+                                   "conclusion": result, "completed_at": stamp}
+                            self.api.side_effect = lambda path, job=job: (
+                                {"workflow_runs": self.runs} if "/workflows/" in path else
+                                {"total_count": 1, "jobs": [job if "/101/" in path else self.job]})
+                            self.provenance.side_effect = lambda run, jobs, context, api, invalid=invalid: (
+                                invalid if run["id"] == 101 else {"tree_sha": "f" * 40, "source_sha": PRIOR})
+                            self.assertEqual(self.discover(), {})
+
+    def test_unorderable_job_metadata_cannot_hide_possible_newer_failure(self):
+        other = {**self.run, "id": 101}
+        base_job = {**self.job, "id": 111, "run_id": 101, "conclusion": "failure"}
+        malformed = [
+            {**base_job, "completed_at": None}, {**base_job, "completed_at": "bad"},
+            {**base_job, "completed_at": "2026-10-07T02:00:00Z"},
+            {**base_job, "head_sha": HEAD}, {**base_job, "run_attempt": 2},
+            {**base_job, "status": "in_progress"},
+        ]
+        for job in malformed:
+            for runs in ([other, self.run], [self.run, other]):
+                with self.subTest(job=job, order=[x["id"] for x in runs]):
+                    self.runs = runs
+                    self.api.side_effect = lambda path, job=job: (
+                        {"workflow_runs": self.runs} if "/workflows/" in path else
+                        {"total_count": 1, "jobs": [job if "/101/" in path else self.job]})
+                    self.assertEqual(self.discover(), {})
+
+    def test_missing_receipt_blocks_only_jobs_with_actual_newer_observations(self):
+        other = {**self.run, "id": 101}
+        frontend = {**self.job, "id": 112, "name": "Frontend - Browser Journeys"}
+        newer_backend = {**self.job, "id": 111, "run_id": 101,
+                         "completed_at": "2026-10-07T00:40:00Z"}
+        names = {**NAMES, "frontend-browser": frontend["name"]}
+        for runs in ([other, self.run], [self.run, other]):
+            with self.subTest(order=[x["id"] for x in runs]):
+                self.runs = runs
+                self.api.side_effect = lambda path: ({"workflow_runs": self.runs} if "/workflows/" in path else
+                    ({"total_count": 1, "jobs": [newer_backend]} if "/101/" in path else
+                     {"total_count": 2, "jobs": [self.job, frontend]}))
+                self.provenance.side_effect = lambda run, jobs, context, api: (
+                    None if run["id"] == 101 else {"tree_sha": "f" * 40, "source_sha": PRIOR})
+                result = discover_reuse(
+                    self.context, {job: FINGERPRINT for job in names}, names, api=self.api,
+                    fingerprint_at=self.fingerprint, ancestor=self.ancestor, tree_at=self.tree,
+                    now=NOW, provenance_loader=self.provenance,
+                )
+                self.assertEqual(set(result), {"frontend-browser"})
+                self.assertEqual(result["frontend-browser"]["job_id"], frontend["id"])
+
     def test_cancelled_or_other_completed_run_still_exposes_newer_job_failure(self):
         for conclusion in ("cancelled", "timed_out", "action_required", "stale", "neutral", "startup_failure"):
             for result in ("failure", "cancelled"):
