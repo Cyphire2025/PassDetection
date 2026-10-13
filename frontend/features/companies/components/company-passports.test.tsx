@@ -5,6 +5,7 @@ import apiClient from "@/lib/api/client";
 import { CompanyPassports } from "./company-passports";
 
 vi.mock("@/lib/api/client", () => ({ default: { get: vi.fn(), patch: vi.fn() } }));
+vi.mock("../hooks/use-company-session", () => ({ useCompanySession: () => ({ key: "session", ready: true }) }));
 beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(apiClient.get).mockResolvedValue({ data: { items: [{ id: "passport", passport_hint: "********67", issuing_country: "IND", document_type: "P", status: "active", is_default: true, revision: 4, issue_date: "2020-01-01", expiry_date: "2030-01-01" }], profile_revision: 9, limit_reached: false } });

@@ -33,6 +33,7 @@ describe("direct client-company workspace", () => {
     vi.mocked(apiClient.post).mockResolvedValue({ data: { ...company, name: "New Client" } });
     mount();
     await screen.findByRole("link", { name: "Example Client" });
+    expect(screen.getByRole("link", { name: "View company: Example Client" })).toHaveAttribute("href", "/companies/client-1");
     expect(screen.queryByLabelText(/agency workspace/i)).not.toBeInTheDocument();
     expect(apiClient.get).toHaveBeenCalledWith("/api/v1/companies/workspace", { signal: expect.any(AbortSignal) });
     expect(apiClient.get).toHaveBeenCalledWith("/api/v1/companies", expect.objectContaining({ params: expect.objectContaining({ agency_id: "resolved-agency", page_size: 25 }), signal: expect.any(AbortSignal) }));
@@ -53,6 +54,19 @@ describe("direct client-company workspace", () => {
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
     await screen.findByRole("button", { name: "Add client company" });
     expect(screen.queryByLabelText(/agency workspace/i)).not.toBeInTheDocument();
+  });
+
+  it("keeps directory content visible while an explicit refresh is in flight", async () => {
+    let finishRefresh!: (value: { data: { items: typeof company[]; next_cursor: null; has_more: false } }) => void;
+    vi.mocked(apiClient.get).mockImplementation(async (url) => ({ data: url.endsWith("/workspace") ? { agency_id: "resolved-agency" } : { items: [company], next_cursor: null, has_more: false } }));
+    mount();
+    await screen.findByRole("link", { name: "View company: Example Client" });
+    vi.mocked(apiClient.get).mockImplementationOnce(() => new Promise((resolve) => { finishRefresh = resolve; }));
+    fireEvent.click(screen.getByRole("button", { name: "Refresh companies" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Refresh companies" })).toBeDisabled());
+    expect(screen.getByRole("link", { name: "View company: Example Client" })).toBeVisible();
+    await act(async () => finishRefresh({ data: { items: [{ ...company, name: "Updated Client" }], next_cursor: null, has_more: false } }));
+    await screen.findByRole("link", { name: "View company: Updated Client" });
   });
 
   it("cancels a stale workspace request on account change and never opens its directory", async () => {

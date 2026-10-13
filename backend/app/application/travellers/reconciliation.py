@@ -26,6 +26,7 @@ from app.application.travellers.reconciliation_sources import (
     source_page,
 )
 from app.domain.services.traveller_verification import VerificationFailure
+from app.infrastructure.database.gc_mobile_models import ClientOrganizationModel
 from app.infrastructure.database.models import ClientGroupModel
 from app.infrastructure.database.traveller_reuse_models import (
     TravellerGroupReuseConfigModel,
@@ -72,6 +73,11 @@ async def enqueue_reconciliation(
         ClientGroupModel.company_id == company_id, ClientGroupModel.status != "deleted",
         ClientGroupModel.deleted_at.is_(None),
     ).with_for_update())
+    # Incremental source jobs coalesce other jobs under the company lock.
+    # Acquiring company before job prevents an opposite company/job lock cycle.
+    await session.scalar(select(ClientOrganizationModel.id).where(
+        ClientOrganizationModel.id == company_id,
+        ClientOrganizationModel.agency_id == agency_id).with_for_update())
     if group is None:
         raise ValueError("Reconciliation group unavailable")
     existing = await session.scalar(select(TravellerReconciliationJobModel).where(
@@ -106,18 +112,21 @@ no provider calls or internal retry loop.
     if not 1 <= page_size <= MAX_RECONCILIATION_PAGE:
         raise ValueError("Reconciliation page must contain 1 to 100 rows")
     current_time = now or datetime.now(UTC)
-    locator = await session.execute(select(
-        TravellerReconciliationJobModel.group_id, TravellerReconciliationJobModel.agency_id,
-        TravellerReconciliationJobModel.company_id,
-    ).where(TravellerReconciliationJobModel.id == job_id))
+    # Locate and lock only the group in one indexed join; the job itself is
+    # locked after company admission to preserve group -> company -> job order.
+    locator = await session.execute(select(ClientGroupModel, TravellerReconciliationJobModel.company_id)
+        .join(TravellerReconciliationJobModel,
+            (TravellerReconciliationJobModel.group_id == ClientGroupModel.id)
+            & (TravellerReconciliationJobModel.agency_id == ClientGroupModel.agency_id))
+        .where(TravellerReconciliationJobModel.id == job_id)
+        .with_for_update(of=ClientGroupModel))
     location = locator.one_or_none()
     if location is None:
         return None
-    # Group first matches company-assignment lock order. No source files load.
-    group = await session.scalar(select(ClientGroupModel).where(
-        ClientGroupModel.id == location.group_id,
-        ClientGroupModel.agency_id == location.agency_id,
-    ).with_for_update(read=True))
+    group, company_id = location
+    await session.scalar(select(ClientOrganizationModel.id).where(
+        ClientOrganizationModel.id == company_id,
+        ClientOrganizationModel.agency_id == group.agency_id).with_for_update())
     job = await session.scalar(select(TravellerReconciliationJobModel).where(
         TravellerReconciliationJobModel.id == job_id,
     ).with_for_update(skip_locked=True).execution_options(populate_existing=True))
@@ -130,6 +139,14 @@ no provider calls or internal retry loop.
         job.status, job.last_error_code = "cancelled", "company_assignment_changed"
         job.completed_at = current_time
         return ReconciliationPage(job.id, 0, job.processed_count, job.status)
+    if job.idempotency_key.startswith("company-history:"):
+        from app.application.travellers.company_history_jobs import process_company_history_page
+        processed = await process_company_history_page(session, job=job, group=group, crypto=crypto, now=current_time)
+        return ReconciliationPage(job.id, processed, job.processed_count, job.status)
+    from app.application.travellers.incremental_history import PREFIXES, process_incremental_page
+    if job.idempotency_key.startswith(PREFIXES):
+        processed = await process_incremental_page(session, job=job, group=group, crypto=crypto, now=current_time)
+        return ReconciliationPage(job.id, processed, job.processed_count, job.status)
     config = await session.get(TravellerGroupReuseConfigModel, group.id)
     if config is not None and (config.agency_id != job.agency_id or config.company_id != job.company_id):
         config = None

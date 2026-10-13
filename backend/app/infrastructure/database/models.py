@@ -39,6 +39,7 @@ from app.infrastructure.database import document_models as _document_models
 from app.infrastructure.database import identity_security_models as _identity_security_models
 from app.infrastructure.database import operations_models as _operations_models
 from app.infrastructure.database import (
+    company_data_export_models as _company_data_export_models,  # noqa: F401
     traveller_reuse_models as _traveller_reuse_models,  # noqa: F401
 )
 from app.infrastructure.database import whatsapp_receipt_models as _whatsapp_receipt_models

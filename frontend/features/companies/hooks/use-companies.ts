@@ -3,40 +3,59 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { companiesApi } from "../api/companies.api";
 import type { Company, CompanyGroupSearch, CompanyInput, CompanySearch, CompanyUpdate } from "../types";
+import { useCompanySession } from "./use-company-session";
 
-const queryOptions = { staleTime: 0, gcTime: 0, retry: 1 } as const;
+/** Short, auth-scoped reuse avoids refocus flicker; mutations invalidate the agency prefix. */
+export const companyQueryOptions = { staleTime: 60_000, gcTime: 5 * 60_000, refetchOnWindowFocus: false, retry: false } as const;
 export const companyKeys = {
   scope: (agencyId: string | null) => ["companies", agencyId] as const,
 };
 
+export function useCompanyQueryScope(agencyId: string | null) {
+  return useCompanyQueryContext(agencyId).scope;
+}
+
+export function useCompanyQueryContext(agencyId: string | null) {
+  const session = useCompanySession();
+  return {
+    scope: [...companyKeys.scope(agencyId), "session", session.key, session.ready ? "ready" : "inactive"] as const,
+    ready: Boolean(agencyId) && session.ready,
+  };
+}
+
 export function useCompanies(agencyId: string | null, params: CompanySearch) {
+  const { scope, ready } = useCompanyQueryContext(agencyId);
   return useQuery({
-    queryKey: [...companyKeys.scope(agencyId), "directory", params],
+    queryKey: [...scope, "directory", params],
     queryFn: ({ signal }) => companiesApi.list(agencyId!, params, signal),
-    enabled: Boolean(agencyId),
-    ...queryOptions,
+    enabled: ready,
+    ...companyQueryOptions,
   });
 }
 
 export function useCompanyLookup(agencyId: string | null, params: CompanySearch, enabled = true) {
+  const { scope, ready } = useCompanyQueryContext(agencyId);
   return useQuery({
-    queryKey: [...companyKeys.scope(agencyId), "lookup", params],
+    queryKey: [...scope, "lookup", params],
     queryFn: ({ signal }) => companiesApi.lookup(agencyId!, params, signal),
-    enabled: Boolean(agencyId) && enabled,
-    ...queryOptions,
+    enabled: ready && enabled,
+    ...companyQueryOptions,
   });
 }
 
 export function useCompany(agencyId: string | null, id: string) {
-  return useQuery({ queryKey: [...companyKeys.scope(agencyId), id], queryFn: ({ signal }) => companiesApi.get(agencyId!, id, signal), enabled: Boolean(agencyId), ...queryOptions });
+  const { scope, ready } = useCompanyQueryContext(agencyId);
+  return useQuery({ queryKey: [...scope, id], queryFn: ({ signal }) => companiesApi.get(agencyId!, id, signal), enabled: ready, ...companyQueryOptions });
 }
 
 export function useCompanySummary(agencyId: string | null, id: string) {
-  return useQuery({ queryKey: [...companyKeys.scope(agencyId), id, "summary"], queryFn: ({ signal }) => companiesApi.summary(agencyId!, id, signal), enabled: Boolean(agencyId), ...queryOptions });
+  const { scope, ready } = useCompanyQueryContext(agencyId);
+  return useQuery({ queryKey: [...scope, id, "summary"], queryFn: ({ signal }) => companiesApi.summary(agencyId!, id, signal), enabled: ready, ...companyQueryOptions });
 }
 
 export function useCompanyGroups(agencyId: string | null, id: string, params: CompanyGroupSearch) {
-  return useQuery({ queryKey: [...companyKeys.scope(agencyId), id, "groups", params], queryFn: ({ signal }) => companiesApi.groups(agencyId!, id, params, signal), enabled: Boolean(agencyId), ...queryOptions });
+  const { scope, ready } = useCompanyQueryContext(agencyId);
+  return useQuery({ queryKey: [...scope, id, "groups", params], queryFn: ({ signal }) => companiesApi.groups(agencyId!, id, params, signal), enabled: ready, ...companyQueryOptions });
 }
 
 export function useCompanyMutations(agencyId: string) {

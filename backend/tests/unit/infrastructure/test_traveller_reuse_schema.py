@@ -197,12 +197,15 @@ def _migration(filename="0131_traveller_reuse.py"):
 def test_frozen_migration_matches_every_model_constraint_and_index(monkeypatch):
     migration = _migration()
     impact = _migration("0133_traveller_document_impact.py")
+    exports = _migration("0134_company_data_exports.py")
     assert migration.down_revision == "0130_company_directory"
     assert impact.down_revision == "0132_traveller_source_seek"
+    assert exports.down_revision == "0133_traveller_document_impact"
     dialect = postgresql.dialect()
     expected = []
     for table in TravellerProfileModel.metadata.sorted_tables:
-        if table.name in (*migration.TABLE_NAMES, "traveller_change_feeds", "traveller_document_review_tasks"):
+        if table.name in (*migration.TABLE_NAMES, "traveller_change_feeds", "traveller_document_review_tasks",
+            "company_data_export_jobs", "company_data_export_parts"):
             expected.append(str(CreateTable(table).compile(dialect=dialect)).strip())
             expected.extend(str(CreateIndex(index).compile(dialect=dialect)).strip()
                             for index in sorted(table.indexes, key=lambda value: value.name))
@@ -215,7 +218,9 @@ def test_frozen_migration_matches_every_model_constraint_and_index(monkeypatch):
     # This verifies both revisions without rewriting the historical 0131 DDL.
     operations = MagicMock()
     monkeypatch.setattr(impact, "op", operations)
+    monkeypatch.setattr(exports, "op", operations)
     impact.upgrade()
+    exports.upgrade()
     additions = {}
     for call in operations.add_column.call_args_list:
         table, column = call.args
@@ -227,7 +232,7 @@ def test_frozen_migration_matches_every_model_constraint_and_index(monkeypatch):
         name, table, expression = call.args
         additions.setdefault(table, []).append(f"CONSTRAINT {name} CHECK ({expression})")
     composed = []
-    for statement in (*migration.DDL, *impact.DDL):
+    for statement in (*migration.DDL, *impact.DDL, *exports.DDL):
         lines = list(canonical(statement))
         for table, extra in additions.items():
             if statement.startswith(f"CREATE TABLE {table} ("):
@@ -244,3 +249,24 @@ def test_downgrade_refuses_data_loss(monkeypatch):
     with pytest.raises(RuntimeError, match="accepted history"):
         migration.downgrade()
     operations.drop_table.assert_not_called()
+
+
+def test_export_migration_bounds_and_scopes_source_chronology_backfill(monkeypatch):
+    migration = _migration("0134_company_data_exports.py")
+    operations = MagicMock()
+    monkeypatch.setattr(migration, "op", operations)
+    migration.upgrade()
+    statements = [str(call.args[0]) for call in operations.execute.call_args_list]
+    assert statements[:2] == ["SET LOCAL lock_timeout = '5s'", "SET LOCAL statement_timeout = '90s'"]
+    table, column = operations.add_column.call_args.args
+    assert table == "traveller_match_cases" and column.name == "source_created_at" and column.nullable
+    backfill = statements[2]
+    assert "SET source_created_at = source.created_at" in backfill
+    assert "match.source_created_at IS NULL" in backfill
+    assert "match.agency_id = source.agency_id" in backfill
+    assert "match.group_id = source.group_id" in backfill
+    assert "match.source_kind = 'passport_submission'" in backfill
+    # CASE guards the UUID cast even if the planner reorders join predicates.
+    assert "source.id = CASE" in backfill and "THEN match.source_row_key::uuid" in backfill
+    assert "ELSE NULL" in backfill
+    assert "SET created_at" not in backfill

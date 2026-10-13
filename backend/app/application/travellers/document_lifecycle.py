@@ -6,6 +6,7 @@ from typing import Literal
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.companies.data_exports import invalidate_company_exports
 from app.domain.exceptions.exceptions import ConflictError, EntityNotFoundError
 from app.infrastructure.database.traveller_reuse_models import (
     TravellerChangeEventModel,
@@ -29,6 +30,7 @@ async def block_passport(session: AsyncSession, *, profile: TravellerProfileMode
         raise EntityNotFoundError("Passport", passport_id)
     if passport.revision != expected_passport_revision:
         raise ConflictError("Passport changed. Refresh before updating this document.")
+    await invalidate_company_exports(session, profile.agency_id, profile.company_id)
     passport.status, passport.is_default = status, False
     passport.revision += 1
     profile.authorization_version += 1

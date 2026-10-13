@@ -92,12 +92,13 @@ def test_every_migration_restore_and_resume_runs_as_owner_not_bootstrap(monkeypa
     alembic = Mock(side_effect=lambda _root, env, *args: phases.append(("alembic", env["POSTGRES_USER"])))
     connect = Mock(return_value=MagicMock())
     bootstrap_rejection = Mock(return_value={"exit_code": 75, "reason": "existing_migration_identity_required"})
-    resume = Mock(return_value={"company_backfill_rollback_verified": True})
+    resume = Mock(return_value={"export_ddl_rollback_verified": True})
     monkeypatch.setattr(rehearsal, "replace_owned_database", replace)
     monkeypatch.setattr(rehearsal, "_connect", connect)
     monkeypatch.setattr(rehearsal, "_alembic", alembic)
     monkeypatch.setattr(rehearsal, "_seed_previous_release", Mock())
     monkeypatch.setattr(rehearsal, "seed_company_and_roster", Mock())
+    monkeypatch.setattr(rehearsal, "seed_retained_history", Mock())
     monkeypatch.setattr(rehearsal, "_scalar", Mock(return_value=160015))
     monkeypatch.setattr(rehearsal, "_revision", Mock(return_value=rehearsal.SOURCE))
     monkeypatch.setattr(rehearsal, "_run", run)
@@ -107,7 +108,7 @@ def test_every_migration_restore_and_resume_runs_as_owner_not_bootstrap(monkeypa
     cleanup = Mock()
     monkeypatch.setattr(rehearsal, "_drop_database", cleanup)
     result = rehearsal.rehearse_owned(admin(), owner, tmp_path / "receipt.json")
-    assert len(phases) == 5 and all(role == "synthetic_owner" for _, role in phases)
+    assert len(phases) == 6 and all(role == "synthetic_owner" for _, role in phases)
     assert all(call.args[0] == owner for call in connect.call_args_list)
     assert resume.call_args.args[0]["POSTGRES_USER"] == "synthetic_owner"
     assert bootstrap_rejection.call_args.args[0]["POSTGRES_USER"] == "bootstrap"

@@ -47,7 +47,8 @@ export function useReturningUpload({ token, group, step, onReplace }: {
     {replacementIntent && <p role="status" className="mb-4 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm leading-6 text-blue-900">Updating the passport for {replacementIntent.displayName}. Upload the current document for this person; staff will review it before future reuse.</p>}
     {(step === "MODE_SELECT" || step === "QUALIFIER_SELECT") && <ReturningTravellerOffer token={token} onSelect={(method, capabilities) => { clearReplacement(); setSelection({ method, capabilities }); }} />}
   </>;
-  return { verificationPage, introduction, replacementIntent, clearReplacement };
+  const openDetectedHistory = () => { clearReplacement(); setSelection({ method: "passport", capabilities: { enabled: true, code_label: null } }); };
+  return { verificationPage, introduction, replacementIntent, clearReplacement, openDetectedHistory };
 }
 
 /** A generic/family upload cannot inherit another person's replacement grant. */

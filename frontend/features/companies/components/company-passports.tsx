@@ -6,15 +6,16 @@ import { Button } from "@/components/ui/button";
 import { useModalKeyboardBoundary } from "@/components/ui/modal";
 import { formatPassportCountry } from "@/lib/utils/passport-country";
 import { companyPassportsApi, type BlockedPassportStatus, type ManagedPassport } from "../api/company-passports.api";
-import { companyKeys } from "../hooks/use-companies";
+import { companyKeys, useCompanyQueryContext } from "../hooks/use-companies";
 import { CompanyError, CompanyLoading, companyErrorMessage } from "./company-feedback";
 
 export function CompanyPassports({ agencyId, companyId, travellerId, onClose }: { agencyId: string; companyId: string; travellerId: string; onClose: () => void }) {
   const queryClient = useQueryClient();
+  const { scope, ready } = useCompanyQueryContext(agencyId);
   const [selected, setSelected] = useState<ManagedPassport | null>(null);
   const [status, setStatus] = useState<BlockedPassportStatus>("lost");
   const [confirmed, setConfirmed] = useState(false);
-  const passports = useQuery({ queryKey: [...companyKeys.scope(agencyId), companyId, "travellers", travellerId, "passports"], queryFn: ({ signal }) => companyPassportsApi.list(agencyId, companyId, travellerId, signal), staleTime: 0, gcTime: 0, retry: 1 });
+  const passports = useQuery({ queryKey: [...scope, companyId, "travellers", travellerId, "passports"], queryFn: ({ signal }) => companyPassportsApi.list(agencyId, companyId, travellerId, signal), enabled: ready, staleTime: 0, gcTime: 0, retry: false, refetchOnWindowFocus: false });
   const mutation = useMutation({
     mutationFn: () => {
       if (!selected || !passports.data) throw new Error("Refresh and select a passport.");
@@ -28,7 +29,7 @@ export function CompanyPassports({ agencyId, companyId, travellerId, onClose }: 
   return <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={title} onKeyDown={keyboard} className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4"><section className="max-h-[90dvh] w-full max-w-lg space-y-4 overflow-y-auto rounded-2xl bg-white p-5 shadow-xl">
     <div className="flex items-start justify-between gap-3"><h2 id={title} className="text-lg font-semibold text-slate-950">Manage traveller passports</h2><Button type="button" variant="ghost" onClick={onClose} disabled={mutation.isPending}>Close</Button></div>
     <p className="text-sm leading-6 text-slate-600">Mark a passport lost, cancelled or compromised to block future reuse. Previous trip documents are preserved.</p>
-    {passports.isLoading ? <CompanyLoading /> : passports.isError ? <CompanyError message="Passport records could not be loaded." retry={() => void passports.refetch()} /> : <>
+    {!ready || passports.isLoading ? <CompanyLoading /> : passports.isError ? <CompanyError message="Passport records could not be loaded." retry={() => void passports.refetch()} /> : <>
       <ul className="space-y-3">{passports.data?.items.map((passport) => <li key={passport.id} className="space-y-2 rounded-xl border border-slate-200 p-3"><p className="break-words text-sm font-semibold text-slate-900">{passport.passport_hint} · {formatPassportCountry(passport.issuing_country)}</p><p className="text-xs leading-5 text-slate-500">{passport.document_type} · {passport.status}{passport.is_default ? " · Usual passport" : ""}<br />Expires {passport.expiry_date ?? "date not available"}</p>{!["lost", "cancelled", "compromised"].includes(passport.status) && <Button type="button" variant="secondary" className="h-auto min-h-11 whitespace-normal" disabled={mutation.isPending} onClick={() => { setSelected(passport); setConfirmed(false); setStatus("lost"); mutation.reset(); }}>Change status for {passport.passport_hint}</Button>}</li>)}</ul>
       {!passports.data?.items.length && <p className="text-sm text-slate-500">No retained passport records are available.</p>}
       {passports.data?.limit_reached && <p className="text-sm text-amber-800">This view reached its record limit. Contact your administrator to review additional records.</p>}

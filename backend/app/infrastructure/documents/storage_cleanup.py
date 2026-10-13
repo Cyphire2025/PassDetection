@@ -30,6 +30,7 @@ MAX_STORAGE_CLEANUP_KEYS = 2_000
 MAX_STORAGE_CLEANUP_KEY_LENGTH = 512
 MAX_STORAGE_CLEANUP_ATTEMPTS = 12
 STORAGE_CLEANUP_SOURCES: dict[str, tuple[str, ...]] = {
+    "company_data_export_expiry": ("company-data-exports/",),
     "traveller_copy_revoked": ("travellers/",),
     "traveller_profile_withdrawal": ("travellers/",),
     "document_distribution_delete": ("document-distribution/",),

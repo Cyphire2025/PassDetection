@@ -103,8 +103,10 @@ async def current_source(session: AsyncSession, *, agency_id: uuid.UUID, group_i
         row.status, row.confirmed_fields, row.staff_metadata, row.display_name, row.phone) if row is not None else None
 
 
-async def source_page(session: AsyncSession, job: TravellerReconciliationJobModel, size: int) -> list[ReconciliationSource]:
-    kind, after = "passport_submission", None
+async def source_page(session: AsyncSession, job: TravellerReconciliationJobModel, size: int,
+    *, roster_only: bool = False,
+) -> list[ReconciliationSource]:
+    kind, after = "whatsapp_recipient" if roster_only else "passport_submission", None
     if job.cursor:
         if job.cursor.startswith("v2:"):
             _, kind, value = job.cursor.split(":", 2)

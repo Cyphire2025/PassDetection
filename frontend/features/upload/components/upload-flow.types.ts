@@ -1,4 +1,5 @@
 import type { PassportSubmission } from "@/types/passport.types";
+import type { CompletionResult } from "@/features/travellers/types";
 
 export type FlowMode = "single" | "family";
 export type AgentEmployeeType = "" | "agent" | "employee";
@@ -20,6 +21,8 @@ export type UploadFlowStep =
   | "SUCCESS";
 
 export interface FamilyMember {
+  reuseCompletion?: { binding: FamilyReuseBinding; result: CompletionResult & { source_submission_id: string } };
+  replacementAssociated?: FamilyReuseBinding;
   localId: string;
   name: string;
   relation: string;
@@ -44,6 +47,8 @@ export interface FamilyMember {
   extractionNotice: string | null;
   canRetryExtraction: boolean;
 }
+
+export interface FamilyReuseBinding { localId: string; sourceSubmissionId: string; extractionRevision: number; uploadSessionId: string }
 
 export interface PassportDocumentBundle {
   front: File | null;

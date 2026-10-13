@@ -349,6 +349,10 @@ async def staff_approve_passport(
             review_reason=body.review_reason,
         )
         result = approval.submission
+        from app.application.travellers.history_schedule import schedule_submission_history
+        await schedule_submission_history(session, agency_id=result.agency_id, group_id=result.group_id,
+            source_submission_id=result.id, expected_extraction_revision=result.extraction_revision,
+            trigger=f"staff-approval:{result.id}:{result.extraction_revision}")
         from app.application.travellers.snapshot_access import (
             has_retained_document,
             sync_accepted_participations,
@@ -643,6 +647,10 @@ async def confirm_passport(
             submission_id,
             confirmed_fields=body.confirmed_fields,
         )
+        from app.application.travellers.history_schedule import schedule_submission_history
+        await schedule_submission_history(session, agency_id=result.agency_id, group_id=result.group_id,
+            source_submission_id=result.id, expected_extraction_revision=result.extraction_revision,
+            trigger=f"staff-confirm:{result.id}:{result.extraction_revision}")
         from app.application.travellers.snapshot_access import (
             has_retained_document,
             sync_accepted_participations,

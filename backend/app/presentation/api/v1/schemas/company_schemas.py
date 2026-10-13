@@ -66,6 +66,9 @@ class CompanyAssignmentRequest(BaseModel):
 
 
 class CompanySummaryResponse(BaseModel):
+    completed_groups: int
+    current_groups: int
+    passenger_trips_completed: int
     active_groups: int
     closed_groups: int
     archived_groups: int
@@ -91,6 +94,7 @@ class CompanyGroupResponse(BaseModel):
     reuse_completed: int = 0
     company_id: uuid.UUID
     company_revision: int
+    phase: Literal["active", "completed"]
 
 
 class CompanyGroupPageResponse(BaseModel):

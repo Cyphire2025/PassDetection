@@ -1814,18 +1814,10 @@
     "app/application/companies/directory.py": {
       "owner": "repository maintainers",
       "review_by": "2026-12-31",
-      "reason": "Tenant-scoped indexed keysets, name uniqueness and dependency checks share one company lifecycle transaction.",
+      "reason": "Tenant-scoped keyset directory reads use the company model; role-checked optimistic writes and their audit share the caller transaction. Removal delegates bounded group detachment while preserving source/history rows; no private document or cross-tenant projection is exposed.",
       "imports": [
         "app.infrastructure.database.gc_mobile_models",
-        "app.infrastructure.database.gc_mobile_models.ClientManagerProfileModel",
         "app.infrastructure.database.gc_mobile_models.ClientOrganizationModel",
-        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
-        "app.infrastructure.database.models",
-        "app.infrastructure.database.models.ClientGroupModel",
-        "app.infrastructure.database.traveller_reuse_models",
-        "app.infrastructure.database.traveller_reuse_models.TravellerMatchCaseModel",
-        "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel",
-        "app.infrastructure.database.traveller_reuse_models.TravellerReconciliationJobModel",
         "app.infrastructure.repositories.audit_log_repository",
         "app.infrastructure.repositories.audit_log_repository.AuditLogRepository"
       ]
@@ -1898,12 +1890,13 @@
     "app/application/travellers/authority.py": {
       "owner": "repository maintainers",
       "review_by": "2026-12-31",
-      "reason": "Live scoped group, company, policy and person locks are the common disclosure boundary; all identity reads reject stale authority.",
+      "reason": "Live group then company locks and scoped company/policy/profile/document models fence every public returning operation. A bounded linked-broadcast EXISTS selects inherited closed-roster behavior; explicit legacy no-broadcast configuration remains unchanged. Current retained-authority, participation, revision, expiry and lifecycle checks remain separate from proof and never use process cache.",
       "imports": [
         "app.infrastructure.database.gc_mobile_models",
         "app.infrastructure.database.gc_mobile_models.ClientOrganizationModel",
         "app.infrastructure.database.models",
         "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.ClientGroupWhatsAppBroadcastLinkModel",
         "app.infrastructure.database.traveller_reuse_models",
         "app.infrastructure.database.traveller_reuse_models.TravellerClaimModel",
         "app.infrastructure.database.traveller_reuse_models.TravellerDocumentRevisionModel",
@@ -1941,13 +1934,15 @@
     "app/application/travellers/completion.py": {
       "owner": "repository maintainers",
       "review_by": "2026-12-31",
-      "reason": "One idempotent transaction freezes the reviewed revision and validates current requirements through existing collection policy before normal staff review.",
+      "reason": "One live authorized grant/person/group transaction validates the displayed review digest, questions and optional exact owned extraction before idempotent trip snapshot publication. Scoped participation/source/event models and shared platform requirements preserve prior trips; the canonical trip-local-date predicate permits the reviewed phone binding only on the current or future snapshot after real confirmation, without an extra read or document download.",
       "imports": [
         "app.infrastructure.database.models",
         "app.infrastructure.database.models.PassportSubmissionModel",
         "app.infrastructure.database.traveller_reuse_models",
         "app.infrastructure.database.traveller_reuse_models.TravellerChangeEventModel",
         "app.infrastructure.database.traveller_reuse_models.TravellerParticipationModel",
+        "app.infrastructure.repositories.coordinator_assignment_lifecycle",
+        "app.infrastructure.repositories.coordinator_assignment_lifecycle.current_trip_clause",
         "app.infrastructure.repositories.platform_policy_repository",
         "app.infrastructure.repositories.platform_policy_repository.PlatformPolicyRepository"
       ]
@@ -2088,11 +2083,12 @@
     "app/application/travellers/match_freshness.py": {
       "owner": "repository maintainers",
       "review_by": "2026-12-31",
-      "reason": "Live source locks, revision and fingerprint checks reject stale or out-of-scope administrative matching decisions.",
+      "reason": "Current scoped source revision/fingerprint and group revision are checked before human-reviewed inclusion. The exact company-policy or legacy group-config revision is read according to the recorded matching version; stale evidence fails without changing membership or authorizing documents.",
       "imports": [
         "app.infrastructure.database.traveller_reuse_models",
         "app.infrastructure.database.traveller_reuse_models.TravellerGroupReuseConfigModel",
         "app.infrastructure.database.traveller_reuse_models.TravellerMatchCaseModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerReusePolicyModel",
         "app.infrastructure.security.traveller_reuse_crypto",
         "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
       ]
@@ -2155,8 +2151,10 @@
     "app/application/travellers/reconciliation.py": {
       "owner": "repository maintainers",
       "review_by": "2026-12-31",
-      "reason": "Lease-safe100rowpages generate provisional exact matches only, using bounded batched lookups and immutable source provenance.",
+      "reason": "Group then company then job locks serialize bounded source matching with its durable checkpoint. Scoped identity, passport and match-case models plus crypto support exact indexed decisions; current company assignment cancels stale jobs, and separate incremental/history handlers preserve the same caller transaction without provider or public-access side effects.",
       "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.ClientOrganizationModel",
         "app.infrastructure.database.models",
         "app.infrastructure.database.models.ClientGroupModel",
         "app.infrastructure.database.traveller_reuse_models",
@@ -2273,6 +2271,322 @@
       "imports": [
         "app.infrastructure.database.traveller_reuse_models",
         "app.infrastructure.database.traveller_reuse_models.TravellerParticipationModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel"
+      ]
+    },
+    "app/application/companies/current_record.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Caller-owned person lock and expected revision fence one idempotent current-record edit. Scoped encrypted identity/contact models, bounded asset copies, grant revocation and one audit/event commit together; immutable trip/source snapshots are never rewritten.",
+      "imports": [
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerChangeEventModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerClaimModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerContactBindingModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerDocumentAssetModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerDocumentRevisionModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerHistoryGrantModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerIdentifierModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerPassportModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository",
+        "app.infrastructure.security.traveller_reuse_crypto",
+        "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
+      ]
+    },
+    "app/application/companies/data_exports.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current company authorization and a company lock serialize actor-scoped idempotent export admission with at most two pending jobs. Durable job metadata and audit share the caller transaction; retained downloads recheck actor, company revision and expiry, and source changes cancel scoped jobs without performing provider work.",
+      "imports": [
+        "app.infrastructure.database.company_data_export_models",
+        "app.infrastructure.database.company_data_export_models.CompanyDataExportJobModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository"
+      ]
+    },
+    "app/application/companies/document_publication.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "After the owned provider write succeeds, the caller reacquires current person authority. Exact scoped asset/document/passport locks and the captured profile revision fence candidate publication, default promotion, identity refresh, grant revocation and audit atomically; a stale upload cannot replace a newer staff edit.",
+      "imports": [
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerChangeEventModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerContactBindingModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerDocumentAssetModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerDocumentRevisionModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerPassportModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel",
+        "app.infrastructure.repositories.audit_log_repository",
+        "app.infrastructure.repositories.audit_log_repository.AuditLogRepository",
+        "app.infrastructure.security.traveller_reuse_crypto",
+        "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
+      ]
+    },
+    "app/application/companies/document_upload.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Caller-held current-person lock prepares a scoped immutable candidate and an owned asset locator using content-bound idempotency. Existing accepted versions and defaults remain unchanged until publication; reviewed identity context, bounded passport lookup and inherited assets use the existing encrypted document models, with no provider call inside this boundary.",
+      "imports": [
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerDocumentAssetModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerDocumentRevisionModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerPassportModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel",
+        "app.infrastructure.security.traveller_reuse_crypto",
+        "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
+      ]
+    },
+    "app/application/companies/export_source.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Authorized export jobs reuse the current company/person visibility scope for seek-paged projections: 250 current people or 16 image references. Bulk contact/document reads and bounded original-source lookups exclude N+1 history hydration; private storage locators stay inside the worker and are not download credentials.",
+      "imports": [
+        "app.infrastructure.database.company_data_export_models",
+        "app.infrastructure.database.company_data_export_models.CompanyDataExportJobModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerContactBindingModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerDocumentAssetModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerDocumentRevisionModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerMatchCaseModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerPassportModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel",
+        "app.infrastructure.security.traveller_reuse_crypto",
+        "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
+      ]
+    },
+    "app/application/companies/original_record.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Staff-authorized company/group visibility bounds latest original-submission projections for at most 250 scoped people. Two queries use indexed top-one source links, recheck current source status and expose only reviewed field keys with provenance; original fields never become accepted passport authority.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerMatchCaseModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel"
+      ]
+    },
+    "app/application/companies/people.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current tenant/company/group membership scopes every person lookup before optional profile locking. Directory aggregates operate only on the bounded requested page; accepted current-document and explicit version projections decrypt allowlisted fields without loading images or silently promoting historical source evidence.",
+      "imports": [
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerContactBindingModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerDocumentAssetModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerDocumentRevisionModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerMatchCaseModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerParticipationModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerPassportModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel",
+        "app.infrastructure.security.traveller_reuse_crypto",
+        "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
+      ]
+    },
+    "app/application/companies/removal.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "The caller locks the company; bounded NOWAIT group and manager-access locks prevent inverse-order deadlocks. Scoped group detachment, client-specific grant revocation and pending-job cancellation share one transaction while all source documents, profiles and trip history remain retained.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.ClientManagerGroupAssignmentModel",
+        "app.infrastructure.database.gc_mobile_models.ClientOrganizationModel",
+        "app.infrastructure.database.gc_mobile_models.GCGroupAccessModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerReconciliationJobModel"
+      ]
+    },
+    "app/application/companies/source_documents.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Exact tenant/company/person resolved-source links and current visible-group/status predicates authorize original submissions. The canonical snapshot-asset check gates each locator; a scoped EXISTS reports pending indexing without hydrating history or exposing storage paths to callers.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerMatchCaseModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerReconciliationJobModel"
+      ]
+    },
+    "app/application/companies/trip_phase.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "One SQL predicate composes the shared group-local-date adapter with the scoped group return date. Completed means strictly past return date; missing dates remain active. This projection performs no lifecycle mutation or history hydration.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.repositories.coordinator_assignment_lifecycle",
+        "app.infrastructure.repositories.coordinator_assignment_lifecycle.trip_local_date"
+      ]
+    },
+    "app/application/travellers/accepted_source.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Historical acceptance reads only the supplied submission/revision and the existing bounded TD3 parser. Exact checksum-valid MRZ agreement may supply reliable issuing context for reviewed client sources; it never repairs OCR, infers issuer from nationality, grants public access or persists independently.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerDocumentRevisionModel",
+        "app.infrastructure.ocr.td3_mrz_parser",
+        "app.infrastructure.ocr.td3_mrz_parser.TD3MRZParser"
+      ]
+    },
+    "app/application/travellers/company_history_jobs.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Caller-owned group/company/job locks bound two-pass history registration and roster matching to 25 sources per checkpoint transaction. Scoped durable jobs, policy revisions and encrypted exact-match evidence support restart-safe chaining in a fresh transaction; no provider call or public disclosure grant is created.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.ClientOrganizationModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerMatchCaseModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerReconciliationJobModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerReusePolicyModel",
+        "app.infrastructure.security.traveller_reuse_crypto",
+        "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
+      ]
+    },
+    "app/application/travellers/historical_registration.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Within caller-held group/company locks, one scoped source, match-case and current-person lock bind idempotent history registration. Existing enrollment owns accepted document rules; incomplete sources remain private original records, identity conflicts cannot redirect durable associations, and operator authority never fabricates traveller consent.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerContactBindingModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerDocumentRevisionModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerIdentifierModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerMatchCaseModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerParticipationModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerPassportModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerReusePolicyModel",
+        "app.infrastructure.security.traveller_reuse_crypto",
+        "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
+      ]
+    },
+    "app/application/travellers/history_schedule.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Existing source-flow group locks and a scoped company lock invalidate stale exports and admit one idempotent/coalesced durable history job before the caller commits. Lazy initial admission seeks one group; no roster/history processing or provider work occurs on the interactive request.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.ClientOrganizationModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerReconciliationJobModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerReusePolicyModel"
+      ]
+    },
+    "app/application/travellers/identity_index.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Caller-held profile locks atomically replace only scoped current encrypted identity signals and invalidate company exports. Exact tenant-HMAC lookup bounds candidate and signal rows; conflicting or common-name overflow remains unresolved, with no change to reuse permission or public disclosure authority.",
+      "imports": [
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerIdentifierModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel",
+        "app.infrastructure.security.traveller_reuse_crypto",
+        "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
+      ]
+    },
+    "app/application/travellers/incremental_history.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Company locking serializes coalesced source/group/fanout job admission; workers preserve group then company then job lock order. One source or at most 25 linked groups/roster rows advance a durable cursor per transaction, with dirty trailing passes and policy/reassignment cancellation instead of interactive full-history scans.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.ClientGroupWhatsAppBroadcastLinkModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerReconciliationJobModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerReusePolicyModel",
+        "app.infrastructure.security.traveller_reuse_crypto",
+        "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
+      ]
+    },
+    "app/application/travellers/operational_autoassignment.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Group, company/policy and current-person locks fence exact roster assignment to an active scoped trip. Bounded accepted document/assets/contact projections, shared platform requirements and suitability rules build one idempotent operational snapshot/event; existing trips remain immutable, unsuitable documents invite replacement, and no public proof or traveller confirmation is fabricated.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.ClientOrganizationModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerChangeEventModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerContactBindingModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerDocumentAssetModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerParticipationModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerPassportModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerReusePolicyModel",
+        "app.infrastructure.repositories.platform_policy_repository",
+        "app.infrastructure.repositories.platform_policy_repository.PlatformPolicyRepository",
+        "app.infrastructure.security.traveller_reuse_crypto",
+        "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
+      ]
+    },
+    "app/application/travellers/owned_extraction.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Exact tenant/group/submission and extraction revision plus the upload-session capability fence one fresh source read, optionally locked for completion. Encrypted exact identity lookup returns only a unique candidate ID to trusted callers; source ownership alone never grants history disclosure.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.security.traveller_reuse_crypto",
+        "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
+      ]
+    },
+    "app/application/travellers/retained_authority.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "One current-profile evidence rule is represented in SQL and object checks. The model dependency supports scoped query filtering; guarded dialect-specific JSON type/revision expressions fail closed on malformed evidence and distinguish internal operator authority from public proof and personal consent.",
+      "imports": [
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel"
+      ]
+    },
+    "app/application/travellers/submission_snapshot.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "A shared constructor receives already-authorized scoped group/person/document/assets and creates one ordinary submission snapshot from reviewable retained assets. It distinguishes actual traveller confirmation from operator assignment, performs no query/commit and never mutates prior trips.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerDocumentAssetModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerDocumentRevisionModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel"
+      ]
+    },
+    "app/application/travellers/versioning.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Caller-owned profile/document transaction composes canonical accepted-date validation with locked default-passport promotion. Existing accepted revision dates determine promotion, unique-default ordering is preserved through flush, and no provider or public authorization operation occurs here.",
+      "imports": [
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerDocumentRevisionModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerPassportModel",
         "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel"
       ]
     }

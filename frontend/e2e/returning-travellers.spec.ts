@@ -235,3 +235,73 @@ test("explicit renewal links the new single upload after submission without auto
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: info.outputPath("renewal-pending-review-320.png"), fullPage: true });
 });
+
+
+test("detected family history completes only the owned member and preserves the other draft", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 900 });
+  await setup(page, { replacement: true });
+  await mockPublicContactOtp(page);
+  const sessions: string[] = [];
+  const submittedIds: string[] = [];
+  let uploads = 0;
+  let sourceBoundCompletions = 0;
+  let imageBytes = Buffer.alloc(0);
+  const draft = (id: string) => ({ id, group_id: group.id, agency_id: group.agency_id, client_name: "Synthetic Traveller", client_email: null, client_phone: null, status: "ready_for_client_review", extraction_status: "ready_for_review", extraction_revision: 3, image_s3_key: "synthetic-front", passport_back_s3_key: null, passport_photo_s3_key: null, created_at: "2026-10-13T00:00:00Z", updated_at: "2026-10-13T00:00:00Z", custom_answers: [], custom_detail_answers: [], error_message: null, confirmed_fields: null, extracted_fields: { surname: "TRAVELLER", given_names: "SYNTHETIC", passport_number: "A1234567", nationality: "IND", date_of_birth: "1990-01-01", date_of_issue: "2020-01-01", date_of_expiry: "2030-01-01", place_of_issue: "DELHI", sex: "M", ai_verification: { available: true, status: "verified", provider_status: "ok" } } });
+  await page.route("**/api/v1/**", async (route) => {
+    const request = route.request(); const path = new URL(request.url()).pathname;
+    if (path.includes("/prepare-file") || path.includes("/image/")) return route.fulfill({ contentType: "image/jpeg", body: imageBytes });
+    if (path === `/api/v1/passports/upload/${token}`) {
+      if (request.method() === "PUT") return json(route, { submission_id: null });
+      sessions.push(request.headers()["x-upload-session-id"]); return json(route, draft(`family-source-${++uploads}`));
+    }
+    if (path.endsWith("/status")) return json(route, draft(path.split("/").at(-2)!));
+    if (path.endsWith("/returning/detected-history")) return json(route, { available: true });
+    if (path.endsWith("/returning/complete")) {
+      expect(request.postDataJSON().owned_source).toEqual({ source_submission_id: "family-source-2", expected_extraction_revision: 3 });
+      expect(request.headers()["x-upload-session-id"]).toBe(sessions[1]); sourceBoundCompletions++;
+      return json(route, { status: "accepted", participation_id: "family-participation-2", source_submission_id: "reused-family-snapshot-2" });
+    }
+    if (path.endsWith("/client-submit")) { const id = path.split("/").at(-2)!; submittedIds.push(id); return json(route, { ...draft(id), status: "submitted", ...request.postDataJSON() }); }
+    if (path.endsWith("/telemetry")) return json(route, {});
+    return route.fallback();
+  });
+  await page.goto(`/upload/${token}`);
+  imageBytes = Buffer.from(await page.evaluate(() => { const canvas = document.createElement("canvas"); canvas.width = 1200; canvas.height = 800; const context = canvas.getContext("2d")!; context.fillStyle = "#e2e8f0"; context.fillRect(0, 0, 1200, 800); context.fillStyle = "#0f172a"; context.font = "48px sans-serif"; context.fillText("SYNTHETIC FAMILY PASSPORT", 80, 120); return canvas.toDataURL("image/jpeg", 0.85).split(",")[1]; }), "base64");
+  await page.getByRole("button", { name: /Family Submit travel details/ }).click();
+  await page.getByPlaceholder("Full name", { exact: true }).nth(0).fill("First Person");
+  await page.getByPlaceholder("Full name", { exact: true }).nth(1).fill("Second Person");
+  await page.getByRole("combobox", { name: "Gender", exact: true }).nth(0).selectOption("Female");
+  await page.getByRole("combobox", { name: "Gender", exact: true }).nth(1).selectOption("Male");
+  await page.getByRole("combobox", { name: "Relation", exact: true }).nth(1).selectOption("Spouse");
+  await page.getByRole("button", { name: "Continue to Documents", exact: true }).click();
+  for (let member = 0; member < 2; member++) {
+    await page.getByRole("button", { name: "Upload passport images", exact: true }).click();
+    await page.getByLabel("Upload Personal Details Page", { exact: true }).setInputFiles({ name: `synthetic-family-${member}.jpg`, mimeType: "image/jpeg", buffer: imageBytes });
+    await page.getByRole("button", { name: "Save passport pages and continue" }).click();
+  }
+  await verifyPublicContact(page, "first@example.com");
+  await verifyPublicContact(page, "second@example.com");
+  await expect(page.getByRole("heading", { name: "Review Family Details" })).toBeVisible();
+  await page.getByLabel("Place of Issue", { exact: true }).first().fill("PRESERVED CITY");
+  await page.getByRole("button", { name: "Verify to review saved information" }).nth(1).click();
+  await expect(page.getByLabel("Full passport number", { exact: false })).toHaveValue("");
+  await passport(page); await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await page.getByLabel("Date of birth", { exact: false }).first().fill("01/01/1990");
+  await page.getByRole("button", { name: "Verify passport details" }).click();
+  await page.getByRole("checkbox", { name: /permission to view/ }).check();
+  await page.getByRole("button", { name: "Review saved details" }).click();
+  await page.getByRole("button", { name: /Passport front · Open preview/ }).click();
+  await expect(page.getByRole("img", { name: "Passport front" })).toBeVisible();
+  await page.getByLabel(/Staff code/).fill("0022");
+  await page.getByRole("combobox", { name: /Meal for this trip/ }).selectOption("Veg");
+  await page.getByRole("checkbox", { name: /reviewed the images/ }).check();
+  await page.getByRole("button", { name: "Submit this trip’s information" }).click();
+  await expect(page.getByRole("heading", { name: "Trip information accepted" })).toBeVisible();
+  await page.getByRole("button", { name: "Continue for another traveller" }).click();
+  await expect(page.getByText("This member’s trip information has been saved.")).toBeVisible();
+  await expect(page.getByLabel("Place of Issue", { exact: true })).toHaveValue("PRESERVED CITY");
+  await page.getByRole("button", { name: "Submit Family Details", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Details Submitted" })).toBeVisible();
+  expect(submittedIds).toEqual(["family-source-1"]); expect(sourceBoundCompletions).toBe(1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});

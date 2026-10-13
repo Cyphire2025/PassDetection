@@ -19,9 +19,8 @@ from app.application.travellers.current_details import detail_fields
 from app.application.travellers.errors import ReuseError, ReuseReason
 from app.application.travellers.grants import require_grant
 from app.application.travellers.passport_selection import available_passports
-from app.application.travellers.requirements import saved_current_answers
+from app.application.travellers.requirements import missing_document_requirements, saved_current_answers
 from app.domain.services.traveller_suitability import TravelDocument, assess_document
-from app.domain.value_objects.upload_configuration import configuration_for
 from app.infrastructure.database.models import ClientGroupModel
 from app.infrastructure.database.traveller_reuse_models import (
     TravellerContactBindingModel,
@@ -143,15 +142,8 @@ async def project_history(service: ReturningClaims, context: ReviewContext, poli
         TravellerParticipationModel.group_id == grant.group_id,
         TravellerParticipationModel.traveller_id == person.id,
     ).limit(1))
-    config = configuration_for(scope.group)
     available_sides = {asset.document_side for asset in assets if is_reviewable_asset(asset, now)}
-    missing = [f"passport_{side}" for side in config.passport_upload_pages if config.passport_enabled and side not in available_sides]
-    if scope.group.require_selfie or (config.visa_photo_required and config.visa_photo_live_capture):
-        missing.append("fresh_photo")
-    elif config.visa_photo_required and "photo" not in available_sides:
-        missing.append("visa_photo")
-    if scope.group.relation_with_qualifier_enabled:
-        missing.append("qualifier_relationship")
+    missing = missing_document_requirements(scope.group, available_sides)
     suitability = assess_document(TravelDocument(
         issuing_country=passport.issuing_country if passport else None,
         nationality=fields.get("nationality"), document_type=passport.document_type if passport else None,

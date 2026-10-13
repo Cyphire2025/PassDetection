@@ -5,6 +5,7 @@ import apiClient from "@/lib/api/client";
 import type { CompanyGroup } from "../types";
 import { CompanyMatchingDialog } from "./company-matching-dialog";
 
+vi.mock("../hooks/use-company-session", () => ({ useCompanySession: () => ({ key: "review-session", ready: true }) }));
 vi.mock("@/lib/api/client", () => ({ default: { get: vi.fn(), post: vi.fn() } }));
 const travellerId = "11111111-1111-4111-8111-111111111111";
 const match = { id: "case-one", source_kind: "passport_submission", source_row_key: "22222222-2222-4222-8222-222222222222", status: "provisional", reason_code: "exact_passport", traveller_id: travellerId, revision: 3 };

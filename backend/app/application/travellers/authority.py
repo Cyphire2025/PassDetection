@@ -9,14 +9,19 @@ from __future__ import annotations
 import uuid
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Literal
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.travellers.errors import ReuseError, ReuseReason
+from app.application.travellers.retained_authority import retained_authority_predicate
 from app.domain.services.traveller_verification import utc
 from app.infrastructure.database.gc_mobile_models import ClientOrganizationModel
-from app.infrastructure.database.models import ClientGroupModel
+from app.infrastructure.database.models import (
+    ClientGroupModel,
+    ClientGroupWhatsAppBroadcastLinkModel,
+)
 from app.infrastructure.database.traveller_reuse_models import (
     TravellerClaimModel,
     TravellerDocumentRevisionModel,
@@ -29,11 +34,20 @@ from app.infrastructure.database.traveller_reuse_models import (
 
 
 @dataclass(frozen=True, slots=True)
+class LinkedRosterConfig:
+    """Company switch applies to a linked roster without per-group setup."""
+
+    roster_mode: Literal["closed"] = "closed"
+    individual_identifier_type: str = "company_individual_code"
+    identifier_required: bool = False
+
+
+@dataclass(frozen=True, slots=True)
 class ReuseScope:
     group: ClientGroupModel
     company: ClientOrganizationModel
     policy: TravellerReusePolicyModel
-    config: TravellerGroupReuseConfigModel
+    config: TravellerGroupReuseConfigModel | LinkedRosterConfig
 
 
 async def active_scope(
@@ -47,13 +61,17 @@ async def active_scope(
     locked_group = await session.scalar(select(ClientGroupModel.id).where(predicate).with_for_update(read=True))
     if locked_group is None:
         raise ReuseError(ReuseReason.UNAVAILABLE)
+    linked = select(ClientGroupWhatsAppBroadcastLinkModel.id).where(
+        ClientGroupWhatsAppBroadcastLinkModel.client_group_id == ClientGroupModel.id,
+        ClientGroupWhatsAppBroadcastLinkModel.agency_id == ClientGroupModel.agency_id,
+    ).exists()
     result = (await session.execute(
-        select(ClientGroupModel, ClientOrganizationModel, TravellerReusePolicyModel, TravellerGroupReuseConfigModel)
+        select(ClientGroupModel, ClientOrganizationModel, TravellerReusePolicyModel, TravellerGroupReuseConfigModel, linked)
         .join(ClientOrganizationModel, (ClientOrganizationModel.id == ClientGroupModel.company_id)
               & (ClientOrganizationModel.agency_id == ClientGroupModel.agency_id))
         .join(TravellerReusePolicyModel, (TravellerReusePolicyModel.company_id == ClientGroupModel.company_id)
               & (TravellerReusePolicyModel.agency_id == ClientGroupModel.agency_id))
-        .join(TravellerGroupReuseConfigModel, (TravellerGroupReuseConfigModel.group_id == ClientGroupModel.id)
+        .outerjoin(TravellerGroupReuseConfigModel, (TravellerGroupReuseConfigModel.group_id == ClientGroupModel.id)
               & (TravellerGroupReuseConfigModel.company_id == ClientGroupModel.company_id)
               & (TravellerGroupReuseConfigModel.agency_id == ClientGroupModel.agency_id))
         .where(predicate, ClientGroupModel.status == "active", ClientGroupModel.deleted_at.is_(None),
@@ -64,7 +82,16 @@ async def active_scope(
     )).one_or_none()
     if result is None:
         raise ReuseError(ReuseReason.UNAVAILABLE)
-    return ReuseScope(*result)
+    group, company, policy, config, has_roster = result
+    if has_roster:
+        identifier_type = config.individual_identifier_type if config is not None else None
+        return ReuseScope(group, company, policy, LinkedRosterConfig(
+            individual_identifier_type=identifier_type or "company_individual_code"))
+    if config is None:
+        raise ReuseError(ReuseReason.UNAVAILABLE)
+    # Existing explicit no-broadcast configurations keep their prior behavior.
+    # Expanding eligibility on other links requires the outstanding user decision.
+    return ReuseScope(group, company, policy, config)
 
 
 def check_claim_scope(claim: TravellerClaimModel, scope: ReuseScope, now: datetime) -> None:
@@ -87,9 +114,7 @@ async def eligible_person(
             TravellerProfileModel.id == traveller_id,
             TravellerProfileModel.agency_id == scope.group.agency_id,
             TravellerProfileModel.company_id == scope.company.id,
-            TravellerProfileModel.status == "active",
-            TravellerProfileModel.deleted_at.is_(None),
-            TravellerProfileModel.reuse_permission_status == "granted",
+            retained_authority_predicate(),
         ).with_for_update().execution_options(populate_existing=True)
     )
     if profile is None or (profile.retention_until is not None and utc(profile.retention_until) <= now):

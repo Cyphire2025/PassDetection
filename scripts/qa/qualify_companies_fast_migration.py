@@ -49,7 +49,7 @@ from release_traveller_whatsapp import ReleaseError
 MIB = 1024 * 1024
 REHEARSAL_FILES = (
     "rehearse_companies_traveller_upgrade.py", "companies_rehearsal_fixture.py",
-    "companies_restore_comparison.py",
+    "companies_restore_comparison.py", "companies_client_data_fixture.py",
     "companies_traveller_release_schema.py", "companies_traveller_reuse_release.py",
     "rehearse_postgresql_upgrade.py", "release_companies_traveller_upgrade.py", "release_travel_tracker_upgrade.py",
 )

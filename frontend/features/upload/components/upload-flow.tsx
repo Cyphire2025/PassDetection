@@ -16,6 +16,9 @@ import { useEffect, useRef, useState } from "react";
 import { useInstructionLanguage } from "../hooks/use-instruction-language";
 import { usePublicFlowTelemetry } from "../hooks/use-public-flow-telemetry";
 import { ReturningUploadSuccess, useReturningUpload } from "../hooks/use-returning-upload";
+import { useReturningFamily } from "../hooks/use-returning-family";
+import { isFamilyMemberSubmitted } from "../services/family-returning";
+import { DetectedHistoryOffer } from "@/features/travellers/components/detected-history-offer";
 import { useUploadContactVerification } from "../hooks/use-upload-contact-verification";
 import { useUploadDocuments } from "../hooks/use-upload-documents";
 import { useUploadFamily } from "../hooks/use-upload-family";
@@ -157,6 +160,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
     relationWithQualifierEnabled,
   } = flowSettings;
   const instructions = useInstructionLanguage(token, uploadConfig);
+  const familyReturning = useReturningFamily({ token, group, members: familyMembers, updateMember: updateFamilyMember });
   const returning = useReturningUpload({ token, group, step, onReplace: (request) => {
     setSingleUploadIdempotencyKey(request.uploadSessionId); setSubmission(null); setReviewFields({}); setDocumentBundle(emptyDocumentBundle());
     setVisaSelfie(null); setVisaPhotoSource(null); setCustomAnswers({}); setCustomDetailAnswers({});
@@ -175,7 +179,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const canReviewSubmission = (saved: PassportSubmission) => requiresPassportReview(saved)
     ? isClientSubmissionComplete(saved) || saved.manual_review_submission_allowed === true || passportDocumentVerificationGate(saved).accepted
     : !passportRequired || (allowFilesFromDevice && !uploadConfig.passport_upload_pages.includes("front"));
-  const hasBlockedFamilyVerification = familyMembers.some((member) => (
+  const hasBlockedFamilyVerification = familyMembers.some((member) => !isFamilyMemberSubmitted(member) && (
     member.submission === null
     || !canReviewSubmission(member.submission)
   ));
@@ -426,6 +430,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
 
   if (isLoading || step === "BOOTSTRAP" || !group) return <CenteredLoader />;
   if (returning.verificationPage) return returning.verificationPage;
+  if (familyReturning.verificationPage) return familyReturning.verificationPage;
 
   if (step === "RECOVERY_ERROR") {
     return <UploadRecoveryScreen error={uploadError} onRetry={retrySavedUploadRecovery} />;
@@ -522,6 +527,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   if (step === "REVIEW" && submission) {
     return <UploadSingleReview token={token} settings={flowSettings} documents={documentController} contactVerification={contactVerification} canReviewSubmission={canReviewSubmission} uploadError={uploadError} departureCity={departureCity} setDepartureCity={setDepartureCity} onSubmit={handleFinalSubmit}
       submission={submission} singleUploadIdempotencyKey={singleUploadIdempotencyKey}
+      returningOffer={!returning.replacementIntent && submission.extraction_revision > 0 && passportDocumentVerificationGate(submission).accepted ? <DetectedHistoryOffer token={token} submissionId={submission.id} extractionRevision={submission.extraction_revision} uploadSessionId={singleUploadIdempotencyKey} onVerify={returning.openDetectedHistory} /> : undefined}
       review={{ clientName, clientEmail, clientPhone, reviewFields, departureCity, baseCity, nearestDomesticAirport, staffCode, agentEmployeeCode, designation, agencyDealershipName, mealPreference, customAnswers, customDetailAnswers }}
       configuredFields={{ config: uploadConfig, baseCityEnabled: baseCityEnabled, askNearestDomesticAirport: askNearestDomesticAirport, staffCodeEnabled: staffCodeEnabled, agentEmployeeCodeEnabled: agentEmployeeCodeEnabled, designationEnabled: designationEnabled, agencyDealershipNameEnabled: agencyDealershipNameEnabled, mealPreferenceEnabled: mealPreferenceEnabled, baseCity: baseCity, nearestDomesticAirport: nearestDomesticAirport, staffCode: staffCode, agentEmployeeType: agentEmployeeType, agentEmployeeCode: agentEmployeeCode, designation: designation, agencyDealershipName: agencyDealershipName, mealPreference: mealPreference, onBaseCity: setBaseCity, onNearestDomesticAirport: setNearestDomesticAirport, onStaffCode: setStaffCode, onAgentEmployeeType: setAgentEmployeeType, onAgentEmployeeCode: setAgentEmployeeCode, onDesignation: setDesignation, onAgencyDealershipName: setAgencyDealershipName, onMealPreference: setMealPreference }}
       requiresPassportReview={requiresPassportReview} extractionNotice={extractionNotice} canRetryExtraction={canRetryExtraction}
@@ -531,6 +537,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   if (step === "FAMILY_REVIEW") {
     return <UploadFamilyReview token={token} settings={flowSettings} documents={documentController} contactVerification={contactVerification} canReviewSubmission={canReviewSubmission} uploadError={uploadError} departureCity={departureCity} setDepartureCity={setDepartureCity} onSubmit={handleFamilySubmit}
       familyMembers={familyMembers} hasBlockedFamilyVerification={hasBlockedFamilyVerification}
+      renderReturningOffer={(member) => member.submission && member.submission.extraction_revision > 0 && passportDocumentVerificationGate(member.submission).accepted ? <DetectedHistoryOffer token={token} submissionId={member.submission.id} extractionRevision={member.submission.extraction_revision} uploadSessionId={member.uploadIdempotencyKey} onVerify={() => familyReturning.open(member)} /> : null}
       setStep={setStep} selectFamilyMember={selectFamilyMember} updateFamilyMember={updateFamilyMember}
       handleFamilyReviewFieldChange={handleFamilyReviewFieldChange} />;
   }

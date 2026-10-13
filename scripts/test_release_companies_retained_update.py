@@ -23,14 +23,24 @@ from release_retained_update import (
     runtime_environment,
     select_live,
 )
-from test_release_retained_update import NEXT, SHA, live_rows
+from test_release_retained_update import NEXT, SHA, live_rows as base_live_rows
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def live_rows():
+    rows = base_live_rows()
+    for row in rows:
+        row["Config"]["Env"] = [
+            f"EXPECTED_DATABASE_SCHEMA_REVISION={SOURCE}" if value.startswith("EXPECTED_DATABASE_SCHEMA_REVISION=")
+            else value for value in row["Config"]["Env"]
+        ]
+    return rows
+
+
 def release_fixture():
     release = object.__new__(CompaniesRetainedUpdate)
-    live = select_live(live_rows())
+    live = select_live(live_rows(), schema=SOURCE)
     for row in live.values():
         row['State'].update(ExitCode=0, OOMKilled=False)
         row['HostConfig'] = {'Memory': 1024 ** 3}
@@ -124,9 +134,7 @@ class AdditiveContracts(unittest.TestCase):
     def test_actual_scheduler_is_additive_and_old_schedule_change_rejected(self):
         path = 'backend/app/infrastructure/processing/celery_app.py'
         new = (ROOT / path).read_text()
-        additions = ('"app.infrastructure.travellers.', '"reconcile-traveller-history":',
-                     '"copy-retained-traveller-assets":', '"withdraw-retained-traveller-assets":',
-                     '"review-traveller-document-impact":')
+        additions = ('"app.infrastructure.travellers.company_export_tasks"', '"export-company-data":')
         old = '\n'.join(line for line in new.splitlines() if not any(value in line for value in additions))
         validate_scheduler(old, new)
         with self.assertRaises(ValueError):
@@ -140,10 +148,10 @@ class AdditiveContracts(unittest.TestCase):
             validate_task_change('backend/app/tasks.py', old, old.replace('(value)', '(value, extra)'))
         with self.assertRaisesRegex(ValueError, 'unreviewed_new'):
             validate_task_change('backend/app/tasks.py', '', old)
-        validate_task_change('backend/app/infrastructure/travellers/tasks.py', '', old)
+        validate_task_change('backend/app/infrastructure/travellers/company_export_tasks.py', '', old)
 
     def test_target_environment_changes_only_schema_and_revision(self):
-        row = select_live(live_rows())['backend']
+        row = select_live(live_rows(), schema=SOURCE)['backend']
         values = runtime_environment(row, NEXT, schema=TARGET)
         self.assertEqual(values['PRIVATE_SETTING'], 'retained')
         self.assertEqual(values['APP_REVISION'], NEXT)
@@ -327,7 +335,7 @@ class AdditiveContracts(unittest.TestCase):
 
     def test_no_candidate_starts_before_verified_target_schema(self):
         release = release_fixture()
-        release.schema = Mock(return_value=CHAIN[1])
+        release.schema = Mock(return_value=CHAIN[0])
         release.start = Mock()
         with self.assertRaisesRegex(ValueError, 'target_schema_required'):
             release.activate_candidates()

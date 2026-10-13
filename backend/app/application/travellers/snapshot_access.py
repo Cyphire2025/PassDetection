@@ -13,11 +13,13 @@ import uuid
 from collections.abc import Sequence
 from datetime import UTC, datetime
 
-from sqlalchemy import exists, or_, select
+from sqlalchemy import and_, exists, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql import ColumnElement
 from sqlalchemy.sql.selectable import Exists
 
 from app.application.travellers.asset_policy import is_reviewable_asset
+from app.application.travellers.retained_authority import retained_authority_predicate
 from app.infrastructure.database.models import ClientGroupModel, PassportSubmissionModel
 from app.infrastructure.database.traveller_reuse_models import (
     TravellerDocumentAssetModel,
@@ -60,6 +62,12 @@ def live_trip_asset_reference(*, submission_id: uuid.UUID | None = None, group_i
     if group_id is not None:
         query = query.where(source.group_id == group_id)
     return exists(query)
+
+
+def retained_asset_authority() -> ColumnElement[bool]:
+    """Requires an exact asset/person join and separate caller visibility scope."""
+    return and_(TravellerProfileModel.deleted_at.is_(None), TravellerProfileModel.status != "deleted",
+        or_(retained_authority_predicate(), live_trip_asset_reference()))
 
 
 async def can_read_snapshot_asset(

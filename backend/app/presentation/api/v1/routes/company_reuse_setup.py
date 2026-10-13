@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.companies.access import COMPANY_ADMIN_ROLES, require_company
 from app.application.companies.reuse_setup import (
+    REUSE_NOTICE_TEXT,
     require_company_group,
     save_group_reuse_config,
     save_reuse_policy,
@@ -44,6 +45,7 @@ class ReusePolicyResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     company_id: uuid.UUID
     enabled: bool = False
+    notice_text: str = REUSE_NOTICE_TEXT
     revision: int = 0
     retention_mode: Literal["until_withdrawn", "limited"] = "until_withdrawn"
     retention_days: int | None = None

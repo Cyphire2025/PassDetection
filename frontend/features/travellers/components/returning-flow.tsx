@@ -8,11 +8,11 @@ import { normalizePhoneNumber, PHONE_FORMAT_HELP } from "@/lib/utils/phone-numbe
 import { isValidPassportIsoDate } from "@/lib/utils/passport-date";
 import { UploadHeader } from "@/features/upload/components/upload-flow-shell";
 import { useReturningClaim } from "../hooks/use-returning-claim";
-import type { DocumentQuestion, ReplacementRequest, ReturningCapabilities, ReturningMethod } from "../types";
+import type { CompletionResult, DocumentQuestion, ReplacementRequest, ReturningCapabilities, ReturningMethod, ReturningOwnedSource } from "../types";
 import { DocumentQuestionFields, PassportProofFields, QUESTION_LABELS } from "./returning-fields";
 import { ReturningReview } from "./returning-review";
 
-export function ReturningFlow({ token, group, initialMethod, capabilities, onFresh, onReplace }: { token: string; group: UploadLinkResponse; initialMethod: ReturningMethod; capabilities: ReturningCapabilities; onFresh: () => void; onReplace: (request: ReplacementRequest) => void }) {
+export function ReturningFlow({ token, group, initialMethod, capabilities, onFresh, onReplace, ownedSource, onCompleted }: { token: string; group: UploadLinkResponse; initialMethod: ReturningMethod; capabilities: ReturningCapabilities; onFresh: () => void; onReplace: (request: ReplacementRequest) => void; ownedSource?: ReturningOwnedSource; onCompleted?: (result: CompletionResult) => void }) {
   const claim = useReturningClaim();
   const [phone, setPhone] = useState("");
   const [passport, setPassport] = useState("");
@@ -26,7 +26,7 @@ export function ReturningFlow({ token, group, initialMethod, capabilities, onFre
   const stage = claim.transition?.stage;
   const resendIn = Math.max(0, Math.ceil((claim.resendAt - now) / 1000));
   useEffect(() => { if (!claim.resendAt) return; const timer = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(timer); }, [claim.resendAt]);
-  if (stage === "review" && claim.history) return <ReturningReview history={claim.history} groupName={group.name} onFresh={onFresh} onReplace={onReplace} />;
+  if (stage === "review" && claim.history) return <ReturningReview history={claim.history} groupName={group.name} onFresh={onFresh} onReplace={onReplace} ownedSource={ownedSource} onCompleted={onCompleted} />;
   const questions = claim.transition?.questions ?? [];
   const heading = !stage ? initialMethod === "phone" ? "Verify your WhatsApp number" : initialMethod === "passport" ? "Find your saved passport" : `Enter your ${capabilities.code_label ?? "individual code"}` : stage === "contact" ? "WhatsApp verification" : stage === "identify" ? "Choose the traveller" : stage === "passport" ? "Confirm the full passport" : stage === "challenge" ? "Check your passport details" : "Confirm access";
 

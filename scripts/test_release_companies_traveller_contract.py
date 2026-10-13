@@ -33,7 +33,7 @@ class CompanyTravellerReleaseTests(unittest.TestCase):
         verify_source_defaults()
         module = helper()
         self.assertEqual(module.POLICY, POLICY)
-        self.assertEqual(len(value["migrations"]), 4)
+        self.assertEqual(len(value["migrations"]), 2)
         module.verify_sources(ROOT / "backend", value)
         with self.assertRaises(ValueError):
             require_same_schema_artifact({"deployment": value})
@@ -80,14 +80,14 @@ class CompanyTravellerReleaseTests(unittest.TestCase):
 
         def upgrade(config, revision):
             invoked.append(revision)
-            if revision == CHAIN[2]:
-                raise RuntimeError("synthetic interruption during concurrent index")
+            if revision == CHAIN[1]:
+                raise RuntimeError("synthetic interruption before manager history")
             state[0] = revision
 
         with self.assertRaises(RuntimeError):
             module.run_revisions("configuration", SOURCE, upgrade, lambda: state[0])
-        self.assertEqual(state[0], CHAIN[1])
-        self.assertEqual(invoked, list(CHAIN[:3]))
+        self.assertEqual(state[0], CHAIN[0])
+        self.assertEqual(invoked, list(CHAIN[:2]))
         resumed = []
 
         def finish(config, revision):
@@ -95,7 +95,7 @@ class CompanyTravellerReleaseTests(unittest.TestCase):
             state[0] = revision
 
         module.run_revisions("configuration", state[0], finish, lambda: state[0])
-        self.assertEqual(resumed, list(CHAIN[2:]))
+        self.assertEqual(resumed, list(CHAIN[1:]))
         module.run_revisions("configuration", TARGET, Mock(side_effect=AssertionError), lambda: TARGET)
         with self.assertRaises(ValueError):
             module.run_revisions("configuration", "0128_mcp_document_delivery", finish, lambda: state[0])

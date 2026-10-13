@@ -22,18 +22,22 @@ def inner():
         "server_major": 16, "production_release_authorization": False,
         "preserved_historical_rows_catalog_acl": True, "new_tables_empty_before_activation": True,
         "runtime_grants_nonempty": True, "wrong_baseline_rejected_before_ddl": True,
-        "invalid_concurrent_index_repaired": True,
-        "company_backfill_rollback_verified": True,
+        "manager_constraints_verified": True,
+        "export_ddl_rollback_verified": True, "manager_ddl_rollback_verified": True,
         "split_migration_role_verified": True,
         "bootstrap_identity_rejection": {"exit_code": 75, "reason": "existing_migration_identity_required"},
-        "company_backfill_rollback": {"exit_code": 74, "rolled_back_revision": receipt.CHAIN[0]},
-        "historical_row_counts": {"whatsapp_broadcast_rejected_contacts": 699, "whatsapp_broadcast_recipients": 1},
+        "export_ddl_rollback": {"exit_code": 74, "rolled_back_revision": receipt.CHAIN[0]},
+        "manager_ddl_rollback": {"exit_code": 76, "rolled_back_revision": receipt.CHAIN[1]},
+        "historical_row_counts": {"whatsapp_broadcast_rejected_contacts": 699, "whatsapp_broadcast_recipients": 1,
+            "traveller_profiles": 1, "traveller_passports": 1, "traveller_document_revisions": 3,
+            "traveller_match_cases": 3,
+            "client_manager_group_assignments": 1},
         "dump": {"bytes": 120000, "sha256": "b" * 64},
         "backup_clients": {key: key + " (PostgreSQL) 16.15 (Debian fixture)" for key in ("pg_dump", "pg_restore")},
         "original_preservation_baseline": {**common, "status": "baseline_captured"},
-        "interruption": {"exit_code": 73, "interrupted_before": receipt.CHAIN[2]},
-        "resume": {**common, "status": "upgraded", "started_schema": receipt.CHAIN[1],
-                   "executed_revisions": list(receipt.CHAIN[2:]), "new_tables_empty": True, "runtime_grants_verified": True},
+        "interruption": {"exit_code": 73, "interrupted_before": receipt.CHAIN[1]},
+        "resume": {**common, "status": "upgraded", "started_schema": receipt.CHAIN[0],
+                   "executed_revisions": list(receipt.CHAIN[1:]), "new_tables_empty": True, "runtime_grants_verified": True},
         "noop": {**common, "status": "already_at_target", "started_schema": receipt.TARGET,
                  "executed_revisions": [], "new_tables_empty": True, "runtime_grants_verified": True}}
 
@@ -51,7 +55,7 @@ class MigrationReceiptTests(unittest.TestCase):
         proof = receipt.validate_inner("synthetic migration log\n" + encoded(), "c" * 64)
         self.assertEqual(proof["fixture_person_count"], 700)
         self.assertEqual(proof["checks"], dict.fromkeys(receipt.CHECKS, True))
-        self.assertIs(proof["company_backfill_rollback_verified"], True)
+        self.assertIs(proof["export_ddl_rollback_verified"], True)
         self.assertIs(proof["split_migration_role_verified"], True)
 
     def test_wrong_source_duplicate_or_missing_receipt_is_rejected(self):
@@ -62,21 +66,21 @@ class MigrationReceiptTests(unittest.TestCase):
 
     def test_each_missing_or_false_positive_condition_is_rejected(self):
         changes = [("preserved_historical_rows_catalog_acl", False), ("runtime_grants_nonempty", 1),
-                   ("invalid_concurrent_index_repaired", False), ("wrong_baseline_rejected_before_ddl", False),
-                   ("company_backfill_rollback_verified", False), ("company_backfill_rollback_verified", 1),
+                   ("manager_constraints_verified", False), ("wrong_baseline_rejected_before_ddl", False),
+                   ("export_ddl_rollback_verified", False), ("export_ddl_rollback_verified", 1),
                    ("split_migration_role_verified", False), ("split_migration_role_verified", 1),
                    ("bootstrap_identity_rejection", {"exit_code": 2, "reason": "unrelated_failure"}),
-                   ("company_backfill_rollback", {"exit_code": 0, "rolled_back_revision": receipt.CHAIN[0]}),
+                   ("export_ddl_rollback", {"exit_code": 0, "rolled_back_revision": receipt.CHAIN[0]}),
                    ("server_major", 17), ("production_release_authorization", True),
                    ("historical_row_counts", {"whatsapp_broadcast_rejected_contacts": 500, "whatsapp_broadcast_recipients": 1}),
                    ("dump", {"bytes": 0, "sha256": "b" * 64}),
-                   ("interruption", {"exit_code": 0, "interrupted_before": receipt.CHAIN[2]})]
+                   ("interruption", {"exit_code": 0, "interrupted_before": receipt.CHAIN[1]})]
         for key, value in changes:
             with self.subTest(key=key), self.assertRaises(ValueError):
                 receipt.validate_inner(encoded({**inner(), key: value}), "c" * 64)
 
-    def test_missing_company_backfill_rollback_proof_is_rejected(self):
-        for field in ("company_backfill_rollback_verified", "company_backfill_rollback",
+    def test_missing_export_ddl_rollback_proof_is_rejected(self):
+        for field in ("export_ddl_rollback_verified", "export_ddl_rollback", "manager_ddl_rollback", "manager_ddl_rollback_verified",
                       "split_migration_role_verified", "bootstrap_identity_rejection"):
             evidence = inner()
             evidence.pop(field)
@@ -85,7 +89,7 @@ class MigrationReceiptTests(unittest.TestCase):
 
     def test_stale_baseline_partial_resume_or_skipped_grants_are_rejected(self):
         for phase, key, value in (("resume", "preservation_sha256", "d" * 64),
-                                  ("resume", "executed_revisions", [receipt.CHAIN[-1]]),
+                                  ("resume", "executed_revisions", []),
                                   ("resume", "runtime_grants_verified", False),
                                   ("noop", "executed_revisions", [receipt.CHAIN[-1]])):
             evidence = copy.deepcopy(inner())
@@ -133,7 +137,7 @@ class IsolatedMigrationTests(unittest.TestCase):
                     self.assertIs(value["full_ci_qualified"], False)
                     self.assertIs(value["owned_resources_removed"], True)
                     self.assertEqual(value["contact_concurrency_tests"], 2)
-                    self.assertIs(value["company_backfill_rollback_verified"], True)
+                    self.assertIs(value["export_ddl_rollback_verified"], True)
                     self.assertIs(value["split_migration_role_verified"], True)
                     self.assertTrue(value["checks"]["contact_concurrency_verified"])
                     self.assertEqual(value["source_schema"], receipt.SOURCE)

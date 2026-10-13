@@ -40,6 +40,7 @@ export interface ReturningHistory {
   participation_revision: number | null;
 }
 export interface ReturningCompletion {
+  owned_source?: { source_submission_id: string; expected_extraction_revision: number };
   question_version: string;
   review_version: string;
   expected_participation_revision?: number;
@@ -49,7 +50,8 @@ export interface ReturningCompletion {
   information_confirmed: true;
   idempotency_key: string;
 }
-export interface CompletionResult { status: "submitted" | "accepted"; participation_id: string }
+export interface CompletionResult { status: "submitted" | "accepted"; participation_id: string; source_submission_id?: string }
+export interface ReturningOwnedSource { source_submission_id: string; expected_extraction_revision: number; uploadSessionId: string }
 export interface ReplacementRequest { reviewVersion: string; displayName: string; changeKind: "renewal" | "scan" | "correction" }
 export interface ReplacementIntent extends ReplacementRequest { uploadSessionId: string; idempotencyKey: string }
 export interface ReplacementCandidateInput { source_submission_id: string; expected_extraction_revision: number; review_version: string; change_kind: ReplacementRequest["changeKind"]; idempotency_key: string }

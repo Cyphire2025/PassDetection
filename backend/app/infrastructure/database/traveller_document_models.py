@@ -130,6 +130,7 @@ class TravellerDocumentRevisionModel(TravellerRecord, Base):
         ),
         Index("ix_traveller_document_latest", "passport_id", "status", "revision_number"),
         Index("ix_traveller_document_source", "source_submission_id", "id"),
+        Index("ix_traveller_document_person_seek", "agency_id", "company_id", "traveller_id", "created_at", "id"),
     )
     passport_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     traveller_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
@@ -183,6 +184,7 @@ class TravellerDocumentAssetModel(TravellerRecord, Base):
         Index("ix_traveller_asset_copy_lease", "lease_expires_at"),
         Index("ix_traveller_asset_owner_state", "traveller_id", "availability", "id"),
         Index("ix_traveller_asset_object", "object_key"),
+        Index("ix_traveller_asset_company_seek", "agency_id", "company_id", "id"),
     )
     document_revision_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     passport_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)

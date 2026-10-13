@@ -166,6 +166,9 @@ class ReturningClaims:
                 raise ReuseError(ReuseReason.REVISION_CONFLICT)
             claim.supplied_passport_fingerprint = fingerprint
         if code is not None:
+            from app.application.travellers.identity_index import COMPANY_INDIVIDUAL_CODE
+            from app.domain.services.traveller_identity import normalize_individual_code
+            code = normalize_individual_code(code) if scope.config.individual_identifier_type == COMPANY_INDIVIDUAL_CODE else code.strip()
             if not scope.config.individual_identifier_type or not 1 <= len(code.strip()) <= 128:
                 raise ReuseError(ReuseReason.VERIFICATION_FAILED)
             fingerprint = self.crypto.scoped_digest("identifier", claim.agency_id, claim.company_id,

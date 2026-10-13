@@ -35,6 +35,9 @@ export interface CompanyUpdate extends Partial<CompanyInput> {
 }
 
 export interface CompanySummary {
+  completed_groups: number;
+  current_groups: number;
+  passenger_trips_completed: number;
   collected_records: number;
   active_groups: number;
   closed_groups: number;
@@ -47,16 +50,6 @@ export interface CompanySummary {
   identity_totals_partial: boolean;
 }
 
-export interface CompanySubmission {
-  id: string;
-  group_id: string;
-  group_name: string;
-  travel_date: string | null;
-  display_name: string;
-  status: string;
-  created_at: string;
-}
-
 export interface CompanyGroup {
   id: string;
   name: string;
@@ -64,6 +57,7 @@ export interface CompanyGroup {
   travel_date: string | null;
   return_date: string | null;
   status: "active" | "closed" | "archived";
+  phase?: "active" | "completed";
   import_only: boolean;
   submission_count: number;
   returning_travellers?: number;
@@ -72,16 +66,9 @@ export interface CompanyGroup {
 }
 
 export interface CompanyGroupSearch extends Omit<CompanySearch, "status"> {
+  phase?: "all" | "active" | "completed";
   status?: CompanyGroup["status"] | "all";
   import_only?: boolean;
-}
-
-export interface CompanyTraveller {
-  id: string;
-  display_name: string;
-  participation_count: number;
-  last_trip_date: string | null;
-  status: string;
 }
 
 export interface TravellerHistory {

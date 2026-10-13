@@ -20,6 +20,22 @@ beforeEach(() => {
 });
 
 describe("protected returning review", () => {
+  it("sends owned family source proof and refuses a completion response without a bound saved submission", async () => {
+    const onCompleted = vi.fn();
+    const ownedSource = { source_submission_id: "owned-family-upload", expected_extraction_revision: 3, uploadSessionId: "member-upload-capability" };
+    vi.mocked(returningApi.complete).mockResolvedValueOnce({ status: "submitted", participation_id: "participation" }).mockResolvedValueOnce({ status: "accepted", participation_id: "participation", source_submission_id: "saved-reuse-snapshot" });
+    render(<ReturningReview history={{ ...history, saved_answers: { custom_answers: { meal: "Veg" }, custom_detail_answers: {}, current_details: { staff_code: "0009" } } }} groupName="Test trip" onFresh={vi.fn()} onReplace={vi.fn()} ownedSource={ownedSource} onCompleted={onCompleted} />);
+    fireEvent.click(screen.getByRole("button", { name: /Passport front · Open preview/ }));
+    fireEvent.load(await screen.findByRole("img", { name: "Passport front" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: /reviewed the images/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Submit this trip’s information" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("could not be linked to this upload");
+    expect(onCompleted).not.toHaveBeenCalled();
+    expect(returningApi.complete).toHaveBeenLastCalledWith(expect.objectContaining({ owned_source: { source_submission_id: "owned-family-upload", expected_extraction_revision: 3 } }), expect.any(AbortSignal), "member-upload-capability");
+    fireEvent.click(screen.getByRole("button", { name: "Submit this trip’s information" }));
+    await screen.findByRole("heading", { name: "Trip information accepted" });
+    expect(onCompleted).toHaveBeenCalledExactlyOnceWith({ status: "accepted", participation_id: "participation", source_submission_id: "saved-reuse-snapshot" });
+  });
   it("retains only server-authorized same-trip answers and refreshes a stale review before confirming again", async () => {
     const saved = { ...history, saved_answers: { custom_answers: { meal: "Veg" }, custom_detail_answers: {}, current_details: { staff_code: "0009" } } };
     vi.mocked(returningApi.complete).mockRejectedValueOnce({ status: 409, message: "The trip changed. Refresh the current requirements." });

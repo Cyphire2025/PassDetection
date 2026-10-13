@@ -19,10 +19,17 @@ from app.presentation.api.v1.routes.audit_logs import router as audit_logs_route
 from app.presentation.api.v1.routes.auth import router as auth_router
 from app.presentation.api.v1.routes.client_groups import router as links_router
 from app.presentation.api.v1.routes.companies import router as companies_router
+from app.presentation.api.v1.routes.company_data_exports import (
+    router as company_data_exports_router,
+)
+from app.presentation.api.v1.routes.company_document_uploads import (
+    router as company_document_uploads_router,
+)
 from app.presentation.api.v1.routes.company_match_review import (
     router as company_match_review_router,
 )
 from app.presentation.api.v1.routes.company_passports import router as company_passports_router
+from app.presentation.api.v1.routes.company_people import router as company_people_router
 from app.presentation.api.v1.routes.company_reassignments import (
     router as company_reassignments_router,
 )
@@ -83,6 +90,7 @@ from app.presentation.api.v1.routes.returning_completion import (
     router as returning_completion_router,
 )
 from app.presentation.api.v1.routes.returning_contact import router as returning_contact_router
+from app.presentation.api.v1.routes.returning_detection import router as returning_detection_router
 from app.presentation.api.v1.routes.returning_history import router as returning_history_router
 from app.presentation.api.v1.routes.returning_replacement import (
     router as returning_replacement_router,
@@ -105,6 +113,7 @@ api_v1_router = APIRouter()
 api_v1_router.include_router(returning_claims_router, prefix="/returning", tags=["Returning Travellers"])
 api_v1_router.include_router(returning_history_router, prefix="/returning", tags=["Returning Travellers"])
 api_v1_router.include_router(returning_contact_router, prefix="/returning", tags=["Returning Travellers"])
+api_v1_router.include_router(returning_detection_router, prefix="/returning", tags=["Returning Travellers"])
 api_v1_router.include_router(returning_completion_router, prefix="/returning", tags=["Returning Travellers"])
 api_v1_router.include_router(returning_replacement_router, prefix="/returning", tags=["Returning Travellers"])
 api_v1_router.include_router(returning_selection_router, prefix="/returning", tags=["Returning Travellers"])
@@ -113,6 +122,9 @@ api_v1_router.include_router(company_passports_router, prefix="/companies", tags
 api_v1_router.include_router(company_match_review_router, prefix="/companies", tags=["Company Match Review"])
 api_v1_router.include_router(company_traveller_history_router, prefix="/companies", tags=["Companies"])
 api_v1_router.include_router(company_submissions_router, prefix="/companies", tags=["Companies / Clients"])
+api_v1_router.include_router(company_people_router, prefix="/companies", tags=["Companies / Clients"])
+api_v1_router.include_router(company_data_exports_router, prefix="/companies", tags=["Companies / Clients"])
+api_v1_router.include_router(company_document_uploads_router, prefix="/companies", tags=["Company Documents"])
 api_v1_router.include_router(traveller_admin_router, prefix="/companies", tags=["Company Travellers"])
 api_v1_router.include_router(companies_router, prefix="/companies", tags=["Companies / Clients"])
 api_v1_router.include_router(company_reuse_setup_router, prefix="/companies", tags=["Companies / Clients"])

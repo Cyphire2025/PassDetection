@@ -5,6 +5,125 @@ Current live application: 10914d09fb858bf37e2c9a1c7e7c373a452c5d08.
 Schema remains 0133_traveller_document_impact; this correction ran no migrations.
 The documentation-only follow-up records evidence without changing that app revision.
 
+Current follow-up: client dashboard and automatic reuse (IN PROGRESS, NOT DEPLOYED)
+- Approved scope: this is the operator's own company platform. Companies are its
+  clients. No agency selector belongs in this workflow.
+- Group Links main Save changes now persists the selected client through the
+  authoritative revision-checked assignment endpoint. Partial success retains the
+  unsaved draft and is reported accurately; session-scoped caches are invalidated.
+- Compact company directory has View company. The dashboard has four counts and
+  Groups / Settings / All data. Groups open the existing All Groups detail page.
+  The old verbose collected-record/reuse-policy/review-task screens leave this UX;
+  their backend authorization, audit and document safety controls remain.
+- Completed means return_date strictly before today's date in the group's timezone.
+  A group stays Active through its return day, even if collection is closed or
+  archived. Missing return dates remain Active. Passenger trips counts completed
+  accepted participations; unique people count canonical accepted people. Backfill
+  state is stated rather than presenting unresolved records as known unique people.
+- User approved removing only NIPUN, TATA AIG and BLUECHIPP, with ALL their groups
+  becoming unassigned. No production removal has happened. Read-only inspection
+  found 2, 3 and 5 groups respectively across all lifecycle states, plus one
+  BLUECHIPP manager profile. Every group, source, document, broadcast, profile and
+  historical grant row is retained. Company-specific manager grants are revoked
+  and detached; passenger/coordinator access settings remain. Prior revocation
+  timestamps are preserved. Removal has limits of 500 groups / 5000 grants / 5000 active jobs
+  and uses NOWAIT locks to reject concurrent contention before changing records.
+- Approved automatic matching: exact normalized name plus two other distinct
+  imported identity field types. A supplied passport or DOB conflict vetoes a match;
+  multiple candidates remain for review. This is an operational assignment rule,
+  not permission to disclose documents to an unverified browser.
+- A qualified broadcast match creates a usable trip submission immediately, with
+  information_confirmed=false and no invented traveller review/consent. Link visits
+  are optional for assignment; opening saved files still uses the approved identity
+  verification flow. Passports expiring on or before six calendar months from the
+  trip date are excluded. Retries cannot replace a frozen existing trip snapshot.
+- All data includes private historical/current people even with saved reuse off.
+  Private registration and operational/public reuse authority are separate.
+  Staff may edit current fields and upload reviewed document versions while old
+  trip details and earlier versions remain. Merge/split remains unavailable.
+  Review matches opens a compact group picker and the existing matching queue.
+  Original historical files lacking accepted passport context remain private
+  source records; issuer is never inferred from nationality.
+- All data uses 25-person cursor pages, indexed exact-name search and lazy protected
+  image loading. Excel details and ZIP image exports have durable jobs, bounded
+  batches, output receipts before storage writes, controlled retries and expiry.
+  Larger image exports use bounded volumes. Export authority is rechecked against
+  the company revision and requester; jobs cannot bypass changed access.
+- Fresh extraction only offers a saved-history hint for an owned source. OCR fields
+  are never credited as proof. Family completion must bind the verified person to
+  that exact member/source/revision; it cannot silently complete another draft.
+- Phone behavior remains: new number verified by OTP for public changes; current
+  and future reuse use it, older trip snapshots retain old numbers; broadcast
+  contacts are independent and no phone-change alert is required.
+- Five decisions answered: removal/unassignment, return-date counts, matching,
+  immediate operational assignment with preserved historical versions, both exports.
+  ONE decision remains pending: when a company link has no broadcast, can any
+  verified saved company person reuse, or only people in a linked broadcast?
+  Do not infer an answer because the user is asleep. No-broadcast eligibility remains unchanged: existing explicit configurations
+  retain their behavior; other no-broadcast links do not gain reuse access. Linked
+  broadcasts inherit a closed matched roster from the company switch without
+  separate group setup. All document opening still requires the proof flow.
+- New schema 0134 adds export jobs/parts, bounded seek/queue indexes and a nullable
+  source_created_at projection on match cases. Its scoped backfill copies source
+  creation dates into this NEW column; every original business field is preserved.
+  Schema 0135
+  permits a null company only on inactive manager grants and adds independent
+  tenant/profile/group FKs and an agency/company manager-grant lookup index.
+  The exact Fast 0133->0135 rehearsal is being prepared: populated backup/restore,
+  every old row/catalog/ACL hash, transaction failures in BOTH revisions, checkpoint
+  resume, wrong-baseline rejection, actual manager scope constraint probes, grants,
+  idempotency and split migration ownership. No generic schema bypass is allowed.
+- Current local evidence (overlapping runs; do not sum as unique tests):
+  336 release-script tests passed with one unrelated skip; 17 direct-build tests;
+  15 migration-qualification receipt tests; 33 migration/schema rehearsal units.
+  109 frontend unit tests plus focused follow-up cases; seven Companies browser
+  cases and five returning/family/PDF browser cases passed. Production build passed.
+  Combined backend run passed 362 tests; its sole schema-fixture failure was caused
+  by a migration edit during collection. The frozen follow-up passed 81 tests.
+  Final completion/contact run passed 21; withdrawal/HTTP/copy checks passed 43.
+  The final owned backend run passed 70; combined frozen coverage append passed 49.
+  These overlap. Scoped coverage is 90.55% lines / 74.07% branches, not repository
+  coverage. All 32 new measured modules meet their reviewed 80-100% line floors.
+  Architecture: 26 reviewed boundaries. Module budgets: 119 backend / 51 frontend,
+  with every previous budget and global gate retained. Eleven backend and four
+  frontend boundary/budget guard tests passed. Final API snapshot check passed.
+  PostgreSQL rehearsal remains pending until the Fast candidate is built.
+- Actual new-path capacity receipt:
+  docs/implementation/companies-reuse-evidence/company-all-data-100000-people.json
+  SQLite 3.53.1 / Python 3.11.15, synthetic 100,000 people, one client, 100 groups,
+  one retained document version per person; four readers, 60.019 seconds, 5560
+  reads, zero errors, at most 25 people and eight SELECTs per full page.
+  p95 / p99 milliseconds: first page 76.427 / 157.414; cursor page 78.821 / 162.772;
+  exact name search 38.787 / 125.724. Fixed budgets were p95 <=250, p99 <=500 ms.
+  Peak process working set 174,141,440 bytes. Indexed plans are in the receipt.
+  The 100,000-person Excel worker completed 402 ticks in 51.825 seconds including
+  validation/readback, with 6,849,644-byte workbook and 89,986,906-byte peak temporary
+  XML. Lost provider acknowledgement and deterministic retry were verified.
+  Limits: helper-level SQLite test, no HTTP/network/storage service latency, no
+  PostgreSQL sustained load, only one client/one version, no large ZIP benchmark.
+  Excel has an explicit 100,000-person job limit. These results are not evidence
+  of million-user or production throughput capacity.
+- Incremental source work registers only that exact source revision. Repeated
+  changes coalesce a company roster fanout and bounded group jobs; they do not
+  each rescan company history. Full chains are initial/policy work only.
+  Workers have advisory concurrency two, up to 40 pages per 50-second burst,
+  transaction deadlines and controlled retries. These are bounds, not throughput
+  promises. Strong matches with unsuitable passports receive pending membership
+  for replacement verification, never an accepted submission or stale passport.
+- Root extraction of shared missing-document requirements preserves one rule path.
+  Strict retained-authority SQL/object parity rejects malformed evidence without
+  casting untrusted JSON directly. Current-identity changes invalidate completed
+  exports as well as pending work; private historical receipts remain retained.
+  Staff image reads and ZIP exports use the same retained-authority or lawful-trip
+  predicate as snapshot access. Withdrawal denies unreferenced files immediately;
+  a real retained trip reference remains available unless purge is required.
+  Interactive pending-index status can scan retained completed reconciliation jobs.
+  A separate single-reader SQLite check with 100,000 completed jobs measured
+  8.98 ms mean across 20 reads; query-only alternatives were slower and not adopted.
+  This does not establish PostgreSQL plans or concurrent HTTP capacity for long job histories.
+- No commit, push, release or production mutation belongs to this follow-up yet.
+  The live evidence and capacity results below describe the previous release only.
+
 Live correction verification
 - The retained Fast release completed on the exact main application revision above.
   Backend/frontend builds and frontend runtime preparation exited zero without OOM.

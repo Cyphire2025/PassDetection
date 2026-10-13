@@ -1,8 +1,8 @@
 {
   "version": 1,
   "deployment_kind": "companies_traveller_reuse_v1",
-  "schema_revision": "0133_traveller_document_impact",
-  "previous_schema_revision": "0129_travel_tracker",
+  "schema_revision": "0135_company_removal_history",
+  "previous_schema_revision": "0133_traveller_document_impact",
   "worker_nodes": {
     "worker": "general",
     "email-worker": "email",

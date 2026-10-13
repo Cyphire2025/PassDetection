@@ -9,27 +9,26 @@ from pathlib import Path
 from typing import Any
 
 KIND = "companies_traveller_reuse_v1"
-SOURCE = "0129_travel_tracker"
+SOURCE = "0133_traveller_document_impact"
 CHAIN = (
-    "0130_company_directory",
-    "0131_traveller_reuse",
-    "0132_traveller_source_seek",
-    "0133_traveller_document_impact",
+    "0134_company_data_exports",
+    "0135_company_removal_history",
 )
 TARGET = CHAIN[-1]
 POLICY = {
-    "version": 1,
+    "version": 2,
     "kind": KIND,
     "source_schema": SOURCE,
     "target_schema": TARGET,
     "resume_schema_revisions": list(CHAIN[:-1]),
-    "migration_transactions": "one_revision_per_invocation_concurrent_index_autocommit",
+    "migration_transactions": "one_transaction_per_revision_with_writer_fence",
     "control_enabled": "preserve_existing_state",
     "existing_grants": "retain_without_expansion",
     "historical_rows": "preserve_all_existing_columns",
     "preservation_baseline": "original_source_sha256_required_across_resume",
-    "company_backfill": "exact_existing_gc_id_and_tenant_only",
-    "reuse_authority": "disabled_without_explicit_policy_and_evidence",
+    "company_backfill": "none_preserve_existing_assignments",
+    "reuse_authority": "preserve_existing_policy_and_evidence",
+    "manager_history": "nullable_company_only_for_revoked_assignments_with_independent_scope_fks",
     "new_tables": "empty_before_activation",
     "new_table_runtime_grants": "require_existing_passport_dml_grantees",
     "recovery": "forward_repair_with_original_backup_and_writer_fence",

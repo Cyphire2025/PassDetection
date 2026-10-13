@@ -12,20 +12,28 @@ import hmac
 import json
 import uuid
 from dataclasses import asdict, dataclass, replace
-from datetime import UTC, date, datetime
+from datetime import UTC, datetime
 from typing import Literal
 
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.travellers.reconciliation import TRUSTED_FIELD_STATUSES
+from app.application.travellers.accepted_source import MRZ_ACCEPTANCE_RULE, accept_source
+from app.application.travellers.retained_authority import OPERATOR_REGISTRATION_VERSION
 from app.application.travellers.source_evidence import source_evidence_digest
+from app.application.travellers.versioning import (
+    EnrollmentError as EnrollmentError,
+)
+from app.application.travellers.versioning import (
+    accepted_dates as _accepted_dates,
+)
+from app.application.travellers.versioning import (
+    promote_default as _promote_default,
+)
 from app.domain.services.traveller_verification import (
     exact_passport_number,
     issuing_context,
-    parse_answer,
 )
-from app.domain.value_objects.passport_fields import normalize_passport_date
 from app.domain.value_objects.phone_number import normalize_phone_number
 from app.infrastructure.database.gc_mobile_models import ClientOrganizationModel
 from app.infrastructure.database.models import ClientGroupModel, PassportSubmissionModel
@@ -43,10 +51,6 @@ from app.infrastructure.database.traveller_reuse_models import (
     TravellerReusePolicyModel,
 )
 from app.infrastructure.security.traveller_reuse_crypto import TravellerReuseCrypto
-
-
-class EnrollmentError(ValueError):
-    """Safe reason code; callers must not include source field values."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -67,6 +71,7 @@ class EnrollmentRequest:
     reviewed_document_type: str | None = None
     reviewed_context_confirmed: bool = False
     candidate_association_confirmed: bool = False
+    authority_kind: Literal["documented_permission", "operator_registration"] = "documented_permission"
 
 
 @dataclass(frozen=True, slots=True)
@@ -122,7 +127,7 @@ async def enroll_submission(
         PassportSubmissionModel.agency_id == request.agency_id,
         PassportSubmissionModel.group_id == request.group_id,
     ).with_for_update())
-    if source is None or source.status not in TRUSTED_FIELD_STATUSES or source.extraction_revision != request.expected_extraction_revision:
+    if source is None or source.extraction_revision != request.expected_extraction_revision:
         raise EnrollmentError("accepted_source_revision_required")
     request = await _resolve_reviewed_candidate(session, request, source, crypto)
     fields = dict(source.confirmed_fields or {})
@@ -140,6 +145,8 @@ async def enroll_submission(
         reviewed_context = {"issuing_country": reviewed_issuer, "document_type": reviewed_kind,
             "actor_user_id": str(request.actor_id), "confirmed_at": current_time.isoformat()}
         fields.update(issuing_country=reviewed_issuer, document_type=reviewed_kind)
+    accepted = accept_source(source, fields, operator=request.authority_kind == "operator_registration")
+    fields = accepted.fields
     try:
         number = exact_passport_number(fields.get("passport_number", ""))
         issuer, kind = issuing_context(fields.get("issuing_country", ""), fields.get("document_type", ""))
@@ -197,8 +204,12 @@ async def enroll_submission(
         source_provenance={"submission_id": str(source.id), "group_id": str(source.group_id),
             "extraction_revision": source.extraction_revision, "change_kind": request.change_kind,
             "accepted_by_user_id": str(request.actor_id), "reviewed_issuing_context": reviewed_context,
-            "request_digest": request_digest},
-        reliable_fields={key: {"accepted": True, "source": "staff_review"} for key in dates},
+            "request_digest": request_digest,
+            "acceptance_rule": MRZ_ACCEPTANCE_RULE if accepted.reliable_source == "verified_import" else "staff_review",
+            "issuing_context_source": "validated_saved_mrz" if accepted.mrz_context else "reviewed_fields",
+            "authority_kind": request.authority_kind},
+        reliable_fields={key: {"accepted": True, "source": accepted.reliable_source} for key in dates
+                         if accepted.reliable_source == "staff_review" or key in {"date_of_birth", "expiry_date"}},
         date_of_birth=dates.get("date_of_birth"), issue_date=dates.get("issue_date"), expiry_date=dates.get("expiry_date"),
         accepted_by_user_id=request.actor_id, accepted_at=current_time, idempotency_key=request.idempotency_key)
     session.add(revision)
@@ -217,7 +228,8 @@ async def enroll_submission(
     session.add(TravellerChangeEventModel(agency_id=request.agency_id, company_id=request.company_id,
         traveller_id=person.id, event_type="document_promoted", aggregate_id=passport.id,
         aggregate_revision=passport.revision, idempotency_key=f"enrollment:{revision.id}",
-        reason_code=f"staff_accepted_{request.change_kind}"))
+        reason_code=f"operator_registered_{request.change_kind}" if request.authority_kind == "operator_registration"
+                    else f"staff_accepted_{request.change_kind}"))
     await session.flush()
     return EnrollmentResult(person.id, passport.id, revision.id, pending)
 
@@ -249,18 +261,6 @@ async def _resolve_reviewed_candidate(
     return replace(request, traveller_id=case.traveller_id, expected_profile_revision=expected, change_kind=kind)
 
 
-def _accepted_dates(fields: dict[str, str]) -> dict[str, date]:
-    values: dict[str, date] = {}
-    for key, source_key in (("date_of_birth", "date_of_birth"), ("issue_date", "date_of_issue"), ("expiry_date", "date_of_expiry")):
-        raw = fields.get(source_key) or fields.get(key)
-        if raw:
-            try:
-                values[key] = parse_answer(normalize_passport_date(raw, field=source_key))
-            except ValueError as exc:
-                raise EnrollmentError("invalid_accepted_date") from exc
-    if values.get("issue_date") and values.get("expiry_date") and values["expiry_date"] < values["issue_date"]:
-        raise EnrollmentError("invalid_accepted_date")
-    return values
 
 
 async def _person(
@@ -284,10 +284,13 @@ async def _person(
     person = TravellerProfileModel(agency_id=request.agency_id, company_id=request.company_id,
         status="active", display_name_ciphertext=crypto.encrypt(source.client_name),
         name_fingerprint=crypto.scoped_digest("name", request.agency_id, request.company_id, source.client_name.strip().casefold()),
-        fingerprint_key_version=crypto.key_version, reuse_permission_status="granted",
+        fingerprint_key_version=crypto.key_version,
+        reuse_permission_status="unknown" if request.authority_kind == "operator_registration" else "granted",
         reuse_permission_evidence={"reference": request.permission_evidence_reference,
             "purpose_version": policy.purpose_version, "notice_version": policy.notice_version,
-            "processing_basis": policy.processing_basis, "actor_user_id": str(request.actor_id)})
+            "processing_basis": policy.processing_basis, "actor_user_id": str(request.actor_id),
+            "authority_kind": OPERATOR_REGISTRATION_VERSION if request.authority_kind == "operator_registration" else "documented_permission",
+            "policy_revision": policy.revision})
     session.add(person)
     await session.flush()
     if source.client_phone:
@@ -302,27 +305,6 @@ async def _person(
     return person
 
 
-async def _promote_default(
-    session: AsyncSession, person: TravellerProfileModel, passport: TravellerPassportModel,
-    revision: TravellerDocumentRevisionModel,
-) -> None:
-    current = await session.scalar(select(TravellerPassportModel).where(
-        TravellerPassportModel.traveller_id == person.id, TravellerPassportModel.is_default.is_(True),
-    ).with_for_update())
-    choose = current is None or current.id == passport.id
-    if current is not None and current.id != passport.id:
-        current_revision = await session.scalar(select(TravellerDocumentRevisionModel).where(
-            TravellerDocumentRevisionModel.passport_id == current.id,
-            TravellerDocumentRevisionModel.status == "accepted",
-        ).order_by(TravellerDocumentRevisionModel.revision_number.desc()).limit(1))
-        choose = (revision.issue_date is not None and current_revision is not None
-                  and current_revision.issue_date is not None and revision.issue_date > current_revision.issue_date)
-    if choose and current is not None and current.id != passport.id:
-        current.is_default = False
-        await session.flush()
-    passport.status = "accepted"
-    passport.is_default = choose
-    passport.revision += 1
 
 
 def _stage_assets(

@@ -9,6 +9,18 @@ const frontendRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 // a bug fix without normalizing continued growth; a cohesive extraction should
 // lower the baseline and ceiling in the same review.
 export const frontendModuleBudgets = Object.freeze([
+  // Company metadata/private-record and member-bound reuse boundaries reviewed 2026-10-14.
+  Object.freeze({ path: "features/companies/components/company-all-data.tsx", baselineLines: 43, maximumLines: 50, baselineMaxFunctionComplexity: 28, maximumFunctionComplexity: 28 }),
+  Object.freeze({ path: "features/companies/components/company-person-dialog.tsx", baselineLines: 56, maximumLines: 60, baselineMaxFunctionComplexity: 26, maximumFunctionComplexity: 26 }),
+  Object.freeze({ path: "features/companies/components/company-person-editor.tsx", baselineLines: 49, maximumLines: 50, baselineMaxFunctionComplexity: 10, maximumFunctionComplexity: 10 }),
+  Object.freeze({ path: "features/companies/components/company-document-upload.tsx", baselineLines: 64, maximumLines: 70, baselineMaxFunctionComplexity: 13, maximumFunctionComplexity: 13 }),
+  Object.freeze({ path: "features/companies/components/company-document-preview.tsx", baselineLines: 38, maximumLines: 40, baselineMaxFunctionComplexity: 11, maximumFunctionComplexity: 11 }),
+  Object.freeze({ path: "features/companies/components/company-data-exports.tsx", baselineLines: 50, maximumLines: 50, baselineMaxFunctionComplexity: 16, maximumFunctionComplexity: 16 }),
+  Object.freeze({ path: "features/companies/components/company-settings.tsx", baselineLines: 50, maximumLines: 50, baselineMaxFunctionComplexity: 15, maximumFunctionComplexity: 15 }),
+  Object.freeze({ path: "features/companies/components/company-match-queue.tsx", baselineLines: 32, maximumLines: 40, baselineMaxFunctionComplexity: 13, maximumFunctionComplexity: 13 }),
+  Object.freeze({ path: "features/companies/hooks/use-company-session.ts", baselineLines: 14, maximumLines: 20, baselineMaxFunctionComplexity: 2, maximumFunctionComplexity: 2 }),
+  Object.freeze({ path: "features/companies/hooks/use-companies.ts", baselineLines: 75, maximumLines: 80, baselineMaxFunctionComplexity: 3, maximumFunctionComplexity: 3 }),
+  Object.freeze({ path: "features/upload/hooks/use-returning-family.tsx", baselineLines: 48, maximumLines: 50, baselineMaxFunctionComplexity: 8, maximumFunctionComplexity: 8 }),
   Object.freeze({ path: "components/ui/modal-focus-return.tsx", baselineLines: 32, maximumLines: 40, baselineMaxFunctionComplexity: 4, maximumFunctionComplexity: 6 }),
   Object.freeze({ path: "features/passports/components/group-whatsapp-dialogs.tsx", baselineLines: 421, maximumLines: 440, baselineMaxFunctionComplexity: 14, maximumFunctionComplexity: 16 }),
   Object.freeze({ path: "features/passports/components/group-whatsapp-tracking-table.tsx", baselineLines: 417, maximumLines: 440, baselineMaxFunctionComplexity: 37, maximumFunctionComplexity: 39 }),

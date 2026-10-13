@@ -22,7 +22,8 @@ from app.application.travellers.asset_policy import (
     PRIVATE_DOCUMENT_SUFFIXES,
     PRIVATE_DOCUMENT_TYPES,
 )
-from app.application.travellers.reconciliation import TRUSTED_FIELD_STATUSES
+from app.application.travellers.accepted_source import retained_source_is_current
+from app.application.travellers.retained_authority import has_retained_authority
 from app.core.config.settings import get_settings
 from app.domain.services.traveller_verification import utc
 from app.infrastructure.database.models import ClientGroupModel, PassportSubmissionModel
@@ -37,6 +38,7 @@ from app.infrastructure.storage.minio_repository import (
     MinioStorageRepository,
     ObjectIntegrityMetadata,
 )
+from app.infrastructure.travellers.staff_record_asset_copy import has_staff_copy_authority
 
 MAX_COPY_ATTEMPTS = 5
 COPY_LEASE_SECONDS = 90
@@ -64,7 +66,7 @@ async def _has_copy_authority(session: AsyncSession, asset: TravellerDocumentAss
         .join(ClientGroupModel, ClientGroupModel.id == PassportSubmissionModel.group_id)
         .where(TravellerDocumentRevisionModel.id == asset.document_revision_id))).first()
     if row is None:
-        return False
+        return await has_staff_copy_authority(session, asset, now)
     person, revision, source, group = row
     scope = (asset.agency_id, asset.company_id, asset.traveller_id)
     return bool(
@@ -73,10 +75,9 @@ async def _has_copy_authority(session: AsyncSession, asset: TravellerDocumentAss
         and revision.passport_id == asset.passport_id and revision.status == "accepted"
         and source.agency_id == asset.agency_id and source.group_id == revision.source_group_id
         and group.agency_id == asset.agency_id and group.deleted_at is None and group.status != "deleted"
-        and source.status in TRUSTED_FIELD_STATUSES
+        and retained_source_is_current(revision, source)
         and source.extraction_revision == asset.source_extraction_revision
-        and person.status == "active" and person.reuse_permission_status == "granted"
-        and person.reuse_permission_evidence and person.deleted_at is None
+        and has_retained_authority(person)
         and (person.retention_until is None or utc(person.retention_until) > now)
         and asset.retention_basis and asset.purged_at is None
         and (asset.retention_until is None or utc(asset.retention_until) > now)

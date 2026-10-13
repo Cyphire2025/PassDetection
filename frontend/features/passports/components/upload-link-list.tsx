@@ -15,7 +15,6 @@ import {
   RotateCcw,
   Trash2,
   UploadCloud,
-  X,
   XCircle,
 } from "lucide-react";
 import { useDeferredValue, useMemo, useRef, useState } from "react";
@@ -29,15 +28,13 @@ import {
   WorkspaceToolbar,
 } from "@/components/shared/workspace-ui";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { GroupCompanyAssignment } from "@/features/companies/components/group-company-assignment";
+import { EditGroupDialog } from "./edit-group-dialog";
 import { ConfirmDialog } from "@/components/ui";
 import { useModalKeyboardBoundary } from "@/components/ui/modal";
 import { copyTextToClipboard } from "@/lib/utils/clipboard";
 import { getPassportUploadTargets } from "@/lib/utils/public-url";
 import { canArchiveGroup, canPermanentlyDeleteGroup } from "@/lib/utils/role-access";
 import { selectUserRole, useAuthStore } from "@/stores/auth.store";
-import { getImportOnlySettings } from "../schemas/upload-link.schema";
 import type {
   UploadLinkResponse,
 } from "../api/upload-links.api";
@@ -46,15 +43,8 @@ import {
   usePermanentlyDeleteUploadLink,
   useRestoreUploadLink,
   useRevokeUploadLink,
-  useUpdateUploadLink,
   useUploadLinks,
 } from "../hooks/use-upload-links";
-import {
-  getUploadLinkSettings,
-  getUploadLinkSettingsError,
-  UploadLinkSettings,
-  type UploadLinkSettingsValue,
-} from "./upload-link-settings";
 
 const loadCreateUploadLinkModal = () =>
   import("./create-upload-link-modal");
@@ -83,8 +73,6 @@ export function UploadLinkList() {
   } | null>(null);
   const [renameTarget, setRenameTarget] = useState<UploadLinkResponse | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<UploadLinkResponse | null>(null);
-  const [renameValue, setRenameValue] = useState("");
-  const [editSettings, setEditSettings] = useState(() => getUploadLinkSettings({}));
   const {
     data: activeLinks = [],
     isLoading: isLoadingActive,
@@ -98,7 +86,6 @@ export function UploadLinkList() {
   const { mutate: closeLink, isPending: isClosing } = useRevokeUploadLink();
   const { mutate: archiveLink, isPending: isArchiving } = useDeleteUploadLink();
   const { mutate: restoreLink, isPending: isRestoring } = useRestoreUploadLink();
-  const { mutate: renameLink, isPending: isRenaming } = useUpdateUploadLink();
   const {
     mutate: permanentlyDeleteLink,
     isPending: isPermanentlyDeleting,
@@ -120,8 +107,6 @@ export function UploadLinkList() {
 
   const openGroupEditor = (link: UploadLinkResponse) => {
     setRenameTarget(link);
-    setRenameValue(link.name);
-    setEditSettings(link.import_only ? getImportOnlySettings() : getUploadLinkSettings(link));
   };
 
   const copyUploadLink = async (linkId: string, targetKey: string, url: string) => {
@@ -288,7 +273,7 @@ export function UploadLinkList() {
               });
             } : undefined}
             onRename={openGroupEditor}
-            isMutating={isClosing || isArchiving || isRestoring || isRenaming}
+            isMutating={isClosing || isArchiving || isRestoring}
             compact
           />
         )}
@@ -355,7 +340,7 @@ export function UploadLinkList() {
                 setDeleteTarget(archivedLinks.find((link) => link.id === id) ?? null);
               }}
               canPermanentlyDelete={canPermanentlyDelete}
-              isMutating={isRestoring || isRenaming || isPermanentlyDeleting}
+              isMutating={isRestoring || isPermanentlyDeleting}
               compact
             />
           )}
@@ -372,41 +357,7 @@ export function UploadLinkList() {
         onClose={() => setConfirmAction(null)}
         onConfirm={() => confirmAction?.onConfirm()}
       />
-      <EditGroupDialog
-        group={renameTarget}
-        name={renameValue}
-        settings={editSettings}
-        isLoading={isRenaming}
-        onNameChange={setRenameValue}
-        onSettingsChange={(patch) => setEditSettings((current) => ({ ...current, ...patch }))}
-        onClose={() => setRenameTarget(null)}
-        onConfirm={() => {
-          if (!renameTarget) return;
-          const nextName = renameValue.trim();
-          if (!renameTarget.import_only && getUploadLinkSettingsError(editSettings)) return;
-          const hasChanges = nextName !== renameTarget.name
-            || JSON.stringify(editSettings) !== JSON.stringify(getUploadLinkSettings(renameTarget));
-          if (!nextName || !hasChanges) {
-            setRenameTarget(null);
-            return;
-          }
-          renameLink(
-            {
-              id: renameTarget.id,
-              name: nextName,
-              destination: renameTarget.destination,
-              travel_date: renameTarget.travel_date,
-              return_date: renameTarget.return_date,
-              package_name: renameTarget.package_name,
-              timezone: renameTarget.timezone,
-              ...(renameTarget.import_only ? getImportOnlySettings() : editSettings),
-              departure_cities: editSettings.nearest_international_airport_enabled ? editSettings.departure_cities : [],
-              notes: renameTarget.notes,
-            },
-            { onSuccess: () => setRenameTarget(null) },
-          );
-        }}
-      />
+      {renameTarget && <EditGroupDialog key={renameTarget.id} group={renameTarget} onClose={() => setRenameTarget(null)} />}
       <GroupDeleteRetentionDialog
         group={deleteTarget}
         isLoading={isPermanentlyDeleting}
@@ -429,100 +380,6 @@ export function UploadLinkList() {
           );
         }}
       />
-    </div>
-  );
-}
-
-function EditGroupDialog({
-  group,
-  name,
-  settings,
-  isLoading,
-  onNameChange,
-  onSettingsChange,
-  onConfirm,
-  onClose,
-}: {
-  group: UploadLinkResponse | null;
-  name: string;
-  settings: UploadLinkSettingsValue;
-  isLoading: boolean;
-  onNameChange: (value: string) => void;
-  onSettingsChange: (patch: Partial<UploadLinkSettingsValue>) => void;
-  onConfirm: () => void;
-  onClose: () => void;
-}) {
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const handleDialogKeyDown = useModalKeyboardBoundary({
-    dialogRef,
-    isOpen: Boolean(group),
-    canClose: !isLoading,
-    onClose,
-  });
-  if (!group) return null;
-  const settingsError = group.import_only ? undefined : getUploadLinkSettingsError(settings);
-
-  return (
-    <div
-      ref={dialogRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="edit-passport-group-title"
-      onKeyDown={handleDialogKeyDown}
-    >
-      <form
-        className="max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-xl bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200"
-        onSubmit={(event) => {
-          event.preventDefault();
-          if (!isLoading && !settingsError && name.trim()) onConfirm();
-        }}
-      >
-        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-4">
-          <div>
-            <h2 id="edit-passport-group-title" className="text-lg font-semibold text-slate-900">
-              Edit Group
-            </h2>
-            <p className="mt-1 text-sm leading-6 text-slate-600">
-              {group.import_only ? "Update the name of your Excel import group. Trip details can be edited in the group workspace." : "Update the group name and traveller passport-capture requirements."}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isLoading}
-            className="rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-60"
-            aria-label="Close edit group dialog"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-        <div className="max-h-[calc(90vh-9rem)] space-y-4 overflow-y-auto px-6 py-5">
-          <Input
-            label="Group name"
-            value={name}
-            maxLength={100}
-            required
-            data-dialog-initial-focus
-            disabled={isLoading}
-            onChange={(event) => onNameChange(event.target.value)}
-          />
-          <GroupCompanyAssignment key={group.id} group={group} disabled={isLoading} />
-          {!group.import_only && <UploadLinkSettings value={settings} onChange={onSettingsChange} disabled={isLoading} error={settingsError} />}
-        </div>
-        <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
-          <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            isLoading={isLoading}
-            disabled={!name.trim() || Boolean(settingsError) || isLoading}
-          >
-            Save changes
-          </Button>
-        </div>
-      </form>
     </div>
   );
 }

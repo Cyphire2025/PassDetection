@@ -21,7 +21,7 @@ from release_retained_update import require
 
 CHECKS = frozenset({
     'populated_backup_restored', 'historical_rows_catalog_acl_preserved',
-    'runtime_grants_verified', 'interrupted_resume_verified', 'invalid_index_repaired',
+    'runtime_grants_verified', 'interrupted_resume_verified', 'manager_constraints_verified',
     'wrong_baseline_rejected', 'idempotent_target_verified',
     'contact_concurrency_verified',
 })
@@ -107,7 +107,8 @@ def read_rehearsal(path: Path, expected: dict[str, Any]) -> dict[str, Any]:
             and receipt.get('source_schema') == SOURCE and receipt.get('target_schema') == TARGET
             and receipt.get('full_ci_qualified') is False and receipt.get('owned_resources_removed') is True
             and type(receipt.get('fixture_person_count')) is int and receipt['fixture_person_count'] == 700
-            and receipt.get('company_backfill_rollback_verified') is True
+            and receipt.get('export_ddl_rollback_verified') is True
+            and receipt.get('manager_ddl_rollback_verified') is True
             and receipt.get('split_migration_role_verified') is True
             and type(receipt.get('contact_concurrency_tests')) is int and receipt['contact_concurrency_tests'] == 2,
             'fast_rehearsal_receipt_binding_changed')

@@ -76,7 +76,7 @@ def assess_document(
         return SuitabilityResult(SuitabilityOutcome.REPLACEMENT_REQUIRED, ("scan_unavailable",), ())
     if document.expiry_date is None or travel_date is None:
         return SuitabilityResult(SuitabilityOutcome.CANNOT_ASSESS, ("dates_missing",), ())
-    if document.expiry_date < max(today, add_calendar_months(travel_date, 6)):
+    if document.expiry_date <= max(today, add_calendar_months(travel_date, 6)):
         return SuitabilityResult(
             SuitabilityOutcome.REPLACEMENT_REQUIRED, ("operational_six_month_rule",), (),
         )

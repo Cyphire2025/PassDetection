@@ -1,7 +1,7 @@
-"""Explicit company purpose and per-group eligibility configuration.
+"""Versioned operator settings, distinct from personal identity verification.
 
-No legacy submission receives permission by enabling these settings. Each
-profile still requires its own documented permission before historical reuse.
+Enabling schedules historical registration and strong roster matching without
+inventing traveller consent. Public document disclosure still requires proof.
 Company and group generations advance on configuration changes, so disabling
 then re-enabling a setting never revives a previously issued proof.
 """
@@ -25,12 +25,29 @@ from app.infrastructure.database.traveller_reuse_models import (
 )
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 
+REUSE_PURPOSE_VERSION = "company_traveller_reuse_v1"
+REUSE_NOTICE_VERSION = "company_traveller_reuse_notice_v1"
+REUSE_SETTING_BASIS = "operator_enabled_identity_confirmation_required"
+REUSE_NOTICE_TEXT = (
+    "Saved records are organized for this company. Strong matches from linked passenger lists can "
+    "use suitable saved documents for the trip automatically. Travellers verify their identity "
+    "before viewing saved documents and can confirm details or upload updated documents."
+)
+
 
 async def save_reuse_policy(
     session: AsyncSession, *, user: User, company_id: uuid.UUID, agency_id: uuid.UUID | None,
-    expected_revision: int, enabled: bool, purpose_version: str | None,
-    notice_version: str | None, processing_basis: str | None,
+    expected_revision: int, enabled: bool, purpose_version: str | None = None,
+    notice_version: str | None = None, processing_basis: str | None = None,
 ) -> TravellerReusePolicyModel:
+    company = await require_company(session, user=user, company_id=company_id, agency_id=agency_id)
+    first_group = None
+    if enabled:
+        # Group -> company is shared with assignment and source registration.
+        first_group = await session.scalar(select(ClientGroupModel).where(
+            ClientGroupModel.agency_id == company.agency_id, ClientGroupModel.company_id == company.id,
+            ClientGroupModel.deleted_at.is_(None), ClientGroupModel.status.in_(("active", "closed", "archived")))
+            .order_by(ClientGroupModel.id).limit(1).with_for_update())
     company = await require_company(session, user=user, company_id=company_id, agency_id=agency_id, lock=True)
     policy = await session.get(TravellerReusePolicyModel, company.id, populate_existing=True)
     current_revision = policy.revision if policy is not None else 0
@@ -38,8 +55,6 @@ async def save_reuse_policy(
         raise ConflictError("Reuse settings changed; refresh and review again")
     if enabled and company.status != "active":
         raise ConflictError("Reactivate the company before enabling historical reuse")
-    if enabled and not all(value and value.strip() for value in (purpose_version, notice_version, processing_basis)):
-        raise ValidationError("Enabling reuse requires the documented purpose, notice and processing basis")
     if policy is None:
         policy = TravellerReusePolicyModel(company_id=company.id, agency_id=company.agency_id, revision=0)
         session.add(policy)
@@ -48,9 +63,12 @@ async def save_reuse_policy(
     # deletion and storage-authority revocation remain separate controls.
     policy.retention_mode = "until_withdrawn"
     policy.retention_days = None
-    policy.purpose_version = purpose_version.strip() if purpose_version else None
-    policy.notice_version = notice_version.strip() if notice_version else None
-    policy.processing_basis = processing_basis.strip() if processing_basis else None
+    # Legacy request fields remain accepted for API compatibility. The company
+    # switch records the built-in notice, never an invented legal conclusion or
+    # a traveller's permission. Individual disclosure still requires proof.
+    policy.purpose_version = REUSE_PURPOSE_VERSION
+    policy.notice_version = REUSE_NOTICE_VERSION
+    policy.processing_basis = REUSE_SETTING_BASIS
     policy.configured_at = datetime.now(UTC)
     policy.configured_by_user_id = user.id
     policy.revision = current_revision + 1
@@ -58,6 +76,9 @@ async def save_reuse_policy(
     company.updated_at = policy.configured_at
     company.updated_by_user_id = user.id
     await session.flush()
+    if enabled and first_group is not None:
+        from app.application.travellers.company_history_jobs import enqueue_company_history
+        await enqueue_company_history(session, group=first_group, policy=policy, trigger=f"policy:{policy.revision}")
     await AuditLogRepository(session).record(
         action="company.reuse_policy_configured", entity_type="client_organization", entity_id=str(company.id),
         agency_id=company.agency_id, user_id=user.id, actor_email=user.email,

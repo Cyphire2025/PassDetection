@@ -256,6 +256,12 @@ export interface UploadLinkResponse {
 }
 
 export const uploadLinksApi = {
+  assignCompany: async (group: UploadLinkResponse, companyId: string): Promise<UploadLinkResponse> => {
+    const response = await apiClient.patch<UploadLinkResponse>(API_ENDPOINTS.companies.assignment(group.id), {
+      company_id: companyId, expected_revision: group.company_revision ?? 0,
+    }, { params: { agency_id: group.agency_id } });
+    return response.data;
+  },
   create: async (data: CreateUploadLinkRequest): Promise<UploadLinkResponse> => {
     const response = await apiClient.post<UploadLinkResponse>(API_ENDPOINTS.uploadLinks.root, data);
     return response.data;

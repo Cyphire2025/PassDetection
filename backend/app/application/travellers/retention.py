@@ -6,10 +6,11 @@ import uuid
 from collections.abc import Sequence
 from datetime import UTC, datetime
 
-from sqlalchemy import or_, select, update
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.travellers.snapshot_access import live_trip_asset_reference
+from app.application.companies.data_exports import invalidate_company_exports
+from app.application.travellers.snapshot_access import retained_asset_authority
 from app.domain.exceptions.exceptions import ValidationError
 from app.infrastructure.database.traveller_reuse_models import (
     TravellerChangeEventModel,
@@ -38,9 +39,7 @@ independent operational authority until they are deleted; hard erase does not.
     ).where(TravellerDocumentAssetModel.object_key.in_(keys),
         TravellerDocumentAssetModel.availability.in_(("pending", "available", "unreadable")),
         TravellerDocumentAssetModel.retention_basis.is_not(None),
-        or_(TravellerProfileModel.reuse_permission_status == "granted", live_trip_asset_reference()),
-        TravellerProfileModel.deleted_at.is_(None),
-        TravellerProfileModel.status != "deleted",
+        retained_asset_authority(),
     )
     if agency_id is not None:
         query = query.where(TravellerDocumentAssetModel.agency_id == agency_id)
@@ -85,6 +84,7 @@ async def revoke_retained_profile(
     if person is None or person.revision != expected_revision:
         return False
     person.reuse_permission_status = "withdrawn"
+    await invalidate_company_exports(session, agency_id, company_id)
     person.authorization_version += 1
     person.revision += 1
     person.retention_until = datetime.now(UTC)

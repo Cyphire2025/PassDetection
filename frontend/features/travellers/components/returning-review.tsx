@@ -7,7 +7,7 @@ import { CustomDetailFields, CustomQuestionFields } from "@/features/upload/comp
 import { formatPassportCountry } from "@/lib/utils/passport-country";
 import { toLabel } from "@/features/upload/services/upload-flow-helpers";
 import { returningApi } from "../api/returning.api";
-import type { CompletionResult, ReplacementRequest, ReturningDocument, ReturningHistory } from "../types";
+import type { CompletionResult, ReplacementRequest, ReturningDocument, ReturningHistory, ReturningOwnedSource } from "../types";
 import { ReturningDocumentPreview } from "./returning-document-preview";
 import { ReturningContactDialog } from "./returning-contact-dialog";
 import { ReturningCurrentDetails } from "./returning-current-details";
@@ -20,7 +20,7 @@ const SUITABILITY_TEXT: Record<ReturningHistory["suitability"]["outcome"], strin
   cannot_assess: "Document suitability still needs assessment",
 };
 
-export function ReturningReview({ history: initialHistory, groupName, onFresh, onReplace }: { history: ReturningHistory; groupName: string; onFresh: () => void; onReplace: (request: ReplacementRequest) => void }) {
+export function ReturningReview({ history: initialHistory, groupName, onFresh, onReplace, ownedSource, onCompleted }: { history: ReturningHistory; groupName: string; onFresh: () => void; onReplace: (request: ReplacementRequest) => void; ownedSource?: ReturningOwnedSource; onCompleted?: (result: CompletionResult) => void }) {
   const [history, setHistory] = useState(initialHistory);
   const [answers, setAnswers] = useState<Record<string, string>>(() => initialHistory.saved_answers?.custom_answers ?? {});
   const [details, setDetails] = useState<Record<string, string>>(() => initialHistory.saved_answers?.custom_detail_answers ?? {});
@@ -83,8 +83,12 @@ export function ReturningReview({ history: initialHistory, groupName, onFresh, o
       if (operation.current || stale || needsFresh || needsContact || !confirmed || !allDocumentsViewed) return;
       const controller = new AbortController(); operation.current = controller; setPending(true); setError(undefined);
       try {
-        const saved = await returningApi.complete({ question_version: history.question_version, review_version: history.review_version, ...(history.participation_revision !== null ? { expected_participation_revision: history.participation_revision } : {}), custom_answers: answers, custom_detail_answers: details, current_details: currentDetails, information_confirmed: true, idempotency_key: idempotencyKey }, controller.signal);
-        if (!controller.signal.aborted) setResult(saved);
+        const body = { question_version: history.question_version, review_version: history.review_version, ...(history.participation_revision !== null ? { expected_participation_revision: history.participation_revision } : {}), custom_answers: answers, custom_detail_answers: details, current_details: currentDetails, information_confirmed: true as const, idempotency_key: idempotencyKey, ...(ownedSource ? { owned_source: { source_submission_id: ownedSource.source_submission_id, expected_extraction_revision: ownedSource.expected_extraction_revision } } : {}) };
+        const saved = ownedSource ? await returningApi.complete(body, controller.signal, ownedSource.uploadSessionId) : await returningApi.complete(body, controller.signal);
+        if (!controller.signal.aborted) {
+          if (ownedSource && !saved.source_submission_id) throw new Error("The saved trip could not be linked to this upload. Keep this page open and retry.");
+          onCompleted?.(saved); setResult(saved);
+        }
       } catch (cause) { if (!controller.signal.aborted && typeof cause === "object" && cause !== null && "status" in cause && cause.status === 409) { setStale(true); setConfirmed(false); } if (!controller.signal.aborted) setError(typeof cause === "object" && cause !== null && "message" in cause && typeof cause.message === "string" ? cause.message : "Your submission could not be confirmed. Keep this page open and retry; your answers remain here."); }
       finally { operation.current = null; if (!controller.signal.aborted) setPending(false); }
     }}>

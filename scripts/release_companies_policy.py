@@ -1,4 +1,4 @@
-"""Narrow persistent-contract admission for the reviewed 0129 -> 0133 release."""
+"""Narrow persistent-contract admission for the reviewed 0133 -> 0135 release."""
 from __future__ import annotations
 
 import ast
@@ -25,6 +25,7 @@ PERSISTENT_PATHS = frozenset({
     'backend/app/infrastructure/database/communications_models.py',
     'backend/app/infrastructure/database/gc_mobile_models.py',
     'backend/app/infrastructure/database/models.py',
+    'backend/app/infrastructure/database/company_data_export_models.py',
     'backend/app/infrastructure/processing/celery_app.py',
     *(f'backend/alembic/versions/{revision}.py' for revision in CHAIN),
     *(f'backend/app/infrastructure/database/traveller_{name}.py' for name in (
@@ -32,15 +33,11 @@ PERSISTENT_PATHS = frozenset({
         'model_support', 'operations_models', 'reuse_models')),
 })
 NEW_TASK_MODULES = {
-    'backend/app/infrastructure/travellers/tasks.py',
-    'backend/app/infrastructure/travellers/impact_tasks.py',
+    'backend/app/infrastructure/travellers/company_export_tasks.py',
 }
-INCLUDES = {'app.infrastructure.travellers.tasks', 'app.infrastructure.travellers.impact_tasks'}
+INCLUDES = {'app.infrastructure.travellers.company_export_tasks'}
 SCHEDULES = {
-    'reconcile-traveller-history': ('travellers.reconcile', 5),
-    'copy-retained-traveller-assets': ('travellers.copy_assets', 5),
-    'withdraw-retained-traveller-assets': ('travellers.withdraw_assets', 30),
-    'review-traveller-document-impact': ('travellers.document_impact', 5),
+    'export-company-data': ('travellers.company_data_export', 5),
 }
 
 
@@ -49,7 +46,7 @@ def forbidden_additive_paths(paths: list[str]) -> list[str]:
 
 
 def validate_scheduler(old: str, new: str) -> None:
-    """Remove only the four exact added schedules/includes; old AST must survive."""
+    """Remove only the exact export schedule/include; old AST must survive."""
     original, candidate = ast.parse(old), ast.parse(new)
     found_includes: set[str] = set()
     found_schedules: set[str] = set()

@@ -12,10 +12,25 @@ from typing import Any
 
 from app.application.platform_policies import PlatformPolicies
 from app.application.travellers.current_details import detail_fields
+from app.domain.value_objects.upload_configuration import configuration_for
 from app.infrastructure.database.models import ClientGroupModel
 from app.infrastructure.database.traveller_reuse_models import TravellerParticipationModel
 
 TripAnswers = dict[str, dict[str, str]]
+
+
+def missing_document_requirements(group: ClientGroupModel, available_sides: set[str]) -> list[str]:
+    """Current-trip uploads required after selecting retained document assets."""
+    config = configuration_for(group)
+    missing = [f"passport_{side}" for side in config.passport_upload_pages
+        if config.passport_enabled and side not in available_sides]
+    if group.require_selfie or (config.visa_photo_required and config.visa_photo_live_capture):
+        missing.append("fresh_photo")
+    elif config.visa_photo_required and "photo" not in available_sides:
+        missing.append("visa_photo")
+    if group.relation_with_qualifier_enabled:
+        missing.append("qualifier_relationship")
+    return missing
 
 
 def requirement_signatures(group: ClientGroupModel, policies: PlatformPolicies) -> TripAnswers:

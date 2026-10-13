@@ -175,8 +175,9 @@ async def test_company_only_assignment_preserves_closed_archived_state(db_sessio
     assert (assigned.status, assigned.token, assigned.closed_at.replace(tzinfo=None) if assigned.closed_at else None, assigned.passport_purge_at) == before
     assert assigned.company_id == item.id and assigned.company_revision == 1
     assert await db_session.scalar(select(GCGroupAccessModel.id).where(GCGroupAccessModel.group_id == group.id)) is None
-    with pytest.raises(ConflictError):
-        await delete_company(db_session, user=user, company_id=item.id, agency_id=None, expected_revision=1)
+    await delete_company(db_session, user=user, company_id=item.id, agency_id=None, expected_revision=1)
+    assert assigned.company_id is None and assigned.company_revision == 2
+    assert (assigned.status, assigned.token, assigned.closed_at.replace(tzinfo=None) if assigned.closed_at else None, assigned.passport_purge_at) == before
 
 
 @pytest.mark.asyncio
@@ -281,7 +282,7 @@ async def test_reviewed_reassignment_preserves_frozen_history_and_revokes_claim(
 
 
 @pytest.mark.asyncio
-async def test_unused_inactive_delete_and_profile_dependency(db_session: AsyncSession) -> None:
+async def test_company_delete_preserves_profile_history(db_session: AsyncSession) -> None:
     user = await seed_user(db_session)
     unused = await company(db_session, user)
     await update_company(db_session, user=user, company_id=unused.id, agency_id=None,
@@ -290,7 +291,9 @@ async def test_unused_inactive_delete_and_profile_dependency(db_session: AsyncSe
     assert unused.status == "deleted" and unused.deleted_at is not None
     fresh = await company(db_session, user)
     assert fresh.id != unused.id
-    db_session.add(TravellerProfileModel(agency_id=user.agency_id, company_id=fresh.id))
+    profile = TravellerProfileModel(agency_id=user.agency_id, company_id=fresh.id)
+    db_session.add(profile)
     await db_session.flush()
-    with pytest.raises(ConflictError, match="history"):
-        await delete_company(db_session, user=user, company_id=fresh.id, agency_id=None, expected_revision=1)
+    await delete_company(db_session, user=user, company_id=fresh.id, agency_id=None, expected_revision=1)
+    assert fresh.status == "deleted"
+    assert await db_session.get(TravellerProfileModel, profile.id) is profile

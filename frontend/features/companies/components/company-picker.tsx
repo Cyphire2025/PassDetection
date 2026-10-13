@@ -26,7 +26,7 @@ export function CompanyPicker({ agencyId, value, onChange, disabled, error, requ
   const debouncedSearch = useDebounce(search, 250);
   const result = useCompanyLookup(agencyId, { search: debouncedSearch, cursor, page_size: 20 }, open);
   const pending = result.isFetching || search !== debouncedSearch;
-  const items = pending ? [] : result.data?.items ?? [];
+  const items = pending || result.isError ? [] : result.data?.items ?? [];
   const activeIndex = Math.min(active, items.length - 1);
   const close = () => { setOpen(false); trigger.current?.focus(); };
   const select = (company: CompanyReference) => { onChange(company); close(); };
@@ -70,8 +70,8 @@ export function CompanyPicker({ agencyId, value, onChange, disabled, error, requ
             ))}
           </ul>
           <div className="flex flex-wrap gap-2">
-            {cursor && <Button type="button" size="sm" variant="secondary" disabled={pending} onClick={() => { setCursor(undefined); setActive(0); }}>First results</Button>}
-            {result.data?.has_more && <Button type="button" size="sm" variant="secondary" disabled={pending} onClick={() => { setCursor(result.data?.next_cursor ?? undefined); setActive(0); }}>More companies</Button>}
+            {cursor && !result.isError && <Button type="button" size="sm" variant="secondary" disabled={pending} onClick={() => { setCursor(undefined); setActive(0); }}>First results</Button>}
+            {!result.isError && result.data?.has_more && <Button type="button" size="sm" variant="secondary" disabled={pending} onClick={() => { setCursor(result.data?.next_cursor ?? undefined); setActive(0); }}>More companies</Button>}
             <Button type="button" size="sm" variant="ghost" onClick={close}>Close search</Button>
           </div>
         </div>

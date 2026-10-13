@@ -24,11 +24,8 @@ from app.application.mcp.read_cursor import MCPReadCursor
 from app.domain.entities.entities import User
 from app.domain.exceptions.exceptions import AuthorizationError, ConflictError, ValidationError
 from app.infrastructure.database.gc_mobile_models import (
-    ClientManagerProfileModel,
     ClientOrganizationModel,
-    GCGroupAccessModel,
 )
-from app.infrastructure.database.models import ClientGroupModel
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 
 
@@ -96,41 +93,20 @@ async def delete_company(
 ) -> None:
     company = await require_company(session, user=user, company_id=company_id, agency_id=agency_id, lock=True)
     _check_revision(company, expected_revision)
-    # Includes archived, closed and deleted groups plus disabled GC assignments.
-    # Existence probes stop after the first matching row; no full-history count.
-    dependencies = [
-        select(ClientGroupModel.id).where(ClientGroupModel.agency_id == company.agency_id,
-                                          ClientGroupModel.company_id == company.id),
-        select(GCGroupAccessModel.id).where(GCGroupAccessModel.agency_id == company.agency_id,
-                                           GCGroupAccessModel.client_organization_id == company.id),
-        select(ClientManagerProfileModel.id).where(ClientManagerProfileModel.agency_id == company.agency_id,
-                                                  ClientManagerProfileModel.organization_id == company.id),
-    ]
-    from app.infrastructure.database.traveller_reuse_models import (
-        TravellerMatchCaseModel,
-        TravellerProfileModel,
-        TravellerReconciliationJobModel,
-    )
-    dependencies.extend([
-        select(TravellerProfileModel.id).where(TravellerProfileModel.agency_id == company.agency_id,
-                                               TravellerProfileModel.company_id == company.id),
-        select(TravellerMatchCaseModel.id).where(TravellerMatchCaseModel.agency_id == company.agency_id,
-                                                 TravellerMatchCaseModel.company_id == company.id),
-    ])
-    dependencies.append(select(TravellerReconciliationJobModel.id).where(
-        TravellerReconciliationJobModel.agency_id == company.agency_id,
-        TravellerReconciliationJobModel.company_id == company.id,
-    ))
-    for query in dependencies:
-        if await session.scalar(query.limit(1)) is not None:
-            raise ConflictError("Company has group, traveller, manager or reconciliation history and cannot be deleted")
+    from app.application.companies.removal import detach_company_groups
+
+    preserved = await detach_company_groups(session, company=company, user=user)
     company.status = "deleted"
     company.deleted_at = datetime.now(UTC)
     company.updated_at = company.deleted_at
     company.updated_by_user_id = user.id
     company.revision += 1
     await session.flush()
-    await _audit(session, user, company, "company.deleted")
+    await AuditLogRepository(session).record(
+        action="company.deleted", entity_type="client_organization", entity_id=str(company.id),
+        agency_id=company.agency_id, user_id=user.id, actor_email=user.email,
+        metadata={"status": company.status, "revision": company.revision, **preserved},
+    )
 
 
 async def search_companies(

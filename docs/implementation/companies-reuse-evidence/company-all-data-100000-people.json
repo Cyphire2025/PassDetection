@@ -1,0 +1,194 @@
+{
+  "dataset": {
+    "canonical_people": 100000,
+    "accepted_document_versions": 100000,
+    "client_companies": 1,
+    "assigned_groups": 100
+  },
+  "runtime": {
+    "python": "3.11.15",
+    "sqlite": "3.53.1",
+    "platform": "Windows"
+  },
+  "seed_batch_size": 500,
+  "seed_seconds": 23.494,
+  "concurrent_readers": 4,
+  "elapsed_seconds": 60.019,
+  "errors": 0,
+  "max_records_returned": 25,
+  "database_bytes": 525443072,
+  "peak_working_set_bytes": 174141440,
+  "first_page_query_count": 8,
+  "read_query_total": 44480,
+  "export": {
+    "elapsed_seconds": 51.825,
+    "people": 100000,
+    "worker_ticks": 402,
+    "resumed_after_acknowledgement_loss": true,
+    "workbook_bytes": 6849644,
+    "maximum_stored_part_bytes": 6849644,
+    "peak_temporary_xml_bytes": 89986906,
+    "private_part_disk_bytes": 37823644
+  },
+  "budgets": {
+    "read_p95_ms": 250,
+    "read_p99_ms": 500,
+    "page_size": 25,
+    "export_page_people": 250,
+    "export_volume_bytes": 67108864,
+    "export_temp_xml_bytes": 268435456
+  },
+  "read_budgets_met": true,
+  "latencies": {
+    "first_page": {
+      "sampled_operations": 2225,
+      "p50_ms": 41.475,
+      "p95_ms": 76.427,
+      "p99_ms": 157.414
+    },
+    "cursor_page": {
+      "sampled_operations": 2224,
+      "p50_ms": 41.843,
+      "p95_ms": 78.821,
+      "p99_ms": 162.772
+    },
+    "name_search": {
+      "sampled_operations": 1111,
+      "p50_ms": 24.027,
+      "p95_ms": 38.787,
+      "p99_ms": 125.724
+    }
+  },
+  "query_plans": [
+    {
+      "sql": "SELECT client_organizations.id, client_organizations.agency_id, client_organizations.revision, client_organizations.name, client_organizations.normalized_name, client_organizations.external_reference, client_organizations.status, client_organizations.created_by_user_id, client_organizations.updated_by_user_id, client_organizations.created_at, client_organizations.updated_at, client_organizations.deleted_at \nFROM client_organizations \nWHERE client_organizations.id = ? AND client_organizations.agency_id = ? AND client_organizations.status != ?",
+      "plan": [
+        "SEARCH client_organizations USING INDEX sqlite_autoindex_client_organizations_2 (id=? AND agency_id=?)"
+      ]
+    },
+    {
+      "sql": "SELECT traveller_reconciliation_jobs.id \nFROM traveller_reconciliation_jobs \nWHERE traveller_reconciliation_jobs.agency_id = ? AND traveller_reconciliation_jobs.company_id = ? AND traveller_reconciliation_jobs.group_id = (SELECT client_groups.id \nFROM client_groups \nWHERE client_groups.agency_id = ? AND client_groups.company_id = ? AND client_groups.deleted_at IS NULL AND client_groups.status IN (?, ?, ?) ORDER BY client_groups.id\n LIMIT ? OFFSET ?) AND traveller_reconciliation_jobs.idempotency_key = ?\n LIMIT ? OFFSET ?",
+      "plan": [
+        "SEARCH traveller_reconciliation_jobs USING INDEX sqlite_autoindex_traveller_reconciliation_jobs_3 (agency_id=? AND company_id=? AND group_id=? AND idempotency_key=?)",
+        "SCALAR SUBQUERY 1",
+        "SEARCH client_groups USING INDEX ix_client_groups_company_lifecycle (agency_id=? AND company_id=? AND status=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "SELECT traveller_profiles.status, traveller_profiles.revision, traveller_profiles.authorization_version, traveller_profiles.contact_revision, traveller_profiles.display_name_ciphertext, traveller_profiles.name_fingerprint, traveller_profiles.fingerprint_key_version, traveller_profiles.reuse_permission_status, traveller_profiles.reuse_permission_evidence, traveller_profiles.retention_until, traveller_profiles.deleted_at, traveller_profiles.id, traveller_profiles.agency_id, traveller_profiles.company_id, traveller_profiles.created_at \nFROM traveller_profiles \nWHERE traveller_profiles.agency_id = ? AND traveller_profiles.company_id = ? AND traveller_profiles.deleted_at IS NULL AND traveller_profiles.status != ? AND ((EXISTS (SELECT traveller_participations.id \nFROM traveller_participations JOIN (SELECT client_groups.roster_revision AS roster_revision, client_groups.id AS id, client_groups.company_id AS company_id, client_groups.company_revision AS company_revision, client_groups.name AS name, client_groups.token AS token, client_groups.agency_id AS agency_id, client_groups.status AS status, client_groups.created_by_user_id AS created_by_user_id, client_groups.created_at AS created_at, client_groups.import_only AS import_only, client_groups.closed_at AS closed_at, client_groups.destination AS destination, client_groups.travel_date AS travel_date, client_groups.return_date AS return_date, client_groups.timezone AS timezone, client_groups.package_name AS package_name, client_groups.departure_cities AS departure_cities, client_groups.base_city_enabled AS base_city_enabled, client_groups.nearest_international_airport_enabled AS nearest_international_airport_enabled, client_groups.staff_code_enabled AS staff_code_enabled, client_groups.agent_employee_code_enabled AS agent_employee_code_enabled, client_groups.meal_preference_enabled AS meal_preference_enabled, client_groups.require_selfie AS require_selfie, client_groups.upload_configuration AS upload_configuration, client_groups.allow_files_from_device AS allow_files_from_device, client_groups.ask_nearest_domestic_airport AS ask_nearest_domestic_airport, client_groups.relation_with_qualifier_enabled AS relation_with_qualifier_enabled, client_groups.designation_enabled AS designation_enabled, client_groups.agency_dealership_name_enabled AS agency_dealership_name_enabled, client_groups.custom_questions AS custom_questions, client_groups.custom_details AS custom_details, client_groups.notes AS notes, client_groups.deleted_at AS deleted_at, client_groups.deleted_passport_count AS deleted_passport_count, client_groups.deletion_retained_records AS deletion_retained_records, client_groups.passport_purge_at AS passport_purge_at, client_groups.passport_retention_days_applied AS passport_retention_days_applied, client_groups.passport_legal_hold AS passport_legal_hold, client_groups.passport_legal_hold_reason AS passport_legal_hold_reason, client_groups.passport_legal_hold_set_at AS passport_legal_hold_set_at, client_groups.passport_legal_hold_set_by_user_id AS passport_legal_hold_set_by_user_id \nFROM client_groups \nWHERE client_groups.agency_id = ? AND client_groups.company_id = ? AND client_groups.status IN (?, ?, ?) AND client_groups.deleted_at IS NULL AND client_groups.agency_id = ? AND client_groups.deleted_at IS NULL AND client_groups.status IN (?, ?, ?)) AS anon_1 ON anon_1.id = traveller_participations.group_id \nWHERE traveller_participations.agency_id = ? AND traveller_participations.company_id = ? AND traveller_participations.traveller_id = traveller_profiles.id)) OR (EXISTS (SELECT traveller_match_cases.id \nFROM traveller_match_cases JOIN (SELECT client_groups.roster_revision AS roster_revision, client_groups.id AS id, client_groups.company_id AS company_id, client_groups.company_revision AS company_revision, client_groups.name AS name, client_groups.token AS token, client_groups.agency_id AS agency_id, client_groups.status AS status, client_groups.created_by_user_id AS created_by_user_id, client_groups.created_at AS created_at, client_groups.import_only AS import_only, client_groups.closed_at AS closed_at, client_groups.destination AS destination, client_groups.travel_date AS travel_date, client_groups.return_date AS return_date, client_groups.timezone AS timezone, client_groups.package_name AS package_name, client_groups.departure_cities AS departure_cities, client_groups.base_city_enabled AS base_city_enabled, client_groups.nearest_international_airport_enabled AS nearest_international_airport_enabled, client_groups.staff_code_enabled AS staff_code_enabled, client_groups.agent_employee_code_enabled AS agent_employee_code_enabled, client_groups.meal_preference_enabled AS meal_preference_enabled, client_groups.require_selfie AS require_selfie, client_groups.upload_configuration AS upload_configuration, client_groups.allow_files_from_device AS allow_files_from_device, client_groups.ask_nearest_domestic_airport AS ask_nearest_domestic_airport, client_groups.relation_with_qualifier_enabled AS relation_with_qualifier_enabled, client_groups.designation_enabled AS designation_enabled, client_groups.agency_dealership_name_enabled AS agency_dealership_name_enabled, client_groups.custom_questions AS custom_questions, client_groups.custom_details AS custom_details, client_groups.notes AS notes, client_groups.deleted_at AS deleted_at, client_groups.deleted_passport_count AS deleted_passport_count, client_groups.deletion_retained_records AS deletion_retained_records, client_groups.passport_purge_at AS passport_purge_at, client_groups.passport_retention_days_applied AS passport_retention_days_applied, client_groups.passport_legal_hold AS passport_legal_hold, client_groups.passport_legal_hold_reason AS passport_legal_hold_reason, client_groups.passport_legal_hold_set_at AS passport_legal_hold_set_at, client_groups.passport_legal_hold_set_by_user_id AS passport_legal_hold_set_by_user_id \nFROM client_groups \nWHERE client_groups.agency_id = ? AND client_groups.company_id = ? AND client_groups.status IN (?, ?, ?) AND client_groups.deleted_at IS NULL AND client_groups.agency_id = ? AND client_groups.deleted_at IS NULL AND client_groups.status IN (?, ?, ?)) AS anon_1 ON anon_1.id = traveller_match_cases.group_id \nWHERE traveller_match_cases.agency_id = ? AND traveller_match_cases.company_id = ? AND traveller_match_cases.traveller_id = traveller_profiles.id AND traveller_match_cases.status = ?))) AND traveller_profiles.created_at <= ? AND traveller_profiles.name_fingerprint = ? AND traveller_profiles.fingerprint_key_version = ? ORDER BY traveller_profiles.created_at DESC, traveller_profiles.id DESC\n LIMIT ? OFFSET ?",
+      "plan": [
+        "SEARCH traveller_profiles USING INDEX ix_traveller_profile_name (agency_id=? AND company_id=? AND fingerprint_key_version=? AND name_fingerprint=?)",
+        "CORRELATED SCALAR SUBQUERY 2",
+        "SEARCH traveller_participations USING INDEX ix_traveller_participation_person_seek (agency_id=? AND company_id=? AND traveller_id=?)",
+        "SEARCH client_groups USING INDEX sqlite_autoindex_client_groups_2 (id=? AND agency_id=? AND company_id=?)",
+        "CORRELATED SCALAR SUBQUERY 4",
+        "SEARCH traveller_match_cases USING INDEX ix_traveller_match_person_source (agency_id=? AND company_id=? AND traveller_id=? AND status=?)",
+        "SEARCH client_groups USING INDEX sqlite_autoindex_client_groups_2 (id=? AND agency_id=? AND company_id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "SELECT traveller_participations.traveller_id, count(*) AS count_1 \nFROM traveller_participations JOIN (SELECT client_groups.roster_revision AS roster_revision, client_groups.id AS id, client_groups.company_id AS company_id, client_groups.company_revision AS company_revision, client_groups.name AS name, client_groups.token AS token, client_groups.agency_id AS agency_id, client_groups.status AS status, client_groups.created_by_user_id AS created_by_user_id, client_groups.created_at AS created_at, client_groups.import_only AS import_only, client_groups.closed_at AS closed_at, client_groups.destination AS destination, client_groups.travel_date AS travel_date, client_groups.return_date AS return_date, client_groups.timezone AS timezone, client_groups.package_name AS package_name, client_groups.departure_cities AS departure_cities, client_groups.base_city_enabled AS base_city_enabled, client_groups.nearest_international_airport_enabled AS nearest_international_airport_enabled, client_groups.staff_code_enabled AS staff_code_enabled, client_groups.agent_employee_code_enabled AS agent_employee_code_enabled, client_groups.meal_preference_enabled AS meal_preference_enabled, client_groups.require_selfie AS require_selfie, client_groups.upload_configuration AS upload_configuration, client_groups.allow_files_from_device AS allow_files_from_device, client_groups.ask_nearest_domestic_airport AS ask_nearest_domestic_airport, client_groups.relation_with_qualifier_enabled AS relation_with_qualifier_enabled, client_groups.designation_enabled AS designation_enabled, client_groups.agency_dealership_name_enabled AS agency_dealership_name_enabled, client_groups.custom_questions AS custom_questions, client_groups.custom_details AS custom_details, client_groups.notes AS notes, client_groups.deleted_at AS deleted_at, client_groups.deleted_passport_count AS deleted_passport_count, client_groups.deletion_retained_records AS deletion_retained_records, client_groups.passport_purge_at AS passport_purge_at, client_groups.passport_retention_days_applied AS passport_retention_days_applied, client_groups.passport_legal_hold AS passport_legal_hold, client_groups.passport_legal_hold_reason AS passport_legal_hold_reason, client_groups.passport_legal_hold_set_at AS passport_legal_hold_set_at, client_groups.passport_legal_hold_set_by_user_id AS passport_legal_hold_set_by_user_id \nFROM client_groups \nWHERE client_groups.agency_id = ? AND client_groups.company_id = ? AND client_groups.status IN (?, ?, ?) AND client_groups.deleted_at IS NULL AND client_groups.agency_id = ? AND client_groups.deleted_at IS NULL AND client_groups.status IN (?, ?, ?)) AS anon_1 ON anon_1.id = traveller_participations.group_id \nWHERE traveller_participations.agency_id = ? AND traveller_participations.company_id = ? AND traveller_participations.traveller_id IN (?) GROUP BY traveller_participations.traveller_id",
+      "plan": [
+        "SEARCH traveller_participations USING INDEX ix_traveller_participation_person_seek (agency_id=? AND company_id=? AND traveller_id=?)",
+        "SEARCH client_groups USING INDEX sqlite_autoindex_client_groups_2 (id=? AND agency_id=? AND company_id=?)"
+      ]
+    },
+    {
+      "sql": "SELECT traveller_document_revisions.traveller_id, count(*) AS count_1 \nFROM traveller_document_revisions \nWHERE traveller_document_revisions.agency_id = ? AND traveller_document_revisions.company_id = ? AND traveller_document_revisions.traveller_id IN (?) GROUP BY traveller_document_revisions.traveller_id",
+      "plan": [
+        "SEARCH traveller_document_revisions USING COVERING INDEX ix_traveller_document_person_seek (agency_id=? AND company_id=? AND traveller_id=?)"
+      ]
+    },
+    {
+      "sql": "SELECT DISTINCT traveller_match_cases.traveller_id \nFROM traveller_match_cases \nWHERE traveller_match_cases.agency_id = ? AND traveller_match_cases.company_id = ? AND traveller_match_cases.traveller_id IN (?) AND (traveller_match_cases.status IN (?, ?, ?) OR JSON_EXTRACT(traveller_match_cases.evidence, ?) IS 1)",
+      "plan": [
+        "SEARCH traveller_match_cases USING INDEX ix_traveller_match_person_source (agency_id=? AND company_id=? AND traveller_id=?)"
+      ]
+    },
+    {
+      "sql": "SELECT traveller_passports.traveller_id, traveller_passports.number_ciphertext \nFROM traveller_passports \nWHERE traveller_passports.agency_id = ? AND traveller_passports.company_id = ? AND traveller_passports.traveller_id IN (?) AND traveller_passports.is_default IS 1 AND traveller_passports.status = ?",
+      "plan": [
+        "SEARCH traveller_passports USING INDEX ix_traveller_passport_owner (agency_id=? AND company_id=? AND traveller_id=? AND status=?)"
+      ]
+    },
+    {
+      "sql": "SELECT EXISTS (SELECT traveller_reconciliation_jobs.id \nFROM traveller_reconciliation_jobs \nWHERE traveller_reconciliation_jobs.agency_id = ? AND traveller_reconciliation_jobs.company_id = ? AND (traveller_reconciliation_jobs.status IN (?, ?) OR traveller_reconciliation_jobs.status = ? AND traveller_reconciliation_jobs.last_error_code = ?)) AS anon_1",
+      "plan": [
+        "SCAN CONSTANT ROW",
+        "SCALAR SUBQUERY 1",
+        "SEARCH traveller_reconciliation_jobs USING INDEX sqlite_autoindex_traveller_reconciliation_jobs_3 (agency_id=? AND company_id=?)"
+      ]
+    },
+    {
+      "sql": "SELECT traveller_profiles.status, traveller_profiles.revision, traveller_profiles.authorization_version, traveller_profiles.contact_revision, traveller_profiles.display_name_ciphertext, traveller_profiles.name_fingerprint, traveller_profiles.fingerprint_key_version, traveller_profiles.reuse_permission_status, traveller_profiles.reuse_permission_evidence, traveller_profiles.retention_until, traveller_profiles.deleted_at, traveller_profiles.id, traveller_profiles.agency_id, traveller_profiles.company_id, traveller_profiles.created_at \nFROM traveller_profiles \nWHERE traveller_profiles.agency_id = ? AND traveller_profiles.company_id = ? AND traveller_profiles.deleted_at IS NULL AND traveller_profiles.status != ? AND ((EXISTS (SELECT traveller_participations.id \nFROM traveller_participations JOIN (SELECT client_groups.roster_revision AS roster_revision, client_groups.id AS id, client_groups.company_id AS company_id, client_groups.company_revision AS company_revision, client_groups.name AS name, client_groups.token AS token, client_groups.agency_id AS agency_id, client_groups.status AS status, client_groups.created_by_user_id AS created_by_user_id, client_groups.created_at AS created_at, client_groups.import_only AS import_only, client_groups.closed_at AS closed_at, client_groups.destination AS destination, client_groups.travel_date AS travel_date, client_groups.return_date AS return_date, client_groups.timezone AS timezone, client_groups.package_name AS package_name, client_groups.departure_cities AS departure_cities, client_groups.base_city_enabled AS base_city_enabled, client_groups.nearest_international_airport_enabled AS nearest_international_airport_enabled, client_groups.staff_code_enabled AS staff_code_enabled, client_groups.agent_employee_code_enabled AS agent_employee_code_enabled, client_groups.meal_preference_enabled AS meal_preference_enabled, client_groups.require_selfie AS require_selfie, client_groups.upload_configuration AS upload_configuration, client_groups.allow_files_from_device AS allow_files_from_device, client_groups.ask_nearest_domestic_airport AS ask_nearest_domestic_airport, client_groups.relation_with_qualifier_enabled AS relation_with_qualifier_enabled, client_groups.designation_enabled AS designation_enabled, client_groups.agency_dealership_name_enabled AS agency_dealership_name_enabled, client_groups.custom_questions AS custom_questions, client_groups.custom_details AS custom_details, client_groups.notes AS notes, client_groups.deleted_at AS deleted_at, client_groups.deleted_passport_count AS deleted_passport_count, client_groups.deletion_retained_records AS deletion_retained_records, client_groups.passport_purge_at AS passport_purge_at, client_groups.passport_retention_days_applied AS passport_retention_days_applied, client_groups.passport_legal_hold AS passport_legal_hold, client_groups.passport_legal_hold_reason AS passport_legal_hold_reason, client_groups.passport_legal_hold_set_at AS passport_legal_hold_set_at, client_groups.passport_legal_hold_set_by_user_id AS passport_legal_hold_set_by_user_id \nFROM client_groups \nWHERE client_groups.agency_id = ? AND client_groups.company_id = ? AND client_groups.status IN (?, ?, ?) AND client_groups.deleted_at IS NULL AND client_groups.agency_id = ? AND client_groups.deleted_at IS NULL AND client_groups.status IN (?, ?, ?)) AS anon_1 ON anon_1.id = traveller_participations.group_id \nWHERE traveller_participations.agency_id = ? AND traveller_participations.company_id = ? AND traveller_participations.traveller_id = traveller_profiles.id)) OR (EXISTS (SELECT traveller_match_cases.id \nFROM traveller_match_cases JOIN (SELECT client_groups.roster_revision AS roster_revision, client_groups.id AS id, client_groups.company_id AS company_id, client_groups.company_revision AS company_revision, client_groups.name AS name, client_groups.token AS token, client_groups.agency_id AS agency_id, client_groups.status AS status, client_groups.created_by_user_id AS created_by_user_id, client_groups.created_at AS created_at, client_groups.import_only AS import_only, client_groups.closed_at AS closed_at, client_groups.destination AS destination, client_groups.travel_date AS travel_date, client_groups.return_date AS return_date, client_groups.timezone AS timezone, client_groups.package_name AS package_name, client_groups.departure_cities AS departure_cities, client_groups.base_city_enabled AS base_city_enabled, client_groups.nearest_international_airport_enabled AS nearest_international_airport_enabled, client_groups.staff_code_enabled AS staff_code_enabled, client_groups.agent_employee_code_enabled AS agent_employee_code_enabled, client_groups.meal_preference_enabled AS meal_preference_enabled, client_groups.require_selfie AS require_selfie, client_groups.upload_configuration AS upload_configuration, client_groups.allow_files_from_device AS allow_files_from_device, client_groups.ask_nearest_domestic_airport AS ask_nearest_domestic_airport, client_groups.relation_with_qualifier_enabled AS relation_with_qualifier_enabled, client_groups.designation_enabled AS designation_enabled, client_groups.agency_dealership_name_enabled AS agency_dealership_name_enabled, client_groups.custom_questions AS custom_questions, client_groups.custom_details AS custom_details, client_groups.notes AS notes, client_groups.deleted_at AS deleted_at, client_groups.deleted_passport_count AS deleted_passport_count, client_groups.deletion_retained_records AS deletion_retained_records, client_groups.passport_purge_at AS passport_purge_at, client_groups.passport_retention_days_applied AS passport_retention_days_applied, client_groups.passport_legal_hold AS passport_legal_hold, client_groups.passport_legal_hold_reason AS passport_legal_hold_reason, client_groups.passport_legal_hold_set_at AS passport_legal_hold_set_at, client_groups.passport_legal_hold_set_by_user_id AS passport_legal_hold_set_by_user_id \nFROM client_groups \nWHERE client_groups.agency_id = ? AND client_groups.company_id = ? AND client_groups.status IN (?, ?, ?) AND client_groups.deleted_at IS NULL AND client_groups.agency_id = ? AND client_groups.deleted_at IS NULL AND client_groups.status IN (?, ?, ?)) AS anon_1 ON anon_1.id = traveller_match_cases.group_id \nWHERE traveller_match_cases.agency_id = ? AND traveller_match_cases.company_id = ? AND traveller_match_cases.traveller_id = traveller_profiles.id AND traveller_match_cases.status = ?))) AND traveller_profiles.created_at <= ? ORDER BY traveller_profiles.created_at DESC, traveller_profiles.id DESC\n LIMIT ? OFFSET ?",
+      "plan": [
+        "SEARCH traveller_profiles USING INDEX ix_traveller_profile_created_seek (agency_id=? AND company_id=? AND created_at<?)",
+        "CORRELATED SCALAR SUBQUERY 2",
+        "SEARCH traveller_participations USING INDEX ix_traveller_participation_person_seek (agency_id=? AND company_id=? AND traveller_id=?)",
+        "SEARCH client_groups USING INDEX sqlite_autoindex_client_groups_2 (id=? AND agency_id=? AND company_id=?)",
+        "CORRELATED SCALAR SUBQUERY 4",
+        "SEARCH traveller_match_cases USING INDEX ix_traveller_match_person_source (agency_id=? AND company_id=? AND traveller_id=? AND status=?)",
+        "SEARCH client_groups USING INDEX sqlite_autoindex_client_groups_2 (id=? AND agency_id=? AND company_id=?)"
+      ]
+    },
+    {
+      "sql": "SELECT traveller_participations.traveller_id, count(*) AS count_1 \nFROM traveller_participations JOIN (SELECT client_groups.roster_revision AS roster_revision, client_groups.id AS id, client_groups.company_id AS company_id, client_groups.company_revision AS company_revision, client_groups.name AS name, client_groups.token AS token, client_groups.agency_id AS agency_id, client_groups.status AS status, client_groups.created_by_user_id AS created_by_user_id, client_groups.created_at AS created_at, client_groups.import_only AS import_only, client_groups.closed_at AS closed_at, client_groups.destination AS destination, client_groups.travel_date AS travel_date, client_groups.return_date AS return_date, client_groups.timezone AS timezone, client_groups.package_name AS package_name, client_groups.departure_cities AS departure_cities, client_groups.base_city_enabled AS base_city_enabled, client_groups.nearest_international_airport_enabled AS nearest_international_airport_enabled, client_groups.staff_code_enabled AS staff_code_enabled, client_groups.agent_employee_code_enabled AS agent_employee_code_enabled, client_groups.meal_preference_enabled AS meal_preference_enabled, client_groups.require_selfie AS require_selfie, client_groups.upload_configuration AS upload_configuration, client_groups.allow_files_from_device AS allow_files_from_device, client_groups.ask_nearest_domestic_airport AS ask_nearest_domestic_airport, client_groups.relation_with_qualifier_enabled AS relation_with_qualifier_enabled, client_groups.designation_enabled AS designation_enabled, client_groups.agency_dealership_name_enabled AS agency_dealership_name_enabled, client_groups.custom_questions AS custom_questions, client_groups.custom_details AS custom_details, client_groups.notes AS notes, client_groups.deleted_at AS deleted_at, client_groups.deleted_passport_count AS deleted_passport_count, client_groups.deletion_retained_records AS deletion_retained_records, client_groups.passport_purge_at AS passport_purge_at, client_groups.passport_retention_days_applied AS passport_retention_days_applied, client_groups.passport_legal_hold AS passport_legal_hold, client_groups.passport_legal_hold_reason AS passport_legal_hold_reason, client_groups.passport_legal_hold_set_at AS passport_legal_hold_set_at, client_groups.passport_legal_hold_set_by_user_id AS passport_legal_hold_set_by_user_id \nFROM client_groups \nWHERE client_groups.agency_id = ? AND client_groups.company_id = ? AND client_groups.status IN (?, ?, ?) AND client_groups.deleted_at IS NULL AND client_groups.agency_id = ? AND client_groups.deleted_at IS NULL AND client_groups.status IN (?, ?, ?)) AS anon_1 ON anon_1.id = traveller_participations.group_id \nWHERE traveller_participations.agency_id = ? AND traveller_participations.company_id = ? AND traveller_participations.traveller_id IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) GROUP BY traveller_participations.traveller_id",
+      "plan": [
+        "SEARCH traveller_participations USING INDEX ix_traveller_participation_person_seek (agency_id=? AND company_id=? AND traveller_id=?)",
+        "SEARCH client_groups USING INDEX sqlite_autoindex_client_groups_2 (id=? AND agency_id=? AND company_id=?)"
+      ]
+    },
+    {
+      "sql": "SELECT traveller_document_revisions.traveller_id, count(*) AS count_1 \nFROM traveller_document_revisions \nWHERE traveller_document_revisions.agency_id = ? AND traveller_document_revisions.company_id = ? AND traveller_document_revisions.traveller_id IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) GROUP BY traveller_document_revisions.traveller_id",
+      "plan": [
+        "SEARCH traveller_document_revisions USING COVERING INDEX ix_traveller_document_person_seek (agency_id=? AND company_id=? AND traveller_id=?)"
+      ]
+    },
+    {
+      "sql": "SELECT DISTINCT traveller_match_cases.traveller_id \nFROM traveller_match_cases \nWHERE traveller_match_cases.agency_id = ? AND traveller_match_cases.company_id = ? AND traveller_match_cases.traveller_id IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) AND (traveller_match_cases.status IN (?, ?, ?) OR JSON_EXTRACT(traveller_match_cases.evidence, ?) IS 1)",
+      "plan": [
+        "SEARCH traveller_match_cases USING INDEX ix_traveller_match_person_source (agency_id=? AND company_id=? AND traveller_id=?)"
+      ]
+    },
+    {
+      "sql": "SELECT traveller_passports.traveller_id, traveller_passports.number_ciphertext \nFROM traveller_passports \nWHERE traveller_passports.agency_id = ? AND traveller_passports.company_id = ? AND traveller_passports.traveller_id IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) AND traveller_passports.is_default IS 1 AND traveller_passports.status = ?",
+      "plan": [
+        "SEARCH traveller_passports USING INDEX ix_traveller_passport_owner (agency_id=? AND company_id=? AND traveller_id=? AND status=?)"
+      ]
+    },
+    {
+      "sql": "SELECT traveller_profiles.status, traveller_profiles.revision, traveller_profiles.authorization_version, traveller_profiles.contact_revision, traveller_profiles.display_name_ciphertext, traveller_profiles.name_fingerprint, traveller_profiles.fingerprint_key_version, traveller_profiles.reuse_permission_status, traveller_profiles.reuse_permission_evidence, traveller_profiles.retention_until, traveller_profiles.deleted_at, traveller_profiles.id, traveller_profiles.agency_id, traveller_profiles.company_id, traveller_profiles.created_at \nFROM traveller_profiles \nWHERE traveller_profiles.agency_id = ? AND traveller_profiles.company_id = ? AND traveller_profiles.deleted_at IS NULL AND traveller_profiles.status != ? AND ((EXISTS (SELECT traveller_participations.id \nFROM traveller_participations JOIN (SELECT client_groups.roster_revision AS roster_revision, client_groups.id AS id, client_groups.company_id AS company_id, client_groups.company_revision AS company_revision, client_groups.name AS name, client_groups.token AS token, client_groups.agency_id AS agency_id, client_groups.status AS status, client_groups.created_by_user_id AS created_by_user_id, client_groups.created_at AS created_at, client_groups.import_only AS import_only, client_groups.closed_at AS closed_at, client_groups.destination AS destination, client_groups.travel_date AS travel_date, client_groups.return_date AS return_date, client_groups.timezone AS timezone, client_groups.package_name AS package_name, client_groups.departure_cities AS departure_cities, client_groups.base_city_enabled AS base_city_enabled, client_groups.nearest_international_airport_enabled AS nearest_international_airport_enabled, client_groups.staff_code_enabled AS staff_code_enabled, client_groups.agent_employee_code_enabled AS agent_employee_code_enabled, client_groups.meal_preference_enabled AS meal_preference_enabled, client_groups.require_selfie AS require_selfie, client_groups.upload_configuration AS upload_configuration, client_groups.allow_files_from_device AS allow_files_from_device, client_groups.ask_nearest_domestic_airport AS ask_nearest_domestic_airport, client_groups.relation_with_qualifier_enabled AS relation_with_qualifier_enabled, client_groups.designation_enabled AS designation_enabled, client_groups.agency_dealership_name_enabled AS agency_dealership_name_enabled, client_groups.custom_questions AS custom_questions, client_groups.custom_details AS custom_details, client_groups.notes AS notes, client_groups.deleted_at AS deleted_at, client_groups.deleted_passport_count AS deleted_passport_count, client_groups.deletion_retained_records AS deletion_retained_records, client_groups.passport_purge_at AS passport_purge_at, client_groups.passport_retention_days_applied AS passport_retention_days_applied, client_groups.passport_legal_hold AS passport_legal_hold, client_groups.passport_legal_hold_reason AS passport_legal_hold_reason, client_groups.passport_legal_hold_set_at AS passport_legal_hold_set_at, client_groups.passport_legal_hold_set_by_user_id AS passport_legal_hold_set_by_user_id \nFROM client_groups \nWHERE client_groups.agency_id = ? AND client_groups.company_id = ? AND client_groups.status IN (?, ?, ?) AND client_groups.deleted_at IS NULL AND client_groups.agency_id = ? AND client_groups.deleted_at IS NULL AND client_groups.status IN (?, ?, ?)) AS anon_1 ON anon_1.id = traveller_participations.group_id \nWHERE traveller_participations.agency_id = ? AND traveller_participations.company_id = ? AND traveller_participations.traveller_id = traveller_profiles.id)) OR (EXISTS (SELECT traveller_match_cases.id \nFROM traveller_match_cases JOIN (SELECT client_groups.roster_revision AS roster_revision, client_groups.id AS id, client_groups.company_id AS company_id, client_groups.company_revision AS company_revision, client_groups.name AS name, client_groups.token AS token, client_groups.agency_id AS agency_id, client_groups.status AS status, client_groups.created_by_user_id AS created_by_user_id, client_groups.created_at AS created_at, client_groups.import_only AS import_only, client_groups.closed_at AS closed_at, client_groups.destination AS destination, client_groups.travel_date AS travel_date, client_groups.return_date AS return_date, client_groups.timezone AS timezone, client_groups.package_name AS package_name, client_groups.departure_cities AS departure_cities, client_groups.base_city_enabled AS base_city_enabled, client_groups.nearest_international_airport_enabled AS nearest_international_airport_enabled, client_groups.staff_code_enabled AS staff_code_enabled, client_groups.agent_employee_code_enabled AS agent_employee_code_enabled, client_groups.meal_preference_enabled AS meal_preference_enabled, client_groups.require_selfie AS require_selfie, client_groups.upload_configuration AS upload_configuration, client_groups.allow_files_from_device AS allow_files_from_device, client_groups.ask_nearest_domestic_airport AS ask_nearest_domestic_airport, client_groups.relation_with_qualifier_enabled AS relation_with_qualifier_enabled, client_groups.designation_enabled AS designation_enabled, client_groups.agency_dealership_name_enabled AS agency_dealership_name_enabled, client_groups.custom_questions AS custom_questions, client_groups.custom_details AS custom_details, client_groups.notes AS notes, client_groups.deleted_at AS deleted_at, client_groups.deleted_passport_count AS deleted_passport_count, client_groups.deletion_retained_records AS deletion_retained_records, client_groups.passport_purge_at AS passport_purge_at, client_groups.passport_retention_days_applied AS passport_retention_days_applied, client_groups.passport_legal_hold AS passport_legal_hold, client_groups.passport_legal_hold_reason AS passport_legal_hold_reason, client_groups.passport_legal_hold_set_at AS passport_legal_hold_set_at, client_groups.passport_legal_hold_set_by_user_id AS passport_legal_hold_set_by_user_id \nFROM client_groups \nWHERE client_groups.agency_id = ? AND client_groups.company_id = ? AND client_groups.status IN (?, ?, ?) AND client_groups.deleted_at IS NULL AND client_groups.agency_id = ? AND client_groups.deleted_at IS NULL AND client_groups.status IN (?, ?, ?)) AS anon_1 ON anon_1.id = traveller_match_cases.group_id \nWHERE traveller_match_cases.agency_id = ? AND traveller_match_cases.company_id = ? AND traveller_match_cases.traveller_id = traveller_profiles.id AND traveller_match_cases.status = ?))) AND traveller_profiles.created_at <= ? AND (traveller_profiles.created_at < ? OR traveller_profiles.created_at = ? AND traveller_profiles.id < ?) ORDER BY traveller_profiles.created_at DESC, traveller_profiles.id DESC\n LIMIT ? OFFSET ?",
+      "plan": [
+        "SEARCH traveller_profiles USING INDEX ix_traveller_profile_created_seek (agency_id=? AND company_id=? AND created_at<?)",
+        "CORRELATED SCALAR SUBQUERY 2",
+        "SEARCH traveller_participations USING INDEX ix_traveller_participation_person_seek (agency_id=? AND company_id=? AND traveller_id=?)",
+        "SEARCH client_groups USING INDEX sqlite_autoindex_client_groups_2 (id=? AND agency_id=? AND company_id=?)",
+        "CORRELATED SCALAR SUBQUERY 4",
+        "SEARCH traveller_match_cases USING INDEX ix_traveller_match_person_source (agency_id=? AND company_id=? AND traveller_id=? AND status=?)",
+        "SEARCH client_groups USING INDEX sqlite_autoindex_client_groups_2 (id=? AND agency_id=? AND company_id=?)"
+      ]
+    },
+    {
+      "sql": "SELECT company_data_export_jobs.requested_by_user_id, company_data_export_jobs.kind, company_data_export_jobs.status, company_data_export_jobs.idempotency_key, company_data_export_jobs.company_revision, company_data_export_jobs.phase, company_data_export_jobs.cursor, company_data_export_jobs.processed_count, company_data_export_jobs.part_count, company_data_export_jobs.attempt_count, company_data_export_jobs.available_at, company_data_export_jobs.lease_expires_at, company_data_export_jobs.lease_token, company_data_export_jobs.expires_at, company_data_export_jobs.completed_at, company_data_export_jobs.last_error_code, company_data_export_jobs.id, company_data_export_jobs.agency_id, company_data_export_jobs.company_id, company_data_export_jobs.created_at \nFROM company_data_export_jobs \nWHERE company_data_export_jobs.agency_id = ? AND company_data_export_jobs.company_id = ? AND company_data_export_jobs.requested_by_user_id = ? AND company_data_export_jobs.idempotency_key = ?",
+      "plan": [
+        "SEARCH company_data_export_jobs USING INDEX sqlite_autoindex_company_data_export_jobs_3 (agency_id=? AND company_id=? AND requested_by_user_id=? AND idempotency_key=?)"
+      ]
+    },
+    {
+      "sql": "SELECT count(*) AS count_1 \nFROM company_data_export_jobs \nWHERE company_data_export_jobs.agency_id = ? AND company_data_export_jobs.company_id = ? AND company_data_export_jobs.status IN (?, ?)",
+      "plan": [
+        "SEARCH company_data_export_jobs USING INDEX ix_company_export_scope (agency_id=? AND company_id=?)"
+      ]
+    }
+  ],
+  "limitations": [
+    "Synthetic SQLite application-helper benchmark, not PostgreSQL or HTTP capacity",
+    "No OTP, document bytes, authentication middleware or network",
+    "No million-user or sustained-production claim",
+    "Exact name search uses tenant HMAC index; no fuzzy or substring search",
+    "One client with 100 groups and one version per person; sparse-client and long per-person histories not load-tested",
+    "Excel tested at full dataset size; ZIP byte boundaries and provider failures covered by focused tests only"
+  ]
+}

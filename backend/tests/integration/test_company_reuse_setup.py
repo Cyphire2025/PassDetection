@@ -8,7 +8,14 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.companies.assignment import assign_group_company
-from app.application.companies.reuse_setup import save_group_reuse_config, save_reuse_policy
+from app.application.companies.reuse_setup import (
+    REUSE_NOTICE_TEXT,
+    REUSE_NOTICE_VERSION,
+    REUSE_PURPOSE_VERSION,
+    REUSE_SETTING_BASIS,
+    save_group_reuse_config,
+    save_reuse_policy,
+)
 from app.domain.entities.entities import UserRole
 from app.domain.exceptions.exceptions import (
     AuthorizationError,
@@ -17,6 +24,10 @@ from app.domain.exceptions.exceptions import (
     ValidationError,
 )
 from app.infrastructure.database.traveller_reuse_models import TravellerProfileModel
+from app.presentation.api.v1.routes.company_reuse_setup import (
+    ReusePolicyRequest,
+    ReusePolicyResponse,
+)
 from tests.integration.test_company_directory import company, legacy_group, seed_user
 
 
@@ -27,17 +38,20 @@ async def enable_policy(session, user, item, **overrides):
 
 
 @pytest.mark.asyncio
-async def test_policy_requires_explicit_basis_without_promoting_legacy_permission(db_session: AsyncSession) -> None:
+async def test_company_toggle_records_notice_without_promoting_legacy_permission(db_session: AsyncSession) -> None:
     user = await seed_user(db_session)
     item = await company(db_session, user)
     profile = TravellerProfileModel(agency_id=user.agency_id, company_id=item.id)
     db_session.add(profile)
     await db_session.flush()
-    with pytest.raises(ValidationError):
-        await enable_policy(db_session, user, item, processing_basis=None)
-    policy = await enable_policy(db_session, user, item)
+    request = ReusePolicyRequest(expected_revision=0, enabled=True)
+    policy = await save_reuse_policy(db_session, user=user, company_id=item.id, agency_id=None,
+        **request.model_dump(exclude={"retention_mode"}))
     assert policy.enabled and policy.retention_mode == "until_withdrawn" and policy.retention_days is None
     assert profile.reuse_permission_status == "unknown"
+    assert (policy.purpose_version, policy.notice_version, policy.processing_basis) == (
+        REUSE_PURPOSE_VERSION, REUSE_NOTICE_VERSION, REUSE_SETTING_BASIS)
+    assert ReusePolicyResponse.model_validate(policy).notice_text == REUSE_NOTICE_TEXT
     assert item.revision == 2
     with pytest.raises(ConflictError):
         await enable_policy(db_session, user, item)

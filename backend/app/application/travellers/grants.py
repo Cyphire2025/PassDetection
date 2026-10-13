@@ -13,6 +13,7 @@ from datetime import UTC, datetime
 
 from sqlalchemy import select, update
 
+from app.application.companies.data_exports import invalidate_company_exports
 from app.application.travellers.audit import record_claim_action
 from app.application.travellers.authority import ReuseScope, active_scope, eligible_person
 from app.application.travellers.claims import ReturningClaims
@@ -152,8 +153,13 @@ async def recover_contact(
         TravellerContactBindingModel.traveller_id == person.id,
         TravellerContactBindingModel.kind == "phone", TravellerContactBindingModel.status == "current",
     ).values(status="historical"))
+    await invalidate_company_exports(service.session, person.agency_id, person.company_id)
     person.contact_revision += 1
     person.authorization_version += 1
+    from app.application.travellers.identity_index import replace_phone_identity_evidence
+    await replace_phone_identity_evidence(service.session, person=person,
+        normalized_phone=service.crypto.decrypt(claim.phone_ciphertext), crypto=service.crypto,
+        source={"claim_id": str(claim.id), "contact_revision": person.contact_revision, "method": "whatsapp_otp"})
     service.session.add(TravellerContactBindingModel(
         id=uuid.uuid4(), agency_id=claim.agency_id, company_id=claim.company_id,
         traveller_id=person.id, kind="phone", status="current", revision=person.contact_revision,

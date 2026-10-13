@@ -1,4 +1,4 @@
-"""CI-only populated 0129 restore, interrupted concurrent-index repair and resume.
+"""CI-only populated 0133 restore, transactional failures and forward resume.
 
 Never targets POSTGRES_DB or production. The explicit destructive acknowledgement,
 loopback host and exact synthetic database names are mandatory. All migration
@@ -26,8 +26,11 @@ from sqlalchemy.pool import NullPool
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from scripts.companies_client_data_fixture import (  # noqa: E402
+    seed_retained_history,
+    verify_detached_manager_constraints,
+)
 from scripts.companies_rehearsal_fixture import (  # noqa: E402
-    create_interrupted_source_index,
     migration_owner,
     replace_owned_database,
     seed_company_and_roster,
@@ -61,8 +64,9 @@ from scripts.release_travel_tracker_upgrade import _dml_grants  # noqa: E402
 SOURCE_DATABASE = "passdetection_ci_companies_source"
 RESTORED_DATABASE = "passdetection_ci_companies_restored"
 INTERRUPTED_EXIT = 73
-BACKFILL_ROLLBACK_EXIT = 74
+EXPORT_ROLLBACK_EXIT = 74
 BOOTSTRAP_REJECTION_EXIT = 75
+MANAGER_ROLLBACK_EXIT = 76
 BOOTSTRAP_REJECTION_RUNNER = """
 import json, sys
 from scripts.release_companies_traveller_upgrade import apply_upgrade
@@ -74,24 +78,45 @@ except ValueError as failure:
     raise
 raise SystemExit('Expected bootstrap migration identity rejection did not occur')
 """
-BACKFILL_ROLLBACK_RUNNER = """
+EXPORT_ROLLBACK_RUNNER = """
 import json, sys
 from alembic.operations import Operations
 from scripts.release_companies_traveller_upgrade import apply_upgrade
 original = Operations.execute
-class InjectedBackfillFailure(Exception):
+class InjectedExportFailure(Exception):
     pass
-def fail_after_disable(self, statement, *args, **kwargs):
+
+def fail_after_create(self, statement, *args, **kwargs):
     result = original(self, statement, *args, **kwargs)
-    if str(statement).strip() == 'ALTER TABLE public.client_groups DISABLE TRIGGER group_roster_revision':
-        raise InjectedBackfillFailure('synthetic failure after named trigger disable')
+    if str(statement).startswith('CREATE TABLE company_data_export_jobs '):
+        raise InjectedExportFailure('synthetic failure after export table create')
     return result
-Operations.execute = fail_after_disable
+Operations.execute = fail_after_create
 try:
     apply_upgrade(json.loads(sys.argv[1]))
-except InjectedBackfillFailure:
+except InjectedExportFailure:
     raise SystemExit(74)
-raise SystemExit('Expected backfill rollback injection did not occur')
+raise SystemExit('Expected export DDL rollback injection did not occur')
+"""
+MANAGER_ROLLBACK_RUNNER = """
+import json, sys
+from alembic.operations import Operations
+from scripts.release_companies_traveller_upgrade import apply_upgrade
+original = Operations.alter_column
+class InjectedManagerFailure(Exception):
+    pass
+
+def fail_after_alter(self, table, column, *args, **kwargs):
+    result = original(self, table, column, *args, **kwargs)
+    if table == 'client_manager_group_assignments' and column == 'organization_id':
+        raise InjectedManagerFailure('synthetic failure after manager column change')
+    return result
+Operations.alter_column = fail_after_alter
+try:
+    apply_upgrade(json.loads(sys.argv[1]))
+except InjectedManagerFailure:
+    raise SystemExit(76)
+raise SystemExit('Expected manager DDL rollback injection did not occur')
 """
 INTERRUPTION_RUNNER = """
 import json, sys
@@ -99,7 +124,7 @@ from alembic import command
 from scripts.release_companies_traveller_upgrade import apply_upgrade
 original = command.upgrade
 def interrupt(config, revision):
-    if revision == '0132_traveller_source_seek':
+    if revision == '0135_company_removal_history':
         raise InterruptedError('synthetic checkpoint interruption')
     return original(config, revision)
 command.upgrade = interrupt
@@ -138,9 +163,9 @@ def snapshot(environment: Mapping[str, str], schema: str) -> dict[str, Any]:
 
 def run_helper(environment: Mapping[str, str], contract: dict[str, Any], *, interrupt: bool = False,
                capture_baseline: bool = False, baseline_sha256: str | None = None,
-               expect_rejection: bool = False, rollback_backfill: bool = False,
-               reject_bootstrap: bool = False) -> dict[str, Any]:
-    if sum((interrupt, capture_baseline, expect_rejection, rollback_backfill, reject_bootstrap)) > 1:
+               expect_rejection: bool = False, rollback_export: bool = False,
+               reject_bootstrap: bool = False, rollback_manager: bool = False) -> dict[str, Any]:
+    if sum((interrupt, capture_baseline, expect_rejection, rollback_export, reject_bootstrap, rollback_manager)) > 1:
         raise ValueError("Rehearsal helper modes are mutually exclusive")
     encoded = json.dumps(contract, sort_keys=True, separators=(",", ":"))
     # Synthetic CI proof marker; host release authorization is qualified by its
@@ -148,25 +173,31 @@ def run_helper(environment: Mapping[str, str], contract: dict[str, Any], *, inte
     child_environment = {**environment, "MCP_RELEASE_PROOF_SHA256": hashlib.sha256(encoded.encode()).hexdigest()}
     if baseline_sha256 is not None:
         child_environment["MCP_RELEASE_BASELINE_SHA256"] = baseline_sha256
-    runner = BACKFILL_ROLLBACK_RUNNER if rollback_backfill else INTERRUPTION_RUNNER
+    runner = EXPORT_ROLLBACK_RUNNER if rollback_export else INTERRUPTION_RUNNER
+    if rollback_manager:
+        runner = MANAGER_ROLLBACK_RUNNER
     if reject_bootstrap:
         runner = BOOTSTRAP_REJECTION_RUNNER
-    arguments = ([sys.executable, "-c", runner, encoded] if interrupt or rollback_backfill or reject_bootstrap else
+    arguments = ([sys.executable, "-c", runner, encoded] if interrupt or rollback_export or reject_bootstrap or rollback_manager else
         [sys.executable, "scripts/release_companies_traveller_upgrade.py", "--contract-json", encoded])
     if capture_baseline:
         arguments.append("--capture-baseline")
     result = subprocess.run(arguments, cwd=ROOT, env=child_environment, capture_output=True,
         text=True, timeout=600, check=False, shell=False)
-    expected = BACKFILL_ROLLBACK_EXIT if rollback_backfill else (INTERRUPTED_EXIT if interrupt else (2 if expect_rejection else 0))
+    expected = EXPORT_ROLLBACK_EXIT if rollback_export else (INTERRUPTED_EXIT if interrupt else (2 if expect_rejection else 0))
+    if rollback_manager:
+        expected = MANAGER_ROLLBACK_EXIT
     if reject_bootstrap:
         expected = BOOTSTRAP_REJECTION_EXIT
     if result.returncode != expected:
         # Driver failures may contain DSNs. Preserve a safe failure code only.
         raise RuntimeError(f"Upgrade helper failed: expected exit {expected}, observed {result.returncode}")
     if interrupt:
-        return {"exit_code": result.returncode, "interrupted_before": CHAIN[2]}
-    if rollback_backfill:
+        return {"exit_code": result.returncode, "interrupted_before": CHAIN[1]}
+    if rollback_export:
         return {"exit_code": result.returncode, "rolled_back_revision": CHAIN[0]}
+    if rollback_manager:
+        return {"exit_code": result.returncode, "rolled_back_revision": CHAIN[1]}
     if reject_bootstrap:
         return {"exit_code": result.returncode, "reason": "existing_migration_identity_required"}
     value: dict[str, Any] = json.loads(result.stdout.strip().splitlines()[-1])
@@ -181,48 +212,61 @@ def run_helper(environment: Mapping[str, str], contract: dict[str, Any], *, inte
 
 def exercise_resume(environment: Mapping[str, str], contract: dict[str, Any], before: dict[str, Any]) -> dict[str, Any]:
     baseline = preservation_digest({key: value for key, value in before.items() if key != "runtime_grants"})
-    rollback = run_helper(environment, contract, rollback_backfill=True, baseline_sha256=baseline)
+    rollback = run_helper(environment, contract, rollback_export=True, baseline_sha256=baseline)
     connection = _connect(environment, RESTORED_DATABASE)
     try:
         if _revision(connection) != SOURCE:
-            raise AssertionError("Backfill failure did not roll back the complete 0130 revision")
+            raise AssertionError("Export DDL failure did not roll back the complete 0134 revision")
     finally:
         connection.close()
-    # Includes the exact enabled trigger, every retained field, catalog and ACL.
     if snapshot(environment, SOURCE) != before:
-        raise AssertionError("Backfill rollback changed historical data, ACL or retained trigger/schema")
+        raise AssertionError("Export rollback changed historical data, ACL or retained schema")
     captured = run_helper(environment, contract, capture_baseline=True)
     if captured.get("status") != "baseline_captured" or captured.get("preservation_sha256") != baseline:
         raise AssertionError("Original helper baseline does not match the restored backup")
     interruption = run_helper(environment, contract, interrupt=True, baseline_sha256=baseline)
     connection = _connect(environment, RESTORED_DATABASE)
     try:
-        if _revision(connection) != CHAIN[1]:
-            raise AssertionError("Interruption did not preserve committed 0131 checkpoint")
-        create_interrupted_source_index(connection)
+        if _revision(connection) != CHAIN[0]:
+            raise AssertionError("Interruption did not preserve committed 0134 checkpoint")
     finally:
         connection.close()
-    if snapshot(environment, CHAIN[1]) != before:
+    if snapshot(environment, CHAIN[0]) != before:
         raise AssertionError("Partial upgrade changed historical data, ACL or retained schema")
+    manager_rollback = run_helper(environment, contract, rollback_manager=True, baseline_sha256=baseline)
+    connection = _connect(environment, RESTORED_DATABASE)
+    try:
+        if _revision(connection) != CHAIN[0] or snapshot(environment, CHAIN[0]) != before:
+            raise AssertionError("Manager rollback changed historical data, ACL or retained schema")
+    finally:
+        connection.close()
     run_helper(environment, contract, baseline_sha256="0" * 64, expect_rejection=True)
     connection = _connect(environment, RESTORED_DATABASE)
     try:
-        if _revision(connection) != CHAIN[1]:
+        if _revision(connection) != CHAIN[0]:
             raise AssertionError("Wrong-baseline rejection advanced the partial schema")
     finally:
         connection.close()
     resumed = run_helper(environment, contract, baseline_sha256=baseline)
-    if resumed.get("started_schema") != CHAIN[1] or resumed.get("executed_revisions") != list(CHAIN[2:]):
+    if resumed.get("started_schema") != CHAIN[0] or resumed.get("executed_revisions") != list(CHAIN[1:]):
         raise AssertionError("Forward resume did not start at the committed checkpoint")
     if snapshot(environment, TARGET) != before:
         raise AssertionError("Forward resume changed historical data, ACL or retained schema")
+    connection = _connect(environment, RESTORED_DATABASE)
+    try:
+        verify_detached_manager_constraints(connection)
+    finally:
+        connection.close()
+    if snapshot(environment, TARGET) != before:
+        raise AssertionError("Manager constraint probes changed historical records")
     noop = run_helper(environment, contract, baseline_sha256=baseline)
     if noop.get("status") != "already_at_target" or noop.get("executed_revisions") != []:
         raise AssertionError("Completed upgrade was not idempotent")
     return {"original_preservation_baseline": captured, "interruption": interruption,
-        "company_backfill_rollback": rollback, "company_backfill_rollback_verified": True,
-        "wrong_baseline_rejected_before_ddl": True,
-        "invalid_concurrent_index_repaired": True, "resume": resumed, "noop": noop}
+        "export_ddl_rollback": rollback, "export_ddl_rollback_verified": True,
+        "manager_ddl_rollback": manager_rollback, "manager_ddl_rollback_verified": True,
+        "manager_constraints_verified": True, "wrong_baseline_rejected_before_ddl": True,
+        "resume": resumed, "noop": noop}
 
 
 def rehearse(evidence_output: Path) -> dict[str, Any]:
@@ -244,10 +288,16 @@ def rehearse_owned(environment: Mapping[str, str], owner: Mapping[str, str], evi
             _seed_previous_release(connection)
         finally:
             connection.close()
-        _alembic(ROOT, source, "upgrade", SOURCE)
+        _alembic(ROOT, source, "upgrade", "0129_travel_tracker")
         connection = _connect(owner, SOURCE_DATABASE)
         try:
             seed_company_and_roster(connection)
+        finally:
+            connection.close()
+        _alembic(ROOT, source, "upgrade", SOURCE)
+        connection = _connect(owner, SOURCE_DATABASE)
+        try:
+            seed_retained_history(connection)
             server_major = int(_scalar(connection, "SHOW server_version_num")) // 10000
         finally:
             connection.close()
@@ -266,7 +316,7 @@ def rehearse_owned(environment: Mapping[str, str], owner: Mapping[str, str], evi
         if before["rows"]["whatsapp_broadcast_rejected_contacts"]["count"] != 699:
             raise AssertionError("Synthetic durable-roster fixture is incomplete")
         with tempfile.TemporaryDirectory(prefix="passdetection-ci-companies-") as temporary:
-            dump = Path(temporary) / "populated-0129.dump"
+            dump = Path(temporary) / "populated-0133.dump"
             # Preserve ACLs in the same disposable cluster so runtime grants are
             # a real verification obligation, rather than an empty comparison.
             _run(["pg_dump", "--format=custom", "--no-owner", "--file", str(dump), SOURCE_DATABASE],
@@ -280,7 +330,7 @@ def rehearse_owned(environment: Mapping[str, str], owner: Mapping[str, str], evi
             before = restored_baseline(before, snapshot(restored, SOURCE))
         result = exercise_resume(restored, contract, before)
         _alembic(ROOT, restored, "check")
-        evidence = {"version": 1, "scope": "synthetic populated PostgreSQL 0129-to-0133 CI rehearsal",
+        evidence = {"version": 1, "scope": "synthetic populated PostgreSQL 0133-to-0135 CI rehearsal",
             "production_release_authorization": False, "source_revision": SOURCE, "target_revision": TARGET,
             "dump": dump_receipt, "backup_clients": versions, "server_major": server_major,
             "historical_row_counts": {name: value["count"] for name, value in before["rows"].items()},

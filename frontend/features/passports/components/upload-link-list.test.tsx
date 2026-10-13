@@ -7,8 +7,11 @@ import { uploadLinksApi, type UploadLinkResponse } from "../api/upload-links.api
 import { UploadLinkList } from "./upload-link-list";
 
 vi.mock("../api/upload-links.api", () => ({
-  uploadLinksApi: { list: vi.fn(), permanentDelete: vi.fn() },
+  uploadLinksApi: { list: vi.fn(), permanentDelete: vi.fn(), assignCompany: vi.fn(), update: vi.fn() },
 }));
+vi.mock("@/features/companies/components/company-picker", () => ({ CompanyPicker: ({ onChange, value }: {
+  onChange: (value: unknown) => void; value: { name: string } | null;
+}) => <><p>{value?.name ?? "Unassigned"}</p><button type="button" onClick={() => onChange({ id: "client", name: "Assigned client", status: "active" })}>Select client company</button></> }));
 
 const archivedGroup: UploadLinkResponse = {
   id: "archived-group", name: "NIPUN", token: "group-token", status: "archived",
@@ -48,9 +51,34 @@ beforeEach(() => {
     status === "archived" ? [archivedGroup] : []
   ));
   vi.mocked(uploadLinksApi.permanentDelete).mockReset();
+  vi.mocked(uploadLinksApi.assignCompany).mockReset();
+  vi.mocked(uploadLinksApi.update).mockReset();
 });
 
 describe("archived group disclosure", () => {
+  it("saves an archived import's company with the main action and updates the reopened card", async () => {
+    let stored = { ...archivedGroup, import_only: true, company_id: null, company: null, company_revision: 0 } as UploadLinkResponse;
+    vi.mocked(uploadLinksApi.list).mockImplementation(async (status) => status === "archived" ? [stored] : []);
+    vi.mocked(uploadLinksApi.assignCompany).mockImplementation(async () => {
+      stored = { ...stored, company_id: "client", company: { id: "client", name: "Assigned client", status: "active" }, company_revision: 1 };
+      return stored;
+    });
+    renderList();
+    fireEvent.click(screen.getByRole("button", { name: "Show archived groups" }));
+    fireEvent.click((await screen.findAllByRole("button", { name: "Edit" }))[0]);
+    fireEvent.click(screen.getByRole("button", { name: "Select client company" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Edit Group" })).not.toBeInTheDocument());
+    expect(uploadLinksApi.assignCompany).toHaveBeenCalledOnce();
+    expect(uploadLinksApi.update).not.toHaveBeenCalled();
+    expect(screen.queryByText("Company not assigned")).not.toBeInTheDocument();
+    expect(screen.getAllByText("Assigned client")).toHaveLength(2);
+    fireEvent.click(screen.getAllByRole("button", { name: "Edit" })[0]);
+    expect(within(screen.getByRole("dialog", { name: "Edit Group" })).getByText("Assigned client")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Edit Group" })).not.toBeInTheDocument());
+    expect(uploadLinksApi.assignCompany).toHaveBeenCalledOnce();
+  });
   it("starts collapsed, retains the count, and allows the archived actions to be shown and hidden", async () => {
     renderList();
     const archivedSection = screen.getByRole("region", { name: "Archived groups" });

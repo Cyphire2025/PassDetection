@@ -1,5 +1,6 @@
 from dataclasses import replace
 from datetime import date
+import pytest
 
 from app.domain.services.traveller_suitability import (
     DestinationRule,
@@ -10,6 +11,13 @@ from app.domain.services.traveller_suitability import (
 )
 
 DOCUMENT = TravelDocument("IND", "IND", "P", date(2025, 1, 1), date(2035, 1, 1), True, True, "current")
+
+
+@pytest.mark.parametrize("expiry,blocked", [(date(2027, 2, 27), True), (date(2027, 2, 28), True), (date(2027, 3, 1), False)])
+def test_six_calendar_month_boundary_is_excluded(expiry, blocked):
+    result = assess_document(replace(DOCUMENT, expiry_date=expiry), travel_date=date(2026, 8, 31),
+        today=date(2026, 7, 1), destinations=(), rules=())
+    assert (result.outcome == SuitabilityOutcome.REPLACEMENT_REQUIRED) is blocked
 
 
 def test_calendar_months_handle_leap_days_and_month_ends():

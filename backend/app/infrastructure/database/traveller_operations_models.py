@@ -52,11 +52,14 @@ class TravellerMatchCaseModel(TravellerRecord, Base):
         ),
         CheckConstraint("revision >= 1", name="ck_traveller_match_revision"),
         Index("ix_traveller_match_queue", "agency_id", "company_id", "group_id", "status", "id"),
+        Index("ix_traveller_match_person_source", "agency_id", "company_id", "traveller_id", "status", "source_kind", "source_created_at", "id"),
     )
     group_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     traveller_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
     source_kind: Mapped[str] = mapped_column(String(32), nullable=False)
     source_row_key: Mapped[str] = mapped_column(String(128), nullable=False)
+    # Immutable source chronology; created_at remains the match-case audit time.
+    source_created_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     status: Mapped[str] = mapped_column(
         String(16), nullable=False, default="pending", server_default="pending"
     )
@@ -88,6 +91,9 @@ class TravellerReconciliationJobModel(TravellerRecord, Base):
             name="ck_traveller_reconciliation_counts",
         ),
         Index("ix_traveller_reconciliation_queue", "status", "available_at", "id"),
+        Index("ix_traveller_reconciliation_advance", "available_at", "id",
+            postgresql_where=text("status = 'succeeded' AND last_error_code = 'chain_advance_pending'"),
+            sqlite_where=text("status = 'succeeded' AND last_error_code = 'chain_advance_pending'")),
     )
     group_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     status: Mapped[str] = mapped_column(

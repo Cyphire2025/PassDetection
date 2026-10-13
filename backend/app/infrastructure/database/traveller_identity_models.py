@@ -97,6 +97,7 @@ class TravellerProfileModel(TravellerRecord, Base):
             name="ck_traveller_profile_permission",
         ),
         Index("ix_traveller_profile_directory", "agency_id", "company_id", "status", "id"),
+        Index("ix_traveller_profile_created_seek", "agency_id", "company_id", "created_at", "id"),
         Index("ix_traveller_profile_retention", "retention_until", "id"),
         Index("ix_traveller_profile_permission", "reuse_permission_status", "id"),
         Index("ix_traveller_profile_name", "agency_id", "company_id", "fingerprint_key_version", "name_fingerprint", "id"),

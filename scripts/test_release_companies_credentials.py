@@ -18,7 +18,7 @@ from release_companies_runtime import (
     helper_binding,
     helper_payload,
 )
-from test_release_companies_retained_update import release_fixture
+from test_release_companies_retained_update import SOURCE, release_fixture
 
 
 def container(identifier, user, password):
@@ -226,7 +226,7 @@ class RuntimeAuthority(unittest.TestCase):
         release.rows = Mock(return_value=list(release.record['live'].values()))
         release.directory = Path(tempfile.mkdtemp())
         self.addCleanup(release.directory.rmdir)
-        release.schema = Mock(return_value='0129_travel_tracker')
+        release.schema = Mock(return_value=SOURCE)
         order = []
         release.verify_migration_identity = lambda: order.append('preflight')
         release.candidate_images = lambda: order.append('build') or {}

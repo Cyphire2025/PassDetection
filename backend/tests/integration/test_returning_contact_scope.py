@@ -6,7 +6,7 @@ from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 
 import pytest
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from app.application.travellers.contact_change import finish_contact_change
 from app.application.travellers.history import read_history
@@ -24,6 +24,7 @@ from app.infrastructure.database.traveller_reuse_models import (
     TravellerGroupReuseConfigModel,
     TravellerParticipationModel,
 )
+from tests.integration.test_operational_autoassignment import assign
 from tests.integration.test_returning_claims import phone_claim, successful_claim
 from tests.integration.test_returning_completion import complete, completion_context
 from tests.integration.test_returning_contact_change import NEW_PHONE, pending_change
@@ -63,9 +64,10 @@ async def _snapshot(session, model):
 
 
 @pytest.mark.asyncio
-async def test_future_reuse_copies_new_phone_without_rewriting_old_trip_or_linked_broadcast(db_session, test_settings):
+@pytest.mark.parametrize("automatically_assigned", [False, True])
+async def test_future_reuse_copies_new_phone_without_rewriting_old_trip_or_linked_broadcast(db_session, test_settings, automatically_assigned):
     service, _, old_group, person, token, review = await completion_context(db_session, test_settings)
-    old_participation_id, _ = await complete(service, token, review)
+    old_participation_id, _, _ = await complete(service, token, review)
     old_participation = await db_session.get(TravellerParticipationModel, old_participation_id)
     old_source = await db_session.get(PassportSubmissionModel, old_participation.source_submission_id)
     assert old_source.client_phone == person.phone
@@ -104,16 +106,39 @@ async def test_future_reuse_copies_new_phone_without_rewriting_old_trip_or_linke
     frozen_source = (await _snapshot(db_session, PassportSubmissionModel))[0]
     frozen_participation = (await _snapshot(db_session, TravellerParticipationModel))[0]
 
+    # Linked broadcasts now use the company's closed matched roster. This
+    # contact test starts with an invited person before a trip snapshot exists.
+    if automatically_assigned:
+        assert await assign(service, future, person) == "assigned"
+        automatic_source = await db_session.scalar(select(PassportSubmissionModel).where(
+            PassportSubmissionModel.group_id == future.id))
+        assert automatic_source.client_phone == person.phone and automatic_source.client_reviewed_at is None
+    else:
+        db_session.add(TravellerParticipationModel(agency_id=future.agency_id, company_id=future.company_id,
+            group_id=future.id, traveller_id=person.profile.id, source_kind="reviewed_roster",
+            source_row_key=str(recipient.id), status="pending", profile_revision=person.profile.revision,
+            contact_revision=person.profile.contact_revision, question_version="pending",
+            idempotency_key=uuid.uuid4().hex, confirmations={}, answers={}))
+    await db_session.commit()
     _, _, future_token = await successful_claim(service, future, person, "code")
     pending, provider = await pending_change(service, future_token)
     updated_token = await finish_contact_change(service, future_token, pending, provider.code)
     current = await read_history(service, updated_token)
     assert current["contact_phone"] == NEW_PHONE
-    participation_id, _ = await complete(service, updated_token, current)
+    accepted_count = select(func.count()).select_from(TravellerParticipationModel).where(
+        TravellerParticipationModel.group_id == future.id, TravellerParticipationModel.status == "accepted")
+    before_count = await db_session.scalar(accepted_count)
+    participation_id, completion_status, _ = await complete(service, updated_token, current)
     participation = await db_session.get(TravellerParticipationModel, participation_id)
     source = await db_session.get(PassportSubmissionModel, participation.source_submission_id)
     assert source.group_id == future.id and source.client_phone == NEW_PHONE
     assert participation.contact_revision == person.profile.contact_revision == 2
+    assert participation.confirmations["information_confirmed"] is True and source.client_reviewed_at is not None
+    if automatically_assigned:
+        assert completion_status == participation.status == "accepted" and source.status == "confirmed"
+        assert await db_session.scalar(accepted_count) == before_count == 1
+    else:
+        assert completion_status == "submitted" and source.status == "client_submitted"
     assert provider.calls == 1  # Only the requested new-number OTP was sent.
 
     assert {model: await _snapshot(db_session, model) for model in models} == frozen_broadcast
@@ -121,3 +146,43 @@ async def test_future_reuse_copies_new_phone_without_rewriting_old_trip_or_linke
                 if row.id == old_source.id) == frozen_source
     assert next(row for row in await _snapshot(db_session, TravellerParticipationModel)
                 if row.id == old_participation_id) == frozen_participation
+
+
+@pytest.mark.asyncio
+async def test_confirmation_of_active_past_trip_does_not_replace_its_phone_snapshot(db_session, test_settings):
+    service, _, group, person, token, _ = await completion_context(db_session, test_settings)
+    assert await assign(service, group, person) == "assigned"
+    group.travel_date = datetime.now(UTC).date() - timedelta(days=1)
+    await db_session.commit()
+    pending, provider = await pending_change(service, token)
+    updated = await finish_contact_change(service, token, pending, provider.code)
+    review = await read_history(service, updated)
+    assert review["contact_phone"] == NEW_PHONE
+    _, _, source_id = await complete(service, updated, review)
+    source = await db_session.get(PassportSubmissionModel, source_id)
+    assert source.client_phone == person.phone
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("timezone,refresh", [("UTC", True), ("Asia/Kolkata", False)])
+async def test_existing_snapshot_phone_respects_trip_local_midnight(db_session, test_settings, monkeypatch, timezone, refresh):
+    from app.application.travellers import completion
+
+    service, _, group, person, token, _ = await completion_context(db_session, test_settings)
+    assert await assign(service, group, person) == "assigned"
+    fixed = datetime.now(UTC).replace(hour=23, minute=30, second=0, microsecond=0)
+    group.travel_date, group.return_date, group.timezone = fixed.date(), None, timezone
+    await db_session.commit()
+    pending, provider = await pending_change(service, token)
+    updated = await finish_contact_change(service, token, pending, provider.code)
+    review = await read_history(service, updated)
+
+    class FixedDateTime(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return fixed
+
+    monkeypatch.setattr(completion, "datetime", FixedDateTime)
+    _, _, source_id = await complete(service, updated, review)
+    source = await db_session.get(PassportSubmissionModel, source_id)
+    assert source.client_phone == (NEW_PHONE if refresh else person.phone)

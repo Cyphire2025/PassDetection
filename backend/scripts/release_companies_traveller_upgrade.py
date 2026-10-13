@@ -1,9 +1,7 @@
-"""Apply the exact 0129->0133 chain inside a retained, writer-fenced helper.
+"""Apply the exact 0133->0135 chain inside a retained, writer-fenced helper.
 
-Each revision gets its own Alembic invocation and connection. The isolated 0132
-revision owns CONCURRENTLY/autocommit, and can repair its interrupted invalid
-index. The host must retain the original 0129 backup and recheck the writer fence
-for every resume. No automatic downgrade, cleanup, enrollment or activation.
+Each revision owns its transaction. Resume requires the original 0133 backup
+and preservation baseline. No automatic downgrade, enrollment or activation.
 """
 
 from __future__ import annotations
@@ -33,7 +31,7 @@ OPTIONS = "-c lock_timeout=5000 -c statement_timeout=120000 -c idle_in_transacti
 
 
 def run_revisions(config: Any, schema: str, upgrade: Any, read_schema: Any) -> None:
-    """Never wrap this loop in a transaction: 0132 must own autocommit."""
+    """Commit and verify each frozen revision before advancing its checkpoint."""
     for revision in remaining_revisions(schema):
         upgrade(config, revision)
         if read_schema() != revision:

@@ -6,7 +6,6 @@ import secrets
 from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 
-import psycopg2
 from psycopg2 import sql
 from psycopg2.extensions import connection as Connection
 
@@ -111,28 +110,3 @@ def seed_company_and_roster(connection: Connection) -> None:
               GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO passdetection_ci_companies_runtime;
         """, parameters)
     connection.commit()
-
-
-def create_interrupted_source_index(connection: Connection) -> None:
-    """A real concurrent uniqueness failure leaves an invalid index to repair.
-
-    This uses two synthetic passports in the same agency. Never write pg_catalog
-    to fabricate an invalid state: PostgreSQL itself must produce that state.
-    """
-    connection.rollback()
-    connection.autocommit = True
-    try:
-        with connection.cursor() as cursor:
-            try:
-                cursor.execute("CREATE UNIQUE INDEX CONCURRENTLY ix_passport_submissions_scoped_seek "
-                    "ON passport_submissions (agency_id)")
-            except psycopg2.errors.UniqueViolation:
-                pass
-            else:
-                raise AssertionError("Synthetic concurrent index build unexpectedly succeeded")
-            cursor.execute("SELECT indisvalid FROM pg_index WHERE indexrelid="
-                "'public.ix_passport_submissions_scoped_seek'::regclass")
-            if cursor.fetchone() != (False,):
-                raise AssertionError("Concurrent failure did not leave the expected invalid index")
-    finally:
-        connection.autocommit = False

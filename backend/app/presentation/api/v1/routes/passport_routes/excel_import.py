@@ -323,6 +323,9 @@ async def import_passports_by_group(
     if models:
         session.add_all(models)
     if models or updated_count:
+        from app.application.travellers.history_schedule import schedule_submission_history
+        await schedule_submission_history(session, agency_id=group.agency_id, group_id=group.id,
+            trigger=f"excel-import:{uuid.uuid4()}")
         changed_submission_ids = [model.id for model in models]
         changed_submission_ids.extend(
             existing.id for _row, existing in resolved_rows if existing is not None

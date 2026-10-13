@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass
+from datetime import UTC, datetime
 
 from sqlalchemy import String, case, cast, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,6 +20,7 @@ from sqlalchemy.sql import ColumnElement, Select
 
 from app.application.companies.access import visible_company_groups
 from app.application.companies.participation_scope import live_participation_profile
+from app.application.companies.trip_phase import completed_company_trip
 from app.application.travellers.reconciliation_sources import roster_source_query
 from app.domain.entities.entities import OFFICE_VISIBLE_PASSPORT_STATUS_VALUES, User
 from app.infrastructure.database.models import (
@@ -44,6 +46,9 @@ class CompanyTotals:
     trip_participations: int
     unresolved_historical_records: int
     identity_totals_partial: bool
+    completed_groups: int
+    current_groups: int
+    passenger_trips_completed: int
 
 
 def _source_key(identifier: ColumnElement[uuid.UUID]) -> ColumnElement[str]:
@@ -72,13 +77,17 @@ def _unresolved_roster(kind: str, agency_id: uuid.UUID, company_id: uuid.UUID,
 
 
 async def company_totals(session: AsyncSession, *, user: User, agency_id: uuid.UUID,
-    company_id: uuid.UUID,
+    company_id: uuid.UUID, now: datetime | None = None,
 ) -> CompanyTotals:
     scope = visible_company_groups(user, agency_id, company_id)
+    completed = completed_company_trip(now or datetime.now(UTC))
     visible = scope.with_only_columns(ClientGroupModel.id)
-    lifecycle = scope.with_only_columns(ClientGroupModel.status).subquery()
-    counts = {status: int(count) for status, count in (await session.execute(
-        select(lifecycle.c.status, func.count()).group_by(lifecycle.c.status))).all()}
+    completed_ids = visible.where(completed)
+    lifecycle = scope.with_only_columns(ClientGroupModel.status, completed.label("completed")).subquery()
+    lifecycle_rows = (await session.execute(select(lifecycle.c.status, func.count(),
+        func.count(case((lifecycle.c.completed, 1)))).group_by(lifecycle.c.status))).all()
+    counts = {status: int(count) for status, count, _ in lifecycle_rows}
+    completed_count = sum(int(count) for _, _, count in lifecycle_rows)
     participation, source = TravellerParticipationModel, PassportSubmissionModel
     member_scope = (participation.agency_id == agency_id, participation.company_id == company_id,
         participation.group_id.in_(visible), live_participation_profile())
@@ -87,6 +96,7 @@ async def company_totals(session: AsyncSession, *, user: User, agency_id: uuid.U
         func.count(case((accepted, participation.id))),
         func.count(func.distinct(case((accepted, participation.traveller_id)))),
         func.count(case((participation.status.in_(("pending", "submitted")), participation.id))),
+        func.count(case((accepted & participation.group_id.in_(completed_ids), participation.id))),
     ).where(*member_scope))).one()
     resolved = select(participation.id).where(*member_scope, accepted,
         participation.source_submission_id == source.id).correlate(source).exists()
@@ -108,4 +118,6 @@ async def company_totals(session: AsyncSession, *, user: User, agency_id: uuid.U
         archived_groups=counts.get("archived", 0), total_groups=sum(counts.values()),
         collected_records=int(submissions[0]), unique_travellers=int(membership[1]),
         trip_participations=int(membership[0]), unresolved_historical_records=unresolved,
-        identity_totals_partial=bool(unresolved or membership[2] or roster[2] or roster[3]))
+        identity_totals_partial=bool(unresolved or membership[2] or roster[2] or roster[3]),
+        completed_groups=completed_count, current_groups=sum(counts.values()) - completed_count,
+        passenger_trips_completed=int(membership[3]))

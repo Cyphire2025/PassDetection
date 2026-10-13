@@ -5,12 +5,10 @@ import sys
 from types import SimpleNamespace
 from unittest.mock import Mock
 
-import psycopg2
 import pytest
 
 from scripts import rehearse_companies_traveller_upgrade as rehearsal
 from scripts.companies_rehearsal_fixture import (
-    create_interrupted_source_index,
     seed_company_and_roster,
 )
 
@@ -66,26 +64,27 @@ def test_resume_exercises_actual_checkpoint_then_noop(monkeypatch):
     baseline = rehearsal.preservation_digest(before)
     runner = Mock(side_effect=[{"exit_code": 74, "rolled_back_revision": rehearsal.CHAIN[0]},
         {"status": "baseline_captured", "preservation_sha256": baseline}, {"exit_code": 73},
-        {"status": "failed"},
-        {"started_schema": rehearsal.CHAIN[1], "executed_revisions": list(rehearsal.CHAIN[2:])},
+        {"exit_code": 76}, {"status": "failed"},
+        {"started_schema": rehearsal.CHAIN[0], "executed_revisions": list(rehearsal.CHAIN[1:])},
         {"status": "already_at_target", "executed_revisions": []}])
-    invalid_index = Mock()
+    constraints = Mock()
     monkeypatch.setattr(rehearsal, "run_helper", runner)
     monkeypatch.setattr(rehearsal, "_connect", Mock(return_value=connection))
-    monkeypatch.setattr(rehearsal, "_revision", Mock(side_effect=[rehearsal.SOURCE, rehearsal.CHAIN[1], rehearsal.CHAIN[1]]))
-    monkeypatch.setattr(rehearsal, "create_interrupted_source_index", invalid_index)
+    monkeypatch.setattr(rehearsal, "_revision", Mock(side_effect=[rehearsal.SOURCE, rehearsal.CHAIN[0], rehearsal.CHAIN[0], rehearsal.CHAIN[0]]))
+    monkeypatch.setattr(rehearsal, "verify_detached_manager_constraints", constraints)
     monkeypatch.setattr(rehearsal, "snapshot", Mock(return_value=before))
     result = rehearsal.exercise_resume(environment(), {}, before)
-    assert runner.call_count == 6
-    assert runner.call_args_list[0].kwargs == {"rollback_backfill": True, "baseline_sha256": baseline}
+    assert runner.call_count == 7
+    assert runner.call_args_list[0].kwargs == {"rollback_export": True, "baseline_sha256": baseline}
     assert runner.call_args_list[1].kwargs == {"capture_baseline": True}
     assert runner.call_args_list[2].kwargs == {"interrupt": True, "baseline_sha256": baseline}
-    assert runner.call_args_list[3].kwargs == {"baseline_sha256": "0" * 64, "expect_rejection": True}
-    assert all(call.kwargs["baseline_sha256"] == baseline for call in runner.call_args_list[4:])
-    invalid_index.assert_called_once_with(connection)
-    assert connection.close.call_count == 3
-    assert result["company_backfill_rollback_verified"] is True
-    assert result["invalid_concurrent_index_repaired"] is True
+    assert runner.call_args_list[3].kwargs == {"rollback_manager": True, "baseline_sha256": baseline}
+    assert runner.call_args_list[4].kwargs == {"baseline_sha256": "0" * 64, "expect_rejection": True}
+    assert all(call.kwargs["baseline_sha256"] == baseline for call in runner.call_args_list[5:])
+    constraints.assert_called_once_with(connection)
+    assert connection.close.call_count == 5
+    assert result["export_ddl_rollback_verified"] is True
+    assert result["manager_constraints_verified"] is True
     assert result["wrong_baseline_rejected_before_ddl"] is True
 
 
@@ -94,8 +93,8 @@ def test_resume_rejects_historical_mutation_before_continuing(monkeypatch):
         "preservation_sha256": rehearsal.preservation_digest({"rows": "original"})}, {"exit_code": 73}])
     monkeypatch.setattr(rehearsal, "run_helper", runner)
     monkeypatch.setattr(rehearsal, "_connect", Mock(return_value=Mock()))
-    monkeypatch.setattr(rehearsal, "_revision", Mock(side_effect=[rehearsal.SOURCE, rehearsal.CHAIN[1]]))
-    monkeypatch.setattr(rehearsal, "create_interrupted_source_index", Mock())
+    monkeypatch.setattr(rehearsal, "_revision", Mock(side_effect=[rehearsal.SOURCE, rehearsal.CHAIN[0]]))
+    monkeypatch.setattr(rehearsal, "verify_detached_manager_constraints", Mock())
     monkeypatch.setattr(rehearsal, "snapshot", Mock(side_effect=[{"rows": "original"}, {"rows": "changed"}]))
     with pytest.raises(AssertionError, match="changed historical"):
         rehearsal.exercise_resume(environment(), {}, {"rows": "original"})
@@ -103,23 +102,23 @@ def test_resume_rejects_historical_mutation_before_continuing(monkeypatch):
 
 
 @pytest.mark.parametrize("changed_schema", [False, True])
-def test_failed_backfill_must_restore_original_schema_rows_and_trigger(monkeypatch, changed_schema):
+def test_failed_export_must_restore_original_schema_rows_and_trigger(monkeypatch, changed_schema):
     runner = Mock(return_value={"exit_code": 74})
     monkeypatch.setattr(rehearsal, "run_helper", runner)
     monkeypatch.setattr(rehearsal, "_connect", Mock(return_value=Mock()))
     monkeypatch.setattr(rehearsal, "_revision", Mock(return_value=rehearsal.CHAIN[0] if changed_schema else rehearsal.SOURCE))
     monkeypatch.setattr(rehearsal, "snapshot", Mock(return_value={"catalog": "trigger disabled"}))
-    with pytest.raises(AssertionError, match="Backfill"):
+    with pytest.raises(AssertionError, match="Export"):
         rehearsal.exercise_resume(environment(), {}, {"catalog": "trigger enabled"})
     assert runner.call_count == 1  # Never capture a new baseline after failed rollback.
 
 
-def test_unrelated_failure_is_not_accepted_as_backfill_rollback(monkeypatch):
+def test_unrelated_failure_is_not_accepted_as_export_rollback(monkeypatch):
     monkeypatch.setattr(rehearsal.subprocess, "run", Mock(return_value=SimpleNamespace(returncode=2)))
     with pytest.raises(RuntimeError, match="expected exit 74"):
-        rehearsal.run_helper(environment(), {}, rollback_backfill=True)
+        rehearsal.run_helper(environment(), {}, rollback_export=True)
     with pytest.raises(ValueError, match="mutually exclusive"):
-        rehearsal.run_helper(environment(), {}, rollback_backfill=True, interrupt=True)
+        rehearsal.run_helper(environment(), {}, rollback_export=True, interrupt=True)
 
 
 @pytest.mark.parametrize("reason", ["existing_migration_identity_required", "unrelated_failure"])
@@ -154,7 +153,7 @@ def test_bootstrap_success_and_unrelated_exit_cannot_count_as_rejection(monkeypa
         rehearsal.run_helper(environment(), {}, reject_bootstrap=True, capture_baseline=True)
 
 
-def test_rollback_injection_occurs_only_after_named_disable_executes(monkeypatch):
+def test_rollback_injection_occurs_only_after_export_table_create_executes(monkeypatch):
     from alembic.migration import MigrationContext
     from alembic.operations import Operations
 
@@ -167,38 +166,44 @@ def test_rollback_injection_occurs_only_after_named_disable_executes(monkeypatch
     monkeypatch.setattr(Operations, "execute", execute)
     monkeypatch.setattr(sys, "argv", ["synthetic-injection", "{}"])
     statements = ["SET LOCAL lock_timeout = '5s'",
-                  "ALTER TABLE public.client_groups DISABLE TRIGGER group_roster_revision"]
+                  "CREATE TABLE company_data_export_jobs (id UUID PRIMARY KEY)"]
     def apply(_contract):
         with Operations.context(MigrationContext.configure(dialect_name="postgresql")):
             for statement in statements:
                 op.execute(statement)
-        pytest.fail("Injection did not stop after disabling the named trigger")
+        pytest.fail("Injection did not stop after creating the export table")
     monkeypatch.setattr(helper, "apply_upgrade", apply)
     with pytest.raises(SystemExit) as raised:
-        exec(rehearsal.BACKFILL_ROLLBACK_RUNNER, {})
+        exec(rehearsal.EXPORT_ROLLBACK_RUNNER, {})
     assert raised.value.code == 74
     assert executed == statements
 
 
-def test_invalid_index_fixture_requires_real_failed_build():
-    connection, cursor = Mock(), Mock()
-    connection.cursor.return_value.__enter__ = Mock(return_value=cursor)
-    connection.cursor.return_value.__exit__ = Mock(return_value=False)
-    with pytest.raises(AssertionError, match="unexpectedly succeeded"):
-        create_interrupted_source_index(connection)
-    assert connection.autocommit is False
+def test_manager_rollback_injection_runs_after_exact_column_change(monkeypatch):
+    from alembic.migration import MigrationContext
+    from alembic.operations import Operations
+
+    from alembic import op
+    from scripts import release_companies_traveller_upgrade as helper
+
+    executed = []
+    monkeypatch.setattr(Operations, "alter_column",
+        lambda self, table, column, *args, **kwargs: executed.append((table, column)))
+    monkeypatch.setattr(sys, "argv", ["synthetic-manager-injection", "{}"])
+
+    def apply(_contract):
+        with Operations.context(MigrationContext.configure(dialect_name="postgresql")):
+            op.alter_column("client_manager_group_assignments", "organization_id", nullable=True)
+        pytest.fail("Manager rollback injection did not fire")
+
+    monkeypatch.setattr(helper, "apply_upgrade", apply)
+    with pytest.raises(SystemExit) as raised:
+        exec(rehearsal.MANAGER_ROLLBACK_RUNNER, {})
+    assert raised.value.code == 76
+    assert executed == [("client_manager_group_assignments", "organization_id")]
 
 
-@pytest.mark.parametrize("validity", [False, True])
-def test_invalid_index_fixture_checks_postgresql_state_after_expected_failure(validity):
-    connection, cursor = Mock(), Mock()
-    connection.cursor.return_value.__enter__ = Mock(return_value=cursor)
-    connection.cursor.return_value.__exit__ = Mock(return_value=False)
-    cursor.execute.side_effect = [psycopg2.errors.UniqueViolation("synthetic duplicate"), None]
-    cursor.fetchone.return_value = (validity,)
-    if validity:
-        with pytest.raises(AssertionError, match="expected invalid index"):
-            create_interrupted_source_index(connection)
-    else:
-        create_interrupted_source_index(connection)
-    assert connection.autocommit is False
+def test_unrelated_exit_cannot_count_as_manager_rollback(monkeypatch):
+    monkeypatch.setattr(rehearsal.subprocess, "run", Mock(return_value=SimpleNamespace(returncode=2)))
+    with pytest.raises(RuntimeError, match="expected exit 76"):
+        rehearsal.run_helper(environment(), {}, rollback_manager=True)

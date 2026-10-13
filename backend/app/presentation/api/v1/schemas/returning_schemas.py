@@ -1,6 +1,7 @@
 """Public allowlists: proof material is input-only and never echoed back."""
 
 from typing import Annotated, Literal
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -80,6 +81,11 @@ class ContactChangeRequest(ReturningRequest):
     phone_number: str = Field(min_length=8, max_length=64)
 
 
+class OwnedReuseSource(ReturningRequest):
+    source_submission_id: UUID
+    expected_extraction_revision: int = Field(ge=0)
+
+
 class CompleteReuseRequest(ReturningRequest):
     question_version: str = Field(min_length=1, max_length=128)
     review_version: str = Field(min_length=64, max_length=64)
@@ -89,3 +95,4 @@ class CompleteReuseRequest(ReturningRequest):
     current_details: dict[str, str] = Field(default_factory=dict, max_length=20)
     information_confirmed: Literal[True]
     idempotency_key: str = Field(min_length=16, max_length=128)
+    owned_source: OwnedReuseSource | None = None

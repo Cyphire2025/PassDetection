@@ -27,6 +27,7 @@ from app.application.companies.directory import (
 )
 from app.application.companies.summary import company_totals
 from app.application.companies.traveller_metrics import GroupTravellerCounts, group_traveller_counts
+from app.application.companies.trip_phase import completed_company_trip
 from app.application.mcp.read_cursor import MCPReadCursor
 from app.core.config.settings import Settings, get_settings
 from app.domain.entities.entities import OFFICE_VISIBLE_PASSPORT_STATUS_VALUES, User
@@ -156,6 +157,7 @@ async def company_summary(
 async def company_groups(
     company_id: uuid.UUID, search: str = Query(default="", max_length=120),
     status: Literal["active", "closed", "archived", "all"] = "all", import_only: bool | None = None,
+    phase: Literal["active", "completed", "all"] = "all",
     cursor: str | None = Query(default=None, max_length=2048), page_size: int = Query(default=50, ge=1, le=100),
     agency_id: uuid.UUID | None = None, user: User = Depends(require_role(COMPANY_ADMIN_ROLES)),
     session: AsyncSession = Depends(get_db_session), settings: Settings = Depends(get_settings),
@@ -164,10 +166,13 @@ async def company_groups(
     codec = MCPReadCursor(settings.app_secret_key, "company-groups-v1")
     try:
         state = codec.read(cursor, {"user": user.id, "agency": company.agency_id, "company": company.id,
-                                    "search": search, "status": status, "import_only": import_only})
+                                    "search": search, "status": status, "import_only": import_only, "phase": phase})
     except ValueError as exc:
         raise ValidationError(str(exc), field="cursor") from exc
     query = visible_company_groups(user, company.agency_id, company.id)
+    completed = completed_company_trip(datetime.fromisoformat(state["cutoff"]))
+    if phase != "all":
+        query = query.where(completed if phase == "completed" else ~completed)
     if search.strip():
         query = query.where(substring_predicate(search.strip(), fields=group_search_fields()))
     if status != "all":
@@ -181,7 +186,7 @@ async def company_groups(
     columns = (ClientGroupModel.id, ClientGroupModel.name, ClientGroupModel.destination,
                ClientGroupModel.travel_date, ClientGroupModel.return_date, ClientGroupModel.status,
                ClientGroupModel.import_only, ClientGroupModel.company_id, ClientGroupModel.company_revision,
-               ClientGroupModel.created_at)
+               ClientGroupModel.created_at, completed.label("completed"))
     rows = list((await session.execute(query.with_only_columns(*columns).where(
         ClientGroupModel.created_at <= datetime.fromisoformat(state["cutoff"]),
     ).order_by(ClientGroupModel.created_at.desc(), ClientGroupModel.id.desc()).limit(page_size + 1))).mappings())
@@ -195,7 +200,8 @@ async def company_groups(
         PassportSubmissionModel.status.in_(OFFICE_VISIBLE_PASSPORT_STATUS_VALUES),
     ).group_by(PassportSubmissionModel.group_id))).all()} if group_ids else {}
     return CompanyGroupPageResponse(
-        items=[CompanyGroupResponse(**{key: value for key, value in row.items() if key != "created_at"},
+        items=[CompanyGroupResponse(**{key: value for key, value in row.items() if key not in {"created_at", "completed"}},
+                                    phase="completed" if row["completed"] else "active",
                                     returning_travellers=traveller_counts.get(row["id"], GroupTravellerCounts()).returning_travellers,
                                     trip_participations=traveller_counts.get(row["id"], GroupTravellerCounts()).trip_participations,
                                     reuse_completed=traveller_counts.get(row["id"], GroupTravellerCounts()).reuse_completed,

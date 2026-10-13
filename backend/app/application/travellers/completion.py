@@ -15,13 +15,14 @@ from typing import cast
 
 from sqlalchemy import select
 
-from app.application.travellers.asset_policy import is_reviewable_asset
 from app.application.travellers.audit import record_history_action
 from app.application.travellers.claims import ReturningClaims
 from app.application.travellers.current_details import normalize_current_details
 from app.application.travellers.errors import ReuseError, ReuseReason
 from app.application.travellers.history import project_history, review_context, review_version
+from app.application.travellers.owned_extraction import owned_extraction_candidate
 from app.application.travellers.requirements import TripAnswers, requirement_signatures
+from app.application.travellers.submission_snapshot import new_reuse_submission
 from app.domain.exceptions.exceptions import ValidationError
 from app.domain.value_objects.custom_questions import (
     normalize_custom_answers,
@@ -32,6 +33,7 @@ from app.infrastructure.database.traveller_reuse_models import (
     TravellerChangeEventModel,
     TravellerParticipationModel,
 )
+from app.infrastructure.repositories.coordinator_assignment_lifecycle import current_trip_clause
 from app.infrastructure.repositories.platform_policy_repository import PlatformPolicyRepository
 
 
@@ -40,11 +42,20 @@ async def complete_reuse(
     expected_participation_revision: int | None, custom_answers: dict[str, str],
     custom_detail_answers: dict[str, str], current_details: dict[str, str], idempotency_key: str,
     expected_review_version: str,
-) -> tuple[uuid.UUID, str]:
+    owned_source_id: uuid.UUID | None = None, owned_source_revision: int | None = None,
+    upload_session_id: str | None = None,
+) -> tuple[uuid.UUID, str, uuid.UUID]:
     # Hold one authority transaction through validation and publication. Bind
     # the caller's confirmation to what their browser actually reviewed.
     context = await review_context(service, token)
     grant, scope, person, passport, revision, assets = context
+    if owned_source_id is not None:
+        if owned_source_revision is None or not upload_session_id or await owned_extraction_candidate(
+            service.session, group=scope.group, source_submission_id=owned_source_id,
+            expected_extraction_revision=owned_source_revision, upload_session_id=upload_session_id,
+            crypto=service.crypto, lock_source=True,
+        ) != person.id:
+            raise ReuseError(ReuseReason.REVISION_CONFLICT)
     policies = await PlatformPolicyRepository(service.session).load()
     review = await project_history(service, context, policies)
     if "participation:submit" not in grant.allowed_actions:
@@ -68,7 +79,9 @@ async def complete_reuse(
     custom_details = normalize_custom_detail_answers(scope.group.custom_details,
         [{"detail_id": key, "value": value} for key, value in {**saved["custom_detail_answers"], **custom_detail_answers}.items()])
     payload_hash = hashlib.sha256(json.dumps({"review": expected_review_version, "questions": questions,
-        "custom_details": custom_details, "details": details}, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        "custom_details": custom_details, "details": details,
+        "owned_source": [str(owned_source_id), owned_source_revision] if owned_source_id else None},
+        sort_keys=True, separators=(",", ":")).encode()).hexdigest()
     participation = await service.session.scalar(select(TravellerParticipationModel).where(
         TravellerParticipationModel.agency_id == grant.agency_id,
         TravellerParticipationModel.company_id == grant.company_id,
@@ -79,7 +92,9 @@ async def complete_reuse(
         if participation.question_version != requirements_version or participation.confirmations.get("payload_hash") != payload_hash:
             raise ReuseError(ReuseReason.REVISION_CONFLICT)
         await service.session.commit()
-        return participation.id, participation.status
+        if participation.source_submission_id is None:
+            raise ReuseError(ReuseReason.REVISION_CONFLICT)
+        return participation.id, participation.status, participation.source_submission_id
     if participation is not None and participation.revision != expected_participation_revision:
         raise ReuseError(ReuseReason.REVISION_CONFLICT)
     if participation is None and expected_participation_revision is not None:
@@ -101,35 +116,37 @@ async def complete_reuse(
     if participation.status in {"submitted", "accepted"} and participation.document_revision_id != revision.id:
         raise ReuseError(ReuseReason.REVISION_CONFLICT)
     source = None
+    refresh_current_phone = False
     if participation.source_submission_id:
-        source = await service.session.scalar(select(PassportSubmissionModel).where(
+        source_row = (await service.session.execute(select(PassportSubmissionModel,
+            current_trip_clause(now, group_model=scope.group)).where(
             PassportSubmissionModel.id == participation.source_submission_id,
             PassportSubmissionModel.group_id == grant.group_id,
             PassportSubmissionModel.agency_id == grant.agency_id,
-        ).with_for_update())
+        ).with_for_update())).one_or_none()
+        if source_row is not None:
+            source, refresh_current_phone = source_row
         if source is not None and (source.staff_metadata or {}).get("reuse_document_revision_id") != str(revision.id):
             # An independently uploaded/approved submission must stay in its
             # original review workflow, never be silently rewritten by reuse.
             raise ReuseError(ReuseReason.REVISION_CONFLICT)
+    keep_operational_acceptance = (participation.status == "accepted" and source is not None
+        and (source.staff_metadata or {}).get("reuse_assignment") == "automatic")
     if source is None:
-        asset_keys = {asset.document_side: asset.object_key for asset in assets if is_reviewable_asset(asset, now)}
-        fields = dict(cast(dict[str, str], review["extracted_fields"]))
-        source = PassportSubmissionModel(
-            id=uuid.uuid4(), agency_id=grant.agency_id, group_id=grant.group_id,
-            client_name=str(review["display_name"]), client_email=details.get("client_email"),
-            client_phone=str(phone) if phone else None, image_s3_key=asset_keys.get("front") or "",
-            passport_back_s3_key=asset_keys.get("back"), passport_cover_s3_key=asset_keys.get("cover"),
-            passport_back_cover_s3_key=asset_keys.get("back_cover"), passport_photo_s3_key=asset_keys.get("photo"),
-            acquisition_mode="file", upload_idempotency_key=f"reuse:{participation.id}",
-            status="client_submitted", extraction_status="extraction_complete", extraction_revision=1,
-            extracted_fields=fields, confirmed_fields=fields, client_reviewed_at=now,
-            staff_metadata={"reuse_traveller_id": str(person.id), "reuse_document_revision_id": str(revision.id)},
-        )
+        source = new_reuse_submission(group=scope.group, person=person, revision=revision, assets=assets,
+            fields=dict(cast(dict[str, str], review["extracted_fields"])), display_name=str(review["display_name"]),
+            phone=str(phone) if phone else None, email=details.get("client_email"),
+            participation_id=participation.id, now=now, traveller_confirmed=True)
         service.session.add(source)
         await service.session.flush()
         participation.source_submission_id = source.id
+    # An automatically assigned future-trip snapshot predates this real
+    # confirmation. Apply the reviewed current binding only to this trip,
+    # using the shared trip-local date; past snapshots stay put.
+    if refresh_current_phone:
+        source.client_phone = str(phone) if phone else None
     source.custom_answers, source.custom_detail_answers = questions, custom_details
-    source.status = "client_submitted"
+    source.status = "confirmed" if keep_operational_acceptance else "client_submitted"
     source.client_reviewed_at = now
     source.departure_city, source.nearest_domestic_airport = details.get("departure_city"), details.get("nearest_domestic_airport")
     source.client_email = details.get("client_email")
@@ -141,7 +158,7 @@ async def complete_reuse(
     participation.confirmations = {"completion_key": idempotency_key, "payload_hash": payload_hash, "information_confirmed": True,
         "requirement_signatures": requirement_signatures(scope.group, policies),
         "actor_kind": grant.actor_kind, "suitability": suitability, "confirmed_at": now.isoformat()}
-    participation.status = "submitted"
+    participation.status = "accepted" if keep_operational_acceptance else "submitted"
     participation.submitted_at = now
     participation.trip_started_at = scope.group.travel_date
     participation.revision += 1
@@ -154,4 +171,4 @@ async def complete_reuse(
     ))
     await record_history_action(service.session, grant, "trip_submitted", reference=str(participation.id))
     await service.session.commit()
-    return participation.id, participation.status
+    return participation.id, participation.status, source.id

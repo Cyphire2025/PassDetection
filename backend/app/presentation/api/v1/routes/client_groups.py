@@ -461,6 +461,8 @@ async def _replace_whatsapp_links(
         )
     summaries = summaries_with_matching_fields(summaries, requested_configuration)
     if changed:
+        from app.application.travellers.history_schedule import schedule_group_history
+        await schedule_group_history(session, group=group_model, trigger=f"broadcast-link:{uuid.uuid4()}")
         await reconcile_mobile_passenger_access_for_group(
             session,
             agency_id=agency_id,

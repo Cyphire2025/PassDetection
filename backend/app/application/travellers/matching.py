@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.travellers.authority import ReuseScope, accepted_document, eligible_person
 from app.application.travellers.errors import ReuseError, ReuseReason
+from app.application.travellers.retained_authority import retained_authority_predicate
 from app.domain.services.traveller_verification import MAX_PHONE_CANDIDATES
 from app.infrastructure.database.traveller_reuse_models import (
     TravellerCandidateHandleModel,
@@ -67,10 +68,7 @@ async def phone_candidates(
         ).where(
         TravellerProfileModel.agency_id == claim.agency_id,
         TravellerProfileModel.company_id == claim.company_id,
-        TravellerProfileModel.status == "active",
-        TravellerProfileModel.deleted_at.is_(None),
-        TravellerProfileModel.reuse_permission_status == "granted",
-        TravellerProfileModel.reuse_permission_evidence != {},
+        retained_authority_predicate(),
         or_(TravellerProfileModel.retention_until.is_(None), TravellerProfileModel.retention_until > now),
         phone,
     )

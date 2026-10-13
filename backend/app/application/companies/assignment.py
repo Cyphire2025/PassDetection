@@ -13,6 +13,7 @@ import uuid
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.companies.data_exports import invalidate_company_exports
 from app.application.companies.reassignment import (
     ReassignmentReview,
     require_reassignment_review,
@@ -103,6 +104,9 @@ async def assign_group_company(
         access.access_generation += 1
     if previous_id is not None:
         await stage_reassignment(session, group=group, previous_company_id=previous_id)
+        await invalidate_company_exports(session, agency_id, previous_id)
+    from app.application.travellers.history_schedule import schedule_group_history
+    await schedule_group_history(session, group=group, trigger=f"assignment:{group.id}:{group.company_revision}")
     await session.flush()
     await AuditLogRepository(session).record(
         action="company.group_assigned" if previous_id is None else "company.group_reassigned",
