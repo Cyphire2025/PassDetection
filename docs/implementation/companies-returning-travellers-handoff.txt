@@ -1,11 +1,50 @@
 Companies / Clients and returning-traveller feature review handoff
 Date: 2026-10-14 (Asia/Calcutta)
-Client-workflow correction: FAST DEPLOYED AND VERIFIED; Full CI remains paused.
-Current live application: 10914d09fb858bf37e2c9a1c7e7c373a452c5d08.
-Schema remains 0133_traveller_document_impact; this correction ran no migrations.
+Client dashboard and automatic reuse: FAST DEPLOYED AND VERIFIED; Full CI remains paused.
+Current live application: a8345cb2b021b0d099c08c022685aded9a3727dc.
+Current live schema: 0135_company_removal_history.
 The documentation-only follow-up records evidence without changing that app revision.
 
-Current follow-up: client dashboard and automatic reuse (IN PROGRESS, NOT DEPLOYED)
+Latest release and requested cleanup
+- Fast unit: passdetection-deploy-a8345cb2b021-2c1041dd; completed successfully.
+  Both candidate images built without OOM. Exact source/image binding and API
+  contract were checked. The live runtime reuses the previously installed native
+  dependencies; this is not a fresh native-image rebuild or Full CI qualification.
+- The candidate's isolated PostgreSQL 16 rehearsal passed with 700 synthetic roster
+  people and two real contact-concurrency tests. It proved backup/restore, both
+  transactional DDL failures, preservation, checkpoint resume, wrong-baseline
+  rejection, manager scope constraints, runtime grants and split migration roles.
+- Live backup, original-row/catalog/ACL baseline and 0133->0135 migration validation
+  passed. All original business fields were preserved; only the new source-date
+  projection was backfilled. No automatic downgrade was attempted.
+- Independent postdeploy verification found all 20 expected services running with
+  configured health checks passing, exact application/image/schema revisions,
+  identical reuse configuration across writers and public readiness=ready.
+  A served JavaScript asset matched the running candidate's SHA-256. Ten bounded
+  public HTTP requests passed 12 checks, including auth/session boundaries,
+  security headers, exact revision, frontend assets and logo retrieval.
+- Signed-in production browser inspection verified View company controls, the
+  four-card dashboard, Groups/Settings/All data tabs and Active/Completed group
+  sections. Existing groups open the established All Groups detail route.
+  The Companies directory was visibly empty after the requested cleanup.
+  Group Links still showed two active and six archived groups, all eight visibly
+  marked Company not assigned; two additional groups outside that visible list
+  were included in the ten-group transactional preservation/unassignment proof.
+- Requested cleanup committed as ONE transaction through delete_company:
+  BLUECHIPP: 5 groups; NIPUN: 2; TATA AIG: 3. All 10 groups are unassigned.
+  Three directory entries were tombstoned; zero rows were hard-deleted. Protected
+  audit records remain. Thirty scoped table proofs matched before/after, including
+  1,752 passport submissions, 11 shared group documents, one linked broadcast,
+  707 recipients, 1,442 message logs and 1,413 recipient-message state rows.
+  The manager profile/account and assignment history remain; its company-specific
+  assignment was revoked and detached. No provider/storage/message action ran.
+- Evidence in companies-reuse-evidence/: fast-release-a8345cb2.json,
+  live-verification-a8345cb2.json, http-smoke-a8345cb2.json and
+  requested-client-removal-a8345cb2.json. Large-dataset receipt is separate below.
+  Real traveller OTP delivery and complete saved-document disclosure were not
+  exercised on production, and no large synthetic dataset was seeded there.
+
+Implemented client dashboard and automatic reuse
 - Approved scope: this is the operator's own company platform. Companies are its
   clients. No agency selector belongs in this workflow.
 - Group Links main Save changes now persists the selected client through the
@@ -21,8 +60,8 @@ Current follow-up: client dashboard and automatic reuse (IN PROGRESS, NOT DEPLOY
   accepted participations; unique people count canonical accepted people. Backfill
   state is stated rather than presenting unresolved records as known unique people.
 - User approved removing only NIPUN, TATA AIG and BLUECHIPP, with ALL their groups
-  becoming unassigned. No production removal has happened. Read-only inspection
-  found 2, 3 and 5 groups respectively across all lifecycle states, plus one
+  becoming unassigned. Production removal completed with preservation checks.
+  There were 2, 3 and 5 groups respectively across all lifecycle states, plus one
   BLUECHIPP manager profile. Every group, source, document, broadcast, profile and
   historical grant row is retained. Company-specific manager grants are revoked
   and detached; passenger/coordinator access settings remain. Prior revocation
@@ -69,7 +108,7 @@ Current follow-up: client dashboard and automatic reuse (IN PROGRESS, NOT DEPLOY
   Schema 0135
   permits a null company only on inactive manager grants and adds independent
   tenant/profile/group FKs and an agency/company manager-grant lookup index.
-  The exact Fast 0133->0135 rehearsal is being prepared: populated backup/restore,
+  The exact Fast 0133->0135 rehearsal passed: populated backup/restore,
   every old row/catalog/ACL hash, transaction failures in BOTH revisions, checkpoint
   resume, wrong-baseline rejection, actual manager scope constraint probes, grants,
   idempotency and split migration ownership. No generic schema bypass is allowed.
@@ -87,7 +126,7 @@ Current follow-up: client dashboard and automatic reuse (IN PROGRESS, NOT DEPLOY
   Architecture: 26 reviewed boundaries. Module budgets: 119 backend / 51 frontend,
   with every previous budget and global gate retained. Eleven backend and four
   frontend boundary/budget guard tests passed. Final API snapshot check passed.
-  PostgreSQL rehearsal remains pending until the Fast candidate is built.
+  The actual Fast candidate also passed its isolated PostgreSQL rehearsal.
 - Actual new-path capacity receipt:
   docs/implementation/companies-reuse-evidence/company-all-data-100000-people.json
   SQLite 3.53.1 / Python 3.11.15, synthetic 100,000 people, one client, 100 groups,
@@ -125,12 +164,13 @@ Current follow-up: client dashboard and automatic reuse (IN PROGRESS, NOT DEPLOY
   Two Fast attempts refused before builds/migrations because a scheduled
   travellers.document_impact worker was active. All 20 old services remain healthy;
   no production company removal or schema change occurred in those attempts.
-  A bounded 150-second worker drain is being qualified; unavailable/malformed
+  The successful release uses a bounded 150-second worker drain; unavailable/malformed
   idle evidence still fails immediately, and all nodes must show zero tasks.
-  The live evidence below still describes the previous release only.
+  The live evidence below describes the PREVIOUS 10914d09 release only.
 
-Live correction verification
-- The retained Fast release completed on the exact main application revision above.
+Historical live correction verification (10914d09, schema 0133)
+- The prior retained Fast release completed on revision
+  10914d09fb858bf37e2c9a1c7e7c373a452c5d08.
   Backend/frontend builds and frontend runtime preparation exited zero without OOM.
   Every prior resource was retained and service memory caps were unchanged.
 - Independent postdeploy checks verified all 20 expected services, configured health

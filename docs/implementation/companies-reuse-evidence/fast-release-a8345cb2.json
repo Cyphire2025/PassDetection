@@ -1,0 +1,70 @@
+{
+  "all_prior_resources_retained": true,
+  "automatic_downgrade": false,
+  "backend_api_contract_sha256": "36105209b6c7d5922de701a0090a6205108cb30a7a6efce9e616962957ffbad8",
+  "backend_image_id": "sha256:612995596f896b1824a4516db6a79eca18a1ef0a1866bd90f8417bc35dfc4463",
+  "completion_receipt_sha256": "0c65959266470d138eb82b0dc1bf5d7d58533eeb18603ad671544b2d54100a1a",
+  "dockerfile_native_security_changes_applied": false,
+  "existing_migration_identity_preflight_verified": true,
+  "frontend_image_id": "sha256:877d3f0675cf879390ad6ea69f714612dd756115be8e30c9ea65a1f104304065",
+  "full_ci_qualified": false,
+  "limits": [
+    "Retained completion evidence only; live health was not rechecked by this extractor.",
+    "700 synthetic roster people and two contact races; not a capacity qualification.",
+    "Retained-document and manager fixture counts are checked by the source-bound inner validator; the outer receipt retains its digest, not the raw counts.",
+    "Fast reuses prior native runtime images; no fresh native-image rebuild or Full CI qualification."
+  ],
+  "live_migration_validation_recorded": true,
+  "migration_helper_credentials_excluded_from_journal": true,
+  "mode": "fast",
+  "phase": "complete",
+  "rehearsal": {
+    "backup_clients": {
+      "pg_dump": "pg_dump (PostgreSQL) 16.15",
+      "pg_restore": "pg_restore (PostgreSQL) 16.15"
+    },
+    "checks": {
+      "contact_concurrency_verified": true,
+      "historical_rows_catalog_acl_preserved": true,
+      "idempotent_target_verified": true,
+      "interrupted_resume_verified": true,
+      "manager_constraints_verified": true,
+      "populated_backup_restored": true,
+      "runtime_grants_verified": true,
+      "wrong_baseline_rejected": true
+    },
+    "contact_concurrency_tests": 2,
+    "contact_junit_sha256": "c6e30114053b0083cdcf3faaba657c6f6f88437170167901fe73d973711bed99",
+    "export_ddl_rollback_verified": true,
+    "fixture_person_count": 700,
+    "inner_rehearsal_sha256": "2c8777f34cee64802bf5142d058ee27f0ab3e98dc42b5c749b1e528e4e132fba",
+    "manager_ddl_rollback_verified": true,
+    "owned_resources_removed": true,
+    "populated_backup": {
+      "bytes": 1075640,
+      "sha256": "832f91a744cfea4347ecc75275f14db42c004fc7abb95ef1c979b19a3959ea22"
+    },
+    "preservation_sha256": "1a4f3f7fdb8ad9919fe208717ba625ac34256731c87f78abfd1795643f10814c",
+    "private_clients_sha256": "1a91a8094e253e4d0bf98456a6b7131a5a4de02faba7ba3e6300b71af8c5c6d7",
+    "rehearsal_source_sha256": "c8859c1c9675fdbbeadea496a25cef64815f1bea99fb5f1e21004b03188640f0",
+    "resource_admission": {
+      "host_bytes": 16769044480,
+      "reserve_bytes": 2147483648,
+      "steady_bytes": 10536091648,
+      "web_overlap_bytes": 11609833472
+    },
+    "source_schema": "0133_traveller_document_impact",
+    "split_migration_role_verified": true,
+    "target_schema": "0135_company_removal_history",
+    "test_source_archive_sha256": "0d9a9c059cf8a5fda0da1770e555e194c5fdb0c4fff47ee4b2de8af239ea8ba0",
+    "test_source_commit": "a8345cb2b021b0d099c08c022685aded9a3727dc"
+  },
+  "rehearsal_receipt_sha256": "c37900141b25be1c3c020d6ce1937f0b1724c3a102c86d78641af9342a5d8410",
+  "release_policy_version": 2,
+  "runtime_inherited_from_previous_images": true,
+  "schema": "0135_company_removal_history",
+  "source_contract_sha256": "765947b3c8481e6afa5966665caa0bcfc44b18bbbbce3aba21294f3bc120daa6",
+  "source_revision": "a8345cb2b021b0d099c08c022685aded9a3727dc",
+  "source_schema": "0133_traveller_document_impact",
+  "status": "complete"
+}
