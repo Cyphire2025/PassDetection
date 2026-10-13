@@ -36,6 +36,13 @@ The correction validates and temporarily disables only that exact trigger inside
 0130's transaction, then restores it before commit. A disposable injected failure
 after DISABLE must prove complete rollback before the normal resume rehearsal.
 These failures all occurred before production DDL, and original workers resumed.
+The a44b4669da2a3c9be28733d6e038cc808cfbafd8 candidate passed the complete actual
+PostgreSQL migration rehearsal, including the new backfill rollback control. Both
+contact concurrency tests passed, but schema teardown exhausted the disposable
+database's default lock table with its reduced 24-connection configuration. The
+test-only max_locks_per_transaction is now explicitly 256; the 512 MiB memory cap,
+24 connections and all cleanup assertions remain. A complete new receipt is still
+required before production DDL; the partial test result did not authorize release.
 The feature patch was transferred to the release worktree based on current origin/main.
 Subsequent CI/release preparation and final verification occur there; the original
 working tree remains preserved with its unrelated local changes.

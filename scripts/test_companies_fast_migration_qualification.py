@@ -89,6 +89,23 @@ class MigrationReceiptTests(unittest.TestCase):
 
 
 class IsolatedMigrationTests(unittest.TestCase):
+    def test_full_schema_teardown_has_lock_capacity_with_unchanged_resource_caps(self):
+        server_id = "b" * 64
+        with patch.object(qualification, "run", side_effect=[result(server_id), result(), result()]) as command:
+            actual = qualification.create_database("fixture-db", "fixture-network", "owner", Path("private.env"))
+        self.assertEqual(actual, server_id)
+        arguments = command.call_args_list[0].args[0]
+        options = [arguments[index + 1] for index, value in enumerate(arguments) if value == "-c"]
+        self.assertEqual(options.count("max_locks_per_transaction=256"), 1)
+        self.assertIn("max_connections=24", options)
+        self.assertIn("shared_buffers=32MB", options)
+        self.assertEqual(arguments[arguments.index("--memory") + 1], "512m")
+        self.assertEqual(arguments[arguments.index("--memory-swap") + 1], "512m")
+        self.assertEqual(arguments[arguments.index("--cpus") + 1], "1")
+        self.assertNotIn("--publish", arguments)
+        self.assertEqual(command.call_args_list[1].args[0], ["docker", "start", server_id])
+        self.assertEqual(command.call_args_list[2].args[0][0:3], ["docker", "exec", server_id])
+
     def test_success_requires_contact_proof_and_cleanup_before_outer_receipt(self):
         proof = receipt.validate_inner(encoded(), "c" * 64)
         for contact in ({"contact_concurrency_tests": 2, "contact_concurrency_verified": True},

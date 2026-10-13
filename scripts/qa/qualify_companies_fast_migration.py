@@ -90,6 +90,8 @@ def admit_memory(additional_mib: int = 1024) -> dict[str, int]:
 
 
 def create_database(name: str, network: str, owner: str, env_file: Path) -> str:
+    # Full-model fixture teardown locks tables, indexes and dependencies in one
+    # transaction. Size its lock table independently of the 24-connection cap.
     value: str = run(["docker", "create", "--name", name, "--network", network,
         "--log-driver", "json-file", "--log-opt", "max-size=1m", "--log-opt", "max-file=2",
         "--label", f"{OWNER_LABEL}={owner}", "--memory", "512m", "--memory-swap", "512m",
@@ -98,6 +100,7 @@ def create_database(name: str, network: str, owner: str, env_file: Path) -> str:
         "--cap-add", "DAC_OVERRIDE", "--tmpfs", "/var/lib/postgresql/data:rw,nosuid,size=384m",
         "--env-file", str(env_file), POSTGRES_IMAGE, "postgres", "-c", "shared_buffers=32MB",
         "-c", "work_mem=4MB", "-c", "maintenance_work_mem=32MB", "-c", "max_connections=24",
+        "-c", "max_locks_per_transaction=256",
         "-c", "max_wal_size=128MB", "-c", "min_wal_size=32MB", "-c", "password_encryption=scram-sha-256"]).stdout.strip()
     if re.fullmatch(r"[a-f0-9]{64}", value) is None:
         raise QualificationError("Disposable database has no immutable container identity")
