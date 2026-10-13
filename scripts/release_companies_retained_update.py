@@ -14,10 +14,15 @@ from mcp_direct_release import bound_original, require_idle
 from mcp_direct_state import APPLICATION, INFRASTRUCTURE, WORKERS
 from release_artifacts import verify_manifest
 from release_code_update import environment
+from release_companies_credentials import (
+    migration_environment,
+    preflight_migration_credentials,
+    prepare_migration_credentials,
+)
 from release_companies_policy import validate_additive_source
 from release_companies_runtime import (
+    bound_migration_helper,
     database_command,
-    database_environment,
     run_migration_helper,
 )
 from release_companies_traveller_contract import CHAIN, SOURCE, TARGET
@@ -113,6 +118,9 @@ class CompaniesRetainedUpdate(RetainedUpdate):
             require(all(actual.get(key) == value for key, value in values.items()),
                     'candidate_reuse_runtime_configuration_changed')
 
+    def verify_migration_identity(self) -> None:
+        preflight_migration_credentials(self)
+
     def verify_fence(self) -> None:
         """Exact IDs, network endpoints and both application generations are fenced."""
         live, candidates = self.record['live'], self.record['candidates']
@@ -121,7 +129,7 @@ class CompaniesRetainedUpdate(RetainedUpdate):
             clean_stop(bound_original(live[name]), live[name])
             require(not bound_original(candidates[name])['State']['Running'], 'candidate_writer_running')
         for helper in self.record.get('migration_helpers', []):
-            require(not bound_original(helper)['State']['Running'], 'migration_helper_still_running')
+            require(not bound_migration_helper(helper)['State']['Running'], 'migration_helper_still_running')
         require({row['Id'] for row in self.rows()} == {live[name]['Id'] for name in INFRASTRUCTURE},
                 'unexpected_running_container_during_migration')
         for name in INFRASTRUCTURE:
@@ -133,7 +141,7 @@ class CompaniesRetainedUpdate(RetainedUpdate):
     def database_release(self) -> MCPDatabaseRelease:
         live = self.record['live']
         # Includes immutable inspected endpoint/credentials digest, never plaintext.
-        binding = digest_json({'database': live['db'], 'connection': database_environment(live['backend'], live['db'])})
+        binding = digest_json({'database': live['db'], 'connection': migration_environment(self)})
         fence = digest_json({
             'originals': {name: live[name]['Id'] for name in sorted(ACTIVE)},
             'candidates': {name: self.record['candidates'][name]['Id'] for name in sorted(ACTIVE)},
@@ -222,7 +230,7 @@ class CompaniesRetainedUpdate(RetainedUpdate):
             'release_proof_sha256': request['environment']['MCP_RELEASE_PROOF_SHA256'],
             'image_id': request['image_id'], 'target_schema': TARGET, 'helper_id': helpers[0]['Id'],
         }, 'migration_validation_receipt_binding_changed')
-        helper = bound_original(helpers[0])
+        helper = bound_migration_helper(helpers[0])
         require(helper['Image'] == request['image_id'] and not helper['State']['Running']
                 and helper['State'].get('ExitCode') == 0 and not helper['State'].get('OOMKilled')
                 and helper.get('RestartCount', 0) == 0, 'validated_migration_helper_changed')
@@ -247,6 +255,7 @@ class CompaniesRetainedUpdate(RetainedUpdate):
         if not self.record.get('additive_release', True):
             return super().transition(candidates)
         self.current_main()
+        self.verify_migration_identity()
         live = self.record['live']
         try:
             self.event('cutover-starting')
@@ -283,7 +292,8 @@ class CompaniesRetainedUpdate(RetainedUpdate):
         self.verify_candidate_configuration()
         # Reject live helper first, without stopping any potentially healthy app.
         for helper in self.record.get('migration_helpers', []):
-            require(not bound_original(helper)['State']['Running'], 'migration_helper_still_running')
+            require(not bound_migration_helper(helper)['State']['Running'], 'migration_helper_still_running')
+        self.verify_migration_identity()
         for name in ('nginx', 'email-beat', 'backend', 'frontend', *WORKERS):
             self.fence_candidate(self.record['candidates'][name])
         for name in ('nginx', 'email-beat', 'backend', 'frontend', *WORKERS):
@@ -326,6 +336,8 @@ class CompaniesRetainedUpdate(RetainedUpdate):
         require(self.schema() == SOURCE, 'source_schema_required_for_first_additive_attempt')
         self.proof(live, previous, public=True)
         require(shutil.disk_usage(self.directory).free >= 12 * GIB, 'insufficient_retained_image_headroom')
+        prepare_migration_credentials(self)
+        self.verify_migration_identity()
         images = self.candidate_images()
         candidates = self.stage(images)
         self.transition(candidates)

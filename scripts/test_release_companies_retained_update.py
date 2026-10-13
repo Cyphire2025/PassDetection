@@ -13,7 +13,6 @@ from release_companies_policy import (
 )
 from release_companies_retained_update import CompaniesRetainedUpdate
 from release_companies_runtime import (
-    database_environment,
     helper_payload,
     run_migration_helper,
 )
@@ -47,6 +46,7 @@ def release_fixture():
     release.retention = Mock()
     release.proof = Mock()
     release.verify_candidate_configuration = Mock()
+    release.verify_migration_identity = Mock()
     release.signed_images = Mock(return_value=release.record['image_ids'])
     return release
 
@@ -149,22 +149,11 @@ class AdditiveContracts(unittest.TestCase):
         self.assertEqual(values['APP_REVISION'], NEXT)
         self.assertEqual(values['EXPECTED_DATABASE_SCHEMA_REVISION'], TARGET)
 
-    def test_database_uses_exact_inspected_network_and_admin_credentials(self):
-        backend = {'NetworkSettings': {'Networks': {'db-net': {}, 'private': {}}}}
-        db = {'NetworkSettings': {'Networks': {'db-net': {'IPAddress': '172.20.0.4'}}},
-              'Config': {'Env': ['POSTGRES_USER=owner', 'POSTGRES_DB=app', 'POSTGRES_PASSWORD=synthetic-only']}}
-        values = database_environment(backend, db)
-        self.assertEqual(values['POSTGRES_HOST'], '172.20.0.4')
-        self.assertEqual(values['POSTGRES_USER'], 'owner')
-        db['NetworkSettings']['Networks']['private'] = {'IPAddress': '172.21.0.4'}
-        with self.assertRaisesRegex(ValueError, 'ambiguous'):
-            database_environment(backend, db)
-
     def test_helper_payload_is_gated_bounded_and_uses_reviewed_script(self):
         release = release_fixture()
         request = {'image_id': 'sha256:' + 'f' * 64, 'environment': {'MCP_RELEASE_PROOF_SHA256': 'e' * 64},
                    'arguments': ('python', 'scripts/release_companies_traveller_upgrade.py', '--contract-json', '{}')}
-        with patch('release_companies_runtime.database_environment', return_value={'POSTGRES_HOST': '172.20.0.4'}), \
+        with patch('release_companies_runtime.migration_environment', return_value={'POSTGRES_HOST': '172.20.0.4'}), \
              patch('release_companies_runtime.bound_original', side_effect=lambda row: row), \
              patch('release_companies_runtime.clone_payload', return_value={'HostConfig': {}}):
             payload, gate = helper_payload(release, request)
@@ -183,7 +172,8 @@ class AdditiveContracts(unittest.TestCase):
         release.rows = Mock(return_value=[])
         release.client = Mock()
         release.client.request.return_value = {'Id': 'h' * 64}
-        release.client.inspect.return_value = {'Id': 'h' * 64}
+        release.client.inspect.return_value = {'Id': 'h' * 64, 'Image': 'sha256:' + 'a' * 64,
+                                             'Config': {}, 'HostConfig': {}, 'Mounts': []}
         with patch('release_companies_runtime.helper_payload', return_value=({}, '/tmp/gate')), \
              patch('release_companies_runtime.command', return_value=str(8 * 1024 ** 3)) as run, \
              patch('release_companies_runtime.admit_builder'), \
@@ -227,7 +217,7 @@ class AdditiveContracts(unittest.TestCase):
         release.record['migration_helpers'] = [{'Id': 'helper', 'State': {'Running': True}}]
         release.stop = Mock()
         release.fence_candidate = Mock()
-        with patch('release_companies_retained_update.bound_original', side_effect=lambda row: row), \
+        with patch('release_companies_retained_update.bound_migration_helper', side_effect=lambda row: row), \
              self.assertRaisesRegex(ValueError, 'helper_still_running'):
             release.recover()
         release.stop.assert_not_called()
@@ -312,7 +302,7 @@ class AdditiveContracts(unittest.TestCase):
             'release_proof_sha256': 'd' * 64, 'image_id': request['image_id'],
             'target_schema': TARGET, 'helper_id': helper['Id'],
         }
-        with patch('release_companies_retained_update.bound_original', return_value=helper):
+        with patch('release_companies_retained_update.bound_migration_helper', return_value=helper):
             self.assertTrue(release.has_verified_migration(request, backup))
             helper['State']['OOMKilled'] = True
             with self.assertRaisesRegex(ValueError, 'validated_migration_helper_changed'):

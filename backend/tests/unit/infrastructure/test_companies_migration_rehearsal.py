@@ -122,6 +122,38 @@ def test_unrelated_failure_is_not_accepted_as_backfill_rollback(monkeypatch):
         rehearsal.run_helper(environment(), {}, rollback_backfill=True, interrupt=True)
 
 
+@pytest.mark.parametrize("reason", ["existing_migration_identity_required", "unrelated_failure"])
+def test_bootstrap_negative_control_requires_the_exact_identity_guard(monkeypatch, reason):
+    from scripts import release_companies_traveller_upgrade as helper
+
+    monkeypatch.setattr(sys, "argv", ["synthetic-role-rejection", "{}"])
+    apply = Mock(side_effect=ValueError(reason))
+    monkeypatch.setattr(helper, "apply_upgrade", apply)
+    if reason == "existing_migration_identity_required":
+        with pytest.raises(SystemExit) as raised:
+            exec(rehearsal.BOOTSTRAP_REJECTION_RUNNER, {})
+        assert raised.value.code == 75
+    else:
+        with pytest.raises(ValueError, match=reason):
+            exec(rehearsal.BOOTSTRAP_REJECTION_RUNNER, {})
+    apply.assert_called_once_with({}, capture_baseline=True)
+
+
+def test_bootstrap_success_and_unrelated_exit_cannot_count_as_rejection(monkeypatch):
+    from scripts import release_companies_traveller_upgrade as helper
+
+    monkeypatch.setattr(sys, "argv", ["synthetic-role-rejection", "{}"])
+    monkeypatch.setattr(helper, "apply_upgrade", Mock(return_value={"status": "baseline_captured"}))
+    with pytest.raises(SystemExit) as raised:
+        exec(rehearsal.BOOTSTRAP_REJECTION_RUNNER, {})
+    assert raised.value.code != 75
+    monkeypatch.setattr(rehearsal.subprocess, "run", Mock(return_value=SimpleNamespace(returncode=2)))
+    with pytest.raises(RuntimeError, match="expected exit 75"):
+        rehearsal.run_helper(environment(), {}, reject_bootstrap=True)
+    with pytest.raises(ValueError, match="mutually exclusive"):
+        rehearsal.run_helper(environment(), {}, reject_bootstrap=True, capture_baseline=True)
+
+
 def test_rollback_injection_occurs_only_after_named_disable_executes(monkeypatch):
     from alembic.migration import MigrationContext
     from alembic.operations import Operations

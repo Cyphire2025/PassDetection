@@ -1,5 +1,5 @@
 Companies / Clients and returning-traveller feature review handoff
-Date: 2026-10-13 (Asia/Calcutta)
+Date: 2026-10-14 (Asia/Calcutta)
 Status: RELEASE CANDIDATE. Implementation exists; release qualification remains incomplete.
 This file records the predeployment candidate. Check exact-commit CI and deployment
 receipts for release status; local test results alone do not prove production activation.
@@ -43,6 +43,35 @@ database's default lock table with its reduced 24-connection configuration. The
 test-only max_locks_per_transaction is now explicitly 256; the 512 MiB memory cap,
 24 connections and all cleanup assertions remain. A complete new receipt is still
 required before production DDL; the partial test result did not authorize release.
+The 4df0bbb12a79af4a3c6b96d4f4585fd211db010b attempt passed the complete isolated
+PostgreSQL rehearsal, both contact concurrency tests and disposable cleanup. Its
+production backup was verified, but the first read-only baseline helper rejected
+the bootstrap identity: existing_migration_identity_required. No production DDL
+ran. The launcher had incorrectly selected credentials from the database container
+instead of the existing separate migration identity in the maintenance configuration.
+The exact capture-only command, stopped helper, unchanged 0129 schema and absence
+of a migration-validation receipt were verified before restoring the original
+3cdbb7be447e1beec08d3009e7bf0dbd0fd36ed5 services. Public readiness passed afterward.
+Backup, candidates, helper, private diagnostic and original resources are retained.
+This was an unchanged-schema service restoration, not a database downgrade.
+The correction resolves the existing maintenance identity into immutable private
+custody, bound to this source and the inspected database. A read-only authentication,
+exact ownership and default-runtime-grant preflight runs before building and again
+before cutover. Drift fails before stopping a healthy application. Recovery retains
+the same credentials and successful preflight; it never starts old writers merely
+to authenticate. Helper journals retain configuration hashes instead of credentials.
+The owner guard and existing production role grants are unchanged. The synthetic
+rehearsal now separates a non-superuser migration owner from its cluster administrator
+and runtime grantee, and must reject the administrator before any DDL. Both inner
+and host receipts require this additional proof. Actual execution of the strengthened
+rehearsal is required for the next candidate; the older receipt cannot qualify it.
+Local correction checks: 83 focused host/qualification tests and 29 backend
+migration/rehearsal/role tests passed. Strict mypy and Ruff passed for the affected
+runtime/rehearsal modules. Independent review found no concrete blocker. The two
+phone-copy UI suites passed 10 tests. These scopes overlap prior checkpoints and
+must not be summed into a unique total or presented as actual PostgreSQL execution.
+The subsequent host release regression completed with 326 passed and one existing
+skip (327 tests, 13.988 seconds); Full CI remains paused.
 The feature patch was transferred to the release worktree based on current origin/main.
 Subsequent CI/release preparation and final verification occur there; the original
 working tree remains preserved with its unrelated local changes.
@@ -361,7 +390,8 @@ Exact populated migration qualification prepared for CI
 - Fresh release-worktree focused persistence/enrollment/reconciliation/replacement/
   schema/source-list suite: 62 passed in 22.29 seconds. Additional baseline/rehearsal
   tests and release contract/CI tests are separate receipts; do not add overlapping
-  suites to imply a unique total. Real PostgreSQL execution remains pending CI.
+  suites to imply a unique total. Actual PostgreSQL execution subsequently passed
+  in the isolated Fast rehearsal at 4df0bbb; Full CI remains paused by the user.
 - Existing populated 0085 backup/restore gate remains intact.
 - backend/scripts/rehearse_companies_traveller_upgrade.py adds an independent populated
   0129 backup/restore plus actual release-helper interruption/resume exercise.
@@ -378,7 +408,8 @@ Exact populated migration qualification prepared for CI
   and two exact synthetic database names distinct from POSTGRES_DB. It never targets
   a deployed application database. Temporary CI databases are removed on completion.
 - CI retains companies-migration-rehearsal-evidence.json alongside the existing
-  migration receipt. Real execution is pending the CI run; no success is claimed yet.
+  migration receipt. The isolated Fast rehearsal subsequently passed at 4df0bbb;
+  this does not qualify Full CI or production activation.
 - Fixture: backend/scripts/companies_rehearsal_fixture.py. Guard/resume tests:
   backend/tests/unit/infrastructure/test_companies_migration_rehearsal.py.
 
@@ -411,9 +442,9 @@ Receipt: docs/implementation/companies-reuse-evidence/capacity-100000-profiles-2
 - Millions were not tested. No production/PostgreSQL/provider-capacity claim is made.
 
 Remaining qualification and explicit limits
-- Initial Docker daemon inspection was unavailable; real PostgreSQL migration,
-  lock-order/advisory admission, concurrent withdrawal/reassignment and failure tests
-  require a disposable service environment before Full release.
+- The isolated PostgreSQL 16 migration and two contact concurrency tests passed at
+  4df0bbb. This does not qualify every lock-order/advisory admission, withdrawal,
+  reassignment or provider failure scenario; Full CI remains paused.
 - Real MinIO/S3 and broker timeouts, worker crashes and sustained API load are not
   qualified by SQLite tests or fake storage objects.
 - Online encryption-key rotation/re-encryption is not implemented; populated records

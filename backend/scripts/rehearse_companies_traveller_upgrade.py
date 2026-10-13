@@ -28,6 +28,8 @@ sys.path.insert(0, str(ROOT))
 
 from scripts.companies_rehearsal_fixture import (  # noqa: E402
     create_interrupted_source_index,
+    migration_owner,
+    replace_owned_database,
     seed_company_and_roster,
 )
 from scripts.companies_restore_comparison import restored_baseline  # noqa: E402
@@ -45,7 +47,6 @@ from scripts.rehearse_postgresql_upgrade import (  # noqa: E402
     _client_major,
     _connect,
     _drop_database,
-    _replace_database,
     _revision,
     _run,
     _scalar,
@@ -61,6 +62,18 @@ SOURCE_DATABASE = "passdetection_ci_companies_source"
 RESTORED_DATABASE = "passdetection_ci_companies_restored"
 INTERRUPTED_EXIT = 73
 BACKFILL_ROLLBACK_EXIT = 74
+BOOTSTRAP_REJECTION_EXIT = 75
+BOOTSTRAP_REJECTION_RUNNER = """
+import json, sys
+from scripts.release_companies_traveller_upgrade import apply_upgrade
+try:
+    apply_upgrade(json.loads(sys.argv[1]), capture_baseline=True)
+except ValueError as failure:
+    if str(failure) == 'existing_migration_identity_required':
+        raise SystemExit(75)
+    raise
+raise SystemExit('Expected bootstrap migration identity rejection did not occur')
+"""
 BACKFILL_ROLLBACK_RUNNER = """
 import json, sys
 from alembic.operations import Operations
@@ -125,8 +138,9 @@ def snapshot(environment: Mapping[str, str], schema: str) -> dict[str, Any]:
 
 def run_helper(environment: Mapping[str, str], contract: dict[str, Any], *, interrupt: bool = False,
                capture_baseline: bool = False, baseline_sha256: str | None = None,
-               expect_rejection: bool = False, rollback_backfill: bool = False) -> dict[str, Any]:
-    if sum((interrupt, capture_baseline, expect_rejection, rollback_backfill)) > 1:
+               expect_rejection: bool = False, rollback_backfill: bool = False,
+               reject_bootstrap: bool = False) -> dict[str, Any]:
+    if sum((interrupt, capture_baseline, expect_rejection, rollback_backfill, reject_bootstrap)) > 1:
         raise ValueError("Rehearsal helper modes are mutually exclusive")
     encoded = json.dumps(contract, sort_keys=True, separators=(",", ":"))
     # Synthetic CI proof marker; host release authorization is qualified by its
@@ -135,13 +149,17 @@ def run_helper(environment: Mapping[str, str], contract: dict[str, Any], *, inte
     if baseline_sha256 is not None:
         child_environment["MCP_RELEASE_BASELINE_SHA256"] = baseline_sha256
     runner = BACKFILL_ROLLBACK_RUNNER if rollback_backfill else INTERRUPTION_RUNNER
-    arguments = ([sys.executable, "-c", runner, encoded] if interrupt or rollback_backfill else
+    if reject_bootstrap:
+        runner = BOOTSTRAP_REJECTION_RUNNER
+    arguments = ([sys.executable, "-c", runner, encoded] if interrupt or rollback_backfill or reject_bootstrap else
         [sys.executable, "scripts/release_companies_traveller_upgrade.py", "--contract-json", encoded])
     if capture_baseline:
         arguments.append("--capture-baseline")
     result = subprocess.run(arguments, cwd=ROOT, env=child_environment, capture_output=True,
         text=True, timeout=600, check=False, shell=False)
     expected = BACKFILL_ROLLBACK_EXIT if rollback_backfill else (INTERRUPTED_EXIT if interrupt else (2 if expect_rejection else 0))
+    if reject_bootstrap:
+        expected = BOOTSTRAP_REJECTION_EXIT
     if result.returncode != expected:
         # Driver failures may contain DSNs. Preserve a safe failure code only.
         raise RuntimeError(f"Upgrade helper failed: expected exit {expected}, observed {result.returncode}")
@@ -149,6 +167,8 @@ def run_helper(environment: Mapping[str, str], contract: dict[str, Any], *, inte
         return {"exit_code": result.returncode, "interrupted_before": CHAIN[2]}
     if rollback_backfill:
         return {"exit_code": result.returncode, "rolled_back_revision": CHAIN[0]}
+    if reject_bootstrap:
+        return {"exit_code": result.returncode, "reason": "existing_migration_identity_required"}
     value: dict[str, Any] = json.loads(result.stdout.strip().splitlines()[-1])
     if expect_rejection:
         if value != {"status": "failed", "reason": "companies_traveller_upgrade_failed", "automatic_downgrade": False}:
@@ -208,20 +228,24 @@ def exercise_resume(environment: Mapping[str, str], contract: dict[str, Any], be
 def rehearse(evidence_output: Path) -> dict[str, Any]:
     environment = dict(os.environ)
     validate_environment(environment)
-    source = database_environment(environment, SOURCE_DATABASE)
-    restored = database_environment(environment, RESTORED_DATABASE)
+    with migration_owner(environment) as owner:
+        return rehearse_owned(environment, owner, evidence_output)
+
+
+def rehearse_owned(environment: Mapping[str, str], owner: Mapping[str, str], evidence_output: Path) -> dict[str, Any]:
+    """Exercise the real owner identity, separately from bootstrap and runtime roles."""
     contract = {**POLICY, "migrations": migration_entries(ROOT)}
     started = time.monotonic()
     try:
-        _replace_database(environment, SOURCE_DATABASE)
+        source = replace_owned_database(environment, owner, SOURCE_DATABASE)
         _alembic(ROOT, source, "upgrade", PREVIOUS_RELEASE_REVISION)
-        connection = _connect(environment, SOURCE_DATABASE)
+        connection = _connect(owner, SOURCE_DATABASE)
         try:
             _seed_previous_release(connection)
         finally:
             connection.close()
         _alembic(ROOT, source, "upgrade", SOURCE)
-        connection = _connect(environment, SOURCE_DATABASE)
+        connection = _connect(owner, SOURCE_DATABASE)
         try:
             seed_company_and_roster(connection)
             server_major = int(_scalar(connection, "SHOW server_version_num")) // 10000
@@ -232,6 +256,13 @@ def rehearse(evidence_output: Path) -> dict[str, Any]:
         if any(_client_major(version) != server_major for version in versions.values()):
             raise AssertionError("PostgreSQL backup clients must match the server major")
         before = snapshot(source, SOURCE)
+        rejected = run_helper(database_environment(environment, SOURCE_DATABASE), contract, reject_bootstrap=True)
+        connection = _connect(owner, SOURCE_DATABASE)
+        try:
+            if _revision(connection) != SOURCE or snapshot(source, SOURCE) != before:
+                raise AssertionError("Rejected bootstrap identity changed the original database")
+        finally:
+            connection.close()
         if before["rows"]["whatsapp_broadcast_rejected_contacts"]["count"] != 699:
             raise AssertionError("Synthetic durable-roster fixture is incomplete")
         with tempfile.TemporaryDirectory(prefix="passdetection-ci-companies-") as temporary:
@@ -243,7 +274,7 @@ def rehearse(evidence_output: Path) -> dict[str, Any]:
             if dump.stat().st_size == 0:
                 raise AssertionError("Empty PostgreSQL backup")
             dump_receipt = {"sha256": _sha256(dump), "bytes": dump.stat().st_size}
-            _replace_database(environment, RESTORED_DATABASE)
+            restored = replace_owned_database(environment, owner, RESTORED_DATABASE)
             _run(["pg_restore", "--exit-on-error", "--single-transaction", "--no-owner",
                 "--dbname", RESTORED_DATABASE, str(dump)], cwd=ROOT, environment=restored)
             before = restored_baseline(before, snapshot(restored, SOURCE))
@@ -255,6 +286,7 @@ def rehearse(evidence_output: Path) -> dict[str, Any]:
             "historical_row_counts": {name: value["count"] for name, value in before["rows"].items()},
             "preserved_historical_rows_catalog_acl": True, "new_tables_empty_before_activation": True,
             "runtime_grants_nonempty": True, **result, "elapsed_seconds": round(time.monotonic() - started, 3)}
+        evidence.update(split_migration_role_verified=True, bootstrap_identity_rejection=rejected)
         evidence_output.parent.mkdir(parents=True, exist_ok=True)
         evidence_output.write_text(json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         print(f"Companies migration rehearsal passed: {evidence_output}")

@@ -52,6 +52,7 @@ def receipt_for(release):
             'source_schema': SOURCE, 'target_schema': TARGET, 'full_ci_qualified': False,
             'owned_resources_removed': True, 'fixture_person_count': 700, 'contact_concurrency_tests': 2,
             'company_backfill_rollback_verified': True,
+            'split_migration_role_verified': True,
             'checks': dict.fromkeys(CHECKS, True)}
 
 
@@ -103,6 +104,7 @@ class FastAdditiveProofTests(unittest.TestCase):
                             {'source_contract_sha256': 'f' * 64}, {'fixture_person_count': 699},
                             {'owned_resources_removed': False}, {'full_ci_qualified': True}, {'contact_concurrency_tests': 0},
                             {'company_backfill_rollback_verified': False}, {'company_backfill_rollback_verified': 1},
+                            {'split_migration_role_verified': False}, {'split_migration_role_verified': 1},
                             {'checks': {**original['checks'], 'wrong_baseline_rejected': 1}}):
                 path.write_text(json.dumps({**original, **changes}))
                 path.chmod(0o600)
@@ -117,16 +119,17 @@ class FastAdditiveProofTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'receipt_changed'):
                 verify_rehearsal(Path(directory), release.record)
 
-    def test_missing_backfill_rollback_proof_cannot_authorize_live_migration(self):
+    def test_missing_required_failure_control_cannot_authorize_live_migration(self):
         release, _ = fast_fixture()
-        proof = receipt_for(release)
-        proof.pop('company_backfill_rollback_verified')
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'fast-migration-rehearsal.json'
-            path.write_text(json.dumps(proof))
-            path.chmod(0o600)
-            with self.assertRaisesRegex(ValueError, 'receipt_binding_changed'):
-                read_rehearsal(path, release.record['fast_additive_binding'])
+            for required in ('company_backfill_rollback_verified', 'split_migration_role_verified'):
+                proof = receipt_for(release)
+                proof.pop(required)
+                path.write_text(json.dumps(proof))
+                path.chmod(0o600)
+                with self.subTest(required=required), self.assertRaisesRegex(ValueError, 'receipt_binding_changed'):
+                    read_rehearsal(path, release.record['fast_additive_binding'])
 
     def test_recovery_never_rebuilds_or_reruns_rehearsal(self):
         release, _ = fast_fixture()

@@ -24,6 +24,8 @@ def inner():
         "runtime_grants_nonempty": True, "wrong_baseline_rejected_before_ddl": True,
         "invalid_concurrent_index_repaired": True,
         "company_backfill_rollback_verified": True,
+        "split_migration_role_verified": True,
+        "bootstrap_identity_rejection": {"exit_code": 75, "reason": "existing_migration_identity_required"},
         "company_backfill_rollback": {"exit_code": 74, "rolled_back_revision": receipt.CHAIN[0]},
         "historical_row_counts": {"whatsapp_broadcast_rejected_contacts": 699, "whatsapp_broadcast_recipients": 1},
         "dump": {"bytes": 120000, "sha256": "b" * 64},
@@ -50,6 +52,7 @@ class MigrationReceiptTests(unittest.TestCase):
         self.assertEqual(proof["fixture_person_count"], 700)
         self.assertEqual(proof["checks"], dict.fromkeys(receipt.CHECKS, True))
         self.assertIs(proof["company_backfill_rollback_verified"], True)
+        self.assertIs(proof["split_migration_role_verified"], True)
 
     def test_wrong_source_duplicate_or_missing_receipt_is_rejected(self):
         for output in ("migration exited zero", encoded(contract="d" * 64), encoded() + "\n" + encoded(),
@@ -61,6 +64,8 @@ class MigrationReceiptTests(unittest.TestCase):
         changes = [("preserved_historical_rows_catalog_acl", False), ("runtime_grants_nonempty", 1),
                    ("invalid_concurrent_index_repaired", False), ("wrong_baseline_rejected_before_ddl", False),
                    ("company_backfill_rollback_verified", False), ("company_backfill_rollback_verified", 1),
+                   ("split_migration_role_verified", False), ("split_migration_role_verified", 1),
+                   ("bootstrap_identity_rejection", {"exit_code": 2, "reason": "unrelated_failure"}),
                    ("company_backfill_rollback", {"exit_code": 0, "rolled_back_revision": receipt.CHAIN[0]}),
                    ("server_major", 17), ("production_release_authorization", True),
                    ("historical_row_counts", {"whatsapp_broadcast_rejected_contacts": 500, "whatsapp_broadcast_recipients": 1}),
@@ -71,7 +76,8 @@ class MigrationReceiptTests(unittest.TestCase):
                 receipt.validate_inner(encoded({**inner(), key: value}), "c" * 64)
 
     def test_missing_company_backfill_rollback_proof_is_rejected(self):
-        for field in ("company_backfill_rollback_verified", "company_backfill_rollback"):
+        for field in ("company_backfill_rollback_verified", "company_backfill_rollback",
+                      "split_migration_role_verified", "bootstrap_identity_rejection"):
             evidence = inner()
             evidence.pop(field)
             with self.subTest(field=field), self.assertRaises(ValueError):
@@ -128,6 +134,7 @@ class IsolatedMigrationTests(unittest.TestCase):
                     self.assertIs(value["owned_resources_removed"], True)
                     self.assertEqual(value["contact_concurrency_tests"], 2)
                     self.assertIs(value["company_backfill_rollback_verified"], True)
+                    self.assertIs(value["split_migration_role_verified"], True)
                     self.assertTrue(value["checks"]["contact_concurrency_verified"])
                     self.assertEqual(value["source_schema"], receipt.SOURCE)
                 self.assertEqual(cleanup.call_count, 6)

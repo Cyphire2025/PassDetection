@@ -1,7 +1,6 @@
 """Private, capped migration helper bound to the retained PostgreSQL container."""
 from __future__ import annotations
 
-import ipaddress
 import json
 import re
 import subprocess
@@ -12,8 +11,10 @@ from typing import Any, BinaryIO, Protocol
 from mcp_direct_build import GIB, admit_builder, command
 from mcp_direct_containers import LocalDocker, clone_payload
 from mcp_direct_memory import capture, require_zero
-from mcp_direct_release import bound_original
+from mcp_direct_release import _bound_host_config, bound_original, inspect
+from mcp_direct_state import fingerprint
 from release_code_update import environment
+from release_companies_credentials import migration_environment
 from release_retained_update import require
 
 DockerObject = dict[str, Any]
@@ -24,6 +25,7 @@ class MigrationRuntime(Protocol):
     record: DockerObject
     project: str
     source: Path
+    directory: Path
     revision: str
     candidate_schema: str
     client: LocalDocker
@@ -33,20 +35,20 @@ class MigrationRuntime(Protocol):
     def event(self, phase: str, **values: Any) -> None: ...
 
 
-def database_environment(backend: DockerObject, database: DockerObject) -> dict[str, str]:
-    """Do not trust a DNS alias or inherited application database credentials."""
-    networks = backend['NetworkSettings']['Networks'].keys() & database['NetworkSettings']['Networks'].keys()
-    require(len(networks) == 1, 'database_network_binding_ambiguous')
-    network = database['NetworkSettings']['Networks'][next(iter(networks))]
-    host = str(ipaddress.ip_address(network['IPAddress']))
-    values = environment(database)
-    require(all(isinstance(values.get(key), str) and values[key] for key in
-                ('POSTGRES_USER', 'POSTGRES_PASSWORD', 'POSTGRES_DB')), 'database_maintenance_credentials_missing')
-    return {
-        'POSTGRES_HOST': host, 'POSTGRES_PORT': '5432',
-        'POSTGRES_USER': values['POSTGRES_USER'], 'POSTGRES_PASSWORD': values['POSTGRES_PASSWORD'],
-        'POSTGRES_DB': values['POSTGRES_DB'],
-    }
+def helper_binding(row: DockerObject) -> DockerObject:
+    """Journal immutable configuration digests, never the helper's credentials."""
+    return {'Id': row['Id'], 'Image': row['Image'], 'configuration_sha256': fingerprint({
+        'Config': row['Config'], 'HostConfig': _bound_host_config(row['HostConfig']),
+        'Mounts': sorted(map(fingerprint, row['Mounts'])),
+    })}
+
+
+def bound_migration_helper(original: DockerObject) -> DockerObject:
+    if 'configuration_sha256' not in original:
+        return bound_original(original)  # Previously retained attempt format.
+    current = inspect(original['Id'])
+    require(helper_binding(current) == original, 'migration_helper_configuration_changed')
+    return current
 
 
 def database_command(database: DockerObject, arguments: tuple[str, ...], *, timeout: int,
@@ -65,8 +67,9 @@ def database_command(database: DockerObject, arguments: tuple[str, ...], *, time
 def helper_payload(release: MigrationRuntime, request: dict[str, Any]) -> tuple[DockerObject, str]:
     original = release.record['live']['backend']
     values = environment(original)
-    values.update(database_environment(original, bound_original(release.record['live']['db'])))
     values.update(request['environment'])
+    # Database authority is selected last; a request cannot redirect this helper.
+    values.update(migration_environment(release))
     values.update(APP_REVISION=release.revision, EXPECTED_DATABASE_SCHEMA_REVISION=release.candidate_schema,
                   APP_ENV='development', MCP_ENABLED='false', TRAVELLER_REUSE_DISCLOSURE_ENABLED='false')
     # An inherited alternate connection URL must never override inspected binding.
@@ -103,7 +106,7 @@ def run_migration_helper(release: MigrationRuntime, request: dict[str, Any]) -> 
         'POST', '/containers/create?name=' + release.project + '-migration-' + uuid.uuid4().hex[:12], payload,
     )['Id']
     helper = release.client.inspect(identifier)
-    helpers = [*release.record.get('migration_helpers', []), helper]
+    helpers = [*release.record.get('migration_helpers', []), helper_binding(helper)]
     release.event('migration-helper-retained', migration_helpers=helpers, migration_proof=request['proof'])
     release.verify_fence()
     admit_builder(release.rows(), int(command('docker', 'info', '--format', '{{.MemTotal}}')), GIB)
@@ -116,7 +119,7 @@ def run_migration_helper(release: MigrationRuntime, request: dict[str, Any]) -> 
         raise
     command('docker', 'exec', identifier, 'python', '-B', '-c', "import sys;open(sys.argv[1],'x').close()", gate)
     code = command('docker', 'wait', identifier, timeout=request['timeout'])
-    current = bound_original(helper)
+    current = bound_migration_helper(helpers[-1])
     release.event('migration-helper-exited', migration_helper_state=current['State'])
     require(code == '0' and current['State'].get('ExitCode') == 0
             and not current['State']['Running'] and not current['State'].get('OOMKilled')

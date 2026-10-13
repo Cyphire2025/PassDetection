@@ -2,13 +2,75 @@
 
 from __future__ import annotations
 
+import secrets
+from collections.abc import Iterator, Mapping
+from contextlib import contextmanager
+
 import psycopg2
+from psycopg2 import sql
 from psycopg2.extensions import connection as Connection
 
-from scripts.rehearse_postgresql_upgrade import IDS
+from scripts.rehearse_postgresql_upgrade import (
+    IDS,
+    _connect,
+    _replace_database,
+    database_environment,
+)
 
 COMPANY_ID = "e0000000-0000-0000-0000-000000000001"
 BROADCAST_ID = "e0000000-0000-0000-0000-000000000002"
+RUNTIME_ROLE_SQL = """
+    DO $$ BEGIN
+      IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname='passdetection_ci_companies_runtime') THEN
+        CREATE ROLE passdetection_ci_companies_runtime NOLOGIN;
+      END IF;
+      IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname='passdetection_ci_companies_runtime'
+          AND (rolcanlogin OR rolsuper OR rolcreatedb OR rolcreaterole OR rolreplication OR rolbypassrls)) THEN
+        RAISE EXCEPTION 'Synthetic runtime role has unexpected authority';
+      END IF;
+    END $$;
+"""
+
+
+@contextmanager
+def migration_owner(environment: Mapping[str, str]) -> Iterator[dict[str, str]]:
+    """Create a unique restricted owner; callers must drop owned databases first."""
+    role = "passdetection_ci_companies_owner_" + secrets.token_hex(6)
+    password = secrets.token_urlsafe(32)
+    connection = _connect(environment, "postgres")
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(sql.SQL("CREATE ROLE {} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE "
+                "NOINHERIT NOREPLICATION NOBYPASSRLS PASSWORD %s").format(sql.Identifier(role)), (password,))
+            cursor.execute(RUNTIME_ROLE_SQL)
+        connection.commit()
+    finally:
+        connection.close()
+    try:
+        yield {**environment, "POSTGRES_USER": role, "POSTGRES_PASSWORD": password,
+            "PGUSER": role, "PGPASSWORD": password}
+    finally:
+        connection = _connect(environment, "postgres")
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(sql.SQL("DROP ROLE {}").format(sql.Identifier(role)))
+            connection.commit()
+        finally:
+            connection.close()
+
+
+def replace_owned_database(admin: Mapping[str, str], owner: Mapping[str, str], name: str) -> dict[str, str]:
+    """Only the cluster administrator creates databases; the owner cannot."""
+    _replace_database(admin, name)  # Validates the exact disposable database prefix.
+    connection = _connect(admin, "postgres")
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(sql.SQL("ALTER DATABASE {} OWNER TO {}").format(
+                sql.Identifier(name), sql.Identifier(owner["POSTGRES_USER"])))
+        connection.commit()
+    finally:
+        connection.close()
+    return database_environment(owner, name)
 
 
 def seed_company_and_roster(connection: Connection) -> None:
@@ -43,15 +105,6 @@ def seed_company_and_roster(connection: Connection) -> None:
               jsonb_build_object('staff_code', lpad(n::text, 4, '0')), n + 1,
               'duplicate_phone', 'Distinct person sharing one delivery phone', lpad(n::text, 64, '0'), now()
             FROM generate_series(1, 699) n;
-            DO $$ BEGIN
-              IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname='passdetection_ci_companies_runtime') THEN
-                CREATE ROLE passdetection_ci_companies_runtime NOLOGIN;
-              END IF;
-              IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname='passdetection_ci_companies_runtime'
-                  AND (rolcanlogin OR rolsuper OR rolcreatedb OR rolcreaterole OR rolreplication OR rolbypassrls)) THEN
-                RAISE EXCEPTION 'Synthetic runtime role has unexpected authority';
-              END IF;
-            END $$;
             GRANT USAGE ON SCHEMA public TO passdetection_ci_companies_runtime;
             GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO passdetection_ci_companies_runtime;
             ALTER DEFAULT PRIVILEGES IN SCHEMA public
