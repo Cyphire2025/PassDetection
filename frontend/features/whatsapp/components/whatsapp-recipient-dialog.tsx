@@ -95,7 +95,7 @@ function DialogLoadingState({ label }: { label: string }) {
   );
 }
 
-const ROSTER_FILTER_IDS: WhatsAppRecipientRosterTab[] = ["all", "ready", "not_sent", "sent", "failed", "in_progress", "needs_review", "shared", "rejected", "unidentified", "replaced"];
+const ROSTER_FILTER_IDS: WhatsAppRecipientRosterTab[] = ["all", "sent", "not_sent", "delivery_left", "failed", "needs_review", "rejected", "unidentified", "replaced"];
 
 export function RecipientListDialog({
   group,
@@ -453,14 +453,13 @@ export function RecipientListDialog({
     }
     return names;
   }, [sourceContacts.data?.contacts, recipientRoster?.items]);
-  const sharedPhones = useMemo(() => new Set([...sourceNamesByPhone].filter(([, names]) => names.length > 1).map(([phone]) => phone)), [sourceNamesByPhone]);
   const hasRecipientSearch = Boolean(deferredRecipientSearchQuery.trim());
   const rosterSearchIndex = useMemo(() => hasRecipientSearch ? createRecipientRosterSearchIndex(recipientRoster?.items ?? [], sourceNamesByPhone) : undefined, [recipientRoster?.items, sourceNamesByPhone, hasRecipientSearch]);
   const searchedRosterItems = useMemo(() => searchRecipientRosterItems(recipientRoster?.items ?? [], deferredRecipientSearchQuery, sourceNamesByPhone, rosterSearchIndex), [recipientRoster?.items, deferredRecipientSearchQuery, sourceNamesByPhone, rosterSearchIndex]);
-  const filterCounts = useMemo(() => Object.fromEntries(ROSTER_FILTER_IDS.map((id) => [id, countRecipientRosterItems(searchedRosterItems, id, selectedMessageType, sharedPhones)])) as Record<WhatsAppRecipientRosterTab, number>, [searchedRosterItems, selectedMessageType, sharedPhones]);
+  const filterCounts = useMemo(() => Object.fromEntries(ROSTER_FILTER_IDS.map((id) => [id, countRecipientRosterItems(searchedRosterItems, id, selectedMessageType)])) as Record<WhatsAppRecipientRosterTab, number>, [searchedRosterItems, selectedMessageType]);
   const visibleRosterItems = useMemo(
-    () => filterRecipientRosterItems(searchedRosterItems, recipientRosterTab, selectedMessageType, sharedPhones),
-    [searchedRosterItems, recipientRosterTab, selectedMessageType, sharedPhones],
+    () => filterRecipientRosterItems(searchedRosterItems, recipientRosterTab, selectedMessageType),
+    [searchedRosterItems, recipientRosterTab, selectedMessageType],
   );
   const allRecipients = useMemo(() => recipientRoster?.items.flatMap((item) => item.kind === "recipient" ? [item.recipient] : []) ?? [], [recipientRoster?.items]);
   const visibleRecipientIds = useMemo(() => visibleRosterItems.flatMap((item) => item.kind === "recipient" ? [item.recipient.id] : []), [visibleRosterItems]);
@@ -886,7 +885,7 @@ export function RecipientListDialog({
               </div>}
               <details className="mt-3 text-xs text-slate-500">
                 <summary className="cursor-pointer hover:text-slate-800">About these delivery filters</summary>
-                <p className="mt-2 max-w-3xl leading-relaxed">Every delivery filter uses the selected message type within this broadcast. Sent includes messages accepted by WhatsApp; only Delivered or Read confirms receipt. Ready includes eligible first sends and failed attempts. A welcome in another broadcast does not affect this broadcast. Select recipients and review a resend to send their welcome again. Needs review includes uncertain delivery or a welcome requirement that blocks sending. A failed later resend can appear under Failed while the original remains Sent. Shared numbers represent multiple travellers receiving one copy. Contact records lists rejected imports, replaced people and unidentified uploads separately.</p>
+                <p className="mt-2 max-w-3xl leading-relaxed">Every delivery filter uses the selected message type within this broadcast. Sent includes messages accepted by WhatsApp; only Delivered or Read confirms receipt. Not Sent shows recipients with no send attempt. Delivery left shows original messages accepted or sent by WhatsApp that are awaiting delivery confirmation. It excludes failed messages and recipients with pending, failed or uncertain resends. Queued and processing messages remain visible in All. Need Review includes uncertain delivery or a welcome requirement that blocks sending. A welcome in another broadcast does not affect this broadcast. Select recipients and review a resend to send their welcome again. A failed later resend can appear under Failed while the original remains Sent. Contact records lists rejected imports, replaced people and unidentified uploads separately.</p>
               </details>
               {recipientError && <div className="mt-3"><ErrorBanner message={recipientError} /></div>}
               {displayedResendError && (

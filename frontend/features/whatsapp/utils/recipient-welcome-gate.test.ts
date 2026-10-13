@@ -12,7 +12,7 @@ describe("broadcast and phone welcome gates in the original WhatsApp workspace",
     const items: WhatsAppRecipientRosterItem[] = [{ kind: "recipient", display_order: 1, recipient }];
     expect(countRecipientRosterItems(items, "sent", "welcome")).toBe(0);
     expect(countRecipientRosterItems(items, "not_sent", "welcome")).toBe(1);
-    expect(countRecipientRosterItems(items, "ready", "welcome")).toBe(1);
+    expect(countRecipientRosterItems(items, "delivery_left", "welcome")).toBe(0);
     expect(isRecipientEligible(recipient, "welcome")).toBe(true);
     expect(welcomeDeliveryBlockReason(recipient, "welcome")).toBeNull();
     expect(isRecipientEligible(recipient, "passport_link")).toBe(false);

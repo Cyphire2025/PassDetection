@@ -99,7 +99,7 @@ function scene() {
 async function update(client: QueryClient, values: Partial<WhatsAppActivitySummary>) {
   act(() => client.setQueryData(queryKey, { ...initialWhatsAppActivitySummary(activity), ...values }));
   await waitFor(() => expect(screen.getByRole("progressbar")).toHaveAttribute(
-    "aria-valuenow", String(16 - (values.queued ?? 16)),
+    "aria-valuenow", String((values.total ?? activity.total) - (values.queued ?? activity.queued)),
   ));
 }
 
@@ -188,7 +188,7 @@ it("reconciles delayed failures after dispatch, refreshes broadcast caches, and 
   fireEvent.click(screen.getByRole("button", { name: "Register broadcast" }));
   await tick(1);
   expect(screen.getByText("0 delivered of 10")).toBeVisible();
-  expect(screen.getByText(/10 accepted · 10 awaiting delivery confirmation/)).toBeVisible();
+  expect(screen.getByText("10 awaiting delivery confirmation")).toBeVisible();
   const refreshesAfterAcceptance = invalidate.mock.calls.length;
   await tick(14_000);
   expect(screen.getByText("0 delivered of 10")).toBeVisible();
@@ -211,12 +211,73 @@ it("reconciles delayed failures after dispatch, refreshes broadcast caches, and 
 
   response = { ...response, sent: 7, failed: 3, status_counts: { delivered: 7, failed: 3 } };
   await tick(2_001);
-  expect(screen.getByText("7 delivered of 10")).toBeVisible();
+  expect(screen.getByText("7 delivered of 7")).toBeVisible();
   expect(screen.getByRole("button", { name: "Show 3 failed recipients" })).toBeVisible();
   const callsAfterReceipts = mocks.summary.mock.calls.length;
   await tick(30_000);
   expect(mocks.summary.mock.calls.length).toBe(callsAfterReceipts);
-  expect(screen.getByText("7 delivered of 10")).toBeVisible();
+  expect(screen.getByText("7 delivered of 7")).toBeVisible();
+});
+
+it("excludes failures from the delivery total and counts awaiting messages once as receipts change", async () => {
+  const { client, navigate } = renderTracker();
+  fireEvent.click(screen.getByRole("button", { name: "Register broadcast" }));
+  await update(client, {
+    total: 10, queued: 0, sent: 5, failed: 5,
+    status_counts: { delivered: 2, read: 1, sent: 2, failed: 5 },
+  });
+  expect(screen.getByText("3 delivered of 5")).toBeVisible();
+  expect(screen.getByText("2 awaiting delivery confirmation")).toBeVisible();
+  expect(screen.queryByText(/2 sent/)).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Show 5 failed recipients" })).toBeVisible();
+  expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuemax", "10");
+
+  navigate("/dashboard/another-page");
+  expect(screen.getByText("3 delivered of 5")).toBeVisible();
+  expect(screen.getByText("2 awaiting delivery confirmation")).toBeVisible();
+  await update(client, {
+    total: 10, queued: 0, sent: 4, failed: 6,
+    status_counts: { delivered: 2, read: 1, sent: 1, failed: 6 },
+  });
+  await waitFor(() => expect(screen.getByText("3 delivered of 4")).toBeVisible());
+  expect(screen.getByText("1 awaiting delivery confirmation")).toBeVisible();
+  expect(screen.getByRole("button", { name: "Show 6 failed recipients" })).toBeVisible();
+});
+
+it("keeps the full delivery total without failures and combines accepted and sent receipts", async () => {
+  const { client } = renderTracker();
+  fireEvent.click(screen.getByRole("button", { name: "Register broadcast" }));
+  await update(client, {
+    total: 10, queued: 0, sent: 10,
+    status_counts: { delivered: 3, submitted: 2, sent: 5 },
+  });
+  expect(screen.getByText("3 delivered of 10")).toBeVisible();
+  expect(screen.getByText("7 awaiting delivery confirmation")).toBeVisible();
+  expect(screen.queryByText(/2 accepted|5 sent/)).not.toBeInTheDocument();
+});
+
+it("retains queued messages and unknown delivery warnings alongside the awaiting count", async () => {
+  const { client } = renderTracker();
+  fireEvent.click(screen.getByRole("button", { name: "Register broadcast" }));
+  await update(client, {
+    total: 10, queued: 2, sent: 4, failed: 3, delivery_unknown: 1,
+    status_counts: { queued: 2, delivered: 2, submitted: 1, sent: 1, failed: 3, delivery_unknown: 1 },
+  });
+  expect(screen.getByText("2 delivered of 7")).toBeVisible();
+  expect(screen.getByText("2 queued · 2 awaiting delivery confirmation")).toBeVisible();
+  expect(screen.getByText(/1 delivery outcome is unknown and need review/)).toBeVisible();
+});
+
+it("shows an explicit failure outcome when every message fails", async () => {
+  const { client } = renderTracker();
+  fireEvent.click(screen.getByRole("button", { name: "Register broadcast" }));
+  await update(client, {
+    total: 10, queued: 0, failed: 10, status_counts: { failed: 10 },
+  });
+  expect(screen.getByText("All messages failed")).toBeVisible();
+  expect(screen.queryByText(/awaiting delivery confirmation|delivered of 0/)).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Show 10 failed recipients" })).toBeVisible();
+  expect(scene()).toHaveAttribute("data-state", "attention");
 });
 
 it("restores old broadcasts and document artwork while QR keeps its compact progress", () => {

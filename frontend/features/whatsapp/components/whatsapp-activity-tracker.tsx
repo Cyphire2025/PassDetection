@@ -668,13 +668,14 @@ function WhatsAppActivityRow({
   const delivered = (activity.status_counts?.delivered ?? 0) + (activity.status_counts?.read ?? 0);
   const isAwaitingReceipt = awaitingReceipt > 0;
   const needsAttention = activity.failed > 0 || activity.delivery_unknown > 0;
-  const outcomeLabel = activity.status_counts
-    ? `${delivered.toLocaleString()} delivered of ${activity.total.toLocaleString()}`
-    : `${activity.sent.toLocaleString()} accepted of ${activity.total.toLocaleString()}`;
+  const deliveryTotal = Math.max(0, activity.total - activity.failed);
+  const outcomeLabel = activity.total > 0 && deliveryTotal === 0
+    ? "All messages failed"
+    : activity.status_counts
+      ? `${delivered.toLocaleString()} delivered of ${deliveryTotal.toLocaleString()}`
+      : `${activity.sent.toLocaleString()} accepted of ${deliveryTotal.toLocaleString()}`;
   const pendingStatusLabel = [
     activity.queued > 0 ? `${activity.queued.toLocaleString()} queued` : null,
-    (activity.status_counts?.submitted ?? 0) > 0 ? `${activity.status_counts!.submitted.toLocaleString()} accepted` : null,
-    (activity.status_counts?.sent ?? 0) > 0 ? `${activity.status_counts!.sent.toLocaleString()} sent` : null,
     isAwaitingReceipt ? `${awaitingReceipt.toLocaleString()} awaiting delivery confirmation` : null,
   ].filter(Boolean).join(" · ");
   const completedCount = Math.max(

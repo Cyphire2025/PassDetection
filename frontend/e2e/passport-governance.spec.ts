@@ -413,6 +413,7 @@ test("group archival and permanent passport deletion require a verified destruct
 
   await expect.poll(() => archiveAttempts).toBe(2);
   const archivedRegion = page.getByRole("region", { name: "Archived groups" });
+  await archivedRegion.getByRole("button", { name: "Show archived groups" }).click();
   await expect(archivedRegion.getByRole("row").filter({ hasText: groupLink.name })).toBeVisible();
   expect(stepUpBody).toEqual({ code: "123456" });
 
@@ -476,6 +477,7 @@ test("permanent deletion shows a conflict after identity verification and succee
 
   await page.goto("/upload-links");
   const archivedRegion = page.getByRole("region", { name: "Archived groups" });
+  await archivedRegion.getByRole("button", { name: "Show archived groups" }).click();
   const row = archivedRegion.getByRole("row").filter({ hasText: groupLink.name });
   await row.getByRole("button", { name: "Delete", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Delete Archived Group" });

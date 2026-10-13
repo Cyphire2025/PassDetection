@@ -7,13 +7,11 @@ import type { WhatsAppRecipientRosterTab } from "../utils/recipient-roster";
 
 export const DELIVERY_FILTERS: ReadonlyArray<{ id: WhatsAppRecipientRosterTab; label: string }> = [
   { id: "all", label: "All" },
-  { id: "ready", label: "Ready" },
-  { id: "not_sent", label: "Not sent" },
   { id: "sent", label: "Sent" },
+  { id: "not_sent", label: "Not Sent" },
+  { id: "delivery_left", label: "Delivery left" },
   { id: "failed", label: "Failed" },
-  { id: "in_progress", label: "In progress" },
-  { id: "needs_review", label: "Needs review" },
-  { id: "shared", label: "Shared numbers" },
+  { id: "needs_review", label: "Need Review" },
 ];
 
 const CONTACT_FILTERS = [
