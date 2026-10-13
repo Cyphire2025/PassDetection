@@ -13,6 +13,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.infrastructure.ai.gemini_ecr_service import EcrClassification
+from app.infrastructure.database.gc_mobile_models import ClientOrganizationModel
 from app.infrastructure.database.models import (
     AgencyModel,
     ClientGroupModel,
@@ -36,6 +37,7 @@ async def passport_db(monkeypatch, tmp_path):
                     model.__table__
                     for model in (
                         AgencyModel,
+                        ClientOrganizationModel,
                         ClientGroupModel,
                         PassportSubmissionModel,
                         PassportEcrCheckModel,

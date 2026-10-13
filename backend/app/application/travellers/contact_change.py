@@ -74,19 +74,30 @@ async def finish_contact_change(
     service: ReturningClaims, grant_token: str, claim_token: str, code: str,
 ) -> str:
     claim, _ = await service.locked(claim_token)
-    if claim.status == "authorized":
-        result = service.crypto.digest("issued-grant-secret", claim.secret_hash)
-        await require_grant(service, result, "history:read")
+    if (result := await _completed_change(service, claim)) is not None:
         return result
     grant, _, _ = await require_grant(service, grant_token, "contact:change")
     if claim.actor_evidence.get("purpose") != "contact_change" or claim.actor_evidence.get("source_grant_id") != str(grant.id):
         raise ReuseError(ReuseReason.VERIFICATION_FAILED)
     await verify_code(service, claim_token, code)
-    # Re-read authority after provider verification, inside the promotion lock.
-    await require_grant(service, grant_token, "contact:change")
+    # OTP verification commits its attempt evidence. Another retry may finish
+    # promotion in that gap and legitimately revoke the original grant. Lock
+    # and re-read the claim before deciding which grant is authoritative.
     claim, scope = await service.locked(claim_token)
+    if (result := await _completed_change(service, claim)) is not None:
+        return result
+    await require_grant(service, grant_token, "contact:change")
     await service.bound_person(claim, scope, datetime.now(UTC))
     claim.status = "recovery_confirmation"
     acting_for = "family" if grant.actor_kind != "self" else "self"
     await service.session.flush()
     return await confirm_claim(service, claim_token, acting_for=acting_for, contact_change_confirmed=True)
+
+
+async def _completed_change(service: ReturningClaims, claim: TravellerClaimModel) -> str | None:
+    """Recover only the current, live grant of this completed claim."""
+    if claim.status != "authorized":
+        return None
+    result = service.crypto.digest("issued-grant-secret", claim.secret_hash)
+    await require_grant(service, result, "history:read")
+    return result

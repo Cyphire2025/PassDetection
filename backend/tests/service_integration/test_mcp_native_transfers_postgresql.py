@@ -26,7 +26,6 @@ from app.infrastructure.database.mcp_models import MCPControlModel, MCPGrantMode
 from app.infrastructure.database.mcp_native_transfer_models import MCPNativeTransferModel
 from app.infrastructure.database.models import (
     AgencyModel,
-    ClientGroupModel,
     UserModel,
     UserSecurityStateModel,
 )
@@ -136,11 +135,14 @@ async def test_native_ticket_retry_lease_and_revocation_under_actual_row_locks(t
                         mfa_enabled_at=now,
                         mfa_secret_ciphertext="synthetic",
                     ),
-                    ClientGroupModel(
-                        id=group, agency_id=agency, name="Native test group", token=uuid.uuid4().hex
-                    ),
                 ]
             )
+            # Seed the historical 0126 schema without today's ORM-only columns.
+            await session.execute(text(
+                "INSERT INTO client_groups(id,agency_id,name,token,status,created_at,"
+                "departure_cities,deleted_passport_count,deletion_retained_records) "
+                "VALUES(:id,:agency,'Native test group',:token,'active',:now,'[]'::jsonb,0,false)"
+            ), {"id": group, "agency": agency, "token": uuid.uuid4().hex, "now": now})
             control = await session.get(MCPControlModel, 1)
             control.enabled, control.write_enabled = True, True
             control.allowed_write_sections, control.allowed_write_tools = (
@@ -192,6 +194,9 @@ async def test_native_ticket_retry_lease_and_revocation_under_actual_row_locks(t
 
         before = await retained_authority()
         await migrate("0127_mcp_native_transfers")
+        assert await retained_authority() == before
+        # The remainder qualifies current application code on the current schema.
+        await migrate("head")
         assert await retained_authority() == before
         data = pdf()
         request = MCPNativeUploadRequest(

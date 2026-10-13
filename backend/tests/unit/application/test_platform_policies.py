@@ -47,6 +47,8 @@ def test_platform_policy_loader_rejects_corrupt_persisted_values(
 @pytest.mark.asyncio
 async def test_default_group_status_is_applied_at_the_domain_creation_boundary() -> None:
     group_repository = AsyncMock()
+    company_id = uuid.uuid4()
+    group_repository.require_active_company.return_value = {"id": company_id, "name": "Policy client", "status": "active"}
     provider = AsyncMock()
     provider.load.return_value = PlatformPolicies(
         default_group_status="closed",
@@ -55,7 +57,7 @@ async def test_default_group_status_is_applied_at_the_domain_creation_boundary()
     use_case = CreateClientGroupUseCase(group_repository, provider)
 
     result = await use_case.execute(
-        dto=CreateClientGroupInputDTO(name="Policy Group"),
+        dto=CreateClientGroupInputDTO(name="Policy Group", company_id=company_id),
         agency_id=uuid.uuid4(),
         created_by_user_id=uuid.uuid4(),
     )

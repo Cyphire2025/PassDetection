@@ -32,9 +32,9 @@ def seed_company_and_roster(connection: Connection) -> None:
             VALUES ('e0000000-0000-0000-0000-000000000003', %(group_a)s, %(broadcast)s, %(agency_a)s, now());
             INSERT INTO whatsapp_broadcast_recipients
               (id, broadcast_group_id, agency_id, name, phone_number, normalized_phone_number,
-               imported_fields, display_order, created_at, updated_at)
+               imported_fields, display_order, created_at)
             VALUES ('e0000000-0000-0000-0000-000000000004', %(broadcast)s, %(agency_a)s,
-              'Synthetic person 0', '+919999999999', '+919999999999', '{"staff_code":"0000"}', 1, now(), now());
+              'Synthetic person 0', '+919999999999', '+919999999999', '{"staff_code":"0000"}', 1, now());
             INSERT INTO whatsapp_broadcast_rejected_contacts
               (id, broadcast_group_id, agency_id, source_file_name, sheet_name, row_number,
                raw_name, raw_phone_number, imported_fields, display_order, reason_code, reason, fingerprint, created_at)

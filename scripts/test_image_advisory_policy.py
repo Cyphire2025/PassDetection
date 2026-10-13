@@ -47,6 +47,15 @@ class ImageAdvisoryTests(unittest.TestCase):
         policy = json.loads((Path(__file__).resolve().parents[1] / "tooling/image-advisory-dispositions.json").read_text())
         accepted = validate_policy(policy, dt.date(2026, 10, 6))
         self.assertNotIn(("CVE-2026-82049", "python", "3.11.17"), accepted)
+        retired = {"CVE-2026-82049", "CVE-2026-66046", "CVE-2026-76956", "CVE-2026-76957", "CVE-2026-93990"}
+        self.assertFalse(any(advisory in retired for advisory, _, _ in accepted))
+        # Upstream patched versions replace these backports. Restoring an old
+        # exception without a new executable review must still fail closed.
+        for advisory in retired:
+            changed = copy.deepcopy(policy)
+            changed["entries"][0].update(advisory=advisory, disposition="fixed_by_backport")
+            with self.subTest(retired=advisory), self.assertRaisesRegex(ValueError, "executable runtime condition"):
+                validate_policy(changed, dt.date(2026, 10, 6))
         self.assertNotIn(("CVE-NEW", "python", "3.11.16"), accepted)
         for changes in ({"owner": ""}, {"evidence": []}, {"condition": ""},
                         {"expires_on": "2026-09-26"}, {"reviewed_on": "2026-10-07"},

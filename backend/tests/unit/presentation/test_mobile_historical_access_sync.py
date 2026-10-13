@@ -141,6 +141,8 @@ async def test_window_edit_invalidates_old_session_but_only_revokes_disabled_rol
     db_session.add(organization)
     await db_session.flush()
     access.client_organization_id = organization.id
+    group.company_id = organization.id
+    group.company_revision = 1
     _, identity = await workflow_passenger(db_session, access)
     device, _ = await workflow_session(db_session, [identity])
     device_id = device.id

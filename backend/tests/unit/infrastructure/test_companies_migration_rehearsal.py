@@ -1,5 +1,6 @@
 """Guard the destructive CI scope and exercise forward-resume assertions."""
 
+import re
 from types import SimpleNamespace
 from unittest.mock import Mock
 
@@ -7,7 +8,27 @@ import psycopg2
 import pytest
 
 from scripts import rehearse_companies_traveller_upgrade as rehearsal
-from scripts.companies_rehearsal_fixture import create_interrupted_source_index
+from scripts.companies_rehearsal_fixture import (
+    create_interrupted_source_index,
+    seed_company_and_roster,
+)
+
+
+def test_populated_seed_inserts_only_actual_model_columns():
+    from app.infrastructure.database.models import Base
+
+    connection, cursor = Mock(), Mock()
+    connection.cursor.return_value.__enter__ = Mock(return_value=cursor)
+    connection.cursor.return_value.__exit__ = Mock(return_value=False)
+    seed_company_and_roster(connection)
+    statement = cursor.execute.call_args.args[0]
+    inserts = re.findall(r"INSERT INTO (\w+)\s*\(([^)]+)\)", statement)
+    assert len(inserts) == 6
+    for table_name, raw_columns in inserts:
+        supplied = {column.strip() for column in raw_columns.split(",")}
+        unknown = supplied - set(Base.metadata.tables[table_name].columns.keys())
+        assert not unknown, f"{table_name} seed names nonexistent columns: {unknown}"
+    connection.commit.assert_called_once()
 
 
 def environment(**changes):

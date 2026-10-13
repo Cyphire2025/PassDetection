@@ -35,6 +35,40 @@ async def pending_change(service, token):
 
 
 @pytest.mark.asyncio
+async def test_retry_completed_during_otp_commit_gap_recovers_current_grant(
+    db_session, test_settings, monkeypatch,
+):
+    from app.application.travellers import contact_change
+
+    service, _, group = await reuse_context(db_session, test_settings)
+    person = await seed_person(service, group)
+    _, _, old_token = await successful_claim(service, group, person, "code")
+    claim_token, provider = await pending_change(service, old_token)
+    original_verify = contact_change.verify_code
+    interleaved = False
+    competing_result = None
+
+    async def verify_then_complete_retry(*args):
+        nonlocal interleaved, competing_result
+        await original_verify(*args)
+        if not interleaved:
+            interleaved = True
+            competing_result = await finish_contact_change(service, old_token, claim_token, provider.code)
+
+    monkeypatch.setattr(contact_change, "verify_code", verify_then_complete_retry)
+    result = await finish_contact_change(service, old_token, claim_token, provider.code)
+    assert interleaved and result == competing_result and result != old_token
+    assert person.profile.contact_revision == 2
+    await require_grant(service, result, "history:read")
+    with pytest.raises(ReuseError):
+        await require_grant(service, old_token, "history:read")
+    assert await db_session.scalar(select(func.count()).select_from(TravellerContactBindingModel).where(
+        TravellerContactBindingModel.traveller_id == person.profile.id,
+        TravellerContactBindingModel.status == "current",
+    )) == 1
+
+
+@pytest.mark.asyncio
 async def test_new_contact_requires_otp_and_revokes_only_selected_person(db_session, test_settings):
     service, _, group = await reuse_context(db_session, test_settings)
     first, family = await seed_person(service, group), await seed_person(service, group, 2)

@@ -31,6 +31,8 @@ async def test_configured_filters_keep_paused_groups_and_exclude_them_from_new_a
     actor, organization, closed = await _context(db_session)
     opened = _group(actor.agency_id, status="active")
     paused = _group(actor.agency_id)
+    paused.company_id = organization.id
+    paused.company_revision = 1
     db_session.add_all([opened, paused])
     await db_session.flush()
     db_session.add(
@@ -86,6 +88,8 @@ async def test_availability_filter_applies_before_pagination_and_matches_project
     expected = {}
     for state, lifecycle, fields, reason in cases:
         group = _group(actor.agency_id, status=lifecycle)
+        group.company_id = organization.id
+        group.company_revision = 1
         db_session.add(group)
         await db_session.flush()
         db_session.add(

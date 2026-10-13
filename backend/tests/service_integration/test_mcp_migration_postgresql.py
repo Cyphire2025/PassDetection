@@ -31,7 +31,6 @@ from app.infrastructure.database.mcp_whatsapp_media_models import (
 )
 from app.infrastructure.database.models import (
     AgencyModel,
-    ClientGroupModel,
     PassportSubmissionModel,
     UserModel,
     WhatsAppBroadcastGroupModel,
@@ -41,7 +40,7 @@ from app.presentation.api.v1.routes.mcp_admin_files import file_projection
 
 pytestmark = [pytest.mark.service_integration, pytest.mark.skipif(
     os.getenv("RUN_SERVICE_INTEGRATION") != "1", reason="isolated PostgreSQL required")]
-EXPECTED_HEAD = json.loads((Path(__file__).resolve().parents[2] / "app/core/config/release_manifest.json").read_text())["schema_revision"]
+EXPECTED_HEAD = "0129_travel_tracker"
 
 
 LEGACY_HEAD = "0122_mcp_gc_push"
@@ -91,10 +90,15 @@ async def test_additive_upgrade_preserves_rows_and_refuses_loss_of_connection_hi
                              hashed_password="synthetic", role="super_admin", is_active=True)
             session.add_all([agency, user])
             await session.flush()
-            group = ClientGroupModel(id=uuid.uuid4(), agency_id=agency.id, name="Retained group", token=uuid.uuid4().hex)
-            session.add(group)
-            await session.flush()
-            session.add(PassportSubmissionModel(id=uuid.uuid4(), agency_id=agency.id, group_id=group.id,
+            group_id = uuid.uuid4()
+            # The source is deliberately 0113; current ORM columns do not exist yet.
+            await session.execute(text(
+                "INSERT INTO client_groups(id,agency_id,name,token,status,created_at,"
+                "departure_cities,deleted_passport_count,deletion_retained_records) "
+                "VALUES(:id,:agency,'Retained group',:token,'active',:now,'[]'::jsonb,0,false)"
+            ), {"id": group_id, "agency": agency.id, "token": uuid.uuid4().hex,
+                "now": datetime.now(UTC)})
+            session.add(PassportSubmissionModel(id=uuid.uuid4(), agency_id=agency.id, group_id=group_id,
                 client_name="Retained passport", image_s3_key="synthetic/retained-source", status="confirmed"))
             await session.commit()
             user_id = user.id
@@ -138,7 +142,7 @@ async def test_additive_upgrade_preserves_rows_and_refuses_loss_of_connection_hi
                     'export', 'passport_excel', 'synthetic/legacy-export', 'legacy.xlsx',
                     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 3, :sha256, :now, :expiry)
             """), {"id": artifact_id, "handle_hash": "a" * 64, "user_id": user_id,
-                "grant_id": grant_id, "agency_id": agency.id, "group_id": group.id,
+                "grant_id": grant_id, "agency_id": agency.id, "group_id": group_id,
                 "sha256": "b" * 64, "now": now, "expiry": now + timedelta(hours=1)})
             await session.commit()
         code, output = await migrate("upgrade", LEGACY_HEAD)
@@ -148,7 +152,7 @@ async def test_additive_upgrade_preserves_rows_and_refuses_loss_of_connection_hi
             assert (access["artifact_id"], access["grant_id"], access["handle_hash"], access["handle_version"]) == (
                 artifact_id, grant_id, "a" * 64, 0)
             assert await connection.scalar(text("SELECT association_groups FROM mcp_artifacts")) == [
-                {"agency_id": str(agency.id), "group_id": str(group.id)}]
+                {"agency_id": str(agency.id), "group_id": str(group_id)}]
         assert await snapshot() == before
         # A legacy-only backfill is reversible without losing its original locator.
         code, output = await migrate("downgrade", "0114_mcp_connections")
@@ -255,13 +259,13 @@ async def test_additive_upgrade_preserves_rows_and_refuses_loss_of_connection_hi
         # A retained origin without its former plan still prohibits downgrade.
         async with factory() as session:
             draft = GCNotificationDraftModel(agency_id=agency.id, title="Retained push",
-                body="Synthetic history only", audience="selected_groups", group_ids=[str(group.id)])
+                body="Synthetic history only", audience="selected_groups", group_ids=[str(group_id)])
             session.add(draft)
             await session.flush()
             batch = GCNotificationBatchModel(agency_id=agency.id, draft_id=draft.id,
                 draft_revision=1, request_id=uuid.uuid4(), request_fingerprint="9" * 64,
                 title=draft.title, body=draft.body, audience=draft.audience,
-                group_ids=[str(group.id)], group_names=["Retained group"], role_counts={"coordinator": 1},
+                group_ids=[str(group_id)], group_names=["Retained group"], role_counts={"coordinator": 1},
                 created_at=now, expires_at=now + timedelta(hours=1))
             session.add(batch)
             await session.flush()
@@ -295,7 +299,9 @@ async def test_additive_upgrade_preserves_rows_and_refuses_loss_of_connection_hi
         assert await snapshot() == before
         # The historical reversible migrations are qualified independently of
         # subsequent permission decisions, whose destructive rollback is banned.
-        code, output = await migrate("upgrade", "head")
+        # Keep this historical rollback proof before the separately rehearsed
+        # 0130+ additive release and its concurrent-index commit boundaries.
+        code, output = await migrate("upgrade", EXPECTED_HEAD)
         assert code == 0, output[-4000:]
         assert await snapshot() == before
         code, output = await migrate("downgrade", LEGACY_HEAD)

@@ -1,8 +1,9 @@
-"""Full-only additive release with fenced, retained, forward-only recovery."""
+"""Explicit Full or lower-assurance Fast additive release with forward recovery."""
 from __future__ import annotations
 
 import re
 import shutil
+import sys
 from functools import partial
 from pathlib import Path
 from typing import Any
@@ -33,6 +34,13 @@ from release_retained_update import (
 class CompaniesRetainedUpdate(RetainedUpdate):
     candidate_schema: str = TARGET
 
+    def candidate_environment(self, original: dict[str, Any]) -> dict[str, str]:
+        values: dict[str, str] = super().candidate_environment(original)
+        if self.record.get('additive_release', True):
+            from release_companies_secrets import runtime_values
+            values.update(runtime_values(self, original))
+        return values
+
     def event(self, phase: str, **values: Any) -> None:
         super().event(phase, additive_release=getattr(self, 'additive', self.record.get('additive_release', True)), **values)
 
@@ -46,6 +54,9 @@ class CompaniesRetainedUpdate(RetainedUpdate):
     def compatibility(self, previous: str) -> None:
         if self.record.get('additive_release', True):
             validate_additive_source(self.source, self.revision, previous)
+            if self.mode == 'fast':
+                from release_companies_fast import validate_dependencies
+                validate_dependencies(self.source, previous, self.revision)
         else:
             super().compatibility(previous)
 
@@ -61,6 +72,46 @@ class CompaniesRetainedUpdate(RetainedUpdate):
             require(images == self.record['image_ids'], 'resume_image_binding_changed')
         self.event('signed-images-verified', image_ids=images)
         return images
+
+    def candidate_images(self, *, recover: bool = False) -> dict[str, str]:
+        if self.mode == 'full':
+            return self.signed_images()
+        from release_companies_fast import binding, verify_images, verify_rehearsal
+
+        if not recover:
+            with self.background_quiescence():
+                images = self.build_fast_images()
+                self.event('fast-additive-images-built', image_ids=images)
+                self.event('fast-additive-source-bound', fast_additive_binding=binding(self.source, self.revision, self.record))
+                verify_images(self.source, self.revision, self.record)
+                self.rehearse_fast_migration()
+        images = verify_images(self.source, self.revision, self.record)
+        if recover:
+            verify_rehearsal(self.directory, self.record)
+        return images
+
+    def rehearse_fast_migration(self) -> None:
+        if self.mode != 'fast':
+            return
+        from release_companies_fast import read_rehearsal
+
+        receipt = self.directory / 'fast-migration-rehearsal.json'
+        require(not receipt.exists() and not receipt.is_symlink(), 'existing_fast_rehearsal_requires_review')
+        command(sys.executable, str(self.source / 'scripts/qa/qualify_companies_fast_migration.py'),
+                '--image', self.record['image_ids']['backend'], '--revision', self.revision,
+                '--evidence-output', str(receipt), timeout=1800)
+        self.event('fast-migration-rehearsal-verified', fast_migration_rehearsal=read_rehearsal(
+            receipt, self.record['fast_additive_binding']))
+
+    def verify_candidate_configuration(self) -> None:
+        """Require retained key custody and identical actual writer environments."""
+        from release_companies_secrets import verify_configuration
+
+        values = verify_configuration(self)
+        for name in ('backend', *WORKERS, 'email-beat'):
+            actual = environment(bound_original(self.record['candidates'][name]))
+            require(all(actual.get(key) == value for key, value in values.items()),
+                    'candidate_reuse_runtime_configuration_changed')
 
     def verify_fence(self) -> None:
         """Exact IDs, network endpoints and both application generations are fenced."""
@@ -95,6 +146,11 @@ class CompaniesRetainedUpdate(RetainedUpdate):
         )
 
     def migrate(self) -> None:
+        if self.mode == 'fast':
+            from release_companies_fast import verify_images, verify_rehearsal
+            verify_images(self.source, self.revision, self.record)
+            verify_rehearsal(self.directory, self.record)
+        self.verify_candidate_configuration()
         self.verify_fence()
         database = self.database_release()
         backup = self.record.get('database_backup')
@@ -174,6 +230,7 @@ class CompaniesRetainedUpdate(RetainedUpdate):
 
     def activate_candidates(self) -> None:
         require(self.schema() == TARGET, 'target_schema_required_before_candidate_start')
+        self.verify_candidate_configuration()
         self.verify_fence()
         candidates = self.record['candidates']
         for name in ('backend', 'frontend', *WORKERS, 'email-beat'):
@@ -222,7 +279,8 @@ class CompaniesRetainedUpdate(RetainedUpdate):
         self.project = self.record['project']
         self.current_main()
         self.compatibility(self.record['previous_revision'])
-        self.signed_images()
+        self.candidate_images(recover=True)
+        self.verify_candidate_configuration()
         # Reject live helper first, without stopping any potentially healthy app.
         for helper in self.record.get('migration_helpers', []):
             require(not bound_original(helper)['State']['Running'], 'migration_helper_still_running')
@@ -247,7 +305,6 @@ class CompaniesRetainedUpdate(RetainedUpdate):
             self.additive = False
             self.record['additive_release'] = False
             return super().run()
-        require(self.mode == 'full', 'companies_traveller_release_requires_full')
         require(not list(self.directory.glob('*-prepared.private.json')), 'existing_attempt_requires_receipt_review')
         live = select_live(rows, schema=SOURCE)
         previous = environment(live['backend'])['APP_REVISION']
@@ -269,5 +326,6 @@ class CompaniesRetainedUpdate(RetainedUpdate):
         require(self.schema() == SOURCE, 'source_schema_required_for_first_additive_attempt')
         self.proof(live, previous, public=True)
         require(shutil.disk_usage(self.directory).free >= 12 * GIB, 'insufficient_retained_image_headroom')
-        candidates = self.stage(self.signed_images())
+        images = self.candidate_images()
+        candidates = self.stage(images)
         self.transition(candidates)

@@ -7,7 +7,7 @@
 
 # ── Stage 1: Dependency Builder ───────────────────────────────────────────────
 # Reviewed OpenCV source archive, image-processing modules only.
-FROM python:3.11.16-slim@sha256:e41613d42d4891e4930f79523f93f81bbc7632584ec65e36ab055f41a800b41e AS opencv-build
+FROM python:3.11.17-slim@sha256:e88e9763f943ec1834f992a4b51e0f24500486803e8bc534e5767af9ea65f6ce AS opencv-build
 RUN apt-get update && apt-get install -y --no-install-recommends build-essential && rm -rf /var/lib/apt/lists/*
 WORKDIR /build
 COPY requirements-image-build.lock .
@@ -37,7 +37,14 @@ FROM opencv-build AS xml-security-build
 COPY docker/build_xml_security.py /build/build_xml_security.py
 RUN python /build/build_xml_security.py
 
-FROM python:3.11.16-slim@sha256:e41613d42d4891e4930f79523f93f81bbc7632584ec65e36ab055f41a800b41e AS builder
+FROM opencv-build AS postgresql-client-build
+RUN apt-get update && apt-get install -y --no-install-recommends libssl-dev bison flex && rm -rf /var/lib/apt/lists/*
+COPY docker/postgresql_client_build.json docker/build_postgresql_client.py /build/
+ENV PATH="/opt/postgresql/bin:$PATH"
+ENV LD_LIBRARY_PATH=/opt/postgresql/lib
+RUN python /build/build_postgresql_client.py
+
+FROM python:3.11.17-slim@sha256:e88e9763f943ec1834f992a4b51e0f24500486803e8bc534e5767af9ea65f6ce AS builder
 
 ARG PIP_VERSION=26.2.1
 
@@ -46,7 +53,6 @@ WORKDIR /build
 # System dependencies required for C extensions (OpenCV, psycopg2, etc.)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    libpq-dev \
     libgl1 \
     libglib2.0-0 \
     libsm6 \
@@ -61,14 +67,17 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 COPY requirements.lock .
 COPY --from=opencv-build /wheels /custom-opencv
+COPY --from=postgresql-client-build /pq-wheels /custom-postgresql
 RUN python -m pip install --no-cache-dir "pip==${PIP_VERSION}" && \
     pip install --no-cache-dir --require-hashes -r requirements.lock && \
     python -m pip uninstall -y opencv-python-headless && \
     python -m pip install --no-cache-dir --no-deps /custom-opencv/*.whl && \
+    python -m pip uninstall -y psycopg2-binary && \
+    python -m pip install --no-cache-dir --no-deps /custom-postgresql/*.whl && \
     python -m pip uninstall -y setuptools wheel
 
 # ── Stage 2: Production Runtime ──────────────────────────────────────────────
-FROM python:3.11.16-slim@sha256:e41613d42d4891e4930f79523f93f81bbc7632584ec65e36ab055f41a800b41e AS runtime
+FROM python:3.11.17-slim@sha256:e88e9763f943ec1834f992a4b51e0f24500486803e8bc534e5767af9ea65f6ce AS runtime
 
 ARG APP_REVISION=unknown
 
@@ -85,7 +94,7 @@ ENV APP_REVISION="${APP_REVISION}"
 # installing other libraries does not upgrade them (Debian DSA-6530/DSA-6531).
 COPY docker/runtime_security_packages.json docker/verify_runtime_security_packages.py /usr/local/share/passdetection/
 RUN apt-get update && \
-    python -c "import json, subprocess; pins=json.load(open('/usr/local/share/passdetection/runtime_security_packages.json')); subprocess.run(['apt-get', 'install', '-y', '--no-install-recommends', 'libpq5', 'libgomp1', 'libleptonica6', *(name+'='+version for name, version in pins.items())], check=True)" && \
+    python -c "import json, subprocess; pins=json.load(open('/usr/local/share/passdetection/runtime_security_packages.json')); subprocess.run(['apt-get', 'install', '-y', '--no-install-recommends', 'libgomp1', 'libleptonica6', *(name+'='+version for name, version in pins.items())], check=True)" && \
     python /usr/local/share/passdetection/verify_runtime_security_packages.py \
     && rm -rf /var/lib/apt/lists/*
 
@@ -99,10 +108,14 @@ COPY --from=xml-security-build /build/xml-security/packages/libexpat1.deb /tmp/l
 RUN dpkg -i /tmp/libexpat1.deb && rm /tmp/libexpat1.deb
 COPY --from=xml-security-build /build/xml-security/patched-python/ /usr/local/lib/python3.11/lib-dynload/
 
-# Apply the upstream hard-link relocation fix to the exact pinned stdlib source.
-COPY docker/backport_tarfile_security.py /tmp/backport_tarfile_security.py
-RUN python /tmp/backport_tarfile_security.py && rm /tmp/backport_tarfile_security.py && \
-    rm -f /usr/local/lib/python3.11/__pycache__/tarfile.*.pyc
+# Keep libpq's provenance visible; neither Debian's optional auth dependency
+# tree nor wheel-bundled private copies enter this runtime.
+# Directory COPY preserves nested symlinks; wildcard file COPY dereferences them.
+COPY --from=postgresql-client-build /pq-runtime/ /opt/postgresql/lib/
+COPY --from=postgresql-client-build /opt/postgresql/lib/pkgconfig/libpq.pc /opt/postgresql/lib/pkgconfig/
+COPY --from=postgresql-client-build /opt/postgresql/bin/pg_config /opt/postgresql/bin/
+COPY docker/postgresql_client_build.json docker/verify_postgresql_client.py /usr/local/share/passdetection/
+RUN printf '/opt/postgresql/lib\n' > /etc/ld.so.conf.d/passdetection-postgresql.conf && ldconfig
 
 # No application or maintenance command needs terminal comparison or Linux
 # mount/namespace administration. Remove the affected executable components.
@@ -121,6 +134,7 @@ WORKDIR /app
 # Copy virtual environment from builder
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:/opt/tesseract/bin:$PATH"
+RUN python /usr/local/share/passdetection/verify_postgresql_client.py
 
 # Copy only runtime sources. Local debug images, environments and logs must
 # never enter any release-image layer, even when building a dirty checkout.

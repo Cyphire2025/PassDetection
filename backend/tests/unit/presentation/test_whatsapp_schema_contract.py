@@ -60,6 +60,8 @@ def test_whatsapp_route_reexports_reviewed_schema_contracts() -> None:
     # Remove only these explicit additions and keep both runtime hashes intact;
     # every extension removed here is separately checked below.
     for name, schema in schemas:
+        if name == "WhatsAppContactPreviewResponse":
+            schema["properties"].pop("rejected_counts")
         if name == "WhatsAppPreviewResponse":
             schema["properties"].pop("audience_recipient_ids")
         if name in {"WhatsAppBroadcastGroupResponse", "WhatsAppBroadcastGroupDetailResponse"}:
@@ -95,6 +97,17 @@ def test_whatsapp_route_reexports_reviewed_schema_contracts() -> None:
     assert len(schemas) == 29
     expected_hash = _SCHEMA_SHA256_BY_PYDANTIC[pydantic.__version__]
     assert hashlib.sha256(payload).hexdigest() == expected_hash
+
+
+def test_preview_rejected_reason_counts_are_additive_and_typed() -> None:
+    field = whatsapp.WhatsAppContactPreviewResponse.model_fields["rejected_counts"]
+    assert field.default_factory is dict
+    preview = whatsapp.WhatsAppContactPreviewResponse(
+        recipient_count=1, accepted_count=1, recipients=[], rejected_count=699,
+        rejected_counts={"duplicate_phone": 699}, rejected_rows=[],
+        rejected_rows_truncated=True, omitted_rejected_count=199,
+    )
+    assert preview.rejected_counts == {"duplicate_phone": 699}
 
 
 def test_archive_fields_are_additive_response_contracts() -> None:

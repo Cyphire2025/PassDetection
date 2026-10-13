@@ -79,6 +79,8 @@ async def business_admin(operations_fixture):
         id=uuid.uuid4(),
         agency_id=agencies[0].id,
         name="Published trip",
+        company_id=organization.id,
+        company_revision=1,
         token="SECRET_UPLOAD",
         import_only=True,
         travel_date=date(2030, 1, 1),

@@ -107,7 +107,7 @@ def preserve_unspecified_edit(name: str, body: DashboardEdit, row: Any) -> Dashb
             canonical = UpdateClientGroupRequest.model_validate(
                 {key: merged[key] for key in GROUP_CONFIGURATION_FIELDS}
             )
-            merged.update(canonical.model_dump(mode="json"))
+            merged.update(canonical.model_dump(mode="json", include=set(GROUP_CONFIGURATION_FIELDS)))
         return EDIT_MODELS[name].model_validate(merged)
     except ValidationError as exc:
         raise MCPOperationError("invalid_dashboard_edit") from exc

@@ -21,6 +21,7 @@ async function setup(page: Page, enabled = true) {
     const request = route.request();
     const path = new URL(request.url()).pathname;
     const json = (data: unknown) => route.fulfill({ contentType: "application/json", body: JSON.stringify(data) });
+    if (path === "/api/v1/returning/capabilities" && request.method() === "GET") return json({ enabled: false, code_label: null });
     if (path === `/api/v1/upload-links/token/${token}`) return json(group);
     if (path === `/api/v1/passports/upload/${token}` && request.method() === "PUT") return json({ submission_id: null });
     if (path.endsWith("/telemetry")) return json({});

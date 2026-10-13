@@ -17,7 +17,6 @@ ROOT = Path(__file__).resolve().parents[1]
 # A new JSON entry cannot grant itself an exception without a corresponding
 # executable condition and code review here. These IDs share the probes below.
 CHECKED_DISPOSITIONS = {
-    **dict.fromkeys(("CVE-2026-66046", "CVE-2026-76956", "CVE-2026-76957", "CVE-2026-93990", "CVE-2026-82049"), "fixed_by_backport"),
     **dict.fromkeys(("CVE-2025-69720", "CVE-2026-52490", "CVE-2026-82560", "CVE-2026-9538", "CVE-2026-54370"), "affected_component_absent"),
     **dict.fromkeys(("CVE-2026-19499", "CVE-2026-5435"), "affected_code_not_used"),
     **dict.fromkeys(("CVE-2026-76642", "CVE-2026-78408", "CVE-2026-78409", "CVE-2026-78410", "CVE-2026-54369"), "mitigated_not_patched"),

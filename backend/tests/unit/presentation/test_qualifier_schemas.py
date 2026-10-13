@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+import uuid
 from datetime import date
 
 from pydantic import ValidationError
@@ -15,6 +16,7 @@ from app.presentation.api.v1.schemas.client_group_schemas import (
 class QualifierSchemaTests(unittest.TestCase):
     def test_client_group_flag_defaults_off(self) -> None:
         request = CreateClientGroupRequest(
+            company_id=uuid.uuid4(),
             name="Trip",
             destination="Thailand",
             travel_date=date(2026, 9, 1),
@@ -25,10 +27,11 @@ class QualifierSchemaTests(unittest.TestCase):
 
     def test_client_group_requires_destination_and_trip_dates(self) -> None:
         with self.assertRaises(ValidationError):
-            CreateClientGroupRequest(name="Incomplete Trip")
+            CreateClientGroupRequest(name="Incomplete Trip", company_id=uuid.uuid4())
 
         with self.assertRaises(ValidationError):
             CreateClientGroupRequest(
+                company_id=uuid.uuid4(),
                 name="Reverse Trip",
                 destination="Thailand",
                 travel_date=date(2026, 9, 7),

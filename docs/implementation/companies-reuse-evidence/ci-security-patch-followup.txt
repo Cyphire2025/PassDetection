@@ -1,0 +1,144 @@
+Full CI candidate follow-up - 2026-10-13
+Original candidate: 16f4345498c33595519cf270f40e5c6670f73bc5
+Original run: https://github.com/Cyphire2025/PassDetection/actions/runs/38434097205
+
+Frontend dependency gate
+- The original lint job stopped at production npm audit; later lint/type/unit
+  steps were skipped. Next 16.3.6 was affected by six published advisories.
+- Updated exact Next and eslint-config-next pins to 16.3.8 with only their
+  associated lockfile entries. Existing package overrides and all security
+  gates remain intact. No forced audit fix or audit suppression was used.
+- The official advisory identifies 16.3.8 as patched:
+  https://github.com/advisories/GHSA-cjq9-62q9-8jv4
+  https://github.com/vercel/next.js/releases/tag/v16.3.8
+- Local production npm audit: zero vulnerabilities.
+- Full lint, standalone type-check and production build passed. Build includes
+  the existing MediaPipe CSP integrity check and Next TypeScript validation.
+- Full unit coverage: 1,336 tests / 185 files passed in 172.98 seconds.
+  Existing coverage scope: statements93.87%, branches87.95%, functions94.91%,
+  lines97.18%; all configured per-file floors passed. These percentages do not
+  describe files outside the configured coverage include list.
+- Patched-version feature browser checks: 19 passed in 35.2 seconds.
+
+Frontend browser fixture corrections
+- Original CI browser result: 140 passed, 13 failed in 10 minutes.
+- All 13 failures were strict unexpected-request assertions for the new
+  GET /api/v1/returning/capabilities in three legacy fresh-flow fixture files.
+- Added explicit disabled-capability responses to those fixtures. The
+  unexpected-request guards and all journey assertions remain in place.
+- Corrected fixture suites: 18 browser scenarios passed in 19.8 seconds;
+  targeted ESLint and standalone type-check passed.
+- These are synthetic API browser checks, not a live service qualification.
+
+CPython runtime slice
+- The official 3.11.17 security release includes SSL fixes CVE-2026-19553 and
+  CVE-2026-19445 and the tarfile CVE-2026-82049 fix previously backported here:
+  https://www.python.org/downloads/release/python-31117/
+- Registry inspection verified official python:3.11.17-slim multiarch digest:
+  sha256:e88e9763f943ec1834f992a4b51e0f24500486803e8bc534e5767af9ea65f6ce
+  amd64 manifest: sha256:e529028263dbe6910a2d96f7d2b8f5266385e917fd45d286ef166977c094a51e
+- Official image source commit cede844ace77284e32c03b61ebc35cdfc945e862 uses
+  Python3.11.17 source SHA256
+  bfb74ad39efae27cda510f134ab408e00f9992c56851cfc0b1cdb5646da11599,
+  matching the Python.org release checksum for the xz source archive.
+- All three backend Dockerfile base pins and the disposable Compose topology
+  helper use the reviewed3.11.17 digest. Deleted the superseded tarfile source
+  mutator; retained both actual-image tarfile adversarial relocation probes.
+- Removed the old tarfile and four Expat backport exceptions from the image
+  policy. Tests prove those retired exceptions cannot be silently restored.
+  The architecture agent owns the separate Expat2.9 and libpq build changes.
+- Runtime image qualification now rejects old or unreviewed Python series and
+  executes two in-memory SSL server-argument rejection checks without network.
+- Local focused results: four image-advisory policy tests and two Python
+  version-boundary tests passed. The actual SSL test was explicitly skipped
+  because the local interpreter is older than3.11.17. Python compilation,
+  CI supply-chain policy and documentation-claim verification passed.
+- Docker registry inspection works locally, but the Docker Linux daemon is
+  unavailable. No local patched production image build, actual3.11.17 TLS
+  execution or whole-image vulnerability pass is claimed. Full CI must qualify
+  the exact rebuilt image before promotion.
+
+Native Expat and PostgreSQL client slice
+- Replaced the pinned Debian Expat2.8.4 packages with official Debian2.9.0-1
+  for amd64 and arm64, verifying SHA256 on all four downloaded packages.
+  Rebuilt unchanged CPython3.11.17 pyexpat source against this shared library.
+  https://security-tracker.debian.org/tracker/CVE-2026-77214
+  https://deb.debian.org/debian/pool/main/e/expat/
+- Actual-image qualification now includes the upstream XML_ParseBuffer bounds
+  regression: four excessive-capacity calls must fail, while two valid control
+  parses succeed. It rejects Expat versions below2.9 before invalid API calls
+  and requires Python/shared-library version parity. The existing UTF16,
+  ElementTree, XLSX, OCR, PDF and tarfile runtime checks remain enabled.
+  Upstream regression/fix:
+  https://github.com/libexpat/libexpat/commit/4d9b1c499ecb66323260a7274edcf86c5eab0517
+- Debian13 Kerberos and Cyrus SASL dependencies had no reviewed stable fix for
+  CVE-2026-107778 and CVE-2026-107161 at investigation time. The runtime uses
+  password/SCRAM authentication, with no configured GSSAPI/LDAP connection
+  path. Removed those optional native stacks through supported upstream libpq
+  configure options; did not patch their code or suppress scanner findings.
+  https://security-tracker.debian.org/tracker/source-package/krb5
+  https://security-tracker.debian.org/tracker/CVE-2026-107161
+- libpq comes from unchanged official PostgreSQL17.11 source:
+  https://ftp.postgresql.org/pub/source/v17.11/postgresql-17.11.tar.bz2
+  SHA256 dd27f2b3c59e73ed14aa3324901242bf69a032a6347805f274e6260322d42979.
+  Build enables OpenSSL and disables GSSAPI, LDAP, readline, zlib and ICU.
+  Only the client library, pg_config and version/provenance metadata enter
+  the runtime; the PostgreSQL server image/version is unchanged.
+  https://www.postgresql.org/docs/17/install-make.html
+- The locked psycopg2-binary2.9.9 distribution is rebuilt from its official
+  source archive (SHA256
+  7f01846810177d829c7692f1f5ada8096762d9172af1b1a28d4ab5b77c923c1c),
+  retaining its distribution/version while linking the reviewed shared libpq.
+  This replaces the wheel containing private bundled native libraries.
+  https://www.psycopg.org/docs/install.html
+- The installed probe checks exact loaded libpq version170011, its SHA256,
+  source SHA256 and OpenSSL linkage, and scans /opt, /usr/local/lib and /usr/lib
+  for leftover/private libpq, Kerberos, GSSAPI, LDAP and SASL shared objects.
+  No native-library package metadata is falsified or removed to hide a finding.
+- Database qualification uses the final image with libpq require_auth=scram-
+  sha-256, sslmode=verify-full, channel_binding=require, bounded connection and
+  statement timeouts, and a synthetic temporary-table round trip. The separate
+  disposable Docker rehearsal must also reject a wrong CA. No production DB
+  or provider is used. The installed probe emits no connection credentials.
+  https://www.postgresql.org/docs/17/libpq-connect.html
+- Local results: seven source/linkage/authentication-boundary tests passed;
+  two Expat version-boundary tests passed; one actual Expat test explicitly
+  skipped because this workstation has an older Windows XML runtime.
+  Ruff and strict mypy on the three new production/qualification modules passed.
+- Limits: the local Docker Linux daemon is unavailable. No local Linux image
+  build, actual OpenSSL/SCRAM/TLS connection, Expat2.9 native execution or final
+  vulnerability pass is claimed. Full CI must run these against the exact
+  final image. The older Debian13 advisory feed used unknown affected-version
+  constraints for Expat, so fixed-code inventory may still need scanner feed
+  correction; the unchanged gate must establish the actual result. No new
+  exception, lowered severity, ignored advisory or blanket exclusion was added.
+
+Final-image native PostgreSQL qualification harness
+- Added scripts/qa/qualify_postgresql_client.py and its small certificate
+  fixture helper. CI runs the harness after image build and before inventory
+  and later runtime qualification, with a ten-minute step boundary.
+- The client runs from the inspected immutable final-image ID after verifying
+  its source-revision label. PostgreSQL uses the same digest-pinned16-alpine
+  fixture as the existing service lanes. No host ports are published.
+- Each invocation creates a UUID-named internal Docker network, temporary
+  certificate/credential directory and memory-backed disposable database.
+  Certificates have the exact generated database hostname in their DNS SAN.
+  Commands, database readiness, container memory, CPU and process counts are
+  bounded. No production settings, existing services or volumes are used.
+- Positive probes require every SCRAM/TLS/native-linkage assertion, exact
+  reviewed source hash/version and an actual native library fingerprint. The
+  wrong-CA probe requires the specific certificate-verification failure;
+  arbitrary nonzero exits are rejected. A trusted connection is repeated after
+  the wrong-CA probe. Raw driver diagnostics are never printed or retained.
+- Cleanup checks the random ownership label and removes only the inspected
+  immutable resource ID. It runs for partial startup and timeout paths, and
+  cleanup failure prevents a passing receipt.
+- Nine focused guard/certificate tests passed. Ruff and strict mypy passed for
+  the new harness modules; CI supply-chain policy and git diff checks passed.
+  A real local invocation returned a sanitized failure receipt because Docker
+  is unavailable, confirming no false success but not qualifying TLS.
+- CI retains outputs/qualification/native-postgresql-client-evidence.json in
+  the production-image-qualification artifact. Actual final-image SCRAM/TLS
+  qualification is still pending CI and is not a capacity measurement.
+- The runtime QA workflow mount now includes the complete scripts/qa directory
+  so the Python and Expat security helper imports are available in the image.

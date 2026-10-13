@@ -28,6 +28,9 @@ from app.infrastructure.database.models import (
     ClientGroupModel,
     PassportExportHistoryModel,
 )
+from app.infrastructure.repositories.mcp_export_history_read_repository import (
+    MCPExportHistoryReadRepository,
+)
 from app.infrastructure.repositories.user_repository import UserRepository
 from app.presentation.api.v1.routes.passport_routes.export_history import (
     get_passport_group_export_history_detail,
@@ -137,7 +140,37 @@ async def test_revision_source_byte_budget_precedes_hydration(artifacts):
             await listing(f)
     finally:
         event.remove(engine, "before_cursor_execute", observe)
-    assert not any("passport_submissions.confirmed_fields" in sql and "sum(" not in sql.lower() for sql in statements)
+    for sql in statements:
+        normalized = sql.lower()
+        # Only the SQL byte measurement may reference the unadmitted JSON.
+        assert normalized.count("passport_submissions.confirmed_fields") == normalized.count(
+            "cast(passport_submissions.confirmed_fields as text)"
+        )
+
+
+@pytest.mark.parametrize("count", [1, 25])
+async def test_revision_source_admission_and_hydration_use_two_queries(artifacts, count):
+    f = artifacts
+    sources = [person(f, index) for index in range(count)]
+    f.session.add_all(sources)
+    await f.session.commit()
+    actor = await UserRepository(f.session).get_by_id(f.user.id)
+    repository = MCPExportHistoryReadRepository(f.session, 1024 * 1024)
+    statements = []
+
+    def observe(_conn, _cursor, statement, _parameters, _context, _many):
+        statements.append(statement)
+
+    engine = f.session.get_bind()
+    event.listen(engine, "before_cursor_execute", observe)
+    try:
+        rows = await repository.current_revision_sources(f.agency.id, f.group.id, actor)
+    finally:
+        event.remove(engine, "before_cursor_execute", observe)
+    assert {row.id for row in rows} == {source.id for source in sources}
+    assert len(statements) == 2
+    assert "source_bytes" in statements[0]
+    assert 0 < repository.remaining_bytes < 1024 * 1024
 
 
 async def test_default_privacy_frozen_order_availability_and_personal_optin_match_website(artifacts):

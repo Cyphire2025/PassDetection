@@ -30,6 +30,7 @@ class DirectBuildTests(unittest.TestCase):
             root = Path(temporary).resolve()
             self.assertEqual(RetainedBuild(root, root, "a" * 40).schema_revision, "0122_mcp_gc_push")
             self.assertEqual(RetainedBuild(root, root, "a" * 40, schema_revision="0129_travel_tracker").schema_revision, "0129_travel_tracker")
+            self.assertEqual(RetainedBuild(root, root, "a" * 40, schema_revision="0133_traveller_document_impact").schema_revision, "0133_traveller_document_impact")
             with self.assertRaisesRegex(BuildError, "unreviewed_build_schema"):
                 RetainedBuild(root, root, "a" * 40, schema_revision="0130_unreviewed")
 

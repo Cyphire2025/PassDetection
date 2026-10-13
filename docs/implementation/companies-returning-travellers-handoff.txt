@@ -3,6 +3,16 @@ Date: 2026-10-13 (Asia/Calcutta)
 Status: RELEASE CANDIDATE. Implementation exists; release qualification remains incomplete.
 This file records the predeployment candidate. Check exact-commit CI and deployment
 receipts for release status; local test results alone do not prove production activation.
+The first Full CI run exposed integration fixture and dependency issues. Follow-up
+details are in companies-reuse-evidence/ci-security-patch-followup.txt. A subsequent
+successful exact-commit Full run would be required for Full qualification; the first
+run does not qualify release. The user has now paused Full CI until feature review
+and explicitly requested a Fast VPS review deployment. The existing code-only Fast
+lane cannot apply this schema change. A dedicated exact 0129 -> 0133 Fast path now
+requires source/image-bound populated PostgreSQL checks before any production DDL.
+It inherits the prior backend native runtime and explicitly does not apply the
+Dockerfile/native-library security updates prepared for a later Full build.
+No Fast deployment is claimed by this predeployment snapshot.
 The feature patch was transferred to the release worktree based on current origin/main.
 Subsequent CI/release preparation and final verification occur there; the original
 working tree remains preserved with its unrelated local changes.
@@ -13,8 +23,9 @@ User clarifications in this chat override conflicting portions of that attachmen
 
 Settled clarifications received during implementation
 - Initial work was local. The user subsequently authorized completing the feature,
-  pushing it to main, and then checking the main VPS. This change requires the
-  protected Full deployment path. No real WhatsApp message is part of local testing.
+  pushing it to main, and then checking the main VPS. They subsequently requested
+  Fast VPS deployment for review, with Full CI paused until they confirm satisfaction.
+  No real WhatsApp message is part of local testing.
 - User explicitly requested multi-agent implementation and asked that unresolved product
   decisions wait for their answer while independent work continues.
 - User overrides the attachment's finite history retention requirement: retain document
@@ -32,6 +43,12 @@ Settled clarifications received during implementation
   routine OTP is not required under the user's later clarification.
 - Changing a contact number still requires OTP on the new number and an atomic
   selected-person contact update. Do not rewrite everyone sharing either number.
+- The user explicitly rejected external phone-change alerts; preserve the audit
+  record, but do not send a notification to either number. The new OTP-verified
+  number becomes the person's current contact and is used for future reused
+  submissions. Old groups retain the number recorded for their trip. WhatsApp
+  broadcast contacts/delivery destinations remain independent and must not be
+  rewritten when a traveller enters or changes their number in this flow.
 - These revised routes offer weaker phone-possession assurance than the original
   attachment. Do not claim universal phone proof, three-factor authentication or
   proven passport ownership. Someone holding relevant passport information may pass.
@@ -81,7 +98,7 @@ Complete feature map for a fresh reviewer
   association. Staff acceptance/enrollment is explicit; old accepted versions remain.
   Changing phone requires OTP on the new number, affects only the selected person,
   revokes old grants and preserves historical snapshots. Contact events are durable;
-  external contact-change alert delivery is not configured in this release.
+  no external contact-change alert is sent, by the user's explicit decision.
 - Lost/cancelled/compromised lifecycle changes revoke affected grants and queue
   bounded operational review tasks. The committed change feed uses a company
   sequence so late commits cannot be skipped by a timestamp checkpoint. It does not
@@ -107,14 +124,35 @@ Primary code boundaries
 - frontend/features/upload/hooks/use-returning-upload.tsx: existing upload integration.
 - backend/app/application/use_cases/passports/export_changes.py: export revision rule.
 - backend/scripts/release_companies_traveller_upgrade.py: bound migration helper.
-- scripts/release_companies_{retained_update,runtime,policy}.py: Full rollout controls.
+- scripts/release_companies_{retained_update,runtime,policy}.py: additive rollout controls.
+- scripts/release_companies_fast.py: local-image/source/rehearsal binding, no Full claim.
+- scripts/qa/qualify_companies_fast_migration.py: isolated 700-person PostgreSQL checks
+  and two real contact concurrency regressions using the exact candidate image.
+- scripts/release_companies_secrets.py: first-install independent crypto keys retained
+  privately; existing complete configuration preserved, partial configuration denied.
 
 Latest combined local verification on the current-main release worktree
+- CI follow-up: the full frontend suite passed 1,336 tests across 185 files after
+  the minimum supported Next.js security patch. Production audit, lint, type-check
+  and build passed. Existing browser fixture guards remain enforced; 18 corrected
+  legacy scenarios and 19 feature scenarios passed in their separate local runs.
+- Actual PostgreSQL concurrency uncovered a contact-change retry gap: successful
+  OTP verification commits before promotion, allowing another retry to issue the
+  new grant and revoke the original grant. Completion now re-locks the claim and
+  validates the current resulting grant before recovering success. The contact
+  and ASGI slice passed 12 tests, including a deterministic commit-gap regression;
+  concurrent PostgreSQL confirmation is required by the targeted Fast rehearsal;
+  the complete real-service suite still needs the later Full CI result.
+- Legacy mobile notification fixtures now assign the exact canonical company,
+  retaining the deferred foreign-key checks. Ninety affected local tests passed.
+  GC company CRUD checks now use real database records and durable audits;
+  13 tests passed, including historical-group and manager deletion dependencies.
+  Sixteen historical mobile-access tests passed after canonical fixture correction.
 - 224 feature backend tests passed in 107.16 seconds, including real ASGI cookie,
   routing and database authorization tests with synthetic OTP/storage providers.
 - Strict mypy passed all 1,060 application source files. Ruff app/tests passed.
-- Release/infrastructure unittest discovery: 629 tests passed, 2 existing skips
-  after the independent migration recovery fixes.
+- Latest complete release/infrastructure unittest discovery: 697 tests passed,
+  5 environment-dependent skips, in 27.587 seconds after the Fast/recovery changes.
 - Frontend: 123 Vitest tests, 29 Node contract tests and 18 Chromium scenarios passed
   at applicable widths of 320/390/1440 pixels before the final cross-layer audit.
   Browser data/providers are synthetic; frontend-release-verification.txt records
@@ -315,6 +353,13 @@ Exact populated migration qualification prepared for CI
   backend/tests/unit/infrastructure/test_companies_migration_rehearsal.py.
 
 Other root/agent receipts reported during this same task
+- The final phone-scope clarification is covered by
+  backend/tests/integration/test_returning_contact_scope.py: future reuse takes the
+  new verified number, old trip submission/participation stay unchanged, a shared
+  family contact stays unchanged and linked broadcast/source/delivery rows remain
+  unchanged even when broadcast contact synchronization is enabled. The focused
+  scope/contact-change/completion suite passed 20 tests in 12.28 seconds with mocked
+  OTP delivery; this is not PostgreSQL concurrency or actual-provider evidence.
 - Root export regression suite 96 passed; company backend 13 passed; returning suite 46
   passed at its checkpoint. Root subsequently added requirements/selected-passport
   work and is rerunning. Do not present these overlapping checkpoints as one total.
@@ -350,8 +395,11 @@ Remaining qualification and explicit limits
 - Match previews grant no closed-roster eligibility. Explicit staff case resolution
   creates pending current-trip participation and never substitutes traveller proof.
 - No production migrations, deployment or real OTP provider sends are represented
-  by the local receipts in this file. Check exact-commit CI and protected Full release
-  records for any later rollout. Disclosure remains disabled by default.
+  by the local receipts in this file. Check exact-commit retained Fast receipts or
+  protected Full release records for later rollout. First-install Fast provisions
+  the independent keys and technical disclosure switch only when all writer
+  services have no reuse configuration. Explicit company/group policies and accepted
+  traveller permission remain mandatory; no legacy history is automatically enrolled.
 
 Architecture: docs/architecture/returning-traveller-reuse.md
 Qualification/runbook: docs/runbooks/companies-returning-travellers.md

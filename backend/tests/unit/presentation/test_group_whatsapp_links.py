@@ -863,6 +863,7 @@ async def test_matching_field_configuration_is_persisted_and_retained(
 def test_create_request_dedupes_and_limits_broadcast_ids() -> None:
     first = uuid.uuid4()
     request = CreateClientGroupRequest(
+        company_id=uuid.uuid4(),
         name="Trip",
         destination="Thailand",
         travel_date=date(2026, 9, 1),
@@ -873,6 +874,7 @@ def test_create_request_dedupes_and_limits_broadcast_ids() -> None:
 
     with pytest.raises(ValidationError):
         CreateClientGroupRequest(
+            company_id=uuid.uuid4(),
             name="Trip",
             destination="Thailand",
             travel_date=date(2026, 9, 1),

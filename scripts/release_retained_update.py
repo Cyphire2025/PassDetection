@@ -19,7 +19,8 @@ import subprocess
 import sys
 import time
 import uuid
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 
 sys.dont_write_bytecode = True
 
@@ -175,7 +176,8 @@ assert hashlib.sha256(raw).hexdigest()==EXPECTED
                                  ['-c', code], {'PYTHONPATH': '/opt/mcp-deps:/app'})
         self.run('docker', 'cp', str(self.source / 'backend'), f'{identifier}:/candidate', timeout=180)
         result = self.execute(identifier, 'backend', GIB)
-        return {**result, 'image_id': self.commit_runtime(identifier, 'backend'), 'base_image_id': base_image}
+        return {**result, 'image_id': self.commit_runtime(identifier, 'backend'), 'base_image_id': base_image,
+                'verified_api_contract_sha256': expected}
 
 
 class RetainedUpdate:
@@ -330,6 +332,9 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
             require(hashlib.sha256(raw).hexdigest() == asset['sha256'], 'public_frontend_revision_asset_mismatch')
         self.retention()
 
+    def candidate_environment(self, original: dict) -> dict[str, str]:
+        return runtime_environment(original, self.revision, schema=self.candidate_schema)
+
     def stage(self, images: dict) -> dict:
         live = self.record['live']
         proxy = self.directory / 'runtime-nginx' / self.project
@@ -350,7 +355,7 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
             old = live[name]
             image = old['Image'] if name == 'nginx' else images['frontend' if name == 'frontend' else 'backend']
             options = dict(name=self.project + '-' + name, image_id=image,
-                           environment=runtime_environment(old, self.revision, schema=self.candidate_schema), new_project=self.project,
+                           environment=self.candidate_environment(old), new_project=self.project,
                            source_root=str(self.source), aliases={network: self.project + '-' + name
                                                                for network in old['NetworkSettings']['Networks']})
             if name == 'nginx':
@@ -362,24 +367,34 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
             self.event('candidate-created', candidates=candidates)
         return candidates
 
-    def fast_images(self) -> dict:
+    @contextmanager
+    def background_quiescence(self) -> Iterator[None]:
+        """Keep background capacity free until all bounded helpers have exited."""
         live = self.record['live']
         # Stop scheduler first, prove workers idle, then free a bounded build budget.
         self.stop(live['email-beat'])
         try:
             require_idle(live)
             for name in WORKERS: self.stop(live[name])
-            builder = FastBuild(self.source, self.directory, self.revision, schema_revision=self.candidate_schema)
-            backend = builder.backend(live['backend']['Image'])
-            frontend = builder.frontend(live['frontend']['Image'], ORIGIN)
-            self.event('fast-images-built', fast_build={'backend': backend, 'frontend': frontend})
-            return {'backend': backend['image_id'], 'frontend': frontend['image_id']}
+            yield
         finally:
             # A timed-out builder may still run. Do not overcommit or kill it.
             running = self.rows()
             require(not any(row['Id'] not in self.record['inventory'] for row in running),
                     'builder_still_running_workers_not_resumed')
             for name in (*WORKERS, 'email-beat'): self.start(live[name])
+
+    def build_fast_images(self) -> dict:
+        live = self.record['live']
+        builder = FastBuild(self.source, self.directory, self.revision, schema_revision=self.candidate_schema)
+        backend = builder.backend(live['backend']['Image'])
+        frontend = builder.frontend(live['frontend']['Image'], ORIGIN)
+        self.event('fast-images-built', fast_build={'backend': backend, 'frontend': frontend})
+        return {'backend': backend['image_id'], 'frontend': frontend['image_id']}
+
+    def fast_images(self) -> dict:
+        with self.background_quiescence():
+            return self.build_fast_images()
 
     def recover(self) -> None:
         self.event('recovering')

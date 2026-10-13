@@ -3,14 +3,20 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock
 
 import pytest
-from fastapi import HTTPException
+from sqlalchemy import select
 from sqlalchemy.dialects import postgresql
 from starlette.requests import Request
 
 from app.domain.entities.entities import UserRole
+from app.domain.exceptions.exceptions import ConflictError
+from app.infrastructure.database.gc_mobile_models import (
+    ClientManagerProfileModel,
+    ClientOrganizationModel,
+)
+from app.infrastructure.database.models import AuditLogModel, ClientGroupModel, UserModel
 from app.presentation.api.v1.routes.gc_app import (
     _group_access_response,
     create_client_organization,
@@ -23,6 +29,7 @@ from app.presentation.api.v1.schemas.gc_app_schemas import (
     ClientOrganizationCreateRequest,
     GCGroupAccessUpdateRequest,
 )
+from tests.integration.test_company_directory import company, seed_user
 
 
 class _Result:
@@ -63,18 +70,6 @@ def _current_user(agency_id: uuid.UUID) -> SimpleNamespace:
         email="gc-admin@example.test",
         role=UserRole.AGENCY_ADMIN,
         agency_id=agency_id,
-    )
-
-
-def _organization(agency_id: uuid.UUID) -> SimpleNamespace:
-    now = datetime.now(tz=UTC)
-    return SimpleNamespace(
-        id=uuid.uuid4(),
-        agency_id=agency_id,
-        status="active",
-        deleted_at=None,
-        updated_by_user_id=None,
-        updated_at=now,
     )
 
 
@@ -216,6 +211,7 @@ async def test_enabled_group_page_embeds_aggregated_usage_metrics() -> None:
         deleted_at=None,
     )
     organization = SimpleNamespace(id=uuid.uuid4(), name="Bluechip")
+    group.company_id = organization.id
     access = SimpleNamespace(
         id=uuid.uuid4(),
         client_organization_id=organization.id,
@@ -329,99 +325,69 @@ async def test_group_metrics_distinguish_accounts_from_acknowledged_devices() ->
 
 
 @pytest.mark.asyncio
-async def test_removed_organization_name_can_be_created_again() -> None:
-    agency_id = uuid.uuid4()
-    session = SimpleNamespace(
-        execute=AsyncMock(return_value=_Result(None)),
-        add=lambda _item: None,
-        flush=AsyncMock(),
+async def test_removed_organization_name_can_be_created_again(db_session) -> None:
+    user = await seed_user(db_session)
+    original = await company(db_session, user, "Bluechip")
+    await delete_client_organization(
+        organization_id=original.id, request=_request(), current_user=user, session=db_session,
     )
-
-    with patch(
-        "app.presentation.api.v1.routes.gc_app._audit",
-        new=AsyncMock(),
-    ):
-        response = await create_client_organization(
-            body=ClientOrganizationCreateRequest(name="BLUECHIP"),
-            request=_request(),
-            current_user=_current_user(agency_id),
-            session=session,  # type: ignore[arg-type]
-        )
-
-    assert response.name == "BLUECHIP"
-    duplicate_lookup = session.execute.await_args.args[0]
-    sql = str(
-        duplicate_lookup.compile(
-            dialect=postgresql.dialect(),
-            compile_kwargs={"literal_binds": True},
-        )
+    response = await create_client_organization(
+        body=ClientOrganizationCreateRequest(name="BLUECHIP"), request=_request(),
+        current_user=user, session=db_session,
     )
-    assert "client_organizations.normalized_name = 'bluechip'" in sql
-    assert "client_organizations.status != 'deleted'" in sql
+    await db_session.commit()
+    assert response.name == "BLUECHIP" and response.id != original.id
+    current = await db_session.get(ClientOrganizationModel, response.id)
+    assert current.normalized_name == "bluechip" and current.status == "active"
+    assert original.status == "deleted" and original.deleted_at is not None
 
 
 @pytest.mark.asyncio
-async def test_unused_client_organization_is_soft_deleted_and_audited() -> None:
-    agency_id = uuid.uuid4()
-    organization = _organization(agency_id)
-    session = SimpleNamespace(
-        execute=AsyncMock(
-            side_effect=[_Result(organization), _Result(0), _Result(0)]
-        ),
-        flush=AsyncMock(),
+async def test_unused_client_organization_is_soft_deleted_and_audited(db_session) -> None:
+    user = await seed_user(db_session)
+    organization = await company(db_session, user)
+    response = await delete_client_organization(
+        organization_id=organization.id, request=_request(), current_user=user, session=db_session,
     )
-
-    with patch(
-        "app.presentation.api.v1.routes.gc_app._audit",
-        new=AsyncMock(),
-    ) as audit:
-        response = await delete_client_organization(
-            organization_id=organization.id,
-            request=_request(),
-            current_user=_current_user(agency_id),
-            session=session,  # type: ignore[arg-type]
-        )
-
+    await db_session.commit()
     assert response.status_code == 204
-    assert organization.status == "deleted"
-    assert organization.deleted_at is not None
-    session.flush.assert_awaited_once()
-    audit.assert_awaited_once()
-
-    organization_lookup = session.execute.await_args_list[0].args[0]
-    sql = str(
-        organization_lookup.compile(
-            dialect=postgresql.dialect(),
-            compile_kwargs={"literal_binds": True},
-        )
-    )
-    assert str(agency_id) in sql
-    assert str(organization.id) in sql
-    assert "client_organizations.status = 'active'" in sql
+    assert organization.status == "deleted" and organization.deleted_at is not None
+    assert organization.revision == 2 and organization.updated_by_user_id == user.id
+    audit = (await db_session.scalars(select(AuditLogModel).where(
+        AuditLogModel.entity_id == str(organization.id), AuditLogModel.action == "company.deleted",
+    ))).one()
+    assert audit.agency_id == user.agency_id and audit.user_id == user.id
+    assert audit.metadata_json == {"status": "deleted", "revision": 2}
 
 
 @pytest.mark.asyncio
-async def test_client_organization_removal_is_blocked_while_in_use() -> None:
-    agency_id = uuid.uuid4()
-    organization = _organization(agency_id)
-    session = SimpleNamespace(
-        execute=AsyncMock(
-            side_effect=[_Result(organization), _Result(2), _Result(1)]
-        ),
-        flush=AsyncMock(),
-    )
-
-    with pytest.raises(HTTPException) as exc_info:
-        await delete_client_organization(
-            organization_id=organization.id,
-            request=_request(),
-            current_user=_current_user(agency_id),
-            session=session,  # type: ignore[arg-type]
+@pytest.mark.parametrize("dependency", ["active", "closed", "archived", "manager"])
+async def test_client_organization_removal_is_blocked_while_in_use(db_session, dependency) -> None:
+    user = await seed_user(db_session)
+    organization = await company(db_session, user)
+    if dependency == "manager":
+        manager = UserModel(
+            id=uuid.uuid4(), agency_id=user.agency_id, email="manager@example.test",
+            full_name="Synthetic manager", hashed_password="test-only", role=UserRole.CLIENT_MANAGER.value,
         )
-
-    assert exc_info.value.status_code == 409
-    assert "2 enabled GC App groups" in str(exc_info.value.detail)
-    assert "1 Client Manager account" in str(exc_info.value.detail)
-    assert organization.status == "active"
-    assert organization.deleted_at is None
-    session.flush.assert_not_awaited()
+        db_session.add(manager)
+        await db_session.flush()
+        db_session.add(ClientManagerProfileModel(
+            id=uuid.uuid4(), user_id=manager.id, agency_id=user.agency_id,
+            organization_id=organization.id, normalized_phone_number="+919999999981", status="invited",
+        ))
+    else:
+        db_session.add(ClientGroupModel(
+            id=uuid.uuid4(), agency_id=user.agency_id, company_id=organization.id,
+            name="Synthetic group", token=uuid.uuid4().hex, status=dependency,
+        ))
+    await db_session.commit()
+    with pytest.raises(ConflictError, match="history and cannot be deleted"):
+        await delete_client_organization(
+            organization_id=organization.id, request=_request(), current_user=user, session=db_session,
+        )
+    assert organization.status == "active" and organization.deleted_at is None
+    assert organization.revision == 1
+    assert await db_session.scalar(select(AuditLogModel.id).where(
+        AuditLogModel.entity_id == str(organization.id), AuditLogModel.action == "company.deleted",
+    )) is None

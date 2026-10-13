@@ -46,11 +46,47 @@ def release_fixture():
     release.compatibility = Mock()
     release.retention = Mock()
     release.proof = Mock()
+    release.verify_candidate_configuration = Mock()
     release.signed_images = Mock(return_value=release.record['image_ids'])
     return release
 
 
 class AdditiveContracts(unittest.TestCase):
+    def test_candidate_writer_keys_match_retained_file_before_migration(self):
+        release = release_fixture()
+        del release.verify_candidate_configuration
+        expected = {'TRAVELLER_REUSE_LOOKUP_KEY': 'synthetic'}
+        for row in release.record['candidates'].values():
+            row['Config']['Env'].append('TRAVELLER_REUSE_LOOKUP_KEY=synthetic')
+        with patch('release_companies_secrets.verify_configuration', return_value=expected), \
+                patch('release_companies_retained_update.bound_original', side_effect=lambda row: row):
+            release.verify_candidate_configuration()
+            release.record['candidates']['backend']['Config']['Env'][-1] = 'TRAVELLER_REUSE_LOOKUP_KEY=changed'
+            release.verify_fence, release.database_release = Mock(), Mock()
+            with self.assertRaisesRegex(ValueError, 'candidate_reuse_runtime_configuration_changed'):
+                release.migrate()
+            release.verify_fence.assert_not_called()
+            release.database_release.assert_not_called()
+
+    def test_missing_or_changed_key_custody_blocks_recovery_before_stopping_app(self):
+        release = release_fixture()
+        release.verify_candidate_configuration.side_effect = ValueError('reuse_runtime_key_binding_changed')
+        release.fence_candidate, release.stop = Mock(), Mock()
+        with self.assertRaisesRegex(ValueError, 'reuse_runtime_key_binding_changed'):
+            release.recover()
+        release.fence_candidate.assert_not_called()
+        release.stop.assert_not_called()
+
+    def test_changed_key_custody_blocks_every_candidate_start(self):
+        release = release_fixture()
+        release.schema = Mock(return_value=TARGET)
+        release.verify_candidate_configuration.side_effect = ValueError('reuse_runtime_key_binding_changed')
+        release.start, release.verify_fence = Mock(), Mock()
+        with self.assertRaisesRegex(ValueError, 'reuse_runtime_key_binding_changed'):
+            release.activate_candidates()
+        release.start.assert_not_called()
+        release.verify_fence.assert_not_called()
+
     def test_signed_images_must_match_exact_source_contract_and_resume_identity(self):
         release = release_fixture()
         del release.signed_images
@@ -67,13 +103,16 @@ class AdditiveContracts(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'resume_image_binding_changed'):
                 release.signed_images()
 
-    def test_fast_cannot_select_additive_lane(self):
+    def test_fast_additive_lane_still_requires_reviewed_source_before_build(self):
         release = release_fixture()
         release.mode = 'fast'
         release.rows = Mock(return_value=live_rows())
-        with self.assertRaisesRegex(ValueError, 'requires_full'):
+        release.compatibility.side_effect = ValueError('unreviewed_source')
+        release.candidate_images = Mock()
+        with self.assertRaisesRegex(ValueError, 'unreviewed_source'):
             release.run()
-        release.compatibility.assert_not_called()
+        release.compatibility.assert_called_once_with(SHA)
+        release.candidate_images.assert_not_called()
 
     def test_only_reviewed_persistent_paths_are_admitted(self):
         rejected = ['backend/alembic/versions/0129_travel_tracker.py',

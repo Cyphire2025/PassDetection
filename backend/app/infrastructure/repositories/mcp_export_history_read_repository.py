@@ -58,26 +58,36 @@ class MCPExportHistoryReadRepository:
             agency_id, group_id, exclude_archived_groups=True, operational_only=True,
             visible_to_user=actor, created_by_user_id=actor.id if actor.role == UserRole.AGENCY_STAFF else None,
         )
-        ids = list((await self.session.scalars(scope.with_only_columns(model.id).order_by(model.id)
-            .limit(MAX_CHECKPOINT_PEOPLE + 1).with_for_update(read=True, nowait=True, of=model))).all())
-        if len(ids) > MAX_CHECKPOINT_PEOPLE:
+        columns = [model.id, model.updated_at, *(getattr(model, field) for field in SUBMISSION_REVISION_FIELDS)]
+        # Return only bounded UUIDs and byte counts while acquiring the row locks.
+        # JSON stays in PostgreSQL until the entire locked roster is admitted.
+        admitted = (await self.session.execute(scope.with_only_columns(
+            model.id, self._byte_size(columns).label("source_bytes"),
+        ).order_by(model.id).limit(MAX_CHECKPOINT_PEOPLE + 1)
+            .with_for_update(read=True, nowait=True, of=model))).all()
+        if len(admitted) > MAX_CHECKPOINT_PEOPLE:
             raise HistorySourceLimit()
+        self.remaining_bytes -= sum(int(row.source_bytes) for row in admitted)
+        if self.remaining_bytes < 0:
+            raise HistorySourceLimit()
+        ids = [row.id for row in admitted]
         if not ids:
             return []
-        columns = [model.id, model.updated_at, *(getattr(model, field) for field in SUBMISSION_REVISION_FIELDS)]
         predicates = [model.agency_id == agency_id, model.group_id == group_id, model.id.in_(ids)]
-        await self._admit(columns, predicates)
         rows = (await self.session.execute(select(*columns).where(*predicates))).mappings().all()
         return [SimpleNamespace(**row) for row in rows]
 
-    async def _admit(self, columns: list[Any], predicates: list[Any]) -> None:
+    def _byte_size(self, columns: list[Any]) -> ColumnElement[int]:
         size: ColumnElement[int] = literal(0)
         postgres = self.session.get_bind().dialect.name == "postgresql"
         for column in columns:
             value = cast(column, Text)
             length = func.octet_length(value) if postgres else func.length(cast(value, LargeBinary))
             size = size + func.coalesce(length, 0)
-        consumed = await self.session.scalar(select(func.coalesce(func.sum(size), 0)).where(*predicates))
+        return size
+
+    async def _admit(self, columns: list[Any], predicates: list[Any]) -> None:
+        consumed = await self.session.scalar(select(func.coalesce(func.sum(self._byte_size(columns)), 0)).where(*predicates))
         self.remaining_bytes -= int(consumed or 0)
         if self.remaining_bytes < 0:
             raise HistorySourceLimit()

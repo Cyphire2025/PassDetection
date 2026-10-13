@@ -1010,6 +1010,14 @@ jobs:
           python -m pip install --require-hashes -r backend/requirements-dev.lock
           mkdir -p outputs/promoted
 
+      - name: Qualify final-image native PostgreSQL SCRAM and verified TLS
+        timeout-minutes: 10
+        run: >-
+          python scripts/qa/qualify_postgresql_client.py
+          --image passdetection-backend:ci
+          --revision "${{ github.sha }}"
+          --evidence-output outputs/qualification/native-postgresql-client-evidence.json
+
       - name: Inventory complete backend image including OS packages
         uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
         with:
@@ -1104,8 +1112,8 @@ jobs:
 
       - name: Qualify runtime OCR, image processing and PDF without video decoders
         run: >-
-          docker run --rm --mount type=bind,source=${{ github.workspace }}/scripts/qa/qualify_runtime_image.py,target=/qa.py,readonly
-          passdetection-backend:ci python /qa.py --require-no-video --require-patched-parsers
+          docker run --rm --mount type=bind,source=${{ github.workspace }}/scripts/qa,target=/qa,readonly
+          passdetection-backend:ci python /qa/qualify_runtime_image.py --require-no-video --require-patched-parsers
 
       - name: Qualify proxy error contracts using the pinned runtime image
         run: |
@@ -1179,6 +1187,7 @@ jobs:
             outputs/qualification/joined-journey-evidence.json
             outputs/qualification/source-evidence.json
             outputs/qualification/code-update-nginx-evidence.json
+            outputs/qualification/native-postgresql-client-evidence.json
             outputs/storage-migration-ci/*.log
             outputs/storage-migration-ci/*-state.json
             outputs/storage-migration-ci/migration-evidence.json
