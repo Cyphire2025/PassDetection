@@ -13,6 +13,11 @@ requires source/image-bound populated PostgreSQL checks before any production DD
 It inherits the prior backend native runtime and explicitly does not apply the
 Dockerfile/native-library security updates prepared for a later Full build.
 No Fast deployment is claimed by this predeployment snapshot.
+The first Fast attempt at 60a391e830d28b7fbbe207dc3add0a7169555774 stopped at the
+backend API-contract check before DDL or cutover. All original workers resumed.
+An inherited /candidate directory made docker cp nest the new source below an
+older tree; the mandatory contract hash caught the stale build. The follow-up
+uses fresh isolated source staging and regression coverage for consecutive builds.
 The feature patch was transferred to the release worktree based on current origin/main.
 Subsequent CI/release preparation and final verification occur there; the original
 working tree remains preserved with its unrelated local changes.

@@ -152,8 +152,15 @@ class FastBuild(RetainedBuild):
     """Code-only build: dependencies are inherited and must be unchanged."""
     def backend(self, base_image: str) -> dict:
         expected = contract_digest((self.source / 'backend/contracts/api.openapi.json').read_bytes())
+        staging = '/retained-fast-source-' + uuid.uuid4().hex
         code = """
 import hashlib,json,pathlib,shutil,subprocess
+source=pathlib.Path(STAGING)
+# docker cp nests into an existing directory. A fresh per-build destination
+# prevents an inherited /candidate tree from silently supplying stale code.
+assert not (source/'backend').exists(), 'nested_backend_staging_forbidden'
+staged=(json.dumps(json.loads((source/'contracts/api.openapi.json').read_bytes()),ensure_ascii=False,sort_keys=True,indent=2)+'\\n').encode()
+assert hashlib.sha256(staged).hexdigest()==EXPECTED, 'staged_contract_changed'
 # The builder has CHOWN only: UID 0 cannot bypass the runtime owner's modes.
 # Normalize just the disposable replacement paths before deleting or writing.
 subprocess.run(['/bin/chown','0:0','/app'],check=True)
@@ -162,19 +169,23 @@ for name in ('app','alembic','scripts'):
  if target.exists():
   subprocess.run(['/bin/chown','-R','0:0',str(target)],check=True)
   shutil.rmtree(target)
- shutil.copytree(pathlib.Path('/candidate')/name,target)
+ shutil.copytree(source/name,target)
 for name in ('alembic.ini','gunicorn.conf.py'):
  target=pathlib.Path('/app')/name
  if target.exists():subprocess.run(['/bin/chown','0:0',str(target)],check=True)
- shutil.copyfile(pathlib.Path('/candidate')/name,target)
+ shutil.copyfile(source/name,target)
 subprocess.run(['/bin/chown','-R','1001:1001','/app'],check=True)
 from scripts.export_api_contract import application_contract
 raw=(json.dumps(application_contract(),ensure_ascii=False,sort_keys=True,indent=2)+'\\n').encode()
 assert hashlib.sha256(raw).hexdigest()==EXPECTED
-""".replace('EXPECTED', repr(expected))
+# Remove only this invocation's validated disposable input, never inherited
+# staging directories or any retained container/image/release evidence.
+subprocess.run(['/bin/chown','-R','0:0',str(source)],check=True)
+shutil.rmtree(source)
+""".replace('EXPECTED', repr(expected)).replace('STAGING', repr(staging))
         identifier = self.create('backend', base_image, GIB, '/opt/venv/bin/python',
                                  ['-c', code], {'PYTHONPATH': '/opt/mcp-deps:/app'})
-        self.run('docker', 'cp', str(self.source / 'backend'), f'{identifier}:/candidate', timeout=180)
+        self.run('docker', 'cp', str(self.source / 'backend'), f'{identifier}:{staging}', timeout=180)
         result = self.execute(identifier, 'backend', GIB)
         return {**result, 'image_id': self.commit_runtime(identifier, 'backend'), 'base_image_id': base_image,
                 'verified_api_contract_sha256': expected}

@@ -61,13 +61,14 @@ class Contracts(unittest.TestCase):
                 (app / 'retained-dependency').write_text('keep')
                 owners = {path: 1001 for path in app.rglob('*')}
                 owners[app] = app_owner
+                owners[root] = 0
                 normalized = []
 
-                def chown(args, *, check):
+                def chown(args, *, check, candidate=candidate):
                     self.assertTrue(check)
                     self.assertEqual(args[0], '/bin/chown')
                     path, owner = Path(args[-1]), int(args[-2].split(':')[0])
-                    self.assertTrue(path == app or path.is_relative_to(app))
+                    self.assertTrue(path == app or path.is_relative_to(app) or path == candidate)
                     if owner == 0: normalized.append(path)
                     owners[path] = owner
                     if '-R' in args:
@@ -96,14 +97,15 @@ class Contracts(unittest.TestCase):
                 builder.commit_runtime = Mock(return_value='sha256:' + 'b' * 64)
                 builder.backend('sha256:' + 'c' * 64)
                 code = builder.create.call_args.args[4][1]
-                code = code.replace("'/app'", repr(str(app))).replace("'/candidate'", repr(str(candidate)))
+                staging = builder.run.call_args.args[3].split(':', 1)[1]
+                code = code.replace("'/app'", repr(str(app))).replace(repr(staging), repr(str(candidate)))
                 with patch.dict(sys.modules, {
                     'subprocess': SimpleNamespace(run=chown),
                     'shutil': SimpleNamespace(rmtree=remove, copytree=copy_tree, copyfile=copy_file),
                     'scripts.export_api_contract': SimpleNamespace(application_contract=lambda: {}),
                 }):
                     exec(compile(code, '<fast-backend-builder>', 'exec'), {})
-                self.assertEqual(set(normalized), {app, *(app / name for name in
+                self.assertEqual(set(normalized), {app, candidate, *(app / name for name in
                     ('app', 'alembic', 'scripts', 'alembic.ini', 'gunicorn.conf.py'))})
                 self.assertFalse(list(app.rglob('stale.py')))
                 self.assertEqual(len(list(app.rglob('replacement.py'))), 3)
@@ -111,6 +113,56 @@ class Contracts(unittest.TestCase):
                 self.assertEqual((app / 'retained-dependency').read_text(), 'keep')
                 for name in ('alembic.ini', 'gunicorn.conf.py'):
                     self.assertEqual((app / name).read_text(), 'new')
+
+    def test_second_fast_generation_never_reads_inherited_candidate_directory(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            source, image = root / 'source', root / 'image'
+            app, inherited = image / 'app', image / 'candidate'
+            source.mkdir(); image.mkdir(); app.mkdir(); inherited.mkdir()
+            (inherited / 'app').mkdir()
+            (inherited / 'app/stale.py').write_text('old inherited source')
+            backend = source / 'backend'
+            backend.mkdir(); (backend / 'contracts').mkdir()
+            (backend / 'contracts/api.openapi.json').write_text('{}')
+            for name in ('app', 'alembic', 'scripts'):
+                (backend / name).mkdir()
+                (backend / name / 'current.py').write_text('current source')
+            for name in ('alembic.ini', 'gunicorn.conf.py'):
+                (backend / name).write_text('current config')
+            stages = []
+            code = None
+
+            def create(*args):
+                nonlocal code
+                code = args[4][1]
+                return 'a' * 64
+
+            def docker_copy(*args, **kwargs):
+                self.assertEqual(args[:2], ('docker', 'cp'))
+                staging = args[3].split(':', 1)[1]
+                target = image / staging.lstrip('/')
+                # Reproduce Docker's existing-destination nesting semantics.
+                shutil.copytree(Path(args[2]), target / 'backend' if target.exists() else target)
+                stages.append(staging)
+
+            def execute(*args):
+                program = code.replace("'/app'", repr(str(app))).replace(repr(stages[-1]), repr(str(image / stages[-1].lstrip('/'))))
+                with patch.dict(sys.modules, {'subprocess': SimpleNamespace(run=lambda *a, **kw: None),
+                    'scripts.export_api_contract': SimpleNamespace(application_contract=dict)}):
+                    exec(compile(program, '<repeated-fast-builder>', 'exec'), {})  # noqa: S102 -- exercise our generated builder program
+                return {'exit_code': 0}
+
+            builder = FastBuild(source, root, SHA, run=docker_copy)
+            builder.create, builder.execute = create, execute
+            builder.commit_runtime = Mock(return_value='sha256:' + 'b' * 64)
+            for _ in range(2):
+                builder.backend('sha256:' + 'c' * 64)
+                self.assertEqual((app / 'app/current.py').read_text(), 'current source')
+                self.assertFalse((app / 'app/stale.py').exists())
+                self.assertFalse((image / stages[-1].lstrip('/')).exists())
+            self.assertNotEqual(stages[0], stages[1])
+            self.assertEqual((inherited / 'app/stale.py').read_text(), 'old inherited source')
 
     def test_readiness_waits_for_two_consecutive_complete_samples(self):
         ready = {'revision': SHA, 'status': 'ready', 'checks': {'database': 'ok'},
