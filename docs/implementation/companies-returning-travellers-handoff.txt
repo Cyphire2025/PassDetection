@@ -1,7 +1,32 @@
 Companies / Clients and returning-traveller feature review handoff
 Date: 2026-10-14 (Asia/Calcutta)
-Client-workflow correction: implemented and locally verified; Fast deployment pending.
-The existing live revision immediately below precedes this correction.
+Client-workflow correction: FAST DEPLOYED AND VERIFIED; Full CI remains paused.
+Current live application: 10914d09fb858bf37e2c9a1c7e7c373a452c5d08.
+Schema remains 0133_traveller_document_impact; this correction ran no migrations.
+The documentation-only follow-up records evidence without changing that app revision.
+
+Live correction verification
+- The retained Fast release completed on the exact main application revision above.
+  Backend/frontend builds and frontend runtime preparation exited zero without OOM.
+  Every prior resource was retained and service memory caps were unchanged.
+- Independent postdeploy checks verified all 20 expected services, configured health
+  checks, candidate image IDs/revision labels, schema and public ready status.
+  Publicly served JavaScript matched the running candidate asset hash. The running
+  frontend contains the Add client company and Collected records UI.
+- Ten bounded, cookie-free public requests passed: exact revision, authentication
+  redirects, login/upload shells and security headers, required upload-session
+  rejection, JavaScript/CSS and logo retrieval. They did not submit data or send OTP.
+- Separate signed-in Chrome inspection verified the direct client directory with
+  no agency selection, Add client company dialog, an empty client dashboard, and
+  a populated existing client with two assigned groups and 708 collected records.
+  Its records tab loaded 25 rows with Next page enabled and no error; the next page
+  loaded another 25 rows with zero overlap with the first page. No production
+  client/group/record was created, edited or deleted during this UI verification.
+- Evidence: companies-reuse-evidence/fast-release-10914d09.json,
+  live-verification-10914d09.json and http-smoke-10914d09.json. The JSON verifiers'
+  stated scope stays separate from the browser observations described here.
+  Real OTP delivery, returning-document disclosure and production capacity were
+  not retested by this client-workflow correction. Full CI was not dispatched.
 
 Client-workflow correction, 2026-10-14
 - This is the operator's own platform. Companies / Clients is a directory of the
@@ -80,7 +105,7 @@ Correction validation and capacity evidence
 
 Previously deployed feature and release history
 Status: FAST DEPLOYED FOR FEATURE REVIEW; not Full CI qualified.
-Live feature revision: 0e596846f85ec3dbf87cbc70a581b8902e7a2c0c.
+Previous feature revision: 0e596846f85ec3dbf87cbc70a581b8902e7a2c0c.
 Verified schema: 0133_traveller_document_impact. All 20 expected services are running;
 all configured container health checks are healthy. Public readiness is ready at
 the exact revision. A publicly served frontend JavaScript asset matches the bytes
