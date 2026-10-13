@@ -23,6 +23,8 @@ def inner():
         "preserved_historical_rows_catalog_acl": True, "new_tables_empty_before_activation": True,
         "runtime_grants_nonempty": True, "wrong_baseline_rejected_before_ddl": True,
         "invalid_concurrent_index_repaired": True,
+        "company_backfill_rollback_verified": True,
+        "company_backfill_rollback": {"exit_code": 74, "rolled_back_revision": receipt.CHAIN[0]},
         "historical_row_counts": {"whatsapp_broadcast_rejected_contacts": 699, "whatsapp_broadcast_recipients": 1},
         "dump": {"bytes": 120000, "sha256": "b" * 64},
         "backup_clients": {key: key + " (PostgreSQL) 16.15 (Debian fixture)" for key in ("pg_dump", "pg_restore")},
@@ -47,6 +49,7 @@ class MigrationReceiptTests(unittest.TestCase):
         proof = receipt.validate_inner("synthetic migration log\n" + encoded(), "c" * 64)
         self.assertEqual(proof["fixture_person_count"], 700)
         self.assertEqual(proof["checks"], dict.fromkeys(receipt.CHECKS, True))
+        self.assertIs(proof["company_backfill_rollback_verified"], True)
 
     def test_wrong_source_duplicate_or_missing_receipt_is_rejected(self):
         for output in ("migration exited zero", encoded(contract="d" * 64), encoded() + "\n" + encoded(),
@@ -57,6 +60,8 @@ class MigrationReceiptTests(unittest.TestCase):
     def test_each_missing_or_false_positive_condition_is_rejected(self):
         changes = [("preserved_historical_rows_catalog_acl", False), ("runtime_grants_nonempty", 1),
                    ("invalid_concurrent_index_repaired", False), ("wrong_baseline_rejected_before_ddl", False),
+                   ("company_backfill_rollback_verified", False), ("company_backfill_rollback_verified", 1),
+                   ("company_backfill_rollback", {"exit_code": 0, "rolled_back_revision": receipt.CHAIN[0]}),
                    ("server_major", 17), ("production_release_authorization", True),
                    ("historical_row_counts", {"whatsapp_broadcast_rejected_contacts": 500, "whatsapp_broadcast_recipients": 1}),
                    ("dump", {"bytes": 0, "sha256": "b" * 64}),
@@ -64,6 +69,13 @@ class MigrationReceiptTests(unittest.TestCase):
         for key, value in changes:
             with self.subTest(key=key), self.assertRaises(ValueError):
                 receipt.validate_inner(encoded({**inner(), key: value}), "c" * 64)
+
+    def test_missing_company_backfill_rollback_proof_is_rejected(self):
+        for field in ("company_backfill_rollback_verified", "company_backfill_rollback"):
+            evidence = inner()
+            evidence.pop(field)
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                receipt.validate_inner(encoded(evidence), "c" * 64)
 
     def test_stale_baseline_partial_resume_or_skipped_grants_are_rejected(self):
         for phase, key, value in (("resume", "preservation_sha256", "d" * 64),
@@ -98,6 +110,7 @@ class IsolatedMigrationTests(unittest.TestCase):
                     self.assertIs(value["full_ci_qualified"], False)
                     self.assertIs(value["owned_resources_removed"], True)
                     self.assertEqual(value["contact_concurrency_tests"], 2)
+                    self.assertIs(value["company_backfill_rollback_verified"], True)
                     self.assertTrue(value["checks"]["contact_concurrency_verified"])
                     self.assertEqual(value["source_schema"], receipt.SOURCE)
                 self.assertEqual(cleanup.call_count, 6)

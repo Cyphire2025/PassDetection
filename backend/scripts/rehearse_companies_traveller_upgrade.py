@@ -60,6 +60,26 @@ from scripts.release_travel_tracker_upgrade import _dml_grants  # noqa: E402
 SOURCE_DATABASE = "passdetection_ci_companies_source"
 RESTORED_DATABASE = "passdetection_ci_companies_restored"
 INTERRUPTED_EXIT = 73
+BACKFILL_ROLLBACK_EXIT = 74
+BACKFILL_ROLLBACK_RUNNER = """
+import json, sys
+from alembic.operations import Operations
+from scripts.release_companies_traveller_upgrade import apply_upgrade
+original = Operations.execute
+class InjectedBackfillFailure(Exception):
+    pass
+def fail_after_disable(self, statement, *args, **kwargs):
+    result = original(self, statement, *args, **kwargs)
+    if str(statement).strip() == 'ALTER TABLE public.client_groups DISABLE TRIGGER group_roster_revision':
+        raise InjectedBackfillFailure('synthetic failure after named trigger disable')
+    return result
+Operations.execute = fail_after_disable
+try:
+    apply_upgrade(json.loads(sys.argv[1]))
+except InjectedBackfillFailure:
+    raise SystemExit(74)
+raise SystemExit('Expected backfill rollback injection did not occur')
+"""
 INTERRUPTION_RUNNER = """
 import json, sys
 from alembic import command
@@ -105,8 +125,8 @@ def snapshot(environment: Mapping[str, str], schema: str) -> dict[str, Any]:
 
 def run_helper(environment: Mapping[str, str], contract: dict[str, Any], *, interrupt: bool = False,
                capture_baseline: bool = False, baseline_sha256: str | None = None,
-               expect_rejection: bool = False) -> dict[str, Any]:
-    if sum((interrupt, capture_baseline, expect_rejection)) > 1:
+               expect_rejection: bool = False, rollback_backfill: bool = False) -> dict[str, Any]:
+    if sum((interrupt, capture_baseline, expect_rejection, rollback_backfill)) > 1:
         raise ValueError("Rehearsal helper modes are mutually exclusive")
     encoded = json.dumps(contract, sort_keys=True, separators=(",", ":"))
     # Synthetic CI proof marker; host release authorization is qualified by its
@@ -114,18 +134,21 @@ def run_helper(environment: Mapping[str, str], contract: dict[str, Any], *, inte
     child_environment = {**environment, "MCP_RELEASE_PROOF_SHA256": hashlib.sha256(encoded.encode()).hexdigest()}
     if baseline_sha256 is not None:
         child_environment["MCP_RELEASE_BASELINE_SHA256"] = baseline_sha256
-    arguments = ([sys.executable, "-c", INTERRUPTION_RUNNER, encoded] if interrupt else
+    runner = BACKFILL_ROLLBACK_RUNNER if rollback_backfill else INTERRUPTION_RUNNER
+    arguments = ([sys.executable, "-c", runner, encoded] if interrupt or rollback_backfill else
         [sys.executable, "scripts/release_companies_traveller_upgrade.py", "--contract-json", encoded])
     if capture_baseline:
         arguments.append("--capture-baseline")
     result = subprocess.run(arguments, cwd=ROOT, env=child_environment, capture_output=True,
         text=True, timeout=600, check=False, shell=False)
-    expected = INTERRUPTED_EXIT if interrupt else (2 if expect_rejection else 0)
+    expected = BACKFILL_ROLLBACK_EXIT if rollback_backfill else (INTERRUPTED_EXIT if interrupt else (2 if expect_rejection else 0))
     if result.returncode != expected:
         # Driver failures may contain DSNs. Preserve a safe failure code only.
         raise RuntimeError(f"Upgrade helper failed: expected exit {expected}, observed {result.returncode}")
     if interrupt:
         return {"exit_code": result.returncode, "interrupted_before": CHAIN[2]}
+    if rollback_backfill:
+        return {"exit_code": result.returncode, "rolled_back_revision": CHAIN[0]}
     value: dict[str, Any] = json.loads(result.stdout.strip().splitlines()[-1])
     if expect_rejection:
         if value != {"status": "failed", "reason": "companies_traveller_upgrade_failed", "automatic_downgrade": False}:
@@ -137,8 +160,18 @@ def run_helper(environment: Mapping[str, str], contract: dict[str, Any], *, inte
 
 
 def exercise_resume(environment: Mapping[str, str], contract: dict[str, Any], before: dict[str, Any]) -> dict[str, Any]:
-    captured = run_helper(environment, contract, capture_baseline=True)
     baseline = preservation_digest({key: value for key, value in before.items() if key != "runtime_grants"})
+    rollback = run_helper(environment, contract, rollback_backfill=True, baseline_sha256=baseline)
+    connection = _connect(environment, RESTORED_DATABASE)
+    try:
+        if _revision(connection) != SOURCE:
+            raise AssertionError("Backfill failure did not roll back the complete 0130 revision")
+    finally:
+        connection.close()
+    # Includes the exact enabled trigger, every retained field, catalog and ACL.
+    if snapshot(environment, SOURCE) != before:
+        raise AssertionError("Backfill rollback changed historical data, ACL or retained trigger/schema")
+    captured = run_helper(environment, contract, capture_baseline=True)
     if captured.get("status") != "baseline_captured" or captured.get("preservation_sha256") != baseline:
         raise AssertionError("Original helper baseline does not match the restored backup")
     interruption = run_helper(environment, contract, interrupt=True, baseline_sha256=baseline)
@@ -167,6 +200,7 @@ def exercise_resume(environment: Mapping[str, str], contract: dict[str, Any], be
     if noop.get("status") != "already_at_target" or noop.get("executed_revisions") != []:
         raise AssertionError("Completed upgrade was not idempotent")
     return {"original_preservation_baseline": captured, "interruption": interruption,
+        "company_backfill_rollback": rollback, "company_backfill_rollback_verified": True,
         "wrong_baseline_rejected_before_ddl": True,
         "invalid_concurrent_index_repaired": True, "resume": resumed, "noop": noop}
 

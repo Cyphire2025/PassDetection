@@ -28,6 +28,14 @@ casts and 12 associative AND grouping differences. The rehearsal comparison
 handles only those bounded representations, preserving literal bytes, operand
 order and other operators, then uses the untouched restored snapshot as the exact
 migration baseline. Production preservation hashing stays unchanged.
+The 9de17621320d7fb7e3ca65ae105b28acd38bc6cd rehearsal passed restoration and
+then caught a real backfill side effect at 0131. Its isolated diagnostic compared
+40 retained client_groups columns and found only roster_revision changed: the
+existing unconditional UPDATE trigger ran during canonical company backfill.
+The correction validates and temporarily disables only that exact trigger inside
+0130's transaction, then restores it before commit. A disposable injected failure
+after DISABLE must prove complete rollback before the normal resume rehearsal.
+These failures all occurred before production DDL, and original workers resumed.
 The feature patch was transferred to the release worktree based on current origin/main.
 Subsequent CI/release preparation and final verification occur there; the original
 working tree remains preserved with its unrelated local changes.

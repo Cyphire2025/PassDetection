@@ -32,9 +32,12 @@ def validate_inner(output: str, expected_contract: str) -> dict[str, Any]:
             or value.get("production_release_authorization") is not False):
         raise ValueError("Rehearsal schema, PostgreSQL version or scope differs")
     required = ("preserved_historical_rows_catalog_acl", "new_tables_empty_before_activation",
-                "runtime_grants_nonempty", "wrong_baseline_rejected_before_ddl", "invalid_concurrent_index_repaired")
+                "runtime_grants_nonempty", "wrong_baseline_rejected_before_ddl", "invalid_concurrent_index_repaired",
+                "company_backfill_rollback_verified")
     if any(value.get(key) is not True for key in required):
         raise ValueError("A required preservation or failure scenario was not proven")
+    if value.get("company_backfill_rollback") != {"exit_code": 74, "rolled_back_revision": CHAIN[0]}:
+        raise ValueError("The failed company backfill must restore the complete original revision")
     counts = value["historical_row_counts"]
     if counts.get("whatsapp_broadcast_rejected_contacts") != 699 or counts.get("whatsapp_broadcast_recipients") != 1:
         raise ValueError("The full 700-person durable roster was not exercised")
@@ -65,5 +68,6 @@ def validate_inner(output: str, expected_contract: str) -> dict[str, Any]:
            for key in ("new_tables_empty", "runtime_grants_verified")):
         raise ValueError("Target table and runtime grant invariants were not proven")
     return {"checks": dict.fromkeys(CHECKS, True), "fixture_person_count": 700,
+            "company_backfill_rollback_verified": True,
             "inner_rehearsal_sha256": digest_json(value), "populated_backup": dump,
             "preservation_sha256": baseline_hash, "backup_clients": clients}
