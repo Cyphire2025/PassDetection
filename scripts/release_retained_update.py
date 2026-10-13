@@ -153,12 +153,19 @@ class FastBuild(RetainedBuild):
         expected = contract_digest((self.source / 'backend/contracts/api.openapi.json').read_bytes())
         code = """
 import hashlib,json,pathlib,shutil,subprocess
+# The builder has CHOWN only: UID 0 cannot bypass the runtime owner's modes.
+# Normalize just the disposable replacement paths before deleting or writing.
+subprocess.run(['/bin/chown','0:0','/app'],check=True)
 for name in ('app','alembic','scripts'):
  target=pathlib.Path('/app')/name
- if target.exists():shutil.rmtree(target)
+ if target.exists():
+  subprocess.run(['/bin/chown','-R','0:0',str(target)],check=True)
+  shutil.rmtree(target)
  shutil.copytree(pathlib.Path('/candidate')/name,target)
 for name in ('alembic.ini','gunicorn.conf.py'):
- shutil.copyfile(pathlib.Path('/candidate')/name,pathlib.Path('/app')/name)
+ target=pathlib.Path('/app')/name
+ if target.exists():subprocess.run(['/bin/chown','0:0',str(target)],check=True)
+ shutil.copyfile(pathlib.Path('/candidate')/name,target)
 subprocess.run(['/bin/chown','-R','1001:1001','/app'],check=True)
 from scripts.export_api_contract import application_contract
 raw=(json.dumps(application_contract(),ensure_ascii=False,sort_keys=True,indent=2)+'\\n').encode()

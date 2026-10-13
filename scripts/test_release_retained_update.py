@@ -4,13 +4,16 @@ from __future__ import annotations
 import copy
 import json
 from pathlib import Path
+import shutil
+import sys
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
 
 from release_retained_update import (
     ACTIVE, APPLICATION, INFRASTRUCTURE, ROOT, SCHEMA, SERVICES, WORKERS,
-    ROUTE_ALLOWLIST, RetainedUpdate, forbidden_changes, proxy_configuration, runtime_environment,
+    ROUTE_ALLOWLIST, FastBuild, RetainedUpdate, forbidden_changes, proxy_configuration, runtime_environment,
     select_live, validate_route_allowlist, wait_full_readiness,
 )
 from release_code_update import CORE_CAPABILITIES
@@ -39,6 +42,76 @@ def live_rows():
 
 
 class Contracts(unittest.TestCase):
+    def test_fast_backend_replaces_runtime_owned_sources_with_chown_only(self):
+        # Model CHOWN-only Linux access on Windows too, while exercising the
+        # generated builder program against real replacement files/directories.
+        for app_owner in (0, 1001):
+            with self.subTest(app_owner=app_owner), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory).resolve()
+                app, candidate = root / 'runtime', root / 'backend'
+                app.mkdir(); candidate.mkdir()
+                (candidate / 'contracts').mkdir()
+                (candidate / 'contracts/api.openapi.json').write_text('{}')
+                for name in ('app', 'alembic', 'scripts'):
+                    (app / name).mkdir(); (candidate / name).mkdir()
+                    (app / name / 'stale.py').write_text('old')
+                    (candidate / name / 'replacement.py').write_text('new')
+                for name in ('alembic.ini', 'gunicorn.conf.py'):
+                    (app / name).write_text('old'); (candidate / name).write_text('new')
+                (app / 'retained-dependency').write_text('keep')
+                owners = {path: 1001 for path in app.rglob('*')}
+                owners[app] = app_owner
+                normalized = []
+
+                def chown(args, *, check):
+                    self.assertTrue(check)
+                    self.assertEqual(args[0], '/bin/chown')
+                    path, owner = Path(args[-1]), int(args[-2].split(':')[0])
+                    self.assertTrue(path == app or path.is_relative_to(app))
+                    if owner == 0: normalized.append(path)
+                    owners[path] = owner
+                    if '-R' in args:
+                        owners.update({entry: owner for entry in path.rglob('*')})
+
+                def writable(path):
+                    if owners[path] != 0: raise PermissionError(str(path))
+
+                def remove(path):
+                    writable(path.parent)
+                    for entry in [path, *path.rglob('*')]: writable(entry)
+                    shutil.rmtree(path)
+
+                def copy_tree(source, target):
+                    writable(target.parent)
+                    shutil.copytree(source, target)
+                    owners.update({entry: 0 for entry in [target, *target.rglob('*')]})
+
+                def copy_file(source, target):
+                    writable(target.parent); writable(target)
+                    shutil.copyfile(source, target)
+
+                builder = FastBuild(root, root, SHA, run=Mock())
+                builder.create = Mock(return_value='a' * 64)
+                builder.execute = Mock(return_value={'exit_code': 0})
+                builder.commit_runtime = Mock(return_value='sha256:' + 'b' * 64)
+                builder.backend('sha256:' + 'c' * 64)
+                code = builder.create.call_args.args[4][1]
+                code = code.replace("'/app'", repr(str(app))).replace("'/candidate'", repr(str(candidate)))
+                with patch.dict(sys.modules, {
+                    'subprocess': SimpleNamespace(run=chown),
+                    'shutil': SimpleNamespace(rmtree=remove, copytree=copy_tree, copyfile=copy_file),
+                    'scripts.export_api_contract': SimpleNamespace(application_contract=lambda: {}),
+                }):
+                    exec(compile(code, '<fast-backend-builder>', 'exec'), {})
+                self.assertEqual(set(normalized), {app, *(app / name for name in
+                    ('app', 'alembic', 'scripts', 'alembic.ini', 'gunicorn.conf.py'))})
+                self.assertFalse(list(app.rglob('stale.py')))
+                self.assertEqual(len(list(app.rglob('replacement.py'))), 3)
+                self.assertTrue(all(owners[path] == 1001 for path in [app, *app.rglob('*')]))
+                self.assertEqual((app / 'retained-dependency').read_text(), 'keep')
+                for name in ('alembic.ini', 'gunicorn.conf.py'):
+                    self.assertEqual((app / name).read_text(), 'new')
+
     def test_readiness_waits_for_two_consecutive_complete_samples(self):
         ready = {'revision': SHA, 'status': 'ready', 'checks': {'database': 'ok'},
                  'capabilities': {name: {'required': True, 'available': True}
