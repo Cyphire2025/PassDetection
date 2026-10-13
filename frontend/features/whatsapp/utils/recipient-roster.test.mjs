@@ -336,29 +336,32 @@ test("Delivery left stops counting an attempt after delivery, read, or failure c
   }
 });
 
-test("Delivery left includes only original accepted or sent messages without pending or failed resends", () => {
+test("Welcome delivery left keeps unconfirmed original or resend delivery visible", () => {
   const cases = [
     ["submitted", null, true],
     ["sent", null, true],
     ["read", "submitted", false],
     ["delivered", "sent", false],
-    ["failed", "sent", false],
-    ["failed", "submitted", false],
-    ["sent", "failed", false],
-    ["submitted", "failed", false],
-    ["sent", "delivered", true],
-    ["submitted", "read", true],
-    ["sent", "queued", false],
-    ["sent", "processing", false],
-    ["sent", "submitted", false],
-    ["sent", "sent", false],
-    ["submitted", "sent", false],
-    ["sent", "delivery_unknown", false],
+    ["failed", "sent", true],
+    ["failed", "submitted", true],
+    ["not_sent", "sent", true],
+    ["sent", "failed", true],
+    ["submitted", "failed", true],
+    ["sent", "delivered", false],
+    ["submitted", "read", false],
+    ["sent", "queued", true],
+    ["sent", "processing", true],
+    ["sent", "submitted", true],
+    ["sent", "sent", true],
+    ["submitted", "sent", true],
+    ["sent", "delivery_unknown", true],
     ["delivered", "queued", false],
     ["delivered", "processing", false],
     ["delivered", "failed", false],
     ["delivered", "delivery_unknown", false],
     ["failed", "read", false],
+    ["failed", "queued", false],
+    ["failed", "delivery_unknown", false],
   ];
   for (const [status, latestResendStatus, awaiting] of cases) {
     const item = recipientItem({
@@ -370,4 +373,44 @@ test("Delivery left includes only original accepted or sent messages without pen
     assert.equal(countRecipientRosterItems([item], "delivery_left"), Number(awaiting), item.recipient.id);
     assert.deepEqual(filterRecipientRosterItems([item], "delivery_left", "welcome").map(itemId), awaiting ? [item.recipient.id] : []);
   }
+});
+
+test("Welcome delivery left honors confirmed historical delivery and canonical-only pending welcomes", () => {
+  const item = recipientItem({
+    id: "welcome-history",
+    displayOrder: 1,
+    messageStatuses: [messageStatus({ messageType: "welcome", status: "sent", latestResendStatus: "failed" })],
+  });
+  for (const confirmation of [{ welcome_delivered: true }, { welcome_status: "delivered" }, { welcome_status: "read" }]) {
+    const confirmed = structuredClone(item);
+    Object.assign(confirmed.recipient, confirmation);
+    assert.equal(countRecipientRosterItems([confirmed], "delivery_left", "welcome"), 0);
+    assert.equal(countRecipientRosterItems([confirmed], "delivery_left"), 0);
+  }
+  for (const welcomeStatus of ["submitted", "sent", "failed", "queued", "delivery_unknown", null]) {
+    const canonicalOnly = recipientItem({ id: "canonical-welcome", displayOrder: 2 });
+    canonicalOnly.recipient.welcome_status = welcomeStatus;
+    const expected = ["submitted", "sent"].includes(welcomeStatus) ? ["canonical-welcome"] : [];
+    assert.deepEqual(filterRecipientRosterItems([canonicalOnly], "delivery_left", "welcome").map(itemId), expected);
+    assert.deepEqual(filterRecipientRosterItems([canonicalOnly], "delivery_left").map(itemId), expected);
+    assert.equal(countRecipientRosterItems([canonicalOnly], "delivery_left", "passport_link"), 0);
+  }
+});
+
+test("Confirmed welcome does not hide a pending passport link or change reminder filtering", () => {
+  const item = recipientItem({
+    id: "pending-passport",
+    displayOrder: 1,
+    messageStatuses: [
+      messageStatus({ messageType: "welcome", status: "sent", latestResendStatus: "failed" }),
+      messageStatus({ messageType: "passport_link", status: "sent" }),
+      messageStatus({ messageType: "reminder", status: "sent", latestResendStatus: "read" }),
+    ],
+  });
+  item.recipient.welcome_delivered = true;
+  item.recipient.welcome_status = "delivered";
+  assert.equal(countRecipientRosterItems([item], "delivery_left", "welcome"), 0);
+  assert.equal(countRecipientRosterItems([item], "delivery_left", "passport_link"), 1);
+  assert.equal(countRecipientRosterItems([item], "delivery_left", "reminder"), 1);
+  assert.equal(countRecipientRosterItems([item], "delivery_left"), 1);
 });

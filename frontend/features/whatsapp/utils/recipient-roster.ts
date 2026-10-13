@@ -31,6 +31,15 @@ export function recipientHasFailedMessage(
   );
 }
 
+function welcomeDeliveryIsPending(recipient: WhatsAppRecipient): boolean {
+  const welcome = getMessageStatus(recipient, "welcome");
+  const statuses = [welcome?.status, welcome?.latest_resend_status, recipient.welcome_status];
+  // Canonical welcome confirmation also covers successful earlier resends.
+  return !recipient.welcome_delivered
+    && !statuses.some((status) => status === "delivered" || status === "read")
+    && statuses.some((status) => status === "submitted" || status === "sent");
+}
+
 function rosterItemMatchesFilter(
   item: WhatsAppRecipientRosterItem,
   tab: WhatsAppRecipientRosterTab,
@@ -42,13 +51,17 @@ function rosterItemMatchesFilter(
   if (tab === "unidentified") return item.kind === "unidentified";
   if (item.kind !== "recipient") return false;
   if (tab === "delivery_left") {
+    const pendingWelcome = welcomeDeliveryIsPending(item.recipient);
+    if (messageType === "welcome") return pendingWelcome;
+    if (!messageType && pendingWelcome) return true;
     const statuses = messageType
       ? [getMessageStatus(item.recipient, messageType)]
       : item.recipient.message_statuses;
-    // Only the original send can qualify; pending, failed, or uncertain
-    // resends belong outside this delivery-confirmation filter.
+    // Preserve the existing original-attempt rules for other message types;
+    // repeatable reminders can have a resend from an earlier reminder batch.
     return statuses.some((status) =>
-      (status?.status === "submitted" || status?.status === "sent")
+      status?.message_type !== "welcome"
+      && (status?.status === "submitted" || status?.status === "sent")
       && !["queued", "processing", "submitted", "sent", "failed", "delivery_unknown"]
         .includes(status.latest_resend_status ?? ""));
   }

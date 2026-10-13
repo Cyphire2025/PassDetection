@@ -1,10 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { canRetryOrResendRecipient, isRecipientEligible, type RecipientDeliveryState, welcomeDeliveryBlockReason } from "./recipient-delivery";
+import { canRetryOrResendRecipient, countEligibleRecipients, isRecipientEligible, type RecipientDeliveryState, welcomeDeliveryBlockReason } from "./recipient-delivery";
 import { getBulkResendEligibility } from "./recipient-bulk-selection";
-import type { WhatsAppRecipientRosterItem } from "../api/whatsapp.api";
-import { countRecipientRosterItems } from "./recipient-roster";
+import type { WhatsAppRecipient, WhatsAppRecipientRosterItem } from "../api/whatsapp.api";
+import { countRecipientRosterItems, filterRecipientRosterItems } from "./recipient-roster";
 
 const state = (type: string, status: string, alreadySent = false) => ({ message_type: type, status, already_sent: alreadySent, latest_resend_status: null, resend_blocked: false, submitted_at: null, status_updated_at: "2026-09-12T00:00:00Z" });
+
+const welcomeAwaitingReceipt: WhatsAppRecipient = {
+  id: "synthetic-vishamber",
+  name: "Vishamber (synthetic)",
+  phone_number: "+12025550123",
+  normalized_phone_number: "+12025550123",
+  imported_fields: {},
+  welcome_status: "sent",
+  welcome_delivered: false,
+  message_statuses: [{ ...state("welcome", "sent", true), latest_resend_status: "sent" }],
+};
 
 describe("broadcast and phone welcome gates in the original WhatsApp workspace", () => {
   it("keeps a welcome read in another broadcast out of this broadcast's delivery counts", () => {
@@ -16,6 +27,39 @@ describe("broadcast and phone welcome gates in the original WhatsApp workspace",
     expect(isRecipientEligible(recipient, "welcome")).toBe(true);
     expect(welcomeDeliveryBlockReason(recipient, "welcome")).toBeNull();
     expect(isRecipientEligible(recipient, "passport_link")).toBe(false);
+  });
+
+  it("shows an accepted welcome resend in Delivery left without opening later message gates", () => {
+    const recipient = welcomeAwaitingReceipt;
+    const items: WhatsAppRecipientRosterItem[] = [{ kind: "recipient", display_order: 1, recipient }];
+
+    expect(countRecipientRosterItems(items, "delivery_left", "welcome")).toBe(1);
+    expect(filterRecipientRosterItems(items, "delivery_left", "welcome")).toEqual(items);
+    expect(isRecipientEligible(recipient, "welcome")).toBe(false);
+    for (const messageType of ["passport_link", "reminder"]) {
+      expect(isRecipientEligible(recipient, messageType)).toBe(false);
+      expect(countEligibleRecipients([recipient], messageType)).toBe(0);
+      expect(welcomeDeliveryBlockReason(recipient, messageType)).toMatch(/Welcome must be delivered/);
+    }
+  });
+
+  it.each(["delivered", "read"])("removes the accepted resend from Delivery left and opens later message gates when welcome is %s", (welcomeStatus) => {
+    const recipient: WhatsAppRecipient = {
+      ...welcomeAwaitingReceipt,
+      welcome_status: welcomeStatus,
+      welcome_delivered: true,
+      message_statuses: [{ ...state("welcome", welcomeStatus, true), latest_resend_status: welcomeStatus }],
+    };
+    const items: WhatsAppRecipientRosterItem[] = [{ kind: "recipient", display_order: 1, recipient }];
+
+    expect(countRecipientRosterItems(items, "delivery_left", "welcome")).toBe(0);
+    expect(filterRecipientRosterItems(items, "delivery_left", "welcome")).toEqual([]);
+    expect(isRecipientEligible(recipient, "welcome")).toBe(false);
+    for (const messageType of ["passport_link", "reminder"]) {
+      expect(isRecipientEligible(recipient, messageType)).toBe(true);
+      expect(countEligibleRecipients([recipient], messageType)).toBe(1);
+      expect(welcomeDeliveryBlockReason(recipient, messageType)).toBeNull();
+    }
   });
 
   it.each(["queued", "processing", "submitted", "sent", "delivered", "read", "delivery_unknown"])("blocks duplicate welcome for %s from a direct send in the same broadcast", (welcomeStatus) => {
