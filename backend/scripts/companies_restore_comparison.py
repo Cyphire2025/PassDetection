@@ -1,8 +1,8 @@
-"""Recognize one PostgreSQL dump/restore deparse rewrite, only in rehearsal.
+"""Recognize two PostgreSQL dump/restore deparse rewrites, only in rehearsal.
 
-This is not SQL equivalence checking. Only literal, unbounded varchar-array to
-text-array casts may differ. Migration preservation continues to compare the
-actual restored catalog and row/ACL hashes exactly, without this normalization.
+This is not SQL equivalence checking. Only literal unbounded varchar-array to
+text-array casts and pure parenthesized AND association may differ. Migration
+preservation compares actual restored catalog and row/ACL hashes exactly.
 """
 
 from __future__ import annotations
@@ -39,13 +39,18 @@ def _literal_array_cast(tokens: list[str], start: int) -> tuple[int, str] | None
     return None
 
 
-def normalize_literal_array_casts(definition: str) -> str:
-    """O(L) time/space, with at most 64 KiB of deparsed SQL per definition."""
+def _tokens(definition: str) -> list[str]:
     if len(definition.encode("utf-8")) > MAX_DEFINITION_BYTES:
         raise ValueError("restore_definition_size_limit")
     tokens = _TOKEN.findall(definition)
     if any(token in {"'", '"'} for token in tokens):
         raise ValueError("restore_definition_unterminated_quote")
+    return tokens
+
+
+def normalize_literal_array_casts(definition: str) -> str:
+    """O(L) time/space, with at most 64 KiB of deparsed SQL per definition."""
+    tokens = _tokens(definition)
     result, index = [], 0
     while index < len(tokens):
         match = _literal_array_cast(tokens, index)
@@ -56,6 +61,76 @@ def normalize_literal_array_casts(definition: str) -> str:
             index, replacement = match
             result.append(replacement)
     return "".join(result)
+
+
+def _parenthesis_ends(tokens: list[str]) -> dict[int, int]:
+    stack: list[int] = []
+    ends: dict[int, int] = {}
+    for index, token in enumerate(tokens):
+        if token == "(":
+            stack.append(index)
+        elif token == ")":
+            if not stack:
+                raise ValueError("restore_definition_unbalanced_parentheses")
+            ends[stack.pop()] = index
+    if stack:
+        raise ValueError("restore_definition_unbalanced_parentheses")
+    return ends
+
+
+def _boolean_group(
+    tokens: list[str], start: int, ends: dict[int, int],
+) -> tuple[str, list[int]] | None:
+    """Only whole parenthesized operands, joined by one exact Boolean operator."""
+    end, cursor, operator = ends[start], start + 1, ""
+    children: list[int] = []
+    while cursor < end:
+        if tokens[cursor] != "(":
+            return None
+        children.append(cursor)
+        cursor = ends[cursor] + 1
+        if cursor == end:
+            return operator, children
+        if tokens[cursor] not in {"AND", "OR"} or (operator and tokens[cursor] != operator):
+            return None
+        operator = tokens[cursor]
+        cursor += 1
+    return None
+
+
+def normalize_associative_and(definition: str) -> str:
+    """O(L) time/space: index spans, mark removed delimiters, serialize once.
+
+    Enter only a complete CHECK body and pure Boolean groups. A function, NOT,
+    mixed operators, arithmetic, cast or comparison is an opaque leaf. Preserve
+    OR grouping, single wrappers, operand order, duplicates and every leaf byte.
+    """
+    tokens = _tokens(definition)
+    if tokens[:2] != ["CHECK", "("]:
+        return definition
+    ends = _parenthesis_ends(tokens)
+    if ends[1] != len(tokens) - 1:
+        return definition
+    pending = [1]
+    removed: set[int] = set()
+    groups: dict[int, tuple[str, list[int]] | None] = {}
+
+    def group(start: int) -> tuple[str, list[int]] | None:
+        if start not in groups:
+            groups[start] = _boolean_group(tokens, start, ends)
+        return groups[start]
+
+    while pending:
+        current = group(pending.pop())
+        if current is None:
+            continue
+        operator, children = current
+        for child in children:
+            nested = group(child)
+            if operator == "AND" and nested is not None and nested[0] == "AND":
+                removed.update((child, ends[child]))
+            pending.append(child)
+    return "".join(token for index, token in enumerate(tokens) if index not in removed)
 
 
 def _restore_comparison(snapshot: dict[str, Any]) -> dict[str, Any]:
@@ -70,7 +145,10 @@ def _restore_comparison(snapshot: dict[str, Any]) -> dict[str, Any]:
                 total += len(definition.encode("utf-8"))
                 if total > MAX_CATALOG_DEFINITION_BYTES:
                     raise ValueError("restore_catalog_definition_size_limit")
-                definitions.append([*row[:-1], normalize_literal_array_casts(definition)])
+                normalized = normalize_literal_array_casts(definition)
+                if kind == "constraints":
+                    normalized = normalize_associative_and(normalized)
+                definitions.append([*row[:-1], normalized])
             catalog[name][kind] = definitions
     return {**snapshot, "catalog": catalog}
 

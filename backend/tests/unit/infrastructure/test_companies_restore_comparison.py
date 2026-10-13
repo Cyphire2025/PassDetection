@@ -1,4 +1,4 @@
-"""Only the observed PostgreSQL literal-array cast deparse may vary on restore."""
+"""Only the two observed PostgreSQL catalog deparse rewrites may vary."""
 
 from copy import deepcopy
 
@@ -105,3 +105,97 @@ def test_definition_and_catalog_sizes_are_bounded(monkeypatch):
     monkeypatch.setattr(comparison, "MAX_CATALOG_DEFINITION_BYTES", 10)
     with pytest.raises(ValueError, match="catalog_definition_size_limit"):
         comparison.restored_baseline(snapshot(), snapshot())
+
+
+TIMEZONE_SOURCE = "CHECK((((length((timezone)::text)>=1)AND(length((timezone)::text)<=64))AND((timezone)::text=TRIM(BOTHFROMtimezone))))"
+TIMEZONE_RESTORED = "CHECK(((length((timezone)::text)>=1)AND(length((timezone)::text)<=64)AND((timezone)::text=TRIM(BOTHFROMtimezone))))"
+DIMENSION_SOURCE = "CHECK((((width>=1)AND(width<=100000))AND((height>=1)AND(height<=100000))AND((byte_size>=1)AND(byte_size<=209715200))))"
+DIMENSION_RESTORED = "CHECK(((width>=1)AND(width<=100000)AND((height>=1)AND(height<=100000))AND((byte_size>=1)AND(byte_size<=209715200))))"
+
+
+def constraint_snapshot(definition):
+    value = snapshot()
+    value["catalog"]["legacy"]["constraints"][0][-1] = definition
+    return value
+
+
+@pytest.mark.parametrize("before,after", [
+    (TIMEZONE_SOURCE, TIMEZONE_RESTORED),
+    (DIMENSION_SOURCE, DIMENSION_RESTORED),
+    ("CHECK(((timezoneISNULL)OR(((a)AND(b))AND(c))))",
+     "CHECK(((timezoneISNULL)OR((a)AND(b)AND(c))))"),
+    ("CHECK(((a)AND((b)AND((c)AND(d)))))", "CHECK(((a)AND(b)AND(c)AND(d)))"),
+    ("CHECK((((a)AND(b))AND((c)AND(d))))", "CHECK(((a)AND(b)AND(c)AND(d)))"),
+])
+def test_observed_and_association_preserves_the_actual_restored_baseline(before, after):
+    original, restored = constraint_snapshot(before), constraint_snapshot(after)
+    saved_original, saved_restored = deepcopy(original), deepcopy(restored)
+    assert comparison.normalize_associative_and(before) == comparison.normalize_associative_and(after)
+    assert comparison.restored_baseline(original, restored) is restored
+    assert original == saved_original and restored == saved_restored
+    assert preservation_digest(original) != preservation_digest(restored)
+
+
+@pytest.mark.parametrize("definition", [
+    "CHECK(((a)AND(b))OR(c))",  # OR itself is never flattened.
+    "CHECK(((a)OR(b))OR(c))",
+    "CHECK((((a)AND(b))OR(c)AND(d)))",  # Mixed root stays entirely opaque.
+    "CHECK(NOT(((a)AND(b))AND(c)))",
+    "CHECK((NOT(((a)AND(b))AND(c))))",
+    "CHECK((fn(((a)AND(b))AND(c)))AND(d))",
+    'CHECK(("fn"(((a)AND(b))AND(c)))AND(d))',
+    "CHECK((((a)AND(b))::boolean)AND(c))",
+    'CHECK((((a)AND(b))COLLATE"x")AND(c))',
+    "CHECK((((a)AND(b))+(c)))",
+    "CHECK(((a+b)*c)>0)",
+    "CHECK((aBETWEENbANDc)AND(d))",
+    "CHECK((aANDb)AND(c))",  # Identifier is not the exact AND token.
+    "CHECK(((a)and(b))AND(c))",
+    "CHECK(((a)AND(b))AND(c))NOTVALID",  # Only a complete CHECK root.
+    "fn(((a)AND(b))AND(c))",
+    "CHECK(('((a)AND(b))AND(c)'='O''Brien'))",
+    'CHECK(("((a)AND(b))AND(c)"=1))',
+    "CHECK(((((a)))))",  # Redundant wrappers are not generally stripped.
+])
+def test_other_boolean_and_expression_structures_remain_byte_exact(definition):
+    assert comparison.normalize_associative_and(definition) == definition
+
+
+@pytest.mark.parametrize("after", [
+    TIMEZONE_RESTORED.replace("<=64", "<=65"),
+    TIMEZONE_RESTORED.replace(">=1", ">1"),
+    TIMEZONE_RESTORED.replace("AND", "OR", 1),
+    TIMEZONE_RESTORED.replace("length((timezone)::text)>=1", "length((timezone)::text)<=64", 1),
+    "CHECK(((length((timezone)::text)<=64)AND(length((timezone)::text)>=1)AND((timezone)::text=TRIM(BOTHFROMtimezone))))",
+    "CHECK(NOT((length((timezone)::text)>=1)AND(length((timezone)::text)<=64)AND((timezone)::text=TRIM(BOTHFROMtimezone))))",
+])
+def test_changed_threshold_operator_order_multiplicity_or_not_are_rejected(after):
+    with pytest.raises(AssertionError, match="Restored 0129"):
+        comparison.restored_baseline(constraint_snapshot(TIMEZONE_SOURCE), constraint_snapshot(after))
+
+
+def test_opaque_leaves_keep_quotes_function_cast_collation_and_arithmetic_bytes():
+    leaves = ["('AND(('='O''Brien')", '("AND(()"=1)', "(fn(a,b)>0)",
+              "(((a+b)*c)>0)", '(value::textCOLLATE"C"=\'x\')', "(aBETWEENbANDc)"]
+    before = "CHECK(((" + "AND".join(leaves[:3]) + ")AND(" + "AND".join(leaves[3:]) + ")))"
+    after = "CHECK((" + "AND".join(leaves) + "))"
+    assert comparison.normalize_associative_and(before) == after
+
+
+def test_and_normalization_applies_only_to_constraint_definitions():
+    before, after = snapshot(), snapshot()
+    before["catalog"]["legacy"]["indexes"][0][-1] = TIMEZONE_SOURCE
+    after["catalog"]["legacy"]["indexes"][0][-1] = TIMEZONE_RESTORED
+    with pytest.raises(AssertionError, match="Restored 0129"):
+        comparison.restored_baseline(before, after)
+
+
+def test_deep_and_tree_is_iterative_bounded_and_preserves_duplicate_leaves():
+    depth = 2000
+    before = "CHECK(" + "(" * depth + "(a)" + "AND(b))" * depth + ")"
+    after = "CHECK((" + "AND".join(["(a)"] + ["(b)"] * depth) + "))"
+    assert comparison.normalize_associative_and(before) == after
+    with pytest.raises(ValueError, match="definition_size_limit"):
+        comparison.normalize_associative_and("x" * (comparison.MAX_DEFINITION_BYTES + 1))
+    with pytest.raises(ValueError, match="unbalanced_parentheses"):
+        comparison.normalize_associative_and("CHECK(((a)AND(b))")
