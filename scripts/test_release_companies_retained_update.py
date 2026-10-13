@@ -199,12 +199,45 @@ class AdditiveContracts(unittest.TestCase):
             release.fence_candidate = Mock()
             release.migrate = Mock(side_effect=ValueError('injected_failure'))
             with self.subTest(schema=schema), patch('release_companies_retained_update.bound_original', side_effect=lambda row: row), \
-                 patch('release_companies_retained_update.require_idle'), \
+                 patch('release_companies_retained_update.wait_for_idle'), \
                  self.assertRaisesRegex(ValueError, 'injected_failure'):
                 release.transition(release.record['candidates'])
             release.start.assert_not_called()
             release.recover.assert_not_called()
             self.assertEqual(release.record['phase'], 'forward-recovery-required')
+
+    def test_transition_drains_after_ingress_fencing_before_stopping_workers(self):
+        release = release_fixture()
+        live = release.record['live']
+        order = []
+        release.stop = lambda row: order.append(row['Id'])
+        release.migrate = Mock()
+        release.activate_candidates = Mock()
+        def drain(containers):
+            self.assertIs(containers, live)
+            self.assertEqual(order, [live['email-beat']['Id'], live['nginx']['Id']])
+            release.migrate.assert_not_called()
+        with patch('release_companies_retained_update.bound_original', side_effect=lambda row: row), \
+                patch('release_companies_retained_update.wait_for_idle', side_effect=drain) as wait:
+            release.transition(release.record['candidates'])
+        wait.assert_called_once_with(live)
+        release.migrate.assert_called_once()
+        release.activate_candidates.assert_called_once()
+
+    def test_failed_drain_never_stops_original_workers_or_runs_migration(self):
+        release = release_fixture()
+        live = release.record['live']
+        release.stop, release.migrate, release.activate_candidates = Mock(), Mock(), Mock()
+        release.hold_candidates = Mock()
+        with patch('release_companies_retained_update.bound_original', side_effect=lambda row: row), \
+                patch('release_companies_retained_update.wait_for_idle', side_effect=ValueError('unavailable')), \
+                self.assertRaisesRegex(ValueError, 'unavailable'):
+            release.transition(release.record['candidates'])
+        self.assertEqual([call.args[0]['Id'] for call in release.stop.call_args_list],
+                         [live['email-beat']['Id'], live['nginx']['Id']])
+        release.migrate.assert_not_called()
+        release.activate_candidates.assert_not_called()
+        release.hold_candidates.assert_called_once()
 
     def test_forward_resume_fences_both_generations_before_migration_and_activation(self):
         release = release_fixture()

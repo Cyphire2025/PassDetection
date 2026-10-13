@@ -10,7 +10,7 @@ from typing import Any
 
 from mcp_direct_activate import clean_stop
 from mcp_direct_build import GIB, command
-from mcp_direct_release import bound_original, require_idle
+from mcp_direct_release import bound_original, wait_for_idle
 from mcp_direct_state import APPLICATION, INFRASTRUCTURE, WORKERS
 from release_artifacts import verify_manifest
 from release_code_update import environment
@@ -261,7 +261,7 @@ class CompaniesRetainedUpdate(RetainedUpdate):
             self.event('cutover-starting')
             self.stop(bound_original(live['email-beat']))
             self.stop(bound_original(live['nginx']))
-            require_idle(live)
+            wait_for_idle(live)
             for name in ('backend', 'frontend', *WORKERS):
                 self.stop(bound_original(live[name]))
             self.migrate()

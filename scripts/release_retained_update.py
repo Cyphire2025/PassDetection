@@ -27,7 +27,7 @@ sys.dont_write_bytecode = True
 from mcp_direct_activate import clean_stop
 from mcp_direct_build import GIB, BuildError, RetainedBuild, command, contract_digest
 from mcp_direct_containers import LocalDocker, clone_payload
-from mcp_direct_release import bound_original, require_idle
+from mcp_direct_release import bound_original, wait_for_idle
 from mcp_direct_state import APPLICATION, INFRASTRUCTURE, WORKERS, fingerprint, private_json
 from release_artifacts import verify_manifest
 from release_code_update import COMPATIBILITY_PATHS, environment, task_contract, validate_readiness
@@ -385,7 +385,7 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
         # Stop scheduler first, prove workers idle, then free a bounded build budget.
         self.stop(live['email-beat'])
         try:
-            require_idle(live)
+            wait_for_idle(live)
             for name in WORKERS: self.stop(live[name])
             yield
         finally:

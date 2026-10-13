@@ -11,6 +11,7 @@ import json
 import os
 import re
 import sys
+import time
 import uuid
 
 sys.dont_write_bytecode = True
@@ -39,8 +40,8 @@ print('MCP_DIRECT_IDLE='+json.dumps(result))
 """
 
 
-def inspect(identifier: str) -> dict:
-    rows = json.loads(command("docker", "inspect", identifier))
+def inspect(identifier: str, *, timeout: int = 60) -> dict:
+    rows = json.loads(command("docker", "inspect", identifier, timeout=timeout))
     if len(rows) != 1 or rows[0]["Id"] != identifier:
         raise BuildError("container_identity_changed")
     return rows[0]
@@ -56,8 +57,8 @@ def _bound_host_config(value: dict) -> dict:
     return {**value, "OomKillDisable": False}
 
 
-def bound_original(original: dict) -> dict:
-    current = inspect(original["Id"])
+def bound_original(original: dict, *, timeout: int = 60) -> dict:
+    current = inspect(original["Id"], timeout=timeout)
     # Docker's mount-point map is serialized in an unspecified array order.
     # Retain every field and duplicate while comparing its canonical multiset.
     if (current["Image"] != original["Image"]
@@ -68,12 +69,21 @@ def bound_original(original: dict) -> dict:
     return current
 
 
-def require_idle(containers: dict) -> dict:
+def _idle_timeout(deadline: float | None, maximum: int) -> int:
+    if deadline is None:
+        return maximum
+    remaining = int(deadline - time.monotonic())
+    if remaining < 1:
+        raise BuildError("workers_busy_wait_before_build")
+    return min(maximum, remaining)
+
+
+def require_idle(containers: dict, *, deadline: float | None = None) -> dict:
     nodes = [
         f"{prefix}@{containers[name]['Config']['Hostname']}"
         for name, prefix in WORKERS.items()
     ]
-    backend = bound_original(containers["backend"])
+    backend = bound_original(containers["backend"], timeout=_idle_timeout(deadline, 60))
     if not backend["State"]["Running"]:
         raise BuildError("idle_probe_requires_bound_backend")
     output = command(
@@ -84,7 +94,7 @@ def require_idle(containers: dict) -> dict:
         "-c",
         IDLE_PROBE,
         json.dumps(nodes),
-        timeout=40,
+        timeout=_idle_timeout(deadline, 40),
     )
     records = [
         line[len("MCP_DIRECT_IDLE=") :]
@@ -93,14 +103,39 @@ def require_idle(containers: dict) -> dict:
     ]
     if len(records) != 1:
         raise BuildError("worker_idle_evidence_unavailable")
-    result = json.loads(records[0])
-    if set(result) != {"active", "reserved", "scheduled"} or any(
-        set(rows) != set(nodes)
-        or any(type(count) is not int or count != 0 for count in rows.values())
+    try:
+        result = json.loads(records[0])
+    except json.JSONDecodeError:
+        raise BuildError("worker_idle_evidence_unavailable") from None
+    if not isinstance(result, dict) or set(result) != {"active", "reserved", "scheduled"} or any(
+        not isinstance(rows, dict) or set(rows) != set(nodes)
+        or any(type(count) is not int or count < 0 for count in rows.values())
         for rows in result.values()
     ):
+        raise BuildError("worker_idle_evidence_unavailable")
+    if any(count for rows in result.values() for count in rows.values()):
         raise BuildError("workers_busy_wait_before_build")
     return result
+
+
+def wait_for_idle(containers: dict) -> dict:
+    """Allow active work to drain within 150 seconds; never retry missing evidence."""
+    deadline = time.monotonic() + 150
+    while time.monotonic() < deadline:
+        try:
+            result = require_idle(containers, deadline=deadline)
+        except BuildError as error:
+            if str(error) != "workers_busy_wait_before_build":
+                raise
+        else:
+            if time.monotonic() < deadline:
+                return result
+            break
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            break
+        time.sleep(min(5, remaining))
+    raise BuildError("workers_busy_wait_before_build")
 
 
 def resume_original_workers(state: DirectState, baseline: dict) -> None:

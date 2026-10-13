@@ -121,8 +121,13 @@ Current follow-up: client dashboard and automatic reuse (IN PROGRESS, NOT DEPLOY
   A separate single-reader SQLite check with 100,000 completed jobs measured
   8.98 ms mean across 20 reads; query-only alternatives were slower and not adopted.
   This does not establish PostgreSQL plans or concurrent HTTP capacity for long job histories.
-- No commit, push, release or production mutation belongs to this follow-up yet.
-  The live evidence and capacity results below describe the previous release only.
+- Application commit 1daa4952f4af2f000ed60fa24f44fb6852ce4ac2 was pushed to main.
+  Two Fast attempts refused before builds/migrations because a scheduled
+  travellers.document_impact worker was active. All 20 old services remain healthy;
+  no production company removal or schema change occurred in those attempts.
+  A bounded 150-second worker drain is being qualified; unavailable/malformed
+  idle evidence still fails immediately, and all nodes must show zero tasks.
+  The live evidence below still describes the previous release only.
 
 Live correction verification
 - The retained Fast release completed on the exact main application revision above.
