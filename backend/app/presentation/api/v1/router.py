@@ -30,6 +30,7 @@ from app.presentation.api.v1.routes.company_reuse_setup import router as company
 from app.presentation.api.v1.routes.company_review_tasks import (
     router as company_review_tasks_router,
 )
+from app.presentation.api.v1.routes.company_submissions import router as company_submissions_router
 from app.presentation.api.v1.routes.company_traveller_history import (
     router as company_traveller_history_router,
 )
@@ -111,6 +112,7 @@ api_v1_router.include_router(company_review_tasks_router, prefix="/companies", t
 api_v1_router.include_router(company_passports_router, prefix="/companies", tags=["Company Documents"])
 api_v1_router.include_router(company_match_review_router, prefix="/companies", tags=["Company Match Review"])
 api_v1_router.include_router(company_traveller_history_router, prefix="/companies", tags=["Companies"])
+api_v1_router.include_router(company_submissions_router, prefix="/companies", tags=["Companies / Clients"])
 api_v1_router.include_router(traveller_admin_router, prefix="/companies", tags=["Company Travellers"])
 api_v1_router.include_router(companies_router, prefix="/companies", tags=["Companies / Clients"])
 api_v1_router.include_router(company_reuse_setup_router, prefix="/companies", tags=["Companies / Clients"])

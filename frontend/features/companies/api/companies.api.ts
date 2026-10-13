@@ -1,12 +1,15 @@
 import apiClient from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import type { Company, CompanyGroup, CompanyGroupSearch, CompanyInput, CompanyReference, CompanySearch, CompanySummary, CompanyUpdate, CursorPage } from "../types";
-import type { CompanyTraveller, TravellerHistory, HistoryPage } from "../types";
+import type { CompanyTraveller, CompanySubmission, TravellerHistory, HistoryPage } from "../types";
 
 const endpoints = API_ENDPOINTS.companies;
 const scope = (agencyId: string) => ({ agency_id: agencyId });
 
 export const companiesApi = {
+  async workspace(signal?: AbortSignal) {
+    return (await apiClient.get<{ agency_id: string }>(endpoints.workspace, { signal })).data;
+  },
   async list(agencyId: string, params: CompanySearch, signal?: AbortSignal) {
     return (await apiClient.get<CursorPage<Company>>(endpoints.root, { params: { ...scope(agencyId), ...params }, signal })).data;
   },
@@ -30,6 +33,9 @@ export const companiesApi = {
   },
   async groups(agencyId: string, id: string, params: CompanyGroupSearch, signal?: AbortSignal) {
     return (await apiClient.get<CursorPage<CompanyGroup>>(endpoints.groups(id), { params: { ...scope(agencyId), ...params }, signal })).data;
+  },
+  async submissions(agencyId: string, id: string, params: { search: string; cursor?: string }, signal?: AbortSignal) {
+    return (await apiClient.get<CursorPage<CompanySubmission>>(endpoints.submissions(id), { params: { ...scope(agencyId), ...params, page_size: 25 }, signal })).data;
   },
   async travellers(agencyId: string, id: string, params: { search: string; cursor?: string }, signal?: AbortSignal) {
     return (await apiClient.get<HistoryPage<CompanyTraveller>>(endpoints.travellers(id), { params: { ...scope(agencyId), ...params, page_size: 25 }, signal })).data;

@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
 from app.application.companies.access import visible_company_groups
+from app.application.companies.participation_scope import live_participation_profile
 from app.domain.entities.entities import User
 from app.infrastructure.database.models import ClientGroupModel
 from app.infrastructure.database.traveller_reuse_models import TravellerParticipationModel
@@ -53,6 +54,6 @@ async def group_traveller_counts(
         func.sum(case((completed, 1), else_=0)),
     ).join(ClientGroupModel, (ClientGroupModel.id == current.group_id) & (ClientGroupModel.agency_id == current.agency_id))
         .where(current.agency_id == agency_id, current.company_id == company_id,
-               current.group_id.in_(group_ids), current.status != "withdrawn")
+               current.group_id.in_(group_ids), current.status != "withdrawn", live_participation_profile())
         .group_by(current.group_id))).all()
     return {row[0]: GroupTravellerCounts(int(row[1]), int(row[2]), int(row[3])) for row in rows}

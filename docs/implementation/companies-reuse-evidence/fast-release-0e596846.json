@@ -1,0 +1,55 @@
+{
+  "all_prior_resources_retained": true,
+  "automatic_downgrade": false,
+  "backend_api_contract_sha256": "f2c30a3981094cdf1a9564cc857cfbc065a34833bc69450f6b0d8937dca4dcb4",
+  "backend_image_id": "sha256:43410191b5c09a7f24bb40458abbb40b9cb6e196a9d8ce83df9ba976aec41064",
+  "completion_receipt_sha256": "67cfbde77ba06161220db1e6aa503509e4debee06b6f41b1bb5b908c9015ad93",
+  "dockerfile_native_security_changes_applied": false,
+  "existing_migration_identity_preflight_verified": true,
+  "frontend_image_id": "sha256:4deb1bb33f28c97d287d9ee2e1dcbba76bf2e3c3ef641adf6af9762962786312",
+  "full_ci_qualified": false,
+  "limits": [
+    "Retained completion evidence only; live health was not rechecked by this extractor.",
+    "700 synthetic roster people and two contact races; not a capacity qualification.",
+    "Full CI remains unqualified; inherited runtime omits the new native Dockerfile security fixes."
+  ],
+  "live_migration_validation_recorded": true,
+  "migration_helper_credentials_excluded_from_journal": true,
+  "mode": "fast",
+  "phase": "complete",
+  "rehearsal": {
+    "checks": {
+      "contact_concurrency_verified": true,
+      "historical_rows_catalog_acl_preserved": true,
+      "idempotent_target_verified": true,
+      "interrupted_resume_verified": true,
+      "invalid_index_repaired": true,
+      "populated_backup_restored": true,
+      "runtime_grants_verified": true,
+      "wrong_baseline_rejected": true
+    },
+    "company_backfill_rollback_verified": true,
+    "contact_concurrency_tests": 2,
+    "contact_junit_sha256": "acdabb03e57c7c4c5579096dd7f9cd0cef171e0762d21e588558df0d70baa517",
+    "fixture_person_count": 700,
+    "owned_resources_removed": true,
+    "rehearsal_source_sha256": "1db713b185729e5ffffb5ff8ab29c38ef56edea0b079ab2a69b1ad3df9225908",
+    "resource_admission": {
+      "host_bytes": 16769044480,
+      "reserve_bytes": 2147483648,
+      "steady_bytes": 10536091648,
+      "web_overlap_bytes": 11609833472
+    },
+    "source_schema": "0129_travel_tracker",
+    "split_migration_role_verified": true,
+    "target_schema": "0133_traveller_document_impact",
+    "test_source_archive_sha256": "a2b394c432a96dcc78cecc7fea15c69b401d754badf8459999aba01002f38ea2",
+    "test_source_commit": "0e596846f85ec3dbf87cbc70a581b8902e7a2c0c"
+  },
+  "rehearsal_receipt_sha256": "e70f8a250acdef88512c90e28cec729bfa2c7b377281c88f8c9ae890bf258889",
+  "runtime_inherited_from_previous_images": true,
+  "schema": "0133_traveller_document_impact",
+  "source_contract_sha256": "800a29b86e172c3f28723d9dfeff3be8226d8e43124e095379f700e278b82824",
+  "source_revision": "0e596846f85ec3dbf87cbc70a581b8902e7a2c0c",
+  "status": "complete"
+}

@@ -31,10 +31,12 @@ export const API_ENDPOINTS = {
   },
   companies: {
     root: "/api/v1/companies",
+    workspace: "/api/v1/companies/workspace",
     lookup: "/api/v1/companies/lookup",
     detail: (id: string) => `/api/v1/companies/${encodeURIComponent(id)}`,
     summary: (id: string) => `/api/v1/companies/${encodeURIComponent(id)}/summary`,
     groups: (id: string) => `/api/v1/companies/${encodeURIComponent(id)}/groups`,
+    submissions: (id: string) => `/api/v1/companies/${encodeURIComponent(id)}/submissions`,
     travellers: (id: string) => `/api/v1/companies/${encodeURIComponent(id)}/travellers`,
     travellerHistory: (id: string, travellerId: string) => `/api/v1/companies/${encodeURIComponent(id)}/travellers/${encodeURIComponent(travellerId)}/history`,
     assignment: (groupId: string) => `/api/v1/upload-links/${encodeURIComponent(groupId)}/company`,

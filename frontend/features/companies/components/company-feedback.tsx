@@ -16,7 +16,7 @@ export function CompanyPagination({ hasMore, nextCursor, cursor, pending, onChan
   onChange: (cursor: string | undefined) => void;
 }) {
   return <nav aria-label="Result pages" className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 px-4 py-3">
-    <p className="text-xs text-slate-500">Showing a bounded page of results</p>
+    <p className="text-xs text-slate-500">{pending ? "Loading results…" : hasMore ? "More results available" : "No more results"}</p>
     <div className="flex gap-2"><Button type="button" variant="secondary" size="sm" disabled={!cursor || pending} onClick={() => onChange(undefined)}>First page</Button><Button type="button" variant="secondary" size="sm" disabled={!hasMore || !nextCursor || pending} onClick={() => onChange(nextCursor ?? undefined)}>Next page</Button></div>
   </nav>;
 }

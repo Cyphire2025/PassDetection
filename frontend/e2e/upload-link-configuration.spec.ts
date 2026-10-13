@@ -54,6 +54,7 @@ async function mockUploadLinkApi(page: Page) {
       });
     }
     if (pathname === "/api/v1/auth/me") return json(route, admin);
+    if (pathname === "/api/v1/companies/workspace" && request.method() === "GET") return json(route, { agency_id: admin.agency_id });
     if (pathname === "/api/v1/companies/lookup") return json(route, { items: [company], next_cursor: null, has_more: false });
     if (pathname === "/api/v1/notifications/feed") {
       return json(route, { items: [], unread_count: 0, next_cursor: null });

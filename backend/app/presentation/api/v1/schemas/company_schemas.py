@@ -9,6 +9,11 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
+class CompanyWorkspaceResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    agency_id: uuid.UUID
+
+
 class CompanyLookupResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True, extra="forbid")
     id: uuid.UUID
@@ -65,6 +70,7 @@ class CompanySummaryResponse(BaseModel):
     closed_groups: int
     archived_groups: int
     total_groups: int
+    collected_records: int
     unique_travellers: int | None = None
     trip_participations: int | None = None
     unresolved_historical_records: int

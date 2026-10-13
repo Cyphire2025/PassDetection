@@ -42,7 +42,7 @@ export function CompanyPicker({ agencyId, value, onChange, disabled, error, requ
         <span id={`${id}-value`} className="min-w-0 flex-1 break-words">{value?.name ?? "Select a company / client"}{value?.status === "inactive" ? " (Inactive)" : ""}</span>
         <ChevronDown className="h-4 w-4 shrink-0" aria-hidden="true" />
       </button>
-      <p id={`${id}-hint`} className="text-xs leading-5 text-slate-500">{value?.status === "inactive" ? "This existing assignment is inactive. Select an active company to change it." : "Search active companies in this agency."}</p>
+      <p id={`${id}-hint`} className="text-xs leading-5 text-slate-500">{value?.status === "inactive" ? "This existing assignment is inactive. Select an active company to change it." : "Search active client companies in your workspace."}</p>
       {open && (
         <div id={`${id}-panel`} className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
           <input ref={searchInput} role="combobox" aria-label="Search companies" aria-expanded="true" aria-autocomplete="list"

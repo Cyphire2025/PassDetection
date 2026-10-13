@@ -35,6 +35,7 @@ export interface CompanyUpdate extends Partial<CompanyInput> {
 }
 
 export interface CompanySummary {
+  collected_records: number;
   active_groups: number;
   closed_groups: number;
   archived_groups: number;
@@ -44,6 +45,16 @@ export interface CompanySummary {
   unresolved_historical_records: number;
   unprocessed_records?: number;
   identity_totals_partial: boolean;
+}
+
+export interface CompanySubmission {
+  id: string;
+  group_id: string;
+  group_name: string;
+  travel_date: string | null;
+  display_name: string;
+  status: string;
+  created_at: string;
 }
 
 export interface CompanyGroup {

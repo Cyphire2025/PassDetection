@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import re
 import subprocess
+import threading
 import uuid
 from pathlib import Path
 from typing import Any, BinaryIO, Protocol
@@ -99,6 +100,71 @@ def helper_payload(release: MigrationRuntime, request: dict[str, Any]) -> tuple[
     return payload, gate
 
 
+def migration_stdout(identifier: str, *, timeout: float = 30.0) -> bytes:
+    """Read the complete machine stream only; O(32 KiB) memory, bounded time.
+
+    Alembic writes human diagnostics to stderr. Combining the two streams loses
+    their ordering and can turn a successful migration into a missing receipt.
+    Never print or retain discarded stderr, which may include sensitive context.
+    """
+    output = bytearray()
+    exceeded = threading.Event()
+    failures: list[OSError] = []
+    try:
+        with subprocess.Popen(['docker', 'logs', identifier], stdin=subprocess.DEVNULL,
+                              stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as process:
+            assert process.stdout is not None
+            pipe = process.stdout
+
+            def consume() -> None:
+                try:
+                    while chunk := pipe.read(8192):
+                        remaining = 32768 - len(output)
+                        output.extend(chunk[:remaining])
+                        if len(chunk) > remaining:
+                            exceeded.set()
+                            process.kill()
+                            break
+                except OSError as error:
+                    failures.append(error)
+                    process.kill()
+
+            reader = threading.Thread(target=consume, daemon=True)
+            reader.start()
+            try:
+                code = process.wait(timeout=timeout)
+            except BaseException:
+                process.kill()
+                process.wait(timeout=10)
+                raise
+            finally:
+                reader.join(timeout=5)
+            require(not exceeded.is_set(), 'migration_result_budget_exceeded')
+            require(code == 0 and not reader.is_alive() and not failures, 'migration_result_read_failed')
+    except (OSError, subprocess.TimeoutExpired):
+        raise ValueError('migration_result_read_failed') from None
+    require(bool(output), 'migration_validation_result_missing')
+    return bytes(output)
+
+
+def read_migration_result(identifier: str) -> dict[str, Any]:
+    try:
+        # Exactly one object. Extra stdout or a second receipt fails closed.
+        result = json.loads(migration_stdout(identifier).decode('utf-8'))
+    except (UnicodeError, json.JSONDecodeError):
+        raise ValueError('migration_validation_result_missing') from None
+    require(isinstance(result, dict) and result.get('status') in {'baseline_captured', 'upgraded', 'already_at_target'}
+            and isinstance(result.get('preservation_sha256'), str)
+            and re.fullmatch('[a-f0-9]{64}', result['preservation_sha256']) is not None,
+            'migration_validation_result_invalid')
+    # Only reference-only validated machine results enter the durable journal.
+    allowed = {'status', 'source_schema', 'target_schema', 'started_schema', 'executed_revisions',
+               'preservation_sha256', 'release_proof_sha256', 'new_tables_empty',
+               'runtime_grants_verified', 'automatic_downgrade'}
+    require(set(result) <= allowed, 'unexpected_migration_result_fields')
+    return dict(result)
+
+
 def run_migration_helper(release: MigrationRuntime, request: dict[str, Any]) -> dict[str, Any]:
     release.verify_fence()
     payload, gate = helper_payload(release, request)
@@ -124,20 +190,6 @@ def run_migration_helper(release: MigrationRuntime, request: dict[str, Any]) -> 
     require(code == '0' and current['State'].get('ExitCode') == 0
             and not current['State']['Running'] and not current['State'].get('OOMKilled')
             and current.get('RestartCount', 0) == 0, 'migration_failed_forward_repair_required')
-    output = command('docker', 'logs', '--tail', '16', identifier, timeout=30)
-    require(0 < len(output.encode()) <= 32768, 'migration_result_budget_exceeded')
-    try:
-        result = json.loads(output.splitlines()[-1])
-    except (ValueError, IndexError):
-        raise ValueError('migration_validation_result_missing') from None
-    require(isinstance(result, dict) and result.get('status') in {'baseline_captured', 'upgraded', 'already_at_target'}
-            and isinstance(result.get('preservation_sha256'), str)
-            and re.fullmatch('[a-f0-9]{64}', result['preservation_sha256']) is not None,
-            'migration_validation_result_invalid')
-    # Only reference-only validated machine results enter the durable journal.
-    allowed = {'status', 'source_schema', 'target_schema', 'started_schema', 'executed_revisions',
-               'preservation_sha256', 'release_proof_sha256', 'new_tables_empty',
-               'runtime_grants_verified', 'automatic_downgrade'}
-    require(set(result) <= allowed, 'unexpected_migration_result_fields')
+    result = read_migration_result(identifier)
     release.event('migration-result-retained', migration_result=result)
     return dict(result)

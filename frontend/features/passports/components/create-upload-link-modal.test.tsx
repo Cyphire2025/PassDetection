@@ -3,8 +3,10 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { CreateUploadLinkModal } from "./create-upload-link-modal";
 
-const { createLink, broadcastId } = vi.hoisted(() => ({
+const { createLink, broadcastId, workspace, account } = vi.hoisted(() => ({
   createLink: vi.fn(),
+  workspace: { agencyId: "agency-1" as string | null, data: { agency_id: "agency-1" } as { agency_id: string } | undefined, sessionKey: "session-1", isError: false, refetch: vi.fn() },
+  account: { role: "agency_staff", agency_id: "agency-1" },
   broadcastId: "ab75ac17-ad58-4629-a28b-3e02bef9ca31",
 }));
 
@@ -14,8 +16,9 @@ vi.mock("../hooks/use-upload-links", () => ({
 vi.mock("@/stores/auth.store", () => ({
   selectUserRole: (state: { role: string }) => state.role,
   selectUser: (state: { user: unknown }) => state.user,
-  useAuthStore: (selector: (state: unknown) => unknown) => selector({ role: "agency_staff", user: { role: "agency_staff", agency_id: "agency-1" } }),
+  useAuthStore: (selector: (state: unknown) => unknown) => selector({ role: account.role, user: account }),
 }));
+vi.mock("@/features/companies/hooks/use-company-workspace", () => ({ useCompanyWorkspace: () => workspace }));
 vi.mock("@/features/companies/components/company-picker", () => ({
   CompanyPicker: ({ onChange, error }: { onChange: (company: { id: string; name: string; status: string }) => void; error?: string }) => <><button type="button" onClick={() => onChange({ id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", name: "Example company", status: "active" })}>Select company</button>{error && <p role="alert">{error}</p>}</>,
 }));
@@ -33,6 +36,9 @@ vi.mock("@/lib/utils/public-url", () => ({
 }));
 
 beforeEach(() => {
+  Object.assign(workspace, { agencyId: "agency-1", data: { agency_id: "agency-1" }, sessionKey: "session-1", isError: false });
+  workspace.refetch.mockReset();
+  account.role = "agency_staff";
   createLink.mockReset().mockResolvedValue({ id: "created-group", token: "test-token" });
 });
 
@@ -45,6 +51,63 @@ function fillGroupDetails() {
 }
 
 describe("create upload link", () => {
+  it("waits for workspace resolution before accepting form input and enables direct superadmin company selection", async () => {
+    workspace.agencyId = null;
+    workspace.data = undefined;
+    account.role = "super_admin";
+    const view = render(<CreateUploadLinkModal isOpen onClose={vi.fn()} />);
+    expect(screen.getByRole("status", { name: "Loading company information" })).toBeInTheDocument();
+    expect(screen.queryByLabelText("Group Name")).not.toBeInTheDocument();
+    workspace.agencyId = "resolved-agency";
+    workspace.data = { agency_id: "resolved-agency" };
+    view.rerender(<CreateUploadLinkModal isOpen onClose={vi.fn()} />);
+    expect(screen.queryByLabelText(/agency workspace/i)).not.toBeInTheDocument();
+    fillGroupDetails();
+    fireEvent.click(screen.getByRole("button", { name: "Generate Links" }));
+    await waitFor(() => expect(createLink).toHaveBeenCalledWith(expect.objectContaining({ agency_id: "resolved-agency", company_id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa" })));
+  });
+
+  it("discards the selected company and group draft on session changes", () => {
+    const view = render(<CreateUploadLinkModal isOpen onClose={vi.fn()} />);
+    fillGroupDetails();
+    workspace.sessionKey = "session-2";
+    view.rerender(<CreateUploadLinkModal isOpen onClose={vi.fn()} />);
+    expect(screen.getByLabelText("Group Name")).toHaveValue("");
+    fireEvent.click(screen.getByRole("button", { name: "Generate Links" }));
+    expect(createLink).not.toHaveBeenCalled();
+  });
+
+  it("keeps the same workspace draft through a failed revalidation and retry while hiding its controls", async () => {
+    const view = render(<CreateUploadLinkModal isOpen onClose={vi.fn()} />);
+    fillGroupDetails();
+    workspace.agencyId = null;
+    workspace.isError = true;
+    view.rerender(<CreateUploadLinkModal isOpen onClose={vi.fn()} />);
+    expect(screen.getByRole("alert")).toHaveTextContent("workspace is unavailable");
+    expect(screen.queryByLabelText("Group Name")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Generate Links" })).not.toBeInTheDocument();
+    expect(createLink).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    expect(workspace.refetch).toHaveBeenCalledOnce();
+    workspace.agencyId = "agency-1";
+    workspace.isError = false;
+    view.rerender(<CreateUploadLinkModal isOpen onClose={vi.fn()} />);
+    expect(screen.getByLabelText("Group Name")).toHaveValue("Autumn Group");
+    fireEvent.click(screen.getByRole("button", { name: "Generate Links" }));
+    await waitFor(() => expect(createLink).toHaveBeenCalledWith(expect.objectContaining({ company_id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", name: "Autumn Group", destination: "Dubai" })));
+  });
+
+  it("discards the old draft if revalidation resolves a different workspace in the same session", () => {
+    const view = render(<CreateUploadLinkModal isOpen onClose={vi.fn()} />);
+    fillGroupDetails();
+    workspace.agencyId = "new-agency";
+    workspace.data = { agency_id: "new-agency" };
+    view.rerender(<CreateUploadLinkModal isOpen onClose={vi.fn()} />);
+    expect(screen.getByLabelText("Group Name")).toHaveValue("");
+    fireEvent.click(screen.getByRole("button", { name: "Generate Links" }));
+    expect(createLink).not.toHaveBeenCalled();
+  });
+
   it("creates an import group using only group details and provides its Excel workspace link", async () => {
     const user = userEvent.setup();
     render(<CreateUploadLinkModal isOpen onClose={vi.fn()} />);

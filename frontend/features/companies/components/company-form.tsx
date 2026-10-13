@@ -33,11 +33,11 @@ export function CompanyForm({ agencyId, company, onClose }: { agencyId: string; 
       } catch (cause) { setError(companyErrorMessage(cause, "The company could not be saved. Your changes are still here; retry when ready.")); }
       finally { inFlight.current = false; }
     }}>
-      <div><h2 id={title} className="text-lg font-semibold text-slate-950">{company ? "Edit company / client" : "Create company / client"}</h2><p className="mt-1 text-sm text-slate-500">Keep company details consistent across groups and GC App.</p></div>
-      <Input label="Company name" required maxLength={255} value={name} onChange={(event) => setName(event.target.value)} disabled={pending} data-dialog-initial-focus />
+      <div><h2 id={title} className="text-lg font-semibold text-slate-950">{company ? "Edit company / client" : "Add client company"}</h2><p className="mt-1 text-sm text-slate-500">Add the client company name. Groups assigned to it appear together in its dashboard.</p></div>
+      <Input label="Client company name" required maxLength={255} value={name} onChange={(event) => setName(event.target.value)} disabled={pending} data-dialog-initial-focus />
       <Input label="External reference (optional)" maxLength={128} value={reference} onChange={(event) => setReference(event.target.value)} disabled={pending} hint="Your internal client reference. Leading zeros are preserved." />
       {error && <CompanyError message={error} />}
-      <div className="flex flex-wrap justify-end gap-2 border-t border-slate-100 pt-4"><Button variant="secondary" type="button" disabled={pending} onClick={onClose}>Cancel</Button><Button type="submit" disabled={!name.trim()} isLoading={pending}>{company ? "Save changes" : "Create company"}</Button></div>
+      <div className="flex flex-wrap justify-end gap-2 border-t border-slate-100 pt-4"><Button variant="secondary" type="button" disabled={pending} onClick={onClose}>Cancel</Button><Button type="submit" disabled={!name.trim()} isLoading={pending}>{company ? "Save changes" : "Add client company"}</Button></div>
     </form>
   </div>;
 }

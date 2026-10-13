@@ -1788,6 +1788,7 @@
         "app.infrastructure.database.gc_mobile_models",
         "app.infrastructure.database.gc_mobile_models.ClientOrganizationModel",
         "app.infrastructure.database.models",
+        "app.infrastructure.database.models.AgencyModel",
         "app.infrastructure.database.models.ClientGroupModel"
       ]
     },
@@ -2248,6 +2249,31 @@
         "app.infrastructure.database.models.PassportSubmissionModel",
         "app.infrastructure.security.traveller_reuse_crypto",
         "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
+      ]
+    },
+    "app/application/companies/summary.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Read-only company aggregates and shared live-profile membership predicates use scoped SQL projections and constant-size aggregate results; no HTTP dependency or document disclosure.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.ClientGroupWhatsAppBroadcastLinkModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerMatchCaseModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerParticipationModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerReconciliationJobModel"
+      ]
+    },
+    "app/application/companies/participation_scope.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Read-only company aggregates and shared live-profile membership predicates use scoped SQL projections and constant-size aggregate results; no HTTP dependency or document disclosure.",
+      "imports": [
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerParticipationModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel"
       ]
     }
   }

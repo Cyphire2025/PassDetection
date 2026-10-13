@@ -12,14 +12,42 @@ from app.application.security.authorization_policy import AuthorizationPolicy
 from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import (
     AuthorizationError,
+    ConflictError,
     EntityNotFoundError,
     ValidationError,
 )
 from app.infrastructure.database.gc_mobile_models import ClientOrganizationModel
-from app.infrastructure.database.models import ClientGroupModel
+from app.infrastructure.database.models import AgencyModel, ClientGroupModel
 
 COMPANY_ADMIN_ROLES = (UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER)
 COMPANY_LOOKUP_ROLES = (*COMPANY_ADMIN_ROLES, UserRole.AGENCY_STAFF)
+
+
+async def resolve_company_workspace(session: AsyncSession, *, user: User) -> uuid.UUID:
+    """Resolve context without choosing between tenants or changing CRUD authority.
+
+    Assigned accounts use an indexed ID lookup. An unbound super-admin reads at
+    most two active IDs (O(1) application memory; worst-case O(agencies) DB scan).
+    No agency names, contacts, directory or historic group data are returned.
+    """
+    if user.role not in COMPANY_LOOKUP_ROLES:
+        raise AuthorizationError()
+    if user.agency_id is not None:
+        agency_id = await session.scalar(select(AgencyModel.id).where(
+            AgencyModel.id == user.agency_id, AgencyModel.is_active.is_(True),
+        ))
+        if agency_id is None:
+            raise ConflictError("Your client-company workspace is unavailable.", code="COMPANY_WORKSPACE_INACTIVE")
+        return agency_id
+    if user.role != UserRole.SUPER_ADMIN:
+        raise AuthorizationError("Your client-company workspace is unavailable.")
+    agencies = list((await session.scalars(select(AgencyModel.id).where(
+        AgencyModel.is_active.is_(True),
+    ).limit(2))).all())
+    if len(agencies) != 1:
+        raise ConflictError("Your client-company workspace context is unavailable.",
+                            code="COMPANY_WORKSPACE_REQUIRED")
+    return agencies[0]
 
 
 def company_agency_scope(user: User, requested: uuid.UUID | None = None) -> uuid.UUID:

@@ -1,8 +1,93 @@
 Companies / Clients and returning-traveller feature review handoff
 Date: 2026-10-14 (Asia/Calcutta)
-Status: RELEASE CANDIDATE. Implementation exists; release qualification remains incomplete.
-This file records the predeployment candidate. Check exact-commit CI and deployment
-receipts for release status; local test results alone do not prove production activation.
+Client-workflow correction: implemented and locally verified; Fast deployment pending.
+The existing live revision immediately below precedes this correction.
+
+Client-workflow correction, 2026-10-14
+- This is the operator's own platform. Companies / Clients is a directory of the
+  external client companies it serves. There is no agency picker or agency setup
+  in the client directory or group-creation workflow. Add client company accepts
+  a client name; groups select that client. Existing internal ownership keys and
+  authorization checks are preserved without adding agency-management features.
+- A signed-in account's workspace resolves automatically. The existing unbound
+  Superadmin resolves the sole active workspace; ambiguous/missing context fails
+  closed. The live read-only prerequisite confirmed exactly one active workspace.
+  Resolution does not return an agency directory or expose names/contact data.
+- The client dashboard combines its assigned active, closed and archived groups.
+  Collected records includes ordinary office-visible submissions even when they
+  have not enrolled in returning-traveller reuse. A person may have several records;
+  collected records and accepted unique travellers are distinct, overlapping counts.
+  Deleted/Old Data groups and other clients' or owners' records remain excluded.
+- New collected-record pages return seven summary fields and at most 25 records
+  by default (server maximum 100). They use signed, actor/client/search-bound
+  cursors, a three-character minimum name search, debounce and request cancellation.
+  Documents are opened on their detail screen; this list retrieves no document
+  bytes or sensitive identity fields and does not prefetch record/group pages.
+- Summary counts now include ordinary collected records and unresolved durable
+  WhatsApp roster sources. Deleted people are excluded from accepted-person counts;
+  pending memberships, unresolved matches and unfinished jobs keep totals partial.
+  Four aggregate queries plus authorization return constant-size results. No full
+  history is hydrated into application memory, but exact counts still do database
+  work proportional to the scoped history. No background job or schema was added.
+- API contract, reviewed architecture edges and workflow inventory are updated.
+  The internal resolver and new collected-record read are not newly advertised as
+  verified MCP tools; the inventory records their actual implementation status.
+- A temporary workspace-resolution error hides dependent controls while retaining
+  an in-progress group form in the same authenticated session. Retry restores that
+  draft; a real account/session/workspace change resets it. The final correction
+  passed 15 focused unit tests across two files, scoped lint and strict TypeScript.
+
+Correction validation and capacity evidence
+- Frontend: 36 focused unit tests across ten files; strict TypeScript, scoped lint,
+  module budgets and production build passed. Nine Companies Chromium scenarios
+  passed across the initial run and corrected test-selector rerun, covering direct
+  Superadmin access, client creation/group assignment, permissions, lazy histories,
+  and combined records at 320px/1440px. Four existing group/import/configuration
+  Chromium scenarios also passed on mobile and desktop. These use synthetic mocks,
+  not production credentials or real documents. Later focused fixes are recorded
+  separately below rather than silently included in these historical checkpoints.
+- Backend: 46 focused company/summary/roster/reconciliation tests and eight existing
+  matching/returning tests passed in overlapping scopes. The final collected-record
+  optimization passed seven focused regressions, strict mypy and Ruff. They exercise
+  six statuses, timestamp ties across pages, cutoff, denied scope and empty clients.
+  API-contract, architecture-boundary and 1,762-surface inventory checks passed.
+- Reproducible harness: backend/scripts/benchmark_company_records.py. It creates a
+  fresh synthetic SQLite database, seeds in batches of 500, uses four pooled readers,
+  limits retained samples, and never reads real documents or application settings.
+  It accepts 50,000-100,000 records and 20-120 seconds; output must be a new directory.
+- Measured workload: 100,000 collected records, 100 groups, one client, four concurrent
+  readers for 60.442 seconds. All 773 operations succeeded, returning at most 25 rows.
+  Before optimization p95: first page 508.398ms; cursor 629.138ms; name search 2139.640ms.
+  After optimization p95: first page 9.557ms; cursor 9.421ms; name search 1614.710ms.
+  A single exact summary request took 62.594ms and returned the expected 100,000
+  collected/unresolved records, 100 groups, zero resolved people and partial totals.
+  Database size 132,657,152 bytes; process peak working set 166,694,912 bytes.
+  The 300ms interactive p95 target passed for list/cursor helpers and FAILED for
+  SQLite name search, which lacks the production PostgreSQL trigram index. The
+  summary timing is one sample, not a latency distribution or throughput result.
+- The no-search query retains top K IDs per each of six disjoint statuses before a
+  <=6K merge. It still uses two DB round trips and O(page_size) application memory.
+  Sparse/old clients can scan many other-client index entries; bounded candidates
+  do NOT imply bounded database I/O. Separate single-reader actual-helper probes:
+  target oldest 100 / other client 99,900 records: 98.33ms cold, 94.24/94.36ms warm;
+  empty client / 100,000 neighbour records: 211.12ms cold, 104.19/102.37ms warm.
+  These are supplemental local probes, not sustained latency distributions.
+- Receipts: companies-reuse-evidence/company-records-100k-before-query-optimization.json
+  and company-records-100k-after-query-optimization.json include plans and percentiles.
+  No PostgreSQL/HTTP/authentication/OTP/image throughput or million-user capacity is
+  established by this test. Production query plans and sustained representative
+  multi-client search load remain unqualified; Full CI is paused by user instruction.
+
+Previously deployed feature and release history
+Status: FAST DEPLOYED FOR FEATURE REVIEW; not Full CI qualified.
+Live feature revision: 0e596846f85ec3dbf87cbc70a581b8902e7a2c0c.
+Verified schema: 0133_traveller_document_impact. All 20 expected services are running;
+all configured container health checks are healthy. Public readiness is ready at
+the exact revision. A publicly served frontend JavaScript asset matches the bytes
+and SHA-256 in the running candidate image. Company/returning feature assets exist.
+Authenticated production journeys and real OTP delivery are not claimed by these
+read-only checks. Company/group policy and accepted person permission remain required.
+This file records the implementation, earlier attempts and final deployment proof.
 The first Full CI run exposed integration fixture and dependency issues. Follow-up
 details are in companies-reuse-evidence/ci-security-patch-followup.txt. A subsequent
 successful exact-commit Full run would be required for Full qualification; the first
@@ -12,7 +97,7 @@ lane cannot apply this schema change. A dedicated exact 0129 -> 0133 Fast path n
 requires source/image-bound populated PostgreSQL checks before any production DDL.
 It inherits the prior backend native runtime and explicitly does not apply the
 Dockerfile/native-library security updates prepared for a later Full build.
-No Fast deployment is claimed by this predeployment snapshot.
+Earlier release attempts and fixes below are historical, not current outage status.
 The first Fast attempt at 60a391e830d28b7fbbe207dc3add0a7169555774 stopped at the
 backend API-contract check before DDL or cutover. All original workers resumed.
 An inherited /candidate directory made docker cp nest the new source below an
@@ -72,6 +157,25 @@ phone-copy UI suites passed 10 tests. These scopes overlap prior checkpoints and
 must not be summed into a unique total or presented as actual PostgreSQL execution.
 The subsequent host release regression completed with 326 passed and one existing
 skip (327 tests, 13.988 seconds); Full CI remains paused.
+The final 0e596846 candidate passed actual isolated split-role PostgreSQL rehearsal,
+both contact races and cleanup, and successfully upgraded production to 0133 with
+the original preservation digest and runtime-grant proof. Host parsing then rejected
+the receipt because a generic command utility appended Alembic stderr after valid
+stdout JSON. The site remained fenced while the exact retained attempt performed
+its supported target-schema no-op validation with the SAME original backup, images,
+source and baseline. This recorded durable validation and activated the new services.
+No DDL was replayed, no new baseline was invented, and no downgrade was attempted.
+The permanent host-reader correction separately captures stdout with a continuous
+32 KiB limit and 30-second timeout, requires one JSON object and retains all original
+image/exit/OOM/proof checks. Its 9 real-subprocess regressions cover stderr, malformed
+or multiple receipts, trailing noise, timeout, nonzero exit and overflow. The complete
+host suite passed 335 tests with one existing skip (336 tests, 13.550 seconds).
+The parser correction and final evidence are host tooling/documentation follow-ups;
+the deployed application remains the immutable 0e596846 revision listed above.
+Sanitized final evidence: companies-reuse-evidence/fast-release-0e596846.json and
+companies-reuse-evidence/live-verification-0e596846.json. Private credentials, backup
+contents and business records are not exported into these files. Full CI has not
+been rerun since the user's explicit pause for feature review.
 The feature patch was transferred to the release worktree based on current origin/main.
 Subsequent CI/release preparation and final verification occur there; the original
 working tree remains preserved with its unrelated local changes.
@@ -81,6 +185,13 @@ C:\Users\nipun\.codex\attachments\30563fea-5539-4c12-b1c0-afde4239bd20\Pasted te
 User clarifications in this chat override conflicting portions of that attachment.
 
 Settled clarifications received during implementation
+- The platform is used only by the user's own company. Companies / Clients means
+  the external client companies that company serves. Agency management/selection
+  is not part of this workflow. The initial Superadmin agency picker was a product
+  error. The correction opens the client directory directly, offers Add client
+  company, and combines assigned groups and collected records under each client.
+  Existing internal ownership columns remain to preserve data and authorization;
+  they are not a request to build a multi-agency product or agency-management UI.
 - Initial work was local. The user subsequently authorized completing the feature,
   pushing it to main, and then checking the main VPS. They subsequently requested
   Fast VPS deployment for review, with Full CI paused until they confirm satisfaction.
@@ -455,9 +566,10 @@ Remaining qualification and explicit limits
   preserve the tested 700 rows within the existing 2,000-row workbook limit.
 - Match previews grant no closed-roster eligibility. Explicit staff case resolution
   creates pending current-trip participation and never substitutes traveller proof.
-- No production migrations, deployment or real OTP provider sends are represented
-  by the local receipts in this file. Check exact-commit retained Fast receipts or
-  protected Full release records for later rollout. First-install Fast provisions
+- Local unit receipts do not represent production migration or real OTP provider
+  sends. The separate sanitized 0e596846 release/live receipts above establish this
+  Fast activation. Real-provider and authenticated journeys remain unverified.
+  First-install Fast provisions
   the independent keys and technical disclosure switch only when all writer
   services have no reuse configuration. Explicit company/group policies and accepted
   traveller permission remain mandatory; no legacy history is automatically enrolled.

@@ -17,10 +17,12 @@ async function fixture(page: Page, role = "agency_admin") {
     const url = new URL(req.url());
     const path = url.pathname;
     requests.push({ path, method: req.method(), body: req.postDataJSON() });
-    if (path === "/api/v1/auth/me") return respond(route, { ...user, role });
-    if (path === "/api/v1/auth/refresh") return respond(route, { status: "authenticated", user: { ...user, role }, token_type: "bearer", access_token_expires_at: "2099-01-01T00:00:00Z" });
+    const currentUser = { ...user, role, agency_id: role === "super_admin" ? null : agencyId };
+    if (path === "/api/v1/auth/me") return respond(route, currentUser);
+    if (path === "/api/v1/auth/refresh") return respond(route, { status: "authenticated", user: currentUser, token_type: "bearer", access_token_expires_at: "2099-01-01T00:00:00Z" });
     if (path === "/api/v1/notifications/feed") return respond(route, { items: [], unread_count: 0, next_cursor: null });
     if (path === "/api/v1/gc-app/admin/agencies") return respond(route, { items: [{ id: agencyId, name: "Synthetic agency" }], total: 1, offset: 0, limit: 25 });
+    if (path === "/api/v1/companies/workspace") return respond(route, { agency_id: agencyId });
     if (path === "/api/v1/companies/lookup") {
       const option: CompanyReference = url.searchParams.has("cursor") ? { id: companyId, name: "Company 251", status: "active" } : saved;
       return respond(route, { items: [option], next_cursor: url.searchParams.has("cursor") ? null : "opaque-page-2", has_more: !url.searchParams.has("cursor") });
@@ -34,7 +36,7 @@ async function fixture(page: Page, role = "agency_admin") {
       if (path.endsWith("/reuse-config")) return respond(route, { group_id: "group-1", company_id: companyId, group_revision: 2, revision: 0, enabled: false, roster_mode: "closed", individual_identifier_type: null, identifier_required: false });
       if (path.endsWith("/enrollment-sources")) return respond(route, { items: [{ id: "source-submission", display_name: "Accepted Person", status: "staff_approved", extraction_revision: 7 }], next_cursor: null, expected_group_revision: 3 });
       if (path.endsWith("/travellers/enroll")) return respond(route, { traveller_id: "person", passport_id: "passport", document_revision_id: "revision", copies_pending: 2 }, 202);
-      if (path === `/api/v1/companies/${companyId}/summary`) return respond(route, { active_groups: 1, closed_groups: 1, archived_groups: 1, total_groups: 3, unique_travellers: null, trip_participations: null, unresolved_historical_records: 700, identity_totals_partial: true });
+      if (path === `/api/v1/companies/${companyId}/summary`) return respond(route, { active_groups: 1, closed_groups: 1, archived_groups: 1, total_groups: 3, collected_records: 700, unique_travellers: null, trip_participations: null, unresolved_historical_records: 700, identity_totals_partial: true });
       if (path === `/api/v1/companies/${companyId}/groups`) return respond(route, { items: [{ id: "group-1", name: "Japan Autumn", destination: "Japan", travel_date: "2026-11-01", return_date: "2026-11-08", status: "archived", import_only: true, submission_count: 700 }], next_cursor: null, has_more: false });
       if (path === `/api/v1/companies/${companyId}/travellers`) return respond(route, { items: [{ id: "person-1", display_name: "Example Traveller", participation_count: 2, last_trip_date: "2026-11-01", status: "active" }], next_cursor: null });
       if (path.endsWith("/history")) return respond(route, { items: [{ id: "membership-1", group_id: "group-1", group_name: "Japan Autumn", travel_date: "2026-11-01", lifecycle: "archived", participation_status: "accepted", document_revision: 2 }], next_cursor: null });
@@ -50,6 +52,7 @@ async function fixture(page: Page, role = "agency_admin") {
       if (req.method() === "POST") { saved = { ...saved, ...req.postDataJSON(), revision: 1 }; return respond(route, saved, 201); }
       return respond(route, { items: [saved], next_cursor: null, has_more: false });
     }
+    if (path === "/api/v1/upload-links" && req.method() === "POST") return respond(route, { id: "created-client-trip", token: "synthetic-client-trip-token", ...req.postDataJSON() }, 201);
     if (req.method() === "GET") return respond(route, []);
     return respond(route, { detail: "Unexpected test mutation blocked" }, 403);
   });
@@ -97,14 +100,35 @@ test("reuse setup is explicit, lazily loaded and mobile accessible", async ({ pa
   expect(enrolled?.body).toMatchObject({ source_submission_id: "source-submission", expected_extraction_revision: 7, expected_group_revision: 3, permission_evidence_reference: "signed-permission-reference-442", change_kind: "initial" });
 });
 
-test("superadmin explicitly selects a bounded agency workspace", async ({ page }) => {
+test("superadmin opens clients directly and creates a client by name without an agency picker", async ({ page }, info) => {
   const requests = await fixture(page, "super_admin");
   await page.goto("/companies");
-  await expect(page.getByText("Select an agency workspace to continue.")).toBeVisible();
-  expect(requests.filter((request) => request.path === "/api/v1/companies")).toHaveLength(0);
-  await page.getByRole("combobox", { name: "Agency workspace", exact: true }).selectOption(agencyId);
   await expect(page.getByRole("link", { name: company.name })).toBeVisible();
-  expect(requests.filter((request) => request.path.endsWith("/agencies"))).toHaveLength(1);
+  await expect(page.getByRole("combobox", { name: "Agency workspace", exact: true })).toHaveCount(0);
+  expect(requests.filter((request) => request.path.endsWith("/agencies"))).toHaveLength(0);
+  expect(requests.some((request) => request.path === "/api/v1/companies/workspace")).toBe(true);
+  await page.getByRole("button", { name: "Add client company", exact: true }).first().click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByRole("textbox", { name: "Client company name", exact: true }).fill("New Client Limited");
+  await dialog.getByRole("button", { name: "Add client company", exact: true }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page.getByRole("link", { name: "New Client Limited" })).toBeVisible();
+  expect(requests.find((request) => request.path === "/api/v1/companies" && request.method === "POST")?.body).toEqual({ name: "New Client Limited", external_reference: null });
+  await page.screenshot({ path: info.outputPath("client-directory-superadmin.png"), fullPage: true });
+  await page.goto("/upload-links");
+  await page.getByRole("button", { name: "Create Group Link", exact: true }).first().click();
+  const groupDialog = page.getByRole("dialog");
+  await expect(groupDialog.getByRole("combobox", { name: "Agency workspace" })).toHaveCount(0);
+  await groupDialog.getByRole("button", { name: /Select a company/ }).click();
+  await groupDialog.getByRole("option", { name: "New Client Limited", exact: true }).click();
+  await groupDialog.getByRole("radio", { name: /Import data/ }).check();
+  await groupDialog.getByRole("textbox", { name: "Group Name", exact: true }).fill("New Client Winter Trip");
+  await groupDialog.getByRole("textbox", { name: "Destination", exact: true }).fill("Singapore");
+  await groupDialog.getByLabel(/Travel\/Departure Date/).fill("2027-01-10");
+  await groupDialog.getByLabel(/Return Date/).fill("2027-01-17");
+  await groupDialog.getByRole("button", { name: "Create Group", exact: true }).click();
+  await expect(groupDialog.getByText(/Your group is ready/)).toBeVisible();
+  expect(requests.find((request) => request.path === "/api/v1/upload-links" && request.method === "POST")?.body).toMatchObject({ company_id: companyId, agency_id: agencyId, name: "New Client Winter Trip", import_only: true });
 });
 
 test("matching preview is lazy, bounded and records only a reviewed roster association at 320px", async ({ page }, info) => {
@@ -195,6 +219,34 @@ test("review tasks and masked passport status controls load on demand at 320px",
 });
 
 for (const width of [320, 1440]) {
+  test(`client collected records combine assigned groups without eager documents at ${width}px`, async ({ page }, info) => {
+    await page.setViewportSize({ width, height: 900 });
+    const requests = await fixture(page, "super_admin");
+    await page.route(`**/api/v1/companies/${companyId}/submissions*`, async (route) => {
+      const url = new URL(route.request().url());
+      requests.push({ path: url.pathname, method: "GET", body: null });
+      expect(url.searchParams.get("agency_id")).toBe(agencyId);
+      expect(url.searchParams.get("page_size")).toBe("25");
+      return respond(route, {
+        items: [
+          { id: "submission-one", group_id: "group-1", group_name: "Japan Autumn", travel_date: "2026-11-01", display_name: "First Collected Traveller", status: "staff_approved", created_at: "2026-10-01T12:00:00Z" },
+          { id: "submission-two", group_id: "group-2", group_name: "Singapore Spring", travel_date: "2027-03-02", display_name: "Second Collected Traveller", status: "client_submitted", created_at: "2026-10-02T12:00:00Z" },
+        ], next_cursor: null, has_more: false,
+      });
+    });
+    await page.goto(`/companies/${companyId}`);
+    await expect(page.getByRole("heading", { name: company.name })).toBeVisible();
+    expect(requests.filter((request) => request.path.endsWith("/submissions"))).toHaveLength(0);
+    await page.getByRole("tab", { name: "Collected records", exact: true }).click();
+    await expect(page.getByText("First Collected Traveller", { exact: true })).toBeVisible();
+    await expect(page.getByText("Second Collected Traveller", { exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Japan Autumn", exact: true })).toHaveAttribute("href", "/passports/groups/group-1");
+    await expect(page.getByRole("link", { name: "Singapore Spring", exact: true })).toHaveAttribute("href", "/passports/groups/group-2");
+    expect(requests.filter((request) => /image|download|preview/.test(request.path))).toHaveLength(0);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.screenshot({ path: info.outputPath(`client-collected-records-${width}.png`), fullPage: true });
+  });
+
   test(`company directory and lazy history remain usable at ${width}px`, async ({ page }, info) => {
     await page.setViewportSize({ width, height: 900 });
     const requests = await fixture(page);
@@ -205,7 +257,7 @@ for (const width of [320, 1440]) {
     await expect(page.getByRole("link", { name: company.name })).toBeVisible();
     await page.getByRole("button", { name: `Edit ${company.name}` }).click();
     const dialog = page.getByRole("dialog", { name: "Edit company / client" });
-    await dialog.getByRole("textbox", { name: "Company name" }).fill("Renamed Enterprise Client");
+    await dialog.getByRole("textbox", { name: "Client company name" }).fill("Renamed Enterprise Client");
     await dialog.getByRole("button", { name: "Save changes" }).click();
     await expect(dialog).toBeHidden();
     await expect(page.getByRole("link", { name: "Renamed Enterprise Client" })).toBeVisible();
@@ -247,5 +299,5 @@ test("staff cannot mount company archive but can search beyond the old directory
   await expect(dialog.getByRole("option", { name: "Company 251" })).toBeVisible();
   await search.press("Enter");
   await expect(dialog.getByRole("button", { name: /Company 251/ })).toBeVisible();
-  expect(requests.filter((request) => request.path.startsWith("/api/v1/companies") && request.path !== "/api/v1/companies/lookup")).toHaveLength(0);
+  expect(requests.filter((request) => request.path.startsWith("/api/v1/companies") && !["/api/v1/companies/lookup", "/api/v1/companies/workspace"].includes(request.path))).toHaveLength(0);
 });

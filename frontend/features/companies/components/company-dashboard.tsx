@@ -18,8 +18,9 @@ import { GroupReuseDialog } from "./group-reuse-dialog";
 import { TravellerEnrollmentDialog } from "./traveller-enrollment-dialog";
 import { CompanyReviewTasks } from "./company-review-tasks";
 
-const COMPANY_TABS = ["groups", "travellers", "review"] as const;
+const COMPANY_TABS = ["groups", "records", "travellers", "review"] as const;
 const CompanyMatchingDialog = dynamic(() => import("./company-matching-dialog").then((module) => module.CompanyMatchingDialog));
+const CompanyCollectedRecords = dynamic(() => import("./company-collected-records").then((module) => module.CompanyCollectedRecords), { loading: () => <CompanyLoading /> });
 
 export function CompanyDashboard({ companyId }: { companyId: string }) {
   const agencyId = useCompanyAgency();
@@ -31,7 +32,7 @@ export function CompanyDashboard({ companyId }: { companyId: string }) {
 
   return <div className="min-w-0 space-y-5">
     <Link href={ROUTES.dashboard.companies} className="inline-flex items-center gap-2 rounded text-sm font-medium text-slate-600 focus-visible:ring-2 focus-visible:ring-blue-600"><ArrowLeft className="h-4 w-4" aria-hidden="true" />Companies / Clients</Link>
-    <WorkspacePageHeader title={company.data.name} description="Company groups and traveller history within your authorised workspace." icon={Building2} context={<span className={`rounded-full px-3 py-1 text-xs font-medium ${company.data.status === "active" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-800"}`}>{company.data.status === "active" ? "Active company" : "Inactive · historical views available"}</span>} />
+    <WorkspacePageHeader title={company.data.name} description="Combined records and traveller history from all groups assigned to this client company." icon={Building2} context={<span className={`rounded-full px-3 py-1 text-xs font-medium ${company.data.status === "active" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-800"}`}>{company.data.status === "active" ? "Active company" : "Inactive · historical views available"}</span>} />
     {summary.isError ? <CompanyError message="Company totals could not be loaded." retry={() => void summary.refetch()} /> : summary.data ? <>
       <WorkspaceSummaryStrip label="All visible company groups">
         <WorkspaceSummaryItem label="Active groups" value={summary.data.active_groups.toLocaleString()} icon={CalendarDays} tone="success" />
@@ -39,21 +40,22 @@ export function CompanyDashboard({ companyId }: { companyId: string }) {
         <WorkspaceSummaryItem label="Archived groups" value={summary.data.archived_groups.toLocaleString()} icon={Archive} />
         <WorkspaceSummaryItem label="Total groups" value={summary.data.total_groups.toLocaleString()} icon={Building2} />
       </WorkspaceSummaryStrip>
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <IdentityMetric label="Collected records" value={summary.data.collected_records} hint="Submissions across assigned groups, including records awaiting identity resolution." />
         <IdentityMetric label={`Unique travellers${summary.data.identity_totals_partial ? " · partial" : ""}`} value={summary.data.unique_travellers} hint="Distinct resolved people with accepted participation." />
         <IdentityMetric label="Trip participations" value={summary.data.trip_participations} hint="One person on five trips counts as five participations." />
         <IdentityMetric label="Unresolved historical records" value={summary.data.unresolved_historical_records} hint="Records awaiting safe identity resolution; these are not additional unique people." />
       </div>
-      <p className="text-xs leading-5 text-slate-500">Totals cover all groups you can view. Total groups = active + closed + archived. Import-only is a filter within these categories. Deleted and Old Data records are excluded.{summary.data.identity_totals_partial ? ` Traveller totals remain partial while history is reconciled.${summary.data.unprocessed_records !== undefined ? ` ${summary.data.unprocessed_records.toLocaleString()} records are unprocessed.` : ""}` : ""}</p>
+      <p className="text-xs leading-5 text-slate-500">Totals combine all assigned groups you can view. Total groups = active + closed + archived. Import-only is a filter within these categories. Deleted and Old Data records are excluded.{summary.data.identity_totals_partial ? ` Traveller totals remain partial while history is reconciled.${summary.data.unprocessed_records !== undefined ? ` ${summary.data.unprocessed_records.toLocaleString()} records are unprocessed.` : ""}` : ""}</p>
     </> : <CompanyLoading />}
     <CompanyReusePolicy agencyId={agencyId} companyId={companyId} active={company.data.status === "active"} />
     <div className="flex flex-wrap gap-2 border-b border-slate-200" role="tablist" aria-label="Company views">
       {COMPANY_TABS.map((item, index) => <button key={item} type="button" role="tab" id={`company-${item}-tab`} aria-controls={`company-${item}-panel`} aria-selected={tab === item} tabIndex={tab === item ? 0 : -1}
         onKeyDown={(event) => { if (event.key === "ArrowLeft" || event.key === "ArrowRight") { event.preventDefault(); const next = COMPANY_TABS[(index + (event.key === "ArrowRight" ? 1 : -1) + COMPANY_TABS.length) % COMPANY_TABS.length]; setTab(next); document.getElementById(`company-${next}-tab`)?.focus(); } }}
-        onClick={() => setTab(item)} className={`min-h-11 border-b-2 px-3 py-3 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${tab === item ? "border-blue-600 text-blue-700" : "border-transparent text-slate-500"}`}>{item === "groups" ? "Groups" : item === "travellers" ? "Travellers & history" : "Review tasks"}</button>)}
+        onClick={() => setTab(item)} className={`min-h-11 border-b-2 px-3 py-3 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${tab === item ? "border-blue-600 text-blue-700" : "border-transparent text-slate-500"}`}>{item === "groups" ? "Groups" : item === "records" ? "Collected records" : item === "travellers" ? "Travellers & history" : "Review tasks"}</button>)}
     </div>
     <section role="tabpanel" id={`company-${tab}-panel`} aria-labelledby={`company-${tab}-tab`}>
-      {tab === "groups" ? <CompanyGroups agencyId={agencyId} companyId={companyId} /> : tab === "travellers" ? <CompanyTravellers agencyId={agencyId} companyId={companyId} /> : <CompanyReviewTasks agencyId={agencyId} companyId={companyId} />}
+      {tab === "groups" ? <CompanyGroups agencyId={agencyId} companyId={companyId} /> : tab === "records" ? <CompanyCollectedRecords agencyId={agencyId} companyId={companyId} /> : tab === "travellers" ? <CompanyTravellers agencyId={agencyId} companyId={companyId} /> : <CompanyReviewTasks agencyId={agencyId} companyId={companyId} />}
     </section>
   </div>;
 }

@@ -20,7 +20,7 @@
         "id": "endpoint_registry:frontend/lib/api/endpoints.ts",
         "kind": "frontend_endpoint_registry",
         "source": "frontend/lib/api/endpoints.ts",
-        "contract_sha256": "de17188e49abe01752ab4bf2fde884e51345434a9462fcf185ef82a160b777de"
+        "contract_sha256": "f06a5dff0b8db07114ec2d4bf00795e62ba45f7466e9764c184ba5cf020aa93e"
       },
       "workflow": "application.frontend-endpoint-registry",
       "disposition": "internal_dependency",
@@ -575,6 +575,24 @@
     },
     {
       "surface": {
+        "id": "frontend:frontend/features/companies/api/companies.api.ts:submissions",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/companies.api.ts",
+        "handler": "submissions"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Internal client-company workspace and UI projection support; existing record authorization remains authoritative and this does not add an MCP tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "frontend:frontend/features/companies/api/companies.api.ts:summary",
         "kind": "frontend_callable",
         "source": "frontend/features/companies/api/companies.api.ts",
@@ -629,15 +647,15 @@
     },
     {
       "surface": {
-        "id": "frontend:frontend/features/companies/api/company-agency.api.ts:searchCompanyAgencies",
+        "id": "frontend:frontend/features/companies/api/companies.api.ts:workspace",
         "kind": "frontend_callable",
-        "source": "frontend/features/companies/api/company-agency.api.ts",
-        "handler": "searchCompanyAgencies"
+        "source": "frontend/features/companies/api/companies.api.ts",
+        "handler": "workspace"
       },
       "workflow": "companies.directory-and-reviewed-history",
       "disposition": "internal_dependency",
       "phase": null,
-      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "rationale": "Internal client-company workspace and UI projection support; existing record authorization remains authoritative and this does not add an MCP tool.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",
@@ -9549,25 +9567,7 @@
         "id": "frontend_api:frontend/features/companies/api/companies.api.ts",
         "kind": "frontend_api_contract",
         "source": "frontend/features/companies/api/companies.api.ts",
-        "contract_sha256": "d3555a8e7dae589ad185e4db0a2bea82efc45a20c73974cdcf88330dcdea074b"
-      },
-      "workflow": "companies.directory-and-reviewed-history",
-      "disposition": "internal_dependency",
-      "phase": null,
-      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
-      "adapter_requirements": [],
-      "implementation": {
-        "status": "not_applicable",
-        "adapter": null,
-        "evidence": []
-      }
-    },
-    {
-      "surface": {
-        "id": "frontend_api:frontend/features/companies/api/company-agency.api.ts",
-        "kind": "frontend_api_contract",
-        "source": "frontend/features/companies/api/company-agency.api.ts",
-        "contract_sha256": "ff6925fe3aab334b004bf9ec8c57574835a50205e50bc198da62b6a3750050cb"
+        "contract_sha256": "0844dc808e84d6b79d933f7e67b8487927e0f5ef2e2c498b94f00b15481b5ba5"
       },
       "workflow": "companies.directory-and-reviewed-history",
       "disposition": "internal_dependency",
@@ -10121,7 +10121,7 @@
         "id": "frontend_api:frontend/lib/api/endpoints.ts",
         "kind": "frontend_api_contract",
         "source": "frontend/lib/api/endpoints.ts",
-        "contract_sha256": "de17188e49abe01752ab4bf2fde884e51345434a9462fcf185ef82a160b777de"
+        "contract_sha256": "f06a5dff0b8db07114ec2d4bf00795e62ba45f7466e9764c184ba5cf020aa93e"
       },
       "workflow": "transport.frontend.lib.api.endpoints.ts",
       "disposition": "internal_dependency",
@@ -14643,6 +14643,30 @@
     },
     {
       "surface": {
+        "id": "openapi:GET:/api/v1/companies/workspace",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/companies/workspace",
+        "operation_id": "company_workspace_api_v1_companies_workspace_get",
+        "tags": [
+          "Companies / Clients"
+        ],
+        "summary": "Company Workspace"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Internal client-company workspace and UI projection support; existing record authorization remains authoritative and this does not add an MCP tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "openapi:GET:/api/v1/companies/{company_id}",
         "kind": "openapi_operation",
         "source": "backend/contracts/api.openapi.json",
@@ -14886,6 +14910,35 @@
         "tenant_scope",
         "expected_revision",
         "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/companies/{company_id}/submissions",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/companies/{company_id}/submissions",
+        "operation_id": "company_submissions_api_v1_companies__company_id__submissions_get",
+        "tags": [
+          "Companies / Clients"
+        ],
+        "summary": "Company Submissions"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Combined client submission reads retain group visibility, bounded cursors and a minimal field allowlist; a dedicated MCP adapter remains planned and is not exposed by this UI change.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "group_visibility",
+        "cursor_pagination",
+        "selective_projection"
       ],
       "implementation": {
         "status": "planned",
@@ -27908,7 +27961,7 @@
         "id": "registration:backend/app/presentation/api/v1/router.py",
         "kind": "route_registration",
         "source": "backend/app/presentation/api/v1/router.py",
-        "contract_sha256": "7e3ff8baea242d4f3bb6d2cbf67caa0c54909a4752db76773efdae97ba865589"
+        "contract_sha256": "0d0e6eb3a91ec89c3181ea69f41360d1f1ee7eb910c2dba0ea632cd6b0f5130d"
       },
       "workflow": "application.route-registration",
       "disposition": "internal_dependency",
@@ -28202,6 +28255,24 @@
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/company_submissions.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/company_submissions.py",
+        "contract_sha256": "f546463a40d15f86b7b1341e7dee53a9d60d38fdcbe41d0ba75c4ea2591785f2"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Internal client-company workspace and UI projection support; existing record authorization remains authoritative and this does not add an MCP tool.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",
@@ -31903,6 +31974,29 @@
     },
     {
       "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/companies.py:company_workspace:GET:/workspace",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/companies.py",
+        "handler": "company_workspace",
+        "method": "GET",
+        "local_path": "/workspace",
+        "contract_sha256": "7f30ae2b3e83de04444360ea68b6b061e46f9c54e4830532bb8b656042fa4e0b",
+        "summary": "company workspace",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Internal client-company workspace and UI projection support; existing record authorization remains authoritative and this does not add an MCP tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "route:backend/app/presentation/api/v1/routes/companies.py:edit_company:PATCH:/{company_id}",
         "kind": "source_route",
         "source": "backend/app/presentation/api/v1/routes/companies.py",
@@ -32374,6 +32468,34 @@
         "tenant_scope",
         "expected_revision",
         "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/company_submissions.py:company_submissions:GET:/{company_id}/submissions",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/company_submissions.py",
+        "handler": "company_submissions",
+        "method": "GET",
+        "local_path": "/{company_id}/submissions",
+        "contract_sha256": "743315c47df1429480e9a945926694bc1e4cd516e963d4ed4e099679cff2edd5",
+        "summary": "company submissions",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Combined client submission reads retain group visibility, bounded cursors and a minimal field allowlist; a dedicated MCP adapter remains planned and is not exposed by this UI change.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "group_visibility",
+        "cursor_pagination",
+        "selective_projection"
       ],
       "implementation": {
         "status": "planned",

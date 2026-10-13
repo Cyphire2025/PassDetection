@@ -61,6 +61,13 @@ def _source_query(kind: str, agency_id: uuid.UUID, group_id: uuid.UUID) -> Selec
             passport.created_at.label("source_created_at"), passport.created_at.label("link_created_at"),
             passport.client_name.label("display_name"), passport.client_phone.label("phone")).where(
             passport.agency_id == agency_id, passport.group_id == group_id)
+    return roster_source_query(kind, agency_id).where(
+        ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group_id)
+
+
+def roster_source_query(kind: str, agency_id: uuid.UUID) -> Select[Any]:
+    """Shared durable roster population for reconciliation and company totals."""
+    passport = PassportSubmissionModel
     models: dict[str, type[WhatsAppBroadcastRecipientModel] | type[WhatsAppBroadcastRejectedContactModel]] = {
         "whatsapp_recipient": WhatsAppBroadcastRecipientModel,
         "whatsapp_rejected": WhatsAppBroadcastRejectedContactModel}
@@ -78,7 +85,7 @@ def _source_query(kind: str, agency_id: uuid.UUID, group_id: uuid.UUID) -> Selec
         & (ClientGroupWhatsAppBroadcastLinkModel.agency_id == model.agency_id)).join(WhatsAppBroadcastGroupModel,
         (WhatsAppBroadcastGroupModel.id == model.broadcast_group_id)
         & (WhatsAppBroadcastGroupModel.agency_id == model.agency_id)).where(
-        model.agency_id == agency_id, ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group_id)
+        model.agency_id == agency_id)
     if model is WhatsAppBroadcastRecipientModel:
         recipient = WhatsAppBroadcastRecipientModel
         query = query.where(recipient.removed_at.is_(None), recipient.merged_into_recipient_id.is_(None),

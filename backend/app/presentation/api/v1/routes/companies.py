@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import uuid
+from dataclasses import asdict
 from datetime import datetime
 from typing import Literal
 
@@ -15,6 +16,7 @@ from app.application.companies.access import (
     COMPANY_LOOKUP_ROLES,
     company_agency_scope,
     require_company,
+    resolve_company_workspace,
     visible_company_groups,
 )
 from app.application.companies.directory import (
@@ -23,6 +25,7 @@ from app.application.companies.directory import (
     search_companies,
     update_company,
 )
+from app.application.companies.summary import company_totals
 from app.application.companies.traveller_metrics import GroupTravellerCounts, group_traveller_counts
 from app.application.mcp.read_cursor import MCPReadCursor
 from app.core.config.settings import Settings, get_settings
@@ -31,10 +34,6 @@ from app.domain.exceptions.exceptions import ValidationError
 from app.infrastructure.database.models import ClientGroupModel, PassportSubmissionModel
 from app.infrastructure.database.search_expressions import group_search_fields, substring_predicate
 from app.infrastructure.database.session import get_db_session
-from app.infrastructure.database.traveller_reuse_models import (
-    TravellerParticipationModel,
-    TravellerReconciliationJobModel,
-)
 from app.presentation.api.v1.schemas.company_schemas import (
     CompanyCreateRequest,
     CompanyGroupPageResponse,
@@ -45,6 +44,7 @@ from app.presentation.api.v1.schemas.company_schemas import (
     CompanyResponse,
     CompanySummaryResponse,
     CompanyUpdateRequest,
+    CompanyWorkspaceResponse,
 )
 from app.presentation.dependencies.auth import require_role
 from app.presentation.dependencies.csrf import require_cookie_csrf
@@ -55,6 +55,13 @@ def _private_response(response: Response) -> None:
 
 
 router = APIRouter(dependencies=[Depends(_private_response)])
+
+
+@router.get("/workspace", response_model=CompanyWorkspaceResponse)
+async def company_workspace(
+    user: User = Depends(require_role(COMPANY_LOOKUP_ROLES)), session: AsyncSession = Depends(get_db_session),
+) -> CompanyWorkspaceResponse:
+    return CompanyWorkspaceResponse(agency_id=await resolve_company_workspace(session, user=user))
 
 
 @router.get("", response_model=CompanyPageResponse)
@@ -140,42 +147,8 @@ async def company_summary(
     user: User = Depends(require_role(COMPANY_ADMIN_ROLES)), session: AsyncSession = Depends(get_db_session),
 ) -> CompanySummaryResponse:
     company = await require_company(session, user=user, company_id=company_id, agency_id=agency_id)
-    scope = visible_company_groups(user, company.agency_id, company.id).with_only_columns(
-        ClientGroupModel.id, ClientGroupModel.status,
-    ).subquery()
-    counts = {status: count for status, count in
-              (await session.execute(select(scope.c.status, func.count()).group_by(scope.c.status))).all()}
-    qualifying = (
-        TravellerParticipationModel.agency_id == company.agency_id,
-        TravellerParticipationModel.company_id == company.id,
-        TravellerParticipationModel.group_id.in_(select(scope.c.id)),
-        TravellerParticipationModel.status == "accepted",
-    )
-    accepted = (await session.execute(select(
-        func.count(TravellerParticipationModel.id),
-        func.count(func.distinct(TravellerParticipationModel.traveller_id)),
-    ).where(*qualifying))).one()
-    resolved_source = select(TravellerParticipationModel.id).where(
-        *qualifying,
-        TravellerParticipationModel.source_submission_id == PassportSubmissionModel.id,
-    ).correlate(PassportSubmissionModel).exists()
-    unresolved = int(await session.scalar(select(func.count()).select_from(PassportSubmissionModel).where(
-        PassportSubmissionModel.agency_id == company.agency_id,
-        PassportSubmissionModel.group_id.in_(select(scope.c.id)),
-        PassportSubmissionModel.status.in_(OFFICE_VISIBLE_PASSPORT_STATUS_VALUES),
-        ~resolved_source,
-    )) or 0)
-    unprocessed = bool(await session.scalar(select(TravellerReconciliationJobModel.id).where(
-        TravellerReconciliationJobModel.agency_id == company.agency_id,
-        TravellerReconciliationJobModel.company_id == company.id,
-        TravellerReconciliationJobModel.group_id.in_(select(scope.c.id)),
-        TravellerReconciliationJobModel.status.in_(("queued", "running", "failed")),
-    ).limit(1)))
-    return CompanySummaryResponse(active_groups=counts.get("active", 0), closed_groups=counts.get("closed", 0),
-                                  archived_groups=counts.get("archived", 0), total_groups=sum(counts.values()),
-                                  unique_travellers=accepted[1], trip_participations=accepted[0],
-                                  unresolved_historical_records=unresolved,
-                                  identity_totals_partial=unresolved > 0 or unprocessed)
+    totals = await company_totals(session, user=user, agency_id=company.agency_id, company_id=company.id)
+    return CompanySummaryResponse(**asdict(totals))
 
 
 
