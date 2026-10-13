@@ -30,6 +30,7 @@ from scripts.companies_rehearsal_fixture import (  # noqa: E402
     create_interrupted_source_index,
     seed_company_and_roster,
 )
+from scripts.companies_restore_comparison import restored_baseline  # noqa: E402
 from scripts.companies_traveller_release_schema import preservation_snapshot  # noqa: E402
 from scripts.companies_traveller_reuse_release import (  # noqa: E402
     CHAIN,
@@ -211,8 +212,7 @@ def rehearse(evidence_output: Path) -> dict[str, Any]:
             _replace_database(environment, RESTORED_DATABASE)
             _run(["pg_restore", "--exit-on-error", "--single-transaction", "--no-owner",
                 "--dbname", RESTORED_DATABASE, str(dump)], cwd=ROOT, environment=restored)
-            if snapshot(restored, SOURCE) != before:
-                raise AssertionError("Restored 0129 rows, ACLs or schema differ from the populated backup")
+            before = restored_baseline(before, snapshot(restored, SOURCE))
         result = exercise_resume(restored, contract, before)
         _alembic(ROOT, restored, "check")
         evidence = {"version": 1, "scope": "synthetic populated PostgreSQL 0129-to-0133 CI rehearsal",

@@ -18,6 +18,13 @@ backend API-contract check before DDL or cutover. All original workers resumed.
 An inherited /candidate directory made docker cp nest the new source below an
 older tree; the mandatory contract hash caught the stale build. The follow-up
 uses fresh isolated source staging and regression coverage for consecutive builds.
+The next attempt at 01fe7f72f71791f3ad3cea6cf316dd3910d0283d built both images,
+then stopped in the isolated PostgreSQL restore comparison, still before live DDL.
+A separate diagnostic confirmed exact row hashes, ACLs and runtime grants. Its
+188 catalog differences (182 constraints, 6 indexes) were PostgreSQL's equivalent
+varchar-array-to-text cast representation after restore. The rehearsal comparison
+handles only that bounded literal-cast rewrite and then uses the restored snapshot
+as the exact migration baseline; production preservation hashing stays unchanged.
 The feature patch was transferred to the release worktree based on current origin/main.
 Subsequent CI/release preparation and final verification occur there; the original
 working tree remains preserved with its unrelated local changes.
