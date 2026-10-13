@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reviewed_at": "2026-10-04",
+  "reviewed_at": "2026-10-13",
   "scope": "Source route declarations, committed HTTP operations, frontend API/direct-transport callables, browser pages and routing registries. Surfaces are not unique tool counts.",
   "truth_contract": "All allowed workflows begin planned; only retained executable adapter and evidence may change implementation state. The ledger is never a runtime permission allowlist.",
   "owners": {
@@ -20,7 +20,7 @@
         "id": "endpoint_registry:frontend/lib/api/endpoints.ts",
         "kind": "frontend_endpoint_registry",
         "source": "frontend/lib/api/endpoints.ts",
-        "contract_sha256": "22955c007ce85264321c184570d3168f1af229b4a48fa707f139067c90065a64"
+        "contract_sha256": "de17188e49abe01752ab4bf2fde884e51345434a9462fcf185ef82a160b777de"
       },
       "workflow": "application.frontend-endpoint-registry",
       "disposition": "internal_dependency",
@@ -446,6 +446,474 @@
         "evidence": []
       },
       "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/companies.api.ts:create",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/companies.api.ts",
+        "handler": "create"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/companies.api.ts:get",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/companies.api.ts",
+        "handler": "get"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/companies.api.ts:groups",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/companies.api.ts",
+        "handler": "groups"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/companies.api.ts:history",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/companies.api.ts",
+        "handler": "history"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/companies.api.ts:list",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/companies.api.ts",
+        "handler": "list"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/companies.api.ts:lookup",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/companies.api.ts",
+        "handler": "lookup"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/companies.api.ts:remove",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/companies.api.ts",
+        "handler": "remove"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/companies.api.ts:summary",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/companies.api.ts",
+        "handler": "summary"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/companies.api.ts:travellers",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/companies.api.ts",
+        "handler": "travellers"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/companies.api.ts:update",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/companies.api.ts",
+        "handler": "update"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/company-agency.api.ts:searchCompanyAgencies",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/company-agency.api.ts",
+        "handler": "searchCompanyAgencies"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/company-matching.api.ts:enqueue",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/company-matching.api.ts",
+        "handler": "enqueue"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/company-matching.api.ts:preview",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/company-matching.api.ts",
+        "handler": "preview"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/company-matching.api.ts:resolve",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/company-matching.api.ts",
+        "handler": "resolve"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/company-passports.api.ts:block",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/company-passports.api.ts",
+        "handler": "block"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/company-passports.api.ts:list",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/company-passports.api.ts",
+        "handler": "list"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/company-review-tasks.api.ts:list",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/company-review-tasks.api.ts",
+        "handler": "list"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/company-review-tasks.api.ts:resolve",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/company-review-tasks.api.ts",
+        "handler": "resolve"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/reuse-setup.api.ts:group",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/reuse-setup.api.ts",
+        "handler": "group"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/reuse-setup.api.ts:policy",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/reuse-setup.api.ts",
+        "handler": "policy"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/reuse-setup.api.ts:saveGroup",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/reuse-setup.api.ts",
+        "handler": "saveGroup"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/reuse-setup.api.ts:savePolicy",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/reuse-setup.api.ts",
+        "handler": "savePolicy"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/traveller-enrollment.api.ts:enroll",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/traveller-enrollment.api.ts",
+        "handler": "enroll"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/traveller-enrollment.api.ts:sources",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/traveller-enrollment.api.ts",
+        "handler": "sources"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/components/company-reassignment-dialog.tsx:CompanyReassignmentDialog",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/components/company-reassignment-dialog.tsx",
+        "handler": "CompanyReassignmentDialog"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/components/group-company-assignment.tsx:GroupCompanyAssignment",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/components/group-company-assignment.tsx",
+        "handler": "GroupCompanyAssignment"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
     },
     {
       "surface": {
@@ -7522,6 +7990,96 @@
     },
     {
       "surface": {
+        "id": "frontend:frontend/features/travellers/api/returning.api.ts:candidates",
+        "kind": "frontend_callable",
+        "source": "frontend/features/travellers/api/returning.api.ts",
+        "handler": "candidates"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/travellers/api/returning.api.ts:capabilities",
+        "kind": "frontend_callable",
+        "source": "frontend/features/travellers/api/returning.api.ts",
+        "handler": "capabilities"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/travellers/api/returning.api.ts:document",
+        "kind": "frontend_callable",
+        "source": "frontend/features/travellers/api/returning.api.ts",
+        "handler": "document"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/travellers/api/returning.api.ts:history",
+        "kind": "frontend_callable",
+        "source": "frontend/features/travellers/api/returning.api.ts",
+        "handler": "history"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/travellers/api/returning.api.ts:replacement",
+        "kind": "frontend_callable",
+        "source": "frontend/features/travellers/api/returning.api.ts",
+        "handler": "replacement"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "frontend:frontend/features/upload/api/upload.api.ts:discardUpload",
         "kind": "frontend_callable",
         "source": "frontend/features/upload/api/upload.api.ts",
@@ -8988,6 +9546,132 @@
     },
     {
       "surface": {
+        "id": "frontend_api:frontend/features/companies/api/companies.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/companies.api.ts",
+        "contract_sha256": "d3555a8e7dae589ad185e4db0a2bea82efc45a20c73974cdcf88330dcdea074b"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/companies/api/company-agency.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/company-agency.api.ts",
+        "contract_sha256": "ff6925fe3aab334b004bf9ec8c57574835a50205e50bc198da62b6a3750050cb"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/companies/api/company-matching.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/company-matching.api.ts",
+        "contract_sha256": "dd3c1cb6492d5bb3af15a85993b5e22d7c222fea4f45d0fb926b0b06d4956747"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/companies/api/company-passports.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/company-passports.api.ts",
+        "contract_sha256": "3ecee8097fc31b12d364810fbdabdd193a3b5a7ed3ccdec7b3ff3dcfd5c40567"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/companies/api/company-review-tasks.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/company-review-tasks.api.ts",
+        "contract_sha256": "2e541b57e34d86fa5d8acfa033ef34a620791dcae738935ecf4c819e3caf035c"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/companies/api/reuse-setup.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/reuse-setup.api.ts",
+        "contract_sha256": "9de9e6dca0b0406f9be77fb23b9e6d05603c9f01a744d0ce4784d4280b9f0412"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/companies/api/traveller-enrollment.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/traveller-enrollment.api.ts",
+        "contract_sha256": "2722a6b44fbde03b1911d00523980266165f05abcc8810a7ef2e9730a3ea07be"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "frontend_api:frontend/features/dashboard/api/dashboard.api.ts",
         "kind": "frontend_api_contract",
         "source": "frontend/features/dashboard/api/dashboard.api.ts",
@@ -9275,7 +9959,7 @@
         "id": "frontend_api:frontend/features/passports/api/passports.api.ts",
         "kind": "frontend_api_contract",
         "source": "frontend/features/passports/api/passports.api.ts",
-        "contract_sha256": "334ede0bcd4ec4788c48f47d61a192c1440560190cd05de88a23b228a66dad5c"
+        "contract_sha256": "c557dee693b37e162fdc0dc9e8c38369bec784eaf27e59e1a7d9fd9548d98da9"
       },
       "workflow": "transport.frontend.features.passports.api.passports.api.ts",
       "disposition": "internal_dependency",
@@ -9293,7 +9977,7 @@
         "id": "frontend_api:frontend/features/passports/api/upload-links.api.ts",
         "kind": "frontend_api_contract",
         "source": "frontend/features/passports/api/upload-links.api.ts",
-        "contract_sha256": "8d51b0382a535a8ee7d6832f5d9941bf44fe0e727bbbaecd8536d72ca62865cf"
+        "contract_sha256": "fcb3c537af2c37ebd3c444f6c52b47172bebc572c73ee2761e919d0d211fc133"
       },
       "workflow": "transport.frontend.features.passports.api.upload-links.api.ts",
       "disposition": "internal_dependency",
@@ -9317,6 +10001,24 @@
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/travellers/api/returning.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/travellers/api/returning.api.ts",
+        "contract_sha256": "b54247cd6526aaa25af2341921e41e5bb1a505c8997a2bd2aa5d81e186405ad6"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",
@@ -9383,7 +10085,7 @@
         "id": "frontend_api:frontend/features/whatsapp/api/whatsapp.api.ts",
         "kind": "frontend_api_contract",
         "source": "frontend/features/whatsapp/api/whatsapp.api.ts",
-        "contract_sha256": "2a1ea11e65fa86e4aadcb969f7a613bc2a54150a2ede1c9a28971be60485a454"
+        "contract_sha256": "95db1b485c34eea4e79c872abeec501d1bcead269d654ed3a5bd7b220ab141d3"
       },
       "workflow": "transport.frontend.features.whatsapp.api.whatsapp.api.ts",
       "disposition": "internal_dependency",
@@ -9401,7 +10103,7 @@
         "id": "frontend_api:frontend/lib/api/client.ts",
         "kind": "frontend_api_contract",
         "source": "frontend/lib/api/client.ts",
-        "contract_sha256": "fab85c193d27dc44f8137f5c3542787ff75c8c8b9ab08f695d068866ede09e2d"
+        "contract_sha256": "ad0be6cc3b2e7b48a6d9ae00b67d81c7fbbb57d868f1c46fc8874c113bfdfc44"
       },
       "workflow": "transport.frontend.lib.api.client.ts",
       "disposition": "internal_dependency",
@@ -9419,7 +10121,7 @@
         "id": "frontend_api:frontend/lib/api/endpoints.ts",
         "kind": "frontend_api_contract",
         "source": "frontend/lib/api/endpoints.ts",
-        "contract_sha256": "22955c007ce85264321c184570d3168f1af229b4a48fa707f139067c90065a64"
+        "contract_sha256": "de17188e49abe01752ab4bf2fde884e51345434a9462fcf185ef82a160b777de"
       },
       "workflow": "transport.frontend.lib.api.endpoints.ts",
       "disposition": "internal_dependency",
@@ -12715,6 +13417,31 @@
     },
     {
       "surface": {
+        "id": "openapi:DELETE:/api/v1/companies/{company_id}",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "DELETE",
+        "path": "/api/v1/companies/{company_id}",
+        "operation_id": "remove_company_api_v1_companies__company_id__delete",
+        "tags": [
+          "Companies / Clients"
+        ],
+        "summary": "Remove Company"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Lifecycle revocation and removal stay explicit staff operations outside existing MCP authority.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
         "id": "openapi:DELETE:/api/v1/email-integrations/connections/{connection_id}",
         "kind": "openapi_operation",
         "source": "backend/contracts/api.openapi.json",
@@ -13854,6 +14581,426 @@
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/companies",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/companies",
+        "operation_id": "list_companies_api_v1_companies_get",
+        "tags": [
+          "Companies / Clients"
+        ],
+        "summary": "List Companies"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/companies/lookup",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/companies/lookup",
+        "operation_id": "lookup_companies_api_v1_companies_lookup_get",
+        "tags": [
+          "Companies / Clients"
+        ],
+        "summary": "Lookup Companies"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/companies/{company_id}",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/companies/{company_id}",
+        "operation_id": "get_company_api_v1_companies__company_id__get",
+        "tags": [
+          "Companies / Clients"
+        ],
+        "summary": "Get Company"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/companies/{company_id}/changes",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/companies/{company_id}/changes",
+        "operation_id": "company_changes_api_v1_companies__company_id__changes_get",
+        "tags": [
+          "Company Review Tasks"
+        ],
+        "summary": "Company Changes"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/companies/{company_id}/groups",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/companies/{company_id}/groups",
+        "operation_id": "company_groups_api_v1_companies__company_id__groups_get",
+        "tags": [
+          "Companies / Clients"
+        ],
+        "summary": "Company Groups"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/companies/{company_id}/groups/{group_id}/reuse-config",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/companies/{company_id}/groups/{group_id}/reuse-config",
+        "operation_id": "get_group_reuse_config_api_v1_companies__company_id__groups__group_id__reuse_config_get",
+        "tags": [
+          "Companies / Clients"
+        ],
+        "summary": "Get Group Reuse Config"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/companies/{company_id}/groups/{group_id}/travellers/enrollment-sources",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/companies/{company_id}/groups/{group_id}/travellers/enrollment-sources",
+        "operation_id": "list_enrollment_sources_api_v1_companies__company_id__groups__group_id__travellers_enrollment_sources_get",
+        "tags": [
+          "Company Travellers"
+        ],
+        "summary": "List Enrollment Sources"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/companies/{company_id}/groups/{group_id}/travellers/matching-preview",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/companies/{company_id}/groups/{group_id}/travellers/matching-preview",
+        "operation_id": "matching_preview_api_v1_companies__company_id__groups__group_id__travellers_matching_preview_get",
+        "tags": [
+          "Company Match Review"
+        ],
+        "summary": "Matching Preview"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/companies/{company_id}/reassignments/{group_id}/preview",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/companies/{company_id}/reassignments/{group_id}/preview",
+        "operation_id": "preview_company_reassignment_api_v1_companies__company_id__reassignments__group_id__preview_get",
+        "tags": [
+          "Companies / Clients"
+        ],
+        "summary": "Preview Company Reassignment"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/companies/{company_id}/reuse-policy",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/companies/{company_id}/reuse-policy",
+        "operation_id": "get_company_reuse_policy_api_v1_companies__company_id__reuse_policy_get",
+        "tags": [
+          "Companies / Clients"
+        ],
+        "summary": "Get Company Reuse Policy"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/companies/{company_id}/review-tasks",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/companies/{company_id}/review-tasks",
+        "operation_id": "review_tasks_api_v1_companies__company_id__review_tasks_get",
+        "tags": [
+          "Company Review Tasks"
+        ],
+        "summary": "Review Tasks"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/companies/{company_id}/summary",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/companies/{company_id}/summary",
+        "operation_id": "company_summary_api_v1_companies__company_id__summary_get",
+        "tags": [
+          "Companies / Clients"
+        ],
+        "summary": "Company Summary"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/companies/{company_id}/travellers",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/companies/{company_id}/travellers",
+        "operation_id": "company_travellers_api_v1_companies__company_id__travellers_get",
+        "tags": [
+          "Companies"
+        ],
+        "summary": "Company Travellers"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/companies/{company_id}/travellers/{traveller_id}/history",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/companies/{company_id}/travellers/{traveller_id}/history",
+        "operation_id": "company_traveller_history_api_v1_companies__company_id__travellers__traveller_id__history_get",
+        "tags": [
+          "Companies"
+        ],
+        "summary": "Company Traveller History"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/companies/{company_id}/travellers/{traveller_id}/passports",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/companies/{company_id}/travellers/{traveller_id}/passports",
+        "operation_id": "passport_inventory_api_v1_companies__company_id__travellers__traveller_id__passports_get",
+        "tags": [
+          "Company Documents"
+        ],
+        "summary": "Passport Inventory"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
         "adapter": null,
         "evidence": []
       }
@@ -16791,6 +17938,102 @@
     },
     {
       "surface": {
+        "id": "openapi:GET:/api/v1/returning/candidates",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/returning/candidates",
+        "operation_id": "masked_candidates_api_v1_returning_candidates_get",
+        "tags": [
+          "Returning Travellers"
+        ],
+        "summary": "Masked Candidates"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/returning/capabilities",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/returning/capabilities",
+        "operation_id": "capabilities_api_v1_returning_capabilities_get",
+        "tags": [
+          "Returning Travellers"
+        ],
+        "summary": "Capabilities"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/returning/documents/{asset_id}",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/returning/documents/{asset_id}",
+        "operation_id": "historical_document_api_v1_returning_documents__asset_id__get",
+        "tags": [
+          "Returning Travellers"
+        ],
+        "summary": "Historical Document"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/returning/history",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/returning/history",
+        "operation_id": "historical_review_api_v1_returning_history_get",
+        "tags": [
+          "Returning Travellers"
+        ],
+        "summary": "Historical Review"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "openapi:GET:/api/v1/rooming/groups/{group_id}",
         "kind": "openapi_operation",
         "source": "backend/contracts/api.openapi.json",
@@ -18303,6 +19546,90 @@
     },
     {
       "surface": {
+        "id": "openapi:PATCH:/api/v1/companies/{company_id}",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "PATCH",
+        "path": "/api/v1/companies/{company_id}",
+        "operation_id": "edit_company_api_v1_companies__company_id__patch",
+        "tags": [
+          "Companies / Clients"
+        ],
+        "summary": "Edit Company"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:PATCH:/api/v1/companies/{company_id}/review-tasks/{task_id}",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "PATCH",
+        "path": "/api/v1/companies/{company_id}/review-tasks/{task_id}",
+        "operation_id": "resolve_review_task_api_v1_companies__company_id__review_tasks__task_id__patch",
+        "tags": [
+          "Company Review Tasks"
+        ],
+        "summary": "Resolve Review Task"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:PATCH:/api/v1/companies/{company_id}/travellers/{traveller_id}/passports/{passport_id}",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "PATCH",
+        "path": "/api/v1/companies/{company_id}/travellers/{traveller_id}/passports/{passport_id}",
+        "operation_id": "declare_passport_unusable_api_v1_companies__company_id__travellers__traveller_id__passports__passport_id__patch",
+        "tags": [
+          "Company Documents"
+        ],
+        "summary": "Declare Passport Unusable"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "openapi:PATCH:/api/v1/gc-app/admin/client-managers/{profile_id}",
         "kind": "openapi_operation",
         "source": "backend/contracts/api.openapi.json",
@@ -18773,6 +20100,34 @@
         "evidence": []
       },
       "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "openapi:PATCH:/api/v1/upload-links/{link_id}/company",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "PATCH",
+        "path": "/api/v1/upload-links/{link_id}/company",
+        "operation_id": "assign_client_group_company_api_v1_upload_links__link_id__company_patch",
+        "tags": [
+          "Upload Links"
+        ],
+        "summary": "Assign Client Group Company"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
     },
     {
       "surface": {
@@ -19450,6 +20805,174 @@
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:POST:/api/v1/companies",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/companies",
+        "operation_id": "add_company_api_v1_companies_post",
+        "tags": [
+          "Companies / Clients"
+        ],
+        "summary": "Add Company"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:POST:/api/v1/companies/{company_id}/groups/{group_id}/travellers/enroll",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/companies/{company_id}/groups/{group_id}/travellers/enroll",
+        "operation_id": "enroll_retained_submission_api_v1_companies__company_id__groups__group_id__travellers_enroll_post",
+        "tags": [
+          "Company Travellers"
+        ],
+        "summary": "Enroll Retained Submission"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:POST:/api/v1/companies/{company_id}/groups/{group_id}/travellers/matches/{case_id}/resolve",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/companies/{company_id}/groups/{group_id}/travellers/matches/{case_id}/resolve",
+        "operation_id": "resolve_roster_match_api_v1_companies__company_id__groups__group_id__travellers_matches__case_id__resolve_post",
+        "tags": [
+          "Company Match Review"
+        ],
+        "summary": "Resolve Roster Match"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:POST:/api/v1/companies/{company_id}/groups/{group_id}/travellers/matching-preview",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/companies/{company_id}/groups/{group_id}/travellers/matching-preview",
+        "operation_id": "create_matching_preview_api_v1_companies__company_id__groups__group_id__travellers_matching_preview_post",
+        "tags": [
+          "Company Travellers"
+        ],
+        "summary": "Create Matching Preview"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:POST:/api/v1/companies/{company_id}/reassignments/{group_id}",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/companies/{company_id}/reassignments/{group_id}",
+        "operation_id": "confirm_company_reassignment_api_v1_companies__company_id__reassignments__group_id__post",
+        "tags": [
+          "Companies / Clients"
+        ],
+        "summary": "Confirm Company Reassignment"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:POST:/api/v1/companies/{company_id}/travellers/{traveller_id}/withdraw-reuse",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/companies/{company_id}/travellers/{traveller_id}/withdraw-reuse",
+        "operation_id": "withdraw_traveller_reuse_api_v1_companies__company_id__travellers__traveller_id__withdraw_reuse_post",
+        "tags": [
+          "Company Travellers"
+        ],
+        "summary": "Withdraw Traveller Reuse"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
         "adapter": null,
         "evidence": []
       }
@@ -22515,6 +24038,318 @@
     },
     {
       "surface": {
+        "id": "openapi:POST:/api/v1/returning/candidate",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/returning/candidate",
+        "operation_id": "choose_candidate_api_v1_returning_candidate_post",
+        "tags": [
+          "Returning Travellers"
+        ],
+        "summary": "Choose Candidate"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:POST:/api/v1/returning/challenge",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/returning/challenge",
+        "operation_id": "check_document_answers_api_v1_returning_challenge_post",
+        "tags": [
+          "Returning Travellers"
+        ],
+        "summary": "Check Document Answers"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:POST:/api/v1/returning/challenge/change",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/returning/challenge/change",
+        "operation_id": "change_question_api_v1_returning_challenge_change_post",
+        "tags": [
+          "Returning Travellers"
+        ],
+        "summary": "Change Question"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:POST:/api/v1/returning/claims",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/returning/claims",
+        "operation_id": "start_claim_api_v1_returning_claims_post",
+        "tags": [
+          "Returning Travellers"
+        ],
+        "summary": "Start Claim"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:POST:/api/v1/returning/complete",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/returning/complete",
+        "operation_id": "complete_returning_trip_api_v1_returning_complete_post",
+        "tags": [
+          "Returning Travellers"
+        ],
+        "summary": "Complete Returning Trip"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:POST:/api/v1/returning/confirm",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/returning/confirm",
+        "operation_id": "confirm_returning_person_api_v1_returning_confirm_post",
+        "tags": [
+          "Returning Travellers"
+        ],
+        "summary": "Confirm Returning Person"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:POST:/api/v1/returning/contact/request",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/returning/contact/request",
+        "operation_id": "request_new_contact_api_v1_returning_contact_request_post",
+        "tags": [
+          "Returning Travellers"
+        ],
+        "summary": "Request New Contact"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:POST:/api/v1/returning/contact/verify",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/returning/contact/verify",
+        "operation_id": "verify_new_contact_api_v1_returning_contact_verify_post",
+        "tags": [
+          "Returning Travellers"
+        ],
+        "summary": "Verify New Contact"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:POST:/api/v1/returning/otp/request",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/returning/otp/request",
+        "operation_id": "request_claim_otp_api_v1_returning_otp_request_post",
+        "tags": [
+          "Returning Travellers"
+        ],
+        "summary": "Request Claim Otp"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:POST:/api/v1/returning/otp/verify",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/returning/otp/verify",
+        "operation_id": "verify_claim_otp_api_v1_returning_otp_verify_post",
+        "tags": [
+          "Returning Travellers"
+        ],
+        "summary": "Verify Claim Otp"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:POST:/api/v1/returning/passport",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/returning/passport",
+        "operation_id": "check_passport_api_v1_returning_passport_post",
+        "tags": [
+          "Returning Travellers"
+        ],
+        "summary": "Check Passport"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:POST:/api/v1/returning/passport-selection",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/returning/passport-selection",
+        "operation_id": "choose_current_trip_passport_api_v1_returning_passport_selection_post",
+        "tags": [
+          "Returning Travellers"
+        ],
+        "summary": "Choose Current Trip Passport"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:POST:/api/v1/returning/replacement-candidate",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/returning/replacement-candidate",
+        "operation_id": "returning_replacement_candidate_api_v1_returning_replacement_candidate_post",
+        "tags": [
+          "Returning Travellers"
+        ],
+        "summary": "Returning Replacement Candidate"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "openapi:POST:/api/v1/rooming/groups/{group_id}/hotels",
         "kind": "openapi_operation",
         "source": "backend/contracts/api.openapi.json",
@@ -24015,6 +25850,62 @@
     },
     {
       "surface": {
+        "id": "openapi:PUT:/api/v1/companies/{company_id}/groups/{group_id}/reuse-config",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "PUT",
+        "path": "/api/v1/companies/{company_id}/groups/{group_id}/reuse-config",
+        "operation_id": "set_group_reuse_config_api_v1_companies__company_id__groups__group_id__reuse_config_put",
+        "tags": [
+          "Companies / Clients"
+        ],
+        "summary": "Set Group Reuse Config"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:PUT:/api/v1/companies/{company_id}/reuse-policy",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "PUT",
+        "path": "/api/v1/companies/{company_id}/reuse-policy",
+        "operation_id": "set_company_reuse_policy_api_v1_companies__company_id__reuse_policy_put",
+        "tags": [
+          "Companies / Clients"
+        ],
+        "summary": "Set Company Reuse Policy"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "openapi:PUT:/api/v1/email-integrations/connections/{connection_id}/ai-settings",
         "kind": "openapi_operation",
         "source": "backend/contracts/api.openapi.json",
@@ -24953,6 +26844,40 @@
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "Existing UI, authentication, provider callback or physical/device protocol dependency; business adapters use the corresponding application services without fabricating client/physical evidence or bypassing consent.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "page:frontend/app/(dashboard)/companies/[companyId]/page.tsx",
+        "kind": "frontend_page",
+        "source": "frontend/app/(dashboard)/companies/[companyId]/page.tsx"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "page:frontend/app/(dashboard)/companies/page.tsx",
+        "kind": "frontend_page",
+        "source": "frontend/app/(dashboard)/companies/page.tsx"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",
@@ -25983,7 +27908,7 @@
         "id": "registration:backend/app/presentation/api/v1/router.py",
         "kind": "route_registration",
         "source": "backend/app/presentation/api/v1/router.py",
-        "contract_sha256": "2636bb23929b5b704f5abc6939f8dc0ee1153532551755c9a851f0e196597f88"
+        "contract_sha256": "7e3ff8baea242d4f3bb6d2cbf67caa0c54909a4752db76773efdae97ba865589"
       },
       "workflow": "application.route-registration",
       "disposition": "internal_dependency",
@@ -26169,6 +28094,132 @@
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/companies.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/companies.py",
+        "contract_sha256": "f546463a40d15f86b7b1341e7dee53a9d60d38fdcbe41d0ba75c4ea2591785f2"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/company_match_review.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/company_match_review.py",
+        "contract_sha256": "9a02afdef5e2edf80aa8af9fde000967cb4a242725492c86293b2a270a128490"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/company_passports.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/company_passports.py",
+        "contract_sha256": "1f040c658653feba78fdc78f553e74bb9ae3c7a4fb6231cf11e4f2eec3655edf"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/company_reassignments.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/company_reassignments.py",
+        "contract_sha256": "f546463a40d15f86b7b1341e7dee53a9d60d38fdcbe41d0ba75c4ea2591785f2"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/company_reuse_setup.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/company_reuse_setup.py",
+        "contract_sha256": "f546463a40d15f86b7b1341e7dee53a9d60d38fdcbe41d0ba75c4ea2591785f2"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/company_review_tasks.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/company_review_tasks.py",
+        "contract_sha256": "f546463a40d15f86b7b1341e7dee53a9d60d38fdcbe41d0ba75c4ea2591785f2"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/company_traveller_history.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/company_traveller_history.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",
@@ -27402,6 +29453,114 @@
     },
     {
       "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/returning_claims.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/returning_claims.py",
+        "contract_sha256": "01e199de872e672a06f15ad959da420bf7faf2da3910cf185df120649cb23958"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/returning_completion.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/returning_completion.py",
+        "contract_sha256": "01e199de872e672a06f15ad959da420bf7faf2da3910cf185df120649cb23958"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/returning_contact.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/returning_contact.py",
+        "contract_sha256": "01e199de872e672a06f15ad959da420bf7faf2da3910cf185df120649cb23958"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/returning_history.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/returning_history.py",
+        "contract_sha256": "01e199de872e672a06f15ad959da420bf7faf2da3910cf185df120649cb23958"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/returning_replacement.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/returning_replacement.py",
+        "contract_sha256": "01e199de872e672a06f15ad959da420bf7faf2da3910cf185df120649cb23958"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/returning_selection.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/returning_selection.py",
+        "contract_sha256": "01e199de872e672a06f15ad959da420bf7faf2da3910cf185df120649cb23958"
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "registration:backend/app/presentation/api/v1/routes/rooming.py",
         "kind": "route_registration",
         "source": "backend/app/presentation/api/v1/routes/rooming.py",
@@ -27609,6 +29768,24 @@
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "Main passport-group roster and independent visa/flight progress. Canonical adapters enforce current OAuth capabilities and Documents/All Groups device sections. Metadata updates use atomic retry receipts; matching requires exact native group sources and unique matches; bounded exports use protected delivery. No broadcast membership, removal or outgoing send authority.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/traveller_admin.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/traveller_admin.py",
+        "contract_sha256": "70780cbb39e82223a52238d0a30e738577a4b6e7f8331346ca5350de5a2c9981"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",
@@ -29120,6 +31297,33 @@
     },
     {
       "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/client_groups.py:assign_client_group_company:PATCH:/{link_id}/company",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/client_groups.py",
+        "handler": "assign_client_group_company",
+        "method": "PATCH",
+        "local_path": "/{link_id}/company",
+        "contract_sha256": "7dcf87541c6af4f82f35608ae346f57b56625a2b58815a42d21077bdf3cd8015",
+        "summary": "assign client group company",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "route:backend/app/presentation/api/v1/routes/client_groups.py:create_client_group:POST:",
         "kind": "source_route",
         "source": "backend/app/presentation/api/v1/routes/client_groups.py",
@@ -29615,6 +31819,621 @@
         "evidence": []
       },
       "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/companies.py:add_company:POST:",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/companies.py",
+        "handler": "add_company",
+        "method": "POST",
+        "local_path": "",
+        "contract_sha256": "804ca49cd71aeda6390553f8e0566d95570f97c992cd671305db41d7a09a97da",
+        "summary": "add company",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/companies.py:company_groups:GET:/{company_id}/groups",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/companies.py",
+        "handler": "company_groups",
+        "method": "GET",
+        "local_path": "/{company_id}/groups",
+        "contract_sha256": "51156e98898ce1ff21a6b20abff6de29cb54fc73016e5e5a43125d60895531ca",
+        "summary": "company groups",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/companies.py:company_summary:GET:/{company_id}/summary",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/companies.py",
+        "handler": "company_summary",
+        "method": "GET",
+        "local_path": "/{company_id}/summary",
+        "contract_sha256": "9b05a9edc0c6291479ca88ef715cf7a5688cbfa56049b39af782bea12c7faade",
+        "summary": "company summary",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/companies.py:edit_company:PATCH:/{company_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/companies.py",
+        "handler": "edit_company",
+        "method": "PATCH",
+        "local_path": "/{company_id}",
+        "contract_sha256": "21ec9d07635fa43166ce7a2ae36424acb62ae456d4db72650930cdd4cb7c98dc",
+        "summary": "edit company",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/companies.py:get_company:GET:/{company_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/companies.py",
+        "handler": "get_company",
+        "method": "GET",
+        "local_path": "/{company_id}",
+        "contract_sha256": "2ffe276010a230290c2a47ee934112938b29b1e8cdfc5a55887e3f47c8f08f26",
+        "summary": "get company",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/companies.py:list_companies:GET:",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/companies.py",
+        "handler": "list_companies",
+        "method": "GET",
+        "local_path": "",
+        "contract_sha256": "ef4a30e04b79b15ccc673152df18baa3314f6a448491acdca668bd622725600c",
+        "summary": "list companies",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/companies.py:lookup_companies:GET:/lookup",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/companies.py",
+        "handler": "lookup_companies",
+        "method": "GET",
+        "local_path": "/lookup",
+        "contract_sha256": "0016f9fd2f0be9c4a19fd02c978ee67d54adde79b7e2083c6528b7814f26c884",
+        "summary": "lookup companies",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/companies.py:remove_company:DELETE:/{company_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/companies.py",
+        "handler": "remove_company",
+        "method": "DELETE",
+        "local_path": "/{company_id}",
+        "contract_sha256": "a1cd319603dc2fb8832d0d88a747c6cd1253fd678cfa32be983fd1ad20372eb6",
+        "summary": "remove company",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Lifecycle revocation and removal stay explicit staff operations outside existing MCP authority.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/company_match_review.py:matching_preview:GET:/{company_id}/groups/{group_id}/travellers/matching-preview",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/company_match_review.py",
+        "handler": "matching_preview",
+        "method": "GET",
+        "local_path": "/{company_id}/groups/{group_id}/travellers/matching-preview",
+        "contract_sha256": "96ddf5f51cdacee30ed80a070387e4c88f344a9430c959ae08531423a9c3fb23",
+        "summary": "matching preview",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/company_match_review.py:resolve_roster_match:POST:/{company_id}/groups/{group_id}/travellers/matches/{case_id}/resolve",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/company_match_review.py",
+        "handler": "resolve_roster_match",
+        "method": "POST",
+        "local_path": "/{company_id}/groups/{group_id}/travellers/matches/{case_id}/resolve",
+        "contract_sha256": "c40853cf7edcc029516817ee25b0088b0473e40424d8d0b7d2e561f2ffa0321c",
+        "summary": "resolve roster match",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/company_passports.py:declare_passport_unusable:PATCH:/{company_id}/travellers/{traveller_id}/passports/{passport_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/company_passports.py",
+        "handler": "declare_passport_unusable",
+        "method": "PATCH",
+        "local_path": "/{company_id}/travellers/{traveller_id}/passports/{passport_id}",
+        "contract_sha256": "1cbdce976d8ce0ae1079a51007d58d1558fb8581a1777e144565b322bed88c79",
+        "summary": "declare passport unusable",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Lifecycle revocation and removal stay explicit staff operations outside existing MCP authority.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/company_passports.py:passport_inventory:GET:/{company_id}/travellers/{traveller_id}/passports",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/company_passports.py",
+        "handler": "passport_inventory",
+        "method": "GET",
+        "local_path": "/{company_id}/travellers/{traveller_id}/passports",
+        "contract_sha256": "e50f94ecca1ac3823ce92a74987a49af4ead5d99259f29da6dc2232a2333a30c",
+        "summary": "passport inventory",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/company_reassignments.py:confirm_company_reassignment:POST:/{company_id}/reassignments/{group_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/company_reassignments.py",
+        "handler": "confirm_company_reassignment",
+        "method": "POST",
+        "local_path": "/{company_id}/reassignments/{group_id}",
+        "contract_sha256": "8210942d32543fcad1ea3bb907fbfe425e9089e7284d8ee1c1a1b0628c2763b3",
+        "summary": "confirm company reassignment",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/company_reassignments.py:preview_company_reassignment:GET:/{company_id}/reassignments/{group_id}/preview",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/company_reassignments.py",
+        "handler": "preview_company_reassignment",
+        "method": "GET",
+        "local_path": "/{company_id}/reassignments/{group_id}/preview",
+        "contract_sha256": "80f9b2a6ffb91dcc9d31de908d9b6961314acbb0124861a23385ec327a4c0e40",
+        "summary": "preview company reassignment",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/company_reuse_setup.py:get_company_reuse_policy:GET:/{company_id}/reuse-policy",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/company_reuse_setup.py",
+        "handler": "get_company_reuse_policy",
+        "method": "GET",
+        "local_path": "/{company_id}/reuse-policy",
+        "contract_sha256": "4faeb61ce909dbf78ff3676866806ad1478fda446a554b69be788db3f3e71f58",
+        "summary": "get company reuse policy",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/company_reuse_setup.py:get_group_reuse_config:GET:/{company_id}/groups/{group_id}/reuse-config",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/company_reuse_setup.py",
+        "handler": "get_group_reuse_config",
+        "method": "GET",
+        "local_path": "/{company_id}/groups/{group_id}/reuse-config",
+        "contract_sha256": "f13a74d6cddc2c2488a8d1e0a924c65d1a084cc77745b0ecfb82a230eec582b6",
+        "summary": "get group reuse config",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/company_reuse_setup.py:set_company_reuse_policy:PUT:/{company_id}/reuse-policy",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/company_reuse_setup.py",
+        "handler": "set_company_reuse_policy",
+        "method": "PUT",
+        "local_path": "/{company_id}/reuse-policy",
+        "contract_sha256": "bd4597f29f35cfa34d9d84d58bd7a34ad23071628f41ed94baf3b9338dd91bf3",
+        "summary": "set company reuse policy",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/company_reuse_setup.py:set_group_reuse_config:PUT:/{company_id}/groups/{group_id}/reuse-config",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/company_reuse_setup.py",
+        "handler": "set_group_reuse_config",
+        "method": "PUT",
+        "local_path": "/{company_id}/groups/{group_id}/reuse-config",
+        "contract_sha256": "9fe6adfc55c687dc7e3f292e795ad0595f687cee58b5c238564a7929109e6225",
+        "summary": "set group reuse config",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/company_review_tasks.py:company_changes:GET:/{company_id}/changes",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/company_review_tasks.py",
+        "handler": "company_changes",
+        "method": "GET",
+        "local_path": "/{company_id}/changes",
+        "contract_sha256": "b8e2b043188b2297aaa81a27654b23fb41fbd1a8d3af3f4989eac7b0c4fe6ab6",
+        "summary": "company changes",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/company_review_tasks.py:resolve_review_task:PATCH:/{company_id}/review-tasks/{task_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/company_review_tasks.py",
+        "handler": "resolve_review_task",
+        "method": "PATCH",
+        "local_path": "/{company_id}/review-tasks/{task_id}",
+        "contract_sha256": "d66d4081345516d42400996b8aebbf3fd2dfc2e8f8f1cbe339f6aff7b8bcb17d",
+        "summary": "resolve review task",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/company_review_tasks.py:review_tasks:GET:/{company_id}/review-tasks",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/company_review_tasks.py",
+        "handler": "review_tasks",
+        "method": "GET",
+        "local_path": "/{company_id}/review-tasks",
+        "contract_sha256": "e944a33c129ad6f1d2c6e5b856d600b39134c4607f9f78e4e469673213ff882e",
+        "summary": "review tasks",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/company_traveller_history.py:company_traveller_history:GET:/{company_id}/travellers/{traveller_id}/history",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/company_traveller_history.py",
+        "handler": "company_traveller_history",
+        "method": "GET",
+        "local_path": "/{company_id}/travellers/{traveller_id}/history",
+        "contract_sha256": "6f2005b5dcf5a05aa0c70b8fcb9a4276f3cef21de066ee5237d1436729ddbcfc",
+        "summary": "company traveller history",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/company_traveller_history.py:company_travellers:GET:/{company_id}/travellers",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/company_traveller_history.py",
+        "handler": "company_travellers",
+        "method": "GET",
+        "local_path": "/{company_id}/travellers",
+        "contract_sha256": "c6e58a15319960e7eccf6e63e2ab74b7d84d23d6a2c315a63ab75a6862583345",
+        "summary": "company travellers",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
     },
     {
       "surface": {
@@ -37860,6 +40679,397 @@
     },
     {
       "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/returning_claims.py:capabilities:GET:/capabilities",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/returning_claims.py",
+        "handler": "capabilities",
+        "method": "GET",
+        "local_path": "/capabilities",
+        "contract_sha256": "7ceafcd16148e0506ab1862d519ccd613d2965a3786d0a2bda0ea9fcff611e29",
+        "summary": "capabilities",
+        "schema_visible": true
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/returning_claims.py:change_question:POST:/challenge/change",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/returning_claims.py",
+        "handler": "change_question",
+        "method": "POST",
+        "local_path": "/challenge/change",
+        "contract_sha256": "4377ec9b451c265f42fd57cdf2ff3e7424a68a3d7b402ad5dcd74777e69f6c27",
+        "summary": "change question",
+        "schema_visible": true
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/returning_claims.py:check_document_answers:POST:/challenge",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/returning_claims.py",
+        "handler": "check_document_answers",
+        "method": "POST",
+        "local_path": "/challenge",
+        "contract_sha256": "16687cfa40579b02dc26d11438c58ce2f2a1eaff6a981184f67628028d73cacf",
+        "summary": "check document answers",
+        "schema_visible": true
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/returning_claims.py:check_passport:POST:/passport",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/returning_claims.py",
+        "handler": "check_passport",
+        "method": "POST",
+        "local_path": "/passport",
+        "contract_sha256": "9476f11f53d1b933275c32d4b36cfb068adb9ab34be391a1474b573fce626e6d",
+        "summary": "check passport",
+        "schema_visible": true
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/returning_claims.py:choose_candidate:POST:/candidate",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/returning_claims.py",
+        "handler": "choose_candidate",
+        "method": "POST",
+        "local_path": "/candidate",
+        "contract_sha256": "de7235336e5ff8ea51c388402c96fbe70190de8ee11d792bc7777e18591e6ed3",
+        "summary": "choose candidate",
+        "schema_visible": true
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/returning_claims.py:confirm_returning_person:POST:/confirm",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/returning_claims.py",
+        "handler": "confirm_returning_person",
+        "method": "POST",
+        "local_path": "/confirm",
+        "contract_sha256": "19eac396d1927df8c339016c13c514cf26f8b3d1298b18a7ec5971e4df70bb26",
+        "summary": "confirm returning person",
+        "schema_visible": true
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/returning_claims.py:masked_candidates:GET:/candidates",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/returning_claims.py",
+        "handler": "masked_candidates",
+        "method": "GET",
+        "local_path": "/candidates",
+        "contract_sha256": "6594687fdcce0c0fae69edf1ee75e22fba83fb245003d994f13f8cce964a2a89",
+        "summary": "masked candidates",
+        "schema_visible": true
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/returning_claims.py:request_claim_otp:POST:/otp/request",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/returning_claims.py",
+        "handler": "request_claim_otp",
+        "method": "POST",
+        "local_path": "/otp/request",
+        "contract_sha256": "027e2afaf283428a9369e7de675b76b4cc5808826999b8ea3d5cc1906a34e040",
+        "summary": "request claim otp",
+        "schema_visible": true
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/returning_claims.py:start_claim:POST:/claims",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/returning_claims.py",
+        "handler": "start_claim",
+        "method": "POST",
+        "local_path": "/claims",
+        "contract_sha256": "90cfdc66eada19be60e3f6cfcb8e42c58ad2ac01c12c2b60973a16779fb36af6",
+        "summary": "start claim",
+        "schema_visible": true
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/returning_claims.py:verify_claim_otp:POST:/otp/verify",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/returning_claims.py",
+        "handler": "verify_claim_otp",
+        "method": "POST",
+        "local_path": "/otp/verify",
+        "contract_sha256": "761255b185e4cfd254779e4a40683d4eda5627bfa128b392b77cba2759b8e1e4",
+        "summary": "verify claim otp",
+        "schema_visible": true
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/returning_completion.py:complete_returning_trip:POST:/complete",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/returning_completion.py",
+        "handler": "complete_returning_trip",
+        "method": "POST",
+        "local_path": "/complete",
+        "contract_sha256": "d19102c3b985d580d9ceb40c724685447e1b72fb4832d93790ad8cc006b7c535",
+        "summary": "complete returning trip",
+        "schema_visible": true
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/returning_contact.py:request_new_contact:POST:/contact/request",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/returning_contact.py",
+        "handler": "request_new_contact",
+        "method": "POST",
+        "local_path": "/contact/request",
+        "contract_sha256": "9652089fd245cc0ab3313c0174f77159e9acb11ed8a3f39a84336e5bb708b43c",
+        "summary": "request new contact",
+        "schema_visible": true
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/returning_contact.py:verify_new_contact:POST:/contact/verify",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/returning_contact.py",
+        "handler": "verify_new_contact",
+        "method": "POST",
+        "local_path": "/contact/verify",
+        "contract_sha256": "a84fa189c1c5b0d81a8b5c94cc07598644f1b8c73fa8023df374266b03167718",
+        "summary": "verify new contact",
+        "schema_visible": true
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/returning_history.py:historical_document:GET:/documents/{asset_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/returning_history.py",
+        "handler": "historical_document",
+        "method": "GET",
+        "local_path": "/documents/{asset_id}",
+        "contract_sha256": "1bd5dd19326ebdc7068c9ffee40326a66efd647ceb2dc6fb06f243b93fe8f393",
+        "summary": "historical document",
+        "schema_visible": true
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/returning_history.py:historical_review:GET:/history",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/returning_history.py",
+        "handler": "historical_review",
+        "method": "GET",
+        "local_path": "/history",
+        "contract_sha256": "a17bbb673c5554d98c683d97da8e3ba0e499c62d947471b054f189e156ffa9af",
+        "summary": "historical review",
+        "schema_visible": true
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/returning_replacement.py:returning_replacement_candidate:POST:/replacement-candidate",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/returning_replacement.py",
+        "handler": "returning_replacement_candidate",
+        "method": "POST",
+        "local_path": "/replacement-candidate",
+        "contract_sha256": "20d24afa22bf37d283ee2856250b12858232bef6075cc5f461be1ccdffbababe",
+        "summary": "returning replacement candidate",
+        "schema_visible": true
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/returning_selection.py:choose_current_trip_passport:POST:/passport-selection",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/returning_selection.py",
+        "handler": "choose_current_trip_passport",
+        "method": "POST",
+        "local_path": "/passport-selection",
+        "contract_sha256": "ed727f10447aaf7d216dab23661fe75ea2a616cd08f67889d8280bf5a9f5ba0e",
+        "summary": "choose current trip passport",
+        "schema_visible": true
+      },
+      "workflow": "returning-traveller.interactive-verification",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "route:backend/app/presentation/api/v1/routes/rooming.py:auto_allocate_hotel_rooms:POST:/hotels/{hotel_id}/auto-allocate",
         "kind": "source_route",
         "source": "backend/app/presentation/api/v1/routes/rooming.py",
@@ -39387,6 +42597,111 @@
     },
     {
       "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/traveller_admin.py:create_matching_preview:POST:/{company_id}/groups/{group_id}/travellers/matching-preview",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/traveller_admin.py",
+        "handler": "create_matching_preview",
+        "method": "POST",
+        "local_path": "/{company_id}/groups/{group_id}/travellers/matching-preview",
+        "contract_sha256": "c485ebfa352ecfb5959d2ec32a3afaf361506c4b9ab5b0ff2f5dcf4829a7755a",
+        "summary": "create matching preview",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/traveller_admin.py:enroll_retained_submission:POST:/{company_id}/groups/{group_id}/travellers/enroll",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/traveller_admin.py",
+        "handler": "enroll_retained_submission",
+        "method": "POST",
+        "local_path": "/{company_id}/groups/{group_id}/travellers/enroll",
+        "contract_sha256": "96479856a2d66b1602ff99ca094021acddcddd13f4d42512267207cf4d2e7b84",
+        "summary": "enroll retained submission",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/traveller_admin.py:list_enrollment_sources:GET:/{company_id}/groups/{group_id}/travellers/enrollment-sources",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/traveller_admin.py",
+        "handler": "list_enrollment_sources",
+        "method": "GET",
+        "local_path": "/{company_id}/groups/{group_id}/travellers/enrollment-sources",
+        "contract_sha256": "f8a11336b26915958cdc5c8694d8a7092f7a743fbdf8d1db49e00725b3ed2730",
+        "summary": "list enrollment sources",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "implement",
+      "phase": 8,
+      "rationale": "Candidate company read and administrative adapter requires separate role, scope and effect review; this ledger does not expose an MCP tool.",
+      "adapter_requirements": [
+        "tenant_scope",
+        "expected_revision",
+        "no_implicit_identity_or_consent"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/traveller_admin.py:withdraw_traveller_reuse:POST:/{company_id}/travellers/{traveller_id}/withdraw-reuse",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/traveller_admin.py",
+        "handler": "withdraw_traveller_reuse",
+        "method": "POST",
+        "local_path": "/{company_id}/travellers/{traveller_id}/withdraw-reuse",
+        "contract_sha256": "496a12327ebb8eb280980d179ba49282a6b7b148e676f8e350ca3118a08fab86",
+        "summary": "withdraw traveller reuse",
+        "schema_visible": true
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Lifecycle revocation and removal stay explicit staff operations outside existing MCP authority.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
         "id": "route:backend/app/presentation/api/v1/routes/traveller_welcome.py:preview_traveller_welcomes:GET:/groups/{group_id}/whatsapp-welcome-preview",
         "kind": "source_route",
         "source": "backend/app/presentation/api/v1/routes/traveller_welcome.py",
@@ -39817,7 +43132,7 @@
         "handler": "create_broadcast_group",
         "method": "POST",
         "local_path": "/groups",
-        "contract_sha256": "6a22e6d67d7dbe7c94f32a14a43c88db43f9d002517f331e34fd80ba12d35167",
+        "contract_sha256": "4979e50be7a65bcca6aef2ee8841483d6a47022c378f60f4839f5b97d702cfcb",
         "summary": "create broadcast group",
         "schema_visible": true
       },
@@ -39971,7 +43286,7 @@
         "handler": "add_broadcast_recipients",
         "method": "POST",
         "local_path": "/groups/{group_id}/recipients",
-        "contract_sha256": "abf63235d1ced1f5423480ee2773544e801d7b0f9652635dd875606c68533650",
+        "contract_sha256": "5b71e5d972528bb7ec24fc6a6453fdc8d8d7db9aa1554689ad0b6742939a2acc",
         "summary": "add broadcast recipients",
         "schema_visible": true
       },

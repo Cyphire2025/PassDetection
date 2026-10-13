@@ -107,6 +107,7 @@ class MCPGroupReadService:
         for row in rows:
             counts = {key: int(row.pop(key)) for key in COUNT_DEFINITIONS}
             items.append({**row, "id": str(row["id"]), "agency_id": str(row["agency_id"]),
+                          "company_id": str(row["company_id"]) if row["company_id"] else None,
                           "created_at": utc(row["created_at"]).isoformat(),
                           "travel_date": row["travel_date"].isoformat() if row["travel_date"] else None,
                           "return_date": row["return_date"].isoformat() if row["return_date"] else None,

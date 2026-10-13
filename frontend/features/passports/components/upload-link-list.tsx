@@ -30,6 +30,7 @@ import {
 } from "@/components/shared/workspace-ui";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { GroupCompanyAssignment } from "@/features/companies/components/group-company-assignment";
 import { ConfirmDialog } from "@/components/ui";
 import { useModalKeyboardBoundary } from "@/components/ui/modal";
 import { copyTextToClipboard } from "@/lib/utils/clipboard";
@@ -506,6 +507,7 @@ function EditGroupDialog({
             disabled={isLoading}
             onChange={(event) => onNameChange(event.target.value)}
           />
+          <GroupCompanyAssignment key={group.id} group={group} disabled={isLoading} />
           {!group.import_only && <UploadLinkSettings value={settings} onChange={onSettingsChange} disabled={isLoading} error={settingsError} />}
         </div>
         <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
@@ -637,6 +639,7 @@ function UploadLinkTable({
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <h3 className="font-semibold text-slate-950">{link.name}</h3>
+                <CompanyAssignmentLabel group={link} />
                 {link.import_only && <span className="mt-1 inline-block rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">Excel import</span>}
                 {link.destination && (
                   <p className="mt-1 truncate text-xs text-slate-500">{link.destination}</p>
@@ -680,6 +683,7 @@ function UploadLinkTable({
               <tr key={link.id} className="transition-colors hover:bg-slate-50/50">
                 <td className="px-6 py-4">
                   <div className="font-medium text-slate-900">{link.name}</div>
+                  <CompanyAssignmentLabel group={link} />
                   {link.import_only && <span className="mt-1 inline-block rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">Excel import</span>}
                 </td>
                 <td className="px-6 py-4"><StatusPill status={link.status} /></td>
@@ -695,6 +699,10 @@ function UploadLinkTable({
       </div>
     </div>
   );
+}
+
+function CompanyAssignmentLabel({ group }: { group: UploadLinkResponse }) {
+  return <p className="mt-1 break-words text-xs text-slate-500">{group.company?.name ?? "Company not assigned"}{group.company?.status === "inactive" ? " · Inactive" : ""}</p>;
 }
 
 function StatusPill({ status }: { status: UploadLinkResponse["status"] }) {

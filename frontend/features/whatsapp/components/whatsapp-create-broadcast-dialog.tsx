@@ -82,6 +82,7 @@ function ManualBroadcastForm({
     supportContacts: WhatsAppSupportContactInput[];
     recipientOptInConfirmed: boolean;
     importedFieldKeys: string[];
+    duplicateSourceFiles?: File[];
   }) => Promise<void>;
 }) {
   const [name, setName] = useState("");
@@ -98,7 +99,7 @@ function ManualBroadcastForm({
   const [recipientOptInConfirmed, setRecipientOptInConfirmed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const submitInFlightRef = useRef(false);
-  const { importState, previewFile, rejectedContacts, importedFieldKeys } =
+  const { importState, previewFile, rejectedContacts, importedFieldKeys, duplicateSourceFiles, dismissImportError } =
     useRecipientExcelPreview({
       contacts,
       setContacts,
@@ -128,6 +129,10 @@ function ManualBroadcastForm({
     setError(null);
     if (importState.status === "loading") {
       setError("Wait for the Excel contacts to finish loading.");
+      return;
+    }
+    if (importState.status === "error") {
+      setError("Correct or explicitly ignore the failed Excel import before saving.");
       return;
     }
     if (!name.trim()) {
@@ -169,6 +174,7 @@ function ManualBroadcastForm({
         recipientOptInConfirmed:
           contacts.length > 0 && recipientOptInConfirmed,
         importedFieldKeys,
+        ...(duplicateSourceFiles.length ? { duplicateSourceFiles } : {}),
       });
     } catch (submitError) {
       setError(
@@ -222,6 +228,7 @@ function ManualBroadcastForm({
         <ExcelRecipientImport
           state={importState}
           onFile={previewFile}
+          onDismissError={dismissImportError}
           label="Upload Excel contacts"
         />
 
@@ -287,7 +294,7 @@ function ManualBroadcastForm({
           <Button
             type="submit"
             isLoading={isLoading}
-            disabled={importState.status === "loading"}
+            disabled={importState.status === "loading" || importState.status === "error"}
           >
             Save List
           </Button>

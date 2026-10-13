@@ -145,7 +145,7 @@ async def _safe_presigned_url(
     storage: MinioStorageRepository,
     key: str | None,
 ) -> str | None:
-    if not key:
+    if not key or key.startswith("travellers/"):
         return None
     try:
         return await storage.get_presigned_url(key)

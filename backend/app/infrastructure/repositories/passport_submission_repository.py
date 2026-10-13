@@ -464,6 +464,8 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         model.updated_at = submission.updated_at
 
     async def delete(self, submission_id: uuid.UUID) -> None:
+        from app.application.travellers.retention import detach_submission_provenance
+        await detach_submission_provenance(self._session, [submission_id])
         await self._session.execute(
             delete(PassportSubmissionModel).where(PassportSubmissionModel.id == submission_id)
         )

@@ -31,6 +31,9 @@ from app.infrastructure.observability.metrics import metrics
 from app.infrastructure.observability.sentry import sentry_init_options
 from app.infrastructure.observability.statsd import configure_metrics_export
 from app.infrastructure.processing.recovery import passport_extraction_recovery_loop
+from app.infrastructure.security.traveller_request_rate_limiter import (
+    close_traveller_request_limiter,
+)
 from app.infrastructure.security.upload_validator import assert_malware_scanner_ready
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.infrastructure.verification.dispatcher import (
@@ -224,6 +227,7 @@ def create_application(
             with contextlib.suppress(asyncio.CancelledError):
                 await recovery_task
         await stop_mobile_realtime()
+        await close_traveller_request_limiter()
         metrics.close_export_sink()
         logger.info("application_shutdown")
 

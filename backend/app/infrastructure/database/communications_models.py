@@ -81,6 +81,7 @@ class WhatsAppBroadcastGroupModel(Base):
 class WhatsAppBroadcastRecipientModel(Base):
     __tablename__ = "whatsapp_broadcast_recipients"
     __table_args__ = (
+        Index("ix_whatsapp_recipient_source_seek", "broadcast_group_id", "id"),
         UniqueConstraint(
             "broadcast_group_id",
             "normalized_phone_number",
@@ -232,6 +233,7 @@ class WhatsAppTravellerPhoneOverrideModel(Base):
 class WhatsAppBroadcastRejectedContactModel(Base):
     __tablename__ = "whatsapp_broadcast_rejected_contacts"
     __table_args__ = (
+        Index("ix_whatsapp_rejected_source_seek", "broadcast_group_id", "id"),
         UniqueConstraint(
             "broadcast_group_id",
             "fingerprint",

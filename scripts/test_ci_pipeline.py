@@ -311,6 +311,16 @@ class WorkflowTests(unittest.TestCase):
         for job in JOBS:
             self.assertEqual(jobs[job]["name"], JOB_NAMES[job])
 
+    def test_populated_companies_migration_resume_is_required_and_retains_evidence(self):
+        job = self.workflow["jobs"]["backend-migration-rehearsal"]
+        commands = [step.get("run", "") for step in job["steps"]]
+        self.assertTrue(any("scripts/rehearse_postgresql_upgrade.py" in command for command in commands))
+        step = next(step for step in job["steps"] if "scripts/rehearse_companies_traveller_upgrade.py" in step.get("run", ""))
+        self.assertNotIn("continue-on-error", step)
+        artifact = next(step for step in job["steps"] if step.get("name") == "Preserve migration rehearsal evidence")
+        self.assertIn("backend/companies-migration-rehearsal-evidence.json", artifact["with"]["path"])
+        self.assertEqual(artifact["with"]["if-no-files-found"], "error")
+
     def test_security_failure_is_early_and_signed_archives_only_follow_manual_full(self):
         steps = self.workflow["jobs"]["docker-build"]["steps"]
         names = [step.get("name", "") for step in steps]

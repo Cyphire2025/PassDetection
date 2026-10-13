@@ -112,9 +112,10 @@ and application processes, then starts and checks the replacement set. There
 is a bounded serving pause; do not promise zero downtime. Fast builds may pause
 background workers temporarily to preserve the host memory reserve.
 
-The updater requires live and candidate schema `0129_travel_tracker`, unchanged
+The ordinary updater requires matching live and candidate schema, unchanged
 schema/model/configuration source and compatible queued tasks. It runs **no
-migration or downgrade**. Existing database, Redis, private object storage,
+migration or downgrade**. The Companies/traveller Full transition below is a
+separate, narrowly admitted additive lane. Existing database, Redis, private object storage,
 volumes, prior containers and images remain intact. It does not advance the
 historical `/opt/GlobalConnectsDashboard` checkout: infrastructure still has bind
 mounts there, and changing those files could affect serving containers. The
@@ -148,3 +149,61 @@ python3 -B <attempt>/source/scripts/release_retained_update.py --revision <SHA> 
 For a Fast attempt use `--mode fast` and omit `--manifest`. A recovery receipt
 must belong to that exact attempt, source, revision and mode. Do not invoke
 old schema-specific direct-release scripts for a new release.
+
+## Companies and returning travellers: exact additive Full transition
+
+The `companies_traveller_reuse_v1` manifest selects
+`scripts/release_companies_retained_update.py` through the same qualified Full
+entrypoint. Its only first-install path is `0129_travel_tracker` through the
+four hash-bound migrations `0130_company_directory`, `0131_traveller_reuse`,
+`0132_traveller_source_seek`, and `0133_traveller_document_impact`. Fast cannot
+perform this transition. After the target is installed, ordinary compatible
+Full/Fast updates retain all the existing same-schema guards; the additive
+manifest does not authorize new model or configuration changes.
+
+The signed image contract binds the exact migration sources, order and policy.
+The source admission policy allows only the reviewed persistent files, the
+schema-default change in Compose, and four new bounded traveller schedules.
+Existing queued-task signatures, schedules, worker topology, mounts and resource
+limits cannot change through this exception. CI must complete the populated
+PostgreSQL restore/upgrade rehearsal, including the interrupted concurrent-index
+case, before signed image promotion. Local unit tests alone do not qualify this
+database rollout.
+
+The updater stages stopped replacement containers, drains ingress and the
+scheduler, proves existing workers idle, and fences both application generations.
+It then retains a custom-format source database backup, its SHA-256 and private
+receipt, and fully decodes the archive with `pg_restore`. The migration helper
+uses the signed backend image and the exact inspected database network endpoint
+and maintenance identity. Its 1 GiB memory/swap ceiling, one CPU and 256-process
+limit are checked before a unique execution gate opens. The host keeps its
+2 GiB resource reserve; a bounded 30-minute helper timeout does not kill a helper
+that may still be performing database work. SQL statements have a 120-second
+budget and lock acquisition a five-second budget. The migrations run separately,
+so `CREATE INDEX CONCURRENTLY` is outside an enclosing transaction.
+
+Before any DDL, a separate signed, fenced helper captures the original retained
+rows/catalog/ACL preservation digest. Its private receipt binds that digest to
+the original backup and release proof. Every migration or validation-only resume
+must match this same digest before and after work; it cannot replace the baseline
+with the current state of a partially migrated database.
+
+Every original container, image, volume, backup and failed helper remains
+retained. After any migration revision commits, **never restart the old 0129
+application**. An interruption leaves a private forward-recovery receipt. Use
+the same recovery command above with the same Full attempt and signed manifest;
+the updater requires the original source backup and receipt, unchanged source,
+images, database and fence bindings, and a stopped prior migration helper. It
+resumes only the remaining revisions and starts target containers only after
+the exact target schema is verified. Reaching the target Alembic revision without
+a successful final validation receipt triggers a signed validation-only helper.
+A prior complete validation receipt permits application recovery after legitimate
+target application writes, without requiring those tables to be empty again.
+A helper that is still running, a lost
+source backup, changed bindings or an unknown schema stops recovery for operator
+inspection. There is no automatic rollback, downgrade or blind retry.
+
+The release preserves the existing application environment. Public traveller
+disclosure remains disabled by default and requires separately configured
+cryptographic keys and explicit company/group permission policies. Installing
+the schema does not grant reuse authority or infer consent from historical rows.

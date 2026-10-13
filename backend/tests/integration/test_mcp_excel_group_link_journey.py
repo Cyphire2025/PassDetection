@@ -12,7 +12,10 @@ from datetime import UTC, datetime
 
 from sqlalchemy import func, select
 
-from app.infrastructure.database.gc_mobile_models import MobilePassengerIdentityModel
+from app.infrastructure.database.gc_mobile_models import (
+    ClientOrganizationModel,
+    MobilePassengerIdentityModel,
+)
 from app.infrastructure.database.mcp_communication_models import (
     MCPWhatsAppOutboxModel,
     MCPWhatsAppPlanModel,
@@ -59,9 +62,13 @@ async def test_new_import_group_link_requires_delivered_welcome_for_exact_passpo
         agency_id=uuid.UUID(f.agency_id),
         is_active=True,
     )
-    f.session.add(owner)
+    company = ClientOrganizationModel(
+        id=uuid.uuid4(), agency_id=uuid.UUID(f.agency_id), name="Journey client",
+        normalized_name="journey client", status="active",
+    )
+    f.session.add_all([owner, company])
     await f.session.commit()
-    owner_id = str(owner.id)
+    owner_id, company_id = str(owner.id), str(company.id)
     content = workbook([["Name", "Phone"], ["Aarav", "9876543210"], ["Mira", "9876543212"]])
     staged = await f.upload_workbook(content)
     draft = broadcast_draft(f, staged["upload_id"])
@@ -73,6 +80,7 @@ async def test_new_import_group_link_requires_delivered_welcome_for_exact_passpo
         "group": {
             "agency_id": f.agency_id,
             "owner_user_id": owner_id,
+            "company_id": company_id,
             "name": "Explicit October collection group",
             "destination": "Japan",
             "travel_date": "2026-10-10",
@@ -102,6 +110,7 @@ async def test_new_import_group_link_requires_delivered_welcome_for_exact_passpo
         assert created["receipt"]["data"]["public_collection_enabled"] is True
         assert await count(f, ClientGroupWhatsAppBroadcastLinkModel) == 0
         group = await f.session.get(ClientGroupModel, uuid.UUID(group_id))
+        assert str(group.company_id) == company_id
         upload_url = f.settings.mcp.frontend_origin.rstrip("/") + "/upload/" + group.token
         retained_token = group.token
         await f.session.commit()

@@ -788,11 +788,18 @@ jobs:
           python scripts/rehearse_postgresql_upgrade.py
           --evidence-output migration-rehearsal-evidence.json
 
+      - name: Rehearse populated 0129 companies upgrade and interrupted-index resume
+        run: >-
+          python scripts/rehearse_companies_traveller_upgrade.py
+          --evidence-output companies-migration-rehearsal-evidence.json
+
       - name: Preserve migration rehearsal evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: backend-migration-rehearsal-${{ github.sha }}
-          path: backend/migration-rehearsal-evidence.json
+          path: |
+            backend/migration-rehearsal-evidence.json
+            backend/companies-migration-rehearsal-evidence.json
           if-no-files-found: error
           retention-days: 30
 

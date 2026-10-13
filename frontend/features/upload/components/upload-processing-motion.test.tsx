@@ -249,3 +249,4 @@ describe("passport extraction motion lifecycle", () => {
     expect(mocks.upload).toHaveBeenCalledTimes(2);
   });
 });
+vi.mock("@/features/travellers/components/returning-offer", () => ({ ReturningTravellerOffer: () => null }));

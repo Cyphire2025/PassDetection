@@ -31,6 +31,10 @@ class ClientGroupRepository(IClientGroupRepository):
     def _to_entity(model: ClientGroupModel) -> ClientGroup:
         return ClientGroup(
             id=model.id,
+            company_id=model.company_id,
+            company_revision=model.company_revision,
+            company=({"id": model.company.id, "name": model.company.name, "status": model.company.status}
+                     if model.company is not None else None),
             name=model.name,
             token=model.token,
             agency_id=model.agency_id,
@@ -89,6 +93,8 @@ class ClientGroupRepository(IClientGroupRepository):
     def _to_model(entity: ClientGroup) -> ClientGroupModel:
         return ClientGroupModel(
             id=entity.id,
+            company_id=entity.company_id,
+            company_revision=entity.company_revision,
             name=entity.name,
             token=entity.token,
             agency_id=entity.agency_id,
@@ -223,6 +229,11 @@ class ClientGroupRepository(IClientGroupRepository):
         )
         return result.scalar_one_or_none() is not None
 
+    async def require_active_company(self, agency_id: uuid.UUID, company_id: uuid.UUID) -> dict[str, object]:
+        from app.application.companies.assignment import require_active_company
+        company = await require_active_company(self._session, agency_id, company_id)
+        return {"id": company.id, "name": company.name, "status": company.status}
+
     async def save(self, link: ClientGroup) -> ClientGroup:
         model = self._to_model(link)
         self._session.add(model)
@@ -241,6 +252,9 @@ class ClientGroupRepository(IClientGroupRepository):
         model.name = link.name
         model.token = link.token
         model.agency_id = link.agency_id
+        if model.status != link.status.value:
+            model.company_revision += 1
+            link.company_revision = model.company_revision
         model.status = link.status.value
         model.import_only = link.import_only
         model.closed_at = link.closed_at

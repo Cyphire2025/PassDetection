@@ -92,7 +92,7 @@ export function PassportExportDialog({
         baselineExportId
         && selectedBaseline
         && selectedBaseline.compatible
-        && selectedBaseline.new_submission_count > 0,
+        && (selectedBaseline.new_submission_count + (selectedBaseline.changed_submission_count ?? 0) + (selectedBaseline.removed_submission_count ?? 0)) > 0,
       )
     )
   );
@@ -131,7 +131,7 @@ export function PassportExportDialog({
               <p id={descriptionId} className="mt-1 text-sm text-slate-600">
                 {isExcelFieldStep
                   ? "Choose the saved fields and grouping for this Excel file."
-                  : "Choose the complete group or only uploads added after a recorded download."}
+                  : "Choose the complete group or changes since a recorded download."}
               </p>
             </div>
           </div>
@@ -218,11 +218,10 @@ export function PassportExportDialog({
                 />
                 <span>
                   <span className="block font-semibold text-slate-900">
-                    Download uploads after a previous download
+                    Download changes since a previous download
                   </span>
                   <span className="mt-1 block text-sm text-slate-600">
-                    Select any recorded checkpoint. Only people not present at that
-                    time are included.
+                    Include added and updated records, with a change log identifying removed records.
                   </span>
                 </span>
               </label>
@@ -274,12 +273,12 @@ export function PassportExportDialog({
                           </span>
                           <span
                             className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
-                              item.new_submission_count > 0 && item.compatible
+                              (item.new_submission_count + (item.changed_submission_count ?? 0) + (item.removed_submission_count ?? 0)) > 0 && item.compatible
                                 ? "bg-emerald-100 text-emerald-800"
                                 : "bg-slate-200 text-slate-600"
                             }`}
                           >
-                            {item.new_submission_count.toLocaleString()} new
+                            {item.new_submission_count.toLocaleString()} added · {(item.changed_submission_count ?? 0).toLocaleString()} changed · {(item.removed_submission_count ?? 0).toLocaleString()} removed
                           </span>
                         </label>
                         <div className="border-t border-slate-200 bg-white px-3 py-2">
@@ -468,7 +467,7 @@ export function PassportExportDialog({
                 <Download className="h-4 w-4" aria-hidden="true" />
                 {mode === "all"
                   ? (isImages ? "Download all" : "Download Excel")
-                  : `Download ${selectedBaseline?.new_submission_count ?? 0} new`}
+                  : "Download changes"}
               </>
             )}
           </Button>

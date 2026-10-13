@@ -349,6 +349,13 @@ async def staff_approve_passport(
             review_reason=body.review_reason,
         )
         result = approval.submission
+        from app.application.travellers.snapshot_access import (
+            has_retained_document,
+            sync_accepted_participations,
+        )
+        if has_retained_document(result):
+            await sync_accepted_participations(session, agency_id=result.agency_id,
+                group_id=result.group_id, submission_ids=[result.id])
         if approval.outcome is StaffApprovalOutcome.APPROVED:
             audit_metadata: dict[str, object] = {
                 "group_id": str(result.group_id),
@@ -636,6 +643,13 @@ async def confirm_passport(
             submission_id,
             confirmed_fields=body.confirmed_fields,
         )
+        from app.application.travellers.snapshot_access import (
+            has_retained_document,
+            sync_accepted_participations,
+        )
+        if has_retained_document(result):
+            await sync_accepted_participations(session, agency_id=result.agency_id,
+                group_id=result.group_id, submission_ids=[result.id])
         await AuditLogRepository(session).record(
             action="passport_confirmed",
             entity_type="passport_submission",

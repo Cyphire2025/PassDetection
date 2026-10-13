@@ -12,8 +12,12 @@ vi.mock("../hooks/use-upload-links", () => ({
   useCreateUploadLink: () => ({ mutateAsync: createLink, isPending: false }),
 }));
 vi.mock("@/stores/auth.store", () => ({
-  selectUserRole: vi.fn(),
-  useAuthStore: () => "agency_staff",
+  selectUserRole: (state: { role: string }) => state.role,
+  selectUser: (state: { user: unknown }) => state.user,
+  useAuthStore: (selector: (state: unknown) => unknown) => selector({ role: "agency_staff", user: { role: "agency_staff", agency_id: "agency-1" } }),
+}));
+vi.mock("@/features/companies/components/company-picker", () => ({
+  CompanyPicker: ({ onChange, error }: { onChange: (company: { id: string; name: string; status: string }) => void; error?: string }) => <><button type="button" onClick={() => onChange({ id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", name: "Example company", status: "active" })}>Select company</button>{error && <p role="alert">{error}</p>}</>,
 }));
 vi.mock("./whatsapp-broadcast-selector", () => ({
   WhatsAppBroadcastSelector: ({ onChange, onMatchingFieldsChange }: {
@@ -33,6 +37,7 @@ beforeEach(() => {
 });
 
 function fillGroupDetails() {
+  fireEvent.click(screen.getByRole("button", { name: "Select company" }));
   fireEvent.change(screen.getByRole("textbox", { name: "Group Name" }), { target: { value: "Autumn Group" } });
   fireEvent.change(screen.getByRole("textbox", { name: "Destination" }), { target: { value: "Dubai" } });
   fireEvent.change(screen.getByLabelText(/Travel\/Departure Date/), { target: { value: "2026-10-01" } });

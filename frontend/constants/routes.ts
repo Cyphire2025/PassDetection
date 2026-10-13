@@ -29,6 +29,8 @@ export const ROUTES = {
       `/passports/groups/${encodeURIComponent(groupId)}/whatsapp` as const,
     passportDetail: (id: string) => `/passports/${encodeURIComponent(id)}` as const,
     uploadLinks: "/upload-links",
+    companies: "/companies",
+    company: (id: string) => `/companies/${encodeURIComponent(id)}` as const,
     whatsapp: "/whatsapp",
     emailIntegrations: "/email-integrations",
     emailIntegrationsInbox: "/email-integrations/inbox",

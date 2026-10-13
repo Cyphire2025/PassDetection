@@ -65,6 +65,16 @@ class InputPolicyTests(unittest.TestCase):
             "backend-static-checks", "backend-test", "backend-service-integration",
         })
 
+    def test_companies_rehearsal_and_fixture_are_migration_fingerprint_inputs(self):
+        before = tree()
+        for path in ("backend/scripts/rehearse_companies_traveller_upgrade.py",
+                     "backend/scripts/companies_rehearsal_fixture.py",
+                     "backend/scripts/release_companies_traveller_upgrade.py"):
+            with self.subTest(path=path):
+                self.assertIn("backend-migration-rehearsal", classify_paths([path]))
+                self.assertNotEqual(fingerprint_job("backend-migration-rehearsal", before),
+                    fingerprint_job("backend-migration-rehearsal", {**before, path: entry("changed helper")}))
+
     def test_frontend_tests_stay_in_build_context(self):
         self.assertIn("docker-build", classify_paths(["frontend/features/a.test.tsx"]))
 

@@ -1,0 +1,357 @@
+Companies / Clients and returning-traveller feature review handoff
+Date: 2026-10-13 (Asia/Calcutta)
+Status: RELEASE CANDIDATE. Implementation exists; release qualification remains incomplete.
+This file records the predeployment candidate. Check exact-commit CI and deployment
+receipts for release status; local test results alone do not prove production activation.
+The feature patch was transferred to the release worktree based on current origin/main.
+Subsequent CI/release preparation and final verification occur there; the original
+working tree remains preserved with its unrelated local changes.
+
+Read the original user attachment alongside this file:
+C:\Users\nipun\.codex\attachments\30563fea-5539-4c12-b1c0-afde4239bd20\Pasted text.txt
+User clarifications in this chat override conflicting portions of that attachment.
+
+Settled clarifications received during implementation
+- Initial work was local. The user subsequently authorized completing the feature,
+  pushing it to main, and then checking the main VPS. This change requires the
+  protected Full deployment path. No real WhatsApp message is part of local testing.
+- User explicitly requested multi-agent implementation and asked that unresolved product
+  decisions wait for their answer while independent work continues.
+- User overrides the attachment's finite history retention requirement: retain document
+  versions until explicit withdrawal/deletion. No invented fixed purge deadline.
+  Future travel uses the appropriate latest accepted, suitable version; an expired
+  passport or passport with under six calendar months from the group travel date is
+  unavailable for travel reuse. Historical identity evidence and travel suitability
+  remain separate. Explicit deletion/withdrawal must still revoke access.
+- WhatsApp route: OTP, masked linked-person selection, then full passport number.
+  Established-phone route does not ask a stored date under the revised decision.
+- Passport route: full passport plus a reliable stored date, DOB shown first and
+  issue/expiry date available as explicit alternate questions. Routine OTP is not
+  required on this route under the user's later clarification.
+- Individual-code route: company-scoped individual code plus full passport number;
+  routine OTP is not required under the user's later clarification.
+- Changing a contact number still requires OTP on the new number and an atomic
+  selected-person contact update. Do not rewrite everyone sharing either number.
+- These revised routes offer weaker phone-possession assurance than the original
+  attachment. Do not claim universal phone proof, three-factor authentication or
+  proven passport ownership. Someone holding relevant passport information may pass.
+- User requested masked surname and passport suffix in the shared-phone list.
+  Selecting a person never unlocks another person. A shared number is not proof of
+  legal guardianship or adult delegation; do not invent that relationship.
+- User accepted bounded synthetic tests around 50,000 to 100,000 records. The original
+  million-participation test is an unverified target unless a later receipt proves it.
+- User explicitly chose to keep identity merges/splits unavailable in this release.
+  Use the matching-review queue; do not infer permission to rewrite identity history.
+
+Complete feature map for a fresh reviewer
+- Companies/Clients reuses the existing tenant-scoped GC company foundation. The
+  canonical group company_id is shared by dashboard, API, MCP creation/import and
+  GC App assignment. Migration 0130 preserves company IDs and the existing normalized
+  name uniqueness, adds revisions/indexes and backfills only unambiguous assignments.
+- Directory: cursor search, active/inactive states, external reference, revision-
+  checked editing and dependency-blocked soft deletion. Dashboard counts and detail
+  lists share existing group visibility. Company administration and minimal company
+  lookup are separate capabilities. Super-admin operations require an agency scope.
+- Group create/edit supports the searchable company picker, inactive legacy values,
+  preservation on omitted edits, closed/archived company-only assignment and a
+  populated reassignment preview with reason, expected company/roster revisions,
+  claim revocation and reconciliation. No silent movement of old company profiles.
+- Current group metrics distinguish accepted participation, earlier actual travel
+  and verified reuse completion. Reconciliation incompleteness is visible and
+  unresolved records are not reported as unique people.
+- Public returning collection offers WhatsApp, passport, configured individual code,
+  and fresh collection. Masked candidate selection is phone-OTP scoped. Claims and
+  grants use short-lived HttpOnly Strict cookies; secret capabilities never enter
+  URLs, browser localStorage or API response bodies. Server-side authorization
+  rechecks group/company/person/contact/document/policy revisions on protected reads.
+- Independent Redis network/session request limits and persisted person-level proof
+  budgets apply across routes. Missing production limiter/crypto configuration fails
+  closed. Responses are private/no-store. Asset IDs are checked against the exact
+  grant and retained owner before any object-store access.
+- Review shows allowlisted extracted identity fields and protected, lazy document
+  previews. Passport lifecycle/expiry is separate from identity proof. The six-
+  calendar-month group-date rule is centralized in traveller_suitability.py; unknown
+  itinerary/issuer/rule coverage never becomes an asserted destination clearance.
+- Current trip requirements and custom questions are validated using existing
+  collection rules. Only unchanged answers from the same trip may be restored.
+  Completion creates one normal client-submitted source plus a frozen participation,
+  requires current review/version evidence, is idempotent and still needs normal
+  staff review. It never treats a provisional match as submission or approval.
+- Updating a passport uses fresh document collection and a selected-person candidate
+  association. Staff acceptance/enrollment is explicit; old accepted versions remain.
+  Changing phone requires OTP on the new number, affects only the selected person,
+  revokes old grants and preserves historical snapshots. Contact events are durable;
+  external contact-change alert delivery is not configured in this release.
+- Lost/cancelled/compromised lifecycle changes revoke affected grants and queue
+  bounded operational review tasks. The committed change feed uses a company
+  sequence so late commits cannot be skipped by a timestamp checkpoint. It does not
+  write to external visa/ticketing systems.
+- Excel/ZIP and MCP export history use one content-revision comparison rule, including
+  edits to the same submission ID, additions and removals. Changes are represented
+  in an Excel Changes sheet / ZIP changes.json. Export reads are bounded and check
+  retained authority before and after generation.
+- All new staff pages use the existing dashboard design. Search is debounced and
+  cancellable; lists use bounded cursor pages; document payloads load on request.
+  Fresh-upload entry remains available from returning verification/error states.
+
+Primary code boundaries
+- backend/app/application/companies: directory, visibility, assignment, policy, metrics.
+- backend/app/application/travellers: proof/authority, review, completion, contact,
+  enrollment, matching, replacement, retention, change feed and review tasks.
+- backend/app/domain/services/traveller_{verification,suitability}.py: shared rules.
+- backend/app/infrastructure/database/traveller_*: scoped persistent constraints.
+- backend/app/infrastructure/travellers: bounded copy/reconcile/impact consumers.
+- backend/app/presentation/api/v1/routes/companies.py and company_*.py: staff APIs.
+- backend/app/presentation/api/v1/routes/returning_*.py: cookie-scoped public APIs.
+- frontend/features/companies and frontend/features/travellers: typed UI boundaries.
+- frontend/features/upload/hooks/use-returning-upload.tsx: existing upload integration.
+- backend/app/application/use_cases/passports/export_changes.py: export revision rule.
+- backend/scripts/release_companies_traveller_upgrade.py: bound migration helper.
+- scripts/release_companies_{retained_update,runtime,policy}.py: Full rollout controls.
+
+Latest combined local verification on the current-main release worktree
+- 224 feature backend tests passed in 107.16 seconds, including real ASGI cookie,
+  routing and database authorization tests with synthetic OTP/storage providers.
+- Strict mypy passed all 1,060 application source files. Ruff app/tests passed.
+- Release/infrastructure unittest discovery: 629 tests passed, 2 existing skips
+  after the independent migration recovery fixes.
+- Frontend: 123 Vitest tests, 29 Node contract tests and 18 Chromium scenarios passed
+  at applicable widths of 320/390/1440 pixels before the final cross-layer audit.
+  Browser data/providers are synthetic; frontend-release-verification.txt records
+  the exact follow-up receipts. These counts overlap smaller checks below.
+- Changed existing backend regression files: 183 tests passed in 73.34 seconds.
+- Updated required-contact projection/completion and actual ASGI flow: 12 tests
+  passed in 12.73 seconds. The platform contact policy is visible before submit.
+- Full local backend regression/coverage was deliberately stopped after available
+  system RAM fell below 1 GiB. Only the four verified test workers were stopped;
+  available RAM recovered above 6 GiB. Its partial 2,553 passes are NOT a complete
+  suite result. Four worker-crash failures were caused by that deliberate stop.
+  One actual old MCP fixture omitted required company_id and has been corrected;
+  one unrelated pypdf import error reflects the older shared local venv. CI installs
+  the current locked dependencies and must run complete regression/coverage.
+- MCP HTTP replay, SDK Excel/group journey and related creation fixture follow-up:
+  62 passed, 9 service-dependent tests skipped in 58.24 seconds. Three fixtures now
+  pass an explicitly seeded tenant company without weakening replay/race assertions.
+- Exact-SHA real-service CI and production rollout are not yet verified.
+- Final frontend cross-layer audit examined 45 OpenAPI operations. Follow-up checks
+  passed 47 Vitest tests, 19 Chromium scenarios in 40.1 seconds, type checking,
+  scoped lint and all 40 maintainability budgets. These overlap earlier counts.
+  Fixes include stale-review idempotency recovery, cannot-assess completion denial,
+  required contact collection, the Companies proxy guard, upload-only PDF blob CSP
+  and explicit PDF visibility acknowledgement. Native PDF viewer pixels were blank
+  in inspected headless Chromium, so supported-browser native PDF rendering remains
+  unverified; cookie/CSP/byte delivery is verified. See frontend-contract-audit.txt.
+
+Implemented persistence, ingestion and storage slice
+- Frozen additive persistence migration 0131_traveller_reuse. 0132_traveller_source_seek
+  creates passport and linked WhatsApp source cursor indexes concurrently, recovers
+  interrupted invalid indexes and verifies valid definitions. Operational impact/feed
+  work follows as 0133; use release_manifest.json for the final exact schema head.
+- Separate tenant/company scoped profile, passport, immutable evidence revision,
+  original asset, contact history, individual code, participation, permission policy,
+  claim, attempt budget, grant, match case, resumable job and change-event records.
+  Historical group FKs preserve source company across populated reassignment.
+- Recognition is preview only. No name/phone merge, invented OTP, permission grant,
+  profile enrollment or current-trip participation is created by a matching job.
+- Jobs read accepted submissions AND linked durable WhatsApp recipient/rejected rows.
+  Source kind + UUID cursors use v2:<source_kind>:<UUID>; legacy UUID cursors remain
+  compatible. Each UNION branch is capped before the final sort, so at most 303 rows
+  reach it; final page <= 100. Exact configured individual code can propose a match;
+  imported passport fields are not accepted proof. Unsuffixed primary code is used;
+  merged phone-delivery alternate fields never imply another person's identity.
+- Coverage is explicitly durable_saved_rows_only. The import follow-up now preserves
+  all individual rejected rows within the existing 2,000-row workbook limit while
+  returning only a bounded 500-row preview. A real 700-person XLSX with one phone was
+  verified through dashboard and MCP parse/create/persist: one delivery recipient and
+  699 distinct saved rejected sources, with the preview reporting 199 truncated rows.
+  Primary identity fields remain unchanged; bounded alternates cannot grow per person.
+  Direct create/add preserves duplicate source rows too. Historical rows already lost
+  by the former 500-row truncation require the original file to be reimported.
+- Explicit staff resolution creates pending trip membership only. It rechecks the
+  current source tenant/group, revision, content/name/phone fingerprint, key version,
+  group/configuration revisions and identifier semantics. Changed sources require a
+  new preview. Refreshing unresolved cases preserves human resolutions and authorized
+  replacement candidates. Source-only locks avoid locking joined broadcast rows.
+- Staff source listing uses selective cursor pages (default 25, max 50), name search
+  with the existing trigram prefilter and a bounded candidate projection query.
+- Explicit enrollment requires accepted source/current revisions, configured purpose
+  and notice, permission evidence, plus a reviewed target for updates. Missing issuer
+  and document type require explicit document-view attestation, not nationality or
+  place-of-issue inference. Retry HMAC binds the complete enrollment payload.
+- Lost/cancelled/compromised/disputed/rejected passport identities cannot be revived
+  by enrolling a new scan. A reviewed renewal creates another identity for the same
+  person. Later accepted issue dates can become future defaults; trip references freeze.
+- Public replacement-candidate linkage requires a live grant/review version AND the
+  fresh upload's own X-Upload-Session-ID capability. It binds one source to the selected
+  person, preserves provisional status, and records a keyed digest of source fields
+  and images. Staff must approve the source and acknowledge the selected-person
+  association during enrollment. Changed content requires fresh association. Ordinary
+  staff approval revision increments with unchanged content remain valid.
+- Independent original copies are queued durably and performed server-side without
+  loading document bodies into the worker. Global PostgreSQL copy admission <= 2,
+  attempts <= 5, explicit provider timeout envelope, stable destinations, post-copy
+  size/checksum checks and live authorization both before and after I/O.
+  MIME-derived allowlisted extensions are durably bound before copying; copied MIME
+  must match and cannot change between retries. Older extensionless exports use the
+  existing validated archive handling rather than trusting a guessed filename.
+- Shared private media policy permits JPEG/PNG/WebP/PDF <= 20 MiB. Pending, purged,
+  unsupported, expired or unreadable assets cannot satisfy reuse requirements.
+- Group/source deletion detaches operational FKs and preserves immutable provenance.
+  Pending copies block unsafe source deletion. Cleanup consults retained ownership;
+  copied originals cannot be deleted as incidental old-group assets.
+- Future-reuse withdrawal immediately revokes historical access. Lawful current-trip
+  snapshots retain their own referenced data until the operational source is removed.
+  Asset purge/hard profile deletion immediately denies staff image/thumbnail access.
+- Staff confirmation/single/bulk approval synchronizes the current participation once
+  and records its accepted source extraction revision; it does not silently promote
+  edited trip fields into retained identity evidence.
+- ZIP preparation uses batched retained-asset authorization (<= 200 sources / 1,000 assets
+  per query), rechecks immediately before and after rendering, and closes the spool if
+  authority was removed during generation. MCP's existing re-preparation around upload
+  also uses this guard. Previously published artifacts need their own download-time
+  revocation checks; do not confuse generation guards with permanent artifact erasure.
+
+New slice files for review
+backend/app/infrastructure/database/traveller_model_support.py
+backend/app/infrastructure/database/traveller_identity_models.py
+backend/app/infrastructure/database/traveller_document_models.py
+backend/app/infrastructure/database/traveller_claim_models.py
+backend/app/infrastructure/database/traveller_operations_models.py
+backend/app/infrastructure/database/traveller_reuse_models.py
+backend/alembic/versions/0131_traveller_reuse.py
+backend/alembic/versions/0132_traveller_source_seek.py
+backend/app/application/travellers/reconciliation.py
+backend/app/application/travellers/reconciliation_sources.py
+backend/app/application/travellers/match_freshness.py
+backend/app/application/travellers/enrollment.py
+backend/app/application/travellers/source_evidence.py
+backend/app/application/travellers/replacement.py
+backend/app/application/travellers/retention.py
+backend/app/application/travellers/snapshot_access.py
+backend/app/application/travellers/export_authority.py
+backend/app/infrastructure/travellers/asset_copy.py
+backend/app/infrastructure/travellers/runtime.py
+backend/app/infrastructure/travellers/tasks.py
+backend/app/presentation/api/v1/routes/traveller_admin.py
+backend/app/presentation/api/v1/routes/returning_replacement.py
+
+Integration boundaries changed surgically
+- models.py/communications_models.py metadata indexes; existing Celery includes/beat.
+- PassportSubmissionRepository.delete and bulk deletion detach retained provenance.
+- platform_lifecycle cleanup excludes pending copy sources and detaches retained FKs.
+- storage_cleanup.py checks live ownership for traveller keys.
+- passport_routes/image_support.py guards retained reads and direct image cleanup.
+- passport_routes/response_support.py never presigns retained keys.
+- passport_routes/submission_review.py and bulk_actions.py reflect staff acceptance.
+- prepare_image_export.py checks retained authority before publication.
+Parent preserved the initial unrelated working-tree patch at:
+.tmp/companies-reuse-evidence/initial-dirty.patch
+Do not revert preexisting dashboard, mobile or WhatsApp work as part of this feature.
+
+Validation receipts (overlapping suites; do not add their counts)
+Persistence/enrollment/snapshot/replacement/reconciliation/source-list/migration slice:
+  42 passed in 16.41 seconds before adding actual durable-roster coverage.
+Command from backend:
+  .venv311\Scripts\python.exe -m pytest tests/unit/application/test_traveller_enrollment.py tests/unit/application/test_traveller_snapshot_access.py tests/integration/test_returning_replacement.py tests/unit/presentation/test_traveller_enrollment_sources.py tests/unit/infrastructure/test_traveller_reuse_schema.py tests/unit/infrastructure/test_traveller_seek_migration.py tests/unit/application/test_traveller_reconciliation.py -q --no-cov
+- Tests cover unchanged renewal versus old scan, blocked identity statuses, explicit
+  issuer attestation, payload replay conflicts, five-attempt outage, timeout leases,
+  unsupported/oversize copy denial, withdrawal during copy, lawful snapshot retention,
+  hard deletion, stale/foreign sources, staff synchronization and post-render revocation.
+- Synthetic accepted-source fixture: 700 => 400 provisional / 300 unmatched with <= 8 SELECTs
+  per 100 rows, rollback/idempotency and no new participation or permission grant.
+- Actual WhatsApp durable-record fixture has 1 delivery recipient + 699 rejected contacts
+  sharing one phone. This tests all 700 database rows, not parser preservation.
+- Latest matching/source/selected-export slice: 18 passed in 7.68 seconds. This includes
+  real source freshness failures, updated identifier rules, forbidden replacement
+  candidate resolution, deleted sources and the 700-person saved-roster fixture.
+- Copy, snapshot, match and reconciliation slice: 33 passed in 16.07 seconds after
+  MIME-derived destination naming; subsequent source fingerprint checks passed above.
+- Backend agent's actual workbook import/regression slice: 117 passed in 35.15 seconds,
+  including tests/integration/test_whatsapp_shared_phone_import.py for dashboard and MCP.
+- Focused legacy storage cleanup, operational retention and delete tests: 38 passed.
+- Existing approval/image route regression run initially 59 passed plus 2 subtests;
+  five fake-image-fixture failures were corrected by skipping new checks entirely for
+  nonretained keys. Root final regression receipt supersedes this checkpoint.
+- Focused Ruff checks passed. Strict mypy passed 14 source files before latest source
+  paging module; its own strict check passed after typed union correction.
+- Backend quality budgets passed 87 modules after cohesive approval/GC extraction.
+- Release-worktree CI preparation: 11 rehearsal guard/resume unit tests passed and
+  38 CI input/workflow tests passed. Strict mypy passed the two new rehearsal scripts,
+  focused Ruff passed, and topology verification checks the exact 0133 -> 0132 ->
+  0131 -> 0130 -> 0129 chain. These checks do not mean PostgreSQL rehearsal ran.
+
+Exact populated migration qualification prepared for CI
+- Independent release review closed two recovery gaps: a target Alembic head can no
+  longer skip uncompleted validation, and partial resumes cannot replace the original
+  preservation baseline with an intermediate snapshot. The signed helper captures the
+  original 0129 rows/catalog/ACL digest, bound by the host to the original backup and
+  release proof; every unvalidated attempt compares that exact digest before and after
+  DDL. A durable successful validation receipt separately allows activation recovery
+  after legitimate target application writes.
+- PostgreSQL 16 public-schema ownership through pg_database_owner is accepted only
+  alongside exact current database/table ownership; no roles or grants are modified.
+- Fresh release-worktree focused persistence/enrollment/reconciliation/replacement/
+  schema/source-list suite: 62 passed in 22.29 seconds. Additional baseline/rehearsal
+  tests and release contract/CI tests are separate receipts; do not add overlapping
+  suites to imply a unique total. Real PostgreSQL execution remains pending CI.
+- Existing populated 0085 backup/restore gate remains intact.
+- backend/scripts/rehearse_companies_traveller_upgrade.py adds an independent populated
+  0129 backup/restore plus actual release-helper interruption/resume exercise.
+- Its synthetic source contains accepted passports, an exact existing GC-company
+  assignment, an unassigned group, 700 durable WhatsApp people sharing one number,
+  and nonempty runtime DML grants. It compares all original rows, catalog and ACLs.
+- The release helper commits 0130 and 0131, then receives an injected interruption
+  before 0132. PostgreSQL must create a real invalid concurrent index after a synthetic
+  uniqueness failure. Resume must repair that index, reach 0133, preserve history,
+  keep all new reuse tables empty, preserve grants and pass an idempotent rerun.
+- CI also submits an intentionally wrong original baseline at 0131; the helper must
+  reject it without advancing the schema, before the correctly bound resume succeeds.
+- The script requires the existing destructive-CI acknowledgement, a loopback host,
+  and two exact synthetic database names distinct from POSTGRES_DB. It never targets
+  a deployed application database. Temporary CI databases are removed on completion.
+- CI retains companies-migration-rehearsal-evidence.json alongside the existing
+  migration receipt. Real execution is pending the CI run; no success is claimed yet.
+- Fixture: backend/scripts/companies_rehearsal_fixture.py. Guard/resume tests:
+  backend/tests/unit/infrastructure/test_companies_migration_rehearsal.py.
+
+Other root/agent receipts reported during this same task
+- Root export regression suite 96 passed; company backend 13 passed; returning suite 46
+  passed at its checkpoint. Root subsequently added requirements/selected-passport
+  work and is rerunning. Do not present these overlapping checkpoints as one total.
+- Frontend agent reported 97 unit and 13 loopback fixture browser tests, with mobile and
+  desktop UI coverage. These are mocked local responses, not a deployed full stack.
+
+Measured capacity, exact scope
+Reproducible script: backend/scripts/benchmark_traveller_queries.py
+Receipt: docs/implementation/companies-reuse-evidence/capacity-100000-profiles-200000-participations.json
+- SQLite 3.53.1, Windows, Python 3.11.15, 32 logical CPUs.
+- 100,000 profiles, 100,000 passports, 200,000 participations, 250 companies, 101 groups,
+  including one 700-person group; 4 concurrent readers for 120.03 seconds.
+- Zero query errors; 113,246,208 peak working-set bytes; 426,442,752 database bytes.
+- Query p95: company search 1.814 ms; passport lookup 0.280 ms; traveller page 2.198 ms;
+  group summary 2.676 ms. p99 respectively 2.194 / 0.408 / 2.688 / 3.047 ms.
+- Each operation type: 159,737 iterations (~1330.8/s). These are synthetic local query
+  loops, NOT HTTP/API throughput, ORM/encryption timing or production capacity.
+- Additional 50k and 100k, 20-second, 4-reader receipts are in the same evidence directory.
+- Millions were not tested. No production/PostgreSQL/provider-capacity claim is made.
+
+Remaining qualification and explicit limits
+- Initial Docker daemon inspection was unavailable; real PostgreSQL migration,
+  lock-order/advisory admission, concurrent withdrawal/reassignment and failure tests
+  require a disposable service environment before Full release.
+- Real MinIO/S3 and broker timeouts, worker crashes and sustained API load are not
+  qualified by SQLite tests or fake storage objects.
+- Online encryption-key rotation/re-encryption is not implemented; populated records
+  cannot be migrated by simply replacing the configured keys.
+- Private originals load lazily and are byte capped. Background small preview
+  derivatives for public retained documents are not implemented in this slice.
+- Legacy truncated WhatsApp input cannot be recovered automatically. Current imports
+  preserve the tested 700 rows within the existing 2,000-row workbook limit.
+- Match previews grant no closed-roster eligibility. Explicit staff case resolution
+  creates pending current-trip participation and never substitutes traveller proof.
+- No production migrations, deployment or real OTP provider sends are represented
+  by the local receipts in this file. Check exact-commit CI and protected Full release
+  records for any later rollout. Disclosure remains disabled by default.
+
+Architecture: docs/architecture/returning-traveller-reuse.md
+Qualification/runbook: docs/runbooks/companies-returning-travellers.md

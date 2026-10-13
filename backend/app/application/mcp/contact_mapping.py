@@ -14,6 +14,10 @@ from app.application.dtos.whatsapp_contact_dtos import (
     WhatsAppRejectedContactInput,
 )
 from app.application.mcp.operations import MCPOperationError
+from app.application.use_cases.whatsapp.contact_import_limits import (
+    MAX_WHATSAPP_EXCEL_ROWS,
+    MAX_WHATSAPP_REJECTED_ROWS,
+)
 from app.application.use_cases.whatsapp.recipient_capacity import MAX_WHATSAPP_RECIPIENTS
 
 
@@ -82,9 +86,10 @@ class MappedContacts:
                     **row.model_dump(mode="json"),
                     "reason": support.rejection_reasons[row.reason_code],
                 }
-                for row in self.rejected
+                for row in self.rejected[:MAX_WHATSAPP_REJECTED_ROWS]
             ],
-            "rejected_rows_truncated": False,
+            "rejected_rows_truncated": len(self.rejected) > MAX_WHATSAPP_REJECTED_ROWS,
+            "omitted_rejected_count": max(0, len(self.rejected) - MAX_WHATSAPP_REJECTED_ROWS),
         }
 
 
@@ -119,6 +124,8 @@ def map_contacts(
         keys = support.merge_keys(keys, declared_keys=header)
         for number, values in enumerate(rows[mapping.header_row :], start=mapping.header_row + 1):
             source_rows += 1
+            if source_rows > MAX_WHATSAPP_EXCEL_ROWS:
+                raise MCPOperationError("contact_import_capacity_exceeded")
             if not any(values):
                 blank_rows += 1
                 continue
@@ -175,7 +182,7 @@ def map_contacts(
                         reason_code=code,
                     )
                 )
-            if len(contacts) > MAX_WHATSAPP_RECIPIENTS or len(rejected) > 500:
+            if len(contacts) > MAX_WHATSAPP_RECIPIENTS or len(rejected) > MAX_WHATSAPP_EXCEL_ROWS:
                 raise MCPOperationError("contact_import_capacity_exceeded")
     if not contacts and not rejected:
         raise MCPOperationError("contact_import_empty")

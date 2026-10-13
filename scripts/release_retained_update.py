@@ -75,7 +75,7 @@ def wait_full_readiness(probe: Callable[[], dict], revision: str) -> None:
     raise ValueError('full_readiness_did_not_stabilize')
 
 
-def select_live(rows: list[dict], root: Path = ROOT) -> dict[str, dict]:
+def select_live(rows: list[dict], root: Path = ROOT, *, schema: str = SCHEMA) -> dict[str, dict]:
     root = PurePosixPath(root.as_posix())
     selected = {}
     for row in rows:
@@ -96,7 +96,7 @@ def select_live(rows: list[dict], root: Path = ROOT) -> dict[str, dict]:
             'mixed_live_application_revisions')
     require(environment(selected['frontend']).get('NEXT_PUBLIC_APP_REVISION') == next(iter(revisions)),
             'mixed_live_frontend_revision')
-    require(all(environment(selected[name]).get('EXPECTED_DATABASE_SCHEMA_REVISION') == SCHEMA
+    require(all(environment(selected[name]).get('EXPECTED_DATABASE_SCHEMA_REVISION') == schema
                 for name in APPLICATION - {'frontend'}), 'live_schema_environment_changed')
     return selected
 
@@ -126,13 +126,13 @@ def validate_route_allowlist(source: Path) -> None:
     require(set(backend) == expected, 'route_allowlist_must_match_actual_pages')
 
 
-def runtime_environment(original: dict, revision: str) -> dict[str, str]:
+def runtime_environment(original: dict, revision: str, *, schema: str = SCHEMA) -> dict[str, str]:
     result = environment(original)
     service = original['Config']['Labels']['com.docker.compose.service']
     if service == 'frontend':
         result['NEXT_PUBLIC_APP_REVISION'] = revision
     elif service != 'nginx':
-        result.update(APP_REVISION=revision, EXPECTED_DATABASE_SCHEMA_REVISION=SCHEMA)
+        result.update(APP_REVISION=revision, EXPECTED_DATABASE_SCHEMA_REVISION=schema)
     return result
 
 
@@ -179,6 +179,11 @@ assert hashlib.sha256(raw).hexdigest()==EXPECTED
 
 
 class RetainedUpdate:
+    candidate_schema = SCHEMA
+
+    def retention_schema(self) -> str:
+        return self.candidate_schema
+
     def __init__(self, source: Path, revision: str, mode: str, artifact: Path | None = None):
         require(REVISION.fullmatch(revision) is not None and mode in {'full', 'fast'}, 'invalid_release_selection')
         require(source.resolve() == source and source.is_relative_to(ROOT / 'tmp')
@@ -223,7 +228,7 @@ class RetainedUpdate:
         require(not forbidden_changes(paths, self.mode, route_allowlist_validated=allowlist_checked),
                 'persistent_config_or_build_contract_requires_separate_release')
         contract = load_release_manifest(self.source / 'backend/app/core/config/release_manifest.json')
-        require(contract['schema_revision'] == SCHEMA and contract['worker_nodes'] == WORKERS,
+        require(contract['schema_revision'] == self.candidate_schema and contract['worker_nodes'] == WORKERS,
                 'separate_schema_or_worker_release_required')
         # Existing additive release metadata describes the already-installed schema.
         # It is not authorization to rerun a migration. Exact migration/model/config
@@ -245,7 +250,7 @@ class RetainedUpdate:
                 'previous_volume_missing')
         for name in INFRASTRUCTURE:
             require(bound_original(self.record['live'][name])['State']['Running'], 'infrastructure_stopped')
-        require(self.schema() == SCHEMA, 'database_schema_changed')
+        require(self.schema() == self.retention_schema(), 'database_schema_changed')
 
     def backup(self) -> None:
         db = self.record['live']['db']['Id']
@@ -345,7 +350,7 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
             old = live[name]
             image = old['Image'] if name == 'nginx' else images['frontend' if name == 'frontend' else 'backend']
             options = dict(name=self.project + '-' + name, image_id=image,
-                           environment=runtime_environment(old, self.revision), new_project=self.project,
+                           environment=runtime_environment(old, self.revision, schema=self.candidate_schema), new_project=self.project,
                            source_root=str(self.source), aliases={network: self.project + '-' + name
                                                                for network in old['NetworkSettings']['Networks']})
             if name == 'nginx':
@@ -364,7 +369,7 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
         try:
             require_idle(live)
             for name in WORKERS: self.stop(live[name])
-            builder = FastBuild(self.source, self.directory, self.revision, schema_revision=SCHEMA)
+            builder = FastBuild(self.source, self.directory, self.revision, schema_revision=self.candidate_schema)
             backend = builder.backend(live['backend']['Image'])
             frontend = builder.frontend(live['frontend']['Image'], ORIGIN)
             self.event('fast-images-built', fast_build={'backend': backend, 'frontend': frontend})
@@ -393,7 +398,7 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
 
     def run(self) -> None:
         require(not list(self.directory.glob('*-prepared.private.json')), 'existing_attempt_requires_receipt_review')
-        live = select_live(self.rows())
+        live = select_live(self.rows(), schema=self.candidate_schema)
         previous = environment(live['backend'])['APP_REVISION']
         self.compatibility(previous)
         self.current_main()
@@ -402,18 +407,18 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
                     for row in live.values()) and total + 2 * GIB <= int(command('docker', 'info', '--format', '{{.MemTotal}}')),
                 'steady_capacity_exceeds_host_reserve')
         require(not Path('/proc/swaps').read_text().splitlines()[1:], 'swap_must_remain_disabled')
-        self.record = {'revision': self.revision, 'mode': self.mode, 'schema': SCHEMA, 'project': self.project,
+        self.record = {'revision': self.revision, 'mode': self.mode, 'schema': self.candidate_schema, 'project': self.project,
                        'source': str(self.source), 'previous_revision': previous, 'live': live,
                        'inventory': {row['Id']: row for row in self.rows(all=True)},
                        'images_before': command('docker', 'image', 'ls', '-q', '--no-trunc').split(),
                        'volumes_before': command('docker', 'volume', 'ls', '-q').split()}
         self.event('prepared')
-        require(self.schema() == SCHEMA, 'same_schema_required_no_migration_permitted')
+        require(self.schema() == self.candidate_schema, 'same_schema_required_no_migration_permitted')
         self.proof(live, previous, public=True)
         require(shutil.disk_usage(self.directory).free >= 12 * GIB, 'insufficient_retained_image_headroom')
         if self.mode == 'full':
             manifest = verify_manifest(self.artifact, self.revision, pull=True, enforce_current_policy=True)
-            require(manifest['schema'] == SCHEMA, 'signed_image_schema_mismatch')
+            require(manifest['schema'] == self.candidate_schema, 'signed_image_schema_mismatch')
             images = {name: entry['local_image_id'] for name, entry in manifest['images'].items()}
             self.event('signed-images-verified', image_ids=images)
         else:
@@ -431,7 +436,7 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
                 self.stop(bound_original(live[name]))
             require({row['Id'] for row in self.rows()} == {live[name]['Id'] for name in INFRASTRUCTURE},
                     'writers_not_fenced')
-            require(self.schema() == SCHEMA, 'same_schema_required_before_start')
+            require(self.schema() == self.candidate_schema, 'same_schema_required_before_start')
             for name in ('backend', 'frontend', *WORKERS, 'email-beat'): self.start(candidates[name])
             self.proof({name: candidates[name] for name in APPLICATION}, self.revision, public=False)
             self.start(candidates['nginx'])
@@ -448,6 +453,15 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
             raise
 
 
+def release_for_source(source: Path, revision: str, mode: str, artifact: Path | None) -> RetainedUpdate:
+    manifest = load_release_manifest(source / 'backend/app/core/config/release_manifest.json')
+    if manifest.get('deployment_kind') == 'companies_traveller_reuse_v1':
+        from release_companies_retained_update import CompaniesRetainedUpdate
+
+        return CompaniesRetainedUpdate(source, revision, mode, artifact)
+    return RetainedUpdate(source, revision, mode, artifact)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--revision', required=True)
@@ -456,7 +470,7 @@ def main() -> int:
     parser.add_argument('--recover-receipt', type=Path)
     args = parser.parse_args()
     os.umask(0o077)
-    release = RetainedUpdate(Path(__file__).resolve().parents[1], args.revision, args.mode, args.manifest)
+    release = release_for_source(Path(__file__).resolve().parents[1], args.revision, args.mode, args.manifest)
     def interrupted(signum, frame):
         raise ValueError('release_interrupted')
     signal.signal(signal.SIGTERM, interrupted)

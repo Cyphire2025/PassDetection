@@ -12,10 +12,12 @@ import type {
 import {
   REQUIRED_REVIEW_FIELDS,
   REVIEW_FIELDS,
+  PASSIVE_PROGRESS_STEPS,
 } from "../components/upload-flow.constants";
 import type {
   FamilyMember,
   PassportDocumentBundle,
+  UploadFlowStep,
 } from "../components/upload-flow.types";
 import { createIdempotencyKey } from "./upload-flow-session";
 
@@ -80,6 +82,23 @@ export function emptyDocumentBundle(): PassportDocumentBundle {
 
 export function isClientSubmissionComplete(submission: PassportSubmission) {
   return CLIENT_COMPLETE_STATUSES.has(submission.status);
+}
+
+/** O(f) time, O(1) space for the bounded family draft (at most 20 members). */
+export function hasActiveUploadProgress({ step, submission, familyMembers, qualifierSelectionToken, clientName }: {
+  step: UploadFlowStep;
+  submission: PassportSubmission | null;
+  familyMembers: readonly FamilyMember[];
+  qualifierSelectionToken: string | null;
+  clientName: string;
+}) {
+  return step !== "SUCCESS" && (
+    submission !== null
+    || familyMembers.some((member) => member.submission !== null)
+    || qualifierSelectionToken !== null
+    || clientName.trim().length > 0
+    || !PASSIVE_PROGRESS_STEPS.has(step)
+  );
 }
 
 export function getInitialReviewFields(

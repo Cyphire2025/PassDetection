@@ -37,6 +37,10 @@ def source_contract(root: Path) -> dict | None:
     manifest = json.loads(
         (root / "backend/app/core/config/release_manifest.json").read_text("utf-8")
     )
+    if manifest.get("deployment_kind") == "companies_traveller_reuse_v1":
+        from release_companies_traveller_contract import source_contract as company_contract
+
+        return company_contract(root)
     if manifest.get("deployment_kind") == "travel_tracker_additive_v1":
         from release_travel_tracker_contract import source_contract as tracker_contract
 
@@ -127,6 +131,11 @@ def source_contract(root: Path) -> dict | None:
 
 def validate_contract(contract: dict, schema: str) -> None:
     """Validate signed metadata without treating it as a deployment permission."""
+    if isinstance(contract, dict) and contract.get("kind") == "companies_traveller_reuse_v1":
+        from release_companies_traveller_contract import validate_contract as validate_company
+
+        validate_company(contract, schema)
+        return
     if isinstance(contract, dict) and contract.get("kind") == "travel_tracker_additive_v1":
         from release_travel_tracker_contract import validate_contract as validate_tracker
 

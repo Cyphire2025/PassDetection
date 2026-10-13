@@ -252,6 +252,7 @@ function isRefreshEligibleRequest(url: string | undefined) {
   }
   if (url.includes("/api/v1/passports/upload/")) return false;
   if (url.includes("/api/v1/upload-links/token/")) return false;
+  if (url.includes("/api/v1/returning/")) return false;
   if (/\/api\/v1\/passports\/[^/]+\/client-submit(?:[/?]|$)/.test(url)) return false;
   if (/\/api\/v1\/passports\/[^/]+\/contact-otp\/(?:request|verify)(?:[/?]|$)/.test(url)) return false;
 
@@ -260,6 +261,7 @@ function isRefreshEligibleRequest(url: string | undefined) {
 
 function isStepUpEligibleRequest(url: string | undefined) {
   if (!url) return false;
+  if (url.includes("/api/v1/returning/")) return false;
   return !/\/api\/v1\/auth\/(?:login|refresh|mfa\/verify|mfa\/step-up)(?:[/?]|$)/.test(url);
 }
 

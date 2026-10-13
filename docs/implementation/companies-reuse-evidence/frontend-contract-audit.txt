@@ -1,0 +1,61 @@
+Frontend contract audit - release worktree
+Date: 2026-10-13
+Scope: Companies, staff matching review and returning-traveller flows.
+
+Cross-layer review
+- Inspected 45 scoped OpenAPI operations and their implementation contracts,
+  including agency scope, cursor bounds, revision guards, enrollment, matching,
+  contact verification, passport selection, protected document access and reuse
+  completion. No profile merge/split flow is included in this release.
+- Verified the generated CurrentRequirements schema explicitly requires
+  require_contact_phone, matching the updated frontend contract.
+- Cookie-bound returning requests use credentials, and protected document
+  requests preserve AbortSignal and the blob response type. Browser fixtures
+  exercise httpOnly, SameSite and API-path cookie boundaries; they do not use a
+  live backend or production credentials.
+
+Corrections made during this audit
+- Block completion when suitability is cannot_assess, with clear guidance.
+- Rotate completion idempotency keys when the reviewed document/requirements/
+  participation revision changes; preserve keys for an unchanged retry.
+- Include Companies in the optimistic dashboard proxy route guard.
+- Permit blob frames only on public upload routes. Keep object-src disabled.
+  PDF review now requires explicit visibility acknowledgement instead of
+  treating an iframe load event as proof that the document was readable.
+- Require an existing contact binding before completion when the current group
+  policy requires it. The existing contact verification flow resolves the
+  missing binding; this does not introduce routine OTP on passport/code entry.
+- Preserve normalized safe API messages from protected document failures.
+
+Final focused validation
+1. npx vitest run features/travellers proxy.test.ts
+   lib/api/client-returning.test.ts
+   PASS: 47 tests / 6 files (5.81 seconds).
+2. npm run type-check
+   PASS.
+3. npx eslint features/travellers proxy.ts proxy.test.ts
+   e2e/returning-travellers.spec.ts lib/api/client-returning.test.ts
+   PASS.
+4. npx playwright test e2e/companies.spec.ts
+   e2e/returning-travellers.spec.ts e2e/whatsapp-large-import.spec.ts --workers=2
+   PASS: 19 Chromium scenarios (40.1 seconds).
+5. npm run maintainability:check
+   PASS: all 40 protected modules. upload-flow remains 752 lines and complexity
+   46, within existing ceilings of 765 and 50; no ceilings were raised.
+6. git diff --check
+   PASS. Existing line-ending conversion warnings are not whitespace failures.
+
+Evidence limits
+- The focused test sets overlap the earlier release verification. Do not add
+  their totals to produce a count of unique tests.
+- Browser fixtures are synthetic API responses. Cross-layer source/OpenAPI
+  inspection and frontend fixtures do not establish live API integration.
+- The PDF browser scenario verifies scoped cookie delivery, protected PDF byte
+  transport, absence of a CSP violation and explicit acknowledgement. Headless
+  Chromium's native PDF viewer showed a blank preview in the inspected capture;
+  PDF pixels were not visually verified. Native PDF rendering still needs
+  verification in supported end-user browsers. The UI offers a readable-copy
+  fallback and does not automatically claim that an iframe load was a review.
+- Test run durations are not latency or throughput SLO measurements. There is
+  no frontend evidence here for millions of users, sustained concurrent load,
+  production storage latency or decoded-image memory capacity.

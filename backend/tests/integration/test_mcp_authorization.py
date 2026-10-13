@@ -18,6 +18,7 @@ from app.application.mcp.authorization import MCPAuthorizationService
 from app.application.mcp.credentials import MCPAuthError, pkce_challenge
 from app.core.config.mcp import MCPSettings
 from app.domain.mcp_read_sections import SUPPORTED_READ_SECTIONS
+from app.infrastructure.database.gc_mobile_models import ClientOrganizationModel
 from app.infrastructure.database.mcp_models import (
     MCPAuthorizationCodeModel,
     MCPConnectionRequestModel,
@@ -609,13 +610,17 @@ async def test_create_group_http_replay_across_connections_and_conflict(mcp_fixt
     await session.flush()
     owner = UserModel(id=uuid.uuid4(), agency_id=agency.id, email="owner@example.test",
                       full_name="Owner", hashed_password="fixture", role="agency_staff", is_active=True)
-    session.add(owner)
+    company = ClientOrganizationModel(
+        id=uuid.uuid4(), agency_id=agency.id, name="Creation client",
+        normalized_name="creation client", status="active",
+    )
+    session.add_all([owner, company])
     await session.flush()
-    agency_id, owner_id = str(agency.id), str(owner.id)
+    agency_id, owner_id, company_id = str(agency.id), str(owner.id), str(company.id)
     permissions = {"write_enabled": True, "allowed_write_sections": ["group_links"]}
     _, first = await connect(mcp_fixture, scopes=["mcp:read", "mcp:change"], permissions=permissions)
     _, second = await connect(mcp_fixture, scopes=["mcp:change"], permissions=permissions)
-    payload = {"agency_id": agency_id, "owner_user_id": owner_id, "name": "Autumn trip",
+    payload = {"agency_id": agency_id, "owner_user_id": owner_id, "company_id": company_id, "name": "Autumn trip",
                "destination": "Japan", "travel_date": "2026-10-10", "return_date": "2026-10-15",
                "timezone": "Asia/Tokyo", "import_only": True, "collection_settings_confirmed": True}
     args = {"group": payload, "idempotency_key": "http-group-create-stable-key"}
@@ -633,6 +638,7 @@ async def test_create_group_http_replay_across_connections_and_conflict(mcp_fixt
     assert observed.json()["result"]["structuredContent"]["operation_id"] == operation_id
     stored = await session.scalar(select(ClientGroupModel))
     assert stored.token not in json.dumps(original) and stored.import_only
+    assert str(stored.company_id) == company_id
     changed = await call_mcp(client, second["access_token"], name="create_group",
         arguments={**args, "group": {**payload, "name": "Different trip"}})
     assert changed.json()["result"]["structuredContent"]["error"] == "idempotency_conflict"

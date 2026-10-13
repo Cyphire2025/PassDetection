@@ -51,6 +51,14 @@ describe("dashboard proxy boundary", () => {
 });
 
 describe("production CSP", () => {
+  it("allows private PDF blob frames only on the public upload route", () => {
+    const review = proxy(new NextRequest("https://dashboard.example/upload/synthetic-token"));
+    expect(review.headers.get("content-security-policy")).toContain("frame-src 'self' blob:");
+    expect(review.headers.get("content-security-policy")).toContain("object-src 'none'");
+    const other = proxy(new NextRequest("https://dashboard.example/login"));
+    expect(other.headers.get("content-security-policy")).toContain("frame-src 'self';");
+    expect(other.headers.get("content-security-policy")).not.toContain("frame-src 'self' blob:");
+  });
   it("does not permit arbitrary inline or eval-based scripts", () => {
     const policy = buildContentSecurityPolicy("fixed-nonce", false);
     const scriptDirective = policy.split("; ").find((directive) => directive.startsWith("script-src "));

@@ -24,7 +24,6 @@ from app.presentation.api.v1.routes.whatsapp_shared import (
     MAX_WHATSAPP_CONTACT_FILE_BYTES,
     MAX_WHATSAPP_EXCEL_ROWS,
     MAX_WHATSAPP_EXCEL_SHEETS,
-    MAX_WHATSAPP_REJECTED_ROWS,
     PHONE_RE,
     WHATSAPP_ROLES,
     WHATSAPP_UPLOAD_READ_CHUNK_BYTES,
@@ -68,8 +67,8 @@ def _append_excel_contact_rejection(
     reason_code: WhatsAppContactRejectionCode,
 ) -> None:
     rejected_counts[reason_code] = rejected_counts.get(reason_code, 0) + 1
-    if len(rejected_rows) >= MAX_WHATSAPP_REJECTED_ROWS:
-        return
+    if len(rejected_rows) >= MAX_WHATSAPP_EXCEL_ROWS:
+        raise HTTPException(status_code=400, detail=f"A contact file can contain at most {MAX_WHATSAPP_EXCEL_ROWS} rejected phone entries")
     rejected_rows.append(
         WhatsAppContactPreviewRejectedRow(
             sheet_name=sheet_name,

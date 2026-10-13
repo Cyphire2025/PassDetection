@@ -135,6 +135,8 @@ class CustomDetailResponse(CustomDetailRequest):
 
 
 class CreateClientGroupRequest(BaseModel):
+    company_id: uuid.UUID
+    agency_id: uuid.UUID | None = None
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
     import_only: bool = Field(default=False, strict=True)
@@ -236,6 +238,9 @@ class CreateClientGroupRequest(BaseModel):
 
 
 class UpdateClientGroupRequest(BaseModel):
+    company_id: uuid.UUID | None = None
+    agency_id: uuid.UUID | None = None
+    company_revision: int | None = Field(default=None, ge=0)
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
     name: str = Field(..., min_length=1, max_length=100)
@@ -350,6 +355,9 @@ class WhatsAppBroadcastSummaryResponse(BaseModel):
 
 
 class ClientGroupResponse(BaseModel):
+    company_id: uuid.UUID | None = None
+    company_revision: int = 0
+    company: dict[str, object] | None = None
     id: uuid.UUID
     name: str
     token: str

@@ -8,6 +8,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.use_cases.passports.export_changes import export_changes
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import PassportSubmission, User
 from app.infrastructure.database.models import (
@@ -128,7 +129,7 @@ async def _resolve_group_export_payload(
         )
 
     try:
-        baseline_ids = _validated_export_history_ids(
+        _validated_export_history_ids(
             baseline,
             field_name="snapshot_submission_ids",
         )
@@ -140,11 +141,13 @@ async def _resolve_group_export_payload(
                 "and cannot be used as a baseline."
             ),
         )
-    payload = [submission for submission in submissions if submission.id not in baseline_ids]
-    if not payload:
+    changes = export_changes(submissions, baseline)
+    included_ids = changes.included_ids
+    payload = [submission for submission in submissions if submission.id in included_ids]
+    if not changes.rows:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="There are no new uploads after the selected download.",
+            detail="There are no added, changed or removed uploads after the selected download.",
         )
     return payload, baseline
 

@@ -3,6 +3,7 @@ import { DEFAULT_UPLOAD_CONFIGURATION } from "../types/upload-configuration";
 import { createUploadLinkSchema, uploadConfigurationSchema } from "./upload-link.schema";
 
 const validLink = {
+  company_id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
   name: "Dubai group", destination: "Dubai", travel_date: "2026-11-01", return_date: "2026-11-08", timezone: "Asia/Kolkata",
   departure_cities: [], base_city_enabled: false, nearest_international_airport_enabled: false,
   staff_code_enabled: false, agent_employee_code_enabled: false, meal_preference_enabled: false,
@@ -38,9 +39,9 @@ describe("ECR and instruction language configuration", () => {
 });
 
 describe("import data groups", () => {
-  const details = { name: "Final roster", destination: "Dubai", travel_date: "2026-11-01", return_date: "2026-11-08", timezone: "Asia/Kolkata", import_only: true };
+  const details = { company_id: validLink.company_id, name: "Final roster", destination: "Dubai", travel_date: "2026-11-01", return_date: "2026-11-08", timezone: "Asia/Kolkata", import_only: true };
 
-  it("accepts only the five group details and disables document collection", () => {
+  it("accepts a company with group details and disables document collection", () => {
     expect(createUploadLinkSchema.parse(details)).toMatchObject({
       ...details, require_selfie: false, allow_files_from_device: false,
       custom_questions: [], custom_details: [], departure_cities: [],
@@ -66,6 +67,15 @@ describe("import data groups", () => {
     { timezone: "not-a-timezone" }, { return_date: "2026-10-01" },
   ])("still validates required trip details %j", (invalid) => {
     expect(createUploadLinkSchema.safeParse({ ...details, ...invalid }).success).toBe(false);
+  });
+});
+
+describe("company requirement", () => {
+  it.each([true, false])("requires a valid company ID for import_only=%s", (import_only) => {
+    for (const company_id of [undefined, "", "not-an-id"]) {
+      expect(createUploadLinkSchema.safeParse({ ...validLink, import_only, company_id }).success).toBe(false);
+    }
+    expect(createUploadLinkSchema.safeParse({ ...validLink, import_only }).success).toBe(true);
   });
 });
 

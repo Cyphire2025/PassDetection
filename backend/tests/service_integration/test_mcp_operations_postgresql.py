@@ -15,6 +15,7 @@ from app.application.mcp.credentials import MCPAuthError
 from app.application.mcp.group_changes import CREATE_GROUP_POLICY, group_creation_operation
 from app.application.mcp.operations import MCPOperationError, MCPOperationService
 from app.domain.mcp_section_permissions import WRITE_TOOL_SECTIONS
+from app.infrastructure.database.gc_mobile_models import ClientOrganizationModel
 from app.infrastructure.database.mcp_models import MCPControlModel, MCPGrantModel
 from app.infrastructure.database.mcp_operation_models import MCPOperationModel
 from app.infrastructure.database.models import (
@@ -199,7 +200,7 @@ async def test_concurrent_changed_payload_cannot_reuse_the_winner_receipt(operat
 
 async def test_actual_group_creation_replays_one_group_and_business_audit(operation_sessions):
     sessions, settings, _, _, tokens = operation_sessions
-    agency_id, owner_id = uuid.uuid4(), uuid.uuid4()
+    agency_id, owner_id, company_id = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
     async with sessions() as session:
         session.add(
             AgencyModel(
@@ -218,10 +219,15 @@ async def test_actual_group_creation_replays_one_group_and_business_audit(operat
                 agency_id=agency_id,
             )
         )
+        session.add(ClientOrganizationModel(
+            id=company_id, agency_id=agency_id, name="Isolated PG client",
+            normalized_name="isolated pg client", status="active",
+        ))
         await session.commit()
     payload = {
         "agency_id": str(agency_id),
         "owner_user_id": str(owner_id),
+        "company_id": str(company_id),
         "name": "Isolated PG group",
         "collection_settings_confirmed": True,
         "destination": "Japan",
@@ -246,6 +252,9 @@ async def test_actual_group_creation_replays_one_group_and_business_audit(operat
     results = await asyncio.wait_for(asyncio.gather(*(run(index % 2) for index in range(6))), 15)
     assert all(item == results[0] for item in results)
     async with sessions() as session:
+        assert await session.scalar(
+            select(ClientGroupModel.company_id).where(ClientGroupModel.agency_id == agency_id)
+        ) == company_id
         assert (
             await session.scalar(
                 select(func.count())

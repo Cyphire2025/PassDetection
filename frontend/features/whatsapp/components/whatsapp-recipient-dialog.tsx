@@ -188,7 +188,10 @@ export function RecipientListDialog({
     importState,
     previewFile,
     rejectedContacts,
+    rejectedContactCount,
     importedFieldKeys,
+    duplicateSourceFiles,
+    dismissImportError,
     resetImport,
   } = useRecipientExcelPreview({
     contacts,
@@ -282,6 +285,10 @@ export function RecipientListDialog({
       setRecipientError("Wait for the Excel contacts to finish loading.");
       return;
     }
+    if (importState.status === "error") {
+      setRecipientError("Correct or explicitly ignore the failed Excel import before saving.");
+      return;
+    }
     if (contacts.length === 0 && rejectedContacts.length === 0) {
       setRecipientError(
         "Add at least one named recipient or import rejected rows for correction.",
@@ -317,8 +324,9 @@ export function RecipientListDialog({
         recipientOptInConfirmed:
           contacts.length > 0 && recipientOptInConfirmed,
         importedFieldKeys,
+        ...(duplicateSourceFiles.length ? { duplicateSourceFiles } : {}),
       });
-      const savedRejectedCount = rejectedContacts.length;
+      const savedRejectedCount = rejectedContactCount;
       setContacts([]);
       resetImport();
       setRecipientOptInConfirmed(false);
@@ -619,7 +627,7 @@ export function RecipientListDialog({
           }
           widthClass="max-w-[1600px] h-[94dvh]"
         >
-        <RecipientWorkspaceNavigation section={section} onChange={setSection} recipientCount={detail?.recipient_count ?? group.recipient_count} pendingCount={contacts.length + rejectedContacts.length} readOnly={isArchived} sourceContactCount={sourceContactCount} />
+        <RecipientWorkspaceNavigation section={section} onChange={setSection} recipientCount={detail?.recipient_count ?? group.recipient_count} pendingCount={contacts.length + rejectedContactCount} readOnly={isArchived} sourceContactCount={sourceContactCount} />
         <div className="min-h-0 flex-1 overflow-y-auto bg-slate-50/70 p-4 sm:p-6">
         {isArchived && <p role="status" className="mb-4 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700">This broadcast is archived and read-only. Restore it from Archived broadcasts to edit recipients or send messages.</p>}
         {loadError ? (
@@ -773,6 +781,7 @@ export function RecipientListDialog({
               <ExcelRecipientImport
                 state={importState}
                 onFile={previewFile}
+                onDismissError={dismissImportError}
                 label="Upload additional Excel contacts"
               />
 
@@ -808,7 +817,7 @@ export function RecipientListDialog({
                     (contacts.length === 0 &&
                       rejectedContacts.length === 0) ||
                     (contacts.length > 0 && !recipientOptInConfirmed) ||
-                    importState.status === "loading"
+                    importState.status === "loading" || importState.status === "error"
                   }
                   onClick={addRecipients}
                 >

@@ -3,6 +3,7 @@
 import copy
 import importlib.util
 import json
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -29,11 +30,25 @@ def helper():
 
 
 class TrackerContractTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        manifest = self.root / "backend/app/core/config/release_manifest.json"
+        manifest.parent.mkdir(parents=True)
+        manifest.write_text(json.dumps({
+            "deployment_kind": KIND, "schema_revision": TARGET,
+            "previous_schema_revision": SOURCE,
+        }), encoding="utf-8")
+        migration = self.root / PATH
+        migration.parent.mkdir(parents=True)
+        shutil.copyfile(ROOT / PATH, migration)
+
     def test_exact_single_migration_and_packaged_helper_policy(self):
-        value = source_contract(ROOT)
+        value = source_contract(self.root)
         validate_contract(value, TARGET)
         verify_source_defaults()
-        require_source_contract({"deployment": value}, ROOT)
+        require_source_contract({"deployment": value}, self.root)
         module = helper()
         module.verify_sources(ROOT / "backend", value)
         self.assertEqual(module.POLICY, POLICY)
@@ -45,7 +60,7 @@ class TrackerContractTests(unittest.TestCase):
             require_same_schema_artifact({"deployment": value})
 
     def test_authority_and_retention_cannot_be_relaxed(self):
-        value = source_contract(ROOT)
+        value = source_contract(self.root)
         for field, changed in [
             ("version", True),
             ("existing_grants", "expand"),
@@ -63,7 +78,7 @@ class TrackerContractTests(unittest.TestCase):
                 helper().verify_sources(ROOT / "backend", revised)
 
     def test_source_hash_parent_path_and_file_mutation_rejected(self):
-        value = source_contract(ROOT)
+        value = source_contract(self.root)
         for field, changed in [
             ("sha256", "0" * 64),
             ("path", "../../arbitrary.py"),
@@ -72,7 +87,7 @@ class TrackerContractTests(unittest.TestCase):
             revised = copy.deepcopy(value)
             revised["migrations"][0][field] = changed
             with self.subTest(field=field), self.assertRaises(ValueError):
-                require_source_contract({"deployment": revised}, ROOT)
+                require_source_contract({"deployment": revised}, self.root)
             with self.subTest(helper_field=field), self.assertRaises(ValueError):
                 helper().verify_sources(ROOT / "backend", revised)
         with tempfile.TemporaryDirectory() as directory:

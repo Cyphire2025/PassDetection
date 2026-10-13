@@ -298,6 +298,8 @@ class PassportExportHistoryItemResponse(BaseModel):
     exported_count: int = Field(ge=0)
     pending_recipient_count: int = Field(default=0, ge=0)
     new_submission_count: int = Field(default=0, ge=0)
+    changed_submission_count: int = Field(default=0, ge=0)
+    removed_submission_count: int = Field(default=0, ge=0)
     compatible: bool = True
     actor_email: str | None = None
     created_at: datetime

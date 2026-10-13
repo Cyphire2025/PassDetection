@@ -124,9 +124,10 @@ async def export_passport_images_by_group(
     try:
         async with session.begin_nested():
             history = await PassportExportHistoryRepository(session).record(
-                **prepared.history_fields,
+                **{key: value for key, value in prepared.history_fields.items() if key != "artifact_metadata"},
                 request_id=resolved_request_id,
                 artifact_metadata={
+                    **prepared.history_fields.get("artifact_metadata", {}),
                     "image_count": image_count,
                     "uncompressed_bytes": uncompressed_bytes,
                     "archive_bytes": archive_size,

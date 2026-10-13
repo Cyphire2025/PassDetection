@@ -15,6 +15,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { useInstructionLanguage } from "../hooks/use-instruction-language";
 import { usePublicFlowTelemetry } from "../hooks/use-public-flow-telemetry";
+import { ReturningUploadSuccess, useReturningUpload } from "../hooks/use-returning-upload";
 import { useUploadContactVerification } from "../hooks/use-upload-contact-verification";
 import { useUploadDocuments } from "../hooks/use-upload-documents";
 import { useUploadFamily } from "../hooks/use-upload-family";
@@ -34,6 +35,7 @@ import { runUploadFlowBootstrap } from "../services/upload-flow-bootstrap";
 import {
   emptyDocumentBundle,
   errorMessage,
+  hasActiveUploadProgress,
   isClientSubmissionComplete
 } from "../services/upload-flow-helpers";
 import {
@@ -68,14 +70,12 @@ import {
 import {
   resolveUploadLinkFailure,
   UploadRecoveryScreen,
-  UploadSuccessScreen,
 } from "./upload-flow-status";
 import {
   FAMILY_RELATIONS,
   GENDERS,
   MAX_FAMILY_MEMBERS,
   MIN_FAMILY_MEMBERS,
-  PASSIVE_PROGRESS_STEPS,
 } from "./upload-flow.constants";
 import type {
   AgentEmployeeType,
@@ -157,6 +157,16 @@ export function UploadFlow({ token }: UploadFlowProps) {
     relationWithQualifierEnabled,
   } = flowSettings;
   const instructions = useInstructionLanguage(token, uploadConfig);
+  const returning = useReturningUpload({ token, group, step, onReplace: (request) => {
+    setSingleUploadIdempotencyKey(request.uploadSessionId); setSubmission(null); setReviewFields({}); setDocumentBundle(emptyDocumentBundle());
+    setVisaSelfie(null); setVisaPhotoSource(null); setCustomAnswers({}); setCustomDetailAnswers({});
+    setClientEmail(""); setClientPhone(""); setDepartureCity(""); setBaseCity(""); setNearestDomesticAirport("");
+    setStaffCode(""); setAgentEmployeeCode(""); setDesignation(""); setAgencyDealershipName(""); setMealPreference("");
+    clearQualifierSelectionToken(token); setQualifierSelectionToken(null); setPersistedQualifierChoice(null);
+    setQualifierPath(null); setQualifierRelationCode(""); setQualifierOtherRelation("");
+    setFlowMode("single"); setClientName(request.displayName); setUploadError(null);
+    setStep(relationWithQualifierEnabled ? "QUALIFIER_SELECT" : "METHOD_SELECT");
+  }});
   const requiredField = (field: RequiredUploadField) => isUploadFieldRequired(uploadConfig, field);
   const activeFamilyMember = familyMembers[activeFamilyIndex] ?? null;
   const activeVisaSelfie = flowMode === "family" ? activeFamilyMember?.visaSelfie ?? null : visaSelfie;
@@ -169,13 +179,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
     member.submission === null
     || !canReviewSubmission(member.submission)
   ));
-  const hasActiveProgress = step !== "SUCCESS" && (
-    submission !== null
-    || familyMembers.some((member) => member.submission !== null)
-    || qualifierSelectionToken !== null
-    || clientName.trim().length > 0
-    || !PASSIVE_PROGRESS_STEPS.has(step)
-  );
+  const hasActiveProgress = hasActiveUploadProgress({ step, submission, familyMembers, qualifierSelectionToken, clientName });
   const {
     report: reportTelemetry,
     reportPublicFlowOnce,
@@ -227,6 +231,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   };
 
   const chooseMode = (mode: FlowMode) => {
+    returning.clearReplacement();
     setFlowMode(mode);
     setUploadError(null);
     setStep(mode === "single" ? "METHOD_SELECT" : "FAMILY_SETUP");
@@ -420,6 +425,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   }
 
   if (isLoading || step === "BOOTSTRAP" || !group) return <CenteredLoader />;
+  if (returning.verificationPage) return returning.verificationPage;
 
   if (step === "RECOVERY_ERROR") {
     return <UploadRecoveryScreen error={uploadError} onRetry={retrySavedUploadRecovery} />;
@@ -531,7 +537,9 @@ export function UploadFlow({ token }: UploadFlowProps) {
 
   if (step === "SUCCESS") {
     return (
-      <UploadSuccessScreen
+      <ReturningUploadSuccess
+        intent={returning.replacementIntent}
+        uploadSessionId={singleUploadIdempotencyKey}
         flowMode={flowMode}
         familyMembers={familyMembers}
         submission={submission}
@@ -545,6 +553,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
     <div className="min-h-screen bg-slate-50 px-3 py-4 font-sans selection:bg-blue-100 selection:text-blue-900 sm:flex sm:flex-col sm:items-center sm:justify-center sm:px-4 sm:py-8 lg:py-12">
       <div className={`mx-auto w-full ${step === "METHOD_SELECT" && flowMode === "family" ? "max-w-5xl" : "max-w-lg"}`}>
         <UploadHeader groupName={group.name} departureDate={group.travel_date} returnDate={group.return_date} />
+        {returning.introduction}
         <ErrorMessage message={uploadError} />
         <div className="relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-4 shadow-xl shadow-slate-200/50 sm:rounded-3xl sm:p-8">
           {step === "MODE_SELECT" && (

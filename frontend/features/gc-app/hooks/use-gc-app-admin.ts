@@ -128,9 +128,10 @@ export function useClientCompanies(
 
 export function useClientCompanyMutations(agencyId: string | null) {
   const queryClient = useQueryClient();
-  const invalidateCompanies = () => queryClient.invalidateQueries({
-    queryKey: [...gcAppQueryKeys.root, agencyId, "client-companies"],
-  });
+  const invalidateCompanies = () => Promise.all([
+    queryClient.invalidateQueries({ queryKey: [...gcAppQueryKeys.root, agencyId, "client-companies"] }),
+    queryClient.invalidateQueries({ queryKey: ["companies", agencyId] }),
+  ]);
   return {
     create: useMutation({
       mutationFn: (name: string) => gcAppAdminApi.createClientOrganization(agencyId, name),

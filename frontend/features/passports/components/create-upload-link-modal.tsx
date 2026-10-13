@@ -9,7 +9,10 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { copyTextToClipboard } from "@/lib/utils/clipboard";
 import { canAccessWhatsAppBroadcasts } from "@/lib/utils/role-access";
-import { selectUserRole, useAuthStore } from "@/stores/auth.store";
+import { selectUser, selectUserRole, useAuthStore } from "@/stores/auth.store";
+import { CompanyPicker } from "@/features/companies/components/company-picker";
+import { CompanyAgencySelector } from "@/features/companies/components/company-agency-scope";
+import type { CompanyReference } from "@/features/companies/types";
 import {
   getPassportUploadTargets,
   type PassportUploadTarget,
@@ -29,6 +32,10 @@ interface CreateUploadLinkModalProps {
 
 export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModalProps) {
   const role = useAuthStore(selectUserRole);
+  const user = useAuthStore(selectUser);
+  const [selectedAgencyId, setSelectedAgencyId] = useState<string | null>(null);
+  const [company, setCompany] = useState<CompanyReference | null>(null);
+  const agencyId = user?.role === "super_admin" ? selectedAgencyId : user?.agency_id ?? null;
   const canAccessWhatsApp = canAccessWhatsAppBroadcasts(role);
   const [generatedTargets, setGeneratedTargets] = useState<PassportUploadTarget[]>([]);
   const [createdImportGroupId, setCreatedImportGroupId] = useState<string | null>(null);
@@ -49,6 +56,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
   } = useForm<CreateUploadLinkFormInput, unknown, CreateUploadLinkFormData>({
     resolver: zodResolver(createUploadLinkSchema),
     defaultValues: {
+      company_id: "",
       import_only: false,
       name: "",
       destination: "",
@@ -96,6 +104,8 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
       copiedTimerRef.current = null;
     }
     reset();
+    setCompany(null);
+    setSelectedAgencyId(null);
     setGeneratedTargets([]);
     setCreatedImportGroupId(null);
     setCopiedTargetKey(null);
@@ -112,6 +122,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
     try {
       const result = await createUploadLink({
         ...data,
+        ...(user?.role === "super_admin" && agencyId ? { agency_id: agencyId } : {}),
         name: data.name.trim(),
         destination: data.destination.trim(),
         travel_date: data.travel_date,
@@ -270,6 +281,15 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                 </div>
               </fieldset>
               <h3 className="text-sm font-semibold text-slate-900">Group Details</h3>
+              {user?.role === "super_admin" && <CompanyAgencySelector value={selectedAgencyId} onChange={(id) => {
+                setSelectedAgencyId(id);
+                setCompany(null);
+                setValue("company_id", "", { shouldDirty: true });
+              }} />}
+              <CompanyPicker agencyId={agencyId} value={company} onChange={(selected) => {
+                setCompany(selected);
+                setValue("company_id", selected.id, { shouldDirty: true, shouldValidate: true });
+              }} disabled={isPending} required error={errors.company_id?.message} />
               <Input
                 label="Group Name"
                 placeholder="e.g. Summer Europe Tour 2026"

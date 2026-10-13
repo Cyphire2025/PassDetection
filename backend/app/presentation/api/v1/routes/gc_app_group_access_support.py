@@ -58,6 +58,22 @@ def validate_removed_access_restore(
     return True
 
 
+def validate_group_access_edit(
+    group: ClientGroupModel, access: GCGroupAccessModel | None,
+    body: GCGroupAccessUpdateRequest, *, can_enable: bool,
+) -> tuple[bool, uuid.UUID, bool]:
+    """Validate revisions/lifecycle before canonical company mutation begins."""
+    restoring = validate_removed_access_restore(access, body, can_enable=can_enable)
+    if access is None and not can_enable:
+        raise HTTPException(status_code=409, detail="Archived or deleted groups cannot be added to GC App")
+    if access is not None and body.expected_revision != access.revision:
+        raise HTTPException(status_code=409, detail="GC App settings changed; refresh and retry")
+    organization_id = body.client_organization_id or group.company_id
+    if organization_id is None:
+        raise HTTPException(status_code=422, detail="Select a company/client for this group first")
+    return restoring, organization_id, organization_id != group.company_id
+
+
 async def configure_my_photos_feature(
     *,
     session: AsyncSession,

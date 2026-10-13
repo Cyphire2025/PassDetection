@@ -427,6 +427,9 @@ class ClientGroup:
     agency_id: uuid.UUID
     status: GroupStatus
     created_by_user_id: uuid.UUID | None
+    company_id: uuid.UUID | None = None
+    company_revision: int = 0
+    company: dict[str, object] | None = None
     import_only: bool = False
     created_at: datetime = field(default_factory=_utcnow)
     closed_at: datetime | None = None

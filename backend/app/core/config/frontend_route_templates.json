@@ -9,6 +9,8 @@
   "/admin/mcp/setup",
   "/analytics",
   "/audit-logs",
+  "/companies",
+  "/companies/[companyId]",
   "/coordinator",
   "/coordinator/groups/[groupId]",
   "/coordinator/groups/[groupId]/hotel-checkin",
