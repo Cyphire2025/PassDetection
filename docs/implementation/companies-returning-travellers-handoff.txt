@@ -1,7 +1,7 @@
 Companies / Clients and returning-traveller feature review handoff
 Date: 2026-10-14 (Asia/Calcutta)
 Client dashboard and automatic reuse: follow-up deployed and verified; Full CI remains paused.
-Current live application: 490b5ade5aeb221534894f8bf621d983cac82137.
+Current live application: ffef7eb76c6576ddd2ac49b4dca42d3dad0229e4.
 Current live schema: 0135_company_removal_history.
 The earlier release passed deployment checks but its initial live history processing
 was not verified with populated client records. The follow-up below corrects that gap.
@@ -56,8 +56,8 @@ was not verified with populated client records. The follow-up below corrects tha
   staff-approval audit evidence. Their old records have no issuer/type/MRZ. The
   staff acceptance branch wrongly insists on MRZ when context is missing. Their
   preceding AI decisions need review, so AI proof must never substitute for the
-  later explicit staff decision. The compatibility fix below is locally verified;
-  until its deployment and repair are recorded, these 12 remain unassigned.
+  later explicit staff decision. The compatibility fix below was subsequently
+  deployed and all 12 were assigned; the Test group now contains all 100 people.
 - Receipts in companies-reuse-evidence: fast-release-490b5ade.json,
   live-verification-490b5ade.json, http-smoke-490b5ade.json,
   live-import-parser-490b5ade.json, live-broadcast-import-490b5ade-01.json,
@@ -80,7 +80,9 @@ was not verified with populated client records. The follow-up below corrects tha
   the source fields and image references. Pending copies reject changed proof.
   Replay keys follow this generation and preserve older trip/document references.
   Source field edits clear staff approval; acceptance resumes only after staff
-  reapproval. Each new proof check is bounded O(1), with no added database query.
+  reapproval. Proof work is O(F + B) for the fields and serialized bytes of one
+  source plus its five image references, independent of the company population;
+  it adds no database query or history scan.
 - Focused validation: 84 tests passed. An independent integration runs actual
   registration, the private-copy worker (mocked object storage), roster matching
   and replay: one source -> one retained document -> one automatic target
@@ -93,20 +95,59 @@ was not verified with populated client records. The follow-up below corrects tha
   acceptance, proof generations, copies and matching. Two new per-module ratchets
   bring the static quality gate to 124 modules without relaxing previous limits.
   The broadcast scheduler measured 100% statement coverage (45/45); its separate
-  67-test run and staff coverage above are overlapping evidence, not extra unique
+  68-test run and staff coverage above are overlapping evidence, not extra unique
   tests to add to 278. Partial-suite global coverage is not Full CI qualification.
 - Wider read-only diagnosis found 789 Bluechip staff-approved sources without
-  an accepted current document. In 50-row pages, 788 passed the same staff proof
-  and identity-field checks (70 active-source / 718 archived-source records),
-  including these 12. One failed required identity fields and remains blocked.
-  A one-time bounded background refresh is necessary after deployment so the
-  next import does not repeat the compatibility failure. TATA's reuse is disabled
-  and must stay disabled; its private history does not authorize retained reuse.
-- Planned repair: first exact 12 source jobs with pinned source fingerprints and
-  current approval evidence, then the existing Bluechip background history flow.
-  Workers retain their 25-row pages, existing concurrency, expiry, identity and
-  image-availability gates. No original source row or broadcast destination is
-  edited. Actual deployment/completion evidence will be added after execution.
+  an accepted current document. In 50-row pages, 788 passed the staff proof and
+  source-field acceptance checks, including these 12. This measures document
+  approval only, not safe association with a traveller profile. Later identity
+  checks remain authoritative; do not call all 788 ready or eligible for reuse.
+- Fast deployment ffef7eb7 completed with unchanged schema, all 20 services
+  running/healthy, exact runtime images/revision and served-byte verification.
+  Twelve public smoke checks and eleven business-preservation checks passed.
+  Full CI remains paused. The release uses inherited runtime dependencies.
+- At 10:13:30 UTC the guarded repair admitted exactly 12 source jobs through the
+  existing scheduler. It checked the exact image, source fingerprints, current
+  approval evidence, company policy and broadcast link, and wrote a scoped audit.
+  By 10:14:03 UTC all 12 jobs, retained documents and copies were ready. Test has
+  100 valid recipients -> 100 distinct matched people -> 100 automatic accepted
+  memberships -> 100 confirmed submissions with front images. No traveller
+  confirmation, public grant or authorized claim was fabricated. The original
+  source all-column HMAC and all twelve source fingerprints remained unchanged;
+  the original active group still contains 853 source records.
+- At 10:14:15 UTC a separately audited, bounded refresh admitted the existing
+  Bluechip active/archived group history jobs. Both completed by 10:14:49 UTC,
+  preserving 25-row pages, existing concurrency, expiry and identity gates.
+  TATA reuse remains disabled; no policy or broadcast destination was changed.
+  Enrollment registered 141 staff-approved documents (69 active / 72 archived).
+  At 10:19:40 UTC all 345 active-source assets were available. At 10:21:32 UTC,
+  all 72 archived front-image references were proven to be Excel-import
+  placeholders with no object at their saved storage reference (72/72 HEADs,
+  concurrency two, no document bytes downloaded). Copy authority remained valid.
+  These are missing source images, not a matching/approval problem or evidence
+  that actual uploaded images were deleted. They remained pending at attempts
+  two/three of five; normal retries cannot create an original image. No ready
+  state was forced. These archived rows need real images before document reuse.
+- Remaining historical identity limitation: 648 sources did not enroll a current
+  document. 646 profiles remain review_required, and two conflict with another
+  profile's exact passport ownership. All 648 source records, memberships and
+  All data entries are preserved. This is not an unfinished registration backlog.
+  In 641 of the 646 review cases, legacy staff_metadata.dob uses DD.MM.YYYY and
+  equals the confirmed ISO date; the identity normalizer rejects that dotted
+  alias. These are supported same-date representations, not proven different
+  dates. Four others have identical raw aliases; one needs further diagnosis.
+  The existing historical case is resolved and hides the document blocker in
+  its evidence: current Review matches cannot resolve these cases. Do not tell
+  operators to wait or claim that the current queue can repair them. A separate
+  compatibility/reconciliation correction is still required; no profile status,
+  ownership, merge or split was forced during this import repair.
+- Current receipts: fast-release-ffef7eb7.json, live-verification-ffef7eb7.json,
+  http-smoke-ffef7eb7.json, regression-staff-reuse-ffef7eb7.json,
+  staff-repair-ffef7eb7.json, bluechip-history-refresh-ffef7eb7.json,
+  bluechip-history-observer-ffef7eb7-02.json,
+  archived-staff-assets-ffef7eb7-diagnosis-01.json,
+  live-history-business-ffef7eb7-comparison.json and
+  live-staff-review-remaining-ffef7eb7-03.json in companies-reuse-evidence.
 
 2026-10-14 live history / broadcast assignment follow-up
 - User recreated Bluechip and TATA AIG and assigned their groups after the requested

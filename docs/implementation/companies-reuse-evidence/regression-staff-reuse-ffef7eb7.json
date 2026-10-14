@@ -1,0 +1,48 @@
+{
+  "source_revision": "ffef7eb76c6576ddd2ac49b4dca42d3dad0229e4",
+  "verification_date": "2026-10-14",
+  "selected_regression_suite": {
+    "tests_passed": 278,
+    "elapsed_seconds": 134.87,
+    "exit_code": 0,
+    "scope": [
+      "real Excel export/import and shared phones",
+      "recipient mutation transaction guards",
+      "bounded incremental matching and job coalescing",
+      "historical registration and AI/staff/MRZ acceptance",
+      "document generation, private copies and automatic assignments"
+    ]
+  },
+  "independent_helper_coverage": {
+    "legacy_staff_acceptance": {
+      "covered_statements": 39,
+      "total_statements": 41,
+      "line_percent": 95.12,
+      "required_line_percent": 90
+    },
+    "broadcast_history_schedule": {
+      "covered_statements": 45,
+      "total_statements": 45,
+      "line_percent": 100,
+      "required_line_percent": 90,
+      "selected_tests_passed": 68,
+      "elapsed_seconds": 18.21,
+      "exit_code": 0
+    }
+  },
+  "static_checks": {
+    "mypy_modified_production_modules": 4,
+    "ruff": "passed",
+    "architecture_boundaries": "passed",
+    "size_and_complexity_budget_modules": 124,
+    "prior_budget_limits_relaxed": false
+  },
+  "limits": [
+    "Selected and independent test runs overlap; do not add their totals.",
+    "SQLite-backed integration uses mocked object-storage transport.",
+    "The separate PostgreSQL receipt covers two simultaneous 50-contact imports, not sustained capacity.",
+    "Partial-suite global coverage does not qualify the full application coverage gate.",
+    "Real provider sends, authenticated mobile browser journeys, and million-record load were not tested in this repair.",
+    "Full CI remains paused; this is a focused Fast-release verification record."
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "all_data_counts": {
+    "bluechip": 1396,
+    "tata": 901
+  },
+  "anonymous_application_boundary": {
+    "actual_saved_document": {
+      "authorization_sent": false,
+      "body_read": false,
+      "cache_control": "private, no-store, max-age=0",
+      "content_type": "application/json",
+      "cookie_sent": false,
+      "status": 410
+    },
+    "history": {
+      "authorization_sent": false,
+      "body_read": false,
+      "cache_control": "private, no-store, max-age=0",
+      "content_type": "application/json",
+      "cookie_sent": false,
+      "status": 410
+    }
+  },
+  "anonymous_public_boundary": {
+    "actual_saved_document": {
+      "authorization_sent": false,
+      "body_read": false,
+      "cache_control": "private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0",
+      "content_type": "application/json; charset=utf-8",
+      "cookie_sent": false,
+      "status": 403
+    },
+    "history": {
+      "authorization_sent": false,
+      "body_read": false,
+      "cache_control": "private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0",
+      "content_type": "application/json; charset=utf-8",
+      "cookie_sent": false,
+      "status": 403
+    }
+  },
+  "assigned_without_public_grant": true,
+  "backend": "retained-ffef7eb76c65-185f02cb-backend",
+  "backend_image": "sha256:2f3efd2e8ec508dfa0bc8f6577366a72a719530802018e62452deee9b7abd95e",
+  "baseline_checked_at": "2026-10-14T07:55:54.530194+00:00",
+  "baseline_target_source_count": 0,
+  "checked_at": "2026-10-14T10:14:33.080908+00:00",
+  "checks": {
+    "anonymous_history_and_actual_image_denied": true,
+    "application_grant_boundary_denies_missing_cookie": true,
+    "automatic_assignment_not_traveller_confirmation": true,
+    "bluechip_all_data_populated": true,
+    "exact_recipient_resolved_automatically": true,
+    "original_source_unchanged": true,
+    "retained_images_available": true,
+    "target_membership_accepted": true,
+    "target_submission_materialized": true,
+    "tata_all_data_populated": true,
+    "test_person_in_all_data": true
+  },
+  "errors": {},
+  "identity_totals_partial": {
+    "bluechip": true,
+    "tata": true
+  },
+  "incomplete_checks": [],
+  "origin_source_count_before": 853,
+  "origin_source_count_now": 853,
+  "passed": true,
+  "pending_copy_count_for_assigned_document": 0,
+  "public_authorization": {
+    "authorized_claim_count": 0,
+    "history_grant_count": 0
+  },
+  "queue_counts": [
+    {
+      "count": 22,
+      "processed_count": 9211,
+      "status": "succeeded"
+    },
+    {
+      "count": 2,
+      "processed_count": 0,
+      "status": "cancelled"
+    },
+    {
+      "count": 4,
+      "processed_count": 1975,
+      "status": "queued"
+    },
+    {
+      "count": 1,
+      "processed_count": 625,
+      "status": "running"
+    }
+  ],
+  "target_source_count": 100
+}

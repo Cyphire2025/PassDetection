@@ -1,0 +1,79 @@
+{
+  "additive_release": false,
+  "all_prior_resources_retained": true,
+  "automatic_downgrade": false,
+  "backend_api_contract_sha256": "36105209b6c7d5922de701a0090a6205108cb30a7a6efce9e616962957ffbad8",
+  "backup_archive_listing_recorded": true,
+  "builds": {
+    "backend": {
+      "base_image_id": "sha256:ce3f48626c8028ea42bb10723edfcbce4b113d577cfd2d0b7536039888e7ea87",
+      "exit_code": 0,
+      "image_id": "sha256:2f3efd2e8ec508dfa0bc8f6577366a72a719530802018e62452deee9b7abd95e",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "oom_killed": false
+    },
+    "frontend": {
+      "base_image_id": "sha256:ed9a29c64a010d5f44800bcaaae64090d447299babfe38cd91da5cab3139fafc",
+      "exit_code": 0,
+      "image_id": "sha256:991d3daa9fbeb8fce0847742c6bb4c346f6983136f024b64c3d564abc5dfad82",
+      "log_sha256": "39498f16113c78a5c3c502b69592d70bc79b8e61bbefa790cd2487218de1e928",
+      "oom_killed": false,
+      "runtime_preparation": {
+        "exit_code": 0,
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "oom_killed": false
+      }
+    }
+  },
+  "completion_receipt_sha256": "57355dbe660eb0e9c20e1e923c2e5fd2e10116a6bb7c15150f9ceacd6e223e86",
+  "full_ci_qualified": false,
+  "images": {
+    "backend": "sha256:2f3efd2e8ec508dfa0bc8f6577366a72a719530802018e62452deee9b7abd95e",
+    "frontend": "sha256:991d3daa9fbeb8fce0847742c6bb4c346f6983136f024b64c3d564abc5dfad82"
+  },
+  "limits": [
+    "Retained completion evidence only; this extractor did not recheck live health.",
+    "Fast uses inherited runtime images; Full CI qualification is not asserted.",
+    "Memory caps are receipt configuration, not measured usage or host headroom.",
+    "Backup archive listing was recorded; backup bytes were not read or revalidated."
+  ],
+  "migrations_run": false,
+  "mode": "fast",
+  "previous_revision": "490b5ade5aeb221534894f8bf621d983cac82137",
+  "resources": {
+    "application_memory_cap_bytes": 7381975040,
+    "application_service_count": 12,
+    "host_memory_bytes": null,
+    "memory_caps_unchanged": true,
+    "observed_memory_usage_bytes": null,
+    "service_count": 20,
+    "service_memory_caps_bytes": {
+      "backend": 2684354560,
+      "clamav": 3221225472,
+      "db": 939524096,
+      "ecr-worker": 671088640,
+      "email-ai-worker": 402653184,
+      "email-beat": 268435456,
+      "email-worker": 402653184,
+      "extraction-worker": 536870912,
+      "frontend": 536870912,
+      "metrics-exporter": 134217728,
+      "minio": 805306368,
+      "my-photos-worker": 402653184,
+      "nginx": 134217728,
+      "redis": 335544320,
+      "redis-broker": 1207959552,
+      "redis-cache": 335544320,
+      "redis-realtime": 201326592,
+      "verification-worker": 402653184,
+      "visa-ai-worker": 536870912,
+      "worker": 402653184
+    },
+    "steady_memory_cap_bytes": 14562623488
+  },
+  "runtime_inherited_from_previous_images": true,
+  "same_schema_release": true,
+  "schema": "0135_company_removal_history",
+  "source_revision": "ffef7eb76c6576ddd2ac49b4dca42d3dad0229e4",
+  "status": "complete"
+}

@@ -1,0 +1,105 @@
+{
+  "backend": "retained-ffef7eb76c65-185f02cb-backend",
+  "backend_image": "sha256:2f3efd2e8ec508dfa0bc8f6577366a72a719530802018e62452deee9b7abd95e",
+  "checked_at": "2026-10-14T10:18:41.770812+00:00",
+  "directory_access": [
+    {
+      "distinct_people": 648,
+      "nondeleted_directory_profiles": 648,
+      "resolved_source_links": 648,
+      "sources": 648,
+      "with_group_membership": 648
+    }
+  ],
+  "identity_review_sample": {
+    "authoritative_outcomes": {
+      "conflicting:exact_name_required": 20
+    },
+    "current_identity_conflict_fields": {
+      "birth_date": 20
+    },
+    "date_alias_states": {
+      "distinct_valid:1,invalid:1": 20
+    },
+    "date_shapes": {
+      "date_of_birth:####-##-##": 20,
+      "dob:##.##.####": 20
+    },
+    "date_source_key_presence": {
+      "confirmed_fields:date_of_birth": 20,
+      "extracted_fields:date_of_birth": 20,
+      "staff_metadata:dob": 20
+    },
+    "examined": 20,
+    "profile_association": {
+      "different_or_no_profile": 20
+    }
+  },
+  "identity_sample_limit": 20,
+  "owner_conflict_context": [
+    {
+      "association_reason": "exact_three_type_match",
+      "missing_document_type": 2,
+      "missing_issuer": 2,
+      "possible_duplicate": "false",
+      "profile_status": "active",
+      "sources": 2
+    }
+  ],
+  "read_only": true,
+  "review_dob_format_aggregate": [
+    {
+      "dotted_dmy_equals_confirmed_iso": 641,
+      "dotted_dob": 641,
+      "dotted_mdy_equals_confirmed_iso": 17,
+      "identical_raw_dob": 4,
+      "sources": 646
+    }
+  ],
+  "review_state": [
+    {
+      "association_reason": "exact_three_type_match",
+      "case_status": "resolved",
+      "document_reason": "conflicting_passport_owner",
+      "earliest_profile_created": "2026-10-14 08:36:59.132633+00:00",
+      "group_id": "20b93ca4-ac66-4194-babc-432f2c00720a",
+      "latest_profile_created": "2026-10-14 08:36:59.132633+00:00",
+      "possible_duplicate": "false",
+      "profile_status": "active",
+      "sources": 1
+    },
+    {
+      "association_reason": "exact_three_type_match",
+      "case_status": "resolved",
+      "document_reason": "conflicting_passport_owner",
+      "earliest_profile_created": "2026-10-14 08:37:49.591803+00:00",
+      "group_id": "d6647741-0d4b-48c9-b4ad-1f3a61b34b5a",
+      "latest_profile_created": "2026-10-14 08:37:49.591803+00:00",
+      "possible_duplicate": "false",
+      "profile_status": "active",
+      "sources": 1
+    },
+    {
+      "association_reason": "exact_name_required",
+      "case_status": "resolved",
+      "document_reason": "identity_review_required",
+      "earliest_profile_created": "2026-10-14 08:37:41.301993+00:00",
+      "group_id": "d6647741-0d4b-48c9-b4ad-1f3a61b34b5a",
+      "latest_profile_created": "2026-10-14 08:37:59.453369+00:00",
+      "possible_duplicate": "true",
+      "profile_status": "review_required",
+      "sources": 643
+    },
+    {
+      "association_reason": "exact_three_type_match",
+      "case_status": "resolved",
+      "document_reason": "identity_review_required",
+      "earliest_profile_created": "2026-10-14 08:37:42.076401+00:00",
+      "group_id": "d6647741-0d4b-48c9-b4ad-1f3a61b34b5a",
+      "latest_profile_created": "2026-10-14 08:37:50.591114+00:00",
+      "possible_duplicate": "false",
+      "profile_status": "review_required",
+      "sources": 3
+    }
+  ]
+}
