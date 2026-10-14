@@ -54,11 +54,13 @@ def approve_legacy(source):
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("confirmed_sex", ["M", "Male"])
 async def test_existing_ai_approval_accepts_unknown_context_and_preserves_original_fields(
-    db_session,
+    db_session, confirmed_sex,
 ):
     ctx = await _fixture(db_session)
     fields = approve_legacy(ctx.source)
+    fields["sex"] = confirmed_sex
     await db_session.flush()
     person_id = await register(db_session, ctx)
     revision = await db_session.scalar(select(TravellerDocumentRevisionModel))
@@ -71,6 +73,46 @@ async def test_existing_ai_approval_accepts_unknown_context_and_preserves_origin
     assert len(revision.source_provenance["source_input_digest"]) == 64
     assert set(revision.reliable_fields) == {"date_of_birth", "issue_date", "expiry_date"}
     assert retained_source_is_current(revision, ctx.source, ctx.crypto)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("expected,observed", [
+    ("Male", "M"), ("M", "Male"), ("Female", "F"), ("F", "Female"),
+    ("Unspecified", "X"), ("X", "unspecified"), ("<", "X"), ("X", "<"),
+    (" female ", "F"), ("Ｍ", "male"),
+])
+async def test_verified_sex_accepts_only_established_equivalents_without_rewriting_source(
+    db_session, expected, observed,
+):
+    ctx = await _fixture(db_session)
+    fields = approve_legacy(ctx.source)
+    fields["sex"] = expected
+    proof = deepcopy(ctx.source.post_submission_verification)
+    next(row for row in proof["fields"] if row["field"] == "sex")["observed_value"] = observed
+    ctx.source.post_submission_verification = proof
+    accepted = accept_source(ctx.source, fields, operator=True)
+    assert accepted.fields["sex"] == expected
+    assert ctx.source.confirmed_fields["sex"] == expected
+    assert ctx.source.post_submission_verification == proof
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("expected,observed", [
+    ("Male", "F"), ("Female", "M"), ("X", "Male"), ("M", "X"),
+    ("unknown", "unknown"), ("Other", "X"), ("M", "unknown"), ("", ""),
+    ("M", None), ("M", 1), ("M", {}), ("M", ""), ("", "M"), ("M", " " * 160 + "M"),
+])
+async def test_verified_sex_rejects_conflicting_unrecognized_or_missing_evidence(
+    db_session, expected, observed,
+):
+    ctx = await _fixture(db_session)
+    fields = approve_legacy(ctx.source)
+    fields["sex"] = expected
+    proof = deepcopy(ctx.source.post_submission_verification)
+    next(row for row in proof["fields"] if row["field"] == "sex")["observed_value"] = observed
+    ctx.source.post_submission_verification = proof
+    with pytest.raises(EnrollmentError, match="verified_source_fields_changed"):
+        accept_source(ctx.source, fields, operator=True)
 
 
 @pytest.mark.asyncio
@@ -125,6 +167,7 @@ async def test_malformed_or_unobserved_field_cannot_become_verified_identity(db_
     [
         "label_only",
         "wrong_revision",
+        "missing_client_review",
         "missing_time",
         "stale_time",
         "provider_failure",
@@ -133,6 +176,7 @@ async def test_malformed_or_unobserved_field_cannot_become_verified_identity(db_
         "duplicate_field",
         "missing_field",
         "field_changed",
+        "name_case_changed",
         "invalid_date",
         "mrz_conflict",
     ],
@@ -143,11 +187,14 @@ async def test_legacy_acceptance_requires_current_complete_matching_verification
     ctx = await _fixture(db_session)
     approve_legacy(ctx.source)
     source = ctx.source
+    source.confirmed_fields = {**source.confirmed_fields, "sex": "Male"}
     proof = deepcopy(source.post_submission_verification)
     if change == "label_only":
         source.post_submission_verification = None
     elif change == "wrong_revision":
         source.post_submission_verification_revision = 0
+    elif change == "missing_client_review":
+        source.client_reviewed_at = None
     elif change == "missing_time":
         source.post_submission_verified_at = None
     elif change == "stale_time":
@@ -162,6 +209,8 @@ async def test_legacy_acceptance_requires_current_complete_matching_verification
         proof["fields"].pop()
     elif change == "field_changed":
         source.confirmed_fields = {**source.confirmed_fields, "passport_number": "DIFFERENT"}
+    elif change == "name_case_changed":
+        source.confirmed_fields = {**source.confirmed_fields, "given_names": "SYNTHETIC"}
     elif change == "invalid_date":
         source.confirmed_fields = {**source.confirmed_fields, "date_of_birth": "1990-02-30"}
         next(row for row in proof["fields"] if row["field"] == "date_of_birth")[
@@ -177,7 +226,7 @@ async def test_legacy_acceptance_requires_current_complete_matching_verification
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "change", ["verification_revision", "verification_time", "image", "reviewed_fields", "status"]
+    "change", ["verification_revision", "verification_time", "image", "reviewed_fields", "sex_alias", "sex_conflict", "status"]
 )
 async def test_pending_copy_rechecks_frozen_revision_time_and_input_digest(db_session, change):
     ctx = await _fixture(db_session)
@@ -193,6 +242,8 @@ async def test_pending_copy_rechecks_frozen_revision_time_and_input_digest(db_se
         ctx.source.image_s3_key = "changed/source.jpg"
     elif change == "reviewed_fields":
         ctx.source.confirmed_fields = {**ctx.source.confirmed_fields, "nationality": "GBR"}
+    elif change in {"sex_alias", "sex_conflict"}:
+        ctx.source.confirmed_fields = {**ctx.source.confirmed_fields, "sex": "Male" if change == "sex_alias" else "F"}
     else:
         ctx.source.status = "needs_review"
     assert not retained_source_is_current(revision, ctx.source, ctx.crypto)

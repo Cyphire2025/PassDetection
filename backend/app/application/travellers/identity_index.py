@@ -1,8 +1,7 @@
 """Tenant-scoped exact candidate indexing, separate from disclosure authority.
 
-One exact-name index seek returns at most 101 profiles. At most 100 * 16 current
-signal rows are projected; common-name overflow is review-only. Application
-memory is bounded. Query work is O(log N + C), C <= 101; no history scan occurs.
+Exact-name/passport index seeks return at most 101 profiles. At most 100 * 16
+current signals are projected; overflow stays unresolved. O(log N + C) indexed work, C <= 101, no history scan.
 """
 
 from __future__ import annotations
@@ -14,6 +13,7 @@ from sqlalchemy import delete, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.companies.data_exports import invalidate_company_exports
+from app.application.travellers.identity_candidates import identity_candidate_ids
 from app.domain.services.traveller_identity import IdentityEvidence, compare_identity
 from app.infrastructure.database.traveller_reuse_models import (
     TravellerIdentifierModel,
@@ -85,12 +85,9 @@ async def find_exact_identity(session: AsyncSession, *, agency_id: uuid.UUID, co
     names = evidence.get("name")
     if evidence.conflicts or len(names) != 1:
         return IdentityMatch("conflicting" if evidence.conflicts else "unmatched", "exact_name_required")
-    fingerprint = crypto.scoped_digest("name", agency_id, company_id, next(iter(names)))
-    person, index = TravellerProfileModel, TravellerIdentifierModel
-    ids = list((await session.scalars(select(person.id).where(person.agency_id == agency_id,
-        person.company_id == company_id, person.fingerprint_key_version == crypto.key_version,
-        person.name_fingerprint == fingerprint, person.status.in_(("active", "review_required")),
-        person.deleted_at.is_(None)).order_by(person.id).limit(MAX_IDENTITY_CANDIDATES + 1))).all())
+    index = TravellerIdentifierModel
+    ids = await identity_candidate_ids(session, agency_id=agency_id, company_id=company_id,
+        evidence=evidence, crypto=crypto, limit=MAX_IDENTITY_CANDIDATES + 1)
     if len(ids) > MAX_IDENTITY_CANDIDATES:
         return IdentityMatch("ambiguous", "candidate_limit_exceeded")
     if not ids:
@@ -104,20 +101,30 @@ async def find_exact_identity(session: AsyncSession, *, agency_id: uuid.UUID, co
     candidates: dict[uuid.UUID, list[tuple[str, str]]] = {identifier: [] for identifier in ids}
     for identifier, kind, ciphertext in rows:
         candidates[identifier].append((kind.removeprefix(IDENTITY_PREFIX), crypto.decrypt(ciphertext)))
-    matches: list[tuple[uuid.UUID, tuple[str, ...]]] = []
+    matches: list[tuple[uuid.UUID, tuple[str, ...], str]] = []
     conflict = False
+    passport_owners = 0
     for identifier, values in candidates.items():
         saved = IdentityEvidence(tuple(values))
-        if len(values) > MAX_SIGNALS or any(len(saved.get(kind)) > 1 for kind in ("name", "birth_date", "phone", "email")):
+        passport_owners += bool(evidence.get("passport") & saved.get("passport"))
+        if len(values) > MAX_SIGNALS or any(len(saved.get(kind)) > 1 for kind in ("name", "passport", "birth_date", "phone", "email")):
             conflict = True
             continue
         decision = compare_identity(evidence, saved)
         conflict |= decision.reason in {"passport_conflict", "birth_date_conflict"}
         if decision.matched:
-            matches.append((identifier, decision.matching_types))
+            matches.append((identifier, decision.matching_types, decision.reason))
+    return _identity_result(matches, passport_owners, conflict)
+
+
+def _identity_result(matches: list[tuple[uuid.UUID, tuple[str, ...], str]], passport_owners: int,
+    conflict: bool,
+) -> IdentityMatch:
     if len(matches) > 1:
         return IdentityMatch("ambiguous", "multiple_three_type_matches")
     if matches:
-        return IdentityMatch("matched", "exact_three_type_match", matches[0][0], matches[0][1])
+        if matches[0][2] == "corroborated_partial_name_match" and passport_owners > 1:
+            return IdentityMatch("ambiguous", "multiple_passport_owners")
+        return IdentityMatch("matched", matches[0][2], matches[0][0], matches[0][1])
     return IdentityMatch("conflicting" if conflict else "unmatched",
         "identity_conflict" if conflict else "three_independent_types_required")

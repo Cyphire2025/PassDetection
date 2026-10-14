@@ -24,6 +24,7 @@ from app.application.companies.people_contracts import (
     DocumentVersion,
     PersonItem,
 )
+from app.application.travellers.document_selection import current_document_id
 from app.application.travellers.history import PASSPORT_REVIEW_FIELDS
 from app.domain.entities.entities import User
 from app.domain.exceptions.exceptions import EntityNotFoundError
@@ -86,12 +87,10 @@ def document_fields(crypto: TravellerReuseCrypto, document: Document) -> dict[st
 
 async def current_document(session: AsyncSession, person: Person) -> tuple[Passport, Document] | None:
     return (await session.execute(select(Passport, Document).join(Document,
-        (Document.passport_id == Passport.id) & (Document.traveller_id == Passport.traveller_id)
-        & (Document.agency_id == Passport.agency_id) & (Document.company_id == Passport.company_id)).where(
+        Document.id == current_document_id(Passport)).where(
         Passport.agency_id == person.agency_id, Passport.company_id == person.company_id,
         Passport.traveller_id == person.id, Passport.is_default.is_(True), Passport.status == "accepted",
-        Document.status == "accepted",
-    ).order_by(Document.revision_number.desc()).limit(1))).tuples().first()
+    ).limit(1))).tuples().first()
 
 
 async def current_person(session: AsyncSession, person: Person, crypto: TravellerReuseCrypto, *, user: User | None = None) -> CurrentPerson:

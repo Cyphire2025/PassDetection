@@ -19,6 +19,7 @@ from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.travellers.accepted_source import accept_source
+from app.application.travellers.document_selection import metadata_only_source
 from app.application.travellers.legacy_source_acceptance import AI_ACCEPTANCE_RULE
 from app.application.travellers.retained_authority import OPERATOR_REGISTRATION_VERSION
 from app.application.travellers.source_acceptance_provenance import acceptance_provenance
@@ -131,6 +132,8 @@ async def enroll_submission(
     ).with_for_update())
     if source is None or source.extraction_revision != request.expected_extraction_revision:
         raise EnrollmentError("accepted_source_revision_required")
+    if metadata_only_source(source):
+        raise EnrollmentError("source_scan_unavailable")
     request = await _resolve_reviewed_candidate(session, request, source, crypto)
     fields = dict(source.confirmed_fields or {})
     reviewed_context: dict[str, str] | None = None

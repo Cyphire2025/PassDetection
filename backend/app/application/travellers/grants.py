@@ -131,7 +131,7 @@ async def require_grant(
     # Recheck proof revision/status, not merely the presence of an opaque token.
     from app.application.travellers.authority import accepted_document
     _, revision = await accepted_document(service.session, agency_id=grant.agency_id,
-        company_id=grant.company_id, traveller_id=person.id, passport_id=grant.passport_id)
+        company_id=grant.company_id, traveller_id=person.id, passport_id=grant.passport_id, crypto=service.crypto)
     if revision.id != grant.document_revision_id:
         raise ReuseError(ReuseReason.REVISION_CONFLICT)
     grant.last_used_at = now

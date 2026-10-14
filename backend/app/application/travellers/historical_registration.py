@@ -15,6 +15,11 @@ from app.application.travellers.historical_document_generation import (
     historical_enrollment_key,
     registration_is_current,
 )
+from app.application.travellers.historical_identity import (
+    canonical_source_name,
+    historical_source_evidence,
+    refresh_registered_identity,
+)
 from app.application.travellers.identity_index import (
     IdentityMatch,
     find_exact_identity,
@@ -24,15 +29,13 @@ from app.application.travellers.retained_authority import OPERATOR_REGISTRATION_
 from app.application.travellers.source_evidence import source_evidence_digest
 from app.application.travellers.versioning import EnrollmentError
 from app.domain.entities.entities import OFFICE_VISIBLE_PASSPORT_STATUS_VALUES
-from app.domain.services.traveller_identity import IdentityEvidence, identity_evidence
+from app.domain.services.traveller_identity import IdentityEvidence
 from app.infrastructure.database.models import ClientGroupModel, PassportSubmissionModel
 from app.infrastructure.database.traveller_reuse_models import (
     TravellerContactBindingModel,
     TravellerDocumentRevisionModel,
-    TravellerIdentifierModel,
     TravellerMatchCaseModel,
     TravellerParticipationModel,
-    TravellerPassportModel,
     TravellerProfileModel,
     TravellerReusePolicyModel,
 )
@@ -59,8 +62,7 @@ async def register_historical_source(session: AsyncSession, *, group: ClientGrou
         return case.traveller_id
     if "reuse_document_revision_id" in (source.staff_metadata or {}):
         return await _register_reuse_snapshot(session, group, source, case, now)
-    fields = {**(source.extracted_fields or {}), **(source.confirmed_fields or {}), **(source.staff_metadata or {})}
-    evidence = identity_evidence(fields, name=source.client_name, phone=source.client_phone, email=source.client_email)
+    evidence = historical_source_evidence(source)
     original, already_processed = await _resolved_person(session, case, group, source, crypto)
     if already_processed:
         return case.traveller_id if case else None
@@ -126,7 +128,7 @@ async def _resolved_person(session: AsyncSession, case: TravellerMatchCaseModel 
         TravellerProfileModel.company_id == group.company_id).with_for_update())
     if person is None or person.deleted_at is not None:
         return person, True
-    await _backfill_index(session, person, crypto)
+    await refresh_registered_identity(session, person, crypto)
     document = await session.scalar(select(TravellerDocumentRevisionModel).where(
         TravellerDocumentRevisionModel.agency_id == group.agency_id,
         TravellerDocumentRevisionModel.company_id == group.company_id, TravellerDocumentRevisionModel.traveller_id == person.id,
@@ -142,7 +144,7 @@ async def _new_private_person(session: AsyncSession, group: ClientGroupModel, so
     assert group.company_id is not None
     person = TravellerProfileModel(agency_id=group.agency_id, company_id=group.company_id,
         status="review_required" if match.status in {"ambiguous", "conflicting"} else "active",
-        display_name_ciphertext=crypto.encrypt(source.client_name), reuse_permission_status="unknown",
+        display_name_ciphertext=crypto.encrypt(canonical_source_name(source) or source.client_name), reuse_permission_status="unknown",
         reuse_permission_evidence={"authority_kind": "private_history_v1", "source_submission_id": str(source.id)})
     session.add(person)
     await session.flush()
@@ -232,39 +234,3 @@ def _record_source_case(session: AsyncSession, group: ClientGroupModel, source: 
 def _identity_digest(crypto: TravellerReuseCrypto, source: PassportSubmissionModel, evidence: IdentityEvidence) -> str:
     return crypto.scoped_digest("historical-source-identity", source.agency_id, source.group_id,
         source_evidence_digest(crypto, source), json.dumps(evidence.values), json.dumps(sorted(evidence.conflicts)))
-
-
-async def _backfill_index(session: AsyncSession, person: TravellerProfileModel, crypto: TravellerReuseCrypto) -> None:
-    """Backfill old profiles from their current accepted version, not old trips."""
-    if not person.display_name_ciphertext:
-        return
-    indexed = await session.scalar(select(TravellerIdentifierModel.id).where(
-        TravellerIdentifierModel.agency_id == person.agency_id, TravellerIdentifierModel.company_id == person.company_id,
-        TravellerIdentifierModel.traveller_id == person.id, TravellerIdentifierModel.identifier_type == "identity_v1:name")
-        .limit(1))
-    if indexed is not None:
-        return
-    revision = await session.scalar(select(TravellerDocumentRevisionModel).join(TravellerPassportModel,
-        TravellerPassportModel.id == TravellerDocumentRevisionModel.passport_id).where(
-        TravellerDocumentRevisionModel.agency_id == person.agency_id,
-        TravellerDocumentRevisionModel.company_id == person.company_id,
-        TravellerDocumentRevisionModel.traveller_id == person.id,
-        TravellerDocumentRevisionModel.status == "accepted", TravellerPassportModel.is_default.is_(True),
-        TravellerPassportModel.status == "accepted")
-        .order_by(TravellerDocumentRevisionModel.revision_number.desc()).limit(1))
-    if revision is None:
-        return
-    fields = json.loads(crypto.decrypt(revision.fields_ciphertext))
-    source = await session.get(PassportSubmissionModel, revision.source_submission_id) if revision.source_submission_id else None
-    if source is not None and source.agency_id == person.agency_id:
-        fields = {**fields, **(source.staff_metadata or {})}
-    contacts = (await session.execute(select(TravellerContactBindingModel.kind, TravellerContactBindingModel.value_ciphertext)
-        .where(TravellerContactBindingModel.agency_id == person.agency_id,
-            TravellerContactBindingModel.company_id == person.company_id,
-            TravellerContactBindingModel.traveller_id == person.id, TravellerContactBindingModel.status == "current")
-        .limit(3))).all()
-    for kind, value in contacts:
-        fields[kind] = crypto.decrypt(value)
-    await replace_identity_evidence(session, person=person,
-        evidence=identity_evidence(fields, name=crypto.decrypt(person.display_name_ciphertext)), crypto=crypto,
-        source={"document_revision_id": str(revision.id), "backfill": True})

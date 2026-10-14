@@ -154,7 +154,7 @@ async def resolve_passport(
     if claim.method == "code" or scope.config.identifier_required:
         await _require_individual_code(session, scope, claim, crypto, person.id)
     _, revision = await accepted_document(session, agency_id=claim.agency_id,
-        company_id=claim.company_id, traveller_id=person.id, passport_id=passport.id)
+        company_id=claim.company_id, traveller_id=person.id, passport_id=passport.id, crypto=crypto)
     established = await session.scalar(select(TravellerContactBindingModel.id).where(
         TravellerContactBindingModel.agency_id == claim.agency_id,
         TravellerContactBindingModel.company_id == claim.company_id,

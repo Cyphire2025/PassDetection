@@ -6,6 +6,67 @@ Current live schema: 0135_company_removal_history.
 The earlier release passed deployment checks but its initial live history processing
 was not verified with populated client records. The follow-up below corrects that gap.
 
+2026-10-14 exported-name consistency and seven-person Test correction
+- Diagnosis of the 200-person Test import: 193 automatic assignments, three name
+  mismatches, three current-document selection failures, and one AI approval
+  formatting failure. The matching job finished successfully; these seven were
+  blocked decisions, not a queue still catching up. The older 100 rejected email
+  companions remain historical import records and are not seven extra people.
+- The Excel exporter combines confirmed given_names and surname. The historical
+  profile/index instead preferred the separately entered client_name. Canonical
+  registration and replay now use the accepted current passport name. A replay
+  updates the same active profile/index, invalidates stale access/export revisions,
+  and preserves original submissions, trip snapshots, contacts and document versions.
+- User-approved partial-name rule: names must contain compatible whole words
+  (one word set contained in the other). Require one exact passport number plus
+  two independent matching types among DOB, phone, email and individual code.
+  Code aliases count once. Supplied passport/DOB disagreements, incompatible names,
+  multiple matching owners and candidate overflow still reject automatic selection.
+  This supports missing middle names and duplicate name words; it does not guess
+  spelling changes. Exact names keep the established three-type rule.
+- Candidate lookup uses two scoped HMAC index seeks with at most 101 rows per
+  branch, a bounded union, and at most 1,601 signal rows. Overflow is review-only.
+  Work is O(log N + C), with C bounded; no company history scan or fuzzy-name scan.
+  Case and participation evidence retain identity_match_reason and rule version 2;
+  partial matches are labelled operator_corroborated_matching. Disclosure still
+  requires the existing traveller verification and revision-bound grant.
+- Three legacy Excel placeholder revisions had displaced real scans. One shared
+  selector now examines at most 16 accepted revisions of the SAME scoped passport,
+  skips only proven metadata-only operator imports, and revalidates frozen source
+  proof when doing so. Newly submitted metadata-only placeholders are rejected
+  before promotion/copy. A newer REAL pending, unreadable, missing, expired or
+  corrected revision remains authoritative; there is no generic older-file fallback.
+  Staff current details, Excel exports, public passport choices, impact tracking
+  and operational reuse use the same selector. Old versions remain preserved.
+- One AI-approved source had observed sex M and confirmed sex Male. Acceptance now
+  uses the existing recognized sex normalizer, rejects unknown/conflicting values,
+  and keeps the other eight approval fields exact. Frozen provenance still binds
+  raw original fields, so later source edits invalidate old approval/copy proof.
+- Read-only candidate check against the seven exact live recipients found all
+  seven expected owners: four exact and three corroborated partial matches.
+  Six already-retained passports selected their real original version with five
+  available assets each; the seventh source passed corrected AI acceptance and
+  still needs its normal enrollment/copy job. PostgreSQL used the revision and
+  scoped-source indexes; six individual selector EXPLAIN ANALYZE executions were
+  0.175-0.368 ms. This is a small warm correctness/query-plan probe, not load testing.
+- Rollout uses the authorized Fast path with unchanged schema/dependencies/task
+  signatures. The private seven-source repair manifest binds exact source and
+  recipient fingerprints, company/policy/group/link revisions and initial 193/200
+  counts. Reviewed recovery admits only existing source jobs plus an integrity
+  audit, with idempotency and current-row locks. No direct assignments, merges,
+  public grants, traveller confirmations or provider messages are fabricated.
+- Final selected regression inventory: 333 distinct current cases have passing
+  results across the combined run and focused follow-ups, including real XLSX
+  round trips, actual roster processing/replay, private-source export pagination
+  and current-document consumers. This is not a claim of one clean full-suite run:
+  three synthetic phone-authority fixtures were corrected and rerun. All changed
+  modules meet their reviewed coverage floors; Ruff, mypy (54 modules), dependency
+  boundaries and 129 size/complexity budgets pass without relaxing old limits.
+  Sanitized receipts: regression-test200-correction.json and
+  test200-candidate-readonly.json in companies-reuse-evidence.
+- Deployment and completed-worker evidence will be recorded after activation.
+  The read-only candidate probe above does not itself mean live assignments changed.
+
 2026-10-14 Excel contact import and incremental broadcast matching repair
 - Live diagnosis found 100 valid recipients in the Test broadcast: its original
   person plus 99 added at 09:19:32 UTC. The last matching job had finished at

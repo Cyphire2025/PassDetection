@@ -148,7 +148,7 @@ class ReturningClaims:
         person = await eligible_person(self.session, scope, claim.traveller_id, now)
         check_person_revision(claim, person)
         _, revision = await accepted_document(self.session, agency_id=claim.agency_id,
-            company_id=claim.company_id, traveller_id=person.id, passport_id=claim.passport_id)
+            company_id=claim.company_id, traveller_id=person.id, passport_id=claim.passport_id, crypto=self.crypto)
         if revision.id != claim.document_revision_id:
             raise ReuseError(ReuseReason.REVISION_CONFLICT)
         return person, revision

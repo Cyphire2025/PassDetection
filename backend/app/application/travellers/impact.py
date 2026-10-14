@@ -14,11 +14,11 @@ from datetime import UTC, datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.travellers.document_selection import current_document_id
 from app.infrastructure.database.models import ClientGroupModel
 from app.infrastructure.database.traveller_reuse_models import (
     TravellerChangeEventModel,
     TravellerDocumentReviewTaskModel,
-    TravellerDocumentRevisionModel,
     TravellerParticipationModel,
     TravellerPassportModel,
 )
@@ -37,14 +37,12 @@ async def process_impact_page(session: AsyncSession, event_id: uuid.UUID, *, pag
     if event.event_type not in IMPACT_EVENT_TYPES or event.traveller_id is None:
         event.processed_at = datetime.now(UTC)
         return 0
-    replacement = await session.scalar(select(TravellerDocumentRevisionModel.id).join(
-        TravellerPassportModel, TravellerPassportModel.id == TravellerDocumentRevisionModel.passport_id,
-    ).where(TravellerPassportModel.agency_id == event.agency_id,
+    replacement = await session.scalar(select(current_document_id(TravellerPassportModel)).where(
+        TravellerPassportModel.agency_id == event.agency_id,
         TravellerPassportModel.company_id == event.company_id,
         TravellerPassportModel.traveller_id == event.traveller_id,
         TravellerPassportModel.is_default.is_(True), TravellerPassportModel.status == "accepted",
-        TravellerDocumentRevisionModel.status == "accepted",
-    ).order_by(TravellerDocumentRevisionModel.revision_number.desc()).limit(1))
+    ).limit(1))
     query = select(TravellerParticipationModel, ClientGroupModel.status, ClientGroupModel.deleted_at,
         ClientGroupModel.company_id).join(ClientGroupModel,
         (ClientGroupModel.id == TravellerParticipationModel.group_id)

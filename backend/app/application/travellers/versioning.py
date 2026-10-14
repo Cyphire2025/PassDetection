@@ -5,6 +5,7 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.travellers.document_selection import current_document_id
 from app.domain.services.traveller_verification import parse_answer
 from app.domain.value_objects.passport_fields import normalize_passport_date
 from app.infrastructure.database.traveller_reuse_models import (
@@ -43,9 +44,9 @@ async def promote_default(
     choose = make_default or current is None or current.id == passport.id
     if not make_default and current is not None and current.id != passport.id:
         current_revision = await session.scalar(select(TravellerDocumentRevisionModel).where(
-            TravellerDocumentRevisionModel.passport_id == current.id,
-            TravellerDocumentRevisionModel.status == "accepted",
-        ).order_by(TravellerDocumentRevisionModel.revision_number.desc()).limit(1))
+            TravellerDocumentRevisionModel.id == current_document_id(TravellerPassportModel),
+        ).join(TravellerPassportModel, TravellerPassportModel.id == TravellerDocumentRevisionModel.passport_id)
+            .where(TravellerPassportModel.id == current.id).limit(1))
         choose = (revision.issue_date is not None and current_revision is not None
                   and current_revision.issue_date is not None and revision.issue_date > current_revision.issue_date)
     if choose and current is not None and current.id != passport.id:

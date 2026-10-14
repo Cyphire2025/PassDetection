@@ -993,6 +993,46 @@
       "baseline_max_function_complexity": 7,
       "maximum_function_complexity": 8,
       "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/travellers/document_selection.py",
+      "baseline_lines": 96,
+      "maximum_lines": 110,
+      "baseline_max_function_complexity": 9,
+      "maximum_function_complexity": 10,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/travellers/historical_identity.py",
+      "baseline_lines": 113,
+      "maximum_lines": 125,
+      "baseline_max_function_complexity": 18,
+      "maximum_function_complexity": 18,
+      "minimum_coverage_percent": 85
+    },
+    {
+      "path": "app/application/travellers/identity_candidates.py",
+      "baseline_lines": 40,
+      "maximum_lines": 50,
+      "baseline_max_function_complexity": 2,
+      "maximum_function_complexity": 3,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/domain/services/identity_decisions.py",
+      "baseline_lines": 44,
+      "maximum_lines": 55,
+      "baseline_max_function_complexity": 21,
+      "maximum_function_complexity": 21,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/domain/services/traveller_names.py",
+      "baseline_lines": 18,
+      "maximum_lines": 25,
+      "baseline_max_function_complexity": 9,
+      "maximum_function_complexity": 9,
+      "minimum_coverage_percent": 90
     }
   ],
   "coverage_gates": {

@@ -4,7 +4,7 @@ import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.companies.access import visible_company_groups
@@ -12,6 +12,7 @@ from app.application.companies.original_record import latest_original_records
 from app.application.companies.people import document_fields, person_scope
 from app.application.companies.source_documents import SOURCE_SIDES
 from app.application.travellers.asset_policy import is_reviewable_asset
+from app.application.travellers.document_selection import current_document_id
 from app.application.travellers.snapshot_access import retained_asset_authority
 from app.domain.entities.entities import User
 from app.infrastructure.database.company_data_export_models import CompanyDataExportJobModel as Job
@@ -101,13 +102,10 @@ async def people_export_page(session: AsyncSession, job: Job, user: User,
     if not people:
         return [], None
     ids = [person.id for person in people]
-    latest = select(func.max(Document.revision_number)).where(Document.passport_id == Passport.id,
-        Document.status == "accepted").correlate(Passport).scalar_subquery()
     documents = dict((await session.execute(select(Passport.traveller_id, Document).join(Document,
-        (Document.passport_id == Passport.id) & (Document.agency_id == Passport.agency_id)
-        & (Document.company_id == Passport.company_id)).where(Passport.agency_id == job.agency_id,
+        Document.id == current_document_id(Passport)).where(Passport.agency_id == job.agency_id,
         Passport.company_id == job.company_id, Passport.traveller_id.in_(ids), Passport.is_default.is_(True),
-        Passport.status == "accepted", Document.revision_number == latest))).tuples().all())
+        Passport.status == "accepted"))).tuples().all())
     contacts = dict((await session.execute(select(Contact.traveller_id, Contact.value_ciphertext).where(
         Contact.agency_id == job.agency_id, Contact.company_id == job.company_id, Contact.traveller_id.in_(ids),
         Contact.kind == "phone", Contact.status == "current"))).tuples().all())

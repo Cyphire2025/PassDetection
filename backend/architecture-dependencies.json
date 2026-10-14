@@ -1904,7 +1904,9 @@
         "app.infrastructure.database.traveller_reuse_models.TravellerParticipationModel",
         "app.infrastructure.database.traveller_reuse_models.TravellerPassportModel",
         "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel",
-        "app.infrastructure.database.traveller_reuse_models.TravellerReusePolicyModel"
+        "app.infrastructure.database.traveller_reuse_models.TravellerReusePolicyModel",
+        "app.infrastructure.security.traveller_reuse_crypto",
+        "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
       ]
     },
     "app/application/travellers/change_feed.py": {
@@ -2075,7 +2077,6 @@
         "app.infrastructure.database.traveller_reuse_models",
         "app.infrastructure.database.traveller_reuse_models.TravellerChangeEventModel",
         "app.infrastructure.database.traveller_reuse_models.TravellerDocumentReviewTaskModel",
-        "app.infrastructure.database.traveller_reuse_models.TravellerDocumentRevisionModel",
         "app.infrastructure.database.traveller_reuse_models.TravellerParticipationModel",
         "app.infrastructure.database.traveller_reuse_models.TravellerPassportModel"
       ]
@@ -2471,10 +2472,8 @@
         "app.infrastructure.database.traveller_reuse_models",
         "app.infrastructure.database.traveller_reuse_models.TravellerContactBindingModel",
         "app.infrastructure.database.traveller_reuse_models.TravellerDocumentRevisionModel",
-        "app.infrastructure.database.traveller_reuse_models.TravellerIdentifierModel",
         "app.infrastructure.database.traveller_reuse_models.TravellerMatchCaseModel",
         "app.infrastructure.database.traveller_reuse_models.TravellerParticipationModel",
-        "app.infrastructure.database.traveller_reuse_models.TravellerPassportModel",
         "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel",
         "app.infrastructure.database.traveller_reuse_models.TravellerReusePolicyModel",
         "app.infrastructure.security.traveller_reuse_crypto",
@@ -2664,6 +2663,49 @@
         "app.infrastructure.database.traveller_reuse_models.TravellerClaimModel",
         "app.infrastructure.database.traveller_reuse_models.TravellerIdentifierModel",
         "app.infrastructure.database.traveller_reuse_models.TravellerPassportModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel",
+        "app.infrastructure.security.traveller_reuse_crypto",
+        "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
+      ]
+    },
+    "app/application/travellers/document_selection.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Select a current accepted document through at most16 scoped revision-index rows; skip only proven metadata-only operator imports and validate selected plus skipped frozen source proof without changing history or disclosure authority.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerDocumentRevisionModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerPassportModel",
+        "app.infrastructure.security.traveller_reuse_crypto",
+        "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
+      ]
+    },
+    "app/application/travellers/historical_identity.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Refresh an established current profile name from a retained accepted passport source under caller-held company/profile locks; preserve source and trip snapshots, other identity signals and review status while invalidating stale authorization and exports.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerContactBindingModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerIdentifierModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerPassportModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel",
+        "app.infrastructure.security.traveller_reuse_crypto",
+        "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
+      ]
+    },
+    "app/application/travellers/identity_candidates.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Find bounded operational candidates through tenant-scoped name and exact-passport HMAC indexes; cap each branch and union before decrypting at most100 candidates and preserve ambiguity without granting document access.",
+      "imports": [
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerIdentifierModel",
         "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel",
         "app.infrastructure.security.traveller_reuse_crypto",
         "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"

@@ -115,7 +115,9 @@ async def match_roster_source(session: AsyncSession, job: TravellerReconciliatio
         "source_fingerprint": source_fingerprint(crypto, job.agency_id, job.company_id, source),
         "fingerprint_key_version": crypto.key_version, "group_revision": job.expected_group_revision,
         "matching_types": list(result.matching_types), "policy_revision": int(job.idempotency_key.split(":")[2]),
-        "authority_kind": "operator_exact_matching", "information_confirmed": False}
+        "identity_match_reason": result.reason, "identity_rule_version": 2,
+        "authority_kind": ("operator_corroborated_matching" if result.reason == "corroborated_partial_name_match"
+            else "operator_exact_matching"), "information_confirmed": False}
     case.status, case.reason_code, case.traveller_id = ("provisional" if result.status == "matched" else result.status), result.reason, result.traveller_id
     if result.traveller_id is not None:
         outcome = await assign_operational_traveller(session, group=group, person_id=result.traveller_id,

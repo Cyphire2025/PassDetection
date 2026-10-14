@@ -14,6 +14,11 @@ from typing import Literal
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.travellers.document_selection import (
+    current_document_id,
+    latest_document_id,
+    require_frozen_selection_proof,
+)
 from app.application.travellers.errors import ReuseError, ReuseReason
 from app.application.travellers.retained_authority import retained_authority_predicate
 from app.domain.services.traveller_verification import utc
@@ -31,6 +36,7 @@ from app.infrastructure.database.traveller_reuse_models import (
     TravellerProfileModel,
     TravellerReusePolicyModel,
 )
+from app.infrastructure.security.traveller_reuse_crypto import TravellerReuseCrypto
 
 
 @dataclass(frozen=True, slots=True)
@@ -137,8 +143,10 @@ async def eligible_person(
 async def accepted_document(
     session: AsyncSession, *, agency_id: uuid.UUID, company_id: uuid.UUID,
     traveller_id: uuid.UUID, passport_id: uuid.UUID,
+    crypto: TravellerReuseCrypto | None = None,
 ) -> tuple[TravellerPassportModel, TravellerDocumentRevisionModel]:
-    row = (await session.execute(select(TravellerPassportModel, TravellerDocumentRevisionModel)
+    row = (await session.execute(select(TravellerPassportModel, TravellerDocumentRevisionModel,
+        latest_document_id(TravellerPassportModel))
         .join(TravellerDocumentRevisionModel, (TravellerDocumentRevisionModel.passport_id == TravellerPassportModel.id)
               & (TravellerDocumentRevisionModel.traveller_id == TravellerPassportModel.traveller_id)
               & (TravellerDocumentRevisionModel.agency_id == TravellerPassportModel.agency_id)
@@ -146,11 +154,12 @@ async def accepted_document(
         .where(TravellerPassportModel.id == passport_id, TravellerPassportModel.agency_id == agency_id,
                TravellerPassportModel.company_id == company_id, TravellerPassportModel.traveller_id == traveller_id,
                TravellerPassportModel.status.in_(("accepted", "superseded")),
-               TravellerDocumentRevisionModel.status == "accepted")
-        .order_by(TravellerDocumentRevisionModel.revision_number.desc()).limit(1)
+               TravellerDocumentRevisionModel.id == current_document_id(TravellerPassportModel)).limit(1)
     )).one_or_none()
     if row is None:
         raise ReuseError(ReuseReason.UNAVAILABLE)
+    if row[2] != row[1].id:
+        await require_frozen_selection_proof(session, row[0], row[1], crypto)
     return row[0], row[1]
 
 

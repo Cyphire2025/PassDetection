@@ -1,7 +1,7 @@
 """Conservative exact operational matching; never document-access proof.
 
-Names are mandatory and at least two other independent signal types must agree.
-All codes count as one type. Known passport or birth-date conflicts veto a match.
+Exact names need two other types. Compatible partial names need an exact passport
+and two further types. Known passport/birth conflicts veto either association.
 Normalization is O(F + L) time/space for at most 128 fields and 512 characters
 per value; it does not reorder names, remove accents or correct OCR characters.
 """
@@ -14,11 +14,12 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 
 from app.domain.exceptions.exceptions import ValidationError
+from app.domain.services.identity_decisions import IdentityDecision as IdentityDecision
+from app.domain.services.identity_decisions import compare_identity as compare_identity
 from app.domain.services.traveller_verification import exact_passport_number
 from app.domain.value_objects.passport_fields import normalize_passport_date
 from app.domain.value_objects.phone_number import normalize_phone_number
 
-SIGNAL_TYPES = frozenset({"name", "passport", "birth_date", "phone", "email", "code"})
 _EXCEL_MIDNIGHT_DATE = re.compile(r"^(\d{4}-\d{2}-\d{2})[ T]00:00:00(?:\.0{1,6})?$")
 _ALIASES = {
     "name": ("name", "full_name", "passenger_name", "traveller_name", "client_name"),
@@ -77,25 +78,12 @@ class IdentityEvidence:
 
 
 def identity_evidence(fields: Mapping[str, object], *, name: str | None = None,
-    phone: str | None = None, email: str | None = None,
+    phone: str | None = None, email: str | None = None, authoritative_name: str | None = None,
 ) -> IdentityEvidence:
     """Reject contradictory aliases rather than silently choosing one column."""
     if len(fields) > 128:
         return IdentityEvidence((), frozenset({"input_limit"}))
-    raw: dict[str, list[str]] = {}
-    for key, value in fields.items():
-        if isinstance(value, str) and value.strip():
-            raw.setdefault(_key(key), []).append(value)
-    # Structured authoritative source fields supplement, never overwrite,
-    # imported columns. An inconsistent source remains a review case.
-    for key, value in (("name", name), ("phone", phone), ("email", email)):
-        if value:
-            raw.setdefault(key, []).append(value)
-    if not any(alias in raw for alias in _ALIASES["name"]):
-        given = raw.get("given_names", [])
-        surname = raw.get("surname", [])
-        if len(given) <= 1 and len(surname) <= 1 and (given or surname):
-            raw["name"] = [" ".join([*given, *surname])]
+    raw = _raw_identity_fields(fields, name, phone, email, authoritative_name)
     values: list[tuple[str, str]] = []
     conflicts: set[str] = set()
     for kind, aliases in _ALIASES.items():
@@ -116,24 +104,24 @@ def identity_evidence(fields: Mapping[str, object], *, name: str | None = None,
     return IdentityEvidence(tuple(values), frozenset(conflicts))
 
 
-@dataclass(frozen=True, slots=True)
-class IdentityDecision:
-    matched: bool
-    matching_types: tuple[str, ...]
-    reason: str
-
-
-def compare_identity(source: IdentityEvidence, saved: IdentityEvidence) -> IdentityDecision:
-    if source.conflicts or saved.conflicts:
-        return IdentityDecision(False, (), "conflicting_source_fields")
-    if not source.get("name") or source.get("name") != saved.get("name"):
-        return IdentityDecision(False, (), "exact_name_required")
-    matches = tuple(sorted(kind for kind in SIGNAL_TYPES if source.get(kind) & saved.get(kind)))
-    for kind in ("passport", "birth_date"):
-        if source.get(kind) and saved.get(kind) and not source.get(kind) & saved.get(kind):
-            return IdentityDecision(False, matches, f"{kind}_conflict")
-    if source.get("birth_date") and not source.get("birth_date") & saved.get("birth_date"):
-        return IdentityDecision(False, matches, "birth_date_required")
-    if len(matches) < 3:
-        return IdentityDecision(False, matches, "three_independent_types_required")
-    return IdentityDecision(True, matches, "exact_three_type_match")
+def _raw_identity_fields(fields: Mapping[str, object], name: str | None, phone: str | None,
+    email: str | None, authoritative_name: str | None,
+) -> dict[str, list[str]]:
+    raw: dict[str, list[str]] = {}
+    for key, value in fields.items():
+        if isinstance(value, str) and value.strip():
+            raw.setdefault(_key(key), []).append(value)
+    # Submitted values supplement imports. Only a separately accepted passport
+    # name may replace display-name aliases; all other contradictions survive.
+    for key, value in (("name", name), ("phone", phone), ("email", email)):
+        if value:
+            raw.setdefault(key, []).append(value)
+    if authoritative_name:
+        raw = {key: values for key, values in raw.items() if key not in _ALIASES["name"]}
+        raw["name"] = [authoritative_name]
+    if not any(alias in raw for alias in _ALIASES["name"]):
+        given = raw.get("given_names", [])
+        surname = raw.get("surname", [])
+        if len(given) <= 1 and len(surname) <= 1 and (given or surname):
+            raw["name"] = [" ".join([*given, *surname])]
+    return raw

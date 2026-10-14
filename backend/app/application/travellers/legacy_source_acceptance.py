@@ -14,6 +14,7 @@ from app.domain.services.traveller_verification import (
     exact_passport_number,
     utc,
 )
+from app.domain.value_objects.passport_fields import normalize_passport_sex_identity
 from app.infrastructure.database.models import PassportSubmissionModel
 
 AI_ACCEPTANCE_RULE = "client_reviewed_current_ai_v1"
@@ -67,6 +68,9 @@ def _verified_field(row: object, fields: dict[str, str]) -> str:
     observed = row.get("observed_value")
     if row.get("verdict") != "correct" or not isinstance(expected, str) or len(expected) > 160:
         raise EnrollmentError("verified_source_fields_required")
+    if key == "sex":
+        expected = normalize_passport_sex_identity(expected)
+        observed = normalize_passport_sex_identity(observed) if isinstance(observed, str) and len(observed) <= 160 else ""
     if not (absent_surname and observed in (None, "")) and (not expected or observed != expected):
         raise EnrollmentError("verified_source_fields_changed")
     return key

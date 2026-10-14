@@ -19,7 +19,10 @@ from app.application.travellers.current_details import detail_fields
 from app.application.travellers.errors import ReuseError, ReuseReason
 from app.application.travellers.grants import require_grant
 from app.application.travellers.passport_selection import available_passports
-from app.application.travellers.requirements import missing_document_requirements, saved_current_answers
+from app.application.travellers.requirements import (
+    missing_document_requirements,
+    saved_current_answers,
+)
 from app.domain.services.traveller_suitability import TravelDocument, assess_document
 from app.infrastructure.database.models import ClientGroupModel
 from app.infrastructure.database.traveller_reuse_models import (
@@ -87,7 +90,7 @@ async def review_context(service: ReturningClaims, token: str) -> ReviewContext:
         # superseded passport as a future-trip default.
         return ReviewContext(grant, scope, person, None, None, [])
     _, revision = await accepted_document(service.session, agency_id=grant.agency_id,
-        company_id=grant.company_id, traveller_id=person.id, passport_id=passport.id)
+        company_id=grant.company_id, traveller_id=person.id, passport_id=passport.id, crypto=service.crypto)
     assets = list((await service.session.scalars(select(TravellerDocumentAssetModel).where(
         TravellerDocumentAssetModel.agency_id == grant.agency_id,
         TravellerDocumentAssetModel.company_id == grant.company_id,

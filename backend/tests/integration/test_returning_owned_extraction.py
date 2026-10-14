@@ -52,6 +52,27 @@ async def test_detection_offers_only_boolean_and_creates_no_claim_or_grant(db_se
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("ambiguous", [False, True])
+async def test_partial_name_detection_remains_only_a_hint_and_ambiguity_hides_it(db_session, test_settings, ambiguous):
+    service, _, group = await reuse_context(db_session, test_settings)
+    person = await seed_person(service, group)
+    source, credential = await owned_source(service, group, person)
+    saved_name = service.crypto.decrypt(person.profile.display_name_ciphertext)
+    source.client_name = saved_name + " Extra"
+    if ambiguous:
+        another = await seed_person(service, group, 2)
+        await replace_identity_evidence(service.session, person=another.profile,
+            evidence=identity_evidence(source.extracted_fields, name="Different Holder", phone=person.phone),
+            crypto=service.crypto, source={"test": True})
+    await db_session.flush()
+    response = await detected_history(DetectedHistoryRequest(group_token=group.token,
+        source_submission_id=source.id, expected_extraction_revision=4), credential, service)
+    assert response.model_dump() == {"available": not ambiguous}
+    assert await db_session.scalar(select(func.count()).select_from(TravellerClaimModel)) == 0
+    assert await db_session.scalar(select(func.count()).select_from(TravellerHistoryGrantModel)) == 0
+
+
+@pytest.mark.asyncio
 async def test_owned_member_completion_returns_real_snapshot_and_retries_without_touching_drafts(db_session, test_settings):
     service, _, group, person, token, review = await completion_context(db_session, test_settings)
     source, credential = await owned_source(service, group, person)

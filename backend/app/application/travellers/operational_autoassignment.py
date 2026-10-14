@@ -98,7 +98,7 @@ async def assign_operational_traveller(session: AsyncSession, *, group: ClientGr
         return "replacement_required"
     try:
         passport, revision = await accepted_document(session, agency_id=group.agency_id,
-            company_id=company_id, traveller_id=person.id, passport_id=passport_id)
+            company_id=company_id, traveller_id=person.id, passport_id=passport_id, crypto=crypto)
     except ReuseError:
         await _invite_for_replacement(session, group, person, participation, source_row_key)
         return "replacement_required"
