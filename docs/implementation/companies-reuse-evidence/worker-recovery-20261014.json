@@ -1,0 +1,43 @@
+{
+  "actual_exit_code": 137,
+  "candidate_activation": false,
+  "candidates_fenced": true,
+  "child_invariant": "no_live_children_only_exit_zero_zombies",
+  "clean_drain_proven": false,
+  "config_mutation": false,
+  "database_mutation": false,
+  "deployment_inactive": true,
+  "ended_at": "2026-10-14T08:31:40.198563+00:00",
+  "exclusive_release_lock": true,
+  "final_health": "healthy",
+  "impact_queue_after_repair": {
+    "attempts_at_least_five": 0,
+    "max_pending_attempt": 0,
+    "pending": 0
+  },
+  "kill_attempts": 1,
+  "kind": "explicit_deadlocked_shutdown_parent_repair",
+  "limits": [
+    "Separate operator recovery of a deadlocked shutdown parent after TERM and one QUIT failed; no release clean-stop guard was changed.",
+    "A subsequent fresh release obtained normal idle and clean-stop proofs before promoting any candidate."
+  ],
+  "oom_killed": false,
+  "phase": "original_service_repaired",
+  "queue_mutation": false,
+  "release_qualified": false,
+  "revision": "a8345cb2b021b0d099c08c022685aded9a3727dc",
+  "start_attempts": 1,
+  "started_at": "2026-10-14T08:31:12.627293+00:00",
+  "unfinished_task_before_repair": {
+    "count": 1,
+    "keyword_arguments": 0,
+    "positional_arguments": 0,
+    "task": "travellers.document_impact"
+  },
+  "verification": {
+    "readiness_http": 200,
+    "readiness_status": "ready",
+    "revision": "a8345cb2b021b0d099c08c022685aded9a3727dc",
+    "worker_count": 8
+  }
+}

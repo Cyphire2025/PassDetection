@@ -1,7 +1,7 @@
 Companies / Clients and returning-traveller feature review handoff
 Date: 2026-10-14 (Asia/Calcutta)
-Client dashboard and automatic reuse: production follow-up in progress; Full CI remains paused.
-Current live application: a8345cb2b021b0d099c08c022685aded9a3727dc.
+Client dashboard and automatic reuse: follow-up deployed and verified; Full CI remains paused.
+Current live application: a58b17dc3dc2ec004608f91817db5954b34e0dea.
 Current live schema: 0135_company_removal_history.
 The earlier release passed deployment checks but its initial live history processing
 was not verified with populated client records. The follow-up below corrects that gap.
@@ -61,9 +61,51 @@ was not verified with populated client records. The follow-up below corrects tha
   sustained-load or final release-image qualification. Receipt: companies-reuse-evidence/
   history-worker-postgresql-20261014.json. No production tables or app files modified.
   Production browser automation is unavailable in this session (no connected
-  browsers); live database/API/served-build verification will be reported separately.
+  browsers); live database/API/served-build verification is recorded below.
 
-Latest release and requested cleanup
+2026-10-14 follow-up release and actual business verification
+- Fast unit passdetection-deploy-a58b17dc3dc2-d945623a completed successfully.
+  Same schema 0135; no migrations, dependency/configuration or queued-task contract
+  changes. Both builds passed, all 20 services and exact runtime image/revision
+  checks passed, public readiness is ready, and served JavaScript bytes match the
+  running build. Ten public GETs passed 12 bounded smoke checks. This is Fast
+  qualification using inherited runtimes, not Full CI or a new capacity benchmark.
+- Actual company All data projections now contain 1,396 Bluechip people and 901
+  TATA people. All 3,160 staged Bluechip image copies became available. These are
+  observed production record/copy counts, not concurrent-user capacity. Identity
+  totals remain marked partial where older matching cases need review.
+- The exact copied test recipient matched name, DOB, passport and phone. It has
+  one accepted automatic group membership and a materialized submission with the
+  correct saved person/document references and all five images available. The
+  original source's all-column HMAC is unchanged; its original group still has
+  853 source records. No original passenger or historical document was overwritten.
+- Automatic assignment left information_confirmed=false and client_reviewed unset;
+  it did not mint any public history grant or authorized claim. Anonymous requests
+  for both history and an actual saved asset were denied with private/no-store:
+  public edge 403, direct application boundary 410. Real OTP delivery and a full
+  authenticated browser/document-review journey were not exercised.
+- Live audit explains the temporary test interruption: an authenticated update
+  disconnected the broadcast at 08:39:33 UTC, then another authenticated update
+  reconnected it at 08:42:40 UTC. Its fresh matching job completed at 08:42:43 UTC.
+  The user confirmed the earlier disconnection was intentional. Our verification
+  helpers did not reconnect/disconnect anything or submit/edit passenger records.
+- An earlier release attempt was stopped by an old Celery parent's shutdown
+  deadlock. Original ingress was restored, and a separately recorded operator
+  repair restarted only the exact old worker after proving no live child tasks
+  and a sole retry-safe internal impact tick. TERM/QUIT had failed; one explicit
+  KILL exited 137 without OOM, followed by one unchanged-container restart. All
+  eight original worker nodes and readiness were verified before the fresh release.
+  This was not recorded as a clean drain or used to bypass release qualification.
+- The release runner now stops the scheduler, obtains the existing exact-eight-
+  worker idle proof and cleanly stops workers before pausing website containers.
+  Its no-force stop, writer fencing, retention, schema and readiness gates remain
+  unchanged. 66 focused release tests passed (57 also rerun independently by root),
+  including busy/missing-worker evidence and warm-stop timeout behavior.
+- Receipts: companies-reuse-evidence/fast-release-a58b17dc.json,
+  live-verification-a58b17dc.json, http-smoke-a58b17dc.json,
+  live-history-business-a58b17dc.json and worker-recovery-20261014.json.
+
+Earlier a8345cb2 release and requested cleanup
 - Fast unit: passdetection-deploy-a8345cb2b021-2c1041dd; completed successfully.
   Both candidate images built without OOM. Exact source/image binding and API
   contract were checked. The live runtime reuses the previously installed native
@@ -139,7 +181,7 @@ Implemented client dashboard and automatic reuse
   Staff may edit current fields and upload reviewed document versions while old
   trip details and earlier versions remain. Merge/split remains unavailable.
   Review matches opens a compact group picker and the existing matching queue.
-  Original historical files lacking accepted passport context remain private
+  Historical files without current accepted source verification remain private
   source records; issuer is never inferred from nationality.
 - All data uses 25-person cursor pages, indexed exact-name search and lazy protected
   image loading. Excel details and ZIP image exports have durable jobs, bounded

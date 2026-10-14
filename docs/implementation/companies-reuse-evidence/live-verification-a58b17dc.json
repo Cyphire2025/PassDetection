@@ -1,0 +1,173 @@
+{
+  "candidate_image_ids_verified": {
+    "backend": "sha256:a461e9ec6ed55b751ecd6499b0aaf8de2af42404b413a6f89f44950f3ebb3e7b",
+    "frontend": "sha256:e7105c1313d57d3f6539a482dec8f7584da4b128f04d0cbb94e86658a1d4d7a7"
+  },
+  "feature_assets_in_running_container": {
+    "add_client": true,
+    "all_data": true,
+    "company_directory": true,
+    "returning_offer": true,
+    "view_company": true
+  },
+  "full_ci_qualified": false,
+  "independent_reuse_keys_present": true,
+  "not_verified": [
+    "Authenticated company and returning user journeys",
+    "Company/group activation and traveller permission",
+    "Actual OTP delivery, document viewing or capacity"
+  ],
+  "public_readiness": "ready",
+  "public_requests_sent": 2,
+  "reuse_configuration_identical_across_writers": true,
+  "revision": "a58b17dc3dc2ec004608f91817db5954b34e0dea",
+  "schema": "0135_company_removal_history",
+  "served_frontend_asset": {
+    "path": "/_next/static/chunks/0gh363f8_p7zy.js",
+    "sha256": "82c6560f9999aaedb3c190fab767eaa6694acaec643c7744624c55057b5030c6"
+  },
+  "services": [
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": "a58b17dc3dc2ec004608f91817db5954b34e0dea",
+      "running": true,
+      "service": "backend"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": null,
+      "running": true,
+      "service": "clamav"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": null,
+      "running": true,
+      "service": "db"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": "a58b17dc3dc2ec004608f91817db5954b34e0dea",
+      "running": true,
+      "service": "ecr-worker"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": "a58b17dc3dc2ec004608f91817db5954b34e0dea",
+      "running": true,
+      "service": "email-ai-worker"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": "a58b17dc3dc2ec004608f91817db5954b34e0dea",
+      "running": true,
+      "service": "email-beat"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": "a58b17dc3dc2ec004608f91817db5954b34e0dea",
+      "running": true,
+      "service": "email-worker"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": "a58b17dc3dc2ec004608f91817db5954b34e0dea",
+      "running": true,
+      "service": "extraction-worker"
+    },
+    {
+      "health": null,
+      "oom_killed": false,
+      "revision": "a58b17dc3dc2ec004608f91817db5954b34e0dea",
+      "running": true,
+      "service": "frontend"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": null,
+      "running": true,
+      "service": "metrics-exporter"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": null,
+      "running": true,
+      "service": "minio"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": "a58b17dc3dc2ec004608f91817db5954b34e0dea",
+      "running": true,
+      "service": "my-photos-worker"
+    },
+    {
+      "health": null,
+      "oom_killed": false,
+      "revision": null,
+      "running": true,
+      "service": "nginx"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": null,
+      "running": true,
+      "service": "redis"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": null,
+      "running": true,
+      "service": "redis-broker"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": null,
+      "running": true,
+      "service": "redis-cache"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": null,
+      "running": true,
+      "service": "redis-realtime"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": "a58b17dc3dc2ec004608f91817db5954b34e0dea",
+      "running": true,
+      "service": "verification-worker"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": "a58b17dc3dc2ec004608f91817db5954b34e0dea",
+      "running": true,
+      "service": "visa-ai-worker"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": "a58b17dc3dc2ec004608f91817db5954b34e0dea",
+      "running": true,
+      "service": "worker"
+    }
+  ],
+  "status": "postdeploy_metadata_verified",
+  "technical_disclosure_enabled": "true"
+}
