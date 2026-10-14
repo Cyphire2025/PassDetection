@@ -28,7 +28,11 @@ from app.infrastructure.whatsapp.worker_runtime import (
     WHATSAPP_BATCH_HEARTBEAT_INTERVAL,
     _heartbeat_queued_batch_claims,
 )
-from app.presentation.api.v1.routes import client_groups
+from app.presentation.api.v1.routes import (
+    client_groups,
+    whatsapp_recipient_additions,
+    whatsapp_rejected_contacts,
+)
 from app.presentation.api.v1.routes import whatsapp as whatsapp_routes
 from app.presentation.api.v1.routes.whatsapp import (
     MAX_WHATSAPP_RECIPIENTS,
@@ -57,6 +61,15 @@ def _isolate_mobile_passenger_reconciliation(monkeypatch: pytest.MonkeyPatch) ->
         "reconcile_mobile_passenger_access_for_group",
         AsyncMock(),
     )
+    # These route tests exercise capacity checks with mocked SQL results. The
+    # bounded transactional history admission has separate real-session tests.
+    for module in (whatsapp_recipient_additions, whatsapp_rejected_contacts):
+        for dependency in (
+            "prepare_broadcast_history_refresh",
+            "require_current_broadcast_history_scope",
+            "finish_broadcast_history_refresh",
+        ):
+            monkeypatch.setattr(module, dependency, AsyncMock())
 
 
 def _manual_contacts(count: int) -> list[dict[str, str]]:
@@ -287,6 +300,7 @@ async def test_add_recipients_rejects_aggregate_count_above_1500() -> None:
     ]
     session = MagicMock()
     session.execute = AsyncMock(side_effect=[group_result, existing_result])
+    session.scalar = AsyncMock(return_value=group)
     session.rollback = AsyncMock()
     current_user = SimpleNamespace(
         id=uuid.uuid4(),
@@ -438,6 +452,7 @@ async def test_rejected_contact_reactivation_enforces_1500_boundary(
         imported_fields={},
     )
     session = MagicMock()
+    session.scalar = AsyncMock(return_value=group)
     session.execute = AsyncMock(
         side_effect=[
             _scalar_result(group),

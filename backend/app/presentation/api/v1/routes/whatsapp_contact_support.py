@@ -180,6 +180,9 @@ _EXCEL_FIELD_ALIASES = {
     "email address": "email",
     "e mail": "email",
     "mail": "email",
+    "upload email": "client_email",
+    "upload e mail": "client_email",
+    "upload email address": "client_email",
     "passport": "passport_number",
     "passport no": "passport_number",
     "passport number": "passport_number",
@@ -358,6 +361,9 @@ def _parse_imported_field_keys(value: str | None) -> list[str]:
 
 def _is_excel_phone_header(label: str) -> bool:
     tokens = set(label.split())
+    # "WhatsApp Email" describes its source, not a second delivery number.
+    if tokens.intersection({"email", "mail"}):
+        return False
     if tokens.intersection({"phone", "mobile", "whatsapp", "telephone"}):
         return True
     return "contact" in tokens and (

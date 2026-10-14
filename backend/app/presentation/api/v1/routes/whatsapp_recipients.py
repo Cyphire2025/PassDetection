@@ -13,9 +13,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.mobile.passenger_change_propagation import (
     reconcile_mobile_passenger_access_for_broadcast,
 )
+from app.application.travellers.broadcast_history_schedule import (
+    finish_broadcast_history_refresh,
+    prepare_broadcast_history_refresh,
+    require_current_broadcast_history_scope,
+)
 from app.domain.entities.entities import User, UserRole
 from app.infrastructure.database.models import (
-    ClientGroupModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
 )
@@ -26,7 +30,6 @@ from app.infrastructure.repositories.passport_roster_resolution_repository impor
 )
 from app.infrastructure.whatsapp.phone_overrides import (
     apply_recipient_traveller_phone_overrides,
-    linked_recipient_source_group_ids,
     snapshot_recipient_traveller_phone_overrides,
 )
 from app.infrastructure.whatsapp.private_delivery_policy import (
@@ -152,20 +155,9 @@ async def update_broadcast_recipient_phone(
     )).scalar_one_or_none()
     if initial_group is None:
         raise HTTPException(status_code=404, detail="WhatsApp broadcast group not found")
-    source_group_ids = await linked_recipient_source_group_ids(
-        session, agency_id=initial_group.agency_id, broadcast_group_id=group_id,
-    )
-    if source_group_ids:
-        await session.execute(
-            select(ClientGroupModel)
-            .where(
-                ClientGroupModel.id.in_(source_group_ids),
-                ClientGroupModel.agency_id == initial_group.agency_id,
-            )
-            .order_by(ClientGroupModel.id)
-            .with_for_update()
-            .execution_options(populate_existing=True)
-        )
+    require_active_broadcast(initial_group)
+    history_refresh = await prepare_broadcast_history_refresh(session,
+        agency_id=initial_group.agency_id, broadcast_id=initial_group.id)
     group_result = await session.execute(
         select(WhatsAppBroadcastGroupModel)
         .where(
@@ -182,13 +174,7 @@ async def update_broadcast_recipient_phone(
             detail="WhatsApp broadcast group not found",
         )
     require_active_broadcast(group)
-    if source_group_ids != await linked_recipient_source_group_ids(
-        session, agency_id=group.agency_id, broadcast_group_id=group.id,
-    ):
-        raise HTTPException(
-            status_code=409,
-            detail="The linked groups changed while editing this number. Please try again.",
-        )
+    await require_current_broadcast_history_scope(session, history_refresh)
     # The broadcast lock serializes roster changes. Lock its recipient
     # set in stable order so redirects can be flattened without child lock races.
     recipient_result = await session.execute(
@@ -258,6 +244,7 @@ async def update_broadcast_recipient_phone(
     )
     group.updated_at = now
     await session.flush()
+    await finish_broadcast_history_refresh(session, history_refresh)
     await suppress_active_replacement_recipients(
         session,
         agency_id=group.agency_id,

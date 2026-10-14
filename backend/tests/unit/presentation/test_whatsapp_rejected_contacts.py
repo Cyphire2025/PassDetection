@@ -15,6 +15,7 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastRejectedContactModel,
 )
 from app.presentation.api.v1.routes import whatsapp as whatsapp_routes
+from app.presentation.api.v1.routes import whatsapp_recipient_additions, whatsapp_rejected_contacts
 from app.presentation.api.v1.routes.whatsapp import (
     _WHATSAPP_CONTACT_REJECTION_REASONS,
     WhatsAppRejectedContactResolveRequest,
@@ -30,6 +31,9 @@ from tests.route_dependencies import patch_route_dependency, set_route_dependenc
 
 @pytest.fixture(autouse=True)
 def _isolate_mobile_passenger_reconciliation(monkeypatch: pytest.MonkeyPatch) -> None:
+    for module in (whatsapp_recipient_additions, whatsapp_rejected_contacts):
+        for name in ("prepare_broadcast_history_refresh", "require_current_broadcast_history_scope", "finish_broadcast_history_refresh"):
+            monkeypatch.setattr(module, name, AsyncMock())
     set_route_dependency(
         monkeypatch,
         whatsapp_routes,
@@ -148,6 +152,7 @@ async def test_add_rejected_only_deduplicates_existing_fingerprint() -> None:
     existing_rejected_result.scalars.return_value.all.return_value = [existing_model]
     session = MagicMock()
     session.execute = AsyncMock(side_effect=[group_result, existing_rejected_result])
+    session.scalar = AsyncMock(return_value=group)
     session.flush = AsyncMock()
     session.rollback = AsyncMock()
     current_user = SimpleNamespace(
@@ -325,6 +330,7 @@ async def test_corrected_rejected_contact_becomes_unsent_valid_recipient() -> No
     count_result = MagicMock()
     count_result.scalar_one.return_value = 12
     session = MagicMock()
+    session.scalar = AsyncMock(return_value=group)
     session.execute = AsyncMock(
         side_effect=[
             group_result,

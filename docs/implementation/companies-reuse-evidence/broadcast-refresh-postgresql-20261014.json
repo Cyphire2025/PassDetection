@@ -1,0 +1,48 @@
+{
+  "admission": {
+    "connections_in_use": 15,
+    "database_absent": true,
+    "max_connections": 100,
+    "reserved_connections": 3,
+    "role_absent": true,
+    "server_version": "16.14"
+  },
+  "backend_memory_before": "1.453GiB / 2.5GiB",
+  "candidate_release_artifact_qualified": false,
+  "full_ci_qualified": false,
+  "helper": {
+    "helper_address_space_limit_mib": 512,
+    "helper_cpu_seconds_limit": 90,
+    "migration_passed": true,
+    "owned_temporary_sources_removed": true,
+    "passed": true,
+    "probe": {
+      "checks": [
+        "two_concurrent_50_recipient_imports_one_job_per_group",
+        "mutation_and_job_rollback_together",
+        "admission_group_locks_allow_worker_foreign_key_key_share",
+        "group_then_broadcast_writer_completes_before_waiting_import"
+      ],
+      "database_server": "PostgreSQL",
+      "linked_groups": 2,
+      "load_test": false,
+      "max_concurrent_connections": 3,
+      "passed": true,
+      "synthetic_recipients": 102
+    }
+  },
+  "kind": "synthetic_separate_database_shared_postgresql_server",
+  "limitation": "102 synthetic contacts in two linked groups; separate disposable database on shared PostgreSQL server and bounded subprocess within existing backend cap. No external calls, full isolation, load or release artifact qualification.",
+  "maximum_extra_database_connections": 3,
+  "owned_database_and_role_removed": true,
+  "production_app_source_modified": false,
+  "production_service_config_modified": false,
+  "production_tables_modified": false,
+  "source_sha256": {
+    "broadcast_history_schedule.py": "2f3243488cb1ab588a4f2fd076a5ecdb4f02fa196b6f3e68df7b528448491a0d",
+    "incremental_history.py": "614f8bb6465fca2db55da0c7ee25b616554a20776906bbba26ab0cee5827d793",
+    "verify_broadcast_refresh_pg.py": "a917860e8bd2aa9084dd5d210bee20d79067cc5c03a8850b621c624871ae10c2"
+  },
+  "status": "passed",
+  "version": 1
+}

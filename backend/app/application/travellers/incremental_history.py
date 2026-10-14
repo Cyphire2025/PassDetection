@@ -1,11 +1,5 @@
-"""Incremental registration and coalesced roster refresh, without history rescans.
-
-A source job reads exactly one submission. One active fanout per company/policy
-seeks at most 25 active linked group IDs; each group has one stable refresh job.
-Concurrent changes mark a cursor dirty and cause one trailing pass. Company
-locking serializes job admission; workers lock group -> company -> job. Fanout
-never acquires another group lock while holding the company lock.
-"""
+"""Incremental single-source registration and coalesced 25-group roster fanout.
+Company locks serialize admission; group -> company -> job locks fence workers."""
 
 from __future__ import annotations
 
@@ -69,7 +63,14 @@ async def coalesce_job(session: AsyncSession, *, agency_id: uuid.UUID, company_i
             expected_group_revision=group_revision, idempotency_key=key, created_at=now, available_at=now)
         session.add(job)
         await session.flush()
-    elif job.status in {"queued", "running"} and job.expected_group_revision == group_revision:
+    else:
+        refresh_job(job, group_revision=group_revision, now=now)
+    return job
+
+
+def refresh_job(job: Job, *, group_revision: int, now: datetime) -> None:
+    """Refresh an already locked job; shared by source and roster admissions."""
+    if job.status in {"queued", "running"} and job.expected_group_revision == group_revision:
         if job.cursor is not None:
             job.last_error_code = DIRTY
         else:
@@ -79,7 +80,6 @@ async def coalesce_job(session: AsyncSession, *, agency_id: uuid.UUID, company_i
         job.created_at, job.available_at, job.completed_at = now, now, None
         job.attempt_count, job.processed_count, job.lease_expires_at = 0, 0, None
         job.expected_group_revision = group_revision
-    return job
 
 
 async def queue_group_refresh(session: AsyncSession, group: ClientGroupModel,

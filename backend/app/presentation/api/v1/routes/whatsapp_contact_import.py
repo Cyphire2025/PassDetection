@@ -82,6 +82,14 @@ def _append_excel_contact_rejection(
     )
 
 
+def _unlabelled_phone_candidates(row_values: list[Any]) -> list[str]:
+    """Ignore email cells before searching a headerless row for phone numbers."""
+    row_text = " ".join(
+        text for cell in row_values if (text := _excel_cell_text(cell)) and "@" not in text
+    )
+    return PHONE_RE.findall(row_text)
+
+
 def _parse_excel_contact_bytes(
     payload: bytes,
     *,
@@ -268,8 +276,7 @@ def _parse_excel_contact_bytes(
                     continue
                 candidates.extend((name, phone, imported_fields) for phone in phone_values)
             else:
-                row_text = " ".join(text for cell in row_values if (text := _excel_cell_text(cell)))
-                for match in PHONE_RE.findall(row_text):
+                for match in _unlabelled_phone_candidates(row_values):
                     candidates.append((name, match, imported_fields))
 
             for name, phone, fields in candidates:

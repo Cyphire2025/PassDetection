@@ -6,6 +6,44 @@ Current live schema: 0135_company_removal_history.
 The earlier release passed deployment checks but its initial live history processing
 was not verified with populated client records. The follow-up below corrects that gap.
 
+2026-10-14 Excel contact import and incremental broadcast matching repair
+- Live diagnosis found 100 valid recipients in the Test broadcast: its original
+  person plus 99 added at 09:19:32 UTC. The last matching job had finished at
+  08:42:43 UTC, before the import. All 100 valid recipients matched 100 distinct
+  saved people by exact name, DOB, passport and phone; no fresh job had been
+  admitted for the 99 additions. Document suitability remains a separate gate.
+- The exported "WhatsApp Email" heading was classified as a phone heading merely
+  because it contained "WhatsApp", producing rejected email companions beside
+  valid contacts. Email/mail headings are now excluded from phone columns. The
+  headerless fallback excludes email cells, including numeric email local parts.
+  An email entered in an explicitly labelled Phone column remains invalid input.
+- "WhatsApp Email" stays separate broadcast metadata; "Upload Email" maps to
+  client_email for identity matching. Differing addresses are retained separately.
+- Dashboard/MCP shared additions, recipient detail/phone edits and rejected-row
+  corrections now admit existing durable roster jobs in the same transaction.
+  Group locks precede company/job/broadcast locks; parent NO KEY UPDATE locks
+  permit harmless foreign-key reads. The linked group set is rechecked after the
+  broadcast lock. Source cutoff advances after contact writes. Concurrent changes
+  coalesce, and an in-progress cursor gets a trailing pass. No new job payload,
+  schema, dependencies, configuration or provider-send operation is introduced.
+- Resource budget: at most 100 linked client groups per contact mutation, with
+  explicit rejection above that bound rather than a partial refresh. Admission
+  uses O(g) indexed queries and O(g) memory, g <= 100; matching remains resumable
+  in pages of 25. Imports do not scan saved company history interactively.
+- Verification before release: 190 regression tests plus one real database-backed
+  shared-add -> match -> second-add -> match integration passed. Real XLSX tests
+  cover 100 people with unique phones and 100 people sharing 50 phones. A separate
+  disposable PostgreSQL database exercised two concurrent 50-contact additions,
+  rollback, job coalescing and parent-lock interactions with three connections.
+  This is correctness/concurrency evidence, not a sustained capacity benchmark.
+- The original 100 rejected email companions are preserved import history. They
+  are not additional people or a reason to upload documents again. One original
+  companion has an unresolved historical match-case reference. There is no safe
+  existing archive/dismiss operation; do not silently delete or relabel them.
+- Live deployment/repair evidence is recorded below after execution. The repair
+  must revalidate the current link and source integrity and enqueue through the
+  application scheduler; it must not force assignments or invent confirmation.
+
 2026-10-14 live history / broadcast assignment follow-up
 - User recreated Bluechip and TATA AIG and assigned their groups after the requested
   cleanup. Those new client entries must NOT be removed by repeating the old cleanup.
