@@ -50,7 +50,7 @@ async function setup(page: Page, options: { interruptCompletion?: boolean } = {}
 }
 async function selectFresh(page: Page, family = false) {
   await page.goto(`/upload/${token}`); await page.getByRole("button", { name: /New traveller/ }).click();
-  await page.getByRole("button", { name: family ? "My family" : "Just me", exact: true }).click();
+  await page.getByRole("button", { name: family ? "Family" : "Only me", exact: true }).click();
   await page.getByRole("button", { name: "Continue", exact: true }).click();
 }
 async function fillMember(page: Page, family = false) {

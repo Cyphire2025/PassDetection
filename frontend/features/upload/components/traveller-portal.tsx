@@ -20,13 +20,14 @@ const FreshFlow = dynamic(() => import("./fresh-flow").then((module) => module.F
 export function TravellerPortal({ token }: { token: string }) {
   const { data: group, isLoading, error } = useUploadLinkByToken(token);
   const [path, setPath] = useState<"start" | "returning" | "new" | "resume">("start");
+  const [resumeFresh, setResumeFresh] = useState(false);
   const resumeText = useSyncExternalStore(subscribeDraftResume, () => draftResumeText(token), () => null);
   const resume = parseDraftResume(resumeText);
   const [selection, setSelection] = useState<{ method: ReturningMethod; capabilities: ReturningCapabilities } | null>(null);
-  const fresh = () => { setSelection(null); setPath("new"); };
+  const fresh = () => { setResumeFresh(false); setSelection(null); setPath("new"); };
   if (isLoading) return <CenteredLoader />;
   if (error || !group) return <UploadFlow token={token} onStartOver={() => setPath("start")} />;
-  if (path === "new") return <FreshFlow token={token} group={group} onBack={() => setPath("start")} />;
+  if (path === "new") return <FreshFlow key={String(resumeFresh)} token={token} group={group} resumeExisting={resumeFresh} onBack={() => setPath("start")} />;
   if (path === "resume") return <ReturningResume token={token} groupName={group.name} group={group} onFresh={fresh} onVerify={() => setPath("returning")} />;
   if (selection) return <ReturningFlow token={token} group={group} initialMethod={selection.method} capabilities={selection.capabilities} onFresh={fresh} onReplace={fresh} onBack={() => setSelection(null)} />;
   return <TravellerShell landing={path === "start"}>
@@ -40,7 +41,7 @@ export function TravellerPortal({ token }: { token: string }) {
         <EntryChoice icon={<FolderCheck className="h-6 w-6" />} title="Travelled with us before" description="Find and review your saved passport." onClick={() => setPath("returning")} />
         <EntryChoice icon={<FilePlus2 className="h-6 w-6" />} title="New traveller" description="Upload your documents for this trip." onClick={fresh} />
       </div>
-      {resume && <button type="button" onClick={() => setPath(resume.mode === "new" ? "new" : "resume")} className={`${styles.resume} w-full rounded-xl border border-blue-200 bg-blue-50 text-left text-sm font-medium text-blue-700`}>Continue from where you left<span className="mt-1 block text-xs font-normal text-slate-500">Your temporary draft is available on this device for 24 hours.</span></button>}
+      {resume && <button type="button" onClick={() => { setResumeFresh(true); setPath(resume.mode === "new" ? "new" : "resume"); }} className={`${styles.resume} w-full rounded-xl border border-blue-200 bg-blue-50 text-left text-sm font-medium text-blue-700`}>Continue from where you left<span className="mt-1 block text-xs font-normal text-slate-500">Your temporary draft is available on this device for 24 hours.</span></button>}
     </section>}
   </TravellerShell>;
 }

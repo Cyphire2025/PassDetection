@@ -9,12 +9,12 @@ import { UploadHeader } from "./upload-flow-shell";
 import { FreshMember } from "./fresh-member";
 import { MAX_FAMILY_MEMBERS, MIN_FAMILY_MEMBERS } from "./upload-flow.constants";
 
-export function FreshFlow({ token, group, onBack }: { token: string; group: UploadLinkResponse; onBack: () => void }) {
-  const [resume, setResume] = useState<FreshResume | undefined>(() => readDraftResume(token)?.fresh);
+export function FreshFlow({ token, group, onBack, resumeExisting = false }: { token: string; group: UploadLinkResponse; onBack: () => void; resumeExisting?: boolean }) {
+  const [resume, setResume] = useState<FreshResume | undefined>(() => resumeExisting ? readDraftResume(token)?.fresh : undefined);
   const [mode, setMode] = useState<"single" | "family">("single"), [count, setCount] = useState(2), [finished, setFinished] = useState(false);
   const start = () => {
     const value: FreshResume = { mode, familyGroupId: crypto.randomUUID(), active: 0, members: Array.from({ length: mode === "single" ? 1 : count }, () => ({ sessionId: crypto.randomUUID(), submissionKey: crypto.randomUUID(), completed: false })) };
-    saveFreshResume(token, value); setResume(value);
+    clearDraftResume(token); saveFreshResume(token, value); setResume(value);
   };
   const onStarted = useCallback((expires: string) => {
     if (resume) saveFreshResume(token, resume, expires);
@@ -34,7 +34,7 @@ export function FreshFlow({ token, group, onBack }: { token: string; group: Uplo
       <FreshMember key={resume.members[resume.active].sessionId} token={token} group={group} resume={resume} onStarted={onStarted} onComplete={complete} onBack={onBack} />
     </> : <section className="mx-auto max-w-2xl rounded-3xl border border-slate-200 bg-white p-5 sm:p-8">
       <h1 className="text-2xl font-semibold tracking-tight text-slate-950">Who are you submitting for?</h1><p className="mt-2 text-sm leading-6 text-slate-500">Add one traveller, or complete each family member’s details together.</p>
-      <div className="mt-6 grid gap-3 sm:grid-cols-2">{(["single", "family"] as const).map((value) => <button key={value} type="button" aria-pressed={mode === value} onClick={() => setMode(value)} className={`flex min-h-24 items-center gap-3 rounded-2xl border p-4 text-left ${mode === value ? "border-blue-500 bg-blue-50 text-blue-900" : "border-slate-200 text-slate-700"}`}>{value === "single" ? <UserRound className="h-6 w-6" /> : <UsersRound className="h-6 w-6" />}<span className="font-semibold">{value === "single" ? "Just me" : "My family"}</span></button>)}</div>
+      <div className="mt-6 grid gap-3 sm:grid-cols-2">{(["single", "family"] as const).map((value) => <button key={value} type="button" aria-pressed={mode === value} onClick={() => setMode(value)} className={`flex min-h-24 items-center gap-3 rounded-2xl border p-4 text-left ${mode === value ? "border-blue-500 bg-blue-50 text-blue-900" : "border-slate-200 text-slate-700"}`}>{value === "single" ? <UserRound className="h-6 w-6" /> : <UsersRound className="h-6 w-6" />}<span className="font-semibold">{value === "single" ? "Only me" : "Family"}</span></button>)}</div>
       {mode === "family" && <label className="mt-5 block text-sm font-medium text-slate-700">Number of travellers<select className="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-white px-3 text-base" value={count} onChange={(event) => setCount(Number(event.target.value))}>{Array.from({ length: MAX_FAMILY_MEMBERS - MIN_FAMILY_MEMBERS + 1 }, (_, index) => index + MIN_FAMILY_MEMBERS).map((value) => <option key={value} value={value}>{value}</option>)}</select></label>}
       <Button type="button" className="mt-6 min-h-12 w-full" onClick={start}>Continue</Button>
     </section>}
