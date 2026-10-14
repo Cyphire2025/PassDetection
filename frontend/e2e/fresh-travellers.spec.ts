@@ -14,6 +14,7 @@ async function setup(page: Page, options: { interruptCompletion?: boolean } = {}
     const request = route.request(), path = new URL(request.url()).pathname;
     const member = request.headers()["x-upload-session-id"];
     if (path === `/api/v1/upload-links/token/${token}`) return json(route, group);
+    if (path === "/api/v1/returning/capabilities") return json(route, { enabled: true, code_label: "Staff code" });
     if (path.endsWith("/qualifier-selection")) { expect(member).toBeTruthy(); return json(route, { selection_token: `qualifier-${member}` }); }
     if (path.endsWith("/prepare-file")) { expect(member).toBeTruthy(); return route.fulfill({ contentType: "image/jpeg", body: pixel }); }
     if (!path.startsWith(`/api/v1/public-drafts/${token}`)) { unexpected.push(path); return json(route, {}, 403); }

@@ -6,6 +6,7 @@ import { TravellerPortal } from "./traveller-portal";
 
 const memberRender = vi.hoisted(() => vi.fn());
 vi.mock("@/features/passports/hooks/use-upload-links", () => ({ useUploadLinkByToken: () => ({ data: { name: "Synthetic trip" }, isLoading: false, error: null }) }));
+vi.mock("@/features/travellers/hooks/use-returning-capabilities", () => ({ useReturningCapabilities: vi.fn() }));
 vi.mock("next/dynamic", async () => {
   const { lazy, Suspense } = await import("react");
   return { default: (load: () => Promise<ComponentType<Record<string, unknown>>>) => {

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, Clock3, MessageCircle, RefreshCw, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { BrandLogo } from "@/components/brand/brand-logo";
 import { CustomDetailFields, CustomQuestionFields } from "@/features/upload/components/upload-flow-fields";
 import { ReviewFields } from "@/features/upload/components/upload-flow-review";
 import { TravellerShell } from "@/features/upload/components/traveller-shell";
@@ -50,8 +51,9 @@ function ReturningReviewContent({ history, groupName, group, groupToken = "", ow
   const { extracting, contact, needsContact, needsReplacement, needsBack, canSubmit } = draftReviewReadiness(history, draft, form.pending, confirmed, group);
   const photoRequired = (history.missing_requirements ?? []).some((key) => key === "fresh_photo" || key === "visa_photo");
   const qualifierRequired = (history.missing_requirements ?? []).includes("qualifier_relationship");
-  if (result || draft?.status === "submitted") return <TravellerShell><section className="mt-12 space-y-5 rounded-3xl border border-emerald-100 bg-white p-8 text-center shadow-sm"><CheckCircle2 className="mx-auto h-12 w-12 text-emerald-600" aria-hidden="true" /><h1 className="text-2xl font-semibold tracking-tight text-slate-950">Your trip details are saved</h1><p className="text-sm leading-6 text-slate-500">Thank you. Your information for {groupName} has been submitted.{(result?.status ?? draft?.result_status) === "submitted" ? " Your travel team will review any remaining checks." : ""}</p><Button type="button" variant="secondary" className="h-auto min-h-12 whitespace-normal" onClick={onFresh}>Continue for another traveller</Button></section></TravellerShell>;
+  if (result || draft?.status === "submitted") return <TravellerShell><BrandLogo className="mx-auto mb-6" priority /><section className="space-y-5 rounded-3xl border border-emerald-100 bg-white p-8 text-center shadow-sm"><CheckCircle2 className="mx-auto h-12 w-12 text-emerald-600" aria-hidden="true" /><h1 className="text-2xl font-semibold tracking-tight text-slate-950">Your trip details are saved</h1><p className="text-sm leading-6 text-slate-500">Thank you. Your information for {groupName} has been submitted.{(result?.status ?? draft?.result_status) === "submitted" ? " Your travel team will review any remaining checks." : ""}</p><Button type="button" variant="secondary" className="h-auto min-h-12 whitespace-normal" onClick={onFresh}>Continue for another traveller</Button></section></TravellerShell>;
   return <TravellerShell wide>
+    <BrandLogo className="mx-auto mb-6 h-12 w-[190px] sm:mb-8 sm:h-14 sm:w-[210px]" priority />
     <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div className="max-w-2xl"><p className="text-sm font-medium text-blue-700">{groupName}</p><h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Ready for your next journey</h1><p className="mt-3 text-sm leading-6 text-slate-500">Review your passport and complete this trip’s details. If your passport hasn’t changed, you don’t need to upload it again.</p></div>
       <span className="inline-flex w-fit shrink-0 items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-800"><CheckCircle2 className="h-4 w-4" />Passport verified</span>
