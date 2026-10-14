@@ -60,6 +60,7 @@ async def save(group_token: str, body: DraftSave, secret: str = Depends(fresh_to
 @router.post("/{group_token}/documents/{side}", response_model=DraftView)
 async def upload(group_token: str, side: DraftSide, file: UploadFile = File(...), expected_revision: int = Form(..., ge=1),
     idempotency_key: str = Form(..., min_length=16, max_length=128), secret: str = Depends(fresh_token),
+    expected_asset_id: uuid.UUID | None = Form(default=None),
     service: FreshDraftStore = Depends(fresh_store),
 ) -> DraftView:
     await require_fresh_draft(service, group_token, secret)
@@ -67,7 +68,7 @@ async def upload(group_token: str, side: DraftSide, file: UploadFile = File(...)
     image = await _validated_upload_file(file, label="Passport document", max_size_bytes=2 * 1024 * 1024, public_device_file=True)
     return await store_draft_document(service, authorize=lambda: require_fresh_draft(service, group_token, secret), side=side,
         expected_revision=expected_revision, idempotency_key=idempotency_key, content=image.content,
-        content_type=image.content_type, storage=MinioStorageRepository())
+        content_type=image.content_type, storage=MinioStorageRepository(), expected_asset_id=expected_asset_id)
 
 
 @router.get("/{group_token}/documents/{asset_id}")

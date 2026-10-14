@@ -1,15 +1,9 @@
 "use client";
 
-import type { DraftSide, ReturningDraft } from "../api/returning-draft.api";
+import type { ReturningDraft } from "../api/returning-draft.api";
 import type { ReturningDocument } from "../types";
 import { TravellerDocument } from "./traveller-document";
-
-const SIDES: DraftSide[] = ["front", "back", "photo", "cover", "back_cover"];
-const LABELS: Record<DraftSide, string> = { front: "Passport details page", back: "Passport address page", photo: "Traveller photo", cover: "Front cover", back_cover: "Back cover" };
-function documentSide(label: string): DraftSide {
-  const normalized = label.toLowerCase().replaceAll(" ", "_");
-  return SIDES.find((side) => side === normalized) ?? (normalized.includes("back_cover") ? "back_cover" : normalized.includes("back") || normalized.includes("address") ? "back" : normalized.includes("photo") ? "photo" : normalized.includes("cover") ? "cover" : "front");
-}
+import { DOCUMENT_PREVIEW_ORDER as SIDES, DOCUMENT_PREVIEW_LABELS as LABELS, documentSide } from "@/features/upload/services/document-preview-order";
 
 export function ReturningDraftImages({ documents, draft, hidePhoto = false }: {
   documents: ReturningDocument[]; draft: ReturningDraft; hidePhoto?: boolean;

@@ -59,6 +59,8 @@ class DraftView(DraftPayload):
     documents: list[DraftDocument] = Field(default_factory=list, max_length=5)
     extraction_status: Literal["none", "pending", "running", "succeeded", "failed"] = "none"
     extracted_fields: dict[str, str] = Field(default_factory=dict, max_length=10)
+    ecr_status: Literal["none", "pending", "running", "succeeded", "failed"] = "none"
+    ecr_result: Literal["ECR", "NA", "REVIEW"] | None = None
 
 
 class DraftComplete(BaseModel):

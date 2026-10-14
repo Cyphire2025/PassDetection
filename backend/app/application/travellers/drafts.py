@@ -1,4 +1,4 @@
-"""Private autosave, O(1) scoped seeks and at most five current asset rows.
+"""Private autosave, scoped seeks and at most five current plus five uploading assets.
 
 The 24h cookie retains a draft, never extends historical disclosure authority.
 Every operation also needs a current person/document-specific grant.
@@ -9,7 +9,7 @@ import uuid
 from datetime import UTC, datetime, timedelta
 from typing import cast
 
-from sqlalchemy import select
+from sqlalchemy import case, or_, select
 
 from app.application.travellers.claims import ReturningClaims
 from app.application.travellers.draft_contracts import (
@@ -19,6 +19,7 @@ from app.application.travellers.draft_contracts import (
     DraftView,
 )
 from app.application.travellers.draft_requirements import current_answers, refresh_answers
+from app.application.travellers.draft_retention import discard_draft_images
 from app.application.travellers.draft_store import DraftStore
 from app.application.travellers.errors import ReuseError, ReuseReason
 from app.application.travellers.history import project_history, review_context, review_version
@@ -94,6 +95,7 @@ async def start_draft(service: ReturningClaims, token: str, *, expected_review_v
             Draft.status == "active", Draft.expires_at > datetime.now(UTC)))
         if previous:
             draft = await require_draft(service, token, existing_secret)
+            await discard_draft_images(service, draft)
             if draft.review_version != current_version:
                 refresh_answers(service, draft, scope.group, policies)
                 draft.review_version, draft.revision = current_version, draft.revision + 1
@@ -106,6 +108,7 @@ async def start_draft(service: ReturningClaims, token: str, *, expected_review_v
     previous = await service.session.scalar(select(Draft).where(Draft.secret_hash == digest).with_for_update())
     if previous:
         draft = await require_draft(service, token, secret, submitted=True)
+        await discard_draft_images(service, draft)
     else:
         review = await project_history(service, context, policies)
         saved = cast(dict[str, dict[str, str]], review["saved_answers"])
@@ -141,11 +144,19 @@ async def draft_view(service: DraftStore, draft: Draft) -> DraftView:
     if draft.mode == "fresh":
         proof = await service.session.scalar(select(Proof).where(Proof.draft_id == draft.id,
             Proof.agency_id == draft.agency_id, Proof.status == "verified", Proof.proof_expires_at > datetime.now(UTC)))
-    assets = list(await service.session.scalars(select(Asset).where(Asset.draft_id == draft.id,
+    candidates = list(await service.session.scalars(select(Asset).where(Asset.draft_id == draft.id,
         Asset.agency_id == draft.agency_id, Asset.company_id == draft.company_id,
-        Asset.is_current.is_(True), Asset.state == "ready").order_by(Asset.side).limit(5)))
+        or_(Asset.is_current.is_(True), Asset.state == "uploading"), Asset.state.in_(("ready", "uploading")))
+        .order_by(Asset.side, case((Asset.state == "uploading", 0), else_=1), Asset.created_at.desc(), Asset.id.desc())
+        .limit(10).execution_options(populate_existing=True)))
+    by_side: dict[str, Asset] = {}
+    for candidate in candidates:
+        by_side.setdefault(candidate.side, candidate)
+    assets = list(by_side.values())
     front = next((asset for asset in assets if asset.side == "front"), None)
+    back = next((asset for asset in assets if asset.side == "back"), None)
     fields = DraftPayload.model_validate_json(service.crypto.decrypt(front.extraction_ciphertext)).passport_fields if front and front.extraction_ciphertext else {}
+    back_result = json.loads(service.crypto.decrypt(back.classification_ciphertext)).get("ecr_result") if back and back.classification_ciphertext else None
     return DraftView.model_validate({**draft_payload(service, draft).model_dump(), "id": draft.id,
         "revision": draft.revision, "expires_at": draft.expires_at, "status": draft.status,
         "verified_phone": service.crypto.decrypt(draft.verified_phone_ciphertext) if draft.verified_phone_ciphertext else None,
@@ -155,7 +166,8 @@ async def draft_view(service: DraftStore, draft: Draft) -> DraftView:
         "source_submission_id": draft.source_submission_id if draft.status == "submitted" else None,
         "result_status": draft.result_status if draft.status == "submitted" else None,
         "documents": [DraftDocument.model_validate({"id": asset.id, "side": asset.side, "state": asset.state}).model_dump() for asset in assets],
-        "extraction_status": front.extraction_status if front else "none", "extracted_fields": fields})
+        "extraction_status": front.extraction_status if front else "none", "extracted_fields": fields,
+        "ecr_status": back.extraction_status if back else "none", "ecr_result": back_result})
 
 
 async def save_draft(service: ReturningClaims, token: str, secret: str, body: DraftSave) -> DraftView:

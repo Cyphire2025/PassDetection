@@ -2759,13 +2759,13 @@
     "app/application/travellers/draft_uploads.py": {
       "owner": "repository maintainers",
       "review_by": "2026-12-31",
-      "reason": "Current owner and revision locks reserve at most thirty private temporary assets, release database connections for bounded storage IO, and recheck authority before publication. Superseded temporary files use the durable cleanup outbox; adopted official assets are excluded.",
+      "reason": "Current owner and revision locks reserve at most thirty private temporary assets, release database connections for bounded storage IO, and recheck authority before publication. A scoped group configuration read determines optional ECR extraction. Canonical draft retention handles superseded and late-written temporary files; adopted official assets are excluded.",
       "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
         "app.infrastructure.database.traveller_returning_draft_models",
         "app.infrastructure.database.traveller_returning_draft_models.TravellerDraftAssetModel",
-        "app.infrastructure.database.traveller_returning_draft_models.TravellerReturningDraftModel",
-        "app.infrastructure.documents.storage_cleanup",
-        "app.infrastructure.documents.storage_cleanup.stage_storage_cleanup_jobs"
+        "app.infrastructure.database.traveller_returning_draft_models.TravellerReturningDraftModel"
       ]
     },
     "app/application/travellers/draft_contact.py": {
@@ -2961,6 +2961,32 @@
         "app.infrastructure.database.company_directory_models.CompanyDirectoryPersonModel",
         "app.infrastructure.security.traveller_reuse_crypto",
         "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
+      ]
+    },
+    "app/application/travellers/draft_retention.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "A locked active draft bounds at most thirty temporary asset changes. Revision cutoffs exclude later uploads, exact owner-derived storage keys and adopted-state guards prevent official document deletion, and the existing encrypted outbox performs retries. Text and historical records are preserved.",
+      "imports": [
+        "app.infrastructure.database.traveller_returning_draft_models",
+        "app.infrastructure.database.traveller_returning_draft_models.TravellerDraftAssetModel",
+        "app.infrastructure.database.traveller_returning_draft_models.TravellerReturningDraftModel",
+        "app.infrastructure.documents.storage_cleanup",
+        "app.infrastructure.documents.storage_cleanup.stage_storage_cleanup_jobs"
+      ]
+    },
+    "app/application/travellers/draft_activity.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "A current capability and locked draft owner precede one bounded staged-asset existence check and an opaque thirty-minute Redis processing-presence lease. This lease grants no identity or document access; Redis failure preserves files until the fixed draft expiry.",
+      "imports": [
+        "app.infrastructure.database.traveller_returning_draft_models",
+        "app.infrastructure.database.traveller_returning_draft_models.TravellerDraftAssetModel",
+        "app.infrastructure.database.traveller_returning_draft_models.TravellerReturningDraftModel",
+        "app.infrastructure.observability.metrics",
+        "app.infrastructure.observability.metrics.metrics",
+        "app.infrastructure.travellers.draft_presence",
+        "app.infrastructure.travellers.draft_presence.draft_presence"
       ]
     }
   }

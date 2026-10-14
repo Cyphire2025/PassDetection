@@ -19,8 +19,12 @@ async function setup(page: Page, options: { interruptCompletion?: boolean } = {}
     if (!path.startsWith(`/api/v1/public-drafts/${token}`)) { unexpected.push(path); return json(route, {}, 403); }
     expect(member).toBeTruthy();
     let draft = drafts.get(member);
+    const resuming = !!draft && request.method() === "POST" && path === `/api/v1/public-drafts/${token}`;
     if (!draft) { draft = { id: `draft-${member}`, revision: 1, status: "active", expires_at: new Date(Date.now() + 86_400_000).toISOString(), passport_fields: {}, current_details: {}, custom_answers: {}, custom_detail_answers: {}, collection: null, verified_phone: null, documents: [], extracted_fields: {}, extraction_status: "none" }; drafts.set(member, draft); }
     const body = request.headers()["content-type"]?.includes("application/json") ? request.postDataJSON() : {};
+    if (path.endsWith("/activity")) return json(route, { images_present: draft.documents.length > 0, presence_recorded: true, heartbeat_after_seconds: 60 });
+    if (draft.status === "active" && (resuming || path.endsWith("/discard-documents"))) { draft.documents = []; draft.extraction_status = "none"; draft.ecr_status = "none"; draft.revision++; }
+    if (path.endsWith("/discard-documents")) return json(route, draft);
     if (path.endsWith("/contact/request")) return json(route, { challenge_id: `otp-${member}`, expires_in_seconds: 600, resend_after_seconds: 1 });
     if (path.endsWith("/contact/verify")) { expect(body.challenge_id).toBe(`otp-${member}`); draft.phone_verification_id = `proof-${member}`; draft.phone_verification_expires_at = new Date(Date.now() + 3_600_000).toISOString(); return json(route, { phone_verification_id: draft.phone_verification_id, phone_number: "+919999999999", expires_in_seconds: 3600 }); }
     if (path.endsWith("/complete")) {
@@ -71,6 +75,9 @@ for (const width of [320, 1440]) test(`fresh private draft resumes and submits a
   expect(stored).not.toMatch(/TEST1234|family@example|9999999999|STAFF-ONE/);
   await page.reload(); await page.getByRole("button", { name: /Continue from where you left/ }).click();
   await expect(page.getByLabel("Passport Number", { exact: true })).toHaveValue("TEST1234"); await expect(page.getByText("WhatsApp number verified")).toBeVisible();
+  expect(Array.from(state.drafts.values())[0].documents).toEqual([]);
+  await page.getByLabel("Upload personal details page").setInputFiles({ name: "synthetic-resumed.jpg", mimeType: "image/jpeg", buffer: pixel });
+  await expect.poll(() => Array.from(state.drafts.values())[0].documents.length).toBe(1);
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: info.outputPath(`fresh-review-${width}.png`), fullPage: true });
   await page.getByRole("button", { name: "Confirm details and submit" }).click(); await expect(page.getByRole("heading", { name: "You’re all set" })).toBeVisible();

@@ -65,7 +65,13 @@ async function setup(page: Page, options: { enabled?: boolean; failProof?: boole
     if (path.endsWith("/returning/draft")) {
       expect(granted).toBe(true);
       if (req.method() === "PUT") draft = { ...draft, ...body, revision: draft.revision + 1 };
+      if (req.method() === "POST" && draft.status === "active" && draft.documents.length) draft = { ...draft, revision: draft.revision + 1, documents: [], extraction_status: "none" };
       return json(route, draft, 200, cookieHeader("pd_returning_draft"));
+    }
+    if (path.endsWith("/returning/draft/activity")) return json(route, { images_present: draft.documents.length > 0, presence_recorded: true, heartbeat_after_seconds: 60 });
+    if (path.endsWith("/returning/draft/discard-documents")) {
+      if (draft.status === "active") draft = { ...draft, revision: draft.revision + 1, documents: [], extraction_status: "none" };
+      return json(route, draft);
     }
     if (path.includes("/returning/draft/documents/") && req.method() === "POST") {
       expect(req.headers()["content-type"]).toContain("multipart/form-data; boundary=");
@@ -78,7 +84,7 @@ async function setup(page: Page, options: { enabled?: boolean; failProof?: boole
       expect(granted).toBe(true); expect(await req.headerValue("cookie")).toContain("pd_returning_history=");
       return route.fulfill({ contentType: options.protectedPdf ? "application/pdf" : "image/png", body: options.protectedPdf ? syntheticPdf() : imageBytes, headers: { "cache-control": "private, no-store", "x-content-type-options": "nosniff" } });
     }
-    if (path.endsWith("/returning/draft/complete")) { expect(granted).toBe(true); expect(body.expected_revision).toBe(draft.revision); return json(route, { status: "submitted", participation_id: "synthetic-participation", source_submission_id: "synthetic-source" }); }
+    if (path.endsWith("/returning/draft/complete")) { expect(granted).toBe(true); expect(body.expected_revision).toBe(draft.revision); draft.status = "submitted"; return json(route, { status: "submitted", participation_id: "synthetic-participation", source_submission_id: "synthetic-source" }); }
     return json(route, { detail: "Unexpected synthetic request blocked" }, 403);
   });
   return { calls, currentDraft: () => draft };
@@ -154,14 +160,15 @@ test("failed passport plus date proof highlights the new-traveller action withou
   await expect(page.getByRole("button", { name: "Continue as a new traveller" })).toBeFocused();
   expect(calls.filter((call) => call.path.endsWith("/history") || call.path.includes("/documents/"))).toHaveLength(0);
 });
-test("front/back replacement remains a draft and updates the visible fields before explicit submit", async ({ page }, info) => {
+test("independent back/front replacement remains a draft and updates visible fields before submit", async ({ page }, info) => {
   await page.setViewportSize({ width: 320, height: 900 });
   const { calls } = await setup(page); await begin(page, "passport");
   await page.getByRole("button", { name: "Upload updated passport" }).click();
-  await expect(page.getByLabel("Upload address details page")).toBeDisabled();
+  await expect(page.getByLabel("Upload address details page")).toBeEnabled();
+  await page.getByLabel("Upload address details page").setInputFiles({ name: "back.png", mimeType: "image/png", buffer: imageBytes });
+  await expect(page.getByRole("img", { name: "Passport address page" })).toBeVisible();
   await page.getByLabel("Upload personal details page").setInputFiles({ name: "front.png", mimeType: "image/png", buffer: imageBytes });
   await expect(page.getByLabel("Passport Number", { exact: true })).toHaveValue("B7654321");
-  await page.getByLabel("Upload address details page").setInputFiles({ name: "back.png", mimeType: "image/png", buffer: imageBytes });
   await fillTrip(page); await page.getByRole("checkbox", { name: /reviewed my passport/ }).check();
   expect(calls.filter((call) => call.path.endsWith("/complete") || (call.path.includes("/passports/upload/") && !call.path.endsWith("/prepare-file")) || call.path.endsWith("/client-submit"))).toHaveLength(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -187,14 +194,14 @@ test("camera-only replacement opens the scanner and never offers a file bypass",
   await begin(page, "passport");
   await page.getByRole("button", { name: "Upload updated passport" }).click();
   await expect(page.locator('input[type="file"]')).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Use camera", exact: true }).nth(1)).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Use camera", exact: true }).nth(1)).toBeEnabled();
   await page.getByRole("button", { name: "Use camera", exact: true }).first().click();
   await expect(page.getByText("Camera access was blocked. Allow camera permission in your browser and try again.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Try Camera Again" })).toBeVisible();
   await expect(page.locator('input[type="file"]')).toHaveCount(0);
 });
 
-test("required photo and relationship resume without reuploading the saved passport", async ({ page }, info) => {
+test("relationship and details resume while the temporary photo must be selected again", async ({ page }, info) => {
   await page.setViewportSize({ width: 320, height: 900 });
   const { calls, currentDraft } = await setup(page, { collection: true });
   await begin(page, "passport"); await fillTrip(page);
@@ -210,11 +217,14 @@ test("required photo and relationship resume without reuploading the saved passp
   await page.reload(); await page.getByRole("button", { name: /Continue from where you left/ }).click();
   await expect(page.getByText("Qualifier relationship saved")).toBeVisible();
   await page.getByRole("heading", { name: "Traveller photo" }).scrollIntoViewIfNeeded();
+  await expect(page.getByRole("img", { name: "Traveller photo" })).toHaveCount(0);
+  expect(currentDraft().documents).toEqual([]);
+  await page.getByLabel("Upload traveller photo").setInputFiles({ name: "photo-resumed.png", mimeType: "image/png", buffer: imageBytes });
   await expect(page.getByRole("img", { name: "Traveller photo" })).toBeVisible();
   await expect(page.getByLabel("Passport Number", { exact: true })).toHaveValue("A1234567");
   expect(currentDraft().collection?.visa_photo_source).toBe("file");
   expect(calls.filter((call) => call.path.endsWith("/complete"))).toHaveLength(0);
-  expect(calls.filter((call) => call.method === "POST" && call.path.includes("/draft/documents/"))).toHaveLength(1);
+  expect(calls.filter((call) => call.method === "POST" && call.path.includes("/draft/documents/"))).toHaveLength(2);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: info.outputPath("returning-required-photo-320.png"), fullPage: true });
   await page.getByRole("checkbox", { name: /reviewed my passport/ }).check();

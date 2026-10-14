@@ -3,15 +3,17 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { ProcessingMotion } from "@/components/shared/processing-motion";
 import { isValidPassportIsoDate } from "@/lib/utils/passport-date";
+import styles from "./traveller-landing.module.css";
 
 const travelDateFormatter = new Intl.DateTimeFormat("en-GB", {
   day: "numeric", month: "short", year: "numeric", timeZone: "UTC",
 });
 
-export function UploadHeader({ groupName, departureDate, returnDate }: {
+export function UploadHeader({ groupName, departureDate, returnDate, compact = false }: {
   groupName: string;
   departureDate?: string | null;
   returnDate?: string | null;
+  compact?: boolean;
 }) {
   const travelDates = [
     { label: "Departure Date", value: departureDate?.trim() },
@@ -20,7 +22,7 @@ export function UploadHeader({ groupName, departureDate, returnDate }: {
     ? [{ label, value, display: travelDateFormatter.format(new Date(`${value}T00:00:00Z`)) }]
     : []);
   return (
-    <div className="mb-6 text-center sm:mb-8">
+    <div className={compact ? styles.header : "mb-6 text-center sm:mb-8"}>
       <BrandLogo
         className="mx-auto mb-5 h-12 w-[190px] sm:h-14 sm:w-[210px]"
         priority

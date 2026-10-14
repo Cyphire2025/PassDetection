@@ -65,10 +65,11 @@ async def verified_contact(store, group, secret):
 
 
 @pytest.mark.asyncio
-async def test_fresh_resume_owns_images_and_does_not_create_source(db_session, test_settings):
+async def test_fresh_resume_retains_only_text_and_does_not_create_source(db_session, test_settings):
     store, group, browser, member, secret, view = await fresh_context(db_session, test_settings)
     resumed = await start_fresh_draft(store, group.token, secret, member)
-    assert resumed.id == view.id and resumed.documents == view.documents
+    assert resumed.id == view.id and view.documents and resumed.documents == []
+    assert resumed.passport_fields == view.passport_fields and resumed.revision > view.revision
     assert resumed.current_details["client_phone"] == "+919876540001"
     assert await db_session.scalar(select(func.count()).select_from(PassportSubmissionModel)) == 0
     other = fresh_secret(store, group.token, browser, uuid.uuid4().hex)

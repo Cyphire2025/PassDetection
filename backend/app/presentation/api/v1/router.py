@@ -91,6 +91,7 @@ from app.presentation.api.v1.routes.returning_completion import (
 )
 from app.presentation.api.v1.routes.returning_contact import router as returning_contact_router
 from app.presentation.api.v1.routes.returning_draft import router as returning_draft_router
+from app.presentation.api.v1.routes.draft_lifecycle import router as draft_lifecycle_router
 from app.presentation.api.v1.routes.fresh_draft import router as fresh_draft_router
 from app.presentation.api.v1.routes.fresh_draft_contact import router as fresh_draft_contact_router
 from app.presentation.api.v1.routes.fresh_draft_completion import router as fresh_draft_completion_router
@@ -118,6 +119,7 @@ api_v1_router.include_router(returning_claims_router, prefix="/returning", tags=
 api_v1_router.include_router(returning_history_router, prefix="/returning", tags=["Returning Travellers"])
 api_v1_router.include_router(returning_contact_router, prefix="/returning", tags=["Returning Travellers"])
 api_v1_router.include_router(returning_draft_router, prefix="/returning", tags=["Returning Travellers"])
+api_v1_router.include_router(draft_lifecycle_router, tags=["Traveller Drafts"])
 api_v1_router.include_router(fresh_draft_router, prefix="/public-drafts", tags=["Traveller Drafts"])
 api_v1_router.include_router(fresh_draft_contact_router, prefix="/public-drafts", tags=["Traveller Drafts"])
 api_v1_router.include_router(fresh_draft_completion_router, prefix="/public-drafts", tags=["Traveller Drafts"])

@@ -84,6 +84,7 @@ async def update_draft(body: DraftSave, secret: str = Depends(draft_secret), tok
 @router.post("/draft/documents/{side}", response_model=DraftView)
 async def upload_document(side: DraftSide, file: UploadFile = File(...),
     expected_revision: int = Form(..., ge=1), idempotency_key: str = Form(..., min_length=16, max_length=128),
+    expected_asset_id: uuid.UUID | None = Form(default=None),
     secret: str = Depends(draft_secret), token: str = Depends(grant_secret),
     service: ReturningClaims = Depends(returning_service),
 ) -> DraftView:
@@ -91,7 +92,8 @@ async def upload_document(side: DraftSide, file: UploadFile = File(...),
     await service.session.commit()  # Scanner owns a separate short evidence transaction.
     image = await _validated_upload_file(file, label="Passport document", max_size_bytes=2 * 1024 * 1024, public_device_file=True)
     return await upload_draft_document(service, token, secret, side=side, expected_revision=expected_revision,
-        idempotency_key=idempotency_key, content=image.content, content_type=image.content_type, storage=MinioStorageRepository())
+        idempotency_key=idempotency_key, content=image.content, content_type=image.content_type,
+        storage=MinioStorageRepository(), expected_asset_id=expected_asset_id)
 
 
 @router.get("/draft/documents/{asset_id}")

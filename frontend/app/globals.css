@@ -1,14 +1,26 @@
 @import "tailwindcss";
 
 .traveller-portal {
-  background-color: #f8fbff;
-  background-image: url('/images/traveller/journey-background-mobile.webp');
-  background-position: center top;
-  background-size: 100% auto;
+  --traveller-canvas-color: #f8fbff;
+  position: relative;
+  isolation: isolate;
+  background-color: var(--traveller-canvas-color);
+}
+.traveller-portal::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--traveller-canvas-color);
+  background-image: url('/images/traveller/traveller-portal-4k.webp');
+  background-position: center;
+  /* Preserve every artwork edge, including on short landscape screens. */
+  background-size: contain;
   background-repeat: no-repeat;
 }
-@media (min-width: 768px) {
-  .traveller-portal { background-image: url('/images/traveller/journey-background.webp'); }
+@media (orientation: portrait) {
+  .traveller-portal::before { background-image: url('/images/traveller/traveller-portal-portrait-4k.webp'); }
 }
 
 /* ── Design Tokens ──────────────────────────────────────────────────────── */

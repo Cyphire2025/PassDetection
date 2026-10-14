@@ -57,14 +57,14 @@ describe("fresh private draft revision stream", () => {
   });
   it("cancels member requests when navigation replaces the member", async () => {
     const { unmount } = await ready(); const signal = api.start.mock.calls[0][0] as AbortSignal;
-    expect(signal.aborted).toBe(false); unmount(); expect(signal.aborted).toBe(true);
+    expect(signal.aborted).toBe(false); unmount(); await waitFor(() => expect(signal.aborted).toBe(true));
   });
   it("keeps an uncertain upload key, then discards it after a definitive revision conflict", async () => {
     const { result } = await ready(); const file = new File(["synthetic"], "passport.jpg", { type: "image/jpeg", lastModified: 100 });
     api.upload.mockRejectedValueOnce(new Error("Network unavailable"));
     await act(async () => { await expect(result.current.upload("front", file)).rejects.toThrow("Network unavailable"); });
     api.upload.mockRejectedValueOnce({ status: 409 });
-    await act(async () => { await expect(result.current.upload("front", file)).rejects.toThrow("Review the latest details"); });
+    await act(async () => { await expect(result.current.upload("front", file)).rejects.toThrow("Review the latest image"); });
     expect(api.upload.mock.calls[0][3]).toBe(api.upload.mock.calls[1][3]);
     await act(() => result.current.upload("front", file)); expect(api.upload.mock.calls[2][3]).not.toBe(api.upload.mock.calls[1][3]);
   });

@@ -10,7 +10,7 @@ import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import delete, func, or_, select, text, update
+from sqlalchemy import func, or_, select, text, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.application.interfaces.passport_extraction import IPassportExtractionService
@@ -21,19 +21,18 @@ from app.domain.value_objects.passport_document_classification import (
     is_accepted_passport_information_page,
 )
 from app.domain.value_objects.passport_fields import REVIEWABLE_PASSPORT_FIELDS
+from app.infrastructure.ai.gemini_ecr_service import GeminiEcrService
 from app.infrastructure.database.session import AsyncSessionFactory
 from app.infrastructure.database.traveller_returning_draft_models import (
     TravellerDraftAssetModel as Asset,
 )
 from app.infrastructure.database.traveller_returning_draft_models import (
-    TravellerDraftContactProofModel as Proof,
-)
-from app.infrastructure.database.traveller_returning_draft_models import (
     TravellerReturningDraftModel as Draft,
 )
-from app.infrastructure.documents.storage_cleanup import stage_storage_cleanup_jobs
 from app.infrastructure.security.traveller_reuse_crypto import TravellerReuseCrypto
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
+from app.infrastructure.travellers.draft_ecr import check_draft_back
+from app.infrastructure.travellers.draft_expiry import expire_draft_assets as expire_draft_assets
 from app.infrastructure.travellers.draft_extraction import (
     DraftExtractionDeferred,
     draft_classification,
@@ -50,6 +49,7 @@ class DraftExtractionClaim:
     checksum: str
     media: str
     lease: datetime
+    side: str = "front"
 
 
 async def reserve_extraction(factory: async_sessionmaker[AsyncSession]) -> DraftExtractionClaim | None:
@@ -73,12 +73,13 @@ async def reserve_extraction(factory: async_sessionmaker[AsyncSession]) -> Draft
         row.attempts += 1
         row.extraction_status, row.lease_expires_at = "running", now + timedelta(seconds=60)
         row.available_at = row.lease_expires_at
-        return DraftExtractionClaim(row.id, row.draft_id, row.object_key, row.byte_size, row.checksum, row.content_type, row.lease_expires_at)
+        return DraftExtractionClaim(row.id, row.draft_id, row.object_key, row.byte_size, row.checksum, row.content_type, row.lease_expires_at, row.side)
 
 
 async def run_draft_extraction(*, factory: async_sessionmaker[AsyncSession] = AsyncSessionFactory,
     storage: MinioStorageRepository | None = None, extractor: IPassportExtractionService | None = None,
     crypto: TravellerReuseCrypto | None = None,
+    ecr_checker: GeminiEcrService | None = None,
 ) -> int:
     claim = await reserve_extraction(factory)
     if claim is None:
@@ -92,13 +93,20 @@ async def run_draft_extraction(*, factory: async_sessionmaker[AsyncSession] = As
         async with asyncio.timeout(35):
             content = bytearray()
             async for chunk in storage.stream_file(claim.key, start=0, expected_bytes=claim.size):
+                if len(content) + len(chunk) > claim.size:
+                    raise ValueError("draft_content_size_changed")
                 content.extend(chunk)
-            if hashlib.sha256(content).hexdigest() != claim.checksum:
+            if len(content) != claim.size or hashlib.sha256(content).hexdigest() != claim.checksum:
                 raise ValueError("draft_content_changed")
-            result = await extractor.extract(bytes(content), filename="passport.jpg", content_type=claim.media) if extractor else await extract_draft_front(str(claim.asset_id), bytes(content), claim.media)
-            classification = draft_classification(result.extracted_fields)
-            fields = {key: value for key, value in result.extracted_fields.items()
-                if key in REVIEWABLE_PASSPORT_FIELDS and isinstance(value, str) and len(value) <= 160}
+            if claim.side == "back":
+                checked = await ecr_checker.classify(bytes(content), claim.media) if ecr_checker else await check_draft_back(bytes(content), claim.media)
+                classification = {"ecr_result": checked.status if checked.status != "ERROR" else None}
+                fields = {} if checked.status != "ERROR" else None
+            else:
+                result = await extractor.extract(bytes(content), filename="passport.jpg", content_type=claim.media) if extractor else await extract_draft_front(str(claim.asset_id), bytes(content), claim.media)
+                classification = draft_classification(result.extracted_fields)
+                fields = {key: value for key, value in result.extracted_fields.items()
+                    if key in REVIEWABLE_PASSPORT_FIELDS and isinstance(value, str) and len(value) <= 160}
     except DraftExtractionDeferred:
         deferred = True
     except Exception:
@@ -121,40 +129,11 @@ async def run_draft_extraction(*, factory: async_sessionmaker[AsyncSession] = As
             extracted = DraftPayload(passport_fields=fields)
             asset.extraction_ciphertext = crypto.encrypt(extracted.model_dump_json())
             asset.classification_ciphertext = crypto.encrypt(json.dumps(classification, sort_keys=True))
-            asset.extraction_status = "succeeded" if is_accepted_passport_information_page(classification) else "failed"
-            if asset.extraction_status == "succeeded" and draft.fields_revision == asset.fields_revision:
+            asset.extraction_status = "succeeded" if claim.side == "back" or is_accepted_passport_information_page(classification) else "failed"
+            if claim.side == "front" and asset.extraction_status == "succeeded" and draft.fields_revision == asset.fields_revision:
                 payload = DraftPayload.model_validate_json(crypto.decrypt(draft.payload_ciphertext))
                 payload.passport_fields = fields
                 draft.payload_ciphertext = crypto.encrypt(payload.model_dump_json())
                 draft.fields_revision += 1
-        draft.revision += 1
+                draft.revision += 1
     return 1
-
-
-async def expire_draft_assets(*, factory: async_sessionmaker[AsyncSession] = AsyncSessionFactory) -> int:
-    now = datetime.now(UTC)
-    async with factory() as session, session.begin():
-        # Select owners first: upload/finalization use the same draft -> asset order.
-        drafts = list(await session.scalars(select(Draft).where(Draft.status.in_(("active", "submitted")), Draft.expires_at <= now)
-            .order_by(Draft.expires_at, Draft.id).limit(20).with_for_update(skip_locked=True)))
-        for draft in drafts:
-            draft.status = "expired"
-            draft.verified_phone_ciphertext = draft.verified_phone_fingerprint = None
-            draft.payload_ciphertext = ""  # No retained personal draft text after expiry.
-            draft.requirements_ciphertext = None
-        expired_ids = [draft.id for draft in drafts]
-        if expired_ids:
-            await session.execute(delete(Proof).where(Proof.draft_id.in_(expired_ids)))
-            await session.execute(update(Asset).where(Asset.draft_id.in_(expired_ids))
-                .values(extraction_ciphertext=None, classification_ciphertext=None))
-        assets = list(await session.scalars(select(Asset).join(Draft, Draft.id == Asset.draft_id).where(
-            Asset.state.in_(("uploading", "ready")),
-            or_(Draft.status == "expired", (Asset.state == "uploading") & (Asset.created_at < now - timedelta(minutes=5))),
-        ).order_by(Asset.created_at, Asset.id).limit(100).with_for_update(skip_locked=True, of=Asset)))
-        for asset in assets:
-            asset.state, asset.is_current = "discarded", False
-            asset.extraction_ciphertext = None
-            asset.classification_ciphertext = None
-            stage_storage_cleanup_jobs(session, agency_id=asset.agency_id, source="returning_draft_discard",
-                context_id=str(asset.id), storage_keys=[asset.object_key])
-        return len(assets)

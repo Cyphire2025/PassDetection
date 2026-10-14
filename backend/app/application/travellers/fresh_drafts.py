@@ -10,6 +10,7 @@ from sqlalchemy import select
 
 from app.application.security.public_upload_capability import require_active_public_upload
 from app.application.travellers.draft_contracts import DraftPayload, DraftView
+from app.application.travellers.draft_retention import discard_draft_images
 from app.application.travellers.draft_store import DraftStore
 from app.application.travellers.drafts import DRAFT_LIFETIME, draft_view
 from app.application.travellers.errors import ReuseError, ReuseReason
@@ -67,6 +68,7 @@ async def start_fresh_draft(service: DraftStore, group_token: str, secret: str, 
         await service.session.flush()
     else:
         draft = await require_fresh_draft(service, group_token, secret, submitted=True)
+        await discard_draft_images(service, draft)
     result = await draft_view(service, draft)
     await service.session.commit()
     return result

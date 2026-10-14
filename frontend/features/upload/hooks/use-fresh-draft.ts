@@ -1,11 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import type { DraftPayload, DraftSide } from "@/features/travellers/api/returning-draft.api";
 import type { FreshMemberResume } from "@/features/travellers/services/draft-resume";
 import { freshDraftApi, type FreshCollection, type FreshDraft, type FreshPayload } from "../api/fresh-draft.api";
 import { freshError, freshPayload, reconcileFresh } from "../services/fresh-draft-state";
 import { useDraftAutosave } from "@/features/travellers/hooks/use-draft-autosave";
+import { useDraftPolling } from "@/features/travellers/hooks/use-draft-polling";
+import { prepareDraftUpload, sendDraftUpload, type DraftUploadOperation } from "@/features/travellers/services/draft-upload-operation";
+import { draftChecksPending } from "@/features/travellers/services/draft-check-state";
+import { useDraftImageLifecycle } from "@/features/travellers/hooks/use-draft-image-lifecycle";
+import { useDraftInitialization } from "@/features/travellers/hooks/use-draft-initialization";
 
 /** One serial revision stream per family member. Personal fields never enter browser storage. */
 export function useFreshDraft(token: string, member: FreshMemberResume, initial: FreshCollection) {
@@ -20,19 +25,21 @@ export function useFreshDraft(token: string, member: FreshMemberResume, initial:
   const version = useRef(0), saved = useRef(0), queue = useRef<Promise<unknown>>(Promise.resolve());
   const controller = useRef<AbortController | null>(null), initialValue = useRef(initial);
   const retrySave = useRef<{ payload: FreshPayload; base: FreshPayload; revision: number; key: string; version: number } | null>(null);
-  const retryUpload = useRef<{ side: DraftSide; file: File; revision: number; key: string } | null>(null);
-  const adopt = useCallback((view: FreshDraft, replace = true) => {
+  const retryUpload = useRef<DraftUploadOperation | null>(null);
+  const adopt = useCallback((view: FreshDraft, base?: FreshPayload) => {
+    if (current.current?.id === view.id && current.current.revision > view.revision) return;
+    const merged = base && values.current ? reconcileFresh(base, values.current, freshPayload(view), true) : freshPayload(view);
     current.current = view; setDraft(view);
-    if (replace) { values.current = freshPayload(view); setPayload(values.current); }
+    values.current = merged; setPayload(merged);
   }, []);
-  useEffect(() => {
-    const active = new AbortController(); controller.current = active;
-    void api.start(active.signal).then(async (view) => {
-      if (!view.collection && view.status === "active") view = await api.save({ ...freshPayload(view), collection: initialValue.current }, view.revision, crypto.randomUUID(), active.signal);
-      if (!active.signal.aborted) adopt(view);
-    }).catch((cause) => { if (!active.signal.aborted) setError(freshError(cause)); }).finally(() => { if (!active.signal.aborted) setPending(false); });
-    return () => { active.abort(); controller.current = null; };
-  }, [api, adopt, attempt]);
+  const load = useCallback(async (signal: AbortSignal) => {
+    const view = await api.start(signal);
+    return !view.collection && view.status === "active" ? api.save({ ...freshPayload(view), collection: initialValue.current }, view.revision, crypto.randomUUID(), signal) : view;
+  }, [api]);
+  const opened = useCallback((view: FreshDraft) => {
+    version.current = 0; saved.current = 0; retrySave.current = null; retryUpload.current = null; queue.current = Promise.resolve(); setDirty(false); adopt(view);
+  }, [adopt]);
+  useDraftInitialization(load, opened, controller, setPending, setError, freshError, `${token}:${member.sessionId}:${attempt}`);
   const serialized = useCallback(<T,>(operation: (signal: AbortSignal) => Promise<T>, foreground = false): Promise<T> => {
     const signal = controller.current?.signal;
     const result = queue.current.catch(() => undefined).then(async () => {
@@ -60,8 +67,7 @@ export function useFreshDraft(token: string, member: FreshMemberResume, initial:
       retrySave.current = retry; result = await api.save(retry.payload, retry.revision, retry.key, signal);
     }
     if (signal.aborted) return;
-    if (request.version !== version.current) { values.current = reconcileFresh(request.payload, values.current, freshPayload(result)); setPayload(values.current); }
-    adopt(result, request.version === version.current); saved.current = request.version; retrySave.current = null; setDirty(saved.current !== version.current);
+    adopt(result, request.payload); saved.current = request.version; retrySave.current = null; setDirty(saved.current !== version.current);
   }, [api, adopt]);
   const flush = useCallback(() => serialized(save), [serialized, save]);
   const update = useCallback((section: keyof DraftPayload, key: string, value: string) => {
@@ -76,33 +82,22 @@ export function useFreshDraft(token: string, member: FreshMemberResume, initial:
     version.current++; setPayload(values.current); setDirty(true);
   }, []);
   useDraftAutosave(dirty, payload, flush);
+  const cancel = useCallback(() => controller.current?.abort(), []);
+  const resume = useCallback(() => { setPending(true); setAttempt((value) => value + 1); }, []);
   const refresh = useCallback(() => serialized(async (signal) => {
-    await save(signal); const view = await api.read(signal);
-    if (!signal.aborted) adopt(view, version.current === saved.current);
+    await save(signal); const base = values.current; const view = await api.read(signal);
+    if (!signal.aborted) adopt(view, base);
   }), [serialized, save, api, adopt]);
-  useEffect(() => {
-    if (draft?.extraction_status !== "pending" && draft?.extraction_status !== "running") return;
-    let polls = 0;
-    const timer = window.setInterval(() => {
-      if (document.hidden) return;
-      if (++polls > 20) { window.clearInterval(timer); setError("The document check is taking longer than usual. Select Retry to check again."); return; }
-      void refresh().catch(() => undefined);
-    }, 4000);
-    return () => window.clearInterval(timer);
-  }, [draft?.extraction_status, refresh]);
+  const discard = useDraftImageLifecycle(current, draft, api, cancel, resume, `${token}:${member.sessionId}`, refresh);
+  useDraftPolling(draftChecksPending(draft), refresh, setError, draft?.documents.map((item) => item.id).join(","));
   const upload = (side: DraftSide, file: File) => serialized(async (signal) => {
     await save(signal);
-    const previous = retryUpload.current;
-    const same = previous?.side === side && previous.file.name === file.name && previous.file.size === file.size && previous.file.lastModified === file.lastModified;
-    const request = same ? previous : { side, file, revision: current.current!.revision, key: crypto.randomUUID() };
+    const request = await prepareDraftUpload(retryUpload.current, side, file, current.current!);
+    signal.throwIfAborted(); const base = values.current;
     retryUpload.current = request;
-    try {
-      const result = await api.upload(side, file, request.revision, request.key, signal);
-      if (!signal.aborted) { adopt(result, version.current === saved.current); retryUpload.current = null; }
-    } catch (cause) {
-      if (cause && typeof cause === "object" && "status" in cause && cause.status === 409) { retryUpload.current = null; const view = await api.read(signal); if (!signal.aborted) adopt(view, version.current === saved.current); throw new Error("This draft changed. Review the latest details, then choose the image again."); }
-      throw cause;
-    }
+    const result = await sendDraftUpload(request, (operation) => api.upload(side, file, operation.revision, operation.key, signal, operation.assetId), () => api.read(signal),
+      (operation) => { retryUpload.current = operation; }, (view) => adopt(view, base), signal);
+    if (!signal.aborted) { adopt(result, base); retryUpload.current = null; return { documents: result.documents }; }
   }, true);
   const complete = (proof: string) => serialized(async (signal) => {
     await save(signal);
@@ -111,7 +106,13 @@ export function useFreshDraft(token: string, member: FreshMemberResume, initial:
     if (!signal.aborted) adopt(await api.start(signal));
     return result;
   }, true);
+  const leave = () => serialized(async (signal) => {
+    await save(signal);
+    if (saved.current !== version.current) throw new Error("Your latest edit is saving. Please try again.");
+    const base = values.current, view = await discard(signal);
+    if (view && !signal.aborted) { adopt(view, base); retryUpload.current = null; }
+  }, true);
   const retry = () => { if (current.current) void refresh().catch(() => undefined); else { setPending(true); setError(undefined); setAttempt((value) => value + 1); } };
-  return { api, draft, payload, pending, dirty, error, update, collection, flush, refresh, retry, upload, complete, serialized };
+  return { api, draft, payload, pending, dirty, error, update, collection, flush, refresh, retry, upload, complete, leave, serialized };
 }
 export type FreshDraftState = ReturnType<typeof useFreshDraft>;
