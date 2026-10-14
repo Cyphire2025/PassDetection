@@ -795,6 +795,14 @@
       "minimum_coverage_percent": 95
     },
     {
+      "path": "app/application/travellers/broadcast_history_schedule.py",
+      "baseline_lines": 96,
+      "maximum_lines": 100,
+      "baseline_max_function_complexity": 15,
+      "maximum_function_complexity": 15,
+      "minimum_coverage_percent": 90
+    },
+    {
       "path": "app/application/travellers/company_history_jobs.py",
       "baseline_lines": 171,
       "maximum_lines": 180,
@@ -832,6 +840,14 @@
       "maximum_lines": 190,
       "baseline_max_function_complexity": 21,
       "maximum_function_complexity": 21,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/travellers/legacy_staff_acceptance.py",
+      "baseline_lines": 81,
+      "maximum_lines": 90,
+      "baseline_max_function_complexity": 22,
+      "maximum_function_complexity": 22,
       "minimum_coverage_percent": 90
     },
     {

@@ -1,7 +1,7 @@
 Companies / Clients and returning-traveller feature review handoff
 Date: 2026-10-14 (Asia/Calcutta)
 Client dashboard and automatic reuse: follow-up deployed and verified; Full CI remains paused.
-Current live application: a58b17dc3dc2ec004608f91817db5954b34e0dea.
+Current live application: 490b5ade5aeb221534894f8bf621d983cac82137.
 Current live schema: 0135_company_removal_history.
 The earlier release passed deployment checks but its initial live history processing
 was not verified with populated client records. The follow-up below corrects that gap.
@@ -37,12 +37,76 @@ was not verified with populated client records. The follow-up below corrects tha
   rollback, job coalescing and parent-lock interactions with three connections.
   This is correctness/concurrency evidence, not a sustained capacity benchmark.
 - The original 100 rejected email companions are preserved import history. They
-  are not additional people or a reason to upload documents again. One original
-  companion has an unresolved historical match-case reference. There is no safe
+  are not additional people or a reason to upload documents again. After retry,
+  all 100 have unresolved historical match-case references. There is no safe
   existing archive/dismiss operation; do not silently delete or relabel them.
-- Live deployment/repair evidence is recorded below after execution. The repair
-  must revalidate the current link and source integrity and enqueue through the
-  application scheduler; it must not force assignments or invent confirmation.
+- Fast deployment 490b5ade completed with unchanged schema and all 20 services
+  healthy/running. Exact image/revision and served JavaScript checks passed, as
+  did 12 public smoke checks. The running backend also passed the synthetic
+  real-export round trip: 100 unique phones -> 100 valid contacts, zero rejected
+  emails; 100 people sharing 50 phones -> all 100 source identities retained.
+- One guarded repair at 09:46:29 UTC verified the exact deployed image, policy,
+  current broadcast link, 100 recipients and original-source HMAC, then admitted
+  the normal application scheduler and an audit in one transaction. It finished
+  at 09:46:36 UTC. The Test group increased from 1 to 88 confirmed passengers;
+  all 100 recipients matched distinct people, but 12 hit document acceptance.
+  No sources, broadcast destinations, public grants or confirmation flags changed.
+- Diagnosis of the remaining 12: all are staff_approved with images, valid dates
+  beyond the six-month cutoff, current saved reviewer/time and matching successful
+  staff-approval audit evidence. Their old records have no issuer/type/MRZ. The
+  staff acceptance branch wrongly insists on MRZ when context is missing. Their
+  preceding AI decisions need review, so AI proof must never substitute for the
+  later explicit staff decision. The compatibility fix below is locally verified;
+  until its deployment and repair are recorded, these 12 remain unassigned.
+- Receipts in companies-reuse-evidence: fast-release-490b5ade.json,
+  live-verification-490b5ade.json, http-smoke-490b5ade.json,
+  live-import-parser-490b5ade.json, live-broadcast-import-490b5ade-01.json,
+  live-history-business-490b5ade-comparison.json and
+  live-replacement-reasons-490b5ade-04.json. Full CI remains paused; these are
+  focused correctness and live checks, not a million-record load qualification.
+
+2026-10-14 compatibility for older staff-approved passports
+- The new staff_reviewed_current_v1 rule applies only to operator registration
+  of staff_approved sources with missing context and no saved MRZ. It requires
+  a saved reviewer, identical staff-review/confirmation timestamps, positive
+  extraction and verification revisions, and no later client review or AI result.
+  Real saved MRZ disagreements still reject. An absent issuer stays UNK / Not
+  recorded; nationality is never treated as issuing-country evidence.
+- Current staff authority is the canonical source decision published atomically
+  by the existing staff-approval transition. Live audit records independently
+  corroborate all 12 affected sources; audit lookup is not a second approval path
+  or an extra per-passenger query in normal execution.
+- Frozen provenance binds reviewer, review time, both revisions and an HMAC of
+  the source fields and image references. Pending copies reject changed proof.
+  Replay keys follow this generation and preserve older trip/document references.
+  Source field edits clear staff approval; acceptance resumes only after staff
+  reapproval. Each new proof check is bounded O(1), with no added database query.
+- Focused validation: 84 tests passed. An independent integration runs actual
+  registration, the private-copy worker (mocked object storage), roster matching
+  and replay: one source -> one retained document -> one automatic target
+  submission, zero duplicate people, zero public grants/claims and no invented
+  traveller confirmation. The new helper has 95.12% statement coverage. Existing
+  public collision/disclosure checks remain intact. Mypy, Ruff, architecture and
+  existing size/complexity ratchets passed; this does not qualify real OTP delivery.
+- Final combined regression: 278 tests passed in 134.87 seconds, covering import,
+  export, recipient mutations, coalescing, historical registration, AI/staff/MRZ
+  acceptance, proof generations, copies and matching. Two new per-module ratchets
+  bring the static quality gate to 124 modules without relaxing previous limits.
+  The broadcast scheduler measured 100% statement coverage (45/45); its separate
+  67-test run and staff coverage above are overlapping evidence, not extra unique
+  tests to add to 278. Partial-suite global coverage is not Full CI qualification.
+- Wider read-only diagnosis found 789 Bluechip staff-approved sources without
+  an accepted current document. In 50-row pages, 788 passed the same staff proof
+  and identity-field checks (70 active-source / 718 archived-source records),
+  including these 12. One failed required identity fields and remains blocked.
+  A one-time bounded background refresh is necessary after deployment so the
+  next import does not repeat the compatibility failure. TATA's reuse is disabled
+  and must stay disabled; its private history does not authorize retained reuse.
+- Planned repair: first exact 12 source jobs with pinned source fingerprints and
+  current approval evidence, then the existing Bluechip background history flow.
+  Workers retain their 25-row pages, existing concurrency, expiry, identity and
+  image-availability gates. No original source row or broadcast destination is
+  edited. Actual deployment/completion evidence will be added after execution.
 
 2026-10-14 live history / broadcast assignment follow-up
 - User recreated Bluechip and TATA AIG and assigned their groups after the requested

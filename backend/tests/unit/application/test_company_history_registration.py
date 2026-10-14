@@ -59,7 +59,7 @@ async def test_missing_context_keeps_private_source_without_reusable_document(db
     assert await db_session.scalar(select(func.count()).select_from(TravellerDocumentRevisionModel)) == 0
     case = await db_session.scalar(select(TravellerMatchCaseModel))
     assert case.traveller_id == person_id and case.source_row_key == str(ctx.source.id)
-    assert case.evidence["document_registration_reason"] == "reliable_issuing_context_required"
+    assert case.evidence["document_registration_reason"] == "current_staff_approval_required"
 
 
 @pytest.mark.asyncio

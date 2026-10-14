@@ -1,0 +1,51 @@
+{
+  "candidate_code_only": true,
+  "candidate_rule_sha256": "6c7410139f067d58457109a7d55e18ed6261f596170205618c55298f62d5d2c5",
+  "checked_at": "2026-10-14T10:00:22.577502+00:00",
+  "companies": [
+    {
+      "all_candidates_examined": true,
+      "candidate_rule_outcomes": {
+        "eligible_current_staff_proof": 788,
+        "eligible_private_history_only": 788,
+        "eligible_with_source_front": 788,
+        "rejected:reviewed_staff_identity_required": 1
+      },
+      "company_id": "36f40ad2-b3d4-4545-9982-6f6bdc8886c1",
+      "eligible_sources_by_group": {
+        "20b93ca4-ac66-4194-babc-432f2c00720a": 70,
+        "d6647741-0d4b-48c9-b4ad-1f3a61b34b5a": 718
+      },
+      "enabled_policy": true,
+      "examined_sources": 789,
+      "private_history_only_without_accepted_current_document": 789,
+      "staff_approved_sources": 789,
+      "without_accepted_current_source_document": 789
+    },
+    {
+      "all_candidates_examined": true,
+      "candidate_rule_outcomes": {
+        "eligible_current_staff_proof": 793,
+        "eligible_private_history_only": 793,
+        "eligible_with_source_front": 793,
+        "rejected:reviewed_staff_identity_required": 2
+      },
+      "company_id": "75f73ed6-64e8-4ef5-b827-95bc69a7ec58",
+      "eligible_sources_by_group": {
+        "47e8e556-5d6e-41ef-bd49-12681263ef76": 2,
+        "6976dd17-fe9c-4262-ae36-e170ecfef63e": 121,
+        "82ebe1e8-6cb3-45fe-b6bc-f3decf861d36": 378,
+        "c31f4539-26d7-45f4-b486-0570ce685628": 292
+      },
+      "enabled_policy": false,
+      "examined_sources": 795,
+      "private_history_only_without_accepted_current_document": 795,
+      "staff_approved_sources": 795,
+      "without_accepted_current_source_document": 795
+    }
+  ],
+  "maximum_candidate_rows_per_company": 1000,
+  "maximum_companies": 10,
+  "read_only": true,
+  "source_page_size": 50
+}

@@ -2592,6 +2592,34 @@
         "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel"
       ]
     },
+    "app/application/travellers/broadcast_history_schedule.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Admit at most 100 linked client groups through canonical group/company/job locks before broadcast mutations, revalidate the exact linked set, and coalesce durable roster work in the same transaction. Existing PostgreSQL concurrency qualification covers rollback, overlapping imports, group writers and foreign-key lock compatibility; no history is scanned or disclosure authority granted.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.ClientOrganizationModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.models.ClientGroupWhatsAppBroadcastLinkModel",
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerReconciliationJobModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerReusePolicyModel"
+      ]
+    },
+    "app/application/travellers/legacy_staff_acceptance.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Read one locked source's canonical persisted staff approval, positive extraction/verification revisions and reviewer timestamps. Only the missing-context legacy path uses truthful UNK/P, with all fields/images and current staff proof frozen in a scoped HMAC; pending private copies revalidate that proof. No queries, issuer inference, audit-based second approval system or disclosure grants are added.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerDocumentRevisionModel",
+        "app.infrastructure.security.traveller_reuse_crypto",
+        "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
+      ]
+    },
     "app/application/travellers/legacy_source_acceptance.py": {
       "owner": "repository maintainers",
       "review_by": "2026-12-31",

@@ -1,8 +1,4 @@
-"""Bounded acceptance of historical source fields with truthful provenance.
-
-Client-reviewed records require exact TD3 or the current image-verification decision. Neither
-path invents an issuer from nationality or repairs OCR identifiers.
-"""
+"""Bounded, explicit source acceptance; never infer issuer or repair identifiers."""
 
 from __future__ import annotations
 
@@ -11,6 +7,7 @@ from dataclasses import dataclass
 
 import pycountry
 
+from app.application.travellers import legacy_staff_acceptance as staff
 from app.application.travellers.legacy_source_acceptance import (
     AI_ACCEPTANCE_RULE,
     accepted_ai_fields,
@@ -69,6 +66,8 @@ def accept_source(source: PassportSubmissionModel, fields: dict[str, str], *, op
     if source.status in STAFF_ACCEPTED_STATUSES:
         missing_context = not fields.get("issuing_country") or not fields.get("document_type")
         if missing_context and operator:
+            if staff.needs_staff_compatibility(source, fields):
+                return AcceptedSource(staff.accepted_staff_fields(source, fields), "staff_review", False, staff.STAFF_ACCEPTANCE_RULE)
             return AcceptedSource(validated_mrz_fields(source.mrz_raw, fields), "staff_review", True)
         return AcceptedSource(fields, "staff_review", False)
     if not operator or source.status not in OFFICE_VISIBLE_PASSPORT_STATUS_VALUES or source.client_reviewed_at is None:

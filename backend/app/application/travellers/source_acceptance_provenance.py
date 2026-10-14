@@ -2,6 +2,7 @@
 
 import hmac
 
+from app.application.travellers import legacy_staff_acceptance as staff
 from app.application.travellers.accepted_source import (
     MRZ_ACCEPTANCE_RULE,
     STAFF_ACCEPTED_STATUSES,
@@ -25,6 +26,8 @@ def acceptance_provenance(accepted: AcceptedSource, source: PassportSubmissionMo
     if accepted.fields.get("issuing_country") == UNKNOWN_ISSUING_COUNTRY:
         context = "not_recorded"
     result: dict[str, object] = {"acceptance_rule": accepted.acceptance_rule, "issuing_context_source": context}
+    if accepted.acceptance_rule == staff.STAFF_ACCEPTANCE_RULE:
+        result.update(staff.staff_acceptance_proof(source, crypto))
     if accepted.acceptance_rule == AI_ACCEPTANCE_RULE:
         assert source.post_submission_verified_at is not None
         result.update(source_verification_revision=source.post_submission_verification_revision,
@@ -36,6 +39,8 @@ def acceptance_provenance(accepted: AcceptedSource, source: PassportSubmissionMo
 def source_is_current(revision: TravellerDocumentRevisionModel, source: PassportSubmissionModel,
     crypto: TravellerReuseCrypto | None,
 ) -> bool:
+    if revision.source_provenance.get("acceptance_rule") == staff.STAFF_ACCEPTANCE_RULE:
+        return staff.staff_source_is_current(revision, source, crypto)
     if revision.source_provenance.get("acceptance_rule") != AI_ACCEPTANCE_RULE:
         if source.status in STAFF_ACCEPTED_STATUSES:
             return True

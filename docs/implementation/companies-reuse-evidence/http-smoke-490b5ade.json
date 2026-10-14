@@ -1,0 +1,148 @@
+{
+  "browser_hydrated": false,
+  "budgets": {
+    "each_request_seconds": 15,
+    "each_response_bytes": 4194304,
+    "requests": 10,
+    "total_response_bytes": 16777216
+  },
+  "checks": [
+    {
+      "check": "backend_live_exact_revision",
+      "http_status": 200,
+      "response_bytes": 117,
+      "seconds": 0.811,
+      "status": "passed"
+    },
+    {
+      "check": "root_login_redirect",
+      "http_status": 307,
+      "response_bytes": 15140,
+      "seconds": 0.543,
+      "status": "passed"
+    },
+    {
+      "check": "login_shell",
+      "http_status": 200,
+      "response_bytes": 32938,
+      "seconds": 0.58,
+      "status": "passed"
+    },
+    {
+      "check": "login_shell_security_headers",
+      "controls": {
+        "csp_restrictions": true,
+        "frame_header": true,
+        "nosniff": true,
+        "permissions_policy": true,
+        "private_no_store": true,
+        "referrer_policy": true,
+        "single_nonce_csp": true
+      },
+      "http_status": 200,
+      "response_bytes": 32938,
+      "seconds": 0.58,
+      "status": "passed"
+    },
+    {
+      "check": "public_upload_shell",
+      "http_status": 200,
+      "response_bytes": 20593,
+      "seconds": 0.6,
+      "status": "passed"
+    },
+    {
+      "check": "public_upload_shell_security_headers",
+      "controls": {
+        "csp_restrictions": true,
+        "frame_header": true,
+        "nosniff": true,
+        "permissions_policy": true,
+        "private_no_store": true,
+        "referrer_policy": true,
+        "single_nonce_csp": true
+      },
+      "http_status": 200,
+      "response_bytes": 20593,
+      "seconds": 0.6,
+      "status": "passed"
+    },
+    {
+      "check": "company_directory_auth_redirect",
+      "http_status": 307,
+      "response_bytes": 34,
+      "seconds": 0.524,
+      "status": "passed"
+    },
+    {
+      "check": "company_detail_auth_redirect",
+      "http_status": 307,
+      "response_bytes": 73,
+      "seconds": 0.558,
+      "status": "passed"
+    },
+    {
+      "check": "missing_upload_session_rejected",
+      "http_status": 400,
+      "response_bytes": 160,
+      "seconds": 0.61,
+      "status": "passed"
+    },
+    {
+      "asset_path": "/_next/static/chunks/1ggipuz52r1p1.js",
+      "body_sha256": "1edbe1bc2c88a2259d95e6784e0eb7696b8fd2186bbf6bf4b0657cd3b6189022",
+      "check": "discovered_js_asset",
+      "http_status": 200,
+      "observed_cache_immutable": true,
+      "observed_cache_public": true,
+      "response_bytes": 31917,
+      "seconds": 0.434,
+      "status": "passed"
+    },
+    {
+      "asset_path": "/_next/static/chunks/2gx6h6dj-_j3a.css",
+      "body_sha256": "16f3d8ddc98b8ef814f89a54dedf69ccb22ddf8b5404ac6df5c64ddbcc3f2b20",
+      "check": "discovered_css_asset",
+      "http_status": 200,
+      "observed_cache_immutable": true,
+      "observed_cache_public": true,
+      "response_bytes": 2111,
+      "seconds": 0.498,
+      "status": "passed"
+    },
+    {
+      "check": "public_png_asset",
+      "http_status": 200,
+      "response_bytes": 2225,
+      "seconds": 0.916,
+      "status": "passed"
+    }
+  ],
+  "credentials_used": false,
+  "expected_revision": "490b5ade5aeb221534894f8bf621d983cac82137",
+  "full_ci_qualified": false,
+  "method": "GET",
+  "not_verified": [
+    "Authenticated company data and authorized UI",
+    "Returning proof, OTP and document access",
+    "Responsive browser layout and client interactions",
+    "Frontend image revision binding",
+    "Dependency readiness or capacity"
+  ],
+  "origin": "https://tech.gctravels.com",
+  "requests_sent": 10,
+  "response_bytes_budget_charged": 105308,
+  "skipped": [
+    {
+      "check": "authenticated_company_and_returning_flows",
+      "reason": "requires_authorized_session_or_mutations"
+    },
+    {
+      "check": "hydrated_invalid_link_message",
+      "reason": "no_browser_hydration"
+    }
+  ],
+  "status": "limited_smoke_passed",
+  "successful_response_bytes": 105308,
+  "version": 1
+}

@@ -1,0 +1,69 @@
+{
+  "ai_field_proof": {
+    "missing_confirmed_field_values": 0,
+    "noncorrect_verdicts": 60,
+    "observed_values_differ_from_current": 56,
+    "record_has_all_nine_results": 11,
+    "record_incomplete_result_count": 1,
+    "verified_source_fields_required": 11
+  },
+  "case_count": 12,
+  "case_limit": 12,
+  "checked_at": "2026-10-14T09:51:23.561141+00:00",
+  "current_source_acceptance": {
+    "reliable_issuing_context_required": 12
+  },
+  "expiry_classification": {
+    "source_expiry_beyond_six_months": 12
+  },
+  "historical_registration_reasons": {
+    "private_history_only": 12
+  },
+  "historical_source_flags": {
+    "confirmed_document_type_absent": 12,
+    "confirmed_issuer_absent": 12,
+    "extracted_issuer_absent": 12,
+    "front_present": 12,
+    "incorrect_fields_present": 5,
+    "no_incorrect_fields": 7,
+    "no_suspicious_fields": 5,
+    "provider_status:manual_review_required": 1,
+    "provider_status:request_rejected": 6,
+    "provider_status:verified": 5,
+    "reviewed": 12,
+    "stored_mrz_absent": 12,
+    "suspicious_fields_present": 7,
+    "verification_status:needs_review": 12,
+    "verification_timestamp_present": 11
+  },
+  "historical_source_statuses": {
+    "staff_approved": 12
+  },
+  "nonblocking_additional_requirements": {},
+  "origin_source_count": 853,
+  "original_source_unchanged": true,
+  "read_only": true,
+  "replacement_gates": {
+    "no_accepted_default_passport": 12
+  },
+  "retained_asset_statuses": {},
+  "retained_provenance": {},
+  "staff_review_evidence": {
+    "approval_audit_present": 12,
+    "audit_extraction_revision_matches": 12,
+    "audit_individual": 12,
+    "audit_integrity_version:1": 12,
+    "audit_reviewer_matches": 12,
+    "audit_status_staff_approved": 12,
+    "audit_success": 12,
+    "audit_time_within_five_seconds": 12,
+    "audit_verification_revision_matches": 12,
+    "confirmed_at_equals_staff_review": 12,
+    "reviewed_at_present": 12,
+    "reviewer_id_present": 12,
+    "staff_review_after_ai": 11,
+    "staff_review_after_client": 12
+  },
+  "suitability_reason_counts": {},
+  "target_source_count": 88
+}
