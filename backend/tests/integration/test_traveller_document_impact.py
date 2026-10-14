@@ -99,9 +99,10 @@ async def test_impact_retry_lease_stops_after_five_failures(db_session, test_set
     event_id = event.id
     factory = async_sessionmaker(db_session.bind, expire_on_commit=False)
     for attempt in range(1, 6):
-        assert await _reserve(factory) == event_id
+        claim = await _reserve(factory)
+        assert claim is not None and claim.event_id == event_id
         assert await _reserve(factory) is None  # Durable lease blocks immediate retry.
-        await _failed(factory, event_id)
+        await _failed(factory, claim)
         await db_session.refresh(event)
         assert event.impact_attempt_count == attempt
         assert event.impact_error_code == ("impact_attempts_exhausted" if attempt == 5 else "impact_page_failed")

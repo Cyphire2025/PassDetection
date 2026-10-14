@@ -32,7 +32,7 @@ export function CompanyDashboard({ companyId }: { companyId: string }) {
       <Button type="button" variant="ghost" size="icon" aria-label="Refresh company overview" disabled={company.isFetching || summary.isFetching} onClick={() => void Promise.all([company.refetch(), summary.refetch()])}><RefreshCw className={`h-4 w-4 ${company.isFetching || summary.isFetching ? "motion-safe:animate-spin" : ""}`} aria-hidden="true" /></Button>
     </header>
     {summary.isError ? <CompanyError message="Totals could not be loaded." retry={() => void summary.refetch()} /> : <CompanyOverviewStats loading={summary.isLoading} values={{ completedGroups: summary.data?.completed_groups ?? null, activeGroups: summary.data?.current_groups ?? null, passengerTrips: summary.data?.passenger_trips_completed ?? null, uniquePeople: summary.data?.unique_travellers ?? null }} />}
-    {summary.data?.identity_totals_partial && !summary.isError && <p className="text-xs text-slate-500">Unique people are updating.</p>}
+    {summary.data?.identity_totals_partial && !summary.isError && <p className="text-xs text-slate-500">Records awaiting matching are not included in the unique total.</p>}
     <div className="flex gap-1 border-b border-slate-200" role="tablist" aria-label="Company views">
       {TABS.map((item, index) => <button key={item.id} type="button" role="tab" id={`${tabId}-${item.id}`} aria-controls={`${tabId}-panel`} aria-selected={tab === item.id} tabIndex={tab === item.id ? 0 : -1}
         onKeyDown={(event) => {

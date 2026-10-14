@@ -20,6 +20,7 @@ QUESTION_WINDOW = timedelta(hours=24)
 FAILURE_WINDOW = timedelta(minutes=30)
 MAX_FAILURES = 5
 MAX_PHONE_CANDIDATES = 20
+UNKNOWN_ISSUING_COUNTRY = "UNK"  # Internal missing legacy context; never an ISO country assertion.
 
 
 class DocumentQuestion(StrEnum):

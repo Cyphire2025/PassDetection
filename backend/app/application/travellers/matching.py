@@ -15,6 +15,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.travellers.authority import ReuseScope, accepted_document, eligible_person
 from app.application.travellers.errors import ReuseError, ReuseReason
+from app.application.travellers.passport_lookup import (
+    passport_lookup_fingerprints,
+    require_unambiguous_legacy_owner,
+)
 from app.application.travellers.retained_authority import retained_authority_predicate
 from app.domain.services.traveller_verification import MAX_PHONE_CANDIDATES
 from app.infrastructure.database.traveller_reuse_models import (
@@ -133,13 +137,14 @@ async def resolve_passport(
     passports = list((await session.scalars(select(TravellerPassportModel).where(
         TravellerPassportModel.agency_id == claim.agency_id,
         TravellerPassportModel.company_id == claim.company_id,
-        TravellerPassportModel.number_fingerprint == claim.supplied_passport_fingerprint,
+        TravellerPassportModel.number_fingerprint.in_(passport_lookup_fingerprints(claim)),
         TravellerPassportModel.fingerprint_key_version == crypto.key_version,
         TravellerPassportModel.status.in_(("accepted", "superseded")),
     ).limit(2))).all())
     if len(passports) != 1:
         raise ReuseError(ReuseReason.VERIFICATION_FAILED)
     passport = passports[0]
+    await require_unambiguous_legacy_owner(session, claim, passport, crypto, now)
     if claim.traveller_id is not None and claim.traveller_id != passport.traveller_id:
         raise ReuseError(ReuseReason.VERIFICATION_FAILED)
     person = await eligible_person(session, scope, passport.traveller_id, now)

@@ -420,6 +420,10 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         decision: str,
         verification: dict[str, object],
     ) -> PassportSubmission | None:
+        from app.infrastructure.repositories.passport_verification_history import (
+            lock_verification_history_scope,
+        )
+        await lock_verification_history_scope(self._session, submission_id)
         result = await self._session.execute(
             select(PassportSubmissionModel)
             .where(
@@ -427,6 +431,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 PassportSubmissionModel.post_submission_verification_revision
                 == expected_revision,
             )
+            .execution_options(populate_existing=True)
             .with_for_update()
         )
         model = result.scalar_one_or_none()
@@ -445,6 +450,10 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         model.error_message = submission.error_message
         model.updated_at = submission.updated_at
         await self._session.flush()
+        from app.application.travellers.history_schedule import schedule_submission_history
+        await schedule_submission_history(self._session, agency_id=model.agency_id,
+            group_id=model.group_id, trigger="post-submission-verification",
+            source_submission_id=model.id, expected_extraction_revision=model.extraction_revision)
         return submission
 
     @staticmethod

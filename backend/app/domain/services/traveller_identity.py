@@ -19,6 +19,7 @@ from app.domain.value_objects.passport_fields import normalize_passport_date
 from app.domain.value_objects.phone_number import normalize_phone_number
 
 SIGNAL_TYPES = frozenset({"name", "passport", "birth_date", "phone", "email", "code"})
+_EXCEL_MIDNIGHT_DATE = re.compile(r"^(\d{4}-\d{2}-\d{2})[ T]00:00:00(?:\.0{1,6})?$")
 _ALIASES = {
     "name": ("name", "full_name", "passenger_name", "traveller_name", "client_name"),
     "passport": ("passport", "passport_no", "passport_number", "passport_num"),
@@ -48,6 +49,11 @@ def _value(kind: str, value: str) -> str:
     if kind == "passport":
         return exact_passport_number(value)
     if kind == "birth_date":
+        # Excel date cells round-trip as naive midnight datetimes. Preserve the
+        # exact calendar date; do not infer locale, timezone or numeric serials.
+        midnight = _EXCEL_MIDNIGHT_DATE.fullmatch(value)
+        if midnight is not None:
+            value = midnight.group(1)
         return normalize_passport_date(value, field="date_of_birth")
     if kind == "phone":
         return normalize_phone_number(value) or ""

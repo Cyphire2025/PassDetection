@@ -160,15 +160,21 @@ async def _group_page(session: AsyncSession, job: Job, group: ClientGroupModel,
     from app.application.travellers.company_history_jobs import match_roster_source
     roster_only = job.idempotency_key.startswith("company-roster:")
     rows = await source_page(session, job, PAGE_SIZE, roster_only=roster_only)
-    processed = 0
+    processed, registered = 0, False
     for source in rows[:PAGE_SIZE]:
         if source.source_kind == "passport_submission":
-            await register_historical_source(session, group=group, source_id=source.id,
+            person_id = await register_historical_source(session, group=group, source_id=source.id,
                 policy=policy, crypto=crypto, now=now)
+            registered |= person_id is not None
         elif policy is not None and not await match_roster_source(session, job, group, source, crypto, now):
             break
         job.cursor = source_cursor(source.source_kind, source.id)
         processed += 1
+    if registered and policy is not None:
+        # Retry rosters checked before this history was ready, once per page.
+        # Roster-only work cannot recurse; private registration cannot authorize reuse.
+        await queue_roster_fanout(session, agency_id=job.agency_id,
+            company_id=job.company_id, policy=policy, now=now)
     _finish_page(job, processed, len(rows) > PAGE_SIZE or processed < min(PAGE_SIZE, len(rows)), now)
     return processed
 

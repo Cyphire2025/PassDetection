@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import uuid
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from time import monotonic
 
@@ -15,6 +16,7 @@ from app.application.travellers.incremental_history import DIRTY
 from app.application.travellers.reconciliation import reconcile_page
 from app.application.travellers.snapshot_access import live_trip_asset_reference
 from app.core.config.traveller_reuse import get_traveller_reuse_settings
+from app.core.logging.logger import get_logger
 from app.infrastructure.database.session import AsyncSessionFactory
 from app.infrastructure.database.traveller_reuse_models import (
     TravellerDocumentAssetModel,
@@ -31,9 +33,17 @@ from app.infrastructure.travellers.asset_copy import copy_next_asset
 
 MAX_RECONCILIATION_PAGES = 40
 RECONCILIATION_BURST_SECONDS = 50
+logger = get_logger(__name__)
 
 
-async def _reserve_reconciliation(factory: async_sessionmaker[AsyncSession]) -> uuid.UUID | None:
+@dataclass(frozen=True, slots=True)
+class ReconciliationClaim:
+    job_id: uuid.UUID
+    lease_expires_at: datetime
+    attempt_count: int
+
+
+async def _reserve_reconciliation(factory: async_sessionmaker[AsyncSession]) -> ReconciliationClaim | None:
     now = datetime.now(UTC)
     async with factory() as session, session.begin():
         row = await session.scalar(select(TravellerReconciliationJobModel).where(
@@ -53,7 +63,7 @@ async def _reserve_reconciliation(factory: async_sessionmaker[AsyncSession]) -> 
         row.status = "running"
         row.lease_expires_at = now + timedelta(seconds=60)
         row.available_at = row.lease_expires_at
-        return row.id
+        return ReconciliationClaim(row.id, row.lease_expires_at, row.attempt_count)
 
 
 async def run_reconciliation_tick(
@@ -81,7 +91,9 @@ async def run_reconciliation_tick(
             # Include connection admission and lease reservation in the burst
             # deadline. Cancellation rolls back the page; its lease retries.
             async with asyncio.timeout(max(0.01, deadline - monotonic())):
-                results = await asyncio.gather(*(_reconciliation_slot(session_factory, crypto, slot, deadline) for slot in range(2)))
+                # Each worker process has one DB connection. Parallelism comes
+                # from workers, bounded globally by the two advisory slots.
+                results = [await _reconciliation_slot(session_factory, crypto, slot, deadline) for slot in range(2)]
         except TimeoutError:
             break
         processed += sum(count for count, _attempted in results)
@@ -96,39 +108,67 @@ async def _reconciliation_slot(factory: async_sessionmaker[AsyncSession], crypto
 ) -> tuple[int, bool]:
     if monotonic() >= deadline:
         return 0, False
-    async with factory() as admission, admission.begin():
-        if admission.bind is not None and admission.bind.dialect.name == "postgresql":
-            if not await admission.scalar(text("SELECT pg_try_advisory_xact_lock(913702, :slot)"), {"slot": slot}):
-                return 0, False
-        job_id = await _reserve_reconciliation(factory)
-        if job_id is None:
-            return 0, False
-        try:
-            async with asyncio.timeout(max(0.01, min(30, deadline - monotonic()))):
-                async with factory() as session, session.begin():
-                    page = await reconcile_page(session, job_id=job_id, crypto=crypto)
-                    job = await session.get(TravellerReconciliationJobModel, job_id)
+    # Commit the crash-recovery lease before processing. Admission and page work
+    # then share ONE connection; workers intentionally have a one-connection pool.
+    claim = await _reserve_reconciliation(factory)
+    if claim is None:
+        return 0, False
+    admitted = False
+    try:
+        async with asyncio.timeout(max(0.01, min(30, deadline - monotonic()))):
+            async with factory() as session, session.begin():
+                admitted = session.bind is None or session.bind.dialect.name != "postgresql" or bool(
+                    await session.scalar(text("SELECT pg_try_advisory_xact_lock(913702, :slot)"), {"slot": slot}))
+                if admitted:
+                    page = await reconcile_page(session, job_id=claim.job_id, crypto=crypto)
+                    job = await session.get(TravellerReconciliationJobModel, claim.job_id)
                     if job is not None and job.status == "queued":
                         job.available_at = datetime.now(UTC)
+        if admitted:
             metrics.increment("traveller.reconciliation.pages")
             return page.processed if page is not None else 0, True
-        except Exception:
-            # The short failure transaction is separate from the rolled-back
-            # page. If even this times out, the bounded durable lease recovers.
-            try:
-                async with asyncio.timeout(5):
-                    await _fail_reconciliation(factory, job_id)
-            except TimeoutError:
-                pass
-            metrics.increment("traveller.reconciliation.failures")
-            return 0, True
+        await _release_reconciliation(factory, claim)
+        return 0, False
+    except Exception as exc:
+        sqlstate = getattr(getattr(exc, "orig", None), "sqlstate", None)
+        if not isinstance(sqlstate, str) or len(sqlstate) != 5 or not sqlstate.isascii() or not sqlstate.isalnum():
+            sqlstate = None
+        logger.warning("traveller_reconciliation_page_failed", job_id=str(claim.job_id),
+            error_type=type(exc).__name__, sqlstate=sqlstate)
+        # The page has released its connection before this short failure write.
+        # If even this times out, the bounded durable lease recovers.
+        try:
+            async with asyncio.timeout(5):
+                await _fail_reconciliation(factory, claim)
+        except TimeoutError:
+            pass
+        metrics.increment("traveller.reconciliation.failures")
+        return 0, True
 
 
-async def _fail_reconciliation(factory: async_sessionmaker[AsyncSession], job_id: uuid.UUID) -> None:
+async def _claimed_job(session: AsyncSession, claim: ReconciliationClaim) -> TravellerReconciliationJobModel | None:
+    job: TravellerReconciliationJobModel | None = await session.scalar(select(TravellerReconciliationJobModel).where(
+        TravellerReconciliationJobModel.id == claim.job_id,
+        TravellerReconciliationJobModel.status == "running",
+        TravellerReconciliationJobModel.lease_expires_at == claim.lease_expires_at,
+        TravellerReconciliationJobModel.attempt_count == claim.attempt_count).with_for_update())
+    return job
+
+
+async def _release_reconciliation(factory: async_sessionmaker[AsyncSession], claim: ReconciliationClaim) -> None:
+    """Busy global slots are backpressure, not a failed processing attempt."""
     async with factory() as session, session.begin():
-        job = await session.scalar(select(TravellerReconciliationJobModel).where(
-            TravellerReconciliationJobModel.id == job_id).with_for_update())
-        if job is not None and job.status == "running":
+        job = await _claimed_job(session, claim)
+        if job is not None:
+            job.status, job.lease_expires_at = "queued", None
+            job.attempt_count -= 1
+            job.available_at = datetime.now(UTC) + timedelta(seconds=1)
+
+
+async def _fail_reconciliation(factory: async_sessionmaker[AsyncSession], claim: ReconciliationClaim) -> None:
+    async with factory() as session, session.begin():
+        job = await _claimed_job(session, claim)
+        if job is not None:
             job.status = "failed" if job.attempt_count >= 5 else "queued"
             if job.last_error_code != DIRTY:
                 job.last_error_code = "page_processing_failed"

@@ -1,9 +1,4 @@
-"""Register historical source people in bounded worker transactions.
-
-Registration records operator authority, never traveller consent or OTP. Every
-source has a match-case link, including repeated same-person rows in one trip.
-Sources without accepted issuing context remain available through their original
-staff-authorized submission; no passport context or reliable date is invented.
+"""Bounded historical source registration records operator authority, not consent.
 """
 
 from __future__ import annotations
@@ -16,6 +11,10 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.travellers.enrollment import EnrollmentRequest, enroll_submission
+from app.application.travellers.historical_document_generation import (
+    historical_enrollment_key,
+    registration_is_current,
+)
 from app.application.travellers.identity_index import (
     IdentityMatch,
     find_exact_identity,
@@ -128,12 +127,13 @@ async def _resolved_person(session: AsyncSession, case: TravellerMatchCaseModel 
     if person is None or person.deleted_at is not None:
         return person, True
     await _backfill_index(session, person, crypto)
-    document = await session.scalar(select(TravellerDocumentRevisionModel.id).where(
+    document = await session.scalar(select(TravellerDocumentRevisionModel).where(
         TravellerDocumentRevisionModel.agency_id == group.agency_id,
         TravellerDocumentRevisionModel.company_id == group.company_id, TravellerDocumentRevisionModel.traveller_id == person.id,
         TravellerDocumentRevisionModel.source_submission_id == source.id,
-        TravellerDocumentRevisionModel.source_provenance["extraction_revision"].as_integer() == source.extraction_revision).limit(1))
-    return person, document is not None
+        TravellerDocumentRevisionModel.source_provenance["extraction_revision"].as_integer() == source.extraction_revision)
+        .order_by(TravellerDocumentRevisionModel.accepted_at.desc(), TravellerDocumentRevisionModel.created_at.desc(), TravellerDocumentRevisionModel.id.desc()).limit(1))
+    return person, registration_is_current(document, source, crypto)
 
 
 async def _new_private_person(session: AsyncSession, group: ClientGroupModel, source: PassportSubmissionModel,
@@ -181,7 +181,7 @@ async def _register_document(session: AsyncSession, group: ClientGroupModel, sou
                 actor_id=policy.configured_by_user_id, expected_group_revision=group.company_revision,
                 expected_extraction_revision=source.extraction_revision,
                 permission_evidence_reference=f"operator-policy:{policy.revision}",
-                idempotency_key=f"history:{source.id}:{source.extraction_revision}",
+                idempotency_key=historical_enrollment_key(source, group.company_id, crypto),
                 traveller_id=person.id, expected_profile_revision=person.revision,
                 authority_kind="operator_registration"), crypto, now=now)
     except EnrollmentError as exc:

@@ -1,5 +1,6 @@
 from dataclasses import replace
 from datetime import date
+
 import pytest
 
 from app.domain.services.traveller_suitability import (
@@ -45,3 +46,13 @@ def test_versioned_arrival_rule_and_operational_policy_are_distinct():
     changed = replace(rule, departure=date(2035, 1, 1), anchor="departure")
     result = assess_document(DOCUMENT, travel_date=date(2026, 11, 1), today=date(2026, 10, 13), destinations=("IDN",), rules=(changed,))
     assert result.reason_codes == ("destination_validity_rule",)
+
+
+@pytest.mark.parametrize("expiry,blocked", [(date(2027, 5, 1), True), (date(2035, 1, 1), False)])
+def test_unknown_issuer_never_invents_destination_eligibility_or_skips_expiry(expiry, blocked):
+    rule = DestinationRule("IDN", "synthetic-rule-v1", "https://example.test/authority", date(2027, 1, 1),
+        date(2026, 11, 1), date(2026, 11, 20), 6, "arrival")
+    result = assess_document(replace(DOCUMENT, issuing_country="UNK", expiry_date=expiry),
+        travel_date=date(2026, 11, 1), today=date(2026, 10, 13), destinations=("IDN",), rules=(rule,))
+    assert result.outcome == (SuitabilityOutcome.REPLACEMENT_REQUIRED if blocked else SuitabilityOutcome.REVIEW_REQUIRED)
+    assert result.reason_codes == (("operational_six_month_rule",) if blocked else ("issuing_country_not_recorded",))

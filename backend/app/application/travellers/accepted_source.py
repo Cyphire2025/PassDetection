@@ -1,8 +1,7 @@
 """Bounded acceptance of historical source fields with truthful provenance.
 
-Staff-reviewed fields keep their existing authority. Client-reviewed records
-require exact agreement with a stored, checksum-valid TD3 MRZ; OCR recovery and
-nationality-to-issuer inference are deliberately unavailable in this path.
+Client-reviewed records require exact TD3 or the current image-verification decision. Neither
+path invents an issuer from nationality or repairs OCR identifiers.
 """
 
 from __future__ import annotations
@@ -12,6 +11,10 @@ from dataclasses import dataclass
 
 import pycountry
 
+from app.application.travellers.legacy_source_acceptance import (
+    AI_ACCEPTANCE_RULE,
+    accepted_ai_fields,
+)
 from app.application.travellers.versioning import EnrollmentError, accepted_dates
 from app.domain.entities.entities import OFFICE_VISIBLE_PASSPORT_STATUS_VALUES
 from app.domain.exceptions.exceptions import ValidationError
@@ -19,6 +22,7 @@ from app.domain.services.traveller_verification import exact_passport_number, is
 from app.infrastructure.database.models import PassportSubmissionModel
 from app.infrastructure.database.traveller_reuse_models import TravellerDocumentRevisionModel
 from app.infrastructure.ocr.td3_mrz_parser import TD3MRZParser
+from app.infrastructure.security.traveller_reuse_crypto import TravellerReuseCrypto
 
 STAFF_ACCEPTED_STATUSES = frozenset({"staff_approved", "confirmed"})
 MRZ_ACCEPTANCE_RULE = "client_reviewed_exact_td3_v1"
@@ -29,6 +33,7 @@ class AcceptedSource:
     fields: dict[str, str]
     reliable_source: str
     mrz_context: bool
+    acceptance_rule: str = "staff_review"
 
 
 def validated_mrz_fields(raw: str | None, fields: dict[str, str]) -> dict[str, str]:
@@ -68,17 +73,18 @@ def accept_source(source: PassportSubmissionModel, fields: dict[str, str], *, op
         return AcceptedSource(fields, "staff_review", False)
     if not operator or source.status not in OFFICE_VISIBLE_PASSPORT_STATUS_VALUES or source.client_reviewed_at is None:
         raise EnrollmentError("accepted_source_revision_required")
-    return AcceptedSource(validated_mrz_fields(source.mrz_raw, fields), "verified_import", True)
+    if source.status == "ai_approved":
+        approved = accepted_ai_fields(source, fields)
+        # An actual stored MRZ must agree; an absent legacy MRZ adds no barrier.
+        if source.mrz_raw:
+            approved = validated_mrz_fields(source.mrz_raw, fields)
+        return AcceptedSource(approved, "verified_import", bool(source.mrz_raw), AI_ACCEPTANCE_RULE)
+    return AcceptedSource(validated_mrz_fields(source.mrz_raw, fields), "verified_import", True, MRZ_ACCEPTANCE_RULE)
 
 
-def retained_source_is_current(revision: TravellerDocumentRevisionModel, source: PassportSubmissionModel) -> bool:
+def retained_source_is_current(revision: TravellerDocumentRevisionModel, source: PassportSubmissionModel,
+    crypto: TravellerReuseCrypto | None = None,
+) -> bool:
     """Source authorization for pending independent copies; caller checks scope."""
-    if source.status in STAFF_ACCEPTED_STATUSES:
-        return True
-    if revision.source_provenance.get("acceptance_rule") != MRZ_ACCEPTANCE_RULE:
-        return False
-    try:
-        accepted = accept_source(source, dict(source.confirmed_fields or {}), operator=True)
-    except EnrollmentError:
-        return False
-    return accepted.reliable_source == "verified_import"
+    from app.application.travellers.source_acceptance_provenance import source_is_current
+    return source_is_current(revision, source, crypto)

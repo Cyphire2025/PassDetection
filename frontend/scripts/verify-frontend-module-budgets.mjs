@@ -19,6 +19,7 @@ export const frontendModuleBudgets = Object.freeze([
   Object.freeze({ path: "features/companies/components/company-settings.tsx", baselineLines: 50, maximumLines: 50, baselineMaxFunctionComplexity: 15, maximumFunctionComplexity: 15 }),
   Object.freeze({ path: "features/companies/components/company-match-queue.tsx", baselineLines: 32, maximumLines: 40, baselineMaxFunctionComplexity: 13, maximumFunctionComplexity: 13 }),
   Object.freeze({ path: "features/companies/hooks/use-company-session.ts", baselineLines: 14, maximumLines: 20, baselineMaxFunctionComplexity: 2, maximumFunctionComplexity: 2 }),
+  Object.freeze({ path: "features/companies/hooks/use-company-people.ts", baselineLines: 32, maximumLines: 40, baselineMaxFunctionComplexity: 8, maximumFunctionComplexity: 8 }),
   Object.freeze({ path: "features/companies/hooks/use-companies.ts", baselineLines: 75, maximumLines: 80, baselineMaxFunctionComplexity: 3, maximumFunctionComplexity: 3 }),
   Object.freeze({ path: "features/upload/hooks/use-returning-family.tsx", baselineLines: 48, maximumLines: 50, baselineMaxFunctionComplexity: 8, maximumFunctionComplexity: 8 }),
   Object.freeze({ path: "components/ui/modal-focus-return.tsx", baselineLines: 32, maximumLines: 40, baselineMaxFunctionComplexity: 4, maximumFunctionComplexity: 6 }),

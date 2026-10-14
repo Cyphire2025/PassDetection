@@ -1,9 +1,67 @@
 Companies / Clients and returning-traveller feature review handoff
 Date: 2026-10-14 (Asia/Calcutta)
-Client dashboard and automatic reuse: FAST DEPLOYED AND VERIFIED; Full CI remains paused.
+Client dashboard and automatic reuse: production follow-up in progress; Full CI remains paused.
 Current live application: a8345cb2b021b0d099c08c022685aded9a3727dc.
 Current live schema: 0135_company_removal_history.
-The documentation-only follow-up records evidence without changing that app revision.
+The earlier release passed deployment checks but its initial live history processing
+was not verified with populated client records. The follow-up below corrects that gap.
+
+2026-10-14 live history / broadcast assignment follow-up
+- User recreated Bluechip and TATA AIG and assigned their groups after the requested
+  cleanup. Those new client entries must NOT be removed by repeating the old cleanup.
+- Live diagnosis: nine durable jobs remained queued at attempt=0 / processed=0,
+  with no registered profiles, match cases or retained assets. Reconciliation held
+  an advisory admission transaction while requesting a second pooled connection;
+  the production worker has pool_size=1, max_overflow=0 and a five-second timeout.
+- Worker fix commits a bounded lease first, then holds the PostgreSQL global slot
+  in the actual page transaction. Local pages are sequential; the global limit
+  stays two. Denied admission restores the attempt budget; exact lease tokens fence
+  stale failure/release writes. The same nested-connection defect in document-impact
+  processing is fixed. Safe failure logs contain only class, SQLSTATE and job UUID.
+- Productive group-history pages schedule a coalesced company roster retry so an
+  earlier unmatched broadcast is retried as saved records become available. Private
+  indexing does not enable reuse; roster-only passes do not recursively fan out.
+- Excel exports/imports supplied DOB as YYYY-MM-DD 00:00:00. Identity comparison
+  now accepts that exact naive-midnight representation (including zero fractions),
+  while rejecting timezones, non-midnight values, ambiguous locale formats, numeric
+  serials and invalid dates. The live test then matched name, passport, DOB and phone.
+- The user clarified that existing AI Approved, client-reviewed passport records
+  should be reusable without an extra issuing-country/MRZ requirement absent from
+  the historical form. Do not infer India from nationality or the usual clientele.
+  The exact saved verification result must support the current source fields;
+  missing issuer remains explicitly unknown (internal UNK marker, displayed as
+  Not recorded). Nine distinct verified observations must equal the current fields.
+  Acceptance is bound to the verification revision/time and an HMAC of fields/images;
+  pending document copies recheck that evidence. Public known/unknown-context lookup
+  reads at most two candidates and rejects collisions; verification is still required.
+  An additional exact passport identity-index lookup rejects another eligible owner
+  before binding an unknown-issuer record, including a different known issuer. This
+  covers current indexed identities, not every superseded historical passport number.
+- AI result publication now queues the exact source history refresh in the same
+  transaction, including completion after an earlier private-history pass. Group,
+  company and source locks use the established order; cached group/source rows are
+  refreshed before applying results, so reassignment cannot schedule stale scope.
+  Historical enrollment keys include the frozen AI proof generation. Re-verification
+  at the same extraction revision can create current copies without replacing old
+  document versions or trip references; replay remains idempotent.
+- All data gets bounded visible-page refresh (six five-second checks then six
+  fifteen-second checks), pauses while hidden/searching/paging/editing, keeps loaded
+  rows visible and refreshes totals only on meaningful changes. Partial identity
+  counts no longer falsely promise that work is actively progressing.
+- Current evidence: 265 backend regression tests plus 17 subtests and 73 public
+  returning-flow tests passed; TypeScript,
+  scoped lint, strict mypy (15 production files), architecture and module budgets
+  passed. Eight frontend polling/document-upload tests and six country-display
+  tests passed. Final public passport lookup coverage is 94.87% (90% floor).
+- Real PostgreSQL 16.14 qualification passed: three synthetic sources became three
+  people/documents using pool_size=1/max_overflow=0. Admission denial, stale leases,
+  failure/retry, document-impact and feed paths passed. Separate disposable database
+  on the existing server, bounded 512 MiB/90 CPU-second subprocess, at most three
+  extra connections; all owned database/login/temp files removed. This is not a
+  sustained-load or final release-image qualification. Receipt: companies-reuse-evidence/
+  history-worker-postgresql-20261014.json. No production tables or app files modified.
+  Production browser automation is unavailable in this session (no connected
+  browsers); live database/API/served-build verification will be reported separately.
 
 Latest release and requested cleanup
 - Fast unit: passdetection-deploy-a8345cb2b021-2c1041dd; completed successfully.

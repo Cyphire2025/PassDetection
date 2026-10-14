@@ -3,8 +3,9 @@
 import asyncio
 import uuid
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime
 from types import SimpleNamespace
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 
 import pytest
 
@@ -22,7 +23,7 @@ def factory(session=None):
 
 
 @pytest.mark.asyncio
-async def test_burst_stops_after_40_pages_with_at_most_two_concurrent_slots(monkeypatch):
+async def test_burst_stops_after_40_pages_without_competing_for_worker_connection(monkeypatch):
     running = peak = calls = 0
 
     async def slot(*args):
@@ -37,7 +38,7 @@ async def test_burst_stops_after_40_pages_with_at_most_two_concurrent_slots(monk
     monkeypatch.setattr(runtime, "advance_company_history_chain", AsyncMock())
     monkeypatch.setattr(runtime, "_reconciliation_slot", slot)
     count = await runtime.run_reconciliation_tick(session_factory=factory(), crypto=object())
-    assert (count, calls, peak) == (1000, 40, 2)
+    assert (count, calls, peak) == (1000, 40, 1)
 
 
 @pytest.mark.asyncio
@@ -79,18 +80,23 @@ async def test_burst_deadline_also_cancels_blocked_admission(monkeypatch):
     monkeypatch.setattr(runtime, "advance_company_history_chain", AsyncMock())
     monkeypatch.setattr(runtime, "_reconciliation_slot", slot)
     assert await runtime.run_reconciliation_tick(session_factory=factory(), crypto=object()) == 0
-    assert sorted(cancelled) == [0, 1]
+    assert cancelled == [0]
 
 
 @pytest.mark.asyncio
-async def test_postgresql_advisory_fence_denial_never_reserves_job(monkeypatch):
+async def test_postgresql_advisory_fence_denial_releases_claim_without_processing(monkeypatch):
     session = SimpleNamespace(begin=context, bind=SimpleNamespace(dialect=SimpleNamespace(name="postgresql")),
         scalar=AsyncMock(return_value=False))
-    reserve = AsyncMock()
-    monkeypatch.setattr(runtime, "_reserve_reconciliation", reserve)
+    claim = runtime.ReconciliationClaim(uuid.uuid4(), datetime.now(UTC), 1)
+    release, process = AsyncMock(), AsyncMock()
+    monkeypatch.setattr(runtime, "_reserve_reconciliation", AsyncMock(return_value=claim))
+    monkeypatch.setattr(runtime, "_release_reconciliation", release)
+    monkeypatch.setattr(runtime, "reconcile_page", process)
     result = await runtime._reconciliation_slot(factory(session), object(), 1, runtime.monotonic() + 10)
     assert result == (0, False)
-    reserve.assert_not_awaited()
+    release.assert_awaited_once()
+    assert release.await_args.args[1] == claim
+    process.assert_not_awaited()
     assert "pg_try_advisory_xact_lock(913702" in str(session.scalar.call_args.args[0])
     assert session.scalar.call_args.args[1] == {"slot": 1}
 
@@ -98,14 +104,14 @@ async def test_postgresql_advisory_fence_denial_never_reserves_job(monkeypatch):
 @pytest.mark.asyncio
 async def test_page_failure_requeues_in_separate_failure_transaction(monkeypatch):
     session = SimpleNamespace(begin=context, bind=None)
-    identifier = uuid.uuid4()
+    claim = runtime.ReconciliationClaim(uuid.uuid4(), datetime.now(UTC), 1)
     failure = AsyncMock()
-    monkeypatch.setattr(runtime, "_reserve_reconciliation", AsyncMock(return_value=identifier))
+    monkeypatch.setattr(runtime, "_reserve_reconciliation", AsyncMock(return_value=claim))
     monkeypatch.setattr(runtime, "reconcile_page", AsyncMock(side_effect=TimeoutError))
     monkeypatch.setattr(runtime, "_fail_reconciliation", failure)
     result = await runtime._reconciliation_slot(factory(session), object(), 0, runtime.monotonic() + 10)
     assert result == (0, True)
-    assert failure.await_args.args[1] == identifier
+    assert failure.await_args.args[1] == claim
 
 
 @pytest.mark.asyncio
@@ -113,6 +119,44 @@ async def test_failure_preserves_dirty_refresh_and_clears_lease():
     job = SimpleNamespace(status="running", attempt_count=2, last_error_code=runtime.DIRTY,
         lease_expires_at=object())
     session = SimpleNamespace(begin=context, scalar=AsyncMock(return_value=job))
-    await runtime._fail_reconciliation(factory(session), uuid.uuid4())
+    await runtime._fail_reconciliation(factory(session), runtime.ReconciliationClaim(uuid.uuid4(), datetime.now(UTC), 2))
     assert job.status == "queued" and job.last_error_code == runtime.DIRTY
     assert job.lease_expires_at is None
+
+
+@pytest.mark.asyncio
+async def test_busy_slot_returns_claim_without_using_retry_budget():
+    job = SimpleNamespace(status="running", attempt_count=3, last_error_code=runtime.DIRTY,
+        lease_expires_at=object())
+    session = SimpleNamespace(begin=context, scalar=AsyncMock(return_value=job))
+    await runtime._release_reconciliation(factory(session), runtime.ReconciliationClaim(uuid.uuid4(), datetime.now(UTC), 3))
+    assert (job.status, job.attempt_count, job.lease_expires_at) == ("queued", 2, None)
+    assert job.last_error_code == runtime.DIRTY
+
+
+@pytest.mark.asyncio
+async def test_stale_claim_does_not_release_or_fail_a_new_reservation():
+    session = SimpleNamespace(begin=context, scalar=AsyncMock(return_value=None))
+    claim = runtime.ReconciliationClaim(uuid.uuid4(), datetime.now(UTC), 1)
+    await runtime._release_reconciliation(factory(session), claim)
+    await runtime._fail_reconciliation(factory(session), claim)
+    for call in session.scalar.await_args_list:
+        statement = str(call.args[0])
+        assert "lease_expires_at =" in statement and "attempt_count =" in statement
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("sqlstate,expected", [("42P01", "42P01"), ("private-database-detail", None), (None, None)])
+async def test_failure_diagnostics_never_include_exception_text_or_sql_parameters(monkeypatch, sqlstate, expected):
+    session = SimpleNamespace(begin=context, bind=None)
+    claim = runtime.ReconciliationClaim(uuid.uuid4(), datetime.now(UTC), 1)
+    error = RuntimeError("PRIVATE SQL AND TRAVELLER PARAMETERS")
+    error.orig = SimpleNamespace(sqlstate=sqlstate)
+    warning = Mock()
+    monkeypatch.setattr(runtime, "logger", SimpleNamespace(warning=warning))
+    monkeypatch.setattr(runtime, "_reserve_reconciliation", AsyncMock(return_value=claim))
+    monkeypatch.setattr(runtime, "reconcile_page", AsyncMock(side_effect=error))
+    monkeypatch.setattr(runtime, "_fail_reconciliation", AsyncMock())
+    assert await runtime._reconciliation_slot(factory(session), object(), 0, runtime.monotonic() + 10) == (0, True)
+    warning.assert_called_once_with("traveller_reconciliation_page_failed", job_id=str(claim.job_id),
+        error_type="RuntimeError", sqlstate=expected)

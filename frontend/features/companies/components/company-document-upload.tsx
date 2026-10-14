@@ -12,6 +12,10 @@ import { CompanyPassportFields } from "./company-passport-fields";
 
 const COUNTRIES = getPassportCountryOptions(3);
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+function countriesForRecord(record: CompanyPersonRecord) {
+  return record.current_document?.issuing_country === "UNK"
+    ? [{ value: "UNK", label: "Not recorded" }, ...COUNTRIES] : COUNTRIES;
+}
 
 export function CompanyDocumentUploadForm({ agencyId, companyId, record, onSaved, onCancel, onBusy }: { agencyId: string; companyId: string; record: CompanyPersonRecord; onSaved: () => Promise<void>; onCancel: () => void; onBusy: (busy: boolean) => void }) {
   const [opened] = useState(record);
@@ -53,7 +57,7 @@ export function CompanyDocumentUploadForm({ agencyId, companyId, record, onSaved
         // eslint-disable-next-line @next/next/no-img-element
         <img src={preview} alt="New document image" className="max-h-72 w-full rounded-lg bg-white object-contain" onError={() => { setFile(undefined); setError("This image could not be read. Choose another file."); }} />
       )}
-      <div className="grid gap-3 sm:grid-cols-2"><label className="block space-y-1.5 text-sm font-medium text-slate-700">Issuing country<select required value={issuer} onChange={(event) => { changed(); setIssuer(event.target.value); }} className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3"><option value="">Select country</option>{COUNTRIES.map((country) => <option key={country.value} value={country.value}>{country.label}</option>)}</select></label><Input label="Document type" required maxLength={16} value={documentType} onChange={(event) => { changed(); setDocumentType(event.target.value); }} /></div>
+      <div className="grid gap-3 sm:grid-cols-2"><label className="block space-y-1.5 text-sm font-medium text-slate-700">Issuing country<select required value={issuer} onChange={(event) => { changed(); setIssuer(event.target.value); }} className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3"><option value="">Select country</option>{countriesForRecord(opened).map((country) => <option key={country.value} value={country.value}>{country.label}</option>)}</select></label><Input label="Document type" required maxLength={16} value={documentType} onChange={(event) => { changed(); setDocumentType(event.target.value); }} /></div>
       <CompanyPassportFields fields={fields} onChange={(key, value) => { changed(); setFields((current) => ({ ...current, [key]: value })); }} />
       <Input label="Reason for document update" required minLength={3} maxLength={500} value={reason} onChange={(event) => { changed(); setReason(event.target.value); }} />
       <label className="flex items-start gap-3 text-sm leading-6 text-slate-700"><input type="checkbox" className="mt-1" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} required />I checked this image and the passport details for this person.</label>

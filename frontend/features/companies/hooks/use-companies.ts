@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { companiesApi } from "../api/companies.api";
 import type { Company, CompanyGroupSearch, CompanyInput, CompanySearch, CompanyUpdate } from "../types";
@@ -17,8 +18,10 @@ export function useCompanyQueryScope(agencyId: string | null) {
 
 export function useCompanyQueryContext(agencyId: string | null) {
   const session = useCompanySession();
+  const scope = useMemo(() => [...companyKeys.scope(agencyId), "session", session.key,
+    session.ready ? "ready" : "inactive"] as const, [agencyId, session.key, session.ready]);
   return {
-    scope: [...companyKeys.scope(agencyId), "session", session.key, session.ready ? "ready" : "inactive"] as const,
+    scope,
     ready: Boolean(agencyId) && session.ready,
   };
 }

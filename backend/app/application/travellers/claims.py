@@ -25,6 +25,7 @@ from app.application.travellers.document_challenge import (
 )
 from app.application.travellers.errors import ReuseError, ReuseReason
 from app.application.travellers.matching import resolve_passport
+from app.application.travellers.passport_lookup import set_passport_identifiers
 from app.core.config.settings import Settings
 from app.core.config.traveller_reuse import TravellerReuseSettings
 from app.domain.services.traveller_verification import CLAIM_LIFETIME, DocumentQuestion
@@ -157,14 +158,7 @@ class ReturningClaims:
         issuer: str | None, document_type: str, code: str | None,
     ) -> None:
         if number is not None:
-            if not issuer:
-                raise ReuseError(ReuseReason.VERIFICATION_FAILED)
-            fingerprint = self.crypto.passport_fingerprint(claim.agency_id, claim.company_id, number, issuer, document_type)
-            if claim.passport_id is not None and claim.supplied_passport_fingerprint != fingerprint:
-                # A proved passport is immutable within a claim. Route switching
-                # requires a new claim but retains the person attempt budget.
-                raise ReuseError(ReuseReason.REVISION_CONFLICT)
-            claim.supplied_passport_fingerprint = fingerprint
+            set_passport_identifiers(claim, self.crypto, number, issuer, document_type)
         if code is not None:
             from app.application.travellers.identity_index import COMPANY_INDIVIDUAL_CODE
             from app.domain.services.traveller_identity import normalize_individual_code

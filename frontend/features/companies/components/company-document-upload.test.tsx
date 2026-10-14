@@ -13,6 +13,17 @@ beforeEach(() => {
 });
 
 describe("staff document versions", () => {
+  it("preserves a legacy unknown issuer honestly and never offers it for a known issuer", () => {
+    const legacy = { ...record, current_document: { ...record.current_document!, issuing_country: "UNK" } };
+    const view = render(<CompanyDocumentUploadForm agencyId="agency" companyId="company" record={legacy} onSaved={vi.fn()} onCancel={vi.fn()} onBusy={vi.fn()} />);
+    expect(screen.getByRole("combobox", { name: "Issuing country" })).toHaveValue("UNK");
+    expect(screen.getByRole("option", { name: "Not recorded" })).toBeInTheDocument();
+    view.unmount();
+    render(<CompanyDocumentUploadForm agencyId="agency" companyId="company" record={record} onSaved={vi.fn()} onCancel={vi.fn()} onBusy={vi.fn()} />);
+    expect(screen.getByRole("combobox", { name: "Issuing country" })).toHaveValue("IND");
+    expect(screen.queryByRole("option", { name: "Not recorded" })).not.toBeInTheDocument();
+  });
+
   it("uploads only after explicit review, with the opened revision and retained document context", async () => {
     vi.mocked(companyPeopleApi.upload).mockResolvedValue({ ...record, revision: 6 });
     const onSaved = vi.fn();

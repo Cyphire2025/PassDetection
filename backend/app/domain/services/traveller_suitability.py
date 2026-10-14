@@ -12,6 +12,8 @@ from dataclasses import dataclass
 from datetime import date
 from enum import StrEnum
 
+from app.domain.services.traveller_verification import UNKNOWN_ISSUING_COUNTRY
+
 
 class SuitabilityOutcome(StrEnum):
     SUITABLE = "suitable"
@@ -86,6 +88,8 @@ def assess_document(
     if len(by_destination) != len(rules):
         raise ValueError("ambiguous destination rule coverage")
     reasons: list[str] = []
+    if document.issuing_country == UNKNOWN_ISSUING_COUNTRY:
+        reasons.append("issuing_country_not_recorded")
     versions: list[str] = []
     if not destinations:
         reasons.append("itinerary_missing")

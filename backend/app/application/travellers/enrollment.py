@@ -18,8 +18,10 @@ from typing import Literal
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.travellers.accepted_source import MRZ_ACCEPTANCE_RULE, accept_source
+from app.application.travellers.accepted_source import accept_source
+from app.application.travellers.legacy_source_acceptance import AI_ACCEPTANCE_RULE
 from app.application.travellers.retained_authority import OPERATOR_REGISTRATION_VERSION
+from app.application.travellers.source_acceptance_provenance import acceptance_provenance
 from app.application.travellers.source_evidence import source_evidence_digest
 from app.application.travellers.versioning import (
     EnrollmentError as EnrollmentError,
@@ -205,11 +207,11 @@ async def enroll_submission(
             "extraction_revision": source.extraction_revision, "change_kind": request.change_kind,
             "accepted_by_user_id": str(request.actor_id), "reviewed_issuing_context": reviewed_context,
             "request_digest": request_digest,
-            "acceptance_rule": MRZ_ACCEPTANCE_RULE if accepted.reliable_source == "verified_import" else "staff_review",
-            "issuing_context_source": "validated_saved_mrz" if accepted.mrz_context else "reviewed_fields",
+            **acceptance_provenance(accepted, source, crypto),
             "authority_kind": request.authority_kind},
         reliable_fields={key: {"accepted": True, "source": accepted.reliable_source} for key in dates
-                         if accepted.reliable_source == "staff_review" or key in {"date_of_birth", "expiry_date"}},
+                         if accepted.reliable_source == "staff_review" or accepted.acceptance_rule == AI_ACCEPTANCE_RULE
+                         or key in {"date_of_birth", "expiry_date"}},
         date_of_birth=dates.get("date_of_birth"), issue_date=dates.get("issue_date"), expiry_date=dates.get("expiry_date"),
         accepted_by_user_id=request.actor_id, accepted_at=current_time, idempotency_key=request.idempotency_key)
     session.add(revision)

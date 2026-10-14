@@ -953,6 +953,30 @@
       "baseline_max_function_complexity": 3,
       "maximum_function_complexity": 3,
       "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/travellers/legacy_source_acceptance.py",
+      "baseline_lines": 72,
+      "maximum_lines": 85,
+      "baseline_max_function_complexity": 13,
+      "maximum_function_complexity": 16,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/travellers/source_acceptance_provenance.py",
+      "baseline_lines": 58,
+      "maximum_lines": 65,
+      "baseline_max_function_complexity": 13,
+      "maximum_function_complexity": 14,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/travellers/passport_lookup.py",
+      "baseline_lines": 78,
+      "maximum_lines": 90,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 8,
+      "minimum_coverage_percent": 90
     }
   ],
   "coverage_gates": {
