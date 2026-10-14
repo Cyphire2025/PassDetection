@@ -1,7 +1,7 @@
 """Exact context plus an explicit unknown-context legacy lookup, bounded to two.
 
 The alternate HMAC is written only by the server before proof. It conveys no
-authority and is removed when the verified actor declaration creates a grant.
+authority and is removed when completed verification creates a grant.
 The owner veto visits C exact-number index matches: O(log N + C) database work,
 at most one returned owner and O(1) application memory; no history scan.
 """
@@ -28,25 +28,33 @@ from app.infrastructure.database.traveller_reuse_models import (
 from app.infrastructure.security.traveller_reuse_crypto import TravellerReuseCrypto
 
 LEGACY_LOOKUP_KEY = "_legacy_passport_fingerprint"
+NUMBER_LOOKUP_KEY = "_number_only_lookup"
 
 
 def set_passport_identifiers(claim: TravellerClaimModel, crypto: TravellerReuseCrypto,
     number: str, issuer: str | None, document_type: str,
 ) -> None:
     if not issuer:
-        raise ReuseError(ReuseReason.VERIFICATION_FAILED)
+        fingerprint = crypto.scoped_digest("passport-number", claim.agency_id, claim.company_id,
+            exact_passport_number(number))
+        _store_lookup(claim, fingerprint, {NUMBER_LOOKUP_KEY: True})
+        return
     fingerprint = crypto.passport_fingerprint(claim.agency_id, claim.company_id, number, issuer, document_type)
-    if claim.passport_id is not None and claim.supplied_passport_fingerprint != fingerprint:
-        raise ReuseError(ReuseReason.REVISION_CONFLICT)
     _, kind = issuing_context(issuer, document_type)
     alternate = crypto.passport_fingerprint(claim.agency_id, claim.company_id, number,
         UNKNOWN_ISSUING_COUNTRY, "P") if kind in {"P", "PASSPORT"} else None
+    _store_lookup(claim, fingerprint, {LEGACY_LOOKUP_KEY: alternate} if alternate is not None else {})
+
+
+def _store_lookup(claim: TravellerClaimModel, fingerprint: str, lookup: dict[str, object]) -> None:
+    """A bound passport may never be swapped by changing the lookup context."""
+    if claim.passport_id is not None and claim.supplied_passport_fingerprint != fingerprint:
+        raise ReuseError(ReuseReason.REVISION_CONFLICT)
     claim.supplied_passport_fingerprint = fingerprint
     evidence = dict(claim.actor_evidence or {})
+    evidence.pop(NUMBER_LOOKUP_KEY, None)
     evidence.pop(LEGACY_LOOKUP_KEY, None)
-    if alternate is not None:
-        evidence[LEGACY_LOOKUP_KEY] = alternate
-    claim.actor_evidence = evidence
+    claim.actor_evidence = {**evidence, **lookup}
 
 
 def passport_lookup_fingerprints(claim: TravellerClaimModel) -> tuple[str, ...]:

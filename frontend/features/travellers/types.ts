@@ -16,7 +16,7 @@ export interface ClaimStart {
   phone_number?: string;
   passport_number?: string;
   issuing_country?: string;
-  document_type: "P";
+  document_type?: "P";
   individual_code?: string;
 }
 export interface PassportProof { passport_number?: string; issuing_country?: string; document_type?: string; individual_code?: string }

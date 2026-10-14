@@ -51,7 +51,7 @@ def receipt_for(release):
             'source_contract_sha256': release.record['fast_additive_binding']['source_contract_sha256'],
             'source_schema': SOURCE, 'target_schema': TARGET, 'full_ci_qualified': False,
             'owned_resources_removed': True, 'fixture_person_count': 700, 'contact_concurrency_tests': 2,
-            'export_ddl_rollback_verified': True, 'manager_ddl_rollback_verified': True,
+            'draft_ddl_rollback_verified': True, 'directory_ddl_rollback_verified': True, 'lookup_ddl_rollback_verified': True,
             'split_migration_role_verified': True,
             'checks': dict.fromkeys(CHECKS, True)}
 
@@ -103,8 +103,8 @@ class FastAdditiveProofTests(unittest.TestCase):
             for changes in ({}, {'backend_image_id': 'sha256:' + 'f' * 64}, {'source_revision': 'f' * 40},
                             {'source_contract_sha256': 'f' * 64}, {'fixture_person_count': 699},
                             {'owned_resources_removed': False}, {'full_ci_qualified': True}, {'contact_concurrency_tests': 0},
-                            {'export_ddl_rollback_verified': False}, {'export_ddl_rollback_verified': 1},
-                            {'manager_ddl_rollback_verified': False}, {'manager_ddl_rollback_verified': 1},
+                            {'draft_ddl_rollback_verified': False}, {'draft_ddl_rollback_verified': 1},
+                            {'directory_ddl_rollback_verified': False}, {'directory_ddl_rollback_verified': 1},
                             {'split_migration_role_verified': False}, {'split_migration_role_verified': 1},
                             {'checks': {**original['checks'], 'wrong_baseline_rejected': 1}}):
                 path.write_text(json.dumps({**original, **changes}))
@@ -124,7 +124,7 @@ class FastAdditiveProofTests(unittest.TestCase):
         release, _ = fast_fixture()
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'fast-migration-rehearsal.json'
-            for required in ('export_ddl_rollback_verified', 'split_migration_role_verified'):
+            for required in ('draft_ddl_rollback_verified', 'split_migration_role_verified'):
                 proof = receipt_for(release)
                 proof.pop(required)
                 path.write_text(json.dumps(proof))

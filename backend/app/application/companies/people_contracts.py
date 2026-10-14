@@ -24,10 +24,13 @@ class PersonItem(BaseModel):
     document_version_count: int
     duplicate_status: Literal["none", "possible"]
     current_passport_last4: str | None
+    submission_count: int = 0
+    latest_submission_at: datetime | None = None
 
 
 class PersonPage(BaseModel):
     indexing_pending: bool = False
+    indexing_failed: bool = False
     items: list[PersonItem]
     next_cursor: str | None
     has_more: bool

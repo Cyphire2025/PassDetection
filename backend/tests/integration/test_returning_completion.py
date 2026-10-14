@@ -11,6 +11,7 @@ from app.application.platform_policies import PlatformPolicies
 from app.application.travellers.completion import complete_reuse
 from app.application.travellers.errors import ReuseError, ReuseReason
 from app.application.travellers.history import read_history
+from app.application.travellers.operational_autoassignment import assign_operational_traveller
 from app.domain.exceptions.exceptions import ValidationError
 from app.infrastructure.database.models import PassportSubmissionModel
 from app.infrastructure.database.traveller_reuse_models import (
@@ -146,3 +147,21 @@ async def test_required_phone_is_visible_before_completion_and_policy_change_inv
     with pytest.raises(ValidationError, match="Verify a current phone number"):
         await complete(service, token, review)
     assert await db_session.scalar(select(func.count()).select_from(PassportSubmissionModel)) == 0
+
+
+@pytest.mark.asyncio
+async def test_past_trip_snapshot_cannot_be_rewritten_even_through_legacy_completion(db_session, test_settings):
+    service, _, group, person, token, _ = await completion_context(db_session, test_settings)
+    assert await assign_operational_traveller(db_session, group=group, person_id=person.profile.id,
+        source_kind="whatsapp_recipient", source_row_key=str(uuid.uuid4()), evidence={}, crypto=service.crypto, now=datetime.now(UTC)) == "assigned"
+    group.travel_date = datetime.now(UTC).date() - timedelta(days=20)
+    group.return_date = datetime.now(UTC).date() - timedelta(days=10)
+    await db_session.commit()
+    source = await db_session.scalar(select(PassportSubmissionModel))
+    original = (source.client_phone, source.client_email, source.status, dict(source.confirmed_fields))
+    review = await read_history(service, token)
+    with pytest.raises(ReuseError):
+        await complete(service, token, review, current_details={"client_email": "changed@example.com"})
+    await db_session.rollback()
+    await db_session.refresh(source)
+    assert (source.client_phone, source.client_email, source.status, source.confirmed_fields) == original

@@ -8,7 +8,7 @@ projection never fetches a passport image or returns storage locators.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from sqlalchemy import and_, exists, func, or_, select
@@ -125,9 +125,10 @@ async def company_traveller_history(
     response.headers["Cache-Control"] = "private, no-store"
     company = await require_company(session, user=user, company_id=company_id, agency_id=agency_id)
     groups = visible_company_groups(user, company.agency_id, company.id).subquery()
-    codec = MCPReadCursor(settings.app_secret_key, "company-traveller-history-v1")
+    codec = MCPReadCursor(settings.app_secret_key, "company-traveller-history-v2")
     try:
         state = codec.read(cursor, {"actor": str(user.id), "agency": str(company.agency_id), "company": str(company.id), "traveller": str(traveller_id)})
+        last_trip = date.fromisoformat(state["after_trip_date"]) if state.get("after_trip_date") else None
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
     query = select(
@@ -135,6 +136,7 @@ async def company_traveller_history(
         TravellerParticipationModel.group_id, groups.c.name, groups.c.travel_date,
         groups.c.status, TravellerParticipationModel.status,
         TravellerDocumentRevisionModel.revision_number,
+        TravellerParticipationModel.trip_started_at,
     ).join(groups, groups.c.id == TravellerParticipationModel.group_id).join(
         TravellerProfileModel, TravellerProfileModel.id == TravellerParticipationModel.traveller_id,
     ).outerjoin(TravellerDocumentRevisionModel, (TravellerDocumentRevisionModel.id == TravellerParticipationModel.document_revision_id)
@@ -148,9 +150,15 @@ async def company_traveller_history(
     )
     after = codec.after(state)
     if after:
-        query = query.where(or_(TravellerParticipationModel.created_at < after[0], and_(TravellerParticipationModel.created_at == after[0], TravellerParticipationModel.id < after[1])))
-    rows = (await session.execute(query.order_by(TravellerParticipationModel.created_at.desc(), TravellerParticipationModel.id.desc()).limit(page_size + 1))).all()
+        if last_trip is None:
+            query = query.where(TravellerParticipationModel.trip_started_at.is_(None), TravellerParticipationModel.id < after[1])
+        else:
+            query = query.where(or_(TravellerParticipationModel.trip_started_at < last_trip,
+                and_(TravellerParticipationModel.trip_started_at == last_trip, TravellerParticipationModel.id < after[1]),
+                TravellerParticipationModel.trip_started_at.is_(None)))
+    rows = (await session.execute(query.order_by(TravellerParticipationModel.trip_started_at.desc().nullslast(), TravellerParticipationModel.id.desc()).limit(page_size + 1))).all()
     has_more, rows = len(rows) > page_size, rows[:page_size]
     items = [TravellerHistoryResponse(id=row[0], group_id=row[2], group_name=row[3], travel_date=row[4], lifecycle=row[5], participation_status=row[6], document_revision=row[7]) for row in rows]
-    next_cursor = codec.next(state, {"id": rows[-1][0], "created_at": rows[-1][1]}) if has_more else None
+    next_cursor = codec.next({**state, "after_trip_date": rows[-1][8].isoformat() if rows[-1][8] else None},
+        {"id": rows[-1][0], "created_at": rows[-1][1]}) if has_more else None
     return TravellerHistoryPage(items=items, next_cursor=next_cursor)

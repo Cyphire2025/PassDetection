@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { queuedPrivatePreview } from "@/features/travellers/services/private-preview-queue";
 import { uploadApi } from "../api/upload.api";
 
 interface ProtectedUploadDocumentImageProps {
@@ -22,6 +23,15 @@ export function ProtectedUploadDocumentImage({
   className,
   overlay,
 }: ProtectedUploadDocumentImageProps) {
+  const frame = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(() => typeof IntersectionObserver === "undefined");
+  useEffect(() => {
+    if (!frame.current) return;
+    if (typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } }, { rootMargin: "300px" });
+    observer.observe(frame.current);
+    return () => observer.disconnect();
+  }, []);
   const [loadedPreview, setLoadedPreview] = useState<{
     requestKey: string;
     objectUrl: string;
@@ -38,17 +48,19 @@ export function ProtectedUploadDocumentImage({
   ]);
 
   useEffect(() => {
+    if (!visible) return;
     const controller = new AbortController();
     let activeObjectUrl: string | null = null;
 
-    void uploadApi.getUploadDocument(
+    void queuedPrivatePreview(() => uploadApi.getUploadDocument(
       token,
       submissionId,
       documentType,
       uploadSessionId,
       controller.signal,
-    ).then((blob) => {
+    ), controller.signal).then((blob) => {
       if (controller.signal.aborted) return;
+      if (!blob.size || blob.size > 20 * 1024 * 1024 || !["image/jpeg", "image/png", "image/webp"].includes(blob.type)) throw new Error("Unsupported preview");
       activeObjectUrl = URL.createObjectURL(blob);
       setLoadedPreview({
         requestKey,
@@ -71,13 +83,15 @@ export function ProtectedUploadDocumentImage({
     submissionId,
     token,
     uploadSessionId,
+    visible,
   ]);
 
   if (failedRequestKey === requestKey) {
     return (
       <div
+        ref={frame}
         role="alert"
-        className="flex min-h-48 flex-col items-center justify-center gap-3 bg-red-50 px-4 text-center text-sm text-red-700"
+        className="flex aspect-[4/3] w-full flex-col items-center justify-center gap-3 bg-red-50 px-4 text-center text-sm text-red-700"
       >
         <span>Secure preview is unavailable.</span>
         <button
@@ -94,10 +108,11 @@ export function ProtectedUploadDocumentImage({
   if (!loadedPreview || loadedPreview.requestKey !== requestKey) {
     return (
       <div
+        ref={frame}
         role="status"
         aria-live="polite"
         aria-label={`${alt} preview loading`}
-        className="flex min-h-48 items-center justify-center bg-slate-50 text-sm text-slate-400"
+        className="flex aspect-[4/3] w-full items-center justify-center bg-slate-50 text-sm text-slate-400"
       >
         Loading secure preview
       </div>
@@ -109,10 +124,10 @@ export function ProtectedUploadDocumentImage({
   // Object URLs are created from authenticated same-origin API responses.
   return (
     <div
+      ref={frame}
       data-testid="secure-document-preview-frame"
       data-orientation={orientation}
-      style={{ width: orientation === "portrait" ? 220 : 360, height: orientation === "portrait" ? 300 : 230, maxWidth: "100%", marginInline: "auto" }}
-      className={`flex items-center justify-center ${className ?? ""}`}
+      className={`flex aspect-[4/3] w-full items-center justify-center bg-slate-50 p-3 sm:p-4 ${className ?? ""}`}
     >
       <div className="relative inline-block max-w-full leading-none">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -121,7 +136,7 @@ export function ProtectedUploadDocumentImage({
           alt={alt}
           onLoad={(event) => setOrientation(event.currentTarget.naturalHeight > event.currentTarget.naturalWidth ? "portrait" : "landscape")}
           onError={() => setFailedRequestKey(requestKey)}
-          style={{ maxHeight: orientation === "portrait" ? 300 : 230, maxWidth: "100%", width: "auto", height: "auto", objectFit: "contain" }}
+          style={{ maxHeight: "min(320px, 55vw)", maxWidth: "100%", width: "auto", height: "auto", objectFit: "contain" }}
           className="block"
         />
         {overlay}

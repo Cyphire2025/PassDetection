@@ -1,6 +1,6 @@
-"""Apply the exact 0133->0135 chain inside a retained, writer-fenced helper.
+"""Apply the exact 0135→0138 chain inside a retained, writer-fenced helper.
 
-Each revision owns its transaction. Resume requires the original 0133 backup
+Each revision owns its transaction. Resume requires the original 0135 backup
 and preservation baseline. No automatic downgrade, enrollment or activation.
 """
 

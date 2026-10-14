@@ -33,7 +33,7 @@ class CompanyTravellerReleaseTests(unittest.TestCase):
         verify_source_defaults()
         module = helper()
         self.assertEqual(module.POLICY, POLICY)
-        self.assertEqual(len(value["migrations"]), 2)
+        self.assertEqual(len(value["migrations"]), 3)
         module.verify_sources(ROOT / "backend", value)
         with self.assertRaises(ValueError):
             require_same_schema_artifact({"deployment": value})

@@ -142,6 +142,15 @@ def test_live_scan_keeps_exact_front_and_back_when_file_upload_requests_covers()
     validate_documents(group, pages={"front": b"image", "back": b"image"}, mode="camera", photo=None)
 
 
+def test_authorized_retained_pages_do_not_exempt_new_pages_from_capture_policy():
+    group = _group({"passport_upload_pages": ["front", "back"]}, allow_files_from_device=False)
+    validate_documents(group, pages={"front": "saved-front", "back": "saved-back"}, mode="file", photo=None,
+        retained_pages=frozenset({"front", "back"}))
+    with pytest.raises(ValidationError, match="scanning"):
+        validate_documents(group, pages={"front": "saved-front", "back": "new-file-back"}, mode="file", photo=None,
+            retained_pages=frozenset({"front"}))
+
+
 @pytest.mark.parametrize(("config", "source"), [
     ({"visa_photo_live_capture": False}, "camera"),
     ({"visa_photo_upload": False}, "file"),

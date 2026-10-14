@@ -44,7 +44,7 @@ class ChangeQuestionRequest(ReturningRequest):
 
 
 class ConfirmClaimRequest(ReturningRequest):
-    acting_for: Literal["self", "family"]
+    acting_for: Literal["self", "family"] | None = None
     contact_change_confirmed: bool = False
 
 

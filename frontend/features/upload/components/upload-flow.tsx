@@ -64,6 +64,7 @@ import {
 } from "./upload-flow-passport-picker";
 import {
   BackButton,
+  PortalBackButton,
   CenteredLoader,
   ChoiceCard,
   ErrorMessage,
@@ -102,9 +103,10 @@ const VisaSelfieCamera = dynamic(
 
 interface UploadFlowProps {
   token: string;
+  onStartOver?: () => void;
 }
 
-export function UploadFlow({ token }: UploadFlowProps) {
+export function UploadFlow({ token, onStartOver }: UploadFlowProps) {
   const { data: group, isLoading, error, refetch: refetchLink, isFetching: isFetchingLink } = useUploadLinkByToken(token);
   const [linkError, setLinkError] = useState<unknown>(null);
 
@@ -557,7 +559,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 px-3 py-4 font-sans selection:bg-blue-100 selection:text-blue-900 sm:flex sm:flex-col sm:items-center sm:justify-center sm:px-4 sm:py-8 lg:py-12">
+    <div className="traveller-portal min-h-screen px-3 py-4 font-sans selection:bg-blue-100 selection:text-blue-900 sm:flex sm:flex-col sm:items-center sm:justify-center sm:px-4 sm:py-8 lg:py-12">
       <div className={`mx-auto w-full ${step === "METHOD_SELECT" && flowMode === "family" ? "max-w-5xl" : "max-w-lg"}`}>
         <UploadHeader groupName={group.name} departureDate={group.travel_date} returnDate={group.return_date} />
         {returning.introduction}
@@ -565,6 +567,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
         <div className="relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-4 shadow-xl shadow-slate-200/50 sm:rounded-3xl sm:p-8">
           {step === "MODE_SELECT" && (
             <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+              <PortalBackButton onBack={onStartOver} />
               <h3 className="mb-2 text-xl font-bold text-slate-900">Who are you submitting for?</h3>
               <p className="mb-6 text-sm text-slate-500">Choose single passenger or family upload.</p>
               <div className="space-y-4">

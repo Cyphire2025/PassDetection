@@ -7,13 +7,12 @@ import pytest
 from sqlalchemy import func, select
 
 from app.application.travellers.claims import ReturningClaims
-from app.application.travellers.contact_change import finish_contact_change
+from app.application.travellers.draft_completion import complete_draft
 from app.application.travellers.errors import ReuseError
 from app.application.travellers.grants import require_grant
 from app.infrastructure.database.traveller_reuse_models import TravellerContactBindingModel
-from tests.integration.test_returning_claims import successful_claim
-from tests.integration.test_returning_contact_change import NEW_PHONE, pending_change
-from tests.integration.traveller_reuse_fixtures import reuse_context, seed_person
+from tests.integration.test_returning_completion import completion_context
+from tests.integration.test_returning_contact_change import NEW_PHONE, pending_change, verify_change
 from tests.service_integration.test_fcm_dispatch_postgresql import pg_factory as pg_factory
 
 pytestmark = [pytest.mark.service_integration,
@@ -22,15 +21,15 @@ pytestmark = [pytest.mark.service_integration,
 
 async def test_parallel_contact_retries_create_one_binding_without_deadlock(pg_factory, test_settings):
     async with pg_factory() as session:
-        service, _, group = await reuse_context(session, test_settings)
-        person = await seed_person(service, group)
-        _, _, token = await successful_claim(service, group, person, "code")
+        service, _, _, person, token, _ = await completion_context(session, test_settings)
         pending, provider = await pending_change(service, token)
+        secret, body = await verify_change(service, token, pending, provider.code)
+        await session.commit()
         settings, person_id = service.reuse_settings, person.profile.id
 
     async def finish():
         async with pg_factory() as session:
-            return await finish_contact_change(ReturningClaims(session, test_settings, settings), token, pending, provider.code)
+            return await complete_draft(ReturningClaims(session, test_settings, settings), token, secret, body)
 
     results = await asyncio.wait_for(asyncio.gather(finish(), finish()), timeout=15)
     assert results[0] == results[1]
@@ -46,10 +45,10 @@ async def test_parallel_contact_retries_create_one_binding_without_deadlock(pg_f
 
 async def test_contact_recovery_and_old_grant_reads_share_lock_order(pg_factory, test_settings):
     async with pg_factory() as session:
-        service, _, group = await reuse_context(session, test_settings)
-        person = await seed_person(service, group)
-        _, _, token = await successful_claim(service, group, person, "code")
+        service, _, _, person, token, _ = await completion_context(session, test_settings)
         pending, provider = await pending_change(service, token)
+        secret, body = await verify_change(service, token, pending, provider.code)
+        await session.commit()
         settings = service.reuse_settings
 
     async def read():
@@ -64,7 +63,7 @@ async def test_contact_recovery_and_old_grant_reads_share_lock_order(pg_factory,
 
     async def finish():
         async with pg_factory() as session:
-            return await finish_contact_change(ReturningClaims(session, test_settings, settings), token, pending, provider.code)
+            return await complete_draft(ReturningClaims(session, test_settings, settings), token, secret, body)
 
     await asyncio.wait_for(asyncio.gather(read(), finish(), read()), timeout=15)
     assert await read() == "revoked_after_recovery"

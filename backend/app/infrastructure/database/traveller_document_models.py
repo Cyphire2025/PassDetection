@@ -64,6 +64,7 @@ class TravellerPassportModel(TravellerRecord, Base):
         ),
         Index("ix_traveller_passport_owner", "agency_id", "company_id", "traveller_id", "status"),
         Index("ix_traveller_passport_fingerprint", "agency_id", "company_id", "fingerprint_key_version", "number_fingerprint"),
+        Index("ix_traveller_passport_number_lookup", "agency_id", "company_id", "fingerprint_key_version", "number_lookup_fingerprint"),
         Index(
             "uq_traveller_passport_default",
             "traveller_id",
@@ -77,6 +78,7 @@ class TravellerPassportModel(TravellerRecord, Base):
     issuing_authority: Mapped[str | None] = mapped_column(String(128), nullable=True)
     document_type: Mapped[str] = mapped_column(String(32), nullable=False)
     number_fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
+    number_lookup_fingerprint: Mapped[str | None] = mapped_column(String(64), nullable=True)
     fingerprint_key_version: Mapped[str] = mapped_column(String(64), nullable=False)
     number_ciphertext: Mapped[str] = mapped_column(Text, nullable=False)
     status: Mapped[str] = mapped_column(

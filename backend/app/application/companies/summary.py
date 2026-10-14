@@ -49,6 +49,7 @@ class CompanyTotals:
     completed_groups: int
     current_groups: int
     passenger_trips_completed: int
+    passenger_trips_total: int
 
 
 def _source_key(identifier: ColumnElement[uuid.UUID]) -> ColumnElement[str]:
@@ -120,4 +121,4 @@ async def company_totals(session: AsyncSession, *, user: User, agency_id: uuid.U
         trip_participations=int(membership[0]), unresolved_historical_records=unresolved,
         identity_totals_partial=bool(unresolved or membership[2] or roster[2] or roster[3]),
         completed_groups=completed_count, current_groups=sum(counts.values()) - completed_count,
-        passenger_trips_completed=int(membership[3]))
+        passenger_trips_completed=int(membership[3]), passenger_trips_total=int(membership[0]))

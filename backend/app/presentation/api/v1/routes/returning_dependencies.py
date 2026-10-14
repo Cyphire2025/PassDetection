@@ -46,7 +46,8 @@ async def private_boundary(request: Request, response: Response) -> None:
     await require_trusted_request_origin(request)
     # A stable claim cookie cannot evade its quota by moving between networks.
     # The independent network quota remains effective when cookies are rotated.
-    secret = request.cookies.get(CLAIM_COOKIE) or request.cookies.get(GRANT_COOKIE)
+    secret = (request.cookies.get("pd_fresh_drafts") if request.url.path.startswith("/api/v1/public-drafts/")
+              else request.cookies.get(CLAIM_COOKIE) or request.cookies.get(GRANT_COOKIE))
     await get_traveller_request_limiter().consume(
         ip_address=trusted_client_ip(request), session_secret=secret,
     )

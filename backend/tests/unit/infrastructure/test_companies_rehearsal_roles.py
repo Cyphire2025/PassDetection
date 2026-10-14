@@ -92,7 +92,7 @@ def test_every_migration_restore_and_resume_runs_as_owner_not_bootstrap(monkeypa
     alembic = Mock(side_effect=lambda _root, env, *args: phases.append(("alembic", env["POSTGRES_USER"])))
     connect = Mock(return_value=MagicMock())
     bootstrap_rejection = Mock(return_value={"exit_code": 75, "reason": "existing_migration_identity_required"})
-    resume = Mock(return_value={"export_ddl_rollback_verified": True})
+    resume = Mock(return_value={"draft_ddl_rollback_verified": True})
     monkeypatch.setattr(rehearsal, "replace_owned_database", replace)
     monkeypatch.setattr(rehearsal, "_connect", connect)
     monkeypatch.setattr(rehearsal, "_alembic", alembic)

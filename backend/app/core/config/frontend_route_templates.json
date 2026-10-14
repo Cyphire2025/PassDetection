@@ -11,6 +11,7 @@
   "/audit-logs",
   "/companies",
   "/companies/[companyId]",
+  "/companies/[companyId]/people/[personId]",
   "/coordinator",
   "/coordinator/groups/[groupId]",
   "/coordinator/groups/[groupId]/hotel-checkin",

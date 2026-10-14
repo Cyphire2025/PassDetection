@@ -15,6 +15,7 @@ from app.application.companies.access import (
 )
 from app.application.companies.people import require_person
 from app.application.companies.people_contracts import SourceDocument, SourceDocumentPage
+from app.application.companies.source_chronology import source_page_cursor
 from app.application.companies.source_documents import (
     SOURCE_SIDES,
     require_source,
@@ -47,7 +48,7 @@ async def person_sources(company_id: uuid.UUID, person_id: uuid.UUID, agency_id:
 ) -> SourceDocumentPage:
     company = await require_company(session, user=user, company_id=company_id, agency_id=agency_id)
     await require_person(session, user=user, agency_id=company.agency_id, company_id=company.id, person_id=person_id)
-    codec = MCPReadCursor(settings.app_secret_key, "company-person-sources-v1")
+    codec = MCPReadCursor(settings.app_secret_key, "company-person-sources-v2")
     try:
         state = codec.read(cursor, {"actor": str(user.id), "agency": str(company.agency_id),
             "company": str(company.id), "person": str(person_id)})
@@ -60,8 +61,13 @@ async def person_sources(company_id: uuid.UUID, person_id: uuid.UUID, agency_id:
         MatchCase.source_kind == "passport_submission", MatchCase.status == "resolved",
         MatchCase.created_at <= datetime.fromisoformat(state["cutoff"]))
     if after := codec.after(state):
-        query = query.where((MatchCase.created_at < after[0]) | ((MatchCase.created_at == after[0]) & (MatchCase.id < after[1])))
-    cases = list((await session.execute(query.order_by(MatchCase.created_at.desc(), MatchCase.id.desc())
+        seek = ((MatchCase.source_created_at < after[0])
+            | ((MatchCase.source_created_at == after[0]) & (MatchCase.id < after[1]))
+            | MatchCase.source_created_at.is_(None))
+        if state.get("unknown_source_date"):
+            seek = MatchCase.source_created_at.is_(None) & (MatchCase.id < after[1])
+        query = query.where(seek)
+    cases = list((await session.execute(query.order_by(MatchCase.source_created_at.desc().nullslast(), MatchCase.id.desc())
         .limit(page_size + 1))).all())
     more, cases = len(cases) > page_size, cases[:page_size]
     # One bounded batch; malformed historical references fail closed.
@@ -84,7 +90,7 @@ async def person_sources(company_id: uuid.UUID, person_id: uuid.UUID, agency_id:
                 created_at=source.created_at, revision_number=source.extraction_revision,
                 available_sides=[side for side, column in SOURCE_SIDES.items() if getattr(source, column)]))
     return SourceDocumentPage(items=items, has_more=more,
-        next_cursor=codec.next(state, {"id": cases[-1][0].id, "created_at": cases[-1][0].created_at}) if more else None)
+        next_cursor=source_page_cursor(codec, state, cases, more))
 
 
 @router.get("/{company_id}/people/{person_id}/sources/{source_id}/assets/{side}")

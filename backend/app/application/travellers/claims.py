@@ -80,7 +80,7 @@ class ReturningClaims:
             phone_ciphertext=self.crypto.encrypt(normalized_phone) if normalized_phone else None,
             phone_fingerprint=self.crypto.scoped_digest("phone", scope.group.agency_id, scope.company.id, normalized_phone) if normalized_phone else None,
             max_attempts=self.settings.mobile.otp_max_attempts, otp_attempt_count=0,
-            failed_answer_sets=0, required_question_count=1, actor_kind="self", actor_evidence={},
+            failed_answer_sets=0, required_question_count=1, actor_kind="verified", actor_evidence={},
             expected_company_revision=scope.company.revision,
             expected_group_revision=scope.group.company_revision,
             expected_policy_revision=scope.policy.revision,

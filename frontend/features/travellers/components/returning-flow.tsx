@@ -1,65 +1,65 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, LockKeyhole } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { UploadLinkResponse } from "@/features/passports/api/upload-links.api";
-import { normalizePhoneNumber, PHONE_FORMAT_HELP } from "@/lib/utils/phone-number";
-import { isValidPassportIsoDate } from "@/lib/utils/passport-date";
 import { UploadHeader } from "@/features/upload/components/upload-flow-shell";
+import { TravellerShell } from "@/features/upload/components/traveller-shell";
 import { useReturningClaim } from "../hooks/use-returning-claim";
-import type { CompletionResult, DocumentQuestion, ReplacementRequest, ReturningCapabilities, ReturningMethod, ReturningOwnedSource } from "../types";
-import { DocumentQuestionFields, PassportProofFields, QUESTION_LABELS } from "./returning-fields";
+import type { CompletionResult, ReplacementRequest, ReturningCapabilities, ReturningMethod, ReturningOwnedSource } from "../types";
+import { PassportProofFields } from "./returning-fields";
+import { ReturningChallenge } from "./returning-challenge";
+import { ReturningPhone } from "./returning-phone";
 import { ReturningReview } from "./returning-review";
 
-export function ReturningFlow({ token, group, initialMethod, capabilities, onFresh, onReplace, ownedSource, onCompleted }: { token: string; group: UploadLinkResponse; initialMethod: ReturningMethod; capabilities: ReturningCapabilities; onFresh: () => void; onReplace: (request: ReplacementRequest) => void; ownedSource?: ReturningOwnedSource; onCompleted?: (result: CompletionResult) => void }) {
-  const claim = useReturningClaim();
-  const [phone, setPhone] = useState("");
-  const [passport, setPassport] = useState("");
-  const [issuer, setIssuer] = useState("");
-  const [code, setCode] = useState("");
-  const [otp, setOtp] = useState("");
-  const [answers, setAnswers] = useState<Partial<Record<DocumentQuestion, string>>>({});
-  const [actingFor, setActingFor] = useState<"self" | "family">("self");
-  const [confirmed, setConfirmed] = useState(false);
-  const [now, setNow] = useState(0);
-  const stage = claim.transition?.stage;
-  const resendIn = Math.max(0, Math.ceil((claim.resendAt - now) / 1000));
-  useEffect(() => { if (!claim.resendAt) return; const timer = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(timer); }, [claim.resendAt]);
-  if (stage === "review" && claim.history) return <ReturningReview history={claim.history} groupName={group.name} onFresh={onFresh} onReplace={onReplace} ownedSource={ownedSource} onCompleted={onCompleted} />;
-  const questions = claim.transition?.questions ?? [];
-  const heading = !stage ? initialMethod === "phone" ? "Verify your WhatsApp number" : initialMethod === "passport" ? "Find your saved passport" : `Enter your ${capabilities.code_label ?? "individual code"}` : stage === "contact" ? "WhatsApp verification" : stage === "identify" ? "Choose the traveller" : stage === "passport" ? "Confirm the full passport" : stage === "challenge" ? "Check your passport details" : "Confirm access";
+type Props = {
+  token: string; group: UploadLinkResponse; initialMethod: ReturningMethod;
+  capabilities: ReturningCapabilities; onFresh: () => void; onBack?: () => void;
+  onReplace: (request: ReplacementRequest) => void; ownedSource?: ReturningOwnedSource;
+  onCompleted?: (result: CompletionResult) => void;
+};
+const HEADINGS: Record<string, string> = {
+  phone: "Verify your WhatsApp", passport: "Find your saved passport", code: "Enter your individual code",
+  identify: "Choose the traveller", challenge: "One more check", confirm: "Opening your passport", recovery: "Opening your passport", review: "Opening your passport",
+};
 
-  return <main className="min-h-dvh bg-slate-50 px-3 py-5 sm:px-6 sm:py-10"><div className="mx-auto max-w-lg">
+export function ReturningFlow({ token, group, initialMethod, capabilities, onFresh, onBack, onReplace, ownedSource, onCompleted }: Props) {
+  const claim = useReturningClaim();
+  const [passport, setPassport] = useState("");
+  const [code, setCode] = useState("");
+  const freshButton = useRef<HTMLButtonElement>(null);
+  const stage = claim.transition?.stage;
+  const failedProof = Boolean(claim.error && (stage === "challenge" || stage === "passport"));
+  useEffect(() => { if (failedProof) freshButton.current?.focus({ preventScroll: true }); }, [failedProof]);
+  if (stage === "review" && claim.history) return <ReturningReview history={claim.history} groupName={group.name} group={group} groupToken={token} onFresh={onFresh} onReplace={onReplace} ownedSource={ownedSource} onCompleted={onCompleted} />;
+  const isPhone = initialMethod === "phone" && (!stage || stage === "contact");
+  const headingKey = isPhone ? "phone" : stage || initialMethod;
+  return <TravellerShell>
     <UploadHeader groupName={group.name} departureDate={group.travel_date} returnDate={group.return_date} />
-    <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6" aria-busy={claim.pending}>
-      <div><p className="text-xs font-semibold uppercase tracking-wide text-blue-700">Returning traveller</p><h2 className="mt-1 text-xl font-semibold text-slate-950">{heading}</h2><p className="mt-2 text-sm leading-6 text-slate-500">Your passport details stay locked until the required checks are complete.</p></div>
-      {claim.error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm leading-6 text-red-800">{claim.error}</div>}
-      {!stage && <form className="space-y-4" onSubmit={(event) => { event.preventDefault(); void claim.start({ group_token: token, method: initialMethod, document_type: "P", ...(initialMethod === "phone" ? { phone_number: normalizePhoneNumber(phone) ?? phone } : {}), ...(initialMethod === "passport" ? { passport_number: passport, issuing_country: issuer } : {}), ...(initialMethod === "code" ? { individual_code: code } : {}) }); }}>
-        {initialMethod === "phone" && <Input label="WhatsApp number" type="tel" autoComplete="tel" value={phone} onChange={(event) => setPhone(event.target.value)} required maxLength={64} hint={PHONE_FORMAT_HELP} disabled={claim.pending} className="h-12 text-base" />}
-        {initialMethod === "passport" && <PassportProofFields number={passport} issuer={issuer} onNumber={setPassport} onIssuer={setIssuer} disabled={claim.pending} />}
-        {initialMethod === "code" && <Input label={capabilities.code_label ?? "Individual code"} value={code} onChange={(event) => setCode(event.target.value)} maxLength={128} required autoComplete="off" disabled={claim.pending} hint="Enter the individual code exactly, including any leading zeros." className="h-12 text-base" />}
-        <Button type="submit" className="min-h-12 w-full" isLoading={claim.pending} disabled={initialMethod === "phone" && !normalizePhoneNumber(phone)}>Continue</Button>
+    {onBack && <button type="button" disabled={claim.pending} onClick={onBack} className="mb-3 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-700"><ArrowLeft className="h-4 w-4" />Other verification options</button>}
+    <section className="space-y-6 rounded-3xl border border-slate-200/80 bg-white p-5 shadow-[0_16px_50px_-30px_rgba(15,45,90,0.3)] sm:p-8" aria-busy={claim.pending}>
+      <header>
+        <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-600"><LockKeyhole className="h-5 w-5" aria-hidden="true" /></span>
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-600">Returning traveller</p>
+        <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">{HEADINGS[headingKey]}</h2>
+        <p className="mt-2 text-sm leading-6 text-slate-500">{stage === "challenge" ? "Enter the date exactly as printed on your passport. We’ll check it with your passport number before opening your saved details." : "A quick verification keeps your saved travel documents private."}</p>
+      </header>
+      {claim.error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm leading-6 text-red-800">{failedProof ? "We couldn’t verify a saved record with these details. Check your entries, try another verification option, or continue as a new traveller." : claim.error}</div>}
+      {isPhone && <ReturningPhone started={stage === "contact"} pending={claim.pending} otpSent={claim.otpSent} resendAt={claim.resendAt} onStart={(phone) => void claim.start({ group_token: token, method: "phone", phone_number: phone })} onResend={() => void claim.requestOtp()} onVerify={(otp) => void claim.verifyOtp(otp)} />}
+      {!stage && initialMethod !== "phone" && <form className="space-y-5" onSubmit={(event) => {
+        event.preventDefault();
+        void claim.start({ group_token: token, method: initialMethod, ...(initialMethod === "passport" ? { passport_number: passport } : { individual_code: code }) });
+      }}>
+        {initialMethod === "passport" ? <PassportProofFields number={passport} onNumber={setPassport} disabled={claim.pending} /> : <Input label={capabilities.code_label ?? "Agent / employee code"} value={code} onChange={(event) => setCode(event.target.value)} maxLength={128} required autoComplete="off" disabled={claim.pending} hint="Use your individual code, including any leading zeros." className="h-12 text-base" />}
+        <Button type="submit" className="min-h-12 w-full" isLoading={claim.pending}>Continue</Button>
       </form>}
-      {stage === "contact" && <div className="space-y-4"><p className="text-sm leading-6 text-slate-600">Request a one-time code on the WhatsApp number you entered.</p>
-        <Button type="button" variant="secondary" className="min-h-11 w-full" disabled={claim.pending || (claim.otpSent && resendIn > 0)} onClick={() => { setNow(Date.now()); void claim.requestOtp(); }}>{claim.otpSent ? resendIn > 0 ? `Resend available in ${resendIn}s` : "Resend code" : "Send WhatsApp code"}</Button>
-        {claim.otpSent && <form className="space-y-4" onSubmit={(event) => { event.preventDefault(); void claim.verifyOtp(otp); }}><Input label="WhatsApp verification code" value={otp} onChange={(event) => setOtp(event.target.value.replace(/\D/g, ""))} required inputMode="numeric" autoComplete="one-time-code" minLength={6} maxLength={6} disabled={claim.pending} className="h-12 text-base tracking-widest" /><Button type="submit" isLoading={claim.pending} disabled={otp.length !== 6} className="min-h-12 w-full">Verify code</Button></form>}
-      </div>}
-      {((stage === "identify" && !claim.candidates) || stage === "review") && <Button type="button" className="min-h-12 w-full" isLoading={claim.pending} onClick={() => void claim.retryStage()}>Retry loading verified step</Button>}
-      {stage === "identify" && claim.candidates && <div className="space-y-3"><p className="text-sm leading-6 text-slate-600">Choose the intended person, then enter their full passport number. Each person needs their own check.</p><ul className="space-y-2">{claim.candidates?.items.map((person) => <li key={person.handle}><Button type="button" variant="secondary" className="h-auto min-h-12 w-full justify-between whitespace-normal py-3 text-left" disabled={claim.pending} onClick={() => void claim.select(person.handle)}><span>{person.label}</span><span className="text-xs text-slate-500">{person.passport_hint}</span></Button></li>)}</ul></div>}
-      {stage === "passport" && <form className="space-y-4" onSubmit={(event) => { event.preventDefault(); void claim.passport({ passport_number: passport, issuing_country: issuer, document_type: "P" }); }}><PassportProofFields number={passport} issuer={issuer} onNumber={setPassport} onIssuer={setIssuer} disabled={claim.pending} /><Button type="submit" isLoading={claim.pending} className="min-h-12 w-full">Check passport</Button></form>}
-      {stage === "challenge" && <form className="space-y-4" onSubmit={(event) => { event.preventDefault(); void claim.challenge(Object.fromEntries(questions.map((field) => [field, answers[field] ?? ""]))); }}>
-        <DocumentQuestionFields questions={questions} answers={answers} onChange={(field, value) => setAnswers((current) => ({ ...current, [field]: value }))} disabled={claim.pending} />
-        {claim.transition?.can_change_question && <label className="block space-y-2 text-sm text-slate-600">Use another passport date<select aria-label="Change verification question" value="" disabled={claim.pending} onChange={(event) => { if (event.target.value) void claim.changeQuestion(event.target.value as DocumentQuestion); }} className="min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm"><option value="">Choose another reliable date</option>{(claim.transition.available_questions ?? []).filter((field) => !questions.includes(field)).map((field) => <option key={field} value={field}>{QUESTION_LABELS[field]}</option>)}</select></label>}
-        <Button type="submit" isLoading={claim.pending} disabled={!questions.length || questions.some((field) => !isValidPassportIsoDate(answers[field] ?? ""))} className="min-h-12 w-full">Verify passport details</Button>
-      </form>}
-      {(stage === "confirm" || stage === "recovery") && <form className="space-y-4" onSubmit={(event) => { event.preventDefault(); void claim.confirm(stage === "recovery", actingFor); }}>
-        <fieldset className="space-y-3"><legend className="mb-2 text-sm font-medium text-slate-700">Who are you submitting for?</legend><label className="flex items-center gap-3 text-sm"><input type="radio" name="returning-actor" checked={actingFor === "self"} onChange={() => setActingFor("self")} />Myself</label><label className="flex items-center gap-3 text-sm"><input type="radio" name="returning-actor" checked={actingFor === "family"} onChange={() => setActingFor("family")} />A family member I am authorised to help</label></fieldset>
-        {stage === "recovery" && <p className="rounded-xl bg-amber-50 p-3 text-sm leading-6 text-amber-900">The verified number becomes this traveller’s current contact for future submissions. Existing trip records, WhatsApp broadcast recipients, and other people sharing either number stay unchanged.</p>}
-        <label className="flex items-start gap-3 text-sm leading-6 text-slate-700"><input type="checkbox" required checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} className="mt-1" />I have permission to view and confirm this traveller’s information.</label>
-        <Button type="submit" disabled={!confirmed} isLoading={claim.pending} className="min-h-12 w-full">Review saved details</Button>
-      </form>}
-      <div className="border-t border-slate-100 pt-4"><Button type="button" variant="ghost" className="h-auto min-h-11 w-full whitespace-normal" onClick={onFresh} disabled={claim.pending}>New traveller / Upload current documents</Button><p className="mt-2 text-center text-xs leading-5 text-slate-500">Unable to verify? You can upload current documents or ask your trip organiser for help.</p></div>
+      {stage === "identify" && claim.candidates && <div className="space-y-3"><p className="text-sm leading-6 text-slate-600">Select your record, then confirm the full passport number.</p><ul className="space-y-2">{claim.candidates.items.map((person) => <li key={person.handle}><Button type="button" variant="secondary" className="h-auto min-h-12 w-full justify-between whitespace-normal py-3 text-left" disabled={claim.pending} onClick={() => void claim.select(person.handle)}><span>{person.label}</span><span className="text-xs text-slate-500">{person.passport_hint}</span></Button></li>)}</ul></div>}
+      {stage === "passport" && <form className="space-y-5" onSubmit={(event) => { event.preventDefault(); void claim.passport({ passport_number: passport }); }}><PassportProofFields number={passport} onNumber={setPassport} disabled={claim.pending} /><Button type="submit" isLoading={claim.pending} className="min-h-12 w-full">Verify passport</Button></form>}
+      {stage === "challenge" && claim.transition && <ReturningChallenge transition={claim.transition} pending={claim.pending} onVerify={(answers) => void claim.challenge(answers)} onChangeQuestion={(field) => void claim.changeQuestion(field)} />}
+      {((stage === "identify" && !claim.candidates) || stage === "confirm" || stage === "recovery" || stage === "review") && <Button type="button" className="min-h-12 w-full" isLoading={claim.pending} onClick={() => void claim.retryStage()}>Load verified details</Button>}
+      <div className="border-t border-slate-100 pt-5"><Button ref={freshButton} type="button" variant={failedProof ? "secondary" : "ghost"} className={`h-auto min-h-12 w-full whitespace-normal ${failedProof ? "border-blue-400 bg-blue-50 text-blue-700 ring-2 ring-blue-100" : ""}`} onClick={onFresh} disabled={claim.pending}>Continue as a new traveller</Button></div>
     </section>
-  </div></main>;
+  </TravellerShell>;
 }

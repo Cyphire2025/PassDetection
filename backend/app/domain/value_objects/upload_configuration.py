@@ -115,14 +115,19 @@ def validate_capture_configuration(group: Any) -> None:
         raise ValidationError("Enable at least one Visa Photo collection method.", field="upload_configuration")
 
 
-def validate_documents(group: Any, *, pages: Mapping[str, object], mode: str, photo: object) -> None:
+def validate_documents(group: Any, *, pages: Mapping[str, object], mode: str, photo: object,
+    retained_pages: frozenset[str] = frozenset(),
+) -> None:
     """Validate both initial uploads and final submissions using authoritative settings."""
     config = configuration_for(group)
     present = {page for page, value in pages.items() if value}
     if not config.passport_enabled and present:
         raise ValidationError("Passport collection is disabled for this link.", field="file")
     if present:
-        mode = group.require_allowed_acquisition_mode(mode)
+        # Only server-authorized retained pages may bypass collection-method
+        # checks. Any newly supplied passport page still follows current policy.
+        if present - retained_pages:
+            mode = group.require_allowed_acquisition_mode(mode)
         selected = {"front", "back"} if mode == "camera" else set(config.passport_upload_pages)
         if present - selected:
             raise ValidationError("A passport page was uploaded that is not requested by this link.", field="file")

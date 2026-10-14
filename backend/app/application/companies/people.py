@@ -16,6 +16,7 @@ from sqlalchemy import Select, exists, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.companies.access import visible_company_groups
+from app.application.companies.directory_counts import visible_submission_counts
 from app.application.companies.original_record import latest_original_records
 from app.application.companies.people_contracts import (
     CurrentDocument,
@@ -133,10 +134,12 @@ async def directory_items(session: AsyncSession, rows: list[Person], user: User,
     passports = dict((await session.execute(select(Passport.traveller_id, Passport.number_ciphertext).where(
         Passport.agency_id == agency, Passport.company_id == company, Passport.traveller_id.in_(ids),
         Passport.is_default.is_(True), Passport.status == "accepted"))).tuples().all())
+    counts = await visible_submission_counts(session, user, agency, company, ids)
     return [PersonItem(id=row.id, display_name=crypto.decrypt(row.display_name_ciphertext) if row.display_name_ciphertext else "Traveller",
         status=row.status, revision=row.revision, trip_count=trips.get(row.id, 0),
         document_version_count=versions.get(row.id, 0), duplicate_status="possible" if row.id in possible else "none",
-        current_passport_last4=crypto.decrypt(passports[row.id])[-4:] if row.id in passports else None) for row in rows]
+        current_passport_last4=crypto.decrypt(passports[row.id])[-4:] if row.id in passports else None,
+        submission_count=counts.get(row.id, (0, None))[0], latest_submission_at=counts.get(row.id, (0, None))[1]) for row in rows]
 
 
 async def document_items(session: AsyncSession, rows: list[Document], person: Person,

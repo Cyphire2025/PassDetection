@@ -38,6 +38,7 @@ export interface CompanySummary {
   completed_groups: number;
   current_groups: number;
   passenger_trips_completed: number;
+  passenger_trips_total: number;
   collected_records: number;
   active_groups: number;
   closed_groups: number;

@@ -7,6 +7,7 @@ import { companyMatchingApi } from "../api/company-matching.api";
 import { CompanyAllData } from "./company-all-data";
 
 vi.mock("../hooks/use-company-session", () => ({ useCompanySession: () => ({ key: "review-session", ready: true }) }));
+vi.mock("../hooks/use-company-view-state", () => import("../test-support/navigation"));
 vi.mock("../api/companies.api", () => ({ companiesApi: { groups: vi.fn() } }));
 vi.mock("../api/company-people.api", () => ({ companyPeopleApi: { list: vi.fn() } }));
 vi.mock("../api/company-matching.api", async (load) => ({ ...await load<object>(), companyMatchingApi: { preview: vi.fn(), enqueue: vi.fn() } }));
@@ -14,6 +15,7 @@ vi.mock("./company-data-exports", () => ({ CompanyDataExports: () => null }));
 const group = { id: "group", name: "Autumn trip", status: "active" as const, submission_count: 3, import_only: false, destination: null, travel_date: null, return_date: null };
 beforeEach(() => {
   vi.resetAllMocks();
+  window.history.replaceState(null, "", "/companies/company?tab=data");
   vi.mocked(companyPeopleApi.list).mockResolvedValue({ items: [], next_cursor: null, has_more: false });
   vi.mocked(companiesApi.groups).mockResolvedValue({ items: [group], next_cursor: "next-groups", has_more: true });
   vi.mocked(companyMatchingApi.preview).mockResolvedValue({ items: [], next_cursor: null, counts: {}, latest_job_status: null, processed_count: 0, expected_group_revision: 1 });
@@ -26,7 +28,7 @@ function mount() {
 
 it("opens a lazy, 25-group cursor picker from All data before requesting the selected matching queue", async () => {
   mount();
-  await screen.findByText("No people yet.");
+  await screen.findByText("No people in this view.");
   expect(companiesApi.groups).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole("button", { name: "Review matches" }));
   await screen.findByRole("button", { name: "Review matches for Autumn trip" });

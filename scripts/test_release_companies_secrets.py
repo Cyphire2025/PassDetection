@@ -1,4 +1,4 @@
-"""First-install key custody and recovery; no real credentials or Docker access."""
+"""Existing key custody and recovery; no real credentials or Docker access."""
 from __future__ import annotations
 
 import base64
@@ -28,8 +28,11 @@ class ReuseRuntimeSecrets(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.directory = Path(self.temporary.name)
+        self.existing = {PREFIX + 'LOOKUP_KEY': 'synthetic-' + 'a' * 40,
+                         PREFIX + 'ENCRYPTION_KEY': base64.urlsafe_b64encode(b'c' * 32).decode(),
+                         PREFIX + 'KEY_VERSION': 'existing-v2', PREFIX + 'DISCLOSURE_ENABLED': 'true'}
         self.record = {'schema': SOURCE, 'additive_release': True,
-                       'live': {name: container(name) for name in ('backend', 'worker', 'email-beat')}}
+                       'live': {name: container(name, self.existing) for name in ('backend', 'worker', 'email-beat')}}
         self.events = []
 
         def event(phase, **values):
@@ -38,12 +41,14 @@ class ReuseRuntimeSecrets(unittest.TestCase):
 
         self.release = SimpleNamespace(directory=self.directory, record=self.record, event=event)
 
-    def test_generated_keys_are_independent_private_and_reused_without_sensitive_receipts(self):
+    def test_existing_keys_are_private_and_reused_without_sensitive_receipts(self):
         values = runtime_values(self.release, self.record['live']['backend'])
         self.assertGreaterEqual(len(values[PREFIX + 'LOOKUP_KEY']), 32)
         self.assertEqual(len(base64.urlsafe_b64decode(values[PREFIX + 'ENCRYPTION_KEY'])), 32)
         self.assertNotEqual(values[PREFIX + 'LOOKUP_KEY'], values[PREFIX + 'ENCRYPTION_KEY'])
         self.assertEqual(values[PREFIX + 'DISCLOSURE_ENABLED'], 'true')
+        self.assertEqual(values, self.existing)
+        self.assertFalse(self.events[0]['traveller_runtime_configuration']['new_keys_provisioned'])
         self.assertEqual(runtime_values(self.release, self.record['live']['worker']), values)
         self.assertEqual(verify_configuration(self.release), values)
         self.assertEqual(len(self.events), 1)
@@ -80,8 +85,14 @@ class ReuseRuntimeSecrets(unittest.TestCase):
 
     def test_target_schema_never_generates_new_keys(self):
         self.record['schema'] = TARGET
-        with self.assertRaisesRegex(ValueError, 'first_install'):
+        with self.assertRaisesRegex(ValueError, 'exact_source_schema'):
             runtime_values(self.release, self.record['live']['backend'])
+
+    def test_missing_keys_never_generate_new_identity_encryption_material(self):
+        self.record['live'] = {name: container(name) for name in self.record['live']}
+        with self.assertRaisesRegex(ValueError, 'configuration_differs'):
+            runtime_values(self.release, self.record['live']['backend'])
+        self.assertFalse((self.directory / KEY_FILE).exists())
 
     def test_changed_or_missing_retained_keys_stop_recovery(self):
         runtime_values(self.release, self.record['live']['backend'])

@@ -8,7 +8,7 @@
  */
 
 import type { Metadata } from "next";
-import { UploadFlow } from "@/features/upload/components/upload-flow";
+import { TravellerPortal } from "@/features/upload/components/traveller-portal";
 
 interface UploadPageProps {
   params: Promise<{ token: string }>;
@@ -24,5 +24,5 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ClientUploadPage({ params }: UploadPageProps) {
   const { token } = await params;
-  return <UploadFlow token={token} />;
+  return <TravellerPortal token={token} />;
 }

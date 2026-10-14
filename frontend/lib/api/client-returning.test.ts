@@ -27,11 +27,11 @@ describe("returning proof errors", () => {
       expect(stepUp).not.toHaveBeenCalled();
     } finally { post.mockRestore(); vi.unstubAllGlobals(); }
   });
-  it.each([401, 403])("does not refresh or step up a staff session for public proof status %s", async (status) => {
+  it.each([[401, "/api/v1/returning/passport"], [403, "/api/v1/returning/passport"], [401, "/api/v1/public-drafts/trip"], [403, "/api/v1/public-drafts/trip/documents/front"]] as const)("does not refresh or step up a staff session for public proof status %s at %s", async (status, path) => {
     const post = vi.spyOn(axios, "post");
     const code = status === 403 ? "STEP_UP_REQUIRED" : "PROOF_EXPIRED";
     const adapter = (config: InternalAxiosRequestConfig) => Promise.reject(new AxiosError("Proof unavailable", "ERR_BAD_RESPONSE", config, undefined, { data: { error: { code, message: "Verify again or upload current documents." } }, status, statusText: "Denied", headers: new AxiosHeaders(), config }));
-    await expect(apiClient.post("/api/v1/returning/passport", {}, { adapter })).rejects.toMatchObject({ status, code });
+    await expect(apiClient.post(path, {}, { adapter })).rejects.toMatchObject({ status, code });
     expect(post).not.toHaveBeenCalled();
     expect(stepUp).not.toHaveBeenCalled();
     post.mockRestore();

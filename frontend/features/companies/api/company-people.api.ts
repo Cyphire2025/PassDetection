@@ -1,14 +1,14 @@
 import apiClient from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
-import type { CompanyDocumentPage, CompanyDocumentUpload, CompanyPeoplePage, CompanyPersonEdit, CompanyPersonRecord, CompanyOriginalDocument } from "../types/company-people";
+import type { CompanyDocumentPage, CompanyDocumentUpload, CompanyPeoplePage, CompanyPeopleSearch, CompanyPersonEdit, CompanyPersonRecord, CompanyOriginalDocument } from "../types/company-people";
 import type { CursorPage } from "../types";
 
 const root = (companyId: string) => `${API_ENDPOINTS.companies.detail(companyId)}/people`;
 const personPath = (companyId: string, personId: string) => `${root(companyId)}/${encodeURIComponent(personId)}`;
 
 export const companyPeopleApi = {
-  async list(agencyId: string, companyId: string, params: { search: string; cursor?: string }, signal?: AbortSignal) {
-    return (await apiClient.get<CompanyPeoplePage>(root(companyId), { params: { agency_id: agencyId, ...params, page_size: 25 }, signal })).data;
+  async list(agencyId: string, companyId: string, params: CompanyPeopleSearch, signal?: AbortSignal) {
+    return (await apiClient.get<CompanyPeoplePage>(root(companyId), { params: { agency_id: agencyId, ...params, page_size: 100 }, signal })).data;
   },
   async record(agencyId: string, companyId: string, personId: string, signal?: AbortSignal) {
     return (await apiClient.get<CompanyPersonRecord>(`${personPath(companyId, personId)}/record`, { params: { agency_id: agencyId }, signal })).data;

@@ -3,6 +3,14 @@
   "untracked_module_line_threshold": 2000,
   "modules": [
     {
+      "path": "app/application/companies/source_chronology.py",
+      "baseline_lines": 18,
+      "maximum_lines": 20,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 90
+    },
+    {
       "path": "app/core/native_image_admission.py",
       "baseline_lines": 194,
       "maximum_lines": 200,

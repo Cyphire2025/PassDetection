@@ -24,11 +24,11 @@ def missing_document_requirements(group: ClientGroupModel, available_sides: set[
     config = configuration_for(group)
     missing = [f"passport_{side}" for side in config.passport_upload_pages
         if config.passport_enabled and side not in available_sides]
-    if group.require_selfie or (config.visa_photo_required and config.visa_photo_live_capture):
+    if group.require_selfie and config.visa_photo_required and config.visa_photo_live_capture:
         missing.append("fresh_photo")
-    elif config.visa_photo_required and "photo" not in available_sides:
+    elif group.require_selfie and config.visa_photo_required and "photo" not in available_sides:
         missing.append("visa_photo")
-    if group.relation_with_qualifier_enabled:
+    if group.relation_with_qualifier_enabled and config.required("relation_with_qualifier"):
         missing.append("qualifier_relationship")
     return missing
 

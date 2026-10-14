@@ -26,7 +26,7 @@ function accessContextChanged(user: User) {
 }
 
 export function AuthHydrator() {
-  const setSession = useAuthStore((state) => state.setSession);
+  const applySessionRevalidation = useAuthStore((state) => state.applySessionRevalidation);
   const clearSession = useAuthStore((state) => state.clearSession);
   const markTemporarilyUnavailable = useAuthStore((state) => state.markTemporarilyUnavailable);
   const mountedRef = useRef(false);
@@ -92,7 +92,7 @@ export function AuthHydrator() {
             void synchronizeAccessLevel();
             return;
           }
-          setSession(user);
+          applySessionRevalidation(user, expectedVersion);
           lastVerifiedAtRef.current = Date.now();
         }
       })
@@ -114,7 +114,7 @@ export function AuthHydrator() {
 
     verificationRef.current = verification;
     return verification;
-  }, [markTemporarilyUnavailable, setSession]);
+  }, [markTemporarilyUnavailable, applySessionRevalidation]);
 
   const renewSession = useCallback(() => {
     if (useAuthStore.getState().isChangingAccessLevel) return Promise.resolve();
@@ -134,7 +134,7 @@ export function AuthHydrator() {
             await synchronizeAccessLevel();
             return;
           }
-          setSession(session.user);
+          applySessionRevalidation(session.user, expectedVersion);
           lastVerifiedAtRef.current = Date.now();
           scheduleRenewal(session.access_token_expires_at);
           return;
@@ -161,7 +161,7 @@ export function AuthHydrator() {
 
     renewalRef.current = renewal;
     return renewal;
-  }, [markTemporarilyUnavailable, scheduleRenewal, setSession, verifySession]);
+  }, [markTemporarilyUnavailable, scheduleRenewal, applySessionRevalidation, verifySession]);
 
   useEffect(() => {
     renewSessionRef.current = renewSession;

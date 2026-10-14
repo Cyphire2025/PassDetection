@@ -55,6 +55,18 @@ describe("AuthHydrator renewal scheduling", () => {
     expect(refresh).toHaveBeenCalledTimes(1);
     await act(async () => { await vi.advanceTimersByTimeAsync(1); });
     expect(refresh).toHaveBeenCalledTimes(2);
+    expect(useAuthStore.getState().sessionVersion).toBe(1);
+    view.unmount();
+  });
+
+  it("rechecks the session on focus without discarding unchanged company query keys", async () => {
+    refresh.mockResolvedValue({ user, access_token_expires_at: "2099-09-01T00:00:00Z" });
+    const view = render(<AuthHydrator />);
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    expect(useAuthStore.getState().sessionVersion).toBe(1);
+    await act(async () => { await vi.advanceTimersByTimeAsync(61_000); window.dispatchEvent(new Event("focus")); });
+    expect(getMe).toHaveBeenCalledTimes(1);
+    expect(useAuthStore.getState().sessionVersion).toBe(1);
     view.unmount();
   });
 });

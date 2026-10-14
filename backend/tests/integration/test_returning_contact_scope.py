@@ -8,7 +8,8 @@ from datetime import UTC, datetime, timedelta
 import pytest
 from sqlalchemy import func, select
 
-from app.application.travellers.contact_change import finish_contact_change
+from app.application.travellers.draft_completion import complete_draft
+from app.application.travellers.errors import ReuseError
 from app.application.travellers.history import read_history
 from app.application.travellers.matching import phone_candidates
 from app.infrastructure.database.models import (
@@ -27,7 +28,12 @@ from app.infrastructure.database.traveller_reuse_models import (
 from tests.integration.test_operational_autoassignment import assign
 from tests.integration.test_returning_claims import phone_claim, successful_claim
 from tests.integration.test_returning_completion import complete, completion_context
-from tests.integration.test_returning_contact_change import NEW_PHONE, pending_change
+from tests.integration.test_returning_contact_change import (
+    NEW_PHONE,
+    pending_change,
+    submit_change,
+    verify_change,
+)
 from tests.integration.traveller_reuse_fixtures import seed_person
 
 
@@ -36,7 +42,8 @@ async def test_changed_phone_removes_only_selected_person_from_old_phone_lookup(
     service, _, group, person, token, _ = await completion_context(db_session, test_settings)
     family = await seed_person(service, group, 2, phone=person.phone)
     pending, provider = await pending_change(service, token)
-    changed = await finish_contact_change(service, token, pending, provider.code)
+    await submit_change(service, token, pending, provider.code)
+    _, _, changed = await successful_claim(service, group, replace(person, phone=NEW_PHONE), "code")
     assert (await read_history(service, changed))["contact_phone"] == NEW_PHONE
 
     secret, _ = await phone_claim(service, group, person)
@@ -122,13 +129,10 @@ async def test_future_reuse_copies_new_phone_without_rewriting_old_trip_or_linke
     await db_session.commit()
     _, _, future_token = await successful_claim(service, future, person, "code")
     pending, provider = await pending_change(service, future_token)
-    updated_token = await finish_contact_change(service, future_token, pending, provider.code)
-    current = await read_history(service, updated_token)
-    assert current["contact_phone"] == NEW_PHONE
     accepted_count = select(func.count()).select_from(TravellerParticipationModel).where(
         TravellerParticipationModel.group_id == future.id, TravellerParticipationModel.status == "accepted")
     before_count = await db_session.scalar(accepted_count)
-    participation_id, completion_status, _ = await complete(service, updated_token, current)
+    participation_id, completion_status, _ = await submit_change(service, future_token, pending, provider.code)
     participation = await db_session.get(TravellerParticipationModel, participation_id)
     source = await db_session.get(PassportSubmissionModel, participation.source_submission_id)
     assert source.group_id == future.id and source.client_phone == NEW_PHONE
@@ -155,11 +159,11 @@ async def test_confirmation_of_active_past_trip_does_not_replace_its_phone_snaps
     group.travel_date = datetime.now(UTC).date() - timedelta(days=1)
     await db_session.commit()
     pending, provider = await pending_change(service, token)
-    updated = await finish_contact_change(service, token, pending, provider.code)
-    review = await read_history(service, updated)
-    assert review["contact_phone"] == NEW_PHONE
-    _, _, source_id = await complete(service, updated, review)
-    source = await db_session.get(PassportSubmissionModel, source_id)
+    secret, body = await verify_change(service, token, pending, provider.code)
+    with pytest.raises(ReuseError):
+        await complete_draft(service, token, secret, body)
+    assert person.profile.contact_revision == 1
+    source = await db_session.scalar(select(PassportSubmissionModel).where(PassportSubmissionModel.group_id == group.id))
     assert source.client_phone == person.phone
 
 
@@ -174,8 +178,7 @@ async def test_existing_snapshot_phone_respects_trip_local_midnight(db_session, 
     group.travel_date, group.return_date, group.timezone = fixed.date(), None, timezone
     await db_session.commit()
     pending, provider = await pending_change(service, token)
-    updated = await finish_contact_change(service, token, pending, provider.code)
-    review = await read_history(service, updated)
+    secret, body = await verify_change(service, token, pending, provider.code)
 
     class FixedDateTime(datetime):
         @classmethod
@@ -183,6 +186,11 @@ async def test_existing_snapshot_phone_respects_trip_local_midnight(db_session, 
             return fixed
 
     monkeypatch.setattr(completion, "datetime", FixedDateTime)
-    _, _, source_id = await complete(service, updated, review)
-    source = await db_session.get(PassportSubmissionModel, source_id)
+    if refresh:
+        await complete_draft(service, token, secret, body)
+    else:
+        with pytest.raises(ReuseError):
+            await complete_draft(service, token, secret, body)
+    source = await db_session.scalar(select(PassportSubmissionModel).where(PassportSubmissionModel.group_id == group.id))
     assert source.client_phone == (NEW_PHONE if refresh else person.phone)
+    assert person.profile.contact_revision == (2 if refresh else 1)

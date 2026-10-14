@@ -50,12 +50,16 @@ export function passportUploadFileError(file: File): string | null {
   return publicUploadFileError(file, "passport");
 }
 
+export function configuredPassportPages(config: UploadConfiguration, mode: "file" | "camera", allowFiles = true): PassportUploadPage[] {
+  return mode === "camera" || !allowFiles ? ["front", "back"] : config.passport_upload_pages;
+}
+
 export function passportBundleError(
   bundle: PassportDocumentBundle,
   config: UploadConfiguration,
   mode: "camera" | "file",
 ): string | null {
-  const pages: PassportUploadPage[] = mode === "camera" ? ["front", "back"] : config.passport_upload_pages;
+  const pages = configuredPassportPages(config, mode);
   const missing = PASSPORT_UPLOAD_PAGES.find((page) => pages.includes(page.id) && !bundle[page.id]);
   if (missing) return `Please add the ${missing.label.toLowerCase()} before continuing.`;
   if (mode === "file") {

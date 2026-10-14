@@ -7,6 +7,7 @@
 
 import { create } from "zustand";
 import { expiredSessionSignInPath } from "@/features/auth/services/restoration-destination";
+import { unchangedSessionAuthority } from "@/features/auth/services/session-continuity";
 import type { AccessLevelAgencyChoice, User } from "@/types";
 import {
   clearServerSessionCookies,
@@ -39,6 +40,7 @@ interface AuthActions {
   failAccessLevelChange: (message: string, confirmedUser?: User) => void;
   markTemporarilyUnavailable: () => void;
   setSession: (user: User) => void;
+  applySessionRevalidation: (user: User, expectedVersion: number) => boolean;
   clearSession: (
     reason?: SensitiveStateResetReason,
     options?: {
@@ -96,6 +98,18 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
       accessLevelError: null,
       accessLevelAgencyChoice: null,
     }));
+  },
+
+  applySessionRevalidation: (user, expectedVersion) => {
+    const current = get();
+    if (current.sessionVersion !== expectedVersion || current.isChangingAccessLevel) return false;
+    if (current.isAuthenticated && current.hasHydrated && current.user
+      && unchangedSessionAuthority(current.user, user)) {
+      set({ user, restorationStatus: "authenticated" });
+    } else {
+      get().setSession(user);
+    }
+    return true;
   },
 
   clearSession: async (

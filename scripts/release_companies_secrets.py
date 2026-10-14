@@ -1,4 +1,4 @@
-"""Provision first-install reuse keys without granting any person/company permission.
+"""Retain existing reuse keys without granting any person/company permission.
 
 The private key file stays with the retained attempt and is never a CI artifact.
 Existing configured keys are preserved. Recovery validates the same file; it never
@@ -10,7 +10,6 @@ import base64
 import hashlib
 import json
 import os
-import secrets
 import stat
 from pathlib import Path
 from typing import Any, Protocol, cast
@@ -74,7 +73,7 @@ def runtime_values(release: SecretRelease, original: dict[str, Any]) -> dict[str
     if 'traveller_runtime_configuration' in release.record:
         return verify_configuration(release)
     require(release.record.get('additive_release') is True and release.record.get('schema') == SOURCE,
-            'reuse_key_provisioning_requires_first_install')
+            'reuse_configuration_requires_exact_source_schema')
     configured: list[dict[str, str] | None] = []
     for name, row in release.record['live'].items():
         if name in {'backend', 'email-beat'} or name.endswith('worker'):
@@ -85,14 +84,10 @@ def runtime_values(release: SecretRelease, original: dict[str, Any]) -> dict[str
                 configured.append(selected)
             else:
                 configured.append(None)
-    require(bool(configured) and (all(value is None for value in configured)
-                           or all(value == configured[0] and value is not None for value in configured)),
+    require(bool(configured) and all(value == configured[0] and value is not None for value in configured),
             'reuse_runtime_configuration_differs_between_services')
-    values = configured[0] or {
-        PREFIX + 'LOOKUP_KEY': secrets.token_urlsafe(48),
-        PREFIX + 'ENCRYPTION_KEY': base64.urlsafe_b64encode(secrets.token_bytes(32)).decode('ascii'),
-        PREFIX + 'KEY_VERSION': 'v1', PREFIX + 'DISCLOSURE_ENABLED': 'true',
-    }
+    values = configured[0]
+    assert values is not None  # Existing encrypted histories forbid key provisioning.
     raw = (json.dumps(values, sort_keys=True) + '\n').encode('ascii')
     path = release.directory / KEY_FILE
     # An orphan file from an interrupted write requires operator inspection.
@@ -103,7 +98,7 @@ def runtime_values(release: SecretRelease, original: dict[str, Any]) -> dict[str
         os.fsync(stream.fileno())
     release.event('traveller-runtime-configuration-retained', traveller_runtime_configuration={
         'file': KEY_FILE, 'sha256': hashlib.sha256(raw).hexdigest(),
-        'new_keys_provisioned': configured[0] is None,
+        'new_keys_provisioned': False,
         'disclosure_enabled': values[PREFIX + 'DISCLOSURE_ENABLED'] == 'true',
         'company_group_and_person_permission_required': True,
     })

@@ -31,6 +31,7 @@ class DirectBuildTests(unittest.TestCase):
             self.assertEqual(RetainedBuild(root, root, "a" * 40).schema_revision, "0122_mcp_gc_push")
             self.assertEqual(RetainedBuild(root, root, "a" * 40, schema_revision="0129_travel_tracker").schema_revision, "0129_travel_tracker")
             self.assertEqual(RetainedBuild(root, root, "a" * 40, schema_revision="0133_traveller_document_impact").schema_revision, "0133_traveller_document_impact")
+            self.assertEqual(RetainedBuild(root, root, "a" * 40, schema_revision="0138_verified_portal_lookup").schema_revision, "0138_verified_portal_lookup")
             with self.assertRaisesRegex(BuildError, "unreviewed_build_schema"):
                 RetainedBuild(root, root, "a" * 40, schema_revision="0130_unreviewed")
 
@@ -191,6 +192,14 @@ class RuntimeCommitTests(unittest.TestCase):
         environment = self.client.request.call_args.args[2]["Env"]
         self.assertIn("EXPECTED_DATABASE_SCHEMA_REVISION=0129_travel_tracker", environment)
         self.assertNotIn("EXPECTED_DATABASE_SCHEMA_REVISION=0122_mcp_gc_push", environment)
+
+    def test_reviewed_additive_image_records_the_target_schema(self):
+        builder = RetainedBuild(self.root, self.root, "e" * 40, run=self.run,
+                                client=self.client, schema_revision="0138_verified_portal_lookup")
+        builder.commit_runtime(self.identifier, "backend")
+        environment = self.client.request.call_args.args[2]["Env"]
+        self.assertIn("EXPECTED_DATABASE_SCHEMA_REVISION=0138_verified_portal_lookup", environment)
+        self.assertNotIn("EXPECTED_DATABASE_SCHEMA_REVISION=0135_company_removal_history", environment)
 
     def test_inherited_commands_identity_or_revision_mismatch_reject_committed_image(self):
         cases = (

@@ -35,13 +35,13 @@ from app.infrastructure.database.traveller_reuse_models import (
 
 
 async def confirm_claim(
-    service: ReturningClaims, secret: str, *, acting_for: str,
-    contact_change_confirmed: bool,
+    service: ReturningClaims, secret: str, *, acting_for: str | None = None,
+    contact_change_confirmed: bool = False,
 ) -> str:
     claim, scope = await service.locked(secret)
     now = datetime.now(UTC)
     person, _ = await service.bound_person(claim, scope, now)
-    if acting_for not in {"self", "family"}:
+    if acting_for not in {None, "self", "family"}:
         raise ReuseError(ReuseReason.VERIFICATION_FAILED)
     if claim.status == "authorized":
         token = service.crypto.digest("issued-grant-secret", claim.secret_hash)
@@ -54,17 +54,25 @@ async def confirm_claim(
         authority_current=True, actor_authorized=True, claim_expires_at=claim.expires_at,
         otp_required=claim.method == "phone",
     ), now)
-    if claim.status == "recovery_confirmation":
-        if not contact_change_confirmed:
-            raise ReuseError(ReuseReason.VERIFICATION_FAILED)
-        await recover_contact(service, claim, person, now)
-        await record_claim_action(service.session, claim, "contact_recovered")
-    claim.actor_kind = "self" if acting_for == "self" else "delegate"
-    claim.actor_evidence = {
-        "declaration": acting_for,
-        "policy": "user_selected_phone_or_passport_or_individual_code_v2",
+    recovery = claim.status == "recovery_confirmation"
+    claim.actor_kind = "verified" if acting_for is None else ("self" if acting_for == "self" else "delegate")
+    evidence = {
+        "policy": "verified_portal_access_v3",
+        "verification_method": claim.method,
+        "passport_checked": True,
+        "date_checks": claim.required_question_count,
         "ownership_proven": False,
     }
+    if acting_for is not None:
+        evidence["declaration"] = acting_for
+    if recovery:
+        # OTP proves possession, but only final submission may update contact.
+        # The draft copies this server-owned evidence; clients cannot supply it.
+        evidence["pending_contact_change"] = {
+            "purpose": "pending_contact_change", "fingerprint": claim.phone_fingerprint,
+            "verified_at": utc(claim.otp_verified_at).isoformat() if claim.otp_verified_at else None,
+        }
+    claim.actor_evidence = evidence
     grant_token = service.crypto.digest("issued-grant-secret", claim.secret_hash)
     service.session.add(TravellerHistoryGrantModel(
         id=uuid.uuid4(), agency_id=claim.agency_id, company_id=claim.company_id,

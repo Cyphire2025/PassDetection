@@ -1,4 +1,4 @@
-"""Synthetic retained identity and manager history for the 0133 upgrade rehearsal."""
+"""Synthetic retained identity, queued work and assets for the 0135 rehearsal."""
 from psycopg2.extensions import connection as Connection
 
 from scripts.companies_rehearsal_fixture import COMPANY_ID
@@ -29,6 +29,39 @@ def seed_retained_history(connection: Connection) -> None:
               '["passport_number","date_of_birth","expiry_date"]', '1990-01-01', '2032-01-01',
               %(passenger_a)s, %(group_a)s, now(), 'synthetic-version-' || n
             FROM generate_series(1,3) n;
+            INSERT INTO traveller_document_assets (id, agency_id, company_id, traveller_id,
+              passport_id, document_revision_id, kind, document_side, object_key, source_object_key,
+              content_type, byte_size, availability, retention_basis, copy_attempt_count, next_attempt_at)
+            SELECT md5('ci-retained-asset-' || n)::uuid, %(agency_a)s, %(company)s,
+              'f0000000-0000-0000-0000-000000000001', 'f0000000-0000-0000-0000-000000000002',
+              md5('ci-retained-version-3')::uuid, 'original', CASE n WHEN 1 THEN 'front' ELSE 'back' END,
+              CASE n WHEN 1 THEN 'synthetic-retained/private-front.jpg' ELSE NULL END,
+              'synthetic-source/private-' || n || '.jpg', 'image/jpeg', 128,
+              CASE n WHEN 1 THEN 'available' ELSE 'pending' END, 'synthetic-approved', n, now()
+            FROM generate_series(1,2) n;
+            INSERT INTO traveller_reconciliation_jobs (id, agency_id, company_id, group_id,
+              idempotency_key, expected_group_revision, status, cursor, attempt_count, processed_count,
+              available_at, lease_expires_at, last_error_code)
+            VALUES ('f0000000-0000-0000-0000-000000000005', %(agency_a)s, %(company)s, %(group_a)s,
+              'synthetic-retained-queue', 1, 'running', 'synthetic-retained-cursor', 2, 25,
+              now(), now() + interval '1 minute', 'synthetic-retry');
+            INSERT INTO traveller_claims (id, agency_id, company_id, group_id, traveller_id, passport_id,
+              document_revision_id, secret_hash, method, max_attempts, actor_kind, actor_evidence, expires_at, idempotency_key)
+            SELECT md5('ci-retained-claim-' || actor)::uuid, %(agency_a)s, %(company)s, %(group_a)s,
+              'f0000000-0000-0000-0000-000000000001', 'f0000000-0000-0000-0000-000000000002',
+              md5('ci-retained-version-3')::uuid, md5('ci-secret-claim-' || actor), 'passport', 5,
+              actor, jsonb_build_object('synthetic_actor', actor), now() + interval '1 hour', 'ci-retained-' || actor
+            FROM unnest(ARRAY['self','delegate','guardian']) actor;
+            INSERT INTO traveller_history_grants (id, agency_id, company_id, group_id, traveller_id, passport_id,
+              document_revision_id, claim_id, secret_hash, profile_revision, contact_revision, authorization_version,
+              company_revision, group_revision, policy_revision, actor_kind, actor_evidence, allowed_actions,
+              last_used_at, inactivity_expires_at, absolute_expires_at)
+            SELECT md5('ci-retained-grant-' || actor)::uuid, %(agency_a)s, %(company)s, %(group_a)s,
+              'f0000000-0000-0000-0000-000000000001', 'f0000000-0000-0000-0000-000000000002',
+              md5('ci-retained-version-3')::uuid, md5('ci-retained-claim-' || actor)::uuid, md5('ci-secret-grant-' || actor),
+              1, 1, 1, 1, 1, 1, actor, jsonb_build_object('synthetic_actor', actor), '["document:preview"]',
+              now(), now() + interval '10 minutes', now() + interval '1 hour'
+            FROM unnest(ARRAY['self','delegate','guardian']) actor;
             INSERT INTO client_manager_profiles (id, agency_id, user_id, organization_id,
               normalized_phone_number, status, activated_at)
             VALUES ('f0000000-0000-0000-0000-000000000003', %(agency_a)s, %(admin_a)s,

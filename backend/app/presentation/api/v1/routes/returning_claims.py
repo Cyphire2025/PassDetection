@@ -17,6 +17,7 @@ from app.application.travellers.errors import ReuseError
 from app.application.travellers.grants import confirm_claim
 from app.application.travellers.matching import phone_candidates, select_candidate
 from app.application.travellers.otp import request_code, verify_code
+from app.application.travellers.passport_date_proof import prepare_passport_date, verify_passport_date
 from app.core.config.traveller_reuse import get_traveller_reuse_settings
 from app.domain.services.traveller_verification import DocumentQuestion
 from app.domain.value_objects.upload_configuration import configuration_for
@@ -117,6 +118,10 @@ async def choose_candidate(
 async def check_passport(
     body: PassportCheckRequest, secret: str = Depends(claim_secret), service: ReturningClaims = Depends(returning_service),
 ) -> ClaimStageResponse:
+    question = await prepare_passport_date(service, secret, body.model_dump())
+    if question is not None:
+        return ClaimStageResponse(stage="challenge", questions=[question.value],
+            available_questions=[field.value for field in DocumentQuestion], can_change_question=True)
     claim, questions = await service.bind_passport(secret, **body.model_dump())
     available: list[str] = []
     if questions:
@@ -131,6 +136,8 @@ async def check_passport(
 async def check_document_answers(
     body: AnswerRequest, secret: str = Depends(claim_secret), service: ReturningClaims = Depends(returning_service),
 ) -> ClaimStageResponse:
+    if await verify_passport_date(service, secret, body.answers):
+        return ClaimStageResponse(stage="confirm")
     claim, scope = await service.locked(secret)
     now = datetime.now(UTC)
     _, revision = await service.bound_person(claim, scope, now)
@@ -143,6 +150,10 @@ async def check_document_answers(
 async def change_question(
     body: ChangeQuestionRequest, secret: str = Depends(claim_secret), service: ReturningClaims = Depends(returning_service),
 ) -> ClaimStageResponse:
+    question = await prepare_passport_date(service, secret, question=DocumentQuestion(body.field))
+    if question is not None:
+        return ClaimStageResponse(stage="challenge", questions=[question.value],
+            available_questions=[field.value for field in DocumentQuestion], can_change_question=True)
     claim, scope = await service.locked(secret)
     now = datetime.now(UTC)
     _, revision = await service.bound_person(claim, scope, now)

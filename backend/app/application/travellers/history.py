@@ -101,9 +101,11 @@ async def review_context(service: ReturningClaims, token: str) -> ReviewContext:
     return ReviewContext(grant, scope, person, passport, revision, assets)
 
 
-async def read_history(service: ReturningClaims, token: str, *, commit: bool = True) -> dict[str, object]:
+async def read_history(service: ReturningClaims, token: str, *, commit: bool = True, expected_group_token: str | None = None) -> dict[str, object]:
     context = await review_context(service, token)
     grant, scope, person, passport, revision, assets = context
+    if expected_group_token is not None and scope.group.token != expected_group_token:
+        raise ReuseError(ReuseReason.REVISION_CONFLICT)
     policies = await PlatformPolicyRepository(service.session).load()
     result = await project_history(service, context, policies)
     if commit:

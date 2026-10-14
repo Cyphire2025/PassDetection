@@ -9,7 +9,7 @@ import { useCompanyPeople } from "./use-company-people";
 vi.mock("./use-company-session", () => ({ useCompanySession: () => ({ key: "people-session", ready: true }) }));
 vi.mock("../api/company-people.api", () => ({ companyPeopleApi: { list: vi.fn() } }));
 const person: CompanyPerson = { id: "person-1", display_name: "Saved person", status: "active", revision: 1,
-  trip_count: 1, document_version_count: 1, duplicate_status: "none", current_passport_last4: null };
+  trip_count: 1, submission_count: 1, document_version_count: 1, duplicate_status: "none", current_passport_last4: null };
 const page = (pending: boolean, items: CompanyPerson[] = []): CompanyPeoplePage => ({
   items, indexing_pending: pending, has_more: false, next_cursor: null,
 });
@@ -20,7 +20,7 @@ function mount(initial = { search: "", cursor: undefined as string | undefined, 
   const wrapper = ({ children }: { children: ReactNode }) => <QueryClientProvider client={client}>{children}</QueryClientProvider>;
   const hook = renderHook(({ search, cursor, pause }) => useCompanyPeople("agency", "company", search, cursor, true, pause),
     { wrapper, initialProps: initial });
-  return { ...hook, client, invalidate };
+  return { ...hook, client, invalidate, wrapper };
 }
 beforeEach(() => { vi.resetAllMocks(); vi.useFakeTimers(); focusManager.setFocused(true); });
 afterEach(() => { cleanup(); vi.useRealTimers(); focusManager.setFocused(undefined); });
@@ -84,6 +84,17 @@ it("stops automatic requests after an access or network error", async () => {
   expect(companyPeopleApi.list).toHaveBeenCalledTimes(2);
 });
 
+it("stops polling exhausted indexing work while retaining the available records", async () => {
+  vi.mocked(companyPeopleApi.list).mockResolvedValue({ ...page(true, [person]), indexing_failed: true });
+  const { result } = mount();
+  await tick(1);
+  await tick(120_000);
+  expect(companyPeopleApi.list).toHaveBeenCalledTimes(1);
+  expect(result.current.people.data?.items).toEqual([person]);
+  await act(async () => { await result.current.people.refetch(); });
+  expect(companyPeopleApi.list).toHaveBeenCalledTimes(2);
+});
+
 it("does not invalidate totals repeatedly when identical pending results are returned", async () => {
   vi.mocked(companyPeopleApi.list).mockResolvedValue(page(true, [person]));
   const { invalidate } = mount();
@@ -92,4 +103,34 @@ it("does not invalidate totals repeatedly when identical pending results are ret
   await tick(15_000);
   expect(companyPeopleApi.list).toHaveBeenCalledTimes(4);
   expect(invalidate).not.toHaveBeenCalled();
+});
+
+it("reuses a settled directory on return without restarting requests or refreshing totals", async () => {
+  vi.mocked(companyPeopleApi.list).mockResolvedValue(page(false, [person]));
+  const first = mount();
+  await tick(1);
+  first.unmount();
+  first.invalidate.mockClear();
+  const second = renderHook(() => useCompanyPeople("agency", "company", "", undefined, true, false),
+    { wrapper: first.wrapper });
+  await tick(1);
+  expect(second.result.current.people.data?.items).toEqual([person]);
+  expect(companyPeopleApi.list).toHaveBeenCalledTimes(1);
+  expect(first.invalidate).not.toHaveBeenCalled();
+});
+
+it("cancels an obsolete directory request and never displays its delayed result", async () => {
+  let firstSignal: AbortSignal | undefined;
+  let finish!: (value: CompanyPeoplePage) => void;
+  vi.mocked(companyPeopleApi.list).mockImplementationOnce((_agency, _company, _params, signal) => {
+    firstSignal = signal;
+    return new Promise((resolve) => { finish = resolve; });
+  }).mockResolvedValue(page(false, [{ ...person, id: "new-result", display_name: "New result" }]));
+  const { rerender, result } = mount();
+  await tick(1);
+  rerender({ search: "New", cursor: undefined, pause: false });
+  await tick(1);
+  expect(firstSignal?.aborted).toBe(true);
+  await act(async () => finish(page(false, [person])));
+  expect(result.current.people.data?.items[0].id).toBe("new-result");
 });

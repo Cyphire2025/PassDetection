@@ -15,7 +15,7 @@ from sqlalchemy import select
 
 from app.application.travellers.claims import ReturningClaims
 from app.application.travellers.errors import ReuseError, ReuseReason
-from app.application.travellers.history import review_context, review_version
+from app.application.travellers.history import ReviewContext, review_context, review_version
 from app.application.travellers.source_evidence import source_evidence_digest
 from app.core.security.upload_session import upload_session_matches_identifier
 from app.infrastructure.database.models import PassportSubmissionModel
@@ -47,6 +47,15 @@ async def link_replacement_candidate(
         raise ReuseError(ReuseReason.REVISION_CONFLICT)
     if source.status not in {"client_submitted", "submitted", "ai_approved", "needs_review", "staff_approved", "confirmed"} or source.client_reviewed_at is None:
         raise ReuseError(ReuseReason.INSUFFICIENT_EVIDENCE)
+    return await record_replacement_candidate(service, context, source, change_kind=change_kind, idempotency_key=idempotency_key)
+
+
+async def record_replacement_candidate(service: ReturningClaims, context: ReviewContext,
+    source: PassportSubmissionModel, *, change_kind: Literal["renewal", "scan", "correction"], idempotency_key: str,
+) -> uuid.UUID:
+    """Caller has checked ownership and holds the live authority transaction."""
+    grant, scope, person, _, _, _ = context
+    expected_extraction_revision = source.extraction_revision
     case = await service.session.scalar(select(TravellerMatchCaseModel).where(
         TravellerMatchCaseModel.agency_id == grant.agency_id,
         TravellerMatchCaseModel.company_id == grant.company_id,

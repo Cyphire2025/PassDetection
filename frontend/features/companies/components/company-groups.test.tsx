@@ -7,9 +7,10 @@ import { companiesApi } from "../api/companies.api";
 import { CompanyGroups } from "./company-groups";
 
 vi.mock("../api/companies.api", () => ({ companiesApi: { groups: vi.fn() } }));
+vi.mock("../hooks/use-company-view-state", () => import("../test-support/navigation"));
 const user: User = { id: "owner", role: "agency_admin", agency_id: "agency", full_name: "Owner", email: "owner@example.test", is_active: true, last_login_at: null, created_at: "2026-01-01", updated_at: "2026-01-01" };
 const group = { id: "trip", name: "Japan Autumn", destination: "Japan", travel_date: "2026-11-01", return_date: "2026-11-08", status: "archived" as const, import_only: true, submission_count: 700 };
-beforeEach(() => { vi.resetAllMocks(); useAuthStore.setState({ user, sessionVersion: 1, isChangingAccessLevel: false }); });
+beforeEach(() => { vi.resetAllMocks(); window.history.replaceState(null, "", "/companies/company"); useAuthStore.setState({ user, sessionVersion: 1, isChangingAccessLevel: false }); });
 function mount() {
   return render(<QueryClientProvider client={new QueryClient()}><CompanyGroups agencyId="agency" companyId="company" /></QueryClientProvider>);
 }
@@ -19,7 +20,7 @@ describe("company group sections", () => {
     vi.mocked(companiesApi.groups).mockImplementation(async (_agency, _company, params) => ({ items: params.phase === "active" ? [group] : [], next_cursor: null, has_more: false }));
     mount();
     const active = screen.getByRole("region", { name: "Active groups" });
-    expect(await within(active).findByRole("link", { name: "View Japan Autumn" })).toHaveAttribute("href", "/passports/groups/trip");
+    expect(await within(active).findByRole("link", { name: "View Japan Autumn" })).toHaveAttribute("href", "/passports/groups/trip?returnTo=%2Fcompanies%2Fcompany");
     expect(within(active).getByText("700 records")).toBeVisible();
     expect(companiesApi.groups).toHaveBeenCalledWith("agency", "company", { phase: "completed", search: "", cursor: undefined, page_size: 25 }, expect.any(AbortSignal));
     expect(screen.queryByRole("combobox")).not.toBeInTheDocument();

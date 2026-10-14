@@ -9,6 +9,7 @@ from starlette.requests import Request
 _PUBLIC_TOKEN_SEGMENTS = (
     re.compile(r"^(/api/v1/passports/upload/)[^/]+"),
     re.compile(r"^(/api/v1/upload-links/token/)[^/]+"),
+    re.compile(r"^(/api/v1/public-drafts/)[^/]+"),
 )
 _UUID_SEGMENT = re.compile(
     r"/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}"

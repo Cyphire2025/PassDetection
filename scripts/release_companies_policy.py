@@ -1,4 +1,4 @@
-"""Narrow persistent-contract admission for the reviewed 0133 -> 0135 release."""
+"""Narrow persistent-contract admission for the reviewed 0135 -> 0138 release."""
 from __future__ import annotations
 
 import ast
@@ -20,24 +20,33 @@ from release_retained_update import (
 PERSISTENT_PATHS = frozenset({
     'docker-compose.yml', ROUTE_ALLOWLIST,
     'backend/app/core/config/release_manifest.json',
-    'backend/app/core/config/traveller_reuse.py',
     'backend/app/domain/entities/entities.py',
-    'backend/app/infrastructure/database/communications_models.py',
-    'backend/app/infrastructure/database/gc_mobile_models.py',
     'backend/app/infrastructure/database/models.py',
-    'backend/app/infrastructure/database/company_data_export_models.py',
+    'backend/app/infrastructure/database/company_directory_models.py',
+    'backend/app/infrastructure/database/company_directory_queue.py',
+    'backend/app/infrastructure/database/company_directory_invalidation.py',
+    'backend/app/infrastructure/database/traveller_returning_draft_models.py',
     'backend/app/infrastructure/processing/celery_app.py',
     *(f'backend/alembic/versions/{revision}.py' for revision in CHAIN),
     *(f'backend/app/infrastructure/database/traveller_{name}.py' for name in (
-        'claim_models', 'document_models', 'identity_models', 'impact_models',
-        'model_support', 'operations_models', 'reuse_models')),
+        'claim_models', 'document_models')),
 })
 NEW_TASK_MODULES = {
-    'backend/app/infrastructure/travellers/company_export_tasks.py',
+    'backend/app/infrastructure/travellers/draft_tasks.py',
+    'backend/app/infrastructure/travellers/directory_tasks.py',
 }
-INCLUDES = {'app.infrastructure.travellers.company_export_tasks'}
+TASK_ADDITIONS = {
+    'backend/app/infrastructure/travellers/draft_tasks.py': task_contract(
+        '@celery_app.task(name="travellers.returning_drafts", queue="passport_ocr", soft_time_limit=50, time_limit=60)\n'
+        'def returning_drafts(): pass'),
+    'backend/app/infrastructure/travellers/directory_tasks.py': task_contract(
+        '@celery_app.task(name="companies.refresh_directory", queue="passport_ocr", soft_time_limit=30, time_limit=40)\n'
+        'def refresh_company_directory(): pass'),
+}
+INCLUDES = {'app.infrastructure.travellers.draft_tasks', 'app.infrastructure.travellers.directory_tasks'}
 SCHEDULES = {
-    'export-company-data': ('travellers.company_data_export', 5),
+    'process-returning-drafts': ('travellers.returning_drafts', 5),
+    'refresh-company-directory': ('companies.refresh_directory', 5),
 }
 
 
@@ -46,13 +55,15 @@ def forbidden_additive_paths(paths: list[str]) -> list[str]:
 
 
 def validate_scheduler(old: str, new: str) -> None:
-    """Remove only the exact export schedule/include; old AST must survive."""
+    """Remove only the two reviewed schedules/includes; old AST must survive."""
     original, candidate = ast.parse(old), ast.parse(new)
     found_includes: set[str] = set()
     found_schedules: set[str] = set()
     for node in ast.walk(candidate):
         if isinstance(node, ast.List):
             removed = [item for item in node.elts if isinstance(item, ast.Constant) and item.value in INCLUDES]
+            names = {item.value for item in removed}
+            require(len(names) == len(removed) and not found_includes.intersection(names), 'duplicate_traveller_include')
             found_includes.update(item.value for item in removed if isinstance(item.value, str))
             node.elts = [item for item in node.elts if item not in removed]
         if isinstance(node, ast.Dict):
@@ -78,6 +89,8 @@ def validate_task_change(path: str, old: str, new: str) -> None:
     before, after = task_contract(old), task_contract(new)
     require(all(after.get(name) == contract for name, contract in before.items()), 'existing_queued_task_contract_changed')
     require(before == after or path in NEW_TASK_MODULES and not old, 'unreviewed_new_queued_task_contract')
+    if path in NEW_TASK_MODULES and not old:
+        require(after == TASK_ADDITIONS[path], 'new_queued_task_contract_changed')
 
 
 def validate_additive_source(source: Path, revision: str, previous: str) -> None:

@@ -147,6 +147,7 @@ async def test_people_and_versions_http_cursors_are_scoped_and_lazy(db_session, 
     from dataclasses import replace
 
     from app.application.companies.current_record import edit_current_record
+    from app.application.companies.directory_projection import refresh_directory_person
     from app.application.companies.people_contracts import PersonEdit
     from app.domain.entities.entities import UserRole
     from app.infrastructure.database.traveller_reuse_models import TravellerProfileModel as Person
@@ -161,6 +162,8 @@ async def test_people_and_versions_http_cursors_are_scoped_and_lazy(db_session, 
     await edit_current_record(db_session, person=person, actor_id=user.id, crypto=ctx.crypto,
         body=PersonEdit(expected_revision=1, idempotency_key="version-page", reason="Reviewed correction",
             display_name="Synthetic Person", fields={"surname": "Correction"}))
+    for entry in (person, other):
+        await refresh_directory_person(db_session, entry.id, ctx.crypto)
     await db_session.commit()
     factory = async_sessionmaker(db_session.bind, expire_on_commit=False)
     app = application(factory, user, ctx.crypto)

@@ -28,8 +28,10 @@ async def available_passports(service: ReturningClaims, *, agency_id: uuid.UUID,
         "is_default": row.is_default, "expiry_date": row.expiry_date} for row in rows]
 
 
-async def select_passport(service: ReturningClaims, token: str, passport_id: uuid.UUID) -> None:
-    grant, _, person = await require_grant(service, token, "history:read")
+async def select_passport(service: ReturningClaims, token: str, passport_id: uuid.UUID, *, expected_group_token: str | None = None) -> None:
+    grant, scope, person = await require_grant(service, token, "history:read")
+    if expected_group_token is not None and scope.group.token != expected_group_token:
+        raise ReuseError(ReuseReason.REVISION_CONFLICT)
     passport, _ = await accepted_document(service.session, agency_id=grant.agency_id,
         company_id=grant.company_id, traveller_id=person.id, passport_id=passport_id, crypto=service.crypto)
     if passport.status != "accepted":

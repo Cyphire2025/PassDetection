@@ -14,6 +14,7 @@ export function useReturningClaim() {
   const [resendAt, setResendAt] = useState(0);
   const [otpSent, setOtpSent] = useState(false);
   const method = useRef<ClaimStart["method"]>("phone");
+  const groupToken = useRef<string | undefined>(undefined);
   const active = useRef<AbortController | null>(null);
   useEffect(() => () => active.current?.abort(), []);
 
@@ -35,6 +36,9 @@ export function useReturningClaim() {
   const accept = async (next: ClaimTransition, signal: AbortSignal): Promise<void> => {
     if (signal.aborted) return;
     setTransition(next);
+    if (next.stage === "confirm" || next.stage === "recovery") {
+      return accept(await returningApi.authorize(signal), signal);
+    }
     if (next.stage === "identify") {
       if (method.current === "passport") return accept(await returningApi.passport({}, signal), signal);
       if (method.current === "code") { setTransition({ stage: "passport" }); return; }
@@ -45,16 +49,26 @@ export function useReturningClaim() {
       return;
     }
     if (next.stage === "review") {
-      const details = await returningApi.history(signal);
+      const details = await returningApi.history(signal, groupToken.current);
       if (!signal.aborted) setHistory(details);
     }
     if (!signal.aborted) setTransition(next);
   };
 
+  const sendOtp = async (signal: AbortSignal) => {
+    const result = await returningApi.requestOtp(signal);
+    if (!signal.aborted) { setResendAt(Date.now() + result.resend_after_seconds * 1000); setOtpSent(true); }
+  };
+
   return {
     transition, candidates, history, pending, error, resendAt, otpSent,
-    start: (body: ClaimStart) => run(async (signal) => { method.current = body.method; await accept(await returningApi.start(body, signal), signal); }),
-    requestOtp: () => run(async (signal) => { const result = await returningApi.requestOtp(signal); if (!signal.aborted) { setResendAt(Date.now() + result.resend_after_seconds * 1000); setOtpSent(true); } }),
+    start: (body: ClaimStart) => run(async (signal) => {
+      method.current = body.method;
+      groupToken.current = body.group_token;
+      await accept(await returningApi.start(body, signal), signal);
+      if (body.method === "phone") await sendOtp(signal);
+    }),
+    requestOtp: () => run(sendOtp),
     verifyOtp: (code: string) => run(async (signal) => accept(await returningApi.verifyOtp(code, signal), signal)),
     select: (handle: string) => run(async (signal) => accept(await returningApi.selectCandidate(handle, signal), signal)),
     passport: (proof: PassportProof) => run(async (signal) => accept(await returningApi.passport(proof, signal), signal)),

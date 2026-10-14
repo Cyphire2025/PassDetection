@@ -1,6 +1,15 @@
 {
   "version": 1,
   "transaction_services": {
+    "app/application/companies/source_chronology.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Pure continuation encoding uses the already authorized bounded source page, retaining original submission chronology with unknown dates last. It adds no query, document access or identity authority.",
+      "imports": [
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerMatchCaseModel"
+      ]
+    },
     "app/application/mcp/retention_reads.py": {
       "owner": "repository maintainers",
       "review_by": "2026-12-31",
@@ -2707,6 +2716,249 @@
         "app.infrastructure.database.traveller_reuse_models",
         "app.infrastructure.database.traveller_reuse_models.TravellerIdentifierModel",
         "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel",
+        "app.infrastructure.security.traveller_reuse_crypto",
+        "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
+      ]
+    },
+    "app/application/travellers/draft_store.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Typed transaction adapter shares session, scoped encryption and application settings for returning and fresh drafts; it carries no public authority or storage location itself.",
+      "imports": [
+        "app.infrastructure.security.traveller_reuse_crypto",
+        "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
+      ]
+    },
+    "app/application/travellers/drafts.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current grant and person revision locks fence encrypted 24-hour returning draft CRUD and bounded five-image views. Exact browser capabilities cannot authorize history; refresh prunes answers under current group requirements.",
+      "imports": [
+        "app.infrastructure.database.traveller_returning_draft_models",
+        "app.infrastructure.database.traveller_returning_draft_models.TravellerDraftAssetModel",
+        "app.infrastructure.database.traveller_returning_draft_models.TravellerDraftContactProofModel",
+        "app.infrastructure.database.traveller_returning_draft_models.TravellerReturningDraftModel",
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerClaimModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerHistoryGrantModel",
+        "app.infrastructure.repositories.platform_policy_repository",
+        "app.infrastructure.repositories.platform_policy_repository.PlatformPolicyRepository"
+      ]
+    },
+    "app/application/travellers/draft_requirements.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current configured group requirements generate encrypted signatures and prune obsolete trip answers in an already-authorized draft transaction; no independent disclosure or identity authority.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.traveller_returning_draft_models",
+        "app.infrastructure.database.traveller_returning_draft_models.TravellerReturningDraftModel"
+      ]
+    },
+    "app/application/travellers/draft_uploads.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current owner and revision locks reserve at most thirty private temporary assets, release database connections for bounded storage IO, and recheck authority before publication. Superseded temporary files use the durable cleanup outbox; adopted official assets are excluded.",
+      "imports": [
+        "app.infrastructure.database.traveller_returning_draft_models",
+        "app.infrastructure.database.traveller_returning_draft_models.TravellerDraftAssetModel",
+        "app.infrastructure.database.traveller_returning_draft_models.TravellerReturningDraftModel",
+        "app.infrastructure.documents.storage_cleanup",
+        "app.infrastructure.documents.storage_cleanup.stage_storage_cleanup_jobs"
+      ]
+    },
+    "app/application/travellers/draft_contact.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current grant, exact draft owner and contact revision fence staged OTP possession proof. Verification does not mutate canonical contact; only final publication may consume this scoped evidence.",
+      "imports": [
+        "app.infrastructure.database.traveller_returning_draft_models",
+        "app.infrastructure.database.traveller_returning_draft_models.TravellerReturningDraftModel",
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerClaimModel"
+      ]
+    },
+    "app/application/travellers/draft_completion.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "One owner-scoped transaction validates fixed draft expiry, current grant and review versions, publishes through canonical submission rules, promotes staged verified contact, and saves an exact idempotent receipt. Existing past-trip and independently reviewed sources remain protected.",
+      "imports": [
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.ClientOrganizationModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.traveller_returning_draft_models",
+        "app.infrastructure.database.traveller_returning_draft_models.TravellerDraftAssetModel",
+        "app.infrastructure.database.traveller_returning_draft_models.TravellerReturningDraftModel",
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerParticipationModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel",
+        "app.infrastructure.repositories.platform_policy_repository",
+        "app.infrastructure.repositories.platform_policy_repository.PlatformPolicyRepository"
+      ]
+    },
+    "app/application/travellers/draft_publication.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Locked current-trip automatic snapshots alone may enter the existing submission-review transition. Five bounded temporary assets retain actual server extraction observations, preserve accepted historical revisions and enqueue ordinary durable verification without promoting canonical identity.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.PassportSubmissionModel",
+        "app.infrastructure.database.traveller_returning_draft_models",
+        "app.infrastructure.database.traveller_returning_draft_models.TravellerDraftAssetModel",
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerParticipationModel",
+        "app.infrastructure.repositories.client_group_repository",
+        "app.infrastructure.repositories.client_group_repository.ClientGroupRepository",
+        "app.infrastructure.repositories.coordinator_assignment_lifecycle",
+        "app.infrastructure.repositories.coordinator_assignment_lifecycle.current_trip_clause",
+        "app.infrastructure.repositories.passport_submission_repository",
+        "app.infrastructure.repositories.passport_submission_repository.PassportSubmissionRepository",
+        "app.infrastructure.verification.job_repository",
+        "app.infrastructure.verification.job_repository.PostSubmissionVerificationJobRepository"
+      ]
+    },
+    "app/application/travellers/fresh_drafts.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Active group locks and per-member browser capability hashes fence 24-hour encrypted drafts without creating official submissions or granting historical access. Group scope and upload-session identity are rechecked on every operation.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.traveller_returning_draft_models",
+        "app.infrastructure.database.traveller_returning_draft_models.TravellerReturningDraftModel",
+        "app.infrastructure.repositories.client_group_repository",
+        "app.infrastructure.repositories.client_group_repository.ClientGroupRepository",
+        "app.infrastructure.repositories.platform_policy_repository",
+        "app.infrastructure.repositories.platform_policy_repository.PlatformPolicyRepository"
+      ]
+    },
+    "app/application/travellers/fresh_contact.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Exact draft ownership, durable OTP attempt limits and existing shared verification rules stage one encrypted current phone proof. Provider IO occurs outside the database transaction; final completion alone may consume the proof.",
+      "imports": [
+        "app.infrastructure.database.traveller_returning_draft_models",
+        "app.infrastructure.database.traveller_returning_draft_models.TravellerDraftContactProofModel",
+        "app.infrastructure.database.traveller_returning_draft_models.TravellerReturningDraftModel",
+        "app.infrastructure.security.public_upload_otp_rate_limiter",
+        "app.infrastructure.security.public_upload_otp_rate_limiter.PublicUploadOTPRateLimiter"
+      ]
+    },
+    "app/application/travellers/fresh_publication.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Final-only source publication reuses canonical capacity, document, qualifier and ordinary contact submission rules. Temporary assets become adopted in the same transaction as official source creation; failures roll back all business mutations.",
+      "imports": [
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.public_upload_contact_model",
+        "app.infrastructure.database.public_upload_contact_model.PublicUploadContactChallengeModel",
+        "app.infrastructure.database.traveller_returning_draft_models",
+        "app.infrastructure.database.traveller_returning_draft_models.TravellerDraftAssetModel",
+        "app.infrastructure.database.traveller_returning_draft_models.TravellerReturningDraftModel",
+        "app.infrastructure.mobile_group_capacity",
+        "app.infrastructure.mobile_group_capacity.SqlAlchemyGroupPassengerCapacityGuard",
+        "app.infrastructure.repositories.client_group_repository",
+        "app.infrastructure.repositories.client_group_repository.ClientGroupRepository",
+        "app.infrastructure.repositories.passport_submission_repository",
+        "app.infrastructure.repositories.passport_submission_repository.PassportSubmissionRepository"
+      ]
+    },
+    "app/application/travellers/draft_collection.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Final-only fresh and returning draft publication shares the existing locked qualifier validator and selection attachment. Group scope, expiry, choice policy and single-use association remain authoritative; no source or selection is published before the encompassing final transaction commits.",
+      "imports": [
+        "app.infrastructure.repositories.client_group_repository",
+        "app.infrastructure.repositories.client_group_repository.ClientGroupRepository",
+        "app.infrastructure.repositories.passport_submission_repository",
+        "app.infrastructure.repositories.passport_submission_repository.PassportSubmissionRepository",
+        "app.infrastructure.repositories.qualifier_selection_repository",
+        "app.infrastructure.repositories.qualifier_selection_repository.QualifierSelectionRepository",
+        "app.infrastructure.storage.minio_repository",
+        "app.infrastructure.storage.minio_repository.MinioStorageRepository"
+      ]
+    },
+    "app/application/travellers/passport_lookup_index.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "A resumable worker selects at most five hundred missing current-key lookup values using the partial pending index and row skip locks. It writes only tenant/company-scoped derived HMACs from the already encrypted canonical number, without changing identity, review authority, files, contact or trip history; the caller owns the transaction.",
+      "imports": [
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerPassportModel",
+        "app.infrastructure.security.traveller_reuse_crypto",
+        "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
+      ]
+    },
+    "app/application/companies/directory_counts.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Authorised visible-group predicates constrain aggregate submission counts and latest source chronology for only the bounded result page. No source ownership or historical rows are changed.",
+      "imports": [
+        "app.infrastructure.database.company_directory_models",
+        "app.infrastructure.database.company_directory_models.CompanyDirectoryGroupCountModel"
+      ]
+    },
+    "app/application/companies/directory_names.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Tenant/company-scoped HMAC prefixes use the established encryption key service; bounded name normalization produces no plaintext storage or identity authority.",
+      "imports": [
+        "app.infrastructure.security.traveller_reuse_crypto",
+        "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
+      ]
+    },
+    "app/application/companies/directory_projection.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "One company-serialised transaction refreshes a derived encrypted name/rank and indexed source aggregates for one profile. Restartable100-profile backfill and durable coalesced queue admissions preserve all original source rows and identity ownership.",
+      "imports": [
+        "app.infrastructure.database.company_directory_models",
+        "app.infrastructure.database.company_directory_models.CompanyDirectoryGroupCountModel",
+        "app.infrastructure.database.company_directory_models.CompanyDirectoryPersonModel",
+        "app.infrastructure.database.company_directory_models.CompanyDirectoryPrefixModel",
+        "app.infrastructure.database.company_directory_models.CompanyDirectoryQueueModel",
+        "app.infrastructure.database.company_directory_models.CompanyDirectoryStateModel",
+        "app.infrastructure.database.company_directory_queue",
+        "app.infrastructure.database.company_directory_queue.queue_directory_rows",
+        "app.infrastructure.database.gc_mobile_models",
+        "app.infrastructure.database.gc_mobile_models.ClientOrganizationModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerMatchCaseModel",
+        "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel",
+        "app.infrastructure.security.traveller_reuse_crypto",
+        "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
+      ]
+    },
+    "app/application/companies/directory_query.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Current actor/company/group scope bounds100-person keyset reads over tenant-keyed prefix and opaque-rank indexes. Revision/generation-bound cursors and visible-group counters prevent stale or cross-scope private results; no history decrypt or identity mutation occurs.",
+      "imports": [
+        "app.infrastructure.database.company_directory_models",
+        "app.infrastructure.database.company_directory_models.CompanyDirectoryGroupCountModel",
+        "app.infrastructure.database.company_directory_models.CompanyDirectoryPersonModel",
+        "app.infrastructure.database.company_directory_models.CompanyDirectoryPrefixModel",
+        "app.infrastructure.database.company_directory_models.CompanyDirectoryQueueModel",
+        "app.infrastructure.database.models",
+        "app.infrastructure.database.models.ClientGroupModel",
+        "app.infrastructure.database.traveller_reuse_models",
+        "app.infrastructure.database.traveller_reuse_models.TravellerProfileModel",
+        "app.infrastructure.security.traveller_reuse_crypto",
+        "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
+      ]
+    },
+    "app/application/companies/directory_ranks.py": {
+      "owner": "repository maintainers",
+      "review_by": "2026-12-31",
+      "reason": "Background-only encrypted name comparison allocates an opaque order rank with bounded numerical probes and a512-row local rebalance. Derived projection updates never modify source documents or canonical identity ownership.",
+      "imports": [
+        "app.infrastructure.database.company_directory_models",
+        "app.infrastructure.database.company_directory_models.CompanyDirectoryPersonModel",
         "app.infrastructure.security.traveller_reuse_crypto",
         "app.infrastructure.security.traveller_reuse_crypto.TravellerReuseCrypto"
       ]

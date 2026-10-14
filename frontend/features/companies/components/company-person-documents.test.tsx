@@ -18,33 +18,29 @@ beforeEach(() => {
   vi.resetAllMocks();
   useAuthStore.setState({ user, sessionVersion: 1, isChangingAccessLevel: false });
   vi.mocked(companyPeopleApi.documents).mockResolvedValue({ items: [version], next_cursor: null, has_more: false });
+  vi.mocked(companyPeopleApi.sources).mockResolvedValue({ items: [], next_cursor: null, has_more: false });
+  vi.mocked(companyPeopleApi.asset).mockResolvedValue(new Blob(["image"], { type: "image/jpeg" }));
   vi.stubGlobal("URL", Object.assign(URL, { createObjectURL: vi.fn(() => "blob:private-company-document"), revokeObjectURL: vi.fn() }));
 });
 
 describe("company document preview", () => {
-  it("opens original trip documents only on request without treating them as accepted versions", async () => {
+  it("shows original submissions first with inline protected images and a latest label", async () => {
+    vi.mocked(companyPeopleApi.documents).mockResolvedValue({ items: [], has_more: false, next_cursor: null });
     vi.mocked(companyPeopleApi.sources).mockResolvedValue({ items: [{ id: "legacy-source", group_id: "old-group", group_name: "Earlier trip", created_at: "2025-01-01", revision_number: 2, available_sides: ["front"] }], has_more: false, next_cursor: null });
     vi.mocked(companyPeopleApi.sourceAsset).mockResolvedValue(new Blob(["old image"], { type: "image/jpeg" }));
     mount();
-    await screen.findByRole("button", { name: "Original trip documents" });
-    expect(companyPeopleApi.sources).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: "Original trip documents" }));
-    const open = await screen.findByRole("button", { name: "View original front from Earlier trip" });
-    expect(companyPeopleApi.sourceAsset).not.toHaveBeenCalled();
-    fireEvent.click(open);
-    await screen.findByRole("img", { name: "front document" });
+    expect(await screen.findByRole("img", { name: "front document" })).toBeVisible();
+    expect(screen.getByText("Latest submission")).toBeVisible();
+    expect(screen.queryByRole("button", { name: /View original|Open preview/ })).not.toBeInTheDocument();
     expect(companyPeopleApi.sourceAsset).toHaveBeenCalledExactlyOnceWith("agency", "company", "person", "legacy-source", "front", expect.any(AbortSignal));
     expect(companyPeopleApi.asset).not.toHaveBeenCalled();
   });
-  it("fetches one authorized blob only after opening and revokes it on close", async () => {
-    vi.mocked(companyPeopleApi.asset).mockResolvedValue(new Blob(["image"], { type: "image/jpeg" }));
-    mount();
-    const open = await screen.findByRole("button", { name: "View front from version 1" });
-    expect(companyPeopleApi.asset).not.toHaveBeenCalled();
-    fireEvent.click(open);
+  it("loads protected versions inline and revokes their blob when leaving", async () => {
+    const view = mount();
     await screen.findByRole("img", { name: "front document" });
     expect(companyPeopleApi.asset).toHaveBeenCalledExactlyOnceWith("agency", "company", "person", "asset", expect.any(AbortSignal));
-    fireEvent.click(screen.getByRole("button", { name: "Close preview" }));
+    expect(screen.queryByRole("button", { name: /View front/ })).not.toBeInTheDocument();
+    view.unmount();
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:private-company-document");
   });
 
@@ -53,7 +49,6 @@ describe("company document preview", () => {
     let finish!: (value: Blob) => void;
     vi.mocked(companyPeopleApi.asset).mockImplementation((_agency, _company, _person, _asset, nextSignal) => { signal = nextSignal; return new Promise((resolve) => { finish = resolve; }); });
     mount();
-    fireEvent.click(await screen.findByRole("button", { name: "View front from version 1" }));
     await waitFor(() => expect(signal).toBeDefined());
     act(() => useAuthStore.setState({ isChangingAccessLevel: true }));
     expect(signal?.aborted).toBe(true);
@@ -65,9 +60,9 @@ describe("company document preview", () => {
 
 it.each(["review_required", "blocked"])("keeps %s identities locked for document uploads", async (status) => {
   mount({ ...record, status });
-  await screen.findByRole("button", { name: "Original trip documents" });
+  await screen.findByRole("heading", { name: "All submissions" });
   expect(screen.getByRole("button", { name: "Add document version" })).toBeDisabled();
-  expect(screen.getByRole("status")).toHaveTextContent("This identity needs review");
+  expect(screen.getByText("This identity needs review before adding documents.")).toBeVisible();
   expect(screen.queryByLabelText("New image")).not.toBeInTheDocument();
 });
 it("starts the first reviewed passport as a new version with no historical fields prefilled", async () => {

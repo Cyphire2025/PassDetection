@@ -37,6 +37,7 @@ async def stage_submission_side_effects(
     *,
     result: PassportSubmissionOutputDTO,
     contact_proof: PublicUploadContactChallengeModel,
+    sync_broadcast_contacts: bool = True,
 ) -> SubmissionSideEffects:
     """Stage durable work without committing, publishing, or deleting objects."""
     # Proof consumption and submission promotion commit atomically. A failed
@@ -67,7 +68,7 @@ async def stage_submission_side_effects(
             passenger_submission_ids=[result.id],
             actor_user_id=None,
             change_kind="documents",
-            sync_broadcast_contacts=True,
+            sync_broadcast_contacts=sync_broadcast_contacts,
         )
         await AuditLogRepository(session).record(
             action="client_passport_submitted",

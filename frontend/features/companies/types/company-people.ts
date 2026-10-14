@@ -7,6 +7,8 @@ export interface CompanyPerson {
   revision: number;
   trip_count: number;
   document_version_count: number;
+  submission_count: number;
+  latest_submission_at?: string | null;
   duplicate_status: "none" | "possible";
   current_passport_last4: string | null;
 }
@@ -81,6 +83,9 @@ export interface CompanyDocumentUpload {
   fields: Record<string, string>;
 }
 
-export type CompanyPeoplePage = CursorPage<CompanyPerson> & { indexing_pending?: boolean };
+export type CompanyPeoplePage = CursorPage<CompanyPerson> & { indexing_pending?: boolean; indexing_failed?: boolean };
+export type CompanyPeopleSort = "newest" | "name_asc" | "name_desc";
+export type CompanySubmissionFilter = "all" | "one" | "multiple";
+export interface CompanyPeopleSearch { search: string; cursor?: string; sort?: CompanyPeopleSort; submissions?: CompanySubmissionFilter }
 export type CompanyDocumentPage = CursorPage<CompanyDocumentVersion>;
 export interface CompanyOriginalDocument { id: string; group_id: string; group_name: string; created_at: string; revision_number: number; available_sides: string[] }

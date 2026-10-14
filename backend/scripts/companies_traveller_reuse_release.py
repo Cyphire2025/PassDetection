@@ -9,14 +9,15 @@ from pathlib import Path
 from typing import Any
 
 KIND = "companies_traveller_reuse_v1"
-SOURCE = "0133_traveller_document_impact"
+SOURCE = "0135_company_removal_history"
 CHAIN = (
-    "0134_company_data_exports",
-    "0135_company_removal_history",
+    "0136_returning_drafts",
+    "0137_company_directory",
+    "0138_verified_portal_lookup",
 )
 TARGET = CHAIN[-1]
 POLICY = {
-    "version": 2,
+    "version": 3,
     "kind": KIND,
     "source_schema": SOURCE,
     "target_schema": TARGET,
@@ -28,7 +29,11 @@ POLICY = {
     "preservation_baseline": "original_source_sha256_required_across_resume",
     "company_backfill": "none_preserve_existing_assignments",
     "reuse_authority": "preserve_existing_policy_and_evidence",
-    "manager_history": "nullable_company_only_for_revoked_assignments_with_independent_scope_fks",
+    "manager_history": "preserve_existing_rows_and_scope_constraints",
+    "portal_actor_evidence": "add_verified_label_without_relabelling_existing_grants",
+    "passport_lookup": "nullable_keyed_projection_backfilled_after_activation",
+    "company_directory": "encrypted_derived_projection_backfilled_after_activation",
+    "public_drafts": "isolated_expiring_rows_no_automatic_publication",
     "new_tables": "empty_before_activation",
     "new_table_runtime_grants": "require_existing_passport_dml_grantees",
     "recovery": "forward_repair_with_original_backup_and_writer_fence",

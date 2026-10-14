@@ -62,6 +62,7 @@ async def questions_for_claim(
         TravellerChallengeSelectionModel.purpose == "history_reuse",
     ).with_for_update())
     existing = tuple(DocumentQuestion(value) for value in row.fields) if row is not None and utc(row.expires_at) > now else ()
+    existing = existing[:claim.required_question_count]
     try:
         selected = choose_questions(tuple(reliable_answers(revision)), recovery=claim.required_question_count == 2, existing=existing)
     except VerificationFailure as exc:

@@ -37,17 +37,18 @@ async function fixture(page: Page, role = "agency_admin") {
         if (req.method() === "PUT") { expect(Object.keys(body).sort()).toEqual(["enabled", "expected_revision"]); policy = { ...policy, enabled: body.enabled, revision: policy.revision + 1 }; saved.revision++; }
         return respond(route, policy);
       }
-      if (path === `/api/v1/companies/${companyId}/summary`) return respond(route, { completed_groups: 2, current_groups: 1, passenger_trips_completed: 900, active_groups: 1, closed_groups: 1, archived_groups: 1, total_groups: 3, collected_records: 900, unique_travellers: 700, trip_participations: 900, unresolved_historical_records: 0, identity_totals_partial: false });
+      if (path === `/api/v1/companies/${companyId}/summary`) return respond(route, { completed_groups: 2, current_groups: 1, passenger_trips_completed: 600, passenger_trips_total: 900, active_groups: 1, closed_groups: 1, archived_groups: 1, total_groups: 3, collected_records: 900, unique_travellers: 700, trip_participations: 900, unresolved_historical_records: 0, identity_totals_partial: false });
       if (path === `/api/v1/companies/${companyId}/groups`) {
         expect(url.searchParams.get("page_size")).toBe("25");
         expect(["active", "completed"]).toContain(url.searchParams.get("phase"));
         return respond(route, { items: [{ id: url.searchParams.get("phase") === "active" ? "active-trip" : "completed-trip", name: url.searchParams.get("phase") === "active" ? "Japan Autumn" : "Singapore Spring", destination: "Asia", travel_date: "2026-11-01", return_date: "2026-11-08", status: "archived", import_only: true, submission_count: 700, phase: url.searchParams.get("phase") }], next_cursor: null, has_more: false });
       }
-      if (path.endsWith("/people")) { expect(url.searchParams.get("page_size")).toBe("25"); return respond(route, { items: [{ id: personId, display_name: record.display_name, status: "active", revision: record.revision, trip_count: 2, document_version_count: record.current_document.revision_number, duplicate_status: "possible", current_passport_last4: "4567" }], next_cursor: null, has_more: false }); }
+      if (path.endsWith("/people")) { expect(url.searchParams.get("page_size")).toBe("100"); return respond(route, { items: [{ id: personId, display_name: record.display_name, status: "active", revision: record.revision, trip_count: 2, submission_count: 3, document_version_count: record.current_document.revision_number, duplicate_status: "possible", current_passport_last4: "4567" }], next_cursor: null, has_more: false }); }
       if (path.endsWith("/record")) {
         if (req.method() === "PATCH") { expect(body.expected_revision).toBe(record.revision); record = { ...record, display_name: body.display_name, revision: record.revision + 1 }; }
         return respond(route, record);
       }
+      if (path.endsWith("/sources")) return respond(route, { items: [{ id: "source-new", group_id: "active-trip", group_name: "Japan Autumn", created_at: "2026-10-02T00:00:00Z", revision_number: 2, available_sides: ["front"] }, { id: "source-old", group_id: "completed-trip", group_name: "Singapore Spring", created_at: "2026-01-02T00:00:00Z", revision_number: 1, available_sides: [] }], next_cursor: null, has_more: false });
       if (path.endsWith("/documents")) {
         if (req.method() === "POST") {
           const metadataText = req.postData()?.match(/name="metadata"\r\n\r\n([^\r\n]+)\r\n/)?.[1];
@@ -93,8 +94,8 @@ for (const width of [320, 1440]) {
     await expect(page.getByRole("heading", { name: company.name })).toBeVisible();
     await expect(page.getByRole("tab")).toHaveText(["Groups", "Settings", "All data"]);
     await expect(page.getByRole("region", { name: "Company overview" })).toContainText("Completed groups2Active groups1Passenger trips900Unique people700");
-    await expect(page.getByRole("link", { name: "View Japan Autumn" })).toHaveAttribute("href", "/passports/groups/active-trip");
-    await expect(page.getByRole("link", { name: "View Singapore Spring" })).toHaveAttribute("href", "/passports/groups/completed-trip");
+    await expect(page.getByRole("link", { name: "View Japan Autumn" })).toHaveAttribute("href", `/passports/groups/active-trip?returnTo=${encodeURIComponent(`/companies/${companyId}`)}`);
+    await expect(page.getByRole("link", { name: "View Singapore Spring" })).toHaveAttribute("href", `/passports/groups/completed-trip?returnTo=${encodeURIComponent(`/companies/${companyId}`)}`);
     expect(requests.filter((request) => /reuse-policy|\/people/.test(request.path))).toHaveLength(0);
     const countBefore = requests.filter((request) => request.path.includes("/companies")).length;
     await page.evaluate(() => { window.dispatchEvent(new Event("blur")); window.dispatchEvent(new Event("focus")); });
@@ -118,32 +119,36 @@ for (const width of [320, 1440]) {
     await page.getByRole("tab", { name: "All data", exact: true }).click();
     await expect(page.getByText("Example Traveller", { exact: true })).toBeVisible();
     expect(requests.filter((request) => /\/record|\/documents|\/assets\//.test(request.path))).toHaveLength(0);
-    await page.getByRole("button", { name: "Open Example Traveller" }).click();
-    const dialog = page.getByRole("dialog");
-    await expect(dialog.getByText("A1234567", { exact: true })).toBeVisible();
-    expect(requests.filter((request) => /\/documents|\/assets\//.test(request.path))).toHaveLength(0);
-    await dialog.getByRole("button", { name: "Edit details" }).click();
-    await dialog.getByRole("textbox", { name: "Full name", exact: true }).fill("Corrected Traveller");
-    await dialog.getByRole("textbox", { name: "Reason for change", exact: true }).fill("Corrected name spelling");
-    await dialog.getByRole("button", { name: "Save changes", exact: true }).click();
-    await expect(dialog.getByRole("status")).toContainText("Changes saved");
-    await dialog.getByRole("button", { name: "Documents", exact: true }).click();
-    await expect(dialog.getByText("Version 2 · Current", { exact: true })).toBeVisible();
-    await expect(dialog.getByText("Version 1", { exact: true })).toBeVisible();
-    expect(requests.filter((request) => /\/assets\//.test(request.path))).toHaveLength(0);
-    await dialog.getByRole("button", { name: "View front from version 2" }).click();
-    await expect(dialog.getByRole("img", { name: "front document" })).toBeVisible();
-    await dialog.getByRole("button", { name: "Close preview" }).click();
-    await dialog.getByRole("button", { name: "Add document version" }).click();
-    await dialog.getByLabel("New image", { exact: false }).setInputFiles({ name: "updated.png", mimeType: "image/png", buffer: png });
-    await dialog.getByRole("textbox", { name: "Reason for document update", exact: true }).fill("Clearer current image");
-    await dialog.getByRole("checkbox", { name: /I checked this image/ }).check();
-    await dialog.getByRole("button", { name: "Save document version" }).click();
-    await expect(dialog.getByText("Version 3 · Current", { exact: true })).toBeVisible();
-    await expect(dialog.getByText("Version 1", { exact: true })).toBeVisible();
-    expect(await dialog.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+    await page.getByRole("link", { name: "Open Example Traveller" }).click();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect(page).toHaveURL(new RegExp(`/companies/${companyId}/people/${personId}`));
+    await expect(page.getByRole("heading", { name: "All submissions" })).toBeVisible();
+    await expect(page.getByText("Latest submission", { exact: true })).toBeVisible();
+    await expect(page.getByRole("img", { name: "front document" }).first()).toBeVisible();
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({ path: info.outputPath(`company-submissions-${width}.png`), fullPage: true });
+    await page.getByRole("tab", { name: "Current details", exact: true }).click();
+    await expect(page.getByText("A1234567", { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "Edit details" }).click();
+    await page.getByRole("textbox", { name: "Full name", exact: true }).fill("Corrected Traveller");
+    await page.getByRole("textbox", { name: "Reason for change", exact: true }).fill("Corrected name spelling");
+    await page.getByRole("button", { name: "Save changes", exact: true }).click();
+    await expect(page.getByRole("status").filter({ hasText: "Changes saved" })).toContainText("Changes saved");
+    await page.getByRole("tab", { name: "Documents & submissions", exact: true }).click();
+    await expect(page.getByText("Version 2 · Current", { exact: true })).toBeVisible();
+    await expect(page.getByText("Version 1", { exact: true })).toBeVisible();
+    await page.getByText("Version 2 · Current", { exact: true }).scrollIntoViewIfNeeded();
+    await expect(page.getByRole("region", { name: "Saved passport versions" }).getByRole("img", { name: "front document" }).first()).toBeVisible();
+    await page.getByRole("button", { name: "Add document version" }).click();
+    await page.getByLabel("New image", { exact: false }).setInputFiles({ name: "updated.png", mimeType: "image/png", buffer: png });
+    await page.getByRole("textbox", { name: "Reason for document update", exact: true }).fill("Clearer current image");
+    await page.getByRole("checkbox", { name: /I checked this image/ }).check();
+    await page.getByRole("button", { name: "Save document version" }).click();
+    await expect(page.getByText("Version 3 · Current", { exact: true })).toBeVisible();
+    await expect(page.getByText("Version 1", { exact: true })).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.screenshot({ path: info.outputPath(`company-person-${width}.png`), fullPage: true });
-    await dialog.getByRole("button", { name: "Close person record" }).click();
+    await page.getByRole("link", { name: "Back to company" }).click();
     await page.getByRole("button", { name: "Export all images", exact: true }).click();
     await page.getByRole("button", { name: "View files", exact: true }).click();
     await expect(page.getByRole("link", { name: /documents-001.zip/ })).toHaveAttribute("href", `/api/v1/companies/${companyId}/data-exports/export-one/parts/part-1/download?agency_id=${agencyId}`);

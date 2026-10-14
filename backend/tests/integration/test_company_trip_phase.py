@@ -33,6 +33,7 @@ async def test_completed_counts_use_return_day_not_closed_or_archived_status(db_
     assert totals.current_groups == 3
     assert totals.total_groups == 4
     assert totals.passenger_trips_completed == 1
+    assert totals.passenger_trips_total == 4
     assert totals.trip_participations == 4 and totals.unique_travellers == 1
 
 

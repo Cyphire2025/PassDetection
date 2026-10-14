@@ -44,6 +44,7 @@ async def complete_reuse(
     expected_review_version: str,
     owned_source_id: uuid.UUID | None = None, owned_source_revision: int | None = None,
     upload_session_id: str | None = None,
+    commit: bool = True, verified_phone_override: str | None = None,
 ) -> tuple[uuid.UUID, str, uuid.UUID]:
     # Hold one authority transaction through validation and publication. Bind
     # the caller's confirmation to what their browser actually reviewed.
@@ -71,7 +72,7 @@ async def complete_reuse(
         raise ReuseError(ReuseReason.INSUFFICIENT_EVIDENCE)
     saved = cast(TripAnswers, review["saved_answers"])
     details = normalize_current_details(scope.group, policies, {**saved["current_details"], **current_details})
-    phone = review["contact_phone"]
+    phone = verified_phone_override or review["contact_phone"]
     if policies.require_client_phone and not phone:
         raise ValidationError("Verify a current phone number before submitting.", field="client_phone")
     questions = normalize_custom_answers(scope.group.custom_questions,
@@ -91,7 +92,8 @@ async def complete_reuse(
     if participation is not None and participation.confirmations.get("completion_key") == idempotency_key:
         if participation.question_version != requirements_version or participation.confirmations.get("payload_hash") != payload_hash:
             raise ReuseError(ReuseReason.REVISION_CONFLICT)
-        await service.session.commit()
+        if commit:
+            await service.session.commit()
         if participation.source_submission_id is None:
             raise ReuseError(ReuseReason.REVISION_CONFLICT)
         return participation.id, participation.status, participation.source_submission_id
@@ -123,12 +125,22 @@ async def complete_reuse(
             PassportSubmissionModel.id == participation.source_submission_id,
             PassportSubmissionModel.group_id == grant.group_id,
             PassportSubmissionModel.agency_id == grant.agency_id,
-        ).with_for_update())).one_or_none()
+        ).with_for_update().execution_options(populate_existing=True))).one_or_none()
         if source_row is not None:
             source, refresh_current_phone = source_row
+            if not refresh_current_phone:
+                # Prior trips are immutable snapshots, including their answers.
+                raise ReuseError(ReuseReason.REVISION_CONFLICT)
         if source is not None and (source.staff_metadata or {}).get("reuse_document_revision_id") != str(revision.id):
             # An independently uploaded/approved submission must stay in its
             # original review workflow, never be silently rewritten by reuse.
+            raise ReuseError(ReuseReason.REVISION_CONFLICT)
+        if source is not None and (source.status not in {"confirmed", "client_submitted"}
+                or (source.staff_metadata or {}).get("reuse_assignment") not in {"automatic", "traveller"}
+                or source.verification_reviewed_at is not None or source.post_submission_verified_at is not None
+                or source.post_submission_verification is not None):
+            # A reviewed or newly updated document belongs to its verification
+            # workflow. The unchanged-history endpoint cannot reset that state.
             raise ReuseError(ReuseReason.REVISION_CONFLICT)
     keep_operational_acceptance = (participation.status == "accepted" and source is not None
         and (source.staff_metadata or {}).get("reuse_assignment") == "automatic")
@@ -170,5 +182,6 @@ async def complete_reuse(
         reason_code="current_trip_submitted",
     ))
     await record_history_action(service.session, grant, "trip_submitted", reference=str(participation.id))
-    await service.session.commit()
+    if commit:
+        await service.session.commit()
     return participation.id, participation.status, source.id

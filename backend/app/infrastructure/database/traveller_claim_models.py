@@ -57,7 +57,7 @@ class TravellerClaimModel(TravellerRecord, Base):
             name="ck_traveller_claim_status",
         ),
         CheckConstraint(
-            "actor_kind IN ('self','delegate','guardian')", name="ck_traveller_claim_actor"
+            "actor_kind IN ('self','delegate','guardian','verified')", name="ck_traveller_claim_actor"
         ),
         CheckConstraint(
             "failed_answer_sets BETWEEN 0 AND 5 AND required_question_count BETWEEN 0 AND 2",
@@ -205,7 +205,7 @@ class TravellerHistoryGrantModel(TravellerRecord, Base):
         UniqueConstraint("secret_hash", name="uq_traveller_history_grant_secret"),
         UniqueConstraint("claim_id", name="uq_traveller_history_grant_claim"),
         CheckConstraint(
-            "actor_kind IN ('self','delegate','guardian')", name="ck_traveller_grant_actor"
+            "actor_kind IN ('self','delegate','guardian','verified')", name="ck_traveller_grant_actor"
         ),
         CheckConstraint(
             "profile_revision >= 1 AND contact_revision >= 1 AND authorization_version >= 1 AND policy_revision >= 1 AND company_revision >= 1 AND group_revision >= 1",

@@ -14,6 +14,7 @@ from sqlalchemy import select
 from sqlalchemy.dialects import postgresql
 
 from app.application.mobile.otp_provider import OTPDeliveryError
+from app.application.security import public_contact_proof
 from app.domain.entities.entities import ClientGroup, PassportProcessingStatus, PassportSubmission
 from app.infrastructure.database.models import (
     AgencyModel,
@@ -69,6 +70,7 @@ async def rig(db_session, monkeypatch):
         ),
     )
     monkeypatch.setattr(routes, "get_settings", lambda: settings)
+    monkeypatch.setattr(public_contact_proof, "get_settings", lambda: settings)
     provider = SimpleNamespace(send_code=AsyncMock(return_value="fake-message-id"))
     monkeypatch.setattr(routes, "get_otp_provider", lambda: provider)
     limiter = SimpleNamespace(consume=AsyncMock())
@@ -342,6 +344,7 @@ async def test_final_submit_consumes_proof_atomically_and_failed_commit_preserve
         id=rig.submission.id, agency_id=rig.group.agency_id, group_id=rig.group.id,
         image_s3_key="", idempotent_replay=False, storage_cleanup_keys=(), promoted_storage_keys=(),
         submission_mode="single", qualifier_enabled_snapshot=False,
+        extraction_revision=1,
     )
     use_case = SimpleNamespace(execute=AsyncMock(return_value=result))
     if commit_fails:

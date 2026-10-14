@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.travellers.authority import ReuseScope, accepted_document, eligible_person
 from app.application.travellers.errors import ReuseError, ReuseReason
 from app.application.travellers.passport_lookup import (
+    NUMBER_LOOKUP_KEY,
     passport_lookup_fingerprints,
     require_unambiguous_legacy_owner,
 )
@@ -134,10 +135,13 @@ async def resolve_passport(
 ) -> None:
     if (claim.method == "phone" and claim.otp_verified_at is None) or not claim.supplied_passport_fingerprint:
         raise ReuseError(ReuseReason.VERIFICATION_FAILED)
+    number_only = (claim.actor_evidence or {}).get(NUMBER_LOOKUP_KEY) is True
+    lookup = (TravellerPassportModel.number_lookup_fingerprint == claim.supplied_passport_fingerprint
+        if number_only else TravellerPassportModel.number_fingerprint.in_(passport_lookup_fingerprints(claim)))
     passports = list((await session.scalars(select(TravellerPassportModel).where(
         TravellerPassportModel.agency_id == claim.agency_id,
         TravellerPassportModel.company_id == claim.company_id,
-        TravellerPassportModel.number_fingerprint.in_(passport_lookup_fingerprints(claim)),
+        lookup,
         TravellerPassportModel.fingerprint_key_version == crypto.key_version,
         TravellerPassportModel.status.in_(("accepted", "superseded")),
     ).limit(2))).all())

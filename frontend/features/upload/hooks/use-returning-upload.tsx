@@ -3,7 +3,6 @@
 import { type ComponentProps, useState } from "react";
 import dynamic from "next/dynamic";
 import type { UploadLinkResponse } from "@/features/passports/api/upload-links.api";
-import { ReturningTravellerOffer } from "@/features/travellers/components/returning-offer";
 import type { ReplacementIntent, ReturningCapabilities, ReturningMethod } from "@/features/travellers/types";
 import { CenteredLoader } from "../components/upload-flow-shell";
 import { UploadSuccessScreen } from "../components/upload-flow-status";
@@ -20,7 +19,7 @@ const ReturningReplacementStatus = dynamic(
 );
 
 /** The verified-person association lives only for the current in-memory flow. */
-export function useReturningUpload({ token, group, step, onReplace }: {
+export function useReturningUpload({ token, group, onReplace }: {
   token: string;
   group: UploadLinkResponse | undefined;
   step: UploadFlowStep;
@@ -45,7 +44,6 @@ export function useReturningUpload({ token, group, step, onReplace }: {
   /> : null;
   const introduction = <>
     {replacementIntent && <p role="status" className="mb-4 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm leading-6 text-blue-900">Updating the passport for {replacementIntent.displayName}. Upload the current document for this person; staff will review it before future reuse.</p>}
-    {(step === "MODE_SELECT" || step === "QUALIFIER_SELECT") && <ReturningTravellerOffer token={token} onSelect={(method, capabilities) => { clearReplacement(); setSelection({ method, capabilities }); }} />}
   </>;
   const openDetectedHistory = () => { clearReplacement(); setSelection({ method: "passport", capabilities: { enabled: true, code_label: null } }); };
   return { verificationPage, introduction, replacementIntent, clearReplacement, openDetectedHistory };

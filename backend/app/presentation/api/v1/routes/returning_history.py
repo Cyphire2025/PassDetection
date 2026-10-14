@@ -3,7 +3,7 @@
 import uuid
 from datetime import UTC, datetime
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 
@@ -27,8 +27,9 @@ router = APIRouter(dependencies=[Depends(private_boundary)])
 @router.get("/history", response_model=ReturningHistoryResponse)
 async def historical_review(
     token: str = Depends(grant_secret), service: ReturningClaims = Depends(returning_service),
+    group_token: str | None = Query(default=None, min_length=1, max_length=128),
 ) -> ReturningHistoryResponse:
-    return ReturningHistoryResponse.model_validate(await read_history(service, token))
+    return ReturningHistoryResponse.model_validate(await read_history(service, token, expected_group_token=group_token))
 
 
 @router.get("/documents/{asset_id}")

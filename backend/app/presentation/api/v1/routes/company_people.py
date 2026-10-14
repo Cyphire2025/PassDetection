@@ -10,13 +10,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.companies.access import COMPANY_ADMIN_ROLES, require_company
 from app.application.companies.current_record import edit_current_record
+from app.application.companies.directory_query import (
+    DirectoryIndexChanged,
+    DirectorySort,
+    SubmissionFilter,
+    company_directory_page,
+)
 from app.application.companies.people import (
     current_person,
-    directory_items,
     document_items,
-    person_scope,
     require_person,
-    seek_before,
 )
 from app.application.companies.people_contracts import (
     CurrentPerson,
@@ -24,7 +27,6 @@ from app.application.companies.people_contracts import (
     PersonEdit,
     PersonPage,
 )
-from app.application.companies.source_documents import indexing_pending
 from app.application.mcp.read_cursor import MCPReadCursor
 from app.application.travellers.asset_policy import is_reviewable_asset
 from app.application.travellers.history_schedule import schedule_company_history_initialization
@@ -32,7 +34,6 @@ from app.application.travellers.snapshot_access import retained_asset_authority
 from app.core.config.settings import Settings, get_settings
 from app.core.config.traveller_reuse import get_traveller_reuse_settings
 from app.domain.entities.entities import User
-from app.domain.services.traveller_identity import normalize_name
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.database.traveller_reuse_models import (
     TravellerDocumentAssetModel as Asset,
@@ -72,32 +73,21 @@ router.include_router(source_router)
 @router.get("/{company_id}/people", response_model=PersonPage)
 async def people_page(company_id: uuid.UUID, agency_id: uuid.UUID | None = None,
     search: str = Query(default="", max_length=120), cursor: str | None = Query(default=None, max_length=2048),
-    page_size: int = Query(default=25, ge=1, le=100),
+    page_size: int = Query(default=100, ge=1, le=100),
+    sort: DirectorySort = Query(default="name_asc"), submissions: SubmissionFilter = Query(default="all"),
     user: User = Depends(require_role(list(COMPANY_ADMIN_ROLES))), session: AsyncSession = Depends(get_db_session),
     settings: Settings = Depends(get_settings), crypto: TravellerReuseCrypto = Depends(crypto_dependency),
 ) -> PersonPage:
     company = await require_company(session, user=user, company_id=company_id, agency_id=agency_id)
     await schedule_company_history_initialization(session, company=company)
-    normalized = normalize_name(search)
-    codec = MCPReadCursor(settings.app_secret_key, "company-all-people-v1")
     try:
-        state = codec.read(cursor, {"actor": str(user.id), "agency": str(company.agency_id),
-            "company": str(company.id), "search": normalized})
+        return await company_directory_page(session, user=user, agency_id=company.agency_id,
+            company_id=company.id, crypto=crypto, secret=settings.app_secret_key, search=search,
+            sort=sort, submissions=submissions, cursor=cursor, page_size=page_size)
+    except DirectoryIndexChanged as exc:
+        raise HTTPException(409, {"code": "DIRECTORY_CHANGED", "message": str(exc)}) from exc
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
-    query = person_scope(user, company.agency_id, company.id).where(Person.created_at <= datetime.fromisoformat(state["cutoff"]))
-    if normalized:
-        try:
-            query = query.where(Person.id == uuid.UUID(normalized))
-        except ValueError:
-            query = query.where(Person.name_fingerprint == crypto.scoped_digest("name", company.agency_id, company.id, normalized),
-                Person.fingerprint_key_version == crypto.key_version)
-    rows = list((await session.scalars(seek_before(query, codec.after(state))
-        .order_by(Person.created_at.desc(), Person.id.desc()).limit(page_size + 1))).all())
-    more, rows = len(rows) > page_size, rows[:page_size]
-    return PersonPage(items=await directory_items(session, rows, user, crypto), has_more=more,
-        indexing_pending=await indexing_pending(session, company.agency_id, company.id),
-        next_cursor=codec.next(state, {"id": rows[-1].id, "created_at": rows[-1].created_at}) if more else None)
 
 
 @router.get("/{company_id}/people/{person_id}/record", response_model=CurrentPerson)

@@ -194,11 +194,14 @@ async def enroll_submission(
         passport = TravellerPassportModel(agency_id=request.agency_id, company_id=request.company_id,
             traveller_id=person.id, issuing_country=issuer, document_type=kind,
             number_ciphertext=crypto.encrypt(number), number_fingerprint=fingerprint,
+            number_lookup_fingerprint=crypto.scoped_digest("passport-number", request.agency_id, request.company_id, number),
             fingerprint_key_version=crypto.key_version, status="candidate")
         session.add(passport)
         await session.flush()
     elif passport.status in {"lost", "cancelled", "compromised", "rejected", "disputed"}:
         raise EnrollmentError("unusable_document_cannot_be_reactivated")
+    if passport.number_lookup_fingerprint is None:
+        passport.number_lookup_fingerprint = crypto.scoped_digest("passport-number", request.agency_id, request.company_id, number)
     last_number = await session.scalar(select(func.max(TravellerDocumentRevisionModel.revision_number)).where(
         TravellerDocumentRevisionModel.passport_id == passport.id,
     ))

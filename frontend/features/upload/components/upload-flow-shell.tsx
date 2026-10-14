@@ -20,14 +20,14 @@ export function UploadHeader({ groupName, departureDate, returnDate }: {
     ? [{ label, value, display: travelDateFormatter.format(new Date(`${value}T00:00:00Z`)) }]
     : []);
   return (
-    <div className="mb-5 text-center sm:mb-8 lg:mb-10">
+    <div className="mb-6 text-center sm:mb-8">
       <BrandLogo
-        className="mx-auto mb-4 h-16 w-[240px] sm:mb-6 sm:h-20 sm:w-[300px]"
+        className="mx-auto mb-5 h-12 w-[190px] sm:h-14 sm:w-[210px]"
         priority
       />
-      <h1 className="mb-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:mb-3 sm:text-3xl">Upload Travel Documents</h1>
+      <h1 className="mb-2 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">Your travel details</h1>
       <p className="mx-auto max-w-md text-sm leading-relaxed text-slate-500 sm:text-base">
-        Global Connect Travels has requested passport details for
+        Prepare your documents for a smooth journey.
       </p>
       <div className="mt-2 inline-flex max-w-full rounded-full bg-blue-50 px-3 py-1 font-semibold text-blue-600">
         <span className="truncate">{groupName}</span>
@@ -89,6 +89,10 @@ export function BackButton({ onClick }: { onClick: () => void }) {
   );
 }
 
+export function PortalBackButton({ onBack }: { onBack?: () => void }) {
+  return onBack ? <BackButton onClick={onBack} /> : null;
+}
+
 export function ErrorMessage({ message }: { message: string | null }) {
   if (!message) return null;
   return (
@@ -115,7 +119,7 @@ export function CenteredLoader() {
 
 export function CenteredShell({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4">
+    <div className="traveller-portal flex min-h-screen flex-col items-center justify-center px-4">
       {children}
     </div>
   );

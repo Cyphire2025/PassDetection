@@ -258,16 +258,18 @@ class CompaniesRetainedUpdate(RetainedUpdate):
         self.verify_migration_identity()
         live = self.record['live']
         try:
-            self.event('cutover-starting')
+            self.event('precutover-draining')
             self.stop(bound_original(live['email-beat']))
-            self.stop(bound_original(live['nginx']))
             wait_for_idle(live)
-            for name in ('backend', 'frontend', *WORKERS):
+            for name in WORKERS:
+                self.stop(bound_original(live[name]))
+            self.event('cutover-starting')
+            for name in ('nginx', 'backend', 'frontend'):
                 self.stop(bound_original(live[name]))
             self.migrate()
             self.activate_candidates()
         except BaseException:
-            # Never restart a 0129 writer after even one additive revision commits.
+            # Never restart a source-schema writer after an additive revision commits.
             # A helper timeout may still mean running DDL: retain it, do not retry.
             self.hold_candidates()
             raise

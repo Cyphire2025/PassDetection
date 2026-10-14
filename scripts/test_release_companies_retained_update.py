@@ -134,7 +134,8 @@ class AdditiveContracts(unittest.TestCase):
     def test_actual_scheduler_is_additive_and_old_schedule_change_rejected(self):
         path = 'backend/app/infrastructure/processing/celery_app.py'
         new = (ROOT / path).read_text()
-        additions = ('"app.infrastructure.travellers.company_export_tasks"', '"export-company-data":')
+        additions = ('"app.infrastructure.travellers.draft_tasks"', '"app.infrastructure.travellers.directory_tasks"',
+                     '"process-returning-drafts":', '"refresh-company-directory":')
         old = '\n'.join(line for line in new.splitlines() if not any(value in line for value in additions))
         validate_scheduler(old, new)
         with self.assertRaises(ValueError):
@@ -148,7 +149,10 @@ class AdditiveContracts(unittest.TestCase):
             validate_task_change('backend/app/tasks.py', old, old.replace('(value)', '(value, extra)'))
         with self.assertRaisesRegex(ValueError, 'unreviewed_new'):
             validate_task_change('backend/app/tasks.py', '', old)
-        validate_task_change('backend/app/infrastructure/travellers/company_export_tasks.py', '', old)
+        path = 'backend/app/infrastructure/travellers/draft_tasks.py'
+        validate_task_change(path, '', (ROOT / path).read_text())
+        with self.assertRaisesRegex(ValueError, 'new_queued_task_contract_changed'):
+            validate_task_change(path, '', old)
 
     def test_target_environment_changes_only_schema_and_revision(self):
         row = select_live(live_rows(), schema=SOURCE)['backend']
@@ -206,7 +210,7 @@ class AdditiveContracts(unittest.TestCase):
             release.recover.assert_not_called()
             self.assertEqual(release.record['phase'], 'forward-recovery-required')
 
-    def test_transition_drains_after_ingress_fencing_before_stopping_workers(self):
+    def test_transition_drains_and_stops_workers_before_ingress_fencing(self):
         release = release_fixture()
         live = release.record['live']
         order = []
@@ -215,7 +219,7 @@ class AdditiveContracts(unittest.TestCase):
         release.activate_candidates = Mock()
         def drain(containers):
             self.assertIs(containers, live)
-            self.assertEqual(order, [live['email-beat']['Id'], live['nginx']['Id']])
+            self.assertEqual(order, [live['email-beat']['Id']])
             release.migrate.assert_not_called()
         with patch('release_companies_retained_update.bound_original', side_effect=lambda row: row), \
                 patch('release_companies_retained_update.wait_for_idle', side_effect=drain) as wait:
@@ -234,7 +238,7 @@ class AdditiveContracts(unittest.TestCase):
                 self.assertRaisesRegex(ValueError, 'unavailable'):
             release.transition(release.record['candidates'])
         self.assertEqual([call.args[0]['Id'] for call in release.stop.call_args_list],
-                         [live['email-beat']['Id'], live['nginx']['Id']])
+                         [live['email-beat']['Id']])
         release.migrate.assert_not_called()
         release.activate_candidates.assert_not_called()
         release.hold_candidates.assert_called_once()

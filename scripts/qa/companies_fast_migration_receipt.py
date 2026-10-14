@@ -33,13 +33,16 @@ def validate_inner(output: str, expected_contract: str) -> dict[str, Any]:
         raise ValueError("Rehearsal schema, PostgreSQL version or scope differs")
     required = ("preserved_historical_rows_catalog_acl", "new_tables_empty_before_activation",
                 "runtime_grants_nonempty", "wrong_baseline_rejected_before_ddl", "manager_constraints_verified",
-                "export_ddl_rollback_verified", "manager_ddl_rollback_verified", "split_migration_role_verified")
+                "draft_ddl_rollback_verified", "directory_ddl_rollback_verified", "lookup_ddl_rollback_verified",
+                "split_migration_role_verified")
     if any(value.get(key) is not True for key in required):
         raise ValueError("A required preservation or failure scenario was not proven")
-    if value.get("export_ddl_rollback") != {"exit_code": 74, "rolled_back_revision": CHAIN[0]}:
-        raise ValueError("The failed export DDL must restore the complete original revision")
-    if value.get("manager_ddl_rollback") != {"exit_code": 76, "rolled_back_revision": CHAIN[1]}:
-        raise ValueError("The failed manager DDL must restore the committed export checkpoint")
+    if value.get("draft_ddl_rollback") != {"exit_code": 74, "rolled_back_revision": CHAIN[0]}:
+        raise ValueError("The failed draft DDL must restore the complete original revision")
+    if value.get("directory_ddl_rollback") != {"exit_code": 76, "rolled_back_revision": CHAIN[1]}:
+        raise ValueError("The failed directory DDL must restore the committed draft checkpoint")
+    if value.get("lookup_ddl_rollback") != {"exit_code": 77, "rolled_back_revision": CHAIN[2]}:
+        raise ValueError("The failed lookup DDL must restore the committed directory checkpoint")
     if value.get("bootstrap_identity_rejection") != {"exit_code": 75, "reason": "existing_migration_identity_required"}:
         raise ValueError("A distinct bootstrap administrator must be rejected as the migration identity")
     counts = value["historical_row_counts"]
@@ -47,7 +50,8 @@ def validate_inner(output: str, expected_contract: str) -> dict[str, Any]:
         raise ValueError("The full 700-person durable roster was not exercised")
     if any(counts.get(name) != count for name, count in {
             "traveller_profiles": 1, "traveller_passports": 1, "traveller_document_revisions": 3,
-            "traveller_match_cases": 3,
+            "traveller_match_cases": 3, "traveller_document_assets": 2, "traveller_reconciliation_jobs": 1,
+            "traveller_claims": 3, "traveller_history_grants": 3,
             "client_manager_group_assignments": 1}.items()):
         raise ValueError("Retained document versions and manager assignment fixture are required")
     dump = value["dump"]
@@ -63,8 +67,8 @@ def validate_inner(output: str, expected_contract: str) -> dict[str, Any]:
     baseline_hash = baseline.get("preservation_sha256", "")
     if (baseline.get("status") != "baseline_captured" or re.fullmatch(r"[a-f0-9]{64}", baseline_hash) is None
             or value.get("interruption") != {"exit_code": 73, "interrupted_before": CHAIN[1]}
-            or resume.get("status") != "upgraded" or resume.get("started_schema") != CHAIN[0]
-            or resume.get("executed_revisions") != list(CHAIN[1:])
+            or resume.get("status") != "upgraded" or resume.get("started_schema") != CHAIN[1]
+            or resume.get("executed_revisions") != list(CHAIN[2:])
             or noop.get("status") != "already_at_target" or noop.get("started_schema") != TARGET
             or noop.get("executed_revisions") != []):
         raise ValueError("Checkpoint interruption, forward resume and target idempotency must be proven")
@@ -77,7 +81,7 @@ def validate_inner(output: str, expected_contract: str) -> dict[str, Any]:
            for key in ("new_tables_empty", "runtime_grants_verified")):
         raise ValueError("Target table and runtime grant invariants were not proven")
     return {"checks": dict.fromkeys(CHECKS, True), "fixture_person_count": 700,
-            "export_ddl_rollback_verified": True, "manager_ddl_rollback_verified": True,
+            "draft_ddl_rollback_verified": True, "directory_ddl_rollback_verified": True, "lookup_ddl_rollback_verified": True,
             "split_migration_role_verified": True,
             "inner_rehearsal_sha256": digest_json(value), "populated_backup": dump,
             "preservation_sha256": baseline_hash, "backup_clients": clients}
